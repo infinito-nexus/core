@@ -93,7 +93,7 @@ jobs:
 
       - name: Upload deploy logs
         if: ${{ always() && env.ACT != 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: deploy-logs-workstation-${{ matrix.app }}
           path: logs/
