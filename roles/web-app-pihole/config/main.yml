@@ -9,6 +9,7 @@ server:
     aliases: []
 compose:
   services:
+    # noqa: shared
     oauth2:
       enabled:          true
       origin:

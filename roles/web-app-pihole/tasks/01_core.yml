@@ -1,0 +1,20 @@
+- include_tasks: utils/once/flag.yml
+
+- name: "Setup container network for {{ application_id }}"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network.yml'] | path_join }}"
+  vars:
+    docker_network_name:            "{{ PIHOLE_NETWORK }}"
+    docker_network_subnet:          "{{ networks.local[application_id].subnet }}"
+    docker_compose_flush_handlers:  false
+
+- name: "Load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    docker_compose_flush_handlers: false
+
+- name: "Flush handlers"
+  meta: flush_handlers
+
+- name: "Run Pi-hole setup routines"
+  include_tasks: 01_setup.yml
