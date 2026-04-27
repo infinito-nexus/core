@@ -106,8 +106,8 @@ Key configuration options in \`config/main.yml\`:
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
+Developed and maintained by **Evangelos Tsakoudis**.  
+Learn more at [www.evangelostsak.com](https://evangelostsak.com)
 
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
 License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
