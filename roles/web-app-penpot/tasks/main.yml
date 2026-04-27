@@ -14,3 +14,15 @@
 - name: deploy penpot compose stack
   include_role:
     name: sys-svc-compose
+
+# Wait for frontend to respond on published port
+# Frontend depends on backend, so if frontend responds, backend must be ready
+- name: "Wait for Penpot frontend to respond"
+  uri_retry:
+    url: "http://localhost:{{ ports.localhost.http[application_id] }}/"
+    status_code: 200
+    timeout: 10
+  register: frontend_ready
+  retries: 120
+  delay: 5
+  until: frontend_ready is succeeded
