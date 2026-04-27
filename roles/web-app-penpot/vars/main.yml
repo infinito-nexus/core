@@ -39,10 +39,7 @@ PENPOT_OIDC_ENABLED:              "{{ lookup('config', application_id, 'compose.
 PENPOT_LDAP_ENABLED:              "{{ lookup('config', application_id, 'compose.services.ldap.enabled', false) }}"
 
 ## Docker
-PENPOT_CONFIG_DIRECTORY:          "{{ lookup('container', application_id, 'directories.config') }}"
-PENPOT_INSTANCE_DIRECTORY:        "{{ lookup('container', application_id, 'directories.instance') }}"
 PENPOT_ASSETS_VOLUME:             "{{ lookup('config', application_id, 'compose.volumes.assets') }}"
-PENPOT_DATABASE_VOLUME:           "{{ lookup('database', application_id, 'volume') }}"
 
 # Docker compose
 docker_compose_flush_handlers:    true
