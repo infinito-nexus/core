@@ -120,7 +120,10 @@ const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 // Wait for Penpot backend to be ready before running any tests
 // This handles the Java backend startup time (SSL certs, DB migrations, etc.)
+// Set timeout to 16 minutes (960s) to accommodate 15-minute backend readiness wait
 test.beforeAll(async ({ request }) => {
+  test.setTimeout(960000); // 16 minutes (15min wait + 1min buffer)
+  
   const backendUrl = `${penpotBaseUrl}/api/rpc/command/get-profile`;
   const maxAttempts = 180; // 15 minutes (180 * 5s)
   const delayMs = 5000; // 5 seconds between retries
