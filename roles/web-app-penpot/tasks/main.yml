@@ -27,11 +27,15 @@
   delay: 5
   until: frontend_ready is succeeded
 
-# Additional wait for Penpot JavaScript app to fully initialize in browser
-# Frontend HTTP 200 means nginx is up, but the SPA needs time to load and render
-# CI environments need longer initialization time due to resource constraints
-# Increased to 180s to ensure both SPA initialization and backend readiness
-- name: "Wait for Penpot application to fully initialize"
-  ansible.builtin.pause:
-    seconds: 180
-  when: frontend_ready is succeeded
+# Wait for Penpot backend API to be ready
+# Frontend HTTP 200 means nginx is up, but backend API needs to respond for SPA to work
+# Poll backend API endpoint until it responds successfully
+- name: "Wait for Penpot backend API to respond"
+  uri_retry:
+    url: "http://localhost:{{ ports.localhost.http[application_id] }}/api/main/methods/get-profile"
+    status_code: [200, 401, 403]  # Accept auth errors - means API is responding
+    timeout: 10
+  register: backend_ready
+  retries: 180  # 180 retries × 5s = 15 minutes max
+  delay: 5
+  until: backend_ready is succeeded
