@@ -15,27 +15,6 @@
   include_role:
     name: sys-svc-compose
 
-# Wait for frontend to respond on published port
-# Frontend depends on backend, so if frontend responds, backend must be ready
-- name: "Wait for Penpot frontend to respond"
-  uri_retry:
-    url: "http://localhost:{{ ports.localhost.http[application_id] }}/"
-    status_code: 200
-    timeout: 10
-  register: frontend_ready
-  retries: 120
-  delay: 5
-  until: frontend_ready is succeeded
-
-# Wait for Penpot backend API to be ready
-# Frontend HTTP 200 means nginx is up, but backend API needs to respond for SPA to work
-# Poll backend API endpoint until it responds successfully
-- name: "Wait for Penpot backend API to respond"
-  uri_retry:
-    url: "http://localhost:{{ ports.localhost.http[application_id] }}/api/main/methods/get-profile"
-    status_code: [200, 401, 403]  # Accept auth errors - means API is responding
-    timeout: 10
-  register: backend_ready
-  retries: 180  # 180 retries × 5s = 15 minutes max
-  delay: 5
-  until: backend_ready is succeeded
+# No uri_retry waits needed - Penpot has no post-deploy Ansible configuration.
+# Playwright tests have generous built-in timeouts (60-120s) that handle slow startup.
+# This matches the pattern used by most other web-app-* roles (Taiga, Discourse, Matrix, etc.)
