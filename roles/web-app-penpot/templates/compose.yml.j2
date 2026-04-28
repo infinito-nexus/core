@@ -14,6 +14,9 @@
       - PENPOT_PUBLIC_URI
       - PENPOT_BACKEND_URI
       - PENPOT_EXPORTER_URI
+{% if PENPOT_OIDC_ENABLED | bool %}
+      - PENPOT_OIDC_NAME
+{% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     depends_on:
       - backend
@@ -58,6 +61,7 @@
       - PENPOT_OIDC_TOKEN_URI
       - PENPOT_OIDC_USER_URI
       - PENPOT_OIDC_SCOPES
+      - PENPOT_OIDC_NAME
       - JAVA_OPTS=-Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit
 {% endif %}
 {% if PENPOT_LDAP_ENABLED | bool %}

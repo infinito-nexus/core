@@ -262,8 +262,9 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
   
   if ((await oidcButton.count().catch(() => 0)) === 0) {
     // Fallback: Look for OIDC login button with various possible labels
-    // Button text comes from i18n key "auth.login-with-oidc-submit"
+    // Button text comes from i18n key "auth.login-with-oidc-submit" or PENPOT_OIDC_NAME
     const oidcButtonPatterns = [
+      /sso\s+with\s+infinito\.nexus/i,
       /log\s*in\s+with\s+oidc/i,
       /login\s+with\s+oidc/i,
       /sign\s*in\s+with\s+oidc/i,
