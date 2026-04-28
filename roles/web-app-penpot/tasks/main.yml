@@ -26,3 +26,11 @@
   retries: 120
   delay: 5
   until: frontend_ready is succeeded
+
+# Additional wait for Penpot JavaScript app to fully initialize in browser
+# Frontend HTTP 200 means nginx is up, but the SPA needs time to load and render
+# CI environments need longer initialization time due to resource constraints
+- name: "Wait for Penpot application to fully initialize"
+  ansible.builtin.pause:
+    seconds: 90
+  when: frontend_ready is succeeded
