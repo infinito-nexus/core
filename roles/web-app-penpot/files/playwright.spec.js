@@ -253,8 +253,10 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
   // Wait for page to fully load including JavaScript bundle
   await page.waitForLoadState("networkidle", { timeout: 60_000 });
   
-  // Wait for login page container to appear
-  await expect(page.locator("body")).toBeVisible({ timeout: 30_000 });
+  // Wait for Penpot login page structure to render (indicates JavaScript initialized)
+  // The login page has class patterns like main_ui_auth_login or auth-content
+  const loginContainer = page.locator("div[class*='main_ui_auth_login'], div[class*='auth'], form[class*='login']").first();
+  await expect(loginContainer, `${personaLabel}: login container`).toBeVisible({ timeout: 120_000 });
   
   // Penpot OIDC button has specific CSS class: main_ui_auth_login__btn-oidc-auth
   // Try finding by class first, then fallback to text patterns
