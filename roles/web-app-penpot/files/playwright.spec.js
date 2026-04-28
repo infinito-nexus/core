@@ -118,6 +118,44 @@ const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
+// Wait for Penpot backend to be ready before running any tests
+// This handles the Java backend startup time (SSL certs, DB migrations, etc.)
+test.beforeAll(async ({ request }) => {
+  const backendUrl = `${penpotBaseUrl}/api/rpc/command/get-profile`;
+  const maxAttempts = 180; // 15 minutes (180 * 5s)
+  const delayMs = 5000; // 5 seconds between retries
+  
+  console.log(`Waiting for Penpot backend at ${backendUrl}...`);
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await request.post(backendUrl, {
+        data: {},
+        headers: { "Content-Type": "application/json" },
+        ignoreHTTPSErrors: true,
+        timeout: 10000, // 10s request timeout
+      });
+      
+      // Backend is ready if it responds with 200 (authenticated), 401 (auth required), or 403 (forbidden)
+      // All these statuses mean the backend API is processing requests
+      if ([200, 401, 403].includes(response.status())) {
+        console.log(`Backend ready after ${attempt} attempts (${Math.round(attempt * delayMs / 1000)}s)`);
+        return;
+      }
+      
+      console.log(`Attempt ${attempt}/${maxAttempts}: Backend returned ${response.status()}, retrying...`);
+    } catch (error) {
+      console.log(`Attempt ${attempt}/${maxAttempts}: Backend not ready (${error.message}), retrying...`);
+    }
+    
+    if (attempt < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+  
+  throw new Error(`Penpot backend did not become ready after ${maxAttempts} attempts (${maxAttempts * delayMs / 1000}s)`);
+});
+
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(dashboardBaseUrl, "APP_BASE_URL must be set (dashboard entry)").toBeTruthy();
