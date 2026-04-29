@@ -9,14 +9,6 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     volumes:
       - assets:/opt/data/assets:ro
-    environment:
-      - PENPOT_FLAGS
-      - PENPOT_PUBLIC_URI
-      - PENPOT_BACKEND_URI
-      - PENPOT_EXPORTER_URI
-{% if PENPOT_OIDC_ENABLED | bool %}
-      - PENPOT_OIDC_NAME
-{% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     depends_on:
       redis:
@@ -51,49 +43,6 @@
 {% if PENPOT_OIDC_ENABLED | bool %}
       - /usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro
 {% endif %}
-    environment:
-      - PENPOT_FLAGS
-      - PENPOT_PUBLIC_URI
-      - PENPOT_SECRET_KEY
-      - PENPOT_DATABASE_USERNAME
-      - PENPOT_DATABASE_PASSWORD
-      - PENPOT_DATABASE_URI
-      - PENPOT_REDIS_URI
-      - PENPOT_OBJECTS_STORAGE_BACKEND
-      - PENPOT_OBJECTS_STORAGE_FS_DIRECTORY
-{% if email.enabled | bool %}
-      - PENPOT_SMTP_DEFAULT_FROM
-      - PENPOT_SMTP_DEFAULT_REPLY_TO
-      - PENPOT_SMTP_HOST
-      - PENPOT_SMTP_PORT
-      - PENPOT_SMTP_USERNAME
-      - PENPOT_SMTP_PASSWORD
-      - PENPOT_SMTP_TLS
-{% endif %}
-{% if PENPOT_OIDC_ENABLED | bool %}
-      - PENPOT_OIDC_CLIENT_ID
-      - PENPOT_OIDC_CLIENT_SECRET
-      - PENPOT_OIDC_BASE_URI
-      - PENPOT_OIDC_AUTH_URI
-      - PENPOT_OIDC_TOKEN_URI
-      - PENPOT_OIDC_USER_URI
-      - PENPOT_OIDC_SCOPES
-      - PENPOT_OIDC_NAME
-      - JAVA_OPTS=-Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit
-{% endif %}
-{% if PENPOT_LDAP_ENABLED | bool %}
-      - PENPOT_LDAP_HOST
-      - PENPOT_LDAP_PORT
-      - PENPOT_LDAP_SSL
-      - PENPOT_LDAP_STARTTLS
-      - PENPOT_LDAP_BASE_DN
-      - PENPOT_LDAP_BIND_DN
-      - PENPOT_LDAP_BIND_PASSWORD
-      - PENPOT_LDAP_USER_QUERY
-      - PENPOT_LDAP_ATTRS_USERNAME
-      - PENPOT_LDAP_ATTRS_EMAIL
-      - PENPOT_LDAP_ATTRS_FULLNAME
-{% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
       redis:
@@ -103,9 +52,6 @@
     container_name: {{ PENPOT_EXPORTER_CONTAINER }}
     image: {{ PENPOT_EXPORTER_IMAGE }}:{{ PENPOT_EXPORTER_VERSION }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
-      - PENPOT_PUBLIC_URI
-      - PENPOT_REDIS_URI
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     depends_on:
       redis:
