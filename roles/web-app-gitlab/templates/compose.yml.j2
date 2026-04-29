@@ -6,8 +6,8 @@
     container_name:  "{{ GITLAB_CONTAINER }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80"
-      - "{{ports.public.ssh[application_id]}}:22"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.gitlab.ports.local.http') }}:80"
+      - "{{lookup('config', application_id, 'services.gitlab.ports.public.ssh')}}:22"
     volumes:
       - 'config:/etc/gitlab'
       - 'logs:/var/log/gitlab'

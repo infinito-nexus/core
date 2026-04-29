@@ -1,0 +1,17 @@
+chromium:
+  password_manager_enabled: false
+  default_installation_mode: allowed
+  plugins:
+  - id: cjpalhdlnbpafiamejdnhcphjbkeiagm
+    update_url: https://clients2.google.com/service/update2/crx
+    incognito: true
+    installation_mode: force_installed
+  - id: ddkjiahejlhfcafbddmgiahcphecmpfh
+    update_url: https://clients2.google.com/service/update2/crx
+    incognito: false
+    installation_mode: force_installed
+  - id: dmghijelimhndkbmpgbldicpogfkceaj
+    update_url: https://clients2.google.com/service/update2/crx
+    incognito: true
+    installation_mode: force_installed
+  lifecycle: pre-alpha

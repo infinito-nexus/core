@@ -25,7 +25,7 @@ For suppressions used by opt-in external checks, see [external.md](external.md).
 
 | Comment | Placement | Affected test | Effect |
 |---|---|---|---|
-| `# noqa: shared` | Line directly above `shared:` in `config/main.yml` | [test_service_shared_consistency.py](../../../../tests/lint/ansible/test_service_shared_consistency.py) | Skips shared-consistency validation for that service |
+| `# noqa: shared` | Line directly above `shared:` in `meta/services.yml` | [test_service_shared_consistency.py](../../../../tests/lint/ansible/test_service_shared_consistency.py) | Skips shared-consistency validation for that service |
 | `# run_once_<key>: deactivated` | Inside the task file, on the task entry | [test_run_once_tags.py](../../../../tests/lint/ansible/test_run_once_tags.py) | Suppresses the run-once tag warning for that specific task key |
 
 ## Running Specific Lint Tests 🏃

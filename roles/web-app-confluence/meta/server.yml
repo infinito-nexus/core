@@ -1,0 +1,16 @@
+status_codes:
+  default: 302
+csp:
+  whitelist: {}
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-inline: true
+domains:
+  canonical:
+  - c.wiki.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.101.16/28

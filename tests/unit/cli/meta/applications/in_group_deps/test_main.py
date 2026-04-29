@@ -66,7 +66,7 @@ class TestInGroupDepsResolver(unittest.TestCase):
     def test_service_dependency_included(self) -> None:
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"matomo": {"enabled": True, "shared": True}}}
+            "services": {"matomo": {"enabled": True, "shared": True}}
         }
 
         result = self._run_helper(["web-svc-legal"], applications=apps)
@@ -76,7 +76,7 @@ class TestInGroupDepsResolver(unittest.TestCase):
     def test_direct_database_service_name_is_resolved(self) -> None:
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"mariadb": {"enabled": True, "shared": True}}}
+            "services": {"mariadb": {"enabled": True, "shared": True}}
         }
 
         result = self._run_helper(["web-svc-legal"], applications=apps)

@@ -2,26 +2,17 @@ galaxy_info:
   author: Kevin Veen-Birchenbach
   description: Installs CopyQ clipboard manager on Pacman-based systems and configures autostart for the current user.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: 'Kevin Veen-Birchenbach
-    Consulting & Coaching Solutions
-    https://www.veen.world
-    '
+  company: 'Kevin Veen-Birchenbach Consulting & Coaching Solutions https://www.veen.world '
   galaxy_tags:
-  - copyq
-  - clipboard
-  - manager
-  - gui
-  - cli
-  logo:
-    class: fa fa-clipboard
-  repository: https://s.infinito.nexus/code
+    - copyq
+    - clipboard
+    - manager
+    - gui
+    - cli
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/tree/main/roles/desk-copyq
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - all
-  lifecycle: pre-alpha
+    - name: Archlinux
+      versions:
+        - all
 dependencies: []

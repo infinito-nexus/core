@@ -1,0 +1,20 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist: {}
+domains:
+  aliases: []
+  canonical:
+  - fider.{{ DOMAIN_PRIMARY }}
+status_codes:
+  default:
+  - 200
+  - 301
+  - 302
+  - 405
+networks:
+  local:
+    subnet: 192.168.104.208/28

@@ -1,17 +1,17 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: >
-    Generic E2E Playwright runner role that auto-discovers application roles providing
-    templates/playwright.env.j2 and files/playwright.spec.js, renders a .env file,
-    optionally waits for the app to become reachable, and runs Playwright in a pinned
-    container image with central package/config defaults.
+  description: 'Generic E2E Playwright runner role that auto-discovers application roles providing templates/playwright.env.j2 and files/playwright.spec.js, renders a .env file, optionally waits for the app to become reachable, and runs Playwright in a pinned container image with central package/config defaults.
+
+    '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
-  min_ansible_version: "2.9"
+
+    '
+  min_ansible_version: '2.9'
   platforms:
     - name: all
   galaxy_tags:
@@ -21,5 +21,4 @@ galaxy_info:
     - playwright
     - docker
     - automation
-  lifecycle: beta
 dependencies: []

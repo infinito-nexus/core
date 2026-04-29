@@ -21,7 +21,7 @@ The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_dat
 
 ## Talk TURN and STUN
 
-When `compose.services.talk.enabled` is true, Nextcloud Talk MUST use the dedicated `web-svc-coturn` service for STUN and TURN instead of the HPB port exposed by `web-app-nextcloud`.
+When `services.talk.enabled` is true, Nextcloud Talk MUST use the dedicated `web-svc-coturn` service for STUN and TURN instead of the HPB port exposed by `web-app-nextcloud`.
 
 Check these admin URLs after deployment:
 

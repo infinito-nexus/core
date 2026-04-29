@@ -18,7 +18,7 @@
     container_name: "{{ BOOKWYRM_CONTAINER }}"
     hostname: "{{ BOOKWYRM_HOSTNAME }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.bookwyrm.ports.local.http') }}:{{ container_port }}"
     volumes:
       - 'data:/app/data'
       - 'media:/app/media'

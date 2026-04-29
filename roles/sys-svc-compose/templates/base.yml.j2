@@ -5,11 +5,11 @@ services:
 {% include 'roles/sys-svc-rdbms/templates/services/main.yml.j2' %}
 {% endif %}
 {# Load Redis #}
-{% if lookup('applications') | is_docker_service_enabled(application_id, 'redis') or lookup('config',application_id, 'compose.services.oauth2.enabled', False) %}
+{% if lookup('applications') | is_docker_service_enabled(application_id, 'redis') or lookup('config',application_id, 'services.oauth2.enabled', False) %}
 {% include 'roles/svc-db-redis/templates/service.yml.j2' %}
 {% endif %}
 {# Load OAuth2 Proxy #}
-{% if lookup('config',application_id, 'compose.services.oauth2.enabled', False) %}
+{% if lookup('config',application_id, 'services.oauth2.enabled', False) %}
 {% include 'roles/web-app-oauth2-proxy/templates/container.yml.j2' %}
 {% endif %}
 {{ "\n" }}

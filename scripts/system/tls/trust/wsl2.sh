@@ -6,7 +6,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../../meta/env/runtime.sh"
 [[ "${IS_WSL2}" == "true" ]] || exit 0
 
-CONTAINER="${INFINITO_CONTAINER:-infinito_nexus_debian}"
+# Source project defaults so INFINITO_CONTAINER auto-derives from
+# INFINITO_DISTRO (single SPOT in scripts/meta/env/defaults.sh) — no
+# local fallback derivation here.
+# shellcheck source=scripts/meta/env/defaults.sh
+source "${SCRIPT_DIR}/../../../meta/env/defaults.sh"
+CONTAINER="${INFINITO_CONTAINER}"
 CA_SRC="/etc/infinito.nexus/ca/root-ca.crt"
 CA_NAME="infinito-root-ca.crt"
 

@@ -1,6 +1,6 @@
 - name: Load memberof module in OpenLDAP (cn=config via EXTERNAL)
   ansible.builtin.shell: >-
-    container exec -i {{ OPENLDAP_CONTAINER }}
+    container exec -i {{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}
     ldapmodify -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/01_member_of_configuration.ldif'] | path_join }}"
   listen:
@@ -16,7 +16,7 @@
 
 - name: Load refint module in OpenLDAP (cn=config via EXTERNAL)
   ansible.builtin.shell: >-
-    container exec -i {{ OPENLDAP_CONTAINER }}
+    container exec -i {{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}
     ldapmodify -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/04_refint_module.ldif'] | path_join }}"
   listen:
@@ -32,7 +32,7 @@
 
 - name: Add memberof overlay (cn=config via EXTERNAL)
   ansible.builtin.shell: >-
-    container exec -i {{ OPENLDAP_CONTAINER }}
+    container exec -i {{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}
     ldapadd -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/02_member_of_configuration.ldif'] | path_join }}"
   listen:
@@ -42,7 +42,7 @@
 
 - name: Add refint overlay (cn=config via EXTERNAL)
   ansible.builtin.shell: >-
-    container exec -i {{ OPENLDAP_CONTAINER }}
+    container exec -i {{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}
     ldapadd -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/03_member_of_configuration.ldif'] | path_join }}"
   listen:
@@ -52,7 +52,7 @@
 
 - name: Import users, groups, etc. to LDAP (data tree)
   ansible.builtin.shell: >-
-    container exec -i {{ OPENLDAP_CONTAINER }} ldapadd -x
+    container exec -i {{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }} ldapadd -x
     -D "{{ OPENLDAP_BIND_DN }}"
     -w "{{ OPENLDAP_BIND_PW }}"
     -c

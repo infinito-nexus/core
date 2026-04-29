@@ -1,0 +1,25 @@
+credentials:
+  shared_secret:
+    description: Shared secret for BigBlueButton API authentication
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$
+  etherpad_api_key:
+    description: API key for Etherpad integration
+    algorithm: random_hex_32
+    validation: ^[a-zA-Z0-9]{32}$
+  rails_secret:
+    description: Secret key for Rails backend
+    algorithm: random_hex
+    validation: ^[a-f0-9]{128}$
+  postgresql_secret:
+    description: Password for PostgreSQL user
+    algorithm: random_hex_32
+    validation: ^[a-zA-Z0-9]{32}$
+  fsesl_password:
+    description: Password for FreeSWITCH ESL connection
+    algorithm: random_hex
+    validation: ^.{8,}$
+  turn_secret:
+    description: TURN server shared secret
+    algorithm: sha1
+    validation: ^[a-f0-9]{40}$

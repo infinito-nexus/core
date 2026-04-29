@@ -1,0 +1,51 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+minio:
+  backup:
+    no_stop_required: false
+  image: quay.io/minio/minio
+  version: latest
+  name: minio
+  min_storage: 20GB
+  cpus: '2.0'
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 2048
+  run_after:
+  - web-app-keycloak
+  - web-app-matomo
+  lifecycle: pre-alpha
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: true
+  shared: true
+javascript:
+  enabled: false
+  shared: true
+ollama:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true
+api:
+  ports:
+    local:
+      http: 8057
+console:
+  ports:
+    local:
+      http: 8058

@@ -16,8 +16,8 @@
 {% set container_healthcheck = 'web/health' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.websocket[application_id] }}:{{ container_websocket_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.odoo.ports.local.http') }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.odoo.ports.local.websocket') }}:{{ container_websocket_port }}"
     environment:
       - HOST={{ ODOO_DB_HOST }}
       - USER={{ ODOO_DB_USER }}

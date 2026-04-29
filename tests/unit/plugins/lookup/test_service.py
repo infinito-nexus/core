@@ -47,15 +47,13 @@ class TestServiceDirect(unittest.TestCase):
     def setUp(self):
         self.applications = {
             "web-app-foo": {
-                "compose": {
-                    "services": {
-                        "matomo": {"enabled": True, "shared": True},
-                        "css": {"enabled": True, "shared": False},
-                        "logout": {"enabled": False, "shared": True},
-                    }
+                "services": {
+                    "matomo": {"enabled": True, "shared": True},
+                    "css": {"enabled": True, "shared": False},
+                    "logout": {"enabled": False, "shared": True},
                 }
             },
-            "web-app-bar": {"compose": {"services": {}}},
+            "web-app-bar": {"services": {}},
         }
 
     def _get(self, term, group_names=None):
@@ -121,14 +119,10 @@ class TestServiceDirect(unittest.TestCase):
 class TestServiceTransitive(unittest.TestCase):
     def setUp(self):
         self.applications = {
-            "web-app-nextcloud": {
-                "compose": {"services": {"collab": {"enabled": True}}}
-            },
+            "web-app-nextcloud": {"services": {"collab": {"enabled": True}}},
             "web-svc-collab": {
-                "compose": {
-                    "services": {
-                        "matomo": {"enabled": True, "shared": True},
-                    }
+                "services": {
+                    "matomo": {"enabled": True, "shared": True},
                 }
             },
         }
@@ -144,10 +138,8 @@ class TestServiceTransitive(unittest.TestCase):
 
     def test_transitive_requires_shared_at_target(self):
         applications = {
-            "web-app-nextcloud": {
-                "compose": {"services": {"collab": {"enabled": True}}}
-            },
-            "web-svc-collab": {"compose": {"services": {"matomo": {"enabled": True}}}},
+            "web-app-nextcloud": {"services": {"collab": {"enabled": True}}},
+            "web-svc-collab": {"services": {"matomo": {"enabled": True}}},
         }
         result = _run(
             ["matomo"],
@@ -171,17 +163,13 @@ class TestServiceDiscoveryWithoutExplicitRegistry(unittest.TestCase):
     def test_role_local_provider_metadata_is_discovered_from_applications(self):
         applications = {
             "web-app-dashboard": {
-                "compose": {
-                    "services": {
-                        "dashboard": {"enabled": False, "shared": True},
-                    }
+                "services": {
+                    "dashboard": {"enabled": False, "shared": True},
                 }
             },
             "web-app-foo": {
-                "compose": {
-                    "services": {
-                        "dashboard": {"enabled": True, "shared": True},
-                    }
+                "services": {
+                    "dashboard": {"enabled": True, "shared": True},
                 }
             },
         }
@@ -193,30 +181,24 @@ class TestServiceDiscoveryWithoutExplicitRegistry(unittest.TestCase):
     def test_provides_and_canonical_are_discovered_from_provider_configs(self):
         applications = {
             "web-app-keycloak": {
-                "compose": {
-                    "services": {
-                        "keycloak": {
-                            "enabled": False,
-                            "shared": True,
-                            "provides": "oidc",
-                        }
+                "services": {
+                    "keycloak": {
+                        "enabled": False,
+                        "shared": True,
+                        "provides": "oidc",
                     }
                 }
             },
             "web-svc-cdn": {
-                "compose": {
-                    "services": {
-                        "cdn": {"enabled": False, "shared": True},
-                        "css": {"enabled": False, "shared": True, "canonical": "cdn"},
-                    }
+                "services": {
+                    "cdn": {"enabled": False, "shared": True},
+                    "css": {"enabled": False, "shared": True, "canonical": "cdn"},
                 }
             },
             "web-app-foo": {
-                "compose": {
-                    "services": {
-                        "oidc": {"enabled": True, "shared": True},
-                        "css": {"enabled": True, "shared": False},
-                    }
+                "services": {
+                    "oidc": {"enabled": True, "shared": True},
+                    "css": {"enabled": True, "shared": False},
                 }
             },
         }
@@ -234,8 +216,8 @@ class TestServiceDiscoveryWithoutExplicitRegistry(unittest.TestCase):
 class TestServiceCycleGuard(unittest.TestCase):
     def test_cycle_does_not_loop(self):
         applications = {
-            "svc-a": {"compose": {"services": {"svc-b": {"enabled": True}}}},
-            "svc-b": {"compose": {"services": {"svc-a": {"enabled": True}}}},
+            "svc-a": {"services": {"svc-b": {"enabled": True}}},
+            "svc-b": {"services": {"svc-a": {"enabled": True}}},
         }
         service_registry = {
             "svc-a": {"role": "svc-a"},
@@ -253,14 +235,12 @@ class TestServiceCycleGuard(unittest.TestCase):
     def test_cycle_found_if_service_present(self):
         applications = {
             "svc-a": {
-                "compose": {
-                    "services": {
-                        "svc-b": {"enabled": True},
-                        "logout": {"enabled": True, "shared": True},
-                    }
+                "services": {
+                    "svc-b": {"enabled": True},
+                    "logout": {"enabled": True, "shared": True},
                 }
             },
-            "svc-b": {"compose": {"services": {"svc-a": {"enabled": True}}}},
+            "svc-b": {"services": {"svc-a": {"enabled": True}}},
         }
         service_registry = {
             "svc-a": {"role": "svc-a"},

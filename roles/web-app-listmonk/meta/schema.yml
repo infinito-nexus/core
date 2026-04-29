@@ -1,0 +1,14 @@
+credentials:
+  administrator_password:
+    description: Initial password for the Listmonk administrator account
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$
+  hcaptcha:
+    key:
+      description: Runtime credential value imported from meta/services.yml for 'key'.
+      algorithm: plain
+      default: '{{ CAPTCHA.HCAPTCHA.KEY | default('''') }}'
+    secret:
+      description: Runtime credential value imported from meta/services.yml for 'secret'.
+      algorithm: plain
+      default: '{{ CAPTCHA.HCAPTCHA.SECRET | default('''') }}'

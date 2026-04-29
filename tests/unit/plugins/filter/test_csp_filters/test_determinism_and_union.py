@@ -8,7 +8,7 @@ class TestCspDeterminismAndUnion(unittest.TestCase):
         self.filter = FilterModule()
         self.apps = {
             "app1": {
-                "compose": {"services": {"matomo": {"enabled": False}}},
+                "services": {"matomo": {"enabled": False}},
                 "server": {
                     "csp": {
                         "whitelist": {"connect-src": []},

@@ -1,9 +1,9 @@
 # General
 application_id:     "web-app-sphinx"
 entity_name:        "{{ application_id | get_entity_name }}"
-container_port:     "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.port') }}"
+container_port:     "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.inter') }}"
 
 # Sphinx
-SPHINX_VERSION:     "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
-SPHINX_IMAGE:       "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-SPHINX_CONTAINER:   "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
+SPHINX_VERSION:     "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+SPHINX_IMAGE:       "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+SPHINX_CONTAINER:   "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"

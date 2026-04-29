@@ -2,8 +2,7 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Provisions a local Root CA (self-signed, CA:TRUE) for trusting internal TLS endpoints. Produces /etc/infinito.nexus/ca/root-ca.crt for sys-svc-compose-ca injection.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: "Kevin Veen-Birkenbach Consulting & Coaching Solutions https://www.veen.world"
+  company: Kevin Veen-Birkenbach Consulting & Coaching Solutions https://www.veen.world
   galaxy_tags:
     - tls
     - ssl
@@ -11,13 +10,10 @@ galaxy_info:
     - certificates
     - openssl
     - infinito
-  repository: https://s.infinito.nexus/code
   issue_tracker_url: https://s.infinito.nexus/issues
-  min_ansible_version: "2.9"
+  min_ansible_version: '2.9'
   platforms:
     - name: Any
       versions:
         - all
-  lifecycle: beta
-
 dependencies: []

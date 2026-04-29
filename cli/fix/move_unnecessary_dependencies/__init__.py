@@ -1,17 +1,10 @@
-"""Compatibility wrapper.
+"""Move unnecessary meta dependencies to guarded include_role/import_role.
 
-This package was migrated from a flat module (move_unnecessary_dependencies.py) to a package layout:
-  move_unnecessary_dependencies/__main__.py contains the original implementation.
+Run via ``python3 -m cli.fix.move_unnecessary_dependencies``. The
+implementation is split across:
 
-We re-export the public API so existing imports keep working.
+* ``__main__`` — argparse + per-role orchestration.
+* ``analysis`` — provider / consumer static analysis.
+* ``apply`` — YAML rewrite + include-block prepending.
+* ``yaml_io`` — ruamel round-trip helpers + role-tree discovery.
 """
-
-from __future__ import annotations
-
-from . import __main__ as _main
-
-__all__ = getattr(_main, "__all__", [n for n in dir(_main) if not n.startswith("_")])
-globals().update({name: getattr(_main, name) for name in __all__})
-
-# Prefer explicit __all__ if the original module defined it.
-__all__ = getattr(_main, "__all__", [n for n in dir(_main) if not n.startswith("_")])

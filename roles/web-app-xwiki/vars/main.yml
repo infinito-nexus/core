@@ -7,7 +7,7 @@ container_hostname:                   "{{ domain }}"
 
 # XWiki
 
-XWIKI_HOST_PORT:                      "{{ ports.localhost.http[application_id] }}"
+XWIKI_HOST_PORT:                      "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
 
 ## URLs
 XWIKI_HOSTNAME:                       "{{ container_hostname }}"
@@ -18,19 +18,21 @@ XWIKI_DOCK_DATA_DIR:                  "/usr/local/xwiki"
 
 ## Docker
 XWIKI_IMAGE_CUSTOM:                   "xwiki_custom"
-XWIKI_IMAGE:                          "{{ lookup('config', application_id, 'compose.services.xwiki.image') }}"
-XWIKI_VERSION:                        "{{ lookup('config', application_id, 'compose.services.xwiki.version') }}"
-XWIKI_CONTAINER:                      "{{ lookup('config', application_id, 'compose.services.xwiki.name') }}"
-XWIKI_DATA_VOLUME:                    "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+XWIKI_IMAGE:                          "{{ lookup('config', application_id, 'services.xwiki.image') }}"
+XWIKI_VERSION:                        "{{ lookup('config', application_id, 'services.xwiki.version') }}"
+XWIKI_CONTAINER:                      "{{ lookup('config', application_id, 'services.xwiki.name') }}"
+XWIKI_DATA_VOLUME:                    "{{ lookup('config', application_id, 'volumes.data') }}"
 
-# Feature toggles (must be set in config/main.yml -> features)
-XWIKI_LDAP_ENABLED:                   "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
-XWIKI_OIDC_ENABLED:                   "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+# Feature toggles (must be set in meta/services.yml -> features)
+XWIKI_LDAP_ENABLED:                   "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+XWIKI_OIDC_ENABLED:                   "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 XWIKI_SSO_ENABLED:                    "{{ (XWIKI_OIDC_ENABLED | bool) or (XWIKI_LDAP_ENABLED | bool) }}"
 
 # Admin credentials (must be provided via inventory/vault)
 XWIKI_ADMIN_USER:                     "{{ lookup('users', 'administrator').username }}"
-XWIKI_ADMIN_GROUP:                    "{{ application_id }}-administrator"
+# Role-name part only. The full hierarchical DN / OIDC path are built
+# via lookup('rbac_group_path') below.
+XWIKI_ADMIN_GROUP:                    "administrator"
 
 # Superadministrator
 XWIKI_SUPERADMIN_PASSWORD:            "{{ lookup('config', application_id, 'credentials.superadminpassword') }}"
@@ -49,9 +51,9 @@ XWIKI_LDAP_PORT:                      "{{ LDAP.SERVER.PORT }}"
 XWIKI_LDAP_BASE_DN:                   "{{ LDAP.DN.ROOT }}"
 XWIKI_LDAP_BIND_DN:                   "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 XWIKI_LDAP_BIND_PASS:                 "{{ LDAP.BIND_CREDENTIAL }}"
-XWIKI_LDAP_TRYLOCAL:                  "{{ lookup('config', application_id, 'compose.services.ldap.trylocal') }}"
+XWIKI_LDAP_TRYLOCAL:                  "{{ lookup('config', application_id, 'services.ldap.trylocal') }}"
 XWIKI_LDAP_FIELDS_MAPPING:            "last_name={{ LDAP.USER.ATTRIBUTES.SURNAME }},first_name={{ LDAP.USER.ATTRIBUTES.FIRSTNAME }},email={{ LDAP.USER.ATTRIBUTES.MAIL }}"
-XWIKI_LDAP_ADMIN_GROUP_DN:            "cn={{ XWIKI_ADMIN_GROUP ~ ',' ~ LDAP.DN.OU.GROUPS }}"
+XWIKI_LDAP_ADMIN_GROUP_DN:            "cn={{ XWIKI_ADMIN_GROUP }},ou={{ application_id }},{{ LDAP.DN.OU.ROLES }}"
 
 # OIDC configuration (must exist in OIDC.* context)
 XWIKI_OIDC_PROVIDER:                  "{{ OIDC.CLIENT.ISSUER_URL }}"
@@ -63,12 +65,12 @@ XWIKI_OIDC_CLIENT_ID:                 "{{ OIDC.CLIENT.ID }}"
 XWIKI_OIDC_CLIENT_SECRET:             "{{ OIDC.CLIENT.SECRET }}"
 XWIKI_OIDC_SCOPES:                    "openid,email,profile,{{ RBAC.GROUP.CLAIM }}"
 XWIKI_OIDC_GROUPS_CLAIM:              "{{ RBAC.GROUP.CLAIM }}"
-XWIKI_OIDC_ADMIN_PROVIDER_GROUP:      "{{ [RBAC.GROUP.NAME, XWIKI_ADMIN_GROUP] | path_join }}"
+XWIKI_OIDC_ADMIN_PROVIDER_GROUP:      "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 
-# Collect enabled plugin items from config/main.yml
+# Collect enabled plugin items from meta/services.yml
 XWIKI_PLUGINS: >-
   {{
-    (lookup('config',application_id, 'plugins'))
+    (lookup('config', application_id, 'services.xwiki.plugins'))
     | dict2items | selectattr('value.enabled','equalto', true)
     | map(attribute='value.items') | list | sum(start=[])
   }}

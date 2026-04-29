@@ -1,28 +1,19 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Boost your development journey with Gitea, a lightweight and energetic self-hosted Git service that offers
-    efficient code collaboration, intuitive version control, and an agile environment for your projects. Ignite your coding
-    spirit, innovate faster, and code with confidence!
+  description: Boost your development journey with Gitea, a lightweight and energetic self-hosted Git service that offers efficient code collaboration, intuitive version control, and an agile environment for your projects. Ignite your coding spirit, innovate faster, and code with confidence!
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - gitea
-  - docker
-  - git
-  - self-hosted
-  - version control
-  repository: https://s.infinito.nexus/code
+    - gitea
+    - docker
+    - git
+    - self-hosted
+    - version control
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-code
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
-  lifecycle: beta
 dependencies: []

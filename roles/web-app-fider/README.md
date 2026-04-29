@@ -15,7 +15,7 @@ The setup tasks handle the full first-deploy bootstrap automatically:
 3. **Tenant activation:** sets `status=1` on the tenant row so Fider serves the public page.
 4. **OIDC provider:** inserts the Keycloak provider into `oauth_providers`. Idempotent via `ON CONFLICT (tenant_id, provider) DO UPDATE`.
 
-When a user logs in via Keycloak for the first time, Fider matches their email to the existing admin user and links the OIDC provider automatically. To enable SSO, set `compose.services.oidc.enabled: true` (the default) and ensure `OIDC.CLIENT.SECRET` is configured.
+When a user logs in via Keycloak for the first time, Fider matches their email to the existing admin user and links the OIDC provider automatically. To enable SSO, set `services.oidc.enabled: true` (the default) and ensure `OIDC.CLIENT.SECRET` is configured.
 
 ## Features
 
@@ -27,14 +27,14 @@ When a user logs in via Keycloak for the first time, Fider matches their email t
 
 ## Configuration
 
-Key settings in `config/main.yml`:
+Key settings in `meta/services.yml` and `meta/server.yml`:
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `compose.services.oidc.enabled` | `true` | Automate Keycloak OIDC setup |
-| `compose.services.postgres.enabled` | `true` | Enable PostgreSQL for Fider |
-| `compose.services.postgres.shared` | `true` | Reuse the shared PostgreSQL provider |
-| `compose.services.fider.version` | `stable` | Docker image tag |
+| `services.oidc.enabled` | `true` | Automate Keycloak OIDC setup |
+| `services.postgres.enabled` | `true` | Enable PostgreSQL for Fider |
+| `services.postgres.shared` | `true` | Reuse the shared PostgreSQL provider |
+| `services.fider.version` | `stable` | Docker image tag |
 | `server.domains.canonical` | `fider.{{ DOMAIN_PRIMARY }}` | Public domain |
 | `server.status_codes.default` | `[200, 301, 302, 405]` | Expected HTTP codes for health check (405 because Fider returns 405 on HEAD requests to `/`) |
 

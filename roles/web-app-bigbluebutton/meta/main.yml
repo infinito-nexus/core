@@ -1,31 +1,21 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Transform online learning and collaboration with BigBlueButton, an interactive web conferencing solution designed
-    to energize virtual classrooms and meetings. Enjoy dynamic tools and an engaging environment that makes every session
-    a powerful learning experience.
+  description: Transform online learning and collaboration with BigBlueButton, an interactive web conferencing solution designed to energize virtual classrooms and meetings. Enjoy dynamic tools and an engaging environment that makes every session a powerful learning experience.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - docker
-  - bigbluebutton
-  - conferencing
-  - greenlight
-  - sso
-  - oidc
-  - ldap
-  - video
-  - conference
-  repository: https://s.infinito.nexus/code
+    - docker
+    - bigbluebutton
+    - conferencing
+    - greenlight
+    - sso
+    - oidc
+    - ldap
+    - video
+    - conference
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-chalkboard-teacher
-  run_after:
-  - web-app-keycloak
-  lifecycle: beta

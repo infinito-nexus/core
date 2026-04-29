@@ -2,22 +2,18 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Generic role to manage reverse DNS (PTR) for Hetzner Cloud resources (server, primary_ip, floating_ip, load_balancer).
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - hetzner
-  - dns
-  - rdns
-  - ptr
-  - mail
-  repository: https://s.infinito.nexus/code
+    - hetzner
+    - dns
+    - rdns
+    - ptr
+    - mail
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-server
-  run_after: []
-  lifecycle: beta
 dependencies: []

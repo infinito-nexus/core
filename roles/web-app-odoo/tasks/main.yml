@@ -33,7 +33,7 @@
 
 - name: "Wait for Odoo to be ready"
   uri_retry:
-    url: "http://127.0.0.1:{{ ports.localhost.http[application_id] }}/web/health"
+    url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.odoo.ports.local.http') }}/web/health"
     status_code: 200
     timeout: 10
   register: odoo_health

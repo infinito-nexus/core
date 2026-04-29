@@ -19,7 +19,7 @@ def resource_filter(
 ):
     """
     Lookup order:
-      1) compose.services.<service_name or get_entity_name(application_id)>.<key>
+      1) services.<service_name or get_entity_name(application_id)>.<key>
       2) hard_default (mandatory)
 
     - service_name may be "" → will resolve to get_entity_name(application_id).
@@ -33,7 +33,7 @@ def resource_filter(
         return get(
             applications,
             application_id,
-            f"compose.services.{primary_service}.{key}",
+            f"services.{primary_service}.{key}",
             False,
             hard_default,
         )

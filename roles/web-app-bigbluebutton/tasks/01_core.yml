@@ -5,8 +5,8 @@
   vars:
     docker_compose_flush_handlers:  false
     docker_git_repository_pull:     true
-    docker_git_repository_address:  "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.repository') }}"
-    docker_git_repository_version:   "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+    docker_git_repository_address:  "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
+    docker_git_repository_version:   "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
     webserver_extra_configuration: >-
       {{ lookup(
            'ansible.builtin.template',

@@ -1,0 +1,15 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-eval: true
+domains:
+  canonical:
+  - taiga.kanban.{{ DOMAIN_PRIMARY }}
+networks:
+  local:
+    subnet: 192.168.102.176/28

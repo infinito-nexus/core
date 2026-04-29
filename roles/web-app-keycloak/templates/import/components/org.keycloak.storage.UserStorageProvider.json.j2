@@ -146,10 +146,18 @@
           "membership.attribute.type": [ "DN" ],
           "group.name.ldap.attribute": [ "cn" ],
           "membership.user.ldap.attribute": [ "dn" ],
-          "preserve.group.inheritance": [ "true" ],
+          "preserve.group.inheritance": [ "false" ],
           "groups.dn": [ "{{ LDAP.DN.OU.ROLES }}" ],
           "mode": [ "LDAP_ONLY" ],
           "user.roles.retrieve.strategy": [ "LOAD_GROUPS_BY_MEMBER_ATTRIBUTE" ],
+          {# The default 'ldap-roles' mapper is created by 05_ldap.yml so
+             the assert/05_ldap.yml contract (exactly one canonical
+             mapper) still passes; tasks/update/05c_per_app_mappers.yml
+             then deletes it and replaces it with one
+             group-ldap-mapper per deployed application. The filter
+             below is the historical "all LDAP groupOfNames + posixGroup"
+             expression so the dictionary stays self-consistent on
+             intermediate states (greenfield init, retried deploys). #}
           "groups.ldap.filter": ["{{ LDAP.RBAC.FLAVORS | ldap_groups_filter }}"],
           "membership.ldap.attribute": [ "member" ],
           "ignore.missing.groups": [ "true" ],

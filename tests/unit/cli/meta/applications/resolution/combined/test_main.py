@@ -28,20 +28,26 @@ def _write_meta(root: Path, role: str, text: str) -> None:
     p.write_text(text, encoding="utf-8")
 
 
+def _write_meta_services_run_after(
+    root: Path, role: str, *, run_after: list[str]
+) -> None:
+    """Write meta/services.yml with the role's primary entity and run_after."""
+    import yaml
+
+    p = root / "roles" / role / "meta" / "services.yml"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    # For role names without a known category prefix, get_entity_name returns
+    # the role name itself.
+    p.write_text(yaml.safe_dump({role: {"run_after": run_after}}), encoding="utf-8")
+
+
 class TestCombinedMain(unittest.TestCase):
     def test_main_list_output(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             _mk_role(root, "app", app_id="app")
             _mk_role(root, "ra1", app_id="ra1")
-            _write_meta(
-                root,
-                "app",
-                """
-galaxy_info:
-  run_after: [ra1]
-""",
-            )
+            _write_meta_services_run_after(root, "app", run_after=["ra1"])
 
             with patch.object(repo_paths, "repo_root_from_here", return_value=root):
                 buf = io.StringIO()
@@ -56,14 +62,7 @@ galaxy_info:
             root = Path(td)
             _mk_role(root, "app", app_id="app")
             _mk_role(root, "ra1", app_id="ra1")
-            _write_meta(
-                root,
-                "app",
-                """
-galaxy_info:
-  run_after: [ra1]
-""",
-            )
+            _write_meta_services_run_after(root, "app", run_after=["ra1"])
 
             with patch.object(repo_paths, "repo_root_from_here", return_value=root):
                 buf = io.StringIO()

@@ -1,0 +1,7 @@
+domains:
+  canonical:
+  - jenkins.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.104.224/28

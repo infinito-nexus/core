@@ -2,21 +2,21 @@
 # General
 application_id:             web-svc-onlyoffice
 domain:                     "{{ lookup('domain',application_id) }}"
-http_port:                  "{{ ports.localhost.http[application_id] }}"
+http_port:                  "{{ lookup('config', application_id, 'services.onlyoffice.ports.local.http') }}"
 container_port:             80   # OnlyOffice DocumentServer Standardport
 entity_name:                "{{ application_id | get_entity_name }}"
 
 # ONLYOFFICE
-ONLYOFFICE_CONTAINER:       "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
-ONLYOFFICE_IMAGE:           "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-ONLYOFFICE_VERSION:         "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+ONLYOFFICE_CONTAINER:       "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+ONLYOFFICE_IMAGE:           "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+ONLYOFFICE_VERSION:         "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 ONLYOFFICE_JWT_SECRET:      "{{ lookup('config', application_id, 'credentials.onlyoffice_jwt_secret') }}"
 
 ## Volumes
-ONLYOFFICE_VOLUME_DATA:     "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-ONLYOFFICE_VOLUME_LOGS:     "{{ lookup('config', application_id, 'compose.volumes.logs') }}"
-ONLYOFFICE_VOLUME_FONTS:    "{{ lookup('config', application_id, 'compose.volumes.fonts') }}"
-ONLYOFFICE_VOLUME_LIB:      "{{ lookup('config', application_id, 'compose.volumes.lib') }}"
-ONLYOFFICE_VOLUME_PGDATA:   "{{ lookup('config', application_id, 'compose.volumes.pgdata') }}"
-ONLYOFFICE_VOLUME_REDIS:    "{{ lookup('config', application_id, 'compose.volumes.redisdata') }}"
-ONLYOFFICE_VOLUME_RABBITMQ: "{{ lookup('config', application_id, 'compose.volumes.rabbitmqdata') }}"
+ONLYOFFICE_VOLUME_DATA:     "{{ lookup('config', application_id, 'volumes.data') }}"
+ONLYOFFICE_VOLUME_LOGS:     "{{ lookup('config', application_id, 'volumes.logs') }}"
+ONLYOFFICE_VOLUME_FONTS:    "{{ lookup('config', application_id, 'volumes.fonts') }}"
+ONLYOFFICE_VOLUME_LIB:      "{{ lookup('config', application_id, 'volumes.lib') }}"
+ONLYOFFICE_VOLUME_PGDATA:   "{{ lookup('config', application_id, 'volumes.pgdata') }}"
+ONLYOFFICE_VOLUME_REDIS:    "{{ lookup('config', application_id, 'volumes.redisdata') }}"
+ONLYOFFICE_VOLUME_RABBITMQ: "{{ lookup('config', application_id, 'volumes.rabbitmqdata') }}"

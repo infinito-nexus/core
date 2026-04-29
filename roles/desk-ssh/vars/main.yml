@@ -1,2 +1,2 @@
 application_id:       desk-ssh
-desk_ssh_repository:  "{{ lookup('config', application_id, 'repository') }}"
+desk_ssh_repository:  "{{ lookup('config', application_id, 'services.ssh.repository') }}"

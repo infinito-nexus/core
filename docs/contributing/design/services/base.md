@@ -6,7 +6,7 @@ loaded, and injected.
 ## What Is a Service? 🧩
 
 A service is a reusable dependency that an application enables via
-`compose.services.<service_key>`.
+`services.<service_key>`.
 
 Examples:
 - `web-svc-cdn` provides the primary service key `cdn`
@@ -14,7 +14,9 @@ Examples:
 - `svc-db-mariadb` provides `mariadb`
 
 Each service entry lives in the provider role's own
-[config/main.yml](../../../../roles) under `compose.services.<entity_name>`.
+[meta/services.yml](../../../../roles) — the file root IS the services map
+keyed by `<entity_name>` (no `compose:` and no `services:` wrapper). See
+[layout.md](layout.md) for the full per-role meta layout.
 
 ## Role-Local Service Metadata 🏷️
 
@@ -24,33 +26,29 @@ Service providers are self-describing. The provider role owns:
 - optional `provides`
 - optional `canonical`
 
-Example:
+Example (file root of `meta/services.yml`):
 
 ```yaml
-compose:
-  services:
-    keycloak:
-      enabled: false
-      shared: true
-      provides: oidc
+keycloak:
+  enabled: false
+  shared: true
+  provides: oidc
 ```
 
 Canonical aliases are also role-local:
 
 ```yaml
-compose:
-  services:
-    cdn:
-      enabled: false
-      shared: true
-    css:
-      enabled: true
-      shared: true
-      canonical: cdn
-    javascript:
-      enabled: true
-      shared: true
-      canonical: cdn
+cdn:
+  enabled: false
+  shared: true
+css:
+  enabled: true
+  shared: true
+  canonical: cdn
+javascript:
+  enabled: true
+  shared: true
+  canonical: cdn
 ```
 
 Rules:
@@ -69,10 +67,10 @@ Primary implementation files:
 
 The discovery layer:
 - scans role configs from [roles/](../../../../roles)
-- discovers provider entries from `compose.services`
+- discovers provider entries from `services`
 - derives deploy type and loader bucket from the role name
 - resolves `provides:` and `canonical:`
-- validates and applies `run_after:` from `meta/main.yml`
+- validates and applies `run_after:` from `meta/services.yml.<primary_entity>` (per [req-010](../../../requirements/010-role-meta-runafter-lifecycle-migration.md))
 
 ## Load Order 🧮
 
@@ -89,8 +87,10 @@ Global bucket order:
 4. `web-svc`
 5. `web-app`
 
-Within the same bucket, ordering is refined by `run_after:` in the provider role's
-[meta/main.yml](../../../../roles).
+Within the same bucket, ordering is refined by `run_after:` declared on the
+provider role's primary entity in
+[meta/services.yml](../../../../roles) (i.e. `services.<primary_entity>.run_after`,
+per [req-010](../../../requirements/010-role-meta-runafter-lifecycle-migration.md)).
 
 Rules:
 - `run_after:` entries are role names, not service keys.
@@ -125,7 +125,7 @@ This stays in:
 - [main.yml](../../../../roles/sys-front-inj-all/tasks/main.yml)
 - [inj_enabled.py](../../../../roles/sys-front-inj-all/filter_plugins/inj_enabled.py)
 
-Injection still reads the current app's `compose.services.<feature>.enabled` flags.
+Injection still reads the current app's `services.<feature>.enabled` flags.
 It does not load provider roles.
 
 ## Lookup Plugins 🔎
@@ -194,29 +194,26 @@ Relational databases are regular services now:
 - `svc-db-mariadb` provides `mariadb`
 - `svc-db-postgres` provides `postgres`
 
-Applications express database choice directly via:
+Applications express database choice directly via the file root of
+`meta/services.yml`:
 
 ```yaml
-compose:
-  services:
-    mariadb:
-      enabled: true
-      shared: true
+mariadb:
+  enabled: true
+  shared: true
 ```
 
 or:
 
 ```yaml
-compose:
-  services:
-    postgres:
-      enabled: true
-      shared: false
+postgres:
+  enabled: true
+  shared: false
 ```
 
 The `lookup('database', ...)` API remains as the convenience accessor for database
 connection values, but it now resolves the active direct database service from those
-role-local keys instead of `compose.services.database.type`.
+role-local keys instead of `services.database.type`.
 
 ## Related Files 📁
 

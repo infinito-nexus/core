@@ -2,5 +2,5 @@
 application_id:       "web-opt-rdr-www"
 
 # Redirect WWW
-REDIRECT_WWW_FLAVOR:  "{{ lookup('config', application_id, 'prefered_flavor') if DNS_PROVIDER == 'cloudflare' else 'origin' }}"
+REDIRECT_WWW_FLAVOR:  "{{ lookup('config', application_id, 'services.rdr-www.prefered_flavor') if DNS_PROVIDER == 'cloudflare' else 'origin' }}"
 REDIRECT_WWW_DOMAINS: "{{ CURRENT_PLAY_DOMAINS_ALL | select('match', '^www\\.') | list }}"

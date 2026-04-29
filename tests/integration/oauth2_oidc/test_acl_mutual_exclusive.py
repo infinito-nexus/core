@@ -10,7 +10,7 @@ class TestOauth2AclMutualExclusion(unittest.TestCase):
         failures = []
 
         for role_path in ROLES_DIR.iterdir():
-            vars_file = role_path / "config" / "main.yml"
+            vars_file = role_path / "meta" / "services.yml"
             if not vars_file.exists():
                 continue
 
@@ -38,7 +38,7 @@ class TestOauth2AclMutualExclusion(unittest.TestCase):
 
         if failures:
             self.fail(
-                "The following roles define both whitelist and blacklist under compose.services.oauth2.acl:\n"
+                "The following roles define both whitelist and blacklist under services.oauth2.acl:\n"
                 + "\n".join(failures)
             )
 

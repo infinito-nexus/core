@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from plugins.lookup.prometheus_integration_active import LookupModule
-from utils.runtime_data import _reset_cache_for_tests
+from utils.cache import _reset_cache_for_tests
 
 
 def _make_applications(
@@ -14,12 +14,12 @@ def _make_applications(
 ) -> dict:
     """Build a minimal applications dict.
 
-    Apps listed in *prometheus_deps* get compose.services.prometheus.enabled: true.
+    Apps listed in *prometheus_deps* get services.prometheus.enabled: true.
     """
     apps = {}
     for app_id in app_ids:
         if app_id in prometheus_deps:
-            apps[app_id] = {"compose": {"services": {"prometheus": {"enabled": True}}}}
+            apps[app_id] = {"services": {"prometheus": {"enabled": True}}}
         else:
             apps[app_id] = {}
     return apps
@@ -95,7 +95,7 @@ class TestPrometheusIntegrationActivePrometheusVhost(unittest.TestCase):
 
 
 class TestPrometheusIntegrationActiveServiceDep(unittest.TestCase):
-    """compose.services.prometheus.enabled gate for non-prometheus vhosts."""
+    """services.prometheus.enabled gate for non-prometheus vhosts."""
 
     def test_true_when_app_declares_prometheus_dep(self):
         apps = _make_applications("web-app-gitea", prometheus_deps=("web-app-gitea",))
@@ -108,11 +108,7 @@ class TestPrometheusIntegrationActiveServiceDep(unittest.TestCase):
         self.assertFalse(result)
 
     def test_false_when_prometheus_dep_disabled(self):
-        apps = {
-            "web-app-gitea": {
-                "compose": {"services": {"prometheus": {"enabled": False}}}
-            }
-        }
+        apps = {"web-app-gitea": {"services": {"prometheus": {"enabled": False}}}}
         result = _run(apps, "web-app-gitea", ["web-app-prometheus", "web-app-gitea"])
         self.assertFalse(result)
 

@@ -1,0 +1,19 @@
+domains:
+  canonical:
+  - s.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-inline: true
+locations:
+  admin: /admin/
+status_codes:
+  default: 301
+networks:
+  local:
+    subnet: 192.168.102.192/28

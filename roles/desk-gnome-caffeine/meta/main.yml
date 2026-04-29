@@ -2,16 +2,12 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs caffeine-ng and configures it to autostart for preventing screen sleep on GNOME.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   min_ansible_version: '2.4'
   platforms:
-  - name: Archlinux
-    versions:
-    - all
+    - name: Archlinux
+      versions:
+        - all
   galaxy_tags:
-  - caffeine
-  - autostart
-  - archlinux
-  run_after:
-  - desk-gnome
-  lifecycle: pre-alpha
+    - caffeine
+    - autostart
+    - archlinux

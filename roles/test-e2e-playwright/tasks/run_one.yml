@@ -118,6 +118,21 @@
         else lookup('image', 'playwright', 'ref')
       }}
 
+# The `container` wrapper insists the image is present locally before
+# `run`. Pull it explicitly so a pruned cache doesn't fail the stage.
+- name: Pull Playwright image if missing
+  ansible.builtin.command:
+    argv:
+      - container
+      - pull
+      - "{{ _playwright_image }}"
+  register: _playwright_pull
+  changed_when: false
+  failed_when: false
+  retries: 3
+  delay: 5
+  until: _playwright_pull.rc == 0
+
 - name: Render package.json from template
   ansible.builtin.template:
     src: "{{ _playwright_default_package_template }}"
@@ -144,6 +159,14 @@
   ansible.builtin.copy:
     src: "{{ _playwright_spec_src }}"
     dest: "{{ _playwright_stage_tests_dir }}/playwright.spec.js"
+    mode: "0644"
+
+# Stage the shared service-gating helper next to the spec so the spec can
+# `require("./service-gating")`. See docs/requirements/006 for the contract.
+- name: Copy shared service-gating helper into staging tests directory
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/roles/test-e2e-playwright/files/service-gating.js"
+    dest: "{{ _playwright_stage_tests_dir }}/service-gating.js"
     mode: "0644"
 
 # Keep /volume mount stable even if the source project does not define one.

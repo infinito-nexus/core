@@ -9,7 +9,9 @@ class YamlHandler:
     def load_yaml(path) -> Dict:
         """Load the YAML file and wrap existing !vault entries."""
         text = path.read_text()
-        data = yaml.load(text, Loader=SafeLoader) or {}
+        # Custom Loader subclass wraps !vault scalars; the path-keyed
+        # cache cannot preserve that wrapping, so go direct here.
+        data = yaml.load(text, Loader=SafeLoader) or {}  # noqa: direct-yaml
         return YamlHandler.wrap_existing_vaults(data)
 
     @staticmethod

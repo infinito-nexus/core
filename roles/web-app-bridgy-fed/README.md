@@ -18,7 +18,7 @@ Upstream docs & dev notes:
 
 ## Quick start
 1) Set domains and ports in inventory.  
-2) Enable/disable the emulator in `config/main.yml`.  
+2) Enable/disable the emulator in `meta/services.yml`.  
 3) Run the role; your front proxy will publish the app.
 
 ## Notes

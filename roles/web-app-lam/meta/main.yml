@@ -1,25 +1,19 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Elevate your LDAP directory management with LAM (LDAP Account Manager), a powerful solution for efficient administration
-    of LDAP directories.
+  description: Elevate your LDAP directory management with LAM (LDAP Account Manager), a powerful solution for efficient administration of LDAP directories.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - lam
-  - ldap
-  - docker
-  - management
-  - directory
-  repository: https://s.infinito.nexus/code
+    - lam
+    - ldap
+    - docker
+    - management
+    - directory
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-network-wired
-  run_after:
-  - web-app-keycloak
-  lifecycle: beta
 dependencies: []

@@ -7,19 +7,20 @@ discovered, and mirrored. For the mirroring pipeline, see [mirror.md](mirror.md)
 
 A role MAY declare images in two ways depending on how the image is used.
 
-### Compose Service Format — `config/main.yml`
+### Compose Service Format — `meta/services.yml`
 
-Used for images that are started as part of the role's Docker Compose stack:
+Used for images that are started as part of the role's Docker Compose stack.
+The file root IS the services map keyed by `<service-name>` (no `compose:` and
+no `services:` wrapper, per [req-008](../../../requirements/008-role-meta-layout.md)):
 
 ```yaml
-# roles/<role>/config/main.yml
-compose:
-  services:
-    <service-name>:
-      image: <image-name>   # e.g. nextcloud, quay.io/keycloak/keycloak
-      version: <tag>        # e.g. latest, 31.0.0
-      port: 8080
-      # … other compose fields
+# roles/<role>/meta/services.yml
+<service-name>:
+  image: <image-name>   # e.g. nextcloud, quay.io/keycloak/keycloak
+  version: <tag>        # e.g. latest, 31.0.0
+  ports:
+    inter: 8080         # internal container port (per req-009)
+  # … other compose fields
 ```
 
 ### Flat Image Format — `defaults/main.yml`
@@ -110,7 +111,7 @@ Images from other registries are ignored by the discovery and mirroring tooling.
 
 | Source file | Key path | Used for |
 |---|---|---|
-| `config/main.yml` | `compose.services.<svc>.image` + `.version` | Compose-managed services |
+| `meta/services.yml` | `<svc>.image` + `.version` (file root IS the services map) | Compose-managed services |
 | `defaults/main.yml` | `images.<svc>.image` + `.version` | Ad-hoc task images |
 
 An `ImageRef` carries: `role`, `service`, `name` (without registry), `version`,
@@ -121,8 +122,8 @@ An `ImageRef` carries: `role`, `service`, `name` (without registry), `version`,
 After discovery, images are mirrored to GHCR and the mirror URLs are injected
 back into host variables by the inventory creator.
 
-- `config/main.yml` declarations are resolved back through
-  `mirrors.yml.applications.<role>.compose.services.<service>`
+- `meta/services.yml` declarations are resolved back through
+  `mirrors.yml.applications.<role>.services.<service>`
 - `defaults/main.yml` declarations are resolved back through
   `mirrors.yml.images.<role>.<service>` and land in host vars under
   `images_overrides.<role>.<service>`

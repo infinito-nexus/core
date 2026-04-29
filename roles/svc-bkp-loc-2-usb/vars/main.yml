@@ -4,6 +4,6 @@ system_service_id:                   "{{ application_id }}"
 BACKUP_TO_USB_DESTINATION:      '{{ BACKUP_TO_USB_MOUNT}}{{ BACKUP_TO_USB_TARGET }}'
 BACKUPS_SERVICE_MNT_NAME:       '{{ BACKUP_TO_USB_MOUNT | trim(''/'') | replace(''/'',''-'') }}.mount'
 
-BACKUP_TO_USB_MOUNT:            "{{ lookup('config', application_id, 'mount') }}"
-BACKUP_TO_USB_TARGET:           "{{ lookup('config', application_id, 'target') }}"
-BACKUP_TO_USB_SOURCE:           "{{ lookup('config', application_id, 'source') }}"
+BACKUP_TO_USB_MOUNT:            "{{ lookup('config', application_id, 'services.loc-2-usb.mount') }}"
+BACKUP_TO_USB_TARGET:           "{{ lookup('config', application_id, 'services.loc-2-usb.target') }}"
+BACKUP_TO_USB_SOURCE:           "{{ lookup('config', application_id, 'services.loc-2-usb.source') }}"

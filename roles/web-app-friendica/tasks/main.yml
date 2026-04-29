@@ -7,7 +7,7 @@
 
 - name: Integrate LDAP
   include_tasks: 01_ldap.yml
-  when: lookup('config',application_id, 'compose.services.ldap.enabled')
+  when: lookup('config',application_id, 'services.ldap.enabled')
 
 # General
 - name: "flush handlers to ensure that '{{ FRIENDICA_CONTAINER }}' is up before executing container tasks"

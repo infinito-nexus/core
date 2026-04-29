@@ -5,9 +5,9 @@ application_id:       "svc-prx-openresty"
 # Openresty
 
 # Probapbly hard to implement to use dynamic entity_name here, so sticking with hard coded entity in conf path
-OPENRESTY_IMAGE:      "{{ lookup('config','svc-prx-openresty', 'compose.services.openresty.image') }}"
-OPENRESTY_VERSION:    "{{ lookup('config','svc-prx-openresty', 'compose.services.openresty.version') }}"
-OPENRESTY_CONTAINER:  "{{ lookup('config','svc-prx-openresty', 'compose.services.openresty.name') }}"
+OPENRESTY_IMAGE:      "{{ lookup('config','svc-prx-openresty', 'services.openresty.image') }}"
+OPENRESTY_VERSION:    "{{ lookup('config','svc-prx-openresty', 'services.openresty.version') }}"
+OPENRESTY_CONTAINER:  "{{ lookup('config','svc-prx-openresty', 'services.openresty.name') }}"
 
 # Custom-built image — distinguished from the upstream pull image to make it
 # clear in compose.yml.j2 that this container is locally built, not pulled.

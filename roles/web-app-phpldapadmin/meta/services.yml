@@ -1,0 +1,42 @@
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+phpldapadmin:
+  image: phpldapadmin/phpldapadmin
+  version: latest
+  min_storage: 1GB
+  ports:
+    local:
+      oauth2: 16486
+      http: 8037
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  lifecycle: pre-alpha
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    host: application
+    port: 8080
+  allowed_groups:
+  - '{{ lookup(''rbac_group_path'', application_id=''web-app-phpldapadmin'', role=''administrator'') }}'
+css:
+  enabled: true
+  shared: true
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

@@ -4,7 +4,7 @@
     image: nginx:alpine
     container_name: {{ entity_name }}_nginx
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.coturn.ports.local.http') }}:80
     command: >
       sh -c "printf 'server { listen 80; location / { default_type text/plain; return 200 \"OK\n\"; } }'
       > /etc/nginx/conf.d/default.conf

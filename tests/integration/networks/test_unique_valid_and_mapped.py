@@ -1,108 +1,74 @@
-import os
-import unittest
-import yaml
+"""Per req-009: subnets declared per-role under
+``meta/server.yml.networks.local.subnet`` MUST be valid, unique, and
+non-overlapping across the role tree."""
+
+from __future__ import annotations
+
 import glob
 import ipaddress
+import os
+import unittest
+
+import yaml
 
 
 class TestNetworksUniqueValidAndMapped(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # locate group_vars/all/08_networks.yml
         base_dir = os.path.dirname(__file__)
-        cls.networks_file = os.path.abspath(
-            os.path.join(
-                base_dir, "..", "..", "..", "group_vars", "all", "08_networks.yml"
-            )
-        )
-        if os.path.isfile(cls.networks_file):
-            with open(cls.networks_file, "r", encoding="utf-8") as f:
-                cls.networks_data = yaml.safe_load(f)
-        else:
-            cls.networks_data = None
+        cls.repo_root = os.path.abspath(os.path.join(base_dir, "..", "..", ".."))
+        cls.roles_dir = os.path.join(cls.repo_root, "roles")
 
-    def test_networks_file_exists(self):
-        """Fail if the networks file is missing."""
-        self.assertTrue(
-            os.path.isfile(self.networks_file), f"{self.networks_file} does not exist."
-        )
-
-    def test_unique_and_non_overlapping_subnets(self):
-        """Ensure that all subnets are valid, unique and do not overlap."""
-        if self.networks_data is None:
-            self.skipTest("08_networks.yml not found, skipping subnet validation.")
-
-        # extract all named subnets under defaults_networks.local
-        local = self.networks_data.get("defaults_networks", {}).get("local", {})
-        name_to_net = {}
-        for name, cfg in local.items():
-            subnet = cfg.get("subnet")
-            if not subnet:
+        cls.role_to_subnet: dict[str, ipaddress.IPv4Network] = {}
+        for role_path in sorted(glob.glob(os.path.join(cls.roles_dir, "*"))):
+            if not os.path.isdir(role_path):
+                continue
+            server_file = os.path.join(role_path, "meta", "server.yml")
+            if not os.path.isfile(server_file):
+                continue
+            with open(server_file, "r", encoding="utf-8") as f:
+                server_data = yaml.safe_load(f) or {}
+            networks = server_data.get("networks") or {}
+            if not isinstance(networks, dict):
+                continue
+            local = networks.get("local")
+            if not isinstance(local, dict):
+                continue
+            subnet = local.get("subnet")
+            if not isinstance(subnet, str):
                 continue
             try:
-                net = ipaddress.ip_network(subnet)
-            except ValueError as e:
-                self.fail(f"Invalid subnet for network '{name}': {subnet} ({e})")
-            name_to_net[name] = net
+                cls.role_to_subnet[os.path.basename(role_path)] = ipaddress.IPv4Network(
+                    subnet.strip()
+                )
+            except (ValueError, ipaddress.AddressValueError) as exc:
+                raise AssertionError(
+                    f"Invalid subnet for role '{os.path.basename(role_path)}': "
+                    f"{subnet!r} ({exc})"
+                ) from exc
 
-        # check for duplicate subnets
-        nets = list(name_to_net.values())
-        if len(nets) != len(set(nets)):
-            seen = {}
-            dupes = []
-            for nm, net in name_to_net.items():
-                if net in seen:
-                    dupes.append(f"{seen[net]} and {nm} both use {net}")
-                else:
-                    seen[net] = nm
+    def test_unique_subnets(self):
+        seen: dict[ipaddress.IPv4Network, str] = {}
+        dupes: list[str] = []
+        for role, net in self.role_to_subnet.items():
+            if net in seen:
+                dupes.append(f"{seen[net]} and {role} both use {net}")
+            else:
+                seen[net] = role
+        if dupes:
             self.fail("Duplicate subnets detected:\n" + "\n".join(dupes))
 
-        # check for overlaps
-        items = list(name_to_net.items())
+    def test_no_overlapping_subnets(self):
+        items = list(self.role_to_subnet.items())
+        overlaps: list[str] = []
         for i in range(len(items)):
             name1, net1 = items[i]
             for j in range(i + 1, len(items)):
                 name2, net2 = items[j]
                 if net1.overlaps(net2):
-                    self.fail(
-                        f"Subnet overlap between '{name1}' ({net1}) and "
-                        f"'{name2}' ({net2})."
-                    )
-
-    def test_network_names_mapped_to_application_id(self):
-        """
-        Ensure each network name with a subnet under defaults_networks.local
-        matches an application_id in some roles/*/vars/main.yml.
-        """
-        if self.networks_data is None:
-            self.skipTest(
-                "08_networks.yml not found, skipping application_id mapping check."
-            )
-
-        # collect network names
-        local = self.networks_data.get("defaults_networks", {}).get("local", {})
-        network_names = [name for name, cfg in local.items() if "subnet" in cfg]
-
-        # gather all application_id values from roles/*/vars/main.yml
-        base_dir = os.path.dirname(__file__)
-        roles_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "..", "roles"))
-        app_ids = set()
-        for role_path in glob.glob(os.path.join(roles_dir, "*")):
-            vars_file = os.path.join(role_path, "vars", "main.yml")
-            if not os.path.isfile(vars_file):
-                continue
-            with open(vars_file, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-            app_id = data.get("application_id")
-            if app_id:
-                app_ids.add(app_id)
-
-        missing = [nm for nm in network_names if nm not in app_ids]
-        if missing:
-            self.fail(
-                "The following networks have no matching application_id in any role:\n"
-                + ", ".join(missing)
-            )
+                    overlaps.append(f"'{name1}' ({net1}) overlaps '{name2}' ({net2})")
+        if overlaps:
+            self.fail("Subnet overlaps detected:\n" + "\n".join(overlaps))
 
 
 if __name__ == "__main__":

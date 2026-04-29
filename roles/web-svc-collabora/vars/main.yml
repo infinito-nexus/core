@@ -4,15 +4,15 @@ application_id:             web-svc-collabora
 
 # @todo in a later step it makes sense to refactor the use of them, but they are used atm in the role
 domain:                     "{{ lookup('domain',application_id) }}"
-http_port:                  "{{ ports.localhost.http[application_id] }}"
+http_port:                  "{{ lookup('config', application_id, 'services.collabora.ports.local.http') }}"
 
 # Container
 container_port:             9980
 
 # Collabora
-COLLABORA_CONTAINER:        "{{ lookup('config', application_id, 'compose.services.collabora.name') }}"
-COLLABORA_IMAGE:            "{{ lookup('config', application_id, 'compose.services.collabora.image') }}"
-COLLABORA_VERSION:          "{{ lookup('config', application_id, 'compose.services.collabora.version') }}"
+COLLABORA_CONTAINER:        "{{ lookup('config', application_id, 'services.collabora.name') }}"
+COLLABORA_IMAGE:            "{{ lookup('config', application_id, 'services.collabora.image') }}"
+COLLABORA_VERSION:          "{{ lookup('config', application_id, 'services.collabora.version') }}"
 COLLABORA_DOCKER_CONF_EXEC: "container exec {{ COLLABORA_CONTAINER }} coolconfig"
 COLLABORA_ALLOWED_DOMAINS:  "(.*\\.|){{ DOMAIN_PRIMARY | regex_replace('\\.', '\\\\.') }}"
 COLLABORA_ALLOWED_HOSTS:    "{{ lookup('domain','web-app-nextcloud') }}"

@@ -7,3 +7,8 @@ MODE_RESET:   false                       # Cleans up all Infinito.Nexus files. 
 MODE_CLEANUP: true                        # Cleanup unused files and configurations
 MODE_ASSERT:  "{{ MODE_DEBUG  | bool }}"  # Executes validation tasks during the run.
 MODE_BACKUP:  true                        # Executes the Backup before the deployment
+
+# Note: the previous `MODE_CI` flag (env-driven OR of GITHUB_ACTIONS / ACT /
+# INFINITO_MAKE_DEPLOY) was retired. The Playwright E2E gate now keys on
+# `RUNTIME in ['dev', 'act', 'github']` directly; see
+# `tasks/stages/02_server.yml` and `cli.meta.runtime.detect_runtime`.

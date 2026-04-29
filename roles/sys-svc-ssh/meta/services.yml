@@ -1,0 +1,2 @@
+svc-ssh:
+  lifecycle: beta

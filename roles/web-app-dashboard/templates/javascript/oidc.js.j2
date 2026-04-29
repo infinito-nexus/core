@@ -16,7 +16,7 @@ const KC_CONFIG = {
   silentCheckSsoRedirectUri: "{{ (DASHBOARD_APP_BASE_URL | regex_replace('/+$', '')) ~ DASHBOARD_LOCATION_SILENT_CHECK }}"
 };
 
-const DEBUG = {{ 'true' if MODE_DEBUG else 'false' }};
+const DEBUG = {{ MODE_DEBUG | string | lower }};
 // Keycloak's hidden session-status iframe is noisy on newer Chromium builds and
 // collides with dashboard-embedded OIDC flows. We keep explicit init/redirect
 // handling plus token refresh below, so hidden iframe polling can stay off.

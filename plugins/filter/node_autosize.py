@@ -104,7 +104,7 @@ def node_max_old_space_size(
     """
     Derive Node.js --max-old-space-size (MB) from the service's mem_limit in app config.
 
-    Looks up: compose.services.<service_name>.mem_limit for the given application_id.
+    Looks up: services.<service_name>.mem_limit for the given application_id.
 
     Raises:
         AnsibleFilterError if mem_limit is missing/invalid OR if mem_limit (MB) < min_mb.
@@ -113,7 +113,7 @@ def node_max_old_space_size(
         mem_limit = get(
             applications=applications,
             application_id=application_id,
-            config_path=f"compose.services.{service_name}.mem_limit",
+            config_path=f"services.{service_name}.mem_limit",
             strict=True,
             default=None,
         )

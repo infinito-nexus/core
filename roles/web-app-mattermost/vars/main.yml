@@ -2,27 +2,27 @@
 application_id:               "web-app-mattermost"
 
 # Docker
-container_port:               "{{ ports.localhost.http[application_id] }}"
+container_port:               "{{ lookup('config', application_id, 'services.mattermost.ports.local.http') }}"
 
 # Mattermost
-MATTERMOST_VERSION:                   "{{ lookup('config', application_id, 'compose.services.mattermost.version') }}"
-MATTERMOST_IMAGE:                     "{{ lookup('config', application_id, 'compose.services.mattermost.image') }}"
-MATTERMOST_CONTAINER:                 "{{ lookup('config', application_id, 'compose.services.mattermost.name') }}"
+MATTERMOST_VERSION:                   "{{ lookup('config', application_id, 'services.mattermost.version') }}"
+MATTERMOST_IMAGE:                     "{{ lookup('config', application_id, 'services.mattermost.image') }}"
+MATTERMOST_CONTAINER:                 "{{ lookup('config', application_id, 'services.mattermost.name') }}"
 
 ## Volumes
-MATTERMOST_VOLUME_CONFIG:             "{{ lookup('config', application_id, 'compose.volumes.config') }}"
-MATTERMOST_VOLUME_DATA:               "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-MATTERMOST_VOLUME_LOGS:               "{{ lookup('config', application_id, 'compose.volumes.logs') }}"
-MATTERMOST_VOLUME_PLUGINS:            "{{ lookup('config', application_id, 'compose.volumes.plugins') }}"
-MATTERMOST_VOLUME_CLIENT_PLUGINS:     "{{ lookup('config', application_id, 'compose.volumes.client-plugins') }}"
+MATTERMOST_VOLUME_CONFIG:             "{{ lookup('config', application_id, 'volumes.config') }}"
+MATTERMOST_VOLUME_DATA:               "{{ lookup('config', application_id, 'volumes.data') }}"
+MATTERMOST_VOLUME_LOGS:               "{{ lookup('config', application_id, 'volumes.logs') }}"
+MATTERMOST_VOLUME_PLUGINS:            "{{ lookup('config', application_id, 'volumes.plugins') }}"
+MATTERMOST_VOLUME_CLIENT_PLUGINS:     "{{ lookup('config', application_id, 'volumes.client-plugins') }}"
 
 ## OIDC (via MM_GITLABSETTINGS_* — Team Edition workaround for Keycloak)
-MATTERMOST_OIDC_ENABLED:              "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+MATTERMOST_OIDC_ENABLED:              "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 
 ## Keycloak integration (for 02_keycloak.yml mapper setup)
-MATTERMOST_KEYCLOAK_CONTAINER:        "{{ lookup('config', 'web-app-keycloak', 'compose.services.keycloak.name') }}"
-MATTERMOST_KEYCLOAK_ADMIN_USER:       "{{ lookup('config', 'web-app-keycloak', 'accounts.system.username') }}"
+MATTERMOST_KEYCLOAK_CONTAINER:        "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }}"
+MATTERMOST_KEYCLOAK_ADMIN_USER:       "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
 MATTERMOST_KEYCLOAK_ADMIN_PASS:       "{{ lookup('users', 'administrator').password }}"
 
 ## LDAP integration
-MATTERMOST_LDAP_CONTAINER:            "{{ lookup('config', 'svc-db-openldap', 'compose.services.openldap.name') }}"
+MATTERMOST_LDAP_CONTAINER:            "{{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}"

@@ -6,21 +6,21 @@ entity_name:                        "{{ application_id | get_entity_name }}"
 
 # Webserver
 webserver_websocket_location:              "/ws"
-websocket_port:           "{{ ports.localhost.websocket[application_id] }}"
+websocket_port:           "{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}"
 webserver_client_max_body_size:     "100m"
 webserver_vhost_flavour:            "ws_generic"
 
 # Espocrm
 
 ## Container
-ESPOCRM_VERSION:                    "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~'.version') }}"
-ESPOCRM_IMAGE:                      "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~'.image') }}"
+ESPOCRM_VERSION:                    "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
+ESPOCRM_IMAGE:                      "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
 ESPOCRM_CUSTOM_IMAGE:               "{{ entity_name }}_custom:{{ ESPOCRM_VERSION }}"
-ESPOCRM_CONTAINER:                  "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~'.name') }}"
+ESPOCRM_CONTAINER:                  "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
 ESPOCRM_SERVICE:                    "{{ entity_name }}"
 
 ## Volumes
-ESPOCRM_DATA_VOLUME:                "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+ESPOCRM_DATA_VOLUME:                "{{ lookup('config', application_id, 'volumes.data') }}"
 
 ## Scripts
 
@@ -32,8 +32,8 @@ ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER:   "{{ [ '/usr/local/bin/', ESPOCRM_ENTRYPOINT_
 
 ESPOCRM_CONFIG_FILE_PRIVATE:        "/var/www/html/data/config-internal.php"
 ESPOCRM_URL:                        "{{ lookup('tls', application_id, 'url.base') }}"
-ESPOCRM_OIDC_ENABLED:               "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
-ESPOCRM_LDAP_ENABLED:               "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
+ESPOCRM_OIDC_ENABLED:               "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+ESPOCRM_LDAP_ENABLED:               "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 ESPOCRM_USER:                       "www-data"
 
 
@@ -48,11 +48,11 @@ ESPOCRM_SCRIPT_SEED_DOCKER:         "{{ [ '/usr/local/bin/', ESPOCRM_SCRIPT_SEED
 ### Seeding Values
 
 #### Maintanance
-ESPOCRM_MAINTENANCE_MODE:      "{{ lookup('config', application_id, 'maintenance_mode') }}"
+ESPOCRM_MAINTENANCE_MODE:      "{{ lookup('config', application_id, 'services.espocrm.maintenance_mode') }}"
 ESPOCRM_CRON_DISABLED:         "{{ ESPOCRM_MAINTENANCE_MODE }}"        # disable cron only when in maintenance
 ESPOCRM_USE_CACHE:             "{{ not ESPOCRM_MAINTENANCE_MODE }}"    # enable cache when NOT in maintenance
 
 #### reCAPTCHA
-ESPOCRM_RECAPTCHA_ENABLED:     "{{ lookup('config', application_id, 'compose.services.recaptcha.enabled') }}"
+ESPOCRM_RECAPTCHA_ENABLED:     "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 ESPOCRM_RECAPTCHA_KEY:         "{{ lookup('config', application_id, 'credentials.recaptcha.key') }}"
 ESPOCRM_RECAPTCHA_SECRET:      "{{ lookup('config', application_id, 'credentials.recaptcha.secret') }}"

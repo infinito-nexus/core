@@ -1,0 +1,96 @@
+---
+# Ensure the /<KEYCLOAK_RBAC_GROUP_NAME>/<kc_app_id> Keycloak group
+# exists and a per-app group-ldap-mapper points at it. Each shell step
+# is delegated to a dedicated `.sh` under
+# `files/scripts/per_app_mapper/` so this YAML stays a thin orchestrator.
+
+- name: "per-app mapper [{{ kc_app_id }}]: resolve groups.path root group id"
+  ansible.builtin.script:
+    cmd: "files/scripts/per_app_mapper/resolve_root_group_id.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
+  register: per_app_root_id
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "per-app mapper [{{ kc_app_id }}]: assert root group was resolved"
+  ansible.builtin.assert:
+    that: (per_app_root_id.stdout | default('') | trim) | length > 0
+    fail_msg: "could not resolve /{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }} group id"
+
+- name: "per-app mapper [{{ kc_app_id }}]: set root group id fact"
+  ansible.builtin.set_fact:
+    kc_root_group_id: "{{ (per_app_root_id.stdout | default('')) | trim }}"
+  changed_when: false
+
+- name: "per-app mapper [{{ kc_app_id }}]: ensure /{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}/{{ kc_app_id }} Keycloak group exists"
+  ansible.builtin.script:
+    cmd: "files/scripts/per_app_mapper/ensure_app_group.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    APP_ID: "{{ kc_app_id }}"
+    ROOT_GROUP_ID: "{{ kc_root_group_id }}"
+  register: per_app_group_id_out
+  changed_when: true
+  failed_when: (per_app_group_id_out.stdout | default('') | trim) | length == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "per-app mapper [{{ kc_app_id }}]: set per-app Keycloak group id fact"
+  ansible.builtin.set_fact:
+    kc_app_group_id: "{{ (per_app_group_id_out.stdout | default('')) | trim }}"
+  changed_when: false
+
+- name: "per-app mapper [{{ kc_app_id }}]: purge ALL subgroups under /{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}/{{ kc_app_id }} so the next mapper sync rebuilds them cleanly"
+  ansible.builtin.script:
+    cmd: "files/scripts/per_app_mapper/purge_app_subgroups.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    APP_GROUP_ID: "{{ kc_app_group_id }}"
+  changed_when: true
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "per-app mapper [{{ kc_app_id }}]: render ldap-roles-{{ kc_app_id }} mapper payload"
+  # `KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER` (vars/main.yml) is the single
+  # SPOT for the per-application mapper definition.
+  ansible.builtin.copy:
+    dest: "/tmp/kc_mapper_payload_{{ kc_app_id }}.json"
+    mode: "0600"
+    content: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER | to_nice_json }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "per-app mapper [{{ kc_app_id }}]: upsert ldap-roles-{{ kc_app_id }} mapper"
+  ansible.builtin.script:
+    cmd: "files/scripts/per_app_mapper/upsert_app_mapper.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
+    MAPPER_NAME: "{{ kc_app_id | kc_per_app_mapper_name }}"
+    PAYLOAD_FILE: "/tmp/kc_mapper_payload_{{ kc_app_id }}.json"
+  register: per_app_mapper_id_out
+  changed_when: true
+  failed_when: (per_app_mapper_id_out.stdout | default('') | trim | length) == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "per-app mapper [{{ kc_app_id }}]: sync mapper"
+  ansible.builtin.script:
+    cmd: "files/scripts/per_app_mapper/sync_app_mapper.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
+    MAPPER_ID: "{{ (per_app_mapper_id_out.stdout | default('')) | trim }}"
+  changed_when: true
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

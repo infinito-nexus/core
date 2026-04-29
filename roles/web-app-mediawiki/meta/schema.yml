@@ -1,0 +1,9 @@
+credentials:
+  secret_key:
+    description: MediaWiki $wgSecretKey (hex-encoded 32 random bytes)
+    algorithm: random_hex_32
+    validation: ^[a-f0-9]{64}$
+  administrator_password:
+    description: Password for the MediaWiki Administrator
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

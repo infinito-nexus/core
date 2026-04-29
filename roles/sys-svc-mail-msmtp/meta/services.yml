@@ -1,0 +1,2 @@
+svc-mail-msmtp:
+  lifecycle: beta

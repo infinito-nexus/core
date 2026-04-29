@@ -1,7 +1,7 @@
 - name: Remove OIDC plugin if disabled
   include_tasks: cleanup/oidc.yml
-  when: not (lookup('config',application_id, 'compose.services.oidc.enabled'))
+  when: not (lookup('config',application_id, 'services.oidc.enabled'))
 
 - name: Remove LDAP plugin if disabled
   include_tasks: cleanup/ldap.yml
-  when: not (lookup('config',application_id, 'compose.services.ldap.enabled'))
+  when: not (lookup('config',application_id, 'services.ldap.enabled'))

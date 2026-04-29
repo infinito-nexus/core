@@ -21,15 +21,15 @@ _MINIMAL_SERVICE_REGISTRY = {
 
 class TestServicesResolverDirect(unittest.TestCase):
     def test_direct_mapping_shared_services(self) -> None:
+        # Per req-008 the materialised payload moved from
+        # `compose.services.<X>` to `services.<X>`.
         cfg = {
-            "compose": {
-                "services": {
-                    "ldap": {"enabled": True, "shared": True},
-                    "oidc": {"enabled": True, "shared": True},
-                    "matomo": {"enabled": True, "shared": True},
-                    "mariadb": {"enabled": True, "shared": True},
-                    "dashboard": {"enabled": True, "shared": True},
-                }
+            "services": {
+                "ldap": {"enabled": True, "shared": True},
+                "oidc": {"enabled": True, "shared": True},
+                "matomo": {"enabled": True, "shared": True},
+                "mariadb": {"enabled": True, "shared": True},
+                "dashboard": {"enabled": True, "shared": True},
             }
         }
         roles = resolve_direct_service_roles_from_config(cfg, _MINIMAL_SERVICE_REGISTRY)
@@ -46,11 +46,9 @@ class TestServicesResolverDirect(unittest.TestCase):
 
     def test_non_shared_not_included(self) -> None:
         cfg = {
-            "compose": {
-                "services": {
-                    "ldap": {"enabled": True, "shared": False},
-                    "dashboard": {"enabled": True, "shared": False},
-                }
+            "services": {
+                "ldap": {"enabled": True, "shared": False},
+                "dashboard": {"enabled": True, "shared": False},
             }
         }
         roles = resolve_direct_service_roles_from_config(cfg, _MINIMAL_SERVICE_REGISTRY)
@@ -63,19 +61,19 @@ class TestServicesResolverTransitive(unittest.TestCase):
         root: Path,
         role: str,
         *,
-        config: str = "compose: {}\n",
+        config: str = "{}\n",
         meta: str | None = None,
     ) -> None:
         role_dir = root / "roles" / role
-        (role_dir / "config").mkdir(parents=True, exist_ok=True)
+        (role_dir / "meta").mkdir(parents=True, exist_ok=True)
         (role_dir / "vars").mkdir(parents=True, exist_ok=True)
-        (role_dir / "config" / "main.yml").write_text(config, encoding="utf-8")
+        # Per req-008 the file root IS the services map (no compose envelope).
+        (role_dir / "meta" / "services.yml").write_text(config, encoding="utf-8")
         (role_dir / "vars" / "main.yml").write_text(
             f"application_id: {role}\n",
             encoding="utf-8",
         )
         if meta is not None:
-            (role_dir / "meta").mkdir(parents=True, exist_ok=True)
             (role_dir / "meta" / "main.yml").write_text(meta, encoding="utf-8")
 
     def test_transitive_bfs_uses_role_local_discovery(self) -> None:
@@ -86,39 +84,25 @@ class TestServicesResolverTransitive(unittest.TestCase):
             self._mk_role(
                 root,
                 "web-app-app",
-                config=(
-                    "compose:\n"
-                    "  services:\n"
-                    "    oidc:\n"
-                    "      enabled: true\n"
-                    "      shared: true\n"
-                ),
+                config=("oidc:\n  enabled: true\n  shared: true\n"),
             )
             self._mk_role(
                 root,
                 "web-app-keycloak",
                 config=(
-                    "compose:\n"
-                    "  services:\n"
-                    "    keycloak:\n"
-                    "      enabled: false\n"
-                    "      shared: true\n"
-                    "      provides: oidc\n"
-                    "    matomo:\n"
-                    "      enabled: true\n"
-                    "      shared: true\n"
+                    "keycloak:\n"
+                    "  enabled: false\n"
+                    "  shared: true\n"
+                    "  provides: oidc\n"
+                    "matomo:\n"
+                    "  enabled: true\n"
+                    "  shared: true\n"
                 ),
             )
             self._mk_role(
                 root,
                 "web-app-matomo",
-                config=(
-                    "compose:\n"
-                    "  services:\n"
-                    "    matomo:\n"
-                    "      enabled: false\n"
-                    "      shared: true\n"
-                ),
+                config=("matomo:\n  enabled: false\n  shared: true\n"),
             )
 
             resolver = ServicesResolver(root / "roles")

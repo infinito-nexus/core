@@ -1,5 +1,5 @@
  {
-  "name": "{{ lookup('config', application_id, 'scopes.nextcloud') }}",
+  "name": "{{ lookup('config', application_id, 'services.keycloak.scopes.nextcloud') }}",
   "description": "Optimized mappers for nextcloud oidc_login with ldap.",
   "protocol": "openid-connect",
   "attributes": {

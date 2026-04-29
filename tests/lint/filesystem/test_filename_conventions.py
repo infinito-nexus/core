@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from tests.utils.fs import iter_project_files
+from utils.cache.files import iter_project_files
 
 
 class TestFilenameConventions(unittest.TestCase):

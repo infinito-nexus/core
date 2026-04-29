@@ -5,6 +5,18 @@
 
 set -euo pipefail
 
+# INFINITO_CONTAINER is fully derived from the current INFINITO_DISTRO. This
+# block runs OUTSIDE the load-once guard below so callers that re-export
+# INFINITO_DISTRO between matrix iterations (e.g. scripts/tests/deploy/ci/all.sh)
+# can re-source defaults.sh and pick up a CONTAINER name in lock-step. Without
+# this, the original eager-export only fired on the first source and stuck at
+# infinito_nexus_debian even after later iterations exported a different
+# INFINITO_DISTRO — see the failure on web-app-wordpress @ fedora in CI run
+# 24942172018 / job 73038526513.
+: "${INFINITO_DISTRO:=debian}"
+export INFINITO_DISTRO
+export INFINITO_CONTAINER="infinito_nexus_${INFINITO_DISTRO}"
+
 if [[ "${INFINITO_ENV_DEFAULTS_LOADED:-}" == "1" ]]; then
 	return 0
 fi
@@ -15,10 +27,6 @@ export TEST_DEPLOY_TYPE
 
 : "${TEST_PATTERN:=test*.py}"
 export TEST_PATTERN
-
-: "${INFINITO_DISTRO:=debian}"
-: "${INFINITO_CONTAINER:=infinito_nexus_${INFINITO_DISTRO}}"
-export INFINITO_DISTRO INFINITO_CONTAINER
 
 : "${DISTROS:=arch debian ubuntu fedora centos}"
 export DISTROS

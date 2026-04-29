@@ -1,5 +1,5 @@
 application_id: "web-app-phpldapadmin"
 entity_name:    "{{ application_id | get_entity_name }}"
 
-PHPLDAPADMIN_IMAGE:   "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image')}}"
-PHPLDAPADMIN_VERSION: "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version')}}"
+PHPLDAPADMIN_IMAGE:   "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image')}}"
+PHPLDAPADMIN_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version')}}"

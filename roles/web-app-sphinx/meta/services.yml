@@ -1,0 +1,33 @@
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+sphinx:
+  image: ghcr.io/kevinveenbirkenbach/infinito-sphinx
+  version: latest
+  min_storage: 1GB
+  backup:
+    no_stop_required: true
+  name: sphinx
+  ports:
+    inter: 8000
+    local:
+      http: 8036
+  run_after:
+  - web-app-matomo
+  lifecycle: beta
+css:
+  enabled: true
+  shared: true
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

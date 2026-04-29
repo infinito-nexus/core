@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 import yaml
 
-from tests.utils.fs import read_text
+from utils.cache.files import read_text
 from utils.service_registry import build_service_registry_from_roles_dir
 
 
@@ -34,7 +34,7 @@ def unique_roles(registry):
 
 
 RECURSION_HINT = (
-    "Service roles discovered from role-local compose.services metadata are loaded "
+    "Service roles discovered from role-local services metadata are loaded "
     "dynamically via "
     "load_app.yml, which checks the run_once_<role> flag before loading a role. "
     "If tasks/01_core.yml does not set this flag as its very first task, the flag "

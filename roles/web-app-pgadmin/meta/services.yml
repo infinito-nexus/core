@@ -1,0 +1,40 @@
+pgadmin:
+  image: dpage/pgadmin4
+  version: latest
+  min_storage: 1GB
+  server_mode: false
+  master_password_required: true
+  ports:
+    local:
+      oauth2: 16485
+      http: 8016
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  lifecycle: beta
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    host: application
+    port: '80'
+  allowed_groups:
+  - '{{ lookup(''rbac_group_path'', application_id=''web-app-pgadmin'', role=''administrator'') }}'
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

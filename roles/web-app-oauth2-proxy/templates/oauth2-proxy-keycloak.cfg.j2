@@ -1,7 +1,7 @@
-http_address            =   "0.0.0.0:4180"
+http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.ports.inter') }}"
 cookie_secret           =   "{{ lookup('config',oauth2_proxy_application_id, 'credentials.oauth2_proxy_cookie_secret') }}"
 cookie_secure           =   "{{ lookup('tls', application_id, 'enabled') | string | lower }}"                                                                            # True is necessary to force the cookie set via https
-upstreams               =   "http://{{ lookup('config',oauth2_proxy_application_id, 'compose.services.oauth2.origin.host') }}:{{ lookup('config',oauth2_proxy_application_id, 'compose.services.oauth2.origin.port') }}"
+upstreams               =   "http://{{ lookup('config',oauth2_proxy_application_id, 'services.oauth2.origin.host') }}:{{ lookup('config',oauth2_proxy_application_id, 'services.oauth2.origin.port') }}"
 cookie_domains          =   ["{{ lookup('domain',oauth2_proxy_application_id) }}", "{{ lookup('domain','web-app-keycloak') }}"]   # Required so cookie can be read on all subdomains.
 whitelist_domains       =   [".{{ DOMAIN_PRIMARY }}"]                                                                                       # Required to allow redirection back to original requested target.
 
@@ -13,11 +13,20 @@ oidc_issuer_url         =   "{{ OIDC.CLIENT.ISSUER_URL }}"
 provider                =   "oidc"
 provider_display_name   =   "{{ OIDC.BUTTON_TEXT }}"
 
-{% if lookup('config',oauth2_proxy_application_id, 'compose.services.oauth2.allowed_groups', False) %}
+{% set allowed_groups_raw = lookup('config', oauth2_proxy_application_id, 'services.oauth2.allowed_groups', False) %}
+{% if allowed_groups_raw %}
 {# role based restrictions #}
 scope                   =   "openid email profile {{ RBAC.GROUP.CLAIM }}"
 oidc_groups_claim       =   "{{ RBAC.GROUP.CLAIM }}"
-allowed_groups          =   {{ lookup('config',oauth2_proxy_application_id, 'compose.services.oauth2.allowed_groups') | to_json }}
+{# oauth2-proxy compares allowed_groups against the JWT groups claim by literal
+   string equality. Keycloak's group-membership-mapper emits paths with a
+   leading slash when full.path=true (the realm-import default for the shared
+   `groups` client-scope). The `rbac_group_path` lookup, by historical contract,
+   returns the path without the leading slash — see
+   tests/unit/plugins/lookup/test_rbac_group_path.py. Normalise here to exactly
+   one leading slash so oauth2-proxy's literal match lines up with what the
+   token actually carries. #}
+allowed_groups          =   {{ allowed_groups_raw | map('regex_replace', '^/*', '/') | list | to_json }}
 email_domains           =   ["*"]
 {% else %}
 email_domains           =   "{{ DOMAIN_PRIMARY }}"

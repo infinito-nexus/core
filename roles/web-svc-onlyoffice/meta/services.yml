@@ -1,0 +1,40 @@
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+postgres:
+  enabled: true
+  shared: true
+onlyoffice:
+  enabled: false
+  shared: true
+  image: onlyoffice/documentserver
+  version: latest
+  name: onlyoffice
+  min_storage: 20GB
+  cpus: 2
+  mem_reservation: 1g
+  mem_limit: 4g
+  pids_limit: 8192
+  backup:
+    no_stop_required: true
+  ports:
+    local:
+      http: 8061
+  lifecycle: beta
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

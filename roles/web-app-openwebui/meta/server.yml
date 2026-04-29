@@ -1,0 +1,14 @@
+domains:
+  canonical:
+    openwebui: chat.ai.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+  whitelist:
+    font-src: []
+    connect-src: []
+networks:
+  local:
+    subnet: 192.168.104.0/28

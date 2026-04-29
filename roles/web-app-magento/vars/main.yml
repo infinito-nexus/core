@@ -4,7 +4,7 @@ application_id:                 "web-app-magento"
 # Magento (application container)
 
 ## Meta
-MAGENTO_VOLUME:                 "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+MAGENTO_VOLUME:                 "{{ lookup('config', application_id, 'volumes.data') }}"
 MAGENTO_USER:                   "app"
 
 ## Address
@@ -25,19 +25,19 @@ MAGENTO_PHP_PORT:               9000
 MAGENTO_NGINX_PORT:             8000
 
 ## Search (OpenSearch)
-MAGENTO_SEARCH_VERSION:         "{{ lookup('config', application_id, 'compose.services.search.version') }}"
-MAGENTO_SEARCH_IMAGE:           "{{ lookup('config', application_id, 'compose.services.search.image') }}"
-MAGENTO_SEARCH_CONTAINER:       "{{ lookup('config', application_id, 'compose.services.search.name') }}"
+MAGENTO_SEARCH_VERSION:         "{{ lookup('config', application_id, 'services.search.version') }}"
+MAGENTO_SEARCH_IMAGE:           "{{ lookup('config', application_id, 'services.search.image') }}"
+MAGENTO_SEARCH_CONTAINER:       "{{ lookup('config', application_id, 'services.search.name') }}"
 
 ## PHP
-MAGENTO_PHP_VERSION:            "{{ lookup('config', application_id, 'compose.services.php.version') }}"
-MAGENTO_PHP_IMAGE:              "{{ lookup('config', application_id, 'compose.services.php.image') }}"
-MAGENTO_PHP_CONTAINER:          "{{ lookup('config', application_id, 'compose.services.php.name') }}"
+MAGENTO_PHP_VERSION:            "{{ lookup('config', application_id, 'services.php.version') }}"
+MAGENTO_PHP_IMAGE:              "{{ lookup('config', application_id, 'services.php.image') }}"
+MAGENTO_PHP_CONTAINER:          "{{ lookup('config', application_id, 'services.php.name') }}"
 
 ## NGINX
-MAGENTO_NGINX_VERSION:          "{{ lookup('config', application_id, 'compose.services.nginx.version') }}"
-MAGENTO_NGINX_IMAGE:            "{{ lookup('config', application_id, 'compose.services.nginx.image') }}"
-MAGENTO_NGINX_CONTAINER:        "{{ lookup('config', application_id, 'compose.services.nginx.name') }}"
+MAGENTO_NGINX_VERSION:          "{{ lookup('config', application_id, 'services.nginx.version') }}"
+MAGENTO_NGINX_IMAGE:            "{{ lookup('config', application_id, 'services.nginx.image') }}"
+MAGENTO_NGINX_CONTAINER:        "{{ lookup('config', application_id, 'services.nginx.name') }}"
 
 ## Credentials
 MAGENTO_REPO_PUBLIC_KEY:        "{{ lookup('config', application_id, 'credentials.adobe_public_key') }}"

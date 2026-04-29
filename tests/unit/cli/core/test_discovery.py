@@ -70,6 +70,49 @@ class TestDiscovery(unittest.TestCase):
             self.assertIsNone(module)
             self.assertEqual(remaining, ["nope", "--x"])
 
+    def test_resolve_command_module_stops_at_first_flag(self):
+        # `infinito create inventory <abs-path> --host localhost ...`: the
+        # subcommand is `create inventory`; the absolute positional arg
+        # MUST NOT be tried as a sub-package, otherwise pathlib resets
+        # the search root and downstream args (huge `--vars` JSON) end
+        # up concatenated as a single path that hits ENAMETOOLONG.
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = Path(td) / "cli"
+            cli_dir.mkdir(parents=True, exist_ok=True)
+            self._touch(cli_dir / "__main__.py", "# dispatcher\n")
+            self._touch(cli_dir / "create" / "inventory" / "__main__.py", "# cmd\n")
+
+            argv = [
+                "create",
+                "inventory",
+                "/home/user/inventories/localhost-0",
+                "--host",
+                "localhost",
+                "--vars",
+                '{"a": 1, "b": 2}',
+            ]
+            module, remaining = resolve_command_module(cli_dir, argv)
+            self.assertEqual(module, "cli.create.inventory")
+            self.assertEqual(remaining, argv[2:])
+
+    def test_resolve_command_module_survives_oserror_on_long_path(self):
+        # Defence in depth: even if a freshly-introduced positional arg
+        # somehow slips past the flag-stop heuristic and produces a path
+        # that stat() refuses (ENAMETOOLONG, ENOENT, EACCES), the
+        # dispatcher MUST keep trying shorter prefixes instead of crashing.
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = Path(td) / "cli"
+            cli_dir.mkdir(parents=True, exist_ok=True)
+            self._touch(cli_dir / "__main__.py", "# dispatcher\n")
+            self._touch(cli_dir / "build" / "tree" / "__main__.py", "# cmd\n")
+
+            # 5000-char arg blows past most filesystem name-length limits.
+            blob = "x" * 5000
+            argv = ["build", "tree", blob]
+            module, remaining = resolve_command_module(cli_dir, argv)
+            self.assertEqual(module, "cli.build.tree")
+            self.assertEqual(remaining, [blob])
+
 
 if __name__ == "__main__":
     unittest.main()

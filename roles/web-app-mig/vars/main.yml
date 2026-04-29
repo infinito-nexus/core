@@ -3,9 +3,9 @@ application_id: "web-app-mig"
 entity_name:    "{{ application_id | get_entity_name }}"
 
 # Container port from config
-container_port: "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.port') }}"
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.inter') }}"
 
 # Image settings from config
-MIG_IMAGE:      "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-MIG_VERSION:    "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
-MIG_CONTAINER:  "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
+MIG_IMAGE:      "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+MIG_VERSION:    "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+MIG_CONTAINER:  "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"

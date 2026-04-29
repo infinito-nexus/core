@@ -1,0 +1,24 @@
+asset:
+  enabled: false
+  shared: true
+  cpus: '0.2'
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 128
+  source_directory: '{{ playbook_dir }}/assets'
+  url: //{{ lookup('domain', 'web-svc-file') }}/assets
+  run_after:
+  - web-svc-file
+  lifecycle: beta
+file:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+css:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

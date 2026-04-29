@@ -15,7 +15,7 @@ docker_git_repository_address:          ""                      # The address of
 {# I recommend, to use this mappings, but you can skip it and access config entries directly via lookup('config', ...) #}
 
 # This variables had been autocreated. For a detailled explanation checkout the config/main.yml file 
-{{ application_id | get_entity_name }}_version:   "{% raw %}{{ lookup('config', application_id, 'compose.services.{% endraw %}{{ application_id | get_entity_name }}{% raw %}.version') }}"{% endraw %}
-{{ application_id | get_entity_name }}_image:     "{% raw %}{{ lookup('config', application_id, 'compose.services.{% endraw %}{{ application_id | get_entity_name }}{% raw %}.image') }}"{% endraw %}
-{{ application_id | get_entity_name }}_container: "{% raw %}{{ lookup('config', application_id, 'compose.services.{% endraw %}{{ application_id | get_entity_name }}{% raw %}.name') }}"{% endraw %}
-{{ application_id | get_entity_name }}_volume:    "{% raw %}{{ lookup('config', application_id, 'compose.volumes.data') }}"{% endraw %}
+{{ application_id | get_entity_name }}_version:   "{% raw %}{{ lookup('config', application_id, 'services.{% endraw %}{{ application_id | get_entity_name }}{% raw %}.version') }}"{% endraw %}
+{{ application_id | get_entity_name }}_image:     "{% raw %}{{ lookup('config', application_id, 'services.{% endraw %}{{ application_id | get_entity_name }}{% raw %}.image') }}"{% endraw %}
+{{ application_id | get_entity_name }}_container: "{% raw %}{{ lookup('config', application_id, 'services.{% endraw %}{{ application_id | get_entity_name }}{% raw %}.name') }}"{% endraw %}
+{{ application_id | get_entity_name }}_volume:    "{% raw %}{{ lookup('config', application_id, 'volumes.data') }}"{% endraw %}

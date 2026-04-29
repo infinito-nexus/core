@@ -17,7 +17,7 @@ from utils.roles.resource_validation import filter_roles_by_min_storage  # noqa:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Validate roles by compose.services.<entity>.min_storage in roles/*/config/main.yml"
+            "Validate roles by services.<entity>.min_storage in roles/*/meta/services.yml"
         )
     )
 

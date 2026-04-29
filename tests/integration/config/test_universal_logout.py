@@ -4,7 +4,7 @@ import yaml
 
 
 class TestUniversalLogoutSetting(unittest.TestCase):
-    ROLES_PATH = "roles/web-app-*/config/main.yml"
+    ROLES_PATH = "roles/web-app-*/meta/services.yml"
 
     def test_logout_defined(self):
         files = glob.glob(self.ROLES_PATH)
@@ -22,23 +22,19 @@ class TestUniversalLogoutSetting(unittest.TestCase):
                     errors.append(f"YAML parse error in '{file_path}': {e}")
                     continue
 
-            docker = {}
-            if data is not None:
-                docker = data.get("compose", {})
-
-            services = docker.get("services", {})
-            logout = services.get("logout", {})
+            services = data if isinstance(data, dict) else {}
+            logout = services.get("logout", {}) or {}
 
             if "enabled" not in logout:
                 errors.append(
-                    f"Missing 'compose.services.logout.enabled' setting in '{file_path}'. "
+                    f"Missing 'services.logout.enabled' setting in '{file_path}'. "
                     "You must explicitly set it to true or false for this app."
                 )
             else:
                 val = logout["enabled"]
                 if not isinstance(val, bool):
                     errors.append(
-                        f"The 'compose.services.logout.enabled' setting in '{file_path}' must be boolean true or false, "
+                        f"The 'services.logout.enabled' setting in '{file_path}' must be boolean true or false, "
                         f"but found: {val} (type {type(val).__name__})"
                     )
 

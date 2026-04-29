@@ -1,0 +1,22 @@
+domains:
+  canonical:
+  - flow.ai.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+  whitelist:
+    font-src:
+    - https://fonts.gstatic.com  # nocheck: url
+    style-src-elem:
+    - https://fonts.googleapis.com  # nocheck: url
+    script-src-elem:
+    - https://fonts.googleapis.com  # nocheck: url
+    - https://fonts.gstatic.com  # nocheck: url
+    - https://r.wdfl.co  # nocheck: url
+    connect-src: []
+networks:
+  local:
+    subnet: 192.168.104.16/28

@@ -1,0 +1,4 @@
+domains:
+  canonical:
+  - oauth2-proxy.{{ DOMAIN_PRIMARY }}
+  aliases: []

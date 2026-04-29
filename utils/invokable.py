@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Set
 
-import yaml
+from utils.cache.yaml import load_yaml_any
 
 
 @dataclass(frozen=True)
@@ -52,45 +52,22 @@ def _categories_file() -> Path:
 def _read_yaml(path: Path) -> dict:
     if not path.is_file():
         return {}
-    with path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
-
-
-def _extract_lifecycle(meta: dict) -> str:
-    """
-    Supports both:
-      galaxy_info:
-        lifecycle: stable
-
-    and a possible future form:
-      galaxy_info:
-        lifecycle:
-          stage: stable
-    """
-    gi = meta.get("galaxy_info") or {}
-    lifecycle = gi.get("lifecycle")
-
-    if isinstance(lifecycle, str):
-        return lifecycle.strip().lower()
-
-    if isinstance(lifecycle, dict):
-        stage = lifecycle.get("stage")
-        if isinstance(stage, str):
-            return stage.strip().lower()
-
-    return ""
+    data = load_yaml_any(str(path), default_if_missing={})
+    return data if isinstance(data, dict) else {}
 
 
 def _role_lifecycle(role_dir: Path) -> str:
-    meta_file = role_dir / "meta" / "main.yml"
-    if not meta_file.is_file():
-        return ""
+    # Per req-010 `lifecycle` lives on the role's primary entity at
+    # `meta/services.yml.<primary_entity>.lifecycle`. Delegate to the
+    # canonical helper and treat any failure as "no lifecycle" so role
+    # discovery is never broken by a single malformed meta file.
+    from utils.roles.meta_lookup import get_role_lifecycle
+
     try:
-        meta = _read_yaml(meta_file)
-        return _extract_lifecycle(meta)
+        value = get_role_lifecycle(role_dir, role_name=role_dir.name)
     except Exception:
-        # Best-effort: never fail discovery because of a single broken meta file
         return ""
+    return value or ""
 
 
 def _get_invokable_paths() -> list[str]:

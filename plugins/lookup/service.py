@@ -6,7 +6,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.applications.config import get
-from utils.runtime_data import get_merged_applications
+from utils.cache.applications import get_merged_applications
 from utils.service_registry import (
     build_role_to_primary_service_key,
     build_service_registry_from_applications,
@@ -26,7 +26,7 @@ def _get_service_flag(
             get(
                 applications=applications,
                 application_id=app_id,
-                config_path=f"compose.services.{service_key}.{flag}",
+                config_path=f"services.{service_key}.{flag}",
                 strict=False,
                 default=False,
                 skip_missing_app=True,
@@ -43,7 +43,7 @@ def _get_enabled_service_keys(
     services = get(
         applications=applications,
         application_id=app_id,
-        config_path="compose.services",
+        config_path="services",
         strict=False,
         default={},
         skip_missing_app=True,
@@ -173,13 +173,13 @@ class LookupModule(LookupBase):
       lookup('service', 'web-app-matomo')   # resolved via reverse mapping
 
     Reads 'applications' and 'group_names' from Ansible variables and discovers
-    service providers from the role-local compose.services metadata.
+    service providers from the role-local services metadata.
 
     Returns a dict per term:
       id      — canonical service key  (e.g. 'matomo')
       role    — provider role name     (e.g. 'web-app-matomo')
-      enabled — True if any deployed app has compose.services.<key>.enabled: true
-      shared  — True if any deployed app has compose.services.<key>.shared: true
+      enabled — True if any deployed app has services.<key>.enabled: true
+      shared  — True if any deployed app has services.<key>.shared: true
       required — True if any deployed app has both enabled AND shared (direct
                  or transitively via its own enabled service dependencies).
                  "Required" was chosen over "needed" to express that the

@@ -33,20 +33,22 @@ def find_none_values(data, prefix=None):
 
 class TestConfigurationNoNone(unittest.TestCase):
     def test_configuration_files_have_no_none_values(self):
-        # Find all config/main.yml files under roles/*/vars
-        pattern = os.path.join(
+        # Post-req-008: per-role configuration lives in roles/*/meta/*.yml
+        # (services.yml, server.yml, rbac.yml, schema.yml, users.yml,
+        # volumes.yml). The legacy roles/*/config/main.yml file no longer
+        # exists. Recurse into every meta/*.yml file and assert no key
+        # resolves to a YAML null.
+        roles_root = os.path.join(
             os.path.dirname(__file__),
             os.pardir,
             os.pardir,
             os.pardir,
             "roles",
-            "*",
-            "config",
-            "main.yml",
         )
+        pattern = os.path.join(roles_root, "*", "meta", "*.yml")
         files = glob.glob(pattern)
         self.assertTrue(
-            files, f"No config/main.yml files found with pattern: {pattern}"
+            files, f"No roles/*/meta/*.yml files found with pattern: {pattern}"
         )
 
         all_errors = []

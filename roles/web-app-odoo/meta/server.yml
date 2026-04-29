@@ -1,0 +1,27 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    script-src-attr:
+      unsafe-eval: true
+    style-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist:
+    connect-src:
+    - odoo.erp.{{ DOMAIN_PRIMARY }}
+    - wss://odoo.erp.{{ DOMAIN_PRIMARY }}
+    frame-ancestors:
+    - '{{ DOMAIN_PRIMARY }}'
+    - '*.{{ DOMAIN_PRIMARY }}'
+    font-src:
+    - 'data:'
+domains:
+  canonical:
+  - odoo.erp.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.105.16/28

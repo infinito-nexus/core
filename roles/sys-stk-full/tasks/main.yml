@@ -3,7 +3,15 @@
   ansible.builtin.set_fact:
     sys_stk_full_application_id: "{{ application_id }}"
     sys_stk_full_domain: "{{ lookup('domain', application_id) }}"
-    sys_stk_full_http_port: "{{ ports.localhost.http[application_id] }}"
+    sys_stk_full_http_port: >-
+      {{
+        lookup(
+          'config',
+          application_id,
+          'services.' ~ (application_id | get_entity_name) ~ '.ports.local.http',
+          ''
+        )
+      }}
   changed_when: false
 
 - name: "For '{{ application_id }}': include role sys-stk-front-proxy"

@@ -150,14 +150,23 @@ class TestRoleDependencyResolver(unittest.TestCase):
         make_role(self.roles_dir, "J")
         make_role(self.roles_dir, "K")
 
+        # Per req-010 run_after lives at
+        # meta/services.yml.<primary_entity>.run_after; for "A" the entity
+        # name equals the role name.
+        write(
+            os.path.join(self.roles_dir, "A", "meta", "services.yml"),
+            """
+            ---
+            A:
+              run_after:
+                - J
+                - K
+            """,
+        )
         write(
             os.path.join(self.roles_dir, "A", "meta", "main.yml"),
             """
             ---
-            galaxy_info:
-              run_after:
-                - J
-                - K
             dependencies: []
             """,
         )
@@ -235,7 +244,15 @@ class TestRoleDependencyResolver(unittest.TestCase):
             dependencies:
               - D1
               - { role: D2 }
-            galaxy_info:
+            """,
+        )
+        # Per req-010 run_after lives at
+        # meta/services.yml.<primary_entity>.run_after.
+        write(
+            os.path.join(self.roles_dir, "ROOT", "meta", "services.yml"),
+            """
+            ---
+            ROOT:
               run_after:
                 - RA1
             """,

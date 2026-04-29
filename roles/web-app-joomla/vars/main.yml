@@ -5,10 +5,10 @@ webserver_client_max_body_size:   "{{ JOOMLA_POST_MAX_SIZE }}"
 entity_name:                      "{{ application_id | get_entity_name }}"
 
 # Joomla
-JOOMLA_VERSION:                   "{{ lookup('config', application_id, 'compose.services.joomla.version') }}"
-JOOMLA_IMAGE:                     "{{ lookup('config', application_id, 'compose.services.joomla.image') }}"
-JOOMLA_CONTAINER:                 "{{ lookup('config', application_id, 'compose.services.joomla.name') }}"
-JOOMLA_VOLUME:                    "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+JOOMLA_VERSION:                   "{{ lookup('config', application_id, 'services.joomla.version') }}"
+JOOMLA_IMAGE:                     "{{ lookup('config', application_id, 'services.joomla.image') }}"
+JOOMLA_CONTAINER:                 "{{ lookup('config', application_id, 'services.joomla.name') }}"
+JOOMLA_VOLUME:                    "{{ lookup('config', application_id, 'volumes.data') }}"
 JOOMLA_CUSTOM_IMAGE:              "{{ entity_name }}_custom:{{ JOOMLA_VERSION }}"
 JOOMLA_DOMAINS:                   "{{ lookup('config', application_id, 'server.domains.canonical') }}"
 JOOMLA_SITE_NAME:                 "{{ SOFTWARE_NAME }} Joomla - CMS"
@@ -19,7 +19,7 @@ JOOMLA_CLI_FILE:                  "/var/www/html/cli/joomla.php"
 
 ## Upload
 JOOMLA_UPLOAD_CONFIG:             "{{ [ lookup('container', application_id, 'directories.instance'), 'php-upload.ini' ] | path_join }}"
-JOOMLA_UPLOAD_SIZE:               "{{ lookup('config', application_id, 'compose.services.joomla.upload.size_mb') }}"
+JOOMLA_UPLOAD_SIZE:               "{{ lookup('config', application_id, 'services.joomla.upload.size_mb') }}"
 JOOMLA_UPLOAD_MAX_FILESIZE:       "{{ (JOOMLA_UPLOAD_SIZE | int) }}M"
 JOOMLA_POST_MAX_SIZE:             "{{ ((JOOMLA_UPLOAD_SIZE | int) * 12 // 10) }}M"
 

@@ -1,0 +1,17 @@
+csp:
+  whitelist:                # URL's which should be whitelisted
+    script-src-elem:  []
+    style-src-attr:   []
+    font-src:         []
+    connect-src:      []
+    frame-src:        []
+  flags:                    # Flags which should be set
+    style-src-attr:
+      unsafe-inline:  false
+    script-src-attr:
+      unsafe-inline:  false
+    script-src-elem:
+      unsafe-inline:  false
+domains:
+  canonical:        {}      # Urls under which the domain should be directly accessible
+  aliases:          []      # Alias redirections to the first element of the canonical domains

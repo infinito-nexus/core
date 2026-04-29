@@ -10,7 +10,7 @@
 
 - name: Execute CLI GNOME Extension manager script
   ansible.builtin.shell: cli-gnome-extension-manager "{{ item[0] }}" "{{ item[1] }}" "{{ item[2] }}"
-  loop: "{{ lookup('config', application_id, 'plugins') }}"
+  loop: "{{ lookup('config', application_id, 'services.gnome-extensions.plugins') }}"
   become: false
 
 - include_tasks: utils/once/flag.yml

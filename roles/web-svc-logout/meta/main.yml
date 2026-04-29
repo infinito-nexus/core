@@ -1,11 +1,9 @@
 galaxy_info:
   author: Kevin Veen‑Birkenbach
-  description: 'Deploys the universal logout service: a Dockerized Python container, Nginx `/logout` proxies for `*.infinito.nexus`,
-    and the `conductor.html.j2` template for unified logout orchestration.
+  description: 'Deploys the universal logout service: a Dockerized Python container, Nginx `/logout` proxies for `*.infinito.nexus`, and the `conductor.html.j2` template for unified logout orchestration.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   company: 'Kevin Veen‑Birkenbach
 
     Consulting & Coaching Solutions
@@ -15,27 +13,22 @@ galaxy_info:
     '
   min_ansible_version: '2.9'
   platforms:
-  - name: Docker
-    versions:
-    - latest
-  - name: Debian
-    versions:
-    - buster
-    - bullseye
-  - name: Ubuntu
-    versions:
-    - focal
-    - jammy
+    - name: Docker
+      versions:
+        - latest
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
   galaxy_tags:
-  - ansible
-  - docker
-  - flask
-  - nginx
-  - infinito
-  - logout
-  repository: https://github.com/kevinveenbirkenbach/universal-logout
+    - ansible
+    - docker
+    - flask
+    - nginx
+    - infinito
+    - logout
   issue_tracker_url: https://github.com/kevinveenbirkenbach/universal-logout/issues
-  documentation: https://github.com/kevinveenbirkenbach/universal-logout#readme
-  logo:
-    class: fa fa-sign-out-alt
-  lifecycle: beta

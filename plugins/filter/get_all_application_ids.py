@@ -3,7 +3,8 @@
 
 import glob
 import os
-import yaml
+
+from utils.cache.yaml import load_yaml_any
 
 
 def get_all_application_ids(roles_dir="roles"):
@@ -19,8 +20,7 @@ def get_all_application_ids(roles_dir="roles"):
 
     for filepath in glob.glob(pattern):
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
+            data = load_yaml_any(filepath, default_if_missing={})
         except Exception:
             continue
 

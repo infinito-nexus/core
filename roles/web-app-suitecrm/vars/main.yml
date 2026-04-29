@@ -14,28 +14,28 @@ SUITECRM_PHP_CONFIG_HOST:             "{{ [ lookup('container', application_id, 
 
 # Container images
 # Base PHP image used to run SuiteCRM
-SUITECRM_BASE_IMAGE:                  "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-SUITECRM_BASE_VERSION:                "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+SUITECRM_BASE_IMAGE:                  "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+SUITECRM_BASE_VERSION:                "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 # Upstream SuiteCRM application version (Git tag, e.g. 8.6.0)
-SUITECRM_APP_VERSION:                 "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.app_version') }}"
+SUITECRM_APP_VERSION:                 "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.app_version') }}"
 
 SUITECRM_CUSTOM_IMAGE:                "{{ entity_name }}_custom:{{ SUITECRM_APP_VERSION }}"
-SUITECRM_CONTAINER:                   "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
+SUITECRM_CONTAINER:                   "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 SUITECRM_SERVICE:                     "{{ entity_name }}"
 
 # Volumes
-SUITECRM_DATA_VOLUME:                 "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+SUITECRM_DATA_VOLUME:                 "{{ lookup('config', application_id, 'volumes.data') }}"
 
 # URLs & feature flags
 SUITECRM_URL:                         "{{ lookup('tls', application_id, 'url.base') }}"
 
 # LDAP
-SUITECRM_LDAP_ENABLED:                "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
+SUITECRM_LDAP_ENABLED:                "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SUITECRM_LDAP_CONFIG_HOST:            "{{ [ lookup('container', application_id, 'directories.config'), 'ldap.yaml'] | path_join }}"
 SUITECRM_LDAP_EXTENSION_DIR:          "{{ ['/var/www/html/extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
 
 # Simple maintenance toggle (for later extensions)
-SUITECRM_INIT_MAINTENANCE_MODE:       "{{ lookup('config', application_id, 'maintenance_mode') }}"
+SUITECRM_INIT_MAINTENANCE_MODE:       "{{ lookup('config', application_id, 'services.suitecrm.maintenance_mode') }}"
 
 # Entrypoint script (host <-> container mapping)
 SUITECRM_ENTRYPOINT_SCRIPT_FILE:      "docker-entrypoint-suitecrm.sh"

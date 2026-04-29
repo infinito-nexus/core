@@ -1,0 +1,8 @@
+logout:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true
+xmpp:
+  lifecycle: pre-alpha

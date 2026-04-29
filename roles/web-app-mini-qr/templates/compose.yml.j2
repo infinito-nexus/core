@@ -6,7 +6,7 @@
     image: "{{ MINI_QR_IMAGE }}:{{ MINI_QR_VERSION }}"
     container_name: "{{ MINI_QR_CONTAINER }}"
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mini-qr.ports.local.http') }}:{{ container_port }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,0 +1,7 @@
+data: onlyoffice_data
+logs: onlyoffice_logs
+fonts: onlyoffice_fonts
+lib: onlyoffice_lib
+rabbitmqdata: onlyoffice_rabbitmqdata
+pgdata: onlyoffice_pgdata
+redisdata: onlyoffice_redisdata

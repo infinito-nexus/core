@@ -1,0 +1,18 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist: {}
+domains:
+  aliases: []
+  canonical:
+  - prometheus.{{ DOMAIN_PRIMARY }}
+status_codes:
+  default:
+  - 200
+  - 302
+networks:
+  local:
+    subnet: 192.168.104.160/28

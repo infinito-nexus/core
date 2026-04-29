@@ -15,13 +15,13 @@ def inj_enabled_filter(
     applications: dict,
     application_id: str,
     features: list,
-    prefix: str = "compose.services",
+    prefix: str = "services",
     default: bool = False,
 ) -> dict:
     """
     Build a dict {feature: enabled_bool} by reading flags from:
 
-        compose.services.<feature>.enabled
+        services.<feature>.enabled
     """
     if not isinstance(features, (list, tuple)):
         return {}

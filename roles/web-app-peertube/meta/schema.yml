@@ -1,0 +1,5 @@
+credentials:
+  secret:
+    description: PeerTube secret used for session signing and CSRF protection
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

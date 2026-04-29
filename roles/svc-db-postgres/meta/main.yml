@@ -1,25 +1,23 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: The Docker PostgreSQL Role offers an easy and efficient way to run a PostgreSQL database inside a Docker container.
-    Manage your data securely and effectively, making it ideal for production or local development.
+  description: The Docker PostgreSQL Role offers an easy and efficient way to run a PostgreSQL database inside a Docker container. Manage your data securely and effectively, making it ideal for production or local development.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Docker
-    versions:
-    - latest
+    - name: Docker
+      versions:
+        - latest
   galaxy_tags:
-  - postgresql
-  - docker
-  - database
-  - administration
-  - central-database
-  repository: https://s.infinito.nexus/code
+    - postgresql
+    - docker
+    - database
+    - administration
+    - central-database
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta

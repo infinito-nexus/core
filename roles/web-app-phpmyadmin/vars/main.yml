@@ -1,14 +1,14 @@
 # General
 application_id:       "web-app-phpmyadmin"
-database_host:        "{{ lookup('config','svc-db-mariadb', 'compose.services.mariadb.name') if lookup('database', application_id, 'shared') }}"
+database_host:        "{{ lookup('config','svc-db-mariadb', 'services.mariadb.name') if lookup('database', application_id, 'shared') }}"
 
 # PHPMyAdmin
-PHPMYADMIN_VERSION:             "{{ lookup('config', application_id, 'compose.services.phpmyadmin.version') }}"
-PHPMYADMIN_IMAGE:               "{{ lookup('config', application_id, 'compose.services.phpmyadmin.image') }}"
-PHPMYADMIN_CONTAINER:           "{{ lookup('config', application_id, 'compose.services.phpmyadmin.name') }}"
-PHPMAYADMIN_AUTOLOGIN_ENABLED:  "{{ lookup('config', application_id, 'compose.services.phpmyadmin.autologin') | bool }}"
+PHPMYADMIN_VERSION:             "{{ lookup('config', application_id, 'services.phpmyadmin.version') }}"
+PHPMYADMIN_IMAGE:               "{{ lookup('config', application_id, 'services.phpmyadmin.image') }}"
+PHPMYADMIN_CONTAINER:           "{{ lookup('config', application_id, 'services.phpmyadmin.name') }}"
+PHPMAYADMIN_AUTOLOGIN_ENABLED:  "{{ lookup('config', application_id, 'services.phpmyadmin.autologin') | bool }}"
 
 # Credentials
 PHPMAYADMIN_ROOT_PASSWORD:  "{{ lookup('config','svc-db-mariadb', 'credentials.root_password') }}"
 PHPMAYADMIN_ROOT_USER:      "root"
-PHPMAYADMIN_DB_HOST:        "{{ lookup('config','svc-db-mariadb', 'compose.services.mariadb.name') }}"
+PHPMAYADMIN_DB_HOST:        "{{ lookup('config','svc-db-mariadb', 'services.mariadb.name') }}"

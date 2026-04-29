@@ -1,0 +1,9 @@
+# Users this role should provision. File root IS the users map (req-008).
+demo:
+  username: demo
+  email: "demo@{{ DOMAIN_PRIMARY }}"
+  roles: []
+  description: Demo User
+  limits:
+    rate:  "60 / 1min"   # token fill rate (N per window)
+    burst: 3600          # max immediate tokens

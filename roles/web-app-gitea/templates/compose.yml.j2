@@ -5,8 +5,8 @@
     image: "{{ GITEA_IMAGE }}:{{ GITEA_VERSION }}"
     container_name:  "{{ GITEA_CONTAINER }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
-      - "{{ports.public.ssh[application_id]}}:22"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}:{{ container_port }}"
+      - "{{lookup('config', application_id, 'services.gitea.ports.public.ssh')}}:22"
     volumes:
       - data:/data
       - /etc/timezone:/etc/timezone:ro

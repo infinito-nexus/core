@@ -23,11 +23,9 @@ class TestIsDockerServiceEnabledFilter(unittest.TestCase):
     def test_enabled_true(self):
         applications = {
             "app1": {
-                "compose": {
-                    "services": {
-                        "redis": {"enabled": True},
-                        "database": {"enabled": True},
-                    }
+                "services": {
+                    "redis": {"enabled": True},
+                    "database": {"enabled": True},
                 }
             }
         }
@@ -37,11 +35,9 @@ class TestIsDockerServiceEnabledFilter(unittest.TestCase):
     def test_enabled_false(self):
         applications = {
             "app1": {
-                "compose": {
-                    "services": {
-                        "redis": {"enabled": False},
-                        "database": {"enabled": False},
-                    }
+                "services": {
+                    "redis": {"enabled": False},
+                    "database": {"enabled": False},
                 }
             }
         }
@@ -51,11 +47,9 @@ class TestIsDockerServiceEnabledFilter(unittest.TestCase):
     def test_missing_enabled_key(self):
         applications = {
             "app1": {
-                "compose": {
-                    "services": {
-                        "redis": {},
-                        "database": {},
-                    }
+                "services": {
+                    "redis": {},
+                    "database": {},
                 }
             }
         }
@@ -65,10 +59,8 @@ class TestIsDockerServiceEnabledFilter(unittest.TestCase):
     def test_missing_service_key(self):
         applications = {
             "app1": {
-                "compose": {
-                    "services": {
-                        # no 'redis' or 'database'
-                    }
+                "services": {
+                    # no 'redis' or 'database'
                 }
             }
         }
@@ -76,22 +68,14 @@ class TestIsDockerServiceEnabledFilter(unittest.TestCase):
         self.assertFalse(self.filter(applications, "app1", "database"))
 
     def test_missing_services_key(self):
+        # Per req-008: services live at applications.<app>.services
+        # directly (no `compose.services` envelope).
         applications = {
             "app1": {
-                "compose": {
-                    # no 'services'
-                }
+                # no 'services' key
             }
         }
         self.assertFalse(self.filter(applications, "app1", "redis"))
-
-    def test_missing_docker_key(self):
-        applications = {
-            "app1": {
-                # no 'docker'
-            }
-        }
-        self.assertFalse(self.filter(applications, "app1", "database"))
 
     def test_missing_app_id(self):
         applications = {"other_app": {}}

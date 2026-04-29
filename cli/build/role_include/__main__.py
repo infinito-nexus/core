@@ -2,9 +2,10 @@
 
 import os
 import sys
-import yaml
 import argparse
 from collections import defaultdict, deque
+
+from utils.cache.yaml import load_yaml
 
 def find_roles(roles_dir, prefixes=None):
     """
@@ -22,17 +23,21 @@ def find_roles(roles_dir, prefixes=None):
             yield path, meta_file
 
 def load_run_after(meta_file):
-    """Load the 'run_after' from the meta/main.yml of a role."""
-    with open(meta_file, 'r') as f:
-        data = yaml.safe_load(f) or {}
-    return data.get('galaxy_info', {}).get('run_after', [])
+    """Return the role's `run_after` list (per req-010)."""
+    from utils.roles.meta_lookup import get_role_run_after
+
+    role_path = os.path.dirname(os.path.dirname(meta_file))
+    role_name = os.path.basename(role_path)
+    try:
+        return get_role_run_after(role_path, role_name=role_name)
+    except Exception:
+        return []
 
 def load_application_id(role_path):
     """Load the application_id from the vars/main.yml of the role."""
     vars_file = os.path.join(role_path, 'vars', 'main.yml')
     if os.path.exists(vars_file):
-        with open(vars_file, 'r') as f:
-            data = yaml.safe_load(f) or {}
+        data = load_yaml(vars_file)
         return data.get('application_id')
     return None
 

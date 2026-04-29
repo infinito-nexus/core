@@ -43,13 +43,13 @@ def _make_roles(tmp: Path, specs: dict) -> dict:
             tpl_dir.mkdir(parents=True)
             (tpl_dir / "prometheus.yml.j2").write_text(f'  - job_name: "{app_id}"\n')
         # applications dict: mirrors what Ansible populates from role config defaults.
+        # Per req-008 the materialised payload moved from
+        # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
         applications[app_id] = {
-            "compose": {
-                "services": {
-                    "prometheus": {
-                        "native_metrics": {
-                            "enabled": bool(cfg.get("native_metrics_enabled"))
-                        }
+            "services": {
+                "prometheus": {
+                    "native_metrics": {
+                        "enabled": bool(cfg.get("native_metrics_enabled"))
                     }
                 }
             }

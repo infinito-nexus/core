@@ -8,7 +8,9 @@ objectClass: {{ oc }}
 gidNumber: {{ entry.gidNumber }}
 {% endif %}
 cn: {{ entry.cn }}
+{% if entry.description is defined and entry.description %}
 description: {{ entry.description }}
+{% endif %}
 {% if entry.memberUid is defined %}
 {% for uid in entry.memberUid %}
 memberUid: {{ uid }}

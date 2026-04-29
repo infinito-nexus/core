@@ -3,7 +3,7 @@
     that:
       - >
         (
-          not ( lookup('config', item.key, 'compose.services.dashboard.enabled', false) | bool)
+          not ( lookup('config', item.key, 'services.dashboard.enabled', false) | bool)
         )
         or (lookup('domain',item.key)).endswith(DOMAIN_PRIMARY)
     fail_msg: >

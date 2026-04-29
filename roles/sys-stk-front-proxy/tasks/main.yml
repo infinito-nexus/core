@@ -8,7 +8,12 @@
     front_proxy_http_port: >-
       {{
         http_port
-        | default((ports.localhost.http | default({})).get(application_id))
+        | default(
+            lookup('config', application_id,
+              'services.' ~ (application_id | get_entity_name) ~ '.ports.local.http',
+              ''
+            )
+          )
       }}
     front_proxy_domain_conf_dst_resolved: >-
       {{

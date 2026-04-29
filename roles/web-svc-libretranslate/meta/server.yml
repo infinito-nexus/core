@@ -1,0 +1,10 @@
+csp:
+  whitelist: {}
+  flags: {}
+domains:
+  canonical:
+  - libretranslate.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.103.128/28

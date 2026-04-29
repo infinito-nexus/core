@@ -1,0 +1,22 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist:
+    frame-ancestors:
+    - '*'
+    media-src:
+    - 'blob:'
+    font-src:
+    - 'data:'
+domains:
+  canonical:
+  - video.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.102.96/28

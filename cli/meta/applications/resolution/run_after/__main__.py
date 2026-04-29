@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """
-Resolve galaxy_info.run_after transitively for a given role.
+Resolve run_after transitively for a given role.
+
+Per req-010 ``run_after`` lives at
+``meta/services.yml.<primary_entity>.run_after``. This script delegates to
+:func:`utils.roles.meta_lookup.get_role_run_after` so the primary-entity
+derivation stays in one place.
 
 Usage:
   python -m cli.meta.applications.resolution.run_after <role_name>
@@ -15,7 +20,10 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Set
 
-import yaml
+from utils.roles.meta_lookup import (
+    MetaServicesShapeError,
+    get_role_run_after,
+)
 
 
 class RunAfterResolutionError(RuntimeError):
@@ -30,43 +38,20 @@ def roles_dir() -> Path:
     return repo_root_from_here() / "roles"
 
 
-def role_meta_path(role_name: str) -> Path:
-    return roles_dir() / role_name / "meta" / "main.yml"
-
-
 def load_run_after(role_name: str) -> List[str]:
-    """
-    Read galaxy_info.run_after from roles/<role_name>/meta/main.yml.
-    Returns a list of role names (strings). Missing meta/main.yml => [].
-    """
-    meta = role_meta_path(role_name)
-    if not meta.exists():
-        return []
+    """Return the role's ``run_after`` list (or ``[]`` when absent).
 
+    Reads from ``meta/services.yml.<primary_entity>.run_after`` per req-010.
+    """
+    role_dir = roles_dir() / role_name
+    if not role_dir.is_dir():
+        return []
     try:
-        data = yaml.safe_load(meta.read_text(encoding="utf-8")) or {}
-    except Exception as exc:
-        raise RunAfterResolutionError(f"Failed to parse {meta}: {exc}") from exc
-
-    galaxy_info = data.get("galaxy_info", {}) or {}
-    run_after = galaxy_info.get("run_after", []) or []
-
-    if run_after is None:
-        return []
-    if not isinstance(run_after, list):
+        return get_role_run_after(role_dir, role_name=role_name)
+    except MetaServicesShapeError as exc:
         raise RunAfterResolutionError(
-            f"Invalid run_after type in {meta}: expected list, got {type(run_after).__name__}"
-        )
-
-    cleaned: List[str] = []
-    for item in run_after:
-        if isinstance(item, str) and item.strip():
-            cleaned.append(item.strip())
-        else:
-            raise RunAfterResolutionError(
-                f"Invalid run_after entry in {meta}: {item!r} (expected non-empty string)"
-            )
-    return cleaned
+            f"Invalid run_after in roles/{role_name}/meta/services.yml: {exc}"
+        ) from exc
 
 
 def resolve_run_after_transitively(start_role: str) -> List[str]:

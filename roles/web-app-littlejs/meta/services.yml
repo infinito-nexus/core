@@ -1,0 +1,31 @@
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+css:
+  enabled: true
+  shared: true
+javascript:
+  enabled: true
+  shared: true
+littlejs:
+  image: nginx
+  version: alpine
+  ports:
+    local:
+      http: 8063
+  run_after:
+  - web-app-matomo
+  lifecycle: alpha
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

@@ -4,10 +4,10 @@ from collections import deque
 from pathlib import Path
 from typing import Any, Dict, List
 
-import yaml
-
+from utils.cache.yaml import load_yaml_any
 from utils.entity_name_utils import get_entity_name
 from utils.invokable import types_from_group_names
+from utils.roles.meta_lookup import get_role_run_after
 
 
 class ServiceRegistryError(ValueError):
@@ -55,7 +55,7 @@ def detect_service_bucket(role_name: str) -> str:
 def read_yaml_file(path: Path) -> Dict[str, Any]:
     if not path.is_file():
         return {}
-    return _as_mapping(yaml.safe_load(path.read_text(encoding="utf-8")) or {})
+    return _as_mapping(load_yaml_any(str(path), default_if_missing={}) or {})
 
 
 def load_applications_from_roles_dir(roles_dir: Path) -> Dict[str, Dict[str, Any]]:
@@ -68,7 +68,19 @@ def load_applications_from_roles_dir(roles_dir: Path) -> Dict[str, Dict[str, Any
         application_id = _normalized_name(vars_data.get("application_id"))
         if not application_id:
             continue
-        applications[application_id] = read_yaml_file(role_dir / "config" / "main.yml")
+        # Per req-008 every role's metadata lives under meta/<topic>.yml.
+        # Reassemble the legacy `{compose: {services: ...}, server: ...}`
+        # shape so this module's downstream readers stay unchanged.
+        meta_dir = role_dir / "meta"
+        config: Dict[str, Any] = {}
+        services_data = read_yaml_file(meta_dir / "services.yml")
+        if services_data:
+            config["services"] = services_data
+        for topic in ("server", "rbac", "volumes"):
+            topic_data = read_yaml_file(meta_dir / f"{topic}.yml")
+            if topic_data:
+                config[topic] = topic_data
+        applications[application_id] = config
     return applications
 
 
@@ -76,7 +88,7 @@ def discover_role_services(
     role_name: str,
     config: Dict[str, Any],
 ) -> Dict[str, Dict[str, Any]]:
-    services = _as_mapping(_as_mapping(config.get("compose")).get("services"))
+    services = _as_mapping(config.get("services"))
     entity_name = get_entity_name(role_name)
     primary_entry = _as_mapping(services.get(entity_name))
     alias_entries = {
@@ -89,8 +101,15 @@ def discover_role_services(
     if provides == entity_name:
         provides = ""
 
+    # A primary entry is a provider declaration iff `shared` is truthy, or it
+    # carries `provides:`, or it has alias entries pointing at it. The value
+    # of `shared` matters: SERVICES_DISABLED can write `shared: false` to
+    # neutralise a primary entity that only carries metadata, and that MUST
+    # NOT flip the entity into "provider" status.
     is_provider = bool(primary_entry) and (
-        "shared" in primary_entry or "provides" in primary_entry or alias_entries
+        bool(primary_entry.get("shared"))
+        or "provides" in primary_entry
+        or alias_entries
     )
     if not is_provider:
         return {}
@@ -185,7 +204,7 @@ def resolve_service_dependency_roles_from_config(
     config: Dict[str, Any],
     service_registry: Dict[str, Dict[str, Any]],
 ) -> List[str]:
-    services = _as_mapping(_as_mapping(config.get("compose")).get("services"))
+    services = _as_mapping(config.get("services"))
     includes: List[str] = []
     for service_key, service_conf in services.items():
         service_conf = _as_mapping(service_conf)
@@ -209,21 +228,17 @@ def resolve_service_dependency_roles_from_config(
 
 
 def load_run_after_from_roles_dir(roles_dir: Path, role_name: str) -> List[str]:
-    meta = read_yaml_file(roles_dir / role_name / "meta" / "main.yml")
-    galaxy_info = _as_mapping(meta.get("galaxy_info"))
-    raw = galaxy_info.get("run_after") or []
-    if not isinstance(raw, list):
+    # Per req-010 `run_after` lives at
+    # `meta/services.yml.<primary_entity>.run_after`. The helper resolves
+    # the primary entity name and surfaces shape errors via
+    # MetaServicesShapeError, which we wrap so loaders see a single error
+    # type from this module.
+    try:
+        result = get_role_run_after(roles_dir / role_name, role_name=role_name)
+    except Exception as exc:
         raise ServiceRegistryError(
-            f"Invalid run_after in roles/{role_name}/meta/main.yml: expected list."
-        )
-    result: List[str] = []
-    for item in raw:
-        dep = _normalized_name(item)
-        if not dep:
-            raise ServiceRegistryError(
-                f"Invalid run_after entry in roles/{role_name}/meta/main.yml: {item!r}"
-            )
-        result.append(dep)
+            f"Invalid run_after in roles/{role_name}/meta/services.yml: {exc}"
+        ) from exc
     return result
 
 
@@ -282,10 +297,12 @@ def ordered_primary_service_entries(
                 if dep_bucket_order < current_bucket_order:
                     continue
                 if dep_role not in primary_entries:
-                    raise ServiceRegistryError(
-                        f"{role_name}: run_after '{dep_role}' is not a discovered "
-                        "shared service role."
-                    )
+                    # The dependency target is not part of the discovered
+                    # provider set in this play (e.g. matomo skipped via
+                    # SERVICES_DISABLED). The ordering constraint is moot
+                    # — there's nothing in this bucket to wait for. Skip
+                    # silently rather than aborting the whole load.
+                    continue
 
                 graph[dep_role].append(role_name)
                 indegree[role_name] += 1

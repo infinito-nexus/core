@@ -1,3 +1,3 @@
 application_id:         svc-opt-keyboard-color
 system_service_id:      "{{ application_id }}"
-vendor_and_product_id:  "{{ lookup('config', application_id, 'vendor_and_product_id') }}"
+vendor_and_product_id:  "{{ lookup('config', application_id, 'services.keyboard-color.vendor_and_product_id') }}"

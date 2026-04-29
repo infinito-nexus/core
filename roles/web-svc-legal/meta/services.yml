@@ -1,0 +1,7 @@
+legal:
+  enabled: false
+  shared: false
+  lifecycle: beta
+prometheus:
+  enabled: true
+  shared: true

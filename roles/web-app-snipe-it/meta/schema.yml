@@ -1,0 +1,5 @@
+credentials:
+  app_key:
+    description: 'Generic 32-byte base64 key with base64: prefix'
+    algorithm: base64_prefixed_32
+    validation: ^base64:[A-Za-z0-9+/]{43}=$

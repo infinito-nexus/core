@@ -1,0 +1,41 @@
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: >-
+    Refreshes the system package index and upgrades every installed package on
+    the host. Dispatches to a per-package-family task file (arch/debian/fedora)
+    based on ansible_facts['distribution'], with Ubuntu mapped to debian and
+    CentOS mapped to fedora.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: 'Kevin Veen-Birkenbach
+
+    Consulting & Coaching Solutions
+
+    https://www.veen.world
+
+    '
+  min_ansible_version: '2.9'
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+  galaxy_tags:
+    - update
+    - system
+    - maintenance
+    - apt
+    - pacman
+    - dnf
+  issue_tracker_url: https://s.infinito.nexus/issues
+dependencies: []

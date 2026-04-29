@@ -15,30 +15,29 @@ from utils.service_registry import (
 
 
 class TestServiceRegistryDiscovery(unittest.TestCase):
+    """Per req-008, the materialised application payload exposes services
+    under the bare ``services`` key (no ``compose.services`` wrapper)."""
+
     def test_discovery_reads_provides_canonical_shared_and_enabled(self):
         applications = {
             "web-app-keycloak": {
-                "compose": {
-                    "services": {
-                        "keycloak": {
-                            "enabled": False,
-                            "shared": True,
-                            "provides": "oidc",
-                        }
+                "services": {
+                    "keycloak": {
+                        "enabled": False,
+                        "shared": True,
+                        "provides": "oidc",
                     }
                 }
             },
             "web-svc-cdn": {
-                "compose": {
-                    "services": {
-                        "cdn": {"enabled": False, "shared": True},
-                        "css": {"enabled": True, "shared": True, "canonical": "cdn"},
-                        "javascript": {
-                            "enabled": False,
-                            "shared": True,
-                            "canonical": "cdn",
-                        },
-                    }
+                "services": {
+                    "cdn": {"enabled": False, "shared": True},
+                    "css": {"enabled": True, "shared": True, "canonical": "cdn"},
+                    "javascript": {
+                        "enabled": False,
+                        "shared": True,
+                        "canonical": "cdn",
+                    },
                 }
             },
         }
@@ -59,18 +58,14 @@ class TestServiceRegistryDiscovery(unittest.TestCase):
     def test_entity_name_derivation_for_relevant_role_prefixes(self):
         applications = {
             "web-app-dashboard": {
-                "compose": {
-                    "services": {"dashboard": {"enabled": False, "shared": True}}
-                }
+                "services": {"dashboard": {"enabled": False, "shared": True}}
             },
-            "web-svc-file": {
-                "compose": {"services": {"file": {"enabled": False, "shared": True}}}
-            },
+            "web-svc-file": {"services": {"file": {"enabled": False, "shared": True}}},
             "svc-db-mariadb": {
-                "compose": {"services": {"mariadb": {"enabled": False, "shared": True}}}
+                "services": {"mariadb": {"enabled": False, "shared": True}}
             },
             "svc-ai-ollama": {
-                "compose": {"services": {"ollama": {"enabled": False, "shared": True}}}
+                "services": {"ollama": {"enabled": False, "shared": True}}
             },
         }
 
@@ -92,12 +87,10 @@ class TestServiceRegistryDiscovery(unittest.TestCase):
             "mariadb": {"role": "svc-db-mariadb"},
         }
         config = {
-            "compose": {
-                "services": {
-                    "ldap": {"enabled": True, "shared": True},
-                    "mariadb": {"enabled": True, "shared": True},
-                    "ignored": {"enabled": True, "shared": False},
-                }
+            "services": {
+                "ldap": {"enabled": True, "shared": True},
+                "mariadb": {"enabled": True, "shared": True},
+                "ignored": {"enabled": True, "shared": False},
             }
         }
 
@@ -108,27 +101,39 @@ class TestServiceRegistryDiscovery(unittest.TestCase):
 
 
 class TestServiceRegistryOrdering(unittest.TestCase):
+    """Per req-010, ``run_after`` lives on the role's primary entity at
+    ``meta/services.yml.<primary_entity>.run_after``."""
+
     def _mk_role(
         self,
         root: Path,
         role: str,
-        config: str,
+        primary_entity: str,
+        services_payload: dict,
         *,
         run_after: list[str] | None = None,
     ) -> None:
+        import yaml
+
         role_dir = root / role
-        (role_dir / "config").mkdir(parents=True, exist_ok=True)
-        (role_dir / "config" / "main.yml").write_text(config, encoding="utf-8")
-        (role_dir / "meta").mkdir(parents=True, exist_ok=True)
-        meta_lines = ["galaxy_info:"]
+        meta_dir = role_dir / "meta"
+        meta_dir.mkdir(parents=True, exist_ok=True)
+
+        # Inject run_after onto the primary entity (req-010 location).
+        services = dict(services_payload)
         if run_after is not None:
-            meta_lines.append("  run_after:")
-            for item in run_after:
-                meta_lines.append(f"    - {item}")
-        else:
-            meta_lines.append("  run_after: []")
-        (role_dir / "meta" / "main.yml").write_text(
-            "\n".join(meta_lines) + "\n",
+            primary = dict(services.get(primary_entity, {}) or {})
+            if run_after:
+                primary["run_after"] = list(run_after)
+            services[primary_entity] = primary
+
+        meta_dir.joinpath("services.yml").write_text(
+            yaml.safe_dump(services, sort_keys=False),
+            encoding="utf-8",
+        )
+        # meta/main.yml MUST NOT carry run_after anymore (req-010).
+        meta_dir.joinpath("main.yml").write_text(
+            "galaxy_info: {}\n",
             encoding="utf-8",
         )
 
@@ -166,28 +171,33 @@ class TestServiceRegistryOrdering(unittest.TestCase):
             self._mk_role(
                 roles_dir,
                 "svc-db-mariadb",
-                "compose:\n  services:\n    mariadb:\n      enabled: false\n      shared: true\n",
+                "mariadb",
+                {"mariadb": {"enabled": False, "shared": True}},
             )
             self._mk_role(
                 roles_dir,
                 "web-svc-file",
-                "compose:\n  services:\n    file:\n      enabled: false\n      shared: true\n",
+                "file",
+                {"file": {"enabled": False, "shared": True}},
             )
             self._mk_role(
                 roles_dir,
                 "web-svc-asset",
-                "compose:\n  services:\n    asset:\n      enabled: false\n      shared: true\n",
+                "asset",
+                {"asset": {"enabled": False, "shared": True}},
                 run_after=["web-svc-file"],
             )
             self._mk_role(
                 roles_dir,
                 "web-app-matomo",
-                "compose:\n  services:\n    matomo:\n      enabled: false\n      shared: true\n",
+                "matomo",
+                {"matomo": {"enabled": False, "shared": True}},
             )
             self._mk_role(
                 roles_dir,
                 "web-app-dashboard",
-                "compose:\n  services:\n    dashboard:\n      enabled: false\n      shared: true\n",
+                "dashboard",
+                {"dashboard": {"enabled": False, "shared": True}},
                 run_after=["web-app-matomo"],
             )
 
@@ -223,13 +233,15 @@ class TestServiceRegistryOrdering(unittest.TestCase):
             self._mk_role(
                 roles_dir,
                 "web-svc-file",
-                "compose:\n  services:\n    file:\n      enabled: false\n      shared: true\n",
+                "file",
+                {"file": {"enabled": False, "shared": True}},
                 run_after=["sys-svc-mail"],
             )
             self._mk_role(
                 roles_dir,
                 "sys-svc-mail",
-                "compose:\n  services:\n    mail:\n      enabled: false\n      shared: true\n",
+                "mail",
+                {"mail": {"enabled": False, "shared": True}},
             )
 
             with self.assertRaises(ServiceRegistryError):

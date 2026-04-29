@@ -1,4 +1,4 @@
 application_id: "svc-opt-swapfile"
 
-SWAPFILE_SIZE:  "{{ lookup('config', application_id, 'swapfile_size') }}"
+SWAPFILE_SIZE:  "{{ lookup('config', application_id, 'services.swapfile.swapfile_size') }}"
 SWAPFILE_PKG:   "swap-forge"

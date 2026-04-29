@@ -2,18 +2,16 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Configure system locales by deploying locale.gen and locale.conf and generating locales
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - system
-  - i18n
-  - locales
-  repository: https://s.infinito.nexus/code
+    - system
+    - i18n
+    - locales
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/roles/dev-locales
-  run_after: []
-  lifecycle: beta
 dependencies: []

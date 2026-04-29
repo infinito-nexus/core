@@ -1,0 +1,21 @@
+domains:
+  canonical:
+  - accounting.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist:
+    font-src:
+    - 'data:'
+    connect-src:
+    - https://akaunting.com
+networks:
+  local:
+    subnet: 192.168.101.0/28

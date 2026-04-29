@@ -1,33 +1,27 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Transform your video hosting experience with Peertube, a decentralized platform built for scalability, innovation,
-    and community collaboration.
+  description: 'Transform your video hosting experience with Peertube, a decentralized platform built for scalability, innovation, and community collaboration.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Linux
-    versions:
-    - all
+    - name: Linux
+      versions:
+        - all
   galaxy_tags:
-  - peertube
-  - video-hosting
-  - docker
-  - compose
-  - decentralized
-  - open-source
-  - video platform
-  repository: https://s.infinito.nexus/code
+    - peertube
+    - video-hosting
+    - docker
+    - compose
+    - decentralized
+    - open-source
+    - video platform
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-video
-  run_after:
-  - web-app-keycloak
-  lifecycle: beta

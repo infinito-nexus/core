@@ -1,0 +1,3 @@
+swapfile:
+  swapfile_size: '{{ ansible_facts[''memtotal_mb''] | int }}M'
+  lifecycle: beta

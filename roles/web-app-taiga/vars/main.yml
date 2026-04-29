@@ -14,8 +14,8 @@ TAIGA_SUPERUSER_PASSWORD:         "{{ lookup('users', 'administrator').password 
 TAIGA_SUPERUSER_EMAIL:            "{{ lookup('users', 'administrator').email }}"
 
 ## Authentication
-TAIGA_OIDC_ENABLED:               "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
-TAIGA_LDAP_ENABLED:               "{{ lookup('config', application_id, 'compose.services.ldap.enabled', false) }}"
+TAIGA_OIDC_ENABLED:               "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+TAIGA_LDAP_ENABLED:               "{{ lookup('config', application_id, 'services.ldap.enabled', false) }}"
 TAIGA_PLUGINS_ENABLED:            "{{ TAIGA_OIDC_ENABLED | bool or TAIGA_LDAP_ENABLED | bool }}"
 TAIGA_CONFIG_APPEND_MARKER:       "INFINITO_TAIGA_AUTH_CONFIG"
 TAIGA_OIDC_PLUGIN_REPOSITORY:     "https://github.com/taigaio/taiga-contrib-oidc-auth.git"
@@ -41,7 +41,7 @@ TAIGA_PLUGIN_PIP_INSTALL_ARGS: >-
   }}
 
 ## Docker
-TAIGA_VERSION:                    "{{ lookup('config', application_id, 'compose.services.taiga.version') }}"
+TAIGA_VERSION:                    "{{ lookup('config', application_id, 'services.taiga.version') }}"
 TAIGA_CONFIG_DIRECTORY:           "{{ lookup('container', application_id, 'directories.config') }}"
 TAIGA_INSTANCE_DIRECTORY:         "{{ lookup('container', application_id, 'directories.instance') }}"
 TAIGA_DATABASE_VOLUME:            "{{ lookup('database', application_id, 'volume') }}"

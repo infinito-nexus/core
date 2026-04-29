@@ -1,6 +1,0 @@
-credentials:
-  secret_key:
-    description:  "Django SECRET_KEY for Baserow"
-    algorithm:    "alphanumeric"
-    validation:
-      min_length: 50

@@ -17,11 +17,10 @@
     - compose up
 - name: Prebuild etherpad image
   # On local testing environment errors exist if you don't prebuild.
-  # --network=host: buildkit's private network fails to reach
-  # registry.npmjs.org / raw.githubusercontent.com from inside the
-  # nested infinito container; host-net inherits the outer container's
-  # working network.
+  # `compose` is the project's docker-compose wrapper; the legacy
+  # `--network=host` flag is no longer accepted by current `compose
+  # build` and has been dropped.
   command:
-    cmd: compose build --network=host etherpad
+    cmd: compose build etherpad
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   when: RUNTIME == 'dev'

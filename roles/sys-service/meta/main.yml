@@ -2,23 +2,22 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Role to manage systemd service units, including cleanup, deployment, and runtime configuration.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Linux
-    versions:
-    - all
+    - name: Linux
+      versions:
+        - all
   galaxy_tags:
-  - systemd
-  - services
-  - automation
-  - infinito
-  repository: https://s.infinito.nexus/code
+    - systemd
+    - services
+    - automation
+    - infinito
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://www.freedesktop.org/software/systemd/man/systemd.service.html
-  lifecycle: beta
 dependencies: []

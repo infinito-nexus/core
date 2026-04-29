@@ -1,5 +1,6 @@
 import re
-import yaml
+
+from utils.cache.yaml import dump_yaml_str, load_yaml_str
 
 
 def compose_mods(yml_text, docker_repository_path, env_file):
@@ -48,7 +49,7 @@ def compose_mods(yml_text, docker_repository_path, env_file):
         return path
 
     try:
-        data = yaml.safe_load(yml_text) or {}
+        data = load_yaml_str(yml_text) or {}
         services = data.get("services", {}) or {}
 
         for name, svc in services.items():
@@ -108,7 +109,7 @@ def compose_mods(yml_text, docker_repository_path, env_file):
             },
         )
 
-        yml_text = yaml.dump(data, default_flow_style=False, sort_keys=False)
+        yml_text = dump_yaml_str(data)
     except Exception:
         # leave the original yml_text as-is if parsing fails
         pass

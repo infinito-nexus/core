@@ -8,13 +8,13 @@ For browser-side validation requirements after visible behavior changes, see [Pl
 ## `javascript.js.j2` ⚙️
 
 - `sys-front-inj-javascript` loads `templates/javascript.js.j2` when it exists and otherwise falls back to `files/javascript.js`.
-- The injector runs when `compose.services.javascript.enabled` is enabled.
+- The injector runs when `services.javascript.enabled` is enabled.
 - The loaded script is collapsed into a one-liner before injection and added to the CSP hash list so inline execution remains consistent with the generated policy.
 - You MUST use `javascript.js.j2` when the script depends on role variables or inventory values, and use `files/javascript.js` when the script is static.
 
 ## Inventory 📋
 
-- You MUST keep `compose.services.javascript.enabled` enabled in the role configuration or override it in the inventory when JavaScript injection should run.
+- You MUST keep `services.javascript.enabled` enabled in the role configuration or override it in the inventory when JavaScript injection should run.
 - You MUST pass only the runtime values that the browser logic actually needs. Keep the rendered template surface small and explicit.
 
 ## Repository Rules 📏

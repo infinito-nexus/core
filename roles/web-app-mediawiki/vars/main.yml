@@ -4,7 +4,7 @@ container_port:                   80
 entity_name:                      "{{ application_id | get_entity_name }}"
 
 # Mediawiki
-MEDIAWIKI_SITENAME:               "{{ lookup('config', application_id, 'sitename') }}"
+MEDIAWIKI_SITENAME:               "{{ lookup('config', application_id, 'services.mediawiki.sitename') }}"
 MEDIAWIKI_URL:                    "{{ lookup('tls', application_id, 'url.base') }}"
 
 ## Folders
@@ -21,16 +21,16 @@ MEDIAWIKI_LOCAL_MOUNT_DIR:        "{{ [ MEDIAWIKI_VOLUMES_DIR, 'mw-local' ] | pa
 MEDIAWIKI_LOCAL_PATH:             "/opt/mw-local"
 
 ## Docker
-MEDIAWIKI_VERSION:                "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
-MEDIAWIKI_IMAGE:                  "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
+MEDIAWIKI_VERSION:                "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+MEDIAWIKI_IMAGE:                  "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 MEDIAWIKI_CUSTOM_IMAGE:           "{{ entity_name }}_custom:{{ MEDIAWIKI_VERSION }}"
-MEDIAWIKI_CONTAINER:              "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
-MEDIAWIKI_VOLUME_IMAGES:          "{{ lookup('config', application_id, 'compose.volumes.images') }}"
-MEDIAWIKI_VOLUME_EXTENSIONS:      "{{ lookup('config', application_id, 'compose.volumes.extensions') }}"
+MEDIAWIKI_CONTAINER:              "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+MEDIAWIKI_VOLUME_IMAGES:          "{{ lookup('config', application_id, 'volumes.images') }}"
+MEDIAWIKI_VOLUME_EXTENSIONS:      "{{ lookup('config', application_id, 'volumes.extensions') }}"
 MEDIAWIKI_USER:                   "www-data"
 MEDIAWIKI_USER_GID:               "33"
 
-MEDIAWIKI_NETWORK_DATABASE:       "{{ lookup('config','svc-db-mariadb', 'compose.network') }}"
+MEDIAWIKI_NETWORK_DATABASE:       "{{ 'svc-db-mariadb' | get_entity_name }}"
 
 # User and Credentials
 MEDIAWIKI_ADMINISTRATOR_NAME:     "{{ lookup('users', 'administrator').username }}"
@@ -38,7 +38,7 @@ MEDIAWIKI_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credenti
 MEDIAWIKI_SECRET_KEY:             "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 
 # OIDC
-MEDIAWIKI_OIDC_ENABLED:           "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+MEDIAWIKI_OIDC_ENABLED:           "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 MEDIAWIKI_OIDC_CLIENT_ID:         "{{ OIDC.CLIENT.ID }}"
 MEDIAWIKI_OIDC_CLIENT_SECRET:     "{{ OIDC.CLIENT.SECRET }}"
 MEDIAWIKI_OIDC_ISSUER:            "{{ OIDC.CLIENT.ISSUER_URL }}"

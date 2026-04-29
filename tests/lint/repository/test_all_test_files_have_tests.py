@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from typing import List
 
-from tests.utils.fs import read_text
+from utils.cache.files import read_text
 
 
 def repo_root() -> Path:

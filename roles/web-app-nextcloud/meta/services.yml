@@ -1,0 +1,239 @@
+oidc:
+  enabled: true
+  shared: true
+  flavor: ''
+coturn:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+  cpus: '1'
+  mem_reservation: 1g
+  mem_limit: 8g
+  pids_limit: 512
+mariadb:
+  enabled: true
+  shared: true
+  cpus: '0.75'
+  mem_reservation: 512m
+  mem_limit: 1.5g
+  pids_limit: 512
+nextcloud:
+  name: nextcloud
+  image: nextcloud
+  version: production-fpm-alpine
+  min_storage: 20GB
+  backup:
+    no_stop_required: true
+  cpus: '2.0'
+  mem_reservation: 2g
+  mem_limit: 3g
+  pids_limit: 512
+  default_quota: '1000000000'
+  legacy_login_mask:
+    enabled: false
+  performance:
+    php:
+      memory_limit: '{{ ((ansible_facts[''memtotal_mb''] | int) / 30) | int }}M'
+      upload_limit: 5G
+      opcache_memory_consumption: '{{ ((ansible_facts[''memtotal_mb''] | int) / 30) | int }}M'
+  plugins_enabled: true
+  plugins:
+    appointments:
+      enabled: true
+    bbb:
+      enabled: '{{ ''web-app-bigbluebutton'' in group_names | lower }}'
+    calendar:
+      enabled: true
+    collectives:
+      enabled: true
+    contacts:
+      enabled: true
+    cospend:
+      enabled: true
+    deck:
+      enabled: '{{ ''web-app-taiga'' not in group_names | lower }}'
+    drawio:
+      enabled: true
+    event_update_notification:
+      enabled: true
+    epubviewer:
+      enabled: true
+    external:
+      enabled: true
+    files_bpm:
+      enabled: true
+    files_linkeditor:
+      enabled: true
+    fileslibreofficeedit:
+      enabled: false
+    forms:
+      enabled: true
+    groupfolders:
+      enabled: true
+    gpxpod:
+      enabled: true
+    integration_discourse:
+      enabled: false
+    integration_gitlab:
+      enabled: '{{ ''web-app-gitlab'' in group_names | lower }}'
+    integration_github:
+      enabled: false
+    integration_google:
+      enabled: true
+    integration_mastodon:
+      enabled: '{{ ''web-app-mastodon'' in group_names | lower }}'
+    integration_openai:
+      enabled: false
+    integration_openproject:
+      enabled: '{{ ''web-app-openproject'' in group_names | lower }}'
+    integration_peertube:
+      enabled: '{{ ''web-app-peertube'' in group_names | lower }}'
+    mail:
+      enabled: true
+    metadata:
+      enabled: true
+    news:
+      enabled: true
+    oidc_login:
+      enabled: '{{ lookup(''oidc_flavor'') == ''oidc_login'' }}'
+      incompatible_plugins:
+      - user_oidc
+      - sociallogin
+    phonetrack:
+      enabled: true
+    polls:
+      enabled: true
+    quota_warning:
+      enabled: true
+    recognize:
+      enabled: false
+    richdocuments:
+      enabled: false
+    onlyoffice:
+      enabled: true
+      incompatible_plugins:
+      - richdocuments
+      - fileslibreofficeedit
+    sociallogin:
+      enabled: '{{ lookup(''oidc_flavor'') == ''sociallogin'' }}'
+      incompatible_plugins:
+      - user_oidc
+      - oidc_login
+    spreed:
+      enabled: true
+    tables:
+      enabled: true
+    tasks:
+      enabled: true
+    twofactor_nextcloud_notification:
+      enabled: '{{ not (lookup(''config'', ''web-app-nextcloud'', ''services.oidc.enabled'', False)) }}'
+    twofactor_totp:
+      enabled: '{{ not (lookup(''config'', ''web-app-nextcloud'', ''services.oidc.enabled'', False)) }}'
+    user_ldap:
+      enabled: '{{ lookup(''config'', ''web-app-nextcloud'', ''services.ldap.enabled'', True) }}'
+      user_directory:
+        enabled: true
+    user_oidc:
+      enabled: '{{ lookup(''oidc_flavor'') == ''user_oidc'' }}'
+      incompatible_plugins:
+      - oidc_login
+      - sociallogin
+    whiteboard:
+      enabled: true
+  ports:
+    local:
+      http: 8001
+    public:
+      stun_turn: 3480
+      stun_turn_tls: 5350
+      relay:
+        start: 50000
+        end: 59999
+  run_after:
+  - web-app-keycloak
+  - web-app-matomo
+  lifecycle: beta
+proxy:
+  name: nextcloud-proxy
+  image: nginx
+  version: alpine
+  backup:
+    no_stop_required: true
+  cpus: '0.5'
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 512
+cron:
+  name: nextcloud-cron
+  cpus: '0.25'
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 256
+talk:
+  enabled: '{{ lookup(''config'', ''web-app-nextcloud'', ''plugins.spreed.enabled'', False) }}'
+  name: nextcloud-talk
+  image: nextcloud/aio-talk
+  version: latest
+  backup:
+    no_stop_required: false
+  turn_server:
+    onboard_enabled: false
+    standalone_enabled: true
+  network_mode: bridge
+  cpus: '2.0'
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+whiteboard:
+  name: nextcloud-whiteboard
+  image: ghcr.io/nextcloud-releases/whiteboard
+  version: latest
+  backup:
+    no_stop_required: true
+  cpus: '1'
+  mem_reservation: 128m
+  mem_limit: 1g
+  pids_limit: 1024
+onlyoffice:
+  enabled: true
+  shared: true
+collabora:
+  enabled: false
+  shared: false
+talk_recording:
+  name: nextcloud-talk-recording
+  image: nextcloud/aio-talk-recording
+  version: latest
+  backup:
+    no_stop_required: true
+  cpus: '2.0'
+  mem_reservation: 2g
+  mem_limit: 6g
+  pids_limit: 1024
+css:
+  enabled: false
+  shared: true
+hcaptcha:
+  enabled: '{{ HCAPTCHA_ENABLED | bool }}'
+prometheus:
+  enabled: true
+  shared: true

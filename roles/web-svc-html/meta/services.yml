@@ -1,0 +1,14 @@
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true
+html:
+  lifecycle: beta

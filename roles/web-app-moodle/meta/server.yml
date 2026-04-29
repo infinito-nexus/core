@@ -1,0 +1,23 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    script-src-attr:
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+      unsafe-eval: true
+  whitelist:
+    font-src:
+    - 'data:'
+    - 'blob:'
+    script-src-elem:
+    - https://cdn.jsdelivr.net
+domains:
+  canonical:
+  - academy.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.102.32/28

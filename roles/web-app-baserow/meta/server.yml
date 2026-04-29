@@ -1,0 +1,23 @@
+status_codes:
+  default:
+  - 200
+  - 301
+  - 302
+domains:
+  canonical:
+  - baserow.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  whitelist:
+    worker-src:
+    - 'blob:'
+    connect-src:
+    - https://sentry.com/
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+networks:
+  local:
+    subnet: 192.168.101.32/28

@@ -1,0 +1,37 @@
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-eval: true
+      unsafe-inline: true
+  whitelist:
+    script-src-elem:
+    - onlyoffice.{{ DOMAIN_PRIMARY }}
+    font-src:
+    - 'data:'
+    connect-src:
+    - collabora.{{ DOMAIN_PRIMARY }}
+    - cloud.{{ DOMAIN_PRIMARY }}
+    - collabora.{{ DOMAIN_PRIMARY }}
+    - onlyoffice.{{ DOMAIN_PRIMARY }}
+    - cloud.{{ DOMAIN_PRIMARY }}
+    - '*'
+    frame-src:
+    - collabora.{{ DOMAIN_PRIMARY }}
+    - onlyoffice.{{ DOMAIN_PRIMARY }}
+    - collabora.{{ DOMAIN_PRIMARY }}
+    - '*'
+    worker-src:
+    - 'blob:'
+    media-src:
+    - '*'
+domains:
+  canonical:
+  - next.cloud.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.102.64/28

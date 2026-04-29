@@ -9,7 +9,7 @@
     container_name: "{{ CONFLUENCE_CONTAINER }}"
     hostname: '{{ CONFLUENCE_HOSTNAME}}'
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:8090"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.confluence.ports.local.http') }}:8090"
     volumes:
       - 'data:{{ CONFLUENCE_HOME }}'
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}

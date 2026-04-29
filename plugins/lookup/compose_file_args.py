@@ -34,7 +34,7 @@ from ansible.plugins.loader import lookup_loader
 
 from utils.docker.paths_utils import get_docker_paths
 from utils.jinja_strict import render_strict
-from utils.runtime_data import get_merged_domains
+from utils.cache.domains import get_merged_domains
 
 
 def _as_str(v: Any) -> str:

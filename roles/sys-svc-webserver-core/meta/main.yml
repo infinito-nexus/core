@@ -1,22 +1,21 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs and configures Nginx HTTP and stream modules with performance-tuned defaults.
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   min_ansible_version: '2.9'
   galaxy_tags:
-  - nginx
-  - http
-  - stream
-  - caching
-  - compression
-  - security
-  - performance
-  repository: https://s.infinito.nexus/code
+    - nginx
+    - http
+    - stream
+    - caching
+    - compression
+    - security
+    - performance
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/roles/sys-svc-webserver-core
-  lifecycle: beta

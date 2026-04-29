@@ -12,7 +12,7 @@ For workflow-level iteration with Act, see [Workflow Loop](workflow.md).
   - ACTION: ask user "disable matomo and email providers? [Y/n]".
   - DEFAULT: yes (disable both).
   - SKIP ASK: only if user already answered explicitly in this iteration.
-  - ON YES: pass `SERVICES_DISABLED="matomo,email"` verbatim to every deploy command. The value is a comma-separated list of provider keys — NOT a glob, NOT a `web-app-*.compose.services.*` path.
+  - ON YES: pass `SERVICES_DISABLED="matomo,email"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
   - ON NO: omit the variable entirely.
   - SIDE EFFECT (yes): inventory initializer auto-removes `web-app-matomo` and `web-app-mailu` provider roles. Do NOT list them in `APPS`.
   - PERSIST: record answer at top of iteration. Reuse for all subsequent deploys without re-asking.
@@ -27,6 +27,17 @@ For workflow-level iteration with Act, see [Workflow Loop](workflow.md).
 - Only go back to `make deploy-fresh-purged-apps APPS=<roles> FULL_CYCLE=true` if you have concrete evidence that the inventory or host stack is broken, or you intentionally need a fresh single-app baseline again.
 - Network or DNS failures during a local deploy count as concrete evidence that the host stack is broken. In that case, the next retry MUST be `make deploy-fresh-purged-apps APPS=<roles> FULL_CYCLE=true`.
 - If you need to validate the single-app init/deploy path separately, use `make deploy-fresh-kept-apps APPS=<roles>`.
+
+## Matrix variants
+
+For the matrix-variant mechanism (folder layout, round semantics, `--variant` / `--full-cycle` flags) see [variants.md](../../../contributing/design/variants.md). The agent-side iteration rules below assume that mechanism as background.
+
+- Before you start a Role Loop on a matrix-variant role, you MUST decide if the iteration targets the FULL matrix (validates every variant) or ONE specific variant (focused debug). State the choice explicitly before the first deploy.
+- For focused debug on variant `<idx>`, you MUST pin `VARIANT=<idx>` on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder.
+- Default focused-debug recipe: `VARIANT=<idx> make deploy-fresh-purged-apps APPS=<role> FULL_CYCLE=true` once for the variant baseline, then `VARIANT=<idx> make deploy-reuse-kept-apps APPS=<role>` for the edit-fix-redeploy loop.
+- If a reuse target aborts with "inventory not found", you MUST add `VARIANT=<idx>` and re-run; do NOT work around the error by re-creating the unsuffixed folder by hand.
+- For FULL-matrix iteration, omit `VARIANT=`. If any round fails, capture WHICH round was the last successful one so the next redeploy can pin `VARIANT=<that-idx>` to it.
+- When debugging cross-variant interaction (for example "the multisite variant breaks because single-site state was not purged"), reproduce with the FULL matrix once, then pin `VARIANT=<failing-idx>` and iterate the fix. Re-run the FULL matrix only when you believe the fix is complete.
 
 ## Certificate Authority
 

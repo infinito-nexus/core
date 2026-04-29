@@ -1,0 +1,33 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+application:
+  image: python
+  version: 3.14-bookworm
+  name: web-app-bridgy-fed
+  repository: https://github.com/snarfed/bridgy-fed.git
+  branch: main
+css:
+  enabled: true
+  shared: true
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true
+bridgy-fed:
+  ports:
+    local:
+      http: 8053
+  lifecycle: planned

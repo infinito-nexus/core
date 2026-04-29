@@ -1,0 +1,20 @@
+file:
+  enabled: false
+  shared: true
+  cpus: '0.2'
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 128
+  lifecycle: beta
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

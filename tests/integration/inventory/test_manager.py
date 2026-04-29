@@ -52,7 +52,7 @@ class TestInventoryManagerIntegration(TestCase):
             # Provider role: roles/svc-db-mariadb
             # ------------------------------------------------------------------
             provider_role = roles_root / "svc-db-mariadb"
-            (provider_role / "schema").mkdir(parents=True, exist_ok=True)
+            (provider_role / "meta").mkdir(parents=True, exist_ok=True)
             (provider_role / "vars").mkdir(parents=True, exist_ok=True)
             (provider_role / "config").mkdir(parents=True, exist_ok=True)
 
@@ -61,16 +61,12 @@ class TestInventoryManagerIntegration(TestCase):
                 encoding="utf-8",
             )
 
-            (provider_role / "config" / "main.yml").write_text(
-                "compose:\n"
-                "  services:\n"
-                "    mariadb:\n"
-                "      enabled: false\n"
-                "      shared: true\n",
+            (provider_role / "meta" / "services.yml").write_text(
+                "mariadb:\n  enabled: false\n  shared: true\n",
                 encoding="utf-8",
             )
 
-            (provider_role / "schema" / "main.yml").write_text(
+            (provider_role / "meta" / "schema.yml").write_text(
                 "credentials:\n"
                 "  root_password:\n"
                 "    description: MariaDB root password\n"
@@ -87,7 +83,7 @@ class TestInventoryManagerIntegration(TestCase):
             # Root role: roles/web-app-demo
             # ------------------------------------------------------------------
             role_path = roles_root / "web-app-demo"
-            (role_path / "schema").mkdir(parents=True, exist_ok=True)
+            (role_path / "meta").mkdir(parents=True, exist_ok=True)
             (role_path / "vars").mkdir(parents=True, exist_ok=True)
             (role_path / "config").mkdir(parents=True, exist_ok=True)
 
@@ -99,18 +95,12 @@ class TestInventoryManagerIntegration(TestCase):
                 encoding="utf-8",
             )
 
-            (role_path / "config" / "main.yml").write_text(
-                "compose:\n"
-                "  services:\n"
-                "    mariadb:\n"
-                "      enabled: true\n"
-                "      shared: true\n"
-                "    oidc:\n"
-                "      enabled: true\n",
+            (role_path / "meta" / "services.yml").write_text(
+                "mariadb:\n  enabled: true\n  shared: true\noidc:\n  enabled: true\n",
                 encoding="utf-8",
             )
 
-            (role_path / "schema" / "main.yml").write_text(
+            (role_path / "meta" / "schema.yml").write_text(
                 "credentials:\n"
                 "  api_key:\n"
                 "    description: API key\n"
@@ -210,6 +200,7 @@ class TestInventoryManagerIntegration(TestCase):
             roles_root.mkdir(parents=True, exist_ok=True)
 
             provider_role = roles_root / "web-svc-asset"
+            (provider_role / "meta").mkdir(parents=True, exist_ok=True)
             (provider_role / "vars").mkdir(parents=True, exist_ok=True)
             (provider_role / "config").mkdir(parents=True, exist_ok=True)
 
@@ -217,17 +208,13 @@ class TestInventoryManagerIntegration(TestCase):
                 'application_id: "web-svc-asset"\n',
                 encoding="utf-8",
             )
-            (provider_role / "config" / "main.yml").write_text(
-                "compose:\n"
-                "  services:\n"
-                "    asset:\n"
-                "      enabled: false\n"
-                "      shared: true\n",
+            (provider_role / "meta" / "services.yml").write_text(
+                "asset:\n  enabled: false\n  shared: true\n",
                 encoding="utf-8",
             )
 
             role_path = roles_root / "web-app-demo"
-            (role_path / "schema").mkdir(parents=True, exist_ok=True)
+            (role_path / "meta").mkdir(parents=True, exist_ok=True)
             (role_path / "vars").mkdir(parents=True, exist_ok=True)
             (role_path / "config").mkdir(parents=True, exist_ok=True)
 
@@ -238,15 +225,11 @@ class TestInventoryManagerIntegration(TestCase):
                 'application_id: "web-app-demo"\n',
                 encoding="utf-8",
             )
-            (role_path / "config" / "main.yml").write_text(
-                "compose:\n"
-                "  services:\n"
-                "    asset:\n"
-                "      enabled: true\n"
-                "      shared: true\n",
+            (role_path / "meta" / "services.yml").write_text(
+                "asset:\n  enabled: true\n  shared: true\n",
                 encoding="utf-8",
             )
-            (role_path / "schema" / "main.yml").write_text(
+            (role_path / "meta" / "schema.yml").write_text(
                 "credentials:\n"
                 "  api_key:\n"
                 "    description: API key\n"

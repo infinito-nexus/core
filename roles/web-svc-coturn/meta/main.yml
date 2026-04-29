@@ -2,23 +2,19 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Deploys Coturn, a free and open-source TURN/STUN server
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - coturn
-  - turn
-  - stun
-  - webrtc
-  - docker
-  - stateless
-  - realtime
-  repository: https://s.infinito.nexus/code
+    - coturn
+    - turn
+    - stun
+    - webrtc
+    - docker
+    - stateless
+    - realtime
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://github.com/coturn/coturn/wiki
-  logo:
-    class: webrtc
-  run_after: []
-  lifecycle: beta

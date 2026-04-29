@@ -1,0 +1,52 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+discourse:
+  enabled: "{{ 'web-app-discourse' in group_names }}"
+  shared: true
+wordpress:
+  version: latest
+  image: wordpress
+  name: wordpress
+  min_storage: 8GB
+  backup:
+    no_stop_required: true
+  cpus: 1
+  mem_reservation: 0.5g
+  mem_limit: 1.5g
+  pids_limit: 512
+  title: Blog by {{ service_provider.platform.titel }}
+  max_upload_size: 256M
+  multisite:
+    enabled: false
+  plugins:
+    wp-discourse:
+      enabled: "{{ lookup('config', 'web-app-wordpress', 'services.discourse.enabled') | bool }}"
+    daggerhart-openid-connect-generic:
+      enabled: "{{ lookup('config', 'web-app-wordpress', 'services.oidc.enabled') | bool }}"
+    activitypub:
+      enabled: true
+  ports:
+    local:
+      http: 8003
+  run_after:
+    - web-app-keycloak
+  lifecycle: beta
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

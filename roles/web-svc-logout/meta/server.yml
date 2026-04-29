@@ -1,0 +1,24 @@
+domains:
+  canonical:
+  - logout.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+  whitelist:
+    connect-src:
+    - '*.{{ DOMAIN_PRIMARY }}'
+    - '{{ DOMAIN_PRIMARY }}'
+    - https://cdn.jsdelivr.net
+    script-src-elem:
+    - https://cdn.jsdelivr.net
+    style-src-elem:
+    - https://cdn.jsdelivr.net
+    frame-ancestors:
+    - auth.{{ DOMAIN_PRIMARY }}
+networks:
+  local:
+    subnet: 192.168.103.176/28

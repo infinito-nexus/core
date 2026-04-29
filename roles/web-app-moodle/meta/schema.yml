@@ -1,0 +1,5 @@
+credentials:
+  user_password:
+    description: Initial password for the Moodle admin user
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

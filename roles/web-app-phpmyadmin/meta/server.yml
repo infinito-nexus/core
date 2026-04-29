@@ -1,0 +1,13 @@
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+domains:
+  aliases: []
+  canonical:
+  - phpmyadmin.{{ DOMAIN_PRIMARY }}
+networks:
+  local:
+    subnet: 192.168.102.112/28

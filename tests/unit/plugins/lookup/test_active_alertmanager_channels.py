@@ -5,22 +5,20 @@ import unittest
 from pathlib import Path
 
 from plugins.lookup.active_alertmanager_channels import LookupModule
-from utils.runtime_data import _reset_cache_for_tests
+from utils.cache import _reset_cache_for_tests
 
 
 def _make_applications(*app_ids: str, channels: tuple = ()) -> dict:
     """Build a minimal applications dict.
 
-    apps listed in *channels* get compose.services.prometheus.communication.channel: true;
+    apps listed in *channels* get services.prometheus.communication.channel: true;
     others do not.
     """
+    # Per req-008 the materialised payload moved from
+    # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
     return {
         app_id: (
-            {
-                "compose": {
-                    "services": {"prometheus": {"communication": {"channel": True}}}
-                }
-            }
+            {"services": {"prometheus": {"communication": {"channel": True}}}}
             if app_id in channels
             else {}
         )
@@ -80,7 +78,7 @@ class TestActiveAlertmanagerChannelsDeploymentCheck(unittest.TestCase):
 
 
 class TestActiveAlertmanagerChannelsSelfDeclaration(unittest.TestCase):
-    """compose.services.prometheus.communication.channel flag gate — must be true in app config."""
+    """services.prometheus.communication.channel flag gate — must be true in app config."""
 
     def test_excludes_app_without_channel_flag(self):
         apps = _make_applications("web-app-mattermost")  # no channel flag

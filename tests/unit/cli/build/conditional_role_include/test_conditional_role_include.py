@@ -24,9 +24,13 @@ class TestGeneratePlaybook(unittest.TestCase):
             os.makedirs(os.path.join(role_path, 'meta'), exist_ok=True)
             os.makedirs(os.path.join(role_path, 'vars'), exist_ok=True)
 
-            meta_file = {
-                'galaxy_info': {
-                    'run_after': meta['run_after']
+            # In the new layout (req-010) run_after lives at
+            # meta/services.yml.<primary_entity>.run_after. For role names
+            # that are not prefixed by a known category (e.g. 'role-a'),
+            # get_entity_name returns the role name itself.
+            meta_services = {
+                role_name: {
+                    'run_after': meta['run_after'],
                 }
             }
 
@@ -34,8 +38,13 @@ class TestGeneratePlaybook(unittest.TestCase):
                 'application_id': meta['application_id']
             }
 
+            with open(os.path.join(role_path, 'meta', 'services.yml'), 'w') as f:
+                yaml.dump(meta_services, f)
+
+            # find_roles() still uses meta/main.yml as a marker file to
+            # detect roles, so we create an empty one here.
             with open(os.path.join(role_path, 'meta', 'main.yml'), 'w') as f:
-                yaml.dump(meta_file, f)
+                yaml.dump({}, f)
 
             with open(os.path.join(role_path, 'vars', 'main.yml'), 'w') as f:
                 yaml.dump(vars_file, f)

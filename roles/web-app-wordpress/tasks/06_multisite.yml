@@ -1,0 +1,99 @@
+---
+# Requirement 005: WordPress Multisite opt-in.
+#
+# Runs only when `services.wordpress.multisite.enabled` is true.
+# Converts the fresh Single-Site installation into a sub-domain Multisite
+# network and creates one site per canonical domain beyond the first.
+# Domain mapping is handled natively by WordPress core since 4.5.
+#
+# Idempotent: if the network is already enabled, `wp core multisite-convert`
+# prints an informative message and exits 1 — we ignore that so re-runs
+# stay green. Sites that already exist are detected via `wp site list`
+# before `wp site create` runs.
+
+- name: "Multisite: convert Single-Site to Multisite network (subdomain install)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  command: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+    wp core multisite-convert
+      --subdomains
+      --title="{{ WORDPRESS_TITLE }} Network"
+      --path="{{ WORDPRESS_DOCKER_HTML_PATH }}"
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  register: wp_ms_convert
+  changed_when: wp_ms_convert.rc == 0
+  failed_when: >
+    wp_ms_convert.rc != 0
+    and ('already' not in (wp_ms_convert.stderr | lower))
+    and ('multisite' not in (wp_ms_convert.stderr | lower))
+
+- name: "Multisite: patch wp-config.php with PHP-literal constants (booleans, ints) — requires --raw"
+  # `--raw` writes the value verbatim into the file, so MULTISITE/
+  # SUBDOMAIN_INSTALL must arrive at wp-cli as bareword PHP literals
+  # (true, false, 123, ...). For these the value contains no characters
+  # that shlex would chew on.
+  command: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+    wp config set {{ item.key }} {{ item.value }}
+    --raw
+    --type=constant
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  loop:
+    - { key: "MULTISITE", value: "true" }
+    - { key: "SUBDOMAIN_INSTALL", value: "true" }
+    - { key: "SITE_ID_CURRENT_SITE", value: "1" }
+    - { key: "BLOG_ID_CURRENT_SITE", value: "1" }
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  changed_when: true
+
+- name: "Multisite: patch wp-config.php with PHP-string constants (domain, path) — without --raw"
+  # WHY split this loop: when `--raw` is set, wp-cli writes the value
+  # verbatim. We previously tried to inject `'blog.infinito.example'`
+  # WITH literal single-quotes so the verbatim write would land as a
+  # quoted PHP string. But the Ansible `command:` module pipes through
+  # shlex, which strips the outer single-quotes before exec, so wp-cli
+  # received `blog.infinito.example` and wrote
+  # `define('DOMAIN_CURRENT_SITE', blog.infinito.example);` — a
+  # bareword that PHP can't parse. Dropping `--raw` lets wp-cli detect
+  # the type as string and quote it for us, which is the SPOT for that
+  # decision.
+  command: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+    wp config set {{ item.key }} {{ item.value }}
+    --type=constant
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  loop:
+    - { key: "DOMAIN_CURRENT_SITE", value: "{{ WORDPRESS_DOMAINS | first }}" }
+    - { key: "PATH_CURRENT_SITE", value: "/" }
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  changed_when: true
+
+- name: "Multisite: list the existing sites in the network"
+  command: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+    wp site list --field=url --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_ms_sites
+  changed_when: false
+
+- name: "Multisite: create any missing per-canonical-domain site"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  command: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+    wp site create
+      --slug="{{ item }}"
+      --title="{{ item }}"
+      --email="{{ WORDPRESS_ADMIN_EMAIL }}"
+      --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  loop: "{{ (WORDPRESS_DOMAINS | default([]))[1:] }}"
+  when:
+    - (WORDPRESS_DOMAINS | default([])) | length > 1
+    - ('https://' ~ item) not in wp_ms_sites.stdout
+    - ('http://' ~ item) not in wp_ms_sites.stdout
+  register: wp_ms_site_create
+  changed_when: wp_ms_site_create.rc == 0
+  failed_when: >
+    wp_ms_site_create.rc != 0
+    and ('already exists' not in (wp_ms_site_create.stderr | default('') | lower))

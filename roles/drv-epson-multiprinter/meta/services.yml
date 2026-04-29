@@ -1,0 +1,3 @@
+epson-multiprinter:
+  min_storage: 0GB
+  lifecycle: pre-alpha

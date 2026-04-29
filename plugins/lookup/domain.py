@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.runtime_data import get_merged_domains
+from utils.cache.domains import get_merged_domains
 
 
 class LookupModule(LookupBase):
@@ -17,7 +17,7 @@ class LookupModule(LookupBase):
       {{ lookup('domain', application_id) }}
 
     Resolves the canonical primary domain for `application_id` via
-    utils.runtime_data.get_merged_domains (cached). Per-app overrides
+    utils.cache.domains.get_merged_domains (cached). Per-app overrides
     belong in `applications.<app>.server.domains` and flow through the
     regular applications-merge pipeline.
     """

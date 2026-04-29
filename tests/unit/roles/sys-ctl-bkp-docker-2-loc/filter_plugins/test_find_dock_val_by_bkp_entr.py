@@ -20,42 +20,38 @@ class TestFindDockValByBkpEntr(unittest.TestCase):
     def setUp(self):
         self.applications = {
             "app1": {
-                "compose": {
-                    "services": {
-                        "svc1": {
-                            "name": "svc1",
-                            "image": "nginx:latest",
-                            "custom_field": "foo",
-                            "backup": {"enabled": True, "mode": "full"},
+                "services": {
+                    "svc1": {
+                        "name": "svc1",
+                        "image": "nginx:latest",
+                        "custom_field": "foo",
+                        "backup": {"enabled": True, "mode": "full"},
+                    },
+                    "svc2": {
+                        "name": "svc2",
+                        "image": "redis:alpine",
+                        "custom_field": "bar",
+                        "backup": {
+                            "enabled": False,
                         },
-                        "svc2": {
-                            "name": "svc2",
-                            "image": "redis:alpine",
-                            "custom_field": "bar",
-                            "backup": {
-                                "enabled": False,
-                            },
-                        },
-                        "svc3": {"name": "svc3", "image": "postgres:alpine"},
-                    }
+                    },
+                    "svc3": {"name": "svc3", "image": "postgres:alpine"},
                 }
             },
             "app2": {
-                "compose": {
-                    "services": {
-                        "svcA": {
-                            "name": "svcA",
-                            "image": "alpine:latest",
-                            "backup": {"enabled": 1, "mode": "diff"},
+                "services": {
+                    "svcA": {
+                        "name": "svcA",
+                        "image": "alpine:latest",
+                        "backup": {"enabled": 1, "mode": "diff"},
+                    },
+                    "svcB": {
+                        "name": "svcB",
+                        "image": "ubuntu:latest",
+                        "backup": {
+                            "something_else": True,
                         },
-                        "svcB": {
-                            "name": "svcB",
-                            "image": "ubuntu:latest",
-                            "backup": {
-                                "something_else": True,
-                            },
-                        },
-                    }
+                    },
                 }
             },
             "app_no_docker": {"meta": "should be skipped"},
@@ -99,7 +95,7 @@ class TestFindDockValByBkpEntr(unittest.TestCase):
 
     def test_works_with_missing_field(self):
         # mapped_entry missing -> no entry in result
-        apps = {"a": {"compose": {"services": {"x": {"backup": {"enabled": True}}}}}}
+        apps = {"a": {"services": {"x": {"backup": {"enabled": True}}}}}
         result = find_dock_val_by_bkp_entr(apps, "enabled", "foo")
         self.assertEqual(result, [])
 
@@ -107,11 +103,9 @@ class TestFindDockValByBkpEntr(unittest.TestCase):
         # Two matches, both with enabled, using a custom return field
         apps = {
             "a": {
-                "compose": {
-                    "services": {
-                        "x": {"backup": {"enabled": True}, "any": "n1"},
-                        "y": {"backup": {"enabled": True}, "any": "n2"},
-                    }
+                "services": {
+                    "x": {"backup": {"enabled": True}, "any": "n1"},
+                    "y": {"backup": {"enabled": True}, "any": "n2"},
                 }
             }
         }
@@ -122,12 +116,10 @@ class TestFindDockValByBkpEntr(unittest.TestCase):
         # Results must be sorted lexicographically
         apps = {
             "a": {
-                "compose": {
-                    "services": {
-                        "x": {"backup": {"enabled": True}, "name": "zeta"},
-                        "y": {"backup": {"enabled": True}, "name": "alpha"},
-                        "z": {"backup": {"enabled": True}, "name": "mike"},
-                    }
+                "services": {
+                    "x": {"backup": {"enabled": True}, "name": "zeta"},
+                    "y": {"backup": {"enabled": True}, "name": "alpha"},
+                    "z": {"backup": {"enabled": True}, "name": "mike"},
                 }
             }
         }

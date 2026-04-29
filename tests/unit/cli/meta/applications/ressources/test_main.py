@@ -149,57 +149,49 @@ class TestCollectRoleResources(unittest.TestCase):
     def _fake_applications(self) -> dict:
         return {
             "web-app-peertube": {
-                "compose": {
-                    "services": {
-                        "peertube": {
-                            "cpus": 4,
-                            "mem_reservation": "4g",
-                            "mem_limit": "8g",
-                            "pids_limit": 2048,
-                        },
-                        "redis": {
-                            "enabled": True,
-                            "cpus": "0.5",
-                            "mem_reservation": "256m",
-                            "mem_limit": "512m",
-                            "pids_limit": 512,
-                        },
-                        "oidc": {"enabled": True, "shared": True},
-                        "postgres": {"enabled": True, "shared": True},
-                        "email": {"enabled": True, "shared": True},
-                        "css": {"enabled": False, "shared": True},
-                    }
+                "services": {
+                    "peertube": {
+                        "cpus": 4,
+                        "mem_reservation": "4g",
+                        "mem_limit": "8g",
+                        "pids_limit": 2048,
+                    },
+                    "redis": {
+                        "enabled": True,
+                        "cpus": "0.5",
+                        "mem_reservation": "256m",
+                        "mem_limit": "512m",
+                        "pids_limit": 512,
+                    },
+                    "oidc": {"enabled": True, "shared": True},
+                    "postgres": {"enabled": True, "shared": True},
+                    "email": {"enabled": True, "shared": True},
+                    "css": {"enabled": False, "shared": True},
                 }
             },
             "web-app-keycloak": {
-                "compose": {
-                    "services": {
-                        "keycloak": {
-                            "cpus": "2.0",
-                            "mem_reservation": "2g",
-                            "mem_limit": "4g",
-                            "pids_limit": 1024,
-                        },
-                    }
+                "services": {
+                    "keycloak": {
+                        "cpus": "2.0",
+                        "mem_reservation": "2g",
+                        "mem_limit": "4g",
+                        "pids_limit": 1024,
+                    },
                 }
             },
             "web-app-mailu": {
-                "compose": {
-                    "services": {
-                        "mailu": {},
-                        "oidc": {"enabled": True, "shared": True},
-                    }
+                "services": {
+                    "mailu": {},
+                    "oidc": {"enabled": True, "shared": True},
                 }
             },
             "svc-db-postgres": {
-                "compose": {
-                    "services": {
-                        "postgres": {
-                            "cpus": 2,
-                            "mem_reservation": "4g",
-                            "mem_limit": "6g",
-                            "pids_limit": 1024,
-                        }
+                "services": {
+                    "postgres": {
+                        "cpus": 2,
+                        "mem_reservation": "4g",
+                        "mem_limit": "6g",
+                        "pids_limit": 1024,
                     }
                 }
             },
@@ -249,7 +241,7 @@ class TestCollectRoleResources(unittest.TestCase):
         # mailu declares oidc (-> keycloak). keycloak could declare email in
         # theory. Build a cycle keycloak <-> mailu and ensure no infinite loop.
         apps = self._fake_applications()
-        apps["web-app-keycloak"]["compose"]["services"]["email"] = {
+        apps["web-app-keycloak"]["services"]["email"] = {
             "enabled": True,
             "shared": True,
         }
@@ -272,11 +264,9 @@ class TestCollectRoleResources(unittest.TestCase):
 
         apps = {
             "web-app-x": {
-                "compose": {
-                    "services": {
-                        "x": {"cpus": 1},
-                        "unknown": {"enabled": True, "shared": True},
-                    }
+                "services": {
+                    "x": {"cpus": 1},
+                    "unknown": {"enabled": True, "shared": True},
                 }
             }
         }
@@ -296,11 +286,9 @@ class TestCollectRoleResources(unittest.TestCase):
 
         apps = {
             "web-app-x": {
-                "compose": {
-                    "services": {
-                        "x": {"cpus": 1, "mem_limit": "100m"},
-                        "feature_flag": {"enabled": True},
-                    }
+                "services": {
+                    "x": {"cpus": 1, "mem_limit": "100m"},
+                    "feature_flag": {"enabled": True},
                 }
             }
         }
@@ -338,11 +326,9 @@ class TestCollectRoleResources(unittest.TestCase):
 
         apps = {
             "web-app-y": {
-                "compose": {
-                    "services": {
-                        "y": {"cpus": 1, "mem_limit": "100m"},
-                        "ghost": {"enabled": True, "shared": True},
-                    }
+                "services": {
+                    "y": {"cpus": 1, "mem_limit": "100m"},
+                    "ghost": {"enabled": True, "shared": True},
                 }
             }
         }
@@ -475,14 +461,12 @@ class TestCliMain(unittest.TestCase):
 
         fake_apps = {
             "web-app-x": {
-                "compose": {
-                    "services": {
-                        "x": {
-                            "cpus": 1,
-                            "mem_reservation": "100m",
-                            "mem_limit": "200m",
-                            "pids_limit": 64,
-                        }
+                "services": {
+                    "x": {
+                        "cpus": 1,
+                        "mem_reservation": "100m",
+                        "mem_limit": "200m",
+                        "pids_limit": 64,
                     }
                 }
             }
@@ -511,14 +495,12 @@ class TestCliMain(unittest.TestCase):
 
         fake_apps = {
             "web-app-x": {
-                "compose": {
-                    "services": {
-                        "x": {
-                            "cpus": 2,
-                            "mem_reservation": "1g",
-                            "mem_limit": "2g",
-                            "pids_limit": 128,
-                        }
+                "services": {
+                    "x": {
+                        "cpus": 2,
+                        "mem_reservation": "1g",
+                        "mem_limit": "2g",
+                        "pids_limit": 128,
                     }
                 }
             }

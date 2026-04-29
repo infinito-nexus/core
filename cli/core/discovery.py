@@ -87,10 +87,27 @@ def resolve_command_module(
       argv_parts=["deploy","container","--foo","bar"]
       -> ("cli.deploy.container", ["--foo","bar"])
     """
+    # Subcommand path is always BEFORE the first flag (CLI convention) and
+    # cannot contain absolute paths or path separators. Capping the search
+    # window at the first "non-subcommand-shaped" arg keeps the loop from
+    # building paths that contain huge `--vars` JSON or absolute `--vars-file`
+    # values, which previously triggered ENAMETOOLONG inside `is_dir()`.
+    max_prefix = len(argv_parts)
+    for i, part in enumerate(argv_parts):
+        if not part or part.startswith("-") or "/" in part or "\\" in part:
+            max_prefix = i
+            break
+
     # We resolve by checking for cli/<prefix>/__main__.py existing.
-    for n in range(len(argv_parts), 0, -1):
+    for n in range(max_prefix, 0, -1):
         candidate_dir = cli_dir.joinpath(*argv_parts[:n])
-        if candidate_dir.is_dir() and (candidate_dir / "__main__.py").is_file():
-            module = "cli." + ".".join(argv_parts[:n])
-            return module, argv_parts[n:]
+        try:
+            if candidate_dir.is_dir() and (candidate_dir / "__main__.py").is_file():
+                module = "cli." + ".".join(argv_parts[:n])
+                return module, argv_parts[n:]
+        except OSError:
+            # stat() may legitimately fail (ENAMETOOLONG, ENOENT on broken
+            # symlinks, EACCES, ...); none of these mean "this is the
+            # command", so just keep trying shorter prefixes.
+            continue
     return None, argv_parts

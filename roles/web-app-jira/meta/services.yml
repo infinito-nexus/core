@@ -1,0 +1,41 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+jira:
+  image: atlassian/jira-software
+  version: latest
+  name: jira
+  min_storage: 20GB
+  cpus: '2.0'
+  mem_reservation: 4g
+  mem_limit: 6g
+  pids_limit: 2048
+  ports:
+    local:
+      http: 8015
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: alpha
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

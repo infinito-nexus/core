@@ -1,7 +1,7 @@
 # General
 application_id:                   "web-app-dashboard"
 DASHBOARD_APPLICATION_ID:         "web-app-dashboard"
-http_port:                        "{{ ports.localhost.http[DASHBOARD_APPLICATION_ID] }}"
+http_port:                        "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.local.http') }}"
 
 ## Webserver
 webserver_extra_configuration:        "{{ lookup('template', 'nginx/sso.html.conf.j2') }}"
@@ -9,13 +9,13 @@ webserver_extra_configuration:        "{{ lookup('template', 'nginx/sso.html.con
 # Dashboard
 
 ## Simpleicons
-DASHBOARD_SIMPLEICONS_ENABLED:      "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'compose.services.simpleicons.enabled') }}"
+DASHBOARD_SIMPLEICONS_ENABLED:      "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
 DASHBOARD_SIMPLEICONS_STATIC_SUBDIR: "simpleicons"
 DASHBOARD_SIMPLEICONS_STATIC_DIR_HOST: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), DASHBOARD_SIMPLEICONS_STATIC_SUBDIR ] | path_join }}"
 DASHBOARD_SIMPLEICONS_STATIC_DIR_CONTAINER: "{{ ['/app/static', DASHBOARD_SIMPLEICONS_STATIC_SUBDIR] | path_join }}"
 # Use the direct local service port for sync/checks because the public
 # Simple Icons domain currently redirects through the file service.
-DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (ports.localhost.http['web-svc-simpleicons'] | string) ~ '/' }}"
+DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') | string) ~ '/' }}"
 
 ## Javascript
 DASHBOARD_JS_CDN_URL:               "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
@@ -41,10 +41,10 @@ DASHBOARD_KEYCLOAK_LOGIN_URL: >-
      ~ '&response_type=code'
      ~ '&scope=openid%20profile%20email'
      ~ '&redirect_uri=' ~ (DASHBOARD_APP_BASE_URL | urlencode) }}
-DASHBOARD_KEYCLOAK_IFRAME_ENABLED:  "{{ lookup('config','web-app-keycloak', 'compose.services.dashboard.enabled') }}"
-DASHBOARD_OIDC_ENABLED:             "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'compose.services.oidc.enabled') }}"
+DASHBOARD_KEYCLOAK_IFRAME_ENABLED:  "{{ lookup('config','web-app-keycloak', 'services.dashboard.enabled') }}"
+DASHBOARD_OIDC_ENABLED:             "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.oidc.enabled') }}"
 
 ## Docker
-DASHBOARD_CONTAINER:                "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'compose.services.dashboard.name') }}"
-DASHBOARD_IMAGE:                    "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'compose.services.dashboard.image') }}"
-DASHBOARD_VERSION:                  "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'compose.services.dashboard.version') }}"
+DASHBOARD_CONTAINER:                "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.name') }}"
+DASHBOARD_IMAGE:                    "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.image') }}"
+DASHBOARD_VERSION:                  "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.version') }}"

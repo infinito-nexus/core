@@ -1,5 +1,0 @@
-credentials:
-  root_password:
-    description: "Password for the MariaDB root user"
-    algorithm: "bcrypt"
-    validation: "^\\$2[aby]\\$.{56}$"

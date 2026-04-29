@@ -7,9 +7,9 @@ FUNKWHALE_MUSIC_DIR:            "{{ [ FUNKWHALE_DATA_ROOT, 'music' ]  | path_joi
 FUNKWHALE_STATIC_DIR:           "{{ [ FUNKWHALE_DATA_ROOT, 'static' ]  | path_join }}"
 FUNKWHALE_CELERYD_CONCURRENCY:  1
 FUNKWHALE_DOCKER_API_PORT:      5000
-FUNKWHALE_TYPESENSE_IMAGE:      "{{ lookup('config', application_id, 'compose.services.typesense.image') }}"
-FUNKWHALE_TYPESENSE_VERSION:    "{{ lookup('config', application_id, 'compose.services.typesense.version') }}"
-FUNKWHALE_API_IMAGE:            "{{ lookup('config', application_id, 'compose.services.api.image') }}"
-FUNKWHALE_API_VERSION:          "{{ lookup('config', application_id, 'compose.services.api.version') }}"
-FUNKWHALE_FRONT_IMAGE:          "{{ lookup('config', application_id, 'compose.services.funkwhale.image') }}"
-FUNKWHALE_FRONT_VERSION:        "{{ lookup('config', application_id, 'compose.services.funkwhale.version') }}"
+FUNKWHALE_TYPESENSE_IMAGE:      "{{ lookup('config', application_id, 'services.typesense.image') }}"
+FUNKWHALE_TYPESENSE_VERSION:    "{{ lookup('config', application_id, 'services.typesense.version') }}"
+FUNKWHALE_API_IMAGE:            "{{ lookup('config', application_id, 'services.api.image') }}"
+FUNKWHALE_API_VERSION:          "{{ lookup('config', application_id, 'services.api.version') }}"
+FUNKWHALE_FRONT_IMAGE:          "{{ lookup('config', application_id, 'services.funkwhale.image') }}"
+FUNKWHALE_FRONT_VERSION:        "{{ lookup('config', application_id, 'services.funkwhale.version') }}"

@@ -1,44 +1,36 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures msmtp as a lightweight SMTP client and sendmail replacement for the Infinito.Nexus
-    ecosystem.
+  description: Installs and configures msmtp as a lightweight SMTP client and sendmail replacement for the Infinito.Nexus ecosystem.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
-  - name: Debian
-    versions:
-    - all
-  - name: Ubuntu
-    versions:
-    - all
-  - name: Fedora
-    versions:
-    - all
-  - name: EL
-    versions:
-    - all
+    - name: Archlinux
+      versions:
+        - rolling
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
   galaxy_tags:
-  - email
-  - smtp
-  - msmtp
-  - sendmail
-  - automation
-  - monitoring
-  - archlinux
-  - debian
-  - ubuntu
-  - fedora
-  - centos
-  repository: https://s.infinito.nexus/code
+    - email
+    - smtp
+    - msmtp
+    - sendmail
+    - automation
+    - monitoring
+    - archlinux
+    - debian
+    - ubuntu
+    - fedora
+    - centos
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: ''
-  run_after: []
-  lifecycle: beta
 dependencies: []

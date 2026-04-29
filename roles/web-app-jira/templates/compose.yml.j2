@@ -10,7 +10,7 @@
     container_name: "{{ JIRA_CONTAINER }}"
     hostname: '{{ JIRA_HOSTNAME }}'
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:8080"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jira.ports.local.http') }}:8080"
     volumes:
       - 'data:{{ JIRA_STORAGE_PATH }}'
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}

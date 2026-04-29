@@ -6,7 +6,7 @@
       - uploads:/var/lib/mobilizon/uploads
       - {{ mobilizon_host_conf_exs_file }}:/etc/mobilizon/config.exs:ro
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mobilizon.ports.local.http') }}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}

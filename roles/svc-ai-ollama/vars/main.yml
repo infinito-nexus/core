@@ -3,10 +3,10 @@ application_id:         "svc-ai-ollama"
 
 # Ollama
 # https://ollama.com/
-OLLAMA_VERSION:         "{{ lookup('config', application_id, 'compose.services.ollama.version') }}"
-OLLAMA_IMAGE:           "{{ lookup('config', application_id, 'compose.services.ollama.image') }}"
-OLLAMA_CONTAINER:       "{{ lookup('config', application_id, 'compose.services.ollama.name') }}"
-OLLAMA_PORT:            "{{ lookup('config', application_id, 'compose.services.ollama.port') }}"
-OLLAMA_VOLUME:          "{{ lookup('config', application_id, 'compose.volumes.models') }}"
-OLLAMA_NETWORK:         "{{ lookup('config', application_id, 'compose.network') }}"
-OLLAMA_PRELOAD_MODELS:  "{{ lookup('config', application_id, 'preload_models') }}"
+OLLAMA_VERSION:         "{{ lookup('config', application_id, 'services.ollama.version') }}"
+OLLAMA_IMAGE:           "{{ lookup('config', application_id, 'services.ollama.image') }}"
+OLLAMA_CONTAINER:       "{{ lookup('config', application_id, 'services.ollama.name') }}"
+OLLAMA_PORT:            "{{ lookup('config', application_id, 'services.ollama.ports.inter') }}"
+OLLAMA_VOLUME:          "{{ lookup('config', application_id, 'volumes.models') }}"
+OLLAMA_NETWORK:         "{{ application_id | get_entity_name }}"
+OLLAMA_PRELOAD_MODELS:  "{{ lookup('config', application_id, 'services.ollama.preload_models') }}"

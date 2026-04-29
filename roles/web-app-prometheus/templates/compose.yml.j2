@@ -5,7 +5,7 @@
     image: "{{ PROMETHEUS_IMAGE }}:{{ PROMETHEUS_VERSION }}"
     container_name: "{{ PROMETHEUS_CONTAINER }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:9090"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}:9090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command:

@@ -68,7 +68,8 @@ if [[ $# -gt 0 ]]; then
 	exit 2
 fi
 
-INFINITO_DISTRO="${INFINITO_DISTRO:-debian}"
+# INFINITO_DISTRO is set by scripts/meta/env/defaults.sh (single SPOT,
+# defaults to debian) — no local fallback here.
 INVENTORY_DIR="${INVENTORY_DIR:-}"
 LIMIT_HOST="${LIMIT_HOST:-localhost}"
 
@@ -97,24 +98,20 @@ echo
 
 echo ">>> Ensuring development stack is up (when-down)"
 "${PYTHON}" -m cli.deploy.development up \
-	--distro "${INFINITO_DISTRO}" \
 	--when-down
 
 echo ">>> Running entry.sh bootstrap inside container"
 "${PYTHON}" -m cli.deploy.development exec \
-	--distro "${INFINITO_DISTRO}" -- \
-	bash -lc "set -euo pipefail; cd /opt/src/infinito; ./scripts/docker/entry.sh true"
+	-- bash /opt/src/infinito/scripts/tests/deploy/local/utils/entry-bootstrap.sh
 
 echo ">>> Creating inventory for app '${APPS}'"
 "${PYTHON}" -m cli.deploy.development init \
-	--distro "${INFINITO_DISTRO}" \
 	--apps "${APPS}" \
 	--inventory-dir "${INVENTORY_DIR}" \
 	--vars '{"ASYNC_ENABLED": false}'
 
 deploy_cmd=(
 	"${PYTHON}" -m cli.deploy.development deploy
-	--distro "${INFINITO_DISTRO}"
 	--apps "${APPS}"
 	--inventory-dir "${INVENTORY_DIR}"
 )

@@ -2,31 +2,30 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Ensures that .profile is sourced in all shells.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
-  - name: Debian
-    versions:
-    - all
-  - name: Ubuntu
-    versions:
-    - all
+    - name: Archlinux
+      versions:
+        - rolling
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
   galaxy_tags:
-  - shell
-  - bash
-  - zsh
-  - environment
-  - profile
-  - dotfiles
-  repository: https://s.infinito.nexus/code
+    - shell
+    - bash
+    - zsh
+    - environment
+    - profile
+    - dotfiles
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  lifecycle: alpha
 dependencies: []

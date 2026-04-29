@@ -10,7 +10,7 @@ GITLAB_EMAIL:               "{{ lookup('email', application_id) }}"
 GITLAB_EMAIL_ENABLED:       "{{ GITLAB_EMAIL.enabled | bool }}"
 
 ## OIDC
-GITLAB_OIDC_ENABLED:        "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+GITLAB_OIDC_ENABLED:        "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 GITLAB_OIDC_LABEL:          "{{ OIDC.BUTTON_TEXT }}"
 GITLAB_OIDC_UID_FIELD:      "{{ OIDC.ATTRIBUTES.USERNAME }}"
 GITLAB_OIDC_CLIENT_ID:      "{{ OIDC.CLIENT.ID }}"
@@ -20,18 +20,18 @@ GITLAB_OIDC_REDIRECT_URI:   "{{ GITLAB_URL }}/users/auth/openid_connect/callback
 
 ## Docker
 GITLAB_INIT_ROOT_PASSWORD:  "{{ lookup('users', 'administrator').password }}"
-GITLAB_VERSION:             "{{ lookup('config', application_id, 'compose.services.gitlab.version') }}"
-GITLAB_IMAGE:               "{{ lookup('config', application_id, 'compose.services.gitlab.image') }}"
-GITLAB_CONTAINER:           "{{ lookup('config', application_id, 'compose.services.gitlab.name') }}"
-GITLAB_CONF_VOLUME:         "{{ lookup('config', application_id, 'compose.volumes.config') }}"
-GITLAB_LOGS_VOLUME:         "{{ lookup('config', application_id, 'compose.volumes.logs') }}"
-GITLAB_DATA_VOLUME:         "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+GITLAB_VERSION:             "{{ lookup('config', application_id, 'services.gitlab.version') }}"
+GITLAB_IMAGE:               "{{ lookup('config', application_id, 'services.gitlab.image') }}"
+GITLAB_CONTAINER:           "{{ lookup('config', application_id, 'services.gitlab.name') }}"
+GITLAB_CONF_VOLUME:         "{{ lookup('config', application_id, 'volumes.config') }}"
+GITLAB_LOGS_VOLUME:         "{{ lookup('config', application_id, 'volumes.logs') }}"
+GITLAB_DATA_VOLUME:         "{{ lookup('config', application_id, 'volumes.data') }}"
 
 ## Configuration
 GITLAB_OMNIBUS_BASE:
   - "external_url '{{ GITLAB_URL }}'"
   - "postgresql['enable']=false"
-  - "gitlab_rails['gitlab_shell_ssh_port']={{ ports.public.ssh[application_id] }}"
+  - "gitlab_rails['gitlab_shell_ssh_port']={{ lookup('config', application_id, 'services.gitlab.ports.public.ssh') }}"
   - "gitlab_rails['db_adapter']='postgresql'"
   - "gitlab_rails['db_encoding']='utf8'"
   - "gitlab_rails['db_host']='{{ lookup('database', application_id, 'host') }}'"

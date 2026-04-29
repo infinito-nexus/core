@@ -6,20 +6,20 @@ domain:                           "{{ lookup('domain', application_id) }}"
 container_port:                   "3000"
 
 # Decidim
-DECIDIM_VERSION:                  "{{ lookup('config', application_id, 'compose.services.decidim.version') }}"
-DECIDIM_IMAGE:                    "{{ lookup('config', application_id, 'compose.services.decidim.image') }}"
+DECIDIM_VERSION:                  "{{ lookup('config', application_id, 'services.decidim.version') }}"
+DECIDIM_IMAGE:                    "{{ lookup('config', application_id, 'services.decidim.image') }}"
 DECIDIM_CUSTOM_IMAGE:             "{{ DECIDIM_IMAGE }}:{{ DECIDIM_VERSION }}-infinito"
-DECIDIM_CONTAINER:                "{{ lookup('config', application_id, 'compose.services.decidim.name') }}"
+DECIDIM_CONTAINER:                "{{ lookup('config', application_id, 'services.decidim.name') }}"
 
 ## Volumes
-DECIDIM_VOLUME_UPLOADS:           "{{ lookup('config', application_id, 'compose.volumes.uploads') }}"
-DECIDIM_VOLUME_LOGS:              "{{ lookup('config', application_id, 'compose.volumes.logs') }}"
+DECIDIM_VOLUME_UPLOADS:           "{{ lookup('config', application_id, 'volumes.uploads') }}"
+DECIDIM_VOLUME_LOGS:              "{{ lookup('config', application_id, 'volumes.logs') }}"
 
 ## Credentials
 DECIDIM_SECRET_KEY_BASE:          "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"
 
 ## OIDC
-DECIDIM_OIDC_ENABLED:             "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+DECIDIM_OIDC_ENABLED:             "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 DECIDIM_OIDC_CLIENT_ID:           "{{ OIDC.CLIENT.ID }}"
 DECIDIM_OIDC_CLIENT_SECRET:       "{{ OIDC.CLIENT.SECRET }}"
 DECIDIM_OIDC_ISSUER:              "{{ OIDC.CLIENT.ISSUER_URL }}"

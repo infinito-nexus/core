@@ -5,16 +5,16 @@ entity_name:                    "{{ application_id | get_entity_name }}"
 # Database
 
 # Open Project Specific
-OPENPROJECT_VERSION:            "{{ lookup('config', application_id, 'compose.services.web.version') }}"
-OPENPROJECT_IMAGE:              "{{ lookup('config', application_id, 'compose.services.web.image') }}"
-OPENPROJECT_VOLUME:             "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+OPENPROJECT_VERSION:            "{{ lookup('config', application_id, 'services.web.version') }}"
+OPENPROJECT_IMAGE:              "{{ lookup('config', application_id, 'services.web.image') }}"
+OPENPROJECT_VOLUME:             "{{ lookup('config', application_id, 'volumes.data') }}"
 OPENPROJECT_WEB_SERVICE:        "web"
-OPENPROJECT_WEB_CONTAINER:      "{{ lookup('config', application_id, 'compose.services.' ~ OPENPROJECT_WEB_SERVICE ~ '.name') }}"
+OPENPROJECT_WEB_CONTAINER:      "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_WEB_SERVICE ~ '.name') }}"
 OPENPROJECT_SEEDER_SERVICE:     "seeder"
-OPENPROJECT_SEEDER_CONTAINER:   "{{ lookup('config', application_id, 'compose.services.' ~ OPENPROJECT_SEEDER_SERVICE ~ '.name') }}"
-OPENPROJECT_CRON_CONTAINER:     "{{ lookup('config', application_id, 'compose.services.cron.name') }}"
-OPENPROJECT_PROXY_CONTAINER:    "{{ lookup('config', application_id, 'compose.services.proxy.name') }}"
-OPENPROJECT_WORKER_CONTAINER:   "{{ lookup('config', application_id, 'compose.services.worker.name') }}"
+OPENPROJECT_SEEDER_CONTAINER:   "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_SEEDER_SERVICE ~ '.name') }}"
+OPENPROJECT_CRON_CONTAINER:     "{{ lookup('config', application_id, 'services.cron.name') }}"
+OPENPROJECT_PROXY_CONTAINER:    "{{ lookup('config', application_id, 'services.proxy.name') }}"
+OPENPROJECT_WORKER_CONTAINER:   "{{ lookup('config', application_id, 'services.worker.name') }}"
 
 ## Admin
 OPENPROJECT_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
@@ -22,9 +22,9 @@ OPENPROJECT_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').passwor
 OPENPROJECT_ADMINISTRATOR_EMAIL:    "{{ lookup('users', 'administrator').email }}"
 
 # Open Project Cache
-OPENPROJECT_CACHE_CONTAINER:    "{{ lookup('config', application_id, 'compose.services.cache.name') }}"
-OPENPROJECT_CACHE_IMAGE:        "{{ lookup('config','svc-db-memcached', 'compose.services.memcached.image') }}"
-OPENPROJECT_CACHE_VERSION:      "{{ lookup('config','svc-db-memcached', 'compose.services.memcached.version') }}"
+OPENPROJECT_CACHE_CONTAINER:    "{{ lookup('config', application_id, 'services.cache.name') }}"
+OPENPROJECT_CACHE_IMAGE:        "{{ lookup('config','svc-db-memcached', 'services.memcached.image') }}"
+OPENPROJECT_CACHE_VERSION:      "{{ lookup('config','svc-db-memcached', 'services.memcached.version') }}"
       
 OPENPROJECT_PLUGINS_FOLDER:   "{{ lookup('container', application_id, 'directories.volumes') }}plugins/"
 
@@ -43,9 +43,9 @@ OPENPROJECT_RAILS_SETTINGS:
   smtp_ssl:                   false
 
 ## LDAP
-OPENPROJECT_LDAP_ENABLED:                       "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
-OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED: "{{ lookup('config', application_id, 'ldap.filters.administrators') }}"
-OPENPROJECT_LDAP_FILTER_USERS_ENABLED:          "{{ lookup('config', application_id, 'ldap.filters.users') }}"
+OPENPROJECT_LDAP_ENABLED:                       "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED: "{{ lookup('config', application_id, 'services.openproject.ldap.filters.administrators') }}"
+OPENPROJECT_LDAP_FILTER_USERS_ENABLED:          "{{ lookup('config', application_id, 'services.openproject.ldap.filters.users') }}"
 OPENPROJECT_LDAP_FILTERS:
   # The administrator filter just works in the Enterprise edition
   ADMINISTRATORS: "{{ '(memberOf=cn=openproject-admins,' ~ LDAP.DN.OU.ROLES ~ ')' if OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED | bool else '' }}"

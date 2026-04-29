@@ -1,4 +1,0 @@
-compose:
-  services:
-    intel:
-      min_storage: "0GB"

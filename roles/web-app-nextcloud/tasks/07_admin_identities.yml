@@ -4,7 +4,7 @@
   register: nextcloud_admin_ldap_namespace
   changed_when: false
   failed_when: false
-  when: lookup('config', application_id, 'plugins.user_ldap.enabled', False) | bool
+  when: lookup('config', application_id, 'services.nextcloud.plugins.user_ldap.enabled', False) | bool
 
 - name: Resolve LDAP-backed Nextcloud administrator identities
   command: >
@@ -15,7 +15,7 @@
     not ASYNC_ENABLED and
     (nextcloud_admin_ldap_search.rc != 0)
   when:
-    - lookup('config', application_id, 'plugins.user_ldap.enabled', False) | bool
+    - lookup('config', application_id, 'services.nextcloud.plugins.user_ldap.enabled', False) | bool
     - nextcloud_admin_ldap_namespace is defined
     - nextcloud_admin_ldap_namespace.rc == 0
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"

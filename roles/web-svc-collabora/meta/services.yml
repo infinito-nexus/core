@@ -1,0 +1,31 @@
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+redis:
+  backup:
+    disabled: true
+  enabled: false
+collabora:
+  enabled: false
+  shared: true
+  image: collabora/code
+  version: latest
+  name: collabora
+  min_storage: 10GB
+  cpus: 2
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 2048
+  ports:
+    local:
+      http: 8042
+  lifecycle: beta
+prometheus:
+  enabled: true
+  shared: true

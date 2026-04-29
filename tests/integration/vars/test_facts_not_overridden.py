@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 import yaml
 
-from tests.utils.fs import read_text
+from utils.cache.files import read_text
 
 
 def _safe_yaml_load_all(path: Path) -> List[Any]:

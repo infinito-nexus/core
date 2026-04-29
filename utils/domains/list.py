@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import yaml
+from utils.cache.yaml import load_yaml as _load_yaml_cached
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ROLES_DIR = PROJECT_ROOT / "roles"
@@ -34,11 +34,7 @@ def _build_domain_index(
 def load_yaml_mapping(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
-
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    if not isinstance(data, dict):
-        raise ValueError(f"{path} must contain a YAML mapping")
-    return data
+    return _load_yaml_cached(str(path), default_if_missing={})
 
 
 def render_domain_value(value: Any, variables: dict[str, Any], field_name: str) -> Any:
@@ -72,8 +68,8 @@ def build_applications_from_roles(
 
     for role_dir in sorted(roles_dir.iterdir()):
         vars_main = role_dir / "vars" / "main.yml"
-        config_main = role_dir / "config" / "main.yml"
-        if not vars_main.exists() or not config_main.exists():
+        server_meta = role_dir / "meta" / "server.yml"
+        if not vars_main.exists() or not server_meta.exists():
             continue
 
         vars_data = load_yaml_mapping(vars_main)
@@ -81,8 +77,9 @@ def build_applications_from_roles(
         if not isinstance(application_id, str) or not application_id.strip():
             continue
 
-        config_data = load_yaml_mapping(config_main)
-        server = config_data.get("server")
+        # Per req-008 the file-root of meta/server.yml IS the value of
+        # applications.<app>.server.
+        server = load_yaml_mapping(server_meta)
         if not isinstance(server, dict):
             continue
 

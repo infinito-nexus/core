@@ -20,16 +20,16 @@ Decidim's base image does not include an OpenID Connect OmniAuth strategy. This 
 
 Credentials (`OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_ISSUER`) are read from env vars at runtime — never stored in the database — to avoid `ActiveSupport::MessageEncryptor::InvalidMessage` errors on container rebuild.
 
-To enable SSO, set `compose.services.oidc.enabled: true` in your inventory.
+To enable SSO, set `services.oidc.enabled: true` in your inventory.
 
 ## Configuration
 
-Key settings in `config/main.yml`:
+Key settings in `meta/services.yml` and `meta/server.yml`:
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `compose.services.oidc.enabled` | `true` | Enable Keycloak SSO via OpenID Connect |
-| `compose.services.postgres.shared` | `true` | Use the shared PostgreSQL service |
+| `services.oidc.enabled` | `true` | Enable Keycloak SSO via OpenID Connect |
+| `services.postgres.shared` | `true` | Use the shared PostgreSQL service |
 | `server.domains.canonical` | `decidim.{{ DOMAIN_PRIMARY }}` | Public domain |
 
 ## References

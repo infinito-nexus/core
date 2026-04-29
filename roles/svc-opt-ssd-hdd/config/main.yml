@@ -1,3 +1,0 @@
-volumes:
-  mass_storage: /mnt/hdd/
-  rapid_storage: /mnt/ssd/

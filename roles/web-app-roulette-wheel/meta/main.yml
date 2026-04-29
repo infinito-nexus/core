@@ -1,26 +1,20 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'The Roulette Wheel is an interactive browser-based spinning wheel for decision making, random selection, team
-    activities, workshops, and gamification.
+  description: 'The Roulette Wheel is an interactive browser-based spinning wheel for decision making, random selection, team activities, workshops, and gamification.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - docker
-  - nodejs
-  - roulette
-  - webapp
-  - game
-  repository: https://s.infinito.nexus/code
+    - docker
+    - nodejs
+    - roulette
+    - webapp
+    - game
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-fan
-  run_after:
-  - web-app-matomo
-  lifecycle: alpha

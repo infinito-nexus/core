@@ -48,12 +48,13 @@ class TestFindProviderRoles(unittest.TestCase):
 
     def _make_role(self, role_name: str, services: dict) -> None:
         role_dir = self.roles_dir / role_name
-        (role_dir / "config").mkdir(parents=True)
+        (role_dir / "meta").mkdir(parents=True)
         (role_dir / "vars").mkdir(parents=True)
-        with (role_dir / "config" / "main.yml").open("w") as f:
+        # New layout (req-008): meta/services.yml is the services map directly
+        with (role_dir / "meta" / "services.yml").open("w") as f:
             import yaml
 
-            yaml.dump({"compose": {"services": services}}, f)
+            yaml.dump(services, f)
         with (role_dir / "vars" / "main.yml").open("w") as f:
             import yaml
 
@@ -190,12 +191,13 @@ class TestApplyServicesDisabled(unittest.TestCase):
 
     def _make_role(self, role_name: str, services: dict) -> None:
         role_dir = self.roles_dir / role_name
-        (role_dir / "config").mkdir(parents=True)
+        (role_dir / "meta").mkdir(parents=True)
         (role_dir / "vars").mkdir(parents=True)
-        with (role_dir / "config" / "main.yml").open("w") as f:
+        # New layout (req-008): meta/services.yml is the services map directly
+        with (role_dir / "meta" / "services.yml").open("w") as f:
             import yaml
 
-            yaml.dump({"compose": {"services": services}}, f)
+            yaml.dump(services, f)
         with (role_dir / "vars" / "main.yml").open("w") as f:
             import yaml
 
@@ -206,9 +208,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
             {
                 "applications": {
                     "web-app-nextcloud": {
-                        "compose": {
-                            "services": {"matomo": {"enabled": True, "shared": True}}
-                        }
+                        "services": {"matomo": {"enabled": True, "shared": True}}
                     }
                 }
             }
@@ -239,9 +239,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
 
         hv = self._read_host_vars()
         self.assertFalse(
-            hv["applications"]["web-app-nextcloud"]["compose"]["services"]["matomo"][
-                "enabled"
-            ]
+            hv["applications"]["web-app-nextcloud"]["services"]["matomo"]["enabled"]
         )
 
         inv = self._read_inventory()
@@ -253,11 +251,9 @@ class TestApplyServicesDisabled(unittest.TestCase):
             {
                 "applications": {
                     "web-app-nextcloud": {
-                        "compose": {
-                            "services": {
-                                "oidc": {"enabled": True, "shared": True},
-                                "mariadb": {"enabled": True, "shared": True},
-                            }
+                        "services": {
+                            "oidc": {"enabled": True, "shared": True},
+                            "mariadb": {"enabled": True, "shared": True},
                         }
                     }
                 }
@@ -268,7 +264,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
         )
         apply_services_disabled(self.host_vars, ["oidc"], roles_dir=self.roles_dir)
         result = self._read_host_vars()
-        svc = result["applications"]["web-app-nextcloud"]["compose"]["services"]
+        svc = result["applications"]["web-app-nextcloud"]["services"]
         self.assertFalse(svc["oidc"]["enabled"])
         self.assertFalse(svc["oidc"]["shared"])
         self.assertTrue(svc["mariadb"]["enabled"])
@@ -277,9 +273,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
         self._write_host_vars(
             {
                 "applications": {
-                    "web-app-matomo": {
-                        "compose": {"services": {"matomo": {"enabled": True}}}
-                    }
+                    "web-app-matomo": {"services": {"matomo": {"enabled": True}}}
                 }
             }
         )
@@ -289,12 +283,10 @@ class TestApplyServicesDisabled(unittest.TestCase):
         result = self._read_host_vars()
         # existing service untouched
         self.assertTrue(
-            result["applications"]["web-app-matomo"]["compose"]["services"]["matomo"][
-                "enabled"
-            ]
+            result["applications"]["web-app-matomo"]["services"]["matomo"]["enabled"]
         )
         # missing service entry is created with enabled/shared false
-        oidc = result["applications"]["web-app-matomo"]["compose"]["services"]["oidc"]
+        oidc = result["applications"]["web-app-matomo"]["services"]["oidc"]
         self.assertFalse(oidc["enabled"])
         self.assertFalse(oidc["shared"])
 
@@ -302,9 +294,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
         self._write_host_vars(
             {
                 "applications": {
-                    "web-app-matomo": {
-                        "compose": {"services": {"matomo": {"enabled": True}}}
-                    }
+                    "web-app-matomo": {"services": {"matomo": {"enabled": True}}}
                 }
             }
         )
@@ -314,7 +304,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
         result = self._read_host_vars()
         self.assertNotIn(
             "oidc",
-            result["applications"]["web-app-matomo"]["compose"]["services"],
+            result["applications"]["web-app-matomo"]["services"],
         )
 
     def test_creates_compose_section_for_app_without_compose(self):
@@ -329,7 +319,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
         self._make_role("web-app-foo", {"matomo": {"enabled": True, "shared": True}})
         apply_services_disabled(self.host_vars, ["matomo"], roles_dir=self.roles_dir)
         result = self._read_host_vars()
-        svc = result["applications"]["web-app-foo"]["compose"]["services"]["matomo"]
+        svc = result["applications"]["web-app-foo"]["services"]["matomo"]
         self.assertFalse(svc["enabled"])
         self.assertFalse(svc["shared"])
 
@@ -339,7 +329,7 @@ class TestApplyServicesDisabled(unittest.TestCase):
         self._make_role("web-app-bar", {"matomo": {"enabled": True, "shared": True}})
         apply_services_disabled(self.host_vars, ["matomo"], roles_dir=self.roles_dir)
         result = self._read_host_vars()
-        svc = result["applications"]["web-app-bar"]["compose"]["services"]["matomo"]
+        svc = result["applications"]["web-app-bar"]["services"]["matomo"]
         self.assertFalse(svc["enabled"])
         self.assertFalse(svc["shared"])
 
@@ -357,16 +347,8 @@ class TestApplyServicesDisabled(unittest.TestCase):
         self._write_host_vars(
             {
                 "applications": {
-                    "app-a": {
-                        "compose": {
-                            "services": {"oidc": {"enabled": True, "shared": True}}
-                        }
-                    },
-                    "app-b": {
-                        "compose": {
-                            "services": {"ldap": {"enabled": True, "shared": True}}
-                        }
-                    },
+                    "app-a": {"services": {"oidc": {"enabled": True, "shared": True}}},
+                    "app-b": {"services": {"ldap": {"enabled": True, "shared": True}}},
                 }
             }
         )
@@ -376,12 +358,8 @@ class TestApplyServicesDisabled(unittest.TestCase):
             self.host_vars, ["oidc", "ldap"], roles_dir=self.roles_dir
         )
         result = self._read_host_vars()
-        self.assertFalse(
-            result["applications"]["app-a"]["compose"]["services"]["oidc"]["enabled"]
-        )
-        self.assertFalse(
-            result["applications"]["app-b"]["compose"]["services"]["ldap"]["enabled"]
-        )
+        self.assertFalse(result["applications"]["app-a"]["services"]["oidc"]["enabled"])
+        self.assertFalse(result["applications"]["app-b"]["services"]["ldap"]["enabled"])
 
 
 class TestApplyServicesDisabledFromEnv(unittest.TestCase):
@@ -405,12 +383,13 @@ class TestApplyServicesDisabledFromEnv(unittest.TestCase):
 
     def _make_role(self, role_name: str, services: dict) -> None:
         role_dir = self.roles_dir / role_name
-        (role_dir / "config").mkdir(parents=True)
+        (role_dir / "meta").mkdir(parents=True)
         (role_dir / "vars").mkdir(parents=True)
-        with (role_dir / "config" / "main.yml").open("w") as f:
+        # New layout (req-008): meta/services.yml is the services map directly
+        with (role_dir / "meta" / "services.yml").open("w") as f:
             import yaml
 
-            yaml.dump({"compose": {"services": services}}, f)
+            yaml.dump(services, f)
         with (role_dir / "vars" / "main.yml").open("w") as f:
             import yaml
 
@@ -421,9 +400,7 @@ class TestApplyServicesDisabledFromEnv(unittest.TestCase):
             {
                 "applications": {
                     "web-app-foo": {
-                        "compose": {
-                            "services": {"oidc": {"enabled": True, "shared": True}}
-                        }
+                        "services": {"oidc": {"enabled": True, "shared": True}}
                     }
                 }
             }
@@ -433,9 +410,7 @@ class TestApplyServicesDisabledFromEnv(unittest.TestCase):
             apply_services_disabled_from_env(self.host_vars, roles_dir=self.roles_dir)
         result = self._read()
         self.assertFalse(
-            result["applications"]["web-app-foo"]["compose"]["services"]["oidc"][
-                "enabled"
-            ]
+            result["applications"]["web-app-foo"]["services"]["oidc"]["enabled"]
         )
 
     def test_no_op_when_env_not_set(self):
@@ -464,12 +439,13 @@ class TestServicesDisabledConflicts(unittest.TestCase):
 
     def _make_role(self, role_name: str, services: dict) -> None:
         role_dir = self.roles_dir / role_name
-        (role_dir / "config").mkdir(parents=True)
+        (role_dir / "meta").mkdir(parents=True)
         (role_dir / "vars").mkdir(parents=True)
-        with (role_dir / "config" / "main.yml").open("w") as f:
+        # New layout (req-008): meta/services.yml is the services map directly
+        with (role_dir / "meta" / "services.yml").open("w") as f:
             import yaml
 
-            yaml.dump({"compose": {"services": services}}, f)
+            yaml.dump(services, f)
         with (role_dir / "vars" / "main.yml").open("w") as f:
             import yaml
 
@@ -506,9 +482,7 @@ class TestServicesDisabledConflicts(unittest.TestCase):
             {
                 "applications": {
                     "web-app-fider": {
-                        "compose": {
-                            "services": {"email": {"enabled": False, "shared": False}}
-                        }
+                        "services": {"email": {"enabled": False, "shared": False}}
                     }
                 }
             }
@@ -535,9 +509,7 @@ class TestServicesDisabledConflicts(unittest.TestCase):
             {
                 "applications": {
                     "web-app-fider": {
-                        "compose": {
-                            "services": {"email": {"enabled": True, "shared": True}}
-                        }
+                        "services": {"email": {"enabled": True, "shared": True}}
                     }
                 }
             }
@@ -564,9 +536,7 @@ class TestServicesDisabledConflicts(unittest.TestCase):
             {
                 "applications": {
                     "web-app-fider": {
-                        "compose": {
-                            "services": {"email": {"enabled": False, "shared": False}}
-                        }
+                        "services": {"email": {"enabled": False, "shared": False}}
                     }
                 }
             }

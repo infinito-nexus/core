@@ -1,6 +1,6 @@
 # General
 application_id:                       "web-app-mailu"
-http_port:                            "{{ ports.localhost.http[application_id] }}"
+http_port:                            "{{ lookup('config', application_id, 'services.mailu.ports.local.http') }}"
 webserver_extra_configuration:        "client_max_body_size 31M;"
 # Database Configuration
 database_password:                    "{{ lookup('config', application_id, 'credentials.database_password') }}"
@@ -15,14 +15,14 @@ MAILU_WEBSITE:                        "{{ lookup('tls', application_id, 'url.bas
 # Calling localhost directly avoids routing through the front nginx proxy, which causes 502s in DinD.
 MAILU_API_SERVICE_BASE_URL:           "http://localhost:8080/api/v1"
 ## Domains
-MAILU_DOMAIN:                         "{{ lookup('config', application_id, 'domain') }}"
+MAILU_DOMAIN:                         "{{ lookup('config', application_id, 'services.mailu.domain') }}"
 MAILU_DOMAIN_DNS_ZONE:                "{{ MAILU_DOMAIN | to_zone }}"
 MAILU_EMAIL:                          "{{ lookup('email', application_id) }}"
 MAILU_HOSTNAME:                       "{{ MAILU_EMAIL.host }}"
 MAILU_HOSTNAME_DNS_ZONE:              "{{ MAILU_HOSTNAME | to_zone }}"
 ## Docker
-MAILU_VERSION:                        "{{ lookup('config', application_id, 'compose.services.mailu.version') }}"
-MAILU_CONTAINER:                      "{{ lookup('config', application_id, 'compose.services.mailu.name') }}"
+MAILU_VERSION:                        "{{ lookup('config', application_id, 'services.mailu.version') }}"
+MAILU_CONTAINER:                      "{{ lookup('config', application_id, 'services.mailu.name') }}"
 MAILU_FRONT_SERVICE:                  "front"
 ## Volumes
 MAILU_SMTP_QUEUE_VOLUME:              "mailu_smtp_queue"
@@ -34,18 +34,18 @@ MAILU_DKIM_VOLUME:                    "mailu_dkim"
 MAILU_DOVECOT_MAIL_VOLUME:            "mailu_dovecot_mail"
 MAILU_CLAMAV_VOLUME:                  "mailu_clamav_data"
 ## Network
-MAILU_DNS_RESOLVER:                   "{{ networks.local['web-app-mailu'].dns_resolver }}"
+MAILU_DNS_RESOLVER:                   "{{ lookup('config', 'web-app-mailu', 'server.networks.local.dns_resolver') }}"
 MAILU_IP4_PUBLIC:                     "{{ DOCKER_PUBLIC_BIND_HOST }}"
 MAILU_IP6_PUBLIC:                     "" #Deactivated atm. but cloudflare logic present @todo activate it when it's configured for docker.
-MAILU_SUBNET:                         "{{ networks.local['web-app-mailu'].subnet }}"
+MAILU_SUBNET:                         "{{ lookup('config', 'web-app-mailu', 'server.networks.local.subnet') }}"
 ## Credentials
 MAILU_SECRET_KEY:                     "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 MAILU_API_TOKEN:                      "{{ lookup('config', application_id, 'credentials.api_token') }}"
 ## OIDC
 MAILU_OIDC_HOST:                      "{{ lookup('domain','web-app-keycloak') }}"
-MAILU_OIDC_ENABLED:                   "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
-MAILU_OIDC_EMAIL_BY_USERNAME_ENABLED: "{{ lookup('config', application_id, 'compose.services.oidc.email_by_username') }}"
-MAILU_OIDC_ENABLE_USER_CREATION:      "{{ lookup('config', application_id, 'compose.services.oidc.enable_user_creation') | string | capitalize }}"
+MAILU_OIDC_ENABLED:                   "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+MAILU_OIDC_EMAIL_BY_USERNAME_ENABLED: "{{ lookup('config', application_id, 'services.oidc.email_by_username') }}"
+MAILU_OIDC_ENABLE_USER_CREATION:      "{{ lookup('config', application_id, 'services.oidc.enable_user_creation') | string | capitalize }}"
 # Use dedicated source for oidc if activated  
 # @see https://github.com/heviat/Mailu-OIDC/tree/2024.06
 MAILU_DOCKER_FLAVOR:                  "{{ 'ghcr.io/heviat' if MAILU_OIDC_ENABLED | bool else 'ghcr.io/mailu' }}"

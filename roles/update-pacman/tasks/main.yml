@@ -1,8 +1,0 @@
-- block:
-    - name: update pacman
-      community.general.pacman:
-        update_cache: true
-        upgrade: true
-
-    - include_tasks: utils/once/flag.yml
-  when: run_once_update_pacman is not defined

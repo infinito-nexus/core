@@ -6,8 +6,8 @@
     loop_var: domain
   vars:
     # Websockt and http listen to the same port
-    http_port:      "{{ ports.localhost.http[application_id] }}"
-    websocket_port: "{{ ports.localhost.http[application_id] }}"
+    http_port:      "{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
+    websocket_port: "{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
 
 - name: "load docker and db for {{ application_id }}"
   include_role:

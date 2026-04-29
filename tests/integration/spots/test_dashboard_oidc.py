@@ -27,7 +27,7 @@ class TestDashboardOidcSpot(unittest.TestCase):
             "LOGIN_PASSWORD={{ lookup('users', 'administrator').password", content
         )
         self.assertIn(
-            "MATOMO_ENABLED={{ lookup('config', application_id, 'compose.services.matomo.enabled') }}",
+            "MATOMO_ENABLED={{ lookup('config', application_id, 'services.matomo.enabled') }}",
             content,
         )
 

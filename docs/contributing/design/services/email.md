@@ -23,7 +23,7 @@ Two or more terms MUST fail with `AnsibleError`.
 For each short key, the plugin MUST resolve the value from the first defined
 source in this order:
 
-1. `applications['<application_id>'].compose.services.email.<key>`, only when
+1. `applications['<application_id>'].services.email.<key>`, only when
    an `application_id` is passed.
 2. A matching `SYSTEM_EMAIL_<KEY>` variable defined anywhere in Ansible
    variable scope (inventory, group vars, host vars).
@@ -66,7 +66,7 @@ project state directly:
 - `UsersLookup` yields the `no-reply` user dict used to derive `from` and
   `password`. Missing entries MUST yield an empty dict. The fallback for
   `from` is then `root@<inventory_hostname>.localdomain`.
-- `ApplicationsLookup` reads `compose.services.email` for the target
+- `ApplicationsLookup` reads `services.email` for the target
   `application_id`. Unknown applications MUST yield an empty dict.
 
 Each helper MUST forward `roles_dir` when present in `self._kwargs` so tests
@@ -116,9 +116,10 @@ Roles that call `lookup('email', ...)` are treated as dependents of Mailu. The
 integration check
 [test_mailu_dependency.py](../../../../tests/integration/services/test_mailu_dependency.py)
 scans every role for the `lookup('email'` pattern and fails if such a role
-does not declare `compose.services.email` with `enabled: true` and
-`shared: true` in its `config/main.yml`. A new email consumer MUST declare
-that service block in its role config.
+does not declare `services.email` with `enabled: true` and
+`shared: true` at the file root of its `meta/services.yml` (per
+[req-008](../../../requirements/008-role-meta-layout.md)). A new email
+consumer MUST declare that service block in its role's `meta/services.yml`.
 
 ## See Also 🔗
 

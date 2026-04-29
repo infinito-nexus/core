@@ -22,15 +22,15 @@
 - name: flush docker service
   meta: flush_handlers
 
-- name: "Matomo install | Wait for Matomo container to be healthy"
+- name: "Matomo install | Wait for Matomo container to be running (any state)"
   ansible.builtin.command: >
-    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}' {{ MATOMO_NAME }}
-  register: matomo_health
+    container inspect -f '{{ "{{" }}.State.Running{{ "}}" }}' {{ MATOMO_NAME }}
+  register: matomo_running
   changed_when: false
-  retries: 60
+  retries: 30
   delay: 2
   until: >
-    matomo_health.rc == 0 and (matomo_health.stdout | trim) == 'healthy'
+    matomo_running.rc == 0 and (matomo_running.stdout | trim) == 'true'
 
 - name: "Matomo install | Check whether Matomo is already installed (config.ini.php exists)"
   command:
@@ -51,6 +51,14 @@
     (matomo_config_exists.rc != 0) or
     ((lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
 
+# `04_patch_database.yml` rewrites the DB host/name/user/password lines in
+# `config.ini.php` to whatever the current deploy renders. Without this, a
+# matrix-deploy second round restarts the matomo container against the
+# round-2 MariaDB user/password while `config.ini.php` still carries the
+# round-1 credentials, and the healthcheck loops forever on
+# "Database access denied". The patch MUST run before the wait-for-healthy
+# probe so the container has the correct credentials by the time the
+# probe gates the rest of the play.
 - name: "Patch database credentials for {{ application_id }}"
   include_tasks: 04_patch_database.yml
   when: matomo_config_exists.rc == 0
@@ -60,6 +68,16 @@
 
 - name: flush docker service
   meta: flush_handlers
+
+- name: "Matomo install | Wait for Matomo container to be healthy"
+  ansible.builtin.command: >
+    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}' {{ MATOMO_NAME }}
+  register: matomo_health
+  changed_when: false
+  retries: 60
+  delay: 2
+  until: >
+    matomo_health.rc == 0 and (matomo_health.stdout | trim) == 'healthy'
 
 - name: "Config '{{ application_id }}' via API"
   include_tasks: 06_config.yml

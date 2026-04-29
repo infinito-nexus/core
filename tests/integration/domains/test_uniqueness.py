@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from collections import defaultdict
 
-from utils.runtime_data import get_application_defaults
+from utils.cache.applications import get_application_defaults
 
 
 class TestDomainUniqueness(unittest.TestCase):

@@ -8,7 +8,7 @@ For the matching environment contract, see [Role `playwright.env.j2`](playwright
 ## Procedure
 
 1. Read the contributor SPOT and treat every MUST there as a non-negotiable acceptance criterion for the generated spec.
-2. Inspect the role's `config/main.yml` and `defaults/main.yml` to determine the supported entry point (dashboard vs. direct app), enabled integrations (OIDC, LDAP, messaging, etc.), and active personas.
+2. Inspect the role's `meta/services.yml` (and the matching `meta/server.yml` / `meta/rbac.yml`) and `defaults/main.yml` to determine the supported entry point (dashboard vs. direct app), enabled integrations (OIDC, LDAP, messaging, etc.), and active personas.
 3. Read or author the role's `templates/playwright.env.j2` first and keep every variable name aligned with the generated spec.
 4. Draft scenarios from the live running stack, not from assumptions. Use Playwright codegen or `playwright-recorder` (see the framework SPOT) as a starting point when the DOM structure is unknown.
 5. Deploy the role and run the spec inside the shared `test-e2e-playwright` runner until every MUST in the contributor SPOT passes and the browser console is free of unhandled errors.

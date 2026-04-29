@@ -7,7 +7,7 @@ postgres_gis_enabled:           true
 
 # Mobilizon
 mobilizon_host_conf_exs_file:   "{{ [ lookup('container', application_id, 'directories.config'), 'config.exs' ] | path_join }}"
-mobilizon_version:              "{{ lookup('config', application_id, 'compose.services.mobilizon.version') }}"
-mobilizon_image:                "{{ lookup('config', application_id, 'compose.services.mobilizon.image') }}"
-mobilizon_container:            "{{ lookup('config', application_id, 'compose.services.mobilizon.name') }}"
-MOBILIZON_OIDC_ENABLED:         "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+mobilizon_version:              "{{ lookup('config', application_id, 'services.mobilizon.version') }}"
+mobilizon_image:                "{{ lookup('config', application_id, 'services.mobilizon.image') }}"
+mobilizon_container:            "{{ lookup('config', application_id, 'services.mobilizon.name') }}"
+MOBILIZON_OIDC_ENABLED:         "{{ lookup('config', application_id, 'services.oidc.enabled') }}"

@@ -7,7 +7,7 @@
     loop_var: domain
   vars:
     webserver_extra_configuration: "client_max_body_size {{ WORDPRESS_MAX_UPLOAD_SIZE }};"
-    http_port: "{{ ports.localhost.http[application_id] }}"
+    http_port: "{{ lookup('config', application_id, 'services.wordpress.ports.local.http') }}"
 
 - name: "load docker and db for {{ application_id }}"
   include_role:
@@ -45,6 +45,12 @@
 
 - name: "Install wordpress"
   include_tasks: 02_install.yml
+
+- name: "Convert to Multisite when opted in (requirement 005)"
+  include_tasks: 06_multisite.yml
+  when: >-
+    (lookup('config', application_id, 'services.wordpress.multisite.enabled')
+      | default(false) | bool)
 
 - name: "Install mu-plugins (OIDC→RBAC role mapper)"
   include_tasks: 05_mu_plugins.yml

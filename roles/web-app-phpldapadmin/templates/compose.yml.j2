@@ -4,7 +4,7 @@
     container_name: {{ application_id }}
     image: {{ PHPLDAPADMIN_IMAGE }}:{{ PHPLDAPADMIN_VERSION }}
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:8080
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.phpldapadmin.ports.local.http') }}:8080
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}

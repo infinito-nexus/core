@@ -29,26 +29,31 @@ class TestRunAfterResolution(unittest.TestCase):
         run_after_resolution.roles_dir = self._orig_roles_dir  # type: ignore[assignment]
 
     def _make_role(self, name: str, run_after=None, with_meta: bool = True):
-        """
-        Create roles/<name>/meta/main.yml with optional galaxy_info.run_after.
-        If with_meta=False, role dir exists but meta file does not.
+        """Create ``roles/<name>/meta/services.yml`` with the role's
+        ``run_after`` on its primary entity (per req-010).
+
+        If ``with_meta=False``, the role dir exists but ``meta/services.yml``
+        does not.
         """
         role_path = self.roles_dir / name
-        (role_path / "meta").mkdir(parents=True, exist_ok=True)
+        meta_dir = role_path / "meta"
+        meta_dir.mkdir(parents=True, exist_ok=True)
+
+        services_file = meta_dir / "services.yml"
 
         if not with_meta:
-            # Ensure meta/main.yml does not exist
-            meta_file = role_path / "meta" / "main.yml"
-            if meta_file.exists():
-                meta_file.unlink()
+            if services_file.exists():
+                services_file.unlink()
             return
 
-        meta = {"galaxy_info": {}}
+        primary_entry: dict = {}
         if run_after is not None:
-            meta["galaxy_info"]["run_after"] = run_after
+            primary_entry["run_after"] = run_after
 
-        meta_file = role_path / "meta" / "main.yml"
-        meta_file.write_text(yaml.safe_dump(meta, sort_keys=False), encoding="utf-8")
+        services_file.write_text(
+            yaml.safe_dump({name: primary_entry}, sort_keys=False),
+            encoding="utf-8",
+        )
 
     def test_missing_meta_is_empty(self):
         self._make_role("A", with_meta=False)

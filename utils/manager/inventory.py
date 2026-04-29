@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Any, Dict, List, Set
 
 from utils.handler.yaml import YamlHandler
 from utils.handler.vault import VaultHandler, VaultScalar
@@ -12,6 +12,37 @@ from utils.service_registry import (
     build_service_registry_from_roles_dir,
     resolve_service_dependency_roles_from_config,
 )
+
+
+# Marker fields that identify a credential schema leaf (per req-008). Any
+# `default:` value is preserved verbatim; algorithm defaults to `plain` when
+# absent; `validation:` only applies to user-provided values.
+_CREDENTIAL_LEAF_MARKERS = ("description", "algorithm", "validation", "default")
+
+
+def _is_credential_leaf(node: Any) -> bool:
+    return isinstance(node, dict) and any(
+        marker in node for marker in _CREDENTIAL_LEAF_MARKERS
+    )
+
+
+def _meta_role_config(role_path: Path) -> Dict[str, Any]:
+    """Assemble the post-req-008 view of a role's config from its meta files.
+
+    The shape mirrors the old `meta/services.yml` payload so that downstream
+    helpers (database_service, service_registry, ...) keep working unchanged:
+    `{services: <map>, server: <map>, rbac: <map>, volumes: <map>}`.
+    """
+    meta_dir = role_path / "meta"
+    config: Dict[str, Any] = {}
+    for topic in ("services", "server", "rbac", "volumes"):
+        topic_path = meta_dir / f"{topic}.yml"
+        if not topic_path.exists():
+            continue
+        topic_data = YamlHandler.load_yaml(topic_path) or {}
+        if isinstance(topic_data, dict) and topic_data:
+            config[topic] = topic_data
+    return config
 
 
 class InventoryManager:
@@ -31,8 +62,7 @@ class InventoryManager:
         self.allow_empty_plain = allow_empty_plain
 
         self.inventory = YamlHandler.load_yaml(inventory_path) or {}
-        schema_file = role_path / "schema" / "main.yml"
-        self.schema = YamlHandler.load_yaml(schema_file) if schema_file.exists() else {}
+        self.schema = self._load_role_schema_by_path(role_path)
         self.app_id = self.load_application_id(role_path)
 
         self.vault_handler = VaultHandler(vault_pw)
@@ -53,19 +83,20 @@ class InventoryManager:
             sys.exit(1)
         return app_id
 
-    def load_role_schema(self, role_name: str) -> dict:
-        schema_path = self.roles_root / role_name / "schema" / "main.yml"
+    @staticmethod
+    def _load_role_schema_by_path(role_path: Path) -> Dict[str, Any]:
+        schema_path = role_path / "meta" / "schema.yml"
         if not schema_path.exists():
             return {}
         return YamlHandler.load_yaml(schema_path) or {}
 
-    def load_role_config_by_path(self, role_path: Path) -> dict:
-        cfg_path = role_path / "config" / "main.yml"
-        if not cfg_path.exists():
-            return {}
-        return YamlHandler.load_yaml(cfg_path) or {}
+    def load_role_schema(self, role_name: str) -> Dict[str, Any]:
+        return self._load_role_schema_by_path(self.roles_root / role_name)
 
-    def load_role_config(self, role_name: str) -> dict:
+    def load_role_config_by_path(self, role_path: Path) -> Dict[str, Any]:
+        return _meta_role_config(role_path)
+
+    def load_role_config(self, role_name: str) -> Dict[str, Any]:
         role_path = self.roles_root / role_name
         return self.load_role_config_by_path(role_path)
 
@@ -131,9 +162,11 @@ class InventoryManager:
         app_id = self.load_application_id(role_path)
         cfg = self.load_role_config_by_path(role_path)
 
-        services = (cfg.get("compose") or {}).get("services") or {}
-        oauth2 = services.get("oauth2") or {}
-        oidc = services.get("oidc") or {}
+        services = cfg.get("services") or {}
+        oauth2 = services.get("oauth2") if isinstance(services, dict) else None
+        oauth2 = oauth2 if isinstance(oauth2, dict) else {}
+        oidc = services.get("oidc") if isinstance(services, dict) else None
+        oidc = oidc if isinstance(oidc, dict) else {}
         has_database_service = bool(resolve_database_service_key({app_id: cfg}, app_id))
         if has_database_service:
             apps = self.inventory.setdefault("applications", {})
@@ -175,62 +208,94 @@ class InventoryManager:
     # ---------------------------------------------------------------------
 
     def recurse_credentials(self, branch: dict, dest: dict, prefix: str = "") -> None:
-        """Recursively process only the 'credentials' section and generate values."""
+        """Recursively process the 'credentials' section and generate values.
+
+        Supports the post-req-008 schema:
+          * Nested keys are walked transparently (e.g.
+            `credentials.recaptcha.{key,secret}`).
+          * `algorithm:` defaults to `plain` when omitted.
+          * `default:` (Jinja literal) is written verbatim and
+            short-circuits algorithm-based generation. `validation:` is
+            ignored for default-bearing entries.
+          * Existing inventory values are preserved (no double-encryption,
+            no overwrite of operator-supplied secrets).
+        """
         for key, meta in (branch or {}).items():
             full_key = f"{prefix}.{key}" if prefix else key
+            inside_credentials = prefix == "credentials" or prefix.startswith(
+                "credentials."
+            )
 
-            if (
-                prefix == "credentials"
-                and isinstance(meta, dict)
-                and all(k in meta for k in ("description", "algorithm", "validation"))
-            ):
-                alg = meta["algorithm"]
-                existing_value = dest.get(key)
+            if inside_credentials and _is_credential_leaf(meta):
+                self._materialize_credential_leaf(full_key, key, meta, dest)
+                continue
 
-                if alg == "plain":
-                    if full_key in self.overrides:
-                        plain = self.overrides[full_key]
-                    elif isinstance(existing_value, str) and existing_value != "":
-                        continue
-                    elif self.allow_empty_plain:
-                        plain = ""
-                    else:
-                        print(
-                            f"ERROR: Plain algorithm for '{full_key}' requires override via --set {full_key}=<value>",
-                            file=sys.stderr,
-                        )
-                        sys.exit(1)
-                else:
-                    plain = self.overrides.get(
-                        full_key, self.value_generator.generate_value(alg)
-                    )
-
-                if isinstance(existing_value, dict):
-                    print(
-                        f"Skipping encryption for '{key}', as it is a dictionary.",
-                        file=sys.stderr,
-                    )
-                    continue
-
-                if existing_value and isinstance(existing_value, VaultScalar):
-                    print(
-                        f"Skipping encryption for '{key}', as it is already vaulted.",
-                        file=sys.stderr,
-                    )
-                    continue
-
-                if plain == "":
-                    dest[key] = ""
-                    continue
-
-                snippet = self.vault_handler.encrypt_string(plain, key)
-                lines = snippet.splitlines()
-                indent = len(lines[1]) - len(lines[1].lstrip())
-                body = "\n".join(line[indent:] for line in lines[1:])
-                dest[key] = VaultScalar(body)
-
-            elif isinstance(meta, dict):
+            if isinstance(meta, dict):
                 sub = dest.setdefault(key, {})
+                if not isinstance(sub, dict):
+                    # Replace non-dict placeholder so nested credentials
+                    # have a writeable container.
+                    sub = {}
+                    dest[key] = sub
                 self.recurse_credentials(meta, sub, full_key)
             else:
                 dest[key] = meta
+
+    def _materialize_credential_leaf(
+        self, full_key: str, key: str, meta: dict, dest: dict
+    ) -> None:
+        """Resolve a single credential leaf into ``dest[key]``."""
+        existing_value = dest.get(key)
+
+        if isinstance(existing_value, dict):
+            print(
+                f"Skipping encryption for '{key}', as it is a dictionary.",
+                file=sys.stderr,
+            )
+            return
+
+        if existing_value and isinstance(existing_value, VaultScalar):
+            print(
+                f"Skipping encryption for '{key}', as it is already vaulted.",
+                file=sys.stderr,
+            )
+            return
+
+        if "default" in meta:
+            # Per req-008: write the literal Jinja string verbatim, no
+            # rendering, no validation, no algorithm-based generation.
+            if isinstance(existing_value, str) and existing_value != "":
+                return
+            dest[key] = meta["default"]
+            return
+
+        algorithm = meta.get("algorithm") or "plain"
+
+        if algorithm == "plain":
+            if full_key in self.overrides:
+                plain = self.overrides[full_key]
+            elif isinstance(existing_value, str) and existing_value != "":
+                return
+            elif self.allow_empty_plain:
+                plain = ""
+            else:
+                print(
+                    f"ERROR: Plain algorithm for '{full_key}' requires override "
+                    f"via --set {full_key}=<value>",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+        else:
+            plain = self.overrides.get(
+                full_key, self.value_generator.generate_value(algorithm)
+            )
+
+        if plain == "":
+            dest[key] = ""
+            return
+
+        snippet = self.vault_handler.encrypt_string(plain, key)
+        lines = snippet.splitlines()
+        indent = len(lines[1]) - len(lines[1].lstrip())
+        body = "\n".join(line[indent:] for line in lines[1:])
+        dest[key] = VaultScalar(body)

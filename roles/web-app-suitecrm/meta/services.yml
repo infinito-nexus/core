@@ -1,0 +1,57 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+suitecrm:
+  image: php
+  # TODO: Make SuiteCRM compatible with PHP 8.5; update currently not possible. noqa: intentional legacy pin
+  # nocheck: docker-version
+  version: 8.2-apache
+  app_version: 8.9.1
+  name: suitecrm
+  min_storage: 10GB
+  cpus: 1.5
+  mem_reservation: 1.2g
+  mem_limit: 2g
+  pids_limit: 768
+  email:
+    from_name: Customer Relationship Management (SuiteCRM, {{ DOMAIN_PRIMARY }})
+  maintenance_mode: false
+  ports:
+    local:
+      oauth2: 16490
+      http: 8062
+  run_after:
+  - web-app-keycloak
+  - web-app-mailu
+  - web-app-matomo
+  lifecycle: beta
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    host: suitecrm
+    port: '80'
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

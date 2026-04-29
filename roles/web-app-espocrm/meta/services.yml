@@ -1,0 +1,58 @@
+ldap:
+  enabled: false
+  shared: false
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: false
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+espocrm:
+  image: espocrm/espocrm
+  version: latest
+  name: espocrm
+  min_storage: 8GB
+  cpus: 1.5
+  mem_reservation: 1.2g
+  mem_limit: 2g
+  pids_limit: 768
+  email:
+    from_name: Customer Relationship Management ({{ DOMAIN_PRIMARY }})
+  maintenance_mode: false
+  ports:
+    local:
+      websocket: 4002
+      http: 8040
+  run_after:
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+daemon:
+  cpus: 0.5
+  mem_reservation: 0.25g
+  mem_limit: 0.5g
+  pids_limit: 384
+websocket:
+  cpus: 0.5
+  mem_reservation: 0.25g
+  mem_limit: 0.5g
+  pids_limit: 384
+css:
+  enabled: false
+  shared: true
+recaptcha:
+  enabled: '{{ RECAPTCHA_ENABLED | bool }}'
+prometheus:
+  enabled: true
+  shared: true

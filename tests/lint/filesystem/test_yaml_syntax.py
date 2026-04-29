@@ -1,7 +1,7 @@
 import unittest
 import yaml
 
-from tests.utils.fs import iter_project_files, read_text
+from utils.cache.files import iter_project_files, read_text
 
 
 class TestYamlSyntax(unittest.TestCase):

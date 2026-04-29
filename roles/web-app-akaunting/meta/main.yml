@@ -1,25 +1,16 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Empower your financial management with Akaunting, a dynamic and feature-rich accounting platform designed to
-    simplify your bookkeeping and boost your business growth. Enjoy intuitive tools, real-time insights, and an energetic
-    approach to your finances.
+  description: Empower your financial management with Akaunting, a dynamic and feature-rich accounting platform designed to simplify your bookkeeping and boost your business growth. Enjoy intuitive tools, real-time insights, and an energetic approach to your finances.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - akaunting
-  - accounting
-  - finance
-  repository: https://s.infinito.nexus/code
+    - akaunting
+    - accounting
+    - finance
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-file-invoice-dollar
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
-  lifecycle: alpha

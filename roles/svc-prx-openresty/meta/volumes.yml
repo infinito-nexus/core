@@ -1,0 +1,2 @@
+www: /var/www/
+nginx: /etc/nginx/

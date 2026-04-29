@@ -66,7 +66,7 @@ class TestCspConfigurationConsistency(unittest.TestCase):
             if not role_path.is_dir():
                 continue
 
-            cfg_file = role_path / "config" / "main.yml"
+            cfg_file = role_path / "meta" / "services.yml"
             if not cfg_file.exists():
                 continue
 

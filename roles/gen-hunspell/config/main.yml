@@ -1,2 +1,0 @@
-languages:
-  - "{{ HOST_LL_CC | lower }}" # Use system default

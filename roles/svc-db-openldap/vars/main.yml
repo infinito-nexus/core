@@ -3,7 +3,7 @@ entity_name:                    "{{ application_id | get_entity_name }}"
 
 # LDAP Variables
 OPENLDAP_DOCKER_PORT_OPEN:      389
-OPENLDAP_SERVER_URI:            "ldap://{{ DOCKER_REACH_HOST }}:{{ ports.localhost.ldap[application_id] }}"
+OPENLDAP_SERVER_URI:            "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
 
 # cn=config is managed via LDAPI + SASL EXTERNAL (no bind DN/PW needed)
 OPENLDAP_CONFIG_URI:            "ldapi:///"
@@ -16,29 +16,29 @@ OPENLDAP_LDIF_TYPES:
   - groups
 
 # Container
-OPENLDAP_CONTAINER:             "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
-OPENLDAP_IMAGE:                 "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-OPENLDAP_VERSION:               "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
-OPENLDAP_VOLUME:                "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-OPENLDAP_NETWORK:               "{{ lookup('config', application_id, 'compose.network') }}"
+OPENLDAP_CONTAINER:             "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+OPENLDAP_IMAGE:                 "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+OPENLDAP_VERSION:               "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+OPENLDAP_VOLUME:                "{{ lookup('config', application_id, 'volumes.data') }}"
+OPENLDAP_NETWORK:               "{{ application_id | get_entity_name }}"
 OPENLDAP_SERVICE:               "{{ entity_name }}"
 OPENLDAP_IMAGE_CUSTOM:          "infinito/openldap:local"
 OPENLDAP_BIND_DN:               "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 OPENLDAP_BIND_PW:               "{{ LDAP.BIND_CREDENTIAL }}"
 
 # Network
-OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'network.public') }}"
-OPENLDAP_NETWORK_SWITCH_LOCAL:  "{{ lookup('config', application_id, 'network.local') }}"
+OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'services.openldap.network.public') }}"
+OPENLDAP_NETWORK_SWITCH_LOCAL:  "{{ lookup('config', application_id, 'services.openldap.network.local') }}"
 OPENLDAP_NETWORK_EXPOSE_LOCAL:  "{{ OPENLDAP_NETWORK_SWITCH_PUBLIC | bool or OPENLDAP_NETWORK_SWITCH_LOCAL | bool }}"
 
 # Provision
-OPENLDAP_PROVISION_CONFIGURATION: "{{ lookup('config', application_id, 'provision.configuration') }}"
-OPENLDAP_PROVISION_CREDENTIALS:   "{{ lookup('config', application_id, 'provision.credentials') }}"
-OPENLDAP_PROVISION_SCHEMAS:       "{{ lookup('config', application_id, 'provision.schemas') }}"
-OPENLDAP_PROVISION_USERS:         "{{ lookup('config', application_id, 'provision.users') }}"
-OPENLDAP_PROVISION_GROUPS:        "{{ lookup('config', application_id, 'provision.groups') }}"
-OPENLDAP_PROVISION_UPDATE:        "{{ lookup('config', application_id, 'provision.update') }}"
-OPENLDAP_PROVISION_RESERVED:      "{{ lookup('config', application_id, 'provision.reserved') }}"
+OPENLDAP_PROVISION_CONFIGURATION: "{{ lookup('config', application_id, 'services.openldap.provision.configuration') }}"
+OPENLDAP_PROVISION_CREDENTIALS:   "{{ lookup('config', application_id, 'services.openldap.provision.credentials') }}"
+OPENLDAP_PROVISION_SCHEMAS:       "{{ lookup('config', application_id, 'services.openldap.provision.schemas') }}"
+OPENLDAP_PROVISION_USERS:         "{{ lookup('config', application_id, 'services.openldap.provision.users') }}"
+OPENLDAP_PROVISION_GROUPS:        "{{ lookup('config', application_id, 'services.openldap.provision.groups') }}"
+OPENLDAP_PROVISION_UPDATE:        "{{ lookup('config', application_id, 'services.openldap.provision.update') }}"
+OPENLDAP_PROVISION_RESERVED:      "{{ lookup('config', application_id, 'services.openldap.provision.reserved') }}"
 
 # Users to be processed by LDAP
 OPENLDAP_USERS:                   "{{ lookup('users') if OPENLDAP_PROVISION_RESERVED else lookup('users') | non_reserved_users }}"

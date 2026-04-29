@@ -1,9 +1,0 @@
-credentials:
-  alerting_telegram_bot_token:
-    description: "Telegram bot token for Alertmanager notifications; set credentials.alerting_telegram_bot_token on this role in inventory."
-    algorithm:   token
-    validation:  non_empty_string
-  alerting_mattermost_webhook_url:
-    description: "Mattermost incoming webhook URL for Alertmanager notifications; set credentials.alerting_mattermost_webhook_url on this role in inventory."
-    algorithm:   url
-    validation:  non_empty_string

@@ -12,7 +12,7 @@ class FilterModule(object):
 
     def logout_domains(self, applications, group_names):
         """
-        Return a list of domains for applications where compose.services.logout.enabled is true.
+        Return a list of domains for applications where services.logout.enabled is true.
 
         :param applications: dict of application configs
         :param group_names: list of application IDs to consider
@@ -24,9 +24,7 @@ class FilterModule(object):
                 if app_id not in group_names:
                     continue
 
-                if not get(
-                    applications, app_id, "compose.services.logout.enabled", False
-                ):
+                if not get(applications, app_id, "services.logout.enabled", False):
                     continue
 
                 # use canonical domains list if present

@@ -14,7 +14,7 @@ JIRA_HOSTNAME:                "{{ container_hostname }}"
 JIRA_STORAGE_PATH:            "/var/atlassian/application-data/jira"
 
 ## OIDC
-JIRA_OIDC_ENABLED:            "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+JIRA_OIDC_ENABLED:            "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 JIRA_OIDC_LABEL:              "{{ OIDC.BUTTON_TEXT }}"
 JIRA_OIDC_CLIENT_ID:          "{{ OIDC.CLIENT.ID }}"
 JIRA_OIDC_CLIENT_SECRET:      "{{ OIDC.CLIENT.SECRET }}"
@@ -28,12 +28,12 @@ JIRA_OIDC_SCOPES:             "openid,email,profile"
 JIRA_OIDC_UNIQUE_ATTRIBUTE:   "{{ OIDC.ATTRIBUTES.USERNAME }}"
 
 ## Docker
-JIRA_VERSION:                 "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
-JIRA_IMAGE:                   "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-JIRA_CONTAINER:               "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
-JIRA_DATA_VOLUME:             "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+JIRA_VERSION:                 "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+JIRA_IMAGE:                   "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+JIRA_CONTAINER:               "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+JIRA_DATA_VOLUME:             "{{ lookup('config', application_id, 'volumes.data') }}"
 JIRA_CUSTOM_IMAGE:            "{{ entity_name }}_custom:{{ JIRA_VERSION }}"
 
-## Performance (derive from container limits in config/main.yml)
+## Performance (derive from container limits in meta/services.yml)
 JIRA_JVM_MAX:                 "{{ lookup('applications') | jvm_max_mb(application_id) }}m"
 JIRA_JVM_MIN:                 "{{ lookup('applications') | jvm_min_mb(application_id) }}m"

@@ -1,0 +1,16 @@
+domains:
+  canonical:
+  - social.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+networks:
+  local:
+    subnet: 192.168.101.80/28

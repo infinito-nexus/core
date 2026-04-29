@@ -4,18 +4,12 @@ import argparse
 import os
 import subprocess
 
-from .common import repo_root_from_here
+from .common import repo_root_from_here, resolve_distro
 
 
 def add_parser(sub: argparse._SubParsersAction) -> None:
     p = sub.add_parser(
         "build", help="Build infinito image using scripts/image/build.sh (SPOT)."
-    )
-    p.add_argument(
-        "--distro",
-        default=os.environ.get("INFINITO_DISTRO", "arch"),
-        choices=["arch", "debian", "ubuntu", "fedora", "centos"],
-        help="Target distro (INFINITO_DISTRO).",
     )
     p.add_argument("--missing", action="store_true", help="Build only if missing.")
     p.add_argument("--no-cache", action="store_true", help="Build with --no-cache.")
@@ -48,7 +42,7 @@ def handler(args: argparse.Namespace) -> int:
     )
 
     env = dict(os.environ)
-    env["INFINITO_DISTRO"] = args.distro
+    env["INFINITO_DISTRO"] = resolve_distro()
     if not args.repo_prefix and not env.get("INFINITO_IMAGE_REPOSITORY"):
         resolved_repo = subprocess.run(
             [str(repository_name_script)],

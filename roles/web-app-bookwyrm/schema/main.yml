@@ -1,6 +1,0 @@
-credentials:
-  secret_key:
-    description: "Django SECRET_KEY for BookWyrm"
-    algorithm: "alphanumeric"   # uses generate_value('alphanumeric') → 64 random a-zA-Z0-9
-    validation:
-      min_length: 50            # Django recommends ≥50 characters

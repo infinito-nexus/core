@@ -12,7 +12,7 @@ For the canonical Make target index that invokes these helpers, see [make.md](..
 
 ## Notes
 
-- Canonical domains and aliases come from `roles/*/config/main.yml`
+- Canonical domains and aliases come from `roles/*/meta/server.yml`
 - The CLI entrypoint lives in `cli/meta/domains/__main__.py`
 - The reusable generator logic lives in `utils/domains/list.py`
 - `DOMAIN_PRIMARY` is rendered before the list is emitted

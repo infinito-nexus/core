@@ -19,4 +19,4 @@
     name: sys-stk-front-proxy
   vars:
     domain:     "{{ lookup('domain',application_id) }}"
-    http_port:  "{{ ports.localhost.http[application_id] }}"
+    http_port:  "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"

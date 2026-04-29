@@ -8,6 +8,6 @@
 - name: "Transfering oauth2-proxy-keycloak.cfg.j2 to {{( application_id | get_docker_paths(DIR_COMPOSITIONS) ).directories.volumes }}"
   template:
     src:  "{{ playbook_dir }}/roles/web-app-oauth2-proxy/templates/oauth2-proxy-keycloak.cfg.j2"
-    dest: "{{( application_id | get_docker_paths(DIR_COMPOSITIONS) ).directories.volumes }}{{ lookup('config','web-app-oauth2-proxy', 'configuration_file') }}"
+    dest: "{{( application_id | get_docker_paths(DIR_COMPOSITIONS) ).directories.volumes }}{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.configuration_file') }}"
   notify:
     - compose up

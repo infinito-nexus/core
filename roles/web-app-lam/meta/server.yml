@@ -1,0 +1,16 @@
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: false
+      unsafe-eval: true
+    script-src-attr:
+      unsafe-inline: true
+domains:
+  aliases: []
+  canonical:
+  - lam.{{ DOMAIN_PRIMARY }}
+networks:
+  local:
+    subnet: 192.168.103.0/28

@@ -1,0 +1,42 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+joomla:
+  image: joomla
+  version: 6.1.0-php8.3-apache
+  name: joomla
+  min_storage: 8GB
+  backup:
+    no_stop_required: true
+  upload:
+    size_mb: 100
+  autocreate_users: true
+  ports:
+    local:
+      http: 8014
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: alpha
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

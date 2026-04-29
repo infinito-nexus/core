@@ -13,7 +13,7 @@ def _make_fs(files: dict[str, str]) -> dict[Path, str]:
 
 
 class TestIterRoleImagesVarsImages(unittest.TestCase):
-    """iter_role_images reads defaults/main.yml → images and config/main.yml → compose.services (any registry)."""
+    """iter_role_images reads defaults/main.yml → images and meta/services.yml → services (any registry)."""
 
     def _run(self, fs: dict[str, str]) -> list:
         real_fs = _make_fs(fs)
@@ -97,14 +97,14 @@ class TestIterRoleImagesVarsImages(unittest.TestCase):
         self.assertEqual(refs, [])
 
     def test_config_main_yml_ghcr_image(self):
+        # Per req-008 the file root IS the services map (no compose envelope)
+        # and source_file reports the new path.
         refs = self._run(
             {
-                "roles/web-app-matrix/config/main.yml": """
-                compose:
-                  services:
-                    matrix-chatgpt-bot:
-                      image: ghcr.io/matrixgpt/matrix-chatgpt-bot
-                      version: latest
+                "roles/web-app-matrix/meta/services.yml": """
+                matrix-chatgpt-bot:
+                  image: ghcr.io/matrixgpt/matrix-chatgpt-bot
+                  version: latest
             """,
             }
         )
@@ -115,7 +115,7 @@ class TestIterRoleImagesVarsImages(unittest.TestCase):
         self.assertEqual(ref.name, "matrixgpt/matrix-chatgpt-bot")
         self.assertEqual(ref.registry, "ghcr.io")
         self.assertEqual(ref.source, "ghcr.io/matrixgpt/matrix-chatgpt-bot:latest")
-        self.assertEqual(ref.source_file, "config/main.yml")
+        self.assertEqual(ref.source_file, "meta/services.yml")
 
 
 if __name__ == "__main__":  # pragma: no cover

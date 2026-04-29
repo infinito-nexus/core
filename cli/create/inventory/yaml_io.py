@@ -3,20 +3,22 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict
 
-import yaml
+from utils.cache.yaml import dump_yaml as _cached_dump_yaml
+from utils.cache.yaml import load_yaml as _cached_load_yaml
 
 
 def load_yaml(path: Path) -> Dict[str, Any]:
-    if not path.exists():
-        return {}
-    with path.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-    if not isinstance(data, dict):
-        raise SystemExit(f"Expected a mapping at top-level in {path}, got {type(data)}")
-    return data
+    """Cached YAML load that returns `{}` for missing files (legacy
+    contract). Non-mapping roots surface as `SystemExit` to match the
+    inventory CLI's existing error UX."""
+    try:
+        return _cached_load_yaml(path, default_if_missing={})
+    except ValueError as exc:
+        raise SystemExit(str(exc))
 
 
 def dump_yaml(path: Path, data: Dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(data, f, sort_keys=False, default_flow_style=False)
+    """Write-through wrapper around `utils.cache.yaml.dump_yaml`; evicts
+    the cached entry so subsequent `load_yaml(path)` calls see the new
+    content."""
+    _cached_dump_yaml(path, data)

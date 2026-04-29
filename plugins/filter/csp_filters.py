@@ -85,17 +85,17 @@ class FilterModule(object):
         Returns True if the docker service flag is enabled for this application.
 
         New flag layout (examples):
-          - compose.services.matomo.enabled
-          - compose.services.dashboard.enabled
-          - compose.services.simpleicons.enabled
-          - compose.services.logout.enabled
-          - compose.services.hcaptcha.enabled
-          - compose.services.recaptcha.enabled
+          - services.matomo.enabled
+          - services.dashboard.enabled
+          - services.simpleicons.enabled
+          - services.logout.enabled
+          - services.hcaptcha.enabled
+          - services.recaptcha.enabled
         """
         return get(
             applications,
             application_id,
-            f"compose.services.{feature}.enabled",
+            f"services.{feature}.enabled",
             False,
             False,
         )
@@ -210,10 +210,10 @@ class FilterModule(object):
               server.csp.hashes.<directive>
           - “Smart defaults”:
               * internal CDN for style/script elem and connect
-              * Matomo endpoints (if compose.services.matomo.enabled) for script-elem/connect
-              * Simpleicons service (if compose.services.simpleicons.enabled) for connect
-              * reCAPTCHA (if compose.services.recaptcha.enabled) for script-elem/frame-src
-              * hCaptcha (if compose.services.hcaptcha.enabled) for script-elem/frame-src
+              * Matomo endpoints (if services.matomo.enabled) for script-elem/connect
+              * Simpleicons service (if services.simpleicons.enabled) for connect
+              * reCAPTCHA (if services.recaptcha.enabled) for script-elem/frame-src
+              * hCaptcha (if services.hcaptcha.enabled) for script-elem/frame-src
               * frame-ancestors extended for dashboard/logout/keycloak if enabled
         """
         try:
@@ -265,12 +265,12 @@ class FilterModule(object):
                 ):
                     tokens.append(get_url(domains, "web-svc-cdn", web_protocol))
 
-                # Matomo (if enabled via compose.services.matomo.enabled)
+                # Matomo (if enabled via services.matomo.enabled)
                 if directive in ("script-src-elem", "connect-src"):
                     if self.is_feature_enabled(applications, "matomo", application_id):
                         tokens.append(get_url(domains, "web-app-matomo", web_protocol))
 
-                # Simpleicons (if enabled via compose.services.simpleicons.enabled) – typically used via connect-src (fetch)
+                # Simpleicons (if enabled via services.simpleicons.enabled) – typically used via connect-src (fetch)
                 if directive == "connect-src":
                     if self.is_feature_enabled(
                         applications, "simpleicons", application_id
@@ -279,13 +279,13 @@ class FilterModule(object):
                             get_url(domains, "web-svc-simpleicons", web_protocol)
                         )
 
-                # reCAPTCHA (if enabled via compose.services.recaptcha.enabled) – scripts + frames
+                # reCAPTCHA (if enabled via services.recaptcha.enabled) – scripts + frames
                 if self.is_feature_enabled(applications, "recaptcha", application_id):
                     if directive in ("script-src-elem", "frame-src"):
                         tokens.append("https://www.gstatic.com")  # nocheck: url
                         tokens.append("https://www.google.com")
 
-                # hCaptcha (if enabled via compose.services.hcaptcha.enabled) – scripts + frames
+                # hCaptcha (if enabled via services.hcaptcha.enabled) – scripts + frames
                 if self.is_feature_enabled(applications, "hcaptcha", application_id):
                     if directive == "script-src-elem":
                         tokens.append("https://www.hcaptcha.com")

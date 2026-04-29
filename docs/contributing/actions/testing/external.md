@@ -52,7 +52,7 @@ exceptions. You MUST use these only when the check genuinely does not apply.
 
 | Comment | Placement | Affected test | Effect |
 |---|---|---|---|
-| `# nocheck: docker-version` | Line directly above `version:` in `config/main.yml` | [test_image_versions.py](../../../../tests/external/docker/test_image_versions.py) | Skips the live version-update warning for that image |
+| `# nocheck: docker-version` | Line directly above `version:` in `meta/services.yml` | [test_image_versions.py](../../../../tests/external/docker/test_image_versions.py) | Skips the live version-update warning for that image |
 | `# nocheck: url` | Anywhere on the line containing the URL | [test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py) | Skips probing that URL (use for CDN roots, API base URLs, and runtime config values that return 4xx without a path) |
 | `{# nocheck: url #}` | Anywhere on the line (Jinja2 templates) | [test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py) | Same as above for `.j2` files |
 

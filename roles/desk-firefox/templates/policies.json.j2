@@ -2,7 +2,7 @@
     "policies": {
       "Extensions": {
         "Install": [
-          {% for plugin in lookup('config',application_id, 'plugins') -%}
+          {% for plugin in lookup('config', application_id, 'services.firefox.plugins') -%}
             "{{ plugin }}"{% if not loop.last %},{% endif %}
           {% endfor %}
         ]

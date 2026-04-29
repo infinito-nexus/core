@@ -1,20 +1,23 @@
 {# This template needs to be included in compose.yml containers #}
+{# Per req-008/009: each role's docker network name is its primary entity name
+   (e.g. svc-db-mariadb -> "mariadb"). The legacy `compose.network` config
+   path no longer exists; derive the name from the role id directly. #}
 {% set _db_provider_role = application_id if application_id in ['svc-db-mariadb', 'svc-db-postgres'] else '' %}
 {% set _db_role_id = _db_provider_role or lookup('database', application_id, 'id') %}
-{% set _db_network_name = lookup('config', _db_role_id, 'compose.network', False) if _db_role_id else '' %}
+{% set _db_network_name = (_db_role_id | get_entity_name) if _db_role_id else '' %}
 {% set _db_network_alias = (application_id | get_entity_name) if _db_provider_role else lookup('database', application_id, 'type') %}
 {% set _service_registry = query('service_registry') | first %}
 {% set _ldap_provider_role = _service_registry.get('ldap', {}).get('role', '') %}
-{% set _ldap_network_name = lookup('config', _ldap_provider_role, 'compose.network', False) if _ldap_provider_role else '' %}
+{% set _ldap_network_name = (_ldap_provider_role | get_entity_name) if _ldap_provider_role else '' %}
 {% set _ldap_shared = application_id == _ldap_provider_role or (
-  lookup('config', application_id, 'compose.services.ldap.enabled', False)
-  and lookup('config', application_id, 'compose.services.ldap.shared', False)
+  lookup('config', application_id, 'services.ldap.enabled', False)
+  and lookup('config', application_id, 'services.ldap.shared', False)
 ) %}
 {% set _ollama_provider_role = _service_registry.get('ollama', {}).get('role', '') %}
-{% set _ollama_network_name = lookup('config', _ollama_provider_role, 'compose.network', False) if _ollama_provider_role else '' %}
+{% set _ollama_network_name = (_ollama_provider_role | get_entity_name) if _ollama_provider_role else '' %}
 {% set _ollama_shared = application_id == _ollama_provider_role or (
-  lookup('config', application_id, 'compose.services.ollama.enabled', False)
-  and lookup('config', application_id, 'compose.services.ollama.shared', False)
+  lookup('config', application_id, 'services.ollama.enabled', False)
+  and lookup('config', application_id, 'services.ollama.shared', False)
 ) %}
     networks:
 {# Central RDMS-Database Network #}

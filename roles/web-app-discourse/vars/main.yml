@@ -8,13 +8,13 @@ database_password:              "{{ lookup('config', application_id, 'credential
 
 ## General
 DISCOURSE_CONTAINER:                "{{ application_id | get_entity_name }}"
-DISCOURSE_NETWORK:                  "{{ lookup('config', application_id, 'compose.network') }}"
-DISCOURSE_VOLUME:                   "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-DISCOURSE_PLUGINS:                  "{{ lookup('config', application_id, 'plugins') }}"
-DISCOURSE_PG_NETWORK:               "{{ lookup('config','svc-db-' ~ DISCOURSE_DATABASE_TYPE, 'compose.network') }}"
+DISCOURSE_NETWORK:                  "{{ application_id | get_entity_name }}"
+DISCOURSE_VOLUME:                   "{{ lookup('config', application_id, 'volumes.data') }}"
+DISCOURSE_PLUGINS:                  "{{ lookup('config', application_id, 'services.discourse.plugins') }}"
+DISCOURSE_PG_NETWORK:               "{{ ('svc-db-' ~ DISCOURSE_DATABASE_TYPE) | get_entity_name }}"
 DISCOURSE_REDIS_HOST:               "{{ application_id | get_entity_name }}-redis"
-DISCOURSE_REPOSITORY_URL:           "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.repository') }}"
-DISCOURSE_VERSION:                  "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+DISCOURSE_REPOSITORY_URL:           "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
+DISCOURSE_VERSION:                  "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 
 ## Database
 DISCOURSE_DATABASE:                 "{{ lookup('database', application_id ) }}"
@@ -23,7 +23,7 @@ DISCOURSE_DATABASE_CONTAINER:       "{{ DISCOURSE_DATABASE.container }}"
 DISCOURSE_DATABASE_IS_SHARED:       "{{ DISCOURSE_DATABASE.shared }}"
 
 ## Directories
-DISCOURSE_REPOSITORY_DIR:           "{{ lookup('container', application_id, 'directories.services') }}{{ lookup('config', application_id, 'repository') }}/"
+DISCOURSE_REPOSITORY_DIR:           "{{ lookup('container', application_id, 'directories.services') }}{{ lookup('config', application_id, 'services.discourse.repository') }}/"
 DISCOURSE_CONTAINERS_DIR:           "{{ [ DISCOURSE_REPOSITORY_DIR, 'containers' ] | path_join }}"
 
 ## Files
@@ -32,13 +32,13 @@ DISCOURSE_APPLICATION_YML_DEST:     "{{ [ DISCOURSE_CONTAINERS_DIR, DISCOURSE_CO
 ## Error Strings
 DISCOURSE_ERROR_ALREADY_IN_NET:     "Error response from daemon: endpoint with name {{ DISCOURSE_CONTAINER }} already exists in network {{ DISCOURSE_PG_NETWORK }}"
 DISCOURSE_ERROR_NOT_CONNECTED:      'is not connected to network {{ DISCOURSE_NETWORK }}'
-DISCOURSE_LDAP_ENABLED:             "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
+DISCOURSE_LDAP_ENABLED:             "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
 # Don't use variable HOST_LL_CC, because this isn't available in the container. 
 # With this setup you have an minimalistic default setup
 DISCOURSE_LOCAL:                    "C.UTF-8"
 
-DISCOURSE_OIDC_ENABLED:             "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+DISCOURSE_OIDC_ENABLED:             "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 DISCOURSE_OIDC_LOGOUT_REDIRECT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
 
 # TLS

@@ -1,0 +1,15 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+  whitelist:
+    font-src:
+    - 'data:'
+domains:
+  aliases: []
+  canonical:
+  - shop.{{ DOMAIN_PRIMARY }}
+networks:
+  local:
+    subnet: 192.168.104.80/28

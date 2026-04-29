@@ -1,166 +1,72 @@
-# Global toggle for IPv6 across containerized services.
-# Matches the host-level policy established by `make disable-ipv6`
-# (scripts/system/network/ipv6/disable.sh, invoked via environment-bootstrap):
-# when the host disables IPv6, dependent containers must mirror that to avoid
-# stalls (e.g. Nextcloud's DnsPinMiddleware resolving AAAA and trying v6 first).
+# Host-level network defaults + per-category port bands.
+#
+# Per req-009 (docs/requirements/009-per-role-networks-and-ports.md), this file
+# now retains ONLY the host-level keys and the new PORT_BANDS map:
+#
+#   * NETWORK_IPV6_ENABLED            — global IPv6 toggle.
+#   * defaults_networks.internet.*    — host-level addresses (ip4 / ip6 / dns).
+#   * PORT_BANDS                      — per-<scope>.<category> port ranges read
+#                                       at runtime by `cli meta ports suggest`
+#                                       and by the host-bound port collision
+#                                       lint. Extending PORT_BANDS is the
+#                                       intended way to introduce a new
+#                                       category (`metrics`, `grpc`, …) — the
+#                                       suggester and lint pick it up
+#                                       automatically with no second
+#                                       registration step.
+#
+# What MOVED out of this file (per req-009):
+#
+#   * defaults_networks.local.<role>.subnet  → roles/<role>/meta/server.yml
+#                                               under networks.local.subnet
+#   * defaults_networks.local.<role>.dns_resolver
+#                                            → roles/<role>/meta/server.yml
+#                                               under networks.local.dns_resolver
+#   * group_vars/all/09_ports.yml (entire file, deleted)
+#                                            → per-entity ports under
+#                                               roles/<role>/meta/services.yml.<entity>.ports.{inter,local,public}
+#
+# See docs/contributing/design/services/layout.md for the full per-role meta
+# layout.
 NETWORK_IPV6_ENABLED: false
-
 defaults_networks:
   internet:
-    ip4: "{{ lookup('env', 'IP4') | default('127.0.0.1', true) }}"  # Change this in inventory to the ip4 address of your server
-    ip6: "{{ lookup('env', 'IP6') | default('::1', true) }}"        # Change this in inventory to the ip6 address of your server
-    dns: "{{ lookup('env', 'DNS_IP') | default('') }}"              # Relevant for deployment Docker in Docker Ci/CD
+    ip4: '{{ lookup(''env'', ''IP4'') | default(''127.0.0.1'', true) }}'
+    ip6: '{{ lookup(''env'', ''IP6'') | default(''::1'', true) }}'
+    dns: '{{ lookup(''env'', ''DNS_IP'') | default('''') }}'
+PORT_BANDS:
   local:
-    # The default docker subnetworking does lead to overlapping and to huge networks.
-    # Due to this reason networks with 16 ips are created.
-    # This should be sufficient for the most cases
-
-    # /28 Networks, 14 Usable Ip Addresses
-    web-app-akaunting:
-      subnet: 192.168.101.0/28
-    web-app-confluence:
-      subnet: 192.168.101.16/28
-    web-app-baserow:
-      subnet: 192.168.101.32/28
-    web-app-mobilizon:
-      subnet: 192.168.101.48/28
-    web-app-bluesky:
-      subnet: 192.168.101.64/28
-    web-app-friendica:
-      subnet: 192.168.101.80/28
-    web-app-funkwhale:
-      subnet: 192.168.101.96/28
-    web-app-gitea:
-      subnet: 192.168.101.112/28
-    web-app-gitlab:
-      subnet: 192.168.101.128/28
-    web-app-joomla:
-      subnet: 192.168.101.144/28
-    web-app-keycloak:
-      subnet: 192.168.101.160/28
-    web-app-wordpress:
-      subnet: 192.168.101.176/28
-    web-app-listmonk:
-      subnet: 192.168.101.192/28
-    web-app-jira:
-      subnet: 192.168.101.208/28
-    web-app-matomo:
-      subnet: 192.168.101.224/28
-    web-app-mastodon:
-      subnet: 192.168.101.240/28
-    web-app-matrix:
-      subnet: 192.168.102.0/28
-    web-app-mailu:
-      # Use one of the last container ips for dns resolving so that it isn't used
-      dns_resolver: 192.168.102.29
-      subnet:       192.168.102.16/28
-    web-app-moodle:
-      subnet: 192.168.102.32/28
-    web-app-bookwyrm:
-      subnet: 192.168.102.48/28
-    web-app-nextcloud:
-      subnet: 192.168.102.64/28
-    web-app-openproject:
-      subnet: 192.168.102.80/28
-    web-app-peertube:
-      subnet: 192.168.102.96/28
-    web-app-phpmyadmin:
-      subnet: 192.168.102.112/28
-    web-app-pixelfed:
-      subnet: 192.168.102.128/28
-    web-app-pgadmin:
-      subnet: 192.168.102.144/28
-    web-app-snipe-it:
-      subnet: 192.168.102.160/28
-    web-app-taiga:
-      subnet: 192.168.102.176/28
-    web-app-yourls:
-      subnet: 192.168.102.192/28
-    web-app-discourse:
-      subnet: 192.168.102.208/28
-    web-app-sphinx:
-      subnet: 192.168.102.224/28
-    web-app-lam:
-      subnet: 192.168.103.0/28
-    web-app-phpldapadmin:
-      subnet: 192.168.103.16/28
-    web-app-fusiondirectory:
-      subnet: 192.168.103.32/28
-    web-app-navigator:
-      subnet: 192.168.103.48/28
-    web-app-espocrm:
-      subnet: 192.168.103.64/28
-    # free:
-    #   subnet: 192.168.103.80/28
-    web-svc-collabora:
-      subnet: 192.168.103.96/28
-    web-svc-simpleicons:
-      subnet: 192.168.103.112/28
-    web-svc-libretranslate:
-      subnet: 192.168.103.128/28
-    web-app-pretix:
-      subnet: 192.168.103.144/28
-    web-app-mig:
-      subnet: 192.168.103.160/28
-    web-svc-logout:
-      subnet: 192.168.103.176/28
-    web-app-chess:
-      subnet: 192.168.103.192/28
-    web-app-magento:
-      subnet: 192.168.103.208/28
-    web-app-bridgy-fed:
-      subnet: 192.168.103.224/28
-    web-app-xwiki:
-      subnet: 192.168.103.240/28
-    web-app-openwebui:
-      subnet: 192.168.104.0/28
-    web-app-flowise:
-      subnet: 192.168.104.16/28
-    web-app-minio:
-      subnet: 192.168.104.32/28
-    web-svc-coturn:
-      subnet: 192.168.104.48/28
-    web-app-mini-qr:
-      subnet: 192.168.104.64/28
-    web-app-shopware:
-      subnet: 192.168.104.80/28
-    web-svc-onlyoffice:
-      subnet: 192.168.104.96/28
-    web-app-suitecrm:
-      subnet: 192.168.104.112/28
-    web-app-littlejs:
-      subnet: 192.168.104.128/28
-    web-app-roulette-wheel:
-      subnet: 192.168.104.144/28
-    web-app-prometheus:
-      subnet: 192.168.104.160/28
-    web-app-decidim:
-      subnet: 192.168.104.176/28
-    web-app-dashboard:
-      subnet: 192.168.104.192/28
-    web-app-fider:
-      subnet: 192.168.104.208/28
-    web-app-jenkins:
-      subnet: 192.168.104.224/28
-    web-app-mattermost:
-      subnet: 192.168.104.240/28
-    web-app-mediawiki:
-      subnet: 192.168.105.0/28
-    web-app-odoo:
-      subnet: 192.168.105.16/28
-    svc-prx-openresty:
-      subnet: 192.168.105.32/28
-
-    # /24 Networks / 254 Usable Clients
-    web-app-bigbluebutton:
-      # This network variable isn't used.
-      # It's registered here to make transparent which network bbb is using and to avoid conflicts.
-      subnet: 10.7.7.0/24
-    svc-db-postgres:
-      subnet: 192.168.200.0/24
-    svc-db-mariadb:
-      subnet: 192.168.201.0/24
-    svc-db-openldap:
-      subnet: 192.168.202.0/24
-    svc-ai-ollama:
-      subnet: 192.168.203.0/24 # Big network to bridge applications into ai
+    http:
+      start: 8001
+      end: 8099
+    websocket:
+      start: 4001
+      end: 4099
+    oauth2:
+      start: 16480
+      end: 16499
+    database:
+      start: 3306
+      end: 5432
+    ldap:
+      start: 389
+      end: 389
+  public:
+    ssh:
+      start: 2201
+      end: 2299
+    stun_turn:
+      start: 3478
+      end: 3499
+    stun_turn_tls:
+      start: 5349
+      end: 5399
+    federation:
+      start: 8448
+      end: 8499
+    ldaps:
+      start: 636
+      end: 636
+    relay:
+      start: 20000
+      end: 59999

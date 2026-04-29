@@ -1,22 +1,17 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Experience the power of Matomo, an innovative open-source analytics platform that delivers real-time insights,
-    robust visitor tracking, and privacy-first features to elevate your website performance. Dive into actionable data with
-    unmatched precision and clarity.
+  description: Experience the power of Matomo, an innovative open-source analytics platform that delivers real-time insights, robust visitor tracking, and privacy-first features to elevate your website performance. Dive into actionable data with unmatched precision and clarity.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - matomo
-  - docker
-  - analytics
-  - open-source
-  repository: https://s.infinito.nexus/code
+    - matomo
+    - docker
+    - analytics
+    - open-source
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-chart-line
-  lifecycle: beta

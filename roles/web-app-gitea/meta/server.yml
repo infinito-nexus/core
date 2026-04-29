@@ -1,0 +1,21 @@
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist:
+    font-src:
+    - 'data:'
+    - 'blob:'
+    worker-src:
+    - 'blob:'
+    manifest-src:
+    - 'data:'
+domains:
+  aliases: []
+  canonical:
+  - tea.git.{{ DOMAIN_PRIMARY }}
+networks:
+  local:
+    subnet: 192.168.101.112/28

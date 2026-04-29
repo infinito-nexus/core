@@ -1,0 +1,16 @@
+csp:
+  whitelist:
+    worker-src:
+    - 'blob:'
+  flags:
+    script-src-attr:
+      unsafe-eval: true
+    script-src-elem:
+      unsafe-inline: true
+domains:
+  canonical:
+  - x.wiki.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.103.240/28

@@ -2,23 +2,22 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Wrapper role to install AUR packages via kewlfft.aur.aur using yay.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - aur
-  - yay
-  - archlinux
-  - package-management
-  - wrapper
-  repository: https://s.infinito.nexus/code
+    - aur
+    - yay
+    - archlinux
+    - package-management
+    - wrapper
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta

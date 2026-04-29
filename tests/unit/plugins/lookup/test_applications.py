@@ -12,7 +12,7 @@ from plugins.lookup.applications import LookupModule, _reset_cache_for_tests
 
 
 def _write_config(base_dir: Path, application_id: str, config: dict) -> None:
-    config_path = base_dir / "roles" / application_id / "config" / "main.yml"
+    config_path = base_dir / "roles" / application_id / "meta" / "services.yml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(yaml.safe_dump(config), encoding="utf-8")
 
@@ -39,12 +39,16 @@ class TestApplicationsLookup(unittest.TestCase):
         self._tmpdir.cleanup()
 
     def test_returns_full_mapping(self) -> None:
+        # Per req-008 the file root of meta/services.yml is the services map,
+        # so the loader puts it under `services` in the materialised payload.
         result = self.lookup.run([], variables={}, roles_dir=str(self._tmp / "roles"))[
             0
         ]
         self.assertIn("web-app-foo", result)
         self.assertIn("web-app-bar", result)
-        self.assertEqual(result["web-app-foo"]["smtp"]["host"], "mail.example.org")
+        self.assertEqual(
+            result["web-app-foo"]["services"]["smtp"]["host"], "mail.example.org"
+        )
 
     def test_returns_single_entry(self) -> None:
         result = self.lookup.run(
@@ -52,20 +56,22 @@ class TestApplicationsLookup(unittest.TestCase):
             variables={},
             roles_dir=str(self._tmp / "roles"),
         )[0]
-        self.assertEqual(result["smtp"]["host"], "mail.example.org")
+        self.assertEqual(result["services"]["smtp"]["host"], "mail.example.org")
 
     def test_applies_inventory_override(self) -> None:
         result = self.lookup.run(
             ["web-app-foo"],
             variables={
                 "applications": {
-                    "web-app-foo": {"smtp": {"host": "override.example.org"}}
+                    "web-app-foo": {
+                        "services": {"smtp": {"host": "override.example.org"}}
+                    }
                 }
             },
             roles_dir=str(self._tmp / "roles"),
         )[0]
-        self.assertEqual(result["smtp"]["host"], "override.example.org")
-        self.assertTrue(result["feature"]["enabled"])
+        self.assertEqual(result["services"]["smtp"]["host"], "override.example.org")
+        self.assertTrue(result["services"]["feature"]["enabled"])
 
     def test_ignores_non_mapping_runtime_applications_placeholder(self) -> None:
         result = self.lookup.run(
@@ -73,8 +79,8 @@ class TestApplicationsLookup(unittest.TestCase):
             variables={"applications": "web-app-foo"},
             roles_dir=str(self._tmp / "roles"),
         )[0]
-        self.assertEqual(result["smtp"]["host"], "mail.example.org")
-        self.assertTrue(result["feature"]["enabled"])
+        self.assertEqual(result["services"]["smtp"]["host"], "mail.example.org")
+        self.assertTrue(result["services"]["feature"]["enabled"])
 
     def test_missing_entry_raises_without_default(self) -> None:
         with self.assertRaises(AnsibleError):

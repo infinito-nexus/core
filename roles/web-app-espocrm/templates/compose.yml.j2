@@ -18,7 +18,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.http') }}:80"
 {% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     volumes:
@@ -67,7 +67,7 @@
     volumes:
       - data:/var/www/html/
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.websocket[application_id] }}:8080"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}:8080"
     depends_on:
       {{ ESPOCRM_SERVICE }}:
         condition: service_healthy

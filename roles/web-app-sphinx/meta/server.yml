@@ -1,0 +1,16 @@
+csp:
+  flags:
+    script-src-attr:
+      unsafe-eval: true
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+domains:
+  canonical:
+  - docs.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.102.224/28

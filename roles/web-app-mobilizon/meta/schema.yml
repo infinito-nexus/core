@@ -1,0 +1,9 @@
+credentials:
+  secret_key_base:
+    description: Secret key base used to generate secrets for encrypting and signing data
+    algorithm: alphanumeric
+    validation: ^[A-Za-z0-9]{64}$
+  secret_key:
+    description: Secret key used as a base to generate JWT tokens
+    algorithm: alphanumeric
+    validation: ^[A-Za-z0-9]{64}$

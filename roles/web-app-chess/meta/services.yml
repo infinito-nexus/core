@@ -1,0 +1,40 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+chess:
+  image: ghcr.io/kevinveenbirkenbach/fedi-chess
+  version: v1.0.1
+  name: web-app-chess
+  min_storage: 5GB
+  backup:
+    no_stop_required: true
+  cpus: 0.5
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+  ports:
+    local:
+      http: 8050
+  lifecycle: beta
+css:
+  enabled: true
+  shared: true
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

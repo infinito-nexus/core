@@ -1,5 +1,22 @@
 - include_tasks: utils/once/flag.yml
 
+# The Bluesky web container is built from a checked-out social-app repo at
+# `/opt/compose/bluesky/services/social-app`. The git clone (03_social_app)
+# MUST run before sys-svc-compose generates compose.yml + flushes its build
+# handlers, otherwise `compose build` fires against a missing build context.
+# Pre-create the services directory and clone the repo here, before any
+# compose-touching include.
+- name: "Ensure social-app services directory exists"
+  ansible.builtin.file:
+    path: "{{ BLUESKY_SOCIAL_APP_DIR | dirname }}"
+    state: directory
+    mode: "0755"
+  when: BLUESKY_WEB_ENABLED | bool
+
+- name: "Clone social-app build context (pre-compose)"
+  ansible.builtin.include_tasks: "03_social_app.yml"
+  when: BLUESKY_WEB_ENABLED | bool
+
 - name: "include sys-svc-compose role"
   include_role:
     name: sys-svc-compose
@@ -33,9 +50,8 @@
 - name: "Execute PDS routines"
   ansible.builtin.include_tasks: "02_pds.yml"
 
-- name: "Execute Social App routines"
-  ansible.builtin.include_tasks: "03_social_app.yml"
-  when: BLUESKY_WEB_ENABLED | bool
+# 03_social_app already ran before sys-svc-compose (above) so that the
+# compose build handler finds the cloned context.
 
 - name: "DNS for Bluesky"
   include_tasks: "04_dns.yml"

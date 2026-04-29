@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-import yaml
+from utils.cache.yaml import load_yaml_any
 
 from plugins.filter.get_all_application_ids import get_all_application_ids
 
@@ -81,8 +81,7 @@ class ValidDeployId:
         return False
 
     def _search_yaml_keys(self, inventory_path: str, app_id: str) -> bool:
-        with open(inventory_path, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
+        data = load_yaml_any(inventory_path, default_if_missing={})
         return self._find_key(data, app_id)
 
     def _find_key(self, node, key: str) -> bool:

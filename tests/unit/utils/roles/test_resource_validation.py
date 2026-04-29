@@ -20,8 +20,8 @@ class TestFilterRolesByMinStorage(unittest.TestCase):
 
     def _write_role_config(self, role_name: str, *, yaml_text: str) -> Path:
         role_dir = self.roles_root / role_name
-        (role_dir / "config").mkdir(parents=True, exist_ok=True)
-        cfg_path = role_dir / "config" / "main.yml"
+        (role_dir / "meta").mkdir(parents=True, exist_ok=True)
+        cfg_path = role_dir / "meta" / "services.yml"
         cfg_path.write_text(yaml_text, encoding="utf-8")
         return cfg_path
 
@@ -30,10 +30,8 @@ class TestFilterRolesByMinStorage(unittest.TestCase):
         self._write_role_config(
             "web-app-demo",
             yaml_text="""
-compose:
-  services:
-    demo:
-      min_storage: 5G
+demo:
+  min_storage: 5G
 """.lstrip(),
         )
 
@@ -54,10 +52,8 @@ compose:
         self._write_role_config(
             "web-app-demo",
             yaml_text="""
-compose:
-  services:
-    demo:
-      min_storage: 50G
+demo:
+  min_storage: 50G
 """.lstrip(),
         )
 
@@ -81,9 +77,7 @@ compose:
         self._write_role_config(
             "web-app-demo",
             yaml_text="""
-compose:
-  services:
-    demo: {}
+demo: {}
 """.lstrip(),
         )
 
@@ -100,7 +94,7 @@ compose:
             )
 
         self.assertEqual(kept, ["web-app-demo"])
-        self.assertIn("Missing key compose.services.demo.min_storage", err.getvalue())
+        self.assertIn("Missing key services.demo.min_storage", err.getvalue())
 
     def test_missing_role_directory_emits_absolute_path_warning(self) -> None:
         err = io.StringIO()
@@ -121,8 +115,8 @@ compose:
             str((self.roles_root / "web-app-does-not-exist").resolve()), err.getvalue()
         )
 
-    def test_missing_config_file_skips_silently(self) -> None:
-        # Role dir exists but config missing
+    def test_missing_services_file_skips_silently(self) -> None:
+        # Role dir exists but meta/services.yml missing
         role_dir = self.roles_root / "web-app-demo"
         role_dir.mkdir(parents=True, exist_ok=True)
 
@@ -141,13 +135,11 @@ compose:
         self.assertEqual(kept, [])
         self.assertEqual(err.getvalue(), "")
 
-    def test_missing_compose_service_entry_keeps_role_without_warning(self) -> None:
+    def test_missing_service_entry_keeps_role_without_warning(self) -> None:
         self._write_role_config(
             "web-app-demo",
             yaml_text="""
-compose:
-  services:
-    other: {}
+other: {}
 """.lstrip(),
         )
 
@@ -166,12 +158,11 @@ compose:
         self.assertEqual(kept, ["web-app-demo"])
         self.assertEqual(err.getvalue(), "")
 
-    def test_missing_compose_section_keeps_role_without_warning(self) -> None:
+    def test_missing_primary_entity_keeps_role_without_warning(self) -> None:
         self._write_role_config(
             "web-app-demo",
             yaml_text="""
-server:
-  domains: {}
+not_demo: {}
 """.lstrip(),
         )
 
@@ -212,10 +203,8 @@ server:
         self._write_role_config(
             "web-app-demo",
             yaml_text="""
-compose:
-  services:
-    demo:
-      min_storage: "nope"
+demo:
+  min_storage: "nope"
 """.lstrip(),
         )
 
@@ -247,10 +236,8 @@ compose:
         self._write_role_config(
             "web-app-demo",
             yaml_text="""
-compose:
-  services:
-    demo:
-      min_storage: 1G
+demo:
+  min_storage: 1G
 """.lstrip(),
         )
 

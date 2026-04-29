@@ -2,27 +2,26 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Persistent SSH agent setup for GNOME Wayland sessions with SSH configuration pulled from Git.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - ssh
-  - agent
-  - systemd
-  - gnome
-  - wayland
-  - archlinux
-  - keepassxc
-  repository: https://s.infinito.nexus/code
+    - ssh
+    - agent
+    - systemd
+    - gnome
+    - wayland
+    - archlinux
+    - keepassxc
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  lifecycle: pre-alpha
 dependencies:
-- desk-git
+  - desk-git

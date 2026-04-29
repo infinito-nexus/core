@@ -53,14 +53,12 @@ class TestInjEnabledFilter(unittest.TestCase):
     def test_basic_build(self):
         applications = {
             "myapp": {
-                "compose": {
-                    "services": {
-                        "javascript": {"enabled": True},
-                        "logout": {"enabled": False},
-                        "css": {"enabled": True},
-                        "matomo": {"enabled": False},
-                        "dashboard": {"enabled": True},
-                    }
+                "services": {
+                    "javascript": {"enabled": True},
+                    "logout": {"enabled": False},
+                    "css": {"enabled": True},
+                    "matomo": {"enabled": False},
+                    "dashboard": {"enabled": True},
                 }
             }
         }
@@ -80,11 +78,9 @@ class TestInjEnabledFilter(unittest.TestCase):
     def test_missing_keys_return_default_false(self):
         applications = {
             "app": {
-                "compose": {
-                    "services": {
-                        "javascript": {"enabled": True},
-                        # logout/css missing
-                    }
+                "services": {
+                    "javascript": {"enabled": True},
+                    # logout/css missing
                 }
             }
         }
@@ -96,7 +92,7 @@ class TestInjEnabledFilter(unittest.TestCase):
         self.assertEqual(result["css"], False)
 
     def test_default_true_applied_to_missing(self):
-        applications = {"app": {"compose": {"services": {}}}}
+        applications = {"app": {"services": {}}}
         result = self.filter(applications, "app", ["logout", "css"], default=True)
         self.assertEqual(result, {"logout": True, "css": True})
 
@@ -111,21 +107,17 @@ class TestInjEnabledFilter(unittest.TestCase):
         self.assertEqual(result, {"logout": True, "css": False})
 
     def test_missing_application_id_raises(self):
-        applications = {
-            "other": {"compose": {"services": {"logout": {"enabled": True}}}}
-        }
+        applications = {"other": {"services": {"logout": {"enabled": True}}}}
         with self.assertRaises(AppConfigKeyError):
             _ = self.filter(applications, "unknown-app", ["logout"])
 
     def test_truthy_string_is_returned_as_is(self):
-        applications = {
-            "app": {"compose": {"services": {"logout": {"enabled": "true"}}}}
-        }
+        applications = {"app": {"services": {"logout": {"enabled": "true"}}}}
         result = self.filter(applications, "app", ["logout"], default=False)
         self.assertEqual(result["logout"], "true")
 
     def test_nonexistent_feature_path_uses_default(self):
-        applications = {"app": {"compose": {"services": {}}}}
+        applications = {"app": {"services": {}}}
         result = self.filter(applications, "app", ["nonexistent"], default=False)
         self.assertEqual(result["nonexistent"], False)
 

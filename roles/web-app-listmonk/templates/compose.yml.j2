@@ -5,7 +5,7 @@
     image: "{{ LISTMONK_IMAGE }}:{{ LISTMONK_VERSION }}"
     container_name: "{{ LISTMONK_NAME }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.listmonk.ports.local.http') }}:{{ container_port }}"
     volumes:
       - {{ LISTMONK_CONFIG_HOST }}:/listmonk/config.toml
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}

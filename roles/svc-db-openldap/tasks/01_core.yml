@@ -20,7 +20,7 @@
 - name: "Wait for LDAP to be available"
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ ports.localhost.ldap[application_id] }}"
+    port: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
     delay: 5
     timeout: 120
     state: started
@@ -165,3 +165,9 @@
 - name: "Add Objects to all users"
   include_tasks: 05_update.yml
   when: OPENLDAP_PROVISION_UPDATE | bool
+
+# Requirement 005 one-time migration. Idempotent: no-op on fresh deploys
+# and on re-runs that find no pre-005 flat DNs remaining.
+- name: "Run requirement 005 LDAP migration (flat -> hierarchical)"
+  include_tasks: 06_migrate_005.yml
+  when: OPENLDAP_PROVISION_GROUPS | bool

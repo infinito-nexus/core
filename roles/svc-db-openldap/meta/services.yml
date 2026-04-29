@@ -1,0 +1,30 @@
+openldap:
+  enabled: false
+  shared: true
+  provides: ldap
+  image: debian
+  version: bookworm-slim
+  name: openldap
+  min_storage: 2GB
+  cpus: 1.25
+  mem_reservation: 1g
+  mem_limit: 1.5g
+  pids_limit: 1024
+  network:
+    local: true
+    compose: true
+    public: false
+  provision:
+    configuration: true
+    credentials: true
+    schemas: true
+    users: true
+    groups: true
+    update: true
+    reserved: false
+  ports:
+    local:
+      ldap: 389
+    public:
+      ldaps: 636
+  lifecycle: beta

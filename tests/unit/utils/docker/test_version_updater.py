@@ -62,14 +62,14 @@ class TestDockerVersionUpdater(unittest.TestCase):
         self.assertEqual(latest_semver(tags, 3, ""), "5.4.7")
 
     def test_update_config_versions_updates_only_target_services(self) -> None:
-        original = """compose:
-  services:
-    moodle:
-      version:            "4.5" # Keep comment
-      image:              bitnamilegacy/moodle
-    nginx:
-      version:            alpine
-      image:              nginx
+        # Per req-008 the file root of meta/services.yml IS the services map
+        # (no `compose.services` envelope), so service keys are at indent 0.
+        original = """moodle:
+  version:            "4.5" # Keep comment
+  image:              bitnamilegacy/moodle
+nginx:
+  version:            alpine
+  image:              nginx
 """
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "main.yml"

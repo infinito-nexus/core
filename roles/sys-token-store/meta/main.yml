@@ -2,21 +2,18 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Stores and manages per-user application tokens in a local YAML store file (idempotent read/write helpers).
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - tokens
-  - secrets
-  - vault
-  - security
-  - ansible
-  repository: https://s.infinito.nexus/code
+    - tokens
+    - secrets
+    - vault
+    - security
+    - ansible
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-key
-  lifecycle: beta
 dependencies: []

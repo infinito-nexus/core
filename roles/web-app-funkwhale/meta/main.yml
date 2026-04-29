@@ -1,26 +1,17 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Dive into a world of rhythm and sound with Funkwhale, an innovative self-hosted music sharing platform that
-    celebrates creativity and community. Enjoy an energetic soundscape and seamless music streaming that amplifies your passion
-    for tunes.
+  description: Dive into a world of rhythm and sound with Funkwhale, an innovative self-hosted music sharing platform that celebrates creativity and community. Enjoy an energetic soundscape and seamless music streaming that amplifies your passion for tunes.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - funkwhale
-  - docker
-  - music
-  - self-hosted
-  repository: https://s.infinito.nexus/code
+    - funkwhale
+    - docker
+    - music
+    - self-hosted
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-music
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
-  lifecycle: beta

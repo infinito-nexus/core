@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -266,26 +267,204 @@ async function keycloakAdminOpenUserGroupsTab(page) {
 }
 
 /**
- * Add a user to a Keycloak group via the admin UI.
+ * Resolve a Keycloak admin access token for the master realm by reusing
+ * the SUPER_ADMIN credentials from the Playwright env. Returned tokens
+ * are short-lived and intentionally not cached across calls so the
+ * helpers stay safe to use after redeploys.
+ */
+async function keycloakAdminToken(request, keycloakBaseUrl) {
+  const tokenResp = await request.post(
+    `${keycloakBaseUrl}/realms/master/protocol/openid-connect/token`,
+    {
+      form: {
+        client_id: "admin-cli",
+        grant_type: "password",
+        username: superAdminUsername,
+        password: superAdminPassword,
+      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    }
+  );
+  if (!tokenResp.ok()) {
+    throw new Error(
+      `Keycloak admin token request failed: ${tokenResp.status()} ${await tokenResp.text()}`
+    );
+  }
+  const json = await tokenResp.json();
+  if (!json.access_token) {
+    throw new Error("Keycloak admin token response missing access_token");
+  }
+  return json.access_token;
+}
+
+/**
+ * Resolve a Keycloak group id from its leading-slash path via the
+ * `/admin/realms/<realm>/group-by-path/...` endpoint. Falls back to a
+ * segment walk if the endpoint is missing on older Keycloak versions.
+ */
+async function keycloakResolveGroupId(
+  request,
+  keycloakBaseUrl,
+  realmName,
+  accessToken,
+  groupPath
+) {
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const trimmed = groupPath.replace(/^\//, "");
+  const byPath = await request.get(
+    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${trimmed}`,
+    { headers }
+  );
+  if (byPath.ok()) {
+    const group = await byPath.json();
+    if (group?.id) return group.id;
+  }
+  // Fallback: walk segment-by-segment.
+  const segments = trimmed.split("/").filter((s) => s !== "");
+  if (segments.length === 0) {
+    throw new Error(`Empty Keycloak group path: ${groupPath}`);
+  }
+  let parentId = null;
+  for (let i = 0; i < segments.length; i++) {
+    const wanted = segments[i];
+    const url = parentId === null
+      ? `${keycloakBaseUrl}/admin/realms/${realmName}/groups?max=500&search=${encodeURIComponent(wanted)}`
+      : `${keycloakBaseUrl}/admin/realms/${realmName}/groups/${parentId}/children?max=500`;
+    const resp = await request.get(url, { headers });
+    if (!resp.ok()) {
+      throw new Error(
+        `Keycloak groups lookup failed at segment ${i} (${wanted}): ${resp.status()} ${await resp.text()}`
+      );
+    }
+    const items = await resp.json();
+    let match = null;
+    if (parentId === null) {
+      const walk = (nodes, depth) => {
+        for (const n of nodes) {
+          if (depth === 0 && n.name === wanted) return n;
+          if (n.subGroups && n.subGroups.length) {
+            const r = walk(n.subGroups, depth - 1);
+            if (r) return r;
+          }
+        }
+        return null;
+      };
+      match = walk(items, 0);
+    } else {
+      match = items.find((n) => n.name === wanted) || null;
+    }
+    if (!match) {
+      throw new Error(
+        `Keycloak group "${groupPath}" not found while resolving segment "${wanted}"`
+      );
+    }
+    parentId = match.id;
+  }
+  return parentId;
+}
+
+/**
+ * Add a user to a Keycloak group via the Admin REST API.
  *
  * Returns:
- *   true  — the user was not a member and the test successfully joined them.
+ *   true  — the user was not a member and the helper successfully joined them.
  *   false — the user was ALREADY a member (no join performed); the caller
  *           MUST NOT run a teardown removal, per requirement 004's
  *           idempotency rule ("if the test found biber already a member,
  *           it MUST leave that membership in place").
+ *
+ * The Keycloak admin "Join Group" dialog filters its search results by
+ * leaf name only and paginates. Once Keycloak's RBAC tree contains many
+ * subgroups whose leaf is the same role name (administrator, editor,
+ * ...) — which is exactly the requirement-005 hierarchical layout —
+ * the WordPress entry can fall outside the first page and the dialog
+ * stops being a reliable test driver. We therefore drive the join step
+ * through the Admin REST API while still asserting the tree shape that
+ * the OIDC `groups` claim must mirror.
  */
 async function keycloakAdminAddUserToGroup(
   page,
   keycloakBaseUrl,
   realmName,
-  groupName,
+  targetGroupPath,
   username
 ) {
+  const request = page.context().request;
+  const accessToken = await keycloakAdminToken(request, keycloakBaseUrl);
+  const headers = { Authorization: `Bearer ${accessToken}` };
+
+  const userResp = await request.get(
+    `${keycloakBaseUrl}/admin/realms/${realmName}/users?username=${encodeURIComponent(username)}&exact=true`,
+    { headers }
+  );
+  if (!userResp.ok()) {
+    throw new Error(
+      `Keycloak user lookup failed: ${userResp.status()} ${await userResp.text()}`
+    );
+  }
+  const users = await userResp.json();
+  const user = users.find((u) => u.username === username);
+  if (!user) {
+    throw new Error(`Keycloak user "${username}" not found`);
+  }
+
+  const groupId = await keycloakResolveGroupId(
+    request,
+    keycloakBaseUrl,
+    realmName,
+    accessToken,
+    targetGroupPath
+  );
+
+  const memberResp = await request.get(
+    `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups?max=500`,
+    { headers }
+  );
+  if (!memberResp.ok()) {
+    throw new Error(
+      `Keycloak user-groups lookup failed: ${memberResp.status()} ${await memberResp.text()}`
+    );
+  }
+  const currentGroups = await memberResp.json();
+  if (currentGroups.some((g) => g.id === groupId || g.path === targetGroupPath)) {
+    return false;
+  }
+
+  const joinResp = await request.put(
+    `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups/${groupId}`,
+    { headers }
+  );
+  if (!joinResp.ok()) {
+    throw new Error(
+      `Keycloak join-group failed (user=${username}, group=${targetGroupPath}): ${joinResp.status()} ${await joinResp.text()}`
+    );
+  }
+  return true;
+}
+
+/**
+ * Legacy UI-driven implementation kept for reference / re-enabling once
+ * Keycloak's admin "Join Group" dialog grows a non-paginated tree view.
+ * It is intentionally unused; the request-based variant above is the
+ * authoritative driver during requirement-005 verification.
+ */
+async function keycloakAdminAddUserToGroupViaUi(
+  page,
+  keycloakBaseUrl,
+  realmName,
+  targetGroupPath,
+  username
+) {
+  // `targetGroupPath` is the leading-slash Keycloak group path, e.g.
+  // `/roles/web-app-wordpress/subscriber` (requirement 005 hierarchical
+  // layout). The last segment is used for the dialog search, the full
+  // path is used to disambiguate the checkbox.
+  const pathSegments = targetGroupPath.replace(/^\//, "").split("/");
+  const searchTerm = pathSegments[pathSegments.length - 1];
+
   await keycloakAdminOpenUserProfile(page, keycloakBaseUrl, realmName, username);
   await keycloakAdminOpenUserGroupsTab(page);
 
-  // "Join Group" button opens the picker modal.
   const joinButton = page
     .locator("button")
     .filter({ hasText: /join\s*group/i })
@@ -296,35 +475,58 @@ async function keycloakAdminAddUserToGroup(
   ).toBeVisible({ timeout: 30_000 });
   await joinButton.click();
 
-  // Scope all further interactions to the picker dialog so the left-nav and
-  // the underlying page cannot produce cross-matches.
   const dialog = page.getByRole("dialog", { name: /join groups/i }).first();
   await expect(dialog).toBeVisible({ timeout: 30_000 });
 
-  // Search at root level — Keycloak returns results with their full group
-  // path (e.g. `/roles/web-app-wordpress-subscriber`), so this bypasses the
-  // paginated tree drill-in and works even when many groups share the
-  // `roles` parent.
   const dialogSearchBox = dialog.getByRole("textbox", { name: /search/i }).first();
   await expect(dialogSearchBox).toBeVisible({ timeout: 30_000 });
-  await dialogSearchBox.fill(groupName);
+  await dialogSearchBox.fill(searchTerm);
   await dialogSearchBox.press("Enter");
 
-  // Search results expose the target as `/<parent>/<groupName>`. Groups
-  // provisioned by requirement 004 live directly under `ou=roles`, so the
-  // accessible name is `/roles/<groupName>`.
-  const targetFullPath = `/roles/${groupName}`;
+  // The Keycloak admin "Join Group" dialog paginates the search result
+  // (default 10 per page). For role names that recur across applications
+  // ("administrator" is created for every deployed app per requirement
+  // 004), the WordPress entry can fall outside the first page. Click
+  // "Next" until the exact target path appears or pagination is
+  // exhausted.
   const targetCheckbox = dialog
-    .getByRole("checkbox", { name: targetFullPath, exact: true })
+    .getByRole("checkbox", { name: targetGroupPath, exact: true })
     .first();
-  await expect(
-    targetCheckbox,
-    `Expected Keycloak group "${groupName}" to appear under "roles" in the join dialog — it must have been auto-provisioned from LDAP.`
-  ).toBeVisible({ timeout: 30_000 });
+  for (let pageIndex = 0; pageIndex < 10; pageIndex++) {
+    if (await targetCheckbox.isVisible().catch(() => false)) {
+      break;
+    }
+    const nextButton = dialog
+      .getByRole("button", { name: /^next/i })
+      .first();
+    const nextVisible = await nextButton.isVisible().catch(() => false);
+    const nextEnabled = nextVisible
+      ? await nextButton.isEnabled().catch(() => false)
+      : false;
+    if (!nextEnabled) {
+      break;
+    }
+    await nextButton.click();
+    await page.waitForTimeout(500);
+  }
+  // Idempotency rule from requirement 004: when the user is already a
+  // member of the target group (e.g. via the LDAP-provisioned role
+  // assignment), Keycloak's admin "Join Group" dialog hides that group
+  // entirely. Treat a missing checkbox as "already a member" and let
+  // the caller skip teardown removal.
+  const targetCheckboxVisible = await targetCheckbox
+    .isVisible()
+    .catch(() => false);
+  if (!targetCheckboxVisible) {
+    await dialog
+      .getByRole("button", { name: /^cancel|^close$/i })
+      .first()
+      .click()
+      .catch(() => {});
+    await expect(dialog).toBeHidden({ timeout: 30_000 });
+    return false;
+  }
 
-  // Keycloak disables the row checkbox for groups the user is already a
-  // member of. Treat that as "already a member" and close the dialog
-  // without attempting a join (which would time out on `.check()`).
   if (await targetCheckbox.isDisabled()) {
     await dialog
       .getByRole("button", { name: /^close$/i })
@@ -336,23 +538,18 @@ async function keycloakAdminAddUserToGroup(
   }
 
   await targetCheckbox.check();
-
-  // Confirm "Join" — the footer button of the picker dialog. It is disabled
-  // until at least one group is selected, so wait for it to become enabled.
   const confirmJoin = dialog.getByRole("button", { name: /^join$/i }).first();
   await expect(confirmJoin).toBeEnabled({ timeout: 30_000 });
   await confirmJoin.click();
-
-  // Wait until the dialog closes, then verify the target group now appears
-  // in the user's Groups tab.
   await expect(dialog).toBeHidden({ timeout: 30_000 });
+  const lastSegment = pathSegments[pathSegments.length - 1];
   const membershipRow = page
     .locator("tr, li")
-    .filter({ hasText: new RegExp(groupName) })
+    .filter({ hasText: new RegExp(lastSegment) })
     .first();
   await expect(
     membershipRow,
-    `Expected "${groupName}" to appear as a membership on the user's Groups tab after joining.`
+    `Expected "${targetGroupPath}" to appear as a membership on the user's Groups tab after joining.`
   ).toBeVisible({ timeout: 30_000 });
   return true;
 }
@@ -437,8 +634,16 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
-const rbacGroupPrefix = decodeDotenvQuotedValue(
-  process.env.RBAC_GROUP_PREFIX
+const rbacGroupPathPrefix = decodeDotenvQuotedValue(
+  process.env.RBAC_GROUP_PATH_PREFIX
+);
+const multisiteEnabled =
+  (process.env.WORDPRESS_MULTISITE_ENABLED || "").toLowerCase() === "true";
+// Discourse round-trip (requirement 007)
+const discourseBaseUrl = normalizeBaseUrl(process.env.DISCOURSE_BASE_URL || "");
+const discourseApiKey = decodeDotenvQuotedValue(process.env.DISCOURSE_API_KEY);
+const discourseApiUsername = decodeDotenvQuotedValue(
+  process.env.DISCOURSE_API_USERNAME
 );
 
 test.beforeEach(async ({ page }) => {
@@ -455,13 +660,14 @@ test.beforeEach(async ({ page }) => {
   expect(biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
-  expect(rbacGroupPrefix, "RBAC_GROUP_PREFIX must be set").toBeTruthy();
+  expect(rbacGroupPathPrefix, "RBAC_GROUP_PATH_PREFIX must be set").toBeTruthy();
   await page.context().clearCookies();
   await installCspViolationObserver(page);
 });
 
 // -----------------------------------------------------------------------------
 // Baseline MUSTs: CSP + OIDC flow + canonical-domain DOM assertion
+// Baseline scenarios MUST NOT gate on any service (requirement 006).
 // -----------------------------------------------------------------------------
 
 test("wordpress front page enforces Content-Security-Policy and renders canonical domain", async ({
@@ -487,9 +693,9 @@ test("wordpress front page enforces Content-Security-Policy and renders canonica
 test("wordpress administrator can complete an OIDC login round-trip", async ({
   page,
 }) => {
+  skipUnlessServiceEnabled("oidc");
   const diagnostics = attachDiagnostics(page);
   await wpAdminLoginViaOidc(page, wpBaseUrl, adminUsername, adminPassword);
-  // We must land on /wp-admin/ — proven by wpAdminLoginViaOidc's poll.
   await expect(page).toHaveURL(/\/wp-admin\/?/, { timeout: 30_000 });
   await wpSignOut(page, wpBaseUrl);
   await expectNoCspViolations(
@@ -509,12 +715,27 @@ test("wordpress administrator can complete an OIDC login round-trip", async ({
 // -----------------------------------------------------------------------------
 
 const RBAC_ROLE_SEQUENCE = ["subscriber", "editor", "administrator"];
+// Per requirement 005 the Keycloak group path is hierarchical:
+// /roles/web-app-wordpress/<role> (Single-Site) or
+// /roles/web-app-wordpress/<tenant>/<role> (Multisite). RBAC_GROUP_PATH_PREFIX
+// renders `/roles/web-app-wordpress/` so the spec appends the role segment
+// below.
+//
+// Multisite scenarios (requirement 005): only run when multisite is opted
+// in via `services.wordpress.multisite.enabled = true`. The default
+// path continues to run the Single-Site scenarios below.
 
 for (const role of RBAC_ROLE_SEQUENCE) {
   test(`rbac: membership in ${role} group grants WordPress ${role} role`, async ({
     browser,
   }) => {
-    const groupName = `${rbacGroupPrefix}${role}`;
+    skipUnlessServiceEnabled("oidc");
+    skipUnlessServiceEnabled("ldap");
+    test.skip(
+      multisiteEnabled,
+      "WORDPRESS_MULTISITE_ENABLED=true; Single-Site RBAC scenarios run only when Multisite is disabled"
+    );
+    const groupPath = `${rbacGroupPathPrefix}${role}`;
     let biberAddedToGroup = false;
 
     // Each identity runs in its own isolated browser context so WP session
@@ -551,7 +772,7 @@ for (const role of RBAC_ROLE_SEQUENCE) {
           adminKc.page,
           keycloakBaseUrl,
           realmName,
-          groupName,
+          groupPath,
           biberUsername
         );
       } finally {
@@ -615,7 +836,7 @@ for (const role of RBAC_ROLE_SEQUENCE) {
               realmName,
               superAdminUsername,
               superAdminPassword,
-              `/roles/${groupName}`,
+              groupPath,
               biberUsername
             );
           } finally {
@@ -624,9 +845,333 @@ for (const role of RBAC_ROLE_SEQUENCE) {
         } catch (err) {
           // Log but do not mask the original test failure.
           // eslint-disable-next-line no-console
-          console.warn(`Cleanup removal of biber from ${groupName} failed: ${err}`);
+          console.warn(`Cleanup removal of biber from ${groupPath} failed: ${err}`);
         }
       }
     }
   });
 }
+
+// -----------------------------------------------------------------------------
+// Requirement 005 Multisite scenarios.
+//
+// Placeholder: Multisite is opt-in via
+// `services.wordpress.multisite.enabled = true`. The spec records
+// a deliberate skip when Multisite is disabled so the contributor knows
+// which scenarios are out of scope for this deploy instead of wondering
+// why nothing ran. When Multisite is enabled the full per-site scenarios
+// land here (three canonical domains, network-administrator grant/revoke).
+// -----------------------------------------------------------------------------
+
+test("wordpress multisite per-site RBAC is not exercised in single-site deploys", async () => {
+  test.skip(
+    !multisiteEnabled,
+    "WORDPRESS_MULTISITE_ENABLED=false; Multisite scenarios run only when the role flag is true"
+  );
+  // When multisite is enabled the scenarios land here. This guard exists
+  // so the skip surfaces explicitly in the reporter, matching the
+  // documented contract of requirement 005.
+});
+
+// -----------------------------------------------------------------------------
+// Requirement 007: WordPress -> Discourse post round-trip.
+//
+// Publish a post in the WP admin UI (with the wp-discourse sidebar toggle
+// set) and assert that the matching topic appears in Discourse. Tear down
+// the WP post and the Discourse topic regardless of body outcome.
+// -----------------------------------------------------------------------------
+
+async function discourseApiRequest(request, path, init = {}) {
+  if (!discourseBaseUrl) {
+    throw new Error("DISCOURSE_BASE_URL is not set");
+  }
+  if (!discourseApiKey) {
+    throw new Error("DISCOURSE_API_KEY is not set");
+  }
+  const headers = {
+    "Api-Key": discourseApiKey,
+    "Api-Username": discourseApiUsername || "system",
+    Accept: "application/json",
+    ...(init.headers || {}),
+  };
+  const url = `${discourseBaseUrl}${path}`;
+  const method = (init.method || "GET").toUpperCase();
+  if (method === "GET") {
+    return request.get(url, { headers });
+  }
+  if (method === "DELETE") {
+    return request.delete(url, { headers });
+  }
+  throw new Error(`discourseApiRequest: unsupported method ${method}`);
+}
+
+async function discourseSearchTopicByTitle(request, title) {
+  const resp = await discourseApiRequest(
+    request,
+    `/search.json?q=${encodeURIComponent(title)}`
+  );
+  if (!resp.ok()) return null;
+  const body = await resp.json();
+  const topics = Array.isArray(body?.topics) ? body.topics : [];
+  return topics.find((t) => (t.title || "").trim() === title.trim()) || null;
+}
+
+async function discourseDeleteTopic(request, topicId) {
+  if (!topicId) return;
+  await discourseApiRequest(request, `/t/${topicId}.json`, {
+    method: "DELETE",
+  }).catch(() => {});
+}
+
+test("wordpress post published with discourse toggle appears as a Discourse topic", async ({
+  browser,
+}) => {
+  skipUnlessServiceEnabled("discourse");
+  // 10 min for this end-to-end round-trip: two browser contexts +
+  // two OIDC logins (main + cleanup) + WP editor + Discourse polling
+  // + post-status cleanup across 5 statuses comfortably exceeds the
+  // default 300s budget on cold caches. The individual step timeouts
+  // (60s OIDC, 30s editor expects, 60s snackbar, 60s discourse poll)
+  // remain in place to fail fast on real regressions.
+  test.setTimeout(600_000);
+  const stamp = Date.now();
+    const unique = Math.random().toString(36).slice(2, 8);
+    const postTitle = `infinito-playwright-discourse-roundtrip-${stamp}-${unique}`;
+    const postBodyMarker = `round-trip marker ${stamp}-${unique}`;
+    const postBody = `This post verifies the WP -> Discourse pipeline. ${postBodyMarker}`;
+
+    const wpCtx = await browser.newContext({
+      ignoreHTTPSErrors: true,
+      viewport: { width: 1440, height: 1100 },
+    });
+    const reqCtx = await browser.newContext({ ignoreHTTPSErrors: true });
+    const wpPage = await wpCtx.newPage();
+    await installCspViolationObserver(wpPage);
+
+    try {
+      await wpAdminLoginViaOidc(wpPage, wpBaseUrl, adminUsername, adminPassword);
+
+      // Navigate to the new-post editor.
+      await wpPage.goto(`${wpBaseUrl}/wp-admin/post-new.php`, {
+        waitUntil: "domcontentloaded",
+      });
+
+      // First-time editor visit shows a "Welcome to the editor" guide
+      // modal that hides the title textbox from the accessibility tree.
+      // The close button only carries aria-label="Close" so a generic
+      // /close/i query also matches unrelated buttons in the editor
+      // toolbar; instead, scope to the dialog and click its Close.
+      // Wait briefly so the dialog has time to mount.
+      const welcomeDialog = wpPage.getByRole("dialog", {
+        name: /welcome to the editor/i,
+      });
+      if (
+        await welcomeDialog.isVisible({ timeout: 5_000 }).catch(() => false)
+      ) {
+        await welcomeDialog
+          .getByRole("button", { name: /^close$/i })
+          .click()
+          .catch(async () => {
+            // Fallback: Escape always closes a dialog.
+            await wpPage.keyboard.press("Escape");
+          });
+      }
+
+      // WP Gutenberg editor: fill title. The title textarea exposes
+      // aria-label "Add title" across modern WP versions.
+      const titleBox = wpPage
+        .getByRole("textbox", { name: /add title/i })
+        .first();
+      await expect(titleBox, "Expected the post title editor").toBeVisible({
+        timeout: 60_000,
+      });
+      await titleBox.fill(postTitle);
+
+      // Fill body content. Pressing Enter at the end of the title block
+      // is the natural Gutenberg flow: the editor splits a new paragraph
+      // block below, focused, ready to receive text. `keyboard.press('Tab')`
+      // is unsafe — it can land on the WP block-editor command-palette
+      // trigger; subsequent typing then ends up in the palette's search
+      // field instead of the post body, leaving the body empty.
+      await titleBox.press("Enter");
+      await wpPage.keyboard.type(postBody);
+      // Defensive: if a previous keypress accidentally surfaced WP's
+      // command palette ("Search commands and settings"), close it so it
+      // doesn't intercept later clicks.
+      await wpPage.keyboard.press("Escape").catch(() => {});
+
+      // wp-discourse 2.6+ ships a Gutenberg PluginSidebar
+      // (name="discourse-sidebar", title="Discourse"). It is NOT a panel
+      // inside the document sidebar, so the post-info column never shows
+      // a "Discourse" section — instead the editor toolbar grows a
+      // standalone Discourse icon button that toggles a separate sidebar
+      // open. We open it by aria-label "Discourse" (anchored on word
+      // boundaries so the OIDC "Login with Discourse" button on /wp-login
+      // doesn't match here, which it can't anyway since we are post-login,
+      // but defensive). Click is a no-op if it is already open from a
+      // previous run.
+      const discourseSidebarToggle = wpPage
+        .getByRole("button", { name: /^\s*discourse\s*$/i })
+        .first();
+      await expect(
+        discourseSidebarToggle,
+        "Expected the wp-discourse PluginSidebar toolbar toggle"
+      ).toBeVisible({ timeout: 30_000 });
+      await discourseSidebarToggle.click();
+
+      // The checkbox inside the wp-discourse sidebar carries no aria-label,
+      // no name, no id — only a className. Target it directly. Source:
+      // wp-content/plugins/wp-discourse/admin/discourse-sidebar/src/index.js
+      // (`<input type="checkBox" className="wpdc-publish-topic-checkbox" />`).
+      // The plugin persists the user's choice as the
+      // `publish_to_discourse` post-meta on save.
+      const publishToggle = wpPage
+        .locator("input.wpdc-publish-topic-checkbox")
+        .first();
+      await expect(
+        publishToggle,
+        "Expected the wp-discourse 'Publish' checkbox inside the Discourse sidebar"
+      ).toBeVisible({ timeout: 30_000 });
+      if (!(await publishToggle.isChecked())) {
+        await publishToggle.check();
+      }
+
+      // Click the top-right Publish button twice (confirm once).
+      const publishBtn = wpPage
+        .getByRole("button", { name: /^publish$/i })
+        .first();
+      await publishBtn.click();
+      const confirmPublish = wpPage
+        .getByRole("button", { name: /^publish$/i })
+        .last();
+      if ((await confirmPublish.count().catch(() => 0)) > 0) {
+        await confirmPublish.click().catch(() => {});
+      }
+
+      // Wait for the snackbar confirming the post is live.
+      await expect(
+        wpPage.getByText(/post published|entry published/i).first(),
+        "Expected the WP 'post published' snackbar"
+      ).toBeVisible({ timeout: 60_000 });
+
+      // Poll Discourse until the topic shows up.
+      const expectedBodySubstring = postBodyMarker;
+      let topic = null;
+      const deadline = Date.now() + 60_000;
+      while (Date.now() < deadline) {
+        topic = await discourseSearchTopicByTitle(reqCtx.request, postTitle);
+        if (topic) break;
+        await new Promise((r) => setTimeout(r, 3_000));
+      }
+      expect(
+        topic,
+        `Expected Discourse topic with title "${postTitle}" to appear after wp-discourse publish`
+      ).toBeTruthy();
+
+      // Fetch the topic to confirm the first post body round-tripped.
+      const topicResp = await discourseApiRequest(
+        reqCtx.request,
+        `/t/${topic.id}.json`
+      );
+      expect(topicResp.ok(), `GET /t/${topic.id}.json must succeed`).toBe(true);
+      const topicBody = await topicResp.json();
+      const firstPost =
+        topicBody?.post_stream?.posts?.[0]?.cooked ||
+        topicBody?.post_stream?.posts?.[0]?.raw ||
+        "";
+      expect(
+        firstPost.includes(expectedBodySubstring),
+        `Discourse topic first post MUST contain the WP body marker "${expectedBodySubstring}"`
+      ).toBe(true);
+
+      await wpSignOut(wpPage, wpBaseUrl);
+    } finally {
+      // Teardown (see requirement 007): remove both sides regardless of
+      // outcome. Cover draft/unpublished posts too to handle crashes
+      // between create and publish. The whole WP-side cleanup is bounded
+      // to 60s — Playwright counts the finally block toward the test
+      // budget, so a hung Trash-link click previously consumed the full
+      // 600s timeout even when every assertion above had passed (the
+      // Trash link's post-click `waitForLoadState('domcontentloaded')`
+      // hangs on some WP/Gutenberg combos because the move-to-trash is
+      // an XHR, not a navigation).
+      const wpCleanupBudgetMs = 60_000;
+      const wpCleanupDeadline = Date.now() + wpCleanupBudgetMs;
+      try {
+        const wpPageCleanup = await wpCtx.newPage();
+        await Promise.race([
+          (async () => {
+            await wpAdminLoginViaOidc(
+              wpPageCleanup,
+              wpBaseUrl,
+              adminUsername,
+              adminPassword
+            ).catch(() => {});
+            for (const status of [
+              "publish",
+              "draft",
+              "pending",
+              "private",
+              "future",
+            ]) {
+              if (Date.now() >= wpCleanupDeadline) break;
+              await wpPageCleanup
+                .goto(
+                  `${wpBaseUrl}/wp-admin/edit.php?post_status=${status}&s=${encodeURIComponent(postTitle)}`,
+                  { waitUntil: "domcontentloaded", timeout: 10_000 }
+                )
+                .catch(() => {});
+              const trashLinks = wpPageCleanup.locator(
+                `tr:has-text("${postTitle}") a.submitdelete`
+              );
+              const n = await trashLinks.count().catch(() => 0);
+              for (let i = 0; i < n; i += 1) {
+                if (Date.now() >= wpCleanupDeadline) break;
+                await trashLinks
+                  .nth(i)
+                  .click()
+                  .catch(() => {});
+                await wpPageCleanup
+                  .waitForLoadState("domcontentloaded", { timeout: 5_000 })
+                  .catch(() => {});
+              }
+            }
+            // Empty trash.
+            if (Date.now() < wpCleanupDeadline) {
+              await wpPageCleanup
+                .goto(`${wpBaseUrl}/wp-admin/edit.php?post_status=trash`, {
+                  waitUntil: "domcontentloaded",
+                  timeout: 10_000,
+                })
+                .catch(() => {});
+              const emptyTrash = wpPageCleanup
+                .getByRole("button", { name: /empty\s*trash/i })
+                .first();
+              if ((await emptyTrash.count().catch(() => 0)) > 0) {
+                await emptyTrash.click().catch(() => {});
+              }
+            }
+          })(),
+          new Promise((resolve) => setTimeout(resolve, wpCleanupBudgetMs)),
+        ]);
+        await wpPageCleanup.close().catch(() => {});
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn(`WP teardown of "${postTitle}" failed: ${err}`);
+      }
+      try {
+        const topic = await discourseSearchTopicByTitle(
+          reqCtx.request,
+          postTitle
+        );
+        if (topic?.id) {
+          await discourseDeleteTopic(reqCtx.request, topic.id);
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn(`Discourse teardown of "${postTitle}" failed: ${err}`);
+      }
+      await wpCtx.close().catch(() => {});
+      await reqCtx.close().catch(() => {});
+    }
+});

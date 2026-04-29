@@ -1,0 +1,9 @@
+csp:
+  whitelist: {}
+domains:
+  canonical:
+  - magento.shop.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.103.208/28

@@ -4,18 +4,18 @@ entity_name:                    "{{ application_id | get_entity_name }}"
 
 # Friendica
 FRIENDICA_SERVICE:              "{{ entity_name }}"
-FRIENDICA_IMAGE:                "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-FRIENDICA_VERSION:              "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+FRIENDICA_IMAGE:                "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+FRIENDICA_VERSION:              "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 FRIENDICA_CONTAINER:            "friendica"
 
 FRIENDICA_APPLICATION_DIR:      "/var/www/html"
 FRIENDICA_CONFIG_DIR:           "{{ [ FRIENDICA_APPLICATION_DIR,          'config' ] | path_join }}"
 FRIENDICA_CONFIG_FILE:          "{{ [ FRIENDICA_CONFIG_DIR,               'local.config.php' ] | path_join }}"
 FRIENDICA_USER:                 "www-data"
-FRIENDICA_ADDONS:               "{{ lookup('config', application_id, 'addons') }}"
+FRIENDICA_ADDONS:               "{{ lookup('config', application_id, 'services.friendica.addons') }}"
 
 # IAM
-FRIENDICA_OIDC_ENABLED:         "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
-FRIENDICA_LDAP_ENABLED:         "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
+FRIENDICA_OIDC_ENABLED:         "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+FRIENDICA_LDAP_ENABLED:         "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 FRIENDICA_LDAP_CONFIG_DOCKER:   "{{ [ FRIENDICA_APPLICATION_DIR,         'config/ldapauth.config.php' ] | path_join }}"
 FRIENDICA_LDAP_CONFIG_HOST:     "{{ [ lookup('container', application_id, 'directories.volumes'), 'ldapauth.config.php' ] | path_join }}"

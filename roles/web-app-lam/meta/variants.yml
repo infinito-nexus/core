@@ -1,0 +1,7 @@
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant 0: development credentials so the Playwright admin
+# scenario can sign in without an out-of-band password handoff.
+- credentials:
+    administrator_password: "'$tr0ng€xampl3PW!"

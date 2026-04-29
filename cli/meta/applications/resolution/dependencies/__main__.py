@@ -17,7 +17,7 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Set
 
-import yaml
+from utils.cache.yaml import load_yaml
 
 
 class DependenciesResolutionError(RuntimeError):
@@ -49,7 +49,7 @@ def has_application_id(role_name: str) -> bool:
         return False
 
     try:
-        data = yaml.safe_load(vars_path.read_text(encoding="utf-8")) or {}
+        data = load_yaml(vars_path)
     except Exception as exc:
         raise DependenciesResolutionError(
             f"Failed to parse {vars_path}: {exc}"
@@ -114,7 +114,7 @@ def load_dependencies(role_name: str) -> List[str]:
         return []
 
     try:
-        data = yaml.safe_load(meta.read_text(encoding="utf-8")) or {}
+        data = load_yaml(meta)
     except Exception as exc:
         raise DependenciesResolutionError(f"Failed to parse {meta}: {exc}") from exc
 

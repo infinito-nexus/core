@@ -24,7 +24,7 @@ x-op-app: &app
     pull_policy: never
     command: "./docker/prod/proxy"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.openproject.ports.local.http') }}:80"
     environment:
       APP_HOST: {{ OPENPROJECT_WEB_SERVICE }}
     depends_on:

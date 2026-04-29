@@ -1,0 +1,2 @@
+registry=http://package-cache:8081/repository/npm-proxy/
+strict-ssl=false

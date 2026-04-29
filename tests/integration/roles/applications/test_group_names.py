@@ -10,7 +10,7 @@ ROOT = os.path.abspath(
 sys.path.insert(0, ROOT)
 
 from cli.meta.applications.all import find_application_ids  # noqa: E402
-from tests.utils.fs import iter_project_files_with_content  # noqa: E402
+from utils.cache.files import iter_project_files_with_content  # noqa: E402
 
 
 class TestGroupApplications(unittest.TestCase):

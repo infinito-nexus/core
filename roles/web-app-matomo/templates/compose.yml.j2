@@ -5,7 +5,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ MATOMO_IMAGE }}:{{ MATOMO_VERSION }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.matomo.ports.local.http') }}:{{ container_port }}"
     volumes:
       - data:/var/www/html
     healthcheck:

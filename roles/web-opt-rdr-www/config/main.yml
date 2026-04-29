@@ -1,5 +1,0 @@
-# The following defines the redirect flavor
-# Possible options 
-#  - 'edge' for configuration via cloudflare
-#  - 'origin' via native nginx 
-prefered_flavor: "origin"

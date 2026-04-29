@@ -1,0 +1,12 @@
+csp:
+  whitelist: {}
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+domains:
+  canonical:
+  - chess.game.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.103.192/28

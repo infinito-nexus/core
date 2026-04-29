@@ -3,7 +3,7 @@ import re
 import unittest
 from collections import defaultdict
 
-from tests.utils.fs import read_text
+from utils.cache.files import read_text
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 ROLES_DIR = os.path.join(PROJECT_ROOT, "roles")

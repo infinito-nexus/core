@@ -1,0 +1,75 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+gitea:
+  image: gitea/gitea
+  version: latest
+  min_storage: 10GB
+  backup:
+    no_stop_required: true
+  name: gitea
+  cpus: 1.0
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+  title: '{{ SOFTWARE_NAME }} Code Hub'
+  configuration:
+    repository:
+      enable_push_create_user: true
+      default_private: last
+      default_push_create_private: true
+  ports:
+    inter: 3000
+    local:
+      oauth2: 16488
+      http: 8002
+    public:
+      ssh: 2201
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+redis:
+  backup:
+    disabled: true
+  enabled: false
+  cpus: 0.25
+  mem_reservation: 0.2g
+  mem_limit: 0.3g
+  pids_limit: 512
+oauth2:
+  origin:
+    host: application
+    port: '{{ lookup(''config'', ''web-app-gitea'', ''services.gitea.ports.inter'') }}'
+  acl:
+    blacklist:
+    - /user/login
+  enabled: false
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true
+  native_metrics:
+    enabled: true
+    port: 3000

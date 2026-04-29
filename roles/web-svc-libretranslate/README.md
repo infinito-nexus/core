@@ -12,7 +12,7 @@ such as Redis caching, database persistence, and Matomo tracking.
 
 The role follows Infinito.Nexus conventions:
 - container abstraction (`container`, `compose`)
-- centralized configuration via `config/main.yml`
+- per-role meta configuration under `meta/services.yml` and `meta/server.yml`
 - CSP-aware reverse proxy integration
 - optional shared services (database, analytics)
 
@@ -39,11 +39,11 @@ The role follows Infinito.Nexus conventions:
 
 ## Configuration
 
-All configuration is handled via `config/main.yml`.
+All configuration is handled via `meta/services.yml` (services map at file root) and `meta/server.yml` (server block at file root).
 
 Key sections include:
-- `compose.services.libretranslate`: image and version
-- `compose.services.redis`: enable Redis backend
-- `compose.services.matomo`: enable analytics
+- `services.libretranslate`: image and version
+- `services.redis`: enable Redis backend
+- `services.matomo`: enable analytics
 - `server.domains`: canonical and alias domains
 - `server.csp`:

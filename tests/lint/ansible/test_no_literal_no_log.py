@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List
 
-from tests.utils.fs import read_text
+from utils.cache.files import read_text
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]

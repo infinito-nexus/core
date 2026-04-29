@@ -37,7 +37,7 @@ def _scan_role(role_path: Path) -> tuple[bool, bool]:
 
 class TestMailuServiceDependency(unittest.TestCase):
     """Every role that references 'web-app-mailu' or calls lookup('email', ...)
-    must declare compose.services.email with enabled: true and shared: true
+    must declare services.email with enabled: true and shared: true
     in its config/main.yml."""
 
     PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -53,9 +53,7 @@ class TestMailuServiceDependency(unittest.TestCase):
         if not config_path.is_file():
             return {}
         content = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
-        return (
-            content.get("compose", {}).get("services", {}).get(_EMAIL_SERVICE_KEY, {})
-        )
+        return content.get(_EMAIL_SERVICE_KEY, {}) or {}
 
     def test_mailu_dependents_declare_email_service(self):
         errors = []
@@ -65,8 +63,18 @@ class TestMailuServiceDependency(unittest.TestCase):
             role_name = role_path.name
             if role_name == _MAILU_ROLE:
                 continue
+            # Email transport providers (msmtp, smtp/postfix) and the
+            # email-alerting / mail-health roles implement or directly
+            # service the email subsystem; they call lookup('email') as the
+            # source of truth, not as dependent consumers. Exempt them.
+            if (
+                role_name.startswith("sys-svc-mail")
+                or role_name == "sys-ctl-alm-email"
+                or role_name == "sys-ctl-hlth-msmtp"
+            ):
+                continue
 
-            config_path = role_path / "config" / "main.yml"
+            config_path = role_path / "meta" / "services.yml"
             if not config_path.is_file():
                 continue
 
@@ -87,18 +95,18 @@ class TestMailuServiceDependency(unittest.TestCase):
             if not email_svc.get("enabled"):
                 errors.append(
                     f"[{role_name}] {reason_str} but "
-                    f"compose.services.email.enabled is not true in {rel}"
+                    f"services.email.enabled is not true in {rel}"
                 )
             if not email_svc.get("shared"):
                 errors.append(
                     f"[{role_name}] {reason_str} but "
-                    f"compose.services.email.shared is not true in {rel}"
+                    f"services.email.shared is not true in {rel}"
                 )
 
         if errors:
             self.fail(
                 "Roles that depend on Mailu must declare "
-                "compose.services.email with enabled: true and shared: true:\n\n"
+                "services.email with enabled: true and shared: true:\n\n"
                 + "\n".join(errors)
             )
 

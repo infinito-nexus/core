@@ -1,0 +1,5 @@
+gnome-extensions:
+  plugins: []
+  run_after:
+  - desk-gnome
+  lifecycle: pre-alpha

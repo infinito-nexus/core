@@ -2,20 +2,14 @@ galaxy_info:
   author: Kevin Veen-Birchenbach
   description: Configures Nginx to perform 301 redirects based on a list of source→target domain mappings.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: 'Kevin Veen-Birchenbach
-    Consulting & Coaching Solutions
-    https://www.veen.world'
+  company: Kevin Veen-Birchenbach Consulting & Coaching Solutions https://www.veen.world
   galaxy_tags:
-  - nginx
-  - redirect
-  - domains
-  repository: https://s.infinito.nexus/code
+    - nginx
+    - redirect
+    - domains
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/tree/main/roles/web-opt-rdr-domains
   min_ansible_version: '2.9'
   platforms:
-  - name: Any
-    versions:
-    - all
-  lifecycle: beta
+    - name: Any
+      versions:
+        - all

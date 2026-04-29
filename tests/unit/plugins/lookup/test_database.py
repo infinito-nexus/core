@@ -71,7 +71,7 @@ class DatabaseLookupTests(unittest.TestCase):
     def test_no_dbtype_configured_returns_empty_like_vars_logic(self):
         applications = {
             "web-app-foo": {
-                "compose": {"services": {}},
+                "services": {},
                 "credentials": {"database_password": "pw"},
             }
         }
@@ -123,19 +123,21 @@ class DatabaseLookupTests(unittest.TestCase):
             )
 
     def test_postgres_dedicated_matches_helper_variables_definition(self):
-        # Consumer config: postgres enabled locally (shared=false)
+        # Consumer config: postgres enabled locally (shared=false).
+        # Per req-009 the database port is hung on the database role's own
+        # services.<type>.ports.local.database entry.
         applications = {
             "web-app-foo": {
-                "compose": {
-                    "services": {"postgres": {"enabled": True, "shared": False}}
-                },
+                "services": {"postgres": {"enabled": True, "shared": False}},
                 "credentials": {"database_password": "pw"},
             },
             # Central DB role config (used only for defaults like version; name not used if shared=false)
             "svc-db-postgres": {
-                "compose": {
-                    "services": {
-                        "postgres": {"name": "postgres-central", "version": "16"}
+                "services": {
+                    "postgres": {
+                        "name": "postgres-central",
+                        "version": "16",
+                        "ports": {"local": {"database": "5432"}},
                     }
                 }
             },
@@ -198,15 +200,15 @@ class DatabaseLookupTests(unittest.TestCase):
     def test_postgres_shared_uses_central_name_for_host_instance_container_volume(self):
         applications = {
             "web-app-foo": {
-                "compose": {
-                    "services": {"postgres": {"enabled": True, "shared": True}}
-                },
+                "services": {"postgres": {"enabled": True, "shared": True}},
                 "credentials": {"database_password": "pw"},
             },
             "svc-db-postgres": {
-                "compose": {
-                    "services": {
-                        "postgres": {"name": "postgres-central", "version": "16"}
+                "services": {
+                    "postgres": {
+                        "name": "postgres-central",
+                        "version": "16",
+                        "ports": {"local": {"database": "5432"}},
                     }
                 }
             },
@@ -251,15 +253,15 @@ class DatabaseLookupTests(unittest.TestCase):
     def test_mariadb_jdbc_scheme_stays_mariadb(self):
         applications = {
             "web-app-foo": {
-                "compose": {
-                    "services": {"mariadb": {"enabled": True, "shared": False}}
-                },
+                "services": {"mariadb": {"enabled": True, "shared": False}},
                 "credentials": {"database_password": "pw"},
             },
             "svc-db-mariadb": {
-                "compose": {
-                    "services": {
-                        "mariadb": {"name": "mariadb-central", "version": "11.4"}
+                "services": {
+                    "mariadb": {
+                        "name": "mariadb-central",
+                        "version": "11.4",
+                        "ports": {"local": {"database": "3306"}},
                     }
                 }
             },
@@ -296,23 +298,17 @@ class DatabaseLookupTests(unittest.TestCase):
     def test_version_override_on_consumer_wins_over_default(self):
         applications = {
             "web-app-foo": {
-                "compose": {
-                    "services": {
-                        "postgres": {
-                            "enabled": True,
-                            "shared": False,
-                            "version": "15",
-                        }
+                "services": {
+                    "postgres": {
+                        "enabled": True,
+                        "shared": False,
+                        "version": "15",
                     }
                 },
                 "credentials": {"database_password": "pw"},
             },
             "svc-db-postgres": {
-                "compose": {
-                    "services": {
-                        "postgres": {"name": "postgres-central", "version": "16"}
-                    }
-                }
+                "services": {"postgres": {"name": "postgres-central", "version": "16"}}
             },
         }
         ports = {"localhost": {"database": {"svc-db-postgres": "5432"}}}
@@ -344,11 +340,9 @@ class DatabaseLookupTests(unittest.TestCase):
     def test_multiple_database_services_raise(self):
         applications = {
             "web-app-foo": {
-                "compose": {
-                    "services": {
-                        "mariadb": {"enabled": True, "shared": False},
-                        "postgres": {"enabled": True, "shared": False},
-                    }
+                "services": {
+                    "mariadb": {"enabled": True, "shared": False},
+                    "postgres": {"enabled": True, "shared": False},
                 }
             }
         }

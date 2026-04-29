@@ -6,8 +6,8 @@ from pathlib import Path
 
 class TestServiceSharedConsistency(unittest.TestCase):
     """
-    For all roles in roles/*/config/main.yml enforce two rules on every
-    compose.services.<name> entry:
+    For all roles in roles/*/meta/services.yml enforce two rules on every
+    services.<name> entry:
 
     Rule 1 — enabled requires shared:
       When a service has ``enabled: true`` it MUST also declare
@@ -53,7 +53,7 @@ class TestServiceSharedConsistency(unittest.TestCase):
 
     def test_service_shared_consistency(self):
         roles_dir = Path(__file__).resolve().parent.parent.parent.parent / "roles"
-        pattern = str(roles_dir / "*" / "config" / "main.yml")
+        pattern = str(roles_dir / "*" / "meta" / "services.yml")
         files = glob.glob(pattern)
         self.assertTrue(
             files, f"No config/main.yml files found with pattern: {pattern}"
@@ -69,9 +69,9 @@ class TestServiceSharedConsistency(unittest.TestCase):
                 errors.append(f"{role_name}: YAML parse error in {file_path}: {exc}")
                 continue
 
-            services = (cfg.get("compose") or {}).get("services") or {}
-            if not isinstance(services, dict):
-                continue
+            # Per req-008 the file root of meta/services.yml IS the
+            # services map (no `compose.services` wrapper).
+            services = cfg if isinstance(cfg, dict) else {}
 
             exceptions = self._exception_services(file_path)
 
@@ -87,7 +87,7 @@ class TestServiceSharedConsistency(unittest.TestCase):
                 if enabled is True and not has_shared:
                     if svc_name not in exceptions:
                         errors.append(
-                            f"{role_name}: compose.services.{svc_name} has enabled=true "
+                            f"{role_name}: services.{svc_name} has enabled=true "
                             f"but is missing shared=true. "
                             f"Add 'shared: true' or place a '# {self.EXCEPTION_MARKER}' "
                             f"comment on the line directly above '{svc_name}:' to mark "
@@ -97,7 +97,7 @@ class TestServiceSharedConsistency(unittest.TestCase):
                 # Rule 2: shared key requires enabled key
                 if has_shared and not has_enabled:
                     errors.append(
-                        f"{role_name}: compose.services.{svc_name} declares 'shared' "
+                        f"{role_name}: services.{svc_name} declares 'shared' "
                         f"but 'enabled' is not set. "
                         f"Add 'enabled: true' or 'enabled: false'. ({file_path})"
                     )

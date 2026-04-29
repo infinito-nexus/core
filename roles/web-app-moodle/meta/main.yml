@@ -1,24 +1,18 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Ignite the learning experience with Moodle, a powerful and versatile platform for online education that energizes
-    classrooms and fosters interactive learning.
+  description: Ignite the learning experience with Moodle, a powerful and versatile platform for online education that energizes classrooms and fosters interactive learning.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - moodle
-  - docker
-  - education
-  - cms
-  - e-learning
-  repository: https://s.infinito.nexus/code
+    - moodle
+    - docker
+    - education
+    - cms
+    - e-learning
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-graduation-cap
-  run_after:
-  - web-app-keycloak
-  lifecycle: beta

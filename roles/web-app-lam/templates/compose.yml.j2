@@ -4,7 +4,7 @@
     container_name: "{{ LAM_CONTAINER }}"
     image: "{{ LAM_IMAGE }}"
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80 
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.lam.ports.local.http') }}:80 
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 

@@ -32,7 +32,14 @@ LIMIT_HOST="${LIMIT_HOST:-localhost}"
 
 DEBUG="$(normalize_bool_or_default "${DEBUG:-}" false DEBUG)"
 
+# When the previous matrix init produced one folder per round
+# (`<INVENTORY_DIR>-0`, `<INVENTORY_DIR>-1`, ...), `VARIANT=<idx>` pins
+# this redeploy to the chosen round. Without VARIANT the unsuffixed
+# path is used, which is correct for single-variant deploys (N=1).
 inv_dir="${INVENTORY_DIR}"
+if [[ -n "${VARIANT:-}" ]]; then
+	inv_dir="${inv_dir}-${VARIANT}"
+fi
 inv_file="${inv_dir}/devices.yml"
 pw_file="${inv_dir}/.password"
 
@@ -58,7 +65,6 @@ echo
 
 # Ensure stack is up
 "${PYTHON}" -m cli.deploy.development up \
-	--distro "${INFINITO_DISTRO}" \
 	--when-down \
 	--skip-entry-init
 
@@ -87,36 +93,11 @@ echo
 
 # Run deploy inside container
 "${PYTHON}" -m cli.deploy.development exec \
-	--distro "${INFINITO_DISTRO}" -- \
-	bash -c "
-    set -euo pipefail
-    cd /opt/src/infinito
-
-    echo '>>> entry.sh bootstrap'
-    ./scripts/docker/entry.sh true
-
-    cmd=(infinito deploy dedicated '${inv_file}'
-      --skip-backup
-      --skip-cleanup
-      -l '${LIMIT_HOST}'
-      --diff
-      -vv
-      --password-file '${pw_file}'
-      -e ASYNC_ENABLED=false
-      -e SYS_SERVICE_ALL_ENABLED=false
-      -e SYS_SERVICE_DEFAULT_STATE=started
-    )
-
-    if [[ '${DEBUG}' == 'true' ]]; then
-      cmd+=(--debug)
-    fi
-
-    echo '>>> running:'
-    printf ' %q' \"\${cmd[@]}\"
-    echo
-
-    exec \"\${cmd[@]}\"
-  "
+	--env "INVENTORY_FILE=${inv_file}" \
+	--env "PW_FILE=${pw_file}" \
+	--env "LIMIT_HOST=${LIMIT_HOST}" \
+	--env "DEBUG=${DEBUG}" \
+	-- bash /opt/src/infinito/scripts/tests/deploy/local/utils/reuse-kept-all-deploy.sh
 
 echo
 echo "✅ Local run finished."

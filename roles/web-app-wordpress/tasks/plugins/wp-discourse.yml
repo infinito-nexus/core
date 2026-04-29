@@ -8,7 +8,7 @@
 
 - name: Add /var/www/discourse to Git safe.directory
   command: >
-    container exec {{ lookup('applications', 'web-app-discourse').compose.services.discourse.name }} \
+    container exec {{ lookup('applications', 'web-app-discourse').services.discourse.name }} \
       git config --global --add safe.directory /var/www/discourse
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
@@ -16,7 +16,7 @@
 
 - name: Revoke old WP Discourse API keys via Rails
   command: >
-    container exec {{ lookup('applications', 'web-app-discourse').compose.services.discourse.name }} bash -lc "\
+    container exec {{ lookup('applications', 'web-app-discourse').services.discourse.name }} bash -lc "\
       cd /var/www/discourse && \
       script/rails runner \"\
         ApiKey.where(\
@@ -32,7 +32,7 @@
 
 - name: Generate new WP Discourse API key via Rake task
   command: >
-    container exec {{ lookup('applications', 'web-app-discourse').compose.services.discourse.name }} bash -lc "\
+    container exec {{ lookup('applications', 'web-app-discourse').services.discourse.name }} bash -lc "\
       cd /var/www/discourse && \
       bin/rake api_key:create_master['WP Discourse Integration']\
     "

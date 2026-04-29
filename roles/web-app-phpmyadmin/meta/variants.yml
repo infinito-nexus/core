@@ -1,0 +1,8 @@
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant 0: development convenience: autologin lets specs land on
+# the phpMyAdmin home view without re-entering the dev password.
+- services:
+    phpmyadmin:
+      autologin: true

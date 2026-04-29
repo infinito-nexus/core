@@ -1,0 +1,33 @@
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+css:
+  enabled: true
+  shared: true
+roulette-wheel:
+  image: node
+  version: latest
+  min_storage: 1GB
+  cpus: 0.5
+  mem_reservation: 126m
+  mem_limit: 265m
+  pids_limit: 126
+  ports:
+    local:
+      http: 8013
+  run_after:
+  - web-app-matomo
+  lifecycle: alpha
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

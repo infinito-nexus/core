@@ -1,0 +1,52 @@
+oauth2:
+  enabled: false
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: false
+matomo:
+  enabled: false
+  shared: true
+  image: matomo
+  version: latest
+  name: matomo
+  min_storage: 5GB
+  backup:
+    no_stop_required: true
+  cpus: 1.0
+  mem_reservation: 0.5g
+  mem_limit: 1g
+  pids_limit: 512
+  site_name: Matomo on {{ DOMAIN_PRIMARY }}
+  token:
+    description: Created by {{ SOFTWARE_NAME }}
+  excluded_ips: '{{ networks.internet.values() | list }}'
+  ports:
+    local:
+      http: 8018
+  lifecycle: beta
+bootstrap:
+  image: ghcr.io/kevinveenbirkenbach/matomo-bootstrap
+  version: 1.1.13
+  name: matomo-bootstrap
+  profiles:
+  - bootstrap
+  timeout: 30
+  cpus: 1.0
+  mem_reservation: 0.5g
+  mem_limit: 1g
+  pids_limit: 512
+mariadb:
+  enabled: true
+  shared: true
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

@@ -5,10 +5,10 @@ js_application_name:  "Baserow"
 
 # Baserow
 BASEROW_PUBLIC_URL:   "{{ lookup('tls', application_id, 'url.base') }}"
-BASEROW_VERSION:      "{{ lookup('config', application_id, 'compose.services.baserow.version') }}"
-BASEROW_IMAGE:        "{{ lookup('config', application_id, 'compose.services.baserow.image') }}"
-BASEROW_CONTAINER:    "{{ lookup('config', application_id, 'compose.services.baserow.name') }}"
-BASEROW_VOLUME:       "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+BASEROW_VERSION:      "{{ lookup('config', application_id, 'services.baserow.version') }}"
+BASEROW_IMAGE:        "{{ lookup('config', application_id, 'services.baserow.image') }}"
+BASEROW_CONTAINER:    "{{ lookup('config', application_id, 'services.baserow.name') }}"
+BASEROW_VOLUME:       "{{ lookup('config', application_id, 'volumes.data') }}"
 
 # Required by Django/Baserow (e.g. JWT, sessions, etc.)
 BASEROW_SECRET_KEY:   "{{ lookup('config', application_id, 'credentials.secret_key') }}"

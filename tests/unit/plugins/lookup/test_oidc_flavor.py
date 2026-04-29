@@ -21,11 +21,12 @@ def _load_module(rel_path: str, name: str):
         "utils.applications.config",
         "utils.applications",
         "utils",
-        "utils.runtime_data",
+        "utils.cache.applications",
+        "utils.cache",
     ):
         sys.modules.pop(key, None)
     importlib.import_module("utils.applications.config")
-    importlib.import_module("utils.runtime_data")
+    importlib.import_module("utils.cache.applications")
 
     path = _repo_root() / rel_path
     spec = importlib.util.spec_from_file_location(name, str(path))
@@ -45,11 +46,11 @@ def _apps(*, ldap_enabled=None, flavor=None, include_app=True):
     services_block: dict = {"oidc": oidc_block}
     if ldap_enabled is not None:
         services_block["ldap"] = {"enabled": ldap_enabled}
+    # Per req-008 the materialised payload moved from
+    # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
     return {
         "web-app-nextcloud": {
-            "compose": {
-                "services": services_block,
-            },
+            "services": services_block,
         },
     }
 

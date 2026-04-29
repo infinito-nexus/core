@@ -6,7 +6,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.applications.config import get
-from utils.runtime_data import get_merged_applications
+from utils.cache.applications import get_merged_applications
 
 
 _APPLICATION_ID = "web-app-nextcloud"
@@ -20,8 +20,8 @@ class LookupModule(LookupBase):
 
     Resolution order:
       1. An explicit string value at applications['web-app-nextcloud']
-         .compose.services.oidc.flavor (inventory override).
-      2. "oidc_login" if compose.services.ldap.enabled is truthy
+         .services.oidc.flavor (inventory override).
+      2. "oidc_login" if services.ldap.enabled is truthy
          (pulsejet/nextcloud-oidc-login, proxy-LDAP capable).
       3. "sociallogin" otherwise (nextcloud/sociallogin).
 
@@ -39,7 +39,7 @@ class LookupModule(LookupBase):
         # Use the same merged+rendered applications payload that lookup('config')
         # consumes. The raw `variables["applications"]` that Ansible hands the
         # lookup is the pre-merge override slice, so nested defaults like
-        # compose.services.ldap.enabled are not yet visible there and the flavor
+        # services.ldap.enabled are not yet visible there and the flavor
         # would silently fall back to 'sociallogin'.
         applications = get_merged_applications(
             variables=variables,
@@ -50,7 +50,7 @@ class LookupModule(LookupBase):
         explicit = get(
             applications=applications,
             application_id=_APPLICATION_ID,
-            config_path="compose.services.oidc.flavor",
+            config_path="services.oidc.flavor",
             strict=False,
             default=None,
             skip_missing_app=True,
@@ -62,7 +62,7 @@ class LookupModule(LookupBase):
             get(
                 applications=applications,
                 application_id=_APPLICATION_ID,
-                config_path="compose.services.ldap.enabled",
+                config_path="services.ldap.enabled",
                 strict=False,
                 default=False,
                 skip_missing_app=True,

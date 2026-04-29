@@ -69,7 +69,7 @@ const nextcloudUsernameFieldPattern = /account name or email|username or email/i
 const nextcloudCredentialSubmitPattern = /sign in|log in/i;
 
 // Condition variables driving the login flavor. Ansible renders these from the
-// role's compose.services.{oidc,ldap}.enabled config so the spec never has to
+// role's services.{oidc,ldap}.enabled (meta/services.yml) so the spec never has to
 // sniff which login UI shape the deployment exposes:
 //   - OIDC + LDAP  -> "oidc_login"  (pulsejet/nextcloud-oidc-login,
 //                                    auto_redirect hands straight to Keycloak)

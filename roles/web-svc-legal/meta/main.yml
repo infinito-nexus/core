@@ -2,22 +2,16 @@ galaxy_info:
   author: Kevin Veen-Birchenbach
   description: Deploys a legal imprint (Impressum) page in Nginx from a Jinja2 template.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: 'Kevin Veen-Birchenbach
-    Consulting & Coaching Solutions
-    https://www.veen.world'
+  company: Kevin Veen-Birchenbach Consulting & Coaching Solutions https://www.veen.world
   galaxy_tags:
-  - nginx
-  - legal
-  - imprint
-  repository: https://s.infinito.nexus/code
+    - nginx
+    - legal
+    - imprint
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/tree/main/roles/web-svc-legal
   min_ansible_version: '2.9'
   platforms:
-  - name: Any
-    versions:
-    - all
-  lifecycle: beta
+    - name: Any
+      versions:
+        - all
 dependencies:
   - web-svc-html

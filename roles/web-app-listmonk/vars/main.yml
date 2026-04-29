@@ -1,15 +1,15 @@
 # General 
 application_id:               "web-app-listmonk"
-container_port:               "{{ lookup('config', application_id, 'compose.services.listmonk.port') }}"
+container_port:               "{{ lookup('config', application_id, 'services.listmonk.ports.inter') }}"
 
 # Listmonk
-LISTMONK_VERSION:             "{{ lookup('config', application_id, 'compose.services.listmonk.version') }}"
-LISTMONK_IMAGE:               "{{ lookup('config', application_id, 'compose.services.listmonk.image') }}"
-LISTMONK_NAME:                "{{ lookup('config', application_id, 'compose.services.listmonk.name') }}"
+LISTMONK_VERSION:             "{{ lookup('config', application_id, 'services.listmonk.version') }}"
+LISTMONK_IMAGE:               "{{ lookup('config', application_id, 'services.listmonk.image') }}"
+LISTMONK_NAME:                "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_CONFIG_HOST:         "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
-LISTMONK_OIDC_ENABLED:        "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+LISTMONK_OIDC_ENABLED:        "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 
-LISTMONK_PUBLIC_API_ENABLED:  "{{ lookup('config', application_id, 'public_api_activated') }}"
+LISTMONK_PUBLIC_API_ENABLED:  "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
 
 # User Configuration
 LISTMONK_USER_SEND:           "newsletter"

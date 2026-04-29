@@ -7,7 +7,7 @@
     _sys_stk_backend_database_enabled: >-
       {{ lookup('database', application_id, 'enabled') | bool }}
     _sys_stk_backend_oauth2_enabled: >-
-      {{ lookup('config', application_id, 'compose.services.oauth2.enabled', False) }}
+      {{ lookup('config', application_id, 'services.oauth2.enabled', False) }}
   changed_when: false
 
 - name: "DEBUG | SYS-STK-BACKEND | Application context"

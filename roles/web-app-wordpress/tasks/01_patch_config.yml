@@ -1,5 +1,25 @@
 # The seeds need to be executed as root, because www-data isn't allowed to create files in the wordpress directory
 
+- name: "Strip stale Multisite bareword constants from {{ WORDPRESS_CONFIG_FILE }} (defensive, runs before any wp-cli call)"
+  # Pre-fix runs of 06_multisite.yml wrote DOMAIN_CURRENT_SITE /
+  # PATH_CURRENT_SITE with `wp config set --raw`, but Ansible's
+  # `command:` module pipes through shlex, which strips the surrounding
+  # single-quotes from `'blog.infinito.example'` before exec. wp-cli
+  # then wrote
+  #     define( 'DOMAIN_CURRENT_SITE', blog.infinito.example );
+  # — a bareword PHP can't parse. Every subsequent `wp` CLI call
+  # (including `wp core install` in 02_install.yml) PHP-loads wp-config
+  # and dies on the parse error before we ever reach 06_multisite.yml's
+  # rewrite. `wp config delete` would die for the same reason; only
+  # textual sed survives an unparseable file. Drop these two lines
+  # unconditionally — the canonical, properly quoted versions are
+  # (re)written by 06_multisite.yml's string-write loop.
+  command: >
+    container exec --user root {{ WORDPRESS_CONTAINER }}
+    sed -i -E "/^\s*define\(\s*'(DOMAIN_CURRENT_SITE|PATH_CURRENT_SITE)'\s*,.*\);\s*$/d"
+    {{ WORDPRESS_DOCKER_CONF_PATH }}
+  changed_when: true
+
 - name: Update DB host in {{ WORDPRESS_CONFIG_FILE }}
   command: >
     container exec --user root {{ WORDPRESS_CONTAINER }}

@@ -2,20 +2,19 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs GNOME Terminal on Arch Linux, providing a modern terminal emulator for the GNOME desktop environment.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - gnome
-  - terminal
-  - automation
-  run_after:
-  - desk-gnome
-  lifecycle: pre-alpha
+    - gnome
+    - terminal
+    - automation

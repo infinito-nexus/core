@@ -1,0 +1,46 @@
+friendica:
+  image: friendica
+  version: latest
+  min_storage: 10GB
+  addons:
+    keycloakpassword: {}
+    ldapauth: {}
+  ports:
+    local:
+      http: 8028
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  lifecycle: beta
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+oauth2:
+  origin:
+    host: application
+    port: '80'
+  enabled: false
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

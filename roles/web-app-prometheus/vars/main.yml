@@ -2,16 +2,16 @@
 application_id:               "web-app-prometheus"
 
 # Docker
-container_port:               "{{ ports.localhost.http[application_id] }}"
+container_port:               "{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}"
 
 # Prometheus
-PROMETHEUS_VERSION:           "{{ lookup('config', application_id, 'compose.services.prometheus.version') }}"
-PROMETHEUS_IMAGE:             "{{ lookup('config', application_id, 'compose.services.prometheus.image') }}"
-PROMETHEUS_CONTAINER:         "{{ lookup('config', application_id, 'compose.services.prometheus.name') }}"
+PROMETHEUS_VERSION:           "{{ lookup('config', application_id, 'services.prometheus.version') }}"
+PROMETHEUS_IMAGE:             "{{ lookup('config', application_id, 'services.prometheus.image') }}"
+PROMETHEUS_CONTAINER:         "{{ lookup('config', application_id, 'services.prometheus.name') }}"
 
 ## Volumes
-PROMETHEUS_VOLUME_DATA:       "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-ALERTMANAGER_VOLUME_DATA:     "{{ lookup('config', application_id, 'compose.volumes.alertmanager_data') }}"
+PROMETHEUS_VOLUME_DATA:       "{{ lookup('config', application_id, 'volumes.data') }}"
+ALERTMANAGER_VOLUME_DATA:     "{{ lookup('config', application_id, 'volumes.alertmanager_data') }}"
 
 ## Config
 PROMETHEUS_CONFIG_HOST:       "{{ [ lookup('container', application_id, 'directories.config'), 'prometheus.yml' ] | path_join }}"
@@ -20,9 +20,9 @@ BLACKBOX_CONFIG_HOST:         "{{ [ lookup('container', application_id, 'directo
 BLACKBOX_CONFIG_DOCKER:       "/etc/blackbox_exporter/config.yml"
 
 # Alertmanager
-ALERTMANAGER_VERSION:         "{{ lookup('config', application_id, 'compose.services.alertmanager.version') }}"
-ALERTMANAGER_IMAGE:           "{{ lookup('config', application_id, 'compose.services.alertmanager.image') }}"
-ALERTMANAGER_CONTAINER:       "{{ lookup('config', application_id, 'compose.services.alertmanager.name') }}"
+ALERTMANAGER_VERSION:         "{{ lookup('config', application_id, 'services.alertmanager.version') }}"
+ALERTMANAGER_IMAGE:           "{{ lookup('config', application_id, 'services.alertmanager.image') }}"
+ALERTMANAGER_CONTAINER:       "{{ lookup('config', application_id, 'services.alertmanager.name') }}"
 ALERTMANAGER_CONFIG_HOST:     "{{ [ lookup('container', application_id, 'directories.config'), 'alertmanager.yml' ] | path_join }}"
 ALERTMANAGER_CONFIG_DOCKER:   "/etc/alertmanager/alertmanager.yml"
 ALERT_RULES_CONFIG_HOST:      "{{ [ lookup('container', application_id, 'directories.config'), 'alert_rules.yml' ] | path_join }}"
@@ -30,20 +30,20 @@ ALERT_RULES_CONFIG_DOCKER:    "/etc/prometheus/alert_rules.yml"
 
 # Alertmanager — communication channels
 ALERTMANAGER_TELEGRAM_BOT_TOKEN:       "{{ lookup('config', application_id, 'credentials.alerting_telegram_bot_token', '') }}"
-ALERTMANAGER_TELEGRAM_CHAT_ID:         "{{ lookup('config', application_id, 'alerting.telegram.chat_id') }}"
+ALERTMANAGER_TELEGRAM_CHAT_ID:         "{{ lookup('config', application_id, 'services.prometheus.alerting.telegram.chat_id') }}"
 ALERTMANAGER_MATTERMOST_WEBHOOK_URL:   "{{ lookup('config', application_id, 'credentials.alerting_mattermost_webhook_url', '') }}"
 
 # Blackbox Exporter
-BLACKBOX_VERSION:             "{{ lookup('config', application_id, 'compose.services.blackbox-exporter.version') }}"
-BLACKBOX_IMAGE:               "{{ lookup('config', application_id, 'compose.services.blackbox-exporter.image') }}"
-BLACKBOX_CONTAINER:           "{{ lookup('config', application_id, 'compose.services.blackbox-exporter.name') }}"
+BLACKBOX_VERSION:             "{{ lookup('config', application_id, 'services.blackbox-exporter.version') }}"
+BLACKBOX_IMAGE:               "{{ lookup('config', application_id, 'services.blackbox-exporter.image') }}"
+BLACKBOX_CONTAINER:           "{{ lookup('config', application_id, 'services.blackbox-exporter.name') }}"
 
 # cAdvisor
-CADVISOR_VERSION:             "{{ lookup('config', application_id, 'compose.services.cadvisor.version') }}"
-CADVISOR_IMAGE:               "{{ lookup('config', application_id, 'compose.services.cadvisor.image') }}"
-CADVISOR_CONTAINER:           "{{ lookup('config', application_id, 'compose.services.cadvisor.name') }}"
+CADVISOR_VERSION:             "{{ lookup('config', application_id, 'services.cadvisor.version') }}"
+CADVISOR_IMAGE:               "{{ lookup('config', application_id, 'services.cadvisor.image') }}"
+CADVISOR_CONTAINER:           "{{ lookup('config', application_id, 'services.cadvisor.name') }}"
 
 # Node Exporter
-NODE_EXPORTER_VERSION:        "{{ lookup('config', application_id, 'compose.services.node-exporter.version') }}"
-NODE_EXPORTER_IMAGE:          "{{ lookup('config', application_id, 'compose.services.node-exporter.image') }}"
-NODE_EXPORTER_CONTAINER:      "{{ lookup('config', application_id, 'compose.services.node-exporter.name') }}"
+NODE_EXPORTER_VERSION:        "{{ lookup('config', application_id, 'services.node-exporter.version') }}"
+NODE_EXPORTER_IMAGE:          "{{ lookup('config', application_id, 'services.node-exporter.image') }}"
+NODE_EXPORTER_CONTAINER:      "{{ lookup('config', application_id, 'services.node-exporter.name') }}"

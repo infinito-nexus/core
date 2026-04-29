@@ -1,6 +1,6 @@
 application_id:               "web-svc-logout"
 container_port:               8000
-http_port:                    "{{ ports.localhost.http[application_id] }}"
+http_port:                    "{{ lookup('config', application_id, 'services.logout.ports.local.http') }}"
 entity_name:                  "{{ application_id | get_entity_name }}"
 
 # The following line leads to that services which arent listed directly in the inventory, 
@@ -10,6 +10,6 @@ LOGOUT_DOMAINS:               "{{ (lookup('applications') | logout_domains(group
 LOGOUT_URLS:                  "{{ LOGOUT_DOMAINS | map('regex_replace', '^(.*)$', lookup('tls', application_id, 'protocols.web') ~ '://\\1') | list }}"
 LOGOUT_CONNECT_SRC_OLD:       "{{ lookup('config', application_id, 'server.csp.whitelist.connect-src') }}"
 LOGOUT_CONNECT_SRC_NEW:       "{{ (LOGOUT_CONNECT_SRC_OLD + LOGOUT_URLS) | unique }}"
-LOGOUT_CONTAINER:             "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
-LOGOUT_IMAGE:                 "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-LOGOUT_VERSION:               "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+LOGOUT_CONTAINER:             "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+LOGOUT_IMAGE:                 "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+LOGOUT_VERSION:               "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"

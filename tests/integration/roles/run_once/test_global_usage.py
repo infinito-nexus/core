@@ -26,7 +26,7 @@ import os
 import re
 import unittest
 
-from tests.utils.fs import iter_project_files, read_text
+from utils.cache.files import iter_project_files, read_text
 
 try:
     import yaml  # PyYAML

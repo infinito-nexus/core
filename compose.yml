@@ -6,6 +6,89 @@ x-ci-defaults: &ci_defaults
     - ndots:1
 
 services:
+  # `cache` profile gated; see compose/registry-cache/README.md.
+  # Defaults for the three INFINITO_REGISTRY_CACHE_* env vars come
+  # from scripts/meta/env/cache/registry.sh (sourced via all.sh);
+  # compose.yml requires them strictly via `${VAR:?...}`.
+  registry-cache:
+    profiles: ["cache"]
+    image: rpardini/docker-registry-proxy:0.6.5
+    container_name: infinito-registry-cache
+    environment:
+      ENABLE_MANIFEST_CACHE: "true"
+      AUTH_REGISTRIES: ""
+      CACHE_MAX_SIZE: "${INFINITO_REGISTRY_CACHE_MAX_SIZE:?Source scripts/meta/env/cache/registry.sh before running docker compose}"
+      # Force IPv4-only upstream resolution. Hosts where IPv6 outbound is
+      # broken (common on developer laptops behind v4-only NAT) hit "Bad
+      # Gateway" 502s when nginx resolves an upstream like mcr.microsoft.com
+      # to AAAA and then cannot connect. Letting the proxy fall through to
+      # IPv4 fixes the pull. rpardini's entrypoint appends `ipv6=off` to
+      # the nginx resolver when this is "true".
+      DISABLE_IPV6: "true"
+    volumes:
+      - type: bind
+        source: ${INFINITO_REGISTRY_CACHE_HOST_PATH:?Source scripts/meta/env/cache/registry.sh before running docker compose}
+        target: /docker_mirror_cache
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${INFINITO_REGISTRY_CACHE_CA_HOST_PATH:?Source scripts/meta/env/cache/registry.sh before running docker compose}
+        target: /ca
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "wget -qO- http://127.0.0.1:3128/ca.crt >/dev/null 2>&1"
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  # `cache` profile gated; see compose/package-cache/README.md.
+  # Defaults for the INFINITO_PACKAGE_CACHE_* env vars come from
+  # scripts/meta/env/cache/package.sh (sourced via all.sh); compose.yml
+  # requires them strictly via `${VAR:?...}`.
+  package-cache:
+    profiles: ["cache"]
+    image: sonatype/nexus3:3.91.1-ubi
+    container_name: infinito-package-cache
+    # Nexus's entrypoint expects to write into /nexus-data as UID 200.
+    # On a fresh bind-mount the host dir is created root:root by dockerd
+    # and Nexus aborts with "/nexus-data is not writable". Running as
+    # root inside is acceptable for this dev-only proxy cache and avoids
+    # an init container just to chown.
+    user: "0:0"
+    environment:
+      INSTALL4J_ADD_VM_PARAMS: "-Xms${INFINITO_PACKAGE_CACHE_HEAP:?Source scripts/meta/env/cache/package.sh before running docker compose} -Xmx${INFINITO_PACKAGE_CACHE_HEAP:?Source scripts/meta/env/cache/package.sh before running docker compose} -XX:MaxDirectMemorySize=${INFINITO_PACKAGE_CACHE_DIRECT_MEM:?Source scripts/meta/env/cache/package.sh before running docker compose}"
+      # Force the well-known default `admin / admin123` instead of a
+      # random per-boot password. The bootstrap helper logs in with
+      # admin123 and rotates to INFINITO_PACKAGE_CACHE_ADMIN_PASSWORD;
+      # the random-password mode otherwise auto-completes onboarding
+      # silently and leaves no readable secret on disk for the bootstrap.
+      NEXUS_SECURITY_RANDOMPASSWORD: "false"
+    volumes:
+      - type: bind
+        source: ${INFINITO_PACKAGE_CACHE_HOST_PATH:?Source scripts/meta/env/cache/package.sh before running docker compose}
+        target: /nexus-data
+        bind:
+          create_host_path: true
+    ports:
+      - "${BIND_IP:-127.0.0.1}:${INFINITO_PACKAGE_CACHE_PORT:?Source scripts/meta/env/cache/package.sh before running docker compose}:8081"
+    healthcheck:
+      # Nexus 3 UBI image ships curl, not wget. The Nexus REST status
+      # endpoint returns 200 once the JVM is fully up and the database
+      # has finished its first-boot schema creation.
+      test:
+        - CMD-SHELL
+        - "curl -fsS http://127.0.0.1:8081/service/rest/v1/status >/dev/null"
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 120s
+    restart: unless-stopped
+
   # ------------------------------------------------------------
   # CoreDNS (CI only)
   # ------------------------------------------------------------
@@ -15,7 +98,7 @@ services:
     profiles: ["ci"]
     command: ["-conf", "/Corefile"]
     volumes:
-      - ./compose/Corefile:/Corefile:ro
+      - ./compose/coredns/Corefile:/Corefile:ro
     networks:
       default:
         ipv4_address: ${DNS_IP}
@@ -35,8 +118,16 @@ services:
         NIX_CONFIG: ${NIX_CONFIG}
     image: "${INFINITO_IMAGE}"
     pull_policy: "${INFINITO_PULL_POLICY:-never}"
+    # service_healthy + required:false: see compose/{registry,package}-cache/README.md.
     depends_on:
-      - coredns
+      coredns:
+        condition: service_started
+      registry-cache:
+        condition: service_healthy
+        required: false
+      package-cache:
+        condition: service_healthy
+        required: false
 
     # Run systemd as PID 1
     command:
@@ -65,7 +156,12 @@ services:
     tty: true
     stdin_open: true
 
-    container_name: infinito_nexus_${INFINITO_DISTRO:-debian}
+    # INFINITO_CONTAINER is the single SPOT for the container name; it is
+    # exported by scripts/meta/env/defaults.sh (always-derived from
+    # INFINITO_DISTRO outside its load-once guard). Any caller that runs
+    # `docker compose ...` against this file MUST source defaults.sh
+    # beforehand — no local fallback derivation here.
+    container_name: ${INFINITO_CONTAINER:?Source scripts/meta/env/defaults.sh before running docker compose}
     restart: "no"
     profiles: ["ci"]
     # Resource caps for reproducing OOM/OOM-kill scenarios locally (e.g. issue #162
@@ -82,6 +178,26 @@ services:
       - ${INFINITO_DOCKER_VOLUME:-docker}:${INFINITO_DOCKER_MOUNT:-/var/lib/docker}
       - infinito:/var/lib/infinito/
       - letsencrypt:/etc/letsencrypt/
+      # Read-only bind of the registry-cache CA bundle so this container's
+      # /usr/local/bin/registry-cache-ca.sh can drop the cert into
+      # the system trust store before dockerd starts.
+      - type: bind
+        source: ${INFINITO_REGISTRY_CACHE_CA_HOST_PATH:?Source scripts/meta/env/cache/registry.sh before running docker compose}
+        target: /opt/registry-cache-ca
+        read_only: true
+        bind:
+          create_host_path: true
+      # /dev/null when cache profile inactive; INFINITO_REGISTRY_CACHE_PROXY_CONF
+      # is set by Profile in cli/deploy/development/profile.py.
+      - ${INFINITO_REGISTRY_CACHE_PROXY_CONF:-/dev/null}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
+      - ./scripts/docker/cache/registry-ca.sh:/usr/local/bin/registry-cache-ca.sh:ro
+      # Package-cache client config snippets. Each source defaults to
+      # /dev/null so the runner deploys identically with the cache off;
+      # Profile sets the real paths when the `cache` profile is active.
+      # See compose/package-cache/README.md.
+      - ${INFINITO_PACKAGE_CACHE_PIP_CONF:-/dev/null}:/etc/pip.conf:ro
+      - ${INFINITO_PACKAGE_CACHE_NPMRC:-/dev/null}:/root/.npmrc:ro
+      - ${INFINITO_PACKAGE_CACHE_APT_LIST:-/dev/null}:/etc/apt/sources.list.d/package-cache.list:ro
 
     environment:
       DNS_IP: ${DNS_IP}

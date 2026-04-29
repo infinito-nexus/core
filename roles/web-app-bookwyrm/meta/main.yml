@@ -1,27 +1,14 @@
 galaxy_info:
   author: Kevin Veen-Birchenbach
-  description: BookWyrm is a self-hosted federated social reading platform where users share reviews, track reading, and connect
-    with others across the Fediverse.
+  description: BookWyrm is a self-hosted federated social reading platform where users share reviews, track reading, and connect with others across the Fediverse.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: 'Kevin Veen-Birchenbach
-    Consulting & Coaching Solutions
-    https://www.veen.world'
+  company: Kevin Veen-Birchenbach Consulting & Coaching Solutions https://www.veen.world
   galaxy_tags:
-  - books
-  - social-network
-  - fediverse
-  - activitypub
-  - reading
-  - bookwyrm
-  repository: https://s.infinito.nexus/code
+    - books
+    - social-network
+    - fediverse
+    - activitypub
+    - reading
+    - bookwyrm
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/tree/main/roles/web-app-bookwyrm
-  logo:
-    class: fas fa-book
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
-  lifecycle: alpha
 dependencies: []

@@ -1,25 +1,16 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: FusionDirectory is a web-app-based tool to manage LDAP directories and this role ensures a reliable, easy-to-use
-    interface for LDAP administration.
+  description: FusionDirectory is a web-app-based tool to manage LDAP directories and this role ensures a reliable, easy-to-use interface for LDAP administration.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   company: Kevin Veen-Birkenbach Consulting & Coaching Solutions
   min_ansible_version: '2.9'
   platforms:
-  - name: Docker
-    versions:
-    - latest
+    - name: Docker
+      versions:
+        - latest
   galaxy_tags:
-  - fusiondirectory
-  - ldap
-  - docker
-  - administration
-  repository: https://s.infinito.nexus/code
+    - fusiondirectory
+    - ldap
+    - docker
+    - administration
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
-  lifecycle: planned

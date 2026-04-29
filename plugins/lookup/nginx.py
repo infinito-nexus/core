@@ -28,7 +28,7 @@ from ansible.plugins.lookup import LookupBase
 from ansible.plugins.loader import lookup_loader
 
 from utils.applications.config import get
-from utils.runtime_data import get_merged_applications
+from utils.cache.applications import get_merged_applications
 from utils.tls_common import as_str, want_get
 
 
@@ -106,10 +106,8 @@ class LookupModule(LookupBase):
         if not proxy_app_id:
             raise AnsibleError("nginx: proxy_app_id is empty")
 
-        www_dir = get(applications, proxy_app_id, "compose.volumes.www", strict=True)
-        nginx_dir = get(
-            applications, proxy_app_id, "compose.volumes.nginx", strict=True
-        )
+        www_dir = get(applications, proxy_app_id, "volumes.www", strict=True)
+        nginx_dir = get(applications, proxy_app_id, "volumes.nginx", strict=True)
 
         www_dir = _ensure_trailing_slash(as_str(www_dir))
         nginx_dir = _ensure_trailing_slash(as_str(nginx_dir))

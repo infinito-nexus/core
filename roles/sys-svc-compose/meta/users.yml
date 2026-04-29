@@ -1,0 +1,5 @@
+blackhole:
+  description: Everything what will be send to this user will disapear
+  username: blackhole
+  roles:
+  - mail-bot

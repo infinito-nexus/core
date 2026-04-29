@@ -1,0 +1,36 @@
+matomo:
+  enabled: true
+  shared: true
+coturn:
+  enabled: false
+  shared: true
+  image: coturn/coturn
+  version: latest
+  min_storage: 1GB
+  user_auth_enabled: false
+  cpus: 1.0
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 256
+  network_mode: host
+  username: coturnconsumer
+  ports:
+    local:
+      http: 8064
+    public:
+      stun_turn: 3481
+      stun_turn_tls: 5351
+      relay:
+        start: 20000
+        end: 39999
+  lifecycle: beta
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

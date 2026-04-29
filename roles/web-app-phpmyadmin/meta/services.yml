@@ -1,0 +1,43 @@
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: false
+matomo:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+phpmyadmin:
+  version: latest
+  name: phpmyadmin
+  image: phpmyadmin/phpmyadmin
+  min_storage: 1GB
+  autologin: false
+  ports:
+    local:
+      oauth2: 16481
+      http: 8034
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  lifecycle: beta
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    port: '80'
+    host: application
+  allowed_groups:
+  - '{{ lookup(''rbac_group_path'', application_id=''web-app-phpmyadmin'', role=''administrator'') }}'
+css:
+  enabled: false
+  shared: true
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

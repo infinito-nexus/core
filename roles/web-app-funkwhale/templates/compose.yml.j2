@@ -54,7 +54,7 @@
       - "media:{{ FUNKWHALE_MEDIA_DIR }}:ro"
       - "static:{{ FUNKWHALE_STATIC_DIR }}:ro"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.funkwhale.ports.local.http') }}:80"
   
   typesense:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

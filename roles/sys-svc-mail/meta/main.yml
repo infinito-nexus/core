@@ -2,28 +2,24 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Central mail orchestration role for Infinito.Nexus, integrating Mailu, msmtp, and an optional local SMTP relay.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - email
-  - smtp
-  - msmtp
-  - postfix
-  - automation
-  - monitoring
-  - archlinux
-  repository: https://s.infinito.nexus/code
+    - email
+    - smtp
+    - msmtp
+    - postfix
+    - automation
+    - monitoring
+    - archlinux
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: ''
-  run_after: []
-  lifecycle: beta

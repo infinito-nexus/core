@@ -6,9 +6,9 @@
   loop_control:
     loop_var: domain
   vars:
-    http_port:                      "{{ ports.localhost.http[application_id] }}"
+    http_port:                      "{{ lookup('config', application_id, 'services.mastodon.ports.local.http') }}"
     webserver_websocket_location:   "/api/v1/streaming"
-    websocket_port:       "{{ ports.localhost.websocket[application_id] }}"
+    websocket_port:       "{{ lookup('config', application_id, 'services.mastodon.ports.local.websocket') }}"
     webserver_client_max_body_size: "80m"
     webserver_vhost_flavour:        "ws_generic"
 

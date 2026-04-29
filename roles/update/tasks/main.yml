@@ -1,0 +1,21 @@
+- name: "update | dispatch to per-package-family task file"
+  block:
+    - include_tasks: "{{ _update_distro_file }}"
+      vars:
+        # Group by package-manager family, not by distro: Debian and Ubuntu
+        # both use apt, Fedora and CentOS both use dnf, so duplicating those
+        # task files would only invite drift. Split per-distro later if any
+        # of these pairs ever diverges.
+        _update_distro_file: >-
+          {{
+            {
+              'Archlinux': 'arch.yml',
+              'Debian':    'debian.yml',
+              'Ubuntu':    'debian.yml',
+              'Fedora':    'fedora.yml',
+              'CentOS':    'fedora.yml',
+            }[ansible_facts['distribution']] | default('unsupported.yml')
+          }}
+
+    - include_tasks: utils/once/flag.yml
+  when: run_once_update is not defined

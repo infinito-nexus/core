@@ -1,0 +1,27 @@
+# Matrix-deploy variant overrides for this role (requirement 005
+# verification). Variant 0 keeps the canonical Single-Site flow;
+# variant 1 flips the role into Multisite mode against three canonical
+# domains so the Multisite Playwright scenarios run against a live
+# network. The development deploy wrapper purges the WordPress entities
+# between rounds whenever the variant changes, so Single-Site state
+# cannot bleed into the Multisite run.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant 0: canonical Single-Site deploy.
+- services:
+    discourse:
+      enabled: true
+
+# variant 1: Multisite deploy across blog/shop/news subdomains.
+- server:
+    domains:
+      canonical:
+        - "blog.{{ DOMAIN_PRIMARY }}"
+        - "biberblog.{{ DOMAIN_PRIMARY }}"
+        - "biber.blog.{{ DOMAIN_PRIMARY }}"
+  services:
+    wordpress:
+      multisite:
+        enabled: true
+    discourse:
+      enabled: false

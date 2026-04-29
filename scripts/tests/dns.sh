@@ -17,6 +17,12 @@ set -a
 source "${ENV_FILE}"
 set +a
 
+# Source project defaults so INFINITO_CONTAINER auto-derives from
+# INFINITO_DISTRO (single SPOT in scripts/meta/env/defaults.sh) — callers
+# only need to set INFINITO_DISTRO.
+# shellcheck source=scripts/meta/env/defaults.sh
+source scripts/meta/env/defaults.sh
+
 # ------------------------------------------------------------
 # Required variables (fail hard if missing)
 # ------------------------------------------------------------

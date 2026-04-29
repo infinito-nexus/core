@@ -12,6 +12,7 @@ set -euo pipefail
 : "${TEST_DEPLOY_TYPE:?TEST_DEPLOY_TYPE must be set (server|workstation|universal)}"
 : "${INVENTORY_DIR:?INVENTORY_DIR must be set (e.g. /etc/inventories/local-full-server)}"
 : "${INVENTORY_FILE:?INVENTORY_FILE is not set — source scripts/meta/env/inventory.sh first}"
+: "${INVENTORY_VARS_FILE:?INVENTORY_VARS_FILE is not set — source scripts/meta/env/inventory.sh first}"
 
 # This script always generates inventories for the development compose stack.
 RUNTIME_VARS_JSON='{"RUNTIME":"dev","SYS_SERVICE_RUNNER_RETRIES":1}'
@@ -25,7 +26,6 @@ echo
 # 1) Bring up development stack (no build)
 echo ">>> Starting development compose stack (no build)"
 "${PYTHON}" -m cli.deploy.development up \
-	--distro "${INFINITO_DISTRO}" \
 	--skip-entry-init
 
 # 2) Discover apps on HOST (same as local/deploy/fresh-kept-all.sh)
@@ -73,7 +73,7 @@ echo
 echo ">>> Initializing inventory inside container"
 
 "${PYTHON}" -m cli.deploy.development exec \
-	--distro "${INFINITO_DISTRO}" -- \
+	-- \
 	bash -c "
     set -euo pipefail
     cd /opt/src/infinito
@@ -99,7 +99,7 @@ echo ">>> Initializing inventory inside container"
       --vars '${RUNTIME_VARS_JSON}' \
       --host 'localhost' \
       --ssl-disabled \
-      --vars-file inventories/dev.yml \
+      --vars-file '${INVENTORY_VARS_FILE}' \
       --include '${apps_csv}'
 
     echo '✅ Inventory initialized.'

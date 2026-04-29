@@ -1,0 +1,9 @@
+credentials:
+  setup_admin_password:
+    description: Initial admin user password for Akaunting
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$
+  app_key:
+    description: Laravel application key (base64 encoded 32-byte key, prefixed with 'base64:')
+    algorithm: base64_prefixed_32
+    validation: ^base64:[A-Za-z0-9+/=]{43,}$

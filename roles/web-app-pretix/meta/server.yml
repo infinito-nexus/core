@@ -1,0 +1,10 @@
+csp:
+  whitelist: {}
+  flags: {}
+domains:
+  canonical:
+  - ticket.shop.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.103.144/28

@@ -1,9 +1,0 @@
-- block:
-    - name: apt update all packages to their latest version
-      apt:
-        update_cache: yes
-        upgrade: dist
-        force_apt_get: yes
-
-    - include_tasks: utils/once/flag.yml
-  when: run_once_update_apt is not defined

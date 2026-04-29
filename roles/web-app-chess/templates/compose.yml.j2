@@ -4,7 +4,7 @@
     container_name: "{{ CHESS_CONTAINER }}"
     hostname: "{{ CHESS_HOSTNAME }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.chess.ports.local.http') }}:{{ container_port }}"
     volumes:
       - 'data:{{ CHESS_APP_DATA_DIR }}'
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}

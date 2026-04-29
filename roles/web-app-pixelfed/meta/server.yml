@@ -1,0 +1,20 @@
+csp:
+  flags:
+    script-src-attr:
+      unsafe-eval: true
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist:
+    frame-ancestors:
+    - '*'
+domains:
+  canonical:
+  - picture.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.102.128/28

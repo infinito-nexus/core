@@ -7,11 +7,9 @@ from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.applications.config import get
-from utils.runtime_data import (
-    _render_with_templar,
-    get_merged_applications,
-    get_merged_users,
-)
+from utils.cache.applications import get_merged_applications
+from utils.cache.base import _render_with_templar
+from utils.cache.users import get_merged_users
 
 
 class LookupModule(LookupBase):

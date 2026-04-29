@@ -1,0 +1,55 @@
+funkwhale:
+  image: funkwhale/front
+  version: '2'
+  min_storage: 20GB
+  ports:
+    local:
+      http: 8012
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+api:
+  image: funkwhale/api
+  version: '2'
+typesense:
+  image: typesense/typesense
+  version: '30.2'
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+postgres:
+  enabled: true
+  shared: true
+oauth2:
+  origin:
+    host: front
+    port: '80'
+  acl:
+    blacklist:
+    - /login
+  enabled: false
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

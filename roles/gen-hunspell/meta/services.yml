@@ -1,0 +1,4 @@
+hunspell:
+  languages:
+  - '{{ HOST_LL_CC | lower }}'
+  lifecycle: pre-alpha

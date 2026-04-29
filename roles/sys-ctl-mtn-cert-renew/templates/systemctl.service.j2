@@ -5,4 +5,4 @@ OnFailure={{ SYS_SERVICE_ON_FAILURE_COMPOSE }}
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/certbot renew --quiet --agree-tos
-ExecStartPost=container restart {{ lookup('config','svc-prx-openresty', 'compose.services.openresty.name') }}
+ExecStartPost=container restart {{ lookup('config','svc-prx-openresty', 'services.openresty.name') }}

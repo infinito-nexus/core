@@ -9,23 +9,23 @@ webserver_client_max_body_size:       "{{ lookup('config', application_id, 'serv
 # Matrix
 
 ## General
-MATRIX_SERVER_NAME:                   "{{ lookup('config', application_id, 'server_name') }}"
+MATRIX_SERVER_NAME:                   "{{ lookup('config', application_id, 'services.matrix.server_name') }}"
 MATRIX_ADMINISTRATOR_USERNAME:        "{{ lookup('config', application_id, 'users.administrator.username') }}"
 MATRIX_WELL_KNOWN_DIRECTORY:          "{{ [ lookup('nginx','directories.data.well_known'), 'matrix' ] | path_join }}"
 MATRIX_WELL_KNOWN_FILE:               "{{ MATRIX_WELL_KNOWN_DIRECTORY }}server"
 MATRIX_REGISTRATION_FILE_FOLDER:      "/data/"
 MATRIX_REGISTRATION_SHARED_SECRET:    "{{ lookup('config', application_id, 'credentials.registration_shared_secret') }}"
-MATRIX_FEDERATION_PORT:               "{{ ports.public.federation['web-app-matrix_synapse'] }}"
-MATRIX_OIDC_ENABLED:                  "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+MATRIX_FEDERATION_PORT:               "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.public.federation') }}"
+MATRIX_OIDC_ENABLED:                  "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 MATRIX_BASE_URL:                      "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}"
 
 ## Synapse
-MATRIX_SYNAPSE_VERSION:               "{{ lookup('config', application_id, 'compose.services.synapse.version') }}"
-MATRIX_SYNAPSE_IMAGE:                 "{{ lookup('config', application_id, 'compose.services.synapse.image') }}"
-MATRIX_SYNAPSE_NAME:                  "{{ lookup('config', application_id, 'compose.services.synapse.name') }}"
-MATRIX_SYNAPSE_VOLUME:                "{{ lookup('config', application_id, 'compose.volumes.synapse') }}"
+MATRIX_SYNAPSE_VERSION:               "{{ lookup('config', application_id, 'services.synapse.version') }}"
+MATRIX_SYNAPSE_IMAGE:                 "{{ lookup('config', application_id, 'services.synapse.image') }}"
+MATRIX_SYNAPSE_NAME:                  "{{ lookup('config', application_id, 'services.synapse.name') }}"
+MATRIX_SYNAPSE_VOLUME:                "{{ lookup('config', application_id, 'volumes.synapse') }}"
 MATRIX_SYNAPSE_DOMAIN:                "{{ lookup('domains', application_id).synapse }}"
-MATRIX_SYNAPSE_PORT:                  "{{ ports.localhost.http['web-app-matrix_synapse'] }}"
+MATRIX_SYNAPSE_PORT:                  "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
 MATRIX_SYNAPSE_CONFIG_PATH_HOST:      "{{ [ lookup('container', application_id, 'directories.config'), 'homeserver.yaml' ] | path_join }}"
 MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER: "/data/homeserver.yaml"
 MATRIX_SYNAPSE_LOG_PATH_HOST:         "{{ [ lookup('container', application_id, 'directories.config'), MATRIX_SYNAPSE_DOMAIN ~'.log.config' ] | path_join }}"
@@ -34,13 +34,13 @@ MATRIX_SYNAPSE_URL:                   "{{ lookup('tls', application_id, 'protoco
 MATRIX_SYNAPSE_LISTEN_FLAGS:          "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
 ## Element
-MATRIX_ELEMENT_VERSION:               "{{ lookup('config', application_id, 'compose.services.element.version') }}"
-MATRIX_ELEMENT_IMAGE:                 "{{ lookup('config', application_id, 'compose.services.element.image') }}"
-MATRIX_ELEMENT_NAME:                  "{{ lookup('config', application_id, 'compose.services.element.name') }}"
+MATRIX_ELEMENT_VERSION:               "{{ lookup('config', application_id, 'services.element.version') }}"
+MATRIX_ELEMENT_IMAGE:                 "{{ lookup('config', application_id, 'services.element.image') }}"
+MATRIX_ELEMENT_NAME:                  "{{ lookup('config', application_id, 'services.element.name') }}"
 MATRIX_ELEMENT_DOMAIN:                "{{ lookup('domains', application_id).element }}"
-MATRIX_ELEMENT_PORT:                  "{{ ports.localhost.http['web-app-matrix_element'] }}"
+MATRIX_ELEMENT_PORT:                  "{{ lookup('config', 'web-app-matrix', 'services.element.ports.local.http') }}"
 MATRIX_ELEMENT_CONFIG_PATH_HOST:      "{{ [ lookup('container', application_id, 'directories.config'), 'element-config.json' ] | path_join }}"
 
 ## ChatGPT Bot
-MATRIX_CHATGPT_BOT_VERSION:           "{{ lookup('config', application_id, 'compose.services.matrix-chatgpt-bot.version') }}"
-MATRIX_CHATGPT_BOT_IMAGE:             "{{ lookup('config', application_id, 'compose.services.matrix-chatgpt-bot.image') }}"
+MATRIX_CHATGPT_BOT_VERSION:           "{{ lookup('config', application_id, 'services.matrix-chatgpt-bot.version') }}"
+MATRIX_CHATGPT_BOT_IMAGE:             "{{ lookup('config', application_id, 'services.matrix-chatgpt-bot.image') }}"

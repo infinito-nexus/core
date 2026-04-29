@@ -1,26 +1,18 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Pretix is an open-source ticketing system for events, enabling online sales, registration management, custom
-    ticket layouts, and secure payment integration. It is self-hosted to ensure full control and data protection.
+  description: Pretix is an open-source ticketing system for events, enabling online sales, registration management, custom ticket layouts, and secure payment integration. It is self-hosted to ensure full control and data protection.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - pretix
-  - tickets
-  - sales
-  - shop
-  repository: https://s.infinito.nexus/code
+    - pretix
+    - tickets
+    - sales
+    - shop
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/
-  logo:
-    class: fas fa-ticket
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
-  lifecycle: beta
 dependencies: []

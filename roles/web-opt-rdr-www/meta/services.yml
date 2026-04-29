@@ -1,0 +1,3 @@
+rdr-www:
+  prefered_flavor: origin
+  lifecycle: beta

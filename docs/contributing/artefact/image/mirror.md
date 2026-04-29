@@ -45,11 +45,10 @@ Example: `ghcr.io/kevinveenbirkenbach/infinito-nexus-core/mirror/docker.io/nextc
 ```yaml
 applications:
   <role>:
-    compose:
-      services:
-        <service>:
-          image: ghcr.io/{namespace}/{repository}/mirror/{registry}/{name}
-          version: <tag>
+    services:
+      <service>:
+        image: ghcr.io/{namespace}/{repository}/mirror/{registry}/{name}
+        version: <tag>
 images:
   <role>:
     <service>:
@@ -59,7 +58,7 @@ images:
 
 The split matches the source declaration:
 
-- `config/main.yml` image refs stay on the existing `applications.*.compose.services.*` path
+- `meta/services.yml` image refs stay on the existing `applications.*.services.*` path
 - `defaults/main.yml` image refs are emitted under `images.*.*`
 
 This file is consumed by the inventory creator to substitute mirror URLs into host variables.
@@ -78,7 +77,7 @@ The mirror workflow runs as stage 8 of the CI pipeline. See [ci.md](../git/pipel
 
 ### CI Flow 📋
 
-1. Image discovery scans role declarations in `config/main.yml` and `defaults/main.yml`.
+1. Image discovery scans role declarations in `meta/services.yml` and `defaults/main.yml`.
 2. [images-mirror-missing.yml](../../../../.github/workflows/images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync.
 3. Fork PRs cannot publish packages themselves, so their untrusted `pull_request` runs wait in `scripts/meta/wait/mirrors.sh` until a trusted producer run has published the required refs.
 4. Inventory generation writes the resulting mirror refs from `mirrors.yml` back into host vars.
@@ -86,7 +85,7 @@ The mirror workflow runs as stage 8 of the CI pipeline. See [ci.md](../git/pipel
 
 The mirrors file is generated into the inventory directory. The inventory creator applies mirror image overrides to host variables via `cli/create/inventory/mirror_overrides.py`, which reads both top-level keys from `mirrors.yml` and writes into host vars as follows:
 
-- `applications.{role}.compose.services.{service}.image`: Populated from `mirrors.yml.applications` and still subject to `mirror_policy`.
+- `applications.{role}.services.{service}.image`: Populated from `mirrors.yml.applications` and still subject to `mirror_policy`.
 - `images_overrides.{role}.{service}.image`: Populated from `mirrors.yml.images` and consumed by `lookup('image', ...)`.
 
 ### Mirror Policy 📋

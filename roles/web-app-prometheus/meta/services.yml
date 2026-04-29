@@ -1,0 +1,75 @@
+oidc:
+  enabled: false
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    host: application
+    port: '9090'
+  allowed_groups:
+  - '{{ lookup(''rbac_group_path'', application_id=''web-app-prometheus'', role=''administrator'') }}'
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+css:
+  enabled: true
+  shared: true
+prometheus:
+  image: prom/prometheus
+  version: v3.11.3
+  name: prometheus
+  cpus: '0.5'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+  alerting:
+    telegram:
+      chat_id: 0
+  ports:
+    local:
+      oauth2: 16492
+      http: 8066
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta
+alertmanager:
+  image: prom/alertmanager
+  version: v0.32.0
+  name: prometheus-alertmanager
+  cpus: '0.25'
+  mem_reservation: 64m
+  mem_limit: 128m
+  pids_limit: 64
+blackbox-exporter:
+  image: prom/blackbox-exporter
+  version: v0.28.0
+  name: prometheus-blackbox
+  cpus: '0.1'
+  mem_reservation: 32m
+  mem_limit: 64m
+  pids_limit: 64
+cadvisor:
+  image: gcr.io/cadvisor/cadvisor
+  version: v0.52.1
+  name: prometheus-cadvisor
+  cpus: '0.25'
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 64
+node-exporter:
+  image: prom/node-exporter
+  version: v1.11.1
+  name: prometheus-node-exporter
+  cpus: '0.1'
+  mem_reservation: 32m
+  mem_limit: 128m
+  pids_limit: 64

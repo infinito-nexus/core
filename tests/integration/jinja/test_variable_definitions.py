@@ -5,7 +5,7 @@ import re
 from glob import glob
 import sys
 
-from tests.utils.fs import iter_project_files_with_content
+from utils.cache.files import iter_project_files_with_content
 
 import logging
 

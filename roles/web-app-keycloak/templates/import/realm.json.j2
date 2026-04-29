@@ -1443,7 +1443,7 @@
     "microprofile-jwt",
     "organization",
     "{{ KEYCLOAK_RBAC_GROUP_CLAIM }}",
-    "{{ lookup('config', application_id, 'scopes.nextcloud') }}"
+    "{{ lookup('config', application_id, 'services.keycloak.scopes.nextcloud') }}"
   ],
   "browserSecurityHeaders": {
     "contentSecurityPolicyReportOnly": "",

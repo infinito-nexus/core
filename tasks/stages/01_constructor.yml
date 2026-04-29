@@ -140,7 +140,7 @@
 
 - name: update device
   ansible.builtin.include_role:
-    name: update-compose
+    name: update
 
 - name: "Ensure correct timezone is '{{ HOST_TIMEZONE }}'"
   community.general.timezone:

@@ -5,7 +5,7 @@
     image: "{{ FIDER_IMAGE }}:{{ FIDER_VERSION }}"
     container_name: "{{ FIDER_CONTAINER }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ FIDER_CONTAINER_PORT }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.fider.ports.local.http') }}:{{ FIDER_CONTAINER_PORT }}"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:{{ FIDER_CONTAINER_PORT }}/_health"]
       interval: 30s

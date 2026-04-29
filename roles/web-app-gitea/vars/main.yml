@@ -2,7 +2,7 @@
 application_id:                 "web-app-gitea"
 
 # Docker
-container_port:                 "{{ lookup('config', application_id, 'compose.services.gitea.port') }}"
+container_port:                 "{{ lookup('config', application_id, 'services.gitea.ports.inter') }}"
 
 # Gitea
 GITEA_LDAP_AUTH_ARGS:
@@ -21,17 +21,17 @@ GITEA_LDAP_AUTH_ARGS:
   - '--email-attribute "{{ LDAP.USER.ATTRIBUTES.MAIL }}"'
   - '--public-ssh-key-attribute "{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}"'
   - '--synchronize-users'
-GITEA_VERSION:        "{{ lookup('config', application_id, 'compose.services.gitea.version') }}"
-GITEA_IMAGE:          "{{ lookup('config', application_id, 'compose.services.gitea.image') }}"
-GITEA_CONTAINER:      "{{ lookup('config', application_id, 'compose.services.gitea.name') }}"
-GITEA_VOLUME:         "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+GITEA_VERSION:        "{{ lookup('config', application_id, 'services.gitea.version') }}"
+GITEA_IMAGE:          "{{ lookup('config', application_id, 'services.gitea.image') }}"
+GITEA_CONTAINER:      "{{ lookup('config', application_id, 'services.gitea.name') }}"
+GITEA_VOLUME:         "{{ lookup('config', application_id, 'volumes.data') }}"
 GITEA_USER:           "git"
 GITEA_CONFIG:         "/data/gitea/conf/app.ini"
 
 ## Redis
-GITEA_REDIS_ENABLED:  "{{ lookup('config', application_id, 'compose.services.redis.enabled') }}"
+GITEA_REDIS_ENABLED:  "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 GITEA_REDIS_ADDRESS:  "redis:6379"
 
-GITEA_OIDC_ENABLED:   "{{ lookup('config', application_id, 'compose.services.oidc.shared') | bool }}"
-GITEA_LDAP_ENABLED:   "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
+GITEA_OIDC_ENABLED:   "{{ lookup('config', application_id, 'services.oidc.shared') | bool }}"
+GITEA_LDAP_ENABLED:   "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 GITEA_IAM_ENABLED:    "{{ (GITEA_OIDC_ENABLED | bool) or ( GITEA_LDAP_ENABLED | bool ) }}"

@@ -1,9 +1,0 @@
-credentials:
-  administrator_password:
-    description: "Initial password for the EspoCRM administrator user"
-    algorithm: "sha256"
-    validation: "^[a-f0-9]{64}$"
-  database_password:
-    description: "Password for the EspoCRM database user"
-    algorithm: "bcrypt"
-    validation: "^\\$2[aby]\\$.{56}$"

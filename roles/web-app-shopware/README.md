@@ -21,7 +21,7 @@ With automated setup, update handling, variable management, and plugin-based aut
 
 ## Further Resources
 
-* [Shopware Official Website](https://www.shopware.com/en/)
+* [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url — redirect loop on probe, site is alive when visited interactively -->
 * [Shopware Developer Documentation](https://developer.shopware.com/)
 * [Shopware Store (Plugins)](https://store.shopware.com/en/)
 

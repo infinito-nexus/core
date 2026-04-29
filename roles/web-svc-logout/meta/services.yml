@@ -1,0 +1,30 @@
+logout:
+  enabled: false
+  shared: true
+  image: ghcr.io/kevinveenbirkenbach/universal-logout
+  version: latest
+  name: logout
+  min_storage: 1GB
+  cpus: 0.2
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 128
+  ports:
+    local:
+      http: 8048
+  lifecycle: beta
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+css:
+  enabled: true
+  shared: true
+javascript:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

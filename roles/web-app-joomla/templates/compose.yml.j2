@@ -11,7 +11,7 @@
       - data:/var/www/html
       - {{ JOOMLA_UPLOAD_CONFIG }}:/usr/local/etc/php/conf.d/uploads.ini:ro
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.joomla.ports.local.http') }}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}

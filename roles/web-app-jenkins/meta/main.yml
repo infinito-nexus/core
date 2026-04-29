@@ -2,21 +2,15 @@ galaxy_info:
   author: Kevin Veen-Birchenbach
   description: Stub for a Jenkins CI server deployment via Docker Compose—role is currently deprecated and pending reimplementation.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: 'Kevin Veen-Birchenbach
-    Consulting & Coaching Solutions
-    https://www.veen.world'
+  company: Kevin Veen-Birchenbach Consulting & Coaching Solutions https://www.veen.world
   galaxy_tags:
-  - jenkins
-  - ci
-  - stub
-  repository: https://s.infinito.nexus/code
+    - jenkins
+    - ci
+    - stub
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/tree/main/roles/web-app-jenkins
   min_ansible_version: '2.9'
   platforms:
-  - name: Any
-    versions:
-    - all
-  lifecycle: planned
+    - name: Any
+      versions:
+        - all
 dependencies: []

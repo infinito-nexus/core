@@ -1,0 +1,50 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+  cpus: '0.5'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 512
+postgres:
+  enabled: true
+  shared: true
+peertube:
+  name: peertube
+  version: v8.1.5
+  image: chocobozzz/peertube
+  min_storage: 30GB
+  backup:
+    no_stop_required: true
+  cpus: 4
+  mem_reservation: 4g
+  mem_limit: 8g
+  pids_limit: 2048
+  ports:
+    local:
+      http: 8011
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

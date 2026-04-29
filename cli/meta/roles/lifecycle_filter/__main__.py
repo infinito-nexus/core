@@ -3,9 +3,9 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Any, Iterable, Optional, Set, Tuple
+from typing import Iterable, Optional, Set, Tuple
 
-import yaml
+from utils.roles.meta_lookup import get_role_lifecycle
 
 
 def _repo_root() -> Path:
@@ -20,57 +20,13 @@ def _repo_root() -> Path:
     raise RuntimeError("Failed to locate repository root (missing 'cli/' directory).")
 
 
-def _extract_lifecycle(meta: dict[str, Any]) -> str:
-    """
-    Supports both:
-      galaxy_info:
-        lifecycle: stable
-
-    and an optional future form:
-      galaxy_info:
-        lifecycle:
-          stage: stable
-    """
-    gi = meta.get("galaxy_info") or {}
-    lifecycle = gi.get("lifecycle")
-
-    if isinstance(lifecycle, str):
-        return lifecycle.strip().lower()
-
-    if isinstance(lifecycle, dict):
-        stage = lifecycle.get("stage")
-        if isinstance(stage, str):
-            return stage.strip().lower()
-
-    return ""
-
-
-def _iter_role_meta_files(roles_dir: Path) -> Iterable[Tuple[str, Path]]:
-    """
-    Yields (role_name, meta_file_path) for roles that have a meta/main.yml.
-    """
+def _iter_role_dirs(roles_dir: Path) -> Iterable[Tuple[str, Path]]:
+    """Yield ``(role_name, role_dir)`` for every directory under ``roles_dir``."""
     if not roles_dir.exists() or not roles_dir.is_dir():
         return
 
     for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir()):
-        meta_file = role_dir / "meta" / "main.yml"
-        if meta_file.is_file():
-            yield role_dir.name, meta_file
-
-
-def _load_yaml(path: Path) -> dict[str, Any]:
-    try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except Exception as exc:  # noqa: BLE001
-        raise RuntimeError(f"Failed to read/parse YAML: {path}: {exc}") from exc
-
-    if data is None:
-        return {}
-    if not isinstance(data, dict):
-        raise RuntimeError(
-            f"Expected a YAML mapping in {path}, got {type(data).__name__}"
-        )
-    return data
+        yield role_dir.name, role_dir
 
 
 def filter_roles(
@@ -82,12 +38,16 @@ def filter_roles(
 ) -> list[str]:
     matched: list[str] = []
 
-    for role_name, meta_file in _iter_role_meta_files(roles_dir):
+    for role_name, role_dir in _iter_role_dirs(roles_dir):
         if selection is not None and role_name not in selection:
             continue
 
-        meta = _load_yaml(meta_file)
-        lifecycle = _extract_lifecycle(meta)
+        try:
+            lifecycle_value = get_role_lifecycle(role_dir, role_name=role_name)
+        except Exception:
+            # Best-effort: never fail discovery on a single broken role.
+            lifecycle_value = None
+        lifecycle = (lifecycle_value or "").strip().lower()
 
         if mode == "whitelist":
             if lifecycle in statuses:

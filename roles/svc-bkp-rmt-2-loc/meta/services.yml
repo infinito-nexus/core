@@ -1,0 +1,4 @@
+rmt-2-loc:
+  min_storage: 0GB
+  backup_providers: []
+  lifecycle: beta

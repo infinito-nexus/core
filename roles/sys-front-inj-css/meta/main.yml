@@ -2,23 +2,19 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Global CSS injection for Nginx-based apps using dynamic colorschemes.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - nginx
-  - css
-  - colors
-  - bootstrap
-  - theming
-  - dynamic
-  - frontend
-  - global
-  repository: https://s.infinito.nexus/code
+    - nginx
+    - css
+    - colors
+    - bootstrap
+    - theming
+    - dynamic
+    - frontend
+    - global
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  lifecycle: beta

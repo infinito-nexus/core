@@ -6,7 +6,7 @@ import yaml
 import unittest
 from typing import Dict, Set, List, Optional
 
-from tests.utils.fs import read_text as _read_text_cached
+from utils.cache.files import read_text as _read_text_cached
 
 # ---------------- Utilities ----------------
 

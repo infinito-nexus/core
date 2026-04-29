@@ -210,9 +210,10 @@ class LookupModule(LookupBase):
             return {}
         if not isinstance(entry, dict):
             return {}
-        compose = entry.get("compose") or {}
-        services = compose.get("services") or {}
-        email = services.get("email") or {}
+        # Per req-008 the materialised payload exposes services under the
+        # bare ``services`` key (no ``compose.services`` envelope).
+        services = entry.get("services") or {}
+        email = services.get("email") or {} if isinstance(services, dict) else {}
         if not isinstance(email, dict):
             return {}
         return email

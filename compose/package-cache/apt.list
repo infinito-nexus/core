@@ -1,0 +1,9 @@
+# Routes apt-get traffic from the infinito runner through the
+# package-cache (Sonatype Nexus 3 OSS) pull-through proxy. Two repo
+# entries to cover both Debian (`apt-debian`) and Ubuntu (`apt-ubuntu`)
+# upstreams; the runner reads only the entry that matches its distro
+# at runtime via apt's standard suite-resolution. The bootstrap helper
+# pins debian -> bookworm and ubuntu -> jammy; older runners still
+# resolve fine because Nexus serves the entire upstream tree.
+deb [trusted=yes] http://package-cache:8081/repository/apt-debian bookworm main
+deb [trusted=yes] http://package-cache:8081/repository/apt-ubuntu jammy main

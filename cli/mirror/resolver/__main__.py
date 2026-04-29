@@ -2,7 +2,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-import yaml
+from utils.cache.yaml import dump_yaml_str
 
 from utils.docker.image.discovery import iter_role_images
 from cli.mirror.providers import GHCRProvider
@@ -31,8 +31,7 @@ def main() -> int:
             continue
 
         app = applications.setdefault(img.role, {})
-        docker = app.setdefault("compose", {})
-        services = docker.setdefault("services", {})
+        services = app.setdefault("services", {})
         services[str(img.service)] = {
             "image": provider.image_base(img),
             "version": img.version,
@@ -43,7 +42,7 @@ def main() -> int:
     if args.json:
         print(json.dumps(result, indent=2))
     else:
-        print(yaml.safe_dump(result, sort_keys=False))
+        print(dump_yaml_str(result))
 
     return 0
 

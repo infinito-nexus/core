@@ -2,25 +2,24 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Automates the backup of Docker volumes to a local folder
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - backup
-  - docker
-  - local
-  - systemd
-  - automation
-  repository: https://s.infinito.nexus/code
+    - backup
+    - docker
+    - local
+    - systemd
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta
 dependencies:
-- sys-ctl-cln-faild-bkps
+  - sys-ctl-cln-faild-bkps

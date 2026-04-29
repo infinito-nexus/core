@@ -1,6 +1,0 @@
-# This file was created during refactoring to pass integration tests 
-credentials:
-  oauth2_proxy_cookie_secret:
-    description: "Cookie secret for OAuth2 Proxy (hex string, 32 characters, generated via `openssl rand -hex 16`)"
-    algorithm:  "plain"
-    validation: "^.*$"

@@ -144,16 +144,24 @@ class TestDockerCardsLookup(unittest.TestCase):
         with open(readme_path, "w", encoding="utf-8") as f:
             f.write("# Portfolio Application\nThis is a sample portfolio role.")
 
-        # Create a sample meta/main.yml in the meta folder.
+        # Create a sample meta/main.yml in the meta folder. Per req-011
+        # the icon class lives in meta/info.yml (file-root convention),
+        # not under galaxy_info.
         meta_main_path = os.path.join(self.role_dir, "meta", "main.yml")
         meta_yaml = """
 galaxy_info:
   description: "A role for deploying a portfolio application."
-  logo:
-    class: fa-solid fa-briefcase
 """
         with open(meta_main_path, "w", encoding="utf-8") as f:
             f.write(meta_yaml)
+
+        meta_info_path = os.path.join(self.role_dir, "meta", "info.yml")
+        info_yaml = """
+logo:
+  class: fa-solid fa-briefcase
+"""
+        with open(meta_info_path, "w", encoding="utf-8") as f:
+            f.write(info_yaml)
 
         # Patch tls lookup loader with a deterministic stub
         self._orig_lookup_get = docker_cards_module.lookup_loader.get
@@ -189,7 +197,8 @@ galaxy_info:
         return {
             "domains": {"portfolio": "myportfolio.com"},
             "applications": {
-                "portfolio": {"compose": {"services": {"dashboard": {"enabled": True}}}}
+                # Per req-008 the materialised payload moved to services.<X>.
+                "portfolio": {"services": {"dashboard": {"enabled": True}}}
             },
             "group_names": ["portfolio"],
             "TLS_ENABLED": True,

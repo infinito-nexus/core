@@ -6,7 +6,7 @@
     image: {{ NAVIGATOR_IMAGE }}
     pull_policy: never
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:5000"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.navigator.ports.local.http') }}:5000"
     volumes:
       - {{ path_infinito_presentation_output.stdout }}:/app
       - {{ path_infinito_output.stdout }}:/source

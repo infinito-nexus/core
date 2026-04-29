@@ -1,26 +1,21 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'The Meta Infinite Graph offers you an interactive, visual map of all Infinito.Nexus roles and their dependencies—making
-    it easy to explore, understand, and navigate the complete structure of your infrastructure.
+  description: 'The Meta Infinite Graph offers you an interactive, visual map of all Infinito.Nexus roles and their dependencies—making it easy to explore, understand, and navigate the complete structure of your infrastructure.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - infinito
-  - meta
-  - visualization
-  - dependencies
-  - graph
-  - mig
-  repository: https://github.com/kevinveenbirkenbach/meta-infinite-graph
+    - infinito
+    - meta
+    - visualization
+    - dependencies
+    - graph
+    - mig
   issue_tracker_url: https://github.com/kevinveenbirkenbach/meta-infinite-graph/issues
-  documentation: https://github.com/kevinveenbirkenbach/meta-infinite-graph/
-  logo:
-    class: fa-solid fa-brain
-  run_after: []
-  lifecycle: alpha

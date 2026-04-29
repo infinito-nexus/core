@@ -4,15 +4,23 @@
   The logic checks for a temporary file (/tmp/email_sent) to determine
   if the email has already been sent. If the file exists, the email
   is skipped, but the health check continues by verifying the HTTP service.
-  Additional it is also checked if the host is reachable
+  Additional it is also checked if the host is reachable.
+
+  When the role's `services.email.enabled` flag resolves to false (the
+  operator opted out of the email provider, or the SMTP host is missing
+  for any other reason), the msmtp branch is suppressed entirely so the
+  container does not flap into `unhealthy` because of an unrelated SMTP
+  outage. The HTTP probe stays the canonical liveness signal.
 #}
     healthcheck:
       test:
         - CMD-SHELL
         - >
+          {% if (lookup('config', application_id, 'services.email.enabled', false) | bool) -%}
           if [ ! -f /tmp/email_sent ]; then
             echo 'Subject: testmessage from {{ lookup("domain",application_id) }}\n\nSUCCESSFULL' | msmtp -t {{ lookup('users', 'blackhole').email }} && touch /tmp/email_sent;
           fi &&
+          {% endif -%}
           curl -f http://localhost:80/ || exit 1
       interval: 1m
       timeout: 20s

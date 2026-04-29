@@ -1,0 +1,134 @@
+---
+# Requirement 005 LDAP cleanup: remove stale early-005 entries that
+# earlier iterations introduced under ou=roles but that the final 005
+# layout no longer emits.
+#
+# The final 005 layout keeps every group entry as a direct child of
+# ou=roles,<LDAP_DN_BASE>, using groupOfNames with member references:
+#   cn=<application_id>,ou=roles,...                              (app container)
+#   cn=<application_id>-<role>,ou=roles,...                       (non-tenant / global role)
+#   cn=<application_id>-<tenant>,ou=roles,...                     (tenant container)
+#   cn=<application_id>-<tenant>-<role>,ou=roles,...              (per-tenant role)
+#
+# Stale shapes to remove on upgrade:
+#   * ou=<application_id>,ou=roles,...                            (early-005 organizationalUnit container + its children)
+#   * cn=<X>,cn=<Y>,ou=roles,...                                  (early-005 groupOfNames nested via DN)
+#
+# The 004 flat `cn=<application_id>-<role_name>,ou=roles,...` pattern
+# is structurally identical to the final 005 role-group shape (same DN
+# depth, same objectClass, same member=uid=... convention), so the
+# ldifs_creation pass updates them in place and this migration does
+# NOT need to delete them.
+#
+# The task is idempotent: on a fresh deploy it finds zero stale entries.
+# After a successful rewrite it triggers `kcadm.sh logout-all` so stale
+# access tokens do not keep pre-005 group paths alive until natural
+# expiry.
+#
+# See docs/requirements/005-wordpress-multisite-rbac.md.
+
+- name: "Migration 005: purge stale pre-005 nested RBAC entries"
+  ansible.builtin.shell: |
+    set -o pipefail
+    ROLES_BASE="{{ LDAP.DN.OU.ROLES }}"
+
+    # Any direct child of ou=roles that is an organizationalUnit is an
+    # early-005 app OU container; everything under it must go too.
+    STALE_OUS=$(container exec {{ OPENLDAP_CONTAINER }} ldapsearch -LLL -x \
+      -H ldap://127.0.0.1:389 \
+      -D "{{ OPENLDAP_BIND_DN }}" \
+      -w "{{ OPENLDAP_BIND_PW }}" \
+      -b "${ROLES_BASE}" \
+      -s one \
+      "(objectClass=organizationalUnit)" \
+      dn 2>/dev/null | awk '/^dn: /{sub(/^dn: /,""); print}')
+
+    REMOVED=0
+    while IFS= read -r app_ou; do
+      [[ -z "${app_ou}" ]] && continue
+      # Delete children first (longest DN first so leaves go before parents).
+      CHILDREN=$(container exec {{ OPENLDAP_CONTAINER }} ldapsearch -LLL -x \
+        -H ldap://127.0.0.1:389 \
+        -D "{{ OPENLDAP_BIND_DN }}" \
+        -w "{{ OPENLDAP_BIND_PW }}" \
+        -b "${app_ou}" \
+        -s sub \
+        "(objectClass=*)" \
+        dn 2>/dev/null | awk '/^dn: /{sub(/^dn: /,""); print}' | grep -v "^${app_ou}\$" || true)
+      echo "${CHILDREN}" | awk '{print length, $0}' | sort -k1,1nr | awk '{$1=""; sub(/^ /,""); print}' | while IFS= read -r child; do
+        [[ -z "${child}" ]] && continue
+        container exec {{ OPENLDAP_CONTAINER }} ldapdelete -x \
+          -H ldap://127.0.0.1:389 \
+          -D "{{ OPENLDAP_BIND_DN }}" \
+          -w "{{ OPENLDAP_BIND_PW }}" \
+          "${child}" 2>/dev/null || true
+      done
+      container exec {{ OPENLDAP_CONTAINER }} ldapdelete -x \
+        -H ldap://127.0.0.1:389 \
+        -D "{{ OPENLDAP_BIND_DN }}" \
+        -w "{{ OPENLDAP_BIND_PW }}" \
+        "${app_ou}" 2>/dev/null || true
+      REMOVED=$((REMOVED+1))
+    done <<< "${STALE_OUS}"
+
+    # Any DN-nested groupOfNames with a cn=..,cn=..,ou=roles pattern is an
+    # early-005 leftover (the final layout has no DN nesting).
+    STALE_NESTED=$(container exec {{ OPENLDAP_CONTAINER }} ldapsearch -LLL -x \
+      -H ldap://127.0.0.1:389 \
+      -D "{{ OPENLDAP_BIND_DN }}" \
+      -w "{{ OPENLDAP_BIND_PW }}" \
+      -b "${ROLES_BASE}" \
+      -s sub \
+      "(objectClass=groupOfNames)" \
+      dn 2>/dev/null | awk '/^dn: /{sub(/^dn: /,""); print}' | grep -E "^cn=[^,]+,cn=" || true)
+
+    echo "${STALE_NESTED}" | awk '{print length, $0}' | sort -k1,1nr | awk '{$1=""; sub(/^ /,""); print}' | while IFS= read -r nested; do
+      [[ -z "${nested}" ]] && continue
+      container exec {{ OPENLDAP_CONTAINER }} ldapdelete -x \
+        -H ldap://127.0.0.1:389 \
+        -D "{{ OPENLDAP_BIND_DN }}" \
+        -w "{{ OPENLDAP_BIND_PW }}" \
+        "${nested}" 2>/dev/null || true
+      REMOVED=$((REMOVED+1))
+    done
+
+    if [[ "${REMOVED}" -gt 0 ]]; then
+      echo "MIGRATION_005_PURGED:${REMOVED}"
+    else
+      echo "MIGRATION_005_NO_STALE"
+    fi
+  args:
+    executable: /bin/bash
+  register: openldap_migration_005
+  changed_when: "'MIGRATION_005_PURGED' in (openldap_migration_005.stdout | default(''))"
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Migration 005: Keycloak logout-all after LDAP rewrite"
+  ansible.builtin.shell: |
+    set -o pipefail
+    KC_CONTAINER={{ lookup('applications', 'web-app-keycloak').services.keycloak.name | quote }}
+    KC_ADMIN_USER={{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') | quote }}
+    KC_ADMIN_PASS={{ lookup('config', 'web-app-keycloak', 'credentials.administrator_password') | quote }}
+    container exec "${KC_CONTAINER}" /opt/keycloak/bin/kcadm.sh config credentials \
+      --server http://localhost:8080 \
+      --realm master \
+      --user "${KC_ADMIN_USER}" \
+      --password "${KC_ADMIN_PASS}" >/dev/null 2>&1 || true
+    REALMS=$(container exec "${KC_CONTAINER}" /opt/keycloak/bin/kcadm.sh get realms \
+      --fields realm --format csv --noquotes 2>/dev/null | tail -n +2 | tr -d '\r')
+    for realm in ${REALMS}; do
+      [[ -z "${realm}" ]] && continue
+      container exec "${KC_CONTAINER}" /opt/keycloak/bin/kcadm.sh logout-all \
+        -r "${realm}" >/dev/null 2>&1 || true
+    done
+  args:
+    executable: /bin/bash
+  register: keycloak_migration_005_logout_all
+  changed_when: true
+  failed_when: false
+  when:
+    - openldap_migration_005 is defined
+    - "'MIGRATION_005_PURGED' in (openldap_migration_005.stdout | default(''))"
+    - lookup('service', 'oidc').required | default(false) | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

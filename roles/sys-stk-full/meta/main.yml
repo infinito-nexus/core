@@ -3,15 +3,16 @@ galaxy_info:
   description: 'Extends sys-stk-backend by adding an HTTP reverse proxy via sys-stk-front-proxy.
 
     '
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   galaxy_tags:
-  - docker
-  - database
-  - proxy
-  - compose
-  lifecycle: beta
+    - docker
+    - database
+    - proxy
+    - compose

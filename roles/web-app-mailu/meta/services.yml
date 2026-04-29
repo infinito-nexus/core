@@ -1,0 +1,127 @@
+oidc:
+  enabled: true
+  shared: true
+  email_by_username: true
+  enable_user_creation: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+mailu:
+  enabled: false
+  shared: true
+  provides: email
+  version: '2024.06'
+  name: mailu
+  min_storage: 20GB
+  domain: '{{ lookup(''email'').domain }}'
+  ports:
+    local:
+      http: 8007
+  run_after:
+  - web-app-matomo
+  lifecycle: beta
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+  cpus: '0.2'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+mariadb:
+  enabled: true
+  shared: true
+  cpus: '0.8'
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 512
+admin:
+  enabled: true
+  shared: false
+  cpus: '0.3'
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+imap:
+  enabled: true
+  shared: false
+  cpus: '0.5'
+  mem_reservation: 1g
+  mem_limit: 1.5g
+  pids_limit: 512
+smtp:
+  enabled: true
+  shared: false
+  cpus: '0.5'
+  mem_reservation: 1g
+  mem_limit: 1.5g
+  pids_limit: 512
+antispam:
+  enabled: true
+  shared: false
+  cpus: '0.6'
+  mem_reservation: 1g
+  mem_limit: 1.5g
+  pids_limit: 512
+antivirus:
+  enabled: true
+  shared: false
+  cpus: '0.6'
+  mem_reservation: 2g
+  mem_limit: 3g
+  pids_limit: 512
+oletools:
+  enabled: true
+  shared: false
+  cpus: '0.2'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+webdav:
+  enabled: true
+  shared: false
+  cpus: '0.2'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+fetchmail:
+  enabled: true
+  shared: false
+  cpus: '0.2'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+webmail:
+  enabled: true
+  shared: false
+  cpus: '0.3'
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+resolver:
+  enabled: true
+  shared: false
+  cpus: '0.2'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+front:
+  enabled: true
+  shared: false
+  cpus: '0.3'
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

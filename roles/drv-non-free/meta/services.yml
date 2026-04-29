@@ -1,0 +1,3 @@
+non-free:
+  min_storage: 0GB
+  lifecycle: alpha

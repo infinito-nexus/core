@@ -29,7 +29,7 @@ Use this rule when a role needs a Docker image definition.
 
 ### Image Versions 🏷️
 
-Use this rule when a role pins container image versions in `roles/web-*/config/main.yml`.
+Use this rule when a role pins container image versions in `roles/web-*/meta/services.yml`.
 
 - You MUST keep semver-like image versions current when the upstream image publishes matching newer tags.
 - You MUST use `# nocheck: docker-version` directly above a `version:` key only for intentional exceptions that should not be flagged by the external image-version check.

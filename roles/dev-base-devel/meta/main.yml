@@ -1,27 +1,22 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'This role installs a distribution-aware base development toolchain, providing core build dependencies on
-    Archlinux, Debian, Ubuntu, Fedora, and CentOS systems.
+  description: 'This role installs a distribution-aware base development toolchain, providing core build dependencies on Archlinux, Debian, Ubuntu, Fedora, and CentOS systems.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - linux
-  - development
-  - build
-  - tools
-  - compiler
-  - package-management
-  repository: https://s.infinito.nexus/code
+    - linux
+    - development
+    - build
+    - tools
+    - compiler
+    - package-management
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fas fa-tools
-  run_after: []
-  lifecycle: beta
 dependencies: []

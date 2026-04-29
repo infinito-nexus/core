@@ -1,0 +1,14 @@
+credentials:
+  administrator_password:
+    description: Password for the Keycloak administrator user (used in bootstrap and CLI access)
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$
+  recaptcha:
+    key:
+      description: Runtime credential value imported from meta/services.yml for 'key'.
+      algorithm: plain
+      default: '{{ CAPTCHA.RECAPTCHA.KEY | default('''') }}'
+    secret:
+      description: Runtime credential value imported from meta/services.yml for 'secret'.
+      algorithm: plain
+      default: '{{ CAPTCHA.RECAPTCHA.SECRET | default('''') }}'

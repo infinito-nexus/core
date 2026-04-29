@@ -1,0 +1,10 @@
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant 0: Atlassian Jira does not expose a fully automatable
+# initial-setup endpoint, so the canonical reachability probe sees
+# the setup wizard at /; assert against the 302 redirect chain
+# instead of the default 200.
+- server:
+    status_codes:
+      default: 302

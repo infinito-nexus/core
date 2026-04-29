@@ -1,28 +1,26 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Pulls backups from a remote server and stores them locally using rsync with retry logic. This role is part
-    of a comprehensive backup scheme and works in conjunction with other roles to ensure reliable backup operations.
+  description: Pulls backups from a remote server and stores them locally using rsync with retry logic. This role is part of a comprehensive backup scheme and works in conjunction with other roles to ensure reliable backup operations.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - backup
-  - remote
-  - local
-  - docker
-  - systemd
-  - automation
-  repository: https://s.infinito.nexus/code
+    - backup
+    - remote
+    - local
+    - docker
+    - systemd
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta
 dependencies:
-- sys-ctl-cln-faild-bkps
+  - sys-ctl-cln-faild-bkps

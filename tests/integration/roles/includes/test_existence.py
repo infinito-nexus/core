@@ -4,7 +4,7 @@ import glob
 import yaml
 import re
 
-from tests.utils.fs import read_text
+from utils.cache.files import read_text
 
 
 class TestIncludeImportExistence(unittest.TestCase):

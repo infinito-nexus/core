@@ -9,10 +9,10 @@
 # Helper Variables:
 # Keep in mind to mapp this variables if there is ever the possibility for the user to define them in the inventory
 LDAP_DN_BASE:                 "{{ DOMAIN_PRIMARY.split('.') | map('regex_replace', '^(.*)$', 'dc=\\1') | join(',') }}"
-_ldap_docker_network_enabled: "{{ lookup('config','svc-db-openldap', 'network.compose') }}"
+_ldap_docker_network_enabled: "{{ lookup('config','svc-db-openldap', 'services.openldap.network.compose') }}"
 _ldap_protocol:               "{{ 'ldap' if _ldap_docker_network_enabled else 'ldaps' }}"
-_ldap_server_port:            "{{ ports.localhost[_ldap_protocol]['svc-db-openldap'] }}"
-_ldap_name:                   "{{ lookup('config','svc-db-openldap', 'compose.services.openldap.name') }}"
+_ldap_server_port:            "{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.' ~ _ldap_protocol) if _ldap_docker_network_enabled else lookup('config', 'svc-db-openldap', 'services.openldap.ports.public.' ~ _ldap_protocol) }}"
+_ldap_name:                   "{{ lookup('config','svc-db-openldap', 'services.openldap.name') }}"
 _ldap_domain:                 "{{ DOMAIN_PRIMARY }}" # LDAP is jsut listening to a port not to a dedicated domain, so primary domain should be sufficient
 _ldap_user_id:                "uid"
 _ldap_filters_users_all:      "(|(objectclass=inetOrgPerson))"

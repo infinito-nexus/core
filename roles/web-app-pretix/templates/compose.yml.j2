@@ -10,7 +10,7 @@
     hostname: '{{ PRETIX_HOSTNAME}}'
     command: ["all"]
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pretix.ports.local.http') }}:{{ container_port }}"
     volumes:
       - 'data:/data'
       - 'config:/etc/pretix'

@@ -1,0 +1,9 @@
+openresty:
+  name: openresty
+  min_storage: 1GB
+  cpus: 0.5
+  mem_reservation: 1g
+  mem_limit: 2g
+  image: openresty/openresty
+  version: alpine
+  lifecycle: beta

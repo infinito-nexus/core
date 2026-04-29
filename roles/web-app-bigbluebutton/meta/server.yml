@@ -1,0 +1,14 @@
+ip6_enabled: '{{ NETWORK_IPV6_ENABLED | bool }}'
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+domains:
+  canonical:
+  - meet.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 10.7.7.0/24

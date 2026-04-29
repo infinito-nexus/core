@@ -1,25 +1,23 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures components for sending email notifications. This role is part of the sys-ctl-alm-compose
-    suite, providing automated alerts when services fail.
+  description: Installs and configures components for sending email notifications. This role is part of the sys-ctl-alm-compose suite, providing automated alerts when services fail.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - email
-  - systemd
-  - notifications
-  - automation
-  - msmtp
-  repository: https://s.infinito.nexus/code
+    - email
+    - systemd
+    - notifications
+    - automation
+    - msmtp
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta

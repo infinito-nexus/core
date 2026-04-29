@@ -6,9 +6,11 @@ This directory contains variable definition files for the `svc-db-mariadb` Ansib
 
 ## files and their purpose
 
-### 1. `config/main.yml`
+### 1. `meta/services.yml`
 
-Contains configuration values that determine which Docker image version to use and what hostname the container will be registered under.
+The role's service config (file root IS the services map keyed by `<entity_name>`,
+per [req-008](../../../docs/requirements/008-role-meta-layout.md)). For
+`svc-db-mariadb` this carries the entity-keyed image, version, and hostname:
 
 * **`version`** (string):
 

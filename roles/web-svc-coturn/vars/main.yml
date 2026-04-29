@@ -6,25 +6,25 @@ domain:                     "{{ lookup('domain',application_id) }}"
 # Coturn 
 
 ## Docker 
-COTURN_VERSION:             "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
-COTURN_IMAGE:               "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
+COTURN_VERSION:             "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+COTURN_IMAGE:               "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 COTURN_VOLUME:              "{{ entity_name }}_data"
 COTURN_CONTAINER:           "{{ entity_name }}"
 COTURN_REALM:               "{{ domain }}"
-COTURN_NETWORK_MODE:        "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.network_mode') }}"
+COTURN_NETWORK_MODE:        "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.network_mode') }}"
 
 ## Ports
-COTURN_STUN_TURN_PORT:      "{{ ports.public.stun_turn[application_id] }}"
-COTURN_STUN_TURN_PORT_TLS:  "{{ ports.public.stun_turn_tls[application_id] }}"
-COTURN_RELAY_PORT_START:    "{{ ports.public.relay_port_ranges[application_id ~ '_start'] }}"
-COTURN_RELAY_PORT_END:      "{{ ports.public.relay_port_ranges[application_id ~ '_end'  ] }}"
+COTURN_STUN_TURN_PORT:      "{{ lookup('config', application_id, 'services.coturn.ports.public.stun_turn') }}"
+COTURN_STUN_TURN_PORT_TLS:  "{{ lookup('config', application_id, 'services.coturn.ports.public.stun_turn_tls') }}"
+COTURN_RELAY_PORT_START:    "{{ lookup('config', application_id, 'services.coturn.ports.public.relay.start') }}"
+COTURN_RELAY_PORT_END:      "{{ lookup('config', application_id, 'services.coturn.ports.public.relay.end') }}"
 COTURN_RELAY_PORT_RANGE:    "{{ COTURN_RELAY_PORT_START }}-{{ COTURN_RELAY_PORT_END }}"
 
 ## Credentials 
-COTURN_USER_NAME:           "{{ lookup('config', application_id, 'username') }}"
+COTURN_USER_NAME:           "{{ lookup('config', application_id, 'services.coturn.username') }}"
 COTURN_USER_PASSWORD:       "{{ lookup('config', application_id, 'credentials.user_password') }}"
 COTURN_STATIC_AUTH_SECRET:  "{{ lookup('config', application_id, 'credentials.auth_secret') }}"
-COTURN_USER_AUTH_ENABLED:   "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.user_auth_enabled') }}"
+COTURN_USER_AUTH_ENABLED:   "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.user_auth_enabled') }}"
 
 ## TLS
 COTURN_TLS_ENABLED:         "{{ lookup('tls', application_id, 'enabled') | bool }}"

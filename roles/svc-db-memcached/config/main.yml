@@ -1,8 +1,0 @@
-compose:
-  services:
-    memcached: 
-      image:   memcached
-      version: latest
-      min_storage: "1GB"
-      backup:
-        disabled: true

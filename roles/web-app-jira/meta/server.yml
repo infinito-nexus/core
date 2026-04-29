@@ -1,0 +1,18 @@
+csp:
+  whitelist: {}
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    script-src-attr:
+      unsafe-inline: true
+      unsafe-eval: true
+domains:
+  canonical:
+  - jira.{{ DOMAIN_PRIMARY }}
+  aliases: []
+status_codes:
+  default: 405
+networks:
+  local:
+    subnet: 192.168.101.208/28

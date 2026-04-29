@@ -27,7 +27,7 @@ if [ "$force_freeing" = true ]; then
     echo "cleaning up docker (prune + anonymous volumes) via systemd service" &&
     systemctl start {{ SYS_SERVICE_CLEANUP_DOCKER }} || exit 3
 
-    nextcloud_application_container="{{ lookup('config','web-app-nextcloud', 'compose.services.nextcloud.name') }}"
+    nextcloud_application_container="{{ lookup('config','web-app-nextcloud', 'services.nextcloud.name') }}"
     if [ -n "$nextcloud_application_container" ] && [ "$(container ps -a -q -f name=$nextcloud_application_container)" ] ; then
       echo "cleaning up docker nextcloud" &&
       container exec -u www-data $nextcloud_application_container /var/www/html/occ files:cleanup || exit 4
@@ -36,7 +36,7 @@ if [ "$force_freeing" = true ]; then
     fi
 
     # Mastodon cleanup (remote media cache)
-    mastodon_application_container="{{ lookup('config','web-app-mastodon', 'compose.services.mastodon.name') }}"
+    mastodon_application_container="{{ lookup('config','web-app-mastodon', 'services.mastodon.name') }}"
     mastodon_cleanup_days="1"
 
     if [ -n "$mastodon_application_container" ] && container ps -a --format '{% raw %}{{.Names}}{% endraw %}' | grep -qw "$mastodon_application_container"; then

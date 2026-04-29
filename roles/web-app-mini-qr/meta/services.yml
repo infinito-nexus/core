@@ -1,0 +1,30 @@
+mini-qr:
+  image: ghcr.io/lyqht/mini-qr
+  version: latest
+  ports:
+    local:
+      http: 8059
+  lifecycle: beta
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: true
+  shared: true
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

@@ -7,6 +7,8 @@ containing the correct application_id. Can preview actions or overwrite mismatch
 import argparse
 import sys
 import yaml
+
+from utils.cache.yaml import dump_yaml, load_yaml_any
 from pathlib import Path
 
 # Directory containing roles; can be overridden by tests
@@ -23,11 +25,17 @@ def process_role(role_dir: Path, prefix: str, preview: bool, overwrite: bool):
     vars_dir = role_dir / "vars"
     vars_file = vars_dir / "main.yml"
     if vars_file.exists():
-        # Load existing variables
+        # Load existing variables (cached parse).
         try:
-            existing = yaml.safe_load(vars_file.read_text()) or {}
+            existing = load_yaml_any(str(vars_file), default_if_missing={}) or {}
         except yaml.YAMLError as e:
             print(f"Error parsing YAML in {vars_file}: {e}", file=sys.stderr)
+            return
+        if not isinstance(existing, dict):
+            print(
+                f"Error parsing YAML in {vars_file}: expected mapping at root",
+                file=sys.stderr,
+            )
             return
         actual_id = existing.get("application_id")
         if actual_id == expected_id:
@@ -41,10 +49,7 @@ def process_role(role_dir: Path, prefix: str, preview: bool, overwrite: bool):
                     f"[PREVIEW] Would update {vars_file}: application_id -> {expected_id}"
                 )
             else:
-                with open(vars_file, "w") as f:
-                    yaml.safe_dump(
-                        existing, f, default_flow_style=False, sort_keys=False
-                    )
+                dump_yaml(vars_file, existing)
                 print(f"Updated {vars_file}: application_id -> {expected_id}")
         else:
             print(
@@ -58,9 +63,7 @@ def process_role(role_dir: Path, prefix: str, preview: bool, overwrite: bool):
             )
         else:
             vars_dir.mkdir(parents=True, exist_ok=True)
-            content = {"application_id": expected_id}
-            with open(vars_file, "w") as f:
-                yaml.safe_dump(content, f, default_flow_style=False, sort_keys=False)
+            dump_yaml(vars_file, {"application_id": expected_id})
             print(f"Created {vars_file} with application_id: {expected_id}")
 
 

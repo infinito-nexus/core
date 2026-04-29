@@ -8,7 +8,7 @@ class TestCspScriptFamilyUnionHosts(unittest.TestCase):
         self.filter = FilterModule()
         self.apps = {
             "app1": {
-                "compose": {"services": {"matomo": {"enabled": True}}},
+                "services": {"matomo": {"enabled": True}},
                 "server": {
                     "csp": {
                         "whitelist": {

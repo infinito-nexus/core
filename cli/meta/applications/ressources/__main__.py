@@ -124,11 +124,11 @@ def collect_role_resources(
     visited.add(role_name)
 
     if role_name not in applications:
-        warnings.append(f"role '{role_name}' has no config/main.yml; skipping")
+        warnings.append(f"role '{role_name}' has no meta/services.yml; skipping")
         return
 
     config = _as_mapping(applications[role_name])
-    services = _as_mapping(_as_mapping(config.get("compose")).get("services"))
+    services = _as_mapping(config.get("services"))
     entity_name = get_entity_name(role_name)
 
     if entity_name and entity_name in services:
@@ -136,7 +136,7 @@ def collect_role_resources(
         rows.append(_row_for_service(role_name, entity_name, primary_conf))
     else:
         warnings.append(
-            f"role '{role_name}' has no compose.services.{entity_name or '<entity>'} entry"
+            f"role '{role_name}' has no services.{entity_name or '<entity>'} entry"
         )
 
     shared_dependencies: List[str] = []

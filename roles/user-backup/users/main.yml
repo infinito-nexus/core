@@ -1,5 +1,0 @@
-users:
-  backup:
-    authorized_keys: []
-    # System User, no login required
-    reserved: true

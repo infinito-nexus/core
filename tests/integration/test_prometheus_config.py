@@ -14,7 +14,7 @@ def _load_config(file_path: str) -> dict:
 class TestPrometheusServicePresence(unittest.TestCase):
     """
     All web-app-* and web-svc-* roles (except web-app-prometheus itself) must
-    declare the shared prometheus service in their compose.services section:
+    declare the shared prometheus service in their services section:
 
         prometheus:
           enabled: true
@@ -26,7 +26,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
 
     def _web_role_configs(self):
         roles_dir = Path(__file__).resolve().parent.parent.parent / "roles"
-        pattern = str(roles_dir / "*" / "config" / "main.yml")
+        pattern = str(roles_dir / "*" / "meta" / "services.yml")
         return [
             p
             for p in sorted(glob.glob(pattern))
@@ -37,7 +37,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
         ]
 
     def test_all_web_roles_have_prometheus_service(self):
-        """Every web-app-* and web-svc-* role must have compose.services.prometheus."""
+        """Every web-app-* and web-svc-* role must have services.prometheus."""
         configs = self._web_role_configs()
         self.assertTrue(configs, "No web-app-*/web-svc-* config/main.yml files found")
 
@@ -50,31 +50,31 @@ class TestPrometheusServicePresence(unittest.TestCase):
                 errors.append(f"{role_name}: YAML parse error: {exc}")
                 continue
 
-            services = (cfg.get("compose") or {}).get("services") or {}
+            services = cfg or {}
             prom = services.get("prometheus")
 
             if prom is None:
                 errors.append(
-                    f"{role_name}: compose.services.prometheus is missing. "
+                    f"{role_name}: services.prometheus is missing. "
                     f"Add:\n    prometheus:\n      enabled: true\n      shared: true"
                 )
                 continue
 
             if not isinstance(prom, dict):
                 errors.append(
-                    f"{role_name}: compose.services.prometheus must be a mapping, got {type(prom).__name__}"
+                    f"{role_name}: services.prometheus must be a mapping, got {type(prom).__name__}"
                 )
                 continue
 
             if prom.get("enabled") is not True:
                 errors.append(
-                    f"{role_name}: compose.services.prometheus.enabled must be true, "
+                    f"{role_name}: services.prometheus.enabled must be true, "
                     f"got {prom.get('enabled')!r}"
                 )
 
             if prom.get("shared") is not True:
                 errors.append(
-                    f"{role_name}: compose.services.prometheus.shared must be true, "
+                    f"{role_name}: services.prometheus.shared must be true, "
                     f"got {prom.get('shared')!r}"
                 )
 
@@ -87,12 +87,12 @@ class TestPrometheusServicePresence(unittest.TestCase):
     def test_prometheus_role_has_image_config(self):
         """web-app-prometheus must define image, version, and name for its service."""
         roles_dir = Path(__file__).resolve().parent.parent.parent / "roles"
-        config_path = roles_dir / PROMETHEUS_APP_ID / "config" / "main.yml"
+        config_path = roles_dir / PROMETHEUS_APP_ID / "meta" / "services.yml"
 
         self.assertTrue(config_path.exists(), f"Missing: {config_path}")
 
         cfg = _load_config(str(config_path))
-        svc = (cfg.get("compose") or {}).get("services") or {}
+        svc = cfg or {}
         prom = svc.get("prometheus") or {}
 
         for key in ("image", "version", "name"):
@@ -100,11 +100,11 @@ class TestPrometheusServicePresence(unittest.TestCase):
                 self.assertIn(
                     key,
                     prom,
-                    f"web-app-prometheus: compose.services.prometheus.{key} is not set",
+                    f"web-app-prometheus: services.prometheus.{key} is not set",
                 )
                 self.assertTrue(
                     prom[key],
-                    f"web-app-prometheus: compose.services.prometheus.{key} must not be empty",
+                    f"web-app-prometheus: services.prometheus.{key} must not be empty",
                 )
 
     def test_blackbox_exporter_image_is_pinned(self):
@@ -116,7 +116,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
             "prom/blackbox-exporter:latest",
             content,
             "compose.yml.j2 must not use :latest for blackbox-exporter — pin to a version "
-            "via config/main.yml (compose.services.blackbox-exporter.version)",
+            "via config/main.yml (services.blackbox-exporter.version)",
         )
         self.assertIn(
             "BLACKBOX_VERSION",
@@ -143,9 +143,9 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
 
     Two prometheus templates are conditionally included to follow SRP:
     - location.conf.j2  — log_by_lua_block for per-request metrics; on every app vhost
-                          with compose.services.prometheus.enabled = true
+                          with services.prometheus.enabled = true
     - metricz.conf   — location = /metricz scrape endpoint; ONLY on the prometheus
-                          domain (compose.services.prometheus.name is set)
+                          domain (services.prometheus.name is set)
                           Restricting /metricz to one domain prevents leaking the full
                           metrics payload from every app's public hostname.
     """
@@ -460,18 +460,16 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
             "for dynamic channel discovery (no hardcoded list)",
         )
         # Each communication-channel app self-declares
-        # compose.services.prometheus.communication.channel: true.
+        # services.prometheus.communication.channel: true.
         # Mailu is excluded — it is an email server, not a webhook channel.
         for app_id in ("web-app-mattermost", "web-app-matrix"):
             with self.subTest(app_id=app_id):
-                cfg = _load_config(str(roles_dir / app_id / "config" / "main.yml"))
-                prometheus_cfg = (
-                    cfg.get("compose", {}).get("services", {}).get("prometheus", {})
-                )
+                cfg = _load_config(str(roles_dir / app_id / "meta" / "services.yml"))
+                prometheus_cfg = cfg.get("prometheus", {})
                 self.assertTrue(
                     (prometheus_cfg.get("communication") or {}).get("channel") is True,
-                    f"{app_id}/config/main.yml must declare "
-                    f"compose.services.prometheus.communication.channel: true "
+                    f"{app_id}/meta/services.yml must declare "
+                    f"services.prometheus.communication.channel: true "
                     f"so the active_alertmanager_channels plugin discovers it",
                 )
 
@@ -639,7 +637,7 @@ class TestNativeAppMetrics(unittest.TestCase):
     Applications that provide native Prometheus metrics MUST have a scrape job
     in prometheus.yml.j2 (task AC: expose /metrics for apps that support it).
     The jobs are guarded by native_metrics.enabled in each app's own config
-    (NOT by compose.services.prometheus.enabled which is the nginx integration flag).
+    (NOT by services.prometheus.enabled which is the nginx integration flag).
     """
 
     def _prometheus_yml_path(self):
@@ -724,7 +722,7 @@ class TestNativeAppMetrics(unittest.TestCase):
     def test_native_metrics_guard_uses_native_metrics_flag(self):
         """native_metrics_apps lookup must filter by native_metrics.enabled, not the nginx integration flag.
 
-        compose.services.prometheus.enabled is the nginx monitoring integration flag —
+        services.prometheus.enabled is the nginx monitoring integration flag —
         it controls whether log_by_lua_block is added to the vhost. The lookup plugin
         must use native_metrics.enabled so only apps with an active metrics endpoint
         get a scrape job (otherwise all 70+ apps appear as DOWN targets in Prometheus).
@@ -740,7 +738,7 @@ class TestNativeAppMetrics(unittest.TestCase):
             "native_metrics.enabled",
             content,
             "native_metrics_apps lookup plugin must filter on native_metrics.enabled "
-            "from each app's own config, not on compose.services.prometheus.enabled",
+            "from each app's own config, not on services.prometheus.enabled",
         )
 
     def test_native_metrics_apps_have_enabled_flag_in_config(self):
@@ -748,23 +746,18 @@ class TestNativeAppMetrics(unittest.TestCase):
         roles_dir = Path(__file__).resolve().parent.parent.parent / "roles"
         for app_id in ("web-app-gitea", "web-app-mattermost", "web-app-matrix"):
             with self.subTest(app_id=app_id):
-                cfg = _load_config(str(roles_dir / app_id / "config" / "main.yml"))
-                native_metrics_cfg = (
-                    cfg.get("compose", {})
-                    .get("services", {})
-                    .get("prometheus", {})
-                    .get("native_metrics", {})
-                )
+                cfg = _load_config(str(roles_dir / app_id / "meta" / "services.yml"))
+                native_metrics_cfg = cfg.get("prometheus", {}).get("native_metrics", {})
                 self.assertTrue(
                     bool(native_metrics_cfg),
-                    f"{app_id}/config/main.yml must have a "
-                    f"compose.services.prometheus.native_metrics section "
+                    f"{app_id}/meta/services.yml must have a "
+                    f"services.prometheus.native_metrics section "
                     f"(guards the Prometheus scrape job; set enabled: true in inventory to activate)",
                 )
                 self.assertIn(
                     "enabled",
                     native_metrics_cfg,
-                    f"{app_id}/config/main.yml compose.services.prometheus.native_metrics "
+                    f"{app_id}/meta/services.yml services.prometheus.native_metrics "
                     f"must have an 'enabled' key",
                 )
 

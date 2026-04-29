@@ -3,7 +3,6 @@ import fnmatch
 import re
 from typing import Dict, Set, Iterable, Tuple, Optional
 
-import yaml
 import logging
 
 
@@ -103,10 +102,15 @@ class RoleDependencyResolver:
                 if f.endswith(".yml") or f.endswith(".yaml"):
                     candidates.append(os.path.join(root, f))
 
+        from utils.cache.yaml import load_yaml_any
+
         for file_path in candidates:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    docs = list(yaml.safe_load_all(f))
+                # Ansible task files are single-document. Wrap the cached
+                # parse in a list so the downstream multi-doc loop keeps
+                # the same shape.
+                doc = load_yaml_any(file_path, default_if_missing=None)
+                docs = [doc] if doc is not None else []
             except Exception:
                 inc, imp = self._tolerant_scan_file(file_path, all_roles)
                 include_roles |= inc
@@ -222,9 +226,10 @@ class RoleDependencyResolver:
         if not os.path.isfile(meta_main):
             return deps
         try:
-            with open(meta_main, "r", encoding="utf-8") as f:
-                meta = yaml.safe_load(f) or {}
-            raw_deps = meta.get("dependencies", [])
+            from utils.cache.yaml import load_yaml_any
+
+            meta = load_yaml_any(meta_main, default_if_missing={}) or {}
+            raw_deps = meta.get("dependencies", []) if isinstance(meta, dict) else []
             if isinstance(raw_deps, list):
                 for item in raw_deps:
                     if isinstance(item, str):
@@ -238,22 +243,20 @@ class RoleDependencyResolver:
         return deps
 
     def _extract_meta_run_after(self, role_path: str) -> Set[str]:
-        deps: Set[str] = set()
-        meta_main = os.path.join(role_path, "meta", "main.yml")
-        if not os.path.isfile(meta_main):
-            return deps
+        # Per req-010 `run_after` lives on the role's primary entity at
+        # `meta/services.yml.<primary_entity>.run_after`. Delegate to the
+        # canonical helper so the primary-entity derivation is in one
+        # place, and degrade gracefully if the file is absent.
+        from utils.roles.meta_lookup import get_role_run_after
+
         try:
-            with open(meta_main, "r", encoding="utf-8") as f:
-                meta = yaml.safe_load(f) or {}
-            galaxy_info = meta.get("galaxy_info", {})
-            run_after = galaxy_info.get("run_after", [])
-            if isinstance(run_after, list):
-                for item in run_after:
-                    if isinstance(item, str) and item.strip():
-                        deps.add(item.strip())
+            entries = get_role_run_after(role_path)
         except Exception:
-            logging.exception(f"Failed to parse run_after from {meta_main}")
-        return deps
+            logging.exception(
+                f"Failed to parse run_after from {role_path}/meta/services.yml"
+            )
+            return set()
+        return {dep for dep in entries if dep}
 
     # -------------------------- small utils --------------------------
 

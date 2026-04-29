@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import sys
-import yaml
 import re
+import sys
 from pathlib import Path
 
 # Ensure imports work when invoked as a script (subprocess without PYTHONPATH).
@@ -10,22 +9,25 @@ repo_root = Path(__file__).resolve().parents[3]
 if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
 
-from utils.runtime_data import (  # noqa: E402
-    get_application_defaults,
-    get_user_defaults,
-)
+from utils.cache.applications import get_application_defaults  # noqa: E402
+from utils.cache.files import read_text  # noqa: E402
+from utils.cache.users import get_user_defaults  # noqa: E402
+from utils.cache.yaml import load_yaml_str  # noqa: E402
 
 
 def load_yaml_file(path):
+    # Inline preprocessing: strip !vault entries (which would fail YAML
+    # parsing) before handing the text to the cached string parser. The
+    # cache's path-keyed loader is bypassed on purpose — this caller
+    # mutates content per call, so each parse is intentionally fresh.
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            content = f.read()
-            content = re.sub(
-                r"(?m)^([ \t]*[^\s:]+):\s*!vault[\s\S]+?(?=^\S|\Z)",
-                r"\1: \"<vaulted>\"\n",
-                content,
-            )
-            return yaml.safe_load(content)
+        content = read_text(str(path))
+        content = re.sub(
+            r"(?m)^([ \t]*[^\s:]+):\s*!vault[\s\S]+?(?=^\S|\Z)",
+            r"\1: \"<vaulted>\"\n",
+            content,
+        )
+        return load_yaml_str(content)
     except Exception as e:
         print(f"Warning: Could not parse {path}: {e}", file=sys.stderr)
         return None

@@ -7,15 +7,17 @@ class FilterModule(object):
     @staticmethod
     def is_docker_service_enabled(applications, application_id, service_name):
         """
-        Returns True if applications[application_id].compose.services[service_name].enabled is truthy,
+        Returns True if applications[application_id].services[service_name].enabled is truthy,
         otherwise returns False (even if intermediate keys are missing).
+
+        Per req-008 the materialised payload exposes services under the
+        bare ``services`` key (no ``compose.services`` envelope).
         """
         try:
             return bool(
                 applications
                 and application_id in applications
                 and applications[application_id]
-                .get("compose", {})
                 .get("services", {})
                 .get(service_name, {})
                 .get("enabled", False)

@@ -1,0 +1,40 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+mediawiki:
+  image: mediawiki
+  version: '1.45'
+  min_storage: 8GB
+  backup:
+    no_stop_required: true
+  name: mediawiki
+  sitename: Wiki on {{ DOMAIN_PRIMARY | upper }}
+  ports:
+    local:
+      http: 8004
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

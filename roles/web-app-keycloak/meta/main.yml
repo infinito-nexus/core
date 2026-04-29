@@ -1,26 +1,18 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Step into a secure future with Keycloak! Our dynamic identity and access management solution offers streamlined
-    SSO capabilities, robust security measures, and an intuitive user experience that propels your applications to unprecedented
-    heights of performance and reliability.
+  description: Step into a secure future with Keycloak! Our dynamic identity and access management solution offers streamlined SSO capabilities, robust security measures, and an intuitive user experience that propels your applications to unprecedented heights of performance and reliability.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - keycloak
-  - docker
-  - identity management
-  - sso
-  - self-hosted
-  repository: https://s.infinito.nexus/code
+    - keycloak
+    - docker
+    - identity management
+    - sso
+    - self-hosted
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-lock
-  run_after:
-  - web-app-matomo
-  - web-app-mailu
-  lifecycle: beta

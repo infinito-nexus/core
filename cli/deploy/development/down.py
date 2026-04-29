@@ -6,6 +6,9 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from .common import resolve_distro
+from .profile import Profile
+
 
 def _repo_root_from_here() -> Path:
     # Derive the repository root relative to this file.
@@ -29,7 +32,11 @@ def _compose_run(*, repo_root: Path, distro: str, args: list[str]) -> None:
     if env_development.exists():
         cmd += ["--env-file", "env.development"]
 
-    cmd += ["--profile", "ci", *args]
+    # Tear the registry-cache down too if it was activated for the
+    # corresponding `up`. Reuse the Profile decision so up/down cannot
+    # disagree about which services are part of the stack.
+    cmd += Profile().args()
+    cmd += list(args)
     env = _base_env(distro=distro)
     env.setdefault("NIX_CONFIG", "")
     subprocess.run(cmd, cwd=repo_root, env=env, check=True, text=True)
@@ -74,15 +81,9 @@ def down_stack(*, repo_root: Path, distro: str) -> None:
 
 def add_parser(sub: argparse._SubParsersAction) -> None:
     p = sub.add_parser("down", help="Stop compose stack and remove volumes.")
-    p.add_argument(
-        "--distro",
-        default=os.environ.get("INFINITO_DISTRO", "arch"),
-        choices=["arch", "debian", "ubuntu", "fedora", "centos"],
-        help="Target distro (compose env INFINITO_DISTRO).",
-    )
     p.set_defaults(_handler=handler)
 
 
 def handler(args: argparse.Namespace) -> int:
-    down_stack(repo_root=_repo_root_from_here(), distro=args.distro)
+    down_stack(repo_root=_repo_root_from_here(), distro=resolve_distro())
     return 0

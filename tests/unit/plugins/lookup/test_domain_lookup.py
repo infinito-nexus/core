@@ -24,7 +24,7 @@ class TestDomainLookup(unittest.TestCase):
     """Unit tests for the `domain` lookup.
 
     The plugin delegates the canonical-domains map build to
-    utils.runtime_data.get_merged_domains. These tests patch that helper
+    utils.cache.domains.get_merged_domains. These tests patch that helper
     so we assert only the plugin's dispatch + primary-domain extraction logic,
     not the merge pipeline (which has its own integration tests).
     """

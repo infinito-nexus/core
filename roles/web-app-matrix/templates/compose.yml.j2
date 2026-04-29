@@ -17,7 +17,7 @@
       - SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }}
       - SYNAPSE_REPORT_STATS=no
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ports.localhost.http['web-app-matrix_synapse']}}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http')}}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% if MATRIX_BRIDGES | length > 0 %}
 {% for item in MATRIX_BRIDGES %}
@@ -54,7 +54,7 @@
       retries: 3
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% endfor %}
-{% if lookup('config',application_id, 'plugins.chatgpt') | bool %}
+{% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
   matrix-chatgpt-bot:
     restart: {{ DOCKER_RESTART_POLICY }}
     container_name: matrix-chatgpt
@@ -97,7 +97,7 @@
 {% endif %}
 
 {% set _extra_volumes = {'synapse_data': {'name': MATRIX_SYNAPSE_VOLUME}} %}
-{% if lookup('config',application_id, 'plugins.chatgpt') | bool %}
+{% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
 {%   set _ = _extra_volumes.update({'chatgpt_data': {}}) %}
 {% endif %}
 {{ lookup('applications') | compose_volumes(

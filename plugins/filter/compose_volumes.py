@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Optional, Sequence
 
-import yaml
+from utils.cache.yaml import dump_yaml_str
 from ansible.errors import AnsibleFilterError
 
 try:
@@ -80,7 +80,7 @@ def compose_volumes(
 
       - redis volume if:
           is_docker_service_enabled(redis)
-          or compose.services.oauth2.enabled
+          or services.oauth2.enabled
 
         name: {{ application_id | get_entity_name }}_redis
 
@@ -132,7 +132,7 @@ def compose_volumes(
         get(
             applications=applications,
             application_id=application_id,
-            config_path="compose.services.oauth2.enabled",
+            config_path="services.oauth2.enabled",
             strict=False,
             default=False,
             skip_missing_app=True,
@@ -148,11 +148,7 @@ def compose_volumes(
 
     payload = {"volumes": _to_plain(volumes)}
 
-    return yaml.safe_dump(
-        payload,
-        sort_keys=False,
-        default_flow_style=False,
-    ).rstrip()
+    return dump_yaml_str(payload).rstrip()
 
 
 class FilterModule(object):

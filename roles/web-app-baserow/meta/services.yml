@@ -1,0 +1,48 @@
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+postgres:
+  enabled: true
+  shared: true
+baserow:
+  backup:
+    no_stop_required: true
+  image: baserow/baserow
+  version: 2.2.2
+  name: baserow
+  min_storage: 8GB
+  cpus: 1.0
+  mem_reservation: 0.5g
+  mem_limit: 2g
+  pids_limit: 512
+  ports:
+    local:
+      http: 8017
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: alpha
+css:
+  enabled: true
+  shared: true
+javascript:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

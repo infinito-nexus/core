@@ -1,0 +1,38 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+mobilizon:
+  image: docker.io/kaihuri/mobilizon
+  name: mobilizon
+  version: 5.2.3
+  min_storage: 5GB
+  titel: Mobilizon on {{ DOMAIN_PRIMARY | upper }}
+  ports:
+    local:
+      http: 8043
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

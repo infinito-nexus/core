@@ -5,7 +5,7 @@ import logging
 from glob import glob
 import re
 
-from tests.utils.fs import iter_project_files_with_content, read_text
+from utils.cache.files import iter_project_files_with_content, read_text
 
 
 class TestTopLevelVariableUsage(unittest.TestCase):
@@ -64,7 +64,7 @@ class TestTopLevelVariableUsage(unittest.TestCase):
         """
         Search the whole project for varname, skipping only the single
         declaration line in definition_path. Walk and file contents are
-        served from the process-level cache in tests.utils.fs.
+        served from the process-level cache in utils.cache.files.
         """
         decl_line = self.find_declaration_line(definition_path, varname)
 

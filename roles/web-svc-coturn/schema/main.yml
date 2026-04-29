@@ -1,9 +1,0 @@
-credentials:
-  user_password:
-    description:  "Long-Term Credential password for clients"
-    algorithm:    "random_hex"
-    validation:   "^[A-Za-z0-9]{32}$"
-  auth_secret:
-    description:  "TURN-REST static auth secret"
-    algorithm:    "sha1"
-    validation:   "^[a-f0-9]{40}$"

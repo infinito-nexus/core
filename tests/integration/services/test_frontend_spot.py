@@ -49,7 +49,11 @@ class TestFrontendServiceSpot(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn(
-            "default((ports.localhost.http | default({})).get(application_id))",
+            "lookup('config', application_id,",
+            content,
+        )
+        self.assertIn(
+            ".ports.local.http",
             content,
         )
         self.assertIn(

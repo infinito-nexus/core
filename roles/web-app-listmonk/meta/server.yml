@@ -1,0 +1,13 @@
+domains:
+  canonical:
+  - newsletter.{{ DOMAIN_PRIMARY }}
+  aliases: []
+status_codes:
+  default: 404
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+networks:
+  local:
+    subnet: 192.168.101.192/28

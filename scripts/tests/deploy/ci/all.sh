@@ -134,6 +134,11 @@ for distro in "${distro_arr[@]}"; do
 	fi
 
 	export INFINITO_DISTRO="${distro}"
+	# Re-source defaults.sh so its always-derived INFINITO_CONTAINER block
+	# (outside the load-once guard) refreshes from the current INFINITO_DISTRO.
+	# This is the single spot that owns the derivation; consumers below
+	# (dedicated.sh, python deploy → entity.sh) just inherit the env.
+	source "scripts/meta/env/defaults.sh"
 	sync_ci_image_for_run
 
 	distro_start="$(date +%s)"

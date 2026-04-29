@@ -8,12 +8,26 @@ if TYPE_CHECKING:
     from .compose import Compose
 
 
-def resolve_run_after(compose: "Compose", role_name: str) -> list[str]:
+def resolve_run_after(
+    compose: "Compose",
+    role_name: str,
+    *,
+    services_overrides_container_path: str | None = None,
+) -> list[str]:
     """
     Calls resolver inside the infinito container:
       python -m cli.meta.applications.resolution.combined <role_name>
+        [--services-overrides <path-inside-container>]
+
+    `services_overrides_container_path` is the in-container path to a
+    JSON file `{role_name: services_map}` whose entries replace each
+    listed role's `meta/services.yml` for the resolver. Callers
+    (variant-aware planner) write the file to a path that is shared
+    with the container before calling.
     """
     cmd = ["python3", "-m", "cli.meta.applications.resolution.combined", role_name]
+    if services_overrides_container_path:
+        cmd.extend(["--services-overrides", services_overrides_container_path])
     r = compose.exec(cmd, check=False, workdir="/opt/src/infinito", capture=True)
 
     if r.returncode != 0:

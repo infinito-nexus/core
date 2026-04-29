@@ -5,37 +5,58 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from cli.meta.roles.lifecycle_filter.__main__ import _extract_lifecycle, filter_roles
+from cli.meta.roles.lifecycle_filter.__main__ import filter_roles
+from utils.roles.meta_lookup import get_role_lifecycle
 
 
 def _write_meta(role_dir: Path, lifecycle_value: str | None) -> None:
+    """Write the role's lifecycle into meta/services.yml under the primary
+    entity (per req-010). For role names without a category prefix
+    (e.g. ``role-a``) the entity name equals the role name.
+    """
     meta_dir = role_dir / "meta"
     meta_dir.mkdir(parents=True, exist_ok=True)
+    role_name = role_dir.name
 
     if lifecycle_value is None:
-        content = "galaxy_info:\n  role_name: dummy\n"
+        # Empty primary entry - lifecycle field absent
+        content = f"{role_name}: {{}}\n"
     else:
-        content = f"galaxy_info:\n  lifecycle: {lifecycle_value}\n"
+        content = f"{role_name}:\n  lifecycle: {lifecycle_value}\n"
 
-    (meta_dir / "main.yml").write_text(content, encoding="utf-8")
+    (meta_dir / "services.yml").write_text(content, encoding="utf-8")
 
 
 def _write_meta_stage(role_dir: Path, stage_value: str) -> None:
     meta_dir = role_dir / "meta"
     meta_dir.mkdir(parents=True, exist_ok=True)
+    role_name = role_dir.name
 
-    content = "galaxy_info:\n  lifecycle:\n    stage: " + stage_value + "\n"
-    (meta_dir / "main.yml").write_text(content, encoding="utf-8")
+    content = f"{role_name}:\n  lifecycle:\n    stage: {stage_value}\n"
+    (meta_dir / "services.yml").write_text(content, encoding="utf-8")
 
 
 class TestLifecycleFilter(unittest.TestCase):
     def test_extract_lifecycle_string_lowercases_and_strips(self) -> None:
-        meta = {"galaxy_info": {"lifecycle": "  StAbLe  "}}
-        self.assertEqual(_extract_lifecycle(meta), "stable")
+        # The previous _extract_lifecycle helper was inlined into
+        # utils.roles.meta_lookup.get_role_lifecycle. Round-trip through a
+        # tempdir to assert the same lower/strip semantics.
+        with TemporaryDirectory() as td:
+            role_dir = Path(td) / "role-a"
+            (role_dir / "meta").mkdir(parents=True)
+            (role_dir / "meta" / "services.yml").write_text(
+                'role-a:\n  lifecycle: "  StAbLe  "\n', encoding="utf-8"
+            )
+            self.assertEqual(get_role_lifecycle(role_dir, role_name="role-a"), "stable")
 
     def test_extract_lifecycle_dict_stage_supported(self) -> None:
-        meta = {"galaxy_info": {"lifecycle": {"stage": "RC"}}}
-        self.assertEqual(_extract_lifecycle(meta), "rc")
+        with TemporaryDirectory() as td:
+            role_dir = Path(td) / "role-a"
+            (role_dir / "meta").mkdir(parents=True)
+            (role_dir / "meta" / "services.yml").write_text(
+                "role-a:\n  lifecycle:\n    stage: RC\n", encoding="utf-8"
+            )
+            self.assertEqual(get_role_lifecycle(role_dir, role_name="role-a"), "rc")
 
     def test_filter_roles_whitelist_matches_only_requested_statuses(self) -> None:
         with TemporaryDirectory() as td:

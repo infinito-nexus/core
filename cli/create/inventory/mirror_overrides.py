@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
+from utils.cache.yaml import load_yaml_any
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
@@ -49,7 +49,7 @@ def apply_mirror_overrides(host_vars_file: Path, mirrors_file: Path) -> None:
         raise SystemExit(f"Mirrors file not found: {mirrors_file}")
 
     try:
-        mirrors_raw = yaml.safe_load(mirrors_file.read_text(encoding="utf-8")) or {}
+        mirrors_raw = load_yaml_any(str(mirrors_file), default_if_missing={}) or {}
     except Exception as exc:
         raise SystemExit(f"Failed to load mirrors file {mirrors_file}: {exc}") from exc
 
@@ -90,17 +90,12 @@ def apply_mirror_overrides(host_vars_file: Path, mirrors_file: Path) -> None:
             if not isinstance(app_block, dict):
                 continue
 
-            docker = app_block.get("compose") or {}
-            if not isinstance(docker, dict):
-                continue
-
-            services = docker.get("services") or {}
+            services = app_block.get("services") or {}
             if not isinstance(services, dict):
                 continue
 
             app_doc = _ensure_ruamel_map(apps_doc, str(app_id))
-            docker_doc = _ensure_ruamel_map(app_doc, "compose")
-            services_doc = _ensure_ruamel_map(docker_doc, "services")
+            services_doc = _ensure_ruamel_map(app_doc, "services")
 
             for svc_name, svc_block in services.items():
                 if not isinstance(svc_block, dict):

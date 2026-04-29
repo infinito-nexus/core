@@ -5,10 +5,8 @@ from typing import Any, Dict, Optional
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.runtime_data import (
-    _reset_cache_for_tests as _reset_runtime_lookup_cache,
-    get_merged_users,
-)
+from utils.cache import _reset_cache_for_tests as _reset_runtime_lookup_cache
+from utils.cache.users import get_merged_users
 
 
 def _reset_cache_for_tests() -> None:

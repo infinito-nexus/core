@@ -67,7 +67,7 @@ def _svc(app_id: str) -> str:
 def _mem_limit_mb(apps: dict, app_id: str) -> int:
     """Resolve mem_limit for the JVM service of the given application."""
     svc = _svc(app_id)
-    raw = get(apps, app_id, f"compose.services.{svc}.mem_limit")
+    raw = get(apps, app_id, f"services.{svc}.mem_limit")
     mb = _to_mb(raw)
 
     if mb <= 0:
@@ -80,7 +80,7 @@ def _mem_limit_mb(apps: dict, app_id: str) -> int:
 def _mem_res_mb(apps: dict, app_id: str) -> int:
     """Resolve mem_reservation for the JVM service of the given application."""
     svc = _svc(app_id)
-    raw = get(apps, app_id, f"compose.services.{svc}.mem_reservation")
+    raw = get(apps, app_id, f"services.{svc}.mem_reservation")
     mb = _to_mb(raw)
 
     if mb <= 0:
@@ -139,7 +139,7 @@ def _redis_mem_limit_mb(apps: dict, app_id: str, default_mb: int = 256) -> int:
     raw = get(
         apps,
         app_id,
-        "compose.services.redis.mem_limit",
+        "services.redis.mem_limit",
         strict=False,
         default=f"{default_mb}m",
     )

@@ -14,7 +14,7 @@ CONFLUENCE_HOSTNAME:              "{{ container_hostname }}"
 CONFLUENCE_HOME:                  "/var/atlassian/application-data/confluence"
 
 ## OIDC
-CONFLUENCE_OIDC_ENABLED:          "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+CONFLUENCE_OIDC_ENABLED:          "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 CONFLUENCE_OIDC_LABEL:            "{{ OIDC.BUTTON_TEXT }}"
 CONFLUENCE_OIDC_CLIENT_ID:        "{{ OIDC.CLIENT.ID }}"
 CONFLUENCE_OIDC_CLIENT_SECRET:    "{{ OIDC.CLIENT.SECRET }}"
@@ -28,15 +28,15 @@ CONFLUENCE_OIDC_SCOPES:           "openid,email,profile"
 CONFLUENCE_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 
 ## Docker
-CONFLUENCE_VERSION:               "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
-CONFLUENCE_IMAGE:                 "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-CONFLUENCE_CONTAINER:             "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
-CONFLUENCE_DATA_VOLUME:           "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+CONFLUENCE_VERSION:               "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+CONFLUENCE_IMAGE:                 "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+CONFLUENCE_CONTAINER:             "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+CONFLUENCE_DATA_VOLUME:           "{{ lookup('config', application_id, 'volumes.data') }}"
 CONFLUENCE_CUSTOM_IMAGE:          "{{ entity_name }}_custom:{{ CONFLUENCE_VERSION }}"
 
-## Performance (derive from container limits in config/main.yml)
+## Performance (derive from container limits in meta/services.yml)
 CONFLUENCE_JVM_MAX:               "{{ lookup('applications') | jvm_max_mb(application_id) }}m"
 CONFLUENCE_JVM_MIN:               "{{ lookup('applications') | jvm_min_mb(application_id) }}m"
 
 ## Options 
-CONFLUENCE_TRUST_STORE_ENABLED:   "{{ lookup('config', application_id, 'truststore_enabled') }}"
+CONFLUENCE_TRUST_STORE_ENABLED:   "{{ lookup('config', application_id, 'services.confluence.truststore_enabled') }}"

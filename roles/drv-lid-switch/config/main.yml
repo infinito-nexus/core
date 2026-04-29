@@ -1,4 +1,0 @@
-compose:
-  services:
-    lid-switch:
-      min_storage: "0GB"

@@ -7,15 +7,15 @@ database_password:  "{{ lookup('config', application_id, 'credentials.database_p
 
 # Snipe-IT specific
 SNIPE_IT_URL:       "{{ lookup('tls', application_id, 'url.base') }}"
-SNIPE_IT_VERSION:   "{{ lookup('config', application_id, 'compose.services.snipe-it.version') }}"
-SNIPE_IT_IMAGE:     "{{ lookup('config', application_id, 'compose.services.snipe-it.image') }}"
-SNIPE_IT_CONTAINER: "{{ lookup('config', application_id, 'compose.services.snipe-it.name') }}"
-SNIPE_IT_VOLUME:    "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+SNIPE_IT_VERSION:   "{{ lookup('config', application_id, 'services.snipe-it.version') }}"
+SNIPE_IT_IMAGE:     "{{ lookup('config', application_id, 'services.snipe-it.image') }}"
+SNIPE_IT_CONTAINER: "{{ lookup('config', application_id, 'services.snipe-it.name') }}"
+SNIPE_IT_VOLUME:    "{{ lookup('config', application_id, 'volumes.data') }}"
 SNIPE_IT_SERVICE:   "{{ entity_name }}"
 SNIPE_IT_APP_KEY:   "{{ lookup('config', application_id, 'credentials.app_key') }}"
 
 # Authentification
-SNIPE_IT_LDAP_ENABLED:            "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
+SNIPE_IT_LDAP_ENABLED:            "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SNIPE_IT_TLS_ENABLED:             "{{ lookup('tls', application_id, 'enabled') | bool }}"
 
 #LDAP

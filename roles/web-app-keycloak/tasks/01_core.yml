@@ -47,6 +47,9 @@
       include_tasks: assert/05_ldap.yml
       when: MODE_ASSERT | bool
 
+    - name: "Load per-app group-ldap-mapper routines for '{{ application_id }}' (requirement 005)"
+      include_tasks: update/05c_per_app_mappers.yml
+
   when:
     - KEYCLOAK_LDAP_ENABLED | bool
     - KEYCLOAK_LDAP_SHARED | bool

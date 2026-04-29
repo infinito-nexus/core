@@ -1,14 +1,14 @@
-{% if lookup('config',application_id, 'compose.services.oauth2.enabled', False) %}
+{% if lookup('config',application_id, 'services.oauth2.enabled', False) %}
   oauth2-proxy:
-    image: {{ lookup('config','web-app-oauth2-proxy', 'compose.services.oauth2-proxy.image') }}:{{ lookup('config','web-app-oauth2-proxy', 'compose.services.oauth2-proxy.version') }}
+    image: {{ lookup('config','web-app-oauth2-proxy', 'services.oauth2-proxy.image') }}:{{ lookup('config','web-app-oauth2-proxy', 'services.oauth2-proxy.version') }}
     restart: {{ DOCKER_RESTART_POLICY }}
     command: --config /oauth2-proxy.cfg
     container_name: {{ application_id | get_entity_name }}-oauth2-proxy
     hostname: oauth2-proxy
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.oauth2[application_id] }}:4180/tcp
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.oauth2') }}:{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.ports.inter') }}/tcp
     volumes:
-      - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config','web-app-oauth2-proxy', 'configuration_file')}}:/oauth2-proxy.cfg"
+      - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.configuration_file') }}:/oauth2-proxy.cfg"
     healthcheck:
       test: ["CMD", "/bin/oauth2-proxy", "--version"]
       interval: 30s

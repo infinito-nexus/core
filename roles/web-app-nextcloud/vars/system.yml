@@ -1,11 +1,11 @@
 nextcloud_system_config:
   - parameter: "hide_login_form"
     type: "boolean"
-    value: "{{ (not lookup('config',application_id, 'legacy_login_mask.enabled')) | lower }}"
+    value: "{{ (not lookup('config', application_id, 'services.nextcloud.legacy_login_mask.enabled')) | lower }}"
 
   - parameter: "auth.webauthn.enabled"
     type: "boolean"
-    value: "{{ lookup('config', application_id, 'legacy_login_mask.enabled') | lower }}"
+    value: "{{ lookup('config', application_id, 'services.nextcloud.legacy_login_mask.enabled') | lower }}"
 
   - parameter: "maintenance_window_start"
     type: "integer"

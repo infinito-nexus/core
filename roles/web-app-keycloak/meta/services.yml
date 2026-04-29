@@ -1,0 +1,61 @@
+logout:
+  enabled: false
+  shared: false
+ldap:
+  enabled: true
+  shared: true
+  sync:
+    period:
+      changes: 900
+      full: 86400
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+keycloak:
+  enabled: false
+  shared: true
+  provides: oidc
+  image: quay.io/keycloak/keycloak
+  version: latest
+  name: keycloak
+  min_storage: 5GB
+  cpus: '2.0'
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 1024
+  realm:
+    import_enabled: true
+    totp_enabled: true
+  users:
+    emails_verified: true
+  scopes:
+    nextcloud: nextcloud
+  accounts:
+    bootstrap:
+      username: administrator
+    system:
+      username: '{{ SOFTWARE_NAME | replace(''.'', ''_'') | lower }}'
+  ports:
+    local:
+      http: 8032
+  run_after:
+  - web-app-matomo
+  - web-app-mailu
+  lifecycle: beta
+postgres:
+  enabled: true
+  shared: true
+css:
+  enabled: true
+  shared: true
+recaptcha:
+  enabled: '{{ RECAPTCHA_ENABLED | bool }}'
+prometheus:
+  enabled: true
+  shared: true

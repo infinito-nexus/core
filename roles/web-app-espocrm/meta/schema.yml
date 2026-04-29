@@ -1,0 +1,18 @@
+credentials:
+  administrator_password:
+    description: Initial password for the EspoCRM administrator user
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$
+  database_password:
+    description: Password for the EspoCRM database user
+    algorithm: bcrypt
+    validation: ^\$2[aby]\$.{56}$
+  recaptcha:
+    key:
+      description: Runtime credential value imported from meta/services.yml for 'key'.
+      algorithm: plain
+      default: '{{ CAPTCHA.RECAPTCHA.KEY | default('''') }}'
+    secret:
+      description: Runtime credential value imported from meta/services.yml for 'secret'.
+      algorithm: plain
+      default: '{{ CAPTCHA.RECAPTCHA.SECRET | default('''') }}'

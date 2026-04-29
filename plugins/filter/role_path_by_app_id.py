@@ -1,7 +1,9 @@
-import os
 import glob
-import yaml
+import os
+
 from ansible.errors import AnsibleFilterError
+
+from utils.cache.yaml import load_yaml_any
 
 
 def abs_role_path_by_application_id(application_id):
@@ -16,9 +18,10 @@ def abs_role_path_by_application_id(application_id):
 
     for filepath in glob.glob(pattern):
         try:
-            with open(filepath, "r") as f:
-                data = yaml.safe_load(f) or {}
+            data = load_yaml_any(filepath, default_if_missing={}) or {}
         except Exception:
+            continue
+        if not isinstance(data, dict):
             continue
 
         if data.get("application_id") == application_id:
@@ -51,9 +54,10 @@ def rel_role_path_by_application_id(application_id):
 
     for filepath in glob.glob(pattern):
         try:
-            with open(filepath, "r") as f:
-                data = yaml.safe_load(f) or {}
+            data = load_yaml_any(filepath, default_if_missing={}) or {}
         except Exception:
+            continue
+        if not isinstance(data, dict):
             continue
 
         if data.get("application_id") == application_id:

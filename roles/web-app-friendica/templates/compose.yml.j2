@@ -8,7 +8,7 @@
       - data:/var/www/data # I assume that this one is unnessecarry
       - {{ FRIENDICA_LDAP_CONFIG_HOST }}:{{ FRIENDICA_LDAP_CONFIG_DOCKER }}:ro 
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.friendica.ports.local.http') }}:80"
 
 {% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}

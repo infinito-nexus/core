@@ -1,34 +1,21 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Elevate your collaboration with Nextcloud, a vibrant self-hosted cloud solution designed for dynamic file sharing,
-    seamless communication, and effortless teamwork. Embrace unparalleled control, flexibility, and a boosted digital workspace
-    that adapts to your every need.
+  description: Elevate your collaboration with Nextcloud, a vibrant self-hosted cloud solution designed for dynamic file sharing, seamless communication, and effortless teamwork. Embrace unparalleled control, flexibility, and a boosted digital workspace that adapts to your every need.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   min_ansible_version: '2.9'
   platforms:
-  - name: Linux
-    versions:
-    - all
+    - name: Linux
+      versions:
+        - all
   galaxy_tags:
-  - nextcloud
-  - docker
-  - nginx
-  - oidc
-  - ldap
-  - automation
-  - cloud
-  - web
-  - php
-  repository: https://s.infinito.nexus/code
+    - nextcloud
+    - docker
+    - nginx
+    - oidc
+    - ldap
+    - automation
+    - cloud
+    - web
+    - php
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/web-app-nextcloud
-  homepage: https://nextcloud.com/
-  video: https://youtu.be/3jcYJGQgenI?si=FDmoMSrAb9_WvviC
-  logo:
-    class: fa-solid fa-cloud
-  run_after:
-  - web-app-keycloak
-  - web-app-matomo
-  lifecycle: beta

@@ -1,0 +1,36 @@
+libretranslate:
+  enabled: false
+  shared: true
+  image: libretranslate/libretranslate
+  version: latest
+  min_storage: 5GB
+  ports:
+    local:
+      http: 8045
+  lifecycle: pre-alpha
+oauth2:
+  enabled: false
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: true
+  shared: true
+recaptcha:
+  enabled: false
+javascript:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

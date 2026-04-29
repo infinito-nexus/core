@@ -1,0 +1,60 @@
+asset:
+  enabled: true
+  shared: true
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+discourse:
+  # `shared: true` is required so the service registry recognises this
+  # role as the provider of the `discourse` service. Other roles
+  # declare `services.discourse.enabled: ...` (e.g.
+  # web-app-wordpress' wp-discourse plugin gate); without this flag
+  # the variant-aware deploy planner cannot resolve those declarations
+  # to web-app-discourse, and the consumer ends up trying to
+  # `docker exec discourse` against a container that was never pulled.
+  shared: true
+  enabled: true
+  name: discourse
+  version: main
+  min_storage: 15GB
+  repository: https://github.com/discourse/discourse_docker.git
+  plugins:
+    docker_manager:
+      enabled: true
+    discourse-activity-pub:
+      enabled: true
+    discourse-akismet:
+      enabled: true
+  ports:
+    local:
+      http: 8020
+  lifecycle: beta
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

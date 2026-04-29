@@ -1,0 +1,25 @@
+credentials:
+  talk_recording_secret:
+    description: Shared secret between Nextcloud Talk and the recording backend
+    algorithm: random_hex_32
+    validation: ^[a-f0-9]{64}$
+  whiteboard_jwt_secret:
+    description: Secret used for JWT signing
+    algorithm: base64_prefixed_32
+    validation: ^base64:[A-Za-z0-9+/]{43}=$
+  administrator_password:
+    description: Initial password for the Nextcloud administrator (change immediately and enable 2FA)
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$
+  talk_turn_secret:
+    description: TURN REST secret for the optional onboard Talk TURN server
+    algorithm: base64_prefixed_32
+    validation: ^base64:[A-Za-z0-9+/]{43}=$
+  talk_signaling_secret:
+    description: Secret for Talk signaling
+    algorithm: base64_prefixed_32
+    validation: ^base64:[A-Za-z0-9+/]{43}=$
+  talk_internal_secret:
+    description: Internal secret for AIO Talk
+    algorithm: base64_prefixed_32
+    validation: ^base64:[A-Za-z0-9+/]{43}=$

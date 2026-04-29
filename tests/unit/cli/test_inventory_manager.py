@@ -38,8 +38,8 @@ class TestInventoryManager(unittest.TestCase):
     def fake_load_yaml(self, path):
         path = Path(path)
 
-        # Return schema for schema/main.yml
-        if path.match("*/schema/main.yml"):
+        # Return schema for meta/schema.yml
+        if path.match("*/meta/schema.yml"):
             return {
                 "credentials": {
                     "plain_cred": {
@@ -61,14 +61,11 @@ class TestInventoryManager(unittest.TestCase):
         if path.match("*/vars/main.yml"):
             return {"application_id": "testapp"}
 
-        # Return docker service flags for config/main.yml
-        if path.match("*/config/main.yml"):
+        # Return docker service flags for meta/services.yml. Per req-008 the
+        # file root IS the services map (no `compose.services` wrapper).
+        if path.match("*/meta/services.yml"):
             return {
-                "compose": {
-                    "services": {
-                        "mariadb": {"enabled": True, "shared": True},
-                    }
-                }
+                "mariadb": {"enabled": True, "shared": True},
             }
 
         # Return empty inventory for inventory.yml
@@ -136,16 +133,14 @@ class TestInventoryManager(unittest.TestCase):
         """
         apply_schema should inject database password and vault plain_cred.
         """
-        # Setup role directory
+        # Setup role directory (post-req-008: only meta/ + vars/).
         role_dir = self.tmpdir / "role"
         (role_dir / "meta").mkdir(parents=True, exist_ok=True)
         (role_dir / "vars").mkdir(parents=True, exist_ok=True)
-        (role_dir / "schema").mkdir(parents=True, exist_ok=True)
-        (role_dir / "config").mkdir(parents=True, exist_ok=True)
 
         # IMPORTANT: files must exist because InventoryManager checks .exists()
-        (role_dir / "schema" / "main.yml").write_text("{}", encoding="utf-8")
-        (role_dir / "config" / "main.yml").write_text("{}", encoding="utf-8")
+        (role_dir / "meta" / "schema.yml").write_text("{}", encoding="utf-8")
+        (role_dir / "meta" / "services.yml").write_text("{}", encoding="utf-8")
         (role_dir / "vars" / "main.yml").write_text("{}", encoding="utf-8")
 
         # Create empty inventory.yml
@@ -181,11 +176,9 @@ class TestInventoryManager(unittest.TestCase):
         # plain_cred vaulted from override
         self.assertIsInstance(creds["plain_cred"], VaultScalar)
 
-        # nested.inner should not be vaulted due to code's prefix check
-        self.assertEqual(
-            creds["nested"]["inner"],
-            {"description": "desc2", "algorithm": "sha256", "validation": {}},
-        )
+        # Per req-008 nested credential keys are supported and walked
+        # recursively, so nested.inner with `algorithm: sha256` IS vaulted.
+        self.assertIsInstance(creds["nested"]["inner"], VaultScalar)
 
 
 if __name__ == "__main__":

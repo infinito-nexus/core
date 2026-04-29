@@ -12,7 +12,7 @@
     volumes:
       - "data:/var/www/html"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.magento.ports.local.http') }}:{{ container_port }}"
     healthcheck:
       test: ["CMD-SHELL", "nginx -t >/dev/null 2>&1 && { grep -q ':1F40' /proc/net/tcp || grep -q ':1F40' /proc/net/tcp6; }"]
       interval: 10s

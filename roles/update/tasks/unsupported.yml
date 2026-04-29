@@ -1,0 +1,7 @@
+- name: "update | fail loudly when no per-distro implementation exists"
+  ansible.builtin.fail:
+    msg: >-
+      The 'update' role has no per-distro task file for
+      ansible_facts['distribution'] = "{{ ansible_facts['distribution'] }}".
+      Add roles/update/tasks/<distro>.yml to extend support, or guard the
+      caller so this role is not invoked on unsupported distros.

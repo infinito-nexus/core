@@ -4,7 +4,7 @@
     container_name: "{{ YOURLS_CONTAINER }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.yourls.ports.local.http') }}:{{ container_port }}"
 {% set container_healthcheck = (YOURLS_ADMIN_LOCATION | regex_replace('^/+', '') | regex_replace('/+$', '')) ~ '/' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 

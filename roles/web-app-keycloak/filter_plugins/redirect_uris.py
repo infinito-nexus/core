@@ -60,8 +60,8 @@ def redirect_uris(
     web_protocol: str = "https",
     wildcard: str = "/*",
     features: Iterable[str] = (
-        "compose.services.oauth2.enabled",
-        "compose.services.oidc.enabled",
+        "services.oauth2.enabled",
+        "services.oidc.enabled",
     ),
     dedup: bool = True,
 ) -> list[str]:

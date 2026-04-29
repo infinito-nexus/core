@@ -7,7 +7,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
      - "1935:1935"  # @todo Add to ports
-     - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}" 
+     - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}:{{ container_port }}" 
     volumes:
       - assets:/app/client/dist
       - data:/data

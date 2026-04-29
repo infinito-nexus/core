@@ -1,24 +1,18 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Revolutionize your email communications with Mailu, a secure and flexible mail server solution that integrates
-    comprehensive features for managing digital correspondence reliably.
+  description: Revolutionize your email communications with Mailu, a secure and flexible mail server solution that integrates comprehensive features for managing digital correspondence reliably.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - mailu
-  - docker
-  - email
-  - mail server
-  - self-hosted
-  repository: https://s.infinito.nexus/code
+    - mailu
+    - docker
+    - email
+    - mail server
+    - self-hosted
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-envelope
-  run_after:
-  - web-app-matomo
-  lifecycle: beta

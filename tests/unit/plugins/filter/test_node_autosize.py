@@ -16,9 +16,9 @@ class TestNodeAutosizeFilter(unittest.TestCase):
 
     def setUp(self):
         # Default parameters used by all tests
-        self.applications = {
-            "web-app-nextcloud": {"compose": {"services": {"whiteboard": {}}}}
-        }
+        # Per req-008 the materialised payload exposes services under
+        # the bare `services` key (no `compose.services` envelope).
+        self.applications = {"web-app-nextcloud": {"services": {"whiteboard": {}}}}
         self.application_id = "web-app-nextcloud"
         self.service_name = "whiteboard"
 
@@ -41,7 +41,7 @@ class TestNodeAutosizeFilter(unittest.TestCase):
             **_kwargs,
         ):
             assert application_id == self.application_id
-            assert config_path == f"compose.services.{self.service_name}.mem_limit"
+            assert config_path == f"services.{self.service_name}.mem_limit"
             return value
 
         self.mock_get.side_effect = _fake_get

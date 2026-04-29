@@ -10,7 +10,7 @@
       dockerfile: Dockerfile
     pull_policy: never
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.akaunting.ports.local.http') }}:{{ container_port }}
     volumes:
       - data:/var/www/html
 {% if akaunting_setup_enabled | bool %}

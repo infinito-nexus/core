@@ -1,0 +1,5 @@
+credentials:
+  opensearch_initial_admin_password:
+    description: Initial admin password for OpenSearch
+    algorithm: strong_password
+    validation: ^.+$

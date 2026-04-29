@@ -24,5 +24,15 @@ def role_vars_path(role_name: str) -> Path:
     return role_dir(role_name) / "vars" / "main.yml"
 
 
+def role_services_path(role_name: str) -> Path:
+    """Return the post-req-008 services manifest path."""
+    return role_dir(role_name) / "meta" / "services.yml"
+
+
 def role_config_path(role_name: str) -> Path:
-    return role_dir(role_name) / "config" / "main.yml"
+    """Backwards-compatible alias that now points at meta/services.yml.
+
+    Kept so call sites that historically asked for "config" still work; the
+    contents are the services map directly (no `compose.services` wrapper).
+    """
+    return role_services_path(role_name)

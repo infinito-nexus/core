@@ -1,0 +1,58 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+mattermost:
+  image: mattermost/mattermost-team-edition
+  version: 11.6.1
+  min_storage: 10GB
+  backup:
+    no_stop_required: true
+  name: mattermost
+  cpus: '1.0'
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    local:
+      http: 8065
+  run_after:
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+oauth2:
+  enabled: false
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: true
+  shared: true
+javascript:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true
+  native_metrics:
+    enabled: false
+    port: 8067
+  communication:
+    channel: true

@@ -12,7 +12,7 @@ from utils.database_service import (
     resolve_database_service_key,
 )
 from utils.entity_name_utils import get_entity_name
-from utils.runtime_data import get_merged_applications
+from utils.cache.applications import get_merged_applications
 
 
 class LookupModule(LookupBase):
@@ -60,7 +60,6 @@ class LookupModule(LookupBase):
             roles_dir=kwargs.get("roles_dir"),
             templar=getattr(self, "_templar", None),
         )
-        ports = self._require_var(vars_, "ports")
         path_instances = self._require_var(vars_, "DIR_COMPOSITIONS")
 
         consumer_entity = get_entity_name(consumer_id)
@@ -106,7 +105,7 @@ class LookupModule(LookupBase):
         central_name = get(
             applications,
             db_id,
-            f"compose.services.{dbtype}.name",
+            f"services.{dbtype}.name",
             strict=False,
             default="",
             skip_missing_app=True,
@@ -127,16 +126,21 @@ class LookupModule(LookupBase):
             default="",
         )
 
-        # ports.localhost.database[svc-db-<type>]
-        try:
-            port = ports["localhost"]["database"].get(db_id, "")
-        except Exception:
-            port = ""
+        # Per req-009 the database port lives on the database role itself at
+        # `applications.svc-db-<type>.services.<type>.ports.local.database`.
+        port = get(
+            applications,
+            db_id,
+            f"services.{dbtype}.ports.local.database",
+            strict=False,
+            default="",
+            skip_missing_app=True,
+        )
 
         default_version = get(
             applications,
             db_id,
-            f"compose.services.{dbtype}.version",
+            f"services.{dbtype}.version",
             strict=False,
             default="",
             skip_missing_app=True,
@@ -145,7 +149,7 @@ class LookupModule(LookupBase):
         version = get(
             applications,
             consumer_id,
-            f"compose.services.{dbtype}.version",
+            f"services.{dbtype}.version",
             strict=False,
             default=default_version,
         )

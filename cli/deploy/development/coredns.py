@@ -11,7 +11,7 @@ from pathlib import Path
 @dataclass(frozen=True)
 class CoreDNSCorefileRenderer:
     """
-    Render compose/Corefile from compose/Corefile.tmpl using envsubst.
+    Render compose/coredns/Corefile from compose/coredns/Corefile.tmpl using envsubst.
 
     What this does:
       - Reads variables from env file (default: env.ci)
@@ -29,8 +29,8 @@ class CoreDNSCorefileRenderer:
 
     repo_root: Path
     env_filename: str = "env.ci"
-    template_relpath: str = "compose/Corefile.tmpl"
-    output_relpath: str = "compose/Corefile"
+    template_relpath: str = "compose/coredns/Corefile.tmpl"
+    output_relpath: str = "compose/coredns/Corefile"
 
     def _log(self, msg: str) -> None:
         print(f"[coredns-corefile] {msg}")

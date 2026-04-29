@@ -1,0 +1,10 @@
+domains:
+  canonical:
+  - bridgyfed.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  whitelist: {}
+  flags: {}
+networks:
+  local:
+    subnet: 192.168.103.224/28

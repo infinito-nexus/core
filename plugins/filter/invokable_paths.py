@@ -5,6 +5,8 @@ from typing import Dict, List, Optional
 
 import yaml
 
+from utils.cache.yaml import load_yaml_any
+
 
 def _find_project_root(start: Path) -> Optional[Path]:
     """
@@ -49,8 +51,7 @@ def get_invokable_paths(
         roles_file = _default_roles_file()
 
     try:
-        with open(roles_file, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
+        data = load_yaml_any(roles_file, default_if_missing={}) or {}
     except FileNotFoundError:
         raise FileNotFoundError(f"Roles file not found: {roles_file}")
     except yaml.YAMLError as e:
@@ -101,8 +102,7 @@ def get_non_invokable_paths(
         roles_file = _default_roles_file()
 
     try:
-        with open(roles_file, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
+        data = load_yaml_any(roles_file, default_if_missing={}) or {}
     except FileNotFoundError:
         raise FileNotFoundError(f"Roles file not found: {roles_file}")
     except yaml.YAMLError as e:

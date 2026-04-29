@@ -5,7 +5,7 @@
 
 - name: Filter enabled bridges and register as fact
   set_fact:
-    MATRIX_BRIDGES: "{{ bridges_configuration | filter_enabled_bridges(lookup('config',application_id, 'plugins')) }}"
+    MATRIX_BRIDGES: "{{ bridges_configuration | filter_enabled_bridges(lookup('config', application_id, 'services.matrix.plugins')) }}"
   changed_when: false
 
 # Order of the following tasks is important otherwise handlers are flushed wrongly

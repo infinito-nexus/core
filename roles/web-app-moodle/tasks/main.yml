@@ -60,4 +60,4 @@
 
 - name: "Configure OIDC login for Moodle if enabled"
   include_tasks: 03_oidc.yml
-  when: lookup('config',application_id, 'compose.services.oidc.enabled')
+  when: lookup('config',application_id, 'services.oidc.enabled')

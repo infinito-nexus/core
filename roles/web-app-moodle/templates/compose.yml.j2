@@ -6,7 +6,7 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
     image: {{ MOODLE_IMAGE_CUSTOM }}
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.moodle.ports.local.http') }}:{{ container_port }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     volumes:
       - 'code:{{ BITNAMI_CODE_LINK }}'

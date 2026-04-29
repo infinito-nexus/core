@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import os
 import argparse
-import yaml
 import json
 import re
 from typing import List, Dict, Any, Set
 
+
 from utils.roles.dependency_resolver import RoleDependencyResolver
+from utils.cache.yaml import load_yaml, load_yaml_any
 
 # Regex used to ignore Jinja expressions inside include/import statements
 JINJA_PATTERN = re.compile(r'{{.*}}')
@@ -57,16 +58,23 @@ def load_meta(path: str) -> Dict[str, Any]:
     Load metadata from meta/main.yml.
     Returns a dict with:
         - galaxy_info
-        - run_after
+        - run_after  (per req-010 read from meta/services.yml.<primary>.run_after)
         - dependencies
     """
-    with open(path, "r") as f:
-        data = yaml.safe_load(f) or {}
+    from utils.roles.meta_lookup import get_role_run_after
+
+    data = load_yaml(path)
 
     galaxy_info = data.get("galaxy_info", {}) or {}
+    role_path = os.path.dirname(os.path.dirname(path))
+    role_name = os.path.basename(role_path)
+    try:
+        run_after = get_role_run_after(role_path, role_name=role_name)
+    except Exception:
+        run_after = []
     return {
         "galaxy_info": galaxy_info,
-        "run_after": galaxy_info.get("run_after", []) or [],
+        "run_after": run_after,
         "dependencies": data.get("dependencies", []) or [],
     }
 
@@ -76,8 +84,10 @@ def load_tasks(path: str, dep_type: str) -> List[str]:
     Parse include_tasks/import_tasks from tasks/main.yml.
     Only accepts simple, non-Jinja names.
     """
-    with open(path, "r") as f:
-        data = yaml.safe_load(f) or []
+    # `tasks/main.yml` root is a list, not a mapping.
+    data = load_yaml_any(path)
+    if not isinstance(data, list):
+        data = []
 
     roles: List[str] = []
 
@@ -310,17 +320,20 @@ def build_mappings(
 # ------------------------------------------------------------
 
 def output_graph(graph_data: Any, fmt: str, start: str, key: str):
+    from pathlib import Path
+
+    from utils.cache.yaml import dump_yaml, dump_yaml_str
+
     base = f"{start}_{key}"
     if fmt == "console":
         print(f"--- {base} ---")
-        print(yaml.safe_dump(graph_data, sort_keys=False))
-
+        print(dump_yaml_str(graph_data))
     else:
         path = f"{base}.{fmt}"
-        with open(path, "w") as f:
-            if fmt == "yaml":
-                yaml.safe_dump(graph_data, f, sort_keys=False)
-            else:
+        if fmt == "yaml":
+            dump_yaml(Path(path), graph_data)
+        else:
+            with open(path, "w") as f:
                 json.dump(graph_data, f, indent=2)
         print(f"Wrote {path}")
 

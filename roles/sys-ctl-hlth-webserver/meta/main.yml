@@ -3,19 +3,15 @@ galaxy_info:
   description: Checks that each Nginx domain returns its expected HTTP status and alerts on unexpected codes.
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - monitor
-  - webserver
-  - nginx
-  - http
-  - health
-  - systemd
-  repository: https://s.infinito.nexus/code
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta
+    - monitor
+    - webserver
+    - nginx
+    - http
+    - health
+    - systemd

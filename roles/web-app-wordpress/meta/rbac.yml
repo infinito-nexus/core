@@ -1,0 +1,11 @@
+roles:
+  subscriber:
+    description: Can read posts and leave comments but cannot write or manage content
+  author:
+    description: Can write and manage own posts
+  contributor:
+    description: Can write and submit posts for review but cannot publish
+  editor:
+    description: Can publish and manage all posts, including those by other users
+  administrator:
+    description: 'Has full administrative access: manage themes, plugins, settings, and users'

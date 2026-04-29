@@ -11,7 +11,7 @@
         LITTLEJS_RUN_HOST_REL:   "{{ LITTLEJS_RUN_HOST_REL }}"
     image: {{ LITTLEJS_IMAGE_CUSTOM }}
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.littlejs.ports.local.http') }}:80
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

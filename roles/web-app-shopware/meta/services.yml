@@ -1,0 +1,96 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+init:
+  name: shopware-init
+  cpus: 1.0
+  mem_reservation: 1g
+  mem_limit: 2g
+shopware:
+  image: composer
+  version: '2.9'
+  min_storage: 20GB
+  package:
+    name: shopware/production
+    version: 6.7.8.2
+  title: '{{ SOFTWARE_NAME }} Shop'
+  ports:
+    local:
+      http: 8060
+  run_after:
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+php:
+  image: ghcr.io/shopware/docker-base
+  version: '8.3'
+web:
+  name: shopware-web
+  cpus: 1.0
+  mem_reservation: 1g
+  mem_limit: 2g
+  ports:
+    inter: 8000
+worker:
+  name: shopware-worker
+  entrypoint:
+  - php
+  - bin/console
+  - messenger:consume
+  - async
+  - low_priority
+  - --time-limit=300
+  - --memory-limit=512M
+  replicas: 3
+  cpus: 1.0
+  mem_reservation: 1g
+  mem_limit: 2g
+scheduler:
+  name: shopware-scheduler
+  entrypoint:
+  - php
+  - bin/console
+  - scheduled-task:run
+  cpus: 0.5
+  mem_reservation: 512m
+  mem_limit: 1g
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+  image: redis
+  version: 8-alpine
+  cpus: 0.25
+  mem_reservation: 256m
+  mem_limit: 512m
+# noqa: shared
+opensearch:
+  enabled: true
+  image: opensearchproject/opensearch
+  version: 3.6.0
+  name: shopware-opensearch
+  cpus: 1.0
+  mem_reservation: 2g
+  mem_limit: 4g
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

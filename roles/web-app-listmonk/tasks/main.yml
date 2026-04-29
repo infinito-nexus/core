@@ -37,7 +37,7 @@
     {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
     UPDATE users
     SET email = '{{ lookup('users', 'administrator').email }}',
-        password_login = {{ 'false' if lookup('config',application_id, 'compose.services.oidc.enabled') else 'true' }}
+        password_login = {{ 'false' if lookup('config',application_id, 'services.oidc.enabled') else 'true' }}
     WHERE username = 'administrator';
     EOSQL
   args:

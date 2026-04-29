@@ -91,7 +91,6 @@ jobs:
         shell: bash
         env:
           INFINITO_DISTRO: ${{ matrix.distro }}
-          INFINITO_CONTAINER: infinito_nexus_${{ matrix.distro }}
         run: |
           set -euo pipefail
           make up
@@ -101,7 +100,6 @@ jobs:
         env:
           ENV_FILE: env.ci
           INFINITO_DISTRO: ${{ matrix.distro }}
-          INFINITO_CONTAINER: infinito_nexus_${{ matrix.distro }}
         run: |
           set -euo pipefail
           scripts/tests/dns.sh
@@ -117,6 +115,9 @@ jobs:
         if: failure()
         shell: bash
         env:
-          INFINITO_CONTAINER: infinito_nexus_${{ matrix.distro }}
+          INFINITO_DISTRO: ${{ matrix.distro }}
         run: |
+          set -euo pipefail
+          # shellcheck source=scripts/meta/env/defaults.sh
+          source scripts/meta/env/defaults.sh
           docker logs "${INFINITO_CONTAINER}" --tail=200 || true

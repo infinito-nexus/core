@@ -1,0 +1,44 @@
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+mariadb:
+  enabled: true
+  shared: true
+akaunting:
+  backup:
+    no_stop_required: true
+  image: docker.io/akaunting/akaunting
+  version: latest
+  name: akaunting
+  min_storage: 8GB
+  company:
+    name: Akaunting on {{ DOMAIN_PRIMARY | upper }}
+    email: '{{ lookup(''users'', ''administrator'').email }}'
+  setup_admin_email: '{{ lookup(''users'', ''administrator'').email }}'
+  ports:
+    local:
+      http: 8025
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: alpha
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

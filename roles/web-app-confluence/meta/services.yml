@@ -1,0 +1,42 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+confluence:
+  image: atlassian/confluence
+  version: latest
+  name: confluence
+  min_storage: 20GB
+  cpus: '3.0'
+  mem_reservation: 6g
+  mem_limit: 8g
+  pids_limit: 2048
+  truststore_enabled: false
+  ports:
+    local:
+      http: 8005
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: alpha
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

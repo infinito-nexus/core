@@ -1,0 +1,37 @@
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+lam:
+  image: ghcr.io/ldapaccountmanager/lam
+  version: latest
+  min_storage: 1GB
+  ports:
+    local:
+      oauth2: 16482
+      http: 8033
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    host: application
+    port: 80
+  allowed_groups:
+  - '{{ lookup(''rbac_group_path'', application_id=''web-app-lam'', role=''administrator'') }}'
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

@@ -3,22 +3,22 @@ application_id:                 "web-app-minio"
 
 # MINIO
 # https://www.min.io/
-MINIO_VERSION:                  "{{ lookup('config', application_id, 'compose.services.minio.version') }}"
-MINIO_IMAGE:                    "{{ lookup('config', application_id, 'compose.services.minio.image') }}"
-MINIO_CONTAINER:                "{{ lookup('config', application_id, 'compose.services.minio.name') }}"
-MINIO_VOLUME:                   "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+MINIO_VERSION:                  "{{ lookup('config', application_id, 'services.minio.version') }}"
+MINIO_IMAGE:                    "{{ lookup('config', application_id, 'services.minio.image') }}"
+MINIO_CONTAINER:                "{{ lookup('config', application_id, 'services.minio.name') }}"
+MINIO_VOLUME:                   "{{ lookup('config', application_id, 'volumes.data') }}"
 
 ## Api
 MINIO_API_DOMAIN:               "{{ lookup('config', application_id, 'server.domains.canonical.api') }}"
 MINIO_API_URL:                  "{{ lookup('tls', application_id, 'protocols.web') }}://{{ MINIO_API_DOMAIN }}"
 MINIO_API_PORT_INTERNAL:        9000
-MINIO_API_PORT_PUBLIC:          "{{ ports.localhost.http[application_id ~ '_api'] }}"
+MINIO_API_PORT_PUBLIC:          "{{ lookup('config', application_id, 'services.api.ports.local.http') }}"
 
 ## Console
 MINIO_CONSOLE_DOMAIN:           "{{ lookup('config', application_id, 'server.domains.canonical.console') }}"
 MINIO_CONSOLE_URL:              "{{ lookup('tls', application_id, 'url.base') }}"
 MINIO_CONSOLE_PORT_INTERNAL:    9001
-MINIO_CONSOLE_PORT_PUBLIC:      "{{ ports.localhost.http[application_id ~ '_console'] }}"
+MINIO_CONSOLE_PORT_PUBLIC:      "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
 
 ## MC
 MINIO_MC_IMAGE:                 "quay.io/minio/mc:latest"
@@ -31,8 +31,8 @@ MINIO_MC_INSECURE_SUFFIX:       "{{ '?insecure=true' if (MINIO_MC_INSECURE | boo
 MINIO_MC_HOST_ENV:              "{{ MINIO_MC_SCHEME }}://{{ MINIO_MC_USER }}:{{ MINIO_MC_PASS }}@{{ MINIO_MC_HOST_ONLY }}{{ MINIO_MC_INSECURE_SUFFIX }}"
 
 ## OIDC
-MINIO_OIDC_ENABLED:             "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
-MINIO_OIDC_POLICY_NAME:         "{{ [ RBAC.GROUP.NAME, application_id ~ '-administrator' ] | path_join }}"
+MINIO_OIDC_ENABLED:             "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+MINIO_OIDC_POLICY_NAME:         "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 MINIO_OIDC_POLICY_CONTENT:      "{{ lookup('template', 'policy.json.j2') }}"
 
 MINIO_FRONT_PROXY_MATRIX: >-

@@ -8,7 +8,7 @@
 - name: Wait for Gitea HTTP endpoint
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ ports.localhost.http[application_id] }}"
+    port: "{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}"
     delay: 5
     timeout: 300
 
@@ -41,7 +41,7 @@
 
 - name: "Wait until Gitea setup and migrations are ready"
   uri_retry:
-    url: "http://{{ DOCKER_REACH_HOST }}:{{ ports.localhost.http[application_id] }}/api/v1/version"
+    url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}/api/v1/version"
     method: GET
     status_code: 200
     return_content: no

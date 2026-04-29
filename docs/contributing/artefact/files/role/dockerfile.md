@@ -15,15 +15,15 @@ For the agent-side review workflow during development, see [Development](../../.
 
 ## Variables ⚙️
 
-- You MUST NOT hard-code values that come from `config/main.yml` or `vars/main.yml`
+- You MUST NOT hard-code values that come from `meta/services.yml` or `vars/main.yml`
   directly in `files/Dockerfile`.
 - You MUST declare each external value as a Docker `ARG` without a default value
   so the build always requires the value to be passed explicitly.
 - You MUST pass every `ARG` via the `args:` block in `templates/compose.yml.j2`,
   directly after the `{{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') }}` call.
 - The `vars/main.yml` of the role MUST define the variables referenced in `args:`
-  by reading them from `config/main.yml` through the `lookup('config', ...)` filter.
-  This keeps `config/main.yml` as the single source of truth.
+  by reading them from `meta/services.yml` through the `lookup('config', ...)` filter.
+  This keeps `meta/services.yml` as the single source of truth.
 
 Example `files/Dockerfile`:
 
@@ -42,21 +42,19 @@ Example `templates/compose.yml.j2` wiring:
         APP_VERSION: "{{ APP_VERSION }}"
 ```
 
-Example `config/main.yml` entry:
+Example `meta/services.yml` entry (file root IS the services map):
 
 ```yaml
-compose:
-  services:
-    myapp:
-      image:   myapp/myapp
-      version: "1.0"
+myapp:
+  image:   myapp/myapp
+  version: "1.0"
 ```
 
 Example `vars/main.yml` entry:
 
 ```yaml
-APP_IMAGE:   "{{ lookup('config', application_id, 'compose.services.myapp.image') }}"
-APP_VERSION: "{{ lookup('config', application_id, 'compose.services.myapp.version') }}"
+APP_IMAGE:   "{{ lookup('config', application_id, 'services.myapp.image') }}"
+APP_VERSION: "{{ lookup('config', application_id, 'services.myapp.version') }}"
 ```
 
 ## Image Declaration 🐳
@@ -66,22 +64,21 @@ image strings anywhere else (tasks, templates, defaults).
 
 ### Application roles (have `application_id`) 📦
 
-Declare the image under `config/main.yml` → `compose.services.<service>.{image,version}`:
+Declare the image at the file root of `meta/services.yml` → `<service>.{image,version}`:
 
 ```yaml
-compose:
-  services:
-    myapp:
-      image:   ghcr.io/vendor/myapp
-      version: "1.0"
+# roles/<role>/meta/services.yml  (file root IS the services map)
+myapp:
+  image:   ghcr.io/vendor/myapp
+  version: "1.0"
 ```
 
 Any Ansible variable that references the image MUST read from config via `lookup('config', ...)`:
 
 ```yaml
 # vars/main.yml
-MY_APP_IMAGE:   "{{ lookup('config', application_id, 'compose.services.myapp.image') }}"
-MY_APP_VERSION: "{{ lookup('config', application_id, 'compose.services.myapp.version') }}"
+MY_APP_IMAGE:   "{{ lookup('config', application_id, 'services.myapp.image') }}"
+MY_APP_VERSION: "{{ lookup('config', application_id, 'services.myapp.version') }}"
 ```
 
 ### Non-application roles 🔧

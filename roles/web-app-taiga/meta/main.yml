@@ -1,31 +1,25 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Supercharge your project management with Taiga—a dynamic, agile tool designed for teams that thrive on creativity and collaboration. Experience a vibrant interface, robust task tracking, and an energetic platform that drives your projects to success.'
+  description: Supercharge your project management with Taiga—a dynamic, agile tool designed for teams that thrive on creativity and collaboration. Experience a vibrant interface, robust task tracking, and an energetic platform that drives your projects to success.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-      - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - taiga
-  - docker
-  - project-management
-  - oidc
-  - openid
-  - archlinux
-  - infinito
-  repository: https://s.infinito.nexus/code
+    - taiga
+    - docker
+    - project-management
+    - oidc
+    - openid
+    - archlinux
+    - infinito
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-tasks
-  run_after:
-    - web-app-matomo
-    - web-app-keycloak
-  lifecycle: beta

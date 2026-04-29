@@ -14,7 +14,7 @@
       - subnet: "{{ docker_network_subnet }}"
   vars:
     docker_network_name: "{{ OPENLDAP_NETWORK }}"
-    docker_network_subnet: "{{ networks.local[application_id].subnet }}"
+    docker_network_subnet: "{{ lookup('config', application_id, 'server.networks.local.subnet') }}"
 
 - name: Copy OpenLDAP image files to instance dir
   ansible.builtin.copy:

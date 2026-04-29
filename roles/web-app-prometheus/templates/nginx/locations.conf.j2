@@ -32,7 +32,7 @@
   set $container_name "{{ container_name }}";
   {% else %}
   {% set prometheus_service_key = application_id | get_entity_name %}
-  set $container_name "{{ lookup('config', application_id, 'compose.services.' + prometheus_service_key + '.name', '') }}";
+  set $container_name "{{ lookup('config', application_id, 'services.' + prometheus_service_key + '.name', '') }}";
   {% endif %}
   {% include 'roles/web-app-prometheus/templates/nginx/healthz.conf.j2' %}
   {% include 'roles/web-app-prometheus/templates/nginx/location.conf.j2' %}

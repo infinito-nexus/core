@@ -1,6 +1,0 @@
-credentials:
-
-  administrator_password:
-    description: "Initial password for the pgAdmin administrator login"
-    algorithm: "sha256"
-    validation: "^[a-f0-9]{64}$"

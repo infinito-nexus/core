@@ -1,0 +1,30 @@
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-eval: true
+  whitelist:
+    worker-src:
+    - 'blob:'
+    font-src:
+    - 'data:'
+    - https://fonts.bunny.net
+    script-src-elem:
+    - https://cdn.gtranslate.net
+    - https://translate.google.com
+    - blog.{{ DOMAIN_PRIMARY }}
+    style-src-elem:
+    - https://fonts.bunny.net
+    frame-src:
+    - 'blob:'
+    - '*'
+domains:
+  canonical:
+  - blog.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.101.176/28

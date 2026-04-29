@@ -27,7 +27,7 @@ class TestCombinedRepoPaths(unittest.TestCase):
             )
             self.assertEqual(
                 repo_paths.role_config_path("web-app-x"),
-                root / "roles" / "web-app-x" / "config" / "main.yml",
+                root / "roles" / "web-app-x" / "meta" / "services.yml",
             )
 
 

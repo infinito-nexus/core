@@ -1,0 +1,87 @@
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+web:
+  name: openproject-web
+  image: openproject/openproject
+  version: '17'
+  backup:
+    no_stop_required: true
+  cpus: '3.0'
+  mem_reservation: 3g
+  mem_limit: 4g
+  pids_limit: 2048
+seeder:
+  name: openproject-seeder
+  cpus: '0.3'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+cron:
+  name: openproject-cron
+  cpus: '0.3'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+worker:
+  name: openproject-worker
+  cpus: '2.0'
+  mem_reservation: 2g
+  mem_limit: 3g
+  pids_limit: 2048
+proxy:
+  name: openproject-proxy
+  cpus: '0.3'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+cache:
+  name: openproject-cache
+  cpus: '0.3'
+  mem_reservation: 512m
+  mem_limit: 512m
+  pids_limit: 256
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    host: proxy
+    port: '80'
+  acl:
+    whitelist:
+    - /users/me
+    - /api/
+    - /oauth/token
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true
+openproject:
+  ldap:
+    filters:
+      administrators: false
+      users: false
+  ports:
+    local:
+      oauth2: 16483
+      http: 8023
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta

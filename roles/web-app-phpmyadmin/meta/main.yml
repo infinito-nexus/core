@@ -1,32 +1,24 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Manage your databases with confidence using PHPMyAdmin, a robust and dynamic tool designed to simplify administration
-    and enhance productivity. Enjoy an intuitive interface, powerful features, and an energetic approach that makes database
-    management a breeze.
+  description: Manage your databases with confidence using PHPMyAdmin, a robust and dynamic tool designed to simplify administration and enhance productivity. Enjoy an intuitive interface, powerful features, and an energetic approach that makes database management a breeze.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - phpmyadmin
-  - docker
-  - webui
-  - oauth2
-  - mariadb
-  - postgresql
-  repository: https://s.infinito.nexus/code
+    - phpmyadmin
+    - docker
+    - webui
+    - oauth2
+    - mariadb
+    - postgresql
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-database
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  lifecycle: beta

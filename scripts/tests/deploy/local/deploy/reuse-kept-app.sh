@@ -15,7 +15,17 @@ set -euo pipefail
 : "${DEBUG:?DEBUG is not set (true|false)}"
 : "${INVENTORY_DIR:?INVENTORY_DIR is not set (e.g. INVENTORY_DIR=/etc/inventories/local-full-server)}"
 : "${INVENTORY_FILE:?INVENTORY_FILE is not set — source scripts/meta/env/inventory.sh first}"
-pw_file="${INVENTORY_DIR}/.password"
+
+# When the previous matrix init produced one folder per round
+# (`<INVENTORY_DIR>-0`, `<INVENTORY_DIR>-1`, ...), `VARIANT=<idx>` pins
+# this redeploy to the chosen round so the operator can iterate one
+# specific variant without re-running the full matrix. Without VARIANT
+# the unsuffixed path is used, which is correct for single-variant
+# deploys (N=1). See docs/contributing/design/variants.md.
+if [[ -n "${VARIANT:-}" ]]; then
+	INVENTORY_DIR="${INVENTORY_DIR}-${VARIANT}"
+	INVENTORY_FILE="${INVENTORY_DIR}/devices.yml"
+fi
 
 case "${TEST_DEPLOY_TYPE}" in
 server | workstation | universal) ;;
@@ -40,40 +50,8 @@ echo "inventory_dir=${INVENTORY_DIR}"
 
 docker exec \
 	-e SERVICES_DISABLED="${SERVICES_DISABLED:-}" \
-	"${INFINITO_CONTAINER}" bash -c "
-  set -euo pipefail
-  cd /opt/src/infinito
-
-  if [[ ! -f \"${INVENTORY_FILE}\" ]]; then
-    echo \"ERROR: inventory not found: ${INVENTORY_FILE}\" >&2
-    exit 2
-  fi
-
-  if [[ ! -f \"${pw_file}\" ]]; then
-    echo \"ERROR: password file not found: ${pw_file}\" >&2
-    exit 2
-  fi
-
-  echo \">>> Running entry.sh\"
-  ./scripts/docker/entry.sh true
-
-  echo \">>> Starting rapid deploy\"
-  cmd=(infinito deploy dedicated \"${INVENTORY_FILE}\"
-    --skip-backup
-    --skip-cleanup
-    --id ${APPS}
-    -l localhost
-    --diff
-    -vv
-    --password-file \"${pw_file}\"
-    -e ASYNC_ENABLED=false
-    -e SYS_SERVICE_ALL_ENABLED=false
-    -e SYS_SERVICE_DEFAULT_STATE=started
-  )
-
-  if [[ \"${DEBUG}\" == \"true\" ]]; then
-    cmd+=(--debug)
-  fi
-
-  exec \"\${cmd[@]}\"
-"
+	-e INVENTORY_FILE="${INVENTORY_FILE}" \
+	-e APPS="${APPS}" \
+	-e DEBUG="${DEBUG}" \
+	"${INFINITO_CONTAINER}" \
+	bash /opt/src/infinito/scripts/tests/deploy/local/utils/reuse-kept-app-deploy.sh

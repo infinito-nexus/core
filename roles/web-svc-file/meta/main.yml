@@ -1,29 +1,27 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Configures an Nginx-based file server with HTTPS support, automatic SSL/TLS certificate retrieval, directory
-    listing, and .well-known handling for secure static file hosting.
+  description: 'Configures an Nginx-based file server with HTTPS support, automatic SSL/TLS certificate retrieval, directory listing, and .well-known handling for secure static file hosting.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - nginx
-  - https
-  - file
-  - static-files
-  - ssl
-  - letsencrypt
-  - automation
-  repository: https://s.infinito.nexus/code
+    - nginx
+    - https
+    - file
+    - static-files
+    - ssl
+    - letsencrypt
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta

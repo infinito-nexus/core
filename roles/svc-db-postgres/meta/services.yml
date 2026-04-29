@@ -1,0 +1,17 @@
+postgres:
+  enabled: false
+  shared: true
+  image: postgis/postgis
+  name: postgres
+  version: 17-3.5
+  min_storage: 10GB
+  backup:
+    database_routine: true
+  cpus: '2.0'
+  mem_reservation: 4g
+  mem_limit: 6g
+  pids_limit: 1024
+  ports:
+    local:
+      database: 5432
+  lifecycle: beta

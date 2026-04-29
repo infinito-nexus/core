@@ -1,4 +1,0 @@
-compose:
-  services:
-    non-free:
-      min_storage: "0GB"

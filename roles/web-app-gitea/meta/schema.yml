@@ -1,0 +1,5 @@
+credentials:
+  native_metrics_token:
+    description: Bearer token for Gitea's /metrics endpoint; set credentials.native_metrics_token on this role in inventory. Consumed via lookup('config', application_id, 'credentials.native_metrics_token').
+    algorithm: token
+    validation: non_empty_string

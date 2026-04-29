@@ -2,6 +2,6 @@ application_id: "web-app-roulette-wheel"
 entity_name:    "{{ application_id | get_entity_name }}"
 
 ROULETTE_WHEEL_APP_REL:     "services/repository"
-ROULETTE_IMAGE:             "{{ lookup('config', application_id, 'compose.services.roulette-wheel.image') }}"
-ROULETTE_VERSION:           "{{ lookup('config', application_id, 'compose.services.roulette-wheel.version') }}"
+ROULETTE_IMAGE:             "{{ lookup('config', application_id, 'services.roulette-wheel.image') }}"
+ROULETTE_VERSION:           "{{ lookup('config', application_id, 'services.roulette-wheel.version') }}"
 ROULETTE_IMAGE_CUSTOM:      "{{ entity_name }}_custom"

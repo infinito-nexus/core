@@ -16,7 +16,7 @@
     container_name: "{{ DECIDIM_CONTAINER }}"
     command: bundle exec puma -C config/puma.rb
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.decidim.ports.local.http') }}:{{ container_port }}"
     volumes:
       - uploads:/app/public/uploads
       - logs:/app/log

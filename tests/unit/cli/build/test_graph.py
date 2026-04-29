@@ -33,12 +33,21 @@ class TestGraphHelpers(unittest.TestCase):
             """
 galaxy_info:
   author: Test Author
-  run_after:
-    - role_b
-    - role_c
 dependencies:
   - role_d
   - role_e
+""",
+        )
+        # Per req-010 run_after lives in meta/services.yml under the role's
+        # primary entity; for "role_a" (no category prefix) the entity name
+        # is the role name itself.
+        self._write_file(
+            "roles/role_a/meta/services.yml",
+            """
+role_a:
+  run_after:
+    - role_b
+    - role_c
 """,
         )
 
@@ -112,16 +121,22 @@ galaxy_info:
         self._create_minimal_role("role_d")
         self._create_minimal_role("role_e")
 
-        # Role A with meta (run_after + dependencies)
+        # Role A with meta (dependencies); run_after now lives in services.yml
         self._write_file(
             "role_a/meta/main.yml",
             """
 galaxy_info:
   author: Role A Author
-  run_after:
-    - role_b
 dependencies:
   - role_c
+""",
+        )
+        self._write_file(
+            "role_a/meta/services.yml",
+            """
+role_a:
+  run_after:
+    - role_b
 """,
         )
 

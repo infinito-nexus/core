@@ -1,0 +1,23 @@
+csp:
+  flags:
+    script-src-attr:
+      unsafe-eval: true
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist:
+    connect-src:
+    - '*'
+    script-src-elem:
+    - element.{{ DOMAIN_PRIMARY }}
+    - https://cdn.jsdelivr.net
+domains:
+  canonical:
+    synapse: matrix.{{ DOMAIN_PRIMARY }}
+    element: element.{{ DOMAIN_PRIMARY }}
+client_max_body_size: 15M
+networks:
+  local:
+    subnet: 192.168.102.0/28

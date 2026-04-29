@@ -61,18 +61,34 @@ async function performOidcLogin(frame, username, password) {
   await signInButton.click();
 }
 
-// Navigate to the Mattermost login page and click the SSO button injected by javascript.js.j2.
-// Mattermost v11 redirects fresh browser contexts (no cookies) from /login to /landing before
-// the login form renders. We detect that redirect and navigate back to /login so the form
-// and the injected button can appear.
+// Trigger the Mattermost SSO flow the way a real user does: navigate to
+// the login page, then click the "SSO with Infinito.Nexus" button that
+// templates/javascript.js.j2 injects via MutationObserver. This verifies
+// end-to-end that (a) the login form mounts, (b) the injection fires,
+// (c) the rendered button carries the right href and (d) the click
+// kicks off the Keycloak OIDC round-trip. Direct navigation to
+// /oauth/gitlab/login would skip (a)-(c) and silently hide button
+// regressions; if the user cannot click their way through, the test
+// should fail.
+//
+// Mattermost v11 redirects fresh browser contexts (no cookies) from
+// /login to /landing before the login form renders. We bounce back to
+// /login until the form (#input_loginId) actually mounts, so the
+// injection has an anchor.
 async function startMattermostSsoFlow(page, baseUrl) {
   const base = baseUrl.replace(/\/$/, "");
   await page.goto(`${base}/login`);
-
-  // If Mattermost redirected to /landing, navigate back to /login
   if (page.url().includes("/landing")) {
     await page.goto(`${base}/login`);
   }
+
+  // Wait for the login form to mount before looking for the SSO button.
+  // The injection's MutationObserver only fires once #input_loginId
+  // exists, so racing the button query against form-mount is what
+  // caused the original 30s timeouts on fresh contexts.
+  await page
+    .locator("#input_loginId")
+    .waitFor({ state: "visible", timeout: 30_000 });
 
   const ssoButton = page.locator("a[href='/oauth/gitlab/login']");
   await ssoButton.waitFor({ state: "visible", timeout: 30_000 });
@@ -88,6 +104,10 @@ async function dismissMattermostPopups(frame) {
     // NEW: Target the specific onboarding overlay causing the intercept error
     frame.locator("[data-cy='onboarding-task-list-overlay']"),
     frame.locator(".onboarding-tour-tip__close"),
+    // "Welcome to Mattermost" onboarding card on first DM open — its
+    // dismiss button reads "No thanks, I'll figure it out myself".
+    frame.getByRole("button", { name: /no thanks/i }),
+    frame.getByText(/no thanks, i'?ll figure it out/i),
   ];
 
   for (let round = 0; round < 3; round++) {
@@ -264,11 +284,12 @@ test("prometheus scrapes mattermost native metrics — job target is up", async 
 
 // Scenario II: dashboard → click Mattermost → verify iframe → SSO login → verify channel view → logout
 //
-// The SSO flow is triggered by navigating directly to /oauth/gitlab/login rather than
-// clicking the login-page button. In Mattermost v11 Team Edition, the EnableSignInWithGitLab
-// key may be absent from the client config API even when GitLabSettings.Enable=true, which
-// causes the React frontend to not render the button. Direct navigation is functionally
-// equivalent and avoids the button-rendering dependency.
+// The SSO flow runs through `startMattermostSsoFlow`, which clicks the
+// "SSO with Infinito.Nexus" button injected by templates/javascript.js.j2.
+// This covers both the UI (is the button rendered for the user?) and
+// the OIDC plumbing (does the click trigger the Keycloak round-trip?)
+// in one assertion path; a button regression fails this test before
+// the OIDC code is even reached.
 test("dashboard to mattermost: sso login, verify channel view, logout", async ({ page }) => {
   const expectedOidcAuthUrl       = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedMattermostBaseUrl = mattermostBaseUrl.replace(/\/$/, "");
@@ -376,6 +397,11 @@ test("mattermost: biber sends direct message to administrator, administrator rec
     // Mattermost v11 supports /{team}/messages/@{username} — more reliable than
     // clicking the sidebar "New DM" button whose aria-label changed across versions.
     await biberPage.goto(`${expectedMattermostBaseUrl}/main/messages/@${adminUsername}`);
+
+    // Re-dismiss popups after navigation: opening the DM channel for the
+    // first time triggers the "Welcome to Mattermost" onboarding card,
+    // which intercepts Enter-key submission of the post composer.
+    await dismissMattermostPopups(biberPage);
 
     // Wait for the DM channel to open — message input must be visible
     const messageInput = biberPage

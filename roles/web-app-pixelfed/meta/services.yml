@@ -1,0 +1,54 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+  mem_reservation: 0.1g
+  mem_limit: 0.2g
+mariadb:
+  enabled: true
+  shared: true
+pixelfed:
+  image: zknt/pixelfed
+  version: latest
+  name: pixelfed
+  min_storage: 15GB
+  backup:
+    no_stop_required: true
+  cpus: 0.75
+  mem_reservation: 0.5g
+  mem_limit: 0.75g
+  titel: Pictures on {{ DOMAIN_PRIMARY }}
+  ports:
+    local:
+      http: 8010
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta
+worker:
+  name: pixelfed_worker
+  cpus: 1.0
+  mem_reservation: 0.75g
+  mem_limit: 1g
+  pids_limit: 512
+css:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

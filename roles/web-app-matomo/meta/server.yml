@@ -1,0 +1,22 @@
+csp:
+  whitelist:
+    script-src-elem:
+    - https://cdn.matomo.cloud  # nocheck: url
+    style-src-elem:
+    - https://fonts.googleapis.com  # nocheck: url
+  flags:
+    script-src-attr:
+      unsafe-eval: true
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+      unsafe-eval: true
+domains:
+  canonical:
+  - matomo.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.101.224/28

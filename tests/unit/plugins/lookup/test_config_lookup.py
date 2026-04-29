@@ -11,25 +11,26 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.config import LookupModule
 from utils.applications.config import AppConfigKeyError, ConfigEntryNotSetError
-from utils.runtime_data import _reset_cache_for_tests
+from utils.cache import _reset_cache_for_tests
 
 
 def _write_schema(base_dir: Path, application_id: str, schema: dict) -> None:
-    schema_path = base_dir / "roles" / application_id / "schema" / "main.yml"
+    schema_path = base_dir / "roles" / application_id / "meta" / "schema.yml"
     schema_path.parent.mkdir(parents=True, exist_ok=True)
     schema_path.write_text(yaml.safe_dump(schema), encoding="utf-8")
 
 
 def _write_config(base_dir: Path, application_id: str, config: dict) -> None:
-    config_path = base_dir / "roles" / application_id / "config" / "main.yml"
+    config_path = base_dir / "roles" / application_id / "meta" / "services.yml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(yaml.safe_dump(config), encoding="utf-8")
 
 
 def _write_users(base_dir: Path, application_id: str, users: dict) -> None:
-    users_path = base_dir / "roles" / application_id / "users" / "main.yml"
+    """Write meta/users.yml — file root IS the users map (req-008)."""
+    users_path = base_dir / "roles" / application_id / "meta" / "users.yml"
     users_path.parent.mkdir(parents=True, exist_ok=True)
-    users_path.write_text(yaml.safe_dump({"users": users}), encoding="utf-8")
+    users_path.write_text(yaml.safe_dump(users), encoding="utf-8")
 
 
 class _DummyTemplar:
@@ -80,13 +81,15 @@ class TestConfigLookup(unittest.TestCase):
             self.lm.run(["a", "b", "c", "d"], variables={"applications": {}})
 
     def test_resolves_from_roles_without_applications_var(self) -> None:
+        # meta/services.yml file root IS the services map (req-008): the
+        # consumer path therefore reads `services.<entity>.<…>`.
         _write_config(
             self._tmp,
             "web-app-foo",
             {"smtp": {"host": "mail.example.org"}},
         )
         out = self.lm.run(
-            ["web-app-foo", "smtp.host"],
+            ["web-app-foo", "services.smtp.host"],
             variables={},
             roles_dir=str(self._tmp / "roles"),
         )
@@ -96,18 +99,18 @@ class TestConfigLookup(unittest.TestCase):
         _write_config(
             self._tmp,
             "web-app-foo",
-            {"domain": "{{ SYSTEM_EMAIL_DOMAIN }}"},
+            {"foo": {"domain": "{{ SYSTEM_EMAIL_DOMAIN }}"}},
         )
         self.lm._templar = _DummyTemplar({"SYSTEM_EMAIL_DOMAIN": "mail.example.org"})
         out = self.lm.run(
-            ["web-app-foo", "domain"],
+            ["web-app-foo", "services.foo.domain"],
             variables={"SYSTEM_EMAIL_DOMAIN": "mail.example.org"},
             roles_dir=str(self._tmp / "roles"),
         )
         self.assertEqual(out, ["mail.example.org"])
 
     def test_users_path_returns_rendered_user_value(self) -> None:
-        _write_config(self._tmp, "web-app-foo", {"enabled": True})
+        _write_config(self._tmp, "web-app-foo", {"foo": {"enabled": True}})
         _write_users(self._tmp, "web-app-foo", {"administrator": {}})
         self.lm._templar = _DummyTemplar({"DOMAIN_PRIMARY": "mail.example.org"})
         out = self.lm.run(

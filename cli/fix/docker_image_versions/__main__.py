@@ -9,7 +9,7 @@ from utils.docker.version_updater import apply_updates, find_outdated_updates
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Update semver-based Docker image versions in web-*/config/main.yml."
+        description="Update semver-based Docker image versions in web-*/meta/services.yml."
     )
     parser.add_argument(
         "--repo-root",

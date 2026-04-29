@@ -1,29 +1,20 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Step into the future of communication with Matrix, a dynamic and decentralized platform that delivers secure,
-    real-time messaging and collaboration. Benefit from federation, end-to-end encryption, and versatile bridging that connects
-    you globally while safeguarding your data.
+  description: Step into the future of communication with Matrix, a dynamic and decentralized platform that delivers secure, real-time messaging and collaboration. Benefit from federation, end-to-end encryption, and versatile bridging that connects you globally while safeguarding your data.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - matrix
-  - docker
-  - federated
-  - decentralized
-  - real-time
-  - encrypted
-  repository: https://s.infinito.nexus/code
+    - matrix
+    - docker
+    - federated
+    - decentralized
+    - real-time
+    - encrypted
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-satellite-dish
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
-  lifecycle: beta
 dependencies: []

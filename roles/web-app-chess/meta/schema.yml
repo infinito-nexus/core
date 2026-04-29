@@ -1,0 +1,6 @@
+credentials:
+  hmac_secret:
+    description: HMAC secret used to sign and verify ActivityPub requests and internal application tokens.
+    algorithm: alphanumeric
+    validation:
+      min_length: 64

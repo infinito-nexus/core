@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 from .passwords import generate_random_password
 
-import yaml
+from utils.cache.yaml import load_yaml_any
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
@@ -35,7 +35,7 @@ def apply_vars_overrides_from_file(host_vars_file: Path, vars_file: Path) -> Non
         raise SystemExit(f"Vars file not found: {vars_file}")
 
     try:
-        overrides = yaml.safe_load(vars_file.read_text(encoding="utf-8")) or {}
+        overrides = load_yaml_any(str(vars_file), default_if_missing={}) or {}
     except Exception as exc:
         raise SystemExit(f"Failed to load YAML vars file {vars_file}: {exc}") from exc
 
@@ -215,8 +215,9 @@ def _get_path_administrator_home_from_group_vars(project_root: Path) -> str:
         return default_path
 
     try:
-        with paths_file.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
+        data = load_yaml_any(str(paths_file), default_if_missing={}) or {}
+        if not isinstance(data, dict):
+            data = {}
     except Exception as exc:  # pragma: no cover
         print(
             f"[WARN] Failed to load {paths_file}: {exc}. Falling back to DIR_HOME_ADMINISTRATOR={default_path}",

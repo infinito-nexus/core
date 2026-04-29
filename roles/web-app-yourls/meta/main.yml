@@ -1,31 +1,24 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Streamline your online presence with YOURLS — a nimble, open‑source URL shortener that empowers you to create,
-    track, and manage short links effortlessly.
+  description: 'Streamline your online presence with YOURLS — a nimble, open‑source URL shortener that empowers you to create, track, and manage short links effortlessly.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Linux
-    versions:
-    - all
+    - name: Linux
+      versions:
+        - all
   galaxy_tags:
-  - yourls
-  - url-shortener
-  - docker
-  - automation
-  repository: https://s.infinito.nexus/code
+    - yourls
+    - url-shortener
+    - docker
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-link
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  lifecycle: beta

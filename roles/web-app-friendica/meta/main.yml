@@ -1,25 +1,17 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Empower your decentralized social networking with Friendica, a platform designed to foster communication and
-    community building with ease. Experience a robust, containerized deployment that streamlines installation, configuration,
-    and maintenance for your Friendica instance.
+  description: Empower your decentralized social networking with Friendica, a platform designed to foster communication and community building with ease. Experience a robust, containerized deployment that streamlines installation, configuration, and maintenance for your Friendica instance.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - friendica
-  - docker
-  - social network
-  - decentralized
-  repository: https://s.infinito.nexus/code
+    - friendica
+    - docker
+    - social network
+    - decentralized
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus/
-  logo:
-    class: fa-solid fa-users
-  run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  lifecycle: beta

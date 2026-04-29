@@ -5,7 +5,7 @@ import re
 import unittest
 from typing import Dict, List, Set, Tuple
 
-from tests.utils.fs import iter_project_files, read_text
+from utils.cache.files import iter_project_files, read_text
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 

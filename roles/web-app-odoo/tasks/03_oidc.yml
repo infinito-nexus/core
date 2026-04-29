@@ -1,388 +1,192 @@
 ---
-# Configure OIDC (Keycloak) provider for Odoo
+# Configure OIDC (Keycloak) provider for Odoo.
+#
+# All SQL bodies are extracted to roles/web-app-odoo/files/oidc/*.sql so
+# they parse cleanly with SQL tooling. The shared connection params
+# (db / user / password / host / port) are deduplicated into the
+# `_odoo_db` block-vars below.
 
-- name: "Check if Keycloak OAuth provider exists"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: "SELECT id FROM auth_oauth_provider WHERE name = 'Keycloak' LIMIT 1;"
-  register: oauth_check
+- name: "Configure OIDC (Keycloak) for Odoo"
+  module_defaults:
+    community.postgresql.postgresql_query:
+      db: "{{ ODOO_DB_NAME }}"
+      login_user: "{{ lookup('database', application_id, 'username') }}"
+      login_password: "{{ lookup('database', application_id, 'password') }}"
+      login_host: "{{ lookup('database', application_id, 'reach_host') }}"
+      login_port: "{{ lookup('database', application_id, 'port') }}"
+  block:
 
-- name: "Update existing Keycloak OAuth provider"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE auth_oauth_provider SET
-        enabled = True,
-        auth_endpoint = '{{ ODOO_OIDC_AUTHORIZE_URL }}',
-        validation_endpoint = '{{ ODOO_OIDC_USERINFO_URL }}',
-        data_endpoint = '{{ ODOO_OIDC_USERINFO_URL }}',
-        client_id = '{{ ODOO_OIDC_CLIENT_ID }}',
-        scope = 'openid email profile',
-        css_class = 'fa fa-fw fa-key',
-        body = '{"en_US": "Login with SSO"}',
-        write_date = NOW()
-      WHERE name = 'Keycloak';
-  when: oauth_check.query_result | length > 0
+    - name: "Check if Keycloak OAuth provider exists"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/select_keycloak_provider_id.sql') }}"
+      register: oauth_check
 
-- name: "Create new Keycloak OAuth provider"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO auth_oauth_provider
-      (name, enabled, auth_endpoint, validation_endpoint, data_endpoint, client_id, scope, css_class, body, sequence, create_date, write_date)
-      VALUES (
-        'Keycloak',
-        True,
-        '{{ ODOO_OIDC_AUTHORIZE_URL }}',
-        '{{ ODOO_OIDC_USERINFO_URL }}',
-        '{{ ODOO_OIDC_USERINFO_URL }}',
-        '{{ ODOO_OIDC_CLIENT_ID }}',
-        'openid email profile',
-        'fa fa-fw fa-key',
-        '{"en_US": "Login with SSO"}',
-        10,
-        NOW(),
-        NOW()
-      );
-  when: oauth_check.query_result | length == 0
+    - name: "Update existing Keycloak OAuth provider"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/update_keycloak_provider.sql') }}"
+        named_args:
+          auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
+          userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
+          client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
+      when: oauth_check.query_result | length > 0
 
-- name: "Enable OAuth authentication in system parameters"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ir_config_parameter (key, value, create_date, write_date)
-      VALUES ('auth_oauth.oauth_providers', 'True', NOW(), NOW())
-      ON CONFLICT (key) DO UPDATE SET value = 'True', write_date = NOW();
+    - name: "Create new Keycloak OAuth provider"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/insert_keycloak_provider.sql') }}"
+        named_args:
+          auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
+          userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
+          client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
+      when: oauth_check.query_result | length == 0
 
-- name: "Enable OAuth signup (allow user creation on first OAuth login)"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ir_config_parameter (key, value, create_date, write_date)
-      VALUES ('auth_signup.invitation_scope', 'b2c', NOW(), NOW())
-      ON CONFLICT (key) DO UPDATE SET value = 'b2c', write_date = NOW();
+    - name: "Enable OAuth authentication in system parameters"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/upsert_ir_config_parameter.sql') }}"
+        named_args:
+          key: "auth_oauth.oauth_providers"
+          value: "True"
 
-- name: "Allow uninvited OAuth signup on website"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE website SET auth_signup_uninvited = 'b2c', write_date = NOW()
-      WHERE auth_signup_uninvited != 'b2c' OR auth_signup_uninvited IS NULL;
+    - name: "Enable OAuth signup (allow user creation on first OAuth login)"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/upsert_ir_config_parameter.sql') }}"
+        named_args:
+          key: "auth_signup.invitation_scope"
+          value: "b2c"
 
-# Create an internal user template for OAuth signup - new users inherit this user's groups
-- name: "Check if OAuth template user exists"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: "SELECT id FROM res_users WHERE login = '_oauth_template' LIMIT 1;"
-  register: oauth_template_check
+    - name: "Allow uninvited OAuth signup on website"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/update_website_uninvited_b2c.sql') }}"
 
-- name: "Create OAuth template partner"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO res_partner (name, email, active, autopost_bills, create_uid, write_uid, create_date, write_date)
-      VALUES ('OAuth Template User', 'oauth-template@localhost', False, 'ask', 1, 1, NOW(), NOW())
-      RETURNING id;
-  register: oauth_template_partner
-  when: oauth_template_check.query_result | length == 0
+    # Create an internal user template for OAuth signup. New users
+    # inherit this user's groups via base.template_portal_user_id /
+    # auth_signup.template_user_id.
+    - name: "Check if OAuth template user exists"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/select_oauth_template_user.sql') }}"
+      register: oauth_template_check
 
-- name: "Create OAuth template user"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO res_users
-      (partner_id, company_id, login, password, active, create_uid, write_uid, create_date, write_date, notification_type)
-      VALUES (%(partner_id)s, 1, '_oauth_template', '', True, 1, 1, NOW(), NOW(), 'email')
-      RETURNING id;
-    named_args:
-      partner_id: "{{ oauth_template_partner.query_result[0].id }}"
-  register: oauth_template_user
-  when:
-    - oauth_template_check.query_result | length == 0
-    - oauth_template_partner.query_result is defined
-    - oauth_template_partner.query_result | length > 0
+    - name: "Create OAuth template partner"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/insert_oauth_template_partner.sql') }}"
+      register: oauth_template_partner
+      when: oauth_template_check.query_result | length == 0
 
-- name: "Ensure OAuth template user is active"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE res_users SET active = True, write_date = NOW()
-      WHERE login = '_oauth_template' AND active = False;
+    - name: "Create OAuth template user"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/insert_oauth_template_user.sql') }}"
+        named_args:
+          partner_id: "{{ oauth_template_partner.query_result[0].id }}"
+      register: oauth_template_user
+      when:
+        - oauth_template_check.query_result | length == 0
+        - oauth_template_partner.query_result is defined
+        - oauth_template_partner.query_result | length > 0
 
-- name: "Grant Internal User group to OAuth template"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO res_groups_users_rel (gid, uid)
-      SELECT imd.res_id, u.id
-      FROM ir_model_data imd, res_users u
-      WHERE imd.module = 'base'
-        AND imd.name = 'group_user'
-        AND imd.model = 'res.groups'
-        AND u.login = '_oauth_template'
-        AND NOT EXISTS (
-          SELECT 1 FROM res_groups_users_rel r
-          WHERE r.gid = imd.res_id AND r.uid = u.id
-        );
+    - name: "Ensure OAuth template user is active"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/update_activate_oauth_template.sql') }}"
 
-- name: "Grant company access to OAuth template"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO res_company_users_rel (cid, user_id)
-      SELECT 1, u.id
-      FROM res_users u
-      WHERE u.login = '_oauth_template'
-        AND NOT EXISTS (
-          SELECT 1 FROM res_company_users_rel r
-          WHERE r.cid = 1 AND r.user_id = u.id
-        );
+    - name: "Grant Internal User group to OAuth template"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/grant_internal_user_to_oauth_template.sql') }}"
 
-# Set the template user ID for both parameters:
-# - base.template_portal_user_id: Used by _create_user_from_template() during signup
-# - auth_signup.template_user_id: Used by Odoo UI settings (we set both for consistency)
-- name: "Set OAuth template user for signup (base.template_portal_user_id)"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ir_config_parameter (key, value, create_date, write_date)
-      VALUES ('base.template_portal_user_id',
-              (SELECT id::text FROM res_users WHERE login = '_oauth_template'),
-              NOW(), NOW())
-      ON CONFLICT (key) DO UPDATE SET
-        value = (SELECT id::text FROM res_users WHERE login = '_oauth_template'),
-        write_date = NOW();
+    - name: "Grant company access to OAuth template"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/grant_company_to_oauth_template.sql') }}"
 
-- name: "Set OAuth template user for signup (auth_signup.template_user_id)"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ir_config_parameter (key, value, create_date, write_date)
-      VALUES ('auth_signup.template_user_id',
-              (SELECT id::text FROM res_users WHERE login = '_oauth_template'),
-              NOW(), NOW())
-      ON CONFLICT (key) DO UPDATE SET
-        value = (SELECT id::text FROM res_users WHERE login = '_oauth_template'),
-        write_date = NOW();
+    # Set the template user id for both knobs:
+    # - base.template_portal_user_id is consumed by
+    #   _create_user_from_template() during signup.
+    # - auth_signup.template_user_id is what the Odoo UI settings page
+    #   displays; we set both for consistency.
+    - name: "Set OAuth template user for signup (base.template_portal_user_id)"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/upsert_ir_config_parameter_template_user_id.sql') }}"
+        named_args:
+          key: "base.template_portal_user_id"
 
-- name: "Use Authorization header for OAuth token validation"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ir_config_parameter (key, value, create_date, write_date)
-      VALUES ('auth_oauth.authorization_header', 'True', NOW(), NOW())
-      ON CONFLICT (key) DO UPDATE SET value = 'True', write_date = NOW();
+    - name: "Set OAuth template user for signup (auth_signup.template_user_id)"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/upsert_ir_config_parameter_template_user_id.sql') }}"
+        named_args:
+          key: "auth_signup.template_user_id"
 
-- name: "Set web.base.url for HTTPS redirects"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ir_config_parameter (key, value, create_date, write_date)
-      VALUES ('web.base.url', %(base_url)s, NOW(), NOW())
-      ON CONFLICT (key) DO UPDATE SET value = %(base_url)s, write_date = NOW();
-    named_args:
-      base_url: "{{ ODOO_URL }}"
+    - name: "Use Authorization header for OAuth token validation"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/upsert_ir_config_parameter.sql') }}"
+        named_args:
+          key: "auth_oauth.authorization_header"
+          value: "True"
 
-- name: "Freeze web.base.url to prevent automatic detection"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ir_config_parameter (key, value, create_date, write_date)
-      VALUES ('web.base.url.freeze', 'True', NOW(), NOW())
-      ON CONFLICT (key) DO UPDATE SET value = 'True', write_date = NOW();
+    - name: "Set web.base.url for HTTPS redirects"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/upsert_ir_config_parameter.sql') }}"
+        named_args:
+          key: "web.base.url"
+          value: "{{ ODOO_URL }}"
 
-# Grant Internal User group to OAuth-created users who don't have it yet.
-# This is a fallback that repairs users created before base.template_portal_user_id was set correctly.
-# New OAuth signups will inherit the group from the template, but this ensures existing users also have it.
-- name: "Grant Internal User group to OAuth-created users"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO res_groups_users_rel (gid, uid)
-      SELECT imd.res_id, u.id
-      FROM ir_model_data imd, res_users u
-      WHERE imd.module = 'base'
-        AND imd.name = 'group_user'
-        AND imd.model = 'res.groups'
-        AND u.oauth_provider_id IS NOT NULL
-        AND u.login != '_oauth_template'
-        AND u.active = True
-        AND NOT EXISTS (
-          SELECT 1 FROM res_groups_users_rel r
-          WHERE r.gid = imd.res_id AND r.uid = u.id
-        );
+    - name: "Freeze web.base.url to prevent automatic detection"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/upsert_ir_config_parameter.sql') }}"
+        named_args:
+          key: "web.base.url.freeze"
+          value: "True"
 
-# Link existing Odoo users to Keycloak for SSO
+    # Repair fallback for users created before
+    # base.template_portal_user_id was set correctly. New OAuth signups
+    # inherit the group from the template, but legacy users do not.
+    - name: "Grant Internal User group to OAuth-created users"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/grant_internal_user_to_oauth_users_repair.sql') }}"
 
-- name: "Get Keycloak OAuth provider ID in Odoo"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: "SELECT id FROM auth_oauth_provider WHERE name = 'Keycloak' LIMIT 1;"
-  register: keycloak_provider
+    # Link existing Odoo users to Keycloak for SSO.
+    - name: "Get Keycloak OAuth provider id in Odoo"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/select_keycloak_provider_id.sql') }}"
+      register: keycloak_provider
 
-- name: "Query Keycloak DB for administrator username"
-  community.postgresql.postgresql_query:
-    db: "{{ lookup('database', 'web-app-keycloak', 'name') }}"
-    login_user: "{{ lookup('database', 'web-app-keycloak', 'username') }}"
-    login_password: "{{ lookup('database', 'web-app-keycloak', 'password') }}"
-    login_host: "{{ lookup('database', 'web-app-keycloak', 'reach_host') }}"
-    login_port: "{{ lookup('database', 'web-app-keycloak', 'port') }}"
-    query: >
-      SELECT username FROM user_entity
-      WHERE realm_id = (SELECT id FROM realm WHERE name = %(realm)s)
-      AND username = %(admin)s;
-    named_args:
-      realm: "{{ OIDC.CLIENT.REALM }}"
-      admin: "{{ lookup('users', 'administrator').username }}"
-  register: keycloak_users
-  when: keycloak_provider.query_result | length > 0
+    - name: "Query Keycloak DB for administrator username"
+      community.postgresql.postgresql_query:
+        db: "{{ lookup('database', 'web-app-keycloak', 'name') }}"
+        login_user: "{{ lookup('database', 'web-app-keycloak', 'username') }}"
+        login_password: "{{ lookup('database', 'web-app-keycloak', 'password') }}"
+        login_host: "{{ lookup('database', 'web-app-keycloak', 'reach_host') }}"
+        login_port: "{{ lookup('database', 'web-app-keycloak', 'port') }}"
+        query: "{{ lookup('file', 'oidc/select_keycloak_realm_user.sql') }}"
+        named_args:
+          realm: "{{ OIDC.CLIENT.REALM }}"
+          admin: "{{ lookup('users', 'administrator').username }}"
+      register: keycloak_users
+      when: keycloak_provider.query_result | length > 0
 
-- name: "Link administrator user to Keycloak in Odoo"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE res_users SET
-        oauth_provider_id = %(provider_id)s,
-        oauth_uid = %(oauth_uid)s,
-        write_date = NOW()
-      WHERE login = %(login)s;
-    named_args:
-      provider_id: "{{ keycloak_provider.query_result[0].id }}"
-      oauth_uid: "{{ (keycloak_users.query_result | selectattr('username', 'equalto', lookup('users', 'administrator').username) | first).username }}"
-      login: "{{ lookup('users', 'administrator').username }}"
-  when:
-    - keycloak_provider.query_result | length > 0
-    - keycloak_users.query_result | selectattr('username', 'equalto', lookup('users', 'administrator').username) | list | length > 0
+    - name: "Link administrator user to Keycloak in Odoo"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/update_user_oauth_link.sql') }}"
+        named_args:
+          provider_id: "{{ keycloak_provider.query_result[0].id }}"
+          oauth_uid: "{{ (keycloak_users.query_result | selectattr('username', 'equalto', lookup('users', 'administrator').username) | first).username }}"
+          login: "{{ lookup('users', 'administrator').username }}"
+      when:
+        - keycloak_provider.query_result | length > 0
+        - keycloak_users.query_result | selectattr('username', 'equalto', lookup('users', 'administrator').username) | list | length > 0
 
-# Auto-created OAuth users get portal access by default. Grant internal user access
-# to all OAuth-linked users so they can access the main Odoo interface.
+    # Auto-created OAuth users get portal access by default. Promote
+    # them to internal-user + default-company so they can reach the
+    # main Odoo interface.
+    - name: "Grant internal user access to OAuth-created users"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/grant_internal_user_to_oauth_signup_users.sql') }}"
+      when: keycloak_provider.query_result | length > 0
 
-- name: "Grant internal user access to OAuth-created users"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO res_groups_users_rel (gid, uid)
-      SELECT imd.res_id, u.id
-      FROM ir_model_data imd, res_users u
-      WHERE imd.module = 'base'
-        AND imd.name = 'group_user'
-        AND imd.model = 'res.groups'
-        AND u.oauth_provider_id IS NOT NULL
-        AND u.active = True
-        AND u.id > 2
-        AND NOT EXISTS (
-          SELECT 1 FROM res_groups_users_rel r
-          WHERE r.gid = imd.res_id AND r.uid = u.id
-        );
-  when: keycloak_provider.query_result | length > 0
+    - name: "Grant company access to OAuth-created users"
+      community.postgresql.postgresql_query:
+        query: "{{ lookup('file', 'oidc/grant_company_to_oauth_signup_users.sql') }}"
+      when: keycloak_provider.query_result | length > 0
 
-- name: "Grant company access to OAuth-created users"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO res_company_users_rel (cid, user_id)
-      SELECT 1, u.id
-      FROM res_users u
-      WHERE u.oauth_provider_id IS NOT NULL
-        AND u.active = True
-        AND u.id > 2
-        AND u.company_id = 1
-        AND NOT EXISTS (
-          SELECT 1 FROM res_company_users_rel r
-          WHERE r.cid = 1 AND r.user_id = u.id
-        );
-  when: keycloak_provider.query_result | length > 0
-
-# Note: Non-admin users (like biber) are auto-created via OAuth signup when they first
-# SSO login. The auth_signup.invitation_scope = 'b2c' setting enables this.
-# Users are defined in inventories/dev.yml and created in LDAP by svc-db-openldap,
-# then federated to Keycloak for SSO authentication.
-# The tasks above ensure OAuth-created users get internal access and company membership.
+# Note: Non-admin users (like biber) are auto-created via OAuth signup
+# when they first SSO login. The auth_signup.invitation_scope = 'b2c'
+# setting enables this. Users are defined in
+# inventories/development/default.yml and created in LDAP by
+# svc-db-openldap, then federated to Keycloak for SSO authentication.
+# The tasks above ensure OAuth-created users get internal access and
+# company membership.

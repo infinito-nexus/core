@@ -1,0 +1,53 @@
+# Sample inventory for CI Pipeline.
+#
+# Per-application overrides MUST live in the role itself under
+# `roles/<role>/meta/variants.yml` (one entry per matrix-deploy
+# variant). The dev init step at `cli/deploy/development/init.py`
+# materialises one inventory folder per round (`<dir>-0`, `<dir>-1`,
+# ...; or just `<dir>` when there is a single round) with the active
+# variant baked into each folder's host_vars. The matching deploy step
+# iterates those folders and purges only the apps whose variant changed
+# between rounds. This file holds only the cross-cutting environment
+# knobs.
+MASK_CREDENTIALS_IN_LOGS: false
+ASYNC_ENABLED:            false
+MODE_DEBUG:               true
+ENVIRONMENT:              development
+TLS_ENABLED:              true
+TLS_MODE:                 "self_signed"
+
+design:
+  css:
+    colors:
+      base: "#FFA500"
+
+OIDC:
+  CLIENT:
+    SECRET: VERYUNSAFESAMPLEPASSWORD1234
+users:
+  administrator:
+    authorized_keys:
+      - ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito
+    password:   "'$tr0ng€xampl3PW!"
+  biber:
+    username:   "biber"
+    firstname:  "Harry"
+    lastname:   "Beaver"
+    website:    "https://www.infinito.nexus/"
+    email:      "contact@infinito.nexus"
+    gpg:        "DUMMY-GPG-KEY-NOT-SET"
+    password:   "VeryUnsecurePassword"
+
+    # UID/GID allocation policy:
+    # - Use IDs >= 10000 for manually managed users
+    # - IDs below 10000 are reserved for auto-created Infinito.Nexus service accounts
+    # This avoids collisions with system users and managed application accounts.
+    uid: 10001
+    gid: 10001
+    roles: []
+    tokens: {}
+    authorized_keys: []
+
+SIZE_PERCENT_CLEANUP_DISC_SPACE: 99 # Set high because in DiD Ci Environment in github workflow it can be verry high e.g. ~92%
+
+WORKSTATION_USER: biber

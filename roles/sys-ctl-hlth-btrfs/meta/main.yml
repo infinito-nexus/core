@@ -3,18 +3,14 @@ galaxy_info:
   description: Health-check for Btrfs filesystems, alerts on any device error counters.
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - monitor
-  - btrfs
-  - health
-  - systemd
-  - filesystem
-  repository: https://s.infinito.nexus/code
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta
+    - monitor
+    - btrfs
+    - health
+    - systemd
+    - filesystem

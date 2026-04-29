@@ -42,12 +42,10 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         host_vars_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "docker.io/library/nextcloud",
-                                "version": "30.0.0",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "docker.io/library/nextcloud",
+                            "version": "30.0.0",
                         }
                     }
                 }
@@ -57,12 +55,10 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         mirrors_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "ghcr.io/acme/mirror/nextcloud",
-                                "version": "30.0.1",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "ghcr.io/acme/mirror/nextcloud",
+                            "version": "30.0.1",
                         }
                     }
                 }
@@ -75,7 +71,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         apply_mirror_overrides(self.host_vars, self.mirrors)
 
         out = self._read_yaml(self.host_vars)
-        svc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc = out["applications"]["web-app-nextcloud"]["services"]["app"]
 
         # applications: manual values win
         self.assertEqual(svc["image"], "docker.io/library/nextcloud")
@@ -90,15 +86,13 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         host_vars_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "mirror_policy": "force",
-                                "image": "docker.io/library/nextcloud",
-                                "version": "30.0.0",
-                                "env": {"FOO": "bar"},
-                                "replicas": 2,
-                            }
+                    "services": {
+                        "app": {
+                            "mirror_policy": "force",
+                            "image": "docker.io/library/nextcloud",
+                            "version": "30.0.0",
+                            "env": {"FOO": "bar"},
+                            "replicas": 2,
                         }
                     }
                 }
@@ -108,12 +102,10 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         mirrors_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "ghcr.io/acme/mirror/nextcloud",
-                                "version": "30.0.1",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "ghcr.io/acme/mirror/nextcloud",
+                            "version": "30.0.1",
                         }
                     }
                 }
@@ -126,7 +118,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         apply_mirror_overrides(self.host_vars, self.mirrors)
 
         out = self._read_yaml(self.host_vars)
-        svc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc = out["applications"]["web-app-nextcloud"]["services"]["app"]
 
         self.assertEqual(svc["image"], "ghcr.io/acme/mirror/nextcloud")
         self.assertEqual(svc["version"], "30.0.1")
@@ -143,13 +135,11 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         host_vars_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "mirror_policy": "skip",
-                                "image": "docker.io/library/nextcloud",
-                                "version": "30.0.0",
-                            }
+                    "services": {
+                        "app": {
+                            "mirror_policy": "skip",
+                            "image": "docker.io/library/nextcloud",
+                            "version": "30.0.0",
                         }
                     }
                 }
@@ -159,12 +149,10 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         mirrors_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "ghcr.io/acme/mirror/nextcloud",
-                                "version": "30.0.1",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "ghcr.io/acme/mirror/nextcloud",
+                            "version": "30.0.1",
                         }
                     }
                 }
@@ -177,7 +165,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         apply_mirror_overrides(self.host_vars, self.mirrors)
 
         out = self._read_yaml(self.host_vars)
-        svc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc = out["applications"]["web-app-nextcloud"]["services"]["app"]
 
         self.assertEqual(svc["image"], "docker.io/library/nextcloud")
         self.assertEqual(svc["version"], "30.0.0")
@@ -192,20 +180,16 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         host_vars_data = {
             "applications": {
                 "svc-ai-ollama": {
-                    "compose": {
-                        "services": {
-                            "ollama": {
-                                "env": {"A": "b"},
-                            }
+                    "services": {
+                        "ollama": {
+                            "env": {"A": "b"},
                         }
                     }
                 },
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "docker.io/library/nextcloud",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "docker.io/library/nextcloud",
                         }
                     }
                 },
@@ -215,22 +199,18 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         mirrors_data = {
             "applications": {
                 "svc-ai-ollama": {
-                    "compose": {
-                        "services": {
-                            "ollama": {
-                                "image": "ghcr.io/acme/mirror/ollama",
-                                "version": "1.2.3",
-                            }
+                    "services": {
+                        "ollama": {
+                            "image": "ghcr.io/acme/mirror/ollama",
+                            "version": "1.2.3",
                         }
                     }
                 },
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "ghcr.io/acme/mirror/nextcloud",
-                                "version": "30.0.1",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "ghcr.io/acme/mirror/nextcloud",
+                            "version": "30.0.1",
                         }
                     }
                 },
@@ -244,14 +224,12 @@ class TestApplyMirrorOverrides(unittest.TestCase):
 
         out = self._read_yaml(self.host_vars)
 
-        svc_ollama = out["applications"]["svc-ai-ollama"]["compose"]["services"][
-            "ollama"
-        ]
+        svc_ollama = out["applications"]["svc-ai-ollama"]["services"]["ollama"]
         self.assertEqual(svc_ollama["image"], "ghcr.io/acme/mirror/ollama")
         self.assertEqual(svc_ollama["version"], "1.2.3")
         self.assertEqual(svc_ollama["env"], {"A": "b"})
 
-        svc_nc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc_nc = out["applications"]["web-app-nextcloud"]["services"]["app"]
         self.assertEqual(svc_nc["image"], "docker.io/library/nextcloud")
         self.assertEqual(svc_nc["version"], "30.0.1")
 
@@ -266,12 +244,10 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         mirrors_data = {
             "applications": {
                 "svc-db-postgres": {
-                    "compose": {
-                        "services": {
-                            "postgres": {
-                                "image": "ghcr.io/acme/mirror/postgres",
-                                "version": "16",
-                            }
+                    "services": {
+                        "postgres": {
+                            "image": "ghcr.io/acme/mirror/postgres",
+                            "version": "16",
                         }
                     }
                 }
@@ -286,7 +262,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         out = self._read_yaml(self.host_vars)
 
         self.assertTrue(out["TLS_ENABLED"])
-        svc = out["applications"]["svc-db-postgres"]["compose"]["services"]["postgres"]
+        svc = out["applications"]["svc-db-postgres"]["services"]["postgres"]
         self.assertEqual(svc["image"], "ghcr.io/acme/mirror/postgres")
         self.assertEqual(svc["version"], "16")
 
@@ -296,7 +272,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         host_vars_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {"services": {"app": {"image": "x", "version": "1"}}}
+                    "services": {"app": {"image": "x", "version": "1"}}
                 }
             }
         }
@@ -304,22 +280,18 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         mirrors_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "ghcr.io/acme/mirror/nextcloud",
-                                # missing version -> should be ignored
-                            }
+                    "services": {
+                        "app": {
+                            "image": "ghcr.io/acme/mirror/nextcloud",
+                            # missing version -> should be ignored
                         }
                     }
                 },
                 "web-app-wordpress": {
-                    "compose": {
-                        "services": {
-                            "wp": {
-                                # missing image -> ignored
-                                "version": "6.4",
-                            }
+                    "services": {
+                        "wp": {
+                            # missing image -> ignored
+                            "version": "6.4",
                         }
                     }
                 },
@@ -333,7 +305,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
 
         out = self._read_yaml(self.host_vars)
 
-        svc_nc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc_nc = out["applications"]["web-app-nextcloud"]["services"]["app"]
         self.assertEqual(svc_nc["image"], "x")
         self.assertEqual(svc_nc["version"], "1")
 
@@ -341,9 +313,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
 
     def test_noop_when_mirrors_has_no_applications_or_images(self) -> None:
         host_vars_data = {
-            "applications": {
-                "a": {"compose": {"services": {"s": {"image": "i", "version": "v"}}}}
-            }
+            "applications": {"a": {"services": {"s": {"image": "i", "version": "v"}}}}
         }
         mirrors_data = {"not_applications_or_images": {"x": 1}}
 
@@ -353,7 +323,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         apply_mirror_overrides(self.host_vars, self.mirrors)
 
         out = self._read_yaml(self.host_vars)
-        svc = out["applications"]["a"]["compose"]["services"]["s"]
+        svc = out["applications"]["a"]["services"]["s"]
         self.assertEqual(svc["image"], "i")
         self.assertEqual(svc["version"], "v")
 
@@ -371,13 +341,11 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         host_vars_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "   ",
-                                "version": "",
-                                "env": {"FOO": "bar"},
-                            }
+                    "services": {
+                        "app": {
+                            "image": "   ",
+                            "version": "",
+                            "env": {"FOO": "bar"},
                         }
                     }
                 }
@@ -386,12 +354,10 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         mirrors_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "ghcr.io/acme/mirror/nextcloud",
-                                "version": "30.0.1",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "ghcr.io/acme/mirror/nextcloud",
+                            "version": "30.0.1",
                         }
                     }
                 }
@@ -404,7 +370,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         apply_mirror_overrides(self.host_vars, self.mirrors)
 
         out = self._read_yaml(self.host_vars)
-        svc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc = out["applications"]["web-app-nextcloud"]["services"]["app"]
         self.assertEqual(svc["image"], "ghcr.io/acme/mirror/nextcloud")
         self.assertEqual(svc["version"], "30.0.1")
         self.assertEqual(svc["env"], {"FOO": "bar"})
@@ -415,12 +381,10 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         host_vars_data = {
             "applications": {
                 "web-app-nextcloud": {
-                    "compose": {
-                        "services": {
-                            "app": {
-                                "image": "docker.io/library/nextcloud",
-                                "version": "30.0.0",
-                            }
+                    "services": {
+                        "app": {
+                            "image": "docker.io/library/nextcloud",
+                            "version": "30.0.0",
                         }
                     }
                 }
@@ -443,7 +407,7 @@ class TestApplyMirrorOverrides(unittest.TestCase):
         apply_mirror_overrides(self.host_vars, self.mirrors)
 
         out = self._read_yaml(self.host_vars)
-        svc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc = out["applications"]["web-app-nextcloud"]["services"]["app"]
         self.assertEqual(svc["image"], "docker.io/library/nextcloud")
         self.assertEqual(svc["version"], "30.0.0")
 

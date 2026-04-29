@@ -1,0 +1,6 @@
+credentials:
+  llm_master_key:
+    description: Master Key for LiteLLM
+    algorithm: alphanumeric
+    validation:
+      min_length: 50

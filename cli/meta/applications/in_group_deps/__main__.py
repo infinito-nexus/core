@@ -7,9 +7,10 @@ import argparse
 import os
 import sys
 
-import yaml
+from utils.cache.yaml import dump_yaml_str
 
 from utils.applications.in_group_deps import applications_if_group_and_all_deps
+from utils.cache.yaml import load_yaml
 
 __all__ = [
     "find_role_dirs_by_app_id",
@@ -33,8 +34,7 @@ def find_role_dirs_by_app_id(app_ids: list[str], roles_dir: str) -> list[str]:
         if not os.path.isfile(vars_file):
             continue
         try:
-            with open(vars_file, encoding="utf-8") as handle:
-                data = yaml.safe_load(handle) or {}
+            data = load_yaml(vars_file)
         except Exception:
             continue
         app_id = data.get("application_id")
@@ -75,8 +75,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        with open(args.applications, encoding="utf-8") as handle:
-            data = yaml.safe_load(handle)
+        data = load_yaml(args.applications)
     except Exception as exc:
         print(f"Error loading applications file: {exc}", file=sys.stderr)
         return 1
@@ -123,7 +122,7 @@ def main() -> int:
         print(f"Error running resolver: {exc}", file=sys.stderr)
         return 1
 
-    print(yaml.safe_dump(filtered, default_flow_style=False))
+    print(dump_yaml_str(filtered))
     return 0
 
 

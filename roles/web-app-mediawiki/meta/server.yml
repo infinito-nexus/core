@@ -1,0 +1,11 @@
+domains:
+  canonical:
+  - m.wiki.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+networks:
+  local:
+    subnet: 192.168.105.0/28

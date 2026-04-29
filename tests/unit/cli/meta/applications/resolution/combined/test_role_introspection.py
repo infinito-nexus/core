@@ -26,6 +26,13 @@ def _write_meta(root: Path, role: str, text: str) -> None:
     p.write_text(text, encoding="utf-8")
 
 
+def _write_services(root: Path, role: str, text: str) -> None:
+    """Write meta/services.yml. The file root IS the services map (req-008)."""
+    p = root / "roles" / role / "meta" / "services.yml"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(text, encoding="utf-8")
+
+
 class TestRoleIntrospection(unittest.TestCase):
     def test_require_role_exists_ok_and_fail(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -54,11 +61,13 @@ class TestRoleIntrospection(unittest.TestCase):
             _mk_role(root, "dep1", app_id="dep1")
             _mk_role(root, "dep2", app_id="dep2")
 
-            _write_meta(
+            # Per req-010 run_after lives at meta/services.yml.<entity>.run_after
+            # Entity name for "web-app-a" is "a".
+            _write_services(
                 root,
                 "web-app-a",
                 """
-galaxy_info:
+a:
   run_after:
     - dep1
     - dep1
@@ -74,11 +83,11 @@ galaxy_info:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             _mk_role(root, "web-app-a", app_id="web-app-a")
-            _write_meta(
+            _write_services(
                 root,
                 "web-app-a",
                 """
-galaxy_info:
+a:
   run_after: dep1
 """,
             )

@@ -2,7 +2,6 @@ galaxy_info:
   author: Kevin Veen‑Birchenbach
   description: Installs neovim CLI text editor on Pacman‑based systems.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   company: 'Kevin Veen‑Birchenbach
 
     Consulting & Coaching Solutions
@@ -11,18 +10,13 @@ galaxy_info:
 
     '
   galaxy_tags:
-  - neovim
-  - editor
-  - cli
-  repository: https://s.infinito.nexus/code
+    - neovim
+    - editor
+    - cli
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://s.infinito.nexus/code/tree/main/roles/desk-neovim
-  logo:
-    class: fab fa-vim
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - all
-  lifecycle: pre-alpha
+    - name: Archlinux
+      versions:
+        - all
 dependencies: []

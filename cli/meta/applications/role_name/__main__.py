@@ -11,7 +11,8 @@ roles directory is located at the project root, relative to this script's locati
 import os
 import sys
 import argparse
-import yaml
+
+from utils.cache.yaml import load_yaml
 
 
 def get_role(application_id, roles_path):
@@ -31,8 +32,7 @@ def get_role(application_id, roles_path):
         vars_file = os.path.join(role_dir, "vars", "main.yml")
         if os.path.isfile(vars_file):
             try:
-                with open(vars_file, "r") as f:
-                    data = yaml.safe_load(f) or {}
+                data = load_yaml(vars_file)
             except Exception as e:
                 raise RuntimeError(f"Failed to load {vars_file}: {e}")
 

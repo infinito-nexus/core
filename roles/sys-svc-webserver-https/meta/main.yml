@@ -3,20 +3,16 @@ galaxy_info:
   description: Configures Nginx to serve sites securely over HTTPS, integrates Let’s Encrypt and cleans up stale domain configs.
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - nginx
-  - https
-  - tls
-  - letsencrypt
-  - security
-  - automation
-  repository: https://s.infinito.nexus/code
-  documentation: https://docs.infinito.nexus
+    - nginx
+    - https
+    - tls
+    - letsencrypt
+    - security
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  lifecycle: beta

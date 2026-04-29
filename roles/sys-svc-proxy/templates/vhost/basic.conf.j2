@@ -5,7 +5,7 @@ server
   server_name {{ domain }};
   {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
 
-  {% if lookup('config',application_id, 'compose.services.oauth2.enabled', False) %}
+  {% if lookup('config',application_id, 'services.oauth2.enabled', False) %}
     {% include 'roles/web-app-oauth2-proxy/templates/endpoint.conf.j2'%}
   {% endif %}
 
@@ -18,8 +18,8 @@ server
 
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
-  {% if lookup('config',application_id, 'compose.services.oauth2.enabled', False) %}
-    {% set acl = lookup('config', application_id, 'compose.services.oauth2.acl', {}) %}
+  {% if lookup('config',application_id, 'services.oauth2.enabled', False) %}
+    {% set acl = lookup('config', application_id, 'services.oauth2.acl', {}) %}
 
     {% if acl.blacklist is defined %}
       {# 1. Expose everything by default, then protect blacklisted paths #}

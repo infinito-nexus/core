@@ -1,0 +1,19 @@
+fusiondirectory:
+  ports:
+    local:
+      oauth2: 16487
+      http: 8038
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: planned
+prometheus:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true

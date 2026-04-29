@@ -1,0 +1,14 @@
+logout:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true
+jenkins:
+  ports:
+    local:
+      http: 8070
+  lifecycle: planned

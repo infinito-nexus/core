@@ -1,0 +1,3 @@
+copyq:
+  server_enabled: true
+  lifecycle: pre-alpha

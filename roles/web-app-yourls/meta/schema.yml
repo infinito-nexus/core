@@ -1,0 +1,5 @@
+credentials:
+  administrator_password:
+    description: Initial password for the YOURLS administrator account
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

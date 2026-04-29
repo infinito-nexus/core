@@ -11,13 +11,13 @@ class TestServiceTransitiveDependencies(unittest.TestCase):
         self.repo_root = Path(__file__).resolve().parents[3]
         self.applications = {
             "web-app-dashboard": self._load_yaml(
-                "roles", "web-app-dashboard", "config", "main.yml"
+                "roles", "web-app-dashboard", "meta", "services.yml"
             ),
             "web-svc-asset": self._load_yaml(
-                "roles", "web-svc-asset", "config", "main.yml"
+                "roles", "web-svc-asset", "meta", "services.yml"
             ),
             "web-svc-file": self._load_yaml(
-                "roles", "web-svc-file", "config", "main.yml"
+                "roles", "web-svc-file", "meta", "services.yml"
             ),
         }
 

@@ -1,0 +1,4 @@
+- name: "update (pacman) | refresh pacman cache and upgrade all installed packages"
+  community.general.pacman:
+    update_cache: true
+    upgrade: true

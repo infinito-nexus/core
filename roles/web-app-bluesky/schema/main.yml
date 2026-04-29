@@ -1,9 +1,0 @@
-credentials:
-  jwt_secret:
-    description: "Secret used for JWT signing"
-    algorithm: "base64_prefixed_32"
-    validation: "^base64:[A-Za-z0-9+/]{43}=$"
-  plc_rotation_key_k256_private_key_hex:
-    description: "PLC rotation key in hex format (32 bytes)"
-    algorithm: "sha256"
-    validation: "^[a-f0-9]{64}$"

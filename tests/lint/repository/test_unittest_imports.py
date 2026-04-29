@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from tests.utils.fs import iter_project_files_with_content
+from utils.cache.files import iter_project_files_with_content
 
 
 class TestUnittestImports(unittest.TestCase):

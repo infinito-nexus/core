@@ -2,7 +2,7 @@
 # General
 application_id:             "web-app-matomo"
 domain:                     "{{ lookup('domain',application_id) }}"
-http_port:                  "{{ ports.localhost.http[application_id] }}"
+http_port:                  "{{ lookup('config', application_id, 'services.matomo.ports.local.http') }}"
 entity_name:                "{{ application_id | get_entity_name }}"
 
 # Matomo
@@ -11,20 +11,20 @@ entity_name:                "{{ application_id | get_entity_name }}"
 
 ### Application
 MATOMO_SERVICE:             "{{ entity_name }}"
-MATOMO_VERSION:             "{{ lookup('config', application_id, 'compose.services.' ~ MATOMO_SERVICE ~ '.version') }}"
-MATOMO_IMAGE:               "{{ lookup('config', application_id, 'compose.services.' ~ MATOMO_SERVICE ~ '.image') }}"
-MATOMO_NAME:                "{{ lookup('config', application_id, 'compose.services.' ~ MATOMO_SERVICE ~ '.name') }}"
-MATOMO_DATA:                "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+MATOMO_VERSION:             "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.version') }}"
+MATOMO_IMAGE:               "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.image') }}"
+MATOMO_NAME:                "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"
+MATOMO_DATA:                "{{ lookup('config', application_id, 'volumes.data') }}"
 MATOMO_CONFIG:              "/var/www/html/config/config.ini.php"
 MATOMO_SERVICE_URL:         "http://{{ MATOMO_SERVICE }}"
 
 ### Bootstrap
 MATOMO_BOOTSTRAP_SERVICE:   "bootstrap"
 MATOMO_BOOTSTRAP_PROFILE:   "{{ MATOMO_BOOTSTRAP_SERVICE }}"
-MATOMO_BOOTSTRAP_IMAGE:     "{{ lookup('config', application_id, 'compose.services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.image') }}"
-MATOMO_BOOTSTRAP_VERSION:   "{{ lookup('config', application_id, 'compose.services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.version') }}"
-MATOMO_BOOTSTRAP_NAME:      "{{ lookup('config', application_id, 'compose.services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.name') }}"
-MATOMO_BOOTSTRAP_TIMEOUT:   "{{ lookup('config', application_id, 'compose.services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.timeout') }}"
+MATOMO_BOOTSTRAP_IMAGE:     "{{ lookup('config', application_id, 'services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.image') }}"
+MATOMO_BOOTSTRAP_VERSION:   "{{ lookup('config', application_id, 'services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.version') }}"
+MATOMO_BOOTSTRAP_NAME:      "{{ lookup('config', application_id, 'services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.name') }}"
+MATOMO_BOOTSTRAP_TIMEOUT:   "{{ lookup('config', application_id, 'services.' ~ MATOMO_BOOTSTRAP_SERVICE ~ '.timeout') }}"
 MATOMO_BOOTSTRAP_ENV_FILE:  "{{ [lookup('container', application_id, 'directories.env'), MATOMO_BOOTSTRAP_SERVICE ~ '.env'] | path_join }}"
 MATOMO_BOOTSTRAP_RETRIES:   7
 MATOMO_BOOTSTRAP_RETRY_DELAY_S: 20
@@ -35,12 +35,12 @@ MATOMO_ADMIN_USER_KEY:      "administrator"
 MATOMO_ADMIN_USER_NAME:     "{{ lookup('users', MATOMO_ADMIN_USER_KEY).username }}"
 MATOMO_ADMIN_PASSWORD:      "{{ lookup('users', MATOMO_ADMIN_USER_KEY).password }}"
 MATOMO_ADMIN_EMAIL:         "{{ lookup('users', MATOMO_ADMIN_USER_KEY).email }}"
-MATOMO_SITE_NAME:           "{{ lookup('config', application_id, 'site_name') }}"
+MATOMO_SITE_NAME:           "{{ lookup('config', application_id, 'services.matomo.site_name') }}"
 MATOMO_SITE_URL:            "{{ lookup('tls', application_id, 'url.base') }}"
-MATOMO_EXCLUDED_IPS:        "{{ lookup('config', application_id, 'excluded_ips') }}"
+MATOMO_EXCLUDED_IPS:        "{{ lookup('config', application_id, 'services.matomo.excluded_ips') }}"
 
 # Token
-MATOMO_TOKEN_DESCRIPTION:       "{{ lookup('config', application_id, 'token.description') }}"
+MATOMO_TOKEN_DESCRIPTION:       "{{ lookup('config', application_id, 'services.matomo.token.description') }}"
 
 # Other Variables
 matomo_index_php_url:       "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}/index.php"

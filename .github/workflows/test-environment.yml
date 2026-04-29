@@ -29,6 +29,21 @@ jobs:
       DEV_RUNTIME_IMAGE: ${{ matrix.dev_runtime_image }}
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      # Cache caps for CI. The orchestrator unsets GITHUB_ACTIONS to
+      # simulate local dev, which activates the `cache` compose profile
+      # (registry-cache + package-cache). Bind paths moved to /mnt so
+      # caches share the 74g ephemeral disk with /var/lib/docker
+      # instead of stressing the small / partition. Sizes tuned for
+      # post-prune in-run re-pulls: large enough to fit one deploy's
+      # in-use image set (rpardini) plus pip/npm/apt artefacts (Nexus),
+      # leaving ~62g headroom for Docker layer storage on /mnt.
+      INFINITO_REGISTRY_CACHE_MAX_SIZE: 8g
+      INFINITO_REGISTRY_CACHE_HOST_PATH: /mnt/cache/registry/mirror
+      INFINITO_REGISTRY_CACHE_CA_HOST_PATH: /mnt/cache/registry/ca
+      INFINITO_PACKAGE_CACHE_BLOBSTORE_MAX: 4g
+      INFINITO_PACKAGE_CACHE_HEAP: 1g
+      INFINITO_PACKAGE_CACHE_DIRECT_MEM: 1g
+      INFINITO_PACKAGE_CACHE_HOST_PATH: /mnt/cache/package/data
 
     steps:
       - name: Checkout repository
@@ -53,6 +68,13 @@ jobs:
             -e INFINITO_PULL_POLICY=never \
             -e INFINITO_NO_BUILD=0 \
             -e NIX_CONFIG \
+            -e INFINITO_REGISTRY_CACHE_MAX_SIZE \
+            -e INFINITO_REGISTRY_CACHE_HOST_PATH \
+            -e INFINITO_REGISTRY_CACHE_CA_HOST_PATH \
+            -e INFINITO_PACKAGE_CACHE_BLOBSTORE_MAX \
+            -e INFINITO_PACKAGE_CACHE_HEAP \
+            -e INFINITO_PACKAGE_CACHE_DIRECT_MEM \
+            -e INFINITO_PACKAGE_CACHE_HOST_PATH \
             --network host \
             -v "${HOST_WORKDIR}:${HOST_WORKDIR}" \
             -v "/mnt/docker:/var/lib/docker" \

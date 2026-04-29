@@ -1,0 +1,50 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  shared: true
+  enabled: true
+decidim:
+  image: ghcr.io/decidim/decidim
+  version: 0.31.4
+  min_storage: 10GB
+  name: decidim
+  cpus: '1.0'
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    local:
+      http: 8069
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+  cpus: '0.25'
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 128
+css:
+  enabled: true
+  shared: true
+oauth2:
+  enabled: false
+prometheus:
+  enabled: true
+  shared: true

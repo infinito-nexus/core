@@ -1,0 +1,34 @@
+oauth2:
+  enabled: false
+dashboard:
+  enabled: false
+  shared: false
+matomo:
+  enabled: false
+  shared: false
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: false
+  shared: false
+recaptcha:
+  enabled: false
+simpleicons:
+  enabled: false
+  shared: true
+  image: node
+  version: latest
+  min_storage: 1GB
+  cpus: 0.5
+  mem_reservation: 126m
+  mem_limit: 265m
+  pids_limit: 126
+  ports:
+    local:
+      http: 8044
+  lifecycle: beta
+prometheus:
+  enabled: true
+  shared: true

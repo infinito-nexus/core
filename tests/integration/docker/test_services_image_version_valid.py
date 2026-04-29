@@ -21,12 +21,13 @@ def _iter_role_config_files(repo_root: Path) -> List[Path]:
     roles_dir = repo_root / "roles"
     if not roles_dir.is_dir():
         return []
-    return sorted(roles_dir.glob("*/config/main.yml"))
+    return sorted(roles_dir.glob("*/meta/services.yml"))
 
 
 def _extract_services(cfg: Dict[str, Any]) -> Dict[str, Any]:
-    docker = _safe_mapping(cfg.get("compose"))
-    return _safe_mapping(docker.get("services"))
+    # Per req-008 the file root of meta/services.yml IS the services
+    # map (no `compose.services` wrapper).
+    return _safe_mapping(cfg)
 
 
 def _iter_declared_fields(
@@ -70,7 +71,7 @@ class TestDockerServicesImageVersionValid(unittest.TestCase):
         config_files = _iter_role_config_files(repo_root)
         self.assertTrue(
             config_files,
-            f"No role config files found under: {repo_root / 'roles' / '*/config/main.yml'}",
+            f"No role config files found under: {repo_root / 'roles' / '*/meta/services.yml'}",
         )
 
         for cfg_path in config_files:
@@ -83,17 +84,17 @@ class TestDockerServicesImageVersionValid(unittest.TestCase):
             for svc_name, field, value in _iter_declared_fields(services):
                 if field == "image" and not _is_valid_image(value):
                     failures.append(
-                        f"{cfg_path}: compose.services.{svc_name}.image invalid: {value!r}"
+                        f"{cfg_path}: services.{svc_name}.image invalid: {value!r}"
                     )
 
                 if field == "version" and not _is_valid_version(value):
                     failures.append(
-                        f"{cfg_path}: compose.services.{svc_name}.version invalid: {value!r}"
+                        f"{cfg_path}: services.{svc_name}.version invalid: {value!r}"
                     )
 
         if failures:
             self.fail(
-                "Invalid compose.services image/version entries found:\n"
+                "Invalid services image/version entries found:\n"
                 + "\n".join(f"- {x}" for x in failures)
             )
 

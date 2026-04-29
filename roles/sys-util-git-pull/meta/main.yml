@@ -1,25 +1,25 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'System utility role that performs shallow Git clones and updates with optional tag pinning, conflict healing,
-    and deterministic change detection.
+  description: 'System utility role that performs shallow Git clones and updates with optional tag pinning, conflict healing, and deterministic change detection.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: all
+    - name: all
   galaxy_tags:
-  - git
-  - system
-  - utility
-  - shallow
-  - automation
-  - deployment
-  - infinito
-  lifecycle: beta
+    - git
+    - system
+    - utility
+    - shallow
+    - automation
+    - deployment
+    - infinito
 dependencies: []

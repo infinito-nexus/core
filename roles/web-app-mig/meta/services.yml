@@ -1,0 +1,33 @@
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+redis:
+  enabled: false
+  backup:
+    disabled: true
+mig:
+  image: ghcr.io/kevinveenbirkenbach/infinito-mig
+  version: latest
+  name: mig
+  min_storage: 1GB
+  ports:
+    inter: 80
+    local:
+      http: 8047
+  lifecycle: alpha
+css:
+  enabled: true
+  shared: true
+# noqa: email
+email:
+  enabled: false
+  shared: false
+prometheus:
+  enabled: true
+  shared: true

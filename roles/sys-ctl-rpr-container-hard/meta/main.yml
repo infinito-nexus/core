@@ -1,28 +1,26 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automates the restart of Docker Compose instances by detecting compose.yml files and executing a restart
-    script, ensuring consistent service availability.
+  description: Automates the restart of Docker Compose instances by detecting compose.yml files and executing a restart script, ensuring consistent service availability.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
-  - name: Ubuntu
-    versions:
-    - all
+    - name: Archlinux
+      versions:
+        - rolling
+    - name: Ubuntu
+      versions:
+        - all
   galaxy_tags:
-  - docker
-  - restart
-  - update
-  - systemd
-  - automation
-  repository: https://s.infinito.nexus/code
+    - docker
+    - restart
+    - update
+    - systemd
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta

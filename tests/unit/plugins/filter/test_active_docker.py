@@ -17,56 +17,44 @@ class TestActiveDockerFilter(unittest.TestCase):
             "unrelated-group",
         ]
 
-        # a representative applications structure
+        # a representative applications structure (post-req-008: file-root services map)
         self.apps = {
             # counted (prefix web-/svc- AND in group_names)
             "web-app-jira": {
-                "compose": {
-                    "services": {
-                        "jira": {"enabled": True},
-                        "proxy": {},  # enabled undefined -> counts
-                        "debug": {"enabled": False},  # should NOT count
-                    }
+                "services": {
+                    "jira": {"enabled": True},
+                    "proxy": {},  # enabled undefined -> counts
+                    "debug": {"enabled": False},  # should NOT count
                 }
             },
             "web-app-confluence": {
-                "compose": {
-                    "services": {
-                        "confluence": {"enabled": True},
-                    }
+                "services": {
+                    "confluence": {"enabled": True},
                 }
             },
             "svc-db-postgres": {
-                "compose": {
-                    "services": {
-                        "postgres": {"enabled": True},
-                        "backup": {"enabled": False},  # no
-                    }
+                "services": {
+                    "postgres": {"enabled": True},
+                    "backup": {"enabled": False},  # no
                 }
             },
             "svc-ai-ollama": {
-                "compose": {
-                    "services": {
-                        # non-dict service cfg (string) -> should count as "enabled"
-                        "ollama": "ghcr.io/ollama/ollama:latest",
-                    }
+                "services": {
+                    # non-dict service cfg (string) -> should count as "enabled"
+                    "ollama": "ghcr.io/ollama/ollama:latest",
                 }
             },
             "web-svc-cdn": {
-                "compose": {
-                    "services": {
-                        # weird truthy value -> treated as enabled
-                        "cdn": {"enabled": "yes"},
-                    }
+                "services": {
+                    # weird truthy value -> treated as enabled
+                    "cdn": {"enabled": "yes"},
                 }
             },
             # NOT counted: wrong prefix
-            "db-core-mariadb": {
-                "compose": {"services": {"mariadb": {"enabled": True}}}
-            },
+            "db-core-mariadb": {"services": {"mariadb": {"enabled": True}}},
             # NOT counted: not in group_names
-            "web-app-gitlab": {"compose": {"services": {"gitlab": {"enabled": True}}}},
-            # NOT counted: missing docker/services
+            "web-app-gitlab": {"services": {"gitlab": {"enabled": True}}},
+            # NOT counted: missing services
             "web-app-empty": {},
         }
 
@@ -98,7 +86,7 @@ class TestActiveDockerFilter(unittest.TestCase):
     def test_not_in_group_names_excluded(self):
         # Add a matching app but omit from group_names → should not count
         apps = dict(self.apps)
-        apps["web-app-pixelfed"] = {"compose": {"services": {"pix": {"enabled": True}}}}
+        apps["web-app-pixelfed"] = {"services": {"pix": {"enabled": True}}}
         cnt = active_docker_container_count(apps, self.group_names)
         # stays 6
         self.assertEqual(cnt, 6)
@@ -111,28 +99,28 @@ class TestActiveDockerFilter(unittest.TestCase):
             1,
         )
 
-        # App with no docker/services should be ignored (already in fixture)
+        # App with no services should be ignored (already in fixture)
         cnt = active_docker_container_count(self.apps, self.group_names)
         self.assertEqual(cnt, 6)
 
     def test_enabled_false_excluded(self):
         # Ensure explicit false is excluded
         apps = dict(self.apps)
-        apps["web-app-jira"]["compose"]["services"]["only_false"] = {"enabled": False}
+        apps["web-app-jira"]["services"]["only_false"] = {"enabled": False}
         cnt = active_docker_container_count(apps, self.group_names)
         self.assertEqual(cnt, 6)  # unchanged
 
     def test_enabled_truthy_string_included(self):
         # Already covered by web-svc-cdn ("yes"), but verify explicitly
         apps = dict(self.apps)
-        apps["web-app-confluence"]["compose"]["services"]["extra"] = {"enabled": "true"}
+        apps["web-app-confluence"]["services"]["extra"] = {"enabled": "true"}
         cnt = active_docker_container_count(apps, self.group_names)
         self.assertEqual(cnt, 7)
 
     def test_ensure_min_one(self):
         # Construct inputs that produce zero
         apps = {
-            "web-app-foo": {"compose": {"services": {"s": {"enabled": False}}}},
+            "web-app-foo": {"services": {"s": {"enabled": False}}},
         }
         cnt0 = active_docker_container_count(apps, ["web-app-foo"])
         cnt1 = active_docker_container_count(apps, ["web-app-foo"], ensure_min_one=True)

@@ -4,7 +4,7 @@ entity_name:                          "{{ application_id | get_entity_name }}"
 
 # Proxy
 domain:                               "{{ lookup('domain',application_id) }}"
-http_port:                            "{{ ports.localhost.http[application_id] }}"
+http_port:                            "{{ lookup('config', application_id, 'services.bigbluebutton.ports.local.http') }}"
 
 # BigBlueButton
 _BBB_COTURN_ROLE:                     'web-svc-coturn'
@@ -24,23 +24,23 @@ BBB_COTURN_TLS_CERT_PATH:             "{{ lookup('cert', application_id, 'files.
 BBB_COTURN_TLS_KEY_PATH:              "{{ lookup('cert', application_id, 'files.key') }}"
 
 ## Turn
-BBB_COTURN_LOCAL_ENABLED:             "{{ not (lookup('config',application_id, 'compose.services.coturn.shared')) }}"
+BBB_COTURN_LOCAL_ENABLED:             "{{ not (lookup('config',application_id, 'services.coturn.shared')) }}"
 BBB_TURN_DOMAIN:                      "{{ networks.internet.ip4             if BBB_COTURN_LOCAL_ENABLED else lookup('domain',_BBB_COTURN_ROLE) }}"
-BBB_TURN_PORT:                        "{{ ports.public.stun_turn[application_id] if BBB_COTURN_LOCAL_ENABLED else ports.public.stun_turn[_BBB_COTURN_ROLE] }}"
+BBB_TURN_PORT:                        "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.stun_turn') if BBB_COTURN_LOCAL_ENABLED else lookup('config', _BBB_COTURN_ROLE, 'services.coturn.ports.public.stun_turn') }}"
 BBB_TURN_PROTOCOL:                    "{{ 'turns' if (lookup('tls', application_id, 'enabled') | bool) else 'turn' }}"
-BBB_STUN_PORT:                        "{{ ports.public.stun_turn[application_id] if BBB_COTURN_LOCAL_ENABLED else ports.public.stun_turn_tls[_BBB_COTURN_ROLE] }}"
-BBB_RELAY_PORT_START:                 "{{ ports.public.relay_port_ranges[application_id ~ '_start'] }}"
-BBB_RELAY_PORT_END:                   "{{ ports.public.relay_port_ranges[application_id ~ '_end'] }}"
+BBB_STUN_PORT:                        "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.stun_turn') if BBB_COTURN_LOCAL_ENABLED else lookup('config', _BBB_COTURN_ROLE, 'services.coturn.ports.public.stun_turn_tls') }}"
+BBB_RELAY_PORT_START:                 "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.relay.start') }}"
+BBB_RELAY_PORT_END:                   "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.relay.end') }}"
 BBB_RELAY_PORT_RANGE:                 "{{ BBB_RELAY_PORT_START }}-{{ BBB_RELAY_PORT_END }}"
 
 ## Collabora
-BBB_COLLABORA_ENABLED:                "{{ not (lookup('config',application_id, 'compose.services.collabora.shared')) }}"
+BBB_COLLABORA_ENABLED:                "{{ not (lookup('config',application_id, 'services.collabora.shared')) }}"
 BBB_COLLABORA_URL:                    "{{ 'https://collabora:9980/cool' if BBB_COLLABORA_ENABLED else ((lookup('tls', 'web-svc-collabora', 'url.base'))) }}"
 
 ### Recording
-BBB_RECORDING_ENABLED:                "{{ lookup('config', application_id, 'compose.services.'~ entity_name ~'.recording.enabled') }}"
-BBB_RECORDING_CLEANUP_ENABLED:        "{{ lookup('config', application_id, 'compose.services.'~ entity_name ~'.recording.cleanup') }}"
-BBB_RECORDING_MAX_AGE_DAYS:           "{{ lookup('config', application_id, 'compose.services.'~ entity_name ~'.recording.max_age_days') }}"
+BBB_RECORDING_ENABLED:                "{{ lookup('config', application_id, 'services.'~ entity_name ~'.recording.enabled') }}"
+BBB_RECORDING_CLEANUP_ENABLED:        "{{ lookup('config', application_id, 'services.'~ entity_name ~'.recording.cleanup') }}"
+BBB_RECORDING_MAX_AGE_DAYS:           "{{ lookup('config', application_id, 'services.'~ entity_name ~'.recording.max_age_days') }}"
 
 ## Additional Switchs
 
@@ -48,8 +48,8 @@ BBB_RECORDING_MAX_AGE_DAYS:           "{{ lookup('config', application_id, 'comp
 BBB_IP6_ENABLED:                      "{{ lookup('config', application_id, 'server.ip6_enabled') }}"
 
 ### Container
-BBB_GREENLIGHT_ENABLED:               "{{ lookup('config', application_id, 'compose.services.greenlight.enabled') }}"
+BBB_GREENLIGHT_ENABLED:               "{{ lookup('config', application_id, 'services.greenlight.enabled') }}"
 
 ### SSO
-BBB_LDAP_ENABLED:                     "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
-BBB_OIDC_ENABLED:                     "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+BBB_LDAP_ENABLED:                     "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+BBB_OIDC_ENABLED:                     "{{ lookup('config', application_id, 'services.oidc.enabled') }}"

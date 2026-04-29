@@ -4,7 +4,7 @@ import re
 from typing import Any, Iterable, Set, List, Dict, Tuple
 import yaml
 
-from tests.utils.fs import iter_project_files, read_text
+from utils.cache.files import iter_project_files, read_text
 
 
 def repo_root() -> Path:

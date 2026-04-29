@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from tests.utils.fs import iter_project_files
+from utils.cache.files import iter_project_files
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SECURITY_WORKFLOW_PATH = REPO_ROOT / ".github" / "workflows" / "security-codeql.yml"

@@ -21,12 +21,13 @@ class TestApplicationGidLookup(unittest.TestCase):
             "web-app-taiga",
         ]
 
-        # Create fake role dirs with config/main.yml
+        # Per req-008 an "application role" is identified by the presence of
+        # at least one of the project-owned `meta/<topic>.yml` files.
         for application_id in self.application_ids:
-            role_path = os.path.join(self.roles_dir, application_id, "config")
+            role_path = os.path.join(self.roles_dir, application_id, "meta")
             os.makedirs(role_path)
-            with open(os.path.join(role_path, "main.yml"), "w") as f:
-                yaml.dump({"title": application_id}, f)
+            with open(os.path.join(role_path, "services.yml"), "w") as f:
+                yaml.dump({application_id: {"title": application_id}}, f)
 
         self.lookup = LookupModule()
 

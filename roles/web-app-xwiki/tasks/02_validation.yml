@@ -4,6 +4,6 @@
       - not ((XWIKI_OIDC_ENABLED | bool) and (XWIKI_LDAP_ENABLED | bool))
     fail_msg: >-
       Invalid auth configuration: both OIDC and LDAP are enabled
-      (compose.services.oidc.enabled={{ XWIKI_OIDC_ENABLED }}, compose.services.ldap.enabled={{ XWIKI_LDAP_ENABLED }}).
+      (services.oidc.enabled={{ XWIKI_OIDC_ENABLED }}, services.ldap.enabled={{ XWIKI_LDAP_ENABLED }}).
       Enable only one, or disable both to use native/superadmin login.
     success_msg: "Auth config OK: OIDC={{ XWIKI_OIDC_ENABLED }}, LDAP={{ XWIKI_LDAP_ENABLED }}."

@@ -1,0 +1,5 @@
+credentials:
+  cloud_fqdn:
+    description: Cloud fqdn
+    algorithm: plain
+    validation: ^.*$

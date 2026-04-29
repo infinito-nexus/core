@@ -1,7 +1,7 @@
 - name: Install & configure OIDC plugin (if enabled)
   include_tasks: setup/oidc.yml
-  when: lookup('config',application_id, 'compose.services.oidc.enabled')
+  when: lookup('config',application_id, 'services.oidc.enabled')
 
 - name: Install & configure LDAP plugin (if enabled)
   include_tasks: setup/ldap.yml
-  when: lookup('config',application_id, 'compose.services.ldap.enabled')
+  when: lookup('config',application_id, 'services.ldap.enabled')

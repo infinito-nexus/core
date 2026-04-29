@@ -17,7 +17,7 @@
     image: {{ MAILU_DOCKER_FLAVOR }}/nginx:{{ MAILU_VERSION }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mailu.ports.local.http') }}:80"
       - "{{ MAILU_IP4_PUBLIC }}:25:25"
       - "{{ MAILU_IP4_PUBLIC }}:465:465"
       - "{{ MAILU_IP4_PUBLIC }}:587:587"

@@ -30,7 +30,7 @@ import unittest
 from pathlib import Path
 from typing import Dict, List, Set
 
-from tests.utils.fs import iter_project_files, read_text
+from utils.cache.files import iter_project_files, read_text
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]

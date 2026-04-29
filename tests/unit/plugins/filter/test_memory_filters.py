@@ -242,7 +242,7 @@ class TestMemoryFilters(unittest.TestCase):
 
     def test_redis_maxmemory_uses_default_when_mem_limit_missing(self):
         """
-        When compose.services.redis.mem_limit is not configured, the filter
+        When services.redis.mem_limit is not configured, the filter
         should fall back to its internal default (256m).
         """
 

@@ -12,7 +12,7 @@
 
 - name: "Fider | Bootstrap initial tenant via API"
   uri_retry:
-    url: "http://{{ DOCKER_REACH_HOST }}:{{ ports.localhost.http[application_id] }}/_api/tenants"
+    url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.fider.ports.local.http') }}/_api/tenants"
     method: POST
     body_format: json
     body:

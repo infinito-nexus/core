@@ -1,24 +1,22 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Cleans up failed Docker backups by configuring a systemd service and timer to execute the cleanup operations
-    periodically.
+  description: Cleans up failed Docker backups by configuring a systemd service and timer to execute the cleanup operations periodically.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Linux
-    versions:
-    - all
+    - name: Linux
+      versions:
+        - all
   galaxy_tags:
-  - docker
-  - backup
-  - cleanup
-  - automation
-  repository: https://s.infinito.nexus/code
+    - docker
+    - backup
+    - cleanup
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta

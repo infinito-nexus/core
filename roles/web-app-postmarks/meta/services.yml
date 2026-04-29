@@ -1,0 +1,7 @@
+postmarks:
+  lifecycle: pre-alpha
+prometheus:
+  enabled: true
+  shared: true
+logout:
+  enabled: false

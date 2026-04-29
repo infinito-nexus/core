@@ -1,4 +1,0 @@
-compose:
-  services:
-    epson-multiprinter:
-      min_storage: "0GB"

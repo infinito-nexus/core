@@ -5,13 +5,20 @@ set -euo pipefail
 # Trust Infinito Root CA from running container on the host system
 # -----------------------------------------------------------------------------
 
-CONTAINER_NAME="${INFINITO_CONTAINER:-}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source project defaults so INFINITO_CONTAINER auto-derives from
+# INFINITO_DISTRO (single SPOT in scripts/meta/env/defaults.sh) — callers
+# only need to set INFINITO_DISTRO.
+# shellcheck source=scripts/meta/env/defaults.sh
+source "${SCRIPT_DIR}/../../../meta/env/defaults.sh"
+
+CONTAINER_NAME="${INFINITO_CONTAINER}"
 CA_SRC_PATH="/etc/infinito.nexus/ca/root-ca.crt"
 CA_DST_DIR="/etc/infinito.nexus/ca"
 CA_DST_PATH="${CA_DST_DIR}/root-ca.crt"
 CA_TRUST_NAME="infinito-root-ca"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WITH_CA_TRUST_SCRIPT="${SCRIPT_DIR}/../../../../roles/sys-ca-selfsigned/files/with-ca-trust.sh"
 
 log() {

@@ -1,0 +1,65 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+  cpus: '0.3'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+postgres:
+  enabled: true
+  shared: true
+mastodon:
+  image: ghcr.io/mastodon/mastodon
+  version: latest
+  min_storage: 15GB
+  backup:
+    no_stop_required: true
+  name: mastodon
+  cpus: '1.0'
+  mem_reservation: 1.5g
+  mem_limit: 2g
+  pids_limit: 512
+  single_user_mode: false
+  ports:
+    local:
+      websocket: 4001
+      http: 8009
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta
+streaming:
+  image: ghcr.io/mastodon/mastodon-streaming
+  version: latest
+  name: mastodon-streaming
+  cpus: '0.3'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+sidekiq:
+  cpus: '0.8'
+  mem_reservation: 1g
+  mem_limit: 1.5g
+  pids_limit: 512
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

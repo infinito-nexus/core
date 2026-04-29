@@ -1,2 +1,2 @@
 application_id: gen-hunspell
-hunspell_languages: "{{ lookup('config', application_id, 'languages') }}"
+hunspell_languages: "{{ lookup('config', application_id, 'services.hunspell.languages') }}"

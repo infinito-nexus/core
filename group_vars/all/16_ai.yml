@@ -1,2 +1,2 @@
 # URL of Local Ollama Container
-OLLAMA_BASE_LOCAL_URL:  "http://{{ lookup('config','svc-ai-ollama', 'compose.services.ollama.name') }}:{{ lookup('config','svc-ai-ollama', 'compose.services.ollama.port') }}"
+OLLAMA_BASE_LOCAL_URL:  "http://{{ lookup('config','svc-ai-ollama', 'services.ollama.name') }}:{{ lookup('config','svc-ai-ollama', 'services.ollama.ports.inter') }}"

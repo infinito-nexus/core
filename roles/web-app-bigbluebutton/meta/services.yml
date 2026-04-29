@@ -1,0 +1,55 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+ldap:
+  enabled: false
+dashboard:
+  enabled: false
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+bigbluebutton:
+  repository: https://github.com/bigbluebutton/docker.git
+  version: main
+  recording:
+    enabled: false
+    cleanup: true
+    max_age_days: 30
+  min_storage: 50GB
+  api_suffix: /bigbluebutton/
+  ports:
+    local:
+      http: 48087
+    public:
+      stun_turn: 3478
+      stun_turn_tls: 5349
+      relay:
+        start: 40000
+        end: 49999
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta
+postgres:
+  shared: false
+  enabled: true
+greenlight:
+  enabled: true
+  shared: false
+coturn:
+  shared: true
+  enabled: true
+collabora:
+  shared: true
+  enabled: true
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

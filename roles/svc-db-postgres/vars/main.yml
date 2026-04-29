@@ -6,19 +6,19 @@ entity_name:                              "{{ application_id | get_entity_name }
 database_type:                            "{{ entity_name }}"
 
 ## Postgres
-POSTGRES_VOLUME:                          "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-POSTGRES_CONTAINER:                       "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.name') }}"
-POSTGRES_IMAGE:                           "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-POSTGRES_VERSION:                         "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+POSTGRES_VOLUME:                          "{{ lookup('config', application_id, 'volumes.data') }}"
+POSTGRES_CONTAINER:                       "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+POSTGRES_IMAGE:                           "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+POSTGRES_VERSION:                         "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 POSTGRES_VERSION_MAJOR:                   "{{ POSTGRES_VERSION | regex_replace('^([0-9]+).*', '\\1') }}"
-POSTGRES_NETWORK_NAME:                    "{{ lookup('config', application_id, 'compose.network') }}"
-POSTGRES_SUBNET:                          "{{ networks.local['svc-db-postgres'].subnet }}"
+POSTGRES_NETWORK_NAME:                    "{{ application_id | get_entity_name }}"
+POSTGRES_SUBNET:                          "{{ lookup('config', 'svc-db-postgres', 'server.networks.local.subnet') }}"
 POSTGRES_PASSWORD:                        "{{ lookup('config', application_id, 'credentials.POSTGRES_PASSWORD') }}"
-POSTGRES_PORT:                            "{{ database_port | default(ports.localhost.database[ application_id ]) }}"
+POSTGRES_PORT:                            "{{ database_port | default(lookup('config', application_id, 'services.postgres.ports.local.database')) }}"
 POSTGRES_EXPOSE_LOCAL:                    True # Exposes the db to localhost, almost everytime neccessary
 POSTGRES_CUSTOM_IMAGE:                    "{{ entity_name }}_custom:{{ POSTGRES_VERSION }}"
 POSTGRES_LOCAL_HOST:                      "127.0.0.1"
-POSTGRES_VECTOR_ENABLED:                  True # Required by discourse, propably in a later step it makes sense to define this as a configuration option in config/main.yml
+POSTGRES_VECTOR_ENABLED:                  True # Required by discourse, propably in a later step it makes sense to define this as a configuration option in meta/services.yml
 POSTGRES_RETRIES:                         5
 POSTGRES_EXEC_SHELL:                      "container exec -e PGPASSWORD={{ POSTGRES_PASSWORD | quote }} {{ POSTGRES_CONTAINER }} sh -lc" 
 

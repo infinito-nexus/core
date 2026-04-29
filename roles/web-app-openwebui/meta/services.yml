@@ -1,0 +1,54 @@
+oidc:
+  enabled: true
+  shared: true
+ldap:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+openwebui:
+  backup:
+    no_stop_required: true
+  image: ghcr.io/open-webui/open-webui
+  version: main
+  name: open-webui
+  min_storage: 5GB
+  offline_mode: false
+  hf_hub_offline: false
+  cpus: 2.0
+  mem_reservation: 1g
+  mem_limit: 4g
+  pids_limit: 4096
+  ports:
+    local:
+      http: 8055
+  run_after:
+  - web-app-keycloak
+  - web-app-matomo
+  lifecycle: beta
+redis:
+  backup:
+    disabled: true
+  enabled: false
+css:
+  enabled: false
+  shared: true
+javascript:
+  enabled: false
+  shared: true
+ollama:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

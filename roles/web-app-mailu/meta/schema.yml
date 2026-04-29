@@ -1,0 +1,17 @@
+credentials:
+  secret_key:
+    description: Secret key for cryptographic operations in Mailu (must be a 16-byte random string, hex-encoded)
+    algorithm: sha256
+    validation: ^[a-f0-9]{32}$
+  database_password:
+    description: Password for the Mailu PostgreSQL or MariaDB database user
+    algorithm: bcrypt
+    validation: ^\$2[aby]\$.{56}$
+  api_token:
+    description: Authentication token for accessing the Mailu RESTful API
+    algorithm: alphanumeric
+    validation: ^[A-Za-z0-9]{32,}$
+  initial_administrator_password:
+    description: Initial password for the Mailu administrator account (used during setup)
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

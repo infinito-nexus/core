@@ -13,7 +13,7 @@ For the matching rendered environment contract, see [Agent `playwright.env.j2`](
 ## Entry Point 🚪
 
 - The flow MUST start at `APP_BASE_URL`.
-- When the role exposes the dashboard entry (`compose.services.dashboard.enabled` is set), the first navigation MUST go through the dashboard, not straight into the app.
+- When the role exposes the dashboard entry (`services.dashboard.enabled` is set), the first navigation MUST go through the dashboard, not straight into the app.
 
 ## Scenarios 🎬
 
@@ -35,6 +35,17 @@ For the matching rendered environment contract, see [Agent `playwright.env.j2`](
 
 - Every environment variable the spec reads MUST be exposed in the role's `templates/playwright.env.j2`. Names MUST match exactly on both sides.
 - URLs, domains, and credentials MUST NOT be hardcoded in the spec. They MUST come from the rendered `.env`.
+
+## Service Gating 🚦
+
+- A scenario that depends on a shared service (OIDC, LDAP, email, matomo, matrix, mastodon, federation, nextcloud search, onlyoffice, collabora, libretranslate, etc.) MUST gate its execution on that service being enabled in the current deployment. The gate MUST use the shared `isServiceEnabled(name)` or `requireService(name, testFn)` helper, not an ad-hoc env read.
+- Service enablement MUST be expressed in the rendered `.env` as one boolean variable per gateable service, named `<SERVICE>_SERVICE_ENABLED` in UPPER_SNAKE_CASE (for example `OIDC_SERVICE_ENABLED=true`, `EMAIL_SERVICE_ENABLED=false`, `MATOMO_SERVICE_ENABLED=false`). Values MUST be the literal strings `"true"` or `"false"`. Specs MUST NOT read these variables directly; they go exclusively through the helper.
+- The helper MUST hard-fail with a `Unknown service: <name>` error when called with an identifier that is not declared in the role's Playwright-env registry. This makes a typo in `isServiceEnabled("oicd")` a test error instead of a silent disable.
+- The gate MUST use Playwright's native `test.skip()` so the reporter shows the scenario as `skipped` with a reason naming the disabled service (e.g. `skipped: EMAIL_SERVICE_ENABLED=false`). A scenario MUST NOT silently return early, and MUST NOT be wrapped in `test.describe.skip()` under conditions that are only known at runtime.
+- Baseline scenarios (reachability, CSP, canonical-domain DOM assertion, logged-out final state) MUST NOT gate on any service. Disabling every shared service MUST still leave a passing baseline suite for the role.
+- When the role's own compose service IS the shared service under test (e.g. the Keycloak spec running against Keycloak itself), the admin-facing baseline MUST NOT gate on that service. Gate only the scenarios that assert a downstream integration (e.g. LDAP federation).
+- When a `<SERVICE>_SERVICE_ENABLED` variable is absent from the env (local iteration via `scripts/tests/e2e/rerun-spec.sh` against an older staged `.env`), the helper MUST treat that service as enabled. This preserves the current behaviour for iterative spec development against a fully-featured deploy. An explicit `<SERVICE>_SERVICE_ENABLED=false` MUST be the only way to trigger a skip.
+- The role's `templates/playwright.env.j2` MUST render every `<SERVICE>_SERVICE_ENABLED` flag the spec references, derived from `applications[<role>].services.<name>.enabled` minus `SERVICES_DISABLED`. The env template IS the registry: a service that the spec may gate on MUST be declared there.
 
 ## Final State ✅
 

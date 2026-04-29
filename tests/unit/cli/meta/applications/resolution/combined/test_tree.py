@@ -31,24 +31,34 @@ class TestCombinedTree(unittest.TestCase):
             root = Path(td)
             (root / "roles").mkdir()
 
-            # start app role with dashboard enabled
+            # start app role with dashboard enabled.
+            # Per req-008/req-010, meta/services.yml is the services map at the
+            # file root, with run_after under the role's primary entity.
             _write(
                 root / "roles" / "start" / "vars" / "main.yml",
                 "application_id: start\n",
             )
             _write(
-                root / "roles" / "start" / "meta" / "main.yml",
-                "galaxy_info:\n  run_after:\n    - web-app-keycloak\n",
-            )
-            _write(
-                root / "roles" / "start" / "config" / "main.yml",
-                "compose:\n  services:\n    dashboard:\n      enabled: true\n      shared: true\n",
+                root / "roles" / "start" / "meta" / "services.yml",
+                (
+                    "start:\n"
+                    "  run_after:\n"
+                    "    - web-app-keycloak\n"
+                    "dashboard:\n"
+                    "  enabled: true\n"
+                    "  shared: true\n"
+                ),
             )
 
-            # keycloak exists, and points back to start to force a visible cycle
+            # keycloak exists, and points back to start to force a visible cycle.
+            # Entity name for "web-app-keycloak" is "keycloak".
             _write(
-                root / "roles" / "web-app-keycloak" / "meta" / "main.yml",
-                "galaxy_info:\n  run_after:\n    - start\n",
+                root / "roles" / "web-app-keycloak" / "vars" / "main.yml",
+                "application_id: web-app-keycloak\n",
+            )
+            _write(
+                root / "roles" / "web-app-keycloak" / "meta" / "services.yml",
+                "keycloak:\n  run_after:\n    - start\n",
             )
 
             # required folders exist

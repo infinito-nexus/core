@@ -14,6 +14,7 @@ cd "${REPO_ROOT}"
 : "${TEST_DEPLOY_TYPE:?TEST_DEPLOY_TYPE must be set (server|workstation|universal)}"
 : "${INVENTORY_DIR:?INVENTORY_DIR must be set (e.g. /etc/inventories/local-full-server)}"
 : "${INVENTORY_FILE:?INVENTORY_FILE is not set — source scripts/meta/env/inventory.sh first}"
+: "${INVENTORY_VARS_FILE:?INVENTORY_VARS_FILE is not set — source scripts/meta/env/inventory.sh first}"
 
 # Optional overrides
 LIMIT_HOST="${LIMIT_HOST:-localhost}"
@@ -35,7 +36,6 @@ echo
 # ---------------------------------------------------------------------------
 echo ">>> Starting development compose stack (no build)"
 "${PYTHON}" -m cli.deploy.development up \
-	--distro "${INFINITO_DISTRO}" \
 	--skip-entry-init
 
 # ---------------------------------------------------------------------------
@@ -103,47 +103,14 @@ echo
 echo ">>> Running entry/init + inventory + deploy inside infinito container via development exec"
 
 "${PYTHON}" -m cli.deploy.development exec \
-	--distro "${INFINITO_DISTRO}" -- \
-	bash -c "
-    set -euo pipefail
-    cd /opt/src/infinito
-
-    echo '>>> Running entry.sh bootstrap'
-    ./scripts/docker/entry.sh true
-
-    inv_dir='${INVENTORY_DIR}'
-    INVENTORY_FILE='${INVENTORY_FILE}'
-    pw_file=\"\${inv_dir}/.password\"
-
-    mkdir -p \"\${inv_dir}\"
-
-    if [[ ! -f \"\${pw_file}\" ]]; then
-      printf '%s\n' 'local-vault-password' > \"\${pw_file}\"
-      chmod 600 \"\${pw_file}\" || true
-    fi
-
-    echo \">>> Creating inventory at \${INVENTORY_FILE}\"
-    echo \">>> Include apps (${apps_count}): ${apps_csv}\"
-
-    infinito create inventory \"\${inv_dir}\" \
-      --inventory-file \"\${INVENTORY_FILE}\" \
-      --host '${LIMIT_HOST}' \
-      --ssl-disabled \
-      --vars '${RUNTIME_VARS_JSON}' \
-      --vars-file inventories/dev.yml \
-      --include '${apps_csv}'
-
-    echo \">>> Deploying against \${INVENTORY_FILE}\"
-
-    infinito deploy dedicated \"\${INVENTORY_FILE}\" \
-      --skip-backup \
-      --debug \
-      --log /opt/src/infinito/logs \
-      -l '${LIMIT_HOST}' \
-      --diff \
-      -vv \
-      --password-file \"\${pw_file}\"
-  "
+	--env "INVENTORY_DIR=${INVENTORY_DIR}" \
+	--env "INVENTORY_FILE=${INVENTORY_FILE}" \
+	--env "INVENTORY_VARS_FILE=${INVENTORY_VARS_FILE}" \
+	--env "APPS_CSV=${apps_csv}" \
+	--env "APPS_COUNT=${apps_count}" \
+	--env "LIMIT_HOST=${LIMIT_HOST}" \
+	--env "RUNTIME_VARS_JSON=${RUNTIME_VARS_JSON}" \
+	-- bash /opt/src/infinito/scripts/tests/deploy/local/utils/fresh-kept-all-init-and-deploy.sh
 
 echo
 echo "=== local full deploy finished ==="

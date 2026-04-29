@@ -54,9 +54,9 @@ else
 	exit 2
 fi
 
-: "${INFINITO_DISTRO:=debian}"
-: "${INFINITO_CONTAINER:=infinito_nexus_${INFINITO_DISTRO}}"
-
+# defaults.sh exports INFINITO_CONTAINER from INFINITO_DISTRO (single SPOT
+# for the formula). Read strictly here — no local re-derivation.
+: "${INFINITO_CONTAINER:?INFINITO_CONTAINER not set after sourcing scripts/meta/env/all.sh — bug in defaults.sh?}"
 container="${INFINITO_CONTAINER}"
 
 docker_exec_flags=(-i)

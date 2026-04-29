@@ -1,0 +1,14 @@
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant 0: development credentials and TOTP-disabled realm so the
+# Playwright admin scenarios can complete an OIDC round-trip without
+# the extra TOTP enrollment step.
+- credentials:
+    administrator_password: "'$tr0ng€xampl3PW!"
+  services:
+    keycloak:
+      realm:
+        # TOTP MUST stay disabled in dev so automated specs can sign
+        # in without enrolling an authenticator app.
+        totp_enabled: false

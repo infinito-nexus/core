@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from ansible.plugins.lookup import LookupBase
 
 from utils.applications.config import get as get_app_conf
-from utils.runtime_data import get_merged_applications
+from utils.cache.applications import get_merged_applications
 
 
 class LookupModule(LookupBase):
@@ -14,7 +14,7 @@ class LookupModule(LookupBase):
     this host.
 
     Deployment check  : app ID must appear in group_names.
-    Channel check     : app must declare compose.services.prometheus.communication.channel: true
+    Channel check     : app must declare services.prometheus.communication.channel: true
                         in its own role config — the self-declaration pattern (SPOT per app,
                         no hardcoded list anywhere).
 
@@ -49,7 +49,7 @@ class LookupModule(LookupBase):
             is_channel = get_app_conf(
                 applications=applications,
                 application_id=app_id,
-                config_path="compose.services.prometheus.communication.channel",
+                config_path="services.prometheus.communication.channel",
                 strict=False,
                 default=False,
                 skip_missing_app=True,

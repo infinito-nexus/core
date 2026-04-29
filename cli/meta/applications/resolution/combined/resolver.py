@@ -30,10 +30,21 @@ class CombinedResolver:
     - services edges are derived from app config flags (filtered in loader)
     - Cycles do NOT raise; traversal stops expanding the cyclic edge
       (tree output shows cycles separately via stack detection).
+
+    When `services_overrides` is provided, services edges for each role
+    in the dict are derived from the override map instead of the role's
+    on-disk `meta/services.yml`. Callers use this to feed in the
+    variant-merged services map per round so the resolver sees the same
+    topology the inventory will bake. A `CombinedResolver` instance is
+    therefore round-specific: do NOT reuse one across rounds.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        services_overrides: Dict[str, dict] | None = None,
+    ) -> None:
         self._cache: Dict[str, RoleEdges] = {}
+        self._services_overrides: Dict[str, dict] = dict(services_overrides or {})
 
     def edges_for(self, role_name: str) -> RoleEdges:
         if role_name in self._cache:
@@ -43,7 +54,10 @@ class CombinedResolver:
 
         ra = load_run_after(role_name)
         deps = load_dependencies_app_only(role_name)
-        svcs = load_shared_service_roles_for_app(role_name)
+        svcs = load_shared_service_roles_for_app(
+            role_name,
+            services_override=self._services_overrides.get(role_name),
+        )
 
         # Validate referenced roles exist for run_after (deps/services validate internally too)
         for r in ra:

@@ -1,0 +1,84 @@
+---
+# Requirement 005: produce OIDC `groups` claims of shape
+#   /roles/<application_id>/<role_name>                       (non-tenant / global)
+#   /roles/<application_id>/<tenant_id>/<role_name>           (per-tenant)
+# with no redundant segments.
+#
+# Why per-app mappers instead of the shared default one:
+# Keycloak's shared `group-ldap-mapper` with
+# `preserve.group.inheritance=true` keys its parent-child resolution on
+# the LDAP group's name (the attribute selected by
+# `group.name.ldap.attribute`). Role names repeat across applications
+# (administrator, editor, ...) so a single mapper with description-
+# based naming hits the Keycloak GroupTreeResolver collision: the map
+# is keyed by name and the second "administrator" silently overwrites
+# the first. The filter solution is to run **one mapper per deployed
+# application**: each mapper's LDAP filter
+#   (&(objectClass=groupOfNames)(cn=<application_id>-*))
+# sees only that app's role groups, anchors them under
+# `/roles/<application_id>`, and names each by the `description`
+# attribute (set by build_ldap_role_entries to the final path segment).
+# `preserve.group.inheritance=false` suffices per mapper because the
+# anchor is per-app — no collisions between apps exist within a mapper.
+#
+# The shared default `ldap-roles` mapper (created by update/05_ldap.yml)
+# is removed here so it does not shadow the per-app mappers, and any
+# Keycloak groups it had imported flat under /roles are pruned. Each
+# step delegates to a dedicated `.sh` under
+# `files/scripts/per_app_mapper/` so the shell logic lives outside the
+# YAML structure and stays easy to lint and reuse.
+
+- name: "per-app mappers: flush pending handlers before mutating the shared mapper"
+  ansible.builtin.meta: flush_handlers
+
+- name: "per-app mappers: list deployed app ids that build_ldap_role_entries emits LDAP groups for"
+  # build_ldap_role_entries always adds the implicit `administrator`
+  # role for every deployed application, so a per-app Keycloak mapper
+  # is needed for every deployed app — not only those with an explicit
+  # `rbac:` block in `meta/services.yml`.
+  ansible.builtin.set_fact:
+    kc_rbac_deployed_app_ids: >-
+      {{
+        (group_names | default([]))
+        | select('match', '^(web-app|web-svc|svc-db|svc-opt|svc-prx|svc-net|svc-ai|svc-bkp)-')
+        | select('in', (lookup('applications') | default({})).keys() | list)
+        | list
+      }}
+  changed_when: false
+
+- name: "per-app mappers: show deployed apps with rbac"
+  ansible.builtin.debug:
+    msg: "apps with rbac: {{ kc_rbac_deployed_app_ids | default([]) }}"
+
+- name: "per-app mappers: delete shared 'ldap-roles' mapper if present"
+  ansible.builtin.script:
+    cmd: "files/scripts/per_app_mapper/delete_default_ldap_roles_mapper.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
+  changed_when: true
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "per-app mappers: purge stale flat / orphan Keycloak groups under /<KEYCLOAK_RBAC_GROUP_NAME>"
+  ansible.builtin.script:
+    cmd: "files/scripts/per_app_mapper/purge_root_orphans.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
+    DEPLOYED_APP_IDS: "{{ kc_rbac_deployed_app_ids | default([]) | join(' ') }}"
+  changed_when: true
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "per-app mappers: ensure Keycloak group and mapper per deployed rbac app"
+  include_tasks: ldap/per_app_mapper_one.yml
+  vars:
+    kc_app_id: "{{ rbac_app }}"
+  loop: "{{ kc_rbac_deployed_app_ids | default([]) }}"
+  loop_control:
+    loop_var: rbac_app

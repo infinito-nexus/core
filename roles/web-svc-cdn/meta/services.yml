@@ -1,0 +1,24 @@
+dashboard:
+  enabled: false
+cdn:
+  enabled: false
+  shared: true
+  cpus: '0.2'
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 128
+  lifecycle: beta
+matomo:
+  enabled: true
+  shared: true
+css:
+  enabled: false
+  shared: true
+  canonical: cdn
+javascript:
+  enabled: false
+  shared: true
+  canonical: cdn
+prometheus:
+  enabled: true
+  shared: true

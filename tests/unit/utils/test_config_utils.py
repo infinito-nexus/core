@@ -17,11 +17,11 @@ class TestGetAppConf(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp(prefix="cfgutilstest_")
         os.chdir(self.tmpdir)
 
-        # Minimal schema structure:
-        # roles/web-app-demo/schema/main.yml
-        os.makedirs(os.path.join("roles", "web-app-demo", "schema"), exist_ok=True)
+        # Minimal schema structure (post req-008):
+        # roles/web-app-demo/meta/schema.yml
+        os.makedirs(os.path.join("roles", "web-app-demo", "meta"), exist_ok=True)
         with open(
-            os.path.join("roles", "web-app-demo", "schema", "main.yml"), "w"
+            os.path.join("roles", "web-app-demo", "meta", "schema.yml"), "w"
         ) as f:
             f.write(
                 # Defines 'features.defined_but_unset' in schema (without a value in applications),

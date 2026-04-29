@@ -46,9 +46,11 @@ class TestCombinedRoleIntrospection(unittest.TestCase):
     def test_load_run_after(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
+            # Per req-010 run_after lives under meta/services.yml.<entity>.
+            # Entity for plain "a" is "a" itself.
             _write(
-                root / "roles" / "a" / "meta" / "main.yml",
-                "galaxy_info:\n  run_after:\n    - web-app-x\n    - web-app-y\n",
+                root / "roles" / "a" / "meta" / "services.yml",
+                "a:\n  run_after:\n    - web-app-x\n    - web-app-y\n",
             )
             (root / "roles" / "web-app-x").mkdir(parents=True)
             (root / "roles" / "web-app-y").mkdir(parents=True)
@@ -91,16 +93,16 @@ class TestCombinedRoleIntrospection(unittest.TestCase):
                 root / "roles" / "web-app-wordpress" / "vars" / "main.yml",
                 "application_id: wordpress\n",
             )
+            # Per req-008 the file root IS the services map (no
+            # `compose.services` envelope).
             _write(
-                root / "roles" / "web-app-wordpress" / "config" / "main.yml",
-                "compose:\n"
-                "  services:\n"
-                "    oidc:\n"
-                "      enabled: true\n"
-                "      shared: true\n"
-                "    dashboard:\n"
-                "      enabled: true\n"
-                "      shared: true\n",
+                root / "roles" / "web-app-wordpress" / "meta" / "services.yml",
+                "oidc:\n"
+                "  enabled: true\n"
+                "  shared: true\n"
+                "dashboard:\n"
+                "  enabled: true\n"
+                "  shared: true\n",
             )
 
             # required provider role folders must exist

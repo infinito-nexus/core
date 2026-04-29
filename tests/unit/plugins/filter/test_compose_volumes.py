@@ -33,14 +33,15 @@ class TestComposeVolumes(unittest.TestCase):
         return data
 
     def _base_apps(self) -> Dict[str, Any]:
+        # Per req-008 the materialised payload moved from
+        # `applications.<app>.compose.services.<X>` to
+        # `applications.<app>.services.<X>`.
         return {
             "app": {
-                "compose": {
-                    "services": {
-                        "mariadb": {"enabled": False, "shared": False},
-                        "redis": {"enabled": False},
-                        "oauth2": {"enabled": False},
-                    }
+                "services": {
+                    "mariadb": {"enabled": False, "shared": False},
+                    "redis": {"enabled": False},
+                    "oauth2": {"enabled": False},
                 }
             }
         }
@@ -80,16 +81,16 @@ class TestComposeVolumes(unittest.TestCase):
     # -----------------------------
     def test_database_enabled_not_shared_requires_database_volume_argument(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["mariadb"]["enabled"] = True
-        apps["app"]["compose"]["services"]["mariadb"]["shared"] = False
+        apps["app"]["services"]["mariadb"]["enabled"] = True
+        apps["app"]["services"]["mariadb"]["shared"] = False
 
         with self.assertRaises(AnsibleFilterError):
             compose_volumes(apps, "app")
 
     def test_database_enabled_not_shared_uses_database_volume_argument(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["mariadb"]["enabled"] = True
-        apps["app"]["compose"]["services"]["mariadb"]["shared"] = False
+        apps["app"]["services"]["mariadb"]["enabled"] = True
+        apps["app"]["services"]["mariadb"]["shared"] = False
 
         rendered = compose_volumes(apps, "app", database_volume="my_db_vol")
         data = self._parse_yaml(rendered)
@@ -98,8 +99,8 @@ class TestComposeVolumes(unittest.TestCase):
 
     def test_database_enabled_shared_true_does_not_add_database_volume(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["mariadb"]["enabled"] = True
-        apps["app"]["compose"]["services"]["mariadb"]["shared"] = True
+        apps["app"]["services"]["mariadb"]["enabled"] = True
+        apps["app"]["services"]["mariadb"]["shared"] = True
 
         rendered = compose_volumes(apps, "app")
         data = self._parse_yaml(rendered)
@@ -108,8 +109,8 @@ class TestComposeVolumes(unittest.TestCase):
 
     def test_database_enabled_shared_null_treated_as_not_shared(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["mariadb"]["enabled"] = True
-        apps["app"]["compose"]["services"]["mariadb"]["shared"] = None
+        apps["app"]["services"]["mariadb"]["enabled"] = True
+        apps["app"]["services"]["mariadb"]["shared"] = None
 
         rendered = compose_volumes(apps, "app", database_volume="my_db_vol")
         data = self._parse_yaml(rendered)
@@ -122,7 +123,7 @@ class TestComposeVolumes(unittest.TestCase):
     # -----------------------------
     def test_redis_enabled_adds_redis_volume(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["redis"]["enabled"] = True
+        apps["app"]["services"]["redis"]["enabled"] = True
 
         rendered = compose_volumes(apps, "app")
         data = self._parse_yaml(rendered)
@@ -132,8 +133,8 @@ class TestComposeVolumes(unittest.TestCase):
 
     def test_oauth2_enabled_adds_redis_volume_when_redis_disabled(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["redis"]["enabled"] = False
-        apps["app"]["compose"]["services"]["oauth2"]["enabled"] = True
+        apps["app"]["services"]["redis"]["enabled"] = False
+        apps["app"]["services"]["oauth2"]["enabled"] = True
 
         rendered = compose_volumes(apps, "app")
         data = self._parse_yaml(rendered)
@@ -143,8 +144,8 @@ class TestComposeVolumes(unittest.TestCase):
 
     def test_oauth2_null_does_not_add_redis_if_redis_disabled(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["redis"]["enabled"] = False
-        apps["app"]["compose"]["services"]["oauth2"]["enabled"] = None
+        apps["app"]["services"]["redis"]["enabled"] = False
+        apps["app"]["services"]["oauth2"]["enabled"] = None
 
         rendered = compose_volumes(apps, "app")
         data = self._parse_yaml(rendered)
@@ -169,7 +170,7 @@ class TestComposeVolumes(unittest.TestCase):
 
     def test_extra_volumes_override_auto(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["redis"]["enabled"] = True
+        apps["app"]["services"]["redis"]["enabled"] = True
 
         rendered = compose_volumes(
             apps,
@@ -182,8 +183,8 @@ class TestComposeVolumes(unittest.TestCase):
 
     def test_database_enabled_not_shared_without_database_volume_raises(self):
         apps = self._base_apps()
-        apps["app"]["compose"]["services"]["mariadb"]["enabled"] = True
-        apps["app"]["compose"]["services"]["mariadb"]["shared"] = False
+        apps["app"]["services"]["mariadb"]["enabled"] = True
+        apps["app"]["services"]["mariadb"]["shared"] = False
         with self.assertRaises(AnsibleFilterError):
             compose_volumes(apps, "app", database_volume=None)
 

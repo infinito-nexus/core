@@ -2,11 +2,13 @@ galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Role to perform cross-distribution system cleanup for CI, containers and build environments.
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
     - name: Linux
@@ -19,9 +21,5 @@ galaxy_info:
     - cache
     - automation
     - infinito
-  repository: https://s.infinito.nexus/code
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html
-  lifecycle: beta
-
 dependencies: []

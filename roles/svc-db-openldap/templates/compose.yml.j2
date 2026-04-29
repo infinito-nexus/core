@@ -14,7 +14,7 @@
 
 {% if OPENLDAP_NETWORK_EXPOSE_LOCAL | bool %}
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ports.localhost.ldap['svc-db-openldap']}}:{{ OPENLDAP_DOCKER_PORT_OPEN }}
+      - {{ DOCKER_BIND_HOST }}:{{lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap')}}:{{ OPENLDAP_DOCKER_PORT_OPEN }}
 {% endif %}
 
     volumes:

@@ -29,7 +29,7 @@ plugin_configuration:
   -
     appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_backup_port"
-    configvalue: "{{ ports.localhost.ldap['svc-db-openldap'] }}" # This is just optimized for local port @todo implement for external ports as well
+    configvalue: "{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}" # This is just optimized for local port @todo implement for external ports as well
 
   -
     appid: "user_ldap"
@@ -166,7 +166,7 @@ plugin_configuration:
     appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_userlist_filter"
     configvalue: |-
-      {% if lookup('config',application_id, 'plugins.user_ldap.user_directory.enabled') %}
+      {% if lookup('config', application_id, 'services.nextcloud.plugins.user_ldap.user_directory.enabled') %}
       {{ LDAP.FILTERS.USERS.ALL }}
       {% else %}
       ()

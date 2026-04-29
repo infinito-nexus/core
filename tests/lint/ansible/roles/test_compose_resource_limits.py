@@ -1,6 +1,6 @@
 """Lint compose service resource limits in role configs.
 
-Every role's primary compose service (``compose.services.<entity_name>``)
+Every role's primary compose service (``services.<entity_name>``)
 should declare the host-resource guard rails:
 
 - ``min_storage``
@@ -25,7 +25,7 @@ from typing import List
 
 import yaml
 
-from tests.utils.fs import read_text
+from utils.cache.files import read_text
 from utils.annotations.message import in_github_actions, warning
 from utils.entity_name_utils import get_entity_name
 
@@ -64,10 +64,10 @@ def _load_yaml(path: Path) -> dict:
 
 
 def _find_service_line(config_path: Path, service_name: str) -> int:
-    """1-based line of ``    <service_name>:`` under compose.services.
+    """1-based line of ``<service_name>:`` at the root of meta/services.yml.
     Falls back to 1 when unparsable so the annotation still points at the file.
     """
-    pattern = re.compile(rf"^\s{{4}}{re.escape(service_name)}\s*:\s*$")
+    pattern = re.compile(rf"^{re.escape(service_name)}\s*:\s*$")
     try:
         for i, raw in enumerate(read_text(str(config_path)).splitlines(), start=1):
             if pattern.match(raw):
@@ -85,13 +85,13 @@ def _collect_findings(root: Path) -> List[MissingKeyFinding]:
     for role_dir in sorted(roles_dir.iterdir()):
         if not role_dir.is_dir():
             continue
-        config_path = role_dir / "config" / "main.yml"
+        config_path = role_dir / "meta" / "services.yml"
         if not config_path.is_file():
             continue
 
-        config = _load_yaml(config_path)
-        compose = config.get("compose") if isinstance(config, dict) else None
-        services = compose.get("services") if isinstance(compose, dict) else None
+        # Post-req-008: meta/services.yml's root IS the services map; the
+        # legacy `compose.services` wrapper no longer exists.
+        services = _load_yaml(config_path)
         if not isinstance(services, dict):
             continue
 
@@ -124,7 +124,7 @@ def _collect_findings(root: Path) -> List[MissingKeyFinding]:
 def _emit_warning(finding: MissingKeyFinding, root: Path) -> None:
     rel = finding.config_path.relative_to(root).as_posix()
     warning(
-        f"{finding.role}: compose.services.{finding.service}.{finding.key} is not set",
+        f"{finding.role}: services.{finding.service}.{finding.key} is not set",
         title="Missing resource limit",
         file=rel,
         line=finding.line,
@@ -138,7 +138,7 @@ def _print_summary(findings: List[MissingKeyFinding], root: Path) -> None:
     print(f"[WARNING] Missing compose-service resource limits ({len(findings)}):")
     for f in findings:
         rel = f.config_path.relative_to(root).as_posix()
-        print(f"- {rel}:{f.line} - compose.services.{f.service}.{f.key} ({f.role})")
+        print(f"- {rel}:{f.line} - services.{f.service}.{f.key} ({f.role})")
 
 
 class TestComposeResourceLimits(unittest.TestCase):

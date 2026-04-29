@@ -8,7 +8,7 @@ entity_name:                        "{{ application_id | get_entity_name }}"
 webserver_client_max_body_size:     "100m"
 webserver_vhost_flavour:            "ws_generic"
 webserver_websocket_location:       "/websocket"
-websocket_port:                     "{{ ports.localhost.websocket[application_id] }}"
+websocket_port:                     "{{ lookup('config', application_id, 'services.odoo.ports.local.websocket') }}"
 
 # Container ports
 container_port:                     8069
@@ -17,16 +17,16 @@ container_websocket_port:           8072
 # Odoo
 
 ## Container
-ODOO_VERSION:                       "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~'.version') }}"
-ODOO_IMAGE:                         "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~'.image') }}"
+ODOO_VERSION:                       "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
+ODOO_IMAGE:                         "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
 ODOO_CUSTOM_IMAGE:                  "{{ entity_name }}_custom:{{ ODOO_VERSION }}"
-ODOO_CONTAINER:                     "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~'.name') }}"
+ODOO_CONTAINER:                     "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
 ODOO_SERVICE:                       "{{ entity_name }}"
 
 ## Volumes
-ODOO_DATA_VOLUME:                   "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-ODOO_ADDONS_VOLUME:                 "{{ lookup('config', application_id, 'compose.volumes.addons') }}"
-ODOO_CONFIG_VOLUME:                 "{{ lookup('config', application_id, 'compose.volumes.config') }}"
+ODOO_DATA_VOLUME:                   "{{ lookup('config', application_id, 'volumes.data') }}"
+ODOO_ADDONS_VOLUME:                 "{{ lookup('config', application_id, 'volumes.addons') }}"
+ODOO_CONFIG_VOLUME:                 "{{ lookup('config', application_id, 'volumes.config') }}"
 
 ## Configuration Paths
 ODOO_CONF_FILE_HOST:                "{{ lookup('container', application_id, 'directories.volumes') }}odoo.conf"
@@ -36,9 +36,9 @@ ODOO_ADDONS_HOST:                   "{{ lookup('container', application_id, 'dir
 ODOO_URL:                           "{{ lookup('tls', application_id, 'url.base') }}"
 
 ## Feature Flags
-ODOO_OIDC_ENABLED:                  "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
-ODOO_LDAP_ENABLED:                  "{{ lookup('config', application_id, 'compose.services.ldap.enabled') }}"
-ODOO_REDIS_ENABLED:                 "{{ lookup('config', application_id, 'compose.services.redis.enabled') }}"
+ODOO_OIDC_ENABLED:                  "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+ODOO_LDAP_ENABLED:                  "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+ODOO_REDIS_ENABLED:                 "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 
 ## Admin
 ODOO_ADMINISTRATOR_USERNAME:        "{{ lookup('users', 'administrator').username }}"
@@ -49,8 +49,8 @@ ODOO_ADMINISTRATOR_EMAIL:           "{{ lookup('users', 'administrator').email }
 ODOO_MASTER_PASSWORD:               "{{ lookup('config', application_id, 'credentials.master_password') }}"
 
 ## Modules
-ODOO_MODULES_CORE:                  "{{ lookup('config', application_id, 'modules.core') }}"
-ODOO_MODULES_OPTIONAL:              "{{ lookup('config', application_id, 'modules.optional') }}"
+ODOO_MODULES_CORE:                  "{{ lookup('config', application_id, 'services.odoo.modules.core') }}"
+ODOO_MODULES_OPTIONAL:              "{{ lookup('config', application_id, 'services.odoo.modules.optional') }}"
 
 ## Database Settings
 ODOO_DB_HOST:                       "{{ lookup('database', application_id, 'host') }}"

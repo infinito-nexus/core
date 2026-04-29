@@ -16,7 +16,8 @@ from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.jinja_strict import render_strict
-from utils.runtime_data import get_merged_applications, get_merged_domains
+from utils.cache.applications import get_merged_applications
+from utils.cache.domains import get_merged_domains
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
     as_str,

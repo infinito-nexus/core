@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# SPOT: Deploy exactly ONE app on ONE distro, twice, against the same stack.
+# Deploy exactly ONE app on ONE distro against the same stack, with the
+# matrix-aware sync + async passes co-located per variant.
 #
 # Flow:
 #   1) Ensure compose stack is up (reuse if already running)
-#   2) PASS 1:
-#        - init inventory with ASYNC_ENABLED=false
-#        - deploy (always with --debug)
-#   3) PASS 2:
-#        - re-init inventory with ASYNC_ENABLED=true
-#        - deploy again (same stack)
-#   4) Always remove stack so the next distro starts fresh
+#   2) Init inventory once (ASYNC_ENABLED=false baked into host_vars).
+#      For roles with `meta/variants.yml` this materialises one folder
+#      per variant; otherwise a single unsuffixed folder.
+#   3) Deploy with `--full-cycle`: per matrix round the dev wrapper runs
+#      the sync deploy, then immediately the async re-deploy with
+#      `-e ASYNC_ENABLED=true`, BEFORE moving to the next variant.
+#      Inter-round cleanup runs only for apps whose variant changed.
+#   4) Always remove stack so the next distro starts fresh.
 #
 # Required env:
 #   INFINITO_DISTRO="arch|debian|ubuntu|fedora|centos"
@@ -19,6 +21,7 @@ set -euo pipefail
 #
 # Optional env:
 #   PYTHON="python3"
+#   VARIANT="<idx>"  pin to one matrix round (skips the rest)
 
 PYTHON="${PYTHON:-python3}"
 
@@ -72,15 +75,14 @@ cleanup() {
 
 	# Copy Playwright reports from the infinito container to the runner filesystem
 	# BEFORE containers/volumes are destroyed, so GitHub Actions can upload them as artifacts.
-	local _container="infinito_nexus_${INFINITO_DISTRO}"
 	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${APPS}"
 	mkdir -p "${_playwright_host_dir}"
-	echo ">>> Copying Playwright artifacts from ${_container} to ${_playwright_host_dir}"
-	docker cp "${_container}:/var/lib/infinito/logs/test-e2e-playwright/." \
+	echo ">>> Copying Playwright artifacts from ${INFINITO_CONTAINER} to ${_playwright_host_dir}"
+	docker cp "${INFINITO_CONTAINER}:/var/lib/infinito/logs/test-e2e-playwright/." \
 		"${_playwright_host_dir}" 2>/dev/null || true
 
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"
-	"${PYTHON}" -m cli.deploy.development down --distro "${INFINITO_DISTRO}" || true
+	"${PYTHON}" -m cli.deploy.development down || true
 
 	echo ">>> HARD cleanup (containers/volumes/networks/images/build-cache)"
 	echo ">>> Docker disk usage before HARD cleanup"
@@ -145,11 +147,9 @@ trap cleanup EXIT
 echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 # Always reconcile the stack to the requested distro.
 # This avoids reusing a pre-started stack with a different INFINITO_DISTRO.
-"${PYTHON}" -m cli.deploy.development up \
-	--distro "${INFINITO_DISTRO}"
+"${PYTHON}" -m cli.deploy.development up
 
 deploy_args=(
-	--distro "${INFINITO_DISTRO}"
 	--apps "${APPS}"
 	--inventory-dir "${INVENTORY_DIR}"
 	--debug
@@ -160,25 +160,20 @@ df -h || true
 docker system df || true
 echo ">>> END STATE BEFORE DEPLOY"
 
-echo ">>> PASS 1: init inventory (ASYNC_ENABLED=false)"
+echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 "${PYTHON}" -m cli.deploy.development init \
-	--distro "${INFINITO_DISTRO}" \
 	--apps "${APPS}" \
 	--inventory-dir "${INVENTORY_DIR}" \
 	--vars '{"ASYNC_ENABLED": false}'
 
-echo ">>> PASS 1: deploy"
-"${PYTHON}" -m cli.deploy.development deploy "${deploy_args[@]}"
-
-echo ">>> PASS 2: re-init inventory (ASYNC_ENABLED=true)"
-"${PYTHON}" -m cli.deploy.development init \
-	--distro "${INFINITO_DISTRO}" \
-	--apps "${APPS}" \
-	--inventory-dir "${INVENTORY_DIR}" \
-	--vars '{"ASYNC_ENABLED": true}'
-
-echo ">>> PASS 2: deploy (skip wrapper cleanup)"
-"${PYTHON}" -m cli.deploy.development deploy "${deploy_args[@]}" -- --skip-cleanup
+# PASS 1 (sync) + PASS 2 (async) co-located per variant: the wrapper
+# runs each round's deploy twice, second call with `-e ASYNC_ENABLED=true`
+# overriding the host_var, BEFORE moving to the next variant. That keeps
+# the async re-deploy targeting exactly the host state the matching sync
+# deploy just produced and avoids the matrix-twice race the previous
+# split passes had on multi-variant roles.
+echo ">>> deploy (PASS 1 sync + PASS 2 async per variant, --full-cycle)"
+"${PYTHON}" -m cli.deploy.development deploy "${deploy_args[@]}" --full-cycle
 
 echo ">>> DISK / DOCKER STATE AFTER DEPLOY (before cleanup, distro=${INFINITO_DISTRO})"
 df -h || true

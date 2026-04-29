@@ -1,0 +1,68 @@
+oidc:
+  enabled: true
+  shared: true
+ldap:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+odoo:
+  image: odoo
+  version: '19.0'
+  name: odoo
+  min_storage: 20GB
+  cpus: '2.0'
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 1024
+  backup:
+    no_stop_required: true
+  email:
+    from_name: ERP ({{ DOMAIN_PRIMARY }})
+  modules:
+    core:
+    - crm
+    - contacts
+    - sale_management
+    - account
+    - website
+    - project
+    - stock
+    optional: []
+  ports:
+    local:
+      websocket: 4003
+      http: 8068
+  run_after:
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+redis:
+  enabled: true
+  shared: false
+  cpus: '0.5'
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+css:
+  enabled: false
+  shared: true
+javascript:
+  enabled: false
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

@@ -2,7 +2,7 @@ import unittest
 
 from jinja2 import Environment, exceptions, select_autoescape
 
-from tests.utils.fs import iter_project_files_with_content
+from utils.cache.files import iter_project_files_with_content
 
 
 class TestJinja2Syntax(unittest.TestCase):

@@ -1,0 +1,48 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+postgres:
+  enabled: true
+  shared: true
+gitlab:
+  image: gitlab/gitlab-ee
+  version: latest
+  name: gitlab
+  min_storage: 30GB
+  cpus: '4.0'
+  mem_reservation: 8g
+  mem_limit: 12g
+  pids_limit: 4096
+  ports:
+    local:
+      http: 8024
+    public:
+      ssh: 2202
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

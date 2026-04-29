@@ -41,6 +41,8 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 - You MUST fix nearby wording and semantic issues when you touch a file, and correct obvious nearby issues proactively in the same pass.
 - You SHOULD use emojis when they make the text more visually appealing, improve the mood, and increase readability.
 - You MUST NOT use em dashes (—) as thought breaks or clause separators. You SHOULD prefer complete sentences. Hyphens (-) MAY be used for compound words and list items.
+- You MUST NOT explicitly declare a documentation page as "the SPOT", "Single Point of Truth", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead.
+- You MUST describe only the current state of the subject. You MUST NOT carry historical context, migration notes, or comparisons to former implementations into documentation. Phrases such as "this replaces X", "previously X did Y", "formerly known as X", "the legacy X", or "after the refactor" MUST NOT appear in documentation. Readers arrive in the present and need to know how the subject works now, not how it used to work. Historical context belongs in commit messages, pull request descriptions, and changelogs, where it is anchored to a point in time and ages gracefully. Documentation that carries history rots as soon as the next refactor lands.
 
 ## Headlines 🏷️
 

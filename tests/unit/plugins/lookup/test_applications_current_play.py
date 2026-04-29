@@ -9,36 +9,26 @@ from plugins.lookup.applications_current_play import (
 )
 
 
+# Per req-008 the materialised payload moved from
+# `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
 SAMPLE_APPS = {
     "web-svc-html": {},
     "web-svc-legal": {},
-    "web-svc-file": {
-        "compose": {"services": {"file": {"enabled": False, "shared": True}}}
-    },
+    "web-svc-file": {"services": {"file": {"enabled": False, "shared": True}}},
     "web-svc-asset": {
-        "compose": {
-            "services": {
-                "asset": {"enabled": False, "shared": True},
-                "file": {"enabled": True, "shared": True},
-            }
+        "services": {
+            "asset": {"enabled": False, "shared": True},
+            "file": {"enabled": True, "shared": True},
         }
     },
     "web-app-dashboard": {
-        "compose": {"services": {"dashboard": {"enabled": False, "shared": True}}}
+        "services": {"dashboard": {"enabled": False, "shared": True}}
     },
-    "web-app-matomo": {
-        "compose": {"services": {"matomo": {"enabled": False, "shared": True}}}
-    },
+    "web-app-matomo": {"services": {"matomo": {"enabled": False, "shared": True}}},
     "svc-db-openldap": {
-        "compose": {
-            "services": {
-                "openldap": {"enabled": False, "shared": True, "provides": "ldap"}
-            }
-        }
+        "services": {"openldap": {"enabled": False, "shared": True, "provides": "ldap"}}
     },
-    "svc-db-mariadb": {
-        "compose": {"services": {"mariadb": {"enabled": False, "shared": True}}}
-    },
+    "svc-db-mariadb": {"services": {"mariadb": {"enabled": False, "shared": True}}},
 }
 
 
@@ -131,7 +121,7 @@ class TestApplicationsIfGroupAndAllDeps(unittest.TestCase):
     def test_service_dep_enabled_and_shared(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"matomo": {"enabled": True, "shared": True}}}
+            "services": {"matomo": {"enabled": True, "shared": True}}
         }
         result = _run(["web-svc-legal"], applications=apps)
         self.assertIn("web-svc-legal", result)
@@ -140,21 +130,21 @@ class TestApplicationsIfGroupAndAllDeps(unittest.TestCase):
     def test_service_dep_not_included_when_enabled_false(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"matomo": {"enabled": False, "shared": True}}}
+            "services": {"matomo": {"enabled": False, "shared": True}}
         }
         self.assertNotIn("web-app-matomo", _run(["web-svc-legal"], applications=apps))
 
     def test_service_dep_not_included_when_shared_false(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"matomo": {"enabled": True, "shared": False}}}
+            "services": {"matomo": {"enabled": True, "shared": False}}
         }
         self.assertNotIn("web-app-matomo", _run(["web-svc-legal"], applications=apps))
 
     def test_service_not_in_registry_is_ignored(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"unknown-svc": {"enabled": True, "shared": True}}}
+            "services": {"unknown-svc": {"enabled": True, "shared": True}}
         }
         result = _run(["web-svc-legal"], applications=apps)
         self.assertIn("web-svc-legal", result)
@@ -162,7 +152,7 @@ class TestApplicationsIfGroupAndAllDeps(unittest.TestCase):
     def test_service_dep_with_provides_is_resolved(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"ldap": {"enabled": True, "shared": True}}}
+            "services": {"ldap": {"enabled": True, "shared": True}}
         }
         result = _run(["web-svc-legal"], applications=apps)
         self.assertIn("svc-db-openldap", result)
@@ -170,7 +160,7 @@ class TestApplicationsIfGroupAndAllDeps(unittest.TestCase):
     def test_service_dep_for_database_role_uses_direct_service_name(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"mariadb": {"enabled": True, "shared": True}}}
+            "services": {"mariadb": {"enabled": True, "shared": True}}
         }
         result = _run(["web-svc-legal"], applications=apps)
         self.assertIn("svc-db-mariadb", result)
@@ -178,7 +168,7 @@ class TestApplicationsIfGroupAndAllDeps(unittest.TestCase):
     def test_mixed_meta_and_service_deps(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-legal"] = {
-            "compose": {"services": {"matomo": {"enabled": True, "shared": True}}}
+            "services": {"matomo": {"enabled": True, "shared": True}}
         }
         result = _run(
             ["web-svc-legal"],
@@ -192,7 +182,7 @@ class TestApplicationsIfGroupAndAllDeps(unittest.TestCase):
     def test_transitive_service_dep(self):
         apps = dict(SAMPLE_APPS)
         apps["web-svc-asset"] = {
-            "compose": {"services": {"ldap": {"enabled": True, "shared": True}}}
+            "services": {"ldap": {"enabled": True, "shared": True}}
         }
         result = _run(
             ["web-svc-legal"],

@@ -3,6 +3,17 @@
 
 # roles/web-app-wordpress/vars/discourse.yml
 # Defines WP Discourse plugin settings (exported from your current wp_options dump)
+#
+# Requirement 007 decision: wp-discourse `auto-publish` stays DISABLED by
+# default (Path A in docs/requirements/007-wordpress-discourse-post-round-trip.md).
+# The per-post "Publish to Discourse" sidebar toggle MUST remain the
+# default authoring path, because it matches the real editor workflow
+# and is therefore what the Playwright round-trip scenario drives.
+# Setting `discourse_publish.auto-publish: true` globally would bypass
+# exactly the plugin code path the test is meant to exercise.
+# If an operator wants network-wide auto-publish for a deployment they
+# MUST override this setting in inventory rather than flipping the
+# commented-out default below.
 
 discourse_settings:
   #- name: wpdc_discourse_domain

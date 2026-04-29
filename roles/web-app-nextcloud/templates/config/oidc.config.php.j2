@@ -33,7 +33,7 @@ return array (
     //
     // NOTE: If you want to allow NextCloud to manage quotas, omit this option. Do not set it to
     // zero or -1 or ''.
-    'oidc_login_default_quota' => '{{ lookup('config', application_id, 'default_quota')}}',
+    'oidc_login_default_quota' => '{{ lookup('config', application_id, 'services.nextcloud.default_quota')}}',
 
     // Login button text
     'oidc_login_button_text' => '{{ OIDC.BUTTON_TEXT }}',
@@ -146,7 +146,7 @@ return array (
     //
     // The `id` attribute in `oidc_login_attributes` must return the
     // "Internal Username" (see expert settings in LDAP integration)
-    'oidc_login_proxy_ldap' => {{ lookup('config',application_id, 'compose.services.ldap.enabled', False) | string | lower }},
+    'oidc_login_proxy_ldap' => {{ lookup('config',application_id, 'services.ldap.enabled', False) | string | lower }},
 
     // Disable creation of users new to Nextcloud from OIDC login.
     // A user may be known to the IdP but not (yet) known to Nextcloud.

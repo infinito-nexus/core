@@ -27,4 +27,9 @@
 - name: Run E2E Playwright tests
   include_role:
     name: "test-e2e-playwright"
-  when: DOCKER_IN_CONTAINER | bool
+  # E2E fires in every controlled runtime: local dev (`make deploy-*`
+  # bakes RUNTIME=dev into the inventory) and CI (act/github detected
+  # via `cli.meta.runtime.detect_runtime`). Bare `RUNTIME=host` stays
+  # opt-out: the user can suppress E2E even on a dev box by passing
+  # `--vars '{"RUNTIME":"host"}'` to the inventory init.
+  when: RUNTIME in ['dev', 'act', 'github']

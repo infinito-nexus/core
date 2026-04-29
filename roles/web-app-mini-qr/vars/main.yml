@@ -3,6 +3,6 @@ application_id:     web-app-mini-qr
 entity_name:        "{{ application_id | get_entity_name }}"
 
 # Helper variables
-MINI_QR_IMAGE:      "{{ lookup('config', application_id, 'compose.services.mini-qr.image') }}"
-MINI_QR_VERSION:    "{{ lookup('config', application_id, 'compose.services.mini-qr.version') }}"
+MINI_QR_IMAGE:      "{{ lookup('config', application_id, 'services.mini-qr.image') }}"
+MINI_QR_VERSION:    "{{ lookup('config', application_id, 'services.mini-qr.version') }}"
 MINI_QR_CONTAINER:  "{{ entity_name }}"

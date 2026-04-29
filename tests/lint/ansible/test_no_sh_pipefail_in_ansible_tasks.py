@@ -6,7 +6,7 @@ from typing import Any, Iterable
 
 import yaml
 
-from tests.utils.fs import iter_project_files_with_content, read_text
+from utils.cache.files import iter_project_files_with_content, read_text
 
 
 def repo_root() -> Path:

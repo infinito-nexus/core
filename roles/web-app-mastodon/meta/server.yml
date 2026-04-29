@@ -1,0 +1,13 @@
+domains:
+  canonical:
+  - microblog.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  whitelist:
+    frame-src:
+    - '*'
+    worker-src:
+    - 'blob:'
+networks:
+  local:
+    subnet: 192.168.101.240/28

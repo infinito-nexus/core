@@ -9,19 +9,19 @@ defaults_service_provider:
       city:         "Cybertown"
       postal_code:  "00001"
       country:      "Nexusland"
-    logo:           "{{ lookup('config', 'web-svc-asset', 'compose.services.asset.url') ~ '/img/logo.png' }}"
+    logo:           "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/logo.png' }}"
   platform:    
     titel:          "{{ SOFTWARE_NAME }}"
     subtitel:       "One login. Infinite Solutions."
-    logo:           "{{ lookup('config', 'web-svc-asset', 'compose.services.asset.url') ~ '/img/logo.png' }}"
-    favicon:        "{{ lookup('config', 'web-svc-asset', 'compose.services.asset.url') ~ '/img/favicon.ico' }}"
+    logo:           "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/logo.png' }}"
+    favicon:        "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/favicon.ico' }}"
   contact:
     web-app-bluesky: >-
       {{ ('@' ~ lookup('users', 'contact').username ~ '.' ~ lookup('domains', 'web-app-bluesky').api)
          if 'web-app-bluesky' in group_names else '' }}
     email:          "{{ lookup('users', 'contact').username ~ '@' ~ DOMAIN_PRIMARY if 'web-app-mailu' in group_names else 'contact@infinito.nexus' }}"
     mastodon:       "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-mastodon') if 'web-app-mastodon' in group_names else '@infinito@microblog.infinito.nexus' }}"
-    matrix:         "{{ '@' ~ lookup('users', 'contact').username ~ ':' ~ lookup('config','web-app-matrix', 'server_name') if 'web-app-matrix' in group_names else '@contact:infinito.nexus' }}"
+    matrix:         "{{ '@' ~ lookup('users', 'contact').username ~ ':' ~ lookup('config','web-app-matrix', 'services.matrix.server_name') if 'web-app-matrix' in group_names else '@contact:infinito.nexus' }}"
     peertube:       "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-peertube') if 'web-app-peertube' in group_names else 'infinito@video.infinito.nexus' }}"
     pixelfed:       "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-pixelfed') if 'web-app-pixelfed' in group_names else 'infinito@picture.infinito.nexus' }}"
     phone:          "+0 000 000 404"

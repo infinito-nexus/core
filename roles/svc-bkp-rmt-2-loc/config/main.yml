@@ -1,5 +1,0 @@
-backup_providers:  [] # List of providers to pull the backups from
-compose:
-  services:
-    rmt-2-loc:
-      min_storage: "0GB"

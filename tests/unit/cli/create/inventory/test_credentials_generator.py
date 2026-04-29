@@ -25,8 +25,8 @@ class TestCredentialsGenerator(unittest.TestCase):
 
             # Create a fake role path that resolver returns
             role_path = roles_dir / "web-app-nextcloud"
-            (role_path / "schema").mkdir(parents=True)
-            (role_path / "schema" / "main.yml").write_text("x: 1\n", encoding="utf-8")
+            (role_path / "meta").mkdir(parents=True)
+            (role_path / "meta" / "schema.yml").write_text("x: 1\n", encoding="utf-8")
 
             host_vars_file = tmp / "host_vars.yml"
             host_vars_file.write_text("", encoding="utf-8")
@@ -140,8 +140,8 @@ ansible_become_password: !vault |
             roles_dir.mkdir()
 
             role_path = roles_dir / "web-app-taiga"
-            (role_path / "schema").mkdir(parents=True)
-            (role_path / "schema" / "main.yml").write_text("x: 1\n", encoding="utf-8")
+            (role_path / "meta").mkdir(parents=True)
+            (role_path / "meta" / "schema.yml").write_text("x: 1\n", encoding="utf-8")
 
             host_vars_file = tmp / "host_vars.yml"
             host_vars_file.write_text(

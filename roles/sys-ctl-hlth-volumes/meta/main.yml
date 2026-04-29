@@ -3,18 +3,14 @@ galaxy_info:
   description: Detects anonymous Docker volumes not bound to containers (unless whitelisted) and alerts.
   company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - monitor
-  - docker
-  - volumes
-  - health
-  - systemd
-  repository: https://s.infinito.nexus/code
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta
+    - monitor
+    - docker
+    - volumes
+    - health
+    - systemd

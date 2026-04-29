@@ -8,7 +8,7 @@
 - name: "Wait for {{ application_id }} HTTP endpoint"
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ ports.localhost.http[application_id] }}"
+    port: "{{ lookup('config', application_id, 'services.fider.ports.local.http') }}"
     delay: 5
     timeout: 300
   when: FIDER_OIDC_ENABLED | bool

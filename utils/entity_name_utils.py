@@ -1,11 +1,10 @@
 import os
-import yaml
+
+from utils.cache.yaml import load_yaml
 
 
 def load_categories_tree(categories_file):
-    with open(categories_file, "r", encoding="utf-8") as f:
-        categories = yaml.safe_load(f)["roles"]
-    return categories
+    return load_yaml(categories_file)["roles"]
 
 
 def flatten_categories(tree, prefix=""):

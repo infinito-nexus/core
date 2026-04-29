@@ -6,4 +6,4 @@ system_service_id:                              "{{ application_id }}"
 DOCKER_BACKUP_REMOTE_2_LOCAL_DIR:               '{{ DIR_SCRIPTS_ROOT }}{{ application_id }}/'
 DOCKER_BACKUP_REMOTE_2_LOCAL_FILE:              'pull-specific-host.py'
 DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT:            "{{ [ DOCKER_BACKUP_REMOTE_2_LOCAL_DIR , DOCKER_BACKUP_REMOTE_2_LOCAL_FILE ] | path_join }}"
-DOCKER_BACKUP_REMOTE_2_LOCAL_BACKUP_PROVIDERS:  "{{ lookup('config', application_id, 'backup_providers')  }}"
+DOCKER_BACKUP_REMOTE_2_LOCAL_BACKUP_PROVIDERS:  "{{ lookup('config', application_id, 'services.rmt-2-loc.backup_providers')  }}"

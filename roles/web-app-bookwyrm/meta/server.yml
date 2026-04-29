@@ -1,0 +1,14 @@
+csp:
+  whitelist: {}
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-inline: true
+domains:
+  canonical:
+  - book.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.102.48/28

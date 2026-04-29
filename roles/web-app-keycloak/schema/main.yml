@@ -1,5 +1,0 @@
-credentials:
-  administrator_password:
-    description: "Password for the Keycloak administrator user (used in bootstrap and CLI access)"
-    algorithm: "sha256"
-    validation: "^[a-f0-9]{64}$"

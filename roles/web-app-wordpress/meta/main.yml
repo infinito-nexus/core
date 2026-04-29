@@ -1,31 +1,25 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Use the full power of WordPress—with its intuitive interface, customizable themes and plugins, responsive
-    design, and advanced SEO tools—in a scalable and secure containerized environment.
+  description: 'Use the full power of WordPress—with its intuitive interface, customizable themes and plugins, responsive design, and advanced SEO tools—in a scalable and secure containerized environment.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - wordpress
-  - docker
-  - multisite
-  - automation
-  - blog
-  repository: https://s.infinito.nexus/code
+    - wordpress
+    - docker
+    - multisite
+    - automation
+    - blog
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-blog
-  run_after:
-  - web-app-keycloak
-  lifecycle: beta

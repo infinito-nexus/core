@@ -5,7 +5,7 @@
     image: "{{ MATTERMOST_IMAGE }}:{{ MATTERMOST_VERSION }}"
     container_name: "{{ MATTERMOST_CONTAINER }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:{{ container_port }}"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mattermost.ports.local.http') }}:{{ container_port }}"
     volumes:
       - config:/mattermost/config
       - data:/mattermost/data

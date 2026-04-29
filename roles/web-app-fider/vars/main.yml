@@ -3,10 +3,10 @@
 application_id:               "web-app-fider"
 
 # Docker
-FIDER_VERSION:                "{{ lookup('config', application_id, 'compose.services.fider.version') }}"
-FIDER_IMAGE:                  "{{ lookup('config', application_id, 'compose.services.fider.image') }}"
-FIDER_CONTAINER:              "{{ lookup('config', application_id, 'compose.services.fider.name') }}"
-FIDER_CONTAINER_PORT:         "{{ lookup('config', application_id, 'compose.services.fider.container_port') }}"
+FIDER_VERSION:                "{{ lookup('config', application_id, 'services.fider.version') }}"
+FIDER_IMAGE:                  "{{ lookup('config', application_id, 'services.fider.image') }}"
+FIDER_CONTAINER:              "{{ lookup('config', application_id, 'services.fider.name') }}"
+FIDER_CONTAINER_PORT:         "{{ lookup('config', application_id, 'services.fider.container_port') }}"
 
 ## OIDC
-FIDER_OIDC_ENABLED:           "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+FIDER_OIDC_ENABLED:           "{{ lookup('config', application_id, 'services.oidc.enabled') }}"

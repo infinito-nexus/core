@@ -4,6 +4,6 @@ container_port:                 3000
 
 SIMPLEICONS_HOST_SERVER_FILE:   "{{ [ lookup('container', application_id, 'directories.config'), 'server.js' ] | path_join }}"
 SIMPLEICONS_HOST_PACKAGE_FILE:  "{{ [ lookup('container', application_id, 'directories.config'), 'package.json' ] | path_join }}"
-SIMPLEICONS_IMAGE:              "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.image') }}"
-SIMPLEICONS_VERSION:            "{{ lookup('config', application_id, 'compose.services.' ~ entity_name ~ '.version') }}"
+SIMPLEICONS_IMAGE:              "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+SIMPLEICONS_VERSION:            "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 

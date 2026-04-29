@@ -3,19 +3,19 @@ application_id:                   "web-app-peertube"
 entity_name:                      "{{ application_id | get_entity_name }}"
 
 # Role variables
-PEERTUBE_VERSION:                 "{{ lookup('config', application_id, 'compose.services.peertube.version') }}"
-PEERTUBE_IMAGE:                   "{{ lookup('config', application_id, 'compose.services.peertube.image') }}"
-PEERTUBE_CONTAINER:               "{{ lookup('config', application_id, 'compose.services.peertube.name') }}"
-PEERTUBE_DATA_VOLUME:             "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-PEERTUBE_CONFIG_VOLUME:           "{{ lookup('config', application_id, 'compose.volumes.config') }}"
+PEERTUBE_VERSION:                 "{{ lookup('config', application_id, 'services.peertube.version') }}"
+PEERTUBE_IMAGE:                   "{{ lookup('config', application_id, 'services.peertube.image') }}"
+PEERTUBE_CONTAINER:               "{{ lookup('config', application_id, 'services.peertube.name') }}"
+PEERTUBE_DATA_VOLUME:             "{{ lookup('config', application_id, 'volumes.data') }}"
+PEERTUBE_CONFIG_VOLUME:           "{{ lookup('config', application_id, 'volumes.config') }}"
 
 # OIDC
 PEERTUBE_OIDC_PLUGIN:             "peertube-plugin-auth-openid-connect"
-PEERTUBE_OIDC_ENABLED:            "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+PEERTUBE_OIDC_ENABLED:            "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 
 # Performance
-PEERTUBE_CPUS:                    "{{ lookup('config', application_id, 'compose.services.peertube.cpus') | float }}"
-PEERTUBE_MEM_LIMIT:               "{{ lookup('config', application_id, 'compose.services.peertube.mem_limit') }}"
+PEERTUBE_CPUS:                    "{{ lookup('config', application_id, 'services.peertube.cpus') | float }}"
+PEERTUBE_MEM_LIMIT:               "{{ lookup('config', application_id, 'services.peertube.mem_limit') }}"
 PEERTUBE_MAX_OLD_SPACE_SIZE:      "{{ lookup('applications') | node_max_old_space_size(application_id, entity_name) }}"
 _peertube_concurrency_candidate:  "{{ ((PEERTUBE_CPUS | float) * 0.5) | round(0, 'floor') | int }}"
 PEERTUBE_TRANSCODING_CONCURRENCY: "{{ [ ( [ (_peertube_concurrency_candidate | int), 1 ] | max ), 8 ] | min }}"
@@ -31,7 +31,7 @@ PEERTUBE_TRANSCODING_CONCURRENCY: "{{ [ ( [ (_peertube_concurrency_candidate | i
 PEERTUBE_OIDC_PLUGIN_INSTALL_MAX_OLD_SPACE_MB: "{{ lookup('applications') | node_max_old_space_size(application_id, entity_name, pct=0.125, min_mb=256, hardcap_mb=1024) }}"
 
 # Temporary cgroup memory ceiling (bytes) during the one-off `npm run
-# plugin:install`. Raised above compose.services.peertube.mem_limit so the
+# plugin:install`. Raised above services.peertube.mem_limit so the
 # install process and the long-running main peertube node process (both
 # sharing the same cgroup via `container exec`) do not collectively trip the
 # runtime mem_limit and get SIGKILLed — which was manifesting as "Container

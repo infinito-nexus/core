@@ -1,6 +1,0 @@
-credentials:
-  superadminpassword:
-    description: "Password for the xwiki superadmin"
-    algorithm: "alphanumeric"
-    validation:
-      min_length: 50

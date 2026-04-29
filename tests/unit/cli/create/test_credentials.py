@@ -1,12 +1,14 @@
 import os
+import subprocess
 import sys
+import tempfile
 import unittest
+import unittest.mock
+
+import yaml
 
 from cli.create.credentials import ask_for_confirmation, main
 from utils.handler.vault import VaultHandler
-import subprocess
-import tempfile
-import yaml
 
 
 class TestCreateCredentials(unittest.TestCase):
@@ -44,8 +46,7 @@ class TestCreateCredentials(unittest.TestCase):
         # Setup temporary files for role-path vars and inventory
         with tempfile.TemporaryDirectory() as tmpdir:
             role_path = os.path.join(tmpdir, "role")
-            os.makedirs(os.path.join(role_path, "config"))
-            os.makedirs(os.path.join(role_path, "schema"))
+            os.makedirs(os.path.join(role_path, "meta"))
             os.makedirs(os.path.join(role_path, "vars"))
             # Create vars/main.yml with application_id
             main_vars = {"application_id": "app_test"}
@@ -53,7 +54,7 @@ class TestCreateCredentials(unittest.TestCase):
                 yaml.dump(main_vars, f)
             # Create config/main.yml with features disabled
             config = {"features": {"central_database": False}}
-            with open(os.path.join(role_path, "config", "main.yml"), "w") as f:
+            with open(os.path.join(role_path, "meta", "services.yml"), "w") as f:
                 yaml.dump(config, f)
             # Create schema.yml defining plain credential
             schema = {
@@ -65,7 +66,7 @@ class TestCreateCredentials(unittest.TestCase):
                     }
                 }
             }
-            with open(os.path.join(role_path, "schema", "main.yml"), "w") as f:
+            with open(os.path.join(role_path, "meta", "schema.yml"), "w") as f:
                 yaml.dump(schema, f)
             # Prepare inventory file
             inventory_file = os.path.join(tmpdir, "inventory.yml")
@@ -114,8 +115,7 @@ class TestCreateCredentials(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as tmpdir:
             role_path = os.path.join(tmpdir, "role")
-            os.makedirs(os.path.join(role_path, "config"))
-            os.makedirs(os.path.join(role_path, "schema"))
+            os.makedirs(os.path.join(role_path, "meta"))
             os.makedirs(os.path.join(role_path, "vars"))
 
             # vars/main.yml with application_id
@@ -125,7 +125,7 @@ class TestCreateCredentials(unittest.TestCase):
 
             # config/main.yml
             config = {"features": {"central_database": False}}
-            with open(os.path.join(role_path, "config", "main.yml"), "w") as f:
+            with open(os.path.join(role_path, "meta", "services.yml"), "w") as f:
                 yaml.dump(config, f)
 
             # schema/main.yml: plain credential *without* overrides
@@ -138,7 +138,7 @@ class TestCreateCredentials(unittest.TestCase):
                     }
                 }
             }
-            with open(os.path.join(role_path, "schema", "main.yml"), "w") as f:
+            with open(os.path.join(role_path, "meta", "schema.yml"), "w") as f:
                 yaml.dump(schema, f)
 
             # Empty inventory file

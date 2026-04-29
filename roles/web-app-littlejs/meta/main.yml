@@ -1,28 +1,22 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'LittleJS Playground – self-hosted LittleJS example browser and collection of HTML5 games and demos, wrapped
-    as a Dockerized web app.
+  description: 'LittleJS Playground – self-hosted LittleJS example browser and collection of HTML5 games and demos, wrapped as a Dockerized web app.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   galaxy_tags:
-  - infinito
-  - docker
-  - webapp
-  - game
-  - html5
-  - littlejs
-  repository: https://s.infinito.nexus/code
+    - infinito
+    - docker
+    - webapp
+    - game
+    - html5
+    - littlejs
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  logo:
-    class: fa-solid fa-gamepad
-  run_after:
-  - web-app-matomo
-  lifecycle: alpha
 dependencies: []

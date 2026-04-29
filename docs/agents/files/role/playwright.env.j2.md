@@ -13,7 +13,7 @@ For the matching scenario implementation, see [Role `playwright.spec.js`](playwr
 
 ## Implement
 
-- You MUST define `APP_BASE_URL` consistent with the Entry Point rules in the contrib SPOT, in particular the dashboard routing rule when `compose.services.dashboard.enabled` is set.
+- You MUST define `APP_BASE_URL` consistent with the Entry Point rules in the contrib SPOT, in particular the dashboard routing rule when `services.dashboard.enabled` is set.
 - Expose app-specific base URLs, issuer URLs, feature flags, and credentials only when the spec consumes them.
 - You MUST use `dotenv_quote` for values that may contain spaces, special characters, or shell-sensitive content.
 - When the suite covers multiple personas such as `biber` and `administrator`, you MUST expose separate variables for each scenario instead of overloading one shared credential pair.

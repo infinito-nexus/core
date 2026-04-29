@@ -7,5 +7,4 @@ galaxy_info:
   - dns
   - cloudflare
   - automation
-  lifecycle: beta
 dependencies: []

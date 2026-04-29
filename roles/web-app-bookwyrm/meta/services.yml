@@ -1,0 +1,49 @@
+oidc:
+  enabled: false
+  shared: false
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+# noqa: shared
+redis:
+  backup:
+    disabled: true
+  enabled: true
+bookwyrm:
+  version: v0.7.5
+  name: bookwyrm
+  repository: https://github.com/bookwyrm-social/bookwyrm.git
+  min_storage: 15GB
+  base_image: python
+  base_version: 3.11-bookworm
+  registration_open: false
+  allow_invite_request: false
+  ports:
+    local:
+      http: 8049
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: alpha
+# noqa: shared
+worker:
+  enabled: true
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true

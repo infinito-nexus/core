@@ -11,7 +11,7 @@ from cli.mirror.model import ImageRef
 
 
 class TestResolverOutputFormat(unittest.TestCase):
-    """resolver preserves compose output and adds a separate images key."""
+    """resolver emits per-role services map and a separate images key."""
 
     def _run_resolver(
         self, images: list[ImageRef], extra_argv: list[str] | None = None
@@ -45,13 +45,13 @@ class TestResolverOutputFormat(unittest.TestCase):
             version="31.0.0",
             source="docker.io/library/nextcloud:31.0.0",
             registry="docker.io",
-            source_file="config/main.yml",
+            source_file="meta/services.yml",
         )
         out = self._run_resolver([image])
 
         self.assertIn("applications", out)
         self.assertIn("images", out)
-        svc = out["applications"]["web-app-nextcloud"]["compose"]["services"]["app"]
+        svc = out["applications"]["web-app-nextcloud"]["services"]["app"]
         self.assertEqual(svc["version"], "31.0.0")
         self.assertIn("ghcr.io/acme/myrepo/mirror/docker.io/nextcloud", svc["image"])
         self.assertEqual(out["images"], {})
@@ -85,7 +85,7 @@ class TestResolverOutputFormat(unittest.TestCase):
                 version="31.0.0",
                 source="docker.io/library/nextcloud:31.0.0",
                 registry="docker.io",
-                source_file="config/main.yml",
+                source_file="meta/services.yml",
             ),
             ImageRef(
                 role="web-app-nextcloud",
@@ -94,7 +94,7 @@ class TestResolverOutputFormat(unittest.TestCase):
                 version="alpine",
                 source="docker.io/library/nginx:alpine",
                 registry="docker.io",
-                source_file="config/main.yml",
+                source_file="meta/services.yml",
             ),
             ImageRef(
                 role="web-app-nextcloud",
@@ -108,12 +108,8 @@ class TestResolverOutputFormat(unittest.TestCase):
         ]
         out = self._run_resolver(images)
 
-        self.assertIn(
-            "app", out["applications"]["web-app-nextcloud"]["compose"]["services"]
-        )
-        self.assertIn(
-            "proxy", out["applications"]["web-app-nextcloud"]["compose"]["services"]
-        )
+        self.assertIn("app", out["applications"]["web-app-nextcloud"]["services"])
+        self.assertIn("proxy", out["applications"]["web-app-nextcloud"]["services"])
         self.assertIn("backup", out["images"]["web-app-nextcloud"])
 
     def test_empty_images_yield_both_empty_top_level_keys(self) -> None:

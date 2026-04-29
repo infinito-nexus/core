@@ -1,0 +1,27 @@
+status_codes:
+  default:
+  - 308
+  - 302
+domains:
+  canonical:
+  - onlyoffice.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  whitelist:
+    frame-ancestors:
+    - '*.{{ DOMAIN_PRIMARY }}'
+    script-src-elem:
+    - https://fonts.googleapis.com  # nocheck: url
+    style-src-elem:
+    - https://fonts.googleapis.com  # nocheck: url
+    font-src:
+    - https://fonts.gstatic.com  # nocheck: url
+  flags:
+    script-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+networks:
+  local:
+    subnet: 192.168.104.96/28

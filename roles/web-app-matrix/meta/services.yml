@@ -1,0 +1,69 @@
+oidc:
+  enabled: true
+  shared: true
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: false
+  shared: false
+email:
+  enabled: true
+  shared: true
+postgres:
+  enabled: true
+  shared: true
+synapse:
+  version: latest
+  image: matrixdotorg/synapse
+  name: matrix-synapse
+  backup:
+    no_stop_required: true
+  ports:
+    local:
+      http: 8021
+    public:
+      federation: 8448
+element:
+  version: latest
+  image: vectorim/element-web
+  name: matrix-element
+  ports:
+    local:
+      http: 8022
+matrix-chatgpt-bot:
+  version: latest
+  image: ghcr.io/matrixgpt/matrix-chatgpt-bot
+css:
+  enabled: true
+  shared: true
+prometheus:
+  enabled: true
+  shared: true
+  native_metrics:
+    enabled: true
+    port: 9000
+    service_key: synapse
+  communication:
+    channel: true
+matrix:
+  playbook_tags: setup-all,start
+  server_name: '{{ DOMAIN_PRIMARY }}'
+  setup: false
+  plugins:
+    chatgpt: false
+    facebook: false
+    immesage: false
+    instagram: false
+    signal: false
+    slack: false
+    telegram: false
+    whatsapp: false
+  run_after:
+  - web-app-matomo
+  - web-app-keycloak
+  - web-app-mailu
+  lifecycle: beta

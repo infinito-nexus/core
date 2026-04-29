@@ -1,31 +1,29 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Automates the retrieval of Let''s Encrypt SSL/TLS certificates for Nginx domains using Certbot, supporting
-    both single-domain and wildcard certificates with DNS and webroot ACME challenges.
+  description: 'Automates the retrieval of Let''s Encrypt SSL/TLS certificates for Nginx domains using Certbot, supporting both single-domain and wildcard certificates with DNS and webroot ACME challenges.
 
     '
   license: Infinito.Nexus Community License (Non-Commercial)
-  license_url: https://s.infinito.nexus/license
-  company: |
-    Kevin Veen-Birkenbach
+  company: 'Kevin Veen-Birkenbach
+
     Consulting & Coaching Solutions
+
     https://www.veen.world
+
+    '
   min_ansible_version: '2.9'
   platforms:
-  - name: Archlinux
-    versions:
-    - rolling
+    - name: Archlinux
+      versions:
+        - rolling
   galaxy_tags:
-  - nginx
-  - certbot
-  - letsencrypt
-  - ssl
-  - tls
-  - acme
-  - https
-  - wildcard
-  - automation
-  repository: https://s.infinito.nexus/code
+    - nginx
+    - certbot
+    - letsencrypt
+    - ssl
+    - tls
+    - acme
+    - https
+    - wildcard
+    - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-  documentation: https://docs.infinito.nexus
-  lifecycle: beta

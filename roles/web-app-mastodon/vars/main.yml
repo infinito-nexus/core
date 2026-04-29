@@ -4,25 +4,25 @@ application_id:                       "web-app-mastodon"
 # Mastodon
 
 ## Main
-MASTODON_VERSION:                     "{{ lookup('config', application_id, 'compose.services.mastodon.version') }}"
-MASTODON_IMAGE:                       "{{ lookup('config', application_id, 'compose.services.mastodon.image') }}"
-MASTODON_CONTAINER:                   "{{ lookup('config', application_id, 'compose.services.mastodon.name') }}"
-MASTODON_VOLUME:                      "{{ lookup('config', application_id, 'compose.volumes.data') }}"
+MASTODON_VERSION:                     "{{ lookup('config', application_id, 'services.mastodon.version') }}"
+MASTODON_IMAGE:                       "{{ lookup('config', application_id, 'services.mastodon.image') }}"
+MASTODON_CONTAINER:                   "{{ lookup('config', application_id, 'services.mastodon.name') }}"
+MASTODON_VOLUME:                      "{{ lookup('config', application_id, 'volumes.data') }}"
 MASTODON_SERVICE_NAME:                "mastodon"
 
 ## Streaming
-MASTODON_STREAMING_VERSION:           "{{ lookup('config', application_id, 'compose.services.streaming.version') }}"
-MASTODON_STREAMING_IMAGE:             "{{ lookup('config', application_id, 'compose.services.streaming.image') }}"
-MASTODON_STREAMING_CONTAINER:         "{{ lookup('config', application_id, 'compose.services.streaming.name') }}"
+MASTODON_STREAMING_VERSION:           "{{ lookup('config', application_id, 'services.streaming.version') }}"
+MASTODON_STREAMING_IMAGE:             "{{ lookup('config', application_id, 'services.streaming.image') }}"
+MASTODON_STREAMING_CONTAINER:         "{{ lookup('config', application_id, 'services.streaming.name') }}"
 MASTODON_STREAMING_SERVICE_NAME:      "streaming" 
 
 ## Sidekiq
-MASTODON_SIDEKIQ_CONTAINER:           "{{ lookup('config', application_id, 'compose.services.mastodon.name') }}-sidekiq"
+MASTODON_SIDEKIQ_CONTAINER:           "{{ lookup('config', application_id, 'services.mastodon.name') }}-sidekiq"
 MASTODON_SIDEKIQ_SERVICE_NAME:        "sidekiq"
 
 ## General
-MASTODON_ALLOWED_PRIVATE_ADDRESSES:   "{{ networks.local['svc-db-postgres'].subnet if 'web-app-chess' in group_names else ''}}"
-MASTODON_OIDC_ENABLED:                "{{ lookup('config', application_id, 'compose.services.oidc.enabled')  }}"
+MASTODON_ALLOWED_PRIVATE_ADDRESSES:   "{{ lookup('config', 'svc-db-postgres', 'server.networks.local.subnet') if 'web-app-chess' in group_names else ''}}"
+MASTODON_OIDC_ENABLED:                "{{ lookup('config', application_id, 'services.oidc.enabled')  }}"
 
 MASTODON_HTTP_ONLY_ENABLED:                 "{{ not (lookup('tls', application_id, 'enabled') | bool) }}"
 MASTODON_OVERRIDES_DIR:                     "{{ lookup('container', application_id, 'directories.instance') }}/overrides"

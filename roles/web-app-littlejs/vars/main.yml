@@ -18,8 +18,8 @@ LITTLEJS_INDEX_HOST_REL:    "volumes/index.html"
 # Helper variables
 LITTLEJS_CONTAINER:         "{{ entity_name }}"
 LITTLEJS_SERVICE:           "{{ entity_name }}"
-LITTLEJS_IMAGE:             "{{ lookup('config', application_id, 'compose.services.littlejs.image') }}"
-LITTLEJS_VERSION:           "{{ lookup('config', application_id, 'compose.services.littlejs.version') }}"
+LITTLEJS_IMAGE:             "{{ lookup('config', application_id, 'services.littlejs.image') }}"
+LITTLEJS_VERSION:           "{{ lookup('config', application_id, 'services.littlejs.version') }}"
 LITTLEJS_IMAGE_CUSTOM:      "{{ entity_name }}_custom"
 
 # Runner HTML for non-full examples

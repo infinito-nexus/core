@@ -2,7 +2,7 @@ import re
 import unittest
 
 from plugins.filter.get_all_application_ids import get_all_application_ids
-from tests.utils.fs import iter_project_files_with_content
+from utils.cache.files import iter_project_files_with_content
 
 
 class TestGetDomainApplicationIds(unittest.TestCase):

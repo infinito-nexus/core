@@ -1,5 +1,0 @@
-credentials:
-  secret_key:
-    description:  "Django SECRET_KEY used for cryptographic signing in Taiga"
-    algorithm:    "sha256"
-    validation:   "^[a-f0-9]{64}$"

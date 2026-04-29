@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from ansible.plugins.lookup import LookupBase
 
-from utils.runtime_data import get_merged_applications
+from utils.cache.applications import get_merged_applications
 
 
 class LookupModule(LookupBase):
@@ -15,7 +15,7 @@ class LookupModule(LookupBase):
     The condition satisfied:
       1. 'web-app-prometheus' is in group_names (prometheus is deployed on this host), AND
       2. Either the current application IS web-app-prometheus, OR it declares prometheus
-         as an enabled compose service dependency (compose.services.prometheus.enabled: true).
+         as an enabled compose service dependency (services.prometheus.enabled: true).
 
     Usage in a template:
       {% if lookup('prometheus_integration_active', application_id) %}
@@ -55,9 +55,10 @@ class LookupModule(LookupBase):
             return [True]
 
         try:
+            # Per req-008 services live at applications.<app>.services
+            # (no `compose.services` wrapper).
             enabled = bool(
                 applications.get(application_id, {})
-                .get("compose", {})
                 .get("services", {})
                 .get("prometheus", {})
                 .get("enabled", False)

@@ -12,15 +12,18 @@ domain_list = importlib.import_module("utils.domains.list")
 
 class TestDomainList(unittest.TestCase):
     def write_role(self, roles_dir: Path, role_name: str, app_id: str, config: dict):
+        # ``config`` is the legacy nested shape ``{"server": {"domains": {...}}}``
+        # for readability; it gets unwrapped into the new file-root meta/server.yml.
         role_dir = roles_dir / role_name
         (role_dir / "vars").mkdir(parents=True, exist_ok=True)
-        (role_dir / "config").mkdir(parents=True, exist_ok=True)
+        (role_dir / "meta").mkdir(parents=True, exist_ok=True)
         (role_dir / "vars" / "main.yml").write_text(
             yaml.safe_dump({"application_id": app_id}, sort_keys=False),
             encoding="utf-8",
         )
-        (role_dir / "config" / "main.yml").write_text(
-            yaml.safe_dump(config, sort_keys=False),
+        server_payload = config.get("server", {}) if isinstance(config, dict) else {}
+        (role_dir / "meta" / "server.yml").write_text(
+            yaml.safe_dump(server_payload, sort_keys=False),
             encoding="utf-8",
         )
 

@@ -1,0 +1,16 @@
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+  whitelist:
+    font-src:
+    - 'data:'
+domains:
+  canonical:
+  - pgadmin.{{ DOMAIN_PRIMARY }}
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.102.144/28

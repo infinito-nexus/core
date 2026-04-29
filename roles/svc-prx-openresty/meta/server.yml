@@ -1,0 +1,7 @@
+domains:
+  canonical:
+  - '{{ DOMAIN_PRIMARY }}'
+  aliases: []
+networks:
+  local:
+    subnet: 192.168.105.32/28

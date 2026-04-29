@@ -1,6 +1,8 @@
 import os
-import yaml
+
 from ansible.errors import AnsibleFilterError
+
+from utils.cache.yaml import load_yaml_any
 
 
 def _iter_role_vars_files(roles_dir):
@@ -17,8 +19,9 @@ def _iter_role_vars_files(roles_dir):
 
 def _is_postgres_role(vars_file):
     try:
-        with open(vars_file, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
+        data = load_yaml_any(vars_file, default_if_missing={}) or {}
+        if not isinstance(data, dict):
+            return False
         # only count roles with explicit database_type: postgres in VARS
         return str(data.get("database_type", "")).strip().lower() == "postgres"
     except Exception:

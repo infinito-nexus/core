@@ -1,0 +1,13 @@
+domains:
+  canonical:
+  - joomla.cms.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    style-src-attr:
+      unsafe-inline: true
+    script-src-elem:
+      unsafe-inline: true
+networks:
+  local:
+    subnet: 192.168.101.144/28

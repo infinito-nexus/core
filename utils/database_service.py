@@ -14,9 +14,15 @@ def get_compose_services(
     applications: Mapping[str, Any],
     application_id: str,
 ) -> Dict[str, Any]:
+    """Return the role's services map.
+
+    Per req-008 the materialised application payload exposes services
+    under the bare ``services`` key (no ``compose.services`` wrapper).
+    The function name is preserved for backwards compatibility with
+    existing call sites.
+    """
     application = _as_mapping(applications.get(application_id))
-    compose = _as_mapping(application.get("compose"))
-    return _as_mapping(compose.get("services"))
+    return _as_mapping(application.get("services"))
 
 
 def get_database_service_config(

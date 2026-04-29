@@ -14,6 +14,6 @@ server {
 
   {# Synapse uses the 'synapse' service key, so pass container_name explicitly.
      locations.conf.j2 guards itself via lookup('prometheus_integration_active'). #}
-  {% set container_name = lookup('config', application_id, 'compose.services.synapse.name', '') %}
+  {% set container_name = lookup('config', application_id, 'services.synapse.name', '') %}
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
 }

@@ -1,2 +1,0 @@
-# Set to true to install and start the CopyQ server as a systemd user service
-server_enabled: true

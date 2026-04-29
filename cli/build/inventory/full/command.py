@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-import yaml
+from utils.cache.yaml import dump_yaml_str
 
 from plugins.filter.get_all_invokable_apps import get_all_invokable_apps
 
@@ -98,7 +98,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         output = json.dumps(inventory, indent=2)
     else:
-        output = yaml.safe_dump(inventory, default_flow_style=False)
+        output = dump_yaml_str(inventory)
 
     if args.output:
         with open(args.output, "w", encoding="utf-8") as fh:

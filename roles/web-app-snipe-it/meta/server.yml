@@ -1,0 +1,19 @@
+domains:
+  canonical:
+  - inventory.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags:
+    script-src-attr:
+      unsafe-inline: true
+      unsafe-eval: true
+    script-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+  whitelist:
+    font-src:
+    - 'data:'
+networks:
+  local:
+    subnet: 192.168.102.160/28

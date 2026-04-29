@@ -1,9 +1,0 @@
-users:      
-  administrator: {}
-  no-reply:
-    username:     "no-reply"
-    roles:
-      - mail-bot
-    limits:
-      rate:  "60 / 1min"
-      burst: 3600

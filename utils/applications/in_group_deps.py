@@ -5,7 +5,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-import yaml
+from utils.cache.yaml import load_yaml_any
 
 from utils.service_registry import (
     build_service_registry_from_applications,
@@ -32,9 +32,10 @@ def meta_deps_from_disk(role: str, roles_dir: str) -> list[str]:
         return []
 
     try:
-        with open(meta_file, encoding="utf-8") as handle:
-            meta = yaml.safe_load(handle) or {}
+        meta = load_yaml_any(meta_file, default_if_missing={}) or {}
     except Exception:
+        return []
+    if not isinstance(meta, dict):
         return []
 
     deps: list[str] = []

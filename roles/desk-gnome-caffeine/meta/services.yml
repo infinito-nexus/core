@@ -1,0 +1,4 @@
+gnome-caffeine:
+  run_after:
+  - desk-gnome
+  lifecycle: pre-alpha

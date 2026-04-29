@@ -1,5 +1,0 @@
-credentials:
-  POSTGRES_PASSWORD:
-    description:  "Password for the PostgreSQL superuser 'postgres'"
-    algorithm:    "alphanumeric"
-    validation:   "^[A-Za-z0-9]{64}$"

@@ -34,7 +34,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import yaml
+from utils.cache.yaml import load_yaml_any as _load_yaml_cached
 
 
 def eprint(msg: str) -> None:
@@ -73,8 +73,7 @@ def list_group_files(groups_dir: Path) -> List[Path]:
 
 
 def load_yaml(path: Path) -> Any:
-    with path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    return _load_yaml_cached(str(path), default_if_missing=None)
 
 
 def extract_roles_from_tasks(doc: Any) -> List[str]:
