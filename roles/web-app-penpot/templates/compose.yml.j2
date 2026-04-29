@@ -31,7 +31,20 @@
     image: {{ PENPOT_BACKEND_IMAGE }}:{{ PENPOT_BACKEND_VERSION }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% if PENPOT_OIDC_ENABLED | bool %}
-    command: ["/bin/bash", "-c", "cp /opt/jre/lib/security/cacerts /tmp/java-cacerts && chmod 644 /tmp/java-cacerts && if [ -f /usr/local/share/ca-certificates/infinito.example.crt ]; then /opt/jre/bin/keytool -importcert -noprompt -trustcacerts -alias infinito-ca -file /usr/local/share/ca-certificates/infinito.example.crt -keystore /tmp/java-cacerts -storepass changeit || true; fi && exec /bin/bash run.sh"]
+    command:
+      - /bin/bash
+      - -c
+      - |
+        cp /opt/jre/lib/security/cacerts /tmp/java-cacerts
+        chmod 644 /tmp/java-cacerts
+        if [ -f /usr/local/share/ca-certificates/infinito.example.crt ]; then
+          /opt/jre/bin/keytool -importcert -noprompt -trustcacerts \
+            -alias infinito-ca \
+            -file /usr/local/share/ca-certificates/infinito.example.crt \
+            -keystore /tmp/java-cacerts \
+            -storepass changeit || true
+        fi
+        exec /bin/bash run.sh
 {% endif %}
     volumes:
       - assets:/opt/data/assets
