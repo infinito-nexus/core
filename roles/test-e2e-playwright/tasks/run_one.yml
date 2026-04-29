@@ -256,3 +256,8 @@
   ansible.builtin.set_fact:
     _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
   when: _playwright_run.rc != 0
+
+- name: Clear failure on success (handles retry where previous attempt failed)
+  ansible.builtin.set_fact:
+    _playwright_failures: "{{ (_playwright_failures | default([])) | reject('equalto', application_id) | list }}"
+  when: _playwright_run.rc == 0
