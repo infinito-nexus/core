@@ -19,8 +19,10 @@
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     depends_on:
-      backend:
+      redis:
         condition: service_healthy
+      backend:
+        condition: service_started
       exporter:
         condition: service_started
 
@@ -83,12 +85,6 @@
 {% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
       redis:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/6060 && echo -e 'GET / HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q 'HTTP'"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 300s
 
   exporter:
     container_name: {{ PENPOT_EXPORTER_CONTAINER }}
