@@ -9,6 +9,7 @@ ports:
       web-app-mastodon:   4001
       web-app-espocrm:    4002
       web-app-odoo:       4003
+      web-app-penpot:     4004
     oauth2:
       # oauth2-proxy internal callback/listener ports (reserved range: 16480-16499)
       web-app-phpmyadmin:       16481
@@ -96,6 +97,7 @@ ports:
       web-app-fider: 8067
       web-app-odoo: 8068
       web-app-decidim: 8069
+      web-app-penpot: 8070
       web-app-bigbluebutton: 48087    # This port is predefined by bbb. @todo Try to change this to a 8XXX port
   public:
     # The following ports should be changed to 22 on the subdomain via stream mapping

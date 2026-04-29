@@ -35,9 +35,13 @@ class TestTopLevelVariableUsage(unittest.TestCase):
         )
         # Global Ansible runtime knobs are consumed by Ansible itself and may not
         # appear as plain string references inside this repository.
+        # Namespace keys like default_users and defaults_applications are organizational
+        # containers and are not directly referenced.
         self.ignored_top_level_keys = {
             "ansible_python_interpreter",
             "ansible_shell_executable",
+            "default_users",
+            "defaults_applications",
         }
 
     def get_top_level_keys(self, file_path):

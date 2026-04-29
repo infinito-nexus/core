@@ -14,6 +14,10 @@
     msg: "Playwright-enabled roles: {{ _playwright_apps }}"
   changed_when: false
 
+- name: Reset Playwright failure accumulator
+  ansible.builtin.set_fact:
+    _playwright_failures: []
+
 - name: Ensure staging base dir exists
   ansible.builtin.file:
     path: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"

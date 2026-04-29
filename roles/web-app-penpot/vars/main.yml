@@ -1,0 +1,47 @@
+# General
+application_id:                   "web-app-penpot"
+js_application_name:              "Penpot"
+entity_name:                      "{{ application_id | get_entity_name }}"
+
+# Penpot
+
+## General
+PENPOT_PUBLIC_URI:                "{{ lookup('tls', application_id, 'url.base') }}"
+PENPOT_SECRET_KEY:                "{{ lookup('config', application_id, 'credentials.secret_key') }}"
+
+## Frontend
+PENPOT_FRONTEND_IMAGE:            "{{ lookup('config', application_id, 'compose.services.frontend.image') }}"
+PENPOT_FRONTEND_VERSION:          "{{ lookup('config', application_id, 'compose.services.frontend.version') }}"
+PENPOT_FRONTEND_CONTAINER:        "{{ entity_name }}-frontend"
+
+## Backend
+PENPOT_BACKEND_IMAGE:             "{{ lookup('config', application_id, 'compose.services.backend.image') }}"
+PENPOT_BACKEND_VERSION:           "{{ lookup('config', application_id, 'compose.services.backend.version') }}"
+PENPOT_BACKEND_CONTAINER:         "{{ entity_name }}-backend"
+PENPOT_BACKEND_URI:               "http://{{ PENPOT_BACKEND_CONTAINER }}:6060"
+
+## Exporter
+PENPOT_EXPORTER_IMAGE:            "{{ lookup('config', application_id, 'compose.services.exporter.image') }}"
+PENPOT_EXPORTER_VERSION:          "{{ lookup('config', application_id, 'compose.services.exporter.version') }}"
+PENPOT_EXPORTER_CONTAINER:        "{{ entity_name }}-exporter"
+PENPOT_EXPORTER_URI:              "http://{{ PENPOT_EXPORTER_CONTAINER }}:6061"
+
+## Database
+PENPOT_DATABASE_URI:              "postgresql://{{ lookup('database', application_id, 'host') }}/{{ lookup('database', application_id, 'name') }}"
+PENPOT_DATABASE_USERNAME:         "{{ lookup('database', application_id, 'username') }}"
+PENPOT_DATABASE_PASSWORD:         "{{ lookup('database', application_id, 'password') }}"
+
+## Redis
+PENPOT_REDIS_URI:                 "redis://{{ entity_name }}-redis:6379/0"
+
+## Authentication
+PENPOT_OIDC_ENABLED:              "{{ lookup('config', application_id, 'compose.services.oidc.enabled') }}"
+PENPOT_LDAP_ENABLED:              "{{ lookup('config', application_id, 'compose.services.ldap.enabled', false) }}"
+
+## Docker
+PENPOT_ASSETS_VOLUME:             "{{ lookup('config', application_id, 'compose.volumes.assets') }}"
+
+# Docker compose
+docker_compose_flush_handlers:    true
+docker_git_repository_pull:       false
+docker_git_repository_address:    ""

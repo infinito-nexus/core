@@ -1,0 +1,79 @@
+compose:
+  services:
+    oidc:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: false
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    postgres:
+      enabled: true
+      shared: true
+    frontend:
+      version:        "latest"
+      image:          "penpotapp/frontend"
+      cpus:            "0.5"
+      mem_reservation: "512m"
+      mem_limit:       "1g"
+      pids_limit:      256
+    backend:
+      version:        "latest"
+      image:          "penpotapp/backend"
+      min_storage:    "10GB"
+      cpus:            "1.0"
+      mem_reservation: "1g"
+      mem_limit:       "2g"
+      pids_limit:      512
+    exporter:
+      version:        "latest"
+      image:          "penpotapp/exporter"
+      cpus:            "1.0"
+      mem_reservation: "1g"
+      mem_limit:       "2g"
+      pids_limit:      512
+    redis:
+      cpus:            "0.5"
+      mem_reservation: "256m"
+      mem_limit:       "512m"
+      pids_limit:      256
+    css:
+      enabled: true
+      shared: true
+    javascript:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+  volumes:
+    assets: "{{ application_id }}_assets"
+credentials:
+  secret_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=64') }}"
+server:
+  csp:
+    flags:
+      script-src:
+        unsafe-eval: true
+      script-src-elem:
+        unsafe-inline: true
+        unsafe-eval: true
+      script-src-attr:
+        unsafe-inline: true
+        unsafe-eval: true
+      style-src-attr:
+        unsafe-inline: true
+  domains:
+    canonical:
+      - "penpot.design.{{ DOMAIN_PRIMARY }}"

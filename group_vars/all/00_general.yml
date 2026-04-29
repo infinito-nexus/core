@@ -37,6 +37,7 @@ AUTO_BUILD_ALIASES:     False # If enabled it creates an alias domain for each w
 # Domain
 DOMAIN_PRIMARY:                           "{{ lookup('env', 'DOMAIN') | default('infinito.localhost', true) }}" # Primary Domain of the server
 DOMAIN_TEST:                              "test.{{ DOMAIN_PRIMARY }}"
+SYSTEM_EMAIL_DOMAIN:                      "{{ DOMAIN_PRIMARY }}" # Email domain for system users
 DOMAIN_HOMEPAGE:                          "{{ lookup('domain','web-app-dashboard') if 'web-app-dashboard' in group_names else SOFTWARE_DOMAIN }}"
 
 DNS_PROVIDER:                             "localhost"   # The DNS Provider\Registrar for the domain -> Legit values: cloudflare

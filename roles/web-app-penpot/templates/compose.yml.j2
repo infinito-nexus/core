@@ -1,0 +1,77 @@
+{% set email = lookup('email', application_id) %}
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  frontend:
+    container_name: {{ PENPOT_FRONTEND_CONTAINER }}
+    image: {{ PENPOT_FRONTEND_IMAGE }}:{{ PENPOT_FRONTEND_VERSION }}
+    ports:
+      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:8080
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    volumes:
+      - assets:/opt/data/assets:ro
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+      exporter:
+        condition: service_started
+
+  backend:
+    container_name: {{ PENPOT_BACKEND_CONTAINER }}
+    image: {{ PENPOT_BACKEND_IMAGE }}:{{ PENPOT_BACKEND_VERSION }}
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+{% if PENPOT_OIDC_ENABLED | bool %}
+    command:
+      - /bin/bash
+      - -c
+      - |
+        cp /opt/jre/lib/security/cacerts /tmp/java-cacerts
+        chmod 644 /tmp/java-cacerts
+        if [ -f /usr/local/share/ca-certificates/infinito.example.crt ]; then
+          /opt/jre/bin/keytool -importcert -noprompt -trustcacerts \
+            -alias infinito-ca \
+            -file /usr/local/share/ca-certificates/infinito.example.crt \
+            -keystore /tmp/java-cacerts \
+            -storepass changeit || true
+        fi
+        exec /bin/bash run.sh
+{% endif %}
+    volumes:
+      - assets:/opt/data/assets
+{% if PENPOT_OIDC_ENABLED | bool %}
+      - /usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro
+{% endif %}
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
+      redis:
+        condition: service_healthy
+
+  exporter:
+    container_name: {{ PENPOT_EXPORTER_CONTAINER }}
+    image: {{ PENPOT_EXPORTER_IMAGE }}:{{ PENPOT_EXPORTER_VERSION }}
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    container_name: {{ entity_name }}-redis
+    image: redis:7-alpine
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    database_volume=lookup('database', application_id, 'volume'),
+    extra_volumes={'assets': {'name': PENPOT_ASSETS_VOLUME}}
+) }}
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

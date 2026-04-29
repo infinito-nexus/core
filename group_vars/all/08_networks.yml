@@ -164,3 +164,5 @@ defaults_networks:
       subnet: 192.168.202.0/24
     svc-ai-ollama:
       subnet: 192.168.203.0/24 # Big network to bridge applications into ai
+    web-app-penpot:
+      subnet: 192.168.204.0/24

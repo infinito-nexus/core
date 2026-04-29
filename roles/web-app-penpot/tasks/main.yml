@@ -1,0 +1,20 @@
+---
+# Default: Loading Docker, Database and Reverse Proxy
+- name: "load docker, db and proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  when: run_once_docker_web_app_penpot is not defined
+
+- name: run the web-app-penpot tasks once
+  set_fact:
+    run_once_docker_web_app_penpot: true
+  when: run_once_docker_web_app_penpot is not defined
+
+# Deploy compose stack
+- name: deploy penpot compose stack
+  include_role:
+    name: sys-svc-compose
+
+# No uri_retry waits needed - Penpot has no post-deploy Ansible configuration.
+# Playwright tests have generous built-in timeouts (60-120s) that handle slow startup.
+# This matches the pattern used by most other web-app-* roles (Taiga, Discourse, Matrix, etc.)
