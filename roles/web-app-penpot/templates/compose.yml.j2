@@ -28,12 +28,14 @@
       - -c
       - |
         if [ -f /usr/local/share/ca-certificates/infinito.example.crt ]; then
-          chmod 644 /opt/jre/lib/security/cacerts
+          cp /opt/jre/lib/security/cacerts /tmp/java-cacerts
+          chmod 644 /tmp/java-cacerts
           /opt/jre/bin/keytool -importcert -noprompt -trustcacerts \
             -alias infinito-ca \
             -file /usr/local/share/ca-certificates/infinito.example.crt \
-            -keystore /opt/jre/lib/security/cacerts \
-            -storepass changeit || true
+            -keystore /tmp/java-cacerts \
+            -storepass changeit
+          export JVM_OPTS="-Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit"
         fi
         exec /bin/bash run.sh
 {% endif %}
