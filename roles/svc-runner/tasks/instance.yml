@@ -54,6 +54,14 @@
   become_user: "{{ runner_user }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | default(true) | bool }}"
 
+- name: Write runner environment file for instance {{ runner_instance }}
+  copy:
+    dest: "{{ runner_install_dir }}/{{ runner_instance }}/.env"
+    content: "INFINITO_RUNNER_PREFIX=runner-{{ runner_instance }}\n"
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0600'
+
 - name: Install GitHub Actions runner service for instance {{ runner_instance }}
   command: ./svc.sh install {{ runner_user }}
   args:

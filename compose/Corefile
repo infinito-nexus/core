@@ -1,0 +1,27 @@
+.:53 {
+  template IN A {
+    match ^infinito\.example\.$
+    answer "{{ .Name }} 60 IN A 172.30.0.10"
+    fallthrough
+  }
+
+  template IN A {
+    match ^(.*)\.infinito\.example\.$
+    answer "{{ .Name }} 60 IN A 172.30.0.10"
+    fallthrough
+  }
+
+  template IN AAAA {
+    match ^infinito\.example\.$
+    fallthrough
+  }
+
+  template IN AAAA {
+    match ^(.*)\.infinito\.example\.$
+    fallthrough
+  }
+
+  forward . 1.1.1.1 8.8.8.8
+  log
+  errors
+}
