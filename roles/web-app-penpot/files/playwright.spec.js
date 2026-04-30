@@ -280,7 +280,7 @@ async function penpotLogout(page, penpotBaseUrl) {
 // Sign in via dashboard to Penpot using OIDC. The dashboard serves as the entry
 // point, and Penpot shows a login page with OIDC button that redirects to Keycloak
 // for authentication. After successful login, the user is redirected back to Penpot.
-async function signInViaDashboardOidc(page, username, password, personaLabel) {
+async function signInViaDashboardOidcOnce(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
   // Step 1: Navigate to dashboard first (required entry point)
@@ -405,6 +405,37 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
     .toBe("authenticated");
 
   await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+}
+
+async function signInViaDashboardOidc(page, username, password, personaLabel) {
+  const maxAttempts = 3;
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await signInViaDashboardOidcOnce(page, username, password, personaLabel);
+      if (attempt > 1) {
+        console.log(`${personaLabel}: OIDC sign-in succeeded on attempt ${attempt}/${maxAttempts}`);
+      }
+      return;
+    } catch (error) {
+      lastError = error;
+      const errorMessage = error && error.message ? error.message : String(error);
+      console.log(
+        `${personaLabel}: OIDC sign-in attempt ${attempt}/${maxAttempts} failed: ${errorMessage}`
+      );
+
+      if (attempt === maxAttempts) {
+        throw lastError;
+      }
+
+      // Penpot can briefly restart on first entry. Reset browser state and retry.
+      await page.context().clearCookies().catch(() => {});
+      await page.waitForTimeout(2000).catch(() => {});
+    }
+  }
+
+  throw lastError;
 }
 
 async function assertLoggedOut(page, penpotBaseUrl, personaLabel) {
