@@ -1,0 +1,8 @@
+runner_github_owner: kevinveenbirkenbach
+runner_github_repo: infinito-nexus
+runner_name: "{{ inventory_hostname }}"
+runner_distribution: ""
+runner_labels: "self-hosted,linux,{{ runner_distribution }}"
+runner_install_dir: /opt/github-runner
+runner_user: github-runner
+runner_count: 1

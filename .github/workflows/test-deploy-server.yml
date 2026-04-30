@@ -30,7 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
-      apps: ${{ steps.discover.outputs.apps }}
+      apps_github: ${{ steps.split.outputs.apps_github }}
+      apps_self_hosted: ${{ steps.split.outputs.apps_self_hosted }}
 
     steps:
       - uses: actions/checkout@v6
@@ -46,10 +47,6 @@ jobs:
       - name: Install jq
         shell: bash
         run: ./scripts/install/apt.sh jq
-
-      - name: Install deps (jq + envsubst)
-        shell: bash
-        run: ./scripts/install/apt.sh jq gettext-base
 
       - name: Start stack for discovery
         shell: bash
@@ -71,9 +68,17 @@ jobs:
           WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
         run: ./scripts/github/output_apps.sh
 
+      - name: Split apps between GitHub-hosted and self-hosted runners
+        id: split
+        shell: bash
+        env:
+          APPS_JSON: ${{ steps.discover.outputs.apps }}
+          CI_SELF_HOSTED_RUNNER_COUNT: ${{ vars.CI_SELF_HOSTED_RUNNER_COUNT || '0' }}
+        run: bash scripts/github/split_runner_apps.sh
+
   server:
     name: 🌐 Deploy ${{ matrix.apps }}
-    if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
+    if: needs.discover.outputs.apps_github != '' && needs.discover.outputs.apps_github != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 360
     needs: discover
@@ -81,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        apps: ${{ fromJson(needs.discover.outputs.apps) }}
+        apps: ${{ fromJson(needs.discover.outputs.apps_github) }}
 
     steps:
       # Reclaim runner space before Docker pulls start. Server deploy tests pull
@@ -134,5 +139,45 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: playwright-server-${{ matrix.apps }}
+          path: /tmp/playwright-artifacts/
+          if-no-files-found: ignore
+
+  server-self-hosted:
+    name: 🌐 Deploy ${{ matrix.apps }} (self-hosted)
+    if: needs.discover.outputs.apps_self_hosted != '' && needs.discover.outputs.apps_self_hosted != '[]'
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 360
+    needs: discover
+
+    strategy:
+      fail-fast: false
+      matrix:
+        apps: ${{ fromJson(needs.discover.outputs.apps_self_hosted) }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: Deploy app
+        shell: bash
+        env:
+          APPS: ${{ matrix.apps }}
+        run: ./scripts/tests/deploy/ci/all.sh
+
+      - name: Dump runner state (on failure)
+        if: failure()
+        shell: bash
+        run: ./scripts/github/dump_runner_state.sh "post-deploy failure (${{ matrix.apps }})"
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-server-self-hosted-${{ matrix.apps }}
           path: /tmp/playwright-artifacts/
           if-no-files-found: ignore
