@@ -15,20 +15,6 @@
   include_role:
     name: sys-svc-compose
 
-# Ensure Penpot backend API is responding before Playwright tests
-# The tests need the /api/main/methods/get-profile endpoint to work for authentication checks
-- name: Wait for Penpot backend API to be ready (health check)
-  uri_retry:
-    url: "{{ lookup('tls', application_id, 'url.base') }}/api/main/methods/get-profile"
-    method: GET
-    status_code: [200, 401, 403]
-    validate_certs: false
-    follow_redirects: none
-  register: _penpot_api_ready
-  retries: 30
-  delay: 2
-  until: _penpot_api_ready.status is defined and _penpot_api_ready.status | int in [200, 401, 403]
-
 - name: Clear web-app-penpot from Playwright failures on role success
   ansible.builtin.set_fact:
     _playwright_failures: "{{ (_playwright_failures | default([])) | difference([application_id]) }}"
