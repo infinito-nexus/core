@@ -17,6 +17,14 @@
     home: "{{ runner_install_dir }}"
     create_home: true
 
+- name: Grant passwordless sudo for CI cleanup operations
+  copy:
+    dest: /etc/sudoers.d/github-runner
+    content: |
+      github-runner ALL=(ALL) NOPASSWD: /usr/bin/find /mnt/docker*, /bin/rm -rf /mnt/docker*, /bin/chown * /mnt/docker*, /usr/bin/chown * /mnt/docker*
+    mode: '0440'
+    validate: visudo -cf %s
+
 - name: Create runner base directory
   file:
     path: "{{ runner_install_dir }}"

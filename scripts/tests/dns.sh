@@ -126,9 +126,10 @@ fi
 # ------------------------------------------------------------
 section "CoreDNS container status"
 
-if docker ps --filter name=infinito-coredns --format '{{.Names}}' | grep -q infinito-coredns; then
-	docker ps --filter name=infinito-coredns --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
-	container logs --tail=10 infinito-coredns || true
+_coredns_name="${INFINITO_RUNNER_PREFIX:-infinito}-coredns"
+if docker ps --filter name="${_coredns_name}" --format '{{.Names}}' | grep -q "${_coredns_name}"; then
+	docker ps --filter name="${_coredns_name}" --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
+	docker logs --tail=10 "${_coredns_name}" || true
 	ok "CoreDNS container is running"
 else
 	fail "CoreDNS container not running"
