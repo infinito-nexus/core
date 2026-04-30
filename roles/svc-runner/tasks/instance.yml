@@ -14,6 +14,24 @@
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
 
+- name: Stop GitHub Actions runner service for instance {{ runner_instance }} (if running)
+  command: ./svc.sh stop
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  failed_when: false
+  changed_when: false
+
+- name: Uninstall GitHub Actions runner service for instance {{ runner_instance }} (if installed)
+  command: ./svc.sh uninstall
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  failed_when: false
+  changed_when: false
+
+- name: Remove existing runner configuration for instance {{ runner_instance }}
+  command: find {{ runner_install_dir }}/{{ runner_instance }} -maxdepth 1 -name ".*" -type f -delete
+  changed_when: false
+
 - name: Get GitHub Actions runner registration token for instance {{ runner_instance }}
   command: gh api repos/{{ runner_github_owner }}/{{ runner_github_repo }}/actions/runners/registration-token --method POST -q .token
   delegate_to: localhost
