@@ -1,0 +1,11 @@
+- name: Install GitHub Actions runner dependencies (Arch Linux)
+  pacman:
+    name:
+      - curl
+      - git
+      - jq
+      - openssl
+      - icu
+      - tar
+    state: present
+    update_cache: true

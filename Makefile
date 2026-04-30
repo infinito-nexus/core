@@ -539,3 +539,34 @@ wsl2-systemd-check:
 # Trust Windows certificates in WSL2.
 wsl2-trust-windows:
 	@bash scripts/system/tls/trust/wsl2.sh
+
+.PHONY: runner-ci-deploy
+# Provision self-hosted CI runner instances on a remote host.
+# Usage: make runner-ci-deploy HOST=runner.example.com DISTRO=debian [COUNT=15] [PORT=22] [OWNER=myuser] [REPO=infinito-nexus]
+runner-ci-deploy:
+	@: "$${HOST:?HOST must be set (e.g. make runner-ci-deploy HOST=runner.example.com DISTRO=debian)}"
+	@: "$${DISTRO:?DISTRO must be set (e.g. debian, archlinux)}"
+	@"$${PYTHON}" -m cli.deploy.runner "$${HOST}" \
+		--roles svc-runner \
+		--distribution "$${DISTRO}" \
+		--runner-count "$${COUNT:-15}" \
+		$${PORT:+--port "$${PORT}"} \
+		$${OWNER:+--owner "$${OWNER}"} \
+		$${REPO:+--repo "$${REPO}"}
+
+.PHONY: runner-ci-enable
+# Enable self-hosted CI runners by setting the CI_SELF_HOSTED_RUNNER_COUNT repo variable.
+# Usage: make runner-ci-enable COUNT=15 [OWNER=myuser] [REPO=infinito-nexus]
+runner-ci-enable:
+	@: "$${COUNT:?COUNT must be set (e.g. make runner-ci-enable COUNT=15)}"
+	@gh variable set CI_SELF_HOSTED_RUNNER_COUNT --body "$${COUNT}" \
+		$${OWNER:+--repo "$${OWNER}/$${REPO:-infinito-nexus}"}
+	@echo "Self-hosted runners enabled (count=$${COUNT}). CI will split deploy jobs proportionally across GitHub-hosted and self-hosted runners."
+
+.PHONY: runner-ci-disable
+# Disable self-hosted CI runners — routes all deploy jobs back to GitHub-hosted runners.
+# Usage: make runner-ci-disable [OWNER=myuser] [REPO=infinito-nexus]
+runner-ci-disable:
+	@gh variable set CI_SELF_HOSTED_RUNNER_COUNT --body "0" \
+		$${OWNER:+--repo "$${OWNER}/$${REPO:-infinito-nexus}"}
+	@echo "Self-hosted runners disabled. All CI deploy jobs routed to GitHub-hosted runners."

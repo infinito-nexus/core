@@ -1,0 +1,48 @@
+- name: Include distribution-specific package installation
+  include_tasks: install/{{ runner_distribution }}.yml
+
+- name: Create GitHub Actions runner system group
+  group:
+    name: "{{ runner_user }}"
+    system: true
+
+- name: Create GitHub Actions runner system user
+  user:
+    name: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ runner_install_dir }}"
+    create_home: true
+
+- name: Create runner base directory
+  file:
+    path: "{{ runner_install_dir }}"
+    state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0755'
+
+- name: Fetch latest GitHub Actions runner version tag
+  command: gh api repos/actions/runner/releases/latest -q .tag_name
+  delegate_to: localhost
+  register: runner_version_tag
+  changed_when: false
+
+- name: Set resolved runner version
+  set_fact:
+    runner_resolved_version: "{{ runner_version_tag.stdout | trim | regex_replace('^v', '') }}"
+
+- name: Download GitHub Actions runner binary
+  get_url_retry:
+    url: "https://github.com/actions/runner/releases/download/v{{ runner_resolved_version }}/actions-runner-linux-x64-{{ runner_resolved_version }}.tar.gz"
+    dest: "{{ runner_install_dir }}/actions-runner.tar.gz"
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0644'
+
+- name: Provision runner instances
+  include_tasks: instance.yml
+  loop: "{{ range(1, runner_count | int + 1) | list }}"
+  loop_control:
+    loop_var: runner_instance

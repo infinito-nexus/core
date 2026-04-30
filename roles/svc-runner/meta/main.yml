@@ -1,0 +1,33 @@
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Provisions a dedicated machine as a GitHub Actions self-hosted CI runner for Infinito.Nexus.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  license_url: https://s.infinito.nexus/license
+  company: |
+    Kevin Veen-Birkenbach
+    Consulting & Coaching Solutions
+    https://www.veen.world
+  min_ansible_version: '2.9'
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - jammy
+        - focal
+    - name: Archlinux
+      versions:
+        - rolling
+  galaxy_tags:
+    - ci
+    - runner
+    - github
+    - systemd
+    - automation
+  repository: https://s.infinito.nexus/code
+  issue_tracker_url: https://s.infinito.nexus/issues
+  documentation: https://docs.infinito.nexus
+  lifecycle: alpha
+dependencies: []

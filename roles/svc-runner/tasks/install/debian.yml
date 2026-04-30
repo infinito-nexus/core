@@ -1,0 +1,15 @@
+- name: Update apt package cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install GitHub Actions runner dependencies (Debian/Ubuntu)
+  apt:
+    name:
+      - curl
+      - git
+      - jq
+      - libssl-dev
+      - libicu-dev
+      - tar
+    state: present
