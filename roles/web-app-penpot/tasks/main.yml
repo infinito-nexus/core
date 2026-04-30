@@ -18,3 +18,7 @@
 # No uri_retry waits needed - Penpot has no post-deploy Ansible configuration.
 # Playwright tests have generous built-in timeouts (60-120s) that handle slow startup.
 # This matches the pattern used by most other web-app-* roles (Taiga, Discourse, Matrix, etc.)
+
+- name: Clear web-app-penpot from Playwright failures on role success
+  ansible.builtin.set_fact:
+    _playwright_failures: "{{ (_playwright_failures | default([])) | difference([application_id]) }}"
