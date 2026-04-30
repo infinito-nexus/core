@@ -10,6 +10,8 @@
   user:
     name: "{{ runner_user }}"
     group: "{{ runner_user }}"
+    groups: docker
+    append: true
     system: true
     shell: /usr/sbin/nologin
     home: "{{ runner_install_dir }}"
