@@ -21,7 +21,7 @@
   copy:
     dest: /etc/sudoers.d/github-runner
     content: |
-      github-runner ALL=(ALL) NOPASSWD: /usr/bin/find /mnt/docker*, /bin/rm -rf /mnt/docker*, /bin/chown * /mnt/docker*, /usr/bin/chown * /mnt/docker*
+      github-runner ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf /mnt/docker*, /usr/bin/rm -rf /mnt/docker*, /bin/mkdir -vp /mnt/docker*, /usr/bin/mkdir -vp /mnt/docker*, /bin/mkdir -p /mnt/docker*, /usr/bin/mkdir -p /mnt/docker*, /bin/chown -R * /mnt/docker*, /usr/bin/chown -R * /mnt/docker*
     mode: '0440'
     validate: visudo -cf %s
 
