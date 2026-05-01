@@ -57,7 +57,16 @@
 - name: Write runner environment file for instance {{ runner_instance }}
   copy:
     dest: "{{ runner_install_dir }}/{{ runner_instance }}/.env"
-    content: "INFINITO_RUNNER_PREFIX=runner-{{ runner_instance }}\n"
+    content: |
+      COMPOSE_PROJECT_NAME=runner-{{ runner_instance }}
+      INFINITO_RUNNER_PREFIX=runner-{{ runner_instance }}
+      SUBNET=172.30.{{ runner_instance }}.0/24
+      GATEWAY=172.30.{{ runner_instance }}.1
+      DNS_IP=172.30.{{ runner_instance }}.53
+      IP4=172.30.{{ runner_instance }}.10
+      BIND_IP=127.0.0.1
+      DOMAIN=infinito.example
+      DOMAIN_RE=infinito\.example
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0600'
