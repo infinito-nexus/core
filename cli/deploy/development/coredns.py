@@ -90,8 +90,9 @@ class CoreDNSCorefileRenderer:
                 if not line or line.startswith("#") or "=" not in line:
                     continue
                 k, v = line.split("=", 1)
-                env[k] = v
-                loaded += 1
+                if k not in env:
+                    env[k] = v
+                    loaded += 1
 
         self._log(f"Loaded {loaded} variables from env file")
         return env

@@ -127,7 +127,6 @@ cleanup() {
 
 			echo ">>> Pre-clean ownership/permissions (best-effort)"
 			ls -ld "${INFINITO_DOCKER_VOLUME}" || true
-			sudo ls -ld "${INFINITO_DOCKER_VOLUME}" || true
 
 			echo ">>> Removing host docker volume dir: ${INFINITO_DOCKER_VOLUME}"
 			sudo rm -rf "${INFINITO_DOCKER_VOLUME}" || true
@@ -138,7 +137,6 @@ cleanup() {
 
 			echo ">>> Post-clean ownership/permissions (best-effort)"
 			ls -ld "${INFINITO_DOCKER_VOLUME}" || true
-			sudo ls -ld "${INFINITO_DOCKER_VOLUME}" || true
 		else
 			echo "[WARN] INFINITO_DOCKER_VOLUME is not an absolute path: '${INFINITO_DOCKER_VOLUME}' (skipping)"
 		fi

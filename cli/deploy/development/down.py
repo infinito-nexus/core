@@ -15,7 +15,6 @@ def _repo_root_from_here() -> Path:
 
 
 CI_DOCKER_ROOT = Path("/mnt/docker")
-CI_DOCKER_ROOT_STR = str(CI_DOCKER_ROOT)
 
 
 def _base_env(*, distro: str) -> dict[str, str]:
@@ -40,19 +39,21 @@ def _compose_run(*, repo_root: Path, distro: str, args: list[str]) -> None:
 
 
 def _cleanup_docker_root() -> None:
-    docker_root = CI_DOCKER_ROOT
-
     if os.environ.get("RUNNING_ON_GITHUB") != "true":
-        print(f">>> Not on GitHub - No bind volumes will be deleted: {docker_root}")
+        print(f">>> Not on GitHub - No bind volumes will be deleted: {CI_DOCKER_ROOT}")
         return
 
     docker_root_env = os.environ.get("INFINITO_DOCKER_VOLUME", "").strip().rstrip("/")
+    docker_root = Path(docker_root_env) if docker_root_env else CI_DOCKER_ROOT
 
-    if docker_root_env and docker_root_env != CI_DOCKER_ROOT_STR:
+    # Allow /mnt/docker itself and any per-runner subdirectory (e.g. /mnt/docker/1).
+    try:
+        docker_root.relative_to(CI_DOCKER_ROOT)
+    except ValueError:
         raise RuntimeError(
             "SECURITY VIOLATION: "
-            f"INFINITO_DOCKER_VOLUME={docker_root_env} is not allowed on GitHub runner. "
-            f"Only {CI_DOCKER_ROOT_STR} is permitted."
+            f"INFINITO_DOCKER_VOLUME={docker_root} is not allowed on GitHub runner. "
+            f"Only {CI_DOCKER_ROOT} or subdirectories are permitted."
         )
 
     if not docker_root.exists():
