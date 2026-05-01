@@ -152,19 +152,11 @@ jobs:
 
       - uses: actions/checkout@v6
 
-      - name: Enlarge swap space
-        shell: bash
-        run: ./scripts/github/enlarge_swap.sh
-
       - name: Resolve repository owner
         shell: bash
         run: |
           set -euo pipefail
           echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
-
-      - name: Install jq
-        shell: bash
-        run: ./scripts/install/apt.sh jq
 
       - name: Deploy app
         shell: bash

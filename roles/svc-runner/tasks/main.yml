@@ -1,6 +1,13 @@
 - name: Include distribution-specific package installation
   include_tasks: install/{{ runner_distribution }}.yml
 
+- name: Install CI runner dependencies
+  package:
+    name:
+      - jq
+      - gettext-base
+    state: present
+
 - name: Create GitHub Actions runner system group
   group:
     name: "{{ runner_user }}"
