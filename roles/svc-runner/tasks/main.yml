@@ -70,6 +70,31 @@
     group: "{{ runner_user }}"
     mode: '0644'
 
+- name: Find existing runner instance directories
+  find:
+    paths: "{{ runner_install_dir }}"
+    file_type: directory
+    patterns: "^[0-9]+$"
+    use_regex: true
+  register: _existing_runner_dirs
+
+- name: Determine runner instances to remove
+  set_fact:
+    _runners_to_remove: >-
+      {{ _existing_runner_dirs.files
+         | map(attribute='path')
+         | map('basename')
+         | map('int')
+         | select('gt', runner_count | int)
+         | list }}
+
+- name: Remove runner instances beyond runner_count
+  include_tasks: cleanup_instance.yml
+  loop: "{{ _runners_to_remove }}"
+  loop_control:
+    loop_var: runner_instance
+  when: _runners_to_remove | length > 0
+
 - name: Provision runner instances
   include_tasks: instance.yml
   loop: "{{ range(1, runner_count | int + 1) | list }}"
