@@ -8,6 +8,18 @@
       - gettext-base
     state: present
 
+- name: Tune kernel inotify limits for parallel systemd containers
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-github-runner.conf
+  loop:
+    - { key: fs.inotify.max_user_instances, value: "8192" }
+    - { key: fs.inotify.max_user_watches, value: "524288" }
+    - { key: fs.inotify.max_queued_events, value: "65536" }
+
 - name: Create GitHub Actions runner system group
   group:
     name: "{{ runner_user }}"
