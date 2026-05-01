@@ -146,13 +146,25 @@ jobs:
         apps: ${{ fromJson(needs.discover.outputs.apps_self_hosted) }}
 
     steps:
+      - name: Fix workspace ownership
+        shell: bash
+        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" 2>/dev/null || true
+
       - uses: actions/checkout@v6
+
+      - name: Enlarge swap space
+        shell: bash
+        run: ./scripts/github/enlarge_swap.sh
 
       - name: Resolve repository owner
         shell: bash
         run: |
           set -euo pipefail
           echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: Install jq
+        shell: bash
+        run: ./scripts/install/apt.sh jq
 
       - name: Deploy app
         shell: bash

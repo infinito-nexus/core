@@ -144,6 +144,12 @@ cleanup() {
 		fi
 	fi
 
+	# 7) Remove root-owned __pycache__ and .pyc files left by the privileged container.
+	# Without this, the next actions/checkout fails with EACCES when trying to delete them.
+	echo ">>> Removing root-owned Python bytecode from workspace"
+	sudo find "${REPO_ROOT}" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	sudo find "${REPO_ROOT}" -name "*.pyc" -delete 2>/dev/null || true
+
 	echo ">>> Docker disk usage after HARD cleanup"
 	docker system df || true
 	echo ">>> HARD cleanup finished"
