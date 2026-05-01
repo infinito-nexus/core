@@ -64,9 +64,11 @@
       GATEWAY=172.30.{{ runner_instance }}.1
       DNS_IP=172.30.{{ runner_instance }}.53
       IP4=172.30.{{ runner_instance }}.10
-      BIND_IP=127.0.0.1
+      BIND_IP=172.30.{{ runner_instance }}.1
       DOMAIN=infinito.example
       DOMAIN_RE=infinito\.example
+      INVENTORY_DIR={{ runner_install_dir }}/{{ runner_instance }}/inventories/github
+      INFINITO_DOCKER_VOLUME=/mnt/docker/{{ runner_instance }}
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0600'
