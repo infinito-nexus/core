@@ -88,8 +88,15 @@ cleanup() {
 	echo ">>> Docker disk usage before HARD cleanup"
 	docker system df || true
 
-	# 1) Remove ALL containers (including running ones)
-	mapfile -t ids < <(docker ps -aq || true)
+	# 1) Remove containers belonging to this compose project only.
+	# On shared self-hosted runners multiple projects run in parallel;
+	# removing all containers would kill sibling jobs.
+	_cleanup_project="${COMPOSE_PROJECT_NAME:-}"
+	if [[ -n "${_cleanup_project}" ]]; then
+		mapfile -t ids < <(docker ps -aq --filter "label=com.docker.compose.project=${_cleanup_project}" || true)
+	else
+		mapfile -t ids < <(docker ps -aq || true)
+	fi
 	if ((${#ids[@]} > 0)); then
 		docker rm -f "${ids[@]}" >/dev/null 2>&1 || true
 	fi
