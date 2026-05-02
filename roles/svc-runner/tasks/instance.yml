@@ -69,6 +69,7 @@
       DOMAIN_RE=infinito\.example
       INVENTORY_DIR={{ runner_install_dir }}/{{ runner_instance }}/inventories/github
       INFINITO_DOCKER_VOLUME=/mnt/docker/{{ runner_instance }}
+      INFINITO_PRESERVE_DOCKER_CACHE=true
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0600'
