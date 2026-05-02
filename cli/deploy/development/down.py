@@ -43,6 +43,12 @@ def _cleanup_docker_root() -> None:
         print(f">>> Not on GitHub - No bind volumes will be deleted: {CI_DOCKER_ROOT}")
         return
 
+    if os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE", "false").lower() == "true":
+        print(
+            ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro"
+        )
+        return
+
     docker_root_env = os.environ.get("INFINITO_DOCKER_VOLUME", "").strip().rstrip("/")
     docker_root = Path(docker_root_env) if docker_root_env else CI_DOCKER_ROOT
 

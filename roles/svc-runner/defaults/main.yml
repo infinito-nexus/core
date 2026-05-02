@@ -6,3 +6,8 @@ runner_labels: "self-hosted,linux,{{ runner_distribution }}"
 runner_install_dir: /opt/github-runner
 runner_user: github-runner
 runner_count: 1
+# Size of the per-runner tmpfs that backs the inner DIND /var/lib/docker.
+# Keeps all overlayfs I/O in RAM, eliminating disk saturation on shared SSDs.
+# Rule of thumb: keep total tmpfs ≤ ~50 % of RAM to leave headroom for
+# app services running inside the containers. Example: 62 GB / 4 runners = 8 GB each.
+runner_docker_tmpfs_size: 8g

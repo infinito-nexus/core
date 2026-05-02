@@ -95,6 +95,22 @@
     loop_var: runner_instance
   when: _runners_to_remove | length > 0
 
+- name: Create inner Docker volume mount points
+  file:
+    path: "/mnt/docker/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ range(1, runner_count | int + 1) | list }}"
+
+- name: Mount tmpfs for inner Docker volumes
+  mount:
+    path: "/mnt/docker/{{ item }}"
+    src: tmpfs
+    fstype: tmpfs
+    opts: "size={{ runner_docker_tmpfs_size }},mode=0755"
+    state: mounted
+  loop: "{{ range(1, runner_count | int + 1) | list }}"
+
 - name: Provision runner instances
   include_tasks: instance.yml
   loop: "{{ range(1, runner_count | int + 1) | list }}"

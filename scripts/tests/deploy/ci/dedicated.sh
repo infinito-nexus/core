@@ -111,17 +111,27 @@ cleanup() {
 	docker container prune -f >/dev/null 2>&1 || true
 
 	# 5) Remove ALL images and build cache.
-	# Important for serial multi-distro CI runs on the same runner.
-	docker image prune -af >/dev/null 2>&1 || true
-	docker buildx prune -af >/dev/null 2>&1 || true
-	docker builder prune -af >/dev/null 2>&1 || true
+	# Important for serial multi-distro CI runs on GitHub runners (limited disk).
+	# Skipped on self-hosted (INFINITO_PRESERVE_DOCKER_CACHE=true) so outer images
+	# (infinito, coredns) stay in the Docker cache.  Combined with pull_policy:always
+	# they become fast manifest checks (~5 s) instead of full 3-5 min GHCR pulls
+	# for every subsequent distro run and for every subsequent job.
+	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" != "true" ]]; then
+		docker image prune -af >/dev/null 2>&1 || true
+		docker buildx prune -af >/dev/null 2>&1 || true
+		docker builder prune -af >/dev/null 2>&1 || true
+	fi
 
 	# 6) Remove host-mounted Docker data dir (CI runner only)
 	# IMPORTANT:
 	# - In CI, Docker/DIND/buildx may create root-owned files under this directory.
 	# - A plain 'rm -rf' can fail with "Permission denied" and poison the next distro run.
 	# - Use sudo for a hard reset, then recreate the directory.
-	if [[ -n "${INFINITO_DOCKER_VOLUME:-}" ]]; then
+	# Skip when INFINITO_PRESERVE_DOCKER_CACHE=true so inner Docker image layers
+	# survive across distro runs within the same job (pulled once, reused 5x).
+	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
+		echo ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro: ${INFINITO_DOCKER_VOLUME}"
+	elif [[ -n "${INFINITO_DOCKER_VOLUME:-}" ]]; then
 		if [[ "${INFINITO_DOCKER_VOLUME}" == /* ]]; then
 			echo ">>> CI cleanup: wiping Docker root: ${INFINITO_DOCKER_VOLUME}"
 
