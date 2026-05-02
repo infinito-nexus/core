@@ -170,6 +170,16 @@ echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 # This avoids reusing a pre-started stack with a different INFINITO_DISTRO.
 "${PYTHON}" -m cli.deploy.development up
 
+# Pre-install the CA trust wrapper so the sys-svc-container DNS handler does not
+# fail before sys-ca-selfsigned has run.  When the bind-mount target is absent at
+# the time of the first `docker run --entrypoint` call Docker creates a *directory*
+# there instead of a file, causing every subsequent exec to exit rc=126 ("is a
+# directory").  sys-ca-selfsigned will overwrite this stub with the real version.
+_up_container="${INFINITO_RUNNER_PREFIX:-infinito}_nexus_${INFINITO_DISTRO}"
+docker exec "${_up_container}" install -m 755 \
+	/opt/src/infinito/roles/sys-ca-selfsigned/files/with-ca-trust.sh \
+	/usr/bin/ca-trust-wrapper 2>/dev/null || true
+
 deploy_args=(
 	--apps "${APPS}"
 	--inventory-dir "${INVENTORY_DIR}"
