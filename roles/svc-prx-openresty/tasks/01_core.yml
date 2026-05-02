@@ -4,6 +4,17 @@
     state: directory
     mode: "0755"
 
+- name: Stat nginx.conf path
+  ansible.builtin.stat:
+    path: "{{ lookup('nginx','files.configuration') }}"
+  register: _nginx_conf_stat
+
+- name: Remove Docker-created directory at nginx.conf path
+  ansible.builtin.file:
+    path: "{{ lookup('nginx','files.configuration') }}"
+    state: absent
+  when: _nginx_conf_stat.stat.exists and _nginx_conf_stat.stat.isdir
+
 - name: Ensure base nginx.conf exists (bootstrap)
   ansible.builtin.copy:
     dest: "{{ lookup('nginx','files.configuration') }}"
