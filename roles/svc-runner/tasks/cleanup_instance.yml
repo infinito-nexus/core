@@ -29,6 +29,18 @@
   changed_when: true
   when: runner_removal_token.rc == 0 and (runner_removal_token.stdout | trim | length) > 0
 
+- name: Find Docker containers for runner instance {{ runner_instance }}
+  command: docker ps -aq --filter "label=com.docker.compose.project=runner-{{ runner_instance }}"
+  register: _runner_containers
+  changed_when: false
+  failed_when: false
+
+- name: Remove Docker containers for runner instance {{ runner_instance }}
+  command: docker rm -f {{ _runner_containers.stdout | trim }}
+  when: (_runner_containers.stdout | trim) | length > 0
+  changed_when: true
+  failed_when: false
+
 - name: Remove runner instance directory {{ runner_instance }}
   file:
     path: "{{ runner_install_dir }}/{{ runner_instance }}"

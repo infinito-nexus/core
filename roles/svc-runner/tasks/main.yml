@@ -107,7 +107,7 @@
     path: "/mnt/docker/{{ item }}"
     src: tmpfs
     fstype: tmpfs
-    opts: "size={{ runner_docker_tmpfs_size }},mode=0755"
+    opts: "rw,size={{ runner_docker_tmpfs_size }},mode=0755"
     state: mounted
   loop: "{{ range(1, runner_count | int + 1) | list }}"
 
