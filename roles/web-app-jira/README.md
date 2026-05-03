@@ -21,7 +21,6 @@ The role builds a lean custom image on top of the official Jira Software image, 
 
 ## Further Resources
 
-* Product page: [Atlassian Jira Software](https://www.atlassian.com/software/jira)
 * Docker Hub (official image): [atlassian/jira-software](https://hub.docker.com/r/atlassian/jira-software)
 
 ## Credits
