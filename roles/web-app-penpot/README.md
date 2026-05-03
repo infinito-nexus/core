@@ -10,16 +10,6 @@ This role provides a fully automated deployment of Penpot using Docker Compose o
 
 The setup includes support for real-time collaboration via WebSockets, asset storage management, email notifications, and multiple authentication methods. The role is modular and integrates with Infinito.Nexus shared services including reverse proxy configuration, domain management, database management, and backup systems.
 
-## Purpose
-
-To provide teams with a sovereign, self-hosted design and prototyping platform that enables:
-- Design creation and editing with a Figma-like interface
-- Real-time team collaboration with comments and live cursors
-- Asset management with shared libraries and components
-- Version history and design versioning
-- Export capabilities (SVG, PDF, code)
-- Developer handoff with CSS and code export
-
 ## Features
 
 - **Open-Source Design Tool:** Create professional designs with a modern, web-based interface
@@ -35,6 +25,17 @@ To provide teams with a sovereign, self-hosted design and prototyping platform t
 - **Automated Backups:** Integration with Infinito.Nexus backup roles for data protection
 - **CSP Configuration:** Proper Content Security Policy setup via nginx reverse proxy
 
+## Purpose
+
+To provide teams with a sovereign, self-hosted design and prototyping platform that enables:
+
+- Design creation and editing with a Figma-like interface
+- Real-time team collaboration with comments and live cursors
+- Asset management with shared libraries and components
+- Version history and design versioning
+- Export capabilities such as SVG, PDF, and code
+- Developer handoff with CSS and code export
+
 ## Architecture
 
 The Penpot deployment consists of four main services:
@@ -47,7 +48,7 @@ The Penpot deployment consists of four main services:
 
 ## Authentication
 
-### OIDC (Recommended)
+### OIDC (recommended)
 
 The role automatically configures OpenID Connect authentication using the Infinito.Nexus Keycloak instance. Users can log in with their centralized Keycloak accounts, enabling single sign-on across all platform applications.
 
@@ -71,20 +72,20 @@ Penpot stores data in multiple locations:
 
 Future: S3-compatible object storage can be configured for scalable asset storage.
 
-## Developer Notes
+## Developer notes
 
-### Java Trust Store
+### Java trust store
 
 Per repository memory notes, Penpot backend requires a writable Java truststore for OIDC HTTPS connections. The compose configuration sets:
 \`\`\`
 JAVA_OPTS=-Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit
 \`\`\`
 
-### WebSocket Configuration
+### WebSocket configuration
 
 The reverse proxy must properly forward WebSocket connections for real-time collaboration features. This is handled automatically by the Infinito.Nexus nginx CSP configuration.
 
-### CSP Requirements
+### CSP requirements
 
 Penpot requires \`unsafe-inline\` for script-src-elem and style-src-attr due to its dynamic UI rendering. This is configured in \`config/main.yml\` under \`server.csp.flags\`.
 
@@ -95,9 +96,9 @@ Key configuration options in \`config/main.yml\`:
 - **OIDC/LDAP:** Enable/disable authentication providers
 - **Email:** Configure SMTP for user notifications
 - **Resource Limits:** Adjust CPU, memory, and PID limits per service
-- **Domains:** Set canonical domain (default: \`design.{{ DOMAIN_PRIMARY }}\`)
+- **Domains:** Set canonical domain (default: `penpot.design.{{ DOMAIN_PRIMARY }}`)
 
-## Further Resources
+## Further resources
 
 - [Penpot Official Website](https://penpot.app/)
 - [Penpot Documentation](https://help.penpot.app/)
@@ -106,8 +107,7 @@ Key configuration options in \`config/main.yml\`:
 
 ## Credits
 
-Developed and maintained by **Evangelos Tsakoudis**.  
-Learn more at [www.evangelostsak.com](https://evangelostsak.com)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Evangelos Tsakoudis**.
+Learn more at [www.evangelostsak.com](https://evangelostsak.com).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
