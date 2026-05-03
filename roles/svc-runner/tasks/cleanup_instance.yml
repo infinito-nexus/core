@@ -46,7 +46,14 @@
     path: "{{ runner_install_dir }}/{{ runner_instance }}"
     state: absent
 
-- name: Unmount and remove tmpfs for removed runner instance {{ runner_instance }}
-  mount:
+- name: Unmount tmpfs from Docker volume directory for runner instance {{ runner_instance }}
+  ansible.builtin.mount:
+    path: "/mnt/docker/{{ runner_instance }}"
+    state: unmounted
+  failed_when: false
+  changed_when: false
+
+- name: Remove Docker volume directory for runner instance {{ runner_instance }}
+  ansible.builtin.file:
     path: "/mnt/docker/{{ runner_instance }}"
     state: absent

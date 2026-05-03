@@ -118,20 +118,33 @@
   changed_when: true
   failed_when: false
 
-- name: Create inner Docker volume mount points
+- name: Unmount tmpfs from orphaned Docker volume directories (instances beyond runner_count)
+  ansible.builtin.mount:
+    path: "/mnt/docker/{{ item }}"
+    state: unmounted
+  loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
+  failed_when: false
+  changed_when: false
+
+- name: Remove orphaned Docker volume directories (instances beyond runner_count)
+  ansible.builtin.file:
+    path: "/mnt/docker/{{ item }}"
+    state: absent
+  loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
+
+- name: Unmount any existing tmpfs from inner Docker volume directories
+  ansible.builtin.mount:
+    path: "/mnt/docker/{{ item }}"
+    state: unmounted
+  loop: "{{ range(1, runner_count | int + 1) | list }}"
+  failed_when: false
+  changed_when: false
+
+- name: Create inner Docker volume directories for runners
   file:
     path: "/mnt/docker/{{ item }}"
     state: directory
     mode: '0755'
-  loop: "{{ range(1, runner_count | int + 1) | list }}"
-
-- name: Mount tmpfs for inner Docker volumes
-  mount:
-    path: "/mnt/docker/{{ item }}"
-    src: tmpfs
-    fstype: tmpfs
-    opts: "rw,size={{ runner_docker_tmpfs_size }},mode=0755"
-    state: mounted
   loop: "{{ range(1, runner_count | int + 1) | list }}"
 
 - name: Provision runner instances
