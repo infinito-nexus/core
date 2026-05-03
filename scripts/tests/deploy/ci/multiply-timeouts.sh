@@ -11,7 +11,9 @@
 set -euo pipefail
 
 MULTIPLIER="${1:-1}"
-REPO_ROOT="${2:-$(pwd)}"
+# Resolve repo root via the dedicated deploy CLI (which uses realpath to find the
+# baked-in container path).  Falls back to /opt/src/infinito for non-container use.
+REPO_ROOT="${2:-$(python3 -c 'from cli.deploy.dedicated.paths import REPO_ROOT; print(REPO_ROOT)' 2>/dev/null || echo '/opt/src/infinito')}"
 
 if [[ "${MULTIPLIER}" -le 1 ]]; then
 	exit 0

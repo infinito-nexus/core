@@ -201,7 +201,9 @@ fi
 
 if [[ "${INFINITO_TIMEOUT_MULTIPLIER:-1}" -gt 1 ]]; then
 	echo ">>> Scaling Ansible retries by ${INFINITO_TIMEOUT_MULTIPLIER}x (slow hardware detected)"
-	bash "${SCRIPT_DIR}/multiply-timeouts.sh" "${INFINITO_TIMEOUT_MULTIPLIER}" "${REPO_ROOT}"
+	docker exec -T "${_up_container}" \
+		bash /opt/src/infinito/scripts/tests/deploy/ci/multiply-timeouts.sh \
+		"${INFINITO_TIMEOUT_MULTIPLIER}"
 fi
 
 echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
