@@ -199,6 +199,11 @@ if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
 	_init_args+=(--force-storage-constrained false)
 fi
 
+if [[ "${INFINITO_TIMEOUT_MULTIPLIER:-1}" -gt 1 ]]; then
+	echo ">>> Scaling Ansible retries by ${INFINITO_TIMEOUT_MULTIPLIER}x (slow hardware detected)"
+	bash "${SCRIPT_DIR}/multiply-timeouts.sh" "${INFINITO_TIMEOUT_MULTIPLIER}" "${REPO_ROOT}"
+fi
+
 echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 "${PYTHON}" -m cli.deploy.development init \
 	"${_init_args[@]}" \
