@@ -191,10 +191,17 @@ df -h || true
 docker system df || true
 echo ">>> END STATE BEFORE DEPLOY"
 
+_init_args=(
+	--apps "${APPS}"
+	--inventory-dir "${INVENTORY_DIR}"
+)
+if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
+	_init_args+=(--force-storage-constrained false)
+fi
+
 echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 "${PYTHON}" -m cli.deploy.development init \
-	--apps "${APPS}" \
-	--inventory-dir "${INVENTORY_DIR}" \
+	"${_init_args[@]}" \
 	--vars '{"ASYNC_ENABLED": false}'
 
 # PASS 1 (sync) + PASS 2 (async) co-located per variant: the wrapper
