@@ -95,6 +95,29 @@
     loop_var: runner_instance
   when: _runners_to_remove | length > 0
 
+- name: Probe for orphaned runner DIND containers (instances beyond runner_count)
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - -aq
+      - --filter
+      - "label=com.docker.compose.project=runner-{{ item }}"
+  register: _orphaned_container_probe
+  changed_when: false
+  failed_when: false
+  loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
+
+- name: Remove orphaned runner DIND containers (instances beyond runner_count)
+  ansible.builtin.command:
+    argv: "{{ ['docker', 'rm', '-f'] + item.stdout_lines }}"
+  loop: "{{ _orphaned_container_probe.results | selectattr('stdout', 'truthy') | list }}"
+  loop_control:
+    label: "runner-{{ item.item }}"
+  when: item.stdout | trim | length > 0
+  changed_when: true
+  failed_when: false
+
 - name: Create inner Docker volume mount points
   file:
     path: "/mnt/docker/{{ item }}"
