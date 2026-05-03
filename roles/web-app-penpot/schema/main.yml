@@ -1,0 +1,6 @@
+credentials:
+  secret_key:
+    description: "Penpot secret key used to sign application data"
+    algorithm: "alphanumeric"
+    validation:
+      min_length: 64
