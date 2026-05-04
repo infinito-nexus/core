@@ -165,6 +165,15 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Wipe stale inner-Docker state before starting so credentials are always fresh.
+# Done before `up` to avoid a race with the inner Docker daemon.
+# Image layers (overlay2/, image/) are preserved for cache; only volumes/ and
+# containers/ are removed so old DB passwords and auto-restart state don't survive.
+if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
+	echo ">>> Wiping inner-Docker volumes and container state: ${INFINITO_DOCKER_VOLUME}"
+	sudo rm -rf "${INFINITO_DOCKER_VOLUME}/volumes" "${INFINITO_DOCKER_VOLUME}/containers" || true
+fi
+
 echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 # Always reconcile the stack to the requested distro.
 # This avoids reusing a pre-started stack with a different INFINITO_DISTRO.
@@ -179,18 +188,6 @@ _up_container="${INFINITO_RUNNER_PREFIX:-infinito}_nexus_${INFINITO_DISTRO}"
 docker exec "${_up_container}" install -m 755 \
 	/opt/src/infinito/roles/sys-ca-selfsigned/files/with-ca-trust.sh \
 	/usr/bin/ca-trust-wrapper 2>/dev/null || true
-
-# Prune stale inner-Docker data volumes before each run so credentials are always fresh.
-if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
-	echo ">>> Pruning stale inner-Docker data volumes (preserving image layers)"
-	mapfile -t _inner_ids < <(docker exec "${_up_container}" \
-		docker ps -aq 2>/dev/null || true)
-	if ((${#_inner_ids[@]} > 0)); then
-		docker exec "${_up_container}" \
-			docker rm -f "${_inner_ids[@]}" >/dev/null 2>&1 || true
-	fi
-	docker exec "${_up_container}" docker volume prune -f 2>/dev/null || true
-fi
 
 deploy_args=(
 	--apps "${APPS}"
