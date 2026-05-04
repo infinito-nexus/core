@@ -162,6 +162,7 @@ jobs:
         shell: bash
         env:
           APPS: ${{ matrix.apps }}
+          INFINITO_TIMEOUT_MULTIPLIER: ${{ vars.INFINITO_TIMEOUT_MULTIPLIER || '1' }}
         run: ./scripts/tests/deploy/ci/all.sh
 
       - name: Dump runner state (on failure)

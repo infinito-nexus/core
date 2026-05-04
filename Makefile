@@ -391,13 +391,17 @@ runner-ci-deploy:
 		$${OWNER:+--owner "$${OWNER}"} \
 		$${REPO:+--repo "$${REPO}"}
 
-# Enable self-hosted CI runners by setting the CI_SELF_HOSTED_RUNNER_COUNT repo variable.
-# Usage: make runner-ci-enable COUNT=15 [OWNER=myuser] [REPO=infinito-nexus]
+# Enable self-hosted CI runners by setting the CI_SELF_HOSTED_RUNNER_COUNT and
+# INFINITO_TIMEOUT_MULTIPLIER repo variables. MULTIPLIER default 30 gives ~1 h max
+# wait (60 retries × 30 × 2 s delay) for slow hardware.
+# Usage: make runner-ci-enable COUNT=15 [MULTIPLIER=30] [OWNER=myuser] [REPO=infinito-nexus]
 runner-ci-enable:
 	@: "$${COUNT:?COUNT must be set (e.g. make runner-ci-enable COUNT=15)}"
 	@gh variable set CI_SELF_HOSTED_RUNNER_COUNT --body "$${COUNT}" \
 		$${OWNER:+--repo "$${OWNER}/$${REPO:-infinito-nexus}"}
-	@echo "Self-hosted runners enabled (count=$${COUNT}). CI will split deploy jobs proportionally across GitHub-hosted and self-hosted runners."
+	@gh variable set INFINITO_TIMEOUT_MULTIPLIER --body "$${MULTIPLIER:-30}" \
+		$${OWNER:+--repo "$${OWNER}/$${REPO:-infinito-nexus}"}
+	@echo "Self-hosted runners enabled (count=$${COUNT}, multiplier=$${MULTIPLIER:-30}). CI will split deploy jobs proportionally across GitHub-hosted and self-hosted runners."
 
 # Disable self-hosted CI runners — routes all deploy jobs back to GitHub-hosted runners.
 # Usage: make runner-ci-disable [OWNER=myuser] [REPO=infinito-nexus]
