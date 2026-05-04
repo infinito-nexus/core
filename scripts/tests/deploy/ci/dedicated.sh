@@ -180,6 +180,18 @@ docker exec "${_up_container}" install -m 755 \
 	/opt/src/infinito/roles/sys-ca-selfsigned/files/with-ca-trust.sh \
 	/usr/bin/ca-trust-wrapper 2>/dev/null || true
 
+# Prune stale inner-Docker data volumes before each run so credentials are always fresh.
+if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
+	echo ">>> Pruning stale inner-Docker data volumes (preserving image layers)"
+	mapfile -t _inner_ids < <(docker exec "${_up_container}" \
+		docker ps -aq 2>/dev/null || true)
+	if ((${#_inner_ids[@]} > 0)); then
+		docker exec "${_up_container}" \
+			docker rm -f "${_inner_ids[@]}" >/dev/null 2>&1 || true
+	fi
+	docker exec "${_up_container}" docker volume prune -f 2>/dev/null || true
+fi
+
 deploy_args=(
 	--apps "${APPS}"
 	--inventory-dir "${INVENTORY_DIR}"
