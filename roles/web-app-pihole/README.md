@@ -14,25 +14,34 @@ Deploys [Pi-hole](https://pi-hole.net/) — a network-wide DNS sinkhole for ad a
 
 ## Authentication
 
-Pi-hole's native web interface is protected by **OAuth2 proxy** backed by Keycloak. Only users in the `web-app-pihole-administrators` LDAP role have access to the dashboard.
+Pi-hole's native web interface is protected by **OAuth2 proxy** backed by Keycloak. Only users in the `web-app-pihole-administrator` LDAP group have access to the dashboard.
 
-Pi-hole's own password authentication is not used when OAuth2 is active (`compose.services.oauth2.enabled: true`).
+Pi-hole's own password authentication is automatically disabled when OAuth2 is active.
 
 ## Configuration
 
-Key settings in `config/main.yml`:
+Key settings in `meta/services.yml`:
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `compose.services.oauth2.enabled` | `true` | Enable Keycloak OAuth2 proxy protection |
-| `compose.services.oauth2.allowed_groups` | `web-app-pihole-administrators` | LDAP groups allowed access |
-| `compose.services.pihole.version` | `latest` | Docker image tag |
-| `pihole.upstream_dns` | `1.1.1.1;1.0.0.1` | Upstream DNS servers (semicolon-separated) |
-| `server.domains.canonical` | `pihole.{{ DOMAIN_PRIMARY }}` | Public domain |
+| `oauth2.enabled` | `true` | Enable Keycloak OAuth2 proxy protection |
+| `oauth2.origin.host` | `pihole` | Backend container name |
+| `oauth2.origin.port` | `80` | Backend container port |
+| `pihole.image` | `pihole/pihole` | Docker image |
+| `pihole.version` | `latest` | Docker image tag |
+| `pihole.ports.local.http` | `8041` | Host-bound HTTP port |
+| `pihole.ports.local.oauth2` | `16493` | Host-bound OAuth2 proxy port |
+
+Upstream DNS can be overridden in your inventory:
+
+```yaml
+applications:
+  web-app-pihole:
+    pihole:
+      upstream_dns: "9.9.9.9;149.112.112.112"
+```
 
 ## Upstream DNS Options
-
-Override `pihole.upstream_dns` in your inventory to change the upstream resolver:
 
 | Provider | Value |
 |----------|-------|
@@ -41,16 +50,6 @@ Override `pihole.upstream_dns` in your inventory to change the upstream resolver
 | Quad9 (filtered) | `9.9.9.9;149.112.112.112` |
 | Quad9 (unfiltered) | `9.9.9.10;149.112.112.10` |
 | OpenDNS | `208.67.222.222;208.67.220.220` |
-| Custom | `<primary>;<secondary>` |
-
-Example inventory override:
-
-```yaml
-applications:
-  web-app-pihole:
-    pihole:
-      upstream_dns: "9.9.9.9;149.112.112.112"
-```
 
 ## DNS Configuration
 

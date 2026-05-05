@@ -1,0 +1,30 @@
+# noqa: shared
+oauth2:
+  enabled: true
+  shared: true
+  origin:
+    host: pihole
+    port: 80
+logout:
+  enabled: true
+  shared: true
+dashboard:
+  enabled: true
+  shared: true
+matomo:
+  enabled: true
+  shared: true
+email:
+  enabled: false
+  shared: true
+redis:
+  enabled: true
+  shared: true
+pihole:
+  image: pihole/pihole
+  version: latest
+  ports:
+    local:
+      http: 8041
+      oauth2: 16493
+  lifecycle: alpha

@@ -10,7 +10,7 @@
       WEBPASSWORD:      "{{ PIHOLE_PASSWORD }}"
       PIHOLE_DNS_:      "{{ PIHOLE_UPSTREAM_DNS }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:80/tcp"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}:80/tcp"
       - "{{ DOCKER_BIND_HOST }}:53:53/tcp"
       - "{{ DOCKER_BIND_HOST }}:53:53/udp"
     cap_add:

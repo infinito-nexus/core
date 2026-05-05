@@ -1,3 +1,7 @@
+domains:
+  canonical:
+  - pihole.{{ DOMAIN_PRIMARY }}
+  aliases: []
 networks:
   local:
     subnet: 192.168.102.240/28

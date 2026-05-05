@@ -1,20 +1,21 @@
 # General
 application_id:           "web-app-pihole"
+entity_name:              "{{ application_id | get_entity_name }}"
+domain:                   "{{ lookup('domain', application_id) }}"
 
 # Pi-hole
-# https://pi-hole.net/
-PIHOLE_VERSION:           "{{ lookup('config', application_id, 'compose.services.pihole.version') }}"
-PIHOLE_IMAGE:             "{{ lookup('config', application_id, 'compose.services.pihole.image') }}"
-PIHOLE_CONTAINER:         "{{ lookup('config', application_id, 'compose.services.pihole.name') }}"
-PIHOLE_VOLUME_DATA:       "{{ lookup('config', application_id, 'compose.volumes.data') }}"
-PIHOLE_VOLUME_DNSMASQ:    "{{ lookup('config', application_id, 'compose.volumes.dnsmasq') }}"
-PIHOLE_NETWORK:           "{{ lookup('config', application_id, 'compose.network') }}"
-PIHOLE_UPSTREAM_DNS:      "{{ lookup('config', application_id, 'pihole.upstream_dns') }}"
-PIHOLE_TIMEZONE:          "{{ lookup('config', application_id, 'pihole.timezone') }}"
+PIHOLE_VERSION:           "{{ lookup('config', application_id, 'services.pihole.version') }}"
+PIHOLE_IMAGE:             "{{ lookup('config', application_id, 'services.pihole.image') }}"
+PIHOLE_CONTAINER:         "{{ entity_name }}"
+PIHOLE_VOLUME_DATA:       "pihole_data"
+PIHOLE_VOLUME_DNSMASQ:    "pihole_dnsmasq"
+PIHOLE_NETWORK:           "pihole"
+PIHOLE_UPSTREAM_DNS:      "{{ lookup('config', application_id, 'pihole.upstream_dns', '1.1.1.1;1.0.0.1') }}"
+PIHOLE_TIMEZONE:          "{{ HOST_TIMEZONE }}"
 
-# OAuth2 enabled — disable Pi-hole native password when OAuth2 is active
-PIHOLE_OAUTH2_ENABLED:    "{{ lookup('config', application_id, 'compose.services.oauth2.enabled') | bool }}"
+# OAuth2 enabled
+PIHOLE_OAUTH2_ENABLED:    "{{ lookup('config', application_id, 'services.oauth2.enabled') | bool }}"
 PIHOLE_PASSWORD:          "{{ '' if PIHOLE_OAUTH2_ENABLED else lookup('password', application_id, 'admin') }}"
 
-# Playwright — disable wait check because oauth2-proxy returns 403 for unauthenticated requests
+# Playwright
 TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: false
