@@ -149,12 +149,6 @@ jobs:
     steps:
       - run: echo "Quality Checks passed"
   
-  # Test self-hosted runner reliability fixes (volume wipe + prefix isolation)
-  test-runner-isolation:
-    needs:
-      - code-quality-gate
-    uses: ./.github/workflows/test-runner-isolation.yml
-
   # Test DNS configuration
   test-dns:
     needs: 

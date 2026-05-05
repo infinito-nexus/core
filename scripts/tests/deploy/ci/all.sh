@@ -144,8 +144,12 @@ for distro in "${distro_arr[@]}"; do
 	distro_start="$(date +%s)"
 
 	set +e
-	scripts/tests/deploy/ci/dedicated.sh \
-		--apps "${APPS}"
+	if [[ -f "scripts/tests/deploy/ci/custom/${APPS}.sh" ]]; then
+		bash "scripts/tests/deploy/ci/custom/${APPS}.sh"
+	else
+		scripts/tests/deploy/ci/dedicated.sh \
+			--apps "${APPS}"
+	fi
 	rc=$?
 	set -e
 

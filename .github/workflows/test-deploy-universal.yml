@@ -16,6 +16,7 @@ on:
 permissions:
   contents: read
   packages: read
+  actions: write
 
 env:
   TEST_DEPLOY_TYPE: universal
@@ -126,6 +127,7 @@ jobs:
         shell: bash
         env:
           APPS: ${{ matrix.apps }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/tests/deploy/ci/all.sh
 
       - name: Dump runner state (on failure)
