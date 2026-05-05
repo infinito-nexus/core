@@ -3,7 +3,6 @@ galaxy_info:
   author: "Kevin Veen-Birkenbach"
   description: "Deploys Penpot design and prototyping platform for Infinito.Nexus"
   license: "Infinito.Nexus Community License (Non-Commercial)"
-  license_url: "https://s.infinito.nexus/license"
   company: | 
     Kevin Veen-Birkenbach
     Consulting & Coaching Solutions
@@ -15,11 +14,5 @@ galaxy_info:
     - collaboration
     - ui
     - ux
-  repository: "https://s.infinito.nexus/code"
   issue_tracker_url: "https://s.infinito.nexus/issues"
-  documentation: "https://s.infinito.nexus/code/"
-  logo:
-    class: "fa-solid fa-pencil-ruler"
-  run_after: []
-  lifecycle: beta
 dependencies: []
