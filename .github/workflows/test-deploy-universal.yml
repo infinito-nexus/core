@@ -16,6 +16,7 @@ on:
 permissions:
   contents: read
   packages: read
+  actions: write
 
 env:
   INFINITO_DEPLOY_TYPE: universal
@@ -134,6 +135,7 @@ jobs:
         env:
           apps: ${{ matrix.apps }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/tests/deploy/ci/all.sh
 
       - name: 📊 Role runtimes
