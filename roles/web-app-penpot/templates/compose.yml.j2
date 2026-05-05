@@ -5,7 +5,8 @@
     container_name: {{ PENPOT_FRONTEND_CONTAINER }}
     image: {{ PENPOT_FRONTEND_IMAGE }}:{{ PENPOT_FRONTEND_VERSION }}
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ ports.localhost.http[application_id] }}:8080
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.frontend.ports.local.http') }}:{{ container_port }}"
+{% set service_name = 'frontend' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     volumes:
       - assets:/opt/data/assets:ro
@@ -21,6 +22,9 @@
   backend:
     container_name: {{ PENPOT_BACKEND_CONTAINER }}
     image: {{ PENPOT_BACKEND_IMAGE }}:{{ PENPOT_BACKEND_VERSION }}
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.backend.ports.local.http') }}:6060"
+{% set service_name = 'backend' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% if PENPOT_OIDC_ENABLED | bool %}
     command:
@@ -35,7 +39,7 @@
             -file /usr/local/share/ca-certificates/infinito.example.crt \
             -keystore /tmp/java-cacerts \
             -storepass changeit
-          export JVM_OPTS="-Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+          export JVM_OPTS="${JVM_OPTS:-} -Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit"
         fi
         exec /bin/bash run.sh
 {% endif %}
@@ -52,6 +56,7 @@
   exporter:
     container_name: {{ PENPOT_EXPORTER_CONTAINER }}
     image: {{ PENPOT_EXPORTER_IMAGE }}:{{ PENPOT_EXPORTER_VERSION }}
+{% set service_name = 'exporter' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     depends_on:
@@ -61,6 +66,7 @@
   redis:
     container_name: {{ entity_name }}-redis
     image: redis:7-alpine
+{% set service_name = 'redis' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     healthcheck:
