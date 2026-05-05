@@ -1,0 +1,60 @@
+server
+{
+  server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
+
+  {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  location ^~ /api/
+  {
+    proxy_set_header Host $host;
+    proxy_set_header Authorization $http_authorization;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Port {{ lookup('tls', application_id, 'ports.web')  }};
+    proxy_set_header X-Forwarded-Ssl {{ lookup('tls', application_id, 'enabled') | bool | ternary('on','off') }};
+    proxy_pass_request_headers on;
+
+    {% if lookup('tls', application_id, 'enabled') | bool %}
+    proxy_hide_header Strict-Transport-Security;
+    {% endif %}
+
+    proxy_pass http://127.0.0.1:{{ lookup('config', application_id, 'services.backend.ports.local.http') }};
+    proxy_connect_timeout     5s;
+    proxy_send_timeout        900s;
+    proxy_read_timeout        900s;
+    send_timeout              900s;
+    proxy_buffering           off;
+    proxy_request_buffering   off;
+  }
+
+  location ^~ /ws/
+  {
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://127.0.0.1:{{ lookup('config', application_id, 'services.backend.ports.local.http') }};
+    {% if lookup('tls', application_id, 'enabled') | bool %}
+    proxy_hide_header Strict-Transport-Security;
+    {% endif %}
+
+    proxy_http_version   1.1;
+    proxy_set_header     Upgrade $http_upgrade;
+    proxy_set_header     Connection "upgrade";
+    proxy_connect_timeout 900s;
+    proxy_send_timeout    900s;
+    proxy_read_timeout    900s;
+    proxy_buffering       off;
+  }
+
+  {% set oauth2_proxy_enabled = false %}
+  {% set location = "/" %}
+  {% set http_port = lookup('config', application_id, 'services.frontend.ports.local.http') %}
+  {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+}
