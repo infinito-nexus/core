@@ -13,3 +13,7 @@ PIHOLE_TIMEZONE:          "{{ HOST_TIMEZONE }}"
 # OAuth2 enabled
 PIHOLE_OAUTH2_ENABLED:    "{{ lookup('config', application_id, 'services.oauth2.enabled') | bool }}"
 PIHOLE_PASSWORD:          "{{ '' if PIHOLE_OAUTH2_ENABLED else lookup('password', application_id, 'admin') }}"
+
+# Volume names
+PIHOLE_VOLUME_DATA:       "pihole_data"
+PIHOLE_VOLUME_DNSMASQ:    "pihole_dnsmasq"
