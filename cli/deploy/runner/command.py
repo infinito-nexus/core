@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import os
 import subprocess
 import sys
@@ -192,14 +193,10 @@ def _run_deploy(
         return proc.returncode
 
     finally:
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(inv_path)
-        except OSError:
-            pass
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(pb_path)
-        except OSError:
-            pass
 
 
 def main(argv: Optional[List[str]] = None) -> int:

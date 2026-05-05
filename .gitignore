@@ -23,6 +23,8 @@ job-logs.txt
 .claude/commands
 .claude/settings.local.json
 *.lock
+compose/coredns/Corefile
+compose/Corefile
 
 # Host shell / editor / tooling state accidentally surfaced inside this working copy
 .bash_profile

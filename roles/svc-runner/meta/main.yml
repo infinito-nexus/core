@@ -1,11 +1,7 @@
 galaxy_info:
-  author: Kevin Veen-Birkenbach
+  author: Alejandro Roman Ibanez
   description: Provisions a dedicated machine as a GitHub Actions self-hosted CI runner for Infinito.Nexus.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: |
-    Kevin Veen-Birkenbach
-    Consulting & Coaching Solutions
-    https://www.veen.world
   min_ansible_version: '2.9'
   platforms:
     - name: Debian
