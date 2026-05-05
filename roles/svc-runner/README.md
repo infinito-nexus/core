@@ -143,7 +143,7 @@ python -m cli.deploy.runner <hostname> \
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
+Developed and maintained by **Alejandro Roman Ibanez**.
+Learn more at [github.com/AlejandroRomanIbanez](https://github.com/AlejandroRomanIbanez).
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

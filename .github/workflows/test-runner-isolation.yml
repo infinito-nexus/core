@@ -1,0 +1,24 @@
+name: "🏃 Test: Runner Isolation"
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test-runner-isolation:
+    name: 🏃 Runner volume + prefix isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Runner isolation test suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/tests/deploy/ci/test-volume-isolation.sh
