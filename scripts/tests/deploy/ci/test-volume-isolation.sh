@@ -24,7 +24,7 @@ MARIADB_CONTAINER="infinito_ci_test_mariadb"
 cleanup() {
 	docker rm -f "${MARIADB_CONTAINER}" 2>/dev/null || true
 	docker rm -f runner1_nexus_debian runner2_nexus_debian 2>/dev/null || true
-	rm -rf "${TMPVOL}"
+	sudo rm -rf "${TMPVOL}"
 }
 trap cleanup EXIT
 
@@ -88,7 +88,7 @@ docker stop "${MARIADB_CONTAINER}" >/dev/null
 docker rm "${MARIADB_CONTAINER}" >/dev/null
 
 echo "Run 3 (WITH wipe): remove volume, start fresh with password 'second'..."
-rm -rf "${VOLUME_DIR}"
+sudo rm -rf "${VOLUME_DIR}"
 mkdir -p "${VOLUME_DIR}"
 
 docker run -d --name "${MARIADB_CONTAINER}" \
