@@ -1,0 +1,15 @@
+csp:
+  flags:
+    script-src:
+      unsafe-eval: true
+    script-src-elem:
+      unsafe-inline: true
+      unsafe-eval: true
+    script-src-attr:
+      unsafe-inline: true
+      unsafe-eval: true
+    style-src-attr:
+      unsafe-inline: true
+domains:
+  canonical:
+    - penpot.design.{{ DOMAIN_PRIMARY }}
