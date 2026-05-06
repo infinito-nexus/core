@@ -1,1 +1,3 @@
 application_id: svc-runner
+RUNNER_GITHUB_OWNER: "{{ lookup('config', application_id, 'services.svc-runner.github_owner') }}"
+RUNNER_GITHUB_REPO: "{{ lookup('config', application_id, 'services.svc-runner.github_repo') }}"
