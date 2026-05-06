@@ -29,6 +29,7 @@ penpot:
   ports:
     local:
       http: 8041
+  lifecycle: beta
 backend:
   version: latest
   image: penpotapp/backend
@@ -61,5 +62,3 @@ javascript:
 prometheus:
   enabled: true
   shared: true
-penpot:
-  lifecycle: beta
