@@ -1,7 +1,4 @@
 csp:
-networks:
-  local:
-    subnet: 192.168.105.48/28
   flags:
     script-src:
       unsafe-eval: true
@@ -13,6 +10,9 @@ networks:
       unsafe-eval: true
     style-src-attr:
       unsafe-inline: true
+networks:
+  local:
+    subnet: 192.168.105.48/28
 domains:
   canonical:
     - penpot.design.{{ DOMAIN_PRIMARY }}
