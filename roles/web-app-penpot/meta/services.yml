@@ -19,7 +19,7 @@ email:
 postgres:
   enabled: true
   shared: true
-frontend:
+penpot:
   version: latest
   image: penpotapp/frontend
   cpus: "0.5"

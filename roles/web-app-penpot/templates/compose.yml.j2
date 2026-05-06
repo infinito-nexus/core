@@ -5,8 +5,8 @@
     container_name: {{ PENPOT_FRONTEND_CONTAINER }}
     image: {{ PENPOT_FRONTEND_IMAGE }}:{{ PENPOT_FRONTEND_VERSION }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.frontend.ports.local.http') }}:{{ container_port }}"
-{% set service_name = 'frontend' %}
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.penpot.ports.local.http') }}:{{ container_port }}"
+{% set service_name = 'penpot' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     volumes:
       - assets:/opt/data/assets:ro

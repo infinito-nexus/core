@@ -53,7 +53,7 @@ server
 
   {% set oauth2_proxy_enabled = false %}
   {% set location = "/" %}
-  {% set http_port = lookup('config', application_id, 'services.frontend.ports.local.http') %}
+  {% set http_port = lookup('config', application_id, 'services.penpot.ports.local.http') %}
   {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
 
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}

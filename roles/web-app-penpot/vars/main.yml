@@ -1,7 +1,7 @@
 # General
 application_id:                   "web-app-penpot"
 container_port:                   8080
-http_port:                        "{{ lookup('config', application_id, 'services.frontend.ports.local.http') }}"
+http_port:                        "{{ lookup('config', application_id, 'services.penpot.ports.local.http') }}"
 js_application_name:              "Penpot"
 entity_name:                      "{{ application_id | get_entity_name }}"
 
@@ -12,8 +12,8 @@ PENPOT_PUBLIC_URI:                "{{ lookup('tls', application_id, 'url.base') 
 PENPOT_SECRET_KEY:                "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 
 ## Frontend
-PENPOT_FRONTEND_IMAGE:            "{{ lookup('config', application_id, 'services.frontend.image') }}"
-PENPOT_FRONTEND_VERSION:          "{{ lookup('config', application_id, 'services.frontend.version') }}"
+PENPOT_FRONTEND_IMAGE:            "{{ lookup('config', application_id, 'services.penpot.image') }}"
+PENPOT_FRONTEND_VERSION:          "{{ lookup('config', application_id, 'services.penpot.version') }}"
 PENPOT_FRONTEND_CONTAINER:        "{{ entity_name }}-frontend"
 
 ## Backend
