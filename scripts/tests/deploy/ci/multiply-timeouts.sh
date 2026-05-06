@@ -2,8 +2,9 @@
 # Multiply timeouts in Ansible task files and Docker compose templates
 # for slow CI hardware (e.g. self-hosted SATA-RAID runners).
 #
-# Usage: multiply-timeouts.sh <multiplier> [repo-root]
-#   <multiplier> > 1: apply; <= 1: no-op.
+# Reads env vars (SPOT defined in scripts/meta/env/github.sh):
+#   INFINITO_TIMEOUT_MULTIPLIER  > 1: apply; <= 1: no-op.
+#   INFINITO_REPO_ROOT           path to the repository root inside the container.
 #
 # Changes (ephemeral — actions/checkout resets them on the next job):
 #   • Ansible task retries      → retries × multiplier
@@ -13,10 +14,8 @@
 # Fast hardware finishes early; slow hardware waits as long as needed up to 1 h.
 set -euo pipefail
 
-MULTIPLIER="${1:-1}"
-# Resolve repo root via the dedicated deploy CLI (realpath → baked-in container path).
-# Falls back to /opt/src/infinito when run outside the container.
-REPO_ROOT="${2:-$(python3 -c 'from cli.deploy.dedicated.paths import REPO_ROOT; print(REPO_ROOT)' 2>/dev/null || echo '/opt/src/infinito')}"
+MULTIPLIER="${INFINITO_TIMEOUT_MULTIPLIER}"
+REPO_ROOT="${INFINITO_REPO_ROOT}"
 
 if [[ "${MULTIPLIER}" -le 1 ]]; then
 	exit 0

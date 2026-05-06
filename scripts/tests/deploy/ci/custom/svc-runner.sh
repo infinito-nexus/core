@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # Custom deploy test for svc-runner.
-# Deploys the Ansible role to localhost and verifies it.
+#
+# Why this custom script exists instead of going through dedicated.sh:
+# svc-runner installs systemd services on the host machine itself, not inside
+# a Docker container. The standard dedicated.sh pipeline deploys inside an
+# ephemeral container, so it cannot provision host-level services.
+# Post-deploy verification is still delegated to roles/svc-runner/files/test.sh
+# (via scripts/tests/runner.sh), consistent with the project convention.
+#
 # Runs only on GitHub-hosted ubuntu runners — skipped everywhere else.
 set -euo pipefail
 

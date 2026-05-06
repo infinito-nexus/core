@@ -193,6 +193,7 @@ def _run_deploy(
         return proc.returncode
 
     finally:
+        # Temp files may already be gone if the process cleaned up; OSError is expected and harmless.
         with contextlib.suppress(OSError):
             os.unlink(inv_path)
         with contextlib.suppress(OSError):

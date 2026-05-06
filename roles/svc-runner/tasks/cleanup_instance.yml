@@ -13,7 +13,7 @@
   changed_when: false
 
 - name: Get GitHub Actions runner removal token for instance {{ runner_instance }}
-  command: gh api repos/{{ runner_github_owner }}/{{ runner_github_repo }}/actions/runners/remove-token --method POST -q .token
+  command: gh api repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/remove-token --method POST -q .token
   delegate_to: localhost
   register: runner_removal_token
   changed_when: true
@@ -29,15 +29,24 @@
   changed_when: true
   when: runner_removal_token.rc == 0 and (runner_removal_token.stdout | trim | length) > 0
 
-- name: Find Docker containers for runner instance {{ runner_instance }}
-  command: docker ps -aq --filter "label=com.docker.compose.project=runner-{{ runner_instance }}"
-  register: _runner_containers
+- name: Gather containers for runner instance {{ runner_instance }}
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      label:
+        - "com.docker.compose.project={{ runner_project_prefix }}-{{ runner_instance }}"
+  register: _runner_container_info
   changed_when: false
   failed_when: false
 
-- name: Remove Docker containers for runner instance {{ runner_instance }}
-  command: docker rm -f {{ _runner_containers.stdout | trim }}
-  when: (_runner_containers.stdout | trim) | length > 0
+- name: Remove containers for runner instance {{ runner_instance }}
+  community.docker.docker_container:
+    name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/', '') }}"
+    state: absent
+    force_kill: true
+  loop: "{{ _runner_container_info.containers | default([]) }}"
+  loop_control:
+    label: "{{ (item.Names | default([item.Name]))[0] }}"
   changed_when: true
   failed_when: false
 
@@ -48,12 +57,12 @@
 
 - name: Unmount tmpfs from Docker volume directory for runner instance {{ runner_instance }}
   ansible.builtin.mount:
-    path: "/mnt/docker/{{ runner_instance }}"
+    path: "{{ runner_docker_base }}/{{ runner_instance }}"
     state: unmounted
   failed_when: false
   changed_when: false
 
 - name: Remove Docker volume directory for runner instance {{ runner_instance }}
   ansible.builtin.file:
-    path: "/mnt/docker/{{ runner_instance }}"
+    path: "{{ runner_docker_base }}/{{ runner_instance }}"
     state: absent

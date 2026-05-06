@@ -33,16 +33,16 @@
   changed_when: false
 
 - name: Get GitHub Actions runner registration token for instance {{ runner_instance }}
-  command: gh api repos/{{ runner_github_owner }}/{{ runner_github_repo }}/actions/runners/registration-token --method POST -q .token
+  command: gh api repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/registration-token --method POST -q .token
   delegate_to: localhost
   register: runner_registration_token
   changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | default(true) | bool }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Configure GitHub Actions runner instance {{ runner_instance }}
   command: >
     ./config.sh
-    --url https://github.com/{{ runner_github_owner }}/{{ runner_github_repo }}
+    --url https://github.com/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}
     --token {{ runner_registration_token.stdout | trim }}
     --name {{ runner_name }}-{{ runner_instance }}
     --labels {{ runner_labels }}
@@ -52,14 +52,14 @@
     chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
   become: true
   become_user: "{{ runner_user }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | default(true) | bool }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Write runner environment file for instance {{ runner_instance }}
   copy:
     dest: "{{ runner_install_dir }}/{{ runner_instance }}/.env"
     content: |
-      COMPOSE_PROJECT_NAME=runner-{{ runner_instance }}
-      INFINITO_RUNNER_PREFIX=runner-{{ runner_instance }}
+      COMPOSE_PROJECT_NAME={{ runner_project_prefix }}-{{ runner_instance }}
+      INFINITO_RUNNER_PREFIX={{ runner_project_prefix }}-{{ runner_instance }}
       SUBNET=172.30.{{ runner_instance }}.0/24
       GATEWAY=172.30.{{ runner_instance }}.1
       DNS_IP=172.30.{{ runner_instance }}.53
@@ -68,7 +68,7 @@
       DOMAIN=infinito.example
       DOMAIN_RE=infinito\.example
       INVENTORY_DIR={{ runner_install_dir }}/{{ runner_instance }}/inventories/github
-      INFINITO_DOCKER_VOLUME=/mnt/docker/{{ runner_instance }}
+      INFINITO_DOCKER_VOLUME={{ runner_docker_base }}/{{ runner_instance }}
       INFINITO_PRESERVE_DOCKER_CACHE=true
       INFINITO_CPUS={{ runner_cpus }}
     owner: "{{ runner_user }}"
