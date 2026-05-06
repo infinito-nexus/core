@@ -1,4 +1,7 @@
 csp:
+networks:
+  local:
+    subnet: 192.168.105.48/28
   flags:
     script-src:
       unsafe-eval: true
