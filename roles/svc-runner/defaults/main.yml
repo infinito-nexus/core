@@ -1,11 +1,9 @@
-runner_github_owner: kevinveenbirkenbach
-runner_github_repo: infinito-nexus
 runner_name: "{{ inventory_hostname }}"
 runner_distribution: ""
 runner_labels: "self-hosted,linux,{{ runner_distribution }}"
 runner_install_dir: /opt/github-runner
 runner_user: github-runner
-runner_count: 1
-# CPU limit for each runner's infinito container (matches GitHub-hosted 2-core quota).
-# Set to total_host_cpus / runner_count. Prevents one runner from starving others.
 runner_cpus: 2
+runner_count: "{{ [ansible_processor_vcpus | int // runner_cpus | int, 1] | max }}"
+runner_docker_base: /mnt/docker
+runner_project_prefix: runner

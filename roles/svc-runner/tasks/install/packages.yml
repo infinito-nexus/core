@@ -1,0 +1,42 @@
+- name: Update apt package cache (Debian/Ubuntu)
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: Install GitHub Actions runner dependencies (Debian/Ubuntu)
+  apt:
+    name:
+      - curl
+      - git
+      - jq
+      - libssl-dev
+      - libicu-dev
+      - tar
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Install GitHub Actions runner dependencies (Arch Linux)
+  pacman:
+    name:
+      - curl
+      - git
+      - jq
+      - openssl
+      - icu
+      - tar
+    state: present
+    update_cache: true
+  when: ansible_os_family == 'Archlinux'
+
+- name: Install GitHub Actions runner dependencies (Fedora/CentOS)
+  dnf:
+    name:
+      - curl
+      - git
+      - jq
+      - openssl
+      - libicu
+      - tar
+    state: present
+  when: ansible_os_family == 'RedHat'

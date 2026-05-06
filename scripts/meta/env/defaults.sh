@@ -14,7 +14,10 @@ set -euo pipefail
 # INFINITO_DISTRO — see the failure on web-app-wordpress @ fedora in CI run
 # 24942172018 / job 73038526513.
 : "${INFINITO_DISTRO:=debian}"
-: "${INFINITO_RUNNER_PREFIX:=infinito}"
+# github.sh is the SPOT for INFINITO_RUNNER_PREFIX; source it so the variable
+# is always defined before we use it to build INFINITO_CONTAINER below.
+# shellcheck source=scripts/meta/env/github.sh
+source "$(dirname "${BASH_SOURCE[0]}")/github.sh"
 export INFINITO_DISTRO INFINITO_RUNNER_PREFIX
 export INFINITO_CONTAINER="${INFINITO_RUNNER_PREFIX}_nexus_${INFINITO_DISTRO}"
 

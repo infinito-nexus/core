@@ -116,7 +116,7 @@ cleanup() {
 	# (infinito, coredns) stay in the Docker cache.  Combined with pull_policy:always
 	# they become fast manifest checks (~5 s) instead of full 3-5 min GHCR pulls
 	# for every subsequent distro run and for every subsequent job.
-	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" != "true" ]]; then
+	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" != "true" ]]; then
 		docker image prune -af >/dev/null 2>&1 || true
 		docker buildx prune -af >/dev/null 2>&1 || true
 		docker builder prune -af >/dev/null 2>&1 || true
@@ -129,7 +129,7 @@ cleanup() {
 	# - Use sudo for a hard reset, then recreate the directory.
 	# Skip when INFINITO_PRESERVE_DOCKER_CACHE=true so inner Docker image layers
 	# survive across distro runs within the same job (pulled once, reused 5x).
-	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
+	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
 		echo ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro: ${INFINITO_DOCKER_VOLUME}"
 	elif [[ -n "${INFINITO_DOCKER_VOLUME:-}" ]]; then
 		if [[ "${INFINITO_DOCKER_VOLUME}" == /* ]]; then
@@ -169,7 +169,7 @@ trap cleanup EXIT
 # Done before `up` to avoid a race with the inner Docker daemon.
 # Image layers (overlay2/, image/) are preserved for cache; only volumes/ and
 # containers/ are removed so old DB passwords and auto-restart state don't survive.
-if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
+if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
 	echo ">>> Wiping inner-Docker volumes and container state: ${INFINITO_DOCKER_VOLUME}"
 	sudo rm -rf "${INFINITO_DOCKER_VOLUME}/volumes" "${INFINITO_DOCKER_VOLUME}/containers" || true
 fi
@@ -204,15 +204,17 @@ _init_args=(
 	--apps "${APPS}"
 	--inventory-dir "${INVENTORY_DIR}"
 )
-if [[ "${INFINITO_PRESERVE_DOCKER_CACHE:-false}" == "true" ]]; then
+if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
 	_init_args+=(--force-storage-constrained false)
 fi
 
-if [[ "${INFINITO_TIMEOUT_MULTIPLIER:-1}" -gt 1 ]]; then
+if [[ "${INFINITO_TIMEOUT_MULTIPLIER}" -gt 1 ]]; then
 	echo ">>> Scaling Ansible retries by ${INFINITO_TIMEOUT_MULTIPLIER}x (slow hardware detected)"
-	docker exec "${_up_container}" \
-		bash /opt/src/infinito/scripts/tests/deploy/ci/multiply-timeouts.sh \
-		"${INFINITO_TIMEOUT_MULTIPLIER}"
+	docker exec \
+		-e "INFINITO_TIMEOUT_MULTIPLIER=${INFINITO_TIMEOUT_MULTIPLIER}" \
+		-e "INFINITO_REPO_ROOT=${INFINITO_REPO_ROOT}" \
+		"${_up_container}" \
+		bash /opt/src/infinito/scripts/tests/deploy/ci/multiply-timeouts.sh
 fi
 
 echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"

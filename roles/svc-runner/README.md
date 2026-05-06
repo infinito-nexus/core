@@ -126,13 +126,16 @@ python -m cli.deploy.runner <hostname> \
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `runner_github_owner` | `kevinveenbirkenbach` | GitHub user or organisation that owns the target repository. |
-| `runner_github_repo` | `infinito-nexus` | Repository name the runners register with. |
+| `RUNNER_GITHUB_OWNER` | `meta/services.yml` | GitHub user or organisation that owns the target repository. |
+| `RUNNER_GITHUB_REPO` | `meta/services.yml` | Repository name the runners register with. |
 | `runner_name` | `{{ inventory_hostname }}` | Base name; each instance is named `<runner_name>-<N>`. |
 | `runner_labels` | `self-hosted,linux,{{ runner_distribution }}` | Comma-separated labels assigned to every runner instance. |
 | `runner_install_dir` | `/opt/github-runner` | Base installation directory; instances land in `<dir>/<N>/`. |
 | `runner_user` | `github-runner` | System user account that owns and runs all runner processes. |
-| `runner_count` | `1` | Number of runner instances to provision on the host. |
+| `runner_count` | auto (`ansible_processor_vcpus // runner_cpus`) | Number of runner instances; auto-scales to available CPU cores. |
+| `runner_cpus` | `2` | CPU limit per runner instance (matches GitHub-hosted 2-core quota). |
+| `runner_docker_base` | `/mnt/docker` | Base path for per-instance Docker volume directories. |
+| `runner_project_prefix` | `runner` | Prefix for per-instance Docker Compose project names and `INFINITO_RUNNER_PREFIX`. |
 
 `runner_distribution` is **required** and has no default; it is passed automatically by the CLI.
 

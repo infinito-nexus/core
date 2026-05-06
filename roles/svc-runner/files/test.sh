@@ -9,8 +9,11 @@ FAIL=0
 ok()   { echo "PASS: $*"; PASS=$((PASS + 1)); }
 fail() { echo "FAIL: $*"; FAIL=$((FAIL + 1)); }
 
-RUNNER_COUNT="${RUNNER_COUNT:-1}"
-RUNNER_INSTALL_DIR="${RUNNER_INSTALL_DIR:-/opt/github-runner}"
+: "${RUNNER_COUNT:?}"
+: "${RUNNER_INSTALL_DIR:?}"
+: "${RUNNER_DOCKER_BASE:?}"
+: "${RUNNER_PROJECT_PREFIX:?}"
+
 
 # ── System user ────────────────────────────────────────────────────────────────
 if id github-runner >/dev/null 2>&1; then
@@ -45,16 +48,16 @@ while [ "$i" -le "${RUNNER_COUNT}" ]; do
             fail "Instance ${i}: INFINITO_PRESERVE_DOCKER_CACHE=true missing from .env"
         fi
 
-        if grep -q "INFINITO_RUNNER_PREFIX=runner-${i}" "${DIR}/.env"; then
-            ok "Instance ${i}: INFINITO_RUNNER_PREFIX=runner-${i} present in .env"
+        if grep -q "INFINITO_RUNNER_PREFIX=${RUNNER_PROJECT_PREFIX}-${i}" "${DIR}/.env"; then
+            ok "Instance ${i}: INFINITO_RUNNER_PREFIX=${RUNNER_PROJECT_PREFIX}-${i} present in .env"
         else
-            fail "Instance ${i}: INFINITO_RUNNER_PREFIX=runner-${i} missing from .env"
+            fail "Instance ${i}: INFINITO_RUNNER_PREFIX=${RUNNER_PROJECT_PREFIX}-${i} missing from .env"
         fi
 
-        if grep -q "INFINITO_DOCKER_VOLUME=/mnt/docker/${i}" "${DIR}/.env"; then
-            ok "Instance ${i}: INFINITO_DOCKER_VOLUME=/mnt/docker/${i} present in .env"
+        if grep -q "INFINITO_DOCKER_VOLUME=${RUNNER_DOCKER_BASE}/${i}" "${DIR}/.env"; then
+            ok "Instance ${i}: INFINITO_DOCKER_VOLUME=${RUNNER_DOCKER_BASE}/${i} present in .env"
         else
-            fail "Instance ${i}: INFINITO_DOCKER_VOLUME=/mnt/docker/${i} missing from .env"
+            fail "Instance ${i}: INFINITO_DOCKER_VOLUME=${RUNNER_DOCKER_BASE}/${i} missing from .env"
         fi
     else
         fail "Instance ${i}: .env file missing at ${DIR}/.env"

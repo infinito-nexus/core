@@ -14,6 +14,9 @@
     path: "{{ lookup('nginx','files.configuration') }}"
     state: absent
   when: _nginx_conf_stat.stat.exists and _nginx_conf_stat.stat.isdir
+  # Docker creates a directory at a bind-mount target when the host path is absent.
+  # ansible.builtin.copy cannot overwrite a directory with a file, so we remove
+  # the directory first. The copy below then creates the file correctly.
 
 - name: Ensure base nginx.conf exists (bootstrap)
   ansible.builtin.copy:

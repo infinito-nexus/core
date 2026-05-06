@@ -38,21 +38,13 @@ def _compose_run(*, repo_root: Path, distro: str, args: list[str]) -> None:
     subprocess.run(cmd, cwd=repo_root, env=env, check=True, text=True)
 
 
-def _cleanup_docker_root() -> None:
-    if os.environ.get("RUNNING_ON_GITHUB") != "true":
-        print(f">>> Not on GitHub - No bind volumes will be deleted: {CI_DOCKER_ROOT}")
-        return
+def _resolve_docker_root() -> Path:
+    raw = os.environ.get("INFINITO_DOCKER_VOLUME", "").strip().rstrip("/")
+    return Path(raw) if raw else CI_DOCKER_ROOT
 
-    if os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE", "false").lower() == "true":
-        print(
-            ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro"
-        )
-        return
 
-    docker_root_env = os.environ.get("INFINITO_DOCKER_VOLUME", "").strip().rstrip("/")
-    docker_root = Path(docker_root_env) if docker_root_env else CI_DOCKER_ROOT
-
-    # Allow /mnt/docker itself and any per-runner subdirectory (e.g. /mnt/docker/1).
+def _validate_docker_root(docker_root: Path) -> None:
+    # Allow CI_DOCKER_ROOT itself and any per-runner subdirectory.
     try:
         docker_root.relative_to(CI_DOCKER_ROOT)
     except ValueError:
@@ -62,13 +54,28 @@ def _cleanup_docker_root() -> None:
             f"Only {CI_DOCKER_ROOT} or subdirectories are permitted."
         )
 
+
+def _wipe_docker_root(docker_root: Path) -> None:
     if not docker_root.exists():
         print(f">>> Docker root does not exist, nothing to clean: {docker_root}")
         return
-
     print(f">>> CI cleanup: wiping Docker root: {docker_root}")
     shutil.rmtree(docker_root, ignore_errors=True)
     docker_root.mkdir(parents=True, exist_ok=True)
+
+
+def _cleanup_docker_root() -> None:
+    if os.environ.get("RUNNING_ON_GITHUB") != "true":
+        print(f">>> Not on GitHub - No bind volumes will be deleted: {CI_DOCKER_ROOT}")
+        return
+    if os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE", "false").lower() == "true":
+        print(
+            ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro"
+        )
+        return
+    docker_root = _resolve_docker_root()
+    _validate_docker_root(docker_root)
+    _wipe_docker_root(docker_root)
 
 
 def down_stack(*, repo_root: Path, distro: str) -> None:

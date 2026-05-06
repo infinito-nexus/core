@@ -15,6 +15,12 @@ galaxy_info:
     - name: Archlinux
       versions:
         - rolling
+    - name: Fedora
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
   galaxy_tags:
     - ci
     - runner
@@ -22,4 +28,5 @@ galaxy_info:
     - systemd
     - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-dependencies: []
+dependencies:
+  - sys-svc-container

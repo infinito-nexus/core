@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 import textwrap
@@ -18,7 +19,12 @@ SCRIPT = (
 
 def _run(multiplier: int, repo_root: str) -> None:
     subprocess.run(
-        ["bash", str(SCRIPT), str(multiplier), repo_root],
+        ["bash", str(SCRIPT)],
+        env={
+            **os.environ,
+            "INFINITO_TIMEOUT_MULTIPLIER": str(multiplier),
+            "INFINITO_REPO_ROOT": repo_root,
+        },
         check=True,
         capture_output=True,
     )

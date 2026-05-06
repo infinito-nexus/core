@@ -5,8 +5,12 @@ set -euo pipefail
 
 RUNNER_COUNT="${RUNNER_COUNT:-1}"
 RUNNER_DISTRO="${RUNNER_DISTRO:-ubuntu}"
-OWNER="$(scripts/meta/resolve/repository/owner.sh)"
-REPO="${REPO:-infinito-nexus}"
+RUNNER_INSTALL_DIR="${RUNNER_INSTALL_DIR:-/opt/github-runner}"
+RUNNER_DOCKER_BASE="${RUNNER_DOCKER_BASE:-/mnt/docker}"
+RUNNER_PROJECT_PREFIX="${RUNNER_PROJECT_PREFIX:-runner}"
+# Defaults match meta/services.yml; override for fork support (set OWNER/REPO in env).
+OWNER="${OWNER:-infinito-nexus}"
+REPO="${REPO:-core}"
 
 TMPDIR_RUNNER="$(mktemp -d)"
 trap 'rm -rf "${TMPDIR_RUNNER}"' EXIT
@@ -24,15 +28,15 @@ cat >"${TMPDIR_RUNNER}/playbook.yml" <<'EOF'
     - svc-runner
 EOF
 
-echo ">>> Deploying svc-runner to localhost (distro=${RUNNER_DISTRO}, count=${RUNNER_COUNT}, owner=${OWNER}, repo=${REPO})"
+echo ">>> Deploying svc-runner to localhost (distro=${RUNNER_DISTRO}, count=${RUNNER_COUNT})"
 ansible-playbook \
 	-i "${TMPDIR_RUNNER}/inventory.ini" \
 	"${TMPDIR_RUNNER}/playbook.yml" \
 	-e "runner_distribution=${RUNNER_DISTRO}" \
 	-e "runner_count=${RUNNER_COUNT}" \
-	-e "runner_github_owner=${OWNER}" \
-	-e "runner_github_repo=${REPO}" \
+	-e "RUNNER_GITHUB_OWNER=${OWNER}" \
+	-e "RUNNER_GITHUB_REPO=${REPO}" \
 	-e "MASK_CREDENTIALS_IN_LOGS=true"
 
 echo ">>> Running svc-runner verification suite"
-RUNNER_COUNT="${RUNNER_COUNT}" bash roles/svc-runner/files/test.sh
+RUNNER_COUNT="${RUNNER_COUNT}" RUNNER_INSTALL_DIR="${RUNNER_INSTALL_DIR}" RUNNER_DOCKER_BASE="${RUNNER_DOCKER_BASE}" RUNNER_PROJECT_PREFIX="${RUNNER_PROJECT_PREFIX}" bash roles/svc-runner/files/test.sh

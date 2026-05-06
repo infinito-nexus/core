@@ -1,5 +1,5 @@
-- name: Include distribution-specific package installation
-  include_tasks: install/{{ runner_distribution }}.yml
+- name: Install distribution-specific packages
+  include_tasks: install/packages.yml
 
 - name: Install CI runner dependencies
   package:
@@ -40,7 +40,7 @@
   copy:
     dest: /etc/sudoers.d/github-runner
     content: |
-      github-runner ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf /mnt/docker*, /usr/bin/rm -rf /mnt/docker*, /bin/mkdir -vp /mnt/docker*, /usr/bin/mkdir -vp /mnt/docker*, /bin/mkdir -p /mnt/docker*, /usr/bin/mkdir -p /mnt/docker*, /bin/chown -R * /mnt/docker*, /usr/bin/chown -R * /mnt/docker*
+      github-runner ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf {{ runner_docker_base }}*, /usr/bin/rm -rf {{ runner_docker_base }}*, /bin/mkdir -vp {{ runner_docker_base }}*, /usr/bin/mkdir -vp {{ runner_docker_base }}*, /bin/mkdir -p {{ runner_docker_base }}*, /usr/bin/mkdir -p {{ runner_docker_base }}*, /bin/chown -R * {{ runner_docker_base }}*, /usr/bin/chown -R * {{ runner_docker_base }}*
     mode: '0440'
     validate: visudo -cf %s
 
@@ -95,32 +95,32 @@
     loop_var: runner_instance
   when: _runners_to_remove | length > 0
 
-- name: Probe for orphaned runner DIND containers (instances beyond runner_count)
-  ansible.builtin.command:
-    argv:
-      - docker
-      - ps
-      - -aq
-      - --filter
-      - "label=com.docker.compose.project=runner-{{ item }}"
-  register: _orphaned_container_probe
+- name: Gather all containers for orphan detection
+  community.docker.docker_host_info:
+    containers: true
+  register: _all_containers_info
   changed_when: false
-  failed_when: false
-  loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
 
 - name: Remove orphaned runner DIND containers (instances beyond runner_count)
-  ansible.builtin.command:
-    argv: "{{ ['docker', 'rm', '-f'] + item.stdout_lines }}"
-  loop: "{{ _orphaned_container_probe.results | selectattr('stdout', 'truthy') | list }}"
+  community.docker.docker_container:
+    name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/', '') }}"
+    state: absent
+    force_kill: true
+  vars:
+    _project: "{{ (item.Labels | default({}))['com.docker.compose.project'] | default('') }}"
+    _instance_num: "{{ _project | regex_replace('^' ~ runner_project_prefix ~ '-', '') }}"
+  loop: "{{ _all_containers_info.containers }}"
   loop_control:
-    label: "runner-{{ item.item }}"
-  when: item.stdout | trim | length > 0
+    label: "{{ (item.Names | default([item.Name]))[0] }}"
+  when:
+    - _project is match('^' ~ runner_project_prefix ~ '-[0-9]+$')
+    - _instance_num | int > runner_count | int
   changed_when: true
   failed_when: false
 
 - name: Unmount tmpfs from orphaned Docker volume directories (instances beyond runner_count)
   ansible.builtin.mount:
-    path: "/mnt/docker/{{ item }}"
+    path: "{{ runner_docker_base }}/{{ item }}"
     state: unmounted
   loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
   failed_when: false
@@ -128,13 +128,13 @@
 
 - name: Remove orphaned Docker volume directories (instances beyond runner_count)
   ansible.builtin.file:
-    path: "/mnt/docker/{{ item }}"
+    path: "{{ runner_docker_base }}/{{ item }}"
     state: absent
   loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
 
 - name: Unmount any existing tmpfs from inner Docker volume directories
   ansible.builtin.mount:
-    path: "/mnt/docker/{{ item }}"
+    path: "{{ runner_docker_base }}/{{ item }}"
     state: unmounted
   loop: "{{ range(1, runner_count | int + 1) | list }}"
   failed_when: false
@@ -142,7 +142,7 @@
 
 - name: Create inner Docker volume directories for runners
   file:
-    path: "/mnt/docker/{{ item }}"
+    path: "{{ runner_docker_base }}/{{ item }}"
     state: directory
     mode: '0755'
   loop: "{{ range(1, runner_count | int + 1) | list }}"
