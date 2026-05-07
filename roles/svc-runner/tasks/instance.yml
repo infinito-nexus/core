@@ -1,0 +1,86 @@
+- name: Create runner instance {{ runner_instance }} directory
+  file:
+    path: "{{ runner_install_dir }}/{{ runner_instance }}"
+    state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0755'
+
+- name: Extract GitHub Actions runner archive for instance {{ runner_instance }}
+  unarchive:
+    src: "{{ runner_install_dir }}/actions-runner.tar.gz"
+    dest: "{{ runner_install_dir }}/{{ runner_instance }}"
+    remote_src: true
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+
+- name: Stop GitHub Actions runner service for instance {{ runner_instance }} (if running)
+  command: ./svc.sh stop
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  failed_when: false
+  changed_when: false
+
+- name: Uninstall GitHub Actions runner service for instance {{ runner_instance }} (if installed)
+  command: ./svc.sh uninstall
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  failed_when: false
+  changed_when: false
+
+- name: Remove existing runner configuration for instance {{ runner_instance }}
+  command: find {{ runner_install_dir }}/{{ runner_instance }} -maxdepth 1 -name ".*" -type f -delete
+  changed_when: false
+
+- name: Get GitHub Actions runner registration token for instance {{ runner_instance }}
+  command: gh api repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/registration-token --method POST -q .token
+  delegate_to: localhost
+  register: runner_registration_token
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: Configure GitHub Actions runner instance {{ runner_instance }}
+  command: >
+    ./config.sh
+    --url https://github.com/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}
+    --token {{ runner_registration_token.stdout | trim }}
+    --name {{ runner_name }}-{{ runner_instance }}
+    --labels {{ runner_labels }}
+    --unattended
+    --replace
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  become: true
+  become_user: "{{ runner_user }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: Write runner environment file for instance {{ runner_instance }}
+  copy:
+    dest: "{{ runner_install_dir }}/{{ runner_instance }}/.env"
+    content: |
+      COMPOSE_PROJECT_NAME={{ runner_project_prefix }}-{{ runner_instance }}
+      INFINITO_RUNNER_PREFIX={{ runner_project_prefix }}-{{ runner_instance }}
+      SUBNET=172.30.{{ runner_instance }}.0/24
+      GATEWAY=172.30.{{ runner_instance }}.1
+      DNS_IP=172.30.{{ runner_instance }}.53
+      IP4=172.30.{{ runner_instance }}.10
+      BIND_IP=172.30.{{ runner_instance }}.1
+      DOMAIN=infinito.example
+      DOMAIN_RE=infinito\.example
+      INVENTORY_DIR={{ runner_install_dir }}/{{ runner_instance }}/inventories/github
+      INFINITO_DOCKER_VOLUME={{ runner_docker_base }}/{{ runner_instance }}
+      INFINITO_PRESERVE_DOCKER_CACHE=true
+      INFINITO_CPUS={{ runner_cpus }}
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0600'
+
+- name: Install GitHub Actions runner service for instance {{ runner_instance }}
+  command: ./svc.sh install {{ runner_user }}
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+
+- name: Start GitHub Actions runner service for instance {{ runner_instance }}
+  command: ./svc.sh start
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"

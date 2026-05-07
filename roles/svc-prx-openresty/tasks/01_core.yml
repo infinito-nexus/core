@@ -4,6 +4,20 @@
     state: directory
     mode: "0755"
 
+- name: Stat nginx.conf path
+  ansible.builtin.stat:
+    path: "{{ lookup('nginx','files.configuration') }}"
+  register: _nginx_conf_stat
+
+- name: Remove Docker-created directory at nginx.conf path
+  ansible.builtin.file:
+    path: "{{ lookup('nginx','files.configuration') }}"
+    state: absent
+  when: _nginx_conf_stat.stat.exists and _nginx_conf_stat.stat.isdir
+  # Docker creates a directory at a bind-mount target when the host path is absent.
+  # ansible.builtin.copy cannot overwrite a directory with a file, so we remove
+  # the directory first. The copy below then creates the file correctly.
+
 - name: Ensure base nginx.conf exists (bootstrap)
   ansible.builtin.copy:
     dest: "{{ lookup('nginx','files.configuration') }}"

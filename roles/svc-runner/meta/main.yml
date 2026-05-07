@@ -1,0 +1,32 @@
+galaxy_info:
+  author: Alejandro Roman Ibanez
+  description: Provisions a dedicated machine as a GitHub Actions self-hosted CI runner for Infinito.Nexus.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  min_ansible_version: '2.9'
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - jammy
+        - focal
+    - name: Archlinux
+      versions:
+        - rolling
+    - name: Fedora
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+  galaxy_tags:
+    - ci
+    - runner
+    - github
+    - systemd
+    - automation
+  issue_tracker_url: https://s.infinito.nexus/issues
+dependencies:
+  - sys-svc-container

@@ -133,6 +133,11 @@ roles:
       description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
       icon: "fas fa-database"
       invokable: true
+    runner:
+      title: "CI Runner"
+      description: "Self-hosted GitHub Actions runner deployment and configuration"
+      icon: "fas fa-play"
+      invokable: true
   user:
     title: "Users & Access"
     description: "User accounts & access control"

@@ -1,0 +1,4 @@
+svc-runner:
+  lifecycle: beta
+  github_owner: infinito-nexus
+  github_repo: core

@@ -1,0 +1,154 @@
+- name: Install distribution-specific packages
+  include_tasks: install/packages.yml
+
+- name: Install CI runner dependencies
+  package:
+    name:
+      - jq
+      - gettext-base
+    state: present
+
+- name: Tune kernel inotify limits for parallel systemd containers
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-github-runner.conf
+  loop:
+    - { key: fs.inotify.max_user_instances, value: "8192" }
+    - { key: fs.inotify.max_user_watches, value: "524288" }
+    - { key: fs.inotify.max_queued_events, value: "65536" }
+
+- name: Create GitHub Actions runner system group
+  group:
+    name: "{{ runner_user }}"
+    system: true
+
+- name: Create GitHub Actions runner system user
+  user:
+    name: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    groups: docker
+    append: true
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ runner_install_dir }}"
+    create_home: true
+
+- name: Grant passwordless sudo for CI cleanup operations
+  copy:
+    dest: /etc/sudoers.d/github-runner
+    content: |
+      github-runner ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf {{ runner_docker_base }}*, /usr/bin/rm -rf {{ runner_docker_base }}*, /bin/mkdir -vp {{ runner_docker_base }}*, /usr/bin/mkdir -vp {{ runner_docker_base }}*, /bin/mkdir -p {{ runner_docker_base }}*, /usr/bin/mkdir -p {{ runner_docker_base }}*, /bin/chown -R * {{ runner_docker_base }}*, /usr/bin/chown -R * {{ runner_docker_base }}*
+    mode: '0440'
+    validate: visudo -cf %s
+
+- name: Create runner base directory
+  file:
+    path: "{{ runner_install_dir }}"
+    state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0755'
+
+- name: Fetch latest GitHub Actions runner version tag
+  command: gh api repos/actions/runner/releases/latest -q .tag_name
+  delegate_to: localhost
+  register: runner_version_tag
+  changed_when: false
+
+- name: Set resolved runner version
+  set_fact:
+    runner_resolved_version: "{{ runner_version_tag.stdout | trim | regex_replace('^v', '') }}"
+
+- name: Download GitHub Actions runner binary
+  get_url_retry:
+    url: "https://github.com/actions/runner/releases/download/v{{ runner_resolved_version }}/actions-runner-linux-x64-{{ runner_resolved_version }}.tar.gz"
+    dest: "{{ runner_install_dir }}/actions-runner.tar.gz"
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0644'
+
+- name: Find existing runner instance directories
+  find:
+    paths: "{{ runner_install_dir }}"
+    file_type: directory
+    patterns: "^[0-9]+$"
+    use_regex: true
+  register: _existing_runner_dirs
+
+- name: Determine runner instances to remove
+  set_fact:
+    _runners_to_remove: >-
+      {{ _existing_runner_dirs.files
+         | map(attribute='path')
+         | map('basename')
+         | map('int')
+         | select('gt', runner_count | int)
+         | list }}
+
+- name: Remove runner instances beyond runner_count
+  include_tasks: cleanup_instance.yml
+  loop: "{{ _runners_to_remove }}"
+  loop_control:
+    loop_var: runner_instance
+  when: _runners_to_remove | length > 0
+
+- name: Gather all containers for orphan detection
+  community.docker.docker_host_info:
+    containers: true
+  register: _all_containers_info
+  changed_when: false
+
+- name: Remove orphaned runner DIND containers (instances beyond runner_count)
+  community.docker.docker_container:
+    name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/', '') }}"
+    state: absent
+    force_kill: true
+  vars:
+    _project: "{{ (item.Labels | default({}))['com.docker.compose.project'] | default('') }}"
+    _instance_num: "{{ _project | regex_replace('^' ~ runner_project_prefix ~ '-', '') }}"
+  loop: "{{ _all_containers_info.containers }}"
+  loop_control:
+    label: "{{ (item.Names | default([item.Name]))[0] }}"
+  when:
+    - _project is match('^' ~ runner_project_prefix ~ '-[0-9]+$')
+    - _instance_num | int > runner_count | int
+  changed_when: true
+  failed_when: false
+
+- name: Unmount tmpfs from orphaned Docker volume directories (instances beyond runner_count)
+  ansible.builtin.mount:
+    path: "{{ runner_docker_base }}/{{ item }}"
+    state: unmounted
+  loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
+  failed_when: false
+  changed_when: false
+
+- name: Remove orphaned Docker volume directories (instances beyond runner_count)
+  ansible.builtin.file:
+    path: "{{ runner_docker_base }}/{{ item }}"
+    state: absent
+  loop: "{{ range(runner_count | int + 1, runner_count | int + 50) | list }}"
+
+- name: Unmount any existing tmpfs from inner Docker volume directories
+  ansible.builtin.mount:
+    path: "{{ runner_docker_base }}/{{ item }}"
+    state: unmounted
+  loop: "{{ range(1, runner_count | int + 1) | list }}"
+  failed_when: false
+  changed_when: false
+
+- name: Create inner Docker volume directories for runners
+  file:
+    path: "{{ runner_docker_base }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ range(1, runner_count | int + 1) | list }}"
+
+- name: Provision runner instances
+  include_tasks: instance.yml
+  loop: "{{ range(1, runner_count | int + 1) | list }}"
+  loop_control:
+    loop_var: runner_instance

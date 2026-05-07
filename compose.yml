@@ -9,7 +9,7 @@ x-ci-defaults: &ci_defaults
 services:
   coredns:
     image: coredns/coredns:1.14.3
-    container_name: infinito-coredns
+    container_name: ${INFINITO_RUNNER_PREFIX:-infinito}-coredns
     profiles: ["ci"]
     command: ["-conf", "/Corefile"]
     volumes:

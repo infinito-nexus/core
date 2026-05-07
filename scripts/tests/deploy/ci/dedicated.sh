@@ -88,8 +88,15 @@ cleanup() {
 	echo ">>> Docker disk usage before HARD cleanup"
 	docker system df || true
 
-	# 1) Remove ALL containers (including running ones)
-	mapfile -t ids < <(docker ps -aq || true)
+	# 1) Remove containers belonging to this compose project only.
+	# On shared self-hosted runners multiple projects run in parallel;
+	# removing all containers would kill sibling jobs.
+	_cleanup_project="${COMPOSE_PROJECT_NAME:-}"
+	if [[ -n "${_cleanup_project}" ]]; then
+		mapfile -t ids < <(docker ps -aq --filter "label=com.docker.compose.project=${_cleanup_project}" || true)
+	else
+		mapfile -t ids < <(docker ps -aq || true)
+	fi
 	if ((${#ids[@]} > 0)); then
 		docker rm -f "${ids[@]}" >/dev/null 2>&1 || true
 	fi
@@ -104,23 +111,32 @@ cleanup() {
 	docker container prune -f >/dev/null 2>&1 || true
 
 	# 5) Remove ALL images and build cache.
-	# Important for serial multi-distro CI runs on the same runner.
-	docker image prune -af >/dev/null 2>&1 || true
-	docker buildx prune -af >/dev/null 2>&1 || true
-	docker builder prune -af >/dev/null 2>&1 || true
+	# Important for serial multi-distro CI runs on GitHub runners (limited disk).
+	# Skipped on self-hosted (INFINITO_PRESERVE_DOCKER_CACHE=true) so outer images
+	# (infinito, coredns) stay in the Docker cache.  Combined with pull_policy:always
+	# they become fast manifest checks (~5 s) instead of full 3-5 min GHCR pulls
+	# for every subsequent distro run and for every subsequent job.
+	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" != "true" ]]; then
+		docker image prune -af >/dev/null 2>&1 || true
+		docker buildx prune -af >/dev/null 2>&1 || true
+		docker builder prune -af >/dev/null 2>&1 || true
+	fi
 
 	# 6) Remove host-mounted Docker data dir (CI runner only)
 	# IMPORTANT:
 	# - In CI, Docker/DIND/buildx may create root-owned files under this directory.
 	# - A plain 'rm -rf' can fail with "Permission denied" and poison the next distro run.
 	# - Use sudo for a hard reset, then recreate the directory.
-	if [[ -n "${INFINITO_DOCKER_VOLUME:-}" ]]; then
+	# Skip when INFINITO_PRESERVE_DOCKER_CACHE=true so inner Docker image layers
+	# survive across distro runs within the same job (pulled once, reused 5x).
+	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
+		echo ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro: ${INFINITO_DOCKER_VOLUME}"
+	elif [[ -n "${INFINITO_DOCKER_VOLUME:-}" ]]; then
 		if [[ "${INFINITO_DOCKER_VOLUME}" == /* ]]; then
 			echo ">>> CI cleanup: wiping Docker root: ${INFINITO_DOCKER_VOLUME}"
 
 			echo ">>> Pre-clean ownership/permissions (best-effort)"
 			ls -ld "${INFINITO_DOCKER_VOLUME}" || true
-			sudo ls -ld "${INFINITO_DOCKER_VOLUME}" || true
 
 			echo ">>> Removing host docker volume dir: ${INFINITO_DOCKER_VOLUME}"
 			sudo rm -rf "${INFINITO_DOCKER_VOLUME}" || true
@@ -131,11 +147,16 @@ cleanup() {
 
 			echo ">>> Post-clean ownership/permissions (best-effort)"
 			ls -ld "${INFINITO_DOCKER_VOLUME}" || true
-			sudo ls -ld "${INFINITO_DOCKER_VOLUME}" || true
 		else
 			echo "[WARN] INFINITO_DOCKER_VOLUME is not an absolute path: '${INFINITO_DOCKER_VOLUME}' (skipping)"
 		fi
 	fi
+
+	# 7) Remove root-owned __pycache__ and .pyc files left by the privileged container.
+	# Without this, the next actions/checkout fails with EACCES when trying to delete them.
+	echo ">>> Removing root-owned Python bytecode from workspace"
+	sudo find "${REPO_ROOT}" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	sudo find "${REPO_ROOT}" -name "*.pyc" -delete 2>/dev/null || true
 
 	echo ">>> Docker disk usage after HARD cleanup"
 	docker system df || true
@@ -144,10 +165,29 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Wipe stale inner-Docker state before starting so credentials are always fresh.
+# Done before `up` to avoid a race with the inner Docker daemon.
+# Image layers (overlay2/, image/) are preserved for cache; only volumes/ and
+# containers/ are removed so old DB passwords and auto-restart state don't survive.
+if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
+	echo ">>> Wiping inner-Docker volumes and container state: ${INFINITO_DOCKER_VOLUME}"
+	sudo rm -rf "${INFINITO_DOCKER_VOLUME}/volumes" "${INFINITO_DOCKER_VOLUME}/containers" || true
+fi
+
 echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 # Always reconcile the stack to the requested distro.
 # This avoids reusing a pre-started stack with a different INFINITO_DISTRO.
 "${PYTHON}" -m cli.deploy.development up
+
+# Pre-install the CA trust wrapper so the sys-svc-container DNS handler does not
+# fail before sys-ca-selfsigned has run.  When the bind-mount target is absent at
+# the time of the first `docker run --entrypoint` call Docker creates a *directory*
+# there instead of a file, causing every subsequent exec to exit rc=126 ("is a
+# directory").  sys-ca-selfsigned will overwrite this stub with the real version.
+_up_container="${INFINITO_RUNNER_PREFIX:-infinito}_nexus_${INFINITO_DISTRO}"
+docker exec "${_up_container}" install -m 755 \
+	/opt/src/infinito/roles/sys-ca-selfsigned/files/with-ca-trust.sh \
+	/usr/bin/ca-trust-wrapper 2>/dev/null || true
 
 deploy_args=(
 	--apps "${APPS}"
@@ -160,10 +200,26 @@ df -h || true
 docker system df || true
 echo ">>> END STATE BEFORE DEPLOY"
 
+_init_args=(
+	--apps "${APPS}"
+	--inventory-dir "${INVENTORY_DIR}"
+)
+if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
+	_init_args+=(--force-storage-constrained false)
+fi
+
+if [[ "${INFINITO_TIMEOUT_MULTIPLIER}" -gt 1 ]]; then
+	echo ">>> Scaling Ansible retries by ${INFINITO_TIMEOUT_MULTIPLIER}x (slow hardware detected)"
+	docker exec \
+		-e "INFINITO_TIMEOUT_MULTIPLIER=${INFINITO_TIMEOUT_MULTIPLIER}" \
+		-e "INFINITO_REPO_ROOT=${INFINITO_REPO_ROOT}" \
+		"${_up_container}" \
+		bash /opt/src/infinito/scripts/tests/deploy/ci/multiply-timeouts.sh
+fi
+
 echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 "${PYTHON}" -m cli.deploy.development init \
-	--apps "${APPS}" \
-	--inventory-dir "${INVENTORY_DIR}" \
+	"${_init_args[@]}" \
 	--vars '{"ASYNC_ENABLED": false}'
 
 # PASS 1 (sync) + PASS 2 (async) co-located per variant: the wrapper

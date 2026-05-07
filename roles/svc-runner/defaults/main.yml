@@ -1,0 +1,9 @@
+runner_name: "{{ inventory_hostname }}"
+runner_distribution: ""
+runner_labels: "self-hosted,linux,{{ runner_distribution }}"
+runner_install_dir: /opt/github-runner
+runner_user: github-runner
+runner_cpus: 2
+runner_count: "{{ [ansible_processor_vcpus | int // runner_cpus | int, 1] | max }}"
+runner_docker_base: /mnt/docker
+runner_project_prefix: runner

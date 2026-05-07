@@ -1,0 +1,68 @@
+- name: Stop runner service for instance {{ runner_instance }}
+  command: ./svc.sh stop
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  failed_when: false
+  changed_when: false
+
+- name: Uninstall runner service for instance {{ runner_instance }}
+  command: ./svc.sh uninstall
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  failed_when: false
+  changed_when: false
+
+- name: Get GitHub Actions runner removal token for instance {{ runner_instance }}
+  command: gh api repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/remove-token --method POST -q .token
+  delegate_to: localhost
+  register: runner_removal_token
+  changed_when: true
+  failed_when: false
+
+- name: Deregister runner from GitHub for instance {{ runner_instance }}
+  command: ./config.sh remove --token {{ runner_removal_token.stdout | trim }}
+  args:
+    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  become: true
+  become_user: "{{ runner_user }}"
+  failed_when: false
+  changed_when: true
+  when: runner_removal_token.rc == 0 and (runner_removal_token.stdout | trim | length) > 0
+
+- name: Gather containers for runner instance {{ runner_instance }}
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      label:
+        - "com.docker.compose.project={{ runner_project_prefix }}-{{ runner_instance }}"
+  register: _runner_container_info
+  changed_when: false
+  failed_when: false
+
+- name: Remove containers for runner instance {{ runner_instance }}
+  community.docker.docker_container:
+    name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/', '') }}"
+    state: absent
+    force_kill: true
+  loop: "{{ _runner_container_info.containers | default([]) }}"
+  loop_control:
+    label: "{{ (item.Names | default([item.Name]))[0] }}"
+  changed_when: true
+  failed_when: false
+
+- name: Remove runner instance directory {{ runner_instance }}
+  file:
+    path: "{{ runner_install_dir }}/{{ runner_instance }}"
+    state: absent
+
+- name: Unmount tmpfs from Docker volume directory for runner instance {{ runner_instance }}
+  ansible.builtin.mount:
+    path: "{{ runner_docker_base }}/{{ runner_instance }}"
+    state: unmounted
+  failed_when: false
+  changed_when: false
+
+- name: Remove Docker volume directory for runner instance {{ runner_instance }}
+  ansible.builtin.file:
+    path: "{{ runner_docker_base }}/{{ runner_instance }}"
+    state: absent

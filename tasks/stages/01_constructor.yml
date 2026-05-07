@@ -169,6 +169,7 @@
     - svc-prx     # 6. Load proxy roles
     - svc-ai      # 7. Load AI roles
     - svc-bkp     # 8. Load Backup Roles
+    - svc-runner  # 9. Load CI runner roles
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}-roles.yml"
