@@ -40,7 +40,7 @@ backend:
   pids_limit: 512
   ports:
     local:
-      http: 8071
+      http: 8074
 exporter:
   version: latest
   image: penpotapp/exporter
