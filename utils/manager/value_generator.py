@@ -22,7 +22,7 @@ class ValueGenerator:
         if length < 12:
             raise ValueError("Password length must be at least 12 characters")
 
-        characters = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]{}:,.?"
+        characters = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]:,.?"
 
         for _ in range(10_000):  # defensive upper bound
             password = "".join(secrets.choice(characters) for _ in range(length))
