@@ -60,7 +60,7 @@ class TestMultiplyTimeouts(unittest.TestCase):
         (plugins_dir / "uri_retry.py").write_text(
             textwrap.dedent("""\
             class ActionModule:
-                DEFAULT_RETRIES = 30
+                DEFAULT_RETRIES = 60
                 DEFAULT_DELAY = 2
         """)
         )
@@ -95,7 +95,7 @@ class TestMultiplyTimeouts(unittest.TestCase):
     def test_multiplies_uri_retry_default_retries(self):
         _run(3, self.root)
         content = (Path(self.root) / "plugins" / "action" / "uri_retry.py").read_text()
-        self.assertIn("DEFAULT_RETRIES = 90", content)
+        self.assertIn("DEFAULT_RETRIES = 180", content)
 
     def test_multiplier_zero_is_noop(self):
         _run(0, self.root)

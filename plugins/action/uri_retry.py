@@ -12,7 +12,7 @@ from ansible.plugins.action.uri import ActionModule as UriActionModule
 
 class ActionModule(UriActionModule):
     # Default policy when no task keywords are provided.
-    DEFAULT_RETRIES = 30
+    DEFAULT_RETRIES = 60
     DEFAULT_DELAY = 2
 
     def run(self, tmp=None, task_vars=None):
