@@ -190,9 +190,19 @@ trap cleanup EXIT
 # Done before `up` to avoid a race with the inner Docker daemon.
 # Image layers (overlay2/, image/) are preserved for cache; only volumes/ and
 # containers/ are removed so old DB passwords and auto-restart state don't survive.
+# Exception: if disk usage exceeds 70%, wipe the full volume so a cancelled or
+# failed prior run cannot fill the disk before the next job starts.
 if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
-	echo ">>> Wiping inner-Docker volumes and container state: ${INFINITO_DOCKER_VOLUME}"
-	sudo rm -rf "${INFINITO_DOCKER_VOLUME}/volumes" "${INFINITO_DOCKER_VOLUME}/containers" || true
+	_disk_pct=$(df --output=pcent / | tail -1 | tr -d ' %')
+	if [[ "${_disk_pct}" -ge 70 && -n "${INFINITO_DOCKER_VOLUME:-}" && "${INFINITO_DOCKER_VOLUME}" == /* ]]; then
+		echo ">>> Disk at ${_disk_pct}% — wiping full inner-Docker volume to reclaim space: ${INFINITO_DOCKER_VOLUME}"
+		sudo rm -rf "${INFINITO_DOCKER_VOLUME}" || true
+		sudo mkdir -p "${INFINITO_DOCKER_VOLUME}" || true
+		sudo chown -R "$(id -u):$(id -g)" "${INFINITO_DOCKER_VOLUME}" || true
+	else
+		echo ">>> Wiping inner-Docker volumes and container state: ${INFINITO_DOCKER_VOLUME}"
+		sudo rm -rf "${INFINITO_DOCKER_VOLUME}/volumes" "${INFINITO_DOCKER_VOLUME}/containers" || true
+	fi
 fi
 
 echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
