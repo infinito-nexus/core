@@ -25,6 +25,7 @@ penpot:
   cpus: "0.5"
   mem_reservation: 512m
   mem_limit: 1g
+  min_storage: 1GB
   pids_limit: 256
   ports:
     local:
@@ -40,13 +41,14 @@ backend:
   pids_limit: 512
   ports:
     local:
-      http: 8074
+      http: 8078
 exporter:
   version: latest
   image: penpotapp/exporter
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
+  min_storage: 1GB
   pids_limit: 512
 redis:
   cpus: "0.5"
