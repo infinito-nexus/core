@@ -125,6 +125,22 @@ cleanup() {
 		docker image prune -af >/dev/null 2>&1 || true
 		docker buildx prune -af >/dev/null 2>&1 || true
 		docker builder prune -af >/dev/null 2>&1 || true
+	else
+		# On self-hosted runners keep only the current CI image per distro.
+		# Removes all older ci-<hash> tags so disk usage stays flat across runs.
+		if [[ -n "${INFINITO_IMAGE:-}" ]]; then
+			_image_repo="${INFINITO_IMAGE%%:*}"
+			mapfile -t _old_ci_images < <(
+				docker images --format "{{.Repository}}:{{.Tag}}" |
+					grep "^${_image_repo}:ci-" |
+					grep -vxF "${INFINITO_IMAGE}" ||
+					true
+			)
+			if ((${#_old_ci_images[@]} > 0)); then
+				echo ">>> Pruning ${#_old_ci_images[@]} stale CI image(s) for ${_image_repo}"
+				docker rmi "${_old_ci_images[@]}" >/dev/null 2>&1 || true
+			fi
+		fi
 	fi
 
 	# 6) Remove host-mounted Docker data dir (CI runner only)
