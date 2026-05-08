@@ -55,6 +55,15 @@ class TestMultiplyTimeouts(unittest.TestCase):
                   start_period: 30s
         """)
         )
+        plugins_dir = root / "plugins" / "action"
+        plugins_dir.mkdir(parents=True)
+        (plugins_dir / "uri_retry.py").write_text(
+            textwrap.dedent("""\
+            class ActionModule:
+                DEFAULT_RETRIES = 30
+                DEFAULT_DELAY = 2
+        """)
+        )
         self.root = str(root)
 
     def tearDown(self):
@@ -82,6 +91,11 @@ class TestMultiplyTimeouts(unittest.TestCase):
             Path(self.root) / "roles" / "web-app-foo" / "templates" / "compose.yml.j2"
         ).read_text()
         self.assertIn("start_period: 90s", content)
+
+    def test_multiplies_uri_retry_default_retries(self):
+        _run(3, self.root)
+        content = (Path(self.root) / "plugins" / "action" / "uri_retry.py").read_text()
+        self.assertIn("DEFAULT_RETRIES = 90", content)
 
     def test_multiplier_zero_is_noop(self):
         _run(0, self.root)

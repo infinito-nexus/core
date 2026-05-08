@@ -9,6 +9,7 @@
 # Changes (ephemeral — actions/checkout resets them on the next job):
 #   • Ansible task retries      → retries × multiplier
 #   • Docker healthcheck start_period → start_period × multiplier
+#   • uri_retry DEFAULT_RETRIES → DEFAULT_RETRIES × multiplier
 #
 # Example: multiplier=30, retries=60, delay=2s → 60×30×2s = 3600s = 1 h
 # Fast hardware finishes early; slow hardware waits as long as needed up to 1 h.
@@ -31,5 +32,10 @@ find "${REPO_ROOT}/roles" -path "*/tasks/*.yml" -name "*.yml" -print0 |
 find "${REPO_ROOT}/roles" \( -name "*.yml" -o -name "*.yml.j2" \) \
 	-not -path "*/tasks/*" -print0 |
 	xargs -0 -r perl -i -pe "s/^(\s+start_period:\s+)(\d+)s/\$1.(\$2*${MULTIPLIER}).'s'/e"
+
+# uri_retry plugin DEFAULT_RETRIES → DEFAULT_RETRIES × MULTIPLIER
+# Covers uri_retry tasks that have no explicit retries: keyword in YAML.
+find "${REPO_ROOT}/plugins" -name "*.py" -print0 |
+	xargs -0 -r perl -i -pe "s/^(\s+DEFAULT_RETRIES\s*=\s*)(\d+)/\$1.(\$2*${MULTIPLIER})/e"
 
 echo ">>> Done"
