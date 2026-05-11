@@ -27,10 +27,15 @@ pihole:
   image: pihole/pihole
   version: latest
   upstream_dns: "1.1.1.1;1.0.0.1"
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "256m"
+  min_storage: "1GB"
+  pids_limit: 512
   ports:
     local:
       http: 8041
-      oauth2: 16493
+      oauth2: 16500
   run_after:
   - web-app-keycloak
   lifecycle: alpha

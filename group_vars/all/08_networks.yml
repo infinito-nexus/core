@@ -79,6 +79,8 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
       start: 16480
       end: 16519
     mariadb:
+      end: 16514
+    database:
       start: 3306
       end: 3306
     postgres:
