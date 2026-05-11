@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verifies that the svc-runner role was deployed correctly on this machine.
-# Run after `scripts/tests/runner.sh` completes the Ansible deploy.
+# Variables are sourced from roles/svc-runner/templates/test.env.j2 by test-e2e-cli.
 set -euo pipefail
 
 PASS=0
