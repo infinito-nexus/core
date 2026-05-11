@@ -38,7 +38,7 @@
 
 - name: Grant passwordless sudo for CI cleanup operations
   copy:
-    dest: /etc/sudoers.d/github-runner
+    dest: "/etc/sudoers.d/{{ runner_user }}"
     content: |
       github-runner ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf {{ runner_docker_base }}*, /usr/bin/rm -rf {{ runner_docker_base }}*, /bin/mkdir -vp {{ runner_docker_base }}*, /usr/bin/mkdir -vp {{ runner_docker_base }}*, /bin/mkdir -p {{ runner_docker_base }}*, /usr/bin/mkdir -p {{ runner_docker_base }}*, /bin/chown -R * {{ runner_docker_base }}*, /usr/bin/chown -R * {{ runner_docker_base }}*
     mode: '0440'

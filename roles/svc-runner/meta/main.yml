@@ -28,4 +28,5 @@ galaxy_info:
     - systemd
     - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-dependencies: []
+dependencies:
+  - sys-svc-container

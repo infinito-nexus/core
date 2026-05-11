@@ -12,9 +12,6 @@ from .common import compose_file_args, resolve_distro
 if TYPE_CHECKING:
     import argparse
 
-CI_DOCKER_ROOT = Path("/mnt/docker")
-
-
 def _base_env(*, distro: str) -> dict[str, str]:
     env = dict(os.environ)
     env["INFINITO_DISTRO"] = distro
@@ -30,19 +27,11 @@ def _compose_run(*, repo_root: Path, distro: str, args: list[str]) -> None:
 
 def _resolve_docker_root() -> Path:
     raw = os.environ.get("INFINITO_DOCKER_VOLUME", "").strip().rstrip("/")
-    return Path(raw) if raw else CI_DOCKER_ROOT
-
-
-def _validate_docker_root(docker_root: Path) -> None:
-    # Allow CI_DOCKER_ROOT itself and any per-runner subdirectory.
-    try:
-        docker_root.relative_to(CI_DOCKER_ROOT)
-    except ValueError:
+    if not raw:
         raise RuntimeError(
-            "SECURITY VIOLATION: "
-            f"INFINITO_DOCKER_VOLUME={docker_root} is not allowed on GitHub runner. "
-            f"Only {CI_DOCKER_ROOT} or subdirectories are permitted."
+            "INFINITO_DOCKER_VOLUME must be set (SPOT: scripts/meta/env/github.sh)"
         )
+    return Path(raw)
 
 
 def _wipe_docker_root(docker_root: Path) -> None:
@@ -54,17 +43,18 @@ def _wipe_docker_root(docker_root: Path) -> None:
     docker_root.mkdir(parents=True, exist_ok=True)
 
 
-def _cleanup_docker_root() -> None:
+def _should_wipe_docker_root() -> bool:
     if os.environ.get("INFINITO_RUNNING_ON_GITHUB") != "true":
-        print(f">>> Not on GitHub - No bind volumes will be deleted: {CI_DOCKER_ROOT}")
-        return
-    if os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE", "false").lower() == "true":
-        print(
-            ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro"
-        )
+        return False
+    return os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE", "false").lower() != "true"
+
+
+def _cleanup_docker_root() -> None:
+    if not _should_wipe_docker_root():
+        docker_vol = os.environ.get("INFINITO_DOCKER_VOLUME", "(unset)")
+        print(f">>> Skipping Docker root wipe: {docker_vol}")
         return
     docker_root = _resolve_docker_root()
-    _validate_docker_root(docker_root)
     _wipe_docker_root(docker_root)
 
 

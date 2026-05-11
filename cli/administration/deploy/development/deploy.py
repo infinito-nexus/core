@@ -94,6 +94,16 @@ def _run_deploy(
     )
     extra_env["ANSIBLE_LOG_PATH"] = ansible_log_path
 
+    for key in (
+        "GH_TOKEN",
+        "GITHUB_TOKEN",
+        "GITHUB_REPOSITORY_OWNER",
+        "GITHUB_REPOSITORY",
+    ):
+        val = os.environ.get(key)
+        if val:
+            extra_env[key] = val
+
     # The Playwright E2E gate now keys on `RUNTIME` from the inventory's
     # host_vars (baked at init time by `cli.administration.deploy.development.init`).
     # We no longer need to forward GITHUB_ACTIONS / ACT /

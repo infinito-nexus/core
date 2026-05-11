@@ -12,6 +12,7 @@ Every prompt below instructs the agent to first clarify all open requirements th
 |---|---|
 | Building a new feature, app, or larger change | [Development](#development-) |
 | Fixing or evolving a single web app role with the deploy/test loop | [Web Development Iteration](#web-development-iteration-) |
+| Iterating on `svc-runner` or the self-hosted runner infrastructure | [Runner Iteration](#runner-iteration-) |
 | Running or validating tests for a specific scope | [Testing](#testing-) |
 | Writing or updating a Playwright spec for a `web-*` role | [Playwright Tests](#playwright-tests-) |
 | Cleaning up code, docs, or roles after a change | [Refactor and Optimize](#refactor-and-optimize-) |
@@ -43,6 +44,14 @@ Follow the instructions from AGENTS.md, iterate on web app role <role> by follow
 ```
 
 SPOT: [Role Loop](../../../agents/action/iteration/role.md)
+
+## Runner Iteration 🏃
+
+```
+Follow the instructions from AGENTS.md, iterate on the svc-runner role by following the procedure in docs/agents/action/iteration/runner.md. Begin by clarifying every open requirement through active listening, then act autonomously through to completion with as few follow-up questions as possible. Use mode /caveman ultra.
+```
+
+SPOT: [runner.md](../../../agents/action/iteration/runner.md)
 
 ## Testing ✅
 

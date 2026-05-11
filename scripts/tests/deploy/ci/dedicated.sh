@@ -23,8 +23,6 @@ set -euo pipefail
 #   PYTHON="python3"
 #   variant="<idx>"  pin to one matrix round (skips the rest)
 
-PYTHON="${PYTHON:-python3}"
-
 : "${INFINITO_DISTRO:?INFINITO_DISTRO must be set (e.g. arch)}"
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR must be set}"
 : "${INFINITO_DOCKER_VOLUME:?INFINITO_DOCKER_VOLUME must be set}"
@@ -215,7 +213,7 @@ echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 # the time of the first `docker run --entrypoint` call Docker creates a *directory*
 # there instead of a file, causing every subsequent exec to exit rc=126 ("is a
 # directory").  sys-ca-selfsigned will overwrite this stub with the real version.
-_up_container="${INFINITO_RUNNER_PREFIX:-infinito}_nexus_${INFINITO_DISTRO}"
+_up_container="${INFINITO_RUNNER_PREFIX}_nexus_${INFINITO_DISTRO}"
 docker exec "${_up_container}" install -m 755 \
 	/opt/src/infinito/roles/sys-ca-selfsigned/files/with-ca-trust.sh \
 	/usr/bin/ca-trust-wrapper 2>/dev/null || true
