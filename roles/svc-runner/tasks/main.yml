@@ -53,14 +53,16 @@
     mode: '0755'
 
 - name: Fetch latest GitHub Actions runner version tag
-  command: gh api repos/actions/runner/releases/latest -q .tag_name
+  uri_retry:
+    url: https://api.github.com/repos/actions/runner/releases/latest
+    return_content: true
+  register: _runner_latest_release
   delegate_to: localhost
-  register: runner_version_tag
   changed_when: false
 
 - name: Set resolved runner version
   set_fact:
-    runner_resolved_version: "{{ runner_version_tag.stdout | trim | regex_replace('^v', '') }}"
+    runner_resolved_version: "{{ _runner_latest_release.json.tag_name | regex_replace('^v', '') }}"
 
 - name: Download GitHub Actions runner binary
   get_url_retry:

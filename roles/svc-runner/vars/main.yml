@@ -1,3 +1,4 @@
 application_id: svc-runner
 RUNNER_GITHUB_OWNER: "{{ lookup('env', 'GITHUB_REPOSITORY_OWNER') | default(lookup('config', application_id, 'services.svc-runner.github_owner'), true) }}"
 RUNNER_GITHUB_REPO: "{{ (lookup('env', 'GITHUB_REPOSITORY') | split('/') | last) | default(lookup('config', application_id, 'services.svc-runner.github_repo'), true) }}"
+RUNNER_API_TOKEN: "{{ lookup('env', 'GH_TOKEN') | default(lookup('env', 'GITHUB_TOKEN'), true) }}"

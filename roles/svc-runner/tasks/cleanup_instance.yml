@@ -13,21 +13,28 @@
   changed_when: false
 
 - name: Get GitHub Actions runner removal token for instance {{ runner_instance }}
-  command: gh api repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/remove-token --method POST -q .token
+  uri_retry:
+    url: "https://api.github.com/repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/remove-token"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ RUNNER_API_TOKEN }}"
+      Accept: application/vnd.github.v3+json
+    return_content: true
+    status_code: 201
   delegate_to: localhost
-  register: runner_removal_token
+  register: _runner_removal_token
   changed_when: true
   failed_when: false
 
 - name: Deregister runner from GitHub for instance {{ runner_instance }}
-  command: ./config.sh remove --token {{ runner_removal_token.stdout | trim }}
+  command: ./config.sh remove --token {{ _runner_removal_token.json.token }}
   args:
     chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
   become: true
   become_user: "{{ runner_user }}"
   failed_when: false
   changed_when: true
-  when: runner_removal_token.rc == 0 and (runner_removal_token.stdout | trim | length) > 0
+  when: _runner_removal_token.status == 201 and (_runner_removal_token.json.token | default('') | length) > 0
 
 - name: Gather containers for runner instance {{ runner_instance }}
   community.docker.docker_host_info:

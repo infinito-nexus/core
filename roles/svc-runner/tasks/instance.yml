@@ -33,9 +33,16 @@
   changed_when: false
 
 - name: Get GitHub Actions runner registration token for instance {{ runner_instance }}
-  command: gh api repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/registration-token --method POST -q .token
+  uri_retry:
+    url: "https://api.github.com/repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/registration-token"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ RUNNER_API_TOKEN }}"
+      Accept: application/vnd.github.v3+json
+    return_content: true
+    status_code: 201
   delegate_to: localhost
-  register: runner_registration_token
+  register: _runner_registration_token
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
@@ -43,7 +50,7 @@
   command: >
     ./config.sh
     --url https://github.com/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}
-    --token {{ runner_registration_token.stdout | trim }}
+    --token {{ _runner_registration_token.json.token }}
     --name {{ runner_name }}-{{ runner_instance }}
     --labels {{ runner_labels }}
     --unattended
