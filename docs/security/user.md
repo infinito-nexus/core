@@ -7,10 +7,10 @@ If you discover a security vulnerability in Infinito.Nexus, you MUST report it t
 For optimal personal security, we RECOMMEND the following:
 
 - **Use a Password Manager**
-  You SHOULD use a reliable password manager such as [KeePass](https://keepass.info/) 🔐. (Learn more about [password managers](https://en.wikipedia.org/wiki/Password_manager) on Wikipedia.) KeePass is available for both smartphones and PCs, and it can automatically generate strong, random passwords.
+  You SHOULD use a reliable password manager such as [KeePassXCXC](https://keepassxc.org/) 🔐. (Learn more about [password managers](https://en.wikipedia.org/wiki/Password_manager) on Wikipedia.) KeePassXC is available for both smartphones and PCs, and it can automatically generate strong, random passwords.
 
 - **Enable Two-Factor Authentication (2FA)**
-  You MUST enable 2FA whenever possible. Many password managers (like KeePass) can generate [TOTP](https://en.wikipedia.org/wiki/Time-based_One-Time_Password) tokens, adding an extra layer of security even if your password is compromised.
+  You MUST enable 2FA whenever possible. Many password managers (like KeePassXC) can generate [TOTP](https://en.wikipedia.org/wiki/Time-based_One-Time_Password) tokens, adding an extra layer of security even if your password is compromised.
   Synchronize your password database across devices using the [Nextcloud Client](https://nextcloud.com/) 📱💻.
 
 - **Use Encrypted Systems**
