@@ -10,6 +10,7 @@
       - curl
       - git
       - jq
+      - gettext-base
       - libssl-dev
       - libicu-dev
       - tar
@@ -22,6 +23,7 @@
       - curl
       - git
       - jq
+      - gettext
       - openssl
       - icu
       - tar
@@ -35,6 +37,7 @@
       - curl
       - git
       - jq
+      - gettext
       - openssl
       - libicu
       - tar

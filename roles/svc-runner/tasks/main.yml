@@ -1,13 +1,6 @@
 - name: Install distribution-specific packages
   include_tasks: install/packages.yml
 
-- name: Install CI runner dependencies
-  package:
-    name:
-      - jq
-      - gettext-base
-    state: present
-
 - name: Tune kernel inotify limits for parallel systemd containers
   sysctl:
     name: "{{ item.key }}"
@@ -40,7 +33,7 @@
   copy:
     dest: "/etc/sudoers.d/{{ runner_user }}"
     content: |
-      github-runner ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf {{ runner_docker_base }}*, /usr/bin/rm -rf {{ runner_docker_base }}*, /bin/mkdir -vp {{ runner_docker_base }}*, /usr/bin/mkdir -vp {{ runner_docker_base }}*, /bin/mkdir -p {{ runner_docker_base }}*, /usr/bin/mkdir -p {{ runner_docker_base }}*, /bin/chown -R * {{ runner_docker_base }}*, /usr/bin/chown -R * {{ runner_docker_base }}*
+      {{ runner_user }} ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf {{ runner_docker_base }}*, /usr/bin/rm -rf {{ runner_docker_base }}*, /bin/mkdir -vp {{ runner_docker_base }}*, /usr/bin/mkdir -vp {{ runner_docker_base }}*, /bin/mkdir -p {{ runner_docker_base }}*, /usr/bin/mkdir -p {{ runner_docker_base }}*, /bin/chown -R * {{ runner_docker_base }}*, /usr/bin/chown -R * {{ runner_docker_base }}*
     mode: '0440'
     validate: visudo -cf %s
 
