@@ -45,6 +45,7 @@
   register: _runner_registration_token
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: not DOCKER_IN_CONTAINER
 
 - name: Configure GitHub Actions runner instance {{ runner_instance }}
   command: >
@@ -60,6 +61,7 @@
   become: true
   become_user: "{{ runner_user }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: not DOCKER_IN_CONTAINER
 
 - name: Write runner environment file for instance {{ runner_instance }}
   copy:
@@ -86,8 +88,10 @@
   command: ./svc.sh install {{ runner_user }}
   args:
     chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  when: not DOCKER_IN_CONTAINER
 
 - name: Start GitHub Actions runner service for instance {{ runner_instance }}
   command: ./svc.sh start
   args:
     chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
+  when: not DOCKER_IN_CONTAINER
