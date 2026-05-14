@@ -26,7 +26,7 @@ prometheus:
 pihole:
   image: pihole/pihole
   version: latest
-  upstream_dns: "1.1.1.1;1.0.0.1"
+  upstream_dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS }}"
   cpus: "0.5"
   mem_reservation: "128m"
   mem_limit: "256m"
