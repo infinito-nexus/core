@@ -18,7 +18,7 @@ The `runner_distribution` variable selects distro-specific package installation 
 - **Systemd service:** Each runner instance is installed as a systemd service that starts on boot.
 - **Multi-distro:** Supports Debian, Ubuntu (`apt`) and Arch Linux (`pacman`) via distro-specific task files.
 - **Idempotent:** Re-running the deploy re-registers runners in-place (`--replace`) without manual cleanup.
-- **CI workflow split:** Deploy-test jobs are proportionally split between GitHub-hosted and self-hosted runners when `CI_SELF_HOSTED_RUNNER_COUNT` is set; forks without the variable are unaffected.
+- **CI workflow split:** Universal and workstation deploy-test jobs are proportionally split between GitHub-hosted and self-hosted runners when `CI_SELF_HOSTED_RUNNER_COUNT` is set; forks without the variable are unaffected.
 
 ## End-to-end guide
 
@@ -69,12 +69,12 @@ This variable persists until explicitly changed. Confirm it is set at:
 
 ### Step 3 — Push and observe
 
-Push any commit. In the Actions tab you will see two parallel job sets for each deploy workflow:
+Push any commit. In the Actions tab you will see two parallel job sets for the universal and workstation deploy workflows:
 
 | Job | `runs-on` | Apps |
 |-----|-----------|------|
-| `server` / `universal` / `workstation` | `ubuntu-latest` | proportional share |
-| `server-self-hosted` / … | `[self-hosted, linux]` | remaining apps |
+| `universal` / `workstation` | `ubuntu-latest` | proportional share |
+| `universal-self-hosted` / `workstation-self-hosted` | `[self-hosted, linux]` | remaining apps |
 
 Both batches run simultaneously, reducing total pipeline time roughly in half.
 
@@ -136,6 +136,7 @@ python -m cli.deploy.runner <hostname> \
 | `runner_cpus` | `2` | CPU limit per runner instance (matches GitHub-hosted 2-core quota). |
 | `runner_docker_base` | `/mnt/docker` | Base path for per-instance Docker volume directories. |
 | `runner_project_prefix` | `runner` | Prefix for per-instance Docker Compose project names and `INFINITO_RUNNER_PREFIX`. |
+| `runner_sysctl_conf` | `/etc/sysctl.d/99-github-runner.conf` | Path to the sysctl config file written for inotify tuning. |
 
 `runner_distribution` is **required** and has no default; it is passed automatically by the CLI.
 

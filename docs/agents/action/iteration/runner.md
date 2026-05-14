@@ -12,7 +12,7 @@ Key facts an agent must hold before acting:
 
 - `RUNNER_GITHUB_OWNER` and `RUNNER_GITHUB_REPO` resolve from `GITHUB_REPOSITORY_OWNER` / `GITHUB_REPOSITORY` env vars when set (CI context), falling back to `meta/services.yml` for production deploys.
 - `GH_TOKEN` must be available on the Ansible control node (`delegate_to: localhost`) for the `gh api` registration call to succeed. In CI this is forwarded into the DinD container by `cli/deploy/development/deploy.py`.
-- The systemd services installed by `svc.sh` require a host with a real init system. The role cannot be fully validated inside a rootless container without systemd.
+- The systemd services installed by `svc.sh` require a host with a real init system. Registration, service install, and service start are skipped when `DOCKER_IN_CONTAINER=true`; the role can be fully deployed and tested in DinD (binary extraction, `.env` file, and the end-to-end app deploy via `test.sh` all work).
 - `runner_count` defaults to `ansible_processor_vcpus // runner_cpus` (auto-scaled to hardware). Override explicitly when debugging a specific count.
 
 ## Rules
@@ -20,8 +20,8 @@ Key facts an agent must hold before acting:
 - You MUST NOT register runners against `infinito-nexus/core` from fork CI — the `GITHUB_TOKEN` there lacks organisation-level `administration` scope. The env-var override in `vars/main.yml` handles this automatically.
 - When iterating on the role tasks, deploy to a real Debian/Ubuntu host or a systemd-enabled container. Running against the standard DinD test image will fail at the `svc.sh install` step.
 - The `test-e2e-cli` framework runs `files/test.sh` sourcing variables from `templates/test.env.j2` after each deploy cycle. Check both the deploy output and the CLI test output before declaring a fix complete.
-- When bumping `runner_count`, re-run the full deploy cycle so `test.sh` can verify the correct number of active systemd units.
-- `runner_docker_base` defaults to `/opt/github-runner` relative to the host. Override via inventory `host_vars` for non-standard machines.
+- When bumping `runner_count`, re-run the full deploy cycle so `test.sh` can run its end-to-end app deploy against the updated runner environment.
+- `runner_docker_base` defaults to `/mnt/docker`. Override via inventory `host_vars` for non-standard machines.
 
 ## Iteration loop
 
