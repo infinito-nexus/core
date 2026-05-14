@@ -35,16 +35,7 @@ source "${RUNNER_INSTALL_DIR}/1/.env"
 : "${COMPOSE_PROJECT_NAME:?runner .env missing COMPOSE_PROJECT_NAME}"
 echo "OK: runner .env verified (INVENTORY_DIR=${INVENTORY_DIR}, INFINITO_DOCKER_VOLUME=${INFINITO_DOCKER_VOLUME})"
 
-# Propagate the outer CI distro so the nested deploy uses the same image.
-# When test.sh runs inside a DinD container (e.g. fedora), all.sh defaults
-# INFINITO_DISTRO=debian which triggers a debian nested DinD — that fails
-# because python3-apt is missing in its apt sources. Using the outer distro
-# (DISTROS env set by the GitHub Actions job) fixes the image mismatch.
-if [[ -z "${INFINITO_DISTRO:-}" && -n "${DISTROS:-}" ]]; then
-    export INFINITO_DISTRO="${DISTROS%% *}"
-fi
-
-# Load default deploy env (sets INFINITO_DISTRO, TEST_DEPLOY_TYPE, etc.)
+# Load default deploy env (sets TEST_DEPLOY_TYPE, etc.)
 # shellcheck source=scripts/meta/env/all.sh
 source "${REPO_ROOT}/scripts/meta/env/all.sh"
 
