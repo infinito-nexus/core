@@ -14,16 +14,41 @@ fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 
+# Verify the runner binary was extracted
+if [[ ! -f "${RUNNER_INSTALL_DIR}/1/run.sh" ]]; then
+    echo "FAIL: runner binary not found at ${RUNNER_INSTALL_DIR}/1/run.sh"
+    exit 1
+fi
+echo "OK: runner binary present at ${RUNNER_INSTALL_DIR}/1/run.sh"
+
+# Verify and source the instance 1 runner environment
+if [[ ! -f "${RUNNER_INSTALL_DIR}/1/.env" ]]; then
+    echo "FAIL: runner .env not found at ${RUNNER_INSTALL_DIR}/1/.env"
+    exit 1
+fi
+# shellcheck source=/dev/null
+source "${RUNNER_INSTALL_DIR}/1/.env"
+
+# Verify required runner env vars are present
+: "${INVENTORY_DIR:?runner .env missing INVENTORY_DIR}"
+: "${INFINITO_DOCKER_VOLUME:?runner .env missing INFINITO_DOCKER_VOLUME}"
+: "${COMPOSE_PROJECT_NAME:?runner .env missing COMPOSE_PROJECT_NAME}"
+echo "OK: runner .env verified (INVENTORY_DIR=${INVENTORY_DIR}, INFINITO_DOCKER_VOLUME=${INFINITO_DOCKER_VOLUME})"
+
+# Propagate the outer CI distro so the nested deploy uses the same image.
+# When test.sh runs inside a DinD container (e.g. fedora), all.sh defaults
+# INFINITO_DISTRO=debian which triggers a debian nested DinD — that fails
+# because python3-apt is missing in its apt sources. Using the outer distro
+# (DISTROS env set by the GitHub Actions job) fixes the image mismatch.
+if [[ -z "${INFINITO_DISTRO:-}" && -n "${DISTROS:-}" ]]; then
+    export INFINITO_DISTRO="${DISTROS%% *}"
+fi
+
 # Load default deploy env (sets INFINITO_DISTRO, TEST_DEPLOY_TYPE, etc.)
 # shellcheck source=scripts/meta/env/all.sh
 source "${REPO_ROOT}/scripts/meta/env/all.sh"
 
-# Source instance 1 runner environment to verify it is correctly written and
-# to inherit runner-specific vars (INFINITO_DOCKER_VOLUME, INVENTORY_DIR, etc.)
-# shellcheck source=/dev/null
-source "${RUNNER_INSTALL_DIR}/1/.env"
-
-# Unset per-instance networking vars — these are production-only subnet assignments
+# Unset per-instance networking vars — production-only subnet assignments
 # that conflict with the CI test stack which uses env.ci defaults (172.30.0.x).
 unset SUBNET GATEWAY DNS_IP IP4 BIND_IP COMPOSE_PROJECT_NAME INFINITO_RUNNER_PREFIX
 
