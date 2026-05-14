@@ -18,10 +18,14 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 # shellcheck source=scripts/meta/env/all.sh
 source "${REPO_ROOT}/scripts/meta/env/all.sh"
 
-# Source instance 1 runner environment — provides COMPOSE_PROJECT_NAME, SUBNET,
-# INFINITO_DOCKER_VOLUME, and other runner-specific Docker settings
+# Source instance 1 runner environment to verify it is correctly written and
+# to inherit runner-specific vars (INFINITO_DOCKER_VOLUME, INVENTORY_DIR, etc.)
 # shellcheck source=/dev/null
 source "${RUNNER_INSTALL_DIR}/1/.env"
+
+# Unset per-instance networking vars — these are production-only subnet assignments
+# that conflict with the CI test stack which uses env.ci defaults (172.30.0.x).
+unset SUBNET GATEWAY DNS_IP IP4 BIND_IP COMPOSE_PROJECT_NAME INFINITO_RUNNER_PREFIX
 
 # Deploy a real app through the runner's Docker environment to prove it works end-to-end
 APPS=web-app-matomo make -C "${REPO_ROOT}" deploy-fresh-purged-apps
