@@ -10,3 +10,11 @@
     container: "{{ PIHOLE_CONTAINER }}"
     command: pihole setpassword ''
   when: PIHOLE_OAUTH2_ENABLED | bool
+
+- name: "Wait for oauth2-proxy to be ready"
+  wait_for:
+    host:    "{{ DOCKER_REACH_HOST }}"
+    port:    "{{ lookup('config', application_id, 'services.pihole.ports.local.oauth2') }}"
+    delay:   5
+    timeout: 120
+  when: PIHOLE_OAUTH2_ENABLED | bool

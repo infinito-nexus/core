@@ -10,10 +10,7 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
-
-- name: "Flush handlers"
-  meta: flush_handlers
+    docker_compose_flush_handlers: true
 
 - name: "Run Pi-hole setup routines"
   include_tasks: 01_setup.yml
