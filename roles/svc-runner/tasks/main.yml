@@ -7,7 +7,7 @@
     value: "{{ item.value }}"
     state: present
     reload: true
-    sysctl_file: /etc/sysctl.d/99-github-runner.conf
+    sysctl_file: "{{ runner_sysctl_conf }}"
   loop:
     - { key: fs.inotify.max_user_instances, value: "8192" }
     - { key: fs.inotify.max_user_watches, value: "524288" }

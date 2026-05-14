@@ -7,3 +7,4 @@ runner_cpus: 2
 runner_count: "{{ [ansible_processor_vcpus | int // runner_cpus | int, 1] | max }}"
 runner_docker_base: /mnt/docker
 runner_project_prefix: runner
+runner_sysctl_conf: /etc/sysctl.d/99-github-runner.conf
