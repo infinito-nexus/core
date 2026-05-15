@@ -35,6 +35,12 @@ source "${RUNNER_INSTALL_DIR}/1/.env"
 : "${COMPOSE_PROJECT_NAME:?runner .env missing COMPOSE_PROJECT_NAME}"
 echo "OK: runner .env verified (INVENTORY_DIR=${INVENTORY_DIR}, INFINITO_DOCKER_VOLUME=${INFINITO_DOCKER_VOLUME})"
 
+# The CI package-cache proxy only covers apt-debian/apt-ubuntu/pacman-archlinux.
+# Force debian so the nested deploy always uses a proxied image regardless of the
+# runner host distro (e.g. centos in CI). This proves the runner's Docker
+# infrastructure works without being coupled to the host OS.
+INFINITO_DISTRO=debian
+
 # Load default deploy env (sets TEST_DEPLOY_TYPE, etc.)
 # shellcheck source=scripts/meta/env/all.sh
 source "${REPO_ROOT}/scripts/meta/env/all.sh"
