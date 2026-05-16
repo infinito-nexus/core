@@ -14,6 +14,7 @@ dashboard:
 matomo:
   enabled: true
   shared: true
+# noqa: email
 email:
   enabled: false
   shared: true
