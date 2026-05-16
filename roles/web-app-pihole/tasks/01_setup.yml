@@ -1,3 +1,12 @@
+- name: "Wait for Keycloak OIDC discovery endpoint"
+  uri_retry:
+    url: "{{ OIDC.CLIENT.ISSUER_URL }}/.well-known/openid-configuration"
+    validate_certs: false
+    status_code: 200
+  retries: 60
+  delay: 10
+  when: PIHOLE_OAUTH2_ENABLED | bool
+
 - name: "Wait for Pi-hole HTTP endpoint"
   wait_for:
     host:     "{{ DOCKER_REACH_HOST }}"
