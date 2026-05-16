@@ -19,3 +19,15 @@
     delay:   5
     timeout: 300
   when: PIHOLE_OAUTH2_ENABLED | bool
+
+- name: "Wait for pihole HTTPS endpoint to return non-500"
+  uri_retry:
+    url: "{{ lookup('tls', application_id, 'url.base') }}"
+    validate_certs: false
+    status_code: [200, 301, 302, 403, 404]
+  register: _pihole_https_check
+  until: _pihole_https_check.status in [200, 301, 302, 403, 404]
+  retries: 30
+  delay: 10
+  ignore_errors: true
+  when: PIHOLE_OAUTH2_ENABLED | bool
