@@ -64,26 +64,17 @@
   when: not DOCKER_IN_CONTAINER
 
 - name: Write runner environment file for instance {{ runner_instance }}
-  copy:
+  template:
+    src: runner_instance_env.j2
     dest: "{{ runner_install_dir }}/{{ runner_instance }}/.env"
-    content: |
-      COMPOSE_PROJECT_NAME={{ runner_project_prefix }}-{{ runner_instance }}
-      INFINITO_RUNNER_PREFIX={{ runner_project_prefix }}-{{ runner_instance }}
-      SUBNET=172.30.{{ runner_instance }}.0/24
-      GATEWAY=172.30.{{ runner_instance }}.1
-      DNS_IP=172.30.{{ runner_instance }}.53
-      IP4=172.30.{{ runner_instance }}.10
-      BIND_IP=172.30.{{ runner_instance }}.1
-      DOMAIN=infinito.example
-      DOMAIN_RE=infinito\.example
-      INVENTORY_DIR={{ runner_install_dir }}/{{ runner_instance }}/inventories/github
-      INFINITO_DOCKER_VOLUME={{ runner_docker_base }}/{{ runner_instance }}
-      INFINITO_PRESERVE_DOCKER_CACHE=true
-      INFINITO_CPUS={{ runner_cpus }}
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0600'
 
+# svc.sh calls systemctl, which is unavailable in Docker-in-Docker (no real init).
+# The role is still fully deployed in DinD — binary extracted, .env written — and
+# structural checks in test.sh are sufficient. On a real host DOCKER_IN_CONTAINER
+# is false and all three systemd steps (install, start, register) run normally.
 - name: Install GitHub Actions runner service for instance {{ runner_instance }}
   command: ./svc.sh install {{ runner_user }}
   args:

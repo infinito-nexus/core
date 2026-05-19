@@ -31,10 +31,9 @@
     create_home: true
 
 - name: Grant passwordless sudo for CI cleanup operations
-  copy:
+  template:
+    src: sudoers.j2
     dest: "/etc/sudoers.d/{{ runner_user }}"
-    content: |
-      {{ runner_user }} ALL=(ALL) NOPASSWD: /usr/bin/chown -R * {{ runner_install_dir }}*, /bin/chown -R * {{ runner_install_dir }}*, /usr/bin/find {{ runner_install_dir }}*, /bin/find {{ runner_install_dir }}*, /bin/rm -rf {{ runner_install_dir }}*, /usr/bin/rm -rf {{ runner_install_dir }}*, /bin/rm -rf {{ runner_docker_base }}*, /usr/bin/rm -rf {{ runner_docker_base }}*, /bin/mkdir -vp {{ runner_docker_base }}*, /usr/bin/mkdir -vp {{ runner_docker_base }}*, /bin/mkdir -p {{ runner_docker_base }}*, /usr/bin/mkdir -p {{ runner_docker_base }}*, /bin/chown -R * {{ runner_docker_base }}*, /usr/bin/chown -R * {{ runner_docker_base }}*
     mode: '0440'
     validate: visudo -cf %s
 
@@ -97,7 +96,7 @@
   register: _all_containers_info
   changed_when: false
 
-- name: Remove orphaned runner DIND containers (instances beyond runner_count)
+- name: Remove orphaned runner containers (instances beyond runner_count)
   community.docker.docker_container:
     name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/', '') }}"
     state: absent

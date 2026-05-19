@@ -77,7 +77,7 @@ def filter_roles_by_min_storage(
                     early_cfg = _load_yaml_file(cfg_path_early)
                     if isinstance(early_cfg, dict) and role_name in early_cfg:
                         entity_name = role_name
-                except Exception:
+                except Exception:  # noqa: BLE001 — best-effort; missing/invalid file is fine
                     pass
         if not entity_name:
             if emit_warnings:

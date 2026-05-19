@@ -2,27 +2,13 @@ from __future__ import annotations
 
 import os
 import shutil
-import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from . import PROJECT_ROOT
-from .common import compose_file_args, resolve_distro
+from .common import resolve_distro
 
 if TYPE_CHECKING:
     import argparse
-
-def _base_env(*, distro: str) -> dict[str, str]:
-    env = dict(os.environ)
-    env["INFINITO_DISTRO"] = distro
-    return env
-
-
-def _compose_run(*, repo_root: Path, distro: str, args: list[str]) -> None:
-    cmd = ["docker", "compose", *compose_file_args(), *args]
-    env = _base_env(distro=distro)
-    env.setdefault("NIX_CONFIG", "")
-    subprocess.run(cmd, cwd=repo_root, env=env, check=True, text=True)
 
 
 def _resolve_docker_root() -> Path:
@@ -59,12 +45,12 @@ def _cleanup_docker_root() -> None:
 
 
 def down_stack(*, repo_root: Path, distro: str) -> None:
+    from .compose import Compose
+
     print(">>> Stopping compose stack and removing volumes")
     try:
-        _compose_run(
-            repo_root=repo_root,
-            distro=distro,
-            args=["down", "--remove-orphans", "-v"],
+        Compose(repo_root=repo_root, distro=distro).run(
+            ["down", "--remove-orphans", "-v"]
         )
     finally:
         _cleanup_docker_root()
@@ -76,5 +62,6 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
 
 
 def handler(args: argparse.Namespace) -> int:
-    down_stack(repo_root=PROJECT_ROOT, distro=resolve_distro())
+    repo_root = Path(__file__).resolve().parents[3]
+    down_stack(repo_root=repo_root, distro=resolve_distro())
     return 0

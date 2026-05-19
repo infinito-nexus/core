@@ -3,8 +3,9 @@ runner_distribution: ""
 runner_labels: "self-hosted,linux,{{ runner_distribution }}"
 runner_install_dir: /opt/github-runner
 runner_user: github-runner
+# Matches the GitHub-hosted 2-core runner quota; drives auto-scaling via runner_count.
 runner_cpus: 2
 runner_count: "{{ [ansible_processor_vcpus | int // runner_cpus | int, 1] | max }}"
-runner_docker_base: /mnt/docker
+runner_docker_base: "{{ lookup('config', application_id, 'services.svc-runner.docker_base') }}"
 runner_project_prefix: runner
 runner_sysctl_conf: /etc/sysctl.d/99-github-runner.conf

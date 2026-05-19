@@ -1,0 +1,15 @@
+COMPOSE_PROJECT_NAME={{ runner_project_prefix }}-{{ runner_instance }}
+INFINITO_RUNNER_PREFIX={{ runner_project_prefix }}-{{ runner_instance }}
+# Each instance gets its own /24 keyed on the instance number so parallel
+# runners on the same host never claim overlapping container IPs.
+SUBNET=172.30.{{ runner_instance }}.0/24
+GATEWAY=172.30.{{ runner_instance }}.1
+DNS_IP=172.30.{{ runner_instance }}.53
+IP4=172.30.{{ runner_instance }}.10
+BIND_IP=172.30.{{ runner_instance }}.1
+DOMAIN=infinito.example
+DOMAIN_RE=infinito\.example
+INVENTORY_DIR={{ runner_install_dir }}/{{ runner_instance }}/inventories/github
+INFINITO_DOCKER_VOLUME={{ runner_docker_base }}/{{ runner_instance }}
+INFINITO_PRESERVE_DOCKER_CACHE=true
+INFINITO_CPUS={{ runner_cpus }}

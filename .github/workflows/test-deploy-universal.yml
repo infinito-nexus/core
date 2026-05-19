@@ -16,7 +16,6 @@ on:
 permissions:
   contents: read
   packages: read
-  actions: write
 
 env:
   INFINITO_DEPLOY_TYPE: universal
@@ -33,8 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
-      apps_github: ${{ steps.split.outputs.apps_github }}
-      apps_self_hosted: ${{ steps.split.outputs.apps_self_hosted }}
+      apps: ${{ steps.discover.outputs.apps }}
 
     steps:
       - uses: actions/checkout@v6
@@ -76,17 +74,9 @@ jobs:
           INFINITO_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
         run: ./scripts/github/resolve/output_apps.sh
 
-      - name: Split apps between GitHub-hosted and self-hosted runners
-        id: split
-        shell: bash
-        env:
-          APPS_JSON: ${{ steps.discover.outputs.apps }}
-          CI_SELF_HOSTED_RUNNER_COUNT: ${{ vars.CI_SELF_HOSTED_RUNNER_COUNT || '0' }}
-        run: bash scripts/github/split_runner_apps.sh
-
   universal:
     name: ✨ Deploy ${{ matrix.apps }}
-    if: needs.discover.outputs.apps_github != '' && needs.discover.outputs.apps_github != '[]'
+    if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 360
     needs: discover
@@ -94,7 +84,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        apps: ${{ fromJson(needs.discover.outputs.apps_github) }}
+        apps: ${{ fromJson(needs.discover.outputs.apps) }}
 
     steps:
       # Reclaim runner space before Docker pulls start. Deploy jobs otherwise
@@ -144,43 +134,6 @@ jobs:
         run: python3 utils/github/profile/role_summary.py /tmp/ansible-${{ matrix.apps }}.log
 
       - name: 🩺 Dump runner state (on failure)
-        if: failure()
-        shell: bash
-        run: ./scripts/github/runner/dump_state.sh "post-deploy failure (${{ matrix.apps }})"
-
-  universal-self-hosted:
-    name: ✨ Deploy ${{ matrix.apps }} (self-hosted)
-    if: needs.discover.outputs.apps_self_hosted != '' && needs.discover.outputs.apps_self_hosted != '[]'
-    runs-on: [self-hosted, linux]
-    timeout-minutes: 360
-    needs: discover
-
-    strategy:
-      fail-fast: false
-      matrix:
-        apps: ${{ fromJson(needs.discover.outputs.apps_self_hosted) }}
-
-    steps:
-      - name: Fix workspace ownership
-        shell: bash
-        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" 2>/dev/null || true
-
-      - uses: actions/checkout@v6
-
-      - name: Resolve repository owner
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
-
-      - name: Deploy app
-        shell: bash
-        env:
-          APPS: ${{ matrix.apps }}
-          INFINITO_TIMEOUT_MULTIPLIER: ${{ vars.INFINITO_TIMEOUT_MULTIPLIER || '1' }}
-        run: ./scripts/tests/deploy/ci/all.sh
-
-      - name: Dump runner state (on failure)
         if: failure()
         shell: bash
         run: ./scripts/github/runner/dump_state.sh "post-deploy failure (${{ matrix.apps }})"

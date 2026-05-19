@@ -16,9 +16,9 @@ The `runner_distribution` variable selects distro-specific package installation 
 - **Multi-instance:** Provisions N runner instances per host via `runner_count`; each handles one job at a time.
 - **Automatic registration:** Fetches a short-lived token via `gh api` on the control host — no long-lived PAT stored anywhere.
 - **Systemd service:** Each runner instance is installed as a systemd service that starts on boot.
-- **Multi-distro:** Supports Debian, Ubuntu (`apt`) and Arch Linux (`pacman`) via distro-specific task files.
+- **Multi-distro:** Supports Debian, Ubuntu (`apt`), Arch Linux (`pacman`), and Fedora/EL (`dnf`) via distro-specific task files.
 - **Idempotent:** Re-running the deploy re-registers runners in-place (`--replace`) without manual cleanup.
-- **CI workflow split:** Universal and workstation deploy-test jobs are proportionally split between GitHub-hosted and self-hosted runners when `CI_SELF_HOSTED_RUNNER_COUNT` is set; forks without the variable are unaffected.
+- **CI workflow ready:** The `svc-runner` role installs runners that can be activated via `make runner-ci-enable`; all deploy-test workflows run on GitHub-hosted runners by default.
 
 ## End-to-end guide
 
@@ -69,14 +69,7 @@ This variable persists until explicitly changed. Confirm it is set at:
 
 ### Step 3 — Push and observe
 
-Push any commit. In the Actions tab you will see two parallel job sets for the universal and workstation deploy workflows:
-
-| Job | `runs-on` | Apps |
-|-----|-----------|------|
-| `universal` / `workstation` | `ubuntu-latest` | proportional share |
-| `universal-self-hosted` / `workstation-self-hosted` | `[self-hosted, linux]` | remaining apps |
-
-Both batches run simultaneously, reducing total pipeline time roughly in half.
+Push any commit. The runners will pick up jobs routed to `[self-hosted, linux]` once activated. Use `make runner-ci-enable` to activate routing.
 
 ### Deactivating
 
@@ -114,10 +107,10 @@ python -m cli.deploy.runner <hostname> \
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
 | `hostname` | yes | — | Target server hostname or IP address. |
-| `--distribution` | yes | — | OS: `debian`, `ubuntu`, `archlinux`. |
+| `--distribution` | yes | — | OS: `debian`, `ubuntu`, `archlinux`, `fedora`, `centos`. |
 | `--roles` | yes | — | Roles to deploy; `svc-runner` is always prepended. |
 | `--runner-count` | no | `15` | Number of runner instances to provision. |
-| `--owner` | no | role default (`kevinveenbirkenbach`) | GitHub user or org the runners register with. |
+| `--owner` | no | role default (`infinito-nexus`) | GitHub user or org the runners register with. |
 | `--repo` | no | role default (`infinito-nexus`) | Repository name the runners register with. |
 | `--port` | no | Ansible default (22) | SSH port of the target host. |
 | `--output` | no | `/tmp/infinito-runner-deploy.log` | File path for deploy stdout/stderr. |

@@ -18,7 +18,7 @@ Key facts an agent must hold before acting:
 ## Rules
 
 - You MUST NOT register runners against `infinito-nexus/core` from fork CI — the `GITHUB_TOKEN` there lacks organisation-level `administration` scope. The env-var override in `vars/main.yml` handles this automatically.
-- When iterating on the role tasks, deploy to a real Debian/Ubuntu host or a systemd-enabled container. Running against the standard DinD test image will fail at the `svc.sh install` step.
+- When iterating on the role tasks, deploy to a real Debian, Ubuntu, Arch Linux, or Fedora/EL host, or a systemd-enabled container. Running against the standard DinD test image will fail at the `svc.sh install` step.
 - The `test-e2e-cli` framework runs `files/test.sh` sourcing variables from `templates/test.env.j2` after each deploy cycle. Check both the deploy output and the CLI test output before declaring a fix complete.
 - When bumping `runner_count`, re-run the full deploy cycle so `test.sh` can run its end-to-end app deploy against the updated runner environment.
 - `runner_docker_base` defaults to `/mnt/docker`. Override via inventory `host_vars` for non-standard machines.
