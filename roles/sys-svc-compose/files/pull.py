@@ -147,7 +147,10 @@ def main() -> int:
             raise RuntimeError(
                 f"docker compose pull failed (rc={rc}); images missing locally: {missing}"
             )
-        print(f"docker compose pull failed (rc={rc}) but all images present locally", file=sys.stderr)
+        print(
+            f"docker compose pull failed (rc={rc}) but all images present locally",
+            file=sys.stderr,
+        )
 
     lock_file.write_text("ok\n", encoding="utf-8")
     print("pulled")

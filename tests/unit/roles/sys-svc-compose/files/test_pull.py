@@ -166,20 +166,22 @@ services:
                 "/x/.env",
             ]
 
+            calls: list[list[str]] = []
+
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
             ) -> tuple[int, str]:
-                # main() probes pull --help to detect --ignore-buildable support
+                calls.append(cmd)
                 if cmd[-2:] == ["pull", "--help"]:
                     return 0, "Usage:\n  --ignore-buildable\n"
                 return 0, ""
 
-            calls: list[list[str]] = []
+            fallback_calls: list[list[str]] = []
 
             def fake_run_or_fail(
                 cmd: list[str], *, cwd: Path, env: dict[str, str], label: str
             ) -> None:
-                calls.append(cmd)
+                fallback_calls.append(cmd)
 
             with (
                 patch.object(sys, "argv", argv),
@@ -196,9 +198,63 @@ services:
                 "lock file should be written on success",
             )
 
-            # Expect two calls: build --pull, then pull --ignore-buildable
+            # First the build --pull, then a pull --help probe, then the actual pull.
             self.assertEqual(calls[0], [*base_cmd, "build", "--pull"])
-            self.assertEqual(calls[1], [*base_cmd, "pull", "--ignore-buildable"])
+            self.assertEqual(calls[1], [*base_cmd, "pull", "--help"])
+            self.assertEqual(calls[2], [*base_cmd, "pull", "--ignore-buildable"])
+            # No fallback: build --pull succeeded so run_or_fail was never invoked.
+            self.assertEqual(fallback_calls, [])
+
+    def test_main_falls_back_to_plain_build_when_build_pull_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            chdir = Path(td) / "instance"
+            chdir.mkdir(parents=True, exist_ok=True)
+
+            lock_dir = Path(td) / "locks"
+            lock_key = "kfb"
+
+            argv = [
+                "pull.py",
+                "--chdir",
+                str(chdir),
+                "--project",
+                "p",
+                "--compose-files",
+                "-f a.yml",
+                "--lock-dir",
+                str(lock_dir),
+                "--lock-key",
+                lock_key,
+            ]
+
+            base_cmd = ["docker", "compose", "-p", "p", "-f", "a.yml"]
+
+            def fake_run_cmd(
+                cmd: list[str], *, cwd: Path, env: dict[str, str]
+            ) -> tuple[int, str]:
+                if cmd[-2:] == ["build", "--pull"]:
+                    return 1, "build --pull failed\n"
+                return 0, ""
+
+            fallback_calls: list[list[str]] = []
+
+            def fake_run_or_fail(
+                cmd: list[str], *, cwd: Path, env: dict[str, str], label: str
+            ) -> None:
+                fallback_calls.append(cmd)
+
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(self.m, "has_buildable_services", return_value=True),
+                patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
+                patch.object(self.m, "run_or_fail", side_effect=fake_run_or_fail),
+            ):
+                rc = self.m.main()
+
+            self.assertEqual(rc, 0)
+            # build --pull failed → fall back to plain compose build.
+            self.assertEqual(fallback_calls, [[*base_cmd, "build"]])
 
     def test_main_pull_omits_ignore_buildable_when_not_supported(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -225,32 +281,124 @@ services:
 
             base_cmd = ["docker", "compose", "-p", "p", "-f", "a.yml"]
 
+            calls: list[list[str]] = []
+
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
             ) -> tuple[int, str]:
+                calls.append(cmd)
                 if cmd[-2:] == ["pull", "--help"]:
                     return 0, "Usage:\n"  # no --ignore-buildable mentioned
                 return 0, ""
-
-            calls: list[list[str]] = []
-
-            def fake_run_or_fail(
-                cmd: list[str], *, cwd: Path, env: dict[str, str], label: str
-            ) -> None:
-                calls.append(cmd)
 
             with (
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=False),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
-                patch.object(self.m, "run_or_fail", side_effect=fake_run_or_fail),
             ):
                 rc = self.m.main()
 
             self.assertEqual(rc, 0)
-            self.assertEqual(len(calls), 1)
-            self.assertEqual(calls[0], [*base_cmd, "pull"])
+            # --help probe + bare pull (no --ignore-buildable in help → drop the flag).
+            self.assertEqual(calls[0], [*base_cmd, "pull", "--help"])
+            self.assertEqual(calls[1], [*base_cmd, "pull"])
+
+    def test_main_tolerates_pull_failure_when_images_local(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            chdir = Path(td) / "instance"
+            chdir.mkdir(parents=True, exist_ok=True)
+
+            lock_dir = Path(td) / "locks"
+            lock_key = "ktol"
+
+            argv = [
+                "pull.py",
+                "--chdir",
+                str(chdir),
+                "--project",
+                "p",
+                "--compose-files",
+                "-f a.yml",
+                "--lock-dir",
+                str(lock_dir),
+                "--lock-key",
+                lock_key,
+            ]
+
+            base_cmd = ["docker", "compose", "-p", "p", "-f", "a.yml"]
+
+            def fake_run_cmd(
+                cmd: list[str], *, cwd: Path, env: dict[str, str]
+            ) -> tuple[int, str]:
+                # compose pull fails, but `compose config --images` and every
+                # `docker image inspect` succeed — i.e. all images are local.
+                if cmd[-1] == "pull":
+                    return 1, "pull failed\n"
+                if cmd[-2:] == ["config", "--images"]:
+                    return 0, "image:1\nimage:2\n"
+                if cmd[:3] == ["docker", "image", "inspect"]:
+                    return 0, ""
+                return 0, ""
+
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(self.m, "has_buildable_services", return_value=False),
+                patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
+            ):
+                rc = self.m.main()
+
+            self.assertEqual(rc, 0)
+            self.assertTrue(
+                (lock_dir / f"{lock_key}.lock").exists(),
+                "lock should still be written when pull fails but images are local",
+            )
+
+    def test_main_raises_when_pull_fails_and_images_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            chdir = Path(td) / "instance"
+            chdir.mkdir(parents=True, exist_ok=True)
+
+            lock_dir = Path(td) / "locks"
+            lock_key = "kmiss"
+
+            argv = [
+                "pull.py",
+                "--chdir",
+                str(chdir),
+                "--project",
+                "p",
+                "--compose-files",
+                "-f a.yml",
+                "--lock-dir",
+                str(lock_dir),
+                "--lock-key",
+                lock_key,
+            ]
+
+            base_cmd = ["docker", "compose", "-p", "p", "-f", "a.yml"]
+
+            def fake_run_cmd(
+                cmd: list[str], *, cwd: Path, env: dict[str, str]
+            ) -> tuple[int, str]:
+                if cmd[-1] == "pull":
+                    return 1, "pull failed\n"
+                if cmd[-2:] == ["config", "--images"]:
+                    return 0, "image:1\n"
+                if cmd[:3] == ["docker", "image", "inspect"]:
+                    return 1, "no such image\n"
+                return 0, ""
+
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(self.m, "has_buildable_services", return_value=False),
+                patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
+                self.assertRaises(RuntimeError) as ctx,
+            ):
+                self.m.main()
+            self.assertIn("missing locally", str(ctx.exception))
 
 
 if __name__ == "__main__":
