@@ -9,15 +9,15 @@
   ansible.builtin.set_fact:
     DOCKER_IN_CONTAINER: "{{ (systemd_detect_virt_container.rc | default(1) | int) == 0 }}"
 
-- name: "Debug: dump status + ansible_env + vars"
+- name: "Debug: dump status + ansible_env + hostvars"
   ansible.builtin.debug:
     msg: |
       status:
       {{ lookup('status') | to_nice_yaml(indent=2) }}
       ansible_env:
       {{ ansible_env | to_nice_yaml(indent=2) }}
-      vars:
-      {{ vars | to_nice_yaml(indent=2) }}
+      hostvars:
+      {{ hostvars[inventory_hostname] | to_nice_yaml(indent=2) }}
   when: MODE_DEBUG | bool
 
 - name: Check DNS resolution for test domain
