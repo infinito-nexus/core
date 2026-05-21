@@ -71,6 +71,8 @@ class TestInventoryVarsFileSpotDriftGuard(unittest.TestCase):
             "roles/web-app-odoo/tasks/03_oidc.yml",
             # The dev inventory file itself sits at the literal path.
             "inventories/development/default.yml",
+            # Lint test names the dev inventory as the SPOT for env injections.
+            "tests/lint/filesystem/env/test_no_ansible_env_lookups.py",
         }
         offenders: list[str] = []
         scan_extensions = (".py", ".sh", ".yml", ".yaml", ".j2", ".md")

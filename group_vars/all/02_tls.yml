@@ -1,6 +1,6 @@
 ---
 # Encryptiom
-TLS_ENABLED: true # Never set this to true, this just exist for development purposes
+TLS_ENABLED: true # nocheck: unused-var  # consumed by plugins/lookup/{tls,email,cert}.py
 # to deactivate TLS can also prevent the login function to work:
 TLS_MODE: "letsencrypt" # Valid values letsencrypt, self_signed, off
 TLS_SELFSIGNED_BASE_PATH: "/etc/{{ SOFTWARE_DOMAIN }}/selfsigned"

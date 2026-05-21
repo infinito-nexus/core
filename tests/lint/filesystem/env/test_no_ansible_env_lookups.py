@@ -10,14 +10,11 @@ from __future__ import annotations
 import re
 import unittest
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _DEFAULT_ENV_KEY_RE = re.compile(r"^\s*(?P<key>INFINITO_[A-Z0-9_]+)\s*=")
 _LOOKUP_ENV_RE = re.compile(
@@ -28,12 +25,8 @@ _NOCHECK_RE = re.compile(r"#\s*nocheck\b")
 # Scan trees that participate in Ansible runtime. `inventories/development/`
 # is the agreed home for env-driven dev/CI overrides and is excluded; other
 # inventories carry literal values and stay in scope.
-_SCAN_RELS = (
-    "group_vars",
-    "tasks",
-    "roles",
-    "playbook.yml",
-)
+_SCAN_PREFIXES = ("group_vars/", "tasks/", "roles/")
+_SCAN_FILES = ("playbook.yml",)
 _SCAN_EXTS = (".yml", ".yaml", ".j2")
 
 
@@ -53,21 +46,12 @@ def _default_env_keys(path: Path) -> set[str]:
     }
 
 
-def _iter_target_files(roots: list[Path]) -> list[Path]:
+def _iter_target_files() -> list[Path]:
     out: list[Path] = []
-    for root in roots:
-        if not root.exists():
-            continue
-        if root.is_file():
-            if root.suffix in _SCAN_EXTS or root.name.endswith(".yml"):
-                out.append(root)
-            continue
-        for path in root.rglob("*"):
-            if not path.is_file():
-                continue
-            if path.suffix not in _SCAN_EXTS:
-                continue
-            out.append(path)
+    for path_str in iter_project_files(extensions=_SCAN_EXTS):
+        rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
+        if rel in _SCAN_FILES or any(rel.startswith(p) for p in _SCAN_PREFIXES):
+            out.append(Path(path_str))
     return sorted(out)
 
 
@@ -92,8 +76,7 @@ class TestNoAnsibleEnvLookupsForDefaultEnvKeys(unittest.TestCase):
         declared = _default_env_keys(default_env_path)
         self.assertTrue(declared, "default.env has no INFINITO_* entries")
 
-        roots = [PROJECT_ROOT / rel for rel in _SCAN_RELS]
-        targets = _iter_target_files(roots)
+        targets = _iter_target_files()
         self.assertTrue(targets, "no Ansible-internal files found to scan")
 
         violations: list[_Violation] = []
