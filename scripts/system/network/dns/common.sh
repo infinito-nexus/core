@@ -69,7 +69,7 @@ dns_read_generated_hosts_fallback_entries() {
 	fi
 
 	if ! output="$(
-		DOMAIN="${DNS_DOMAIN}" python3 "${DNS_HOSTS_GENERATOR}" --domain-primary "${DNS_DOMAIN}" --alias --www
+		DOMAIN="${DNS_DOMAIN}" PYTHONPATH="${DNS_PROJECT_ROOT}" python3 -m cli.meta.domains --domain-primary "${DNS_DOMAIN}" --alias --www
 	)"; then
 		echo ">>> Failed to generate DNS hosts from role configs; using static fallback." >&2
 		return 1

@@ -130,7 +130,8 @@ services:
       - ${INFINITO_CACHE_REGISTRY_PROXY_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
         dotenv')}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
       - ./scripts/docker/cache/registry-ca.sh:/usr/local/bin/registry-cache-ca.sh:ro
-      - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make dotenv')}:/etc/pip.conf:ro
+      - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
+        dotenv')}:/etc/pip.conf:ro
       - ${INFINITO_CACHE_PACKAGE_NPMRC:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make dotenv')}:/root/.npmrc:ro
       - ${INFINITO_CACHE_PACKAGE_APT_LIST:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
         dotenv')}:/etc/apt/sources.list.d/package-cache.list:ro
