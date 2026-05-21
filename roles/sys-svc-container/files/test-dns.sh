@@ -4,8 +4,8 @@ set -euo pipefail
 # ------------------------------------------------------------
 # Optional env overrides (with safe defaults)
 # ------------------------------------------------------------
-: "${BUSYBOX_IMAGE:=busybox:1.37}"
-: "${NODE_IMAGE:=node:26-alpine}"
+: "${BUSYBOX_IMAGE:?Missing Busybox image}"
+: "${NODE_IMAGE:?Missing Busybox image}"
 
 # ------------------------------------------------------------
 # Required env (must already be present in the container)
