@@ -1,9 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
-const PLATFORM_FAVICON_URL = process.env.PLATFORM_FAVICON_URL || "";
-
 exports.register = function (shared) {
-  test("dashboard card icons resolve to the public Simple Icons URL when enabled, and to the platform favicon otherwise", async ({ page }) => {
+  test("dashboard card icons resolve to the public Simple Icons URL when enabled, and to a Font Awesome icon otherwise", async ({ page }) => {
     await page.goto("/");
     await shared.waitForDashboardReady(page);
 
@@ -33,15 +31,9 @@ exports.register = function (shared) {
         "Expected the Simple Icons URL to be an absolute SVG under icon.<DOMAIN>"
       ).toMatch(/^https?:\/\/icon\.[^/]+\/[^/]+\.svg$/);
     } else {
-      expect(
-        PLATFORM_FAVICON_URL,
-        "PLATFORM_FAVICON_URL must be rendered in the Playwright env so the fallback assertion can identify it"
-      ).toBeTruthy();
-
-      const faviconBasename = PLATFORM_FAVICON_URL.split("/").pop();
       await expect(
-        page.locator(`.card-img-top img[src*='${faviconBasename}']`).first(),
-        "Expected card icons to fall back to the platform favicon when the Simple Icons service is disabled"
+        page.locator(".card-img-top i[class*='fa']:visible").first(),
+        "Expected card icons to fall back to a Font Awesome icon when the Simple Icons service is disabled"
       ).toBeVisible({ timeout: 60_000 });
     }
   });
