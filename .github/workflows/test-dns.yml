@@ -62,7 +62,7 @@ jobs:
           echo "Using matrix: ${json}"
 
   dns:
-    name: 🌐 Test DNS (${{ matrix.distro }})
+    name: 🌐 DNS (${{ matrix.distro }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: prepare
