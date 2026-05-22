@@ -856,9 +856,20 @@ test("wordpress post published with discourse toggle appears as a Discourse topi
 
       // WP Gutenberg editor: fill title. The title textarea exposes
       // aria-label "Add title" across modern WP versions.
-      const titleBox = wpPage
+      const editorIframe = wpPage.frameLocator(
+        "iframe[name='editor-canvas']",
+      );
+      const iframedTitleBox = editorIframe
         .getByRole("textbox", { name: /add title/i })
         .first();
+      const topLevelTitleBox = wpPage
+        .getByRole("textbox", { name: /add title/i })
+        .first();
+      const titleBox = (await iframedTitleBox
+        .isVisible({ timeout: 5_000 })
+        .catch(() => false))
+        ? iframedTitleBox
+        : topLevelTitleBox;
       await expect(titleBox, "Expected the post title editor").toBeVisible({
         timeout: 60_000,
       });
