@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# In-container helper for `make compose-deploy mode=update`.
+# In-container half of `make compose-deploy mode=update`.
 #
-# Called from the host wrapper at
-# scripts/tests/deploy/local/deploy/apps/update/all.sh via
-# `cli.administration.deploy.development exec --env KEY=VAL`, which injects the env-vars
-# asserted below. The repo is mounted at ${INFINITO_SRC_DIR} by the dev
-# compose stack.
+# Mirrors the host wrapper at deploy/apps/update/all.sh; called via
+# `cli.administration.deploy.development exec --env KEY=VAL`, which
+# injects the env-vars asserted below. The repo is mounted at
+# ${INFINITO_SRC_DIR} by the dev compose stack.
 #
 # Required env:
 #   INFINITO_INVENTORY_FILE   absolute path to <inv>/devices.yml

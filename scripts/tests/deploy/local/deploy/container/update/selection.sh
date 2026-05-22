@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# In-container helper for `make compose-deploy mode=update apps=…`.
+# In-container half of `make compose-deploy mode=update apps=…`.
 #
-# Called from the host wrapper at
-# scripts/tests/deploy/local/deploy/apps/update/selection.sh via `docker exec`,
-# which is responsible for injecting the env-vars asserted below. The
+# Mirrors the host wrapper at deploy/apps/update/selection.sh; called
+# via `docker exec`, which injects the env-vars asserted below. The
 # repo is mounted at ${INFINITO_SRC_DIR} by the dev compose stack.
 #
 # Required env:

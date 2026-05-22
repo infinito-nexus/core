@@ -28,7 +28,7 @@ echo ">>> Starting development compose stack (no build)"
 "${PYTHON}" -m cli.administration.deploy.development up \
 	--skip-entry-init
 
-# 2) Discover apps on HOST (same as local/deploy/fresh-kept-all.sh)
+# 2) Discover apps on HOST (same as local/deploy/apps/initialize/all.sh)
 apps_json="$(
 	INFINITO_DEPLOY_TYPE="${INFINITO_DEPLOY_TYPE}" \
 		INFINITO_WHITELIST="${INFINITO_WHITELIST:-}" \

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# In-container helper for `make compose-deploy` (initialize all discovered apps).
+# In-container half of `make compose-deploy` (initialize all discovered apps).
 #
-# Called from the host wrapper at
-# scripts/tests/deploy/local/deploy/apps/initialize/all.sh via
-# `cli.administration.deploy.development exec --env KEY=VAL`, which injects the env-vars
-# asserted below. Performs entry bootstrap, creates the inventory and
-# runs the dedicated deploy in one in-container session. The repo is
-# mounted at ${INFINITO_SRC_DIR} by the dev compose stack.
+# Mirrors the host wrapper at deploy/apps/initialize/all.sh; called via
+# `cli.administration.deploy.development exec --env KEY=VAL`, which
+# injects the env-vars asserted below. Performs entry bootstrap, creates
+# the inventory and runs the dedicated deploy in one in-container
+# session. The repo is mounted at ${INFINITO_SRC_DIR} by the dev compose
+# stack.
 #
 # Required env:
 #   INFINITO_INVENTORY_DIR    absolute base inventory dir (no trailing slash)

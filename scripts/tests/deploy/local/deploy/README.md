@@ -23,6 +23,8 @@ The `apps/` subtree is split by verb (the user intent) and scope:
 
 The `bundles/` subtree mirrors the same axes for inventory bundles (`fresh.sh` ≈ initialize, `update.sh` ≈ update).
 
+The `container/` subtree holds the in-container halves invoked by the host wrappers and follows the same verb/scope layout; see [container/](container/README.md).
+
 ## Entry Points
 
 | Entry point | What it does | Key inputs | Notes |

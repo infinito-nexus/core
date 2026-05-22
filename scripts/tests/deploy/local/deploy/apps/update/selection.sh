@@ -54,11 +54,11 @@ source "${SCRIPT_DIR}/../../../utils/cache-retry.sh"
 echo "=== rapid deploy: type=${INFINITO_DEPLOY_TYPE} app=${INFINITO_APPS} container=${INFINITO_CONTAINER} debug=${INFINITO_DEBUG} ==="
 echo "inventory_dir=${INFINITO_INVENTORY_DIR}"
 
-deploy_with_cache_retry "reuse-${INFINITO_APPS//[^A-Za-z0-9._-]/-}" -- \
+deploy_with_cache_retry "update-${INFINITO_APPS//[^A-Za-z0-9._-]/-}" -- \
 	docker exec \
 	-e INFINITO_SERVICES_DISABLED="${INFINITO_SERVICES_DISABLED:-}" \
 	-e INFINITO_INVENTORY_FILE="${INFINITO_INVENTORY_FILE}" \
 	-e INFINITO_APPS="${INFINITO_APPS}" \
 	-e INFINITO_DEBUG="${INFINITO_DEBUG}" \
 	"${INFINITO_CONTAINER}" \
-	bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/reuse-kept-app-deploy.sh"
+	bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/deploy/container/update/selection.sh"

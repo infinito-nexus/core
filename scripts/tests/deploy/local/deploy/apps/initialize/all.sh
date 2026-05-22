@@ -104,7 +104,7 @@ echo
 # ---------------------------------------------------------------------------
 echo ">>> Running entry/init + inventory + deploy inside infinito container via development exec"
 
-deploy_with_cache_retry "fresh-kept-all" -- \
+deploy_with_cache_retry "initialize-all" -- \
 	"${PYTHON}" -m cli.administration.deploy.development exec \
 	--env "INFINITO_INVENTORY_DIR=${INFINITO_INVENTORY_DIR}" \
 	--env "INFINITO_INVENTORY_FILE=${INFINITO_INVENTORY_FILE}" \
@@ -113,7 +113,7 @@ deploy_with_cache_retry "fresh-kept-all" -- \
 	--env "APPS_COUNT=${apps_count}" \
 	--env "INFINITO_LIMIT_HOST=${INFINITO_LIMIT_HOST}" \
 	--env "RUNTIME_VARS_JSON=${RUNTIME_VARS_JSON}" \
-	-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/fresh-kept-all-init-and-deploy.sh"
+	-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/deploy/container/initialize/all.sh"
 
 echo
 echo "=== local full deploy finished ==="

@@ -92,13 +92,13 @@ echo "apps_sample=$(
 echo
 
 # Run deploy inside container
-deploy_with_cache_retry "reuse-all" -- \
+deploy_with_cache_retry "update-all" -- \
 	"${PYTHON}" -m cli.administration.deploy.development exec \
 	--env "INFINITO_INVENTORY_FILE=${inv_file}" \
 	--env "INFINITO_INVENTORY_PASSWORD_FILE=${pw_file}" \
 	--env "INFINITO_LIMIT_HOST=${INFINITO_LIMIT_HOST}" \
 	--env "INFINITO_DEBUG=${INFINITO_DEBUG}" \
-	-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/reuse-kept-all-deploy.sh"
+	-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/deploy/container/update/all.sh"
 
 echo
 echo "✅ Local run finished."
