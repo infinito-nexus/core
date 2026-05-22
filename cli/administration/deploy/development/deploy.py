@@ -88,6 +88,10 @@ def _run_deploy(
     if services_disabled:
         extra_env["INFINITO_SERVICES_DISABLED"] = services_disabled
 
+    ansible_log_path = os.environ.get("ANSIBLE_LOG_PATH")
+    if ansible_log_path:
+        extra_env["ANSIBLE_LOG_PATH"] = ansible_log_path
+
     # The Playwright E2E gate now keys on `RUNTIME` from the inventory's
     # host_vars (baked at init time by `cli.administration.deploy.development.init`).
     # We no longer need to forward GITHUB_ACTIONS / ACT /

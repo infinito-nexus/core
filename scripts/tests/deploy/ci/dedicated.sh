@@ -81,6 +81,11 @@ cleanup() {
 	docker cp "${INFINITO_CONTAINER}:/var/lib/infinito/logs/test-e2e-playwright/." \
 		"${_playwright_host_dir}" 2>/dev/null || true
 
+	if [[ -n "${ANSIBLE_LOG_PATH:-}" ]]; then
+		echo ">>> Copying Ansible log from ${INFINITO_CONTAINER}:${ANSIBLE_LOG_PATH} to ${ANSIBLE_LOG_PATH}"
+		docker cp "${INFINITO_CONTAINER}:${ANSIBLE_LOG_PATH}" "${ANSIBLE_LOG_PATH}" 2>/dev/null || true
+	fi
+
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"
 	"${PYTHON}" -m cli.administration.deploy.development down || true
 
