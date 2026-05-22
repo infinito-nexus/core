@@ -110,9 +110,9 @@ exports.register = function (shared) {
           await wpAdmin.ctx.close().catch(() => {});
         }
       } finally {
-        // Idempotency: only run teardown when this test performed the
-        // join. If biber was already a member at start, requirement 004
-        // forbids removing them.
+        // Idempotency: only teardown when this test performed the join.
+        // If biber was already a member at start, leave the membership
+        // untouched.
         if (biberAddedToGroup) {
           try {
             const reqCtx = await browser.newContext({ ignoreHTTPSErrors: true });
