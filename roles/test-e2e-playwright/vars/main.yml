@@ -1,5 +1,6 @@
 ---
-TEST_E2E_PLAYWRIGHT_IMAGE: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.image') }}:{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version') }}"
+TEST_E2E_PLAYWRIGHT_IMAGE: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.image') }}:{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version')
+  }}"
 TEST_E2E_PLAYWRIGHT_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version') | image_version }}"
 TEST_E2E_PLAYWRIGHT_APPS: >-
   {{
