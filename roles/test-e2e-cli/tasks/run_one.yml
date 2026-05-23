@@ -30,6 +30,16 @@
     state: directory
     mode: "0755"
 
+- name: Check optional application defaults for {{ application_id }}
+  ansible.builtin.stat:
+    path: "{{ playbook_dir }}/roles/{{ application_id }}/defaults/main.yml"
+  register: _cli_app_defaults_stat
+
+- name: Load optional application defaults for {{ application_id }}
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/roles/{{ application_id }}/defaults/main.yml"
+  when: _cli_app_defaults_stat.stat.exists
+
 - name: Check optional application vars for {{ application_id }}
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
