@@ -133,6 +133,10 @@ def _stamp_is_fresh(repo_root: Path) -> bool:
 def _touch_stamp(repo_root: Path) -> None:
     stamp_path = repo_root / _STAMP
     stamp_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        stamp_path.parent.chmod(0o777)
+    except PermissionError:
+        pass
     stamp_path.touch()
 
 

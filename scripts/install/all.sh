@@ -50,5 +50,7 @@ bash scripts/install/venv.sh
 bash scripts/install/python.sh
 ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" bash scripts/install/ansible.sh
 
-mkdir -p "$(dirname "${STAMP}")"
+stamp_dir="$(dirname "${STAMP}")"
+mkdir -p "${stamp_dir}"
+chmod 0777 "${stamp_dir}" 2>/dev/null || true
 touch "${STAMP}"
