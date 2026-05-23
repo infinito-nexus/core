@@ -57,5 +57,8 @@ source "${REPO_ROOT}/scripts/meta/env/all.sh"
 # and Docker volume — otherwise the test does not exercise the runner environment.
 unset SUBNET GATEWAY DNS_IP IP4 BIND_IP
 
+# Confirm the runner-specific namespace vars are active before deploying
+echo "OK: runner namespace active (COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}, INFINITO_DOCKER_VOLUME=${INFINITO_DOCKER_VOLUME}, INFINITO_RUNNER_PREFIX=${INFINITO_RUNNER_PREFIX:-<unset>})"
+
 # Deploy a real app through the runner's Docker environment to prove it works end-to-end
 APPS=web-app-matomo make -C "${REPO_ROOT}" deploy-fresh-purged-apps

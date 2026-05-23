@@ -98,7 +98,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "GitHub repository owner the runner registers with "
-            "(default: role default 'kevinveenbirkenbach'). "
+            "(default: role default 'infinito-nexus'). "
             "Override to your GitHub username when deploying for a fork."
         ),
     )
@@ -107,7 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "GitHub repository name the runner registers with "
-            "(default: role default 'infinito-nexus'). "
+            "(default: role default 'core'). "
             "Override when deploying for a different repository."
         ),
     )

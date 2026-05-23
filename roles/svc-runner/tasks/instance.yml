@@ -32,6 +32,10 @@
   command: find {{ runner_install_dir }}/{{ runner_instance }} -maxdepth 1 -name ".*" -type f -delete
   changed_when: false
 
+# Registering against the GitHub API requires a real API token and creates a
+# persistent runner record — neither is meaningful in a DinD CI container that
+# is discarded after the test. On a real host DOCKER_IN_CONTAINER is false and
+# both steps run normally.
 - name: Get GitHub Actions runner registration token for instance {{ runner_instance }}
   uri_retry:
     url: "https://api.github.com/repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/registration-token"
@@ -45,7 +49,7 @@
   register: _runner_registration_token
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: not DOCKER_IN_CONTAINER
+  when: not (DOCKER_IN_CONTAINER | bool)
 
 - name: Configure GitHub Actions runner instance {{ runner_instance }}
   command: >
@@ -61,7 +65,7 @@
   become: true
   become_user: "{{ runner_user }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: not DOCKER_IN_CONTAINER
+  when: not (DOCKER_IN_CONTAINER | bool)
 
 - name: Write runner environment file for instance {{ runner_instance }}
   template:
@@ -79,10 +83,10 @@
   command: ./svc.sh install {{ runner_user }}
   args:
     chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
-  when: not DOCKER_IN_CONTAINER
+  when: not (DOCKER_IN_CONTAINER | bool)
 
 - name: Start GitHub Actions runner service for instance {{ runner_instance }}
   command: ./svc.sh start
   args:
     chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
-  when: not DOCKER_IN_CONTAINER
+  when: not (DOCKER_IN_CONTAINER | bool)
