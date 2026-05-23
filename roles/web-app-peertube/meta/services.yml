@@ -27,7 +27,7 @@ postgres:
   shared: true
 peertube:
   name: peertube
-  version: v8.1.5
+  version: v8.1.7
   image: chocobozzz/peertube
   min_storage: 30GB
   backup:
