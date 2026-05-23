@@ -74,11 +74,11 @@ inspect_glob_print() {
 		for f in ${glob_pattern}; do \
 			[ -f \"\$f\" ] || continue; \
 			any=1; \
-			printf '==> %s\\n' \"\$f\"; \
+			echo \"==> \$f\"; \
 			cat \"\$f\"; \
 		done; \
 		if [ -z \"\$any\" ]; then \
-			printf '==> %s\\n' \"${fallback}\"; \
+			echo \"==> ${fallback}\"; \
 			cat \"${fallback}\"; \
 		fi"
 }
