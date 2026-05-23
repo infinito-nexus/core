@@ -1,7 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   {{ OPENLDAP_SERVICE }}:
-    # Build local custom image (no Bitnami)
     build:
       context: "."
       dockerfile: Dockerfile
@@ -18,9 +17,8 @@
 {% endif %}
 
     volumes:
-      # Persist data + config
       - 'data:/var/lib/ldap'
-      # Rendered LDIFs (read-only)
+      - 'config:/etc/ldap/slapd.d'
       - '{{ OPENLDAP_LDIF_PATH_HOST }}:{{ OPENLDAP_LDIF_PATH_DOCKER }}:ro'
 
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
