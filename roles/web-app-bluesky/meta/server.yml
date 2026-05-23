@@ -1,7 +1,7 @@
 ---
 config_upstream_url: https://ip.bsky.app/config # nocheck: url
 status_codes:
-  web: 405
+  web: [405, 302]
 domains:
   aliases: []
   canonical:

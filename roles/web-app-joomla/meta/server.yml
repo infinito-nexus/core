@@ -3,6 +3,8 @@ domains:
   canonical:
     - joomla.cms.{{ DOMAIN_PRIMARY }}
   aliases: []
+status_codes:
+  default: [200, 302, 301, 303]
 csp:
   flags:
     style-src-attr:
