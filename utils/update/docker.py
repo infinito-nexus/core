@@ -203,9 +203,9 @@ def fetch_mcr_tags(image: str, max_pages: int = 10) -> list[str]:
     return tags
 
 
-def suppressed_services(config_path: Path, rule: str = "docker-version") -> set[str]:
-    """Return service names whose ``version:`` line is annotated with the
-    given ``# nocheck: <rule>`` marker (default ``docker-version``).
+def suppressed_services(config_path: Path) -> set[str]:
+    """Return service names whose ``version:`` line is annotated with
+    the unified ``# nocheck: docker-version`` marker.
 
     The file root of ``meta/services.yml`` IS the services map; there
     is no ``services.`` wrapper to walk into.
@@ -217,7 +217,7 @@ def suppressed_services(config_path: Path, rule: str = "docker-version") -> set[
         index
         for index, line in enumerate(lines)
         if re.search(r"^\s+version\s*:", line)
-        and is_suppressed_at(lines, index + 1, rule)
+        and is_suppressed_at(lines, index + 1, "docker-version")
     }
 
     if not suppressed_lines:
