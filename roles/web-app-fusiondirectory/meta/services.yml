@@ -27,7 +27,7 @@ oauth2:
     - "{{ lookup('rbac_group_path', application_id='web-app-fusiondirectory', role='administrator') }}"
 fusiondirectory:
   image: nfrastack/fusiondirectory
-  version: latest
+  version: "1.5"
   name: fusiondirectory
   ports:
     local:
