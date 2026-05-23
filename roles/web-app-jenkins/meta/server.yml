@@ -3,6 +3,11 @@ domains:
   canonical:
     - jenkins.{{ DOMAIN_PRIMARY }}
   aliases: []
+status_codes:
+  default:
+    - 200
+    - 302
+    - 403
 networks:
   local:
     subnet: 192.168.104.224/28
