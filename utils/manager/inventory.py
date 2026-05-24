@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any
 
+from utils.cache.applications import get_variants
 from utils.handler.vault import VaultHandler, VaultScalar
 from utils.handler.yaml import YamlHandler
 from utils.manager.value_generator import ValueGenerator
@@ -56,6 +57,7 @@ class InventoryManager:
         vault_pw: str,
         overrides: dict[str, str],
         allow_empty_plain: bool = False,
+        variant: int | None = None,
     ):
         """Initialize the Inventory Manager."""
         self.role_path = role_path
@@ -63,6 +65,7 @@ class InventoryManager:
         self.vault_pw = vault_pw
         self.overrides = overrides
         self.allow_empty_plain = allow_empty_plain
+        self.variant = variant
 
         self.inventory = YamlHandler.load_yaml(inventory_path) or {}
         self.schema = self._load_role_schema_by_path(role_path)
@@ -97,6 +100,11 @@ class InventoryManager:
         return self._load_role_schema_by_path(self.roles_root / role_name)
 
     def load_role_config_by_path(self, role_path: Path) -> dict[str, Any]:
+        if role_path == self.role_path and self.variant is not None:
+            variants = get_variants(roles_dir=str(self.roles_root))
+            app_variants = variants.get(self.app_id) or [{}]
+            if 0 <= self.variant < len(app_variants):
+                return app_variants[self.variant] or {}
         return _meta_role_config(role_path)
 
     def load_role_config(self, role_name: str) -> dict[str, Any]:

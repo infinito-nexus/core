@@ -571,5 +571,131 @@ class TestInventoryManager(TestCase):
                 self.assertIs(creds["complex"], existing_dict)
 
 
+class TestInventoryManagerVariant(TestCase):
+    def _make_role(self, tmp: Path, app_id: str = "svc-bkp-container-2-local") -> Path:
+        role_path = tmp / "roles" / app_id
+        (role_path / "meta").mkdir(parents=True)
+        (role_path / "vars").mkdir(parents=True)
+        (role_path / ROLE_FILE_VARS_MAIN).write_text(
+            f"application_id: {app_id}\n", encoding="utf-8"
+        )
+        (role_path / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
+        (role_path / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
+        return role_path
+
+    def test_variant_none_uses_base_meta_config(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            role_path = self._make_role(tmp)
+            inv_path = tmp / "inv.yml"
+            inv_path.write_text("{}", encoding="utf-8")
+
+            with mock.patch("utils.manager.inventory.VaultHandler"):
+                mgr = InventoryManager(
+                    role_path=role_path,
+                    inventory_path=inv_path,
+                    vault_pw="dummy",
+                    overrides={},
+                )
+            with mock.patch(
+                "utils.manager.inventory.get_variants",
+                side_effect=AssertionError(
+                    "get_variants must not be called when variant is None"
+                ),
+            ):
+                cfg = mgr.load_role_config_by_path(role_path)
+            self.assertEqual(cfg, {})
+
+    def test_variant_set_uses_variants_overlay_for_root_role(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            app_id = "svc-bkp-container-2-local"
+            role_path = self._make_role(tmp, app_id=app_id)
+            inv_path = tmp / "inv.yml"
+            inv_path.write_text("{}", encoding="utf-8")
+
+            variant_payload = {
+                "services": {
+                    "ldap": {"enabled": True, "shared": True},
+                }
+            }
+            with (
+                mock.patch("utils.manager.inventory.VaultHandler"),
+                mock.patch(
+                    "utils.manager.inventory.get_variants",
+                    return_value={app_id: [{}, {}, variant_payload]},
+                ),
+            ):
+                mgr = InventoryManager(
+                    role_path=role_path,
+                    inventory_path=inv_path,
+                    vault_pw="dummy",
+                    overrides={},
+                    variant=2,
+                )
+                cfg = mgr.load_role_config_by_path(role_path)
+
+            self.assertEqual(cfg, variant_payload)
+
+    def test_variant_only_overlays_root_not_other_role_paths(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            root_app = "svc-bkp-container-2-local"
+            other_app = "svc-db-openldap"
+            root_path = self._make_role(tmp, app_id=root_app)
+            other_path = self._make_role(tmp, app_id=other_app)
+            inv_path = tmp / "inv.yml"
+            inv_path.write_text("{}", encoding="utf-8")
+
+            variant_payload = {"services": {"ldap": {"enabled": True, "shared": True}}}
+            with (
+                mock.patch("utils.manager.inventory.VaultHandler"),
+                mock.patch(
+                    "utils.manager.inventory.get_variants",
+                    return_value={
+                        root_app: [{}, variant_payload],
+                        other_app: [{"services": {"poisoned": True}}],
+                    },
+                ),
+            ):
+                mgr = InventoryManager(
+                    role_path=root_path,
+                    inventory_path=inv_path,
+                    vault_pw="dummy",
+                    overrides={},
+                    variant=1,
+                )
+                root_cfg = mgr.load_role_config_by_path(root_path)
+                other_cfg = mgr.load_role_config_by_path(other_path)
+
+            self.assertEqual(root_cfg, variant_payload)
+            self.assertEqual(other_cfg, {})
+
+    def test_variant_out_of_range_falls_back_to_base(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            app_id = "svc-bkp-container-2-local"
+            role_path = self._make_role(tmp, app_id=app_id)
+            inv_path = tmp / "inv.yml"
+            inv_path.write_text("{}", encoding="utf-8")
+
+            with (
+                mock.patch("utils.manager.inventory.VaultHandler"),
+                mock.patch(
+                    "utils.manager.inventory.get_variants",
+                    return_value={app_id: [{}]},
+                ),
+            ):
+                mgr = InventoryManager(
+                    role_path=role_path,
+                    inventory_path=inv_path,
+                    vault_pw="dummy",
+                    overrides={},
+                    variant=42,
+                )
+                cfg = mgr.load_role_config_by_path(role_path)
+            self.assertEqual(cfg, {})
+
+
 if __name__ == "__main__":
     main()

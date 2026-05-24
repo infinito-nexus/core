@@ -220,6 +220,18 @@ def main() -> int:
             "Missing plain values will be set to an empty string before encryption."
         ),
     )
+    parser.add_argument(
+        "--variant",
+        type=int,
+        default=None,
+        help=(
+            "Variant index of the role to resolve. Affects shared-provider "
+            "discovery (services.<key>.enabled+shared) so credentials are "
+            "generated for the providers actually pulled in by the variant. "
+            "If omitted, the role's base config is used (variants.yml overlay "
+            "is not applied)."
+        ),
+    )
     args = parser.parse_args()
 
     overrides = parse_overrides(args.set)
@@ -231,6 +243,7 @@ def main() -> int:
         vault_pw=args.vault_password_file,
         overrides=overrides,
         allow_empty_plain=args.allow_empty_plain,
+        variant=args.variant,
     )
 
     yaml_rt = YAML(typ="rt")

@@ -31,6 +31,7 @@ def _generate_credentials_snippet_for_app(
     vault_password_file: Path,
     project_root: Path,
     env: dict[str, str] | None,
+    variant: int | None = None,
 ) -> CommentedMap | None:
     role_path = resolve_role_path(app_id, roles_dir, project_root, env=env)
     if role_path is None:
@@ -50,6 +51,8 @@ def _generate_credentials_snippet_for_app(
         "--snippet",
         "--allow-empty-plain",
     ]
+    if variant is not None:
+        cmd += ["--variant", str(variant)]
 
     result = subprocess.run(cmd, text=True, capture_output=True, env=env, check=False)
     if result.returncode != 0:
@@ -89,12 +92,14 @@ def generate_credentials_for_roles(
     project_root: Path,
     env: dict[str, str] | None,
     workers: int = 4,
+    app_variants: dict[str, int] | None = None,
 ) -> None:
     if not application_ids:
         return
 
     max_workers = max(1, workers)
     snippets: list[CommentedMap] = []
+    variants = app_variants or {}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_app: dict[concurrent.futures.Future, str] = {}
@@ -107,6 +112,7 @@ def generate_credentials_for_roles(
                 vault_password_file,
                 project_root,
                 env,
+                variants.get(app_id),
             )
             future_to_app[future] = app_id
 

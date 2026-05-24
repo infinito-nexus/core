@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
@@ -156,6 +157,16 @@ def main(argv: list[str] | None = None) -> int:
             "If a value is provided, it is treated as a path to the mirrors YAML/JSON file."
         ),
     )
+    parser.add_argument(
+        "--app-variants",
+        default=None,
+        help=(
+            "JSON object {app_id: variant_index} mapping the matrix variant "
+            "active in this round for each app. Forwarded to credential "
+            "generation so shared-provider discovery (services.<k>.enabled+shared) "
+            "respects the variant overlay. Apps not listed default to 0."
+        ),
+    )
 
     args = parser.parse_args(argv)
 
@@ -256,6 +267,22 @@ def main(argv: list[str] | None = None) -> int:
         become_password=args.become_password,
     )
 
+    app_variants: dict[str, int] = {}
+    if args.app_variants:
+        try:
+            parsed = json.loads(args.app_variants)
+        except Exception as exc:
+            _fatal(f"--app-variants must be valid JSON: {exc}")
+        if not isinstance(parsed, dict):
+            _fatal("--app-variants must be a JSON object")
+        for app_id, raw_index in parsed.items():
+            try:
+                app_variants[str(app_id)] = int(raw_index)
+            except (TypeError, ValueError) as exc:
+                _fatal(
+                    f"--app-variants[{app_id!r}] must be an integer, got {raw_index!r}: {exc}"
+                )
+
     # Credentials
     if application_ids:
         print(
@@ -269,6 +296,7 @@ def main(argv: list[str] | None = None) -> int:
             project_root=project_root,
             env=env,
             workers=args.workers,
+            app_variants=app_variants,
         )
     else:
         print(

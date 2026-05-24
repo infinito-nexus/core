@@ -184,6 +184,56 @@ class TestBuildDevInventory(unittest.TestCase):
     @patch(
         "cli.administration.deploy.development.inventory.payload.get_variants",
         autospec=True,
+        return_value={
+            "svc-bkp-container-2-local": [{}, {}, {}],
+        },
+    )
+    @patch(
+        "cli.administration.deploy.development.inventory.builder.should_use_mirrors_on_ci",
+        autospec=True,
+        return_value=False,
+    )
+    def test_passes_app_variants_when_round_pins_variants(
+        self,
+        _mirrors_mock: MagicMock,
+        _variants_mock: MagicMock,
+    ) -> None:
+        spec = make_spec(
+            include=("svc-bkp-container-2-local",),
+            active_variants={"svc-bkp-container-2-local": 2},
+        )
+        build_dev_inventory(self.compose, spec)
+
+        first_cmd = self.compose.exec.call_args_list[0].args[0]
+        self.assertIn("--app-variants", first_cmd)
+        variants_index = first_cmd.index("--app-variants") + 1
+        self.assertEqual(
+            json.loads(first_cmd[variants_index]),
+            {"svc-bkp-container-2-local": 2},
+        )
+
+    @patch(
+        "cli.administration.deploy.development.inventory.payload.get_variants",
+        autospec=True,
+        return_value={"web-app-keycloak": [{}], "web-app-nextcloud": [{}]},
+    )
+    @patch(
+        "cli.administration.deploy.development.inventory.builder.should_use_mirrors_on_ci",
+        autospec=True,
+        return_value=False,
+    )
+    def test_omits_app_variants_when_round_has_none(
+        self,
+        _mirrors_mock: MagicMock,
+        _variants_mock: MagicMock,
+    ) -> None:
+        build_dev_inventory(self.compose, make_spec())
+        first_cmd = self.compose.exec.call_args_list[0].args[0]
+        self.assertNotIn("--app-variants", first_cmd)
+
+    @patch(
+        "cli.administration.deploy.development.inventory.payload.get_variants",
+        autospec=True,
         return_value={"web-app-keycloak": [{}], "web-app-nextcloud": [{}]},
     )
     @patch(

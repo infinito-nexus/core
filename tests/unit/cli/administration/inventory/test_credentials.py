@@ -172,3 +172,107 @@ class TestCreateCredentials(unittest.TestCase):
             # api_key should exist and be an empty string, not a vault block
             self.assertIn("api_key", creds)
             self.assertEqual(creds["api_key"], "")
+
+    def test_main_forwards_variant_to_inventory_manager(self):
+        """The `--variant` CLI flag must reach `InventoryManager(variant=)` so
+        shared-provider discovery uses the variants.yml overlay."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            role_path = str(Path(tmpdir) / "role")
+            Path(str(Path(role_path) / "meta")).mkdir(parents=True)
+            Path(str(Path(role_path) / "vars")).mkdir(parents=True)
+            dump_yaml(
+                str(Path(role_path) / ROLE_FILE_VARS_MAIN),
+                {"application_id": "app_test"},
+            )
+            dump_yaml(str(Path(role_path) / ROLE_FILE_META_SERVICES), {})
+            dump_yaml(str(Path(role_path) / ROLE_FILE_META_SCHEMA), {})
+
+            inventory_file = str(Path(tmpdir) / "inventory.yml")
+            dump_yaml(inventory_file, {})
+            vault_pw_file = str(Path(tmpdir) / "pw.txt")
+            with Path(vault_pw_file).open("w") as f:
+                f.write("pw")
+
+            captured: dict = {}
+
+            class FakeManager:
+                def __init__(self, **kwargs):
+                    captured.update(kwargs)
+                    self.app_id = kwargs.get("overrides", {}).get(
+                        "_fake_app_id", "app_test"
+                    )
+                    self.vault_handler = None
+                    self.schema = {}
+                    self.inventory = {}
+
+                def apply_schema(self):
+                    return {"applications": {}}
+
+            with unittest.mock.patch(
+                "cli.administration.inventory.credentials.__main__.InventoryManager",
+                FakeManager,
+            ):
+                sys.argv = [
+                    "credentials",
+                    "--role-path",
+                    role_path,
+                    "--inventory-file",
+                    inventory_file,
+                    "--vault-password-file",
+                    vault_pw_file,
+                    "--snippet",
+                    "--variant",
+                    "2",
+                ]
+                main()
+
+            self.assertEqual(captured.get("variant"), 2)
+
+    def test_main_variant_defaults_to_none(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            role_path = str(Path(tmpdir) / "role")
+            Path(str(Path(role_path) / "meta")).mkdir(parents=True)
+            Path(str(Path(role_path) / "vars")).mkdir(parents=True)
+            dump_yaml(
+                str(Path(role_path) / ROLE_FILE_VARS_MAIN),
+                {"application_id": "app_test"},
+            )
+            dump_yaml(str(Path(role_path) / ROLE_FILE_META_SERVICES), {})
+            dump_yaml(str(Path(role_path) / ROLE_FILE_META_SCHEMA), {})
+
+            inventory_file = str(Path(tmpdir) / "inventory.yml")
+            dump_yaml(inventory_file, {})
+            vault_pw_file = str(Path(tmpdir) / "pw.txt")
+            with Path(vault_pw_file).open("w") as f:
+                f.write("pw")
+
+            captured: dict = {}
+
+            class FakeManager:
+                def __init__(self, **kwargs):
+                    captured.update(kwargs)
+                    self.app_id = "app_test"
+                    self.vault_handler = None
+                    self.schema = {}
+                    self.inventory = {}
+
+                def apply_schema(self):
+                    return {"applications": {}}
+
+            with unittest.mock.patch(
+                "cli.administration.inventory.credentials.__main__.InventoryManager",
+                FakeManager,
+            ):
+                sys.argv = [
+                    "credentials",
+                    "--role-path",
+                    role_path,
+                    "--inventory-file",
+                    inventory_file,
+                    "--vault-password-file",
+                    vault_pw_file,
+                    "--snippet",
+                ]
+                main()
+
+            self.assertIsNone(captured.get("variant"))

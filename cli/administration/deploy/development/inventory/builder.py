@@ -62,6 +62,10 @@ def build_dev_inventory(compose: Compose, spec: DevInventorySpec) -> None:
         ",".join(spec.include),
     ]
 
+    variant_selectors = spec.variant_selectors()
+    if variant_selectors:
+        cmd += ["--app-variants", json.dumps(variant_selectors, sort_keys=True)]
+
     if should_use_mirrors_on_ci():
         mirrors_file = generate_ci_mirrors_file(compose, inventory_dir=inv_root)
         cmd += ["--mirror", mirrors_file]
