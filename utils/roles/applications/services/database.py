@@ -57,3 +57,16 @@ def resolve_database_service_key(
         )
 
     return enabled_keys[0] if enabled_keys else ""
+
+
+def has_single_database_service(
+    applications: Mapping[str, Any],
+    application_id: str,
+) -> bool:
+    services = get_compose_services(applications, application_id)
+    enabled_count = sum(
+        1
+        for service_key in RDBMS_SERVICE_KEYS
+        if _as_mapping(services.get(service_key)).get("enabled") is True
+    )
+    return enabled_count == 1

@@ -7,7 +7,7 @@ from utils.cache.applications import get_variants
 from utils.handler.vault import VaultHandler, VaultScalar
 from utils.handler.yaml import YamlHandler
 from utils.manager.value_generator import ValueGenerator
-from utils.roles.applications.services.database import resolve_database_service_key
+from utils.roles.applications.services.database import has_single_database_service
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     is_explicit_truth,
@@ -180,8 +180,7 @@ class InventoryManager:
         oauth2 = oauth2 if isinstance(oauth2, dict) else {}
         oidc = services.get("oidc") if isinstance(services, dict) else None
         oidc = oidc if isinstance(oidc, dict) else {}
-        has_database_service = bool(resolve_database_service_key({app_id: cfg}, app_id))
-        if has_database_service:
+        if has_single_database_service({app_id: cfg}, app_id):
             apps = self.inventory.setdefault("applications", {})
             target = apps.setdefault(app_id, {})
             target.setdefault("credentials", {})["database_password"] = (
