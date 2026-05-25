@@ -15,7 +15,7 @@ javascript:
   shared: false
 hugo:
   image: nginx
-  version: 1.31.0-alpine
+  version: 1.31.1-alpine
   builder_image: hugomods/hugo
   builder_version: exts-0.148.0
   source_repository: https://github.com/gohugoio/hugoDocs.git
