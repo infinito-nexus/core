@@ -15,7 +15,7 @@ email:
   shared: true
 php:
   image: markoshust/magento-php
-  version: 8.4-fpm
+  version: 8.5-fpm
   name: magento-php
   backup:
     no_stop_required: true
