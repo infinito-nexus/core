@@ -35,34 +35,28 @@ async function waitForFirstVisible(locators, timeout = 60_000) {
   throw new Error("Timed out waiting for one of the expected selectors to become visible");
 }
 
-// Bounce off /landing back to /login until the SPA mounts #input_loginId,
-// then click the "SSO with Infinito.Nexus" button injected by
-// templates/javascript.js.j2. End-to-end this proves the form mounts, the
-// injection fires, the button carries the right href, and the click kicks
-// off the Keycloak OIDC round-trip.
 async function startMattermostSsoFlow(page, baseUrl) {
   const base = baseUrl.replace(/\/$/, "");
-  // Pre-stamp the localStorage flag the landing page's "View in browser"
-  // button writes, so v11+ doesn't bounce fresh contexts to /landing#/.
   await page.addInitScript(() => {
     try {
       localStorage.setItem("__landingPageSeen__", "true");
     } catch {}
   });
-  const loginId = page.locator("#input_loginId");
-  const deadline = Date.now() + 120_000;
-  while (true) {
-    await page.goto(`${base}/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
-    if (page.url().includes("/landing")) {
-      await page.goto(`${base}/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
-    }
-    if (await loginId.isVisible({ timeout: 10_000 }).catch(() => false)) {
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      await page.goto(`${base}/login`, { waitUntil: "load", timeout: 60_000 });
+      if (page.url().includes("/landing")) {
+        await page.goto(`${base}/login`, { waitUntil: "load", timeout: 60_000 });
+      }
+      await page.locator("#input_loginId").waitFor({ state: "visible", timeout: 60_000 });
+      lastErr = undefined;
       break;
-    }
-    if (Date.now() >= deadline) {
-      await loginId.waitFor({ state: "visible", timeout: 5_000 });
+    } catch (e) {
+      lastErr = e;
     }
   }
+  if (lastErr) throw lastErr;
   const ssoButton = page.locator("a[href='/oauth/gitlab/login']");
   await ssoButton.waitFor({ state: "visible", timeout: 30_000 });
   await ssoButton.click();
