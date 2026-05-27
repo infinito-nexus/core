@@ -93,7 +93,7 @@ minio:
 rabbit:
   name: opentalk-rabbit
   image: rabbitmq
-  version: 4.3.0
+  version: 4.3.1
   min_storage: 2GB
   cpus: '0.5'
   mem_reservation: 256m
