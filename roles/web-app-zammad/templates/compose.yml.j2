@@ -22,7 +22,7 @@
         condition: service_completed_successfully
     volumes:
       - zammad_storage:/opt/zammad/storage
-      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:/opt/zammad/config/initializers/zz_omniauth_allow_get.rb:ro"
+      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:{{ ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH }}:ro"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   {{ ZAMMAD_WEBSOCKET_CONTAINER }}:
@@ -35,7 +35,7 @@
         condition: service_started
     volumes:
       - zammad_storage:/opt/zammad/storage
-      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:/opt/zammad/config/initializers/zz_omniauth_allow_get.rb:ro"
+      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:{{ ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH }}:ro"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   {{ ZAMMAD_SCHEDULER_CONTAINER }}:
@@ -48,7 +48,7 @@
         condition: service_started
     volumes:
       - zammad_storage:/opt/zammad/storage
-      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:/opt/zammad/config/initializers/zz_omniauth_allow_get.rb:ro"
+      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:{{ ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH }}:ro"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   {{ ZAMMAD_SEARCH_CONTAINER }}:
@@ -96,7 +96,7 @@
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.zammad.ports.local.http') }}:8080"
     volumes:
       - zammad_storage:/opt/zammad/storage
-      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:/opt/zammad/config/initializers/zz_omniauth_allow_get.rb:ro"
+      - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:{{ ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH }}:ro"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {{ lookup('applications') | compose_volumes(

@@ -40,6 +40,15 @@ ZAMMAD_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ZAMMAD_VOLUMES_DIR:              "{{ lookup('container', application_id, 'directories.volumes') }}"
 ZAMMAD_AUTO_WIZARD_HOST_PATH:    "{{ ZAMMAD_VOLUMES_DIR }}auto_wizard.json"
 ZAMMAD_OMNIAUTH_INIT_HOST_PATH:  "{{ ZAMMAD_VOLUMES_DIR }}zz_omniauth_allow_get.rb"
+# Container-side mount target for the OmniAuth GET-allowed initializer.
+ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH: "/opt/zammad/config/initializers/zz_omniauth_allow_get.rb"
 
 # Service gate (consumed by auto_wizard.json.j2, playwright.env.j2, tasks/)
-ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.oidc.enabled') | bool }}"
+ZAMMAD_OIDC_ENABLED:  "{{ lookup('config', application_id, 'services.oidc.enabled')  | bool }}"
+ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
+
+# Mailu-backed Email channel (consumed by apply_email_channel.sh + playwright.env.j2)
+ZAMMAD_MAIL:           "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
+ZAMMAD_HELPDESK_USER:  "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
+ZAMMAD_HELPDESK_EMAIL: "{{ ZAMMAD_HELPDESK_USER.email | default('') }}"
+ZAMMAD_HELPDESK_PASS:  "{{ ZAMMAD_HELPDESK_USER.password | default('') }}"

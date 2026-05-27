@@ -45,15 +45,45 @@
   until: zammad_rails_ready.rc == 0
 
 - name: "apply OIDC settings to Zammad (post-bootstrap; idempotent)"
-  ansible.builtin.script: "{{ role_path }}/files/scripts/apply_oidc_settings.sh"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec -i \
+      -e ZAMMAD_FQDN -e ZAMMAD_HTTP_TYPE \
+      -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_CLIENT_SECRET -e OIDC_ISSUER_URL \
+      {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r - < {{ role_path }}/files/scripts/apply_oidc_settings.rb
   environment:
-    ZAMMAD_RAILS_CONTAINER: "{{ ZAMMAD_RAILS_CONTAINER }}"
-    ZAMMAD_FQDN:            "{{ ZAMMAD_HOSTNAME }}"
-    ZAMMAD_HTTP_TYPE:       "{{ 'https' if (lookup('tls', application_id, 'enabled') | bool) else 'http' }}"
-    OIDC_BUTTON_TEXT:       "{{ OIDC.BUTTON_TEXT | default('Sign in with Infinito.Nexus') }}"
-    OIDC_CLIENT_ID:         "{{ OIDC.CLIENT.ID }}"
-    OIDC_CLIENT_SECRET:     "{{ OIDC.CLIENT.SECRET }}"
-    OIDC_ISSUER_URL:        "{{ OIDC.CLIENT.ISSUER_URL }}"
+    ZAMMAD_FQDN:        "{{ ZAMMAD_HOSTNAME }}"
+    ZAMMAD_HTTP_TYPE:   "{{ 'https' if (lookup('tls', application_id, 'enabled') | bool) else 'http' }}"
+    OIDC_BUTTON_TEXT:   "{{ OIDC.BUTTON_TEXT | default('Sign in with Infinito.Nexus') }}"
+    OIDC_CLIENT_ID:     "{{ OIDC.CLIENT.ID }}"
+    OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+    OIDC_ISSUER_URL:    "{{ OIDC.CLIENT.ISSUER_URL }}"
   register: zammad_oidc_apply
   changed_when: false
   when: ZAMMAD_OIDC_ENABLED
+
+- name: "configure Zammad's Email channel (inbound IMAP + outbound SMTP) against Mailu"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec -i \
+      -e MAIL_GROUP_NAME -e MAIL_FROM_NAME -e MAIL_FROM_ADDRESS \
+      -e IMAP_HOST -e IMAP_PORT -e IMAP_USER -e IMAP_PASS \
+      -e SMTP_HOST -e SMTP_PORT -e SMTP_USER -e SMTP_PASS \
+      {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r - < {{ role_path }}/files/scripts/apply_email_channel.rb
+  environment:
+    MAIL_GROUP_NAME:   "Users"
+    MAIL_FROM_NAME:    "Infinito.Nexus Helpdesk"
+    MAIL_FROM_ADDRESS: "{{ ZAMMAD_HELPDESK_EMAIL }}"
+    IMAP_HOST:         "{{ ZAMMAD_MAIL.host }}"
+    IMAP_PORT:         "143"
+    IMAP_USER:         "{{ ZAMMAD_HELPDESK_EMAIL }}"
+    IMAP_PASS:         "{{ ZAMMAD_HELPDESK_PASS }}"
+    SMTP_HOST:         "{{ ZAMMAD_MAIL.host }}"
+    SMTP_PORT:         "{{ ZAMMAD_MAIL.port }}"
+    SMTP_USER:         "{{ ZAMMAD_HELPDESK_EMAIL }}"
+    SMTP_PASS:         "{{ ZAMMAD_HELPDESK_PASS }}"
+  register: zammad_email_apply
+  changed_when: false
+  when: ZAMMAD_EMAIL_ENABLED and (ZAMMAD_HELPDESK_EMAIL | length > 0)
