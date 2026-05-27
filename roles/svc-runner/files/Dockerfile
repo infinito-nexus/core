@@ -9,6 +9,7 @@ RUN apt-get update \
         ca-certificates \
         curl \
         git \
+        gnupg \
         jq \
         libicu-dev \
         libssl-dev \
