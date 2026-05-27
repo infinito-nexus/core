@@ -14,58 +14,22 @@
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
 
-- name: Stop GitHub Actions runner service for instance {{ runner_instance }} (if running)
-  command: ./svc.sh stop
-  args:
-    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
-  failed_when: false
-  changed_when: false
-
-- name: Uninstall GitHub Actions runner service for instance {{ runner_instance }} (if installed)
-  command: ./svc.sh uninstall
-  args:
-    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
-  failed_when: false
-  changed_when: false
-
 - name: Remove existing runner configuration for instance {{ runner_instance }}
-  command: find {{ runner_install_dir }}/{{ runner_instance }} -maxdepth 1 -name ".*" -type f -delete
-  changed_when: false
+  ansible.builtin.find:
+    paths: "{{ runner_install_dir }}/{{ runner_instance }}"
+    patterns: ".*"
+    hidden: true
+    file_type: file
+    depth: 1
+  register: _runner_config_files
 
-# Registering against the GitHub API requires a real API token and creates a
-# persistent runner record — neither is meaningful in a DinD CI container that
-# is discarded after the test. On a real host DOCKER_IN_CONTAINER is false and
-# both steps run normally.
-- name: Get GitHub Actions runner registration token for instance {{ runner_instance }}
-  uri_retry:
-    url: "https://api.github.com/repos/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}/actions/runners/registration-token"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ RUNNER_API_TOKEN }}"
-      Accept: application/vnd.github.v3+json
-    return_content: true
-    status_code: 201
-  delegate_to: localhost
-  register: _runner_registration_token
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: not (DOCKER_IN_CONTAINER | bool)
-
-- name: Configure GitHub Actions runner instance {{ runner_instance }}
-  command: >
-    ./config.sh
-    --url https://github.com/{{ RUNNER_GITHUB_OWNER }}/{{ RUNNER_GITHUB_REPO }}
-    --token {{ _runner_registration_token.json.token }}
-    --name {{ runner_name }}-{{ runner_instance }}
-    --labels {{ runner_labels }}
-    --unattended
-    --replace
-  args:
-    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
-  become: true
-  become_user: "{{ runner_user }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: not (DOCKER_IN_CONTAINER | bool)
+- name: Delete stale runner configuration files for instance {{ runner_instance }}
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ _runner_config_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
 
 - name: Write runner environment file for instance {{ runner_instance }}
   template:
@@ -74,19 +38,3 @@
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0600'
-
-# svc.sh calls systemctl, which is unavailable in Docker-in-Docker (no real init).
-# The role is still fully deployed in DinD — binary extracted, .env written — and
-# structural checks in test.sh are sufficient. On a real host DOCKER_IN_CONTAINER
-# is false and all three systemd steps (install, start, register) run normally.
-- name: Install GitHub Actions runner service for instance {{ runner_instance }}
-  command: ./svc.sh install {{ runner_user }}
-  args:
-    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
-  when: not (DOCKER_IN_CONTAINER | bool)
-
-- name: Start GitHub Actions runner service for instance {{ runner_instance }}
-  command: ./svc.sh start
-  args:
-    chdir: "{{ runner_install_dir }}/{{ runner_instance }}"
-  when: not (DOCKER_IN_CONTAINER | bool)

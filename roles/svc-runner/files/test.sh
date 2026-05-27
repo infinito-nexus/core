@@ -36,13 +36,20 @@ source "${RUNNER_INSTALL_DIR}/1/.env"
 : "${COMPOSE_PROJECT_NAME:?runner .env missing COMPOSE_PROJECT_NAME}"
 echo "OK: runner .env verified (INVENTORY_DIR=${INVENTORY_DIR}, INFINITO_DOCKER_VOLUME=${INFINITO_DOCKER_VOLUME})"
 
-# In DinD (DOCKER_IN_CONTAINER=true) the nested deploy-fresh-purged-apps cannot
-# run: make up does not start the package-cache proxy (registry_cache_active()
-# returns false in CI), so apt inside the fresh container can't resolve the proxy
-# hostname and package installs fail. Structural checks above are sufficient proof
-# that the role deployed correctly. The full end-to-end test only runs on a real
-# host where the CI stack with the package-cache proxy is not involved.
+# In DinD the runner containers are started but registration is skipped
+# (entrypoint sleeps). Verify each instance container is running before
+# attempting the full end-to-end deploy (which needs the package-cache proxy
+# that is unavailable in DinD).
 if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
+    echo "Verifying runner containers are running in DinD..."
+    for i in $(seq 1 "${RUNNER_COUNT}"); do
+        state=$(container inspect --format '{{.State.Status}}' "runner-${i}" 2>/dev/null || true)
+        if [[ "${state}" != "running" ]]; then
+            echo "FAIL: runner-${i} container is not running (state=${state:-not found})"
+            exit 1
+        fi
+        echo "OK: runner-${i} is running"
+    done
     echo "SKIP: nested deploy-fresh-purged-apps not supported in DinD (DOCKER_IN_CONTAINER=true)"
     exit 0
 fi
