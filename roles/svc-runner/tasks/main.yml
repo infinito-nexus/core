@@ -162,6 +162,7 @@
 - name: Install compose wrapper
   ansible.builtin.include_role:
     name: sys-svc-compose
+    tasks_from: 01_core.yml
 
 - name: Render runner compose file
   ansible.builtin.template:
