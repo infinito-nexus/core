@@ -159,6 +159,10 @@
   ansible.builtin.set_fact:
     _runner_docker_gid: "{{ (_docker_group_entry.stdout | split(':'))[2] | default('999') }}"
 
+- name: Install compose wrapper
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+
 - name: Render runner compose file
   ansible.builtin.template:
     src: compose.yml.j2
