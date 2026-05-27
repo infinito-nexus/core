@@ -17,3 +17,4 @@ PIHOLE_PASSWORD:          "{{ '' if PIHOLE_OAUTH2_ENABLED else lookup('password'
 # Volume names
 PIHOLE_VOLUME_DATA:       "pihole_data"
 PIHOLE_VOLUME_DNSMASQ:    "pihole_dnsmasq"
+TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: false

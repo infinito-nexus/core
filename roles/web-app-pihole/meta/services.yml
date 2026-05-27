@@ -1,7 +1,9 @@
 # noqa: shared
 oauth2:
-  enabled: "{{ 'web-app-keycloak' in group_names }}"
-  shared: true
+  enabled: true
+  shared: false
+  allowed_groups:
+  - '{{ lookup(''rbac_group_path'', application_id=''web-app-pihole'', role=''administrator'') }}'
   origin:
     host: pihole
     port: 80
@@ -19,6 +21,9 @@ email:
   enabled: false
   shared: true
 redis:
+  enabled: true
+  shared: true
+javascript:
   enabled: true
   shared: true
 prometheus:

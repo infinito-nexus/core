@@ -1,9 +1,2 @@
-# variant 0: deploy with OAuth2/Keycloak protection (default)
+# variant 0: deploy with OAuth2/Keycloak protection
 - {}
-
-# variant 1: deploy without OAuth2 (standalone, no Keycloak dependency)
-- services:
-    oauth2:
-      enabled: false
-    logout:
-      enabled: false

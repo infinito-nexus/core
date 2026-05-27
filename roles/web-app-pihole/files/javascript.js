@@ -1,11 +1,11 @@
-{% raw %}
 (function () {
-  function redirectIfAccessDenied() {
-    if (document.querySelector('p') && document.body.innerText.includes("your Pi-hole")) {
-      window.location.replace("/admin/");
-    }
+  // Auto-redirect Pi-hole's 403 page to /admin/
+  if (document.querySelector('p') && document.body.innerText.includes("your Pi-hole")) {
+    window.location.replace("/admin/");
+    return;
   }
 
+  // Inject logout button into Pi-hole admin navbar
   function injectLogoutButton() {
     if (document.getElementById("oauth2-logout-btn")) return;
     var navbar = document.querySelector(".navbar-custom-menu .navbar-nav");
@@ -22,12 +22,8 @@
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () {
-      redirectIfAccessDenied();
-      injectLogoutButton();
-    }, { once: true });
+    document.addEventListener("DOMContentLoaded", injectLogoutButton, { once: true });
   } else {
-    redirectIfAccessDenied();
     injectLogoutButton();
   }
 
@@ -36,4 +32,3 @@
     subtree: true,
   });
 })();
-{% endraw %}
