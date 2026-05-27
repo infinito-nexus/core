@@ -1,7 +1,4 @@
-- name: Install distribution-specific packages
-  include_tasks: install/packages.yml
-
-- name: Tune kernel inotify limits for parallel systemd containers
+- name: Tune kernel inotify limits for parallel runner containers
   sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
@@ -17,11 +14,13 @@
 - name: Create GitHub Actions runner system group
   group:
     name: "{{ runner_user }}"
+    gid: "{{ runner_gid }}"
     system: true
 
 - name: Create GitHub Actions runner system user
   user:
     name: "{{ runner_user }}"
+    uid: "{{ runner_uid }}"
     group: "{{ runner_user }}"
     groups: docker
     append: true
@@ -139,6 +138,8 @@
   file:
     path: "{{ runner_docker_base }}/{{ item }}"
     state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
     mode: '0755'
   loop: "{{ range(1, runner_count | int + 1) | list }}"
 
@@ -147,3 +148,61 @@
   loop: "{{ range(1, runner_count | int + 1) | list }}"
   loop_control:
     loop_var: runner_instance
+
+- name: Look up docker group GID
+  ansible.builtin.command: getent group docker
+  register: _docker_group_entry
+  changed_when: false
+  failed_when: false
+
+- name: Set docker GID fact
+  ansible.builtin.set_fact:
+    _runner_docker_gid: "{{ (_docker_group_entry.stdout | split(':'))[2] | default('999') }}"
+
+- name: Render runner compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ runner_install_dir }}/compose.yml"
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0640'
+
+- name: Create runner image build context directory
+  ansible.builtin.file:
+    path: "{{ runner_install_dir }}/build"
+    state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0755'
+
+- name: Copy Dockerfile to build context
+  ansible.builtin.copy:
+    src: Dockerfile
+    dest: "{{ runner_install_dir }}/build/Dockerfile"
+    mode: '0644'
+
+- name: Copy entrypoint to build context
+  ansible.builtin.copy:
+    src: entrypoint.sh
+    dest: "{{ runner_install_dir }}/build/entrypoint.sh"
+    mode: '0755'
+
+- name: Build runner container image
+  community.docker.docker_image:
+    name: "{{ runner_image_name }}"
+    tag: "{{ runner_image_tag }}"
+    source: build
+    build:
+      path: "{{ runner_install_dir }}/build"
+      args:
+        RUNNER_UID: "{{ runner_uid }}"
+        RUNNER_GID: "{{ runner_gid }}"
+    force_source: false
+
+- name: Deploy runner compose stack
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose -f {{ runner_install_dir }}/compose.yml up -d --remove-orphans
+  args:
+    executable: /bin/bash
+  changed_when: true

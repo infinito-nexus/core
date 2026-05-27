@@ -1,6 +1,6 @@
 galaxy_info:
   author: Alejandro Roman Ibanez
-  description: Provisions a dedicated machine as a GitHub Actions self-hosted CI runner for Infinito.Nexus.
+  description: Provisions a dedicated machine as a GitHub Actions self-hosted CI runner for Infinito.Nexus using ephemeral Docker containers.
   license: Infinito.Nexus Community License (Non-Commercial)
   min_ansible_version: '2.9'
   platforms:
@@ -25,7 +25,7 @@ galaxy_info:
     - ci
     - runner
     - github
-    - systemd
+    - docker
     - automation
   issue_tracker_url: https://s.infinito.nexus/issues
 dependencies:
