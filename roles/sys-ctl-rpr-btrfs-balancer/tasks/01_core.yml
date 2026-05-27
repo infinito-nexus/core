@@ -1,3 +1,4 @@
+---
 - name: Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose
@@ -12,12 +13,12 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_suppress_flush:    true # It takes a super long time - Better wait for failure of timed service instead of executing it on every play
-    system_service_copy_files:        false
-    system_service_on_calendar:       "{{ SYS_SCHEDULE_REPAIR_BTRFS_AUTO_BALANCER }}"
-    system_service_timer_enabled:     true
-    system_service_tpl_on_failure:    "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
-    system_service_tpl_exec_start:    "/bin/sh -c 'btrfs-auto-balancer 90 10'"
+    system_service_suppress_flush: true # It takes a super long time - Better wait for failure of timed service instead of executing it on every play
+    system_service_copy_files: false
+    system_service_on_calendar: "{{ SYS_SCHEDULE_REPAIR_BTRFS_AUTO_BALANCER }}"
+    system_service_timer_enabled: true
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_tpl_exec_start: "/bin/sh -c 'btrfs-auto-balancer 90 10'"
     system_service_force_linear_sync: true
 
 - include_tasks: utils/once/flag.yml

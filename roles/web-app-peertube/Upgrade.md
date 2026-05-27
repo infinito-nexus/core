@@ -1,2 +1,3 @@
 # upgrade version
-- https://docs.joinpeertube.org/install/docker
+
+- <https://docs.joinpeertube.org/install/docker>

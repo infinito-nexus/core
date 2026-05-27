@@ -37,7 +37,7 @@ class LookupModule(LookupBase):
                     f"command_path: command must be a single token without whitespace: '{command}'"
                 )
 
-            resolved = shutil.which(command, path=search_path if search_path else None)
+            resolved = shutil.which(command, path=search_path or None)
             if not resolved:
                 raise AnsibleError(
                     f"command_path: command not found in PATH: '{command}' (PATH='{search_path}')"

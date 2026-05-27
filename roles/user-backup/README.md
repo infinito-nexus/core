@@ -1,4 +1,4 @@
-# User for Backup Provider 
+# User for Backup Provider
 
 ## Description
 
@@ -23,7 +23,15 @@ The purpose of this role is to enhance the security of your backup system by pro
 ## Other Resources
 
 For more details on how the role works and advanced configuration options, please see the related references below:
+
 - [Ansible Playbooks Lookups](https://docs.ansible.com/ansible/latest/user_guide/playbooks_lookups.html#id3)
 - [Restrict SSH to rsync](http://gergap.de/restrict-ssh-to-rsync.html)
 - [SSH Command Restrictions via authorized_keys](https://www.thomas-krenn.com/de/wiki/Ausf%C3%BChrbare_SSH-Kommandos_per_authorized_keys_einschr%C3%A4nken)
 - [Rsync and sudo integration](https://askubuntu.com/questions/719439/using-rsync-with-sudo-on-the-destination-machine)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Local action plugin that extends ansible's get_url action plugin with
 # centralized retry defaults while preserving full get_url compatibility.

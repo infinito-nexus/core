@@ -1,10 +1,8 @@
 # Suppression Markers 🚫
 
-The unified `# noqa` / `# nocheck` syntax that suppresses individual
-checks across the infinito-nexus test suite.
+The unified `# noqa` / `# nocheck` syntax that suppresses individual checks across the infinito-nexus test suite.
 
-You MUST use these markers only when the check genuinely does not apply.
-You MUST NOT use them to silence legitimate issues.
+You MUST use these markers only when the check genuinely does not apply. You MUST NOT use them to silence legitimate issues.
 
 ## Grammar 📐
 
@@ -14,19 +12,9 @@ A suppression marker is a comment carrying one or more rule keys:
 <comment-prefix> (noqa|nocheck): <rule>(, <rule>)*
 ```
 
-Rules:
+`noqa` and `nocheck` are case-insensitive synonyms in the parser. Every project rule MUST use `nocheck:` because `# noqa: <code>` is also parsed by ruff as a flake8 directive and warns on non-flake8 keys. Reserve `noqa:` for real flake8 / ruff codes (`E402`, `F401`, …). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hard-rejects `# noqa: <code>` whose codes do not match `[A-Z]+\d+`.
 
-- `noqa` and `nocheck` are synonyms. By convention, use `noqa` for code-level
-  lints (analogous to flake8 / ruff) and `nocheck` for repository-content
-  checks (URLs, image versions, file size, run-once schema). Either keyword
-  works for any rule; the test does not enforce which one is used.
-- The keyword is matched **case-insensitively**.
-- `<rule>` is a kebab-case identifier from the catalog below.
-- Multiple rules MAY be combined on one comment, comma-separated:
-  `# noqa: shared, email`.
-
-Accepted comment prefixes (so the marker fits any file format that the test
-scans):
+`<rule>` is a kebab-case identifier from the catalog below. Multiple rules MAY be combined comma-separated.
 
 | Prefix       | Use in                                  |
 | ------------ | --------------------------------------- |
@@ -35,184 +23,77 @@ scans):
 | `{# … #}`    | Jinja2 templates                        |
 | `<!-- … -->` | HTML, Markdown                          |
 
-Implementation: [utils/annotations/suppress.py](../../../../utils/annotations/suppress.py).
+Implementation: [suppress.py](../../../../utils/annotations/suppress.py).
 
 ## Position semantics 📍
 
-The placement rule is per check. The catalog column "Position" uses these
-labels:
+The placement rule is per check. The catalog "Position" column uses these labels.
 
-- **same line**: the marker MUST be on the same line as the construct
-  it suppresses.
-- **same line / span**: the marker MUST be on the construct's own line
-  or, for multi-line call expressions, any physical line spanned by
-  that call.
-- **line above**: the marker MUST be on the immediately preceding
-  non-empty line. Blank lines between the marker and the construct
-  break the association.
-- **same or above**: either of the above is accepted.
-- **comment block above**: the marker may sit on any line in a
-  contiguous comment block above the construct (no blank line between
-  marker and construct).
-- **head (first 30 lines)**: the marker MAY appear anywhere in the
-  first 30 lines of the file. Used for file-level opt-outs that should
-  stay visible at the top of the file.
-- **anywhere**: the marker may appear on any line of the file. Used
-  for whole-file opt-outs whose semantics legitimately apply to the
-  entire file.
+| Label                   | Meaning                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `same line`             | Marker MUST be on the construct's line.                                                                            |
+| `same line / span`      | Marker MUST be on the construct's line or any physical line spanned by a multi-line call.                          |
+| `line above`            | Marker MUST be on the immediately preceding non-empty line. Blank lines break the association.                     |
+| `same or above`         | Either of the above is accepted.                                                                                   |
+| `comment block above`   | Marker MAY sit on any line of a contiguous comment block above the construct. No blank line between marker and construct. |
+| `head (first 30 lines)` | Marker MAY appear anywhere in the first 30 lines of the file. For file-level opt-outs that stay visible at the top. |
+| `anywhere`              | Marker MAY appear on any line of the file. For whole-file opt-outs.                                                |
 
 ## Catalog 📚
 
-| Rule                | Position            | Affected test                                                                                                                | Effect                                                                                                          |
-| ------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `url`               | same or above       | [test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py)                                       | Skips probing the literal HTTP(S) URL. Use for CDN roots and API base URLs that return 4xx without a path.       |
-| `docker-version`    | line above          | [test_image_versions.py](../../../../tests/external/docker/test_image_versions.py)                                           | Skips the live version-update warning for that image's `version:` key.                                          |
-| `direct-yaml`       | same line / span    | [test_no_direct_yaml_calls.py](../../../../tests/lint/repository/test_no_direct_yaml_calls.py)                               | Allows the marked `yaml.safe_load` / `safe_dump` call to bypass `utils.cache.yaml`.                              |
-| `redundant-bool-ternary` | same line      | [test_no_redundant_bool_patterns.py](../../../../tests/lint/repository/test_no_redundant_bool_patterns.py)                  | Allows the redundant `\| bool \| ternary('true','false')` pattern on the marked line — only when a consumer really requires the lowercase `true`/`false` tokens. |
-| `redundant-bool-comparison` | same line   | [test_no_redundant_bool_patterns.py](../../../../tests/lint/repository/test_no_redundant_bool_patterns.py)                  | Allows `... \| bool == True/False/true/false` on the marked line — only when a real tri-state guard is intended (e.g. distinguishing `None` from `False`).  |
-| `shared`            | comment block above | [test_service_shared_consistency.py](../../../../tests/lint/ansible/test_service_shared_consistency.py)                     | Marks a service whose `enabled: true` legitimately does not require `shared: true`.                              |
-| `email`             | line above          | [test_web_app_email_integration.py](../../../../tests/lint/ansible/roles/test_web_app_email_integration.py)                 | Suppresses the missing-email-integration warning when paired with `enabled: false` and `shared: false`.          |
-| `file-size`         | head (first 30 lines) | [test_python_file_size.py](../../../../tests/lint/repository/test_python_file_size.py)                                     | Opts the entire `.py` file out of the 500-line cap.                                                              |
-| `project-walk`      | same line / span    | [test_no_raw_project_walk.py](../../../../tests/lint/repository/test_no_raw_project_walk.py)                               | Allows a raw `Path.rglob`, `os.walk`, or `glob.glob` call when the walk is intentionally outside the cached project-tree helper contract. |
-| `cache-read`        | same line / span    | [test_no_uncached_file_reads.py](../../../../tests/lint/repository/test_no_uncached_file_reads.py)                           | Allows a raw `Path.read_text` / `Path.read_bytes` call in a `tests/lint/` test when the read is intentionally outside the LRU-cached `utils.cache.files.read_text` contract. |
-| `run-once`          | anywhere            | [test_run_once_tags.py](../../../../tests/lint/ansible/test_run_once_tags.py), [test_schema.py](../../../../tests/integration/roles/run_once/test_schema.py) | Marks a role's `tasks/main.yml` as intentionally re-runnable; skips both the run-once tag check and the suffix check. |
-| `run-once-suffix`   | same line           | [test_schema.py](../../../../tests/integration/roles/run_once/test_schema.py)                                                | Allows a single `when:` item to reference a `run_once_<other>` flag whose suffix differs from the current role.   |
-| `raw-docker`        | same or above; head (first 30 lines) | [test_no_raw_docker.py](../../../../tests/integration/docker/test_no_raw_docker.py)                       | Marks a single line or a whole file under `roles/` as legitimately calling `docker` / `docker compose` / `docker-compose` directly. The check is scoped to `roles/`; bootstrap scripts and CI workflows outside `roles/` are not scanned and need no marker. |
-
-## Examples 💡
-
-`url`, on the line carrying the literal URL or on the line above it:
-
-```sh
-ensure_proxy_repo raw raw-packagist "$(... https://repo.packagist.org/ ...)"  # nocheck: url
-```
-
-```yaml
-# nocheck: url
-api_base_url: "https://example.org/v1"
-```
-
-`docker-version`, directly above a `version:` key:
-
-```yaml
-service_x:
-  # nocheck: docker-version
-  version: "4.5"
-```
-
-`direct-yaml`, anywhere on the call's physical line or on any line
-spanned by the multi-line call:
-
-```python
-data = yaml.safe_load(text)  # noqa: direct-yaml
-```
-
-`shared`, somewhere in the comment block immediately above a service key:
-
-```yaml
-# This service is inherently role-local.
-# noqa: shared
-my_local_service:
-  enabled: true
-```
-
-`email`, directly above the `email:` block, paired with both flags false:
-
-```yaml
-# noqa: email
-email:
-  enabled: false
-  shared: false
-```
-
-`file-size`, at the top of a long Python file:
-
-```python
-"""Module docstring."""
-# nocheck: file-size  (single-host orchestration script ships as one file)
-```
-
-`project-walk`, on the raw walk call or on any line spanned by the call:
-
-```python
-for path in temp_dir.rglob("*"):  # noqa: project-walk
-    ...
-```
-
-Use `project-walk` only for scans that genuinely do not fit
-`utils.cache.files.iter_project_files`, such as temporary directories,
-`.git` metadata, or a deliberately tiny fixed path probe. Broad scans of the
-repository tree SHOULD use the cached helpers instead.
-
-`cache-read`, on the raw read call or on any line spanned by the call:
-
-```python
-text = tmp_path.read_text()  # noqa: cache-read  (synthetic fixture written above)
-```
-
-Use `cache-read` only when the file legitimately does not belong to the
-project-tree LRU cache — e.g. a tempdir written and read inside the same
-test, a file outside the repository root, or an in-memory `io.StringIO`-
-backed `Path`. Reads of project files (under `roles/`, `tasks/`,
-`docs/`, `tests/`, etc.) MUST go through
-`utils.cache.files.read_text` so the LRU cache is shared across the
-pytest session.
-
-`run-once`, at the top of a role's `tasks/main.yml`:
-
-```yaml
-# nocheck: run-once
-
-- name: ...
-```
-
-`run-once-suffix`, on the exact `when:` list-item line:
-
-```yaml
-when:
-  - run_once_svc_db_openldap is not defined   # noqa: run-once-suffix
-```
-
-`raw-docker`, per-line on a single role-task line that legitimately calls
-`docker` directly (e.g. a bootstrap step that runs before the `container`
-wrapper is on the path):
-
-```yaml
-- name: "Bootstrap engine before the wrapper exists"
-  ansible.builtin.command: docker info  # noqa: raw-docker
-```
-
-`raw-docker`, file-level at the top of a role's bundled shell script
-that legitimately drives the engine directly:
-
-```sh
-#!/usr/bin/env bash
-# nocheck: raw-docker. Runs from sys-svc-container's installer before the wrapper symlink lands.
-docker buildx build ...
-```
+| Rule                        | Position                              | Affected test                                                                                                                                                                                                                | Effect                                                                                                                                                                                                                |
+| --------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`                       | same or above                         | [test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py)                                                                                                                                       | Skips probing the literal HTTP(S) URL. Use for CDN roots and API base URLs that 4xx without a path.                                                                                                                   |
+| `docker-version`            | same or above                         | [test_image_versions.py](../../../../tests/external/update/docker/test_image_versions.py), [test_semver_pinning.py](../../../../tests/lint/ansible/services/test_semver_pinning.py)                                          | Skips both the live version-update warning and the non-semver-pin lint for that image's `version:` key.                                                                                                                |
+| `repository-version`        | same or above                         | [test_repository_versions.py](../../../../tests/external/update/repository/test_repository_versions.py), [test_semver_pinning.py](../../../../tests/lint/ansible/services/test_semver_pinning.py)                            | Skips both the live ref-update warning and the non-semver-pin lint for that entity's `ref:` key.                                                                                                                       |
+| `direct-yaml`               | same line / span                      | [test_no_direct_calls.py](../../../../tests/lint/repository/yaml/test_no_direct_calls.py)                                                                                                                              | Allows the marked `yaml.safe_load` / `safe_dump` call to bypass `utils.cache.yaml`. MUST use `nocheck:`, not `noqa:`.                                                                                                  |
+| `redundant-bool-ternary`    | same line                             | [test_no_redundant_bool_patterns.py](../../../../tests/lint/filesystem/python/test_no_redundant_bool_patterns.py)                                                                                                                 | Allows the redundant `\| bool \| ternary('true','false')` pattern when a consumer requires the lowercase tokens.                                                                                                       |
+| `redundant-bool-comparison` | same line                             | [test_no_redundant_bool_patterns.py](../../../../tests/lint/filesystem/python/test_no_redundant_bool_patterns.py)                                                                                                                 | Allows `... \| bool == True/False/true/false` when a real tri-state guard is intended (distinguishing `None` from `False`).                                                                                            |
+| `shared`                    | comment block above                   | [test_service_shared_consistency.py](../../../../tests/lint/ansible/services/test_service_shared_consistency.py)                                                                                                            | Marks a service whose `enabled: true` does not require `shared: true`.                                                                                                                                                |
+| `email`                     | line above                            | [test_email.py](../../../../tests/lint/ansible/roles/web-app/integration/test_email.py)                                                                                                                                    | Suppresses the missing-email-integration warning. Pair with `enabled: false` and `shared: false`.                                                                                                                      |
+| `logout`                    | line above                            | [test_logout_dashboard.py](../../../../tests/lint/ansible/roles/web-app/integration/test_logout_dashboard.py)                                                                                                              | Opts a `web-app-*` role out of the universal-logout integration. Marker MUST be directly above `logout:`. Pair with `enabled: false` and `shared: false`.                                                              |
+| `dashboard`                 | line above                            | [test_logout_dashboard.py](../../../../tests/lint/ansible/roles/web-app/integration/test_logout_dashboard.py)                                                                                                              | Opts a `web-app-*` role out of the dashboard tile integration. Same shape as `logout`.                                                                                                                                 |
+| `oidc`                      | line above                            | [test_sso.py](../../../../tests/lint/ansible/roles/web-app/integration/test_sso.py)                                                                                                                                        | Opts the role's native OIDC path out so `oauth2` takes over. Combined with `oauth2` opted out declares no login flow.                                                                                                  |
+| `oauth2`                    | line above                            | [test_sso.py](../../../../tests/lint/ansible/roles/web-app/integration/test_sso.py)                                                                                                                                        | Opts the role's oauth2-proxy path out. Combined with `# nocheck: oidc` declares "no login flow".                                                                                                                       |
+| `file-size`                 | head (first 30 lines)                 | [test_python_file_size.py](../../../../tests/lint/repository/structure/test_python_file_size.py)                                                                                                                                     | Opts the entire `.py` file out of the 500-line cap.                                                                                                                                                                    |
+| `project-walk`              | same line / span                      | [test_no_raw_project_walk.py](../../../../tests/lint/filesystem/python/test_no_raw_project_walk.py)                                                                                                                               | Allows a raw `Path.rglob`, `os.walk`, or `glob.glob` call outside the `utils.cache.files.iter_project_files` contract.                                                                                                |
+| `cache-read`                | same line / span                      | [test_no_uncached_file_reads.py](../../../../tests/lint/filesystem/python/test_no_uncached_file_reads.py)                                                                                                                          | Allows a raw `Path.read_text` / `Path.read_bytes` call in `tests/lint/` outside the LRU-cached `utils.cache.files.read_text` contract.                                                                                |
+| `run-once`                  | anywhere                              | [test_run_once_tags.py](../../../../tests/lint/ansible/modules/test_run_once_tags.py), [test_schema.py](../../../../tests/integration/roles/run_once/test_schema.py)                                                       | Marks a role's `tasks/main.yml` as intentionally re-runnable. Skips both the run-once tag check and the suffix check.                                                                                                  |
+| `run-once-suffix`           | same line                             | [test_schema.py](../../../../tests/integration/roles/run_once/test_schema.py)                                                                                                                                              | Allows a single `when:` item to reference a `run_once_<other>` flag whose suffix differs from the current role.                                                                                                        |
+| `raw-docker`                | same or above; head (first 30 lines)  | [test_no_raw_docker.py](../../../../tests/integration/infrastructure/docker/test_no_raw_docker.py)                                                                                                                                        | Marks a single line or a whole file under `roles/` as legitimately calling `docker` / `docker compose` / `docker-compose` directly.                                                                                    |
+| `hardcoded-dns-resolver`    | same or above                         | [test_no_hardcoded_dns_resolvers.py](../../../../tests/lint/repository/network/test_no_hardcoded_dns_resolvers.py)                                                                                                                  | Marks a line that needs a literal IP from `NETWORK_PUBLIC_DNS_RESOLVERS` where the substitution point cannot consume the variable (CoreDNS non-Jinja templates, host-bootstrap shell, doc examples).                  |
+| `dynamic-flag`              | same line OR comment block above key  | [test_dynamic_flags.py](../../../../tests/integration/roles/meta/services/test_dynamic_flags.py)                                                                                                                           | Marks a `roles/*/meta/services.yml` flag whose value stays literal. Per-flag (same line) for databases. Block-level (comment block above) when both flags stay literal.                                                |
+| `native-metrics`            | comment block above                   | [test_native_metrics_contract.py](../../../../tests/integration/roles/meta/services/prometheus/test_native_metrics_contract.py)                                                                                            | Marks a role whose `services.prometheus.native_metrics.enabled` and `templates/prometheus.yml.j2` presence are intentionally inconsistent. Reserved for prepared-but-default-off scrape fragments (operator opt-in).   |
+| `variants-static-override`  | same line                             | [test_variants_no_static_override.py](../../../../tests/integration/roles/meta/services/test_variants_no_static_override.py)                                                                                              | Allows a `roles/*/meta/variants.yml` leaf override of an attribute whose base value in `meta/services.yml` is a static literal. Place on the override line in `variants.yml`. Use only when the consumer chain is provably immune to the variant-merge propagation gap; the default is to make the base value dynamic via `"{{ '<role>' in group_names }}"`. |
+| `variants-services-match`   | same or above                         | [test_services_match.py](../../../../tests/integration/roles/meta/variants/test_services_match.py)                                                                                                                          | Allows a `roles/*/meta/variants.yml` `services.<key>` entry to reference a service key that is NOT declared as a top-level entry in `meta/services.yml`. Reserved for resolver-only matrix hooks (typically on invokable infrastructure roles) whose variant entries pin the round's companion topology via service-key flags the resolver maps to provider roles, with no real consumer contract in the base meta. |
+| `variants-auth-isolation`   | same or above                         | [test_auth_isolation.py](../../../../tests/integration/roles/meta/variants/test_auth_isolation.py)                                                                                                                          | Exempts an auth-isolated variant entry in `roles/*/meta/variants.yml` (one that enables exactly one of LDAP / OIDC / OAuth2) from the rule that every non-auth service-key in the role's variant union must be pinned to literal `false`. Place on the leading `- services:` line of the variant or on the line above. Use only when the broader closure is intentional. |
+| `lookup-config-path`        | same or above                         | [config/](../../../../tests/integration/ansible/lookups/config/)                                                                                                                                                                    | Skips a single `lookup('config', …)` call from path-validation passes. Use when the call resolves against runtime-only state, typically self-referential roles.                                                       |
+| `unused-var`                | same or above                         | [test_role_and_group_vars_used.py](../../../../tests/lint/ansible/variables/test_role_and_group_vars_used.py)                                                                                                              | Exempts a top-level key in `roles/<role>/{vars,defaults}/main.yml` or `group_vars/**/*.yml` from the "must be referenced" check. Use when the consumer is non-YAML/Jinja (Python plugins, external tools).            |
+| `project-root-import`       | same or above                         | [test_project_root_import.py](../../../../tests/lint/filesystem/python/test_project_root_import.py)                                                                                                                                | Permits a local `PROJECT_ROOT` / `parents[N]` / `os.pardir` chain. Reserved for `__main__.py` `sys.path` bootstrap and standalone scripts under `roles/<role>/files/`. The marker MUST carry an inline explanation.    |
+| `domain-spot`               | same or above                         | [test_domain_primary_spot.py](../../../../tests/lint/repository/network/test_domain_primary_spot.py)                                                                                                                                | Marks a line using a `<word>.{{ DOMAIN_PRIMARY }}` host literal outside the meta SPOT. Reserved for legacy domain cleanups that the canonical SPOT cannot represent.                                                  |
+| `literal-protocol-lookup`   | same or above                         | [test_literal_protocol_with_lookup.py](../../../../tests/lint/repository/yaml/test_literal_protocol_with_lookup.py)                                                                                                              | Allows a hardcoded `http://` / `https://` literal next to a `lookup(...)` call. Reserved for genuinely fixed protocols (Docker-network upstreams, loopback URLs in CI fixtures).                                       |
+| `self-path-reference`       | same line                             | [test_no_self_path_reference.py](../../../../tests/lint/filesystem/python/test_no_self_path_reference.py)                                                                                                                          | Allows a file to contain its own relative path from the repo root as a string literal. Reserved for load-bearing self-references. Repo-root files are exempt without a marker.                                        |
+| `role-file-spot`            | same or above                         | [test_file_spot.py](../../../../tests/lint/ansible/roles/test_file_spot.py)                                                                                                                                                 | Allows a `.py` file to carry a literal role-file path instead of the matching `ROLE_FILE_*` constant from `utils.roles.mapping`. Reserved for tests asserting the constant's value, migration scripts, or doc strings. |
+| `playwright-service-flag`   | comment block above                   | [test_env_services_match.py](../../../../tests/integration/roles/playwright/test_env_services_match.py)                                                                                                          | Exempts a top-level service in `roles/<role>/meta/services.yml` from the "must be registered as `<NAME>_SERVICE_ENABLED=` in `templates/playwright.env.j2`" check.                                                     |
+| `playwright-service-gate`   | same or above                         | [test_spec_env_gates.py](../../../../tests/integration/roles/playwright/test_spec_env_gates.py)                                                                                                                  | Exempts a `<NAME>_SERVICE_ENABLED=` line in `roles/<role>/templates/playwright.env.j2` from the "must be gated in `files/playwright/playwright.spec.js`" check.                                                                   |
+| `pkgmgr-deprecated`         | same or above                         | [test_pkgmgr_deprecated.py](../../../../tests/lint/repository/dependencies/test_pkgmgr_deprecated.py)                                                                                                                                    | Suppresses the warn-only deprecation notice for `include_role` / `import_role` of `pkgmgr` / `pkgmgr-install`. The check emits a `DeprecationWarning` locally and a GitHub Actions `::warning` annotation in CI. Prefer `pip install <name>` or `pip install git+<repo>`. |
+| `deprecated-http-header`    | same or above                         | [test_no_deprecated_http_security_headers.py](../../../../tests/lint/repository/network/test_no_deprecated_http_security_headers.py)                                                                                                     | Exempts a deprecated `add_header` / `Header set/add` line for `X-Frame-Options` / `X-XSS-Protection` / `X-Download-Options` / `X-Permitted-Cross-Domain-Policies`. Prefer Content-Security-Policy via the role's `meta/server.yml` (`csp.flags` / `csp.whitelist`). |
 
 ## Tool-Native `noqa` Codes 🧹
 
-Some Python files also use Ruff-compatible uppercase `# noqa` codes. These
-codes are handled by Ruff and related Python linters, not by
-[utils/annotations/suppress.py](../../../../utils/annotations/suppress.py).
-They MAY appear in Python files when the local exception is intentional and
-clear from context.
+Some Python files use Ruff-compatible uppercase `# noqa` codes. Ruff and related Python linters handle these, not [suppress.py](../../../../utils/annotations/suppress.py). They MAY appear when the local exception is intentional and clear from context.
 
-| Code     | Tool meaning                 | Typical allowed use in this repository |
-| -------- | ---------------------------- | -------------------------------------- |
-| `BLE001` | Blind exception caught       | Narrow command-wrapper boundaries that must convert any underlying failure into a domain-specific error. |
-| `E402`   | Module import not at top     | Tests that MUST adjust `sys.path` or load fixtures before importing the module under test. |
-| `E731`   | Lambda assigned to variable  | Small test-local callbacks or path formatters where a named function would add noise. |
-| `F401`   | Imported but unused          | Re-export modules or import-probe tests where import success is the assertion. |
-| `SLF001` | Private member access        | Test-only introspection of parser or object internals when the public surface does not expose the needed state. |
+| Code     | Tool meaning                | Typical allowed use                                                                                                            |
+| -------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `BLE001` | Blind exception caught      | Narrow command-wrapper boundaries that convert any underlying failure into a domain-specific error.                            |
+| `E402`   | Module import not at top    | Tests that MUST adjust `sys.path` or load fixtures before importing the module under test.                                     |
+| `E731`   | Lambda assigned to variable | Small test-local callbacks or path formatters where a named function would add noise.                                          |
+| `F401`   | Imported but unused         | Re-export modules or import-probe tests where import success is the assertion.                                                 |
+| `SLF001` | Private member access       | Test-only introspection of parser or object internals when the public surface does not expose the needed state.                |
 
 ## Adding a new rule 🆕
 
 1. Pick a kebab-case `<rule>` identifier.
 2. Decide which position semantic from the list above fits the check.
-3. Use the `is_suppressed_at` / `is_suppressed_in_head` /
-   `is_suppressed_anywhere` helpers from
-   [utils/annotations/suppress.py](../../../../utils/annotations/suppress.py)
-   in your test. Do NOT roll a new regex.
+3. Use `is_suppressed_at` / `is_suppressed_in_head` / `is_suppressed_anywhere` from [suppress.py](../../../../utils/annotations/suppress.py) in your test. Do NOT roll a new regex.
 4. Add the rule to the catalog table on this page.

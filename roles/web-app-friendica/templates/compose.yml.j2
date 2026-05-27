@@ -6,17 +6,18 @@
     volumes:
       - html:{{ FRIENDICA_APPLICATION_DIR }}
       - data:/var/www/data # I assume that this one is unnessecarry
-      - {{ FRIENDICA_LDAP_CONFIG_HOST }}:{{ FRIENDICA_LDAP_CONFIG_DOCKER }}:ro 
+{% if FRIENDICA_LDAP_ENABLED | bool %}
+      - {{ FRIENDICA_LDAP_CONFIG_HOST }}:{{ FRIENDICA_LDAP_CONFIG_DOCKER }}:ro
+{% endif %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.friendica.ports.local.http') }}:80"
 
 {% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {}, 'html': {}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

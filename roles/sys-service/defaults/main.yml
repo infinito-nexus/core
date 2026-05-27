@@ -1,3 +1,4 @@
-SYS_SERVICE_ALL_ENABLED:      "{{ MODE_DEBUG | bool }}"
-SYS_SERVICE_DEFAULT_STATE:    "{{ 'restarted' if MODE_DEBUG else omit }}"
-SYS_SERVICE_DEFAULT_RUNTIME:  "86400s"    # Maximum total runtime a service is allowed to run before being stopped
+---
+SYS_SERVICE_ALL_ENABLED: "{{ MODE_DEBUG | bool }}"
+SYS_SERVICE_DEFAULT_STATE: "{{ 'restarted' if MODE_DEBUG else omit }}"
+SYS_SERVICE_DEFAULT_RUNTIME: "86400s" # Maximum total runtime a service is allowed to run before being stopped

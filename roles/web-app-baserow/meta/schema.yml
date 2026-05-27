@@ -1,3 +1,4 @@
+---
 credentials:
   secret_key:
     description: Django SECRET_KEY for Baserow

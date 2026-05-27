@@ -1,13 +1,12 @@
-# tests/unit/plugins/filter/test_get_all_invokable_apps.py
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
-
 from unittest.mock import patch
 
 from plugins.filter.get_all_invokable_apps import get_all_invokable_apps
 from utils.cache.yaml import dump_yaml
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
 class TestGetAllInvokableApps(unittest.TestCase):
@@ -47,7 +46,7 @@ class TestGetAllInvokableApps(unittest.TestCase):
         for rolename, appid in roles:
             role_dir = self.roles_dir / rolename
             (role_dir / "vars").mkdir(parents=True, exist_ok=True)
-            vars_path = role_dir / "vars" / "main.yml"
+            vars_path = role_dir / ROLE_FILE_VARS_MAIN
             data = {}
             if appid:
                 data["application_id"] = appid
@@ -59,7 +58,7 @@ class TestGetAllInvokableApps(unittest.TestCase):
 
     def test_get_all_invokable_apps(self):
         """Should return only applications whose role paths match invokable paths."""
-        with patch("utils.invokable._repo_root", return_value=self.test_dir):
+        with patch("utils.roles.validation.invokable.PROJECT_ROOT", self.test_dir):
             result = get_all_invokable_apps()
 
         expected = sorted(
@@ -75,9 +74,11 @@ class TestGetAllInvokableApps(unittest.TestCase):
         """Should raise RuntimeError if there are no invokable paths in categories.yml."""
         dump_yaml(self.categories_file, {"roles": {"foo": {"invokable": False}}})
 
-        with patch("utils.invokable._repo_root", return_value=self.test_dir):
-            with self.assertRaises(RuntimeError):
-                get_all_invokable_apps()
+        with (
+            patch("utils.roles.validation.invokable.PROJECT_ROOT", self.test_dir),
+            self.assertRaises(RuntimeError),
+        ):
+            get_all_invokable_apps()
 
     def test_empty_when_no_roles(self):
         """Should return an empty list if there are no roles, but categories.yml exists."""
@@ -89,7 +90,7 @@ class TestGetAllInvokableApps(unittest.TestCase):
             self.categories_file, {"roles": {"web": {"app": {"invokable": True}}}}
         )
 
-        with patch("utils.invokable._repo_root", return_value=self.test_dir):
+        with patch("utils.roles.validation.invokable.PROJECT_ROOT", self.test_dir):
             result = get_all_invokable_apps()
 
         self.assertEqual(result, [])
@@ -99,18 +100,20 @@ class TestGetAllInvokableApps(unittest.TestCase):
         Should raise FileNotFoundError if categories.yml is missing.
 
         Note: the implementation resolves invokable paths via
-        utils.invokable._get_invokable_paths().
+        utils.roles.validation.invokable._get_invokable_paths().
         To make the test deterministic, patch this function directly.
         """
         self.categories_file.unlink()
 
-        with patch("utils.invokable._repo_root", return_value=self.test_dir):
-            with patch(
-                "utils.invokable._get_invokable_paths",
+        with (
+            patch("utils.roles.validation.invokable.PROJECT_ROOT", self.test_dir),
+            patch(
+                "utils.roles.validation.invokable._get_invokable_paths",
                 side_effect=FileNotFoundError,
-            ):
-                with self.assertRaises(FileNotFoundError):
-                    get_all_invokable_apps()
+            ),
+            self.assertRaises(FileNotFoundError),
+        ):
+            get_all_invokable_apps()
 
 
 if __name__ == "__main__":

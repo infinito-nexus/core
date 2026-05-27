@@ -1,6 +1,8 @@
 import unittest
-from plugins.filter.application_allowed import application_allowed
+
 from ansible.errors import AnsibleFilterError
+
+from plugins.filter.application_allowed import application_allowed
 
 
 class TestApplicationAllowed(unittest.TestCase):

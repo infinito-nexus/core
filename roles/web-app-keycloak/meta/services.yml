@@ -1,31 +1,37 @@
+---
+# nocheck: dynamic-flag
+# nocheck: logout
 logout:
   enabled: false
   shared: false
 ldap:
-  enabled: true
-  shared: true
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
   sync:
     period:
       changes: 900
       full: 86400
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — self-provider
 keycloak:
-  enabled: false
+  enabled: true
   shared: true
   provides: oidc
+  covers:
+    - oauth2
   image: quay.io/keycloak/keycloak
   version: latest
   name: keycloak
   min_storage: 5GB
-  cpus: '2.0'
+  cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g
   pids_limit: 1024
@@ -41,22 +47,26 @@ keycloak:
     bootstrap:
       username: administrator
     system:
-      username: '{{ SOFTWARE_NAME | replace(''.'', ''_'') | lower }}'
+      username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
   ports:
     local:
       http: 8032
   run_after:
-  - web-app-matomo
-  - web-app-mailu
+    - web-app-matomo
+    - web-app-mailu
   lifecycle: beta
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — captcha backend, infrastructural
 recaptcha:
-  enabled: '{{ RECAPTCHA_ENABLED | bool }}'
+  enabled: "{{ RECAPTCHA_ENABLED | bool }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

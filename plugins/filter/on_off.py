@@ -1,4 +1,3 @@
-# plugins/filter/on_off.py
 #
 # `on_off` filter — render a boolean as the literal string "on" or
 # "off". Replaces the verbose Jinja idiom

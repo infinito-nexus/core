@@ -1,3 +1,3 @@
-docker_compose_flush_handlers:        false # Set to true in the vars/main.yml of the including role to autoflush after compose routine
-docker_git_repository_pull:           "{{ docker_git_repository_address is defined and docker_git_repository_address is string and docker_git_repository_address | length > 0 }}"
-COMPOSE_LOAD_SERVICES:         true # Implemented to deploy roles during development faster by skipping dependencies
+---
+compose_handlers_flush: false # Set to true in the vars/main.yml of the including role to autoflush after compose routine
+compose_repository_pull: "{{ compose_repository_url is defined and compose_repository_url is string and compose_repository_url | length > 0 }}"

@@ -1,56 +1,48 @@
 ---
+# Persist the OIDC mapping for the Pixelfed administrator user. SQL
+# bodies live in roles/web-app-pixelfed/files/sql/*.sql and are loaded
+# via `query_file:` so the same task shape works whether Pixelfed's DB
+# runs in a central `svc-db-*` container or a per-role
+# `<entity>-database` container — the database_query module hands the
+# query off to whichever the `database` lookup resolves to.
+
 - name: "Wait until the Pixelfed OIDC mapping table exists"
-  vars:
-    pixelfed_admin_oidc_table_query: >-
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema='{{ PIXELFED_DB_NAME }}'
-        AND table_name='user_oidc_mappings'
-      LIMIT 1;
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_admin_oidc_table_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc-mapping/select-table.sql"
+    named_args:
+      db_name: "{{ PIXELFED_DB_NAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: pixelfed_admin_oidc_table
   changed_when: false
-  failed_when: false
   retries: 60
   delay: 5
-  until:
-    - pixelfed_admin_oidc_table.rc == 0
-    - pixelfed_admin_oidc_table.stdout | trim == 'user_oidc_mappings'
+  until: pixelfed_admin_oidc_table.rows | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Verify the Pixelfed OIDC mapping table contains the expected columns"
-  vars:
-    pixelfed_admin_oidc_columns_query: >-
-      SELECT COUNT(*)
-      FROM information_schema.columns
-      WHERE table_schema='{{ PIXELFED_DB_NAME }}'
-        AND table_name='user_oidc_mappings'
-        AND column_name IN ('user_id', 'oidc_id', 'created_at', 'updated_at');
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_admin_oidc_columns_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc-mapping/count-columns.sql"
+    named_args:
+      db_name: "{{ PIXELFED_DB_NAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: pixelfed_admin_oidc_columns
   changed_when: false
-  failed_when: (pixelfed_admin_oidc_columns.stdout | trim | int) != 4
+  failed_when: (pixelfed_admin_oidc_columns.rows[0][0] | int) != 4
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Ensure the Pixelfed administrator OIDC mapping exists"
-  vars:
-    pixelfed_admin_oidc_query: >-
-      INSERT INTO user_oidc_mappings (user_id, oidc_id, created_at, updated_at)
-      VALUES ({{ pixelfed_admin_id.stdout | trim }}, '{{ PIXELFED_ADMIN_OIDC_ID }}', NOW(), NOW())
-      ON DUPLICATE KEY UPDATE
-        user_id = VALUES(user_id),
-        updated_at = IF(user_id <> VALUES(user_id), NOW(), updated_at);
-      SELECT ROW_COUNT();
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_admin_oidc_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc-mapping/upsert.sql"
+    named_args:
+      user_id: "{{ pixelfed_admin_id.rows[0][0] | int }}"
+      oidc_id: "{{ PIXELFED_ADMIN_OIDC_ID }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: pixelfed_admin_oidc_mapping
-  changed_when: (pixelfed_admin_oidc_mapping.stdout_lines | last | default('0') | int) > 0
+  changed_when: (pixelfed_admin_oidc_mapping.rows[-1][0] | int) > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -1,3 +1,4 @@
+---
 all:
   vars:
     infinito:
@@ -20,16 +21,13 @@ all:
 
   hosts:
     server:
-
   children:
     web-app-keycloak:
       hosts:
         server:
-
     web-app-matrix:
       hosts:
         server:
-
     web-svc-legal:
       hosts:
         server:

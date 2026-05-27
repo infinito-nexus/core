@@ -1,7 +1,7 @@
 ---
 - name: Update package cache (Debian/Ubuntu)
   apt:
-    update_cache: yes
+    update_cache: true
   when: ansible_facts['os_family'] == "Debian"
 
 - name: Install Chromium browser
@@ -18,10 +18,10 @@
   file:
     path: /etc/chromium/policies/managed
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Copy the extensions policy file for Chromium
   template:
     src: extensions_policy.json.j2
     dest: /etc/chromium/policies/managed/extensions_policy.json
-    mode: '0644'
+    mode: "0644"

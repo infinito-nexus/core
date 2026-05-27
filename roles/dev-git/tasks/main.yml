@@ -1,8 +1,9 @@
+---
 - block:
     - name: install git
       package:
         name: git
-        state:  present
+        state: present
 
     - include_tasks: utils/once/flag.yml
   when: run_once_dev_git is not defined

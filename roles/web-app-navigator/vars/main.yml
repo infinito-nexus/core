@@ -1,4 +1,5 @@
+---
 application_id: "web-app-navigator"
 
-NAVIGATOR_SERVICE:  "infinito-navigator"
-NAVIGATOR_IMAGE:    "{{ NAVIGATOR_SERVICE }}-custom"
+NAVIGATOR_SERVICE: "infinito-navigator"
+NAVIGATOR_IMAGE: "{{ NAVIGATOR_SERVICE }}-custom"

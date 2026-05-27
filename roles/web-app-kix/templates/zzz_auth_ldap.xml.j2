@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kix_config version="1.0" init="Application">
+    <ConfigItem AccessLevel="confidential" Name="Authentication###100-Infinito-LDAP" Required="1" Valid="1" ConfigLevel="200">
+        <Description Translatable="1">Infinito.Nexus LDAP backend (svc-db-openldap) for the web-app-kix-administrator role group. Authenticates KIX agents via Auth::LDAP and provisions the contact via Auth::Sync::LDAP.</Description>
+        <Group>Framework</Group>
+        <Setting>
+            <Object>[
+    {
+        "Name": "Infinito.Nexus svc-db-openldap (Agent, web-app-kix-administrator)",
+        "Enabled": 1,
+        "UsageContext": "Agent",
+        "Module": "Kernel::System::Auth::LDAP",
+        "Config": {
+            "Host": "{{ KIX_LDAP_HOST }}",
+            "Params": {
+                "async": 0,
+                "port": {{ KIX_LDAP_PORT }},
+                "timeout": 10,
+                "version": 3
+            },
+            "BaseDN": "{{ KIX_LDAP_BASE_DN }}",
+            "AlwaysFilter": "(objectclass=inetOrgPerson)",
+            "Charset": "utf-8",
+            "SearchUserDN": "{{ KIX_LDAP_BIND_DN }}",
+            "SearchUserPw": "{{ KIX_LDAP_BIND_PW }}",
+            "GroupDN": "{{ KIX_LDAP_ADMINISTRATOR_GROUP_DN }}",
+            "AccessAttr": "member",
+            "UID": "{{ KIX_LDAP_UID_ATTR }}",
+            "UserAttr": "DN",
+            "AuthAttr": "{{ KIX_LDAP_UID_ATTR }}",
+            "UserSuffix": "",
+            "Debug": 1
+        },
+        "Sync": [
+            {
+                "Enabled": 1,
+                "Module": "Kernel::System::Auth::Sync::LDAP",
+                "Config": {
+                    "ContactUserSync": {
+                        "Email": "mail",
+                        "Firstname": "givenName",
+                        "Lastname": "sn",
+                        "UserLogin": "{{ KIX_LDAP_UID_ATTR }}",
+                        "PrimaryOrganisationID": "SET:1"
+                    },
+                    "GroupDNBasedUsageContextSync": {
+                        "{{ KIX_LDAP_ADMINISTRATOR_GROUP_DN }}": {
+                            "IsAgent": 1,
+                            "IsCustomer": 0
+                        }
+                    }
+                }
+            }
+        ]
+    }
+]</Object>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem AccessLevel="confidential" Name="Authentication###200-Infinito-LDAP-User" Required="1" Valid="1" ConfigLevel="200">
+        <Description Translatable="1">Second Infinito.Nexus LDAP backend for the web-app-kix-user role group. KIX iterates over Authentication entries; if the administrator backend (###100) refuses (user not in admin group), this one tries the user group. The OAuth2-proxy `allowed_groups` filter still lets only members of either group through, so this backend never sees a user without an Infinito.Nexus role.</Description>
+        <Group>Framework</Group>
+        <Setting>
+            <Object>[
+    {
+        "Name": "Infinito.Nexus svc-db-openldap (Agent, web-app-kix-user)",
+        "Enabled": 1,
+        "UsageContext": "Agent",
+        "Module": "Kernel::System::Auth::LDAP",
+        "Config": {
+            "Host": "{{ KIX_LDAP_HOST }}",
+            "Params": {
+                "async": 0,
+                "port": {{ KIX_LDAP_PORT }},
+                "timeout": 10,
+                "version": 3
+            },
+            "BaseDN": "{{ KIX_LDAP_BASE_DN }}",
+            "AlwaysFilter": "(objectclass=inetOrgPerson)",
+            "Charset": "utf-8",
+            "SearchUserDN": "{{ KIX_LDAP_BIND_DN }}",
+            "SearchUserPw": "{{ KIX_LDAP_BIND_PW }}",
+            "GroupDN": "{{ KIX_LDAP_USER_GROUP_DN }}",
+            "AccessAttr": "member",
+            "UID": "{{ KIX_LDAP_UID_ATTR }}",
+            "UserAttr": "DN",
+            "AuthAttr": "{{ KIX_LDAP_UID_ATTR }}",
+            "UserSuffix": "",
+            "Debug": 1
+        },
+        "Sync": [
+            {
+                "Enabled": 1,
+                "Module": "Kernel::System::Auth::Sync::LDAP",
+                "Config": {
+                    "ContactUserSync": {
+                        "Email": "mail",
+                        "Firstname": "givenName",
+                        "Lastname": "sn",
+                        "UserLogin": "{{ KIX_LDAP_UID_ATTR }}",
+                        "PrimaryOrganisationID": "SET:1"
+                    },
+                    "GroupDNBasedUsageContextSync": {
+                        "{{ KIX_LDAP_USER_GROUP_DN }}": {
+                            "IsAgent": 1,
+                            "IsCustomer": 0
+                        }
+                    }
+                }
+            }
+        ]
+    }
+]</Object>
+        </Setting>
+    </ConfigItem>
+</kix_config>

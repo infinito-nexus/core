@@ -1,5 +1,6 @@
+---
 - name: install jrnl
   package:
-    name: 
+    name:
       - jrnl
     state: present

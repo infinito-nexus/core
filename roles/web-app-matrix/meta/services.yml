@@ -1,21 +1,23 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: false
-  shared: false
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 synapse:
   version: latest
   image: matrixdotorg/synapse
@@ -23,15 +25,17 @@ synapse:
   backup:
     no_stop_required: true
   ports:
+    internal:
+      http: 8008
     local:
       http: 8021
     public:
       federation: 8448
   min_storage: 10GB
-  cpus: '1.0'
-  mem_reservation: 1g
-  mem_limit: 2g
-  pids_limit: 1024
+  cpus: "1.5"
+  mem_reservation: "1g"
+  mem_limit: "2g"
+  pids_limit: 2048
 element:
   version: latest
   image: vectorim/element-web
@@ -40,7 +44,7 @@ element:
     local:
       http: 8022
   min_storage: 1GB
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
@@ -48,16 +52,17 @@ matrix-chatgpt-bot:
   version: latest
   image: ghcr.io/matrixgpt/matrix-chatgpt-bot
   min_storage: 1GB
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
   native_metrics:
     enabled: true
     port: 9000
@@ -66,8 +71,7 @@ prometheus:
     channel: true
 matrix:
   playbook_tags: setup-all,start
-  server_name: '{{ DOMAIN_PRIMARY }}'
-  setup: false
+  server_name: "{{ DOMAIN_PRIMARY }}"
   plugins:
     chatgpt: false
     facebook: false
@@ -82,3 +86,8 @@ matrix:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
+  min_storage: "1GB"
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "512m"
+  pids_limit: 256

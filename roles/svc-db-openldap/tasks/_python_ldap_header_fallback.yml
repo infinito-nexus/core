@@ -1,3 +1,4 @@
+---
 - name: Resolve active Python major.minor for header package candidates
   ansible.builtin.command:
     argv:

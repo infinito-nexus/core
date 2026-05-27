@@ -1,11 +1,93 @@
-# Identity-integration variants per docs/requirements/015-moodle-self-built.md.
-# variant 0 (default): auth_oidc + auth_ldap sync-only (hybrid)
-# variant 1: auth_ldap only (no OIDC)
+---
+# Matrix-deploy variant overrides for web-app-moodle.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
 
-# variant 0: hybrid (OIDC SSO + LDAP cron sync)
-- {}
-
-# variant 1: LDAP-only (auth_oidc disabled)
+# variant pinning every dynamic services.yml flag to true so the
+# matrix exercises the in-group_names branch of web-app-moodle.
 - services:
+    css:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    lam: # nocheck: variants-services-match
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oidc:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+
+# LDAP-only variant: auth_ldap only, auth_oidc disabled.
+- services:
+    ldap:
+      enabled: true
+      shared: true
+    lam: # nocheck: variants-services-match
+      enabled: true
+      shared: true
     oidc:
       enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+- services:
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    mariadb:
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    oidc:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

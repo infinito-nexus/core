@@ -44,3 +44,10 @@ The role is designed to be **distribution-agnostic** and works on:
 - [dnf](https://dnf.readthedocs.io/en/latest/)
 - [yum](https://man7.org/linux/man-pages/man8/yum.8.html)
 - [Filesystem Hierarchy Standard](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

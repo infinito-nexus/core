@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Resolve INVENTORY_DIR based on Makefile-provided environment.
+# Resolve INFINITO_INVENTORY_DIR based on Makefile-provided environment.
 #
 # Required env (must be set by Makefile):
-#   RUNNING_ON_ACT     : true|false
-#   RUNNING_ON_GITHUB  : true|false
+#   INFINITO_RUNNING_ON_ACT     : true|false
+#   INFINITO_RUNNING_ON_GITHUB  : true|false
 #
 # Uses:
 #   HOME
 #
 # Output:
-#   Prints resolved INVENTORY_DIR to stdout (single line)
+#   Prints resolved INFINITO_INVENTORY_DIR to stdout (single line)
 #   (no mkdir, no side-effects)
 
 require_env() {
@@ -33,20 +33,20 @@ normalize_bool() {
 	esac
 }
 
-require_env "RUNNING_ON_ACT"
-require_env "RUNNING_ON_GITHUB"
+require_env "INFINITO_RUNNING_ON_ACT"
+require_env "INFINITO_RUNNING_ON_GITHUB"
 : "${HOME:?HOME must be set}"
 
-RUNNING_ON_ACT="$(normalize_bool "${RUNNING_ON_ACT}")"
-RUNNING_ON_GITHUB="$(normalize_bool "${RUNNING_ON_GITHUB}")"
+INFINITO_RUNNING_ON_ACT="$(normalize_bool "${INFINITO_RUNNING_ON_ACT}")"
+INFINITO_RUNNING_ON_GITHUB="$(normalize_bool "${INFINITO_RUNNING_ON_GITHUB}")"
 
-if [[ "${RUNNING_ON_ACT}" == "true" ]]; then
-	INVENTORY_DIR="${HOME}/inventories/act"
-elif [[ "${RUNNING_ON_GITHUB}" == "true" ]]; then
-	INVENTORY_DIR="${HOME}/inventories/github"
+if [[ "${INFINITO_RUNNING_ON_ACT}" == "true" ]]; then
+	INFINITO_INVENTORY_DIR="${HOME}/inventories/act"
+elif [[ "${INFINITO_RUNNING_ON_GITHUB}" == "true" ]]; then
+	INFINITO_INVENTORY_DIR="${HOME}/inventories/github"
 else
-	INVENTORY_DIR="${HOME}/inventories/localhost"
+	INFINITO_INVENTORY_DIR="${HOME}/inventories/localhost"
 fi
 
 # IMPORTANT: single-line output for Makefile $(shell ...)
-printf '%s\n' "${INVENTORY_DIR}"
+printf '%s\n' "${INFINITO_INVENTORY_DIR}"

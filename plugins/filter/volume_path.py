@@ -14,7 +14,7 @@ def docker_volume_path(volume_name: str) -> str:
     return f"/var/lib/docker/volumes/{volume_name}/_data/"
 
 
-class FilterModule(object):
+class FilterModule:
     """Docker volume path filters."""
 
     def filters(self):

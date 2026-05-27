@@ -1,7 +1,7 @@
 /*
  * Bluesky login-broker.
  *
- * Architecture (variant A+ per requirement 013, web-app-bluesky):
+ * Architecture (variant A+, web-app-bluesky):
  *
  *     Browser
  *       │
@@ -145,7 +145,7 @@ function fetchJson(method, urlString, opts = {}) {
         const ct = (res.headers["content-type"] || "").split(";")[0].trim();
         let parsed = null;
         if (buf.length > 0 && ct === "application/json") {
-          try { parsed = JSON.parse(buf.toString("utf8")); } catch (_) { /* tolerate */ }
+          try { parsed = JSON.parse(buf.toString("utf8")); } catch { /* tolerate */ }
         }
         resolve({ status: res.statusCode || 0, body: parsed, raw: buf.toString("utf8") });
       });
@@ -412,7 +412,6 @@ function proxyToSocialApp(req, res) {
 const server = http.createServer(async (req, res) => {
   const reqId = Math.random().toString(36).slice(2, 8);
   const reqStart = Date.now();
-  // eslint-disable-next-line no-console
   console.log(`[broker:${reqId}] ${req.method} ${req.url} from=${req.headers["x-forwarded-for"] || "?"} fwd-user=${req.headers["x-forwarded-user"] || req.headers["x-forwarded-preferred-username"] || "-"}`);
   try {
     const requestUrl = new URL(req.url, "http://internal");
@@ -435,7 +434,6 @@ const server = http.createServer(async (req, res) => {
 
     const cookies = parseCookies(req);
     if (cookies[CONFIG.handoffCookieName] === "1") {
-      // eslint-disable-next-line no-console
       console.log(`[broker:${reqId}] handoff cookie present → proxying to social-app (${Date.now() - reqStart}ms)`);
       proxyToSocialApp(req, res);
       return;
@@ -447,27 +445,22 @@ const server = http.createServer(async (req, res) => {
     const kcUsername = (req.headers["x-forwarded-preferred-username"] || req.headers["x-forwarded-user"] || "").toString();
     const kcEmail = (req.headers["x-forwarded-email"] || "").toString();
     if (!kcUsername) {
-      // eslint-disable-next-line no-console
       console.log(`[broker:${reqId}] missing X-Forwarded-User → 401 (${Date.now() - reqStart}ms)`);
-      endText(res, 401, "Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.");
+      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>Bluesky login required</title></head><body><p>Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.</p></body></html>`);
       return;
     }
 
     const session = await ensurePdsSession({ kcUsername, kcEmail });
-    // eslint-disable-next-line no-console
     console.log(`[broker:${reqId}] PDS session ready did=${session.did} handle=${session.handle} hasAccessJwt=${!!session.accessJwt} (${Date.now() - reqStart}ms)`);
     const html = renderHandoff(session, requestUrl.pathname + (requestUrl.search || ""));
     endHtml(res, 200, html);
-    // eslint-disable-next-line no-console
     console.log(`[broker:${reqId}] handoff HTML sent (${Date.now() - reqStart}ms)`);
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error(`[broker:${reqId}] error:`, err.stack || err.message);
     endText(res, 500, `Broker error: ${err.message}`);
   }
 });
 
 server.listen(CONFIG.listenPort, () => {
-  // eslint-disable-next-line no-console
   console.log(`[broker] listening on ${CONFIG.listenPort}, social-app=${CONFIG.socialAppUrl}, pds=${CONFIG.pdsUrl}`);
 });

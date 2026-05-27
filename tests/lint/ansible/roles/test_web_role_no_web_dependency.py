@@ -16,31 +16,26 @@ Cross-`web-*` includes belong in the variant-aware service registry:
 Putting another `web-*` role in `meta/main.yml.dependencies` makes it
 mandatory for every deploy of the consumer role and bypasses the
 variant-aware planner. That couples otherwise independent roles and
-violates req-009 / req-010 expectations around per-role inclusion.
+violates / expectations around per-role inclusion.
 """
 
 import unittest
-from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_MAIN
+
+from . import PROJECT_ROOT
 
 
-def repo_root() -> Path:
-    for candidate in Path(__file__).resolve().parents:
-        if (candidate / "pyproject.toml").is_file():
-            return candidate
-    raise AssertionError("Repository root not found from test path.")
-
-
-def _extract_dependency_role_names(raw: Any) -> List[str]:
+def _extract_dependency_role_names(raw: Any) -> list[str]:
     """Normalize meta/main.yml `dependencies:` into a flat list of role
     names. Mirrors the loader at
-    `cli/meta/applications/resolution/combined/role_introspection.py`.
+    `cli/meta/roles/applications/resolution/combined/role_introspection.py`.
     """
     if not raw:
         return []
-    out: List[str] = []
+    out: list[str] = []
     if not isinstance(raw, list):
         return out
     for entry in raw:
@@ -89,18 +84,18 @@ class TestWebRoleNoWebDependency(unittest.TestCase):
     """`web-*` MUST NOT depend on another `web-*` via meta/main.yml."""
 
     def test_no_web_role_in_web_role_dependencies(self):
-        root = repo_root()
+        root = PROJECT_ROOT
         roles_dir = root / "roles"
         self.assertTrue(
             roles_dir.is_dir(), f"'roles' directory not found at: {roles_dir}"
         )
 
-        violations: List[str] = []
+        violations: list[str] = []
         for role_path in sorted(roles_dir.iterdir()):
             if not (role_path.is_dir() and role_path.name.startswith("web-")):
                 continue
 
-            meta_main = role_path / "meta" / "main.yml"
+            meta_main = role_path / ROLE_FILE_META_MAIN
             if not meta_main.is_file():
                 continue
 
@@ -112,12 +107,12 @@ class TestWebRoleNoWebDependency(unittest.TestCase):
             offending_deps = [d for d in deps if d.startswith("web-")]
             if offending_deps:
                 rel = meta_main.relative_to(root).as_posix()
-                for offender in offending_deps:
-                    violations.append(
-                        f"{rel}: web-* role '{role_path.name}' declares "
-                        f"web-* role '{offender}' as an Ansible meta dependency.\n"
-                        + _fix_hint(role_path.name, offender)
-                    )
+                violations.extend(
+                    f"{rel}: web-* role '{role_path.name}' declares "
+                    f"web-* role '{offender}' as an Ansible meta dependency.\n"
+                    + _fix_hint(role_path.name, offender)
+                    for offender in offending_deps
+                )
 
         self.assertEqual(
             violations,

@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Ansible lookup plugin: version
 
 No parameters.
-Reads pyproject.toml relative to this plugin file:
-<repo>/plugins/lookup/version.py -> <repo>/pyproject.toml
+Reads ``pyproject.toml`` from the repository root, located by walking
+parents from this plugin file's location.
 
 Resolution order:
 1) [project].version (PEP 621)
@@ -13,15 +12,18 @@ Resolution order:
 
 from __future__ import annotations
 
-import os
+from pathlib import Path
+
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
+
+from plugins.lookup import PROJECT_ROOT
 
 try:
     import tomllib  # Python 3.11+
 except Exception:
     try:
-        import tomli as tomllib  # type: ignore
+        import tomli as tomllib
     except Exception as exc:
         raise AnsibleError(
             "version lookup requires 'tomllib' (Python 3.11+) "
@@ -42,16 +44,13 @@ class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
         # Intentionally ignore terms/kwargs — no parameters supported
 
-        plugin_dir = os.path.dirname(os.path.abspath(__file__))
-        pyproject_path = os.path.normpath(
-            os.path.join(plugin_dir, "..", "..", "pyproject.toml")
-        )
+        pyproject_path = str(PROJECT_ROOT / "pyproject.toml")
 
-        if not os.path.exists(pyproject_path):
+        if not Path(pyproject_path).exists():
             raise AnsibleError(f"version lookup: file not found: {pyproject_path}")
 
         try:
-            with open(pyproject_path, "rb") as f:
+            with Path(pyproject_path).open("rb") as f:
                 data = tomllib.load(f)
         except Exception as exc:
             raise AnsibleError(

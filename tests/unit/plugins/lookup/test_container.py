@@ -1,17 +1,14 @@
 import importlib.util
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+from . import PROJECT_ROOT
 
 
 def _load_module(rel_path: str, name: str):
-    path = _repo_root() / rel_path
+    path = PROJECT_ROOT / rel_path
     spec = importlib.util.spec_from_file_location(name, str(path))
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader

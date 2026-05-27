@@ -1,17 +1,16 @@
-import unittest
 import types
-from pathlib import Path
-from importlib.util import spec_from_file_location, module_from_spec
+import unittest
+from importlib.util import module_from_spec, spec_from_file_location
+
+from . import PROJECT_ROOT
 
 
 def load_script_module():
     """
     Import the script under test from roles/sys-ctl-rpr-container-soft/files/script.py
     """
-    test_file = Path(__file__).resolve()
-    repo_root = test_file.parents[5]
     script_path = (
-        repo_root / "roles" / "sys-ctl-rpr-container-soft" / "files" / "script.py"
+        PROJECT_ROOT / "roles" / "sys-ctl-rpr-container-soft" / "files" / "script.py"
     )
     if not script_path.exists():
         raise FileNotFoundError(f"script.py not found at {script_path}")
@@ -50,8 +49,9 @@ class TestRepairDockerSoft(unittest.TestCase):
         calls = {"checks": 0, "sleeps": 0}
         t = {"now": 0}
 
-        def fake_run(cmd, shell):
+        def fake_run(cmd, shell, check):
             self.assertIn("systemctl is-active --quiet", cmd)
+            self.assertFalse(check)
             calls["checks"] += 1
             return types.SimpleNamespace(returncode=0)
 

@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-attr:
@@ -10,10 +11,10 @@ csp:
       unsafe-inline: true
   whitelist:
     frame-ancestors:
-    - '*'
+      - "*"
 domains:
   canonical:
-  - picture.{{ DOMAIN_PRIMARY }}
+    - picture.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

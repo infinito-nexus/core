@@ -1,9 +1,19 @@
 {# This template needs to be included in compose.yml, which depend on a postgres database #}
 
-{% if not lookup('database', application_id, 'shared') %}  
+{% if lookup('database', application_id, 'local') %}
+{% set _extensions = lookup('service_extensions', 'postgres').get(application_id, []) %}
+{% set _libraries = lookup('postgres_libraries', _extensions) %}
   {{ lookup('database', application_id, 'host') }}:
-    image: {{ lookup('database', application_id, 'image') }}:{{ lookup('database', application_id, 'version') }}
     container_name: {{ application_id | get_entity_name }}-database
+{% if _libraries | length > 0 %}
+    image: {{ application_id | get_entity_name }}-database:{{ lookup('database', application_id, 'version') }}
+    pull_policy: never
+    build:
+      context: {{ lookup('database', application_id, 'build_dir') }}
+      dockerfile: Dockerfile
+{% else %}
+    image: {{ lookup('database', application_id, 'image') }}:{{ lookup('database', application_id, 'version') }}
+{% endif %}
     env_file:
       - {{ lookup('database', application_id, 'env') }}
     restart: {{ DOCKER_RESTART_POLICY }}
@@ -16,6 +26,12 @@
       - type:   volume
         source: database
         target: /var/lib/postgresql/data
+{% if _extensions | length > 0 %}
+      - type:   bind
+        source: {{ lookup('database', application_id, 'initdb_dir') }}
+        target: /docker-entrypoint-initdb.d
+        read_only: true
+{% endif %}
     networks:
       - default
 {% endif %}

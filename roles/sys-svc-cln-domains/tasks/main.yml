@@ -1,57 +1,58 @@
+---
 - block:
-  - name: Include dependencies
-    include_role:
-      name: '{{ dependency_role }}'
-    loop:
-    - sys-svc-webserver-core
-    loop_control:
-      loop_var: dependency_role
+    - name: Include dependencies
+      include_role:
+        name: "{{ dependency_role }}"
+      loop:
+        - sys-svc-webserver-core
+      loop_control:
+        loop_var: dependency_role
 
-  - name: Include task to remove deprecated nginx configs
-    include_tasks: remove_deprecated_nginx_configs.yml
-    loop: "{{ deprecated_domains }}"
-    loop_control:
-      loop_var: deprecated_domain
-      label: "{{ deprecated_domain }}"
-    vars:
-      domain: "{{ deprecated_domain }}"
-    when:
-    - MODE_CLEANUP | bool
+    - name: Include task to remove deprecated nginx configs
+      include_tasks: remove_deprecated_nginx_configs.yml
+      loop: "{{ deprecated_domains }}"
+      loop_control:
+        loop_var: deprecated_domain
+        label: "{{ deprecated_domain }}"
+      vars:
+        domain: "{{ deprecated_domain }}"
+      when:
+        - MODE_CLEANUP | bool
 
-## The revoking just works for the base domain
-#- name: "Revoke Certbot certificate for {{ item }}"
-#  ansible.builtin.command:
-#    cmd: "certbot revoke -n --cert-name {{ item }} --non-interactive"
-#  become: true
-#  loop: "{{ deprecated_domains }}"
-#  loop_control:
-#    label: "{{ item }}"
-#  when:
-#    - MODE_CLEANUP | bool
-#    - run_once_sys_svc_cln_domains is not defined
-#  register: certbot_revoke_result
-#  failed_when: >
-#    certbot_revoke_result.rc != 0 and
-#    'No certificate found with name' not in certbot_revoke_result.stderr
-#  changed_when: >
-#    certbot_revoke_result.rc == 0
-#
-## The deleting just works for the base domain
-#- name: "Delete Certbot certificate for {{ item }}"
-#  ansible.builtin.command:
-#    cmd: "certbot delete -n --cert-name {{ item }} --non-interactive"
-#  become: true
-#  loop: "{{ deprecated_domains }}"
-#  loop_control:
-#    label: "{{ item }}"
-#  when:
-#    - MODE_CLEANUP | bool
-#    - run_once_sys_svc_cln_domains is not defined
-#  register: certbot_delete_result
-#  failed_when: >
-#    certbot_delete_result.rc != 0 and
-#    'No certificate found with name' not in certbot_delete_result.stderr
-#  changed_when: >
-#    certbot_delete_result.rc == 0
-  - include_tasks: utils/once/flag.yml
+    ## The revoking just works for the base domain
+    #- name: "Revoke Certbot certificate for {{ item }}"
+    #  ansible.builtin.command:
+    #    cmd: "certbot revoke -n --cert-name {{ item }} --non-interactive"
+    #  become: true
+    #  loop: "{{ deprecated_domains }}"
+    #  loop_control:
+    #    label: "{{ item }}"
+    #  when:
+    #    - MODE_CLEANUP | bool
+    #    - run_once_sys_svc_cln_domains is not defined
+    #  register: certbot_revoke_result
+    #  failed_when: >
+    #    certbot_revoke_result.rc != 0 and
+    #    'No certificate found with name' not in certbot_revoke_result.stderr
+    #  changed_when: >
+    #    certbot_revoke_result.rc == 0
+    #
+    ## The deleting just works for the base domain
+    #- name: "Delete Certbot certificate for {{ item }}"
+    #  ansible.builtin.command:
+    #    cmd: "certbot delete -n --cert-name {{ item }} --non-interactive"
+    #  become: true
+    #  loop: "{{ deprecated_domains }}"
+    #  loop_control:
+    #    label: "{{ item }}"
+    #  when:
+    #    - MODE_CLEANUP | bool
+    #    - run_once_sys_svc_cln_domains is not defined
+    #  register: certbot_delete_result
+    #  failed_when: >
+    #    certbot_delete_result.rc != 0 and
+    #    'No certificate found with name' not in certbot_delete_result.stderr
+    #  changed_when: >
+    #    certbot_delete_result.rc == 0
+    - include_tasks: utils/once/flag.yml
   when: run_once_sys_svc_cln_domains is not defined

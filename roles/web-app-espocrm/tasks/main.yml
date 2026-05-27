@@ -3,24 +3,23 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Deploy '{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:
-    src:  "{{ ESPOCRM_ENTRYPOINT_SCRIPT_FILE }}" 
+    src: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_FILE }}"
     dest: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_ABS }}"
-  notify: 
+  notify:
     - compose up
     - compose build
 
 - name: "Deploy '{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}'"
   copy:
-    src:  "{{ ESPOCRM_SCRIPT_SEED_FILE }}" 
+    src: "{{ ESPOCRM_SCRIPT_SEED_FILE }}"
     dest: "{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}"
-  notify: 
+  notify:
     - compose up
     - compose build
-
 
 - name: "Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers
@@ -30,7 +29,7 @@
     container exec --user root {{ ESPOCRM_CONTAINER }} test -f {{ ESPOCRM_CONFIG_FILE_PRIVATE }}
   register: config_file_exists
   changed_when: false
-  failed_when:  false
+  failed_when: false
 
 - name: Patch EspoCRM config.php
   include_tasks: 01_patch_config.yml

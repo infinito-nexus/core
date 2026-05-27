@@ -1,29 +1,25 @@
+---
 plugin_configuration:
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     # This configuration allows users to connect multiple accounts to their Nextcloud profile
     # using the sociallogin app.
     configkey: "allow_login_connect"
     configvalue: 1
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "auto_create_groups"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "button_text_wo_prefix"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "create_disabled_users"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     # This configuration defines custom OpenID Connect (OIDC) providers for authentication.
     # In this case, it sets up a Keycloak provider with details like URLs for authorization,
     # token retrieval, user info, and logout, as well as the client ID and secret.
     configkey: "custom_providers"
-    configvalue: 
+    configvalue:
       custom_oidc:
         - name: "{{ lookup('domain','web-app-keycloak') }}"
           title: "keycloak"
@@ -38,49 +34,38 @@ plugin_configuration:
           scope: "openid"
           groupsClaim: ""
           defaultGroup: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "disable_notify_admins"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "disable_registration"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "enabled"
     configvalue: "yes"
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "hide_default_login"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "no_prune_user_groups"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "oauth_providers"
     configvalue: "null"
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     # This configuration prevents the creation of new Nextcloud users if an account with the
     # same email address already exists in the system. It helps avoid duplicate accounts.
     configkey: "prevent_create_email_exists"
     configvalue: 1
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "restrict_users_wo_assigned_groups"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "restrict_users_wo_mapped_groups"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "types"
     configvalue: ""
-  -
-    appid: "sociallogin"
+  - appid: "sociallogin"
     configkey: "update_profile_on_login"
     configvalue: 1

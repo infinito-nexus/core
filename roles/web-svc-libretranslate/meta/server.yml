@@ -1,9 +1,15 @@
+---
 csp:
   whitelist: {}
-  flags: {}
+  flags:
+    script-src-elem:
+      unsafe-eval: true
+      unsafe-inline: true
+    script-src-attr:
+      unsafe-eval: true
 domains:
   canonical:
-  - libretranslate.{{ DOMAIN_PRIMARY }}
+    - libretranslate.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

@@ -1,39 +1,28 @@
-import os
-import glob
 import unittest
-from typing import Any, Dict, List, Tuple, Optional
+from pathlib import Path
+from typing import Any
 
-from utils.cache.yaml import load_yaml_all_str
+try:
+    import yaml  # noqa: F401  # imported only to assert pyyaml is installed
+except ImportError:  # pragma: no cover
+    raise SystemExit("Please `pip install pyyaml` to run this test.") from None
 
+from utils.cache import PROJECT_ROOT
+from utils.cache.files import iter_project_files
+from utils.cache.yaml import load_yaml_all
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
-# ---------- Helpers: repo + YAML parsing ----------
-
-
-def _find_repo_root_containing(relative: str, max_depth: int = 8) -> str:
-    """Walk upwards from this file to find the repo root that contains `relative`."""
-    here = os.path.abspath(os.path.dirname(__file__))
-    cur = here
-    for _ in range(max_depth):
-        candidate = os.path.join(cur, relative)
-        if os.path.exists(candidate):
-            return cur
-        parent = os.path.dirname(cur)
-        if parent == cur:
-            break
-        cur = parent
-    raise FileNotFoundError(f"Could not find {relative!r} upwards from {here}")
+# ---------- Helpers: YAML parsing ----------
 
 
-def _load_yaml_file(path: str) -> List[Dict[str, Any]]:
+def _load_yaml_file(path: str) -> list[dict[str, Any]]:
     """
     Load a tasks YAML file.
     Returns a list of top-level task dicts. If the file is empty, returns [].
     Supports multi-doc YAML.
     """
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-    docs = list(load_yaml_all_str(content)) or []
-    tasks: List[Dict[str, Any]] = []
+    docs = list(load_yaml_all(path)) or []
+    tasks: list[dict[str, Any]] = []
     for doc in docs:
         if doc is None:
             continue
@@ -50,7 +39,7 @@ def _load_yaml_file(path: str) -> List[Dict[str, Any]]:
 # ---------- Helpers: when / structure checks ----------
 
 
-def _normalize_when(value: Any) -> List[str]:
+def _normalize_when(value: Any) -> list[str]:
     """
     Normalize a 'when' value (string | list | bool | None) to a list of strings.
     Non-string entries are ignored.
@@ -61,7 +50,7 @@ def _normalize_when(value: Any) -> List[str]:
         v = value.strip()
         return [v] if v else []
     if isinstance(value, list):
-        out: List[str] = []
+        out: list[str] = []
         for item in value:
             if isinstance(item, str):
                 s = item.strip()
@@ -71,11 +60,11 @@ def _normalize_when(value: Any) -> List[str]:
     return []
 
 
-def _task_has_block_with_when(task: Dict[str, Any]) -> bool:
+def _task_has_block_with_when(task: dict[str, Any]) -> bool:
     return "block" in task and bool(_normalize_when(task.get("when")))
 
 
-def _is_pure_guarded_tasks_file(tasks: List[Dict[str, Any]]) -> Tuple[List[str], bool]:
+def _is_pure_guarded_tasks_file(tasks: list[dict[str, Any]]) -> tuple[list[str], bool]:
     """
     A "pure guarded" tasks file has EXACTLY ONE top-level task,
     that task contains a 'block', and that task has a 'when' condition.
@@ -92,28 +81,24 @@ def _is_pure_guarded_tasks_file(tasks: List[Dict[str, Any]]) -> Tuple[List[str],
 # ---------- Helpers: discovery ----------
 
 
-def _iter_all_tasks_files(repo_root: str) -> List[str]:
+def _iter_all_tasks_files(repo_root: str) -> list[str]:
     """
-    Return all tasks/*.yml|*.yaml files in the project (recursively).
+    Return all tasks/*.yml|*.yaml files in the project tree.
+    Filenames must sit directly inside a 'tasks' directory.
     """
-    patterns = [
-        os.path.join(repo_root, "**", "tasks", "*.yml"),
-        os.path.join(repo_root, "**", "tasks", "*.yaml"),
-    ]
-    files: List[str] = []
-    for pat in patterns:
-        files.extend(glob.glob(pat, recursive=True))  # noqa: project-walk
-    # Deduplicate while keeping order
-    seen = set()
-    ordered: List[str] = []
-    for p in files:
-        if p not in seen:
-            ordered.append(p)
-            seen.add(p)
-    return ordered
+    files: list[str] = []
+    seen: set[str] = set()
+    for p in iter_project_files(extensions=(".yml", ".yaml")):
+        if Path(p).parent.name != "tasks":
+            continue
+        if p in seen:
+            continue
+        seen.add(p)
+        files.append(p)
+    return files
 
 
-def _get_include_role_name(task: Dict[str, Any]) -> Optional[str]:
+def _get_include_role_name(task: dict[str, Any]) -> str | None:
     """
     If task is an include_role task, return the role 'name'.
     Supports 'include_role' and 'ansible.builtin.include_role'.
@@ -126,7 +111,7 @@ def _get_include_role_name(task: Dict[str, Any]) -> Optional[str]:
     return None
 
 
-def _get_include_tasks_target(task: Dict[str, Any]) -> Optional[str]:
+def _get_include_tasks_target(task: dict[str, Any]) -> str | None:
     """
     If task is an include_tasks, return the path string as-is (could be relative).
     Supports 'include_tasks' and 'ansible.builtin.include_tasks'.
@@ -144,9 +129,7 @@ def _contains_jinja(s: str) -> bool:
     return "{{" in s or "{%" in s or "}}" in s or "%}" in s
 
 
-def _resolve_include_tasks_path(
-    include_value: str, including_file: str
-) -> Optional[str]:
+def _resolve_include_tasks_path(include_value: str, including_file: str) -> str | None:
     """
     Resolve an include_tasks path relative to the including file.
     If it contains Jinja or does not resolve to an existing file, return None.
@@ -156,23 +139,23 @@ def _resolve_include_tasks_path(
         return None
 
     # Absolute path?
-    candidates: List[str] = []
-    if os.path.isabs(include_value):
+    candidates: list[str] = []
+    if Path(include_value).is_absolute():
         candidates.append(include_value)
     else:
-        base = os.path.dirname(including_file)
-        candidates.append(os.path.join(base, include_value))
+        base = str(Path(including_file).parent)
+        candidates.append(str(Path(base) / include_value))
 
-    final_candidates: List[str] = []
+    final_candidates: list[str] = []
     for c in candidates:
         final_candidates.append(c)
-        root, ext = os.path.splitext(c)
-        if ext == "":
-            final_candidates.append(root + ".yml")
-            final_candidates.append(root + ".yaml")
+        candidate_path = Path(c)
+        if not candidate_path.suffix:
+            final_candidates.append(c + ".yml")
+            final_candidates.append(c + ".yaml")
 
     for c in final_candidates:
-        if os.path.isfile(c):
+        if Path(c).is_file():
             return c
 
     return None
@@ -191,16 +174,20 @@ class PureGuardedIncludeTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.repo_root = _find_repo_root_containing("roles")
+        cls.repo_root = str(PROJECT_ROOT)
 
         # Map pure guarded roles: role_name -> (guards, main_path)
-        cls.pure_guarded_roles: Dict[str, Tuple[List[str], str]] = {}
+        cls.pure_guarded_roles: dict[str, tuple[list[str], str]] = {}
 
-        role_main_glob = os.path.join(cls.repo_root, "roles", "*", "tasks", "main.yml")
-        for main_path in glob.glob(role_main_glob):  # noqa: project-walk
-            role_name = os.path.basename(
-                os.path.dirname(os.path.dirname(main_path))
-            )  # roles/<role>/tasks/main.yml
+        roles_dir = Path(cls.repo_root) / "roles"
+        for role_dir in roles_dir.iterdir():
+            if not role_dir.is_dir():
+                continue
+            main_path = role_dir / ROLE_FILE_TASKS_MAIN
+            if not main_path.is_file():
+                continue
+            main_path = str(main_path)
+            role_name = role_dir.name
             try:
                 tasks = _load_yaml_file(main_path)
                 guards, pure = _is_pure_guarded_tasks_file(tasks)
@@ -211,7 +198,7 @@ class PureGuardedIncludeTest(unittest.TestCase):
                 pass
 
         # Cache of parsed tasks files for include_tasks: path -> (guards, pure)
-        cls.tasks_file_cache: Dict[str, Tuple[List[str], bool]] = {}
+        cls.tasks_file_cache: dict[str, tuple[list[str], bool]] = {}
 
         # All tasks files across repo
         cls.all_tasks_files = _iter_all_tasks_files(cls.repo_root)
@@ -219,7 +206,7 @@ class PureGuardedIncludeTest(unittest.TestCase):
     # ---------- Tests ----------
 
     def test_include_role_short_circuits_when_target_is_pure_guarded(self):
-        failures: List[str] = []
+        failures: list[str] = []
 
         if not self.pure_guarded_roles:
             self.skipTest(
@@ -270,7 +257,7 @@ class PureGuardedIncludeTest(unittest.TestCase):
             )
 
     def test_include_tasks_short_circuits_when_target_is_pure_guarded(self):
-        failures: List[str] = []
+        failures: list[str] = []
 
         for including_path in self.all_tasks_files:
             try:

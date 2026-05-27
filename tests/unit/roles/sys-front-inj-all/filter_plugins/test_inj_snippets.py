@@ -1,4 +1,3 @@
-# tests/unit/roles/sys-front-inj-all/filter_plugins/test_inj_snippets.py
 """
 Unit tests for roles/sys-front-inj-all/filter_plugins/inj_snippets.py
 
@@ -8,37 +7,37 @@ Unit tests for roles/sys-front-inj-all/filter_plugins/inj_snippets.py
 - Calls the filter function via the loaded module to avoid method-binding.
 """
 
-import os
-import unittest
-import tempfile
 import importlib.util
+import tempfile
+import unittest
+from pathlib import Path
 
 
 class TestInjSnippets(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Find repo root by locating inj_snippets.py upwards from this file
-        cls.test_dir = os.path.dirname(__file__)
+        cls.test_dir = str(Path(__file__).parent)
         root = cls.test_dir
-        inj_rel = os.path.join(
-            "roles", "sys-front-inj-all", "filter_plugins", "inj_snippets.py"
+        inj_rel = str(
+            Path("roles") / "sys-front-inj-all" / "filter_plugins" / "inj_snippets.py"
         )
 
         while True:
-            candidate = os.path.join(root, inj_rel)
-            if os.path.isfile(candidate):
+            candidate = str(Path(root) / inj_rel)
+            if Path(candidate).is_file():
                 cls.repo_root = root
                 cls.inj_snippets_path = candidate
                 break
-            parent = os.path.dirname(root)
+            parent = str(Path(root).parent)
             if parent == root:
                 raise RuntimeError(f"Could not locate {inj_rel} above {cls.test_dir}")
             root = parent
 
         # Create isolated temporary roles tree
         cls.tmp = tempfile.TemporaryDirectory(prefix="inj-snippets-test-")
-        cls.roles_dir = os.path.join(cls.tmp.name, "roles")
-        os.makedirs(cls.roles_dir, exist_ok=True)
+        cls.roles_dir = str(Path(cls.tmp.name) / "roles")
+        Path(cls.roles_dir).mkdir(parents=True, exist_ok=True)
 
         # Dynamically load inj_snippets by file path
         spec = importlib.util.spec_from_file_location(
@@ -68,17 +67,17 @@ class TestInjSnippets(unittest.TestCase):
 
     @classmethod
     def _mkrole(cls, feature, head=False, body=False):
-        role_dir = os.path.join(cls.roles_dir, f"sys-front-inj-{feature}")
-        tmpl_dir = os.path.join(role_dir, "templates")
-        os.makedirs(tmpl_dir, exist_ok=True)
+        role_dir = str(Path(cls.roles_dir) / f"sys-front-inj-{feature}")
+        tmpl_dir = str(Path(role_dir) / "templates")
+        Path(tmpl_dir).mkdir(parents=True, exist_ok=True)
         if head:
-            with open(
-                os.path.join(tmpl_dir, "head_sub.j2"), "w", encoding="utf-8"
+            with Path(str(Path(tmpl_dir) / "head_sub.j2")).open(
+                "w", encoding="utf-8"
             ) as f:
                 f.write("<!-- head test -->\n")
         if body:
-            with open(
-                os.path.join(tmpl_dir, "body_sub.j2"), "w", encoding="utf-8"
+            with Path(str(Path(tmpl_dir) / "body_sub.j2")).open(
+                "w", encoding="utf-8"
             ) as f:
                 f.write("<!-- body test -->\n")
 

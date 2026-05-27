@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   test-install-pkgmgr:
-    name: 📦 Test pkgmgr install
+    name: 📦 PKGMGR
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -29,7 +29,6 @@ jobs:
         run: |
           docker run --rm \
             -w "/root/" \
-            -e INFINITO_COMPILE=0 \
             -e NIX_CONFIG="${NIX_CONFIG}" \
             -v "$(pwd):/root/Repositories/github.com/kevinveenbirkenbach/infinito-nexus" \
             "ghcr.io/kevinveenbirkenbach/pkgmgr-${{ matrix.distro }}:stable" \

@@ -1,3 +1,4 @@
+---
 - name: Install GNOME GSettings schemas + GNOME Shell (cross-distro)
   become: true
   vars:
@@ -7,11 +8,11 @@
         - gsettings-desktop-schemas
         - gnome-shell
       Debian:
-        - libglib2.0-bin           # provides gsettings
+        - libglib2.0-bin # provides gsettings
         - gsettings-desktop-schemas
         - gnome-shell
       Ubuntu:
-        - libglib2.0-bin           # provides gsettings
+        - libglib2.0-bin # provides gsettings
         - gsettings-desktop-schemas
         - gnome-shell
       Fedora:
@@ -33,7 +34,7 @@
 
 - name: Include dependencies
   include_role:
-    name: '{{ dependency_role }}'
+    name: "{{ dependency_role }}"
   loop:
     - desk-gnome-caffeine
     - desk-gnome-extensions

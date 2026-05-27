@@ -18,12 +18,14 @@ permissions:
   packages: read
 
 env:
-  TEST_DEPLOY_TYPE: workstation
-  DISTROS: ${{ inputs.distros }}
+  INFINITO_DEPLOY_TYPE: workstation
+  INFINITO_DISTROS: ${{ inputs.distros }}
   NIX_CONFIG: |
     access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
   INFINITO_IMAGE_TAG: ci-${{ github.sha }}
   INFINITO_GHCR_MIRROR_PREFIX: mirror
+  INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}
+  INFINITO_APP_DISCOVERY_RUNNER: host
 jobs:
   discover:
     name: 🖥️ Discover apps
@@ -37,35 +39,38 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Resolve repository owner
+      - name: 🔍 Resolve repository owner
         shell: bash
         run: |
           set -euo pipefail
           echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
 
-      - name: Install jq
+      - name: 📦 Install jq
         shell: bash
         run: ./scripts/install/apt.sh jq
 
-      - name: Start stack for discovery
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project (host venv)
         shell: bash
-        run: |
-          set -euo pipefail
-          make up
+        run: make install
 
       - name: Resolve effective whitelist (diff vs origin/main)
         id: resolve_wl
         shell: bash
         env:
           INPUT_WHITELIST: ${{ inputs.whitelist }}
-        run: ./scripts/github/resolve_effective_whitelist.sh
+        run: ./scripts/github/resolve/effective_whitelist.sh
 
       - name: Discover apps
         id: discover
         shell: bash
         env:
-          WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
-        run: ./scripts/github/output_apps.sh
+          INFINITO_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
+        run: ./scripts/github/resolve/output_apps.sh
 
   workstation:
     name: 🖥️ Deploy ${{ matrix.apps }}
@@ -83,7 +88,7 @@ jobs:
       # Reclaim runner space before Docker pulls start. Deploy jobs otherwise
       # compete with the default Ubuntu image payload for limited root space.
       # Option rationale: docs/contributing/artefact/files/github/workflow.md
-      - name: Free disk space
+      - name: 🧹 Free disk space
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
         with:
           tool-cache: true
@@ -99,27 +104,33 @@ jobs:
       # Replace the default ~4 GB runner swap with a larger file so transient
       # memory spikes (e.g. peertube plugin install, issue #162) don't trip
       # the host OOM-killer. Script picks / or /mnt based on live free space.
-      - name: Enlarge swap space
+      - name: 💾 Enlarge swap space
         shell: bash
-        run: ./scripts/github/enlarge_swap.sh
+        run: ./scripts/github/runner/enlarge_swap.sh
 
-      - name: Resolve repository owner
+      - name: 🔍 Resolve repository owner
         shell: bash
         run: |
           set -euo pipefail
           echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
 
-      - name: Install jq
+      - name: 📦 Install jq
         shell: bash
         run: ./scripts/install/apt.sh jq
 
-      - name: Deploy app
+      - name: 🚀 Deploy app
         shell: bash
         env:
-          APPS: ${{ matrix.apps }}
+          INFINITO_APPS: ${{ matrix.apps }}
+          ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
         run: ./scripts/tests/deploy/ci/all.sh
 
-      - name: Dump runner state (on failure)
+      - name: 📊 Role runtimes
+        if: always()
+        shell: bash
+        run: python3 utils/github/profile/role_summary.py /tmp/ansible-${{ matrix.apps }}.log
+
+      - name: 🩺 Dump runner state (on failure)
         if: failure()
         shell: bash
-        run: ./scripts/github/dump_runner_state.sh "post-deploy failure (${{ matrix.apps }})"
+        run: ./scripts/github/runner/dump_state.sh "post-deploy failure (${{ matrix.apps }})"

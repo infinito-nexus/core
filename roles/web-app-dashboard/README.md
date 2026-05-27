@@ -11,24 +11,25 @@ Tailored for creative professionals and developers, this role streamlines the pr
 ## Purpose
 
 The purpose of tthis role is to simplify the deployment and management of a personal or professional portfolio. By focusing on usability and a clean presentation, the role helps you:
+
 - Quickly launch a professional-looking website.
 - Customize and update your portfolio content effortlessly.
 - Integrate seamlessly with complementary roles for Docker Compose and web server management.
 - Reduce manual configuration and maintenance tasks.
 
 ## Features
+
 - **Unified Navigation**: Central menu bar with dynamic categories for all registered applications.
-- **Customizable Tiles**: Showcase applications with title, description, and icons—fully configurable via YAML.
+- **Customizable Tiles**: Showcase applications with title, description, and icons, fully configurable via YAML.
 - **Responsive Design**: Optimized for desktop, tablet & mobile, built on Bootstrap.
 - **Interactive Icons**: Automatic integration of Simple Icons for popular brands and tools.
 - **Seamless IFrame Embedding**: Launch apps directly within the UI or open in new tabs.
 - **YAML-Driven Configuration**: Define all content & structure easily in `config.yaml`.
 - **Fast Access**: Automatic cache management ensures lightning-fast load times.
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -1,0 +1,40 @@
+{
+  // markdownlint-cli2 config — see https://github.com/DavidAnson/markdownlint-cli2
+  // Strategy: keep semantic rules, drop cosmetic ones that would generate
+  // hundreds of baseline findings on the existing tree. Tighten later by
+  // removing entries from the disabled list.
+  "config": {
+    "default": true,
+    // Hard-fail rules we keep on:
+    //   MD025 (single H1), MD041 (first line H1), MD026 (no trailing
+    //   heading punctuation), MD034 (no bare URLs), MD040 (fenced code
+    //   language) — all match our documentation.md / readme_md.md.
+    //
+    // Rules disabled for the initial baseline:
+    "MD013": false,
+    "MD007": false,
+    "MD024": { "siblings_only": true },
+    "MD033": false,
+    "MD036": false,
+    "MD038": false,
+    "MD040": false,
+    "MD042": false,
+    "MD046": false,
+    "MD051": false,
+    "MD059": false,
+    "MD060": false
+  },
+  "globs": [
+    "**/*.md"
+  ],
+  "ignores": [
+    "node_modules/**",
+    ".git/**",
+    "venv/**",
+    ".venv/**",
+    "**/__pycache__/**",
+    ".github/PULL_REQUEST_TEMPLATE/**",
+    ".agents/skills/**",
+    ".claude/skills/**"
+  ]
+}

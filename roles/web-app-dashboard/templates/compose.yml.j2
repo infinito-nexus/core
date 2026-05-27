@@ -7,9 +7,10 @@
       - {{ DOCKER_BIND_HOST }}:{{ http_port }}:{{ container_port }}
     volumes:
       - "{{ DASHBOARD_CONFIG_YML_DEST }}:{{ DASHBOARD_CONFIG_YML_DOCKER_DEST }}:ro"
-      - "{{ DASHBOARD_SIMPLEICONS_STATIC_DIR_HOST }}:{{ DASHBOARD_SIMPLEICONS_STATIC_DIR_CONTAINER }}:ro"
     restart: {{ DOCKER_RESTART_POLICY }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

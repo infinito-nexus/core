@@ -1,3 +1,4 @@
+---
 - name: Ensure all required NGINX host directories exist (single task)
   become: true
   ansible.builtin.file:

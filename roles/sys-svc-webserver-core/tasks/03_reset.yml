@@ -1,3 +1,4 @@
+---
 - name: Delete NGINX config paths
   file:
     path: "{{ item }}"

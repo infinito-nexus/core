@@ -1,19 +1,15 @@
-- name: "Harden load_app_id"
-  ansible.builtin.set_fact:
-    _load_app_id: "{{ load_app_id }}"
-  changed_when: false
-
+---
 - name: "DEBUG | Loading parameters"
   ansible.builtin.debug:
     msg:
       application_id: "{{ application_id | default('undefined') }}"
-      _load_app_id:   "{{ load_app_id }}"
+      load_app_id: "{{ load_app_id }}"
   when: MODE_DEBUG | bool
 
-- name: "Loading {{ _load_app_id }}'"
+- name: "Loading {{ load_app_id }}'"
   include_role:
-    name:   "{{ _load_app_id }}"
+    name: "{{ load_app_id }}"
     public: false
   vars:
-    application_id: "{{ _load_app_id }}"
-    domain: "{{ lookup('domain', _load_app_id) }}"
+    application_id: "{{ load_app_id }}"
+    domain: "{{ lookup('domain', load_app_id) }}"

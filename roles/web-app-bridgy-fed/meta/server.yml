@@ -1,7 +1,10 @@
+---
 domains:
   canonical:
-  - bridgyfed.{{ DOMAIN_PRIMARY }}
+    - bridgyfed.{{ DOMAIN_PRIMARY }}
   aliases: []
+status_codes:
+  default: [200, 301, 302, 404]
 csp:
   whitelist: {}
   flags: {}

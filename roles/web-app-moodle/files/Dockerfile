@@ -43,7 +43,8 @@ ENV MOODLE_CODE_DIR=${MOODLE_CODE_DIR} \
 
 # System packages required by Moodle's PHP extensions.
 # hadolint ignore=DL3008
-RUN apt-get update \
+RUN rm -rf /var/lib/apt/lists/* \
+ && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \

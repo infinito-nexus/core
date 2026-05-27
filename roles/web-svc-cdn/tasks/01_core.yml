@@ -1,8 +1,9 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: Include dependencies
   include_role:
-    name: '{{ item }}'
+    name: "{{ item }}"
   loop:
-  - sys-stk-front-proxy
-  - dev-git
+    - sys-stk-front-proxy
+    - dev-git

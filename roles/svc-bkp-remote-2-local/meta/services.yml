@@ -1,0 +1,9 @@
+---
+remote-2-local:
+  min_storage: 0GB
+  backup_providers: []
+  lifecycle: beta
+  cpus: "0.5"
+  mem_reservation: "256m"
+  mem_limit: "512m"
+  pids_limit: 256

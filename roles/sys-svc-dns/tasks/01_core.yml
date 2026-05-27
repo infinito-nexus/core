@@ -15,19 +15,19 @@
 - name: "Ensure all CAA records are present"
   community.general.cloudflare_dns:
     api_token: "{{ CLOUDFLARE_API_TOKEN }}"
-    zone:     "{{ item.0 }}"
-    record:   "@"
-    type:     CAA
-    flag:     0
-    tag:      "{{ item.1.tag }}"
-    value:    "{{ item.1.value }}"
-    ttl:      1
-    state:    present
+    zone: "{{ item.0 }}"
+    record: "@"
+    type: CAA
+    flag: 0
+    tag: "{{ item.1.tag }}"
+    value: "{{ item.1.value }}"
+    ttl: 1
+    state: present
   loop: "{{ SYS_SVC_DNS_BASE_DOMAINS | product(caa_entries) | list }}"
   loop_control:
     label: "{{ item.0 }} → {{ item.1.tag }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
 - name: "Ensure wildcard parent DNS (*.parent) exists"
   include_role:

@@ -1,4 +1,5 @@
 from ansible.errors import AnsibleFilterError
+
 from utils.domains.primary_domain import get_domain
 
 

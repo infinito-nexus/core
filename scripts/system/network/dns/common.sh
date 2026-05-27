@@ -2,8 +2,8 @@
 
 DNS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DNS_PROJECT_ROOT="$(cd "${DNS_SCRIPT_DIR}/../../../.." && pwd)"
-DNS_DOMAIN="${INFINITO_DNS_DOMAIN:-infinito.example}"
-DNS_HOSTS_FILE="${INFINITO_DNS_HOSTS_FILE:-/etc/hosts}"
+DNS_DOMAIN="${INFINITO_DNS_DOMAIN}"
+DNS_HOSTS_FILE="${INFINITO_DNS_HOSTS_FILE}"
 DNS_HOSTS_BLOCK_BEGIN="# BEGIN infinito-dns-fallback"
 DNS_HOSTS_BLOCK_END="# END infinito-dns-fallback"
 DNS_HOSTS_GENERATOR="${DNS_PROJECT_ROOT}/cli/meta/domains/__main__.py"
@@ -19,9 +19,6 @@ DNS_NM_DNSMASQ_CONF="${DNS_NM_DNSMASQ_DIR}/${DNS_DOMAIN}.conf"
 DNS_SYS_DNSMASQ_CONF="/etc/dnsmasq.d/${DNS_DOMAIN}.conf"
 
 dns_systemd_is_operational() {
-	if [[ "${INFINITO_DNS_FORCE_HOSTS_FALLBACK:-0}" == "1" ]]; then
-		return 1
-	fi
 	command -v systemctl >/dev/null 2>&1 && [[ -d /run/systemd/system ]]
 }
 
@@ -72,7 +69,7 @@ dns_read_generated_hosts_fallback_entries() {
 	fi
 
 	if ! output="$(
-		DOMAIN="${DNS_DOMAIN}" python3 "${DNS_HOSTS_GENERATOR}" --domain-primary "${DNS_DOMAIN}" --alias --www
+		DOMAIN="${DNS_DOMAIN}" PYTHONPATH="${DNS_PROJECT_ROOT}" python3 -m cli.meta.domains --domain-primary "${DNS_DOMAIN}" --alias --www
 	)"; then
 		echo ">>> Failed to generate DNS hosts from role configs; using static fallback." >&2
 		return 1
@@ -87,8 +84,8 @@ dns_read_generated_hosts_fallback_entries() {
 }
 
 dns_read_hosts_fallback_entries() {
-	if [[ -n "${INFINITO_DNS_HOSTS:-}" ]]; then
-		dns_read_hosts_fallback_entries_from_raw "${INFINITO_DNS_HOSTS}"
+	if [[ -n "${INFINITO_DNS_HOSTS:-}" ]]; then                       # nocheck: infinito-dns-hosts-optional
+		dns_read_hosts_fallback_entries_from_raw "${INFINITO_DNS_HOSTS}" # nocheck: infinito-dns-hosts-optional
 		return
 	fi
 

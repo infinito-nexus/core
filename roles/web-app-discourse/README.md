@@ -8,7 +8,6 @@ Discourse is a popular open-source discussion platform designed to foster commun
 
 This role deploys Discourse using Docker, automating tasks such as container orchestration, service configuration, and routine administrative operations. It integrates key components like Redis and PostgreSQL, sets up domain routing with NGINX, and ensures streamlined updates for a reliable forum experience.
 
-
 ## Features
 
 - **Modern Forum Experience:** Engage in interactive, real-time discussions with a responsive, mobile-friendly design.
@@ -26,8 +25,7 @@ This role deploys Discourse using Docker, automating tasks such as container orc
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
+Developed and maintained by **Kevin Veen-Birkenbach**.
 Learn more at [veen.world](https://www.veen.world).
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-Licensed under [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

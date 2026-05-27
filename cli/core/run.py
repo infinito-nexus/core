@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import pty
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime
-from pathlib import Path
-from typing import List, TextIO
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, TextIO
 
 from cli.core.colors import Fore, color_text
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -26,21 +29,18 @@ def open_log_file(log_dir: Path) -> tuple[TextIO, Path]:
     log_dir = log_dir.expanduser()
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    # Best-effort permission hardening (ignore failures on non-POSIX / special FS)
-    try:
-        os.chmod(log_dir, 0o700)
-    except Exception:
-        # Intentionally ignore chmod failures: non-critical hardening step
-        pass
+    # Best-effort permission hardening (ignore failures on non-POSIX / special FS).
+    with contextlib.suppress(Exception):
+        log_dir.chmod(0o700)
 
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    timestamp = datetime.now(tz=UTC).strftime("%Y%m%dT%H%M%S")
     log_file_path = log_dir / f"{timestamp}.log"
     fd = os.open(str(log_file_path), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     return os.fdopen(fd, "a", encoding="utf-8"), log_file_path
 
 
 def run_command_once(
-    full_cmd: List[str], cfg: RunConfig, log_file: TextIO | None
+    full_cmd: list[str], cfg: RunConfig, log_file: TextIO | None
 ) -> bool:
     try:
         if cfg.log_enabled and log_file is not None:
@@ -59,7 +59,7 @@ def run_command_once(
             with os.fdopen(master_fd) as master:
                 try:
                     for line in master:
-                        ts = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+                        ts = datetime.now(tz=UTC).strftime("%Y-%m-%dT%H:%M:%S")
                         log_file.write(f"{ts} {line}")
                         log_file.flush()
                         print(line, end="")
@@ -74,12 +74,10 @@ def run_command_once(
             proc.wait()
             rc = proc.returncode
 
-        if rc != 0:
-            raise SystemExit(rc)
-        return True
-
-    except SystemExit:
-        raise
     except Exception as e:
         print(color_text(f"Exception running command: {e}", Fore.RED))
-        raise SystemExit(1)
+        raise SystemExit(1) from e
+
+    if rc != 0:
+        raise SystemExit(rc)
+    return True

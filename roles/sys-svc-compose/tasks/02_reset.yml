@@ -1,3 +1,4 @@
+---
 # It is necessary to shut the projects down, when reset is activated. 
 # Otherwise it can lead to this bug:
 # https://github.com/ansible/ansible/issues/10244

@@ -1,9 +1,8 @@
-import unittest
 import tempfile
-import os
+import unittest
+from pathlib import Path
 
 from plugins.filter.get_all_application_ids import get_all_application_ids
-
 from utils.cache.yaml import dump_yaml
 
 
@@ -11,8 +10,8 @@ class TestGetAllApplicationIds(unittest.TestCase):
     def setUp(self):
         # Create a temporary directory to act as the roles base
         self.tmpdir = tempfile.TemporaryDirectory()
-        self.roles_dir = os.path.join(self.tmpdir.name, "roles")
-        os.makedirs(self.roles_dir)
+        self.roles_dir = str(Path(self.tmpdir.name) / "roles")
+        Path(self.roles_dir).mkdir(parents=True)
 
     def tearDown(self):
         # Clean up temporary directory
@@ -20,9 +19,9 @@ class TestGetAllApplicationIds(unittest.TestCase):
 
     def create_role(self, role_name, data):
         # Helper to create roles/<role_name>/vars/main.yml with given dict
-        path = os.path.join(self.roles_dir, role_name, "vars")
-        os.makedirs(path, exist_ok=True)
-        dump_yaml(os.path.join(path, "main.yml"), data)
+        path = str(Path(self.roles_dir) / role_name / "vars")
+        Path(path).mkdir(parents=True, exist_ok=True)
+        dump_yaml(str(Path(path) / "main.yml"), data)
 
     def test_single_application_id(self):
         self.create_role("role1", {"application_id": "app1"})
@@ -48,7 +47,7 @@ class TestGetAllApplicationIds(unittest.TestCase):
 
     def test_no_roles_directory(self):
         # Point to a non-existent directory
-        empty_dir = os.path.join(self.tmpdir.name, "no_roles_here")
+        empty_dir = str(Path(self.tmpdir.name) / "no_roles_here")
         result = get_all_application_ids(empty_dir)
         self.assertEqual(result, [])
 

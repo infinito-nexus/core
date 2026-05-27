@@ -1,24 +1,28 @@
+---
+# nocheck: playwright-service-flag — CDN does not appear as a dashboard tile
+# nocheck: dynamic-flag
 dashboard:
   enabled: false
+# nocheck: playwright-service-flag — self-provider
 cdn:
-  enabled: false
+  enabled: true
   shared: true
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
   lifecycle: beta
+# nocheck: playwright-service-flag — CDN serves static assets, no HTML pages with tracking snippet
 matomo:
-  enabled: true
-  shared: true
-css:
-  enabled: false
-  shared: true
-  canonical: cdn
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — canonical:cdn alias of self-provider
+# nocheck: dynamic-flag
 javascript:
   enabled: false
   shared: true
   canonical: cdn
+# nocheck: playwright-service-flag — /metrics endpoint covered by web-app-prometheus's own spec
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

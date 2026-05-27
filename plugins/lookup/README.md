@@ -20,9 +20,9 @@ host_list: "{{ lookup('infinito_inventory_hosts', 'group_name') }}"
 
 ## When *not* to Use a Lookup Plugin
 
-* If you only need to **manipulate or transform data already available** in your playbook, prefer a filter plugin instead.
+- If you only need to **manipulate or transform data already available** in your playbook, prefer a filter plugin instead.
 
 ## Further Reading
 
-* [Ansible Lookup Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)
-* [Developing Ansible Lookup Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-lookup-plugins)
+- [Ansible Lookup Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)
+- [Developing Ansible Lookup Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-lookup-plugins)

@@ -1,13 +1,24 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any
 
-from utils.entity_name_utils import get_entity_name
+from utils.roles.entity_name import get_entity_name
+from utils.roles.mapping import (
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_RBAC,
+    ROLE_FILE_META_SCHEMA,
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_USERS,
+    ROLE_FILE_META_VOLUMES,
+)
 
 from . import yaml_io
 from .credentials import convert_runtime_to_schema, detect_collision
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 ALLOWED_LIFECYCLES = {
     "planned",
@@ -23,9 +34,9 @@ _EXCLUDED_TOP_LEVEL_KEYS = {"compose", "server", "rbac", "credentials"}
 
 def build(
     role_dir: Path,
-    networks_for_role: Optional[Dict[str, Any]],
-    ports_for_role: Dict[str, Dict[str, Any]],
-    relays_for_role: Dict[str, Dict[str, int]],
+    networks_for_role: dict[str, Any] | None,
+    ports_for_role: dict[str, dict[str, Any]],
+    relays_for_role: dict[str, dict[str, int]],
 ) -> None:
     role_name = role_dir.name
     primary_entity = get_entity_name(role_name) or role_name
@@ -33,7 +44,7 @@ def build(
     config = _load_mapping(role_dir / "config" / "main.yml", role_name)
     schema = _load_mapping(role_dir / "schema" / "main.yml", role_name)
     users_data = _load_mapping(role_dir / "users" / "main.yml", role_name)
-    meta_main = _load_mapping(role_dir / "meta" / "main.yml", role_name)
+    meta_main = _load_mapping(role_dir / ROLE_FILE_META_MAIN, role_name)
 
     _emit_credentials(role_dir, role_name, schema, config)
     _emit_users(role_dir, users_data)
@@ -49,15 +60,15 @@ def build(
     )
 
     if services:
-        yaml_io.dump(role_dir / "meta" / "services.yml", dict(services))
+        yaml_io.dump(role_dir / ROLE_FILE_META_SERVICES, dict(services))
     if galaxy_changed:
-        yaml_io.dump(role_dir / "meta" / "main.yml", meta_main)
+        yaml_io.dump(role_dir / ROLE_FILE_META_MAIN, meta_main)
 
     for legacy in ("config", "schema", "users"):
         yaml_io.empty_dir(role_dir / legacy)
 
 
-def _load_mapping(path: Path, role_name: str) -> Dict[str, Any]:
+def _load_mapping(path: Path, role_name: str) -> dict[str, Any]:
     data = yaml_io.load(path) or {}
     if not isinstance(data, dict):
         raise SystemExit(f"{role_name}: {path} is not a mapping")
@@ -67,8 +78,8 @@ def _load_mapping(path: Path, role_name: str) -> Dict[str, Any]:
 def _emit_credentials(
     role_dir: Path,
     role_name: str,
-    schema: Dict[str, Any],
-    config: Dict[str, Any],
+    schema: dict[str, Any],
+    config: dict[str, Any],
 ) -> None:
     schema_creds = (
         dict(schema.get("credentials") or {})
@@ -81,53 +92,53 @@ def _emit_credentials(
     detect_collision(schema_creds, converted, role_name)
     merged = yaml_io.deep_merge(schema_creds, converted)
     if merged:
-        yaml_io.dump(role_dir / "meta" / "schema.yml", {"credentials": merged})
+        yaml_io.dump(role_dir / ROLE_FILE_META_SCHEMA, {"credentials": merged})
 
 
-def _emit_users(role_dir: Path, users_data: Dict[str, Any]) -> None:
+def _emit_users(role_dir: Path, users_data: dict[str, Any]) -> None:
     users_block = users_data.get("users")
     if isinstance(users_block, dict) and users_block:
-        yaml_io.dump(role_dir / "meta" / "users.yml", users_block)
+        yaml_io.dump(role_dir / ROLE_FILE_META_USERS, users_block)
 
 
 def _emit_server(
     role_dir: Path,
-    config: Dict[str, Any],
-    networks_for_role: Optional[Dict[str, Any]],
+    config: dict[str, Any],
+    networks_for_role: dict[str, Any] | None,
 ) -> None:
     server_block = config.get("server")
     if isinstance(server_block, dict) and server_block:
         payload = dict(server_block)
         if networks_for_role:
             payload["networks"] = {"local": networks_for_role}
-        yaml_io.dump(role_dir / "meta" / "server.yml", payload)
+        yaml_io.dump(role_dir / ROLE_FILE_META_SERVER, payload)
     elif networks_for_role:
         yaml_io.dump(
-            role_dir / "meta" / "server.yml",
+            role_dir / ROLE_FILE_META_SERVER,
             {"networks": {"local": networks_for_role}},
         )
 
 
-def _emit_rbac(role_dir: Path, config: Dict[str, Any]) -> None:
+def _emit_rbac(role_dir: Path, config: dict[str, Any]) -> None:
     rbac_block = config.get("rbac")
     if isinstance(rbac_block, dict) and rbac_block:
-        yaml_io.dump(role_dir / "meta" / "rbac.yml", rbac_block)
+        yaml_io.dump(role_dir / ROLE_FILE_META_RBAC, rbac_block)
 
 
-def _emit_volumes(role_dir: Path, config: Dict[str, Any]) -> None:
+def _emit_volumes(role_dir: Path, config: dict[str, Any]) -> None:
     compose = config.get("compose")
     if not isinstance(compose, dict):
         return
     volumes_block = compose.get("volumes")
     if isinstance(volumes_block, dict) and volumes_block:
-        yaml_io.dump(role_dir / "meta" / "volumes.yml", volumes_block)
+        yaml_io.dump(role_dir / ROLE_FILE_META_VOLUMES, volumes_block)
 
 
 def _build_services(
-    config: Dict[str, Any], primary_entity: str, role_name: str
-) -> "OrderedDict[str, Dict[str, Any]]":
+    config: dict[str, Any], primary_entity: str, role_name: str
+) -> OrderedDict[str, dict[str, Any]]:
     compose = config.get("compose") if isinstance(config.get("compose"), dict) else {}
-    services: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
+    services: OrderedDict[str, dict[str, Any]] = OrderedDict()
     raw_services = compose.get("services") if isinstance(compose, dict) else None
     if isinstance(raw_services, dict):
         for key, value in raw_services.items():
@@ -158,20 +169,24 @@ def _normalise_service_entry(value: Any) -> Any:
     if "port" in entry:
         raw_port = entry.pop("port")
         try:
-            inter_port: Any = int(str(raw_port).strip())
+            internal_port: Any = int(str(raw_port).strip())
         except (TypeError, ValueError):
-            inter_port = raw_port
+            internal_port = raw_port
         ports_field = entry.get("ports")
         if not isinstance(ports_field, dict):
             ports_field = {}
-        ports_field["inter"] = inter_port
+        internal_map = ports_field.get("internal")
+        if not isinstance(internal_map, dict):
+            internal_map = {}
+        internal_map["http"] = internal_port
+        ports_field["internal"] = internal_map
         entry["ports"] = ports_field
     return entry
 
 
 def _apply_centralised_ports(
-    services: "OrderedDict[str, Dict[str, Any]]",
-    ports_for_role: Dict[str, Dict[str, Any]],
+    services: OrderedDict[str, dict[str, Any]],
+    ports_for_role: dict[str, dict[str, Any]],
     role_name: str,
 ) -> None:
     for entity_key, ports_payload in ports_for_role.items():
@@ -194,8 +209,8 @@ def _apply_centralised_ports(
 
 
 def _apply_relays(
-    services: "OrderedDict[str, Dict[str, Any]]",
-    relays_for_role: Dict[str, Dict[str, int]],
+    services: OrderedDict[str, dict[str, Any]],
+    relays_for_role: dict[str, dict[str, int]],
     role_name: str,
 ) -> None:
     for entity_key, relay in relays_for_role.items():
@@ -218,8 +233,8 @@ def _apply_relays(
 
 
 def _migrate_run_after_lifecycle(
-    meta_main: Dict[str, Any],
-    services: "OrderedDict[str, Dict[str, Any]]",
+    meta_main: dict[str, Any],
+    services: OrderedDict[str, dict[str, Any]],
     primary_entity: str,
     role_name: str,
 ) -> bool:

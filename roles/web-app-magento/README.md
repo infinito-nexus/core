@@ -7,6 +7,7 @@
 ## Overview
 
 This role deploys **Magento 2** via Docker Compose. It is aligned with the Infinito.Nexus stack patterns:
+
 - Reverse-proxy integration (front proxy handled by platform roles)
 - Optional **central database** (MariaDB) or app-local DB
 - **OpenSearch** for catalog search (required by Magento 2.4+)

@@ -1,14 +1,12 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Step into the future of communication with Matrix, a dynamic and decentralized platform that delivers secure, real-time messaging and collaboration. Benefit from federation, end-to-end encryption, and versatile bridging that connects you globally while safeguarding your data.
+  description: Deploys Matrix, a decentralized communication platform for secure, real-time messaging and collaboration with federation, end-to-end encryption,
+    and protocol bridges.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   galaxy_tags:
     - matrix
     - docker
@@ -17,4 +15,21 @@ galaxy_info:
     - real-time
     - encrypted
   issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
 dependencies: []

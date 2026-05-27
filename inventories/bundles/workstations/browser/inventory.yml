@@ -1,3 +1,4 @@
+---
 all:
   vars:
     infinito:
@@ -9,10 +10,8 @@ all:
           class: "fa-solid fa-globe"
         tags: []
         categories: []
-
   hosts:
     workstation:
-
   children:
     desk-chromium:
       hosts:

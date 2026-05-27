@@ -1,3 +1,4 @@
+---
 - name: "Execute migration for '{{ application_id }}'"
   command:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"

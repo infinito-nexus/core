@@ -9,10 +9,10 @@ set -euo pipefail
 # - Skip a distro if remaining time is smaller than the max duration of any previous distro run
 #
 # Required env:
-#   APPS="web-app-keycloak"
-#   TEST_DEPLOY_TYPE="server|workstation|universal"
-#   DISTROS="arch debian ubuntu fedora centos"
-#   INVENTORY_DIR="/path/to/inventory"
+#   INFINITO_APPS="web-app-keycloak"
+#   INFINITO_DEPLOY_TYPE="server|workstation|universal"
+#   INFINITO_DISTROS="arch debian ubuntu fedora centos"
+#   INFINITO_INVENTORY_DIR="/path/to/inventory"
 #
 # Optional env:
 #   PYTHON="python3"
@@ -26,23 +26,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 cd "${REPO_ROOT}"
 
-if [[ -f "scripts/meta/env/all.sh" ]]; then
-	# shellcheck source=scripts/meta/env/all.sh
-	source "scripts/meta/env/all.sh"
+if [[ -f "scripts/meta/env/load.sh" ]]; then
+	# shellcheck source=scripts/meta/env/load.sh
+	source "scripts/meta/env/load.sh"
 else
-	echo "[ERROR] Missing env file: scripts/meta/env/all.sh" >&2
+	echo "[ERROR] Missing env file: scripts/meta/env/load.sh" >&2
 	exit 2
 fi
 
-: "${APPS:?APPS is required (e.g. APPS=web-app-keycloak)}"
-: "${TEST_DEPLOY_TYPE:?TEST_DEPLOY_TYPE is required (server|workstation|universal)}"
-: "${DISTROS:?DISTROS is required (e.g. 'arch debian ubuntu fedora centos')}"
-: "${INVENTORY_DIR:?INVENTORY_DIR is required}"
+: "${INFINITO_APPS:?INFINITO_APPS is required (e.g. INFINITO_APPS=web-app-keycloak)}"
+: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE is required (server|workstation|universal)}"
+: "${INFINITO_DISTROS:?INFINITO_DISTROS is required (e.g. 'arch debian ubuntu fedora centos')}"
+: "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR is required}"
 
-case "${TEST_DEPLOY_TYPE}" in
+case "${INFINITO_DEPLOY_TYPE}" in
 server | workstation | universal) ;;
 *)
-	echo "[ERROR] Invalid TEST_DEPLOY_TYPE: ${TEST_DEPLOY_TYPE}" >&2
+	echo "[ERROR] Invalid INFINITO_DEPLOY_TYPE: ${INFINITO_DEPLOY_TYPE}" >&2
 	exit 2
 	;;
 esac
@@ -53,7 +53,7 @@ if [[ -z "${MAX_TOTAL_SECONDS+x}" ]]; then
 	MAX_TOTAL_SECONDS=19800
 fi
 
-export INVENTORY_DIR MISSING_ONLY MAX_TOTAL_SECONDS
+export INFINITO_INVENTORY_DIR MISSING_ONLY MAX_TOTAL_SECONDS
 
 if [[ -n "${MAX_TOTAL_SECONDS}" ]]; then
 	if ! [[ "${MAX_TOTAL_SECONDS}" =~ ^[0-9]+$ ]]; then
@@ -62,7 +62,7 @@ if [[ -n "${MAX_TOTAL_SECONDS}" ]]; then
 	fi
 fi
 
-read -r -a distro_arr <<<"${DISTROS}"
+read -r -a distro_arr <<<"${INFINITO_DISTROS}"
 mapfile -t distro_arr < <(printf '%s\n' "${distro_arr[@]}" | shuf)
 echo "=== Distro execution order: ${distro_arr[*]} ==="
 
@@ -89,7 +89,7 @@ sync_ci_image_for_run() {
 	else
 		owner=""
 	fi
-	tag="${INFINITO_IMAGE_TAG:-latest}"
+	tag="${INFINITO_IMAGE_TAG}"
 	repo_name="${INFINITO_IMAGE_REPOSITORY:-}"
 
 	# Keep local/dev workflows untouched; only adjust image when CI owner context exists.
@@ -128,7 +128,7 @@ for distro in "${distro_arr[@]}"; do
 		fi
 	fi
 
-	echo "=== Running dedicated distro deploy: distro=${distro} app=${APPS} type=${TEST_DEPLOY_TYPE} ==="
+	echo "=== Running dedicated distro deploy: distro=${distro} app=${INFINITO_APPS} type=${INFINITO_DEPLOY_TYPE} ==="
 	if [[ -n "${remaining}" ]]; then
 		echo ">>> Time budget: remaining=${remaining}s max_seen=${max_seen}s"
 	fi
@@ -138,14 +138,14 @@ for distro in "${distro_arr[@]}"; do
 	# (outside the load-once guard) refreshes from the current INFINITO_DISTRO.
 	# This is the single spot that owns the derivation; consumers below
 	# (dedicated.sh, python deploy → entity.sh) just inherit the env.
-	source "scripts/meta/env/defaults.sh"
+	source "scripts/meta/env/load.sh"
 	sync_ci_image_for_run
 
 	distro_start="$(date +%s)"
 
 	set +e
 	scripts/tests/deploy/ci/dedicated.sh \
-		--apps "${APPS}"
+		--apps "${INFINITO_APPS}"
 	rc=$?
 	set -e
 
@@ -161,7 +161,7 @@ for distro in "${distro_arr[@]}"; do
 	echo ">>> Duration: distro=${distro} took ${dur}s (max_seen=${max_seen}s)"
 
 	if [[ $rc -ne 0 ]]; then
-		echo "[ERROR] Deploy failed for distro=${distro} app=${APPS} (rc=${rc})" >&2
+		echo "[ERROR] Deploy failed for distro=${distro} app=${INFINITO_APPS} (rc=${rc})" >&2
 		failed=$((failed + 1))
 		exit "$rc"
 	fi
@@ -172,7 +172,7 @@ total="$((global_end - global_start))"
 
 echo
 echo "=== Summary ==="
-echo "app=${APPS} type=${TEST_DEPLOY_TYPE}"
+echo "app=${INFINITO_APPS} type=${INFINITO_DEPLOY_TYPE}"
 echo "ran=${ran} skipped=${skipped} failed=${failed}"
 echo "total_runtime=${total}s max_seen_duration=${max_seen}s"
 if [[ -n "${deadline}" ]]; then

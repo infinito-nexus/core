@@ -7,7 +7,10 @@ from typing import List, Dict, Any, Set
 
 
 from utils.roles.dependency_resolver import RoleDependencyResolver
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_TASKS_MAIN
 from utils.cache.yaml import load_yaml, load_yaml_any
+
+from . import PROJECT_ROOT
 
 # Regex used to ignore Jinja expressions inside include/import statements
 JINJA_PATTERN = re.compile(r'{{.*}}')
@@ -35,7 +38,7 @@ ALL_KEYS = [f"{dep}_{direction}" for dep in ALL_DEP_TYPES for direction in ALL_D
 
 def find_role_meta(roles_dir: str, role: str) -> str:
     """Return path to meta/main.yml of a role or raise FileNotFoundError."""
-    path = os.path.join(roles_dir, role, "meta", "main.yml")
+    path = os.path.join(roles_dir, role, ROLE_FILE_META_MAIN)
     if not os.path.isfile(path):
         raise FileNotFoundError(f"Metadata not found for role: {role}")
     return path
@@ -43,7 +46,7 @@ def find_role_meta(roles_dir: str, role: str) -> str:
 
 def find_role_tasks(roles_dir: str, role: str) -> str:
     """Return path to tasks/main.yml of a role or raise FileNotFoundError."""
-    path = os.path.join(roles_dir, role, "tasks", "main.yml")
+    path = os.path.join(roles_dir, role, ROLE_FILE_TASKS_MAIN)
     if not os.path.isfile(path):
         raise FileNotFoundError(f"Tasks not found for role: {role}")
     return path
@@ -58,7 +61,7 @@ def load_meta(path: str) -> Dict[str, Any]:
     Load metadata from meta/main.yml.
     Returns a dict with:
         - galaxy_info
-        - run_after  (per req-010 read from meta/services.yml.<primary>.run_after)
+        - run_after 
         - dependencies
     """
     from utils.roles.meta_lookup import get_role_run_after
@@ -343,8 +346,7 @@ def output_graph(graph_data: Any, fmt: str, start: str, key: str):
 # ------------------------------------------------------------
 
 def main():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_roles_dir = os.path.abspath(os.path.join(script_dir, "..", "..", "roles"))
+    default_roles_dir = str(PROJECT_ROOT / "roles")
 
     parser = argparse.ArgumentParser(description="Generate dependency graphs")
     parser.add_argument("-r", "--role", required=True, help="Starting role name")

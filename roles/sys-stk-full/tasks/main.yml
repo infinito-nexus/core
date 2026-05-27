@@ -1,3 +1,4 @@
+---
 # nocheck: run-once
 - name: "For '{{ application_id }}': freeze full-stack context"
   ansible.builtin.set_fact:

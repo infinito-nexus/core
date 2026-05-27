@@ -1,23 +1,26 @@
 from __future__ import annotations
 
-import os
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any
 
-from utils.cache.yaml import load_yaml_any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.applications.in_group_deps import applications_if_group_and_all_deps
+from plugins.lookup import PROJECT_ROOT
 from utils.cache.applications import get_merged_applications
 from utils.cache.base import (
     _cache_key,
     _resolve_roles_dir,
     _stable_variables_signature,
 )
-from utils.service_registry import build_service_registry_from_applications
+from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.in_group_deps import applications_if_group_and_all_deps
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_applications,
+)
+from utils.roles.mapping import ROLE_FILE_META_MAIN
 
-
-_CURRENT_PLAY_CACHE: "dict[tuple, Dict[str, Any]]" = {}
+_CURRENT_PLAY_CACHE: dict[tuple, dict[str, Any]] = {}
 
 
 def _reset_cache_for_tests() -> None:
@@ -27,20 +30,20 @@ def _reset_cache_for_tests() -> None:
 class LookupModule(LookupBase):
     """
     Return the current play application mapping using the shared resolver from
-    utils/applications/in_group_deps.
+    utils/roles/applications/in_group_deps.
     """
 
     def run(
         self,
-        terms: List[Any],
-        variables: Optional[Dict[str, Any]] = None,
+        terms: list[Any],
+        variables: dict[str, Any] | None = None,
         **kwargs: Any,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
         roles_dir_arg = kwargs.get("roles_dir")
         project_root = self._get_project_root()
-        roles_dir = roles_dir_arg or os.path.join(project_root, "roles")
+        roles_dir = roles_dir_arg or str(Path(project_root) / "roles")
 
         group_names = vars_.get("group_names", []) or []
         resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir_arg)
@@ -69,7 +72,7 @@ class LookupModule(LookupBase):
                 service_registry=service_registry,
                 meta_deps_resolver=self._meta_deps,
             )
-        except ValueError as exc:
+        except (TypeError, ValueError) as exc:
             raise AnsibleError(f"applications_current_play: {exc}") from exc
 
         _CURRENT_PLAY_CACHE[cache_key] = result
@@ -80,12 +83,11 @@ class LookupModule(LookupBase):
     # ------------------------------------------------------------------
 
     def _get_project_root(self) -> str:
-        plugin_dir = os.path.dirname(__file__)
-        return os.path.abspath(os.path.join(plugin_dir, "..", ".."))
+        return str(PROJECT_ROOT)
 
-    def _meta_deps(self, role: str, roles_dir: str) -> List[str]:
-        meta_file = os.path.join(roles_dir, role, "meta", "main.yml")
-        if not os.path.isfile(meta_file):
+    def _meta_deps(self, role: str, roles_dir: str) -> list[str]:
+        meta_file = str(Path(roles_dir) / role / ROLE_FILE_META_MAIN)
+        if not Path(meta_file).is_file():
             return []
         try:
             meta = load_yaml_any(meta_file, default_if_missing={}) or {}

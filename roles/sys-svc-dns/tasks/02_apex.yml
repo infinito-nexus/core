@@ -1,28 +1,28 @@
 ---
 - name: "Ensure A @ for {{ base_domain }}"
   community.general.cloudflare_dns:
-    api_token:  "{{ CLOUDFLARE_API_TOKEN }}"
-    zone:       "{{ base_domain }}"
-    type:       A
-    name:       "@"
-    content:    "{{ networks.internet.ip4 }}"
-    proxied:    false
-    ttl:        1
-    state:      present
+    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    zone: "{{ base_domain }}"
+    type: A
+    name: "@"
+    content: "{{ networks.internet.ip4 }}"
+    proxied: false
+    ttl: 1
+    state: present
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
 - name: "Ensure AAAA @ for {{ base_domain }} with '{{ networks.internet.ip6 | default('None') }}"
   community.general.cloudflare_dns:
-    api_token:  "{{ CLOUDFLARE_API_TOKEN }}"
-    zone:       "{{ base_domain }}"
-    type:       AAAA
-    name:       "@"
-    content:    "{{ networks.internet.ip6 }}"
-    proxied:    false
-    ttl:        1
-    state:      present
+    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    zone: "{{ base_domain }}"
+    type: AAAA
+    name: "@"
+    content: "{{ networks.internet.ip6 }}"
+    proxied: false
+    ttl: 1
+    state: present
   when:
     - (networks.internet.ip6 | default('') | trim) != ''
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

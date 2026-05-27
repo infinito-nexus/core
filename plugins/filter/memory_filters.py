@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import re
+
 from ansible.errors import AnsibleFilterError
-from utils.applications.config import get
-from utils.entity_name_utils import get_entity_name
+
+from utils.roles.applications.config import get
+from utils.roles.entity_name import get_entity_name
 
 # Regex and unit conversion table
 _UNIT_RE = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*([kKmMgGtT]?[bB]?)?\s*$")
@@ -174,7 +176,7 @@ def redis_maxmemory_mb(
 # ------------------------------------------------------
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "jvm_max_mb": jvm_max_mb,

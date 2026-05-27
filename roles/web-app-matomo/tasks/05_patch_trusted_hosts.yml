@@ -1,3 +1,4 @@
+---
 - name: "Matomo | Set trusted hosts (domain + service + container reach host)"
   vars:
     # Pin application_id task-locally to shield against nested include_role chains

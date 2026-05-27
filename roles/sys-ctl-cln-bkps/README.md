@@ -7,6 +7,7 @@ This role automates the cleanup of old backups by executing a Python script that
 ## Overview
 
 Optimized for effective disk space management, this role:
+
 - Installs required packages (e.g. [lsof](https://en.wikipedia.org/wiki/Lsof) and [psutil](https://pypi.org/project/psutil/)) using pacman.
 - Creates a directory for storing cleanup scripts.
 - Deploys a Python script that deletes old backup directories when disk usage is too high.
@@ -24,4 +25,12 @@ The primary purpose of this role is to maintain optimal backup storage by automa
 - **Dependency Integration:** Works in conjunction with related roles for comprehensive backup management.
 
 ## Other Resources
-- https://stackoverflow.com/questions/48929553/get-hard-disk-size-in-python
+
+- <https://stackoverflow.com/questions/48929553/get-hard-disk-size-in-python>
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

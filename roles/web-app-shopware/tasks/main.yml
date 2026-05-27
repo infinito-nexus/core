@@ -3,11 +3,11 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Deploy {{ SHOPWARE_INIT_HOST }}"
   copy:
-    src:  init.sh
+    src: init.sh
     dest: "{{ SHOPWARE_INIT_HOST }}"
     mode: "0755"
   notify:
@@ -16,7 +16,7 @@
 
 - name: "Render framework.yaml (trusted proxies/headers/hosts)"
   copy:
-    src:  "framework.yaml"
+    src: "framework.yaml"
     dest: "{{ SHOPWARE_FRAMEWORK_HOST }}"
     mode: "0644"
   notify:

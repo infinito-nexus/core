@@ -3,13 +3,15 @@ from ansible.module_utils.cert_utils import CertUtils
 
 
 def main():
-    module_args = dict(
-        domain=dict(type="str", required=True),
-        cert_base_path=dict(
-            type="str", required=False, default="/etc/letsencrypt/live"
-        ),
-        debug=dict(type="bool", required=False, default=False),
-    )
+    module_args = {
+        "domain": {"type": "str", "required": True},
+        "cert_base_path": {
+            "type": "str",
+            "required": False,
+            "default": "/etc/letsencrypt/live",
+        },
+        "debug": {"type": "bool", "required": False, "default": False},
+    }
 
     module = AnsibleModule(argument_spec=module_args)
 

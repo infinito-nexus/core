@@ -1,12 +1,12 @@
 # Homeserver details.
 homeserver:
     # The address that this appservice can use to connect to the homeserver.
-    address: http://synapse:8008
+    address: http://synapse:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
     # The address to mautrix-wsproxy (which should usually be next to the homeserver behind a reverse proxy).
     # Only the /_matrix/client/unstable/fi.mau.as_sync websocket endpoint is used on this address.
     #
     # Set to null to disable using the websocket. When not using the websocket, make sure hostname and port are set in the appservice section.
-    websocket_proxy: ws://synapse:8008
+    websocket_proxy: ws://synapse:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
     # How often should the websocket be pinged? Pinging will be disabled if this is zero.
     ping_interval_seconds: 0
     # The domain of the homeserver (also known as server_name, used for MXIDs, etc).

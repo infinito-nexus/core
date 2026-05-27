@@ -6,13 +6,12 @@ import os
 import shlex
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 # `utils.cache.yaml` is unavailable here: this file is copy-deployed.
-import yaml  # noqa: direct-yaml,E402
+import yaml
 
 
-def detect_env_file(project_dir: Path) -> Optional[Path]:
+def detect_env_file(project_dir: Path) -> Path | None:
     """Detect compose env file: <dir>/.env or legacy <dir>/.env/env."""
     c1 = project_dir / ".env"
     if c1.is_file():
@@ -23,7 +22,32 @@ def detect_env_file(project_dir: Path) -> Optional[Path]:
     return None
 
 
-def detect_compose_files(project_dir: Path) -> List[Path]:
+def _yaml_services(path: Path) -> set[str]:
+    """Return the top-level `services:` keys declared in a compose YAML file."""
+    try:
+        with path.open() as f:
+            doc = yaml.safe_load(f)  # nocheck: direct-yaml
+    except (OSError, yaml.YAMLError):
+        return set()
+    if not isinstance(doc, dict):
+        return set()
+    services = doc.get("services")
+    if not isinstance(services, dict):
+        return set()
+    return set(services.keys())
+
+
+def ca_override_is_stale(base_compose: Path, ca_override: Path) -> bool:
+    base_services = _yaml_services(base_compose)
+    if not base_services:
+        return False
+    override_services = _yaml_services(ca_override)
+    if not override_services:
+        return False
+    return bool(override_services - base_services)
+
+
+def detect_compose_files(project_dir: Path) -> list[Path]:
     """Detect Compose file stack: compose.yml + optional overrides."""
     base = project_dir / "compose.yml"
     if not base.is_file():
@@ -37,7 +61,14 @@ def detect_compose_files(project_dir: Path) -> List[Path]:
 
     ca_override = project_dir / "compose.ca.override.yml"
     if ca_override.is_file():
-        files.append(ca_override)
+        if ca_override_is_stale(base, ca_override):
+            print(
+                "[compose] skipping stale compose.ca.override.yml "
+                "(declares services not in compose.yml; awaiting regeneration)",
+                file=sys.stderr,
+            )
+        else:
+            files.append(ca_override)
 
     cache_override = generate_cache_override(project_dir, base)
     if cache_override is not None:
@@ -56,14 +87,14 @@ _CACHE_HTTP_HOSTNAMES = (
 )
 
 
-def generate_cache_override(project_dir: Path, base_compose: Path) -> Optional[Path]:
+def generate_cache_override(project_dir: Path, base_compose: Path) -> Path | None:
     """Emit transient build.extra_hosts override when cache profile active."""
-    cache_ip = (os.environ.get("INFINITO_PACKAGE_CACHE_FRONTEND_IP") or "").strip()
+    cache_ip = (os.environ.get("INFINITO_CACHE_PACKAGE_FRONTEND_IP") or "").strip()
     if not cache_ip or not base_compose.is_file():
         return None
 
-    with open(base_compose) as f:
-        doc = yaml.safe_load(f)  # noqa: direct-yaml
+    with Path(base_compose).open() as f:
+        doc = yaml.safe_load(f)  # nocheck: direct-yaml
 
     services = (doc or {}).get("services") or {}
     services_with_build = sorted(
@@ -83,14 +114,14 @@ def generate_cache_override(project_dir: Path, base_compose: Path) -> Optional[P
     }
 
     out = project_dir / "compose.cache.override.yml"
-    with open(out, "w") as f:
-        yaml.safe_dump(override_doc, f, sort_keys=True)  # noqa: direct-yaml
+    with Path(out).open("w") as f:
+        yaml.safe_dump(override_doc, f, sort_keys=True)  # nocheck: direct-yaml
     return out
 
 
-def resolve_files(project_dir: Path, files: List[str]) -> List[Path]:
+def resolve_files(project_dir: Path, files: list[str]) -> list[Path]:
     """Resolve -f/--file paths against project_dir."""
-    out: List[Path] = []
+    out: list[Path] = []
     for f in files:
         p = Path(f)
         if not p.is_absolute():
@@ -102,9 +133,9 @@ def resolve_files(project_dir: Path, files: List[str]) -> List[Path]:
 def build_cmd(
     project: str,
     project_dir: Path,
-    passthrough: List[str],
-    extra_files: Optional[List[str]] = None,
-) -> List[str]:
+    passthrough: list[str],
+    extra_files: list[str] | None = None,
+) -> list[str]:
     """Auto-detected compose files, with extra_files appended last."""
     files = detect_compose_files(project_dir)
 
@@ -113,7 +144,7 @@ def build_cmd(
 
     env_file = detect_env_file(project_dir)
 
-    cmd: List[str] = ["docker", "compose", "-p", project]
+    cmd: list[str] = ["docker", "compose", "-p", project]
     for f in files:
         cmd += ["-f", str(f)]
     if env_file:
@@ -164,7 +195,7 @@ def main() -> int:
         )
         return 2
 
-    project = args.project if args.project else project_dir.name
+    project = args.project or project_dir.name
 
     passthrough = args.args
     if passthrough and passthrough[0] == "--":
@@ -187,8 +218,10 @@ def main() -> int:
     if args.debug:
         print(">>> " + " ".join(shlex.quote(x) for x in cmd), file=sys.stderr)
 
-    # execvp preserves signal handling under systemd.
-    os.execvp(cmd[0], cmd)
+    # execvp preserves signal handling under systemd. The argv list is
+    # built from this script's own argv plus `--env-file` / `--profile`
+    # additions; no shell parses it.
+    os.execvp(cmd[0], cmd)  # noqa: S606
     return 0
 
 

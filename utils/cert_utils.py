@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 
-from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
 
 import os
 import subprocess
-from datetime import datetime
+from datetime import UTC, datetime
 
 
 class CertUtils:
@@ -16,11 +13,10 @@ class CertUtils:
     @staticmethod
     def run_openssl(cert_path):
         try:
-            output = subprocess.check_output(
+            return subprocess.check_output(
                 ["openssl", "x509", "-in", cert_path, "-noout", "-text"],
                 universal_newlines=True,
             )
-            return output
         except subprocess.CalledProcessError:
             return ""
 
@@ -43,18 +39,22 @@ class CertUtils:
                 universal_newlines=True,
             )
             nb, na = None, None
-            for line in output.splitlines():
-                line = line.strip()
+            for raw_line in output.splitlines():
+                line = raw_line.strip()
                 if line.startswith("notBefore="):
                     nb = line.split("=", 1)[1].strip()
                 elif line.startswith("notAfter="):
                     na = line.split("=", 1)[1].strip()
 
             def _parse(openssl_dt):
-                # OpenSSL format example: "Oct 10 12:34:56 2025 GMT"
-                return int(
-                    datetime.strptime(openssl_dt, "%b %d %H:%M:%S %Y %Z").timestamp()
+                # OpenSSL format example: "Oct 10 12:34:56 2025 GMT".
+                # ``%Z`` parses the literal "GMT" but produces a naive
+                # datetime; openssl always emits GMT, so we anchor the
+                # parsed value to UTC explicitly to make it tz-aware.
+                naive = datetime.strptime(  # noqa: DTZ007  %Z parses GMT abbrev; openssl always emits UTC, anchored below
+                    openssl_dt, "%b %d %H:%M:%S %Y %Z"
                 )
+                return int(naive.replace(tzinfo=UTC).timestamp())
 
             return (_parse(nb) if nb else None, _parse(na) if na else None)
         except Exception:
@@ -64,8 +64,8 @@ class CertUtils:
     def extract_sans(cert_text):
         dns_entries = []
         in_san = False
-        for line in cert_text.splitlines():
-            line = line.strip()
+        for raw_line in cert_text.splitlines():
+            line = raw_line.strip()
             if "X509v3 Subject Alternative Name:" in line:
                 in_san = True
                 continue
@@ -80,7 +80,7 @@ class CertUtils:
     @staticmethod
     def list_cert_files(cert_base_path):
         cert_files = []
-        for root, dirs, files in os.walk(cert_base_path):
+        for root, _dirs, files in os.walk(cert_base_path):
             if "cert.pem" in files:
                 cert_files.append(os.path.join(root, "cert.pem"))
         return cert_files
@@ -93,11 +93,10 @@ class CertUtils:
             # Wildcard matches ONLY one additional label
             if domain == base:
                 return False
-            if domain.endswith("." + base) and domain.count(".") == base.count(".") + 1:
-                return True
-            return False
-        else:
-            return domain == san
+            return bool(
+                domain.endswith("." + base) and domain.count(".") == base.count(".") + 1
+            )
+        return domain == san
 
     @classmethod
     def build_snapshot(cls, cert_base_path):
@@ -200,8 +199,7 @@ class CertUtils:
             if not entries:
                 return None
             # newest by (not_before, mtime)
-            best = max(entries, key=cls._score_entry)
-            return best
+            return max(entries, key=cls._score_entry)
 
         best_exact = _pick_newest(candidates_exact)
         best_wild = _pick_newest(candidates_wild)

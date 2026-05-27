@@ -1,6 +1,7 @@
 # Custom Ansible filter to get all role names under "roles/" with a given prefix.
 
 import os
+from pathlib import Path
 
 
 def get_category_entries(prefix, roles_path="roles"):
@@ -12,19 +13,19 @@ def get_category_entries(prefix, roles_path="roles"):
     :param roles_path: Path to the roles directory (default: 'roles').
     :return: List of matching role names.
     """
-    if not os.path.isdir(roles_path):
+    if not Path(roles_path).is_dir():
         return []
 
     roles = []
     for entry in os.listdir(roles_path):
-        full_path = os.path.join(roles_path, entry)
-        if os.path.isdir(full_path) and entry.startswith(prefix):
+        full_path = str(Path(roles_path) / entry)
+        if Path(full_path).is_dir() and entry.startswith(prefix):
             roles.append(entry)
 
     return sorted(roles)
 
 
-class FilterModule(object):
+class FilterModule:
     """Custom filters for Ansible"""
 
     def filters(self):

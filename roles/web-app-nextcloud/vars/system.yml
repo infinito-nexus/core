@@ -1,3 +1,4 @@
+---
 nextcloud_system_config:
   - parameter: "hide_login_form"
     type: "boolean"

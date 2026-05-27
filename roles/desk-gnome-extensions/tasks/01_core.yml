@@ -1,3 +1,4 @@
+---
 - name: GNOME Activate Extensions
   ansible.builtin.shell: gsettings set org.gnome.shell disable-user-extensions false
   become: false

@@ -1,1 +1,2 @@
+---
 sys_timer_file: "{{ lookup('unit_name', system_service_timer_service, suffix='.timer') }}"

@@ -1,7 +1,6 @@
 import importlib.util
 import sys
 import unittest
-from pathlib import Path
 from types import ModuleType
 from unittest.mock import MagicMock, patch
 
@@ -44,8 +43,9 @@ def _load_lookup_module() -> ModuleType:
         loader_mod.lookup_loader = MagicMock()
         sys.modules["ansible.plugins.loader"] = loader_mod
 
-    here = Path(__file__).resolve()
-    plugin_path = here.parents[4] / "plugins" / "lookup" / "fediwall_active.py"
+    from . import PROJECT_ROOT
+
+    plugin_path = PROJECT_ROOT / "plugins" / "lookup" / "fediwall_active.py"
     spec = importlib.util.spec_from_file_location("fediwall_active", plugin_path)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None

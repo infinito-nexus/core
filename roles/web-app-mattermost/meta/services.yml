@@ -1,31 +1,34 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag
 ldap:
   enabled: false
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 mattermost:
   image: mattermost/mattermost-team-edition
-  version: 11.7.0
+  version: 11.7.1
   min_storage: 10GB
   backup:
     no_stop_required: true
   name: mattermost
-  cpus: '1.0'
+  cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
@@ -33,24 +36,31 @@ mattermost:
     local:
       http: 8065
   run_after:
-  - web-app-keycloak
-  - web-app-mailu
+    - web-app-keycloak
+    - web-app-mailu
   lifecycle: beta
+# nocheck: dynamic-flag
 oauth2:
   enabled: false
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: false
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
   enabled: true
   shared: true
+# nocheck: native-metrics — fragment ships prepared; operator flips `native_metrics.enabled` to opt in
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
   native_metrics:
     enabled: false
     port: 8067

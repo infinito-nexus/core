@@ -1,0 +1,78 @@
+---
+- name: Ensure shared Playwright project dir exists
+  ansible.builtin.file:
+    path: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: Render shared package.json from central template
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/roles/test-e2e-playwright/templates/package.json.j2"
+    dest: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/package.json"
+    mode: "0644"
+
+- name: Probe shared install stamp
+  ansible.builtin.stat:
+    path: "{{ TEST_E2E_PLAYWRIGHT_SHARED_STAMP }}"
+  register: _playwright_shared_stamp_stat
+
+- name: Read shared install stamp
+  ansible.builtin.slurp:
+    src: "{{ TEST_E2E_PLAYWRIGHT_SHARED_STAMP }}"
+  register: _playwright_shared_stamp_content
+  when: _playwright_shared_stamp_stat.stat.exists
+
+- name: Decide whether the shared install is up to date
+  ansible.builtin.set_fact:
+    _playwright_shared_install_needed: >-
+      {{
+        (not _playwright_shared_stamp_stat.stat.exists)
+        or ((_playwright_shared_stamp_content.content | default('') | b64decode | trim)
+            != TEST_E2E_PLAYWRIGHT_VERSION)
+      }}
+
+- name: Pull Playwright image if missing (shared install pass)
+  ansible.builtin.command:
+    argv:
+      - container
+      - pull
+      - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"
+  register: _playwright_shared_pull
+  changed_when: false
+  failed_when: false
+  retries: 3
+  delay: 5
+  until: _playwright_shared_pull.rc == 0
+  when: _playwright_shared_install_needed | bool
+
+- name: Install @playwright/test into the shared dir (once per host per version)
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - -v
+      - "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}:/shared"
+      - -w
+      - /shared
+      - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"
+      - /bin/bash
+      - -lc
+      - >-
+        npm install --no-fund --no-audit --prefer-offline
+        --fetch-retries 5
+        --fetch-retry-mintimeout 10000
+        --fetch-retry-maxtimeout 60000
+  register: _playwright_shared_install
+  changed_when: _playwright_shared_install.rc == 0
+  retries: 3
+  delay: 5
+  until: _playwright_shared_install.rc == 0
+  when: _playwright_shared_install_needed | bool
+
+- name: Write shared install stamp
+  ansible.builtin.copy:
+    dest: "{{ TEST_E2E_PLAYWRIGHT_SHARED_STAMP }}"
+    content: "{{ TEST_E2E_PLAYWRIGHT_VERSION }}"
+    mode: "0644"
+  when: _playwright_shared_install_needed | bool

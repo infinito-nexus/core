@@ -1,8 +1,8 @@
-# 🧩 Ansible Plugins (`plugins/`)
+# Ansible Plugins (`plugins/`) 🧩
 
 This document is the central reference for plugin types and plugin placement in Infinito.Nexus.
 
-## 🗂️ Current Project Layout
+## Current Project Layout 🗂️
 
 ```text
 plugins/
@@ -17,7 +17,7 @@ Configured plugin paths in this repository are defined in `ansible.cfg`:
 - `filter_plugins = ./plugins/filter`
 - `lookup_plugins = ./plugins/lookup`
 
-## 📚 All Common Ansible Plugin Types
+## All Common Ansible Plugin Types 📚
 
 The table below summarizes common Ansible plugin types and their conventional directory names.
 
@@ -39,68 +39,71 @@ The table below summarizes common Ansible plugin types and their conventional di
 | ✅ | `test` | `test_plugins/` | Add Jinja2 tests used in conditions and templates. |
 | 📦 | `vars` | `vars_plugins/` | Load variables from custom sources. |
 
-## 🧭 Which Plugin Type to Use
+## Which Plugin Type to Use 🧭
 
-### ⚙️ `action`
+### `action` ⚙️
 
 Use when task execution behavior itself must be changed or wrapped.
 
 Examples:
+
 - centralized retry logic (`uri_retry.py`),
 - argument normalization before module dispatch,
 - pre/post task orchestration.
 
-### 🔍 `filter`
+### `filter` 🔍
 
 Use for pure data transformation in Jinja2 expressions.
 
 Examples:
+
 - mapping/normalizing dictionaries,
 - deriving computed fields for templates,
 - deterministic formatting helpers.
 
-### 👉 `lookup`
+### `lookup` 👉
 
 Use when a value must be dynamically resolved at runtime.
 
 Examples:
+
 - computing IDs from role metadata,
 - resolving paths/version data,
 - reading structured project data for templates/tasks.
 
-### 📣 `callback`
+### `callback` 📣
 
 Use to hook into execution events and shape output/reporting.
 
-### 🧭 `inventory`
+### `inventory` 🧭
 
 Use when host/group data should come from a dynamic source.
 
-### 🧠 `strategy`
+### `strategy` 🧠
 
 Use to alter how tasks are scheduled/executed across hosts.
 
-### 📦 `vars`
+### `vars` 📦
 
 Use to load variables from custom backends.
 
-### 🔌🔐🐚 `connection`, `become`, `shell`
+### `connection`, `become`, `shell` 🔌🔐🐚
 
 Use to customize low-level execution and privilege mechanics.
 
-### 💾 `cache`
+### `cache` 💾
 
 Use to persist facts/results across runs for performance and consistency.
 
-### 🖧🌐🛰️ `cliconf`, `httpapi`, `netconf`
+### `cliconf`, `httpapi`, `netconf` 🖧🌐🛰️
 
 Use in network automation contexts requiring protocol-specific transport behavior.
 
-### ✅ `test`
+### `test` ✅
 
 Use to add custom Jinja2 test operators for conditional logic.
 
-## 🧪 Best Practices
+## Best Practices 🧪
 
 - Keep plugin interfaces explicit and stable.
 - Keep plugin logic focused; move shared logic to `utils/`.
@@ -108,7 +111,7 @@ Use to add custom Jinja2 test operators for conditional logic.
 - Prefer deterministic outputs and avoid hidden global state.
 - Document any plugin-specific task arguments in the plugin docstring and README.
 
-## 🔗 References
+## References 🔗
 
 - Ansible plugin development: <https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html>
 - Ansible plugin index (all types): <https://docs.ansible.com/ansible/latest/plugins/plugins.html>

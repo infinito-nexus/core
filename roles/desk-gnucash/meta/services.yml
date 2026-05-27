@@ -1,2 +1,8 @@
+---
 gnucash:
   lifecycle: pre-alpha
+  min_storage: "200MB"
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "512m"
+  pids_limit: 256

@@ -1,9 +1,10 @@
+---
 csp:
   whitelist: {}
   flags: {}
 domains:
   canonical:
-  - ticket.shop.{{ DOMAIN_PRIMARY }}
+    - ticket.shop.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

@@ -1,18 +1,27 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: Integrate LDAP
   include_tasks: 02_ldap.yml
-  when: lookup('config',application_id, 'services.ldap.enabled')
+  when: FRIENDICA_LDAP_ENABLED | bool
 
 # General
 - name: "flush handlers to ensure that '{{ FRIENDICA_CONTAINER }}' is up before executing container tasks"
   meta: flush_handlers
+
+- name: "Remove stale ldapauth.config.php leftover when LDAP is disabled"
+  command: >
+    container exec --user root {{ FRIENDICA_CONTAINER }}
+    rm -f {{ FRIENDICA_LDAP_CONFIG_DOCKER }}
+  register: friendica_ldap_config_cleanup
+  changed_when: friendica_ldap_config_cleanup.rc == 0
+  when: not (FRIENDICA_LDAP_ENABLED | bool)
 
 - name: Check if Friendica local.config.php exists
   command: >
@@ -27,3 +36,7 @@
 
 - name: Add Friendica Add Ons
   include_tasks: 04_addons.yml
+
+- name: Bootstrap Friendica administrator user (only when no LDAP provider is wired to provision them)
+  include_tasks: 06_user_bootstrap.yml
+  when: not (FRIENDICA_LDAP_ENABLED | bool)

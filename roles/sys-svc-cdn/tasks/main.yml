@@ -2,9 +2,9 @@
 - block:
     - name: Ensure shared root and vendor exist (run once)
       ansible.builtin.file:
-        path:  "{{ item }}"
+        path: "{{ item }}"
         state: directory
-        mode:  "0755"
+        mode: "0755"
       loop: "{{ CDN_GLOBAL_DIRS }}"
     - include_tasks: utils/once/flag.yml
   when:
@@ -13,8 +13,8 @@
 - name: Overwritte CDN handlers with neutral handlers
   ansible.builtin.include_tasks: "tasks/utils/load_handlers.yml"
   loop:
-  - svc-prx-openresty
-  - sys-svc-compose
+    - svc-prx-openresty
+    - sys-svc-compose
   loop_control:
     loop_var: handler_role
     label: "{{ handler_role }}"
@@ -23,15 +23,15 @@
 
 - name: Ensure CDN directories exist
   file:
-    path:  "{{ item }}"
+    path: "{{ item }}"
     state: directory
-    mode:  "0755"
+    mode: "0755"
   loop: "{{ CDN_ROLE_DIRS }}"
 
 - name: Ensure 'latest' symlink points to current release
   file:
-    src:   "{{ lookup('cdn', application_id).role.release.root }}"
-    dest:  "{{ [lookup('cdn', application_id).role.root, 'latest'] | path_join }}"
+    src: "{{ lookup('cdn', application_id).role.release.root }}"
+    dest: "{{ [lookup('cdn', application_id).role.root, 'latest'] | path_join }}"
     state: link
     force: true
   when: lookup('cdn', application_id).role.version != 'latest'

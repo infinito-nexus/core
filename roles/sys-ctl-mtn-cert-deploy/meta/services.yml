@@ -1,2 +1,5 @@
+---
 cert-deploy:
   lifecycle: beta
+  required_by:
+    roles: [web-app-mailu]

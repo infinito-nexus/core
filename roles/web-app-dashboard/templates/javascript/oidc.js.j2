@@ -1,5 +1,4 @@
 /* ==========================================================================================
-   roles/web-app-dashboard/templates/javascript/oidc.js.j2
    Purpose: Hide "Login" and show "Account" when a Keycloak SSO session exists,
             wire login/logout clicks to the Keycloak adapter, and keep state fresh.
    NOTE: Ensure CSP allows {{ OIDC.URL }} for script-src-elem, connect-src, and frame-src.
@@ -176,6 +175,11 @@ async function initAuthUI() {
 
   syncAuthMenuVisibility(authenticated);
   wireLoginLogoutClicks();
+  // Persona-helper readiness contract — flag name SPOT is
+  // `OIDC_LOGIN_READY_FLAG` in
+  // `roles/test-e2e-playwright/files/personas/utils/keycloak.js`.
+  // Must stay in sync with that constant.
+  window.__oidcLoginReady = true;
 
   // Schedule token refresh only if we are authenticated
   async function scheduleRefresh() {

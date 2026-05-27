@@ -1,3 +1,4 @@
+---
 # Ensure an admin user exists (when SSO is disabled) and can administer XWiki.
 
 - name: "XWIKI | Fetch REST session + form token (admin write ops)"
@@ -13,10 +14,7 @@
     force_basic_auth: true
     status_code: [201, 202, 204, 200]
     headers: "{{ xwiki_rest_headers_write }}"
-    body: |
-      <page xmlns="http://www.xwiki.org">
-        <title>{{ XWIKI_ADMIN_USER }}</title>
-      </page>
+    body: "{{ lookup('template', 'xml/user_page.xml.j2') }}"
   register: _user_page
 
 # 2) Add XWiki.XWikiUsers object (only if it does not already exist)
@@ -39,34 +37,29 @@
     force_basic_auth: true
     status_code: [201, 200]
     headers: "{{ xwiki_rest_headers_write }}"
-    body: |
-      <object xmlns="http://www.xwiki.org">
-        <className>XWiki.XWikiUsers</className>
-        <properties>
-          <property name="first_name">{{ lookup('users', 'administrator').firstname }}</property>
-          <property name="last_name">{{ lookup('users', 'administrator').lastname }}</property>
-          <property name="email">{{ lookup('users', 'administrator').email }}</property>
-          <property name="active">1</property>
-        </properties>
-      </object>
+    body: "{{ lookup('template', 'xml/user_xwikiusers_object.xml.j2') }}"
   when: _users_obj_list.status == 404 or ('<object' not in (_users_obj_list.content | default('')))
   register: _user_obj_created
 
-# 3) Assign admin rights by adding the user to XWikiAdminGroup (only when no SSO)
-- name: "XWIKI | Ensure user is in XWikiAdminGroup"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI_PAGES, 'XWikiAdminGroup/objects'] | url_join }}"
-    method: POST
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [201, 200]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: |
-      <object xmlns="http://www.xwiki.org">
-        <className>XWiki.XWikiGroups</className>
-        <properties>
-          <property name="member">XWiki.{{ XWIKI_ADMIN_USER }}</property>
-        </properties>
-      </object>
-  when: not (XWIKI_LDAP_ENABLED | bool) and not (XWIKI_OIDC_ENABLED | bool)
+- block:
+    - name: "XWIKI | Ensure {{ XWIKI_ADMIN_GROUP_PAGE }} page exists"
+      uri_retry:
+        url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE] | url_join }}"
+        method: PUT
+        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+        force_basic_auth: true
+        status_code: [201, 202, 204, 200]
+        headers: "{{ xwiki_rest_headers_write }}"
+        body: "{{ lookup('template', 'xml/xwiki_admin_group_page.xml.j2') }}"
+    - name: "XWIKI | Ensure user is in {{ XWIKI_ADMIN_GROUP_PAGE }}"
+      uri_retry:
+        url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE, 'objects'] | url_join }}"
+        method: POST
+        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+        force_basic_auth: true
+        status_code: [201, 200]
+        headers: "{{ xwiki_rest_headers_write }}"
+        body: "{{ lookup('template', 'xml/xwiki_admin_group_member_object.xml.j2') }}"
+  when: not (XWIKI_SSO_ENABLED | bool)

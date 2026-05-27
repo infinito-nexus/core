@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -9,7 +10,7 @@ csp:
       unsafe-eval: true
 domains:
   canonical:
-  - taiga.kanban.{{ DOMAIN_PRIMARY }}
+    - taiga.kanban.{{ DOMAIN_PRIMARY }}
 networks:
   local:
     subnet: 192.168.102.176/28

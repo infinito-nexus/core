@@ -1,3 +1,4 @@
+---
 - name: refresh systemctl service
   listen: refresh systemctl service
   ansible.builtin.include_tasks: refresh_systemctl_service.yml

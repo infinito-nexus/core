@@ -1,3 +1,4 @@
+---
 - name: Generate color palette with colorscheme-generator
   set_fact:
     CSS_COLOR_PALETTE: "{{ lookup('colorscheme', CSS_BASE_COLOR, count=CSS_COUNT, shades=CSS_SHADES) }}"
@@ -22,9 +23,9 @@
 
 - name: Deploy default CSS files
   template:
-    src:    "{{ ['css', css_file ~ '.j2'] | path_join }}"
-    dest:   "{{ [lookup('cdn', 'web-svc-cdn').shared.css, css_file] | path_join }}"
-    mode:   '0644'
+    src: "{{ ['css', css_file ~ '.j2'] | path_join }}"
+    dest: "{{ [lookup('cdn', 'web-svc-cdn').shared.css, css_file] | path_join }}"
+    mode: "0644"
   loop: "{{ CSS_FILES }}"
   loop_control:
     loop_var: css_file

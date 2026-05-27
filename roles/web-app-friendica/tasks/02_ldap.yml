@@ -1,9 +1,10 @@
+---
 - name: "create {{ FRIENDICA_LDAP_CONFIG_HOST }}"
   template:
-    src:  "ldapauth.config.php.j2" 
+    src: "ldapauth.config.php.j2"
     dest: "{{ FRIENDICA_LDAP_CONFIG_HOST }}"
-    mode: '644'
+    mode: "644"
     owner: root
     group: 33
-    force: yes
+    force: true
   notify: compose up

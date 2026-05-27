@@ -15,7 +15,7 @@ GHCR, or other external services. Run them with `make test-external`.
 ## Location 📁
 
 - External tests MUST live under `tests/external/`.
-- You SHOULD group them by dependency family such as `tests/external/docker/`
+- You SHOULD group them by dependency family such as `tests/external/update/`
   or `tests/external/github/` when more than one test exists.
 - Every external test directory MUST contain `__init__.py` so repository-wide
   test structure checks keep passing.
@@ -61,7 +61,7 @@ make test-external
 To scope the run to one file:
 
 ```bash
-make test-external TEST_PATTERN=test_image_versions.py
+make test-external INFINITO_TEST_PATTERN=test_image_versions.py
 ```
 
 ## CI Workflow 🤖

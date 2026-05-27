@@ -1,6 +1,6 @@
 {
   "name": "{{ lookup('config', application_id, 'services.keycloak.scopes.moodle') }}",
-  "description": "Custom OIDC claims consumed by Moodle's auth_oidc plugin (req-015).",
+  "description": "Custom OIDC claims consumed by Moodle's auth_oidc plugin.",
   "protocol": "openid-connect",
   "attributes": {
     "include.in.token.scope": "true",

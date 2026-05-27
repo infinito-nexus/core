@@ -1,7 +1,7 @@
 # Regression Guards 🛡️
 
-This page is the SPOT for regression-guard rules in tests.
-Use [Integration Tests](integration.md) as the SPOT for general integration-test requirements and structure.
+This page covers regression-guard rules in tests.
+For general integration-test requirements and structure, see [Integration Tests](integration.md).
 
 ## Rules 📏
 

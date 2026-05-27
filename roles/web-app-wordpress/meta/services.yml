@@ -1,23 +1,25 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-mariadb' in group_names }}"
 discourse:
   enabled: "{{ 'web-app-discourse' in group_names }}"
-  shared: true
+  shared: "{{ 'web-app-discourse' in group_names }}"
 wordpress:
-  version: latest
+  version: 7.0.0
   image: wordpress
   name: wordpress
   min_storage: 8GB
@@ -44,9 +46,10 @@ wordpress:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
-  enabled: false
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

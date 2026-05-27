@@ -1,5 +1,6 @@
-from ansible.errors import AnsibleFilterError
 import re
+
+from ansible.errors import AnsibleFilterError
 
 
 def to_one_liner(s):
@@ -34,12 +35,10 @@ def to_one_liner(s):
         temp = temp.replace(f"__STR{idx}__", lit)
 
     # 5) Collapse all whitespace
-    one_liner = re.sub(r"\s+", " ", temp).strip()
-
-    return one_liner
+    return re.sub(r"\s+", " ", temp).strip()
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "to_one_liner": to_one_liner,

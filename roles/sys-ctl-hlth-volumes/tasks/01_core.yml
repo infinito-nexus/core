@@ -1,3 +1,4 @@
+---
 - name: Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose
@@ -6,10 +7,10 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_on_calendar:       "{{ SYS_SCHEDULE_HEALTH_DOCKER_VOLUMES }}"
-    system_service_timer_enabled:     true
-    system_service_tpl_on_failure:    "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }} {{ SYS_SERVICE_CLEANUP_ANONYMOUS_VOLUMES }}"
-    system_service_tpl_exec_start:    '{{ system_service_script_exec }} "{{ DOCKER_WHITELISTET_ANON_VOLUMES | join(" ") }}"'
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_DOCKER_VOLUMES }}"
+    system_service_timer_enabled: true
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }} {{ SYS_SERVICE_CLEANUP_ANONYMOUS_VOLUMES }}"
+    system_service_tpl_exec_start: '{{ system_service_script_exec }} "{{ DOCKER_WHITELISTET_ANON_VOLUMES | join(" ") }}"'
     system_service_force_flush_final: true
 
 - include_tasks: utils/once/flag.yml

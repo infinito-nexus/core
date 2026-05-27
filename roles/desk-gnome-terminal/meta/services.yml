@@ -1,4 +1,8 @@
+---
 gnome-terminal:
-  run_after:
-  - desk-gnome
   lifecycle: pre-alpha
+  min_storage: "100MB"
+  cpus: "0.2"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 128

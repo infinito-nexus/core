@@ -1,12 +1,10 @@
-- block:
-    - name: Include dependency 'sys-svc-webserver-core'
-      include_role:
-        name: sys-svc-webserver-core
-      vars:
-        docker_git_repository_pull: false # Deactivated here to don't inhire this
-      when: run_once_sys_svc_webserver_core is not defined
-    - include_tasks: utils/once/flag.yml
-  when: run_once_sys_front_inj_all is not defined
+---
+# nocheck: run-once — per-application role: every invocation must (re)apply CDN dirs, inj-*, body_filter.lua for the current `application_id`.
+- name: Include dependency 'sys-svc-webserver-core'
+  include_role:
+    name: sys-svc-webserver-core
+  vars:
+    compose_repository_pull: false # Deactivated here to don't inhire this
 
 - name: "Setup CDN directories for '{{ domain }}'"
   include_role:
@@ -26,7 +24,7 @@
 
 - name: "Activate Dashboard iFrame notifier for '{{ domain }}'"
   include_role:
-    name:   sys-front-inj-dashboard
+    name: sys-front-inj-dashboard
     public: true
   when: inj_enabled.dashboard
 
@@ -44,3 +42,10 @@
   include_role:
     name: sys-front-inj-javascript
   when: inj_enabled.javascript
+
+- name: "Render body_filter Lua for '{{ application_id }}'"
+  ansible.builtin.template:
+    src: body_filter.lua.j2
+    dest: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}.lua"
+    mode: "0644"
+  notify: restart openresty

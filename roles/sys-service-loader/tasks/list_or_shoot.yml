@@ -1,0 +1,35 @@
+---
+# Route a list of role names through the service-loader queue when inside a
+# preload context, otherwise include them immediately. Encapsulates the
+# `_service_loader_preloading`-aware branching so callers can stay terse.
+#
+# Usage:
+#   - include_role:
+#       name: sys-service-loader
+#       tasks_from: list_or_shoot.yml
+#     vars:
+#       list_or_shoot_roles:
+#         - sys-ctl-cln-docker
+#         - sys-ctl-hlth-container
+#
+# - During the preload pass driven by sys-service-loader
+#   (`_service_loader_preloading: true`), the names are appended to
+#   `_service_loader_post_run` for the loader's post-load flush.
+# - Outside any preload pass, the roles are included on the spot, so the
+#   helper is a no-op compared with a direct `include_role` loop. This is
+#   the standalone fallback when the service-loader is bypassed (tests,
+#   ad-hoc playbooks).
+
+- name: "List post-load roles for service-loader flush"
+  ansible.builtin.set_fact:
+    _service_loader_post_run: "{{ _service_loader_post_run + list_or_shoot_roles }}"
+  changed_when: false
+  when: (_service_loader_preloading | default(false) | bool)
+
+- name: "Shoot post-load roles directly (no preload context active)"
+  ansible.builtin.include_role:
+    name: "{{ list_or_shoot_role }}"
+  loop: "{{ list_or_shoot_roles }}"
+  loop_control:
+    loop_var: list_or_shoot_role
+  when: not (_service_loader_preloading | default(false) | bool)

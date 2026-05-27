@@ -1,3 +1,4 @@
+---
 - name: Install nextcloud-client
   package:
     name: nextcloud-client

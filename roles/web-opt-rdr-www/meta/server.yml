@@ -1,0 +1,4 @@
+---
+domains:
+  canonical:
+    - "w3redirect.{{ DOMAIN_PRIMARY }}"

@@ -1,12 +1,13 @@
+---
 # RBAC declaration for the in-role plg_system_keycloak OIDC plugin
-# (requirement 013). The plugin maps the Keycloak `groups` claim
+# The plugin maps the Keycloak `groups` claim
 # onto Joomla's built-in usergroup IDs:
 #
 #   /roles/web-app-joomla/administrator → Super Users (id 8)
 #   /roles/web-app-joomla/editor        → Editor      (id 4)
 #   /roles/web-app-joomla               → Registered  (id 2)
 #
-# `administrator` is the implicit role auto-added by req-004 and is
+# `administrator` is the implicit role auto-added by and is
 # always present, so only the additional roles below need explicit
 # declaration.
 roles:

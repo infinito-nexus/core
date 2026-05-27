@@ -1,6 +1,6 @@
 # Utilities 🐍
 
-This page is the SPOT for file placement rules inside the repository `utils/` tree.
+This page covers file placement rules inside the repository `utils/` tree.
 For shell-script placement rules, see [scripst.md](scripst.md).
 
 ## Allowed file types 📋

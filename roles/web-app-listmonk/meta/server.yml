@@ -1,6 +1,7 @@
+---
 domains:
   canonical:
-  - newsletter.{{ DOMAIN_PRIMARY }}
+    - newsletter.{{ DOMAIN_PRIMARY }}
   aliases: []
 status_codes:
   default: 404

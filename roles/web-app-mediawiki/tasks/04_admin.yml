@@ -1,3 +1,4 @@
+---
 - name: "Create / promote MediaWiki admin user"
   command: >
     container exec

@@ -1,6 +1,6 @@
 # `javascript.js` 📜
 
-This page is the SPOT for role-local JavaScript injection and browser-side integration behavior.
+This page documents role-local JavaScript injection and browser-side integration behavior.
 Use this page for injector wiring, activation, and repository-wide behavior rules.
 For implementation scope, DOM strategy, and live review, see [Agent `javascript.js`](../../../../agents/files/role/javascript.js.md).
 For browser-side validation requirements after visible behavior changes, see [Playwright Tests](../../../actions/testing/playwright.md).

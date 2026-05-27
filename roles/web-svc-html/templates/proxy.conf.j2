@@ -1,3 +1,5 @@
+{% set application_id = front_proxy_application_id | default(application_id) %}
+{% set domain = front_proxy_domain | default(domain) %}
 server
 {
   server_name {{ domain }};

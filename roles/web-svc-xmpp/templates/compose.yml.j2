@@ -9,11 +9,19 @@
       - "5269:5269"
     volumes:
       - data:/home/ejabberd/database
+      - conf:/home/ejabberd/conf
+      - upload:/home/ejabberd/upload
+      - logs:/home/ejabberd/logs
       - {{ XMPP_CONFIG_FILE }}:/home/ejabberd/conf/ejabberd.yml:ro
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'data': {'name': XMPP_VOLUME}}
+    extra_volumes={
+      'data':   {'name': XMPP_VOLUME},
+      'conf':   {'name': lookup('config', application_id, 'volumes.conf')},
+      'upload': {'name': lookup('config', application_id, 'volumes.upload')},
+      'logs':   {'name': lookup('config', application_id, 'volumes.logs')}
+    }
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

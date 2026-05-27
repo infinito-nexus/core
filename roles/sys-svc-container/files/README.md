@@ -44,8 +44,10 @@ Infinito.Nexus.
   - `container inspect`
   - `container pull`
 - Provides a raw escape hatch:
+
   ```bash
   container docker <any docker args>
+
 ```
 
 **Who uses it**

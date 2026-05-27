@@ -1,3 +1,4 @@
+---
 - name: "find best matching source for service script"
   set_fact:
     system_service_script_src: >-

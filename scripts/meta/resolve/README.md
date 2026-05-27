@@ -7,9 +7,10 @@ This directory contains scripts that resolve metadata and derived values used by
 - 🗂️ Keep lookup and resolution logic grouped in one place
 
 Examples in this folder and its subfolders:
+
 - `repository/name.sh` resolves the concrete repository name once for callers
 - `repository/owner.sh` resolves the concrete repository owner once for callers
-- `distros.sh` is the SPOT for the canonical distro list used by workflows
+- `distros.sh` holds the canonical distro list used by workflows
 - See [pr/README.md](pr/README.md) for the Pull Request-specific resolvers.
 
 The scope of this folder is value resolution.

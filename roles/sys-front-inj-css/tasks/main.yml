@@ -1,3 +1,4 @@
+---
 - include_tasks: 01_core.yml
   when: run_once_sys_front_inj_css is not defined
 
@@ -16,6 +17,6 @@
 - name: "Deploy per-app '{{ app_style_src }}' to '{{ css_app_dst }}'"
   when: app_style_present | bool
   copy:
-    content:  "{{ lookup('template', app_style_src) }}"
-    dest:     "{{ css_app_dst }}"
-    mode:     '0644'
+    content: "{{ lookup('template', app_style_src) }}"
+    dest: "{{ css_app_dst }}"
+    mode: "0644"

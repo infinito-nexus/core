@@ -1,3 +1,4 @@
+---
 portfolio_menu_categories:
 
   Community:
@@ -68,7 +69,7 @@ portfolio_menu_categories:
       - openproject
       - taiga
       - jira
-  
+
   Social Media:
     description: "Social Media Tools"
     icon: "fa-solid fa-share-nodes"
@@ -110,7 +111,7 @@ portfolio_menu_categories:
       - mailu
       - matrix
       - xmpp
-  
+
   Cloud:
     description: "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
     icon: "fa-solid fa-cloud"
@@ -177,7 +178,7 @@ portfolio_menu_categories:
       - compose
       - repository-setup
       - yourls
-  
+
   Documentation:
     description: "Documentation and Wiki Applications"
     icon: "fa fa-book"
@@ -195,7 +196,7 @@ portfolio_menu_categories:
       - invoices
       - akaunting
       - snipe-it
-      
+
   Events:
     description: "Event and ticket management tools"
     icon: "fa-solid fa-ticket-alt"
@@ -231,7 +232,7 @@ portfolio_menu_categories:
 
   Analytics:
     description: "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
-    icon: "fas fa-chart-line"  
+    icon: "fas fa-chart-line"
     tags:
       - matomo
 
@@ -267,7 +268,8 @@ portfolio_menu_categories:
       - pretix
 
   Storage:
-    description: "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+    description: "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with
+      Amazon S3 APIs."
     icon: "fa-solid fa-database"
     tags:
       - storage

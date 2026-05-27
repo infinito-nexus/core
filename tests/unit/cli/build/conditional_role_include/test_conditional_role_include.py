@@ -3,9 +3,10 @@ import os
 import unittest
 import tempfile
 import shutil
-from cli.build.role_include import build_dependency_graph, topological_sort, gen_condi_role_incl
+from cli.build.include import build_dependency_graph, topological_sort, gen_condi_role_incl
 
 from utils.cache.yaml import dump_yaml
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 class TestGeneratePlaybook(unittest.TestCase):
     def setUp(self):
@@ -25,7 +26,7 @@ class TestGeneratePlaybook(unittest.TestCase):
             os.makedirs(os.path.join(role_path, 'meta'), exist_ok=True)
             os.makedirs(os.path.join(role_path, 'vars'), exist_ok=True)
 
-            # In the new layout (req-010) run_after lives at
+            # In the new layout run_after lives at
             # meta/services.yml.<primary_entity>.run_after. For role names
             # that are not prefixed by a known category (e.g. 'role-a'),
             # get_entity_name returns the role name itself.
@@ -39,13 +40,13 @@ class TestGeneratePlaybook(unittest.TestCase):
                 'application_id': meta['application_id']
             }
 
-            dump_yaml(os.path.join(role_path, 'meta', 'services.yml'), meta_services)
+            dump_yaml(os.path.join(role_path, ROLE_FILE_META_SERVICES), meta_services)
 
             # find_roles() still uses meta/main.yml as a marker file to
             # detect roles, so we create an empty one here.
-            dump_yaml(os.path.join(role_path, 'meta', 'main.yml'), {})
+            dump_yaml(os.path.join(role_path, ROLE_FILE_META_MAIN), {})
 
-            dump_yaml(os.path.join(role_path, 'vars', 'main.yml'), vars_file)
+            dump_yaml(os.path.join(role_path, ROLE_FILE_VARS_MAIN), vars_file)
 
     def tearDown(self):
         # Clean up the temporary directory

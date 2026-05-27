@@ -1,3 +1,4 @@
+---
 - name: Include dependency 'sys-daemon'
   include_role:
     name: sys-daemon

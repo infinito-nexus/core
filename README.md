@@ -1,8 +1,9 @@
 # Infinito.Nexus 🚀
 
-**🔐 One login. ♾️ Infinite applications** 
+**🔐 One login. ♾️ Infinite applications**
 
 ![Infinito.Nexus Logo](assets/img/logo.png)
+
 ---
 
 ## What is Infinito.Nexus? 📌
@@ -51,14 +52,14 @@
 
 ## Get Started 🚀
 
-### Use it online 🌐 
+### Use it online 🌐
 
 Try [Infinito.Nexus](https://infinito.nexus) – sign up in seconds, explore the platform, and discover what our solution can do for you! 🚀🔧✨
 
 ## Guides 📚
 
-- [Installation Guide](docs/administration/installation.md) for local CLI installation, Docker execution, and source builds.
-- [Deploy Guide](docs/administration/deploy.md) for inventory creation, full deploys, and redeploy flows.
+* [Installation Guide](docs/administration/installation.md) for local CLI installation, Docker execution, and source builds.
+* [Deploy Guide](docs/administration/deploy.md) for inventory creation, full deploys, and redeploy flows.
 
 ## Contributing 🔨
 

@@ -1,4 +1,3 @@
-# roles/web-app-peertube/filter_plugins/install_mem_limit.py
 # Derive a temporary cgroup memory ceiling for the one-off
 # `npm run plugin:install` exec.
 #
@@ -27,7 +26,7 @@ try:
 except Exception as e:
     raise AnsibleFilterError(
         f"Failed to import _to_bytes from plugins.filter.node_autosize: {e}"
-    )
+    ) from e
 
 
 def install_mem_limit(mem_limit, install_heap_mb, overhead: int = 4) -> int:
@@ -53,14 +52,14 @@ def install_mem_limit(mem_limit, install_heap_mb, overhead: int = 4) -> int:
     except Exception:
         raise AnsibleFilterError(
             f"install_mem_limit: install_heap_mb must be int-like, got: {install_heap_mb!r}"
-        )
+        ) from None
 
     try:
         ov = int(overhead)
     except Exception:
         raise AnsibleFilterError(
             f"install_mem_limit: overhead must be int-like, got: {overhead!r}"
-        )
+        ) from None
 
     if heap_mb <= 0:
         raise AnsibleFilterError(
@@ -72,6 +71,6 @@ def install_mem_limit(mem_limit, install_heap_mb, overhead: int = 4) -> int:
     return base_bytes + heap_mb * ov * 10**6
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {"install_mem_limit": install_mem_limit}

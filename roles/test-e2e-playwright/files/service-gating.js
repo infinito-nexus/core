@@ -11,8 +11,9 @@
  * Sources of truth:
  *   Per-service boolean env flags named <SERVICE>_SERVICE_ENABLED in
  *   UPPER_SNAKE_CASE. Values MUST be the literal strings "true" or "false".
- *   An absent variable is treated as "enabled" so local rerun-spec.sh runs
- *   against a fully-featured deploy keep their old behaviour.
+ *   An absent variable is treated as "enabled" so local
+ *   `make compose-playwright role=<role>` runs against a fully-featured
+ *   deploy keep their old behaviour.
  *
  * Typo-safety:
  *   A service name that is not declared in the spec's env registry (i.e.
@@ -22,7 +23,6 @@
  *   surfacing the typo.
  *
  * See:
- *   docs/requirements/006-playwright-service-gated-tests.md
  *   docs/contributing/artefact/files/role/playwright.specs.js.md
  */
 
@@ -72,7 +72,7 @@ function assertKnownService(name) {
   const registered = registeredServices();
   if (registered.size === 0) {
     // No <SERVICE>_SERVICE_ENABLED at all in the env — assume an older
-    // staged .env that predates requirement 006. Treat every service as
+    // staged .env without service-gate flags. Treat every service as
     // enabled and let individual lookups fall through to the default.
     return;
   }

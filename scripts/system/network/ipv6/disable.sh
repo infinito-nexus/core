@@ -4,7 +4,7 @@ set -euo pipefail
 STATE_FILE="/tmp/infinito-dev-environment-ipv6.state"
 
 if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
-	echo "[ipv6] error: disable.sh must be run as root (for example via 'sudo' or 'make disable-ipv6')" >&2
+	echo "[ipv6] error: disable.sh must be run as root (for example via 'sudo' or 'make network-ipv6-disable')" >&2
 	exit 1
 fi
 
@@ -108,4 +108,4 @@ disable_existing_interfaces
 restart_docker_service
 
 echo "[ipv6] disabled for all, default, and currently existing interfaces"
-echo "[ipv6] note: make disable-ipv6 calls make refresh after the docker.service restart"
+echo "[ipv6] note: make network-ipv6-disable calls make network-refresh after the docker.service restart"

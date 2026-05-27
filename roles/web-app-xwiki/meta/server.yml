@@ -1,7 +1,8 @@
+---
 csp:
   whitelist:
     worker-src:
-    - 'blob:'
+      - "blob:"
   flags:
     script-src-attr:
       unsafe-eval: true
@@ -9,7 +10,7 @@ csp:
       unsafe-inline: true
 domains:
   canonical:
-  - x.wiki.{{ DOMAIN_PRIMARY }}
+    - x.wiki.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

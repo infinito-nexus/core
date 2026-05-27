@@ -1,12 +1,15 @@
-from collections.abc import Mapping
-import os
 import sys
+from collections.abc import Mapping
+from pathlib import Path
 
-from utils.applications.config import get  # reuse existing helper
+from utils.roles.applications.config import get  # reuse existing helper
 
-# Allow imports from utils (same trick as your config filter)
-_BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-_MODULE_UTILS_DIR = os.path.join(_BASE_DIR, "utils")
+# Allow imports from utils (same trick as your config filter).
+# Role-bundled plugin: Ansible loads by file path with no package
+# context, so `from . import PROJECT_ROOT` cannot resolve here.
+# nocheck: project-root-import
+_BASE_DIR = str(Path(__file__).resolve().parents[3])
+_MODULE_UTILS_DIR = str(Path(_BASE_DIR) / "utils")
 for _p in (_BASE_DIR, _MODULE_UTILS_DIR):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -140,7 +143,7 @@ def web_health_expectations(
 
     expectations = {}
 
-    for app_id in applications.keys():
+    for app_id in applications:
         if app_id not in selection:
             continue
 
@@ -186,7 +189,7 @@ def web_health_expectations(
 
     if www_enabled:
         add = {}
-        for d in expectations.keys():
+        for d in expectations:
             if not d.startswith("www."):
                 add[f"www.{d}"] = [301]
         expectations.update(add)
@@ -194,11 +197,10 @@ def web_health_expectations(
             if d.startswith("www."):
                 expectations[d] = [301]
 
-    ordered = {k: expectations[k] for k in sorted(expectations.keys())}
-    return ordered
+    return {k: expectations[k] for k in sorted(expectations.keys())}
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "web_health_expectations": web_health_expectations,

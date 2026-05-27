@@ -1,3 +1,4 @@
+---
 - block:
     - name: Stop and disable postfix if present (avoid port 25 conflicts)
       service:

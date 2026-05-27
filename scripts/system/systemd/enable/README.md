@@ -1,13 +1,13 @@
-# ✅ systemd. Enable
+# systemd. Enable ✅
 
 This directory contains platform-specific scripts for enabling systemd in environments where it is not active by default.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../../docs/contributing/tools/make.md).
 
 ---
 
-## 📄 Scripts
+## Scripts 📄
 
-### 🪟 `wsl2.sh`
+### `wsl2.sh` 🪟
 
 Enables systemd as the WSL2 init system by writing `systemd=true` into `/etc/wsl.conf`.
 
@@ -20,6 +20,6 @@ Enables systemd as the WSL2 init system by writing `systemd=true` into `/etc/wsl
 
 ---
 
-## 🔗 Related
+## Related 🔗
 
 - [`../`](../). systemd administration scripts

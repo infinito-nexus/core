@@ -2,10 +2,10 @@
 - name: Setup the full docker stack
   include_tasks: 01_fullstack.yml
   vars:
-    domain:     "{{ NEXTCLOUD_DOMAIN }}"
-    http_port:  "{{ NEXTCLOUD_PORT }}"
+    domain: "{{ NEXTCLOUD_DOMAIN }}"
+    http_port: "{{ NEXTCLOUD_PORT }}"
 
-- name: Setup config.php 
+- name: Setup config.php
   include_tasks: 02_config.yml
 
 - name: Flush all handlers immediately so that occ can be used
@@ -16,7 +16,7 @@
   register: redis_ping
   retries: 60
   delay: 2
-  until: (redis_ping.stdout | default('')) is search('PONG')
+  until: redis_ping.stdout is search('PONG')
 
 - name: Update\Upgrade Nextcloud
   include_tasks: 03_upgrade.yml
@@ -30,12 +30,12 @@
     loop_var: nextcloud_step
 
 - name: Setup Nextcloud Plugins
-  include_tasks: 06_setup_plugin.yml
+  include_tasks: 06_plugin.yml
   loop: "{{ NEXTCLOUD_PLUGIN_ITEMS }}"
   loop_control:
     loop_var: plugin_item
   vars:
-    plugin_key:   "{{ plugin_item.key }}"
+    plugin_key: "{{ plugin_item.key }}"
     plugin_value: "{{ plugin_item.value }}"
   when: NEXTCLOUD_PLUGINS_ENABLED | bool
 

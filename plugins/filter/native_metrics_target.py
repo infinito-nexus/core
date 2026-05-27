@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from ansible.errors import AnsibleFilterError
 
-from utils.entity_name_utils import get_entity_name
+from utils.roles.entity_name import get_entity_name
 
 
 def native_metrics_target(app_id: str, applications: dict) -> str:

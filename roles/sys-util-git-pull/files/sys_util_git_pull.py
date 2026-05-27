@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass
-from typing import List, Optional
+from pathlib import Path
 
 
 @dataclass
@@ -37,13 +37,14 @@ def log(msg: str, verbose: bool) -> None:
         print(f"[git-pull] {msg}", file=sys.stderr)
 
 
-def run(cmd: List[str], cwd: Optional[str], verbose: bool) -> RunResult:
+def run(cmd: list[str], cwd: str | None, verbose: bool) -> RunResult:
     log(f"run: {' '.join(cmd)} (cwd={cwd})", verbose)
     p = subprocess.run(
         cmd,
         cwd=cwd,
         text=True,
         capture_output=True,
+        check=False,
     )
     return RunResult(
         p.returncode,
@@ -58,8 +59,8 @@ def _is_transient_git_failure(r: RunResult) -> bool:
 
 
 def run_checked(
-    cmd: List[str],
-    cwd: Optional[str],
+    cmd: list[str],
+    cwd: str | None,
     verbose: bool,
     *,
     retries: int = 5,
@@ -71,7 +72,7 @@ def run_checked(
     For likely transient transport/network issues (common in CI/docker),
     retry with exponential backoff.
     """
-    last: Optional[RunResult] = None
+    last: RunResult | None = None
 
     for attempt in range(1, retries + 1):
         r = run(cmd, cwd=cwd, verbose=verbose)
@@ -113,7 +114,7 @@ def git(dest: str, verbose: bool, *args: str, retries: int = 5) -> RunResult:
 
 
 def ensure_dir(dest: str, verbose: bool) -> None:
-    os.makedirs(dest, exist_ok=True)
+    Path(dest).mkdir(parents=True, exist_ok=True)
     log(f"ensure directory exists: {dest}", verbose)
 
 
@@ -125,7 +126,7 @@ def is_dir_empty(path: str) -> bool:
 
 
 def is_git_repo(dest: str) -> bool:
-    return os.path.isdir(os.path.join(dest, ".git"))
+    return Path(str(Path(dest) / ".git")).is_dir()
 
 
 def remote_exists(dest: str, remote: str, verbose: bool) -> bool:

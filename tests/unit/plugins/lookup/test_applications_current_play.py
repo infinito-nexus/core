@@ -8,8 +8,7 @@ from plugins.lookup.applications_current_play import (
     _reset_cache_for_tests,
 )
 
-
-# Per req-008 the materialised payload moved from
+# Per the materialised payload moved from
 # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
 SAMPLE_APPS = {
     "web-svc-html": {},
@@ -213,9 +212,11 @@ class TestApplicationsIfGroupAndAllDeps(unittest.TestCase):
         self.assertEqual(lm.run([], variables={"group_names": []})[0], {})
 
     def test_invalid_group_names_raises(self):
+        from ansible.errors import AnsibleError
+
         lm = LookupModule()
         lm._meta_deps = lambda r, d: []
-        with self.assertRaises(Exception):
+        with self.assertRaises(AnsibleError):
             lm.run(
                 [], variables={"applications": SAMPLE_APPS, "group_names": "not-a-list"}
             )

@@ -1,3 +1,4 @@
+---
 - name: sys-service | Assert service debug unit is defined
   ansible.builtin.assert:
     that:

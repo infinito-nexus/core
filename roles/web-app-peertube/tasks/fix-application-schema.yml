@@ -21,36 +21,34 @@
 # next restart's INSERT succeeds. Peertube itself overwrites the values with
 # real node/ABI version strings on every boot, so the defaults only cover the
 # bootstrap INSERT.
+#
+# Both queries run via `container exec` against the DB container the
+# `database` lookup resolves to (central `svc-db-postgres` in shared mode,
+# per-role `peertube-database` in non-shared mode). Running inside the
+# container side-steps the controller-side TCP reachability gap that
+# affects non-shared deploys.
 
 - name: "PEERTUBE | Wait for peertube to create the `application` table"
-  community.postgresql.postgresql_query:
-    db: "{{ lookup('database', application_id, 'name') }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: "SELECT to_regclass('public.application') AS reg"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/check-application-table.sql"
+    expect_rows: true
   register: _peertube_app_table_check
   retries: 60
   delay: 5
   until: >-
-    _peertube_app_table_check is succeeded and
-    (_peertube_app_table_check.query_result | default([{}]))[0].reg is not none
+    _peertube_app_table_check is succeeded
+    and (_peertube_app_table_check.rows | default([]) | length) > 0
+    and (_peertube_app_table_check.rows[0][0] | default('')) == 'application'
   changed_when: false
 
 - name: "PEERTUBE | Back-fill column defaults so the bootstrap INSERT does not violate NOT NULL"
-  community.postgresql.postgresql_query:
-    db: "{{ lookup('database', application_id, 'name') }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: |
-      ALTER TABLE application
-        ALTER COLUMN "nodeVersion"    SET DEFAULT '',
-        ALTER COLUMN "nodeABIVersion" SET DEFAULT 0;
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/backfill-application-defaults.sql"
   register: _peertube_app_defaults
-  changed_when: _peertube_app_defaults is succeeded
   notify: compose up
 
 - name: "PEERTUBE | Wait for peertube container to become healthy after schema back-fill"

@@ -1,22 +1,23 @@
+---
 - name: "load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: include 02_create-and-seed-database.yml for multiple bridges
   include_tasks: 02_create-and-seed-database.yml
   vars:
-    database_password:  "{{ item.database_password }}"
-    database_username:  "{{ item.database_username }}"
-    database_name:      "{{ item.database_name }}"
+    database_password: "{{ item.database_password }}"
+    database_username: "{{ item.database_username }}"
+    database_name: "{{ item.database_name }}"
   loop: "{{ MATRIX_BRIDGES }}"
 
 # The following taks are necessary because a clean setup is necessary
-- name: shut down compose project 
+- name: shut down compose project
   command:
-    cmd:    "{{ BIN_COMPOSE }} down"
-    chdir:  "{{ lookup('container', application_id, 'directories.instance') }}"
+    cmd: "{{ BIN_COMPOSE }} down"
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
 
 - name: "cleanup project folder"
   file:
@@ -32,61 +33,59 @@
 
 - name: add multiple mautrix bridge configuration
   template:
-    src:  "mautrix/{{ item.bridge_name }}.config.yml.j2" 
+    src: "mautrix/{{ item.bridge_name }}.config.yml.j2"
     dest: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/config.yaml"
   loop: "{{ MATRIX_BRIDGES }}"
   notify: compose up
 
 - name: add element configuration
   template:
-    src:  "element.config.json.j2" 
+    src: "element.config.json.j2"
     dest: "{{ MATRIX_ELEMENT_CONFIG_PATH_HOST }}"
   notify: compose up
 
 - name: add synapse homeserver configuration
   template:
-    src:  "synapse/homeserver.yaml.j2" 
+    src: "synapse/homeserver.yaml.j2"
     dest: "{{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}"
   notify: compose up
 
 - name: add synapse log configuration
   template:
-    src:  "synapse/log.config.j2" 
+    src: "synapse/log.config.j2"
     dest: "{{ MATRIX_SYNAPSE_LOG_PATH_HOST }}"
   notify: compose up
 
 - name: set correct folder permissions
   command:
-    cmd: "container run --rm --mount type=volume,src={{ MATRIX_SYNAPSE_VOLUME }},dst=/data -e SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }} -e SYNAPSE_REPORT_STATS=no --entrypoint /bin/sh matrixdotorg/synapse:latest -c 'chown -vR 991:991 /data'"
+    cmd: "container run --rm --mount type=volume,src={{ MATRIX_SYNAPSE_VOLUME }},dst=/data -e SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }} -e SYNAPSE_REPORT_STATS=no
+      --entrypoint /bin/sh matrixdotorg/synapse:latest -c 'chown -vR 991:991 /data'"
 
 - name: add compose.yml
   template:
-    src:  "compose.yml.j2" 
+    src: "compose.yml.j2"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'),'compose.yml' ] | path_join }}"
   notify: compose up
 
 # Pull image when update is wished. 
 - name: compose pull
   command:
-    cmd:    "compose pull"
-    chdir:  "{{ lookup('container', application_id, 'directories.instance') }}"
+    cmd: "compose pull"
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
 
 - name: compose up
   command:
     cmd: "compose up -d --remove-orphans"
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  environment:
-    COMPOSE_HTTP_TIMEOUT:   "600"
-    DOCKER_CLIENT_TIMEOUT:  "600"
   register: result
-  until:    result is succeeded
-  retries:  12
-  delay:    30
+  until: result is succeeded
+  retries: 12
+  delay: 30
 
 - name: wait for registration files
   wait_for:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
-    state: present  
+    state: present
     timeout: 120
   loop: "{{ MATRIX_BRIDGES }}"
 
@@ -96,25 +95,41 @@
     mode: "0755"
   loop: "{{ MATRIX_BRIDGES }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+
+- name: wait for Synapse client/versions endpoint
+  uri_retry:
+    url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.synapse.ports.local.http') }}/_matrix/client/versions"
+    method: GET
+    status_code: 200
+  register: matrix_synapse_health
+  retries: 60
+  delay: 2
+  until: matrix_synapse_health.status == 200
 
 - name: create admin account
   command:
-    cmd: "{{ BIN_COMPOSE }} exec -it synapse register_new_matrix_user -u {{ MATRIX_ADMINISTRATOR_USERNAME }} -p {{ lookup('config', application_id, 'credentials.administrator_password') }} -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER }} http://localhost:8008"
+    cmd: "{{ BIN_COMPOSE }} exec -T synapse register_new_matrix_user -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }} -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
+      -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }} http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  ignore_errors: true
-  when: lookup('config', application_id, 'services.matrix.setup') | bool
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  register: matrix_create_admin
+  changed_when: matrix_create_admin.rc == 0
+  failed_when: >
+    matrix_create_admin.rc != 0 and
+    'User ID already taken' not in (matrix_create_admin.stdout + matrix_create_admin.stderr)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: create chatgpt bot
   command:
-    cmd: "{{ BIN_COMPOSE }} exec -it synapse register_new_matrix_user -u chatgptbot -p {{ lookup('config', application_id, 'credentials.chatgpt_bridge_user_password')}} -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER }} http://localhost:8008"
+    cmd: "{{ BIN_COMPOSE }} exec -T synapse register_new_matrix_user -u chatgptbot -p {{ lookup('config', application_id, 'credentials.chatgpt_bridge_user_password')
+      | quote }} -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }} http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  ignore_errors: true
-  when: lookup('config', application_id, 'services.matrix.setup') | bool
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  register: matrix_create_chatgptbot
+  changed_when: matrix_create_chatgptbot.rc == 0
+  failed_when: >
+    matrix_create_chatgptbot.rc != 0 and
+    'User ID already taken' not in (matrix_create_chatgptbot.stdout + matrix_create_chatgptbot.stderr)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Flush all handlers after docker setup so that they don't intervine with openresty
   meta: flush_handlers

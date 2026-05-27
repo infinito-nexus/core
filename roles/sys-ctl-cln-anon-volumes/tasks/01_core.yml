@@ -1,17 +1,18 @@
+---
 - name: Install '{{ SYS_CTL_CLN_ANON_VOLUMES_COMMAND }}'
   include_role:
     name: sys-pip-install
   vars:
-    package_name: '{{ SYS_CTL_CLN_ANON_VOLUMES_COMMAND }}'
+    package_name: "{{ SYS_CTL_CLN_ANON_VOLUMES_COMMAND }}"
     global_install: true
 
 - include_role:
     name: sys-service
   vars:
-    system_service_tpl_on_failure:      "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
-    system_service_tpl_exec_start:      '{{ lookup("command_path", SYS_CTL_CLN_ANON_VOLUMES_COMMAND) }} --no-confirmation'
-    system_service_tpl_exec_start_pre:  "" # Anonymous volumes can allways be removed. It isn't necessary to wait for any service to stop.
-    system_service_copy_files:          false
-    system_service_force_linear_sync:   false
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_tpl_exec_start: '{{ lookup("command_path", SYS_CTL_CLN_ANON_VOLUMES_COMMAND) }} --no-confirmation'
+    system_service_tpl_exec_start_pre: "" # Anonymous volumes can allways be removed. It isn't necessary to wait for any service to stop.
+    system_service_copy_files: false
+    system_service_force_linear_sync: false
 
 - include_tasks: utils/once/flag.yml

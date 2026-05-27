@@ -7,6 +7,7 @@ This Ansible role provisions a centralized database system in your Docker Compos
 ## Overview
 
 Tailored for environments that require a central data repository, this role:
+
 - Loads necessary database variables defined in vars/database.yml.
 - Generates an environment file based on the chosen database engine.
 - Integrates seamlessly with Docker Compose to deploy a centralized database container (if enabled).

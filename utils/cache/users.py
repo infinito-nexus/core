@@ -12,10 +12,12 @@ import copy
 import glob
 import os
 from collections import OrderedDict
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping, Optional
+from typing import Any
 from urllib.parse import urlparse
 
+from utils.roles.mapping import ROLE_FILE_META_USERS
 
 from . import base as _base
 from .base import (
@@ -30,14 +32,13 @@ from .base import (
 )
 from .yaml import load_yaml as _load_yaml_cached
 
-
 _USERS_DEFAULTS_CACHE: dict[str, dict[str, Any]] = {}
 _MERGED_USERS_CACHE: dict[tuple, dict[str, Any]] = {}
 
 
 def _merge_users(
     defaults: Mapping[str, Any],
-    overrides: Optional[Mapping[str, Any]],
+    overrides: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
     merged = {key: copy.deepcopy(value) for key, value in defaults.items()}
     for key, value in (overrides or {}).items():
@@ -57,7 +58,7 @@ def _compute_reserved_usernames(roles_dir: Path) -> list[str]:
 
 
 def _load_user_defs(roles_dir: Path) -> OrderedDict[str, dict[str, Any]]:
-    pattern = os.path.join(str(roles_dir), "*/meta/users.yml")
+    pattern = str(Path(str(roles_dir)) / f"*/{ROLE_FILE_META_USERS}")
     files = sorted(glob.glob(pattern))
     merged: OrderedDict[str, dict[str, Any]] = OrderedDict()
 
@@ -68,7 +69,7 @@ def _load_user_defs(roles_dir: Path) -> OrderedDict[str, dict[str, Any]]:
 
         for key, overrides in users.items():
             if not isinstance(overrides, dict):
-                raise ValueError(f"Invalid definition for user '{key}' in {filepath}")
+                raise TypeError(f"Invalid definition for user '{key}' in {filepath}")
 
             if key not in merged:
                 merged[key] = copy.deepcopy(overrides)
@@ -147,7 +148,7 @@ def _build_users(
 
     seen_usernames: set[str] = set()
     seen_emails: set[str] = set()
-    for key, entry in users.items():
+    for entry in users.values():
         username = entry["username"]
         email = entry["email"]
         if username in seen_usernames:
@@ -160,7 +161,7 @@ def _build_users(
     return users
 
 
-def _load_store_users(file_tokens: Optional[str | os.PathLike[str]]) -> dict[str, Any]:
+def _load_store_users(file_tokens: str | os.PathLike[str] | None) -> dict[str, Any]:
     if not file_tokens:
         return {}
 
@@ -173,7 +174,7 @@ def _load_store_users(file_tokens: Optional[str | os.PathLike[str]]) -> dict[str
     return users if isinstance(users, dict) else {}
 
 
-def _resolve_tokens_file(variables: Optional[Mapping[str, Any]]) -> Path:
+def _resolve_tokens_file(variables: Mapping[str, Any] | None) -> Path:
     candidates: list[Path] = []
 
     def _add_candidate(value: Any) -> None:
@@ -221,10 +222,10 @@ def _resolve_tokens_file(variables: Optional[Mapping[str, Any]]) -> Path:
 
 
 def _hydrate_users_tokens(
-    users: Optional[Mapping[str, Any]],
-    store_users: Optional[Mapping[str, Any]],
+    users: Mapping[str, Any] | None,
+    store_users: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
-    def _as_stripped(value: Any) -> Optional[str]:
+    def _as_stripped(value: Any) -> str | None:
         if value is None:
             return None
         return str(value).strip()
@@ -261,13 +262,13 @@ def _hydrate_users_tokens(
 
 
 def _materialize_builtin_user_aliases(
-    users: Optional[Mapping[str, Any]],
-    variables: Optional[Mapping[str, Any]],
+    users: Mapping[str, Any] | None,
+    variables: Mapping[str, Any] | None,
     templar: Any = None,
 ) -> dict[str, Any]:
     # Lazy import: pulls `ansible.errors.AnsibleError` transitively, see the
     # base module note on why this stays out of the import block.
-    from utils.templating import _templar_render_best_effort
+    from utils.templating.ansible import _templar_render_best_effort
 
     def _normalize_domain_candidate(value: Any) -> str:
         text = str(value or "").strip()
@@ -280,8 +281,7 @@ def _materialize_builtin_user_aliases(
         if "://" in text:
             parsed = urlparse(text)
             text = parsed.hostname or text
-        text = text.split("/", 1)[0].split(":", 1)[0].strip()
-        return text
+        return text.split("/", 1)[0].split(":", 1)[0].strip()
 
     def _to_primary_domain(value: Any) -> str:
         text = _normalize_domain_candidate(value)
@@ -331,7 +331,7 @@ def _materialize_builtin_user_aliases(
 
 
 def get_user_defaults(
-    *, roles_dir: Optional[str | os.PathLike[str]] = None
+    *, roles_dir: str | os.PathLike[str] | None = None
 ) -> dict[str, Any]:
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     key = _cache_key(resolved_roles_dir)
@@ -345,7 +345,7 @@ def get_user_defaults(
             definitions,
             primary_domain="{{ DOMAIN_PRIMARY }}",
             start_id=1001,
-            become_pwd="{{ 42 | strong_password }}",
+            become_pwd="{{ 42 | strong_password }}",  # noqa: S106  Jinja expression rendered to a password at runtime, not a literal credential
         )
         cached = {key: built[key] for key in sorted(built)}
         _USERS_DEFAULTS_CACHE[key] = cached
@@ -354,8 +354,8 @@ def get_user_defaults(
 
 def get_merged_users(
     *,
-    variables: Optional[dict[str, Any]] = None,
-    roles_dir: Optional[str | os.PathLike[str]] = None,
+    variables: dict[str, Any] | None = None,
+    roles_dir: str | os.PathLike[str] | None = None,
     templar: Any = None,
 ) -> dict[str, Any]:
     source_variables = variables

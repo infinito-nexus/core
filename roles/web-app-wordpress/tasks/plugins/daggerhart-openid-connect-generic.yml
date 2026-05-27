@@ -1,3 +1,4 @@
+---
 - name: "Load OIDC settings variables"
   include_vars:
     file: "{{ role_path }}/vars/oidc.yml"
@@ -20,6 +21,7 @@
     oidc_settings_json_b64: "{{ oidc_vars.oidc_settings | to_json | b64encode }}"
   command: >
     {{ BIN_COMPOSE }} exec -u www-data -T application bash -lc
-      "wp eval \"update_option('openid_connect_generic_settings', json_decode(base64_decode('{{ oidc_settings_json_b64 }}'), true));\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
+      "wp eval \"update_option('openid_connect_generic_settings', json_decode(base64_decode('{{ oidc_settings_json_b64 }}'), true));\" --path={{ WORDPRESS_DOCKER_HTML_PATH
+    }}"
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"

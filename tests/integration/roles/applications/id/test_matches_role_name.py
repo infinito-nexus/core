@@ -1,22 +1,19 @@
-import os
-import glob
-import warnings
 import unittest
+import warnings
+from pathlib import Path
 
 # import your filters
 from plugins.filter.invokable_paths import get_invokable_paths, get_non_invokable_paths
-
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
 class TestApplicationIdAndInvocability(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # locate roles dir (two levels up)
-        base_dir = os.path.dirname(__file__)
-        cls.roles_dir = os.path.abspath(
-            os.path.join(base_dir, "..", "..", "..", "..", "..", "roles")
-        )
+        from . import PROJECT_ROOT
+
+        cls.roles_dir = str(PROJECT_ROOT / "roles")
 
         # get lists of invokable and non-invokable role *names*
         # filters return dash-joined paths; for top-level roles names are just the basename
@@ -29,17 +26,17 @@ class TestApplicationIdAndInvocability(unittest.TestCase):
         - Non-invokable roles must NOT have application_id (else fail).
         - If application_id exists but != folder name, warn and recommend aligning.
         """
-        for role_path in glob.glob(os.path.join(self.roles_dir, "*")):  # noqa: project-walk
-            if not os.path.isdir(role_path):
+        for role_path in Path(self.roles_dir).iterdir():
+            if not role_path.is_dir():
                 continue
 
-            role_name = os.path.basename(role_path)
-            vars_main = os.path.join(role_path, "vars", "main.yml")
+            role_name = role_path.name
+            vars_main = role_path / ROLE_FILE_VARS_MAIN
 
             # load vars/main.yml if it exists
             data = {}
-            if os.path.exists(vars_main):
-                data = load_yaml_any(vars_main) or {}
+            if vars_main.exists():
+                data = load_yaml_any(str(vars_main)) or {}
 
             app_id = data.get("application_id")
 
@@ -64,7 +61,8 @@ class TestApplicationIdAndInvocability(unittest.TestCase):
                 warnings.warn(
                     f"{role_name}: 'application_id' is '{app_id}',"
                     f" but the folder name is '{role_name}'."
-                    " Consider setting application_id to exactly the role folder name to avoid confusion."
+                    " Consider setting application_id to exactly the role folder name to avoid confusion.",
+                    stacklevel=2,
                 )
 
         # if we get here, all presence/absence checks passed

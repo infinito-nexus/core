@@ -1,21 +1,32 @@
+---
+# nocheck: dynamic-flag
+# nocheck: logout
 logout:
   enabled: false
   shared: false
-dashboard:
-  enabled: true
-  shared: true
-matomo:
-  enabled: true
-  shared: true
-css:
-  enabled: true
-  shared: true
-javascript:
+# nocheck: dynamic-flag
+# nocheck: oidc
+oidc:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: oauth2
+oauth2:
+  enabled: false
+  shared: false
+dashboard:
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+css:
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 hugo:
   image: nginx
-  version: 1.31.0-alpine
+  version: 1.31-alpine
   builder_image: hugomods/hugo
   builder_version: exts-0.148.0
   source_repository: https://github.com/gohugoio/hugoDocs.git
@@ -27,14 +38,15 @@ hugo:
       http: 8008
   lifecycle: alpha
   min_storage: 1GB
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
-# noqa: email
+# nocheck: email
+# nocheck: dynamic-flag
 email:
   enabled: false
   shared: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

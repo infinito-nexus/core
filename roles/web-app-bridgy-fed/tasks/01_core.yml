@@ -1,8 +1,9 @@
+---
 - name: "Load docker and front proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    domain:     "{{ lookup('domain',application_id) }}"
-    http_port:  "{{ lookup('config', application_id, 'services.bridgy-fed.ports.local.http') }}"
+    domain: "{{ lookup('domain',application_id) }}"
+    http_port: "{{ lookup('config', application_id, 'services.bridgy-fed.ports.local.http') }}"
 
 - include_tasks: utils/once/flag.yml

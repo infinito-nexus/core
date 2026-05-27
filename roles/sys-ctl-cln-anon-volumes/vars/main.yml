@@ -1,2 +1,3 @@
+---
 system_service_id: sys-ctl-cln-anon-volumes
-SYS_CTL_CLN_ANON_VOLUMES_COMMAND: 'dockreap'
+SYS_CTL_CLN_ANON_VOLUMES_COMMAND: "dockreap"

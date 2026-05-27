@@ -1,3 +1,4 @@
+---
 - name: Install '
   include_role:
     name: pkgmgr-install
@@ -6,9 +7,9 @@
   when: run_once_pkgmgr_install is not defined
 
 - name: Execute create swapfile script
-  shell:  "{{ SWAPFILE_PKG }} '{{ SWAPFILE_SIZE }}'"
+  shell: "{{ SWAPFILE_PKG }} '{{ SWAPFILE_SIZE }}'"
   become: true
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
 - include_tasks: utils/once/flag.yml

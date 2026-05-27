@@ -1,3 +1,4 @@
+---
 - name: Validate XWiki variables
   include_tasks: 02_validation.yml
 
@@ -6,13 +7,13 @@
       include_role:
         name: sys-stk-full
       vars:
-        docker_compose_flush_handlers: false
+        compose_handlers_flush: false
 
     - name: Deploy Bootstrap Config
       include_tasks: _flush_config.yml
   vars:
-    xwiki_oidc_enabled_switch:        false
-    xwiki_ldap_enabled_switch:        false
+    xwiki_oidc_enabled_switch: false
+    xwiki_ldap_enabled_switch: false
 
 - name: "ASSERT | superadmin can authenticate (needed for installer)"
   uri_retry:
@@ -22,7 +23,7 @@
     url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
     force_basic_auth: true
     status_code: [200, 401, 403, 500, 503]
-    return_content: yes
+    return_content: true
   register: _super_check_ext
   changed_when: false
   failed_when: false
@@ -71,16 +72,16 @@
   include_tasks: 05_main_webhome.yml
 
 - block:
-    - name:           "Create Final Docker Compose File"
+    - name: "Create Final Docker Compose File"
       template:
-        src:          "compose.yml.j2"
-        dest:         "{{ lookup('container', application_id, 'files.compose') }}"
-      notify:         compose up
-    
+        src: "compose.yml.j2"
+        dest: "{{ lookup('container', application_id, 'files.compose') }}"
+      notify: compose up
+
     - name: Deploy Final Config
       include_tasks: _flush_config.yml
   vars:
-    xwiki_oidc_enabled_switch:        "{{ XWIKI_OIDC_ENABLED | bool }}"
-    xwiki_ldap_enabled_switch:        "{{ XWIKI_LDAP_ENABLED | bool }}"
+    xwiki_oidc_enabled_switch: "{{ XWIKI_OIDC_ENABLED | bool }}"
+    xwiki_ldap_enabled_switch: "{{ XWIKI_LDAP_ENABLED | bool }}"
 
 - include_tasks: utils/once/flag.yml

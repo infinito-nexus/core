@@ -12,4 +12,4 @@ echo "Bootstrapping the development environment: DNS, AppArmor, IPv6, and lint t
 make environment-bootstrap
 
 echo "Starting the local compose stack (builds the image if missing)."
-make up
+make compose-up

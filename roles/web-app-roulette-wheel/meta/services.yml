@@ -1,18 +1,33 @@
+---
+# nocheck: dynamic-flag
+# nocheck: logout
 logout:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: oidc
+oidc:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: oauth2
+oauth2:
+  enabled: false
+  shared: false
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 roulette-wheel:
   image: node
   version: latest
+  repository: https://github.com/kevinveenbirkenbach/roulette-wheel.git
+  ref: master
   min_storage: 1GB
   cpus: 0.5
   mem_reservation: 126m
@@ -22,12 +37,13 @@ roulette-wheel:
     local:
       http: 8013
   run_after:
-  - web-app-matomo
+    - web-app-matomo
   lifecycle: alpha
-# noqa: email
+# nocheck: email
+# nocheck: dynamic-flag
 email:
   enabled: false
   shared: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

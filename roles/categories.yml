@@ -1,6 +1,7 @@
+---
 roles:
   dev:
-    title:  "Software Development Utilties"
+    title: "Software Development Utilties"
     invokable: false
   sys:
     title: "System"
@@ -13,12 +14,14 @@ roles:
       invokable: false
       cln:
         title: "Cleanup"
-        description: "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
+        description: "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains,
+          and more."
         icon: "fas fa-trash-alt"
         invokable: false
       hlth:
         title: "Monitoring"
-        description: "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
+        description: "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk
+          usage, and more."
         icon: "fas fa-chart-area"
         invokable: false
       bkp:
@@ -58,7 +61,8 @@ roles:
       invokable: false
       inj:
         title: "Injection"
-        description: "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
+        description: "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed
+          assets."
         icon: "fas fa-filter"
         invokable: false
   update:
@@ -103,7 +107,7 @@ roles:
     title: "Services"
     description: "Infrastructure services like databases"
     invokable: false
-    db:  
+    db:
       title: "Databases"
       description: "Database applications (DBMS, LDAP, Redis, etc.)"
       icon: "fas fa-database"
@@ -122,7 +126,7 @@ roles:
       title: "Network"
       description: "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
       icon: "fas fa-globe"
-      invokable: true 
+      invokable: true
     ai:
       title: "AI Services"
       description: "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -130,7 +134,8 @@ roles:
       invokable: true
     bkp:
       title: "Backup Services"
-      description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
+      description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration
+        across databases, files, and containers."
       icon: "fas fa-database"
       invokable: true
   user:

@@ -1,15 +1,15 @@
-import os
 import sys
 import unittest
 
-# Make project root importable so "plugins.filter.domain_tools" works no matter where tests run from
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(THIS_DIR, "..", "..", "..", ".."))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+from . import PROJECT_ROOT
 
-from ansible.errors import AnsibleFilterError  # noqa: E402
-from plugins.filter.domain_tools import to_zone, FilterModule  # noqa: E402
+# Make project root importable so "plugins.filter.domain_tools" works no matter where tests run from
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from ansible.errors import AnsibleFilterError
+
+from plugins.filter.domain_tools import FilterModule, to_zone
 
 
 class TestDomainTools(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestDomainTools(unittest.TestCase):
         with self.assertRaises(AnsibleFilterError):
             to_zone("localhost")  # no TLD part
         with self.assertRaises(AnsibleFilterError):
-            to_zone(None)  # type: ignore
+            to_zone(None)
 
     def test_filtermodule_exports(self):
         fm = FilterModule()

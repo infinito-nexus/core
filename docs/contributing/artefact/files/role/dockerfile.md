@@ -1,6 +1,6 @@
 # `Dockerfile` 🐳
 
-This page is the SPOT for role-local Dockerfiles.
+This page covers role-local Dockerfiles.
 Use this page for placement rules, variable handling, and build wiring.
 For the agent-side review workflow during development, see [Development](../../../../agents/action/develop.md).
 
@@ -59,8 +59,7 @@ APP_VERSION: "{{ lookup('config', application_id, 'services.myapp.version') }}"
 
 ## Image Declaration 🐳
 
-Every Docker image used in a role must be declared in exactly one place — no hardcoded
-image strings anywhere else (tasks, templates, defaults).
+Every Docker image used in a role MUST be declared in exactly one place. No hardcoded image strings are allowed anywhere else (tasks, templates, defaults).
 
 ### Application roles (have `application_id`) 📦
 
@@ -83,28 +82,20 @@ MY_APP_VERSION: "{{ lookup('config', application_id, 'services.myapp.version') }
 
 ### Non-application roles 🔧
 
-For roles without `application_id` that need extra mirrored images (e.g. test runners,
-health checkers), use [origin.md](../../image/origin.md) as the SPOT for declaration and access.
-Those images MUST be declared under `defaults/main.yml` and MUST be consumed via
-`lookup('image', ...)` instead of direct `images[...]` access.
+For roles without `application_id` that need extra mirrored images (e.g. test runners, health checkers), follow the rules in [origin.md](../../image/origin.md) for declaration and access.
+Those images MUST be declared under `meta/services.yml` and MUST be consumed via `lookup('config', '<role_id>', 'services.<service>.image')` (and `.version`) instead of direct `images[...]` access.
 
-### Image Discovery SPOT 🔍
+### Image Discovery 🔍
 
-[image_discovery.py](../../../../../utils/docker/image/discovery.py) is
-the single SPOT that enumerates all role images from both sources above.
-It is used by the mirror pipeline (`cli/mirror/`) and the external version-check test
-([`tests/external/docker/test_image_versions.py`](../../../../../tests/external/docker/test_image_versions.py)).
+[image_discovery.py](../../../../../utils/docker/image/discovery.py) enumerates all role images from both sources above.
+It is used by the mirror pipeline (`cli/contributing/mirror/`) and the external version-check test
+([`tests/external/update/docker/test_image_versions.py`](../../../../../tests/external/update/docker/test_image_versions.py)).
 
 ## When `Dockerfile.j2` Is Acceptable 🤔
 
-A `templates/Dockerfile.j2` is acceptable when the file contains Jinja2
-control-flow logic that cannot be expressed through Docker `ARG` alone — for
-example, a conditional build step that installs an optional component only when
-a feature flag is enabled.
+A `templates/Dockerfile.j2` is acceptable when the file contains Jinja2 control-flow logic that cannot be expressed through Docker `ARG` alone, for example a conditional build step that installs an optional component only when a feature flag is enabled.
 
-Even in that case, you SHOULD minimize the templated surface: use `{{ variables }}`
-only where necessary and keep the static parts of the Dockerfile readable without
-rendering it.
+Even in that case, you SHOULD minimize the templated surface: use `{{ variables }}` only where necessary and keep the static parts of the Dockerfile readable without rendering it.
 
 ## Lint 🔍
 
@@ -113,8 +104,6 @@ The repository lint suite checks for `templates/Dockerfile.j2` files automatical
 - A `Dockerfile.j2` with **no Jinja2 control-flow logic** causes a **test failure**.
   It MUST be migrated to `files/Dockerfile` with `ARG` declarations.
 - A `Dockerfile.j2` with **Jinja2 control-flow logic** emits a **warning only**.
-  The warning signals that the file should be reviewed to see whether the logic
-  can be eliminated and the file migrated.
+  The warning signals that the file should be reviewed to see whether the logic can be eliminated and the file migrated.
 
-See [test\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
-for the implementation.
+See [test\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation.

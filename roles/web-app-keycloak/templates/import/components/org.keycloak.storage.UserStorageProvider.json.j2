@@ -205,7 +205,6 @@
         }
       }
       {# ── Moodle profile-field LDAP mappers (only when Moodle is enabled). ── #}
-      {# Per docs/requirements/015-moodle-self-built.md §"Profile-field mapping". #}
       {% if KEYCLOAK_MOODLE_ENABLED | bool %}
       {% set _moodle_ldap_pairs = [
         ['middleName',         'initials'],

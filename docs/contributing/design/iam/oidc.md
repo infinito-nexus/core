@@ -1,11 +1,9 @@
 # OIDC 🪪
 
-This page is the SPOT for how application roles consume the platform's OIDC
-provider, [Keycloak](../../../../roles/web-app-keycloak/). The variable tree
-lives in [11_oidc.yml](../../../../group_vars/all/11_oidc.yml) under
-`defaults_oidc`. For the cross-cutting IAM principles, including the paired
-identifier rule shared with LDAP, see [common.md](common.md). For LDAP-side
-details see [ldap.md](ldap.md).
+This page describes how application roles consume the platform's OIDC provider, [Keycloak](../../../../roles/web-app-keycloak/).
+The variable tree lives in [11_oidc.yml](../../../../group_vars/all/11_oidc.yml) under `defaults_oidc`.
+For the cross-cutting IAM principles, including the paired identifier rule shared with LDAP, see [common.md](common.md).
+For LDAP-side details see [ldap.md](ldap.md).
 
 ## Variable Tree 🌳
 
@@ -31,15 +29,12 @@ The keys consumers care about:
 | `OIDC.CLIENT.RESET_CREDENTIALS` | Public password-reset entry point |
 | `OIDC.BUTTON_TEXT` | Default label for SSO login buttons |
 
-When a role needs an OIDC endpoint, it MUST template the corresponding
-`OIDC.CLIENT.*` value rather than build the URL from `OIDC.URL` itself. The
-URL builders in [11_oidc.yml](../../../../group_vars/all/11_oidc.yml) already
-handle realm and protocol concerns.
+When a role needs an OIDC endpoint, it MUST template the corresponding `OIDC.CLIENT.*` value rather than build the URL from `OIDC.URL` itself.
+The URL builders in [11_oidc.yml](../../../../group_vars/all/11_oidc.yml) already handle realm and protocol concerns.
 
 ## Claim Attributes 🏷️
 
-`OIDC.ATTRIBUTES` is the SPOT for the claim names that downstream applications
-read out of the userinfo response and ID token:
+`OIDC.ATTRIBUTES` lists the claim names that downstream applications read out of the userinfo response and ID token:
 
 | Key | Default value | Meaning |
 |---|---|---|
@@ -86,9 +81,7 @@ Rules:
 
 ## Consumer Pattern 🧩
 
-A typical OIDC-consuming role wires the values into its environment template,
-for example
-[env.j2](../../../../roles/web-app-mastodon/templates/env.j2):
+A typical OIDC-consuming role wires the values into its environment template, for example [env.j2](../../../../roles/web-app-mastodon/templates/env.j2):
 
 ```jinja
 OIDC_ISSUER={{ OIDC.CLIENT.ISSUER_URL }}
@@ -99,10 +92,7 @@ OIDC_CLIENT_ID={{ OIDC.CLIENT.ID }}
 OIDC_CLIENT_SECRET={{ OIDC.CLIENT.SECRET }}
 ```
 
-Every application role SHOULD follow the same shape: discovery on, the
-`OIDC.CLIENT.*` endpoints templated, the user identifier read from
-`OIDC.ATTRIBUTES.USERNAME`, and the scopes limited to what the app actually
-consumes.
+Every application role SHOULD follow the same shape: discovery on, the `OIDC.CLIENT.*` endpoints templated, the user identifier read from `OIDC.ATTRIBUTES.USERNAME`, and the scopes limited to what the app actually consumes.
 
 ## Related Files 📚
 

@@ -1,4 +1,4 @@
-class FilterModule(object):
+class FilterModule:
     """Custom filters for Ansible"""
 
     def filters(self):
@@ -19,8 +19,4 @@ class FilterModule(object):
             return False
 
         # Iterate over list1 and check if an element exists in list2.
-        for element in list1:
-            if element in list2:
-                return True
-
-        return False
+        return any(element in list2 for element in list1)

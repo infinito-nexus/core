@@ -1,3 +1,4 @@
+---
 - name: Check whether the imported realm already exists
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get realms/{{ KEYCLOAK_REALM }}

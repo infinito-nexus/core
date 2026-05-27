@@ -16,6 +16,7 @@ def run_cmd(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        check=False,
     )
     return p.returncode, p.stdout or ""
 
@@ -41,7 +42,7 @@ def base_compose_cmd(*, project: str, cwd: Path) -> list[str]:
 def has_buildable_services(
     *, base_cmd: list[str], cwd: Path, env: dict[str, str]
 ) -> bool:
-    rc, out = run_cmd(base_cmd + ["config"], cwd=cwd, env=env)
+    rc, out = run_cmd([*base_cmd, "config"], cwd=cwd, env=env)
 
     if rc != 0:
         if out.strip():
@@ -103,26 +104,53 @@ def main() -> int:
     if not args.skip_build and has_buildable_services(
         base_cmd=base_cmd, cwd=cwd, env=env
     ):
-        run_or_fail(
-            base_cmd + ["build", "--pull"],
-            cwd=cwd,
-            env=env,
-            label="docker compose build --pull",
-        )
+        build_pull_cmd = [*base_cmd, "build", "--pull"]
+        print(f">>> {' '.join(build_pull_cmd)}", file=sys.stderr)
+        rc, out = run_cmd(build_pull_cmd, cwd=cwd, env=env)
+        if out.strip():
+            print(out, file=sys.stderr, end="" if out.endswith("\n") else "\n")
+        if rc != 0:
+            run_or_fail(
+                [*base_cmd, "build"],
+                cwd=cwd,
+                env=env,
+                label="docker compose build",
+            )
 
-    pull_cmd = base_cmd + ["pull"]
+    pull_cmd = [*base_cmd, "pull"]
 
     if args.ignore_buildable:
-        rc, help_out = run_cmd(base_cmd + ["pull", "--help"], cwd=cwd, env=env)
+        rc, help_out = run_cmd([*base_cmd, "pull", "--help"], cwd=cwd, env=env)
         if rc == 0 and "--ignore-buildable" in help_out:
             pull_cmd.append("--ignore-buildable")
 
-    run_or_fail(
-        pull_cmd,
-        cwd=cwd,
-        env=env,
-        label="docker compose pull",
-    )
+    print(f">>> {' '.join(pull_cmd)}", file=sys.stderr)
+    rc, out = run_cmd(pull_cmd, cwd=cwd, env=env)
+    if out.strip():
+        print(out, file=sys.stderr, end="" if out.endswith("\n") else "\n")
+
+    if rc != 0:
+        rc_images, images_out = run_cmd(
+            [*base_cmd, "config", "--images"], cwd=cwd, env=env
+        )
+        if rc_images != 0:
+            raise RuntimeError(f"docker compose pull failed (rc={rc})")
+        required = [line.strip() for line in images_out.splitlines() if line.strip()]
+        missing = []
+        for image in required:
+            rc_inspect, _ = run_cmd(
+                ["docker", "image", "inspect", image], cwd=cwd, env=env
+            )
+            if rc_inspect != 0:
+                missing.append(image)
+        if missing:
+            raise RuntimeError(
+                f"docker compose pull failed (rc={rc}); images missing locally: {missing}"
+            )
+        print(
+            f"docker compose pull failed (rc={rc}) but all images present locally",
+            file=sys.stderr,
+        )
 
     lock_file.write_text("ok\n", encoding="utf-8")
     print("pulled")
@@ -131,7 +159,8 @@ def main() -> int:
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        rc = main()
     except Exception as exc:
         print(f"[ERROR] {exc}", file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from exc
+    raise SystemExit(rc)

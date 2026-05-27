@@ -1,6 +1,6 @@
 # Docker Network Helpers
 
-This is the SPOT for Docker-related network helpers under `scripts/system/network/docker/`.
+This directory holds Docker-related network helpers.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../../docs/contributing/tools/make.md).
 
 ## Entry Points

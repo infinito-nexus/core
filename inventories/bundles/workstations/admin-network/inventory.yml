@@ -1,3 +1,4 @@
+---
 all:
   vars:
     SYS_PACKAGES:
@@ -16,10 +17,8 @@ all:
           class: "fa-solid fa-network-wired"
         tags: []
         categories: []
-
   hosts:
     workstation:
-
   children:
     desk-git:
       hosts:

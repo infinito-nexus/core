@@ -3,7 +3,7 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Load install procedures for '{{ application_id }}''"
   include_tasks: 01_configuration.yml
@@ -19,6 +19,17 @@
   until: _mw_exists.rc == 0
   changed_when: false
 
+# The database lives in a separate compose project (svc-db-mariadb) when shared,
+# so compose-level `depends_on: condition: service_healthy` cannot reach it.
+# Gate the install step on the database container's own healthcheck instead.
+- name: "MEDIAWIKI | Wait until database container is healthy"
+  ansible.builtin.command: "container container inspect --format={% raw %}{{.State.Health.Status}}{% endraw %} {{ MEDIAWIKI_DB_CONTAINER }}"
+  register: _mw_db_health
+  retries: 60
+  delay: 2
+  until: (_mw_db_health.stdout | trim) == 'healthy'
+  changed_when: false
+
 - name: "Load extensions procedures for '{{ application_id }}''"
   include_tasks: "02_extensions.yml"
   when: MEDIAWIKI_OIDC_ENABLED | bool
@@ -26,13 +37,12 @@
 - name: "Load update procedures for '{{ application_id }}''"
   include_tasks: 03_install.yml
   when: >-
-      {{
-        (mediawiki_config_render.changed | default(false)) or
-        (_install_results.changed | default(false)) or
-        (_ext_composer.changed | default(false)) or
-        (_vendor.changed | default(false))
-      }}
+    {{
+      (mediawiki_config_render.changed | default(false)) or
+      (_install_results.changed | default(false)) or
+      (_ext_composer.changed | default(false)) or
+      (_vendor.changed | default(false))
+    }}
 
 - name: "Load admin setup procedures for '{{ application_id }}''"
   include_tasks: 04_admin.yml
-

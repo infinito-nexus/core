@@ -5,12 +5,12 @@ from pathlib import Path
 
 from ansible.errors import AnsibleFilterError
 
+from . import PROJECT_ROOT
+
 
 def _load_plugin_module():
-    here = Path(__file__).resolve()
-    repo_root = here.parents[5] if len(here.parents) >= 6 else here.parents[0]
     plugin_path = (
-        repo_root
+        PROJECT_ROOT
         / "roles"
         / "test-e2e-playwright"
         / "filter_plugins"
@@ -82,6 +82,27 @@ class TestDiscoverPlaywrightRoles(unittest.TestCase):
         registry = _plugin.FilterModule().filters()
         self.assertIn("discover_playwright_roles", registry)
         self.assertTrue(callable(registry["discover_playwright_roles"]))
+
+    def test_only_roles_accepts_python_list_repr_string(self):
+        self._create_role("web-app-a", with_marker=True)
+        self._create_role("web-app-b", with_marker=True)
+        self._create_role("web-app-c", with_marker=True)
+
+        result = _plugin.discover_playwright_roles(
+            str(self.playbook_dir),
+            only_roles="['web-app-a', 'web-app-c']",
+        )
+        self.assertEqual(result, ["web-app-a", "web-app-c"])
+
+    def test_skip_roles_accepts_python_list_repr_string(self):
+        self._create_role("web-app-a", with_marker=True)
+        self._create_role("web-app-b", with_marker=True)
+
+        result = _plugin.discover_playwright_roles(
+            str(self.playbook_dir),
+            skip_roles="['web-app-b']",
+        )
+        self.assertEqual(result, ["web-app-a"])
 
 
 if __name__ == "__main__":

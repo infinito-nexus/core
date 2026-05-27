@@ -1,3 +1,4 @@
+---
 credentials:
   session_secret:
     description: Secret used by express-session cookie signing.

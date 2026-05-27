@@ -1,17 +1,31 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Experience the power of Matomo, an innovative open-source analytics platform that delivers real-time insights, robust visitor tracking, and privacy-first features to elevate your website performance. Dive into actionable data with unmatched precision and clarity.
+  description: Deploys Matomo, an open-source analytics platform delivering real-time insights, visitor tracking, and privacy-first metrics for your websites.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   galaxy_tags:
     - matomo
     - docker
     - analytics
     - open-source
   issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

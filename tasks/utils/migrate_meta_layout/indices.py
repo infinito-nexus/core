@@ -1,28 +1,29 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Dict, Optional, Set, Tuple
+from functools import cache
+from typing import TYPE_CHECKING, Any
 
-from utils.entity_name_utils import get_entity_name
+from utils.roles.entity_name import get_entity_name
 
 from . import yaml_io
 
-_KNOWN_ROLES_CACHE: Optional[Set[str]] = None
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
-def build_network_index(networks_file: Path) -> Dict[str, Dict[str, Any]]:
+def build_network_index(networks_file: Path) -> dict[str, dict[str, Any]]:
     networks = yaml_io.load(networks_file) or {}
     raw = networks.get("defaults_networks", {}) if isinstance(networks, dict) else {}
     local = raw.get("local", {}) if isinstance(raw, dict) else {}
     if not isinstance(local, dict):
         return {}
 
-    result: Dict[str, Dict[str, Any]] = {}
+    result: dict[str, dict[str, Any]] = {}
     for role_name, value in local.items():
         if isinstance(value, str):
             result[role_name] = {"subnet": value}
         elif isinstance(value, dict):
-            entry: Dict[str, Any] = {}
+            entry: dict[str, Any] = {}
             for k in ("subnet", "dns_resolver"):
                 if k in value:
                     entry[k] = value[k]
@@ -33,9 +34,9 @@ def build_network_index(networks_file: Path) -> Dict[str, Dict[str, Any]]:
 
 def build_port_index(
     ports_file: Path, roles_dir: Path
-) -> Tuple[
-    Dict[str, Dict[str, Dict[str, Any]]],
-    Dict[str, Dict[str, Dict[str, int]]],
+) -> tuple[
+    dict[str, dict[str, dict[str, Any]]],
+    dict[str, dict[str, dict[str, int]]],
 ]:
     """Return ``(ports_for_role, relays_for_role)`` indexed by role -> entity."""
     ports_doc = yaml_io.load(ports_file) or {}
@@ -43,8 +44,8 @@ def build_port_index(
     if not isinstance(ports_root, dict):
         return {}, {}
 
-    ports_for_role: Dict[str, Dict[str, Dict[str, Any]]] = {}
-    relays_for_role: Dict[str, Dict[str, Dict[str, int]]] = {}
+    ports_for_role: dict[str, dict[str, dict[str, Any]]] = {}
+    relays_for_role: dict[str, dict[str, dict[str, int]]] = {}
 
     for scope in ("localhost", "public"):
         scope_block = ports_root.get(scope, {})
@@ -72,7 +73,7 @@ def build_port_index(
 
 def _absorb_relays(
     entries: Any,
-    relays_for_role: Dict[str, Dict[str, Dict[str, int]]],
+    relays_for_role: dict[str, dict[str, dict[str, int]]],
     roles_dir: Path,
 ) -> None:
     if not isinstance(entries, dict):
@@ -94,7 +95,7 @@ def _absorb_relays(
 
 def _split_role_and_entity(
     combined_key: str, roles_dir: Path
-) -> Tuple[str, Optional[str]]:
+) -> tuple[str, str | None]:
     """Return ``(role_name, entity_or_None)`` for a `09_ports.yml` key."""
     known = _all_role_names(roles_dir)
     if combined_key in known:
@@ -106,10 +107,6 @@ def _split_role_and_entity(
     return combined_key, None
 
 
-def _all_role_names(roles_dir: Path) -> Set[str]:
-    global _KNOWN_ROLES_CACHE
-    if _KNOWN_ROLES_CACHE is None:
-        _KNOWN_ROLES_CACHE = {
-            child.name for child in roles_dir.iterdir() if child.is_dir()
-        }
-    return _KNOWN_ROLES_CACHE
+@cache
+def _all_role_names(roles_dir: Path) -> frozenset[str]:
+    return frozenset(child.name for child in roles_dir.iterdir() if child.is_dir())

@@ -1,3 +1,4 @@
+---
 # Matrix-deploy variant overrides for this role.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
@@ -5,6 +6,43 @@
 # initial-setup endpoint, so the canonical reachability probe sees
 # the setup wizard at /; assert against the 302 redirect chain
 # instead of the default 200.
+
 - server:
     status_codes:
       default: 302
+  services:
+    dashboard:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
+- services:
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false

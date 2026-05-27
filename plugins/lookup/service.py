@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.applications.config import get
 from utils.cache.applications import get_merged_applications
-from utils.service_registry import (
+from utils.roles.applications.config import get
+from utils.roles.applications.services.registry import (
     build_role_to_primary_service_key,
     build_service_registry_from_applications,
     canonical_service_key,
@@ -16,9 +16,9 @@ from utils.service_registry import (
 
 
 def _get_service_flag(
-    applications: Dict[str, Any],
+    applications: dict[str, Any],
     app_id: str,
-    service_keys: List[str],
+    service_keys: list[str],
     flag: str,
 ) -> bool:
     return any(
@@ -37,9 +37,9 @@ def _get_service_flag(
 
 
 def _get_enabled_service_keys(
-    applications: Dict[str, Any],
+    applications: dict[str, Any],
     app_id: str,
-) -> List[str]:
+) -> list[str]:
     services = get(
         applications=applications,
         application_id=app_id,
@@ -58,10 +58,10 @@ def _get_enabled_service_keys(
 
 
 def _resolve_service_provider_app_id(
-    applications: Dict[str, Any],
-    service_registry: Dict[str, Any],
+    applications: dict[str, Any],
+    service_registry: dict[str, Any],
     service_key: str,
-) -> Optional[str]:
+) -> str | None:
     entry = service_registry.get(service_key)
     if not isinstance(entry, dict):
         return None
@@ -73,11 +73,11 @@ def _resolve_service_provider_app_id(
 
 
 def _is_service_required(
-    applications: Dict[str, Any],
-    service_registry: Dict[str, Any],
+    applications: dict[str, Any],
+    service_registry: dict[str, Any],
     app_id: str,
     service_key: str,
-    visited: Set[str],
+    visited: set[str],
 ) -> bool:
     """
     Return True if app_id directly or transitively (via its enabled services)
@@ -102,24 +102,27 @@ def _is_service_required(
         dep_app_id = _resolve_service_provider_app_id(
             applications, service_registry, svc
         )
-        if dep_app_id and dep_app_id in applications:
-            if _is_service_required(
+        if (
+            dep_app_id
+            and dep_app_id in applications
+            and _is_service_required(
                 applications, service_registry, dep_app_id, service_key, visited
-            ):
-                return True
+            )
+        ):
+            return True
 
     return False
 
 
-def _build_role_to_key(service_registry: Dict[str, Any]) -> Dict[str, str]:
+def _build_role_to_key(service_registry: dict[str, Any]) -> dict[str, str]:
     return build_role_to_primary_service_key(service_registry)
 
 
 def _resolve_term(
     term: str,
-    service_registry: Dict[str, Any],
-    role_to_key: Dict[str, str],
-) -> Tuple[str, str]:
+    service_registry: dict[str, Any],
+    role_to_key: dict[str, str],
+) -> tuple[str, str]:
     """
     Resolve a term (service key or role name) to (service_key, role).
     Raises AnsibleError if the term is not a known key or role.
@@ -141,11 +144,11 @@ def _resolve_term(
 
 
 def _compute_flags(
-    applications: Dict[str, Any],
-    group_names: List[str],
-    service_registry: Dict[str, Any],
+    applications: dict[str, Any],
+    group_names: list[str],
+    service_registry: dict[str, Any],
     service_key: str,
-) -> Dict[str, bool]:
+) -> dict[str, bool]:
     deployed = [app_id for app_id in group_names if app_id in applications]
     equivalent_keys = equivalent_service_keys(service_registry, service_key)
     any_enabled = any(
@@ -161,7 +164,17 @@ def _compute_flags(
         _is_service_required(applications, service_registry, app_id, primary_key, set())
         for app_id in deployed
     )
-    return {"enabled": any_enabled, "shared": any_shared, "required": any_required}
+    any_local = any(
+        _get_service_flag(applications, app_id, equivalent_keys, "enabled")
+        and not _get_service_flag(applications, app_id, equivalent_keys, "shared")
+        for app_id in deployed
+    )
+    return {
+        "enabled": any_enabled,
+        "shared": any_shared,
+        "required": any_required,
+        "local": any_local,
+    }
 
 
 class LookupModule(LookupBase):
@@ -185,14 +198,18 @@ class LookupModule(LookupBase):
                  "Required" was chosen over "needed" to express that the
                  service is contractually required by a real consumer, not
                  merely convenient.
+      local    — True if any deployed app has enabled AND NOT shared, i.e.
+                 the service runs embedded inside that app's own compose
+                 stack rather than centrally. Mutually exclusive with the
+                 shared/required axis when enabled is True.
     """
 
     def run(
         self,
-        terms: List[Any],
-        variables: Optional[Dict[str, Any]] = None,
+        terms: list[Any],
+        variables: dict[str, Any] | None = None,
         **kwargs: Any,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         if not terms:
             return []
 
@@ -214,7 +231,7 @@ class LookupModule(LookupBase):
 
         role_to_key = _build_role_to_key(service_registry)
 
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
         for term in terms:
             term_str = str(term).strip()
             if not term_str:

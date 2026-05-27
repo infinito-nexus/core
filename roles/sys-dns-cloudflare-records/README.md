@@ -1,4 +1,4 @@
-# 🌐 Cloudflare DNS Records
+# Cloudflare DNS Records
 
 ## Description
 
@@ -22,3 +22,10 @@ can be used to provision all required records for a service in one task.
 
 - [Cloudflare Dashboard → API Tokens](https://dash.cloudflare.com/profile/api-tokens)
 - [Ansible Collection: community.general.cloudflare_dns](https://docs.ansible.com/ansible/latest/collections/community/general/cloudflare_dns_module.html)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

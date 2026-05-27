@@ -1,3 +1,4 @@
+---
 # Merge all (config) files in infinito directory (container)
 
 - name: Add dynamic config merging from Jinja template

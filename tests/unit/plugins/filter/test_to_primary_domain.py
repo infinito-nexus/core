@@ -1,4 +1,5 @@
 import unittest
+
 from ansible.errors import AnsibleFilterError
 
 # Import the filter plugin
@@ -30,9 +31,11 @@ class TestToPrimaryDomain(unittest.TestCase):
             "",  # empty string
         ]
         for input_domain in invalid_cases:
-            with self.subTest(domain=input_domain):
-                with self.assertRaises(AnsibleFilterError):
-                    self.filtermod.to_primary_domain(input_domain)
+            with (
+                self.subTest(domain=input_domain),
+                self.assertRaises(AnsibleFilterError),
+            ):
+                self.filtermod.to_primary_domain(input_domain)
 
 
 if __name__ == "__main__":

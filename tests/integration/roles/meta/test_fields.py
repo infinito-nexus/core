@@ -1,14 +1,16 @@
 import os
 import unittest
+from pathlib import Path
 
 from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_MAIN
+
+from . import PROJECT_ROOT
 
 
 class TestAnsibleRolesMetadata(unittest.TestCase):
-    ROOT_DIR = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-    )
-    ROLES_DIR = os.path.join(ROOT_DIR, "roles")
+    ROOT_DIR = str(PROJECT_ROOT)
+    ROLES_DIR = str(PROJECT_ROOT / "roles")
 
     @classmethod
     def setUpClass(cls):
@@ -16,7 +18,7 @@ class TestAnsibleRolesMetadata(unittest.TestCase):
         cls.roles = [
             d
             for d in all_dirs
-            if (os.path.isdir(os.path.join(cls.ROLES_DIR, d)) and d != "__pycache__")
+            if (Path(str(Path(cls.ROLES_DIR) / d)).is_dir() and d != "__pycache__")
         ]
 
     def test_each_role_has_valid_meta(self):
@@ -26,14 +28,14 @@ class TestAnsibleRolesMetadata(unittest.TestCase):
         """
         for role in self.roles:
             with self.subTest(role=role):
-                role_path = os.path.join(self.ROLES_DIR, role)
-                meta_file = os.path.join(role_path, "meta", "main.yml")
+                role_path = str(Path(self.ROLES_DIR) / role)
+                meta_file = str(Path(role_path) / ROLE_FILE_META_MAIN)
                 self.assertTrue(
-                    os.path.exists(meta_file),
+                    Path(meta_file).exists(),
                     msg=f"Missing meta/main.yml in role '{role}'",
                 )
 
-                with open(meta_file, "r", encoding="utf-8") as f:
+                with Path(meta_file).open(encoding="utf-8") as f:
                     raw = f.read()
                     meta_data = load_yaml_str(raw) or {}
 

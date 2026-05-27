@@ -9,6 +9,7 @@ SSH key management follows a **single point of truth**: keys must be provided vi
 ## Overview
 
 Optimized for secure system management, this role performs the following:
+
 - Creates an administrator user with a home directory.
 - Configures proper permissions for the administrator’s home directory and associated scripts.
 - Deploys SSH `authorized_keys` from `lookup('users', 'administrator').authorized_keys`, leveraging [SSH](https://en.wikipedia.org/wiki/Secure_Shell) best practices.

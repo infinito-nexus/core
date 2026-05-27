@@ -14,8 +14,8 @@ fields.
 ## Dependencies
 
 This requirement is a follow-up to and depends on **both**
-[008 — Role Meta Layout Refactoring](008-role-meta-layout.md) **and**
-[009 — Per-Role Networks and Ports Migration](009-per-role-networks-and-ports.md).
+[Req-008: Role Meta Layout Refactoring](008-role-meta-layout.md) **and**
+[Req-009: Per-Role Networks and Ports Migration](009-per-role-networks-and-ports.md).
 Req-008 and Req-009 MUST both be fully merged (every Acceptance Criterion
 checked off) before this requirement is started. The per-role `meta/services.yml`
 shape (file root keyed by `<entity_name>`, materialised at
@@ -42,25 +42,17 @@ galaxy_info:
   lifecycle: pre-alpha
 ```
 
-- **`run_after:`** is the project-specific role-load-order list introduced by
-  req-002. `roles/sys-utils-service-loader` reads it to order role loads
-  within a deploy-type pass.
-- **`lifecycle:`** is a maturity marker (`pre-alpha`, `alpha`, `beta`,
-  `stable`, …) used by `cli meta roles lifecycle_filter` and other
-  introspection commands to filter or report on role status.
+- **`run_after:`** is the project-specific role-load-order list introduced by req-002. `roles/sys-service-loader` reads it to order role loads within a deploy-type pass.
+- **`lifecycle:`** is a maturity marker (`pre-alpha`, `alpha`, `beta`, `stable`, …) used by `cli meta roles lifecycle` and other introspection commands to filter or report on role status.
 
-Bundling these under `galaxy_info` mixes Ansible-standard fields with
-project-internal ones; Galaxy publishers ignore unknown keys, so the values
-have always lived there as a workaround. With req-008 we now have a
-project-owned location for per-role/per-entity metadata
-(`meta/services.yml`), and these two fields belong there.
+Bundling these under `galaxy_info` mixes Ansible-standard fields with project-internal ones; Galaxy publishers ignore unknown keys, so the values have always lived there as a workaround. With req-008 we now have a project-owned location for per-role/per-entity metadata (`meta/services.yml`), and these two fields belong there.
 
 ## Target Layout
 
 Both fields move to `meta/services.yml` under the role's **primary entity**,
 where `<primary_entity>` is the value returned by `get_entity_name(role_name)`
-(per req-002 — strip the deploy-type prefix `web-app-`, `web-svc-`, `svc-`,
-`sys-`, `desk-`, `dev-`, `drv-`, `gen-` from the role name).
+(per req-002, which strips the deploy-type prefix `web-app-`, `web-svc-`,
+`svc-`, `sys-`, `desk-`, `dev-`, `drv-`, `gen-` from the role name).
 
 ```yaml
 # roles/<role>/meta/services.yml
@@ -120,10 +112,10 @@ gitea:
 entities `api`/`web`/`view`):**
 
 The primary entity returned by `get_entity_name('web-app-bluesky')` is
-`bluesky`, but bluesky has no compose service named `bluesky` — only
-`api`, `web`, `view`. The migration creates a dedicated `bluesky:` top-level
-entry in `meta/services.yml` to host the role-level metadata; the existing
-compose entities stay alongside it untouched.
+`bluesky`, but bluesky has no compose service named `bluesky`. It only has
+`api`, `web`, and `view`. The migration creates a dedicated `bluesky:`
+top-level entry in `meta/services.yml` to host the role-level metadata,
+and the existing compose entities stay alongside it untouched.
 
 ```yaml
 # After: roles/web-app-bluesky/meta/services.yml
@@ -157,7 +149,7 @@ Cross-role consumers that today read `<role>'s meta/main.yml` directly to
 extract `run_after` / `lifecycle` MUST be rewritten to look the value up
 through the new path. A small helper SHOULD be introduced (e.g.
 `get_role_run_after(role)` / `get_role_lifecycle(role)`) that resolves
-`get_entity_name(role)` and reads the field — this avoids hard-coding the
+`get_entity_name(role)` and reads the field. This avoids hard-coding the
 primary-entity derivation at every call site.
 
 ## Acceptance Criteria
@@ -173,7 +165,7 @@ primary-entity derivation at every call site.
       `meta/services.yml.<primary_entity>.lifecycle`. The
       `galaxy_info.lifecycle` key is removed from `meta/main.yml`.
 - [ ] `<primary_entity>` is derived via `get_entity_name(role_name)` (the
-      same function used by `sys-utils-service-loader` per req-002).
+      same function used by `sys-service-loader` per req-002).
 - [ ] For roles where `<primary_entity>` does not exist as a compose entity
       in `meta/services.yml` today (e.g. `web-app-bluesky` → `bluesky`,
       `web-app-matrix` → `matrix`, desk/dev/drv/gen roles with no compose
@@ -198,10 +190,10 @@ primary-entity derivation at every call site.
       Unknown values fail the lint.
 - [ ] Inline YAML comments next to `lifecycle:` values today
       (e.g. `lifecycle: alpha # SSO integration missing`) are NOT
-      preserved by the migration — the value (`alpha`) moves verbatim,
-      the comment is dropped. If the comment carries information worth
-      keeping, the contributor MUST move it into the role's `README.md`
-      or `AGENTS.md` before running the migration.
+      preserved by the migration. The value (`alpha`) moves verbatim,
+      and the comment is dropped. If the comment carries information
+      worth keeping, the contributor MUST move it into the role's
+      `README.md` or `AGENTS.md` before running the migration.
 - [ ] At most one entity per role carries `run_after` and `lifecycle`. If
       these fields appear on a non-primary entity (e.g. on `api` instead of
       `bluesky` for `web-app-bluesky`), the lint fails.
@@ -213,28 +205,26 @@ The following consumers read `run_after` and/or `lifecycle` from
 `meta/services.yml.<primary_entity>` (via the new helper or directly):
 
 - [ ] `utils/roles/dependency_resolver.py`
-- [ ] `utils/service_registry.py`
-- [ ] `utils/invokable.py`
-- [ ] `roles/sys-utils-service-loader` (its tasks/templates that drive the
-      load-order pass)
-- [ ] `cli/meta/applications/resolution/run_after/__main__.py`
-- [ ] `cli/meta/roles/lifecycle_filter/__main__.py`
-- [ ] `cli/meta/applications/resolution/combined/__main__.py`
-- [ ] `cli/meta/applications/resolution/combined/resolver.py`
-- [ ] `cli/meta/applications/resolution/combined/role_introspection.py`
-- [ ] `cli/meta/applications/resolution/combined/tree.py`
-- [ ] `cli/meta/applications/resolution/combined/errors.py`
-- [ ] `cli/meta/applications/type/__main__.py`
+- [ ] `utils/roles/applications/services/registry.py`
+- [ ] `utils/roles/validation/invokable.py`
+- [ ] `roles/sys-service-loader` (its tasks/templates that drive the load-order pass)
+- [ ] `cli/meta/roles/applications/resolution/run_after/__main__.py`
+- [ ] `cli/meta/roles/lifecycle/__main__.py`
+- [ ] `cli/meta/roles/applications/resolution/combined/__main__.py`
+- [ ] `cli/meta/roles/applications/resolution/combined/resolver.py`
+- [ ] `cli/meta/roles/applications/resolution/combined/role_introspection.py`
+- [ ] `cli/meta/roles/applications/resolution/combined/tree.py`
+- [ ] `cli/meta/roles/applications/resolution/combined/errors.py`
+- [ ] `cli/meta/roles/applications/type/__main__.py`
 - [ ] `cli/build/tree/__main__.py`
 - [ ] `cli/build/graph/__main__.py`
-- [ ] `cli/build/role_include/__main__.py`
-- [ ] `cli/deploy/development/common.py`
-- [ ] `cli/deploy/development/init.py`
-- [ ] `cli/deploy/development/deps.py`
-- [ ] `cli/deploy/development/deploy.py`
+- [ ] `cli/build/include/__main__.py`
+- [ ] `cli/administration/deploy/development/common.py`
+- [ ] `cli/administration/deploy/development/init.py`
+- [ ] `cli/administration/deploy/development/deps.py`
+- [ ] `cli/administration/deploy/development/deploy.py`
 - [ ] `plugins/filter/canonical_domains_map.py`
-- [ ] any other consumer discovered during migration that reads
-      `run_after` or `lifecycle` from `meta/main.yml`.
+- [ ] any other consumer discovered during migration that reads `run_after` or `lifecycle` from `meta/main.yml`.
 
 ### Helper
 
@@ -289,7 +279,7 @@ The following consumers read `run_after` and/or `lifecycle` from
 
 ### Documentation
 
-- [ ] `docs/contributing/design/services/` documents the new placement
+- [ ] `docs/contributing/design/role/services/` documents the new placement
       (`meta/services.yml.<primary_entity>.{run_after,lifecycle}`) and the
       allowed `lifecycle` values.
 - [ ] Any reference in `docs/contributing/` or `docs/agents/` to the old
@@ -322,7 +312,7 @@ deploy end to end after the refactor:
 | `web-app-nextcloud`        | Complex role with multiple `run_after` dependencies; exercises the dependency resolver path.             |
 
 ```bash
-APPS="web-app-gitea web-app-bluesky web-app-matrix web-app-nextcloud" \
+INFINITO_APPS="web-app-gitea web-app-bluesky web-app-matrix web-app-nextcloud" \
   make deploy-fresh-purged-apps
 ```
 
@@ -386,16 +376,16 @@ After the changes are implemented in the working tree and an initial
 following [Role Loop](../agents/action/iteration/role.md) against the
 following two apps (in order):
 
-1. `web-app-nextcloud`     — most `run_after` dependencies; stresses the
+1. `web-app-nextcloud` has the most `run_after` dependencies and stresses the
    dependency resolver path.
-2. `web-app-bluesky`       — multi-entity role with a metadata-only primary
+2. `web-app-bluesky` is a multi-entity role with a metadata-only primary
    entity holder.
 
 **Loop semantics:**
 
 - Each app MUST be deployed standalone at least once, fully through the
   `Role Loop` inspect-fix-redeploy cycle.
-- The loop continues — without asking the operator — until **all** of the
+- The loop continues without asking the operator until **all** of the
   following hold simultaneously:
   - every Acceptance Criterion in this document is checked off (`- [x]`);
   - `make test` is green with no skipped suites;

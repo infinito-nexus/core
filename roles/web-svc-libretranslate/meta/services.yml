@@ -1,3 +1,5 @@
+---
+# nocheck: playwright-service-flag — self-provider
 libretranslate:
   enabled: true
   shared: true
@@ -9,21 +11,16 @@ libretranslate:
       http: 8045
       oauth2: 16493
   lifecycle: beta
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
 oauth2:
-  enabled: true
-  shared: false
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
   origin:
     host: libretranslate
     port: 5000
-  # Per requirement 013 LibreTranslate's OIDC integration MUST gate
-  # the human-facing web UI but MUST NOT gate the programmatic API
-  # endpoints; the latter authenticate machine clients via API keys.
-  # Whitelist the canonical LibreTranslate API surfaces so API-key
-  # callers keep working when SSO is enabled on the UI.
   acl:
     whitelist:
       - /translate
@@ -33,28 +30,33 @@ oauth2:
       - /frontend/settings
       - /api
   allowed_groups:
-  - '{{ lookup(''rbac_group_path'', application_id=''web-svc-libretranslate'', role=''administrator'') }}'
+    - "{{ lookup('rbac_group_path', application_id='web-svc-libretranslate', role='administrator') }}"
+# nocheck: dynamic-flag
 logout:
   enabled: false
   shared: false
-dashboard:
-  enabled: true
-  shared: true
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: false
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — captcha backend, infrastructural
 recaptcha:
   enabled: false
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
   enabled: false
   shared: true
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

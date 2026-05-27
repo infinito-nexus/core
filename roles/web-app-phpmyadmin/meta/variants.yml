@@ -1,8 +1,51 @@
+---
 # Matrix-deploy variant overrides for this role.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: development convenience: autologin lets specs land on
 # the phpMyAdmin home view without re-entering the dev password.
+
 - services:
     phpmyadmin:
       autologin: true
+    css:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oauth2:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+- services:
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    mariadb:
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    oauth2:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

@@ -1,52 +1,48 @@
-#############################################
-### Identity and Access Management (IAM)  ###
-#############################################
+---
+# ############################################
+# ## Identity and Access Management (IAM)  ###
+# ############################################
 # Developer guide for the OIDC variable tree, claim rules, and the per-app
 # vs. shared client-template policy:
 # @see docs/contributing/design/iam/oidc.md
 
-#############################################
-### OIDC                                  ###
-#############################################
+# ############################################
+# ## OIDC                                  ###
+# ############################################
 # @see https://en.wikipedia.org/wiki/OpenID_Connect
 
 # Helper Variables:
-_oidc_client_realm:       "{{ OIDC.CLIENT.REALM if OIDC.CLIENT is defined and OIDC.CLIENT.REALM is defined else SOFTWARE_DOMAIN }}"
-_oidc_url:                "{{ 
-                            ( OIDC.URL
-                              if (OIDC is defined and OIDC.URL is defined) 
-                              else (lookup('tls', 'web-app-keycloak', 'url.base'))
-                            ).rstrip('/') 
-                          }}"
-_oidc_client_issuer_url:  "{{ _oidc_url ~ '/realms/' ~ _oidc_client_realm }}"
-_oidc_client_id:          "{{ OIDC.CLIENT.ID if OIDC.CLIENT is defined and OIDC.CLIENT.ID is defined else SOFTWARE_DOMAIN }}"
-_oidc_account_url:        "{{ _oidc_client_issuer_url ~ '/account' }}"
-_oidc_protocol_oidc:      "{{ _oidc_client_issuer_url ~ '/protocol/openid-connect' }}"
+_oidc_client_realm: "{{ OIDC.CLIENT.REALM if OIDC.CLIENT is defined and OIDC.CLIENT.REALM is defined else SOFTWARE_DOMAIN }}"
+_oidc_url: "{{ ( OIDC.URL if (OIDC is defined and OIDC.URL is defined) else (lookup('tls', 'web-app-keycloak', 'url.base')) ).rstrip('/') }}"
+_oidc_client_issuer_url: "{{ _oidc_url ~ '/realms/' ~ _oidc_client_realm }}"
+_oidc_client_id: "{{ OIDC.CLIENT.ID if OIDC.CLIENT is defined and OIDC.CLIENT.ID is defined else SOFTWARE_DOMAIN }}"
+_oidc_account_url: "{{ _oidc_client_issuer_url ~ '/account' }}"
+_oidc_protocol_oidc: "{{ _oidc_client_issuer_url ~ '/protocol/openid-connect' }}"
 
 # Definition
 defaults_oidc:
-  URL:                    "{{ _oidc_url }}"
+  URL: "{{ _oidc_url }}"
   CLIENT:
-    ID:                   "{{ _oidc_client_id }}"                                                 # Client identifier, typically matching your primary domain
-#   SECRET:                                                                                       # Client secret for authenticating with the OIDC provider (set in the inventory file). Recommend greater then 32 characters
-    REALM:                "{{ _oidc_client_realm }}"                                              # The realm to which the client belongs in the OIDC provider
-    ISSUER_URL:           "{{ _oidc_client_issuer_url }}"                                         # Issuer URL (must match discovery issuer)
-    DISCOVERY_DOCUMENT:   "{{ _oidc_client_issuer_url ~ '/.well-known/openid-configuration' }}"   # URL for fetching the provider's configuration details
-    AUTHORIZE_URL:        "{{ _oidc_protocol_oidc ~ '/auth' }}"                                   # Endpoint to start the authorization process
-    TOKEN_URL:            "{{ _oidc_protocol_oidc ~ '/token' }}"                                  # Endpoint to exchange authorization codes for tokens (note: 'token_url' may be a typo for 'token_url')
-    USER_INFO_URL:        "{{ _oidc_protocol_oidc ~ '/userinfo' }}"                               # Endpoint to retrieve user information
-    LOGOUT_URL:           "{{ _oidc_protocol_oidc ~ '/logout' }}"                                 # Endpoint to log out the user
-    CERTS:                "{{ _oidc_protocol_oidc ~ '/certs' }}"                                  # JSON Web Key Set endpoint (matches discovery jwks_uri)
-    ACCOUNT:                                                                                        
-      URL:                "{{ _oidc_account_url }}"                                               # Entry point for the user settings console
-      PROFILE_URL:        "{{ _oidc_account_url ~ '/#/personal-info' }}"                          # Section for managing personal information
-      SECURITY_URL:       "{{ _oidc_account_url ~ '/#/security/signingin' }}"                     # Section for managing login and security settings
-    CHANGE_CREDENTIALS:   "{{ _oidc_account_url ~ '/account-security/signing-in' }}"              # URL for managing or changing user credentials
-    RESET_CREDENTIALS:    "{{ _oidc_client_issuer_url ~ '/login-actions/reset-credentials?client_id=' ~ _oidc_client_id }}" # Password reset url
-  BUTTON_TEXT:            "SSO Login ({{ DOMAIN_PRIMARY | upper }})"                              # Default button text
+    ID: "{{ _oidc_client_id }}" # Client identifier, typically matching your primary domain
+    #   SECRET:                                                                                       # Client secret for authenticating with the OIDC provider (set in the inventory file). Recommend greater then 32 characters
+    REALM: "{{ _oidc_client_realm }}" # The realm to which the client belongs in the OIDC provider
+    ISSUER_URL: "{{ _oidc_client_issuer_url }}" # Issuer URL (must match discovery issuer)
+    DISCOVERY_DOCUMENT: "{{ _oidc_client_issuer_url ~ '/.well-known/openid-configuration' }}" # URL for fetching the provider's configuration details
+    AUTHORIZE_URL: "{{ _oidc_protocol_oidc ~ '/auth' }}" # Endpoint to start the authorization process
+    TOKEN_URL: "{{ _oidc_protocol_oidc ~ '/token' }}" # Endpoint to exchange authorization codes for tokens (note: 'token_url' may be a typo for 'token_url')
+    USER_INFO_URL: "{{ _oidc_protocol_oidc ~ '/userinfo' }}" # Endpoint to retrieve user information
+    LOGOUT_URL: "{{ _oidc_protocol_oidc ~ '/logout' }}" # Endpoint to log out the user
+    CERTS: "{{ _oidc_protocol_oidc ~ '/certs' }}" # JSON Web Key Set endpoint (matches discovery jwks_uri)
+    ACCOUNT:
+      URL: "{{ _oidc_account_url }}" # Entry point for the user settings console
+      PROFILE_URL: "{{ _oidc_account_url ~ '/#/personal-info' }}" # Section for managing personal information
+      SECURITY_URL: "{{ _oidc_account_url ~ '/#/security/signingin' }}" # Section for managing login and security settings
+    CHANGE_CREDENTIALS: "{{ _oidc_account_url ~ '/account-security/signing-in' }}" # URL for managing or changing user credentials
+    RESET_CREDENTIALS: "{{ _oidc_client_issuer_url ~ '/login-actions/reset-credentials?client_id=' ~ _oidc_client_id }}" # Password reset url
+  BUTTON_TEXT: "SSO Login ({{ DOMAIN_PRIMARY | upper }})" # Default button text
   ATTRIBUTES:
     # Attribut to identify the user
-    USERNAME:             "preferred_username"
-    GIVEN_NAME:           "givenName"
-    FAMILY_NAME:          "surname"
-    EMAIL:                "email"
+    USERNAME: "preferred_username"
+    GIVEN_NAME: "givenName"
+    FAMILY_NAME: "surname"
+    EMAIL: "email"

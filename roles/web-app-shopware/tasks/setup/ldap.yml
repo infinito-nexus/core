@@ -1,3 +1,4 @@
+---
 # Replace INFX_LDAP_PLUGIN with the actual plugin name you use
 - name: "Install LDAP admin plugin & activate"
   shell: |

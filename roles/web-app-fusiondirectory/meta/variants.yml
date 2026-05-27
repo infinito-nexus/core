@@ -1,14 +1,77 @@
-# Matrix-deploy variant overrides per requirement 013. The LDAP
-# marker stays on across both variants because LDAP IS the storage
-# backend; variant 1 is essentially equivalent on FusionDirectory's
-# side, the change is in how Keycloak federates user storage in
-# variant 0.
+---
+# Matrix-deploy variant overrides. `ldap` is pinned in `services.yml`
+# (`enabled: true`, `shared: true`) because LDAP IS the storage backend
+# for FusionDirectory — every variant inherits it, so the variant blocks
+# below don't override it.
 
 # variant 0: OIDC variant (canonical default; oauth2-proxy gate).
-- {}
-
-# variant 1: LDAP variant. Same oauth2-proxy gate, LDAP marker stays
-# on, exercises Playwright's LDAP scenario.
 - services:
-    ldap:
+    dashboard:
       enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oauth2:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+
+    # variant 1: Keycloak/federation surface off; LDAP-backed only.
+    css:
+      enabled: true
+      shared: true
+- services:
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    oauth2:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+
+    # variant 2: LDAP-only path explicitly disables oauth2.
+    css:
+      enabled: false
+      shared: false
+- services:
+    oauth2:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

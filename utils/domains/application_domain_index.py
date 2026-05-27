@@ -13,9 +13,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List, Optional, Set
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def _norm_domain(value: Any) -> str:
@@ -23,13 +26,13 @@ def _norm_domain(value: Any) -> str:
     return s.lower()
 
 
-def _flatten_str_values(value: Any) -> List[str]:
+def _flatten_str_values(value: Any) -> list[str]:
     """
     Recursively flatten strings from value.
     Accepts str | list | dict | nested combinations.
     Returns list[str] preserving discovery order (best effort).
     """
-    out: List[str] = []
+    out: list[str] = []
 
     def walk(v: Any) -> None:
         if v is None:
@@ -72,7 +75,7 @@ def iter_app_domains(app_conf: Any, include_aliases: bool = True) -> Iterable[st
         return []
 
     canonical = domains.get("canonical", [])
-    result: List[str] = []
+    result: list[str] = []
     result.extend(_flatten_str_values(canonical))
     if include_aliases:
         aliases = domains.get("aliases", [])
@@ -81,8 +84,8 @@ def iter_app_domains(app_conf: Any, include_aliases: bool = True) -> Iterable[st
 
 
 def build_domain_index(
-    applications: Dict[str, Any], include_aliases: bool = True
-) -> Dict[str, str]:
+    applications: dict[str, Any], include_aliases: bool = True
+) -> dict[str, str]:
     """
     Build a case-insensitive domain -> application_id index.
     If the same domain appears in multiple apps (case-insensitive), raises an error.
@@ -90,8 +93,8 @@ def build_domain_index(
     if not isinstance(applications, dict):
         raise AnsibleError("application_domain_index: applications must be a dict")
 
-    index: Dict[str, str] = {}
-    collisions: Dict[str, Set[str]] = {}
+    index: dict[str, str] = {}
+    collisions: dict[str, set[str]] = {}
 
     for app_id, app_conf in applications.items():
         for d in iter_app_domains(app_conf, include_aliases=include_aliases):
@@ -117,9 +120,9 @@ def build_domain_index(
 
 
 def resolve_app_id_for_domain(
-    applications: Dict[str, Any],
+    applications: dict[str, Any],
     domain: str,
-) -> Optional[str]:
+) -> str | None:
     """
     Resolve application_id for a given domain (canonical or alias) by scanning
     applications[*].server.domains.

@@ -1,15 +1,16 @@
+---
 plugin_configuration:
-  - appid:       "richdocuments"
-    configkey:   "wopi_url"
+  - appid: "richdocuments"
+    configkey: "wopi_url"
     configvalue: "{{ NEXTCLOUD_COLLABORA_URL }}"
 
   # Optional, but helpful if you ever front Collabora by a CDN:
-  - appid:       "richdocuments"
-    configkey:   "public_wopi_url"
+  - appid: "richdocuments"
+    configkey: "public_wopi_url"
     configvalue: "{{ NEXTCLOUD_COLLABORA_URL }}"
 
   # Only use this if you terminate TLS in front and run CODE plain HTTP behind it.
   # 0 = verify certs (recommended), 1 = skip verification
-  - appid:       "richdocuments"
-    configkey:   "disable_certificate_verification"
+  - appid: "richdocuments"
+    configkey: "disable_certificate_verification"
     configvalue: 0

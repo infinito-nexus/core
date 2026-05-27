@@ -1,0 +1,8 @@
+---
+_container_env_dir: "{{ lookup('container', application_id, 'directories.env') }}"
+_database_env: "{{ lookup('database', _database_consumer_id, 'env') }}"
+_database_type: "{{ lookup('database', _database_consumer_id, 'type') }}"
+_database_initdb_dir: "{{ lookup('database', _database_consumer_id, 'initdb_dir') }}"
+_database_build_dir: "{{ lookup('database', _database_consumer_id, 'build_dir') }}"
+_database_extensions: "{{ lookup('service_extensions', 'postgres').get(_database_consumer_id, []) }}"
+_database_libraries: "{{ lookup('postgres_libraries', _database_extensions) }}"

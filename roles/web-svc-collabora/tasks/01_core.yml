@@ -1,14 +1,15 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "load docker, proxy for '{{ application_id }}'"
   include_role:
-    name:   sys-stk-full
+    name: sys-stk-full
     public: true
   vars:
-    docker_compose_flush_handlers:        true
-    docker_git_repository_pull:           false
-    webserver_vhost_flavour:              "basic"
-    application_id:                       'web-svc-collabora'
+    compose_handlers_flush: true
+    compose_repository_pull: false
+    webserver_vhost_flavour: "basic"
+    application_id: "web-svc-collabora"
 
 - name: Update Collabora systemplate to include new fonts
   command: "{{ COLLABORA_DOCKER_CONF_EXEC }} update-system-template"
@@ -18,7 +19,7 @@
     and
     ('updated' in (collabora_fonts.stdout | default('')))
   async: "{{ ASYNC_TIME  if (ASYNC_ENABLED |  bool) else omit }}"
-  poll:  "{{ ASYNC_POLL if (ASYNC_ENABLED |  bool) else omit }}"
+  poll: "{{ ASYNC_POLL if (ASYNC_ENABLED |  bool) else omit }}"
 
 - name: Allow Nextcloud host IP for Collabora preview conversion
   command: "{{ COLLABORA_DOCKER_CONF_EXEC }} set net.post_allow.host {{ networks.internet.ip4 }}"
@@ -28,4 +29,4 @@
     and
     ('already present' not in (collabora_preview.stdout | default('')))
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

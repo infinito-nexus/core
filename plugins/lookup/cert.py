@@ -1,5 +1,3 @@
-# lookup_plugins/cert.py
-#
 # Certificate planning lookup for Infinito.Nexus:
 # - Computes certificate file paths (cert/key/ca)
 # - Computes effective SAN list (domains.san)
@@ -9,15 +7,15 @@
 
 from __future__ import annotations
 
-import os
-from typing import Any, Dict, Optional, List
+from pathlib import Path
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.jinja_strict import render_strict
 from utils.cache.applications import get_merged_applications
 from utils.cache.domains import get_merged_domains
+from utils.templating.jinja import render_strict
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
     as_str,
@@ -38,10 +36,10 @@ LE_PRIVKEY = "privkey.pem"
 
 def _join(*parts: Any) -> str:
     cleaned = [str(p).strip() for p in parts if str(p).strip()]
-    return os.path.join(*cleaned) if cleaned else ""
+    return str(Path(*cleaned)) if cleaned else ""
 
 
-def _require_current_play_domains_all_strict(variables: dict) -> List[str]:
+def _require_current_play_domains_all_strict(variables: dict) -> list[str]:
     """
     STRICT FORMAT REQUIREMENT
 
@@ -61,13 +59,13 @@ def _require_current_play_domains_all_strict(variables: dict) -> List[str]:
             f"Got {type(value).__name__}."
         )
 
-    cleaned: List[str] = []
-    for item in value:
-        if not isinstance(item, str):
+    cleaned: list[str] = []
+    for raw_item in value:
+        if not isinstance(raw_item, str):
             raise AnsibleError(
                 "cert(strict): CURRENT_PLAY_DOMAINS_ALL must contain only strings."
             )
-        item = item.strip()
+        item = raw_item.strip()
         if not item:
             raise AnsibleError(
                 "cert(strict): CURRENT_PLAY_DOMAINS_ALL must not contain empty strings."
@@ -81,7 +79,7 @@ def _require_current_play_domains_all_strict(variables: dict) -> List[str]:
 
 
 class LookupModule(LookupBase):
-    def run(self, terms, variables: Optional[dict] = None, **kwargs):
+    def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
 
         # New API: want-path is the 2nd positional term.
@@ -134,7 +132,7 @@ class LookupModule(LookupBase):
         cert_file = ""
         key_file = ""
         ca_file = ""
-        san_domains: List[str] = []
+        san_domains: list[str] = []
         cert_id = ""
         scope = "app"
 
@@ -158,7 +156,7 @@ class LookupModule(LookupBase):
 
             all_domains = collect_domains_for_app(domains, app_id, err_prefix="cert")
             all_domains = (
-                uniq_preserve([primary_domain] + all_domains)
+                uniq_preserve([primary_domain, *all_domains])
                 if all_domains
                 else [primary_domain]
             )
@@ -167,7 +165,7 @@ class LookupModule(LookupBase):
             if san_override is None:
                 san_domains = all_domains[:]
             else:
-                san_domains = uniq_preserve([primary_domain] + san_override)
+                san_domains = uniq_preserve([primary_domain, *san_override])
 
         elif mode == "self_signed":
             ss_base_raw = require(variables, "TLS_SELFSIGNED_BASE_PATH", str)
@@ -196,7 +194,7 @@ class LookupModule(LookupBase):
 
                 # Ensure primary domain is always included
                 if primary_domain:
-                    san_domains = uniq_preserve([primary_domain] + san_domains)
+                    san_domains = uniq_preserve([primary_domain, *san_domains])
 
             else:
                 cert_id = app_id
@@ -207,7 +205,7 @@ class LookupModule(LookupBase):
                     domains, app_id, err_prefix="cert"
                 )
                 all_domains = (
-                    uniq_preserve([primary_domain] + all_domains)
+                    uniq_preserve([primary_domain, *all_domains])
                     if all_domains
                     else [primary_domain]
                 )
@@ -216,12 +214,12 @@ class LookupModule(LookupBase):
                 if san_override is None:
                     san_domains = all_domains[:]
                 else:
-                    san_domains = uniq_preserve([primary_domain] + san_override)
+                    san_domains = uniq_preserve([primary_domain, *san_override])
 
         else:
             raise AnsibleError(f"cert: unsupported mode '{mode}'")
 
-        resolved: Dict[str, Any] = {
+        resolved: dict[str, Any] = {
             "application_id": app_id,
             "domain": primary_domain,
             "enabled": enabled,

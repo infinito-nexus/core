@@ -76,7 +76,7 @@ jobs:
             EXTRA_ARGS+=( --dry-run )
           fi
 
-          python -m cli.mirror.cleanup \
+          python -m cli.contributing.mirror.cleanup \
             --ghcr-namespace "${{ steps.vars.outputs.ghcr_namespace }}" \
             --ghcr-prefix    "${{ steps.vars.outputs.ghcr_repository }}/${{ inputs.ghcr_prefix }}" \
             --visibility     "${{ inputs.visibility }}" \

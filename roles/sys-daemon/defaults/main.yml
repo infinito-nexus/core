@@ -1,7 +1,8 @@
+---
 # General
-SYSTEMD_MANAGER_CONF_DIR:       "/etc/systemd/system.conf.d"   # Directory for systemd manager drop-in configuration files
+SYSTEMD_MANAGER_CONF_DIR: "/etc/systemd/system.conf.d" # Directory for systemd manager drop-in configuration files
 
 # Defaults (system-wide service timeouts)
-SYSTEMD_DEFAULT_TIMEOUT_START:  "24h"  # How long systemd waits for a service to reach the "active" state during startup
-SYSTEMD_DEFAULT_TIMEOUT_STOP:   "90s"  # How long systemd waits for a service to stop gracefully after receiving a stop command
-SYSTEMD_DEFAULT_TIMEOUT_ABORT:  "90s"  # Extra grace period after the stop timeout expires, before systemd sends SIGKILL to force termination
+SYSTEMD_DEFAULT_TIMEOUT_START: "24h" # How long systemd waits for a service to reach the "active" state during startup
+SYSTEMD_DEFAULT_TIMEOUT_STOP: "90s" # How long systemd waits for a service to stop gracefully after receiving a stop command
+SYSTEMD_DEFAULT_TIMEOUT_ABORT: "90s" # Extra grace period after the stop timeout expires, before systemd sends SIGKILL to force termination

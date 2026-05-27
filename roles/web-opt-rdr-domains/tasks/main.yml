@@ -1,13 +1,11 @@
-- block:
-  - name: Include dependency 'sys-svc-webserver-https'
-    include_role:
-      name: sys-svc-webserver-https
-    when: run_once_sys_svc_webserver_https is not defined
-    vars:
-      docker_compose_flush_handlers: true
-  - include_tasks: utils/once/flag.yml
-  
-  when: run_once_web_opt_rdr_domains is not defined
+---
+# nocheck: run-once
+
+- name: Include dependency 'sys-svc-webserver-https'
+  include_role:
+    name: sys-svc-webserver-https
+  vars:
+    compose_handlers_flush: true
 
 - name: "Include domains redirects"
   include_tasks: redirect-domain.yml

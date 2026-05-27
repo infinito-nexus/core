@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -8,11 +9,12 @@ csp:
 domains:
   aliases: []
   canonical:
-  - prometheus.{{ DOMAIN_PRIMARY }}
+    - prometheus.{{ DOMAIN_PRIMARY }}
 status_codes:
   default:
-  - 200
-  - 302
+    - 200
+    - 302
+    - 405
 networks:
   local:
     subnet: 192.168.104.160/28

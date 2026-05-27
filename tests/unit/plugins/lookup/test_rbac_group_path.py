@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
 
 from ansible.errors import AnsibleError
+
 from plugins.lookup.rbac_group_path import LookupModule
 
 
@@ -14,6 +16,17 @@ def _vars(applications, rbac_group_name="roles"):
 class TestRbacGroupPathLookup(unittest.TestCase):
     def setUp(self):
         self.lookup = LookupModule()
+
+        def _applications_from_vars(*, variables=None, **_kwargs):
+            return (variables or {}).get("applications", {})
+
+        patcher = patch(
+            "plugins.lookup.rbac_group_path.get_merged_applications",
+            side_effect=_applications_from_vars,
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
         self.non_tenant_apps = {
             "web-app-yourls": {
                 "rbac": {
@@ -68,7 +81,7 @@ class TestRbacGroupPathLookup(unittest.TestCase):
 
     def test_non_tenant_app_implicit_administrator_always_valid(self):
         # Even if an app does not explicitly declare administrator in its
-        # rbac.roles, requirement 004 auto-adds it; the lookup MUST accept
+        # rbac.roles, the auto-add rule provides it; the lookup MUST accept
         # that without failing.
         apps = {
             "web-app-gitea": {
@@ -197,6 +210,47 @@ class TestRbacGroupPathLookup(unittest.TestCase):
             role="administrator",
         )
         self.assertEqual(result, ["infinito-roles/web-app-yourls/administrator"])
+
+
+class TestRbacGroupPathReadsMergedApplications(unittest.TestCase):
+    """Regression guard: meta/rbac.yml roles must remain visible after
+    10cb02461 switched payload.py to get_variant_overrides_only."""
+
+    def test_falls_back_to_merged_when_variables_lack_rbac(self):
+        lookup = LookupModule()
+
+        host_vars_applications = {
+            "web-app-joomla": {
+                "services": {"joomla": {"image": "joomla", "version": "5"}},
+            },
+        }
+
+        merged_applications = {
+            "web-app-joomla": {
+                "services": {"joomla": {"image": "joomla", "version": "5"}},
+                "rbac": {
+                    "roles": {
+                        "editor": {"description": "Joomla Editor"},
+                    },
+                },
+            },
+        }
+
+        with patch(
+            "plugins.lookup.rbac_group_path.get_merged_applications",
+            return_value=merged_applications,
+        ):
+            result = lookup.run(
+                [],
+                variables={
+                    "applications": host_vars_applications,
+                    "RBAC": {"GROUP": {"NAME": "roles"}},
+                },
+                application_id="web-app-joomla",
+                role="editor",
+            )
+
+        self.assertEqual(result, ["roles/web-app-joomla/editor"])
 
 
 if __name__ == "__main__":

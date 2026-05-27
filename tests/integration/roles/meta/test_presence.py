@@ -1,8 +1,11 @@
 import os
 import unittest
+from pathlib import Path
 
-ROLES_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../../../roles")
+from utils.roles.mapping import ROLE_FILE_META_MAIN
+
+ROLES_DIR = str(
+    Path(str(Path(str(Path(__file__).parent)) / "../../../../roles")).resolve()
 )
 
 
@@ -15,12 +18,12 @@ class TestRolesHaveMetaMain(unittest.TestCase):
             if role.startswith(".") or role == "__pycache__":
                 continue
 
-            role_path = os.path.join(ROLES_DIR, role)
-            if not os.path.isdir(role_path):
+            role_path = str(Path(ROLES_DIR) / role)
+            if not Path(role_path).is_dir():
                 continue
 
-            meta_main = os.path.join(role_path, "meta", "main.yml")
-            if not os.path.isfile(meta_main):
+            meta_main = str(Path(role_path) / ROLE_FILE_META_MAIN)
+            if not Path(meta_main).is_file():
                 missing_meta.append(role)
 
         if missing_meta:

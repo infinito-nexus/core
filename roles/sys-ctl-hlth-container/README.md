@@ -24,3 +24,10 @@ The primary purpose of this role is to ensure that Docker-based services remain 
 
 - [Docker Health Checks Documentation](https://docs.docker.com/engine/reference/run/#healthcheck)
 - [Systemd Timers Documentation](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

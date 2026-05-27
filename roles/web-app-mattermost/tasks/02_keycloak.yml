@@ -89,7 +89,8 @@
   shell: >-
     container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
     /opt/keycloak/bin/kcadm.sh update
-    clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes/{{ mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | first | split(',') | first | trim }}
+    clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes/{{ mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | first | split(',')
+    | first | trim }}
     -r {{ OIDC.CLIENT.REALM | quote }}
   args:
     chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"

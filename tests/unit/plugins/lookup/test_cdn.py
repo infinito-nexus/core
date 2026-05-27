@@ -1,6 +1,6 @@
-import os
 import tempfile
 import unittest
+from pathlib import Path
 
 from plugins.lookup.cdn import _cdn_paths, _to_url_tree
 
@@ -17,7 +17,7 @@ class TestCdnPaths(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_root_is_absolute(self):
-        self.assertTrue(os.path.isabs(self.tree["root"]))
+        self.assertTrue(Path(self.tree["root"]).is_absolute())
 
     def test_shared_paths_under_root(self):
         shared = self.tree["shared"]
@@ -35,10 +35,8 @@ class TestCdnPaths(unittest.TestCase):
 
     def test_role_release_paths(self):
         release = self.tree["role"]["release"]
-        self.assertTrue(
-            release["css"].endswith(os.path.join(self.app, self.ver, "css"))
-        )
-        self.assertTrue(release["js"].endswith(os.path.join(self.app, self.ver, "js")))
+        self.assertTrue(release["css"].endswith(str(Path(self.app) / self.ver / "css")))
+        self.assertTrue(release["js"].endswith(str(Path(self.app) / self.ver / "js")))
 
     def test_different_app_ids_produce_different_role_paths(self):
         other = _cdn_paths(self.root, "web-app-nextcloud", self.ver)

@@ -1,5 +1,26 @@
+---
 - include_tasks: 01_core.yml
   when: run_once_sys_svc_compose is not defined
+
+- name: "Route docker cleanup/health deps through service-loader"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - sys-ctl-cln-docker
+      - sys-ctl-hlth-container
+      - sys-ctl-hlth-volumes
+      - sys-ctl-rpr-container-hard
+
+- name: "Route svc-bkp-container-2-local through service-loader (when deployed)"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - svc-bkp-container-2-local
+  when: "'svc-bkp-container-2-local' in group_names"
 
 # This could lead to problems in sys-svc-compose directories which are based on a git repository
 # @todo Verify that this isn't the case. E.g. in accounting
@@ -7,12 +28,12 @@
   file:
     path: "{{ item.value }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
   with_dict: "{{ lookup('container', application_id, 'directories') }}"
 
 - name: "Include routines to set up a git repository based installation for '{{ application_id }}'."
   include_tasks: "03_repository.yml"
-  when: docker_git_repository_pull | bool
+  when: compose_repository_pull | bool
 
 - name: "Include file management routines for '{{ application_id }}'."
   include_tasks: "04_files.yml"

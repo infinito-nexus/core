@@ -1,16 +1,16 @@
 """Helpers for reading per-role metadata that lives on the role's primary
-service entity in `meta/services.yml` (per req-010).
+service entity in `meta/services.yml`.
 
 Both fields used to live nested inside `meta/main.yml.galaxy_info`:
 
-  * ``run_after``  — project-specific role-load-order list (req-002).
+  * ``run_after``  — project-specific role-load-order list.
   * ``lifecycle``  — maturity marker filtered by
-    ``cli meta roles lifecycle_filter``.
+    ``cli meta roles lifecycle``.
 
-After req-010 they live at
+They live at
 ``meta/services.yml.<primary_entity>.{run_after,lifecycle}`` where
 ``<primary_entity>`` is the value returned by
-:func:`utils.entity_name_utils.get_entity_name` for the role's directory
+:func:`utils.roles.entity_name.get_entity_name` for the role's directory
 name.
 
 Both helpers degrade gracefully:
@@ -23,23 +23,24 @@ Both helpers degrade gracefully:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Union
 
 import yaml
 
 from utils.cache.yaml import load_yaml_any
-from utils.entity_name_utils import get_entity_name
+from utils.roles.entity_name import get_entity_name
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
+from . import PROJECT_ROOT
 
-PathLike = Union[str, Path]
+PathLike = str | Path
 
 
 class MetaServicesShapeError(ValueError):
     """Raised when ``meta/services.yml`` is malformed."""
 
 
-def _read_meta_services(role_dir: Path) -> Optional[dict]:
-    services_path = role_dir / "meta" / "services.yml"
+def _read_meta_services(role_dir: Path) -> dict | None:
+    services_path = role_dir / ROLE_FILE_META_SERVICES
     if not services_path.is_file():
         return None
     try:
@@ -57,7 +58,7 @@ def _read_meta_services(role_dir: Path) -> Optional[dict]:
     return loaded
 
 
-def _primary_entry(role_name: str, services: Optional[dict]) -> Optional[dict]:
+def _primary_entry(role_name: str, services: dict | None) -> dict | None:
     if not services:
         return None
     primary_entity = get_entity_name(role_name) or role_name
@@ -73,7 +74,7 @@ def _primary_entry(role_name: str, services: Optional[dict]) -> Optional[dict]:
     return entry
 
 
-def get_role_run_after(role: PathLike, *, role_name: Optional[str] = None) -> List[str]:
+def get_role_run_after(role: PathLike, *, role_name: str | None = None) -> list[str]:
     """Return the role's ``run_after`` list (or ``[]`` when absent).
 
     ``role`` may be a role name (relative to ``roles/``) or an absolute
@@ -94,7 +95,7 @@ def get_role_run_after(role: PathLike, *, role_name: Optional[str] = None) -> Li
             f"Invalid run_after type in meta/services.yml for role '{name}': "
             f"expected list, got {type(raw).__name__}."
         )
-    out: List[str] = []
+    out: list[str] = []
     for item in raw:
         if not isinstance(item, str) or not item.strip():
             raise MetaServicesShapeError(
@@ -105,9 +106,7 @@ def get_role_run_after(role: PathLike, *, role_name: Optional[str] = None) -> Li
     return out
 
 
-def get_role_lifecycle(
-    role: PathLike, *, role_name: Optional[str] = None
-) -> Optional[str]:
+def get_role_lifecycle(role: PathLike, *, role_name: str | None = None) -> str | None:
     """Return the role's ``lifecycle`` string (or ``None`` when absent)."""
     role_dir, name = _resolve_role(role, role_name)
     services = _read_meta_services(role_dir)
@@ -123,14 +122,13 @@ def get_role_lifecycle(
     return str(raw).strip().lower() if isinstance(raw, str) else None
 
 
-def _resolve_role(role: PathLike, role_name: Optional[str]) -> tuple[Path, str]:
+def _resolve_role(role: PathLike, role_name: str | None) -> tuple[Path, str]:
     role_path = Path(role)
     if role_path.is_absolute() or role_path.parts[:1] == (".",):
         role_dir = role_path.resolve()
     else:
-        # Treat as a role name relative to <repo>/roles. The repo root is
-        # two levels above this module: utils/roles/meta_lookup.py -> repo.
-        repo_root = Path(__file__).resolve().parents[2]
+        # Treat as a role name relative to <repo>/roles.
+        repo_root = PROJECT_ROOT
         role_dir = repo_root / "roles" / str(role)
     name = role_name or role_dir.name
     return role_dir, name

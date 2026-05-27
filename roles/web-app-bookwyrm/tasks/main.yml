@@ -1,9 +1,3 @@
 ---
-- block:
-  - name: "load docker, db/redis and proxy for {{ application_id }}"
-    include_role:
-      name: sys-stk-full
-    vars: 
-      docker_compose_flush_handlers: true
-  - include_tasks: utils/once/flag.yml
+- include_tasks: 01_core.yml
   when: run_once_web_app_bookwyrm is not defined

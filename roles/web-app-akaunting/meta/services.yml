@@ -1,46 +1,44 @@
+---
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
-  enabled: true
-  shared: true
-oidc:
-  enabled: false
-  shared: false
-ldap:
-  enabled: false
-  shared: false
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-mariadb' in group_names }}"
 oauth2:
-  # Akaunting has no first-party OIDC adapter for the free edition.
-  # Per requirement 013 the project uses `web-app-oauth2-proxy` in
-  # front of the Akaunting web UI as the universal glue path.
-  enabled: true
-  shared: false
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
   origin:
     host: application
     port: 80
   allowed_groups:
-  - '{{ lookup(''rbac_group_path'', application_id=''web-app-akaunting'', role=''administrator'') }}'
+    - "{{ lookup('rbac_group_path', application_id='web-app-akaunting', role='administrator') }}"
+ldap:
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 akaunting:
   backup:
     no_stop_required: true
   image: docker.io/akaunting/akaunting
   version: latest
+  repository: https://github.com/akaunting/docker.git
+  ref: master
   name: akaunting
   min_storage: 8GB
   company:
     name: Akaunting on {{ DOMAIN_PRIMARY | upper }}
-    email: '{{ lookup(''users'', ''administrator'').email }}'
-  setup_admin_email: '{{ lookup(''users'', ''administrator'').email }}'
+    email: "{{ lookup('users', 'administrator').email }}"
+  setup_admin_email: "{{ lookup('users', 'administrator').email }}"
   ports:
     local:
       http: 8025
@@ -50,17 +48,20 @@ akaunting:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: false
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

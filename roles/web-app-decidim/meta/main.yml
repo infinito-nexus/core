@@ -1,14 +1,12 @@
+---
 galaxy_info:
   author: Prageeth Panicker
-  description: Deploy Decidim, an open-source participatory democracy platform for public consultations, civic processes, community voting, and collaborative policy creation.
+  description: Deploy Decidim, an open-source participatory democracy platform for public consultations, civic processes, community voting, and collaborative
+    policy creation.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   galaxy_tags:
     - decidim
     - docker
@@ -18,3 +16,20 @@ galaxy_info:
     - community
     - self-hosted
   issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

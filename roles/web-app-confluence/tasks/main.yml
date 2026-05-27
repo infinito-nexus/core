@@ -1,9 +1,9 @@
 ---
 - block:
-  - name: "load docker, db and proxy for {{ application_id }}"
-    include_role:
-      name: sys-stk-full
-    vars:
-      docker_compose_flush_handlers: true
-  - include_tasks: utils/once/flag.yml
+    - name: "load docker, db and proxy for {{ application_id }}"
+      include_role:
+        name: sys-stk-full
+      vars:
+        compose_handlers_flush: true
+    - include_tasks: utils/once/flag.yml
   when: run_once_web_app_confluence is not defined

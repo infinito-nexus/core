@@ -1,3 +1,4 @@
+---
 # Wait until the Joomla core is copied into the volume.
 # `index.php` alone is not enough — the upstream image (joomla:5.x-php8.3-apache)
 # copies plugin manifests after the front-controller, and the CLI install crashes
@@ -6,7 +7,7 @@
 # specific manifest is the cheapest end-of-extract marker.
 - name: "Wait for Joomla files to exist"
   command:
-    argv: [ docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, /var/www/html/plugins/actionlog/joomla/joomla.xml ]
+    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, /var/www/html/plugins/actionlog/joomla/joomla.xml]
   register: joomla_files
   changed_when: false
   retries: 60
@@ -16,7 +17,7 @@
 # (Optional) specifically wait for the CLI installer script
 - name: "Check for CLI installer"
   command:
-    argv: [ docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, "{{ JOOMLA_INSTALLER_CLI_FILE }}" ]
+    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, "{{ JOOMLA_INSTALLER_CLI_FILE }}"]
   register: has_installer
   changed_when: false
   failed_when: false
@@ -24,7 +25,7 @@
 # Only if not already installed (no configuration.php)
 - name: "Check if Joomla is already installed"
   command:
-    argv: [ docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, "{{ JOOMLA_CONFIG_FILE }}" ]
+    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, "{{ JOOMLA_CONFIG_FILE }}"]
   register: joomla_installed
   changed_when: false
   failed_when: false
@@ -133,7 +134,7 @@
 # (non-fatal — install itself completed). Force-remove as root to finish cleanup.
 - name: "Force-remove installation folder (root)"
   command:
-    argv: [ docker, exec, "{{ JOOMLA_CONTAINER }}", rm, -rf, /var/www/html/installation ]
+    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", rm, -rf, /var/www/html/installation]
   changed_when: false
   when:
     - joomla_installed.rc != 0

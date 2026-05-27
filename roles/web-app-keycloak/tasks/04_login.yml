@@ -1,3 +1,4 @@
+---
 - name: "Wait until '{{ KEYCLOAK_CONTAINER }}' container is healthy"
   community.docker.docker_container_info:
     name: "{{ KEYCLOAK_CONTAINER }}"
@@ -13,14 +14,12 @@
 
 - name: Ensure permanent Keycloak admin exists and can log in (container env only)
   block:
-
     - name: Try login with permanent admin (uses container ENV)
       shell: "{{ KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN }}"
       register: kc_login_perm
       changed_when: false
 
   rescue:
-
     - name: Login with bootstrap admin (uses container ENV)
       shell: |
         {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
@@ -69,8 +68,8 @@
             --rolename admin
         '
       register: kc_grant_master_admin
-      changed_when: (kc_grant_master_admin.stderr is defined and kc_grant_master_admin.stderr | length > 0) or
-                    (kc_grant_master_admin.stdout is defined and kc_grant_master_admin.stdout | length > 0)
+      changed_when: (kc_grant_master_admin.stderr is defined and kc_grant_master_admin.stderr | length > 0) or (kc_grant_master_admin.stdout is defined and
+        kc_grant_master_admin.stdout | length > 0)
       failed_when: false
 
     - name: Verify login with permanent admin (after creation)

@@ -1,5 +1,3 @@
-# filter_plugins/sed.py
-#
 # sed-safe escaping for replacement strings.
 #
 # Intended usage:

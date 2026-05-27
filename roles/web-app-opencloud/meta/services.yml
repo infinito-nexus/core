@@ -1,30 +1,31 @@
+---
 oidc:
-  enabled: true
-  shared: true
-  flavor: ''
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: ""
 ldap:
-  enabled: true
-  shared: true
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
 opencloud:
   name: opencloud
   image: opencloudeu/opencloud
-  version: 4.0.6
+  version: 4.0.7
   min_storage: 20GB
   backup:
     no_stop_required: true
-  cpus: '2.0'
+  cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 4g
   pids_limit: 1024
@@ -34,9 +35,10 @@ opencloud:
   run_after:
     - web-app-keycloak
   lifecycle: alpha
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
-  enabled: false
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

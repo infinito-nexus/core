@@ -1,36 +1,22 @@
+---
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
-# noqa: shared
-oidc:
-  # The login-broker authenticates Keycloak users via the
-  # `web-app-oauth2-proxy` sidecar (X-Forwarded-User header),
-  # so the Bluesky role does NOT need a per-app native-OIDC client.
-  # The broker's OWN service-account client for the Keycloak Admin API
-  # is provisioned separately by `tasks/05_keycloak_admin_client.yml`
-  # and is independent of `services.oidc.enabled`.
-  enabled: false
-  shared: false
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
 ldap:
-  # PDS DID-based auth has no LDAP path; the LDAP variant for this
-  # role rides on the same broker — Keycloak federates LDAP and the
-  # broker reads the resulting Keycloak user attribute. The
-  # ldap.enabled flag here only affects the role's `services.<ldap>`
-  # toggles and is set per matrix variant.
-  enabled: false
-  shared: false
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 oauth2:
-  enabled: true
-  shared: false
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
   origin:
     host: bluesky-broker
     port: 8080
@@ -49,8 +35,10 @@ oauth2:
       - /.well-known/
       - /robots.txt
   allowed_groups:
-  - '{{ lookup(''rbac_group_path'', application_id=''web-app-bluesky'', role=''administrator'') }}'
-# noqa: shared
+    - "{{ lookup('rbac_group_path', application_id='web-app-bluesky', role='administrator') }}"
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 web:
   enabled: true
   ports:
@@ -58,17 +46,21 @@ web:
       http: 8031
       oauth2: 16496
   min_storage: 5GB
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 view:
   enabled: false
+  repository: https://github.com/bluesky-social/social-app.git
+  ref: "1.121.0"
   ports:
     local:
       http: 8051
   min_storage: 1GB
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
@@ -76,7 +68,7 @@ pds:
   image: ghcr.io/bluesky-social/pds
   version: latest
   min_storage: 10GB
-  cpus: '1.0'
+  cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
@@ -91,22 +83,23 @@ broker:
     local:
       http: 8076
   min_storage: 1GB
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
 api:
   ports:
     local:
       http: 8030
   min_storage: 5GB
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
@@ -123,7 +116,7 @@ bluesky:
     - web-app-mailu
   lifecycle: beta
   min_storage: 1GB
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512

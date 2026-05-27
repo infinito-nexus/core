@@ -3,7 +3,7 @@
 dev_nix_installer_version: "2.32.4"
 
 # Base URL for Nix releases
-dev_nix_installer_base_url: "https://releases.nixos.org/nix"  # nocheck: url
+dev_nix_installer_base_url: "https://releases.nixos.org/nix" # nocheck: url
 
 # Full URL to the installer script (can be overridden if needed)
 dev_nix_installer_url: >-

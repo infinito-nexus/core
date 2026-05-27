@@ -2,7 +2,7 @@
 
 This page defines which operating systems deployments, scripts, and programs MUST support.
 Following this policy ensures that Infinito Nexus runs reliably across a broad range of server
-environments — from community-managed long-term-support servers to enterprise
+environments, from community-managed long-term-support servers to enterprise
 [Red Hat](https://www.redhat.com) deployments and cutting-edge rolling-release development machines.
 
 ## Deployed Systems
@@ -26,7 +26,7 @@ offers long-term support without commercial backing requirements.
 [Fedora](https://fedoraproject.org) and [CentOS](https://www.centos.org) are required to ensure
 compatibility with [Red Hat Enterprise Linux (RHEL)](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)
 environments. Red Hat support MUST be guaranteed because enterprise customers operate under SLA
-and security compliance requirements that mandate a RHEL-compatible platform — including certified
+and security compliance requirements that mandate a RHEL-compatible platform, including certified
 package versions, SELinux enforcement, and vendor-backed security advisories.
 [Arch Linux](https://archlinux.org) is included to catch integration problems with newer software
 versions early in the development cycle before they reach stable distributions.

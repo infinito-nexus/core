@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# filter_plugins/get_all_application_ids.py
 
 import glob
-import os
+from pathlib import Path
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
 def get_all_application_ids(roles_dir="roles"):
@@ -15,13 +15,13 @@ def get_all_application_ids(roles_dir="roles"):
     :param roles_dir: Base directory for Ansible roles (default: 'roles')
     :return: Sorted list of unique application_id strings
     """
-    pattern = os.path.join(roles_dir, "*", "vars", "main.yml")
+    pattern = str(Path(roles_dir) / "*" / ROLE_FILE_VARS_MAIN)
     app_ids = []
 
     for filepath in glob.glob(pattern):
         try:
             data = load_yaml_any(filepath, default_if_missing={})
-        except Exception:
+        except Exception:  # noqa: S112  best-effort iteration over role files; skip malformed input
             continue
 
         if isinstance(data, dict) and "application_id" in data:
@@ -30,7 +30,7 @@ def get_all_application_ids(roles_dir="roles"):
     return sorted(set(app_ids))
 
 
-class FilterModule(object):
+class FilterModule:
     """
     Ansible filter plugin for retrieving application IDs.
     """

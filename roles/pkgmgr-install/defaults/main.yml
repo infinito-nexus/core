@@ -1,1 +1,2 @@
+---
 package_notify: "" # The handler which should be notified, if the package install changes something

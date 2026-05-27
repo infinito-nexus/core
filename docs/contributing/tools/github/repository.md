@@ -48,7 +48,7 @@ For GHCR authentication configuration see [authentication.md](../ghcr/authentica
 
 ---
 
-# Summary for Contributors 📋
+## Summary for Contributors 📋
 
 Once enabled, you MUST:
 

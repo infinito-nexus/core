@@ -1,3 +1,4 @@
+---
 - name: Ensure administrator user exists and is admin
   shell: >
     {{ BIN_COMPOSE }} exec -e OPENPROJECT_ADMIN_PASSWORD={{ OPENPROJECT_ADMINISTRATOR_PASSWORD | quote }} web bash -c "

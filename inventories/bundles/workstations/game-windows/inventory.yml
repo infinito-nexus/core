@@ -1,3 +1,4 @@
+---
 all:
   vars:
     SYS_PACKAGES:
@@ -19,10 +20,8 @@ all:
           class: "fa-brands fa-windows"
         tags: []
         categories: []
-
   hosts:
     workstation:
-
   children:
     sys-package:
       hosts:

@@ -1,0 +1,12 @@
+---
+# Matrix-deploy variant overrides for web-svc-css.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    prometheus:
+      enabled: true
+      shared: true
+- services:
+    prometheus:
+      enabled: false
+      shared: false

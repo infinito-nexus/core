@@ -1,3 +1,4 @@
+---
 SYS_SVC_MAIL_MSMTP_PACKAGES_DEFAULT:
   base:
     - msmtp
@@ -19,7 +20,7 @@ SYS_SVC_MAIL_MSMTP_PACKAGES_BY_DISTRIBUTION:
   Fedora:
     base:
       - msmtp
-    mta: ""  # No dedicated msmtp-mta package; role falls back to /usr/bin/sendmail symlink.
+    mta: "" # No dedicated msmtp-mta package; role falls back to /usr/bin/sendmail symlink.
   CentOS:
     base:
       - msmtp

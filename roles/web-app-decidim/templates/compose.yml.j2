@@ -22,12 +22,11 @@
       - logs:/app/log
       - "{{ lookup('container', application_id, 'directories.instance') }}allowed_hosts.rb:/code/config/initializers/allowed_hosts.rb:ro"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={
       'uploads': {'name': DECIDIM_VOLUME_UPLOADS},
       'logs':    {'name': DECIDIM_VOLUME_LOGS},

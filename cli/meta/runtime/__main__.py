@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from . import detect_runtime, get_project_root
+from . import PROJECT_ROOT, detect_runtime
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -31,19 +31,18 @@ def main() -> int:
     parser = _build_parser()
     args = parser.parse_args()
 
-    root = get_project_root()
-    runtime = detect_runtime(project_root=root)
+    runtime = detect_runtime()
 
     if args.json:
         payload = {
             "runtime": runtime,
-            "project_root": str(root),
+            "project_root": str(PROJECT_ROOT),
         }
         print(json.dumps(payload, indent=2))
     else:
         print(runtime)
         if args.print_root:
-            print(f"project_root={root}")
+            print(f"project_root={PROJECT_ROOT}")
 
     return 0
 

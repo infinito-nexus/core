@@ -32,11 +32,11 @@ To resend queued mails, use this command:
 compose exec -it smtp postqueue -f
 ```
 
-# Updates 🔄
+## Updates 🔄
 
 For instructions on updating your Mailu setup, follow the official [Mailu maintenance guide](https://mailu.io/master/maintain.html).
 
-# Queue Management 📬
+## Queue Management 📬
 
 To manage the Postfix email queue in Mailu, you can use the following commands:
 

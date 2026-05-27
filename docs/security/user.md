@@ -22,4 +22,3 @@ For optimal personal security, we RECOMMEND the following:
 Following these guidelines will significantly enhance your personal security. No system is completely immune to risk.
 
 For a tutorial on setting up secure password management, see [here](https://blog.veen.world/blog/2025/04/04/%f0%9f%9b%a1%ef%b8%8f-keepassxc-cymais-cloud-the-ultimate-guide-to-cross-device-password-security/).
-

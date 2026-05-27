@@ -1,3 +1,4 @@
+---
 - name: Check whether Nextcloud LDAP OCC namespace is available
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} list ldap
@@ -19,7 +20,7 @@
     - nextcloud_admin_ldap_namespace is defined
     - nextcloud_admin_ldap_namespace.rc == 0
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
 - name: Build the list of Nextcloud administrator identities
   set_fact:
@@ -53,4 +54,4 @@
       (nextcloud_admin_group_membership.stdout | default(''))
     ))
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

@@ -8,9 +8,8 @@ This directory contains variable definition files for the `svc-db-mariadb` Ansib
 
 ### 1. `meta/services.yml`
 
-The role's service config (file root IS the services map keyed by `<entity_name>`,
-per [req-008](../../../docs/requirements/008-role-meta-layout.md)). For
-`svc-db-mariadb` this carries the entity-keyed image, version, and hostname:
+The role's service config (file root IS the services map keyed by `<entity_name>`).
+For `svc-db-mariadb` this carries the entity-keyed image, version, and hostname:
 
 * **`version`** (string):
 

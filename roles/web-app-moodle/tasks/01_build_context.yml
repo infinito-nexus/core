@@ -1,8 +1,8 @@
+---
 # Populate the Dockerfile build context with extracted scripts and
 # config so files/Dockerfile can stay lean (just FROM + COPY + RUN).
 # Filenames are read from MOODLE_BUILD_FILES (vars/main.yml) — a single
 # spot consumed here AND referenced literally by the Dockerfile.
-# See docs/requirements/015-moodle-self-built.md.
 
 - name: "Set fact: moodle compose dir"
   ansible.builtin.set_fact:
@@ -29,12 +29,12 @@
     dest: "{{ [_moodle_build_dir, item.path] | path_join }}"
     mode: "{{ item.mode }}"
   loop:
-    - { path: "{{ MOODLE_BUILD_FILES.entrypoint }}",     mode: "0755" }
-    - { path: "{{ MOODLE_BUILD_FILES.config_php }}",     mode: "0644" }
-    - { path: "{{ MOODLE_BUILD_FILES.opcache_ini }}",    mode: "0644" }
-    - { path: "{{ MOODLE_BUILD_FILES.fpm_pool }}",       mode: "0644" }
+    - { path: "{{ MOODLE_BUILD_FILES.entrypoint }}", mode: "0755" }
+    - { path: "{{ MOODLE_BUILD_FILES.config_php }}", mode: "0644" }
+    - { path: "{{ MOODLE_BUILD_FILES.opcache_ini }}", mode: "0644" }
+    - { path: "{{ MOODLE_BUILD_FILES.fpm_pool }}", mode: "0644" }
     - { path: "{{ MOODLE_BUILD_FILES.install_source }}", mode: "0755" }
-    - { path: "{{ MOODLE_BUILD_FILES.install_oidc }}",   mode: "0755" }
+    - { path: "{{ MOODLE_BUILD_FILES.install_oidc }}", mode: "0755" }
   loop_control:
     label: "{{ item.path }}"
   notify:

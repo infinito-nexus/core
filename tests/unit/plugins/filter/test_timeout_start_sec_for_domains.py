@@ -1,6 +1,7 @@
-# tests/unit/plugins/filter/test_timeout_start_sec_for_domains.py
 import unittest
+
 from ansible.errors import AnsibleFilterError
+
 from plugins.filter.timeout_start_sec_for_domains import FilterModule
 
 

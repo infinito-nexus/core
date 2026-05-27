@@ -1,3 +1,4 @@
+---
 - name: "Render php-upload.ini for Joomla"
   template:
     src: php-upload.ini.j2

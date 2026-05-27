@@ -12,7 +12,7 @@
   include_role:
     name: sys-stk-backend
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: Include PHP Config tasks
   include_tasks: 01_config.yml
@@ -44,6 +44,6 @@
   # deploys, where it enforces password rotation against an existing user.
   when: joomla_installed.rc == 0
 
-- name: "Install plg_system_keycloak (native OIDC, requirement 013)"
+- name: "Install plg_system_keycloak (native OIDC)"
   include_tasks: 07_oidc_plugin.yml
   when: lookup('config', application_id, 'services.oidc.enabled') | bool

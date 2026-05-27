@@ -1,22 +1,25 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag
 ldap:
   enabled: false
 dashboard:
-  enabled: false
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
 bigbluebutton:
   repository: https://github.com/bigbluebutton/docker.git
-  version: main
+  ref: main
   recording:
     enabled: false
     cleanup: true
@@ -33,23 +36,34 @@ bigbluebutton:
         start: 40000
         end: 49999
   run_after:
-  - web-app-keycloak
+    - web-app-keycloak
   lifecycle: beta
+  cpus: "4.0"
+  mem_reservation: "2g"
+  mem_limit: "6g"
+  pids_limit: 4096
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   shared: false
   enabled: true
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 greenlight:
   enabled: true
   shared: false
+# nocheck: playwright-service-flag — infrastructural sub-component (TURN/STUN)
 coturn:
-  shared: true
-  enabled: true
+  shared: "{{ 'web-svc-coturn' in group_names }}"
+  enabled: "{{ 'web-svc-coturn' in group_names }}"
+# nocheck: playwright-service-flag — infrastructural sub-component (collaborative editing)
 collabora:
-  shared: true
-  enabled: true
+  shared: "{{ 'web-svc-collabora' in group_names }}"
+  enabled: "{{ 'web-svc-collabora' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

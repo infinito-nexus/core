@@ -1,6 +1,7 @@
-# tests/unit/plugins/filter/test_text_filters.py
 import unittest
+
 from ansible.errors import AnsibleFilterError
+
 from plugins.filter.text_filters import to_one_liner
 
 
@@ -8,7 +9,7 @@ class TestTextFilters(unittest.TestCase):
     def test_collapse_whitespace(self):
         s = """Line one
 
-    Line   two		
+    Line   two
 Line three"""
         expected = "Line one Line two Line three"
         self.assertEqual(to_one_liner(s), expected)

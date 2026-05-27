@@ -1,18 +1,15 @@
-# tests/unit/plugins/lookup/test_domain_lookup.py
-import os
 import sys
 import unittest
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
+from . import PROJECT_ROOT
+
 
 def _ensure_repo_root_on_syspath():
-    # tests/unit/plugins/lookup/test_domain_lookup.py -> repo_root
-    here = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.abspath(os.path.join(here, "..", "..", "..", ".."))
-    if repo_root not in sys.path:
-        sys.path.insert(0, repo_root)
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
 
 
 _ensure_repo_root_on_syspath()
@@ -63,12 +60,14 @@ class TestDomainLookup(unittest.TestCase):
         )
 
     def test_missing_application_id(self):
-        with self.assertRaises(AnsibleError):
-            with patch(
+        with (
+            self.assertRaises(AnsibleError),
+            patch(
                 "plugins.lookup.domain.get_merged_domains",
                 return_value={"app": "example.com"},
-            ):
-                self.lookup.run(terms=[], variables={})
+            ),
+        ):
+            self.lookup.run(terms=[], variables={})
 
     def test_unknown_application_id(self):
         with self.assertRaises(AnsibleError):
@@ -87,12 +86,14 @@ class TestDomainLookup(unittest.TestCase):
             self.run_lookup("app", {"app": {}})
 
     def test_invalid_application_id_type(self):
-        with self.assertRaises(AnsibleError):
-            with patch(
+        with (
+            self.assertRaises(AnsibleError),
+            patch(
                 "plugins.lookup.domain.get_merged_domains",
                 return_value={"app": "example.com"},
-            ):
-                self.lookup.run(terms=[123], variables={})
+            ),
+        ):
+            self.lookup.run(terms=[123], variables={})
 
 
 if __name__ == "__main__":

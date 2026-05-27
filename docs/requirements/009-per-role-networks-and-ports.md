@@ -11,26 +11,27 @@ and free subnets by scanning the existing per-role layout.
 ## Dependencies
 
 This requirement is a follow-up to and depends on
-[008 — Role Meta Layout Refactoring](008-role-meta-layout.md). Req-008 MUST be
-fully merged (every Acceptance Criterion checked off) before this requirement
-is started; the per-role file shapes (`meta/server.yml` with `csp` / `domains`
-/ `status_codes`, `meta/services.yml` keyed by `<entity_name>`) and their
-materialised paths (`applications.<app>.server.<…>`, `applications.<app>.services.<entity>.<…>`)
-are treated as given.
+[Req-008: Role Meta Layout Refactoring](008-role-meta-layout.md). Req-008 MUST
+be fully merged (every Acceptance Criterion checked off) before this
+requirement is started. The per-role file shapes (`meta/server.yml` with
+`csp` / `domains` / `status_codes`, `meta/services.yml` keyed by
+`<entity_name>`) and their materialised paths
+(`applications.<app>.server.<…>`,
+`applications.<app>.services.<entity>.<…>`) are treated as given.
 
 ## Background
 
 Today, two centralised files in `group_vars/all/` carry per-role network and
 port assignments:
 
-- [`group_vars/all/08_networks.yml`](../../group_vars/all/08_networks.yml) —
-  `defaults_networks.local.<role>.subnet` per role plus `dns_resolver` (mailu),
-  and global host-level keys (`NETWORK_IPV6_ENABLED`,
-  `defaults_networks.internet.{ip4,ip6,dns}`).
-- `group_vars/all/09_ports.yml` (since deleted by this requirement) —
-  `ports.{localhost,public}.<category>.<role>` per role, with multi-entity
-  roles flattened via `_<entity>` suffixes (`web-app-bluesky_api`,
-  `web-app-matrix_synapse`, …).
+- [`group_vars/all/08_networks.yml`](../../group_vars/all/08_networks.yml)
+  carries `defaults_networks.local.<role>.subnet` per role plus
+  `dns_resolver` (mailu), along with global host-level keys
+  (`NETWORK_IPV6_ENABLED`, `defaults_networks.internet.{ip4,ip6,dns}`).
+- `group_vars/all/09_ports.yml` (since deleted by this requirement)
+  carried `ports.{localhost,public}.<category>.<role>` per role, with
+  multi-entity roles flattened via `_<entity>` suffixes
+  (`web-app-bluesky_api`, `web-app-matrix_synapse`, …).
 
 In addition, many roles already carry a `port:` field directly on
 `compose.services.<entity>` (e.g. `compose.services.gitea.port: 3000`,
@@ -58,7 +59,7 @@ networks:
     dns_resolver: 192.168.102.29      # optional, only when a fixed DNS resolver IP is needed (today: mailu)
 ```
 
-The role's name is implied by the path — there is NO `web-app-<role>` key
+The role's name is implied by the path. There is NO `web-app-<role>` key
 inside the file.
 
 ### Ports → `meta/services.yml.<entity>.ports`
@@ -73,7 +74,8 @@ under `<entity>.ports` in `meta/services.yml` (no `ports:` section in
   image: ...
   version: ...
   ports:
-    inter: <int>                      # internal container port
+    internal:
+      <category>: <int>               # internal container port (category-keyed)
     local:
       <category>: <int>               # localhost-bound host port, keyed by band category
     public:
@@ -85,7 +87,7 @@ under `<entity>.ports` in `meta/services.yml` (no `ports:` section in
 
 **Rules:**
 
-- `ports.inter` is a **single int** when present. It is the renamed and
+- `ports.internal.http` is a **single int** when present. It is the renamed and
   int-cast successor of today's `compose.services.<entity>.port` field. If
   the source value is a quoted string (e.g. `port: "9090"`), the migration
   MUST cast it to int (`9090`).
@@ -104,7 +106,7 @@ under `<entity>.ports` in `meta/services.yml` (no `ports:` section in
   (e.g. `compose.services.<entity>.origin.port` for oauth2-proxy upstream,
   `compose.services.<entity>.metrics.port` for a metrics listener) are
   **out of scope** for this requirement and stay where they are. A follow-up
-  may canonicalise them to look up `<upstream>.ports.inter`.
+  may canonicalise them to look up `<upstream>.ports.internal.http`.
 
 ### Worked Examples
 
@@ -120,7 +122,8 @@ networks:
 gitea:
   image: gitea/gitea
   ports:
-    inter: 3000           # was compose.services.gitea.port: 3000
+    internal:
+      http: 3000          # was compose.services.gitea.port: 3000
     local:
       http: 8002          # was ports.localhost.http.web-app-gitea: 8002
     public:
@@ -149,7 +152,8 @@ view:
 prometheus:
   image: prom/prometheus
   ports:
-    inter: 9090             # was compose.services.prometheus's internal port
+    internal:
+      http: 9090            # was compose.services.prometheus's internal port
     local: { http: 8066 }
 oauth2:
   enabled: true
@@ -209,8 +213,8 @@ bigbluebutton:
 Per the operator's decision, these keys remain in
 `group_vars/all/08_networks.yml` for now (out of scope for this requirement):
 
-- `NETWORK_IPV6_ENABLED` — global IPv6 toggle.
-- `defaults_networks.internet.{ip4, ip6, dns}` — host-level addresses.
+- `NETWORK_IPV6_ENABLED` is the global IPv6 toggle.
+- `defaults_networks.internet.{ip4, ip6, dns}` holds the host-level addresses.
 
 Once every role has been migrated, the per-role `defaults_networks.local.*`
 map and the entire `group_vars/all/09_ports.yml` file MUST be deleted.
@@ -253,7 +257,7 @@ role introduces a new category (e.g. `metrics`, `grpc`, …), the contributor
 adds the corresponding `start`/`end` entry to `PORT_BANDS` in
 `group_vars/all/08_networks.yml` *as part of the same change set* that
 introduces the new port slot. The suggester and lint pick up new entries
-automatically — there is no second registration step.
+automatically, with no second registration step.
 
 ## Materialised Tree and Consumer Path Rewrites
 
@@ -261,7 +265,7 @@ automatically — there is no second registration step.
 |---------------------------------------------------------|-----------------------------------------------------------------------|
 | `defaults_networks.local.<role>.subnet`                 | `applications.<role>.server.networks.local.subnet`                    |
 | `defaults_networks.local.<role>.dns_resolver`           | `applications.<role>.server.networks.local.dns_resolver`              |
-| `compose.services.<entity>.port` *(top-level on entity)*| `applications.<role>.services.<entity>.ports.inter`                   |
+| `compose.services.<entity>.port` *(top-level on entity)*| `applications.<role>.services.<entity>.ports.internal.http`          |
 | `ports.localhost.<category>.<role>` *(single entity)*   | `applications.<role>.services.<entity>.ports.local.<category>`        |
 | `ports.localhost.<category>.<role>_<entity>` *(multi)*  | `applications.<role>.services.<entity>.ports.local.<category>`        |
 | `ports.public.<category>.<role>(_<entity>)?`            | `applications.<role>.services.<entity>.ports.public.<category>`       |
@@ -281,21 +285,23 @@ for subnets, `meta/services.yml` for ports) and propose the next free slot.
 
 ### `cli meta ports suggest`
 
-`inter` ports are NOT supported by the suggester — they are dictated by
+`internal` ports are NOT supported by the suggester. They are dictated by
 upstream container images (`gitea=3000`, `postgres=5432`, …) and not
-allocated from a project-managed pool. Inter ports are recorded in
-`services.<entity>.ports.inter` directly by the contributor.
+allocated from a project-managed pool. Internal ports are recorded in
+`services.<entity>.ports.internal.http` directly by the contributor.
 
 **Single-port categories** (everything except `relay`):
 
 Inputs (CLI args):
+
 - `--scope local | public` (required)
 - `--category <name>` (required; e.g. `http`, `oauth2`, `ssh`, …)
-- `--count N` (default 1) — how many free ports to return
-- `--range <start>-<end>` (optional) — override the band from `PORT_BANDS`
-  for ad-hoc allocations
+- `--count N` (default 1) sets how many free ports to return.
+- `--range <start>-<end>` (optional) overrides the band from `PORT_BANDS`
+  for ad-hoc allocations.
 
 Behaviour:
+
 1. Read the band for `<scope>.<category>` from `PORT_BANDS` in
    `group_vars/all/08_networks.yml`. If absent and no `--range` is given,
    exit non-zero with a clear error.
@@ -313,13 +319,15 @@ gaps were filled vs. appended.
 **Range category `relay`:**
 
 Inputs (CLI args):
+
 - `--scope public --category relay` (required)
-- `--length N` (required; the **inclusive port count** of the contiguous range,
-  i.e. the span produced is `{start, end = start + N - 1}` — e.g.
-  `--length 10000` yields a 10 000-port range like `20000–29999`).
-- `--count K` (default 1) — how many independent free ranges to return
+- `--length N` (required) is the **inclusive port count** of the contiguous
+  range, so the span produced is `{start, end = start + N - 1}`. For example,
+  `--length 10000` yields a 10 000-port range like `20000–29999`.
+- `--count K` (default 1) sets how many independent free ranges to return.
 
 Behaviour:
+
 1. Read the relay band from `PORT_BANDS.public.relay`.
 2. Walk every `roles/*/meta/services.yml` and collect every
    `<entity>.ports.public.relay.{start,end}` pair as an occupied span.
@@ -334,13 +342,15 @@ Output: one `<start>-<end>` pair per line on stdout, summary on stderr.
 ### `cli meta networks suggest`
 
 Inputs (CLI args):
-- `--clients N` (required) — minimum number of usable client IPs
-- `--count K` (default 1) — how many free subnets to return
-- `--block <cidr>` (optional) — force suggestions inside a specific umbrella
-  block (e.g. `--block 192.168.101.0/24`); default is the union of currently
-  used /24 umbrella blocks for the chosen prefix length
+
+- `--clients N` (required) is the minimum number of usable client IPs.
+- `--count K` (default 1) sets how many free subnets to return.
+- `--block <cidr>` (optional) forces suggestions inside a specific umbrella
+  block (e.g. `--block 192.168.101.0/24`). The default is the union of
+  currently used /24 umbrella blocks for the chosen prefix length.
 
 Behaviour:
+
 1. Translate `--clients N` to the smallest CIDR prefix that fits
    (≤14 → /28, ≤30 → /27, ≤62 → /26, ≤126 → /25, ≤254 → /24, …).
 2. Walk every `roles/*/meta/server.yml` and collect occupied CIDRs from
@@ -363,6 +373,7 @@ Output: one subnet per line, plus per-suggestion capacity on stderr.
 ### Integration with `cli create role`
 
 When `cli create role` scaffolds a new role, it MUST:
+
 - Prompt for `--clients N` and call `cli meta networks suggest --clients N --count 1`
   to fill in `meta/server.yml.networks.local.subnet` automatically.
 - Prompt for required port categories per service entity and call
@@ -383,7 +394,7 @@ The contributor MAY override either suggestion interactively.
       `<entity>.ports.{local,public}.<category>`.
 - [ ] Every existing top-level `port:` field on a `compose.services.<entity>`
       block (post-req-008: `services.<entity>.port`) is renamed to
-      `services.<entity>.ports.inter` and cast to int. String values
+      `services.<entity>.ports.internal.http` and cast to int. String values
       (e.g. `port: "9090"`) become integers (`9090`).
 - [ ] All multi-entity port entries (`<role>_<entity>: <int>` in the old file)
       are migrated to the entity-keyed shape under the matching entity in
@@ -403,7 +414,7 @@ The contributor MAY override either suggestion interactively.
 - [ ] `meta/server.yml.networks.local.subnet` is a single CIDR string (no
       wrapping role-name key). Only `dns_resolver` is supported as an optional
       sibling of `subnet` under `networks.local`.
-- [ ] `meta/services.yml.<entity>.ports.inter`, when present, is a single
+- [ ] `meta/services.yml.<entity>.ports.internal.http`, when present, is a single
       integer. Quoted strings are not allowed.
 - [ ] `meta/services.yml.<entity>.ports.local` and `…ports.public` are
       **always** category-keyed maps (`{ <category>: <int>, … }`), even when
@@ -438,7 +449,7 @@ The contributor MAY override either suggestion interactively.
       ports across all entities and proposes free ports gap-first, then by
       increment, within the band looked up from
       `PORT_BANDS.<scope>.<category>` in `group_vars/all/08_networks.yml`.
-- [ ] `--scope inter` is NOT a supported option for the ports suggester.
+- [ ] `--scope internal` is NOT a supported option for the ports suggester.
 - [ ] When called for a `<scope>.<category>` not present in `PORT_BANDS` and
       without `--range`, the helper exits non-zero with a clear error listing
       the available categories.
@@ -467,7 +478,7 @@ The contributor MAY override either suggestion interactively.
       entity-keyed map under `meta/services.yml`) for at least one role of
       each pattern: bluesky (3 entities), matrix (2 entities), minio
       (2 entities), bigbluebutton (special port 48087).
-- [ ] Unit tests cover the `port: <…>` → `ports.inter: <int>` rename + cast,
+- [ ] Unit tests cover the `port: <…>` → `ports.internal.http: <int>` rename + cast,
       including a string-value source (e.g. prometheus's `port: "9090"`).
 - [ ] An integration test asserts that for every existing role, the
       materialised `applications.<role>.server.networks.local.subnet` and
@@ -481,7 +492,7 @@ The contributor MAY override either suggestion interactively.
       - a `port:` key appears as a **direct child** of an `<entity>:` block in
         `meta/services.yml` (i.e. `<entity>.port`). Nested occurrences such
         as `<entity>.metrics.port` or `<entity>.origin.port` MUST NOT be
-        flagged — those are intentionally out of scope per the "Migration
+        flagged. Those are intentionally out of scope per the "Migration
         Notes" below;
       - any host-bound port value collides with another host-bound port value
         across all roles. The collision check builds the **flat set of all
@@ -499,11 +510,11 @@ The contributor MAY override either suggestion interactively.
         `roleA.local.http: 8002` and `roleB.local.websocket: 8002`,
         and between a single port like `roleC.public.federation: 25000` and a
         relay span like `roleD.public.relay: { start: 20000, end: 29999 }`;
-      - **`inter` values are NEVER part of any collision check.** Internal
+      - **`internal` values are NEVER part of any collision check.** Internal
         container ports live in per-container network namespaces; multiple
-        roles may legitimately declare the same `inter` port (e.g. several
-        nginx-based apps with `inter: 80`). The lint MUST explicitly skip
-        `inter` for all collision rules above;
+        roles may legitimately declare the same `internal` port (e.g. several
+        nginx-based apps with `internal: { http: 80 }`). The lint MUST explicitly skip
+        `internal` for all collision rules above;
       - a `services.<entity>.ports.public.relay` range falls outside
         `PORT_BANDS.public.relay`, has `start >= end`, or has any sub-range
         that overlaps another role's relay range (subsumed by the
@@ -518,10 +529,10 @@ The contributor MAY override either suggestion interactively.
 
 ### Documentation
 
-- [ ] `docs/contributing/design/services/` documents the new per-role
+- [ ] `docs/contributing/design/role/services/` documents the new per-role
       `networks:` shape (in `meta/server.yml`) and the per-entity `ports`
       shape (in `meta/services.yml`), including the always-category-keyed
-      rule and the `inter` / `local` / `public` split.
+      rule and the `internal` / `local` / `public` split.
 - [ ] `docs/contributing/tools/` (or equivalent) documents the two new CLI
       helpers with examples (`cli meta ports suggest --scope local --category http --count 3`,
       `cli meta networks suggest --clients 14 --count 2`).
@@ -550,7 +561,7 @@ end to end after the refactor:
 
 | App                       | Why it's in the validation set                                                                    |
 |---------------------------|---------------------------------------------------------------------------------------------------|
-| `web-app-gitea`           | Single-entity baseline (`inter`, `local.http`, `public.ssh`).                                     |
+| `web-app-gitea`           | Single-entity baseline (`internal`, `local.http`, `public.ssh`).                                  |
 | `web-app-mailu`           | `dns_resolver` special case in `networks.local`.                                                  |
 | `web-app-bluesky`         | 3-entity HTTP fan-out (`api`, `web`, `view`).                                                     |
 | `web-app-matrix`          | 2-entity HTTP + `public.federation`.                                                              |
@@ -558,14 +569,14 @@ end to end after the refactor:
 | `web-app-bigbluebutton`   | `/24` non-`192.168.x.x` subnet + legacy fixed port `48087` + `public.relay`.                      |
 | `web-svc-coturn`          | `public.relay` migration (`coturn_start`/`coturn_end` → `relay.{start,end}`).                     |
 | `web-app-nextcloud`       | `public.relay` + cross-role network lookups (mailu, keycloak).                                    |
-| `web-app-prometheus`      | `inter` rename from quoted `port: "9090"` + co-located oauth2 entity in `local.oauth2`.           |
-| `web-app-listmonk`        | `inter` rename from `compose.services.listmonk.port: 9000` + `local.http`.                        |
+| `web-app-prometheus`      | `internal` rename from quoted `port: "9090"` + co-located oauth2 entity in `local.oauth2`.        |
+| `web-app-listmonk`        | `internal` rename from `compose.services.listmonk.port: 9000` + `local.http`.                     |
 | `svc-db-postgres`         | `/24` shared DB subnet + `local.database`.                                                        |
 | `svc-db-mariadb`          | `/24` shared DB subnet + `local.database`.                                                        |
 | `svc-db-openldap`         | `/24` shared LDAP subnet + `local.ldap` + `public.ldaps`.                                         |
 
 ```bash
-APPS="web-app-gitea web-app-mailu web-app-bluesky web-app-matrix web-app-minio web-app-bigbluebutton web-svc-coturn web-app-nextcloud web-app-prometheus web-app-listmonk svc-db-postgres svc-db-mariadb svc-db-openldap" \
+INFINITO_APPS="web-app-gitea web-app-mailu web-app-bluesky web-app-matrix web-app-minio web-app-bigbluebutton web-svc-coturn web-app-nextcloud web-app-prometheus web-app-listmonk svc-db-postgres svc-db-mariadb svc-db-openldap" \
   make deploy-fresh-purged-apps
 ```
 
@@ -584,7 +595,7 @@ APPS="web-app-gitea web-app-mailu web-app-bluesky web-app-matrix web-app-minio w
   (e.g. `services.<entity>.origin.port` for oauth2-proxy upstream,
   `services.<entity>.metrics.port` for metrics listeners) are intentionally
   out of scope for this requirement. They stay where they are; a follow-up
-  may canonicalise them to look up the upstream entity's `ports.inter`.
+  may canonicalise them to look up the upstream entity's `ports.internal.http`.
 
 ## Prerequisites
 
@@ -612,7 +623,7 @@ location, port-shape (always category-keyed map), CLI helper placement,
       (ports). Use the helpers to validate that no port collision and no
       subnet overlap is introduced.
    3. Rename and int-cast every existing top-level `services.<entity>.port`
-      field to `services.<entity>.ports.inter`.
+      field to `services.<entity>.ports.internal.http`.
    4. Rewrite all consumers (lookup plugins, Jinja templates, `vars/*.yml`,
       task files) to read `applications.<role>.{server.networks.<…>,services.<entity>.ports.<…>}`
       paths.
@@ -630,17 +641,18 @@ After the changes are implemented in the working tree and an initial
 following [Role Loop](../agents/action/iteration/role.md) against the
 following three apps (in order):
 
-1. `web-app-bigbluebutton` — most port-edge cases (legacy fixed port, `/24`,
-   `public.relay`, multiple `public.*` categories).
-2. `web-app-bluesky`       — multi-entity HTTP fan-out + entity-keyed port map.
-3. `web-app-gitea`         — minimal-shape baseline regression check
-   (`inter`, `local.http`, `public.ssh` all present).
+1. `web-app-bigbluebutton` covers the most port-edge cases (legacy fixed port,
+   `/24`, `public.relay`, multiple `public.*` categories).
+2. `web-app-bluesky` exercises multi-entity HTTP fan-out and the entity-keyed
+   port map.
+3. `web-app-gitea` is the minimal-shape baseline regression check (`internal`,
+   `local.http`, `public.ssh` all present).
 
 **Loop semantics:**
 
 - Each app MUST be deployed standalone at least once, fully through the
   `Role Loop` inspect-fix-redeploy cycle.
-- The loop continues — without asking the operator — until **all** of the
+- The loop continues without asking the operator until **all** of the
   following hold simultaneously:
   - every Acceptance Criterion in this document is checked off (`- [x]`);
   - `make test` is green with no skipped suites;

@@ -1,22 +1,18 @@
-logout:
-  enabled: false
-  shared: false
-dashboard:
-  enabled: true
-  shared: true
+---
 matomo:
-  enabled: true
-  shared: true
-# noqa: shared
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: shared
+# nocheck: dynamic-flag
 redis:
   backup:
     disabled: true
   enabled: true
 postgres:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 onlyoffice:
-  enabled: false
+  enabled: true
   shared: true
   image: onlyoffice/documentserver
   version: latest
@@ -33,8 +29,8 @@ onlyoffice:
       http: 8061
   lifecycle: beta
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

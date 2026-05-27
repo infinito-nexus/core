@@ -1,6 +1,6 @@
 # Unit Tests 🧪
 
-This page is the SPOT for unit testing requirements, framework, and structure.
+This page covers unit testing requirements, framework, and structure.
 Run unit tests with `make test-unit`.
 
 ## Framework 🧰
@@ -29,12 +29,12 @@ Run unit tests with `make test-unit`.
 
 ## Running Specific Tests 🏃
 
-Use `TEST_PATTERN` to scope the test run to a single file or a glob:
+Use `INFINITO_TEST_PATTERN` to scope the test run to a single file or a glob:
 
 ```bash
 # Run a single test file
-make test-unit TEST_PATTERN=test_my_module.py
+make test-unit INFINITO_TEST_PATTERN=test_my_module.py
 
 # Run all files matching a prefix
-make test-unit TEST_PATTERN=test_applications*.py
+make test-unit INFINITO_TEST_PATTERN=test_applications*.py
 ```

@@ -7,6 +7,7 @@ This role automates the management and balancing of Btrfs file systems. It clone
 ## Overview
 
 Optimized for automated file system management, this role:
+
 - Clones the auto-btrfs-balancer repository.
 - Configures a systemd service to run the balancing script.
 - Integrates a systemd timer for regular execution.
@@ -22,3 +23,10 @@ The primary purpose of this role is to maintain optimal performance of Btrfs fil
 - **Service Configuration:** Sets up a systemd service for running the balancing script.
 - **Timer Integration:** Schedules the balancing process via a systemd timer.
 - **Error Notification:** Notifies on failure using sys-ctl-alm-compose.
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

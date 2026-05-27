@@ -1,3 +1,4 @@
+---
 credentials:
   setup_admin_password:
     description: Initial admin user password for Akaunting

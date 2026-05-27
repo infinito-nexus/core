@@ -1,3 +1,4 @@
+---
 - name: "Connect '{{ DISCOURSE_CONTAINER }}' to network '{{ DISCOURSE_PG_NETWORK }}'"
   command: >
     container network connect {{ DISCOURSE_PG_NETWORK }} {{ DISCOURSE_CONTAINER }}

@@ -1,0 +1,46 @@
+from __future__ import annotations
+
+import re
+import unittest
+from pathlib import Path
+
+from utils.cache.files import iter_project_files_with_content
+
+from . import PROJECT_ROOT
+
+LEGACY_URI_MODULE_PATTERN = re.compile(
+    r"^\s*(ansible\.builtin\.uri|uri)\s*:\s*(?:#.*)?$"
+)
+
+
+class TestNoLegacyUriModuleUsage(unittest.TestCase):
+    def test_no_legacy_uri_module_call_is_used(self):
+        """
+        Enforce migration from legacy uri module calls to uri_retry.
+        """
+        findings: list[tuple[str, int, str]] = []
+
+        for path_str, content in iter_project_files_with_content(extensions=(".yml",)):
+            yml_file = Path(path_str)
+            rel = yml_file.relative_to(PROJECT_ROOT).as_posix()
+            for line_no, line in enumerate(content.splitlines(), start=1):
+                if LEGACY_URI_MODULE_PATTERN.match(line):
+                    findings.append((rel, line_no, line.strip()))
+
+        if findings:
+            formatted = "\n".join(
+                f"- {path}:{line_no}: {snippet}"
+                for path, line_no, snippet in sorted(
+                    findings, key=lambda item: (item[0], item[1])
+                )
+            )
+            self.fail(
+                "Found legacy uri module calls in .yml files.\n\n"
+                "Please migrate all of them to `uri_retry:` so deploys are resilient against "
+                "transient network outages.\n\n"
+                f"{formatted}"
+            )
+
+
+if __name__ == "__main__":
+    unittest.main()

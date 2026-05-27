@@ -1,3 +1,4 @@
+---
 credentials:
   secret:
     description: PeerTube secret used for session signing and CSRF protection

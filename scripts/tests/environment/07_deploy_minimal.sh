@@ -11,8 +11,8 @@ source "${SCRIPT_DIR}/utils/cache.sh"
 echo "Snapshotting cache counters before the deploy."
 CACHE_BEFORE="$(cache_snapshot)"
 
-echo "Deploying dashboard with matomo disabled to verify SERVICES_DISABLED suppresses the shared service in the inventory."
-make deploy-fresh-purged-apps APPS="${DASHBOARD_APP}" SERVICES_DISABLED="matomo"
+echo "Deploying dashboard with matomo disabled to verify INFINITO_SERVICES_DISABLED suppresses the shared service in the inventory."
+make compose-deploy mode=reinstall apps="${DASHBOARD_APP}" INFINITO_SERVICES_DISABLED="matomo"
 inspect
 
 echo "Actively probing both caches to confirm pull-through works end-to-end."
@@ -26,7 +26,7 @@ CACHE_AFTER="$(cache_snapshot)"
 assert_caches_used "${CACHE_BEFORE}" "${CACHE_AFTER}"
 
 echo "Trusting the local CA certificate so HTTPS endpoints are reachable from the host."
-make trust-ca
+make network-trust-ca
 
 echo "Verifying the dashboard is reachable (matomo was disabled, not the dashboard itself)."
 assert_http_status 200 "${DASHBOARD_URL}"

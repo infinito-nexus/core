@@ -1,21 +1,22 @@
+---
 status_codes:
   default:
-  - 308
-  - 302
+    - 308
+    - 302
 domains:
   canonical:
-  - onlyoffice.{{ DOMAIN_PRIMARY }}
+    - onlyoffice.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   whitelist:
     frame-ancestors:
-    - '*.{{ DOMAIN_PRIMARY }}'
+      - "*.{{ DOMAIN_PRIMARY }}"
     script-src-elem:
-    - https://fonts.googleapis.com  # nocheck: url
+      - https://fonts.googleapis.com # nocheck: url
     style-src-elem:
-    - https://fonts.googleapis.com  # nocheck: url
+      - https://fonts.googleapis.com # nocheck: url
     font-src:
-    - https://fonts.gstatic.com  # nocheck: url
+      - https://fonts.gstatic.com # nocheck: url
   flags:
     script-src-attr:
       unsafe-inline: true

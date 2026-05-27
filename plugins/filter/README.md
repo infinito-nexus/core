@@ -18,10 +18,10 @@ This directory contains custom **Ansible filter plugins** used within the Infini
 
 ## When *not* to Use a Filter Plugin
 
-* If you need to **load data from an external source** (e.g., file, environment, API), use a lookup plugin instead.
-* If your logic requires **access to inventory, facts, or host-level information** that is not passed as a parameter.
+- If you need to **load data from an external source** (e.g., file, environment, API), use a lookup plugin instead.
+- If your logic requires **access to inventory, facts, or host-level information** that is not passed as a parameter.
 
 ## Further Reading
 
-* [Ansible Filter Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/filter.html)
-* [Developing Ansible Filter Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)
+- [Ansible Filter Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/filter.html)
+- [Developing Ansible Filter Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)

@@ -2,7 +2,7 @@
 
 This page documents the administrator-facing surface of outgoing email
 configuration. For the plugin contract and extension rules, see
-[email.md](../../contributing/design/services/email.md).
+[email.md](../../contributing/design/role/services/email.md).
 
 Infinito.Nexus exposes outgoing email settings through the `email` lookup
 plugin. All role templates and tasks read email settings via `lookup('email')`
@@ -81,4 +81,4 @@ For each key, the first defined source wins:
 
 ## See Also 🔗
 
-- [email.md](../../contributing/design/services/email.md) for the plugin contract and extension rules.
+- [email.md](../../contributing/design/role/services/email.md) for the plugin contract and extension rules.

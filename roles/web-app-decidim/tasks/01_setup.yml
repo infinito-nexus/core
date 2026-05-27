@@ -10,55 +10,94 @@
   delay: 15
 
 - name: "Decidim | Run database migrations"
-  community.docker.docker_container_exec:
-    container: "{{ DECIDIM_CONTAINER }}"
-    command: bundle exec rails db:migrate
-    env:
-      RAILS_ENV: "{{ ENVIRONMENT }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -e
+      - "RAILS_ENV={{ ENVIRONMENT }}"
+      - "{{ DECIDIM_CONTAINER }}"
+      - bundle
+      - exec
+      - rails
+      - "db:migrate"
   register: decidim_migrate_result
   changed_when: decidim_migrate_result.stdout_lines | default([]) | length > 0
 
 - name: "Decidim | Seed database on first deploy"
-  community.docker.docker_container_exec:
-    container: "{{ DECIDIM_CONTAINER }}"
-    command: bundle exec rails db:seed
-    env:
-      RAILS_ENV: "{{ ENVIRONMENT }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -e
+      - "RAILS_ENV={{ ENVIRONMENT }}"
+      - "{{ DECIDIM_CONTAINER }}"
+      - bundle
+      - exec
+      - rails
+      - "db:seed"
   register: decidim_seed_result
   changed_when: decidim_seed_result.stdout_lines | default([]) | length > 0
   failed_when: false
 
 - name: "Decidim | Set organization host"
-  community.docker.docker_container_exec:
-    container: "{{ DECIDIM_CONTAINER }}"
-    command: bundle exec rails runner -
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "RAILS_ENV={{ ENVIRONMENT }}"
+      - -e
+      - "DECIDIM_ORG_HOST={{ domain }}"
+      - "{{ DECIDIM_CONTAINER }}"
+      - bundle
+      - exec
+      - rails
+      - runner
+      - "-"
     stdin: "{{ lookup('file', 'ruby/set_organization_host.rb') }}"
-    env:
-      RAILS_ENV: "{{ ENVIRONMENT }}"
-      DECIDIM_ORG_HOST: "{{ domain }}"
   register: decidim_org_result
   changed_when: "'Organization host set to' in decidim_org_result.stdout"
 
 - name: "Decidim | Ensure administrator user exists with correct credentials"
-  community.docker.docker_container_exec:
-    container: "{{ DECIDIM_CONTAINER }}"
-    command: bundle exec rails runner -
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "RAILS_ENV={{ ENVIRONMENT }}"
+      - -e
+      - "DECIDIM_ADMIN_EMAIL={{ lookup('users', 'administrator').email }}"
+      - -e
+      - "DECIDIM_ADMIN_PASSWORD={{ lookup('users', 'administrator').password }}"
+      - "{{ DECIDIM_CONTAINER }}"
+      - bundle
+      - exec
+      - rails
+      - runner
+      - "-"
     stdin: "{{ lookup('file', 'ruby/ensure_admin_user.rb') }}"
-    env:
-      RAILS_ENV: "{{ ENVIRONMENT }}"
-      DECIDIM_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-      DECIDIM_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
   register: decidim_admin_result
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'Admin user ready' in decidim_admin_result.stdout"
 
-
 - name: "Decidim | Configure OIDC omniauth settings in organization"
-  community.docker.docker_container_exec:
-    container: "{{ DECIDIM_CONTAINER }}"
-    command: bundle exec rails runner -
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "RAILS_ENV={{ ENVIRONMENT }}"
+      - "{{ DECIDIM_CONTAINER }}"
+      - bundle
+      - exec
+      - rails
+      - runner
+      - "-"
     stdin: "{{ lookup('file', 'ruby/configure_oidc.rb') }}"
-    env:
-      RAILS_ENV: "{{ ENVIRONMENT }}"
   register: decidim_oidc_result
   changed_when: "'OIDC settings configured' in decidim_oidc_result.stdout"
   when: DECIDIM_OIDC_ENABLED | bool

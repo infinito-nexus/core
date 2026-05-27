@@ -1,39 +1,40 @@
-import unittest
-import tempfile
 import os
-from plugins.filter.invokable_paths import get_invokable_paths
+import tempfile
+import unittest
+from pathlib import Path
 
+from plugins.filter.invokable_paths import get_invokable_paths
 from utils.cache.yaml import dump_yaml
 
 
 class TestInvokablePaths(unittest.TestCase):
     def write_yaml(self, data):
-        tmp = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yml")
-        tmp.close()
-        dump_yaml(tmp.name, data)
-        return tmp.name
+        fd, path = tempfile.mkstemp(suffix=".yml")
+        os.close(fd)
+        dump_yaml(path, data)
+        return path
 
     def test_empty_roles(self):
         path = self.write_yaml({})
         self.assertEqual(get_invokable_paths(path), [])
-        os.unlink(path)
+        Path(path).unlink()
 
     def test_single_invokable_true(self):
         data = {"role1": {"invokable": True}}
         path = self.write_yaml(data)
         self.assertEqual(get_invokable_paths(path), ["role1"])
-        os.unlink(path)
+        Path(path).unlink()
 
     def test_single_invokable_false_or_missing(self):
         data_false = {"role1": {"invokable": False}}
         path_false = self.write_yaml(data_false)
         self.assertEqual(get_invokable_paths(path_false), [])
-        os.unlink(path_false)
+        Path(path_false).unlink()
 
         data_missing = {"role1": {}}
         path_missing = self.write_yaml(data_missing)
         self.assertEqual(get_invokable_paths(path_missing), [])
-        os.unlink(path_missing)
+        Path(path_missing).unlink()
 
     def test_nested_and_deeply_nested(self):
         data = {
@@ -47,7 +48,7 @@ class TestInvokablePaths(unittest.TestCase):
         path = self.write_yaml(data)
         expected = ["parent", "parent-child", "parent-sub-deep"]
         self.assertEqual(sorted(get_invokable_paths(path)), sorted(expected))
-        os.unlink(path)
+        Path(path).unlink()
 
     def test_ignore_metadata_and_unwrap(self):
         data = {
@@ -61,13 +62,13 @@ class TestInvokablePaths(unittest.TestCase):
         }
         path = self.write_yaml(data)
         self.assertEqual(get_invokable_paths(path), ["role1"])
-        os.unlink(path)
+        Path(path).unlink()
 
     def test_suffix_appended(self):
         data = {"role1": {"invokable": True}}
         path = self.write_yaml(data)
         self.assertEqual(get_invokable_paths(path, suffix="_suf"), ["role1_suf"])
-        os.unlink(path)
+        Path(path).unlink()
 
 
 if __name__ == "__main__":

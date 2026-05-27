@@ -16,8 +16,19 @@ This role deploys an OpenResty container via Docker Compose, validates its confi
 3. Defines handlers to validate and restart the container  
 4. Triggers a restart on configuration changes  
 
+## Features
+
+- **Automated provisioning:** Configured by Ansible without manual steps.
+
 ## Further Reading
 
 - [OpenResty Docker Hub](https://hub.docker.com/r/openresty/openresty)  
 - [OpenResty Official Documentation](https://openresty.org/)  
 - [Ansible Docker Compose Role on Galaxy](https://galaxy.ansible.com/)  
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

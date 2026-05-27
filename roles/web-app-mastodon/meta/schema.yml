@@ -1,3 +1,4 @@
+---
 credentials:
   secret_key_base:
     description: Main secret key used to verify the integrity of signed cookies and tokens

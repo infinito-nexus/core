@@ -1,6 +1,7 @@
+---
 - name: "Update Client settings"
   vars:
-    kc_object_kind:  "client"
+    kc_object_kind: "client"
     kc_lookup_value: "{{ KEYCLOAK_CLIENT_ID }}"
     kc_desired: >-
       {{
@@ -23,7 +24,7 @@
             | map(attribute='serviceAccountsEnabled')
             | first )
         }}
-      frontchannelLogout:  >-
+      frontchannelLogout: >-
         {{
           (KEYCLOAK_DICTIONARY_REALM.clients
             | selectattr('clientId','equalto', KEYCLOAK_CLIENT_ID)
@@ -47,4 +48,4 @@
     assert_mode: "{{ MODE_ASSERT }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

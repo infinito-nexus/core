@@ -1,8 +1,9 @@
+---
 - name: "load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
     application_id: web-app-nextcloud
     # Necessary to save talk recordings
     webserver_client_max_body_size: 10G
@@ -16,11 +17,11 @@
         owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
         group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
         mode: "0755"
-    
+
     - name: "Deploy Whiteboard Dockerfile to '{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}'"
       template:
-        src:    "Dockerfiles/Whiteboard.j2"
-        dest:   "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
+        src: "Dockerfiles/Whiteboard.j2"
+        dest: "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
       notify: compose build
 
 - name: "create {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
@@ -33,12 +34,12 @@
 
 - name: "Create config files at {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
   template:
-    src:    "{{ item }}"
-    dest:   "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
-    owner:  "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    group:  "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    mode:   "0644"
-  loop:     "{{ lookup('fileglob', role_path ~ '/templates/config/*.j2', wantlist=True) }}"
+    src: "{{ item }}"
+    dest: "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
+    owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+    group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+    mode: "0644"
+  loop: "{{ lookup('fileglob', role_path ~ '/templates/config/*.j2', wantlist=True) }}"
   notify: compose up
 
 - name: "NEXTCLOUD | Ensure host-mounted infinito config files ownership/permissions (recursive)"
@@ -52,6 +53,6 @@
 
 - name: create internal nextcloud nginx configuration
   template:
-    src:  "docker.conf.j2" 
+    src: "docker.conf.j2"
     dest: "{{ NEXTCLOUD_HOST_NGINX_PATH }}"
   notify: compose up

@@ -1,3 +1,4 @@
+---
 # Wait for API
 - name: Exclude global IPs in Matomo
   uri_retry:
@@ -10,7 +11,7 @@
       excludedIps: "{{ MATOMO_EXCLUDED_IPS | join(',') }}"
       format: json
       token_auth: "{{ matomo_token_value }}"
-    return_content: yes
+    return_content: true
     status_code: 200
   register: matomo_exclude
   until: matomo_exclude.status == 200
@@ -28,5 +29,5 @@
       excludedUserAgents: "CSP-CheckerBot"
       format: json
       token_auth: "{{ matomo_token_value }}"
-    return_content: yes
+    return_content: true
     status_code: 200

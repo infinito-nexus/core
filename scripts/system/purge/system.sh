@@ -31,9 +31,9 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-if [[ -f "scripts/meta/env/all.sh" ]]; then
-	# shellcheck source=scripts/meta/env/all.sh
-	source "scripts/meta/env/all.sh"
+if [[ -f "scripts/meta/env/load.sh" ]]; then
+	# shellcheck source=scripts/meta/env/load.sh
+	source "scripts/meta/env/load.sh"
 fi
 
 log() {
@@ -191,7 +191,7 @@ purge_host_caches() {
 }
 
 purge_windows() {
-	[[ "${IS_WSL2:-false}" == "true" ]] || return 0
+	[[ "${INFINITO_IS_WSL2}" == "true" ]] || return 0
 
 	local windows_system32="/mnt/c/Windows/System32"
 

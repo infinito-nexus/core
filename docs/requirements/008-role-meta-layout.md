@@ -38,10 +38,10 @@ After this refactor every role's metadata lives exclusively under `meta/`:
 | `meta/main.yml`       | **Unchanged.** Ansible Galaxy info / `dependencies:` / `run_after:` (per requirement 002).                                                                     |
 | `meta/schema.yml`     | Merged credential schema. Replaces `schema/main.yml` *and* the `credentials:` top-level block from `config/main.yml`. See "Schema Format" below.               |
 | `meta/users.yml`      | Role-local user definitions. Direct rename of `users/main.yml`.                                                                                                |
-| `meta/server.yml`     | Content of the `server:` top-level block from `config/main.yml` (CSP, `domains`, `status_codes`). The `server:` wrapper key is dropped — file-root IS the former `server:` content. |
-| `meta/rbac.yml`       | Content of the `rbac:` top-level block from `config/main.yml`. The `rbac:` wrapper key is dropped — file-root IS the former `rbac:` content.                  |
-| `meta/services.yml`   | Content of `compose.services:` from `config/main.yml` **plus** every other former top-level key (`plugins`, `accounts`, `scopes`, `email`, …) inlined under the corresponding service entry. File-root is a map keyed by `<entity_name>` — no `services:` and no `compose:` wrapper. |
-| `meta/volumes.yml`    | Content of `compose.volumes:` from `config/main.yml`. File-root is a map keyed by volume name — no `volumes:` and no `compose:` wrapper.                       |
+| `meta/server.yml`     | Content of the `server:` top-level block from `config/main.yml` (CSP, `domains`, `status_codes`). The `server:` wrapper key is dropped, so the file root IS the former `server:` content. |
+| `meta/rbac.yml`       | Content of the `rbac:` top-level block from `config/main.yml`. The `rbac:` wrapper key is dropped, so the file root IS the former `rbac:` content.            |
+| `meta/services.yml`   | Content of `compose.services:` from `config/main.yml` **plus** every other former top-level key (`plugins`, `accounts`, `scopes`, `email`, …) inlined under the corresponding service entry. The file root is a map keyed by `<entity_name>`, with no `services:` and no `compose:` wrapper. |
+| `meta/volumes.yml`    | Content of `compose.volumes:` from `config/main.yml`. The file root is a map keyed by volume name, with no `volumes:` and no `compose:` wrapper.              |
 
 The role-level directories `schema/`, `users/`, and `config/` MUST be removed
 once their contents are migrated. Ansible only auto-loads `meta/main.yml`; the
@@ -76,10 +76,10 @@ Inlined keys observed today (non-exhaustive): `plugins`, `plugins_enabled`,
 `company`, `default_quota`, `legacy_login_mask`, `site_name`, `token`,
 `modules`, `network`, `performance`, `preload_models`, `provision`.
 
-`compose.volumes:` is *not* inlined into services — it moves into its own
+`compose.volumes:` is *not* inlined into services. It moves into its own
 `meta/volumes.yml` (volumes are role-wide, not per-service).
 
-**Example** — `web-app-matomo` (entity_name `matomo`):
+**Example.** `web-app-matomo` (entity_name `matomo`):
 
 ```yaml
 # Before: roles/web-app-matomo/config/main.yml
@@ -117,21 +117,21 @@ data: matomo_data
 The unified schema MUST support:
 
 - **Nested keys.** The flat-keys-only restriction of `schema/main.yml` is
-  lifted; e.g. `recaptcha.key` and `recaptcha.secret` remain nested.
+  lifted, so e.g. `recaptcha.key` and `recaptcha.secret` remain nested.
 - **`algorithm:` defaults to `plain`** when the field is omitted.
-- **`default:` (new, optional)** — a Jinja string used as the credential's
+- **`default:` (new, optional)** is a Jinja string used as the credential's
   value when the inventory does not provide one.
   - `default:` is **NOT rendered at inventory creation time.** The literal
     Jinja string is written verbatim into the inventory so that referenced
     variables (`CAPTCHA.RECAPTCHA.KEY`, `lookup(...)`, …) resolve only at
     deploy/runtime when those variables are actually defined.
   - `default:` values are **NOT validated.** `validation:` only applies to
-    user-provided values; the schema default is exempt.
+    user-provided values, so the schema default is exempt.
   - When `default:` is present, the credential generator MUST NOT generate a
-    new value via `algorithm:`; it writes the literal `default:` string
+    new value via `algorithm:`. It writes the literal `default:` string
     verbatim.
 
-**Example** — merging keycloak's `config/main.yml` runtime credentials into
+**Example.** Merging keycloak's `config/main.yml` runtime credentials into
 `meta/schema.yml`:
 
 ```yaml
@@ -251,11 +251,11 @@ the old `compose.…` or top-level paths.
       `server:`, `rbac:`, and `credentials:` are inlined under
       `<entity_name>.<key>` in `meta/services.yml`.
 - [ ] The `compose.volumes:` block is migrated to its own `meta/volumes.yml`
-      file (file-root IS the volumes map; no `volumes:` wrapper).
+      file (file root IS the volumes map, with no `volumes:` wrapper).
 - [ ] `<entity_name>` is derived via `get_entity_name(role_name)` (the same
-      function used by `sys-utils-service-loader` per requirement 002).
-- [ ] `meta/services.yml` is a map keyed by `<entity_name>` at file root —
-      no `services:` wrapper, no `compose:` wrapper.
+      function used by `sys-service-loader` per requirement 002).
+- [ ] `meta/services.yml` is a map keyed by `<entity_name>` at file root,
+      with no `services:` wrapper and no `compose:` wrapper.
 
 ### Schema format
 
@@ -279,7 +279,7 @@ the old `compose.…` or top-level paths.
 - [ ] All Python consumers that hard-code the old paths are updated. At
       minimum:
       - `utils/manager/inventory.py` (`schema/main.yml` → `meta/schema.yml`)
-      - `utils/applications/config.py` (`schema/main.yml` → `meta/schema.yml`)
+      - `utils/roles/applications/config.py` (`schema/main.yml` → `meta/schema.yml`)
       - `utils/cache/users.py` (`*/users/main.yml` → `*/meta/users.yml`)
       - `utils/cache/applications.py` (`*/config/main.yml` →
         per-topic load of `meta/server.yml` → `applications.<app>.server`,
@@ -291,7 +291,7 @@ the old `compose.…` or top-level paths.
         deep-merge over the assembled payload, just as they used to over
         `config/main.yml`.)
       - `utils/cache/base.py`
-      - `utils/docker/version_updater.py`
+      - `utils/update/docker.py`
       - `utils/docker/image/discovery.py`
       - `plugins/filter/native_metrics_target.py`
       - `plugins/lookup/config.py` (the `config` lookup itself)
@@ -304,18 +304,16 @@ the old `compose.…` or top-level paths.
       - `plugins/lookup/nginx.py`
       - `plugins/lookup/application_gid.py`
       - `plugins/lookup/rbac_group_path.py`
-      - `cli/fix/docker_image_versions/__main__.py`
-      - `cli/deploy/development/inventory.py`
-      - `cli/meta/applications/resolution/combined/role_introspection.py`
-      - `cli/meta/applications/resolution/services/resolver.py`
-      - `cli/meta/applications/ressources/__main__.py`
-      - `cli/meta/applications/sufficient_storage/__main__.py`
-      - `cli/create/inventory/services_disabler.py`
-      - `cli/create/credentials/__main__.py`
-      - any other consumer discovered during migration that references
-        `schema/main.yml`, `users/main.yml`, or `config/main.yml`.
-- [ ] No legacy fallback to the old paths is implemented; the new paths are
-      the single source of truth.
+      - `cli/contributing/update/docker/__main__.py`
+      - `cli/administration/deploy/development/inventory.py`
+      - `cli/meta/roles/applications/resolution/combined/role_introspection.py`
+      - `utils/roles/applications/services/resolver.py`
+      - `cli/meta/roles/applications/ressources/__main__.py`
+      - `cli/meta/roles/applications/sufficient_storage/__main__.py`
+      - `cli/administration/inventory/provision/services_disabler.py`
+      - `cli/administration/inventory/credentials/__main__.py`
+      - any other consumer discovered during migration that references `schema/main.yml`, `users/main.yml`, or `config/main.yml`.
+- [ ] No legacy fallback to the old paths is implemented; the new paths are the single source of truth.
 
 ### Consumer-path rewrites
 
@@ -365,7 +363,7 @@ the old `compose.…` or top-level paths.
 
 - [ ] Documentation under `docs/contributing/` and `docs/agents/` that
       mentions the old paths is updated. Specifically:
-      - any file under `docs/contributing/design/services/` that references
+      - any file under `docs/contributing/design/role/services/` that references
         `config/main.yml` is updated to point at `meta/services.yml` (or the
         appropriate `meta/<topic>.yml`);
       - any file that references `schema/main.yml` is updated to point at
@@ -374,7 +372,7 @@ the old `compose.…` or top-level paths.
         `meta/users.yml`;
       - the new `default:` schema field, the merge of runtime credentials
         into `meta/schema.yml`, and the services-inlining rule are documented
-        in `docs/contributing/design/services/`.
+        in `docs/contributing/design/role/services/`.
 - [ ] `roles/<role>/AGENTS.md` and `roles/<role>/README.md` files are updated
       where they reference the old paths.
 - [ ] `.github/PULL_REQUEST_TEMPLATE/server.md` is updated (the
@@ -423,7 +421,7 @@ end to end after the refactor:
 | `web-app-yourls`     | Minimal app surface; baseline regression check.                                                 |
 
 ```bash
-APPS="web-svc-cdn web-svc-file web-app-dashboard svc-db-postgres svc-db-mariadb web-app-matomo web-app-gitea web-app-prometheus web-app-keycloak web-app-pretix web-app-xwiki web-app-listmonk web-app-espocrm web-app-nextcloud web-app-wordpress web-app-yourls" \
+INFINITO_APPS="web-svc-cdn web-svc-file web-app-dashboard svc-db-postgres svc-db-mariadb web-app-matomo web-app-gitea web-app-prometheus web-app-keycloak web-app-pretix web-app-xwiki web-app-listmonk web-app-espocrm web-app-nextcloud web-app-wordpress web-app-yourls" \
   make deploy-fresh-purged-apps
 ```
 
@@ -437,10 +435,10 @@ APPS="web-svc-cdn web-svc-file web-app-dashboard svc-db-postgres svc-db-mariadb 
   deploy time, not at inventory generation. This is by design and the loader
   MUST preserve the literal string.
 - The schema-key collision between `schema/main.yml` `credentials:` and
-  `config/main.yml` `credentials:` is benign at the time of writing — no role
-  defines the same credential name in both. If a collision arises during
-  migration, the requirement is violated and the agent MUST stop and surface
-  it.
+  `config/main.yml` `credentials:` is benign at the time of writing because
+  no role defines the same credential name in both. If a collision arises
+  during migration, the requirement is violated and the agent MUST stop and
+  surface it.
 - `meta/variants.yml` (used today by `svc-ai-ollama`, `web-app-phpmyadmin`)
   is **not** moved or renamed; it stays at its current path. The variants
   loader (`utils/cache/applications.py:_build_variants`) MUST deep-merge
@@ -464,7 +462,7 @@ back-and-forth questions on choices that are already specified above
 1. Read [Role Loop](../agents/action/iteration/role.md) before starting.
 2. Land the refactor in a single atomic branch:
    1. Update the loaders/consumers (`utils/cache/*`, `utils/manager/*`,
-      `utils/applications/*`, `plugins/*`, `cli/*`) to read from the new
+      `utils/roles/applications/*`, `plugins/*`, `cli/*`) to read from the new
       paths and to apply the new schema rules (`default:`, nested keys,
       implicit `algorithm: plain`).
    2. Rename and split files across all roles in one mechanical pass.
@@ -482,9 +480,9 @@ After the atomic refactor branch is in place and `make test` is green, the
 agent MUST iterate end-to-end following [Role Loop](../agents/action/iteration/role.md)
 against the following three apps (in order):
 
-1. `web-app-nextcloud` — most complex; MariaDB + Keycloak + many services + `plugins:`.
-2. `web-app-wordpress` — multisite role with config-heavy `vars/main.yml`; exercises consumer-path rewrites.
-3. `web-app-yourls`    — minimal app surface; baseline regression check.
+1. `web-app-nextcloud` is the most complex case (MariaDB + Keycloak + many services + `plugins:`).
+2. `web-app-wordpress` is a multisite role with a config-heavy `vars/main.yml`; it exercises consumer-path rewrites.
+3. `web-app-yourls` has a minimal app surface and serves as the baseline regression check.
 
 Each app MUST be deployed standalone at least once, fully through the
 `Role Loop` inspect-fix-redeploy cycle, until every Acceptance Criterion is

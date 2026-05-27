@@ -1,11 +1,12 @@
 # syntax=docker/dockerfile:1
 
-# Base image (pkgmgr) selector
-# Example:
-#   PKGMGR_IMAGE=ghcr.io/kevinveenbirkenbach/pkgmgr-arch:stable
-#   PKGMGR_IMAGE=ghcr.io/kevinveenbirkenbach/pkgmgr-arch-slim:stable
-ARG PKGMGR_IMAGE=ghcr.io/kevinveenbirkenbach/pkgmgr-arch:stable
-FROM ${PKGMGR_IMAGE} AS full
+# Base image (pkgmgr) selector. SPOT lives in default.env's
+# INFINITO_PARENT_IMAGE and is forwarded as a build arg by compose.yml /
+# scripts/image/build.sh.
+# Example values:
+#   INFINITO_PARENT_IMAGE=ghcr.io/kevinveenbirkenbach/pkgmgr-arch:stable
+ARG INFINITO_PARENT_IMAGE
+FROM ${INFINITO_PARENT_IMAGE} AS full
 
 # Hadolint DL4006: ensure pipefail is set for RUN instructions that use pipes
 SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
@@ -13,7 +14,10 @@ SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
 # Forwardable build-time Nix settings (e.g., GitHub access tokens to avoid rate limits)
 ARG NIX_CONFIG
 
-ENV INFINITO_SRC_DIR="/opt/src/infinito"
+# SPOT for the bind-mounted source tree inside the container. The compose
+# stack forwards default.env's INFINITO_SRC_DIR as a build arg.
+ARG INFINITO_SRC_DIR
+ENV INFINITO_SRC_DIR=${INFINITO_SRC_DIR}
 ENV PYTHON="/opt/venvs/infinito/bin/python"
 ENV PIP="/opt/venvs/infinito/bin/python -m pip"
 ENV PATH="/opt/venvs/infinito/bin:${PATH}"
@@ -60,7 +64,7 @@ RUN set -euo pipefail; \
   pkgmgr install infinito --clone-mode shallow; \
   echo "[docker-infinito] Installed Infinito.Nexus Version:"; \
   pkgmgr version infinito; \
-  INFINITO_COMPILE=1 /opt/src/infinito/scripts/docker/entry.sh true
+  "${INFINITO_SRC_DIR}/scripts/docker/entry.sh" --compile -- true
 
 # Set workdir to / to avoid ambiguous commands
 WORKDIR /
@@ -71,19 +75,10 @@ RUN chmod +x /usr/local/bin/healthcheck.sh
 HEALTHCHECK --interval=5s --timeout=20s --start-period=30s --retries=20 \
   CMD /usr/local/bin/healthcheck.sh
 
-ENTRYPOINT ["/opt/src/infinito/scripts/docker/entry.sh"]
+# JSON-form ENTRYPOINT does not expand ENV vars; wrap via bash -c so the
+# INFINITO_SRC_DIR SPOT still controls the path. `exec` preserves systemd
+# signal forwarding; `--` is the placeholder for $0.
+ENTRYPOINT ["/bin/bash", "-c", "exec \"${INFINITO_SRC_DIR}/scripts/docker/entry.sh\" \"$@\"", "--"]
 
 # IMPORTANT: default to systemd as PID 1
 CMD ["/sbin/init"]
-
-
-# ============================================================
-# Target: slim
-# - based on full, runs slim.sh
-# ============================================================
-FROM full AS slim
-
-# Image cleanup (reduce final size)
-RUN set -eu; \
-  test -x /usr/local/bin/slim.sh || { echo "slim.sh missing in base image" >&2; exit 1; }; \
-  /usr/local/bin/slim.sh

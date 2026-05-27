@@ -1,3 +1,4 @@
+---
 credentials:
   superadminpassword:
     description: Password for the xwiki superadmin

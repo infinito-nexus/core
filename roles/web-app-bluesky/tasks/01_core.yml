@@ -1,3 +1,4 @@
+---
 - include_tasks: utils/once/flag.yml
 
 # The Bluesky web container is built from a checked-out social-app repo at
@@ -6,19 +7,19 @@
 # handlers, otherwise `compose build` fires against a missing build context.
 # Pre-create the services directory and clone the repo here, before any
 # compose-touching include.
-- name: "Ensure social-app services directory exists"
-  ansible.builtin.file:
-    path: "{{ BLUESKY_SOCIAL_APP_DIR | dirname }}"
-    state: directory
-    mode: "0755"
-  when: BLUESKY_WEB_ENABLED | bool
+- name: "Pre-compose web-enabled staging (services dir + social-app + login-broker)"
+  block:
+    - name: "Ensure social-app services directory exists"
+      ansible.builtin.file:
+        path: "{{ BLUESKY_SOCIAL_APP_DIR | dirname }}"
+        state: directory
+        mode: "0755"
 
-- name: "Clone social-app build context (pre-compose)"
-  ansible.builtin.include_tasks: "03_social_app.yml"
-  when: BLUESKY_WEB_ENABLED | bool
+    - name: "Clone social-app build context (pre-compose)"
+      ansible.builtin.include_tasks: "03_social_app.yml"
 
-- name: "Stage login-broker build context (pre-compose)"
-  ansible.builtin.include_tasks: "06_login_broker.yml"
+    - name: "Stage login-broker build context (pre-compose)"
+      ansible.builtin.include_tasks: "06_login_broker.yml"
   when: BLUESKY_WEB_ENABLED | bool
 
 # Bind-mount safety: if a previous role-iteration ran without
@@ -42,7 +43,7 @@
 
 # Use sys-stk-backend (not sys-svc-compose directly) so that the
 # oauth2-proxy sidecar is auto-included when `services.oauth2.enabled`
-# is true (variant A+ login-broker gate per requirement 013). The
+# is true (variant A+ login-broker gate). The
 # sys-stk-backend role internally loads sys-svc-compose for the
 # compose layer and additionally pulls in web-app-oauth2-proxy and
 # its deterministic config template. Without this, oauth2-proxy
@@ -52,7 +53,7 @@
   include_role:
     name: sys-stk-backend
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Include front proxy for {{ BLUESKY_API_DOMAIN }}:{{ BLUESKY_API_PORT }}"
   include_role:
@@ -61,25 +62,31 @@
     domain: "{{ BLUESKY_API_DOMAIN }}"
     http_port: "{{ BLUESKY_API_PORT }}"
 
-- name: "Include front proxy for {{ BLUESKY_WEB_DOMAIN }}:{{ BLUESKY_BROKER_PORT }} (broker is the upstream so the variant-A+ handoff fires for every authenticated request)"
+- name: "Include front proxy for {{ BLUESKY_WEB_DOMAIN }} (broker when oauth2 enabled, stock social-app otherwise)"
   include_role:
     name: sys-stk-front-proxy
   vars:
-    domain:                         "{{ BLUESKY_WEB_DOMAIN }}"
-    http_port:                      "{{ BLUESKY_BROKER_PORT }}"
-    webserver_extra_configuration:  "{{ BLUESKY_FRONT_PROXY_CONTENT }}"
+    domain: "{{ BLUESKY_WEB_DOMAIN }}"
+    http_port: "{{ BLUESKY_BROKER_PORT if (lookup('config', application_id, 'services.oauth2.enabled') | bool) else BLUESKY_WEB_PORT }}"
+    webserver_extra_configuration: "{{ BLUESKY_FRONT_PROXY_CONTENT }}"
   when: BLUESKY_WEB_ENABLED | bool
 
 - name: "Include front proxy for {{ BLUESKY_VIEW_DOMAIN_FINAL }}:{{ BLUESKY_VIEW_PORT }}"
   include_role:
     name: sys-stk-front-proxy
   vars:
-    domain:     "{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
-    http_port:  "{{ BLUESKY_VIEW_PORT }}"
+    domain: "{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
+    http_port: "{{ BLUESKY_VIEW_PORT }}"
   when: BLUESKY_VIEW_ENABLED | bool
 
 - name: "Execute PDS routines"
   ansible.builtin.include_tasks: "02_pds.yml"
+
+- name: "Create native PDS administrator (oauth2 disabled, no broker handoff to auto-provision)"
+  ansible.builtin.include_tasks: "07_native_admin.yml"
+  when:
+    - BLUESKY_WEB_ENABLED | bool
+    - not (lookup('config', application_id, 'services.oauth2.enabled') | bool)
 
 # 03_social_app already ran before sys-svc-compose (above) so that the
 # compose build handler finds the cloned context.
@@ -99,8 +106,8 @@
 - name: "Redirect deactivated BlueSky Services to {{ BLUESKY_API_DOMAIN }}"
   include_tasks: "utils/load_app.yml"
   vars:
-    load_app_id:                        "web-opt-rdr-domains"
-    redirect_domain_mappings:           "{{ BLUESKY_REDIRECT_DOMAIN_MAPPINGS }}"
+    load_app_id: "web-opt-rdr-domains"
+    redirect_domain_mappings: "{{ BLUESKY_REDIRECT_DOMAIN_MAPPINGS }}"
     web_opt_rdr_domains_logout_enabled: true
 
 - name: "Flush handlers for '{{ role_name }}'"

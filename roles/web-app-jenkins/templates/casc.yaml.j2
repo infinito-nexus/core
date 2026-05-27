@@ -1,5 +1,5 @@
 # Jenkins Configuration as Code (JCasC) — applied at startup via the
-# CASC_JENKINS_CONFIG env var. Per requirement 013 this file wires the
+# CASC_JENKINS_CONFIG env var. This file wires the
 # OIDC and LDAP authentication paths against `web-app-keycloak` and
 # `svc-db-openldap`, plus role-strategy authorisation that maps
 # Keycloak group / LDAP group memberships onto Jenkins authorities.
@@ -9,7 +9,7 @@ jenkins:
   numExecutors: 2
   mode: NORMAL
 
-{% if lookup('config', application_id, 'services.oidc.enabled') | bool %}
+{% if JENKINS_OIDC_ENABLED | bool %}
   securityRealm:
     # The `oic-auth` plugin (>= 4.x) restructured its JCasC schema:
     # endpoint URLs and the well-known discovery URL now live inside a
@@ -27,7 +27,7 @@ jenkins:
       userNameField: "preferred_username"
       groupsFieldName: "groups"
       logoutFromOpenidProvider: true
-{% elif lookup('config', application_id, 'services.ldap.enabled') | bool %}
+{% elif JENKINS_LDAP_ENABLED | bool %}
   securityRealm:
     ldap:
       configurations:

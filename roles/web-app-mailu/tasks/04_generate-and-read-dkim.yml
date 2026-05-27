@@ -1,9 +1,10 @@
+---
 - name: Check if DKIM private key file exists in the antispam container
   command: >
     {{ BIN_COMPOSE }} exec -T antispam
     test -f {{ MAILU_DKIM_KEY_PATH }}
   register: dkim_key_file_stat
-  failed_when:  false
+  failed_when: false
   changed_when: false
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
@@ -57,4 +58,3 @@
   debug:
     msg: "Mailu DKIM public key: {{ mailu_dkim_public_key }}"
   when: MODE_DEBUG | bool
-  

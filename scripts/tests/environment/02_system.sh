@@ -3,7 +3,7 @@
 set -euo pipefail
 
 echo "Showing current disk and Docker resource usage before purging."
-make system-disk-usage
+make diagnose-disk-usage
 
 echo "Freeing disk and memory on minimal-hardware systems before the build."
 make system-purge

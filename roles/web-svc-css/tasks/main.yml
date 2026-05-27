@@ -1,0 +1,5 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_web_svc_css is not defined
+  vars:
+    application_id: "web-svc-css"

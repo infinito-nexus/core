@@ -1,3 +1,4 @@
+---
 # Layered on compose.yml by the dev tooling when the cache stack is
 # active. See docs/contributing/environment/cache.md.
 
@@ -8,17 +9,17 @@ services:
     environment:
       ENABLE_MANIFEST_CACHE: "true"
       AUTH_REGISTRIES: ""
-      CACHE_MAX_SIZE: "${INFINITO_REGISTRY_CACHE_MAX_SIZE:?Source scripts/meta/env/cache/registry.sh before running docker compose}"
+      CACHE_MAX_SIZE: "${INFINITO_CACHE_REGISTRY_MAX_SIZE:?Run 'make dotenv' to generate the .env single source of truth}"
       # Avoid 502s on hosts with broken IPv6 outbound.
       DISABLE_IPV6: "true"
     volumes:
       - type: bind
-        source: ${INFINITO_REGISTRY_CACHE_HOST_PATH:?Source scripts/meta/env/cache/registry.sh before running docker compose}
+        source: ${INFINITO_CACHE_REGISTRY_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
         target: /docker_mirror_cache
         bind:
           create_host_path: true
       - type: bind
-        source: ${INFINITO_REGISTRY_CACHE_CA_HOST_PATH:?Source scripts/meta/env/cache/registry.sh before running docker compose}
+        source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
         target: /ca
         bind:
           create_host_path: true
@@ -38,17 +39,20 @@ services:
     # Run as root: fresh bind-mount is root:root and Nexus aborts otherwise.
     user: "0:0"
     environment:
-      INSTALL4J_ADD_VM_PARAMS: "-Xms${INFINITO_PACKAGE_CACHE_HEAP:?Source scripts/meta/env/cache/package.sh before running docker compose} -Xmx${INFINITO_PACKAGE_CACHE_HEAP:?Source scripts/meta/env/cache/package.sh before running docker compose} -XX:MaxDirectMemorySize=${INFINITO_PACKAGE_CACHE_DIRECT_MEM:?Source scripts/meta/env/cache/package.sh before running docker compose}"
+      INSTALL4J_ADD_VM_PARAMS: "-Xms${INFINITO_CACHE_PACKAGE_HEAP:?Run 'make dotenv' to generate the .env single source of truth} -Xmx${INFINITO_CACHE_PACKAGE_HEAP:?Run
+        'make dotenv' to generate the .env single source of truth} -XX:MaxDirectMemorySize=${INFINITO_CACHE_PACKAGE_DIRECT_MEM:?Run 'make dotenv' to generate the
+        .env single source of truth}"
       # Random-password mode leaves no readable secret for the bootstrap.
       NEXUS_SECURITY_RANDOMPASSWORD: "false"
     volumes:
       - type: bind
-        source: ${INFINITO_PACKAGE_CACHE_HOST_PATH:?Source scripts/meta/env/cache/package.sh before running docker compose}
+        source: ${INFINITO_CACHE_PACKAGE_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
         target: /nexus-data
         bind:
           create_host_path: true
     ports:
-      - "${BIND_IP:-127.0.0.1}:${INFINITO_PACKAGE_CACHE_PORT:?Source scripts/meta/env/cache/package.sh before running docker compose}:8081"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_CACHE_PACKAGE_PORT:?Run 'make dotenv' to generate the .env
+        single source of truth}:8081"
     healthcheck:
       test:
         - CMD-SHELL
@@ -67,13 +71,13 @@ services:
         condition: service_healthy
     volumes:
       - type: bind
-        source: ${INFINITO_PACKAGE_CACHE_FRONTEND_CA_DIR:?Source scripts/meta/env/cache/package.sh before running docker compose}
+        source: ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR:?Run 'make dotenv' to generate the .env single source of truth}
         target: /etc/nginx/ca
         read_only: true
         bind:
           create_host_path: true
       - type: bind
-        source: ${INFINITO_PACKAGE_CACHE_FRONTEND_CERTS_DIR:?Source scripts/meta/env/cache/package.sh before running docker compose}
+        source: ${INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR:?Run 'make dotenv' to generate the .env single source of truth}
         target: /etc/nginx/certs
         read_only: true
         bind:
@@ -81,7 +85,7 @@ services:
       - ./compose/package-cache-frontend/upstreams.conf:/etc/nginx/conf.d/upstreams.conf:ro
     networks:
       default:
-        ipv4_address: ${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}
+        ipv4_address: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
     healthcheck:
       test:
         - CMD-SHELL
@@ -104,29 +108,33 @@ services:
         condition: service_healthy
         required: false
     environment:
-      INFINITO_PACKAGE_CACHE_FRONTEND_IP: ${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}
+      INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
     extra_hosts:
-      - "pypi.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "files.pythonhosted.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "registry.npmjs.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "rubygems.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "index.rubygems.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "repo.packagist.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "proxy.golang.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "dl-cdn.alpinelinux.org:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "raw.githubusercontent.com:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
-      - "codeload.github.com:${INFINITO_PACKAGE_CACHE_FRONTEND_IP:?Source scripts/meta/env/cache/package.sh before running docker compose}"
+      - "pypi.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "files.pythonhosted.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "registry.npmjs.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "index.rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "repo.packagist.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "proxy.golang.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "dl-cdn.alpinelinux.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "raw.githubusercontent.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "codeload.github.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
     volumes:
       - type: bind
-        source: ${INFINITO_REGISTRY_CACHE_CA_HOST_PATH:?Source scripts/meta/env/cache/registry.sh before running docker compose}
+        source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
         target: /opt/registry-cache-ca
         read_only: true
         bind:
           create_host_path: true
-      - ${INFINITO_REGISTRY_CACHE_PROXY_CONF:?Source scripts/meta/env/cache/registry.sh before running docker compose}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
+      - ${INFINITO_CACHE_REGISTRY_PROXY_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
+        dotenv')}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
       - ./scripts/docker/cache/registry-ca.sh:/usr/local/bin/registry-cache-ca.sh:ro
-      - ${INFINITO_PACKAGE_CACHE_PIP_CONF:?Source scripts/meta/env/cache/package.sh before running docker compose}:/etc/pip.conf:ro
-      - ${INFINITO_PACKAGE_CACHE_NPMRC:?Source scripts/meta/env/cache/package.sh before running docker compose}:/root/.npmrc:ro
-      - ${INFINITO_PACKAGE_CACHE_APT_LIST:?Source scripts/meta/env/cache/package.sh before running docker compose}:/etc/apt/sources.list.d/package-cache.list:ro
-      - ${INFINITO_PACKAGE_CACHE_FRONTEND_CA_FILE:?Source scripts/meta/env/cache/package.sh before running docker compose}:/opt/package-frontend-ca.crt:ro
+      - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
+        dotenv')}:/etc/pip.conf:ro
+      - ${INFINITO_CACHE_PACKAGE_NPMRC:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make dotenv')}:/root/.npmrc:ro
+      - ${INFINITO_CACHE_PACKAGE_APT_LIST:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
+        dotenv')}:/etc/apt/sources.list.d/package-cache.list:ro
+      - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
+        dotenv')}:/opt/package-frontend-ca.crt:ro
       - ./scripts/docker/cache/package-frontend-ca.sh:/usr/local/bin/package-frontend-ca.sh:ro

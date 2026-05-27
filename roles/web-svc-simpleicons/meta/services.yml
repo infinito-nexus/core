@@ -1,25 +1,38 @@
+---
+# nocheck: dynamic-flag
 oauth2:
   enabled: false
+# nocheck: dynamic-flag
 dashboard:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
 matomo:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: false
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — captcha backend, infrastructural
 recaptcha:
   enabled: false
+# nocheck: playwright-service-flag — self-provider
 simpleicons:
-  enabled: false
+  enabled: true
   shared: true
   image: node
   version: latest
+  local_image: simpleicons-server
+  local_version: latest
   min_storage: 1GB
   cpus: 0.5
   mem_reservation: 126m
@@ -30,5 +43,5 @@ simpleicons:
       http: 8044
   lifecycle: beta
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

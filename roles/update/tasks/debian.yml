@@ -1,3 +1,4 @@
+---
 - name: "update (apt) | refresh apt cache and dist-upgrade all installed packages"
   ansible.builtin.apt:
     update_cache: true

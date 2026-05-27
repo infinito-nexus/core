@@ -1,36 +1,23 @@
+---
 # General
-application_id:                           svc-db-postgres
-entity_name:                              "{{ application_id | get_entity_name }}"
+application_id: svc-db-postgres
+entity_name: "{{ application_id | get_entity_name }}"
 
 # Docker Compose
-database_type:                            "{{ entity_name }}"
+database_type: "{{ entity_name }}"
 
 ## Postgres
-POSTGRES_VOLUME:                          "{{ lookup('config', application_id, 'volumes.data') }}"
-POSTGRES_CONTAINER:                       "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-POSTGRES_IMAGE:                           "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
-POSTGRES_VERSION:                         "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
-POSTGRES_VERSION_MAJOR:                   "{{ POSTGRES_VERSION | regex_replace('^([0-9]+).*', '\\1') }}"
-POSTGRES_NETWORK_NAME:                    "{{ application_id | get_entity_name }}"
-POSTGRES_SUBNET:                          "{{ lookup('config', 'svc-db-postgres', 'server.networks.local.subnet') }}"
-POSTGRES_PASSWORD:                        "{{ lookup('config', application_id, 'credentials.POSTGRES_PASSWORD') }}"
-POSTGRES_PORT:                            "{{ database_port | default(lookup('config', application_id, 'services.postgres.ports.local.database')) }}"
-POSTGRES_EXPOSE_LOCAL:                    True # Exposes the db to localhost, almost everytime neccessary
-POSTGRES_CUSTOM_IMAGE:                    "{{ entity_name }}_custom:{{ POSTGRES_VERSION }}"
-POSTGRES_LOCAL_HOST:                      "127.0.0.1"
-POSTGRES_VECTOR_ENABLED:                  True # Required by discourse, propably in a later step it makes sense to define this as a configuration option in meta/services.yml
-POSTGRES_RETRIES:                         5
-POSTGRES_EXEC_SHELL:                      "container exec -e PGPASSWORD={{ POSTGRES_PASSWORD | quote }} {{ POSTGRES_CONTAINER }} sh -lc" 
-
-## Performance
-POSTGRES_TOTAL_RAM_MB:                    "{{ ansible_facts['memtotal_mb'] | int }}"
-POSTGRES_VCPUS:                           "{{ ansible_facts['processor_vcpus'] | int }}"
-POSTGRES_MAX_CONNECTIONS:                 "{{ [ ((POSTGRES_VCPUS | int) * 30 + 50), 400 ] | min }}"
-POSTGRES_SUPERUSER_RESERVED_CONNECTIONS:  3
-POSTGRES_SHARED_BUFFERS_MB:               "{{ ((POSTGRES_TOTAL_RAM_MB | int) * 25) // 100 }}"
-POSTGRES_SHARED_BUFFERS:                  "{{ POSTGRES_SHARED_BUFFERS_MB ~ 'MB' }}"
-POSTGRES_WORK_MEM_MB:                     "{{ [ ( (POSTGRES_TOTAL_RAM_MB | int) // ( [ (POSTGRES_MAX_CONNECTIONS | int), 1 ] | max ) // 2 ), 1 ] | max }}"
-POSTGRES_WORK_MEM:                        "{{ POSTGRES_WORK_MEM_MB ~ 'MB' }}"
-POSTGRES_MAINTENANCE_WORK_MEM_MB:         "{{ [ (((POSTGRES_TOTAL_RAM_MB | int) * 5) // 100), 64 ] | max }}"
-POSTGRES_MAINTENANCE_WORK_MEM:            "{{ POSTGRES_MAINTENANCE_WORK_MEM_MB ~ 'MB' }}"
-POSTGRES_DELAY:                           2
+POSTGRES_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+POSTGRES_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+POSTGRES_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+POSTGRES_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+POSTGRES_VERSION_MAJOR: "{{ POSTGRES_VERSION | regex_replace('^([0-9]+).*', '\\1') }}"
+POSTGRES_NETWORK_NAME: "{{ application_id | get_entity_name }}"
+POSTGRES_PASSWORD: "{{ lookup('config', application_id, 'credentials.POSTGRES_PASSWORD') }}"
+POSTGRES_PORT: "{{ database_port | default(lookup('config', application_id, 'services.postgres.ports.local.postgres')) }}"
+POSTGRES_EXPOSE_LOCAL: true # Exposes the db to localhost, almost everytime neccessary
+POSTGRES_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ POSTGRES_VERSION }}"
+POSTGRES_LOCAL_HOST: "127.0.0.1"
+POSTGRES_LIBRARIES: "{{ lookup('postgres_libraries', lookup('service_extensions', 'postgres').values() | sum(start=[]) | unique | list) }}"
+POSTGRES_RETRIES: 5
+POSTGRES_EXEC_SHELL: "container exec -e PGPASSWORD={{ POSTGRES_PASSWORD | quote }} {{ POSTGRES_CONTAINER }} sh -lc"

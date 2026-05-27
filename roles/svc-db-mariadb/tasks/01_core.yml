@@ -1,11 +1,10 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "Setup container network for {{ application_id }}"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network.yml' ] | path_join }}"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml' ] | path_join }}"
   vars:
-    docker_network_name:            "{{ MARIADB_NETWORK }}"
-    docker_network_subnet:          "{{ MARIADB_SUBNET }}"
-    docker_compose_flush_handlers:  true
+    compose_handlers_flush: true
 
 - name: Install MySQL Python client library via pip
   include_role:
@@ -31,15 +30,17 @@
   delay: 5
 
 - block:
-
     - name: "Root password reset | Check login with desired password (inside container)"
-      community.docker.docker_container_exec:
-        container: "{{ MARIADB_NAME }}"
-        command: >-
-          mariadb {{ '-h127.0.0.1 -P3306' if MARIADB_EXPOSE_LOCAL else '' }}
-          -uroot -p'{{ MARIADB_ROOT_PWD }}'
-          -e 'SELECT 1;'
+      ansible.builtin.command:
+        argv: >-
+          {{
+            ['container', 'exec', '-i', MARIADB_NAME, 'mariadb']
+            + (['-h127.0.0.1', '-P3306'] if MARIADB_EXPOSE_LOCAL else [])
+            + ['-uroot', '-p' ~ MARIADB_ROOT_PWD]
+          }}
+        stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
       register: mariadb_login_desired
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
       failed_when: false
       retries: 30
@@ -53,14 +54,16 @@
   when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool
 
 - name: "Wait until MariaDB accepts root credentials (inside container)"
-  community.docker.docker_container_exec:
-    container: "{{ MARIADB_NAME }}"
-    command: >
-      mariadb
-      {{ '-h127.0.0.1 -P3306' if MARIADB_EXPOSE_LOCAL else '' }}
-      -uroot -p'{{ MARIADB_ROOT_PWD }}'
-      -e 'SELECT 1;'
+  ansible.builtin.command:
+    argv: >-
+      {{
+        ['container', 'exec', '-i', MARIADB_NAME, 'mariadb']
+        + (['-h127.0.0.1', '-P3306'] if MARIADB_EXPOSE_LOCAL else [])
+        + ['-uroot', '-p' ~ MARIADB_ROOT_PWD]
+      }}
+    stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
   register: mariadb_cli
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false
   retries: 30
   delay: 5

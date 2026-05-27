@@ -1,13 +1,13 @@
-# ⚙️ systemd Administration Scripts
+# systemd Administration Scripts ⚙️
 
 This directory contains scripts for managing systemd across different platforms and environments used in Infinito Nexus development.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../docs/contributing/tools/make.md).
 
 ---
 
-## 📁 Subdirectories
+## Subdirectories 📁
 
-### ✅ [`enable/`](enable/)
+### [`enable/`](enable/) ✅
 
 Platform-specific scripts for enabling systemd where it is not active by default.
 

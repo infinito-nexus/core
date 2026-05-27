@@ -1,3 +1,4 @@
+---
 - name: Install ldapsm (PyPI)
   include_role:
     name: sys-pip-install

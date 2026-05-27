@@ -1,3 +1,4 @@
+---
 # General
 application_id: "web-svc-cdn"
-domain:         "{{ lookup('domain',application_id) }}"
+domain: "{{ lookup('domain',application_id) }}"

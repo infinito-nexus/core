@@ -169,11 +169,11 @@
     create: true
     mode: "0644"
   loop:
-    - regexp: '^CA_TRUST_CERT_HOST='
+    - regexp: "^CA_TRUST_CERT_HOST="
       line: "CA_TRUST_CERT_HOST={{ CA_TRUST.cert_host }}"
-    - regexp: '^CA_TRUST_WRAPPER_HOST='
+    - regexp: "^CA_TRUST_WRAPPER_HOST="
       line: "CA_TRUST_WRAPPER_HOST={{ CA_TRUST.wrapper_host }}"
-    - regexp: '^CA_TRUST_NAME='
+    - regexp: "^CA_TRUST_NAME="
       line: "CA_TRUST_NAME={{ CA_TRUST.trust_name }}"
 
 - include_tasks: utils/once/flag.yml

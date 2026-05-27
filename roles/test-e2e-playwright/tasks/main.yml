@@ -1,17 +1,7 @@
-- name: Apply role include/exclude filters
-  ansible.builtin.set_fact:
-    _playwright_apps: >-
-      {{
-        playbook_dir
-        | discover_playwright_roles(
-            only_roles=TEST_E2E_PLAYWRIGHT_ONLY_ROLES,
-            skip_roles=TEST_E2E_PLAYWRIGHT_SKIP_ROLES
-          )
-      }}
-
+---
 - name: Show detected Playwright roles
   ansible.builtin.debug:
-    msg: "Playwright-enabled roles: {{ _playwright_apps }}"
+    msg: "Playwright-enabled roles: {{ TEST_E2E_PLAYWRIGHT_APPS }}"
   changed_when: false
 
 - name: Ensure staging base dir exists
@@ -26,9 +16,12 @@
     state: directory
     mode: "0755"
 
+- name: Prepare shared @playwright/test install
+  ansible.builtin.include_tasks: 01_setup.yml
+
 - name: Run Playwright for each detected role
-  ansible.builtin.include_tasks: run_one.yml
-  loop: "{{ _playwright_apps }}"
+  ansible.builtin.include_tasks: 02_run_one.yml
+  loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
   loop_control:
     loop_var: application_id
     label: "{{ application_id }}"

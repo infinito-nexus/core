@@ -1,0 +1,3 @@
+---
+# Template-only role: ships the Memcached Docker Compose snippet under templates/
+# for consumer roles to render into their own compose stack. No runtime tasks.

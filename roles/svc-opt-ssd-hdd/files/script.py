@@ -1,14 +1,18 @@
-import subprocess
-import os
-import time
-import shutil
 import argparse
+import shutil
+import subprocess
+import time
+from pathlib import Path
 
 
 def run_command(command):
     """Run a shell command and return its output"""
     print(command)
-    output = subprocess.check_output(command, shell=True).decode("utf-8").strip()
+    # All call sites pass static commands or strings built from
+    # Ansible-templated config (host-trusted); not user input.
+    output = (
+        subprocess.check_output(command, shell=True).decode("utf-8").strip()  # noqa: S602
+    )
     print(output)
     return output
 
@@ -34,7 +38,7 @@ def is_database(image):
 
 
 def is_symbolic_link(file_path):
-    return os.path.islink(file_path)
+    return Path(file_path).is_symlink()
 
 
 def get_volume_path(volume):
@@ -59,10 +63,9 @@ def has_healthcheck(container):
 
 def get_health_status(container):
     """Return the health status."""
-    status = run_command(
+    return run_command(
         f"container inspect --format='{{{{.State.Health.Status}}}}' {container}"
     )
-    return status
 
 
 def run_rsync(src, dest):
@@ -80,13 +83,13 @@ def delete_directory(path):
 
 def pause_and_move(storage_path, volume, volume_path, containers):
     stop_containers(containers)
-    storage_volume_path = os.path.join(
-        storage_path, "data", "docker", "volumes", volume
+    storage_volume_path = str(
+        Path(storage_path) / "data" / "docker" / "volumes" / volume
     )
-    os.makedirs(storage_volume_path, exist_ok=False)
+    Path(storage_volume_path).mkdir(parents=True, exist_ok=False)
     run_rsync(f"{volume_path}/", f"{storage_volume_path}/")
     delete_directory(volume_path)
-    os.symlink(storage_volume_path, volume_path)
+    Path(volume_path).symlink_to(storage_volume_path)
     start_containers(containers)
 
 

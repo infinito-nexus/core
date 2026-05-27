@@ -1,3 +1,4 @@
+---
 credentials:
   jwt_secret:
     description: Secret used for JWT signing

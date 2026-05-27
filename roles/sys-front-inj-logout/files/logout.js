@@ -16,8 +16,8 @@
       console.debug('[logoutPatch]', reason, extra || {}, el || null);
     }
 
-    const redirectUri = encodeURIComponent(webProtocol + '://' + primaryDomain);
-    const logoutUrl = logoutUrlBase + '?redirect_uri=' + redirectUri;
+    const redirectUri = encodeURIComponent(`${webProtocol}://${primaryDomain}`);
+    const logoutUrl = `${logoutUrlBase}?redirect_uri=${redirectUri}`;
 
     function matchesLogout(str) {
       const matched = str && /(?:^|\W)log\s*out(?:\W|$)|logout/i.test(str);

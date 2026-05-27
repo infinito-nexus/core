@@ -1,3 +1,4 @@
+---
 - name: Stop Keycloak before one-shot realm import
   shell: |
     set -euo pipefail

@@ -1,3 +1,4 @@
+---
 - name: "TLS | Apply tls layer"
   include_role:
     name: sys-front-tls
@@ -7,7 +8,7 @@
 
 - name: "Deploying NGINX redirect configuration for '{{ domain }}'"
   template:
-    src:  redirect-domain.conf.j2
+    src: redirect-domain.conf.j2
     dest: "{{ lookup('nginx', 'files.domain', domain) }}"
   notify: restart openresty
   vars:

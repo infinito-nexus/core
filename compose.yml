@@ -1,6 +1,7 @@
+---
 x-ci-defaults: &ci_defaults
   dns:
-    - ${DNS_IP}
+    - ${INFINITO_DNS_IP}
   dns_opt:
     - ndots:1
 
@@ -10,26 +11,27 @@ services:
   coredns:
     image: coredns/coredns:1.14.3
     container_name: infinito-coredns
-    profiles: ["ci"]
     command: ["-conf", "/Corefile"]
     volumes:
       - ./compose/coredns/Corefile:/Corefile:ro
     networks:
       default:
-        ipv4_address: ${DNS_IP}
+        ipv4_address: ${INFINITO_DNS_IP}
 
   infinito:
     networks:
       default:
-        ipv4_address: ${IP4}
+        ipv4_address: ${INFINITO_IP4}
     build:
       context: .
       dockerfile: Dockerfile
       network: host
       args:
+        INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
+        INFINITO_SRC_DIR: ${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}
         NIX_CONFIG: ${NIX_CONFIG}
     image: "${INFINITO_IMAGE}"
-    pull_policy: "${INFINITO_PULL_POLICY:-never}"
+    pull_policy: "${INFINITO_PULL_POLICY:?Run 'make dotenv' to generate the .env single source of truth}"
     depends_on:
       coredns:
         condition: service_started
@@ -53,68 +55,71 @@ services:
     tty: true
     stdin_open: true
 
-    container_name: ${INFINITO_CONTAINER:?Source scripts/meta/env/defaults.sh before running docker compose}
+    container_name: ${INFINITO_CONTAINER:?Run 'make dotenv' to generate the .env single source of truth}
     restart: "no"
-    profiles: ["ci"]
     # Defaults of 0 map to "unlimited" in dockerd.
-    mem_limit: ${INFINITO_MEM_LIMIT:-0}
-    memswap_limit: ${INFINITO_MEMSWAP_LIMIT:-0}
-    cpus: ${INFINITO_CPUS:-0}
+    mem_limit: ${INFINITO_MEM_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
+    memswap_limit: ${INFINITO_MEMSWAP_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
+    cpus: ${INFINITO_CPUS:?Run 'make dotenv' to generate the .env single source of truth}
     <<: *ci_defaults
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - .:/opt/src/infinito
-      - ${INFINITO_DOCKER_VOLUME:-docker}:${INFINITO_DOCKER_MOUNT:-/var/lib/docker}
+      - .:${INFINITO_SRC_DIR}
+      - ${INFINITO_DOCKER_VOLUME:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_DOCKER_MOUNT:?Run 'make dotenv' to generate the .env
+        single source of truth}
       - infinito:/var/lib/infinito/
       - letsencrypt:/etc/letsencrypt/
 
     environment:
-      DNS_IP: ${DNS_IP}
-      DOMAIN: ${DOMAIN}
-      IP4: ${IP4}
-      INFINITO_COMPILE: "${INFINITO_COMPILE:-1}"
-      INFINITO_SRC_DIR: /opt/src/infinito
+      INFINITO_BUILDKIT_ENABLED: ${INFINITO_BUILDKIT_ENABLED}
+      INFINITO_CONTAINER_CA_ENABLED: ${INFINITO_CONTAINER_CA_ENABLED}
+      INFINITO_DNS_IP: ${INFINITO_DNS_IP}
+      INFINITO_DOMAIN: ${INFINITO_DOMAIN}
+      INFINITO_IP4: ${INFINITO_IP4}
+      INFINITO_IP6: ${INFINITO_IP6}
+      INFINITO_PLAYWRIGHT_KEEP: ${INFINITO_PLAYWRIGHT_KEEP}
+      INFINITO_SERVICES_DISABLED: ${INFINITO_SERVICES_DISABLED}
+      INFINITO_SRC_DIR: ${INFINITO_SRC_DIR}
       PYTHONHTTPSVERIFY: "1"
       GIT_SSL_NO_VERIFY: "0"
 
     ports:
-      - "${BIND_IP:-127.0.0.1}:25:25"
-      - "${BIND_IP:-127.0.0.1}:110:110"
-      - "${BIND_IP:-127.0.0.1}:143:143"
-      - "${BIND_IP:-127.0.0.1}:465:465"
-      - "${BIND_IP:-127.0.0.1}:587:587"
-      - "${BIND_IP:-127.0.0.1}:993:993"
-      - "${BIND_IP:-127.0.0.1}:995:995"
-      - "${BIND_IP:-127.0.0.1}:4190:4190"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:25:25"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:110:110"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:143:143"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:465:465"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:587:587"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:993:993"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:995:995"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:4190:4190"
 
-      - "${BIND_IP:-127.0.0.1}:80:80"
-      - "${BIND_IP:-127.0.0.1}:443:443"
-      - "${BIND_IP:-127.0.0.1}:8448:8448"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:80:80"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:443:443"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:8448:8448"
 
-      - "${BIND_IP:-127.0.0.1}:3478-3480:3478-3480/udp"
-      - "${BIND_IP:-127.0.0.1}:3478-3480:3478-3480"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:3478-3480:3478-3480/udp"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:3478-3480:3478-3480"
 
-      - "${BIND_IP:-127.0.0.1}:1935:1935"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:1935:1935"
 
-      - "${BIND_IP:-127.0.0.1}:2201:2201"
-      - "${BIND_IP:-127.0.0.1}:2202:2202"
-      - "${BIND_IP:-127.0.0.1}:2203:22"
-      - "${BIND_IP:-127.0.0.1}:33552:33552"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:2201:2201"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:2202:2202"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:2203:22"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:33552:33552"
 
-      - "${BIND_IP:-127.0.0.1}:48081-48083:48081-48083"
-      - "${BIND_IP:-127.0.0.1}:48087:48087"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:48081-48083:48081-48083"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:48087:48087"
 
 volumes:
   docker:
   infinito:
   letsencrypt:
-
 networks:
   default:
     driver: bridge
     driver_opts:
-      com.docker.network.driver.mtu: "${INFINITO_OUTER_NETWORK_MTU:-1500}"
+      com.docker.network.driver.mtu: "${INFINITO_OUTER_NETWORK_MTU:?Run 'make dotenv' to generate the .env single source of truth}"
     ipam:
       config:
-        - subnet: ${SUBNET:-172.30.0.0/24}
-          gateway: ${GATEWAY:-172.30.0.1}
+        - subnet: ${INFINITO_SUBNET:?Run 'make dotenv' to generate the .env single source of truth}
+          gateway: ${INFINITO_GATEWAY:?Run 'make dotenv' to generate the .env single source of truth}

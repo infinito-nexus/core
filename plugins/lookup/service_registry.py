@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache.applications import get_merged_applications
-from utils.service_registry import (
+from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     ordered_primary_service_entries,
 )
@@ -24,10 +24,10 @@ class LookupModule(LookupBase):
 
     def run(
         self,
-        terms: List[Any],
-        variables: Optional[Dict[str, Any]] = None,
+        terms: list[Any],
+        variables: dict[str, Any] | None = None,
         **kwargs: Any,
-    ) -> List[Any]:
+    ) -> list[Any]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         applications = get_merged_applications(
             variables=vars_,

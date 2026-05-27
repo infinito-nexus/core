@@ -2,16 +2,17 @@
 # Variables for Kevin's Package Manager installation
 
 # The Git repository URL for Kevin's Package Manager
-PKGMGR_REPO_URL:        "https://github.com/kevinveenbirkenbach/package-manager.git"
+PKGMGR_REPO_URL: "{{ lookup('config', 'pkgmgr', 'services.pkgmgr.repository') }}"
+PKGMGR_REF: "{{ lookup('config', 'pkgmgr', 'services.pkgmgr.ref') }}"
 
 # The directory where executable aliases will be installed (ensure it's in your PATH)
-PKGMGR_BINARIES_DIR:     "/usr/local/bin" 
+PKGMGR_BINARIES_DIR: "/usr/local/bin"
 
 # Directory which contains all Repositories managed by Kevin's Package Manager
 PKGMGR_REPOSITORIES_DIR: "/opt/Repositories/"
 
 # The directory where the repository will be cloned
-PKGMGR_INSTALL_PATH:    "{{ [ PKGMGR_REPOSITORIES_DIR, 'github.com/kevinveenbirkenbach/package-manager' ] | path_join }}"
+PKGMGR_INSTALL_PATH: "{{ [ PKGMGR_REPOSITORIES_DIR, 'github.com/kevinveenbirkenbach/package-manager' ] | path_join }}"
 
 # Known SSH host key for github.com (ed25519) - static to avoid ssh-keyscan at runtime
 PKGMGR_GITHUB_HOST_KEY: "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"

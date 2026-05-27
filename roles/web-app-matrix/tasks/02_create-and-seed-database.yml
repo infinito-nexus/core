@@ -8,19 +8,20 @@
   include_role:
     name: "{{ lookup('database', application_id, 'id') }}"
   vars:
-    database_init:        true
+    database_init: true
     database_consumer_id: "{{ application_id }}"
-    database_type:        "{{ lookup('database', application_id, 'type') }}"
+    database_type: "{{ lookup('database', application_id, 'type') }}"
   when: lookup('database', application_id, 'shared') | bool
 
 - name: "Seed database entry to backup routine"
-  include_tasks: "{{ playbook_dir }}/roles/sys-ctl-bkp-docker-2-loc/tasks/04_seed-database-to-backup.yml"
+  include_tasks: "{{ playbook_dir }}/roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml"
   vars:
     database_consumer_id: "{{ application_id }}"
-    database_type:        "{{ lookup('database', application_id, 'type') }}"
-    database_instance:    "{{ lookup('database', application_id, 'instance') }}"
-    database_host:        "{{ lookup('database', application_id, 'host') }}"
-    database_port:        "{{ lookup('database', application_id, 'port') }}"
-    database_name:        "{{ database_name }}"
-    database_username:    "{{ database_username }}"
-    database_password:    "{{ database_password }}"
+    database_type: "{{ lookup('database', application_id, 'type') }}"
+    database_instance: "{{ lookup('database', application_id, 'instance') }}"
+    database_host: "{{ lookup('database', application_id, 'host') }}"
+    database_port: "{{ lookup('database', application_id, 'port') }}"
+    database_name: "{{ database_name }}"
+    database_username: "{{ database_username }}"
+    database_password: "{{ database_password }}"
+  when: "'svc-bkp-container-2-local' in group_names"

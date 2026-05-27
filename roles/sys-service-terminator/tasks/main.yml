@@ -1,3 +1,4 @@
+---
 - name: "Normalize final run list"
   ansible.builtin.set_fact:
     system_service_run_list: "{{ (system_service_run_list | default([])) | unique }}"

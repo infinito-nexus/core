@@ -6,7 +6,7 @@
     container_name: {{ application_id | get_entity_name }}-oauth2-proxy
     hostname: oauth2-proxy
     ports:
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.oauth2') }}:{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.ports.inter') }}/tcp
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.oauth2') }}:{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.ports.internal.http') }}/tcp
     volumes:
       - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.configuration_file') }}:/oauth2-proxy.cfg"
     healthcheck:

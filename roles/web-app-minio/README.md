@@ -1,11 +1,8 @@
-
----
-
 # MinIO
 
 ## Description
 
-**MinIO** is an S3-compatible object storage service for files, media, backups, and AI artifacts—self-hosted for performance and control.
+**MinIO** is an S3-compatible object storage service for files, media, backups, and AI artifacts, self-hosted for performance and control.
 
 ## Overview
 
@@ -21,5 +18,12 @@ Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) 
 
 ## Further Resources
 
-* MinIO — [https://www.min.io](https://www.min.io)
-* AWS S3 (API background) — [https://aws.amazon.com/s3](https://aws.amazon.com/s3)
+* MinIO: [www.min.io](https://www.min.io)
+* AWS S3 (API background): [aws.amazon.com/s3](https://aws.amazon.com/s3)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

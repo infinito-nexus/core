@@ -1,4 +1,4 @@
-"""Unit tests for utils.roles.meta_lookup (req-010 AC).
+"""Unit tests for utils.roles.meta_lookup.
 
 Covers:
   * service role with run_after / lifecycle on its primary entity;
@@ -15,6 +15,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
     get_role_lifecycle,
@@ -29,7 +30,7 @@ class _RoleFixtures:
     def write(self, role_name: str, body: str) -> Path:
         role_dir = self.root / role_name
         (role_dir / "meta").mkdir(parents=True, exist_ok=True)
-        path = role_dir / "meta" / "services.yml"
+        path = role_dir / ROLE_FILE_META_SERVICES
         path.write_text(textwrap.dedent(body).lstrip("\n"), encoding="utf-8")
         return role_dir
 
@@ -126,7 +127,7 @@ class TestMetaLookup(unittest.TestCase):
     def test_malformed_yaml_raises_clear_error(self) -> None:
         role_dir = self.fx.root / "web-app-broken"
         (role_dir / "meta").mkdir(parents=True)
-        (role_dir / "meta" / "services.yml").write_text(
+        (role_dir / ROLE_FILE_META_SERVICES).write_text(
             "key: value\n:foo: ]invalid[\n  - not\n", encoding="utf-8"
         )
         with self.assertRaises(MetaServicesShapeError):
@@ -135,7 +136,7 @@ class TestMetaLookup(unittest.TestCase):
     def test_non_dict_root_raises_clear_error(self) -> None:
         role_dir = self.fx.root / "web-app-listroot"
         (role_dir / "meta").mkdir(parents=True)
-        (role_dir / "meta" / "services.yml").write_text(
+        (role_dir / ROLE_FILE_META_SERVICES).write_text(
             "- this\n- is\n- a list\n", encoding="utf-8"
         )
         with self.assertRaises(MetaServicesShapeError):

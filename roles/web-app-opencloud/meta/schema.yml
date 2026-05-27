@@ -1,3 +1,4 @@
+---
 credentials:
   administrator_password:
     description: Initial OpenCloud IDM admin password (used only when IDM service is included; harmless when external Keycloak handles auth).

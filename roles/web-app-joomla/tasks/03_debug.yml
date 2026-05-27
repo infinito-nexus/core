@@ -1,3 +1,4 @@
+---
 - name: "Toggle Joomla debug flags safely (configuration.php)"
   command:
     argv:

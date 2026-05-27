@@ -1,5 +1,6 @@
+---
 - name: Install Gnome Terminal
-# @see https://en.wikipedia.org/wiki/GNOME_Terminal
+  # @see https://en.wikipedia.org/wiki/GNOME_Terminal
   package:
     name:
       - gnome-terminal

@@ -7,15 +7,11 @@ from unittest.mock import patch
 
 from utils.cache.yaml import load_yaml_str
 
-
-def _repo_root(start: Path) -> Path:
-    # __file__ = tests/unit/roles/sys-svc-compose-ca/files/test_compose_ca_inject.py
-    return start.resolve().parents[5]
+from . import PROJECT_ROOT
 
 
 def _load_module(rel_path: str, name: str):
-    root = _repo_root(Path(__file__))
-    path = root / rel_path
+    path = PROJECT_ROOT / rel_path
     spec = importlib.util.spec_from_file_location(name, str(path))
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -46,7 +42,7 @@ class TestComposeCaInject(unittest.TestCase):
                     "!",
                     "grep",
                     "-qF",
-                    "INFINITO_TAIGA_AUTH_CONFIG",
+                    "INFINITO_TAIGA_AUTH_CONFIG",  # nocheck: test-fixture
                     "/taiga-back/settings/config.py",
                     ";",
                     "then",
@@ -343,9 +339,8 @@ class TestComposeCaInject(unittest.TestCase):
             "/etc/infinito/bin/with-ca-trust.sh",
             # missing: --trust-name
         ]
-        with patch("sys.argv", argv):
-            with self.assertRaises(SystemExit):
-                self.m.main()
+        with patch("sys.argv", argv), self.assertRaises(SystemExit):
+            self.m.main()
 
     def test_docker_image_has_bin_sh_true(self):
         """
@@ -506,7 +501,7 @@ class TestComposeCaInject(unittest.TestCase):
             "!",
             "grep",
             "-qF",
-            "INFINITO_TAIGA_AUTH_CONFIG",
+            "INFINITO_TAIGA_AUTH_CONFIG",  # nocheck: test-fixture
             "/taiga-back/settings/config.py",
             ";",
             "then",

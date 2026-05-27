@@ -1,3 +1,4 @@
+---
 status_codes:
   default: 302
 csp:
@@ -9,7 +10,7 @@ csp:
       unsafe-inline: true
 domains:
   canonical:
-  - c.wiki.{{ DOMAIN_PRIMARY }}
+    - c.wiki.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

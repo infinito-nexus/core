@@ -1,7 +1,6 @@
-# tests/unit/plugins/filter/test_resource_filter.py
+import importlib
 import unittest
 from unittest.mock import patch
-import importlib
 
 # Import the plugin module under test
 plugin_module = importlib.import_module("plugins.filter.resource_filter")

@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -8,10 +9,12 @@ csp:
       unsafe-inline: true
   whitelist:
     frame-src:
-    - '*'
+      - "*"
+    frame-ancestors:
+      - "{{ lookup('tls', 'web-app-keycloak', 'protocols.web') }}://*.{{ DOMAIN_PRIMARY }}"
 domains:
   canonical:
-  - auth.{{ DOMAIN_PRIMARY }}
+    - auth.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

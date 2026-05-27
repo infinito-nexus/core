@@ -2,9 +2,8 @@
 
 This lookup is the single sanctioned way to derive the Keycloak group
 path that an application role maps to. It replaces the scattered
-`[RBAC.GROUP.NAME, ...] | path_join` idiom so that the per-application
-OU hierarchy introduced by requirement 005 has one authoritative
-producer. See docs/requirements/005-wordpress-multisite-rbac.md.
+`[RBAC.GROUP.NAME, ...] | path_join` idiom so the per-application
+OU hierarchy has one authoritative producer.
 
 Usage:
     "{{ lookup('rbac_group_path',
@@ -28,7 +27,7 @@ Contract:
   in its `meta/services.yml`. The role may be tenant-aware
   (`rbac.tenancy.axis == "domain"`) or not (default).
 - `role` MUST appear under `rbac.roles.<role>` or be the implicit
-  `administrator` that requirement 004 auto-adds.
+  `administrator` that the role-list contract auto-adds.
 - `tenant` MUST be passed for tenant-aware per-tenant roles, MUST NOT
   be passed for global-scope roles or non-tenant apps.
 - Every failure raises AnsibleError with an actionable message.
@@ -37,10 +36,12 @@ Contract:
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.applications import get_merged_applications
+
 try:
-    from ansible.utils.display import Display  # noqa: F401  pragma: no cover
+    from ansible.utils.display import Display
 except Exception:  # pragma: no cover
-    Display = None  # type: ignore
+    Display = None
 
 
 _IMPLICIT_ADMIN_ROLE = "administrator"
@@ -63,13 +64,13 @@ def _get_rbac_group_name(variables):
     return name.strip("/")
 
 
-def _get_application(variables, application_id):
-    apps = variables.get("applications")
+def _get_application(variables, application_id, templar=None):
+    apps = get_merged_applications(variables=variables, templar=templar)
     if not isinstance(apps, dict):
         raise AnsibleError(
-            "rbac_group_path: 'applications' variable is not available. "
-            "Make sure the lookup runs after the applications dict has been "
-            "merged into host vars."
+            "rbac_group_path: 'applications' could not be merged. "
+            "Make sure the lookup runs after meta/*.yml topics have been "
+            "loaded."
         )
     app = apps.get(application_id)
     if not isinstance(app, dict):
@@ -97,14 +98,14 @@ def _resolve_role_scope(app_cfg, application_id, role):
     roles = rbac.get("roles") or {}
     role_cfg = roles.get(role)
 
-    # The implicit `administrator` role from requirement 004 is auto-added
+    # The implicit `administrator` role from the role-list contract is auto-added
     # for every app with an rbac: block and is always valid.
     if role != _IMPLICIT_ADMIN_ROLE and not isinstance(role_cfg, dict):
         declared = sorted(roles.keys()) if isinstance(roles, dict) else []
         raise AnsibleError(
             f"rbac_group_path: role '{role}' is not declared under "
             f"applications[{application_id}].rbac.roles. Declared roles: "
-            f"{declared + [_IMPLICIT_ADMIN_ROLE]}."
+            f"{[*declared, _IMPLICIT_ADMIN_ROLE]}."
         )
 
     tenancy = (rbac.get("tenancy") or {}) if isinstance(rbac, dict) else {}
@@ -164,11 +165,15 @@ class LookupModule(LookupBase):
                 "rbac_group_path: 'role' is required and must be a non-empty string."
             )
 
-        app_cfg = _get_application(variables, application_id)
+        app_cfg = _get_application(
+            variables,
+            application_id,
+            templar=getattr(self, "_templar", None),
+        )
         scope, axis = _resolve_role_scope(app_cfg, application_id, role)
         group_root = _get_rbac_group_name(variables)
 
-        # Requirement 005: hierarchical OIDC claim paths that mirror the
+        # hierarchical OIDC claim paths that mirror the
         # LDAP RBAC tree verbatim, with no redundant segments:
         #   /<group_root>/<application_id>/<role_name>                        # non-tenant / global
         #   /<group_root>/<application_id>/<tenant_id>/<role_name>            # per-tenant
@@ -185,7 +190,7 @@ class LookupModule(LookupBase):
                     f"tenant '{tenant}' was passed. Omit the tenant "
                     f"argument for global roles."
                 )
-            return ["/".join([group_root, application_id, role])]
+            return [f"{group_root}/{application_id}/{role}"]
 
         if axis != _TENANCY_AXIS_DOMAIN:
             raise AnsibleError(
@@ -205,4 +210,4 @@ class LookupModule(LookupBase):
                 "rbac_group_path: 'tenant' argument must be a non-empty "
                 "domain after normalisation."
             )
-        return ["/".join([group_root, application_id, tenant_norm, role])]
+        return [f"{group_root}/{application_id}/{tenant_norm}/{role}"]

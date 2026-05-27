@@ -11,6 +11,7 @@ Ideal for developers and content creators, the role simplifies deploying a dedic
 ## Purpose
 
 The Docker-SimpleIcons role streamlines the deployment and management of a simple, efficient icon server. It helps you:
+
 - Quickly deploy a lightweight, dedicated icon server.
 - Serve icons consistently and reliably across multiple projects.
 - Reduce manual maintenance of icon assets.
@@ -25,10 +26,9 @@ The Docker-SimpleIcons role streamlines the deployment and management of a simpl
 - **Efficient Integration:** Works seamlessly with web server roles for robust domain routing.
 - **Automated Maintenance:** Simplifies updates and re-deployments via automated container management.
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

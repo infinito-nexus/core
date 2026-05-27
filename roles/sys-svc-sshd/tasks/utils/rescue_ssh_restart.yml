@@ -1,3 +1,4 @@
+---
 - name: Show shared diagnostics for failed SSH restart
   ansible.builtin.include_role:
     name: sys-service

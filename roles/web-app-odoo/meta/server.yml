@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -11,16 +12,19 @@ csp:
       unsafe-inline: true
   whitelist:
     connect-src:
-    - "{{ lookup('domain', 'web-app-odoo') }}"
-    - "wss://{{ lookup('domain', 'web-app-odoo') }}"
+      - "{{ lookup('domain', 'web-app-odoo') }}"
+      - "wss://{{ lookup('domain', 'web-app-odoo') }}"
     frame-ancestors:
-    - '{{ DOMAIN_PRIMARY }}'
-    - '*.{{ DOMAIN_PRIMARY }}'
+      - "{{ DOMAIN_PRIMARY }}"
+      - "*.{{ DOMAIN_PRIMARY }}"
     font-src:
-    - 'data:'
+      - "data:"
+      - https://fonts.gstatic.com # nocheck: url
+    style-src-elem:
+      - https://fonts.googleapis.com # nocheck: url
 domains:
   canonical:
-  - odoo.erp.{{ DOMAIN_PRIMARY }}
+    - odoo.erp.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

@@ -1,3 +1,4 @@
+---
 administrator:
   tokens:
-    web-app-matomo: ''
+    web-app-matomo: ""

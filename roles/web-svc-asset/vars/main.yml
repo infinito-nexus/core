@@ -1,3 +1,4 @@
-application_id:     "web-svc-asset"                                         # Application identifier
-source_directory:   "{{ lookup('config', application_id, 'services.asset.source_directory') }}/"  # Source directory from which the files are coming from
-target_directory:   "{{ lookup('nginx','directories.data.files') }}assets"              # Directory to which the files will be copied
+---
+application_id: "web-svc-asset" # Application identifier
+source_directory: "{{ lookup('config', application_id, 'services.asset.source_directory') }}/" # Source directory from which the files are coming from
+target_directory: "{{ lookup('nginx','directories.data.files') }}assets" # Directory to which the files will be copied

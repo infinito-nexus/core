@@ -1,7 +1,7 @@
-http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.ports.inter') }}"
+http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-oauth2-proxy', 'services.oauth2-proxy.ports.internal.http') }}"
 cookie_secret           =   "{{ lookup('config',oauth2_proxy_application_id, 'credentials.oauth2_proxy_cookie_secret') }}"
 cookie_secure           =   "{{ lookup('tls', application_id, 'enabled') | string | lower }}"                                                                            # True is necessary to force the cookie set via https
-upstreams               =   "http://{{ lookup('config',oauth2_proxy_application_id, 'services.oauth2.origin.host') }}:{{ lookup('config',oauth2_proxy_application_id, 'services.oauth2.origin.port') }}"  # noqa: literal-protocol-lookup  Internal docker upstream is plaintext by design.
+upstreams               =   "http://{{ lookup('config',oauth2_proxy_application_id, 'services.oauth2.origin.host') }}:{{ lookup('config',oauth2_proxy_application_id, 'services.oauth2.origin.port') }}"  # nocheck: literal-protocol-lookup, lookup-config-path  Internal docker upstream is plaintext by design. The path resolves against the gated app's `services.oauth2.origin` (passed in via `oauth2_proxy_application_id`), not against `web-app-oauth2-proxy`'s own config — which is why the static scan cannot see it.
 cookie_domains          =   ["{{ lookup('domain',oauth2_proxy_application_id) }}", "{{ lookup('domain','web-app-keycloak') }}"]   # Required so cookie can be read on all subdomains.
 whitelist_domains       =   [".{{ DOMAIN_PRIMARY }}"]                                                                                       # Required to allow redirection back to original requested target.
 
@@ -13,6 +13,7 @@ oidc_issuer_url         =   "{{ OIDC.CLIENT.ISSUER_URL }}"
 provider                =   "oidc"
 provider_display_name   =   "{{ OIDC.BUTTON_TEXT }}"
 
+{# nocheck: lookup-config-path  # gated-app config, not web-app-oauth2-proxy's own #}
 {% set allowed_groups_raw = lookup('config', oauth2_proxy_application_id, 'services.oauth2.allowed_groups', False) %}
 {% if allowed_groups_raw %}
 {# role based restrictions #}

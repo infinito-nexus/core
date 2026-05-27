@@ -1,3 +1,4 @@
+---
 - name: Resolve python-ldap native library packages for current OS family
   ansible.builtin.set_fact:
     openldap_python_ldap_native_lib_packages: >-

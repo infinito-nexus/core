@@ -1,5 +1,5 @@
+---
 - block:
-
     - name: install torrent software
       include_role:
         name: sys-aur-install

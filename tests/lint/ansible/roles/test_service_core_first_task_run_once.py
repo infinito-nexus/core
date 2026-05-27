@@ -1,26 +1,21 @@
 import unittest
-from pathlib import Path
+
 import yaml
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
-from utils.service_registry import build_service_registry_from_roles_dir
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_roles_dir,
+)
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
-
-def repo_root() -> Path:
-    for candidate in Path(__file__).resolve().parents:
-        if (candidate / "pyproject.toml").is_file():
-            return candidate
-    raise AssertionError("Repository root not found from test path.")
-
-
-REPO_ROOT = repo_root()
+from . import PROJECT_ROOT
 
 RUN_ONCE_TASK = {"include_tasks": "utils/once/flag.yml"}
 
 
 def load_service_registry():
-    return build_service_registry_from_roles_dir(REPO_ROOT / "roles")
+    return build_service_registry_from_roles_dir(PROJECT_ROOT / "roles")
 
 
 def unique_roles(registry):
@@ -65,20 +60,22 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
     """
 
     def setUp(self):
-        self.project_root = REPO_ROOT
+        self.project_root = PROJECT_ROOT
         self.registry = load_service_registry()
 
     def _core_path(self, role):
         return self.project_root / "roles" / role / "tasks" / "01_core.yml"
 
     def _main_path(self, role):
-        return self.project_root / "roles" / role / "tasks" / "main.yml"
+        return self.project_root / "roles" / role / ROLE_FILE_TASKS_MAIN
 
     def test_01_core_exists(self):
         missing = []
-        for role in unique_roles(self.registry):
-            if not self._core_path(role).is_file():
-                missing.append(role)
+        missing.extend(
+            role
+            for role in unique_roles(self.registry)
+            if not self._core_path(role).is_file()
+        )
         if missing:
             self.fail(
                 "roles missing tasks/01_core.yml:\n"

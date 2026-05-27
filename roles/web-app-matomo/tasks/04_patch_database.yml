@@ -1,3 +1,4 @@
+---
 - name: Update DB host
   command: >
     container exec --user root {{ MATOMO_NAME }}

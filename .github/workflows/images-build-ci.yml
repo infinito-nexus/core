@@ -41,26 +41,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install jq
+      - name: 📦 Install jq
         run: ./scripts/install/apt.sh jq
 
       - name: Compute matrix JSON
         id: out
-        run: |
-          set -euo pipefail
-          distros="${{ inputs.distros }}"
-          json="$(printf '%s' "$distros" | jq -Rc 'split(" ") | map(select(length>0))')"
-          image_tag="${{ inputs.image_tag }}"
-          if [ -z "${image_tag}" ]; then
-            image_tag="ci-${GITHUB_SHA}"
-          fi
-          echo "matrix=${json}" >> "$GITHUB_OUTPUT"
-          echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
-          echo "Using matrix: ${json}"
-          echo "Using image tag: ${image_tag}"
+        run: scripts/github/runner/images_build_outputs.sh "${{ inputs.distros }}" "${{ inputs.image_tag }}"
 
   build:
-    name: 🏗️ Build image (${{ matrix.distro }})
+    name: 🏗️ Build (${{ matrix.distro }})
     needs: prepare
     runs-on: ubuntu-latest
 
@@ -86,7 +75,7 @@ jobs:
 
       - name: Disk pressure (start)
         shell: bash
-        run: bash scripts/github/disk_pressure_report.sh START
+        run: bash scripts/github/runner/disk_pressure_report.sh START
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
@@ -100,16 +89,9 @@ jobs:
 
       - name: Disk pressure (pre-build)
         shell: bash
-        run: |
-          set -euo pipefail
-          echo "=== Disk pressure: PRE-BUILD ==="
-          df -h
-          echo
-          docker system df || true
-          echo
-          docker buildx du || true
+        run: bash scripts/github/runner/disk_pressure_report.sh PRE-BUILD
 
-      - name: Resolve repository owner
+      - name: 🔍 Resolve repository owner
         id: owner
         shell: bash
         run: |
@@ -133,28 +115,9 @@ jobs:
       - name: Disk pressure (post-build)
         if: always()
         shell: bash
-        run: |
-          set -euo pipefail
-          echo "=== Disk pressure: POST-BUILD ==="
-          df -h
-          echo
-          docker system df || true
-          echo
-          docker buildx du || true
+        run: bash scripts/github/runner/disk_pressure_report.sh POST-BUILD
 
       - name: Cleanup (always)
         if: always()
         shell: bash
-        run: |
-          set -euo pipefail
-          echo "=== Cleanup ==="
-          docker buildx prune -af || true
-          docker builder prune -af || true
-          docker image prune -af || true
-          docker container prune -f || true
-          echo
-          echo "=== Disk pressure: AFTER CLEANUP ==="
-          df -h
-          echo
-          docker system df || true
-          docker buildx du || true
+        run: bash scripts/github/runner/cleanup_docker.sh

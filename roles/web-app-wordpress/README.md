@@ -31,6 +31,10 @@ WordPress offers an extensive array of features that make it a robust platform f
 
 This automated Docker Compose deployment streamlines the process by building a custom WordPress image (which includes tools like msmtp for email delivery) and configuring the necessary PHP settings, ensuring that your WordPress site is secure, scalable, and always up to date.
 
+## Features
+
+- **Automated provisioning:** Configured by Ansible without manual steps.
+
 ## Purpose
 
 The goal of this deployment is to provide a production-ready, scalable WordPress instance with multisite capabilities and enhanced performance. By automating the custom image build and configuration processes via Docker Compose and Ansible, it minimizes manual intervention, reduces errors, and allows you to concentrate on building great content.
@@ -40,6 +44,7 @@ The goal of this deployment is to provide a production-ready, scalable WordPress
 WordPress Multisite is opt-in. Set `services.wordpress.multisite.enabled: true` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in `server.domains.canonical` becomes a site in the network; the first entry is the network primary, subsequent entries are child sites.
 
 RBAC under Multisite uses the hierarchical Keycloak group path:
+
 - Per-site role: `/roles/web-app-wordpress/<canonical-domain>/<role>`
 - Network-wide super-admin: `/roles/web-app-wordpress/network-administrator`
 
@@ -47,7 +52,7 @@ Operator-facing instructions for assigning these groups live in [Administration 
 
 ## Playwright service dependencies
 
-The Playwright suite in [files/playwright.spec.js](files/playwright.spec.js) gates its scenarios on the following shared services (requirement 006). Scenarios that depend on a service report as `skipped` when the corresponding `<SERVICE>_SERVICE_ENABLED=false` in the staged `.env`:
+The Playwright suite in [files/playwright/playwright.spec.js](files/playwright/playwright.spec.js) gates its scenarios on the following shared services (requirement 006). Scenarios that depend on a service report as `skipped` when the corresponding `<SERVICE>_SERVICE_ENABLED=false` in the staged `.env`:
 
 - `oidc`: baseline admin OIDC round-trip plus the three RBAC scenarios (subscriber/editor/administrator).
 - `ldap`: the three RBAC scenarios additionally depend on LDAP group sync; disabling LDAP skips them alongside OIDC.
@@ -65,6 +70,6 @@ The front-page CSP + canonical-domain baseline is ungated and always runs.
 ## Credits
 
 Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://veen.world).
+Learn more at [veen.world](https://www.veen.world).
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

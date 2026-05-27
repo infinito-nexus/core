@@ -1,0 +1,8 @@
+[Unit]
+Description=pull remote backups
+OnFailure={{ SYS_SERVICE_ON_FAILURE_COMPOSE }} {{ SYS_SERVICE_CLEANUP_BACKUPS_FAILED }}
+
+[Service]
+Type=oneshot
+ExecStartPre={{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(' ')  }} --ignore {{ SYS_SERVICE_BACKUP_REMOTE_2_LOCAL }} --timeout "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"
+ExecStart={{ system_service_script_exec }}

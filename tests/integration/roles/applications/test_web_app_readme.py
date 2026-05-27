@@ -1,23 +1,11 @@
 import unittest
-from pathlib import Path
-from typing import List, Optional
+
+from utils.cache import PROJECT_ROOT, ROLES_DIR
 
 
-def find_repo_root(start: Path) -> Optional[Path]:
-    """
-    Walk up from `start` until we find a directory containing 'roles'.
-    Returns the repo root (the directory that contains 'roles') or None.
-    """
-    for parent in [start] + list(start.parents):
-        if (parent / "roles").is_dir():
-            return parent
-    return None
-
-
-def web_app_role_dirs(root: Path) -> List[Path]:
+def web_app_role_dirs() -> list:
     """Return all role directories that match roles/web-app-*."""
-    roles_dir = root / "roles"
-    return sorted([p for p in roles_dir.glob("web-app-*") if p.is_dir()])
+    return sorted([p for p in ROLES_DIR.glob("web-app-*") if p.is_dir()])
 
 
 class TestWebAppRolesHaveReadme(unittest.TestCase):
@@ -29,15 +17,8 @@ class TestWebAppRolesHaveReadme(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        here = Path(__file__).resolve()
-        repo_root = find_repo_root(here.parent)
-        if repo_root is None:
-            raise RuntimeError(
-                f"Could not locate the repository root from {here}. "
-                "Expected to find a 'roles/' directory in one of the parent folders."
-            )
-        cls.repo_root = repo_root
-        cls.roles = web_app_role_dirs(repo_root)
+        cls.repo_root = PROJECT_ROOT
+        cls.roles = web_app_role_dirs()
 
     def test_roles_directory_present(self):
         self.assertTrue(

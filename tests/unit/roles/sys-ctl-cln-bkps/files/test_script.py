@@ -1,8 +1,7 @@
-# tests/unit/roles/sys-ctl-cln-bkps/files/test_script.py
 from __future__ import annotations
 
-import os
 import io
+import os
 import runpy
 import sys
 import unittest
@@ -11,28 +10,23 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from unittest.mock import patch
 
+from . import PROJECT_ROOT
 
-def _repo_root() -> Path:
+
+def _resolved_repo_root() -> Path:
+    """Repository root resolution for the script-under-test path.
+
+    The ``INFINITO_REPO_ROOT`` env var still wins when explicitly set
+    (used by some CI fixtures); otherwise the canonical ``PROJECT_ROOT``
+    constant from the package ``__init__.py`` is returned.
     """
-    Resolve repository root in a way that works locally and in CI.
-
-    Priority:
-      1. INFINITO_REPO_ROOT env var (if explicitly set)
-      2. Derive from this file location
-
-    This file path:
-      <repo>/tests/unit/roles/sys-ctl-cln-bkps/files/test_script.py
-    """
-    env = os.environ.get("INFINITO_REPO_ROOT")
+    env = os.environ.get("INFINITO_REPO_ROOT")  # nocheck: test-fixture
     if env:
         return Path(env).expanduser().resolve()
-
-    # parents:
-    # files -> sys-ctl-cln-bkps -> roles -> unit -> tests -> <repo>
-    return Path(__file__).resolve().parents[5]
+    return PROJECT_ROOT
 
 
-SCRIPT_PATH = _repo_root() / "roles/sys-ctl-cln-bkps/files/script.py"
+SCRIPT_PATH = _resolved_repo_root() / "roles/sys-ctl-cln-bkps/files/script.py"
 
 
 def _fake_psutil(percent: int) -> ModuleType:
@@ -55,7 +49,7 @@ class TestSysCtlClnBkpsScript(unittest.TestCase):
         """
         if not SCRIPT_PATH.is_file():
             raise FileNotFoundError(
-                f"script.py not found at expected path: {SCRIPT_PATH} (repo_root={_repo_root()})"
+                f"script.py not found at expected path: {SCRIPT_PATH} (repo_root={_resolved_repo_root()})"
             )
 
         fake_psutil = _fake_psutil(disk_percent)

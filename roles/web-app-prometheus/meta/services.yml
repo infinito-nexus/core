@@ -1,33 +1,46 @@
+---
+# nocheck: dynamic-flag
 oidc:
   enabled: false
 oauth2:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
   origin:
     host: application
-    port: '9090'
+    port: "9090"
   allowed_groups:
-    - '{{ lookup(''rbac_group_path'', application_id=''web-app-prometheus'', role=''administrator'') }}'
+    - "{{ lookup('rbac_group_path', application_id='web-app-prometheus', role='administrator') }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag — gated on services.oauth2.enabled, not on group_names
+# nocheck: playwright-service-flag — runtime DOM patch, no probe-able surface flag
+javascript:
+  enabled: "{{ lookup('config', 'web-app-prometheus', 'services.oauth2.enabled', False) | bool }}"
+  shared: "{{ lookup('config', 'web-app-prometheus', 'services.oauth2.enabled', False) | bool }}"
+# nocheck: playwright-service-flag — self-provider
+prometheus:
   enabled: true
   shared: true
-prometheus:
+  provides:
+    - prometheus
   image: prom/prometheus
   version: v3.11.3
   name: prometheus
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
@@ -46,7 +59,7 @@ alertmanager:
   image: prom/alertmanager
   version: v0.32.1
   name: prometheus-alertmanager
-  cpus: '0.25'
+  cpus: "0.25"
   mem_reservation: 64m
   mem_limit: 128m
   pids_limit: 64
@@ -55,7 +68,7 @@ blackbox-exporter:
   image: prom/blackbox-exporter
   version: v0.28.0
   name: prometheus-blackbox
-  cpus: '0.1'
+  cpus: "0.1"
   mem_reservation: 32m
   mem_limit: 64m
   pids_limit: 64
@@ -64,7 +77,7 @@ cadvisor:
   image: gcr.io/cadvisor/cadvisor
   version: v0.52.1
   name: prometheus-cadvisor
-  cpus: '0.25'
+  cpus: "0.25"
   mem_reservation: 64m
   mem_limit: 256m
   pids_limit: 64
@@ -73,7 +86,7 @@ node-exporter:
   image: prom/node-exporter
   version: v1.11.1
   name: prometheus-node-exporter
-  cpus: '0.1'
+  cpus: "0.1"
   mem_reservation: 32m
   mem_limit: 128m
   pids_limit: 64

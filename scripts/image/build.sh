@@ -2,14 +2,18 @@
 set -euo pipefail
 
 : "${INFINITO_DISTRO:?Environment variable 'INFINITO_DISTRO' must be set (arch|debian|ubuntu|fedora|centos)}"
+export INFINITO_DISTRO
+
+_build_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/meta/env/load.sh
+source "${_build_script_dir}/../meta/env/load.sh"
+
+: "${INFINITO_PARENT_IMAGE:?Missing INFINITO_PARENT_IMAGE; source scripts/meta/env/load.sh}"
 
 NO_CACHE=0
 MISSING_ONLY=0
 
-# New: build variant
-VARIANT="full" # full | slim
-
-# Keep --target for advanced usage, but default is derived from VARIANT.
+# Keep --target for advanced usage; default is "full".
 TARGET=""
 IMAGE_TAG="${IMAGE_TAG:-}" # local image name or base tag (without registry); can be pre-set via env
 PUSH=0                     # if 1 -> use buildx and push (requires docker buildx)
@@ -21,18 +25,10 @@ VERSION=""                 # X.Y.Z (required for --publish)
 IS_STABLE="false"          # "true" -> publish stable tags
 DEFAULT_DISTRO="debian"
 
-# Base pkgmgr image selection
-PKGMGR_IMAGE_OWNER="kevinveenbirkenbach"
-PKGMGR_IMAGE_TAG="stable" # can be overridden by env or future flag
-PKGMGR_IMAGE=""           # computed below (single build-arg for Dockerfile)
-
 usage() {
-	local repo_prefix="${REPO_PREFIX:-${INFINITO_IMAGE_REPOSITORY:-<repo>}}"
+	local repo_prefix="${REPO_PREFIX:-${INFINITO_IMAGE_REPOSITORY:-<repo>}}" # nocheck: usage-text-placeholder -- '<repo>' is a literal placeholder rendered into --help, not a runtime default
 
 	local default_tag="${repo_prefix}/${INFINITO_DISTRO}"
-	if [[ "${VARIANT}" == "slim" ]]; then
-		default_tag="${default_tag}-slim"
-	fi
 	if [[ -n "${TARGET:-}" ]]; then
 		default_tag="${default_tag}-${TARGET}"
 	fi
@@ -41,10 +37,9 @@ usage() {
 Usage: INFINITO_DISTRO=<distro> $0 [options]
 
 Build options:
-  --variant <full|slim> Build full or slim image (default: full)
   --missing             Build only if the image does not already exist (local build only)
   --no-cache            Build with --no-cache
-  --target <name>       Override Dockerfile target (advanced). Default derived from --variant.
+  --target <name>       Override Dockerfile target (advanced; default: full).
   --tag <image>         Override the output image tag (default: ${default_tag})
 
 Publish options:
@@ -58,21 +53,13 @@ Publish options:
 
 Notes:
 - --publish implies --push and requires --registry, --owner, and --version.
-- Local build (no --push) uses "docker build" and creates local images like "<repo>/arch" / "<repo>/arch-slim".
+- Local build (no --push) uses "docker build" and creates local images like "<repo>/arch".
 - If you set NIX_CONFIG in the environment (e.g. access-tokens), it will be forwarded into the build.
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-	--variant)
-		VARIANT="${2:-}"
-		[[ "${VARIANT}" == "full" || "${VARIANT}" == "slim" ]] || {
-			echo "ERROR: --variant must be 'full' or 'slim'" >&2
-			exit 2
-		}
-		shift 2
-		;;
 	--no-cache)
 		NO_CACHE=1
 		shift
@@ -175,28 +162,12 @@ if [[ -n "${OWNER}" || -n "${GITHUB_REPOSITORY_OWNER:-}" || -n "${GITHUB_REPOSIT
 	OWNER="$(OWNER="${OWNER}" GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-}" GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-}" scripts/meta/resolve/repository/owner.sh)"
 fi
 
-# Derive default TARGET from VARIANT if not explicitly provided
 if [[ -z "${TARGET}" ]]; then
-	if [[ "${VARIANT}" == "slim" ]]; then
-		TARGET="slim"
-	else
-		TARGET="full"
-	fi
+	TARGET="full"
 fi
 
-# Derive default local tag if not provided
 if [[ -z "${IMAGE_TAG}" ]]; then
 	IMAGE_TAG="${REPO_PREFIX}/${INFINITO_DISTRO}"
-	if [[ "${VARIANT}" == "slim" ]]; then
-		IMAGE_TAG="${IMAGE_TAG}-slim"
-	fi
-fi
-
-# Compute PKGMGR_IMAGE based on variant (slim uses pkgmgr-*-slim)
-if [[ "${VARIANT}" == "slim" ]]; then
-	PKGMGR_IMAGE="ghcr.io/${PKGMGR_IMAGE_OWNER}/pkgmgr-${INFINITO_DISTRO}-slim:${PKGMGR_IMAGE_TAG}"
-else
-	PKGMGR_IMAGE="ghcr.io/${PKGMGR_IMAGE_OWNER}/pkgmgr-${INFINITO_DISTRO}:${PKGMGR_IMAGE_TAG}"
 fi
 
 # Local-only "missing" shortcut
@@ -239,9 +210,8 @@ echo
 echo "------------------------------------------------------------"
 echo "[build] Building image"
 echo "distro               = ${INFINITO_DISTRO}"
-echo "variant              = ${VARIANT}"
 echo "target               = ${TARGET}"
-echo "PKGMGR_IMAGE          = ${PKGMGR_IMAGE}"
+echo "INFINITO_PARENT_IMAGE = ${INFINITO_PARENT_IMAGE}"
 if [[ "${NO_CACHE}" == "1" ]]; then echo "cache               = disabled"; fi
 if [[ "${PUSH}" == "1" ]]; then echo "push                = enabled"; fi
 if [[ "${PUBLISH}" == "1" ]]; then
@@ -259,8 +229,10 @@ fi
 echo "------------------------------------------------------------"
 
 # Common build args
+: "${INFINITO_SRC_DIR:?INFINITO_SRC_DIR must be set; source scripts/meta/env/load.sh}"
 build_args=(
-	--build-arg "PKGMGR_IMAGE=${PKGMGR_IMAGE}"
+	--build-arg "INFINITO_PARENT_IMAGE=${INFINITO_PARENT_IMAGE}"
+	--build-arg "INFINITO_SRC_DIR=${INFINITO_SRC_DIR}"
 	--build-arg "NIX_CONFIG=${NIX_CONFIG:-}"
 )
 
@@ -273,18 +245,11 @@ if [[ -n "${TARGET}" ]]; then
 fi
 
 compute_publish_tags() {
-	local suffix=""
-	local distro_tag_base=""
+	local distro_tag_base="${REGISTRY}/${OWNER}/${REPO_PREFIX}/${INFINITO_DISTRO}"
 	local alias_tag_base=""
 
-	if [[ "${VARIANT}" == "slim" ]]; then
-		suffix="-slim"
-	fi
-
-	distro_tag_base="${REGISTRY}/${OWNER}/${REPO_PREFIX}/${INFINITO_DISTRO}${suffix}"
-
 	if [[ "${INFINITO_DISTRO}" == "${DEFAULT_DISTRO}" ]]; then
-		alias_tag_base="${REGISTRY}/${OWNER}/${REPO_PREFIX}${suffix}"
+		alias_tag_base="${REGISTRY}/${OWNER}/${REPO_PREFIX}"
 	fi
 
 	local tags=()

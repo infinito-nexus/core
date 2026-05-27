@@ -1,0 +1,10 @@
+---
+# General
+application_id: svc-bkp-remote-2-local
+system_service_id: "{{ application_id }}"
+
+# Role Specific
+DOCKER_BACKUP_REMOTE_2_LOCAL_DIR: "{{ DIR_SCRIPTS_ROOT }}{{ application_id }}/"
+DOCKER_BACKUP_REMOTE_2_LOCAL_FILE: "pull_specific_host.py"
+DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT: "{{ [ DOCKER_BACKUP_REMOTE_2_LOCAL_DIR , DOCKER_BACKUP_REMOTE_2_LOCAL_FILE ] | path_join }}"
+DOCKER_BACKUP_REMOTE_2_LOCAL_BACKUP_PROVIDERS: "{{ lookup('config', application_id, 'services.remote-2-local.backup_providers')  }}"

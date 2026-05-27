@@ -1,7 +1,7 @@
 from ansible.errors import AnsibleFilterError
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {"generate_all_domains": self.generate_all_domains}
 
@@ -42,4 +42,4 @@ class FilterModule(object):
                 flat.extend([f"www.{d}" for d in original])
             return sorted(set(flat))
         except Exception as exc:
-            raise AnsibleFilterError(f"generate_all_domains failed: {exc}")
+            raise AnsibleFilterError(f"generate_all_domains failed: {exc}") from exc

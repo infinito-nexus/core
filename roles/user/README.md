@@ -5,12 +5,21 @@
 This role configures a basic user environment (shell dotfiles and SSH authorized_keys)
 for a user selected via `user_key`.
 
-## Single Point of Truth (SPOT)
+## Overview
+
+This role executes common tasks for user environment configuration.
+
+## Features
+
+- **Automated provisioning:** Configured by Ansible without manual steps.
+
+## User data resolution
 
 User data is resolved via `lookup('users', user_key)` and referenced via `user_key`.
 Callers may pass `user_config` to override the resolved lookup result for one invocation.
 
 Resolution rules:
+
 - `user_username` is resolved from `lookup('users', user_key).username` (fallback: `user_key`)
 - Home path and ownership are based on `user_username`
 - SSH keys are read from `lookup('users', user_key).authorized_keys`

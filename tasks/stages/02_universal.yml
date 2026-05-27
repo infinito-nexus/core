@@ -1,3 +1,4 @@
+---
 - name: Universal roles lifecycle notice
   ansible.builtin.debug:
     msg: "Universal roles are covered by constructor and destructor."

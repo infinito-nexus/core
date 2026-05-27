@@ -5,33 +5,33 @@ set -euo pipefail
 #
 # Required:
 #   INFINITO_DISTRO   (arch|debian|ubuntu|fedora|centos)
-#   TEST_DEPLOY_TYPE  (server|workstation|universal)
-#   INVENTORY_DIR     (e.g. /etc/inventories/local-full-server)
+#   INFINITO_DEPLOY_TYPE  (server|workstation|universal)
+#   INFINITO_INVENTORY_DIR     (e.g. /etc/inventories/local-full-server)
 
 : "${INFINITO_DISTRO:?INFINITO_DISTRO must be set (arch|debian|ubuntu|fedora|centos)}"
-: "${TEST_DEPLOY_TYPE:?TEST_DEPLOY_TYPE must be set (server|workstation|universal)}"
-: "${INVENTORY_DIR:?INVENTORY_DIR must be set (e.g. /etc/inventories/local-full-server)}"
-: "${INVENTORY_FILE:?INVENTORY_FILE is not set — source scripts/meta/env/inventory.sh first}"
-: "${INVENTORY_VARS_FILE:?INVENTORY_VARS_FILE is not set — source scripts/meta/env/inventory.sh first}"
+: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE must be set (server|workstation|universal)}"
+: "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR must be set (e.g. /etc/inventories/local-full-server)}"
+: "${INFINITO_INVENTORY_FILE:?INFINITO_INVENTORY_FILE is not set — source scripts/meta/env/load.sh first}"
+: "${INFINITO_INVENTORY_VARS_FILE:?INFINITO_INVENTORY_VARS_FILE is not set — source scripts/meta/env/load.sh first}"
 
 # This script always generates inventories for the development compose stack.
 RUNTIME_VARS_JSON='{"RUNTIME":"dev","SYS_SERVICE_RUNNER_RETRIES":1}'
 
 echo "=== local inventory init (ALL apps) ==="
 echo "distro        = ${INFINITO_DISTRO}"
-echo "type          = ${TEST_DEPLOY_TYPE}"
-echo "inventory_dir = ${INVENTORY_DIR}"
+echo "type          = ${INFINITO_DEPLOY_TYPE}"
+echo "inventory_dir = ${INFINITO_INVENTORY_DIR}"
 echo
 
 # 1) Bring up development stack (no build)
 echo ">>> Starting development compose stack (no build)"
-"${PYTHON}" -m cli.deploy.development up \
+"${PYTHON}" -m cli.administration.deploy.development up \
 	--skip-entry-init
 
-# 2) Discover apps on HOST (same as local/deploy/fresh-kept-all.sh)
+# 2) Discover apps on HOST (same as local/deploy/apps/initialize/all.sh)
 apps_json="$(
-	TEST_DEPLOY_TYPE="${TEST_DEPLOY_TYPE}" \
-		WHITELIST="${WHITELIST:-}" \
+	INFINITO_DEPLOY_TYPE="${INFINITO_DEPLOY_TYPE}" \
+		INFINITO_WHITELIST="${INFINITO_WHITELIST:-}" \
 		PYTHON=python3 \
 		scripts/meta/resolve/apps.sh
 )"
@@ -72,17 +72,17 @@ echo
 # 3) Run entry.sh + create inventory INSIDE container
 echo ">>> Initializing inventory inside container"
 
-"${PYTHON}" -m cli.deploy.development exec \
+"${PYTHON}" -m cli.administration.deploy.development exec \
 	-- \
 	bash -c "
     set -euo pipefail
-    cd /opt/src/infinito
+    cd \"${INFINITO_SRC_DIR}\"
 
     echo '>>> entry.sh bootstrap'
     ./scripts/docker/entry.sh true
 
-    inv_dir='${INVENTORY_DIR}'
-    INVENTORY_FILE='${INVENTORY_FILE}'
+    inv_dir='${INFINITO_INVENTORY_DIR}'
+    INFINITO_INVENTORY_FILE='${INFINITO_INVENTORY_FILE}'
     pw_file=\"\${inv_dir}/.password\"
     echo \">>> Reset inventory dir \${inv_dir}\"
     rm -rf \"\${inv_dir}\"
@@ -93,13 +93,12 @@ echo ">>> Initializing inventory inside container"
       chmod 600 \"\${pw_file}\" || true
     fi
 
-    echo \">>> Creating inventory at \${INVENTORY_FILE}\"
-    infinito create inventory \"\${inv_dir}\" \
-      --inventory-file \"\${INVENTORY_FILE}\" \
+    echo \">>> Creating inventory at \${INFINITO_INVENTORY_FILE}\"
+    infinito administration inventory provision \"\${inv_dir}\" \
+      --inventory-file \"\${INFINITO_INVENTORY_FILE}\" \
       --vars '${RUNTIME_VARS_JSON}' \
       --host 'localhost' \
-      --ssl-disabled \
-      --vars-file '${INVENTORY_VARS_FILE}' \
+      --vars-file '${INFINITO_INVENTORY_VARS_FILE}' \
       --include '${apps_csv}'
 
     echo '✅ Inventory initialized.'
@@ -107,4 +106,4 @@ echo ">>> Initializing inventory inside container"
 
 echo
 echo "✅ Local inventory init finished."
-echo "Inventory: ${INVENTORY_FILE}"
+echo "Inventory: ${INFINITO_INVENTORY_FILE}"

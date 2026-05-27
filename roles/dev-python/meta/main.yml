@@ -1,11 +1,26 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs tools and environment for Python development on Linux.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
-  min_ansible_version: '2.9'
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
   platforms:
-    - name: Linux
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
       versions:
         - all
   galaxy_tags:

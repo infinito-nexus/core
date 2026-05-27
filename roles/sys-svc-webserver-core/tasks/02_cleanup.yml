@@ -1,3 +1,4 @@
+---
 - name: Cleanup all NGINX cache directories
   become: true
   ansible.builtin.file:

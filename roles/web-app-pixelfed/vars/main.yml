@@ -1,42 +1,26 @@
+---
 # General
-application_id:                 "web-app-pixelfed"
-webserver_extra_configuration:  "client_max_body_size 512M;"
+application_id: "web-app-pixelfed"
+webserver_extra_configuration: "client_max_body_size 512M;"
 
 # Pixelfed
-PIXELFED_VERSION:               "{{ lookup('config', application_id, 'services.pixelfed.version') }}"
-PIXELFED_IMAGE:                 "{{ lookup('config', application_id, 'services.pixelfed.image') }}"
-PIXELFED_CONTAINER:             "{{ lookup('config', application_id, 'services.pixelfed.name') }}"
-PIXELFED_WORKER_CONTAINER:      "{{ lookup('config', application_id, 'services.worker.name') }}"
-PIXELFED_VOLUME:                "{{ lookup('config', application_id, 'volumes.data') }}"
-PIXELFED_TITEL:                 "{{ lookup('config', application_id, 'services.pixelfed.titel') }}"
-PIXELFED_OIDC_ENABLED:          "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
-PIXELFED_APP_USER:              "33"
-PIXELFED_INSTANCE_DIR:          "{{ lookup('container', application_id, 'directories.instance') }}"
-PIXELFED_ENV_FILE:              "{{ lookup('container', application_id, 'files.env') }}"
-PIXELFED_ENTRYPOINT_FILE:       "docker-entrypoint.sh"
-PIXELFED_ENTRYPOINT_HOST_ABS:   "{{ [PIXELFED_INSTANCE_DIR, PIXELFED_ENTRYPOINT_FILE] | path_join }}"
-PIXELFED_ENTRYPOINT_DOCKER:     "/infinito-pixelfed-entrypoint.sh"
-PIXELFED_DB_CONTAINER:          "{{ lookup('database', application_id, 'container') }}"
-PIXELFED_DB_NAME:               "{{ lookup('database', application_id, 'name') }}"
-PIXELFED_DB_USERNAME:           "{{ lookup('database', application_id, 'username') }}"
-PIXELFED_DB_PASSWORD:           "{{ lookup('database', application_id, 'password') }}"
-PIXELFED_MARIADB_ARGS:
-  - container
-  - exec
-  - -i
-  - "{{ PIXELFED_DB_CONTAINER }}"
-  - mariadb
-  - -N
-  - -s
-  - -u
-  - "{{ PIXELFED_DB_USERNAME }}"
-  - "-p{{ PIXELFED_DB_PASSWORD }}"
-  - "{{ PIXELFED_DB_NAME }}"
-PIXELFED_ADMIN_USER_KEY:        "administrator"
-PIXELFED_ADMIN_USERNAME:        "{{ lookup('users', PIXELFED_ADMIN_USER_KEY).username }}"
-PIXELFED_ADMIN_EMAIL:           "{{ lookup('users', PIXELFED_ADMIN_USER_KEY).email }}"
-PIXELFED_ADMIN_PASSWORD:        "{{ lookup('users', PIXELFED_ADMIN_USER_KEY).password }}"
-PIXELFED_ADMIN_NAME:            "{{ (lookup('users', PIXELFED_ADMIN_USER_KEY).firstname ~ ' ' ~ lookup('users', PIXELFED_ADMIN_USER_KEY).lastname) | trim }}"
-PIXELFED_ADMIN_OIDC_ID:         "{{ PIXELFED_ADMIN_USERNAME }}"
-PIXELFED_PLAYWRIGHT_FIRST_USER_KEY:  "biber"
-PIXELFED_PLAYWRIGHT_SECOND_USER_KEY: "administrator"
+PIXELFED_VERSION: "{{ lookup('config', application_id, 'services.pixelfed.version') }}"
+PIXELFED_IMAGE: "{{ lookup('config', application_id, 'services.pixelfed.image') }}"
+PIXELFED_CONTAINER: "{{ lookup('config', application_id, 'services.pixelfed.name') }}"
+PIXELFED_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
+PIXELFED_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+PIXELFED_TITEL: "{{ lookup('config', application_id, 'services.pixelfed.titel') }}"
+PIXELFED_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+PIXELFED_APP_USER: "33"
+PIXELFED_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+PIXELFED_ENV_FILE: "{{ lookup('container', application_id, 'files.env') }}"
+PIXELFED_ENTRYPOINT_FILE: "docker-entrypoint.sh"
+PIXELFED_ENTRYPOINT_HOST_ABS: "{{ [PIXELFED_INSTANCE_DIR, PIXELFED_ENTRYPOINT_FILE] | path_join }}"
+PIXELFED_ENTRYPOINT_DOCKER: "/infinito-pixelfed-entrypoint.sh"
+PIXELFED_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
+PIXELFED_ADMIN_USER_KEY: "administrator"
+PIXELFED_ADMIN_USERNAME: "{{ lookup('users', PIXELFED_ADMIN_USER_KEY).username }}"
+PIXELFED_ADMIN_EMAIL: "{{ lookup('users', PIXELFED_ADMIN_USER_KEY).email }}"
+PIXELFED_ADMIN_PASSWORD: "{{ lookup('users', PIXELFED_ADMIN_USER_KEY).password }}"
+PIXELFED_ADMIN_NAME: "{{ (lookup('users', PIXELFED_ADMIN_USER_KEY).firstname ~ ' ' ~ lookup('users', PIXELFED_ADMIN_USER_KEY).lastname) | trim }}"
+PIXELFED_ADMIN_OIDC_ID: "{{ PIXELFED_ADMIN_USERNAME }}"

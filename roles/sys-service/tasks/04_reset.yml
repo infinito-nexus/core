@@ -1,3 +1,4 @@
+---
 - name: "pkgmgr install '{{ UNIT_SUFFIX_REMOVER_PACKAGE }}'"
   include_role:
     name: pkgmgr-install

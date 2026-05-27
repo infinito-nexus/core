@@ -24,9 +24,9 @@ catalog of rule keys live at [suppression.md](suppression.md).
 
 ## Running Specific Lint Tests 🏃
 
-Use `TEST_PATTERN` to scope the lint test run to a single file:
+Use `INFINITO_TEST_PATTERN` to scope the lint test run to a single file:
 
 ```bash
 # Run lint tests for a specific file
-make test-lint TEST_PATTERN=test_my_role.py
+make test-lint INFINITO_TEST_PATTERN=test_my_role.py
 ```

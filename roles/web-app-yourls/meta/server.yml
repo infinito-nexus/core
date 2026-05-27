@@ -1,6 +1,7 @@
+---
 domains:
   canonical:
-  - s.{{ DOMAIN_PRIMARY }}
+    - s.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   flags:

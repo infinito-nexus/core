@@ -1,3 +1,4 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "Disable SMTP to avoid port conflicts"
@@ -31,9 +32,9 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers:  true
-    webserver_vhost_flavour:        "basic"
-    domain:                         "{{ MAILU_HOSTNAME }}"
+    compose_handlers_flush: true
+    webserver_vhost_flavour: "basic"
+    domain: "{{ MAILU_HOSTNAME }}"
 
 - name: "Flush Docker Compose handlers"
   meta: flush_handlers
@@ -44,7 +45,7 @@
 - name: "Create Mailu accounts"
   include_tasks: 03_manage_user.yml
   vars:
-    MAILU_DOCKER_DIR:      "{{ lookup('container', application_id, 'directories.instance') }}"
+    MAILU_DOCKER_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
     mailu_action: >-
       {{
         (
@@ -52,12 +53,12 @@
         )
         | ternary('admin','user')
       }}
-    mailu_user_key:       "{{ user_item.key }}"
-    mailu_user_name:      "{{ user_item.value.username }}"
-    mailu_user_password:  "{{ user_item.value.password }}"
-    mailu_token_ip:       "{{ user_item.value.ip | default(networks.internet.ip4) }}"
-    mailu_token_name:     "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
-    mailu_user_roles:     "{{ user_item.value.roles | default([]) }}"
+    mailu_user_key: "{{ user_item.key }}"
+    mailu_user_name: "{{ user_item.value.username }}"
+    mailu_user_password: "{{ user_item.value.password }}"
+    mailu_token_ip: "{{ user_item.value.ip | default(networks.internet.ip4) }}"
+    mailu_token_name: "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
+    mailu_user_roles: "{{ user_item.value.roles | default([]) }}"
   loop: "{{ lookup('users') | dict2items }}"
   loop_control:
     loop_var: user_item

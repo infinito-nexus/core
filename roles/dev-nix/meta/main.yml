@@ -1,23 +1,17 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs the Nix package manager via pacman on Arch x86_64 or via the official installer with SHA256 verification.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
-  min_ansible_version: '2.9'
+  min_ansible_version: "2.9"
   platforms:
-    - name: Archlinux
-      versions:
-        - rolling
-    - name: Debian
+    - name: ArchLinux
       versions:
         - all
-    - name: Ubuntu
+    - name: Debian
       versions:
         - all
     - name: EL
@@ -26,7 +20,7 @@ galaxy_info:
     - name: Fedora
       versions:
         - all
-    - name: GenericLinux
+    - name: Ubuntu
       versions:
         - all
   galaxy_tags:

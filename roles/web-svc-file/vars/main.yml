@@ -1,2 +1,3 @@
+---
 application_id: "web-svc-file"
-domain:         "{{ lookup('domain',application_id) }}"
+domain: "{{ lookup('domain',application_id) }}"

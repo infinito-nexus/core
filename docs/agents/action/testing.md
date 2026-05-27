@@ -1,8 +1,8 @@
 # Testing
 
-## Filesystem Scans — Use the Shared Cache
+## Filesystem Scans: Use the Shared Cache
 
-- When writing or modifying a test that scans the project tree, you MUST route the walk and file reads through [`utils.cache.files`](../../../utils/cache/files.py) — specifically `iter_project_files(...)`, `iter_project_files_with_content(...)`, or `read_text(...)`. You MUST NOT introduce raw `os.walk(<project-root>)`, `Path(<project-root>).rglob("*")`, or broad un-scoped globs on the repo tree in test code.
+- When writing or modifying a test that scans the project tree, you MUST route the walk and file reads through [`utils.cache.files`](../../../utils/cache/files.py), specifically `iter_project_files(...)`, `iter_project_files_with_content(...)`, or `read_text(...)`. You MUST NOT introduce raw `os.walk(<project-root>)`, `Path(<project-root>).rglob("*")`, or broad un-scoped globs on the repo tree in test code.
 - Reason: pytest runs every test in one process. Without a shared cache each test re-walks the same tree and re-reads the same files; the walk cost multiplies by the number of tests that use it. Migrating a single test from a raw walk to `iter_project_files_with_content` dropped it from ~26 s to ~1.3 s because every subsequent test served the walk and the file contents from the process-level cache.
 - When to skip the rule: narrow globs that hit a fixed small set of paths (e.g. `roles_dir.glob("*/meta/services.yml")`) do not benefit meaningfully; walks inside an isolated `tempfile.TemporaryDirectory()` fixture are out of scope because the cache is read-only by design. Even in those cases, use `utils.cache.files.read_text` for individual file contents so other tests reading the same path get a cache hit.
 - API reference: `iter_project_files(extensions=…, exclude_tests=…, exclude_dirs=…)` yields absolute paths, the walk is cached once per process. `iter_project_files_with_content(…)` yields `(path, content)` with both layers cached. `read_text(path)` returns cached UTF-8 content. The walker automatically prunes `.git`, `.cache`, `.pytest_cache`, `.ruff_cache`, `.venv`, `venv`, `__pycache__`, and `node_modules`.
@@ -22,5 +22,6 @@
 - Keep the follow-up limited to the roles touched by staged files so the change stays focused.
 
 ## On Failure
+
 - If that validation fails, you MUST run `make clean` and rerun it.
 - If the failure says `service "infinito" is not running`, restart the stack with [Development Environment Setup](../../contributing/environment/setup.md) and retry the validation.

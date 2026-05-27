@@ -8,6 +8,14 @@ and applies dotlinker mappings provided by the calling role.
 The role is intentionally generic: it does not know anything about Nextcloud or other apps.
 It can be included multiple times from different roles, each time with a different set of mappings.
 
+## Overview
+
+This role installs and applies dotlinker (doli) mappings (generic role).
+
+## Features
+
+- **Automated provisioning:** Configured by Ansible without manual steps.
+
 ## Usage
 
 Call this role via `include_role` and pass mappings through `dotlinker_mappings`:
@@ -28,10 +36,9 @@ The role will register mappings using `doli add` and can optionally run `doli pu
 - `dotlinker_replace` (default: `true`): pass `--replace` to `doli add`
 - `dotlinker_apply` (default: `true`): run `doli pull` after adding mappings
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

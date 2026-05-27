@@ -1,3 +1,4 @@
+---
 roles:
   subscriber:
     description: Can read posts and leave comments but cannot write or manage content
@@ -8,4 +9,4 @@ roles:
   editor:
     description: Can publish and manage all posts, including those by other users
   administrator:
-    description: 'Has full administrative access: manage themes, plugins, settings, and users'
+    description: "Has full administrative access: manage themes, plugins, settings, and users"

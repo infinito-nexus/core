@@ -1,5 +1,5 @@
 ---
-# Requirement 005: produce OIDC `groups` claims of shape
+# produce OIDC `groups` claims of shape
 #   /roles/<application_id>/<role_name>                       (non-tenant / global)
 #   /roles/<application_id>/<tenant_id>/<role_name>           (per-tenant)
 # with no redundant segments.
@@ -31,24 +31,11 @@
 - name: "per-app mappers: flush pending handlers before mutating the shared mapper"
   ansible.builtin.meta: flush_handlers
 
-- name: "per-app mappers: list deployed app ids that build_ldap_role_entries emits LDAP groups for"
-  # build_ldap_role_entries always adds the implicit `administrator`
-  # role for every deployed application, so a per-app Keycloak mapper
-  # is needed for every deployed app — not only those with an explicit
-  # `rbac:` block in `meta/services.yml`.
-  ansible.builtin.set_fact:
-    kc_rbac_deployed_app_ids: >-
-      {{
-        (group_names | default([]))
-        | select('match', '^(web-app|web-svc|svc-db|svc-opt|svc-prx|svc-net|svc-ai|svc-bkp)-')
-        | select('in', (lookup('applications') | default({})).keys() | list)
-        | list
-      }}
-  changed_when: false
-
-- name: "per-app mappers: show deployed apps with rbac"
+- name: "per-app mappers: show deployed apps with rbac (all / current run)"
   ansible.builtin.debug:
-    msg: "apps with rbac: {{ kc_rbac_deployed_app_ids | default([]) }}"
+    msg:
+      all_deployed: "{{ KEYCLOAK_RBAC_ALL_APP_IDS }}"
+      current_run: "{{ KEYCLOAK_RBAC_RUN_APP_IDS }}"
 
 - name: "per-app mappers: delete shared 'ldap-roles' mapper if present"
   ansible.builtin.script:
@@ -70,15 +57,15 @@
     KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
-    DEPLOYED_APP_IDS: "{{ kc_rbac_deployed_app_ids | default([]) | join(' ') }}"
+    DEPLOYED_APP_IDS: "{{ KEYCLOAK_RBAC_ALL_APP_IDS | join(' ') }}"
   changed_when: true
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "per-app mappers: ensure Keycloak group and mapper per deployed rbac app"
+- name: "per-app mappers: ensure Keycloak group and mapper per rbac app in current run"
   include_tasks: ldap/per_app_mapper_one.yml
   vars:
     kc_app_id: "{{ rbac_app }}"
-  loop: "{{ kc_rbac_deployed_app_ids | default([]) }}"
+  loop: "{{ KEYCLOAK_RBAC_RUN_APP_IDS }}"
   loop_control:
     loop_var: rbac_app

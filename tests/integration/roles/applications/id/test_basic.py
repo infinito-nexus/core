@@ -1,10 +1,9 @@
 import unittest
-import os
-import glob
+from pathlib import Path
 
 from plugins.filter.invokable_paths import get_invokable_paths
-
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
 class TestSysRolesApplicationId(unittest.TestCase):
@@ -17,24 +16,28 @@ class TestSysRolesApplicationId(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.base_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")
-        )
-        cat_file = os.path.join(cls.base_dir, "roles", "categories.yml")
+        from . import PROJECT_ROOT
+
+        cls.base_dir = str(PROJECT_ROOT)
+        cat_file = str(PROJECT_ROOT / "roles" / "categories.yml")
         cls.invokable_prefixes = set(get_invokable_paths(cat_file))
         # collect actual sys dirs
-        pattern = os.path.join(cls.base_dir, "roles", "sys-*")
-        cls.actual_dirs = [d for d in glob.glob(pattern) if os.path.isdir(d)]  # noqa: project-walk
+        roles_dir = Path(cls.base_dir) / "roles"
+        cls.actual_dirs = [
+            str(p)
+            for p in roles_dir.iterdir()
+            if p.is_dir() and p.name.startswith("sys-")
+        ]
 
     def test_sys_roles_application_id(self):
         for role_dir in self.actual_dirs:
-            name = os.path.basename(role_dir)
-            prefix = f"sys-{name[len('sys-') :] if name.startswith('sys-') else name}"
-            vars_file = os.path.join(role_dir, "vars", "main.yml")
+            name = Path(role_dir).name
+            prefix = f"sys-{name.removeprefix('sys-')}"
+            vars_file = str(Path(role_dir) / ROLE_FILE_VARS_MAIN)
             if prefix in self.invokable_prefixes:
                 # must exist with id
                 self.assertTrue(
-                    os.path.isfile(vars_file),
+                    Path(vars_file).is_file(),
                     f"Missing vars/main.yml for invokable role {prefix}",
                 )
                 content = load_yaml_any(vars_file) or {}
@@ -45,7 +48,7 @@ class TestSysRolesApplicationId(unittest.TestCase):
                 )
             else:
                 # if exists, must not contain id
-                if not os.path.isfile(vars_file):
+                if not Path(vars_file).is_file():
                     continue
                 content = load_yaml_any(vars_file) or {}
                 self.assertNotIn(

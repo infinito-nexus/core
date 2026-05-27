@@ -84,7 +84,7 @@ jobs:
 
       - id: pick
         shell: bash
-        run: bash scripts/github/pick_distro.sh
+        run: bash scripts/github/resolve/pick_distro.sh
 
   ci-orchestrator:
     if: needs.run-policy.outputs.should_run == 'true'
@@ -127,7 +127,7 @@ jobs:
         shell: bash
         env:
           VERSION_TAG: ${{ needs.pick-distro.outputs.version_tag }}
-        run: bash scripts/github/guard_release.sh
+        run: bash scripts/github/release/guard.sh
 
   release-version:
     name: 🚀 Release version

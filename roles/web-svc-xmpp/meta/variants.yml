@@ -1,4 +1,5 @@
-# Matrix-deploy variant overrides per requirement 013. The LDAP
+---
+# Matrix-deploy variant overrides. The LDAP
 # variant is the canonical XMPP path because most clients only
 # support SCRAM-SHA-256 over a real password store; the OIDC
 # variant exists only to satisfy the auth-flow-variants
@@ -8,10 +9,38 @@
 # variant 0: OIDC variant (canonical default; ejabberd LDAP backend
 # stays on, OIDC marker is on so Playwright runs the OIDC scenario).
 - services:
+    ldap:
+      shared: true
+      enabled: true
     oidc:
       enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
 
-# variant 1: LDAP variant. OIDC marker off, LDAP backend stays on.
+# variant 1: every dynamic flag off — auth-coverage matrix's
+# false-pinning branch.
 - services:
     ldap:
+      shared: false
+      enabled: false
+    oidc:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+
+# variant 2: LDAP-only branch — ejabberd stays bound to
+# the project LDAP store while OIDC stays opted out.
+- services:
+    ldap:
+      shared: true
       enabled: true
+    oidc:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

@@ -1,8 +1,7 @@
 ---
 # Install mu-plugins into the running WordPress container so they are
 # always active (mu-plugins cannot be deactivated from the admin UI).
-# Currently installs the OIDC→RBAC role mapper required by
-# docs/requirements/004-generic-rbac-ldap-auto-provisioning.md.
+# Currently installs the OIDC→RBAC role mapper.
 
 - name: "Ensure mu-plugins directory exists inside the container"
   command: >

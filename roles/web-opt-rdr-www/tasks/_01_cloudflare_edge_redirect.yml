@@ -1,7 +1,8 @@
+---
 - name: Include Cloudflare redirect rule to enforce www → apex
   include_tasks: _02_cloudflare_redirect_rule.yml
   vars:
-    domain: "{{ item | regex_replace('^www\\.', '') }}"
-    www_fqdn: "{{ item }}"
-    apex_url: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ item | regex_replace('^www\\.', '') }}"
+    domain: "{{ item.target }}"
+    www_fqdn: "{{ item.source }}"
+    apex_url: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ item.target }}"
   loop: "{{ REDIRECT_WWW_DOMAINS }}"

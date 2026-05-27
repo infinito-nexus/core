@@ -1,6 +1,7 @@
 import unittest
 
-from plugins.filter.on_off import FilterModule, on_off as on_off_fn
+from plugins.filter.on_off import FilterModule
+from plugins.filter.on_off import on_off as on_off_fn
 
 
 class TestOnOffFilter(unittest.TestCase):

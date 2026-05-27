@@ -1,3 +1,4 @@
+---
 # nocheck: run-once
 - name: "Disable self-signed environment"
   include_tasks: "{{ [playbook_dir, 'roles/sys-ca-selfsigned/tasks/disable_env.yml' ] | path_join }}"

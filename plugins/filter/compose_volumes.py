@@ -1,71 +1,84 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
-from utils.cache.yaml import dump_yaml_str
 from ansible.errors import AnsibleFilterError
 
+from utils.cache.yaml import dump_yaml_str
+
 try:
-    # Preferred when imported as Python package (tests, local scripts).
     from plugins.filter.docker_service_enabled import (
         FilterModule as _DockerServiceEnabledFilter,
     )
     from plugins.filter.get_entity_name import get_entity_name
-    from utils.applications.config import get
-    from utils.database_service import (
+    from utils.roles.applications.config import get
+    from utils.roles.applications.services.database import (
         get_database_service_config,
         resolve_database_service_key,
     )
 except ModuleNotFoundError:
-    # Fallback when loaded by Ansible plugin loader from filter_plugins path.
     from docker_service_enabled import FilterModule as _DockerServiceEnabledFilter
     from get_entity_name import get_entity_name
-    from utils.applications.config import get
-    from utils.database_service import (
+
+    from utils.roles.applications.config import get
+    from utils.roles.applications.services.database import (
         get_database_service_config,
         resolve_database_service_key,
     )
 
 
 def _to_plain(obj: Any) -> Any:
-    """
-    Convert Ansible/Jinja proxy types (e.g., AnsibleUnsafeText, AnsibleMapping)
-    into plain Python types that PyYAML can always serialize.
-
-    This does NOT change logic, only serialization stability.
-    """
+    """Convert Ansible/Jinja proxy types into plain Python so PyYAML can serialize."""
 
     if obj is None:
         return None
 
-    # IMPORTANT:
-    # Always cast string-like objects to real built-in `str`.
-    # This avoids PyYAML "cannot represent an object" for Ansible proxy types.
+    # Cast string-like to built-in str: PyYAML cannot represent Ansible proxy types.
     if isinstance(obj, str):
         return str(obj)
 
-    # Scalars
     if isinstance(obj, (int, float, bool)):
         return obj
 
-    # Mapping-like (including AnsibleMapping)
     if isinstance(obj, Mapping):
         return {str(_to_plain(k)): _to_plain(v) for k, v in obj.items()}
 
-    # Sequence-like (but not string/bytes)
     if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes, bytearray)):
         return [_to_plain(x) for x in obj]
 
-    # Fallback: stringify unknown objects
     return str(obj)
 
 
+def _resolve_database_volume_name(
+    applications: dict[str, Any], application_id: str, dbtype: str
+) -> str:
+    """Mirror `plugins/lookup/database.py`'s `volume_prefix + host` derivation
+    so callers no longer thread `lookup('database', ..., 'volume')` through
+    every `compose.yml.j2`."""
+    consumer_entity = get_entity_name(application_id)
+    db_id = f"svc-db-{dbtype}"
+    central_name = get(
+        applications=applications,
+        application_id=db_id,
+        config_path=f"services.{dbtype}.name",
+        strict=False,
+        default="",
+        skip_missing_app=True,
+    )
+    central_name = (str(central_name) if central_name is not None else "").strip()
+    service_cfg = get_database_service_config(applications, application_id)
+    central_enabled = bool(service_cfg.get("shared", False))
+    host = central_name if central_enabled else "database"
+    volume_prefix = "" if central_enabled else f"{consumer_entity}_"
+    return f"{volume_prefix}{host}"
+
+
 def compose_volumes(
-    applications: Dict[str, Any],
+    applications: dict[str, Any],
     application_id: str,
     *,
-    database_volume: Optional[str] = None,
-    extra_volumes: Optional[Dict[str, Dict[str, Any]]] = None,
+    extra_volumes: dict[str, dict[str, Any]] | None = None,
 ) -> str:
     """
     Builds the top-level `volumes:` section for compose.
@@ -76,7 +89,10 @@ def compose_volumes(
           a direct mariadb/postgres service is enabled
           and that service is not shared
 
-        name: database_volume   (no fallback!)
+        name: derived from the central provider's `services.<dbtype>.name`
+        when `shared=true`, or `<consumer-entity>_database` when the role
+        ships a dedicated instance. The volume name is always derived from
+        the applications config — callers MUST NOT thread it in manually.
 
       - redis volume if:
           is_docker_service_enabled(redis)
@@ -85,11 +101,15 @@ def compose_volumes(
         name: {{ application_id | get_entity_name }}_redis
 
     Manual volumes can be appended via extra_volumes (like adding YAML lines after an include).
+
+    TODO: simultaneous postgres + mariadb on a single role is rejected
+    by `resolve_database_service_key` (the embedded service templates
+    both use the `database` service key + host, which would collide).
+    Support is deferred — when a future architecture rewrite gives each
+    dbtype its own service / host / volume key, this filter MUST emit
+    one volume entry per enabled dbtype.
     """
 
-    # ------------------------------------------------------------------
-    # Input validation (strict – filter must only work with valid input)
-    # ------------------------------------------------------------------
     if applications is None:
         raise AnsibleFilterError("compose_volumes: 'applications' must not be None")
     if not isinstance(applications, dict):
@@ -103,29 +123,33 @@ def compose_volumes(
             f"compose_volumes: unknown application_id '{application_id}'"
         )
 
-    volumes: Dict[str, Any] = {}
+    volumes: dict[str, Any] = {}
 
-    # ------------------------------------------------------------------
-    # Database volume (same condition as Jinja2)
-    # ------------------------------------------------------------------
-    database_service_key = resolve_database_service_key(applications, application_id)
+    try:
+        database_service_key = resolve_database_service_key(
+            applications, application_id
+        )
+    except ValueError as exc:
+        raise AnsibleFilterError(
+            "compose_volumes: "
+            f"{exc}. Simultaneous postgres + mariadb on the same role "
+            "is not supported (the embedded service templates collide "
+            "on the `database` service key, host name, and volume "
+            "key); pick one dbtype per role. Future support is tracked "
+            "in the filter's docstring TODO."
+        ) from exc
     database_service = get_database_service_config(applications, application_id)
     database_needed = bool(database_service_key) and not bool(
         database_service.get("shared", False)
     )
 
     if database_needed:
-        # Jinja2 behavior: name is exactly database_volume — no fallback
-        if database_volume is None or str(database_volume).strip() == "":
-            raise AnsibleFilterError(
-                "compose_volumes: 'database_volume' must be set for application_id "
-                f"'{application_id}' when database service is enabled and not shared"
+        volumes["database"] = {
+            "name": _resolve_database_volume_name(
+                applications, application_id, database_service_key
             )
-        volumes["database"] = {"name": database_volume}
+        }
 
-    # ------------------------------------------------------------------
-    # Redis volume (same condition as Jinja2)
-    # ------------------------------------------------------------------
     if _DockerServiceEnabledFilter.is_docker_service_enabled(
         applications, application_id, "redis"
     ) or bool(
@@ -140,9 +164,6 @@ def compose_volumes(
     ):
         volumes["redis"] = {"name": f"{get_entity_name(application_id)}_redis"}
 
-    # ------------------------------------------------------------------
-    # Merge manual volumes (exactly like appending YAML after include)
-    # ------------------------------------------------------------------
     if extra_volumes:
         volumes.update(extra_volumes)
 
@@ -151,6 +172,6 @@ def compose_volumes(
     return dump_yaml_str(payload).rstrip()
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {"compose_volumes": compose_volumes}

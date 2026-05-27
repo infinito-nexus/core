@@ -2,7 +2,7 @@
 """Sort the curated string arrays in ``.claude/settings.json``.
 
 The lint test in
-``tests/lint/repository/test_claude_settings_sorted.py`` requires every
+``tests/lint/repository/settings/test_claude_sorted.py`` requires every
 hand-curated array to stay ASCII-sorted ascending so diffs stay
 reviewable and merge conflicts stay minimal. Tools that auto-extend the
 file (e.g. permission auto-allowlists) tend to append unsorted; this
@@ -16,10 +16,10 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SETTINGS_PATH = REPO_ROOT / ".claude" / "settings.json"
+from . import PROJECT_ROOT
+
+SETTINGS_PATH = PROJECT_ROOT / ".claude" / "settings.json"
 
 SORTED_ARRAYS: list[tuple[str, ...]] = [
     ("permissions", "allow"),
@@ -42,7 +42,9 @@ def _resolve(data: dict, path: tuple[str, ...]):
 
 def main() -> int:
     try:
-        raw = SETTINGS_PATH.read_text(encoding="utf-8")
+        raw = SETTINGS_PATH.read_text(
+            encoding="utf-8"
+        )  # nocheck: cache-read — CLI reads SETTINGS_PATH then writes back sorted; cache would mask the rewrite
     except OSError as exc:
         print(f"error: cannot read {SETTINGS_PATH}: {exc}", file=sys.stderr)
         return 1
@@ -65,11 +67,11 @@ def main() -> int:
             print(f"sorted: {'.'.join(path)} ({len(arr)} entries)")
 
     if not changed:
-        print(f"{SETTINGS_PATH.relative_to(REPO_ROOT)} already sorted.")
+        print(f"{SETTINGS_PATH.relative_to(PROJECT_ROOT)} already sorted.")
         return 0
 
     SETTINGS_PATH.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-    print(f"updated {SETTINGS_PATH.relative_to(REPO_ROOT)}")
+    print(f"updated {SETTINGS_PATH.relative_to(PROJECT_ROOT)}")
     return 0
 
 

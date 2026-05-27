@@ -1,3 +1,4 @@
+---
 - name: Resolve Intel media driver package names for current distribution
   ansible.builtin.set_fact:
     drv_intel_packages: >-

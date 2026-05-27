@@ -1,3 +1,4 @@
+---
 - name: Nextcloud | Upgrade
   command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} upgrade"
   register: occ_upgrade

@@ -1,16 +1,14 @@
-# roles/sys-svc-compose/lookup_plugins/compose_ca_inject_cmd.py
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ansible.errors import AnsibleError
-from ansible.plugins.lookup import LookupBase
 from ansible.plugins.loader import lookup_loader
+from ansible.plugins.lookup import LookupBase
 
-from utils.entity_name_utils import get_entity_name
-from utils.templating import render_ansible_strict
+from utils.roles.entity_name import get_entity_name
+from utils.templating.ansible import render_ansible_strict
 
 
 def _as_str(v: Any) -> str:
@@ -71,12 +69,12 @@ def _docker_lookup(
     except Exception as exc:
         raise AnsibleError(
             f"compose_ca_inject_cmd: docker lookup failed for '{key}': {exc}"
-        )
+        ) from exc
     return _as_str(value)
 
 
 class LookupModule(LookupBase):
-    def run(self, terms, variables: Optional[dict] = None, **kwargs):
+    def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
 
         # ---------------------------------------------------------------------
@@ -128,7 +126,7 @@ class LookupModule(LookupBase):
                 "compose_ca_inject_cmd: resolved files.compose_ca_override is empty"
             )
 
-        out_basename = os.path.basename(out_file)
+        out_basename = Path(out_file).name
         if not out_basename:
             raise AnsibleError(
                 "compose_ca_inject_cmd: output basename resolved to empty"

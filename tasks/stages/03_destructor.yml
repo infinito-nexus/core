@@ -1,3 +1,4 @@
+---
 - name: "Load destruction roles"
   include_tasks: "./tasks/groups/{{ destruction_group }}-roles.yml"
   loop:

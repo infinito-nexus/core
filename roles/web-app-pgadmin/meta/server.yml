@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     style-src-attr:
@@ -6,10 +7,10 @@ csp:
       unsafe-inline: true
   whitelist:
     font-src:
-    - 'data:'
+      - "data:"
 domains:
   canonical:
-  - pgadmin.{{ DOMAIN_PRIMARY }}
+    - pgadmin.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

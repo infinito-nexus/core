@@ -1,5 +1,5 @@
-# Matrix-deploy variant overrides for this role (requirement 013
-# alpha-to-beta promotion). Both auth-flow variants ride the same
+---
+# Matrix-deploy variant overrides for this role. Both auth-flow variants ride the same
 # `web-app-oauth2-proxy` sidecar in front of the Flowise web UI;
 # variant 0 is the canonical OIDC variant (Keycloak with local user
 # storage), variant 1 flips the LDAP marker so the underlying
@@ -7,10 +7,88 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: OIDC variant (canonical default).
-- {}
 
-# variant 1: LDAP variant. Same oauth2-proxy gate, with the LDAP
-# marker enabled.
+- services:
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oauth2:
+      enabled: true
+      shared: true
+    ollama:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
+- services:
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    oauth2:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
 - services:
     ldap:
       enabled: true
+      shared: true
+    oauth2:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

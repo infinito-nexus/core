@@ -6,7 +6,7 @@ set -euo pipefail
 
 repo_name="$(bash "$(dirname "${BASH_SOURCE[0]}")/../repository/name.sh")"
 # INFINITO_DISTRO is the single SPOT for distro selection (set by
-# scripts/meta/env/defaults.sh). Read strictly here — no local fallback.
-: "${INFINITO_DISTRO:?Source scripts/meta/env/defaults.sh or export INFINITO_DISTRO before invoking this script}"
+# scripts/meta/env/load.sh). Read strictly here — no local fallback.
+: "${INFINITO_DISTRO:?Source scripts/meta/env/load.sh or export INFINITO_DISTRO before invoking this script}"
 
 printf '%s/%s\n' "${repo_name}" "${INFINITO_DISTRO}"

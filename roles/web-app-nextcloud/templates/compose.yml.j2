@@ -14,9 +14,7 @@
     volumes_from:
       - {{ NEXTCLOUD_SERVICE }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2'  %}
-    networks:
-      default:
-        ipv4_address: 192.168.102.67
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% if NEXTCLOUD_HPB_NETWORK_MODE == 'host' %}
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -40,9 +38,8 @@
       timeout: 10s
       retries: 3
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-        ipv4_address: 192.168.102.69
 
 {% if NEXTCLOUD_HPB_SIGNALING_ENABLED | bool %}
 {% set service_name = NEXTCLOUD_HPB_SERVICE %}
@@ -63,11 +60,9 @@
 {% endif %}
     expose:
       - "{{ container_port }}"
-    networks:
-      default:
-        ipv4_address: 192.168.102.68
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% else %}
-  network_mode: {{ NEXTCLOUD_HPB_NETWORK_MODE }}
+    network_mode: {{ NEXTCLOUD_HPB_NETWORK_MODE }}
 {% endif %}
 {% endif %}
 
@@ -91,9 +86,7 @@
     expose:
       - "{{ container_port }}"
     shm_size: 1g
-    networks:
-      default:
-        ipv4_address: 192.168.102.71
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     depends_on:
       redis:
         condition: service_healthy
@@ -117,9 +110,8 @@
       interval: 1m
       timeout: 10s
       retries: 3
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-        ipv4_address: 192.168.102.70
 
 {% if NEXTCLOUD_RECORDING_ENABLED | bool %}
 {% set service_name = 'talk_recording' %}
@@ -135,9 +127,7 @@
       - TZ={{ HOST_TIMEZONE }}
     expose:
       - "{{ NEXTCLOUD_RECORDING_PORT }}"
-    networks:
-      default:
-        ipv4_address: 192.168.102.72
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     volumes:
       - talk_recording_tmp:/tmp
 {% endif %}
@@ -154,7 +144,6 @@
 {% endif %}
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes=_extra_volumes
 ) }}
 

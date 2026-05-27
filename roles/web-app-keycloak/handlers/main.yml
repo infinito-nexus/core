@@ -1,3 +1,4 @@
+---
 - name: "Keycloak | Sync LDAP groups (ldap-roles mapper)"
   ansible.builtin.shell: |-
     {{ KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN }}

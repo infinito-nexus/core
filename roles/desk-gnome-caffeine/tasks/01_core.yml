@@ -1,3 +1,4 @@
+---
 - name: Install caffeine
   include_role:
     name: sys-aur-install

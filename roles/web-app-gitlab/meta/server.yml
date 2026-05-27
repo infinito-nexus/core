@@ -1,6 +1,7 @@
+---
 domains:
   canonical:
-  - lab.git.{{ DOMAIN_PRIMARY }}
+    - lab.git.{{ DOMAIN_PRIMARY }}
 csp:
   flags:
     script-src-elem:

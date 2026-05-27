@@ -1,3 +1,4 @@
+---
 - name: install libreoffice
   package:
     name:

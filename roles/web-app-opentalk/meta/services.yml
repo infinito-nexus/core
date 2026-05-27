@@ -1,34 +1,39 @@
+---
 oidc:
-  enabled: true
-  shared: true
-  flavor: ''
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: ""
 ldap:
-  enabled: true
-  shared: true
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — infrastructural sub-component (TURN/STUN)
 coturn:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-coturn' in group_names }}"
+  shared: "{{ 'web-svc-coturn' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
-# noqa: shared
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: true
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
@@ -39,7 +44,7 @@ opentalk:
   min_storage: 4GB
   backup:
     no_stop_required: true
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
   pids_limit: 512
@@ -48,7 +53,6 @@ opentalk:
       http: 8073
   run_after:
     - web-app-keycloak
-    - web-app-opencloud
   lifecycle: alpha
 controller:
   name: opentalk-controller
@@ -57,7 +61,7 @@ controller:
   min_storage: 8GB
   backup:
     no_stop_required: true
-  cpus: '1.5'
+  cpus: "1.5"
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
@@ -69,7 +73,7 @@ livekit:
   image: livekit/livekit-server
   version: v1.12.0
   min_storage: 1GB
-  cpus: '2.0'
+  cpus: "2.0"
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
@@ -86,7 +90,7 @@ minio:
   image: minio/minio
   version: latest
   min_storage: 20GB
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
@@ -95,7 +99,7 @@ rabbit:
   image: rabbitmq
   version: 4.3.0
   min_storage: 2GB
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
@@ -104,13 +108,14 @@ recorder:
   image: registry.opencode.de/opentalk/recorder
   version: v0.16.2
   min_storage: 2GB
-  cpus: '1.5'
+  cpus: "1.5"
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
-  enabled: false
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

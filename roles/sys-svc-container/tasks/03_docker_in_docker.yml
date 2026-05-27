@@ -1,8 +1,9 @@
+---
 - name: Ensure '{{ SYS_SVC_DOCKER_DIR }}' exists
   file:
     path: "{{ SYS_SVC_DOCKER_DIR }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Install fuse-overlayfs in container
   ansible.builtin.package:

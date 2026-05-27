@@ -1,29 +1,28 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Automates the installation of Kevin's Package Manager — a tool for managing multiple repositories and automating Git operations.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
-  min_ansible_version: '2.9'
+  min_ansible_version: "2.9"
   platforms:
+    - name: ArchLinux
+      versions:
+        - all
     - name: Debian
       versions:
-        - stretch
-        - buster
-        - bullseye
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
     - name: Ubuntu
       versions:
-        - bionic
-        - focal
-        - jammy
-    - name: Archlinux
-      versions:
-        - rolling
+        - all
   galaxy_tags:
     - pkgmgr
     - automation

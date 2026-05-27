@@ -1,5 +1,4 @@
 ---
-
 - name: "Ensure base directory"
   ansible.builtin.file:
     path: "{{ DIR_SECRETS }}"

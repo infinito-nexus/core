@@ -1,3 +1,4 @@
+---
 - name: Trigger container manager restart non-blocking (hard timeout)
   ansible.builtin.command: "timeout 10s systemctl restart docker.service --no-block"
   register: restart_cmd

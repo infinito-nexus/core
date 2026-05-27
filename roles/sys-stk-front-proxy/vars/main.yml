@@ -1,1 +1,0 @@
-front_proxy_domain_conf_dst:  "{{ lookup('nginx', 'files.domain', domain) }}"

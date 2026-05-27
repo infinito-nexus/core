@@ -1,17 +1,18 @@
+---
 # General
-application_id:       "web-app-postmarks"
+application_id: "web-app-postmarks"
 
 # Container
-container_port:       3000
-domain:               "{{ container_hostname }}"
-http_port:            "{{ lookup('config', application_id, 'services.postmarks.ports.local.http') }}"
-container_hostname:   "{{ lookup('domain', application_id) }}"
+container_port: 3000
+domain: "{{ container_hostname }}"
+http_port: "{{ lookup('config', application_id, 'services.postmarks.ports.local.http') }}"
+container_hostname: "{{ lookup('domain', application_id) }}"
 
 # App container
-POSTMARKS_CONTAINER:  "{{ lookup('config', application_id, 'services.application.name') }}"
-POSTMARKS_IMAGE:      "{{ lookup('config', application_id, 'services.application.image') }}"
-POSTMARKS_VERSION:    "{{ lookup('config', application_id, 'services.application.version') }}"
+POSTMARKS_CONTAINER: "{{ lookup('config', application_id, 'services.application.name') }}"
+POSTMARKS_IMAGE: "{{ lookup('config', application_id, 'services.application.image') }}"
+POSTMARKS_VERSION: "{{ lookup('config', application_id, 'services.application.version') }}"
 
 # Source
-POSTMARKS_REPO_URL:    "{{ lookup('config', application_id, 'services.application.repository') }}"
-POSTMARKS_REPO_BRANCH: "{{ lookup('config', application_id, 'services.application.branch') }}"
+POSTMARKS_REPO_URL: "{{ lookup('config', application_id, 'services.application.repository') }}"
+POSTMARKS_REF: "{{ lookup('config', application_id, 'services.application.ref') }}"

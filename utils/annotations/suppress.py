@@ -17,19 +17,18 @@ Accepted comment prefixes:
 * ``{# … #}`` (Jinja2)
 * ``<!-- … -->`` (HTML, Markdown)
 
-``noqa`` and ``nocheck`` are synonyms (case-insensitive). The
-convention is:
-
-* ``noqa`` for code-level lints (analogous to flake8/ruff).
-* ``nocheck`` for repo-content checks (URLs, image versions, file
-  size, run-once schema).
-
-Both work for any rule; the catalog page documents the convention but
-neither test enforces which keyword is used.
+``noqa`` and ``nocheck`` are accepted as synonyms (case-insensitive)
+by this parser. By repo convention every project rule from
+``docs/contributing/actions/testing/suppression.md`` MUST use
+``nocheck:`` because ``# noqa: <code>`` is also parsed by ruff as a
+flake8 directive and triggers ``invalid-noqa-code`` warnings on every
+project-specific rule key. ``noqa:`` is reserved for real flake8 / ruff
+codes (``E402``, ``F401``, …). The ``direct-yaml`` lint enforces the
+convention by hard-rejecting the ``noqa:`` form.
 
 Multiple rules may be combined on one comment, comma-separated:
 
-    # noqa: shared, email
+    # nocheck: shared, email
     # nocheck: url, docker-version
 
 Position semantics are per-rule and listed in the catalog page. This
@@ -45,7 +44,10 @@ module exposes three resolvers:
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _KEYWORD_RE = re.compile(
     r"(?:noqa|nocheck)\s*:\s*([a-z0-9][a-z0-9\-]*(?:\s*,\s*[a-z0-9][a-z0-9\-]*)*)",
@@ -57,8 +59,8 @@ def _rules_on_line(line: str) -> set[str]:
     """Return the set of rule keys present in suppression markers on *line*."""
     found: set[str] = set()
     for match in _KEYWORD_RE.finditer(line):
-        for rule in match.group(1).split(","):
-            rule = rule.strip().lower()
+        for raw_rule in match.group(1).split(","):
+            rule = raw_rule.strip().lower()
             if rule:
                 found.add(rule)
     return found
@@ -118,10 +120,7 @@ def is_suppressed_in_head(
     the file so the cost of carrying the exemption stays visible.
     """
     rule = rule.lower()
-    for line in lines[:scan_lines]:
-        if line_has_rule(line, rule):
-            return True
-    return False
+    return any(line_has_rule(line, rule) for line in lines[:scan_lines])
 
 
 def is_suppressed_anywhere(lines: Sequence[str], rule: str) -> bool:

@@ -1,5 +1,3 @@
-# lookup_plugins/unit_name.py
-#
 # Ansible lookup plugin to build versioned systemd unit names.
 #
 # Target format:
@@ -17,8 +15,8 @@
 
 from __future__ import annotations
 
-from ansible.plugins.lookup import LookupBase
 from ansible.errors import AnsibleError
+from ansible.plugins.lookup import LookupBase
 
 
 def _looks_like_template(value) -> bool:
@@ -181,10 +179,11 @@ class LookupModule(LookupBase):
                 "unit_name lookup: lookup('version') returned an empty value."
             )
 
-        suffix = kwargs.get("suffix", None)
+        suffix = kwargs.get("suffix")
 
         results = []
-        for term in terms:
-            results.append(_build_unit_name(term, version, software_domain, suffix))
+        results.extend(
+            _build_unit_name(term, version, software_domain, suffix) for term in terms
+        )
 
         return results

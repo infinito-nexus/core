@@ -2,7 +2,7 @@
 
 How an Ansible inventory is assembled from the per-role `meta/services.yml` declarations, what gets resolved at build time, and what stays as an unrendered Jinja template until play runtime.
 For general documentation rules such as links, writing style, RFC 2119 keywords, and Sphinx behavior, see [documentation.md](../documentation.md).
-For the matrix-variant folder-per-round model that wraps this pipeline, see [variants.md](variants.md). For the on-disk shape of a role's metadata see [layout.md](services/layout.md).
+For the matrix-variant folder-per-round model that wraps this pipeline, see [variants.md](variants.md). For the on-disk shape of a role's metadata see [layout.md](role/services/layout.md).
 
 ## Pipeline overview 🛤️
 
@@ -10,19 +10,19 @@ The build pipeline runs entirely on the operator's host, before any Ansible play
 
 | Stage | Code path | Output |
 |---|---|---|
-| 1. Variant resolution | [applications.py (cache)](../../../utils/cache/applications.py) `_build_variants`, [inventory.py](../../../cli/deploy/development/inventory.py) `_resolve_variant_payloads` | Per-app payload = `meta/services.yml` deep-merged with the round's `meta/variants.yml` entry. Jinja strings are preserved verbatim. |
-| 2. Group materialisation | [cli.build.inventory.full](../../../cli/build/inventory/full/command.py), [filters.py](../../../cli/create/inventory/filters.py) `filter_dynamic_inventory` | Inventory file lists one group per included `application_id`, with the host as a member. |
-| 3. Host-vars baking | [cli.create.inventory](../../../cli/create/inventory/cli.py) `apply_vars_overrides`, [host_vars.py](../../../cli/create/inventory/host_vars.py) | `host_vars/<host>.yml` carries the variant-resolved `applications.<app>` block plus connection vars, become password, etc. |
+| 1. Variant resolution | [applications.py (cache)](../../../utils/cache/applications.py) `_build_variants`, [inventory/payload.py](../../../cli/administration/deploy/development/inventory/payload.py) `_resolve_variant_payloads` | Per-app payload = `meta/services.yml` deep-merged with the round's `meta/variants.yml` entry. Jinja strings are preserved verbatim. |
+| 2. Group materialisation | [cli.administration.inventory.devices](../../../cli/administration/inventory/devices/command.py), [filters.py](../../../cli/administration/inventory/provision/filters.py) `filter_dynamic_inventory` | Inventory file lists one group per included `application_id`, with the host as a member. |
+| 3. Host-vars baking | [cli.administration.inventory.provision](../../../cli/administration/inventory/provision/cli.py) `apply_vars_overrides`, [host_vars.py](../../../cli/administration/inventory/provision/host_vars.py) | `host_vars/<host>.yml` carries the variant-resolved `applications.<app>` block plus connection vars, become password, etc. |
 
 After stage 3 the inventory is fully variant-resolved on disk. Ansible loads it as plain YAML, no rendering yet.
 
 ## What decides which roles enter the inventory 🎯
 
-The include set passed to stage 2 is built by the deploy CLI in [deploy.py](../../../cli/deploy/development/deploy.py) via `resolve_deploy_ids_for_apps`. It expands the operator's `--apps` selection along three transitive paths, all walked together:
+The include set passed to stage 2 is built by the deploy CLI in [deploy.py](../../../cli/administration/deploy/development/deploy.py) via `resolve_deploy_ids_for_apps`. It expands the operator's `--apps` selection along three transitive paths, all walked together:
 
 1. **Ansible meta `dependencies:`** from each role's `meta/main.yml`.
 2. **Per-role `run_after:`** from each role's `meta/services.yml.<entity>.run_after`.
-3. **Shared-service auto-include** from each role's `meta/services.yml.<entity>.<service>` block, when both `enabled is True` AND `shared is True`. The check lives in [service_registry.py](../../../utils/service_registry.py) `resolve_service_dependency_roles_from_config`.
+3. **Shared-service auto-include** from each role's `meta/services.yml.<entity>.<service>` block, when both `enabled is True` AND `shared is True`. The check lives in [service_registry.py](../../../utils/roles/applications/services/registry.py) `resolve_service_dependency_roles_from_config`.
 
 The auto-include uses **strict identity** with Python's `True`. A Jinja-templated string such as `"{{ 'web-app-discourse' in group_names }}"` is NOT the value `True`, so it does NOT trigger auto-include at build time. Only literal booleans (or boolean-typed variant overrides that bake one in) qualify.
 
@@ -33,7 +33,7 @@ This is the mechanism that lets variants control whether a shared service is pul
 | Artifact | Contents |
 |---|---|
 | `inventory.yml` (or equivalent) | Group-per-application map plus host membership. Source of truth for `group_names` at play time. |
-| `host_vars/<host>.yml` | Connection vars, `DOMAIN_PRIMARY`, `TLS_ENABLED`, `networks.internet.{ip4,ip6}`, the variant-baked `applications.<app>` block, vault-encrypted `ansible_become_password`, plus any `--vars` / `--vars-file` overlays. |
+| `host_vars/<host>.yml` | Connection vars, the variant-baked `applications.<app>` block, vault-encrypted `ansible_become_password`, plus any `--vars` / `--vars-file` overlays (which is where deployment-wide flags like `DOMAIN_PRIMARY`, `TLS_ENABLED`, and `networks.internet.{ip4,ip6}` enter when set; otherwise group_vars provides the env-driven defaults). |
 
 `host_vars/<host>.yml` is where variant data ends up after the deep-merge. The strings inside are still raw, including any Jinja templates from `meta/services.yml` that no variant override replaced.
 
@@ -80,11 +80,11 @@ The fallback Jinja string in the base `meta/services.yml` is the safety net for 
 | File | Purpose |
 |---|---|
 | [applications.py (cache)](../../../utils/cache/applications.py) | `get_variants`, `get_application_defaults`, `get_merged_applications`. Stage 1 variant loader and the runtime renderer. |
-| [service_registry.py](../../../utils/service_registry.py) | `build_service_registry_from_roles_dir`, `resolve_service_dependency_roles_from_config`. Strict-identity auto-include. |
-| [in_group_deps.py](../../../utils/applications/in_group_deps.py) | `applications_if_group_and_all_deps`. Recursive walk over Ansible meta `dependencies:` plus shared-service deps. |
-| [inventory.py](../../../cli/deploy/development/inventory.py) | `_resolve_variant_payloads`, `_bake_overrides`, `build_dev_inventory`. Stage 1 variant resolution and stage 3 host-vars baking. |
-| [cli.build.inventory.full](../../../cli/build/inventory/full/command.py) | Stage 2 group materialisation: emits one group per invokable `application_id` for the given host. |
-| [filters.py](../../../cli/create/inventory/filters.py) | `filter_dynamic_inventory`. Restricts the materialised groups to the `--include` set. |
-| [host_vars.py](../../../cli/create/inventory/host_vars.py) | Connection vars, `DOMAIN_PRIMARY`, become-password handling. |
+| [service_registry.py](../../../utils/roles/applications/services/registry.py) | `build_service_registry_from_roles_dir`, `resolve_service_dependency_roles_from_config`. Strict-identity auto-include. |
+| [in_group_deps.py](../../../utils/roles/applications/in_group_deps.py) | `applications_if_group_and_all_deps`. Recursive walk over Ansible meta `dependencies:` plus shared-service deps. |
+| [inventory/](../../../cli/administration/deploy/development/inventory/__init__.py) | Package root re-exporting the public API. Per-submodule split: [`payload.py`](../../../cli/administration/deploy/development/inventory/payload.py) (`_resolve_variant_payloads`, `_bake_overrides`) and [`builder.py`](../../../cli/administration/deploy/development/inventory/builder.py) (`build_dev_inventory`). Stage 1 variant resolution and stage 3 host-vars baking. |
+| [cli.administration.inventory.devices](../../../cli/administration/inventory/devices/command.py) | Stage 2 group materialisation: emits one group per invokable `application_id` for the given host. |
+| [filters.py](../../../cli/administration/inventory/provision/filters.py) | `filter_dynamic_inventory`. Restricts the materialised groups to the `--include` set. |
+| [host_vars.py](../../../cli/administration/inventory/provision/host_vars.py) | Connection vars, vars-file/JSON overlays, become-password handling. |
 | [config.py (lookup)](../../../plugins/lookup/config.py) | `lookup('config', application_id, 'services.<x>.<y>')`. Resolves nested config paths and renders Jinja via `_render_with_templar`. |
 | [applications.py (lookup)](../../../plugins/lookup/applications.py) | `lookup('applications'[, application_id])`. Returns the rendered application payload. |

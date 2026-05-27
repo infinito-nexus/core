@@ -1,22 +1,46 @@
+---
+# nocheck: dynamic-flag
+# nocheck: logout
 logout:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
 dashboard:
   enabled: true
   shared: true
+# nocheck: dynamic-flag
 matomo:
   enabled: true
   shared: true
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
-# noqa: email
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: email
 email:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: oidc
+oidc:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: oauth2
+oauth2:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
 prometheus:
   enabled: true
   shared: true
+mastodon:
+  enabled: "{{ 'web-app-mastodon' in group_names }}"
+  shared: "{{ 'web-app-mastodon' in group_names }}"
+friendica:
+  enabled: "{{ 'web-app-friendica' in group_names }}"
+  shared: "{{ 'web-app-friendica' in group_names }}"
 fediwall:
   image: nginx
   version: alpine
@@ -59,7 +83,7 @@ fediwall:
       http: 8074
   lifecycle: alpha
   min_storage: 1GB
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256

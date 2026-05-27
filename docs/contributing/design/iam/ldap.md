@@ -1,11 +1,9 @@
 # LDAP 📒
 
-This page is the SPOT for how application roles consume the platform's LDAP
-provider, [OpenLDAP](../../../../roles/svc-db-openldap/). The variable tree
-lives in [12_ldap.yml](../../../../group_vars/all/12_ldap.yml) under `LDAP`.
-For the cross-cutting IAM principles, including the paired identifier rule
-shared with OIDC, see [common.md](common.md). For OIDC-side details see
-[oidc.md](oidc.md).
+This page describes how application roles consume the platform's LDAP provider, [OpenLDAP](../../../../roles/svc-db-openldap/).
+The variable tree lives in [12_ldap.yml](../../../../group_vars/all/12_ldap.yml) under `LDAP`.
+For the cross-cutting IAM principles, including the paired identifier rule shared with OIDC, see [common.md](common.md).
+For OIDC-side details see [oidc.md](oidc.md).
 
 ## Variable Tree 🌳
 
@@ -29,7 +27,7 @@ The high-level structure:
 Rules:
 
 - Roles MUST connect via `LDAP.SERVER.URI`. Building the URI from the
-  individual `DOMAIN`, `PORT`, and protocol parts is forbidden because the
+  individual `INFINITO_DOMAIN`, `PORT`, and protocol parts is forbidden because the
   helper variables in [12_ldap.yml](../../../../group_vars/all/12_ldap.yml)
   already pick the correct scheme based on Docker-network availability.
 - The data administrator DN MUST be used for adding, modifying, and removing
@@ -40,8 +38,7 @@ Rules:
 
 ## Object Classes 🧱
 
-`LDAP.USER.OBJECTS` lists the structural and auxiliary object classes
-attached to user entries:
+`LDAP.USER.OBJECTS` lists the structural and auxiliary object classes attached to user entries:
 
 | Group | Key | Default | Purpose |
 |---|---|---|---|
@@ -49,14 +46,12 @@ attached to user entries:
 | Auxiliary | `NEXTCLOUD_USER` | `nextcloudUser` | Adds `nextcloudQuota` and `nextcloudEnabled` |
 | Auxiliary | `SSH_PUBLIC_KEY` | `ldapPublicKey` | Stores SSH public keys for services like Gitea |
 
-Each entry has exactly one structural class chain. New auxiliary classes
-SHOULD be added under `LDAP.USER.OBJECTS.AUXILIARY` so consumers can probe
-them by symbolic name instead of literal string.
+Each entry has exactly one structural class chain.
+New auxiliary classes SHOULD be added under `LDAP.USER.OBJECTS.AUXILIARY` so consumers can probe them by symbolic name instead of literal string.
 
 ## User Attributes 🪧
 
-`LDAP.USER.ATTRIBUTES` is the SPOT for the LDAP attribute names that
-applications query:
+`LDAP.USER.ATTRIBUTES` lists the LDAP attribute names that applications query:
 
 | Key | Default value | Meaning |
 |---|---|---|
@@ -86,8 +81,7 @@ Rules:
 | `LDAP.FILTERS.USERS.LOGIN` | Resolve a single user by login attribute, parameterized via `%uid` |
 | `LDAP.FILTERS.USERS.ALL` | Match every user entry, used for sync jobs and listings |
 
-Roles SHOULD prefer these filters over composing new ones inline so a future
-schema change updates every consumer at once.
+Roles SHOULD prefer these filters over composing new ones inline so a future schema change updates every consumer at once.
 
 ## RBAC 👥
 
@@ -98,9 +92,8 @@ schema change updates every consumer at once.
 | `LDAP.RBAC.FLAVORS` | Allowed group flavors, currently `groupOfNames` |
 | `LDAP.RBAC.EMPTY_MEMBER_DN` | Placeholder DN for empty `groupOfNames` groups |
 
-`groupOfNames` requires at least one `member` attribute. The placeholder DN
-exists so newly created empty groups remain schema-valid until the first real
-member is added.
+`groupOfNames` requires at least one `member` attribute.
+The placeholder DN exists so newly created empty groups remain schema-valid until the first real member is added.
 
 ## Related Files 📚
 

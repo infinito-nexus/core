@@ -14,15 +14,12 @@ import subprocess
 import tempfile
 import textwrap
 import unittest
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
-HELPER_PATH = os.path.join(
-    REPO_ROOT,
-    "roles",
-    "test-e2e-playwright",
-    "files",
-    "service-gating.js",
+from . import PROJECT_ROOT
+
+HELPER_PATH = str(
+    PROJECT_ROOT / "roles" / "test-e2e-playwright" / "files" / "service-gating.js"
 )
 
 STUB_PKG_JSON = json.dumps({"name": "@playwright/test", "main": "index.js"})
@@ -56,14 +53,14 @@ def _have_node():
 class TestServiceGatingHelper(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix="sg-helper-")
-        stub_dir = os.path.join(self.tmpdir, "node_modules", "@playwright", "test")
-        os.makedirs(stub_dir, exist_ok=True)
-        with open(os.path.join(stub_dir, "package.json"), "w") as f:
+        stub_dir = str(Path(self.tmpdir) / "node_modules" / "@playwright" / "test")
+        Path(stub_dir).mkdir(parents=True, exist_ok=True)
+        with Path(str(Path(stub_dir) / "package.json")).open("w") as f:
             f.write(STUB_PKG_JSON)
-        with open(os.path.join(stub_dir, "index.js"), "w") as f:
+        with Path(str(Path(stub_dir) / "index.js")).open("w") as f:
             f.write(STUB_INDEX_JS)
         # Copy helper so `require("./service-gating")` works from the tmp dir.
-        shutil.copy(HELPER_PATH, os.path.join(self.tmpdir, "service-gating.js"))
+        shutil.copy(HELPER_PATH, str(Path(self.tmpdir) / "service-gating.js"))
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
@@ -88,18 +85,18 @@ class TestServiceGatingHelper(unittest.TestCase):
             }})();
             """
         )
-        script_path = os.path.join(self.tmpdir, "run.js")
-        with open(script_path, "w") as f:
+        script_path = str(Path(self.tmpdir) / "run.js")
+        with Path(script_path).open("w") as f:
             f.write(script)
-        proc = subprocess.run(
+        return subprocess.run(
             ["node", "run.js"],
             capture_output=True,
             text=True,
             env={**os.environ, **env},
             cwd=self.tmpdir,
             timeout=10,
+            check=False,
         )
-        return proc
 
     # isServiceEnabled -----------------------------------------------------
 

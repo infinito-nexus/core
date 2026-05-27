@@ -1,4 +1,4 @@
-# roles/web-app-littlejs/vars/examples.yml
+---
 # LittleJS examples for launcher UI (used to generate example tiles and menu)
 
 littlejs_examples:

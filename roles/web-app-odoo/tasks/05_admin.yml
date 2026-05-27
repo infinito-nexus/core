@@ -2,83 +2,51 @@
 # Create or update Odoo administrator user
 
 - name: "Check if administrator user exists"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: "SELECT id FROM res_users WHERE login = %(username)s LIMIT 1;"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-administrator-user-exists.sql"
     named_args:
-      username: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
+      login: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
+    expect_rows: true
   register: admin_check
 
 - name: "Update administrator user password and email"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE res_users
-      SET password = %(password)s,
-          write_date = NOW()
-      WHERE login = %(username)s;
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-administrator-user-password.sql"
     named_args:
       password: "{{ ODOO_ADMINISTRATOR_PASSWORD }}"
-      username: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
-  when: admin_check.query_result | length > 0
+      login: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
+  when: admin_check.rows | length > 0
 
 - name: "Update administrator partner email"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE res_partner
-      SET email = %(email)s,
-          write_date = NOW()
-      WHERE id = (SELECT partner_id FROM res_users WHERE login = %(username)s);
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-administrator-partner-email.sql"
     named_args:
       email: "{{ ODOO_ADMINISTRATOR_EMAIL }}"
-      username: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
-  when: admin_check.query_result | length > 0
+      login: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
+  when: admin_check.rows | length > 0
 
 - name: "Update default admin user credentials (user id 2)"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE res_users
-      SET login = %(username)s,
-          password = %(password)s,
-          write_date = NOW()
-      WHERE id = 2;
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-default-admin-user-credentials.sql"
     named_args:
-      username: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
+      login: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
       password: "{{ ODOO_ADMINISTRATOR_PASSWORD }}"
-  when: admin_check.query_result | length == 0
+  when: admin_check.rows | length == 0
 
 - name: "Update default admin partner details"
-  community.postgresql.postgresql_query:
-    db: "{{ ODOO_DB_NAME }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE res_partner
-      SET email = %(email)s,
-          name = %(name)s,
-          write_date = NOW()
-      WHERE id = (SELECT partner_id FROM res_users WHERE id = 2);
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-default-admin-partner-details.sql"
     named_args:
       email: "{{ ODOO_ADMINISTRATOR_EMAIL }}"
       name: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
-  when: admin_check.query_result | length == 0
+  when: admin_check.rows | length == 0

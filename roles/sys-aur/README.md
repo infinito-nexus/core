@@ -7,6 +7,7 @@ This role ensures that the AUR helper [yay](https://github.com/Jguer/yay) is ins
 ## Overview
 
 The role performs the following tasks:
+
 - Installs the AUR helper [yay](https://github.com/Jguer/yay) using pacman.
 - Creates an `aur_builder` user with a home directory and adds the user to the wheel group.
 - Grants the `aur_builder` user passwordless [sudo](https://en.wikipedia.org/wiki/Sudo) rights for running pacman.
@@ -24,6 +25,7 @@ The primary purpose of this role is to streamline AUR package management on Arch
 ## Further Resources
 
 - [ansible-aur](https://github.com/kewlfft/ansible-aur)
+
 ## Credits
 
 Developed and maintained by **Kevin Veen-Birkenbach**.

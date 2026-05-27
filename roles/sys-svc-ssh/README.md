@@ -37,3 +37,10 @@ The role installs the correct SSH client package for the following platforms:
 - **Minimal scope** (client-only, no server configuration)
 - **Reusable dependency role** for higher-level SSH workflows
 - **Best practices compliant** with modern SSH usage
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

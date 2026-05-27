@@ -31,11 +31,11 @@ CACHE SEMANTICS
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Tuple
+from typing import Any
 
 import yaml
-
 
 _MISSING = object()
 # One unified cache. Stores the raw document list parsed by
@@ -43,7 +43,7 @@ _MISSING = object()
 # the same on-disk parse. Single-doc helpers (``load_yaml`` /
 # ``load_yaml_any``) unwrap ``docs[0]``; multi-doc (``load_yaml_all``)
 # returns the list as-is.
-_CACHE: Dict[Tuple[str, int, int], List[Any]] = {}
+_CACHE: dict[tuple[str, int, int], list[Any]] = {}
 
 
 def _path_key(path) -> str:
@@ -57,12 +57,12 @@ def _key(path) -> str:
     return _path_key(path)
 
 
-def _signature(p: Path) -> Tuple[str, int, int]:
+def _signature(p: Path) -> tuple[str, int, int]:
     st = p.stat()
     return (_path_key(p), st.st_mtime_ns, st.st_size)
 
 
-def _load_docs(path) -> List[Any]:
+def _load_docs(path) -> list[Any]:
     """Return the cached list of YAML documents for *path*, parsing on
     cache miss. The caller must already have verified that the file
     exists; missing-file handling is the public helper's job (so the
@@ -83,7 +83,7 @@ def _load_docs(path) -> List[Any]:
 
     with p.open("r", encoding="utf-8") as f:
         # This module IS the cache; calling itself would recurse.
-        docs = list(yaml.safe_load_all(f))  # noqa: direct-yaml
+        docs = list(yaml.safe_load_all(f))  # nocheck: direct-yaml
     _CACHE[sig] = docs
     return docs
 
@@ -117,22 +117,22 @@ def _load_raw(path, *, default_if_missing: Any) -> Any:
     return {} if data is None else data
 
 
-def load_yaml(path, *, default_if_missing: Any = _MISSING) -> Dict[str, Any]:
+def load_yaml(path, *, default_if_missing: Any = _MISSING) -> dict[str, Any]:
     """Load a YAML file as a dict, memoised by absolute path.
 
     `default_if_missing` controls the missing-file behaviour:
     - Default (`_MISSING`): raise `FileNotFoundError` for callers that
       want to fail loud (resolution code).
     - Pass a value (typically `{}`): return that value when the file
-      does not exist, mirroring the historical
-      `cli.create.inventory.yaml_io.load_yaml` behaviour.
+      does not exist, matching the behaviour expected by
+      `cli.administration.inventory.provision.yaml_io.load_yaml`.
 
-    Raises `ValueError` when the YAML root is not a mapping; use
+    Raises `TypeError` when the YAML root is not a mapping; use
     `load_yaml_any` for files whose root is a list or scalar.
     """
     data = _load_raw(path, default_if_missing=default_if_missing)
     if not isinstance(data, dict):
-        raise ValueError(
+        raise TypeError(
             f"Expected a YAML mapping at top-level in {path}, got {type(data).__name__}"
         )
     return data
@@ -161,7 +161,7 @@ def dump_yaml(path, data: Any) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     payload = dict(data) if isinstance(data, Mapping) else data
     with p.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(  # noqa: direct-yaml — this module IS the cache.
+        yaml.safe_dump(  # nocheck: direct-yaml — this module IS the cache.
             payload, f, sort_keys=False, default_flow_style=False
         )
     _drop_path(p)
@@ -182,7 +182,7 @@ def dump_yaml_str(
     ``yaml.safe_dump`` — keeping every YAML touchpoint in
     ``utils.cache.yaml``.
     """
-    return yaml.safe_dump(  # noqa: direct-yaml — this module IS the cache.
+    return yaml.safe_dump(  # nocheck: direct-yaml — this module IS the cache.
         data, sort_keys=sort_keys, default_flow_style=default_flow_style
     )
 
@@ -196,7 +196,7 @@ def load_yaml_str(text: str) -> Any:
     the helper exists for symmetry with :func:`dump_yaml_str` so
     callers never have to ``import yaml`` directly.
     """
-    return yaml.safe_load(text)  # noqa: direct-yaml — this module IS the cache.
+    return yaml.safe_load(text)  # nocheck: direct-yaml — this module IS the cache.
 
 
 def load_yaml_all(path, *, default_if_missing: Any = _MISSING) -> list:
@@ -223,11 +223,12 @@ def load_yaml_all_str(text: str) -> list:
     symmetry with :func:`load_yaml_str` so callers never need
     ``import yaml`` for the parse.
     """
-    return list(yaml.safe_load_all(text))  # noqa: direct-yaml — this module IS the cache.
+    # This module IS the cache; calling itself would recurse.
+    return list(yaml.safe_load_all(text))  # nocheck: direct-yaml
 
 
 def _drop_path(path) -> None:
-    """Drop every cache entry that matches `path` (any mtime/size)."""
+    """Drop every cache entry for `path`."""
     path_str = _path_key(path)
     for stale_key in [k for k in _CACHE if k[0] == path_str]:
         _CACHE.pop(stale_key, None)

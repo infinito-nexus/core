@@ -2,15 +2,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=scripts/meta/env/runtime.sh
-source "${SCRIPT_DIR}/../../../meta/env/runtime.sh"
-[[ "${IS_WSL2}" == "true" ]] || exit 0
-
-# Source project defaults so INFINITO_CONTAINER auto-derives from
-# INFINITO_DISTRO (single SPOT in scripts/meta/env/defaults.sh) — no
-# local fallback derivation here.
-# shellcheck source=scripts/meta/env/defaults.sh
-source "${SCRIPT_DIR}/../../../meta/env/defaults.sh"
+# shellcheck source=scripts/meta/env/load.sh
+source "${SCRIPT_DIR}/../../../meta/env/load.sh"
+[[ "${INFINITO_IS_WSL2}" == "true" ]] || exit 0
 CONTAINER="${INFINITO_CONTAINER}"
 CA_SRC="/etc/infinito.nexus/ca/root-ca.crt"
 CA_NAME="infinito-root-ca.crt"

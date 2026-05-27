@@ -1,3 +1,4 @@
+---
 - name: "Update Master REALM mail settings from realm dictionary"
   keycloak_kcadm_update:
     object_kind: "realm"
@@ -10,4 +11,4 @@
     assert_mode: "{{ MODE_ASSERT }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

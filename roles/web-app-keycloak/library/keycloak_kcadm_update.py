@@ -1,9 +1,5 @@
 #!/usr/bin/python
-# roles/web-app-keycloak/library/keycloak_kcadm_update.py
 
-from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
 
 import json
 import subprocess
@@ -104,12 +100,14 @@ result:
 
 def run_kcadm(module, cmd, ignore_rc=False):
     """Run a shell command for kcadm."""
-    rc = subprocess.run(
+    # `cmd` comes from this Ansible module's own argv plus inventory
+    # overrides (host-trusted), and shell features (pipes, &&) are
+    # required by the kcadm-wrapper invocations the module composes.
+    rc = subprocess.run(  # noqa: S602
         cmd,
         shell=True,
         check=not ignore_rc,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
     )
     # kcadm/JVM warnings can appear on stdout; keep raw output.
     stdout = rc.stdout.decode("utf-8", errors="replace").strip()
@@ -246,24 +244,24 @@ def send_create(module, object_kind, api, realm, kcadm_exec, payload):
 
 
 def run_module():
-    module_args = dict(
-        object_kind=dict(type="str", required=True),
-        lookup_value=dict(type="str", required=True),
-        desired=dict(type="dict", required=True),
-        lookup_field=dict(type="str", required=False, default=None),
-        merge_path=dict(type="str", required=False, default=None),
-        force_attrs=dict(type="dict", required=False, default=None),
-        kcadm_exec=dict(type="str", required=True),
-        realm=dict(type="str", required=False, default=None),
-        assert_mode=dict(type="bool", required=False, default=True),
-    )
+    module_args = {
+        "object_kind": {"type": "str", "required": True},
+        "lookup_value": {"type": "str", "required": True},
+        "desired": {"type": "dict", "required": True},
+        "lookup_field": {"type": "str", "required": False, "default": None},
+        "merge_path": {"type": "str", "required": False, "default": None},
+        "force_attrs": {"type": "dict", "required": False, "default": None},
+        "kcadm_exec": {"type": "str", "required": True},
+        "realm": {"type": "str", "required": False, "default": None},
+        "assert_mode": {"type": "bool", "required": False, "default": True},
+    }
 
-    result = dict(
-        changed=False,
-        object_exists=False,
-        object_id="",
-        result={},
-    )
+    result = {
+        "changed": False,
+        "object_exists": False,
+        "object_id": "",
+        "result": {},
+    }
 
     module = AnsibleModule(argument_spec=module_args, supports_check_mode=False)
 

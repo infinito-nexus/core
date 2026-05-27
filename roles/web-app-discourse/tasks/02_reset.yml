@@ -1,3 +1,4 @@
+---
 - name: "Disconnect DB container from Discourse networks"
   ansible.builtin.command:
     cmd: "container network disconnect {{ discourse_network_item }} {{ lookup('database', application_id, 'container') }}"

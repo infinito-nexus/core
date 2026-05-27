@@ -1,7 +1,7 @@
 # Homeserver details
 homeserver:
     # The address that this appservice can use to connect to the homeserver.
-    address: http://synapse:8008
+    address: http://synapse:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
     # The domain of the homeserver (also known as server_name, used for MXIDs, etc).
     domain: {{ MATRIX_SERVER_NAME }}
     # Whether or not to verify the SSL certificate of the homeserver.

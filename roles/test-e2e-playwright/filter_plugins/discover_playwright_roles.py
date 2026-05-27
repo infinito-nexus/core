@@ -1,17 +1,29 @@
 from __future__ import annotations
 
+import ast
 from pathlib import Path
-from typing import Iterable, List, Optional, Set
+from typing import TYPE_CHECKING
 
 from ansible.errors import AnsibleFilterError
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
-def _to_role_set(raw: Optional[Iterable[str] | str], var_name: str) -> Set[str]:
+
+def _to_role_set(raw: Iterable[str] | str | None, var_name: str) -> set[str]:
     if raw is None:
         return set()
 
     if isinstance(raw, str):
-        # Support CLI-style CSV extra-vars, e.g. allowed_applications=app1,app2
+        # Non-native-Jinja2 stringifies `"{{ <list> }}"` to its Python repr.
+        stripped = raw.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            try:
+                parsed = ast.literal_eval(stripped)
+            except (ValueError, SyntaxError):
+                parsed = None
+            if isinstance(parsed, (list, tuple, set)):
+                return {str(item).strip() for item in parsed if str(item).strip()}
         return {item.strip() for item in raw.split(",") if item.strip()}
 
     try:
@@ -24,9 +36,9 @@ def _to_role_set(raw: Optional[Iterable[str] | str], var_name: str) -> Set[str]:
 
 def discover_playwright_roles(
     playbook_dir: str,
-    only_roles: Optional[Iterable[str] | str] = None,
-    skip_roles: Optional[Iterable[str] | str] = None,
-) -> List[str]:
+    only_roles: Iterable[str] | str | None = None,
+    skip_roles: Iterable[str] | str | None = None,
+) -> list[str]:
     base = Path(playbook_dir) / "roles"
     if not base.exists():
         raise AnsibleFilterError(f"roles dir not found: {base}")
@@ -34,11 +46,12 @@ def discover_playwright_roles(
     only = _to_role_set(only_roles, "only_roles")
     skip = _to_role_set(skip_roles, "skip_roles")
 
-    found: List[str] = []
+    found: list[str] = []
 
     # Current marker for Playwright-enabled app roles:
     # .../roles/<role>/templates/playwright.env.j2
     for env_file in base.rglob("templates/playwright.env.j2"):
+        # nocheck: project-root-import  walking from a discovered glob match (<role>/templates/...) up to its role dir, not the repo root
         role_name = env_file.parents[1].name
         found.append(role_name)
 
@@ -53,7 +66,7 @@ def discover_playwright_roles(
     return uniq
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "discover_playwright_roles": discover_playwright_roles,

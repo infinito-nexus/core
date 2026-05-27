@@ -36,7 +36,7 @@
       timeout: 20s
       retries: 5
       start_period: 60s
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   nginx:
@@ -80,7 +80,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'code': {'name': MOODLE_VOLUME_CODE}, 'data': {'name': MOODLE_VOLUME_DATA}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

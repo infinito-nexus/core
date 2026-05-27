@@ -19,7 +19,7 @@
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.http') }}:80"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     volumes:
       - data:/var/www/html/
@@ -37,9 +37,9 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     volumes:
       - data:/var/www/html/
-    depends_on:
-      {{ ESPOCRM_SERVICE }}:
-        condition: service_healthy
+{{ lookup('container_depends_on', application_id, extra={
+  ESPOCRM_SERVICE: {'condition': 'service_healthy'},
+}) }}
     healthcheck:
       test: ["CMD-SHELL", "test -f /var/www/html/bootstrap.php && php -r \"require '/var/www/html/bootstrap.php'; echo 'OK';\""]
       interval: 30s
@@ -62,19 +62,17 @@
       - ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBSCRIBER_DSN=tcp://*:7777
       - ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBMISSION_DSN=tcp://websocket:7777
     entrypoint: docker-websocket.sh
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     volumes:
       - data:/var/www/html/
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}:8080"
-    depends_on:
-      {{ ESPOCRM_SERVICE }}:
-        condition: service_healthy
+{{ lookup('container_depends_on', application_id, extra={
+  ESPOCRM_SERVICE: {'condition': 'service_healthy'},
+}) }}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': ESPOCRM_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

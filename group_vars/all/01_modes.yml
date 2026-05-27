@@ -1,12 +1,13 @@
+---
 # Mode
 
 # The following modes can be combined with each other
-MODE_DUMMY:   false                       # Executes dummy/test routines instead of productive routines
-MODE_DEBUG:   false                       # This enables debugging in ansible and in the apps, You SHOULD NOT enable this on production servers
-MODE_RESET:   false                       # Cleans up all Infinito.Nexus files. It's necessary to run to whole playbook and not particial roles when using this function.
-MODE_CLEANUP: true                        # Cleanup unused files and configurations
-MODE_ASSERT:  "{{ MODE_DEBUG  | bool }}"  # Executes validation tasks during the run.
-MODE_BACKUP:  true                        # Executes the Backup before the deployment
+MODE_DUMMY: false # Executes dummy/test routines instead of productive routines
+MODE_DEBUG: false # This enables debugging in ansible and in the apps, You SHOULD NOT enable this on production servers
+MODE_RESET: false # Cleans up all Infinito.Nexus files. It's necessary to run to whole playbook and not particial roles when using this function.
+MODE_CLEANUP: true # Cleanup unused files and configurations
+MODE_ASSERT: "{{ MODE_DEBUG  | bool }}" # Executes validation tasks during the run.
+MODE_BACKUP: true # Executes the Backup before the deployment
 
 # Note: the previous `MODE_CI` flag (env-driven OR of GITHUB_ACTIONS / ACT /
 # INFINITO_MAKE_DEPLOY) was retired. The Playwright E2E gate now keys on

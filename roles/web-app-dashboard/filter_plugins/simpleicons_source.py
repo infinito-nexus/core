@@ -1,11 +1,8 @@
-from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
-
-import certifi
 import os
 import re
+from pathlib import Path
 
+import certifi
 import requests
 from ansible.errors import AnsibleFilterError
 
@@ -14,7 +11,7 @@ def get_requests_verify():
     """Return a CA bundle path for outbound HTTPS verification."""
     for env_var in ("REQUESTS_CA_BUNDLE", "SSL_CERT_FILE", "CA_TRUST_CERT_HOST"):
         candidate = os.environ.get(env_var, "").strip()
-        if candidate and os.path.isfile(candidate):
+        if candidate and Path(candidate).is_file():
             return candidate
     return certifi.where()
 
@@ -70,20 +67,27 @@ def resolve_simpleicons_base(simpleicons_value, web_protocol="https"):
 
 
 def add_simpleicon_source(
-    cards, simpleicons_value, web_protocol="https", local_static_dir="simpleicons"
+    cards, simpleicons_value, web_protocol="https", public_url_base=None
 ):
     """
     For each card in portfolio_cards, check if an icon exists in the simpleicons server.
-    If it does, add icon.source with the absolute Simple Icons URL so the
-    dashboard frontend can cache the remote asset into its local static cache.
+    Reachability is probed against `simpleicons_value` (typically the in-cluster
+    sync URL — plain HTTP, no redirect, no TLS). The browser-facing `icon.source`
+    is set to `public_url_base` when provided (the public Simple Icons URL the
+    dashboard frontend can reach), otherwise to the same URL used for the probe.
 
     :param cards: List of card dictionaries (portfolio_cards)
-    :param simpleicons_value: Fully rendered base URL, domain, or application domain mapping
-    :param web_protocol: Protocol to use (https or http)
-    :param local_static_dir: Deprecated compatibility parameter; kept for filter API stability
-    :return: New list of cards with icon.source set to the Simple Icons URL when available
+    :param simpleicons_value: Fully rendered URL/domain used for the HEAD reachability check
+    :param web_protocol: Protocol to use (https or http) when resolving a bare domain
+    :param public_url_base: Optional separate public base URL written into icon.source
+    :return: New list of cards with icon.source set when the icon is reachable
     """
-    base_url = resolve_simpleicons_base(simpleicons_value, web_protocol)
+    probe_base = resolve_simpleicons_base(simpleicons_value, web_protocol)
+    rewrite_base = (
+        resolve_simpleicons_base(public_url_base, web_protocol)
+        if public_url_base
+        else probe_base
+    )
 
     enhanced = []
     for card in cards:
@@ -93,16 +97,16 @@ def add_simpleicon_source(
             continue
         # Create slug from title
         slug = slugify(title)
-        icon_url = f"{base_url}/{slug}.svg"
+        probe_url = f"{probe_base}/{slug}.svg"
         try:
             resp = requests.head(
-                icon_url,
+                probe_url,
                 timeout=2,
                 allow_redirects=True,
                 verify=get_requests_verify(),
             )
             if resp.status_code == 200:
-                card.setdefault("icon", {})["source"] = icon_url
+                card.setdefault("icon", {})["source"] = f"{rewrite_base}/{slug}.svg"
         except requests.RequestException:
             # Ignore network errors and move on
             pass
@@ -110,7 +114,7 @@ def add_simpleicon_source(
     return enhanced
 
 
-class FilterModule(object):
+class FilterModule:
     """Ansible filter plugin to add simpleicons source URLs to portfolio cards"""
 
     def filters(self):

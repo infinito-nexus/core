@@ -12,3 +12,10 @@ server {
         {% include 'roles/sys-front-tls/templates/acme.conf.j2' %}
     {% endif %}
 }
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+
+    ssl_reject_handshake on;
+}

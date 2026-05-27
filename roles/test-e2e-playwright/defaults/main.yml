@@ -1,30 +1,30 @@
-images:
-  playwright:
-    image: mcr.microsoft.com/playwright
-    version: "v1.59.1-noble"
-
-# Derived from images.playwright.version — strip leading "v" and distro suffix.
-TEST_E2E_PLAYWRIGHT_VERSION: "{{ images.playwright.version | image_version }}"
-
+---
 # Where we stage per-role Playwright projects on the host
-TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR:    "/tmp/test-e2e-playwright"
+TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
 # Where to store per-role reports/artifacts (host dir)
-TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR:  "/var/lib/infinito/logs/test-e2e-playwright"
+TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "/var/lib/infinito/logs/test-e2e-playwright"
 
-# Optional Playwright image override. If empty, derive the default image from
-# files/package.json and TEST_E2E_PLAYWRIGHT_IMAGE_DISTRO.
-TEST_E2E_PLAYWRIGHT_IMAGE:             ""
-TEST_E2E_PLAYWRIGHT_IMAGE_DISTRO:      "noble"
+# `--max-failures=5` bounds the retry budget when a role is broken.
+TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"
 
-# Command executed inside the Playwright container
-TEST_E2E_PLAYWRIGHT_COMMAND:           "npm install --no-fund --no-audit && npx playwright test"
+# Hard cap per role; Ansible kills the sidecar if exceeded.
+TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT: 1200
 
 # Optional readiness wait
-TEST_E2E_PLAYWRIGHT_WAIT_ENABLED:      true
-TEST_E2E_PLAYWRIGHT_WAIT_RETRIES:      30
-TEST_E2E_PLAYWRIGHT_WAIT_DELAY:        5
+TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: true
+TEST_E2E_PLAYWRIGHT_WAIT_RETRIES: 30
+TEST_E2E_PLAYWRIGHT_WAIT_DELAY: 5
 
 # Run only a subset (optional)
-TEST_E2E_PLAYWRIGHT_ONLY_ROLES:        "{{ allowed_applications }}"  # e.g. ["svc-nextcloud","svc-matrix"]
-TEST_E2E_PLAYWRIGHT_SKIP_ROLES:        []                             # e.g. ["svc-something"]
+TEST_E2E_PLAYWRIGHT_ONLY_ROLES: "{{ lookup('deployment').groups }}"
+TEST_E2E_PLAYWRIGHT_SKIP_ROLES: [] # e.g. ["svc-something"]
+
+TEST_E2E_PLAYWRIGHT_KEEP: false
+
+# 0-based matrix-deploy round id. Pushed as an Ansible extra var by
+# `cli/administration/deploy/development/deploy.py` when the matrix
+# orchestrator runs; defaults to 0 for dev / non-matrix invocations
+# so per-(variant, pass) artifact archiving still produces a valid
+# `variant-0/<sync|async>/` slot.
+VARIANT_INDEX: 0

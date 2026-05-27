@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple
 
 
 @dataclass(frozen=True)
@@ -15,7 +14,7 @@ class Command:
       cli/build/tree/__main__.py  -> parts=("build","tree"), module="cli.build.tree"
     """
 
-    parts: Tuple[str, ...]  # relative path parts under cli/
+    parts: tuple[str, ...]  # relative path parts under cli/
     module: str  # python -m module
     main_path: Path  # filesystem path to __main__.py
 
@@ -34,19 +33,73 @@ class Command:
         return " ".join(self.parts)
 
 
+@dataclass(frozen=True)
+class DirEntry:
+    """One-level-deep entry under a cli/ directory.
+
+    `is_command` is True when the directory itself contains ``__main__.py``
+    (a runnable subcommand); False for category folders that only group
+    further commands and have no entry point of their own.
+    """
+
+    name: str
+    is_command: bool
+    relative_parts: tuple[str, ...]
+
+    @property
+    def module(self) -> str:
+        return "cli." + ".".join(self.relative_parts)
+
+
 def _is_valid_package_dir(path: Path) -> bool:
     if not path.is_dir():
         return False
-    if path.name == "__pycache__":
-        return False
-    return True
+    return path.name != "__pycache__"
 
 
-def discover_commands(cli_dir: Path) -> List[Command]:
+def _has_cli_content(folder: Path) -> bool:
+    """A category folder is shown in the overview only when it has at
+    least one runnable command somewhere underneath. Empty support
+    packages (e.g. ``cli/core``) stay hidden."""
+    if (folder / "__main__.py").is_file():
+        return True
+    for path in folder.rglob("__main__.py"):
+        if "__pycache__" in path.parts:
+            continue
+        return True
+    return False
+
+
+def iter_dir_entries(cli_dir: Path, parts: tuple[str, ...]) -> list[DirEntry]:
+    """Return the immediate subdirectories of ``cli/<parts>/``, split into
+    runnable commands (``__main__.py`` present) and category folders.
+    Empty support packages (no command anywhere underneath) are skipped."""
+    base = cli_dir.joinpath(*parts) if parts else cli_dir
+    if not base.is_dir():
+        return []
+    entries: list[DirEntry] = []
+    for child in sorted(base.iterdir()):
+        if not _is_valid_package_dir(child):
+            continue
+        if child.name.startswith("__"):
+            continue
+        if not _has_cli_content(child):
+            continue
+        entries.append(
+            DirEntry(
+                name=child.name,
+                is_command=(child / "__main__.py").is_file(),
+                relative_parts=(*parts, child.name),
+            )
+        )
+    return entries
+
+
+def discover_commands(cli_dir: Path) -> list[Command]:
     """
     Recursively find all packages under cli_dir that contain __main__.py.
     """
-    commands: List[Command] = []
+    commands: list[Command] = []
 
     for root, dirnames, filenames in os.walk(cli_dir):
         # prune __pycache__ eagerly
@@ -75,8 +128,8 @@ def discover_commands(cli_dir: Path) -> List[Command]:
 
 
 def resolve_command_module(
-    cli_dir: Path, argv_parts: List[str]
-) -> tuple[str | None, List[str]]:
+    cli_dir: Path, argv_parts: list[str]
+) -> tuple[str | None, list[str]]:
     """
     Resolve the longest argv prefix that matches a discovered command module.
 
@@ -85,7 +138,7 @@ def resolve_command_module(
 
     Example:
       argv_parts=["deploy","container","--foo","bar"]
-      -> ("cli.deploy.container", ["--foo","bar"])
+      -> ("cli.administration.deploy.container", ["--foo","bar"])
     """
     # Subcommand path is always BEFORE the first flag (CLI convention) and
     # cannot contain absolute paths or path separators. Capping the search

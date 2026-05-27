@@ -21,7 +21,7 @@ With automated setup, update handling, variable management, and plugin-based aut
 
 ## Further Resources
 
-* [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url — redirect loop on probe, site is alive when visited interactively -->
+* [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->
 * [Shopware Developer Documentation](https://developer.shopware.com/)
 * [Shopware Store (Plugins)](https://store.shopware.com/en/)
 
@@ -29,6 +29,5 @@ With automated setup, update handling, variable management, and plugin-based aut
 
 Developed and maintained by **Kevin Veen-Birkenbach**.
 Learn more at [veen.world](https://www.veen.world).
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)
-Licensed under [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

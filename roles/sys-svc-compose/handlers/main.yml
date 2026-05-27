@@ -1,4 +1,22 @@
 ---
+- name: Generate CA trust override
+  ansible.builtin.shell: |
+    set -euo pipefail
+    {{ lookup('compose_ca_inject_cmd', application_id) }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: compose_ca_override
+  retries: 7
+  delay: 20
+  until: compose_ca_override is succeeded
+  listen:
+    - compose up
+  when:
+    - lookup('domains') | has_domain(application_id)
+    - lookup('tls', application_id, 'enabled') | bool
+    - lookup('tls', application_id, 'mode') == 'self_signed'
+
 - name: Validate Docker Compose configuration
   ansible.builtin.shell: |
     set -euo pipefail
@@ -28,16 +46,13 @@
       --ignore-buildable
   register: pull
   changed_when: "'pulled' in pull.stdout"
-  environment:
-    COMPOSE_HTTP_TIMEOUT: "600"
-    DOCKER_CLIENT_TIMEOUT: "600"
   retries: 10
   delay: 30
   until: pull is succeeded
   listen:
     - compose up
 
-- name: Build compose 
+- name: Build compose
   ansible.builtin.shell: |
     set -euo pipefail
     compose build || {
@@ -47,31 +62,8 @@
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
-  environment:
-    COMPOSE_HTTP_TIMEOUT: "600"
-    DOCKER_CLIENT_TIMEOUT: "600"
-    DOCKER_BUILDKIT: "1"
-    COMPOSE_DOCKER_CLI_BUILD: "1"
   listen:
     - compose build
-
-- name: Generate CA trust override
-  ansible.builtin.shell: |
-    set -euo pipefail
-    {{ lookup('compose_ca_inject_cmd', application_id) }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  register: compose_ca_override
-  retries: 7
-  delay: 20
-  until: compose_ca_override is succeeded
-  listen:
-    - compose up
-  when:
-    - lookup('domains') | has_domain(application_id)
-    - lookup('tls', application_id, 'enabled') | bool
-    - lookup('tls', application_id, 'mode') == 'self_signed'
 
 - name: compose up
   ansible.builtin.shell: |
@@ -80,8 +72,6 @@
   register: dc_up
   changed_when: true
   environment:
-    COMPOSE_HTTP_TIMEOUT: "600"
-    DOCKER_CLIENT_TIMEOUT: "600"
     COMPOSE_PARALLEL_LIMIT: "{{ '4' if (DOCKER_IN_CONTAINER | bool) else omit }}"
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"

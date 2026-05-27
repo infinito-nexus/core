@@ -1,6 +1,7 @@
-# Webserver HTTPS Provisioning 🚀
+# Webserver HTTPS Provisioning
 
 ## Description
+
 The **sys-svc-webserver-https** role extends a basic NGINX installation by wiring in everything you need to serve content over HTTPS:
 
 1. Ensures your NGINX server is configured for SSL/TLS.
@@ -20,7 +21,7 @@ When you apply **sys-svc-webserver-https**, it will:
 3. **Deploy** the Let’s Encrypt challenge-and-redirect snippet from `sys-svc-letsencrypt`.  
 4. **Reload** NGINX automatically when any template changes.
 
-All tasks are idempotent—once your certificates are in place and your configuration is set, Ansible will skip unchanged steps on subsequent runs.
+All tasks are idempotent. Once your certificates are in place and your configuration is set, Ansible will skip unchanged steps on subsequent runs.
 
 ---
 
@@ -47,8 +48,9 @@ See [https://s.infinito.nexus/license](https://s.infinito.nexus/license) for det
 
 ---
 
-## Author
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**
-Consulting & Coaching Solutions
-[https://www.veen.world](https://www.veen.world)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

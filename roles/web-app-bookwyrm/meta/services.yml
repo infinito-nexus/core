@@ -1,47 +1,52 @@
-oidc:
-  enabled: false
-  shared: false
-ldap:
-  enabled: false
-  shared: false
+---
 oauth2:
-  # BookWyrm has no first-party OIDC adapter. Per requirement 013 the
-  # project uses `web-app-oauth2-proxy` in front of the BookWyrm web
-  # UI as the universal glue path.
-  enabled: true
-  shared: false
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
   origin:
     host: application
     port: 8000
   allowed_groups:
-  - '{{ lookup(''rbac_group_path'', application_id=''web-app-bookwyrm'', role=''administrator'') }}'
+    - "{{ lookup('rbac_group_path', application_id='web-app-bookwyrm', role='administrator') }}"
+oidc:
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+ldap:
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
-# noqa: shared
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+  extensions:
+    - bloom
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: true
 bookwyrm:
-  version: v0.7.5
   name: bookwyrm
+  image: python
+  # TODO: bump when upstream Bookwyrm declares support for Python >= 3.12 in requirements.txt
+  # nocheck: docker-version
+  version: 3.11-bookworm
   repository: https://github.com/bookwyrm-social/bookwyrm.git
+  ref: v0.8.5
   min_storage: 15GB
-  base_image: python
-  base_version: 3.11-bookworm
   registration_open: false
   allow_invite_request: false
   ports:
@@ -53,16 +58,19 @@ bookwyrm:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
-# noqa: shared
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 worker:
   enabled: true
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

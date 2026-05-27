@@ -33,14 +33,13 @@ Your OIDC-authenticated user is now a full **global admin** and has access to al
 
 > 💡 Tip: This method is useful when you're using federated login and want to avoid managing separate local admin credentials.
 
-
 ## Changing the Primary Domain of a Mailu Account (MariaDB) 🌐
 
 Mailu links user accounts to specific domains, so changing a user's primary domain cannot be done via the admin interface. You need to update it manually via the database.
 
 > ⚠️ **Warning:** Always back up your database before performing manual operations.
 
-### Steps for MariaDB:
+### Steps for MariaDB
 
 1. Connect to the Mailu MariaDB container:
 

@@ -1,9 +1,9 @@
 # OAuth2-Proxy-Endpoint
 location /oauth2/ {
     proxy_pass http://127.0.0.1:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.oauth2') }};
-    {% if lookup('tls', application_id, 'enabled') | bool %}
-    proxy_hide_header Strict-Transport-Security;
-    {% endif %}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

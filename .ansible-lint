@@ -1,0 +1,34 @@
+---
+# ansible-lint config — see https://ansible.readthedocs.io/projects/lint/configuring/
+# Strategy: start with the `min` profile so the baseline is achievable today;
+# graduate to `basic` / `moderate` once the existing tree is clean.
+
+profile: min
+
+# Per-file false-positive ignores live in `.ansible-lint-ignore`
+# (load-failure / syntax-check are tagged `unskippable` and cannot go in
+# skip_list).
+
+# Paths that ansible-lint should not walk.
+exclude_paths:
+  - .cache/
+  - .claude/
+  - .github/
+  - tests/integration/fixtures/
+  - tests/lint/fixtures/
+  - venv/
+  - .venv/
+
+# Files that are not Ansible content but live under the same tree as roles
+# and would otherwise be misclassified.
+kinds:
+  - playbook: "playbook.yml"
+  - tasks: "roles/*/tasks/*.yml"
+  - tasks: "tasks/**/*.yml"
+  - vars: "roles/*/vars/*.yml"
+  - vars: "group_vars/**/*.yml"
+  - vars: "host_vars/**/*.yml"
+  - meta: "roles/*/meta/main.yml"
+  - meta-runtime: "roles/*/meta/runtime.yml"
+  - handlers: "roles/*/handlers/*.yml"
+  - defaults: "roles/*/defaults/*.yml"

@@ -1,4 +1,4 @@
-Infinito.Nexus Community License (Non-Commercial)
+# Infinito.Nexus Community License (Non-Commercial)
 
 Copyright (c) 2026 Kevin Veen-Birkenbach
 All rights reserved.

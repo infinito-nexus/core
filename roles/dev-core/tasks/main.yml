@@ -1,13 +1,14 @@
+---
 - block:
-  - name: Include dependency 'pkgmgr'
-    include_role:
-      name: pkgmgr
-    when: run_once_pkgmgr is not defined
+    - name: Include dependency 'pkgmgr'
+      include_role:
+        name: pkgmgr
+      when: run_once_pkgmgr is not defined
 
-  - name: install base developer tools
-    package:
-      name:
-      - code
-      state: present
-  - include_tasks: utils/once/flag.yml
+    - name: install base developer tools
+      package:
+        name:
+          - code
+        state: present
+    - include_tasks: utils/once/flag.yml
   when: run_once_dev_core is not defined

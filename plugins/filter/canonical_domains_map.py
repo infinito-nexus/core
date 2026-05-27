@@ -1,12 +1,34 @@
-from ansible.errors import AnsibleFilterError
-import os
-from utils.entity_name_utils import get_entity_name
+from collections.abc import Iterable
+from pathlib import Path
+
+from ansible.errors import AnsibleError, AnsibleFilterError
+
 from utils.domains.list import render_domain_value
 from utils.roles.dependency_resolver import RoleDependencyResolver
-from typing import Iterable
+from utils.roles.entity_name import get_entity_name
+from utils.templating.ansible import render_ansible_strict
 
 
-class FilterModule(object):
+def _resolve_domain_primary(domain_primary):
+    if not isinstance(domain_primary, str):
+        return domain_primary
+    if "{{" not in domain_primary and "{%" not in domain_primary:
+        return domain_primary
+    try:
+        return render_ansible_strict(
+            templar=None,
+            raw=domain_primary,
+            var_name="DOMAIN_PRIMARY",
+            err_prefix="canonical_domains_map",
+            variables={},
+        )
+    except AnsibleError as e:
+        raise AnsibleFilterError(
+            f"canonical_domains_map: failed to resolve DOMAIN_PRIMARY {domain_primary!r}: {e}"
+        ) from e
+
+
+class FilterModule:
     def filters(self):
         return {"canonical_domains_map": self.canonical_domains_map}
 
@@ -30,12 +52,14 @@ class FilterModule(object):
                 f"'apps' must be a dict, got {type(apps).__name__}"
             )
 
+        domain_primary = _resolve_domain_primary(domain_primary)
+
         app_keys = set(apps.keys())
         seed_keys = set(seed) if seed is not None else app_keys
 
         if recursive:
-            roles_base_dir = roles_base_dir or os.path.join(os.getcwd(), "roles")
-            if not os.path.isdir(roles_base_dir):
+            roles_base_dir = roles_base_dir or str(Path(str(Path.cwd())) / "roles")
+            if not Path(roles_base_dir).is_dir():
                 raise AnsibleFilterError(
                     f"roles_base_dir '{roles_base_dir}' not found or not a directory."
                 )
@@ -102,7 +126,13 @@ class FilterModule(object):
 
     def _add_default_domain(self, app_id, domain_primary, seen_domains, result):
         entity_name = get_entity_name(app_id)
-        default_domain = f"{entity_name}.{domain_primary}"
+        dp = str(domain_primary)
+        if "{{" in dp or "}}" in dp or "{%" in dp:
+            raise AnsibleFilterError(
+                f"canonical_domains_map: domain_primary is not rendered "
+                f"(contains Jinja expression): {domain_primary!r}"
+            )
+        default_domain = f"{entity_name}.{dp}"
         if default_domain in seen_domains:
             raise AnsibleFilterError(
                 f"Domain '{default_domain}' is already configured for "
@@ -115,7 +145,7 @@ class FilterModule(object):
         self, app_id, canonical_domains, seen_domains, result
     ):
         if isinstance(canonical_domains, dict):
-            for _, domain in canonical_domains.items():
+            for domain in canonical_domains.values():
                 self._validate_and_check_domain(app_id, domain, seen_domains)
             result[app_id] = canonical_domains.copy()
         elif isinstance(canonical_domains, list):

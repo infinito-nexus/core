@@ -1,4 +1,4 @@
-# Python Development Utilities 🐍
+# Python Development Utilities
 
 ## Description
 
@@ -22,6 +22,7 @@ To simplify and standardize the provisioning of Python-ready environments for de
 - **Foundation for Further Stacks:** Ideal starting point for Flask, Django, scientific computing, and automation.
 
 Supported distro families in the installer script:
+
 - Arch Linux
 - Debian
 - Ubuntu
@@ -31,14 +32,14 @@ Supported distro families in the installer script:
 ## Customization
 
 Easily extend this role with:
+
 - Python virtualenv tools (`python-virtualenv`, `pyenv`)
 - Popular libraries (`numpy`, `requests`, `flask`)
 - Framework-specific roles (e.g., `dev-python-django`)
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

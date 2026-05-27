@@ -8,7 +8,8 @@ FROM ${JOOMLA_IMAGE}:${JOOMLA_VERSION}
 # the running container via `composer install`, so the host never
 # needs PHP/Composer. `unzip` is required by Joomla's
 # `extension:install --path=<zip>` CLI.
-RUN apt-get update \
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get update \
     && apt-get install -y --no-install-recommends git unzip curl ca-certificates \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && rm -rf /var/lib/apt/lists/*

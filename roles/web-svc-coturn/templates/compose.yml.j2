@@ -1,7 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   nginx:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: nginx:alpine
+    image: {{ COTURN_GATEWAY_IMAGE }}:{{ COTURN_GATEWAY_VERSION }}
     container_name: {{ entity_name }}_nginx
     ports:
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.coturn.ports.local.http') }}:80
@@ -69,6 +69,5 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': COTURN_VOLUME}}
 ) }}

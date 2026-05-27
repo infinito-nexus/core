@@ -1,3 +1,4 @@
+---
 # Required to be set on the top so global frontend service loading can rely on run_once guards.
 - include_tasks: utils/once/flag.yml
 

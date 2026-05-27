@@ -17,7 +17,7 @@ HOSTNAME_COLOR="\033[1;4;5;32m"
 clear
 
 # Primary IP (determined via default route)
-PRIMARY_IP=$(ip route get 8.8.8.8 2>/dev/null | awk '{print $7}' | head -n1)
+PRIMARY_IP=$(ip route get {{ NETWORK_PUBLIC_DNS_RESOLVERS[0] }} 2>/dev/null | awk '{print $7}' | head -n1)
 
 # Print welcome message
 echo -e "${HEADER_COLOR}Welcome, $USER on ${HOSTNAME_COLOR}$(hostname)!${RESET_COLOR}"

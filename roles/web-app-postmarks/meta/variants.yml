@@ -1,5 +1,5 @@
-# Matrix-deploy variant overrides for this role (requirement 013
-# alpha-to-beta promotion). Postmarks has no first-party OIDC or
+---
+# Matrix-deploy variant overrides for this role. Postmarks has no first-party OIDC or
 # LDAP integration, both auth-flow variants ride the same
 # `web-app-oauth2-proxy` sidecar in front of the Postmarks web UI.
 # Variant 0 is the canonical OIDC variant (Keycloak with local
@@ -9,10 +9,42 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: OIDC variant (canonical default).
-- {}
 
-# variant 1: LDAP variant. Same oauth2-proxy gate, with the LDAP
-# marker enabled so the Playwright LDAP scenario fires.
 - services:
-    ldap:
+    dashboard:
       enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oauth2:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
+- services:
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    oauth2:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false

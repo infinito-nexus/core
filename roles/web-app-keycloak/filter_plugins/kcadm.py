@@ -1,8 +1,7 @@
-# roles/web-app-keycloak/filter_plugins/kcadm.py
 from __future__ import annotations
 
-from pathlib import Path
 import importlib.util
+from pathlib import Path
 from typing import Any
 
 
@@ -33,7 +32,7 @@ _kcadm_json_mod = _load_role_local_module_utils()
 json_from_noisy_stdout = _kcadm_json_mod.json_from_noisy_stdout
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {"kcadm_json": self.kcadm_json}
 

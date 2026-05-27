@@ -1,6 +1,8 @@
 import unittest
-from plugins.filter.get_domain import FilterModule
+
 from ansible.errors import AnsibleFilterError
+
+from plugins.filter.get_domain import FilterModule
 
 
 class TestGetDomainFilter(unittest.TestCase):

@@ -13,16 +13,18 @@ Usage in a template:
     {% set body_features = SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('body') %}
 """
 
-import os
+from pathlib import Path
 
-# This file lives at: roles/sys-front-inj-all/filter_plugins/inj_snippets.py
-_THIS_DIR = os.path.dirname(__file__)
-_ROLE_DIR = os.path.abspath(os.path.join(_THIS_DIR, ".."))  # roles/sys-front-inj-all
-_ROLES_DIR = os.path.abspath(os.path.join(_ROLE_DIR, ".."))  # roles
+# Role-bundled plugin: Ansible loads this file by file path with no
+# package context, so `from . import PROJECT_ROOT` cannot resolve here.
+# nocheck: project-root-import
+_ROLE_DIR = str(Path(__file__).resolve().parents[1])
+# nocheck: project-root-import
+_ROLES_DIR = str(Path(__file__).resolve().parents[2])
 
 
 def _feature_role_dir(feature: str) -> str:
-    return os.path.join(_ROLES_DIR, f"sys-front-inj-{feature}")
+    return str(Path(_ROLES_DIR) / f"sys-front-inj-{feature}")
 
 
 def _has_snippet(feature: str, kind: str) -> bool:
@@ -30,14 +32,14 @@ def _has_snippet(feature: str, kind: str) -> bool:
         raise ValueError("kind must be 'head' or 'body'")
 
     role_dir = _feature_role_dir(feature)
-    if not os.path.isdir(role_dir):
+    if not Path(role_dir).is_dir():
         raise FileNotFoundError(
             f"[inj_snippets] Expected role directory not found for feature "
             f"'{feature}': {role_dir}"
         )
 
-    path = os.path.join(role_dir, "templates", f"{kind}_sub.j2")
-    return os.path.exists(path)
+    path = str(Path(role_dir) / "templates" / f"{kind}_sub.j2")
+    return Path(path).exists()
 
 
 def inj_features_filter(features, kind: str = "head"):
@@ -52,7 +54,7 @@ def inj_features_filter(features, kind: str = "head"):
     return valid
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "inj_features": inj_features_filter,

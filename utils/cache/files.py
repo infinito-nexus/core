@@ -31,10 +31,13 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, Iterator, Tuple
+from typing import TYPE_CHECKING
 
-from .base import PROJECT_ROOT
+from . import PROJECT_ROOT
 from .gitignore import is_path_gitignored, load_gitignore_patterns
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 # Directories never worth descending into during project-tree scans.
 _DEFAULT_SKIP_DIRS: frozenset[str] = frozenset(
@@ -64,8 +67,7 @@ def _all_project_files() -> tuple[str, ...]:
     for dirpath, dirnames, filenames in os.walk(root_str, topdown=True):
         # prune in-place (topdown=True): stops descent into skipped dirs
         dirnames[:] = [d for d in dirnames if d not in _DEFAULT_SKIP_DIRS]
-        for fn in filenames:
-            paths.append(os.path.join(dirpath, fn))
+        paths.extend(str(Path(dirpath) / fn) for fn in filenames)
     return tuple(paths)
 
 
@@ -87,7 +89,7 @@ def iter_project_files(
             ``docs`` segment.
     """
     all_files = _all_project_files()
-    tests_prefix = os.path.join(str(PROJECT_ROOT), "tests") + os.sep
+    tests_prefix = str(Path(str(PROJECT_ROOT)) / "tests") + os.sep
     ext_lower = tuple(e.lower() for e in extensions) if extensions else None
     exclude_dirs_set = set(exclude_dirs) if exclude_dirs else None
 
@@ -97,8 +99,7 @@ def iter_project_files(
         if exclude_dirs_set is not None:
             # Cheap path-segment check; avoids splitting the full path.
             rel = os.path.relpath(path, str(PROJECT_ROOT))
-            segments = rel.split(os.sep)
-            if exclude_dirs_set.intersection(segments):
+            if exclude_dirs_set.intersection(Path(rel).parts):
                 continue
         if ext_lower is not None:
             lower = path.lower()
@@ -114,7 +115,7 @@ def read_text(path: str) -> str:
     Raises OSError / UnicodeDecodeError unchanged — callers that scan arbitrary
     files can wrap this in try/except if non-UTF-8 blobs may appear.
     """
-    with open(path, "r", encoding="utf-8") as f:
+    with Path(path).open(encoding="utf-8") as f:
         return f.read()
 
 
@@ -123,7 +124,7 @@ def iter_project_files_with_content(
     extensions: Iterable[str] | None = None,
     exclude_tests: bool = False,
     exclude_dirs: Iterable[str] | None = None,
-) -> Iterator[Tuple[str, str]]:
+) -> Iterator[tuple[str, str]]:
     """Yield ``(path, content)`` for matching files; content is cached.
 
     Files that fail to read (permission errors, non-UTF-8) are silently

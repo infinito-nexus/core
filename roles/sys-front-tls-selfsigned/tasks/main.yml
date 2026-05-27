@@ -1,4 +1,4 @@
 ---
 - name: "Execute Role (once)"
-  include_tasks: 01_core.yml 
+  include_tasks: 01_core.yml
   when: run_once_sys_front_tls_selfsigned is not defined

@@ -6,7 +6,7 @@
   register: container_action
   failed_when: container_action.failed and 'No such container' not in container_action.msg
   listen: recreate discourse
-  
+
 - name: "add central database temporary to discourse network"
   command: "container network connect {{ DISCOURSE_NETWORK }} {{ DISCOURSE_DATABASE_CONTAINER }}"
   failed_when: >

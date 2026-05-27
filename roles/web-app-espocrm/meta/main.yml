@@ -1,16 +1,30 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Empower your customer relationship management with EspoCRM. Tailored for businesses of all sizes, EspoCRM enables you to manage your sales, customer interactions, and business processes with ease, fostering productivity and streamlined communication across teams.
+  description: Deploys EspoCRM, a customer relationship management platform for managing sales, customer interactions, and business processes across teams.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   galaxy_tags:
     - espocrm
     - crm
     - sales
   issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

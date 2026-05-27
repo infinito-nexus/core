@@ -1,3 +1,4 @@
+---
 - name: "Deploy xwiki.properties"
   template:
     src: "xwiki.properties.j2"
@@ -11,7 +12,7 @@
   uri_retry:
     url: "{{ XWIKI_REST_BASE }}"
     status_code: [200, 401]
-    return_content: no
+    return_content: false
     follow_redirects: none
   register: xwiki_rest_up
   changed_when: false

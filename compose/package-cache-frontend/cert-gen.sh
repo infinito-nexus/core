@@ -46,6 +46,9 @@ ensure_ca() {
 		-sha256 \
 		-days "${CA_DAYS}" \
 		-subj "/CN=Infinito Package-Cache Frontend CA/O=Infinito.Nexus" \
+		-addext "basicConstraints=critical,CA:TRUE" \
+		-addext "keyUsage=critical,keyCertSign,cRLSign" \
+		-addext "subjectKeyIdentifier=hash" \
 		-out "${CA_CRT}" >/dev/null 2>&1
 	chmod 0644 "${CA_CRT}"
 }

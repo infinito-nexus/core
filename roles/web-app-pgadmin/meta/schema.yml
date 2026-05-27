@@ -1,3 +1,4 @@
+---
 credentials:
   administrator_password:
     description: Initial password for the pgAdmin administrator login

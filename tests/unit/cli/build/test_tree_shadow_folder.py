@@ -34,11 +34,10 @@ class TestTreeShadowFolder(unittest.TestCase):
         ]
 
         # Ensure project root is on sys.path so `import cli.build.tree` works
-        project_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "../../../../")
-        )
-        if project_root not in sys.path:
-            sys.path.insert(0, project_root)
+        from . import PROJECT_ROOT
+
+        if str(PROJECT_ROOT) not in sys.path:
+            sys.path.insert(0, str(PROJECT_ROOT))
 
     def tearDown(self):
         # Restore original argv and clean up

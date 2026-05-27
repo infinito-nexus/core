@@ -1,5 +1,6 @@
-AUR_HELPER:               yay
-AUR_BUILDER_USER:         aur_builder
-AUR_BUILDER_GROUP:        wheel
+---
+AUR_HELPER: yay
+AUR_BUILDER_USER: aur_builder
+AUR_BUILDER_GROUP: wheel
 AUR_BUILDER_SUDOERS_PATH: /etc/sudoers.d/11-install-aur_builder
-SYS_AUR_PACKAGES:         []
+SYS_AUR_PACKAGES: []

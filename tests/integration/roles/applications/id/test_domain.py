@@ -37,7 +37,9 @@ class TestDomainApplicationIds(unittest.TestCase):
         # Load valid application IDs from roles
         cls.valid_ids = set(get_all_application_ids(roles_dir="roles"))
         if not cls.valid_ids:
-            raise RuntimeError("No application_ids found in roles/*/vars/main.yml")
+            raise RuntimeError(
+                "No application_ids found in roles/*/vars/main.yml"  # nocheck: role-file-spot
+            )
         # Collect domain keys and their locations, excluding this test file
         cls.domain_locations = collect_domain_keys()
         if not cls.domain_locations:

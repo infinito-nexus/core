@@ -1,2 +1,8 @@
+---
 virtualbox:
   lifecycle: pre-alpha
+  min_storage: "2GB"
+  cpus: "2.0"
+  mem_reservation: "512m"
+  mem_limit: "4g"
+  pids_limit: 2048

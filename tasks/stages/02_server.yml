@@ -3,13 +3,13 @@
   include_role:
     name: "{{ server_role }}"
   loop:
-    - user-administrator         # Create the administrator account for local privileged operations
-    - user-root                  # Manage root SSH access and root account hardening
-    - sys-svc-sshd               # Configure the SSH daemon for remote administration
-    - sys-svc-journalctl         # Configure persistent systemd-journald logging
-    - sys-ctl-hlth-disc-space    # Monitor disk usage and alert on low free space
-    - sys-ctl-cln-disc-space     # Reclaim disk space by cleaning temporary system data
-    - sys-ctl-hlth-btrfs         # Check Btrfs filesystem health and error counters
+    - user-administrator # Create the administrator account for local privileged operations
+    - user-root # Manage root SSH access and root account hardening
+    - sys-svc-sshd # Configure the SSH daemon for remote administration
+    - sys-svc-journalctl # Configure persistent systemd-journald logging
+    - sys-ctl-hlth-disc-space # Monitor disk usage and alert on low free space
+    - sys-ctl-cln-disc-space # Reclaim disk space by cleaning temporary system data
+    - sys-ctl-hlth-btrfs # Check Btrfs filesystem health and error counters
     - sys-ctl-rpr-btrfs-balancer # Install and configure automatic Btrfs balancing
   loop_control:
     loop_var: server_role
@@ -17,9 +17,9 @@
 - name: "Include server roles"
   include_tasks: "./tasks/groups/{{ server_group }}-roles.yml"
   loop:
-    - web-svc   # 1. Load web server services
-    - web-app   # 2. Load (UI) web applications
-    - web-opt   # 4. Load optimation scrips last
+    - web-svc # 1. Load web server services
+    - web-app # 2. Load (UI) web applications
+    - web-opt # 4. Load optimation scrips last
   loop_control:
     loop_var: server_group
     label: "{{ server_group }}-roles.yml"
@@ -27,7 +27,7 @@
 - name: Run E2E Playwright tests
   include_role:
     name: "test-e2e-playwright"
-  # E2E fires in every controlled runtime: local dev (`make deploy-*`
+  # E2E fires in every controlled runtime: local dev (`make compose-deploy`
   # bakes RUNTIME=dev into the inventory) and CI (act/github detected
   # via `cli.meta.runtime.detect_runtime`). Bare `RUNTIME=host` stays
   # opt-out: the user can suppress E2E even on a dev box by passing

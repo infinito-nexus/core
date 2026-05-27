@@ -1,0 +1,3 @@
+---
+# Template-only role: ships the Nginx vhost, header, and location snippets
+# under templates/ for consumer roles to render. No runtime tasks.

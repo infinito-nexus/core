@@ -1,3 +1,4 @@
+---
 oidc_settings:
   discover-url: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
   client-id: "{{ OIDC.CLIENT.ID }}"

@@ -4,7 +4,7 @@ set -euo pipefail
 STATE_FILE="/tmp/infinito-dev-environment-ipv6.state"
 
 if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
-	echo "[ipv6] error: restore.sh must be run as root (for example via 'sudo' or 'make restore-ipv6')" >&2
+	echo "[ipv6] error: restore.sh must be run as root (for example via 'sudo' or 'make network-ipv6-restore')" >&2
 	exit 1
 fi
 
@@ -94,4 +94,4 @@ restart_docker_service
 rm -f "${STATE_FILE}"
 
 echo "[ipv6] restored for all, default, and currently existing interfaces"
-echo "[ipv6] note: make restore-ipv6 calls make refresh after the docker.service restart"
+echo "[ipv6] note: make network-ipv6-restore calls make network-refresh after the docker.service restart"

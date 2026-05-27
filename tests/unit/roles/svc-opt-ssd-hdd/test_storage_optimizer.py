@@ -1,24 +1,15 @@
-import unittest
-from unittest.mock import patch
-import os
 import importlib.util
 import sys
+import unittest
+from unittest.mock import patch
+
+from . import PROJECT_ROOT
 
 
 # Dynamically load the module under test from the Ansible role's files directory
 def load_optimizer_module():
-    module_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "..",
-            "roles",
-            "svc-opt-ssd-hdd",
-            "files",
-            "script.py",
-        )
+    module_path = str(
+        PROJECT_ROOT / "roles" / "svc-opt-ssd-hdd" / "files" / "script.py"
     )
     spec = importlib.util.spec_from_file_location("storage_optimizer", module_path)
     optimizer = importlib.util.module_from_spec(spec)

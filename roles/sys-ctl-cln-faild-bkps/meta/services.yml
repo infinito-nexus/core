@@ -1,2 +1,5 @@
+---
 faild-bkps:
   lifecycle: beta
+  required_by:
+    categories: [svc-bkp]

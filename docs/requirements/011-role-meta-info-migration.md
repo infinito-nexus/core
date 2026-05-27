@@ -12,8 +12,8 @@ through a stable, materialised `applications.<role>.info.<…>` path.
 ## Dependencies
 
 This requirement is a follow-up to and depends on
-[008 — Role Meta Layout Refactoring](008-role-meta-layout.md) and
-[010 — Role Meta `run_after` / `lifecycle` Migration](010-role-meta-runafter-lifecycle-migration.md).
+[Req-008: Role Meta Layout Refactoring](008-role-meta-layout.md) and
+[Req-010: Role Meta `run_after` / `lifecycle` Migration](010-role-meta-runafter-lifecycle-migration.md).
 Req-008 and req-010 MUST both be fully merged (every Acceptance
 Criterion checked off) before this requirement is started; the per-role
 `meta/<topic>.yml` file-root convention introduced by req-008 and the
@@ -41,8 +41,8 @@ galaxy_info:
     class: fa-solid fa-cloud
 ```
 
-Three previously-buried fields — `run_after`, `lifecycle`, and the
-already-stripped `license_url` / `repository` / `documentation` — were
+Three previously-buried fields (`run_after`, `lifecycle`, and the
+already-stripped `license_url` / `repository` / `documentation`) were
 moved out as part of req-010 (the first two) and the
 `tests/lint/repository/test_role_meta_main_galaxy_schema.py` enforcement
 sweep (the latter three).
@@ -63,7 +63,7 @@ slot to ride on Galaxy's "ignore unknown keys" tolerance.
 
 All four fields move to a new project-owned `roles/<role>/meta/info.yml`
 file. The file-root convention from req-008 applies: there is no
-wrapping `info:` key — the file's content IS the value of
+wrapping `info:` key, and the file's content IS the value of
 `applications.<role>.info`.
 
 ```yaml
@@ -74,7 +74,7 @@ homepage: https://nextcloud.com/
 video: https://youtu.be/3jcYJGQgenI?si=FDmoMSrAb9_WvviC
 ```
 
-`meta/info.yml` is OPTIONAL — a role with none of the four fields does
+`meta/info.yml` is OPTIONAL: a role with none of the four fields does
 not grow the file. When the file is absent, consumers MUST treat each
 field as absent / default (matching the current behaviour of
 `galaxy_info.get("display", True)`).
@@ -90,7 +90,7 @@ this requirement is merged.
 | Field         | Type   | Semantics                                                                                                                |
 |---------------|--------|--------------------------------------------------------------------------------------------------------------------------|
 | `logo`        | map    | UI icon descriptor. Today only `class:` (FontAwesome). Future fields (`source:`, `svg:`) MAY be added here.              |
-| `homepage`    | string | Upstream project URL — the canonical landing page of the software the role deploys.                                      |
+| `homepage`    | string | Upstream project URL: the canonical landing page of the software the role deploys.                                      |
 | `video`       | string | Upstream demo / overview video URL.                                                                                      |
 | `display`     | bool   | Default `true`. `false` opts the role out of dashboards / cards / apps grids.                                            |
 
@@ -116,10 +116,10 @@ through the materialised path, or through a helper analogous to
 
 **Known consumers** that must be updated:
 
-- `roles/web-app-dashboard/lookup_plugins/docker_cards.py` — reads
+- `roles/web-app-dashboard/lookup_plugins/docker_cards.py` reads
   `meta_data.galaxy_info.{logo.class, display, description, galaxy_tags}`
   off-disk per role. The `logo.class` and `display` reads move to the
-  new `meta/info.yml` location; `description` and `galaxy_tags` are
+  new `meta/info.yml` location, while `description` and `galaxy_tags` are
   Galaxy-spec fields and stay where they are.
 
 If new consumers appear during migration, they MUST also be moved to
@@ -141,7 +141,7 @@ the new path and listed in the PR description.
 - [ ] Any role that today carries a `display:` field nested under
       `meta/main.yml.galaxy_info` has that bool moved verbatim to
       `meta/info.yml.display`. (At time of writing, no role sets this
-      explicitly — but the consumer reads it with a default — so the
+      explicitly, but the consumer reads it with a default, so the
       migration is the schema-locking step rather than a data move.)
 - [ ] After migration, no `meta/main.yml.galaxy_info` block contains a
       `logo`, `homepage`, `video`, or `display` key.
@@ -207,7 +207,7 @@ the new path and listed in the PR description.
 
 ### Documentation
 
-- [ ] `docs/contributing/design/services/` (or equivalent) documents
+- [ ] `docs/contributing/design/role/services/` (or equivalent) documents
       the new `meta/info.yml` shape, its allowed fields, and the
       file-root convention.
 - [ ] `roles/<role>/AGENTS.md` and `roles/<role>/README.md` files that
@@ -238,7 +238,7 @@ deploy end to end after the refactor:
 | `web-app-bluesky`    | Multi-entity role with `logo`; exercises the "primary entity vs. info file" distinction.    |
 
 ```bash
-APPS="web-app-dashboard web-app-nextcloud web-app-gitea web-app-bluesky" \
+INFINITO_APPS="web-app-dashboard web-app-nextcloud web-app-gitea web-app-bluesky" \
   make deploy-fresh-purged-apps
 ```
 
@@ -249,7 +249,7 @@ APPS="web-app-dashboard web-app-nextcloud web-app-gitea web-app-bluesky" \
   (file-root, no `info:` wrapper) when at least one of them is set,
   delete the originals from `galaxy_info`.
 - For roles whose `meta/main.yml.galaxy_info` carries none of the four
-  fields, the migration is a no-op — the role does NOT grow an empty
+  fields, the migration is a no-op: the role does NOT grow an empty
   `meta/info.yml`.
 - Inline YAML comments next to the affected fields in `meta/main.yml`
   today (e.g. `homepage:` followed by an "Upstream homepage" comment)

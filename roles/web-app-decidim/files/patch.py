@@ -25,7 +25,6 @@ import glob
 import re
 from pathlib import Path
 
-
 OMNIAUTH_REGISTRATION = r"""if ENV["OIDC_ENABLED"].to_s == "true"
   Decidim.omniauth_providers[:openid_connect] = {
     enabled: true,
@@ -86,16 +85,16 @@ def find_decidim_core_file(relative_path: str) -> str:
 
 if __name__ == "__main__":
     omniauth_path = find_decidim_core_file("config/initializers/omniauth.rb")
-    with open(omniauth_path) as f:
+    with Path(omniauth_path).open() as f:
         content = f.read()
-    with open(omniauth_path, "w") as f:
+    with Path(omniauth_path).open("w") as f:
         f.write(patch_omniauth_rb(content))
     print(f"{omniauth_path} patched")
 
     helper_path = find_decidim_core_file("app/helpers/decidim/omniauth_helper.rb")
-    with open(helper_path) as f:
+    with Path(helper_path).open() as f:
         content = f.read()
-    with open(helper_path, "w") as f:
+    with Path(helper_path).open("w") as f:
         f.write(patch_omniauth_helper_rb(content))
     print(f"{helper_path} patched")
 
@@ -104,8 +103,8 @@ if __name__ == "__main__":
         "app/views/decidim/devise/omniauth_registrations/new_tos_fields.html.erb",
     ):
         registration_view = find_decidim_core_file(view_relative)
-        with open(registration_view) as f:
+        with Path(registration_view).open() as f:
             content = f.read()
-        with open(registration_view, "w") as f:
+        with Path(registration_view).open("w") as f:
             f.write(patch_omniauth_registration_new_erb(content))
         print(f"{registration_view} patched")

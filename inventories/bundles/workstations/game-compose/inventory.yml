@@ -1,3 +1,4 @@
+---
 all:
   vars:
     SYS_PACKAGES:
@@ -25,10 +26,8 @@ all:
           class: "fa-solid fa-gamepad"
         tags: []
         categories: []
-
   hosts:
     workstation:
-
   children:
     desk-retroarch:
       hosts:

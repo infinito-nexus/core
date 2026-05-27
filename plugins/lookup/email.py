@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
@@ -8,7 +8,6 @@ from ansible.plugins.lookup import LookupBase
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
-
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
@@ -53,7 +52,7 @@ def _as_bool(value: Any) -> bool:
     return bool(value)
 
 
-def _render(value: Any, templar: Optional[Any]) -> Any:
+def _render(value: Any, templar: Any | None) -> Any:
     if templar is None:
         return value
     if not isinstance(value, str) or "{{" not in value:
@@ -67,8 +66,8 @@ def _render(value: Any, templar: Optional[Any]) -> Any:
 class LookupModule(LookupBase):
     def run(
         self,
-        terms: Optional[list[Any]],
-        variables: Optional[Dict[str, Any]] = None,
+        terms: list[Any] | None,
+        variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[Any]:
         terms = terms or []
@@ -81,7 +80,7 @@ class LookupModule(LookupBase):
         self._kwargs = kwargs
 
         templar = getattr(self, "_templar", None)
-        resolved: Dict[str, Any] = {}
+        resolved: dict[str, Any] = {}
         for short_key in RESOLUTION_ORDER:
             var_name = _short_to_var(short_key)
             raw = variables.get(var_name)
@@ -105,8 +104,8 @@ class LookupModule(LookupBase):
     def _compute(
         self,
         short_key: str,
-        resolved: Dict[str, Any],
-        variables: Dict[str, Any],
+        resolved: dict[str, Any],
+        variables: dict[str, Any],
     ) -> Any:
         if short_key == "enabled":
             return True
@@ -168,7 +167,7 @@ class LookupModule(LookupBase):
             return ""
         raise AnsibleError(f"email: unknown key {short_key!r}")
 
-    def _lookup_mailu_domain(self, variables: Dict[str, Any]) -> Any:
+    def _lookup_mailu_domain(self, variables: dict[str, Any]) -> Any:
         domain_lookup = DomainLookup()
         domain_lookup._templar = getattr(self, "_templar", None)
         try:
@@ -176,7 +175,7 @@ class LookupModule(LookupBase):
         except Exception:
             return "localhost"
 
-    def _lookup_no_reply_user(self, variables: Dict[str, Any]) -> Dict[str, Any]:
+    def _lookup_no_reply_user(self, variables: dict[str, Any]) -> dict[str, Any]:
         users_lookup = UsersLookup()
         users_lookup._templar = getattr(self, "_templar", None)
         forwarded = {
@@ -193,8 +192,8 @@ class LookupModule(LookupBase):
     def _app_email_overrides(
         self,
         application_id: str,
-        variables: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        variables: dict[str, Any],
+    ) -> dict[str, Any]:
         apps = ApplicationsLookup()
         apps._templar = getattr(self, "_templar", None)
         forwarded = {
@@ -210,7 +209,7 @@ class LookupModule(LookupBase):
             return {}
         if not isinstance(entry, dict):
             return {}
-        # Per req-008 the materialised payload exposes services under the
+        # Per the materialised payload exposes services under the
         # bare ``services`` key (no ``compose.services`` envelope).
         services = entry.get("services") or {}
         email = services.get("email") or {} if isinstance(services, dict) else {}

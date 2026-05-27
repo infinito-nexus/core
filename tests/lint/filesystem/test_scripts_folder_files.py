@@ -7,14 +7,12 @@ from __future__ import annotations
 
 import subprocess
 import unittest
-from pathlib import Path
+from typing import TYPE_CHECKING
 
+from . import PROJECT_ROOT
 
-def repo_root() -> Path:
-    for candidate in Path(__file__).resolve().parents:
-        if (candidate / "pyproject.toml").is_file():
-            return candidate
-    raise AssertionError("Repository root not found from test path.")
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def tracked_files(root: Path) -> list[Path]:
@@ -28,7 +26,7 @@ def tracked_files(root: Path) -> list[Path]:
     except Exception:
         return [
             path
-            for path in root.rglob("*")  # noqa: project-walk
+            for path in root.rglob("*")  # nocheck: project-walk
             if path.is_file()
             and ".git" not in path.parts
             and "__pycache__" not in path.parts
@@ -37,7 +35,7 @@ def tracked_files(root: Path) -> list[Path]:
 
 class TestScriptsFolderFiles(unittest.TestCase):
     def test_scripts_contains_only_sh_files(self) -> None:
-        root = repo_root()
+        root = PROJECT_ROOT
         scripts_root = root / "scripts"
 
         violations = [

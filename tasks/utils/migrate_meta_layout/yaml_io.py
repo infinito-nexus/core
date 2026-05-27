@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import shutil
-from pathlib import Path
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any
 
 import yaml
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def load(path: Path) -> Any:
@@ -13,12 +15,12 @@ def load(path: Path) -> Any:
     text = path.read_text(encoding="utf-8")
     if not text.strip():
         return None
-    return yaml.safe_load(text)  # noqa: direct-yaml — once-off migration script
+    return yaml.safe_load(text)  # nocheck: direct-yaml — once-off migration script
 
 
 def dump(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    text = yaml.safe_dump(  # noqa: direct-yaml — once-off migration script
+    text = yaml.safe_dump(  # nocheck: direct-yaml — once-off migration script
         data if data is not None else {},
         sort_keys=False,
         default_flow_style=False,
@@ -41,7 +43,7 @@ def empty_dir(path: Path) -> None:
 
 def deep_merge(base: Any, override: Any) -> Any:
     if isinstance(base, dict) and isinstance(override, dict):
-        merged: Dict[str, Any] = dict(base)
+        merged: dict[str, Any] = dict(base)
         for key, value in override.items():
             merged[key] = deep_merge(merged[key], value) if key in merged else value
         return merged

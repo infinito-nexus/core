@@ -1,6 +1,6 @@
 # CI Deploy Scripts
 
-This is the SPOT for executable CI deploy flows under `scripts/tests/deploy/ci/`.
+This directory holds the executable CI deploy flows under `scripts/tests/deploy/ci/`.
 
 For local deploy flows, use [../local/README.md](../local/README.md).
 

@@ -1,3 +1,4 @@
+---
 - name: "DEPLOY | Collect {{ SOFTWARE_DOMAIN }} timers"
   become: true
   ansible.builtin.command:

@@ -1,3 +1,4 @@
+---
 credentials:
   onlyoffice_jwt_secret:
     description: JWT secret for signing callback and document requests between Nextcloud and the ONLYOFFICE Document Server.

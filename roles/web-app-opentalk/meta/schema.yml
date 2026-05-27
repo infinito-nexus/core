@@ -1,3 +1,4 @@
+---
 credentials:
   database_password:
     description: Postgres password used by the OpenTalk controller for its dedicated database.

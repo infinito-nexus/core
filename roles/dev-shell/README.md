@@ -1,4 +1,4 @@
-# Shell 🐚
+# Shell
 
 ## Description
 
@@ -6,7 +6,7 @@ This Ansible role ensures that [.profile](https://en.wikipedia.org/wiki/Bourne_s
 
 ## Overview
 
-By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself — only guarantees that it is sourced by supported shells.
+By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells.
 
 ## Purpose
 
@@ -18,10 +18,9 @@ The purpose of this role is to unify shell environment setup across Bash and Zsh
 - **Cross-Shell Compatibility:** Ensures both Bash and Zsh source `.profile` properly.
 - **Non-Invasive:** Does not alter the content of `.profile`.
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

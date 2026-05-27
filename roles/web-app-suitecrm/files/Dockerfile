@@ -8,7 +8,8 @@ ARG SUITECRM_ENTRYPOINT_SCRIPT_DOCKER
 ARG SUITECRM_LDAP_EXTENSION_DIR
 
 # Install required system packages and PHP extensions
-RUN apt-get update && apt-get install -y \
+RUN rm -rf /var/lib/apt/lists/* \
+  && apt-get update && apt-get install -y \
       git \
       wget \
       unzip \
@@ -80,8 +81,10 @@ RUN set -eux; \
 WORKDIR /var/www/html
 
 # Install Node + Corepack
-RUN apt-get update && apt-get install -y nodejs npm \
- && corepack enable && corepack prepare yarn@4.5.1 --activate
+RUN rm -rf /var/lib/apt/lists/* \
+ && apt-get update && apt-get install -y nodejs npm \
+ && corepack enable && corepack prepare yarn@4.5.1 --activate \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN yarn install --immutable \
  && yarn merge-angular-json \

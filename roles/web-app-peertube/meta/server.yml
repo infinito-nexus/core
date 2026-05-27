@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -8,14 +9,14 @@ csp:
       unsafe-inline: true
   whitelist:
     frame-ancestors:
-    - '*'
+      - "*"
     media-src:
-    - 'blob:'
+      - "blob:"
     font-src:
-    - 'data:'
+      - "data:"
 domains:
   canonical:
-  - video.{{ DOMAIN_PRIMARY }}
+    - video.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

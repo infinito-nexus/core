@@ -20,7 +20,7 @@
         -Dxwiki.authentication.authservice=ldap
         -Dxwiki.authentication.ldap=1
         -Dxwiki.authentication.ldap.trylocal={{ (XWIKI_LDAP_TRYLOCAL | bool) | ternary(1, 0) }}
-        -Dxwiki.authentication.ldap.group_mapping=XWiki.XWikiAdminGroup={{ XWIKI_LDAP_ADMIN_GROUP_DN }}
+        -Dxwiki.authentication.ldap.group_mapping=XWiki.{{ XWIKI_ADMIN_GROUP_PAGE }}={{ XWIKI_LDAP_ADMIN_GROUP_DN }}
         -Dxwiki.authentication.ldap.mode_group_sync=always
         -Dxwiki.authentication.ldap.server={{ XWIKI_LDAP_SERVER }}
         -Dxwiki.authentication.ldap.port={{ XWIKI_LDAP_PORT }}
@@ -38,12 +38,11 @@
       - 'data:{{ XWIKI_DOCK_DATA_DIR }}'
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': XWIKI_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

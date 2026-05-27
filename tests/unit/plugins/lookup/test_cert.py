@@ -1,14 +1,13 @@
-# tests/unit/plugins/lookup/test_cert.py
 import sys
 import unittest
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
-from plugins.lookup.cert import LookupModule
-from utils.cache import _reset_cache_for_tests
 
 # Make "ansible.module_utils.tls_common" importable during plain unit tests.
 import utils.tls_common as _tls_common
+from plugins.lookup.cert import LookupModule
+from utils.cache import _reset_cache_for_tests
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 

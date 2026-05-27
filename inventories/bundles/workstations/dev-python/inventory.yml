@@ -1,3 +1,4 @@
+---
 all:
   vars:
     SYS_PACKAGES:
@@ -13,10 +14,8 @@ all:
           class: "fa-brands fa-python"
         tags: []
         categories: []
-
   hosts:
     workstation:
-
   children:
     desk-git:
       hosts:

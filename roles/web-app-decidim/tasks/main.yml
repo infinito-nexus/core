@@ -3,7 +3,7 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Render allowed_hosts initializer for {{ application_id }}"
   ansible.builtin.template:
@@ -14,7 +14,7 @@
 
 - name: "Deploy '{{ DECIDIM_PATCH_SCRIPT_HOST_ABS }}'"
   copy:
-    src:  "{{ DECIDIM_PATCH_SCRIPT_FILE }}"
+    src: "{{ DECIDIM_PATCH_SCRIPT_FILE }}"
     dest: "{{ DECIDIM_PATCH_SCRIPT_HOST_ABS }}"
   notify:
     - compose build
@@ -22,7 +22,7 @@
 
 - name: "Deploy '{{ DECIDIM_PATCH_RUBY_HOST_ABS }}'"
   copy:
-    src:  "{{ DECIDIM_PATCH_RUBY_DIR }}/"
+    src: "{{ DECIDIM_PATCH_RUBY_DIR }}/"
     dest: "{{ DECIDIM_PATCH_RUBY_HOST_ABS }}/"
   notify:
     - compose build

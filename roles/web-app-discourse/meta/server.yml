@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     style-src-attr:
@@ -6,10 +7,10 @@ csp:
       unsafe-inline: true
   whitelist:
     font-src:
-    - "{{ lookup('tls', 'web-app-discourse', 'url.base') }}"
+      - "{{ lookup('tls', 'web-app-discourse', 'url.base') }}"
 domains:
   canonical:
-  - forum.{{ DOMAIN_PRIMARY }}
+    - forum.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

@@ -1,3 +1,4 @@
+---
 credentials:
   administrator_password:
     description: Initial password for the LDAP administrator (e.g. cn=admin,dc=example,dc=com)

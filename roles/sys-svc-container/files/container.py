@@ -8,15 +8,13 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
-
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-def die(msg: str, code: int = 2) -> "None":
+def die(msg: str, code: int = 2) -> None:
     print(f"[container] {msg}", file=sys.stderr)
     raise SystemExit(code)
 
@@ -81,7 +79,7 @@ FLAGS_TAKE_VALUE = {
 # ---------------------------------------------------------------------------
 
 
-def split_docker_run_argv(argv: List[str]) -> Tuple[List[str], List[str]]:
+def split_docker_run_argv(argv: list[str]) -> tuple[list[str], list[str]]:
     """
     Split argv into:
       - run_opts: docker run options (everything before IMAGE)
@@ -90,7 +88,7 @@ def split_docker_run_argv(argv: List[str]) -> Tuple[List[str], List[str]]:
     if not argv:
         die("Usage: container run [docker-run-flags...] IMAGE [COMMAND/ARGS...]")
 
-    run_opts: List[str] = []
+    run_opts: list[str] = []
     i = 0
 
     while i < len(argv):
@@ -119,15 +117,15 @@ def split_docker_run_argv(argv: List[str]) -> Tuple[List[str], List[str]]:
     return run_opts, argv[i:]
 
 
-def extract_entrypoint(run_opts: List[str]) -> Tuple[List[str], Optional[str]]:
+def extract_entrypoint(run_opts: list[str]) -> tuple[list[str], str | None]:
     """
     Remove --entrypoint from run_opts and return (new_opts, entrypoint_value).
     Supports:
       --entrypoint sh
       --entrypoint=sh
     """
-    out: List[str] = []
-    entrypoint: Optional[str] = None
+    out: list[str] = []
+    entrypoint: str | None = None
     i = 0
 
     while i < len(run_opts):
@@ -151,7 +149,7 @@ def extract_entrypoint(run_opts: List[str]) -> Tuple[List[str], Optional[str]]:
     return out, entrypoint
 
 
-def extract_pull_policy(run_opts: List[str]) -> str:
+def extract_pull_policy(run_opts: list[str]) -> str:
     """
     Supported:
       --pull always|missing|never
@@ -204,7 +202,7 @@ def docker_pull(image: str) -> None:
         die(f"docker pull failed for {image}: {msg}", code=2)
 
 
-def inspect_image_entrypoint(image: str) -> List[str]:
+def inspect_image_entrypoint(image: str) -> list[str]:
     try:
         p = subprocess.run(
             [
@@ -242,7 +240,7 @@ def inspect_image_entrypoint(image: str) -> List[str]:
     return []
 
 
-def try_inspect_entrypoint_with_pull(image: str, pull_policy: str) -> List[str]:
+def try_inspect_entrypoint_with_pull(image: str, pull_policy: str) -> list[str]:
     if pull_policy == "always":
         docker_pull(image)
 
@@ -260,7 +258,7 @@ def try_inspect_entrypoint_with_pull(image: str, pull_policy: str) -> List[str]:
 # ---------------------------------------------------------------------------
 
 
-def require_ca_env_soft() -> Optional[Tuple[str, str, str]]:
+def require_ca_env_soft() -> tuple[str, str, str] | None:
     """
     Return (ca_cert_host, wrapper_host, trust_name)
     or None if CA injection is not available.
@@ -302,7 +300,7 @@ def require_ca_env_soft() -> Optional[Tuple[str, str, str]]:
 # ---------------------------------------------------------------------------
 
 
-def exec_docker(cmd: List[str], debug: bool) -> int:
+def exec_docker(cmd: list[str], debug: bool) -> int:
     if debug:
         print(">>> " + " ".join(shlex.quote(x) for x in cmd), file=sys.stderr)
 
@@ -314,7 +312,7 @@ def exec_docker(cmd: List[str], debug: bool) -> int:
         die(f"Unexpected error: {exc}", code=1)
 
 
-def container_run(argv: List[str], debug: bool, with_ca: bool) -> int:
+def container_run(argv: list[str], debug: bool, with_ca: bool) -> int:
     """
     Wrap docker run only if CA injection is available.
     Otherwise fallback to plain docker run.
@@ -338,10 +336,12 @@ def container_run(argv: List[str], debug: bool, with_ca: bool) -> int:
     image = image_and_args[0]
     user_args = image_and_args[1:]
 
-    ca_container = "/tmp/infinito/ca/root-ca.crt"
-    wrapper_container = "/tmp/infinito/bin/with-ca-trust.sh"
+    # Container-internal CA-injection paths bind-mounted from the host.
+    # Not user-controllable; matched on the host side by sys-svc-compose-ca.
+    ca_container = "/tmp/infinito/ca/root-ca.crt"  # noqa: S108
+    wrapper_container = "/tmp/infinito/bin/with-ca-trust.sh"  # noqa: S108
 
-    inject_opts: List[str] = [
+    inject_opts: list[str] = [
         "-v",
         f"{ca_host}:{ca_container}:ro",
         "-v",
@@ -354,7 +354,7 @@ def container_run(argv: List[str], debug: bool, with_ca: bool) -> int:
         wrapper_container,
     ]
 
-    final_cmd: List[str] = ["docker", "run"]
+    final_cmd: list[str] = ["docker", "run"]
     final_cmd.extend(run_opts)
     final_cmd.extend(inject_opts)
     final_cmd.append(image)
@@ -372,7 +372,7 @@ def container_run(argv: List[str], debug: bool, with_ca: bool) -> int:
             # Inject CA cert as a volume + env vars so Node.js (NODE_EXTRA_CA_CERTS),
             # curl (CURL_CA_BUNDLE), Python requests (REQUESTS_CA_BUNDLE), and other
             # tools can trust the internal CA even without a wrapper entrypoint.
-            ca_inject_opts: List[str] = [
+            ca_inject_opts: list[str] = [
                 "-v",
                 f"{ca_host}:{ca_container}:ro",
                 "-e",
@@ -389,7 +389,7 @@ def container_run(argv: List[str], debug: bool, with_ca: bool) -> int:
                 f"CURL_CA_BUNDLE={ca_container}",
             ]
             return exec_docker(
-                ["docker", "run"] + run_opts + ca_inject_opts + [image] + user_args,
+                ["docker", "run", *run_opts, *ca_inject_opts, image, *user_args],
                 debug=debug,
             )
 
@@ -399,11 +399,13 @@ def container_run(argv: List[str], debug: bool, with_ca: bool) -> int:
     if debug:
         print(">>> " + " ".join(shlex.quote(x) for x in final_cmd), file=sys.stderr)
 
-    os.execvp(final_cmd[0], final_cmd)
+    # List-form exec: no shell parses the argv. CMD comes from this
+    # script's own argv (the wrapper), not from external user input.
+    os.execvp(final_cmd[0], final_cmd)  # noqa: S606
     return 0
 
 
-def passthrough_any(subcmd: str, argv: List[str], debug: bool) -> int:
+def passthrough_any(subcmd: str, argv: list[str], debug: bool) -> int:
     """
     Passthrough for ANY docker subcommand.
     This keeps the wrapper future-proof so new docker subcommands don't require
@@ -445,12 +447,11 @@ def main() -> int:
         return 2
 
     if cmd == "run":
-        no_ca = os.environ.get("INFINITO_CONTAINER_NO_CA", "").lower() in {
-            "1",
-            "true",
-            "yes",
-        }
-        return container_run(args, debug=debug, with_ca=not no_ca)
+        return container_run(
+            args,
+            debug=debug,
+            with_ca=os.environ.get("CA_CONTAINER_ENABLED") == "1",
+        )
 
     if cmd == "docker":
         return exec_docker(["docker", *args], debug=debug)

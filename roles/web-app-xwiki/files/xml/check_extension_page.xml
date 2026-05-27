@@ -1,0 +1,17 @@
+<page xmlns="http://www.xwiki.org">
+  <title>CheckExtension</title>
+  <content><![CDATA[
+  {{groovy}}
+  def ns = "wiki:xwiki"
+  def id = (request.getParameter("id") ?: "").toString()
+  if (!id) { print "ERROR::missing-id"; return }
+  def ext = services.extension.getInstalledExtension(id, ns)
+  if (ext) {
+    print "INSTALLED::${ext.id?.id}::${ext.id?.version}"
+  } else {
+    print "MISSING::${id}"
+  }
+  {{/groovy}}
+  ]]></content>
+  <syntax>xwiki/2.1</syntax>
+</page>

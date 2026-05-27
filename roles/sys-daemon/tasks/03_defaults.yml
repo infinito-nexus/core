@@ -1,3 +1,4 @@
+---
 - name: "Ensure {{ SYSTEMD_MANAGER_CONF_DIR }} exists"
   file:
     path: "{{ SYSTEMD_MANAGER_CONF_DIR }}"
@@ -6,7 +7,7 @@
 
 - name: Deploy systemd manager default timeout settings
   template:
-    src:  timeouts.conf.j2
+    src: timeouts.conf.j2
     dest: "{{ SYSTEMD_MANAGER_CONF_DIR }}/timeouts.conf"
     mode: "0644"
   notify: reexec systemd manager

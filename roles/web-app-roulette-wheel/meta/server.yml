@@ -1,6 +1,7 @@
+---
 domains:
   canonical:
-  - wheel.{{ DOMAIN_PRIMARY }}
+    - wheel.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

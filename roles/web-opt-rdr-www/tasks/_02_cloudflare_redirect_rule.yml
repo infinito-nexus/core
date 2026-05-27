@@ -1,3 +1,4 @@
+---
 # This task file ensures that a Cloudflare "Dynamic Redirect Rule" exists
 # which redirects www.example.com → https://example.com{uri} with 301.
 
@@ -6,10 +7,10 @@
 #   apex_url:   "https://example.com"
 #   CLOUDFLARE_API_TOKEN
 
-- name: "Derive zone and apex from www_fqdn"
+- name: "Derive zone from www_fqdn; apex comes from caller"
   set_fact:
-    cf_zone_name: "{{ www_fqdn | to_zone }}"                       # e.g. "cymais.cloud"
-    domain_apex: "{{ www_fqdn | regex_replace('^www\\.', '') }}"   # e.g. "academy.cymais.cloud"
+    cf_zone_name: "{{ www_fqdn | to_zone }}"
+    domain_apex: "{{ domain }}"
 
 - name: "Cloudflare: Lookup zone id for {{ cf_zone_name }}"
   uri_retry:
@@ -47,7 +48,7 @@
     proxied: true
     ttl: 1
     state: present
-    
+
 # 1) Fetch existing redirect rulesets
 - name: "Cloudflare Rulesets: list dynamic redirect rulesets"
   uri_retry:

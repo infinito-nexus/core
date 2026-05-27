@@ -1,5 +1,0 @@
-loc-2-usb:
-  mount: ''
-  target: ''
-  source: ''
-  lifecycle: pre-alpha

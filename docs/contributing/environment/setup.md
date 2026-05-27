@@ -26,8 +26,8 @@ Run these commands from the repository root:
 ```bash
 make bootstrap
 make environment-bootstrap
-make up
-make trust-ca
+make compose-up
+make network-trust-ca
 ```
 
 #### Bootstrap Commands 📋
@@ -36,29 +36,18 @@ make trust-ca
 |---|---|---|
 | Initial setup | `make bootstrap` | Installs project dependencies and runs the first repository setup. |
 | Host preparation | `make environment-bootstrap` | Prepares the local development machine for the project workflow. |
-| Start stack | `make up` | Starts the local development stack. |
-| Browser trust | `make trust-ca` | Trusts the generated local [CA](https://en.wikipedia.org/wiki/Certificate_authority) so `*.infinito.example` works correctly in your browser. |
+| Start stack | `make compose-up` | Starts the local development stack. |
+| Browser trust | `make network-trust-ca` | Trusts the generated local [CA](https://en.wikipedia.org/wiki/Certificate_authority) so `*.infinito.example` works correctly in your browser. |
 
-#### Optional Development Marker 🏷️
-
-If you want to mark this checkout as a development environment, run:
-
-```bash
-make mark-development
-```
-
-This step is optional. It creates an empty `env.development` file in the repository root.
-
-Several tools (e.g. `cli/deploy/development/compose.py`, `scripts/meta/resolve/apps.sh`) pass `env.ci` as the base env-file to Docker Compose and then, when `env.development` exists, append it as a second `--env-file`. Because Docker Compose applies env-files in order, any variable defined in `env.development` overrides the corresponding value from `env.ci`. This lets you customize local settings (ports, image tags, flags) without modifying the shared `env.ci` file.
-
-The `pre-commit` hooks are installed automatically by `make environment-bootstrap` and do not depend on this marker.
+The `pre-commit` hooks are installed automatically by `make environment-bootstrap`.
+Per-machine overrides go into the process environment before invoking `make` (e.g. `export INFINITO_FOO=…`); `make dotenv` honors caller-set values via setdefault semantics.
 
 ### Teardown 🧹
 
 When you are done, use these commands to stop the stack and clean up the local environment:
 
 ```bash
-make down
+make compose-down
 make environment-teardown
 ```
 
@@ -66,7 +55,7 @@ make environment-teardown
 
 | Phase | Command | What it does |
 |---|---|---|
-| Stop stack | `make down` | Stops the local development stack. |
+| Stop stack | `make compose-down` | Stops the local development stack. |
 | Host cleanup | `make environment-teardown` | Reverts local development environment changes where supported. |
 
 ### Full Development Flow 🔁
@@ -79,11 +68,11 @@ The repository already contains a modular environment test suite at [scripts/tes
 |---|---|---|
 | 1 | `make install` | Installs the dependencies needed before running the local development flow. |
 | 2 | `make environment-bootstrap` | Prepares the host machine for local development. |
-| 3 | `make up` | Starts the development stack. |
+| 3 | `make compose-up` | Starts the development stack. |
 | 4 | `make test` | Runs the main combined validation flow. |
-| 5 | `make deploy-fresh-purged-apps APPS=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Role Loop](../../agents/action/iteration/role.md). |
-| 6 | `make trust-ca` | Makes the generated local certificates trusted by the host browser. |
-| 7 | `make down` | Stops the running development stack. |
+| 5 | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Role Loop](../../agents/action/iteration/role.md). |
+| 6 | `make network-trust-ca` | Makes the generated local certificates trusted by the host browser. |
+| 7 | `make compose-down` | Stops the running development stack. |
 | 8 | `make environment-teardown` | Cleans up host-side development environment changes. |
 
 Use this as a practical reference when you want to understand how local development is expected to work.

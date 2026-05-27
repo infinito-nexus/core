@@ -2,7 +2,7 @@
 
 ## Description
 
-This Ansible role sets up and manages Akaunting, an innovative online accounting software, using Docker and Docker Compose. Empower your financial management with Akaunting—a dynamic and feature-rich accounting platform designed to simplify your bookkeeping and boost your business growth. Enjoy intuitive tools, real-time insights, and an energetic approach to your finances.
+This Ansible role sets up and manages Akaunting, an innovative online accounting software, using Docker and Docker Compose. Empower your financial management with Akaunting, a dynamic and feature-rich accounting platform designed to simplify your bookkeeping and boost your business growth. Enjoy intuitive tools, real-time insights, and an energetic approach to your finances.
 
 For detailed administration and troubleshooting, see [Administration.md](./Administration.md).
 
@@ -16,6 +16,10 @@ This role provides a comprehensive Dockerized environment for running Akaunting.
 - **Environment Configuration**: Automatically creates and configures the necessary environment files.
 - **NGINX Integration**: Sets up NGINX for handling domain-specific requests and SSL termination.
 - **Manual Update and Log Access**: Provides guidance for viewing logs, accessing containers, and performing manual updates.
+
+## Features
+
+- **Automated provisioning:** Configured by Ansible without manual steps.
 
 ## Credits
 

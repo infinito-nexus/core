@@ -1,6 +1,6 @@
 # Mirror Cleanup: Deleting Private GHCR Packages 🗑️
 
-The `cli.mirror.cleanup` module deletes GHCR container packages filtered by
+The `cli.contributing.mirror.cleanup` module deletes GHCR container packages filtered by
 prefix and visibility. Use it to remove stale private mirror packages that
 were pushed before the repository switched to `GITHUB_TOKEN`-based
 authentication (which now makes packages public automatically).
@@ -27,7 +27,7 @@ export GITHUB_TOKEN=<your-pat>
 ## Usage 💻
 
 ```bash
-python -m cli.mirror.cleanup \
+python -m cli.contributing.mirror.cleanup \
     --ghcr-namespace <user|org> \
     --ghcr-prefix    <repo>/mirror \
     --visibility     private \
@@ -49,14 +49,14 @@ Remove `--dry-run` to actually delete.
 
 ```bash
 # Preview (requires a classic PAT with delete:packages)
-GITHUB_TOKEN=<your-pat> python -m cli.mirror.cleanup \
+GITHUB_TOKEN=<your-pat> python -m cli.contributing.mirror.cleanup \
     --ghcr-namespace kevinveenbirkenbach \
     --ghcr-prefix    infinito-nexus-core/mirror \
     --visibility     private \
     --dry-run
 
 # Delete
-GITHUB_TOKEN=<your-pat> python -m cli.mirror.cleanup \
+GITHUB_TOKEN=<your-pat> python -m cli.contributing.mirror.cleanup \
     --ghcr-namespace kevinveenbirkenbach \
     --ghcr-prefix    infinito-nexus-core/mirror \
     --visibility     private

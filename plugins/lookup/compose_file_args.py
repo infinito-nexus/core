@@ -1,5 +1,3 @@
-# lookup_plugins/compose_file_args.py
-#
 # Build compose "-f <file>" arguments for an application instance.
 #
 # HARD FAIL PRINCIPLE:
@@ -25,16 +23,16 @@
 
 from __future__ import annotations
 
-import os
-from typing import Any, Optional
+from pathlib import Path
+from typing import Any
 
 from ansible.errors import AnsibleError
-from ansible.plugins.lookup import LookupBase
 from ansible.plugins.loader import lookup_loader
+from ansible.plugins.lookup import LookupBase
 
-from utils.docker.paths_utils import get_docker_paths
-from utils.jinja_strict import render_strict
 from utils.cache.domains import get_merged_domains
+from utils.docker.paths_utils import get_docker_paths
+from utils.templating.jinja import render_strict
 
 
 def _as_str(v: Any) -> str:
@@ -104,14 +102,14 @@ def _role_provides_override(*, application_id: str, templar: Any) -> bool:
             "compose_file_args: abs_role_path_by_application_id resolved to empty"
         )
 
-    c1 = os.path.join(role_base, "templates", "compose.override.yml.j2")
-    c2 = os.path.join(role_base, "files", "compose.override.yml")
+    c1 = str(Path(role_base) / "templates" / "compose.override.yml.j2")
+    c2 = str(Path(role_base) / "files" / "compose.override.yml")
 
-    return os.path.isfile(c1) or os.path.isfile(c2)
+    return Path(c1).is_file() or Path(c2).is_file()
 
 
 class LookupModule(LookupBase):
-    def run(self, terms, variables: Optional[dict] = None, **kwargs):
+    def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
 
         if not terms or len(terms) != 1:

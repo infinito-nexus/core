@@ -2,8 +2,8 @@
 - name: Ensure Docker daemon is running on host
   ansible.builtin.service:
     name: docker.service
-    state:  restarted
-    enabled: yes
+    state: restarted
+    enabled: true
   listen: container manager restart
 
 - name: Ensure Docker-In-Docker DNS works
@@ -18,5 +18,8 @@
     - DOCKER_IN_CONTAINER | bool
     - MODE_DEBUG | bool
   environment:
-    BUSYBOX_IMAGE: "{{ lookup('image', 'busybox', 'ref') }}"
-    NODE_IMAGE: "{{ lookup('image', 'node', 'ref') }}"
+    BUSYBOX_IMAGE: "{{ lookup('config', 'sys-svc-container', 'services.busybox.image') }}:{{ lookup('config', 'sys-svc-container', 'services.busybox.version') }}"
+    NODE_IMAGE: "{{ lookup('config', 'sys-svc-container', 'services.node.image') }}:{{ lookup('config', 'sys-svc-container', 'services.node.version') }}"
+    DNS_IP: "{{ networks.internet.dns }}"
+    DOMAIN: "{{ DOMAIN_PRIMARY }}"
+    IP4: "{{ networks.internet.ip4 }}"

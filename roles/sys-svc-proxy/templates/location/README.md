@@ -7,6 +7,7 @@ This directory contains Jinja2 templates for different NGINX `location` blocks, 
 ## Overview of Files
 
 ### `html.conf.j2`
+
 - **Purpose:**  
   Handles "normal" web traffic such as HTML pages, API endpoints, and general HTTP(S) requests.
 - **Features:**  
@@ -20,6 +21,7 @@ This directory contains Jinja2 templates for different NGINX `location` blocks, 
 ---
 
 ### `ws.conf.j2`
+
 - **Purpose:**  
   Handles WebSocket connections, enabling real-time features such as live updates or chats.
 - **Features:**  
@@ -31,6 +33,7 @@ This directory contains Jinja2 templates for different NGINX `location` blocks, 
 ---
 
 ### `media.conf.j2`
+
 - **Purpose:**  
   Proxies and caches static media files (images, icons, etc.).
 - **Features:**  

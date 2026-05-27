@@ -1,4 +1,4 @@
-# Kevins Package Manager 🤖📦
+# Kevins Package Manager
 
 ## Description
 
@@ -7,6 +7,7 @@ This Ansible role installs and configures [Kevin's Package Manager](https://gith
 ## Overview
 
 This role automates the deployment of Kevin's Package Manager by:
+
 - Cloning the repository from GitHub.
 - Executing the installation command to create/update repository command wrappers.
 
@@ -23,9 +24,9 @@ The purpose of this role is to simplify the installation of Kevin's Package Mana
 - **Alias Installation:** Runs the installation command to generate command aliases.
 - **Configurable Paths:** Allows customization of both the installation and binary directories.
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

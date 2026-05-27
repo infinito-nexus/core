@@ -7,7 +7,7 @@ def filter_enabled_bridges(bridges, plugins):
     return [b for b in bridges if plugins.get(b["bridge_name"], False)]
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "filter_enabled_bridges": filter_enabled_bridges,

@@ -16,7 +16,7 @@ def _run(applications: dict, roles_dir: Path, group_names: list | None = None) -
     """
     if group_names is None:
         group_names = list(applications.keys())
-    with patch.object(LookupModule, "_find_roles_dir", return_value=roles_dir):
+    with patch("plugins.lookup.native_metrics_apps.ROLES_DIR", roles_dir):
         return LookupModule().run(
             [],
             variables={"applications": applications, "group_names": group_names},
@@ -43,7 +43,7 @@ def _make_roles(tmp: Path, specs: dict) -> dict:
             tpl_dir.mkdir(parents=True)
             (tpl_dir / "prometheus.yml.j2").write_text(f'  - job_name: "{app_id}"\n')
         # applications dict: mirrors what Ansible populates from role config defaults.
-        # Per req-008 the materialised payload moved from
+        # Per the materialised payload moved from
         # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
         applications[app_id] = {
             "services": {

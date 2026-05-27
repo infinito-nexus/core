@@ -1,38 +1,43 @@
+---
 oidc:
-  enabled: true
-  shared: true
-  flavor: ''
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: ""
+# nocheck: playwright-service-flag — infrastructural sub-component (TURN/STUN)
 coturn:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-coturn' in group_names }}"
+  shared: "{{ 'web-svc-coturn' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 ldap:
-  enabled: true
-  shared: true
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
-# noqa: shared
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: true
-  cpus: '1'
+  cpus: "1"
   mem_reservation: 1g
   mem_limit: 8g
   pids_limit: 512
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
-  enabled: true
-  shared: true
-  cpus: '0.75'
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-mariadb' in group_names }}"
+  cpus: "0.75"
   mem_reservation: 512m
   mem_limit: 1.5g
   pids_limit: 512
@@ -43,24 +48,24 @@ nextcloud:
   min_storage: 20GB
   backup:
     no_stop_required: true
-  cpus: '2.0'
+  cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 3g
   pids_limit: 512
-  default_quota: '1000000000'
+  default_quota: "1000000000"
   legacy_login_mask:
-    enabled: false
+    enabled: "{{ not (lookup('config', 'web-app-nextcloud', 'services.oidc.enabled') | bool) }}"
   performance:
     php:
-      memory_limit: '{{ ((ansible_facts[''memtotal_mb''] | int) / 30) | int }}M'
+      memory_limit: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
       upload_limit: 5G
-      opcache_memory_consumption: '{{ ((ansible_facts[''memtotal_mb''] | int) / 30) | int }}M'
+      opcache_memory_consumption: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
   plugins_enabled: true
   plugins:
     appointments:
       enabled: true
-    # bbb:
-    #   enabled: '{{ ''web-app-bigbluebutton'' in group_names | lower }}'
+    bbb:
+      enabled: "{{ 'web-app-bigbluebutton' in group_names | lower }}"
     calendar:
       enabled: true
     collectives:
@@ -70,7 +75,7 @@ nextcloud:
     cospend:
       enabled: true
     deck:
-      enabled: '{{ ''web-app-taiga'' not in group_names | lower }}'
+      enabled: "{{ 'web-app-taiga' not in group_names | lower }}"
     drawio:
       enabled: true
     event_update_notification:
@@ -79,12 +84,8 @@ nextcloud:
       enabled: true
     external:
       enabled: true
-    # Marketplace upstream lags Nextcloud version: deploy fails with
-    # `App "BPM Files" cannot be installed because it is not compatible
-    # with this version of the server.` Re-enable when the plugin
-    # ships a release matching the pinned Nextcloud major.
-    # files_bpm:
-    #   enabled: true
+    files_bpm:
+      enabled: true
     files_linkeditor:
       enabled: true
     fileslibreofficeedit:
@@ -98,31 +99,27 @@ nextcloud:
     integration_discourse:
       enabled: false
     integration_gitlab:
-      enabled: '{{ ''web-app-gitlab'' in group_names | lower }}'
+      enabled: "{{ 'web-app-gitlab' in group_names | lower }}"
     integration_github:
       enabled: false
     integration_google:
       enabled: true
     integration_mastodon:
-      enabled: '{{ ''web-app-mastodon'' in group_names | lower }}'
+      enabled: "{{ 'web-app-mastodon' in group_names | lower }}"
     integration_openai:
       enabled: false
     integration_openproject:
-      enabled: '{{ ''web-app-openproject'' in group_names | lower }}'
+      enabled: "{{ 'web-app-openproject' in group_names | lower }}"
     integration_peertube:
-      enabled: '{{ ''web-app-peertube'' in group_names | lower }}'
+      enabled: "{{ 'web-app-peertube' in group_names | lower }}"
     mail:
       enabled: true
     metadata:
-      # Disabled: upstream "Metadata" app is not compatible with the currently
-      # pinned Nextcloud server version (occ app:enable returns "App 'Metadata'
-      # cannot be installed because it is not compatible with this version of
-      # the server."). Re-enable once a compatible release ships.
-      enabled: false
+      enabled: true
     news:
       enabled: true
     oidc_login:
-      enabled: '{{ lookup(''oidc_flavor'') == ''oidc_login'' }}'
+      enabled: "{{ lookup('oidc_flavor') == 'oidc_login' }}"
       incompatible_plugins:
         - user_oidc
         - sociallogin
@@ -142,26 +139,26 @@ nextcloud:
         - richdocuments
         - fileslibreofficeedit
     sociallogin:
-      enabled: '{{ lookup(''oidc_flavor'') == ''sociallogin'' }}'
+      enabled: "{{ lookup('oidc_flavor') == 'sociallogin' }}"
       incompatible_plugins:
         - user_oidc
         - oidc_login
     spreed:
-      enabled: true
+      enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') }}"
     tables:
       enabled: true
     tasks:
       enabled: true
     twofactor_nextcloud_notification:
-      enabled: '{{ not (lookup(''config'', ''web-app-nextcloud'', ''services.oidc.enabled'', False)) }}'
+      enabled: "{{ not (lookup('config', 'web-app-nextcloud', 'services.oidc.enabled')) }}"
     twofactor_totp:
-      enabled: '{{ not (lookup(''config'', ''web-app-nextcloud'', ''services.oidc.enabled'', False)) }}'
+      enabled: "{{ not (lookup('config', 'web-app-nextcloud', 'services.oidc.enabled')) }}"
     user_ldap:
-      enabled: '{{ lookup(''config'', ''web-app-nextcloud'', ''services.ldap.enabled'', True) }}'
+      enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.ldap.enabled') }}"
       user_directory:
         enabled: true
     user_oidc:
-      enabled: '{{ lookup(''oidc_flavor'') == ''user_oidc'' }}'
+      enabled: "{{ lookup('oidc_flavor') == 'user_oidc' }}"
       incompatible_plugins:
         - oidc_login
         - sociallogin
@@ -186,30 +183,32 @@ proxy:
   version: alpine
   backup:
     no_stop_required: true
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 64m
   mem_limit: 256m
   pids_limit: 512
   min_storage: 1GB
 cron:
   name: nextcloud-cron
-  cpus: '0.25'
+  cpus: "0.25"
   mem_reservation: 128m
   mem_limit: 512m
   pids_limit: 256
   min_storage: 1GB
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — infrastructural sub-component (real-time communication)
 talk:
-  enabled: '{{ lookup(''config'', ''web-app-nextcloud'', ''plugins.spreed.enabled'', False) }}'
+  enabled: "{{ 'web-svc-coturn' in group_names }}"
   name: nextcloud-talk
   image: nextcloud/aio-talk
   version: latest
   backup:
     no_stop_required: false
   turn_server:
-    onboard_enabled: false
-    standalone_enabled: true
+    onboard_enabled: "{{ not ( 'web-svc-coturn' in group_names ) }}"
+    standalone_enabled: "{{ 'web-svc-coturn' in group_names }}"
   network_mode: bridge
-  cpus: '2.0'
+  cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
@@ -220,33 +219,38 @@ whiteboard:
   version: latest
   backup:
     no_stop_required: true
-  cpus: '1'
+  cpus: "1"
   mem_reservation: 128m
   mem_limit: 1g
   pids_limit: 1024
   min_storage: 1GB
+# nocheck: playwright-service-flag — infrastructural sub-component (collaborative editing)
 onlyoffice:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-onlyoffice' in group_names }}"
+  shared: "{{ 'web-svc-onlyoffice' in group_names }}"
+# nocheck: playwright-service-flag — infrastructural sub-component (collaborative editing)
 collabora:
-  enabled: false
-  shared: false
+  enabled: "{{ 'web-svc-collabora' in group_names }}"
+  shared: "{{ 'web-svc-collabora' in group_names }}"
 talk_recording:
   name: nextcloud-talk-recording
   image: nextcloud/aio-talk-recording
   version: latest
   backup:
     no_stop_required: true
-  cpus: '2.0'
+  cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 6g
   pids_limit: 1024
   min_storage: 1GB
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
-  enabled: false
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — captcha backend, infrastructural
 hcaptcha:
-  enabled: '{{ HCAPTCHA_ENABLED | bool }}'
+  enabled: "{{ HCAPTCHA_ENABLED | bool }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

@@ -1,3 +1,4 @@
+---
 # Required to be set on the top so global frontend service loading can rely on run_once guards.
 - include_tasks: utils/once/flag.yml
 
@@ -9,14 +10,14 @@
     name: sys-stk-full
   vars:
     # Suppress flushing of handlers, because bootstrap file needs to be deployed first
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Deploy '{{ MATOMO_BOOTSTRAP_ENV_FILE }}'"
   template:
     src: "templates/bootstrap.env.j2"
     dest: "{{ MATOMO_BOOTSTRAP_ENV_FILE }}"
-    mode: '0640'
-    force: yes
+    mode: "0640"
+    force: true
   notify: compose up
 
 - name: flush docker service

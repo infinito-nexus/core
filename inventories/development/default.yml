@@ -1,8 +1,9 @@
+---
 # Sample inventory for CI Pipeline.
 #
 # Per-application overrides MUST live in the role itself under
 # `roles/<role>/meta/variants.yml` (one entry per matrix-deploy
-# variant). The dev init step at `cli/deploy/development/init.py`
+# variant). The dev init step at `cli/administration/deploy/development/init.py`
 # materialises one inventory folder per round (`<dir>-0`, `<dir>-1`,
 # ...; or just `<dir>` when there is a single round) with the active
 # variant baked into each folder's host_vars. The matching deploy step
@@ -10,11 +11,21 @@
 # between rounds. This file holds only the cross-cutting environment
 # knobs.
 MASK_CREDENTIALS_IN_LOGS: false
-ASYNC_ENABLED:            false
-MODE_DEBUG:               true
-ENVIRONMENT:              development
-TLS_ENABLED:              true
-TLS_MODE:                 "self_signed"
+ASYNC_ENABLED: false
+MODE_DEBUG: true
+ENVIRONMENT: development
+TLS_ENABLED: true
+TLS_MODE: "self_signed"
+
+DOMAIN_PRIMARY: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
+BUILDKIT_ENABLED: "{{ lookup('env', 'INFINITO_BUILDKIT_ENABLED') | bool }}"
+CA_CONTAINER_ENABLED: "{{ lookup('env', 'INFINITO_CONTAINER_CA_ENABLED') | bool }}"
+TEST_E2E_PLAYWRIGHT_KEEP: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }}"
+networks:
+  internet:
+    ip4: "{{ lookup('env', 'INFINITO_IP4') }}"
+    ip6: "{{ lookup('env', 'INFINITO_IP6') }}"
+    dns: "{{ lookup('env', 'INFINITO_DNS_IP') }}"
 
 design:
   css:
@@ -28,15 +39,15 @@ users:
   administrator:
     authorized_keys:
       - ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito
-    password:   "'$tr0ng€xampl3PW!"
+    password: "'$tr0ng€xampl3PW!"
   biber:
-    username:   "biber"
-    firstname:  "Harry"
-    lastname:   "Beaver"
-    website:    "https://www.infinito.nexus/"
-    email:      "contact@infinito.nexus"
-    gpg:        "DUMMY-GPG-KEY-NOT-SET"
-    password:   "VeryUnsecurePassword"
+    username: "biber"
+    firstname: "Harry"
+    lastname: "Beaver"
+    website: "https://www.infinito.nexus/"
+    email: "biber@infinito.example"
+    gpg: "DUMMY-GPG-KEY-NOT-SET"
+    password: "VeryUnsecurePassword"
 
     # UID/GID allocation policy:
     # - Use IDs >= 10000 for manually managed users
@@ -47,7 +58,6 @@ users:
     roles: []
     tokens: {}
     authorized_keys: []
-
 SIZE_PERCENT_CLEANUP_DISC_SPACE: 99 # Set high because in DiD Ci Environment in github workflow it can be verry high e.g. ~92%
 
 WORKSTATION_USER: biber

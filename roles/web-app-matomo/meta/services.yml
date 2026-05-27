@@ -1,12 +1,25 @@
-oauth2:
-  enabled: false
-logout:
+---
+# nocheck: dynamic-flag
+# nocheck: oidc
+oidc:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: oauth2
+oauth2:
+  enabled: false
+  shared: false
+  # TODO Enable oauth2 for matomo
+# nocheck: dynamic-flag
+logout:
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: false
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+# nocheck: playwright-service-flag — self-provider
 matomo:
-  enabled: false
+  enabled: true
   shared: true
   image: matomo
   version: latest
@@ -21,7 +34,7 @@ matomo:
   site_name: Matomo on {{ DOMAIN_PRIMARY }}
   token:
     description: Created by {{ SOFTWARE_NAME }}
-  excluded_ips: '{{ networks.internet.values() | list }}'
+  excluded_ips: "{{ networks.internet.values() | list }}"
   ports:
     local:
       http: 8018
@@ -38,16 +51,20 @@ bootstrap:
   mem_limit: 1g
   pids_limit: 512
   min_storage: 1GB
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-mariadb' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: false
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
-  enabled: false
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

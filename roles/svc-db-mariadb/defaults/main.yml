@@ -1,5 +1,6 @@
+---
 # Check out the README.md file for more information, why this encodings and collations are used
-MARIADB_ENCODING:       "utf8mb4"
-MARIADB_COLLATION:      "utf8mb4_unicode_ci"
-database_init:          false                 # When true a database is initialized
-database_consumer_id:   "svc-db-mariadb"      # Self consumer
+MARIADB_ENCODING: "utf8mb4"
+MARIADB_COLLATION: "utf8mb4_unicode_ci"
+database_init: false # When true a database is initialized
+database_consumer_id: "svc-db-mariadb" # Self consumer

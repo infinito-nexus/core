@@ -1,3 +1,4 @@
+---
 - name: "Purge everything from Cloudflare cache for domain {{ domain }}"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/purge_cache"
@@ -8,6 +9,6 @@
     body:
       purge_everything: true
     body_format: json
-    return_content: yes
+    return_content: true
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

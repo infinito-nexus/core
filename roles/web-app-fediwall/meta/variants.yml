@@ -1,3 +1,4 @@
+---
 # Matrix-deploy variant overrides for this role.
 #
 # Variant 0 — defaults from meta/services.yml. Single wall, polls all
@@ -33,6 +34,23 @@
       enabled: true
       shared: true
 
+    # Variant 2 (false-pinning) — siblings opted out so the
+    # variant-coverage matrix exercises the out-of-group_names branch
+    # of every dynamic services flag.
+    css:
+      enabled: true
+      shared: true
+- services:
+    mastodon:
+      enabled: false
+      shared: false
+    friendica:
+      enabled: false
+      shared: false
+
+    css:
+      enabled: false
+      shared: false
 - services:
     mastodon:
       enabled: true
@@ -91,3 +109,6 @@
             showText: true
             showMedia: true
             playVideos: true
+    css:
+      enabled: false
+      shared: false

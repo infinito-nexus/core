@@ -1,7 +1,12 @@
+---
 domains:
   canonical:
-  - fd.{{ DOMAIN_PRIMARY }}
+    - fd.{{ DOMAIN_PRIMARY }}
   aliases: []
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
 networks:
   local:
     subnet: 192.168.103.32/28

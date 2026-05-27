@@ -1,6 +1,6 @@
 # System Purge
 
-This is the SPOT for host and system cleanup helpers under `scripts/system/purge/`.
+This directory holds host and system cleanup helpers.
 For container-local cleanup helpers, see [../../container/purge/README.md](../../container/purge/README.md).
 For the canonical Make target index that invokes these helpers, see [make.md](../../../docs/contributing/tools/make.md).
 

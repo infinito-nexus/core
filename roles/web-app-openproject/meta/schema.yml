@@ -1,0 +1,6 @@
+---
+credentials:
+  secret_key_base:
+    description: Main secret used by OpenProject to sign cookies and encrypt session data
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

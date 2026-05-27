@@ -1,3 +1,4 @@
+---
 - name: Validate user authorized_keys is a list when defined
   ansible.builtin.fail:
     msg: >-

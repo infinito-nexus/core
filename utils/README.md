@@ -5,12 +5,14 @@ This directory contains shared Python helpers used by custom modules and plugins
 ## Purpose
 
 Use `utils/` for reusable code that should not be duplicated across:
+
 - `library/` modules,
 - `plugins/action/`,
 - `plugins/filter/`,
 - `plugins/lookup/`.
 
 Typical shared utilities:
+
 - API clients,
 - validation/conversion helpers,
 - path and configuration helpers,

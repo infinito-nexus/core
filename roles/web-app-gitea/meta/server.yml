@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -6,16 +7,16 @@ csp:
       unsafe-inline: true
   whitelist:
     font-src:
-    - 'data:'
-    - 'blob:'
+      - "data:"
+      - "blob:"
     worker-src:
-    - 'blob:'
+      - "blob:"
     manifest-src:
-    - 'data:'
+      - "data:"
 domains:
   aliases: []
   canonical:
-  - tea.git.{{ DOMAIN_PRIMARY }}
+    - tea.git.{{ DOMAIN_PRIMARY }}
 networks:
   local:
     subnet: 192.168.101.112/28

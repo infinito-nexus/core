@@ -1,6 +1,6 @@
 # Local Deploy Test Scripts 🧪
 
-This file is the SPOT for local helpers outside `deploy/`.
+This file describes the local helpers outside `deploy/`.
 For executable local deploy flows, use [deploy/README.md](deploy/README.md).
 For inventory reset helpers, use [reset/README.md](reset/README.md).
 For cleanup helpers, use [purge/README.md](purge/README.md).

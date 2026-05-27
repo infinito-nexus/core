@@ -1,8 +1,7 @@
-# roles/web-app-keycloak/module_utils/kcadm_json.py
 from __future__ import annotations
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 
 def json_from_noisy_stdout(text: Any) -> Any:
@@ -37,12 +36,12 @@ def json_from_noisy_stdout(text: Any) -> Any:
     if not candidates:
         raise ValueError("No JSON start delimiter found")
 
-    last_err: Optional[Exception] = None
+    last_err: Exception | None = None
     for idx in candidates:
         chunk = s[idx:].strip()
         try:
             return json.loads(chunk)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             last_err = e
 
     raise ValueError(f"Failed to parse JSON from noisy stdout: {last_err}")

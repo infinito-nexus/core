@@ -1,8 +1,9 @@
+---
 - name: Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose
   when: run_once_sys_ctl_alm_compose is not defined
-  
+
 - name: Include dependency 'sys-ctl-rpr-container-soft'
   include_role:
     name: sys-ctl-rpr-container-soft
@@ -11,9 +12,9 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_timer_enabled:     true
-    system_service_on_calendar:       "{{ SYS_SCHEDULE_HEALTH_CONTAINER }}"
-    system_service_tpl_on_failure:    "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }} {{ SYS_SERVICE_REPAIR_CONTAINER_SOFT }}"
+    system_service_timer_enabled: true
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_CONTAINER }}"
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }} {{ SYS_SERVICE_REPAIR_CONTAINER_SOFT }}"
     system_service_force_flush_final: true
 
 - include_tasks: utils/once/flag.yml

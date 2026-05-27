@@ -1,3 +1,4 @@
+---
 - name: "TLS | remove CA trust env vars from {{ FILE_ENVIRONMENT }}"
   become: true
   ansible.builtin.lineinfile:
@@ -5,6 +6,6 @@
     regexp: "{{ item }}"
     state: absent
   loop:
-    - '^CA_TRUST_CERT_HOST='
-    - '^CA_TRUST_WRAPPER_HOST='
-    - '^CA_TRUST_NAME='
+    - "^CA_TRUST_CERT_HOST="
+    - "^CA_TRUST_WRAPPER_HOST="
+    - "^CA_TRUST_NAME="

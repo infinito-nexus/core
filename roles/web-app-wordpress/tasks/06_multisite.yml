@@ -1,5 +1,5 @@
 ---
-# Requirement 005: WordPress Multisite opt-in.
+# WordPress Multisite opt-in.
 #
 # Runs only when `services.wordpress.multisite.enabled` is true.
 # Converts the fresh Single-Site installation into a sub-domain Multisite

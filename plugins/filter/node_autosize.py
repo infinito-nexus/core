@@ -1,4 +1,3 @@
-# filter_plugins/node_autosize.py
 # Reuse app config to derive sensible Node.js heap sizes for containers.
 #
 # Usage example (Jinja):
@@ -14,16 +13,18 @@
 # and be OOM-killed.
 
 from __future__ import annotations
+
 import re
+
 from ansible.errors import AnsibleFilterError
 
 # Import the shared config resolver from utils
 try:
-    from utils.applications.config import get, AppConfigKeyError
+    from utils.roles.applications.config import AppConfigKeyError, get
 except Exception as e:
     raise AnsibleFilterError(
-        f"Failed to import get from utils.applications.config: {e}"
-    )
+        f"Failed to import get from utils.roles.applications.config: {e}"
+    ) from e
 
 _SIZE_RE = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*([kmgtp]?i?b?)?\s*$", re.IGNORECASE)
 _MULT = {
@@ -67,7 +68,7 @@ def _to_bytes(val):
 
 def _mb(bytes_val: int) -> int:
     """Return decimal MB (10^6) as integer — Node expects MB units."""
-    return int(round(bytes_val / 10**6))
+    return round(bytes_val / 10**6)
 
 
 def _compute_old_space_mb(
@@ -118,7 +119,7 @@ def node_max_old_space_size(
             default=None,
         )
     except AppConfigKeyError as e:
-        raise AnsibleFilterError(str(e))
+        raise AnsibleFilterError(str(e)) from e
 
     if mem_limit in (None, False, ""):
         raise AnsibleFilterError(
@@ -139,7 +140,7 @@ def node_max_old_space_size(
     return _compute_old_space_mb(total_mb, pct, min_mb, hardcap_mb, safety_cap_pct)
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "node_max_old_space_size": node_max_old_space_size,

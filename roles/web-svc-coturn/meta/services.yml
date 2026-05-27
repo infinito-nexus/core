@@ -1,8 +1,9 @@
+---
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 coturn:
-  enabled: false
+  enabled: true
   shared: true
   image: coturn/coturn
   version: latest
@@ -24,13 +25,17 @@ coturn:
         start: 20000
         end: 39999
   lifecycle: beta
+gateway:
+  image: nginx
+  version: alpine
+# nocheck: dynamic-flag
 redis:
   backup:
     disabled: true
   enabled: false
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

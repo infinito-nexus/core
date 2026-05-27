@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     style-src-attr:
@@ -9,25 +10,25 @@ csp:
       unsafe-inline: true
   whitelist:
     script-src-elem:
-    - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
+      - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
     font-src:
-    - 'data:'
+      - "data:"
     connect-src:
-    - "{{ lookup('domain', 'web-svc-collabora') }}"
-    - "{{ lookup('domain', 'web-app-nextcloud') }}"
-    - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
-    - '*'
+      - "{{ lookup('domain', 'web-svc-collabora') }}"
+      - "{{ lookup('domain', 'web-app-nextcloud') }}"
+      - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
+      - "*"
     frame-src:
-    - "{{ lookup('domain', 'web-svc-collabora') }}"
-    - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
-    - '*'
+      - "{{ lookup('domain', 'web-svc-collabora') }}"
+      - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
+      - "*"
     worker-src:
-    - 'blob:'
+      - "blob:"
     media-src:
-    - '*'
+      - "*"
 domains:
   canonical:
-  - next.cloud.{{ DOMAIN_PRIMARY }}
+    - next.cloud.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

@@ -1,6 +1,6 @@
 # Scripts 🧰
 
-This page is the SPOT for file placement rules inside the repository `scripts/` tree.
+This page covers file placement rules inside the repository `scripts/` tree.
 For workflow-specific extraction rules, see [workflow.md](files/github/workflow.md). For Python helper placement, see [utils.md](utils.md).
 
 ## Allowed file types 📋

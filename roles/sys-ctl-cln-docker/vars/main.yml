@@ -1,3 +1,4 @@
+---
 system_service_id: "sys-ctl-cln-docker"
 
 SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY: "{{ group_names | select('match', '^svc-') | list | length > 0 }}"

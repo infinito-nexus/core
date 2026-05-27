@@ -1,4 +1,3 @@
-# filter_plugins/get_service_script_path.py
 # Custom Ansible filter to generate service script paths.
 
 
@@ -16,7 +15,7 @@ def get_service_script_path(systemctl_id, script_type):
     return f"/opt/scripts/systemctl/{systemctl_id}/script.{script_type}"
 
 
-class FilterModule(object):
+class FilterModule:
     """Custom filters for Ansible"""
 
     def filters(self):

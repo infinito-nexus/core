@@ -70,11 +70,14 @@ class TestNativeMetricsTargetErrors(unittest.TestCase):
                 }
             }
         }
-        with patch(
-            "plugins.filter.native_metrics_target.get_entity_name", return_value="gitea"
+        with (
+            patch(
+                "plugins.filter.native_metrics_target.get_entity_name",
+                return_value="gitea",
+            ),
+            self.assertRaises(AnsibleFilterError),
         ):
-            with self.assertRaises(AnsibleFilterError):
-                native_metrics_target("web-app-gitea", apps)
+            native_metrics_target("web-app-gitea", apps)
 
     def test_raises_when_port_missing(self):
         apps = {
@@ -85,18 +88,24 @@ class TestNativeMetricsTargetErrors(unittest.TestCase):
                 }
             }
         }
-        with patch(
-            "plugins.filter.native_metrics_target.get_entity_name", return_value="gitea"
+        with (
+            patch(
+                "plugins.filter.native_metrics_target.get_entity_name",
+                return_value="gitea",
+            ),
+            self.assertRaises(AnsibleFilterError),
         ):
-            with self.assertRaises(AnsibleFilterError):
-                native_metrics_target("web-app-gitea", apps)
+            native_metrics_target("web-app-gitea", apps)
 
     def test_raises_when_app_not_in_applications(self):
-        with patch(
-            "plugins.filter.native_metrics_target.get_entity_name", return_value="gitea"
+        with (
+            patch(
+                "plugins.filter.native_metrics_target.get_entity_name",
+                return_value="gitea",
+            ),
+            self.assertRaises(AnsibleFilterError),
         ):
-            with self.assertRaises(AnsibleFilterError):
-                native_metrics_target("web-app-gitea", {})
+            native_metrics_target("web-app-gitea", {})
 
 
 if __name__ == "__main__":

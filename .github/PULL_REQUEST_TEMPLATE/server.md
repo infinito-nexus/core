@@ -69,13 +69,13 @@ Check the relevant rows and explain intentional omissions in `Additional Notes`.
 | Check | Item | When to include | Purpose |
 |---|---|---|---|
 | [ ] | `README.md` | Usually | Documents role-specific usage, setup notes, and contributor context. |
-| [ ] | `meta/main.yml` | Usually | Declares Ansible Galaxy info and `dependencies:`. No project-internal `run_after:` / `lifecycle:` (those live on the primary entity in `meta/services.yml`, per [req-010](../../docs/requirements/010-role-meta-runafter-lifecycle-migration.md)). |
+| [ ] | `meta/main.yml` | Usually | Declares Ansible Galaxy info and `dependencies:`. No project-internal `run_after:` / `lifecycle:` (those live on the primary entity in `meta/services.yml`). |
 | [ ] | `vars/main.yml` | Usually | Defines the shared fixed role variables as the main source of truth. |
-| [ ] | `meta/services.yml` | Usually | Per-entity service config (file root IS the services map keyed by `<entity_name>`). Holds image/version, `ports.{inter,local,public}` (per [req-009](../../docs/requirements/009-per-role-networks-and-ports.md)), `run_after`/`lifecycle` on the primary entity (per [req-010](../../docs/requirements/010-role-meta-runafter-lifecycle-migration.md)), plus inlined per-service settings. |
+| [ ] | `meta/services.yml` | Usually | Per-entity service config (file root IS the services map keyed by `<entity_name>`). Holds image/version, `ports.{internal,local,public}`, `run_after`/`lifecycle` on the primary entity, plus inlined per-service settings. |
 | [ ] | `meta/server.yml` | Usually | Server-level config (file root IS `applications.<app>.server`). CSP, `domains`, `status_codes`, plus the per-role `networks.local.{subnet,dns_resolver}`. |
 | [ ] | `meta/rbac.yml` | When the role declares RBAC | RBAC declarations (file root IS `applications.<app>.rbac`). |
 | [ ] | `meta/volumes.yml` | When the role declares Compose volumes | Volumes map (file root IS the volumes map; no `compose:`/`volumes:` wrapper). |
-| [ ] | `meta/schema.yml` | When the role declares credentials | Credential schema with optional `default:` field (per [req-008](../../docs/requirements/008-role-meta-layout.md)). |
+| [ ] | `meta/schema.yml` | When the role declares credentials | Credential schema with optional `default:` field. |
 | [ ] | `tasks/main.yml` | Usually | Acts as the role entry point and includes the main task flow. |
 | [ ] | `templates/compose.yml.j2` | For containerized app roles | Defines the service, volume, environment, port, and network wiring. |
 | [ ] | `templates/env.j2` | When the app uses environment files | Renders the app environment configuration. |
@@ -84,14 +84,14 @@ Check the relevant rows and explain intentional omissions in `Additional Notes`.
 | [ ] | `meta/users.yml` | When the role bootstraps users or identities | Role-local user definitions (file root IS the users map; no `users:` wrapper). |
 | [ ] | `files/Dockerfile` | When a custom image is required | Provides a custom image build path. Prefer this over `Dockerfile.j2`. |
 | [ ] | `templates/playwright.env.j2` | When Playwright coverage is included | Configures the Playwright test environment. See [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md). |
-| [ ] | `files/playwright.spec.js` | When Playwright coverage is included | Defines the Playwright login and logout test flow. See [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md). |
+| [ ] | `files/playwright/playwright.spec.js` | When Playwright coverage is included | Defines the Playwright login and logout test flow. See [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md). |
 
 ### Registered
 
 | Check | Item | When to include | Purpose |
 |---|---|---|---|
-| [ ] | Per-entity ports in `meta/services.yml.<entity>.ports.{inter,local,public}` | When the app exposes a service | Confirms that the app's host-bound ports are declared on the entity that exposes them (per [req-009](../../docs/requirements/009-per-role-networks-and-ports.md)). Use `cli meta ports suggest` to pick free slots inside the appropriate `PORT_BANDS.<scope>.<category>` from `group_vars/all/08_networks.yml`. |
-| [ ] | Per-role subnet in `meta/server.yml.networks.local.subnet` | When the app communicates over container networks | Confirms that the role's docker network CIDR is declared (per [req-009](../../docs/requirements/009-per-role-networks-and-ports.md)). Use `cli meta networks suggest --clients N` to pick a free subnet. |
+| [ ] | Per-entity ports in `meta/services.yml.<entity>.ports.{internal,local,public}` | When the app exposes a service | Confirms that the app's host-bound ports are declared on the entity that exposes them. Use `cli meta ports suggest` to pick free slots inside the appropriate `PORT_BANDS.<scope>.<category>` from `group_vars/all/08_networks.yml`. |
+| [ ] | Per-role subnet in `meta/server.yml.networks.local.subnet` | When the app communicates over container networks | Confirms that the role's docker network CIDR is declared. Use `cli meta networks suggest --clients N` to pick a free subnet. |
 
 ---
 

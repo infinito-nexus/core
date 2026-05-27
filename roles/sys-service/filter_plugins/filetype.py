@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 
 def filetype(path, full=False):
@@ -13,7 +13,7 @@ def filetype(path, full=False):
     if not path or not isinstance(path, str):
         return ""
 
-    basename = os.path.basename(path)
+    basename = Path(path).name
 
     if full:
         # Full extension chain (e.g., "script.sh.j2" -> "sh.j2")
@@ -21,13 +21,12 @@ def filetype(path, full=False):
         if len(parts) == 2:
             return parts[1]
         return ""
-    else:
-        # Last extension only (e.g., "script.sh.j2" -> "j2", "script.py" -> "py")
-        _, ext = os.path.splitext(basename)
-        return ext[1:] if ext else ""
+    # Last extension only (e.g., "script.sh.j2" -> "j2", "script.py" -> "py")
+    suffix = Path(basename).suffix
+    return suffix[1:] if suffix else ""
 
 
-class FilterModule(object):
+class FilterModule:
     """Custom Jinja2 filters for Ansible"""
 
     def filters(self):

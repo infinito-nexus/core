@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml as _load_yaml_cached
+from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from . import PROJECT_ROOT
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
 ROLES_DIR = PROJECT_ROOT / "roles"
 
 
 def _render_ansible_strict(
     *, raw: str, var_name: str, variables: dict[str, Any]
 ) -> str:
-    from utils.templating import render_ansible_strict
+    from utils.templating.ansible import render_ansible_strict
 
     return render_ansible_strict(
         templar=None,
@@ -67,8 +71,8 @@ def build_applications_from_roles(
     applications: dict[str, dict[str, Any]] = {}
 
     for role_dir in sorted(roles_dir.iterdir()):
-        vars_main = role_dir / "vars" / "main.yml"
-        server_meta = role_dir / "meta" / "server.yml"
+        vars_main = role_dir / ROLE_FILE_VARS_MAIN
+        server_meta = role_dir / ROLE_FILE_META_SERVER
         if not vars_main.exists() or not server_meta.exists():
             continue
 
@@ -77,7 +81,7 @@ def build_applications_from_roles(
         if not isinstance(application_id, str) or not application_id.strip():
             continue
 
-        # Per req-008 the file-root of meta/server.yml IS the value of
+        # The file-root of meta/server.yml IS the value of
         # applications.<app>.server.
         server = load_yaml_mapping(server_meta)
         if not isinstance(server, dict):

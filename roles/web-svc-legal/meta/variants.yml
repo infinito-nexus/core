@@ -1,0 +1,14 @@
+---
+# Matrix-deploy variant overrides for web-svc-legal.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant pinning every dynamic services.yml flag to true so the
+# matrix exercises the in-group_names branch of web-svc-legal.
+- services:
+    prometheus:
+      enabled: true
+      shared: true
+- services:
+    prometheus:
+      enabled: false
+      shared: false

@@ -1,2 +1,5 @@
+---
 journalctl:
   lifecycle: beta
+  required_by:
+    categories: [web]

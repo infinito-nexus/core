@@ -1,6 +1,6 @@
 """Build structured LDAP role entries for the RBAC groups container.
 
-Requirement 005 mandates a hierarchical Keycloak group path shape:
+Mandates a hierarchical Keycloak group path shape:
 
     /roles/<application_id>/<role_name>                    # non-tenant / global
     /roles/<application_id>/<tenant_id>/<role_name>        # per-tenant
@@ -26,10 +26,6 @@ silently dropped during sync. This filter therefore:
 * Connects parents to children via `member` references. Keycloak turns
   each referenced child groupOfNames into a Keycloak subgroup of the
   referring parent, building the required hierarchy.
-
-See:
-    docs/requirements/004-generic-rbac-ldap-auto-provisioning.md
-    docs/requirements/005-wordpress-multisite-rbac.md
 """
 
 _ENTRY_KIND_GROUP = "group"
@@ -108,7 +104,7 @@ def _role_group_entry(
         "dn": dn,
         "cn": cn,
         "description": display_name,
-        "objectClass": ["top"] + list(flavors),
+        "objectClass": ["top", *list(flavors)],
     }
     if "posixGroup" in flavors:
         entry["gidNumber"] = group_id
@@ -268,6 +264,6 @@ def build_ldap_role_entries(applications, users, ldap, group_names=None):
     return result
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {"build_ldap_role_entries": build_ldap_role_entries}

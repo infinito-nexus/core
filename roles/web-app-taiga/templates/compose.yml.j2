@@ -2,7 +2,7 @@
 
 {% set TAIGA_BACKEND_AUTH_BUILD_PROPS -%}
 build:
-  context: "{{ docker_repository_path }}"
+  context: "{{ compose_repository_path }}"
   dockerfile: Dockerfile.taiga-back
 image: "{{ TAIGA_DOCKER_IMAGE_BACKEND_AUTH }}"
 pull_policy: never
@@ -39,11 +39,10 @@ pull_policy: never
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
       taiga:
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      {{ TAIGA_EVENTS_RABBITMQ_SERVICE }}:
-        condition: service_started
-      {{ TAIGA_ASYNC_RABBITMQ_SERVICE }}:
-        condition: service_started
+{{ lookup('container_depends_on', application_id, extra={
+  TAIGA_EVENTS_RABBITMQ_SERVICE: {'condition': 'service_started'},
+  TAIGA_ASYNC_RABBITMQ_SERVICE: {'condition': 'service_started'},
+}) }}
 
 {% set service_name = TAIGA_ASYNC_SERVICE %}
   {{ service_name }}:
@@ -76,16 +75,15 @@ pull_policy: never
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
       taiga:
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      {{ TAIGA_EVENTS_RABBITMQ_SERVICE }}:
-        condition: service_started
-      {{ TAIGA_ASYNC_RABBITMQ_SERVICE }}:
-        condition: service_started
+{{ lookup('container_depends_on', application_id, extra={
+  TAIGA_EVENTS_RABBITMQ_SERVICE: {'condition': 'service_started'},
+  TAIGA_ASYNC_RABBITMQ_SERVICE: {'condition': 'service_started'},
+}) }}
 
 {% set service_name = TAIGA_ASYNC_RABBITMQ_SERVICE %}
   {{ service_name }}:
     container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: rabbitmq:3.8-management-alpine
+    image: "{{ TAIGA_DOCKER_IMAGE_ASYNC_RABBITMQ }}:{{ TAIGA_DOCKER_VERSION_ASYNC_RABBITMQ }}"
     hostname: "{{ TAIGA_ASYNC_RABBITMQ_SERVICE }}"
     volumes:
       - async-rabbitmq-data:/var/lib/rabbitmq
@@ -105,7 +103,7 @@ pull_policy: never
     container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
 {% if TAIGA_OIDC_ENABLED | bool %}
     build:
-      context: "{{ docker_repository_path }}"
+      context: "{{ compose_repository_path }}"
       dockerfile: Dockerfile.taiga-front
     image: "{{ TAIGA_DOCKER_IMAGE_FRONTEND_OIDC }}"
     pull_policy: never
@@ -127,7 +125,7 @@ pull_policy: never
 {% set service_name = TAIGA_EVENTS_SERVICE %}
   {{ service_name }}:
     container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: taigaio/taiga-events:latest
+    image: "{{ TAIGA_DOCKER_IMAGE_EVENTS }}:{{ TAIGA_DOCKER_VERSION_EVENTS }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD-SHELL", "nc -z 127.0.0.1 8888"]
@@ -144,7 +142,7 @@ pull_policy: never
 {% set service_name = TAIGA_EVENTS_RABBITMQ_SERVICE %}
   {{ service_name }}:
     container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: rabbitmq:3.8-management-alpine
+    image: "{{ TAIGA_DOCKER_IMAGE_EVENTS_RABBITMQ }}:{{ TAIGA_DOCKER_VERSION_EVENTS_RABBITMQ }}"
     hostname: {{ service_name }}
     volumes:
       - events-rabbitmq-data:/var/lib/rabbitmq
@@ -161,7 +159,7 @@ pull_policy: never
 {% set service_name = 'protected' %}
   {{ service_name }}:
     container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: taigaio/taiga-protected:latest
+    image: "{{ TAIGA_DOCKER_IMAGE_PROTECTED }}:{{ TAIGA_DOCKER_VERSION_PROTECTED }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8003),5).close()"]
@@ -176,11 +174,11 @@ pull_policy: never
 {% set container_port = 80 %}
   {{ service_name }}:
     container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: nginx:alpine
+    image: "{{ TAIGA_DOCKER_IMAGE_GATEWAY }}:{{ TAIGA_DOCKER_VERSION_GATEWAY }}"
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.taiga.ports.local.http') }}:{{ container_port }}"
     volumes:
-      - {{ docker_repository_path }}taiga-gateway/taiga.conf:/etc/nginx/conf.d/default.conf
+      - {{ compose_repository_path }}taiga-gateway/taiga.conf:/etc/nginx/conf.d/default.conf
       - static-data:/taiga/static
       - media-data:/taiga/media
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -196,7 +194,6 @@ pull_policy: never
       - {{ TAIGA_EVENTS_SERVICE }}
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=TAIGA_DATABASE_VOLUME,
     extra_volumes={'async-rabbitmq-data': {}, 'events-rabbitmq-data': {}, 'media-data': {}, 'static-data': {}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

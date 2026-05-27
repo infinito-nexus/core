@@ -1,3 +1,4 @@
+---
 - name: "Create LDIF files at {{ OPENLDAP_LDIF_PATH_HOST }}{{ folder }}"
   template:
     src: "{{ item }}"

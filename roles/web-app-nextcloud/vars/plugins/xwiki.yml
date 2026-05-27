@@ -1,6 +1,7 @@
+---
 plugin_configuration:
   - appid: "xwiki"
     configkey: "instances"
     configvalue:
-      - name:  "XWiki"
-        url:   "{{ lookup('tls', 'web-app-xwiki', 'url.base') }}"
+      - name: "XWiki"
+        url: "{{ lookup('tls', 'web-app-xwiki', 'url.base') }}"

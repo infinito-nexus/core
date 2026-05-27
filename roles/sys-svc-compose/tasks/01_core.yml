@@ -1,7 +1,8 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - include_role:
-    name:   sys-svc-container
+    name: sys-svc-container
     public: false
   when: run_once_sys_svc_container is not defined
 
@@ -16,11 +17,11 @@
 
 - name: "create {{ DIR_COMPOSITIONS }}"
   file:
-    path:   "{{ DIR_COMPOSITIONS }}"
-    state:  directory
-    mode:   0700
-    owner:  root
-    group:  root
+    path: "{{ DIR_COMPOSITIONS }}"
+    state: directory
+    mode: "0700"
+    owner: root
+    group: root
 
 - name: Install compose wrapper
   become: true
@@ -30,18 +31,3 @@
     mode: "0755"
     owner: root
     group: root
-
-- name: Include backup, repair and health services for docker
-  include_role:
-    name: "{{ service_role }}"
-  loop:
-    - sys-ctl-cln-docker
-    - sys-ctl-bkp-docker-2-loc
-    - sys-ctl-hlth-container
-    - sys-ctl-hlth-volumes
-    - sys-ctl-rpr-container-hard
-  loop_control:
-    loop_var: service_role
-  when:
-    - COMPOSE_LOAD_SERVICES | bool
-    - not (_service_loader_preloading | default(false) | bool)

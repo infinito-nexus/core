@@ -1,3 +1,4 @@
+---
 data: gitlab_data
 logs: gitlab_logs
 config: gitlab_config

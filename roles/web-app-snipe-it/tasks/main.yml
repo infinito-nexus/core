@@ -3,14 +3,14 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: true
+    compose_handlers_flush: true
 
 - name: "Installation Procedures"
   import_tasks: 01_install.yml
 
 - name: "Configure Snipe-IT LDAP settings"
   import_tasks: 02_ldap.yml
-  when: SNIPE_IT_LDAP_ENABLED | bool 
+  when: SNIPE_IT_LDAP_ENABLED | bool
 
 - name: "Create bootstrap Snipe-IT administrator"
   import_tasks: 03_admin.yml

@@ -15,11 +15,11 @@ Upstream OpenTalk supports two `[user_search].backend` values: `keycloak_webapi`
 ## Inspect The Keycloak ↔ LDAP Federation 🩺
 
 ```bash
-make exec CMD="container exec keycloak /opt/keycloak/bin/kcadm.sh get components -r {{ OIDC.CLIENT.REALM }} --query type=org.keycloak.storage.UserStorageProvider"
+make compose-exec cmd="container exec keycloak /opt/keycloak/bin/kcadm.sh get components -r {{ OIDC.CLIENT.REALM }} --query type=org.keycloak.storage.UserStorageProvider"
 ```
 
 If users created in OpenLDAP do not appear in OpenTalk, force a Keycloak full sync (component IDs vary per environment):
 
 ```bash
-make exec CMD="container exec keycloak /opt/keycloak/bin/kcadm.sh create user-storage/<id>/sync?action=triggerFullSync -r {{ OIDC.CLIENT.REALM }}"
+make compose-exec cmd="container exec keycloak /opt/keycloak/bin/kcadm.sh create user-storage/<id>/sync?action=triggerFullSync -r {{ OIDC.CLIENT.REALM }}"
 ```

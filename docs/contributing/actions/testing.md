@@ -38,27 +38,27 @@ Use the following table when you need realistic local deployment validation or a
 
 | Category | Command | What it does | When to use it |
 |---|---|---|---|
-| Local deploy | `make deploy-fresh-kept-apps APPS=web-app-nextcloud` | Creates the needed inventory and deploys one or more apps. | Fresh deploy for a specific app set. |
-| Local deploy | `make deploy-reuse-kept-apps APPS=web-app-nextcloud` | Reuses an existing `devices.yml` inventory and redeploys one or more apps quickly. | Fast reuse path. |
-| Local deploy | `make deploy-reuse-purged-apps APPS=web-app-nextcloud` | Reuses an existing `devices.yml` inventory, purges the entity first, and redeploys one or more apps quickly. | Fast reuse path after a state reset. |
-| Local deploy and E2E | `make deploy-fresh-purged-apps APPS=web-app-matomo` | Runs a dedicated local validation flow for one or more apps against the dev stack, creating and re-initializing the inventory first. | Baseline and recovery path. |
-| Full local validation | `make deploy-fresh-kept-all` | Builds the broader local deployment flow across apps. | Broad coverage when you explicitly need it. |
-| Bundle deploy | `BUNDLES="<bundle>[,<bundle>]" make deploy-bundles` | Aggregates the role groups from one or more [inventories/bundles/](../../../inventories/bundles/) entries into `APPS` and runs the fresh-purged deploy. Set `FULL_CYCLE=true` for the async update pass. | One-shot validation of a curated app shape (e.g. `education-suite`). |
-| Bundle redeploy | `BUNDLES="<bundle>[,<bundle>]" make redeploy-bundles` | Same bundle resolution as `deploy-bundles`, but routes through the reuse-kept path (no down/up, no entity purge). | Fast iteration loop after a prior `deploy-bundles` run. |
-| Local reset | `make container-refresh-inventory` | Recreates the local inventory without deploying apps. | Use this when your local inventory is broken or you want a clean reset. |
-| Local cleanup | `make container-purge-system` | Deletes local deploy artifacts and cleanup data. | Use this only when you really want to remove local state. |
+| Local deploy | `make compose-deploy apps=web-app-nextcloud` | Creates the needed inventory and deploys one or more apps. | Fresh deploy for a specific app set. |
+| Local deploy | `make compose-deploy mode=update apps=web-app-nextcloud` | Reuses an existing `devices.yml` inventory and redeploys one or more apps quickly. | Fast reuse path. |
+| Local deploy | `make compose-deploy mode=update apps=web-app-nextcloud purge=true` | Reuses an existing `devices.yml` inventory, purges the entity first, and redeploys one or more apps quickly. | Fast reuse path after a state reset. |
+| Local deploy and E2E | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs a dedicated local validation flow for one or more apps against the dev stack, cycling the stack and re-initializing the inventory first. | Baseline and recovery path. |
+| Full local validation | `make compose-deploy` | Builds the broader local deployment flow across apps. | Broad coverage when you explicitly need it. |
+| Bundle deploy | `make compose-deploy bundles="<bundle>[,<bundle>]"` | Aggregates the role groups from one or more [inventories/bundles/](../../../inventories/bundles/) entries into `INFINITO_APPS` and runs the reinstall flow. Set `full_cycle=true` for the async update pass. | One-shot validation of a curated app shape (e.g. `education-suite`). |
+| Bundle redeploy | `make compose-deploy mode=update bundles="<bundle>[,<bundle>]"` | Same bundle resolution as the bundle deploy, but routes through the reuse path (no down/up, no entity purge). | Fast iteration loop after a prior bundle deploy. |
+| Local reset | `make compose-inventory-refresh` | Recreates the local inventory without deploying apps. | Use this when your local inventory is broken or you want a clean reset. |
+| Local cleanup | `make compose-system-purge` | Deletes local deploy artifacts and cleanup data. | Use this only when you really want to remove local state. |
 
 Important:
 
 - Some local deploy commands are destructive.
 - Read [reset/README.md](../../../scripts/tests/deploy/local/reset/README.md), [purge/README.md](../../../scripts/tests/deploy/local/purge/README.md), or [exec/README.md](../../../scripts/tests/deploy/local/exec/README.md) before using the matching helper.
 - For act-based workflow checks, see [Act Workflow Checks](../tools/act.md).
-- After a successful local deploy, run `make trust-ca` and restart your browser.
+- After a successful local deploy, run `make network-trust-ca` and restart your browser.
 
 ## Suite Selection 🎯
 
-- When exactly one test file changes inside one test family, you MAY scope the run with `TEST_PATTERN`.
-- When two or more test files change inside the same test family, you MUST run the matching suite command without `TEST_PATTERN`:
+- When exactly one test file changes inside one test family, you MAY scope the run with `INFINITO_TEST_PATTERN`.
+- When two or more test files change inside the same test family, you MUST run the matching suite command without `INFINITO_TEST_PATTERN`:
   `make test-lint`, `make test-unit`, `make test-integration`, or `make test-external`.
 - When a change touches multiple test families, you MUST run every affected suite.
 

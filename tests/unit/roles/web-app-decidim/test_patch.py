@@ -4,20 +4,12 @@ from __future__ import annotations
 
 import sys
 import unittest
-from pathlib import Path
 
+from . import PROJECT_ROOT
 
-def _repo_root() -> Path:
-    for candidate in Path(__file__).resolve().parents:
-        if (candidate / "pyproject.toml").is_file():
-            return candidate
-    raise AssertionError("Repository root not found from test path.")
+sys.path.insert(0, str(PROJECT_ROOT / "roles" / "web-app-decidim" / "files"))
 
-
-sys.path.insert(0, str(_repo_root() / "roles" / "web-app-decidim" / "files"))
-
-from patch import patch_omniauth_rb, patch_omniauth_helper_rb  # noqa: E402
-
+from patch import patch_omniauth_helper_rb, patch_omniauth_rb
 
 OMNIAUTH_RB_FIXTURE = """\
 Decidim::Auth.setup do |config|

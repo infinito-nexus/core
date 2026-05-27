@@ -1,7 +1,7 @@
-import os
-import unittest
-import tempfile
 import importlib
+import tempfile
+import unittest
+from pathlib import Path
 
 
 class TestVersionLookup(unittest.TestCase):
@@ -31,36 +31,28 @@ class TestVersionLookup(unittest.TestCase):
     def _run_with_repo_layout(self, pyproject_content: str | None):
         """
         Creates a temporary repo-like layout:
-          <tmp>/plugins/lookup/version.py   (simulated via patched __file__)
           <tmp>/pyproject.toml              (optional)
-        Then executes the lookup plugin.
+        Then executes the lookup plugin with PROJECT_ROOT pointing at <tmp>.
         """
         plugin_mod = self.plugin_module
-        original_file = getattr(plugin_mod, "__file__", None)
+        original_root = plugin_mod.PROJECT_ROOT
 
         with tempfile.TemporaryDirectory() as tmp:
-            lookup_dir = os.path.join(tmp, "plugins", "lookup")
-            os.makedirs(lookup_dir, exist_ok=True)
-
             # Place pyproject.toml at repo root (tmp) if requested
             if pyproject_content is not None:
-                pyproject_path = os.path.join(tmp, "pyproject.toml")
-                with open(pyproject_path, "w", encoding="utf-8") as f:
+                pyproject_path = str(Path(tmp) / "pyproject.toml")
+                with Path(pyproject_path).open("w", encoding="utf-8") as f:
                     f.write(pyproject_content)
 
-            # Patch module __file__ so the plugin resolves ../../pyproject.toml from here
-            plugin_mod.__file__ = os.path.join(lookup_dir, "version.py")
+            # Override PROJECT_ROOT so the plugin reads from the temp layout
+            plugin_mod.PROJECT_ROOT = Path(tmp)
 
             try:
                 plugin = self.LookupModule()
                 # Plugin ignores terms/kwargs intentionally
                 return plugin.run([])
             finally:
-                # Restore __file__
-                if original_file is None:
-                    delattr(plugin_mod, "__file__")
-                else:
-                    plugin_mod.__file__ = original_file
+                plugin_mod.PROJECT_ROOT = original_root
 
     def test_reads_project_version(self):
         result = self._run_with_repo_layout(

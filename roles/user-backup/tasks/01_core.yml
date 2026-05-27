@@ -1,9 +1,10 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: create backup user
   user:
     name: backup
-    create_home: yes
+    create_home: true
 
 - name: Include dependency 'sys-svc-sshd'
   include_role:
@@ -14,7 +15,7 @@
   copy:
     src: "backup"
     dest: /etc/sudoers.d/backup
-    mode: '0644'
+    mode: "0644"
     owner: root
     group: root
 

@@ -1,8 +1,8 @@
-from contextlib import redirect_stdout
-import io
-import os
-import unittest
 import importlib.util
+import io
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 from unittest.mock import patch
 
 
@@ -17,13 +17,12 @@ def load_module_from_path(mod_name: str, path: str):
 class TestStandaloneCheckerScript(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Compute repo root: tests/unit/roles/sys-ctl-hlth-webserver/files/test_script.py → 5 levels up
-        here = os.path.abspath(os.path.dirname(__file__))
-        repo_root = os.path.abspath(os.path.join(here, "..", "..", "..", "..", ".."))
-        cls.script_path = os.path.join(
-            repo_root, "roles", "sys-ctl-hlth-webserver", "files", "script.py"
+        from . import PROJECT_ROOT
+
+        cls.script_path = str(
+            PROJECT_ROOT / "roles" / "sys-ctl-hlth-webserver" / "files" / "script.py"
         )
-        if not os.path.isfile(cls.script_path):
+        if not Path(cls.script_path).is_file():
             raise FileNotFoundError(f"Cannot find script.py at {cls.script_path}")
         cls.script = load_module_from_path("health_script", cls.script_path)
 

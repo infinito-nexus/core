@@ -1,3 +1,4 @@
+---
 # Initialize cache dict (works within the play; persists if fact cache is enabled)
 - name: "Ensure cf_zone_ids cache dict exists"
   set_fact:
@@ -18,7 +19,7 @@
     headers:
       Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
       Content-Type: "application/json"
-    return_content: yes
+    return_content: true
   register: cf_zone_lookup_dev
   changed_when: false
   when:
@@ -44,8 +45,8 @@
 
 - name: activate cloudflare cache development mode
   include_tasks: "cloudflare/02_enable_cf_dev_mode.yml"
-  when: (ENVIRONMENT | lower) == 'development' 
-  
+  when: (ENVIRONMENT | lower) == 'development'
+
 - name: purge cloudflare domain cache
   include_tasks: "cloudflare/01_cleanup.yml"
   when: MODE_CLEANUP | bool

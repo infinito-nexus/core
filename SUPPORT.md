@@ -48,4 +48,4 @@ This page collects the places to go when you need help, a professional setup, or
 
 ---
 
-For communication guidelines — including which topics belong in public channels and which must stay internal — see [communication.md](docs/contributing/organisation/communication.md).
+For communication guidelines (including which topics belong in public channels and which must stay internal), see [communication.md](docs/contributing/organisation/communication.md).

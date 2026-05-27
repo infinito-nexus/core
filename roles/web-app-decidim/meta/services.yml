@@ -1,27 +1,29 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  shared: true
-  enabled: true
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+  enabled: true # nocheck: dynamic-flag
 decidim:
   image: ghcr.io/decidim/decidim
   version: 0.31.5
   min_storage: 10GB
   name: decidim
-  cpus: '1.0'
+  cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
@@ -29,22 +31,26 @@ decidim:
     local:
       http: 8069
   run_after:
-  - web-app-keycloak
+    - web-app-keycloak
   lifecycle: beta
-# noqa: shared
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: true
-  cpus: '0.25'
+  cpus: "0.25"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
 oauth2:
   enabled: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

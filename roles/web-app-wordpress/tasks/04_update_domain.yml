@@ -21,7 +21,7 @@
 - name: Update 'home' (if needed)
   vars:
     wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
-    wp_home_norm:    "{{ wp_home.stdout | regex_replace('/+$','') }}"
+    wp_home_norm: "{{ wp_home.stdout | regex_replace('/+$','') }}"
   command: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
     wp option update home "{{ wp_new_url_norm }}" --path={{ WORDPRESS_DOCKER_HTML_PATH }}
@@ -29,8 +29,8 @@
 
 - name: Update 'siteurl' (if needed)
   vars:
-    wp_new_url_norm:   "{{ wp_new_url | regex_replace('/+$','') }}"
-    wp_siteurl_norm:   "{{ wp_siteurl.stdout | regex_replace('/+$','') }}"
+    wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
+    wp_siteurl_norm: "{{ wp_siteurl.stdout | regex_replace('/+$','') }}"
   command: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
     wp option update siteurl "{{ wp_new_url_norm }}" --path={{ WORDPRESS_DOCKER_HTML_PATH }}
@@ -51,8 +51,8 @@
 - name: Normalize scheme to https if needed (http → https)
   vars:
     domain_only: "{{ (wp_new_url | regex_replace('^https?://','')) | regex_replace('/+$','') }}"
-    http_url:    "http://{{ domain_only }}"
-    https_url:   "https://{{ domain_only }}"
+    http_url: "http://{{ domain_only }}"
+    https_url: "https://{{ domain_only }}"
   command: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
     wp search-replace "{{ http_url }}" "{{ https_url }}"

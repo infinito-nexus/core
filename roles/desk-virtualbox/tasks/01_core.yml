@@ -1,3 +1,4 @@
+---
 - name: Install VirtualBox and kernel modules
   become: true
   community.general.pacman:
@@ -24,6 +25,6 @@
   user:
     name: "{{ lookup('env','USER') }}"
     groups: vboxusers
-    append: yes
+    append: true
 
 - include_tasks: utils/once/flag.yml

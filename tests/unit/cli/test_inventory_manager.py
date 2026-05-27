@@ -1,15 +1,18 @@
-# tests/unit/cli/test_inventory_manager.py
-
-import unittest
-import tempfile
 import shutil
+import tempfile
+import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.handler.yaml import YamlHandler
 from utils.handler.vault import VaultHandler, VaultScalar
+from utils.handler.yaml import YamlHandler
 from utils.manager.inventory import InventoryManager
 from utils.manager.value_generator import ValueGenerator
+from utils.roles.mapping import (
+    ROLE_FILE_META_SCHEMA,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 
 class TestInventoryManager(unittest.TestCase):
@@ -39,7 +42,7 @@ class TestInventoryManager(unittest.TestCase):
         path = Path(path)
 
         # Return schema for meta/schema.yml
-        if path.match("*/meta/schema.yml"):
+        if path.match(f"*/{ROLE_FILE_META_SCHEMA}"):
             return {
                 "credentials": {
                     "plain_cred": {
@@ -58,12 +61,12 @@ class TestInventoryManager(unittest.TestCase):
             }
 
         # Return application_id for vars/main.yml
-        if path.match("*/vars/main.yml"):
+        if path.match(f"*/{ROLE_FILE_VARS_MAIN}"):
             return {"application_id": "testapp"}
 
-        # Return docker service flags for meta/services.yml. Per req-008 the
+        # Return docker service flags for meta/services.yml. Per the
         # file root IS the services map (no `compose.services` wrapper).
-        if path.match("*/meta/services.yml"):
+        if path.match(f"*/{ROLE_FILE_META_SERVICES}"):
             return {
                 "mariadb": {"enabled": True, "shared": True},
             }
@@ -77,13 +80,15 @@ class TestInventoryManager(unittest.TestCase):
         """Loading application_id without it should raise SystemExit."""
         role_dir = self.tmpdir / "role"
         (role_dir / "vars").mkdir(parents=True)
-        (role_dir / "vars" / "main.yml").write_text("{}", encoding="utf-8")
+        (role_dir / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
 
-        with patch.object(YamlHandler, "load_yaml", return_value={}):
-            with self.assertRaises(SystemExit):
-                InventoryManager(
-                    role_dir, self.tmpdir / "inventory.yml", "pw", {}
-                ).load_application_id(role_dir)
+        with (
+            patch.object(YamlHandler, "load_yaml", return_value={}),
+            self.assertRaises(SystemExit),
+        ):
+            InventoryManager(
+                role_dir, self.tmpdir / "inventory.yml", "pw", {}
+            ).load_application_id(role_dir)
 
     def test_generate_value_algorithms(self):
         """
@@ -133,15 +138,15 @@ class TestInventoryManager(unittest.TestCase):
         """
         apply_schema should inject database password and vault plain_cred.
         """
-        # Setup role directory (post-req-008: only meta/ + vars/).
+        # Setup role directory (only meta/ + vars/).
         role_dir = self.tmpdir / "role"
         (role_dir / "meta").mkdir(parents=True, exist_ok=True)
         (role_dir / "vars").mkdir(parents=True, exist_ok=True)
 
         # IMPORTANT: files must exist because InventoryManager checks .exists()
-        (role_dir / "meta" / "schema.yml").write_text("{}", encoding="utf-8")
-        (role_dir / "meta" / "services.yml").write_text("{}", encoding="utf-8")
-        (role_dir / "vars" / "main.yml").write_text("{}", encoding="utf-8")
+        (role_dir / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
+        (role_dir / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
+        (role_dir / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
 
         # Create empty inventory.yml
         inv_file = self.tmpdir / "inventory.yml"
@@ -155,14 +160,19 @@ class TestInventoryManager(unittest.TestCase):
 
         # IMPORTANT:
         # This unit test is NOT about transitive shared-provider resolution.
-        with patch.object(
-            InventoryManager, "resolve_schema_includes_recursive", return_value=[]
+        with (
+            patch.object(
+                InventoryManager,
+                "resolve_schema_includes_recursive",
+                return_value=[],
+            ),
+            patch.object(
+                ValueGenerator,
+                "generate_value",
+                side_effect=lambda alg: f"GEN_{alg}",
+            ),
         ):
-            # Patch ValueGenerator for predictable outputs
-            with patch.object(
-                ValueGenerator, "generate_value", side_effect=lambda alg: f"GEN_{alg}"
-            ):
-                result = mgr.apply_schema()
+            result = mgr.apply_schema()
 
         apps = result["applications"]["testapp"]
 
@@ -176,7 +186,7 @@ class TestInventoryManager(unittest.TestCase):
         # plain_cred vaulted from override
         self.assertIsInstance(creds["plain_cred"], VaultScalar)
 
-        # Per req-008 nested credential keys are supported and walked
+        # Per nested credential keys are supported and walked
         # recursively, so nested.inner with `algorithm: sha256` IS vaulted.
         self.assertIsInstance(creds["nested"]["inner"], VaultScalar)
 

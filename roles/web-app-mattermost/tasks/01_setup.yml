@@ -36,16 +36,14 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: mm_create_team
   changed_when: mm_create_team.rc == 0
-  failed_when: mm_create_team.rc != 0 and 'already exists' not in (mm_create_team.stdout + mm_create_team.stderr) and 'existing team' not in (mm_create_team.stdout + mm_create_team.stderr)
+  failed_when: mm_create_team.rc != 0 and 'already exists' not in (mm_create_team.stdout + mm_create_team.stderr) and 'existing team' not in
+    (mm_create_team.stdout + mm_create_team.stderr)
 
 - name: "Mattermost | Enable open invite on default team"
-  shell: |
-    container exec -i {{ lookup('database', application_id, 'container') }} \
-      psql -U {{ lookup('database', application_id, 'username') }} \
-           -d {{ lookup('database', application_id, 'name') }} \
-           -c "UPDATE teams SET allowopeninvite = true WHERE name = 'main';"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-default-team-open-invite.sql"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false
 
 - name: "Mattermost | Check which users are already in default team"
@@ -68,13 +66,13 @@
   when: lookup('users', 'administrator').email not in mm_team_members.stdout
 
 - name: "Mattermost | Check administrator auth service"
-  shell: |
-    container exec -i {{ lookup('database', application_id, 'container') }} \
-      psql -U {{ lookup('database', application_id, 'username') }} \
-           -d {{ lookup('database', application_id, 'name') }} \
-           -t -c "SELECT authservice FROM users WHERE email='{{ lookup('users', 'administrator').email }}';"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-user-authservice.sql"
+    named_args:
+      email: "{{ lookup('users', 'administrator').email }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mm_admin_authservice
   changed_when: false
   when: MATTERMOST_OIDC_ENABLED | bool
@@ -95,17 +93,16 @@
   failed_when: mm_admin_uidnumber.rc != 0 or mm_admin_uidnumber.stdout | trim == ''
   when:
     - MATTERMOST_OIDC_ENABLED | bool
-    - mm_admin_authservice.stdout | trim != 'gitlab'
+    - (mm_admin_authservice.rows[0][0] | default('') | trim) != 'gitlab'
 
 - name: "Mattermost | Convert administrator to gitlab SSO auth"
-  shell: |
-    container exec -i {{ lookup('database', application_id, 'container') }} \
-      psql -U {{ lookup('database', application_id, 'username') }} \
-           -d {{ lookup('database', application_id, 'name') }} \
-           -c "UPDATE users SET authservice='gitlab', authdata='{{ mm_admin_uidnumber.stdout | trim }}', password='' WHERE email='{{ lookup('users', 'administrator').email }}';"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-user-to-gitlab-auth.sql"
+    named_args:
+      authdata: "{{ mm_admin_uidnumber.stdout | trim }}"
+      email: "{{ lookup('users', 'administrator').email }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when:
     - MATTERMOST_OIDC_ENABLED | bool
-    - mm_admin_authservice.stdout | trim != 'gitlab'
-
+    - (mm_admin_authservice.rows[0][0] | default('') | trim) != 'gitlab'

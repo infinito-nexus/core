@@ -1,3 +1,4 @@
+---
 - name: Resolve fakeroot package names for current distribution
   ansible.builtin.set_fact:
     dev_fakeroot_packages: >-

@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-attr:
@@ -9,7 +10,7 @@ csp:
       unsafe-inline: true
 domains:
   canonical:
-  - docs.{{ DOMAIN_PRIMARY }}
+    - docs.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

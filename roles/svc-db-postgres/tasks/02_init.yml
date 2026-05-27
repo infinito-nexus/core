@@ -14,7 +14,6 @@
 
 - name: Wait until postgres TCP auth works
   block:
-
     - name: Wait for Postgres TCP auth
       ansible.builtin.shell: >
         {{ POSTGRES_EXEC_SHELL }}
@@ -27,7 +26,6 @@
       changed_when: false
 
   rescue:
-
     - name: "POSTGRES | container logs (last 200 lines)"
       ansible.builtin.command: "container logs --tail 200 {{ POSTGRES_CONTAINER }}"
       register: dbg_docker_logs
@@ -65,14 +63,14 @@
 # 2) Create the database user (with password)
 - name: "Create database user: {{ database_username }}"
   community.postgresql.postgresql_user:
-    name:           "{{ database_username }}"
-    password:       "{{ postgres_database_password_string }}"
-    db:             "{{ database_name }}"
-    state:          present
-    login_user:     postgres
+    name: "{{ database_username }}"
+    password: "{{ postgres_database_password_string }}"
+    db: "{{ database_name }}"
+    state: present
+    login_user: postgres
     login_password: "{{ postgres_login_password_string }}"
-    login_host:     "{{ POSTGRES_LOCAL_HOST }}"
-    login_port:     "{{ POSTGRES_PORT }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
   register: postgresql_result
   until: postgresql_result is succeeded
   retries: "{{ POSTGRES_RETRIES }}"
@@ -81,8 +79,8 @@
 # 3) Enable LOGIN for the role (removes NOLOGIN)
 - name: "POSTGRES | Ensure LOGIN for role {{ database_username }} (with debug on failure)"
   block:
-
     - name: "POSTGRES | Enable login for role {{ database_username }}"
+      # nocheck: database-query — svc-db-postgres bootstraps its own DB; the `database_query` module's `lookup('database', ...)` indirection isn't usable from inside the role that provides the lookup target.
       community.postgresql.postgresql_query:
         db: postgres
         login_user: postgres
@@ -99,7 +97,6 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
   rescue:
-
     # --- High-signal Ansible context -----------------------------------------
     - name: "POSTGRES | Debug context (vars, without secrets)"
       ansible.builtin.debug:
@@ -133,23 +130,7 @@
       failed_when: false
 
     - name: "POSTGRES | container inspect (escaped go-templates)"
-      ansible.builtin.shell: |
-        set -e
-
-        echo "== Container state =="
-        {% raw %} container inspect --format 'Name={{.Name}} State={{.State.Status}} ExitCode={{.State.ExitCode}} StartedAt={{.State.StartedAt}} Restarting={{.State.Restarting}}' {% endraw %} {{ POSTGRES_CONTAINER }}
-
-        echo
-        echo "== Image =="
-        {% raw %} container inspect --format 'Image={{.Config.Image}}' {% endraw %} {{ POSTGRES_CONTAINER }}
-
-        echo
-        echo "== Mounts =="
-        {% raw %} container inspect --format '{{range .Mounts}}{{.Type}}:{{.Source}}->{{.Destination}}{{"\n"}}{{end}}' {% endraw %} {{ POSTGRES_CONTAINER }}
-
-        echo
-        echo "== Env (redacted) =="
-        {% raw %} container inspect --format '{{range .Config.Env}}{{println .}}{{end}}' {% endraw %} {{ POSTGRES_CONTAINER }} | sed -E 's/=.*/=***REDACTED***/'
+      ansible.builtin.script: "{{ role_path }}/files/inspect_container.sh {{ POSTGRES_CONTAINER }}"
       register: dbg_docker_inspect
       changed_when: false
       failed_when: false
@@ -252,17 +233,17 @@
 # 4) Grant ALL privileges on all tables in the public schema
 - name: "Grant ALL privileges on tables in public schema to {{ database_username }}"
   community.postgresql.postgresql_privs:
-    db:     "{{ database_name }}"
-    roles:   "{{ database_username }}"
-    objs:   ALL_IN_SCHEMA
-    privs:  ALL
-    type:   table
+    db: "{{ database_name }}"
+    roles: "{{ database_username }}"
+    objs: ALL_IN_SCHEMA
+    privs: ALL
+    type: table
     schema: public
-    state:  present
-    login_user:     postgres
+    state: present
+    login_user: postgres
     login_password: "{{ postgres_login_password_string }}"
-    login_host:     "{{ POSTGRES_LOCAL_HOST }}"
-    login_port:     "{{ POSTGRES_PORT }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
   register: postgresql_result
   until: postgresql_result is succeeded
   retries: "{{ POSTGRES_RETRIES }}"
@@ -271,15 +252,15 @@
 # 5) Grant ALL privileges at the database level
 - name: "Grant all privileges on database {{ database_name }} to {{ database_username }}"
   community.postgresql.postgresql_privs:
-    db:    "{{ database_name }}"
-    roles:  "{{ database_username }}"
-    type:  database
+    db: "{{ database_name }}"
+    roles: "{{ database_username }}"
+    type: database
     privs: ALL
     state: present
-    login_user:     postgres
+    login_user: postgres
     login_password: "{{ postgres_login_password_string }}"
-    login_host:     "{{ POSTGRES_LOCAL_HOST }}"
-    login_port:     "{{ POSTGRES_PORT }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
   register: postgresql_result
   until: postgresql_result is succeeded
   retries: "{{ POSTGRES_RETRIES }}"
@@ -287,6 +268,7 @@
 
 # 6) Grant USAGE/CREATE on schema and set default privileges
 - name: "Set comprehensive schema privileges for {{ database_username }}"
+  # nocheck: database-query — svc-db-postgres bootstraps its own DB; the `database_query` module's `lookup('database', ...)` indirection isn't usable from inside the role that provides the lookup target.
   community.postgresql.postgresql_query:
     db: "{{ database_name }}"
     login_user: postgres
@@ -299,36 +281,16 @@
   retries: "{{ POSTGRES_RETRIES }}"
   delay: "{{ POSTGRES_DELAY }}"
 
-# 7) Ensure PostGIS and related extensions are installed (if enabled)
-- name: "Ensure PostGIS-related extensions are installed"
+- name: "Ensure consumer-specific extensions ({{ database_consumer_id }})"
   community.postgresql.postgresql_ext:
-    db:         "{{ database_name }}"
-    ext:        "{{ item }}"
-    state:      present
-    login_user:     postgres
+    db: "{{ database_name }}"
+    ext: "{{ item }}"
+    state: present
+    login_user: postgres
     login_password: "{{ postgres_login_password_string }}"
-    login_host:     "{{ POSTGRES_LOCAL_HOST }}"
-    login_port:     "{{ POSTGRES_PORT }}"
-  loop:
-    - postgis
-    - pg_trgm
-    - unaccent
-  when: postgres_gis_enabled | bool
-  register: postgresql_result
-  until: postgresql_result is succeeded
-  retries: "{{ POSTGRES_RETRIES }}"
-  delay: "{{ POSTGRES_DELAY }}"
-
-# 8) Ensure pgvector (vector) extension is installed
-- name: "Ensure pgvector (vector) extension is installed"
-  community.postgresql.postgresql_ext:
-    db:           "{{ database_name }}"
-    ext:          vector
-    state:        present
-    login_user:   postgres
-    login_password: "{{ postgres_login_password_string }}"
-    login_host:   "{{ POSTGRES_LOCAL_HOST }}"
-    login_port:   "{{ POSTGRES_PORT }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+  loop: "{{ lookup('service_extensions', 'postgres')[database_consumer_id] | default([]) }}"
   register: postgresql_result
   until: postgresql_result is succeeded
   retries: "{{ POSTGRES_RETRIES }}"

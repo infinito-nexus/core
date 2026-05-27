@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -5,11 +6,11 @@ csp:
       unsafe-eval: true
   whitelist:
     font-src:
-    - 'data:'
+      - "data:"
 domains:
   aliases: []
   canonical:
-  - shop.{{ DOMAIN_PRIMARY }}
+    - shop.{{ DOMAIN_PRIMARY }}
 networks:
   local:
     subnet: 192.168.104.80/28

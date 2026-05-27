@@ -12,8 +12,8 @@ Infinito.Nexus is committed to transparency and actively encourages communicatio
 
 Public communication MUST be conducted through the following channels:
 
-- **Matrix** — `#public:infinito.nexus` for general community discussion.
-- **Hub** — [hub.infinito.nexus](https://hub.infinito.nexus) for tutorials, FAQs, and community support.
+- **Matrix**: `#public:infinito.nexus` for general community discussion.
+- **Hub**: [hub.infinito.nexus](https://hub.infinito.nexus) for tutorials, FAQs, and community support.
 
 Examples of topics suitable for public channels:
 
@@ -40,7 +40,7 @@ Examples of topics that MUST stay internal:
 ### Bugs and Issues 🐛
 
 - Bugs and actionable issues MUST be reported at [s.infinito.nexus/issues](https://s.infinito.nexus/issues).
-- Security vulnerabilities MUST NOT be reported there — see [SECURITY.md](../../../SECURITY.md) instead.
+- Security vulnerabilities MUST NOT be reported there. See [SECURITY.md](../../../SECURITY.md) instead.
 
 ### Features and Work Items 🗂️
 

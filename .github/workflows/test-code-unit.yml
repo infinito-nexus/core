@@ -8,23 +8,25 @@ permissions:
 
 jobs:
   test-code-unit:
-    name: 🧪 Run unit tests
+    name: 🧪 Test unit
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NIX_CONFIG: |
-        access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+      INFINITO_TEST_RUNNER: host
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Run unit tests via make
         shell: bash
         run: |
           set -euo pipefail
-          make up
           make test-unit 2>&1 | tee /tmp/unit-output.txt
 
       - name: Build step summary from annotations

@@ -1,6 +1,12 @@
 # Mattermost
 
-Deploys [Mattermost Team Edition](https://mattermost.com/) — an open-source, self-hosted team messaging platform — as part of the Infinito.Nexus stack.
+## Description
+
+Deploys [Mattermost Team Edition](https://mattermost.com/) (an open-source, self-hosted team messaging platform) as part of the Infinito.Nexus stack.
+
+## Overview
+
+This role unite your team with Mattermost, an open-source, self-hosted messaging platform that delivers secure, real-time collaboration through channels, threads, and integrations, keeping your conversations private and under your control.
 
 ## Features
 
@@ -13,7 +19,7 @@ Deploys [Mattermost Team Edition](https://mattermost.com/) — an open-source, s
 
 ## SSO / Authentication
 
-Mattermost **Team Edition** does not support native OIDC (`MM_OPENIDSETTINGS_*`) or LDAP — both are Enterprise-only features.
+Mattermost **Team Edition** does not support native OIDC (`MM_OPENIDSETTINGS_*`) or LDAP, since both are Enterprise-only features.
 
 The workaround used here is the **GitLab OAuth2 provider** (`MM_GITLABSETTINGS_*`), which is generic enough to work with any OIDC-compatible identity provider including Keycloak. This provides true SSO: user accounts are automatically created in Mattermost on first login.
 
@@ -37,3 +43,10 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 - [Mattermost Docker Install](https://docs.mattermost.com/install/install-docker.html)
 - [Mattermost Configuration Settings](https://docs.mattermost.com/configure/configuration-settings.html)
 - [GitLab SSO in Mattermost](https://docs.mattermost.com/deployment/sso-gitlab.html)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

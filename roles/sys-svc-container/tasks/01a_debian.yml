@@ -1,3 +1,4 @@
+---
 - name: Ensure Docker apt key and sources are consistent
   ansible.builtin.script:
     cmd: >-

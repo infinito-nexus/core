@@ -1,6 +1,6 @@
-import sys
 import datetime
 import subprocess
+import sys
 
 
 def hex_to_rgb(hex_color):
@@ -31,7 +31,8 @@ def calculate_color(start_color, end_color, ratio):
     start_rgb = hex_to_rgb(start_color)
     end_rgb = hex_to_rgb(end_color)
     current_rgb = [
-        round(start + (end - start) * ratio) for start, end in zip(start_rgb, end_rgb)
+        round(start + (end - start) * ratio)
+        for start, end in zip(start_rgb, end_rgb, strict=False)
     ]
     return "".join(f"{value:02x}" for value in current_rgb)
 
@@ -49,8 +50,10 @@ def get_current_period(current_time, color_times):
     tuple: A tuple of the start and end color (as hex codes) for the current period.
     """
     sorted_periods = sorted(color_times.items())
-    for i, (period_start_str, colors) in enumerate(sorted_periods):
-        period_start_time = datetime.datetime.strptime(period_start_str, "%H:%M").time()
+    for i, (period_start_str, _colors) in enumerate(sorted_periods):
+        period_start_time = datetime.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
+            period_start_str, "%H:%M"
+        ).time()
         if current_time <= period_start_time:
             return sorted_periods[i - 1 if i > 0 else -1][1]
     return sorted_periods[0][1]
@@ -69,7 +72,7 @@ def calculate_transition_ratio(current_time, start_time, end_time):
     float: The transition ratio between 0 and 1.
     """
     # Use the current date for timestamp calculation
-    today = datetime.datetime.now().date()
+    today = datetime.datetime.now().date()  # noqa: DTZ005  user's local "today" for time-of-day color picking
 
     # Calculate timestamps for the start and end of the current period
     start_timestamp = datetime.datetime.combine(today, start_time).timestamp()
@@ -120,21 +123,23 @@ def main(vendor_and_product_id):
         "04:00": ("990000", "5bc0eb"),  # Night to Blue
     }
 
-    current_time = datetime.datetime.now().time()
+    current_time = datetime.datetime.now().time()  # noqa: DTZ005  user's local time-of-day for color picking
     start_color, end_color = get_current_period(current_time, color_times)
 
     sorted_times = sorted(color_times.keys())
-    for time_str in sorted_times + [sorted_times[0]]:
-        next_start_time_obj = datetime.datetime.strptime(time_str, "%H:%M").time()
+    for time_str in [*sorted_times, sorted_times[0]]:
+        next_start_time_obj = datetime.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
+            time_str, "%H:%M"
+        ).time()
         if current_time < next_start_time_obj:
             break
 
-    current_period_start_time_str = [
+    current_period_start_time_str = next(
         time
         for time, colors in color_times.items()
         if colors == (start_color, end_color)
-    ][0]
-    current_period_start_time_obj = datetime.datetime.strptime(
+    )
+    current_period_start_time_obj = datetime.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
         current_period_start_time_str, "%H:%M"
     ).time()
 

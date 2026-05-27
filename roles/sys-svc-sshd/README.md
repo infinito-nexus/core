@@ -11,7 +11,7 @@ This Ansible role configures the OpenSSH daemon (`sshd`) by deploying a template
 - Automatically reloads and restarts the SSH service via a systemd handler
 - Uses a `run_once_sys_svc_sshd` fact to ensure idempotent execution
 
-Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) — enables password authentication when explicitly required by controlled environments such as local E2E test targets.
+Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) enables password authentication when explicitly required by controlled environments such as local E2E test targets.
 
 ## Features
 

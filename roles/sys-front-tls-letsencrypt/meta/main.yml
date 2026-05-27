@@ -1,8 +1,11 @@
+---
 galaxy_info:
   author: Kevin Veen-Birchenbach
   description: LetsEncrypt TLS provider for sys-front-tls. Ensures certificate presence.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: Kevin Veen-Birchenbach Consulting & Coaching Solutions https://www.veen.world
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
   galaxy_tags:
     - nginx
     - tls
@@ -11,8 +14,20 @@ galaxy_info:
     - acme
     - certificates
   issue_tracker_url: https://s.infinito.nexus/issues
-  min_ansible_version: '2.9'
+  min_ansible_version: "2.9"
   platforms:
-    - name: Any
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
       versions:
         - all

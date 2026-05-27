@@ -2,11 +2,12 @@
 
 ## Description
 
-Elevate your email marketing with Listmonk, a high-performance, self-hosted newsletter and mailing list manager featuring a modern, intuitive dashboard. Listmonk empowers you with advanced analytics, efficient subscriber segmentation, and streamlined campaign management—all configurable via a flexible TOML configuration file.
+Elevate your email marketing with Listmonk, a high-performance, self-hosted newsletter and mailing list manager featuring a modern, intuitive dashboard. Listmonk empowers you with advanced analytics, efficient subscriber segmentation, and streamlined campaign management, all configurable via a flexible TOML configuration file.
 
 ## Overview
 
 This role deploys Listmonk using Docker, ensuring a robust and scalable setup for your newsletter management needs. Listmonk’s architecture supports a dedicated PostgreSQL database and integration with an NGINX reverse proxy for secure access. To configure and manage your instance, use the provided configuration files:
+
 - [Installation.md](./Installation.md)
 - [Upgrade.md](./Upgrade.md)
 
@@ -23,3 +24,10 @@ This role deploys Listmonk using Docker, ensuring a robust and scalable setup fo
 - [Listmonk Official Website](https://listmonk.app/)
 - [Listmonk Installation Documentation](https://listmonk.app/docs/installation/)
 - [Listmonk GitHub Repository](https://github.com/knadh/listmonk/)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

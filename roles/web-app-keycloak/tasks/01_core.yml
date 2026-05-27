@@ -12,7 +12,7 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: true
+    compose_handlers_flush: true
 
 - name: "Load Login routines for '{{ application_id }}'"
   include_tasks: 04_login.yml
@@ -39,7 +39,6 @@
   include_tasks: update/04_rbac_client_scope.yml
 
 - block:
-
     - name: "Load LDAP Update routines for '{{ application_id }}'"
       include_tasks: update/05_ldap.yml
 
@@ -47,7 +46,7 @@
       include_tasks: assert/05_ldap.yml
       when: MODE_ASSERT | bool
 
-    - name: "Load per-app group-ldap-mapper routines for '{{ application_id }}' (requirement 005)"
+    - name: "Load per-app group-ldap-mapper routines for '{{ application_id }}'"
       include_tasks: update/05c_per_app_mappers.yml
 
   when:

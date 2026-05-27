@@ -1,3 +1,4 @@
+---
 # Installs OIDC / LDAP using a temporary Groovy page that calls the
 # Extension Script Service (services.extension.install).
 # Avoids REST job API and any Namespace class import for portability.
@@ -30,16 +31,7 @@
     force_basic_auth: true
     status_code: [200, 201, 202, 204]
     headers: "{{ xwiki_rest_headers_write }}"
-    body: |
-      <page xmlns="http://www.xwiki.org">
-        <title>InstallExtensions</title>
-        <content><![CDATA[
-        {% raw %}{{groovy}}{% endraw %}
-        {{ _install_code | indent(8, False) }}
-        {% raw %}{{/groovy}}{% endraw %}
-        ]]></content>
-        <syntax>xwiki/2.1</syntax>
-      </page>
+    body: "{{ lookup('template', 'xml/install_extensions_page.xml.j2') }}"
   register: _put_page
 
 - block:
@@ -51,7 +43,7 @@
         url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
         force_basic_auth: true
         status_code: [200]
-        return_content: yes
+        return_content: true
         timeout: 300
       register: _exec_page
       retries: 12
@@ -162,14 +154,8 @@
 
 - name: "XWIKI | Collect probe results"
   set_fact:
-    _xwiki_probe_results: "{{ _xwiki_probe_results | default([]) + [ {
-      'id': plugin.id,
-      'status': (
-        (hostvars[inventory_hostname]['probe_' ~ (plugin.id | regex_replace('[^A-Za-z0-9_]', '_'))]
-         | default({})).status
-        | default(404) | int
-      )
-      } ] }}"
+    _xwiki_probe_results: "{{ _xwiki_probe_results | default([]) + [ { 'id': plugin.id, 'status': ( (hostvars[inventory_hostname]['probe_' ~ (plugin.id | regex_replace('[^A-Za-z0-9_]',
+      '_'))] | default({})).status | default(404) | int ) } ] }}"
   loop: "{{ XWIKI_PLUGINS }}"
   loop_control:
     loop_var: plugin

@@ -2,33 +2,30 @@ import importlib
 import importlib.util
 import sys
 import unittest
-from pathlib import Path
 
 from ansible.errors import AnsibleError
 
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+from . import PROJECT_ROOT
 
 
 def _load_module(rel_path: str, name: str):
-    # Evict any stubbed utils.applications.config injected by sibling tests
+    # Evict any stubbed utils.roles.applications.config injected by sibling tests
     # (notably tests/unit/roles/web-app-keycloak/filter_plugins/test_redirect_uris.py,
     # whose setUpClass registers a stub `get()` with an incompatible signature
     # into sys.modules and never cleans up). Force the plugin to import the
     # real module from the repo.
     for key in (
-        "utils.applications.config",
-        "utils.applications",
+        "utils.roles.applications.config",
+        "utils.roles.applications",
         "utils",
         "utils.cache.applications",
         "utils.cache",
     ):
         sys.modules.pop(key, None)
-    importlib.import_module("utils.applications.config")
+    importlib.import_module("utils.roles.applications.config")
     importlib.import_module("utils.cache.applications")
 
-    path = _repo_root() / rel_path
+    path = PROJECT_ROOT / rel_path
     spec = importlib.util.spec_from_file_location(name, str(path))
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -36,17 +33,22 @@ def _load_module(rel_path: str, name: str):
     return mod
 
 
-def _apps(*, ldap_enabled=None, flavor=None, include_app=True):
-    """Build a minimal merged `applications` dict for the Nextcloud role."""
+def _apps(*, oidc_enabled=True, ldap_enabled=None, flavor=None, include_app=True):
+    """Build a minimal merged `applications` dict for the Nextcloud role.
+
+    `oidc_enabled` defaults to True so existing flavor-selection tests
+    stay focused on the ldap/flavor axis. The OIDC-off fast-path has
+    its own dedicated tests.
+    """
     if not include_app:
         return {}
-    oidc_block: dict = {}
+    oidc_block: dict = {"enabled": oidc_enabled}
     if flavor is not None:
         oidc_block["flavor"] = flavor
     services_block: dict = {"oidc": oidc_block}
     if ldap_enabled is not None:
         services_block["ldap"] = {"enabled": ldap_enabled}
-    # Per req-008 the materialised payload moved from
+    # Per the materialised payload moved from
     # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
     return {
         "web-app-nextcloud": {
@@ -100,10 +102,30 @@ class OidcFlavorLookupTests(unittest.TestCase):
             ["sociallogin"],
         )
 
-    def test_missing_application_defaults_to_sociallogin(self):
+    def test_missing_application_returns_empty(self):
+        # No nextcloud entry -> services.oidc.enabled defaults False ->
+        # short-circuit to "" (no OIDC plugin should be active).
         self.assertEqual(
             self._run({"some-other-app": {}}),
-            ["sociallogin"],
+            [""],
+        )
+
+    def test_oidc_disabled_returns_empty(self):
+        # With services.oidc.enabled=false, no OIDC plugin must be selected,
+        # otherwise Nextcloud still hands off to Keycloak with a redirect_uri
+        # the client no longer whitelists. Regression test for variant-1
+        # nextcloud Playwright failures ("Invalid parameter: redirect_uri").
+        self.assertEqual(
+            self._run(_apps(oidc_enabled=False)),
+            [""],
+        )
+        self.assertEqual(
+            self._run(_apps(oidc_enabled=False, ldap_enabled=True)),
+            [""],
+        )
+        self.assertEqual(
+            self._run(_apps(oidc_enabled=False, flavor="oidc_login")),
+            [""],
         )
 
     def test_explicit_flavor_overrides_ldap_fallback(self):

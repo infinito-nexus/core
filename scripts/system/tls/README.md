@@ -1,13 +1,13 @@
-# 🔒 TLS Administration Scripts
+# TLS Administration Scripts 🔒
 
 This directory contains scripts for managing TLS/PKI concerns in the Infinito Nexus development environment.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../docs/contributing/tools/make.md).
 
 ---
 
-## 📁 Subdirectories
+## Subdirectories 📁
 
-### 🔐 [`trust/`](trust/)
+### [`trust/`](trust/) 🔐
 
 Scripts for installing the Infinito self-signed Root CA into the trust stores of the developer's machine.
 
@@ -16,6 +16,6 @@ Scripts for installing the Infinito self-signed Root CA into the trust stores of
 
 ---
 
-## 🔗 Related
+## Related 🔗
 
 - `roles/sys-ca-selfsigned/`. role that generates the self-signed Root CA inside the container

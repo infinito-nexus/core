@@ -5,12 +5,12 @@
 
 set -euo pipefail
 
-: "${INFINITO_PACKAGE_CACHE_HOST_PATH:?Source scripts/meta/env/cache/package.sh first}"
-: "${INFINITO_PACKAGE_CACHE_ADMIN_PASSWORD:?Source scripts/meta/env/cache/package.sh first}"
-: "${INFINITO_PACKAGE_CACHE_BLOBSTORE_MAX:?Source scripts/meta/env/cache/package.sh first}"
-: "${INFINITO_PACKAGE_CACHE_MAX_AGE_MIN:?Source scripts/meta/env/cache/package.sh first}"
+: "${INFINITO_CACHE_PACKAGE_HOST_PATH:?Source scripts/meta/env/load.sh first}"
+: "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD:?Source scripts/meta/env/load.sh first}"
+: "${INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX:?Source scripts/meta/env/load.sh first}"
+: "${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN:?Source scripts/meta/env/load.sh first}"
 
-CACHE_MAX_AGE_MIN="${INFINITO_PACKAGE_CACHE_MAX_AGE_MIN}"
+CACHE_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN}"
 
 # REST goes via `docker exec curl` to bypass sandbox network isolation.
 PKGCACHE_CONTAINER="infinito-package-cache"
@@ -39,7 +39,7 @@ rotate_admin_password() {
 	ADMIN_USER="admin"
 	if docker exec "${PKGCACHE_CONTAINER}" test -f "${BOOTSTRAP_DONE_FILE}"; then
 		log "Already bootstrapped; using stored admin password"
-		ADMIN_PASS="${INFINITO_PACKAGE_CACHE_ADMIN_PASSWORD}"
+		ADMIN_PASS="${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"
 		return 0
 	fi
 
@@ -47,24 +47,24 @@ rotate_admin_password() {
 	if ! nexus_curl -fsS -u "admin:${NEXUS_DEFAULT_PASSWORD}" \
 		-H "Content-Type: text/plain" \
 		-X PUT "${NEXUS_REST}/v1/security/users/admin/change-password" \
-		--data-binary "${INFINITO_PACKAGE_CACHE_ADMIN_PASSWORD}"; then
+		--data-binary "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"; then
 		# Recover from a partially-completed previous bootstrap.
-		if nexus_curl -fsS -o /dev/null -u "admin:${INFINITO_PACKAGE_CACHE_ADMIN_PASSWORD}" \
+		if nexus_curl -fsS -o /dev/null -u "admin:${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" \
 			"${NEXUS_REST}/v1/repositories" >/dev/null 2>&1; then
 			log "Default rotation rejected but configured password authenticates; assuming previous bootstrap, marking done"
 		else
-			log "Cannot authenticate with default '${NEXUS_DEFAULT_PASSWORD}' nor with configured INFINITO_PACKAGE_CACHE_ADMIN_PASSWORD."
-			log "Wipe ${INFINITO_PACKAGE_CACHE_HOST_PATH} (e.g. via 'make cache-clean') and retry."
+			log "Cannot authenticate with default '${NEXUS_DEFAULT_PASSWORD}' nor with configured INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD."
+			log "Wipe ${INFINITO_CACHE_PACKAGE_HOST_PATH} (e.g. via 'make clean-cache') and retry."
 			return 1
 		fi
 	fi
 	docker exec "${PKGCACHE_CONTAINER}" touch "${BOOTSTRAP_DONE_FILE}"
-	ADMIN_PASS="${INFINITO_PACKAGE_CACHE_ADMIN_PASSWORD}"
+	ADMIN_PASS="${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"
 }
 
 ensure_blobstore() {
 	# Nexus quota expects MB; convert from "Ng".
-	local quota_gb="${INFINITO_PACKAGE_CACHE_BLOBSTORE_MAX%g}"
+	local quota_gb="${INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX%g}"
 	local quota_mb=$((quota_gb * 1024))
 	local payload
 	payload="$(printf '{"name":"default","path":"default","softQuota":{"type":"spaceUsedQuota","limit":%d}}' "${quota_mb}")"

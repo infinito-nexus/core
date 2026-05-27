@@ -14,6 +14,7 @@ from utils.annotations.summarize import (
     parse_props,
     render_markdown,
 )
+from utils.cache.files import read_text
 
 
 class TestParseProps(unittest.TestCase):
@@ -33,9 +34,8 @@ class TestParseProps(unittest.TestCase):
 
 class TestParseLog(unittest.TestCase):
     def _write_log(self, content: str) -> Path:
-        f = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
-        f.write(content)
-        f.close()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write(content)
         return Path(f.name)
 
     def test_parses_warning(self) -> None:
@@ -164,7 +164,7 @@ class TestMain(unittest.TestCase):
         finally:
             sys.argv = old_argv
 
-        content = Path(summary_path).read_text()
+        content = read_text(summary_path)
         self.assertIn("Test Title", content)
         self.assertIn("msg", content)
 

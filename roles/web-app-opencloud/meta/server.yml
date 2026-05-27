@@ -1,3 +1,4 @@
+---
 domains:
   canonical:
     - open.cloud.{{ DOMAIN_PRIMARY }}
@@ -8,8 +9,10 @@ csp:
       unsafe-inline: true
     script-src-elem:
       unsafe-inline: true
+      unsafe-eval: true
     script-src-attr:
       unsafe-inline: true
+      unsafe-eval: true
   whitelist:
     connect-src:
       - "{{ lookup('tls', 'web-app-keycloak', 'url.base') }}"
@@ -18,7 +21,7 @@ csp:
       - "{{ lookup('tls', 'web-app-keycloak', 'url.base') }}"
       - "{{ lookup('domain', 'web-app-opentalk') }}"
     worker-src:
-      - 'blob:'
+      - "blob:"
 networks:
   local:
     subnet: 192.168.105.48/28

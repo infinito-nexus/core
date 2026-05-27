@@ -10,13 +10,14 @@ venv
 *.bak
 *tree.json
 roles/list.json
+roles/importer_result.json
 *.pyc
 *.egg-info
 build/*
 .ruff_cache
 .agents
 collections/
-env.development
+.env
 logs/
 job-logs.txt
 .claude/skills
@@ -24,6 +25,10 @@ job-logs.txt
 .claude/commands
 .claude/settings.local.json
 *.lock
+node_modules/
+
+# No-op for Git (ignored implicitly), but Docker needs .git in its ignore-list — keeps make dockerignore as a pure cat of this file.
+.git
 
 # Host shell / editor / tooling state accidentally surfaced inside this working copy
 .bash_profile
@@ -37,4 +42,3 @@ job-logs.txt
 .vscode
 .zprofile
 .zshrc
-.git

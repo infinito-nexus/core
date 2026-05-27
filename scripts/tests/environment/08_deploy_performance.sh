@@ -7,11 +7,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/utils/common.sh"
 
 echo "Deploying matomo (full cycle: deploy + update pass) so it becomes reachable via its dedicated inventory entry."
-make deploy-fresh-purged-apps APPS="${MATOMO_APP}" FULL_CYCLE=true
+make compose-deploy mode=reinstall apps="${MATOMO_APP}" INFINITO_FULL_CYCLE=true
 inspect
 
 echo "Re-trusting the CA after the fresh deploy rebuilt the certificates."
-make trust-ca
+make network-trust-ca
 
 echo "Verifying matomo is now reachable after its dedicated deploy."
 assert_http_status 200 "${MATOMO_URL}"

@@ -1,19 +1,14 @@
-# tests/unit/plugins/lookup/test_compose_file_args.py
 import importlib.util
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
-
-def _repo_root() -> Path:
-    # __file__ = tests/unit/plugins/lookup/test_compose_file_args.py
-    return Path(__file__).resolve().parents[4]
+from . import PROJECT_ROOT
 
 
 def _load_module(rel_path: str, name: str):
-    path = _repo_root() / rel_path
+    path = PROJECT_ROOT / rel_path
     spec = importlib.util.spec_from_file_location(name, str(path))
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -128,9 +123,9 @@ class TestComposeFArgs(unittest.TestCase):
                 "get",
                 return_value=_TlsResolveStub(True, "self_signed"),
             ),
+            self.assertRaises(AnsibleError),
         ):
-            with self.assertRaises(AnsibleError):
-                self.lookup.run(["web-app-a"], variables=self.vars)
+            self.lookup.run(["web-app-a"], variables=self.vars)
 
     def test_includes_only_base_when_role_does_not_provide_override(self):
         with (
@@ -162,23 +157,23 @@ class TestComposeFArgs(unittest.TestCase):
         # get_docker_paths returns non-dict -> must fail
         with (
             patch.object(self.m, "get_docker_paths", return_value="nope"),
+            self.assertRaises(AnsibleError),
         ):
-            with self.assertRaises(AnsibleError):
-                self.lookup.run(["web-app-a"], variables=self.vars)
+            self.lookup.run(["web-app-a"], variables=self.vars)
 
         # get_docker_paths returns dict but missing files -> must fail
         with (
             patch.object(self.m, "get_docker_paths", return_value={}),
+            self.assertRaises(AnsibleError),
         ):
-            with self.assertRaises(AnsibleError):
-                self.lookup.run(["web-app-a"], variables=self.vars)
+            self.lookup.run(["web-app-a"], variables=self.vars)
 
         # get_docker_paths returns dict with non-dict files -> must fail
         with (
             patch.object(self.m, "get_docker_paths", return_value={"files": "nope"}),
+            self.assertRaises(AnsibleError),
         ):
-            with self.assertRaises(AnsibleError):
-                self.lookup.run(["web-app-a"], variables=self.vars)
+            self.lookup.run(["web-app-a"], variables=self.vars)
 
 
 if __name__ == "__main__":

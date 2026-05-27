@@ -1,15 +1,10 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Combines Docker Compose with a central RDBMS role to automatically provision database containers with backup, user, and permission management.
-
-    '
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  description: "Combines Docker Compose with a central RDBMS role to automatically provision database containers with backup, user, and permission management.\n"
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   license: Infinito.Nexus Community License (Non-Commercial)
   galaxy_tags:
     - docker
@@ -17,3 +12,20 @@ galaxy_info:
     - rdbms
     - backup
     - compose
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

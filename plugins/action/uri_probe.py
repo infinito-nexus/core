@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Local action plugin for lightweight URL reachability probes. It reuses the
 # centralized retry behavior from uri_retry.py, but with shorter defaults that
@@ -23,4 +22,4 @@ class ActionModule(UriRetryActionModule):
         self._task.args.setdefault("method", self.DEFAULT_METHOD)
         self._task.args.setdefault("timeout", self.DEFAULT_TIMEOUT)
 
-        return super(ActionModule, self).run(tmp=tmp, task_vars=task_vars)
+        return super().run(tmp=tmp, task_vars=task_vars)

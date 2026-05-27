@@ -1,3 +1,4 @@
+---
 - name: Check if the SSH key for root already exists
   ansible.builtin.stat:
     path: "{{ USER_ROOT_SSH_KEY_PUBLIC }}"
@@ -31,6 +32,6 @@
     state: directory
     owner: root
     group: root
-    mode: 0700
+    mode: "0700"
 
 - include_tasks: utils/once/flag.yml

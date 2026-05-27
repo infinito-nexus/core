@@ -1,2 +1,3 @@
-base_domain:              "{{ domain | regex_replace('^(?:.*\\.)?(.+\\..+)$', '\\1') }}"
-matomo_index_php_url:     "{{ lookup('tls', 'web-app-matomo', 'url.base') }}index.php"
+---
+base_domain: "{{ domain | regex_replace('^(?:.*\\.)?(.+\\..+)$', '\\1') }}"
+matomo_index_php_url: "{{ lookup('tls', 'web-app-matomo', 'url.base') }}index.php"

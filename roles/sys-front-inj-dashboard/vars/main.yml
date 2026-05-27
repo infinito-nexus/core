@@ -1,2 +1,3 @@
-INJ_DASHBOARD_JS_FILE_NAME:        "iframe-handler.js"
+---
+INJ_DASHBOARD_JS_FILE_NAME: "iframe-handler.js"
 INJ_DASHBOARD_JS_FILE_DESTINATION: "{{ [lookup('cdn', 'web-svc-cdn').shared.js, INJ_DASHBOARD_JS_FILE_NAME] | path_join }}"

@@ -1,7 +1,9 @@
 from __future__ import annotations
-from ansible.plugins.lookup import LookupBase
+
+from pathlib import Path
+
 from ansible.errors import AnsibleError
-import os
+from ansible.plugins.lookup import LookupBase
 
 
 class LookupModule(LookupBase):
@@ -33,18 +35,18 @@ class LookupModule(LookupBase):
 
         results = []
         for term in terms:
-            path = os.path.abspath(os.path.expanduser(str(term)))
+            path = str(Path(str(Path(str(term)).expanduser())).resolve())
 
             # Fail fast if path is missing or not a regular file
-            if not os.path.exists(path):
+            if not Path(path).exists():
                 raise AnsibleError(f"local_mtime_qs: file does not exist: {path}")
-            if not os.path.isfile(path):
+            if not Path(path).is_file():
                 raise AnsibleError(f"local_mtime_qs: not a regular file: {path}")
 
             try:
-                mtime = int(os.stat(path).st_mtime)
+                mtime = int(Path(path).stat().st_mtime)
             except OSError as e:
-                raise AnsibleError(f"local_mtime_qs: cannot stat '{path}': {e}")
+                raise AnsibleError(f"local_mtime_qs: cannot stat '{path}': {e}") from e
 
             if mode == "qs":
                 results.append(f"?{param}={mtime}")

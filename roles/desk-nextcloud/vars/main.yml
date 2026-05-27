@@ -1,7 +1,8 @@
-application_id:                 desk-nextcloud
-nextcloud_user_home_directory:  "/home/{{ lookup('users', WORKSTATION_USER).username }}/"
-nextcloud_cloud_fqdn:           "{{ lookup('config', application_id, 'credentials.cloud_fqdn') }}"
-nextcloud_cloud_directory:      "{{ nextcloud_user_home_directory }}Clouds/{{ nextcloud_cloud_fqdn }}/{{ lookup('users', WORKSTATION_USER).username }}/"
+---
+application_id: desk-nextcloud
+nextcloud_user_home_directory: "/home/{{ lookup('users', WORKSTATION_USER).username }}/"
+nextcloud_cloud_fqdn: "{{ lookup('config', application_id, 'credentials.cloud_fqdn') }}"
+nextcloud_cloud_directory: "{{ nextcloud_user_home_directory }}Clouds/{{ nextcloud_cloud_fqdn }}/{{ lookup('users', WORKSTATION_USER).username }}/"
 
 nextcloud_dotlinker_folders:
   - Templates

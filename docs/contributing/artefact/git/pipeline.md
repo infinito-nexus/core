@@ -11,7 +11,7 @@ CI is triggered automatically on pull-request events and on pushes to the branch
 Every external CI trigger MUST route through one of the entry workflows. Each entry translates its event into a call to the orchestrator; the catalog of triggers and inputs lives in [workflows.md](../../tools/github/actions/workflows.md).
 
 - [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml): detects PR scope and conditionally calls the orchestrator.
-- [entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags.
+- [entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md).
 - [entry-manual.yml](../../../../.github/workflows/entry-manual.yml): dispatches the orchestrator manually for a chosen distro set and whitelist.
 
 ## PR Scope Detection 🔎
@@ -68,19 +68,19 @@ The three deploy-test workflows listed in the `Infrastructure tests` table of [w
 
 #### Diff-driven app selection 🎯
 
-Each of [test-deploy-server.yml](../../../../.github/workflows/test-deploy-server.yml), [test-deploy-universal.yml](../../../../.github/workflows/test-deploy-universal.yml), and [test-deploy-workstation.yml](../../../../.github/workflows/test-deploy-workstation.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/output_apps.sh) runs, using the following precedence:
+Each of [test-deploy-server.yml](../../../../.github/workflows/test-deploy-server.yml), [test-deploy-universal.yml](../../../../.github/workflows/test-deploy-universal.yml), and [test-deploy-workstation.yml](../../../../.github/workflows/test-deploy-workstation.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
 
 1. **Sentinel `__ALL__` in the `whitelist` input** (case-insensitive). The diff logic MUST be skipped and an empty whitelist MUST be emitted, which deploys everything in the workflow's scope. This is the explicit opt-out from diff narrowing for manual dispatch.
 2. **Any other non-empty `whitelist`** (forwarded from `entry-manual.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim.
 3. **Diff vs `origin/main`**, applied only when the `whitelist` input is empty:
    - **No diff at all** OR **any changed path outside `roles/<role>/...`**: no whitelist is set, so the full deploy across the workflow's scope runs.
-   - **All changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the whitelist is the transitive closure of those seeds expanded upwards over `run_after`, `dependencies`, and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/applications/resolution/combined/resolver.py) contains one of the seeds is included, together with the seeds themselves.
+   - **All changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the whitelist is the transitive closure of those seeds expanded upwards over `run_after`, `dependencies`, and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) contains one of the seeds is included, together with the seeds themselves.
 
 The reverse closure is fail-safe: any seed that is not modellable in the resolver (no `application_id` and not referenced by any role's `run_after`) MUST trigger a fall-back to a full deploy, as MUST any resolver runtime error. The closure MUST NOT silently shrink the deploy matrix on partial information.
 
 The PR-scope short-circuits in [scope.sh](../../../../scripts/meta/resolve/pr/scope.sh) (documentation-only, agent-only) still apply at the entry layer. They skip the orchestrator entirely and are independent of the diff-driven whitelist resolution above.
 
-The reverse closure is implemented in [affected resolver](../../../../cli/meta/applications/resolution/affected/__main__.py) and invoked from [affected_roles.sh](../../../../scripts/meta/resolve/diff/affected_roles.sh). The workflow glue lives in [resolve_effective_whitelist.sh](../../../../scripts/github/resolve_effective_whitelist.sh). [test-deploy-local.yml](../../../../.github/workflows/test-deploy-local.yml) MUST NOT apply this resolution. Local dispatch keeps the explicit whitelist semantics.
+The reverse closure is implemented in [affected resolver](../../../../cli/meta/roles/applications/resolution/affected/__main__.py) and invoked from [affected_roles.sh](../../../../scripts/meta/resolve/diff/affected_roles.sh). The workflow glue lives in [effective_whitelist.sh](../../../../scripts/github/resolve/effective_whitelist.sh). [test-deploy-local.yml](../../../../.github/workflows/test-deploy-local.yml) MUST NOT apply this resolution. Local dispatch keeps the explicit whitelist semantics.
 
 ### 10. Installation Tests 📦
 

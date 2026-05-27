@@ -1,3 +1,4 @@
+---
 - name: "Check if certificate already exists for '{{ domain }}'"
   cert_check_exists:
     domain: "{{ domain }}"
@@ -6,21 +7,16 @@
 
 - name: "receive certificate for '{{ domain }}'"
   command: >-
-    certbot certonly 
-    --agree-tos 
-    --email {{ lookup('users', 'administrator').email }}
-    --non-interactive 
-    {% if CERTBOT_ACME_CHALLENGE_METHOD != "webroot" %}
+    certbot certonly  --agree-tos  --email {{ lookup('users', 'administrator').email }}
+    --non-interactive  {% if CERTBOT_ACME_CHALLENGE_METHOD != "webroot" %}
     --dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}
     --dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}-credentials {{ CERTBOT_CREDENTIALS_FILE }}
     --dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}-propagation-seconds {{ CERTBOT_DNS_PROPAGATION_WAIT_SECONDS }}
     {% else %}
-    --webroot 
-    -w {{ LETSENCRYPT_WEBROOT_PATH }}
+    --webroot  -w {{ LETSENCRYPT_WEBROOT_PATH }}
     {% endif %}
     {% if wildcard_domain is defined and ( wildcard_domain | bool ) %}
-    -d {{ DOMAIN_PRIMARY }} 
-    -d *.{{ DOMAIN_PRIMARY }}
+    -d {{ DOMAIN_PRIMARY }}  -d *.{{ DOMAIN_PRIMARY }}
     {% else %}
     -d {{ domain }}
     {% endif %}

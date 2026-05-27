@@ -1,9 +1,10 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "Load 'sys-stk-full' for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
-    docker_git_repository_pull:           false
-    docker_compose_flush_handlers:        true
-    webserver_vhost_flavour:              "basic"
+    compose_repository_pull: false
+    compose_handlers_flush: true
+    webserver_vhost_flavour: "basic"

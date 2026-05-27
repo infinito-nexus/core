@@ -13,6 +13,5 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'openwebui_data': {'name': OPENWEBUI_VOLUME}}
 ) }}

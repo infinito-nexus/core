@@ -1,3 +1,4 @@
+---
 - name: Install additional system packages from inventory
   ansible.builtin.package:
     name: "{{ SYS_PACKAGES }}"

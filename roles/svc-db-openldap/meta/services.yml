@@ -1,5 +1,6 @@
+---
 openldap:
-  enabled: false
+  enabled: true
   shared: true
   provides: ldap
   image: debian

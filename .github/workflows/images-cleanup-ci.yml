@@ -41,7 +41,7 @@ jobs:
             echo "distros=$(scripts/meta/resolve/distros.sh)"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Install jq
+      - name: 📦 Install jq
         shell: bash
         run: ./scripts/install/apt.sh jq
 
@@ -52,7 +52,7 @@ jobs:
           OWNER: ${{ steps.vars.outputs.owner }}
           DAYS: ${{ github.event.inputs.days || '7' }}
           REPO_PREFIX: ${{ steps.vars.outputs.repo_prefix }}
-          DISTROS: ${{ steps.vars.outputs.distros }}
+          INFINITO_DISTROS: ${{ steps.vars.outputs.distros }}
         run: |
           set -euo pipefail
           ./scripts/image/cleanup.sh

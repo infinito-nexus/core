@@ -32,7 +32,7 @@ On Linux, the sandbox backend requires `bubblewrap` (provides the `bwrap` binary
 Invoke it via the dedicated Make target (preferred, matches the agent permission model in [`.claude/settings.json`](../../../../../.claude/settings.json)):
 
 ```bash
-make agent-install
+make install-agent
 ```
 
 Equivalent direct invocation:
@@ -80,6 +80,6 @@ The `sandbox.network` block governs outbound and local connectivity from inside 
 |---|---|---|
 | `allowedDomains` | List of domain patterns the agent or its tooling needs to reach. Apex domains are listed bare (`pypi.org`, `github.com`, `ghcr.io`, `letsencrypt.org`, `monogramm.io`, `cybermaster.space`, `infinito.nexus`, `infinito.example`); subdomain families use the `*.parent.tld` form (`*.pythonhosted.org`, `*.ansible.com`, `*.amazonaws.com`, `*.github.com`, `*.githubusercontent.com`, `*.npmjs.org`, `*.docker.com`, `*.gitea.com`, `*.hcaptcha.com`, `*.gstatic.com`, `*.taiga.io`, `*.infinito.nexus`). | Subdomain wildcards (`*.example.com`) are honored, but a bare `*` is not; sandboxed network access is enforced per pattern, and any unmatched host triggers an interactive `SandboxNetworkAccess` prompt. Add a new pattern here when introducing tooling that fetches from a new origin; egress is still bounded by any host-level firewall on top. |
 | `allowAllUnixSockets` | `true` | The sandbox can connect to any Unix-domain socket on the host. Required so commands like `docker`, `systemctl`, and language servers continue to work; these all communicate over Unix sockets (e.g. `/var/run/docker.sock`). |
-| `allowLocalBinding` | `true` | The agent MAY bind listening sockets on `localhost` (e.g. `make up`, `python -m http.server`, dev servers). Required for any local end-to-end testing. |
+| `allowLocalBinding` | `true` | The agent MAY bind listening sockets on `localhost` (e.g. `make compose-up`, `python -m http.server`, dev servers). Required for any local end-to-end testing. |
 
 If a contributor needs to tighten network policy locally (e.g. running on an untrusted network), they SHOULD do so via `.claude/settings.local.json` rather than weakening the project-level defaults that other contributors depend on.

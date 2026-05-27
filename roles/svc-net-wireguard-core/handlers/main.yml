@@ -1,9 +1,10 @@
+---
 - name: "restart wireguard"
   systemd:
     name: wg-quick@wg0.service
     state: restarted
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
 - name: "reload sysctl configuration"
   shell: "sysctl --load='/etc/sysctl.d/wireguard-ip.conf'"

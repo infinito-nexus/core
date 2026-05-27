@@ -17,10 +17,10 @@
     - retries:        5    → Mark unhealthy after 5 consecutive failures
     - start_period:  20s   → Grace period before health checks begin
 
-  Usage:
-  {% filter indent(4) %}
-      {% include 'roles/sys-svc-container/templates/healthcheck/http.yml.j2' %}
-  {% endfilter %}
+  Usage: consumers include this template via the standard Jinja2
+  ``include`` tag, indenting the block by four spaces with the
+  ``indent(4)`` filter so the rendered ``healthcheck:`` map slots into
+  a Compose service definition.
   ------------------------------------------------------------------------------
 #}
 healthcheck:

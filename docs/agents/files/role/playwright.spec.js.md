@@ -1,6 +1,6 @@
 # playwright.spec.js agent procedure
 
-This page is the SPOT for the agent procedure when generating or updating a role-local `playwright.spec.js`. It does NOT restate what the file must contain. Those rules are authoritative in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) and MUST be consulted before every task.
+This page covers the agent procedure when generating or updating a role-local `playwright.spec.js`. It does NOT restate what the file must contain. Those rules are authoritative in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) and MUST be consulted before every task.
 
 For framework and runner mechanics, see [Playwright Tests](../../../contributing/actions/testing/playwright.md).
 For the matching environment contract, see [Role `playwright.env.j2`](playwright.env.j2.md).

@@ -1,4 +1,3 @@
-# tests/unit/plugins/filter/test_node_autosize.py
 import unittest
 from unittest.mock import patch
 
@@ -6,7 +5,7 @@ from unittest.mock import patch
 import plugins.filter.node_autosize as na
 
 try:
-    from ansible.errors import AnsibleFilterError  # type: ignore
+    from ansible.errors import AnsibleFilterError
 except Exception:
     AnsibleFilterError = Exception
 
@@ -16,13 +15,13 @@ class TestNodeAutosizeFilter(unittest.TestCase):
 
     def setUp(self):
         # Default parameters used by all tests
-        # Per req-008 the materialised payload exposes services under
+        # Per the materialised payload exposes services under
         # the bare `services` key (no `compose.services` envelope).
         self.applications = {"web-app-nextcloud": {"services": {"whiteboard": {}}}}
         self.application_id = "web-app-nextcloud"
         self.service_name = "whiteboard"
 
-        # Patch get (imported from utils.applications.config) inside the filter plugin
+        # Patch get (imported from utils.roles.applications.config) inside the filter plugin
         self.patcher = patch("plugins.filter.node_autosize.get")
         self.mock_get = self.patcher.start()
 

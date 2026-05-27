@@ -1,3 +1,4 @@
+---
 - name: Include dependencies
   include_role:
     name: sys-ctl-alm-compose
@@ -24,15 +25,16 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_on_calendar:           "{{ SYS_SCHEDULE_HEALTH_NGINX }}"
-    system_service_timer_enabled:         true
-    system_service_tpl_on_failure:        "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_NGINX }}"
+    system_service_timer_enabled: true
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
     system_service_tpl_timeout_start_sec: "{{ CURRENT_PLAY_DOMAINS_ALL | timeout_start_sec_for_domains }}"
-    system_service_tpl_environment:       "{{ CA_TRUST_SYSTEMD_ENV_SELFSIGNED }}"
-    system_service_tpl_exec_start: > 
+    system_service_tpl_environment: "{{ CA_TRUST_SYSTEMD_ENV_SELFSIGNED }}"
+    system_service_tpl_exec_start: >
       {{ system_service_script_exec }}
       --web-protocol {{ lookup('tls', DOMAIN_PRIMARY, 'protocols.web') }}
-      --expectations '{{ lookup('applications') | web_health_expectations(www_enabled=WWW_REDIRECT_ENABLED | bool, group_names=group_names) | to_json }}'
-    system_service_force_flush_final:             true
+      --expectations '{{ lookup('applications') | web_health_expectations(www_enabled=WWW_REDIRECT_ENABLED | bool, group_names=lookup('deployment').deployed) | to_json
+      }}'
+    system_service_force_flush_final: true
 
 - include_tasks: utils/once/flag.yml

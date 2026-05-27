@@ -18,3 +18,10 @@ The primary purpose of this role is to ensure that the target system has a relia
 - **Default Sudoers Configuration:** Deploys a default sudoers file with best-practice settings.
 - **Drop-in Inclusion:** Ensures that configuration files from `/etc/sudoers.d` are included.
 - **Security Focus:** Provides commented guidelines to avoid common sudo misconfigurations.
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

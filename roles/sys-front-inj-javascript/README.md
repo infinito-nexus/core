@@ -1,8 +1,12 @@
-# 🌐 Global JavaScript Injector for NGINX
+# Global JavaScript Injector for NGINX
 
 ## Description
 
-This Ansible role injects a custom JavaScript snippet into all HTML responses served by NGINX. It leverages NGINX’s `sub_filter` to seamlessly insert your application-specific script just before the closing `</head>` tag, ensuring that your code runs on every page load—perfect for global feature flags, analytics, or UI enhancements.
+This Ansible role injects a custom JavaScript snippet into all HTML responses served by NGINX. It leverages NGINX’s `sub_filter` to seamlessly insert your application-specific script just before the closing `</head>` tag, ensuring that your code runs on every page load, which is useful for global feature flags, analytics, or UI enhancements.
+
+## Overview
+
+This role injects a custom JavaScript snippet into Nginx-served HTML responses via sub_filter.
 
 ## Features
 
@@ -18,11 +22,9 @@ This Ansible role injects a custom JavaScript snippet into all HTML responses se
 - **Debug Mode**  
   Supports an `MODE_DEBUG` flag that appends optional `console.log` statements for easier troubleshooting in staging or development.
 
-## Author
+## Credits
 
-Developed by **Kevin Veen-Birkenbach**
-Consulting & Coaching Solutions — [veen.world](https://www.veen.world)
-
----
-
-Happy automating! 🎉
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

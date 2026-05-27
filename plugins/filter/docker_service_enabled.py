@@ -1,4 +1,4 @@
-class FilterModule(object):
+class FilterModule:
     """Custom filter to safely check if a docker service is enabled for an application_id"""
 
     def filters(self):
@@ -10,7 +10,7 @@ class FilterModule(object):
         Returns True if applications[application_id].services[service_name].enabled is truthy,
         otherwise returns False (even if intermediate keys are missing).
 
-        Per req-008 the materialised payload exposes services under the
+        Per the materialised payload exposes services under the
         bare ``services`` key (no ``compose.services`` envelope).
         """
         try:

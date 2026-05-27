@@ -1,3 +1,4 @@
+---
 - name: "Check if any container is running in {{ lookup('container', application_id, 'directories.instance') }}"
   command: >-
     compose ps -q --filter status=running
@@ -23,4 +24,4 @@
 
 - name: "Flush Docker Compose Up Handlers for {{ lookup('container', application_id, 'directories.instance') }}"
   meta: flush_handlers
-  when: docker_compose_flush_handlers | bool
+  when: compose_handlers_flush | bool

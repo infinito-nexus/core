@@ -12,7 +12,7 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
   loop:
     - "{{ MAGENTO_NGINX_DIR }}"
     - "{{ MAGENTO_PHP_DIR }}"
@@ -21,7 +21,7 @@
   template:
     src: "docker.conf.j2"
     dest: "{{ MAGENTO_NGINX_CONF_PATH }}"
-    mode: '0644'
+    mode: "0644"
     force: true
   notify: compose up
 
@@ -29,6 +29,6 @@
   template:
     src: "php-fpm-zz-docker.conf.j2"
     dest: "{{ MAGENTO_PHP_ZZ_CONF_PATH }}"
-    mode: '0644'
+    mode: "0644"
     force: true
   notify: compose up

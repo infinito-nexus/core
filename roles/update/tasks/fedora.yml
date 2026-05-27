@@ -1,3 +1,4 @@
+---
 - name: "update (dnf) | refresh dnf cache and upgrade all installed packages"
   ansible.builtin.dnf:
     name: "*"

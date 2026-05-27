@@ -7,6 +7,7 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from utils.cache.yaml import dump_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
 
 domain_list = importlib.import_module("utils.domains.list")
 
@@ -18,12 +19,12 @@ class TestDomainList(unittest.TestCase):
         role_dir = roles_dir / role_name
         (role_dir / "vars").mkdir(parents=True, exist_ok=True)
         (role_dir / "meta").mkdir(parents=True, exist_ok=True)
-        (role_dir / "vars" / "main.yml").write_text(
+        (role_dir / ROLE_FILE_VARS_MAIN).write_text(
             dump_yaml_str({"application_id": app_id}),
             encoding="utf-8",
         )
         server_payload = config.get("server", {}) if isinstance(config, dict) else {}
-        (role_dir / "meta" / "server.yml").write_text(
+        (role_dir / ROLE_FILE_META_SERVER).write_text(
             dump_yaml_str(server_payload),
             encoding="utf-8",
         )
@@ -140,9 +141,11 @@ class TestDomainList(unittest.TestCase):
             self.write_role(roles_dir, "app-a", "app-a", shared_config)
             self.write_role(roles_dir, "app-b", "app-b", shared_config)
 
-            with patch.object(domain_list, "ROLES_DIR", roles_dir):
-                with self.assertRaises(AnsibleError):
-                    domain_list.list_application_domains("infinito.example")
+            with (
+                patch.object(domain_list, "ROLES_DIR", roles_dir),
+                self.assertRaises(AnsibleError),
+            ):
+                domain_list.list_application_domains("infinito.example")
 
 
 if __name__ == "__main__":

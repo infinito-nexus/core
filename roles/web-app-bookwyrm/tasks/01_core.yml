@@ -1,0 +1,8 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db/redis and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: true

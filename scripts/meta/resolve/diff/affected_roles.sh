@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
-# scripts/meta/resolve/diff/affected_roles.sh
 #
 # Compute which roles are affected by the current branch's diff against
 # `origin/main`, expanded transitively over run_after + dependencies +
-# services edges via cli.meta.applications.resolution.affected.
+# services edges via cli.meta.roles.applications.resolution.affected.
 #
 # Output (single line on stdout):
 #   __ALL__                          full deploy needed. Emitted when:
 #                                      * the diff is empty, OR
-#                                      * any changed path lives outside
-#                                        roles/<role>/, OR
+#                                      * any changed path outside
+#                                        roles/<role>/ is not a Markdown
+#                                        or reStructuredText file (the
+#                                        `.md`/`.rst` skip-list mirrors
+#                                        scripts/meta/resolve/pr/scope.sh's
+#                                        `is_markdown_or_rst`), OR
+#                                      * the diff contains only such
+#                                        skipped paths and no role seeds
+#                                        could be derived, OR
 #                                      * any seed role is non-modellable
 #                                        in the reverse resolver
 #                                        (resolver exit 2), OR
@@ -18,7 +24,7 @@
 #   <role-id> [<role-id> ...]        restricted deploy set (whitelist).
 #
 # Pre-conditions:
-#   - The container started by `make up` is running (the Python resolver
+#   - The container started by `make compose-up` is running (the Python resolver
 #     is invoked via `docker compose ... exec infinito`, identical to the
 #     pattern used in scripts/meta/resolve/apps.sh).
 #   - `git fetch origin main` is reachable (caller already did checkout).
@@ -36,23 +42,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 cd "$REPO_ROOT"
 
-if [[ -f "scripts/meta/env/all.sh" ]]; then
-	# shellcheck source=scripts/meta/env/all.sh
-	source "scripts/meta/env/all.sh"
+if [[ -f "scripts/meta/env/load.sh" ]]; then
+	# shellcheck source=scripts/meta/env/load.sh
+	source "scripts/meta/env/load.sh"
 fi
 
 compose_ci_exec() {
-	local -a compose_args=(docker compose --env-file env.ci)
-
-	if [[ -f "env.development" ]]; then
-		compose_args+=(--env-file env.development)
-	fi
-
-	compose_args+=(--profile ci exec -T infinito)
-
 	NIX_CONFIG="${NIX_CONFIG:-}" \
 		INFINITO_DISTRO="${INFINITO_DISTRO}" \
-		"${compose_args[@]}" "$@"
+		docker compose exec -T infinito "$@"
 }
 
 emit_all() {
@@ -78,6 +76,11 @@ declare -A seed_roles=()
 for path in "${changed_paths[@]}"; do
 	[[ -z "${path}" ]] && continue
 	if [[ "${path}" != roles/*/* ]]; then
+		case "${path}" in
+		*.md | *.rst)
+			continue
+			;;
+		esac
 		emit_all
 	fi
 	role="${path#roles/}"
@@ -95,7 +98,7 @@ mapfile -t seed_list < <(printf '%s\n' "${!seed_roles[@]}" | sort)
 set +e
 resolved="$(
 	compose_ci_exec \
-		"${PYTHON}" -m cli.meta.applications.resolution.affected \
+		"${PYTHON}" -m cli.meta.roles.applications.resolution.affected \
 		--changed-roles "${seed_list[@]}"
 )"
 resolver_rc=$?

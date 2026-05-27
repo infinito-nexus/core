@@ -1,3 +1,4 @@
-USER_ROOT_SSH_DIR:          "/root/.ssh"
-USER_ROOT_SSH_KEY_PRIVATE:  "{{ [ USER_ROOT_SSH_DIR, 'id_rsa' ] | path_join }}"
-USER_ROOT_SSH_KEY_PUBLIC:   "{{ [ USER_ROOT_SSH_DIR, 'id_rsa.pub' ] | path_join }}"
+---
+USER_ROOT_SSH_DIR: "/root/.ssh"
+USER_ROOT_SSH_KEY_PRIVATE: "{{ [ USER_ROOT_SSH_DIR, 'id_rsa' ] | path_join }}"
+USER_ROOT_SSH_KEY_PUBLIC: "{{ [ USER_ROOT_SSH_DIR, 'id_rsa.pub' ] | path_join }}"

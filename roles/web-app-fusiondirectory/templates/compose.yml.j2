@@ -5,13 +5,6 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.fusiondirectory.ports.local.http') }}:80"
-    environment:
-      FUSIONDIRECTORY_ADMIN_USER: "{{ lookup('users', 'administrator').username }}"
-      FUSIONDIRECTORY_ADMIN_PASS: "{{ lookup('users', 'administrator').password }}"
-      LDAP_HOST: "{{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}"
-      LDAP_ADMIN_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
-      LDAP_ADMIN_PASS: "{{ LDAP.BIND_CREDENTIAL }}"
-      LDAP_BASE_DN: "{{ LDAP.DN.ROOT }}"
     volumes:
       - data:/assets/fusiondirectory
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}

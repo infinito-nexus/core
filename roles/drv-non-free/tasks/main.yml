@@ -1,3 +1,4 @@
+---
 - name: Gather OS facts (ensure we know distribution)
   ansible.builtin.setup:
   when: ansible_facts is not defined

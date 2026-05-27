@@ -1,5 +1,3 @@
-# lookup_plugins/nginx.py
-#
 # Resolve nginx path configuration (lowercase keys) and (optionally) a domain-specific
 # server config path placed under:
 #
@@ -20,21 +18,21 @@
 
 from __future__ import annotations
 
-import os
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any
 
 from ansible.errors import AnsibleError
-from ansible.plugins.lookup import LookupBase
 from ansible.plugins.loader import lookup_loader
+from ansible.plugins.lookup import LookupBase
 
-from utils.applications.config import get
 from utils.cache.applications import get_merged_applications
+from utils.roles.applications.config import get
 from utils.tls_common import as_str, want_get
 
 
 def _join(*parts: Any) -> str:
     cleaned = [str(p).strip() for p in parts if str(p).strip()]
-    return os.path.join(*cleaned) if cleaned else ""
+    return str(Path(*cleaned)) if cleaned else ""
 
 
 def _ensure_trailing_slash(p: str) -> str:
@@ -51,7 +49,7 @@ def _normalize_protocol(value: str) -> str:
     )
 
 
-def _dir_spec(path: str, mode: str) -> Dict[str, str]:
+def _dir_spec(path: str, mode: str) -> dict[str, str]:
     path = as_str(path).strip()
     mode = as_str(mode).strip()
     if not path:
@@ -82,7 +80,7 @@ def _resolve_protocol_via_tls(
 
 
 class LookupModule(LookupBase):
-    def run(self, terms, variables: Optional[dict] = None, **kwargs):
+    def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
         terms = terms or []
 
@@ -119,16 +117,18 @@ class LookupModule(LookupBase):
         servers_https_dir = _ensure_trailing_slash(_join(servers_dir, "https"))
         maps_dir = _ensure_trailing_slash(_join(conf_dir, "maps"))
         streams_dir = _ensure_trailing_slash(_join(conf_dir, "streams"))
+        lua_dir = _ensure_trailing_slash(_join(conf_dir, "lua"))
 
         data_html_dir = _ensure_trailing_slash(_join(www_dir, "public_html"))
         data_files_dir = _ensure_trailing_slash(_join(www_dir, "public_files"))
         data_cdn_dir = _ensure_trailing_slash(_join(www_dir, "public_cdn"))
         data_global_dir = _ensure_trailing_slash(_join(www_dir, "global"))
 
-        cache_general_dir = "/tmp/cache_nginx_general/"
-        cache_image_dir = "/tmp/cache_nginx_image/"
+        # Container-internal nginx cache paths; not user-controllable.
+        cache_general_dir = "/tmp/cache_nginx_general/"  # noqa: S108
+        cache_image_dir = "/tmp/cache_nginx_image/"  # noqa: S108
 
-        ensure: List[Dict[str, str]] = [
+        ensure: list[dict[str, str]] = [
             _dir_spec(nginx_dir, "0755"),
             _dir_spec(conf_dir, "0755"),
             _dir_spec(global_dir, "0755"),
@@ -137,6 +137,7 @@ class LookupModule(LookupBase):
             _dir_spec(servers_https_dir, "0755"),
             _dir_spec(maps_dir, "0755"),
             _dir_spec(streams_dir, "0755"),
+            _dir_spec(lua_dir, "0755"),
             _dir_spec(www_dir, "0755"),
             _dir_spec(data_html_dir, "0755"),
             _dir_spec(data_files_dir, "0755"),
@@ -146,7 +147,7 @@ class LookupModule(LookupBase):
             _dir_spec(cache_image_dir, "0700"),
         ]
 
-        resolved: Dict[str, Any] = {
+        resolved: dict[str, Any] = {
             "files": {
                 "configuration": _join(nginx_dir, "nginx.conf"),
             },
@@ -157,6 +158,7 @@ class LookupModule(LookupBase):
                     "servers": servers_dir,
                     "maps": maps_dir,
                     "streams": streams_dir,
+                    "lua": lua_dir,
                     "http_includes": [
                         global_dir,
                         maps_dir,
@@ -182,7 +184,7 @@ class LookupModule(LookupBase):
         }
 
         if domain:
-            protocol_override = kwargs.get("protocol", None)
+            protocol_override = kwargs.get("protocol")
             protocol = (
                 _resolve_protocol_via_tls(
                     domain=domain,

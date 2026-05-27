@@ -51,7 +51,7 @@ Agents MUST write all transient files (downloaded logs, intermediate output, scr
 
 ## Container-Owned Filesystem Entries 🐳
 
-Files produced by the containerized runner (e.g. `__pycache__/*.pyc` under `tests/`, build artefacts) are often owned by `nobody` or another in-container UID and cannot be removed from the host. When a host-level `rm`/`chmod`/edit fails with `Permission denied` on such paths, agents MUST run the cleanup via `make exec` (see [compose.yml](compose.yml) — the repo is mounted at `/opt/src/infinito`) and MUST NOT ask the operator which path to take.
+Files produced by the containerized runner (e.g. `__pycache__/*.pyc` under `tests/`, build artefacts) are often owned by `nobody` or another in-container UID and cannot be removed from the host. When a host-level `rm`/`chmod`/edit fails with `Permission denied` on such paths, agents MUST run the cleanup via `make compose-exec` (see [compose.yml](compose.yml); the repo is mounted at `/opt/src/infinito`) and MUST NOT ask the operator which path to take.
 
 ## Commit-Time Context Compaction 📦
 

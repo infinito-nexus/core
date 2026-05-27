@@ -12,4 +12,12 @@ ssl-cert-file = {{ dev_nix_ssl_cert_file }}
 experimental-features = {{ dev_nix_experimental_features | join(" ") }}
 {% endif %}
 
+# Keep derivations + outputs of GC roots alive so `nix-collect-garbage -d`
+# (run by the aggressive prune step) does not drop the BUILD closure of
+# installed flake outputs. Without this, every deploy must re-fetch the
+# build inputs (gcc, python toolchain, …) of pkgmgr's flake from
+# cache.nixos.org — observed to overshoot pkgmgr's update timeout.
+keep-derivations = true
+keep-outputs = true
+
 # (Optional) Add more global nix.conf options below

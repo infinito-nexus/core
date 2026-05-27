@@ -1,3 +1,4 @@
+---
 # IMPORTANT: Avoid shell-inlining stdout/stderr because it can contain quotes and break bash parsing.
 - name: "DEBUG | bootstrap result (sanitized/minimal when masked)"
   ansible.builtin.debug:

@@ -1,3 +1,4 @@
+---
 - name: Gather service facts for SSH handler
   ansible.builtin.service_facts:
   listen: sshd restart

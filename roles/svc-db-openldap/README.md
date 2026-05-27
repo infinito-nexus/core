@@ -8,7 +8,6 @@ Unleash the potential of centralized identity management with [OpenLDAP](https:/
 
 Deploy OpenLDAP in a Docker environment with support for TLS-secured communication via an NGINX stream proxy. OpenLDAP offers advanced directory management capabilities, including flexible schema definitions, dynamic configuration overlays, and comprehensive query support with LDAP search utilities.
 
-
 ## Features
 
 - **Centralized Identity Management:** Maintain a unified repository for all users and groups with robust organizational structures.

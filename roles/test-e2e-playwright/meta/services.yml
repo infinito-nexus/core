@@ -1,2 +1,7 @@
+---
+# nocheck: required-by-coverage — TODO: declare proper required_by
 test-e2e-playwright:
   lifecycle: beta
+playwright:
+  image: mcr.microsoft.com/playwright
+  version: "v1.60.0-noble"

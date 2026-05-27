@@ -1,0 +1,32 @@
+---
+# Matrix-deploy variant overrides for web-app-oauth2-proxy.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant pinning every dynamic services.yml flag to true so the
+# matrix exercises the in-group_names branch of web-app-oauth2-proxy.
+- services:
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
+- services:
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false

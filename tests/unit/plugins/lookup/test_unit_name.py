@@ -45,7 +45,7 @@ class UnitNameLookupTests(unittest.TestCase):
         )
 
         # The plugin calls set_options(); for unit tests we make it a no-op
-        lm.set_options = lambda *args, **kwargs: None  # noqa: E731
+        lm.set_options = lambda *args, **kwargs: None
 
         return lm
 
@@ -105,7 +105,7 @@ class UnitNameLookupTests(unittest.TestCase):
     def test_missing_software_name_raises(self):
         lm = LookupModule()
         lm._templar = DummyTemplar(available_variables={}, version="1.2.3")
-        lm.set_options = lambda *args, **kwargs: None  # noqa: E731
+        lm.set_options = lambda *args, **kwargs: None
 
         with self.assertRaises(AnsibleError) as ctx:
             lm.run(["svc-foo"])
@@ -126,7 +126,7 @@ class UnitNameLookupTests(unittest.TestCase):
             },
             version="2.0.0",
         )
-        lm.set_options = lambda *args, **kwargs: None  # noqa: E731
+        lm.set_options = lambda *args, **kwargs: None
 
         res = lm.run(["svc-foo"])
         self.assertEqual(res, ["svc-foo.2.0.0.infinito.nexus.service"])
@@ -137,7 +137,7 @@ class UnitNameLookupTests(unittest.TestCase):
             available_variables={"SOFTWARE_DOMAIN": "{{ UNKNOWN_VAR | lower }}"},
             version="2.0.0",
         )
-        lm.set_options = lambda *args, **kwargs: None  # noqa: E731
+        lm.set_options = lambda *args, **kwargs: None
 
         with self.assertRaises(AnsibleError) as ctx:
             lm.run(["svc-foo"])

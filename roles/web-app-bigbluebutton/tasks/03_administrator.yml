@@ -38,6 +38,6 @@
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: greenlight_admin_map
-  changed_when: "'CHANGED' in (greenlight_admin_map.stdout | default(''))"
+  changed_when: "'CHANGED' in greenlight_admin_map.stdout"
   failed_when: greenlight_admin_map.rc != 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

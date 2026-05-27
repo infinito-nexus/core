@@ -1,3 +1,4 @@
+---
 credentials:
   adobe_public_key:
     description: Adobe/Magento Marketplace Public Key

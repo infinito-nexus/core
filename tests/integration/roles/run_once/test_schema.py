@@ -1,11 +1,11 @@
-import os
-import glob
 import re
 import unittest
+from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_anywhere, line_has_rule
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 
 class RunOnceSchemaTest(unittest.TestCase):
@@ -17,8 +17,8 @@ class RunOnceSchemaTest(unittest.TestCase):
 
     Exception (per-when item):
       If the *same line* that contains the run_once_ condition also
-      carries a ``# noqa: run-once-suffix`` (or ``# nocheck: run-once-suffix``)
-      marker, that specific condition is ignored by this test.
+      carries a ``# nocheck: run-once-suffix`` marker, that specific
+      condition is ignored by this test.
 
     Only block-level 'when' conditions in main.yml are considered. The
     unified suppression-marker grammar is documented at
@@ -52,14 +52,19 @@ class RunOnceSchemaTest(unittest.TestCase):
         )
 
     def test_run_once_suffix_matches_role(self):
-        project_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-        )
+        from . import PROJECT_ROOT
+
+        project_root = str(PROJECT_ROOT)
         violations = []
 
-        pattern = os.path.join(project_root, "roles", "*", "tasks", "main.yml")
-        for filepath in glob.glob(pattern):  # noqa: project-walk
-            role_name = os.path.normpath(filepath).split(os.sep)[-3]
+        roles_prefix = str(Path(project_root) / "roles") + "/"
+        main_files = (
+            p
+            for p in iter_project_files(extensions=(".yml",))
+            if p.startswith(roles_prefix) and p.endswith(f"/{ROLE_FILE_TASKS_MAIN}")
+        )
+        for filepath in main_files:
+            role_name = Path(filepath).parts[-3]
             expected_suffix = role_name.lower().replace("-", "_")
 
             try:

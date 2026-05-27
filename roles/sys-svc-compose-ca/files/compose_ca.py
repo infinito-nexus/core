@@ -13,44 +13,44 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 # This script is deployed to the target host via `ansible.builtin.copy`
 # (see roles/sys-svc-compose-ca/tasks/01_core.yml). The deploy target
 # does NOT have the project's `utils/` package on PYTHONPATH, so direct
 # yaml.safe_load / yaml.safe_dump are the only option here. Each call
-# below carries an explicit `# noqa: direct-yaml` marker that the lint
-# `tests/lint/repository/test_no_direct_yaml_calls.py` honours.
+# below carries an explicit `# nocheck: direct-yaml` marker that the lint
+# `tests/lint/repository/yaml/test_no_direct_calls.py` honours.
 import yaml
 
 
-def die(msg: str, code: int = 2) -> "None":
+def die(msg: str, code: int = 2) -> None:
     print(f"[compose_ca] {msg}", file=sys.stderr)
     raise SystemExit(code)
 
 
-def run(cmd: List[str], *, cwd: Path, env: Dict[str, str]) -> Tuple[int, str, str]:
+def run(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str, str]:
     p = subprocess.run(
         cmd,
         cwd=str(cwd),
         env=env,
         text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
+        check=False,
     )
     return p.returncode, (p.stdout or ""), (p.stderr or "")
 
 
-def run_checked(cmd: List[str], *, cwd: Path, env: Dict[str, str], label: str) -> None:
+def run_checked(cmd: list[str], *, cwd: Path, env: dict[str, str], label: str) -> None:
     rc, out, err = run(cmd, cwd=cwd, env=env)
     if rc != 0:
         details = (err or out).strip()
         die(f"{label} failed (rc={rc}): {details}")
 
 
-def parse_yaml(text: str, label: str) -> Dict[str, Any]:
+def parse_yaml(text: str, label: str) -> dict[str, Any]:
     try:
-        doc = yaml.safe_load(text)  # noqa: direct-yaml
+        doc = yaml.safe_load(text)  # nocheck: direct-yaml
     except Exception as e:
         die(f"Failed to parse YAML for {label}: {e}")
     if not isinstance(doc, dict):
@@ -58,7 +58,7 @@ def parse_yaml(text: str, label: str) -> Dict[str, Any]:
     return doc
 
 
-def _is_shell_form(argv: List[str]) -> bool:
+def _is_shell_form(argv: list[str]) -> bool:
     return (
         len(argv) >= 2
         and argv[0] in {"/bin/sh", "sh", "/bin/bash", "bash"}
@@ -97,14 +97,14 @@ _SHELL_RAW_TOKENS = {
 _SHELL_VAR_TOKEN_RE = re.compile(r"^\$[A-Za-z_][A-Za-z0-9_]*$|^\$\{[^}]+\}$")
 
 
-def _join_shell_tokens(tokens: List[str]) -> str:
+def _join_shell_tokens(tokens: list[str]) -> str:
     """
     Rebuild a shell payload from tokenized compose output.
 
     We keep shell operators raw so syntax like `if ! ...; then` survives, but
     still quote normal arguments that contain spaces or comment markers.
     """
-    parts: List[str] = []
+    parts: list[str] = []
     for token in tokens:
         if token in _SHELL_RAW_TOKENS or _SHELL_VAR_TOKEN_RE.fullmatch(token):
             parts.append(token)
@@ -113,7 +113,7 @@ def _join_shell_tokens(tokens: List[str]) -> str:
     return " ".join(parts)
 
 
-def _collapse_shell_form(argv: List[str]) -> List[str]:
+def _collapse_shell_form(argv: list[str]) -> list[str]:
     """
     Canonicalize tokenized shell-form argv back into a single shell string.
 
@@ -127,7 +127,7 @@ def _collapse_shell_form(argv: List[str]) -> List[str]:
     return argv
 
 
-def _shell_payload(argv: List[str]) -> str:
+def _shell_payload(argv: list[str]) -> str:
     """
     Convert argv into a single shell payload string.
 
@@ -143,7 +143,7 @@ def _shell_payload(argv: List[str]) -> str:
     return _join_shell_tokens(argv)
 
 
-def normalize_cmd(value: Any) -> List[str]:
+def normalize_cmd(value: Any) -> list[str]:
     """
     Normalize a compose 'command' value into exec-form list[str].
 
@@ -159,9 +159,10 @@ def normalize_cmd(value: Any) -> List[str]:
     if isinstance(value, str) and value.strip():
         return ["/bin/sh", "-lc", value]
     die(f"Unsupported command type in compose config: {type(value)}")
+    return None
 
 
-def normalize_entrypoint(value: Any) -> List[str]:
+def normalize_entrypoint(value: Any) -> list[str]:
     """
     Normalize a compose 'entrypoint' value into exec-form list[str].
 
@@ -177,9 +178,10 @@ def normalize_entrypoint(value: Any) -> List[str]:
     if isinstance(value, str) and value.strip():
         return ["/bin/sh", "-lc", value]
     die(f"Unsupported entrypoint type in compose config: {type(value)}")
+    return None
 
 
-def escape_compose_vars(argv: List[str]) -> List[str]:
+def escape_compose_vars(argv: list[str]) -> list[str]:
     """
     Docker Compose interpolates $FOO and ${FOO} in YAML strings on the HOST side
     (compose config time). That breaks container-side expansion (e.g. sh -lc 'exec "$FOO"')
@@ -195,8 +197,8 @@ def escape_compose_vars(argv: List[str]) -> List[str]:
 
 
 def docker_image_inspect(
-    image: str, *, cwd: Path, env: Dict[str, str]
-) -> Tuple[List[str], List[str]]:
+    image: str, *, cwd: Path, env: dict[str, str]
+) -> tuple[list[str], list[str]]:
     """
     Return (Entrypoint, Cmd) for the given image in exec-form list[str].
     """
@@ -222,14 +224,14 @@ def docker_image_inspect(
     cmd = cfg.get("Cmd")
 
     if ep is None:
-        ep_list: List[str] = []
+        ep_list: list[str] = []
     elif isinstance(ep, list) and all(isinstance(x, str) for x in ep):
         ep_list = ep
     else:
         die(f"Unexpected Entrypoint type for image '{image}': {type(ep)}")
 
     if cmd is None:
-        cmd_list: List[str] = []
+        cmd_list: list[str] = []
     elif isinstance(cmd, list) and all(isinstance(x, str) for x in cmd):
         cmd_list = cmd
     else:
@@ -238,12 +240,12 @@ def docker_image_inspect(
     return ep_list, cmd_list
 
 
-def docker_image_exists(image: str, *, cwd: Path, env: Dict[str, str]) -> bool:
+def docker_image_exists(image: str, *, cwd: Path, env: dict[str, str]) -> bool:
     rc, _out, _err = run(["docker", "image", "inspect", image], cwd=cwd, env=env)
     return rc == 0
 
 
-def docker_image_has_bin_sh(image: str, *, cwd: Path, env: Dict[str, str]) -> bool:
+def docker_image_has_bin_sh(image: str, *, cwd: Path, env: dict[str, str]) -> bool:
     """
     Best-effort detection whether the image provides /bin/sh.
 
@@ -261,11 +263,11 @@ def docker_image_has_bin_sh(image: str, *, cwd: Path, env: Dict[str, str]) -> bo
     return rc == 0
 
 
-def _has_build(svc: Dict[str, Any]) -> bool:
+def _has_build(svc: dict[str, Any]) -> bool:
     return isinstance(svc.get("build"), (dict, str))
 
 
-def _find_builder_service_for_image(*, image: str, services: Dict[str, Any]) -> str:
+def _find_builder_service_for_image(*, image: str, services: dict[str, Any]) -> str:
     """
     If multiple services reference the same locally-built image, only one of them
     may define `build:`. This function finds that builder service.
@@ -284,13 +286,13 @@ def _find_builder_service_for_image(*, image: str, services: Dict[str, Any]) -> 
 def ensure_image_available(
     *,
     service_name: str,
-    svc: Dict[str, Any],
+    svc: dict[str, Any],
     image: str,
-    services: Dict[str, Any],
-    service_to_compose_cmd: Dict[str, List[str]],
-    compose_base_cmd: List[str],
+    services: dict[str, Any],
+    service_to_compose_cmd: dict[str, list[str]],
+    compose_base_cmd: list[str],
     cwd: Path,
-    env: Dict[str, str],
+    env: dict[str, str],
 ) -> None:
     """
     Ensure the referenced image exists locally.
@@ -311,7 +313,7 @@ def ensure_image_available(
 
     if _has_build(svc):
         run_checked(
-            compose_base_cmd + ["build", service_name],
+            [*compose_base_cmd, "build", service_name],
             cwd=cwd,
             env=env,
             label=f"compose build {service_name}",
@@ -323,14 +325,14 @@ def ensure_image_available(
             if not builder_cmd:
                 builder_cmd = compose_base_cmd
             run_checked(
-                builder_cmd + ["build", builder],
+                [*builder_cmd, "build", builder],
                 cwd=cwd,
                 env=env,
                 label=f"compose build {builder} (builder for image {img})",
             )
         else:
             run_checked(
-                compose_base_cmd + ["pull", service_name],
+                [*compose_base_cmd, "pull", service_name],
                 cwd=cwd,
                 env=env,
                 label=f"compose pull {service_name}",
@@ -343,12 +345,12 @@ def ensure_image_available(
         )
 
 
-def _extract_compose_files(parts: List[str], *, cwd: Path) -> List[Path]:
+def _extract_compose_files(parts: list[str], *, cwd: Path) -> list[Path]:
     """
     Extract compose file paths from args like: ['-f','a.yml','-f','b.yml'].
     Resolve relative paths against cwd.
     """
-    files: List[Path] = []
+    files: list[Path] = []
     i = 0
     while i < len(parts):
         if parts[i] == "-f":
@@ -366,7 +368,7 @@ def _extract_compose_files(parts: List[str], *, cwd: Path) -> List[Path]:
     return files
 
 
-def _discover_profiles_from_files(compose_files: List[Path]) -> List[str]:
+def _discover_profiles_from_files(compose_files: list[Path]) -> list[str]:
     """
     Discover all profile names referenced by any service across the compose files.
     """
@@ -375,7 +377,10 @@ def _discover_profiles_from_files(compose_files: List[Path]) -> List[str]:
         if not f.exists():
             die(f"Compose file does not exist: {f}")
         try:
-            doc = yaml.safe_load(f.read_text(encoding="utf-8")) or {}  # noqa: direct-yaml
+            doc = (
+                yaml.safe_load(f.read_text(encoding="utf-8"))  # nocheck: direct-yaml
+                or {}
+            )
         except Exception as e:
             die(f"Failed to parse compose file '{f}': {e}")
 
@@ -385,7 +390,7 @@ def _discover_profiles_from_files(compose_files: List[Path]) -> List[str]:
         if not isinstance(services, dict):
             continue
 
-        for _svc_name, svc in services.items():
+        for svc in services.values():
             if not isinstance(svc, dict):
                 continue
             p = svc.get("profiles")
@@ -399,14 +404,14 @@ def _discover_profiles_from_files(compose_files: List[Path]) -> List[str]:
     return sorted(profiles)
 
 
-def _compose_base_cmd(*, project: str, parts: List[str], env_file: str) -> List[str]:
-    cmd: List[str] = ["docker", "compose", "-p", project] + parts
+def _compose_base_cmd(*, project: str, parts: list[str], env_file: str) -> list[str]:
+    cmd: list[str] = ["docker", "compose", "-p", project, *parts]
     if env_file.strip():
         cmd += ["--env-file", env_file.strip()]
     return cmd
 
 
-def _compose_cmd_with_profile(base_cmd: List[str], profile: str) -> List[str]:
+def _compose_cmd_with_profile(base_cmd: list[str], profile: str) -> list[str]:
     """
     Add a --profile <name> (global compose flag) to an existing base cmd.
     Expected base cmd: ['compose', ...]
@@ -415,17 +420,17 @@ def _compose_cmd_with_profile(base_cmd: List[str], profile: str) -> List[str]:
         die(f"Invalid compose base cmd: {base_cmd}")
 
     # Insert after the compose wrapper prefix
-    return base_cmd[:2] + ["--profile", profile] + base_cmd[2:]
+    return [*base_cmd[:2], "--profile", profile, *base_cmd[2:]]
 
 
 def _load_services_via_config(
     *,
-    compose_cmd: List[str],
+    compose_cmd: list[str],
     cwd: Path,
-    env: Dict[str, str],
+    env: dict[str, str],
     label: str,
-) -> Dict[str, Any]:
-    rc, out, err = run(compose_cmd + ["config"], cwd=cwd, env=env)
+) -> dict[str, Any]:
+    rc, out, err = run([*compose_cmd, "config"], cwd=cwd, env=env)
     if rc != 0:
         die(f"compose config failed for {label} (rc={rc}): {err.strip()}")
 
@@ -437,15 +442,15 @@ def _load_services_via_config(
 
 
 def render_override(
-    services: Dict[str, Any],
-    service_to_compose_cmd: Dict[str, List[str]],
+    services: dict[str, Any],
+    service_to_compose_cmd: dict[str, list[str]],
     *,
     cwd: Path,
-    env: Dict[str, str],
+    env: dict[str, str],
     ca_host: str,
     wrapper_host: str,
     trust_name: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate a compose override that injects CA trust into every service by:
       - always: mounting CA cert + wrapper script, setting CA env vars + useful TLS env fallbacks
@@ -458,11 +463,13 @@ def render_override(
       Docker Compose interpolates $VARS in YAML strings on the host.
       We escape any $ in the command argv with $$ so container-side expansion works.
     """
-    ca_container = "/tmp/infinito/ca/root-ca.crt"
-    wrapper_container = "/tmp/infinito/bin/with-ca-trust.sh"
+    # Container-internal CA-injection paths bind-mounted from the host.
+    # Not user-controllable; well-known by the role's compose template.
+    ca_container = "/tmp/infinito/ca/root-ca.crt"  # noqa: S108
+    wrapper_container = "/tmp/infinito/bin/with-ca-trust.sh"  # noqa: S108
 
-    out_services: Dict[str, Any] = {}
-    sh_cache: Dict[str, bool] = {}
+    out_services: dict[str, Any] = {}
+    sh_cache: dict[str, bool] = {}
 
     for name, svc in services.items():
         if not isinstance(svc, dict):
@@ -500,8 +507,8 @@ def render_override(
             img_ep = normalize_entrypoint(img_ep)
             img_cmd = normalize_cmd(img_cmd)
 
-        final_ep = svc_ep if svc_ep else img_ep
-        final_cmd = svc_cmd if svc_cmd else img_cmd
+        final_ep = svc_ep or img_ep
+        final_cmd = svc_cmd or img_cmd
 
         if _is_shell_form(final_ep):
             final_cmd = [_shell_payload(final_cmd)]
@@ -514,7 +521,7 @@ def render_override(
             )
 
         # Always inject env vars + mounts.
-        override_svc: Dict[str, Any] = {
+        override_svc: dict[str, Any] = {
             "volumes": [
                 f"{ca_host}:{ca_container}:ro",
                 f"{wrapper_host}:{wrapper_container}:ro",
@@ -612,7 +619,7 @@ def main() -> int:
     compose_base_cmd = _compose_base_cmd(
         project=str(args.project),
         parts=parts,
-        env_file=env_file if env_file else "",
+        env_file=env_file or "",
     )
 
     # Discover all profiles referenced in compose files so we can include profile-only services too.
@@ -620,8 +627,8 @@ def main() -> int:
     profiles = _discover_profiles_from_files(compose_files)
 
     # Load services from default config, then from each profile config, and merge.
-    merged_services: Dict[str, Any] = {}
-    service_to_compose_cmd: Dict[str, List[str]] = {}
+    merged_services: dict[str, Any] = {}
+    service_to_compose_cmd: dict[str, list[str]] = {}
 
     # 1) default (no profile)
     default_services = _load_services_via_config(
@@ -667,7 +674,7 @@ def main() -> int:
 
     try:
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        text = yaml.safe_dump(  # noqa: direct-yaml
+        text = yaml.safe_dump(  # nocheck: direct-yaml
             override_doc, sort_keys=True, default_flow_style=False
         )
         out_path.write_text(text, encoding="utf-8")

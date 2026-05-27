@@ -1,6 +1,6 @@
 # Local Caches 📦
 
-Three local cache services accelerate re-deploys, reduce upstream traffic, and harden the development workflow against transient upstream outages. They share one compose profile (`cache`) and one override file ([compose/cache.override.yml](../../../compose/cache.override.yml)) and are gated together by [profile.py](../../../cli/deploy/development/profile.py): active on developer machines, inactive on CI runners.
+Three local cache services accelerate re-deploys, reduce upstream traffic, and harden the development workflow against transient upstream outages. They share one compose profile (`cache`) and one override file ([compose/cache.override.yml](../../../compose/cache.override.yml)) and are gated together by [profile.py](../../../cli/administration/deploy/development/profile.py): active on developer machines, inactive on CI runners.
 
 ## Services 🧩
 
@@ -40,19 +40,19 @@ Cert generation runs in a throw-away alpine container driven by [package-fronten
 
 ## Activation 🎚️
 
-The `cache` decision is exposed via `Profile.registry_cache_active()` in [profile.py](../../../cli/deploy/development/profile.py). When active:
+The `cache` decision is exposed via `Profile.registry_cache_active()` in [profile.py](../../../cli/administration/deploy/development/profile.py). When active:
 
-- [compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/deploy/development/compose.py) and [down.py](../../../cli/deploy/development/down.py) via [common.py](../../../cli/deploy/development/common.py)`compose_file_args`.
+- [compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/administration/deploy/development/compose.py) and [down.py](../../../cli/administration/deploy/development/down.py) via [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`.
 - The cache services are added.
 - The runner's `infinito` service receives:
   - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt.list`), and the frontend CA file
   - `extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP
-  - `INFINITO_PACKAGE_CACHE_FRONTEND_IP` env var for the inner compose wrapper
-- Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/deploy/development/compose.py).
+  - `INFINITO_CACHE_PACKAGE_FRONTEND_IP` env var for the inner compose wrapper
+- Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py).
 
 When inactive, the override is omitted: cache services do not exist, the runner has no cache mounts or DNS-hijack, package managers go direct to upstream.
 
-CI signals (`GITHUB_ACTIONS=true`, `RUNNING_ON_GITHUB=true`, `CI=true`) deactivate. Fresh runner disks per CI job give no cross-run amortization.
+CI signals (`GITHUB_ACTIONS=true`, `INFINITO_RUNNING_ON_GITHUB=true`, `CI=true`) deactivate. Fresh runner disks per CI job give no cross-run amortization.
 
 ## Coverage Matrix 📋
 
@@ -80,26 +80,26 @@ The runner's `compose` wrapper at [roles/sys-svc-compose/files/compose.py](../..
 | `compose.yml` | always |
 | `compose.override.yml` | when present (role provides it) |
 | `compose.ca.override.yml` | when present (TLS self-signed CA-inject runs) |
-| `compose.cache.override.yml` | generated on the fly when `INFINITO_PACKAGE_CACHE_FRONTEND_IP` is set; emits `build.extra_hosts` for every service that has a `build:` key |
+| `compose.cache.override.yml` | generated on the fly when `INFINITO_CACHE_PACKAGE_FRONTEND_IP` is set; emits `build.extra_hosts` for every service that has a `build:` key |
 
 [pull.py](../../../roles/sys-svc-compose/files/pull.py) delegates to the same wrapper so `pull` and `build --pull` operations see the identical `-f` set.
 
 ## Environment Variables 🌳
 
-The host-side env-vars live in [scripts/meta/env/cache/registry.sh](../../../scripts/meta/env/cache/registry.sh) and [scripts/meta/env/cache/package.sh](../../../scripts/meta/env/cache/package.sh). They are sourced via [scripts/meta/env/all.sh](../../../scripts/meta/env/all.sh), which `BASH_ENV` makes available to every Makefile recipe.
+The host-side env-vars (`INFINITO_CACHE_REGISTRY_*`, `INFINITO_CACHE_PACKAGE_*`) are declared in [default.env](../../../default.env) and the dynamic ones (cache sizes from `df`/`/proc/meminfo`, sha256 admin password) are computed by [utils/env/builder.py](../../../utils/env/builder.py). `make dotenv` writes them into `.env`, which Compose auto-loads and which `BASH_ENV` makes available to every Makefile recipe through [scripts/meta/env/load.sh](../../../scripts/meta/env/load.sh). See [variables.md](variables.md).
 
 Per-variable defaults and purposes are in [compose.yml.md](../artefact/files/compose.yml.md) under the cache section.
 
-`INFINITO_PACKAGE_CACHE_MAX_AGE_MIN` (default `129600` = 90 days) controls how long every Nexus proxy repo holds an upstream response before revalidating. The bootstrap helper applies it as `contentMaxAge`, `metadataMaxAge`, and `negativeCache.timeToLive`. Lower it for fast-moving upstreams (`apt-debian-security`, branch-pinned tarballs) when staleness becomes visible.
+`INFINITO_CACHE_PACKAGE_MAX_AGE_MIN` (default `8640` = 6 days) controls how long every Nexus proxy repo holds an upstream response before revalidating. The bootstrap helper applies it as `contentMaxAge`, `metadataMaxAge`, and `negativeCache.timeToLive`. The default is intentionally one day below the 7-day `Valid-Until` window Debian and Ubuntu generate in their apt `Release` files, so Nexus always refreshes the manifest before `apt-get update` would see it expired. Raise it for slow-moving upstreams when staleness is preferable to upstream load; lower it further for fast-moving feeds (`apt-debian-security`, branch-pinned tarballs) when staleness becomes visible.
 
 ## Operations 🛠️
 
 | Action | Command |
 |---|---|
-| Start the stack with caches | `make up` |
-| Stop the stack | `make down` |
-| Wipe local cache state | `make cache-clean` |
-| Manually re-bootstrap Nexus repos | `bash scripts/docker/cache/package.sh` (after sourcing `scripts/meta/env/cache/package.sh`) |
+| Start the stack with caches | `make compose-up` |
+| Stop the stack | `make compose-down` |
+| Wipe local cache state | `make clean-cache` |
+| Manually re-bootstrap Nexus repos | `bash scripts/docker/cache/package.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`) |
 | Manually regenerate frontend certs | `bash scripts/docker/cache/package-frontend-certs.sh` |
 | Reload nginx in the frontend | `docker exec infinito-package-cache-frontend nginx -s reload` |
 | Inspect cache hits | `docker logs -f infinito-package-cache` and `docker logs -f infinito-package-cache-frontend` |
@@ -116,8 +116,7 @@ When a new package manager or upstream needs caching:
 4. Add an `extra_hosts` entry on the `infinito` service in [compose/cache.override.yml](../../../compose/cache.override.yml) for runner-side traffic.
 5. If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`.
 
-## Background and Requirements 📚
+## Background 📚
 
 - Compose-file env-var contract: [compose.yml.md](../artefact/files/compose.yml.md)
-- Original requirement and acceptance criteria: [docs/requirements/012-package-cache-nexus3-oss.md](../../requirements/012-package-cache-nexus3-oss.md)
-- Profile gating mechanics: [profile.py](../../../cli/deploy/development/profile.py)
+- Profile gating mechanics: [profile.py](../../../cli/administration/deploy/development/profile.py)

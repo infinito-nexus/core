@@ -1,4 +1,4 @@
-# msmtp 📧
+# msmtp
 
 ## Description
 
@@ -21,10 +21,9 @@ The purpose of this role is to automate the setup of a lightweight SMTP client t
 - **Idempotent Setup:** Ensures the tasks run only once with internal flagging.
 - **Integration Ready:** Easily integrates with other system roles within the Infinito.Nexus environment for automated notifications.
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

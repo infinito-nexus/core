@@ -1,3 +1,4 @@
+---
 openresty:
   name: openresty
   min_storage: 1GB

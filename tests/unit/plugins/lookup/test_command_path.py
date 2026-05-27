@@ -37,9 +37,11 @@ class TestCommandPathLookup(unittest.TestCase):
             self.plugin.run(["setup-hibernate --help"])
 
     def test_missing_command_raises(self):
-        with patch("plugins.lookup.command_path.shutil.which", return_value=None):
-            with self.assertRaises(AnsibleError):
-                self.plugin.run(["does-not-exist"])
+        with (
+            patch("plugins.lookup.command_path.shutil.which", return_value=None),
+            self.assertRaises(AnsibleError),
+        ):
+            self.plugin.run(["does-not-exist"])
 
     def test_custom_path_argument_is_passed_to_which(self):
         with patch(

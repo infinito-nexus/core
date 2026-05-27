@@ -1,2 +1,3 @@
-redirect_domain_mappings:           "{{ CURRENT_PLAY_REDIRECT_DOMAINS }}" # Format [{source: target:},...]
-web_opt_rdr_domains_logout_enabled: false                                 # Activate headers for logout
+---
+redirect_domain_mappings: "{{ CURRENT_PLAY_REDIRECT_DOMAINS }}" # Format [{source: target:},...]
+web_opt_rdr_domains_logout_enabled: false # Activate headers for logout

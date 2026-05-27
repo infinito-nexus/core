@@ -1,3 +1,4 @@
+---
 - name: Gather containers
   community.docker.docker_host_info:
     containers: true

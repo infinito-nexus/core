@@ -24,13 +24,16 @@ from __future__ import annotations
 import fnmatch
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, Tuple
+from typing import TYPE_CHECKING
 
-from .base import PROJECT_ROOT
+from . import PROJECT_ROOT
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @lru_cache(maxsize=4)
-def load_gitignore_patterns(root: str | None = None) -> Tuple[str, ...]:
+def load_gitignore_patterns(root: str | None = None) -> tuple[str, ...]:
     """Load non-comment, non-blank, non-negated patterns from ``<root>/.gitignore``.
 
     Returns a tuple (immutable, hashable for ``lru_cache``). Pass ``root``
@@ -50,7 +53,7 @@ def load_gitignore_patterns(root: str | None = None) -> Tuple[str, ...]:
     patterns: list[str] = []
     for raw in gitignore.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
-        if not line or line.startswith("#") or line.startswith("!"):
+        if not line or line.startswith(("#", "!")):
             continue
         patterns.append(line)
     return tuple(patterns)

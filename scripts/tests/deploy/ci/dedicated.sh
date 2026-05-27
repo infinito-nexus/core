@@ -17,28 +17,28 @@ set -euo pipefail
 #
 # Required env:
 #   INFINITO_DISTRO="arch|debian|ubuntu|fedora|centos"
-#   INVENTORY_DIR="/path/to/inventory"
+#   INFINITO_INVENTORY_DIR="/path/to/inventory"
 #
 # Optional env:
 #   PYTHON="python3"
-#   VARIANT="<idx>"  pin to one matrix round (skips the rest)
+#   INFINITO_VARIANT="<idx>"  pin to one matrix round (skips the rest)
 
 PYTHON="${PYTHON:-python3}"
 
 : "${INFINITO_DISTRO:?INFINITO_DISTRO must be set (e.g. arch)}"
-: "${INVENTORY_DIR:?INVENTORY_DIR must be set}"
+: "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR must be set}"
 : "${INFINITO_DOCKER_VOLUME:?INFINITO_DOCKER_VOLUME must be set}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 
-APPS=""
+INFINITO_APPS=""
 
 usage() {
 	cat <<'EOF'
 Usage:
-  INFINITO_DISTRO=<distro> INVENTORY_DIR=<dir> INFINITO_DOCKER_VOLUME=<abs_path> \
-    scripts/tests/deploy/ci/dedicated.sh \
+  INFINITO_DISTRO=<distro> INFINITO_INVENTORY_DIR=<dir> INFINITO_DOCKER_VOLUME=<abs_path> \
+    scripts/tests/deploy/ci/dedicated.sh \  # nocheck: self-path-reference
     --apps <app_ids>
 EOF
 }
@@ -46,7 +46,7 @@ EOF
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--apps)
-		APPS="${2:-}"
+		INFINITO_APPS="${2:-}"
 		shift 2
 		;;
 	-h | --help)
@@ -60,7 +60,7 @@ while [[ $# -gt 0 ]]; do
 		;;
 	esac
 done
-[[ -n "${APPS}" ]] || {
+[[ -n "${INFINITO_APPS}" ]] || {
 	echo "[ERROR] --apps is required" >&2
 	usage
 	exit 2
@@ -68,21 +68,26 @@ done
 
 cd "${REPO_ROOT}"
 
-echo "=== distro=${INFINITO_DISTRO} app=${APPS} (debug always on) ==="
+echo "=== distro=${INFINITO_DISTRO} app=${INFINITO_APPS} (debug always on) ==="
 
 cleanup() {
 	rc=$?
 
 	# Copy Playwright reports from the infinito container to the runner filesystem
 	# BEFORE containers/volumes are destroyed, so GitHub Actions can upload them as artifacts.
-	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${APPS}"
+	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${INFINITO_APPS}"
 	mkdir -p "${_playwright_host_dir}"
 	echo ">>> Copying Playwright artifacts from ${INFINITO_CONTAINER} to ${_playwright_host_dir}"
 	docker cp "${INFINITO_CONTAINER}:/var/lib/infinito/logs/test-e2e-playwright/." \
 		"${_playwright_host_dir}" 2>/dev/null || true
 
+	if [[ -n "${ANSIBLE_LOG_PATH:-}" ]]; then
+		echo ">>> Copying Ansible log from ${INFINITO_CONTAINER}:${ANSIBLE_LOG_PATH} to ${ANSIBLE_LOG_PATH}"
+		docker cp "${INFINITO_CONTAINER}:${ANSIBLE_LOG_PATH}" "${ANSIBLE_LOG_PATH}" 2>/dev/null || true
+	fi
+
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"
-	"${PYTHON}" -m cli.deploy.development down || true
+	"${PYTHON}" -m cli.administration.deploy.development down || true
 
 	echo ">>> HARD cleanup (containers/volumes/networks/images/build-cache)"
 	echo ">>> Docker disk usage before HARD cleanup"
@@ -147,11 +152,11 @@ trap cleanup EXIT
 echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 # Always reconcile the stack to the requested distro.
 # This avoids reusing a pre-started stack with a different INFINITO_DISTRO.
-"${PYTHON}" -m cli.deploy.development up
+"${PYTHON}" -m cli.administration.deploy.development up
 
 deploy_args=(
-	--apps "${APPS}"
-	--inventory-dir "${INVENTORY_DIR}"
+	--apps "${INFINITO_APPS}"
+	--inventory-dir "${INFINITO_INVENTORY_DIR}"
 	--debug
 )
 
@@ -161,9 +166,9 @@ docker system df || true
 echo ">>> END STATE BEFORE DEPLOY"
 
 echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
-"${PYTHON}" -m cli.deploy.development init \
-	--apps "${APPS}" \
-	--inventory-dir "${INVENTORY_DIR}" \
+"${PYTHON}" -m cli.administration.deploy.development init \
+	--apps "${INFINITO_APPS}" \
+	--inventory-dir "${INFINITO_INVENTORY_DIR}" \
 	--vars '{"ASYNC_ENABLED": false}'
 
 # PASS 1 (sync) + PASS 2 (async) co-located per variant: the wrapper
@@ -173,7 +178,7 @@ echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 # deploy just produced and avoids the matrix-twice race the previous
 # split passes had on multi-variant roles.
 echo ">>> deploy (PASS 1 sync + PASS 2 async per variant, --full-cycle)"
-"${PYTHON}" -m cli.deploy.development deploy "${deploy_args[@]}" --full-cycle
+"${PYTHON}" -m cli.administration.deploy.development deploy "${deploy_args[@]}" --full-cycle
 
 echo ">>> DISK / DOCKER STATE AFTER DEPLOY (before cleanup, distro=${INFINITO_DISTRO})"
 df -h || true

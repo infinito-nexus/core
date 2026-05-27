@@ -1,2 +1,4 @@
+---
+# nocheck: required-by-coverage — convenience composition (front-proxy + backend), only loaded explicitly by full-stack web-app roles
 full:
   lifecycle: beta

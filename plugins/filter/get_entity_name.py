@@ -1,7 +1,7 @@
-from utils.entity_name_utils import get_entity_name
+from utils.roles.entity_name import get_entity_name
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "get_entity_name": get_entity_name,

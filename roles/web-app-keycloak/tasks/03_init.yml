@@ -1,3 +1,4 @@
+---
 - name: "Resolve reserved usernames for '{{ application_id }}' at task runtime"
   set_fact:
     KEYCLOAK_RESERVED_USERNAMES_LIST: "{{ lookup('users') | reserved_usernames }}"

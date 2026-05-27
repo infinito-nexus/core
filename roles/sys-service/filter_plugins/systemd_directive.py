@@ -11,7 +11,7 @@ def systemd_directive(value, key: str) -> str:
     return f"{key}={sval}"
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "systemd_directive": systemd_directive,

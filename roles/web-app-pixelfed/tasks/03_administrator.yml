@@ -1,33 +1,27 @@
 ---
 - name: "Wait until the Pixelfed users table exists"
-  vars:
-    pixelfed_users_table_query: >-
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema='{{ PIXELFED_DB_NAME }}'
-        AND table_name='users'
-      LIMIT 1;
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_users_table_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-users-table.sql"
+    named_args:
+      db_name: "{{ PIXELFED_DB_NAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: pixelfed_users_table
   changed_when: false
-  failed_when: false
   retries: 60
   delay: 5
-  until:
-    - pixelfed_users_table.rc == 0
-    - pixelfed_users_table.stdout | trim == 'users'
+  until: pixelfed_users_table.rows | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Check whether the Pixelfed administrator already exists"
-  vars:
-    pixelfed_admin_id_query: "SELECT id FROM users WHERE username='{{ PIXELFED_ADMIN_USERNAME }}' LIMIT 1;"
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_admin_id_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-admin-id.sql"
+    named_args:
+      admin_username: "{{ PIXELFED_ADMIN_USERNAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: pixelfed_admin_id_existing
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -51,19 +45,20 @@
       - --confirm_email=1
   args:
     chdir: "{{ PIXELFED_INSTANCE_DIR }}"
-  when: pixelfed_admin_id_existing.stdout | trim == ''
+  when: pixelfed_admin_id_existing.rows | length == 0
   register: pixelfed_admin_create
   changed_when: pixelfed_admin_create.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Resolve the Pixelfed administrator id"
-  vars:
-    pixelfed_admin_id_query: "SELECT id FROM users WHERE username='{{ PIXELFED_ADMIN_USERNAME }}' LIMIT 1;"
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_admin_id_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-admin-id.sql"
+    named_args:
+      admin_username: "{{ PIXELFED_ADMIN_USERNAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: pixelfed_admin_id
   changed_when: false
-  failed_when: pixelfed_admin_id.stdout | trim == ''
+  failed_when: pixelfed_admin_id.rows | length == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

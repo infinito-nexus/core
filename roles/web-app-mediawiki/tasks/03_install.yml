@@ -1,3 +1,4 @@
+---
 - name: "MEDIAWIKI | Bootstrap DB (install if empty) then update"
   script: >-
     install_or_update.sh

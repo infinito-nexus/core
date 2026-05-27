@@ -1,3 +1,4 @@
+---
 credentials:
   user_password:
     description: Initial password for the Moodle admin user

@@ -1,6 +1,6 @@
 # `Makefile` 🛠️
 
-This page is the SPOT for rules that govern how the repository `Makefile` is written and structured.
+This page covers the rules that govern how the repository `Makefile` is written and structured.
 For the full index of available `make` targets, see [make.md](../../tools/make.md).
 
 ## Target Design 📐

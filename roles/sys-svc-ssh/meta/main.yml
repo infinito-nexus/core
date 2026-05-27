@@ -1,19 +1,27 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Installs the SSH client in a distribution-aware and idempotent way. This role ensures that SSH client tools are available as a system-level dependency for secure remote access and key-based authentication.
-
-    '
+  description: "Installs the SSH client in a distribution-aware and idempotent way. This role ensures that SSH client tools are available as a system-level dependency
+    for secure remote access and key-based authentication.\n"
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
-  min_ansible_version: '2.9'
+  min_ansible_version: "2.9"
   platforms:
-    - name: Linux
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
       versions:
         - all
   galaxy_tags:

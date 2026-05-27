@@ -1,13 +1,14 @@
+---
 - name: Include dependency 'sys-ctl-mtn-cert-renew'
   include_role:
     name: sys-ctl-mtn-cert-renew
-  when: 
+  when:
     - run_once_sys_ctl_mtn_cert_renew is not defined
     - lookup('tls', application_id, 'mode') == 'letsencrypt'
 
 - name: Create HTTP->HTTPS handler per domain
   ansible.builtin.template:
-    src:  "http.conf.j2"
+    src: "http.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', domain, protocol='http') }}"
-  notify:     restart openresty
-  when:       HTTPS_REDIRECT_ENABLED | bool
+  notify: restart openresty
+  when: HTTPS_REDIRECT_ENABLED | bool

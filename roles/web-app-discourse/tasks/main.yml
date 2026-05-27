@@ -3,4 +3,4 @@
   include_tasks: 01_core.yml
   when: run_once_web_app_discourse is not defined
   vars:
-    application_id: 'web-app-discourse'
+    application_id: "web-app-discourse"

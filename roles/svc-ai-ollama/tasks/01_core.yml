@@ -1,11 +1,10 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "Setup container network for {{ application_id }}"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network.yml' ] | path_join }}"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml' ] | path_join }}"
   vars:
-    docker_network_name:            "{{ OLLAMA_NETWORK }}"
-    docker_network_subnet:          "{{ lookup('config', application_id, 'server.networks.local.subnet') }}"
-    docker_compose_flush_handlers:  true
+    compose_handlers_flush: true
 
 - name: Pre-pull Ollama models
   vars:
@@ -16,7 +15,7 @@
   loop_control:
     loop_var: model
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   changed_when: >
     (not (ASYNC_ENABLED | bool)) and (
       'downloaded' in (pull_result.stdout | default('')) or

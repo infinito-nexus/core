@@ -1,3 +1,4 @@
+---
 - name: Load System Nextcloud configuration variables
   include_vars:
     file: system.yml
@@ -15,8 +16,8 @@
   register: syscfg_shell
   changed_when: >
     not ASYNC_ENABLED and
-    ( ((syscfg_shell.stdout | default('')) ~ (syscfg_shell.stderr | default(''))) 
+    ( ((syscfg_shell.stdout | default('')) ~ (syscfg_shell.stderr | default('')))
       is search(' set to ') )
   failed_when: not ASYNC_ENABLED and syscfg_shell.rc != 0
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

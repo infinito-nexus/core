@@ -1,2 +1,5 @@
+---
 all:
   lifecycle: beta
+  required_by:
+    categories: [web-app, web-svc]

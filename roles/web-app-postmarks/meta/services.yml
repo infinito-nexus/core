@@ -1,41 +1,41 @@
-oidc:
-  enabled: false
-  shared: false
+---
 oauth2:
-  enabled: true
-  shared: false
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
   origin:
     host: application
     port: 3000
   allowed_groups:
-  - '{{ lookup(''rbac_group_path'', application_id=''web-app-postmarks'', role=''administrator'') }}'
+    - "{{ lookup('rbac_group_path', application_id='web-app-postmarks', role='administrator') }}"
 logout:
-  enabled: false
-  shared: false
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
-# noqa: email
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: email
+# nocheck: dynamic-flag
 email:
   enabled: false
   shared: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
 application:
   image: node
   version: 26-bookworm
   name: web-app-postmarks
   repository: https://github.com/ckolderup/postmarks.git
-  branch: main
+  ref: main
   min_storage: 1GB
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
@@ -46,7 +46,7 @@ postmarks:
       oauth2: 16494
   lifecycle: beta
   min_storage: 1GB
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512

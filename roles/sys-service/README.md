@@ -29,3 +29,10 @@ It installs or removes unit files, configures runtime behavior, and ensures serv
 - [systemd - Service Units](https://www.freedesktop.org/software/systemd/man/systemd.service.html)
 - [systemd - Timer Units](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)
 - [systemctl](https://www.freedesktop.org/software/systemd/man/systemctl.html)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

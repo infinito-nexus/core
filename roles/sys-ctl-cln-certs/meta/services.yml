@@ -1,2 +1,4 @@
+---
+# nocheck: required-by-coverage — gated by `lookup('tls', application_id, 'mode') == 'letsencrypt'` via mtn-cert-renew meta-dep, not expressible via role-id/category match
 certs:
   lifecycle: beta

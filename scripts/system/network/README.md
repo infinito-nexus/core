@@ -1,6 +1,6 @@
 # Network Administration
 
-This is the SPOT for network helpers under `scripts/system/network/`.
+This directory holds network helpers grouped by area.
 Use the child README files for the DNS, Docker, and IPv6 details.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../docs/contributing/tools/make.md).
 

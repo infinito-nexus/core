@@ -1,9 +1,10 @@
+---
 administrator: {}
 bounce:
   username: bounce
   roles:
-  - mail-bot
+    - mail-bot
 newsletter:
   username: newsletter
   roles:
-  - mail-bot
+    - mail-bot

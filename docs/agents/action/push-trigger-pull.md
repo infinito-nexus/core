@@ -18,7 +18,7 @@ MUST NOT batch through a shell loop. If the operator answers *"none"*, cancel no
 
 ## 2. Push
 
-Target `<branch>` is the branch the operator names. If none is named, the agent MUST NOT silently assume the current branch — instead, resolve the current branch via `git rev-parse --abbrev-ref HEAD`, propose it to the operator, and wait for explicit confirmation before proceeding. Only after the operator confirms (or names a different branch) is the value frozen as `<branch>`. All subsequent steps operate on the same frozen `<branch>` regardless of what is checked out later — the operator MUST be free to switch branches and keep working while the agent runs.
+Target `<branch>` is the branch the operator names. If none is named, the agent MUST NOT silently assume the current branch. Instead, resolve the current branch via `git rev-parse --abbrev-ref HEAD`, propose it to the operator, and wait for explicit confirmation before proceeding. Only after the operator confirms (or names a different branch) is the value frozen as `<branch>`. All subsequent steps operate on the same frozen `<branch>` regardless of what is checked out later. The operator MUST be free to switch branches and keep working while the agent runs.
 
 The agent MUST NOT run `git checkout`, `git switch`, or any other command that changes `HEAD`, stages files, or modifies the working tree. `git push` operates on refs by name and does not require `<branch>` to be checked out. The push goes to the local `origin` remote.
 
@@ -38,7 +38,7 @@ Query the open PRs for the frozen `<branch>`:
 gh pr list --head <branch> --state open --json number,isDraft,url
 ```
 
-Dispatch on the result (GitHub's `state=open` includes both ready and draft PRs — use `isDraft` to distinguish):
+Dispatch on the result (GitHub's `state=open` includes both ready and draft PRs; use `isDraft` to distinguish):
 
 - Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md).
 - Exactly one result with `isDraft == false` (ready PR): run `gh pr ready --undo <number>` on that result's `number` to demote it to draft.
@@ -66,7 +66,7 @@ Compute scope from `git diff --name-only origin/main...<branch>`.
 - `distros`: a change counts as **distro-specific** only if the diff is confined to either
   - files under `packaging/<distro>/` for one or more specific distros, or
   - role tasks gated by a distro conditional (e.g. `when: ansible_os_family == '...'`, `when: ansible_distribution == '...'`), touching only the branches for one or more specific distros.
-  Pass those distros as a space-separated list via `-f distros="<distros>"`. In every other case, omit `-f distros`; `entry-manual.yml` then applies its own default (currently `debian` only — it does NOT run all distros).
+  Pass those distros as a space-separated list via `-f distros="<distros>"`. In every other case, omit `-f distros`; `entry-manual.yml` then applies its own default (currently `debian` only, it does NOT run all distros).
 
 Before triggering, capture the currently latest run id for this workflow+branch as `<prev-run-id>` (empty string if none exists). This is required so the post-trigger resolve can distinguish the new run from any stale completed run on the same branch:
 
@@ -88,7 +88,7 @@ gh workflow run entry-manual.yml --ref <branch> \
   [-f whitelist="<role>"]
 ```
 
-`gh workflow run` does NOT print the new run id. Resolve it by repeating the same list query until the returned databaseId is non-empty AND differs from `<prev-run-id>` — that is `<run-id>`. Each repeat MUST be a separate tool invocation; no shell loop. Do NOT accept a result equal to `<prev-run-id>`; that would attach the watcher to the stale run and return its old exit status immediately.
+`gh workflow run` does NOT print the new run id. Resolve it by repeating the same list query until the returned databaseId is non-empty AND differs from `<prev-run-id>`. That value is `<run-id>`. Each repeat MUST be a separate tool invocation; no shell loop. Do NOT accept a result equal to `<prev-run-id>`; that would attach the watcher to the stale run and return its old exit status immediately.
 
 Watch the new run and propagate its exit status:
 

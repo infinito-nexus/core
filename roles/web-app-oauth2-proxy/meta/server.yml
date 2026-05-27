@@ -1,4 +1,5 @@
+---
 domains:
   canonical:
-  - oauth2-proxy.{{ DOMAIN_PRIMARY }}
+    - oauth2-proxy.{{ DOMAIN_PRIMARY }}
   aliases: []

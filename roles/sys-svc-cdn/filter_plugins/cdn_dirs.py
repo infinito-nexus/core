@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 
 def cdn_dirs(tree):
@@ -11,13 +11,13 @@ def cdn_dirs(tree):
         elif isinstance(v, list):
             for x in v:
                 walk(x)
-        elif isinstance(v, str) and os.path.isabs(v):
+        elif isinstance(v, str) and Path(v).is_absolute():
             out.add(v)
 
     walk(tree)
     return sorted(out)
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {"cdn_dirs": cdn_dirs}

@@ -1,3 +1,4 @@
+---
 - name: "cleanup (if enabled)"
   include_tasks: 02_cleanup.yml
   when: >
@@ -23,13 +24,13 @@
 
 - name: Deploy OpenResty NGINX Base Configuration
   template:
-    src:  nginx.conf.j2
+    src: nginx.conf.j2
     dest: "{{ lookup('nginx','files.configuration') }}"
   notify: restart openresty
 
 - name: Deploy OpenResty default server configuration
   template:
-    src:  default_server.conf.j2
+    src: default_server.conf.j2
     dest: "{{ [ lookup('nginx','directories.configuration.global'), 'default_server.conf' ] | path_join }}"
   notify: restart openresty
 
@@ -39,13 +40,5 @@
 - name: "Assert for '{{ role_name }}'"
   include_tasks: 05_assert.yml
   when: MODE_ASSERT | bool
-
-- name: Include health dependencies
-  include_role:
-    name: "{{ item }}"
-  loop:
-    - sys-ctl-hlth-webserver
-    - sys-ctl-hlth-csp
-  when: not (_service_loader_preloading | default(false) | bool)
 
 - include_tasks: utils/once/flag.yml

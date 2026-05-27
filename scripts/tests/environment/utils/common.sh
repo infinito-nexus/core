@@ -39,19 +39,17 @@ ensure_git_safe_directory() {
 }
 
 load_repo_env() {
+	if ! command -v python3 >/dev/null 2>&1; then
+		return 0
+	fi
 	local previous_pwd
 	previous_pwd="$(pwd)"
 	cd "${REPO_ROOT}"
 	unset INFINITO_ENV_LOADED
-	unset INFINITO_ENV_PYTHON_LOADED
-	unset INFINITO_ENV_RUNTIME_LOADED
-	unset INFINITO_ENV_DEFAULTS_LOADED
-	unset INFINITO_ENV_INVENTORY_LOADED
-	unset INFINITO_ENV_GITHUB_LOADED
 	unset PYTHON
 	unset PIP
-	# shellcheck source=scripts/meta/env/all.sh
-	source scripts/meta/env/all.sh
+	# shellcheck source=scripts/meta/env/load.sh
+	source scripts/meta/env/load.sh
 	cd "${previous_pwd}"
 }
 
@@ -59,11 +57,37 @@ load_repo_env
 ensure_git_safe_directory
 
 # Print the generated inventory and host_vars for debugging and verification.
+#
+# Matrix-variant deploys write `${INFINITO_INVENTORY_DIR}-0/devices.yml`,
+# `${INFINITO_INVENTORY_DIR}-1/devices.yml`, ... never the unsuffixed
+# `${INFINITO_INVENTORY_DIR}/devices.yml`. Discover every variant inside the
+# infinito_nexus container (where the inventories actually live) and
+# print each one; fall back to the unsuffixed path when no variants
+# exist.
+#
+# cmd is executed via `sh -lc` (see scripts/tests/deploy/local/exec/container.sh)
+# — keep the inner shell strictly POSIX (no bash arrays, no `shopt`, no `(( ))`).
+inspect_glob_print() {
+	local glob_pattern="$1" fallback="$2"
+	make compose-exec cmd="set -eu; \
+		any=; \
+		for f in ${glob_pattern}; do \
+			[ -f \"\$f\" ] || continue; \
+			any=1; \
+			echo \"==> \$f\"; \
+			cat \"\$f\"; \
+		done; \
+		if [ -z \"\$any\" ]; then \
+			echo \"==> ${fallback}\"; \
+			cat \"${fallback}\"; \
+		fi"
+}
+
 inspect() {
 	echo "Printing the generated inventory to verify which roles were deployed."
-	make exec CMD="cat ${INVENTORY_FILE}"
+	inspect_glob_print "${INFINITO_INVENTORY_DIR}-*/devices.yml" "${INFINITO_INVENTORY_FILE}"
 	echo "Printing host_vars to verify per-host configuration."
-	make exec CMD="cat ${HOST_VARS_FILE}"
+	inspect_glob_print "${INFINITO_INVENTORY_DIR}-*/host_vars/localhost.yml" "${INFINITO_INVENTORY_HOST_VARS_FILE}"
 }
 
 # Check that a URL responds with the expected HTTP status code.

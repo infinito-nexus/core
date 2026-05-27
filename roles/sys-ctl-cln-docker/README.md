@@ -45,3 +45,10 @@ The cleanup script:
 2. Starts the service if present.
 3. Runs `container system prune -a -f` if Docker is installed.
 4. Stops execution immediately on errors (`set -e` behavior).
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

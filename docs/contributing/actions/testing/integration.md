@@ -1,6 +1,6 @@
 # Integration Tests 🔗
 
-This page is the SPOT for integration testing requirements, framework, and structure.
+This page covers integration testing requirements, framework, and structure.
 Run integration tests with `make test-integration`.
 
 ## Framework 🧰
@@ -36,12 +36,12 @@ Run integration tests with `make test-integration`.
 
 ## Running Specific Tests 🏃
 
-Use `TEST_PATTERN` to scope the test run to a single file or a glob:
+Use `INFINITO_TEST_PATTERN` to scope the test run to a single file or a glob:
 
 ```bash
 # Run a single integration test file
-make test-integration TEST_PATTERN=test_my_module.py
+make test-integration INFINITO_TEST_PATTERN=test_my_module.py
 
 # Run all files matching a prefix
-make test-integration TEST_PATTERN=test_applications*.py
+make test-integration INFINITO_TEST_PATTERN=test_applications*.py
 ```

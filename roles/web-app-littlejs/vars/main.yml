@@ -1,27 +1,31 @@
+---
 # General
-application_id:             "web-app-littlejs"
-entity_name:                "{{ application_id | get_entity_name }}"
-domain:                     "{{ lookup('domain',application_id) }}"
+application_id: "web-app-littlejs"
+entity_name: "{{ application_id | get_entity_name }}"
+domain: "{{ lookup('domain',application_id) }}"
 
-LITTLEJS_HEADLINE:          "LittleJS Playground"
+LITTLEJS_HEADLINE: "LittleJS Playground"
 
-LITTLEJS_TITLE:             "{{ LITTLEJS_HEADLINE }} – {{ DOMAIN_PRIMARY | upper }}"
+LITTLEJS_TITLE: "{{ LITTLEJS_HEADLINE }} – {{ DOMAIN_PRIMARY | upper }}"
 
-# Base repository URL for LittleJS
-LITTLEJS_REPOSITORY_BASE:   "https://github.com/KilledByAPixel/LittleJS"
+# Clone coordinates — SPOT in meta/services.yml
+LITTLEJS_REPOSITORY: "{{ lookup('config', application_id, 'services.littlejs.repository') }}"
+LITTLEJS_REF: "{{ lookup('config', application_id, 'services.littlejs.ref') }}"
+# Human-readable upstream link for nav_bottom.html (strip .git suffix)
+LITTLEJS_REPOSITORY_BASE: "{{ LITTLEJS_REPOSITORY | regex_replace('\\.git$', '') }}"
 
 # Relative path where sys-stk-full checks out the repo
-LITTLEJS_APP_REL:           "services/repository"
-LITTLEJS_INDEX_HOST_ABS:    "{{ [ lookup('container', application_id, 'directories.volumes'), 'index.html' ] | path_join }}"
-LITTLEJS_INDEX_HOST_REL:    "volumes/index.html"
+LITTLEJS_APP_REL: "services/repository"
+LITTLEJS_INDEX_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), 'index.html' ] | path_join }}"
+LITTLEJS_INDEX_HOST_REL: "volumes/index.html"
 
 # Helper variables
-LITTLEJS_CONTAINER:         "{{ entity_name }}"
-LITTLEJS_SERVICE:           "{{ entity_name }}"
-LITTLEJS_IMAGE:             "{{ lookup('config', application_id, 'services.littlejs.image') }}"
-LITTLEJS_VERSION:           "{{ lookup('config', application_id, 'services.littlejs.version') }}"
-LITTLEJS_IMAGE_CUSTOM:      "{{ entity_name }}_custom"
+LITTLEJS_CONTAINER: "{{ entity_name }}"
+LITTLEJS_SERVICE: "{{ entity_name }}"
+LITTLEJS_IMAGE: "{{ lookup('config', application_id, 'services.littlejs.image') }}"
+LITTLEJS_VERSION: "{{ lookup('config', application_id, 'services.littlejs.version') }}"
+LITTLEJS_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 
 # Runner HTML for non-full examples
-LITTLEJS_RUN_HOST_ABS:      "{{ [ lookup('container', application_id, 'directories.volumes'), 'run.html' ] | path_join }}"
-LITTLEJS_RUN_HOST_REL:      "volumes/run.html"
+LITTLEJS_RUN_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), 'run.html' ] | path_join }}"
+LITTLEJS_RUN_HOST_REL: "volumes/run.html"

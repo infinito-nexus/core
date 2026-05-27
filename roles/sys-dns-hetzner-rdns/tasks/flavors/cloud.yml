@@ -11,7 +11,7 @@
 
 - name: Assert hcloud token present
   ansible.builtin.assert:
-    that: [ "_hz_token | length > 0" ]
+    that: ["_hz_token | length > 0"]
     fail_msg: "HETZNER_API_TOKEN is required for the Cloud flavor."
   no_log: "{{ hetzner_no_log | bool }}"
   when: MODE_ASSERT | bool
@@ -71,10 +71,9 @@
       - (_rdns_records | default(rdns_records)) | selectattr('dns_ptr','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
       - (_rdns_records | default(rdns_records)) | selectattr('ip_address','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
       - (_rdns_records | default(rdns_records)) | selectattr('resource','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
-      - (
-          (_rdns_records | default(rdns_records)) | selectattr('resource','equalto','server') | selectattr('identifier','defined') | list | length
-          + ((_rdns_records | default(rdns_records)) | rejectattr('resource','equalto','server') | list | length)
-        ) == ((_rdns_records | default(rdns_records)) | length)
+      - ( (_rdns_records | default(rdns_records)) | selectattr('resource','equalto','server') | selectattr('identifier','defined') | list | length +
+        ((_rdns_records | default(rdns_records)) | rejectattr('resource','equalto','server') | list | length) ) == ((_rdns_records | default(rdns_records)) |
+        length)
   no_log: "{{ hetzner_no_log | bool }}"
   when: MODE_ASSERT | bool
 

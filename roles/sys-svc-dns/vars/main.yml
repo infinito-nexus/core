@@ -1,4 +1,5 @@
+---
 caa_entries:
-- tag: issue
-  value: letsencrypt.org
-SYS_SVC_DNS_BASE_DOMAINS: '{{ CURRENT_PLAY_DOMAINS_ALL | generate_base_sld_domains }}'
+  - tag: issue
+    value: letsencrypt.org
+SYS_SVC_DNS_BASE_DOMAINS: "{{ CURRENT_PLAY_DOMAINS_ALL | generate_base_sld_domains }}"

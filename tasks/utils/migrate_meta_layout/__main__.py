@@ -3,19 +3,24 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-ROLES_DIR = REPO_ROOT / "roles"
-NETWORKS_FILE = REPO_ROOT / "group_vars" / "all" / "08_networks.yml"
-PORTS_FILE = REPO_ROOT / "group_vars" / "all" / "09_ports.yml"
+from . import PROJECT_ROOT
 
-sys.path.insert(0, str(REPO_ROOT))
+ROLES_DIR = PROJECT_ROOT / "roles"
+NETWORKS_FILE = PROJECT_ROOT / "group_vars" / "all" / "08_networks.yml"
+PORTS_FILE = PROJECT_ROOT / "group_vars" / "all" / "09_ports.yml"
+
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from utils.roles.mapping import ROLE_FILE_META_MAIN  # noqa: E402
 
 from . import yaml_io  # noqa: E402
 from .indices import build_network_index, build_port_index  # noqa: E402
 from .role_builder import build as build_role_meta  # noqa: E402
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _PORT_BANDS = {
     "local": {
@@ -45,7 +50,7 @@ def _role_needs_migration(
     legacy_dirs = any(
         (role_dir / sub).is_dir() for sub in ("config", "schema", "users")
     )
-    meta_main_path = role_dir / "meta" / "main.yml"
+    meta_main_path = role_dir / ROLE_FILE_META_MAIN
     meta_main = yaml_io.load(meta_main_path) if meta_main_path.is_file() else None
     galaxy_info = meta_main.get("galaxy_info") if isinstance(meta_main, dict) else None
     galaxy_info = galaxy_info if isinstance(galaxy_info, dict) else {}

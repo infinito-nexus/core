@@ -29,9 +29,9 @@
     volumes:
       - "{{ [ MAILU_OVERRIDES_DIR, 'nginx' ] | path_join }}:/overrides:ro"
       - "{{ MAILU_CERT_DIR }}:/certs:ro"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      resolver:
-        condition: service_started
+{{ lookup('container_depends_on', application_id, extra={
+  'resolver': {'condition': 'service_started'},
+}) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
       webmail:
       radicale:
@@ -46,11 +46,10 @@
     volumes:
       - "admin_data:/data"
       - "dkim:/dkim"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      resolver:
-        condition: service_started
-      front:
-        condition: service_started
+{{ lookup('container_depends_on', application_id, extra={
+  'resolver': {'condition': 'service_started'},
+  'front': {'condition': 'service_started'},
+}) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 
@@ -126,7 +125,7 @@
   antivirus:
 {% set service_name = 'antivirus' %}
     container_name: {{ MAILU_CONTAINER }}_antivirus
-    image: clamav/clamav-debian:latest
+    image: {{ MAILU_ANTIVIRUS_IMAGE }}:{{ MAILU_ANTIVIRUS_VERSION }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     volumes:
       - "clamav_db:/var/lib/clamav"
@@ -185,7 +184,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'admin_data': {'name': MAILU_ADMIN_DATA_VOLUME}, 'clamav_db': {'name': MAILU_CLAMAV_VOLUME}, 'dkim': {'name': MAILU_DKIM_VOLUME}, 'dovecot_mail': {'name': MAILU_DOVECOT_MAIL_VOLUME}, 'filter': {'name': MAILU_FILTER_VOLUME}, 'smtp_queue': {'name': MAILU_SMTP_QUEUE_VOLUME}, 'webdav_data': {'name': MAILU_WEBDAV_DATA}, 'webmail_data': {'name': MAILU_WEBMAIL_DATA}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

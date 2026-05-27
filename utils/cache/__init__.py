@@ -26,6 +26,17 @@ fingerprint memo in one call — preferred over hand-rolling N
 
 from __future__ import annotations
 
+from pathlib import Path
+
+# Repository root, derived once from this package's location. Single
+# source of truth for every callsite in the project that needs to
+# reach the repo root (CLI tools, plugins, tests). External consumers
+# MUST import this value rather than re-derive it via
+# `Path(__file__).parents[N]` or `os.pardir` chains; the
+# `tests/lint/repository/test_project_root_import.py` lint enforces it.
+PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
+ROLES_DIR: Path = PROJECT_ROOT / "roles"
+
 
 def _reset_cache_for_tests() -> None:
     """Orchestrate per-domain cache resets plus the shared fingerprint

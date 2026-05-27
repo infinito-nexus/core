@@ -1,3 +1,4 @@
+---
 config: mattermost_config
 data: mattermost_data
 logs: mattermost_logs

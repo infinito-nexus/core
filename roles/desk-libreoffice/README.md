@@ -6,6 +6,10 @@ This role installs LibreOffice on Arch Linux systems using the Pacman package ma
 
 Learn more about LibreOffice on the [official website](https://www.libreoffice.org).
 
+## Overview
+
+This role installs LibreOffice along with Liberation fonts and language packages on Arch Linux systems for a complete office suite experience.
+
 ## Purpose
 
 The purpose of this role is to automate the installation and configuration of LibreOffice along with its language support on personal computers. This ensures that users have a consistent and fully functional office suite environment across their systems.
@@ -19,6 +23,7 @@ The purpose of this role is to automate the installation and configuration of Li
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

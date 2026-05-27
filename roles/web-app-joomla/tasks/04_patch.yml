@@ -1,3 +1,4 @@
+---
 - name: "Ensure configuration.php DB settings match inventory"
   command:
     argv:

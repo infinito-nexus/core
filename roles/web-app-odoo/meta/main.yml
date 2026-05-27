@@ -1,7 +1,12 @@
+---
 galaxy_info:
   author: Evangelos Tsakoudis
-  description: Deploy and manage Odoo ERP within the Infinito.Nexus ecosystem. A comprehensive enterprise resource planning solution for managing finance, CRM, inventory, HR, sales, website, marketing and other business workflows with full OIDC/LDAP identity integration.
+  description: Deploys Odoo ERP within the Infinito.Nexus ecosystem. Covers finance, CRM, inventory, HR, sales, website, and marketing workflows with OIDC/LDAP
+    identity integration.
   license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
   galaxy_tags:
     - odoo
     - erp
@@ -14,3 +19,20 @@ galaxy_info:
     - website
     - marketing
   issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

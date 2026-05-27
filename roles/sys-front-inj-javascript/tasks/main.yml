@@ -1,3 +1,4 @@
+---
 # nocheck: run-once
 
 - name: "Select JavaScript file path for '{{ application_id }}'"

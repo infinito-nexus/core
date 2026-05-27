@@ -1,3 +1,4 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "load docker, db and proxy for {{ application_id }}"

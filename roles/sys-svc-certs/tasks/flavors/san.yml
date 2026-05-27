@@ -1,3 +1,4 @@
+---
 # Neccessary encapsulation to pass performance tests
 - name: Include wrapped SAN tasks
   include_tasks: "_san.yml"

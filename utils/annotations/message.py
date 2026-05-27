@@ -9,7 +9,10 @@ See: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-wor
 from __future__ import annotations
 
 import os
-from typing import Iterable, Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def in_github_actions() -> bool:
@@ -20,10 +23,10 @@ def _emit(
     level: str,
     message: str,
     *,
-    title: Optional[str] = None,
-    file: Optional[str] = None,
-    line: Optional[int] = None,
-    col: Optional[int] = None,
+    title: str | None = None,
+    file: str | None = None,
+    line: int | None = None,
+    col: int | None = None,
 ) -> None:
     if in_github_actions():
         parts = []
@@ -48,10 +51,10 @@ def _emit(
 def warning(
     message: str,
     *,
-    title: Optional[str] = None,
-    file: Optional[str] = None,
-    line: Optional[int] = None,
-    col: Optional[int] = None,
+    title: str | None = None,
+    file: str | None = None,
+    line: int | None = None,
+    col: int | None = None,
 ) -> None:
     _emit("warning", message, title=title, file=file, line=line, col=col)
 
@@ -59,10 +62,10 @@ def warning(
 def error(
     message: str,
     *,
-    title: Optional[str] = None,
-    file: Optional[str] = None,
-    line: Optional[int] = None,
-    col: Optional[int] = None,
+    title: str | None = None,
+    file: str | None = None,
+    line: int | None = None,
+    col: int | None = None,
 ) -> None:
     _emit("error", message, title=title, file=file, line=line, col=col)
 
@@ -70,10 +73,10 @@ def error(
 def notice(
     message: str,
     *,
-    title: Optional[str] = None,
-    file: Optional[str] = None,
-    line: Optional[int] = None,
-    col: Optional[int] = None,
+    title: str | None = None,
+    file: str | None = None,
+    line: int | None = None,
+    col: int | None = None,
 ) -> None:
     _emit("notice", message, title=title, file=file, line=line, col=col)
 
@@ -81,8 +84,8 @@ def notice(
 def warning_each(
     items: Iterable[str],
     *,
-    title: Optional[str] = None,
-    file: Optional[str] = None,
+    title: str | None = None,
+    file: str | None = None,
 ) -> None:
     """Emit one warning annotation per item in *items*."""
     for item in items:
@@ -92,8 +95,8 @@ def warning_each(
 def error_each(
     items: Iterable[str],
     *,
-    title: Optional[str] = None,
-    file: Optional[str] = None,
+    title: str | None = None,
+    file: str | None = None,
 ) -> None:
     """Emit one error annotation per item in *items*."""
     for item in items:

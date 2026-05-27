@@ -1,3 +1,4 @@
+---
 - name: "ASSERT | Only one auth backend (OIDC or LDAP) may be enabled"
   assert:
     that:

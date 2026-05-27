@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ansible.plugins.lookup import LookupBase
 
@@ -28,10 +28,10 @@ class LookupModule(LookupBase):
 
     def run(
         self,
-        terms: List[Any],
-        variables: Optional[Dict[str, Any]] = None,
+        terms: list[Any],
+        variables: dict[str, Any] | None = None,
         **kwargs: Any,
-    ) -> List[bool]:
+    ) -> list[bool]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
         applications = get_merged_applications(
@@ -46,7 +46,7 @@ class LookupModule(LookupBase):
         else:
             application_id = vars_.get("application_id", "")
 
-        group_names: List[str] = vars_.get("group_names", [])
+        group_names: list[str] = vars_.get("group_names", [])
 
         if "web-app-prometheus" not in group_names:
             return [False]
@@ -55,7 +55,7 @@ class LookupModule(LookupBase):
             return [True]
 
         try:
-            # Per req-008 services live at applications.<app>.services
+            # Per services live at applications.<app>.services
             # (no `compose.services` wrapper).
             enabled = bool(
                 applications.get(application_id, {})

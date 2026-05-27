@@ -1,3 +1,4 @@
+---
 - name: install certbot DNS plugin
   package:
     name: "certbot-dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}"
@@ -5,11 +6,11 @@
 
 - name: Ensure /etc/certbot directory exists
   file:
-    path:   "{{ CERTBOT_CREDENTIALS_DIR }}"
-    state:  directory
-    owner:  root
-    group:  root
-    mode:   '0755'
+    path: "{{ CERTBOT_CREDENTIALS_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
 - name: Install plugin credentials file
   copy:
@@ -18,4 +19,4 @@
       dns_{{ CERTBOT_ACME_CHALLENGE_METHOD }}_api_token = {{ CLOUDFLARE_API_TOKEN }}
     owner: root
     group: root
-    mode: '0600'
+    mode: "0600"

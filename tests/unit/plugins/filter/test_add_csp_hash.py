@@ -1,8 +1,8 @@
-# tests/unit/plugins/filter/test_add_csp_hash.py
 import unittest
-from ansible.errors import AnsibleFilterError
-from plugins.filter.csp_filters import FilterModule
 
+from ansible.errors import AnsibleFilterError
+
+from plugins.filter.csp_filters import FilterModule
 
 add_csp_hash = FilterModule.add_csp_hash
 

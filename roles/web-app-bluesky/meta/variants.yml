@@ -1,18 +1,86 @@
-# Matrix-deploy variant overrides for this role (requirement 013
-# alpha-to-beta promotion). Both variants ride the same OIDC →
+---
+# Matrix-deploy variant overrides for this role. Both variants ride the same OIDC →
 # login-broker → social-app handoff (variant A+); the difference is
 # whether Keycloak's user storage is local (variant 0) or LDAP-
 # federated against svc-db-openldap (variant 1). This matches the
-# requirement-013 contract that 🛠️ glue paths MUST exercise both an
+# contract that 🛠️ glue paths MUST exercise both an
 # `oidc` and an `ldap` variant.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: OIDC variant (canonical default).
-- {}
 
-# variant 1: LDAP variant. Keep oauth2-proxy active (user-facing
-# entry point is unchanged) but flip the LDAP marker so Playwright's
-# LDAP_SERVICE_ENABLED gate fires.
+- services:
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oauth2:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
+- services:
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    oauth2:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
 - services:
     ldap:
       enabled: true
+      shared: true
+    oauth2:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

@@ -1,10 +1,11 @@
+---
 sld:
   description: Auto Generated Account to reserve the SLD
-  username: '{{ DOMAIN_PRIMARY.split(''.'')[0] }}'
+  username: "{{ DOMAIN_PRIMARY.split('.')[0] }}"
   reserved: true
 tld:
   description: Auto Generated Account to reserve the TLD
-  username: '{{ DOMAIN_PRIMARY.split(''.'')[1] if (DOMAIN_PRIMARY is defined and (DOMAIN_PRIMARY.split(''.'') | length) > 1) else (DOMAIN_PRIMARY ~ ''_tld '') }}'
+  username: "{{ DOMAIN_PRIMARY.split('.')[1] if (DOMAIN_PRIMARY is defined and (DOMAIN_PRIMARY.split('.') | length) > 1) else (DOMAIN_PRIMARY ~ '_tld ') }}"
   reserved: true
 root:
   username: root

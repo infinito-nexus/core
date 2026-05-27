@@ -15,10 +15,12 @@ class TestAnnotationsInGHA(unittest.TestCase):
     """Tests for GHA annotation format (GITHUB_ACTIONS=true)."""
 
     def _capture(self, fn, *args, **kwargs) -> str:
-        with patch.dict(os.environ, GHA_ENV):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                fn(*args, **kwargs)
-                return mock_out.getvalue().strip()
+        with (
+            patch.dict(os.environ, GHA_ENV),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            fn(*args, **kwargs)
+            return mock_out.getvalue().strip()
 
     def test_warning_no_props(self) -> None:
         out = self._capture(warning, "something went wrong")
@@ -41,38 +43,46 @@ class TestAnnotationsInGHA(unittest.TestCase):
         self.assertEqual(out, "::notice::info")
 
     def test_warning_each_emits_one_per_item(self) -> None:
-        with patch.dict(os.environ, GHA_ENV):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                warning_each(["alpha", "beta", "gamma"], title="T")
-                lines = mock_out.getvalue().splitlines()
+        with (
+            patch.dict(os.environ, GHA_ENV),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            warning_each(["alpha", "beta", "gamma"], title="T")
+            lines = mock_out.getvalue().splitlines()
         self.assertEqual(len(lines), 3)
         self.assertIn("alpha", lines[0])
         self.assertIn("beta", lines[1])
         self.assertIn("gamma", lines[2])
 
     def test_error_each_emits_one_per_item(self) -> None:
-        with patch.dict(os.environ, GHA_ENV):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                error_each(["x", "y"], title="E")
-                lines = mock_out.getvalue().splitlines()
+        with (
+            patch.dict(os.environ, GHA_ENV),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            error_each(["x", "y"], title="E")
+            lines = mock_out.getvalue().splitlines()
         self.assertEqual(len(lines), 2)
         self.assertTrue(all("::error" in line for line in lines))
 
     def test_warning_each_empty(self) -> None:
-        with patch.dict(os.environ, GHA_ENV):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                warning_each([])
-                self.assertEqual(mock_out.getvalue(), "")
+        with (
+            patch.dict(os.environ, GHA_ENV),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            warning_each([])
+            self.assertEqual(mock_out.getvalue(), "")
 
 
 class TestAnnotationsPlainText(unittest.TestCase):
     """Tests for plain text format (no GITHUB_ACTIONS)."""
 
     def _capture(self, fn, *args, **kwargs) -> str:
-        with patch.dict(os.environ, NO_GHA_ENV):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                fn(*args, **kwargs)
-                return mock_out.getvalue().strip()
+        with (
+            patch.dict(os.environ, NO_GHA_ENV),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            fn(*args, **kwargs)
+            return mock_out.getvalue().strip()
 
     def test_warning_no_props(self) -> None:
         out = self._capture(warning, "something went wrong")
@@ -91,10 +101,12 @@ class TestAnnotationsPlainText(unittest.TestCase):
         self.assertEqual(out, "[NOTICE]: info")
 
     def test_warning_each_emits_one_per_item(self) -> None:
-        with patch.dict(os.environ, NO_GHA_ENV):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                warning_each(["alpha", "beta"], title="T")
-                lines = mock_out.getvalue().splitlines()
+        with (
+            patch.dict(os.environ, NO_GHA_ENV),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            warning_each(["alpha", "beta"], title="T")
+            lines = mock_out.getvalue().splitlines()
         self.assertEqual(len(lines), 2)
         self.assertIn("alpha", lines[0])
         self.assertIn("beta", lines[1])

@@ -1,3 +1,4 @@
+---
 # run_once_sys_stk_backend: disabled
 
 - name: "Resolve backend context for '{{ application_id }}'"
@@ -31,8 +32,8 @@
   include_role:
     name: sys-svc-compose
   vars:
-    docker_compose_flush_handlers:  false
-    database_consumer_id:           "{{ _sys_stk_backend_database_consumer_id }}"
+    compose_handlers_flush: false
+    database_consumer_id: "{{ _sys_stk_backend_database_consumer_id }}"
 
 - block:
     - name: "set oauth2_proxy_application_id (Needed due to lazzy loading issue)"
@@ -44,4 +45,4 @@
 
 - name: "flush compose and oauth2 proxy'"
   meta: flush_handlers
-  when: docker_compose_flush_handlers | bool
+  when: compose_handlers_flush | bool

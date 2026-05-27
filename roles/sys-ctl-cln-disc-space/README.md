@@ -7,6 +7,7 @@ This role frees disk space by executing a script that cleans up temporary files,
 ## Overview
 
 Optimized for efficient storage management, this role:
+
 - Creates a directory for disk cleanup scripts.
 - Deploys a Bash script that frees disk space by cleaning up /tmp, Docker resources, and pacman cache.
 - Configures a systemd service to run the disk cleanup script.
@@ -22,3 +23,10 @@ The primary purpose of this role is to ensure that disk space remains within saf
 - **Threshold-Based Execution:** Triggers cleanup when disk usage exceeds a defined percentage.
 - **Systemd Integration:** Configures a systemd service to manage the disk cleanup process.
 - **Docker and Backup Integration:** Optionally cleans Docker resources and backups if configured.
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -1,18 +1,17 @@
-# lookup_plugins/database.py
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.applications.config import get
-from utils.database_service import (
+from utils.cache.applications import get_merged_applications
+from utils.roles.applications.config import get
+from utils.roles.applications.services.database import (
     get_database_service_config,
     resolve_database_service_key,
 )
-from utils.entity_name_utils import get_entity_name
-from utils.cache.applications import get_merged_applications
+from utils.roles.entity_name import get_entity_name
 
 
 class LookupModule(LookupBase):
@@ -30,10 +29,10 @@ class LookupModule(LookupBase):
 
     def run(
         self,
-        terms: List[Any],
-        variables: Optional[Dict[str, Any]] = None,
+        terms: list[Any],
+        variables: dict[str, Any] | None = None,
         **kwargs: Any,
-    ) -> List[Any]:
+    ) -> list[Any]:
         terms = terms or []
         if len(terms) not in (1, 2):
             raise AnsibleError("database: requires database_consumer_id [, want_path]")
@@ -80,15 +79,19 @@ class LookupModule(LookupBase):
                 "id": "",
                 "enabled": enabled,
                 "shared": shared,
+                "local": bool(enabled and not shared),
                 "type": "",
                 "name": consumer_entity,
                 "instance": "",
                 "host": "",
                 "container": "",
+                "network": "",
                 "username": consumer_entity,
                 "password": "",
                 "port": "",
                 "env": "",
+                "initdb_dir": "",
+                "build_dir": "",
                 "url_jdbc": "",
                 "url_full": "",
                 "volume": "",
@@ -116,6 +119,7 @@ class LookupModule(LookupBase):
         instance = central_name if central_enabled else name
         host = central_name if central_enabled else "database"
         container = dbtype if central_enabled else f"{consumer_entity}-database"
+        network = dbtype if central_enabled else consumer_entity
         username = consumer_entity
 
         password = get(
@@ -126,12 +130,10 @@ class LookupModule(LookupBase):
             default="",
         )
 
-        # Per req-009 the database port lives on the database role itself at
-        # `applications.svc-db-<type>.services.<type>.ports.local.database`.
         port = get(
             applications,
             db_id,
-            f"services.{dbtype}.ports.local.database",
+            f"services.{dbtype}.ports.local.{dbtype}",
             strict=False,
             default="",
             skip_missing_app=True,
@@ -154,9 +156,20 @@ class LookupModule(LookupBase):
             default=default_version,
         )
 
+        image = get(
+            applications,
+            db_id,
+            f"services.{dbtype}.image",
+            strict=False,
+            default=dbtype,
+            skip_missing_app=True,
+        )
+
         # env path without compose dict
         env_dir = f"{path_instances}{get_entity_name(consumer_id)}/.env/"
         env = f"{env_dir}{dbtype}.env"
+        initdb_dir = f"{path_instances}{get_entity_name(consumer_id)}/.initdb.d/"
+        build_dir = f"{path_instances}{get_entity_name(consumer_id)}/.postgres-build/"
 
         jdbc_scheme = dbtype if dbtype == "mariadb" else "postgresql"
         url_jdbc = f"jdbc:{jdbc_scheme}://{host}:{port}/{name}"
@@ -169,19 +182,23 @@ class LookupModule(LookupBase):
             "id": db_id,
             "enabled": enabled,
             "shared": shared,
+            "local": bool(enabled and not shared),
             "type": dbtype,
             "name": name,
             "instance": instance,
             "host": host,
             "container": container,
+            "network": network,
             "username": username,
             "password": password,
             "port": port,
             "env": env,
+            "initdb_dir": initdb_dir,
+            "build_dir": build_dir,
             "url_jdbc": url_jdbc,
             "url_full": url_full,
             "volume": volume,
-            "image": dbtype,
+            "image": image,
             "version": version,
             "reach_host": "127.0.0.1",
         }
@@ -189,7 +206,7 @@ class LookupModule(LookupBase):
         return [resolved if want == "all" else resolved.get(want, "")]
 
     @staticmethod
-    def _require_var(vars_: Dict[str, Any], key: str) -> Any:
+    def _require_var(vars_: dict[str, Any], key: str) -> Any:
         if key not in vars_:
             raise AnsibleError(f"database: required variable '{key}' is not set")
         return vars_[key]

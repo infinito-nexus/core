@@ -1,3 +1,4 @@
+---
 credentials:
   opensearch_initial_admin_password:
     description: Initial admin password for OpenSearch

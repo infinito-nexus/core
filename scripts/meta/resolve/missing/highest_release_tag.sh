@@ -4,7 +4,7 @@ set -euo pipefail
 : "${OWNER:?Missing OWNER}"
 : "${REGISTRY:?Missing REGISTRY}"
 : "${REPO_PREFIX:?Missing REPO_PREFIX}"
-: "${DISTROS:?Missing DISTROS}"
+: "${INFINITO_DISTROS:?Missing INFINITO_DISTROS}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 OWNER="$("${script_dir}/../repository/owner.sh")"
@@ -20,7 +20,7 @@ for ((i = ${#tags[@]} - 1; i >= 0; i--)); do
 	tag="${tags[$i]}"
 	tag_missing="false"
 
-	for distro in ${DISTROS}; do
+	for distro in ${INFINITO_DISTROS}; do
 		img="${REGISTRY}/${OWNER}/${REPO_PREFIX}/${distro}:${tag}"
 		echo "Check: ${img}" >&2
 		if docker manifest inspect "${img}" >/dev/null 2>&1; then

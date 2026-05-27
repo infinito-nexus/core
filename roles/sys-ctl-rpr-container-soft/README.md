@@ -1,4 +1,4 @@
-# Docker Healer 🩺
+# Docker Healer
 
 ## Description
 
@@ -19,10 +19,9 @@ The purpose of this role is to provide automated healing for Docker Compose envi
 - **Run-once Setup Logic:** Ensures idempotent execution by controlling task flow with internal flags.
 - **System Role Integration:** Seamlessly integrates with Infinito.Nexus system maintenance logic.
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

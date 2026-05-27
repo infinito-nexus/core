@@ -1,17 +1,23 @@
+---
 chromium:
   password_manager_enabled: false
   default_installation_mode: allowed
   plugins:
-  - id: cjpalhdlnbpafiamejdnhcphjbkeiagm
-    update_url: https://clients2.google.com/service/update2/crx
-    incognito: true
-    installation_mode: force_installed
-  - id: ddkjiahejlhfcafbddmgiahcphecmpfh
-    update_url: https://clients2.google.com/service/update2/crx
-    incognito: false
-    installation_mode: force_installed
-  - id: dmghijelimhndkbmpgbldicpogfkceaj
-    update_url: https://clients2.google.com/service/update2/crx
-    incognito: true
-    installation_mode: force_installed
+    - id: cjpalhdlnbpafiamejdnhcphjbkeiagm
+      update_url: https://clients2.google.com/service/update2/crx
+      incognito: true
+      installation_mode: force_installed
+    - id: ddkjiahejlhfcafbddmgiahcphecmpfh
+      update_url: https://clients2.google.com/service/update2/crx
+      incognito: false
+      installation_mode: force_installed
+    - id: dmghijelimhndkbmpgbldicpogfkceaj
+      update_url: https://clients2.google.com/service/update2/crx
+      incognito: true
+      installation_mode: force_installed
   lifecycle: pre-alpha
+  min_storage: "500MB"
+  cpus: "1.0"
+  mem_reservation: "512m"
+  mem_limit: "2g"
+  pids_limit: 2048

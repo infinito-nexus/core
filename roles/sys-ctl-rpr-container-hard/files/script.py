@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import os
-import sys
-import subprocess
 import argparse
+import os
+import subprocess
+import sys
 
 
 def run(cmd: list[str], cwd: str) -> None:

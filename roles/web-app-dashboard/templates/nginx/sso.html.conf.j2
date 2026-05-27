@@ -1,16 +1,18 @@
-# Serve a static silent-check-sso.html file directly from memory
 location = {{ DASHBOARD_LOCATION_SILENT_CHECK }} {
     default_type text/html;
-    add_header X-Frame-Options "SAMEORIGIN";
     add_header Cache-Control "no-store";
 
+    # The body MUST contain `parent.postMessage(location.href, location.origin)` —
+    # keycloak-js loads this page in a hidden iframe during silent SSO check and
+    # waits for that postMessage to detect the auth state. Without the script
+    # `keycloak.init()` never resolves and the role's OIDC adapter stays hung.
     return 200 '<!DOCTYPE html>
 <html>
   <head>
     <title>Silent SSO</title>
   </head>
   <body>
-    Checking SSO...
+    <script>parent.postMessage(location.href, location.origin);</script>
   </body>
 </html>';
 }

@@ -1,3 +1,4 @@
+---
 all:
   vars:
     infinito:
@@ -9,10 +10,8 @@ all:
           class: "fa-solid fa-briefcase"
         tags: []
         categories: []
-
   hosts:
     server:
-
   children:
     web-app-nextcloud:
       hosts:

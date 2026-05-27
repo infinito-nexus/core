@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -10,13 +11,13 @@ csp:
       unsafe-eval: true
   whitelist:
     font-src:
-    - 'data:'
-    - 'blob:'
+      - "data:"
+      - "blob:"
     script-src-elem:
-    - https://cdn.jsdelivr.net
+      - https://cdn.jsdelivr.net
 domains:
   canonical:
-  - academy.{{ DOMAIN_PRIMARY }}
+    - academy.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

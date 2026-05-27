@@ -1,47 +1,51 @@
-application_id:                 "web-app-discourse"
-entity_name:                    "{{ application_id | get_entity_name }}"
+---
+application_id: "web-app-discourse"
+entity_name: "{{ application_id | get_entity_name }}"
 
 # Database
-database_password:              "{{ lookup('config', application_id, 'credentials.database_password') }}"
+database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
 
 # Discourse
 
 ## General
-DISCOURSE_CONTAINER:                "{{ application_id | get_entity_name }}"
-DISCOURSE_NETWORK:                  "{{ application_id | get_entity_name }}"
-DISCOURSE_VOLUME:                   "{{ lookup('config', application_id, 'volumes.data') }}"
-DISCOURSE_PLUGINS:                  "{{ lookup('config', application_id, 'services.discourse.plugins') }}"
-DISCOURSE_PG_NETWORK:               "{{ ('svc-db-' ~ DISCOURSE_DATABASE_TYPE) | get_entity_name }}"
-DISCOURSE_REDIS_HOST:               "{{ application_id | get_entity_name }}-redis"
-DISCOURSE_REPOSITORY_URL:           "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
-DISCOURSE_VERSION:                  "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+DISCOURSE_CONTAINER: "{{ application_id | get_entity_name }}"
+DISCOURSE_NETWORK: "{{ application_id | get_entity_name }}"
+DISCOURSE_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+DISCOURSE_PLUGINS: "{{ lookup('config', application_id, 'services.discourse.plugins') }}"
+DISCOURSE_PG_NETWORK: "{{ ('svc-db-' ~ DISCOURSE_DATABASE_TYPE) | get_entity_name }}"
+DISCOURSE_REDIS_HOST: "{{ application_id | get_entity_name }}-redis"
+DISCOURSE_REPOSITORY_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
+DISCOURSE_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ref') }}"
+DISCOURSE_LDAP_AUTH_PLUGIN_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.plugins.discourse-ldap-auth.repository') }}"
+DISCOURSE_LDAP_AUTH_PLUGIN_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.plugins.discourse-ldap-auth.ref') }}"
 
 ## Database
-DISCOURSE_DATABASE:                 "{{ lookup('database', application_id ) }}"
-DISCOURSE_DATABASE_TYPE:            "{{ DISCOURSE_DATABASE.type }}"
-DISCOURSE_DATABASE_CONTAINER:       "{{ DISCOURSE_DATABASE.container }}"
-DISCOURSE_DATABASE_IS_SHARED:       "{{ DISCOURSE_DATABASE.shared }}"
+DISCOURSE_DATABASE: "{{ lookup('database', application_id ) }}"
+DISCOURSE_DATABASE_TYPE: "{{ DISCOURSE_DATABASE.type }}"
+DISCOURSE_DATABASE_CONTAINER: "{{ DISCOURSE_DATABASE.container }}"
+DISCOURSE_DATABASE_IS_SHARED: "{{ DISCOURSE_DATABASE.shared }}"
 
 ## Directories
-DISCOURSE_REPOSITORY_DIR:           "{{ lookup('container', application_id, 'directories.services') }}{{ lookup('config', application_id, 'services.discourse.repository') }}/"
-DISCOURSE_CONTAINERS_DIR:           "{{ [ DISCOURSE_REPOSITORY_DIR, 'containers' ] | path_join }}"
+DISCOURSE_REPOSITORY_DIR: "{{ lookup('container', application_id, 'directories.services') }}{{ lookup('config', application_id, 'services.discourse.repository') }}/"
+DISCOURSE_CONTAINERS_DIR: "{{ [ DISCOURSE_REPOSITORY_DIR, 'containers' ] | path_join }}"
 
 ## Files
-DISCOURSE_APPLICATION_YML_DEST:     "{{ [ DISCOURSE_CONTAINERS_DIR, DISCOURSE_CONTAINER ~ '.yml' ] | path_join }}"
+DISCOURSE_APPLICATION_YML_DEST: "{{ [ DISCOURSE_CONTAINERS_DIR, DISCOURSE_CONTAINER ~ '.yml' ] | path_join }}"
 
 ## Error Strings
-DISCOURSE_ERROR_ALREADY_IN_NET:     "Error response from daemon: endpoint with name {{ DISCOURSE_CONTAINER }} already exists in network {{ DISCOURSE_PG_NETWORK }}"
-DISCOURSE_ERROR_NOT_CONNECTED:      'is not connected to network {{ DISCOURSE_NETWORK }}'
-DISCOURSE_LDAP_ENABLED:             "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+DISCOURSE_ERROR_ALREADY_IN_NET: "Error response from daemon: endpoint with name {{ DISCOURSE_CONTAINER }} already exists in network {{ DISCOURSE_PG_NETWORK }}"
+DISCOURSE_ERROR_NOT_CONNECTED: "is not connected to network {{ DISCOURSE_NETWORK }}"
+DISCOURSE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
 # Don't use variable HOST_LL_CC, because this isn't available in the container. 
 # With this setup you have an minimalistic default setup
-DISCOURSE_LOCAL:                    "C.UTF-8"
+DISCOURSE_LOCAL: "C.{{ HOST_CS }}"
 
-DISCOURSE_OIDC_ENABLED:             "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+DISCOURSE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 DISCOURSE_OIDC_LOGOUT_REDIRECT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
+DISCOURSE_LOCAL_LOGIN_ENABLED: "{{ lookup('config', application_id, 'services.discourse.local_login_enabled') }}"
 
 # TLS
-DISCOURSE_TLS_ENABLED:              "{{ lookup('tls', application_id, 'enabled') | bool }}"
-DISCOURSE_TLS_SELFSIGNED:           "{{ lookup('tls', application_id, 'mode') == 'self_signed' }}"
-DISCOURSE_TLS_SELFSIGNED_ENABLED:   "{{ ( DISCOURSE_TLS_ENABLED | bool ) and ( DISCOURSE_TLS_SELFSIGNED | bool ) }}"
+DISCOURSE_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
+DISCOURSE_TLS_SELFSIGNED: "{{ lookup('tls', application_id, 'mode') == 'self_signed' }}"
+DISCOURSE_TLS_SELFSIGNED_ENABLED: "{{ ( DISCOURSE_TLS_ENABLED | bool ) and ( DISCOURSE_TLS_SELFSIGNED | bool ) }}"

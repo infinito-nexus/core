@@ -1,8 +1,10 @@
+---
 - name: Ensure OpenSSH-LPK schema via ldapsm
   vars:
     schema_name: "openssh-lpk"
     attribute_defs:
-      - "( 1.3.6.1.4.1.24552.1.1 NAME '{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}' DESC 'OpenSSH Public Key' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )"
+      - "( 1.3.6.1.4.1.24552.1.1 NAME '{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}' DESC 'OpenSSH Public Key' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+        )"
       - "( 1.3.6.1.4.1.24552.1.2 NAME 'sshFingerprint' DESC 'OpenSSH Public Key Fingerprint' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )"
     objectclass_defs:
       - >-
@@ -26,7 +28,7 @@
       {% endfor %}
   register: opensshlpk_ldapsm
   changed_when: "'Created schema entry' in opensshlpk_ldapsm.stdout"
-  check_mode: no
+  check_mode: false
 
 - name: Show ldapsm output for openssh-lpk
   debug:

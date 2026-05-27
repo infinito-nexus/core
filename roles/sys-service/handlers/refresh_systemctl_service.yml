@@ -1,20 +1,21 @@
+---
 - name: "Enable systemctl service"
   systemd:
     name: "{{ system_service_name }}"
-    enabled: yes
+    enabled: true
     daemon_reload: true
   become: true
-  async:  "{{ system_service_async }}"
-  poll:   "{{ system_service_poll }}"
+  async: "{{ system_service_async }}"
+  poll: "{{ system_service_poll }}"
 
 - name: "Set systemctl service state"
   systemd:
     name: "{{ system_service_name }}"
     state: "{{ system_service_state }}"
   become: true
-  async:  "{{ system_service_async }}"
-  poll:   "{{ system_service_poll }}"
-  when:     not (system_service_suppress_flush | bool)
+  async: "{{ system_service_async }}"
+  poll: "{{ system_service_poll }}"
+  when: not (system_service_suppress_flush | bool)
   register: systemd_set_state
   failed_when: false
 
@@ -27,7 +28,7 @@
       - -p
       - Result
       - --value
-      - "{{ system_service_id }}.infinito.nexus.service"
+      - "{{ system_service_name }}"
   register: system_service_result
   changed_when: false
   failed_when: false
@@ -41,7 +42,7 @@
       - -p
       - ExecMainStatus
       - --value
-      - "{{ system_service_id }}.infinito.nexus.service"
+      - "{{ system_service_name }}"
   register: system_service_exec_status
   changed_when: false
   failed_when: false
@@ -62,5 +63,5 @@
       Unable to start service {{ system_service_name }}. See shared service diagnostics above.
   when:
     - not (system_service_suppress_flush | bool)
-    - (system_service_result.stdout | default('') | trim) not in ['success', '']
-      or (system_service_exec_status.stdout | default('') | trim) not in ['0', '']
+    - (systemd_set_state.failed | default(false) | bool) or (system_service_result.stdout | default('') | trim) not in ['success', ''] or
+      (system_service_exec_status.stdout | default('') | trim) not in ['0', '']

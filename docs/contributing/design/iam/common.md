@@ -1,26 +1,23 @@
 # Common 🧭
 
-This page is the SPOT for IAM rules that span both providers. Provider-specific
-guidance lives in [oidc.md](oidc.md) and [ldap.md](ldap.md).
+This page covers IAM rules that span both providers.
+Provider-specific guidance lives in [oidc.md](oidc.md) and [ldap.md](ldap.md).
 
-## Two Providers, Two SPOTs 🎯
+## Two Providers, Two Namespaces 🎯
 
 | Provider | Role | Variable namespace | Definition file |
 |---|---|---|---|
 | OIDC | [web-app-keycloak](../../../../roles/web-app-keycloak/) | `OIDC.*` | [11_oidc.yml](../../../../group_vars/all/11_oidc.yml) |
 | LDAP | [svc-db-openldap](../../../../roles/svc-db-openldap/) | `LDAP.*` | [12_ldap.yml](../../../../group_vars/all/12_ldap.yml) |
 
-Application roles MUST consume identity data exclusively through these
-namespaces. Hardcoding a claim name, attribute name, DN, or endpoint in a role
-template is forbidden because it bypasses the SPOT and breaks platform-wide
-renames or realm migrations.
+Application roles MUST consume identity data exclusively through these namespaces.
+Hardcoding a claim name, attribute name, DN, or endpoint in a role template is forbidden because it bypasses the canonical definition file and breaks platform-wide renames or realm migrations.
 
 ## Paired Identifier Principle 🔗
 
-`OIDC.ATTRIBUTES.USERNAME` and `LDAP.USER.ATTRIBUTES.ID` are paired on
-purpose. They MUST resolve to the same logical user on both sides so that an
-account created in OpenLDAP can sign in through Keycloak without an extra
-mapping step. Changing one without the other breaks LDAP-OIDC correlation.
+`OIDC.ATTRIBUTES.USERNAME` and `LDAP.USER.ATTRIBUTES.ID` are paired on purpose.
+They MUST resolve to the same logical user on both sides so that an account created in OpenLDAP can sign in through Keycloak without an extra mapping step.
+Changing one without the other breaks LDAP-OIDC correlation.
 
 ## Integration Checklist For New Apps ✅
 
@@ -46,6 +43,5 @@ When you add OIDC or LDAP support to a role, you MUST:
 
 ## Related Areas 📚
 
-For the broader service-loading model see [base.md](../services/base.md). For
-the documentation conventions used in this directory see
-[documentation.md](../../documentation.md).
+For the broader service-loading model see [base.md](../role/services/base.md).
+For the documentation conventions used in this directory see [documentation.md](../../documentation.md).

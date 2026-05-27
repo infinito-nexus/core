@@ -1,3 +1,4 @@
+---
 - name: "XWIKI | Check if Main.WebHome exists"
   uri_retry:
     url: "{{ [XWIKI_REST_BASE, 'wikis/xwiki/spaces/Main/pages/WebHome'] | url_join }}"
@@ -6,7 +7,7 @@
     url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
     force_basic_auth: true
     status_code: [200, 404]
-    return_content: no
+    return_content: false
   register: _main_webhome_check
   changed_when: false
 
@@ -23,5 +24,5 @@
     force_basic_auth: true
     status_code: [200, 201, 202, 204]
     headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'roles/web-app-xwiki/templates/main_webhome_page.xml.j2') }}"
+    body: "{{ lookup('template', 'xml/main_webhome_page.xml.j2') }}"
   when: _main_webhome_check.status == 404

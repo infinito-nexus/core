@@ -10,6 +10,7 @@ Ansible filter plugin that safely joins URL components from a list.
 """
 
 import re
+
 from ansible.errors import AnsibleFilterError
 
 _SCHEME_RE = re.compile(r"^([a-zA-Z][a-zA-Z0-9+.\-]*://)(.*)$")
@@ -25,7 +26,7 @@ def _to_str_or_error(obj, index):
     except Exception as e:
         raise AnsibleFilterError(
             f"url_join: unable to convert part at index {index} to string: {e}"
-        )
+        ) from e
 
 
 def url_join(parts):
@@ -97,7 +98,7 @@ def url_join(parts):
             s = after_scheme
 
         # check if this is a query element (starts with ? or &)
-        if s.startswith("?") or s.startswith("&"):
+        if s.startswith(("?", "&")):
             in_query = True
             raw_pair = s[1:]  # strip the leading ? or &
             if raw_pair == "":
@@ -145,7 +146,7 @@ def url_join(parts):
     return base
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "url_join": url_join,

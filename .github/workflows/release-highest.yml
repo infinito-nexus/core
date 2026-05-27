@@ -56,7 +56,7 @@ jobs:
         env:
           OWNER: ${{ steps.vars.outputs.owner }}
           REPO_PREFIX: ${{ steps.vars.outputs.repo_prefix }}
-          DISTROS: ${{ steps.vars.outputs.distros }}
+          INFINITO_DISTROS: ${{ steps.vars.outputs.distros }}
         run: |
           set -euo pipefail
           tag="$(scripts/meta/resolve/missing/highest_release_tag.sh)"

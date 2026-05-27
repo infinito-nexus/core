@@ -1,40 +1,33 @@
+---
 oidc:
-  enabled: true
-  shared: false
-  # Modus 3 per requirement 013: when `fallback_enabled` is true, the
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  # per the documented Modus 3 contract: when `fallback_enabled` is true, the
   # local Joomla form-login at `/administrator?fallback=local` is
   # available as an emergency hatch (recommended default). Set to
   # `false` for high-security deployments where the IdP is the only
   # admin path (Modus 1 effective).
   fallback_enabled: true
+# nocheck: dynamic-flag
 ldap:
   enabled: false
   shared: false
-# Joomla 6 has no first-party OIDC adapter; this role ships its own
-# `plg_system_keycloak` plugin (under `files/joomla-oidc-plugin/`) that
-# implements native OIDC SSO against Keycloak with RBAC group mapping
-# (Modus 3 per requirement 013: Force-Frontend, Local-Backup-Backend
-# at `/administrator?fallback=local`, env-toggleable via
-# `JOOMLA_OIDC_FALLBACK_ENABLED`). The LDAP variant uses Joomla's
-# core LDAP authentication plugin.
-oauth2:
-  enabled: false
-  shared: false
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-mariadb' in group_names }}"
 joomla:
   image: joomla
   version: 6.1.0-php8.3-apache
@@ -53,13 +46,14 @@ joomla:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

@@ -1,3 +1,4 @@
+---
 domains:
   canonical:
     openwebui: chat.ai.{{ DOMAIN_PRIMARY }}

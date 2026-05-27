@@ -3,4 +3,4 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_git_repository_pull: false
+    compose_repository_pull: false

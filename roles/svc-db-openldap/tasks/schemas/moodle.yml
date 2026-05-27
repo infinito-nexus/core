@@ -1,16 +1,21 @@
+---
 # Moodle custom-attribute LDAP schema. Three attributes that have
 # no equivalent in core inetOrgPerson: phonetic given/family name
-# and IANA timezone name. See docs/requirements/015-moodle-self-built.md.
+# and IANA timezone name.
 
 - name: Ensure custom LDAP schema snippet via ldapsm (moodle)
   vars:
     schema_name: "moodle"
     attribute_defs:
-      - "( 1.3.6.1.4.1.99999.10 NAME 'infinitoNamePhoneticGiven' DESC 'Phonetic given name (Moodle field firstnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
-      - "( 1.3.6.1.4.1.99999.11 NAME 'infinitoNamePhoneticFamily' DESC 'Phonetic family name (Moodle field lastnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
-      - "( 1.3.6.1.4.1.99999.12 NAME 'infinitoTimezone' DESC 'IANA timezone name (Moodle field timezone)' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.10 NAME 'infinitoNamePhoneticGiven' DESC 'Phonetic given name (Moodle field firstnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.11 NAME 'infinitoNamePhoneticFamily' DESC 'Phonetic family name (Moodle field lastnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.12 NAME 'infinitoTimezone' DESC 'IANA timezone name (Moodle field timezone)' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+        SINGLE-VALUE )"
     objectclass_defs:
-      - "( 1.3.6.1.4.1.99999.13 NAME 'infinitoMoodleUser' DESC 'Auxiliary class for Moodle-only user attributes' AUXILIARY MAY ( infinitoNamePhoneticGiven $ infinitoNamePhoneticFamily $ infinitoTimezone ) )"
+      - "( 1.3.6.1.4.1.99999.13 NAME 'infinitoMoodleUser' DESC 'Auxiliary class for Moodle-only user attributes' AUXILIARY MAY ( infinitoNamePhoneticGiven $ infinitoNamePhoneticFamily
+        $ infinitoTimezone ) )"
   command: >
     {{ lookup('command_path', 'ldapsm') }}
       -s {{ OPENLDAP_SERVER_URI }}
@@ -25,7 +30,7 @@
       {% endfor %}
   register: ldapsm_moodle_result
   changed_when: "'Created schema entry' in ldapsm_moodle_result.stdout"
-  check_mode: no
+  check_mode: false
 
 - name: Show ldapsm output (moodle)
   debug:

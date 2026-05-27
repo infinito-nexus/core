@@ -1,0 +1,30 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: Include dependencies
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - sys-lock
+    - dev-git
+    - sys-ctl-alm-compose
+    - sys-ctl-cln-bkps
+    - user-backup
+
+- name: "Create Directory '{{ DOCKER_BACKUP_REMOTE_2_LOCAL_DIR }}'"
+  file:
+    path: "{{ DOCKER_BACKUP_REMOTE_2_LOCAL_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "Deploy '{{ DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT }}'"
+  copy:
+    src: "{{ DOCKER_BACKUP_REMOTE_2_LOCAL_FILE }}"
+    dest: "{{ DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT }}"
+    mode: "0755"
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_timer_enabled: true
+    system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_REMOTE_TO_LOCAL }}"

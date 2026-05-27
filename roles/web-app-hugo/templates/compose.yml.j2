@@ -17,4 +17,6 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
 
+{{ lookup('applications') | compose_volumes(application_id) }}
+
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

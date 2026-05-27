@@ -1,3 +1,4 @@
+---
 - name: "deploy the logout.js"
   include_tasks: "02_deploy.yml"
 

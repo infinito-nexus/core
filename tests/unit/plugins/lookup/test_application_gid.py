@@ -1,9 +1,9 @@
-import os
-import tempfile
 import shutil
+import tempfile
 import unittest
-from plugins.lookup.application_gid import LookupModule
+from pathlib import Path
 
+from plugins.lookup.application_gid import LookupModule
 from utils.cache.yaml import dump_yaml
 
 
@@ -11,8 +11,8 @@ class TestApplicationGidLookup(unittest.TestCase):
     def setUp(self):
         # Create a temporary roles directory
         self.temp_dir = tempfile.mkdtemp()
-        self.roles_dir = os.path.join(self.temp_dir, "roles")
-        os.mkdir(self.roles_dir)
+        self.roles_dir = str(Path(self.temp_dir) / "roles")
+        Path(self.roles_dir).mkdir()
 
         # Define mock application_ids (role directory names are the canonical ids)
         self.application_ids = [
@@ -22,13 +22,13 @@ class TestApplicationGidLookup(unittest.TestCase):
             "web-app-taiga",
         ]
 
-        # Per req-008 an "application role" is identified by the presence of
+        # Per an "application role" is identified by the presence of
         # at least one of the project-owned `meta/<topic>.yml` files.
         for application_id in self.application_ids:
-            role_path = os.path.join(self.roles_dir, application_id, "meta")
-            os.makedirs(role_path)
+            role_path = str(Path(self.roles_dir) / application_id / "meta")
+            Path(role_path).mkdir(parents=True)
             dump_yaml(
-                os.path.join(role_path, "services.yml"),
+                str(Path(role_path) / "services.yml"),
                 {application_id: {"title": application_id}},
             )
 

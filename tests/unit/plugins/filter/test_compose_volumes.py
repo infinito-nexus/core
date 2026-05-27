@@ -1,20 +1,17 @@
 from __future__ import annotations
 
-import os
 import sys
 import unittest
-from typing import Any, Dict
+from typing import Any
 
 from ansible.errors import AnsibleFilterError
 
+from . import PROJECT_ROOT
+
 
 def _ensure_repo_root_on_syspath() -> None:
-    this_file = os.path.abspath(__file__)
-    repo_root = os.path.abspath(
-        os.path.join(os.path.dirname(this_file), "..", "..", "..", "..")
-    )
-    if repo_root not in sys.path:
-        sys.path.insert(0, repo_root)
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
 
 
 _ensure_repo_root_on_syspath()
@@ -24,7 +21,7 @@ from utils.cache.yaml import load_yaml_str  # noqa: E402
 
 
 class TestComposeVolumes(unittest.TestCase):
-    def _parse_yaml(self, rendered: str) -> Dict[str, Any]:
+    def _parse_yaml(self, rendered: str) -> dict[str, Any]:
         self.assertIsInstance(rendered, str)
         data = load_yaml_str(rendered) if rendered.strip() else {}
         self.assertIsInstance(data, dict)
@@ -32,10 +29,7 @@ class TestComposeVolumes(unittest.TestCase):
         self.assertIsInstance(data["volumes"], dict)
         return data
 
-    def _base_apps(self) -> Dict[str, Any]:
-        # Per req-008 the materialised payload moved from
-        # `applications.<app>.compose.services.<X>` to
-        # `applications.<app>.services.<X>`.
+    def _base_apps(self) -> dict[str, Any]:
         return {
             "app": {
                 "services": {
@@ -46,9 +40,6 @@ class TestComposeVolumes(unittest.TestCase):
             }
         }
 
-    # -----------------------------
-    # Input validation (strict)
-    # -----------------------------
     def test_none_applications_raises(self):
         with self.assertRaises(AnsibleFilterError):
             compose_volumes(None, "app")  # type: ignore[arg-type]
@@ -67,35 +58,21 @@ class TestComposeVolumes(unittest.TestCase):
         with self.assertRaises(AnsibleFilterError):
             compose_volumes(apps, "missing-app")
 
-    # -----------------------------
-    # Empty but valid
-    # -----------------------------
     def test_renders_volumes_key_even_when_empty(self):
         apps = self._base_apps()
         rendered = compose_volumes(apps, "app")
         data = self._parse_yaml(rendered)
         self.assertEqual(data["volumes"], {})
 
-    # -----------------------------
-    # Database volume
-    # -----------------------------
-    def test_database_enabled_not_shared_requires_database_volume_argument(self):
+    def test_database_enabled_not_shared_derives_database_volume(self):
         apps = self._base_apps()
         apps["app"]["services"]["mariadb"]["enabled"] = True
         apps["app"]["services"]["mariadb"]["shared"] = False
 
-        with self.assertRaises(AnsibleFilterError):
-            compose_volumes(apps, "app")
-
-    def test_database_enabled_not_shared_uses_database_volume_argument(self):
-        apps = self._base_apps()
-        apps["app"]["services"]["mariadb"]["enabled"] = True
-        apps["app"]["services"]["mariadb"]["shared"] = False
-
-        rendered = compose_volumes(apps, "app", database_volume="my_db_vol")
+        rendered = compose_volumes(apps, "app")
         data = self._parse_yaml(rendered)
 
-        self.assertEqual(data["volumes"]["database"]["name"], "my_db_vol")
+        self.assertEqual(data["volumes"]["database"]["name"], "app_database")
 
     def test_database_enabled_shared_true_does_not_add_database_volume(self):
         apps = self._base_apps()
@@ -112,15 +89,12 @@ class TestComposeVolumes(unittest.TestCase):
         apps["app"]["services"]["mariadb"]["enabled"] = True
         apps["app"]["services"]["mariadb"]["shared"] = None
 
-        rendered = compose_volumes(apps, "app", database_volume="my_db_vol")
+        rendered = compose_volumes(apps, "app")
         data = self._parse_yaml(rendered)
 
         self.assertIn("database", data["volumes"])
-        self.assertEqual(data["volumes"]["database"]["name"], "my_db_vol")
+        self.assertEqual(data["volumes"]["database"]["name"], "app_database")
 
-    # -----------------------------
-    # Redis volume
-    # -----------------------------
     def test_redis_enabled_adds_redis_volume(self):
         apps = self._base_apps()
         apps["app"]["services"]["redis"]["enabled"] = True
@@ -152,9 +126,6 @@ class TestComposeVolumes(unittest.TestCase):
 
         self.assertNotIn("redis", data["volumes"])
 
-    # -----------------------------
-    # Extra volumes merge / override
-    # -----------------------------
     def test_extra_volumes_are_added(self):
         apps = self._base_apps()
 
@@ -181,12 +152,26 @@ class TestComposeVolumes(unittest.TestCase):
 
         self.assertEqual(data["volumes"]["redis"]["name"], "custom_redis")
 
-    def test_database_enabled_not_shared_without_database_volume_raises(self):
+    def test_database_enabled_not_shared_shared_provider_name_used_when_present(self):
         apps = self._base_apps()
         apps["app"]["services"]["mariadb"]["enabled"] = True
-        apps["app"]["services"]["mariadb"]["shared"] = False
-        with self.assertRaises(AnsibleFilterError):
-            compose_volumes(apps, "app", database_volume=None)
+        apps["app"]["services"]["mariadb"]["shared"] = True
+        apps["svc-db-mariadb"] = {"services": {"mariadb": {"name": "mariadb-central"}}}
+
+        rendered = compose_volumes(apps, "app")
+        data = self._parse_yaml(rendered)
+
+        self.assertNotIn("database", data["volumes"])
+
+    def test_database_simultaneous_postgres_and_mariadb_raises(self):
+        apps = self._base_apps()
+        apps["app"]["services"]["mariadb"] = {"enabled": True, "shared": False}
+        apps["app"]["services"]["postgres"] = {"enabled": True, "shared": False}
+        with self.assertRaisesRegex(
+            AnsibleFilterError,
+            "Simultaneous postgres \\+ mariadb",
+        ):
+            compose_volumes(apps, "app")
 
     def test_extra_volume_with_none_name_serializes_to_null(self):
         apps = self._base_apps()

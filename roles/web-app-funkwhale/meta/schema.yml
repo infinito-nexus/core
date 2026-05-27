@@ -1,3 +1,4 @@
+---
 credentials:
   django_secret:
     description: Django SECRET_KEY used for cryptographic signing

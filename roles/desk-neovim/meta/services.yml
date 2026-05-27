@@ -1,2 +1,8 @@
+---
 neovim:
   lifecycle: pre-alpha
+  min_storage: "50MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "128m"
+  pids_limit: 64

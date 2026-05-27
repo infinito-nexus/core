@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     script-src-elem:
@@ -7,17 +8,17 @@ csp:
       unsafe-eval: true
   whitelist:
     connect-src:
-    - "{{ lookup('domain', 'web-app-espocrm') }}"
-    - 'data:'
+      - "{{ lookup('domain', 'web-app-espocrm') }}"
+      - "data:"
     frame-src:
-    - https://s.espocrm.com/
+      - https://s.espocrm.com/
     frame-ancestors:
-    - '{{ DOMAIN_PRIMARY }}'
-    - '*.{{ DOMAIN_PRIMARY }}'
+      - "{{ DOMAIN_PRIMARY }}"
+      - "*.{{ DOMAIN_PRIMARY }}"
 domains:
   aliases: []
   canonical:
-  - espo.crm.{{ DOMAIN_PRIMARY }}
+    - espo.crm.{{ DOMAIN_PRIMARY }}
 networks:
   local:
     subnet: 192.168.103.64/28

@@ -3,17 +3,18 @@
   application:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: >-
-      bash -lc '
-        python manage.py migrate --noinput &&
-        python manage.py collectstatic --noinput &&
-        (python manage.py initdb || true) &&
-        python -m gunicorn bookwyrm.wsgi:application --bind 0.0.0.0:{{ container_port }}
+      bash -c '
+        /venv/bin/python manage.py migrate --noinput &&
+        /venv/bin/python manage.py collectstatic --noinput &&
+        (/venv/bin/python manage.py initdb || true) &&
+        /venv/bin/python -m gunicorn bookwyrm.wsgi:application --bind 0.0.0.0:{{ container_port }}
       '
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
-        BOOKWYRM_BASE_IMAGE:   "{{ BOOKWYRM_BASE_IMAGE }}"
-        BOOKWYRM_BASE_VERSION: "{{ BOOKWYRM_BASE_VERSION }}"
-        BOOKWYRM_VERSION:      "{{ BOOKWYRM_VERSION }}"
+        BOOKWYRM_IMAGE:      "{{ BOOKWYRM_IMAGE }}"
+        BOOKWYRM_VERSION:    "{{ BOOKWYRM_VERSION }}"
+        BOOKWYRM_REPOSITORY: "{{ BOOKWYRM_REPOSITORY }}"
+        BOOKWYRM_REF:        "{{ BOOKWYRM_REF }}"
     image: "{{ BOOKWYRM_CUSTOM_IMAGE }}"
     container_name: "{{ BOOKWYRM_CONTAINER }}"
     hostname: "{{ BOOKWYRM_HOSTNAME }}"
@@ -23,24 +24,23 @@
       - 'data:/app/data'
       - 'media:/app/media'
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   worker:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ BOOKWYRM_CUSTOM_IMAGE }}"
     container_name: "{{ BOOKWYRM_WORKER_CONTAINER }}"
-    command: "bash -lc 'celery -A celerywyrm worker -l INFO'"
+    command: "/venv/bin/celery -A celerywyrm worker -l INFO"
     pull_policy: never
     volumes:
       - 'data:/app/data'
       - 'media:/app/media'
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': BOOKWYRM_DATA_VOLUME}, 'media': {'name': BOOKWYRM_MEDIA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

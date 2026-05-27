@@ -15,8 +15,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from utils.cache import _reset_cache_for_tests
-from utils.cache import base
+from utils.cache import _reset_cache_for_tests, base
 
 
 def _write(path: Path, content: str) -> None:

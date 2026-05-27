@@ -1,3 +1,4 @@
+---
 - include_tasks: 01_core.yml
   when: run_once_pkgmgr_install is not defined
 

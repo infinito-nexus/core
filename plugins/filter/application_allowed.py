@@ -6,7 +6,7 @@ from ansible.errors import AnsibleFilterError
 
 
 def application_allowed(
-    application_id: str, group_names: list, allowed_applications: list = []
+    application_id: str, group_names: list, allowed_applications: list | None = None
 ):
     """
     Return True if:
@@ -22,6 +22,8 @@ def application_allowed(
       bool: True if this application is allowed to deploy, False otherwise.
     """
     # Ensure group_names is iterable
+    if allowed_applications is None:
+        allowed_applications = []
     if not isinstance(group_names, (list, tuple)):
         raise AnsibleFilterError(
             f"Expected group_names to be a list, str or tuple, got {type(group_names)}"
@@ -43,7 +45,7 @@ def application_allowed(
     return True
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "application_allowed": application_allowed,

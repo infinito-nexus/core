@@ -30,7 +30,9 @@ def get_primary_domain(domains, application_id):
         try:
             first_val = next(iter(val.values()))
         except StopIteration:
-            raise AnsibleFilterError(f"domains['{application_id}'] dict is empty")
+            raise AnsibleFilterError(
+                f"domains['{application_id}'] dict is empty"
+            ) from None
         if not isinstance(first_val, str) or not first_val:
             raise AnsibleFilterError(
                 f"first value of domains['{application_id}'] must be a non-empty string, got {first_val!r}"

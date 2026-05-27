@@ -2,7 +2,6 @@
 
 ## Description
 
-
 ## Overview
 
 - Installs the `certreap` cleanup tool using the `pkgmgr-install` role

@@ -6,15 +6,6 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ OPENTALK_FRONTEND_HTTP_PORT }}:80"
-    environment:
-      CONTROLLER_HOST: "{{ OPENTALK_DOMAIN }}"
-      OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
-      OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
-      INSECURE: "false"
-      BASE_URL: ""
-{% if OPENTALK_OPENCLOUD_ENABLED | bool %}
-      SHARED_FOLDER_OPENCLOUD_URL: "{{ OPENTALK_OPENCLOUD_URL }}"
-{% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     depends_on:
       controller:
@@ -29,7 +20,7 @@
     volumes:
       - "{{ [lookup('container', application_id, 'directories.volumes'), 'controller.toml'] | path_join }}:/controller/controller.toml:ro"
       - data:/var/lib/opentalk
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   livekit:
@@ -70,6 +61,8 @@
       interval: 30s
       timeout: 10s
       retries: 5
+    volumes:
+      - rabbit:/var/lib/rabbitmq
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     logging:
       driver: journald
@@ -91,11 +84,11 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={
       'data':   {'name': OPENTALK_DATA_VOLUME},
       'config': {'name': OPENTALK_CONFIG_VOLUME},
-      'minio':  {'name': lookup('config', application_id, 'volumes.minio')}
+      'minio':  {'name': lookup('config', application_id, 'volumes.minio')},
+      'rabbit': {'name': lookup('config', application_id, 'volumes.rabbit')}
     }
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

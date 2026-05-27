@@ -1,0 +1,26 @@
+---
+# Matrix-deploy variant overrides for web-app-socialhome.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant pinning every dynamic services.yml flag to true so the
+# matrix exercises the in-group_names branch of web-app-socialhome.
+- services:
+    dashboard:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+- services:
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

@@ -1,0 +1,17 @@
+{
+  "name": "infinito-nexus-js-lint",
+  "version": "0.0.0",
+  "private": true,
+  "description": "JavaScript lint dependencies for infinito-nexus (Playwright specs + persona helpers).",
+  "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.55.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-playwright": "^2.1.0",
+    "globals": "^15.14.0"
+  }
+}

@@ -1,8 +1,9 @@
+---
 - name: "load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - meta: flush_handlers
 

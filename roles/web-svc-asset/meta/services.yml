@@ -1,24 +1,26 @@
+---
 asset:
-  enabled: false
+  enabled: true
   shared: true
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
-  source_directory: '{{ playbook_dir }}/assets'
-  url: //{{ lookup('domain', 'web-svc-file') }}/assets
+  source_directory: "{{ playbook_dir }}/assets"
+  url: "{{ (lookup('tls', 'web-svc-file', 'url.base') ~ 'assets') if ('web-svc-asset' in group_names) else ('https://file.' ~ SOFTWARE_DOMAIN ~ '/assets') }}"
   run_after:
-  - web-svc-file
+    - web-svc-file
   lifecycle: beta
 file:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-file' in group_names }}"
+  shared: "{{ 'web-svc-file' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
 css:
   enabled: false
   shared: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

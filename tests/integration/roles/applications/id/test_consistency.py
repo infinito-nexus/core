@@ -1,11 +1,14 @@
-import yaml
 import unittest
-from pathlib import Path
+
+import yaml
+
 from plugins.filter.invokable_paths import get_invokable_paths
-
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
-ROLES_DIR = Path(__file__).resolve().parents[5] / "roles"
+from . import PROJECT_ROOT
+
+ROLES_DIR = PROJECT_ROOT / "roles"
 
 
 class TestApplicationIdConsistency(unittest.TestCase):
@@ -27,13 +30,13 @@ class TestApplicationIdConsistency(unittest.TestCase):
             # expected_id is just the remainder after the prefix
             expected_id = role_name[len(prefix) :]
 
-            vars_file = role_path / "vars" / "main.yml"
+            vars_file = role_path / ROLE_FILE_VARS_MAIN
             if not vars_file.exists():
                 failed_roles.append((role_name, "vars/main.yml missing"))
                 continue
 
             try:
-                vars_data = load_yaml_any(vars_file) or {}
+                vars_data = load_yaml_any(str(vars_file)) or {}
             except yaml.YAMLError as e:
                 failed_roles.append((role_name, f"YAML error: {e}"))
                 continue

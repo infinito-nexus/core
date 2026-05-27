@@ -3,7 +3,7 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Populate Dockerfile build context (entrypoint, config.php, install scripts, php conf)"
   include_tasks: 01_build_context.yml
@@ -44,7 +44,7 @@
 
     - name: Show Moodle container logs
       ansible.builtin.shell: >
-         container logs --tail=200 {{ MOODLE_CONTAINER }}
+        container logs --tail=200 {{ MOODLE_CONTAINER }}
       register: moodle_logs
       changed_when: false
       failed_when: false
@@ -60,7 +60,7 @@
           --- container logs (last 200 lines) ---
           {{ moodle_logs.stdout | default('no output') }}
 
-- name: "Run Moodle install (idempotent — skips when already installed)"
+- name: "Run Moodle install (idempotent)"
   command: >
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
     php {{ MOODLE_CLI_DIR }}/install_database.php

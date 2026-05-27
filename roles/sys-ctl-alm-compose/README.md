@@ -18,3 +18,10 @@ The primary purpose of this role is to provide a centralized mechanism for servi
 - **Dependency Integration:** Works seamlessly with the [sys-ctl-alm-telegram](../sys-ctl-alm-telegram/README.md) and [sys-ctl-alm-email](../sys-ctl-alm-email/README.md) roles.
 - **Automated Service Management:** Automatically restarts the notifier service upon configuration changes.
 - **Centralized Alerting:** Provides a unified approach to monitor and notify about service failures.
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

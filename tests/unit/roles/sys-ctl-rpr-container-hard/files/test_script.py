@@ -1,17 +1,16 @@
-import unittest
 import sys
-from pathlib import Path
-from importlib.util import spec_from_file_location, module_from_spec
+import unittest
+from importlib.util import module_from_spec, spec_from_file_location
+
+from . import PROJECT_ROOT
 
 
 def load_script_module():
     """
     Import the script under test from roles/sys-ctl-rpr-container-hard/files/script.py
     """
-    test_file = Path(__file__).resolve()
-    repo_root = test_file.parents[5]
     script_path = (
-        repo_root / "roles" / "sys-ctl-rpr-container-hard" / "files" / "script.py"
+        PROJECT_ROOT / "roles" / "sys-ctl-rpr-container-hard" / "files" / "script.py"
     )
     if not script_path.exists():
         raise FileNotFoundError(f"script.py not found at {script_path}")
@@ -94,7 +93,7 @@ class TestRepairDockerHard(unittest.TestCase):
 
         def fake_isfile(p):
             # Only app2 has compose.yml
-            return p in ("/PARENT/app2/compose.yml",)
+            return p == "/PARENT/app2/compose.yml"
 
         def fake_hard_restart(dir_path):
             seen["called"].append(dir_path)

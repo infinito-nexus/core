@@ -1,12 +1,19 @@
 server {
     listen 80 default_server;
 
+    {{ NETWORK_DOCKER_DNS_NGINX_DIRECTIVE }}
+
+    set $upstream_taiga_front     http://taiga-front;
+    set $upstream_taiga_back      http://taiga-back:8000;
+    set $upstream_taiga_protected http://taiga-protected:8003;
+    set $upstream_taiga_events    http://taiga-events:8888;
+
     client_max_body_size 100M;
     charset utf-8;
 
     # Frontend
     location / {
-        proxy_pass http://taiga-front/;
+        proxy_pass $upstream_taiga_front;
         proxy_pass_header Server;
         proxy_set_header Host $http_host;
         proxy_redirect off;
@@ -17,7 +24,7 @@ server {
 
     # API
     location /api/ {
-        proxy_pass http://taiga-back:8000/api/;
+        proxy_pass $upstream_taiga_back;
         proxy_pass_header Server;
         proxy_set_header Host $http_host;
         proxy_redirect off;
@@ -32,7 +39,7 @@ server {
     }
 
     location /oidc/ {
-        proxy_pass http://taiga-back:8000/oidc/;
+        proxy_pass $upstream_taiga_back;
         proxy_pass_header Server;
         proxy_set_header Host $http_host;
         proxy_redirect off;
@@ -44,7 +51,7 @@ server {
 
     # Admin
     location /admin/ {
-        proxy_pass http://taiga-back:8000/admin/;
+        proxy_pass $upstream_taiga_back;
         proxy_pass_header Server;
         proxy_set_header Host $http_host;
         proxy_redirect off;
@@ -77,13 +84,14 @@ server {
         proxy_set_header X-Scheme $scheme;
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_pass http://taiga-protected:8003/;
+        rewrite ^/media/(.*)$ /$1 break;
+        proxy_pass $upstream_taiga_protected;
         proxy_redirect off;
     }
 
     # Events
     location /events {
-        proxy_pass http://taiga-events:8888/events;
+        proxy_pass $upstream_taiga_events;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

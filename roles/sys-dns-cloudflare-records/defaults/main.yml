@@ -1,11 +1,12 @@
+---
 # Cloudflare API Token
 # More information here: group_vars/all/docs/CLOUDFLARE_API_TOKEN.md
-CLOUDFLARE_API_TOKEN:     ""
+CLOUDFLARE_API_TOKEN: ""
 
 cloudflare_async_enabled: "{{ ASYNC_ENABLED | bool }}"
-cloudflare_async_time:    "{{ ASYNC_TIME }}"
-cloudflare_async_poll:    "{{ ASYNC_POLL }}"
-cloudflare_no_log:        "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+cloudflare_async_time: "{{ ASYNC_TIME }}"
+cloudflare_async_poll: "{{ ASYNC_POLL }}"
+cloudflare_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 # Supported types:
 #  A/AAAA (content), CNAME/MX/TXT (value, MX hat priority), SRV (service/proto/…)

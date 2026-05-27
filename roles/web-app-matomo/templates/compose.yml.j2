@@ -17,7 +17,7 @@
       timeout: 5s
       retries: 12
       start_period: 60s
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   {{ MATOMO_BOOTSTRAP_SERVICE }}:
@@ -36,7 +36,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': MATOMO_DATA}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

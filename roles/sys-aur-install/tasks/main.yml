@@ -1,3 +1,4 @@
+---
 # nocheck: run-once
 
 - name: Include dependency 'sys-aur'

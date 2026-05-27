@@ -1,3 +1,4 @@
+---
 - name: "Find optional Dockerfile for {{ application_id }}"
   set_fact:
     dockerfile_src: >-
@@ -15,9 +16,9 @@
 
 - name: "Create (optional) Dockerfile for {{ application_id }}"
   template:
-    src:  "{{ dockerfile_src }}"
+    src: "{{ dockerfile_src }}"
     dest: "{{ lookup('container', application_id, 'files.dockerfile') }}"
-    mode: '0640'
+    mode: "0640"
   notify:
     - compose build
     - compose up
@@ -26,10 +27,10 @@
 
 - name: "Create (optional) '{{ lookup('container', application_id, 'files.env') }}'"
   template:
-    src:  "{{ item }}"
+    src: "{{ item }}"
     dest: "{{ lookup('container', application_id, 'files.env') }}"
-    mode: '0640'
-    force: yes
+    mode: "0640"
+    force: true
   notify:
     - compose up
     - compose build
@@ -42,10 +43,10 @@
 
 - name: "Create (optional) '{{ lookup('container', application_id, 'files.compose_override') }}'"
   template:
-    src:  "{{ item }}"
+    src: "{{ item }}"
     dest: "{{ lookup('container', application_id, 'files.compose_override') }}"
-    mode: '0640'
-    force: yes
+    mode: "0640"
+    force: true
   notify: compose up
   with_first_found:
     - files:
@@ -55,10 +56,10 @@
 
 - name: "Create (optional) '{{ lookup('container', application_id, 'files.compose') }}'"
   ansible.builtin.template:
-    src:  "{{ item }}"
+    src: "{{ item }}"
     dest: "{{ lookup('container', application_id, 'files.compose') }}"
     mode: "0640"
-    force: yes
+    force: true
   with_first_found:
     - files:
         - "compose.yml.j2"

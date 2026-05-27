@@ -1,14 +1,14 @@
 import subprocess
-from typing import Any, Dict
+from typing import Any
 
-from yaml.loader import SafeLoader
 from yaml.dumper import SafeDumper
+from yaml.loader import SafeLoader
 
 
 class VaultScalar(str):
     """A subclass of str to represent vault-encrypted strings."""
 
-    pass
+    __slots__ = ()
 
 
 def _vault_constructor(loader, node):
@@ -39,25 +39,22 @@ class VaultHandler:
             "--vault-password-file",
             self.vault_password_file,
         ]
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if proc.returncode != 0:
             raise RuntimeError(f"ansible-vault encrypt_string failed:\n{proc.stderr}")
         return proc.stdout
 
-    def encrypt_leaves(self, branch: Dict[str, Any], vault_pw: str):
+    def encrypt_leaves(self, branch: dict[str, Any], vault_pw: str):
         """Recursively encrypt all leaves (plain text values) under the credentials section."""
         for key, value in branch.items():
             if isinstance(value, dict):
                 self.encrypt_leaves(value, vault_pw)  # Recurse into nested dictionaries
-            else:
-                # Skip if already vaulted (i.e., starts with $ANSIBLE_VAULT)
-                if isinstance(value, str) and not value.lstrip().startswith(
-                    "$ANSIBLE_VAULT"
-                ):
-                    snippet = self.encrypt_string(value, key)
-                    lines = snippet.splitlines()
-                    indent = len(lines[1]) - len(lines[1].lstrip())
-                    body = "\n".join(line[indent:] for line in lines[1:])
-                    branch[key] = VaultScalar(
-                        body
-                    )  # Store encrypted value as VaultScalar
+            # Skip if already vaulted (i.e., starts with $ANSIBLE_VAULT)
+            elif isinstance(value, str) and not value.lstrip().startswith(
+                "$ANSIBLE_VAULT"
+            ):
+                snippet = self.encrypt_string(value, key)
+                lines = snippet.splitlines()
+                indent = len(lines[1]) - len(lines[1].lstrip())
+                body = "\n".join(line[indent:] for line in lines[1:])
+                branch[key] = VaultScalar(body)  # Store encrypted value as VaultScalar

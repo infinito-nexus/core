@@ -1,4 +1,4 @@
-"""Per-application RBAC naming for Keycloak (requirement 005).
+"""Per-application RBAC naming for Keycloak.
 
 Single SPOT for the strings that vary per deployed application in the
 per-app `group-ldap-mapper` setup:
@@ -12,6 +12,10 @@ These names are referenced from `vars/main.yml`
 rename of the mapper convention is a one-line change in this plugin
 and stays consistent everywhere.
 """
+
+from __future__ import annotations
+
+from utils.roles.validation.invokable import list_invokable_app_ids
 
 
 def kc_per_app_mapper_name(application_id):
@@ -35,9 +39,22 @@ def kc_per_app_ldap_filter(application_id):
     return f"(&(objectClass=groupOfNames)(cn={application_id}-*))"
 
 
-class FilterModule(object):
+def rbac_app_ids(app_ids):
+    if app_ids is None:
+        app_ids = []
+    if not isinstance(app_ids, (list, tuple)):
+        raise TypeError(
+            f"rbac_app_ids: app_ids must be a list/tuple, got {type(app_ids)}"
+        )
+
+    invokable = set(list_invokable_app_ids())
+    return sorted({x for x in app_ids if isinstance(x, str) and x in invokable})
+
+
+class FilterModule:
     def filters(self):
         return {
             "kc_per_app_mapper_name": kc_per_app_mapper_name,
             "kc_per_app_ldap_filter": kc_per_app_ldap_filter,
+            "rbac_app_ids": rbac_app_ids,
         }

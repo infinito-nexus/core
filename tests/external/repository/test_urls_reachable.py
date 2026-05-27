@@ -3,13 +3,14 @@
 Scans git-tracked and untracked-but-not-ignored text files for literal
 ``http://`` and ``https://`` URLs. Placeholder/template URLs and reserved
 local/example hosts are skipped. Per-line suppression uses the unified
-``# nocheck: url`` / ``# noqa: url`` marker. See
+``# nocheck: url`` marker. See
 ``docs/contributing/actions/testing/suppression.md``.
 
 This is an external test because it performs live HTTP requests against the
 referenced third-party URLs. HTTP ``401`` (Unauthorized), ``403`` (Forbidden),
-and ``405`` (Method Not Allowed) are treated as reachable (server is alive but
-auth-gated or method-restricted). HTTP ``418`` (I'm a teapot), ``429`` (Too
+``405`` (Method Not Allowed) and ``415`` (Unsupported Media Type) are treated
+as reachable (server is alive but auth-gated, method-restricted, or rejecting
+the probe's content-type). HTTP ``418`` (I'm a teapot), ``429`` (Too
 Many Requests), ``451`` (Unavailable For Legal Reasons), every ``5xx`` server
 response, plus timeouts and connection errors (reset, aborted) emit warning
 annotations rather than failing the test, since these signal an upstream issue
@@ -20,8 +21,12 @@ from __future__ import annotations
 
 import concurrent.futures
 import ipaddress
+import os
+import random
 import re
 import subprocess
+import sys
+import time
 import unittest
 from collections import defaultdict
 from pathlib import Path
@@ -32,9 +37,11 @@ import requests
 
 from utils.annotations.message import error, warning
 from utils.annotations.suppress import is_suppressed_at
-from utils.cache.files import iter_non_ignored_files
+from utils.cache.files import iter_non_ignored_files, read_text
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
+from . import PROJECT_ROOT
+
+_REPO_ROOT = PROJECT_ROOT
 _URL_RE = re.compile(r"https?://[^\s<>'\"`\]]+")
 _TEMPLATE_MARKERS = ("${", "{{", "}}", "{%", "%}")
 _PUBLIC_HOST_RE = re.compile(r"^[A-Za-z0-9.-]+$")
@@ -64,6 +71,7 @@ _OK_STATUS_CODES = {
     401,  # Unauthorized: credentials required, server is alive.
     403,  # Forbidden: server is alive, resource intentionally gated.
     405,  # Method Not Allowed: server is alive, HEAD/GET rejected by design.
+    415,  # Unsupported Media Type: server is alive, probe content-type rejected.
 }
 # 4xx codes that mean the server is alive but the resource is not reliably
 # probeable. Emit a warning annotation instead of failing the test. All 5xx
@@ -75,8 +83,17 @@ _WARNING_STATUS_CODES = {
     451,  # Unavailable For Legal Reasons: jurisdiction-specific block.
 }
 _REQUEST_TIMEOUT_SECONDS = 10
-_MAX_WORKERS = 8
 _USER_AGENT = "infinito-nexus-url-reachability-check"
+_MAX_WORKERS = int(os.environ["INFINITO_WORKER_FETCH"])
+# Hard ceiling for the whole probe loop. After this elapses, any probe
+# still in flight is marked as a Timeout warning so the test never hangs
+# indefinitely on a slow / trickling server. 5h30m matches the longest
+# CI workflow timeout (so the deadline trips before CI kills the job
+# with no annotations).
+_GLOBAL_DEADLINE_SECONDS = 5 * 3600 + 30 * 60
+# Emit a "[done/total] elapsed=Ns" line every N completions so the
+# operator sees progress instead of staring at silence.
+_PROGRESS_INTERVAL = 50
 
 
 class UrlOccurrence(NamedTuple):
@@ -110,7 +127,7 @@ def _repo_files(root: Path) -> list[Path]:
         return _repo_files_without_git_metadata(root)
 
     rel_paths = [p for p in out.decode("utf-8", errors="replace").split("\0") if p]
-    return sorted((root / rel for rel in rel_paths if (root / rel).is_file()))
+    return sorted(root / rel for rel in rel_paths if (root / rel).is_file())
 
 
 def _repo_files_without_git_metadata(root: Path) -> list[Path]:
@@ -229,8 +246,8 @@ def _extract_urls(path: Path) -> list[UrlOccurrence]:
         return []
 
     try:
-        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    except OSError:
+        lines = read_text(str(path)).splitlines()
+    except (OSError, UnicodeDecodeError):
         return []
 
     occurrences: list[UrlOccurrence] = []
@@ -253,9 +270,14 @@ def _probe_key(url: str) -> str:
 def _probe_url(url: str) -> ProbeOutcome:
     """Probe one URL and classify the result for external-test stability."""
     try:
+        # allow_redirects=False: each redirect would otherwise start its
+        # own _REQUEST_TIMEOUT_SECONDS clock, so a 5-deep chain could
+        # legitimately block 5×10s = 50s. We treat any 3xx as "server
+        # alive" anyway (status < 400 is OK), so following the chain
+        # adds no signal.
         response = requests.get(
             url,
-            allow_redirects=True,
+            allow_redirects=False,
             headers={"User-Agent": _USER_AGENT},
             stream=True,
             timeout=_REQUEST_TIMEOUT_SECONDS,
@@ -302,17 +324,48 @@ class TestUrlsReachable(unittest.TestCase):
         failing_found: list[tuple[str, UrlOccurrence, str, int]] = []
         warnings_found: list[tuple[str, UrlOccurrence, str, int]] = []
 
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=_MAX_WORKERS
-        ) as executor:
-            future_to_url = {
-                executor.submit(_probe_url, url): url
-                for url in sorted(occurrences_by_url)
-            }
-            for future in concurrent.futures.as_completed(future_to_url):
+        total = len(occurrences_by_url)
+        print(
+            f"Probing {total} URLs "
+            f"(workers={_MAX_WORKERS}, "
+            f"per-probe={_REQUEST_TIMEOUT_SECONDS}s, "
+            f"global={_GLOBAL_DEADLINE_SECONDS}s)...",
+            file=sys.stderr,
+            flush=True,
+        )
+
+        # Manual executor lifecycle (no `with`-block) so we can shutdown
+        # with wait=False on the deadline path — otherwise the context
+        # manager would still wait for every in-flight thread.
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=_MAX_WORKERS)
+        # Sort first for determinism, then shuffle so same-host URLs do
+        # not pile up at the front of the batch and self-DoS a single
+        # origin (and so retries don't always hit the slowest tail in
+        # the same order).
+        submission_order = sorted(occurrences_by_url)
+        random.shuffle(submission_order)
+        future_to_url = {
+            executor.submit(_probe_url, url): url for url in submission_order
+        }
+
+        completed = 0
+        start = time.monotonic()
+        try:
+            for future in concurrent.futures.as_completed(
+                future_to_url, timeout=_GLOBAL_DEADLINE_SECONDS
+            ):
                 probe_url = future_to_url[future]
                 outcome = future.result()
                 occurrences = occurrences_by_url[probe_url]
+                completed += 1
+
+                if completed % _PROGRESS_INTERVAL == 0 or completed == total:
+                    elapsed = time.monotonic() - start
+                    print(
+                        f"  [{completed}/{total}] elapsed={elapsed:.1f}s",
+                        file=sys.stderr,
+                        flush=True,
+                    )
 
                 if outcome.kind == "fail":
                     failing_found.append(
@@ -334,6 +387,29 @@ class TestUrlsReachable(unittest.TestCase):
                             len(occurrences),
                         )
                     )
+        except concurrent.futures.TimeoutError:
+            elapsed = time.monotonic() - start
+            unfinished_urls = [u for f, u in future_to_url.items() if not f.done()]
+            for probe_url in unfinished_urls:
+                occurrences = occurrences_by_url[probe_url]
+                warnings_found.append(
+                    (
+                        "External URL reachability",
+                        occurrences[0],
+                        f"{probe_url} -> Timeout: global deadline "
+                        f"{_GLOBAL_DEADLINE_SECONDS}s exceeded",
+                        len(occurrences),
+                    )
+                )
+            print(
+                f"  global deadline reached at {elapsed:.1f}s; "
+                f"{len(unfinished_urls)} probes still running "
+                f"(marked as warn, not waited for)",
+                file=sys.stderr,
+                flush=True,
+            )
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
 
         for title, occurrence, message, count in sorted(
             failing_found,

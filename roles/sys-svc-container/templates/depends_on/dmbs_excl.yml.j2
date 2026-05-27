@@ -1,9 +1,0 @@
-{# This template needs to be included in compose.yml containers, which depend on a database, redis and optional additional volumes #}
-{% if
-      lookup('applications') | is_docker_service_enabled(application_id, 'redis') or
-      not lookup('database', application_id, 'shared')
-    %}
-    depends_on:
-{% include "roles/sys-svc-container/templates/depends_on/dbms_base.yml.j2" %}
-{% endif %}
-{{ "\n" }}

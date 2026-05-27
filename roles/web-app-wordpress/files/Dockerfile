@@ -3,7 +3,8 @@ ARG WORDPRESS_VERSION
 FROM ${WORDPRESS_IMAGE}:${WORDPRESS_VERSION}
 
 # Install msmtp and update system
-RUN apt-get update && \
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get update && \
     apt-get install -y msmtp msmtp-mta && \
     rm -rf /var/lib/apt/lists/*
 

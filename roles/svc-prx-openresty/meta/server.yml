@@ -1,6 +1,7 @@
+---
 domains:
   canonical:
-  - '{{ DOMAIN_PRIMARY }}'
+    - "{{ DOMAIN_PRIMARY }}"
   aliases: []
 networks:
   local:

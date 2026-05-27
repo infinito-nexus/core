@@ -1,3 +1,4 @@
+---
 - name: Install ACL utilities
   ansible.builtin.package:
     name: acl
@@ -47,7 +48,7 @@
   ansible.posix.acl:
     path: "{{ DIR_BACKUPS }}"
     etype: group
-    permissions: '---'
+    permissions: "---"
     default: true
     state: present
 
@@ -55,7 +56,7 @@
   ansible.posix.acl:
     path: "{{ DIR_BACKUPS }}"
     etype: other
-    permissions: '---'
+    permissions: "---"
     default: true
     state: present
 

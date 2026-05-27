@@ -1,3 +1,4 @@
+---
 memcached:
   image: memcached
   version: latest
@@ -5,3 +6,7 @@ memcached:
   backup:
     disabled: true
   lifecycle: pre-alpha
+  cpus: "0.25"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256

@@ -1,0 +1,37 @@
+---
+# Matrix-deploy variant overrides for web-app-matomo.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant pinning every dynamic services.yml flag to true so the
+# matrix exercises the in-group_names branch of web-app-matomo.
+
+- services:
+    css:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+- services:
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    mariadb:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

@@ -14,7 +14,7 @@ OpenCloud delegates authentication to the central Keycloak realm and consumes us
 ### Verify OIDC discovery 🩺
 
 ```bash
-make exec CMD="container exec opencloud sh -c 'curl -fsS {{ OIDC.CLIENT.DISCOVERY_DOCUMENT }} | head -c 200'"
+make compose-exec cmd="container exec opencloud sh -c 'curl -fsS {{ OIDC.CLIENT.DISCOVERY_DOCUMENT }} | head -c 200'"
 ```
 
 ## LDAP 📒
@@ -33,7 +33,7 @@ Members of the `application_administrators` group (per requirement 004) gain Ope
 ### Verify LDAP wiring 🩺
 
 ```bash
-make exec CMD="container exec opencloud opencloud config get ldap"
+make compose-exec cmd="container exec opencloud opencloud config get ldap"
 ```
 
 ## Federation 🔗

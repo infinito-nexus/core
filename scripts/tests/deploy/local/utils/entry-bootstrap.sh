@@ -2,8 +2,9 @@
 # In-container helper: run the standard entry.sh bootstrap.
 #
 # Designed to be called via `docker exec` or
-# `cli.deploy.development exec -- bash <this-path>`. The repo is mounted
-# at /opt/src/infinito by the dev compose stack.
+# `cli.administration.deploy.development exec -- bash <this-path>`. The repo is mounted
+# at ${INFINITO_SRC_DIR} by the dev compose stack.
 set -euo pipefail
-cd /opt/src/infinito
-./scripts/docker/entry.sh true
+: "${INFINITO_SRC_DIR:?INFINITO_SRC_DIR must be set by the container environment}"
+cd "${INFINITO_SRC_DIR}"
+./scripts/docker/entry.sh --compile -- true

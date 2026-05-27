@@ -1,3 +1,4 @@
+---
 - name: Ensure npm is installed
   package:
     name: npm

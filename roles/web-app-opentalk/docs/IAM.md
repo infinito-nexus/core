@@ -32,11 +32,11 @@ Members of the `application_administrators` LDAP group (per requirement 004) rec
 ## Verify OIDC Discovery 🩺
 
 ```bash
-make exec CMD="container exec opentalk-controller sh -c 'curl -fsS {{ OIDC.CLIENT.DISCOVERY_DOCUMENT }} | head -c 200'"
+make compose-exec cmd="container exec opentalk-controller sh -c 'curl -fsS {{ OIDC.CLIENT.DISCOVERY_DOCUMENT }} | head -c 200'"
 ```
 
 ## Verify Keycloak Admin API Access 🩺
 
 ```bash
-make exec CMD="container exec opentalk-controller sh -c 'curl -fsS -H \"Authorization: Bearer <token>\" {{ OPENTALK_KEYCLOAK_BASE_URL }}/admin/realms/{{ OIDC.CLIENT.REALM }}/users?search=alice'"
+make compose-exec cmd="container exec opentalk-controller sh -c 'curl -fsS -H \"Authorization: Bearer <token>\" {{ OPENTALK_KEYCLOAK_BASE_URL }}/admin/realms/{{ OIDC.CLIENT.REALM }}/users?search=alice'"
 ```

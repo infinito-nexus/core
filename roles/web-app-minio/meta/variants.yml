@@ -1,16 +1,83 @@
-# Matrix-deploy variant overrides for this role (requirement 013
-# alpha-to-beta promotion). Variant 0 is the canonical OIDC variant
+---
+# Matrix-deploy variant overrides for this role. Variant 0 is the canonical OIDC variant
 # (default). Variant 1 flips the role onto the LDAP variant so the
 # `oidc`/`ldap` Playwright variants both run end-to-end.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: OIDC variant (canonical default).
-- {}
 
-# variant 1: LDAP variant. Disable OIDC and enable LDAP so the
-# integrated LDAP login path is exercised by Playwright.
+- services:
+    dashboard:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oidc:
+      enabled: true
+      shared: true
+    ollama:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
 - services:
     oidc:
       enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+- services:
     ldap:
       enabled: true
+      shared: true
+    oidc:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

@@ -1,50 +1,64 @@
+---
 # General
-application_id:                   "web-app-dashboard"
-DASHBOARD_APPLICATION_ID:         "web-app-dashboard"
-http_port:                        "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.local.http') }}"
+application_id: "web-app-dashboard"
+DASHBOARD_APPLICATION_ID: "web-app-dashboard"
+http_port: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.local.http') }}"
 
 ## Webserver
-webserver_extra_configuration:        "{{ lookup('template', 'nginx/sso.html.conf.j2') }}"
+webserver_extra_configuration: "{{ lookup('template', 'nginx/sso.html.conf.j2') }}"
 
 # Dashboard
 
 ## Simpleicons
-DASHBOARD_SIMPLEICONS_ENABLED:      "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
-DASHBOARD_SIMPLEICONS_STATIC_SUBDIR: "simpleicons"
-DASHBOARD_SIMPLEICONS_STATIC_DIR_HOST: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), DASHBOARD_SIMPLEICONS_STATIC_SUBDIR ] | path_join }}"
-DASHBOARD_SIMPLEICONS_STATIC_DIR_CONTAINER: "{{ ['/app/static', DASHBOARD_SIMPLEICONS_STATIC_SUBDIR] | path_join }}"
-# Use the direct local service port for sync/checks because the public
-# Simple Icons domain currently redirects through the file service.
-DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') | string) ~ '/' }}"
+DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
+# Browser-facing absolute base URL of the public Simple Icons service.
+# Cards reference SVGs directly under this URL (icon.source = "<base>/<slug>.svg").
+DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.base') }}"
+# Direct local service port — used only for the in-cluster readiness wait
+# (avoids the TLS + redirect chain of the public URL during early bring-up).
+DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |
+  string) ~ '/' }}"
 
 ## Javascript
-DASHBOARD_JS_CDN_URL:               "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
-DASHBOARD_JS_FILES:                 ['iframe.js','oidc.js']
-DASHBOARD_JS_BASE_PATH:             "{{ DASHBOARD_APPLICATION_ID | get_entity_name }}/js"
-DASHBOARD_JS_SERVER_DIR:            "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
-DASHBOARD_JS_BASE_URL:              "{{ (DASHBOARD_JS_CDN_URL | trim('/')) ~ '/' ~ (DASHBOARD_JS_BASE_PATH | trim('/')) }}"
+DASHBOARD_JS_CDN_URL: "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
+DASHBOARD_JS_FILES: >-
+  {{ ['iframe.js']
+     + (['oidc.js'] if (DASHBOARD_OIDC_ENABLED | bool) else []) }}
+DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | get_entity_name }}/js"
+DASHBOARD_JS_SERVER_DIR: "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
+DASHBOARD_JS_BASE_URL: "{{ (DASHBOARD_JS_CDN_URL | trim('/')) ~ '/' ~ (DASHBOARD_JS_BASE_PATH | trim('/')) }}"
 
 ## Webserver
-DASHBOARD_LOCATION_SILENT_CHECK:    "/silent-check-sso.html"
+DASHBOARD_LOCATION_SILENT_CHECK: "/silent-check-sso.html"
 
 ## Configuration
-DASHBOARD_CONFIG_YML_SRC_FILE:      "config.yaml.j2"
-DASHBOARD_CONFIG_INV_PATH:          "{{ [ inventory_dir, 'files', inventory_hostname ,'docker', DASHBOARD_APPLICATION_ID, DASHBOARD_CONFIG_YML_SRC_FILE] | path_join }}"
-DASHBOARD_CONFIG_YML_DEST:          "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), 'config.yaml' ] | path_join }}"
-DASHBOARD_CONFIG_YML_DOCKER_DEST:   "/app/config.yaml"
+DASHBOARD_CONFIG_YML_SRC_FILE: "config.yaml.j2"
+DASHBOARD_CONFIG_INV_PATH: "{{ [ inventory_dir, 'files', inventory_hostname ,'docker', DASHBOARD_APPLICATION_ID, DASHBOARD_CONFIG_YML_SRC_FILE] | path_join }}"
+DASHBOARD_CONFIG_YML_DEST: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), 'config.yaml' ] | path_join }}"
+DASHBOARD_CONFIG_YML_DOCKER_DEST: "/app/config.yaml"
 
 ## OIDC
-DASHBOARD_APP_BASE_URL:            "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.base') | regex_replace('/+$', '') }}/"
+DASHBOARD_APP_BASE_URL: "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.base') | regex_replace('/+$', '') }}/"
 DASHBOARD_KEYCLOAK_LOGIN_URL: >-
   {{ OIDC.CLIENT.AUTHORIZE_URL
      ~ '?client_id=' ~ OIDC.CLIENT.ID
      ~ '&response_type=code'
      ~ '&scope=openid%20profile%20email'
      ~ '&redirect_uri=' ~ (DASHBOARD_APP_BASE_URL | urlencode) }}
-DASHBOARD_KEYCLOAK_IFRAME_ENABLED:  "{{ lookup('config','web-app-keycloak', 'services.dashboard.enabled') }}"
-DASHBOARD_OIDC_ENABLED:             "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.oidc.enabled') }}"
+DASHBOARD_KEYCLOAK_IFRAME_ENABLED: "{{ lookup('config','web-app-keycloak', 'services.dashboard.enabled') }}"
+DASHBOARD_OIDC_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.oidc.enabled') }}"
 
 ## Docker
-DASHBOARD_CONTAINER:                "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.name') }}"
-DASHBOARD_IMAGE:                    "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.image') }}"
-DASHBOARD_VERSION:                  "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.version') }}"
+DASHBOARD_CONTAINER: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.name') }}"
+DASHBOARD_IMAGE: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.image') }}"
+DASHBOARD_VERSION: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.version') }}"
+
+## Branding
+DASHBOARD_PLATFORM_LOGO_SOURCE: "{{ service_provider.platform.logo | string }}"
+DASHBOARD_PLATFORM_LOGO_URL: "{{ ('https:' ~ DASHBOARD_PLATFORM_LOGO_SOURCE) if DASHBOARD_PLATFORM_LOGO_SOURCE.startswith('//') else DASHBOARD_PLATFORM_LOGO_SOURCE
+  }}"
+DASHBOARD_PLATFORM_FAVICON_SOURCE: "{{ service_provider.platform.favicon | string }}"
+DASHBOARD_PLATFORM_FAVICON_URL: "{{ ('https:' ~ DASHBOARD_PLATFORM_FAVICON_SOURCE) if DASHBOARD_PLATFORM_FAVICON_SOURCE.startswith('//') else DASHBOARD_PLATFORM_FAVICON_SOURCE
+  }}"
+DASHBOARD_COMPANY_LOGO_SOURCE: "{{ service_provider.company.logo | string }}"
+DASHBOARD_COMPANY_LOGO_URL: "{{ ('https:' ~ DASHBOARD_COMPANY_LOGO_SOURCE) if DASHBOARD_COMPANY_LOGO_SOURCE.startswith('//') else DASHBOARD_COMPANY_LOGO_SOURCE }}"

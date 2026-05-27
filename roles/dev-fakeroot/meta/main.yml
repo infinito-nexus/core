@@ -1,29 +1,26 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs fakeroot for the current distribution.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
-  min_ansible_version: '2.9'
+  min_ansible_version: "2.9"
   platforms:
-    - name: Archlinux
+    - name: ArchLinux
       versions:
-        - rolling
+        - all
     - name: Debian
       versions:
         - all
-    - name: Ubuntu
+    - name: EL
       versions:
         - all
     - name: Fedora
       versions:
         - all
-    - name: EL
+    - name: Ubuntu
       versions:
         - all
   galaxy_tags:

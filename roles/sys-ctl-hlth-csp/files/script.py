@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import re
 import subprocess
 import sys
-import argparse
 from pathlib import Path
-
 
 DOMAIN_FROM_FILENAME_RE = re.compile(r"^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\.conf$")
 
@@ -33,10 +32,10 @@ def extract_domains_from_filenames(config_path: str) -> list[str] | None:
             if not DOMAIN_FROM_FILENAME_RE.match(fn):
                 continue
             out.append(fn[:-5])  # strip ".conf"
-        return out
     except FileNotFoundError:
         print(f"Directory {config_path} not found.", file=sys.stderr)
         return None
+    return out
 
 
 def detect_scheme_from_conf(conf_path: Path) -> str | None:
@@ -203,6 +202,17 @@ def main() -> None:
         action="store_true",
         help="Disable --network host for container run (default is to use host network).",
     )
+    parser.add_argument(
+        "--skip-domain",
+        nargs="*",
+        default=[],
+        help=(
+            "Domains to exclude from the CSP probe. Used for roles whose "
+            "server.status_codes.default permits a 4xx/5xx response at `/` "
+            "(e.g. federation-only apps), which the csp-checker would "
+            "otherwise treat as unreachable."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -212,6 +222,20 @@ def main() -> None:
 
     if not domains:
         print("No domains found to check.")
+        sys.exit(0)
+
+    skip_set = {d for d in (args.skip_domain or []) if d}
+    if skip_set:
+        skipped_present = sorted(skip_set & set(domains))
+        domains = [d for d in domains if d not in skip_set]
+        if skipped_present:
+            print(
+                f"Skipping {len(skipped_present)} domain(s) per "
+                f"--skip-domain: {skipped_present}"
+            )
+
+    if not domains:
+        print("No domains left to check after applying --skip-domain.")
         sys.exit(0)
 
     urls = build_urls_from_nginx_confs(args.nginx_config_dir, domains)

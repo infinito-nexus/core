@@ -11,7 +11,7 @@
 {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mastodon.ports.local.http') }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
     volumes:
       - data:/mastodon/public/system
 {% if MASTODON_HTTP_ONLY_ENABLED | bool %}
@@ -30,7 +30,7 @@
 {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mastodon.ports.local.websocket') }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {% set service_name = MASTODON_SIDEKIQ_SERVICE_NAME %}
@@ -39,7 +39,7 @@
     image: "{{ MASTODON_IMAGE }}:{{ MASTODON_VERSION }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: bundle exec sidekiq
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
     volumes:
       - data:/mastodon/public/system
 {% if MASTODON_HTTP_ONLY_ENABLED | bool %}
@@ -54,7 +54,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': MASTODON_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

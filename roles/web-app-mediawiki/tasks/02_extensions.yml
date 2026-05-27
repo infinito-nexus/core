@@ -48,7 +48,7 @@
     loop_var: ext
     label: "{{ ext.name }}"
   register: _install_results
-  changed_when: "'INSTALLED:' in (_install_results.stdout | default(''))"
+  changed_when: "'INSTALLED:' in _install_results.stdout"
 
 # Install dependencies per extension (only if vendor is missing)
 # Use /tmp/composer for HOME/CACHE to avoid /var/www permission issues.
@@ -62,7 +62,7 @@
     loop_var: ext
     label: "{{ ext.name }}"
   register: _vendor
-  changed_when: "'COMPOSER_INSTALLED:' in (_vendor.stdout | default(''))"
+  changed_when: "'COMPOSER_INSTALLED:' in _vendor.stdout"
 
 # Sanity check: Jumbojett OIDC client must be loadable
 - name: "EXT | Sanity check: Jumbojett OpenIDConnect client present"

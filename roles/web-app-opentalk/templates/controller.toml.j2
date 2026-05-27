@@ -48,6 +48,7 @@ url = "amqp://guest:guest@rabbit/%2F"
 mail_task_queue = "opentalk_mailer"
 recording_task_queue = "{{ OPENTALK_RABBIT_QUEUE }}"
 
+{% if OPENTALK_TURN_ENABLED | bool %}
 [turn]
 lifetime = 86400
 servers = [
@@ -56,3 +57,4 @@ servers = [
 
 [stun]
 uris = [ "stun:{{ OPENTALK_TURN_HOST }}:{{ OPENTALK_TURN_PORT }}" ]
+{% endif %}

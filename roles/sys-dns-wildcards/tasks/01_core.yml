@@ -3,10 +3,10 @@
   include_role:
     name: sys-dns-cloudflare-records
   vars:
-    cloudflare_records:       "{{ SYN_DNS_WILDCARD_RECORDS }}"
+    cloudflare_records: "{{ SYN_DNS_WILDCARD_RECORDS }}"
     cloudflare_async_enabled: "{{ ASYNC_ENABLED |  bool }}"
-    cloudflare_async_time:    "{{ ASYNC_TIME }}"
-    cloudflare_async_poll:    "{{ ASYNC_POLL }}"
+    cloudflare_async_time: "{{ ASYNC_TIME }}"
+    cloudflare_async_poll: "{{ ASYNC_POLL }}"
   when: DNS_PROVIDER == 'cloudflare'
 
 - include_tasks: utils/once/flag.yml

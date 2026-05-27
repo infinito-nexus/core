@@ -1,4 +1,3 @@
-# tests/unit/plugins/filter/test_get_docker_paths.py
 import unittest
 from unittest.mock import patch
 

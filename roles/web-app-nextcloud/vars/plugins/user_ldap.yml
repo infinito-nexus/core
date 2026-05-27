@@ -1,169 +1,132 @@
+---
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
 plugin_configuration:
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "background_sync_interval"
     configvalue: 43200
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "background_sync_offset"
     configvalue: 0
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "background_sync_prefix"
     configvalue: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}"
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "enabled"
     configvalue: "yes"
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}last_jpegPhoto_lookup"
     configvalue: 0
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_backup_port"
     configvalue: "{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}" # This is just optimized for local port @todo implement for external ports as well
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_base"
     configvalue: "{{ LDAP.DN.ROOT }}"
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_base_groups"
     configvalue: "{{ LDAP.DN.ROOT }}"
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_base_users"
     configvalue: "{{ LDAP.DN.OU.USERS }}"
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_cache_ttl"
     configvalue: 600
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_configuration_active"
     configvalue: 1
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_connection_timeout"
     configvalue: 15
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_display_name"
     configvalue: "cn"
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_dn"
     configvalue: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_email_attr"
     configvalue: "mail"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_experienced_admin"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_gid_number"
     configvalue: "gidNumber"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_group_display_name"
     configvalue: "cn"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_group_filter"
     configvalue: "(&(|(objectclass=groupOfUniqueNames)(objectclass=posixGroup)))"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_group_filter_mode"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_group_member_assoc_attribute"
     configvalue: "uniqueMember"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_groupfilter_objectclass"
     configvalue: "groupOfUniqueNames\nposixGroup"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_host"
     configvalue: "{{ LDAP.SERVER.DOMAIN }}"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_login_filter"
     configvalue: "{{ LDAP.FILTERS.USERS.LOGIN }}"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_login_filter_mode"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_loginfilter_email"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_loginfilter_username"
     configvalue: 1
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_mark_remnants_as_disabled"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_matching_rule_in_chain_state"
     configvalue: "unknown"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_nested_groups"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_paging_size"
     configvalue: 500
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_port"
     configvalue: 389
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_turn_off_cert_check"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_turn_on_pwd_change"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_user_avatar_rule"
     configvalue: "default"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_user_filter_mode"
     configvalue: 0
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_userfilter_objectclass"
     configvalue: "inetOrgPerson"
-  - 
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_userlist_filter"
     configvalue: |-
       {% if lookup('config', application_id, 'services.nextcloud.plugins.user_ldap.user_directory.enabled') %}
@@ -172,15 +135,12 @@ plugin_configuration:
       ()
       {% endif %}
 
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}use_memberof_to_detect_membership"
     configvalue: 1
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "types"
     configvalue: "authentication"
-  -
-    appid: "user_ldap"
+  - appid: "user_ldap"
     configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_expert_username_attr"
     configvalue: "{{ LDAP.USER.ATTRIBUTES.ID }}"

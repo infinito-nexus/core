@@ -3,7 +3,7 @@
 
 - name: Assert token
   ansible.builtin.assert:
-    that: [ "CLOUDFLARE_API_TOKEN | length > 0" ]
+    that: ["CLOUDFLARE_API_TOKEN | length > 0"]
   no_log: "{{ cloudflare_no_log | bool }}"
   when: MODE_ASSERT | bool
 

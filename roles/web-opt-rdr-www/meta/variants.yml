@@ -1,0 +1,9 @@
+---
+- services:
+    dashboard: # nocheck: variants-services-match
+      enabled: true
+      shared: true
+- services:
+    dashboard: # nocheck: variants-services-match
+      enabled: false
+      shared: false

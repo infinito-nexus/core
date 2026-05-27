@@ -1,3 +1,4 @@
+---
 credentials:
   root_password:
     description: Password for the MariaDB root user

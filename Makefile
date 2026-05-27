@@ -2,8 +2,8 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-# SPOT: Global environment is defined in scripts/meta/env/all.sh.
-ENV_SH ?= $(CURDIR)/scripts/meta/env/all.sh
+# SPOT: Global environment is defined in scripts/meta/env/load.sh.
+ENV_SH ?= $(CURDIR)/scripts/meta/env/load.sh
 export ENV_SH
 
 # For non-interactive bash, BASH_ENV is sourced so the env layer applies to *all* Make recipes.
@@ -13,87 +13,72 @@ else
 $(error Missing env file: $(ENV_SH))
 endif
 
-.PHONY: \
-	setup setup-clean install install-ansible install-lint install-venv install-python install-system-python install-skills update-skills agent-install \
-	test lint lint-action lint-ansible lint-python lint-shellcheck autoformat test-lint test-unit test-integration test-external test-deploy test-deploy-app \
-	clean clean-sudo down cache-clean \
-	system-purge system-disk-usage \
-	list tree mig dockerignore chmod-scripts \
-	print-python \
-	dns-setup dns-remove \
-	environment-bootstrap environment-teardown \
-	wsl2-systemd-check wsl2-dns-setup wsl2-trust-windows \
-	apparmor-teardown apparmor-restore \
-	disable-ipv6 restore-ipv6 \
-	trust-ca \
-	restart refresh exec up down stop \
-	build build-missing build-no-cache build-no-cache-all build-cleanup \
-	act-all act-app act-workflow \
-	deploy-fresh-kept-apps container-refresh-inventory deploy-reuse-kept-all container-purge-entity container-purge-system \
-	deploy-fresh-purged-apps deploy-reuse-kept-apps deploy-reuse-purged-apps deploy-fresh-kept-all \
-	deploy-bundles redeploy-bundles \
-	bootstrap mark-development
+.DEFAULT_GOAL := help
 
-# Bootstrap the local development environment.
-environment-bootstrap: wsl2-systemd-check install-python-dev install-lint apparmor-teardown dns-setup disable-ipv6
+.PHONY: act-all
+# Run all act-based deploy checks.
+act-all:
+	@bash scripts/tests/deploy/act/all.sh
 
-# Tear down the local development environment.
-environment-teardown: apparmor-restore dns-remove restore-ipv6
+.PHONY: act-app
+# Run the act-based app deploy check.
+act-app:
+	@bash scripts/tests/deploy/act/app.sh
 
-# Enable systemd on WSL2.
-wsl2-systemd-check:
-	@bash scripts/system/systemd/enable/wsl2.sh
+.PHONY: act-workflow
+# Run the act-based workflow deploy check.
+act-workflow:
+	@bash scripts/tests/deploy/act/workflow.sh
 
-# Set up DNS on WSL2.
-wsl2-dns-setup:
-	@sudo bash scripts/system/network/dns/setup/wsl.sh
+.PHONY: autoformat
+# Auto-format all source files (skips tools that are not installed).
+autoformat: install-lint
+	@bash scripts/lint/wrapper.sh autoformat
 
-# Trust Windows certificates in WSL2.
-wsl2-trust-windows:
-	@bash scripts/system/tls/trust/wsl2.sh
+.PHONY: bootstrap
+# Install dependencies and prepare the project.
+bootstrap: install setup
 
-# Configure DNS on Linux.
-dns-setup: wsl2-dns-setup
-	@bash scripts/system/network/dns/setup/linux.sh
+.PHONY: build
+# Build the local image.
+build: fix-dockerignore
+	@IMAGE_TAG="$$(bash scripts/meta/resolve/image/local.sh)" \
+		bash scripts/image/build.sh
 
-# Remove the DNS configuration.
-dns-remove:
-	@bash scripts/system/network/dns/remove.sh
+.PHONY: build-cleanup
+# Clean up image artifacts.
+build-cleanup:
+	@bash scripts/image/cleanup.sh
 
-# Tear down AppArmor for local development.
-apparmor-teardown:
-	@echo "==> AppArmor: full teardown (local dev)"
-	@if grep -q '^[Yy1]' /sys/module/apparmor/parameters/enabled 2>/dev/null; then \
-		sudo bash scripts/system/apparmor/teardown.sh; \
-	else \
-		echo "[apparmor] AppArmor module is not loaded — skipping teardown"; \
-	fi
+.PHONY: build-dependency
+# Pull the build dependency image.
+build-dependency:
+	@docker pull ghcr.io/kevinveenbirkenbach/pkgmgr-$${INFINITO_DISTRO}:stable
 
-# Restore AppArmor profiles.
-apparmor-restore:
-	@echo "==> AppArmor: restore profiles"
-	@if grep -q '^[Yy1]' /sys/module/apparmor/parameters/enabled 2>/dev/null; then \
-		sudo bash scripts/system/apparmor/restore.sh; \
-	else \
-		echo "[apparmor] AppArmor module is not loaded — skipping restore"; \
-	fi
+.PHONY: build-missing
+# Build the local image if it is missing.
+build-missing:
+	@IMAGE_TAG="$$(bash scripts/meta/resolve/image/local.sh)" \
+		bash scripts/image/build.sh --missing
 
-# Trust the local CA on Linux and WSL2.
-trust-ca:
-	@bash scripts/system/tls/trust/linux.sh
-	@bash scripts/system/tls/trust/wsl2.sh
+.PHONY: build-no-cache
+# Build the local image without cache.
+build-no-cache: build-dependency
+	@IMAGE_TAG="$$(bash scripts/meta/resolve/image/local.sh)" \
+		bash scripts/image/build.sh --no-cache
 
-# Disable IPv6 for local development.
-disable-ipv6:
-	@sudo bash scripts/system/network/ipv6/disable.sh
-	@"$(MAKE)" refresh
+.PHONY: build-no-cache-all
+# Build the no-cache image for every distro.
+build-no-cache-all:
+	@set -euo pipefail; \
+	for d in $${INFINITO_DISTROS}; do \
+		echo "=== build-no-cache: $$d ==="; \
+		INFINITO_DISTRO="$$d" "$(MAKE)" build-no-cache; \
+	done
 
-# Restore IPv6 settings.
-restore-ipv6:
-	@sudo bash scripts/system/network/ipv6/restore.sh
-	@"$(MAKE)" refresh
-
-# Remove ignored files from the working tree; falls back to sudo for container-owned __pycache__/*.pyc, warns and continues if both fail.
+.PHONY: clean
+# Remove ignored files from the working tree.
+# Note: falls back to sudo for container-owned __pycache__/*.pyc; warns and continues if both fail.
 clean:
 	@echo "Removing ignored git files"
 	@if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then \
@@ -109,266 +94,449 @@ clean:
 		echo "WARNING: (cleanup continues)"; \
 	fi
 
-# Wipe on-disk caches under /var/cache/infinito/core/cache/ (stops cache containers first; re-run `make up` to recreate).
-cache-clean:
+.PHONY: clean-cache
+# Wipe on-disk caches under /var/cache/infinito/core/cache/.
+# Note: stops cache containers first; re-run `make compose-up` to recreate them.
+clean-cache:
 	@bash scripts/system/cache/clean.sh
 
+.PHONY: clean-container-owned
+# Remove container-owned generated artefacts (build/, tasks/groups/*.yml).
+# Note: these files are created inside the compose container with the in-container UID (typically `nobody`); the host cannot rm them directly.
+# Note: the helper auto-starts a stopped infinito container before deleting; safe no-op when the targets do not exist.
+clean-container-owned:
+	@bash scripts/system/cache/clean_container_owned.sh
+
+.PHONY: clean-pycache-dirs
+# Remove tracked directories whose only child is a __pycache__ folder.
+# Note: catches orphans left after moving or deleting source files.
+clean-pycache-dirs:
+	@"$${PYTHON}" -m utils.cleanup.pycache_only_dirs
+
+.PHONY: clean-sudo
 # Remove ignored files from the working tree with sudo.
 clean-sudo:
 	@echo "Removing ignored git files with sudo"
 	sudo git clean -fdX;
 
+.PHONY: compose-deploy
+# Run the local deploy router.
+# Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disabled=...] [full_cycle=...] [variant=...] [debug=...]
+# Example: make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true
+# Note: see scripts/tests/deploy/local/deploy/main.sh for the full routing table.
+# Param mode: initialize | reinstall | update (default: initialize)
+# Param apps: comma-separated app ids (e.g. web-app-matomo,web-app-keycloak)
+# Param purge: true | false (default: false) — purge entities before deploy
+# Param type: server | workstation | universal (default: from default.env)
+# Param bundles: comma-separated bundle names; overrides apps when set
+# Param disabled: comma-separated service names to render as disabled
+# Param full_cycle: true | false — when true, also run the async update pass
+# Param variant: matrix round index to pin the redeploy to a specific variant
+# Param debug: true | false (default: from default.env)
+compose-deploy:
+	@$(if $(apps),INFINITO_APPS="$(apps)") \
+	 $(if $(mode),INFINITO_DEPLOY_MODE="$(mode)") \
+	 $(if $(purge),INFINITO_PURGE_ENTITIES="$(purge)") \
+	 $(if $(type),INFINITO_DEPLOY_TYPE="$(type)") \
+	 $(if $(bundles),INFINITO_BUNDLES="$(bundles)") \
+	 $(if $(disabled),INFINITO_SERVICES_DISABLED="$(disabled)") \
+	 $(if $(full_cycle),INFINITO_FULL_CYCLE="$(full_cycle)") \
+	 $(if $(variant),INFINITO_VARIANT="$(variant)") \
+	 $(if $(debug),INFINITO_DEBUG="$(debug)") \
+	 bash scripts/tests/deploy/local/deploy/main.sh
+
+.PHONY: compose-down
+# Stop the development stack.
+compose-down:
+	@"$${PYTHON}" -m cli.administration.deploy.development down
+
+.PHONY: compose-entity-purge
+# Purge one or more app entities from the container.
+compose-entity-purge:
+	@bash scripts/tests/deploy/local/purge/entity.sh
+
+.PHONY: compose-exec
+# Run a shell or one-off command in the running development container.
+# Usage: make compose-exec [cmd="..."]
+# Example: make compose-exec cmd="ls /opt/src/infinito"
+# Param cmd: shell command to run; when unset, opens an interactive shell.
+compose-exec:
+	@cmd='$(cmd)' bash scripts/tests/deploy/local/exec/container.sh
+
+.PHONY: compose-inner-run
+# Run a one-off `docker run` inside the running container (nested Docker-in-Docker).
+# Usage: IMAGE=<ref> [cmd="..."] [INFINITO_RUN_FLAGS="..."] make compose-inner-run
+# Example: IMAGE=alpine cmd='env' make compose-inner-run
+# Param IMAGE: image reference passed to `docker run` (required, e.g. alpine).
+# Param cmd: command to execute inside the sidecar; defaults to the image entrypoint.
+# Param INFINITO_RUN_FLAGS: extra flags forwarded verbatim to `docker run`.
+compose-inner-run:
+	@cmd='$(cmd)' bash scripts/tests/deploy/local/exec/run.sh
+
+.PHONY: compose-inventory-refresh
+# Refresh the container inventory without deploying apps.
+compose-inventory-refresh:
+	@bash scripts/tests/deploy/local/reset/inventory.sh
+
+.PHONY: compose-playwright
+# Rerun a role-local Playwright spec against the live running stack (no redeploy).
+# Usage: make compose-playwright role=<role> [pw="--grep <pattern>"] [keep=true]
+# Example: make compose-playwright role=web-app-dashboard pw="--grep icons" keep=true
+compose-playwright:
+	@: $${role:?role=<role> required, e.g. role=web-app-dashboard}
+	@cmd='$(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' \
+	 bash scripts/tests/deploy/local/exec/container.sh
+
+.PHONY: compose-restart
+# Restart the development stack.
+compose-restart:
+	@"$${PYTHON}" -m cli.administration.deploy.development restart
+
+.PHONY: compose-stop
+# Stop the development stack without removing volumes.
+compose-stop:
+	@"$${PYTHON}" -m cli.administration.deploy.development stop
+
+.PHONY: compose-system-purge
+# Purge the broader container-level deploy artifacts.
+compose-system-purge: compose-entity-purge
+	@bash scripts/tests/deploy/local/purge/inventory.sh
+	@bash scripts/tests/deploy/local/purge/web.sh
+	@bash scripts/tests/deploy/local/purge/lib.sh
+
+.PHONY: compose-up
+# Start the development stack.
+compose-up: install
+	@"$${PYTHON}" -m cli.administration.deploy.development up
+
+.PHONY: console
+# Interactive REPL for the infinito.nexus CLI, running on the host.
+# Note: each line is forwarded to `python -m cli`; Ctrl+C only cancels the current input.
+# Note: exit with `exit`, `quit`, or Ctrl+D.
+console:
+	@"$${PYTHON}" -m cli.console
+
+.PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
-system-disk-usage:
+diagnose-disk-usage:
 	@bash scripts/system/meta/disk-usage.sh
 
-# Run the broad low-hardware cleanup routine.
-system-purge:
-	@bash scripts/system/purge/system.sh
+.PHONY: diagnose-network
+# Run the network-diagnose script inside the infinito container.
+# Note: covers DNS, TCP, TLS, and PMTU on both IPv4 and IPv6.
+diagnose-network:
+	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
 
-# Restart the development stack.
-restart:
-	@"$${PYTHON}" -m cli.deploy.development restart
+.PHONY: dotenv
+# Regenerate .env (SPOT) from default.env + runtime context.
+# Note: runtime context covers distro, cache sizes, secrets, and the like.
+dotenv:
+	@python3 -m cli.meta.env
 
-# Refresh the running development stack only when it already exists.
-refresh:
-	@bash scripts/system/network/docker/stack_refresh.sh
+.PHONY: dotenv-force
+# Force a clean .env regeneration in a stripped environment.
+# Note: avoids stale BASH_ENV INFINITO_* values pinning via setdefault.
+dotenv-force:
+	@rm -f .env
+	@env -i HOME="$${HOME}" PATH="$${PATH}" python3 -m cli.meta.env
 
-# Run a shell (`make exec`) or command (`make exec CMD="..."`) in the running container.
-exec:
-	@bash scripts/tests/deploy/local/exec/container.sh
+.PHONY: environment-bootstrap
+# Bootstrap the local development environment.
+environment-bootstrap: wsl2-systemd-check install-python-dev install-lint security-apparmor-teardown network-dns-setup network-ipv6-disable
 
-# Start the development stack.
-up: install
-	@"$${PYTHON}" -m cli.deploy.development up
+.PHONY: environment-teardown
+# Tear down the local development environment.
+environment-teardown: security-apparmor-restore network-dns-remove network-ipv6-restore
 
-# Stop the development stack.
-down:
-	@"$${PYTHON}" -m cli.deploy.development down
-
-# Stop the development stack without removing volumes.
-stop:
-	@"$${PYTHON}" -m cli.deploy.development stop
-
+.PHONY: fix-chmod
 # Mark all shell scripts under scripts/ as executable.
-chmod-scripts:
+fix-chmod:
 	@find scripts/ -name "*.sh" -exec chmod +x {} \;
 
-# Print the repository role list.
-list:
-	@echo "Generating the roles list"
-	@"$${PYTHON}" -m cli.build.roles_list
-
-# Print the repository tree.
-tree:
-	@echo "Generating Tree"
-	@"$${PYTHON}" -m cli.build.tree -D 2
-
-# Build the meta graph inputs.
-mig: list tree
-	@echo "Creating meta data for meta infinity graph"
-
-# Build the local image.
-build: dockerignore
-	@IMAGE_TAG="$$(bash scripts/meta/resolve/image/local.sh)" \
-		bash scripts/image/build.sh
-
-# Build the local image if it is missing.
-build-missing:
-	@IMAGE_TAG="$$(bash scripts/meta/resolve/image/local.sh)" \
-		bash scripts/image/build.sh --missing
-
-# Pull the build dependency image.
-build-dependency:
-	@docker pull ghcr.io/kevinveenbirkenbach/pkgmgr-$${INFINITO_DISTRO}:stable
-
-# Build the local image without cache.
-build-no-cache: build-dependency
-	@IMAGE_TAG="$$(bash scripts/meta/resolve/image/local.sh)" \
-		bash scripts/image/build.sh --no-cache
-
-# Build the no-cache image for every distro.
-build-no-cache-all:
-	@set -euo pipefail; \
-	for d in $${DISTROS}; do \
-	  echo "=== build-no-cache: $$d ==="; \
-	  INFINITO_DISTRO="$$d" "$(MAKE)" build-no-cache; \
-	done
-
-# Clean up image artifacts.
-build-cleanup:
-	@bash scripts/image/cleanup.sh
-
+.PHONY: fix-dockerignore
 # Regenerate .dockerignore from .gitignore.
-dockerignore:
-	@echo "Create dockerignore"
+# Note: .gitignore carries the `.git` entry Docker needs.
+# Note: race-safe under parallel `make setup` invocations.
+fix-dockerignore:
+	@echo "Create .dockerignore"
 	cat .gitignore > .dockerignore
-	echo ".git" >> .dockerignore
 
+.PHONY: help
+# Print every Make target with the description from its preceding comment line.
+# Usage: make help [target=<name>]
+# Example: make help target=compose-playwright
+help:
+	@bash scripts/make/help.sh $(target)
+
+.PHONY: install
+# Install all runtime dependencies.
+# Note: incremental via a stamp file (see scripts/install/all.sh).
+install:
+	@bash scripts/install/all.sh
+
+.PHONY: install-agent
+# Install OS-level sandbox dependencies required by the Claude Code sandbox.
+# Note: pulls in bubblewrap and socat.
+install-agent:
+	@bash scripts/install/sandbox.sh
+
+.PHONY: install-ansible
 # Install Ansible dependencies.
 install-ansible:
 	@ANSIBLE_COLLECTIONS_DIR="$(HOME)/.ansible/collections" \
 	bash scripts/install/ansible.sh
 
+.PHONY: install-force
+# Force a full reinstall.
+# Note: drops the install stamp and rebuilds it.
+install-force:
+	@bash scripts/install/all.sh --force
+
+.PHONY: install-lint
 # Install lint dependencies.
+# Note: host or docker selected via INFINITO_LINT_RUNNER; incremental via a per-env stamp.
 install-lint:
-	@bash scripts/install/lint.sh
+	@bash scripts/install/wrapper.sh
 
-# Install agent skills from skills-lock.json.
-install-skills:
-	@bash scripts/install/skills/install.sh
+.PHONY: install-lint-force
+# Force a full lint reinstall.
+# Note: drops the per-env stamp and rebuilds it.
+install-lint-force:
+	@bash scripts/install/wrapper.sh --force
 
-# Update all agent skills to latest versions and refresh skills-lock.json.
-update-skills:
-	@bash scripts/install/skills/update.sh
-
-# Install the system Python prerequisites.
-install-system-python:
-	@bash roles/dev-python/files/install.sh ensure
-
-# Install the virtual environment.
-install-venv: install-system-python
-	@bash scripts/install/venv.sh
-
+.PHONY: install-python
 # Install Python tooling.
 install-python: install-venv
 	@bash scripts/install/python.sh
 
+.PHONY: install-python-dev
 # Install Python tooling including lint and dev dependencies.
 install-python-dev: install-python
 	@bash scripts/install/python.sh dev
 	@bash scripts/install/pre-commit.sh
 
-# Install all runtime dependencies.
-install: install-python install-ansible
+.PHONY: install-skills
+# Install agent skills from skills-lock.json.
+install-skills:
+	@bash scripts/install/skills/install.sh
 
-# Install OS-level sandbox dependencies (bubblewrap, socat) required by the Claude Code sandbox.
-agent-install:
-	@bash scripts/install/sandbox.sh
+.PHONY: install-system-python
+# Install the system Python prerequisites.
+install-system-python:
+	@bash roles/dev-python/files/install.sh ensure
 
+.PHONY: install-venv
+# Install the virtual environment.
+install-venv: install-system-python
+	@bash scripts/install/venv.sh
+
+.PHONY: lint
+# Run all lint checks in parallel.
+# Note: each check runs on host or in docker per INFINITO_LINT_RUNNER.
+lint: install-lint
+	@bash scripts/make/parallel.sh lint-action \
+		lint-ansible \
+		lint-javascript \
+		lint-makefile \
+		lint-markdown \
+		lint-playwright \
+		lint-python \
+		lint-shellcheck
+
+.PHONY: lint-action
+# Run the GitHub Actions lint checks.
+lint-action: install-lint
+	@bash scripts/lint/wrapper.sh action
+
+.PHONY: lint-ansible
+# Run Ansible lint checks.
+# Note: runs ansible's syntax-check plus ansible-lint.
+lint-ansible: install-lint setup
+	@bash scripts/lint/wrapper.sh ansible
+
+.PHONY: lint-javascript
+# Run ESLint over the project's JavaScript files.
+# Note: covers Playwright specs and persona helpers.
+lint-javascript: install-lint
+	@bash scripts/lint/wrapper.sh javascript
+
+.PHONY: lint-makefile
+# Run checkmake against the Makefile.
+lint-makefile: install-lint
+	@bash scripts/lint/wrapper.sh makefile
+
+.PHONY: lint-markdown
+# Run Markdown lint checks via markdownlint-cli2.
+lint-markdown: install-lint
+	@bash scripts/lint/wrapper.sh markdown
+
+.PHONY: lint-playwright
+# Verify every role's Playwright spec parses + resolves its helpers.
+# Note: stages the spec like test-e2e-playwright does and runs `npx playwright test --list`.
+lint-playwright: install-lint
+	@bash scripts/lint/wrapper.sh playwright
+
+.PHONY: lint-python
+# Run Python lint checks.
+lint-python: install-lint
+	@bash scripts/lint/wrapper.sh python
+
+.PHONY: lint-shellcheck
+# Run shellcheck lint checks.
+lint-shellcheck: install-lint
+	@bash scripts/lint/wrapper.sh shellcheck
+
+.PHONY: meta-list
+# Print the repository role list.
+meta-list:
+	@echo "Generating the roles list"
+	@"$${PYTHON}" -m cli.build.list
+
+.PHONY: meta-mig
+# Build the meta graph inputs.
+meta-mig: meta-list meta-tree
+	@echo "Creating meta data for meta infinity graph"
+
+.PHONY: meta-tree
+# Print the repository tree.
+meta-tree:
+	@echo "Generating Tree"
+	@"$${PYTHON}" -m cli.build.tree -D 2
+
+.PHONY: network-dns-remove
+# Remove the DNS configuration.
+network-dns-remove:
+	@bash scripts/system/network/dns/remove.sh
+
+.PHONY: network-dns-setup
+# Configure DNS on Linux.
+network-dns-setup: wsl2-dns-setup
+	@bash scripts/system/network/dns/setup/linux.sh
+
+.PHONY: network-ipv6-disable
+# Disable IPv6 for local development.
+network-ipv6-disable:
+	@sudo bash scripts/system/network/ipv6/disable.sh
+	@"$(MAKE)" network-refresh
+
+.PHONY: network-ipv6-restore
+# Restore IPv6 settings.
+network-ipv6-restore:
+	@sudo bash scripts/system/network/ipv6/restore.sh
+	@"$(MAKE)" network-refresh
+
+.PHONY: network-refresh
+# Refresh the running development stack only when it already exists.
+network-refresh:
+	@bash scripts/system/network/docker/stack_refresh.sh
+
+.PHONY: network-trust-ca
+# Trust the local CA on Linux and WSL2.
+network-trust-ca:
+	@bash scripts/system/tls/trust/linux.sh
+	@bash scripts/system/tls/trust/wsl2.sh
+
+.PHONY: security-apparmor-restore
+# Restore AppArmor profiles.
+security-apparmor-restore:
+	@echo "==> AppArmor: restore profiles"
+	@if grep -q '^[Yy1]' /sys/module/apparmor/parameters/enabled 2>/dev/null; then \
+		sudo bash scripts/system/apparmor/restore.sh; \
+	else \
+		echo "[apparmor] AppArmor module is not loaded — skipping restore"; \
+	fi
+
+.PHONY: security-apparmor-teardown
+# Tear down AppArmor for local development.
+security-apparmor-teardown:
+	@echo "==> AppArmor: full teardown (local dev)"
+	@if grep -q '^[Yy1]' /sys/module/apparmor/parameters/enabled 2>/dev/null; then \
+		sudo bash scripts/system/apparmor/teardown.sh; \
+	else \
+		echo "[apparmor] AppArmor module is not loaded — skipping teardown"; \
+	fi
+
+.PHONY: setup
 # Run the setup step after generating .dockerignore.
-setup: dockerignore
+setup: fix-dockerignore dotenv
 	@bash scripts/setup.sh
 
-# Create the development setup marker.
-mark-development: dockerignore
-	touch env.development
-
-# Install dependencies and prepare the project.
-bootstrap: install setup
-
+.PHONY: setup-clean
 # Run setup after cleaning ignored files.
 setup-clean: clean setup
 	@echo "Full build with cleanup before was executed."
 
-# Run all lint checks.
-lint: lint-action lint-ansible lint-python lint-shellcheck
+.PHONY: system-purge
+# Run the broad low-hardware cleanup routine.
+system-purge:
+	@bash scripts/system/purge/system.sh
 
-# Run the GitHub Actions lint checks.
-lint-action:
-	@bash scripts/lint/action.sh
+.PHONY: test
+# Run the full test pipeline (lint + tests).
+# Note: parallel execution with fail-fast.
+test: install install-lint
+	@bash scripts/make/parallel.sh \
+		lint \
+		test-external \
+		test-integration \
+		test-lint \
+		test-unit
 
-# Run Ansible lint checks.
-lint-ansible:
-	@bash scripts/lint/ansible.sh
-
-# Run Python lint checks.
-lint-python:
-	@bash scripts/lint/python.sh
-
-# Run shellcheck lint checks.
-lint-shellcheck:
-	@bash scripts/lint/shellcheck.sh
-
-# Auto-format all source files (skips tools that are not installed).
-autoformat:
-	@bash scripts/lint/autoformat.sh
-
-# Run the full test suite.
-test: lint test-lint test-unit test-integration test-deploy
-	@echo "✅ Full test (setup + tests) executed."
-
-# Run the lint test suite.
-test-lint: install
-	@TEST_TYPE="lint" \
-	INFINITO_COMPILE=0 \
-	bash scripts/tests/code.sh
-
-# Run the unit test suite.
-test-unit: install
-	@TEST_TYPE="unit" \
-	INFINITO_COMPILE=0 \
-	bash scripts/tests/code.sh
-
-# Run the integration test suite.
-test-integration: install
-	@TEST_TYPE="integration" \
-	INFINITO_COMPILE=0 \
-	bash scripts/tests/code.sh
-
+.PHONY: test-external
 # Run the external test suite.
 test-external: install
-	@TEST_TYPE="external" \
+	@INFINITO_TEST_TYPE="external" \
 	INFINITO_COMPILE=0 \
-	bash scripts/tests/code.sh
+	bash scripts/tests/code/wrapper.sh
 
-# Run all act-based deploy checks.
-act-all:
-	@bash scripts/tests/deploy/act/all.sh
+.PHONY: test-integration
+# Run the integration test suite.
+test-integration: install
+	@INFINITO_TEST_TYPE="integration" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh
 
-# Run the act-based app deploy check.
-act-app:
-	@bash scripts/tests/deploy/act/app.sh
+.PHONY: test-lint
+# Run the lint test suite.
+test-lint: install
+	@INFINITO_TEST_TYPE="lint" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh
 
-# Run the act-based workflow deploy check.
-act-workflow:
-	@bash scripts/tests/deploy/act/workflow.sh
+.PHONY: test-signed
+# Verify HEAD is signed.
+# Note: `git log %G?` returns N for unsigned; gates the pre-push hook against unsigned tips.
+test-signed:
+	@status="$$(git log -1 --pretty=%G?)"; \
+	if [ "$$status" = "N" ]; then \
+		echo "❌ HEAD commit is not signed. Use 'git-sign-push' or 'git commit -S'." >&2; \
+		exit 1; \
+	fi; \
+	echo "✅ HEAD commit signature status: $$status"
 
-# Refresh the container inventory without deploying apps.
-container-refresh-inventory:
-	@bash scripts/tests/deploy/local/reset/inventory.sh
+.PHONY: test-unit
+# Run the unit test suite.
+test-unit: install
+	@INFINITO_TEST_TYPE="unit" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh
 
-# Purge one or more app entities from the container.
-container-purge-entity:
-	@bash scripts/tests/deploy/local/purge/entity.sh
+.PHONY: update-skills
+# Update all agent skills to latest versions and refresh skills-lock.json.
+update-skills:
+	@bash scripts/install/skills/update.sh
 
-# Purge the broader container-level deploy artifacts.
-container-purge-system: container-purge-entity
-	@bash scripts/tests/deploy/local/purge/inventory.sh
-	@bash scripts/tests/deploy/local/purge/web.sh
-	@bash scripts/tests/deploy/local/purge/lib.sh
+.PHONY: wsl2-dns-setup
+# Set up DNS on WSL2.
+wsl2-dns-setup:
+	@sudo bash scripts/system/network/dns/setup/wsl.sh
 
-# Create a fresh inventory and deploy all apps.
-deploy-fresh-kept-all:
-	@echo "=== local full deploy (type=$${TEST_DEPLOY_TYPE}, distro=$${INFINITO_DISTRO}) ==="
-	@bash scripts/tests/deploy/local/deploy/fresh-kept-all.sh
+.PHONY: wsl2-systemd-check
+# Enable systemd on WSL2.
+wsl2-systemd-check:
+	@bash scripts/system/systemd/enable/wsl2.sh
 
-# Create a fresh inventory and deploy one or more apps.
-deploy-fresh-kept-apps:
-	@: "$${APPS:?APPS must be set (e.g. APPS=web-app-nextcloud)}"
-	@bash scripts/tests/deploy/local/deploy/fresh-kept-app.sh "$${APPS}"
-
-# Deploy one or more apps with purged entities. Set FULL_CYCLE=true to also run the update pass.
-deploy-fresh-purged-apps: down up
-	@bash scripts/tests/deploy/local/deploy/fresh-purged-app.sh
-
-# Redeploy one or more apps on an existing inventory.
-deploy-reuse-kept-apps:
-	@DEBUG=true bash scripts/tests/deploy/local/deploy/reuse-kept-app.sh
-
-# Redeploy all apps on an existing inventory.
-deploy-reuse-kept-all:
-	@bash scripts/tests/deploy/local/deploy/reuse-kept-all.sh
-
-# Purge one or more app entities, then redeploy them on existing inventory.
-deploy-reuse-purged-apps: container-purge-entity
-	@$(MAKE) deploy-reuse-kept-apps
-
-# One-off deploy of all apps cumulated from one or more inventory bundles. Set FULL_CYCLE=true to also run the update pass (default: false).
-deploy-bundles: down up
-	@bash scripts/tests/deploy/local/deploy/bundles.sh
-
-# Redeploy all apps cumulated from inventory bundles on an existing inventory (no down/up, no entity purge; requires a prior deploy-bundles run).
-redeploy-bundles:
-	@bash scripts/tests/deploy/local/deploy/redeploy-bundles.sh
-
+.PHONY: wsl2-trust-windows
+# Trust Windows certificates in WSL2.
+wsl2-trust-windows:
+	@bash scripts/system/tls/trust/wsl2.sh

@@ -1,11 +1,12 @@
+---
 - name: "load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers:  false
-    docker_git_repository_address:  "{{ LITTLEJS_REPOSITORY_BASE }}.git"
-    docker_git_repository_pull:     true
-    docker_git_repository_version:   "main"
+    compose_handlers_flush: false
+    compose_repository_url: "{{ LITTLEJS_REPOSITORY }}"
+    compose_repository_pull: true
+    compose_repository_ref: "{{ LITTLEJS_REF }}"
 
 - name: "Load LittleJS example metadata"
   include_vars:
@@ -13,7 +14,7 @@
 
 - name: "Render LittleJS index.html"
   template:
-    src:  "html/index.html.j2"
+    src: "html/index.html.j2"
     dest: "{{ LITTLEJS_INDEX_HOST_ABS }}"
     mode: "0644"
   notify:
@@ -22,7 +23,7 @@
 
 - name: "Render LittleJS run.html for shorts"
   template:
-    src:  "html/run.html.j2"
+    src: "html/run.html.j2"
     dest: "{{ LITTLEJS_RUN_HOST_ABS }}"
     mode: "0644"
   notify:

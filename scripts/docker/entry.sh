@@ -10,21 +10,22 @@ fi
 # Compute dynamically if not provided from outside
 echo "[docker-infinito] before pkgmgr path"
 INFINITO_PATH="$(pkgmgr path infinito)"
-echo "[docker-infinito] after pkgmgr path: ${INFINITO_PATH}"
+echo "[docker-infinito] after pkgmgr path: ${INFINITO_PATH}" # nocheck: container-bootstrap
 
-INFINITO_SRC_DIR="/opt/src/infinito"
+# INFINITO_SRC_DIR is provided by compose / Dockerfile ENV. Assert strictly.
+: "${INFINITO_SRC_DIR:?INFINITO_SRC_DIR must be set by the container environment}"
 export INFINITO_PATH
 export INFINITO_SRC_DIR
 
 run_local_build() {
-	echo "[docker-infinito] Build enabled (INFINITO_COMPILE=1)"
-	echo "[docker-infinito] Using ${INFINITO_PATH} as working directory"
+	echo "[docker-infinito] Build enabled (--compile)"
+	echo "[docker-infinito] Using ${INFINITO_PATH} as working directory" # nocheck: container-bootstrap
 
-	mkdir -p "${INFINITO_PATH}"
-	cd "${INFINITO_PATH}"
+	mkdir -p "${INFINITO_PATH}" # nocheck: container-bootstrap
+	cd "${INFINITO_PATH}"       # nocheck: container-bootstrap
 
-	echo "[docker-infinito] Copy ${INFINITO_SRC_DIR} to ${INFINITO_PATH}..."
-	rsync -a --delete --chown=root:root --exclude='.git' "${INFINITO_SRC_DIR}/" "${INFINITO_PATH}/"
+	echo "[docker-infinito] Copy ${INFINITO_SRC_DIR} to ${INFINITO_PATH}..."                        # nocheck: container-bootstrap
+	rsync -a --delete --chown=root:root --exclude='.git' "${INFINITO_SRC_DIR}/" "${INFINITO_PATH}/" # nocheck: container-bootstrap
 
 	echo "[docker-infinito] Reinstall via 'make install'..."
 	make install
@@ -33,16 +34,27 @@ run_local_build() {
 	pkgmgr version infinito
 }
 
-# ---------------------------------------------------------------------------
-# DEV mode: rebuild infinito
-# ---------------------------------------------------------------------------
-if [[ "${INFINITO_COMPILE:-0}" == "1" ]]; then
-	if [[ "${INFINITO_COMPILE_SILENCE:-0}" == "1" ]]; then
-		run_local_build >/dev/null 2>&1
-	else
+# Parse bootstrap flags. Each flag triggers its action directly; `--`
+# terminates flag parsing so the rest of argv is the exec target.
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	--compile)
+		shift
 		run_local_build
-	fi
-fi
+		;;
+	--compile-silent)
+		shift
+		run_local_build >/dev/null 2>&1
+		;;
+	--)
+		shift
+		break
+		;;
+	*)
+		break
+		;;
+	esac
+done
 
 # ---------------------------------------------------------------------------
 # Hand off to infinito or arbitrary command
@@ -51,6 +63,6 @@ if [[ $# -eq 0 ]]; then
 	echo "[docker-infinito] No arguments provided. Showing infinito help..."
 	exec infinito --help
 else
-	cd "${INFINITO_PATH}"
+	cd "${INFINITO_PATH}" # nocheck: container-bootstrap
 	exec "$@"
 fi

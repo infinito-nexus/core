@@ -1,3 +1,4 @@
+---
 - name: install docker
   package:
     name:
@@ -6,7 +7,7 @@
     state: present
 
 - name: "Adding user {{ lookup('users', WORKSTATION_USER).username }} to relevant docker usergroup"
-  user: 
+  user:
     name: "{{ lookup('users', WORKSTATION_USER).username }}"
     groups: docker
-    append: yes
+    append: true

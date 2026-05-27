@@ -1,3 +1,4 @@
+---
 yay_install_packages: []
 yay_install_use: yay
 yay_install_become_user: aur_builder

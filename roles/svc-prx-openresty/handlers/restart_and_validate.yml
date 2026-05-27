@@ -1,3 +1,4 @@
+---
 - name: Validate OpenResty configuration (Pre-Flight-Check)
   ansible.builtin.command: >
     container exec {{ OPENRESTY_CONTAINER }} openresty -t -q

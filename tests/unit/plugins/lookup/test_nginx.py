@@ -1,4 +1,3 @@
-# tests/unit/plugins/lookup/test_nginx.py
 import unittest
 from unittest.mock import patch
 
@@ -22,7 +21,7 @@ class _FakeTlsResolveLookup:
             raise AssertionError(f"Unexpected terms passed to tls: {terms}")
 
         # Legacy kwarg want must be ignored; if it appears, fail (we don't expect it anymore)
-        if "want" in kwargs and kwargs["want"]:
+        if kwargs.get("want"):
             raise AssertionError(f"Unexpected want kwarg passed to tls: {kwargs}")
 
         return [self._protocol]
@@ -145,16 +144,18 @@ class TestNginxPathsLookup(unittest.TestCase):
         )
 
     def test_invalid_protocol_override_raises(self):
-        with patch(
-            "plugins.lookup.nginx.get",
-            side_effect=self._fake_get,
+        with (
+            patch(
+                "plugins.lookup.nginx.get",
+                side_effect=self._fake_get,
+            ),
+            self.assertRaises(AnsibleError),
         ):
-            with self.assertRaises(AnsibleError):
-                self.plugin.run(
-                    ["files.domain", "example.com"],
-                    variables=self.variables,
-                    protocol="ftp",
-                )
+            self.plugin.run(
+                ["files.domain", "example.com"],
+                variables=self.variables,
+                protocol="ftp",
+            )
 
     def test_invalid_usage_raises(self):
         with patch(

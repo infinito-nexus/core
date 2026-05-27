@@ -1,16 +1,12 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'The Meta Infinite Graph offers you an interactive, visual map of all Infinito.Nexus roles and their dependencies—making it easy to explore, understand, and navigate the complete structure of your infrastructure.
-
-    '
+  description: "The Meta Infinite Graph offers you an interactive, visual map of all Infinito.Nexus roles and their dependencies—making it easy to explore, understand,
+    and navigate the complete structure of your infrastructure.\n"
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   galaxy_tags:
     - infinito
     - meta
@@ -19,3 +15,20 @@ galaxy_info:
     - graph
     - mig
   issue_tracker_url: https://github.com/kevinveenbirkenbach/meta-infinite-graph/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

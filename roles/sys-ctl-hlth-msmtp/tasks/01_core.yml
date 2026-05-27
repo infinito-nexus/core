@@ -1,11 +1,15 @@
+---
 - include_role:
     name: sys-service
   vars:
-    system_service_tpl_on_failure:      "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
-    system_service_on_calendar:         "{{ SYS_SCHEDULE_HEALTH_MSMTP }}"
-    system_service_timer_enabled:       true
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_MSMTP }}"
+    system_service_timer_enabled: true
+    system_service_tpl_environment:
+      - "MAIL_RECIPIENT={{ lookup('mail_recipient') }}"
+      - "MAIL_TIMEOUT={{ lookup('email').timeout }}"
 
     # Force early check if mail sending works
     system_service_force_flush_instant: "{{ MODE_DEBUG | bool }}"
-    system_service_force_flush_final:   false
+    system_service_force_flush_final: false
 - include_tasks: utils/once/flag.yml

@@ -1,15 +1,74 @@
-# Matrix-deploy variant overrides per requirement 013. Variant 0 is
+---
+# Matrix-deploy variant overrides. Variant 0 is
 # the canonical OIDC variant (Jenkins's `oic-auth` plugin against
 # Keycloak). Variant 1 flips the role onto the `ldap` plugin against
 # `svc-db-openldap`.
 
 # variant 0: OIDC variant (canonical default).
-- {}
 
-# variant 1: LDAP variant. Disable OIDC and enable LDAP so Jenkins's
-# core LDAP plugin is the exercised auth path.
+- services:
+    dashboard:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oidc:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
 - services:
     oidc:
       enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+- services:
     ldap:
       enabled: true
+      shared: true
+    oidc:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

@@ -14,7 +14,7 @@ def _make_applications(*app_ids: str, channels: tuple = ()) -> dict:
     apps listed in *channels* get services.prometheus.communication.channel: true;
     others do not.
     """
-    # Per req-008 the materialised payload moved from
+    # Per the materialised payload moved from
     # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
     return {
         app_id: (

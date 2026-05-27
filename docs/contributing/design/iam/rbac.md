@@ -1,10 +1,14 @@
 # RBAC 🛂
 
-This page is the design SPOT for the Infinito.Nexus RBAC layer that provisions LDAP groups, synchronises them to Keycloak, and emits them as the OIDC `groups` claim. For IAM fundamentals that span both providers, see [common.md](common.md). For the LDAP server layer, see [ldap.md](ldap.md). For the OIDC client layer, see [oidc.md](oidc.md). Operator-facing steps live in [Administration RBAC](../../../administration/configuration/rbac.md).
+This page describes the design of the Infinito.Nexus RBAC layer that provisions LDAP groups, synchronises them to Keycloak, and emits them as the OIDC `groups` claim.
+For IAM fundamentals that span both providers, see [common.md](common.md).
+For the LDAP server layer, see [ldap.md](ldap.md).
+For the OIDC client layer, see [oidc.md](oidc.md).
+Operator-facing steps live in [Administration RBAC](../../../administration/configuration/rbac.md).
 
 ## LDAP layout contract 🌳
 
-Every role that declares RBAC at the file root of its `meta/rbac.yml` (per [req-008](../../../requirements/008-role-meta-layout.md)) MUST be provisioned with a per-application namespace under the container named by `RBAC.GROUP.NAME` (default `roles`). Each LDAP group entry is a direct child of that container; the application identifier (and the tenant identifier, if any) is encoded into the CN with hyphen separators:
+Every role that declares RBAC at the file root of its `meta/rbac.yml` MUST be provisioned with a per-application namespace under the container named by `RBAC.GROUP.NAME` (default `roles`). Each LDAP group entry is a direct child of that container; the application identifier (and the tenant identifier, if any) is encoded into the CN with hyphen separators:
 
 ```
 cn=<application_id>-<role_name>,ou=roles,<LDAP_DN_BASE>                       # non-tenant / global role
@@ -65,7 +69,8 @@ The `groups` client scope emits the OIDC `groups` claim with `full.path=true`, s
 /roles/web-app-wordpress/network-administrator
 ```
 
-The scope MUST be a **default** client scope on every OIDC client that needs group-based RBAC. Making it optional again reintroduces the userinfo regression that requirement 004 fixed: when optional with `include.in.token.scope=false`, Keycloak drops the group-membership mapper from userinfo even when the scope is explicitly requested, so consumers receive no groups and fall back to `subscriber`.
+The scope MUST be a **default** client scope on every OIDC client that needs group-based RBAC.
+Making it optional reintroduces a userinfo regression: when optional with `include.in.token.scope=false`, Keycloak drops the group-membership mapper from userinfo even when the scope is explicitly requested, so consumers receive no groups and fall back to `subscriber`.
 
 ## See also 🔗
 

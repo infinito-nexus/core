@@ -1,3 +1,4 @@
+---
 # which is necessary for building
 - name: install which
   package:
@@ -7,16 +8,16 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers:  true
-    webserver_vhost_flavour:        "basic"
-    application_id:                 "web-app-discourse"
+    compose_handlers_flush: true
+    webserver_vhost_flavour: "basic"
+    application_id: "web-app-discourse"
 - name: Pull Discourse docker repository
   git:
-    repo:    "{{ DISCOURSE_REPOSITORY_URL }}"
-    dest:    "{{ DISCOURSE_REPOSITORY_DIR }}"
-    version: "{{ DISCOURSE_VERSION }}"
-    update:  yes
-    depth:   1
+    repo: "{{ DISCOURSE_REPOSITORY_URL }}"
+    dest: "{{ DISCOURSE_REPOSITORY_DIR }}"
+    version: "{{ DISCOURSE_REF }}"
+    update: true
+    depth: 1
   register: discourse_repo_pull
   retries: 12
   delay: 30
@@ -26,13 +27,13 @@
 - name: set chmod 700 for '{{ DISCOURSE_CONTAINERS_DIR }}'
   ansible.builtin.file:
     path: "{{ DISCOURSE_CONTAINERS_DIR }}"
-    mode: '700'
+    mode: "700"
     state: directory
 - name: "copy configuration to '{{ DISCOURSE_APPLICATION_YML_DEST }}'"
   template:
     src: config.yml.j2
     dest: "{{ DISCOURSE_APPLICATION_YML_DEST }}"
-    mode: '0640'
+    mode: "0640"
   notify: recreate discourse
 - name: "Verify that '{{ DISCOURSE_CONTAINER }}' is running"
   ansible.builtin.command:

@@ -47,7 +47,7 @@ jobs:
           echo "owner=${owner}" >> "$GITHUB_OUTPUT"
           echo "repo_name=${repo_name}" >> "$GITHUB_OUTPUT"
 
-      - name: Install jq
+      - name: 📦 Install jq
         shell: bash
         run: ./scripts/install/apt.sh jq
 
@@ -57,13 +57,12 @@ jobs:
         run: |
           set -euo pipefail
           distros="${{ inputs.distros }}"
-          distros="${distros:-debian}"
-          json="$(printf '%s' "${distros}" | jq -Rc 'split(" ") | map(select(length>0))')"
+          json="$(scripts/github/runner/distros_matrix.sh "${distros:-debian}")"
           echo "matrix=${json}" >> "$GITHUB_OUTPUT"
           echo "Using matrix: ${json}"
 
   dns:
-    name: 🌐 Test DNS (${{ matrix.distro }})
+    name: 🌐 DNS (${{ matrix.distro }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: prepare
@@ -93,12 +92,11 @@ jobs:
           INFINITO_DISTRO: ${{ matrix.distro }}
         run: |
           set -euo pipefail
-          make up
+          make compose-up
 
       - name: DNS test suite
         shell: bash
         env:
-          ENV_FILE: env.ci
           INFINITO_DISTRO: ${{ matrix.distro }}
         run: |
           set -euo pipefail
@@ -118,6 +116,6 @@ jobs:
           INFINITO_DISTRO: ${{ matrix.distro }}
         run: |
           set -euo pipefail
-          # shellcheck source=scripts/meta/env/defaults.sh
-          source scripts/meta/env/defaults.sh
+          # shellcheck source=scripts/meta/env/load.sh
+          source scripts/meta/env/load.sh
           docker logs "${INFINITO_CONTAINER}" --tail=200 || true

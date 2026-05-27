@@ -40,11 +40,10 @@ x-op-app: &app
     command: "./docker/prod/web"
     container_name: {{ OPENPROJECT_WEB_CONTAINER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      cache:
-        condition: service_started
-      {{ OPENPROJECT_SEEDER_SERVICE }}:
-        condition: service_started
+{{ lookup('container_depends_on', application_id, extra={
+  'cache': {'condition': 'service_started'},
+  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
+}) }}
 {% set container_port = 8080 %}
 {% set container_healthcheck = 'health_checks/default' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
@@ -59,11 +58,10 @@ x-op-app: &app
     command: "./docker/prod/worker"
     container_name: {{ OPENPROJECT_WORKER_CONTAINER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      cache:
-        condition: service_started
-      {{ OPENPROJECT_SEEDER_SERVICE }}:
-        condition: service_started
+{{ lookup('container_depends_on', application_id, extra={
+  'cache': {'condition': 'service_started'},
+  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
+}) }}
     volumes:
       - "data:/var/openproject/assets"
       - "{{ OPENPROJECT_DUMMY_VOLUME }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
@@ -75,11 +73,10 @@ x-op-app: &app
     command: "./docker/prod/cron"
     container_name: {{ OPENPROJECT_CRON_CONTAINER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      cache:
-        condition: service_started
-      {{ OPENPROJECT_SEEDER_SERVICE }}:
-        condition: service_started
+{{ lookup('container_depends_on', application_id, extra={
+  'cache': {'condition': 'service_started'},
+  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
+}) }}
     volumes:
       - "data:/var/openproject/assets"
       - "{{ OPENPROJECT_DUMMY_VOLUME }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
@@ -98,7 +95,6 @@ x-op-app: &app
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': OPENPROJECT_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Local action plugin that extends ansible's uri action plugin with centralized
 # retry defaults while preserving full uri feature compatibility.
@@ -22,10 +21,10 @@ class ActionModule(UriActionModule):
 
         # Respect explicit Ansible until/retry logic to avoid nested loops.
         if self._task_keyword_is_set("until"):
-            return super(ActionModule, self).run(tmp=tmp, task_vars=task_vars)
+            return super().run(tmp=tmp, task_vars=task_vars)
 
         if self._task.async_val:
-            return super(ActionModule, self).run(tmp=tmp, task_vars=task_vars)
+            return super().run(tmp=tmp, task_vars=task_vars)
 
         retries = self._task_keyword_int("retries", self.DEFAULT_RETRIES)
         delay = self._task_keyword_int("delay", self.DEFAULT_DELAY)
@@ -33,7 +32,7 @@ class ActionModule(UriActionModule):
         attempts_total = max(1, retries + 1)
         last_result = None
         for attempt in range(1, attempts_total + 1):
-            last_result = super(ActionModule, self).run(tmp=tmp, task_vars=task_vars)
+            last_result = super().run(tmp=tmp, task_vars=task_vars)
             if not last_result.get("failed", False):
                 last_result["attempts"] = attempt
                 return last_result

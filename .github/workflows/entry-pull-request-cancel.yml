@@ -27,4 +27,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.repository }}
           CURRENT_RUN_ID: ${{ github.run_id }}
-        run: bash scripts/github/cancel_pull_request_runs.sh
+        run: bash scripts/github/cancel/pull_request_runs.sh

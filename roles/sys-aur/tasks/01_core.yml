@@ -1,3 +1,4 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: Include dependencies
@@ -20,7 +21,7 @@
   become: true
   ansible.builtin.user:
     name: "{{ AUR_BUILDER_USER }}"
-    create_home: yes
+    create_home: true
     group: "{{ AUR_BUILDER_GROUP }}"
 
 - name: Allow AUR builder to run pacman without password
@@ -28,17 +29,18 @@
   ansible.builtin.lineinfile:
     path: "{{ AUR_BUILDER_SUDOERS_PATH }}"
     line: "{{ AUR_BUILDER_USER }} ALL=(ALL) NOPASSWD: /usr/bin/pacman"
-    create: yes
+    create: true
     validate: "visudo -cf %s"
 
 - name: Clone yay from AUR
   become: true
   become_user: "{{ AUR_BUILDER_USER }}"
   git:
-    repo: https://aur.archlinux.org/yay.git  # nocheck: url — git clone URL, not a browser link
+    repo: "{{ AUR_YAY_REPOSITORY }}"
+    version: "{{ AUR_YAY_REF }}"
     dest: "/home/{{ AUR_BUILDER_USER }}/yay"
-    clone: yes
-    update: yes
+    clone: true
+    update: true
     depth: 1
 
 - name: Check whether yay is present

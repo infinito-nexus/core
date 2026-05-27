@@ -1,34 +1,41 @@
+---
 # Adapt the values in your inventory file
 defaults_service_provider:
-  type:             "legal"                                                       # Accepted Values: natural, legal
+  type: "legal" # Accepted Values: natural, legal
   company:
-    titel:          "{{ SOFTWARE_NAME }} by Kevin Veen-Birkenbach"
-    slogan:         "{{ SOFTWARE_NAME }} — Empowering a Sovereign Digital Future."
+    titel: "{{ SOFTWARE_NAME }} by Kevin Veen-Birkenbach"
+    slogan: "{{ SOFTWARE_NAME }} — Empowering a Sovereign Digital Future."
     address:
-      street:       "Binary Avenue 01"
-      city:         "Cybertown"
-      postal_code:  "00001"
-      country:      "Nexusland"
-    logo:           "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/logo.png' }}"
-  platform:    
-    titel:          "{{ SOFTWARE_NAME }}"
-    subtitel:       "One login. Infinite Solutions."
-    logo:           "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/logo.png' }}"
-    favicon:        "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/favicon.ico' }}"
+      street: "Binary Avenue 01"
+      city: "Cybertown"
+      postal_code: "00001"
+      country: "Nexusland"
+    logo: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/logo.png' }}"
+  platform:
+    titel: "{{ SOFTWARE_NAME }}"
+    subtitel: "One login. Infinite Solutions."
+    logo: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/logo.png' }}"
+    favicon: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') ~ '/img/favicon.ico' }}"
   contact:
     web-app-bluesky: >-
       {{ ('@' ~ lookup('users', 'contact').username ~ '.' ~ lookup('domains', 'web-app-bluesky').api)
          if 'web-app-bluesky' in group_names else '' }}
-    email:          "{{ lookup('users', 'contact').username ~ '@' ~ DOMAIN_PRIMARY if 'web-app-mailu' in group_names else 'contact@infinito.nexus' }}"
-    mastodon:       "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-mastodon') if 'web-app-mastodon' in group_names else '@infinito@microblog.infinito.nexus' }}"
-    matrix:         "{{ '@' ~ lookup('users', 'contact').username ~ ':' ~ lookup('config','web-app-matrix', 'services.matrix.server_name') if 'web-app-matrix' in group_names else '@contact:infinito.nexus' }}"
-    peertube:       "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-peertube') if 'web-app-peertube' in group_names else 'infinito@video.infinito.nexus' }}"
-    pixelfed:       "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-pixelfed') if 'web-app-pixelfed' in group_names else 'infinito@picture.infinito.nexus' }}"
-    phone:          "+0 000 000 404"
-    wordpress:      "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-wordpress') if 'web-app-wordpress' in group_names else '@blog@blog.infinito.nexus' }}"
-    newsletter:     "{{ [ (lookup('tls', 'web-app-listmonk', 'url.base')), '/subscription/form' ] | url_join  if 'web-app-listmonk' in group_names else 'https://newsletter.infinito.nexus' }}"
+    email: "{{ lookup('users', 'contact').username ~ '@' ~ DOMAIN_PRIMARY if 'web-app-mailu' in group_names else 'contact@infinito.nexus' }}"
+    mastodon: "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-mastodon') if 'web-app-mastodon' in group_names else '@infinito@microblog.infinito.nexus'
+      }}"
+    matrix: "{{ '@' ~ lookup('users', 'contact').username ~ ':' ~ lookup('config','web-app-matrix', 'services.matrix.server_name') if 'web-app-matrix' in group_names
+      else '@contact:infinito.nexus' }}"
+    peertube: "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-peertube') if 'web-app-peertube' in group_names else 'infinito@video.infinito.nexus'
+      }}"
+    pixelfed: "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-pixelfed') if 'web-app-pixelfed' in group_names else 'infinito@picture.infinito.nexus'
+      }}"
+    phone: "+0 000 000 404"
+    wordpress: "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-wordpress') if 'web-app-wordpress' in group_names else '@blog@blog.infinito.nexus'
+      }}"
+    newsletter: "{{ [ (lookup('tls', 'web-app-listmonk', 'url.base')), '/subscription/form' ] | url_join  if 'web-app-listmonk' in group_names else 'https://newsletter.infinito.nexus'
+      }}"
 
   legal:
-    editorial_responsible:  "DEMO USER"
-    source_code:            "https://s.{{ SOFTWARE_DOMAIN }}/code"
-    imprint:                "{{ lookup('tls', 'web-svc-html', 'url.base') }}imprint.html"
+    editorial_responsible: "DEMO USER"
+    source_code: "https://s.{{ SOFTWARE_DOMAIN }}/code"
+    imprint: "{{ lookup('tls', 'web-svc-html', 'url.base') }}imprint.html"

@@ -1,5 +1,6 @@
+---
 - name: install streaming
   package:
-    name: 
+    name:
       - obs-studio
     state: present

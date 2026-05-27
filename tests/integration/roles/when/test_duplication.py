@@ -1,29 +1,14 @@
 import unittest
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_all_str
 
+from . import PROJECT_ROOT
 
 THRESHOLD = 3  # fail if the same when-condition occurs on more than this many tasks
-
-
-def _find_repo_root_containing(marker_names: Iterable[str], max_up: int = 8) -> Path:
-    """
-    Walk upwards from this file to find the repo root. We assume the project root
-    contains at least one of `marker_names` (e.g., 'roles', '.git', 'playbooks').
-    """
-    here = Path(__file__).resolve().parent
-    cur = here
-    for _ in range(max_up):
-        for marker in marker_names:
-            if (cur / marker).exists():
-                return cur
-        if cur.parent == cur:
-            break
-        cur = cur.parent
-    # Fallback: repo root assumed 4 levels up from tests/integration/roles/when
-    return Path(__file__).resolve().parents[4]
 
 
 def _normalize_when(value: Any) -> str:
@@ -48,7 +33,7 @@ def _normalize_when(value: Any) -> str:
     return " ".join(s.split())
 
 
-def _iter_tasks(node: Any) -> Iterable[Dict[str, Any]]:
+def _iter_tasks(node: Any) -> Iterable[dict[str, Any]]:
     """
     Yield task-like dicts (those which may contain 'when') from arbitrary YAML structures.
     Handles:
@@ -87,27 +72,26 @@ def _iter_tasks(node: Any) -> Iterable[Dict[str, Any]]:
                     yield from _iter_tasks(item)
         # Also traverse other nested structures conservatively
         for k, v in node.items():
-            if k not in ("block", "rescue", "always"):
-                if isinstance(v, (list, dict)):
-                    yield from _iter_tasks(v)
+            if k not in ("block", "rescue", "always") and isinstance(v, (list, dict)):
+                yield from _iter_tasks(v)
 
 
-def _load_yaml_documents(path: Path) -> List[Any]:
+def _load_yaml_documents(path: Path) -> list[Any]:
     """
     Load all YAML documents from a file. Best-effort parsing:
     - If YAML fails due to Jinja syntax, we still raise, because a broken file
       should be fixed in the repo.
     """
-    text = path.read_text(encoding="utf-8")
+    text = read_text(str(path))
     return list(load_yaml_all_str(text))  # may return [None] if empty
 
 
-def _collect_when_counts(yaml_docs: List[Any]) -> Dict[str, List[Tuple[str, str]]]:
+def _collect_when_counts(yaml_docs: list[Any]) -> dict[str, list[tuple[str, str]]]:
     """
     Return a mapping: normalized_when -> list of (task_name, hint_location)
     where each entry corresponds to a task that uses that 'when'.
     """
-    counts: Dict[str, List[Tuple[str, str]]] = {}
+    counts: dict[str, list[tuple[str, str]]] = {}
     for doc in yaml_docs:
         for task in _iter_tasks(doc):
             if "when" not in task:
@@ -145,15 +129,13 @@ class WhenConditionDuplicationTest(unittest.TestCase):
     """
 
     def test_excessive_repeated_when_in_tasks_files(self):
-        repo_root = _find_repo_root_containing(
-            marker_names=(".git", "roles", "playbooks")
-        )
+        repo_root = PROJECT_ROOT
         tasks_globs = [
             "**/tasks/**/*.yml",
             "**/tasks/**/*.yaml",
         ]
 
-        violations: List[str] = []
+        violations: list[str] = []
 
         for pattern in tasks_globs:
             for path in repo_root.glob(pattern):
@@ -174,15 +156,13 @@ class WhenConditionDuplicationTest(unittest.TestCase):
                             f"    - {tname} ({hint})" for tname, hint in occurrences[:5]
                         )
                         violations.append(
-                            (
-                                f"{path} uses the same 'when' condition more than {THRESHOLD} times "
-                                f"({len(occurrences)} occurrences):\n"
-                                f"  WHEN: {normalized_when}\n"
-                                f"  Sample tasks:\n{sample}\n"
-                                f"Suggestion: Group these tasks into a separate file and call it with "
-                                f"`include_tasks`, or use a single `block` guarded by this 'when' to avoid "
-                                f"re-evaluating the condition repeatedly."
-                            )
+                            f"{path} uses the same 'when' condition more than {THRESHOLD} times "
+                            f"({len(occurrences)} occurrences):\n"
+                            f"  WHEN: {normalized_when}\n"
+                            f"  Sample tasks:\n{sample}\n"
+                            f"Suggestion: Group these tasks into a separate file and call it with "
+                            f"`include_tasks`, or use a single `block` guarded by this 'when' to avoid "
+                            f"re-evaluating the condition repeatedly."
                         )
 
         if violations:

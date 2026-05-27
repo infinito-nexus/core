@@ -9,11 +9,12 @@ from __future__ import annotations
 
 import importlib.util
 import io
-import pathlib
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from unittest.mock import MagicMock, patch
+
+from . import PROJECT_ROOT
 
 
 def _load_sut():
@@ -21,14 +22,8 @@ def _load_sut():
     Load roles/sys-util-git-pull/files/sys_util_git_pull.py as module "sys_util_git_pull"
     so unittest.mock.patch can reference it via "sys_util_git_pull.<name>".
     """
-    this_file = pathlib.Path(__file__).resolve()
-
-    # Expected file location:
-    # <repo>/tests/unit/roles/sys-util-git-pull/files/test_sys_util_git_pull.py
-    # Repo root is 5 levels up.
-    repo_root = this_file.parents[5]
     script_path = (
-        repo_root / "roles" / "sys-util-git-pull" / "files" / "sys_util_git_pull.py"
+        PROJECT_ROOT / "roles" / "sys-util-git-pull" / "files" / "sys_util_git_pull.py"
     )
 
     if not script_path.exists():
@@ -168,7 +163,7 @@ class SysUtilGitPullTests(unittest.TestCase):
     def test_resolve_remote_tag_commit_prefers_peeled(self) -> None:
         def fake_run_checked(
             cmd, cwd, verbose, retries=5, backoff_cap_seconds=20
-        ) -> "sut.RunResult":
+        ) -> sut.RunResult:
             # cmd: ["git","ls-remote","--tags",remote,"stable^{}"] or fallback "stable"
             if cmd[-1].endswith("^{}"):
                 return sut.RunResult(0, "deadbeef\trefs/tags/stable^{}\n", "")
@@ -185,7 +180,7 @@ class SysUtilGitPullTests(unittest.TestCase):
     def test_resolve_remote_tag_commit_falls_back_to_lightweight(self) -> None:
         def fake_run_checked(
             cmd, cwd, verbose, retries=5, backoff_cap_seconds=20
-        ) -> "sut.RunResult":
+        ) -> sut.RunResult:
             if cmd[-1].endswith("^{}"):
                 return sut.RunResult(0, "", "")
             return sut.RunResult(0, "cafebabe\trefs/tags/stable\n", "")

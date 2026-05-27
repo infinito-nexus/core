@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-import io
-import sys
 import contextlib
 import importlib.util
+import io
+import sys
 from types import SimpleNamespace
-from pathlib import Path
 from unittest import TestCase, main, mock
+
+from . import PROJECT_ROOT
 
 
 def load_target_module():
-    repo_root = Path(__file__).resolve().parents[5]  # /opt/src/infinito
+    repo_root = PROJECT_ROOT  # /opt/src/infinito
     script_path = (
         repo_root / "roles" / "sys-ctl-hlth-disc-space" / "files" / "script.py"
     )
@@ -52,14 +53,16 @@ class TestDiskSpaceScript(TestCase):
                 return df_print_cp
             raise AssertionError(f"Unexpected subprocess.run args: {args}")
 
-        with mock.patch.object(SCRIPT_MODULE.subprocess, "run", side_effect=fake_run):
-            with mock.patch.object(sys, "argv", ["script.py", "80"]):
-                with mock.patch.object(
-                    SCRIPT_MODULE.sys, "exit", side_effect=SystemExit
-                ) as mock_exit:
-                    with contextlib.redirect_stdout(io.StringIO()):
-                        with self.assertRaises(SystemExit):
-                            SCRIPT_MODULE.main()
+        with (
+            mock.patch.object(SCRIPT_MODULE.subprocess, "run", side_effect=fake_run),
+            mock.patch.object(sys, "argv", ["script.py", "80"]),
+            mock.patch.object(
+                SCRIPT_MODULE.sys, "exit", side_effect=SystemExit
+            ) as mock_exit,
+            contextlib.redirect_stdout(io.StringIO()),
+            self.assertRaises(SystemExit),
+        ):
+            SCRIPT_MODULE.main()
 
         mock_exit.assert_called_once_with(0)
 
@@ -74,15 +77,16 @@ class TestDiskSpaceScript(TestCase):
                 return df_print_cp
             raise AssertionError(f"Unexpected subprocess.run args: {args}")
 
-        with mock.patch.object(SCRIPT_MODULE.subprocess, "run", side_effect=fake_run):
-            with mock.patch.object(sys, "argv", ["script.py", "80"]):
-                with mock.patch.object(
-                    SCRIPT_MODULE.sys, "exit", side_effect=SystemExit
-                ) as mock_exit:
-                    buffer = io.StringIO()
-                    with contextlib.redirect_stdout(buffer):
-                        with self.assertRaises(SystemExit):
-                            SCRIPT_MODULE.main()
+        with (
+            mock.patch.object(SCRIPT_MODULE.subprocess, "run", side_effect=fake_run),
+            mock.patch.object(sys, "argv", ["script.py", "80"]),
+            mock.patch.object(
+                SCRIPT_MODULE.sys, "exit", side_effect=SystemExit
+            ) as mock_exit,
+        ):
+            buffer = io.StringIO()
+            with contextlib.redirect_stdout(buffer), self.assertRaises(SystemExit):
+                SCRIPT_MODULE.main()
 
         mock_exit.assert_called_once_with(2)
 

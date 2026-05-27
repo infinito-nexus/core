@@ -1,3 +1,4 @@
+---
 - name: Stat nginx.conf
   ansible.builtin.stat:
     path: "{{ lookup('nginx','files.configuration') }}"

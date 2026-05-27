@@ -2,11 +2,15 @@
 
 ## Description
 
-[Taiga](https://www.taiga.io/) is a powerful and intuitive open-source project management platform tailored for agile teams. Whether you're practicing Scrum, Kanban, or a custom hybrid workflow, Taiga offers a rich, customizable environment to plan, track, and collaborate on your projects — without the complexity of enterprise tools or the vendor lock-in of SaaS platforms.
+[Taiga](https://www.taiga.io/) is a powerful and intuitive open-source project management platform tailored for agile teams. Whether you're practicing Scrum, Kanban, or a custom hybrid workflow, Taiga offers a rich, customizable environment to plan, track, and collaborate on your projects, without the complexity of enterprise tools or the vendor lock-in of SaaS platforms.
 
 This Ansible role deploys Taiga in a Docker-based environment, allowing fast, reproducible, and secure installations. Authentication defaults to Taiga's own OpenID Connect integration against Keycloak, which federates users from OpenLDAP.
 
 ---
+
+## Overview
+
+This role supercharge your project management with Taiga, a dynamic, agile tool designed for teams that thrive on creativity and collaboration. Experience a vibrant interface, robust task tracking, and an energetic platform that drives your projects to success.
 
 ## Why Taiga?
 
@@ -27,7 +31,7 @@ Taiga is ideal for developers, designers, and agile teams who want:
 
 This role automates the deployment and configuration of a complete, production-ready Taiga stack using Docker Compose. It ensures integration with common infrastructure tools such as NGINX, PostgreSQL, and RabbitMQ, while optionally enabling OpenID Connect authentication for enterprise-grade SSO.
 
-By using this role, teams can set up Taiga in minutes on Arch Linux systems — whether in a homelab, dev environment, or production cluster.
+By using this role, teams can set up Taiga in minutes on Arch Linux systems, whether in a homelab, dev environment, or production cluster.
 
 ---
 
@@ -44,11 +48,9 @@ By using this role, teams can set up Taiga in minutes on Arch Linux systems — 
 
 ---
 
-## Author
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**  
-Email: [kevin@veen.world](mailto:kevin@veen.world)  
-Website: [veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

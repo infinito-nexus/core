@@ -1,8 +1,9 @@
+---
 # Constants
-CSS_FILES:        ['default.css','bootstrap.css']
-CSS_BASE_COLOR:   "{{ design.css.colors.base }}"
-CSS_COUNT:        7
-CSS_SHADES:       100
+CSS_FILES: ["default.css", "bootstrap.css"]
+CSS_BASE_COLOR: "{{ design.css.colors.base }}"
+CSS_COUNT: 7
+CSS_SHADES: 100
 
 # Variables
-css_app_dst:      "{{ [lookup('cdn', application_id).role.release.css, 'style.css'] | path_join }}"
+css_app_dst: "{{ [lookup('cdn', application_id).role.release.css, 'style.css'] | path_join }}"

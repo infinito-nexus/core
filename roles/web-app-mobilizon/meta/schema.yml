@@ -1,3 +1,4 @@
+---
 credentials:
   secret_key_base:
     description: Secret key base used to generate secrets for encrypting and signing data

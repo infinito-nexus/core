@@ -1,3 +1,4 @@
+---
 all:
   vars:
     SYS_PACKAGES:
@@ -16,10 +17,8 @@ all:
           class: "fa-solid fa-ghost"
         tags: []
         categories: []
-
   hosts:
     workstation:
-
   children:
     sys-package:
       hosts:

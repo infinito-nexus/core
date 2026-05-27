@@ -1,9 +1,10 @@
 import base64
-import bcrypt
 import hashlib
 import re
 import secrets
 import string
+
+import bcrypt
 
 
 class ValueGenerator:
@@ -62,17 +63,21 @@ class ValueGenerator:
         if algorithm == "sha256":
             return hashlib.sha256(secrets.token_bytes(32)).hexdigest()
         if algorithm == "sha1":
-            return hashlib.sha1(secrets.token_bytes(20)).hexdigest()
+            # SHA-1 is selected by the caller for legacy app compatibility;
+            # the input is fresh random bytes, not security-sensitive data.
+            return hashlib.sha1(
+                secrets.token_bytes(20),
+                usedforsecurity=False,
+            ).hexdigest()
         if algorithm == "strong_password":
             return self.generate_strong_password(32)
         if algorithm == "bcrypt":
             pw = secrets.token_urlsafe(16).encode()
             raw_hash = bcrypt.hashpw(pw, bcrypt.gensalt()).decode()
             alnum = string.digits + string.ascii_lowercase
-            escaped = "".join(
+            return "".join(
                 secrets.choice(alnum) if ch == "$" else ch for ch in raw_hash
             )
-            return escaped
         if algorithm == "alphanumeric":
             return self.generate_secure_alphanumeric(64)
         if algorithm == "base64_prefixed_32":

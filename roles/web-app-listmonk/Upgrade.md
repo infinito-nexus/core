@@ -1,5 +1,5 @@
 # Upgrade
 
-```bash 
+```bash
 docker compose run application ./listmonk --upgrade
 ```

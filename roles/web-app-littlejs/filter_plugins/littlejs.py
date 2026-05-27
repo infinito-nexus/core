@@ -23,6 +23,6 @@ def littlejs_href(example, protocol, domain):
     return f"{protocol}://{domain}/examples/shorts/run.html?file={file}"
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {"littlejs_href": littlejs_href}

@@ -1,3 +1,9 @@
+---
 swapfile:
-  swapfile_size: '{{ ansible_facts[''memtotal_mb''] | int }}M'
+  swapfile_size: "{{ ansible_facts['memtotal_mb'] | int }}M"
   lifecycle: beta
+  min_storage: "50MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "64m"
+  pids_limit: 64

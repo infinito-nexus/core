@@ -1,3 +1,4 @@
+---
 credentials:
   shared_secret:
     description: Shared secret for BigBlueButton API authentication

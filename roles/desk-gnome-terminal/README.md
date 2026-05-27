@@ -6,6 +6,10 @@ This role installs **GNOME Terminal**, the official terminal emulator for the GN
 
 Learn more about GNOME Terminal on [Wikipedia](https://en.wikipedia.org/wiki/GNOME_Terminal) and visit the [GNOME Official Website](https://www.gnome.org) for additional details.
 
+## Overview
+
+This role installs GNOME Terminal on Arch Linux, providing a modern terminal emulator for the GNOME desktop environment.
+
 ## Purpose
 
 The purpose of this role is to ensure that GNOME Terminal is installed and properly configured on Arch Linux systems, providing users with a robust and fully featured terminal emulator that integrates seamlessly with the GNOME desktop.
@@ -19,7 +23,7 @@ The purpose of this role is to ensure that GNOME Terminal is installed and prope
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

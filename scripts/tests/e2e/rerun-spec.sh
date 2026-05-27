@@ -7,13 +7,13 @@
 #     .env file.
 #   - The application under test is still running.
 #
-# This script intentionally does NOT re-render .env and does NOT re-stage the
-# project. It only overwrites tests/playwright.spec.js from the repo and
-# reruns Playwright via the same container image the deploy-time runner uses.
+# This script intentionally does NOT re-render .env. It restages the
+# role-local Playwright files (spec + companions) from the repo and reruns
+# Playwright via the same container image the deploy-time runner uses.
 #
 # Usage:
-#   scripts/tests/e2e/rerun-spec.sh <role> [playwright args...]
-#   scripts/tests/e2e/rerun-spec.sh web-app-nextcloud --grep "talk admin"
+#   scripts/tests/e2e/rerun-spec.sh <role> [playwright args...]  # nocheck: self-path-reference
+#   scripts/tests/e2e/rerun-spec.sh web-app-nextcloud --grep "talk admin"  # nocheck: self-path-reference
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -25,8 +25,9 @@ role="$1"
 shift
 
 repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
-spec_src="$repo_root/roles/$role/files/playwright.spec.js"
-defaults="$repo_root/roles/test-e2e-playwright/defaults/main.yml"
+role_playwright_dir="$repo_root/roles/$role/files/playwright"
+spec_src="$role_playwright_dir/playwright.spec.js"
+services_yml="$repo_root/roles/test-e2e-playwright/meta/services.yml"
 
 stage_base="${TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR:-/tmp/test-e2e-playwright}"
 reports_base="${TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR:-/var/lib/infinito/logs/test-e2e-playwright}"
@@ -50,9 +51,8 @@ env_file="$stage_dir/.env"
 
 image="${TEST_E2E_PLAYWRIGHT_IMAGE:-}"
 if [[ -z "$image" ]]; then
-	base_image="$(awk '/^[[:space:]]*image:[[:space:]]/{print $2; exit}' "$defaults")"
-	# defaults/main.yml is the single source of truth for the image tag.
-	tag="$(awk -F'"' '/^[[:space:]]*version:[[:space:]]/{print $2; exit}' "$defaults")"
+	base_image="$(awk '/^[[:space:]]*image:[[:space:]]/{print $2; exit}' "$services_yml")"
+	tag="$(awk -F'"' '/^[[:space:]]*version:[[:space:]]/{print $2; exit}' "$services_yml")"
 	image="${base_image}:${tag}"
 fi
 
@@ -62,12 +62,32 @@ command -v docker >/dev/null || {
 }
 
 mkdir -p "$stage_dir/tests" "$stage_dir/volume" "$reports_dir"
-cp "$spec_src" "$stage_dir/tests/playwright.spec.js"
+for role_js in "$role_playwright_dir"/*.js; do
+	[[ -f "$role_js" ]] || continue
+	cp "$role_js" "$stage_dir/tests/$(basename "$role_js")"
+done
 # Stage the shared service-gating helper so the spec can require("./service-gating").
-# See docs/requirements/006-playwright-service-gated-tests.md.
 helper_src="$repo_root/roles/test-e2e-playwright/files/service-gating.js"
 if [[ -f "$helper_src" ]]; then
 	cp "$helper_src" "$stage_dir/tests/service-gating.js"
+fi
+# Stage the shared persona-flow helpers.
+# personas/ holds the persona flow runners (biber.js, admin.js, guest.js,
+# index.js) at the top and every helper module under personas/utils/. Copy
+# both levels so a spec can `require("./personas")` (resolves to
+# personas/index.js) or directly `require("./personas/<flow>")` /
+# `require("./personas/utils/<helper>")` for a subset.
+personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
+if [[ -d "$personas_dir" ]]; then
+	mkdir -p "$stage_dir/tests/personas/utils"
+	for persona_file in "$personas_dir"/*.js; do
+		[[ -f "$persona_file" ]] || continue
+		cp "$persona_file" "$stage_dir/tests/personas/$(basename "$persona_file")"
+	done
+	for util_file in "$personas_dir"/utils/*.js; do
+		[[ -f "$util_file" ]] || continue
+		cp "$util_file" "$stage_dir/tests/personas/utils/$(basename "$util_file")"
+	done
 fi
 
 cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"

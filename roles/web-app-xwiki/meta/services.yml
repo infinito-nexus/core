@@ -1,29 +1,32 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag
 ldap:
   enabled: false
   shared: false
   trylocal: true
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: dynamic-flag
 redis:
   enabled: false
   backup:
     disabled: true
 postgres:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 xwiki:
   image: xwiki
   version: lts-postgres-tomcat
@@ -40,29 +43,29 @@ xwiki:
       enabled: true
       shared: true
       items:
-      - id: org.xwiki.contrib.oidc:oidc-authenticator
-        version: 2.19.6
+        - id: org.xwiki.contrib.oidc:oidc-authenticator
+          version: 2.19.6
     ldap:
       enabled: false
       items:
-      - id: org.xwiki.contrib.ldap:ldap-authenticator
-        version: 9.15.7
+        - id: org.xwiki.contrib.ldap:ldap-authenticator
+          version: 9.15.7
     matomo:
       enabled: false
       items:
-      - id: org.xwiki.contrib:matomo
-        version: '1.0'
+        - id: org.xwiki.contrib:matomo
+          version: "1.0"
   ports:
     local:
       http: 8054
   run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
+    - web-app-matomo
+    - web-app-keycloak
+    - web-app-mailu
   lifecycle: beta
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

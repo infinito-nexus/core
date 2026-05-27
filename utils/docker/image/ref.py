@@ -7,6 +7,7 @@ DOCKER_HUB_REGISTRIES = frozenset(
     {"docker.io", "registry-1.docker.io", "index.docker.io"}
 )
 GHCR_REGISTRY = "ghcr.io"
+MCR_REGISTRY = "mcr.microsoft.com"
 
 # Docker image reference (name only, WITHOUT tag/digest).
 IMAGE_NAME_RE = re.compile(

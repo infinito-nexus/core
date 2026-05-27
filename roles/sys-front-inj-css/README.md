@@ -1,4 +1,4 @@
-# 🌍 Global CSS Injection for NGINX
+# Global CSS Injection for NGINX
 
 ## Description
 
@@ -13,7 +13,7 @@ It includes support for **dark mode**, **custom fonts**, and **extensive Bootstr
 ## Purpose
 
 The goal of this role is to provide a **single source of truth for theming** across your infrastructure.  
-It makes all applications feel like part of the same ecosystem — visually and functionally.
+It makes all applications feel like part of the same ecosystem, visually and functionally.
 
 ## Features
 
@@ -25,10 +25,9 @@ It makes all applications feel like part of the same ecosystem — visually and 
 - 🎯 **Bootstrap override compatibility**
 - 🧩 **Theme support for Keycloak, Nextcloud, Gitea, LAM, Peertube, and more**
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-License: [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

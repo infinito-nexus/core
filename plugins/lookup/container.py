@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
@@ -12,7 +12,7 @@ def _as_str(v: Any) -> str:
     return "" if v is None else str(v).strip()
 
 
-def _deep_get(d: Dict[str, Any], path: str) -> Any:
+def _deep_get(d: dict[str, Any], path: str) -> Any:
     cur: Any = d
     for key in path.split("."):
         if not isinstance(cur, dict) or key not in cur:
@@ -30,7 +30,7 @@ class LookupModule(LookupBase):
       - 'directories.instance' (returns leaf)
     """
 
-    def run(self, terms, variables: Optional[Dict[str, Any]] = None, **kwargs):
+    def run(self, terms, variables: dict[str, Any] | None = None, **kwargs):
         if not terms or len(terms) > 2:
             raise AnsibleError("lookup('container', application_id[, path])")
 

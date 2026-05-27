@@ -1,6 +1,6 @@
 # GitHub workflow files 🔄
 
-This page is the SPOT for repository rules that govern GitHub Actions workflow files under `.github/workflows/`.
+This page covers the repository rules that govern GitHub Actions workflow files under `.github/workflows/`.
 For the catalog of every workflow (description, triggers, inputs) see [workflows.md](../../../tools/github/actions/workflows.md).
 For the script placement rule that applies to extracted shell helpers, see [scripst.md](../../scripst.md).
 
@@ -66,7 +66,7 @@ Set an option back to `false` only when a new host-side step in the same workflo
 
 ## Swap 💾
 
-Deploy test workflows enlarge host swap via [enlarge_swap.sh](../../../../../scripts/github/enlarge_swap.sh) to absorb transient memory spikes (e.g. PeerTube plugin install [#162](https://github.com/infinito-nexus/core/issues/162)) that would otherwise trip the host OOM-killer on the 16 GB GitHub-hosted runner.
+Deploy test workflows enlarge host swap via [enlarge_swap.sh](../../../../../scripts/github/runner/enlarge_swap.sh) to absorb transient memory spikes (e.g. PeerTube plugin install [#162](https://github.com/infinito-nexus/core/issues/162)) that would otherwise trip the host OOM-killer on the 16 GB GitHub-hosted runner.
 
 The script **prefers `/mnt`** when it is a separate partition (classic `ubuntu-latest` layout with `/dev/sdb` mounted at `/mnt`) and falls back to `/` otherwise. Current public runners no longer expose a separate `/mnt`, so the swapfile lands on `/` and must not starve the root filesystem.
 
@@ -81,14 +81,14 @@ Workflow step invocation:
 ```yaml
 - name: Enlarge swap space
   shell: bash
-  run: ./scripts/github/enlarge_swap.sh
+  run: ./scripts/github/runner/enlarge_swap.sh
 ```
 
 Ordering:
 
 - Swap step MUST run **after** `actions/checkout` because the script lives inside the repo.
 - Swap step SHOULD run **after** `jlumbroso/free-disk-space` so the reclaimed disk on `/` is also a candidate target when `/mnt` is crowded.
-- Swap step MUST run **before** any `make up` / container build step so the expanded swap is active when heavy-allocation work begins.
+- Swap step MUST run **before** any `make compose-up` / container build step so the expanded swap is active when heavy-allocation work begins.
 
 Swap is a host-kernel resource; see [svc-opt-swapfile](../../../../../roles/svc-opt-swapfile/) for why the in-stack swap role is intentionally skipped inside containers.
 

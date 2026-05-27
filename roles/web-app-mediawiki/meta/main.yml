@@ -1,16 +1,31 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Empower your knowledge base with MediaWiki, a versatile and collaborative platform designed for comprehensive, user-driven documentation. Benefit from an extensive extension ecosystem, robust content management, and customizable configurations tailored to your needs.
+  description: Deploys MediaWiki, a collaborative wiki platform with an extensive extension ecosystem and customizable configuration for user-driven
+    documentation.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   galaxy_tags:
     - mediawiki
     - wiki
     - documentation
   issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-lc"]
 
 RUN set -euo pipefail \
  && export DEBIAN_FRONTEND=noninteractive \
+ && rm -rf /var/lib/apt/lists/* \
  && apt-get update -y \
  && apt-get install -y --no-install-recommends ca-certificates curl git unzip \
  && update-ca-certificates \

@@ -1,3 +1,4 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: Include dependencies
@@ -11,7 +12,7 @@
       - run_once_web_app_mailu is defined
       - (lookup('users', 'no-reply').tokens | default({})).get('web-app-mailu', '') | length > 0
     fail_msg: >-
-      Mailu must be preloaded by sys-utils-service-loader before sys-svc-mail runs.
+      Mailu must be preloaded by sys-service-loader before sys-svc-mail runs.
       Missing run_once_web_app_mailu or missing users['no-reply'].tokens['web-app-mailu']
       indicates that a service was loaded outside the constructor service-loader path.
   when:
@@ -27,5 +28,5 @@
 - name: Setup msmtp client
   include_role:
     name: sys-svc-mail-msmtp
-  when: 
+  when:
     - run_once_sys_svc_mail_msmtp is not defined

@@ -1,11 +1,12 @@
+---
 - name: Gather all users with their current objectClass list
   community.general.ldap_search:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
-    bind_dn:    "{{ OPENLDAP_BIND_DN }}"
-    bind_pw:    "{{ OPENLDAP_BIND_PW }}"
-    dn:         "{{ LDAP.DN.OU.USERS }}"
-    scope:      subordinate
-    filter:     "{{ LDAP.FILTERS.USERS.ALL }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    dn: "{{ LDAP.DN.OU.USERS }}"
+    scope: subordinate
+    filter: "{{ LDAP.FILTERS.USERS.ALL }}"
     attrs:
       - dn
       - objectClass
@@ -15,20 +16,20 @@
 - name: Add only missing auxiliary classes
   community.general.ldap_attrs:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
-    bind_dn:    "{{ OPENLDAP_BIND_DN }}"
-    bind_pw:    "{{ OPENLDAP_BIND_PW }}"
-    dn:         "{{ item.dn }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    dn: "{{ item.dn }}"
     attributes:
       objectClass: "{{ missing_auxiliary }}"
     state: present
-  async:  "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:   "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
-  loop:   "{{ ldap_users_with_classes.results }}"
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  loop: "{{ ldap_users_with_classes.results }}"
   loop_control:
     label: "{{ item.dn }}"
   vars:
     missing_auxiliary: >-
-      {{ (LDAP.USER.OBJECTS.AUXILIARY.values() | list) 
+      {{ (LDAP.USER.OBJECTS.AUXILIARY.values() | list)
          | difference(item.objectClass | default([]))
       }}
   when: missing_auxiliary | length > 0

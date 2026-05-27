@@ -1,5 +1,7 @@
 import unittest
+
 from ansible.errors import AnsibleFilterError
+
 from plugins.filter.canonical_domains_map import FilterModule
 
 
@@ -114,6 +116,42 @@ class TestDomainFilters(unittest.TestCase):
         # Should simply return an empty result without exceptions
         result = self.filter_module.canonical_domains_map(apps, self.primary)
         self.assertEqual(result, {})
+
+    def test_domain_primary_jinja_env_lookup_is_resolved(self):
+        """
+        DOMAIN_PRIMARY arrives as the raw Jinja template
+        '{{ lookup(\\'env\\', \\'DOMAIN\\') | default(...) }}' when group_vars
+        templating has not been forced. The filter MUST resolve it via the
+        env-lookup fallback before composing default domains, otherwise the
+        unrendered string ends up as a vhost server_name and breaks nginx.
+        """
+        import os
+
+        prev = os.environ.get("DOMAIN")
+        os.environ["DOMAIN"] = "infinito.example"
+        try:
+            primary = (
+                "{{ lookup('env', 'DOMAIN') | default('infinito.localhost', true) }}"
+            )
+            apps = {"web-app-app1": {}}
+            result = self.filter_module.canonical_domains_map(apps, primary)
+            self.assertEqual(result, {"web-app-app1": ["app1.infinito.example"]})
+        finally:
+            if prev is None:
+                os.environ.pop("DOMAIN", None)
+            else:
+                os.environ["DOMAIN"] = prev
+
+    def test_domain_primary_unresolvable_jinja_raises(self):
+        """
+        If DOMAIN_PRIMARY contains a non-env Jinja expression the filter
+        cannot resolve, fail loudly instead of emitting an unrendered string
+        that would land in nginx configs.
+        """
+        primary = "{{ SOME_UNDEFINED_VAR }}"
+        apps = {"web-app-app1": {}}
+        with self.assertRaises(AnsibleFilterError):
+            self.filter_module.canonical_domains_map(apps, primary)
 
 
 if __name__ == "__main__":

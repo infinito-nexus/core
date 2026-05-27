@@ -6,13 +6,11 @@ from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[5]
+from . import PROJECT_ROOT
 
 
 def _load_module(rel_path: str, name: str):
-    path = _repo_root() / rel_path
+    path = PROJECT_ROOT / rel_path
     spec = importlib.util.spec_from_file_location(name, str(path))
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -51,7 +49,7 @@ class _FakeComposeFArgsLookup:
 
     def run(self, terms, variables=None, **kwargs):
         self.calls.append({"terms": terms, "kwargs": kwargs})
-        if kwargs.get("include_ca", None) is not False:
+        if kwargs.get("include_ca") is not False:
             raise AnsibleError(
                 "Fake compose_file_args lookup: expected include_ca=False"
             )
@@ -228,9 +226,9 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 self.mod, "render_ansible_strict", side_effect=lambda **kw: kw["raw"]
             ),
             patch.object(self.mod, "get_entity_name", side_effect=lambda _x: "myproj"),
+            self.assertRaises(AnsibleError) as ctx,
         ):
-            with self.assertRaises(AnsibleError) as ctx:
-                lk.run(["web-app-test"], variables=variables)
+            lk.run(["web-app-test"], variables=variables)
 
         self.assertIn("missing required variable 'CA_TRUST'", str(ctx.exception))
 

@@ -1,4 +1,5 @@
+---
 domains:
   canonical:
-  - asset.{{ DOMAIN_PRIMARY }}
+    - asset.{{ DOMAIN_PRIMARY }}
   aliases: []

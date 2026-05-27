@@ -21,18 +21,18 @@ Requires:
   - jq installed
 
 Env:
-  DAYS, OWNER, REPOSITORY, DISTROS, REPO_PREFIX can be used as defaults.
+  DAYS, OWNER, REPOSITORY, INFINITO_DISTROS, REPO_PREFIX can be used as defaults.
 
 Examples:
-  DAYS=14 OWNER=myorg REPOSITORY=myorg/my-repo REPO_PREFIX=my-repo ./scripts/image/cleanup.sh
-  ./scripts/image/cleanup.sh --days 7 --repository kevinveenbirkenbach/infinito-nexus --distros "arch debian" --repo-prefix infinito-nexus
+  DAYS=14 OWNER=myorg REPOSITORY=myorg/my-repo REPO_PREFIX=my-repo ./scripts/image/cleanup.sh  # nocheck: self-path-reference
+  ./scripts/image/cleanup.sh --days 7 --repository kevinveenbirkenbach/infinito-nexus --distros "arch debian" --repo-prefix infinito-nexus  # nocheck: self-path-reference
 USAGE
 }
 
 DAYS="${DAYS:-7}"
 OWNER="${OWNER:-}"
 REPOSITORY="${REPOSITORY:-${GITHUB_REPOSITORY:-}}"
-DISTROS="${DISTROS:-}"
+INFINITO_DISTROS="${INFINITO_DISTROS:-}"
 REPO_PREFIX="${REPO_PREFIX:-}"
 
 while [[ $# -gt 0 ]]; do
@@ -50,7 +50,7 @@ while [[ $# -gt 0 ]]; do
 		shift 2
 		;;
 	--distros)
-		DISTROS="${2:-}"
+		INFINITO_DISTROS="${2:-}"
 		shift 2
 		;;
 	--repo-prefix)
@@ -104,8 +104,8 @@ if [[ -z "${OWNER}" && "${REPOSITORY}" == */* ]]; then
 	OWNER="${REPOSITORY%%/*}"
 fi
 
-if [[ -z "${DISTROS}" ]]; then
-	DISTROS="$(scripts/meta/resolve/distros.sh)"
+if [[ -z "${INFINITO_DISTROS}" ]]; then
+	INFINITO_DISTROS="$(scripts/meta/resolve/distros.sh)"
 fi
 
 if ! command -v gh >/dev/null 2>&1; then
@@ -125,7 +125,7 @@ echo ">>> OWNER=${OWNER}"
 echo ">>> REPOSITORY=${REPOSITORY}"
 echo ">>> DAYS=${DAYS}"
 echo ">>> cutoff_epoch=${cutoff}"
-echo ">>> DISTROS=${DISTROS}"
+echo ">>> INFINITO_DISTROS=${INFINITO_DISTROS}"
 echo ">>> REPO_PREFIX=${REPO_PREFIX}"
 echo
 
@@ -334,7 +334,7 @@ fi
 
 echo
 
-for d in ${DISTROS}; do
+for d in ${INFINITO_DISTROS}; do
 	pkg="${REPO_PREFIX}/${d}"
 	echo "=== Package: ${pkg} ==="
 

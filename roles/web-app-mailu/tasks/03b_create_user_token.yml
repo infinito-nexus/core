@@ -1,3 +1,4 @@
+---
 - name: "Delete existing API token for '{{ mailu_user_key }};{{ mailu_user_name }}' if local token missing but remote exists"
   command: >-
     {{ BIN_COMPOSE }} exec -T admin \

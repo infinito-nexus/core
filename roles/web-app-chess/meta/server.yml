@@ -1,3 +1,4 @@
+---
 csp:
   whitelist: {}
   flags:
@@ -5,7 +6,7 @@ csp:
       unsafe-inline: true
 domains:
   canonical:
-  - chess.game.{{ DOMAIN_PRIMARY }}
+    - chess.game.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

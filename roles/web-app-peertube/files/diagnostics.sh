@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# roles/web-app-peertube/files/diagnostics.sh
 #
 # Best-effort diagnostics for the PeerTube container after a plugin-install
 # failure. Prints container state, health, resource limits, logs, stats,

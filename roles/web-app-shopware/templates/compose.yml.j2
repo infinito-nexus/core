@@ -33,7 +33,7 @@ x-environment: &shopware
    WEB (serves HTTP on 8000)
    ------------------------- #}
 {% set service_name = 'web' %}
-{% set container_port = lookup('config',application_id, 'services.web.ports.inter') %}
+{% set container_port = lookup('config',application_id, 'services.web.ports.internal.http') %}
   {{ service_name }}:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     <<: *shopware
@@ -135,7 +135,6 @@ x-environment: &shopware
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'bundles': {'name': entity_name ~ '_bundles'}, 'data': {'name': SHOPWARE_VOLUME}, 'files': {'name': entity_name ~ '_files'}, 'media': {'name': entity_name ~ '_media'}, 'sitemap': {'name': entity_name ~ '_sitemap'}, 'theme': {'name': entity_name ~ '_theme'}, 'thumbnail': {'name': entity_name ~ '_thumbnail'}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

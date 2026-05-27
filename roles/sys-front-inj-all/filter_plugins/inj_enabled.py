@@ -1,11 +1,14 @@
-import os
 import sys
+from pathlib import Path
 
-from utils.applications.config import get
+from utils.roles.applications.config import get
 
-# Allow imports from utils (same trick as your config filter)
-_BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-_MODULE_UTILS_DIR = os.path.join(_BASE_DIR, "utils")
+# Allow imports from utils (same trick as your config filter).
+# Role-bundled plugin: Ansible loads by file path with no package
+# context, so `from . import PROJECT_ROOT` cannot resolve here.
+# nocheck: project-root-import
+_BASE_DIR = str(Path(__file__).resolve().parents[3])
+_MODULE_UTILS_DIR = str(Path(_BASE_DIR) / "utils")
 for _p in (_BASE_DIR, _MODULE_UTILS_DIR):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -42,7 +45,7 @@ def inj_enabled_filter(
     return result
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "inj_enabled": inj_enabled_filter,

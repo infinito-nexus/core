@@ -4,17 +4,17 @@
     name: sys-stk-full
   vars:
     webserver_client_max_body_size: "30m"
-    docker_git_repository_version:   "stable/{{ OPENPROJECT_VERSION }}"
-    docker_git_repository_address:  "https://github.com/opf/openproject-deploy"
-    docker_git_repository_pull:     true
-    docker_compose_flush_handlers:  false
-    application_id:                 'web-app-openproject'
+    compose_repository_url: "{{ OPENPROJECT_REPOSITORY }}"
+    compose_repository_ref: "{{ OPENPROJECT_REF }}"
+    compose_repository_pull: true
+    compose_handlers_flush: false
+    application_id: "web-app-openproject"
 
 - name: "Create {{ OPENPROJECT_PLUGINS_FOLDER }}"
   file:
     path: "{{ OPENPROJECT_PLUGINS_FOLDER }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Transferring Gemfile to {{ OPENPROJECT_PLUGINS_FOLDER }} as Gemfile.plugins"
   copy:

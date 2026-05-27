@@ -1,0 +1,5 @@
+---
+svc-compose-ca:
+  lifecycle: beta
+  required_by:
+    categories: [web]

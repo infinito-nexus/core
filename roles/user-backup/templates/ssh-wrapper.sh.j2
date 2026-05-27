@@ -12,7 +12,7 @@ hashed_machine_id="$($get_hashed_machine_id | head -c 64)"
 get_backup_types="find {{ DIR_BACKUPS }}/$hashed_machine_id/ -maxdepth 1 -type d -execdir basename {} ;";
 
 
-# @todo This configuration is not scalable yet. If other backup services then sys-ctl-bkp-docker-2-loc are integrated, this logic needs to be optimized
+# @todo This configuration is not scalable yet. If other backup services then svc-bkp-container-2-local are integrated, this logic needs to be optimized
 get_version_directories="ls -d {{ DIR_BACKUPS }}/$hashed_machine_id/backup-docker-to-local/*"
 last_version_directory="$($get_version_directories | tail -1)"
 rsync_command="sudo rsync --server --sender -blogDtpre.iLsfxCIvu . $last_version_directory/"

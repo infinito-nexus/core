@@ -2,7 +2,7 @@
 
 ## Description
 
-**Flowise** is a visual builder for AI workflows. Create, test, and publish chains that combine LLMs, your documents, tools, and vector search—without writing glue code.
+**Flowise** is a visual builder for AI workflows. Create, test, and publish chains that combine LLMs, your documents, tools, and vector search, without writing glue code.
 
 ## Overview
 
@@ -18,7 +18,14 @@ Users design flows on a drag-and-drop canvas (LLM, RAG, tools, webhooks), test t
 
 ## Further Resources
 
-* Flowise — [https://flowiseai.com](https://flowiseai.com)
-* Qdrant — [https://qdrant.tech](https://qdrant.tech)
-* LiteLLM — [https://www.litellm.ai](https://www.litellm.ai)
-* Ollama — [https://ollama.com](https://ollama.com)
+* Flowise: [flowiseai.com](https://flowiseai.com)
+* Qdrant: [qdrant.tech](https://qdrant.tech)
+* LiteLLM: [litellm.ai](https://www.litellm.ai)
+* Ollama: [ollama.com](https://ollama.com)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

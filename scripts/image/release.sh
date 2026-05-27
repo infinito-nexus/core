@@ -13,7 +13,7 @@ OWNER="$(OWNER="${OWNER}" GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-}"
 
 REGISTRY="${REGISTRY:-ghcr.io}"
 : "${REPO_PREFIX:?Missing REPO_PREFIX}"
-: "${DISTROS:?Missing DISTROS}"
+: "${INFINITO_DISTROS:?Missing INFINITO_DISTROS}"
 DEFAULT_DISTRO="${DEFAULT_DISTRO:-debian}"
 PUBLISH_LATEST="${PUBLISH_LATEST:-true}"
 REPO_PREFIX="${REPO_PREFIX,,}"
@@ -35,7 +35,7 @@ CI_TAG="${CI_TAG:-ci-${GITHUB_SHA:-}}"
 echo "Retagging CI images:"
 echo "  CI_TAG      = ${CI_TAG}"
 echo "  VERSION_TAG = ${VERSION_TAG}"
-echo "  DISTROS     = ${DISTROS}"
+echo "  INFINITO_DISTROS     = ${INFINITO_DISTROS}"
 echo "  PUBLISH_LATEST = ${PUBLISH_LATEST}"
 
 retag_set() {
@@ -58,7 +58,7 @@ retag_set() {
 		"${src}"
 }
 
-for distro in ${DISTROS}; do
+for distro in ${INFINITO_DISTROS}; do
 	echo
 	echo "==> ${distro}"
 

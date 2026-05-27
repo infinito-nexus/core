@@ -37,7 +37,7 @@
     ROOT_GROUP_ID: "{{ kc_root_group_id }}"
   register: per_app_group_id_out
   changed_when: true
-  failed_when: (per_app_group_id_out.stdout | default('') | trim) | length == 0
+  failed_when: (per_app_group_id_out.stdout | trim) | length == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "per-app mapper [{{ kc_app_id }}]: set per-app Keycloak group id fact"
@@ -45,7 +45,8 @@
     kc_app_group_id: "{{ (per_app_group_id_out.stdout | default('')) | trim }}"
   changed_when: false
 
-- name: "per-app mapper [{{ kc_app_id }}]: purge ALL subgroups under /{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}/{{ kc_app_id }} so the next mapper sync rebuilds them cleanly"
+- name: "per-app mapper [{{ kc_app_id }}]: purge ALL subgroups under /{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}/{{ kc_app_id }} so the next mapper sync rebuilds
+    them cleanly"
   ansible.builtin.script:
     cmd: "files/scripts/per_app_mapper/purge_app_subgroups.sh"
     executable: /bin/bash
@@ -79,7 +80,7 @@
     PAYLOAD_FILE: "/tmp/kc_mapper_payload_{{ kc_app_id }}.json"
   register: per_app_mapper_id_out
   changed_when: true
-  failed_when: (per_app_mapper_id_out.stdout | default('') | trim | length) == 0
+  failed_when: (per_app_mapper_id_out.stdout | trim | length) == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "per-app mapper [{{ kc_app_id }}]: sync mapper"

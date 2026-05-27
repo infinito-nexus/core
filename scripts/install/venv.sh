@@ -20,7 +20,6 @@ set -euo pipefail
 # ------------------------------------------------------------
 
 : "${VENV:?VENV not set (e.g. /opt/venvs/infinito)}"
-: "${VENV_BASE:?VENV_BASE not set (e.g. /opt/venvs)}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -41,19 +40,22 @@ install_venv() {
 	local venv_python="${VENV}/bin/python"
 
 	echo "🐍 Virtualenv target  : ${VENV}"
-	echo "📁 Virtualenv base    : ${VENV_BASE}"
 	echo "🛠 Bootstrap python   : ${bootstrap_python}"
 	echo "🎯 Venv python target : ${venv_python}"
 	echo
 
-	# Ensure base directory exists (e.g. /opt/venvs)
-	if [[ -z "${VIRTUAL_ENV:-}" ]]; then
-		if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
-			mkdir -p "${VENV_BASE}"
-		else
-			sudo mkdir -p "${VENV_BASE}"
-			sudo chown "${USER:-$(whoami)}" "${VENV_BASE}"
-		fi
+	# Probe dirname(VENV) so a non-writable legacy path can't trigger a spurious sudo (fatal under no_new_privs sandboxes).
+	local venv_parent
+	venv_parent="$(dirname "${VENV}")"
+	if [[ -n "${VIRTUAL_ENV:-}" && "${VIRTUAL_ENV}" == "${VENV}" ]]; then
+		: # active venv matches the target; nothing to prepare
+	elif [[ -d "${venv_parent}" && -w "${venv_parent}" ]]; then
+		: # venv parent exists and is writable; nothing to prepare
+	elif [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+		mkdir -p "${venv_parent}"
+	else
+		sudo mkdir -p "${venv_parent}"
+		sudo chown "${USER:-$(whoami)}" "${venv_parent}"
 	fi
 
 	# ------------------------------------------------------------

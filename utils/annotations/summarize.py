@@ -19,7 +19,8 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+
+from utils.cache.files import read_text
 
 ANNOTATION_RE = re.compile(r"^::(warning|error|notice)(?:\s([^:]*))?::(.*)$")
 PROP_RE = re.compile(r"(\w+)=([^,]*)")
@@ -32,10 +33,10 @@ HEADINGS = {"error": "Errors", "warning": "Warnings", "notice": "Notices"}
 class Annotation:
     level: str
     message: str
-    title: Optional[str] = None
-    file: Optional[str] = None
-    line: Optional[int] = None
-    col: Optional[int] = None
+    title: str | None = None
+    file: str | None = None
+    line: int | None = None
+    col: int | None = None
 
 
 def parse_props(props_str: str) -> dict[str, str]:
@@ -44,7 +45,11 @@ def parse_props(props_str: str) -> dict[str, str]:
 
 def parse_log(path: Path) -> list[Annotation]:
     annotations: list[Annotation] = []
-    for raw in path.read_text(errors="replace").splitlines():
+    try:
+        content = read_text(str(path))
+    except UnicodeDecodeError:
+        return annotations
+    for raw in content.splitlines():
         m = ANNOTATION_RE.match(raw.strip())
         if not m:
             continue
@@ -109,7 +114,7 @@ def main() -> None:
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_file:
-        with open(summary_file, "a") as f:
+        with Path(summary_file).open("a") as f:
             f.write(markdown + "\n")
     else:
         print(markdown)

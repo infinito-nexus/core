@@ -1,8 +1,7 @@
-# filter_plugins/timeout_start_sec_for_domains.py (nur Kern geändert)
 from ansible.errors import AnsibleFilterError
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "timeout_start_sec_for_domains": self.timeout_start_sec_for_domains,
@@ -46,7 +45,9 @@ class FilterModule(object):
             elif isinstance(domains_dict, str):
                 flat = [domains_dict]
             else:
-                raise AnsibleFilterError(
+                # nocheck (TRY301 below): re-raised verbatim by the
+                # AnsibleFilterError handler — intentional pass-through.
+                raise AnsibleFilterError(  # noqa: TRY301
                     "Expected 'domains_dict' to be dict | list | str."
                 )
 
@@ -63,10 +64,11 @@ class FilterModule(object):
             count = len(unique_domains)
 
             raw = overhead_seconds + per_domain_seconds * count
-            clamped = max(min_seconds, min(max_seconds, int(raw)))
-            return clamped
+            return max(min_seconds, min(max_seconds, int(raw)))
 
         except AnsibleFilterError:
             raise
         except Exception as exc:
-            raise AnsibleFilterError(f"timeout_start_sec_for_domains failed: {exc}")
+            raise AnsibleFilterError(
+                f"timeout_start_sec_for_domains failed: {exc}"
+            ) from exc

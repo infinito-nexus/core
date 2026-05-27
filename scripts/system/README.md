@@ -1,6 +1,6 @@
 # System Scripts
 
-This is the SPOT for system-facing helpers under `scripts/system/`.
+This directory holds system-facing helpers grouped by area.
 Use the README in each child directory as the canonical entry point for that area.
 For the canonical Make target index that invokes these helpers, see [make.md](../../docs/contributing/tools/make.md).
 

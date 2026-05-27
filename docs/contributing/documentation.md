@@ -8,6 +8,10 @@ All project documentation MUST be reachable at [docs.infinito.nexus](https://doc
 - You MUST add code comments only when an exception, edge case, or surprising decision would otherwise confuse readers.
 - You MUST use comments to explain why something is unusual, not to restate what obvious code already does.
 - When keeping an intentionally retained outdated version pin, you MUST document the exception at the pin site with a local `TODO` comment in the file's normal comment style (`#todo`, `# TODO`, or similar) and explain why it remains pinned so the root cause stays visible until it can be fixed.
+- You MUST NOT reference requirement files from code (comments, docstrings, error / log messages, prose inside templates).
+  Tokens such as `req 019`, `req 019 Rule 3`, `requirement-005`, or path references like `docs/requirements/019-...md` MUST NOT appear in `.js`, `.py`, `.yml`, `.j2`, `.sh`, or any other non-Markdown source file.
+  Requirements are an authoring contract enforced by lint and integration tests; comments anchored to requirement numbers rot when requirements are renumbered, restructured, or rewritten, and they conflate the *what is true now* (which the comment should describe) with the *audit trail of how we got here* (which belongs in commit messages, pull request descriptions, and the requirement file itself).
+  Describe the *why* of the code in present-state language; the contract enforcement lives in tests, not folklore.
 
 ## Requirement Keywords (RFC 2119) 📋
 
@@ -41,6 +45,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 - You MUST fix nearby wording and semantic issues when you touch a file, and correct obvious nearby issues proactively in the same pass.
 - You SHOULD use emojis when they make the text more visually appealing, improve the mood, and increase readability.
 - You MUST NOT use em dashes (—) as thought breaks or clause separators. You SHOULD prefer complete sentences. Hyphens (-) MAY be used for compound words and list items.
+- You MUST NOT break a single sentence across multiple lines in `.md` files. Each sentence MUST stay on one logical line so readers see the full statement at once and reflowable Markdown viewers do not introduce stray line breaks. A new line in the source MUST mean a new sentence, a new paragraph, or a structural element (heading, list item, table row, fenced block); never a soft wrap inside one sentence.
 - You MUST NOT explicitly declare a documentation page as "the SPOT", "Single Point of Truth", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead.
 - You MUST describe only the current state of the subject. You MUST NOT carry historical context, migration notes, or comparisons to former implementations into documentation. Phrases such as "this replaces X", "previously X did Y", "formerly known as X", "the legacy X", or "after the refactor" MUST NOT appear in documentation. Readers arrive in the present and need to know how the subject works now, not how it used to work. Historical context belongs in commit messages, pull request descriptions, and changelogs, where it is anchored to a point in time and ages gracefully. Documentation that carries history rots as soon as the next refactor lands.
 
@@ -61,6 +66,7 @@ See [readme_md.md](artefact/files/role/readme_md.md) for the requirement, requir
 See [Docs README](artefact/files/docs/readme_md.md) for the purpose, scope, and navigation rules for `README.md` files stored inside `docs/` directories.
 
 ### Markdown 📋
+
 - You SHOULD prefer `README.md` for directory-level documentation when a human-facing entry point already exists.
 - You MUST keep core information inside the repository, either in code or in `.md` files.
 - You MUST use `.md` files for commands, workflows, setup, and contributor guidance.

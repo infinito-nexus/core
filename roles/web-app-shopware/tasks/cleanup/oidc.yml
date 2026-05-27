@@ -1,3 +1,4 @@
+---
 - name: "Deactivate/uninstall OIDC plugin if present"
   shell: |
     container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '

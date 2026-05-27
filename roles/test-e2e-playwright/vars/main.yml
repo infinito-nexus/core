@@ -1,0 +1,16 @@
+---
+TEST_E2E_PLAYWRIGHT_IMAGE: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.image') }}:{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version')
+  }}"
+TEST_E2E_PLAYWRIGHT_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version') | image_version }}"
+TEST_E2E_PLAYWRIGHT_APPS: >-
+  {{
+    playbook_dir
+    | discover_playwright_roles(
+        only_roles=TEST_E2E_PLAYWRIGHT_ONLY_ROLES,
+        skip_roles=TEST_E2E_PLAYWRIGHT_SKIP_ROLES
+      )
+  }}
+
+TEST_E2E_PLAYWRIGHT_SHARED_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_shared"
+TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/node_modules"
+TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"

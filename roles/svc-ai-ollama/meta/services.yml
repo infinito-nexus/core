@@ -1,5 +1,6 @@
+---
 ollama:
-  enabled: false
+  enabled: true
   shared: true
   backup:
     no_stop_required: true
@@ -7,14 +8,15 @@ ollama:
   version: latest
   name: ollama
   min_storage: 20GB
-  cpus: '4.0'
+  cpus: "4.0"
   mem_reservation: 6g
   mem_limit: 8g
   pids_limit: 2048
   ports:
-    inter: 11434
+    internal:
+      http: 11434
   preload_models:
-  - llama3:latest
-  - mistral:latest
-  - nomic-embed-text:latest
+    - llama3:latest
+    - mistral:latest
+    - nomic-embed-text:latest
   lifecycle: beta

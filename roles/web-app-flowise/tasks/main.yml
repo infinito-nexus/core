@@ -3,11 +3,11 @@
   include_role:
     name: sys-stk-backend
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "create {{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
   template:
-    src:  "litellm.config.yaml.j2" 
+    src: "litellm.config.yaml.j2"
     dest: "{{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
   notify: compose up
 
@@ -18,5 +18,5 @@
   include_role:
     name: sys-stk-front-proxy
   vars:
-    domain:     "{{ lookup('domain',application_id) }}"
-    http_port:  "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"
+    domain: "{{ lookup('domain',application_id) }}"
+    http_port: "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"

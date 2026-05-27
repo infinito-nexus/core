@@ -1,3 +1,4 @@
+---
 - name: Install systemd tools (provides systemd-analyze)
   ansible.builtin.package:
     name: "systemd"

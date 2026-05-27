@@ -27,7 +27,7 @@ The broker MUST receive `X-Forwarded-User`, `X-Forwarded-Preferred-Username`, an
 
 LDAP rides the same broker path: Keycloak federates LDAP via `svc-db-openldap` and the broker reads the resulting Keycloak headers via `oauth2-proxy`. Direct LDAP-to-PDS sync is NOT supported, the Keycloak federation layer is the single authority for user identity.
 
-RBAC stays gating-only because the PDS has no in-app role concept beyond "account exists / does not exist". Membership in the `/roles/web-app-bluesky` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per [lifecycle.md](../../docs/contributing/design/services/lifecycle.md) and [requirement 013](../../docs/requirements/013-alpha-to-beta-promotion.md) covers the in-app authorisation tier.
+RBAC stays gating-only because the PDS has no in-app role concept beyond "account exists / does not exist". Membership in the `/roles/web-app-bluesky` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md) covers the in-app authorisation tier.
 
 ## Developer Notes
 

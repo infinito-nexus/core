@@ -1,0 +1,5 @@
+---
+# sys-aur is non-invokable, so it does not set `application_id` —
+# the entity config is keyed by `role_name`.
+AUR_YAY_REPOSITORY: "{{ lookup('config', role_name, 'services.aur.repository') }}"
+AUR_YAY_REF: "{{ lookup('config', role_name, 'services.aur.ref') }}"

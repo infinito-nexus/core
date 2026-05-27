@@ -9,22 +9,28 @@ Stays import-cheap so that `utils.cache.applications` (consumed on
 GitHub Actions runner hosts that ship without ansible — see CI runs
 24934007615 / 24935979190) can pull this module without dragging
 ansible in. The single ansible-coupled symbol exposed from here is
-`_render_with_templar`, which lazy-imports `utils.templating` only
-when actually invoked.
+`_render_with_templar`, which lazy-imports `utils.templating.ansible`
+only when actually invoked.
 """
 
 from __future__ import annotations
 
 import copy
-import os
 import threading
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping, Optional
+from typing import TYPE_CHECKING, Any
 
 # `merge_with_defaults` is a pure-Python helper with no `ansible` dependency,
 # so it stays at module scope.
-from plugins.filter.merge_with_defaults import merge_with_defaults  # noqa: F401  re-exported
+from plugins.filter.merge_with_defaults import (
+    merge_with_defaults,  # noqa: F401  re-exported
+)
 
+from . import PROJECT_ROOT, ROLES_DIR  # noqa: F401
+
+if TYPE_CHECKING:
+    import os
 
 try:
     from ansible.parsing.vault import EncryptedString as _AnsibleEncryptedString
@@ -54,14 +60,6 @@ def _decrypt_ansible_encrypted_strings(value: Any) -> Any:
     return value
 
 
-# `utils/cache/base.py` lives two levels deep: utils/cache/base.py -> repo
-# root. parents[1] would point at utils/ (the python module), so callers that
-# fall back to the implicit ROLES_DIR would walk a non-existent
-# `<repo>/utils/roles/*/meta/users.yml` glob and silently yield no role
-# defaults — making `lookup('users', '<role-defined-key>')` raise as if the
-# user didn't exist.
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-ROLES_DIR = PROJECT_ROOT / "roles"
 DEFAULT_TOKENS_FILE = Path("/var/lib/infinito/secrets/tokens.yml")
 
 
@@ -74,7 +72,7 @@ DEFAULT_TOKENS_FILE = Path("/var/lib/infinito/secrets/tokens.yml")
 _RENDER_GUARD = threading.local()
 
 
-_FINGERPRINT_BY_ID: "dict[int, str]" = {}
+_FINGERPRINT_BY_ID: dict[int, str] = {}
 
 
 def _cache_key(roles_dir: Path) -> str:
@@ -105,14 +103,18 @@ def _fingerprint_mapping(obj: Any) -> str:
         import hashlib
 
         data = repr(sorted(obj.items())) if isinstance(obj, Mapping) else repr(obj)
-        digest = hashlib.md5(data.encode("utf-8", errors="replace")).hexdigest()
+        # md5 used as a fast non-cryptographic fingerprint for cache keying.
+        digest = hashlib.md5(
+            data.encode("utf-8", errors="replace"),
+            usedforsecurity=False,
+        ).hexdigest()
     except Exception:
         digest = f"id:{obj_id}"
     _FINGERPRINT_BY_ID[obj_id] = digest
     return digest
 
 
-def _stable_variables_signature(variables: Optional[Mapping[str, Any]]) -> tuple:
+def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
     """Build a content-based cache signature from the subset of `variables`
     that influences the merged applications/users payload.
 
@@ -151,12 +153,12 @@ def _deep_merge(base: Any, override: Any) -> Any:
     return copy.deepcopy(override)
 
 
-def _resolve_roles_dir(*, roles_dir: Optional[str | os.PathLike[str]] = None) -> Path:
+def _resolve_roles_dir(*, roles_dir: str | os.PathLike[str] | None = None) -> Path:
     return Path(roles_dir).resolve() if roles_dir else ROLES_DIR.resolve()
 
 
 def _resolve_override_mapping(
-    variables: Optional[Mapping[str, Any]],
+    variables: Mapping[str, Any] | None,
     key: str,
     templar: Any = None,
 ) -> dict[str, Any]:
@@ -202,9 +204,9 @@ def _render_with_templar(
     value: Any,
     *,
     templar: Any,
-    variables: Optional[dict[str, Any]],
-    raw_applications: Optional[dict[str, Any]] = None,
-    raw_users: Optional[dict[str, Any]] = None,
+    variables: dict[str, Any] | None,
+    raw_applications: dict[str, Any] | None = None,
+    raw_users: dict[str, Any] | None = None,
     max_rounds: int = 4,
 ) -> Any:
     if templar is None:
@@ -214,7 +216,7 @@ def _render_with_templar(
     # `ansible.errors.AnsibleError`. Keeping the import lazy means
     # ansible-less importers of `utils.cache.base` (e.g. the runner-host
     # CLI path) never pay the cost.
-    from utils.templating import _templar_render_best_effort
+    from utils.templating.ansible import _templar_render_best_effort
 
     # Start from whatever the templar already had available so that
     # ansible_facts/hostvars stay accessible during nested renders. Overlay the
@@ -250,7 +252,7 @@ def _render_with_templar(
                 and "{{" not in stripped[2:]
                 and "{%" not in stripped
             ):
-                from utils.templating import _templar_render_preserve_type
+                from utils.templating.ansible import _templar_render_preserve_type
 
                 try:
                     rendered = _templar_render_preserve_type(

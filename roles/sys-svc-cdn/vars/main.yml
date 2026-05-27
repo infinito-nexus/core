@@ -1,3 +1,4 @@
+---
 # CDN structure for the shared web-svc-cdn role (resolved once)
 _cdn_shared: "{{ lookup('cdn', 'web-svc-cdn') }}"
 

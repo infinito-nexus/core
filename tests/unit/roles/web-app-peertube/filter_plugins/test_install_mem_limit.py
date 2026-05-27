@@ -1,8 +1,9 @@
-import unittest
-import pathlib
 import importlib.util
+import unittest
 
 from ansible.errors import AnsibleFilterError
+
+from . import PROJECT_ROOT
 
 
 def _load_install_mem_limit_module():
@@ -11,12 +12,8 @@ def _load_install_mem_limit_module():
     roles/web-app-peertube path, without requiring the roles directory to
     be a Python package.
     """
-    # tests/unit/roles/web-app-peertube/filter_plugins/test_install_mem_limit.py
-    test_file = pathlib.Path(__file__).resolve()
-    repo_root = test_file.parents[5]
-
     plugin_path = (
-        repo_root
+        PROJECT_ROOT
         / "roles"
         / "web-app-peertube"
         / "filter_plugins"

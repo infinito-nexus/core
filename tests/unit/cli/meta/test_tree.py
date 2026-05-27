@@ -1,8 +1,10 @@
-import unittest
-import tempfile
 import shutil
-import os
+import tempfile
+import unittest
+from pathlib import Path
+
 from cli.build import tree
+from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 
 class TestTreeMain(unittest.TestCase):
@@ -10,11 +12,11 @@ class TestTreeMain(unittest.TestCase):
         # Create a temporary roles directory with a fake role
         self.temp_dir = tempfile.mkdtemp()
         self.role_name = "testrole"
-        self.role_path = os.path.join(self.temp_dir, self.role_name)
-        os.makedirs(os.path.join(self.role_path, "meta"))
+        self.role_path = str(Path(self.temp_dir) / self.role_name)
+        Path(str(Path(self.role_path) / "meta")).mkdir(parents=True)
 
-        meta_path = os.path.join(self.role_path, "meta", "main.yml")
-        with open(meta_path, "w") as f:
+        meta_path = str(Path(self.role_path) / ROLE_FILE_META_MAIN)
+        with Path(meta_path).open("w") as f:
             f.write("galaxy_info:\n  author: test\n  run_after: []\ndependencies: []\n")
 
     def tearDown(self):

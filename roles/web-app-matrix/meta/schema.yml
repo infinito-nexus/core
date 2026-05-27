@@ -1,3 +1,4 @@
+---
 credentials:
   administrator_password:
     description: Initial administrator password for the Matrix homeserver

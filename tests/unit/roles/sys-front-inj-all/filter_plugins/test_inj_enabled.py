@@ -1,41 +1,26 @@
 import importlib.util
-from importlib import import_module
-from pathlib import Path
 import sys
 import unittest
+from importlib import import_module
 
-THIS_FILE = Path(__file__)
+from . import PROJECT_ROOT
 
-
-def find_repo_root(start: Path) -> Path:
-    target_rel = (
-        Path("roles") / "sys-front-inj-all" / "filter_plugins" / "inj_enabled.py"
-    )
-    cur = start
-    for _ in range(12):
-        if (cur / target_rel).is_file():
-            return cur
-        cur = cur.parent
-    return start.parents[6]
-
-
-REPO_ROOT = find_repo_root(THIS_FILE)
 PLUGIN_PATH = (
-    REPO_ROOT / "roles" / "sys-front-inj-all" / "filter_plugins" / "inj_enabled.py"
+    PROJECT_ROOT / "roles" / "sys-front-inj-all" / "filter_plugins" / "inj_enabled.py"
 )
 
 # Ensure 'utils' is importable under its canonical package name
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # Import the same module path the plugin uses
-mu_mod = import_module("utils.applications.config")
+mu_mod = import_module("utils.roles.applications.config")
 AppConfigKeyError = mu_mod.AppConfigKeyError
 
 # Load inj_enabled filter plugin from file
 spec = importlib.util.spec_from_file_location("inj_enabled", str(PLUGIN_PATH))
 inj_mod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(inj_mod)  # type: ignore
+spec.loader.exec_module(inj_mod)
 FilterModule = inj_mod.FilterModule
 
 

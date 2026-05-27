@@ -3,7 +3,7 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
     webserver_extra_configuration: >-
       {% if not LISTMONK_PUBLIC_API_ENABLED | bool %}
       {{ lookup('file', '{{ playbook_dir }}/roles/web-app-listmonk/files/deactivate-public-api.conf') }}
@@ -13,7 +13,7 @@
 
 - name: add config.toml
   template:
-    src:  "config.toml.j2" 
+    src: "config.toml.j2"
     dest: "{{ LISTMONK_CONFIG_HOST }}"
   notify: compose up
 
@@ -58,4 +58,4 @@
   when: (item.when | default(true)) | bool
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

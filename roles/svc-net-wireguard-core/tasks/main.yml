@@ -1,4 +1,4 @@
-
+---
 - include_tasks: 01_core.yml
   when:
     - run_once_svc_net_wireguard_core is not defined

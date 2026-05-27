@@ -5,10 +5,6 @@ services:
       MS_ENABLE_IPV6: "{{ BBB_IP6_ENABLED | bool | lower }}"
       MS_WEBRTC_LISTEN_IPS: >-
         [{"ip":"0.0.0.0","announcedIp":"${EXTERNAL_IPv4}"}]
-{% if RUNTIME == 'dev' %}
-  freeswitch:
-    entrypoint: ["sh", "-c", "iptables -N REJECT 2>/dev/null || true; exec /entrypoint.sh"]
-{% endif %}
 {% if BBB_COTURN_LOCAL_ENABLED | bool %}
   coturn:
     ports:

@@ -1,3 +1,4 @@
+---
 - name: "Add LDAP Authentication Source"
   shell: |
     container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \

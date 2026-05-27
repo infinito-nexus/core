@@ -1,8 +1,9 @@
+---
 csp:
   whitelist: {}
 domains:
   canonical:
-  - magento.shop.{{ DOMAIN_PRIMARY }}
+    - magento.shop.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

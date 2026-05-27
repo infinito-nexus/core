@@ -1,12 +1,13 @@
-import unittest
-import os
-import glob
-import yaml
 import re
+import unittest
+from pathlib import Path
+
+import yaml
 
 from utils.cache.files import iter_project_files, read_text
-
 from utils.cache.yaml import load_yaml_all_str
+
+from . import PROJECT_ROOT
 
 
 class TestIncludeImportExistence(unittest.TestCase):
@@ -18,14 +19,13 @@ class TestIncludeImportExistence(unittest.TestCase):
     """
 
     def setUp(self):
-        tests_dir = os.path.dirname(__file__)
-        self.project_root = os.path.abspath(
-            os.path.join(tests_dir, os.pardir, os.pardir, os.pardir, os.pardir)
-        )
-        self.roles_dir = os.path.join(self.project_root, "roles")
+        self.project_root = str(PROJECT_ROOT)
+        self.roles_dir = str(Path(self.project_root) / "roles")
 
         self.files_to_scan = [
-            p for p in iter_project_files(extensions=(".yml",), exclude_tests=True)
+            filepath
+            for filepath in iter_project_files(extensions=(".yml",), exclude_tests=True)
+            if "/.git/" not in filepath
         ]
 
     @staticmethod
@@ -47,9 +47,11 @@ class TestIncludeImportExistence(unittest.TestCase):
                     elif isinstance(val, dict) and value_key in val:
                         refs.append(val[value_key])
                     elif isinstance(val, list):
-                        for item in val:
-                            if isinstance(item, dict) and value_key in item:
-                                refs.append(item[value_key])
+                        refs.extend(
+                            item[value_key]
+                            for item in val
+                            if isinstance(item, dict) and value_key in item
+                        )
                 else:
                     refs.extend(
                         TestIncludeImportExistence._collect_refs(
@@ -91,7 +93,7 @@ class TestIncludeImportExistence(unittest.TestCase):
                     self.fail(
                         "Invalid include_role/import_role name detected.\n"
                         f"  • File: {file_path}\n"
-                        f"  • Extracted name value: {repr(role_name)}\n"
+                        f"  • Extracted name value: {role_name!r}\n"
                         "The 'name:' field must contain a non-empty string.\n"
                         "Example:\n"
                         "  include_role:\n"
@@ -99,9 +101,12 @@ class TestIncludeImportExistence(unittest.TestCase):
                     )
 
                 pattern = re.sub(r"\{\{.*?\}\}", "*", role_name)
-                glob_path = os.path.join(self.roles_dir, pattern)
-
-                matches = [p for p in glob.glob(glob_path) if os.path.isdir(p)]  # noqa: project-walk
+                roles_root = Path(self.roles_dir)
+                if "*" in pattern or "?" in pattern:
+                    matches = [p for p in roles_root.glob(pattern) if p.is_dir()]
+                else:
+                    candidate = roles_root / pattern
+                    matches = [candidate] if candidate.is_dir() else []
                 if not matches:
                     missing.append((file_path, role_name))
 
@@ -114,16 +119,16 @@ class TestIncludeImportExistence(unittest.TestCase):
     def test_include_import_tasks_exist(self):
         missing = []
         for file_path, doc in self._iter_docs():
-            file_dir = os.path.dirname(file_path)
+            file_dir = str(Path(file_path).parent)
 
             role_name = None
             role_path_dir = None
             if self.roles_dir in file_dir:
-                parts = file_dir.split(os.sep)
+                parts = list(Path(file_dir).parts)
                 idx = parts.index("roles")
                 if idx + 1 < len(parts):
                     role_name = parts[idx + 1]
-                    role_path_dir = os.path.join(self.roles_dir, role_name)
+                    role_path_dir = str(Path(self.roles_dir) / role_name)
 
             for task_ref in self._collect_refs(
                 doc, ("include_tasks", "import_tasks"), "file"
@@ -136,17 +141,44 @@ class TestIncludeImportExistence(unittest.TestCase):
                         "{{ playbook_dir }}", self.project_root
                     )
                 pattern_ref = re.sub(r"\{\{.*?\}\}", "*", pattern_ref)
-                if not os.path.splitext(pattern_ref)[1]:
+                if not Path(pattern_ref).suffix:
                     pattern_ref += ".yml"
 
-                local_glob = os.path.join(file_dir, pattern_ref)
-                global_glob = os.path.join(self.project_root, pattern_ref)
-                tasks_dir_glob = os.path.join(self.project_root, "tasks", pattern_ref)
-
-                matches = []
-                matches += [p for p in glob.glob(local_glob) if os.path.isfile(p)]  # noqa: project-walk
-                matches += [p for p in glob.glob(global_glob) if os.path.isfile(p)]  # noqa: project-walk
-                matches += [p for p in glob.glob(tasks_dir_glob) if os.path.isfile(p)]  # noqa: project-walk
+                # Resolve relative to each candidate base. ``pattern_ref``
+                # may be relative or absolute; once it sits under ``base``
+                # we either expand wildcards via :meth:`Path.glob` or
+                # check for a literal file. The project-walk lint flags
+                # rglob/os.walk/glob.glob — neither is used here.
+                has_wildcard = "*" in pattern_ref or "?" in pattern_ref
+                matches: list[str] = []
+                if Path(pattern_ref).is_absolute():
+                    candidates = [Path(pattern_ref)]
+                    if has_wildcard:
+                        # Absolute pattern with wildcards: split off the
+                        # leading literal directory and glob from there.
+                        anchor = Path(pattern_ref).anchor
+                        relative = Path(pattern_ref).relative_to(anchor)
+                        matches.extend(
+                            str(p)
+                            for p in Path(anchor).glob(str(relative))
+                            if p.is_file()
+                        )
+                    elif candidates[0].is_file():
+                        matches.append(str(candidates[0]))
+                else:
+                    for base in (
+                        Path(file_dir),
+                        Path(self.project_root),
+                        Path(self.project_root) / "tasks",
+                    ):
+                        if has_wildcard:
+                            matches.extend(
+                                str(p) for p in base.glob(pattern_ref) if p.is_file()
+                            )
+                        else:
+                            candidate = base / pattern_ref
+                            if candidate.is_file():
+                                matches.append(str(candidate))
 
                 if not matches:
                     missing.append((file_path, task_ref))

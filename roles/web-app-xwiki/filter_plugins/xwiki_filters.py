@@ -29,7 +29,7 @@ def xwiki_extension_status(raw: str) -> int:
     return 404
 
 
-class FilterModule(object):
+class FilterModule:
     """Custom filters for XWiki helpers."""
 
     def filters(self):

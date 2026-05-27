@@ -13,19 +13,19 @@
   include_role:
     name: sys-stk-backend
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Transfering upload.ini to {{ WORDPRESS_CONFIG_UPLD_ABS }}"
   template:
     src: upload.ini.j2
     dest: "{{ WORDPRESS_CONFIG_UPLD_ABS }}"
-  notify: 
+  notify:
     - compose up
     - compose build
 
 - name: "Transfering msmtprc to {{ WORDPRESS_MSMTP_ABS }}"
   template:
-    src:  "{{ WORDPRESS_MSMTP_SRC }}"
+    src: "{{ WORDPRESS_MSMTP_SRC }}"
     dest: "{{ WORDPRESS_MSMTP_ABS }}"
   notify: compose up
 
@@ -46,7 +46,7 @@
 - name: "Install wordpress"
   include_tasks: 02_install.yml
 
-- name: "Convert to Multisite when opted in (requirement 005)"
+- name: "Convert to Multisite when opted in"
   include_tasks: 06_multisite.yml
   when: >-
     (lookup('config', application_id, 'services.wordpress.multisite.enabled')
@@ -82,4 +82,3 @@
   vars:
     # Target URL to switch to (uses your helper)
     wp_new_url: "{{ WORDPRESS_URL }}"
-  

@@ -1,8 +1,9 @@
+---
 - include_role:
-    name: '{{ item }}'
+    name: "{{ item }}"
   loop:
-  - sys-aur
-  - sys-ctl-alm-compose
+    - sys-aur
+    - sys-ctl-alm-compose
 
 - name: Install MSI packages
   include_role:
@@ -14,8 +15,8 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_on_calendar:   "{{ SYS_SCHEDULE_ANIMATION_KEYBOARD_COLOR }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_ANIMATION_KEYBOARD_COLOR }}"
     system_service_timer_enabled: true
-    system_service_timer_persistent:   true
+    system_service_timer_persistent: true
 
 - include_tasks: utils/once/flag.yml

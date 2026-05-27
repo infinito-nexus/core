@@ -6,7 +6,7 @@ Empower your decentralized social networking with Friendica, a platform designed
 
 ## Overview
 
-This role deploys Friendica using Docker, managing the Friendica application container alongside a central MariaDB instance. It provides tools for full resets, manual and automatic database reinitialization, email and general configuration debugging, and autoinstall processes—all to ensure your Friendica installation remains reliable and easy to maintain.
+This role deploys Friendica using Docker, managing the Friendica application container alongside a central MariaDB instance. It provides tools for full resets, manual and automatic database reinitialization, email and general configuration debugging, and autoinstall processes, all to ensure your Friendica installation remains reliable and easy to maintain.
 
 For detailed administration procedures, please refer to the [Administration.md](./Administration.md) file.
 
@@ -27,8 +27,7 @@ For detailed administration procedures, please refer to the [Administration.md](
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.  
+Developed and maintained by **Kevin Veen-Birkenbach**.
 Learn more at [veen.world](https://www.veen.world).
-
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code)  
-Licensed under [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

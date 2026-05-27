@@ -1,5 +1,3 @@
-# tests/unit/plugins/filter/test_generate_all_domains.py
-
 import unittest
 
 from plugins.filter.generate_all_domains import FilterModule

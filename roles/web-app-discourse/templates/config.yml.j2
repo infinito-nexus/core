@@ -1,5 +1,5 @@
 templates:
-{% if not lookup('database', application_id, 'shared')%}
+{% if lookup('database', application_id, 'local') %}
   - "templates/postgres.template.yml"
 {% endif %}
   #- "templates/redis.template.yml"
@@ -138,7 +138,7 @@ hooks:
 {% endfor %}     
 
 {% if DISCOURSE_LDAP_ENABLED | bool %}
-          - git clone --depth=1 https://github.com/jonmbake/discourse-ldap-auth.git
+          - git clone --depth=1 --branch {{ DISCOURSE_LDAP_AUTH_PLUGIN_REF }} {{ DISCOURSE_LDAP_AUTH_PLUGIN_REPOSITORY }}
 {% endif %}
 
 ## Any custom commands to run after building
@@ -151,10 +151,10 @@ run:
   ## If you want to set the 'From' email address for your first registration, uncomment and change:
   ## After getting the first signup email, re-comment the line. It only needs to run once.
   #- exec: rails r "SiteSetting.notification_email='info@unconfigured.discourse.org'"
+  - exec: rails r "SiteSetting.enable_local_logins = {{ DISCOURSE_LOCAL_LOGIN_ENABLED | bool | string | lower }}"
 {% if DISCOURSE_OIDC_ENABLED | bool %}
   # Deactivate Default Login
   - exec: rails r "SiteSetting.openid_connect_verbose_logging = {{ MODE_DEBUG | bool | string | lower }}"
-  - exec: rails r "SiteSetting.enable_local_logins = false"
   - exec: rails r "SiteSetting.enable_passkeys = false" # https://meta.discourse.org/t/passwordless-login-using-passkeys/285589
 
   - exec: rails r "SiteSetting.username_change_period = 0" # Deactivate changing of username

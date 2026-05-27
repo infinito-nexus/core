@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test-environment:
-    name: 🧑‍💻 Test Environment (${{ matrix.dev_runtime_image }})
+    name: 🧑‍💻 Environment (${{ matrix.dev_runtime_image }})
     runs-on: ubuntu-latest
     timeout-minutes: 270
 
@@ -29,23 +29,28 @@ jobs:
       DEV_RUNTIME_IMAGE: ${{ matrix.dev_runtime_image }}
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      # Cache caps for CI. The orchestrator unsets GITHUB_ACTIONS to
-      # simulate local dev, which activates the `cache` compose profile
-      # (registry-cache + package-cache). Bind paths moved to /mnt so
-      # caches share the 74g ephemeral disk with /var/lib/docker
-      # instead of stressing the small / partition. Sizes tuned for
-      # post-prune in-run re-pulls: large enough to fit one deploy's
-      # in-use image set (rpardini) plus pip/npm/apt artefacts (Nexus),
-      # leaving ~62g headroom for Docker layer storage on /mnt.
-      INFINITO_REGISTRY_CACHE_MAX_SIZE: 8g
-      INFINITO_REGISTRY_CACHE_HOST_PATH: /mnt/cache/registry/mirror
-      INFINITO_REGISTRY_CACHE_CA_HOST_PATH: /mnt/cache/registry/ca
-      INFINITO_PACKAGE_CACHE_BLOBSTORE_MAX: 4g
-      INFINITO_PACKAGE_CACHE_HEAP: 1g
-      INFINITO_PACKAGE_CACHE_DIRECT_MEM: 1g
-      INFINITO_PACKAGE_CACHE_HOST_PATH: /mnt/cache/package/data
+      # Cache caps sized for post-prune re-pulls; paths on /mnt to spare the small / partition.
+      INFINITO_CACHE_REGISTRY_MAX_SIZE: 16g
+      INFINITO_CACHE_REGISTRY_HOST_PATH: /mnt/cache/registry/mirror
+      INFINITO_CACHE_REGISTRY_CA_HOST_PATH: /mnt/cache/registry/ca
+      INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX: 8g
+      INFINITO_CACHE_PACKAGE_HEAP: 1g
+      INFINITO_CACHE_PACKAGE_DIRECT_MEM: 1g
+      INFINITO_CACHE_PACKAGE_HOST_PATH: /mnt/cache/package/data
 
     steps:
+      # Reclaim host space before Docker pulls (rationale: docs/contributing/artefact/files/github/workflow.md); swap-storage stays since no enlarge_swap.sh replacement exists here.
+      - name: 🧹 Free disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
+
       - name: Checkout repository
         uses: actions/checkout@v6
 
@@ -55,9 +60,7 @@ jobs:
           set -euo pipefail
           HOST_WORKDIR="$(pwd -P)"
 
-          # Build the development image in this job and avoid pulling mutable GHCR tags.
-          # Keep the same absolute path inside the container as on the host.
-          # This is required because docker compose talks to the host daemon via /var/run/docker.sock.
+          # Build the dev image locally and mirror the host workdir path inside the container so docker compose can reach the host daemon via /var/run/docker.sock.
           docker run --rm \
             -e GITHUB_ACTIONS=true \
             -e GITHUB_REPOSITORY="${{ github.repository }}" \
@@ -67,15 +70,15 @@ jobs:
             -e INFINITO_DISTRO=debian \
             -e INFINITO_IMAGE=infinito-debian \
             -e INFINITO_PULL_POLICY=never \
-            -e INFINITO_NO_BUILD=0 \
+            -e INFINITO_BUILD=1 \
             -e NIX_CONFIG \
-            -e INFINITO_REGISTRY_CACHE_MAX_SIZE \
-            -e INFINITO_REGISTRY_CACHE_HOST_PATH \
-            -e INFINITO_REGISTRY_CACHE_CA_HOST_PATH \
-            -e INFINITO_PACKAGE_CACHE_BLOBSTORE_MAX \
-            -e INFINITO_PACKAGE_CACHE_HEAP \
-            -e INFINITO_PACKAGE_CACHE_DIRECT_MEM \
-            -e INFINITO_PACKAGE_CACHE_HOST_PATH \
+            -e INFINITO_CACHE_REGISTRY_MAX_SIZE \
+            -e INFINITO_CACHE_REGISTRY_HOST_PATH \
+            -e INFINITO_CACHE_REGISTRY_CA_HOST_PATH \
+            -e INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX \
+            -e INFINITO_CACHE_PACKAGE_HEAP \
+            -e INFINITO_CACHE_PACKAGE_DIRECT_MEM \
+            -e INFINITO_CACHE_PACKAGE_HOST_PATH \
             --network host \
             -v "${HOST_WORKDIR}:${HOST_WORKDIR}" \
             -v "/mnt/docker:/var/lib/docker" \

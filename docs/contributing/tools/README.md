@@ -7,5 +7,5 @@ Its scope is how repository-standard tools should be used, when they apply, and 
 
 | Helper | Purpose |
 |---|---|
-| [ports-suggest.md](ports-suggest.md) | `cli meta ports suggest` — propose free host-bound ports inside `PORT_BANDS.<scope>.<category>`. |
-| [networks-suggest.md](networks-suggest.md) | `cli meta networks suggest` — propose free per-role subnets gap-first within established umbrella blocks. |
+| [port.md](network/port.md) | `cli contributing network ports suggest`: propose free host-bound ports inside `PORT_BANDS.<scope>.<category>`. |
+| [address.md](network/address.md) | `cli contributing network address suggest`: propose free per-role subnets gap-first within established umbrella blocks. |

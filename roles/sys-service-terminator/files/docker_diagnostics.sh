@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# roles/sys-service-terminator/files/docker_diagnostics.sh
 #
 # Best-effort Docker diagnostics for sys-service-terminator.
 # Never fails hard (always exits 0).

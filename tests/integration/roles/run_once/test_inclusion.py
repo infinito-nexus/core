@@ -1,19 +1,29 @@
-import os
 import re
 import unittest
-import glob
+from pathlib import Path
+
 import yaml
 
+from utils.cache.files import iter_project_files
 from utils.cache.yaml import load_yaml_all
 
 
 def find_role_task_yml_files(root_dir):
+    """Yield ``.yml`` / ``.yaml`` files under ``<root>/roles/*/tasks/``.
+
+    Routes through the cached project walk so the search shares the same
+    file list every other lint/integration test uses.
     """
-    Find all .yml or .yaml files under roles/*/tasks directories from project root.
-    """
-    pattern_yml = os.path.join(root_dir, "roles", "*", "tasks", "*.yml")
-    pattern_yaml = os.path.join(root_dir, "roles", "*", "tasks", "*.yaml")
-    return glob.glob(pattern_yml) + glob.glob(pattern_yaml)  # noqa: project-walk
+    roles_prefix = str(Path(root_dir) / "roles") + "/"
+    matches: list[str] = []
+    for path_str in iter_project_files(extensions=(".yml", ".yaml")):
+        if not path_str.startswith(roles_prefix):
+            continue
+        rel = path_str[len(roles_prefix) :].split("/")
+        # roles/<role>/tasks/<file>
+        if len(rel) == 3 and rel[1] == "tasks":
+            matches.append(path_str)
+    return matches
 
 
 class RunOnceInclusionTest(unittest.TestCase):
@@ -31,10 +41,9 @@ class RunOnceInclusionTest(unittest.TestCase):
     )
 
     def test_run_once_blocks(self):
-        # tests/integration/roles/run_once -> tests/integration/roles -> tests/integration -> tests -> project root
-        project_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-        )
+        from . import PROJECT_ROOT
+
+        project_root = str(PROJECT_ROOT)
         violations = []
 
         for filepath in find_role_task_yml_files(project_root):

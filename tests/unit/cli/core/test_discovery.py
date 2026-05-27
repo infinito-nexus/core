@@ -2,7 +2,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cli.core.discovery import discover_commands, resolve_command_module
+from cli.core.discovery import (
+    discover_commands,
+    iter_dir_entries,
+    resolve_command_module,
+)
 
 
 class TestDiscovery(unittest.TestCase):
@@ -71,20 +75,24 @@ class TestDiscovery(unittest.TestCase):
             self.assertEqual(remaining, ["nope", "--x"])
 
     def test_resolve_command_module_stops_at_first_flag(self):
-        # `infinito create inventory <abs-path> --host localhost ...`: the
-        # subcommand is `create inventory`; the absolute positional arg
-        # MUST NOT be tried as a sub-package, otherwise pathlib resets
-        # the search root and downstream args (huge `--vars` JSON) end
-        # up concatenated as a single path that hits ENAMETOOLONG.
+        # `infinito administration inventory provision <abs-path> --host localhost ...`:
+        # the subcommand is `administration inventory provision`; the absolute
+        # positional arg MUST NOT be tried as a sub-package, otherwise pathlib
+        # resets the search root and downstream args (huge `--vars` JSON) end up
+        # concatenated as a single path that hits ENAMETOOLONG.
         with tempfile.TemporaryDirectory() as td:
             cli_dir = Path(td) / "cli"
             cli_dir.mkdir(parents=True, exist_ok=True)
             self._touch(cli_dir / "__main__.py", "# dispatcher\n")
-            self._touch(cli_dir / "create" / "inventory" / "__main__.py", "# cmd\n")
+            self._touch(
+                cli_dir / "administration" / "inventory" / "provision" / "__main__.py",
+                "# cmd\n",
+            )
 
             argv = [
-                "create",
+                "administration",
                 "inventory",
+                "provision",
                 "/home/user/inventories/localhost-0",
                 "--host",
                 "localhost",
@@ -92,8 +100,8 @@ class TestDiscovery(unittest.TestCase):
                 '{"a": 1, "b": 2}',
             ]
             module, remaining = resolve_command_module(cli_dir, argv)
-            self.assertEqual(module, "cli.create.inventory")
-            self.assertEqual(remaining, argv[2:])
+            self.assertEqual(module, "cli.administration.inventory.provision")
+            self.assertEqual(remaining, argv[3:])
 
     def test_resolve_command_module_survives_oserror_on_long_path(self):
         # Defence in depth: even if a freshly-introduced positional arg
@@ -112,6 +120,52 @@ class TestDiscovery(unittest.TestCase):
             module, remaining = resolve_command_module(cli_dir, argv)
             self.assertEqual(module, "cli.build.tree")
             self.assertEqual(remaining, [blob])
+
+
+class TestIterDirEntries(unittest.TestCase):
+    def _touch(self, path: Path, content: str = "") -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+    def test_returns_immediate_subdirs_split_by_command_vs_folder(self):
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = Path(td) / "cli"
+            cli_dir.mkdir(parents=True, exist_ok=True)
+
+            # Runnable command at top level.
+            self._touch(cli_dir / "make" / "__main__.py", "# cmd\n")
+            # Category folder (no own __main__.py) with a command underneath.
+            self._touch(cli_dir / "meta" / "j2" / "__main__.py", "# cmd\n")
+            # Empty support package — must NOT show up.
+            self._touch(cli_dir / "core" / "__init__.py", "")
+            # __pycache__ must be ignored.
+            (cli_dir / "__pycache__").mkdir(parents=True, exist_ok=True)
+
+            entries = iter_dir_entries(cli_dir, ())
+
+            names = [(e.name, e.is_command) for e in entries]
+            self.assertIn(("make", True), names)
+            self.assertIn(("meta", False), names)
+            self.assertNotIn(("core", False), [(n, c) for n, c in names])
+            self.assertNotIn(("__pycache__", False), [(n, c) for n, c in names])
+
+    def test_descends_into_named_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = Path(td) / "cli"
+            cli_dir.mkdir(parents=True, exist_ok=True)
+            self._touch(cli_dir / "meta" / "j2" / "__main__.py", "# cmd\n")
+            self._touch(cli_dir / "meta" / "callorder" / "__main__.py", "# cmd\n")
+            self._touch(cli_dir / "meta" / "roles" / "__init__.py", "")
+            # `meta/roles/all` is a runnable command underneath the otherwise
+            # empty `meta/roles` folder; the folder MUST surface as a category.
+            self._touch(cli_dir / "meta" / "roles" / "all" / "__main__.py", "# cmd\n")
+
+            entries = iter_dir_entries(cli_dir, ("meta",))
+            names = sorted((e.name, e.is_command) for e in entries)
+            self.assertEqual(
+                names,
+                [("callorder", True), ("j2", True), ("roles", False)],
+            )
 
 
 if __name__ == "__main__":

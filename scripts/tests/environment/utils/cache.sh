@@ -213,9 +213,9 @@ probe_caches() {
 # Ansible-driven runner-side traffic alone does NOT exercise.
 probe_did_inner_build() {
 	local frontend_ip
-	frontend_ip="${INFINITO_PACKAGE_CACHE_FRONTEND_IP:-}"
+	frontend_ip="${INFINITO_CACHE_PACKAGE_FRONTEND_IP:-}"
 	if [[ -z "${frontend_ip}" ]]; then
-		echo "[probe-did] INFINITO_PACKAGE_CACHE_FRONTEND_IP unset; skipping DiD probe"
+		echo "[probe-did] INFINITO_CACHE_PACKAGE_FRONTEND_IP unset; skipping DiD probe"
 		return 0
 	fi
 

@@ -1,6 +1,6 @@
-import unittest
-import os
 import shutil
+import unittest
+from pathlib import Path
 
 # Import the filter directly
 from plugins.filter.has_env import has_env
@@ -12,27 +12,28 @@ class TestHasEnvFilter(unittest.TestCase):
         self.base_dir = "./testdata"
         self.app_with_env = "app_with_env"
         self.app_without_env = "app_without_env"
-        os.makedirs(
-            os.path.join(self.base_dir, "roles", self.app_with_env, "templates"),
-            exist_ok=True,
-        )
-        os.makedirs(
-            os.path.join(self.base_dir, "roles", self.app_without_env, "templates"),
-            exist_ok=True,
-        )
+        Path(
+            str(Path(self.base_dir) / "roles" / self.app_with_env / "templates")
+        ).mkdir(parents=True, exist_ok=True)
+        Path(
+            str(Path(self.base_dir) / "roles" / self.app_without_env / "templates")
+        ).mkdir(parents=True, exist_ok=True)
 
         # Create an empty env.j2 file
-        with open(
-            os.path.join(
-                self.base_dir, "roles", self.app_with_env, "templates", "env.j2"
-            ),
-            "w",
-        ) as f:
+        with Path(
+            str(
+                Path(self.base_dir)
+                / "roles"
+                / self.app_with_env
+                / "templates"
+                / "env.j2"
+            )
+        ).open("w") as f:
             f.write("")
 
     def tearDown(self):
         # Clean up the test data
-        if os.path.exists(self.base_dir):
+        if Path(self.base_dir).exists():
             shutil.rmtree(self.base_dir)
 
     def test_env_exists(self):

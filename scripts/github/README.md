@@ -1,16 +1,17 @@
 # GitHub Workflow Helpers 🔧
 
-This is the SPOT for GitHub workflow helper scripts under `scripts/github/`.
-These helpers are called from `.github/workflows/`.
-For the repository Make target index, see [make.md](../../docs/contributing/tools/make.md).
+This directory holds the shell helpers that GitHub Actions workflows under [`.github/workflows/`](../../.github/workflows/) call. Helpers are grouped by responsibility into subfolders so each workflow file pulls only from the clusters it actually needs.
 
-## Entry Points 📋
+## Subfolders 🗂️
 
-| Script | What it does | Used by |
-|---|---|---|
-| `cancel_deleted_branch_runs.sh` | Cancels active workflow runs for a deleted branch. | `.github/workflows/delete-branch.yml` |
-| `cancel_pull_request_runs.sh` | Cancels active workflow runs for a closed pull request. | `.github/workflows/cancel-pull-request-runs.yml` |
-| `check_git_changes.sh` | Emits a `changed=true/false` workflow output based on `git diff`. | `.github/workflows/update.yml` |
-| `install_update_python.sh` | Installs Python dependencies needed by the automated update workflows. | `.github/workflows/update.yml` |
-| `open_update_pr.sh` | Commits update changes, pushes the branch, and creates or refreshes the matching Pull Request. | `.github/workflows/update.yml` |
-| `update_docker_image_versions.sh` | Runs the Docker image version updater CLI from GitHub Actions. | `.github/workflows/update.yml` |
+| Subfolder | Responsibility |
+|---|---|
+| [runner/](runner/) | Host-runner hygiene around image builds and deploys (disk, swap, Docker daemon, diagnostics). |
+| [cancel/](cancel/) | Cancellation of in-progress workflow runs on PR-close and branch-delete events. |
+| [resolve/](resolve/) | Derivation of structured workflow inputs and outputs from repository state. |
+| [update/](update/) | The scheduled `Update: Versions` pipeline (version bumps and PR open/refresh). |
+| [release/](release/) | Release-time gates that decide whether a tagged commit may be released. |
+
+A new helper MUST live in the subfolder that matches its responsibility. New responsibilities MAY motivate a new subfolder, but MUST NOT flatten back into the top level.
+
+For the workflow catalog see [workflows.md](../../docs/contributing/tools/github/actions/workflows.md). For the repository Make target index see [make.md](../../docs/contributing/tools/make.md).

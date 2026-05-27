@@ -1,14 +1,16 @@
-# utils/tls_common.py
 #
 # Shared strict resolution helpers for Infinito.Nexus TLS/cert lookups.
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Optional
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 
 from utils.domains.application_domain_index import resolve_app_id_for_domain
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 AVAILABLE_FLAVORS = {"letsencrypt", "self_signed"}
 
@@ -106,9 +108,9 @@ def resolve_app_id_from_domain(domains: dict, domain: str, *, err_prefix: str) -
     matches: list[str] = []
 
     for app_id, val in domains.items():
-        for d in iter_domains(val):
-            if norm_domain(d) == needle:
-                matches.append(str(app_id))
+        matches.extend(
+            str(app_id) for d in iter_domains(val) if norm_domain(d) == needle
+        )
 
     if not matches:
         raise AnsibleError(
@@ -142,7 +144,9 @@ def resolve_primary_domain_from_app(
         try:
             first_val = next(iter(val.values()))
         except StopIteration:
-            raise AnsibleError(f"{err_prefix}: domains['{app_id}'] dict is empty")
+            raise AnsibleError(
+                f"{err_prefix}: domains['{app_id}'] dict is empty"
+            ) from None
         if not isinstance(first_val, str) or not first_val:
             raise AnsibleError(f"{err_prefix}: invalid primary domain for '{app_id}'")
         return first_val
@@ -172,7 +176,7 @@ def collect_domains_for_app(
 
 def collect_domains_global(domains: dict) -> list[str]:
     all_items: list[str] = []
-    for _, val in domains.items():
+    for val in domains.values():
         all_items.extend(list(iter_domains(val)))
     return uniq_preserve(all_items)
 
@@ -181,7 +185,7 @@ def resolve_term(
     term: str,
     *,
     domains: dict,
-    applications: Optional[dict] = None,
+    applications: dict | None = None,
     forced_mode: str,
     err_prefix: str,
 ) -> tuple[str, str]:
@@ -235,6 +239,16 @@ def resolve_term(
             )
 
         app_id = resolve_app_id_for_domain(apps, t)
+        if not app_id and t.lower().startswith("www."):
+            bare = t[4:]
+            try:
+                app_id_legacy = resolve_app_id_from_domain(
+                    domains, bare, err_prefix=err_prefix
+                )
+                return str(app_id_legacy), norm_domain(bare)
+            except AnsibleError:
+                pass
+            app_id = resolve_app_id_for_domain(apps, bare)
         if not app_id:
             raise AnsibleError(
                 f"{err_prefix}: domain '{t}' not found (domains/applications)"
@@ -283,7 +297,7 @@ def resolve_le_name(app: dict, domain: str) -> str:
     return name or domain
 
 
-def override_san_list(app: dict) -> Optional[list[str]]:
+def override_san_list(app: dict) -> list[str] | None:
     raw = get_path(app, "server.tls.domains_san", None)
     if raw is None:
         return None

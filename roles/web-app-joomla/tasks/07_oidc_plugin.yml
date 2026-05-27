@@ -60,7 +60,9 @@
 # ownership stops the loop and lets `extension:install` actually
 # perform the install.
 - name: "Ensure Joomla cache directories are writable by the web user"
-  ansible.builtin.shell: "container exec {{ JOOMLA_CONTAINER }} bash -lc 'mkdir -p /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chown -R {{ JOOMLA_WEB_USER }}:{{ JOOMLA_WEB_USER }} /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chmod -R u+rwX /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp'"
+  ansible.builtin.shell: "container exec {{ JOOMLA_CONTAINER }} bash -lc 'mkdir -p /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chown
+    -R {{ JOOMLA_WEB_USER }}:{{ JOOMLA_WEB_USER }} /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chmod -R u+rwX /var/www/html/administrator/cache
+    /var/www/html/cache /var/www/html/tmp'"
   changed_when: false
 
 # Joomla 6's `extension:install --path=<directory>` returns a generic
@@ -109,7 +111,7 @@
       - extension:install
       - "--path={{ JOOMLA_OIDC_PLUGIN_ZIP }}"
   register: plugin_install
-  changed_when: "'Extension installed successfully' in (plugin_install.stdout | default(''))"
+  changed_when: "'Extension installed successfully' in plugin_install.stdout"
   failed_when:
     - plugin_install.rc != 0
     - plugin_install.stdout | default('') is not search('already')
@@ -120,7 +122,8 @@
 # pipe is shell-form because Ansible argv mode doesn't let pipes
 # through.
 - name: "Resolve plg_system_keycloak extension ID"
-  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_CONTAINER }} php -d memory_limit=512M {{ JOOMLA_CLI_FILE }} extension:list | awk '/plg_system_keycloak/ {print $2; exit}'"
+  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_CONTAINER }} php -d memory_limit=512M {{ JOOMLA_CLI_FILE }} extension:list | awk '/plg_system_keycloak/
+    {print $2; exit}'"
   register: plugin_id_lookup
   changed_when: false
   failed_when: plugin_id_lookup.stdout | trim | length == 0
@@ -140,7 +143,7 @@
       - extension:enable
       - "{{ plugin_id_lookup.stdout | trim }}"
   register: plugin_enable
-  changed_when: "'has been enabled' in (plugin_enable.stdout | default('')) or 'enabled successfully' in (plugin_enable.stdout | default(''))"
+  changed_when: "'has been enabled' in plugin_enable.stdout or 'enabled successfully' in plugin_enable.stdout"
   failed_when:
     - plugin_enable.rc != 0
     - plugin_enable.stdout | default('') is not search('already')

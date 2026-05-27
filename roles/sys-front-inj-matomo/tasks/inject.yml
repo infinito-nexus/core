@@ -1,10 +1,12 @@
+---
 - name: "Check if site {{ domain }} is already registered at Matomo"
   uri_retry:
-    url: "{{ matomo_index_php_url }}?module=API&method=SitesManager.getSitesIdFromSiteUrl&url={{ lookup('tls', application_id, 'protocols.web') }}://{{ base_domain }}&format=json&token_auth={{ lookup('users', 'administrator').tokens['web-app-matomo'] }}"
+    url: "{{ matomo_index_php_url }}?module=API&method=SitesManager.getSitesIdFromSiteUrl&url={{ lookup('tls', application_id, 'protocols.web') }}://{{ base_domain
+      }}&format=json&token_auth={{ lookup('users', 'administrator').tokens['web-app-matomo'] }}"
     method: GET
-    return_content: yes
+    return_content: true
     status_code: 200
-    validate_certs: yes
+    validate_certs: true
   register: site_check
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
@@ -33,11 +35,12 @@
   uri_retry:
     url: "{{ matomo_index_php_url }}"
     method: POST
-    body: "module=API&method=SitesManager.addSite&siteName={{ base_domain }}&urls={{ lookup('tls', application_id, 'protocols.web') }}://{{ base_domain }}&format=json&token_auth={{ lookup('users', 'administrator').tokens['web-app-matomo'] }}"
+    body: "module=API&method=SitesManager.addSite&siteName={{ base_domain }}&urls={{ lookup('tls', application_id, 'protocols.web') }}://{{ base_domain }}&format=json&token_auth={{
+      lookup('users', 'administrator').tokens['web-app-matomo'] }}"
     body_format: form-urlencoded
     status_code: 200
-    return_content: yes
-    validate_certs: yes
+    return_content: true
+    validate_certs: true
   register: add_site
   when: "matomo_site_id is not defined or matomo_site_id is none"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

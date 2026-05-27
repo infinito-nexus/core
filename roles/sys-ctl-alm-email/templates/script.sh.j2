@@ -32,7 +32,7 @@ To: {{ lookup('users', 'administrator').email }}
 From: systemd <{{ email['from'] }}>
 Subject: ${friendly}
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset={{ HOST_CS }}
 
 A problem with the service ${friendly} occurred:
 

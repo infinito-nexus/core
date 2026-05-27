@@ -53,6 +53,7 @@ include-package-data = true
 
 [tool.ruff]
 respect-gitignore = true
+target-version = "py311"
 exclude = [
   "build",
   "dist",
@@ -60,3 +61,137 @@ exclude = [
   ".venv",
   "venv",
 ]
+
+[tool.ruff.lint]
+# Default ruff is `E4 + E7 + E9 + F`. We add:
+# - `I`    (isort)              — import order, auto-fixable
+# - `B`    (flake8-bugbear)     — likely-bug patterns (mutable defaults, etc.)
+# - `UP`   (pyupgrade)          — modernise syntax to the target_version above
+# - `RUF`  (ruff-specific)      — unused-noqa, ambiguous unicode, mutable class attrs, …
+# - `SIM`  (flake8-simplify)    — `if x: True else: False` → `bool(x)`, etc.
+# - `C4`   (flake8-comprehensions) — `list(x for x in y)` → `[x for x in y]`, …
+# - `PERF` (perflint)           — avoid try/except in hot loops, etc.
+# - `RET`  (flake8-return)      — unneeded `else` after `return`, redundant assigns
+# - `PIE`  (flake8-pie)         — small wins (no-op `pass`, redundant `dict()` calls)
+# - `T10`  (flake8-debugger)    — committed `breakpoint()` / `pdb` calls
+# - `PGH`  (pygrep-hooks)       — blanket `# noqa` / `# type: ignore` without code
+# - `EXE`  (flake8-executable)  — shebang/executable-bit consistency
+# - `RSE`  (flake8-raise)       — `raise X()` style
+# - `ICN`  (flake8-import-conventions) — standard import aliases (`numpy as np`)
+# - `DTZ`  (flake8-datetimez)   — tz-naive `datetime.now()` / `utcnow()` bugs
+# - `TID`  (flake8-tidy-imports) — banned modules / banned relative imports
+# - `LOG`  (flake8-logging)     — `logging` module misuse
+# - `G`    (flake8-logging-format) — f-strings inside `logging.x()` calls (defeats lazy-format)
+# - `S`    (flake8-bandit)      — security (hardcoded creds, weak hashes, subprocess(shell=True), …)
+# - `PTH`  (flake8-use-pathlib) — modernise `os.path.*` calls to `pathlib.Path`
+# - `FURB` (refurb)             — modern Python idioms beyond UP/SIM/PIE/PERF
+# - `W`    (pycodestyle warnings) — natural pair with `E`; trailing whitespace etc.
+# - `FA`   (flake8-future-annotations) — consistent `from __future__ import annotations`
+# - `YTT`  (flake8-2020)        — correct `sys.version` / `sys.version_info` checks
+# - `A`    (flake8-builtins)    — shadowing built-in names
+# - `ISC`  (flake8-implicit-str-concat) — accidental `"foo" "bar"` typos
+# - `SLOT` (flake8-slots)       — require `__slots__` on `str`/`tuple`/`namedtuple` subclasses
+# - `FLY`  (flynt)              — `"{}".format(x)` → f-string
+# - `PYI`  (flake8-pyi)         — stub-hygiene rules (also fire on `.py`)
+# - `TC`   (flake8-type-checking) — runtime-only imports out of `if TYPE_CHECKING:` blocks
+# - `N`    (pep8-naming)        — class/function/variable naming consistency
+# - `PLE0605`               — `__all__` must be a `list`/`tuple` (not a single str)
+# - `PLW1510`               — `subprocess.run(...)` without `check=` swallows non-zero exits
+# - `PLW2901`               — loop variable rebound inside the body (typo/bug class)
+# - `PLW0108`               — `lambda x: f(x)` → just `f`
+# - `PLW0603`               — `global` statement (code smell)
+# - `PLR5501`               — `else: if …` → `elif` (auto-fixable)
+# - `PLC0207`               — `.split()`/`.rsplit()` should use `maxsplit=` when only the first/last segment is used
+# - `PLR1722`               — `sys.exit(0)` over `exit(0)` (interpreter-only alias)
+# - `PLR1714`               — collapse repeated `x == "a" or x == "b"` into `x in {"a", "b"}`
+# - `TRY002`                — don't `raise Exception(...)` (use a specific class)
+# - `TRY004`                — type-check failures must `raise TypeError`, not `ValueError`
+# - `TRY300`                — put the success-path under `else:` so `except:` only sees the dangerous bit
+# - `TRY301`                — don't `raise` inside `try:` for an exception caught by the same `except:`
+select = [
+    "E", "F", "I", "B", "UP", "RUF", "SIM", "C4", "PERF", "RET", "PIE",
+    "T10", "PGH", "EXE", "RSE", "ICN", "DTZ",
+    "TID", "LOG", "G",
+    "S",
+    "PTH",
+    "FURB", "W", "FA", "YTT", "A", "ISC", "SLOT", "FLY",
+    "PYI",
+    "TC", "N",
+    "PLE0605",
+    "PLW1510", "PLW2901", "PLW0108", "PLW0603",
+    "PLR5501", "PLC0207", "PLR1722", "PLR1714",
+    "TRY002", "TRY004", "TRY300", "TRY301",
+]
+
+# `ruff format` (run via `make autoformat`) reflows whatever it can.
+# E501 leftovers are content the formatter can't break (long string
+# literals, URLs / shell commands inside f-strings, comments). Trust
+# the formatter; don't fail CI on the unsplittable rest.
+#
+# RUF001/002/003 (ambiguous unicode in strings / docstrings / comments)
+# exist to catch homoglyph attacks, not English typography. The project
+# uses em/en-dashes deliberately and `ℹ` as a UI-hint glyph in CLI help
+# output; flagging those is noise.
+ignore = [
+    "E501",
+    "RUF001", "RUF002", "RUF003",
+    # S603 (subprocess call without `shell=False`) and S607 (start
+    # process with partial path) are over-eager for a project whose
+    # CLI invokes `make` / `git` / `docker` / `ansible-playbook` from
+    # PATH using list-form args. The list-form already prevents shell
+    # injection (Python's `subprocess` does not parse argv[0] as a
+    # shell command), and resolving every binary's absolute path in
+    # the source would couple the code to the host filesystem layout.
+    # The genuinely dangerous shell-injection patterns (`shell=True`)
+    # are still caught by S602/S605.
+    "S603", "S607",
+    # PTH207 (`glob.glob` → `Path.glob`/`rglob`) and PTH208
+    # (`os.listdir` → `Path.iterdir`) change the return shape:
+    # `list[str]` → iterator of `Path`. Every call site needs per-site
+    # review of how the result is consumed (string-path arithmetic,
+    # `.startswith` / `.endswith` checks, plain string comparisons,
+    # downstream APIs that require `str`). That work belongs to a
+    # separate "iter-modernisation" follow-up commit, not this
+    # use-pathlib pass.
+    "PTH207", "PTH208",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test code legitimately uses patterns flake8-bandit flags as security
+# concerns in production code:
+# - S101 (`assert`)             is the unittest idiom.
+# - S102 (`exec`)               is used to load script-under-test by file path.
+# - S105/S106 (hardcoded passwords) appear in fixtures / dummy creds.
+# - S108 (hardcoded /tmp paths) appears in tempdir fixtures.
+# - S110/S112 (try/except pass/continue) appear in cleanup helpers.
+"tests/**" = ["S101", "S102", "S105", "S106", "S108", "S110", "S112"]
+
+# Standalone scripts under ``roles/*/files/`` and ``utils/cert_utils.py``
+# are exercised by test fixtures that monkey-patch the legacy ``os.*``
+# surface (``os.makedirs``, ``os.stat`` with non-pathlib kwargs,
+# ``patch.object(sut, "os")`` replacements). Converting these call
+# sites to ``pathlib.Path`` would require rewriting every coupled
+# test in lockstep — out of scope for the use-pathlib pass.
+"roles/sys-ctl-rpr-container-hard/files/script.py" = ["PTH"]
+"roles/sys-ctl-rpr-container-soft/files/script.py" = ["PTH"]
+"utils/cert_utils.py" = ["PTH"]
+
+# N999 (invalid module name) on Ansible-invoked role-level scripts
+# whose filenames contain hyphens. Renaming to snake_case would break
+# the Ansible meta references that source them via the literal path,
+# so the hyphenated filename is locked in by the surrounding stack.
+
+# `include_r` would be the canonical lowercase form per N806, but the
+# matrix-deploy code consistently writes the round index as ``R`` in
+# its formulas (``R if R < count else 0``) and the variable name
+# ``include_R`` reads as "round R's include set" right next to those
+# formulas. The uppercase R here is documentation, not a constant.
+"cli/administration/deploy/development/deploy.py" = ["N806"]
+"cli/administration/deploy/development/init.py" = ["N806"]
+"cli/administration/deploy/development/inventory.py" = ["N806"]
+"tests/unit/cli/administration/deploy/development/test_inventory.py" = ["N806"]
+
+# Lazy-loaded class binding: ``ValueGenerator = _value_generator_cls()``
+# rebinds the imported class inside the function. PEP 8 keeps the
+# UpperCamelCase form for class identifiers, including local re-binds.
+"plugins/filter/value_generator.py" = ["N806"]

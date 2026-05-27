@@ -1,3 +1,4 @@
+---
 - name: Resolve systemctl template source
   set_fact:
     system_service_template_src: >-
@@ -26,20 +27,20 @@
 
 - name: "setup systemctl '{{ system_service_id }}'"
   template:
-    src:  "{{ system_service_template_src }}"
+    src: "{{ system_service_template_src }}"
     dest: "{{ [ DIR_SYSTEM_SERVICE, system_service_name ] | path_join }}"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: "{{ 'reload system daemon' if system_service_is_template | bool else 'refresh systemctl service' }}"
 
 - name: refresh systemctl service when SYS_SERVICE_ALL_ENABLE
   block:
-  - name: reload system daemon
-    command: /bin/true
-    notify: reload system daemon
-  - name: refresh systemctl service
-    command: /bin/true
-    notify: refresh systemctl service
-    when: not system_service_is_template | bool
+    - name: reload system daemon
+      command: /bin/true
+      notify: reload system daemon
+    - name: refresh systemctl service
+      command: /bin/true
+      notify: refresh systemctl service
+      when: not system_service_is_template | bool
   when: system_service_force_flush_instant | bool

@@ -1,13 +1,12 @@
-# tests/unit/roles/web_app_keycloak/test_filter_plugins_kcadm.py
 from __future__ import annotations
 
+import importlib.util
 import unittest
 from pathlib import Path
-import importlib.util
 
+from . import PROJECT_ROOT
 
-REPO_ROOT = Path(__file__).resolve().parents[4]  # /opt/src/infinito
-ROLE_DIR = REPO_ROOT / "roles" / "web-app-keycloak"
+ROLE_DIR = PROJECT_ROOT / "roles" / "web-app-keycloak"
 FILTER_PATH = ROLE_DIR / "filter_plugins" / "kcadm.py"
 MODUTILS_PATH = ROLE_DIR / "module_utils" / "kcadm_json.py"
 
@@ -39,12 +38,7 @@ class TestFilterPluginKcadm(unittest.TestCase):
 
     def test_filter_kcadm_json_parses_noisy_stdout(self):
         fm = self.filter_mod.FilterModule()
-        noisy = "\n".join(
-            [
-                "[0.001s][warning][os] noise",
-                '[{"id":"abc"},{"id":"def"}]',
-            ]
-        )
+        noisy = '[0.001s][warning][os] noise\n[{"id":"abc"},{"id":"def"}]'
         self.assertEqual(fm.kcadm_json(noisy), [{"id": "abc"}, {"id": "def"}])
 
     def test_filter_loads_role_local_module_utils_from_expected_path(self):
@@ -56,12 +50,7 @@ class TestFilterPluginKcadm(unittest.TestCase):
         self.assertEqual(origin, MODUTILS_PATH.resolve())
 
     def test_filter_function_behavior_matches_module_utils(self):
-        sample = "\n".join(
-            [
-                "[0.001s][warning][os] noise",
-                '{"ok": true, "n": 3}',
-            ]
-        )
+        sample = '[0.001s][warning][os] noise\n{"ok": true, "n": 3}'
 
         fm = self.filter_mod.FilterModule()
 

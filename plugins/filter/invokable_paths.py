@@ -1,48 +1,28 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Dict, List, Optional
-
 import yaml
 
+from utils.cache import ROLES_DIR
 from utils.cache.yaml import load_yaml_any
 
-
-def _find_project_root(start: Path) -> Optional[Path]:
-    """
-    Walk upwards from `start` until we find a repository root marker.
-    We treat `roles/categories.yml` as the canonical marker for this project.
-    """
-    start = start.resolve()
-    candidates = [start, *start.parents]
-    for p in candidates:
-        if (p / "roles" / "categories.yml").is_file():
-            return p
-    return None
+# Top-level keys in a role node that describe the role itself rather
+# than nested sub-roles. Used to skip metadata when recursing into a
+# role's sub-tree.
+_METADATA_KEYS = frozenset({"title", "description", "icon", "invokable"})
 
 
 def _default_roles_file() -> str:
-    """
-    Determine the default roles/categories.yml path robustly.
-    Priority:
-      1) current working directory (common for CLI usage)
-      2) location of this file (common for ansible execution from repo)
-    """
-    root = _find_project_root(Path.cwd())
-    if root is None:
-        root = _find_project_root(Path(__file__).resolve().parent)
-    if root is None:
-        # Keep the error explicit and helpful
+    categories = ROLES_DIR / "categories.yml"
+    if not categories.is_file():
         raise FileNotFoundError(
-            "Could not locate project root containing roles/categories.yml. "
-            "Run from the repo root or pass roles_file explicitly."
+            f"Could not locate {categories}. Pass roles_file explicitly."
         )
-    return str(root / "roles" / "categories.yml")
+    return str(categories)
 
 
 def get_invokable_paths(
-    roles_file: Optional[str] = None, suffix: Optional[str] = None
-) -> List[str]:
+    roles_file: str | None = None, suffix: str | None = None
+) -> list[str]:
     """
     Load nested roles YAML and return dash-joined paths where 'invokable' is True.
     Appends suffix if provided.
@@ -53,26 +33,25 @@ def get_invokable_paths(
     try:
         data = load_yaml_any(roles_file, default_if_missing={}) or {}
     except FileNotFoundError:
-        raise FileNotFoundError(f"Roles file not found: {roles_file}")
+        raise FileNotFoundError(f"Roles file not found: {roles_file}") from None
     except yaml.YAMLError as e:
-        raise yaml.YAMLError(f"Error parsing YAML {roles_file}: {e}")
+        raise yaml.YAMLError(f"Error parsing YAML {roles_file}: {e}") from e
 
     if not isinstance(data, dict):
-        raise ValueError("YAML root is not a dictionary")
+        raise TypeError("YAML root is not a dictionary")
 
     roles = data
     if "roles" in roles and isinstance(roles["roles"], dict) and len(roles) == 1:
         roles = roles["roles"]
 
     def _recurse(
-        subroles: Dict[str, dict], parent: Optional[List[str]] = None
-    ) -> List[str]:
+        subroles: dict[str, dict], parent: list[str] | None = None
+    ) -> list[str]:
         parent = parent or []
-        found: List[str] = []
-        METADATA = {"title", "description", "icon", "invokable"}
+        found: list[str] = []
 
         for key, cfg in subroles.items():
-            path = parent + [key]
+            path = [*parent, key]
             if cfg.get("invokable", False):
                 p = "-".join(path)
                 if suffix:
@@ -82,7 +61,7 @@ def get_invokable_paths(
             children = {
                 ck: cv
                 for ck, cv in cfg.items()
-                if ck not in METADATA and isinstance(cv, dict)
+                if ck not in _METADATA_KEYS and isinstance(cv, dict)
             }
             if children:
                 found.extend(_recurse(children, path))
@@ -92,8 +71,8 @@ def get_invokable_paths(
 
 
 def get_non_invokable_paths(
-    roles_file: Optional[str] = None, suffix: Optional[str] = None
-) -> List[str]:
+    roles_file: str | None = None, suffix: str | None = None
+) -> list[str]:
     """
     Load nested roles YAML and return dash-joined paths where 'invokable' is False or missing.
     Appends suffix if provided.
@@ -104,26 +83,25 @@ def get_non_invokable_paths(
     try:
         data = load_yaml_any(roles_file, default_if_missing={}) or {}
     except FileNotFoundError:
-        raise FileNotFoundError(f"Roles file not found: {roles_file}")
+        raise FileNotFoundError(f"Roles file not found: {roles_file}") from None
     except yaml.YAMLError as e:
-        raise yaml.YAMLError(f"Error parsing YAML {roles_file}: {e}")
+        raise yaml.YAMLError(f"Error parsing YAML {roles_file}: {e}") from e
 
     if not isinstance(data, dict):
-        raise ValueError("YAML root is not a dictionary")
+        raise TypeError("YAML root is not a dictionary")
 
     roles = data
     if "roles" in roles and isinstance(roles["roles"], dict) and len(roles) == 1:
         roles = roles["roles"]
 
     def _recurse_non(
-        subroles: Dict[str, dict], parent: Optional[List[str]] = None
-    ) -> List[str]:
+        subroles: dict[str, dict], parent: list[str] | None = None
+    ) -> list[str]:
         parent = parent or []
-        found: List[str] = []
-        METADATA = {"title", "description", "icon", "invokable"}
+        found: list[str] = []
 
         for key, cfg in subroles.items():
-            path = parent + [key]
+            path = [*parent, key]
             p = "-".join(path)
             inv = cfg.get("invokable", False)
             if not inv:
@@ -132,7 +110,7 @@ def get_non_invokable_paths(
             children = {
                 ck: cv
                 for ck, cv in cfg.items()
-                if ck not in METADATA and isinstance(cv, dict)
+                if ck not in _METADATA_KEYS and isinstance(cv, dict)
             }
             if children:
                 found.extend(_recurse_non(children, path))

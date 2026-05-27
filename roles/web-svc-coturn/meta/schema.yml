@@ -1,3 +1,4 @@
+---
 credentials:
   user_password:
     description: Long-Term Credential password for clients

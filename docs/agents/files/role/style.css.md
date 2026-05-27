@@ -1,6 +1,6 @@
 # `style.css`
 
-This page is the SPOT for automatically generating and updating role-local `style.css`, `style.css.j2`, and equivalent CSS entry files.
+This page covers automatically generating and updating role-local `style.css`, `style.css.j2`, and equivalent CSS entry files.
 Use this page for implementation scope, override strategy, and live review.
 For repository wiring, inventory keys, and the generated palette contract, see [Contributing `style.css`](../../../contributing/artefact/files/role/style.css.md).
 
@@ -41,5 +41,5 @@ For repository wiring, inventory keys, and the generated palette contract, see [
 
 - You MUST verify that primary actions, links, forms, cards, dialogs, navigation, and overlays still belong to the same visual system.
 - You MUST verify readable contrast for normal, hover, focus, active, and disabled states.
-- You MUST inspect the running application — at minimum the start page and login page.
+- You MUST inspect the running application, at minimum the start page and login page.
 - If the change affects user-visible behavior, you MUST add or update the matching end-to-end coverage in [Role `playwright.spec.js`](playwright.spec.js.md).

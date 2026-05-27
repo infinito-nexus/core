@@ -21,7 +21,7 @@ All rules in this document are actively enforced on `main` via GitHub branch pro
 
 ## Naming Conventions 🏷️
 
-The description MUST use `kebab-case` (lowercase words separated by hyphens) and SHOULD be short enough to read at a glance. 
+The description MUST use `kebab-case` (lowercase words separated by hyphens) and SHOULD be short enough to read at a glance.
 
 The full branch name MUST follow one of the patterns below, depending on whether the change targets a specific role or is general:
 

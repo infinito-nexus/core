@@ -1,25 +1,19 @@
+---
 - include_tasks: utils/once/flag.yml
 
-- name: Compute average allowed connections per Postgres app (once)
-  set_fact:
-    POSTGRES_ALLOWED_AVG_CONNECTIONS: "{{ (POSTGRES_MAX_CONNECTIONS | split_postgres_connections(playbook_dir ~ '/roles')) | int }}"
-  run_once: true
-
 - name: "Setup container network for {{ application_id }}"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network.yml' ] | path_join }}"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml' ] | path_join }}"
   vars:
-    docker_network_name:            "{{ POSTGRES_NETWORK_NAME }}"
-    docker_network_subnet:          "{{ POSTGRES_SUBNET }}"
-    docker_compose_flush_handlers:  true
+    compose_handlers_flush: true
     # Explicit overwritting to be sure that there isn't a scope leak by another variable
-    application_id:                 "svc-db-postgres"
-    database_consumer_id:           "svc-db-postgres"
+    application_id: "svc-db-postgres"
+    database_consumer_id: "svc-db-postgres"
 
 - name: Install 'psycopg2-binary'
   include_role:
     name: sys-pip-install
   vars:
-    package_name: 'psycopg2-binary'
+    package_name: "psycopg2-binary"
     global_install: true
 
 - name: "POSTGRES | Wait until container is running (not restarting)"

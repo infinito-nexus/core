@@ -1,16 +1,12 @@
-images:
-  csp-checker:
-    image: ghcr.io/kevinveenbirkenbach/csp-checker
-    version: stable
-
+---
 # List of domains whose network block failures (e.g., ORB) should be ignored
 # during CSP checks. This is useful for suppressing known external resources
 # (e.g., third-party CDNs) that cannot be influenced but otherwise cause
 # unnecessary alerts in the crawler reports.
 HEALTH_CSP_IGNORE_NETWORK_BLOCKS_FROM: []
-
 # Docker image to run
-HEALTH_CSP_IMAGE: "{{ lookup('image', 'csp-checker', 'ref') }}"
+HEALTH_CSP_IMAGE: "{{ lookup('config', 'sys-ctl-hlth-csp', 'services.csp-checker.image') }}:{{ lookup('config', 'sys-ctl-hlth-csp', 'services.csp-checker.version')
+  }}"
 
 # If true, pull the image on each run (safe but slower)
 HEALTH_CSP_ALWAYS_PULL: false

@@ -18,7 +18,7 @@ fi
 
 ROLES_DIR="./roles"
 
-INCLUDES_SCRIPT="./cli/build/role_include/__main__.py"
+INCLUDES_SCRIPT="./cli/build/include/__main__.py"
 INCLUDES_OUT_DIR="./tasks/groups"
 
 # ------------------------------------------------------------

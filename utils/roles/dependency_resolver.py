@@ -1,9 +1,13 @@
-import os
 import fnmatch
-import re
-from typing import Dict, Set, Iterable, Tuple, Optional
-
 import logging
+import os
+import re
+from collections.abc import Iterable
+from pathlib import Path
+
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_SERVICES
+
+logger = logging.getLogger(__name__)
 
 
 class RoleDependencyResolver:
@@ -22,11 +26,11 @@ class RoleDependencyResolver:
         resolve_import_role: bool = True,
         resolve_dependencies: bool = True,
         resolve_run_after: bool = False,
-        max_depth: Optional[int] = None,
-    ) -> Set[str]:
+        max_depth: int | None = None,
+    ) -> set[str]:
         to_visit = list(dict.fromkeys(start_roles))
-        visited: Set[str] = set()
-        depth: Dict[str, int] = {}
+        visited: set[str] = set()
+        depth: dict[str, int] = {}
 
         for r in to_visit:
             depth[r] = 0
@@ -62,12 +66,12 @@ class RoleDependencyResolver:
         resolve_import_role: bool = True,
         resolve_dependencies: bool = True,
         resolve_run_after: bool = False,
-    ) -> Set[str]:
-        role_path = os.path.join(self.roles_dir, role_name)
-        if not os.path.isdir(role_path):
+    ) -> set[str]:
+        role_path = str(Path(self.roles_dir) / role_name)
+        if not Path(role_path).is_dir():
             return set()
 
-        deps: Set[str] = set()
+        deps: set[str] = set()
 
         if resolve_include_role or resolve_import_role:
             includes, imports = self._scan_tasks(role_path)
@@ -86,21 +90,21 @@ class RoleDependencyResolver:
 
     # -------------------------- scanning helpers --------------------------
 
-    def _scan_tasks(self, role_path: str) -> Tuple[Set[str], Set[str]]:
-        tasks_dir = os.path.join(role_path, "tasks")
-        include_roles: Set[str] = set()
-        import_roles: Set[str] = set()
+    def _scan_tasks(self, role_path: str) -> tuple[set[str], set[str]]:
+        tasks_dir = str(Path(role_path) / "tasks")
+        include_roles: set[str] = set()
+        import_roles: set[str] = set()
 
-        if not os.path.isdir(tasks_dir):
+        if not Path(tasks_dir).is_dir():
             return include_roles, import_roles
 
         all_roles = self._list_role_dirs(self.roles_dir)
 
         candidates = []
         for root, _, files in os.walk(tasks_dir):
-            for f in files:
-                if f.endswith(".yml") or f.endswith(".yaml"):
-                    candidates.append(os.path.join(root, f))
+            candidates.extend(
+                str(Path(root) / f) for f in files if f.endswith((".yml", ".yaml"))
+            )
 
         from utils.cache.yaml import load_yaml_any
 
@@ -136,8 +140,8 @@ class RoleDependencyResolver:
 
     def _extract_from_task(
         self, task: dict, key: str, all_roles: Iterable[str]
-    ) -> Set[str]:
-        roles: Set[str] = set()
+    ) -> set[str]:
+        roles: set[str] = set()
         spec = task.get(key)
         if not isinstance(spec, dict):
             return roles
@@ -185,12 +189,11 @@ class RoleDependencyResolver:
         if isinstance(value, list):
             for v in value:
                 if isinstance(v, list):
-                    for x in v:
-                        yield x
+                    yield from v
                 else:
                     yield v
 
-    def _role_from_loop_item(self, item, name_template=None) -> Optional[str]:
+    def _role_from_loop_item(self, item, name_template=None) -> str | None:
         tmpl = (name_template or "").strip() if isinstance(name_template, str) else ""
 
         if isinstance(item, str):
@@ -201,16 +204,19 @@ class RoleDependencyResolver:
         if isinstance(item, dict):
             for k in ("role", "name"):
                 v = item.get(k)
-                if isinstance(v, str) and v.strip():
-                    if (
+                if (
+                    isinstance(v, str)
+                    and v.strip()
+                    and (
                         tmpl in (f"{{{{ item.{k} }}}}", f"{{{{item.{k}}}}}")
                         or not tmpl
                         or "item" in tmpl
-                    ):
-                        return v.strip()
+                    )
+                ):
+                    return v.strip()
         return None
 
-    def _match_glob_into(self, pattern: str, all_roles: Iterable[str], out: Set[str]):
+    def _match_glob_into(self, pattern: str, all_roles: Iterable[str], out: set[str]):
         if "*" in pattern or "?" in pattern or "[" in pattern:
             for r in all_roles:
                 if fnmatch.fnmatch(r, pattern):
@@ -220,10 +226,10 @@ class RoleDependencyResolver:
 
     # -------------------------- meta helpers --------------------------
 
-    def _extract_meta_dependencies(self, role_path: str) -> Set[str]:
-        deps: Set[str] = set()
-        meta_main = os.path.join(role_path, "meta", "main.yml")
-        if not os.path.isfile(meta_main):
+    def _extract_meta_dependencies(self, role_path: str) -> set[str]:
+        deps: set[str] = set()
+        meta_main = str(Path(role_path) / ROLE_FILE_META_MAIN)
+        if not Path(meta_main).is_file():
             return deps
         try:
             from utils.cache.yaml import load_yaml_any
@@ -239,11 +245,11 @@ class RoleDependencyResolver:
                         if isinstance(r, str) and r.strip():
                             deps.add(r.strip())
         except Exception:
-            logging.exception(f"Failed to parse dependencies from {meta_main}")
+            logger.exception("Failed to parse dependencies from %s", meta_main)
         return deps
 
-    def _extract_meta_run_after(self, role_path: str) -> Set[str]:
-        # Per req-010 `run_after` lives on the role's primary entity at
+    def _extract_meta_run_after(self, role_path: str) -> set[str]:
+        # `run_after` lives on the role's primary entity at
         # `meta/services.yml.<primary_entity>.run_after`. Delegate to the
         # canonical helper so the primary-entity derivation is in one
         # place, and degrade gracefully if the file is absent.
@@ -252,8 +258,10 @@ class RoleDependencyResolver:
         try:
             entries = get_role_run_after(role_path)
         except Exception:
-            logging.exception(
-                f"Failed to parse run_after from {role_path}/meta/services.yml"
+            logger.exception(
+                "Failed to parse run_after from %s/%s",
+                role_path,
+                ROLE_FILE_META_SERVICES,
             )
             return set()
         return {dep for dep in entries if dep}
@@ -262,9 +270,7 @@ class RoleDependencyResolver:
 
     def _list_role_dirs(self, roles_dir: str) -> list[str]:
         return [
-            d
-            for d in os.listdir(roles_dir)
-            if os.path.isdir(os.path.join(roles_dir, d))
+            d for d in os.listdir(roles_dir) if Path(str(Path(roles_dir) / d)).is_dir()
         ]
 
     @classmethod

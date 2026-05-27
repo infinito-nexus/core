@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     style-src-attr:
@@ -7,7 +8,7 @@ csp:
 domains:
   aliases: []
   canonical:
-  - phpmyadmin.{{ DOMAIN_PRIMARY }}
+    - phpmyadmin.{{ DOMAIN_PRIMARY }}
 networks:
   local:
     subnet: 192.168.102.112/28

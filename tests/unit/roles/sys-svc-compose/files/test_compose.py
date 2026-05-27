@@ -1,7 +1,7 @@
 import os
 import unittest
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from importlib.util import spec_from_file_location, module_from_spec
 from unittest.mock import patch
 
 
@@ -31,7 +31,7 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
     def setUp(self):
         # Disable the wrapper's cache-override branch; tests use mocked is_file.
         self._env_patch = patch.dict(
-            os.environ, {"INFINITO_PACKAGE_CACHE_FRONTEND_IP": ""}, clear=False
+            os.environ, {"INFINITO_CACHE_PACKAGE_FRONTEND_IP": ""}, clear=False
         )
         self._env_patch.start()
 
@@ -83,9 +83,7 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
                     return True
                 if str(self) == "/proj/compose.override.yml":
                     return True
-                if str(self) == "/proj/compose.ca.override.yml":
-                    return True
-                return False
+                return str(self) == "/proj/compose.ca.override.yml"
 
             s.Path.is_file = fake_is_file  # type: ignore[assignment]
             files = s.detect_compose_files(base)
@@ -116,9 +114,7 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
                     return False
                 if str(self) == "/proj/.env":
                     return True
-                if str(self) == "/proj/.env/env":
-                    return True
-                return False
+                return str(self) == "/proj/.env/env"
 
             s.Path.is_file = fake_is_file  # type: ignore[assignment]
             # Signature changed to accept extra_files=None, but default keeps old call valid.
@@ -410,7 +406,7 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
                     list(passthrough),
                     extra_files,
                 )
-                return ["docker", "compose", "-p", project] + list(passthrough)
+                return ["docker", "compose", "-p", project, *list(passthrough)]
 
             def fake_execvp(prog, argv):
                 raise RuntimeError("execvp called")
@@ -515,6 +511,115 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
             s.Path.resolve = old_resolve  # type: ignore[assignment]
             s.build_cmd = old_build_cmd  # type: ignore[assignment]
             s.os.execvp = old_execvp  # type: ignore[assignment]
+
+
+class TestCaOverrideStaleDetection(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.script = load_script_module()
+
+    def _write(self, path: Path, content: str) -> None:
+        path.write_text(content, encoding="utf-8")
+
+    def _make_compose(self, tmpdir: Path, services: list[str]) -> Path:
+        body = "services:\n" + "".join(
+            f"  {name}:\n    image: example/{name}:latest\n" for name in services
+        )
+        path = tmpdir / "compose.yml"
+        self._write(path, body)
+        return path
+
+    def _make_override(self, tmpdir: Path, services: list[str]) -> Path:
+        body = "services:\n" + "".join(
+            f"  {name}:\n    entrypoint: [/tmp/with-ca-trust.sh]\n" for name in services
+        )
+        path = tmpdir / "compose.ca.override.yml"
+        self._write(path, body)
+        return path
+
+    def test_stale_when_override_has_extra_service(self):
+        import tempfile
+
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            base = self._make_compose(tmp, ["application", "redis"])
+            override = self._make_override(tmp, ["application", "redis", "database"])
+            self.assertTrue(s.ca_override_is_stale(base, override))
+
+    def test_fresh_when_override_matches_compose(self):
+        import tempfile
+
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            base = self._make_compose(tmp, ["application", "redis", "database"])
+            override = self._make_override(tmp, ["application", "redis", "database"])
+            self.assertFalse(s.ca_override_is_stale(base, override))
+
+    def test_fresh_when_override_is_strict_subset(self):
+        # Override may legitimately wrap only a subset; subset MUST NOT be flagged.
+        import tempfile
+
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            base = self._make_compose(tmp, ["application", "redis", "database"])
+            override = self._make_override(tmp, ["application"])
+            self.assertFalse(s.ca_override_is_stale(base, override))
+
+    def test_empty_base_treated_as_not_stale(self):
+        import tempfile
+
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            base = tmp / "compose.yml"
+            self._write(base, "")
+            override = self._make_override(tmp, ["application"])
+            self.assertFalse(s.ca_override_is_stale(base, override))
+
+    def test_empty_override_treated_as_not_stale(self):
+        import tempfile
+
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            base = self._make_compose(tmp, ["application"])
+            override = tmp / "compose.ca.override.yml"
+            self._write(override, "")
+            self.assertFalse(s.ca_override_is_stale(base, override))
+
+    def test_detect_compose_files_skips_stale_override(self):
+        import io
+        import tempfile
+        from contextlib import redirect_stderr
+
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            base = self._make_compose(tmp, ["application", "redis"])
+            stale = self._make_override(tmp, ["application", "database"])
+
+            buf = io.StringIO()
+            with redirect_stderr(buf):
+                files = s.detect_compose_files(tmp)
+            self.assertIn(base, files)
+            self.assertNotIn(stale, files)
+            self.assertIn("skipping stale compose.ca.override.yml", buf.getvalue())
+
+    def test_detect_compose_files_keeps_fresh_override(self):
+        import tempfile
+
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            base = self._make_compose(tmp, ["application", "redis"])
+            fresh = self._make_override(tmp, ["application", "redis"])
+
+            files = s.detect_compose_files(tmp)
+            self.assertIn(base, files)
+            self.assertIn(fresh, files)
 
 
 if __name__ == "__main__":

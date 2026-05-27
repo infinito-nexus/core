@@ -1,3 +1,4 @@
+---
 credentials:
   POSTGRES_PASSWORD:
     description: Password for the PostgreSQL superuser 'postgres'

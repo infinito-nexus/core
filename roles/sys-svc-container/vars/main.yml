@@ -1,11 +1,12 @@
-SYS_SVC_DOCKER_DIR:    "/etc/docker/"
+---
+SYS_SVC_DOCKER_DIR: "/etc/docker/"
 SYS_SVC_DOCKER_DAEMON: "{{ [SYS_SVC_DOCKER_DIR, 'daemon.json' ] | path_join }}"
 
-# Targets to calculate the optimal MTU
-SYS_SVC_DOCKER_AUTOMTU_TARGETS:
-  - registry-1.docker.io
-  - github.com
-  - 1.1.1.1
+# Targets to calculate the optimal MTU. Public DNS resolvers come from
+# the central NETWORK_PUBLIC_DNS_RESOLVERS list so the literal IPs live
+# in exactly one place.
+SYS_SVC_DOCKER_AUTOMTU_TARGETS: >-
+  {{ ['registry-1.docker.io', 'github.com'] + NETWORK_PUBLIC_DNS_RESOLVERS }}
 
 SYS_SVC_CONTAINER_DOCKER_REPO_DISTRO_BY_DISTRIBUTION:
   Debian: debian

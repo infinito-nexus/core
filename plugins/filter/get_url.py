@@ -2,7 +2,7 @@
 from utils.get_url import get_url
 
 
-class FilterModule(object):
+class FilterModule:
     """Infinito.Nexus application config extraction filters"""
 
     def filters(self):

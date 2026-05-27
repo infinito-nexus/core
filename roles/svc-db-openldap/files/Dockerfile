@@ -4,7 +4,8 @@ FROM ${OPENLDAP_IMAGE}:${OPENLDAP_VERSION}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update \
+RUN rm -rf /var/lib/apt/lists/* \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
     slapd slapd-contrib ldap-utils ca-certificates tini \
  && rm -rf /var/lib/apt/lists/* \

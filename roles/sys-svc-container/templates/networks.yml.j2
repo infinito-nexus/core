@@ -1,5 +1,5 @@
 {# This template needs to be included in compose.yml containers #}
-{# Per req-008/009: each role's docker network name is its primary entity name
+{# Per: each role's docker network name is its primary entity name
    (e.g. svc-db-mariadb -> "mariadb"). The legacy `compose.network` config
    path no longer exists; derive the name from the role id directly. #}
 {% set _db_provider_role = application_id if application_id in ['svc-db-mariadb', 'svc-db-postgres'] else '' %}

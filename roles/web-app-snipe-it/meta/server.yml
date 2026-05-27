@@ -1,6 +1,7 @@
+---
 domains:
   canonical:
-  - inventory.{{ DOMAIN_PRIMARY }}
+    - inventory.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   flags:
@@ -13,7 +14,7 @@ csp:
       unsafe-inline: true
   whitelist:
     font-src:
-    - 'data:'
+      - "data:"
 networks:
   local:
     subnet: 192.168.102.160/28

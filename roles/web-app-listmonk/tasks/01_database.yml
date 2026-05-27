@@ -1,6 +1,6 @@
 ---
-- name: Check if listmonk database is already initialized
-  command: '{{ LISTMONK_EXEC_DATABASE }} -c "\dt"'
+- name: Check if listmonk schema is present (probe the 'subscribers' table)
+  command: '{{ LISTMONK_EXEC_DATABASE }} -c "\dt subscribers"'
   register: db_tables
   changed_when: false
   failed_when: false
@@ -10,10 +10,10 @@
     listmonk_db_reachable: "{{ db_tables.rc == 0 }}"
     listmonk_db_empty: >-
       {{
-        ('No relations found.' in (db_tables.stdout | default(''))) or
-        ('No relations found.' in (db_tables.stderr | default(''))) or
-        ('Did not find any relations.' in (db_tables.stderr | default(''))) or
-        ('Did not find any relations.' in (db_tables.stdout | default('')))
+        ('Did not find any relation' in (db_tables.stderr | default(''))) or
+        ('Did not find any relation' in (db_tables.stdout | default(''))) or
+        ('No matching relations found' in (db_tables.stderr | default(''))) or
+        ('No matching relations found' in (db_tables.stdout | default('')))
       }}
 
 - name: Abort if Listmonk database is not reachable

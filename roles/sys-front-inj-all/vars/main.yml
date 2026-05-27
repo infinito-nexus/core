@@ -1,8 +1,9 @@
+---
 # Docker
 
 SRV_WEB_INJ_COMP_FEATURES_ALL:
-  - 'javascript'
-  - 'logout'
-  - 'css'
-  - 'matomo'
-  - 'dashboard'
+  - "javascript"
+  - "logout"
+  - "css"
+  - "matomo"
+  - "dashboard"

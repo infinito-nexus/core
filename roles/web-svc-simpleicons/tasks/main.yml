@@ -3,4 +3,4 @@
   include_tasks: 01_core.yml
   when: run_once_web_svc_simpleicons is not defined
   vars:
-    application_id: 'web-svc-simpleicons'
+    application_id: "web-svc-simpleicons"

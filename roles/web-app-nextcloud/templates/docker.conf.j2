@@ -8,6 +8,7 @@ events {
     worker_connections {{ WEBSERVER_WORKER_CONNECTIONS }};
 }
 http {
+    {{ NETWORK_DOCKER_DNS_NGINX_DIRECTIVE }}
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
     types {
@@ -56,12 +57,7 @@ http {
         # HTTP response headers borrowed from Nextcloud `.htaccess`
         add_header Referrer-Policy                      "no-referrer"           always;
         add_header X-Content-Type-Options               "nosniff"               always;
-        add_header X-Download-Options                   "noopen"                always;
-        add_header X-Permitted-Cross-Domain-Policies    "none"                  always;
         add_header X-Robots-Tag                         "noindex, nofollow"     always;
-        add_header X-XSS-Protection                     "1; mode=block"         always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        # Remove X-Powered-By, which is an information leak
         fastcgi_hide_header X-Powered-By;
         # Path to the root of your installation
         root {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY }};
@@ -146,7 +142,9 @@ http {
             try_files $uri $uri/ /index.php$request_uri;
         }
         location {{ NEXTCLOUD_WHITEBOARD_LOCATION }} {
-            proxy_pass         http://whiteboard:{{ NEXTCLOUD_WHITEBOARD_PORT_INTERNAL }}/;
+            set $upstream_nextcloud_whiteboard http://whiteboard:{{ NEXTCLOUD_WHITEBOARD_PORT_INTERNAL }};
+            rewrite ^{{ NEXTCLOUD_WHITEBOARD_LOCATION }}(.*)$ /$1 break;
+            proxy_pass         $upstream_nextcloud_whiteboard;
             proxy_http_version 1.1;
             proxy_set_header   Host              $host;
             proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
@@ -159,7 +157,9 @@ http {
 {% if NEXTCLOUD_HPB_NETWORK_MODE == 'host' %}
             proxy_pass          http://host.docker.internal:{{ NEXTCLOUD_HPB_SIGNALING_PORT }}/;
 {% else %}
-            proxy_pass          http://talk:{{ NEXTCLOUD_HPB_SIGNALING_PORT }}/;
+            set $upstream_nextcloud_talk http://talk:{{ NEXTCLOUD_HPB_SIGNALING_PORT }};
+            rewrite ^{{ NEXTCLOUD_HPB_SIGNALING_LOCATION }}(.*)$ /$1 break;
+            proxy_pass          $upstream_nextcloud_talk;
 {% endif %}
             proxy_http_version  1.1;
             proxy_set_header    Host              $host;

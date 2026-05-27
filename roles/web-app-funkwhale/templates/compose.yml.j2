@@ -17,7 +17,7 @@
       - "media:{{ FUNKWHALE_MEDIA_DIR }}"
       - "static:{{ FUNKWHALE_STATIC_DIR }}"
       - "music:{{ FUNKWHALE_MUSIC_DIR }}:ro"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   celerybeat:
@@ -28,7 +28,7 @@
       - "media:{{ FUNKWHALE_MEDIA_DIR }}"
       - "static:{{ FUNKWHALE_STATIC_DIR }}"
       - "music:{{ FUNKWHALE_MUSIC_DIR }}:ro"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   api:
@@ -40,7 +40,7 @@
       - "static:{{ FUNKWHALE_STATIC_DIR }}"
     ports:
       - "{{ FUNKWHALE_DOCKER_API_PORT }}"
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   front:
@@ -67,7 +67,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'media': {}, 'music': {}, 'static': {}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

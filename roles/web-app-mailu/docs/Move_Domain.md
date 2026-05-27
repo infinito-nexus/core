@@ -1,4 +1,4 @@
-# 📖 **How to Migrate Mailboxes to a New Domain in Mailu**
+# **How to Migrate Mailboxes to a New Domain in Mailu** 📖
 
 When changing the primary email domain (e.g., from `cymais.cloud` to `infinito.nexus`), it is **not enough** to simply rename mailbox directories on disk. Mailu manages domain and user records in its internal database, and Dovecot maintains index files inside each Maildir. A blind rename will lead to login failures, rejected mail, or corrupted mail indices.
 
@@ -6,7 +6,7 @@ This guide explains the **safe procedure** for migrating user mailboxes to a new
 
 ---
 
-## 🔴 Why renaming folders directly does not work
+## Why renaming folders directly does not work 🔴
 
 * Mailu keeps **domains, users, and aliases** in the `admin_data` database. If you rename folders only, Mailu will not recognize the new accounts.
 * Dovecot generates `.dovecot.index*` and `dovecot-uidlist` files in each mailbox. These must be rebuilt when moving mailboxes; otherwise, users may see missing or broken mail.
@@ -14,7 +14,7 @@ This guide explains the **safe procedure** for migrating user mailboxes to a new
 
 ---
 
-## ✅ Correct migration procedure
+## Correct migration procedure ✅
 
 ### 1. Add the new domain and users in Mailu
 
@@ -82,7 +82,7 @@ This maps all `@cymais.cloud` addresses to their equivalents under `@infinito.ne
 
 ---
 
-## 💡 Summary
+## Summary 💡
 
 * Do **not** just rename mailbox folders.
 * Always create the new domain and user in Mailu first.

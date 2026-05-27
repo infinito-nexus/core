@@ -3,13 +3,13 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Render OpenTalk controller config '{{ application_id }}'"
   ansible.builtin.template:
     src: controller.toml.j2
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'controller.toml'] | path_join }}"
-    mode: '0644'
+    mode: "0644"
   notify:
     - compose up
 
@@ -17,7 +17,7 @@
   ansible.builtin.template:
     src: livekit.yaml.j2
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'livekit.yaml'] | path_join }}"
-    mode: '0644'
+    mode: "0644"
   notify:
     - compose up
 
@@ -25,7 +25,7 @@
   ansible.builtin.template:
     src: recorder.toml.j2
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'recorder.toml'] | path_join }}"
-    mode: '0644'
+    mode: "0644"
   notify:
     - compose up
 
@@ -81,7 +81,7 @@
       secret: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"
     kcadm_exec: "container exec -i {{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }} /opt/keycloak/bin/kcadm.sh"
     realm: "{{ OIDC.CLIENT.REALM }}"
-    assert_mode: "{{ MODE_ASSERT | default(false) }}"
+    assert_mode: "{{ MODE_ASSERT | bool }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Upsert dedicated confidential Keycloak client for the OpenTalk recorder"
@@ -112,7 +112,7 @@
       secret: "{{ OPENTALK_RECORDER_OIDC_CLIENT_SECRET }}"
     kcadm_exec: "container exec -i {{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }} /opt/keycloak/bin/kcadm.sh"
     realm: "{{ OIDC.CLIENT.REALM }}"
-    assert_mode: "{{ MODE_ASSERT | default(false) }}"
+    assert_mode: "{{ MODE_ASSERT | bool }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Grant the OpenTalk controller's service account the realm-management `view-users` role"
@@ -158,5 +158,5 @@
     container exec {{ OPENTALK_MINIO_CONTAINER }}
     mc mb local/{{ OPENTALK_MINIO_BUCKET }}
   register: minio_bucket
-  changed_when: "'Bucket created successfully' in (minio_bucket.stdout | default(''))"
-  failed_when: minio_bucket.rc != 0 and 'already own it' not in (minio_bucket.stderr | default(''))
+  changed_when: "'Bucket created successfully' in minio_bucket.stdout"
+  failed_when: minio_bucket.rc != 0 and 'already own it' not in minio_bucket.stderr

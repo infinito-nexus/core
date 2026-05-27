@@ -1,20 +1,24 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import TYPE_CHECKING, Any
 
-from utils.handler.yaml import YamlHandler
+from utils.cache.applications import get_variants
 from utils.handler.vault import VaultHandler, VaultScalar
-from utils.database_service import resolve_database_service_key
+from utils.handler.yaml import YamlHandler
 from utils.manager.value_generator import ValueGenerator
-from utils.service_registry import (
+from utils.roles.applications.services.database import has_single_database_service
+from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
+    is_explicit_truth,
     resolve_service_dependency_roles_from_config,
 )
+from utils.roles.mapping import ROLE_FILE_META_SCHEMA, ROLE_FILE_VARS_MAIN
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-# Marker fields that identify a credential schema leaf (per req-008). Any
+# Marker fields that identify a credential schema leaf. Any
 # `default:` value is preserved verbatim; algorithm defaults to `plain` when
 # absent; `validation:` only applies to user-provided values.
 _CREDENTIAL_LEAF_MARKERS = ("description", "algorithm", "validation", "default")
@@ -26,15 +30,15 @@ def _is_credential_leaf(node: Any) -> bool:
     )
 
 
-def _meta_role_config(role_path: Path) -> Dict[str, Any]:
-    """Assemble the post-req-008 view of a role's config from its meta files.
+def _meta_role_config(role_path: Path) -> dict[str, Any]:
+    """Assemble the view of a role's config from its meta files.
 
     The shape mirrors the old `meta/services.yml` payload so that downstream
     helpers (database_service, service_registry, ...) keep working unchanged:
     `{services: <map>, server: <map>, rbac: <map>, volumes: <map>}`.
     """
     meta_dir = role_path / "meta"
-    config: Dict[str, Any] = {}
+    config: dict[str, Any] = {}
     for topic in ("services", "server", "rbac", "volumes"):
         topic_path = meta_dir / f"{topic}.yml"
         if not topic_path.exists():
@@ -51,8 +55,9 @@ class InventoryManager:
         role_path: Path,
         inventory_path: Path,
         vault_pw: str,
-        overrides: Dict[str, str],
+        overrides: dict[str, str],
         allow_empty_plain: bool = False,
+        variant: int | None = None,
     ):
         """Initialize the Inventory Manager."""
         self.role_path = role_path
@@ -60,6 +65,7 @@ class InventoryManager:
         self.vault_pw = vault_pw
         self.overrides = overrides
         self.allow_empty_plain = allow_empty_plain
+        self.variant = variant
 
         self.inventory = YamlHandler.load_yaml(inventory_path) or {}
         self.schema = self._load_role_schema_by_path(role_path)
@@ -75,7 +81,7 @@ class InventoryManager:
 
     def load_application_id(self, role_path: Path) -> str:
         """Load the application ID from the role's vars/main.yml file."""
-        vars_file = role_path / "vars" / "main.yml"
+        vars_file = role_path / ROLE_FILE_VARS_MAIN
         data = YamlHandler.load_yaml(vars_file) or {}
         app_id = data.get("application_id")
         if not app_id:
@@ -84,19 +90,24 @@ class InventoryManager:
         return app_id
 
     @staticmethod
-    def _load_role_schema_by_path(role_path: Path) -> Dict[str, Any]:
-        schema_path = role_path / "meta" / "schema.yml"
+    def _load_role_schema_by_path(role_path: Path) -> dict[str, Any]:
+        schema_path = role_path / ROLE_FILE_META_SCHEMA
         if not schema_path.exists():
             return {}
         return YamlHandler.load_yaml(schema_path) or {}
 
-    def load_role_schema(self, role_name: str) -> Dict[str, Any]:
+    def load_role_schema(self, role_name: str) -> dict[str, Any]:
         return self._load_role_schema_by_path(self.roles_root / role_name)
 
-    def load_role_config_by_path(self, role_path: Path) -> Dict[str, Any]:
+    def load_role_config_by_path(self, role_path: Path) -> dict[str, Any]:
+        if role_path == self.role_path and self.variant is not None:
+            variants = get_variants(roles_dir=str(self.roles_root))
+            app_variants = variants.get(self.app_id) or [{}]
+            if 0 <= self.variant < len(app_variants):
+                return app_variants[self.variant] or {}
         return _meta_role_config(role_path)
 
-    def load_role_config(self, role_name: str) -> Dict[str, Any]:
+    def load_role_config(self, role_name: str) -> dict[str, Any]:
         role_path = self.roles_root / role_name
         return self.load_role_config_by_path(role_path)
 
@@ -104,23 +115,23 @@ class InventoryManager:
     # Shared provider resolution (recursive / transitive)
     # ---------------------------------------------------------------------
 
-    def _direct_schema_includes_from_config(self, config: dict) -> List[str]:
+    def _direct_schema_includes_from_config(self, config: dict) -> list[str]:
         """
         Extract shared-provider dependencies from a single role config.
         """
         service_registry = build_service_registry_from_roles_dir(self.roles_root)
         return resolve_service_dependency_roles_from_config(config, service_registry)
 
-    def resolve_schema_includes_recursive(self, root_role_name: str) -> List[str]:
+    def resolve_schema_includes_recursive(self, root_role_name: str) -> list[str]:
         """
         Recursively resolve schema includes by following configs transitively.
         """
-        resolved: List[str] = []
-        seen: Set[str] = set()
+        resolved: list[str] = []
+        seen: set[str] = set()
 
         # seed with root role's direct includes
         root_cfg = self.load_role_config_by_path(self.role_path)
-        queue: List[str] = self._direct_schema_includes_from_config(root_cfg)
+        queue: list[str] = self._direct_schema_includes_from_config(root_cfg)
 
         while queue:
             role_name = queue.pop(0)
@@ -130,9 +141,11 @@ class InventoryManager:
             resolved.append(role_name)
 
             cfg = self.load_role_config(role_name)
-            for inc in self._direct_schema_includes_from_config(cfg):
-                if inc not in seen:
-                    queue.append(inc)
+            queue.extend(
+                inc
+                for inc in self._direct_schema_includes_from_config(cfg)
+                if inc not in seen
+            )
 
         return resolved
 
@@ -167,22 +180,23 @@ class InventoryManager:
         oauth2 = oauth2 if isinstance(oauth2, dict) else {}
         oidc = services.get("oidc") if isinstance(services, dict) else None
         oidc = oidc if isinstance(oidc, dict) else {}
-        has_database_service = bool(resolve_database_service_key({app_id: cfg}, app_id))
-        if has_database_service:
+        if has_single_database_service({app_id: cfg}, app_id):
             apps = self.inventory.setdefault("applications", {})
             target = apps.setdefault(app_id, {})
             target.setdefault("credentials", {})["database_password"] = (
                 self.value_generator.generate_value("alphanumeric")
             )
 
-        if oauth2.get("enabled") is True or oidc.get("enabled") is True:
+        if is_explicit_truth(oauth2.get("enabled")) or is_explicit_truth(
+            oidc.get("enabled")
+        ):
             apps = self.inventory.setdefault("applications", {})
             target = apps.setdefault(app_id, {})
             target.setdefault("credentials", {})["oauth2_proxy_cookie_secret"] = (
                 self.value_generator.generate_value("random_hex_16")
             )
 
-    def apply_schema(self) -> Dict:
+    def apply_schema(self) -> dict:
         """
         Apply schema into inventory for:
           1) all recursively discovered shared-provider roles
@@ -210,7 +224,7 @@ class InventoryManager:
     def recurse_credentials(self, branch: dict, dest: dict, prefix: str = "") -> None:
         """Recursively process the 'credentials' section and generate values.
 
-        Supports the post-req-008 schema:
+        Supports the schema:
           * Nested keys are walked transparently (e.g.
             `credentials.recaptcha.{key,secret}`).
           * `algorithm:` defaults to `plain` when omitted.
@@ -262,8 +276,8 @@ class InventoryManager:
             return
 
         if "default" in meta:
-            # Per req-008: write the literal Jinja string verbatim, no
-            # rendering, no validation, no algorithm-based generation.
+            # Write the literal Jinja string verbatim, no rendering,
+            # no validation, no algorithm-based generation.
             if isinstance(existing_value, str) and existing_value != "":
                 return
             dest[key] = meta["default"]

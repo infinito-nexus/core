@@ -1,3 +1,4 @@
+---
 # Set ownership/permissions on Moodle volumes after first start. The
 # entrypoint already chowns on every boot, but this is a belt-and-
 # suspenders pass for re-deploys after operator-driven file edits.

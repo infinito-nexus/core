@@ -3,7 +3,7 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: true
+    compose_handlers_flush: true
 
 - name: "Wait for {{ application_id }} HTTP endpoint"
   wait_for:

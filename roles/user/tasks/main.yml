@@ -1,3 +1,4 @@
+---
 # nocheck: run-once
 
 - name: Deploy shell dotfiles

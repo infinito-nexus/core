@@ -1,2 +1,5 @@
+---
 svc-webserver-https:
   lifecycle: beta
+  required_by:
+    categories: [web]

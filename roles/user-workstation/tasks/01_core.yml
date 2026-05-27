@@ -1,3 +1,4 @@
+---
 - name: Validate WORKSTATION_USER is defined
   ansible.builtin.fail:
     msg: "WORKSTATION_USER must be defined (e.g. WORKSTATION_USER: biber)."
@@ -28,13 +29,13 @@
         (USER_WORKSTATION_SET_PASSWORD | bool)
         | ternary((USER_WORKSTATION_CONFIG.password | password_hash('sha512')), omit)
       }}
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | default(true) | bool }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Deploy workstation user environment via shared user role
   ansible.builtin.include_role:
     name: user
   vars:
-     user_key: "{{ USER_WORKSTATION_KEY }}"
+    user_key: "{{ USER_WORKSTATION_KEY }}"
 
 - name: Enable sudo via sudoers drop-in (optional)
   ansible.builtin.template:

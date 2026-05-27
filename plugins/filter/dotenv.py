@@ -1,5 +1,3 @@
-# filter_plugins/dotenv.py
-#
 # Dotenv-safe quoting for .env files.
 #
 # Rules:

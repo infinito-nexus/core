@@ -1,3 +1,4 @@
+---
 - name: "Apply state for {{ system_service_run_unit }}"
   block:
     - name: "Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times, {{ SYS_SERVICE_RUNNER_DELAY }}s delay)"

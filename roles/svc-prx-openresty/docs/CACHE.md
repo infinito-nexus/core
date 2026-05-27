@@ -17,6 +17,7 @@ Caching can cause problems, especially when you update your web content or confi
 - Assets do not update after a deployment.
 
 If this happens, always consider all caching layers:  
+
 1. **Browser:** Clear the browser cache or use a private window.
 2. **OpenResty:** If using a proxy cache, purge or clear the cache directory, or temporarily disable the cache zone.
 3. **Cloudflare:** Purge the CDN cache as described below.
@@ -45,18 +46,18 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/purge_cache" 
      --data '{"purge_everything":true}'
 ````
 
-* Replace `<ZONE_ID>` with your Cloudflare Zone ID.
-* Replace `<YOUR_API_TOKEN>` with a valid API token with cache purge permissions.
+- Replace `<ZONE_ID>` with your Cloudflare Zone ID.
+- Replace `<YOUR_API_TOKEN>` with a valid API token with cache purge permissions.
 
 To find your Zone ID, go to the overview page for your domain in the Cloudflare dashboard.
 **Note:** It can take a few seconds for the cache to be purged globally.
 
 ## Recommendations
 
-* Always purge the Cloudflare cache after significant changes to your website or OpenResty/NGINX configuration.
-* If you use custom cache rules in OpenResty, consider providing cache-busting mechanisms (e.g., versioned URLs).
-* Test changes in a private/incognito window to rule out browser cache.
+- Always purge the Cloudflare cache after significant changes to your website or OpenResty/NGINX configuration.
+- If you use custom cache rules in OpenResty, consider providing cache-busting mechanisms (e.g., versioned URLs).
+- Test changes in a private/incognito window to rule out browser cache.
 
 ## Further Reading
 
-* [Cloudflare Purge Cache Documentation](https://developers.cloudflare.com/cache/how-to/purge-cache/)
+- [Cloudflare Purge Cache Documentation](https://developers.cloudflare.com/cache/how-to/purge-cache/)

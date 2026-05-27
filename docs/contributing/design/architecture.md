@@ -165,7 +165,7 @@ A new shared service MUST:
 3. expose only the configuration the dependent roles need
 4. document the service contract and lifecycle
 
-See [base.md](services/base.md) for the full service registration, loading, and injection model.
+See [base.md](role/services/base.md) for the full service registration, loading, and injection model.
 
 ### Changing An Existing Deployment ✏️
 
@@ -196,7 +196,7 @@ If you are trying to understand a change, start here:
 - [inventories/bundles/](../../../inventories/bundles/) for deployment shapes
 - [Makefile](../../../Makefile) and [scripts/](../../../scripts/) for supported commands
 - [lint.md](../actions/testing/lint.md) for code and framework rules
-- [base.md](services/base.md) for service registration, loading, and injection
+- [base.md](role/services/base.md) for service registration, loading, and injection
 - [testing.md](../actions/testing.md) for refactoring, debugging, and testing
 - [docs/contributing/](../../) for workflow and constraints
 - [tests/](../../../tests/) for the expected contracts

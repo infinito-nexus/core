@@ -17,12 +17,11 @@ import unittest
 from collections import OrderedDict
 from pathlib import Path
 
-
 from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
-
 from utils.cache.yaml import dump_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
 
 
 def _write(path: Path, content: str) -> None:
@@ -31,15 +30,15 @@ def _write(path: Path, content: str) -> None:
 
 
 def _seed_minimal_user_role(tmp: Path, role_name: str = "web-app-foo") -> Path:
-    # Per req-008 the file root of meta/users.yml IS the users map
+    # Per the file root of meta/users.yml IS the users map
     # (no `users:` wrapper).
     roles = tmp / "roles"
     role = roles / role_name
-    _write(role / "meta" / "services.yml", "{}\n")
+    _write(role / ROLE_FILE_META_SERVICES, "{}\n")
     _write(
-        role / "meta" / "users.yml",
+        role / ROLE_FILE_META_USERS,
         f"""
-        {role_name.split("-")[-1]}:
+        {role_name.rsplit("-", maxsplit=1)[-1]}:
           description: "test-only user"
         """,
     )
@@ -65,7 +64,7 @@ class TestLoadUserDefs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_user_role(Path(tmp), "web-app-alpha")
             _write(
-                roles / "web-app-beta" / "meta" / "users.yml",
+                roles / "web-app-beta" / ROLE_FILE_META_USERS,
                 """
                 beta:
                   description: "beta user"
@@ -79,13 +78,13 @@ class TestLoadUserDefs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp) / "roles"
             _write(
-                roles / "web-app-a" / "meta" / "users.yml",
+                roles / "web-app-a" / ROLE_FILE_META_USERS,
                 """
                 shared: {description: from-a}
                 """,
             )
             _write(
-                roles / "web-app-b" / "meta" / "users.yml",
+                roles / "web-app-b" / ROLE_FILE_META_USERS,
                 """
                 shared: {description: from-b}
                 """,
@@ -206,7 +205,7 @@ class TestResolveTokensFile(unittest.TestCase):
             finally:
                 cache_base.DEFAULT_TOKENS_FILE = previous
 
-    def test_explicit_FILE_TOKENS_wins(self):
+    def test_explicit_file_tokens_wins(self):
         with tempfile.TemporaryDirectory() as tmp:
             explicit = Path(tmp) / "tokens.yml"
             explicit.write_text("users: {}\n", encoding="utf-8")
@@ -240,7 +239,7 @@ class TestMaterializeBuiltinUserAliases(unittest.TestCase):
         )
         self.assertEqual(out, users)
 
-    def test_sld_alias_username_resolved_from_DOMAIN_PRIMARY(self):
+    def test_sld_alias_username_resolved_from_domain_primary(self):
         users = {
             "sld": {"username": "{{ DOMAIN_PRIMARY.split('.') | first }}"},
         }

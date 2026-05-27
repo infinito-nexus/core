@@ -1,28 +1,30 @@
+---
 - block:
     - name: Load role to delete anonymous volumes
       include_role:
         name: sys-ctl-cln-anon-volumes
-      vars: 
+      vars:
         system_service_force_flush_instant: true
       when: run_once_sys_ctl_cln_anon_volumes is not defined
-    
+
     - name: "Register docker prune system service"
       include_role:
         name: sys-service
       vars:
-        system_service_timer_enabled:       true
-        system_service_on_calendar:         "{{ SYS_SCHEDULE_CLEANUP_DOCKER }}"
-        system_service_copy_files:          true
-        system_service_tpl_exec_start:      "{{ system_service_script_exec }}"
-        system_service_tpl_exec_start_pre:  ""
-        system_service_tpl_on_failure:      "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
-        system_service_force_linear_sync:   false
+        system_service_timer_enabled: true
+        system_service_on_calendar: "{{ SYS_SCHEDULE_CLEANUP_DOCKER }}"
+        system_service_copy_files: true
+        system_service_tpl_exec_start: "{{ system_service_script_exec }}"
+        system_service_tpl_exec_start_pre: ""
+        system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+        system_service_force_linear_sync: false
 
         # The following logic is required due to side effects of service roless like MariaDB, OpenLDAP, Ollama etc.
         # Networks get otherwise deleted before the deploy took place 
-        system_service_suppress_flush:      "{{ SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool }}"
-        system_service_force_flush_instant: "{{ (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) if (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) else (MODE_CLEANUP | bool) }}"
-        system_service_force_flush_final:   "{{ MODE_CLEANUP | bool }}"
+        system_service_suppress_flush: "{{ SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool }}"
+        system_service_force_flush_instant: "{{ (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) if (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) else (MODE_CLEANUP
+          | bool) }}"
+        system_service_force_flush_final: "{{ MODE_CLEANUP | bool }}"
 
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_ctl_cln_docker is not defined

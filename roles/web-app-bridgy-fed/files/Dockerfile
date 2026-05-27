@@ -3,15 +3,16 @@ ARG PY_BASE="python:3.12-bookworm"
 FROM ${PY_BASE} AS build
 
 ARG BRIDGY_REPO_URL
-ARG BRIDGY_REPO_BRANCH
+ARG BRIDGY_REF
 
 # System deps: git, build tools, curl for healthchecks, and gunicorn
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get update && apt-get install -y --no-install-recommends \
     git build-essential curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-RUN git clone --depth=1 --branch "${BRIDGY_REPO_BRANCH}" "${BRIDGY_REPO_URL}" ./
+RUN git clone --depth=1 --branch "${BRIDGY_REF}" "${BRIDGY_REPO_URL}" ./
 
 # Python deps
 RUN pip install --upgrade pip && \

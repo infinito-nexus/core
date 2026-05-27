@@ -1,4 +1,4 @@
-## Choose a Pull Request Template
+# Choose a Pull Request Template
 
 🙏 Thank you for your contribution to [https://Infinito.Nexus](https://Infinito.Nexus).
 
@@ -15,7 +15,7 @@ Then select the template that best matches your change:
 [![Agents](https://img.shields.io/badge/Agents-AGENTS%2FCLAUDE%2FGEMINI-9C2F2F?style=for-the-badge)](?quick_pull=1&template=agents.md)
 [![Documentation](https://img.shields.io/badge/Documentation-docs-1F5C99?style=for-the-badge)](?quick_pull=1&template=documentation.md)
 
-### Fallback
+## Fallback
 
 If the buttons do not work in your GitHub client, append one of these query parameters to the current pull request creation URL:
 
@@ -37,5 +37,5 @@ If the buttons do not work in your GitHub client, append one of these query para
 💬 If you need support choosing the right template or preparing your pull request:
 
 * [Support and Contact](../SUPPORT.md)
-* Hub: https://hub.infinito.nexus/
+* Hub: <https://hub.infinito.nexus/>
 * Matrix: `#public:infinito.nexus`

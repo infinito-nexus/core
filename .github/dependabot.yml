@@ -73,10 +73,13 @@ updates:
 
   # ------------------------------------------------------------
   # npm / Node.js (package.json) — Bluesky login-broker has zero
-  # runtime npm deps but ships a package.json metadata stub.
+  # runtime npm deps but ships a package.json metadata stub; the
+  # repo-root package.json carries the ESLint + eslint-plugin-playwright
+  # dev-dependency pin used by `make lint-javascript`.
   # ------------------------------------------------------------
   - package-ecosystem: "npm"
     directories:
+      - "/"
       - "/roles/web-app-bluesky/files/login-broker"
     schedule:
       interval: "daily"
@@ -225,16 +228,16 @@ updates:
   #     - "dependencies"
   #     - "go"
 
-  # maven: bluesky Keycloak event-listener SPI bridge
-  - package-ecosystem: "maven"
-    directories:
-      - "**"
-    schedule:
-      interval: "daily"
-      time: "00:00"
-    labels:
-      - "dependencies"
-      - "java"
+  # maven: no pom.xml found (bluesky SPI scaffold removed)
+  # - package-ecosystem: "maven"
+  #   directories:
+  #     - "/"
+  #   schedule:
+  #     interval: "daily"
+  #     time: "00:00"
+  #   labels:
+  #     - "dependencies"
+  #     - "java"
 
   # gradle: no build.gradle found
   # - package-ecosystem: "gradle"

@@ -25,9 +25,7 @@ location {{location}}
   proxy_set_header X-Forwarded-Ssl {{ lookup('tls', application_id, 'enabled') | on_off }};
   proxy_pass_request_headers on;
 
-  {% if lookup('tls', application_id, 'enabled') | bool %}
-  proxy_hide_header Strict-Transport-Security;
-  {% endif %}
+  {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
   # WebSocket specific header
   proxy_http_version 1.1;

@@ -1,3 +1,4 @@
+---
 - name: Install OpenSSH client
   package:
     name: >-

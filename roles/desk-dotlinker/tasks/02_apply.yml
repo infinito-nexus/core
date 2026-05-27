@@ -1,3 +1,4 @@
+---
 - name: Ensure dotlinker user is defined
   ansible.builtin.assert:
     that:

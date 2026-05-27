@@ -1,3 +1,4 @@
+---
 # nocheck: run-once
 - name: "For '{{ application_id }}': Freeze database consumer id before provider includes"
   set_fact:
@@ -10,17 +11,8 @@
       {{ lookup('database', _database_consumer_id, 'shared') | bool }}
   changed_when: false
 
-- block:
-  - name: "Ensure env dir exists: {{ lookup('container', application_id, 'directories.env') }}"
-    ansible.builtin.file:
-      path: "{{ lookup('container', application_id, 'directories.env') }}"
-      state: directory
-      mode: "0755"
-  - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Create {{ lookup('database', _database_consumer_id, 'env') }}"
-    template:
-      src: "env/{{ lookup('database', _database_consumer_id, 'type') }}.env.j2"
-      dest: "{{ lookup('database', _database_consumer_id, 'env') }}"
-    notify: compose up
+- name: "For '{{ application_id }}/{{ _database_consumer_id }}': Apply dedicated database setup"
+  include_tasks: dedicated.yml
   when: not (_sys_svc_rdbms_central_db_enabled | bool)
 
 - name: Central Database Logic
@@ -36,27 +28,28 @@
             ) != '__missing__'
         fail_msg: >-
           Shared database provider '{{ _database_provider_role }}' was not preloaded by
-          sys-utils-service-loader before sys-svc-rdbms ran.
+          sys-service-loader before sys-svc-rdbms ran.
 
     - name: "For '{{ application_id }}': Initialize dedicated database on preloaded provider"
       ansible.builtin.include_role:
         name: "{{ _database_provider_role }}"
       vars:
-        application_id:             "{{ _database_provider_role }}"
-        database_init:              true
-        docker_git_repository_pull: false
-        database_consumer_id:       "{{ _database_consumer_id }}"
+        application_id: "{{ _database_provider_role }}"
+        database_init: true
+        compose_repository_pull: false
+        database_consumer_id: "{{ _database_consumer_id }}"
 
     - name: "For '{{ application_id }}': Add Entry for Backup Procedure"
-      include_tasks: "{{ playbook_dir }}/roles/sys-ctl-bkp-docker-2-loc/tasks/04_seed-database-to-backup.yml"
+      include_tasks: "{{ playbook_dir }}/roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml"
+      when: "'svc-bkp-container-2-local' in group_names"
   vars:
     _database_provider_role: "{{ lookup('database', _database_consumer_id, 'id') }}"
     database_consumer_id: "{{ _database_consumer_id }}"
-    database_type:        "{{ lookup('database', _database_consumer_id, 'type') }}"
-    database_instance:    "{{ lookup('database', _database_consumer_id, 'instance') }}"
-    database_host:        "{{ lookup('database', _database_consumer_id, 'host') }}"
-    database_port:        "{{ lookup('database', _database_consumer_id, 'port') }}"
-    database_name:        "{{ lookup('database', _database_consumer_id, 'name') }}"
-    database_username:    "{{ lookup('database', _database_consumer_id, 'username') }}"
-    database_password:    "{{ lookup('database', _database_consumer_id, 'password') }}"
+    database_type: "{{ _database_type }}"
+    database_instance: "{{ lookup('database', _database_consumer_id, 'instance') }}"
+    database_host: "{{ lookup('database', _database_consumer_id, 'host') }}"
+    database_port: "{{ lookup('database', _database_consumer_id, 'port') }}"
+    database_name: "{{ lookup('database', _database_consumer_id, 'name') }}"
+    database_username: "{{ lookup('database', _database_consumer_id, 'username') }}"
+    database_password: "{{ lookup('database', _database_consumer_id, 'password') }}"
   when: _sys_svc_rdbms_central_db_enabled | bool

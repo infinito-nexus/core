@@ -1,3 +1,4 @@
+---
 # Remove/stop/disable systemd units that belong to this SOFTWARE_NAME,
 # but are not for the current version.
 

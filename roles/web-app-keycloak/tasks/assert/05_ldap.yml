@@ -1,4 +1,4 @@
-# roles/web-app-keycloak/tasks/assert/05_ldap.yml
+---
 #
 # Read-only assertions for LDAP configuration in Keycloak.
 # Ensures:

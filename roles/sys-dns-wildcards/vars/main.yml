@@ -1,3 +1,4 @@
+---
 SYN_DNS_WILDCARD_RECORDS: >-
   {{
     {} |

@@ -3,7 +3,8 @@ ARG JENKINS_VERSION
 FROM ${JENKINS_IMAGE}:${JENKINS_VERSION}
 
 USER root
-RUN apt-get update \
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
     && rm -rf /var/lib/apt/lists/*
 

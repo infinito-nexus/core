@@ -1,3 +1,4 @@
+---
 # Effective user config for this role invocation.
 user_config_effective: "{{ user_config | default(lookup('users', user_key, {})) }}"
 

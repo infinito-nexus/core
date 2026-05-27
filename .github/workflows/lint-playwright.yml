@@ -1,0 +1,31 @@
+name: "🔍 Lint: Playwright"
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-playwright:
+    name: 🧹 Lint Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      INFINITO_LINT_RUNNER: host
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install npm dependencies (eslint + @playwright/test)
+        run: npm ci --no-fund --no-audit
+
+      - name: Run lint-playwright via make
+        run: make lint-playwright

@@ -1,13 +1,16 @@
-import os
 import importlib.util
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
-current_dir = os.path.dirname(__file__)
-plugin_path = os.path.abspath(
-    os.path.join(
-        current_dir,
-        "../../../../roles/web-app-keycloak/filter_plugins/rbac_per_app.py",
-    )
+current_dir = str(Path(__file__).parent)
+plugin_path = str(
+    Path(
+        str(
+            Path(current_dir)
+            / "../../../../roles/web-app-keycloak/filter_plugins/rbac_per_app.py"
+        )
+    ).resolve()
 )
 spec = importlib.util.spec_from_file_location("rbac_per_app", plugin_path)
 mod = importlib.util.module_from_spec(spec)
@@ -58,12 +61,62 @@ class TestKcPerAppLdapFilter(unittest.TestCase):
             mod.kc_per_app_ldap_filter("")
 
 
+class TestRbacAppIds(unittest.TestCase):
+    @patch.object(mod, "list_invokable_app_ids")
+    def test_filters_to_invokable_apps(self, mock_invokable):
+        mock_invokable.return_value = [
+            "web-app-friendica",
+            "svc-db-postgres",
+            "web-app-baserow",
+        ]
+        group_names = [
+            "web-app-friendica",
+            "svc-db-postgres",
+            "not-a-deployed-app",
+        ]
+        self.assertEqual(
+            mod.rbac_app_ids(group_names),
+            ["svc-db-postgres", "web-app-friendica"],
+        )
+
+    @patch.object(mod, "list_invokable_app_ids")
+    def test_deduplicates(self, mock_invokable):
+        mock_invokable.return_value = ["a", "b"]
+        self.assertEqual(
+            mod.rbac_app_ids(["a", "a", "b", "b"]),
+            ["a", "b"],
+        )
+
+    @patch.object(mod, "list_invokable_app_ids")
+    def test_sorted(self, mock_invokable):
+        mock_invokable.return_value = ["a", "b", "c"]
+        self.assertEqual(
+            mod.rbac_app_ids(["c", "a", "b"]),
+            ["a", "b", "c"],
+        )
+
+    @patch.object(mod, "list_invokable_app_ids")
+    def test_none_app_ids_treated_as_empty(self, mock_invokable):
+        mock_invokable.return_value = ["a"]
+        self.assertEqual(mod.rbac_app_ids(None), [])
+
+    @patch.object(mod, "list_invokable_app_ids")
+    def test_empty_app_ids_returns_empty(self, mock_invokable):
+        mock_invokable.return_value = ["a", "b"]
+        self.assertEqual(mod.rbac_app_ids([]), [])
+
+    def test_invalid_app_ids_type(self):
+        with self.assertRaises(TypeError):
+            mod.rbac_app_ids("not-a-list")
+
+
 class TestFilterModuleRegistration(unittest.TestCase):
-    def test_filter_module_exposes_both_filters(self):
+    def test_filter_module_exposes_all_filters(self):
         fm = mod.FilterModule()
         filters = fm.filters()
         self.assertIn("kc_per_app_mapper_name", filters)
         self.assertIn("kc_per_app_ldap_filter", filters)
+        self.assertIn("rbac_app_ids", filters)
 
 
 if __name__ == "__main__":

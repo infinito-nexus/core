@@ -1,3 +1,4 @@
+---
 csp:
   whitelist: {}
   flags:
@@ -9,7 +10,7 @@ csp:
       unsafe-eval: true
 domains:
   canonical:
-  - jira.{{ DOMAIN_PRIMARY }}
+    - jira.{{ DOMAIN_PRIMARY }}
   aliases: []
 status_codes:
   default: 405

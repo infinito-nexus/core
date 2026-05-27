@@ -1,6 +1,7 @@
 # NGINX vHost Templates: Basic vs. WebSocket (ws_generic)
 
 This directory provides two NGINX server templates for reverse proxying Dockerized applications behind NGINX:  
+
 - `basic.conf.j2`
 - `ws_generic.conf.j2`
 
@@ -9,6 +10,7 @@ This directory provides two NGINX server templates for reverse proxying Dockeriz
 ## When to Use Which Template?
 
 ### 1. `basic.conf.j2`
+
 **Use this template for standard HTTP/S applications.**  
 It is optimized for typical web applications (e.g., static sites, PHP, Node.js, Django, etc.) that do **not** require persistent, bidirectional WebSocket connections.
 
@@ -30,6 +32,7 @@ It is optimized for typical web applications (e.g., static sites, PHP, Node.js, 
 ---
 
 ### 2. `ws_generic.conf.j2`
+
 **Use this template for applications requiring WebSocket support.**  
 Designed for services (e.g., chat servers, real-time dashboards) needing fast, persistent connections using the WebSocket protocol.
 

@@ -1,4 +1,3 @@
-# tests/unit/plugins/filter/test_get_deployment_types_from_groups.py
 from __future__ import annotations
 
 import unittest
@@ -30,7 +29,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             "update",
         ]
 
-    @patch("utils.invokable._get_invokable_paths")
+    @patch("utils.roles.validation.invokable._get_invokable_paths")
     def test_exact_types(self, mock_get_invokable_paths) -> None:
         mock_get_invokable_paths.return_value = self._mock_invokable_paths()
 
@@ -44,7 +43,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             ["server", "workstation"],
         )
 
-    @patch("utils.invokable._get_invokable_paths")
+    @patch("utils.roles.validation.invokable._get_invokable_paths")
     def test_prefix_matches(self, mock_get_invokable_paths) -> None:
         mock_get_invokable_paths.return_value = self._mock_invokable_paths()
 
@@ -58,7 +57,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             ["server", "workstation"],
         )
 
-    @patch("utils.invokable._get_invokable_paths")
+    @patch("utils.roles.validation.invokable._get_invokable_paths")
     def test_universal_only(self, mock_get_invokable_paths) -> None:
         mock_get_invokable_paths.return_value = self._mock_invokable_paths()
 
@@ -68,7 +67,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             ["universal"],
         )
 
-    @patch("utils.invokable._get_invokable_paths")
+    @patch("utils.roles.validation.invokable._get_invokable_paths")
     def test_universal_mixed_with_server(self, mock_get_invokable_paths) -> None:
         mock_get_invokable_paths.return_value = self._mock_invokable_paths()
 
@@ -83,7 +82,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             ["server", "universal"],
         )
 
-    @patch("utils.invokable._get_invokable_paths")
+    @patch("utils.roles.validation.invokable._get_invokable_paths")
     def test_non_invokable_groups_are_ignored(self, mock_get_invokable_paths) -> None:
         mock_get_invokable_paths.return_value = self._mock_invokable_paths()
 
@@ -94,7 +93,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             [],
         )
 
-    @patch("utils.invokable._get_invokable_paths")
+    @patch("utils.roles.validation.invokable._get_invokable_paths")
     def test_empty_input(self, mock_get_invokable_paths) -> None:
         mock_get_invokable_paths.return_value = self._mock_invokable_paths()
         self.assertEqual(get_deployment_types_from_groups([]), [])

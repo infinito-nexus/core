@@ -18,7 +18,7 @@ This role deploys FusionDirectory on Docker Compose against the project's centra
 ## Further Resources
 
 - [FusionDirectory Official Website](https://www.fusiondirectory.org/)
-- [FusionDirectory Docker Image (tiredofit/fusiondirectory)](https://hub.docker.com/r/tiredofit/fusiondirectory)
+- [FusionDirectory Docker Image (nfrastack/fusiondirectory)](https://hub.docker.com/r/nfrastack/fusiondirectory)
 
 ## Credits
 

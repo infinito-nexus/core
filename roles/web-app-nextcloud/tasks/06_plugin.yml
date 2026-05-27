@@ -1,0 +1,15 @@
+---
+- block:
+    - include_tasks: plugin/01_install.yml
+  when: plugin_value.enabled | bool
+
+- name: disable {{ plugin_key }} nextcloud plugin
+  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable {{ plugin_key }}"
+  register: disable_result
+  changed_when: >
+    not ASYNC_ENABLED and
+    ((disable_result.stdout | default('') ~ disable_result.stderr | default('')) is search('disabled'))
+    and (((disable_result.stdout | default('') ~ disable_result.stderr | default('')) is not search('already disabled')))
+  when: not (plugin_value.enabled | bool)
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

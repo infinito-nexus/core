@@ -1,26 +1,26 @@
-
+---
 # Path Variables for Key Directories and Scripts
-DIR_HOME_ADMINISTRATOR:   "/home/administrator/"
-DIR_SCRIPTS_ROOT:         "/opt/scripts/"
-DIR_SCRIPTS_SYSTEMCTL:    "{{ [ DIR_SCRIPTS_ROOT, 'systemctl' ] | path_join }}"
-DIR_COMPOSITIONS:         "/opt/compose/"
-DIR_SYSTEM_SERVICE:       "/etc/systemd/system"
-DIR_COMPOSE_PULL_LOCK:    "/run/ansible/compose-pull/"
+DIR_HOME_ADMINISTRATOR: "/home/administrator/"
+DIR_SCRIPTS_ROOT: "/opt/scripts/"
+DIR_SCRIPTS_SYSTEMCTL: "{{ [ DIR_SCRIPTS_ROOT, 'systemctl' ] | path_join }}"
+DIR_COMPOSITIONS: "/opt/compose/"
+DIR_SYSTEM_SERVICE: "/etc/systemd/system"
+DIR_COMPOSE_PULL_LOCK: "/run/ansible/compose-pull/"
 
 # Executable files
-DIR_BIN:                  "/usr/bin"
-BIN_COMPOSE:              "{{ [ DIR_BIN, 'compose' ] | path_join }}"
-BIN_CONTAINER:            "{{ [ DIR_BIN, 'container' ] | path_join }}"
-BIN_LOCK:                 "{{ [ DIR_BIN, 'lock' ] | path_join }}" 
-BIN_CA_TRUST:             "{{ [ DIR_BIN, 'ca-trust-wrapper' ] | path_join }}"
-BIN_CA_INJECT:            "{{ [ DIR_BIN, 'ca-inject' ] | path_join }}"
+DIR_BIN: "/usr/bin"
+BIN_COMPOSE: "{{ [ DIR_BIN, 'compose' ] | path_join }}"
+BIN_CONTAINER: "{{ [ DIR_BIN, 'container' ] | path_join }}"
+BIN_LOCK: "{{ [ DIR_BIN, 'lock' ] | path_join }}"
+BIN_CA_TRUST: "{{ [ DIR_BIN, 'ca-trust-wrapper' ] | path_join }}"
+BIN_CA_INJECT: "{{ [ DIR_BIN, 'ca-inject' ] | path_join }}"
 
 # Infinito Credential files
-DIR_VAR_LIB:              "/var/lib/infinito"
-DIR_BACKUPS:              "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
-DIR_SECRETS:              "{{ [DIR_VAR_LIB, 'secrets'] | path_join }}"
-FILE_TOKENS:              "{{ [DIR_SECRETS, 'tokens.yml'] | path_join }}"
-FILE_DATABASE_SECRETS:    "{{ [DIR_SECRETS, 'databases.csv'] | path_join }}"
+DIR_VAR_LIB: "/var/lib/infinito"
+DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
+DIR_SECRETS: "{{ [DIR_VAR_LIB, 'secrets'] | path_join }}"
+FILE_TOKENS: "{{ [DIR_SECRETS, 'tokens.yml'] | path_join }}"
+FILE_DATABASE_SECRETS: "{{ [DIR_SECRETS, 'databases.csv'] | path_join }}"
 
 # Environment Files
-FILE_ENVIRONMENT:         "/etc/environment" # File to safe environment variables in
+FILE_ENVIRONMENT: "/etc/environment" # File to safe environment variables in

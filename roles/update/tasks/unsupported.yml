@@ -1,3 +1,4 @@
+---
 - name: "update | fail loudly when no per-distro implementation exists"
   ansible.builtin.fail:
     msg: >-

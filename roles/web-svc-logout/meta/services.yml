@@ -1,5 +1,7 @@
+---
+# nocheck: playwright-service-flag — self-provider; injection presence is asserted per consumer via roles_with_service('logout')
 logout:
-  enabled: false
+  enabled: true
   shared: true
   image: ghcr.io/kevinveenbirkenbach/universal-logout
   version: latest
@@ -13,18 +15,19 @@ logout:
     local:
       http: 8048
   lifecycle: beta
-dashboard:
-  enabled: true
-  shared: true
+# nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; matomo/css/javascript injection is asserted by the respective provider's spec
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; CSS injection is asserted on the consuming role surfaces
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; JS injection is asserted on the consuming role surfaces
 javascript:
   enabled: false
   shared: true
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

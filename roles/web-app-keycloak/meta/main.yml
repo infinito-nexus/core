@@ -1,14 +1,12 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Step into a secure future with Keycloak! Our dynamic identity and access management solution offers streamlined SSO capabilities, robust security measures, and an intuitive user experience that propels your applications to unprecedented heights of performance and reliability.
+  description: Deploys Keycloak, an identity and access management solution providing single sign-on, federation, and centralized user management for the
+    Infinito.Nexus stack.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: 'Kevin Veen-Birkenbach
-
-    Consulting & Coaching Solutions
-
+  company: |
+    Kevin Veen-Birkenbach
     https://www.veen.world
-
-    '
   galaxy_tags:
     - keycloak
     - docker
@@ -16,3 +14,20 @@ galaxy_info:
     - sso
     - self-hosted
   issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

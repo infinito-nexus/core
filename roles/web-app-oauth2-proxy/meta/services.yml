@@ -1,26 +1,31 @@
+---
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: dashboard
 dashboard:
   enabled: false
+  shared: false
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 oauth2-proxy:
   image: quay.io/oauth2-proxy/oauth2-proxy
   version: latest
   min_storage: 1GB
   configuration_file: oauth2-proxy-keycloak.cfg
   ports:
-    inter: 4180
+    internal:
+      http: 4180
   lifecycle: pre-alpha
-# noqa: email
-email:
-  enabled: false
-  shared: false
+  cpus: "0.25"
+  mem_reservation: "64m"
+  mem_limit: "128m"
+  pids_limit: 256
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

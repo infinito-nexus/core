@@ -1,0 +1,52 @@
+---
+- name: "Disable incompatible plugins for {{ plugin_key }} (batched shell, no async)"
+  ansible.builtin.shell: |
+    # do not set -e here; allow per-line fallbacks
+    {% for incompatible_plugin in (plugin_value.incompatible_plugins | default([])) %}
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable {{ incompatible_plugin }} || true
+    {% endfor %}
+  args:
+    executable: /bin/bash
+  when:
+    - plugin_value.incompatible_plugins is defined
+    - plugin_value.incompatible_plugins | length > 0
+  register: disable_incompat
+  changed_when: >
+    (((disable_incompat.stdout | default('')) ~ (disable_incompat.stderr | default('')))
+      is search('disabled'))
+    and (
+      (((disable_incompat.stdout | default('')) ~ (disable_incompat.stderr | default('')))
+        is not search('already disabled'))
+    )
+  failed_when: false
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+
+- name: install {{ plugin_key }} nextcloud plugin
+  # Clear NC appstore-fetcher cooldown (300s) before each attempt so retries
+  # actually re-fetch the catalog instead of seeing cached empty after a first
+  # transient failure right after container start.
+  ansible.builtin.shell: |
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:delete settings appstore-fetcher-lastFailure >/dev/null 2>&1 || true
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:install {{ plugin_key }}
+  args:
+    executable: /bin/bash
+  register: install_result
+  retries: 6
+  delay: 30
+  until: (install_result | nextcloud_install_status).ok
+  failed_when: not (install_result | nextcloud_install_status).ok
+  changed_when: (install_result | nextcloud_install_status).changed
+
+- name: "warn: {{ plugin_key }} is incompatible with current Nextcloud version — skipping"
+  ansible.builtin.debug:
+    msg: >-
+      Plugin '{{ plugin_key }}' is not compatible with the currently pinned
+      Nextcloud server version. Skipping enable/configure for this run.
+  when: (install_result | nextcloud_install_status).incompatible
+
+- include_tasks: 02_enable.yml
+  when: (install_result | nextcloud_install_status).runnable
+  vars:
+    plugin_task_path: "{{ NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH }}{{ plugin_key }}.yml"
+    plugin_vars_path: "{{ NEXTCLOUD_CNODE_PLUGIN_VARS_PATH }}{{ plugin_key }}.yml"

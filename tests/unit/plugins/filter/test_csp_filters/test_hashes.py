@@ -1,7 +1,8 @@
-import unittest
-import hashlib
 import base64
-from plugins.filter.csp_filters import FilterModule, AnsibleFilterError
+import hashlib
+import unittest
+
+from plugins.filter.csp_filters import AnsibleFilterError, FilterModule
 
 
 class TestCspHashes(unittest.TestCase):

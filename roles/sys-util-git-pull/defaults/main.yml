@@ -11,7 +11,6 @@ sys_util_git_pull_pin_tag: ""
 
 # Remove these local tags before fetch --tags (prevents "would clobber existing tag")
 sys_util_git_pull_remove_tags: []
-
 # Mark changed if remote pin tag moved compared to local (informational)
 sys_util_git_pull_mark_changed_on_tag_move: true
 
@@ -20,4 +19,4 @@ sys_util_git_pull_remote: "origin"
 
 # Privilege handling
 sys_util_git_pull_become: true
-sys_util_git_pull_become_user: ~
+sys_util_git_pull_become_user:

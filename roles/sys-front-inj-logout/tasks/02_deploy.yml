@@ -1,8 +1,9 @@
+---
 - name: Deploy logout.js
   copy:
-    src:    logout.js
-    dest:   "{{ INJ_LOGOUT_JS_DESTINATION }}"
-    mode:   '0644'
+    src: logout.js
+    dest: "{{ INJ_LOGOUT_JS_DESTINATION }}"
+    mode: "0644"
 
 - name: Get stat for logout.js
   stat:

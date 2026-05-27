@@ -1,3 +1,4 @@
+---
 - name: Include dependency 'sys-daemon'
   include_role:
     name: sys-daemon
@@ -14,7 +15,7 @@
     dest: /etc/ssh/sshd_config
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: sshd restart
 
 - include_tasks: utils/once/flag.yml

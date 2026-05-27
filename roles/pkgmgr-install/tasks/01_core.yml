@@ -1,3 +1,4 @@
+---
 - name: Include dependency 'pkgmgr'
   include_role:
     name: pkgmgr

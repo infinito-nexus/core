@@ -1,3 +1,4 @@
+---
 - name: "Add Keycloak OIDC Provider"
   shell: |
     container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \

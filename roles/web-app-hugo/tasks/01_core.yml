@@ -1,3 +1,4 @@
+---
 - name: "Assert exactly one canonical domain (V1 single-site scope)"
   ansible.builtin.assert:
     that:
@@ -12,9 +13,9 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: true
-    docker_git_repository_address: "{{ HUGO_SOURCE_REPO }}"
-    docker_git_repository_pull:    true
-    docker_git_repository_version: "{{ HUGO_SOURCE_REF }}"
+    compose_handlers_flush: true
+    compose_repository_url: "{{ HUGO_SOURCE_REPO }}"
+    compose_repository_pull: true
+    compose_repository_ref: "{{ HUGO_SOURCE_REF }}"
 
 - include_tasks: utils/once/flag.yml

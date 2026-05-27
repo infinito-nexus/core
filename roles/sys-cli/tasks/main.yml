@@ -1,12 +1,12 @@
+---
 - block:
-  
     - name: Include dependency 'sys-aur'
       include_role:
         name: sys-aur
       when: run_once_sys_aur is not defined
-    
+
     - include_tasks: utils/once/flag.yml
-    
+
   when: run_once_sys_cli is not defined
 
 - name: "pkgmgr install infinito"

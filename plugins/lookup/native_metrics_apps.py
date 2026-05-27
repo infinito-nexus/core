@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.applications.config import get as get_app_conf
+from utils.cache import ROLES_DIR
 from utils.cache.applications import get_merged_applications
+from utils.roles.applications.config import get as get_app_conf
 
 
 class LookupModule(LookupBase):
@@ -31,22 +29,22 @@ class LookupModule(LookupBase):
 
     def run(
         self,
-        terms: List[Any],
-        variables: Optional[Dict[str, Any]] = None,
+        terms: list[Any],
+        variables: dict[str, Any] | None = None,
         **kwargs: Any,
-    ) -> List[List[str]]:
+    ) -> list[list[str]]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
-        roles_dir = self._find_roles_dir()
+        roles_dir = ROLES_DIR
         applications = get_merged_applications(
             variables=vars_,
             roles_dir=kwargs.get("roles_dir") or str(roles_dir),
             templar=getattr(self, "_templar", None),
         )
 
-        group_names: List[str] = vars_.get("group_names", [])
+        group_names: list[str] = vars_.get("group_names", [])
 
-        result: List[str] = []
+        result: list[str] = []
         for app_id in sorted(applications.keys()):
             if app_id not in group_names:
                 continue
@@ -66,13 +64,3 @@ class LookupModule(LookupBase):
                 result.append(app_id)
 
         return [result]
-
-    def _find_roles_dir(self) -> Path:
-        candidates = [
-            Path(os.getcwd()) / "roles",
-            Path(__file__).resolve().parent.parent.parent / "roles",
-        ]
-        for candidate in candidates:
-            if candidate.is_dir():
-                return candidate
-        raise AnsibleError("native_metrics_apps: cannot locate roles/ directory")

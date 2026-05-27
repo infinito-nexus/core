@@ -52,7 +52,7 @@ jobs:
       - name: Resolve release inputs
         id: vars
         shell: bash
-        run: bash _helpers/scripts/github/resolve_release_inputs.sh "${{ inputs.tag || github.event.inputs.tag }}"
+        run: bash _helpers/scripts/github/resolve/release_inputs.sh "${{ inputs.tag || github.event.inputs.tag }}"
 
       - name: Checkout repository at version tag
         uses: actions/checkout@v6
@@ -91,7 +91,7 @@ jobs:
         env:
           OWNER: ${{ steps.vars.outputs.owner }}
           REPO_PREFIX: ${{ steps.vars.outputs.repo_prefix }}
-          DISTROS: ${{ steps.vars.outputs.distros }}
+          INFINITO_DISTROS: ${{ steps.vars.outputs.distros }}
           CI_TAG: ${{ steps.citag.outputs.ci_tag }}
         run: |
           set -euo pipefail
@@ -127,7 +127,7 @@ jobs:
       VERSION_TAG: ${{ needs.check-ci-images.outputs.version_tag }}
       OWNER: ${{ needs.check-ci-images.outputs.owner }}
       REPO_PREFIX: ${{ needs.check-ci-images.outputs.repo_prefix }}
-      DISTROS: ${{ needs.check-ci-images.outputs.distros }}
+      INFINITO_DISTROS: ${{ needs.check-ci-images.outputs.distros }}
       CI_TAG: ${{ needs.check-ci-images.outputs.ci_tag }}
       PUBLISH_LATEST: ${{ needs.check-ci-images.outputs.publish_latest }}
 

@@ -1,6 +1,6 @@
-# roles/sys-dns-wildcards/filter_plugins/wildcard_dns.py
-from ansible.errors import AnsibleFilterError
 import ipaddress
+
+from ansible.errors import AnsibleFilterError
 
 
 def _validate(d: str) -> None:
@@ -9,7 +9,7 @@ def _validate(d: str) -> None:
         or not d.strip()
         or d.startswith(".")
         or d.endswith(".")
-        or ".." in d
+        or ".." in d  # nocheck: project-root-import  substring check, not a path build
     ):
         raise AnsibleFilterError(f"Invalid domain: {d!r}")
 
@@ -122,13 +122,10 @@ def _build_wildcard_records(
         if p == apex:
             wc = "*"
         else:
-            # relative part (drop ".apex")
+            # relative part (drop ".apex"); empty rel is a safety guard
+            # — shouldn't happen because p==apex handled above.
             rel = p[: -len(apex) - 1]
-            if not rel:
-                # Safety guard; should not happen because p==apex handled above
-                wc = "*"
-            else:
-                wc = f"*.{rel}"
+            wc = "*" if not rel else f"*.{rel}"
         _add(wc, "A", str(ip4))
         if ipv6_enabled and ip6 and _is_global(str(ip6)):
             _add(wc, "AAAA", str(ip6))
@@ -177,7 +174,7 @@ def wildcard_records(
     )
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "wildcard_records": wildcard_records,

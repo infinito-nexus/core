@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from cli.core.run import open_log_file
+from utils.cache.files import read_text
 
 
 class TestLogging(unittest.TestCase):
@@ -21,7 +22,7 @@ class TestLogging(unittest.TestCase):
                 f.write("hello\n")
                 f.flush()
 
-                content = path.read_text(encoding="utf-8")
+                content = read_text(str(path))
                 self.assertIn("hello", content)
             finally:
                 f.close()

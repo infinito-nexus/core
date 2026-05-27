@@ -38,38 +38,32 @@
   failed_when: false
 
 - name: "Check whether the Pixelfed users table exists"
-  vars:
-    pixelfed_users_table_query: >-
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema='{{ PIXELFED_DB_NAME }}'
-        AND table_name='users'
-      LIMIT 1;
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_users_table_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-users-table.sql"
+    named_args:
+      db_name: "{{ PIXELFED_DB_NAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: pixelfed_bootstrap_users_table
   changed_when: false
-  failed_when: false
   retries: 20
   delay: 3
-  until: pixelfed_bootstrap_users_table.rc == 0
+  until: pixelfed_bootstrap_users_table is success
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Count existing Pixelfed users when the users table already exists"
-  vars:
-    pixelfed_user_count_query: "SELECT COUNT(*) FROM users;"
-  ansible.builtin.command:
-    argv: "{{ PIXELFED_MARIADB_ARGS + ['-e', pixelfed_user_count_query] }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
-  when: pixelfed_bootstrap_users_table.stdout | trim == 'users'
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/count-users.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: pixelfed_bootstrap_users_table.rows | length > 0
   register: pixelfed_bootstrap_user_count
   changed_when: false
   retries: 20
   delay: 3
-  until: pixelfed_bootstrap_user_count.rc == 0
+  until: pixelfed_bootstrap_user_count is success
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Choose Pixelfed migration strategy"
@@ -80,7 +74,7 @@
     pixelfed_bootstrap_requires_reset: >-
       {{
         (pixelfed_bootstrap_marker_exists.rc | default(1) | int) != 0
-        and (pixelfed_bootstrap_user_count.stdout | default('0') | trim | int) == 0
+        and ((pixelfed_bootstrap_user_count.rows[0][0] | default('0')) | int) == 0
       }}
     pixelfed_migrate_argv: >-
       {{
@@ -89,7 +83,7 @@
           ['migrate:fresh', '--force']
           if (
             (pixelfed_bootstrap_marker_exists.rc | default(1) | int) != 0
-            and (pixelfed_bootstrap_user_count.stdout | default('0') | trim | int) == 0
+            and ((pixelfed_bootstrap_user_count.rows[0][0] | default('0')) | int) == 0
           )
           else ['migrate', '--force', '--isolated']
         )
@@ -101,7 +95,7 @@
   args:
     chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_migrate
-  changed_when: "'Nothing to migrate' not in (pixelfed_migrate.stdout | default(''))"
+  changed_when: "'Nothing to migrate' not in pixelfed_migrate.stdout"
   retries: 60
   delay: 5
   until: pixelfed_migrate.rc == 0

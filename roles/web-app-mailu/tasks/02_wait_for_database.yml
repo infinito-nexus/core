@@ -1,9 +1,10 @@
+---
 - name: "Wait until Mailu database schema is initialized (domain table exists)"
   block:
-
     - name: "Check for Mailu DB domain table"
       ansible.builtin.command: >
-        container exec {{ lookup('database', application_id, 'container') }} mariadb -u {{ lookup('database', application_id, 'username') }} -p{{ lookup('database', application_id, 'password') }}
+        container exec {{ lookup('database', application_id, 'container') }} mariadb -u {{ lookup('database', application_id, 'username') }} -p{{ lookup('database',
+        application_id, 'password') }}
         -e "SHOW TABLES FROM {{ lookup('database', application_id, 'name') }} LIKE 'domain';"
       args:
         chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
@@ -15,7 +16,6 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
   rescue:
-
     - name: "Collect Mailu admin container logs (last 300 lines)"
       ansible.builtin.command: >
         {{ BIN_COMPOSE }} logs --tail=300 admin
@@ -36,7 +36,6 @@
 
 - name: "Wait until Mailu admin Flask app is ready"
   block:
-
     - name: "Check Mailu admin Flask routes command"
       ansible.builtin.command:
         argv:
@@ -55,7 +54,6 @@
       changed_when: false
 
   rescue:
-
     - name: "Collect Mailu admin container logs after Flask readiness timeout"
       ansible.builtin.command:
         argv:

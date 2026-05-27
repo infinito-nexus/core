@@ -1,8 +1,10 @@
-import os
 import glob
 import unittest
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+
+from . import PROJECT_ROOT
 
 
 def find_application_ids():
@@ -11,13 +13,9 @@ def find_application_ids():
     Returns a dict mapping application_id to list of file paths where it appears.
     """
     ids = {}
-    # Wenn der Test unter tests/integration liegt, gehen wir zwei Ebenen hoch zum Projekt-Root
-    base_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")
-    )
-    pattern = os.path.join(base_dir, "roles", "*", "vars", "main.yml")
+    pattern = str(PROJECT_ROOT / "roles" / "*" / ROLE_FILE_VARS_MAIN)
 
-    for file_path in glob.glob(pattern):  # noqa: project-walk
+    for file_path in glob.glob(pattern):  # nocheck: project-walk
         data = load_yaml_any(file_path) or {}
         app_id = data.get("application_id")
         if app_id is not None:

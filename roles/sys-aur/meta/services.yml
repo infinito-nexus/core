@@ -1,2 +1,6 @@
+---
+# nocheck: required-by-coverage — TODO: declare proper required_by
 aur:
   lifecycle: beta
+  repository: https://aur.archlinux.org/yay.git # nocheck: url
+  ref: master

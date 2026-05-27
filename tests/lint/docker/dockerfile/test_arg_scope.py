@@ -18,11 +18,16 @@ from __future__ import annotations
 
 import re
 import unittest
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from utils.cache.files import read_text
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+from . import PROJECT_ROOT
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+_REPO_ROOT = PROJECT_ROOT
 _ROLES_ROOT = _REPO_ROOT / "roles"
 
 # Matches a FROM line that references at least one ${VAR}
@@ -54,9 +59,11 @@ def _undeclared_from_args(dockerfile: Path) -> list[tuple[int, str, str]]:
     # Pass 2 — check every FROM that references an ARG
     violations: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(lines, start=1):
-        for m in _FROM_ARG_RE.finditer(line):
-            if m.group(1) not in global_args:
-                violations.append((lineno, line.strip(), m.group(1)))
+        violations.extend(
+            (lineno, line.strip(), m.group(1))
+            for m in _FROM_ARG_RE.finditer(line)
+            if m.group(1) not in global_args
+        )
 
     return violations
 

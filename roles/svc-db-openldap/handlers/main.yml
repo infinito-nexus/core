@@ -1,3 +1,4 @@
+---
 - name: Load memberof module in OpenLDAP (cn=config via EXTERNAL)
   ansible.builtin.shell: >-
     container exec -i {{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}
@@ -60,7 +61,7 @@
   listen:
     - "Import groups LDIF files"
   register: ldapadd_result
-  changed_when: "'adding new entry' in (ldapadd_result.stdout | default(''))"
+  changed_when: "'adding new entry' in ldapadd_result.stdout"
   failed_when: ldapadd_result.rc not in [0, 20, 68, 65]
   loop: "{{ query('fileglob', role_path ~ '/templates/ldif/groups/*.j2') | sort }}"
   loop_control:

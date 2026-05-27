@@ -1,3 +1,4 @@
+---
 - name: reload system daemon
   command: /bin/true
   notify: "reload system daemon"

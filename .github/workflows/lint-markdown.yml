@@ -1,0 +1,28 @@
+name: "🔍 Lint: Markdown"
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-markdown:
+    name: 🧹 Lint Markdown
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install markdownlint-cli2
+        run: npm install -g markdownlint-cli2
+
+      - name: Run markdownlint-cli2
+        run: bash scripts/lint/markdown.sh

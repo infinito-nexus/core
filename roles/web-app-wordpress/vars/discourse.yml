@@ -1,14 +1,13 @@
+---
 # Defines WP Discourse plugin settings
 # @see https://github.com/discourse/wp-discourse
 
-# roles/web-app-wordpress/vars/discourse.yml
 # Defines WP Discourse plugin settings (exported from your current wp_options dump)
 #
-# Requirement 007 decision: wp-discourse `auto-publish` stays DISABLED by
-# default (Path A in docs/requirements/007-wordpress-discourse-post-round-trip.md).
-# The per-post "Publish to Discourse" sidebar toggle MUST remain the
-# default authoring path, because it matches the real editor workflow
-# and is therefore what the Playwright round-trip scenario drives.
+# wp-discourse `auto-publish` stays DISABLED by default. The per-post
+# "Publish to Discourse" sidebar toggle MUST remain the default
+# authoring path, because it matches the real editor workflow and is
+# therefore what the Playwright round-trip scenario drives.
 # Setting `discourse_publish.auto-publish: true` globally would bypass
 # exactly the plugin code path the test is meant to exercise.
 # If an operator wants network-wide auto-publish for a deployment they
@@ -16,7 +15,7 @@
 # commented-out default below.
 
 discourse_settings:
-  #- name: wpdc_discourse_domain
+  # - name: wpdc_discourse_domain
   #  key: wpdc_discourse_domain
   #  value: ""
 
@@ -85,7 +84,7 @@ discourse_settings:
   #- name: discourse_publish
   #  key: discourse-username-editable
   #  value: false
-#
+  #
   #- name: discourse_comment
   #  key: enable-discourse-comments
   #  value: false
@@ -140,7 +139,7 @@ discourse_settings:
   #- name: discourse_comment
   #  key: load-comment-css
   #  value: false
-#
+  #
   #- name: discourse_configurable_text
   #  key: discourse-link-text
   #  value: ""
@@ -192,7 +191,7 @@ discourse_settings:
   #- name: discourse_configurable_text
   #  key: linked-to-discourse-text
   #  value: "Your account is linked with Discourse!"
-#
+  #
   #- name: discourse_webhook
   #  key: use-discourse-webhook
   #  value: false
@@ -208,11 +207,11 @@ discourse_settings:
   #- name: discourse_webhook
   #  key: webhook-match-user-email
   #  value: false
-#
+  #
   #- name: discourse_sso_common
   #  key: sso-secret
   #  value: ""
-#
+  #
   #- name: discourse_sso_provider
   #  key: enable-sso
   #  value: false
@@ -231,7 +230,7 @@ discourse_settings:
   #- name: discourse_sso_provider
   #  key: redirect-without-login
   #  value: false
-#
+  #
   #- name: discourse_sso_client
   #  key: sso-desktop-enabled
   #  value: false
@@ -250,7 +249,7 @@ discourse_settings:
   #- name: discourse_sso_client
   #  key: sso-desktop-sync-logout
   #  value: false
-#
+  #
   - name: discourse_logs
     key: logs-enabled
     value: "{{ MODE_DEBUG }}"

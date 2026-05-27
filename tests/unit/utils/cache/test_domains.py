@@ -18,6 +18,9 @@ from unittest.mock import patch
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import domains as cache_domains
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
+
+from . import PROJECT_ROOT
 
 
 def _write(path: Path, content: str) -> None:
@@ -28,7 +31,7 @@ def _write(path: Path, content: str) -> None:
 def _seed_minimal_role(tmp: Path) -> Path:
     role = tmp / "roles" / "web-app-foo"
     _write(
-        role / "meta" / "services.yml",
+        role / ROLE_FILE_META_SERVICES,
         """
         server:
           domains:
@@ -37,7 +40,7 @@ def _seed_minimal_role(tmp: Path) -> Path:
             aliases: []
         """,
     )
-    _write(role / "meta" / "users.yml", "users: {}\n")
+    _write(role / ROLE_FILE_META_USERS, "users: {}\n")
     return tmp / "roles"
 
 
@@ -45,7 +48,7 @@ class TestMissingPrimaryDomain(unittest.TestCase):
     def setUp(self) -> None:
         _reset_cache_for_tests()
 
-    def test_raises_when_DOMAIN_PRIMARY_missing(self):
+    def test_raises_when_domain_primary_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_role(Path(tmp))
             with self.assertRaisesRegex(ValueError, "DOMAIN_PRIMARY"):
@@ -53,7 +56,7 @@ class TestMissingPrimaryDomain(unittest.TestCase):
                     variables={}, roles_dir=roles, templar=None
                 )
 
-    def test_falls_back_to_SYSTEM_EMAIL_DOMAIN(self):
+    def test_falls_back_to_system_email_domain(self):
         # Pure-python smoke: when DOMAIN_PRIMARY is absent but
         # SYSTEM_EMAIL_DOMAIN is set, the function should NOT raise.
         # The actual canonical-domains-map computation is exercised
@@ -99,7 +102,7 @@ class TestCachingPerVariablesSignature(unittest.TestCase):
             self.assertEqual(mocked.call_count, 1)
             self.assertEqual(first, second)
 
-    def test_different_DOMAIN_PRIMARY_misses_cache(self):
+    def test_different_domain_primary_misses_cache(self):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_role(Path(tmp))
             with patch(
@@ -152,12 +155,11 @@ class TestImportableWithoutAnsible(unittest.TestCase):
 
     def test_module_imports_without_ansible(self):
         import subprocess
-        from pathlib import Path
 
-        repo_root = Path(__file__).resolve().parents[4]
+        repo_root = PROJECT_ROOT
         snippet = (
             "import sys\n"
-            "sys.path.insert(0, %r)\n"
+            f"sys.path.insert(0, {str(repo_root)!r})\n"
             "class _Block:\n"
             "    def find_spec(self, name, path=None, target=None):\n"
             "        if name == 'ansible' or name.startswith('ansible.'):\n"
@@ -167,13 +169,14 @@ class TestImportableWithoutAnsible(unittest.TestCase):
             "from utils.cache.domains import get_merged_domains\n"
             "assert callable(get_merged_domains)\n"
             "print('OK')\n"
-        ) % str(repo_root)
+        )
         result = subprocess.run(
             [sys.executable, "-c", snippet],
             capture_output=True,
             text=True,
             cwd=str(repo_root),
             timeout=60,
+            check=False,
         )
         self.assertEqual(
             result.returncode,

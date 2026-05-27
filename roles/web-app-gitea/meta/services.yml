@@ -1,25 +1,31 @@
-oidc:
-  enabled: false
-  shared: false
+---
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 ldap:
-  enabled: true
-  shared: true
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+oidc:
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-mariadb' in group_names }}"
+# nocheck: playwright-service-flag — self-provider
+gitea:
   enabled: true
   shared: true
-gitea:
+  provides: gitea
   image: gitea/gitea
   version: latest
   min_storage: 10GB
@@ -30,24 +36,27 @@ gitea:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-  title: '{{ SOFTWARE_NAME }} Code Hub'
+  title: "{{ SOFTWARE_NAME }} Code Hub"
   configuration:
     repository:
       enable_push_create_user: true
       default_private: last
       default_push_create_private: true
   ports:
-    inter: 3000
+    internal:
+      http: 3000
     local:
       oauth2: 16488
       http: 8002
     public:
       ssh: 2201
   run_after:
-  - web-app-matomo
-  - web-app-keycloak
-  - web-app-mailu
+    - web-app-matomo
+    - web-app-keycloak
+    - web-app-mailu
   lifecycle: beta
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
@@ -59,17 +68,19 @@ redis:
 oauth2:
   origin:
     host: application
-    port: '{{ lookup(''config'', ''web-app-gitea'', ''services.gitea.ports.inter'') }}'
+    port: "{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.internal.http') }}"
   acl:
     blacklist:
-    - /user/login
-  enabled: false
+      - /user/login
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
   native_metrics:
     enabled: true
     port: 3000

@@ -1,3 +1,4 @@
+---
 - name: Fail if system_service_id contains "@"
   assert:
     that:

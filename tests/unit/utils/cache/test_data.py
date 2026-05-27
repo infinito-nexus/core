@@ -23,6 +23,7 @@ from utils.cache.users import (
     _merge_users,
     get_user_defaults,
 )
+from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_META_USERS
 
 
 def _write(path: Path, content: str) -> None:
@@ -151,19 +152,19 @@ class TestStableVariablesSignature(unittest.TestCase):
 
 class TestLoadUserDefs(unittest.TestCase):
     def test_merges_non_conflicting_across_roles(self):
-        # Per req-008 the file root of meta/users.yml IS the users map
+        # Per the file root of meta/users.yml IS the users map
         # (no `users:` wrapper).
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "role-a/meta/users.yml",
+                roles / f"role-a/{ROLE_FILE_META_USERS}",
                 """
                 alice:
                   username: alice
                 """,
             )
             _write(
-                roles / "role-b/meta/users.yml",
+                roles / f"role-b/{ROLE_FILE_META_USERS}",
                 """
                 alice:
                   email: alice@x
@@ -179,14 +180,14 @@ class TestLoadUserDefs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "role-a/meta/users.yml",
+                roles / f"role-a/{ROLE_FILE_META_USERS}",
                 """
                 alice:
                   uid: 1001
                 """,
             )
             _write(
-                roles / "role-b/meta/users.yml",
+                roles / f"role-b/{ROLE_FILE_META_USERS}",
                 """
                 alice:
                   uid: 2002
@@ -199,12 +200,12 @@ class TestLoadUserDefs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "role-a/meta/users.yml",
+                roles / f"role-a/{ROLE_FILE_META_USERS}",
                 """
                 alice: "not-a-dict"
                 """,
             )
-            with self.assertRaisesRegex(ValueError, "Invalid definition"):
+            with self.assertRaisesRegex(TypeError, "Invalid definition"):
                 _load_user_defs(roles)
 
 
@@ -325,12 +326,12 @@ class TestGetApplicationDefaults(unittest.TestCase):
         _reset_cache_for_tests()
 
     def test_reads_role_config_files(self):
-        # Per req-008 the server topic now lives in its own
+        # Per the server topic now lives in its own
         # `meta/server.yml`, not nested inside `meta/services.yml`.
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "web-app-alpha/meta/server.yml",
+                roles / f"web-app-alpha/{ROLE_FILE_META_SERVER}",
                 """
                 domains:
                   canonical:
@@ -338,7 +339,7 @@ class TestGetApplicationDefaults(unittest.TestCase):
                 """,
             )
             _write(
-                roles / "web-app-beta/meta/server.yml",
+                roles / f"web-app-beta/{ROLE_FILE_META_SERVER}",
                 """
                 domains:
                   canonical:
@@ -357,13 +358,13 @@ class TestGetApplicationDefaults(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "web-app-alpha/meta/server.yml",
+                roles / f"web-app-alpha/{ROLE_FILE_META_SERVER}",
                 """
                 {}
                 """,
             )
             _write(
-                roles / "web-app-alpha/meta/users.yml",
+                roles / f"web-app-alpha/{ROLE_FILE_META_USERS}",
                 """
                 administrator:
                   username: administrator
@@ -379,7 +380,7 @@ class TestGetApplicationDefaults(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "web-app-alpha/meta/server.yml",
+                roles / f"web-app-alpha/{ROLE_FILE_META_SERVER}",
                 """
                 domains:
                   canonical:
@@ -403,7 +404,7 @@ class TestGetUserDefaults(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "web-app-alpha/meta/users.yml",
+                roles / f"web-app-alpha/{ROLE_FILE_META_USERS}",
                 """
                 administrator:
                   username: administrator
@@ -428,7 +429,7 @@ class TestGetUserDefaults(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
-                roles / "web-app-alpha/meta/users.yml",
+                roles / f"web-app-alpha/{ROLE_FILE_META_USERS}",
                 """
                 administrator:
                   username: administrator
@@ -492,19 +493,18 @@ def _run_in_ansible_blocked_subprocess(snippet: str):
     """
     import subprocess
     import sys
-    from pathlib import Path
 
-    repo_root = Path(__file__).resolve().parents[4]
+    repo_root = PROJECT_ROOT
     preamble = (
         "import sys\n"
-        "sys.path.insert(0, %r)\n"
+        f"sys.path.insert(0, {str(repo_root)!r})\n"
         "class _Block:\n"
         "    def find_spec(self, name, path=None, target=None):\n"
         "        if name == 'ansible' or name.startswith('ansible.'):\n"
         "            raise ImportError(f'blocked: {name}')\n"
         "        return None\n"
         "sys.meta_path.insert(0, _Block())\n"
-    ) % str(repo_root)
+    )
     code = preamble + snippet
     result = subprocess.run(
         [sys.executable, "-c", code],
@@ -512,6 +512,7 @@ def _run_in_ansible_blocked_subprocess(snippet: str):
         text=True,
         cwd=str(repo_root),
         timeout=60,
+        check=False,
     )
     return result.returncode, result.stdout, result.stderr
 
@@ -520,7 +521,7 @@ class TestImportableWithoutAnsible(unittest.TestCase):
     """Pin: `utils.cache.applications` MUST be importable AND its
     hot-path callables MUST run without `ansible` on sys.path.
 
-    Why pin: the `cli.deploy.development` CLI runs on the GitHub Actions
+    Why pin: the `cli.administration.deploy.development` CLI runs on the GitHub Actions
     runner host (see scripts/tests/deploy/ci/dedicated.sh) where the
     runner Python has no `ansible` package. The original CI failure
     (run 24934007615) was at *import* time. The follow-up CI failure
@@ -546,10 +547,10 @@ class TestImportableWithoutAnsible(unittest.TestCase):
 
     def test_inventory_module_importable_without_ansible(self):
         # The actual call chain that broke in CI run 24934007615:
-        #   cli.deploy.development.init -> .inventory ->
+        #   cli.administration.deploy.development.init -> .inventory ->
         #   utils.cache.applications
         rc, out, err = _run_in_ansible_blocked_subprocess(
-            "from cli.deploy.development.inventory import "
+            "from cli.administration.deploy.development.inventory import "
             "plan_dev_inventory_matrix\n"
             "assert callable(plan_dev_inventory_matrix)\n"
             "print('OK')\n"
@@ -580,12 +581,12 @@ class TestImportableWithoutAnsible(unittest.TestCase):
 
     def test_plan_dev_inventory_matrix_callable_without_ansible(self):
         # Same exhaustive shape as above, one level higher: the actual
-        # CLI path is `cli.deploy.development.init.handler` ->
+        # CLI path is `cli.administration.deploy.development.init.handler` ->
         # `plan_dev_inventory_matrix(...)` -> `get_variants(...)`. We
         # invoke the planner so a future regression at any layer of
         # this chain trips here.
         rc, out, err = _run_in_ansible_blocked_subprocess(
-            "from cli.deploy.development.inventory import "
+            "from cli.administration.deploy.development.inventory import "
             "plan_dev_inventory_matrix\n"
             "from utils.cache.applications import get_variants\n"
             "from utils.cache.base import ROLES_DIR\n"
@@ -597,10 +598,11 @@ class TestImportableWithoutAnsible(unittest.TestCase):
             "    base_inventory_dir='/tmp/_inv_unused',\n"
             ")\n"
             "assert len(plan) > 0\n"
-            "round_index, inv_dir, round_variants, include_R = plan[0]\n"
+            "round_index, inv_dir, round_variants, include_R, purge_set_R = plan[0]\n"
             "assert round_index == 0\n"
             "assert sample[0] in round_variants\n"
             "assert sample[0] in include_R\n"
+            "assert sample[0] in purge_set_R\n"
             "print('OK')\n"
         )
         self.assertEqual(rc, 0, msg=f"stderr=\n{err}\nstdout=\n{out}")

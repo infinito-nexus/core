@@ -1,3 +1,4 @@
+---
 csp:
   flags:
     style-src-attr:
@@ -8,22 +9,22 @@ csp:
       unsafe-eval: true
   whitelist:
     worker-src:
-    - 'blob:'
+      - "blob:"
     font-src:
-    - 'data:'
-    - https://fonts.bunny.net
+      - "data:"
+      - https://fonts.bunny.net
     script-src-elem:
-    - https://cdn.gtranslate.net
-    - https://translate.google.com
-    - "{{ lookup('domain', 'web-app-wordpress') }}"
+      - https://cdn.gtranslate.net
+      - https://translate.google.com
+      - "{{ lookup('domain', 'web-app-wordpress') }}"
     style-src-elem:
-    - https://fonts.bunny.net
+      - https://fonts.bunny.net
     frame-src:
-    - 'blob:'
-    - '*'
+      - "blob:"
+      - "*"
 domains:
   canonical:
-  - blog.{{ DOMAIN_PRIMARY }}
+    - blog.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

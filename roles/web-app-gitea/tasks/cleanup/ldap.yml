@@ -1,3 +1,4 @@
+---
 - name: "Lookup existing LDAP auth source ID"
   shell: |
     container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \

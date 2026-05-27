@@ -1,43 +1,48 @@
-# Build BookWyrm from source (no upstream image available)
-ARG BOOKWYRM_BASE_IMAGE
-ARG BOOKWYRM_BASE_VERSION
-FROM ${BOOKWYRM_BASE_IMAGE}:${BOOKWYRM_BASE_VERSION} AS builder
+# BookWyrm v0.8+ uses pyproject.toml/PEP735, so the install needs pip>=25.1 for `--group`.
+ARG BOOKWYRM_IMAGE
+ARG BOOKWYRM_VERSION
+FROM ${BOOKWYRM_IMAGE}:${BOOKWYRM_VERSION} AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# libsass-dev + SYSTEM_SASS=True avoids the in-tree libsass build (~25 min on arm64).
+RUN rm -rf /var/lib/apt/lists/* \
+  && apt-get update && apt-get install -y --no-install-recommends \
     git build-essential libpq-dev \
     libjpeg-dev zlib1g-dev libxml2-dev libxslt1-dev libffi-dev libmagic-dev \
+    libsass-dev gettext tidy \
   && rm -rf /var/lib/apt/lists/*
 
+ENV SYSTEM_SASS=True
+
 WORKDIR /src
-# Shallow clone the chosen tag/branch
-ARG BOOKWYRM_VERSION
-RUN git clone --depth=1 --branch "${BOOKWYRM_VERSION}" https://github.com/bookwyrm-social/bookwyrm.git .
+ARG BOOKWYRM_REPOSITORY
+ARG BOOKWYRM_REF
+RUN git clone --depth=1 --branch "${BOOKWYRM_REF}" "${BOOKWYRM_REPOSITORY}" .
 
-# Pre-install Python deps to a wheelhouse for faster final image
-RUN pip install --upgrade pip \
- && pip wheel --wheel-dir /wheels -r requirements.txt \
- && pip wheel --wheel-dir /wheels gunicorn
+# Resolve PEP 735 `[dependency-groups].main` into an isolated venv.
+RUN python -m venv /venv \
+ && /venv/bin/pip install --upgrade "pip>=25.1.0" \
+ && /venv/bin/pip install --group main
 
-FROM ${BOOKWYRM_BASE_IMAGE}:${BOOKWYRM_BASE_VERSION}
+
+FROM ${BOOKWYRM_IMAGE}:${BOOKWYRM_VERSION}
 ENV PYTHONUNBUFFERED=1
+ENV PATH=/venv/bin:$PATH
+ENV SYSTEM_SASS=True
 WORKDIR /app
 
-# Copy app source and wheels
-COPY --from=builder /src /app
-COPY --from=builder /wheels /wheels
-
-# System deps for runtime
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# libsass1 is the runtime sibling of the build-time libsass-dev.
+RUN rm -rf /var/lib/apt/lists/* \
+  && apt-get update && apt-get install -y --no-install-recommends \
     libpq5 curl \
     libjpeg62-turbo zlib1g libxml2 libxslt1.1 libffi8 libmagic1 \
-  && rm -rf /var/lib/apt/lists/* \
-  && pip install --no-cache-dir --no-index --find-links=/wheels -r /app/requirements.txt \
-  && pip install --no-cache-dir --no-index --find-links=/wheels gunicorn \
-  && adduser --disabled-password --gecos '' bookwyrm \
-  && mkdir -p /app/data /app/media \
-  && chown -R bookwyrm:bookwyrm /app
+    libsass1 gettext tidy \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /venv /venv
+COPY --from=builder /src /app
+
+RUN adduser --disabled-password --gecos '' bookwyrm \
+ && mkdir -p /app/data /app/media \
+ && chown -R bookwyrm:bookwyrm /app /venv
 
 USER bookwyrm
-
-# Gunicorn/Celery are configured by upstream files in repo
-# Ports/healthcheck handled by compose template

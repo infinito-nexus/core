@@ -1,5 +1,5 @@
-# Matrix-deploy variant overrides for this role (requirement 013
-# alpha-to-beta promotion). Variant 0 is the canonical OIDC variant
+---
+# Matrix-deploy variant overrides for this role. Variant 0 is the canonical OIDC variant
 # (default), where Joomla speaks OIDC natively via the `plg_system_keycloak`
 # plugin shipped under `files/joomla-oidc-plugin/`. Variant 1 flips
 # to the LDAP variant: OIDC is disabled and Joomla's core LDAP
@@ -8,13 +8,52 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: OIDC variant (canonical default; native plg_system_keycloak).
-- {}
 
-# variant 1: LDAP variant. Disable OIDC, enable LDAP so the
-# integrated LDAP login path through Joomla's admin form is the
-# exercised auth path.
+- services:
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oidc:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
 - services:
     oidc:
       enabled: false
-    ldap:
-      enabled: true
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    mariadb:
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false

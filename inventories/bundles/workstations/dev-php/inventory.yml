@@ -1,3 +1,4 @@
+---
 all:
   vars:
     SYS_PACKAGES:
@@ -14,10 +15,8 @@ all:
           class: "fa-brands fa-php"
         tags: []
         categories: []
-
   hosts:
     workstation:
-
   children:
     desk-git:
       hosts:

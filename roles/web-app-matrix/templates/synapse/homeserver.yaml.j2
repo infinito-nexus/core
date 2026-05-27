@@ -2,7 +2,7 @@ server_name: "{{ MATRIX_SERVER_NAME }}"
 pid_file: /data/homeserver.pid
 max_upload_size: {{ webserver_client_max_body_size }}
 listeners:
-  - port: 8008
+  - port: {{ MATRIX_SYNAPSE_CONTAINER_PORT }}
     tls: false
     type: http
     x_forwarded: true

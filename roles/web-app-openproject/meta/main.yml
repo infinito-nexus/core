@@ -1,15 +1,28 @@
+---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: 'Transform your project management with OpenProject, a vibrant and collaborative tool that brings clarity and energy to your planning, tracking, and team communication. Experience streamlined workflows and an innovative platform that propels your projects forward.
-
-    '
+  description: Deploys OpenProject, a project-management platform for planning, tracking, and team communication with streamlined workflows and reporting.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: "Kevin Veen-Birkenbach  \nConsulting & Coaching Solutions  \nhttps://www.veen.world\n"
-  min_ansible_version: '2.9'
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
   platforms:
-    - name: Archlinux
+    - name: ArchLinux
       versions:
-        - rolling
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
   galaxy_tags:
     - openproject
     - project-management

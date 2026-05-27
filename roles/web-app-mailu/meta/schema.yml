@@ -1,3 +1,4 @@
+---
 credentials:
   secret_key:
     description: Secret key for cryptographic operations in Mailu (must be a 16-byte random string, hex-encoded)

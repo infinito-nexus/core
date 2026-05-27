@@ -6,7 +6,7 @@
     container_name: {{ AKAUNTING_CONTAINER }}
     image: "{{ AKAUNTING_IMAGE }}:{{ AKAUNTING_VERSION }}"
     build:
-      context:    {{ docker_repository_path }}
+      context:    {{ compose_repository_path }}
       dockerfile: Dockerfile
     pull_policy: never
     ports:
@@ -19,11 +19,10 @@
 {% endif %}
 {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': AKAUNTING_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

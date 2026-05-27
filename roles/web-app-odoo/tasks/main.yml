@@ -3,19 +3,19 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
+    compose_handlers_flush: false
 
 - name: "Create Odoo addons directory"
   file:
     path: "{{ ODOO_ADDONS_HOST }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Deploy Odoo configuration file"
   template:
     src: "odoo.conf.j2"
     dest: "{{ ODOO_CONF_FILE_HOST }}"
-    mode: '0644'
+    mode: "0644"
   notify:
     - compose up
 
@@ -23,7 +23,7 @@
   copy:
     src: "addons/"
     dest: "{{ ODOO_ADDONS_HOST }}"
-    mode: '0644'
+    mode: "0644"
   notify:
     - compose up
     - compose build

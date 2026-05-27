@@ -1,4 +1,4 @@
-# 🌐 DNS Setup Scripts
+# DNS Setup Scripts 🌐
 
 This directory contains platform-specific scripts for setting up local DNS resolution for the `infinito.example` domain (and subdomains) on the development machine.
 
@@ -6,9 +6,9 @@ All scripts map `*.infinito.example` → `127.0.0.1` so that local deployments a
 
 ---
 
-## 📄 Scripts
+## Scripts 📄
 
-### 🐧 `linux.sh`
+### `linux.sh` 🐧
 
 General-purpose DNS setup for Linux systems. Supports multiple strategies depending on the environment:
 
@@ -18,7 +18,7 @@ General-purpose DNS setup for Linux systems. Supports multiple strategies depend
 
 Shared helper functions are sourced from [`../common.sh`](../common.sh).
 
-### 🪟 `wsl.sh`
+### `wsl.sh` 🪟
 
 WSL2-specific DNS setup. Only executes when running inside a WSL2 environment (detected via `/proc/version`). Configures:
 
@@ -29,7 +29,7 @@ WSL2-specific DNS setup. Only executes when running inside a WSL2 environment (d
 
 ---
 
-## 🔗 Related
+## Related 🔗
 
 - [Makefile Commands](../../../../../docs/contributing/tools/make.md). canonical Make target index for this area
 - [`../remove.sh`](../remove.sh). teardown script that undoes the DNS configuration

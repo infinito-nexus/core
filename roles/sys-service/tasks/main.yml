@@ -1,3 +1,4 @@
+---
 - name: "Reload sys-daemon handlers"
   include_tasks: utils/load_handlers.yml
   vars:

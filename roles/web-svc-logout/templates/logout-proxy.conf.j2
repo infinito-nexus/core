@@ -6,9 +6,8 @@ location = /logout {
     proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
     proxy_set_header   X-Forwarded-Proto $scheme;
     proxy_http_version 1.1;
-    {% if lookup('tls', application_id, 'enabled') | bool %}
-    proxy_hide_header Strict-Transport-Security;
-    {% endif %}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
     {# CORS headers – allow your central page to call this #}
     {%- set aca_origin = (lookup('tls', 'web-svc-logout', 'url.base') | regex_replace('/$', '')) ~ " always" -%}

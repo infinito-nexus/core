@@ -8,14 +8,14 @@ holds:
   (a) Self-declared shared: its primary entity in ``meta/services.yml``
       carries ``shared: true``.
   (b) Self-declared via ``provides:`` or alias entries that point at the
-      primary entity (mirrors ``utils.service_registry``).
+      primary entity (mirrors ``utils.roles.applications.services.registry``).
   (c) Consumer-activated: at least one other role's ``meta/services.yml``
       declares ``services.<provider-key>.enabled: true; shared: true``,
       which the variant-aware deploy planner resolves to this role.
 
 In every case the role can be pulled in dynamically by
-``sys-utils-service-loader``'s ``load_app.yml`` (which gates inclusion
-on ``run_once_<role>``) — both directly when listed in ``APPS=`` and
+``sys-service-loader``'s ``load_app.yml`` (which gates inclusion
+on ``run_once_<role>``) — both directly when listed in ``INFINITO_APPS=`` and
 transitively when a consumer's variant aktivates it. Without the guard
 in ``tasks/main.yml`` the loader can include the role multiple times
 and trigger duplicate execution or infinite recursion.
@@ -33,34 +33,30 @@ shape on top of this baseline.
 import re
 import unittest
 from pathlib import Path
-from typing import List, Set
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
-from utils.service_registry import build_service_registry_from_roles_dir
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_roles_dir,
+)
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TASKS_MAIN
 
-
-def repo_root() -> Path:
-    here = Path(__file__).resolve()
-    for parent in here.parents:
-        if (parent / "pyproject.toml").is_file():
-            return parent
-    raise AssertionError("Repository root not found from test path.")
+from . import PROJECT_ROOT
 
 
 def _role_slug(role_name: str) -> str:
     return role_name.replace("-", "_")
 
 
-def _consumer_activated_provider_roles(roles_dir: Path, registry: dict) -> Set[str]:
+def _consumer_activated_provider_roles(roles_dir: Path, registry: dict) -> set[str]:
     """For every ``services.<X>.enabled: true; shared: true`` claim in
     any role's ``meta/services.yml``, return the resolved provider role
     name (when ``<X>`` is registered)."""
-    activated: Set[str] = set()
+    activated: set[str] = set()
     for role_path in sorted(roles_dir.iterdir()):
         if not role_path.is_dir():
             continue
-        services_file = role_path / "meta" / "services.yml"
+        services_file = role_path / ROLE_FILE_META_SERVICES
         if not services_file.is_file():
             continue
         data = load_yaml(services_file, default_if_missing={}) or {}
@@ -78,10 +74,10 @@ def _consumer_activated_provider_roles(roles_dir: Path, registry: dict) -> Set[s
     return activated
 
 
-def _self_declared_provider_roles_from_registry(registry: dict) -> Set[str]:
+def _self_declared_provider_roles_from_registry(registry: dict) -> set[str]:
     """Return the set of unique provider role names from the registry.
     Skip alias entries (they re-point to a canonical primary)."""
-    providers: Set[str] = set()
+    providers: set[str] = set()
     for entry in registry.values():
         if not isinstance(entry, dict):
             continue
@@ -95,7 +91,7 @@ def _self_declared_provider_roles_from_registry(registry: dict) -> Set[str]:
 
 class TestSharedServiceRunOnceGuard(unittest.TestCase):
     def test_every_shared_service_role_has_run_once_guard(self):
-        root = repo_root()
+        root = PROJECT_ROOT
         roles_dir = root / "roles"
         self.assertTrue(
             roles_dir.is_dir(), f"'roles' directory not found at: {roles_dir}"
@@ -109,7 +105,7 @@ class TestSharedServiceRunOnceGuard(unittest.TestCase):
         provider_roles = _self_declared_provider_roles_from_registry(registry)
         provider_roles |= _consumer_activated_provider_roles(roles_dir, registry)
 
-        violations: List[str] = []
+        violations: list[str] = []
         for role_name in sorted(provider_roles):
             role_path = roles_dir / role_name
             if not role_path.is_dir():
@@ -119,7 +115,7 @@ class TestSharedServiceRunOnceGuard(unittest.TestCase):
                 )
                 continue
 
-            main_yml = role_path / "tasks" / "main.yml"
+            main_yml = role_path / ROLE_FILE_TASKS_MAIN
             if not main_yml.is_file():
                 violations.append(
                     f"{role_name}: registered as a service provider but "

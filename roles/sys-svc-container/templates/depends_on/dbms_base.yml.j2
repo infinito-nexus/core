@@ -1,8 +1,0 @@
-{% if not lookup('database', application_id, 'shared') %}
-      {{ lookup('database', application_id, 'host') }}:
-        condition: service_healthy
-{% endif %}
-{% if lookup('applications') | is_docker_service_enabled(application_id, 'redis') %}
-      redis:
-        condition: service_healthy
-{% endif %}

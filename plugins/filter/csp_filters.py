@@ -1,8 +1,10 @@
-from ansible.errors import AnsibleFilterError
-import hashlib
 import base64
-from utils.applications.config import get
+import hashlib
+
+from ansible.errors import AnsibleFilterError
+
 from utils.get_url import get_url
+from utils.roles.applications.config import get
 
 
 def _dedup_preserve(seq):
@@ -38,7 +40,7 @@ def _sort_tokens(tokens):
     return uniq
 
 
-class FilterModule(object):
+class FilterModule:
     """
     Jinja filters for building a robust, CSP3-aware Content-Security-Policy header.
     Safari/CSP2 compatibility is ensured by merging the -elem/-attr variants into the base
@@ -69,9 +71,9 @@ class FilterModule(object):
                 existing.append(snippet)
             app_entry[directive] = existing
             result[application_id] = app_entry
-            return result
         except Exception as exc:
-            raise AnsibleFilterError(f"add_csp_hash failed: {exc}")
+            raise AnsibleFilterError(f"add_csp_hash failed: {exc}") from exc
+        return result
 
     # -------------------------------
     # Helpers
@@ -166,9 +168,9 @@ class FilterModule(object):
         try:
             digest = hashlib.sha256(content.encode("utf-8")).digest()
             b64 = base64.b64encode(digest).decode("utf-8")
-            return f"'sha256-{b64}'"
         except Exception as exc:
-            raise AnsibleFilterError(f"get_csp_hash failed: {exc}")
+            raise AnsibleFilterError(f"get_csp_hash failed: {exc}") from exc
+        return f"'sha256-{b64}'"
 
     @staticmethod
     def get_extra_values(extra_mapping, directive):
@@ -266,24 +268,24 @@ class FilterModule(object):
                     tokens.append(get_url(domains, "web-svc-cdn", web_protocol))
 
                 # Matomo (if enabled via services.matomo.enabled)
-                if directive in ("script-src-elem", "connect-src"):
-                    if self.is_feature_enabled(applications, "matomo", application_id):
-                        tokens.append(get_url(domains, "web-app-matomo", web_protocol))
+                if directive in (
+                    "script-src-elem",
+                    "connect-src",
+                ) and self.is_feature_enabled(applications, "matomo", application_id):
+                    tokens.append(get_url(domains, "web-app-matomo", web_protocol))
 
                 # Simpleicons (if enabled via services.simpleicons.enabled) – typically used via connect-src (fetch)
-                if directive == "connect-src":
-                    if self.is_feature_enabled(
-                        applications, "simpleicons", application_id
-                    ):
-                        tokens.append(
-                            get_url(domains, "web-svc-simpleicons", web_protocol)
-                        )
+                if directive == "connect-src" and self.is_feature_enabled(
+                    applications, "simpleicons", application_id
+                ):
+                    tokens.append(get_url(domains, "web-svc-simpleicons", web_protocol))
 
                 # reCAPTCHA (if enabled via services.recaptcha.enabled) – scripts + frames
-                if self.is_feature_enabled(applications, "recaptcha", application_id):
-                    if directive in ("script-src-elem", "frame-src"):
-                        tokens.append("https://www.gstatic.com")  # nocheck: url
-                        tokens.append("https://www.google.com")
+                if self.is_feature_enabled(
+                    applications, "recaptcha", application_id
+                ) and directive in ("script-src-elem", "frame-src"):
+                    tokens.append("https://www.gstatic.com")  # nocheck: url
+                    tokens.append("https://www.google.com")
 
                 # hCaptcha (if enabled via services.hcaptcha.enabled) – scripts + frames
                 if self.is_feature_enabled(applications, "hcaptcha", application_id):
@@ -308,9 +310,11 @@ class FilterModule(object):
                         )
 
                 # Logout support requires inline handlers (script-src-attr + script-src-elem)
-                if directive in ("script-src-attr", "script-src-elem"):
-                    if self.is_feature_enabled(applications, "logout", application_id):
-                        tokens.append("'unsafe-inline'")
+                if directive in (
+                    "script-src-attr",
+                    "script-src-elem",
+                ) and self.is_feature_enabled(applications, "logout", application_id):
+                    tokens.append("'unsafe-inline'")
 
                 # Custom whitelist
                 tokens += self.get_csp_whitelist(
@@ -371,9 +375,11 @@ class FilterModule(object):
                 tokens_by_dir[directive] = _sort_tokens(toks)
 
             parts = []
-            for directive in directives:
-                if directive in tokens_by_dir:
-                    parts.append(f"{directive} {' '.join(tokens_by_dir[directive])};")
+            parts.extend(
+                f"{directive} {' '.join(tokens_by_dir[directive])};"
+                for directive in directives
+                if directive in tokens_by_dir
+            )
 
             # Keep permissive img-src for data/blob + any host (as before)
             parts.append("img-src * data: blob:;")
@@ -381,4 +387,4 @@ class FilterModule(object):
             return " ".join(parts)
 
         except Exception as exc:
-            raise AnsibleFilterError(f"build_csp_header failed: {exc}")
+            raise AnsibleFilterError(f"build_csp_header failed: {exc}") from exc

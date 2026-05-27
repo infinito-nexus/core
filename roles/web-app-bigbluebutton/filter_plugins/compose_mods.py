@@ -3,7 +3,7 @@ import re
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
 
 
-def compose_mods(yml_text, docker_repository_path, env_file):
+def compose_mods(yml_text, compose_repository_path, env_file):
     # Named volume rewrites
     yml_text = re.sub(
         r"\./data/postgres:/var/lib/postgresql/data",
@@ -30,22 +30,22 @@ def compose_mods(yml_text, docker_repository_path, env_file):
     )
 
     # Make other ./ paths absolute to the given repository
-    yml_text = re.sub(r"\./", docker_repository_path.rstrip("/") + "/", yml_text)
+    yml_text = re.sub(r"\./", compose_repository_path.rstrip("/") + "/", yml_text)
 
     # Keep the old context helpers (harmless if YAML step below fixes everything)
     yml_text = re.sub(
         r"(^\s*context:\s*)mod/(.*)",
-        r"\1" + docker_repository_path.rstrip("/") + r"/mod/\2",
+        r"\1" + compose_repository_path.rstrip("/") + r"/mod/\2",
         yml_text,
         flags=re.MULTILINE,
     )
 
     def _prefix_mod(path: str) -> str:
-        """Prefix 'mod/...' (or './mod/...') with docker_repository_path, avoiding //."""
+        """Prefix 'mod/...' (or './mod/...') with compose_repository_path, avoiding //."""
         p = str(path).strip().strip("'\"")
         p = p.lstrip("./")
         if p.startswith("mod/"):
-            return docker_repository_path.rstrip("/") + "/" + p
+            return compose_repository_path.rstrip("/") + "/" + p
         return path
 
     try:
@@ -110,14 +110,13 @@ def compose_mods(yml_text, docker_repository_path, env_file):
         )
 
         yml_text = dump_yaml_str(data)
-    except Exception:
-        # leave the original yml_text as-is if parsing fails
+    except Exception:  # noqa: S110  best-effort filter — leave the original yml_text untouched if parsing fails
         pass
 
     return yml_text
 
 
-class FilterModule(object):
+class FilterModule:
     def filters(self):
         return {
             "compose_mods": compose_mods,

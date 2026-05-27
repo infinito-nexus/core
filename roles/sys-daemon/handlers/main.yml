@@ -1,3 +1,4 @@
+---
 - name: collect systemd unit files
   shell: |
     shopt -s nullglob

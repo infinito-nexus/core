@@ -3,10 +3,10 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers:  false
-    docker_git_repository_pull:     true
-    docker_git_repository_address:  "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
-    docker_git_repository_version:   "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+    compose_handlers_flush: false
+    compose_repository_pull: true
+    compose_repository_url: "{{ BBB_REPOSITORY }}"
+    compose_repository_ref: "{{ BBB_REF }}"
     webserver_extra_configuration: >-
       {{ lookup(
            'ansible.builtin.template',
@@ -19,41 +19,42 @@
          ) | trim }}
 
 - name: "Include Seed routines for '{{ application_id }}' database backup"
-  include_tasks: "{{ [ playbook_dir, 'roles/sys-ctl-bkp-docker-2-loc/tasks/04_seed-database-to-backup.yml' ] | path_join }}"
+  include_tasks: "{{ [ playbook_dir, 'roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml' ] | path_join }}"
   vars:
     database_consumer_id: "{{ application_id }}"
-    database_type:        "postgres"
-    database_instance:    "{{ entity_name }}"
-    database_host:        "127.0.0.1"
-    database_port:        "5432"
-    database_username:    "postgres"
-    database_password:    "{{ lookup('config', application_id, 'credentials.postgresql_secret') }}"
-    database_name:        "" # Multiple databases
+    database_type: "postgres"
+    database_instance: "{{ entity_name }}"
+    database_host: "127.0.0.1"
+    database_port: "5432"
+    database_username: "postgres"
+    database_password: "{{ lookup('config', application_id, 'credentials.postgresql_secret') }}"
+    database_name: "" # Multiple databases
+  when: "'svc-bkp-container-2-local' in group_names"
 
 - name: configure websocket_upgrade.conf
-  copy: 
-    src:  "websocket_upgrade.conf"
+  copy:
+    src: "websocket_upgrade.conf"
     dest: "{{ [ lookup('nginx','directories.configuration.maps'), 'websocket_upgrade.conf' ] | path_join }}"
   notify: restart openresty
 
 - name: "Set BBB Facts"
   set_fact:
-    BBB_ENV_FILE_LINK:        "{{ [ docker_repository_path, '.env' ] | path_join }}"
-    BBB_ENV_FILE_ORIGINE:     "{{ lookup('container', application_id, 'files.env') }}"
-    BBB_COMPOSE_FILE_ORIGINE: "{{ [ docker_repository_path, 'docker-compose.yml' ] | path_join }}"
-    BBB_COMPOSE_FILE_FINAL:   "{{ [ lookup('container', application_id, 'directories.instance'), 'compose.yml' ] | path_join }}"
+    BBB_ENV_FILE_LINK: "{{ [ compose_repository_path, '.env' ] | path_join }}"
+    BBB_ENV_FILE_ORIGINE: "{{ lookup('container', application_id, 'files.env') }}"
+    BBB_COMPOSE_FILE_ORIGINE: "{{ [ compose_repository_path, 'docker-compose.yml' ] | path_join }}"
+    BBB_COMPOSE_FILE_FINAL: "{{ [ lookup('container', application_id, 'directories.instance'), 'compose.yml' ] | path_join }}"
 
 - name: Write compose.override.yml for BigBlueButton
   template:
-    src:  compose.override.yml.j2
+    src: compose.override.yml.j2
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'compose.override.yml' ] | path_join }}"
   notify: compose up
 
 - name: Create symbolic link from .env file to target location
   file:
-    src:    "{{ BBB_ENV_FILE_ORIGINE }}"
-    dest:   "{{ BBB_ENV_FILE_LINK }}"
-    state:  link
+    src: "{{ BBB_ENV_FILE_ORIGINE }}"
+    dest: "{{ BBB_ENV_FILE_LINK }}"
+    state: link
 
 - name: "Setup compose.yml file"
   include_tasks: "02_compose.yml"

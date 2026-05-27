@@ -7,6 +7,7 @@ This directory contains project-specific Ansible modules used by Infinito.Nexus.
 Use `library/` for idempotent module logic that represents concrete automation actions.
 
 Typical cases:
+
 - managing resources that have no suitable built-in/community module,
 - wrapping internal APIs or internal infrastructure semantics,
 - implementing reusable module interfaces for role/playbook consumption.

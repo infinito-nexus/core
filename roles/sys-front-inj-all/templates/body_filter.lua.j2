@@ -1,0 +1,76 @@
+{# Jinja macro: expands feature snippets into Lua array pushes at render time #}
+{% macro push_snippets(list_name, features) -%}
+{% set kind = list_name | regex_replace('_snippets$','') %}
+{% for f in features if inj_enabled.get(f) -%}
+{{ list_name }}[#{{ list_name }} + 1] = [=[
+  {%- include 'roles/sys-front-inj-' ~ f ~ '/templates/' ~ kind ~ '_sub.j2' -%}
+]=]
+{% endfor -%}
+{%- endmacro %}
+
+-- Only process HTML responses
+if not ngx.ctx.is_html then
+    return
+end
+
+-- Buffer all chunks until EOF
+ngx.ctx.buf = ngx.ctx.buf or {}
+local chunk, eof = ngx.arg[1], ngx.arg[2]
+
+if chunk ~= "" then
+    table.insert(ngx.ctx.buf, chunk)
+end
+
+if not eof then
+    -- Swallow intermediate chunks; emit once at EOF
+    ngx.arg[1] = nil
+    return
+end
+
+-- Concatenate the full HTML
+local whole = table.concat(ngx.ctx.buf)
+ngx.ctx.buf = nil
+
+-- Remove inline CSP <meta http-equiv="Content-Security-Policy"> (case-insensitive)
+local meta_re = [[<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>\s*]]
+whole = ngx.re.gsub(whole, meta_re, "", "ijo")
+
+-- Build head snippets (rendered by Jinja at template time)
+local head_snippets = {}
+{{ push_snippets('head_snippets', inj_head_features) }}
+local head_payload = table.concat(head_snippets, "\n") .. "</head>"
+
+-- Inject before </head> (first occurrence)
+local function repl_head(_) return head_payload end
+local new, n, err = ngx.re.sub(whole, [[</head\s*>]], repl_head, "ijo")
+if new then
+    whole = new
+else
+    ngx.log(ngx.WARN, "No </head> found; trying <body> fallback: ", err or "nil")
+    -- Fallback: inject right AFTER the opening <body ...> tag
+    local body_open_re = [[<body\b[^>]*>]]
+    new, n, err = ngx.re.sub(whole, body_open_re, "$0\n" .. table.concat(head_snippets, "\n"), "ijo")
+    if new then
+        whole = new
+    else
+        ngx.log(ngx.ERR, "Head-fallback failed: ", err or "nil")
+    end
+end
+
+-- Build body snippets (rendered by Jinja at template time)
+local body_snippets = {}
+{{ push_snippets('body_snippets', inj_body_features) }}
+local body_payload = table.concat(body_snippets, "\n") .. "</body>"
+
+-- Inject before </body> (first occurrence), or append if missing
+local function repl_body(_) return body_payload end
+new, n, err = ngx.re.sub(whole, [[</body\s*>]], repl_body, "ijo")
+if new then
+    whole = new
+else
+    ngx.log(ngx.WARN, "No </body> found; appending body snippets at end: ", err or "nil")
+    whole = whole .. table.concat(body_snippets, "\n")
+end
+
+-- Emit the modified HTML
+ngx.arg[1] = whole or ""

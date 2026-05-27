@@ -1,1 +1,3 @@
+---
 system_service_id: sys-ctl-hlth-csp
+HEALTH_CSP_SKIP_DOMAINS: "{{ lookup('csp_skip_domains', group_names=lookup('deployment').deployed) }}"

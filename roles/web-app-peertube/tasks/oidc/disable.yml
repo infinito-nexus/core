@@ -1,3 +1,4 @@
+---
 - name: "Uninstall auth-openid-connect plugin for Peertube"
   command: >
     container exec {{ PEERTUBE_CONTAINER }} \

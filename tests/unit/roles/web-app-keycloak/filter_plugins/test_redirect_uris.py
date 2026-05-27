@@ -1,27 +1,13 @@
-import os
+import importlib.util
 import sys
 import types
 import unittest
-import importlib.util
 
-PLUGIN_REL_PATH = os.path.join(
-    "roles", "web-app-keycloak", "filter_plugins", "redirect_uris.py"
+from utils.cache import PROJECT_ROOT
+
+PLUGIN_PATH = (
+    PROJECT_ROOT / "roles" / "web-app-keycloak" / "filter_plugins" / "redirect_uris.py"
 )
-
-
-def _find_repo_root_containing(rel_path, max_depth=8):
-    """Walk upwards from this test file to find the repo root that contains rel_path."""
-    here = os.path.dirname(__file__)
-    cur = here
-    for _ in range(max_depth):
-        candidate = os.path.join(cur, rel_path)
-        if os.path.isfile(candidate):
-            return cur
-        parent = os.path.dirname(cur)
-        if parent == cur:
-            break
-        cur = parent
-    raise FileNotFoundError(f"Could not find {rel_path} upwards from {here}")
 
 
 def _load_module_from_path(name, file_path):
@@ -32,13 +18,26 @@ def _load_module_from_path(name, file_path):
     return module
 
 
+_STUBBED_MODULE_NAMES = (
+    "utils",
+    "utils.roles.applications",
+    "utils.roles.applications.config",
+    "utils.get_url",
+)
+
+
 class RedirectUrisTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Create stub package: utils, with applications.config and get_url submodules.
+        cls._orig_sys_modules = {
+            name: sys.modules[name]
+            for name in _STUBBED_MODULE_NAMES
+            if name in sys.modules
+        }
+
         mu = types.ModuleType("utils")
-        mu_apps = types.ModuleType("utils.applications")
-        mu_config = types.ModuleType("utils.applications.config")
+        mu_apps = types.ModuleType("utils.roles.applications")
+        mu_config = types.ModuleType("utils.roles.applications.config")
         mu_geturl = types.ModuleType("utils.get_url")
 
         # Define stub exceptions
@@ -74,14 +73,14 @@ class RedirectUrisTest(unittest.TestCase):
 
         # Register in sys.modules so plugin imports succeed
         sys.modules["utils"] = mu
-        sys.modules["utils.applications"] = mu_apps
-        sys.modules["utils.applications.config"] = mu_config
+        sys.modules["utils.roles.applications"] = mu_apps
+        sys.modules["utils.roles.applications.config"] = mu_config
         sys.modules["utils.get_url"] = mu_geturl
 
         # Load the plugin by path
-        repo_root = _find_repo_root_containing(PLUGIN_REL_PATH)
-        plugin_path = os.path.join(repo_root, PLUGIN_REL_PATH)
-        cls.plugin = _load_module_from_path("test_target.redirect_uris", plugin_path)
+        cls.plugin = _load_module_from_path(
+            "test_target.redirect_uris", str(PLUGIN_PATH)
+        )
 
         # Keep originals for per-test monkeypatching
         cls._orig_get = cls.plugin.get
@@ -91,6 +90,14 @@ class RedirectUrisTest(unittest.TestCase):
         # Restore plugin functions if a test monkeypatched them
         self.plugin.get = self._orig_get
         self.plugin.get_url = self._orig_get_url
+
+    @classmethod
+    def tearDownClass(cls):
+        for name in _STUBBED_MODULE_NAMES:
+            if name in cls._orig_sys_modules:
+                sys.modules[name] = cls._orig_sys_modules[name]
+            else:
+                sys.modules.pop(name, None)
 
     def test_single_domain_oauth2_enabled(self):
         domains = {"app1": "example.org"}

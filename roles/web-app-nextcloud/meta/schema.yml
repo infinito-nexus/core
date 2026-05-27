@@ -1,3 +1,4 @@
+---
 credentials:
   talk_recording_secret:
     description: Shared secret between Nextcloud Talk and the recording backend

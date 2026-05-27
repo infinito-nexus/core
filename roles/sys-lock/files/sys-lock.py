@@ -2,16 +2,14 @@
 import argparse
 import subprocess
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 # Global variable definition
 BREAK_TIME_SECONDS = 5
 
 
-class AttemptException(Exception):
+class AttemptError(Exception):
     """A custom exception for maximum number of attempts."""
-
-    pass
 
 
 def parse_time_to_seconds(time_str):
@@ -35,7 +33,7 @@ def check_service_active(service_name):
     Check if a systemd service is currently active or activating.
     """
     result = subprocess.run(
-        ["systemctl", "is-active", service_name], stdout=subprocess.PIPE
+        ["systemctl", "is-active", service_name], stdout=subprocess.PIPE, check=False
     )
     service_status = result.stdout.decode("utf-8").strip()
     is_active = service_status in ["active", "activating"]
@@ -65,11 +63,11 @@ def wait_for_all_services_to_stop(filtered_services, max_attempts, attempt):
         while check_service_active(service):
             attempt += 1
             if attempt > max_attempts:
-                raise AttemptException(
+                raise AttemptError(
                     f"Maximum attempts ({max_attempts}) reached. Exiting."
                 )
             print(
-                f"{datetime.now().isoformat()}#{attempt}/{max_attempts}: Waiting for {BREAK_TIME_SECONDS} seconds for {service} to stop..."
+                f"{datetime.now(tz=UTC).isoformat()}#{attempt}/{max_attempts}: Waiting for {BREAK_TIME_SECONDS} seconds for {service} to stop..."
             )
             time.sleep(BREAK_TIME_SECONDS)
     return attempt
@@ -119,6 +117,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     services = args.services
-    ignored_services = args.ignore if args.ignore else []
+    ignored_services = args.ignore or []
     timeout_seconds = parse_time_to_seconds(args.timeout)
     main(services, ignored_services, timeout_seconds)

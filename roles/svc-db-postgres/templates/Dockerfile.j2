@@ -1,16 +1,20 @@
 FROM {{ POSTGRES_IMAGE }}:{{ POSTGRES_VERSION }}
 
-{% if POSTGRES_VECTOR_ENABLED %}
-RUN apt-get update \
+{% if POSTGRES_LIBRARIES | length > 0 %}
+RUN rm -rf /var/lib/apt/lists/* \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
       build-essential \
       git \
       postgresql-server-dev-{{ POSTGRES_VERSION_MAJOR | default('all', true) }} \
- && git clone https://github.com/pgvector/pgvector.git /tmp/pgvector \
- && cd /tmp/pgvector \
+{% for lib in POSTGRES_LIBRARIES %}
+{# nocheck: repository-declared — extension source, not the role's primary repo #}
+ && git clone {{ lib.git_source }} /tmp/{{ lib.name }} \
+ && cd /tmp/{{ lib.name }} \
  && make \
  && make install \
- && rm -rf /tmp/pgvector \
+ && rm -rf /tmp/{{ lib.name }} \
+{% endfor %}
  && apt-get purge -y --auto-remove git build-essential \
  && rm -rf /var/lib/apt/lists/*
 {% endif %}

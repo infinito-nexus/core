@@ -1,6 +1,6 @@
 # DNS Helpers
 
-This is the SPOT for DNS helpers under `scripts/system/network/dns/`.
+This directory holds DNS helpers used during development and environment preparation.
 The folder contains the local name-resolution setup and teardown logic used during development and environment preparation.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../../docs/contributing/tools/make.md).
 

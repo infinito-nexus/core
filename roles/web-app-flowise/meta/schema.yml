@@ -1,3 +1,4 @@
+---
 credentials:
   llm_master_key:
     description: Master Key for LiteLLM

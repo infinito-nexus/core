@@ -1,3 +1,4 @@
+---
 - name: Install dotlinker via pkgmgr
   include_role:
     name: pkgmgr-install

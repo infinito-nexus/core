@@ -1,3 +1,4 @@
+---
 - name: "Set Hostname (Once)"
   include_tasks: 01_core.yml
   when: not (run_once_sys_hostname | default(false) | bool)

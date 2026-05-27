@@ -1,5 +1,5 @@
 ---
 # Keep (skip) the last N backup folders in --all mode to avoid touching the newest backups.
-CLEANUP_FAILED_BACKUPS_FORCE_KEEP:  3
-CLEANUP_FAILED_BACKUPS_WORKERS:     1     # Just one worker, because if HDD it is contraproductive to use more
-CLEANUP_FAILED_BACKUPS_TIMEOUT:     7200  # Optimized for 1TB Backups on RaspberryPi ~ 2h
+CLEANUP_FAILED_BACKUPS_FORCE_KEEP: 3
+CLEANUP_FAILED_BACKUPS_WORKERS: 1 # Just one worker, because if HDD it is contraproductive to use more
+CLEANUP_FAILED_BACKUPS_TIMEOUT: 7200 # Optimized for 1TB Backups on RaspberryPi ~ 2h

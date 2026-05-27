@@ -1,19 +1,21 @@
-from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
-
 import glob
-import os
 import re
+from pathlib import Path
 
-from ansible.plugins.lookup import LookupBase
 from ansible.errors import AnsibleError
-from utils.applications.config import get
+from ansible.plugins.loader import lookup_loader
+from ansible.plugins.lookup import LookupBase
+
 from utils.cache.applications import get_merged_applications
 from utils.cache.domains import get_merged_domains
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from ansible.plugins.loader import lookup_loader
+from utils.roles.applications.config import get
+from utils.roles.mapping import (
+    ROLE_FILE_META_INFO,
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_VARS_MAIN,
+)
 
 
 class LookupModule(LookupBase):
@@ -25,8 +27,8 @@ class LookupModule(LookupBase):
           - Reads application_id from the role's vars/main.yml
           - Reads the title from the role's README.md (the first H1 line)
           - Retrieves the description from galaxy_info.description in meta/main.yml
-          - Retrieves the icon class from meta/info.yml.logo.class (req-011)
-          - Retrieves the display flag from meta/info.yml.display (req-011)
+          - Retrieves the icon class from meta/info.yml.logo.class
+          - Retrieves the display flag from meta/info.yml.display
           - Retrieves the tags from galaxy_info.galaxy_tags
           - Builds the URL using the 'domains' variable
           - Sets the iframe flag from applications
@@ -54,20 +56,22 @@ class LookupModule(LookupBase):
         )
 
         # Search for all roles starting with "web-app-"
-        pattern = os.path.join(roles_dir, "web-app-*")
+        pattern = str(Path(roles_dir) / "web-app-*")
         for role_path in glob.glob(pattern):
             role_dir = role_path.rstrip("/")
-            role_basename = os.path.basename(role_dir)
+            role_basename = Path(role_dir).name
 
             # Skip roles not starting with "web-app-"
             if not role_basename.startswith("web-app-"):  # Ensure prefix
                 continue
 
             # Load application_id from role's vars/main.yml (cached parse).
-            vars_path = os.path.join(role_dir, "vars", "main.yml")
+            vars_path = str(Path(role_dir) / ROLE_FILE_VARS_MAIN)
             try:
-                if not os.path.isfile(vars_path):
-                    raise AnsibleError(
+                if not Path(vars_path).is_file():
+                    # nocheck (TRY301): wrapped with role context by the
+                    # outer Exception handler.
+                    raise AnsibleError(  # noqa: TRY301
                         f"Vars file not found for role '{role_basename}': {vars_path}"
                     )
                 vars_data = load_yaml_any(vars_path, default_if_missing={}) or {}
@@ -77,11 +81,15 @@ class LookupModule(LookupBase):
                     else None
                 )
                 if not application_id:
-                    raise AnsibleError(f"Key 'application_id' not found in {vars_path}")
+                    # nocheck (TRY301): wrapped with role context by the
+                    # outer Exception handler.
+                    raise AnsibleError(  # noqa: TRY301
+                        f"Key 'application_id' not found in {vars_path}"
+                    )
             except Exception as e:
                 raise AnsibleError(
                     f"Error getting application_id for role '{role_basename}': {e}"
-                )
+                ) from e
 
             # Skip roles not listed in group_names
             if application_id not in group_names:
@@ -90,13 +98,13 @@ class LookupModule(LookupBase):
             # Define paths to README.md, meta/main.yml and meta/info.yml.
             # meta/main.yml carries Galaxy-spec fields (description, galaxy_tags);
             # meta/info.yml is the project-internal store for descriptive
-            # role-level metadata (logo, display) per req-011.
-            readme_path = os.path.join(role_dir, "README.md")
-            meta_path = os.path.join(role_dir, "meta", "main.yml")
-            info_path = os.path.join(role_dir, "meta", "info.yml")
+            # role-level metadata (logo, display).
+            readme_path = str(Path(role_dir) / "README.md")
+            meta_path = str(Path(role_dir) / ROLE_FILE_META_MAIN)
+            info_path = str(Path(role_dir) / ROLE_FILE_META_INFO)
 
             # Skip role if required files are missing
-            if not os.path.exists(readme_path) or not os.path.exists(meta_path):
+            if not Path(readme_path).exists() or not Path(meta_path).exists():
                 continue
 
             # Extract title from first H1 line in README.md (cached read).
@@ -105,7 +113,7 @@ class LookupModule(LookupBase):
                 title_match = re.search(r"^#\s+(.*)$", readme_content, re.MULTILINE)
                 title = title_match.group(1).strip() if title_match else application_id
             except Exception as e:
-                raise AnsibleError(f"Error reading '{readme_path}': {e}")
+                raise AnsibleError(f"Error reading '{readme_path}': {e}") from e
 
             # Extract Galaxy-spec metadata from meta/main.yml (cached parse).
             try:
@@ -118,17 +126,17 @@ class LookupModule(LookupBase):
                 description = galaxy_info.get("description", "")
                 tags = galaxy_info.get("galaxy_tags", [])
             except Exception as e:
-                raise AnsibleError(f"Error reading '{meta_path}': {e}")
+                raise AnsibleError(f"Error reading '{meta_path}': {e}") from e
 
             # Extract project-internal descriptive metadata from meta/info.yml.
             # File-root convention: the file's content IS applications.<role>.info.
             info_data: dict = {}
-            if os.path.isfile(info_path):
+            if Path(info_path).is_file():
                 try:
                     loaded = load_yaml_any(info_path, default_if_missing={}) or {}
                     info_data = loaded if isinstance(loaded, dict) else {}
                 except Exception as e:
-                    raise AnsibleError(f"Error reading '{info_path}': {e}")
+                    raise AnsibleError(f"Error reading '{info_path}': {e}") from e
 
             # If display is set to False ignore it (default: shown)
             if not info_data.get("display", True):
@@ -170,7 +178,7 @@ class LookupModule(LookupBase):
                 except Exception as e:
                     raise AnsibleError(
                         f"Error building URL via tls for '{application_id}': {e}"
-                    )
+                    ) from e
 
             iframe = get(
                 applications,

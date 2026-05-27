@@ -1,6 +1,6 @@
 # playwright.env.j2
 
-This page is the SPOT for automatically generating and updating role-local `playwright.env.j2` files.
+This page covers automatically generating and updating role-local `playwright.env.j2` files.
 Use this page for the rendered test input surface, variable naming, and entry-point selection.
 For runner discovery, staging, and repository-side contract rules, see [Playwright Tests](../../../contributing/actions/testing/playwright.md).
 For the matching scenario implementation, see [Role `playwright.spec.js`](playwright.spec.js.md).

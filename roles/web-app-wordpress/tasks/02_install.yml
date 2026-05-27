@@ -1,3 +1,4 @@
+---
 - name: "Wait until WordPress core files exist in {{ WORDPRESS_DOCKER_HTML_PATH }}"
   command: >
     container exec {{ WORDPRESS_CONTAINER }}

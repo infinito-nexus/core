@@ -1,79 +1,62 @@
+---
 - name: Load LDAP configuration variables
   include_vars:
     file: "ldap.yml"
 
 - name: Check if LDAP source exists
-  community.postgresql.postgresql_query:
-    db: "{{ lookup('database', application_id, 'name') }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: "SELECT id FROM ldap_auth_sources WHERE name = '{{ OPENPROJECT_LDAP.name }}' LIMIT 1;"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-ldap-auth-source-exists.sql"
+    named_args:
+      name: "{{ OPENPROJECT_LDAP.name }}"
+    expect_rows: true
   register: ldap_check
 
 - name: Update existing LDAP auth source
-  community.postgresql.postgresql_query:
-    db: "{{ lookup('database', application_id, 'name') }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      UPDATE ldap_auth_sources SET
-        host = '{{ OPENPROJECT_LDAP.host }}',
-        port = {{ OPENPROJECT_LDAP.port }},
-        account = '{{ OPENPROJECT_LDAP.account }}',
-        account_password = '{{ OPENPROJECT_LDAP.account_password }}',
-        base_dn = '{{ OPENPROJECT_LDAP.base_dn }}',
-        attr_login = '{{ OPENPROJECT_LDAP.attr_login }}',
-        attr_firstname = '{{ OPENPROJECT_LDAP.attr_firstname }}',
-        attr_lastname = '{{ OPENPROJECT_LDAP.attr_lastname }}',
-        attr_mail = '{{ OPENPROJECT_LDAP.attr_mail }}',
-        onthefly_register = {{ OPENPROJECT_LDAP.onthefly_register }},
-        attr_admin = '{{ OPENPROJECT_LDAP.attr_admin }}',
-        updated_at = NOW(),
-        tls_mode = {{ OPENPROJECT_LDAP.tls_mode }},
-        filter_string = '{{ OPENPROJECT_LDAP.filter_string }}',
-        verify_peer = {{ OPENPROJECT_LDAP.verify_peer }},
-        tls_certificate_string = '{{ OPENPROJECT_LDAP.tls_certificate_string }}'
-      WHERE name = '{{ OPENPROJECT_LDAP.name }}';
-  when: ldap_check.query_result | length > 0
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-ldap-auth-source.sql"
+    named_args:
+      host: "{{ OPENPROJECT_LDAP.host }}"
+      port: "{{ OPENPROJECT_LDAP.port }}"
+      account: "{{ OPENPROJECT_LDAP.account }}"
+      account_password: "{{ OPENPROJECT_LDAP.account_password }}"
+      base_dn: "{{ OPENPROJECT_LDAP.base_dn }}"
+      attr_login: "{{ OPENPROJECT_LDAP.attr_login }}"
+      attr_firstname: "{{ OPENPROJECT_LDAP.attr_firstname }}"
+      attr_lastname: "{{ OPENPROJECT_LDAP.attr_lastname }}"
+      attr_mail: "{{ OPENPROJECT_LDAP.attr_mail }}"
+      onthefly_register: "{{ OPENPROJECT_LDAP.onthefly_register }}"
+      attr_admin: "{{ OPENPROJECT_LDAP.attr_admin }}"
+      tls_mode: "{{ OPENPROJECT_LDAP.tls_mode }}"
+      filter_string: "{{ OPENPROJECT_LDAP.filter_string }}"
+      verify_peer: "{{ OPENPROJECT_LDAP.verify_peer }}"
+      tls_certificate_string: "{{ OPENPROJECT_LDAP.tls_certificate_string }}"
+      name: "{{ OPENPROJECT_LDAP.name }}"
+  when: ldap_check.rows | length > 0
 
 - name: Create new LDAP auth source
-  community.postgresql.postgresql_query:
-    db: "{{ lookup('database', application_id, 'name') }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: >
-      INSERT INTO ldap_auth_sources
-      (name, host, port, account, account_password, base_dn, attr_login,
-       attr_firstname, attr_lastname, attr_mail, onthefly_register, attr_admin,
-       created_at, updated_at, tls_mode, filter_string, verify_peer, tls_certificate_string)
-      VALUES (
-        '{{ OPENPROJECT_LDAP.name }}',
-        '{{ OPENPROJECT_LDAP.host }}',
-        {{ OPENPROJECT_LDAP.port }},
-        '{{ OPENPROJECT_LDAP.account }}',
-        '{{ OPENPROJECT_LDAP.account_password }}',
-        '{{ OPENPROJECT_LDAP.base_dn }}',
-        '{{ OPENPROJECT_LDAP.attr_login }}',
-        '{{ OPENPROJECT_LDAP.attr_firstname }}',
-        '{{ OPENPROJECT_LDAP.attr_lastname }}',
-        '{{ OPENPROJECT_LDAP.attr_mail }}',
-        {{ OPENPROJECT_LDAP.onthefly_register }},
-        '{{ OPENPROJECT_LDAP.attr_admin }}',
-        NOW(),
-        NOW(),
-        {{ OPENPROJECT_LDAP.tls_mode }},
-        '{{ OPENPROJECT_LDAP.filter_string }}',
-        {{ OPENPROJECT_LDAP.verify_peer }},
-        '{{ OPENPROJECT_LDAP.tls_certificate_string }}'
-      );
-  when: ldap_check.query_result | length == 0
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll:  "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/insert-ldap-auth-source.sql"
+    named_args:
+      name: "{{ OPENPROJECT_LDAP.name }}"
+      host: "{{ OPENPROJECT_LDAP.host }}"
+      port: "{{ OPENPROJECT_LDAP.port }}"
+      account: "{{ OPENPROJECT_LDAP.account }}"
+      account_password: "{{ OPENPROJECT_LDAP.account_password }}"
+      base_dn: "{{ OPENPROJECT_LDAP.base_dn }}"
+      attr_login: "{{ OPENPROJECT_LDAP.attr_login }}"
+      attr_firstname: "{{ OPENPROJECT_LDAP.attr_firstname }}"
+      attr_lastname: "{{ OPENPROJECT_LDAP.attr_lastname }}"
+      attr_mail: "{{ OPENPROJECT_LDAP.attr_mail }}"
+      onthefly_register: "{{ OPENPROJECT_LDAP.onthefly_register }}"
+      attr_admin: "{{ OPENPROJECT_LDAP.attr_admin }}"
+      tls_mode: "{{ OPENPROJECT_LDAP.tls_mode }}"
+      filter_string: "{{ OPENPROJECT_LDAP.filter_string }}"
+      verify_peer: "{{ OPENPROJECT_LDAP.verify_peer }}"
+      tls_certificate_string: "{{ OPENPROJECT_LDAP.tls_certificate_string }}"
+  when: ldap_check.rows | length == 0

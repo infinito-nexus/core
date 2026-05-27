@@ -1,5 +1,3 @@
-# lookup_plugins/tls.py
-#
 # STRICT TLS resolver (without SAN/cert identity planning).
 #
 # Certificate identity planning (SAN list, cert/key paths) is moved to:
@@ -7,11 +5,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.applications import get_merged_applications
+from utils.cache.domains import get_merged_domains
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
     as_str,
@@ -23,12 +23,10 @@ from utils.tls_common import (
     uniq_preserve,
     want_get,
 )
-from utils.cache.applications import get_merged_applications
-from utils.cache.domains import get_merged_domains
 
 
 class LookupModule(LookupBase):
-    def run(self, terms, variables: Optional[dict] = None, **kwargs):
+    def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
 
         # New API: want-path is the 2nd positional term.
@@ -38,7 +36,8 @@ class LookupModule(LookupBase):
                 "tls: one or two terms required: (domain|application_id[, want_path])"
             )
 
-        term = as_str(terms[0])
+        templar = getattr(self, "_templar", None)
+        term = as_str(templar.template(terms[0]) if templar else terms[0])
         if not term:
             raise AnsibleError("tls: term is empty")
 
@@ -74,7 +73,7 @@ class LookupModule(LookupBase):
 
         all_domains = collect_domains_for_app(domains, app_id, err_prefix="tls")
         all_domains = (
-            uniq_preserve([primary_domain] + all_domains)
+            uniq_preserve([primary_domain, *all_domains])
             if all_domains
             else [primary_domain]
         )
@@ -94,7 +93,7 @@ class LookupModule(LookupBase):
         web_port = 443 if enabled else 80
         base_url = f"{web_protocol}://{primary_domain}/"
 
-        resolved: Dict[str, Any] = {
+        resolved: dict[str, Any] = {
             "application_id": app_id,
             "domain": primary_domain,
             "enabled": enabled,

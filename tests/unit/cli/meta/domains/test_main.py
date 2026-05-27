@@ -6,10 +6,9 @@ from pathlib import Path
 from unittest import TestCase, main
 from unittest.mock import patch
 
-
 import cli.meta.domains.__main__ as mod
-
 from utils.cache.yaml import dump_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
 
 
 class TestCliMetaApplicationsDomains(TestCase):
@@ -19,12 +18,12 @@ class TestCliMetaApplicationsDomains(TestCase):
         role_dir = roles_dir / role_name
         (role_dir / "vars").mkdir(parents=True, exist_ok=True)
         (role_dir / "meta").mkdir(parents=True, exist_ok=True)
-        (role_dir / "vars" / "main.yml").write_text(
+        (role_dir / ROLE_FILE_VARS_MAIN).write_text(
             dump_yaml_str({"application_id": app_id}),
             encoding="utf-8",
         )
         server_payload = config.get("server", {}) if isinstance(config, dict) else {}
-        (role_dir / "meta" / "server.yml").write_text(
+        (role_dir / ROLE_FILE_META_SERVER).write_text(
             dump_yaml_str(server_payload),
             encoding="utf-8",
         )

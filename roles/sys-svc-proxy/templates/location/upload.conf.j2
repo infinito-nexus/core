@@ -15,7 +15,5 @@ location {{ location_upload }} {
     # Client Limits for Upload
     client_max_body_size    {{ webserver_client_max_body_size }};
 
-    {% if lookup('tls', application_id, 'enabled') | bool %}
-    proxy_hide_header Strict-Transport-Security;
-    {% endif %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 }

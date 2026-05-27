@@ -4,7 +4,7 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         POSTMARKS_REPO_URL: "{{ POSTMARKS_REPO_URL }}"
-        POSTMARKS_REPO_BRANCH: "{{ POSTMARKS_REPO_BRANCH }}"
+        POSTMARKS_REF: "{{ POSTMARKS_REF }}"
         CONTAINER_PORT: "{{ container_port | string }}"
     image: "{{ POSTMARKS_IMAGE }}:{{ POSTMARKS_VERSION }}"
     container_name: "{{ POSTMARKS_CONTAINER }}"
@@ -21,7 +21,6 @@
    with `service "redis" refers to undefined volume redis`. #}
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume')
 ) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

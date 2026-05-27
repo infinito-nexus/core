@@ -1,3 +1,5 @@
-- name: "load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
+---
+- include_tasks: 01_core.yml
+  when: run_once_web_app_lam is not defined
+  vars:
+    application_id: "web-app-lam"

@@ -1,0 +1,9 @@
+<object xmlns="http://www.xwiki.org">
+  <className>XWiki.XWikiUsers</className>
+  <properties>
+    <property name="first_name">{{ lookup('users', 'administrator').firstname }}</property>
+    <property name="last_name">{{ lookup('users', 'administrator').lastname }}</property>
+    <property name="email">{{ lookup('users', 'administrator').email }}</property>
+    <property name="active">1</property>
+  </properties>
+</object>

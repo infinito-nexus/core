@@ -1,20 +1,21 @@
+---
 - name: Ensure ~/.bash_profile sources ~/.profile
   lineinfile:
     path: "$HOME/.bash_profile"
-    line: '[ -f ~/.profile ] && . ~/.profile'
+    line: "[ -f ~/.profile ] && . ~/.profile"
     insertafter: EOF
     state: present
-    create: yes
+    create: true
     mode: "0644"
   become: false
 
 - name: Ensure ~/.zprofile sources ~/.profile
   lineinfile:
     path: "$HOME/.zprofile"
-    line: '[ -f ~/.profile ] && . ~/.profile'
+    line: "[ -f ~/.profile ] && . ~/.profile"
     insertafter: EOF
     state: present
-    create: yes
+    create: true
     mode: "0644"
   become: false
 

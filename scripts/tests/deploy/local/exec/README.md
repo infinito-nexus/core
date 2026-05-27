@@ -1,6 +1,6 @@
 # Local Exec Scripts
 
-This is the SPOT for container execution helpers under `scripts/tests/deploy/local/exec/`.
+This directory holds the container execution helpers under `scripts/tests/deploy/local/exec/`.
 For other local helpers, use [../README.md](../README.md).
 For the canonical Make target index that invokes these helpers, see [make.md](../../../../../docs/contributing/tools/make.md).
 

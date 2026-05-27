@@ -19,6 +19,13 @@ from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_USERS,
+    ROLE_FILE_META_VARIANTS,
+)
+
+from . import PROJECT_ROOT
 
 
 def _write(path: Path, content: str) -> None:
@@ -27,13 +34,13 @@ def _write(path: Path, content: str) -> None:
 
 
 def _seed_minimal_roles(tmp: Path) -> Path:
-    """Create a minimal `<tmp>/roles/web-app-foo/meta/...` tree (post req-008)
+    """Create a minimal `<tmp>/roles/web-app-foo/meta/...` tree
     so applications/variants can resolve a real role.
     """
     roles = tmp / "roles"
     role = roles / "web-app-foo"
     _write(
-        role / "meta" / "services.yml",
+        role / ROLE_FILE_META_SERVICES,
         """
         foo:
           image: foo
@@ -41,7 +48,7 @@ def _seed_minimal_roles(tmp: Path) -> Path:
         """,
     )
     _write(
-        role / "meta" / "users.yml",
+        role / ROLE_FILE_META_USERS,
         """
         administrator: {}
         """,
@@ -95,7 +102,7 @@ class TestGetVariants(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_roles(Path(tmp))
             _write(
-                roles / "web-app-foo" / "meta" / "variants.yml",
+                roles / "web-app-foo" / ROLE_FILE_META_VARIANTS,
                 """
                 - {}
                 - services:
@@ -122,6 +129,47 @@ class TestGetVariants(unittest.TestCase):
             first = cache_apps.get_variants(roles_dir=roles)
             first["web-app-foo"][0]["mutated"] = True
             second = cache_apps.get_variants(roles_dir=roles)
+            self.assertNotIn("mutated", second["web-app-foo"][0])
+
+
+class TestGetVariantOverridesOnly(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_returns_single_empty_override_when_no_meta_variants_yml(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            overrides = cache_apps.get_variant_overrides_only(roles_dir=roles)
+            self.assertEqual(overrides["web-app-foo"], [{}])
+
+    def test_returns_raw_overrides_without_base_merge(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            _write(
+                roles / "web-app-foo" / ROLE_FILE_META_VARIANTS,
+                """
+                - {}
+                - services:
+                    foo:
+                      image: foo-alt
+                """,
+            )
+            overrides = cache_apps.get_variant_overrides_only(roles_dir=roles)
+            # Variant 0 stays empty (no override) — the role's
+            # `meta/services.yml` baseline (image=foo) is NOT mixed in.
+            self.assertEqual(overrides["web-app-foo"][0], {})
+            # Variant 1 carries only the override fields.
+            self.assertEqual(
+                overrides["web-app-foo"][1],
+                {"services": {"foo": {"image": "foo-alt"}}},
+            )
+
+    def test_caches_per_roles_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            first = cache_apps.get_variant_overrides_only(roles_dir=roles)
+            first["web-app-foo"][0]["mutated"] = True
+            second = cache_apps.get_variant_overrides_only(roles_dir=roles)
             self.assertNotIn("mutated", second["web-app-foo"][0])
 
 
@@ -172,7 +220,7 @@ class TestGetMergedApplicationsRespectsOverrides(unittest.TestCase):
 
 class TestApplicationsImportableWithoutAnsible(unittest.TestCase):
     """The CI runner-host CLI path
-    (`cli.deploy.development.init` -> `plan_dev_inventory_matrix` ->
+    (`cli.administration.deploy.development.init` -> `plan_dev_inventory_matrix` ->
     `get_variants`) MUST stay ansible-free. CI run 24935979190 broke
     because `_build_variants` instantiated `ApplicationGidLookup`,
     pulling `ansible.plugins.lookup.LookupBase` at call time. This
@@ -183,12 +231,11 @@ class TestApplicationsImportableWithoutAnsible(unittest.TestCase):
 
     def test_module_imports_and_get_variants_callable_without_ansible(self):
         import subprocess
-        from pathlib import Path
 
-        repo_root = Path(__file__).resolve().parents[4]
+        repo_root = PROJECT_ROOT
         snippet = (
             "import sys\n"
-            "sys.path.insert(0, %r)\n"
+            f"sys.path.insert(0, {str(repo_root)!r})\n"
             "class _Block:\n"
             "    def find_spec(self, name, path=None, target=None):\n"
             "        if name == 'ansible' or name.startswith('ansible.'):\n"
@@ -201,13 +248,14 @@ class TestApplicationsImportableWithoutAnsible(unittest.TestCase):
             "v = get_variants(roles_dir=ROLES_DIR)\n"
             "assert len(v) > 0\n"
             "print('OK', len(v))\n"
-        ) % str(repo_root)
+        )
         result = subprocess.run(
             [sys.executable, "-c", snippet],
             capture_output=True,
             text=True,
             cwd=str(repo_root),
             timeout=60,
+            check=False,
         )
         self.assertEqual(
             result.returncode,

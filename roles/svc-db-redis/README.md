@@ -11,7 +11,7 @@ The role’s `service.yml.j2` template includes:
 - An Alpine-based Redis image (`redis:alpine`)
 - Container naming based on `application_id` (defaults to `redis`)
 - Restart policy
- 
+
 - Journald logging driver
 - A named volume (`redis:/data`) for persistence
 - A basic healthcheck using `redis-cli ping`
@@ -41,3 +41,10 @@ Include this snippet in your top-level `compose.yml.j2` where you want Redis to 
 - [Official Redis Docker image on Docker Hub](https://hub.docker.com/_/redis)  
 - [Ansible Jinja2 documentation](https://docs.ansible.com/ansible/latest/user_guide/playbooks_templating.html)  
 - [Docker Compose reference](https://docs.docker.com/compose/compose-file/)  
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

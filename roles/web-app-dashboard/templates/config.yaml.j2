@@ -1,7 +1,4 @@
 {# The Linebreak here are intentional due to tab bugs #}
-{% set platform_logo_source = service_provider.platform.logo | string %}
-{% set platform_favicon_source = service_provider.platform.favicon | string %}
-{% set company_logo_source = service_provider.company.logo | string %}
 ---
 cards:
 {{ portfolio_cards | to_nice_yaml(indent=2) }}
@@ -15,14 +12,14 @@ platform:
   titel:    {{ service_provider.platform.titel }}
   subtitel: {{ service_provider.platform.subtitel }}
   logo:
-    source: {{ ('https:' ~ platform_logo_source) if platform_logo_source.startswith('//') else platform_logo_source }}
+    source: {{ DASHBOARD_PLATFORM_LOGO_URL }}
   favicon:
-    source: {{ ('https:' ~ platform_favicon_source) if platform_favicon_source.startswith('//') else platform_favicon_source }}
+    source: {{ DASHBOARD_PLATFORM_FAVICON_URL }}
 company:
   titel: {{ service_provider.company.titel }}
   subtitel: {{ service_provider.company.slogan }}
   logo:
-    source: {{ ('https:' ~ company_logo_source) if company_logo_source.startswith('//') else company_logo_source }}
+    source: {{ DASHBOARD_COMPANY_LOGO_URL }}
   address:
 {{ service_provider.company.address | to_nice_yaml(indent=4) | indent(4, true) }}
   imprint_url: {{ service_provider.legal.imprint }}

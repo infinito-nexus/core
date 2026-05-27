@@ -1,11 +1,12 @@
+---
 domains:
   canonical:
-  - collabora.{{ DOMAIN_PRIMARY }}
+    - collabora.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   whitelist:
     frame-ancestors:
-    - '*.{{ DOMAIN_PRIMARY }}'
+      - "*.{{ DOMAIN_PRIMARY }}"
   flags:
     style-src-attr:
       unsafe-inline: true

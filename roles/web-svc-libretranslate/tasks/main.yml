@@ -1,4 +1,5 @@
+---
 - include_tasks: 01_core.yml
   when: run_once_web_svc_libretranslate is not defined
   vars:
-    application_id: 'web-svc-libretranslate'
+    application_id: "web-svc-libretranslate"

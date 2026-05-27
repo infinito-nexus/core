@@ -17,26 +17,26 @@
   become: true
   lineinfile:
     path: /etc/systemd/logind.conf
-    regexp: '^#?HandleLidSwitch='
-    line: 'HandleLidSwitch=hibernate'
-    backup: yes
+    regexp: "^#?HandleLidSwitch="
+    line: "HandleLidSwitch=hibernate"
+    backup: true
   notify: Restart systemd-logind
 
 - name: Configure systemd to lock session when lid is closed on external power
   lineinfile:
     path: /etc/systemd/logind.conf
-    regexp: '^#?HandleLidSwitchExternalPower='
-    line: 'HandleLidSwitchExternalPower=lock'
-    backup: yes
+    regexp: "^#?HandleLidSwitchExternalPower="
+    line: "HandleLidSwitchExternalPower=lock"
+    backup: true
   notify: Restart systemd-logind
   become: true
 
 - name: Configure systemd to lock session when lid is closed while docked
   lineinfile:
     path: /etc/systemd/logind.conf
-    regexp: '^#?HandleLidSwitchDocked='
-    line: 'HandleLidSwitchDocked=lock'
-    backup: yes
+    regexp: "^#?HandleLidSwitchDocked="
+    line: "HandleLidSwitchDocked=lock"
+    backup: true
   notify: Restart systemd-logind
   become: true
 

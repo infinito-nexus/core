@@ -1,5 +1,6 @@
+---
 framework:
-  trusted_proxies: '%env(TRUSTED_PROXIES)%'
+  trusted_proxies: "%env(TRUSTED_PROXIES)%"
   trusted_headers:
     - x-forwarded-for
     - x-forwarded-proto

@@ -1,32 +1,41 @@
+---
+# nocheck: playwright-service-flag — static-asset provider, no Playwright surface
 asset:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-asset' in group_names }}"
+  shared: "{{ 'web-svc-asset' in group_names }}"
 oidc:
-  enabled: true
-  shared: true
-logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+# nocheck: dynamic-flag
 ldap:
   enabled: false
   shared: false
+logout:
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
-# noqa: shared
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+  extensions:
+    - vector
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: true
+# nocheck: playwright-service-flag — self-provider
 discourse:
   # `shared: true` is required so the service registry recognises this
   # role as the provider of the `discourse` service. Other roles
@@ -38,7 +47,7 @@ discourse:
   shared: true
   enabled: true
   name: discourse
-  version: main
+  ref: main
   min_storage: 15GB
   repository: https://github.com/discourse/discourse_docker.git
   plugins:
@@ -48,17 +57,24 @@ discourse:
       enabled: true
     discourse-akismet:
       enabled: true
+    discourse-ldap-auth:
+      enabled: "{{ lookup('config', 'web-app-discourse', 'services.ldap.enabled') | bool }}"
+      repository: https://github.com/jonmbake/discourse-ldap-auth.git
+      ref: master
   ports:
     local:
       http: 8020
   lifecycle: beta
-  cpus: '1.0'
+  cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+  local_login_enabled: "{{ not (lookup('config', 'web-app-discourse', 'services.oidc.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.ldap.enabled')
+    | bool) }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

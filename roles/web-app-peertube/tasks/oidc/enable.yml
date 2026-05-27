@@ -13,7 +13,6 @@
 - name: "Install auth-openid-connect plugin for Peertube (with temp mem_limit bump + diagnostics on failure)"
   when: peertube_oidc_plugin_check.rc != 0
   block:
-
     # Raise the container cgroup ceiling for the duration of the install.
     # The install node process and the long-running main peertube node
     # process share this cgroup (install runs via `container exec`), and
@@ -61,7 +60,6 @@
       changed_when: true
 
   rescue:
-
     - name: "PEERTUBE | Dump diagnostics after install failure"
       ansible.builtin.script: "{{ role_path }}/files/diagnostics.sh {{ PEERTUBE_CONTAINER }}"
       environment:
@@ -78,13 +76,12 @@
           code, logs, stats, host memory, and dmesg OOM-killer evidence.
 
 - name: "Update the settings column of the auth-openid-connect plugin"
-  community.postgresql.postgresql_query:
-    db: "{{ lookup('database', application_id, 'name') }}"
-    login_user: "{{ lookup('database', application_id, 'username') }}"
-    login_password: "{{ lookup('database', application_id, 'password') }}"
-    login_host: "{{ lookup('database', application_id, 'reach_host') }}"
-    login_port: "{{ lookup('database', application_id, 'port') }}"
-    query: "{{ lookup('template', 'upsert-oidc-plugin.sql.j2') }}"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/upsert-oidc-plugin.sql"
+    named_args:
+      settings: "{{ oidc_settings | to_json }}"
   register: _peertube_oidc_update
   retries: 5
   delay: 3

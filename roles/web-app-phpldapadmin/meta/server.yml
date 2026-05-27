@@ -1,6 +1,7 @@
+---
 domains:
   canonical:
-  - phpldapadmin.{{ DOMAIN_PRIMARY }}
+    - phpldapadmin.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

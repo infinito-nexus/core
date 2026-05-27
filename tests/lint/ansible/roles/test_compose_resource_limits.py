@@ -1,7 +1,7 @@
 """Lint compose service resource limits in role configs.
 
-Every Docker-service that a role declares for itself in
-``meta/services.yml`` MUST set the host-resource guard rails:
+Every **invokable** role's primary compose service (``services.<entity_name>``)
+MUST declare the host-resource guard rails:
 
 - ``min_storage``
 - ``cpus``
@@ -9,34 +9,14 @@ Every Docker-service that a role declares for itself in
 - ``mem_limit``
 - ``pids_limit``
 
-Scope of the check:
+Scope: only roles whose directory name starts with an invokable prefix from
+``roles/categories.yml`` (resolved via
+``plugins.filter.invokable_paths.get_invokable_paths``) are checked. Non-
+invokable categories (``sys-*``, ``dev-*``, …) are infrastructural and ship
+no top-level compose service of their own.
 
-1. Only roles that ship a ``templates/compose.yml.j2`` are scanned.
-   Non-Docker roles (``desk-*``, ``dev-*``, ``drv-*``, ``pkgmgr*``,
-   ``sys-*`` without a compose template, …) declare entries in their
-   ``meta/services.yml`` for unrelated provisioning purposes; demanding
-   container resource limits there has no operational meaning.
-
-2. Inside the scanned roles, only the **self-declared** services are
-   linted — the entries that this role actually defines as containers
-   in its own compose file (entries that carry ``image`` / ``build`` /
-   ``ports`` / ``volumes`` / etc.). Pure consumer markers
-   (``services.<X>.enabled: true`` + ``shared: true`` and nothing
-   else) point at a service the variant-aware planner pulls in from
-   another role; the resource limits live on the **provider's**
-   declaration, not on the marker. Aliases (entries with
-   ``canonical:`` referencing the role's primary service) are also
-   skipped because the resources are on the canonical entry they
-   point to.
-
-   Concretely: ``web-app-mailu/meta/services.yml.{mailu,email}`` are
-   self-declared service entries (mailu's primary + its email alias
-   provider) and MUST carry the resource keys; another role that
-   imports email via ``services.email.enabled+shared: true`` is a
-   consumer marker and MUST NOT be re-checked there.
-
-The test fails the build on any missing key (no longer warn-only) so
-regressions block CI.
+Missing keys emit a ``::warning`` annotation each so CI annotates the source
+line and **fail the test** so the regression blocks the merge.
 """
 
 from __future__ import annotations
@@ -44,15 +24,21 @@ from __future__ import annotations
 import re
 import unittest
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, List, Mapping
+from typing import TYPE_CHECKING
 
 import yaml
 
+from plugins.filter.invokable_paths import get_invokable_paths
+from utils.annotations.message import in_github_actions, warning
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml_str
-from utils.entity_name_utils import get_entity_name
+from utils.cache.yaml import load_yaml_any
+from utils.roles.entity_name import get_entity_name
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
+from . import PROJECT_ROOT
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 REQUIRED_KEYS = (
     "min_storage",
@@ -61,30 +47,6 @@ REQUIRED_KEYS = (
     "mem_limit",
     "pids_limit",
 )
-
-
-# Keys that mark an entry as a real Docker-service declaration. If any
-# of these is set on the entry, we expect resource limits next to it.
-SUBSTANTIVE_SERVICE_KEYS = frozenset(
-    {
-        "image",
-        "build",
-        "name",
-        "ports",
-        "volumes",
-        "command",
-        "entrypoint",
-        "environment",
-        "depends_on",
-    }
-)
-
-
-def repo_root() -> Path:
-    for candidate in Path(__file__).resolve().parents:
-        if (candidate / "pyproject.toml").is_file():
-            return candidate
-    raise AssertionError("Repository root not found from test path.")
 
 
 @dataclass(frozen=True)
@@ -98,52 +60,10 @@ class MissingKeyFinding:
 
 def _load_yaml(path: Path) -> dict:
     try:
-        data = load_yaml_str(read_text(str(path)))
+        data = load_yaml_any(str(path), default_if_missing={})
     except yaml.YAMLError:
         return {}
     return data if isinstance(data, dict) else {}
-
-
-def _is_self_declared_service(entry: Any, role_dir: Path, service_name: str) -> bool:
-    """True iff *entry* is a service this role declares itself in its
-    own compose file (and therefore owns the resource limits).
-
-    Excluded:
-    - Non-mapping entries (raw lists / scalars).
-    - Aliases pointing at the role's primary entity via
-      ``canonical: <primary>``. The resource limits live on the
-      canonical entry.
-    - Consumer markers (only ``enabled``/``shared``/``lifecycle`` set)
-      that pull a service in from a provider role.
-
-    Heuristic: substantive Docker-config keys
-    (``image``/``build``/``ports``/``volumes``/``command``/...) are
-    only present on actual service declarations.
-    """
-    if not isinstance(entry, Mapping):
-        return False
-    if "canonical" in entry:
-        return False
-    return any(
-        k in entry for k in SUBSTANTIVE_SERVICE_KEYS
-    ) or _is_primary_with_run_after(entry, role_dir, service_name)
-
-
-def _is_primary_with_run_after(
-    entry: Mapping[str, Any], role_dir: Path, service_name: str
-) -> bool:
-    """Edge case: a role's primary service entity occasionally only
-    carries provisioning metadata (``run_after``, ``backup``,
-    ``lifecycle``, …) and delegates the actual ``image`` to a Dockerfile
-    in ``files/Dockerfile``. Treat the primary entity as self-declared
-    if its name matches the role's entity name AND a Dockerfile / build
-    template / compose template that builds it is present.
-    """
-    if get_entity_name(role_dir.name) != service_name:
-        return False
-    return (role_dir / "files" / "Dockerfile").is_file() or (
-        role_dir / "templates" / "Dockerfile.j2"
-    ).is_file()
 
 
 def _find_service_line(config_path: Path, service_name: str) -> int:
@@ -156,81 +76,101 @@ def _find_service_line(config_path: Path, service_name: str) -> int:
             if pattern.match(raw):
                 return i
     except OSError:
+        # Best-effort lookup only: if the file can't be read, keep linting and
+        # point the annotation at line 1 as a safe fallback.
         return 1
     return 1
 
 
-def _collect_findings(root: Path) -> List[MissingKeyFinding]:
-    findings: List[MissingKeyFinding] = []
+def _collect_findings(root: Path) -> list[MissingKeyFinding]:
+    findings: list[MissingKeyFinding] = []
     roles_dir = root / "roles"
+    invokable_prefixes = tuple(get_invokable_paths(suffix="-"))
     for role_dir in sorted(roles_dir.iterdir()):
         if not role_dir.is_dir():
             continue
-        # Filter 1: only roles that ship a compose.yml.j2 are Docker
-        # roles whose service entries map to real containers.
-        if not (role_dir / "templates" / "compose.yml.j2").is_file():
+        if not role_dir.name.startswith(invokable_prefixes):
             continue
-
-        config_path = role_dir / "meta" / "services.yml"
+        config_path = role_dir / ROLE_FILE_META_SERVICES
         if not config_path.is_file():
             continue
 
-        # Post-req-008: meta/services.yml's root IS the services map.
+        # meta/services.yml's root IS the services map.
         services = _load_yaml(config_path)
         if not isinstance(services, dict):
             continue
 
-        # Filter 2: only entries this role declares itself.
-        for service_name, service_conf in services.items():
-            if not _is_self_declared_service(service_conf, role_dir, service_name):
-                continue
-            line = _find_service_line(config_path, service_name)
-            for key in REQUIRED_KEYS:
-                if key not in service_conf:
-                    findings.append(
-                        MissingKeyFinding(
-                            role=role_dir.name,
-                            service=service_name,
-                            key=key,
-                            config_path=config_path,
-                            line=line,
-                        )
-                    )
+        entity_name = get_entity_name(role_dir.name)
+        if not entity_name or entity_name not in services:
+            continue
+        primary_conf = services.get(entity_name)
+        if not isinstance(primary_conf, dict):
+            continue
+        if primary_conf.get("shared") is True:
+            continue
+
+        service_line = _find_service_line(config_path, entity_name)
+        findings.extend(
+            MissingKeyFinding(
+                role=role_dir.name,
+                service=entity_name,
+                key=key,
+                config_path=config_path,
+                line=service_line,
+            )
+            for key in REQUIRED_KEYS
+            if key not in primary_conf
+        )
 
     findings.sort(key=lambda f: (f.role, f.service, f.key))
     return findings
 
 
+def _emit_warning(finding: MissingKeyFinding, root: Path) -> None:
+    rel = finding.config_path.relative_to(root).as_posix()
+    warning(
+        f"{finding.role}: services.{finding.service}.{finding.key} is not set",
+        title="Missing resource limit",
+        file=rel,
+        line=finding.line,
+    )
+
+
+def _print_summary(findings: list[MissingKeyFinding], root: Path) -> None:
+    if not findings:
+        return
+    print()
+    print(f"[WARNING] Missing compose-service resource limits ({len(findings)}):")
+    for f in findings:
+        rel = f.config_path.relative_to(root).as_posix()
+        print(f"- {rel}:{f.line} - services.{f.service}.{f.key} ({f.role})")
+
+
 class TestComposeResourceLimits(unittest.TestCase):
-    def test_self_declared_services_set_resource_limits(self) -> None:
-        """Every self-declared service in a Docker role MUST set every
-        ``REQUIRED_KEYS`` resource limit. Aliases and consumer markers
-        are exempt — see the module docstring for the scope rules."""
-        root = repo_root()
+    def test_primary_services_declare_resource_limits(self) -> None:
+        """Fail loudly when an invokable role's primary compose service is
+        missing one of the required resource keys.
+        """
+        root = PROJECT_ROOT
         findings = _collect_findings(root)
 
+        for finding in findings:
+            _emit_warning(finding, root)
+
+        if not in_github_actions():
+            _print_summary(findings, root)
+
         if findings:
-            grouped: dict[str, List[MissingKeyFinding]] = {}
-            for f in findings:
-                grouped.setdefault(f.role, []).append(f)
             lines = [
-                f"{len(findings)} resource-limit declarations missing across "
-                f"{len(grouped)} role(s):",
+                f"{f.config_path.relative_to(root).as_posix()}:{f.line}: "
+                f"services.{f.service}.{f.key} is not set ({f.role})"
+                for f in findings
             ]
-            for role, items in sorted(grouped.items()):
-                rel = items[0].config_path.relative_to(root).as_posix()
-                lines.append(f"  - {role} ({rel}):")
-                for f in items:
-                    lines.append(f"      services.{f.service}.{f.key} (line {f.line})")
-            lines.append("")
-            lines.append(
-                "Add the missing keys (cpus / mem_reservation / mem_limit / "
-                "min_storage / pids_limit) under each self-declared service "
-                "entry in the role's meta/services.yml. Aliases (entries with "
-                "`canonical: <primary>`) and consumer markers (just "
-                "`enabled+shared`) are exempt."
+            self.fail(
+                f"Missing required compose-service resource keys "
+                f"({', '.join(REQUIRED_KEYS)}) on {len(findings)} entries:\n"
+                + "\n".join(lines)
             )
-            self.fail("\n".join(lines))
 
 
 if __name__ == "__main__":

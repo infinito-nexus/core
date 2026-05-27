@@ -1,3 +1,4 @@
+---
 # PUT a temporary Groovy page that checks installed extensions, call it, then delete it.
 
 - name: "XWIKI | Fetch REST session + form token (extension check write ops)"
@@ -13,24 +14,7 @@
     force_basic_auth: true
     status_code: [200, 201, 202, 204]
     headers: "{{ xwiki_rest_headers_write }}"
-    body: |
-      <page xmlns="http://www.xwiki.org">
-        <title>CheckExtension</title>
-        <content><![CDATA[
-        {% raw %}{{groovy}}{% endraw %}
-        def ns = "wiki:xwiki"
-        def id = (request.getParameter("id") ?: "").toString()
-        if (!id) { print "ERROR::missing-id"; return }
-        def ext = services.extension.getInstalledExtension(id, ns)
-        if (ext) {
-          print "INSTALLED::${ext.id?.id}::${ext.id?.version}"
-        } else {
-          print "MISSING::${id}"
-        }
-        {% raw %}{{/groovy}}{% endraw %}
-        ]]></content>
-        <syntax>xwiki/2.1</syntax>
-      </page>
+    body: "{{ lookup('file', 'xml/check_extension_page.xml') }}"
   register: _put_checker
   changed_when: false
 
@@ -43,7 +27,7 @@
     url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
     force_basic_auth: true
     status_code: [200]
-    return_content: yes
+    return_content: true
   register: _check_output
   changed_when: false
 

@@ -16,7 +16,7 @@ if [[ -n "${IMAGES_PER_HOUR:-}" ]]; then
 	EXTRA_ARGS+=(--images-per-hour "${IMAGES_PER_HOUR}")
 fi
 
-python -m cli.mirror.sync \
+python -m cli.contributing.mirror.sync \
 	--repo-root "${REPO_ROOT}" \
 	--ghcr-namespace "${GHCR_NAMESPACE}" \
 	--ghcr-repository "${GHCR_REPOSITORY}" \

@@ -1,6 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   synapse:
-{% set container_port = 8008 %}
+{% set container_port = MATRIX_SYNAPSE_CONTAINER_PORT %}
     image: "{{ MATRIX_SYNAPSE_IMAGE }}:{{ MATRIX_SYNAPSE_VERSION }}"
     container_name: {{ MATRIX_SYNAPSE_NAME }}
     restart: {{ DOCKER_RESTART_POLICY }}
@@ -26,7 +26,7 @@
 {% endfor %}
 {% else %}
 {% endif %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
   element:
 {% set container_port = 80 %}
@@ -102,7 +102,6 @@
 {% endif %}
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes=_extra_volumes
 ) }}
 

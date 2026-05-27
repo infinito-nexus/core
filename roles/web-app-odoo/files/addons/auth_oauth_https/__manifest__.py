@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-{
+{  # noqa: B018  Odoo addon manifests are bare dict expressions at module level by design
     "name": "OAuth HTTPS & Configurable UID",
     "version": "19.0.1.8.0",
     "category": "Authentication",

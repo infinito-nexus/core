@@ -24,3 +24,10 @@ It ensures a clean state of the manager configuration and applies default timeou
 - [systemd - Manager Configuration](https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html)  
 - [systemd-analyze](https://www.freedesktop.org/software/systemd/man/systemd-analyze.html)  
 - [systemctl](https://www.freedesktop.org/software/systemd/man/systemctl.html)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

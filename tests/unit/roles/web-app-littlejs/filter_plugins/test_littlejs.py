@@ -1,6 +1,7 @@
-import unittest
 import importlib.util
-from pathlib import Path
+import unittest
+
+from . import PROJECT_ROOT
 
 
 def _load_littlejs_module():
@@ -8,13 +9,8 @@ def _load_littlejs_module():
     Load the littlejs filter plugin directly from the roles path.
     Works even with hyphens in directory names.
     """
-    here = Path(__file__).resolve()
     plugin_path = (
-        here.parents[5]
-        / "roles"
-        / "web-app-littlejs"
-        / "filter_plugins"
-        / "littlejs.py"
+        PROJECT_ROOT / "roles" / "web-app-littlejs" / "filter_plugins" / "littlejs.py"
     )
 
     spec = importlib.util.spec_from_file_location("littlejs_filter", plugin_path)

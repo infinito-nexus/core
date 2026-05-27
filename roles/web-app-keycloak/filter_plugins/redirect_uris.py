@@ -1,24 +1,31 @@
 from __future__ import annotations
-import os
+
 import sys
-from typing import Iterable, Sequence
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 from ansible.errors import AnsibleFilterError
-from utils.applications.config import (
-    get,
+
+from utils.get_url import get_url  # returns "<protocol>://<domain>"
+from utils.roles.applications.config import (
     AppConfigKeyError,
     ConfigEntryNotSetError,
+    get,
 )
-from utils.get_url import get_url  # returns "<protocol>://<domain>"
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 
 # --- Locate project root that contains `utils/` dynamically (up to 5 levels) ---
 def _ensure_utils_on_path():
-    here = os.path.dirname(__file__)
+    here = Path(__file__).resolve().parent
     for depth in range(1, 6):
-        candidate = os.path.abspath(os.path.join(here, *([".."] * depth)))
-        if os.path.isdir(os.path.join(candidate, "utils")):
-            if candidate not in sys.path:
-                sys.path.insert(0, candidate)
+        candidate = here.parents[depth - 1] if depth - 1 < len(here.parents) else here
+        if (candidate / "utils").is_dir():
+            candidate_str = str(candidate)
+            if candidate_str not in sys.path:
+                sys.path.insert(0, candidate_str)
             return
     # If not found, imports below will raise a clear error
 
@@ -104,13 +111,13 @@ def redirect_uris(
             except Exception as e:
                 raise AnsibleFilterError(
                     f"redirect_uris: get_url failed for app '{app_id}' with domain '{d}': {e}"
-                )
+                ) from e
             uris.append(f"{url}{wildcard}")
 
     return _stable_dedup(uris) if dedup else uris
 
 
-class FilterModule(object):
+class FilterModule:
     """Infinito.Nexus redirect URI builder (uses get + get_url)"""
 
     def filters(self):

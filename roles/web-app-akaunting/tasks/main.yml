@@ -12,10 +12,10 @@
   include_role:
     name: sys-stk-full
   vars:
-    docker_git_repository_address:        "https://github.com/akaunting/docker.git"
-    docker_git_repository_pull:           true
-    docker_git_repository_version:        "master"
-    docker_compose_flush_handlers:        true
+    compose_repository_url: "{{ AKAUNTING_REPOSITORY }}"
+    compose_repository_pull: true
+    compose_repository_ref: "{{ AKAUNTING_REF }}"
+    compose_handlers_flush: true
 
 - name: "Akaunting | Create first-run marker to disable future setup"
   ansible.builtin.file:

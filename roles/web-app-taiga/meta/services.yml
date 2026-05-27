@@ -1,33 +1,40 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  repository: https://github.com/infinito-nexus/taiga-oidc.git
+  ref: c623b753047ce9923f3e38614d86e81fc5eb2bb1
 ldap:
-  enabled: false
-  shared: true
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+# nocheck: dynamic-flag
 oauth2:
   enabled: false
   origin:
     host: gateway
-    port: '80'
+    port: "80"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 taiga:
+  repository: https://github.com/taigaio/taiga-docker
+  ref: main
   version: latest
   min_storage: 10GB
-  cpus: '1.0'
+  cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 1.5g
   pids_limit: 512
@@ -36,55 +43,67 @@ taiga:
       oauth2: 16491
       http: 8027
   run_after:
-  - web-app-matomo
-  - web-app-keycloak
+    - web-app-matomo
+    - web-app-keycloak
   lifecycle: beta
 async:
-  cpus: '1.0'
+  cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 1.5g
   pids_limit: 512
 front:
-  cpus: '0.3'
+  cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
 gateway:
-  cpus: '0.3'
+  image: nginx
+  version: alpine
+  cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
 events:
-  cpus: '0.3'
+  image: taigaio/taiga-events
+  version: latest
+  cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
 async-rabbitmq:
-  cpus: '1.0'
+  image: rabbitmq
+  version: "4.3-management-alpine"
+  cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 1.5g
   pids_limit: 512
 events-rabbitmq:
-  cpus: '0.5'
+  image: rabbitmq
+  version: "4.3-management-alpine"
+  cpus: "0.5"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
 manager:
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 256
 protected:
-  cpus: '0.2'
+  image: taigaio/taiga-protected
+  version: latest
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
-  enabled: true
-  shared: true
+  enabled: false
+  shared: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

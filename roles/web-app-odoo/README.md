@@ -65,18 +65,19 @@ Additional modules can be enabled via the `modules.optional` configuration in th
 Deploy Odoo using the standard Infinito.Nexus deployment command:
 
 ```bash
-APPS=web-app-odoo make deploy-fresh-purged-apps
+make compose-deploy mode=reinstall apps=web-app-odoo
 ```
 
 For subsequent updates:
 
 ```bash
-APPS=web-app-odoo make deploy-reuse-kept-apps
+make compose-deploy mode=update apps=web-app-odoo
 ```
 
 ## Access
 
 After deployment, Odoo is accessible at:
+
 - **URL:** `odoo.erp.{DOMAIN}` (HTTPS)
 - **Admin Login:** Uses configured administrator credentials
 - **SSO Login:** "Login with SSO" button (when OIDC is enabled)
@@ -95,7 +96,7 @@ The role includes a custom `auth_oauth_https` addon that fixes OAuth redirect UR
 ### Inspecting the Container
 
 ```bash
-make exec
+make compose-exec
 # Then inside the container:
 odoo shell -d <database_name>
 ```
@@ -108,6 +109,7 @@ docker logs odoo -f
 
 ## Credits
 
-Developed by **Evangelos Tsakos**.
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

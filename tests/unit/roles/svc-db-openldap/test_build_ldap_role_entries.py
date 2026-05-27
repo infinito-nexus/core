@@ -1,15 +1,17 @@
-import unittest
-import os
 import importlib.util
+import unittest
+from pathlib import Path
 
-current_dir = os.path.dirname(__file__)
-filter_plugin_path = os.path.abspath(
-    os.path.join(current_dir, "../../../../roles/svc-db-openldap/filter_plugins")
+current_dir = str(Path(__file__).parent)
+filter_plugin_path = str(
+    Path(
+        str(Path(current_dir) / "../../../../roles/svc-db-openldap/filter_plugins")
+    ).resolve()
 )
 
 spec = importlib.util.spec_from_file_location(
     "build_ldap_role_entries",
-    os.path.join(filter_plugin_path, "build_ldap_role_entries.py"),
+    str(Path(filter_plugin_path) / "build_ldap_role_entries.py"),
 )
 ble_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ble_module)

@@ -1,3 +1,4 @@
+---
 - name: "Extract Google reCAPTCHA config from realm dictionary"
   set_fact:
     kc_recaptcha_cfg: >-

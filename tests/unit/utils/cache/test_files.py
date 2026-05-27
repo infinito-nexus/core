@@ -20,6 +20,7 @@ from utils.cache.files import (
     iter_project_files_with_content,
     read_text,
 )
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 
 def _touch(path: Path, content: str = "") -> Path:
@@ -75,7 +76,7 @@ class TestIterProjectFiles(_ProjectRootFixture, unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         # Build a small synthetic tree.
-        _touch(self.root / "roles/web-app-foo/meta/services.yml", "foo: 1")
+        _touch(self.root / f"roles/web-app-foo/{ROLE_FILE_META_SERVICES}", "foo: 1")
         _touch(self.root / "roles/web-app-foo/templates/x.j2", "{{ x }}")
         _touch(self.root / "docs/readme.md", "# Hi")
         _touch(self.root / "tests/unit/test_a.py", "import unittest")

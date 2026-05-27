@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Ultra-fast + YAML-strict integration test (single pass, per-suffix validation)
@@ -25,10 +24,13 @@ Implementation details:
 import os
 import re
 import unittest
+from pathlib import Path
 
 from utils.cache.files import iter_project_files, read_text
-
 from utils.cache.yaml import load_yaml_all_str
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
+
+from . import PROJECT_ROOT
 
 try:
     import yaml  # PyYAML
@@ -43,14 +45,8 @@ RUN_ONCE_USAGE_RE = re.compile(r"\brun_once_([A-Za-z0-9_]+)\b")
 RUN_ONCE_TASK_FILES = ("utils/once/flag.yml",)
 
 
-def project_root():
-    return os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-    )
-
-
 def roles_root(root: str) -> str:
-    return os.path.join(root, "roles")
+    return str(Path(root) / "roles")
 
 
 def walk_yaml_files(root: str):
@@ -66,7 +62,7 @@ def read_text_safe(path: str):
 
 
 # ---------- YAML loader that tolerates unknown tags (!vault etc.) ----------
-class TolerantLoader(yaml.SafeLoader):  # type: ignore
+class TolerantLoader(yaml.SafeLoader):
     pass
 
 
@@ -127,7 +123,7 @@ def collect_set_fact_suffixes(obj, out_suffixes: set[str]):
     elif isinstance(obj, dict):
         sf = obj.get("set_fact") or obj.get("ansible.builtin.set_fact")
         if isinstance(sf, dict):
-            for k in sf.keys():
+            for k in sf:
                 if isinstance(k, str):
                     m = RUN_ONCE_USAGE_RE.fullmatch(k.strip())
                     if m:
@@ -176,8 +172,7 @@ def role_defines_suffix_in_doc(doc, role_suffix: str) -> bool:
             if isinstance(sf, dict) and target_var in sf:
                 return True
             # Recurse
-            for v in node.values():
-                queue.append(v)
+            queue.extend(node.values())
         elif isinstance(node, list):
             queue.extend(node)
     return False
@@ -185,7 +180,7 @@ def role_defines_suffix_in_doc(doc, role_suffix: str) -> bool:
 
 class RunOnceGlobalUsageFastTest(unittest.TestCase):
     def test_run_once_used_anywhere_requires_exact_definition(self):
-        root = project_root()
+        root = str(PROJECT_ROOT)
         rroot = roles_root(root)
 
         # Discover roles and their suffixes
@@ -194,16 +189,16 @@ class RunOnceGlobalUsageFastTest(unittest.TestCase):
         role_tasks_roots: dict[str, str] = {}
         known_suffixes: set[str] = set()
 
-        if os.path.isdir(rroot):
+        if Path(rroot).is_dir():
             for entry in os.listdir(rroot):
-                main_yml = os.path.join(rroot, entry, "tasks", "main.yml")
-                if os.path.isfile(main_yml):
+                main_yml = str(Path(rroot) / entry / ROLE_FILE_TASKS_MAIN)
+                if Path(main_yml).is_file():
                     roles.append(entry)
                     suffix = entry.replace("-", "_")
                     suffix_for_role[entry] = suffix
                     known_suffixes.add(suffix)
                     role_tasks_roots[entry] = (
-                        os.path.join(rroot, entry, "tasks") + os.sep
+                        str(Path(rroot) / entry / "tasks") + os.sep
                     )
 
         # Collections built in one pass
@@ -265,26 +260,26 @@ class RunOnceGlobalUsageFastTest(unittest.TestCase):
         offenders: list[tuple[str, str, str]] = []
 
         # A) Unknown suffixes used (no corresponding role) must be globally defined
-        for suffix in sorted(used_suffixes):
-            if suffix not in known_suffixes and suffix not in global_defined_suffixes:
-                offenders.append(
-                    (
-                        "<no-role>",
-                        f"run_once_{suffix}",
-                        "<global usage without global set_fact>",
-                    )
-                )
+        offenders.extend(
+            (
+                "<no-role>",
+                f"run_once_{suffix}",
+                "<global usage without global set_fact>",
+            )
+            for suffix in sorted(used_suffixes)
+            if suffix not in known_suffixes and suffix not in global_defined_suffixes
+        )
 
         # B) Known role suffixes used must be defined either globally or in that exact role
         for role in sorted(roles):
             suffix = suffix_for_role[role]
-            if suffix in used_suffixes:
-                if (suffix not in global_defined_suffixes) and (
-                    suffix not in role_defined_suffixes[role]
-                ):
-                    offenders.append(
-                        (role, f"run_once_{suffix}", os.path.join(rroot, role, "tasks"))
-                    )
+            if suffix in used_suffixes and (
+                suffix not in global_defined_suffixes
+                and suffix not in role_defined_suffixes[role]
+            ):
+                offenders.append(
+                    (role, f"run_once_{suffix}", str(Path(rroot) / role / "tasks"))
+                )
 
         if offenders:
             lines = [

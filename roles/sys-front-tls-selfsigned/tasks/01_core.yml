@@ -121,9 +121,9 @@
 - name: "TLS | (self_signed) generate leaf cert (only when missing or SAN drift)"
   ansible.builtin.include_tasks: 02_generate_leaf.yml
   when: >-
-      {{
-        (not (_ss_cert_stat.stat.exists | default(false))) or
-        ((_ss_wanted_sans | difference(_ss_existing_sans) | length) > 0)
-      }}
+    {{
+      (not (_ss_cert_stat.stat.exists | default(false))) or
+      ((_ss_wanted_sans | difference(_ss_existing_sans) | length) > 0)
+    }}
 
 - include_tasks: utils/once/flag.yml

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Iterable, Tuple
+from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any as _load_yaml_cached
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
 
 DOCKER_HUB_PREFIXES = (
     "docker.io/",
@@ -14,7 +17,8 @@ DOCKER_HUB_PREFIXES = (
 )
 
 # All registry hostname prefixes that are stripped when building the canonical name.
-_ALL_REGISTRY_PREFIXES = DOCKER_HUB_PREFIXES + (
+_ALL_REGISTRY_PREFIXES = (
+    *DOCKER_HUB_PREFIXES,
     "quay.io/",
     "ghcr.io/",
     "mcr.microsoft.com/",
@@ -43,7 +47,7 @@ class ImageRef:
     registry: str = (
         "docker.io"  # source registry hostname, e.g. docker.io, quay.io, ghcr.io
     )
-    source_file: str = "meta/services.yml"  # "meta/services.yml" or "defaults/main.yml"
+    source_file: str = ROLE_FILE_META_SERVICES
 
 
 def load_yaml(path: Path) -> dict:
@@ -97,7 +101,7 @@ def normalize_docker_hub(image: str) -> str:
     return image
 
 
-def split_name_and_suffix(image: str) -> Tuple[str, str]:
+def split_name_and_suffix(image: str) -> tuple[str, str]:
     """
     Split image into base name and suffix:
       repo/name:tag   -> (repo/name, :tag)
@@ -173,17 +177,13 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     """
     Yield all ImageRef entries discovered across all roles in *repo_root*.
 
-    Sources:
-      1. roles/**/meta/services.yml → <entity>.{image,version}   (post-req-008)
-      2. roles/**/defaults/main.yml → images.<name>.{image,version}
+    Source: roles/**/meta/services.yml → <entity>.{image,version}.
 
     See docs/contributing/artefact/image.md for the full format reference.
     """
     roles_dir = repo_root / "roles"
 
-    # 1. Images from meta/services.yml. The file root IS the services map
-    # (per req-008 file-root convention) keyed by <entity_name>.
-    for services_file in roles_dir.glob("**/meta/services.yml"):
+    for services_file in roles_dir.glob(f"**/{ROLE_FILE_META_SERVICES}"):
         role_name = services_file.parent.parent.name
         services = load_yaml(services_file)
 
@@ -210,37 +210,5 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
                 version=version,
                 source=image_source(image, version),
                 registry=_detect_registry(image),
-                source_file="meta/services.yml",
-            )
-
-    # 2. Images from defaults/main.yml → images.<name>.{image,version}
-    for vars_file in roles_dir.glob("**/defaults/main.yml"):
-        role_name = vars_file.parent.parent.name
-        data = load_yaml(vars_file)
-
-        images = data.get("images", {})
-        if not isinstance(images, dict):
-            continue
-
-        for service_name, entry in images.items():
-            if not isinstance(entry, dict):
-                continue
-
-            image = (entry.get("image") or "").strip()
-            version = (entry.get("version") or "").strip()
-
-            if not image or not version:
-                continue
-
-            if not is_mirrorable_image(image):
-                continue
-
-            yield ImageRef(
-                role=role_name,
-                service=str(service_name),
-                name=canonical_image_name(image),
-                version=version,
-                source=image_source(image, version),
-                registry=_detect_registry(image),
-                source_file="defaults/main.yml",
+                source_file=ROLE_FILE_META_SERVICES,
             )

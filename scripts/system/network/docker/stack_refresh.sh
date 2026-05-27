@@ -15,5 +15,5 @@ if [[ "${stack_was_running}" -ne 1 ]]; then
 fi
 
 echo "[stack-refresh] recreating running Infinito dev stack"
-make -C "${REPO_ROOT}" down
-make -C "${REPO_ROOT}" up
+make -C "${REPO_ROOT}" compose-down
+make -C "${REPO_ROOT}" compose-up

@@ -1,8 +1,9 @@
-import unittest
-import pathlib
 import importlib.util
+import unittest
 
 from ansible.errors import AnsibleFilterError
+
+from . import PROJECT_ROOT
 
 
 def _load_social_module():
@@ -12,13 +13,8 @@ def _load_social_module():
     This helper allows the test to be executed from the repository root
     without requiring the roles directory to be a Python package.
     """
-    # Resolve repository root based on this test file location:
-    # tests/unit/roles/web-app-dashboard/filter_plugins/test_social.py
-    test_file = pathlib.Path(__file__).resolve()
-    repo_root = test_file.parents[5]
-
     social_path = (
-        repo_root / "roles" / "web-app-dashboard" / "filter_plugins" / "social.py"
+        PROJECT_ROOT / "roles" / "web-app-dashboard" / "filter_plugins" / "social.py"
     )
 
     if not social_path.is_file():

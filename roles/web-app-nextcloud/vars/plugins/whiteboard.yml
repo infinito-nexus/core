@@ -1,3 +1,4 @@
+---
 plugin_configuration:
   - appid: "whiteboard"
     configkey: "collabBackendUrl"

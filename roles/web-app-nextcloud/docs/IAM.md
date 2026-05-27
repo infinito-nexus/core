@@ -1,9 +1,10 @@
 # Identity and Access Management
+
 IAM(Identity and Access Management) is setup via Keycloak and LDAP.
 
 ## OpenID Connect (OIDC) Support 🔐
 
-OIDC is supported in this role—for example, via **Keycloak**. OIDC-specific tasks are included when enabled, allowing integration of external authentication providers seamlessly.
+OIDC is supported in this role (for example, via **Keycloak**). OIDC-specific tasks are included when enabled, allowing integration of external authentication providers seamlessly.
 
 ### Verify OIDC Configuration
 
@@ -11,9 +12,9 @@ OIDC is supported in this role—for example, via **Keycloak**. OIDC-specific ta
 compose exec -u www-data application /var/www/html/occ config:app:get sociallogin custom_providers
 ```
 
-## LDAP 
+## LDAP
 
-More information: https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html
+More information: <https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html>
 
 ## Get LDAP Configuration
 
@@ -40,6 +41,7 @@ compose exec -u www-data application php occ user:sync-account-data
 ```
 
 ### Update Each User
+
 If you want to update **every LDAP user**, run:
 
 ```bash
@@ -49,6 +51,7 @@ done
 ```
 
 ### Unlink All
+
 ```bash
 for user in $(compose exec -u www-data application php occ ldap:show-remnants | tail -n +3 | awk -F '|' '{print $2}' | tr -d ' ' | grep -v '^$'); do
     echo "Unlinking user from LDAP: $user"
@@ -57,6 +60,7 @@ done
 ```
 
 ### Reset LDAP Links for Orphaned Users
+
 Run this **corrected script**:
 
 ```bash
@@ -66,7 +70,6 @@ for user in $(compose exec -u www-data application php occ ldap:show-remnants | 
 done
 ```
 
-
 ## Federation
 
-If users are just created via Keycloak and not via LDAP, they have a different username. Due to this reaso concider to use LDAP to guaranty that the username is valid. 
+If users are just created via Keycloak and not via LDAP, they have a different username. Due to this reaso concider to use LDAP to guaranty that the username is valid.

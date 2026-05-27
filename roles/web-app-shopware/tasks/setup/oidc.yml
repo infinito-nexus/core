@@ -1,3 +1,4 @@
+---
 # Replace INFX_OIDC_PLUGIN with the actual plugin name (Composer or local)
 - name: "Install OIDC plugin & activate"
   shell: |

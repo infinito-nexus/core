@@ -13,7 +13,7 @@
 #   KC_REALM             realm name
 #   LDAP_COMPONENT_ID    Keycloak LDAP component id (parentId)
 #   MAPPER_NAME          mapper name (rendered by the `kc_per_app_mapper_name`
-#                        Ansible filter, requirement-005 SPOT)
+#                        Ansible filter, derived per SPOT)
 #   PAYLOAD_FILE         host-side path to the rendered mapper JSON
 set -o pipefail
 : "${KC_CONTAINER:?KC_CONTAINER is required}"

@@ -1,6 +1,7 @@
 """Unit tests for the per-role `meta/variants.yml` matrix-deploy
-loader (`utils.cache.applications.get_variants` and the variant-zero
-default in `get_merged_applications`)."""
+loader (`utils.cache.applications.get_variants`) and the variant-free
+base-config default that `get_merged_applications` falls back on when
+no inventory-level `applications.<app>` override is set."""
 
 import os
 import sys
@@ -8,17 +9,25 @@ import textwrap
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from . import PROJECT_ROOT
 
-from utils.cache import _reset_cache_for_tests  # noqa: E402
-from utils.cache.applications import (  # noqa: E402
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from utils.cache import _reset_cache_for_tests
+from utils.cache.applications import (
     _build_variants,
-    _load_variants_overrides as _load_yaml_variant_list,
     get_application_defaults,
     get_merged_applications,
     get_variants,
+)
+from utils.cache.applications import (
+    _load_variants_overrides as _load_yaml_variant_list,
+)
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
 )
 
 
@@ -33,18 +42,18 @@ def _write_role(
     """Write a synthetic role tree under <roles_dir>/<name>/meta/.
 
     ``config``  -> meta/services.yml content (the file root IS the services
-                   map post req-008)
+                   map)
     ``server``  -> meta/server.yml content
     ``meta``    -> meta/variants.yml content (matrix-deploy variant list)
     """
     role = roles_dir / name
     (role / "meta").mkdir(parents=True, exist_ok=True)
     if config is not None:
-        (role / "meta" / "services.yml").write_text(textwrap.dedent(config))
+        (role / ROLE_FILE_META_SERVICES).write_text(textwrap.dedent(config))
     if server is not None:
-        (role / "meta" / "server.yml").write_text(textwrap.dedent(server))
+        (role / ROLE_FILE_META_SERVER).write_text(textwrap.dedent(server))
     if meta is not None:
-        (role / "meta" / "variants.yml").write_text(textwrap.dedent(meta))
+        (role / ROLE_FILE_META_VARIANTS).write_text(textwrap.dedent(meta))
 
 
 class TestLoadYamlVariantList(unittest.TestCase):
@@ -65,7 +74,7 @@ class TestLoadYamlVariantList(unittest.TestCase):
 
     def test_non_list_root_rejected(self):
         path = Path(self._write_tmp("a: 1\n"))
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             _load_yaml_variant_list(path)
 
     def test_non_mapping_entry_rejected(self):
@@ -76,10 +85,8 @@ class TestLoadYamlVariantList(unittest.TestCase):
     def _write_tmp(self, content: str) -> str:
         import tempfile
 
-        f = tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False)
-        f.write(content)
-        f.flush()
-        f.close()
+        with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False) as f:
+            f.write(content)
         self.addCleanup(os.remove, f.name)
         return f.name
 
@@ -108,12 +115,12 @@ class TestApplicationVariants(unittest.TestCase):
         )
 
     def test_role_with_two_variants_deep_merges_each_entry(self):
-        # Per req-008, the role's meta is split: server -> meta/server.yml,
+        # Per, the role's meta is split: server -> meta/server.yml,
         # services -> meta/services.yml. The variants file overrides the
         # assembled payload (top-level keys: server, services, ...).
         role = self.roles_dir / "web-app-bar"
         (role / "meta").mkdir(parents=True, exist_ok=True)
-        (role / "meta" / "services.yml").write_text(
+        (role / ROLE_FILE_META_SERVICES).write_text(
             textwrap.dedent(
                 """
                 bar:
@@ -121,7 +128,7 @@ class TestApplicationVariants(unittest.TestCase):
                 """
             )
         )
-        (role / "meta" / "server.yml").write_text(
+        (role / ROLE_FILE_META_SERVER).write_text(
             textwrap.dedent(
                 """
                 domains:
@@ -129,7 +136,7 @@ class TestApplicationVariants(unittest.TestCase):
                 """
             )
         )
-        (role / "meta" / "variants.yml").write_text(
+        (role / ROLE_FILE_META_VARIANTS).write_text(
             textwrap.dedent(
                 """
                 - {}
@@ -152,7 +159,7 @@ class TestApplicationVariants(unittest.TestCase):
             ["bar.example", "shop.bar.example"],
         )
 
-    def test_legacy_get_application_defaults_returns_first_variant(self):
+    def test_get_application_defaults_returns_variant_free_base_config(self):
         _write_role(
             self.roles_dir,
             "web-app-baz",
@@ -169,6 +176,33 @@ class TestApplicationVariants(unittest.TestCase):
         defaults = get_application_defaults(roles_dir=self.roles_dir)
         self.assertEqual(defaults["web-app-baz"]["services"]["baz"]["value"], 1)
 
+    def test_get_application_defaults_omits_variant_zero_only_keys(self):
+        """Defaults MUST come from the variant-free base config, not
+        variant 0. Otherwise a service key that only variant 0 enables
+        (and that variant N intentionally omits) leaks into variant N's
+        runtime view via deep-merge in `get_merged_applications`."""
+        _write_role(
+            self.roles_dir,
+            "web-app-leak",
+            config="alpha:\n  enabled: false\n",
+            meta=textwrap.dedent(
+                """
+                - services:
+                    alpha:
+                      enabled: true
+                      shared: true
+                - services:
+                    beta:
+                      enabled: true
+                      shared: true
+                """
+            ),
+        )
+        defaults = get_application_defaults(roles_dir=self.roles_dir)
+        alpha = defaults["web-app-leak"]["services"]["alpha"]
+        self.assertEqual(alpha.get("enabled"), False)
+        self.assertNotIn("beta", defaults["web-app-leak"]["services"])
+
     def test_get_variants_caches_per_roles_dir(self):
         _write_role(self.roles_dir, "web-app-cache", config="cache:\n  x: 1\n")
         first = get_variants(roles_dir=self.roles_dir)
@@ -184,13 +218,14 @@ class TestApplicationVariants(unittest.TestCase):
         )
 
 
-class TestMergedApplicationsAlwaysVariantZero(unittest.TestCase):
-    """The runtime loader no longer reads any active-variant selector.
-    Variant N data is baked into the inventory by
-    `cli.deploy.development.inventory.build_dev_inventory` at init time
+class TestMergedApplicationsUsesBaseConfig(unittest.TestCase):
+    """The runtime loader reads no active-variant selector. Variant N
+    data is baked into the inventory by
+    `cli.administration.deploy.development.inventory.build_dev_inventory` at init time
     and reaches the merged payload as an `applications.<app>` override.
-    These tests pin that contract: the loader's defaults are ALWAYS
-    variant 0, and inventory-level overrides win as before."""
+    The loader's defaults are the role's variant-free base config so
+    no variant's service flags leak into another variant's runtime view
+    via deep-merge; inventory-level overrides remain authoritative."""
 
     def setUp(self):
         import tempfile
@@ -225,7 +260,7 @@ class TestMergedApplicationsAlwaysVariantZero(unittest.TestCase):
         shutil.rmtree(self.tmp, ignore_errors=True)
         _reset_cache_for_tests()
 
-    def test_no_inventory_overrides_yield_variant_zero(self):
+    def test_no_inventory_overrides_yield_base_config(self):
         merged = get_merged_applications(
             variables={},
             roles_dir=str(self.roles_dir),

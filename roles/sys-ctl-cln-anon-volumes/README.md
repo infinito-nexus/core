@@ -18,3 +18,10 @@ This role automates the removal of orphaned Docker volumes that consume unnecess
 - **Python-based Install:** Installs `dockreap` (isolated, system-friendly CLI install).
 - **Idempotent Execution:** Ensures the tool is installed and run only once per playbook run.
 - **Symlink-Aware:** Safely handles symlinked `_data` directories and their targets.
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

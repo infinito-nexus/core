@@ -6,7 +6,7 @@
 
 ## Overview
 
-Fediwall is a static, single-page web application — no backend, no database, no user accounts. Configuration lives in a `wall-config.json` next to `index.html` and can be overridden per-visitor through URL parameters.
+Fediwall is a static, single-page web application with no backend, no database, and no user accounts. Configuration lives in a `wall-config.json` next to `index.html` and can be overridden per-visitor through URL parameters.
 
 This role bakes the upstream release artefact into a small `nginx:alpine` image and supports **multiple walls per deployment**: every entry under [`meta/services.yml.fediwall.walls`](meta/services.yml) materializes as its own path under `https://fediwall.<DOMAIN_PRIMARY>/<slug>/` with its own baked-in `wall-config.json`. The root `/` shows a link list of all configured walls.
 
@@ -25,3 +25,10 @@ A wall's `config.servers` may be left empty to auto-fill with the active Mastodo
 
 - [Fediwall GitHub Repository](https://github.com/defnull/fediwall)
 - [Public demo: fediwall.social](https://fediwall.social/)
+
+## Credits
+
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

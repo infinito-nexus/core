@@ -1,6 +1,8 @@
+# Changelog
+
 ## [7.0.0] - 2026-05-08
 
-* * This major release migrates every role to the new meta/ layout with explicit per-role networks, ports, run_after, and info.yml metadata, introduces a variant-aware matrix-deploy planner, ships a process-wide YAML / file / registry caching stack, promotes 13+ apps from alpha to beta, and adds a lint corpus that pins the new conventions in CI.
+This major release migrates every role to the new meta/ layout with explicit per-role networks, ports, run_after, and info.yml metadata, introduces a variant-aware matrix-deploy planner, ships a process-wide YAML / file / registry caching stack, promotes 13+ apps from alpha to beta, and adds a lint corpus that pins the new conventions in CI.
 
 **Major Changes**
 
@@ -30,7 +32,7 @@
 * Pinned image versions explicitly: SuiteCRM PHP 8.2, Nextcloud 33-fpm-alpine, Moodle PHP 8.3-fpm, Hugo nginx 1.30.0-alpine; opted Ubuntu's docker-compose-v2 out of the package selection
 * Migrated Decidim, OpenLDAP schema, Postgres grant-schema, Fider, Odoo OIDC, and svc-db-postgres SQL into dedicated files/*.sql so the inline-multiline-SQL lint stays at zero
 * Tightened the compose-resource-limits lint and reconciled the entire role corpus against it
-* Adopted the unified # nocheck: <kebab-rule> suppression marker repo-wide; reserved # noqa: for real ruff/flake8 codes
+* Adopted the unified `# nocheck: <kebab-rule>` suppression marker repo-wide; reserved `# noqa:` markers for real ruff/flake8 codes
 
 **Fixed**
 
@@ -44,7 +46,7 @@
 * Fixed env-test suites: dynamic Fedora release resolution in the cache probe, compose-network discovery for the DiD probe, and oauth2-proxy allowed_groups slash normalization
 * Fixed meta drift: req-008 sweep gaps (lost suppressions, silent test breakage, one prod bug), host-bound port collisions on 8071/8072, subnet collisions on 192.168.105.{48,64}/28, and Moodle resource limits
 * Fixed utils.cache Ansible coupling: data is importable without ansible, the GID resolver works without ansible, and the YAML cache invalidates per-path entries when mtime/size changes
-* Fixed the sys-svc-container package selection on Ubuntu; the Makefile clean target is resilient to container-owned __pycache__ files
+* Fixed the sys-svc-container package selection on Ubuntu; the Makefile clean target is resilient to container-owned **pycache** files
 * Fixed Bluesky cross-variant recovery + URL-test failures (req-013)
 
 **CI and Tests**
@@ -61,10 +63,9 @@
 
 * [Kevin Veen-Birkenbach](https://www.veen.world/)
 
-
 ## [6.0.0] - 2026-04-25
 
-* This release expands the application portfolio with new civic, ERP, feedback, and observability roles, replaces legacy generated runtime data with lookup-driven configuration and service loading, broadens Playwright end-to-end coverage across the stack, and hardens CI, local development, and deployment reliability.
+This release expands the application portfolio with new civic, ERP, feedback, and observability roles, replaces legacy generated runtime data with lookup-driven configuration and service loading, broadens Playwright end-to-end coverage across the stack, and hardens CI, local development, and deployment reliability.
 
 **Major Changes**
 
@@ -120,10 +121,12 @@
 * [Evangelos Tsakoudis](https://github.com/evangelostsak)
 * [Prageeth Panicker](https://github.com/pragepani)
 
-
 ## [5.2.0] - 2026-03-21
-* This minor release adds Mattermost deployment support, improves release image automation, and hardens CI, Ansible plugin handling, and application deployment reliability across the stack.
+
+This minor release adds Mattermost deployment support, improves release image automation, and hardens CI, Ansible plugin handling, and application deployment reliability across the stack.
+
 **Added**
+
 * Added *web-app-mattermost* with Docker Compose deployment, PostgreSQL support, Keycloak-based SSO via the GitLab OAuth2 provider, and optional Mailu integration
 * Added retry-capable *uri_retry* and *get_url_retry* action plugins with dedicated unit and integration test coverage
 * Added a scheduled/manual workflow to backfill the highest missing release image tag in GHCR
@@ -152,9 +155,13 @@
 **Contributors**
 * [Kevin Veen-Birkenbach](https://www.veen.world/)
 * [Alejandro Roman](https://github.com/AlejandroRomanIbanez)
+
 ## [5.1.0] - 2026-02-28
-* This minor release improves cross-distro package handling, hardens CI reliability, fixes Ansible compatibility issues, and adds clearer contributor and local test workflows.
+
+This minor release improves cross-distro package handling, hardens CI reliability, fixes Ansible compatibility issues, and adds clearer contributor and local test workflows.
+
 **Added**
+
 * Introduced *docs/guides/developer/CONTRIBUTION_WORKFLOW.md* with fork-based workflow, mandatory green fork CI before PRs, and merge policy guidance
 * Added the single-app local deploy wrapper and related local test documentation
 * Added *min_storage* entries for warned roles
@@ -176,15 +183,20 @@
 * Added retry loop for buildx push
 * Aggressively pruned Docker artifacts between distro runs
 * Removed deprecated buildx install input
+
 ## [5.0.0] - 2026-02-25
-* * **Supported distributions:** *Fedora*, *CentOS*, *Ubuntu*, *Debian*
+
+* **Supported distributions:** *Fedora*, *CentOS*, *Ubuntu*, *Debian*
 * **Breaking Changes:** Migration from *util-* to bundle inventories under *inventories/bundles/*; deployments must migrate to new bundle and role names. Central package and AUR model via *SYS_PACKAGES* and *SYS_AUR_PACKAGES*; new roles *sys-aur* and *sys-aur-install*; renames including *util-desk-dev-core* to *dev-core*, *util-desk-dev-python* to *dev-python*, *util-desk-dev-arduino* to *dev-arduino*; *util-srv-corporate-identity* removed.
 * **Added:** New workstation bundles (*admin*, *admin-network*, *browser*, *design*, *dev-arduino*, *dev-core*, *dev-java*, *dev-php*, *dev-python*, *dev-shell*, *game-compose*, *game-os*, *game-windows*, *office*). Inventory driven *sys-package* role with constructor auto load when *SYS_PACKAGES* is set. New roles *sys-openssl* and *sys-aur-install*. New lookup plugin *command_path*. New variable *SOFTWARE_URL* and updated login banner.
 * **Changed:** Default distribution switched to *Debian* and CI image handling aligned. Python baseline raised: *dev-python* installs Python 3.11+ by default; *requires-python* raised to *>=3.11*. Cross distro Python interpreter and pip handling unified via *sys-pip-install*. Dashboard deployment uses fixed image *ghcr.io/kevinveenbirkenbach/port-ui:1.0.0* and mounts generated *config.yaml* read only. Alerting hardened with explicit timeouts for compose and email, plus portable mailer and systemd instance fallbacks.
 * **Fixed:** OpenProject migrations stabilized (simplified migration step; preload *CustomFieldContext* before *db:migrate*). Nextcloud LDAP config hardened and incompatible apps disabled in production. XWiki extension install hardened and one time seed ensures *Main.WebHome* exists. Matomo bootstrap fails fast on root cause. TLS and CA improvements (unified self signed CA env for health services, retries for CA trust override generation, Nix TLS CA trust fix). *msmtp* improved on Fedora. OpenLDAP *python-ldap* build prerequisites and header fallback refactored; per user *password_update* policy added. Backup and ops fixes (OnlyOffice no restart during backups; backup home and ACL tasks more reliable). Container setup hardened (Fedora Docker CE CLI, dnf5 repo add, Debian buildx conflict fix, Docker readiness and SSH restart improvements).
 * **CI and Tests:** New integration tests for portable python shebangs, forbid *sh -lc* with *pipefail*, and improved variable checks. CI stability improvements for per distro stacks and mirror resolver via venv Python, plus more robust package manager retries.
+
 ## [4.1.0] - 2026-02-17
-* **Added**
+
+**Added**
+
 * Controller-side *version* lookup plugin reading from *pyproject.toml* (with Poetry fallback)
 * New *unit_name* lookup plugin for consistent versioned systemd unit generation
 * Automatic prune phase in *sys-service* (stop/disable outdated units, remove old unit files, trigger daemon-reload)
@@ -200,286 +212,47 @@
 * Legacy *FILE_VERSION* mechanism
 * Deprecated *get_service_name* filter
 * Legacy *simpleicons_host_* variables
+
 ## [4.0.3] - 2026-02-16
+
 * Try Matomo Boostrap 7 times if errors occure
-## [4.0.2] - 2026-02-15
-* Matomo upgrade to 1.1.13
-## [4.0.1] - 2026-02-15
-* This release focuses on improving Matomo installation stability, aligning base images, and introducing automated CI image cleanup.
-**Improvements**
-* Upgraded *matomo-bootstrap* to v1.1.12 and aligned with the latest Matomo version
-* Increased installer stability with explicit timeout environment variables
-* Extended timeout for the flaky *setupSuperUser* step
-* Properly quoted *MATOMO_ADMIN_PASSWORD* in bootstrap environment
-* Removed obsolete debug code referencing a non-existent *--debug* parameter
-**Base Image Changes**
-* Changed default distribution from Arch → Debian (slimmer, better aligned with published images)
-* Refactored *mig* to use the published image and aligned Debian aliases
-* Fixed integration tests
-**CI Enhancements**
-* Renamed mirror workflows (*mirror-images-* → *images-mirror-*)
-* Added automated weekly + manual GHCR cleanup workflow
-* Cleanup removes only *ci-* tagged images older than 7 days
-* Extracted cleanup logic into a dedicated script
-* Supports both user and organization GHCR registries
-**Result**
-More stable Matomo installations, leaner base images, and improved CI image lifecycle management.
-## [4.0.0] - 2026-02-13
-* **Breaking Changes**
-* Renamed *compose.services.desktop* to *compose.services.dashboard*
-* Renamed role *web-app-desktop* to *web-app-dashboard*
-  → Custom inventories and overrides must be updated accordingly
-**Added**
-* Introduced bundle-based server inventories under *inventories/servers/*
-**Changed**
-* *DOMAIN_PRIMARY* is now strictly validated (especially for Dashboard and OpenResty)
-* Homepage domain is resolved automatically (Dashboard domain is preferred if present)
-## [3.0.0] - 2026-02-11
-* **🚨 Breaking Changes**
-* Deployment type flag removed
-  The CLI flag *-T / TEST_DEPLOY_TYPE* has been removed. Deployment types are now derived automatically from invokable role rules.
-* Universal stage execution removed
-  Universal roles are no longer executed as a separate lifecycle stage. They are handled exclusively via constructor and destructor stages. This prevents duplicate executions but changes lifecycle behavior.
-* Removed CLI flags
-  The following options are no longer available:
-  *--sound*
-  *--no-signal*
-  *--alarm-timeout*
-* CI filtering changed
-  *ONLY_APP* has been replaced with a space-separated *WHITELIST*.
-  *INCLUDE_RE* and *EXCLUDE_RE* have been removed.
-  Lifecycle selection via *TESTED_LIFECYCLES* is no longer supported.
-* Web-App Chess deployment changed
-  The custom Dockerfile was removed.
-  The service now uses a prebuilt registry image.
-  Runtime *yarn install* no longer runs during container startup.
----
-**⚠ Behavior Changes**
-* Deployment type detection
-  Deployment types server, workstation, and universal are now derived strictly from centralized invokable rules. Inventory group aliases are no longer interpreted.
-* Matomo healthcheck behavior
-  Healthchecks were reworked.
-  HTTP readiness validation is stricter.
-  Bootstrap now retries before failing.
-  Container health timing differs from previous versions.
-* OpenResty image handling
-  Image and version are now resolved from role configuration instead of hardcoded variables. Custom overrides must be placed in config.
-* Docker command abstraction
-  Direct *docker exec* usage was replaced with *container exec*. Custom scripts relying on raw docker commands may require adjustment.
-* CI release triggering
-  Release logic is now driven by commit tags instead of tag-push events.
----
-**🧹 Removed**
-* Sound subsystem
-* Deprecated lifecycle filtering logic
-* Legacy matrix text-based filtering
-* Obsolete CLI and CI parameters
-## [2.1.9] - 2026-02-10
-* Matomo now waits for a real HTTP-ready state before bootstrapping, replacing the TCP check with a PHP-based /index.php healthcheck to prevent startup race conditions.
-## [2.1.8] - 2026-02-09
-* Add SSH client to the CI Docker image so Ansible controller runs no longer fail due to a missing ssh binary.
-## [2.1.7] - 2026-02-09
-* Improves CI stability by extending deploy job timeouts to 6 hours, moving compose pull retries into Ansible, and adding additional deployer metadata.
-## [2.1.6] - 2026-02-09
-* Improves CI and test robustness by fixing Jinja2 templating edge cases, unifying unittest mock imports, hardening Docker image pull retries, and resolving multiple code-scanning alerts without suppressions.
-## [2.1.5] - 2026-02-09
-* Prevents CI failures when no workstation apps are discovered by safely skipping the deploy job, and cleans up unnecessary cleanup output to keep logs readable and focused.
-## [2.1.4] - 2026-02-08
-* This release ensures that commits carrying a version tag trigger the full distro test matrix by detecting tags pointing at the current commit, while regular commits continue to run on a single random distro.
-## [2.1.3] - 2026-02-08
-* This release improves CI and developer tooling robustness by fixing hardlink-related errors, stabilizing workflow triggers, resolving type-checking import cycles, and hardening cleanup and teardown logic across the CLI and templating utilities.
-## [2.1.2] - 2026-02-08
-* Removes the v* tag trigger from the push workflow so CI runs only on branch pushes. This prevents duplicate pipeline executions when pushing a branch together with a version tag and aligns the workflow with the updated release process.
-## [2.1.1] - 2026-02-08
-* Resolved CI instability caused by incomplete Docker cleanup between distro runs
-## [2.1.0] - 2026-02-08
-* Improves CI and release reliability by simplifying workflows, correcting permission handling, and hardening the pipeline against transient upstream failures.
-## [2.0.0] - 2026-02-08
-* **Standardized container execution** by fully replacing raw Docker CLI usage with the *container* and *compose* wrappers, enforcing engine-agnostic behavior via integration tests
-* **Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys
-* **Centralized compose path resolution** and file argument handling to be deterministic, consistent, and testable
-* **Introduced strict lookup APIs** using positional *want-path* semantics for *config*, *container*, *compose*, *tls*, *cert*, *nginx*, *domain*, and *database*
-* **Improved CLI testability** by making imports patchable and forwarding command arguments unchanged
-* **Hardened CA trust, health, and repair logic** with *soft-fail* behavior, improved diagnostics, and safe handling of one-shot containers
-* **Fixed Moodle redeploy failures** by stripping the trailing slash from *CFG->wwwroot* to prevent health check issues
-* **Made Snipe-IT admin bootstrap idempotent** and treated known *users_groups* duplicate constraint errors as non-fatal while keeping strict failure handling for other cases
-* **Stabilized multi-distro CI deploys** with per-distro orchestration, two-pass *ASYNC* testing, hard cleanup between runs, and a global execution time budget
-* **Improved image mirroring workflows** with clearer separation of full and missing-only runs, branch-scoped concurrency, and deploy gating on successful mirroring
-## [1.0.0] - 2026-02-03
-### Release: Infrastructure Hardening, Mirroring & Deterministic Deploys 🚀
-This release delivers a major stability and reliability upgrade across the Infinito.Nexus ecosystem. It focuses on **deterministic deployments**, **robust TLS/CA handling**, **mirror-aware inventories**, and **CI/CD resilience**, while standardizing Docker service configuration across roles.
-### Highlights ✨
-#### TLS & Certificate Pipeline 🔐
-* Switched self-signed mode to a **CA-signed certificate chain** with deterministic trust installation
-* Strict SAN planning driven by `CURRENT_PLAY_DOMAINS_ALL`
-* Clean separation of TLS state (`tls`) and cert paths (`cert`)
-* Faster, safer cert deployment (no global sleeps, deterministic container restarts)
-* Improved domain/alias resolution and strict opt-in auto-alias behavior
-#### CA Trust Injection (Host & Containers) 🧩
-* Unified trust injection via `with-ca-trust.sh`
-* Best-effort CA installation (non-fatal in minimal/unprivileged containers)
-* Env-based trust fallbacks (`SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, …)
-* Support for distroless images, profile-only services, NSS/Chromium
-* Hardened CA override generator and correct execution order
-#### Docker Compose Tooling 🐳
-* Centralized and hardened compose wrappers (`compose-base`)
-* Strict multi-pass Jinja rendering to prevent leaked templates
-* Correct `--env-file` handling and safe argument escaping
-* Deterministic compose behavior across local, CI, and containerized environments
-#### Inventory & Image Mirroring 🪞
-* New `--mirror` support for inventory generation
-* Per-service `mirror_policy`:
-  * `if_missing` (default)
-  * `force`
-  * `skip`
-* Mirrors override **image/version only**, preserving all other service config
-* Robust GHCR mirroring with rate limiting, concurrency protection, and recompress fallback
-* CI workflows fully mirror-aware with strict env validation
-#### Standardized Service Configuration 🧱
-* Unified Docker image handling via `docker.services.<service>.image/version`
-* Refactored multiple roles (pgAdmin, Friendica, LibreTranslate, oauth2-proxy, Funkwhale, …)
-* Removed misleading/deprecated image/version flags (e.g. Nextcloud)
-#### CI & Test Guardrails 🧪
-* New integration tests enforcing:
-  * valid image/version syntax
-  * required image tags for buildable services
-* Improved CI stability (AppArmor handling, deterministic compose execution)
-#### Role Hardening & Idempotency 🛠️
-* Reliable admin bootstrap for Discourse, Snipe-IT, Taiga, WordPress
-* LDAP/OIDC fixes across multiple services (Nextcloud, Mailu, Snipe-IT, Discourse)
-* Resource limits added to prevent OOM crashes
-* Safer systemd deploy flow with deploy-safe timer handling
-* Improved admin and cleanup tooling
-### Why this matters 🧠
-* Deployments are now **predictable, repeatable, and debuggable**
-* TLS, CA trust, and Docker behavior are aligned across **local, CI, and production**
-* Image mirroring is **explicit, controlled, and safe by default**
-* Role configuration is **consistent and machine-verifiable**
-### Notes ⚠️
-* Mirroring remains **opt-in** via `--mirror`
-* Strict validation fails fast only where silent misconfiguration would be dangerous
-* Several deprecated config paths/tests were removed as part of the standardization
-## [0.12.0] - 2026-01-25
-* Hardened CI/CD pipelines with retries and Git fallback for Ansible Galaxy collections
-* Unified ShellCheck execution via container for reproducible linting
-* Enforced secure secret handling across all roles (shell quoting, dotenv, sed safety)
-* Introduced `sed_escape` filter to prevent sed injection and config corruption
-* Implemented robust, idempotent PostgreSQL superuser password rotation
-* Improved Mailu and MariaDB user/password idempotency and CLI safety
-* Added optional Django admin bootstrap and secure `SECRET_KEY` handling for Baserow
-* Refactored TLS into a single, explicit resolution layer with SAN-aware certificates
-* Improved Keycloak reliability by handling noisy CLI output without jq
-* Fixed Discourse startup issues by enforcing `C.UTF-8` locale
-* Refactored CSP health checks to operate on full URLs derived from NGINX configs (**breaking change**)
-* Improved developer experience with cleaner CLI structure, scripts, and tests
-## [0.11.0] - 2026-01-10
-* CI failures are easier to debug thanks to clear per-app logs and improved error reporting.
-## [0.10.0] - 2026-01-08
-* **More reliable workstation setups:** A dedicated *workstation user* ensures deployments and integration tests run consistently.
-* **Improved user management:** A unified *user_key* model provides clearer and more robust user and permission handling across all roles.
-* **Cleaner Docker environments:** Removing implicit cgroup volumes prevents unwanted anonymous volumes and makes container behavior more predictable.
-* **New CLI capability:** Automatic resolution of *run_after* dependencies with safe cycle detection simplifies role analysis and automation.
-* **More reliable Git configuration:** Git setup now works consistently for workstation users without broken or implicit dependencies.
-* **More robust Mailu configuration:** Optional user roles are handled safely, avoiding configuration and runtime errors.
-## [0.9.0] - 2026-01-07
-* Skip hostname configuration when running inside Docker containers
-* Unify workstation user handling via *WORKSTATION_USER* across desktop roles
-* Cleanly resolve conflicts between postfix and msmtp for local and external mail delivery
-* Consolidate mail configuration using flat *SYSTEM_EMAIL_* variables and improve local delivery reliability
-* Make remote backup pulls fail fast per host while continuing across providers
-* Enable Nix shell integration by default and finalize the official installer flow
-* Improve MediaWiki deployment with persistent extensions and a safer install/update process
-## [0.8.0] - 2026-01-06
-* Safer failed-backup cleanup (04:00, timeout, single worker; cleanback 1.3.0 semantics).
-## [0.7.2] - 2026-01-06
-* Introduced lifecycle metadata for roles (`meta/main.yml`)
-* Gated CI deploy tests to tested lifecycles only (alpha, beta, rc, stable)
-* Bumped `cleanback` to 1.2.1 (timestamp-based force-keep)
-## [0.7.1] - 2026-01-06
-* Switched web-app-sphinx to a prebuilt container image
-  Removed local pkgmgr build logic and now deploys via the published GHCR image with explicit Docker service configuration.
-* Stabilized XWiki REST authentication and superadmin provisioning
-  Fixed Dockerfile credential injection, introduced shared REST session handling, and ensured consistent cookie and CSRF usage for all REST writes.
-* Improved XWiki Ansible idempotency and URL handling
-  Normalized internal URLs, clarified uri auth parameters, and made extension install and admin setup fully repeatable.
-* Reset logout service database configuration
-  Explicitly set database type to null where no persistence is required.
-* Restored Ansible task timing and profiling output
-  Re-enabled timer and profile_tasks via callbacks_enabled, restoring runtime visibility with YAML output.
-* Simplified CI image publishing workflow
-  Removed the ci-publish workflow to ensure images are always built on version tags, while keeping stable tagging gated on successful checks.
-## [0.7.0] - 2026-01-05
-* More reliable releases: versioned Docker images are always built and published; latest always points to the newest version.
-* More stable updates: pkgmgr execution is more robust, especially in non-interactive environments and virtual environments.
-* Better readability: Ansible output is now shown in clean, human-readable YAML format by default.
-* More reliable analytics setup: Matomo is initialized automatically even if the service is unreachable or the API token is missing.
-* Improved networking behavior: Docker services now consistently use configurable host addresses instead of hard-coded loopback addresses.
-## [0.6.0] - 2025-12-31
-* **SSH keys are now configured in inventory via users.<name>.authorized_keys** (single source of truth). The old CLI option to inject administrator keys and the inventory files-based authorized_keys copy were removed.
-* **Administrator login is enforced to be key-based:** playbooks fail early if users.administrator.authorized_keys is empty.
-* **Backup user SSH access was hardened:** backup keys are wrapped with a forced command wrapper and written via the shared user role; config is now users.backup.authorized_keys.
-* **Token handling was unified:** Mailu and Matomo now read tokens from users.*.tokens (mailu_token legacy removed), and a token-store hydration mechanism loads persisted tokens automatically.
-* **Matomo integration is safer:** it now fails fast on empty tokens and consistently uses the hydrated users.administrator.tokens value for API calls.
-* **Backup/cleanup services are more reliable:** run-once flags execute earlier, user-backup is an explicit dependency, and cleanback now uses a configurable backups root and keeps the newest backups by default (force-keep=3).
-* **Better cross-distro stability:** sys-pip-install now resolves the correct pip executable dynamically and uses ansible.builtin.pip, reducing interpreter/PATH mismatches; plus CoreDNS is a compose dependency and yay auto-rebuilds if the binary is broken after libalpm ABI changes.
-## [0.5.0] - 2025-12-30
-* Unified TLS handling by replacing SSL_ENABLED with TLS_ENABLED across the entire stack
-* Removed localhost special-casing and introduced infinito.localhost as a consistent FQDN
-* Stabilized CI deploys via a single make test-deploy entrypoint with INFINITO_DISTRO
-* Eliminated Docker container name conflicts by reusing or cleanly resetting deploy test containers
-* Fixed systemd-in-container boot hangs by disabling systemd-firstboot and initializing machine-id
-* Switched CI execution to compose-native workflows with host cgroup support for systemd
-* Hardened Docker and systemd restarts with non-blocking logic, timeouts, and detailed diagnostics
-* Fixed SMTP in CI and DinD by dynamically selecting ports and disabling authentication when TLS is off
-* Ensured reliable Mailu initialization by waiting for database schema readiness
-* Prevented backup failures by enforcing linear service execution order and safer handler flushing
-* Removed obsolete legacy paths now that systemd is universally available
-* Improved code quality and CI stability through Ruff optimization and test fixes
-## [0.4.0] - 2025-12-29
-* **CI DNS & Defaults:** Introduced CoreDNS-based *.localhost resolution (A/AAAA to loopback), set DOMAIN_PRIMARY to localhost, added DNS assertions and a strict default 404 vhost to stabilize early CI stages.
-* **Docker-in-Docker:** Switched the deploy container to real Docker-in-Docker using fuse-overlayfs, fully decoupled from the host Docker socket and configured a deterministic storage driver.
-* **CI Debugging:** Greatly improved CI diagnostics by dumping resolved docker compose configuration and environment data in debug mode, with optional unmasked .env output.
-* **Bind Mount Robustness:** Fixed CI-specific bind mount issues, ensured /tmp/gh-action visibility, prevented file-vs-directory conflicts, and asserted OpenResty/NGINX mount sources before startup.
-* **Service Orchestration:** Added deferred service execution via system_service_run_final and the new sys-service-terminator, enabling deterministic, end-of-play service execution with built-in rescue diagnostics.
-* **Backup Layout:** Consolidated all backups under /var/lib/infinito, parameterized the pull workflow, switched to dump-only backups, and disabled Redis backups across web applications.
-* **Database Seeding:** Introduced the * multi-database marker for cluster-aware seeding, enabling clean PostgreSQL cluster dumps and clearer seeder semantics.
-* **CSP Health Checks:** Migrated CSP health checks to a Docker-based csp-checker with configurable image selection, optional pre-pull behavior, and improved ignore handling.
-* **Tokens & Secrets:** Unified token handling through a centralized token store, added user token defaults, and fully centralized secrets path definitions across roles.
-* **Installation Refactor:** Migrated system and backup tooling from pkgmgr and Nix-based installs to system-wide pip installations with clear host vs container separation.
-* **Systemd & CI Stability:** Hardened systemd and oneshot service handling in containerized CI, improved exit-code diagnostics, and reduced flaky CI behavior through deterministic execution.
-* **Maintenance & Cleanup:** Reduced Let’s Encrypt renewal frequency to avoid rate limits, removed deprecated logs and variables, applied broad refactorings, and merged the Matomo autosetup feature.
-## [0.3.5] - 2025-12-21
-* SSH client installation is now handled explicitly during user provisioning instead of being bundled into the container build. Root SSH keys are generated in a modular, idempotent way and are preserved across repeated runs. This makes SSH access more predictable, reproducible, and easier to maintain, without changing user-facing behavior.
-## [0.3.4] - 2025-12-21
-* Added ***sys-util-git-pull*** for deterministic shallow Git updates with tag pinning; integrated into ***pkgmgr***.
-* Pinned ***pkgmgr*** clones to ***stable*** for reproducible deployments.
-* Refactored CLI to avoid runpy warnings.
-* Improved Ansible portability (pacman → package) and added formatter workflow.
-* Fixed deploy resolution, AUR installs (use ***aur_builder***), Debian/Ubuntu images (openssh-client), CI rate limits (***NIX_CONFIG***), plus general test and security fixes.
-## [0.3.3] - 2025-12-21
-* **More reliable installs and deploys:** Fewer Docker and OS-specific failures (especially on CentOS Stream), cleaner container builds, and stable Python/Ansible execution across CI and local environments.
-* **Simpler deploy experience:** The deploy command is more predictable and faster because testing is no longer mixed into deploy runs.
-* **Fewer “mysterious” errors:** Path, working-directory, and virtualenv issues that previously caused random CI or local failures are fixed.
-* **Smoother inventory creation:** Inventory and credential generation now work consistently after refactors, without brittle path assumptions.
-* **Overall impact:** Day-to-day usage is more stable, commands behave as expected in more environments, and setup/deploy workflows require less troubleshooting.
-## [0.3.2] - 2025-12-19
-* Unified cleanup and simplified deploy flow using ***make clean***
-* Switched Docker image base to pkgmgr and enforced local images for deploy tests
-* Improved CI reliability with reusable workflows, fixed permissions, and consistent SARIF uploads
-* Addressed multiple CodeQL and Hadolint findings; applied formatting and security fixes
-**Result:** more reproducible builds, cleaner CI, and more robust Docker-based deployments.
-## [0.3.1] - 2025-12-18
-* Enabled ***pkgmgr install infinito*** test
-## [0.3.0] - 2025-12-17
-- Introduced a layered Docker architecture: Infinito.Nexus now builds on pre-built pkgmgr base images, with a clear separation between base tooling, application source, and runtime logic.
-- Standardized container paths (`/opt/src/infinito`) and switched to a global virtual environment to ensure reproducible builds and consistent test execution.
-- Unit and lint tests now run reliably on this new layer model, both locally and in CI.
-- Refactored build, setup, and deploy workflows to match the new layered design and improve maintainability.
-## [0.2.1] - 2025-12-10
-* restored full deployability of the Sphinx app by fixing the application_id scoping bug.
-## [0.2.0] - 2025-12-10
-* Added full Nix installer integration with dynamic upstream SHA256 verification, OS-specific installation paths, template-driven configuration, and updated pkgmgr integration.
-## [0.1.1] - 2025-12-10
-* PKGMGR will now be pulled again
-## [0.1.0] - 2025-12-09
-* Added Nix support role
+
+## Older Releases
+
+* [004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)
+* [004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)
+* [004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)
+* [003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)
+* [002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)
+* [002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)
+* [002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)
+* [002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)
+* [002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)
+* [002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)
+* [002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)
+* [002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)
+* [002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)
+* [002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)
+* [002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)
+* [001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)
+* [000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)
+* [000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)
+* [000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)
+* [000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)
+* [000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)
+* [000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)
+* [000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)
+* [000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)
+* [000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)
+* [000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)
+* [000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)
+* [000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)
+* [000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)
+* [000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)
+* [000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)
+* [000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)
+* [000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)
+* [000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)
+* [000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)
+* [000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)
+* [000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)

@@ -1,2 +1,6 @@
+---
+# nocheck: required-by-coverage — TODO: declare proper required_by
 pkgmgr:
   lifecycle: beta
+  repository: https://github.com/kevinveenbirkenbach/package-manager.git
+  ref: stable

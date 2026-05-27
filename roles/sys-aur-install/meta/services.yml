@@ -1,2 +1,4 @@
+---
+# nocheck: required-by-coverage — TODO: declare proper required_by
 aur-install:
   lifecycle: beta

@@ -1,2 +1,3 @@
+---
 # default vhost flavour
 webserver_vhost_flavour: "basic" # valid: basic, ws_generic

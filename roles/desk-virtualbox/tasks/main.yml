@@ -1,6 +1,6 @@
 ---
 - include_tasks: 01_core.yml
-  when: 
+  when:
     - run_once_desk_virtualbox is not defined
     - ansible_facts['os_family'] == "Archlinux"
 

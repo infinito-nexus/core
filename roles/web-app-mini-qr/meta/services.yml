@@ -1,3 +1,4 @@
+---
 mini-qr:
   image: ghcr.io/lyqht/mini-qr
   version: latest
@@ -6,30 +7,39 @@ mini-qr:
       http: 8059
   lifecycle: beta
   min_storage: 1GB
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+# nocheck: dynamic-flag
+# nocheck: logout
 logout:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: oidc
+oidc:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: oauth2
+oauth2:
+  enabled: false
+  shared: false
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
 redis:
   backup:
     disabled: true
   enabled: false
 css:
-  enabled: true
-  shared: true
-# noqa: email
-email:
-  enabled: false
-  shared: false
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

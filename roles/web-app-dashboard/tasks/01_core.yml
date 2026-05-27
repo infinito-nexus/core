@@ -1,18 +1,15 @@
+---
 - include_tasks: utils/once/flag.yml
 
-- name: "Validate configuration"
-  include_tasks: "02_validate.yml"
-  when: MODE_ASSERT | bool
-
 - name: "Include JS routines"
-  include_tasks: "03_javascript.yml"
+  include_tasks: "02_javascript.yml"
 
 - name: "load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: false
-    docker_git_repository_pull: false
+    compose_handlers_flush: false
+    compose_repository_pull: false
 
 - name: "Check if host-specific config.yaml exists in {{ DASHBOARD_CONFIG_INV_PATH }}"
   stat:
@@ -31,16 +28,9 @@
 
 - name: "Load Dashboard Brand logos"
   set_fact:
-    portfolio_cards: "{{ portfolio_cards | add_simpleicon_source(DASHBOARD_SIMPLEICONS_SYNC_URL_BASE) }}"
+    portfolio_cards: "{{ portfolio_cards | add_simpleicon_source(DASHBOARD_SIMPLEICONS_SYNC_URL_BASE, public_url_base=DASHBOARD_SIMPLEICONS_URL_BASE) }}"
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
   changed_when: false
-
-- name: Ensure dashboard local Simple Icons directory exists
-  file:
-    path: "{{ DASHBOARD_SIMPLEICONS_STATIC_DIR_HOST }}"
-    state: directory
-    mode: '0755'
-  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
 
 - name: Group docker cards
   set_fact:
@@ -66,6 +56,11 @@
   register: dashboard_rendered_config_raw
 
 - name: Collect branding asset URLs served by the shared file service
+  # Reads the *actually deployed* config.yaml (which may be a
+  # host-specific override from DASHBOARD_CONFIG_INV_PATH, not the
+  # role-default template). SPOTs in vars/main.yml drive the default
+  # render path; this slurp covers the override case so the wait list
+  # always reflects what port-ui will source on startup.
   set_fact:
     dashboard_branding_asset_urls: >-
       {{
@@ -95,12 +90,7 @@
     dashboard_rendered_config: "{{ dashboard_rendered_config_raw.content | b64decode | from_yaml }}"
     # Dashboard branding should only depend on the asset abstraction, not the
     # underlying web-svc-file host that serves /assets.
-    dashboard_asset_url_base: >-
-      {{
-        ('https:' ~ lookup('config', 'web-svc-asset', 'services.asset.url'))
-        if lookup('config', 'web-svc-asset', 'services.asset.url').startswith('//')
-        else lookup('config', 'web-svc-asset', 'services.asset.url')
-      }}
+    dashboard_asset_url_base: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') }}"
     dashboard_platform_logo_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('logo') or {}).get('source', '') }}"
     dashboard_platform_favicon_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('favicon') or {}).get('source', '') }}"
     dashboard_company_logo_source: "{{ ((dashboard_rendered_config.get('company') or {}).get('logo') or {}).get('source', '') }}"
@@ -134,7 +124,7 @@
       meta: flush_handlers
 
     - name: Refresh dashboard cards after Simple Icons becomes reachable
-      include_tasks: "04_simpleicons_refresh.yml"
+      include_tasks: "03_simpleicons_refresh.yml"
 
 - name: Wait for Dashboard HTTP endpoint (required so all logos can be downloaded during initialization)
   uri_retry:

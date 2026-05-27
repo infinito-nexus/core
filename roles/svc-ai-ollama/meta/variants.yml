@@ -1,3 +1,4 @@
+---
 # Matrix-deploy variant overrides for this role. Each list entry is
 # one variant deep-merged on top of `meta/services.yml`. The development
 # deploy wrapper iterates the global round count (max variants across
@@ -9,9 +10,8 @@
 # variant 0: shrink the official ollama image to alpine/ollama and
 # keep the model preload list empty so GitHub Actions runners can
 # complete the deploy within their disk and time budget.
+
 - services:
     ollama:
       preload_models: []
-      # Smaller image suitable for CI runners.
-      # See https://hub.docker.com/r/alpine/ollama
-      image: "alpine/ollama"
+      image: alpine/ollama

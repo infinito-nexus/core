@@ -1,7 +1,8 @@
+---
 csp: {}
 domains:
   canonical:
-  - icon.{{ DOMAIN_PRIMARY }}
+    - icon.{{ DOMAIN_PRIMARY }}
   aliases: []
 networks:
   local:

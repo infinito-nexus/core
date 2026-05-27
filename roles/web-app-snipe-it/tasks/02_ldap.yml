@@ -1,6 +1,5 @@
 # @See https://raw.githubusercontent.com/snipe/snipe-it/master/app/Models/Setting.php
 ---
-
 - name: "snipe-it: wait until settings table is seeded"
   ansible.builtin.shell:
     cmd: "{{ BIN_COMPOSE }} exec -T {{ SNIPE_IT_SERVICE }} php"

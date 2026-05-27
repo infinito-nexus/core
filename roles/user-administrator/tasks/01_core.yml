@@ -1,3 +1,4 @@
+---
 - name: Fail if administrator authorized_keys is empty
   ansible.builtin.fail:
     msg: >-
@@ -14,8 +15,8 @@
     name: administrator
     update_password: on_create
     password: "{{ lookup('users', 'administrator').password | password_hash('sha512') }}"
-    create_home: yes
-    generate_ssh_key: yes
+    create_home: true
+    generate_ssh_key: true
     ssh_key_type: rsa
     ssh_key_bits: 8192
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -26,13 +27,13 @@
     state: directory
     owner: administrator
     group: administrator
-    mode: 0700
+    mode: "0700"
 
 - name: grant administrator sudo rights with password
   copy:
     src: "administrator"
     dest: /etc/sudoers.d/administrator
-    mode: '0644'
+    mode: "0644"
     owner: root
     group: root
 

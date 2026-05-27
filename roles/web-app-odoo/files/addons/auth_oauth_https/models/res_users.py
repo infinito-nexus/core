@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Infinito.Nexus. See LICENSE file for full copyright and licensing details.
 
 import logging
@@ -66,7 +65,7 @@ class ResUsersOAuthConfigurableUid(models.Model):
             [("oauth_uid", "=", oauth_uid), ("oauth_provider_id", "=", provider)]
         )
         if oauth_user:
-            assert len(oauth_user) == 1
+            assert len(oauth_user) == 1  # noqa: S101  mirrors upstream Odoo invariant; oauth_uid is unique per provider
             oauth_user.write({"oauth_access_token": params["access_token"]})
             return oauth_user.login
         if self.env.context.get("no_user_creation"):
@@ -92,13 +91,6 @@ class ResUsersOAuthConfigurableUid(models.Model):
             # ir_attachment._check_contents() → env.user._get_group_ids()
             # on an empty env.user (public/unauthenticated OAuth callback).
             sudo_model.env.flush_all()
-            _logger.info(
-                "OAuth auto-provisioned user login=%s oauth_uid=%s provider=%s",
-                new_user.login,
-                oauth_uid,
-                provider,
-            )
-            return new_user.login
         except Exception:
             _logger.exception(
                 "OAuth signup failed for provider=%s user_id=%s email=%s values=%s",
@@ -107,7 +99,14 @@ class ResUsersOAuthConfigurableUid(models.Model):
                 validation.get("email"),
                 create_values,
             )
-            raise AccessDenied()
+            raise AccessDenied from None
+        _logger.info(
+            "OAuth auto-provisioned user login=%s oauth_uid=%s provider=%s",
+            new_user.login,
+            oauth_uid,
+            provider,
+        )
+        return new_user.login
 
     @api.model
     def _auth_oauth_validate(self, provider, access_token):

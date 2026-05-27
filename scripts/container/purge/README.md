@@ -1,12 +1,14 @@
-# Container Purge
+# Container Purge 🗑️
 
-This is the SPOT for container-local cleanup helpers under `scripts/container/purge/`.
+Container-local cleanup helpers under `scripts/container/purge/`.
+
 These scripts run inside the local infinito container and remove container-local state only.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../docs/contributing/tools/make.md).
 
-## Entry Points
+## Entry Points 🎯
 
 | Entry point | What it does | Notes |
 |---|---|---|
+| `apps.sh` | App-keyed orchestrator that maps `$INFINITO_APPS` to compose entities, drives `entity/{db,compose,dir}.sh`, and wipes the matching token-store entries via [tokens.py](../../../utils/cleanup/tokens.py). | The host-side wrapper [entity.sh](../../tests/deploy/local/purge/entity.sh) `docker exec`s this script. |
 | `web.sh` | Removes nginx and self-signed CA state inside the container. | Called by the local purge wrapper. |
-| `entity/` | Purges app or stack data inside the container. | See the child directory README for the exact scripts. |
+| `entity/` | Entity-keyed primitives. | See [entity/README.md](entity/README.md) for the exact scripts. |

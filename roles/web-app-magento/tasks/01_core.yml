@@ -1,8 +1,9 @@
+---
 - name: "load docker, db/redis/proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    docker_compose_flush_handlers: true
+    compose_handlers_flush: true
 
 - name: "Bootstrap Magento 2.4.8 source (exact working variant)"
   command: >

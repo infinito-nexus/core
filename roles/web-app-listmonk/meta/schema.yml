@@ -1,3 +1,4 @@
+---
 credentials:
   administrator_password:
     description: Initial password for the Listmonk administrator account
@@ -7,8 +8,8 @@ credentials:
     key:
       description: Runtime credential value imported from meta/services.yml for 'key'.
       algorithm: plain
-      default: '{{ CAPTCHA.HCAPTCHA.KEY | default('''') }}'
+      default: "{{ CAPTCHA.HCAPTCHA.KEY }}"
     secret:
       description: Runtime credential value imported from meta/services.yml for 'secret'.
       algorithm: plain
-      default: '{{ CAPTCHA.HCAPTCHA.SECRET | default('''') }}'
+      default: "{{ CAPTCHA.HCAPTCHA.SECRET }}"

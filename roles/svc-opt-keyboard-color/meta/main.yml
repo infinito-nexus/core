@@ -1,10 +1,26 @@
+---
 galaxy_info:
   role_name: keyboard-color
   author: Kevin Veen-Birkenbach
   description: Ansible role to set up dynamic keyboard color change on MSI laptops
   license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
   min_ansible_version: 2.9
   platforms:
-  - name: Linux
-    versions:
-    - all
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

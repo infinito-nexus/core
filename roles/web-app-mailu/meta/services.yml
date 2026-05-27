@@ -1,131 +1,161 @@
+---
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
   email_by_username: true
   enable_user_creation: true
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — self-provider
 mailu:
-  enabled: false
+  enabled: true
   shared: true
   provides: email
-  version: '2024.06'
+  version: "2024.06"
   name: mailu
   min_storage: 20GB
-  domain: '{{ lookup(''email'').domain }}'
+  domain: "{{ lookup('email').domain }}"
   ports:
     local:
       http: 8007
   run_after:
     - web-app-matomo
   lifecycle: beta
-  cpus: '1.0'
+  cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-# noqa: shared
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   backup:
     disabled: true
   enabled: true
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
-  enabled: true
-  shared: true
-  cpus: '0.8'
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-mariadb' in group_names }}"
+  cpus: "0.8"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 admin:
   enabled: true
   shared: false
-  cpus: '0.3'
+  cpus: "0.3"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 imap:
   enabled: true
   shared: false
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 1g
   mem_limit: 1.5g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 smtp:
   enabled: true
   shared: false
-  cpus: '0.5'
+  cpus: "0.5"
   mem_reservation: 1g
   mem_limit: 1.5g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 antispam:
   enabled: true
   shared: false
-  cpus: '0.6'
+  cpus: "0.6"
   mem_reservation: 1g
   mem_limit: 1.5g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 antivirus:
   enabled: true
   shared: false
-  cpus: '0.6'
+  image: clamav/clamav-debian
+  version: latest
+  cpus: "0.6"
   mem_reservation: 2g
   mem_limit: 3g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 oletools:
   enabled: true
   shared: false
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 webdav:
   enabled: true
   shared: false
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 fetchmail:
   enabled: true
   shared: false
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 webmail:
   enabled: true
   shared: false
-  cpus: '0.3'
+  cpus: "0.3"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 resolver:
   enabled: true
   shared: false
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — internal sub-component
 front:
   enabled: true
   shared: false
-  cpus: '0.3'
+  cpus: "0.3"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
-  enabled: false
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

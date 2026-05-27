@@ -1,10 +1,11 @@
+---
 status_codes:
   default:
-  - 301
-  - 200
+    - 301
+    - 200
 domains:
   canonical:
-  - mail.{{ DOMAIN_PRIMARY }}
+    - mail.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   flags:

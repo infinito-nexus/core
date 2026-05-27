@@ -23,7 +23,7 @@ The `users` lookup is the ONLY supported runtime entry point for merged user con
 
 The lookup merges exactly two sources:
 
-1. **Defaults** discovered from every `roles/*/meta/users.yml` in the repository (file root IS the users map; no `users:` wrapper, per [req-008](../../../../../requirements/008-role-meta-layout.md)).
+1. **Defaults** discovered from every `roles/*/meta/users.yml` in the repository (file root IS the users map; no `users:` wrapper).
 2. **Overrides** supplied through the normal Ansible variable `users` in inventory, group vars, host vars, or role vars.
 
 No intermediate merged `users` fact exists. No other source is consulted.

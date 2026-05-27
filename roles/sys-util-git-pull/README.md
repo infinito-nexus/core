@@ -1,4 +1,4 @@
-# System Utility: Git Pull (Shallow & Pinned) 🔧📥
+# System Utility: Git Pull (Shallow & Pinned)
 
 ## Description
 
@@ -7,6 +7,7 @@ It performs shallow clones or updates of Git repositories and optionally **pins 
 to a specific tag** (e.g. `stable`) in a detached HEAD state.
 
 The role is designed to solve common automation pitfalls such as:
+
 - conflicting local tags (`would clobber existing tag`)
 - detached HEAD updates
 - annotated vs. lightweight tags
@@ -20,6 +21,7 @@ keeping the Ansible YAML concise and readable.
 ## Overview
 
 This role:
+
 - Ensures a repository exists at a given destination
 - Clones the repository shallowly if it does not exist
 - Updates an existing repository in a **detached-safe** manner
@@ -39,6 +41,7 @@ The purpose of this role is to provide a **generic, reusable Git pull primitive*
 for other roles in the Infinito.Nexus ecosystem.
 
 Typical use cases include:
+
 - installing tools pinned to a `stable` tag
 - reproducible system deployments
 - CI/CD-friendly shallow clones
@@ -60,17 +63,16 @@ Typical use cases include:
 
 ## Design Notes
 
-* All human-readable logs go to **stderr**
-* Machine-readable state (`CHANGED=…`) is written to **stdout**
-* This guarantees reliable `changed_when` behavior in Ansible
-* The Python helper is intentionally self-contained and unit-testable
+- All human-readable logs go to **stderr**
+- Machine-readable state (`CHANGED=…`) is written to **stdout**
+- This guarantees reliable `changed_when` behavior in Ansible
+- The Python helper is intentionally self-contained and unit-testable
 
 ---
 
-## Credits 📝
+## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**
-Learn more at [www.veen.world](https://www.veen.world)
-
-Part of the **Infinito.Nexus Project**
-🔗 [https://s.infinito.nexus/code](https://s.infinito.nexus/code)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

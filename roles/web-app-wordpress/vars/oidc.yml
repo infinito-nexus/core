@@ -1,29 +1,30 @@
+---
 # Defines OIDC settings for the OpenID Connect Generic plugin, with explanatory comments.
 
 oidc_settings:
-  client_id:                "{{ OIDC.CLIENT.ID }}"                                                # The client ID that identifies WordPress as the OIDC client.
-  client_secret:            "{{ OIDC.CLIENT.SECRET }}"                                            # The secret key used by WordPress to authenticate to the OIDC provider.
-  issuer:                   "{{ OIDC.CLIENT.ISSUER_URL }}"                                        # Expected issuer (`iss`) used for strict JWT issuer validation.
-  endpoint_login:           "{{ OIDC.CLIENT.AUTHORIZE_URL }}"                                     # URL of the authorization endpoint to initiate the login flow.
-  endpoint_token:           "{{ OIDC.CLIENT.TOKEN_URL }}"                                         # URL of the token endpoint for exchanging authorization codes for tokens.
-  endpoint_userinfo:        "{{ OIDC.CLIENT.USER_INFO_URL }}"                                     # URL of the userinfo endpoint to retrieve user profile data.
-  endpoint_jwks:            "{{ OIDC.CLIENT.CERTS }}"                                             # URL of the JWKS endpoint used to verify ID token signatures.
-  endpoint_end_session:     "{{ OIDC.CLIENT.LOGOUT_URL }}"                                        # URL of the end-session endpoint to log users out of the IDP.
-  login_type:               "auto"                                                                # Determines how the login interface is rendered (e.g., button or form).
-  scope:                    "openid profile email {{ RBAC.GROUP.CLAIM }}"                         # Scopes requested from the OIDC provider during authentication. Includes the RBAC group-membership scope so Keycloak emits the `groups` claim consumed by the mu-plugin infinito-oidc-rbac-mapper.php for role mapping (see docs/requirements/004-generic-rbac-ldap-auto-provisioning.md).
-  create_if_does_not_exist: true                                                                  # Auto-create a new WP user if one doesn’t exist.
-  enforce_privacy:          false                                                                 # Require authentication for all site pages if set to true.
-  link_existing_users:      true                                                                  # Link OIDC login to existing WP users by matching email.
-  redirect_on_logout:       true                                                                  # Redirect users after logout to the login screen or homepage.
-  redirect_user_back:       true                                                                  # Return users to their original URL after successful login.
+  client_id: "{{ OIDC.CLIENT.ID }}" # The client ID that identifies WordPress as the OIDC client.
+  client_secret: "{{ OIDC.CLIENT.SECRET }}" # The secret key used by WordPress to authenticate to the OIDC provider.
+  issuer: "{{ OIDC.CLIENT.ISSUER_URL }}" # Expected issuer (`iss`) used for strict JWT issuer validation.
+  endpoint_login: "{{ OIDC.CLIENT.AUTHORIZE_URL }}" # URL of the authorization endpoint to initiate the login flow.
+  endpoint_token: "{{ OIDC.CLIENT.TOKEN_URL }}" # URL of the token endpoint for exchanging authorization codes for tokens.
+  endpoint_userinfo: "{{ OIDC.CLIENT.USER_INFO_URL }}" # URL of the userinfo endpoint to retrieve user profile data.
+  endpoint_jwks: "{{ OIDC.CLIENT.CERTS }}" # URL of the JWKS endpoint used to verify ID token signatures.
+  endpoint_end_session: "{{ OIDC.CLIENT.LOGOUT_URL }}" # URL of the end-session endpoint to log users out of the IDP.
+  login_type: "auto" # Determines how the login interface is rendered (e.g., button or form).
+  scope: "openid profile email {{ RBAC.GROUP.CLAIM }}" # Scopes requested from the OIDC provider during authentication. Includes the RBAC group-membership scope so Keycloak emits the `groups` claim consumed by the mu-plugin infinito-oidc-rbac-mapper.php for role mapping.
+  create_if_does_not_exist: true # Auto-create a new WP user if one doesn’t exist.
+  enforce_privacy: false # Require authentication for all site pages if set to true.
+  link_existing_users: true # Link OIDC login to existing WP users by matching email.
+  redirect_on_logout: true # Redirect users after logout to the login screen or homepage.
+  redirect_user_back: true # Return users to their original URL after successful login.
   #acr_values:               "{{ OIDC.CLIENT.acr_values | default('') }}"                         # ACR values defining required authentication context (e.g., MFA level).
-  enable_logging:           "{{ MODE_DEBUG }}"                                                    # Enable detailed plugin logging for debugging and auditing.
-#  log_limit:                "{{ OIDC.CLIENT.log_limit | default('') }}"                          # Maximum number of log entries to retain before pruning.
-  no_sslverify:             false                                                                 # The flag to enable/disable SSL verification during authorization.
-  http_request_timeout:     5                                                                     # The timeout for requests made to the IDP. Default value is 5.
-  identity_key:             "{{ OIDC.ATTRIBUTES.USERNAME }}"                                      # The key in the user claim array to find the user's identification data.
-  nickname_key:             "{{ OIDC.ATTRIBUTES.USERNAME }}"                                      # The key in the user claim array to find the user's nickname.
-  email_format:             "{{ OIDC.ATTRIBUTES.EMAIL }}"                                         # The key(s) in the user claim array to formulate the user's email address.
-  displayname_format:       "{{ OIDC.ATTRIBUTES.GIVEN_NAME }} {{ OIDC.ATTRIBUTES.FAMILY_NAME }}"  # The key(s) in the user claim array to formulate the user's display name.
-  identify_with_username:   true                                                                  # The flag which indicates how the user's identity will be determined.
-  state_time_limit:         180                                                                   # The valid time limit of the state, in seconds. Defaults to 180 seconds.
+  enable_logging: "{{ MODE_DEBUG }}" # Enable detailed plugin logging for debugging and auditing.
+  #  log_limit:                "{{ OIDC.CLIENT.log_limit | default('') }}"                          # Maximum number of log entries to retain before pruning.
+  no_sslverify: false # The flag to enable/disable SSL verification during authorization.
+  http_request_timeout: 5 # The timeout for requests made to the IDP. Default value is 5.
+  identity_key: "{{ OIDC.ATTRIBUTES.USERNAME }}" # The key in the user claim array to find the user's identification data.
+  nickname_key: "{{ OIDC.ATTRIBUTES.USERNAME }}" # The key in the user claim array to find the user's nickname.
+  email_format: "{{ OIDC.ATTRIBUTES.EMAIL }}" # The key(s) in the user claim array to formulate the user's email address.
+  displayname_format: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }} {{ OIDC.ATTRIBUTES.FAMILY_NAME }}" # The key(s) in the user claim array to formulate the user's display name.
+  identify_with_username: true # The flag which indicates how the user's identity will be determined.
+  state_time_limit: 180 # The valid time limit of the state, in seconds. Defaults to 180 seconds.

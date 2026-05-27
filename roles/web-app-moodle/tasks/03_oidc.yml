@@ -1,6 +1,6 @@
+---
 # Configure Moodle's auth_oidc plugin (variant 0 only). Variant 1
 # disables the OIDC shared service so this file is not included.
-# See docs/requirements/015-moodle-self-built.md.
 
 - name: "Check OIDC plugin presence"
   command: >
@@ -23,77 +23,77 @@
 
 - name: "Set Moodle OIDC configuration via CLI"
   loop:
-    - { name: "idptype",                 value: 3 }
-    - { name: "clientauthmethod",        value: 1 }
-    - { name: "clientid",                value: "{{ OIDC.CLIENT.ID }}" }
-    - { name: "clientsecret",            value: "{{ OIDC.CLIENT.SECRET }}" }
-    - { name: "opname",                  value: "{{ OIDC.BUTTON_TEXT }}" }
-    - { name: "oidcscope",               value: "{{ MOODLE_OIDC_SCOPES }}" }
-    - { name: "authendpoint",            value: "{{ OIDC.CLIENT.AUTHORIZE_URL }}" }
-    - { name: "tokenendpoint",           value: "{{ OIDC.CLIENT.TOKEN_URL }}" }
-    - { name: "bindingusernameclaim",    value: "{{ OIDC.ATTRIBUTES.USERNAME }}" }
-    - { name: "single_sign_off",         value: 1 }
-    - { name: "logouturi",               value: "{{ OIDC.CLIENT.LOGOUT_URL }}" }
-    - { name: "icon",                    value: "moodle:t/lock" }
-    # Field mapping per docs/requirements/015-moodle-self-built.md
-    - { name: "field_map_firstname",     value: "given_name" }
-    - { name: "field_lock_firstname",    value: "locked" }
-    - { name: "field_updatelocal_firstname",   value: "oneveryloginupdate" }
-    - { name: "field_map_lastname",      value: "family_name" }
-    - { name: "field_lock_lastname",     value: "locked" }
-    - { name: "field_updatelocal_lastname",    value: "oneveryloginupdate" }
-    - { name: "field_map_middlename",    value: "middle_name" }
-    - { name: "field_lock_middlename",   value: "locked" }
-    - { name: "field_updatelocal_middlename",  value: "oneveryloginupdate" }
+    - { name: "idptype", value: 3 }
+    - { name: "clientauthmethod", value: 1 }
+    - { name: "clientid", value: "{{ OIDC.CLIENT.ID }}" }
+    - { name: "clientsecret", value: "{{ OIDC.CLIENT.SECRET }}" }
+    - { name: "opname", value: "{{ OIDC.BUTTON_TEXT }}" }
+    - { name: "oidcscope", value: "{{ MOODLE_OIDC_SCOPES }}" }
+    - { name: "authendpoint", value: "{{ OIDC.CLIENT.AUTHORIZE_URL }}" }
+    - { name: "tokenendpoint", value: "{{ OIDC.CLIENT.TOKEN_URL }}" }
+    - { name: "bindingusernameclaim", value: "{{ OIDC.ATTRIBUTES.USERNAME }}" }
+    - { name: "single_sign_off", value: 1 }
+    - { name: "logouturi", value: "{{ OIDC.CLIENT.LOGOUT_URL }}" }
+    - { name: "icon", value: "moodle:t/lock" }
+    # Field mapping (Moodle profile field → OIDC claim).
+    - { name: "field_map_firstname", value: "given_name" }
+    - { name: "field_lock_firstname", value: "locked" }
+    - { name: "field_updatelocal_firstname", value: "oneveryloginupdate" }
+    - { name: "field_map_lastname", value: "family_name" }
+    - { name: "field_lock_lastname", value: "locked" }
+    - { name: "field_updatelocal_lastname", value: "oneveryloginupdate" }
+    - { name: "field_map_middlename", value: "middle_name" }
+    - { name: "field_lock_middlename", value: "locked" }
+    - { name: "field_updatelocal_middlename", value: "oneveryloginupdate" }
     - { name: "field_map_alternatename", value: "nickname" }
-    - { name: "field_lock_alternatename",value: "locked" }
+    - { name: "field_lock_alternatename", value: "locked" }
     - { name: "field_updatelocal_alternatename", value: "oneveryloginupdate" }
-    - { name: "field_map_email",         value: "email" }
-    - { name: "field_lock_email",        value: "locked" }
+    - { name: "field_map_email", value: "email" }
+    - { name: "field_lock_email", value: "locked" }
     - { name: "field_updatelocal_email", value: "oneveryloginupdate" }
-    - { name: "field_map_phone1",        value: "phone_number" }
-    - { name: "field_lock_phone1",       value: "locked" }
-    - { name: "field_updatelocal_phone1",      value: "oneveryloginupdate" }
-    - { name: "field_map_phone2",        value: "phone_number_alt" }
-    - { name: "field_lock_phone2",       value: "locked" }
-    - { name: "field_updatelocal_phone2",      value: "oneveryloginupdate" }
-    - { name: "field_map_address",       value: "address" }
-    - { name: "field_lock_address",      value: "locked" }
-    - { name: "field_updatelocal_address",     value: "oneveryloginupdate" }
-    - { name: "field_map_city",          value: "locality" }
-    - { name: "field_lock_city",         value: "locked" }
-    - { name: "field_updatelocal_city",        value: "oneveryloginupdate" }
-    - { name: "field_map_country",       value: "country" }
-    - { name: "field_lock_country",      value: "locked" }
-    - { name: "field_updatelocal_country",     value: "oneveryloginupdate" }
-    - { name: "field_map_institution",   value: "institution" }
-    - { name: "field_lock_institution",  value: "locked" }
+    - { name: "field_map_phone1", value: "phone_number" }
+    - { name: "field_lock_phone1", value: "locked" }
+    - { name: "field_updatelocal_phone1", value: "oneveryloginupdate" }
+    - { name: "field_map_phone2", value: "phone_number_alt" }
+    - { name: "field_lock_phone2", value: "locked" }
+    - { name: "field_updatelocal_phone2", value: "oneveryloginupdate" }
+    - { name: "field_map_address", value: "address" }
+    - { name: "field_lock_address", value: "locked" }
+    - { name: "field_updatelocal_address", value: "oneveryloginupdate" }
+    - { name: "field_map_city", value: "locality" }
+    - { name: "field_lock_city", value: "locked" }
+    - { name: "field_updatelocal_city", value: "oneveryloginupdate" }
+    - { name: "field_map_country", value: "country" }
+    - { name: "field_lock_country", value: "locked" }
+    - { name: "field_updatelocal_country", value: "oneveryloginupdate" }
+    - { name: "field_map_institution", value: "institution" }
+    - { name: "field_lock_institution", value: "locked" }
     - { name: "field_updatelocal_institution", value: "oneveryloginupdate" }
-    - { name: "field_map_department",    value: "department" }
-    - { name: "field_lock_department",   value: "locked" }
-    - { name: "field_updatelocal_department",  value: "oneveryloginupdate" }
-    - { name: "field_map_description",   value: "description" }
-    - { name: "field_lock_description",  value: "locked" }
+    - { name: "field_map_department", value: "department" }
+    - { name: "field_lock_department", value: "locked" }
+    - { name: "field_updatelocal_department", value: "oneveryloginupdate" }
+    - { name: "field_map_description", value: "description" }
+    - { name: "field_lock_description", value: "locked" }
     - { name: "field_updatelocal_description", value: "oneveryloginupdate" }
-    - { name: "field_map_idnumber",      value: "id_number" }
-    - { name: "field_lock_idnumber",     value: "locked" }
-    - { name: "field_updatelocal_idnumber",    value: "oneveryloginupdate" }
-    - { name: "field_map_url",           value: "website" }
-    - { name: "field_lock_url",          value: "locked" }
-    - { name: "field_updatelocal_url",   value: "oneveryloginupdate" }
-    - { name: "field_map_lang",          value: "locale" }
-    - { name: "field_lock_lang",         value: "locked" }
-    - { name: "field_updatelocal_lang",  value: "oneveryloginupdate" }
-    - { name: "field_map_timezone",      value: "zoneinfo" }
-    - { name: "field_lock_timezone",     value: "locked" }
-    - { name: "field_updatelocal_timezone",    value: "oneveryloginupdate" }
-    - { name: "field_map_firstnamephonetic",   value: "name_phonetic_given" }
-    - { name: "field_lock_firstnamephonetic",  value: "locked" }
+    - { name: "field_map_idnumber", value: "id_number" }
+    - { name: "field_lock_idnumber", value: "locked" }
+    - { name: "field_updatelocal_idnumber", value: "oneveryloginupdate" }
+    - { name: "field_map_url", value: "website" }
+    - { name: "field_lock_url", value: "locked" }
+    - { name: "field_updatelocal_url", value: "oneveryloginupdate" }
+    - { name: "field_map_lang", value: "locale" }
+    - { name: "field_lock_lang", value: "locked" }
+    - { name: "field_updatelocal_lang", value: "oneveryloginupdate" }
+    - { name: "field_map_timezone", value: "zoneinfo" }
+    - { name: "field_lock_timezone", value: "locked" }
+    - { name: "field_updatelocal_timezone", value: "oneveryloginupdate" }
+    - { name: "field_map_firstnamephonetic", value: "name_phonetic_given" }
+    - { name: "field_lock_firstnamephonetic", value: "locked" }
     - { name: "field_updatelocal_firstnamephonetic", value: "oneveryloginupdate" }
-    - { name: "field_map_lastnamephonetic",    value: "name_phonetic_family" }
-    - { name: "field_lock_lastnamephonetic",   value: "locked" }
-    - { name: "field_updatelocal_lastnamephonetic",  value: "oneveryloginupdate" }
-    - { name: "alternateloginurl",       value: "{{ lookup('tls', application_id, 'url.base') }}{{ MOODLE_OIDC_PLUGIN_RELPATH }}/" }
+    - { name: "field_map_lastnamephonetic", value: "name_phonetic_family" }
+    - { name: "field_lock_lastnamephonetic", value: "locked" }
+    - { name: "field_updatelocal_lastnamephonetic", value: "oneveryloginupdate" }
+    - { name: "alternateloginurl", value: "{{ lookup('tls', application_id, 'url.base') }}{{ MOODLE_OIDC_PLUGIN_RELPATH }}/" }
   loop_control:
     label: "{{ item.name }}"
   command: >

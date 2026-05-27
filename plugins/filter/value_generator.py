@@ -1,15 +1,12 @@
-# filter_plugins/value_generator.py
-
 from __future__ import annotations
 
+import sys
 from functools import lru_cache
 from pathlib import Path
-import sys
-from typing import Type
 
 
 @lru_cache(maxsize=1)
-def _value_generator_cls() -> Type[object]:
+def _value_generator_cls() -> type[object]:
     """
     Load ValueGenerator from utils/manager/value_generator.py.
 
@@ -17,6 +14,7 @@ def _value_generator_cls() -> Type[object]:
     - utils/manager/__init__.py exists (package import works)
     - plugins/filter/ is located at repo root
     """
+    # nocheck: project-root-import  ansible loads filter plugins outside the project package, so relative imports don't resolve
     repo_root = Path(__file__).resolve().parents[2]
     utils_path = repo_root / "utils"
 
@@ -26,7 +24,7 @@ def _value_generator_cls() -> Type[object]:
     if str(utils_path) not in sys.path:
         sys.path.insert(0, str(utils_path))
 
-    from manager.value_generator import ValueGenerator  # type: ignore
+    from manager.value_generator import ValueGenerator
 
     return ValueGenerator
 

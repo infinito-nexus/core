@@ -7,7 +7,7 @@ set -euo pipefail
 : "${TARGET_EVENT:?Missing TARGET_EVENT}"
 : "${PR_NUMBER:?Missing PR_NUMBER}"
 : "${IMAGE_TAG:?Missing IMAGE_TAG}"
-: "${DISTROS:?Missing DISTROS}"
+: "${INFINITO_DISTROS:?Missing INFINITO_DISTROS}"
 : "${WAIT_ATTEMPTS:?Missing WAIT_ATTEMPTS}"
 : "${WAIT_SLEEP_SECONDS:?Missing WAIT_SLEEP_SECONDS}"
 
@@ -34,7 +34,7 @@ if [[ -n "${pr_updated_at}" ]]; then
 	fi
 fi
 
-read -r -a distros_raw <<<"${DISTROS}"
+read -r -a distros_raw <<<"${INFINITO_DISTROS}"
 distros=()
 for distro in "${distros_raw[@]}"; do
 	[[ -n "${distro}" ]] || continue
@@ -42,7 +42,7 @@ for distro in "${distros_raw[@]}"; do
 done
 
 if [[ "${#distros[@]}" -eq 0 ]]; then
-	echo "ERROR: DISTROS did not contain any entries." >&2
+	echo "ERROR: INFINITO_DISTROS did not contain any entries." >&2
 	exit 1
 fi
 

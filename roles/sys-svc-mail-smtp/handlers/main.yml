@@ -1,3 +1,4 @@
+---
 - name: restart postfix
   ansible.builtin.systemd:
     name: postfix

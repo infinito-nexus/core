@@ -1,12 +1,13 @@
 import os
 import re
 import unittest
+from pathlib import Path
 
 
 class TestNoApplicationsVariableUsage(unittest.TestCase):
     """
     This test ensures that the pattern `applications[some_variable]` is not used anywhere
-    under the roles/ directory. Instead, the usage of utils.applications.config.get should be preferred.
+    under the roles/ directory. Instead, the usage of utils.roles.applications.config.get should be preferred.
     """
 
     APPLICATIONS_VARIABLE_PATTERN = re.compile(
@@ -14,23 +15,23 @@ class TestNoApplicationsVariableUsage(unittest.TestCase):
     )
 
     def test_no_applications_variable_usage(self):
-        roles_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "roles")
-        )
+        from . import PROJECT_ROOT
+
+        roles_dir = str(PROJECT_ROOT / "roles")
         found = []
 
-        for root, dirs, files in os.walk(roles_dir):  # noqa: project-walk
+        for root, dirs, files in os.walk(roles_dir):  # nocheck: project-walk
             # Skip __pycache__ folders
             dirs[:] = [d for d in dirs if d != "__pycache__"]
             for file in files:
                 if file.endswith(".pyc"):
                     continue
-                file_path = os.path.join(root, file)
+                file_path = str(Path(root) / file)
                 # Skip this test file itself (so it can contain the pattern in docstrings)
-                if os.path.abspath(file_path) == os.path.abspath(__file__):
+                if str(Path(file_path).resolve()) == str(Path(__file__).resolve()):
                     continue
                 try:
-                    with open(file_path, "r", encoding="utf-8") as f:
+                    with Path(file_path).open(encoding="utf-8") as f:
                         for lineno, line in enumerate(f, 1):
                             match = self.APPLICATIONS_VARIABLE_PATTERN.search(line)
                             if match:
@@ -43,7 +44,7 @@ class TestNoApplicationsVariableUsage(unittest.TestCase):
             self.fail(
                 "Found illegal usages of 'applications[variable]' in the following locations:\n"
                 + "\n".join(found)
-                + "\n\nPlease use utils.applications.config.get instead."
+                + "\n\nPlease use utils.roles.applications.config.get instead."
             )
 
 

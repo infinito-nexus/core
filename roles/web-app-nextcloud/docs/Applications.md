@@ -3,7 +3,9 @@
 Details on specific apps like Cospend, including related SQL queries and debugging tips.
 
 ## receive Plugin Information
+
 To receive the relevant configuration options for a plugin type:
+
 ```bash
 compose exec -u www-data application php occ config:list oidc_login
 ```
@@ -15,12 +17,13 @@ compose exec -u www-data application php occ config:list oidc_login
 
 ## LDAP
 
-## Cospend 
+## Cospend
 
 ### Relevant SQL Commands for Cospend
-Debugguging Migrations: 
 
-https://github.com/julien-nc/cospend-nc/issues/325
+Debugguging Migrations:
+
+<https://github.com/julien-nc/cospend-nc/issues/325>
 
 ```sql
 -- Show all Cospend Tables

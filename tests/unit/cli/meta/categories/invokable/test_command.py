@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 import unittest
-from contextlib import redirect_stdout, redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from unittest.mock import patch
 
 import yaml
@@ -20,13 +20,16 @@ class TestInvokableCategoriesCommand(unittest.TestCase):
         out = io.StringIO()
         err = io.StringIO()
 
-        with patch("sys.argv", ["prog", *argv]):
-            with redirect_stdout(out), redirect_stderr(err):
-                try:
-                    command.main()
-                except SystemExit as exc:
-                    code = exc.code if exc.code is not None else 0
-                    return int(code), out.getvalue(), err.getvalue()
+        with (
+            patch("sys.argv", ["prog", *argv]),
+            redirect_stdout(out),
+            redirect_stderr(err),
+        ):
+            try:
+                command.main()
+            except SystemExit as exc:
+                code = exc.code if exc.code is not None else 0
+                return int(code), out.getvalue(), err.getvalue()
 
         # If no SystemExit was raised, it succeeded
         return 0, out.getvalue(), err.getvalue()

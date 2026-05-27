@@ -1,9 +1,10 @@
+---
 - block:
     - name: "Load wildcard certificate for domain"
       include_tasks: "dedicated.yml"
       vars:
         wildcard_domain: true
-      when: 
+      when:
         - domain.split('.') | length == (DOMAIN_PRIMARY.split('.') | length + 1) and domain.endswith(DOMAIN_PRIMARY)
     - name: run the receive_certificate tasks once
       set_fact:
@@ -14,6 +15,5 @@
   include_tasks: "dedicated.yml"
   vars:
     wildcard_domain: false
-  when: 
+  when:
     - not (domain.split('.') | length == (DOMAIN_PRIMARY.split('.') | length + 1) and domain.endswith(DOMAIN_PRIMARY))
-  

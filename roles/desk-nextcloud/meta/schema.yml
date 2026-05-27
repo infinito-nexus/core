@@ -1,3 +1,4 @@
+---
 credentials:
   cloud_fqdn:
     description: Cloud fqdn

@@ -1,23 +1,19 @@
 # Requirements 📋
 
-Requirements live under `docs/requirements/` and are the SPOT for what the project must do.
-Their primary purpose is to drive AI-agent-assisted development: a contributor creates a requirement
-file and then instructs the agent to iterate by following [requirements.md](../agents/action/requirements.md)
-and [Role Loop](../agents/action/iteration/role.md), continuing until every Acceptance Criterion is fulfilled.
+Requirements live under `docs/requirements/` and define what the project must do.
+Their primary purpose is to drive AI-agent-assisted development: a contributor creates a requirement file and then instructs the agent to iterate by following [requirements.md](../agents/action/requirements.md) and [Role Loop](../agents/action/iteration/role.md), continuing until every Acceptance Criterion is fulfilled.
 
-Creating a requirement is **not mandatory** to work on a task. For normal work items, bugs, or
-feature requests, use the project tools directly:
+Creating a requirement is **not mandatory** to work on a task.
+For normal work items, bugs, or feature requests, use the project tools directly:
 
 - Internal planning and work items: [project.infinito.nexus](https://project.infinito.nexus/)
 - Bug reports and feature requests: [s.infinito.nexus/issues](https://s.infinito.nexus/issues)
 
-Writing a requirement file is RECOMMENDED when you want an AI agent to autonomously implement and
-validate a feature end to end, because it gives the agent a structured, checkable definition of done.
+Writing a requirement file is RECOMMENDED when you want an AI agent to autonomously implement and validate a feature end to end, because it gives the agent a structured, checkable definition of done.
 
 ## File Naming
 
-Every requirements file MUST follow the pattern `NNN-topic.md`, where `NNN` is a zero-padded
-three-digit sequence number (e.g. `000-template.md`, `001-auth.md`).
+Every requirements file MUST follow the pattern `NNN-topic.md`, where `NNN` is a zero-padded three-digit sequence number (e.g. `000-template.md`, `001-auth.md`).
 
 ## File Structure
 

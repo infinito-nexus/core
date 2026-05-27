@@ -28,8 +28,9 @@ vars:
 Infinito.Nexus Community License (Non-Commercial)
 [https://s.infinito.nexus/license](https://s.infinito.nexus/license)
 
-## Author
+## Credits
 
-Kevin Veen-Birkenbach
-Consulting & Coaching Solutions
-[https://www.veen.world](https://www.veen.world)
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

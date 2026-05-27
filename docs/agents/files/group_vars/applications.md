@@ -4,7 +4,7 @@ This page describes how agents handle application defaults after the removal of 
 
 ## Rules
 
-- Application defaults are discovered directly from each role's per-topic meta files: `roles/*/meta/services.yml`, `roles/*/meta/server.yml`, `roles/*/meta/rbac.yml`, `roles/*/meta/volumes.yml`, plus `roles/*/meta/schema.yml` (post-`apply_schema()`). Variants in `roles/*/meta/variants.yml` deep-merge over the assembled per-role payload. See [layout.md](../../../contributing/design/services/layout.md).
+- Application defaults are discovered directly from each role's per-topic meta files: `roles/*/meta/services.yml`, `roles/*/meta/server.yml`, `roles/*/meta/rbac.yml`, `roles/*/meta/volumes.yml`, plus `roles/*/meta/schema.yml` (post-`apply_schema()`). Variants in `roles/*/meta/variants.yml` deep-merge over the assembled per-role payload. See [layout.md](../../../contributing/design/role/services/layout.md).
 - Agents MUST edit role-local meta sources, not recreate repository-wide generated application dictionaries.
 - Runtime consumers MUST access merged application data via `lookup('applications')` or a wrapper built on top of it.
 - Inventory overrides still belong in the normal `applications` variable path under inventories, group vars, host vars, or role vars.

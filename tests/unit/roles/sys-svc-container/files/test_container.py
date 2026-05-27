@@ -1,21 +1,20 @@
 from __future__ import annotations
 
+import contextlib
 import importlib.util
-import unittest
-from pathlib import Path
+import io
 import os
 import tempfile
-import contextlib
-import io
+import unittest
+from pathlib import Path
+
+from . import PROJECT_ROOT
 
 # ---------------------------------------------------------------------------
 # Manual import of roles/sys-svc-container/files/container.py
 # ---------------------------------------------------------------------------
 
 THIS_FILE = Path(__file__).resolve()
-
-# tests/unit/roles/sys-svc-container/files/test_container.py -> project root
-PROJECT_ROOT = THIS_FILE.parents[5]
 
 CONTAINER_PY = PROJECT_ROOT / "roles" / "sys-svc-container" / "files" / "container.py"
 

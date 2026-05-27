@@ -1,3 +1,4 @@
+---
 # Necessary to have this separate file to pass performance tests
 - name: Install certbundle
   include_role:

@@ -1,12 +1,10 @@
 ---
 - name: "Fider | Check if tenant is already initialized"
-  shell: |
-    container exec -i {{ lookup('database', application_id, 'container') }} \
-      psql -U {{ lookup('database', application_id, 'username') }} \
-           -d {{ lookup('database', application_id, 'name') }} \
-           -t -c "SELECT COUNT(*) FROM tenants;" | tr -d ' \n'
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/count-tenants.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: fider_tenant_count
   changed_when: false
 
@@ -23,51 +21,35 @@
       legalAgreement: true
       token: ""
     status_code: [200, 201]
-  when: (fider_tenant_count.stdout | trim | int) == 0
+  when: (fider_tenant_count.rows[0][0] | int) == 0
 
 - name: "Fider | Create admin user (bypass email verification)"
-  # SQL ships in `files/create_admin_user.sql`; pipe via stdin so psql's
-  # lexer expands the `:'var'` substitutions (`-c "..."` forwards the
-  # colon-prefix verbatim and the server rejects it).
-  ansible.builtin.shell:
-    cmd: |
-      container exec -i {{ lookup('database', application_id, 'container') | quote }} \
-        psql -U {{ lookup('database', application_id, 'username') | quote }} \
-             -d {{ lookup('database', application_id, 'name') | quote }} \
-             -v ON_ERROR_STOP=1 \
-             -v full_name={{ ((lookup('users', 'administrator').firstname ~ ' ' ~ lookup('users', 'administrator').lastname)) | quote }} \
-             -v email={{ lookup('users', 'administrator').email | quote }}
-    stdin: "{{ lookup('file', 'create_admin_user.sql') }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/create-admin-user.sql"
+    named_args:
+      full_name: "{{ lookup('users', 'administrator').firstname }} {{ lookup('users', 'administrator').lastname }}"
+      email: "{{ lookup('users', 'administrator').email }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
 
 - name: "Fider | Activate tenant (set status=1 to bypass email confirmation)"
-  shell: |
-    container exec -i {{ lookup('database', application_id, 'container') }} \
-      psql -U {{ lookup('database', application_id, 'username') }} \
-           -d {{ lookup('database', application_id, 'name') }} \
-           -c "UPDATE tenants SET status = 1 WHERE status != 1;"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/activate-tenants.sql"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
 
 - name: "Fider | Configure Keycloak as OIDC provider in database"
-  # SQL ships in `files/configure_oidc_provider.sql`; same stdin/-v pattern
-  # as the admin-user task above so psql's lexer expands `:'var'` refs.
-  ansible.builtin.shell:
-    cmd: |
-      container exec -i {{ lookup('database', application_id, 'container') | quote }} \
-        psql -U {{ lookup('database', application_id, 'username') | quote }} \
-             -d {{ lookup('database', application_id, 'name') | quote }} \
-             -v ON_ERROR_STOP=1 \
-             -v display_name={{ (SOFTWARE_NAME ~ ' SSO') | quote }} \
-             -v client_id={{ OIDC.CLIENT.ID | quote }} \
-             -v client_secret={{ OIDC.CLIENT.SECRET | quote }} \
-             -v authorize_url={{ OIDC.CLIENT.AUTHORIZE_URL | quote }} \
-             -v token_url={{ OIDC.CLIENT.TOKEN_URL | quote }} \
-             -v profile_url={{ OIDC.CLIENT.USER_INFO_URL | quote }}
-    stdin: "{{ lookup('file', 'configure_oidc_provider.sql') }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/configure-oidc-provider.sql"
+    named_args:
+      display_name: "{{ SOFTWARE_NAME }} SSO"
+      client_id: "{{ OIDC.CLIENT.ID }}"
+      client_secret: "{{ OIDC.CLIENT.SECRET }}"
+      authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+      token_url: "{{ OIDC.CLIENT.TOKEN_URL }}"
+      profile_url: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true

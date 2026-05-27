@@ -70,14 +70,14 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_UPDATED_AT: ${{ github.event.pull_request.updated_at }}
-          DISTROS: "arch debian ubuntu fedora centos"
+          INFINITO_DISTROS: "arch debian ubuntu fedora centos"
           IMAGE_TAG: ci-${{ github.sha }}
           WAIT_ATTEMPTS: ${{ inputs.image_wait_attempts }}
           WAIT_SLEEP_SECONDS: ${{ inputs.image_wait_sleep_seconds }}
         run: ./scripts/meta/wait/images.sh
 
   fork-prereqs-ready:
-    name: 🚦 Gate fork prerequisites
+    name: 🚦 Gate Dependencies
     needs: wait-fork-prereq-run
     if: ${{ always() }}
     runs-on: ubuntu-latest
@@ -106,35 +106,38 @@ jobs:
     uses: ./.github/workflows/lint-python.yml
   lint-shell:
     uses: ./.github/workflows/lint-shell.yml
+  lint-markdown:
+    uses: ./.github/workflows/lint-markdown.yml
+  lint-makefile:
+    uses: ./.github/workflows/lint-makefile.yml
+  lint-javascript:
+    uses: ./.github/workflows/lint-javascript.yml
+  lint-playwright:
+    uses: ./.github/workflows/lint-playwright.yml
   lint-gate:
     name: 🚦 Gate lint
-    needs: [lint-ansible, lint-python, lint-docker, lint-shell]
+    needs:
+      - lint-ansible
+      - lint-python
+      - lint-docker
+      - lint-shell
+      - lint-markdown
+      - lint-makefile
+      - lint-javascript
+      - lint-playwright
     runs-on: ubuntu-latest
     steps:
       - run: echo "lint gate passed"
 
-  # Build Docker Images 
-  build-ci-images:
-    needs: fork-prereqs-ready
-    uses: ./.github/workflows/images-build-ci.yml
-    with:
-      distros: "arch debian ubuntu fedora centos"
-      concurrency_channel: ci-orchestrator-build-consumer
-    secrets: inherit
-
   # Code Testing
   test-code-integration:
     uses: ./.github/workflows/test-code-integration.yml
-    needs: build-ci-images
   test-code-lint:
     uses: ./.github/workflows/test-code-lint.yml
-    needs: build-ci-images
   test-code-external:
     uses: ./.github/workflows/test-code-external.yml
-    needs: build-ci-images
   test-code-unit:
-    uses: ./.github/workflows/test-code-unit.yml 
-    needs: build-ci-images
+    uses: ./.github/workflows/test-code-unit.yml
   test-code-gate:
     name: 🚦 Gate code
     needs: [test-code-integration, test-code-lint, test-code-external, test-code-unit]
@@ -144,16 +147,29 @@ jobs:
 
   # Gate for the code Quality
   code-quality-gate:
-    needs: [lint-gate, test-code-gate, security-codeql]
+    name: 🚦 Gate Quality
+    needs: 
+      - lint-gate
+      - test-code-gate
+      - security-codeql
     runs-on: ubuntu-latest
     steps:
       - run: echo "Quality Checks passed"
+
+  # Build Docker Images
+  build-ci-images:
+    needs:
+      - code-quality-gate
+    uses: ./.github/workflows/images-build-ci.yml
+    with:
+      distros: "arch debian ubuntu fedora centos"
+      concurrency_channel: ci-orchestrator-build-consumer
+    secrets: inherit
   
   # Test DNS configuration
   test-dns:
     needs: 
       - build-ci-images
-      - code-quality-gate
     uses: ./.github/workflows/test-dns.yml
     with:
       distros: "arch debian ubuntu fedora centos"

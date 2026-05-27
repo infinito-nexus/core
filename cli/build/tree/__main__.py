@@ -7,6 +7,8 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from cli.build.graph import build_mappings, output_graph
 
+from . import PROJECT_ROOT
+
 
 def find_roles(roles_dir: str) -> Iterable[Tuple[str, str]]:
     """
@@ -73,8 +75,7 @@ def process_role(
 
 
 def main():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_roles_dir = os.path.abspath(os.path.join(script_dir, "..", "..", "..", "roles"))
+    default_roles_dir = str(PROJECT_ROOT / "roles")
 
     parser = argparse.ArgumentParser(
         description="Generate all graphs for each role and write meta/tree.json"

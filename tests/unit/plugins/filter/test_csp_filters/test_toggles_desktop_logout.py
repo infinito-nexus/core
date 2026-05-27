@@ -1,5 +1,6 @@
-import unittest
 import copy
+import unittest
+
 from plugins.filter.csp_filters import FilterModule
 
 
@@ -19,15 +20,15 @@ class TestCspTogglesDashboardLogout(unittest.TestCase):
         }
 
     def _get_directive_tokens(self, header: str, directive: str):
-        for part in header.split(";"):
-            part = part.strip()
+        for raw_part in header.split(";"):
+            part = raw_part.strip()
             if part.startswith(directive + " "):
                 remainder = part[len(directive) :].strip()
                 return [tok for tok in remainder.split(" ") if tok]
         return []
 
     def _set_service_enabled(self, apps: dict, service: str, enabled: bool):
-        # Per req-008 the materialised payload moved to services.<X>.
+        # Per the materialised payload moved to services.<X>.
         apps["app1"].setdefault("services", {}).setdefault(service, {})
         apps["app1"]["services"][service]["enabled"] = enabled
 

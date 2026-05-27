@@ -1,15 +1,14 @@
 import importlib.util
 import unittest
-from pathlib import Path
 
 from ansible.errors import AnsibleFilterError
 
+from . import PROJECT_ROOT
+
 
 def _load_plugin_module():
-    here = Path(__file__).resolve()
-    repo_root = here.parents[5] if len(here.parents) >= 6 else here.parents[0]
     plugin_path = (
-        repo_root
+        PROJECT_ROOT
         / "roles"
         / "test-e2e-playwright"
         / "filter_plugins"

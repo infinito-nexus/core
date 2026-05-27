@@ -22,12 +22,14 @@ mirrors the ``tls`` lookup's positional ``want`` API.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
-from ansible.plugins.lookup import LookupBase
 from ansible.plugins.loader import lookup_loader
+from ansible.plugins.lookup import LookupBase
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
 
 _APPLICATION_ID = "web-app-fediwall"
 _SIBLINGS_CONFIG_PATH = "services.fediwall.fediverse_siblings"
@@ -37,7 +39,7 @@ _VALID_WANTS = ("siblings", "domains", "url_bases")
 def select_active(
     siblings: Iterable[str] | None,
     group_names: Iterable[str] | None,
-) -> List[str]:
+) -> list[str]:
     """Return the subset of `siblings` whose names appear in `group_names`.
 
     Order of `siblings` is preserved. Duplicates in `siblings` are
@@ -54,7 +56,7 @@ def resolve_for_want(
     group_names: Iterable[str] | None,
     want: str,
     resolver: Callable[[str], str] | None,
-) -> List[str]:
+) -> list[str]:
     """Return one value per active sibling, depending on `want`.
 
     For ``want == 'siblings'`` the active sibling names themselves are
@@ -75,10 +77,10 @@ def resolve_for_want(
 class LookupModule(LookupBase):
     def run(
         self,
-        terms: List[Any],
-        variables: Optional[dict] = None,
+        terms: list[Any],
+        variables: dict | None = None,
         **kwargs: Any,
-    ) -> List[List[str]]:
+    ) -> list[list[str]]:
         if not terms or len(terms) != 1:
             raise AnsibleError(
                 f"fediwall_active: exactly one positional argument required "

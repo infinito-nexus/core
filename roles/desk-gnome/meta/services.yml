@@ -1,12 +1,18 @@
+---
 gnome:
   plugins:
-  - - enable
-    - nasa_apod@elinvention.ovh
-    - https://github.com/Elinvention/gnome-shell-extension-nasa-apod.git
-  - - disable
-    - dash-to-dock@micxgx.gmail.com
-    - ''
-  - - enable
-    - dash-to-panel@jderose9.github.com
-    - ''
+    - - enable
+      - nasa_apod@elinvention.ovh
+      - https://github.com/Elinvention/gnome-shell-extension-nasa-apod.git
+    - - disable
+      - dash-to-dock@micxgx.gmail.com
+      - ""
+    - - enable
+      - dash-to-panel@jderose9.github.com
+      - ""
   lifecycle: pre-alpha
+  min_storage: "2GB"
+  cpus: "1.0"
+  mem_reservation: "512m"
+  mem_limit: "1g"
+  pids_limit: 1024

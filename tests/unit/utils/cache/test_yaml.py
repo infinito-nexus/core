@@ -54,9 +54,9 @@ class TestLoadYaml(unittest.TestCase):
         result = load_yaml(path)
         self.assertEqual(result, {})
 
-    def test_non_mapping_root_raises_value_error(self):
+    def test_non_mapping_root_raises_type_error(self):
         path = self._write("list.yml", "- 1\n- 2\n")
-        with self.assertRaisesRegex(ValueError, "mapping at top-level"):
+        with self.assertRaisesRegex(TypeError, "mapping at top-level"):
             load_yaml(path)
 
     def test_missing_file_raises_by_default(self):
@@ -113,7 +113,7 @@ class TestLoadYamlAny(unittest.TestCase):
 
     def test_load_yaml_strict_rejects_list_root(self):
         path = self._write("tasks.yml", "- a\n- b\n")
-        with self.assertRaisesRegex(ValueError, "mapping at top-level"):
+        with self.assertRaisesRegex(TypeError, "mapping at top-level"):
             load_yaml(path)
 
 

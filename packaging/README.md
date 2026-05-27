@@ -19,7 +19,7 @@ These package definitions are required to bootstrap and run the local
 development/test environment reliably. 🚀
 
 Bootstrap tooling is provided via Kevin's Package Manager:
-https://github.com/kevinveenbirkenbach/package-manager
+<https://github.com/kevinveenbirkenbach/package-manager>
 
 Scope of declared dependencies:
 

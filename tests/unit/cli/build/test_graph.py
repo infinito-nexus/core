@@ -6,6 +6,8 @@ import unittest
 from io import StringIO
 from contextlib import redirect_stdout
 
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_SERVICES, ROLE_FILE_TASKS_MAIN
+
 from cli.build.graph import (
     load_meta,
     load_tasks,
@@ -29,7 +31,7 @@ class TestGraphHelpers(unittest.TestCase):
 
     def test_load_meta_parses_run_after_and_dependencies(self):
         meta_path = self._write_file(
-            "roles/role_a/meta/main.yml",
+            f"roles/role_a/{ROLE_FILE_META_MAIN}",
             """
 galaxy_info:
   author: Test Author
@@ -38,11 +40,11 @@ dependencies:
   - role_e
 """,
         )
-        # Per req-010 run_after lives in meta/services.yml under the role's
+        # Per run_after lives in meta/services.yml under the role's
         # primary entity; for "role_a" (no category prefix) the entity name
         # is the role name itself.
         self._write_file(
-            "roles/role_a/meta/services.yml",
+            f"roles/role_a/{ROLE_FILE_META_SERVICES}",
             """
 role_a:
   run_after:
@@ -60,7 +62,7 @@ role_a:
 
     def test_load_tasks_filters_out_jinja_and_reads_names(self):
         tasks_path = self._write_file(
-            "roles/role_a/tasks/main.yml",
+            f"roles/role_a/{ROLE_FILE_TASKS_MAIN}",
             """
 - name: include plain file
   include_tasks: "subtasks.yml"
@@ -107,7 +109,7 @@ class TestBuildMappings(unittest.TestCase):
         os.makedirs(os.path.join(self.roles_dir, name), exist_ok=True)
         if with_meta:
             self._write_file(
-                f"{name}/meta/main.yml",
+                f"{name}/{ROLE_FILE_META_MAIN}",
                 """
 galaxy_info:
   author: Minimal
@@ -123,7 +125,7 @@ galaxy_info:
 
         # Role A with meta (dependencies); run_after now lives in services.yml
         self._write_file(
-            "role_a/meta/main.yml",
+            f"role_a/{ROLE_FILE_META_MAIN}",
             """
 galaxy_info:
   author: Role A Author
@@ -132,7 +134,7 @@ dependencies:
 """,
         )
         self._write_file(
-            "role_a/meta/services.yml",
+            f"role_a/{ROLE_FILE_META_SERVICES}",
             """
 role_a:
   run_after:
@@ -142,7 +144,7 @@ role_a:
 
         # Role A tasks with include_role, import_role, include_tasks, import_tasks
         self._write_file(
-            "role_a/tasks/main.yml",
+            f"role_a/{ROLE_FILE_TASKS_MAIN}",
             """
 - name: use docker style role
   include_role:

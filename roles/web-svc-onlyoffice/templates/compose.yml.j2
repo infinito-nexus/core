@@ -16,12 +16,11 @@
       - pgdata:/var/lib/postgresql
       - redisdata:/var/lib/redis
       - rabbitmqdata:/var/lib/rabbitmq
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'data': {'name': ONLYOFFICE_VOLUME_DATA}, 'fonts': {'name': ONLYOFFICE_VOLUME_FONTS}, 'lib': {'name': ONLYOFFICE_VOLUME_LIB}, 'logs': {'name': ONLYOFFICE_VOLUME_LOGS}, 'pgdata': {'name': ONLYOFFICE_VOLUME_PGDATA}, 'rabbitmqdata': {'name': ONLYOFFICE_VOLUME_RABBITMQ}, 'redisdata': {'name': ONLYOFFICE_VOLUME_REDIS}}
 ) }}

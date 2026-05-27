@@ -1,3 +1,4 @@
+---
 - name: Ensure nginx config directory exists
   ansible.builtin.file:
     path: "{{ lookup('nginx','files.configuration') | dirname }}"
@@ -17,9 +18,9 @@
   include_role:
     name: sys-svc-compose
   vars:
-    docker_git_repository_pull:     false # Deactivated here to deactivate inhirement
-    docker_compose_flush_handlers:  true
-    application_id:                 svc-prx-openresty
+    compose_repository_pull: false # Deactivated here to deactivate inhirement
+    compose_handlers_flush: true
+    application_id: svc-prx-openresty
 
 - name: "Verify that '{{ role_name }}' works"
   include_tasks: 02_assert.yml

@@ -1,0 +1,3 @@
+{% for ext in lookup('service_extensions', 'postgres').get(_database_consumer_id, []) %}
+CREATE EXTENSION IF NOT EXISTS "{{ ext }}";
+{% endfor %}

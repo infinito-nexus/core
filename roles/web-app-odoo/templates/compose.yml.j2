@@ -31,7 +31,7 @@
       - ODOO_OIDC_JWKS_URI={{ ODOO_OIDC_JWKS_URI }}
       - ODOO_OIDC_UID_FIELD={{ ODOO_OIDC_UID_FIELD }}
 {% endif %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_excl.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     volumes:
       - {{ ODOO_DATA_VOLUME }}:/var/lib/odoo
@@ -47,7 +47,6 @@
 } %}
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes=odoo_extra_volumes
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,3 +1,4 @@
+---
 plugin_configuration:
   - appid: "onlyoffice"
     configkey: "DocumentServerUrl"

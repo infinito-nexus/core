@@ -1,2 +1,3 @@
-USER_BACKUP_HOME:                 "/home/backup"
-USER_BACKUP_WRAPPER_DST:          "{{ [ USER_BACKUP_HOME, 'ssh-wrapper.sh' ] | path_join }}"
+---
+USER_BACKUP_HOME: "/home/backup"
+USER_BACKUP_WRAPPER_DST: "{{ [ USER_BACKUP_HOME, 'ssh-wrapper.sh' ] | path_join }}"

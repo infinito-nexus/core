@@ -1,11 +1,12 @@
+---
 defaults_design:
   enabled: true
   css:
     colors:
       base: "#001f3f"
     filters:
-      saturation_change:  70
-      hue_shift:          0
+      saturation_change: 70
+      hue_shift: 0
   font:
-    import_url:   false
-    type:         '"Liberation Sans", Arial, sans-serif'
+    import_url: false
+    type: '"Liberation Sans", Arial, sans-serif'

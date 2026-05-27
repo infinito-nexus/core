@@ -1,3 +1,4 @@
+---
 - name: "Cleanup caches and logs (cross-distro: arch/debian/ubuntu/fedora/centos)"
   # CI/container cleanup to prevent disk blow-ups across all supported distros
   become: true

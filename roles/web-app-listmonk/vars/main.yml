@@ -1,23 +1,25 @@
+---
 # General 
-application_id:               "web-app-listmonk"
-container_port:               "{{ lookup('config', application_id, 'services.listmonk.ports.inter') }}"
+application_id: "web-app-listmonk"
+container_port: "{{ lookup('config', application_id, 'services.listmonk.ports.internal.http') }}"
 
 # Listmonk
-LISTMONK_VERSION:             "{{ lookup('config', application_id, 'services.listmonk.version') }}"
-LISTMONK_IMAGE:               "{{ lookup('config', application_id, 'services.listmonk.image') }}"
-LISTMONK_NAME:                "{{ lookup('config', application_id, 'services.listmonk.name') }}"
-LISTMONK_CONFIG_HOST:         "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
-LISTMONK_OIDC_ENABLED:        "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
+LISTMONK_VERSION: "{{ lookup('config', application_id, 'services.listmonk.version') }}"
+LISTMONK_IMAGE: "{{ lookup('config', application_id, 'services.listmonk.image') }}"
+LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
+LISTMONK_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
+LISTMONK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.oidc.enabled') }}"
 
-LISTMONK_PUBLIC_API_ENABLED:  "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
+LISTMONK_PUBLIC_API_ENABLED: "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
 
 # User Configuration
-LISTMONK_USER_SEND:           "newsletter"
-LISTMONK_USER_BOUNCE:         "bounce"
+LISTMONK_USER_SEND: "newsletter"
+LISTMONK_USER_BOUNCE: "bounce"
 
-LISTMONK_EXEC_DATABASE:       "container exec -i {{ lookup('database', application_id, 'container') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{ lookup('database', application_id, 'name') }}"
-LISTMONK_RUN:                 "{{ BIN_COMPOSE }} run -T --rm application"
-LISTMONK_EMAIL:               "{{ lookup('email', application_id) }}"
+LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'container') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
+  lookup('database', application_id, 'name') }}"
+LISTMONK_RUN: "{{ BIN_COMPOSE }} run -T --rm application"
+LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"
 
 LISTMONK_SETTINGS:
   - key: "app.root_url"
@@ -39,7 +41,7 @@ LISTMONK_SETTINGS:
 
   # hCaptcha toggles and credentials
   - key: "security.enable_captcha"
-    value: 'true'
+    value: "true"
 
   - key: "security.captcha_key"
     value: "\"{{ lookup('config', application_id, 'credentials.hcaptcha.key') }}\""
@@ -76,23 +78,22 @@ LISTMONK_SETTINGS:
       ] | to_json }}
     when: LISTMONK_EMAIL.smtp | bool
 
-
   - key: "app.lang"
     value: '"{{ HOST_LL }}"'
 
 #  - key: "messengers"
 #    value: '[]'
 
-  - key:    "app.logo_url"
-    value:  '"{{ service_provider.platform.logo }}"'
-    when:   service_provider.platform.logo | bool
+  - key: "app.logo_url"
+    value: '"{{ service_provider.platform.logo }}"'
+    when: service_provider.platform.logo | bool
 
   - key: "app.site_name"
     value: '"{{ service_provider.company.titel }} Mailing list"'
 
   # Enable the bounce module
   - key: "bounce.enabled"
-    value: 'true'
+    value: "true"
 
   # Configure POP3 mailbox for processing bounces
   - key: "bounce.mailboxes"
@@ -134,9 +135,9 @@ LISTMONK_SETTINGS:
 #  - key: "app.concurrency"
 #    value: '10'
 
-  - key:    "app.favicon_url"
-    value:  '"{{ service_provider.platform.favicon }}"'
-    when:   service_provider.platform.favicon | bool
+  - key: "app.favicon_url"
+    value: '"{{ service_provider.platform.favicon }}"'
+    when: service_provider.platform.favicon | bool
 
 #  - key: "bounce.postmark"
 #    value: '{"enabled": false, "password": "", "username": ""}'
@@ -161,8 +162,7 @@ LISTMONK_SETTINGS:
 #    value: '"167h"'
 
   - key: "app.check_updates"
-    value: 'true'
-
+    value: "true"
 
 #  - key: "upload.extensions"
 #    value: '["jpg", "jpeg", "png", "gif", "svg", "*"]'
@@ -234,4 +234,4 @@ LISTMONK_SETTINGS:
 #    value: '"1h"'
 
   - key: "app.enable_public_archive_rss_content"
-    value: 'true'
+    value: "true"

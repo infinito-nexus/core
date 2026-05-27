@@ -1,2 +1,3 @@
+---
 - include_tasks: 01_core.yml
   when: run_once_sys_ctl_mtn_cert_renew is not defined

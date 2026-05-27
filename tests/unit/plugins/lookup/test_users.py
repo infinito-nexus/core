@@ -10,13 +10,13 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.users import LookupModule, _reset_cache_for_tests
 from utils.cache import base as runtime_data_base
-
 from utils.cache.yaml import dump_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_USERS
 
 
 def _write_users(base_dir: Path, role_name: str, users: dict) -> None:
-    """Write meta/users.yml — file root IS the users map (req-008)."""
-    users_path = base_dir / "roles" / role_name / "meta" / "users.yml"
+    """Write meta/users.yml — file root IS the users map."""
+    users_path = base_dir / "roles" / role_name / ROLE_FILE_META_USERS
     users_path.parent.mkdir(parents=True, exist_ok=True)
     users_path.write_text(dump_yaml_str(users), encoding="utf-8")
 
@@ -24,7 +24,7 @@ def _write_users(base_dir: Path, role_name: str, users: dict) -> None:
 class TestUsersLookup(unittest.TestCase):
     def setUp(self) -> None:
         self.lookup = LookupModule()
-        self._cwd = os.getcwd()
+        self._cwd = str(Path.cwd())
         self._tmpdir = tempfile.TemporaryDirectory()
         self._tmp = Path(self._tmpdir.name)
         os.chdir(self._tmp)
@@ -241,7 +241,7 @@ class TestUsersLookup(unittest.TestCase):
         )[0]
 
         self.assertEqual(result["email"], "blackhole@mail.example.org")
-        self.assertNotIn("{{", result["password"])
+        self.assertNotRegex(result["password"], r"\{\{.*?\}\}")
         self.assertGreaterEqual(len(result["password"]), 12)
 
     def test_hydrates_tokens_from_dir_secrets_when_file_tokens_missing(self) -> None:
@@ -326,8 +326,7 @@ class _DummyTemplar:
         rendered = value
         for key, replacement in self.available_variables.items():
             rendered = rendered.replace("{{ " + key + " }}", str(replacement))
-        rendered = rendered.replace("{{ 42 | strong_password }}", "strong-password-42")
-        return rendered
+        return rendered.replace("{{ 42 | strong_password }}", "strong-password-42")
 
 
 class _NoopTemplar:

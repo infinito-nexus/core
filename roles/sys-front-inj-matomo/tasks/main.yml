@@ -1,3 +1,4 @@
+---
 # nocheck: run-once
 
 # The Matomo API token may be empty on first deployment or when the Matomo container is

@@ -33,7 +33,7 @@ def merge_with_defaults(defaults, customs):
     return merged
 
 
-class FilterModule(object):
+class FilterModule:
     """Custom merge filter for Infinito.Nexus: merge_with_defaults"""
 
     def filters(self):

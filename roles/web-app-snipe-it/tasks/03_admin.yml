@@ -35,7 +35,7 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   when: snipe_it_admin_exists.rc != 0
   register: snipe_it_admin_create
-  changed_when: "'New user created' in (snipe_it_admin_create.stdout | default(''))"
+  changed_when: "'New user created' in snipe_it_admin_create.stdout"
   failed_when: >
     snipe_it_admin_create.rc != 0
     and not (

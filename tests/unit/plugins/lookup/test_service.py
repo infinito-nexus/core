@@ -7,7 +7,6 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.service import LookupModule
 
-
 _SERVICE_REGISTRY = {
     "matomo": {"role": "web-app-matomo"},
     "cdn": {"role": "web-svc-cdn"},
@@ -103,6 +102,30 @@ class TestServiceDirect(unittest.TestCase):
         self.assertTrue(results[0]["required"])
         self.assertFalse(results[1]["required"])
         self.assertFalse(results[2]["required"])
+
+    def test_local_true_when_enabled_and_not_shared(self):
+        self.assertTrue(self._get("cdn")["local"])
+
+    def test_local_false_when_enabled_and_shared(self):
+        self.assertFalse(self._get("matomo")["local"])
+
+    def test_local_false_when_shared_only(self):
+        self.assertFalse(self._get("logout")["local"])
+
+    def test_local_false_when_service_absent(self):
+        self.assertFalse(self._get("collab")["local"])
+
+    def test_local_false_when_group_names_do_not_match(self):
+        self.assertFalse(self._get("cdn", ["web-app-unknown"])["local"])
+
+    def test_local_and_required_are_mutually_exclusive(self):
+        for term in ("matomo", "cdn", "logout", "collab"):
+            result = self._get(term)
+            if result["enabled"]:
+                self.assertFalse(
+                    result["local"] and result["required"],
+                    msg=f"{term}: local and required must not both be True",
+                )
 
     def test_empty_terms_returns_empty(self):
         self.assertEqual(
@@ -258,12 +281,14 @@ class TestServiceCycleGuard(unittest.TestCase):
 
 class TestServiceErrors(unittest.TestCase):
     def test_raises_when_group_names_not_list(self):
-        with patch("plugins.lookup.service.get_merged_applications", return_value={}):
-            with self.assertRaises(AnsibleError):
-                LookupModule().run(
-                    ["matomo"],
-                    variables={"group_names": "not-a-list"},
-                )
+        with (
+            patch("plugins.lookup.service.get_merged_applications", return_value={}),
+            self.assertRaises(AnsibleError),
+        ):
+            LookupModule().run(
+                ["matomo"],
+                variables={"group_names": "not-a-list"},
+            )
 
     def test_raises_when_term_empty(self):
         with self.assertRaises(AnsibleError):

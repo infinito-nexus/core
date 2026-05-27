@@ -1,12 +1,25 @@
+---
+# nocheck: dynamic-flag
+# nocheck: logout
 logout:
   enabled: false
   shared: false
+# nocheck: dynamic-flag
+# nocheck: oidc
+oidc:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: oauth2
+oauth2:
+  enabled: false
+  shared: false
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 sphinx:
   image: ghcr.io/kevinveenbirkenbach/infinito-sphinx
   version: latest
@@ -15,23 +28,26 @@ sphinx:
     no_stop_required: true
   name: sphinx
   ports:
-    inter: 8000
+    internal:
+      http: 8000
     local:
       http: 8036
   run_after:
     - web-app-matomo
   lifecycle: beta
-  cpus: '0.2'
+  cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
-  enabled: true
-  shared: true
-# noqa: email
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: email
+# nocheck: dynamic-flag
 email:
   enabled: false
   shared: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

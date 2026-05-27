@@ -1,3 +1,4 @@
+---
 - name: Resolve Docker package list for current distribution
   ansible.builtin.set_fact:
     sys_svc_container_packages: >-
@@ -72,8 +73,7 @@
     timeout: 60
 
 - name: "Overwrite when DOCKER_IN_CONTAINER is true"
-  block: 
-
+  block:
     - name: Get docker bridge gateway
       docker_bridge_gateway:
       register: gw

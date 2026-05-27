@@ -59,7 +59,7 @@ install -d %{buildroot}%{_docdir}/%{name}
 
 %changelog
 * Fri May 08 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 7.0.0-1
-- * This major release migrates every role to the new meta/ layout with explicit per-role networks, ports, run_after, and info.yml metadata, introduces a variant-aware matrix-deploy planner, ships a process-wide YAML / file / registry caching stack, promotes 13+ apps from alpha to beta, and adds a lint corpus that pins the new conventions in CI.
+- This major release migrates every role to the new meta/ layout with explicit per-role networks, ports, run_after, and info.yml metadata, introduces a variant-aware matrix-deploy planner, ships a process-wide YAML / file / registry caching stack, promotes 13+ apps from alpha to beta, and adds a lint corpus that pins the new conventions in CI.
 
 **Major Changes**
 
@@ -89,7 +89,7 @@ install -d %{buildroot}%{_docdir}/%{name}
 * Pinned image versions explicitly: SuiteCRM PHP 8.2, Nextcloud 33-fpm-alpine, Moodle PHP 8.3-fpm, Hugo nginx 1.30.0-alpine; opted Ubuntu's docker-compose-v2 out of the package selection
 * Migrated Decidim, OpenLDAP schema, Postgres grant-schema, Fider, Odoo OIDC, and svc-db-postgres SQL into dedicated files/*.sql so the inline-multiline-SQL lint stays at zero
 * Tightened the compose-resource-limits lint and reconciled the entire role corpus against it
-* Adopted the unified # nocheck: <kebab-rule> suppression marker repo-wide; reserved # noqa: for real ruff/flake8 codes
+* Adopted the unified `# nocheck: <kebab-rule>` suppression marker repo-wide; reserved `# noqa:` markers for real ruff/flake8 codes
 
 **Fixed**
 
@@ -177,6 +177,131 @@ install -d %{buildroot}%{_docdir}/%{name}
 * [Evangelos Tsakoudis](https://github.com/evangelostsak)
 * [Prageeth Panicker](https://github.com/pragepani)
 
-* Thu Mar 19 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 5.1.0-1
-- Add packaging metadata for Debian, Fedora and Arch.
-- Centralize OS dependency declarations for Infinito.Nexus host workflows.
+* Sat Mar 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 5.2.0-1
+- This minor release adds Mattermost deployment support, improves release image automation, and hardens CI, Ansible plugin handling, and application deployment reliability across the stack.
+
+**Added**
+* Added *web-app-mattermost* with Docker Compose deployment, PostgreSQL support, Keycloak-based SSO via the GitLab OAuth2 provider, and optional Mailu integration
+* Added retry-capable *uri_retry* and *get_url_retry* action plugins with dedicated unit and integration test coverage
+* Added a scheduled/manual workflow to backfill the highest missing release image tag in GHCR
+* Added a pull request template and consolidated contributor workflow documentation
+* Added Manjaro ID support
+**Changed**
+* Reorganized custom Ansible plugins into the unified *plugins/* layout
+* Moved backend service-load decisions into a dedicated lookup plugin
+* Increased Nextcloud Talk and Talk Recording resources and made upload size handling configurable
+* Reworked image build, push, mirror, wait, and release helper scripts for clearer repository and distro resolution
+* Pinned Docker GitHub Actions used in release image workflows to commit SHAs
+* Hardened *baserow* by pinning the image version to *2.1.6*
+**Fixed**
+* Fixed Mailu admin readiness checks and reduced Mailu deploy race conditions in CI
+* Fixed flaky Nix-related network failures and added explicit failure-path coverage for retry handling
+* Fixed *strong_password* filter *module_utils* resolution
+* Fixed reusable workflow wait parameter wiring and test-dns CI image selection
+* Fixed GHCR namespace lowercasing edge cases in image-related workflows
+* Added deeper Matomo bootstrap failure diagnostics for easier troubleshooting
+**CI and Tests**
+* Refactored fork PR image handling to safely build, mirror, and validate CI images for external contributions
+* Improved GHCR publish authentication, source linking, and source labels on pushed CI images
+* Added explicit prebuilt-image wait errors and clearer release-image backfill detection
+* Reduced false CI failures by skipping cleanup during the second deploy pass
+* Expanded lint, unit, and integration coverage around retry plugins and plugin path usage
+**Contributors**
+* [Kevin Veen-Birkenbach](https://www.veen.world/)
+* [Alejandro Roman](https://github.com/AlejandroRomanIbanez)
+
+* Sat Feb 28 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 5.1.0-1
+- This minor release improves cross-distro package handling, hardens CI reliability, fixes Ansible compatibility issues, and adds clearer contributor and local test workflows.
+
+**Added**
+* Introduced *docs/guides/developer/CONTRIBUTION_WORKFLOW.md* with fork-based workflow, mandatory green fork CI before PRs, and merge policy guidance
+* Added the single-app local deploy wrapper and related local test documentation
+* Added *min_storage* entries for warned roles
+**Changed**
+* Made *dev-base-devel* distro-aware for default distros
+* Removed hardcoded *base-devel* from workstation bundles and *sys-aur*
+* Set *drv-epson-multiprinter* lifecycle to *pre-alpha*
+* Refactored *dev-fakeroot* by extracting *01_core* tasks
+* Documented local *make check* targets
+**Fixed**
+* Fixed *sys-aur-install* name/upgrade clash
+* Enabled EPEL for *dev-fakeroot* on CentOS
+* Made *drv-intel* VA-API package handling distro-specific
+* Fixed undefined *run_once* lookup in backend service loader
+* Restored DB seed enablement semantics without bool-coercion warning
+* Fixed Ansible fact deprecations and loop variable collisions
+**CI and Tests**
+* Added retries for Docker-in-Docker DNS handling
+* Added retry loop for buildx push
+* Aggressively pruned Docker artifacts between distro runs
+* Removed deprecated buildx install input
+
+* Wed Feb 25 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 5.0.0-1
+- * **Supported distributions:** *Fedora*, *CentOS*, *Ubuntu*, *Debian*
+* **Breaking Changes:** Migration from *util-* to bundle inventories under *inventories/bundles/*; deployments must migrate to new bundle and role names. Central package and AUR model via *SYS_PACKAGES* and *SYS_AUR_PACKAGES*; new roles *sys-aur* and *sys-aur-install*; renames including *util-desk-dev-core* to *dev-core*, *util-desk-dev-python* to *dev-python*, *util-desk-dev-arduino* to *dev-arduino*; *util-srv-corporate-identity* removed.
+* **Added:** New workstation bundles (*admin*, *admin-network*, *browser*, *design*, *dev-arduino*, *dev-core*, *dev-java*, *dev-php*, *dev-python*, *dev-shell*, *game-compose*, *game-os*, *game-windows*, *office*). Inventory driven *sys-package* role with constructor auto load when *SYS_PACKAGES* is set. New roles *sys-openssl* and *sys-aur-install*. New lookup plugin *command_path*. New variable *SOFTWARE_URL* and updated login banner.
+* **Changed:** Default distribution switched to *Debian* and CI image handling aligned. Python baseline raised: *dev-python* installs Python 3.11+ by default; *requires-python* raised to *>=3.11*. Cross distro Python interpreter and pip handling unified via *sys-pip-install*. Dashboard deployment uses fixed image *ghcr.io/kevinveenbirkenbach/port-ui:1.0.0* and mounts generated *config.yaml* read only. Alerting hardened with explicit timeouts for compose and email, plus portable mailer and systemd instance fallbacks.
+* **Fixed:** OpenProject migrations stabilized (simplified migration step; preload *CustomFieldContext* before *db:migrate*). Nextcloud LDAP config hardened and incompatible apps disabled in production. XWiki extension install hardened and one time seed ensures *Main.WebHome* exists. Matomo bootstrap fails fast on root cause. TLS and CA improvements (unified self signed CA env for health services, retries for CA trust override generation, Nix TLS CA trust fix). *msmtp* improved on Fedora. OpenLDAP *python-ldap* build prerequisites and header fallback refactored; per user *password_update* policy added. Backup and ops fixes (OnlyOffice no restart during backups; backup home and ACL tasks more reliable). Container setup hardened (Fedora Docker CE CLI, dnf5 repo add, Debian buildx conflict fix, Docker readiness and SSH restart improvements).
+* **CI and Tests:** New integration tests for portable python shebangs, forbid *sh -lc* with *pipefail*, and improved variable checks. CI stability improvements for per distro stacks and mirror resolver via venv Python, plus more robust package manager retries.
+
+* Tue Feb 17 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 4.1.0-1
+- **Added**
+* Controller-side *version* lookup plugin reading from *pyproject.toml* (with Poetry fallback)
+* New *unit_name* lookup plugin for consistent versioned systemd unit generation
+* Automatic prune phase in *sys-service* (stop/disable outdated units, remove old unit files, trigger daemon-reload)
+* Persist application version as *INFINITO_VERSION* in */etc/environment*
+* Parameterized image and version handling for *web-svc-simpleicons*
+* Introduced *entity_name* derived from *application_id*
+**Changed**
+* *sys-service* now uses *SOFTWARE_DOMAIN* instead of *SOFTWARE_NAME* for versioned units
+* Reordered service lifecycle: *prune → lockdown → reset*
+* Refactored internal task structure for clearer execution flow
+* Made */etc/environment* path configurable
+**Removed**
+* Legacy *FILE_VERSION* mechanism
+* Deprecated *get_service_name* filter
+* Legacy *simpleicons_host_* variables
+
+* Mon Feb 16 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 4.0.3-1
+- * Try Matomo Boostrap 7 times if errors occure
+
+For older releases, see https://docs.infinito.nexus/
+
+Earlier releases:
+  4.0.2 (2026-02-15)
+  4.0.1 (2026-02-15)
+  4.0.0 (2026-02-13)
+  3.0.0 (2026-02-11)
+  2.1.9 (2026-02-10)
+  2.1.8 (2026-02-09)
+  2.1.7 (2026-02-09)
+  2.1.6 (2026-02-09)
+  2.1.5 (2026-02-09)
+  2.1.4 (2026-02-08)
+  2.1.3 (2026-02-08)
+  2.1.2 (2026-02-08)
+  2.1.1 (2026-02-08)
+  2.1.0 (2026-02-08)
+  2.0.0 (2026-02-08)
+  1.0.0 (2026-02-03)
+  0.12.0 (2026-01-25)
+  0.11.0 (2026-01-10)
+  0.10.0 (2026-01-08)
+  0.9.0 (2026-01-07)
+  0.8.0 (2026-01-06)
+  0.7.2 (2026-01-06)
+  0.7.1 (2026-01-06)
+  0.7.0 (2026-01-05)
+  0.6.0 (2025-12-31)
+  0.5.0 (2025-12-30)
+  0.4.0 (2025-12-29)
+  0.3.5 (2025-12-21)
+  0.3.4 (2025-12-21)
+  0.3.3 (2025-12-21)
+  0.3.2 (2025-12-19)
+  0.3.1 (2025-12-18)
+  0.3.0 (2025-12-17)
+  0.2.1 (2025-12-10)
+  0.2.0 (2025-12-10)
+  0.1.1 (2025-12-10)
+  0.1.0 (2025-12-09)
