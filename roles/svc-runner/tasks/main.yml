@@ -206,7 +206,7 @@
 - name: Deploy runner compose stack
   ansible.builtin.shell: |
     set -euo pipefail
-    compose -f {{ runner_install_dir }}/compose.yml up -d --remove-orphans
+    compose --chdir {{ runner_install_dir }} up -d --remove-orphans
   args:
     executable: /bin/bash
   changed_when: true
