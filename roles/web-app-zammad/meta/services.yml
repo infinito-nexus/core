@@ -1,0 +1,73 @@
+---
+oidc:
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+ldap:
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+email:
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+logout:
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+prometheus:
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+css:
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+postgres:
+  enabled: true
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+redis:
+  enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+memcached:
+  enabled: true
+  shared: "{{ 'svc-db-memcached' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — bundled search engine, covered by role-local integration tests
+elasticsearch:
+  enabled: true
+  shared: false
+zammad:
+  image: ghcr.io/zammad/zammad
+  version: "6.5.0"
+  min_storage: 15GB
+  ports:
+    local:
+      http: 8077
+  run_after:
+    - web-app-keycloak
+    - web-app-mailu
+  lifecycle: alpha
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+# nocheck: playwright-service-flag — internal sub-component (bundled search)
+search:
+  image: docker.elastic.co/elasticsearch/elasticsearch
+  version: "8.13.4"
+  min_storage: 5GB
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 512

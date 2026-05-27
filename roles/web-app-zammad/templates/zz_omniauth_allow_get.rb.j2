@@ -1,0 +1,7 @@
+# Permit GET-initiated OmniAuth requests so the Zammad SPA's "Sign in via
+# OpenID Connect" link works without a POST form. Zammad ships with
+# `allowed_request_methods = [:post]` by default (omniauth 2.x security
+# default); the Infinito.Nexus Playwright contract drives the SPA via a
+# plain navigation, so we widen the allowed methods to include GET.
+OmniAuth.config.allowed_request_methods = %i[get post]
+OmniAuth.config.silence_get_warning = true

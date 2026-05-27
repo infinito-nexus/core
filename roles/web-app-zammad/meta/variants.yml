@@ -1,0 +1,102 @@
+---
+# Matrix-deploy variant overrides for web-app-zammad.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# V1: oidc + ldap + everything that can be true, is true
+- services:
+    css:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    memcached:
+      shared: true
+    oidc:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    redis:
+      shared: true
+
+# V2: no auth — everything false
+- services:
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    memcached:
+      shared: false
+    oidc:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    redis:
+      shared: false
+
+# V3: ldap only
+- services:
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: true
+      shared: true
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    memcached:
+      shared: false
+    oidc:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    redis:
+      shared: false

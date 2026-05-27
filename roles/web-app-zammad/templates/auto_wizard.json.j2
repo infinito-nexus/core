@@ -1,0 +1,40 @@
+{
+  "Token": "{{ ZAMMAD_INITIAL_ADMIN_PASSWORD }}",
+  "TextModuleLocale": { "Locale": "en-us" },
+  "Users": [
+    {
+      "login":     "{{ ZAMMAD_ADMINISTRATOR_EMAIL }}",
+      "firstname": "Infinito",
+      "lastname":  "Administrator",
+      "email":     "{{ ZAMMAD_ADMINISTRATOR_EMAIL }}",
+      "password":  "{{ ZAMMAD_ADMINISTRATOR_PASSWORD }}",
+      "organization": "Infinito.Nexus"
+    }
+  ],
+  "Settings": [
+    { "name": "system_init_done",         "value": true },
+    { "name": "fqdn",                     "value": "{{ ZAMMAD_HOSTNAME }}" },
+    { "name": "http_type",                "value": "{{ 'https' if (lookup('tls', application_id, 'enabled') | bool) else 'http' }}" },
+    { "name": "organization",             "value": "Infinito.Nexus" },
+    { "name": "product_name",             "value": "Infinito.Nexus Helpdesk" },
+    { "name": "developer_mode",           "value": false },
+    { "name": "user_create_account",      "value": false },
+    { "name": "user_lost_password",       "value": true }
+{% if lookup('config', application_id, 'services.oidc.enabled') | bool %}
+    ,
+    { "name": "auth_openid_connect",      "value": true },
+    {
+      "name":  "auth_openid_connect_credentials",
+      "value": {
+        "display_name":               "{{ OIDC.BUTTON_TEXT | default('Sign in with Infinito.Nexus') }}",
+        "identifier":                 "{{ OIDC.CLIENT.ID }}",
+        "secret":                     "{{ OIDC.CLIENT.SECRET }}",
+        "issuer":                     "{{ OIDC.CLIENT.ISSUER_URL }}",
+        "scope":                      "openid email profile",
+        "uid_field":                  "sub",
+        "send_scope_to_token_endpoint":  true
+      }
+    }
+{% endif %}
+  ]
+}

@@ -1,0 +1,59 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "stage the auto_wizard.json that bypasses Zammad's setup wizard"
+  ansible.builtin.template:
+    src: "auto_wizard.json.j2"
+    dest: "{{ lookup('container', application_id, 'directories.volumes') }}auto_wizard.json"
+    mode: "0644"
+  notify: compose up
+
+- name: "stage Rails initializer that allows GET-initiated OmniAuth requests"
+  ansible.builtin.template:
+    src: "zz_omniauth_allow_get.rb.j2"
+    dest: "{{ lookup('container', application_id, 'directories.volumes') }}zz_omniauth_allow_get.rb"
+    mode: "0644"
+  notify: compose up
+
+- name: "grant CREATEDB to the Zammad PostgreSQL role (Zammad's init runs rake db:create even when the DB exists)"
+  ansible.builtin.shell: |
+    set -eo pipefail
+    container exec postgres psql -U postgres -c \
+      "ALTER ROLE {{ lookup('database', application_id, 'username') }} WITH CREATEDB;"
+  register: zammad_grant_createdb
+  changed_when: "'ALTER ROLE' in zammad_grant_createdb.stdout"
+  when: lookup('config', application_id, 'services.postgres.shared') | bool
+
+- name: "flush handlers so the Zammad init container starts with auto_wizard.json bind-mounted"
+  meta: flush_handlers
+
+- name: "wait for the Zammad Rails server to answer"
+  ansible.builtin.shell: |
+    set -eo pipefail
+    container exec {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r 'Setting.any? || raise'
+  register: zammad_rails_ready
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: zammad_rails_ready.rc == 0
+
+- name: "apply OIDC settings to Zammad (post-bootstrap; idempotent)"
+  ansible.builtin.script: "{{ role_path }}/files/scripts/apply_oidc_settings.sh"
+  environment:
+    ZAMMAD_RAILS_CONTAINER: "{{ ZAMMAD_RAILS_CONTAINER }}"
+    ZAMMAD_FQDN:            "{{ ZAMMAD_HOSTNAME }}"
+    ZAMMAD_HTTP_TYPE:       "{{ 'https' if (lookup('tls', application_id, 'enabled') | bool) else 'http' }}"
+    OIDC_BUTTON_TEXT:       "{{ OIDC.BUTTON_TEXT | default('Sign in with Infinito.Nexus') }}"
+    OIDC_CLIENT_ID:         "{{ OIDC.CLIENT.ID }}"
+    OIDC_CLIENT_SECRET:     "{{ OIDC.CLIENT.SECRET }}"
+    OIDC_ISSUER_URL:        "{{ OIDC.CLIENT.ISSUER_URL }}"
+  register: zammad_oidc_apply
+  changed_when: false
+  when: lookup('config', application_id, 'services.oidc.enabled') | bool

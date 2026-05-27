@@ -1,0 +1,37 @@
+---
+application_id: "web-app-zammad"
+entity_name: "{{ application_id | get_entity_name }}"
+
+# Zammad upstream image (one image, multiple commands)
+ZAMMAD_IMAGE: "{{ lookup('config', application_id, 'services.zammad.image') }}"
+ZAMMAD_VERSION: "{{ lookup('config', application_id, 'services.zammad.version') }}"
+
+# Bundled Elasticsearch (no central svc-db-elasticsearch exists)
+ZAMMAD_SEARCH_IMAGE: "{{ lookup('config', application_id, 'services.search.image') }}"
+ZAMMAD_SEARCH_VERSION: "{{ lookup('config', application_id, 'services.search.version') }}"
+
+# Container names
+ZAMMAD_INIT_CONTAINER:      "zammad-init"
+ZAMMAD_RAILS_CONTAINER:     "zammad-railsserver"
+ZAMMAD_WEBSOCKET_CONTAINER: "zammad-websocket"
+ZAMMAD_SCHEDULER_CONTAINER: "zammad-scheduler"
+ZAMMAD_NGINX_CONTAINER:     "zammad-nginx"
+ZAMMAD_SEARCH_CONTAINER:    "zammad-elasticsearch"
+ZAMMAD_MEMCACHED_CONTAINER: "zammad-memcached"
+
+# Memcached image pinned via the central svc-db-memcached role (per Decision #7)
+ZAMMAD_MEMCACHED_IMAGE:   "{{ lookup('config', 'svc-db-memcached', 'services.memcached.image') }}"
+ZAMMAD_MEMCACHED_VERSION: "{{ lookup('config', 'svc-db-memcached', 'services.memcached.version') }}"
+
+# Internal Zammad layout (matches upstream Zammad image)
+ZAMMAD_RAILS_PORT: 3000
+ZAMMAD_WEBSOCKET_PORT: 6042
+
+# Admin credentials (consumed by auto_wizard.json.j2)
+ZAMMAD_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+ZAMMAD_ADMINISTRATOR_EMAIL:    "{{ lookup('users', 'administrator').email }}"
+ZAMMAD_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.initial_admin_password') }}"
+ZAMMAD_SECRET_KEY_BASE:        "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"
+
+# Hostname (consumed by env.j2 + auto_wizard.json.j2)
+ZAMMAD_HOSTNAME: "{{ lookup('domain', application_id) }}"

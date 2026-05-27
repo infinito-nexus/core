@@ -1,0 +1,8 @@
+---
+roles:
+  administrator:
+    description: Zammad administrator (full admin panel access)
+  agent:
+    description: Zammad agent (helpdesk staff, can answer tickets)
+  customer:
+    description: Zammad customer (end user, can open tickets)
