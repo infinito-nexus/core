@@ -80,7 +80,7 @@ async function ssoLoginAndAssertUsername(page, username, password) {
         `Failed requests (${diagnostics.requests.length}):`,
         ...diagnostics.requests.slice(-10),
       ].join("\n");
-      throw new Error(`OpenCloud SPA never reached Keycloak.\n${summary}\nOriginal error: ${err}`);
+      throw new Error(`OpenCloud SPA never reached Keycloak.\n${summary}\nOriginal error: ${err}`, { cause: err });
     }
   }
 
