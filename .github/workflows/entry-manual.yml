@@ -32,4 +32,5 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
+      roles_only: ${{ (inputs.whitelist != '' && inputs.whitelist != '__ALL__') && 'true' || 'false' }}
     secrets: inherit

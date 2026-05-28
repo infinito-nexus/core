@@ -77,14 +77,57 @@ jobs:
           set -euo pipefail
           echo "Lightweight PR scope '${{ needs.detect-pr-scope.outputs.scope }}' passed."
 
+  detect-affected-roles:
+    name: 🧭 Detect affected roles
+    needs: detect-pr-scope
+    if: ${{ needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      whitelist: ${{ steps.resolve.outputs.whitelist }}
+      roles_only: ${{ steps.resolve.outputs.roles_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install project (host venv)
+        shell: bash
+        run: make install
+
+      - name: Resolve affected roles
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+          resolved="$(./scripts/meta/resolve/diff/affected_roles.sh)"
+          echo "Resolver output: ${resolved}"
+          if [[ "${resolved}" == "__ALL__" ]]; then
+            echo "whitelist=__ALL__" >>"${GITHUB_OUTPUT}"
+            echo "roles_only=false" >>"${GITHUB_OUTPUT}"
+          else
+            echo "whitelist=${resolved}" >>"${GITHUB_OUTPUT}"
+            echo "roles_only=true" >>"${GITHUB_OUTPUT}"
+          fi
+
   ci-orchestrator:
     needs:
       - detect-pr-scope
       - validate-pr-branch-prefix
+      - detect-affected-roles
     if: ${{ github.event_name == 'pull_request' && needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
     uses: ./.github/workflows/ci-orchestrator.yml
     with:
       distros: "arch debian ubuntu fedora centos"
+      whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
+      roles_only: ${{ needs.detect-affected-roles.outputs.roles_only }}
 
   prepare-fork-merge-ref:
     needs:

@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: "10"
+      roles_only:
+        description: "When 'true', skip the env-matrix test-development job."
+        required: false
+        type: string
+        default: "false"
 
 concurrency:
   group: infinito-test-${{ github.ref }}
@@ -232,6 +237,7 @@ jobs:
 
   # Test Development Environment
   test-development:
+    if: ${{ inputs.roles_only != 'true' }}
     uses: ./.github/workflows/test-environment.yml
     needs:
       - images-mirror-missing
@@ -246,7 +252,13 @@ jobs:
       - test-deploy-workstation
       - test-install-gate
       - test-development
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
+      - name: Fail if any upstream job failed or was cancelled
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: |
+          echo "Pipeline failed: at least one upstream job failed or was cancelled." >&2
+          exit 1
       - name: Done
         run: echo "All checks passed."

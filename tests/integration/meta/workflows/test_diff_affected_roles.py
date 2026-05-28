@@ -74,8 +74,8 @@ class TestDiffAffectedRoles(unittest.TestCase):
 
         bin_dir = tmp / "bin"
         bin_dir.mkdir()
-        fake_docker = bin_dir / "docker"
-        fake_docker.write_text(
+        fake_python = bin_dir / "python-fake-resolver"
+        fake_python.write_text(
             textwrap.dedent(
                 f"""\
                 #!/usr/bin/env bash
@@ -84,11 +84,13 @@ class TestDiffAffectedRoles(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        fake_docker.chmod(0o755)
+        fake_python.chmod(0o755)
 
         env = os.environ.copy()
         env["PATH"] = f"{bin_dir}:{env['PATH']}"
         env["INFINITO_DISTRO"] = "test"
+        env["PYTHON"] = str(fake_python)
+        env.pop("BASH_ENV", None)
 
         return repo, env
 

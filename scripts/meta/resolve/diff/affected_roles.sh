@@ -24,9 +24,8 @@
 #   <role-id> [<role-id> ...]        restricted deploy set (whitelist).
 #
 # Pre-conditions:
-#   - The container started by `make compose-up` is running (the Python resolver
-#     is invoked via `docker compose ... exec infinito`, identical to the
-#     pattern used in scripts/meta/resolve/apps.sh).
+#   - The host Python interpreter referenced by ${PYTHON:-python3} has the
+#     project's resolver deps installed (e.g. via `make install`).
 #   - `git fetch origin main` is reachable (caller already did checkout).
 #
 # Exit codes:
@@ -46,12 +45,6 @@ if [[ -f "scripts/meta/env/load.sh" ]]; then
 	# shellcheck source=scripts/meta/env/load.sh
 	source "scripts/meta/env/load.sh"
 fi
-
-compose_ci_exec() {
-	NIX_CONFIG="${NIX_CONFIG:-}" \
-		INFINITO_DISTRO="${INFINITO_DISTRO}" \
-		docker compose exec -T infinito "$@"
-}
 
 emit_all() {
 	echo "__ALL__"
@@ -97,8 +90,7 @@ mapfile -t seed_list < <(printf '%s\n' "${!seed_roles[@]}" | sort)
 
 set +e
 resolved="$(
-	compose_ci_exec \
-		"${PYTHON}" -m cli.meta.roles.applications.resolution.affected \
+	"${PYTHON}" -m cli.meta.roles.applications.resolution.affected \
 		--changed-roles "${seed_list[@]}"
 )"
 resolver_rc=$?
