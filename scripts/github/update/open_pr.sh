@@ -43,16 +43,9 @@ fi
 
 git commit -m "${UPDATE_COMMIT_MESSAGE}"
 
-# Normalize CRLF endings so a git-produced patch hashes identically to a
-# gh-produced one regardless of which side the runner picked up.
-normalize_diff() { sed -e 's/\r$//'; }
-CURRENT_HASH="$(git diff "origin/${UPDATE_BASE_BRANCH}..HEAD" | normalize_diff | sha256sum | awk '{print $1}')"
-echo "Local diff hash: ${CURRENT_HASH}"
+LOCAL_TREE="$(git log -1 --format=%T HEAD)"
+echo "Local tree: ${LOCAL_TREE}"
 
-# Dedupe across *every* open PR against this base branch (the bot must
-# skip not just sibling bot-PRs but also any human-authored PR that
-# happens to carry the same change). The current branch is excluded so
-# the check never compares us to ourselves.
 mapfile -t OPEN_PRS < <(
 	gh pr list \
 		--repo "${REPO}" \
@@ -68,16 +61,21 @@ for entry in "${OPEN_PRS[@]}"; do
 	[[ -z "${entry}" ]] && continue
 	pr_num="${entry%%$'\t'*}"
 	pr_branch="${entry##*$'\t'}"
-	pr_hash="$(gh pr diff "${pr_num}" --repo "${REPO}" | normalize_diff | sha256sum | awk '{print $1}')"
-	echo "  open PR #${pr_num} (${pr_branch}): ${pr_hash}"
-	if [[ "${pr_hash}" == "${CURRENT_HASH}" ]]; then
+	pr_head="$(gh pr view "${pr_num}" --repo "${REPO}" --json headRefOid --jq .headRefOid 2>/dev/null || true)"
+	if [[ -z "${pr_head}" ]] || ! git fetch --quiet --depth 1 origin "${pr_head}" 2>/dev/null; then
+		echo "  open PR #${pr_num} (${pr_branch}): head unfetchable; treating as non-duplicate"
+		continue
+	fi
+	pr_tree="$(git log -1 --format=%T "${pr_head}" 2>/dev/null || true)"
+	echo "  open PR #${pr_num} (${pr_branch}): tree ${pr_tree}"
+	if [[ -n "${pr_tree}" && "${pr_tree}" == "${LOCAL_TREE}" ]]; then
 		DUPLICATE_PR="${pr_num}"
 		break
 	fi
 done
 
 if [[ -n "${DUPLICATE_PR}" ]]; then
-	echo "Open PR #${DUPLICATE_PR} already carries this exact diff. Skipping push and PR creation."
+	echo "Open PR #${DUPLICATE_PR} already carries this exact tree. Skipping push and PR creation."
 	exit 0
 fi
 
