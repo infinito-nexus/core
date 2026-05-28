@@ -4,7 +4,7 @@ friendica:
   shared: true
   enabled: true
   image: friendica
-  version: "2026.01"
+  version: "2026.05"
   min_storage: 10GB
   addons:
     # SSO is owned by the oauth2-proxy gate in front of the friendica vhost
