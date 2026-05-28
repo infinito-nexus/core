@@ -12,7 +12,7 @@ csp:
       unsafe-inline: true
 networks:
   local:
-    subnet: 192.168.105.128/28
+    subnet: 192.168.105.144/28
 domains:
   canonical:
     - penpot.design.{{ DOMAIN_PRIMARY }}

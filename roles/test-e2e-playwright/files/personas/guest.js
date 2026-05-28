@@ -65,6 +65,7 @@ async function runGuestFlow(page = {}) {
   } catch (err) {
     throw new Error(
       `guest: page.goto(${startUrl}) failed before the 30s navigation timeout: ${err.message}`,
+      { cause: err },
     );
   }
 

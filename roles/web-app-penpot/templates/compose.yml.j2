@@ -39,7 +39,7 @@
             -file /usr/local/share/ca-certificates/infinito.example.crt \
             -keystore /tmp/java-cacerts \
             -storepass changeit
-          export JVM_OPTS="${JVM_OPTS:-} -Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+          export JVM_OPTS="${JVM_OPTS} -Djavax.net.ssl.trustStore=/tmp/java-cacerts -Djavax.net.ssl.trustStorePassword=changeit"
         fi
         exec /bin/bash run.sh
 {% endif %}
@@ -49,9 +49,7 @@
       - /usr/local/share/ca-certificates:/usr/local/share/ca-certificates:ro
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/depends_on/dmbs_incl.yml.j2' %}
-      redis:
-        condition: service_healthy
+{{ lookup('container_depends_on', application_id, extra={'redis': {'condition': 'service_healthy'}}) }}
 
   exporter:
     container_name: {{ PENPOT_EXPORTER_CONTAINER }}
@@ -65,7 +63,7 @@
 
   redis:
     container_name: {{ entity_name }}-redis
-    image: redis:7-alpine
+    image: {{ PENPOT_REDIS_IMAGE }}:{{ PENPOT_REDIS_VERSION }}
 {% set service_name = 'redis' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -78,7 +76,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={'assets': {'name': PENPOT_ASSETS_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,24 +1,25 @@
 oidc:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 ldap:
-  enabled: false
-  shared: true
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 logout:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 dashboard:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 matomo:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 email:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 penpot:
   version: latest
   image: penpotapp/frontend
@@ -51,16 +52,19 @@ exporter:
   min_storage: 1GB
   pids_limit: 512
 redis:
+  image: redis
+  version: 7-alpine
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
 css:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag — web-svc-javascript has no application_id yet (lifecycle: beta)
 javascript:
-  enabled: true
-  shared: true
+  enabled: false
+  shared: false
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

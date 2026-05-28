@@ -204,7 +204,7 @@ async function keycloakResolveGroupId(
       );
     }
     const items = await resp.json();
-    let match = null;
+    let match;
     if (parentId === null) {
       const walk = (nodes, depth) => {
         for (const n of nodes) {

@@ -1,1 +1,1 @@
-assets: "{{ application_id }}_assets"
+assets: web-app-penpot_assets

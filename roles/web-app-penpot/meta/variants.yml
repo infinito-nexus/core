@@ -1,0 +1,94 @@
+---
+# Matrix-deploy variant overrides for web-app-penpot.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# Full variant: pin every dynamic services.yml flag to true so the
+# matrix exercises the in-group_names branch of web-app-penpot.
+- services:
+    css:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    oidc:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+
+# Baseline-only variant: pin every dynamic flag false so the matrix
+# also exercises the out-of-group_names branch and satisfies the
+# false-pinning requirement of test_variants_coverage.
+- services:
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    oidc:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+
+# LDAP-only variant: pin ldap.enabled true with oidc.enabled false so
+# the spec exercises the LDAP-bind login path in isolation from OIDC.
+- services:
+    ldap:
+      enabled: true
+      shared: true
+    oidc:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

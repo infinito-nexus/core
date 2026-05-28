@@ -1,12 +1,28 @@
 ---
 galaxy_info:
-  author: "Kevin Veen-Birkenbach"
+  author: Kevin Veen-Birkenbach
   description: "Deploys Penpot design and prototyping platform for Infinito.Nexus"
-  license: "Infinito.Nexus Community License (Non-Commercial)"
-  company: | 
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
     Kevin Veen-Birkenbach
-    Consulting & Coaching Solutions
     https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
   galaxy_tags:
     - design
     - prototyping

@@ -70,7 +70,7 @@ async function ssoLoginAndAssertDashboard(page, username, password) {
       `Failed responses (${diagnostics.requests.length}):`,
       ...diagnostics.requests.slice(-15),
     ].join("\n");
-    throw new Error(`OpenTalk dashboard never appeared.\n${summary}\nOriginal: ${err}`);
+    throw new Error(`OpenTalk dashboard never appeared.\n${summary}\nOriginal: ${err}`, { cause: err });
   }
 }
 

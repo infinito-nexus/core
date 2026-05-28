@@ -42,7 +42,7 @@ The Penpot deployment consists of four main services:
 
 1. **Frontend (Nginx):** Serves the web UI and static assets
 2. **Backend (Clojure/JVM):** Handles API requests, authentication, and business logic
-3. **Exporter:** Renders design exports (SVG, PDF) 
+3. **Exporter:** Renders design exports (SVG, PDF)
 4. **Redis:** Manages WebSocket notifications and real-time coordination
 5. **PostgreSQL:** Stores design files, user data, and application state (managed by shared database role)
 
@@ -53,7 +53,8 @@ The Penpot deployment consists of four main services:
 The role automatically configures OpenID Connect authentication using the Infinito.Nexus Keycloak instance. Users can log in with their centralized Keycloak accounts, enabling single sign-on across all platform applications.
 
 Key OIDC environment variables:
-- \`PENPOT_OIDC_CLIENT_ID\`
+
+- `PENPOT_OIDC_CLIENT_ID`
 - \`PENPOT_OIDC_CLIENT_SECRET\`
 - \`PENPOT_OIDC_BASE_URI\`
 - Explicit URIs (\`PENPOT_OIDC_AUTH_URI\`, \`PENPOT_OIDC_TOKEN_URI\`, \`PENPOT_OIDC_USER_URI\`) configured to avoid discovery issues
@@ -107,7 +108,7 @@ Key configuration options in \`config/main.yml\`:
 
 ## Credits
 
-Developed and maintained by **Evangelos Tsakoudis**.
-Learn more at [www.evangelostsak.com](https://evangelostsak.com).
+Developed and maintained by **Kevin Veen-Birkenbach**.
+Learn more at [veen.world](https://www.veen.world).
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

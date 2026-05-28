@@ -142,6 +142,9 @@ class WhenConditionDuplicationTest(unittest.TestCase):
                 # Only scan files that are inside the project workspace
                 if not path.is_file():
                     continue
+                # Skip vendored collections in .venv
+                if ".venv" in path.parts:
+                    continue
 
                 try:
                     docs = _load_yaml_documents(path)

@@ -18,7 +18,9 @@ class TestJinjaIncludePaths(unittest.TestCase):
     LITERAL_PATH_RE = re.compile(r"^[\'\"]([^\'\"]+)[\'\"]$")
 
     def test_all_jinja_includes_exist(self):
-        template_paths = list(PROJECT_ROOT.glob("**/*.j2"))
+        template_paths = [
+            p for p in PROJECT_ROOT.glob("**/*.j2") if ".venv" not in p.parts
+        ]
         self.assertTrue(
             template_paths, "No .j2 templates found anywhere in the project"
         )

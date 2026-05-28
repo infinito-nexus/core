@@ -47,7 +47,7 @@ As a Infinito.Nexus platform operator, I want to provide a fully integrated, pro
 - [x] A new marketplace entry for "Penpot Design".
 - [x] Dynamic application menu integration via tags:
   - [x] `design`, `penpot`, `prototyping`, `collaboration`, `ui-ux`, `figma-alternative` _(Defined in meta/main.yml)_
-- [x] Automatic URL generation for desktop and mobile launchers. _(PUBLIC_URI: https://design.infinito.example/)_
+- [x] Automatic URL generation for desktop and mobile launchers. _(PUBLIC_URI: <https://design.infinito.example/>)_
 - [x] Centralized backup handling via existing backup roles for:
   - [x] PostgreSQL database backups _(Managed by sys-svc-rdbms)_
   - [x] Asset storage backups _(Volume: web-svc-cdn_assets)_
@@ -69,7 +69,7 @@ As a Infinito.Nexus platform operator, I want to provide a fully integrated, pro
 - [x] Users can log in via both OIDC and LDAP. _(OIDC fully functional and tested; LDAP disabled due to platform bug)_
 - [x] All core design features work without errors. _(Penpot v2.14.3 running with all services operational)_
 - [x] Real-time collaboration features work (comments, live cursors). _(Redis WebSocket coordination configured via port 4004)_
-- [x] The app is accessible via the generated domain (e.g., `design.infinito.nexus`). _(Configured as https://penpot.design.infinito.example/)_
+- [x] The app is accessible via the generated domain (e.g., `design.infinito.nexus`). _(Configured as <https://penpot.design.infinito.example/>)_
 - [x] Marketplace entry is visible and properly categorized. _(Defined in meta/main.yml with galaxy_tags)_
 - [x] Documentation exists in:
   - [x] `roles/web-app-penpot/README.md` _(7 major sections: Description, Features, Architecture, Authentication, Storage, Developer Notes, Configuration, Resources)_

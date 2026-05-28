@@ -8,7 +8,10 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-mapfile -t shellcheck_files < <(find . -type f -name '*.sh' 2>/dev/null | sort)
+mapfile -t shellcheck_files < <(find . -type f -name '*.sh' \
+	-not -path './.venv/*' \
+	-not -path './node_modules/*' \
+	2>/dev/null | sort)
 if [[ "${#shellcheck_files[@]}" -eq 0 ]]; then
 	printf 'No shell scripts found.\n'
 	exit 0

@@ -2,7 +2,6 @@
 application_id:                   "web-app-penpot"
 container_port:                   8080
 http_port:                        "{{ lookup('config', application_id, 'services.penpot.ports.local.http') }}"
-js_application_name:              "Penpot"
 entity_name:                      "{{ application_id | get_entity_name }}"
 
 # Penpot
@@ -34,6 +33,8 @@ PENPOT_DATABASE_USERNAME:         "{{ lookup('database', application_id, 'userna
 PENPOT_DATABASE_PASSWORD:         "{{ lookup('database', application_id, 'password') }}"
 
 ## Redis
+PENPOT_REDIS_IMAGE:               "{{ lookup('config', application_id, 'services.redis.image') }}"
+PENPOT_REDIS_VERSION:             "{{ lookup('config', application_id, 'services.redis.version') }}"
 PENPOT_REDIS_URI:                 "redis://{{ entity_name }}-redis:6379/0"
 
 ## Authentication
@@ -43,7 +44,4 @@ PENPOT_LDAP_ENABLED:              "{{ lookup('config', application_id, 'services
 ## Docker
 PENPOT_ASSETS_VOLUME:             "{{ lookup('config', application_id, 'volumes.assets') }}"
 
-# Docker compose
-docker_compose_flush_handlers:    true
-docker_git_repository_pull:       false
-docker_git_repository_address:    ""
+
