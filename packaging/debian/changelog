@@ -1,3 +1,9 @@
+infinito-nexus (8.0.3-1) unstable; urgency=medium
+
+  * Loads the project dotenv (`make dotenv` + `set -a; . .env; set +a`) inside the update workflow wrappers so `INFINITO_WORKER_FETCH` resolves on CI runners that skip compose.
+
+ -- Kevin Veen-Birkenbach <kevin@veen.world>  Thu, 28 May 2026 11:51:38 +0200
+
 infinito-nexus (8.0.2-1) unstable; urgency=medium
 
   * Restores CI by dropping pkgmgr from the dev Dockerfile (entry.sh now `make install`s straight from INFINITO_SRC_DIR) and bumping the pkgmgr role pin to v1.15.2, which re-registers the `infinito` alias.

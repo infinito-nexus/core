@@ -1,5 +1,9 @@
 # Changelog
 
+## [8.0.3] - 2026-05-28
+
+* Loads the project dotenv (`make dotenv` + `set -a; . .env; set +a`) inside the update workflow wrappers so `INFINITO_WORKER_FETCH` resolves on CI runners that skip compose.
+
 ## [8.0.2] - 2026-05-28
 
 * Restores CI by dropping pkgmgr from the dev Dockerfile (entry.sh now `make install`s straight from INFINITO_SRC_DIR) and bumping the pkgmgr role pin to v1.15.2, which re-registers the `infinito` alias.
