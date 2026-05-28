@@ -285,7 +285,7 @@ async function assertInjectedAssetLoadsWithoutCspBlock(page, {
 
   const violations = await readCspViolations(page);
   const blocks = violations.filter((v) => {
-    let blockedHost = "";
+    let blockedHost;
     try {
       blockedHost = new URL(v.blockedURI).host.toLowerCase();
     } catch {
