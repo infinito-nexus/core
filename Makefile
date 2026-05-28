@@ -436,6 +436,12 @@ network-trust-ca:
 	@bash scripts/system/tls/trust/linux.sh
 	@bash scripts/system/tls/trust/wsl2.sh
 
+.PHONY: requirements-archive
+# Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).
+requirements-archive:
+	@"$${PYTHON}" -m pip install --quiet --upgrade kpmx
+	@"$${PYTHON}" -m pkgmgr archive docs/requirements
+
 .PHONY: security-apparmor-restore
 # Restore AppArmor profiles.
 security-apparmor-restore:
