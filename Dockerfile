@@ -55,15 +55,8 @@ RUN set -euo pipefail; \
 ENV container=docker
 STOPSIGNAL SIGRTMIN+3
 
-# ------------------------------------------------------------
-# Install infinito via pkgmgr (shallow) and override it with local source
-# ------------------------------------------------------------
 RUN set -euo pipefail; \
   export NIX_CONFIG="${NIX_CONFIG:-}"; \
-  echo "[docker-infinito] Install Infinito.Nexus via pkgmgr"; \
-  pkgmgr install infinito --clone-mode shallow; \
-  echo "[docker-infinito] Installed Infinito.Nexus Version:"; \
-  pkgmgr version infinito; \
   "${INFINITO_SRC_DIR}/scripts/docker/entry.sh" --compile -- true
 
 # Set workdir to / to avoid ambiguous commands
