@@ -77,7 +77,7 @@ The minimum bar today is:
 ### rc 🚦
 
 Release candidate.
-The role meets every `beta` criterion AND has gone through at least one full INFINITO_FULL_CYCLE matrix run plus an external review pass without regression.
+The role meets every `beta` criterion AND has gone through at least one full `full_cycle=true` matrix run plus an external review pass without regression.
 This stage exists so a role can be flagged "we intend to call this stable in the next release" without committing to it yet.
 
 A role tagged `rc`:

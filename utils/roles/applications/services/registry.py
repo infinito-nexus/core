@@ -125,7 +125,7 @@ def discover_role_services(
 
     # A primary entry is a provider declaration iff `shared` is truthy, or it
     # carries `provides:`, or it has alias entries pointing at it. The value
-    # of `shared` matters: INFINITO_SERVICES_DISABLED can write `shared: false` to
+    # of `shared` matters: `disable` env var can write `shared: false` to
     # neutralise a primary entity that only carries metadata, and that MUST
     # NOT flip the entity into "provider" status.
     is_provider = bool(primary_entry) and (
@@ -377,7 +377,7 @@ def ordered_primary_service_entries(
                 if dep_role not in primary_entries:
                     # The dependency target is not part of the discovered
                     # provider set in this play (e.g. matomo skipped via
-                    # INFINITO_SERVICES_DISABLED). The ordering constraint is moot
+                    # `disable` env var). The ordering constraint is moot
                     # — there's nothing in this bucket to wait for. Skip
                     # silently rather than aborting the whole load.
                     continue

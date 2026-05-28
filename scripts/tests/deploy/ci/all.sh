@@ -9,7 +9,7 @@ set -euo pipefail
 # - Skip a distro if remaining time is smaller than the max duration of any previous distro run
 #
 # Required env:
-#   INFINITO_APPS="web-app-keycloak"
+#   apps="web-app-keycloak"
 #   INFINITO_DEPLOY_TYPE="server|workstation|universal"
 #   INFINITO_DISTROS="arch debian ubuntu fedora centos"
 #   INFINITO_INVENTORY_DIR="/path/to/inventory"
@@ -34,7 +34,7 @@ else
 	exit 2
 fi
 
-: "${INFINITO_APPS:?INFINITO_APPS is required (e.g. INFINITO_APPS=web-app-keycloak)}"
+: "${apps:?apps is required (e.g. apps=web-app-keycloak)}"
 : "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE is required (server|workstation|universal)}"
 : "${INFINITO_DISTROS:?INFINITO_DISTROS is required (e.g. 'arch debian ubuntu fedora centos')}"
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR is required}"
@@ -128,7 +128,7 @@ for distro in "${distro_arr[@]}"; do
 		fi
 	fi
 
-	echo "=== Running dedicated distro deploy: distro=${distro} app=${INFINITO_APPS} type=${INFINITO_DEPLOY_TYPE} ==="
+	echo "=== Running dedicated distro deploy: distro=${distro} app=${apps} type=${INFINITO_DEPLOY_TYPE} ==="
 	if [[ -n "${remaining}" ]]; then
 		echo ">>> Time budget: remaining=${remaining}s max_seen=${max_seen}s"
 	fi
@@ -145,7 +145,7 @@ for distro in "${distro_arr[@]}"; do
 
 	set +e
 	scripts/tests/deploy/ci/dedicated.sh \
-		--apps "${INFINITO_APPS}"
+		--apps "${apps}"
 	rc=$?
 	set -e
 
@@ -161,7 +161,7 @@ for distro in "${distro_arr[@]}"; do
 	echo ">>> Duration: distro=${distro} took ${dur}s (max_seen=${max_seen}s)"
 
 	if [[ $rc -ne 0 ]]; then
-		echo "[ERROR] Deploy failed for distro=${distro} app=${INFINITO_APPS} (rc=${rc})" >&2
+		echo "[ERROR] Deploy failed for distro=${distro} app=${apps} (rc=${rc})" >&2
 		failed=$((failed + 1))
 		exit "$rc"
 	fi
@@ -172,7 +172,7 @@ total="$((global_end - global_start))"
 
 echo
 echo "=== Summary ==="
-echo "app=${INFINITO_APPS} type=${INFINITO_DEPLOY_TYPE}"
+echo "app=${apps} type=${INFINITO_DEPLOY_TYPE}"
 echo "ran=${ran} skipped=${skipped} failed=${failed}"
 echo "total_runtime=${total}s max_seen_duration=${max_seen}s"
 if [[ -n "${deadline}" ]]; then

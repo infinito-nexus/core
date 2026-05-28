@@ -421,8 +421,8 @@ end to end after the refactor:
 | `web-app-yourls`     | Minimal app surface; baseline regression check.                                                 |
 
 ```bash
-INFINITO_APPS="web-svc-cdn web-svc-file web-app-dashboard svc-db-postgres svc-db-mariadb web-app-matomo web-app-gitea web-app-prometheus web-app-keycloak web-app-pretix web-app-xwiki web-app-listmonk web-app-espocrm web-app-nextcloud web-app-wordpress web-app-yourls" \
-  make deploy-fresh-purged-apps
+make deploy-fresh-purged-apps \
+  apps="web-svc-cdn web-svc-file web-app-dashboard svc-db-postgres svc-db-mariadb web-app-matomo web-app-gitea web-app-prometheus web-app-keycloak web-app-pretix web-app-xwiki web-app-listmonk web-app-espocrm web-app-nextcloud web-app-wordpress web-app-yourls"
 ```
 
 ## Migration Notes

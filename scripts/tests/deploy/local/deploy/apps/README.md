@@ -13,7 +13,7 @@ The subtree splits by user intent (the verb) and scope:
 | `reinstall/` | fresh | yes (down + up) | yes (shared entities) |
 | `update/` | reuse | no | no |
 
-Each verb folder MUST contain `all.sh` for every discovered application and MAY contain `selection.sh` for one or more apps passed via `INFINITO_APPS` (or as a positional argument where supported).
+Each verb folder MUST contain `all.sh` for every discovered application and MAY contain `selection.sh` for one or more apps passed via `apps` (or as a positional argument where supported).
 
 ## Conventions 📐
 

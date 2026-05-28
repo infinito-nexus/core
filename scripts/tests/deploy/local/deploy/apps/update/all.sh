@@ -33,12 +33,13 @@ cd "${REPO_ROOT}"
 INFINITO_DEBUG="$(normalize_bool_or_default "${INFINITO_DEBUG:-}" false INFINITO_DEBUG)"
 
 # When the previous matrix init produced one folder per round
-# (`<INFINITO_INVENTORY_DIR>-0`, `<INFINITO_INVENTORY_DIR>-1`, ...), `INFINITO_VARIANT=<idx>`
-# pins this redeploy to the chosen round. Without INFINITO_VARIANT the
-# unsuffixed path is used, which is correct for single-variant deploys (N=1).
+# (`<INFINITO_INVENTORY_DIR>-0`, `<INFINITO_INVENTORY_DIR>-1`, ...), the
+# `variant=<idx>` make arg pins this redeploy to the chosen round. Without
+# `variant=` the unsuffixed path is used, which is correct for
+# single-variant deploys (N=1).
 inv_dir="${INFINITO_INVENTORY_DIR}"
-if [[ -n "${INFINITO_VARIANT:-}" ]]; then
-	inv_dir="${inv_dir}-${INFINITO_VARIANT}"
+if [[ -n "${variant:-}" ]]; then
+	inv_dir="${inv_dir}-${variant}"
 fi
 inv_file="${inv_dir}/devices.yml"
 pw_file="${inv_dir}/.password"

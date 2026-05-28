@@ -7,13 +7,13 @@ Use this flow when stale container state or cross-application entities (for exam
 
 | Entry point | Scope |
 |---|---|
-| `selection.sh` | one or more apps passed via `INFINITO_APPS` |
+| `selection.sh` | one or more apps passed via `apps` |
 
 ## Behavior 🧭
 
 - Runs `development down` followed by `development up --when-down` to remove and re-create containers.
 - Purges shared entities relevant to the deploy (for example `matomo`).
 - Bakes a fresh inventory with `ASYNC_ENABLED=false` and `RUNTIME=dev`.
-- Set `full_cycle=true` (or `INFINITO_FULL_CYCLE=true` in the environment) to run a second async pass after the initial sync pass.
+- Set `full_cycle=true` on `make compose-deploy` to run a second async pass after the initial sync pass.
 
 For the non-destructive equivalent, see [initialize/](../initialize/README.md).

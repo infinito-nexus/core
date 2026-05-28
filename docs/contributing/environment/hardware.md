@@ -37,10 +37,10 @@ A same-size swapfile helps absorb memory spikes on Linux. On Windows and macOS, 
 
 For a broad stack like the Community Hub, you SHOULD start only the services you actually need. If you are working on Discourse, you do not need Mastodon, Pixelfed, PeerTube, or Friendica in the same session.
 
-You MAY set the `INFINITO_SERVICES_DISABLED` environment variable before creating the inventory to disable services automatically across all applications without editing any file:
+You MAY pass `disable=<csv>` to `make compose-deploy` to disable services automatically across all applications without editing any file:
 
 ```bash
-make compose-deploy mode=reinstall apps=web-app-discourse disabled=matomo
+make compose-deploy mode=reinstall apps=web-app-discourse disable=matomo
 ```
 
 This sets `enabled: false` and `shared: false` for every listed service in the generated inventory. See [variables.md](variables.md) for details.
@@ -73,13 +73,13 @@ On small machines, you SHOULD limit validation to the role you are touching.
 For Discourse, start with:
 
 ```bash
-make compose-deploy mode=reinstall apps=web-app-discourse disabled=matomo
+make compose-deploy mode=reinstall apps=web-app-discourse disable=matomo
 ```
 
 If the local inventory and stack already exist, you SHOULD reuse them:
 
 ```bash
-make compose-deploy mode=update apps=web-app-discourse disabled=matomo
+make compose-deploy mode=update apps=web-app-discourse disable=matomo
 ```
 
 You SHOULD use `make compose-deploy` (full discovery) only when you need broad coverage and have enough time and resources.

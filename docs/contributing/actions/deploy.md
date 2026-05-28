@@ -8,7 +8,7 @@ Two layers exist for invoking a local deploy:
 
 | Layer | When to use |
 |---|---|
-| `make compose-deploy` in the [Makefile](../../../Makefile) | Default. Single entry point routed by [main.sh](../../../scripts/tests/deploy/local/deploy/main.sh). For the full Make-variable surface (`apps`, `mode`, `purge`, `type`, `bundles`, `disabled`, `full_cycle`, `variant`) run `make help target=compose-deploy`. |
+| `make compose-deploy` in the [Makefile](../../../Makefile) | Default. Single entry point routed by [main.sh](../../../scripts/tests/deploy/local/deploy/main.sh). For the full Make-variable surface (`apps`, `mode`, `purge`, `type`, `bundles`, `disable`, `full_cycle`, `variant`) run `make help target=compose-deploy`. |
 | `infinito administration deploy development <subcommand>` (Python CLI) | Direct invocation when you need a flag the make target does not expose, or when you script multi-step flows yourself. |
 
 The make target ultimately calls the same CLI, so any behaviour described here applies to both.
@@ -34,7 +34,7 @@ make compose-deploy mode=update apps="<role>"
 ```
 
 - Reuses the existing inventory, keeps app state, runs the deploy only.
-- For multi-variant roles you MUST set `INFINITO_VARIANT=<idx>` (see [Pinning A Single Variant](#pinning-a-single-variant-)) so the reuse path targets the round's folder. Without `INFINITO_VARIANT`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles.
+- For multi-variant roles you MUST set `variant=<idx>` (see [Pinning A Single Variant](#pinning-a-single-variant-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles.
 
 If the reuse path keeps reproducing the same failure and you want to test whether app entity state is involved:
 
@@ -48,17 +48,17 @@ Only return to `mode=reinstall` when you have concrete evidence that the invento
 
 ## Pinning A Single Variant 🎯
 
-For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to a single matrix round by setting `INFINITO_VARIANT=<idx>`:
+For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to a single matrix round by setting `variant=<idx>`:
 
 ```bash
 # Variant 1 baseline only (no full matrix):
-INFINITO_VARIANT=1 make compose-deploy mode=reinstall apps="<role>" full_cycle=true
+make compose-deploy mode=reinstall apps="<role>" full_cycle=true variant=1
 
 # Edit-fix-redeploy loop pinned to that variant:
-INFINITO_VARIANT=1 make compose-deploy mode=update apps="<role>"
+make compose-deploy mode=update apps="<role>" variant=1
 ```
 
-Pinning is sticky: when iterating with `INFINITO_VARIANT=<idx>`, you MUST set it on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder. The full semantics (single-folder mode, no inter-round cleanup, out-of-range error) live in [variants.md](../design/variants.md).
+Pinning is sticky: when iterating with `variant=<idx>`, you MUST set it on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder. The full semantics (single-folder mode, no inter-round cleanup, out-of-range error) live in [variants.md](../design/variants.md).
 
 ## Direct CLI Invocation ⚙️
 
@@ -70,7 +70,7 @@ infinito administration deploy development deploy --inventory-dir "${INFINITO_IN
 ```
 
 - `--inventory-dir` is always the BASE path. The wrapper appends the `-<round>` suffix internally for matrix folders.
-- `--variant <idx>` pins to one round (same semantics as the `INFINITO_VARIANT` env-var).
+- `--variant <idx>` pins to one round (same semantics as the `variant=` make arg).
 - The CLI prints the planned folder list at init time and the per-round summary at deploy time, so you can confirm the matrix shape before any work happens.
 
 ## Inspect Live State 🔍

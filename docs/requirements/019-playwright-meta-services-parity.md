@@ -161,14 +161,14 @@ Load all of the following before the first deploy.
 ### Autonomy
 
 - The agent MUST run the rollout autonomously without questions back to the operator.
-- The agent MUST NOT ask "should I disable matomo/email" or any other deploy-time question; this rollout deploys with NO `INFINITO_SERVICES_DISABLED`.
+- The agent MUST NOT ask "should I disable matomo/email" or any other deploy-time question; this rollout deploys with NO `disable=`.
 - The agent MUST fix every failure that is caused by or related to this rollout (env-template drift, missing gates, persona scenarios, pattern-transfer regressions, …) without asking.
 - Failures clearly unrelated to the rollout (an upstream image outage, a flaky network test in another module, a pre-existing CI flake on a path this rollout does not touch) MUST be ignored: the agent does NOT deep-dive into them.
   The agent SHOULD note the unrelated failure in the role's TODO.md if one exists, otherwise continue.
 - The agent MUST NOT use any command that requires elevated permissions or an interactive approval prompt.
   Allowed permissions are defined by [.claude/settings.json](../../.claude/settings.json); commands that fall under `ask` or `deny` MUST NOT be invoked.
 - Matrix-variant roles MUST be iterated through every declared variant; the role-closure gate (see below) only fires when every variant passes.
-  Variants are read from `roles/<role>/meta/variants.yml` and driven via `INFINITO_VARIANT=<idx>` per [Role Loop → Matrix variants](../agents/action/iteration/role.md#matrix-variants).
+  Variants are read from `roles/<role>/meta/variants.yml` and driven via `variant=<idx>` per [Role Loop → Matrix variants](../agents/action/iteration/role.md#matrix-variants).
 
 ### Closure vocabulary
 
@@ -186,8 +186,8 @@ For each role in the [Iteration order](#iteration-order) below:
 
 1. Run `make test` before EVERY deploy and EVERY redeploy in this loop. No exceptions, no per-test cherry-picking. `make test` IS the test gate; individual lint / integration test invocations are absorbed by it.
    On failure, fix the underlying issue if it is rollout-related; per [Autonomy](#autonomy), unrelated failures are ignored.
-2. Run `make deploy-fresh-purged-apps INFINITO_APPS=<role> INFINITO_FULL_CYCLE=true` to establish a fresh full-cycle baseline WITHOUT `INFINITO_SERVICES_DISABLED`.
-   For matrix-variant roles, iterate through every variant declared in `roles/<role>/meta/variants.yml` via `INFINITO_VARIANT=<idx>` per [Role Loop → Matrix variants](../agents/action/iteration/role.md#matrix-variants); the role is NOT role-closed until every variant has produced a passing deploy plus passing Playwright spec.
+2. Run `make deploy-fresh-purged-apps apps=<role> full_cycle=true` to establish a fresh full-cycle baseline WITHOUT `disable=`.
+   For matrix-variant roles, iterate through every variant declared in `roles/<role>/meta/variants.yml` via `variant=<idx>` per [Role Loop → Matrix variants](../agents/action/iteration/role.md#matrix-variants); the role is NOT role-closed until every variant has produced a passing deploy plus passing Playwright spec.
 3. If the deploy fails or the spec fails, follow [Role Loop](../agents/action/iteration/role.md) and [Playwright Spec Loop](../agents/action/iteration/playwright.md) to fix the root cause.
    Apply the fix in the repository files (NOT in the staged copy or the running container).
 4. If a specific service genuinely cannot work for the role (upstream limitation, infrastructural exclusion, scope conflict), perform a **flag closure** through one of the closure paths above: either disable the service in `roles/<role>/meta/services.yml` (when the role legitimately has no business consuming it), or mark the entry with `# nocheck: playwright-service-flag` and document the rationale in a one-line comment above the key (e.g. `# nocheck: playwright-service-flag: self-provider`, `# nocheck: playwright-service-flag: infrastructural, no Playwright surface`, `# nocheck: playwright-service-flag: covered by tests/integration/services/test_<x>.py`, `# nocheck: playwright-service-flag: upstream offers no <svc> integration`).
@@ -208,7 +208,7 @@ For each role in the [Iteration order](#iteration-order) below:
    After every spec edit the agent re-runs the spec via [Playwright Spec Loop](../agents/action/iteration/playwright.md) and repeats the inspection until the role passes the gate cleanly.
    The role MUST NOT progress to role closure until this inspection is clean.
 7. The role is **role-closed** only when:
-   - the final `make deploy-fresh-purged-apps INFINITO_APPS=<role> INFINITO_FULL_CYCLE=true` run completed successfully for every variant, AND
+   - the final `make deploy-fresh-purged-apps apps=<role> full_cycle=true` run completed successfully for every variant, AND
    - the Playwright spec passed for every variant, AND
    - the post-deploy log inspection in step 6 is clean for every variant, AND
    - the role's `files/playwright/playwright.spec.js` ships the three persona scenarios per [Rule 3](#rules) (or the auth-less single-scenario collapse for `web-svc-*` and the auth-less `web-app-*` exceptions), AND
@@ -294,7 +294,7 @@ The agent MUST NOT redo deploys for already-role-closed roles unless a later edi
 ## Verification
 
 - [ ] `make test` green tree-wide. Every rule-enforcing lint and integration test listed in the [Rules](#rules) table is part of `make test`; this requirement does NOT invoke them individually.
-- [ ] `INFINITO_SERVICES_DISABLED=<svc>` reports every gated scenario as `skipped: <NAME>_SERVICE_ENABLED=false`, never `failed`. MUST cover ≥1 scenario each for `oidc`, `ldap`, `email`, `logout`, `matomo`. The `dashboard` exemption (Rule 1) means consumers do not render `DASHBOARD_SERVICE_ENABLED=`; coverage for that service runs through web-app-dashboard's parameterised tile-reachability test (Rule 13).
-- [ ] No-`INFINITO_SERVICES_DISABLED` run produces ≥1 `passed` scenario per in-scope `(role, service)` pair. Empty-skip = fail.
+- [ ] `disable=<svc>` reports every gated scenario as `skipped: <NAME>_SERVICE_ENABLED=false`, never `failed`. MUST cover ≥1 scenario each for `oidc`, `ldap`, `email`, `logout`, `matomo`. The `dashboard` exemption (Rule 1) means consumers do not render `DASHBOARD_SERVICE_ENABLED=`; coverage for that service runs through web-app-dashboard's parameterised tile-reachability test (Rule 13).
+- [ ] No-`disable=` run produces ≥1 `passed` scenario per in-scope `(role, service)` pair. Empty-skip = fail.
 - [ ] `grep 'process.env\.[A-Z_]*_SERVICE_ENABLED'` over the spec tree (excluding `service-gating.js`) returns zero hits.
 - [ ] Post-deploy log inspection per [Rule 14](#rules) is clean for every role-closed variant: every wired persona / per-service assertion executed, no silent skip, no green-but-empty gate.

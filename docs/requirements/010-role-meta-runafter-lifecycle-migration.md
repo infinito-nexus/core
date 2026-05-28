@@ -312,8 +312,8 @@ deploy end to end after the refactor:
 | `web-app-nextcloud`        | Complex role with multiple `run_after` dependencies; exercises the dependency resolver path.             |
 
 ```bash
-INFINITO_APPS="web-app-gitea web-app-bluesky web-app-matrix web-app-nextcloud" \
-  make deploy-fresh-purged-apps
+make deploy-fresh-purged-apps \
+  apps="web-app-gitea web-app-bluesky web-app-matrix web-app-nextcloud"
 ```
 
 ## Migration Notes

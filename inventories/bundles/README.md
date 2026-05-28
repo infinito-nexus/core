@@ -169,7 +169,7 @@ The inventory itself is the bundle.
 
 ## Deploying a Bundle
 
-The single `make compose-deploy` target resolves one or more bundles into the role groups declared under `all.children` and feeds them into the standard local deploy flow when `bundles=<csv>` (or `INFINITO_BUNDLES=<csv>` in the environment) is set. The resolver is [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); it deduplicates across bundles and preserves declaration order.
+The single `make compose-deploy` target resolves one or more bundles into the role groups declared under `all.children` and feeds them into the standard local deploy flow when `bundles=<csv>` is set. The resolver is [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); it deduplicates across bundles and preserves declaration order.
 
 | Command | Path | Behavior |
 |---|---|---|

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# App-keyed purge orchestrator. Maps each app id in $INFINITO_APPS to its
+# App-keyed purge orchestrator. Maps each app id in $apps to its
 # compose entity, then for each entity runs the entity-keyed primitives
 # (db, compose, dir) and finally wipes the matching token-store entries
 # via utils.data.tokens. Tokens live outside /opt/compose and would
@@ -8,26 +8,26 @@
 # sys-front-inj-matomo and the next round 502s on the public matomo URL).
 #
 # Expects:
-#   INFINITO_APPS  (required) e.g. "web-app-nextcloud" or "web-app-keycloak,web-app-matomo"
+#   apps  (required) e.g. "web-app-nextcloud" or "web-app-keycloak,web-app-matomo"
 #
 # Designed to be invoked from the host via:
-#   docker exec -e INFINITO_APPS="${INFINITO_APPS}" <container> \
+#   docker exec -e apps="${apps}" <container> \
 #     bash ${INFINITO_SRC_DIR}/scripts/container/purge/apps.sh  # nocheck: self-path-reference
 
 set -euo pipefail
 : "${INFINITO_SRC_DIR:?INFINITO_SRC_DIR must be set by the container environment}"
 cd "${INFINITO_SRC_DIR}"
 
-: "${INFINITO_APPS:?INFINITO_APPS is not set (e.g. INFINITO_APPS=web-app-nextcloud)}"
+: "${apps:?apps is not set (e.g. apps=web-app-nextcloud)}"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ENTITY_DIR="${SCRIPT_DIR}/entity"
 
-apps_raw="${INFINITO_APPS//,/ }"
+apps_raw="${apps//,/ }"
 read -r -a apps <<<"${apps_raw}"
 
 if [[ "${#apps[@]}" -lt 1 ]]; then
-	echo "!!! WARNING: INFINITO_APPS is empty after parsing: skipping purge"
+	echo "!!! WARNING: apps is empty after parsing: skipping purge"
 	exit 0
 fi
 
@@ -46,14 +46,14 @@ for app in "${apps[@]}"; do
 	entity="$("${python_bin}" -c 'from utils.roles.entity_name import get_entity_name; import sys; print(get_entity_name(sys.argv[1]) or "")' "${app}")"
 
 	if [[ -z "${entity}" ]]; then
-		echo "!!! WARNING: could not derive entity from INFINITO_APPS=${app}: skipping"
+		echo "!!! WARNING: could not derive entity from apps=${app}: skipping"
 		continue
 	fi
 
 	if [[ -z "${seen_entities[${entity}]:-}" ]]; then
 		seen_entities[${entity}]=1
 		entities+=("${entity}")
-		echo ">>> Derived entity from INFINITO_APPS=${app}: ${entity}"
+		echo ">>> Derived entity from apps=${app}: ${entity}"
 	fi
 done
 

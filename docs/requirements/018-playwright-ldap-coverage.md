@@ -14,7 +14,7 @@ stack is verified independently from its OIDC counterpart.
 [006 - Service-gated Playwright tests](README.md#archive)
 established the `skipUnlessServiceEnabled(<service>)` contract:
 scenarios gate on `<SERVICE>_SERVICE_ENABLED` flags so a deploy with
-`INFINITO_SERVICES_DISABLED=<service>` reports `skipped` instead of `failed`.
+`disable=<service>` reports `skipped` instead of `failed`.
 [004 - Generic RBAC auto-provisioning](README.md#archive)
 plus [017 - Biber RBAC coverage](017-playwright-biber-rbac-coverage.md)
 extend that contract to RBAC-aware non-admin scenarios.
@@ -22,7 +22,7 @@ extend that contract to RBAC-aware non-admin scenarios.
 Today most role specs gate their authenticated scenarios on `oidc`
 only, even when the role's `meta/services.yml` also declares
 `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in.
-Consequence: a deploy with `INFINITO_SERVICES_DISABLED=oidc` (LDAP-only mode)
+Consequence: a deploy with `disable=oidc` (LDAP-only mode)
 makes every authenticated scenario `skip`, leaving the LDAP path
 untested. The matrix-deploy variant lists in `meta/variants.yml`
 typically include an LDAP-only variant exactly to exercise that
@@ -53,7 +53,7 @@ consistently across the role tree is what this requirement tracks.
   Mattermost AD/LDAP login, etc.).
 - [ ] The LDAP scenario MUST be gated via
   `skipUnlessServiceEnabled('ldap')` so a deploy with
-  `INFINITO_SERVICES_DISABLED=ldap` reports the scenario as
+  `disable=ldap` reports the scenario as
   `skipped: LDAP_SERVICE_ENABLED=false`, never `failed`.
 - [ ] A role that ships BOTH `oidc.enabled` and `ldap.enabled`
   scenarios MUST keep them as **separate** test bodies. Combining the
@@ -125,10 +125,10 @@ item is a NOOP unless a stale env key shows up.
 ### Verification
 
 - [ ] After every role-local change [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) MUST stay green.
-- [ ] A run with `INFINITO_SERVICES_DISABLED=oidc` (LDAP-only mode) MUST
+- [ ] A run with `disable=oidc` (LDAP-only mode) MUST
   produce at least one `passed` LDAP scenario per role marked above
   as in-scope, never an empty-skip pass.
-- [ ] A run with `INFINITO_SERVICES_DISABLED=ldap` MUST report every LDAP
+- [ ] A run with `disable=ldap` MUST report every LDAP
   scenario as `skipped: LDAP_SERVICE_ENABLED=false`, never
   `failed`.
 - [ ] A grep `process.env\.LDAP_SERVICE_ENABLED` over the spec tree

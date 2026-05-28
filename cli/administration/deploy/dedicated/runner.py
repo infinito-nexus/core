@@ -54,7 +54,7 @@ def run_ansible_playbook(
         print("\n🛠️  Build skipped (--skip-build)\n")
 
     # ---------------------------------------------------------
-    # 3) INFINITO_SERVICES_DISABLED consistency guard
+    # 3) `disable` env var consistency guard
     # ---------------------------------------------------------
     try:
         assert_services_disabled_inventory_consistency_from_env(

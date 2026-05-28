@@ -4,7 +4,7 @@ Resolve and aggregate role groups (apps) from one or more inventory bundles.
 Bundles live under ``inventories/bundles/{servers,workstations}/<name>/inventory.yml``.
 Each bundle declares the role groups it activates beneath ``all.children``.
 
-Invoked from ``scripts/tests/deploy/local/deploy/bundles/fresh.sh`` to feed INFINITO_APPS into
+Invoked from ``scripts/tests/deploy/local/deploy/bundles/fresh.sh`` to feed the `apps` env var into
 the existing fresh-purged deploy flow:
 
     python -m utils.inventory.bundle_apps education-suite,startup-essentials

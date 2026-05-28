@@ -576,8 +576,8 @@ end to end after the refactor:
 | `svc-db-openldap`         | `/24` shared LDAP subnet + `local.ldap` + `public.ldaps`.                                         |
 
 ```bash
-INFINITO_APPS="web-app-gitea web-app-mailu web-app-bluesky web-app-matrix web-app-minio web-app-bigbluebutton web-svc-coturn web-app-nextcloud web-app-prometheus web-app-listmonk svc-db-postgres svc-db-mariadb svc-db-openldap" \
-  make deploy-fresh-purged-apps
+make deploy-fresh-purged-apps \
+  apps="web-app-gitea web-app-mailu web-app-bluesky web-app-matrix web-app-minio web-app-bigbluebutton web-svc-coturn web-app-nextcloud web-app-prometheus web-app-listmonk svc-db-postgres svc-db-mariadb svc-db-openldap"
 ```
 
 ## Migration Notes

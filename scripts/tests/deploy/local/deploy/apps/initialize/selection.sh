@@ -54,10 +54,10 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" || $# -eq 0 ]]; then
 	exit 0
 fi
 
-INFINITO_APPS="${1:-}"
+apps="${1:-}"
 shift
 
-if [[ -z "${INFINITO_APPS}" ]]; then
+if [[ -z "${apps}" ]]; then
 	echo "ERROR: app-id is required" >&2
 	usage
 	exit 2
@@ -90,7 +90,7 @@ esac
 INFINITO_DEBUG="$(normalize_bool_or_default "${INFINITO_DEBUG:-}" true INFINITO_DEBUG)"
 
 echo "=== local app test (no cleanup) ==="
-echo "app ids       = ${INFINITO_APPS}"
+echo "app ids       = ${apps}"
 echo "distro        = ${INFINITO_DISTRO}"
 echo "inventory_dir = ${INFINITO_INVENTORY_DIR}"
 echo "limit         = ${INFINITO_LIMIT_HOST}"
@@ -105,7 +105,7 @@ echo ">>> Running entry.sh bootstrap inside container"
 "${PYTHON}" -m cli.administration.deploy.development exec \
 	-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/entry-bootstrap.sh"
 
-echo ">>> Creating inventory for app '${INFINITO_APPS}'"
+echo ">>> Creating inventory for app '${apps}'"
 # RUNTIME MUST be `dev` here: the host process running this script lives
 # OUTSIDE the development compose stack, so `detect_runtime()` falls back
 # to "host". Without an explicit override the matrix-init step would bake
@@ -113,13 +113,13 @@ echo ">>> Creating inventory for app '${INFINITO_APPS}'"
 # (RUNTIME in [dev, act, github]) would never fire — kept-deploys would
 # silently skip the test stage. Mirrors apps/reinstall/selection.sh.
 "${PYTHON}" -m cli.administration.deploy.development init \
-	--apps "${INFINITO_APPS}" \
+	--apps "${apps}" \
 	--inventory-dir "${INFINITO_INVENTORY_DIR}" \
 	--vars '{"ASYNC_ENABLED": false, "RUNTIME": "dev"}'
 
 deploy_cmd=(
 	"${PYTHON}" -m cli.administration.deploy.development deploy
-	--apps "${INFINITO_APPS}"
+	--apps "${apps}"
 	--inventory-dir "${INFINITO_INVENTORY_DIR}"
 )
 
@@ -130,8 +130,8 @@ fi
 # NOTE: --skip-cleanup keeps cleanup routines disabled during this local test run.
 deploy_cmd+=(-- --skip-backup --skip-cleanup --limit "${INFINITO_LIMIT_HOST}")
 
-echo ">>> Deploying app '${INFINITO_APPS}'"
-deploy_with_cache_retry "deploy-${INFINITO_APPS//[^A-Za-z0-9._-]/-}-kept" -- "${deploy_cmd[@]}"
+echo ">>> Deploying app '${apps}'"
+deploy_with_cache_retry "deploy-${apps//[^A-Za-z0-9._-]/-}-kept" -- "${deploy_cmd[@]}"
 
 echo
 echo "✅ Finished. Stack and inventory remain on disk (no teardown)."

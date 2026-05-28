@@ -322,7 +322,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[INFO] Applying mirror overrides from: {mirrors_file}")
         apply_mirror_overrides(host_vars_file=host_vars_file, mirrors_file=mirrors_file)
 
-    # Disable services listed in INFINITO_SERVICES_DISABLED env var (space- or comma-separated).
+    # Disable services listed in the `disable` env var (space- or comma-separated).
     # Also removes the provider roles from the inventory.
     apply_services_disabled_from_env(
         host_vars_file=host_vars_file,

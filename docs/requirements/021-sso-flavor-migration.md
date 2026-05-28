@@ -407,8 +407,8 @@ after the refactor. The set covers every flavor + every dual-block role.
 | `web-app-dashboard` | `oidc` | Canonical pure-OIDC role with silent-SSO chain; cross-checks the default-flavor path. |
 
 ```bash
-INFINITO_APPS="web-app-keycloak web-app-nextcloud web-app-bookwyrm web-app-gitea web-app-friendica web-app-prometheus web-app-dashboard" \
-  make deploy-fresh-purged-apps INFINITO_FULL_CYCLE=true
+make deploy-fresh-purged-apps full_cycle=true \
+  apps="web-app-keycloak web-app-nextcloud web-app-bookwyrm web-app-gitea web-app-friendica web-app-prometheus web-app-dashboard"
 ```
 
 ## Prerequisites

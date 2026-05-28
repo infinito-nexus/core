@@ -121,7 +121,7 @@ clean-sudo:
 
 .PHONY: compose-deploy
 # Run the local deploy router.
-# Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disabled=...] [full_cycle=...] [variant=...] [debug=...]
+# Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
 # Example: make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true
 # Note: see scripts/tests/deploy/local/deploy/main.sh for the full routing table.
 # Param mode: initialize | reinstall | update (default: initialize)
@@ -129,19 +129,12 @@ clean-sudo:
 # Param purge: true | false (default: false) — purge entities before deploy
 # Param type: server | workstation | universal (default: from default.env)
 # Param bundles: comma-separated bundle names; overrides apps when set
-# Param disabled: comma-separated service names to render as disabled
+# Param disable: comma-separated service names to render as disabled
 # Param full_cycle: true | false — when true, also run the async update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
 compose-deploy:
-	@$(if $(apps),INFINITO_APPS="$(apps)") \
-	 $(if $(mode),INFINITO_DEPLOY_MODE="$(mode)") \
-	 $(if $(purge),INFINITO_PURGE_ENTITIES="$(purge)") \
-	 $(if $(type),INFINITO_DEPLOY_TYPE="$(type)") \
-	 $(if $(bundles),INFINITO_BUNDLES="$(bundles)") \
-	 $(if $(disabled),INFINITO_SERVICES_DISABLED="$(disabled)") \
-	 $(if $(full_cycle),INFINITO_FULL_CYCLE="$(full_cycle)") \
-	 $(if $(variant),INFINITO_VARIANT="$(variant)") \
+	@$(if $(type),INFINITO_DEPLOY_TYPE="$(type)") \
 	 $(if $(debug),INFINITO_DEBUG="$(debug)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 

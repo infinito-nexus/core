@@ -16,7 +16,7 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         help=(
             "Inject KEY=VALUE into the container environment for this "
             "exec call. Repeatable. Lets bash callers pass per-run "
-            "context (INFINITO_INVENTORY_FILE, INFINITO_APPS, ...) into in-container "
+            "context (INFINITO_INVENTORY_FILE, apps, ...) into in-container "
             "helper scripts without inlining heredocs."
         ),
     )
@@ -51,9 +51,9 @@ def handler(args: argparse.Namespace) -> int:
         raise SystemExit("exec requires a command (e.g. exec -- sh -lc 'whoami')")
 
     extra_env: dict[str, str] = {}
-    services_disabled = os.environ["INFINITO_SERVICES_DISABLED"]
+    services_disabled = os.environ.get("disable", "")
     if services_disabled:
-        extra_env["INFINITO_SERVICES_DISABLED"] = services_disabled
+        extra_env["disable"] = services_disabled
 
     # Caller-supplied --env entries win over implicit ones (current convention
     # in the dev CLI: explicit user input overrides implicit defaults).

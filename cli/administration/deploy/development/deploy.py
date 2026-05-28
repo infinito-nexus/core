@@ -23,19 +23,19 @@ if TYPE_CHECKING:
 
 
 def _env_variant() -> int | None:
-    raw = os.environ["INFINITO_VARIANT"].strip()
+    raw = os.environ.get("variant", "").strip()
     if not raw:
         return None
     try:
         return int(raw)
     except ValueError:
         raise SystemExit(
-            f"INFINITO_VARIANT environment variable must be an integer, got {raw!r}"
+            f"variant environment variable must be an integer, got {raw!r}"
         ) from None
 
 
 def _env_full_cycle() -> bool:
-    return os.environ["INFINITO_FULL_CYCLE"].strip().lower() == "true"
+    return os.environ.get("full_cycle", "").strip().lower() == "true"
 
 
 def _run_deploy(
@@ -85,9 +85,9 @@ def _run_deploy(
         "PY_COLORS": "1",
         "TERM": "xterm-256color",
     }
-    services_disabled = os.environ["INFINITO_SERVICES_DISABLED"]
+    services_disabled = os.environ.get("disable", "")
     if services_disabled:
-        extra_env["INFINITO_SERVICES_DISABLED"] = services_disabled
+        extra_env["disable"] = services_disabled
 
     ansible_log_path = (
         os.environ.get("ANSIBLE_LOG_PATH") or "/tmp/infinito-deploy.log"  # noqa: S108
@@ -128,7 +128,7 @@ def _purge_app_entities(*, container: str, app_ids: list[str]) -> None:
         repo_root / "scripts" / "tests" / "deploy" / "local" / "purge" / "entity.sh"
     )
     env = os.environ.copy()
-    env["INFINITO_APPS"] = ",".join(app_ids)
+    env["apps"] = ",".join(app_ids)
     env["INFINITO_CONTAINER"] = container
     print(
         "=== matrix-deploy: purging entities between rounds for "
@@ -184,7 +184,7 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
             "Pin the matrix deploy to a single round (zero-based index), "
             "skipping inter-round cleanup. Useful for redeploying one "
             "specific variant without iterating the whole matrix. Defaults "
-            "to the INFINITO_VARIANT environment variable when set, otherwise "
+            "to the variant environment variable when set, otherwise "
             "full-matrix mode."
         ),
     )
@@ -198,7 +198,7 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
             "Pass 1 + Pass 2 stay co-located on the SAME variant so the "
             "async re-deploy always runs against the host state the "
             "matching sync deploy just produced. Defaults to the "
-            "INFINITO_FULL_CYCLE environment variable (true|false) when set."
+            "full_cycle environment variable (true|false) when set."
         ),
     )
     p.add_argument(
@@ -219,9 +219,9 @@ def handler(args: argparse.Namespace) -> int:
     else:
         primary_app_ids = list(args.id or [])
 
-    # Remove any app IDs that were disabled via INFINITO_SERVICES_DISABLED so the
+    # Remove any app IDs that were disabled via `disable` so the
     # deploy list stays consistent with the inventory created by init.
-    raw_disabled = os.environ["INFINITO_SERVICES_DISABLED"].strip()
+    raw_disabled = os.environ.get("disable", "").strip()
     disabled_app_ids: set[str] = set()
     if raw_disabled:
         services = parse_services_disabled(raw_disabled)
@@ -233,9 +233,7 @@ def handler(args: argparse.Namespace) -> int:
         ]
 
     if not primary_app_ids:
-        raise SystemExit(
-            "All primary apps disabled by INFINITO_SERVICES_DISABLED — nothing to deploy"
-        )
+        raise SystemExit("All primary apps disabled by `disable` — nothing to deploy")
 
     # argparse.REMAINDER includes the leading '--' if present; drop it
     passthrough = list(args.ansible_args or [])

@@ -31,9 +31,7 @@ class TestDevelopmentExec(unittest.TestCase):
                 "cli.administration.deploy.development.exec.make_compose",
                 return_value=compose,
             ),
-            unittest.mock.patch.dict(
-                os.environ, {"INFINITO_SERVICES_DISABLED": "email"}, clear=False
-            ),
+            unittest.mock.patch.dict(os.environ, {"disable": "email"}, clear=False),
         ):
             rc = exec_cmd.handler(_args(cmd=["--", "sh", "-lc", "true"]))
 
@@ -41,14 +39,14 @@ class TestDevelopmentExec(unittest.TestCase):
         compose.exec.assert_called_once_with(
             ["sh", "-lc", "true"],
             check=False,
-            extra_env={"INFINITO_SERVICES_DISABLED": "email"},
+            extra_env={"disable": "email"},
         )
 
     def test_handler_omits_extra_env_when_services_disabled_unset(self):
         compose = unittest.mock.Mock()
         compose.exec.return_value.returncode = 0
 
-        env = {**os.environ, "INFINITO_SERVICES_DISABLED": ""}
+        env = {**os.environ, "disable": ""}
         with (
             unittest.mock.patch(
                 "cli.administration.deploy.development.exec.make_compose",
@@ -71,7 +69,7 @@ class TestDevelopmentExec(unittest.TestCase):
         compose = unittest.mock.Mock()
         compose.exec.return_value.returncode = 0
 
-        env = {**os.environ, "INFINITO_SERVICES_DISABLED": ""}
+        env = {**os.environ, "disable": ""}
         with (
             unittest.mock.patch(
                 "cli.administration.deploy.development.exec.make_compose",
@@ -84,7 +82,7 @@ class TestDevelopmentExec(unittest.TestCase):
                     cmd=["bash", "/opt/helper.sh"],
                     env=[
                         "INFINITO_INVENTORY_FILE=/srv/inv/devices.yml",
-                        "INFINITO_APPS=web-app-foo",
+                        "apps=web-app-foo",
                     ],
                 )
             )
@@ -95,7 +93,7 @@ class TestDevelopmentExec(unittest.TestCase):
             check=False,
             extra_env={
                 "INFINITO_INVENTORY_FILE": "/srv/inv/devices.yml",
-                "INFINITO_APPS": "web-app-foo",
+                "apps": "web-app-foo",
             },
         )
 
@@ -103,7 +101,7 @@ class TestDevelopmentExec(unittest.TestCase):
         compose = unittest.mock.Mock()
         compose.exec.return_value.returncode = 0
 
-        env = {**os.environ, "INFINITO_SERVICES_DISABLED": ""}
+        env = {**os.environ, "disable": ""}
         with (
             unittest.mock.patch(
                 "cli.administration.deploy.development.exec.make_compose",
@@ -129,18 +127,14 @@ class TestDevelopmentExec(unittest.TestCase):
                 "cli.administration.deploy.development.exec.make_compose",
                 return_value=compose,
             ),
-            unittest.mock.patch.dict(
-                os.environ, {"INFINITO_SERVICES_DISABLED": "from-env"}, clear=False
-            ),
+            unittest.mock.patch.dict(os.environ, {"disable": "from-env"}, clear=False),
         ):
-            exec_cmd.handler(
-                _args(cmd=["true"], env=["INFINITO_SERVICES_DISABLED=from-cli"])
-            )
+            exec_cmd.handler(_args(cmd=["true"], env=["disable=from-cli"]))
 
         compose.exec.assert_called_once_with(
             ["true"],
             check=False,
-            extra_env={"INFINITO_SERVICES_DISABLED": "from-cli"},
+            extra_env={"disable": "from-cli"},
         )
 
     def test_env_pair_without_equals_is_rejected(self):

@@ -72,7 +72,7 @@ def build_dev_inventory(compose: Compose, spec: DevInventorySpec) -> None:
 
     extra_env: dict[str, str] = {}
     if spec.services_disabled:
-        extra_env["INFINITO_SERVICES_DISABLED"] = spec.services_disabled
+        extra_env["disable"] = spec.services_disabled
 
     compose.exec(
         cmd,
@@ -97,7 +97,7 @@ def build_dev_inventory_matrix(
     """Build every folder in the matrix plan and return the plan.
 
     `include_filter`, when provided, is the set of role names a caller
-    has already filtered (e.g. by INFINITO_SERVICES_DISABLED removal of provider
+    has already filtered (e.g. by `disable` removal of provider
     roles). Each round's include is intersected with this set before
     being baked, so the inventory and `--include` flag stay aligned
     with whatever the deploy step will actually deploy.

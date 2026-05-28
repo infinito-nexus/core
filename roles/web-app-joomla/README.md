@@ -30,7 +30,7 @@ The Playwright spec at [files/playwright/playwright.spec.js](./files/playwright/
 Until the biber path is added:
 
 - the role's [templates/playwright.env.j2](./templates/playwright.env.j2) MUST NOT carry stale `BIBER_USERNAME` / `BIBER_PASSWORD` keys (the lint at [tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) enforces this);
-- the admin scenarios stay gated on `oidc` (and on `ldap` for the LDAP-variant scenarios), so a deploy with `INFINITO_SERVICES_DISABLED=oidc` reports the SSO scenario as `skipped`, never `failed`.
+- the admin scenarios stay gated on `oidc` (and on `ldap` for the LDAP-variant scenarios), so a deploy with `disable=oidc` reports the SSO scenario as `skipped`, never `failed`.
 
 ## Further Resources
 

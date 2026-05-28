@@ -7,7 +7,7 @@
 #
 # Required env:
 #   INFINITO_INVENTORY_FILE   absolute path to <inv>/devices.yml
-#   INFINITO_APPS    space-separated app id list for `--id`
+#   apps    space-separated app id list for `--id`
 #   INFINITO_DEBUG   "true"|"false" — appends `--debug` when true
 #   INFINITO_SRC_DIR absolute path to the bind-mounted repo root in the container
 set -euo pipefail
@@ -15,7 +15,7 @@ set -euo pipefail
 cd "${INFINITO_SRC_DIR}"
 
 : "${INFINITO_INVENTORY_FILE:?INFINITO_INVENTORY_FILE must be set}"
-: "${INFINITO_APPS:?INFINITO_APPS must be set}"
+: "${apps:?apps must be set}"
 : "${INFINITO_DEBUG:?INFINITO_DEBUG must be set}"
 
 inv_dir="$(dirname "${INFINITO_INVENTORY_FILE}")"
@@ -48,10 +48,10 @@ echo ">>> Running entry.sh"
 ./scripts/docker/entry.sh true
 
 echo ">>> Starting rapid deploy"
-# `--id` accepts multiple positional ids; split INFINITO_APPS on whitespace into a
+# `--id` accepts multiple positional ids; split apps on whitespace into a
 # proper array instead of relying on shell word-splitting at expansion time
 # (which shellcheck SC2206 rightly flags as fragile).
-read -ra app_ids <<<"${INFINITO_APPS}"
+read -ra app_ids <<<"${apps}"
 cmd=(infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}"
 	--skip-backup
 	--skip-cleanup

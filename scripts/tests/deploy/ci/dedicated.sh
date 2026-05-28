@@ -21,7 +21,7 @@ set -euo pipefail
 #
 # Optional env:
 #   PYTHON="python3"
-#   INFINITO_VARIANT="<idx>"  pin to one matrix round (skips the rest)
+#   variant="<idx>"  pin to one matrix round (skips the rest)
 
 PYTHON="${PYTHON:-python3}"
 
@@ -32,7 +32,7 @@ PYTHON="${PYTHON:-python3}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 
-INFINITO_APPS=""
+apps=""
 
 usage() {
 	cat <<'EOF'
@@ -46,7 +46,7 @@ EOF
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--apps)
-		INFINITO_APPS="${2:-}"
+		apps="${2:-}"
 		shift 2
 		;;
 	-h | --help)
@@ -60,7 +60,7 @@ while [[ $# -gt 0 ]]; do
 		;;
 	esac
 done
-[[ -n "${INFINITO_APPS}" ]] || {
+[[ -n "${apps}" ]] || {
 	echo "[ERROR] --apps is required" >&2
 	usage
 	exit 2
@@ -68,14 +68,14 @@ done
 
 cd "${REPO_ROOT}"
 
-echo "=== distro=${INFINITO_DISTRO} app=${INFINITO_APPS} (debug always on) ==="
+echo "=== distro=${INFINITO_DISTRO} app=${apps} (debug always on) ==="
 
 cleanup() {
 	rc=$?
 
 	# Copy Playwright reports from the infinito container to the runner filesystem
 	# BEFORE containers/volumes are destroyed, so GitHub Actions can upload them as artifacts.
-	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${INFINITO_APPS}"
+	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${apps}"
 	mkdir -p "${_playwright_host_dir}"
 	echo ">>> Copying Playwright artifacts from ${INFINITO_CONTAINER} to ${_playwright_host_dir}"
 	docker cp "${INFINITO_CONTAINER}:/var/lib/infinito/logs/test-e2e-playwright/." \
@@ -155,7 +155,7 @@ echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 "${PYTHON}" -m cli.administration.deploy.development up
 
 deploy_args=(
-	--apps "${INFINITO_APPS}"
+	--apps "${apps}"
 	--inventory-dir "${INFINITO_INVENTORY_DIR}"
 	--debug
 )
@@ -167,7 +167,7 @@ echo ">>> END STATE BEFORE DEPLOY"
 
 echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 "${PYTHON}" -m cli.administration.deploy.development init \
-	--apps "${INFINITO_APPS}" \
+	--apps "${apps}" \
 	--inventory-dir "${INFINITO_INVENTORY_DIR}" \
 	--vars '{"ASYNC_ENABLED": false}'
 

@@ -74,7 +74,7 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         help=(
             "Pin the matrix init to a single round (zero-based index). "
             "Useful when only one variant of a multi-variant app needs to "
-            "be (re-)materialised. Defaults to the INFINITO_VARIANT "
+            "be (re-)materialised. Defaults to the variant "
             "environment variable when set, otherwise full-matrix mode."
         ),
     )
@@ -82,14 +82,14 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
 
 
 def _env_variant() -> int | None:
-    raw = os.environ["INFINITO_VARIANT"].strip()
+    raw = os.environ.get("variant", "").strip()
     if not raw:
         return None
     try:
         return int(raw)
     except ValueError:
         raise SystemExit(
-            f"INFINITO_VARIANT environment variable must be an integer, got {raw!r}"
+            f"variant environment variable must be an integer, got {raw!r}"
         ) from None
 
 
@@ -110,14 +110,14 @@ def handler(args: argparse.Namespace) -> int:
     if not primary_apps:
         raise SystemExit("Primary app list is empty")
 
-    # INFINITO_SERVICES_DISABLED removes provider roles from the inventory at
+    # `disable` removes provider roles from the inventory at
     # `infinito administration inventory provision` time anyway, so do the same filter on
     # the primary list here. Otherwise the variant-aware resolver would
     # still pull a disabled provider in via service edges, only to have
     # the inventory step strip it back out — leaving the round's
     # include list inconsistent with what the inventory actually
     # contains.
-    raw_disabled = os.environ["INFINITO_SERVICES_DISABLED"].strip()
+    raw_disabled = os.environ.get("disable", "").strip()
     disabled_app_ids: set[str] = set()
     if raw_disabled:
         services = parse_services_disabled(raw_disabled)
@@ -128,7 +128,7 @@ def handler(args: argparse.Namespace) -> int:
 
     if not primary_apps:
         raise SystemExit(
-            "All primary apps disabled by INFINITO_SERVICES_DISABLED — nothing to initialise"
+            "All primary apps disabled by `disable` — nothing to initialise"
         )
 
     extra_vars: dict[str, Any] | None = None
@@ -159,7 +159,7 @@ def handler(args: argparse.Namespace) -> int:
         raise SystemExit(f"--variant: {exc}") from exc
 
     runtime = os.environ.get("RUNTIME") or detect_runtime()
-    services_disabled = os.environ["INFINITO_SERVICES_DISABLED"]
+    services_disabled = os.environ.get("disable", "")
     for _round_index, inv_dir, round_variants, include_R, _purge_set in plan:
         round_include = tuple(
             role for role in include_R if role not in disabled_app_ids
@@ -167,7 +167,7 @@ def handler(args: argparse.Namespace) -> int:
         if not round_include:
             print(
                 f">>> Skipping inventory at {inv_dir}: include set is empty "
-                "after INFINITO_SERVICES_DISABLED filter"
+                "after `disable` filter"
             )
             continue
         spec = DevInventorySpec(

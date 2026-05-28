@@ -8,7 +8,7 @@ Each script reuses an already-initialized inventory and runs `infinito administr
 | Entry point | Scope |
 |---|---|
 | `all.sh` | every app in the existing inventory (host wrapper recomputes the list for log clarity) |
-| `selection.sh` | one or more apps passed via `INFINITO_APPS` |
+| `selection.sh` | one or more apps passed via `apps` |
 
 ## Required Environment 🔑
 
@@ -28,7 +28,7 @@ Each script reuses an already-initialized inventory and runs `infinito administr
 |---|---|
 | `INFINITO_SRC_DIR` | absolute path to the bind-mounted repo root inside the container |
 | `INFINITO_INVENTORY_FILE` | absolute path to `<inv>/devices.yml` |
-| `INFINITO_APPS` | space-separated app id list passed to `--id` |
+| `apps` | space-separated app id list passed to `--id` |
 | `INFINITO_DEBUG` | `true` or `false`; appends `--debug` when true |
 
 For the host wrappers that inject these, see [apps/update/all.sh](../../apps/update/all.sh) and [apps/update/selection.sh](../../apps/update/selection.sh).

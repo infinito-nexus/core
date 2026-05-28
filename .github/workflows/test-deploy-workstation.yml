@@ -121,7 +121,7 @@ jobs:
       - name: 🚀 Deploy app
         shell: bash
         env:
-          INFINITO_APPS: ${{ matrix.apps }}
+          apps: ${{ matrix.apps }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
         run: ./scripts/tests/deploy/ci/all.sh
 

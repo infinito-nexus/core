@@ -11,8 +11,8 @@ source "${SCRIPT_DIR}/utils/cache.sh"
 echo "Snapshotting cache counters before the deploy."
 CACHE_BEFORE="$(cache_snapshot)"
 
-echo "Deploying dashboard with matomo disabled to verify INFINITO_SERVICES_DISABLED suppresses the shared service in the inventory."
-make compose-deploy mode=reinstall apps="${DASHBOARD_APP}" INFINITO_SERVICES_DISABLED="matomo"
+echo "Deploying dashboard with matomo disabled to verify the disable= make arg suppresses the shared service in the inventory."
+make compose-deploy mode=reinstall apps="${DASHBOARD_APP}" disable="matomo"
 inspect
 
 echo "Actively probing both caches to confirm pull-through works end-to-end."

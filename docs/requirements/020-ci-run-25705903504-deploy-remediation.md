@@ -81,7 +81,7 @@ Roles: `web-app-mailu`, `web-app-opencloud`, `web-app-friendica`, `web-app-matte
 
 Per role:
 
-1. `make deploy-fresh-purged-apps INFINITO_APPS=<role> INFINITO_FULL_CYCLE=true`.
+1. `make deploy-fresh-purged-apps apps=<role> full_cycle=true`.
 2. On `uri` failure: `make compose-exec cmd='docker logs <container>'` to capture the application-side trace.
 3. Either add a `wait_for` ahead of the `uri` probe (slow container) or widen the probe's `status_code` to document the upstream's actual healthy shape.
 

@@ -154,6 +154,13 @@ ignore = [
     # separate "iter-modernisation" follow-up commit, not this
     # use-pathlib pass.
     "PTH207", "PTH208",
+    # SIM112 (capitalise env var names) conflicts with the deliberate
+    # lowercase routing-knob surface: `make compose-deploy disable=x`
+    # sets shell env `disable` via GNU Make's auto-export, and the
+    # consumers read the same name. Forcing uppercase would split the
+    # surface (`make … disable=x` writes lowercase, code reads
+    # `DISABLE`) and break the make/env name parity.
+    "SIM112",
 ]
 
 [tool.ruff.lint.per-file-ignores]

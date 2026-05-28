@@ -125,7 +125,7 @@ jobs:
         env:
           INFINITO_DEPLOY_TYPE: ${{ needs.discover.outputs.test_deploy_type }}
           INFINITO_DISTROS: ${{ needs.discover.outputs.distros }}
-          INFINITO_APPS: ${{ matrix.apps }}
+          apps: ${{ matrix.apps }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
         run: ./scripts/tests/deploy/ci/all.sh
 

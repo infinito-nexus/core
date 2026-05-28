@@ -14,7 +14,7 @@ As an Infinito.Nexus admin, I want to host multiple Fediwalls under distinct pat
 - [ ] An authenticated `DELETE /admin/walls/<slug>` endpoint removes `<persistent_volume>/walls/<slug>/`; the next anonymous request to `/<slug>/` returns `404`.
 - [ ] An authenticated `GET /admin/walls` returns the list of currently published slugs as JSON.
 - [ ] The public root `/` renders an HTML link list of all currently published walls; the list updates on the next page load after a successful upload or delete (no admin login required to view).
-- [ ] Wall configs and slug directories survive container restart and `make deploy-reuse-kept-apps INFINITO_APPS=web-app-fediwall`; an existing wall is reachable byte-identical after a redeploy.
+- [ ] Wall configs and slug directories survive container restart and `make deploy-reuse-kept-apps apps=web-app-fediwall`; an existing wall is reachable byte-identical after a redeploy.
 - [ ] CSP `connect-src` for every `/<slug>/` continues to be governed by [`lookup('fediwall_active', 'url_bases')`](../../plugins/lookup/fediwall_active.py); the multi-wall feature MUST NOT bypass the existing whitelist.
 - [ ] End-to-end Playwright in [`roles/web-app-fediwall/files/playwright/playwright.spec.js`](../../roles/web-app-fediwall/files/playwright/playwright.spec.js) covers: anonymous read of an existing `/<slug>/`, anonymous `401` on `/admin/walls`, authenticated round-trip (upload → read → delete → `404`), slug-collision rejection (`409`), and slug-validation rejection (`400`).
 - [ ] This requirement file is cross-linked from the implementing PR; the PR description references this file.

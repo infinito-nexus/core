@@ -6,15 +6,15 @@ For workflow-level iteration with Act, see [Workflow Loop](workflow.md).
 
 ## Rules
 
-- Before starting the loop, you MUST propose disabling all non-necessary services via `INFINITO_SERVICES_DISABLED` to reduce resource usage. In the typical case, this means keeping only the database and disabling everything else. Only proceed without this proposal if the user has already confirmed a full-stack setup.
+- Before starting the loop, you MUST propose disabling all non-necessary services via the `disable=` make arg to reduce resource usage. In the typical case, this means keeping only the database and disabling everything else. Only proceed without this proposal if the user has already confirmed a full-stack setup.
 - Non-essential provider toggle:
   - WHEN: before first deploy of iteration.
   - ACTION: ask user "disable matomo, dashboard, prometheus, email, css providers? [Y/n]".
   - DEFAULT: yes (disable all five).
   - SKIP ASK: only if user already answered explicitly in this iteration.
-  - ON YES: pass `INFINITO_SERVICES_DISABLED="matomo,dashboard,prometheus,email,css"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
-  - ON NO: omit the variable entirely.
-  - SIDE EFFECT (yes): inventory initializer auto-removes the provider roles `web-app-matomo`, `web-app-dashboard`, `web-app-prometheus`, `web-app-mailu`, and `web-svc-css`. Do NOT list them in `INFINITO_APPS`.
+  - ON YES: pass `disable="matomo,dashboard,prometheus,email,css"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
+  - ON NO: omit the arg entirely.
+  - SIDE EFFECT (yes): inventory initializer auto-removes the provider roles `web-app-matomo`, `web-app-dashboard`, `web-app-prometheus`, `web-app-mailu`, and `web-svc-css`. Do NOT list them in `apps=`.
   - PERSIST: record answer at top of iteration. Reuse for all subsequent deploys without re-asking.
 - You MUST run `make test` before every deploy. Only proceed with the deploy if all tests pass.
 - You MUST prepend `INFINITO_PLAYWRIGHT_KEEP=true` to every `make compose-deploy` command in the iteration (any mode), so trace, screenshot, and video of passing Playwright tests stay inspectable. Omit only when the user has explicitly opted out of per-test artefacts. For the full propagation chain see [Playwright Tests](../../../contributing/actions/testing/playwright.md#artefact-retention-).
@@ -34,20 +34,20 @@ For workflow-level iteration with Act, see [Workflow Loop](workflow.md).
 For the matrix-variant mechanism (folder layout, round semantics, `--variant` / `--full-cycle` flags) see [variants.md](../../../contributing/design/variants.md). The agent-side iteration rules below assume that mechanism as background.
 
 - Before you start a Role Loop on a matrix-variant role, you MUST decide if the iteration targets the FULL matrix (validates every variant) or ONE specific variant (focused debug). State the choice explicitly before the first deploy.
-- For focused debug on variant `<idx>`, you MUST pin `INFINITO_VARIANT=<idx>` on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder.
-- Default focused-debug recipe: `INFINITO_VARIANT=<idx> make compose-deploy mode=reinstall apps=<role> full_cycle=true` once for the variant baseline, then `INFINITO_VARIANT=<idx> make compose-deploy mode=update apps=<role>` for the edit-fix-redeploy loop.
-- First contact with a previously-untouched `INFINITO_VARIANT=<idx>` MUST be `make compose-deploy mode=reinstall apps=<roles> INFINITO_VARIANT=<idx>`, never a reuse target. Reuse re-pins the live stack onto stale volumes, DB rows and network aliases from the previously-pinned variant, producing split-brain app state.
-- If a reuse target aborts with "inventory not found", you MUST add `INFINITO_VARIANT=<idx>` and re-run; do NOT work around the error by re-creating the unsuffixed folder by hand.
-- For FULL-matrix iteration, omit `INFINITO_VARIANT=`. If any round fails, capture WHICH round was the last successful one so the next redeploy can pin `INFINITO_VARIANT=<that-idx>` to it.
-- When debugging cross-variant interaction (for example "the multisite variant breaks because single-site state was not purged"), reproduce with the FULL matrix once, then pin `INFINITO_VARIANT=<failing-idx>` and iterate the fix. Re-run the FULL matrix only when you believe the fix is complete.
+- For focused debug on variant `<idx>`, you MUST pin `variant=<idx>` on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder.
+- Default focused-debug recipe: `make compose-deploy mode=reinstall apps=<role> full_cycle=true variant=<idx>` once for the variant baseline, then `make compose-deploy mode=update apps=<role> variant=<idx>` for the edit-fix-redeploy loop.
+- First contact with a previously-untouched `variant=<idx>` MUST be `make compose-deploy mode=reinstall apps=<roles> variant=<idx>`, never a reuse target. Reuse re-pins the live stack onto stale volumes, DB rows and network aliases from the previously-pinned variant, producing split-brain app state.
+- If a reuse target aborts with "inventory not found", you MUST add `variant=<idx>` and re-run; do NOT work around the error by re-creating the unsuffixed folder by hand.
+- For FULL-matrix iteration, omit `variant=`. If any round fails, capture WHICH round was the last successful one so the next redeploy can pin `variant=<that-idx>` to it.
+- When debugging cross-variant interaction (for example "the multisite variant breaks because single-site state was not purged"), reproduce with the FULL matrix once, then pin `variant=<failing-idx>` and iterate the fix. Re-run the FULL matrix only when you believe the fix is complete.
 
 ### Full-matrix iteration flow
 
 When the iteration target is the full matrix (cross-variant coverage matters more than focused-debug speed), apply the following recipe instead of cycling all variants on every loop:
 
-1. **Iterate the failing variant with `mode=update`, variant-pinned.** `mode=update` MUST always carry `INFINITO_VARIANT=<idx>`. Never use `mode=update` to cycle the full matrix. Loop `INFINITO_VARIANT=<idx> make compose-deploy mode=update apps=<roles>` until that variant is green.
-2. **Deploy each remaining variant that has NOT yet been re-deployed against the current code** with `INFINITO_VARIANT=<other-idx> make compose-deploy mode=reinstall apps=<roles> full_cycle=true`. This avoids re-doing the fixed variant while validating the others against the current code as a fresh baseline.
-3. **Finally, re-run the FULL matrix one more time** with `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `INFINITO_VARIANT=`). This is the canonical end-of-iteration gate — every variant against the current code, fresh state.
+1. **Iterate the failing variant with `mode=update`, variant-pinned.** `mode=update` MUST always carry `variant=<idx>`. Never use `mode=update` to cycle the full matrix. Loop `make compose-deploy mode=update apps=<roles> variant=<idx>` until that variant is green.
+2. **Deploy each remaining variant that has NOT yet been re-deployed against the current code** with `make compose-deploy mode=reinstall apps=<roles> full_cycle=true variant=<other-idx>`. This avoids re-doing the fixed variant while validating the others against the current code as a fresh baseline.
+3. **Finally, re-run the FULL matrix one more time** with `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `variant=`). This is the canonical end-of-iteration gate — every variant against the current code, fresh state.
 
 ## Certificate Authority
 

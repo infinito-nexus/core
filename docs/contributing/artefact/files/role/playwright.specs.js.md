@@ -19,7 +19,7 @@ Additional scenarios (RBAC loops, peer-to-peer messaging, federation round-trips
 Three personas exist in the deploy fixture: `guest` (no Keycloak account), `biber` (regular end-user), and `administrator` (operator/admin).
 The flow shape is identical across roles.
 Only the role-specific selectors and the post-login assertion change.
-Service-dependent steps MUST be guarded with [`skipUnlessServiceEnabled('<svc>')`](../../../../../roles/test-e2e-playwright/files/service-gating.js) so a deploy with `INFINITO_SERVICES_DISABLED=<svc>` reports the affected step as `skipped: <NAME>_SERVICE_ENABLED=false`, never `failed`.
+Service-dependent steps MUST be guarded with [`skipUnlessServiceEnabled('<svc>')`](../../../../../roles/test-e2e-playwright/files/service-gating.js) so a deploy with `disable=<svc>` reports the affected step as `skipped: <NAME>_SERVICE_ENABLED=false`, never `failed`.
 
 Each persona scenario MUST be named `<persona>: <flow>`, where `<persona>` is the literal token `guest`, `biber`, or `administrator` and `<flow>` is a concise step description (e.g. `dashboard → app → logout`).
 The persona token MUST appear at the very start of the test title so the Playwright reporter groups runs by persona without further parsing.
