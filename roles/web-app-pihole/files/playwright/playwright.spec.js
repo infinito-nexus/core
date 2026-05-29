@@ -139,5 +139,5 @@ test("admin can log out via logout button", async ({ page }) => {
       timeout: 30_000,
       message: "Expected redirect away from Pi-hole after logout"
     })
-    .not.toContain(expectedPiholeBaseUrl + "/admin");
+    .not.toContain(`${expectedPiholeBaseUrl}/admin`);
 });

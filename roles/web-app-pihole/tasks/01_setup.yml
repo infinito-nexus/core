@@ -1,12 +1,3 @@
-- name: "Wait for Keycloak OIDC discovery endpoint"
-  uri_retry:
-    url: "{{ OIDC.CLIENT.ISSUER_URL }}/.well-known/openid-configuration"
-    validate_certs: false
-    status_code: 200
-  retries: 60
-  delay: 10
-  when: PIHOLE_OAUTH2_ENABLED | bool
-
 - name: "Wait for Pi-hole HTTP endpoint"
   wait_for:
     host:     "{{ DOCKER_REACH_HOST }}"
@@ -14,29 +5,37 @@
     delay:    5
     timeout:  120
 
-- name: "Disable Pi-hole native password (OAuth2 handles auth)"
-  community.docker.docker_container_exec:
-    container: "{{ PIHOLE_CONTAINER }}"
-    command: pihole setpassword ''
+- name: "OAuth2-protected Pi-hole setup tasks"
   when: PIHOLE_OAUTH2_ENABLED | bool
+  block:
+    - name: "Wait for Keycloak OIDC discovery endpoint"
+      uri_retry:
+        url: "{{ OIDC.CLIENT.ISSUER_URL }}/.well-known/openid-configuration"
+        validate_certs: false
+        status_code: 200
+      retries: 60
+      delay: 10
 
-- name: "Wait for oauth2-proxy to be ready"
-  ignore_errors: true
-  wait_for:
-    host:    "{{ DOCKER_REACH_HOST }}"
-    port:    "{{ lookup('config', application_id, 'services.pihole.ports.local.oauth2') }}"
-    delay:   5
-    timeout: 300
-  when: PIHOLE_OAUTH2_ENABLED | bool
+    - name: "Disable Pi-hole native password (OAuth2 handles auth)"
+      community.docker.docker_container_exec:
+        container: "{{ PIHOLE_CONTAINER }}"
+        command: pihole setpassword ''
 
-- name: "Wait for pihole HTTPS endpoint to return non-500"
-  uri_retry:
-    url: "{{ lookup('tls', application_id, 'url.base') }}"
-    validate_certs: false
-    status_code: [200, 301, 302, 403, 404]
-  register: _pihole_https_check
-  until: _pihole_https_check.status in [200, 301, 302, 403, 404]
-  retries: 30
-  delay: 10
-  ignore_errors: true
-  when: PIHOLE_OAUTH2_ENABLED | bool
+    - name: "Wait for oauth2-proxy to be ready"
+      ignore_errors: true
+      wait_for:
+        host:    "{{ DOCKER_REACH_HOST }}"
+        port:    "{{ lookup('config', application_id, 'services.pihole.ports.local.oauth2') }}"
+        delay:   5
+        timeout: 300
+
+    - name: "Wait for pihole HTTPS endpoint to return non-500"
+      uri_retry:
+        url: "{{ lookup('tls', application_id, 'url.base') }}"
+        validate_certs: false
+        status_code: [200, 301, 302, 403, 404]
+      register: _pihole_https_check
+      until: _pihole_https_check.status in [200, 301, 302, 403, 404]
+      retries: 30
+      delay: 10
+      ignore_errors: true

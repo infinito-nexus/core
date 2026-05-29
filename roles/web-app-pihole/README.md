@@ -15,7 +15,7 @@ Deploys [Pi-hole](https://pi-hole.net/) — a network-wide ad blocker — as a D
 ## Access
 
 After deployment, Pi-hole is available at:
-https://pihole.<DOMAIN_PRIMARY>/admin/
+<https://pihole.<DOMAIN_PRIMARY>/admin/>
 
 Access is protected by SSO. Users must be members of the `web-app-pihole-administrator` group in Keycloak/LDAP.
 
@@ -28,7 +28,7 @@ Access is protected by SSO. Users must be members of the `web-app-pihole-adminis
 
 | Variable | Description | Default |
 |---|---|---|
-| `pihole.upstream_dns` | Upstream DNS servers | `1.1.1.1;1.0.0.1` |
+| `pihole.upstream_dns` | Upstream DNS servers | `{{ NETWORK_PUBLIC_DNS_RESOLVERS }}` |
 
 ## Variants
 
