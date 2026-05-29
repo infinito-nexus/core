@@ -5,6 +5,7 @@
     command: >-
       bash -c '
         /venv/bin/python manage.py migrate --noinput &&
+        /venv/bin/python manage.py compile_themes &&
         /venv/bin/python manage.py collectstatic --noinput &&
         (/venv/bin/python manage.py initdb || true) &&
         /venv/bin/python -m gunicorn bookwyrm.wsgi:application --bind 0.0.0.0:{{ container_port }}
