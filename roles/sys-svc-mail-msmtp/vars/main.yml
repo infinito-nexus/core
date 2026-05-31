@@ -56,3 +56,10 @@ SYS_SVC_MAIL_MSMTP_EPEL_DISTRIBUTIONS:
   - RedHat
   - Rocky
   - AlmaLinux
+
+SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES:
+  - /etc/pki/tls/certs/ca-bundle.crt
+  - /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+  - /etc/ssl/certs/ca-certificates.crt
+  - /etc/ssl/cert.pem
+  - /etc/ssl/ca-bundle.pem

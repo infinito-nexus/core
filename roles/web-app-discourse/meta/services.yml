@@ -70,7 +70,8 @@ discourse:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-  local_login_enabled: "{{ not (lookup('config', 'web-app-discourse', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.ldap.enabled') | bool) }}"
+  local_login_enabled: "{{ not (lookup('config', 'web-app-discourse', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.ldap.enabled')
+    | bool) }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"
