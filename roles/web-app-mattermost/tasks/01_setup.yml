@@ -31,7 +31,7 @@
     container exec -i {{ MATTERMOST_CONTAINER }} \
       /mattermost/bin/mmctl --local team create \
         --name         "main" \
-        --display-name "{{ SOFTWARE_NAME }}"
+        --display-name "{{ ORGANIZATION }}"
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: mm_create_team

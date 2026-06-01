@@ -12,6 +12,11 @@
     name: "{{ SYS_SVC_MAIL_MSMTP_PACKAGES.base }}"
     state: present
 
+- name: Ensure system CA certificates are installed
+  package:
+    name: ca-certificates
+    state: present
+
 - name: "Disable SMTP to avoid port conflicts"
   include_tasks: "{{ [playbook_dir, 'roles/sys-svc-mail-smtp/tasks/disable.yml' ] | path_join }}"
 
@@ -30,6 +35,25 @@
         state: link
         force: true
       when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta == ''
+
+- name: Probe CA bundle candidate paths for msmtp TLS trust file
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES }}"
+  register: _sys_svc_mail_msmtp_ca_probe
+
+- name: Select first existing CA bundle path for msmtp
+  ansible.builtin.set_fact:
+    sys_svc_mail_msmtp_ca_bundle: >-
+      {{
+        (
+          _sys_svc_mail_msmtp_ca_probe.results
+          | selectattr('stat.exists')
+          | map(attribute='item')
+          | list
+          | first
+        ) | default(SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES | first, true)
+      }}
 
 - name: configure msmtprc.conf.j2
   template:

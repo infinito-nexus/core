@@ -1,0 +1,13 @@
+---
+domains:
+  canonical:
+    - zammad.helpdesk.{{ DOMAIN_PRIMARY }}
+csp:
+  flags:
+    script-src-elem:
+      unsafe-inline: true
+    style-src-attr:
+      unsafe-inline: true
+networks:
+  local:
+    subnet: 192.168.105.144/28

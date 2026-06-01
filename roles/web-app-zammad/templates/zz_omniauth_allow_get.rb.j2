@@ -1,0 +1,3 @@
+# OmniAuth 2.x defaults to POST-only; widened so SPA navigation to /auth/openid_connect works.
+OmniAuth.config.allowed_request_methods = %i[get post]
+OmniAuth.config.silence_get_warning = true

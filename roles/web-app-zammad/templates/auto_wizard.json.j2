@@ -1,0 +1,39 @@
+{
+  "Token": "{{ ZAMMAD_INITIAL_ADMIN_PASSWORD }}",
+  "TextModuleLocale": { "Locale": "{{ HOST_LL_CC_TAG }}" },
+  "Users": [
+    {
+      "login":     "{{ ZAMMAD_WIZARD_BYPASS_USER.username }}",
+      "firstname": "{{ ZAMMAD_WIZARD_BYPASS_USER.firstname }}",
+      "lastname":  "{{ ZAMMAD_WIZARD_BYPASS_USER.lastname }}",
+      "email":     "{{ ZAMMAD_WIZARD_BYPASS_USER.email }}",
+      "password":  "{{ ZAMMAD_API_BOT_PASSWORD }}"
+    }
+  ],
+  "Settings": [
+    { "name": "system_init_done",         "value": true },
+    { "name": "fqdn",                     "value": "{{ ZAMMAD_HOSTNAME }}" },
+    { "name": "http_type",                "value": "{{ ZAMMAD_WEB_PROTOCOL }}" },
+    { "name": "organization",             "value": "{{ ORGANIZATION }}" },
+    { "name": "product_name",             "value": "{{ SOFTWARE_NAME }} Helpdesk" },
+    { "name": "developer_mode",           "value": false },
+    { "name": "user_create_account",      "value": false },
+    { "name": "user_lost_password",       "value": true }
+{% if ZAMMAD_OIDC_ENABLED %}
+    ,
+    { "name": "auth_openid_connect",      "value": true },
+    {
+      "name":  "auth_openid_connect_credentials",
+      "value": {
+        "display_name":               "{{ OIDC.BUTTON_TEXT }}",
+        "identifier":                 "{{ OIDC.CLIENT.ID }}",
+        "secret":                     "{{ OIDC.CLIENT.SECRET }}",
+        "issuer":                     "{{ OIDC.CLIENT.ISSUER_URL }}",
+        "scope":                      "openid email profile",
+        "uid_field":                  "sub",
+        "send_scope_to_token_endpoint":  true
+      }
+    }
+{% endif %}
+  ]
+}

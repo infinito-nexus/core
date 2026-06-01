@@ -39,14 +39,14 @@
           url: {{ OIDC.CLIENT.ACCOUNT.SECURITY_URL }}
           iframe: {{ DASHBOARD_KEYCLOAK_IFRAME_ENABLED }}
         - name: Logout
-          description: "Logout from {{ SOFTWARE_NAME }} on {{ DOMAIN_PRIMARY }}"
+          description: "Logout from {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}"
           target: "_top"  
           icon:
             class: fa-solid fa-right-from-bracket
           url: {{ OIDC.CLIENT.LOGOUT_URL }}
           iframe: false # Neccesary to refresh dashboard page after logout
     - name: Login
-      description: "Login to {{ SOFTWARE_NAME }} on {{ DOMAIN_PRIMARY }}"
+      description: "Login to {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}"
       target: "_top"
       icon:
         class: fa-solid fa-right-to-bracket

@@ -1,8 +1,8 @@
 ---
 administrator:
-  description: System Administrator for {{ SOFTWARE_NAME }} on {{ DOMAIN_PRIMARY }}
+  description: System Administrator for {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}
   firstname: Administrator
-  lastname: "{{ SOFTWARE_NAME }}"
+  lastname: "{{ ORGANIZATION }}"
   username: administrator
   password: "{{ ansible_become_password }}"
   uid: 1001

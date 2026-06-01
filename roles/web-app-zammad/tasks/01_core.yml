@@ -1,0 +1,156 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "stage the auto_wizard.json that bypasses Zammad's setup wizard"
+  ansible.builtin.template:
+    src: "auto_wizard.json.j2"
+    dest: "{{ ZAMMAD_AUTO_WIZARD_HOST_PATH }}"
+    mode: "0644"
+  notify: compose up
+
+- name: "stage Rails initializer that allows GET-initiated OmniAuth requests"
+  ansible.builtin.template:
+    src: "zz_omniauth_allow_get.rb.j2"
+    dest: "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}"
+    mode: "0644"
+  notify: compose up
+
+- name: "stage TelegramHelper stub that prevents the upstream Zammad 6.5.0 boot crash on telegram-bot-ruby 2.4.0"
+  ansible.builtin.template:
+    src: "telegram_helper_stub.rb.j2"
+    dest: "{{ ZAMMAD_TELEGRAM_HELPER_HOST_PATH }}"
+    mode: "0644"
+  notify: compose up
+
+- name: "stage Rails initializer that maps Keycloak group claims to Zammad roles on OIDC sign-in"
+  ansible.builtin.template:
+    src: "zz_oidc_group_role_mapping.rb.j2"
+    dest: "{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH }}"
+    mode: "0644"
+  notify: compose up
+  when: ZAMMAD_OIDC_ENABLED
+
+- name: "grant CREATEDB to the Zammad PostgreSQL role (Zammad's init runs rake db:create even when the DB exists)"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: >-
+      {{ lookup('database', application_id) | combine({
+        'username': 'postgres',
+        'name': 'postgres',
+        'password': lookup('config', 'svc-db-postgres', 'credentials.POSTGRES_PASSWORD'),
+      }) }}
+    # nocheck: database-query-raw
+    query: "{{ lookup('template', role_path ~ '/templates/sql/grant_createdb.sql.j2') }}"
+  when: lookup('config', application_id, 'services.postgres.shared') | bool
+
+- name: "flush handlers so the Zammad init container starts with auto_wizard.json bind-mounted"
+  meta: flush_handlers
+
+- name: "wait for the Zammad Rails server to answer"
+  ansible.builtin.shell: |
+    set -eo pipefail
+    container exec {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r 'Setting.any? || raise'
+  register: zammad_rails_ready
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: zammad_rails_ready.rc == 0
+
+- name: "process auto_wizard.json if Zammad's setup wizard hasn't completed yet (idempotent)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec -i {{ ZAMMAD_RAILS_CONTAINER }} bundle exec rails r '
+      if !Setting.get("system_init_done")
+        raise "AutoWizard data missing (auto_wizard.json not mounted in rails container)" unless AutoWizard.enabled?
+        AutoWizard.setup
+      end
+    '
+  register: zammad_auto_wizard_setup
+  changed_when: false
+
+- name: "ensure API-bot user in Zammad (Basic-auth REST API; runs in EVERY variant including no-auth)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec -i \
+      -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD \
+      {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r - < {{ role_path }}/files/scripts/apply_api_bot.rb
+  environment:
+    API_BOT_LOGIN: "{{ ZAMMAD_API_BOT_USER.username }}"
+    API_BOT_EMAIL: "{{ ZAMMAD_API_BOT_USER.email }}"
+    API_BOT_FIRSTNAME: "{{ ZAMMAD_API_BOT_USER.firstname }}"
+    API_BOT_LASTNAME: "{{ ZAMMAD_API_BOT_USER.lastname }}"
+    API_BOT_PASSWORD: "{{ ZAMMAD_API_BOT_PASSWORD }}"
+  register: zammad_api_bot_apply
+  changed_when: false
+
+- name: "apply OIDC settings in Zammad (post-bootstrap; idempotent)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec -i \
+      -e ZAMMAD_FQDN -e ZAMMAD_HTTP_TYPE \
+      -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_CLIENT_SECRET -e OIDC_ISSUER_URL \
+      {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r - < {{ role_path }}/files/scripts/apply_oidc_settings.rb
+  environment:
+    ZAMMAD_FQDN: "{{ ZAMMAD_HOSTNAME }}"
+    ZAMMAD_HTTP_TYPE: "{{ ZAMMAD_WEB_PROTOCOL }}"
+    OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
+    OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+    OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+    OIDC_ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"
+  register: zammad_oidc_apply
+  changed_when: false
+  when: ZAMMAD_OIDC_ENABLED
+
+- name: "configure Zammad's LdapSource against svc-db-openldap (post-bootstrap; idempotent)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec -i \
+      -e LDAP_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN \
+      -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR \
+      {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r - < {{ role_path }}/files/scripts/apply_ldap_source.rb
+  environment:
+    LDAP_NAME: "{{ ORGANIZATION }} svc-db-openldap"
+    LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
+    LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
+    LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
+    LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    LDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
+    LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+  register: zammad_ldap_apply
+  changed_when: false
+  when: ZAMMAD_LDAP_ENABLED
+
+- name: "configure Zammad's Email channel (inbound IMAP + outbound SMTP) against Mailu"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec -i \
+      -e MAIL_GROUP_NAME -e MAIL_FROM_NAME -e MAIL_FROM_ADDRESS \
+      -e IMAP_HOST -e IMAP_PORT -e IMAP_USER -e IMAP_PASS \
+      -e SMTP_HOST -e SMTP_PORT -e SMTP_USER -e SMTP_PASS \
+      {{ ZAMMAD_RAILS_CONTAINER }} \
+      bundle exec rails r - < {{ role_path }}/files/scripts/apply_email_channel.rb
+  environment:
+    MAIL_GROUP_NAME: "Users"
+    MAIL_FROM_NAME: "{{ ORGANIZATION }} Helpdesk"
+    MAIL_FROM_ADDRESS: "{{ ZAMMAD_HELPDESK_EMAIL }}"
+    IMAP_HOST: "{{ ZAMMAD_MAIL.host }}"
+    IMAP_PORT: "143"
+    IMAP_USER: "{{ ZAMMAD_HELPDESK_EMAIL }}"
+    IMAP_PASS: "{{ ZAMMAD_HELPDESK_PASS }}"
+    SMTP_HOST: "{{ ZAMMAD_MAIL.host }}"
+    SMTP_PORT: "{{ ZAMMAD_MAIL.port }}"
+    SMTP_USER: "{{ ZAMMAD_HELPDESK_EMAIL }}"
+    SMTP_PASS: "{{ ZAMMAD_HELPDESK_PASS }}"
+  register: zammad_email_apply
+  changed_when: false
+  when: ZAMMAD_EMAIL_ENABLED and (ZAMMAD_HELPDESK_EMAIL | length > 0)

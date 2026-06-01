@@ -1,0 +1,59 @@
+---
+application_id: "web-app-zammad"
+entity_name: "{{ application_id | get_entity_name }}"
+
+ZAMMAD_IMAGE: "{{ lookup('config', application_id, 'services.zammad.image') }}"
+ZAMMAD_VERSION: "{{ lookup('config', application_id, 'services.zammad.version') }}"
+
+ZAMMAD_SEARCH_IMAGE: "{{ lookup('config', application_id, 'services.search.image') }}"
+ZAMMAD_SEARCH_VERSION: "{{ lookup('config', application_id, 'services.search.version') }}"
+
+ZAMMAD_INIT_CONTAINER: "zammad-init"
+ZAMMAD_RAILS_CONTAINER: "zammad-railsserver"
+ZAMMAD_WEBSOCKET_CONTAINER: "zammad-websocket"
+ZAMMAD_SCHEDULER_CONTAINER: "zammad-scheduler"
+ZAMMAD_NGINX_CONTAINER: "zammad-nginx"
+ZAMMAD_SEARCH_CONTAINER: "zammad-elasticsearch"
+ZAMMAD_MEMCACHED_CONTAINER: "zammad-memcached"
+
+ZAMMAD_MEMCACHED_IMAGE: "{{ lookup('config', 'svc-db-memcached', 'services.memcached.image') }}"
+ZAMMAD_MEMCACHED_VERSION: "{{ lookup('config', 'svc-db-memcached', 'services.memcached.version') }}"
+
+ZAMMAD_RAILS_PORT: 3000
+ZAMMAD_WEBSOCKET_PORT: 6042
+
+# Both bots need a shell-safe alphanumeric password — the default users-SPOT
+# password carries chars that get mangled through Ansible→bash→docker-exec→Ruby ENV.
+ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
+ZAMMAD_WIZARD_BYPASS_USER: "{{ lookup('users', 'zammad-wizard-bypass-admin') }}"
+ZAMMAD_API_BOT_PASSWORD: "{{ lookup('config', application_id, 'credentials.api_bot_password') }}"
+ZAMMAD_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.initial_admin_password') }}"
+ZAMMAD_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"
+
+ZAMMAD_HOSTNAME: "{{ lookup('domain', application_id) }}"
+ZAMMAD_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
+
+ZAMMAD_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
+ZAMMAD_AUTO_WIZARD_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}auto_wizard.json"
+ZAMMAD_OMNIAUTH_INIT_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_omniauth_allow_get.rb"
+ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH: "/opt/zammad/config/initializers/zz_omniauth_allow_get.rb"
+
+ZAMMAD_TELEGRAM_HELPER_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}telegram_helper.rb"
+ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH: "/opt/zammad/lib/telegram_helper.rb"
+
+ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
+ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH: "/opt/zammad/config/initializers/zz_oidc_group_role_mapping.rb"
+ZAMMAD_OIDC_GROUP_ROLE_MAP:
+  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
+  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"
+  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/customer": "Customer"
+
+ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
+ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
+ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
+
+ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
+ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
+ZAMMAD_HELPDESK_EMAIL: "{{ ZAMMAD_HELPDESK_USER.email | default('') }}"
+# Mailu enforces change_pw_next_login → user password rejects SMTP AUTH (535); per-app token is required.
+ZAMMAD_HELPDESK_PASS: "{{ (ZAMMAD_HELPDESK_USER.tokens | default({})).get('web-app-mailu', '') }}"

@@ -71,6 +71,7 @@
     compose up -d --force-recreate --remove-orphans
   register: dc_up
   changed_when: true
+  timeout: 1800
   environment:
     COMPOSE_PARALLEL_LIMIT: "{{ '4' if (DOCKER_IN_CONTAINER | bool) else omit }}"
   args:

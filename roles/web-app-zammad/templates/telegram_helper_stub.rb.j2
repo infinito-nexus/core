@@ -1,0 +1,4 @@
+# Replaces upstream lib/telegram_helper.rb to cut its `require 'telegram/bot'` —
+# telegram-bot-ruby 2.4.0 crashes on missing Dry-Types constants during Zammad eager-load.
+class TelegramHelper
+end

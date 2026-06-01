@@ -52,61 +52,8 @@
         ) | default("", true)
       }}
 
-- name: Read existing nixbld group entry before installer run
-  ansible.builtin.getent:
-    database: group
-    key: nixbld
-    fail_key: false
-  become: true
-  when: dev_nix_binary_path_before | length == 0
-
-- name: Set build group override for Nix installer when nixbld exists
-  ansible.builtin.set_fact:
-    dev_nix_installer_build_group_id: "{{ ansible_facts.getent_group.nixbld[1] }}"
-  when:
-    - dev_nix_binary_path_before | length == 0
-    - ansible_facts.getent_group is defined
-    - "'nixbld' in ansible_facts.getent_group"
-
-- name: Read existing nixbld1 user entry before installer run
-  ansible.builtin.getent:
-    database: passwd
-    key: nixbld1
-    fail_key: false
-  become: true
-  when: dev_nix_binary_path_before | length == 0
-
-- name: Set first build uid override for Nix installer when nixbld1 exists
-  ansible.builtin.set_fact:
-    dev_nix_installer_first_build_uid: "{{ ansible_facts.getent_passwd.nixbld1[1] }}"
-  when:
-    - dev_nix_binary_path_before | length == 0
-    - ansible_facts.getent_passwd is defined
-    - "'nixbld1' in ansible_facts.getent_passwd"
-
-- name: Run Nix installer in daemon (multi-user) mode if Nix is not installed
-  ansible.builtin.shell: >
-    "{{ dev_nix_installer_dest }}" --daemon
-  environment: >-
-    {{
-      (
-        (dev_nix_installer_build_group_id is defined)
-        | ternary(
-            {'NIX_BUILD_GROUP_ID': (dev_nix_installer_build_group_id | string)},
-            {}
-          )
-      )
-      | combine(
-          (
-            (dev_nix_installer_first_build_uid is defined)
-            | ternary(
-                {'NIX_FIRST_BUILD_UID': (dev_nix_installer_first_build_uid | string)},
-                {}
-              )
-          )
-        )
-    }}
-  become: true
+- name: Install Nix via official installer when no Nix binary is present
+  ansible.builtin.include_tasks: 03_install_official.yml
   when: dev_nix_binary_path_before | length == 0
 
 - name: Probe common nix binary paths after installation

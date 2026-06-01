@@ -1,0 +1,30 @@
+---
+credentials:
+  postgres_password:
+    description: "Password for the Zammad PostgreSQL user (used against the central svc-db-postgres or any provider compatible with it)."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{16,}$"
+    length: 32
+  secret_key_base:
+    description: "Rails `secret_key_base` for Zammad (sessions, encrypted cookies). Stable across deploys to avoid invalidating sessions."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{64,}$"
+    length: 128
+  initial_admin_password:
+    description: "Password seeded into Zammad on first start for the bootstrap administrator account. Used once to bypass the setup wizard."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{16,}$"
+    length: 32
+  api_bot_password:
+    description: "Local password for the role-internal `zammad-api-bot` user that backs Basic-auth REST-API calls (Playwright). Also reused as the wizard-bypass admin's
+      local password. Alphanumeric on purpose — `lookup('users', 'administrator').password` carries `'$tr0ng€xampl3PW!`-style chars that get mangled by the Ansible→bash→`container
+      exec -e`→Ruby ENV.fetch chain (see roles/web-app-joomla/tasks/02_install.yml:55-61 for the same class of bug)."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48
+  api_token:
+    description: "Long-lived Zammad API token created during bootstrap; used by tasks/main.yml for post-start configuration (OIDC settings, inbound channel, group
+      mapping)."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 64

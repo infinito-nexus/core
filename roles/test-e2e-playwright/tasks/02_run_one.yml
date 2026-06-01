@@ -254,6 +254,7 @@
       - --rm
       - --ipc=host
       - --shm-size=1g
+      - --add-host=host.docker.internal:host-gateway
       - --env-file
       - "{{ _playwright_stage_dir }}/.env"
       - -e

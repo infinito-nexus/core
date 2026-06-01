@@ -1,0 +1,44 @@
+require "json"
+
+OIDC_GROUP_ROLE_MAP    = JSON.parse({{ ZAMMAD_OIDC_GROUP_ROLE_MAP | to_json | to_json }}).freeze
+OIDC_DEFAULT_ROLE_NAME = "Customer".freeze
+
+Rails.application.config.after_initialize do
+  group_role_map = OIDC_GROUP_ROLE_MAP
+
+  patch = Module.new do
+    define_method(:_zammad_role_names_from_oidc) do |auth_hash|
+      groups = nil
+      groups ||= auth_hash&.dig("info",  "groups")
+      groups ||= auth_hash&.dig(:info,   :groups)
+      groups ||= auth_hash&.dig("extra", "raw_info", "groups")
+      groups ||= auth_hash&.dig(:extra,  :raw_info, :groups)
+      Array(groups)
+    end
+
+    define_method(:_zammad_apply_oidc_roles!) do |user, auth_hash|
+      return unless user
+      paths = _zammad_role_names_from_oidc(auth_hash)
+      mapped = paths.map { |p| group_role_map[p] }.compact.uniq
+      mapped = [OIDC_DEFAULT_ROLE_NAME] if mapped.empty?
+      roles  = Role.where(name: mapped)
+      return if roles.empty?
+      user.roles = roles
+      user.save!
+    end
+  end
+
+  # If upstream renames either entry point, the initializer becomes a no-op instead of crashing boot.
+  %w[create_from_hash update_from_hash].each do |method_name|
+    next unless User.respond_to?(method_name)
+
+    User.singleton_class.prepend(Module.new {
+      include patch
+      define_method(method_name) do |hash|
+        user = super(hash)
+        _zammad_apply_oidc_roles!(user, hash)
+        user
+      end
+    })
+  end
+end

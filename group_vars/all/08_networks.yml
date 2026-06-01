@@ -51,6 +51,17 @@ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER: "127.0.0.11" # nocheck: hardcoded-dns-reso
 # in their nginx templates instead of repeating the directive form, so
 # the TTL and ipv6 stay consistent across the stack.
 NETWORK_DOCKER_DNS_NGINX_DIRECTIVE: "resolver {{ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER }} valid=30s ipv6={{ NETWORK_IPV6_ENABLED | on_off }};"
+# Reverse-proxy upstreams that web apps should trust for `X-Forwarded-*`
+# headers when rendering `TRUSTED_PROXIES` / `RAILS_TRUSTED_PROXIES` env
+# vars. Covers loopback (v4 + v6) and the RFC1918 ranges that docker /
+# docker-compose pick from by default. Roles MUST template this list
+# rather than re-spelling the CIDR set.
+NETWORK_TRUSTED_PROXY_CIDRS:
+  - 127.0.0.1
+  - "::1"
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 192.168.0.0/16
 defaults_networks:
   internet:
     ip4: "127.0.0.1"

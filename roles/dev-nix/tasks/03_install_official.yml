@@ -1,0 +1,67 @@
+---
+- name: Purge stale nixbld users blocking the multi-user installer
+  ansible.builtin.script:
+    cmd: "{{ role_path }}/files/purge_stale_nixbld.sh"
+  register: dev_nix_purge_stale_nixbld_result
+  changed_when: >
+    dev_nix_purge_stale_nixbld_result.stdout is search('\\[CHANGED\\]')
+  failed_when: >
+    dev_nix_purge_stale_nixbld_result.rc != 0 or
+    dev_nix_purge_stale_nixbld_result.stdout is search('\\[FAIL\\]')
+  become: true
+
+- name: Read existing nixbld group entry before installer run
+  ansible.builtin.getent:
+    database: group
+    key: nixbld
+    fail_key: false
+  become: true
+
+- name: Set build group override for Nix installer when nixbld exists
+  ansible.builtin.set_fact:
+    dev_nix_installer_build_group_id: "{{ ansible_facts.getent_group.nixbld[1] }}"
+  # `getent ... fail_key: false` inserts the key with a `None` value when the
+  # entry is missing, so the membership test is True but `.nixbld[1]` would
+  # crash on None — explicitly skip when the value is None.
+  when:
+    - ansible_facts.getent_group is defined
+    - ansible_facts.getent_group.nixbld is not none
+
+- name: Read existing nixbld1 user entry before installer run
+  ansible.builtin.getent:
+    database: passwd
+    key: nixbld1
+    fail_key: false
+  become: true
+
+- name: Set first build uid override for Nix installer when nixbld1 exists
+  ansible.builtin.set_fact:
+    dev_nix_installer_first_build_uid: "{{ ansible_facts.getent_passwd.nixbld1[1] }}"
+  # Same None-vs-missing trap as for the group entry above.
+  when:
+    - ansible_facts.getent_passwd is defined
+    - ansible_facts.getent_passwd.nixbld1 is not none
+
+- name: Run Nix installer in daemon (multi-user) mode
+  ansible.builtin.shell: >
+    "{{ dev_nix_installer_dest }}" --daemon
+  environment: >-
+    {{
+      (
+        (dev_nix_installer_build_group_id is defined)
+        | ternary(
+            {'NIX_BUILD_GROUP_ID': (dev_nix_installer_build_group_id | string)},
+            {}
+          )
+      )
+      | combine(
+          (
+            (dev_nix_installer_first_build_uid is defined)
+            | ternary(
+                {'NIX_FIRST_BUILD_UID': (dev_nix_installer_first_build_uid | string)},
+                {}
+              )
+          )
+        )
+    }}
+  become: true

@@ -94,6 +94,7 @@ cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx play
 
 exec docker run --rm \
 	--ipc=host --shm-size=1g \
+	--add-host=host.docker.internal:host-gateway \
 	--env-file "$env_file" \
 	-v "$stage_dir:/e2e" \
 	-v "$stage_dir/volume:/volume" \

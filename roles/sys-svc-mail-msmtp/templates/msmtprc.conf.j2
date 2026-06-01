@@ -7,7 +7,7 @@ syslog              {{ MODE_DEBUG | on_off }}
 auth                {{ email.auth | on_off }}
 tls_starttls        {{ email.start_tls | on_off }}
 tls                 {{ email.tls | on_off }}
-tls_trust_file      {{ '/etc/pki/tls/certs/ca-bundle.crt' if (ansible_facts['os_family'] | lower == 'redhat') else '/etc/ssl/certs/ca-certificates.crt' }}
+tls_trust_file      {{ sys_svc_mail_msmtp_ca_bundle }}
 tls_host_override   {{ email.host }}
 account             system_email_no_reply
 host                {{ '127.0.0.1' if (DOCKER_IN_CONTAINER | bool) else email.host }}

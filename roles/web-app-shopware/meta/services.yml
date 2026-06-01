@@ -41,7 +41,7 @@ shopware:
   package:
     name: shopware/production
     version: 6.7.8.2
-  title: "{{ SOFTWARE_NAME }} Shop"
+  title: "{{ ORGANIZATION }} Shop"
   ports:
     local:
       sso: 16503

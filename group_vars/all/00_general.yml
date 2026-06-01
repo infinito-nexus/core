@@ -6,6 +6,14 @@ SOFTWARE_NAME: "Infinito.Nexus" # Name of the software
 SOFTWARE_DOMAIN: "{{ SOFTWARE_NAME | lower }}" # Software domain
 SOFTWARE_URL: "https://{{ SOFTWARE_DOMAIN }}" # Url of the software provicer
 
+# Operating organization that hosts this deployment. Distinct from
+# SOFTWARE_NAME (the product) — roles that render an "organization", "owner"
+# or "tenant" string into deployed services (Zammad helpdesk, etc.) MUST
+# template this rather than reusing SOFTWARE_NAME. Defaults to the software
+# name for the unbranded base install; overridden per-inventory by operators
+# who host the stack for a specific organization.
+ORGANIZATION: "{{ SOFTWARE_NAME }}"
+
 # Deployment
 ENVIRONMENT: "production" # Possible values: production, development
 RUNTIME: "host" # Where does this instance run in? Valid: act, github, dev, host
@@ -23,6 +31,7 @@ HOST_TIMEZONE: "UTC"
 # https://en.wikipedia.org/wiki/ISO_639
 HOST_LL: "en" # Some applications are case sensitive
 HOST_LL_CC: "{{HOST_LL}}_GB"
+HOST_LL_CC_TAG: "{{ HOST_LL_CC | lower | replace('_', '-') }}" # BCP-47 / IETF language tag form (e.g. "en-gb"), as used by web apps and JSON config
 HOST_CS: "UTF-8"
 HOST_LANG: "{{HOST_LL_CC}}.{{HOST_CS}}"
 
