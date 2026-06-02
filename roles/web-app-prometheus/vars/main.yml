@@ -11,8 +11,8 @@ PROMETHEUS_IMAGE: "{{ lookup('config', application_id, 'services.prometheus.imag
 PROMETHEUS_CONTAINER: "{{ lookup('config', application_id, 'services.prometheus.name') }}"
 
 ## Volumes
-PROMETHEUS_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data') }}"
-ALERTMANAGER_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.alertmanager_data') }}"
+PROMETHEUS_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+ALERTMANAGER_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.alertmanager_data.name') }}"
 
 ## Config
 PROMETHEUS_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'prometheus.yml' ] | path_join }}"

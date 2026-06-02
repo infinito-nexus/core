@@ -26,9 +26,9 @@ GITLAB_VERSION: "{{ lookup('config', application_id, 'services.gitlab.version') 
 GITLAB_IMAGE: "{{ lookup('config', application_id, 'services.gitlab.image') }}"
 GITLAB_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ GITLAB_VERSION }}"
 GITLAB_CONTAINER: "{{ lookup('config', application_id, 'services.gitlab.name') }}"
-GITLAB_CONF_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
-GITLAB_LOGS_VOLUME: "{{ lookup('config', application_id, 'volumes.logs') }}"
-GITLAB_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+GITLAB_CONF_VOLUME: "{{ lookup('config', application_id, 'volumes.config.name') }}"
+GITLAB_LOGS_VOLUME: "{{ lookup('config', application_id, 'volumes.logs.name') }}"
+GITLAB_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 
 ## Configuration
 GITLAB_OMNIBUS_BASE:

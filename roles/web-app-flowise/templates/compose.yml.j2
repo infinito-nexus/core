@@ -44,5 +44,5 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'flowise_data': {'name': FLOWISE_VOLUME}, 'qdrant_data': {'name': FLOWISE_QDRANT_VOLUME}}
+    extra_volumes={'flowise_data': {'name': FLOWISE_DATA_VOLUME}, 'qdrant_data': {'name': FLOWISE_QDRANT_DATA_VOLUME}}
 ) }}

@@ -4,6 +4,7 @@ import re
 import unittest
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
@@ -15,7 +16,7 @@ class TestComposeVolumesCallRequired(unittest.TestCase):
         roles_dir = PROJECT_ROOT / "roles"
         offenders: list[str] = []
 
-        for compose_template in sorted(roles_dir.glob("*/templates/compose.yml.j2")):
+        for compose_template in sorted(roles_dir.glob(f"*/{ROLE_FILE_TEMPL_COMPOSE}")):
             try:
                 text = read_text(str(compose_template))
             except UnicodeDecodeError:

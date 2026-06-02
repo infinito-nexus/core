@@ -1,4 +1,7 @@
 ---
-data: odoo_data
-addons: odoo_addons
-config: odoo_config
+data:
+  name: odoo_data
+addons:
+  name: odoo_addons
+config:
+  name: odoo_config

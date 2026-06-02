@@ -1,3 +1,5 @@
 ---
-qdrant: qdrant_data
-flowise: flowise_data
+flowise_data:
+  name: flowise_data
+qdrant_data:
+  name: flowise_qdrant_data

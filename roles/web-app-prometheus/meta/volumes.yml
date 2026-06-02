@@ -1,3 +1,5 @@
 ---
-data: prometheus_data
-alertmanager_data: prometheus_alertmanager_data
+data:
+  name: prometheus_data
+alertmanager_data:
+  name: prometheus_alertmanager_data

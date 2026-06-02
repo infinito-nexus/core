@@ -3,13 +3,14 @@ import unittest
 from typing import ClassVar
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
 
 class TestDockerComposeTemplates(unittest.TestCase):
     # Search for all roles/*/templates/compose.yml.j2
-    TEMPLATE_PATTERN = "roles/*/templates/compose.yml.j2"
+    TEMPLATE_PATTERN = f"roles/*/{ROLE_FILE_TEMPL_COMPOSE}"
 
     # Allowed lines before BASE_INCLUDE
     ALLOWED_BEFORE_BASE: ClassVar[list[re.Pattern]] = [

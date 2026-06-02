@@ -194,7 +194,7 @@ pull_policy: never
       - {{ TAIGA_EVENTS_SERVICE }}
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'async-rabbitmq-data': {}, 'events-rabbitmq-data': {}, 'media-data': {}, 'static-data': {}}
+    extra_volumes={'async-rabbitmq-data': {'name': TAIGA_ASYNC_RABBITMQ_DATA_VOLUME}, 'events-rabbitmq-data': {'name': TAIGA_EVENTS_RABBITMQ_DATA_VOLUME}, 'media-data': {'name': TAIGA_MEDIA_DATA_VOLUME}, 'static-data': {'name': TAIGA_STATIC_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
   taiga:

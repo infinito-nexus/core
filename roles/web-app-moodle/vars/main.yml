@@ -77,8 +77,8 @@ MOODLE_NGINX_CONTAINER: "{{ lookup('config', application_id, 'services.nginx.nam
 MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name') }}"
 
 # Volumes
-MOODLE_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data') }}"
-MOODLE_VOLUME_CODE: "{{ lookup('config', application_id, 'volumes.code') }}"
+MOODLE_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+MOODLE_VOLUME_CODE: "{{ lookup('config', application_id, 'volumes.code.name') }}"
 
 # Identity-integration toggles
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

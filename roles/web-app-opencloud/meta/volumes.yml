@@ -1,3 +1,5 @@
 ---
-data: opencloud_data
-config: opencloud_config
+data:
+  name: opencloud_data
+config:
+  name: opencloud_config

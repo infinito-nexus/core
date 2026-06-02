@@ -14,7 +14,7 @@ SHOPWARE_CONTAINER_IMAGE: "{{ lookup('config', application_id, 'services.' ~ ent
 SHOPWARE_PKG_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.package.version') }}"
 SHOPWARE_PKG_NAME: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.package.name') }}"
 SHOPWARE_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ SHOPWARE_PKG_VERSION }}"
-SHOPWARE_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+SHOPWARE_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 SHOPWARE_USER: "www-data"
 SHOPWARE_ROOT: "/var/www/html"
 
@@ -53,3 +53,9 @@ SHOPWARE_OPENSEARCH_VERSION: "{{ lookup('config', application_id, 'services.open
 SHOPWARE_OPENSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.opensearch.name') }}"
 SHOPWARE_OPENSEARCH_MEM_RESERVATION: "{{ lookup('config', application_id, 'services.opensearch.mem_reservation') }}"
 SHOPWARE_OPENSEARCH_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.opensearch_initial_admin_password') }}"
+SHOPWARE_BUNDLES_VOLUME: "{{ lookup('config', application_id, 'volumes.bundles.name') }}"
+SHOPWARE_FILES_VOLUME: "{{ lookup('config', application_id, 'volumes.files.name') }}"
+SHOPWARE_MEDIA_VOLUME: "{{ lookup('config', application_id, 'volumes.media.name') }}"
+SHOPWARE_SITEMAP_VOLUME: "{{ lookup('config', application_id, 'volumes.sitemap.name') }}"
+SHOPWARE_THEME_VOLUME: "{{ lookup('config', application_id, 'volumes.theme.name') }}"
+SHOPWARE_THUMBNAIL_VOLUME: "{{ lookup('config', application_id, 'volumes.thumbnail.name') }}"

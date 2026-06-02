@@ -1,3 +1,7 @@
 ---
-data: peertube_data
-config: peertube_config
+data:
+  name: peertube_data
+config:
+  name: peertube_config
+assets:
+  name: peertube_assets

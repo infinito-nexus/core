@@ -12,13 +12,14 @@
   notify:
     - compose up
 
-- name: "Render SuiteCRM LDAP mapping"
-  template:
-    src: ldap.yaml.j2
-    dest: "{{ SUITECRM_LDAP_CONFIG_HOST }}"
-  notify:
-    - compose up
-  when: SUITECRM_LDAP_ENABLED | bool
+- name: "Render SuiteCRM LDAP mapping (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "ldap.yaml.j2"
+        dest: "{{ SUITECRM_LDAP_CONFIG_HOST }}"
+        when: "{{ SUITECRM_LDAP_ENABLED | bool }}"
 
 - name: "Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:

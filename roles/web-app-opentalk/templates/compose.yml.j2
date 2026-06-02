@@ -87,8 +87,8 @@
     extra_volumes={
       'data':   {'name': OPENTALK_DATA_VOLUME},
       'config': {'name': OPENTALK_CONFIG_VOLUME},
-      'minio':  {'name': lookup('config', application_id, 'volumes.minio')},
-      'rabbit': {'name': lookup('config', application_id, 'volumes.rabbit')}
+      'minio':  {'name': OPENTALK_MINIO_VOLUME},
+      'rabbit': {'name': OPENTALK_RABBIT_VOLUME}
     }
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

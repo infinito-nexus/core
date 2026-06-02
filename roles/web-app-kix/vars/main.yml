@@ -36,3 +36,7 @@ KIX_AUTH_LDAP_CONTAINER_PATH: "/opt/kix/Kernel/Config/Files/zzz_auth_ldap.xml"
 
 KIX_PROXY_NGINX_HOST_PATH: "{{ lookup('container', application_id, 'directories.volumes') }}kix-proxy.default.conf"
 KIX_PROXY_NGINX_CONTAINER_PATH: "/etc/nginx/conf.d/default.conf"
+KIX_BACKEND_VOLUME: "{{ lookup('config', application_id, 'volumes.kix_backend.name') }}"
+KIX_DB_VOLUME: "{{ lookup('config', application_id, 'volumes.kix_db.name') }}"
+KIX_FRONTEND_VOLUME: "{{ lookup('config', application_id, 'volumes.kix_frontend.name') }}"
+KIX_SHARED_VOLUME: "{{ lookup('config', application_id, 'volumes.kix_shared.name') }}"

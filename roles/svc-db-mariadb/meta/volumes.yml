@@ -1,2 +1,3 @@
 ---
-data: mariadb_data
+data:
+  name: mariadb_data

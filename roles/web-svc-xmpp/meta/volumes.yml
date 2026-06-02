@@ -1,5 +1,9 @@
 ---
-data: ejabberd_data
-conf: ejabberd_conf
-upload: ejabberd_upload
-logs: ejabberd_logs
+data:
+  name: ejabberd_data
+conf:
+  name: ejabberd_conf
+upload:
+  name: ejabberd_upload
+logs:
+  name: ejabberd_logs

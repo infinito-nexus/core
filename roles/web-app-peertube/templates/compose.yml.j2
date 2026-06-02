@@ -28,6 +28,6 @@
 {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'assets': {}, 'config': {'name': PEERTUBE_CONFIG_VOLUME}, 'data': {'name': PEERTUBE_DATA_VOLUME}}
+    extra_volumes={'assets': {'name': PEERTUBE_ASSETS_VOLUME}, 'config': {'name': PEERTUBE_CONFIG_VOLUME}, 'data': {'name': PEERTUBE_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -20,6 +20,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'jenkins_data': {'name': JENKINS_VOLUME}}
+    extra_volumes={'jenkins_data': {'name': JENKINS_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

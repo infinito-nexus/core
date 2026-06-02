@@ -11,7 +11,7 @@ COTURN_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~
 COTURN_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 COTURN_GATEWAY_IMAGE: "{{ lookup('config', application_id, 'services.gateway.image') }}"
 COTURN_GATEWAY_VERSION: "{{ lookup('config', application_id, 'services.gateway.version') }}"
-COTURN_VOLUME: "{{ entity_name }}_data"
+COTURN_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 COTURN_CONTAINER: "{{ entity_name }}"
 COTURN_REALM: "{{ domain }}"
 COTURN_NETWORK_MODE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.network_mode') }}"

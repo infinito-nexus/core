@@ -32,7 +32,7 @@ CONFLUENCE_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 CONFLUENCE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 CONFLUENCE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 CONFLUENCE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-CONFLUENCE_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+CONFLUENCE_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 CONFLUENCE_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ CONFLUENCE_VERSION }}"
 
 ## Performance (derive from container limits in meta/services.yml)

@@ -1,0 +1,7 @@
+---
+- name: "[swarm] Resolve task container ID for '{{ application_id }}'"
+  ansible.builtin.include_tasks: resolve_container.yml
+  vars:
+    _swarm_stack: "{{ application_id | get_entity_name }}"
+    _swarm_service: "{{ application_id | get_entity_name }}"
+    _swarm_target_fact: "{{ application_id | get_entity_name | upper | replace('-', '_') }}_CONTAINER"

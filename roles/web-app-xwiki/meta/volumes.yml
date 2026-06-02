@@ -1,2 +1,3 @@
 ---
-data: xwiki_data
+data:
+  name: xwiki_data

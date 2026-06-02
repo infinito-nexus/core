@@ -155,6 +155,13 @@ def compose_volumes(
     if extra_volumes:
         volumes.update(extra_volumes)
 
+    meta_volumes = applications.get(application_id, {}).get("volumes") or {}
+    nfs_keys = {
+        k
+        for k, v in meta_volumes.items()
+        if isinstance(v, dict) and v.get("nfs") is not None
+    }
+
     storage_backend = (storage or {}).get("backend", "local")
     swarm_nfs_enabled = (
         deployment_mode == "swarm" and str(storage_backend).lower() == "nfs"
@@ -163,7 +170,7 @@ def compose_volumes(
     for vol_name, vol_spec in list(volumes.items()):
         if not isinstance(vol_spec, dict):
             continue
-        wants_nfs = bool(vol_spec.pop("nfs", False))
+        wants_nfs = bool(vol_spec.pop("nfs", False)) or (vol_name in nfs_keys)
         if wants_nfs and swarm_nfs_enabled:
             named = vol_spec.get("name", vol_name)
             vol_spec.update(_swarm_nfs_driver_opts(storage, str(named)))

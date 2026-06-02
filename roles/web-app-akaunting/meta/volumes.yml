@@ -1,2 +1,3 @@
 ---
-data: akaunting_data
+data:
+  name: akaunting_data

@@ -12,3 +12,5 @@ PGADMIN_MASTER_PASSWORD_REQUIRED: "{{ lookup('config', application_id, 'services
 # User
 PGADMIN_USER: 5050
 PGADMIN_GROUP: "{{ PGADMIN_USER }}"
+
+PGADMIN_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"

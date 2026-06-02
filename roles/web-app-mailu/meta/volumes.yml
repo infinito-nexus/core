@@ -1,0 +1,17 @@
+---
+admin_data:
+  name: mailu_admin_data
+clamav_db:
+  name: mailu_clamav_db
+dkim:
+  name: mailu_dkim
+dovecot_mail:
+  name: mailu_dovecot_mail
+filter:
+  name: mailu_filter
+smtp_queue:
+  name: mailu_smtp_queue
+webdav_data:
+  name: mailu_webdav_data
+webmail_data:
+  name: mailu_webmail_data

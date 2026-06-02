@@ -10,7 +10,7 @@ OPENPROJECT_VERSION: "{{ lookup('config', application_id, 'services.web.version'
 OPENPROJECT_IMAGE: "{{ lookup('config', application_id, 'services.web.image') }}"
 OPENPROJECT_REPOSITORY: "{{ lookup('config', application_id, 'services.openproject.repository') }}"
 OPENPROJECT_REF: "{{ lookup('config', application_id, 'services.openproject.ref') }}"
-OPENPROJECT_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+OPENPROJECT_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 OPENPROJECT_WEB_SERVICE: "web"
 OPENPROJECT_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_WEB_SERVICE ~ '.name') }}"
 OPENPROJECT_SEEDER_SERVICE: "seeder"
@@ -34,7 +34,7 @@ OPENPROJECT_PLUGINS_FOLDER: "{{ lookup('container', application_id, 'directories
 OPENPROJECT_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ OPENPROJECT_VERSION }}"
 
 # The following volume doesn't have a practcical function. It just exist to prevent the creation of unnecessary anonymous volumes
-OPENPROJECT_DUMMY_VOLUME: "{{ lookup('container', application_id, 'directories.volumes') }}dummy_volume"
+OPENPROJECT_DUMMY_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}dummy_volume"
 
 OPENPROJECT_EMAIL: "{{ lookup('email', application_id) }}"
 OPENPROJECT_RAILS_SETTINGS:

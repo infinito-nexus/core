@@ -1,2 +1,3 @@
 ---
-data: joomla_data
+data:
+  name: joomla_data

@@ -156,6 +156,7 @@ ROLE_FILE_HANDLERS_MAIN = "handlers/main.yml"
 ROLE_FILE_TASKS_MAIN = "tasks/main.yml"
 ROLE_FILE_VARS_MAIN = "vars/main.yml"
 ROLE_FILE_README = "README.md"
+ROLE_FILE_TEMPL_COMPOSE = "templates/compose.yml.j2"
 
 # Project-specific meta files
 ROLE_FILE_META_MAIN = "meta/main.yml"
@@ -239,6 +240,13 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             {"type": ROLE_TYPE_APPLICATION, "mandatory": True, "entries": []},
             *_all(mandatory=False),
         ],
+    },
+    ROLE_FILE_TEMPL_COMPOSE: {
+        "description": (
+            "Docker Compose template rendered by sys-svc-compose; "
+            "carries the per-role service spec and named volumes."
+        ),
+        "types": _all(mandatory=False),
     },
     ROLE_FILE_META_MAIN: {
         "description": (

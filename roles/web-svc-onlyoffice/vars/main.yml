@@ -13,10 +13,10 @@ ONLYOFFICE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_na
 ONLYOFFICE_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.onlyoffice_jwt_secret') }}"
 
 ## Volumes
-ONLYOFFICE_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data') }}"
-ONLYOFFICE_VOLUME_LOGS: "{{ lookup('config', application_id, 'volumes.logs') }}"
-ONLYOFFICE_VOLUME_FONTS: "{{ lookup('config', application_id, 'volumes.fonts') }}"
-ONLYOFFICE_VOLUME_LIB: "{{ lookup('config', application_id, 'volumes.lib') }}"
-ONLYOFFICE_VOLUME_PGDATA: "{{ lookup('config', application_id, 'volumes.pgdata') }}"
-ONLYOFFICE_VOLUME_REDIS: "{{ lookup('config', application_id, 'volumes.redisdata') }}"
-ONLYOFFICE_VOLUME_RABBITMQ: "{{ lookup('config', application_id, 'volumes.rabbitmqdata') }}"
+ONLYOFFICE_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+ONLYOFFICE_VOLUME_LOGS: "{{ lookup('config', application_id, 'volumes.logs.name') }}"
+ONLYOFFICE_VOLUME_FONTS: "{{ lookup('config', application_id, 'volumes.fonts.name') }}"
+ONLYOFFICE_VOLUME_LIB: "{{ lookup('config', application_id, 'volumes.lib.name') }}"
+ONLYOFFICE_VOLUME_PGDATA: "{{ lookup('config', application_id, 'volumes.pgdata.name') }}"
+ONLYOFFICE_VOLUME_REDIS: "{{ lookup('config', application_id, 'volumes.redisdata.name') }}"
+ONLYOFFICE_VOLUME_RABBITMQ: "{{ lookup('config', application_id, 'volumes.rabbitmqdata.name') }}"

@@ -1,0 +1,9 @@
+---
+async-rabbitmq-data:
+  name: taiga_async_rabbitmq_data
+events-rabbitmq-data:
+  name: taiga_events_rabbitmq_data
+media-data:
+  name: taiga_media_data
+static-data:
+  name: taiga_static_data

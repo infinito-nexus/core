@@ -1,2 +1,5 @@
 ---
-data: openldap_data
+data:
+  name: openldap_data
+config:
+  name: openldap_config

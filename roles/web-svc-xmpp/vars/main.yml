@@ -8,4 +8,7 @@ EJABBERD_VERSION: "{{ lookup('config', application_id, 'services.xmpp.version') 
 EJABBERD_CONTAINER: "{{ lookup('config', application_id, 'services.xmpp.name') }}"
 XMPP_DOMAIN: "{{ (lookup('applications', application_id).server.domains.canonical | first) }}"
 XMPP_CONFIG_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'ejabberd.yml' ] | path_join }}"
-XMPP_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+XMPP_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+XMPP_CONF_VOLUME: "{{ lookup('config', application_id, 'volumes.conf.name') }}"
+XMPP_UPLOAD_VOLUME: "{{ lookup('config', application_id, 'volumes.upload.name') }}"
+XMPP_LOGS_VOLUME: "{{ lookup('config', application_id, 'volumes.logs.name') }}"

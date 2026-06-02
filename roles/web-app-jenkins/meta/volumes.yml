@@ -1,2 +1,3 @@
 ---
-data: jenkins_data
+jenkins_data:
+  name: jenkins_data

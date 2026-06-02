@@ -67,6 +67,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'kix_db': {}, 'kix_shared': {}, 'kix_backend': {}, 'kix_frontend': {}}
+    extra_volumes={'kix_db': {'name': KIX_DB_VOLUME}, 'kix_shared': {'name': KIX_SHARED_VOLUME}, 'kix_backend': {'name': KIX_BACKEND_VOLUME}, 'kix_frontend': {'name': KIX_FRONTEND_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,2 +1,3 @@
 ---
-data: suitecrm_data
+data:
+  name: suitecrm_data

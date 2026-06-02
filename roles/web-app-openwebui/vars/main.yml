@@ -10,7 +10,7 @@ OPENWEBUI_IMAGE: "{{ lookup('config', application_id, 'services.openwebui.image'
 OPENWEBUI_CONTAINER: "{{ lookup('config', application_id, 'services.openwebui.name') }}"
 OPENWEBUI_OFFLINE_MODE: "{{ lookup('config', application_id, 'services.openwebui.offline_mode') }}"
 OPENWEBUI_HF_HUB_OFFLINE: "{{ lookup('config', application_id, 'services.openwebui.hf_hub_offline') }}"
-OPENWEBUI_VOLUME: "{{ lookup('config', application_id, 'volumes.openwebui') }}"
+OPENWEBUI_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.openwebui_data.name') }}"
 OPENWEBUI_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.openwebui.ports.local.http') }}"
 OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 

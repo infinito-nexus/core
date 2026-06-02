@@ -36,8 +36,8 @@ BOOKWYRM_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 
 ## Docker
 BOOKWYRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
-BOOKWYRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-BOOKWYRM_MEDIA_VOLUME: "{{ lookup('config', application_id, 'volumes.media') }}"
+BOOKWYRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+BOOKWYRM_MEDIA_VOLUME: "{{ lookup('config', application_id, 'volumes.media.name') }}"
 BOOKWYRM_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
 BOOKWYRM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
 BOOKWYRM_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.repository') }}"

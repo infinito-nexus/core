@@ -32,7 +32,7 @@ JIRA_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 JIRA_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 JIRA_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 JIRA_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-JIRA_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+JIRA_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 JIRA_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ JIRA_VERSION }}"
 
 ## Performance (derive from container limits in meta/services.yml)

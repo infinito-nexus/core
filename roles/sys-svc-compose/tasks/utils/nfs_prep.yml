@@ -1,0 +1,17 @@
+---
+- name: "Pre-create NFS subdir for '{{ application_id }}' volume '{{ item.key }}' on the NFS server"
+  ansible.builtin.file:
+    path: "{{ storage.nfs.export_base }}/{{ item.value.name | default(item.key) }}"
+    state: directory
+    owner: "{{ item.value.nfs.uid | default('0') | string }}"
+    group: "{{ item.value.nfs.gid | default('0') | string }}"
+    mode: "{{ item.value.nfs.mode | default('0755') }}"
+  delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
+  run_once: true
+  loop: "{{ (lookup('config', application_id, 'volumes', {}) | default({}, true)) | dict2items }}"
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - (storage.backend | default('local')) == 'nfs'
+    - (groups['svc-storage-nfs-server'] | default([])) | length > 0
+    - item.value is mapping
+    - item.value.nfs is defined

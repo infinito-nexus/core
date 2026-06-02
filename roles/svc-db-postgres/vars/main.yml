@@ -7,7 +7,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 database_type: "{{ entity_name }}"
 
 ## Postgres
-POSTGRES_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+POSTGRES_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 POSTGRES_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 POSTGRES_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 POSTGRES_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"

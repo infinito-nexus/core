@@ -7,7 +7,7 @@ import yaml
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.registry import is_explicit_truth
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
@@ -120,7 +120,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
     def test_blackbox_exporter_image_is_pinned(self):
         """web-app-prometheus compose must use a pinned blackbox-exporter image, not :latest."""
         roles_dir = ROLES_DIR
-        compose_path = roles_dir / PROMETHEUS_APP_ID / "templates" / "compose.yml.j2"
+        compose_path = roles_dir / PROMETHEUS_APP_ID / ROLE_FILE_TEMPL_COMPOSE
         content = read_text(str(compose_path))
         self.assertNotIn(
             "prom/blackbox-exporter:latest",
@@ -137,7 +137,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
     def test_alert_rules_mounted_in_prometheus_container(self):
         """compose.yml.j2 must bind-mount the alert rules file into the Prometheus container."""
         roles_dir = ROLES_DIR
-        compose_path = roles_dir / PROMETHEUS_APP_ID / "templates" / "compose.yml.j2"
+        compose_path = roles_dir / PROMETHEUS_APP_ID / ROLE_FILE_TEMPL_COMPOSE
         content = read_text(str(compose_path))
         self.assertIn(
             "ALERT_RULES_CONFIG_HOST",
@@ -533,13 +533,7 @@ class TestDockerHealthCheck(unittest.TestCase):
         )
 
     def _openresty_compose_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "svc-prx-openresty"
-            / "templates"
-            / "compose.yml.j2"
-        )
+        return PROJECT_ROOT / "roles" / "svc-prx-openresty" / ROLE_FILE_TEMPL_COMPOSE
 
     def test_nginx_conf_has_health_containers_dict(self):
         """prometheus.conf.j2 must declare lua_shared_dict health_containers for Docker state caching."""

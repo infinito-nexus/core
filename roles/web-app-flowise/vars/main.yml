@@ -9,7 +9,6 @@ http_port: "{{ lookup('config', application_id, 'services.flowise.ports.local.ht
 FLOWISE_VERSION: "{{ lookup('config', application_id, 'services.flowise.version') }}"
 FLOWISE_IMAGE: "{{ lookup('config', application_id, 'services.flowise.image') }}"
 FLOWISE_CONTAINER: "{{ lookup('config', application_id, 'services.flowise.name') }}"
-FLOWISE_VOLUME: "{{ lookup('config', application_id, 'volumes.flowise') }}"
 FLOWISE_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"
 FLOWISE_PORT_INTERNAL: 3000
 
@@ -34,7 +33,8 @@ FLOWISE_LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'credentials.ll
 FLOWISE_QDRANT_VERSION: "{{ lookup('config', application_id, 'services.qdrant.version') }}"
 FLOWISE_QDRANT_IMAGE: "{{ lookup('config', application_id, 'services.qdrant.image') }}"
 FLOWISE_QDRANT_CONTAINER: "{{ lookup('config', application_id, 'services.qdrant.name') }}"
-FLOWISE_QDRANT_VOLUME: "{{ lookup('config', application_id, 'volumes.qdrant') }}"
 FLOWISE_QDRANT_HTTP_PORT: 6333
 FLOWISE_QDRANT_GRPC_PORT: 6334
 FLOWISE_QDRANT_INTERNAL_URL: "http://qdrant:{{ FLOWISE_QDRANT_HTTP_PORT }}"
+FLOWISE_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.flowise_data.name') }}"
+FLOWISE_QDRANT_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.qdrant_data.name') }}"

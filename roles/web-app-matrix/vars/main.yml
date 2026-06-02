@@ -24,7 +24,7 @@ MATRIX_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMA
 MATRIX_SYNAPSE_VERSION: "{{ lookup('config', application_id, 'services.synapse.version') }}"
 MATRIX_SYNAPSE_IMAGE: "{{ lookup('config', application_id, 'services.synapse.image') }}"
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
-MATRIX_SYNAPSE_VOLUME: "{{ lookup('config', application_id, 'volumes.synapse') }}"
+MATRIX_SYNAPSE_VOLUME: "{{ lookup('config', application_id, 'volumes.synapse.name') }}"
 MATRIX_SYNAPSE_DOMAIN: "{{ lookup('domains', application_id).synapse }}"
 MATRIX_SYNAPSE_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
 MATRIX_SYNAPSE_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.synapse.ports.internal.http') }}"
@@ -46,3 +46,5 @@ MATRIX_ELEMENT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'dire
 ## ChatGPT Bot
 MATRIX_CHATGPT_BOT_VERSION: "{{ lookup('config', application_id, 'services.matrix-chatgpt-bot.version') }}"
 MATRIX_CHATGPT_BOT_IMAGE: "{{ lookup('config', application_id, 'services.matrix-chatgpt-bot.image') }}"
+MATRIX_CHATGPT_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.chatgpt_data.name') }}"
+MATRIX_SYNAPSE_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.synapse_data.name') }}"

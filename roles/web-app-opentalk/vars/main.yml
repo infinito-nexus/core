@@ -27,8 +27,10 @@ OPENTALK_LIVEKIT_TCP_PORT: 7881
 OPENTALK_LIVEKIT_RTC_START: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.start') }}"
 OPENTALK_LIVEKIT_RTC_END: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.end') }}"
 
-OPENTALK_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-OPENTALK_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
+OPENTALK_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+OPENTALK_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config.name') }}"
+OPENTALK_MINIO_VOLUME: "{{ lookup('config', application_id, 'volumes.minio.name') }}"
+OPENTALK_RABBIT_VOLUME: "{{ lookup('config', application_id, 'volumes.rabbit.name') }}"
 
 OPENTALK_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENTALK_DOMAIN: "{{ lookup('domain', application_id) }}"

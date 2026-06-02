@@ -1,2 +1,3 @@
 ---
-data: mastodon_data
+data:
+  name: mastodon_data

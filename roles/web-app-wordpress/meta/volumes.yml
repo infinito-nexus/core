@@ -1,2 +1,3 @@
 ---
-data: wordpress_data
+data:
+  name: wordpress_data

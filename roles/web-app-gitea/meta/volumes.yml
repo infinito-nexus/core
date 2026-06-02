@@ -1,2 +1,3 @@
 ---
-data: gitea_data
+data:
+  name: gitea_data

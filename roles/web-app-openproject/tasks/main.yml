@@ -24,9 +24,9 @@
     - compose up
     - compose build
 
-- name: "create {{ OPENPROJECT_DUMMY_VOLUME }}"
+- name: "create {{ OPENPROJECT_DUMMY_DIR }}"
   file:
-    path: "{{ OPENPROJECT_DUMMY_VOLUME }}"
+    path: "{{ OPENPROJECT_DUMMY_DIR }}"
     state: directory
     mode: "0755"
 

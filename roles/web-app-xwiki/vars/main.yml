@@ -22,7 +22,7 @@ XWIKI_IMAGE_CUSTOM: "xwiki_custom"
 XWIKI_IMAGE: "{{ lookup('config', application_id, 'services.xwiki.image') }}"
 XWIKI_VERSION: "{{ lookup('config', application_id, 'services.xwiki.version') }}"
 XWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.xwiki.name') }}"
-XWIKI_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+XWIKI_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 
 # Feature toggles (must be set in meta/services.yml -> features)
 XWIKI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"

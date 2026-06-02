@@ -20,7 +20,7 @@ OPENLDAP_LDIF_TYPES:
 OPENLDAP_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 OPENLDAP_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 OPENLDAP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
-OPENLDAP_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+OPENLDAP_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 OPENLDAP_SERVICE: "{{ entity_name }}"
 OPENLDAP_IMAGE_CUSTOM: "infinito/openldap:local"
 OPENLDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
@@ -66,3 +66,4 @@ OPENLDAP_PYTHON_HEADER_PACKAGE_TEMPLATES_BY_OS_FAMILY:
     - python3-devel
   Archlinux:
     - python
+OPENLDAP_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config.name') }}"

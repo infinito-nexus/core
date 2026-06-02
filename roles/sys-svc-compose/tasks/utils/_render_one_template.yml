@@ -1,0 +1,28 @@
+---
+- name: "Render '{{ _tpl.dest }}' locally"
+  ansible.builtin.template:
+    src: "{{ _tpl.src }}"
+    dest: "{{ _tpl.dest }}"
+    owner: "{{ _tpl.owner | default('root') }}"
+    group: "{{ _tpl.group | default('root') }}"
+    mode: "{{ _tpl.mode | default('0640') }}"
+  when: (_tpl.when | default(true)) | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: _role_templates_render
+  notify: "{{ _tpl.notify | default(['compose up']) }}"
+
+- name: "[swarm] Replicate '{{ _tpl.dest }}' to swarm peers"
+  ansible.builtin.template:
+    src: "{{ _tpl.src }}"
+    dest: "{{ _tpl.dest }}"
+    owner: "{{ _tpl.owner | default('root') }}"
+    group: "{{ _tpl.group | default('root') }}"
+    mode: "{{ _tpl.mode | default('0640') }}"
+  loop: "{{ (groups['svc-docker-swarm'] | default([])) | difference([inventory_hostname]) }}"
+  loop_control:
+    label: "{{ _tpl.dest }} -> {{ item }}"
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - (_tpl.when | default(true)) | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ item }}"

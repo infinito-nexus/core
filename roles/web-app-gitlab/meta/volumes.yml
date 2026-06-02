@@ -1,4 +1,7 @@
 ---
-data: gitlab_data
-logs: gitlab_logs
-config: gitlab_config
+data:
+  name: gitlab_data
+logs:
+  name: gitlab_logs
+config:
+  name: gitlab_config

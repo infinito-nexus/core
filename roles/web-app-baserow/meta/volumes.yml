@@ -1,2 +1,3 @@
 ---
-data: baserow_data
+data:
+  name: baserow_data

@@ -25,7 +25,7 @@ GITEA_LDAP_AUTH_ARGS:
 GITEA_VERSION: "{{ lookup('config', application_id, 'services.gitea.version') }}"
 GITEA_IMAGE: "{{ lookup('config', application_id, 'services.gitea.image') }}"
 GITEA_CONTAINER: "{{ lookup('config', application_id, 'services.gitea.name') }}"
-GITEA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+GITEA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 GITEA_USER: "git"
 GITEA_CONFIG: "/data/gitea/conf/app.ini"
 

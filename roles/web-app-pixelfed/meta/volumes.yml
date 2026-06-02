@@ -1,2 +1,3 @@
 ---
-data: pixelfed_data
+data:
+  name: pixelfed_data

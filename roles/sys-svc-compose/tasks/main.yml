@@ -46,5 +46,8 @@
     - lookup('tls', application_id, 'enabled') | bool
     - lookup('tls', application_id, 'mode') == 'self_signed'
 
+- name: "Pre-create NFS subdirs declared by '{{ application_id }}' (swarm + NFS backend only)"
+  include_tasks: "utils/nfs_prep.yml"
+
 - name: "Ensure that {{ lookup('container', application_id, 'directories.instance') }} is up"
   include_tasks: "utils/up.yml"

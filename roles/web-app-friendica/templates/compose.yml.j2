@@ -18,6 +18,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'data': {}, 'html': {}}
+    extra_volumes={'data': {'name': FRIENDICA_DATA_VOLUME}, 'html': {'name': FRIENDICA_HTML_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

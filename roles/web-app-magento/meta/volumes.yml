@@ -1,2 +1,3 @@
 ---
-data: magento_data
+data:
+  name: magento_data

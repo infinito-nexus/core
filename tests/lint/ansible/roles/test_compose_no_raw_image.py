@@ -28,13 +28,14 @@ from typing import TYPE_CHECKING
 
 from utils.annotations.message import in_github_actions, warning
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-COMPOSE_TEMPLATE = "templates/compose.yml.j2"
+COMPOSE_TEMPLATE = ROLE_FILE_TEMPL_COMPOSE
 
 IMAGE_LINE_RE = re.compile(r"^(?P<indent>\s*)image:\s*(?P<value>\S.*?)\s*$")
 

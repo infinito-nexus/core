@@ -1,66 +1,29 @@
 ---
-- name: "Pre-create NFS subdir for MediaWiki images volume on the NFS server"
-  ansible.builtin.file:
-    path: "{{ storage.nfs.export_base }}/{{ MEDIAWIKI_VOLUME_IMAGES }}"
-    state: directory
-    owner: "33"
-    group: "33"
-    mode: "0755"
-  delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
-  run_once: true
-  when:
-    - (deployment_mode | default('compose')) == 'swarm'
-    - (storage.backend | default('local')) == 'nfs'
-    - (groups['svc-storage-nfs-server'] | default([])) | length > 0
-
 - name: "load docker, db and proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
-- name: "Load install procedures for '{{ application_id }}''"
+- name: "Load install procedures for '{{ application_id }}'"
   include_tasks: 01_configuration.yml
 
-- name: "flush handlers for '{{ application_id }}' after installation finished"
-  meta: flush_handlers
+- name: "Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/finalize.yml'] | path_join }}"
 
-- name: "[swarm] Resolve MediaWiki task container ID for this role"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/swarm/resolve_container.yml'] | path_join }}"
-  vars:
-    _swarm_stack: "{{ application_id | get_entity_name }}"
-    _swarm_service: "{{ application_id | get_entity_name }}"
-    _swarm_target_fact: MEDIAWIKI_CONTAINER
-
-- name: "MEDIAWIKI | Wait until container exists"
-  ansible.builtin.command: "container inspect {{ MEDIAWIKI_CONTAINER }}"
-  register: _mw_exists
-  retries: 20
-  delay: 3
-  until: _mw_exists.rc == 0
-  changed_when: false
-
-- name: "MEDIAWIKI | Wait until database container is healthy"
-  ansible.builtin.command: "container container inspect --format={% raw %}{{.State.Health.Status}}{% endraw %} {{ MEDIAWIKI_DB_CONTAINER }}"
-  register: _mw_db_health
-  retries: 60
-  delay: 2
-  until: (_mw_db_health.stdout | trim) == 'healthy'
-  changed_when: false
-
-- name: "Load extensions procedures for '{{ application_id }}''"
+- name: "Load extensions procedures for '{{ application_id }}'"
   include_tasks: "02_extensions.yml"
   when: MEDIAWIKI_OIDC_ENABLED | bool
 
-- name: "Load update procedures for '{{ application_id }}''"
+- name: "Load update procedures for '{{ application_id }}'"
   include_tasks: 03_install.yml
   when: >-
     {{
-      (mediawiki_config_render.changed | default(false)) or
+      (_role_templates_render.changed | default(false)) or
       (_install_results.changed | default(false)) or
       (_ext_composer.changed | default(false)) or
       (_vendor.changed | default(false))
     }}
 
-- name: "Load admin setup procedures for '{{ application_id }}''"
+- name: "Load admin setup procedures for '{{ application_id }}'"
   include_tasks: 04_admin.yml

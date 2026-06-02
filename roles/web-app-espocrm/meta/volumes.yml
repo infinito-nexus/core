@@ -1,2 +1,3 @@
 ---
-data: espocrm_data
+data:
+  name: espocrm_data

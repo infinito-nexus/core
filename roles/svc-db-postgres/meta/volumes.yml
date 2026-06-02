@@ -1,2 +1,3 @@
 ---
-data: postgres_data
+data:
+  name: postgres_data

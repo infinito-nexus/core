@@ -1,2 +1,3 @@
 ---
-openwebui: ai_openwebui_data
+openwebui_data:
+  name: ai_openwebui_data

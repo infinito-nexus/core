@@ -28,13 +28,12 @@ MEDIAWIKI_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_nam
 MEDIAWIKI_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 MEDIAWIKI_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ MEDIAWIKI_VERSION }}"
 MEDIAWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-MEDIAWIKI_VOLUME_IMAGES: "{{ lookup('config', application_id, 'volumes.images') }}"
-MEDIAWIKI_VOLUME_EXTENSIONS: "{{ lookup('config', application_id, 'volumes.extensions') }}"
+MEDIAWIKI_VOLUME_IMAGES: "{{ lookup('config', application_id, 'volumes.images.name') }}"
+MEDIAWIKI_VOLUME_EXTENSIONS: "{{ lookup('config', application_id, 'volumes.extensions.name') }}"
 MEDIAWIKI_USER: "www-data"
 MEDIAWIKI_USER_GID: "33"
 
 MEDIAWIKI_NETWORK_DATABASE: "{{ lookup('database', application_id, 'network') }}"
-MEDIAWIKI_DB_CONTAINER: "{{ lookup('database', application_id, 'container') }}"
 
 # User and Credentials
 MEDIAWIKI_ADMINISTRATOR_NAME: "{{ lookup('users', 'administrator').username }}"

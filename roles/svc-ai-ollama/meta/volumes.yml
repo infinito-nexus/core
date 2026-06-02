@@ -1,2 +1,3 @@
 ---
-models: ollama_models
+ollama_models:
+  name: ollama_models

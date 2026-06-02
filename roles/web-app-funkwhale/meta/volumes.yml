@@ -1,0 +1,7 @@
+---
+media:
+  name: funkwhale_media
+music:
+  name: funkwhale_music
+static:
+  name: funkwhale_static

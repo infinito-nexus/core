@@ -1,2 +1,3 @@
 ---
-data: jira_data
+data:
+  name: jira_data

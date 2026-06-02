@@ -1,6 +1,11 @@
 ---
-config: mattermost_config
-data: mattermost_data
-logs: mattermost_logs
-plugins: mattermost_plugins
-client-plugins: mattermost_client_plugins
+config:
+  name: mattermost_config
+data:
+  name: mattermost_data
+logs:
+  name: mattermost_logs
+plugins:
+  name: mattermost_plugins
+client-plugins:
+  name: mattermost_client_plugins

@@ -44,17 +44,15 @@
     dest: "{{ MATRIX_ELEMENT_CONFIG_PATH_HOST }}"
   notify: compose up
 
-- name: add synapse homeserver configuration
-  template:
-    src: "synapse/homeserver.yaml.j2"
-    dest: "{{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}"
-  notify: compose up
-
-- name: add synapse log configuration
-  template:
-    src: "synapse/log.config.j2"
-    dest: "{{ MATRIX_SYNAPSE_LOG_PATH_HOST }}"
-  notify: compose up
+- name: "Render Synapse config files (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "synapse/homeserver.yaml.j2"
+        dest: "{{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}"
+      - src: "synapse/log.config.j2"
+        dest: "{{ MATRIX_SYNAPSE_LOG_PATH_HOST }}"
 
 - name: set correct folder permissions
   command:

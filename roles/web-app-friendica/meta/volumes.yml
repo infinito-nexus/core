@@ -1,0 +1,5 @@
+---
+data:
+  name: friendica_data
+html:
+  name: friendica_html

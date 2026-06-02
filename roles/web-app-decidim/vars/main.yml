@@ -13,8 +13,8 @@ DECIDIM_CUSTOM_IMAGE: "{{ DECIDIM_IMAGE }}:{{ DECIDIM_VERSION }}-infinito"
 DECIDIM_CONTAINER: "{{ lookup('config', application_id, 'services.decidim.name') }}"
 
 ## Volumes
-DECIDIM_VOLUME_UPLOADS: "{{ lookup('config', application_id, 'volumes.uploads') }}"
-DECIDIM_VOLUME_LOGS: "{{ lookup('config', application_id, 'volumes.logs') }}"
+DECIDIM_VOLUME_UPLOADS: "{{ lookup('config', application_id, 'volumes.uploads.name') }}"
+DECIDIM_VOLUME_LOGS: "{{ lookup('config', application_id, 'volumes.logs.name') }}"
 
 ## Credentials
 DECIDIM_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"

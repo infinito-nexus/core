@@ -7,8 +7,8 @@ OPENCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.opencloud.image'
 OPENCLOUD_VERSION: "{{ lookup('config', application_id, 'services.opencloud.version') }}"
 OPENCLOUD_HTTP_PORT: "{{ lookup('config', application_id, 'services.opencloud.ports.local.http') }}"
 
-OPENCLOUD_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-OPENCLOUD_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
+OPENCLOUD_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+OPENCLOUD_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config.name') }}"
 
 OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"

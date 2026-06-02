@@ -7,8 +7,9 @@ entity_name: "{{ application_id | get_entity_name }}"
 PEERTUBE_VERSION: "{{ lookup('config', application_id, 'services.peertube.version') }}"
 PEERTUBE_IMAGE: "{{ lookup('config', application_id, 'services.peertube.image') }}"
 PEERTUBE_CONTAINER: "{{ lookup('config', application_id, 'services.peertube.name') }}"
-PEERTUBE_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-PEERTUBE_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
+PEERTUBE_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+PEERTUBE_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config.name') }}"
+PEERTUBE_ASSETS_VOLUME: "{{ lookup('config', application_id, 'volumes.assets.name') }}"
 
 # OIDC
 PEERTUBE_OIDC_PLUGIN: "peertube-plugin-auth-openid-connect"

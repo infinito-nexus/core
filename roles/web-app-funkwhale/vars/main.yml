@@ -14,3 +14,6 @@ FUNKWHALE_API_IMAGE: "{{ lookup('config', application_id, 'services.api.image') 
 FUNKWHALE_API_VERSION: "{{ lookup('config', application_id, 'services.api.version') }}"
 FUNKWHALE_FRONT_IMAGE: "{{ lookup('config', application_id, 'services.funkwhale.image') }}"
 FUNKWHALE_FRONT_VERSION: "{{ lookup('config', application_id, 'services.funkwhale.version') }}"
+FUNKWHALE_MEDIA_VOLUME: "{{ lookup('config', application_id, 'volumes.media.name') }}"
+FUNKWHALE_MUSIC_VOLUME: "{{ lookup('config', application_id, 'volumes.music.name') }}"
+FUNKWHALE_STATIC_VOLUME: "{{ lookup('config', application_id, 'volumes.static.name') }}"

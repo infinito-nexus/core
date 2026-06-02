@@ -25,9 +25,9 @@ ODOO_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~
 ODOO_SERVICE: "{{ entity_name }}"
 
 ## Volumes
-ODOO_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-ODOO_ADDONS_VOLUME: "{{ lookup('config', application_id, 'volumes.addons') }}"
-ODOO_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
+ODOO_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
+ODOO_ADDONS_VOLUME: "{{ lookup('config', application_id, 'volumes.addons.name') }}"
+ODOO_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config.name') }}"
 
 ## Configuration Paths
 ODOO_CONF_FILE_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}odoo.conf"

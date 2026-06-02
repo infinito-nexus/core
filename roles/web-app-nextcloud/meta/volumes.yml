@@ -1,5 +1,9 @@
 ---
-data: nextcloud_data
-whiteboard_tmp: nextcloud_whiteboard_tmp
-whiteboard_fontcache: nextcloud_whiteboard_fontcache
-talk_recording_tmp: nextcloud_talk_recording_tmp
+data:
+  name: nextcloud_data
+whiteboard_tmp:
+  name: nextcloud_whiteboard_tmp
+whiteboard_fontcache:
+  name: nextcloud_whiteboard_fontcache
+talk_recording_tmp:
+  name: nextcloud_talk_recording_tmp

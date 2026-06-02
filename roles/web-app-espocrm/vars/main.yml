@@ -21,7 +21,7 @@ ESPOCRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_nam
 ESPOCRM_SERVICE: "{{ entity_name }}"
 
 ## Volumes
-ESPOCRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+ESPOCRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 
 ## Scripts
 

@@ -1,3 +1,5 @@
 ---
-data: bookwyrm_data
-media: bookwyrm_media
+data:
+  name: bookwyrm_data
+media:
+  name: bookwyrm_media

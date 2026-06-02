@@ -25,7 +25,7 @@ SUITECRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_na
 SUITECRM_SERVICE: "{{ entity_name }}"
 
 # Volumes
-SUITECRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+SUITECRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 
 # URLs & feature flags
 SUITECRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"

@@ -19,9 +19,9 @@
     application_id,
     extra_volumes={
       'data':   {'name': XMPP_VOLUME},
-      'conf':   {'name': lookup('config', application_id, 'volumes.conf')},
-      'upload': {'name': lookup('config', application_id, 'volumes.upload')},
-      'logs':   {'name': lookup('config', application_id, 'volumes.logs')}
+      'conf':   {'name': XMPP_CONF_VOLUME},
+      'upload': {'name': XMPP_UPLOAD_VOLUME},
+      'logs':   {'name': XMPP_LOGS_VOLUME}
     }
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

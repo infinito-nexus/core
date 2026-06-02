@@ -29,14 +29,11 @@ MAILU_ANTIVIRUS_IMAGE: "{{ lookup('config', application_id, 'services.antivirus.
 MAILU_ANTIVIRUS_VERSION: "{{ lookup('config', application_id, 'services.antivirus.version') }}"
 MAILU_FRONT_SERVICE: "front"
 ## Volumes
-MAILU_SMTP_QUEUE_VOLUME: "mailu_smtp_queue"
-MAILU_ADMIN_DATA_VOLUME: "mailu_admin_data"
-MAILU_WEBDAV_DATA: "mailu_webdav_data"
-MAILU_WEBMAIL_DATA: "mailu_webmail_data"
-MAILU_FILTER_VOLUME: "mailu_filter"
-MAILU_DKIM_VOLUME: "mailu_dkim"
-MAILU_DOVECOT_MAIL_VOLUME: "mailu_dovecot_mail"
-MAILU_CLAMAV_VOLUME: "mailu_clamav_data"
+MAILU_SMTP_QUEUE_VOLUME: "{{ lookup('config', application_id, 'volumes.smtp_queue.name') }}"
+MAILU_ADMIN_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.admin_data.name') }}"
+MAILU_FILTER_VOLUME: "{{ lookup('config', application_id, 'volumes.filter.name') }}"
+MAILU_DKIM_VOLUME: "{{ lookup('config', application_id, 'volumes.dkim.name') }}"
+MAILU_DOVECOT_MAIL_VOLUME: "{{ lookup('config', application_id, 'volumes.dovecot_mail.name') }}"
 ## Network
 MAILU_DNS_RESOLVER: "{{ lookup('config', 'web-app-mailu', 'server.networks.local.dns_resolver') }}"
 MAILU_IP4_PUBLIC: "{{ DOCKER_PUBLIC_BIND_HOST }}"
@@ -68,3 +65,6 @@ MAILU_RSPAMD_HOST_FILE: "{{ [ MAILU_RSPAMD_HOST_DIR,'ratelimit.conf' ] | path_jo
 MAILU_RSPAMD_LIMITS_DEFAULTS:
   RATE: "30 / 1min"
   BURST: 50
+MAILU_CLAMAV_DB_VOLUME: "{{ lookup('config', application_id, 'volumes.clamav_db.name') }}"
+MAILU_WEBDAV_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.webdav_data.name') }}"
+MAILU_WEBMAIL_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.webmail_data.name') }}"

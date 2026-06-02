@@ -14,5 +14,5 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'ollama_models': {'name': OLLAMA_VOLUME}}
+    extra_volumes={'ollama_models': {'name': OLLAMA_MODELS_VOLUME}}
 ) }}

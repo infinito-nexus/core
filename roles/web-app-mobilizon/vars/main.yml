@@ -9,3 +9,4 @@ mobilizon_version: "{{ lookup('config', application_id, 'services.mobilizon.vers
 mobilizon_image: "{{ lookup('config', application_id, 'services.mobilizon.image') }}"
 mobilizon_container: "{{ lookup('config', application_id, 'services.mobilizon.name') }}"
 MOBILIZON_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MOBILIZON_UPLOADS_VOLUME: "{{ lookup('config', application_id, 'volumes.uploads.name') }}"

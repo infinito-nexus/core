@@ -1,2 +1,3 @@
 ---
-data: openproject_data
+data:
+  name: openproject_data

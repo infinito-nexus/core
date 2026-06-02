@@ -19,6 +19,6 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'data': {}}
+    extra_volumes={'data': {'name': PGADMIN_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

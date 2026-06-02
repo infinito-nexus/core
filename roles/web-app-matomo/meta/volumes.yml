@@ -1,2 +1,3 @@
 ---
-data: matomo_data
+data:
+  name: matomo_data

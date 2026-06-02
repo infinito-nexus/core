@@ -1,0 +1,9 @@
+---
+kix_backend:
+  name: kix_kix_backend
+kix_db:
+  name: kix_kix_db
+kix_frontend:
+  name: kix_kix_frontend
+kix_shared:
+  name: kix_kix_shared

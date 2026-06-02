@@ -69,5 +69,5 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'data': {'name': COTURN_VOLUME}}
+    extra_volumes={'data': {'name': COTURN_DATA_VOLUME}}
 ) }}

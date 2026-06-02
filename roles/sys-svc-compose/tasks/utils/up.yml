@@ -33,3 +33,7 @@
 - name: "Flush Docker Compose Up Handlers for {{ lookup('container', application_id, 'directories.instance') }}"
   meta: flush_handlers
   when: compose_handlers_flush | bool
+
+- name: "Post-deploy steps for '{{ application_id }}'"
+  ansible.builtin.include_tasks: post_deploy.yml
+  when: compose_handlers_flush | bool

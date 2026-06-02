@@ -1,2 +1,7 @@
 ---
-synapse: matrix_synapse_data
+synapse:
+  name: matrix_synapse_data
+chatgpt_data:
+  name: matrix_chatgpt_data
+synapse_data:
+  name: matrix_synapse_data

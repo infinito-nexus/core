@@ -1,2 +1,3 @@
 ---
-pds_data: pds_data
+pds_data:
+  name: pds_data

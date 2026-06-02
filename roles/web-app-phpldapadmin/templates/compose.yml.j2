@@ -9,8 +9,5 @@
 
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {}}
-) }}
+{{ lookup('applications') | compose_volumes(application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

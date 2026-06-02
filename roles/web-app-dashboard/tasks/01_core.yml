@@ -36,19 +36,13 @@
   set_fact:
     portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
 
-- name: Copy host-specific config.yaml if it exists
-  template:
-    src: "{{ DASHBOARD_CONFIG_INV_PATH }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: config_file.stat.exists
-
-- name: Copy default config.yaml from the role template if host-specific file does not exist
-  template:
-    src: "{{ DASHBOARD_CONFIG_YML_SRC_FILE }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: not config_file.stat.exists
+- name: "Render Dashboard config.yaml (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
+        dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
 
 - name: Load rendered dashboard config before first compose start
   slurp:

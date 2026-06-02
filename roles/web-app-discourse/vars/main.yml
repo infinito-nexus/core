@@ -10,7 +10,7 @@ database_password: "{{ lookup('config', application_id, 'credentials.database_pa
 ## General
 DISCOURSE_CONTAINER: "{{ application_id | get_entity_name }}"
 DISCOURSE_NETWORK: "{{ application_id | get_entity_name }}"
-DISCOURSE_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+DISCOURSE_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 DISCOURSE_PLUGINS: "{{ lookup('config', application_id, 'services.discourse.plugins') }}"
 DISCOURSE_PG_NETWORK: "{{ ('svc-db-' ~ DISCOURSE_DATABASE_TYPE) | get_entity_name }}"
 DISCOURSE_REDIS_HOST: "{{ application_id | get_entity_name }}-redis"

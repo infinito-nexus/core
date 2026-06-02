@@ -1,2 +1,3 @@
 ---
-data: fusiondirectory_data
+data:
+  name: fusiondirectory_data

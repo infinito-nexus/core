@@ -1,2 +1,3 @@
 ---
-data: chess_data
+data:
+  name: chess_data

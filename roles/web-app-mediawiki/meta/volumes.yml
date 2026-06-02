@@ -1,3 +1,9 @@
 ---
-images: mediawiki_images
-extensions: mediawiki_extensions
+extensions:
+  name: mediawiki_extensions
+images:
+  name: mediawiki_images
+  nfs:
+    uid: 33
+    gid: 33
+    mode: '0755'

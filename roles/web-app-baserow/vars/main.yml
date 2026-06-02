@@ -8,7 +8,7 @@ BASEROW_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BASEROW_VERSION: "{{ lookup('config', application_id, 'services.baserow.version') }}"
 BASEROW_IMAGE: "{{ lookup('config', application_id, 'services.baserow.image') }}"
 BASEROW_CONTAINER: "{{ lookup('config', application_id, 'services.baserow.name') }}"
-BASEROW_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+BASEROW_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 
 # Auth integrations
 BASEROW_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"

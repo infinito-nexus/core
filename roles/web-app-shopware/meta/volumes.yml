@@ -1,2 +1,15 @@
 ---
-data: shopware_data
+data:
+  name: shopware_data
+bundles:
+  name: shopware_bundles
+files:
+  name: shopware_files
+media:
+  name: shopware_media
+sitemap:
+  name: shopware_sitemap
+theme:
+  name: shopware_theme
+thumbnail:
+  name: shopware_thumbnail

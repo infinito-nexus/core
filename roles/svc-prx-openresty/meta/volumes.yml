@@ -1,3 +1,5 @@
 ---
-www: /var/www/
-nginx: /etc/nginx/
+www:
+  path: /var/www/
+nginx:
+  path: /etc/nginx/

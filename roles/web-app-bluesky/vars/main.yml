@@ -19,7 +19,7 @@ BLUESKY_PDSADMIN_FILE: "{{ [ BLUESKY_PDSADMIN_DIR, 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_TMP_TAR: "/tmp/pdsadmin.tar.gz"
 BLUESKY_PDS_IMAGE: "{{ lookup('config', application_id, 'services.pds.image') }}"
 BLUESKY_PDS_VERSION: "{{ lookup('config', application_id, 'services.pds.version') }}"
-BLUESKY_PDS_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.pds_data') }}"
+BLUESKY_PDS_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.pds_data.name') }}"
 BLUESKY_PDS_DATA_DIR: "/opt/pds"
 BLUESKY_PDS_BLOBSTORE_LOCATION: "{{ [ BLUESKY_PDS_DATA_DIR, 'blocks' ] | path_join }}"
 

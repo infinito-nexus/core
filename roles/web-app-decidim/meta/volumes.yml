@@ -1,3 +1,5 @@
 ---
-uploads: decidim_uploads
-logs: decidim_logs
+uploads:
+  name: decidim_uploads
+logs:
+  name: decidim_logs

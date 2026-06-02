@@ -5,7 +5,7 @@ application_id: "web-app-magento"
 # Magento (application container)
 
 ## Meta
-MAGENTO_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+MAGENTO_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 MAGENTO_USER: "app"
 
 ## Address

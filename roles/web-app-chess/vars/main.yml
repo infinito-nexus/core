@@ -20,7 +20,7 @@ CHESS_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.
 CHESS_SERVICE: "{{ entity_name }}"
 CHESS_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 CHESS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-CHESS_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+CHESS_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 
 # Security
 CHESS_HMAC_SECRET: "{{ lookup('config', application_id, 'credentials.hmac_secret') }}"

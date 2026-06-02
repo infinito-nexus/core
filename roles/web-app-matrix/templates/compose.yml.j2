@@ -96,7 +96,7 @@
       MATRIX_RICH_TEXT: 'true'
 {% endif %}
 
-{% set _extra_volumes = {'synapse_data': {'name': MATRIX_SYNAPSE_VOLUME}} %}
+{% set _extra_volumes={'synapse_data': {'name': MATRIX_SYNAPSE_DATA_VOLUME}, 'chatgpt_data': {'name': MATRIX_CHATGPT_DATA_VOLUME}} %}
 {% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
 {%   set _ = _extra_volumes.update({'chatgpt_data': {}}) %}
 {% endif %}

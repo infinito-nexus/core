@@ -1,14 +1,16 @@
 ---
 # Merge all (config) files in infinito directory (container)
 
-- name: Add dynamic config merging from Jinja template
-  template:
-    src: include.php.j2
-    dest: "{{ NEXTCLOUD_HOST_INCL_PATH }}"
-    owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    mode: "0644"
-  notify: compose up
+- name: "Render Nextcloud include.php (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "include.php.j2"
+        dest: "{{ NEXTCLOUD_HOST_INCL_PATH }}"
+        owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        mode: "0644"
 
 - name: Flush handlers so Nextcloud container is restarted and ready
   meta: flush_handlers

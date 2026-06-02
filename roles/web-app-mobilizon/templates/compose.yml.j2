@@ -14,7 +14,7 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'uploads': {}}
+    extra_volumes={'uploads': {'name': MOBILIZON_UPLOADS_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 

@@ -1,2 +1,3 @@
 ---
-data: confluence_data
+data:
+  name: confluence_data

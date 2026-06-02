@@ -1,5 +1,9 @@
 ---
-data: opentalk_data
-config: opentalk_config
-minio: opentalk_minio
-rabbit: opentalk_rabbit
+data:
+  name: opentalk_data
+config:
+  name: opentalk_config
+minio:
+  name: opentalk_minio
+rabbit:
+  name: opentalk_rabbit
