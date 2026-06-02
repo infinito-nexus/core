@@ -23,7 +23,7 @@ This role deploys Pi-hole as a containerized service within the Infinito.Nexus p
 ## Access
 
 After deployment, Pi-hole is available at:
-<https://pihole.<DOMAIN_PRIMARY>/admin/>
+`https://pihole.<DOMAIN_PRIMARY>/admin/`
 
 Access is protected by SSO. Users must be members of the `web-app-pihole-administrator` group in Keycloak/LDAP.
 
