@@ -15,15 +15,26 @@ for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 		jrei/systemd-ubuntu:24.04
 done
 
+SYSTEMD_TIMEOUT="${SWARM_PILOT_SYSTEMD_TIMEOUT:-180}"
 for node in "${MGR}" "${WRK1}" "${WRK2}"; do
-	for i in $(seq 1 60); do
+	ready=false
+	for i in $(seq 1 "${SYSTEMD_TIMEOUT}"); do
 		if docker exec "${node}" systemctl is-system-running 2>/dev/null |
 			grep -qE 'running|degraded|starting|maintenance'; then
 			echo "systemd ready on ${node} after ${i}s"
+			ready=true
 			break
 		fi
 		sleep 1
 	done
+	if [ "${ready}" != "true" ]; then
+		echo "FAILURE: ${node} systemd did not become responsive within ${SYSTEMD_TIMEOUT}s"
+		echo "--- last 50 journalctl lines from ${node} ---"
+		docker exec "${node}" journalctl --no-pager -n 50 2>&1 || true
+		echo "--- docker inspect ${node} (State) ---"
+		docker inspect --format '{{json .State}}' "${node}" 2>&1 || true
+		exit 1
+	fi
 done
 
 MGR_HOSTS_EXTRA="$(

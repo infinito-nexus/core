@@ -1,15 +1,4 @@
 #!/usr/bin/env bash
-# Source this from each pilot script to derive per-app context from APP_ID.
-# Exports:
-#   APP_ID            input
-#   ENTITY            APP_ID with the role-type prefix stripped (web-app-X -> X)
-#   STACK_NAME        docker stack name = ENTITY
-#   SERVICE_NAME      docker service name inside the stack = ${STACK_NAME}_${ENTITY}
-#   CUSTOM_IMAGE_REPO image-repo prefix the role's build context produces (e.g. mediawiki_custom)
-#   DB_DEP            mariadb|postgres|none — the role's DB dependency (best-effort, parsed from services.yml)
-#   NFS_VOLUMES       newline-separated list of docker volume names declared NFS-backed in meta/volumes.yml
-#   PRIMARY_NFS_VOLUME the first entry of NFS_VOLUMES, used by the marker-on-NFS test (empty if none)
-
 set -euo pipefail
 
 : "${APP_ID:?APP_ID required}"
