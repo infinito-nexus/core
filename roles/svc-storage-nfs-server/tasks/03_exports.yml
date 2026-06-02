@@ -1,0 +1,47 @@
+---
+- name: "Ensure export base directory exists"
+  ansible.builtin.file:
+    path: "{{ storage.nfs.export_base }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "Gather facts on swarm members so their IPs become available"
+  ansible.builtin.setup:
+    gather_subset: network
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['svc-docker-swarm'] | default([]) }}"
+  when: hostvars[item].ansible_default_ipv4 is not defined
+
+- name: "Compute swarm-member IPs allowed to mount"
+  ansible.builtin.set_fact:
+    svc_storage_nfs_server_allowed_ips: >-
+      {{
+        groups['svc-docker-swarm']
+        | default([])
+        | map('extract', hostvars, ['ansible_default_ipv4', 'address'])
+        | select('defined')
+        | list
+      }}
+
+- name: "Assert at least one allowed IP was resolved"
+  ansible.builtin.assert:
+    that:
+      - svc_storage_nfs_server_allowed_ips | length > 0
+    fail_msg: |
+      Could not resolve any swarm-member IPs from inventory. Make sure
+      facts have been gathered for every host in `svc-docker-swarm`.
+
+- name: "Render /etc/exports"
+  ansible.builtin.template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "Reload NFS exports"
+
+- name: "Flush handlers (exports reload before next step)"
+  ansible.builtin.meta: flush_handlers

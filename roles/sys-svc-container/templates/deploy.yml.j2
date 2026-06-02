@@ -1,0 +1,28 @@
+{% if (deployment_mode | default('compose')) == 'swarm' and not (service_is_stateful | default(false)) %}
+{{ "\n" }}
+    deploy:
+      replicas: {{ service_replicas | default(1) }}
+      update_config:
+        parallelism: {{ service_update_parallelism | default(1) }}
+        delay: {{ service_update_delay | default('10s') }}
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "{{ lookup('applications') | resource_filter(application_id, 'cpus', service_name | default(''), RESOURCE_CPUS) | string }}"
+          memory: {{ lookup('applications') | resource_filter(application_id, 'mem_limit', service_name | default(''), RESOURCE_MEM_LIMIT) }}
+          pids: {{ lookup('applications') | resource_filter(application_id, 'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT) }}
+        reservations:
+          memory: {{ lookup('applications') | resource_filter(application_id, 'mem_reservation', service_name | default(''), RESOURCE_MEM_RESERVATION) }}
+{% set _constraints = (service_placement_constraints | default([])) | list %}
+{% if service_needs_node_pin | default(false) %}
+{% set _constraints = _constraints + ['node.role == manager'] %}
+{% endif %}
+{% if _constraints %}
+      placement:
+        constraints:
+{% for c in _constraints %}
+          - "{{ c }}"
+{% endfor %}
+{% endif %}
+{% endif %}

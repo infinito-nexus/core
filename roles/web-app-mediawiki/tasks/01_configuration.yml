@@ -35,3 +35,11 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mediawiki_config_render
   notify: compose up
+
+- name: "MEDIAWIKI | (swarm) Replicate host-bound config to other swarm members"
+  ansible.builtin.include_tasks: 01_configuration_replicate.yml
+  loop: "{{ groups['svc-docker-swarm'] | default([]) | difference([inventory_hostname]) }}"
+  loop_control:
+    loop_var: _swarm_peer
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'

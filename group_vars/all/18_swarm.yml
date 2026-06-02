@@ -1,0 +1,10 @@
+---
+deployment_mode: compose
+
+service_is_stateful: false
+
+swarm:
+  manager:
+    advertise_addr: ""
+  network:
+    encryption: true

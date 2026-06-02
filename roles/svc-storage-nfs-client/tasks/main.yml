@@ -1,0 +1,50 @@
+---
+- name: "Assert NFS server + export base are configured"
+  ansible.builtin.assert:
+    that:
+      - storage.nfs.server is defined
+      - storage.nfs.server | length > 0
+      - storage.nfs.export_base is defined
+      - storage.nfs.export_base | length > 0
+    fail_msg: |
+      svc-storage-nfs-client requires `storage.nfs.server` and
+      `storage.nfs.export_base` to be set in group_vars (see
+      group_vars/all/15_storage.yml). Reachable NFS server IP/hostname
+      and the matching export base path are mandatory.
+
+- name: "Install NFS client packages"
+  ansible.builtin.package:
+    name: "{{ svc_storage_nfs_client_packages[ansible_os_family] }}"
+    state: present
+
+- name: "Ensure probe mount point exists"
+  ansible.builtin.file:
+    path: "{{ svc_storage_nfs_client_probe_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: "Probe-mount the NFS export"
+  ansible.posix.mount:
+    path: "{{ svc_storage_nfs_client_probe_dir }}"
+    src: "{{ storage.nfs.server }}:{{ storage.nfs.export_base }}"
+    fstype: "{{ 'nfs4' if (storage.nfs.version | int) >= 4 else 'nfs' }}"
+    opts: "vers={{ storage.nfs.version }},rw,hard,timeo=600,_netdev,noauto"
+    state: ephemeral
+  register: svc_storage_nfs_client_probe
+  failed_when:
+    - svc_storage_nfs_client_probe is failed
+
+- name: "Probe-write a marker to confirm the mount is RW"
+  ansible.builtin.copy:
+    dest: "{{ svc_storage_nfs_client_probe_dir }}/.svc-storage-nfs-client-probe"
+    content: |
+      probed-by={{ inventory_hostname }}
+      probed-at={{ ansible_date_time.iso8601 }}
+    mode: "0644"
+
+- name: "Unmount probe mount"
+  ansible.posix.mount:
+    path: "{{ svc_storage_nfs_client_probe_dir }}"
+    state: unmounted

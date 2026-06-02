@@ -78,6 +78,9 @@
     executable: /bin/bash
   listen:
     - compose up
+  when: >-
+    (deployment_mode | default('compose')) != 'swarm'
+    or (service_is_stateful | default(false) | bool)
 
 - name: Aggressively prune Docker data (keep networks + keep in-use images)
   become: true
@@ -88,3 +91,59 @@
   listen:
     - compose up
     - compose build
+
+- name: "swarm: pre-deploy build of local images"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose build || {
+      echo "Retrying without cache and pulling bases...";
+      compose build --no-cache --pull;
+    }
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  listen:
+    - compose up
+    - swarm deploy
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - not (service_is_stateful | default(false) | bool)
+
+- name: "swarm: validate stack file via docker stack config"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    docker stack config --compose-file compose.yml > /dev/null
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: swarm_validate
+  changed_when: false
+  failed_when: swarm_validate.rc != 0
+  listen:
+    - compose up
+    - swarm deploy
+  when:
+    - MODE_ASSERT | bool
+    - (deployment_mode | default('compose')) == 'swarm'
+    - not (service_is_stateful | default(false) | bool)
+
+- name: "swarm: docker stack deploy"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    docker stack deploy \
+      --compose-file compose.yml \
+      --resolve-image never \
+      --prune \
+      --with-registry-auth \
+      "{{ application_id | get_entity_name }}"
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: swarm_deploy_result
+  changed_when: true
+  listen:
+    - compose up
+    - swarm deploy
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - not (service_is_stateful | default(false) | bool)

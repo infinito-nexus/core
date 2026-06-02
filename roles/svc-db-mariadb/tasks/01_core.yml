@@ -15,19 +15,36 @@
     global_install: true
   when: MARIADB_EXPOSE_LOCAL | bool
 
-- name: "Wait until the MariaDB container with hostname '{{ MARIADB_NAME }}' is running"
-  # We only wait for the container process here. A healthcheck can stay red
-  # when the persisted volume still has an older root password, and that would
-  # block the recovery reset path below. The login probe below retries so we
-  # do not treat normal startup lag as a password mismatch.
+- name: "[compose] Wait until the MariaDB container with hostname '{{ MARIADB_NAME }}' is running"
   community.docker.docker_container_info:
     name: "{{ MARIADB_NAME }}"
   register: db_info
   until:
     - db_info.container is defined
+    - db_info.container is not none
     - db_info.container.State.Running
   retries: 30
   delay: 5
+  when: >-
+    (deployment_mode | default('compose')) != 'swarm'
+    or (service_is_stateful | default(false) | bool)
+
+- block:
+    - name: "[swarm] Wait until MariaDB task container is running and resolve its ID"
+      ansible.builtin.script:
+        cmd: "swarm_mariadb_cid.sh {{ application_id | get_entity_name }}"
+      register: mariadb_swarm_cid
+      changed_when: false
+      retries: 60
+      delay: 5
+      until: mariadb_swarm_cid.rc == 0
+
+    - name: "[swarm] Re-bind MARIADB_NAME to the resolved task container ID"
+      ansible.builtin.set_fact:
+        MARIADB_NAME: "{{ mariadb_swarm_cid.stdout }}"
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - not (service_is_stateful | default(false) | bool)
 
 - block:
     - name: "Root password reset | Check login with desired password (inside container)"
@@ -49,7 +66,9 @@
 
     - name: "Ensure MariaDB root password matches desired value"
       include_tasks: 03_reset_root_password.yml
-      when: mariadb_login_desired.rc != 0
+      when:
+        - mariadb_login_desired.rc != 0
+        - (deployment_mode | default('compose')) != 'swarm'
 
   when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool
 

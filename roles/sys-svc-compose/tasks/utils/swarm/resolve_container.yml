@@ -1,0 +1,18 @@
+---
+- block:
+    - name: "[swarm] Wait until task container for {{ _swarm_stack }}_{{ _swarm_service }} is up and resolve its ID"
+      ansible.builtin.script:
+        cmd: >-
+          swarm_resolve_container.sh
+          {{ _swarm_stack }}_{{ _swarm_service }}
+          {{ (_swarm_require_running | default(true)) | bool | string | lower }}
+      register: _swarm_resolved_cid
+      changed_when: false
+      retries: "{{ _swarm_retries | default(60) }}"
+      delay: "{{ _swarm_delay | default(5) }}"
+      until: _swarm_resolved_cid.rc == 0
+
+    - name: "[swarm] Re-bind fact '{{ _swarm_target_fact }}' to resolved task container ID"
+      ansible.builtin.set_fact:
+        "{{ _swarm_target_fact }}": "{{ _swarm_resolved_cid.stdout }}"
+  when: (deployment_mode | default('compose')) == 'swarm'

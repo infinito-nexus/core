@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ssh-keygen -t ed25519 -N "" -f /tmp/swarm-nfs-admin.key -C "swarm-nfs-pilot-test" -q
+ADMIN_PUBKEY=$(cat /tmp/swarm-nfs-admin.key.pub)
+
+cat >/tmp/swarm-nfs-extras.yml <<EOF
+TLS_MODE: "self_signed"
+storage:
+  backend: nfs
+  nfs:
+    server: ${NFS_IP}
+    export_base: /srv/nfs
+    # NFSv4 pseudo-root does not negotiate against the act kernel.
+    version: 3
+svc_storage_nfs_server_export_options: >-
+  rw,sync,no_subtree_check,no_root_squash,no_all_squash
+swarm:
+  manager:
+    advertise_addr: ${MGR_IP}
+  network:
+    encryption: true
+nfs_server_ip: ${NFS_IP}
+users:
+  administrator:
+    authorized_keys:
+      - "${ADMIN_PUBKEY}"
+EOF
+cat /tmp/swarm-nfs-extras.yml

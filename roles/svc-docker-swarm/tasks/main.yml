@@ -1,0 +1,5 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_svc_docker_swarm is not defined
+  vars:
+    application_id: svc-docker-swarm

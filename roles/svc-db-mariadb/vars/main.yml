@@ -20,3 +20,5 @@ MARIADB_EXPOSE_LOCAL: "{{ not DOCKER_IN_CONTAINER | bool }}"
 # If the desired root password doesn't work, allow an automated reset without knowing the previous password.
 # This uses a recovery container with --skip-grant-tables (downtime). Keep disabled by default.
 MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS: true
+
+service_is_stateful: true

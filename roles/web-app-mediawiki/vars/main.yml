@@ -4,6 +4,8 @@ application_id: "web-app-mediawiki"
 container_port: 80
 entity_name: "{{ application_id | get_entity_name }}"
 
+service_is_stateful: false  # explicit: blocks role-var leak from earlier stateful role
+
 # Mediawiki
 MEDIAWIKI_SITENAME: "{{ lookup('config', application_id, 'services.mediawiki.sitename') }}"
 MEDIAWIKI_URL: "{{ lookup('tls', application_id, 'url.base') }}"

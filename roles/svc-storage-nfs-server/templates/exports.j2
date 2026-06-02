@@ -1,0 +1,4 @@
+# Managed by Ansible role svc-storage-nfs-server.
+{% for ip in svc_storage_nfs_server_allowed_ips %}
+{{ storage.nfs.export_base }} {{ ip }}({{ svc_storage_nfs_server_export_options }})
+{% endfor %}

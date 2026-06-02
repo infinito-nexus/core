@@ -138,6 +138,16 @@ roles:
         across databases, files, and containers."
       icon: "fas fa-database"
       invokable: true
+    docker:
+      title: "Docker Orchestration"
+      description: "Container-orchestration plumbing: Docker Swarm cluster bootstrap, manager/worker join, stack management."
+      icon: "fab fa-docker"
+      invokable: true
+    storage:
+      title: "Shared Storage"
+      description: "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+      icon: "fas fa-hdd"
+      invokable: true
   user:
     title: "Users & Access"
     description: "User accounts & access control"

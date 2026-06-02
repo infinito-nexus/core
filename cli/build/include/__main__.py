@@ -24,10 +24,9 @@ def find_roles(roles_dir, prefixes=None):
             yield path, meta_file
 
 def load_run_after(meta_file):
-    """Return the role's `run_after` list."""
     from utils.roles.meta_lookup import get_role_run_after
 
-    role_path = os.path.dirname(os.path.dirname(meta_file))
+    role_path = os.path.abspath(os.path.dirname(os.path.dirname(meta_file)))
     role_name = os.path.basename(role_path)
     try:
         return get_role_run_after(role_path, role_name=role_name)
@@ -52,19 +51,26 @@ def build_dependency_graph(roles_dir, prefixes=None):
     in_degree = defaultdict(int)
     roles = {}
 
-    for role_path, meta_file in find_roles(roles_dir, prefixes):
+    in_scope: set[str] = set()
+    role_entries = list(find_roles(roles_dir, prefixes))
+    for role_path, _meta_file in role_entries:
+        in_scope.add(os.path.basename(role_path))
+
+    for role_path, meta_file in role_entries:
         run_after = load_run_after(meta_file)
         application_id = load_application_id(role_path)
         role_name = os.path.basename(role_path)
 
+        in_scope_deps = [d for d in run_after if d in in_scope]
+
         roles[role_name] = {
             'role_name': role_name,
-            'run_after': run_after,
+            'run_after': in_scope_deps,
             'application_id': application_id,
             'path': role_path
         }
 
-        for dependency in run_after:
+        for dependency in in_scope_deps:
             graph[dependency].append(role_name)
             in_degree[role_name] += 1
 

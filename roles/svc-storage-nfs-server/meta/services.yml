@@ -1,0 +1,11 @@
+---
+nfs-server:
+  name: nfs-server
+  lifecycle: pre-alpha
+  enabled: true
+  shared: true
+  min_storage: "100MB"
+  cpus: "0.2"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256

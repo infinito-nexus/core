@@ -1,0 +1,82 @@
+name: "🐝 Test: Swarm + NFS pilot (web-app-mediawiki)"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  STACK_NAME: mediawiki
+  MGR: swarm-mgr-01
+  WRK1: swarm-wrk-01
+  WRK2: swarm-wrk-02
+  NFS_SERVER: nfs-server
+  NFS_EXPORT_BASE: /srv/nfs
+  RESCHED_TIMEOUT: "120"
+  SCRIPTS: scripts/tests/deploy/swarm-nfs-pilot
+
+jobs:
+  swarm-nfs-pilot:
+    name: "🐝 Swarm + NFS pilot"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: "Checkout"
+        if: ${{ !env.ACT }}
+        uses: actions/checkout@v4
+
+      - name: "Create dedicated network for simulated cluster (MTU 1400)"
+        run: ${{ env.SCRIPTS }}/01_create_network.sh
+
+      - name: "Start NFSv4 server (empty systemd-Ubuntu)"
+        run: ${{ env.SCRIPTS }}/02_start_nfs.sh
+
+      - name: "Start 3 simulated swarm nodes (systemd Ubuntu)"
+        run: ${{ env.SCRIPTS }}/03_start_swarm_nodes.sh
+
+      - name: "Capture node + NFS-server IPs"
+        run: ${{ env.SCRIPTS }}/04_capture_ips.sh
+
+      - name: "Bootstrap Python on every node (minimum Ansible can connect)"
+        run: ${{ env.SCRIPTS }}/05_bootstrap_nodes.sh
+
+      - name: "Install project + Ansible + collections on the act runner"
+        run: ${{ env.SCRIPTS }}/06_install_project.sh
+
+      - name: "Provision the base inventory via the canonical CLI"
+        run: ${{ env.SCRIPTS }}/07_provision_inventory.sh
+
+      - name: "Extend inventory with workers + group memberships"
+        run: ${{ env.SCRIPTS }}/08_extend_inventory.sh
+
+      - name: "Write extras file (storage + swarm)"
+        run: ${{ env.SCRIPTS }}/09_write_extras.sh
+
+      - name: "Debug: ansible-inventory --graph + groups for swarm-mgr-01"
+        run: ${{ env.SCRIPTS }}/10_debug_inventory.sh
+
+      - name: "Deploy via canonical cli.administration.deploy.dedicated"
+        run: ${{ env.SCRIPTS }}/11_deploy.sh
+
+      - name: "Wait for stack to converge with both services Running"
+        run: ${{ env.SCRIPTS }}/12_wait_converge.sh
+
+      - name: "Seed wiki content (pre-drain marker on NFS volume)"
+        run: ${{ env.SCRIPTS }}/13_seed_content.sh
+
+      - name: "Drain the worker running MediaWiki + force reschedule"
+        run: ${{ env.SCRIPTS }}/14_drain_worker.sh
+
+      - name: "Assert state survived the reschedule"
+        run: ${{ env.SCRIPTS }}/15_assert_state.sh
+
+      - name: "Collect diagnostics on failure"
+        if: failure()
+        run: ${{ env.SCRIPTS }}/16_collect_diagnostics.sh
+
+      - name: "Cleanup"
+        if: always()
+        run: ${{ env.SCRIPTS }}/17_cleanup.sh

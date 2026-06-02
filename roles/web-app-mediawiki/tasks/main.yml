@@ -1,4 +1,18 @@
 ---
+- name: "Pre-create NFS subdir for MediaWiki images volume on the NFS server"
+  ansible.builtin.file:
+    path: "{{ storage.nfs.export_base }}/{{ MEDIAWIKI_VOLUME_IMAGES }}"
+    state: directory
+    owner: "33"
+    group: "33"
+    mode: "0755"
+  delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
+  run_once: true
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - (storage.backend | default('local')) == 'nfs'
+    - (groups['svc-storage-nfs-server'] | default([])) | length > 0
+
 - name: "load docker, db and proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
@@ -11,6 +25,13 @@
 - name: "flush handlers for '{{ application_id }}' after installation finished"
   meta: flush_handlers
 
+- name: "[swarm] Resolve MediaWiki task container ID for this role"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/swarm/resolve_container.yml'] | path_join }}"
+  vars:
+    _swarm_stack: "{{ application_id | get_entity_name }}"
+    _swarm_service: "{{ application_id | get_entity_name }}"
+    _swarm_target_fact: MEDIAWIKI_CONTAINER
+
 - name: "MEDIAWIKI | Wait until container exists"
   ansible.builtin.command: "container inspect {{ MEDIAWIKI_CONTAINER }}"
   register: _mw_exists
@@ -19,9 +40,6 @@
   until: _mw_exists.rc == 0
   changed_when: false
 
-# The database lives in a separate compose project (svc-db-mariadb) when shared,
-# so compose-level `depends_on: condition: service_healthy` cannot reach it.
-# Gate the install step on the database container's own healthcheck instead.
 - name: "MEDIAWIKI | Wait until database container is healthy"
   ansible.builtin.command: "container container inspect --format={% raw %}{{.State.Health.Status}}{% endraw %} {{ MEDIAWIKI_DB_CONTAINER }}"
   register: _mw_db_health

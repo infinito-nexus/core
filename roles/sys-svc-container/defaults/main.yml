@@ -1,0 +1,4 @@
+---
+service_replicas: 1
+service_update_parallelism: 1
+service_update_delay: "10s"

@@ -20,6 +20,11 @@
 
 {{ lookup('applications') | compose_volumes(
     application_id,
-    extra_volumes={'extensions': {'name': MEDIAWIKI_VOLUME_EXTENSIONS}, 'images': {'name': MEDIAWIKI_VOLUME_IMAGES}}
+    extra_volumes={
+      'extensions': {'name': MEDIAWIKI_VOLUME_EXTENSIONS},
+      'images': {'name': MEDIAWIKI_VOLUME_IMAGES, 'nfs': True},
+    },
+    deployment_mode=deployment_mode | default('compose'),
+    storage=storage | default({}),
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

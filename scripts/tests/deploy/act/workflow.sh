@@ -10,6 +10,7 @@ set -euo pipefail
 : "${ACT_PULL:=false}"
 : "${ACT_RM:=true}"
 : "${ACT_PLATFORM_IMAGE:=catthehacker/ubuntu:act-latest}"
+: "${ACT_BIND:=false}"
 
 echo "=== act: workflow=${ACT_WORKFLOW} event=${ACT_EVENT} job=${ACT_JOB:-<all>} matrix=${ACT_MATRIX:-<none>} ==="
 
@@ -36,6 +37,11 @@ cmd+=(--concurrent-jobs "1")
 cmd+=(--pull="${ACT_PULL}")
 if [[ "${ACT_RM}" == "true" ]]; then
 	cmd+=(--rm)
+fi
+cmd+=(--cache-server-addr 127.0.0.1)
+cmd+=(--artifact-server-addr 127.0.0.1)
+if [[ "${ACT_BIND}" == "true" ]]; then
+	cmd+=(--bind)
 fi
 
 "${cmd[@]}"

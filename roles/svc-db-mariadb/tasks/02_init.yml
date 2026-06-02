@@ -26,9 +26,17 @@
         config_file: ""
   when: MARIADB_EXPOSE_LOCAL | bool
 
-# ---------------------------------------------------------------------------
-# CI / Container path: no port publishing → initialize via container exec
-# ---------------------------------------------------------------------------
+- name: "[swarm] Refresh MARIADB_NAME to current task container ID"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/swarm/resolve_container.yml'] | path_join }}"
+  vars:
+    _swarm_stack: "{{ 'svc-db-mariadb' | get_entity_name }}"
+    _swarm_service: "{{ 'svc-db-mariadb' | get_entity_name }}"
+    _swarm_target_fact: "MARIADB_NAME"
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - not (MARIADB_EXPOSE_LOCAL | bool)
+    - not (service_is_stateful | default(false) | bool)
+
 - block:
     - name: "Create database: {{ database_name }} (container via mariadb CLI)"
       ansible.builtin.command:

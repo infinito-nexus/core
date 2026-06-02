@@ -196,6 +196,80 @@ class TestComposeVolumes(unittest.TestCase):
 
         self.assertIsNone(data["volumes"]["data"]["name"])
 
+    def test_swarm_nfs_opt_in_renders_driver_opts(self):
+        apps = self._base_apps()
+        rendered = compose_volumes(
+            apps,
+            "app",
+            extra_volumes={"images": {"name": "app_images", "nfs": True}},
+            deployment_mode="swarm",
+            storage={
+                "backend": "nfs",
+                "nfs": {"server": "10.0.0.20", "export_base": "/srv/nfs"},
+            },
+        )
+        data = self._parse_yaml(rendered)
+
+        vol = data["volumes"]["images"]
+        self.assertEqual(vol["name"], "app_images")
+        self.assertEqual(vol["driver"], "local")
+        self.assertEqual(vol["driver_opts"]["type"], "nfs")
+        self.assertIn("addr=10.0.0.20", vol["driver_opts"]["o"])
+        self.assertIn("vers=4", vol["driver_opts"]["o"])
+        self.assertEqual(vol["driver_opts"]["device"], ":/srv/nfs/app_images")
+        self.assertNotIn("nfs", vol)
+
+    def test_swarm_nfs_disabled_volume_stays_local(self):
+        apps = self._base_apps()
+        rendered = compose_volumes(
+            apps,
+            "app",
+            extra_volumes={
+                "images": {"name": "app_images", "nfs": True},
+                "data": {"name": "app_data"},
+            },
+            deployment_mode="swarm",
+            storage={
+                "backend": "nfs",
+                "nfs": {"server": "10.0.0.20", "export_base": "/srv/nfs"},
+            },
+        )
+        data = self._parse_yaml(rendered)
+
+        self.assertIn("driver_opts", data["volumes"]["images"])
+        self.assertNotIn("driver_opts", data["volumes"]["data"])
+
+    def test_compose_mode_ignores_nfs_flag(self):
+        apps = self._base_apps()
+        rendered = compose_volumes(
+            apps,
+            "app",
+            extra_volumes={"images": {"name": "app_images", "nfs": True}},
+            deployment_mode="compose",
+            storage={
+                "backend": "nfs",
+                "nfs": {"server": "10.0.0.20", "export_base": "/srv/nfs"},
+            },
+        )
+        data = self._parse_yaml(rendered)
+
+        self.assertNotIn("driver_opts", data["volumes"]["images"])
+        self.assertNotIn("nfs", data["volumes"]["images"])
+
+    def test_swarm_local_backend_ignores_nfs_flag(self):
+        apps = self._base_apps()
+        rendered = compose_volumes(
+            apps,
+            "app",
+            extra_volumes={"images": {"name": "app_images", "nfs": True}},
+            deployment_mode="swarm",
+            storage={"backend": "local"},
+        )
+        data = self._parse_yaml(rendered)
+
+        self.assertNotIn("driver_opts", data["volumes"]["images"])
+        self.assertNotIn("nfs", data["volumes"]["images"])
+
 
 if __name__ == "__main__":
     unittest.main()

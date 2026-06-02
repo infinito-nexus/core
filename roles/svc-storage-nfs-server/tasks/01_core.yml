@@ -1,0 +1,20 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "Assert storage.nfs.export_base is set"
+  ansible.builtin.assert:
+    that:
+      - storage.nfs.export_base is defined
+      - storage.nfs.export_base | length > 0
+    fail_msg: |
+      svc-storage-nfs-server requires `storage.nfs.export_base` to be set
+      in group_vars (see group_vars/all/15_storage.yml).
+
+- name: "Include install step"
+  ansible.builtin.include_tasks: 02_install.yml
+
+- name: "Include exports step"
+  ansible.builtin.include_tasks: 03_exports.yml
+
+- name: "Include service step"
+  ansible.builtin.include_tasks: 04_service.yml

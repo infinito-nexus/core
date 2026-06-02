@@ -67,6 +67,7 @@
     - dev_nix_binary_path_before | length == 0
     - ansible_facts.getent_group is defined
     - "'nixbld' in ansible_facts.getent_group"
+    - ansible_facts.getent_group.nixbld is not none  # fail_key:false records None
 
 - name: Read existing nixbld1 user entry before installer run
   ansible.builtin.getent:
@@ -83,6 +84,7 @@
     - dev_nix_binary_path_before | length == 0
     - ansible_facts.getent_passwd is defined
     - "'nixbld1' in ansible_facts.getent_passwd"
+    - ansible_facts.getent_passwd.nixbld1 is not none
 
 - name: Run Nix installer in daemon (multi-user) mode if Nix is not installed
   ansible.builtin.shell: >

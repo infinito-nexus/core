@@ -55,9 +55,6 @@ def _to_plain(obj: Any) -> Any:
 def _resolve_database_volume_name(
     applications: dict[str, Any], application_id: str, dbtype: str
 ) -> str:
-    """Mirror `plugins/lookup/database.py`'s `volume_prefix + host` derivation
-    so callers no longer thread `lookup('database', ..., 'volume')` through
-    every `compose.yml.j2`."""
     consumer_entity = get_entity_name(application_id)
     db_id = f"svc-db-{dbtype}"
     central_name = get(
@@ -76,44 +73,34 @@ def _resolve_database_volume_name(
     return f"{volume_prefix}{host}"
 
 
+def _swarm_nfs_driver_opts(
+    storage: Mapping[str, Any] | None, volume_name: str
+) -> dict[str, Any]:
+    storage = storage or {}
+    nfs = storage.get("nfs", {}) or {}
+    server = nfs.get("server", "")
+    export_base = nfs.get("export_base", "/srv/nfs")
+    version = nfs.get("version", 4)
+    # `_netdev` is /etc/fstab-only; mount() rejects it with EINVAL.
+    return {
+        "driver": "local",
+        "driver_opts": {
+            "type": "nfs",
+            "o": f"addr={server},vers={version},rw,hard,timeo=600",
+            "device": f":{export_base}/{volume_name}",
+        },
+    }
+
+
 def compose_volumes(
     applications: dict[str, Any],
     application_id: str,
     *,
     extra_volumes: dict[str, dict[str, Any]] | None = None,
+    deployment_mode: str = "compose",
+    storage: dict[str, Any] | None = None,
 ) -> str:
-    """
-    Builds the top-level `volumes:` section for compose.
-
-    Logic is identical to roles/sys-svc-compose/templates/volumes.yml.j2:
-
-      - database volume if:
-          a direct mariadb/postgres service is enabled
-          and that service is not shared
-
-        name: derived from the central provider's `services.<dbtype>.name`
-        when `shared=true`, or `<consumer-entity>_database` when the role
-        ships a dedicated instance. The volume name is always derived from
-        the applications config — callers MUST NOT thread it in manually.
-
-      - redis volume if:
-          is_docker_service_enabled(redis)
-          or (services.sso.enabled AND services.sso.flavor == 'oauth2')
-
-        The SSO-proxy sidecar uses redis as its session store; only the
-        oauth2 flavor pulls it in. Pure-OIDC roles do NOT need redis.
-
-        name: {{ application_id | get_entity_name }}_redis
-
-    Manual volumes can be appended via extra_volumes (like adding YAML lines after an include).
-
-    TODO: simultaneous postgres + mariadb on a single role is rejected
-    by `resolve_database_service_key` (the embedded service templates
-    both use the `database` service key + host, which would collide).
-    Support is deferred — when a future architecture rewrite gives each
-    dbtype its own service / host / volume key, this filter MUST emit
-    one volume entry per enabled dbtype.
-    """
+    """Render the top-level `volumes:` section for compose or swarm."""
 
     if applications is None:
         raise AnsibleFilterError("compose_volumes: 'applications' must not be None")
@@ -167,6 +154,19 @@ def compose_volumes(
 
     if extra_volumes:
         volumes.update(extra_volumes)
+
+    storage_backend = (storage or {}).get("backend", "local")
+    swarm_nfs_enabled = (
+        deployment_mode == "swarm" and str(storage_backend).lower() == "nfs"
+    )
+
+    for vol_name, vol_spec in list(volumes.items()):
+        if not isinstance(vol_spec, dict):
+            continue
+        wants_nfs = bool(vol_spec.pop("nfs", False))
+        if wants_nfs and swarm_nfs_enabled:
+            named = vol_spec.get("name", vol_name)
+            vol_spec.update(_swarm_nfs_driver_opts(storage, str(named)))
 
     payload = {"volumes": _to_plain(volumes)}
 

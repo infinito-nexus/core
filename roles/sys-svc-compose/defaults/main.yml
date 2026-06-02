@@ -1,3 +1,5 @@
 ---
 compose_handlers_flush: false # Set to true in the vars/main.yml of the including role to autoflush after compose routine
 compose_repository_pull: "{{ compose_repository_url is defined and compose_repository_url is string and compose_repository_url | length > 0 }}"
+_swarm_retries: 60
+_swarm_delay: 5

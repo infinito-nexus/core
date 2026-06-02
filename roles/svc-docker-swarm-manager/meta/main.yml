@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: |
+    Tag role that marks a host as the swarm cluster manager. Has no
+    tasks of its own — the actual init+token-publish logic lives in
+    svc-docker-swarm and is gated on `'svc-docker-swarm-manager' in
+    group_names`. This role exists so the project's inventory
+    validator (`cli.administration.inventory.validate`) accepts the
+    group as a legitimate application_id.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - swarm
+    - docker
+    - cluster
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

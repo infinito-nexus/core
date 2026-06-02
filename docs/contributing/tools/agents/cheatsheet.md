@@ -119,7 +119,7 @@ SPOT: [push-trigger-pull.md](../../../agents/action/push-trigger-pull.md)
 ## Requirement Creation ✍️
 
 ```
-Follow the instructions from AGENTS.md, create a new requirement for <topic> by following the procedure in docs/contributing/requirements.md. Begin by clarifying every open requirement through active listening, then act autonomously through to completion with as few follow-up questions as possible.
+Follow the instructions from AGENTS.md, create a new requirement for <topic> by following the procedure in docs/contributing/requirements.md. Begin by clarifying every open requirement through active listening, then act autonomously through to completion with as few follow-up questions as possible. Before every redeploy you MUST run `make compose-exec` and `make compose-inner-run` against the live stack and fully fix and inspect every failure in the container. A new deploy iteration MUST NOT start until every error is resolved and the fix has been empirically verified in-container. You MUST NOT use any commit command, push command, or any command that would require an `ask`-mode approval. You MUST NOT stop the iteration early under any circumstance. Premature termination is explicitly forbidden. The iteration is finished only when every role is green end-to-end.
 ```
 
 SPOT: [requirements.md](../../requirements.md)

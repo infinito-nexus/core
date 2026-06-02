@@ -217,6 +217,11 @@ jobs:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
 
+  test-deploy-swarm-nfs:
+    needs:
+      - code-quality-gate
+    uses: ./.github/workflows/test-deploy-swarm-nfs.yml
+
   # Test Installation
   test-install-make:
     uses: ./.github/workflows/test-install-make.yml
@@ -250,6 +255,7 @@ jobs:
       - test-deploy-server
       - test-deploy-universal
       - test-deploy-workstation
+      - test-deploy-swarm-nfs
       - test-install-gate
       - test-development
     if: ${{ always() }}

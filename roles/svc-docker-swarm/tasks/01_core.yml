@@ -1,0 +1,43 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "Ensure dockerd is installed before swarm bootstrap"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    public: false
+  when: run_once_sys_svc_container is not defined
+
+- name: "Assert exactly one host is in svc-docker-swarm-manager"
+  ansible.builtin.assert:
+    that:
+      - (groups['svc-docker-swarm-manager'] | default([]) | length) == 1
+    fail_msg: |
+      svc-docker-swarm requires exactly ONE host in the
+      `svc-docker-swarm-manager` group (single-manager scope).
+      Found: {{ groups['svc-docker-swarm-manager'] | default([]) | length }}
+      members. Multi-manager Raft HA is tracked as a Future Extension.
+  run_once: true
+
+- name: "Assert every svc-docker-swarm-manager member is also in svc-docker-swarm"
+  ansible.builtin.assert:
+    that:
+      - item in (groups['svc-docker-swarm'] | default([]))
+    fail_msg: |
+      Host '{{ item }}' is in svc-docker-swarm-manager but missing from
+      svc-docker-swarm. A manager MUST also be a regular cluster member.
+  loop: "{{ groups['svc-docker-swarm-manager'] | default([]) }}"
+  run_once: true
+
+- name: "Manager: include manager-init tasks"
+  ansible.builtin.include_tasks: 02_manager.yml
+  when: "'svc-docker-swarm-manager' in group_names"
+
+- name: "Worker: include worker-join tasks"
+  ansible.builtin.include_tasks: 03_worker.yml
+  when:
+    - "'svc-docker-swarm' in group_names"
+    - "'svc-docker-swarm-manager' not in group_names"
+
+- name: "Apply node labels (manager-side, all nodes)"
+  ansible.builtin.include_tasks: 04_labels.yml
+  when: "'svc-docker-swarm-manager' in group_names"

@@ -9,6 +9,10 @@
   ansible.builtin.set_fact:
     DOCKER_IN_CONTAINER: "{{ (systemd_detect_virt_container.rc | default(1) | int) == 0 }}"
 
+- name: "Resolve deployment_mode (group-driven, host-scoped)"
+  ansible.builtin.set_fact:
+    deployment_mode: "{{ 'swarm' if 'svc-docker-swarm' in group_names else 'compose' }}"
+
 - name: Check DNS resolution for test domain
   ansible.builtin.command: "getent hosts {{ DOMAIN_TEST }}"
   register: dns_check
@@ -111,6 +115,15 @@
   when:
     - MODE_CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool
+
+- name: "Bootstrap swarm cluster + NFS clients (MUST precede Preload)"
+  ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
+  loop:
+    - svc-docker
+    - svc-storage
+  loop_control:
+    loop_var: role_group
+    label: "{{ role_group }}-roles.yml"
 
 - name: Preload shared services
   ansible.builtin.include_role:

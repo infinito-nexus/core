@@ -1,0 +1,9 @@
+---
+- services:
+    swarm:
+      enabled: true
+      shared: true
+- services:
+    swarm:
+      enabled: false
+      shared: false

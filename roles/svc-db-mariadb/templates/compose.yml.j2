@@ -11,6 +11,7 @@
       - "--transaction-isolation=READ-COMMITTED"
       - "--binlog-format=ROW"
 
+{% set service_needs_node_pin = true %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% if MARIADB_EXPOSE_LOCAL %}
     ports: 
@@ -26,6 +27,7 @@
       interval: 10s
       timeout: 5s
       retries: 18
+      start_period: 90s
 
 {{ lookup('applications') | compose_volumes(
     application_id,

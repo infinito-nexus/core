@@ -1,0 +1,28 @@
+---
+application_id: "svc-storage-nfs-server"
+
+svc_storage_nfs_server_packages:
+  Debian:
+    - nfs-kernel-server
+  Ubuntu:
+    - nfs-kernel-server
+  Archlinux:
+    - nfs-utils
+  RedHat:
+    - nfs-utils
+  Fedora:
+    - nfs-utils
+  Alpine:
+    - nfs-utils
+
+svc_storage_nfs_server_service:
+  Debian: nfs-server
+  Ubuntu: nfs-server
+  Archlinux: nfs-server.service
+  RedHat: nfs-server
+  Fedora: nfs-server
+  Alpine: nfs
+
+# No `fsid=0`: clients would otherwise have to mount `<server>:/` (pseudo-root).
+svc_storage_nfs_server_export_options: >-
+  rw,sync,no_subtree_check,root_squash,no_all_squash
