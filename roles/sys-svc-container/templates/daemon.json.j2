@@ -11,4 +11,7 @@
 {% if firewall_backend %},
   "firewall-backend": "{{ firewall_backend }}"
 {% endif %}
+{% if deployment_mode == 'swarm' and (swarm.registry.host | length > 0) %},
+  "insecure-registries": ["{{ swarm.registry.host }}:{{ swarm.registry.port }}"]
+{% endif %}
 }

@@ -1,0 +1,16 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {{ entity_name }}:
+    image: "{{ REGISTRY_IMAGE }}:{{ REGISTRY_VERSION }}"
+    container_name: "{{ REGISTRY_CONTAINER }}"
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    ports:
+      - "{{ REGISTRY_PORT }}:5000"
+    volumes:
+      - "data:/var/lib/registry"
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={'data': {'name': REGISTRY_DATA_VOLUME}}
+) }}
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

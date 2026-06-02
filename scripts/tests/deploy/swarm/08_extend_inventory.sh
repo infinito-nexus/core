@@ -32,6 +32,7 @@ GROUP_HOSTS = [
     ("svc-storage-nfs-client", "swarm-wrk-01"),
     ("svc-storage-nfs-client", "swarm-wrk-02"),
     ("svc-storage-nfs-server", "nfs-server"),
+    ("svc-docker-registry", "swarm-mgr-01"),
     (APP_ID, "swarm-mgr-01"),
 ]
 if DB_DEP == "mariadb":

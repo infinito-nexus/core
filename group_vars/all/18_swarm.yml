@@ -8,3 +8,16 @@ swarm:
     advertise_addr: ""
   network:
     encryption: true
+  registry:
+    host: "{{ (groups['svc-docker-swarm-manager'] | default([]))[0] | default('') }}"
+    port: 5000
+
+SWARM_REGISTRY_PREFIX: >-
+  {{
+    (swarm.registry.host ~ ':' ~ swarm.registry.port ~ '/')
+    if (
+      deployment_mode == 'swarm'
+      and (swarm.registry.host | length > 0)
+    )
+    else ''
+  }}

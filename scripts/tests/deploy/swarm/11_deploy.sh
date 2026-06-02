@@ -11,6 +11,7 @@ ids=(
 	svc-docker-swarm
 	svc-storage-nfs-server
 	svc-storage-nfs-client
+	svc-docker-registry
 )
 case "${DB_DEP}" in
 mariadb) ids+=(svc-db-mariadb) ;;

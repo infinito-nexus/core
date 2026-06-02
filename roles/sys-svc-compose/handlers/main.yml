@@ -110,6 +110,20 @@
     - (deployment_mode | default('compose')) == 'swarm'
     - not (service_is_stateful | default(false) | bool)
 
+- name: "swarm: retag built images for local registry and push"
+  ansible.builtin.script:
+    cmd: >-
+      swarm_registry_push.py
+      --chdir {{ lookup('container', application_id, 'directories.instance') }}
+      --registry-prefix {{ SWARM_REGISTRY_PREFIX | quote }}
+  listen:
+    - compose up
+    - swarm deploy
+  when:
+    - (deployment_mode | default('compose')) == 'swarm'
+    - not (service_is_stateful | default(false) | bool)
+    - (swarm.registry.host | default('') | length > 0)
+
 - name: "swarm: validate stack file via docker stack config"
   ansible.builtin.shell: |
     set -euo pipefail

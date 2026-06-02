@@ -1,0 +1,7 @@
+---
+data:
+  name: docker_registry_data
+  nfs:
+    uid: 0
+    gid: 0
+    mode: "0755"
