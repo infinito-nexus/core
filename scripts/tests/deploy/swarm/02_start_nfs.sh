@@ -6,6 +6,9 @@ docker run -d --name "${NFS_SERVER}" \
 	--network swarm-lab \
 	--hostname "${NFS_SERVER}" \
 	--privileged \
+	--cgroupns=host \
+	--security-opt seccomp=unconfined \
+	--security-opt apparmor=unconfined \
 	--tmpfs /run \
 	--tmpfs /run/lock \
 	--tmpfs /tmp:exec \

@@ -7,6 +7,9 @@ for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 		--network swarm-lab \
 		--hostname "${node}" \
 		--privileged \
+		--cgroupns=host \
+		--security-opt seccomp=unconfined \
+		--security-opt apparmor=unconfined \
 		--tmpfs /run \
 		--tmpfs /run/lock \
 		--tmpfs /tmp:exec \
