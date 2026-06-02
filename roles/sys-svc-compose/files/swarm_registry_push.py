@@ -46,7 +46,9 @@ def retag_push_and_rewrite(*, compose_file: Path, prefix: str) -> int:
 
     if changed:
         with compose_file.open("w") as f:
-            yaml.safe_dump(doc, f, sort_keys=False, default_flow_style=False)  # nocheck: direct-yaml
+            yaml.safe_dump(
+                doc, f, sort_keys=False, default_flow_style=False
+            )  # nocheck: direct-yaml
 
     for image in targets:
         rc = run(["docker", "push", image])

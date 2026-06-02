@@ -20,6 +20,9 @@ swarm:
     advertise_addr: ${MGR_IP}
   network:
     encryption: true
+  registry:
+    host: "${MGR}"
+    port: 5000
 nfs_server_ip: ${NFS_IP}
 users:
   administrator:
