@@ -21,9 +21,8 @@
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
-{{ applications | compose_volumes(
+{{ lookup('applications') | compose_volumes(
     application_id,
-    database_volume=lookup('database', application_id, 'volume'),
     extra_volumes={
       'pihole_data':   {'name': PIHOLE_VOLUME_DATA},
       'pihole_dnsmasq': {'name': PIHOLE_VOLUME_DNSMASQ},

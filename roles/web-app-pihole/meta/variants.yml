@@ -1,2 +1,48 @@
-# variant 0: deploy with OAuth2/Keycloak protection
-- {}
+# Matrix-deploy variant overrides for web-app-pihole.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant pinning every dynamic services.yml flag to true
+- services:
+    css:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    sso:
+      enabled: true
+      shared: true
+- services:
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    sso:
+      enabled: false
+      shared: false

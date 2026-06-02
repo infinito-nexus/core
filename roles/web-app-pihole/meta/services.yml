@@ -1,35 +1,19 @@
-# nocheck: shared
-# nocheck: dynamic-flag
-# nocheck: playwright-service-flag
-oauth2:
-  enabled: true
-  shared: true
-  allowed_groups:
-  - '{{ lookup(''rbac_group_path'', application_id=''web-app-pihole'', role=''administrator'') }}'
-  origin:
-    host: pihole
-    port: 80
-# nocheck: dynamic-flag
 # nocheck: playwright-service-flag
 logout:
-  enabled: true
-  shared: true
-# nocheck: dynamic-flag
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
 # nocheck: playwright-service-flag
 dashboard:
-  enabled: true
-  shared: true
-# nocheck: dynamic-flag
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
 # nocheck: playwright-service-flag
 matomo:
-  enabled: true
-  shared: true
-# nocheck: email
-# nocheck: dynamic-flag
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag
 email:
-  enabled: false
-  shared: true
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
 redis:
@@ -40,11 +24,25 @@ redis:
 javascript:
   enabled: true
   shared: true
-# nocheck: dynamic-flag
 # nocheck: playwright-service-flag
 prometheus:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag
+css:
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: playwright-service-flag
+sso:
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: pihole
+      port: "80"
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-pihole', role='administrator') }}"
 pihole:
   image: pihole/pihole
   version: latest
@@ -57,7 +55,7 @@ pihole:
   ports:
     local:
       http: 8041
-      oauth2: 16505
+      sso: 16505
   run_after:
   - web-app-keycloak
   lifecycle: alpha

@@ -10,21 +10,10 @@
   ansible.builtin.command: "container exec {{ PIHOLE_CONTAINER }} pihole setpassword ''"
   become: true
 
-- name: "Wait for oauth2-proxy to be ready"
+- name: "Wait for sso-proxy to be ready"
   ignore_errors: true
   wait_for:
     host:    "{{ DOCKER_REACH_HOST }}"
-    port:    "{{ lookup('config', application_id, 'services.pihole.ports.local.oauth2') }}"
+    port:    "{{ lookup('config', application_id, 'services.pihole.ports.local.sso') }}"
     delay:   5
     timeout: 300
-
-- name: "Wait for pihole HTTPS endpoint to return non-500"
-  uri_retry:
-    url: "{{ lookup('tls', application_id, 'url.base') }}"
-    validate_certs: false
-    status_code: [200, 301, 302, 403, 404]
-  register: _pihole_https_check
-  until: _pihole_https_check.status in [200, 301, 302, 403, 404]
-  retries: 30
-  delay: 10
-  ignore_errors: true
