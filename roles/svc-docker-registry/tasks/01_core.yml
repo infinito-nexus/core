@@ -2,6 +2,6 @@
 - include_tasks: utils/once/flag.yml
 
 - include_role:
-    name: sys-stk-backend
+    name: sys-svc-compose
   vars:
     compose_handlers_flush: true
