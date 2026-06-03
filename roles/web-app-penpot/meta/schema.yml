@@ -1,0 +1,6 @@
+---
+credentials:
+  secret_key:
+    description: Main secret used by Penpot to sign tokens, cookies and session data.
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

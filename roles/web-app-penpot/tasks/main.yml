@@ -1,0 +1,9 @@
+---
+- name: "For '{{ application_id }}': load docker, db and proxy"
+  include_role:
+    name: sys-stk-full
+  vars:
+    # Penpot uploads (design files, images, fonts) can be large; raise the
+    # proxy body limit so asset imports are not truncated at the front door.
+    webserver_client_max_body_size: "100m"
+    compose_handlers_flush: true
