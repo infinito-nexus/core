@@ -21,7 +21,7 @@
     }}
   loop_control:
     label: "{{ item.0 }} -> {{ item.1 }}"
-  when: deployment_mode == 'swarm'
+  when: DEPLOYMENT_MODE == 'swarm'
   delegate_to: "{{ item.1 }}"
 
 - name: "MEDIAWIKI | Render host-side PHP config files (local + swarm peers)"

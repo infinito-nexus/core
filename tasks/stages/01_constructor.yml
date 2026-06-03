@@ -9,10 +9,6 @@
   ansible.builtin.set_fact:
     DOCKER_IN_CONTAINER: "{{ (systemd_detect_virt_container.rc | default(1) | int) == 0 }}"
 
-- name: "Resolve deployment_mode (group-driven, host-scoped)"
-  ansible.builtin.set_fact:
-    deployment_mode: "{{ 'swarm' if 'svc-docker-swarm' in group_names else 'compose' }}"
-
 - name: Check DNS resolution for test domain
   ansible.builtin.command: "getent hosts {{ DOMAIN_TEST }}"
   register: dns_check

@@ -15,4 +15,4 @@
     - name: "[swarm] Re-bind fact '{{ _swarm_target_fact }}' to resolved task container ID"
       ansible.builtin.set_fact:
         "{{ _swarm_target_fact }}": "{{ _swarm_resolved_cid.stdout }}"
-  when: (deployment_mode | default('compose')) == 'swarm'
+  when: DEPLOYMENT_MODE == 'swarm'

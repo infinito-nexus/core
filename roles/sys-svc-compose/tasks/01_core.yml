@@ -1,10 +1,4 @@
 ---
-- name: "Resolve deployment_mode for this host"
-  ansible.builtin.set_fact:
-    deployment_mode: >-
-      {{ 'swarm' if 'svc-docker-swarm' in group_names else 'compose' }}
-  when: deployment_mode is not defined or deployment_mode == 'compose'
-
 - include_tasks: utils/once/flag.yml
 
 - include_role:

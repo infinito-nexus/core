@@ -1,4 +1,4 @@
-{% if (deployment_mode | default('compose')) == 'swarm' and not (service_is_stateful | default(false)) %}
+{% if DEPLOYMENT_MODE == 'swarm' and not (service_is_stateful | default(false)) %}
 {{ "\n" }}
     deploy:
       replicas: {{ service_replicas | default(1) }}

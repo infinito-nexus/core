@@ -2,7 +2,7 @@
 - name: "Resolve swarm task container ID for '{{ application_id }}'"
   ansible.builtin.include_tasks: swarm/resolve_self.yml
   when:
-    - (deployment_mode | default('compose')) == 'swarm'
+    - DEPLOYMENT_MODE == 'swarm'
     - not (service_is_stateful | default(false) | bool)
 
 - name: "Wait until database container for '{{ application_id }}' is healthy"
@@ -16,5 +16,5 @@
   until: (_app_db_health.stdout | trim) == 'healthy'
   changed_when: false
   when:
-    - (deployment_mode | default('compose')) == 'swarm'
+    - DEPLOYMENT_MODE == 'swarm'
     - lookup('database', application_id, 'enabled') | bool

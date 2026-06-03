@@ -10,7 +10,7 @@
   run_once: true
   loop: "{{ (lookup('config', application_id, 'volumes', {}) | default({}, true)) | dict2items }}"
   when:
-    - (deployment_mode | default('compose')) == 'swarm'
+    - DEPLOYMENT_MODE == 'swarm'
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
     - item.value is mapping

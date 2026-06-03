@@ -3,7 +3,7 @@
    deploy` rejects it as "Additional property pull_policy is not
    allowed". Skip it under swarm mode (swarm always uses the locally
    resolved image via --resolve-image always at deploy time). #}
-{% if (deployment_mode | default('compose')) != 'swarm' %}
+{% if DEPLOYMENT_MODE != 'swarm' %}
 pull_policy: never
 {% endif %}
 build:

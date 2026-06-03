@@ -26,7 +26,7 @@
   retries: 30
   delay: 5
   when: >-
-    (deployment_mode | default('compose')) != 'swarm'
+    DEPLOYMENT_MODE != 'swarm'
     or (service_is_stateful | default(false) | bool)
 
 - block:
@@ -43,7 +43,7 @@
       ansible.builtin.set_fact:
         MARIADB_NAME: "{{ mariadb_swarm_cid.stdout }}"
   when:
-    - (deployment_mode | default('compose')) == 'swarm'
+    - DEPLOYMENT_MODE == 'swarm'
     - not (service_is_stateful | default(false) | bool)
 
 - block:
@@ -68,7 +68,7 @@
       include_tasks: 03_reset_root_password.yml
       when:
         - mariadb_login_desired.rc != 0
-        - (deployment_mode | default('compose')) != 'swarm'
+        - DEPLOYMENT_MODE != 'swarm'
 
   when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool
 

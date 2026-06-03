@@ -24,7 +24,7 @@
       'extensions': {'name': MEDIAWIKI_VOLUME_EXTENSIONS},
       'images': {'name': MEDIAWIKI_VOLUME_IMAGES},
     },
-    deployment_mode=deployment_mode | default('compose'),
+    deployment_mode=DEPLOYMENT_MODE,
     storage=storage | default({}),
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

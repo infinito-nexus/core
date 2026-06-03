@@ -27,7 +27,7 @@ the cluster after the join phase.
 - **Node labels:** Per-host labels declared via `swarm_node_labels` in
   inventory are applied to the joining node.
 - **Mode-selection trigger:** Membership in `svc-docker-swarm` resolves
-  `deployment_mode = swarm` for every web-app role on that host.
+  `DEPLOYMENT_MODE = swarm` for every web-app role on that host.
 
 ## Credits
 

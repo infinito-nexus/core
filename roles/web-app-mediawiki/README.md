@@ -23,7 +23,7 @@ This role deploys MediaWiki using Docker, automating the setup of your wiki inst
 
 ## Swarm + NFS pilot
 
-Volume layout under `deployment_mode: swarm` with `storage.backend: nfs`:
+Volume layout under `DEPLOYMENT_MODE: swarm` with `storage.backend: nfs`:
 
 - **`images/`** opts into NFS (`nfs: true` in the `compose_volumes`
   call from `templates/compose.yml.j2`). The volume is shared across

@@ -1,5 +1,5 @@
 ---
-deployment_mode: compose
+DEPLOYMENT_MODE: "{{ 'swarm' if 'svc-docker-swarm' in group_names else 'compose' }}"
 
 service_is_stateful: false
 
@@ -16,7 +16,7 @@ SWARM_REGISTRY_PREFIX: >-
   {{
     (swarm.registry.host ~ ':' ~ swarm.registry.port ~ '/')
     if (
-      deployment_mode == 'swarm'
+      DEPLOYMENT_MODE == 'swarm'
       and (swarm.registry.host | length > 0)
     )
     else ''

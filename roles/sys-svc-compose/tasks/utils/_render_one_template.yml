@@ -22,7 +22,7 @@
   loop_control:
     label: "{{ _tpl.dest }} -> {{ item }}"
   when:
-    - (deployment_mode | default('compose')) == 'swarm'
+    - DEPLOYMENT_MODE == 'swarm'
     - (_tpl.when | default(true)) | bool
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ item }}"

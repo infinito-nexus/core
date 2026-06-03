@@ -27,20 +27,25 @@ volumes, networks). It MUST NOT require touching every role.
 
 The trigger is **group membership**, not a per-role flag.
 
-| Host's `group_names` contains      | Resolved `deployment_mode` |
+| Host's `group_names` contains      | Resolved `DEPLOYMENT_MODE` |
 | ---------------------------------- | -------------------------- |
 | `svc-docker-swarm`                 | `swarm`                    |
 | anything else                      | `compose`                  |
 
+`DEPLOYMENT_MODE` is defined at a single point of truth in
+[group_vars/all/18_swarm.yml](../../../group_vars/all/18_swarm.yml) as
+`{{ 'swarm' if 'svc-docker-swarm' in group_names else 'compose' }}`.
+
 Refinements:
 
-- **Per-role opt-OUT** on a swarm host: a role MAY set
-  `deployment_mode: compose` to stay on the compose path even when the
-  host is in `svc-docker-swarm`.
+- **Per-role opt-OUT** on a swarm host: a role MAY override
+  `DEPLOYMENT_MODE: compose` in its `vars/main.yml` to stay on the
+  compose path even when the host is in `svc-docker-swarm`. Role vars
+  win over `group_vars/all` by Ansible precedence.
 - **Per-role opt-IN** on a non-swarm host: explicitly rejected. Swarm
   mode is exclusively triggered by group membership. The per-role
-  `deployment_mode` key only opts OUT on a swarm host, never opts IN
-  on a non-swarm host.
+  `DEPLOYMENT_MODE` override only opts OUT on a swarm host, never opts
+  IN on a non-swarm host.
 
 ## Manager identification
 

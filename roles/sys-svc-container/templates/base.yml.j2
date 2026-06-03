@@ -10,7 +10,7 @@
 {% endif %}
     logging:
       driver: journald
-{% if (deployment_mode | default('compose')) != 'swarm' or (service_is_stateful | default(false) | bool) %}
+{% if DEPLOYMENT_MODE != 'swarm' or (service_is_stateful | default(false) | bool) %}
 {% filter indent(4) %}
     {% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
 {% endfilter %}

@@ -33,7 +33,7 @@
     _swarm_service: "{{ 'svc-db-mariadb' | get_entity_name }}"
     _swarm_target_fact: "MARIADB_NAME"
   when:
-    - (deployment_mode | default('compose')) == 'swarm'
+    - DEPLOYMENT_MODE == 'swarm'
     - not (MARIADB_EXPOSE_LOCAL | bool)
     - not (service_is_stateful | default(false) | bool)
 

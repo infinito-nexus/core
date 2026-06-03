@@ -20,14 +20,14 @@
         or
         env_template.changed          | default(false)
       )
-    - (deployment_mode | default('compose')) == 'compose'
+    - DEPLOYMENT_MODE == 'compose'
   notify: compose up
 
-- name: "Notify swarm deploy (under deployment_mode == swarm)"
+- name: "Notify swarm deploy (under DEPLOYMENT_MODE == swarm)"
   ansible.builtin.debug:
     msg: "Triggering swarm stack deploy for {{ application_id }}"
   changed_when: true
-  when: (deployment_mode | default('compose')) == 'swarm'
+  when: DEPLOYMENT_MODE == 'swarm'
   notify: swarm deploy
 
 - name: "Flush Docker Compose Up Handlers for {{ lookup('container', application_id, 'directories.instance') }}"
