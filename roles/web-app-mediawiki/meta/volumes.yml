@@ -6,4 +6,4 @@ images:
   nfs:
     uid: 33
     gid: 33
-    mode: '0755'
+    mode: "0755"

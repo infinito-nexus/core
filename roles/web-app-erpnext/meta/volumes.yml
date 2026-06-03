@@ -1,4 +1,7 @@
 ---
-sites: erpnext_sites
-assets: erpnext_assets
-logs: erpnext_logs
+sites:
+  name: erpnext_sites
+assets:
+  name: erpnext_assets
+logs:
+  name: erpnext_logs
