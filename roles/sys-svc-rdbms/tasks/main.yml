@@ -8,7 +8,7 @@
 - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Resolve shared database mode"
   set_fact:
     _sys_svc_rdbms_central_db_enabled: >-
-      {{ lookup('database', _database_consumer_id, 'shared') | bool }}
+      {{ (groups[lookup('database', _database_consumer_id, 'id')] | default([])) | length > 0 }}
   changed_when: false
 
 - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Apply dedicated database setup"
@@ -52,4 +52,6 @@
     database_name: "{{ lookup('database', _database_consumer_id, 'name') }}"
     database_username: "{{ lookup('database', _database_consumer_id, 'username') }}"
     database_password: "{{ lookup('database', _database_consumer_id, 'password') }}"
-  when: _sys_svc_rdbms_central_db_enabled | bool
+  when:
+    - _sys_svc_rdbms_central_db_enabled | bool
+    - inventory_hostname in (groups[lookup('database', _database_consumer_id, 'id')] | default([]))
