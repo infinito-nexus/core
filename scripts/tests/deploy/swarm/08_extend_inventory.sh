@@ -11,11 +11,15 @@ python3 - <<'PY'
 import os
 from pathlib import Path
 
+from utils import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml, load_yaml_any
+from utils.roles.entity_name import get_entity_name
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 INV_PATH = Path("/tmp/inv/devices.yml")  # noqa: S108
 APP_ID = os.environ["APP_ID"]
 DB_DEP = os.environ["DB_DEP"]
+MANAGER = "swarm-mgr-01"
 
 DOCKER_VARS = {
     "ansible_connection": "docker",
@@ -32,16 +36,29 @@ GROUP_HOSTS = [
     ("svc-storage-nfs-client", "swarm-wrk-01"),
     ("svc-storage-nfs-client", "swarm-wrk-02"),
     ("svc-storage-nfs-server", "nfs-server"),
-    ("svc-docker-registry", "swarm-mgr-01"),
-    ("svc-cache-registry", "swarm-mgr-01"),
     (APP_ID, "swarm-mgr-01"),
     (APP_ID, "swarm-wrk-01"),
     (APP_ID, "swarm-wrk-02"),
 ]
-if DB_DEP == "mariadb":
-    GROUP_HOSTS.append(("svc-db-mariadb", "swarm-mgr-01"))
-elif DB_DEP == "postgres":
-    GROUP_HOSTS.append(("svc-db-postgres", "swarm-mgr-01"))
+
+# Mirrors the runtime constructor add_host so CLI pre-flight passes too.
+for role_dir in sorted((PROJECT_ROOT / "roles").iterdir()):
+    if not role_dir.is_dir():
+        continue
+    meta = role_dir / ROLE_FILE_META_SERVICES
+    if not meta.is_file():
+        continue
+    data = load_yaml_any(str(meta), default_if_missing={}) or {}
+    if not isinstance(data, dict):
+        continue
+    entity_name = get_entity_name(role_dir.name)
+    if not entity_name:
+        continue
+    entry = data.get(entity_name)
+    if not isinstance(entry, dict):
+        continue
+    if str(entry.get("default_placement", "")) == "manager":
+        GROUP_HOSTS.append((role_dir.name, MANAGER))
 
 inv = load_yaml_any(str(INV_PATH), default_if_missing={})
 inv.setdefault("all", {}).setdefault("children", {})

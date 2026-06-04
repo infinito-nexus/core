@@ -1,5 +1,6 @@
 ---
 openresty:
+  default_placement: manager
   name: openresty
   min_storage: 1GB
   cpus: 0.5

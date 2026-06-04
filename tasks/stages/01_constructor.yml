@@ -112,6 +112,30 @@
     - MODE_CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool
 
+- name: "Auto-place single-host shared services on first manager (swarm mode)"
+  ansible.builtin.add_host:
+    name: "{{ (groups['svc-docker-swarm-manager'] | default([]))[0] }}"
+    groups: "{{ role_id }}"
+  loop: "{{ lookup('roles_with_default_placement', 'manager') }}"
+  loop_control:
+    loop_var: role_id
+    label: "{{ role_id }}"
+  when:
+    - (groups['svc-docker-swarm-manager'] | default([]) | length) > 0
+    - (groups[role_id] | default([]) | length) == 0
+  run_once: true
+  changed_when: false
+
+- name: "Auto-place svc-prx-openresty on first play host (compose mode) so web apps get a vhost"
+  ansible.builtin.add_host:
+    name: "{{ ansible_play_hosts | first }}"
+    groups: svc-prx-openresty
+  when:
+    - (groups['svc-docker-swarm-manager'] | default([]) | length) == 0
+    - (groups['svc-prx-openresty'] | default([]) | length) == 0
+  run_once: true
+  changed_when: false
+
 - name: "Bootstrap swarm cluster + NFS clients (MUST precede Preload)"
   ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
   loop:

@@ -4,6 +4,7 @@ swarm:
   enabled: true
   shared: true
 cache-registry:
+  default_placement: manager
   enabled: true
   shared: true
   image: registry

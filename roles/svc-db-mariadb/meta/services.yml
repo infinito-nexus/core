@@ -1,5 +1,6 @@
 ---
 mariadb:
+  default_placement: manager
   enabled: true
   shared: true
   version: "12.2"
