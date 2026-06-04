@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from . import PROJECT_ROOT
 from .common import resolve_distro
 
 if TYPE_CHECKING:
@@ -12,11 +13,9 @@ if TYPE_CHECKING:
 
 
 def _resolve_docker_root() -> Path:
-    raw = os.environ.get("INFINITO_DOCKER_VOLUME", "").strip().rstrip("/")
+    raw = (os.environ.get("INFINITO_DOCKER_VOLUME") or "").strip().rstrip("/")
     if not raw:
-        raise RuntimeError(
-            "INFINITO_DOCKER_VOLUME must be set (SPOT: scripts/meta/env/github.sh)"
-        )
+        raise RuntimeError("INFINITO_DOCKER_VOLUME must be set")
     return Path(raw)
 
 
@@ -32,12 +31,12 @@ def _wipe_docker_root(docker_root: Path) -> None:
 def _should_wipe_docker_root() -> bool:
     if os.environ.get("INFINITO_RUNNING_ON_GITHUB") != "true":
         return False
-    return os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE", "false").lower() != "true"
+    return os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE") != "true"
 
 
 def _cleanup_docker_root() -> None:
     if not _should_wipe_docker_root():
-        docker_vol = os.environ.get("INFINITO_DOCKER_VOLUME", "(unset)")
+        docker_vol = os.environ.get("INFINITO_DOCKER_VOLUME") or "(unset)"
         print(f">>> Skipping Docker root wipe: {docker_vol}")
         return
     docker_root = _resolve_docker_root()
@@ -62,6 +61,5 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
 
 
 def handler(args: argparse.Namespace) -> int:
-    repo_root = Path(__file__).resolve().parents[3]
-    down_stack(repo_root=repo_root, distro=resolve_distro())
+    down_stack(repo_root=PROJECT_ROOT, distro=resolve_distro())
     return 0

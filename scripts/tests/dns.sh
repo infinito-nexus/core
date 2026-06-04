@@ -109,7 +109,7 @@ fi
 # ------------------------------------------------------------
 section "CoreDNS container status"
 
-_coredns_name="${INFINITO_RUNNER_PREFIX:-infinito}-coredns"
+_coredns_name="${INFINITO_RUNNER_PREFIX:-}-coredns"
 if docker ps --filter name="${_coredns_name}" --format '{{.Names}}' | grep -q "${_coredns_name}"; then
 	docker ps --filter name="${_coredns_name}" --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
 	docker logs --tail=10 "${_coredns_name}" || true

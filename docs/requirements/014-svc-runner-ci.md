@@ -19,16 +19,16 @@ Add an `svc-runner` role that provisions a dedicated machine as an Infinito.Nexu
 
 ### CLI: `cli/deploy/runner/`
 
-- [x] A new CLI entry point at `cli/deploy/runner/` (path to be created) is wired into the `infinito` CLI tree the same way the existing [`cli/deploy/dedicated/`](../../cli/deploy/dedicated/) and [`cli/deploy/development/`](../../cli/deploy/development/) commands are.
-- [x] Argument parsing MUST use Python's standard-library `argparse` module, matching the convention used by [cli/deploy/dedicated/command.py](../../cli/deploy/dedicated/command.py). Hand-rolled `sys.argv` parsing or third-party CLI frameworks (`click`, `typer`, etc.) MUST NOT be introduced.
+- [x] A new CLI entry point at `cli/deploy/runner/` (path to be created) is wired into the `infinito` CLI tree the same way the existing [`cli/deploy/dedicated/`](../../cli/deploy/runner/) and [`cli/administration/deploy/development/`](../../cli/administration/deploy/development/) commands are.
+- [x] Argument parsing MUST use Python's standard-library `argparse` module, matching the convention used by [cli/deploy/dedicated/command.py](../../cli/deploy/runner/command.py). Hand-rolled `sys.argv` parsing or third-party CLI frameworks (`click`, `typer`, etc.) MUST NOT be introduced.
 - [x] The script accepts the following parameters:
   - `hostname` (**required**) — the target server that will host the runner.
   - `port` (**optional**, MAY be omitted) — SSH/connection port for the target host.
-  - `roles` (**required**) — the set of roles to deploy onto the runner (accepts space- and comma-separated lists, matching the normalisation used by [cli/deploy/dedicated/command.py](../../cli/deploy/dedicated/command.py)).
+  - `roles` (**required**) — the set of roles to deploy onto the runner (accepts space- and comma-separated lists, matching the normalisation used by [cli/deploy/dedicated/command.py](../../cli/deploy/runner/command.py)).
   - `distribution` (**required**) — the target OS distribution of the runner (used to pick distro-specific tasks inside `svc-runner`).
   - `output stream file` (**optional**, with a documented default value) — file path the deploy's stdout/stderr stream is written to; the default MUST be a stable, documented path under `/tmp/`.
 - [x] Running the script against a clean host deploys `svc-runner` (plus any additional `roles` passed in) onto that host, and the runner is reachable / healthy at the end of the run.
-- [x] `--help` documents every parameter above, including the default value of the output stream file, in the same style as [cli/deploy/dedicated/command.py](../../cli/deploy/dedicated/command.py).
+- [x] `--help` documents every parameter above, including the default value of the output stream file, in the same style as [cli/deploy/dedicated/command.py](../../cli/deploy/runner/command.py).
 
 ### Tests & Documentation
 

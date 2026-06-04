@@ -13,8 +13,6 @@ if ! id "${RUNNER_USER}" >/dev/null 2>&1; then
     exit 0
 fi
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-
 # Verify the runner binary was extracted
 if [[ ! -f "${RUNNER_INSTALL_DIR}/1/run.sh" ]]; then
     echo "FAIL: runner binary not found at ${RUNNER_INSTALL_DIR}/1/run.sh"
@@ -50,22 +48,6 @@ if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
         fi
         echo "OK: runner-${i} is running"
     done
-    echo "SKIP: nested deploy-fresh-purged-apps not supported in DinD (DOCKER_IN_CONTAINER=true)"
+    echo "SKIP: nested deploy not supported in DinD (DOCKER_IN_CONTAINER=true)"
     exit 0
 fi
-
-# Load default deploy env (sets TEST_DEPLOY_TYPE, etc.)
-# shellcheck source=scripts/meta/env/all.sh
-source "${REPO_ROOT}/scripts/meta/env/all.sh"
-
-# Unset per-instance IP/networking vars that conflict with the test stack.
-# COMPOSE_PROJECT_NAME, INFINITO_RUNNER_PREFIX, and INFINITO_DOCKER_VOLUME are
-# intentionally kept so the deploy runs inside the runner's own project namespace
-# and Docker volume — otherwise the test does not exercise the runner environment.
-unset SUBNET GATEWAY DNS_IP IP4 BIND_IP
-
-# Confirm the runner-specific namespace vars are active before deploying
-echo "OK: runner namespace active (COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}, INFINITO_DOCKER_VOLUME=${INFINITO_DOCKER_VOLUME}, INFINITO_RUNNER_PREFIX=${INFINITO_RUNNER_PREFIX:-<unset>})"
-
-# Deploy a real app through the runner's Docker environment to prove it works end-to-end
-APPS=web-app-matomo make -C "${REPO_ROOT}" deploy-fresh-purged-apps

@@ -15,7 +15,7 @@ from cli.deploy.runner.command import (
 class TestRunnerBuildParser(unittest.TestCase):
     def test_required_args_present(self):
         parser = build_parser()
-        opts = {a.dest for a in parser._actions}  # noqa: SLF001
+        opts = {a.dest for a in parser._actions}
         self.assertIn("hostname", opts)
         self.assertIn("roles", opts)
         self.assertIn("distribution", opts)

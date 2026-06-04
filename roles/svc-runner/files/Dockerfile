@@ -4,7 +4,8 @@ ARG RUNNER_UID=900
 ARG RUNNER_GID=900
 
 # Runner binary runtime deps + Docker CLI for CI jobs + sudo for cleanup ops
-RUN apt-get update \
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \

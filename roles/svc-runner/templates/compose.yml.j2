@@ -14,3 +14,5 @@
       - "{{ _runner_docker_gid }}"
 {% endfor %}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(application_id) }}

@@ -7,21 +7,21 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Optional
 
-DEFAULT_OUTPUT = "/tmp/infinito-runner-deploy.log"
+from . import PROJECT_ROOT
+
+DEFAULT_OUTPUT = str(Path(tempfile.gettempdir()) / "infinito-runner-deploy.log")
 DEFAULT_RUNNER_COUNT = 15
 RUNNER_ROLE = "svc-runner"
 
 
-def _normalize_roles(raw_roles: List[str]) -> List[str]:
-    """Normalize roles: accept space- and comma-separated values, deduplicate, preserve order."""
-    result: List[str] = []
+def _normalize_roles(raw_roles: list[str]) -> list[str]:
+    result: list[str] = []
     for item in raw_roles:
         parts = [p.strip() for p in item.split(",") if p.strip()]
         result.extend(parts)
     seen: set[str] = set()
-    unique: List[str] = []
+    unique: list[str] = []
     for role in result:
         if role not in seen:
             seen.add(role)
@@ -29,10 +29,9 @@ def _normalize_roles(raw_roles: List[str]) -> List[str]:
     return unique
 
 
-def _prepend_runner_role(roles: List[str]) -> List[str]:
-    """Ensure svc-runner is the first entry in the roles list."""
+def _prepend_runner_role(roles: list[str]) -> list[str]:
     filtered = [r for r in roles if r != RUNNER_ROLE]
-    return [RUNNER_ROLE] + filtered
+    return [RUNNER_ROLE, *filtered]
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -115,14 +114,14 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _build_inventory(hostname: str, port: Optional[int]) -> str:
+def _build_inventory(hostname: str, port: int | None) -> str:
     host_line = hostname
     if port is not None:
         host_line += f" ansible_port={port}"
     return f"[runners]\n{host_line}\n"
 
 
-def _build_playbook(roles: List[str]) -> str:
+def _build_playbook(roles: list[str]) -> str:
     role_entries = "\n".join(f"    - {r}" for r in roles)
     return f"---\n- hosts: runners\n  become: true\n  roles:\n{role_entries}\n"
 
@@ -130,16 +129,14 @@ def _build_playbook(roles: List[str]) -> str:
 def _run_deploy(
     *,
     hostname: str,
-    port: Optional[int],
-    roles: List[str],
+    port: int | None,
+    roles: list[str],
     distribution: str,
     output_file: str,
     runner_count: int,
-    owner: Optional[str],
-    repo: Optional[str],
+    owner: str | None,
+    repo: str | None,
 ) -> int:
-    repo_root = Path(__file__).resolve().parents[3]
-
     inventory_content = _build_inventory(hostname, port)
     playbook_content = _build_playbook(roles)
 
@@ -171,14 +168,14 @@ def _run_deploy(
 
         print(f"\n▶️  Deploying runner to {hostname} — output: {output_file}\n")
 
-        with open(output_file, "w", encoding="utf-8") as out_f:
+        with Path(output_file).open("w", encoding="utf-8") as out_f:
             proc = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
                 encoding="utf-8",
-                cwd=str(repo_root),
+                cwd=str(PROJECT_ROOT),
             )
             for line in proc.stdout:
                 print(line, end="", flush=True)
@@ -193,15 +190,13 @@ def _run_deploy(
         return proc.returncode
 
     finally:
-        # Temp files may already be gone if the process cleaned up; OSError is expected and harmless.
         with contextlib.suppress(OSError):
-            os.unlink(inv_path)
+            Path(inv_path).unlink()
         with contextlib.suppress(OSError):
-            os.unlink(pb_path)
+            Path(pb_path).unlink()
 
 
-def main(argv: Optional[List[str]] = None) -> int:
-    """CLI entry point for `infinito deploy runner`."""
+def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 

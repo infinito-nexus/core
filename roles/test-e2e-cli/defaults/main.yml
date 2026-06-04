@@ -1,5 +1,5 @@
 TEST_E2E_CLI_STAGE_BASE_DIR: "/tmp/test-e2e-cli"
 
 # Run only a subset (optional)
-TEST_E2E_CLI_ONLY_ROLES: "{{ allowed_applications }}"
+TEST_E2E_CLI_ONLY_ROLES: "{{ allowed_applications | default([]) }}"
 TEST_E2E_CLI_SKIP_ROLES: []

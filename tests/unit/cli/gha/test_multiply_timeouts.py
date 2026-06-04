@@ -7,14 +7,11 @@ import textwrap
 import unittest
 from pathlib import Path
 
-SCRIPT = (
-    Path(__file__).resolve().parents[4]
-    / "scripts"
-    / "tests"
-    / "deploy"
-    / "ci"
-    / "multiply-timeouts.sh"
-)
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
+
+from . import PROJECT_ROOT
+
+SCRIPT = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "ci" / "multiply-timeouts.sh"
 
 
 def _run(multiplier: int, repo_root: str) -> None:
@@ -74,34 +71,34 @@ class TestMultiplyTimeouts(unittest.TestCase):
         self.assertIn(
             "retries: 10",
             (
-                Path(self.root) / "roles" / "web-app-foo" / "tasks" / "main.yml"
-            ).read_text(),
+                Path(self.root) / "roles" / "web-app-foo" / ROLE_FILE_TASKS_MAIN
+            ).read_text(),  # nocheck: cache-read
         )
 
     def test_multiplies_retries(self):
         _run(3, self.root)
         content = (
-            Path(self.root) / "roles" / "web-app-foo" / "tasks" / "main.yml"
-        ).read_text()
+            Path(self.root) / "roles" / "web-app-foo" / ROLE_FILE_TASKS_MAIN
+        ).read_text()  # nocheck: cache-read
         self.assertIn("retries: 30", content)
 
     def test_multiplies_start_period(self):
         _run(3, self.root)
         content = (
             Path(self.root) / "roles" / "web-app-foo" / "templates" / "compose.yml.j2"
-        ).read_text()
+        ).read_text()  # nocheck: cache-read
         self.assertIn("start_period: 90s", content)
 
     def test_multiplies_uri_retry_default_retries(self):
         _run(3, self.root)
-        content = (Path(self.root) / "plugins" / "action" / "uri_retry.py").read_text()
+        content = (Path(self.root) / "plugins" / "action" / "uri_retry.py").read_text()  # nocheck: cache-read
         self.assertIn("DEFAULT_RETRIES = 90", content)
 
     def test_multiplier_zero_is_noop(self):
         _run(0, self.root)
         content = (
-            Path(self.root) / "roles" / "web-app-foo" / "tasks" / "main.yml"
-        ).read_text()
+            Path(self.root) / "roles" / "web-app-foo" / ROLE_FILE_TASKS_MAIN
+        ).read_text()  # nocheck: cache-read
         self.assertIn("retries: 10", content)
 
 

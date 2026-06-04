@@ -7,9 +7,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-SCRIPT = (
-    Path(__file__).resolve().parents[4] / "scripts" / "github" / "split_runner_apps.sh"
-)
+from . import PROJECT_ROOT
+
+SCRIPT = PROJECT_ROOT / "scripts" / "github" / "split_runner_apps.sh"
 
 
 def _run(apps: list, self_hosted_count: int) -> dict:
@@ -22,12 +22,12 @@ def _run(apps: list, self_hosted_count: int) -> dict:
         env["GITHUB_OUTPUT"] = out_path
         subprocess.run(["bash", str(SCRIPT)], env=env, check=True, capture_output=True)
         result = {}
-        for line in Path(out_path).read_text().splitlines():
+        for line in Path(out_path).read_text().splitlines():  # nocheck: cache-read
             key, _, value = line.partition("=")
             result[key] = json.loads(value)
         return result
     finally:
-        os.unlink(out_path)
+        Path(out_path).unlink(missing_ok=True)
 
 
 class TestSplitRunnerApps(unittest.TestCase):
