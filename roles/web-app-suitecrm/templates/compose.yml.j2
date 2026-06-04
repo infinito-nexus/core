@@ -30,8 +30,7 @@
       - "{{ SUITECRM_LDAP_CONFIG_HOST }}:{{ SUITECRM_LDAP_EXTENSION_DIR }}/ldap.yaml"
 {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': SUITECRM_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

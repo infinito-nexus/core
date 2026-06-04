@@ -100,8 +100,7 @@
 {% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
 {%   set _ = _extra_volumes.update({'chatgpt_data': {}}) %}
 {% endif %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes=_extra_volumes
 ) }}
 

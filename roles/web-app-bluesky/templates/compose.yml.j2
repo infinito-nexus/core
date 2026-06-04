@@ -66,8 +66,7 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'pds_data': {'name': BLUESKY_PDS_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

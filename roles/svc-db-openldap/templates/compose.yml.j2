@@ -23,8 +23,7 @@
 
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'config': {'name': OPENLDAP_CONFIG_VOLUME}, 'data': {'name': OPENLDAP_VOLUME}}
 ) }}
 

@@ -17,8 +17,7 @@
       - "{{ pgadmin_host_password_file }}:{{ pgadmin_docker_password_file }}"
 {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': PGADMIN_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

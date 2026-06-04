@@ -127,8 +127,7 @@
   ERPNEXT_ASSETS_VOLUME: {'name': ERPNEXT_ASSETS_VOLUME},
   ERPNEXT_LOGS_VOLUME: {'name': ERPNEXT_LOGS_VOLUME}
 } %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes=erpnext_extra_volumes
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

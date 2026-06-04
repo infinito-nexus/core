@@ -78,8 +78,7 @@
     {{ lookup('compose_restart') }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'code': {'name': MOODLE_VOLUME_CODE}, 'data': {'name': MOODLE_VOLUME_DATA}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

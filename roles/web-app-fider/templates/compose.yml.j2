@@ -16,7 +16,6 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

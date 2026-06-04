@@ -45,8 +45,7 @@
   ODOO_ADDONS_VOLUME: {'name': ODOO_ADDONS_VOLUME},
   ODOO_CONFIG_VOLUME: {'name': ODOO_CONFIG_VOLUME}
 } %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes=odoo_extra_volumes
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

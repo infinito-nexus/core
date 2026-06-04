@@ -20,7 +20,6 @@
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': WORDPRESS_VOLUME}}
 ) }}

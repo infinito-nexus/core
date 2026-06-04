@@ -180,6 +180,8 @@ def compose_volumes(
     return dump_yaml_str(payload).rstrip()
 
 
-class FilterModule:
-    def filters(self):
-        return {"compose_volumes": compose_volumes}
+# The Jinja filter registration was removed: the canonical entry point is
+# now the `compose_volumes` lookup at `plugins/lookup/compose_volumes.py`,
+# which absorbs the applications-lookup pipe step and auto-wires
+# DEPLOYMENT_MODE + storage from globals. This function stays exported
+# so the lookup (and tests) can import it directly.

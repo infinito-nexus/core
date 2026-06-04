@@ -67,7 +67,6 @@
       start_period: 10s
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': COTURN_DATA_VOLUME}}
 ) }}

@@ -82,8 +82,7 @@
     logging:
       driver: journald
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={
       'data':   {'name': OPENTALK_DATA_VOLUME},
       'config': {'name': OPENTALK_CONFIG_VOLUME},

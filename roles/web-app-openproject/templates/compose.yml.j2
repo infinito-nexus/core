@@ -93,8 +93,7 @@ x-op-app: &app
       - "data:/var/openproject/assets"
       - "{{ OPENPROJECT_DUMMY_DIR }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': OPENPROJECT_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

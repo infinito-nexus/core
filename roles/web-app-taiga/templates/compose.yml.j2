@@ -192,8 +192,7 @@ image: "{{ TAIGA_DOCKER_IMAGE_BACKEND_AUTH }}"
       - {{ TAIGA_FRONT_SERVICE }}
       - {{ TAIGA_SERVICE }}
       - {{ TAIGA_EVENTS_SERVICE }}
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'async-rabbitmq-data': {'name': TAIGA_ASYNC_RABBITMQ_DATA_VOLUME}, 'events-rabbitmq-data': {'name': TAIGA_EVENTS_RABBITMQ_DATA_VOLUME}, 'media-data': {'name': TAIGA_MEDIA_DATA_VOLUME}, 'static-data': {'name': TAIGA_STATIC_DATA_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

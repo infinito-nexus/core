@@ -15,8 +15,7 @@
       - {{ XMPP_CONFIG_FILE }}:/home/ejabberd/conf/ejabberd.yml:ro
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={
       'data':   {'name': XMPP_VOLUME},
       'conf':   {'name': XMPP_CONF_VOLUME},

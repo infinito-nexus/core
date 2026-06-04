@@ -42,7 +42,6 @@
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'flowise_data': {'name': FLOWISE_DATA_VOLUME}, 'qdrant_data': {'name': FLOWISE_QDRANT_DATA_VOLUME}}
 ) }}

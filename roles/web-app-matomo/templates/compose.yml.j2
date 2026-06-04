@@ -34,8 +34,7 @@
       {{ MATOMO_SERVICE }}:
         condition: service_healthy
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': MATOMO_DATA}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

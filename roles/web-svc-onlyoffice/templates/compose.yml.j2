@@ -20,7 +20,6 @@
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': ONLYOFFICE_VOLUME_DATA}, 'fonts': {'name': ONLYOFFICE_VOLUME_FONTS}, 'lib': {'name': ONLYOFFICE_VOLUME_LIB}, 'logs': {'name': ONLYOFFICE_VOLUME_LOGS}, 'pgdata': {'name': ONLYOFFICE_VOLUME_PGDATA}, 'rabbitmqdata': {'name': ONLYOFFICE_VOLUME_RABBITMQ}, 'redisdata': {'name': ONLYOFFICE_VOLUME_REDIS}}
 ) }}

@@ -132,8 +132,7 @@ x-environment: &shopware
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'bundles': {'name': SHOPWARE_BUNDLES_VOLUME}, 'data': {'name': SHOPWARE_VOLUME}, 'files': {'name': SHOPWARE_FILES_VOLUME}, 'media': {'name': SHOPWARE_MEDIA_VOLUME}, 'sitemap': {'name': SHOPWARE_SITEMAP_VOLUME}, 'theme': {'name': SHOPWARE_THEME_VOLUME}, 'thumbnail': {'name': SHOPWARE_THUMBNAIL_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

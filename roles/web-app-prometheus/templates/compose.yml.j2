@@ -79,7 +79,7 @@
       - "--path.sysfs=/host/sys"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
 
-{{ lookup('applications') | compose_volumes(application_id, extra_volumes={'data': {'name': PROMETHEUS_VOLUME_DATA}, 'alertmanager_data': {'name': ALERTMANAGER_VOLUME_DATA}}) }}
+{{ lookup('compose_volumes', application_id, extra_volumes={'data': {'name': PROMETHEUS_VOLUME_DATA}, 'alertmanager_data': {'name': ALERTMANAGER_VOLUME_DATA}}) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 {% for metrics_app_id in lookup('native_metrics_apps') %}
   {{ metrics_app_id | get_entity_name }}:

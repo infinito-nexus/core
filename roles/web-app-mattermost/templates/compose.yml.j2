@@ -24,8 +24,7 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={
       'config':   {'name': MATTERMOST_VOLUME_CONFIG},
       'data':     {'name': MATTERMOST_VOLUME_DATA},

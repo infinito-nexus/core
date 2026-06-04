@@ -15,8 +15,7 @@
       - config:/etc/opencloud
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={
       'data':   {'name': OPENCLOUD_DATA_VOLUME},
       'config': {'name': OPENCLOUD_CONFIG_VOLUME}

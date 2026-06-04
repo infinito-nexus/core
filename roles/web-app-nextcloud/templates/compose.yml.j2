@@ -142,8 +142,7 @@
 {% if NEXTCLOUD_RECORDING_ENABLED | bool %}
 {%   set _ = _extra_volumes.update({'talk_recording_tmp': {'name': NEXTCLOUD_RECORDING_TMP_VOLUME}}) %}
 {% endif %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes=_extra_volumes
 ) }}
 

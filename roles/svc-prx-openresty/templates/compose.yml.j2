@@ -33,4 +33,4 @@
       timeout: 5s
       retries: 3
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}

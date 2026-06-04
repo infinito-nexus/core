@@ -65,8 +65,7 @@
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.kix.ports.local.http') }}:80"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={'kix_db': {'name': KIX_DB_VOLUME}, 'kix_shared': {'name': KIX_SHARED_VOLUME}, 'kix_backend': {'name': KIX_BACKEND_VOLUME}, 'kix_frontend': {'name': KIX_FRONTEND_VOLUME}}
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
