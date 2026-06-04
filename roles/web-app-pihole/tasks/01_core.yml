@@ -1,11 +1,5 @@
 - include_tasks: utils/once/flag.yml
 
-- name: "Remove stale oauth2-proxy config directory if it exists"
-  ansible.builtin.file:
-    path: "/opt/compose/{{ application_id }}/volumes/oauth2-proxy-keycloak.cfg"
-    state: absent
-  become: true
-
 - name: "Load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

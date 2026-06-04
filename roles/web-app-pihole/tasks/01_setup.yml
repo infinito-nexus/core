@@ -5,6 +5,6 @@
     delay:    5
     timeout:  120
 
-- name: "Run OAuth2-protected Pi-hole setup tasks"
-  include_tasks: 01_setup_oauth2.yml
-  when: PIHOLE_OAUTH2_ENABLED | bool
+- name: "Set Pi-hole admin password"
+  ansible.builtin.command: "container exec {{ PIHOLE_CONTAINER }} pihole setpassword {{ PIHOLE_PASSWORD | quote }}"
+  become: true
