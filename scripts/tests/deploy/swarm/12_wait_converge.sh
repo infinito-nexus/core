@@ -35,7 +35,9 @@ for i in $(seq 1 90); do
 	echo "[${i}] ${ENTITY}: ${app_replicas} | state: ${app_state} | db(${DB_DEP}): ${db_state}"
 
 	app_ok="false"
-	if [ "${app_replicas}" = "1/1" ] && echo "${app_state}" | grep -q '^Running'; then
+	if [ -n "${app_replicas}" ] &&
+		echo "${app_replicas}" | grep -qE '^([0-9]+)/\1$' &&
+		echo "${app_state}" | grep -q '^Running'; then
 		app_ok="true"
 	fi
 	db_ok="true"

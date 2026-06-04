@@ -4,8 +4,14 @@ set -euo pipefail
 ssh-keygen -t ed25519 -N "" -f /tmp/swarm-nfs-admin.key -C "swarm-test" -q
 ADMIN_PUBKEY=$(cat /tmp/swarm-nfs-admin.key.pub)
 
+RUNTIME_VALUE="$(python3 -m cli.meta.runtime)"
+
 cat >/tmp/swarm-nfs-extras.yml <<EOF
+RUNTIME: "${RUNTIME_VALUE}"
 TLS_MODE: "self_signed"
+networks:
+  internet:
+    dns: "1.1.1.1" # nocheck: hardcoded-dns-resolver
 storage:
   backend: nfs
   nfs:

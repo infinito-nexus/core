@@ -18,7 +18,27 @@ esac
 includes+=("${APP_ID}")
 
 mkdir -p /tmp/inv
-python3 -m cli.administration.inventory.provision /tmp/inv \
-	--host "${MGR}" \
-	--include "${includes[@]}" \
+
+provision_args=(
+	--host "${MGR}"
+	--include "${includes[@]}"
 	--workers 2
+)
+if [[ "$(python3 -m cli.meta.runtime)" == "github" ]]; then
+	: "${INFINITO_GHCR_MIRROR_PREFIX:?required in github runtime}"
+	: "${GITHUB_REPOSITORY_OWNER:?required in github runtime}"
+	: "${GITHUB_REPOSITORY:?required in github runtime}"
+	ghcr_namespace="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+	ghcr_repository="$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2- | tr '[:upper:]' '[:lower:]')"
+	mirrors_file="/tmp/inv/mirrors.yml"
+	python3 -m cli.contributing.mirror.resolver \
+		--repo-root . \
+		--ghcr-namespace "${ghcr_namespace}" \
+		--ghcr-repository "${ghcr_repository}" \
+		--ghcr-prefix "${INFINITO_GHCR_MIRROR_PREFIX}" \
+		>"${mirrors_file}"
+	provision_args+=(--mirror "${mirrors_file}")
+	echo "[swarm-test] mirrors.yml generated: ${mirrors_file}"
+fi
+
+python3 -m cli.administration.inventory.provision /tmp/inv "${provision_args[@]}"

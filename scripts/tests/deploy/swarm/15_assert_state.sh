@@ -10,13 +10,13 @@ for i in $(seq 1 60); do
 	REPL=$(docker exec "${MGR}" docker service ls \
 		--filter "name=${SERVICE_NAME}" --format '{{.Replicas}}')
 	echo "[${i}] ${ENTITY} replicas: ${REPL}"
-	if [ "${REPL}" = "1/1" ]; then
+	if echo "${REPL}" | grep -qE '^([0-9]+)/\1$'; then
 		break
 	fi
 	sleep 2
 done
-[ "${REPL}" = "1/1" ] || {
-	echo "Replicas != 1/1: ${REPL}"
+echo "${REPL}" | grep -qE '^([0-9]+)/\1$' || {
+	echo "Replicas not fully converged: ${REPL}"
 	exit 1
 }
 

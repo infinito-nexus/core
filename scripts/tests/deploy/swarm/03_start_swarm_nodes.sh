@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# act's embedded resolver intermittently returns EAI_AGAIN.
+swarm_node_dns=(--dns 1.1.1.1 --dns 8.8.8.8) # nocheck: hardcoded-dns-resolver
+
 # /tmp:exec: Docker's default tmpfs is noexec; dpkg-buildpackage execve()s debian/rules.
 for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	docker run -d --name "${node}" \
@@ -10,6 +13,7 @@ for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 		--cgroupns=host \
 		--security-opt seccomp=unconfined \
 		--security-opt apparmor=unconfined \
+		"${swarm_node_dns[@]}" \
 		--tmpfs /run \
 		--tmpfs /run/lock \
 		--tmpfs /tmp:exec \
@@ -53,3 +57,12 @@ MGR_HOSTS_EXTRA="$(
 EOF
 )"
 docker exec -i "${MGR}" sh -c 'cat >> /etc/hosts' <<<"${MGR_HOSTS_EXTRA}"
+
+# Daemon DNS for containers spawned by the inner daemon; outer --dns is
+# clobbered by systemd-resolved inside DinD.
+# nocheck: hardcoded-dns-resolver
+swarm_daemon_dns_json='{"dns": ["1.1.1.1", "8.8.8.8"]}'
+for node in "${MGR}" "${WRK1}" "${WRK2}"; do
+	docker exec "${node}" mkdir -p /etc/docker
+	docker exec -i "${node}" sh -c 'cat > /etc/docker/daemon.json' <<<"${swarm_daemon_dns_json}"
+done
