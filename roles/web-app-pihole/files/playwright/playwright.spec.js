@@ -126,7 +126,7 @@ test("administrator: can log out via logout button", async ({ page }) => {
   await page.screenshot({ path: "/reports/debug-before-logout.png" });
 
   // Navigate to oauth2-proxy sign-out endpoint
-  await page.goto(`${expectedPiholeBaseUrl}/oauth2/sign_out?rd=${encodeURIComponent(\`\${oidcIssuerUrl.replace(/\/$/, '')}/protocol/openid-connect/logout\`)}`);
+  await page.goto(`${expectedPiholeBaseUrl}/oauth2/sign_out?rd=${encodeURIComponent(oidcIssuerUrl.replace(/\/$/, '').concat('/protocol/openid-connect/logout'))}`);
 
   // Click confirmation button on Keycloak logout page
   const confirmButton = page.locator('#kc-logout');
