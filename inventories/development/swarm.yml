@@ -8,6 +8,8 @@ TLS_MODE: "self_signed"
 
 networks:
   internet:
+    ip4: "127.0.0.1"
+    ip6: "::1"
     dns: "1.1.1.1"
 
 storage:
