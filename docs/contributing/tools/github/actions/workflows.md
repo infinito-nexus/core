@@ -51,7 +51,7 @@ Trigger column legend: **auto** = fires automatically (push, pull_request, sched
 
 | Workflow | Description | Trigger | Inputs |
 |---|---|---|---|
-| [images-build-ci.yml](../../../../../.github/workflows/images-build-ci.yml): `🐳 Build: CI Images (all distros)` | Builds the per-distro CI base images consumed by all test jobs. | reusable | `distros` (required), `checkout_ref` (optional), `image_tag` (default `ci-${github.sha}`), `concurrency_channel` (default `default`) |
+| [images-build-ci.yml](../../../../../.github/workflows/images-build-ci.yml): `🖼️ Build: CI Images (all distros)` | Builds the per-distro CI base images consumed by all test jobs. | reusable | `distros` (required), `checkout_ref` (optional), `image_tag` (default `ci-${github.sha}`), `concurrency_channel` (default `default`) |
 | [images-cleanup-ci.yml](../../../../../.github/workflows/images-cleanup-ci.yml): `🧹 Images: Cleanup CI (GHCR)` | Deletes CI images from GHCR older than N days. | auto (`schedule`: weekly Mon 00:00 UTC), manual | `days` (default `7`) |
 
 ### Image mirroring 🪞
