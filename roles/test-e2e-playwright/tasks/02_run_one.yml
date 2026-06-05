@@ -57,6 +57,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_env_template }}"
   register: _env_template_stat
+  delegate_to: localhost
 
 - name: Fail if Playwright env template is missing
   ansible.builtin.fail:
@@ -67,6 +68,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_spec_src }}"
   register: _spec_stat
+  delegate_to: localhost
 
 - name: Fail if Playwright spec is missing
   ansible.builtin.fail:
@@ -77,6 +79,7 @@
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
   register: _playwright_app_vars_stat
+  delegate_to: localhost
 
 - name: Load optional application vars
   ansible.builtin.include_vars:
@@ -105,6 +108,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_default_package_template }}"
   register: _default_package_stat
+  delegate_to: localhost
 
 - name: Fail when central default package.json template is missing
   ansible.builtin.fail:
@@ -136,6 +140,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_default_config_js }}"
   register: _default_config_stat
+  delegate_to: localhost
 
 - name: Fail when central default playwright.config.js is missing
   ansible.builtin.fail:
