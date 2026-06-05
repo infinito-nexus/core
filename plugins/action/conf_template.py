@@ -42,6 +42,7 @@ class ActionModule(TemplateActionModule):
         if task_vars is None:
             task_vars = {}
 
+        self._templar.available_variables = task_vars
         if not _to_bool(
             self._templar.template("{{ IS_STACK_HOST | default(false) | bool }}")
         ):
