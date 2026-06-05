@@ -176,7 +176,7 @@ jobs:
       - name: Deploy app
         shell: bash
         env:
-          APPS: ${{ matrix.apps }}
+          apps: ${{ matrix.apps }}
           INFINITO_TIMEOUT_MULTIPLIER: ${{ vars.INFINITO_TIMEOUT_MULTIPLIER || '1' }}
         run: ./scripts/tests/deploy/ci/all.sh
 
