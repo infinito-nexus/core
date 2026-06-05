@@ -15,7 +15,7 @@
           AUXILIARY
           MAY ( {{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }} $ sshFingerprint ) )
   command: >
-    {{ lookup('command_path', 'ldapsm') }}
+    ldapsm
       -s {{ OPENLDAP_SERVER_URI }}
       -D '{{ OPENLDAP_BIND_DN }}'
       -W '{{ OPENLDAP_BIND_PW }}'
