@@ -1,5 +1,5 @@
 - name: Tune kernel inotify limits for parallel runner containers
-  ansible.posix.sysctl:
+  sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
     state: present

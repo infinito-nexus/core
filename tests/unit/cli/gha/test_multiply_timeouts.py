@@ -91,7 +91,9 @@ class TestMultiplyTimeouts(unittest.TestCase):
 
     def test_multiplies_uri_retry_default_retries(self):
         _run(3, self.root)
-        content = (Path(self.root) / "plugins" / "action" / "uri_retry.py").read_text()  # nocheck: cache-read
+        content = (
+            Path(self.root) / "plugins" / "action" / "uri_retry.py"
+        ).read_text()  # nocheck: cache-read
         self.assertIn("DEFAULT_RETRIES = 90", content)
 
     def test_multiplier_zero_is_noop(self):

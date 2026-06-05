@@ -40,7 +40,11 @@ def discover_cli_roles(
 
     # Marker for CLI-test-enabled roles: .../roles/<role>/templates/test.env.j2
     for env_file in base.rglob("templates/test.env.j2"):
-        role_name = env_file.parents[1].name
+        role_name = (
+            env_file.parents[  # nocheck: project-root-import — navigating role dir
+                1
+            ].name
+        )
         found.append(role_name)
 
     uniq = sorted(set(found))
