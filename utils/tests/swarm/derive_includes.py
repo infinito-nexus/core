@@ -3,7 +3,7 @@
 ``--include`` so the resulting inventory has every group APP_ID's
 transitive deps will need at deploy time.
 
-``svc-docker-swarm-manager`` (subset marker) and
+``svc-swarm-manager`` (subset marker) and
 ``svc-storage-nfs-client`` (no ``application_id``) are added
 explicitly because the dep-walker only knows roles that are in the
 ``applications`` dict.
@@ -23,7 +23,7 @@ from utils.roles.applications.in_group_deps import applications_if_group_and_all
 _ROLES_DIR = PROJECT_ROOT / "roles"
 
 _EXPLICIT_INCLUDES: tuple[str, ...] = (
-    "svc-docker-swarm-manager",
+    "svc-swarm-manager",
     "svc-storage-nfs-client",
 )
 

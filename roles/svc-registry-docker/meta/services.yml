@@ -1,0 +1,23 @@
+---
+# nocheck: dynamic-flag
+swarm:
+  enabled: true
+  shared: true
+docker:
+  default_placement: manager
+  enabled: true
+  shared: true
+  image: registry
+  version: "2"
+  name: registry
+  min_storage: 5GB
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 256
+  ports:
+    local:
+      registry: 5000
+  lifecycle: alpha
+  run_after:
+    - svc-swarm

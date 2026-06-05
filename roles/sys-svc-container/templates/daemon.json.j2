@@ -4,9 +4,9 @@
 {% if DEPLOYMENT_MODE == 'swarm' and (swarm.registry.host | length > 0) %}
 {% set _ = _insecure.append(swarm.registry.host ~ ':' ~ swarm.registry.port) %}
 {% endif %}
-{% set _cache_hosts = groups['svc-cache-registry'] | default([]) %}
+{% set _cache_hosts = groups['svc-registry-cache'] | default([]) %}
 {% if _cache_hosts | length > 0 %}
-{% set _cache_port = lookup('config', 'svc-cache-registry', 'services.cache-registry.ports.local.registry') %}
+{% set _cache_port = lookup('config', 'svc-registry-cache', 'services.cache.ports.local.registry') %}
 {% set _ = _insecure.append(_cache_hosts[0] ~ ':' ~ _cache_port) %}
 {% endif %}
 {

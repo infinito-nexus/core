@@ -146,14 +146,14 @@ class TestMetaLookup(unittest.TestCase):
 
     def test_default_placement_manager_is_returned(self) -> None:
         role_dir = self.fx.write(
-            "svc-cache-registry",
+            "svc-registry-cache",
             """
-            cache-registry:
+            cache:
               default_placement: manager
             """,
         )
         self.assertEqual(
-            get_role_default_placement(role_dir, role_name="svc-cache-registry"),
+            get_role_default_placement(role_dir, role_name="svc-registry-cache"),
             "manager",
         )
 
@@ -171,12 +171,12 @@ class TestMetaLookup(unittest.TestCase):
 
     def test_iter_roles_with_default_placement_filters_correctly(self) -> None:
         self.fx.write(
-            "svc-cache-registry",
-            "cache-registry:\n  default_placement: manager\n",
+            "svc-registry-cache",
+            "cache:\n  default_placement: manager\n",
         )
         self.fx.write(
-            "svc-docker-registry",
-            "registry:\n  default_placement: manager\n",
+            "svc-registry-docker",
+            "docker:\n  default_placement: manager\n",
         )
         self.fx.write(
             "svc-prx-openresty",
@@ -194,15 +194,15 @@ class TestMetaLookup(unittest.TestCase):
         managers = iter_roles_with_default_placement("manager", roles_dir=self.fx.root)
         self.assertEqual(
             managers,
-            ["svc-cache-registry", "svc-docker-registry", "svc-prx-openresty"],
+            ["svc-prx-openresty", "svc-registry-cache", "svc-registry-docker"],
         )
 
     def test_iter_roles_with_default_placement_empty_placement_returns_empty(
         self,
     ) -> None:
         self.fx.write(
-            "svc-cache-registry",
-            "cache-registry:\n  default_placement: manager\n",
+            "svc-registry-cache",
+            "cache:\n  default_placement: manager\n",
         )
         self.assertEqual(
             iter_roles_with_default_placement("", roles_dir=self.fx.root),

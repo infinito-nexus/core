@@ -1,0 +1,12 @@
+---
+# nocheck: required-by-coverage
+swarm:
+  name: swarm
+  lifecycle: pre-alpha
+  enabled: true
+  shared: true
+  min_storage: "100MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "128m"
+  pids_limit: 256

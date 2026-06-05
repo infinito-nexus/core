@@ -18,9 +18,9 @@
   ansible.builtin.include_role:
     name: "{{ item }}"
   loop:
-    - svc-docker-swarm
+    - svc-swarm
     - svc-storage-nfs-client
-  when: "'svc-docker-swarm' in group_names"
+  when: "'svc-swarm' in group_names"
 
 - name: "Include server roles"
   include_tasks: "./tasks/groups/{{ server_group }}-roles.yml"

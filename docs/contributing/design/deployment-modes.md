@@ -29,18 +29,18 @@ The trigger is **group membership**, not a per-role flag.
 
 | Host's `group_names` contains      | Resolved `DEPLOYMENT_MODE` |
 | ---------------------------------- | -------------------------- |
-| `svc-docker-swarm`                 | `swarm`                    |
+| `svc-swarm`                 | `swarm`                    |
 | anything else                      | `compose`                  |
 
 `DEPLOYMENT_MODE` is defined at a single point of truth in
 [group_vars/all/18_swarm.yml](../../../group_vars/all/18_swarm.yml) as
-`{{ 'swarm' if 'svc-docker-swarm' in group_names else 'compose' }}`.
+`{{ 'swarm' if 'svc-swarm' in group_names else 'compose' }}`.
 
 Refinements:
 
 - **Per-role opt-OUT** on a swarm host: a role MAY override
   `DEPLOYMENT_MODE: compose` in its `vars/main.yml` to stay on the
-  compose path even when the host is in `svc-docker-swarm`. Role vars
+  compose path even when the host is in `svc-swarm`. Role vars
   win over `group_vars/all` by Ansible precedence.
 - **Per-role opt-IN** on a non-swarm host: explicitly rejected. Swarm
   mode is exclusively triggered by group membership. The per-role
@@ -49,10 +49,10 @@ Refinements:
 
 ## Manager identification
 
-Among the hosts in `svc-docker-swarm`, the cluster manager is identified
-by additional membership in `svc-docker-swarm-manager`. v1 scope:
+Among the hosts in `svc-swarm`, the cluster manager is identified
+by additional membership in `svc-swarm-manager`. v1 scope:
 exactly ONE host. Workers are derived as
-`svc-docker-swarm − svc-docker-swarm-manager` — no duplicated list in
+`svc-swarm − svc-swarm-manager` — no duplicated list in
 `group_vars`.
 
 A deploy with zero or more than one manager fails at
@@ -135,7 +135,7 @@ and rollback granularity across unrelated apps.
 
 ## See also
 
-- [svc-docker-swarm](../../../roles/svc-docker-swarm/)
+- [svc-swarm](../../../roles/svc-swarm/)
 - [svc-storage-nfs-server](../../../roles/svc-storage-nfs-server/)
 - [svc-storage-nfs-client](../../../roles/svc-storage-nfs-client/)
 - [svc-prx-openresty](../../../roles/svc-prx-openresty/)

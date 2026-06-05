@@ -114,14 +114,14 @@
 
 - name: "Auto-place single-host shared services on first manager (swarm mode)"
   ansible.builtin.add_host:
-    name: "{{ (groups['svc-docker-swarm-manager'] | default([]))[0] }}"
+    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] }}"
     groups: "{{ role_id }}"
   loop: "{{ lookup('roles_with_default_placement', 'manager') }}"
   loop_control:
     loop_var: role_id
     label: "{{ role_id }}"
   when:
-    - (groups['svc-docker-swarm-manager'] | default([]) | length) > 0
+    - (groups['svc-swarm-manager'] | default([]) | length) > 0
     - (groups[role_id] | default([]) | length) == 0
   run_once: true
   changed_when: false
@@ -140,27 +140,25 @@
         | list
       }}
   when:
-    - (groups['svc-docker-swarm-manager'] | default([]) | length) == 0
+    - (groups['svc-swarm-manager'] | default([]) | length) == 0
     - (groups['svc-prx-openresty'] | default([]) | length) == 0
     - (_web_groups | length) > 0
   run_once: true
   changed_when: false
 
-- name: "Bootstrap swarm cluster + NFS clients (MUST precede Preload)"
+- name: "Bootstrap svc-swarm"
+  ansible.builtin.include_role:
+    name: svc-swarm
+  when: "'svc-swarm' | application_allowed(group_names, lookup('deployment').whitelist)"
+
+- name: "Bootstrap registry + NFS clients (MUST precede Preload)"
   ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
   loop:
-    - svc-docker
+    - svc-registry
     - svc-storage
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}-roles.yml"
-
-- name: "Bootstrap cluster-local Docker Hub pull-through cache (after swarm, before apps)"
-  ansible.builtin.include_role:
-    name: svc-cache-registry
-  when:
-    - "'svc-cache-registry' | application_allowed(group_names, lookup('deployment').whitelist)"
-    - run_once_svc_cache_registry is not defined
 
 - name: Preload shared services
   ansible.builtin.include_role:

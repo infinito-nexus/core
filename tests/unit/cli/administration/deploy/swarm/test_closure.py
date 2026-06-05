@@ -55,7 +55,7 @@ class TestIsSwarmInventory(_BaseClosureCase, unittest.TestCase):
             """
             all:
               children:
-                svc-docker-swarm-manager:
+                svc-swarm-manager:
                   hosts:
                     mgr-01: {}
             """,
@@ -83,11 +83,11 @@ class TestSwarmInfraClosure(_BaseClosureCase, unittest.TestCase):
             """
             all:
               children:
-                svc-docker-swarm-manager:
+                svc-swarm-manager:
                   hosts: { mgr-01: {} }
-                svc-docker-registry:
+                svc-registry-docker:
                   hosts: { mgr-01: {} }
-                svc-cache-registry:
+                svc-registry-cache:
                   hosts: { mgr-01: {} }
             """,
         )
@@ -95,14 +95,14 @@ class TestSwarmInfraClosure(_BaseClosureCase, unittest.TestCase):
             closure,
             "iter_roles_with_default_placement",
             return_value=[
-                "svc-cache-registry",
+                "svc-registry-cache",
                 "svc-db-mariadb",  # NOT in inventory -> excluded
-                "svc-docker-registry",
+                "svc-registry-docker",
                 "svc-prx-openresty",  # NOT in inventory -> excluded
             ],
         ):
             result = closure.swarm_infra_closure(path)
-        self.assertEqual(result, ["svc-cache-registry", "svc-docker-registry"])
+        self.assertEqual(result, ["svc-registry-cache", "svc-registry-docker"])
 
     def test_empty_for_compose_inventory(self) -> None:
         path = self._write_inv(
@@ -117,7 +117,7 @@ class TestSwarmInfraClosure(_BaseClosureCase, unittest.TestCase):
         with mock.patch.object(
             closure,
             "iter_roles_with_default_placement",
-            return_value=["svc-docker-registry"],
+            return_value=["svc-registry-docker"],
         ):
             self.assertEqual(closure.swarm_infra_closure(path), [])
 
@@ -129,9 +129,9 @@ class TestInventoryRoleGroups(_BaseClosureCase, unittest.TestCase):
             """
             all:
               children:
-                svc-docker-swarm:
+                svc-swarm:
                   hosts: { mgr-01: {} }
-                svc-docker-swarm-manager:
+                svc-swarm-manager:
                   hosts: { mgr-01: {} }
                 svc-storage-nfs-server:
                   hosts: { nfs-01: {} }
@@ -142,7 +142,7 @@ class TestInventoryRoleGroups(_BaseClosureCase, unittest.TestCase):
             """,
         )
         roles_dir = self._write_roles(
-            "svc-docker-swarm",
+            "svc-swarm",
             "svc-storage-nfs-server",
             "web-app-mediawiki",
             "svc-db-mariadb",  # not in inventory -> excluded
@@ -150,7 +150,7 @@ class TestInventoryRoleGroups(_BaseClosureCase, unittest.TestCase):
         result = closure.inventory_role_groups(path, roles_dir=roles_dir)
         self.assertEqual(
             result,
-            ["svc-docker-swarm", "svc-storage-nfs-server", "web-app-mediawiki"],
+            ["svc-storage-nfs-server", "svc-swarm", "web-app-mediawiki"],
         )
 
     def test_excludes_non_role_groups(self) -> None:
@@ -159,15 +159,15 @@ class TestInventoryRoleGroups(_BaseClosureCase, unittest.TestCase):
             """
             all:
               children:
-                svc-docker-swarm-manager:
+                svc-swarm-manager:
                   hosts: { mgr-01: {} }
-                svc-docker-swarm:
+                svc-swarm:
                   hosts: { mgr-01: {} }
             """,
         )
-        roles_dir = self._write_roles("svc-docker-swarm")
+        roles_dir = self._write_roles("svc-swarm")
         result = closure.inventory_role_groups(path, roles_dir=roles_dir)
-        self.assertEqual(result, ["svc-docker-swarm"])
+        self.assertEqual(result, ["svc-swarm"])
 
 
 class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
@@ -177,9 +177,9 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         body_lines = [
             "all:",
             "  children:",
-            "    svc-docker-swarm:",
+            "    svc-swarm:",
             "      hosts: { mgr-01: {} }",
-            "    svc-docker-swarm-manager:",
+            "    svc-swarm-manager:",
             "      hosts: { mgr-01: {} }",
             "    web-app-mediawiki:",
             "      hosts: { mgr-01: {} }",
@@ -213,14 +213,14 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
     def test_seed_from_inventory_when_no_operator_ids(self) -> None:
         path = self._make_swarm_inv(extra_groups={"svc-storage-nfs-server": ["nfs-01"]})
         roles_dir = self._write_roles(
-            "svc-docker-swarm",
+            "svc-swarm",
             "svc-storage-nfs-server",
             "web-app-mediawiki",
             "svc-db-mariadb",
         )
         patches = self._patches(
             dep_walked=[
-                "svc-docker-swarm",
+                "svc-swarm",
                 "svc-storage-nfs-server",
                 "web-app-mediawiki",
                 "svc-db-mariadb",  # added by dep-walk (mediawiki uses mariadb)
@@ -234,14 +234,14 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         # Inventory-seed entries appear first, dep-walk-added in alpha order after.
         self.assertEqual(
             result[:3],
-            ["svc-docker-swarm", "svc-storage-nfs-server", "web-app-mediawiki"],
+            ["svc-storage-nfs-server", "svc-swarm", "web-app-mediawiki"],
         )
         self.assertEqual(result[3], "svc-db-mariadb")
 
     def test_operator_ids_seed_dep_walk(self) -> None:
         path = self._make_swarm_inv()
         roles_dir = self._write_roles(
-            "svc-docker-swarm", "web-app-mediawiki", "svc-db-mariadb"
+            "svc-swarm", "web-app-mediawiki", "svc-db-mariadb"
         )
         patches = self._patches(
             dep_walked=["web-app-mediawiki", "svc-db-mariadb"],
@@ -254,25 +254,25 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         self.assertEqual(result, ["web-app-mediawiki", "svc-db-mariadb"])
 
     def test_default_placement_safety_net_picks_up_inventory_extras(self) -> None:
-        path = self._make_swarm_inv(extra_groups={"svc-cache-registry": ["mgr-01"]})
+        path = self._make_swarm_inv(extra_groups={"svc-registry-cache": ["mgr-01"]})
         roles_dir = self._write_roles(
-            "svc-docker-swarm",
+            "svc-swarm",
             "web-app-mediawiki",
-            "svc-cache-registry",
+            "svc-registry-cache",
         )
-        # dep-walk does NOT include svc-cache-registry (no app declares it
+        # dep-walk does NOT include svc-registry-cache (no app declares it
         # as a service-key dep). The default-placement safety net pulls it
         # in because it's in inventory + carries default_placement: manager.
         patches = self._patches(
-            dep_walked=["svc-docker-swarm", "web-app-mediawiki"],
-            default_placement=["svc-cache-registry"],
+            dep_walked=["svc-swarm", "web-app-mediawiki"],
+            default_placement=["svc-registry-cache"],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(None, path, roles_dir=roles_dir)
-        self.assertIn("svc-cache-registry", result)
+        self.assertIn("svc-registry-cache", result)
         # Cache-registry is in inventory_role_groups (so it's in the seed),
         # then dep-walk passes it through unchanged.
-        self.assertIn("svc-docker-swarm", result)
+        self.assertIn("svc-swarm", result)
         self.assertIn("web-app-mediawiki", result)
 
     def test_no_postgres_when_mariadb_app_in_inventory(self) -> None:
@@ -281,14 +281,14 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         depends on (mariadb in this case), not both."""
         path = self._make_swarm_inv()
         roles_dir = self._write_roles(
-            "svc-docker-swarm",
+            "svc-swarm",
             "web-app-mediawiki",
             "svc-db-mariadb",
             "svc-db-postgres",
         )
         # mediawiki declares mariadb as service-key dep, NOT postgres.
         patches = self._patches(
-            dep_walked=["svc-docker-swarm", "web-app-mediawiki", "svc-db-mariadb"],
+            dep_walked=["svc-swarm", "web-app-mediawiki", "svc-db-mariadb"],
             default_placement=["svc-db-mariadb", "svc-db-postgres"],
         )
         with patches[0], patches[1]:
@@ -306,30 +306,30 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
                   hosts: { single-host: {} }
             """,
         )
-        roles_dir = self._write_roles("web-app-mediawiki", "svc-cache-registry")
+        roles_dir = self._write_roles("web-app-mediawiki", "svc-registry-cache")
         patches = self._patches(
             dep_walked=["web-app-mediawiki"],
-            default_placement=["svc-cache-registry"],
+            default_placement=["svc-registry-cache"],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(None, path, roles_dir=roles_dir)
         self.assertEqual(result, ["web-app-mediawiki"])
-        self.assertNotIn("svc-cache-registry", result)
+        self.assertNotIn("svc-registry-cache", result)
 
     def test_operator_ids_take_precedence_no_dedup_loss(self) -> None:
         path = self._make_swarm_inv()
         roles_dir = self._write_roles(
-            "svc-docker-swarm", "svc-docker-registry", "web-app-mediawiki"
+            "svc-swarm", "svc-registry-docker", "web-app-mediawiki"
         )
         patches = self._patches(
-            dep_walked=["svc-docker-registry", "web-app-mediawiki"],
-            default_placement=["svc-docker-registry"],
+            dep_walked=["svc-registry-docker", "web-app-mediawiki"],
+            default_placement=["svc-registry-docker"],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(
-                ["svc-docker-registry", "web-app-mediawiki"], path, roles_dir=roles_dir
+                ["svc-registry-docker", "web-app-mediawiki"], path, roles_dir=roles_dir
             )
-        self.assertEqual(result, ["svc-docker-registry", "web-app-mediawiki"])
+        self.assertEqual(result, ["svc-registry-docker", "web-app-mediawiki"])
 
 
 if __name__ == "__main__":

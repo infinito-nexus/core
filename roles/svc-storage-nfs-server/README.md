@@ -11,7 +11,7 @@ mount it as if it were a local filesystem.
 
 This role installs the distro-appropriate NFS kernel server, exports
 `storage.nfs.export_base` (default `/srv/nfs`), and restricts access to
-inventory members of the `svc-docker-swarm` group. The export options
+inventory members of the `svc-swarm` group. The export options
 default to `rw,sync,no_subtree_check,root_squash,no_all_squash`. NFS
 server HA, Kerberos integration, and client-side mounting are out of
 scope; client mounts are handled by `svc-storage-nfs-client`.
@@ -21,7 +21,7 @@ scope; client mounts are handled by `svc-storage-nfs-client`.
 - **Distro-aware install:** Installs `nfs-kernel-server` on Debian /
   Ubuntu, `nfs-utils` on Arch / RHEL / Fedora / Alpine.
 - **Inventory-driven ACL:** Allowed-IP list derives from the
-  `svc-docker-swarm` group; unrelated hosts cannot mount.
+  `svc-swarm` group; unrelated hosts cannot mount.
 - **Reload-on-change:** Re-running the role overwrites `/etc/exports`
   with the current allowed-IP set; the handler reloads via
   `exportfs -ra` only when the file changed.

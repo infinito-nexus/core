@@ -14,7 +14,6 @@ ENTITY="${ENTITY#svc-opt-}"
 ENTITY="${ENTITY#svc-prx-}"
 ENTITY="${ENTITY#svc-bkp-}"
 ENTITY="${ENTITY#svc-storage-}"
-ENTITY="${ENTITY#svc-docker-}"
 ENTITY="${ENTITY#svc-net-}"
 ENTITY="${ENTITY#svc-}"
 

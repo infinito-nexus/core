@@ -8,7 +8,7 @@ As a platform administrator, I want Infinito.Nexus to support multi-node Docker 
 
 Today every Infinito.Nexus deploy runs `docker compose` against a single host with volumes on the local filesystem. If a service is rescheduled to another host (maintenance, scaling, node failure) the data is unreachable. This requirement introduces two cooperating capabilities:
 
-1. **Docker Swarm deployment mode** for any role whose own Ansible group lists more than one host. The cluster is bootstrapped by the `svc-docker-swarm` group; per-role topology is derived from `groups[application_id]` directly. A role with one or zero hosts in its group stays on the existing Compose path and renders byte-identical output (no implicit migration). Adding additional hosts to a role's own group is the single trigger that promotes the role to a Swarm service.
+1. **Docker Swarm deployment mode** for any role whose own Ansible group lists more than one host. The cluster is bootstrapped by the `svc-swarm` group; per-role topology is derived from `groups[application_id]` directly. A role with one or zero hosts in its group stays on the existing Compose path and renders byte-identical output (no implicit migration). Adding additional hosts to a role's own group is the single trigger that promotes the role to a Swarm service.
 2. **NFS-backed shared volumes** so that the Swarm scheduler can move a container between nodes without losing volume state.
 
 The implementation MUST keep a clean abstraction line between the render backends so that the future direction — `compose → swarm → kubernetes` — can be added as an additional backend rather than a rewrite.
@@ -18,18 +18,18 @@ The implementation MUST keep a clean abstraction line between the render backend
 ### Mode selection (group-membership trigger)
 
 - [x] The deploy resolves `DEPLOYMENT_MODE` per role from inventory: `swarm` iff `len(groups[application_id]) > 1`, else `compose`. Topology is the single source of truth; there is no per-role mode flag.
-- [x] All hosts in `groups[application_id]` MUST also be in `groups['svc-docker-swarm']` whenever `DEPLOYMENT_MODE` resolves to `swarm`. The cluster infrastructure is bootstrapped by membership in `svc-docker-swarm`; per-role deployment topology is added on top of it by listing hosts in the role's own group.
-- [x] Among the hosts in `svc-docker-swarm`, the cluster manager is identified by membership in the additional group `svc-docker-swarm-manager`. Exactly one host MUST be a member of `svc-docker-swarm-manager` in v1; all other `svc-docker-swarm` members join as workers. A deploy with zero or more-than-one manager MUST fail at inventory-validation time, not at runtime.
+- [x] All hosts in `groups[application_id]` MUST also be in `groups['svc-swarm']` whenever `DEPLOYMENT_MODE` resolves to `swarm`. The cluster infrastructure is bootstrapped by membership in `svc-swarm`; per-role deployment topology is added on top of it by listing hosts in the role's own group.
+- [x] Among the hosts in `svc-swarm`, the cluster manager is identified by membership in the additional group `svc-swarm-manager`. Exactly one host MUST be a member of `svc-swarm-manager` in v1; all other `svc-swarm` members join as workers. A deploy with zero or more-than-one manager MUST fail at inventory-validation time, not at runtime.
 
-### Role: `svc-docker-swarm`
+### Role: `svc-swarm`
 
-- [x] A new role at `roles/svc-docker-swarm/` exists and follows the role-meta layout in [layout.md](../contributing/design/role/services/layout.md) (including `meta/services.yml` with a `lifecycle` key, `meta/schema.yml`, and `tasks/main.yml`).
-- [x] On first application against the host in `svc-docker-swarm-manager`, the role initialises the cluster (`docker swarm init`) with the configured `advertise_addr`, persists the resulting worker and manager join tokens to a documented secret store, and is idempotent on re-runs.
-- [x] On application against any host in `svc-docker-swarm` that is NOT in `svc-docker-swarm-manager`, the role joins the cluster as a worker using the persisted worker token. Joining is idempotent.
+- [x] A new role at `roles/svc-swarm/` exists and follows the role-meta layout in [layout.md](../contributing/design/role/services/layout.md) (including `meta/services.yml` with a `lifecycle` key, `meta/schema.yml`, and `tasks/main.yml`).
+- [x] On first application against the host in `svc-swarm-manager`, the role initialises the cluster (`docker swarm init`) with the configured `advertise_addr`, persists the resulting worker and manager join tokens to a documented secret store, and is idempotent on re-runs.
+- [x] On application against any host in `svc-swarm` that is NOT in `svc-swarm-manager`, the role joins the cluster as a worker using the persisted worker token. Joining is idempotent.
 - [x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions).
 - [x] Node labels declared for a host in inventory are applied to the joining node (`docker node update --label-add`).
 - [x] The role exposes stack-management primitives (`deploy`, `update`, `remove`) consumable by the deploy pipeline of any role rendering a swarm stack.
-- [x] The role renders a valid `docker-stack.yml` for any role whose target host is in `svc-docker-swarm`, derived from the same per-role inputs as today's `docker-compose.yml`.
+- [x] The role renders a valid `docker-stack.yml` for any role whose target host is in `svc-swarm`, derived from the same per-role inputs as today's `docker-compose.yml`.
 - [x] `deploy.replicas` defaults to `len(groups[application_id])` so the swarm scheduler is told how many replicas the inventory declares. A per-role `service_replicas` override stays available for cases where the operator wants a different replica count than the host count.
 - [x] `deploy.update_config` is taken from a per-role variable with documented defaults `parallelism: 1`, `delay: 10s`.
 - [x] Tasks are scheduled freely across the role's declared hosts under v1; no per-role `deploy.placement.constraints` is rendered by default. Pinning is reintroduced only via NFS-driver vs local-volume choice (see [Docker volume integration](#docker-volume-integration)).
@@ -53,8 +53,8 @@ The implementation MUST keep a clean abstraction line between the render backend
 ### Role: `svc-storage-nfs-client`
 
 - [x] A new role at `roles/svc-storage-nfs-client/` exists and follows the role-meta layout.
-- [x] On every host in `svc-docker-swarm`, the role installs the NFS client packages for the target distribution.
-- [x] On every host in `svc-docker-swarm`, the role validates that each configured NFS export from `svc-storage-nfs-server` is mountable, failing the deploy with a precise error message when it is not.
+- [x] On every host in `svc-swarm`, the role installs the NFS client packages for the target distribution.
+- [x] On every host in `svc-swarm`, the role validates that each configured NFS export from `svc-storage-nfs-server` is mountable, failing the deploy with a precise error message when it is not.
 
 ### Docker volume integration
 
@@ -104,21 +104,21 @@ The implementation MUST keep a clean abstraction line between the render backend
       encryption: true            # default; overlay-network encryption ON
   ```
 
-  with documented defaults. The set of worker hosts is NOT listed here — workers are derived from group membership (`svc-docker-swarm` minus `svc-docker-swarm-manager`). Duplicating the list as a `swarm.worker_nodes` group_var is explicitly rejected: it would drift out of sync with the Ansible inventory.
+  with documented defaults. The set of worker hosts is NOT listed here — workers are derived from group membership (`svc-swarm` minus `svc-swarm-manager`). Duplicating the list as a `swarm.worker_nodes` group_var is explicitly rejected: it would drift out of sync with the Ansible inventory.
 
 - [x] The Ansible inventory MUST express swarm topology purely through group membership. Example:
 
   ```ini
-  [svc-docker-swarm]
+  [svc-swarm]
   swarm-mgr-01.example.com
   swarm-wrk-01.example.com
   swarm-wrk-02.example.com
 
-  [svc-docker-swarm-manager]
+  [svc-swarm-manager]
   swarm-mgr-01.example.com
   ```
 
-  This 3-node topology (1 manager + 2 workers) is also the minimum exercised by the CI pilot workflow — see [CI: pilot validation workflow](#ci-pilot-validation-workflow). Any host in `svc-docker-swarm-manager` MUST also be in `svc-docker-swarm`. A deploy with a host in `svc-docker-swarm-manager` but missing from `svc-docker-swarm` MUST fail at inventory-validation time.
+  This 3-node topology (1 manager + 2 workers) is also the minimum exercised by the CI pilot workflow — see [CI: pilot validation workflow](#ci-pilot-validation-workflow). Any host in `svc-swarm-manager` MUST also be in `svc-swarm`. A deploy with a host in `svc-swarm-manager` but missing from `svc-swarm` MUST fail at inventory-validation time.
 
 - [ ] All blocks above (`storage`, `swarm`) have schema validation entries in the relevant role's `meta/schema.yml`. A missing or malformed block fails the deploy at variable-load time with a precise error, not at runtime.
 
@@ -141,12 +141,12 @@ The implementation MUST keep a clean abstraction line between the render backend
   - the admin account session continues to authenticate after a fresh login.
   - **End-to-end validated in CI on 2026-06-02:** `test-deploy-swarm-nfs.yml` (3-node DinD + NFS server) reaches all 17 steps green; `15_assert_state.sh` confirms `replicas: 1/1` after drain, the pre-drain marker on the NFS-backed `mediawiki_images` volume is readable from the new node, and MediaWiki HTTP responds inside the rescheduled container. See run logs at `/tmp/act-swarm-nfs-110.log`.
 - [ ] After the reschedule, openresty's `sys-front-inj-*` pipeline MUST continue to inject correctly into MediaWiki's HTML response. Specifically: with Matomo injection enabled, a `curl` of a wiki page after the reschedule MUST still contain the Matomo `<script>` snippet inside `<head>` (proves that body_filter.lua, upstream resolution to the rescheduled container via swarm-internal DNS, and CSP-meta stripping all still work).
-- [ ] Removing the host from `svc-docker-swarm` MUST restore the Compose deployment of MediaWiki without manual cleanup of stale volume metadata.
+- [ ] Removing the host from `svc-swarm` MUST restore the Compose deployment of MediaWiki without manual cleanup of stale volume metadata.
 
 ### CI: pilot validation workflow
 
 - [x] A new GitHub Actions workflow at `.github/workflows/test-deploy-swarm-nfs.yml` (path to be created) provisions a multi-node Swarm cluster on a single **GitHub-hosted** runner using Docker-in-Docker with multiple Docker daemons. The topology is fixed at **three simulated nodes**: exactly one manager (`swarm-mgr-01`) plus exactly two workers (`swarm-wrk-01`, `swarm-wrk-02`). Three nodes are mandatory so that the rescheduling test has a genuine choice of target (drain the worker running the MediaWiki application service → scheduler MUST pick the OTHER worker, not the manager). One additional container hosts the NFS server reachable from all three simulated nodes. Then the workflow deploys `web-app-mediawiki` as a Swarm stack with the MariaDB service pinned to the manager and the application service free to schedule on either worker.
-- [x] The workflow MUST create the inventory via the canonical [cli/administration/inventory/provision/](../../cli/administration/inventory/provision/) CLI (the same `infinito` entry point developers use locally — "Create or update a full inventory for a host"). The workflow MUST NOT hand-roll a YAML inventory from scratch. After the provision step, the workflow's only inventory edits MUST be: adding the three simulated hosts to the `svc-docker-swarm` group, adding `swarm-mgr-01` to `svc-docker-swarm-manager`, and adding all three simulated hosts to the `web-app-mediawiki` group so the pilot role's `DEPLOYMENT_MODE` resolves to `swarm`. Any other inventory mutation is forbidden.
+- [x] The workflow MUST create the inventory via the canonical [cli/administration/inventory/provision/](../../cli/administration/inventory/provision/) CLI (the same `infinito` entry point developers use locally — "Create or update a full inventory for a host"). The workflow MUST NOT hand-roll a YAML inventory from scratch. After the provision step, the workflow's only inventory edits MUST be: adding the three simulated hosts to the `svc-swarm` group, adding `swarm-mgr-01` to `svc-swarm-manager`, and adding all three simulated hosts to the `web-app-mediawiki` group so the pilot role's `DEPLOYMENT_MODE` resolves to `swarm`. Any other inventory mutation is forbidden.
 - [x] The runner choice is fixed to GitHub-hosted DinD for reproducibility — every PR run is identical and depends on no self-hosted infrastructure. Migrating to a self-hosted runner (e.g. [014](014-svc-runner-ci.md)) is a Future Extension, not part of this requirement.
 - [x] The workflow drains the node currently running the MediaWiki container, waits for the swarm scheduler to migrate the container to another node, then asserts:
   1. the new task transitions to `running` within a documented timeout;
@@ -183,12 +183,12 @@ Adding a future `kubernetes` backend MUST be additive (new render path consuming
 
 Explicitly out of scope for this requirement, tracked for later:
 
-- **Multi-manager HA.** v1 is single-manager (one host in `svc-docker-swarm-manager`). A follow-up requirement covers 3+ managers with Raft-quorum and the inventory shape that supports it.
+- **Multi-manager HA.** v1 is single-manager (one host in `svc-swarm-manager`). A follow-up requirement covers 3+ managers with Raft-quorum and the inventory shape that supports it.
 - **Traefik migration / edge HA.** v1 keeps openresty as the swarm edge (pinned to manager) to preserve the `sys-front-inj-*` Lua body-rewriting pipeline unchanged. Migrating to Traefik for true multi-replica edge HA is a follow-up requirement and is gated on porting the body_filter.lua injection logic (CSP-meta stripping + head/body snippet injection for Matomo / CSS / JavaScript / Dashboard / Logout) to a Traefik Yaegi plugin OR introducing a Traefik → openresty chain. Without one of those, switching the edge to Traefik would silently drop the frontend-injection pipeline.
 - **Self-hosted CI runner for the pilot workflow.** v1 pins `test-deploy-swarm-nfs.yml` to GitHub-hosted DinD. Once [014](014-svc-runner-ci.md) is in place, the workflow MAY be migrated to a self-hosted runner for closer-to-production validation.
 - **NFS for stateful databases.** v1 keeps DB data volumes local-only with node-pinning. Reconsidering this requires a separate requirement covering DB-specific NFS semantics (locking, fsync, version compatibility per engine).
 - **Docker Swarm secrets.** v1 keeps the existing env-file-based credential rendering (no app-side code changes). Migrating to `docker secret` (Raft-encrypted, mounted under `/run/secrets/<name>`) is a follow-up requirement and requires per-role app-code adaptations to read secrets from files instead of env vars.
-- **Volume migration Compose → Swarm.** v1 is greenfield: when a host moves into `svc-docker-swarm` for the first time, existing local volumes are NOT auto-migrated to NFS. A manual `rsync` step from `/var/lib/docker/volumes/<vol>/_data` to the NFS export is documented in the new design doc. Automating this migration is a follow-up requirement.
+- **Volume migration Compose → Swarm.** v1 is greenfield: when a host moves into `svc-swarm` for the first time, existing local volumes are NOT auto-migrated to NFS. A manual `rsync` step from `/var/lib/docker/volumes/<vol>/_data` to the NFS export is documented in the new design doc. Automating this migration is a follow-up requirement.
 - **Advanced openresty load-balancing strategies.** v1 uses default round-robin in the per-app `upstream` block. Weighted distribution, least-connections, sticky sessions (`ip_hash` / cookie-based), and active HTTP healthchecks are out of scope. Adding them is a follow-up requirement and only becomes load-bearing once a service is regularly run with replicas > 1, which itself depends on shared storage being NFS-backed for that service.
 
 ## Procedure
@@ -196,7 +196,7 @@ Explicitly out of scope for this requirement, tracked for later:
 The implementation of this requirement MUST be executed autonomously by the agent following the iteration loops defined in [Role Loop](../agents/action/iteration/role.md) (for changes inside any `roles/<role>/`) and [Workflow Loop](../agents/action/iteration/workflow.md) (for changes to `.github/workflows/test-deploy-swarm-nfs.yml` and any other workflow this touches). The following rules apply for the entire run and are non-negotiable:
 
 - [ ] **Clarifying questions only at the start.** Any open question, ambiguity, or missing decision (e.g. how the worker join tokens are persisted, exact NFS export options per distro, how the per-role `DEPLOYMENT_MODE: compose` opt-out is plumbed, exact placement-constraint shape for the swarm-without-nfs warning path, exact openresty `upstream` resolution syntax for swarm-internal DNS) MUST be raised once at the very beginning of the run, in a single batched question round, BEFORE any file is changed. Once those questions are answered, the agent MUST NOT pause for further clarification. Additional ambiguities discovered mid-run MUST be resolved by the agent using its best judgement, recorded in the affected role's `README.md` or a code comment, and revisited only at PR review.
-- [ ] **Iteration loop.** The agent MUST follow the [Role Loop](../agents/action/iteration/role.md) for every change inside `roles/svc-docker-swarm/`, `roles/svc-prx-openresty/` (swarm-mode adaptations), `roles/svc-storage-nfs-server/`, `roles/svc-storage-nfs-client/`, and `roles/web-app-mediawiki/` (pilot). The agent MUST follow the [Workflow Loop](../agents/action/iteration/workflow.md) for every change to `.github/workflows/test-deploy-swarm-nfs.yml`. The agent MUST NOT skip the loop's debug-locally step in favour of remote CI reruns.
+- [ ] **Iteration loop.** The agent MUST follow the [Role Loop](../agents/action/iteration/role.md) for every change inside `roles/svc-swarm/`, `roles/svc-prx-openresty/` (swarm-mode adaptations), `roles/svc-storage-nfs-server/`, `roles/svc-storage-nfs-client/`, and `roles/web-app-mediawiki/` (pilot). The agent MUST follow the [Workflow Loop](../agents/action/iteration/workflow.md) for every change to `.github/workflows/test-deploy-swarm-nfs.yml`. The agent MUST NOT skip the loop's debug-locally step in favour of remote CI reruns.
 - [ ] **No `ask` prompts mid-run.** The agent MUST NOT trigger any tool call that routes through `permissions.ask` in [.claude/settings.json](../../.claude/settings.json) during implementation. Where a tool would otherwise route through `ask`, the agent MUST select an equivalent already covered by `permissions.allow`, or rephrase the operation to fit the sandbox. The single permitted exception is the final commit at the end of the run.
 - [ ] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, healthcheck flaps, swarm-init flakes, NFS mount races, workflow reruns until green — every issue MUST be resolved at its root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or "track in a follow-up" deferrals MUST NOT be used.
 - [ ] **One commit at the end.** The agent MUST NOT create any intermediate commit. ALL changes (the three new roles, the openresty swarm-mode adaptations, the pilot role updates, the CI workflow, schema entries, group_vars defaults, documentation, and the ticked checkboxes in this document) MUST be combined into ONE commit, created only after every Acceptance Criterion above is checked off (`- [x]`), `make test` is green, and `.github/workflows/test-deploy-swarm-nfs.yml` is green on its first scheduled run. Per-step commits, checkpoint commits, and partial commits MUST NOT be created. The agent MUST NOT push; the operator runs `git-sign-push` outside the sandbox per [CLAUDE.md](../../CLAUDE.md).

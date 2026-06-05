@@ -2,17 +2,20 @@
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: |
-    Provision an NFSv4 server exposing the project's persistent-volume
-    base path to every host in the `svc-swarm` group. Exports are
-    restricted by IP to the swarm members declared in inventory.
+    Tag role that marks a host as the swarm cluster manager. Has no
+    tasks of its own — the actual init+token-publish logic lives in
+    svc-swarm and is gated on `'svc-swarm-manager' in
+    group_names`. This role exists so the project's inventory
+    validator (`cli.administration.inventory.validate`) accepts the
+    group as a legitimate application_id.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world
   galaxy_tags:
-    - nfs
-    - storage
     - swarm
+    - docker
+    - cluster
   issue_tracker_url: https://s.infinito.nexus/issues
   min_ansible_version: "2.9"
   platforms:

@@ -27,16 +27,16 @@ class TestInventoryHasGroupYaml(unittest.TestCase):
             """
             all:
               children:
-                svc-docker-swarm:
+                svc-swarm:
                   hosts:
                     swarm-mgr-01: {}
-                svc-docker-swarm-manager:
+                svc-swarm-manager:
                   hosts:
                     swarm-mgr-01: {}
             """,
         )
-        self.assertTrue(inventory_has_group(path, "svc-docker-swarm-manager"))
-        self.assertTrue(inventory_has_group(path, "svc-docker-swarm"))
+        self.assertTrue(inventory_has_group(path, "svc-swarm-manager"))
+        self.assertTrue(inventory_has_group(path, "svc-swarm"))
 
     def test_yaml_missing_group_returns_false(self) -> None:
         path = self._write(
@@ -44,12 +44,12 @@ class TestInventoryHasGroupYaml(unittest.TestCase):
             """
             all:
               children:
-                svc-docker-swarm:
+                svc-swarm:
                   hosts:
                     swarm-mgr-01: {}
             """,
         )
-        self.assertFalse(inventory_has_group(path, "svc-docker-swarm-manager"))
+        self.assertFalse(inventory_has_group(path, "svc-swarm-manager"))
 
     def test_yaml_skips_scalar_key(self) -> None:
         path = self._write(
@@ -81,14 +81,14 @@ class TestInventoryHasGroupIni(unittest.TestCase):
         path = self._write(
             "hosts",
             """
-            [svc-docker-swarm-manager]
+            [svc-swarm-manager]
             mgr-01
 
             [web-app-mediawiki]
             mgr-01
             """,
         )
-        self.assertTrue(inventory_has_group(path, "svc-docker-swarm-manager"))
+        self.assertTrue(inventory_has_group(path, "svc-swarm-manager"))
         self.assertTrue(inventory_has_group(path, "web-app-mediawiki"))
 
     def test_ini_finds_host_in_section(self) -> None:

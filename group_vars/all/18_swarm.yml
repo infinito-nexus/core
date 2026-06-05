@@ -1,14 +1,14 @@
 ---
 DEPLOYMENT_MODE: "{{ 'swarm' if (groups[application_id] | default([]) | length) > 1 else 'compose' }}"
 
-SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-docker-swarm'] | default([]) | length) > 0 }}"
+SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-swarm'] | default([]) | length) > 0 }}"
 
 IS_STACK_HOST: >-
   {{ DEPLOYMENT_MODE != 'swarm'
-     or inventory_hostname in (groups['svc-docker-swarm-manager'] | default([])) }}
+     or inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
 
 SWARM_PRIMARY_MANAGER: >-
-  {{ (groups['svc-docker-swarm-manager'] | default([]))[0] | default(inventory_hostname) }}
+  {{ (groups['svc-swarm-manager'] | default([]))[0] | default(inventory_hostname) }}
 
 swarm:
   manager:
@@ -16,7 +16,7 @@ swarm:
   network:
     encryption: true
   registry:
-    host: "{{ (groups['svc-docker-swarm-manager'] | default([]))[0] | default('') }}"
+    host: "{{ (groups['svc-swarm-manager'] | default([]))[0] | default('') }}"
     port: 5000
 
 SWARM_REGISTRY_PREFIX: >-

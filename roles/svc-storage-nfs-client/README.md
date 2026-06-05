@@ -10,7 +10,7 @@ helpers and userspace tools to perform that mount.
 ## Overview
 
 This role installs the distro-appropriate NFS client packages on every
-host in the Ansible group `svc-docker-swarm` and probe-mounts the
+host in the Ansible group `svc-swarm` and probe-mounts the
 configured `storage.nfs.server:storage.nfs.export_base` to confirm
 reachability and writability at deploy time. The actual docker volume
 mounts happen later, driven by the Docker engine at container start.

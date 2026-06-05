@@ -138,10 +138,10 @@ roles:
         across databases, files, and containers."
       icon: "fas fa-database"
       invokable: true
-    docker:
-      title: "Docker Orchestration"
-      description: "Container-orchestration plumbing: Docker Swarm cluster bootstrap, manager/worker join, stack management."
-      icon: "fab fa-docker"
+    registry:
+      title: "Container Registries"
+      description: "Container-registry services - local registry and pull-through cache."
+      icon: "fas fa-box-archive"
       invokable: true
     storage:
       title: "Shared Storage"
