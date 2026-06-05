@@ -21,11 +21,15 @@ done
 if [ "$force_freeing" = true ]; then
   echo "cleaning up /tmp" &&
   find /tmp -type f -atime +10 -delete || exit 1
-  echo "cleaning up backups" &&
-  systemctl start {{ SYS_SERVICE_CLEANUP_BACKUPS }} || exit 2
+  if systemctl cat {{ SYS_SERVICE_CLEANUP_BACKUPS }} >/dev/null 2>&1; then
+    echo "cleaning up backups" &&
+    systemctl start {{ SYS_SERVICE_CLEANUP_BACKUPS }} || exit 2
+  fi
   if command -v docker >/dev/null 2>&1 ; then
-    echo "cleaning up docker (prune + anonymous volumes) via systemd service" &&
-    systemctl start {{ SYS_SERVICE_CLEANUP_DOCKER }} || exit 3
+    if systemctl cat {{ SYS_SERVICE_CLEANUP_DOCKER }} >/dev/null 2>&1; then
+      echo "cleaning up docker (prune + anonymous volumes) via systemd service" &&
+      systemctl start {{ SYS_SERVICE_CLEANUP_DOCKER }} || exit 3
+    fi
 
     nextcloud_application_container="{{ lookup('config','web-app-nextcloud', 'services.nextcloud.name') }}"
     if [ -n "$nextcloud_application_container" ] && [ "$(container ps -a -q -f name=$nextcloud_application_container)" ] ; then
