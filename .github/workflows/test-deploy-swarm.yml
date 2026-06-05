@@ -169,6 +169,7 @@ jobs:
             /tmp/inv/devices.yml \
             -p /tmp/inv/.password \
             --skip-build --skip-cleanup --skip-backup \
+            -e @inventories/development/default.yml \
             -e @inventories/development/swarm.yml \
             -e @/tmp/swarm-nfs-extras.yml
 
