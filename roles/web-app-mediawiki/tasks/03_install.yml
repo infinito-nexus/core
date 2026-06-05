@@ -18,6 +18,6 @@
     MW_VOLUME_IMAGES: "{{ MEDIAWIKI_VOLUME_IMAGES }}"
     MW_VOLUME_EXTENSIONS: "{{ MEDIAWIKI_VOLUME_EXTENSIONS }}"
   run_once: true
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

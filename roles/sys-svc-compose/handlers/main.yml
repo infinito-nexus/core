@@ -111,7 +111,7 @@
     - swarm deploy
   when: DEPLOYMENT_MODE == 'swarm'
   run_once: true
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
 
 - name: "swarm: retag built images for local registry and push"
   ansible.builtin.script:
@@ -126,7 +126,7 @@
     - DEPLOYMENT_MODE == 'swarm'
     - (swarm.registry.host | default('') | length > 0)
   run_once: true
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
 
 - name: "swarm: validate stack file via docker stack config"
   ansible.builtin.shell: |
@@ -145,7 +145,7 @@
     - MODE_ASSERT | bool
     - DEPLOYMENT_MODE == 'swarm'
   run_once: true
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
 
 - name: "swarm: docker stack deploy"
   ansible.builtin.shell: |
@@ -166,4 +166,4 @@
     - swarm deploy
   when: DEPLOYMENT_MODE == 'swarm'
   run_once: true
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"

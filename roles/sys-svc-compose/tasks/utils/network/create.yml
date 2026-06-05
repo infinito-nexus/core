@@ -13,7 +13,7 @@
       com.docker.compose.project: "{{ network_role_id | get_entity_name }}"
   when: SWARM_CLUSTER_AVAILABLE | bool
   run_once: true
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
 
 - name: "Ensure docker bridge network for '{{ network_role_id }}' exists (compose mode, no swarm)"
   community.docker.docker_network:

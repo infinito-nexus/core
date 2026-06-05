@@ -7,7 +7,7 @@ IS_STACK_HOST: >-
   {{ DEPLOYMENT_MODE != 'swarm'
      or inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
 
-SWARM_PRIMARY_MANAGER: >-
+STACK_HOST: >-
   {{ (groups['svc-swarm-manager'] | default([]))[0] | default(inventory_hostname) }}
 
 swarm:

@@ -23,5 +23,5 @@
     and
     ('Account exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
   run_once: true
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

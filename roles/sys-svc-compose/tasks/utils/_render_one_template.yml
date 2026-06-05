@@ -6,7 +6,7 @@
     owner: "{{ _tpl.owner | default('root') }}"
     group: "{{ _tpl.group | default('root') }}"
     mode: "{{ _tpl.mode | default('0640') }}"
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
   run_once: true
   when: (_tpl.when | default(true)) | bool
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -16,7 +16,7 @@
 - name: "[swarm] Slurp rendered '{{ _tpl.dest }}' from manager"
   ansible.builtin.slurp:
     src: "{{ _tpl.dest }}"
-  delegate_to: "{{ SWARM_PRIMARY_MANAGER }}"
+  delegate_to: "{{ STACK_HOST }}"
   run_once: true
   register: _role_templates_slurp
   when:

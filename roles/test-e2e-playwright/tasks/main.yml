@@ -4,6 +4,9 @@
     msg: "Playwright-enabled roles: {{ TEST_E2E_PLAYWRIGHT_APPS }}"
   changed_when: false
 
-- name: Playwright orchestration (only on the host where the stack lives)
-  ansible.builtin.include_tasks: 01a_orchestrate.yml
-  when: IS_STACK_HOST | bool
+- name: Playwright orchestration (run once on the primary manager)
+  # block: delegate_to/run_once propagate to include_tasks children only via block
+  block:
+    - ansible.builtin.include_tasks: 01a_orchestrate.yml
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
