@@ -5,8 +5,8 @@ or its transitive deps.
 
 Inputs (env): ``APP_ID``, ``INFINITO_DOMAIN`` (the SPOT for the
 deployment domain; defined in ``default.env`` and exported by
-``scripts/meta/env/load.sh``; ``inventories/development/default.yml``
-reads the same env var for the play's ``DOMAIN_PRIMARY``).
+``scripts/meta/env/load.sh``; the development inventory reads the
+same env var for the play's ``DOMAIN_PRIMARY``).
 """
 
 from __future__ import annotations
