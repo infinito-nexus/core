@@ -3,7 +3,7 @@
     host:     "{{ DOCKER_REACH_HOST }}"
     port:     "{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}"
     delay:    5
-    timeout:  120
+    timeout:  300
 
 - name: "Set Pi-hole admin password"
   ansible.builtin.command: "container exec {{ PIHOLE_CONTAINER }} pihole setpassword {{ PIHOLE_PASSWORD | quote }}"
