@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import unittest
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
@@ -47,17 +47,24 @@ class TestComposeVolumesCallRequired(unittest.TestCase):
             )
 
     def test_no_template_uses_deprecated_pipe_form(self) -> None:
-        roles_dir = PROJECT_ROOT / "roles"
+        from pathlib import Path
+
+        roles_prefix = str(PROJECT_ROOT / "roles") + "/"
         offenders: list[str] = []
 
-        for template in sorted(roles_dir.rglob("templates/**/*.j2")):
+        for path_str in iter_project_files(extensions=(".j2",)):
+            if not path_str.startswith(roles_prefix):
+                continue
+            if "/templates/" not in path_str:
+                continue
             try:
-                text = read_text(str(template))
+                text = read_text(path_str)
             except UnicodeDecodeError:
                 continue
             for m in DEPRECATED_PIPE_RE.finditer(text):
                 line_no = text[: m.start()].count("\n") + 1
-                offenders.append(f"- {template.relative_to(PROJECT_ROOT)}:{line_no}")
+                rel = Path(path_str).relative_to(PROJECT_ROOT)
+                offenders.append(f"- {rel}:{line_no}")
 
         if offenders:
             self.fail(

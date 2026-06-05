@@ -1,5 +1,8 @@
 ---
 # nocheck: dynamic-flag
+# nocheck: required-by-coverage  — role is intentionally opt-in; placement
+# is via `default_placement: manager` + the swarm CLI closure, not via a
+# downstream `required_by` chain.
 swarm:
   enabled: true
   shared: true

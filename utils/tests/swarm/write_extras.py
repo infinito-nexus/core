@@ -39,7 +39,8 @@ def _ensure_keypair(key_path: Path) -> str:
             ],
             check=True,
         )
-    return Path(f"{key_path}.pub").read_text(encoding="utf-8").strip()  # nocheck: cache-read — generated in the same flow
+    pub = Path(f"{key_path}.pub").read_text(encoding="utf-8")  # nocheck: cache-read
+    return pub.strip()
 
 
 def main() -> int:

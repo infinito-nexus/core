@@ -9,15 +9,16 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import mock
 
+from utils import PROJECT_ROOT
+
 
 def _load_closure():
-    # Load the module by file path to avoid importing the package's
-    # __init__.py, which transitively pulls in dedicated's heavy CLI
-    # surface (and ruamel.yaml, not available in the unit-test env).
-    repo_root = Path(__file__).resolve().parents[6]  # nocheck: project-root-import — file-path loader bypasses the package __init__ to avoid the heavy dedicated CLI imports
+    # File-path loader bypasses the package __init__.py, which would
+    # transitively pull in the dedicated CLI surface (and ruamel.yaml,
+    # not available in the unit-test env).
     spec = importlib.util.spec_from_file_location(
         "cli_swarm_closure",
-        str(repo_root / "cli/administration/deploy/swarm/closure.py"),
+        str(PROJECT_ROOT / "cli/administration/deploy/swarm/closure.py"),
     )
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
