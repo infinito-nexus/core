@@ -1,5 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  dashboard:
+{% set service_name = 'dashboard' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {% set container_port = 5000 %}
     image: {{ DASHBOARD_IMAGE }}:{{ DASHBOARD_VERSION }}
     {{ lookup('compose_only', 'container_name', DASHBOARD_CONTAINER) }}

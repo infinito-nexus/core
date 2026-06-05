@@ -39,7 +39,9 @@
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-  nginx:
+{% set service_name = 'nginx' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     {{ lookup('compose_only', 'container_name', MOODLE_NGINX_CONTAINER) }}
     image: {{ MOODLE_NGINX_IMAGE }}:{{ MOODLE_NGINX_VERSION }}
     depends_on:
@@ -53,7 +55,9 @@
     {{ lookup('compose_restart') }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-  cron:
+{% set service_name = 'cron' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     {{ lookup('compose_only', 'container_name', MOODLE_CRON_CONTAINER) }}
     image: {{ MOODLE_IMAGE_CUSTOM }}
     {{ lookup('compose_only', 'pull_policy', 'never') }}

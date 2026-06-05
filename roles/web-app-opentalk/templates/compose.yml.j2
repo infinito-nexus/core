@@ -23,7 +23,9 @@
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-  livekit:
+{% set service_name = 'livekit' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     image: "{{ OPENTALK_LIVEKIT_IMAGE }}:{{ OPENTALK_LIVEKIT_VERSION }}"
     {{ lookup('compose_only', 'container_name', OPENTALK_LIVEKIT_CONTAINER) }}
     {{ lookup('compose_restart') }}
@@ -36,7 +38,9 @@
     logging:
       driver: journald
 
-  minio:
+{% set service_name = 'minio' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     image: "{{ OPENTALK_MINIO_IMAGE }}:{{ OPENTALK_MINIO_VERSION }}"
     {{ lookup('compose_only', 'container_name', OPENTALK_MINIO_CONTAINER) }}
     {{ lookup('compose_restart') }}
@@ -50,7 +54,9 @@
     logging:
       driver: journald
 
-  rabbit:
+{% set service_name = 'rabbit' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     image: "{{ OPENTALK_RABBIT_IMAGE }}:{{ OPENTALK_RABBIT_VERSION }}"
     {{ lookup('compose_only', 'container_name', OPENTALK_RABBIT_CONTAINER) }}
     {{ lookup('compose_restart') }}
@@ -67,7 +73,9 @@
     logging:
       driver: journald
 
-  recorder:
+{% set service_name = 'recorder' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     image: "{{ OPENTALK_RECORDER_IMAGE }}:{{ OPENTALK_RECORDER_VERSION }}"
     {{ lookup('compose_only', 'container_name', OPENTALK_RECORDER_CONTAINER) }}
     {{ lookup('compose_restart') }}

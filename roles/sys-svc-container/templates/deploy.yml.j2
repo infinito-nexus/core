@@ -1,7 +1,7 @@
 {% if DEPLOYMENT_MODE == 'swarm' %}
 {{ "\n" }}
     deploy:
-      replicas: {{ service_replicas }}
+      {{ lookup('compose_replicas') }}
       update_config:
         parallelism: {{ service_update_parallelism | default(1) }}
         delay: {{ service_update_delay | default('10s') }}
