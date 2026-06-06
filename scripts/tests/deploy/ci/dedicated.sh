@@ -241,7 +241,7 @@ if [[ "${INFINITO_TIMEOUT_MULTIPLIER}" -gt 1 ]]; then
 	echo ">>> Scaling Ansible retries by ${INFINITO_TIMEOUT_MULTIPLIER}x (slow hardware detected)"
 	docker exec \
 		-e "INFINITO_TIMEOUT_MULTIPLIER=${INFINITO_TIMEOUT_MULTIPLIER}" \
-		-e "INFINITO_REPO_ROOT=${INFINITO_REPO_ROOT}" \
+		-e "INFINITO_REPO_ROOT=/opt/src/infinito" \
 		"${_up_container}" \
 		bash /opt/src/infinito/scripts/tests/deploy/ci/multiply-timeouts.sh
 fi
