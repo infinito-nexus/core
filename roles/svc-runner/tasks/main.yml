@@ -212,7 +212,7 @@
       args:
         RUNNER_UID: "{{ runner_uid }}"
         RUNNER_GID: "{{ runner_gid }}"
-    force_source: false
+    force_source: true
 
 - name: Deploy runner compose stack
   ansible.builtin.shell: |
