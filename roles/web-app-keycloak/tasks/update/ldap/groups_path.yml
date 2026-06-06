@@ -54,7 +54,7 @@
   changed_when: false
 
 - name: Assert top-level group for groups.path exists now
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
   assert:
     that:
       - groups_top_id not in ["", "null"]

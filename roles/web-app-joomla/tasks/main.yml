@@ -31,7 +31,7 @@
 
 - name: Include assert routines
   include_tasks: "05_assert.yml"
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
 - name: Reset Admin Password
   include_tasks: 06_reset_admin_password.yml

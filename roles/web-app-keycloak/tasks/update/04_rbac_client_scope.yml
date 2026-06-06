@@ -49,7 +49,7 @@
       - scope_id_rbac | length > 0
       - app_client_id is match('^[0-9a-f-]+$')
     fail_msg: "Could not determine client or scope ID."
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
 - name: Get current optional client scopes
   shell: >

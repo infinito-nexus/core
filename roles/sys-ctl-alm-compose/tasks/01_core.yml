@@ -38,7 +38,5 @@
         name: "{{ lookup('unit_name',system_service_id, suffix=False) ~ escaped_name.stdout }}.service"
         state: started
   when:
-    - MODE_ASSERT | bool
-    # Shared-service preloading happens before Mailu exposes its final TLS SMTP
-    # listener, so the notifier self-test must wait for the normal app phase.
+    - MODE_ASSERT_LOCAL | bool
     - not (_service_loader_preloading | default(false) | bool)

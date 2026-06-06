@@ -59,7 +59,7 @@
     fail_msg: >-
       Matomo bootstrap did not yield a valid token.
       stdout={{ matomo_bootstrap_run.stdout | default('') | trim }}
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
 - name: "Matomo | Persist + inject token via sys-token-store (store + runtime users)"
   ansible.builtin.include_role:

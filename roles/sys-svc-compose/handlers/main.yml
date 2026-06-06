@@ -32,7 +32,7 @@
     - compose up
   when:
     - DEPLOYMENT_MODE != 'swarm'
-    - MODE_ASSERT | bool
+    - MODE_ASSERT_LOCAL | bool
 
 - name: compose pull
   ansible.builtin.script:
@@ -142,7 +142,7 @@
     - compose up
     - swarm deploy
   when:
-    - MODE_ASSERT | bool
+    - MODE_ASSERT_LOCAL | bool
     - DEPLOYMENT_MODE == 'swarm'
   run_once: true
   delegate_to: "{{ STACK_HOST }}"

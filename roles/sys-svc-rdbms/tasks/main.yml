@@ -29,9 +29,7 @@
         fail_msg: >-
           Shared database provider '{{ _database_provider_role }}' was not preloaded by
           sys-service-loader before sys-svc-rdbms ran.
-      when:
-        - MODE_ASSERT | bool
-        - IS_STACK_HOST | bool
+      when: MODE_ASSERT_LOCAL | bool
 
     - name: "For '{{ application_id }}': Initialize dedicated database on preloaded provider"
       ansible.builtin.include_role:

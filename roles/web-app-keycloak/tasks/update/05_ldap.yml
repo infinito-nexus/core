@@ -44,7 +44,7 @@
   assert:
     that: ["ldap_cmp_id not in ['', 'null']"]
     fail_msg: "LDAP component '{{ KEYCLOAK_LDAP_CMP_NAME }}' not found in Keycloak."
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
 - name: Pull LDAP component from dictionary (by name)
   set_fact:
@@ -62,7 +62,7 @@
       - ldap_component_tpl | length > 0
       - (ldap_component_tpl.subComponents | default({})) | length > 0
     fail_msg: "LDAP component '{{ KEYCLOAK_LDAP_CMP_NAME }}' not found in KEYCLOAK_DICTIONARY_REALM."
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
 - name: Extract mapper 'ldap-roles' from template (raw)
   set_fact:
@@ -81,7 +81,7 @@
   assert:
     that: ["desired_group_mapper_raw | length > 0"]
     fail_msg: "'ldap-roles' mapper not found in dictionary under LDAP component."
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
 - name: Build clean mapper payload (drop id/subComponents)
   set_fact:
