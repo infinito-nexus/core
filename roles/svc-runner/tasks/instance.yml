@@ -6,6 +6,11 @@
     group: "{{ runner_user }}"
     mode: '0755'
 
+- name: Check if runner binary already installed for instance {{ runner_instance }}
+  ansible.builtin.stat:
+    path: "{{ runner_install_dir }}/{{ runner_instance }}/run.sh"
+  register: _runner_binary_stat
+
 - name: Extract GitHub Actions runner archive for instance {{ runner_instance }}
   unarchive:
     src: "{{ runner_install_dir }}/actions-runner.tar.gz"
@@ -13,6 +18,7 @@
     remote_src: true
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
+  when: not _runner_binary_stat.stat.exists
 
 - name: Remove existing runner configuration for instance {{ runner_instance }}
   ansible.builtin.find:
@@ -22,14 +28,16 @@
     file_type: file
     depth: 1
   register: _runner_config_files
+  when: not _runner_binary_stat.stat.exists
 
 - name: Delete stale runner configuration files for instance {{ runner_instance }}
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
-  loop: "{{ _runner_config_files.files }}"
+  loop: "{{ _runner_config_files.files | default([]) }}"
   loop_control:
     label: "{{ item.path }}"
+  when: not _runner_binary_stat.stat.exists
 
 - name: Write runner environment file for instance {{ runner_instance }}
   template:
