@@ -28,7 +28,6 @@
     file_type: file
     depth: 1
   register: _runner_config_files
-  when: not _runner_binary_stat.stat.exists
 
 - name: Delete stale runner configuration files for instance {{ runner_instance }}
   ansible.builtin.file:
@@ -37,7 +36,7 @@
   loop: "{{ _runner_config_files.files | default([]) }}"
   loop_control:
     label: "{{ item.path }}"
-  when: not _runner_binary_stat.stat.exists
+  when: item.path | basename not in ['.env']
 
 - name: Write runner environment file for instance {{ runner_instance }}
   template:

@@ -1,3 +1,12 @@
+- name: Mark swapfile as already handled — runner manages its own memory via Docker limits
+  ansible.builtin.set_fact:
+    run_once_svc_opt_swapfile: true
+
+- name: Ensure Docker is installed and running
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    tasks_from: 01_core.yml
+
 - name: Tune kernel inotify limits for parallel runner containers
   ansible.posix.sysctl:
     name: "{{ item.key }}"

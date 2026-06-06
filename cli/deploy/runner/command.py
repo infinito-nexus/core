@@ -114,9 +114,16 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+_LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
+
+
 def _build_inventory(hostname: str, port: int | None) -> str:
     host_line = hostname
-    if port is not None:
+    if hostname in _LOCAL_HOSTS:
+        host_line += (
+            f" ansible_connection=local ansible_python_interpreter={sys.executable}"
+        )
+    elif port is not None:
         host_line += f" ansible_port={port}"
     return f"[runners]\n{host_line}\n"
 
@@ -140,8 +147,12 @@ def _run_deploy(
     inventory_content = _build_inventory(hostname, port)
     playbook_content = _build_playbook(roles)
 
-    inv_fd, inv_path = tempfile.mkstemp(suffix=".ini", prefix="infinito-runner-inv-")
-    pb_fd, pb_path = tempfile.mkstemp(suffix=".yml", prefix="infinito-runner-pb-")
+    inv_fd, inv_path = tempfile.mkstemp(
+        suffix=".ini", prefix="infinito-runner-inv-", dir=str(PROJECT_ROOT)
+    )
+    pb_fd, pb_path = tempfile.mkstemp(
+        suffix=".yml", prefix="infinito-runner-pb-", dir=str(PROJECT_ROOT)
+    )
 
     try:
         with os.fdopen(inv_fd, "w") as f:
@@ -161,10 +172,19 @@ def _run_deploy(
             "-e",
             "MASK_CREDENTIALS_IN_LOGS=true",
         ]
+
+        # Inject GitHub identity into the subprocess environment so vars/main.yml
+        # lookups resolve correctly (GITHUB_REPOSITORY_OWNER, GITHUB_REPOSITORY,
+        # GH_TOKEN/GITHUB_TOKEN → RUNNER_GITHUB_OWNER, RUNNER_GITHUB_REPO, RUNNER_API_TOKEN).
+        extra_env = dict(os.environ)
         if owner is not None:
-            cmd += ["-e", f"runner_github_owner={owner}"]
+            extra_env["GITHUB_REPOSITORY_OWNER"] = owner
         if repo is not None:
-            cmd += ["-e", f"runner_github_repo={repo}"]
+            extra_env["GITHUB_REPOSITORY"] = f"{owner or 'infinito-nexus'}/{repo}"
+        # Propagate token: prefer explicit RUNNER_API_TOKEN, fall back to GH_TOKEN
+        token = os.environ.get("RUNNER_API_TOKEN") or os.environ.get("GH_TOKEN") or ""
+        if token:
+            extra_env["GH_TOKEN"] = token
 
         print(f"\n▶️  Deploying runner to {hostname} — output: {output_file}\n")
 
@@ -176,6 +196,7 @@ def _run_deploy(
                 text=True,
                 encoding="utf-8",
                 cwd=str(PROJECT_ROOT),
+                env=extra_env,
             )
             for line in proc.stdout:
                 print(line, end="", flush=True)

@@ -27,5 +27,4 @@ galaxy_info:
     - docker
     - automation
   issue_tracker_url: https://s.infinito.nexus/issues
-dependencies:
-  - sys-svc-container
+dependencies: []
