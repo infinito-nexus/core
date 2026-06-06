@@ -36,3 +36,6 @@ if [[ "$(python3 -m cli.meta.runtime)" == "github" ]]; then
 fi
 
 python3 -m cli.administration.inventory.provision /tmp/inv "${provision_args[@]}"
+
+cp "/tmp/inv/host_vars/${MGR}.yml" "/tmp/inv/host_vars/${WRK1}.yml"
+cp "/tmp/inv/host_vars/${MGR}.yml" "/tmp/inv/host_vars/${WRK2}.yml"
