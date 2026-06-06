@@ -35,6 +35,7 @@
     dest: "/etc/sudoers.d/{{ runner_user }}"
     mode: '0440'
     validate: visudo -cf %s
+  when: not (DOCKER_IN_CONTAINER | bool)
 
 - name: Create runner base directory
   file:
