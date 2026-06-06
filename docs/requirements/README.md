@@ -27,4 +27,4 @@ Its scope is user stories and acceptance criteria that define what the project m
 - 019 - Playwright meta/services.yml parity coverage
 - 020 - CI Run 25705903504 Deploy-Failure Remediation Loop
 - 022 - Zammad Helpdesk Role with OIDC SSO
-- 235 - Setup Penpot
+- 023 - Setup Penpot
