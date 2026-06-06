@@ -8,6 +8,7 @@ FRIENDICA_SERVICE: "{{ entity_name }}"
 FRIENDICA_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 FRIENDICA_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 FRIENDICA_CONTAINER: "friendica"
+FRIENDICA_BASE_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 
 FRIENDICA_APPLICATION_DIR: "/var/www/html"
 FRIENDICA_CONFIG_DIR: "{{ [ FRIENDICA_APPLICATION_DIR,          'config' ] | path_join }}"

@@ -60,5 +60,6 @@ try:
     upsert_social_login_key()
     store_group_role_map()
     frappe.db.commit()
+    frappe.clear_cache()
 finally:
     frappe.destroy()

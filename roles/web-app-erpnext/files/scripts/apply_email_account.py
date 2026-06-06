@@ -49,5 +49,6 @@ frappe.connect()
 try:
     upsert_outbound_account()
     frappe.db.commit()
+    frappe.clear_cache()
 finally:
     frappe.destroy()

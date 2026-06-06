@@ -20,7 +20,6 @@
         bench set-config -g host_name "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}";
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
       - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -34,7 +33,6 @@
         condition: service_completed_successfully
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
       - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -48,7 +46,6 @@
         condition: service_completed_successfully
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
       - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -62,7 +59,6 @@
         condition: service_started
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
       - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -76,7 +72,6 @@
         condition: service_started
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
       - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -90,7 +85,6 @@
         condition: service_started
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
       - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -118,13 +112,11 @@
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.erpnext.ports.local.websocket') }}:{{ ERPNEXT_WEBSOCKET_PORT }}"
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
       - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {% set erpnext_extra_volumes = {
   ERPNEXT_SITES_VOLUME: {'name': ERPNEXT_SITES_VOLUME},
-  ERPNEXT_ASSETS_VOLUME: {'name': ERPNEXT_ASSETS_VOLUME},
   ERPNEXT_LOGS_VOLUME: {'name': ERPNEXT_LOGS_VOLUME}
 } %}
 {{ lookup('applications') | compose_volumes(

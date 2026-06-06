@@ -36,5 +36,6 @@ frappe.connect()
 try:
     upsert_ldap_settings()
     frappe.db.commit()
+    frappe.clear_cache()
 finally:
     frappe.destroy()

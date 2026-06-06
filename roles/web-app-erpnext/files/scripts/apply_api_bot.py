@@ -56,6 +56,12 @@ def bypass_setup_wizard():
         ss.flags.ignore_mandatory = True
         ss.save()
 
+    if frappe.db.table_exists("Installed Application"):
+        for app in frappe.get_all("Installed Application", pluck="name"):
+            frappe.db.set_value("Installed Application", app, "is_setup_complete", 1)
+    if frappe.db.get_default("desktop:home_page") == "setup-wizard":
+        frappe.db.set_default("desktop:home_page", "")
+
 
 frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")
 frappe.connect()
@@ -63,5 +69,6 @@ try:
     upsert_api_bot()
     bypass_setup_wizard()
     frappe.db.commit()
+    frappe.clear_cache()
 finally:
     frappe.destroy()

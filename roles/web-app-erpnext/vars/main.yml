@@ -21,7 +21,6 @@ ERPNEXT_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ERPNEXT_SITE_NAME: "{{ ERPNEXT_HOSTNAME }}"
 
 ERPNEXT_SITES_VOLUME: "{{ lookup('config', application_id, 'volumes.sites') }}"
-ERPNEXT_ASSETS_VOLUME: "{{ lookup('config', application_id, 'volumes.assets') }}"
 ERPNEXT_LOGS_VOLUME: "{{ lookup('config', application_id, 'volumes.logs') }}"
 
 ERPNEXT_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.initial_admin_password') }}"

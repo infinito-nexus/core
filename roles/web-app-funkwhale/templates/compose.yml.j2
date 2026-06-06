@@ -34,6 +34,7 @@
   api:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ FUNKWHALE_API_IMAGE }}:{{ FUNKWHALE_API_VERSION }}"
+    command: gunicorn
     volumes:
       - "music:{{ FUNKWHALE_MUSIC_DIR }}:ro"
       - "media:{{ FUNKWHALE_MEDIA_DIR }}"

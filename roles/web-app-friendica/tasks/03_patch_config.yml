@@ -8,6 +8,6 @@
     -e "s/('database'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'name') | sed_escape('/') }}\2/"
     -e "s/('username'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'username') | sed_escape('/') }}\2/"
     -e "s/('password'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'password') | sed_escape('/') }}\2/"
-    -e "s#('url'\s*=>\s*')[^']*(',)#\1{{ lookup('tls', application_id, 'url.base') | sed_escape('#') }}\2#"
+    -e "s#('url'\s*=>\s*')[^']*(',)#\1{{ FRIENDICA_BASE_URL | sed_escape('#') }}\2#"
     {{ FRIENDICA_CONFIG_FILE }}
   notify: compose up
