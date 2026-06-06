@@ -173,18 +173,20 @@ def _run_deploy(
             "MASK_CREDENTIALS_IN_LOGS=true",
         ]
 
-        # Inject GitHub identity into the subprocess environment so vars/main.yml
-        # lookups resolve correctly (GITHUB_REPOSITORY_OWNER, GITHUB_REPOSITORY,
-        # GH_TOKEN/GITHUB_TOKEN → RUNNER_GITHUB_OWNER, RUNNER_GITHUB_REPO, RUNNER_API_TOKEN).
-        extra_env = dict(os.environ)
+        # Pass GitHub identity as extra-vars (direct override, not env-lookup).
+        # vars/main.yml resolves RUNNER_GITHUB_OWNER/REPO via lookup('env', ...) which
+        # can be unreliable across subprocess boundaries — direct -e is authoritative.
         if owner is not None:
-            extra_env["GITHUB_REPOSITORY_OWNER"] = owner
+            cmd += ["-e", f"RUNNER_GITHUB_OWNER={owner}"]
         if repo is not None:
-            extra_env["GITHUB_REPOSITORY"] = f"{owner or 'infinito-nexus'}/{repo}"
-        # Propagate token: prefer explicit RUNNER_API_TOKEN, fall back to GH_TOKEN
+            cmd += ["-e", f"RUNNER_GITHUB_REPO={repo}"]
+
+        # Token via env (avoid leaking into process list).
+        extra_env = dict(os.environ)
         token = os.environ.get("RUNNER_API_TOKEN") or os.environ.get("GH_TOKEN") or ""
         if token:
             extra_env["GH_TOKEN"] = token
+            extra_env["RUNNER_API_TOKEN"] = token
 
         print(f"\n▶️  Deploying runner to {hostname} — output: {output_file}\n")
 

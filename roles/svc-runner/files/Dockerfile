@@ -14,6 +14,7 @@ RUN rm -rf /var/lib/apt/lists/* \
         jq \
         libicu-dev \
         libssl-dev \
+        gettext-base \
         make \
         python3 \
         python3-pip \
@@ -26,12 +27,14 @@ RUN rm -rf /var/lib/apt/lists/* \
         https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
         > /etc/apt/sources.list.d/docker.list \
     && apt-get update \
-    && apt-get install -y --no-install-recommends docker-ce-cli \
+    && apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf python3 /usr/bin/python
 
 RUN groupadd -g "${RUNNER_GID}" github-runner \
-    && useradd -u "${RUNNER_UID}" -g "${RUNNER_GID}" -m -s /bin/bash github-runner
+    && useradd -u "${RUNNER_UID}" -g "${RUNNER_GID}" -m -s /bin/bash github-runner \
+    && echo "github-runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/github-runner \
+    && chmod 0440 /etc/sudoers.d/github-runner
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

@@ -13,3 +13,7 @@ runner_project_prefix: runner
 runner_sysctl_conf: /etc/sysctl.d/99-github-runner.conf
 runner_image_name: infinito-runner
 runner_image_tag: latest
+# GitHub registration — lowest precedence so -e extra-vars always win
+RUNNER_GITHUB_OWNER: "{{ lookup('env', 'GITHUB_REPOSITORY_OWNER') | default(lookup('config', application_id, 'services.svc-runner.github_owner'), true) }}"
+RUNNER_GITHUB_REPO: "{{ (lookup('env', 'GITHUB_REPOSITORY') | split('/') | last) | default(lookup('config', application_id, 'services.svc-runner.github_repo'), true) }}"
+RUNNER_API_TOKEN: "{{ lookup('env', 'GH_TOKEN') | default(lookup('env', 'GITHUB_TOKEN'), true) }}"
