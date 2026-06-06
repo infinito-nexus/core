@@ -213,7 +213,7 @@ echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 # the time of the first `docker run --entrypoint` call Docker creates a *directory*
 # there instead of a file, causing every subsequent exec to exit rc=126 ("is a
 # directory").  sys-ca-selfsigned will overwrite this stub with the real version.
-_up_container="${INFINITO_RUNNER_PREFIX}_nexus_${INFINITO_DISTRO}"
+_up_container="${INFINITO_CONTAINER:?INFINITO_CONTAINER is not set (run make dotenv)}"
 docker exec "${_up_container}" install -m 755 \
 	/opt/src/infinito/roles/sys-ca-selfsigned/files/with-ca-trust.sh \
 	/usr/bin/ca-trust-wrapper 2>/dev/null || true
