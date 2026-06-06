@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 ARG RUNNER_UID=900
 ARG RUNNER_GID=900
 
-# Runner binary runtime deps + Docker CLI for CI jobs + sudo for cleanup ops
+# Runner binary runtime deps + Docker CLI + Python 3 for CI scripts
 RUN rm -rf /var/lib/apt/lists/* \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -14,6 +14,10 @@ RUN rm -rf /var/lib/apt/lists/* \
         jq \
         libicu-dev \
         libssl-dev \
+        make \
+        python3 \
+        python3-pip \
+        python3-venv \
         sudo \
         tar \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
@@ -23,7 +27,8 @@ RUN rm -rf /var/lib/apt/lists/* \
         > /etc/apt/sources.list.d/docker.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends docker-ce-cli \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf python3 /usr/bin/python
 
 RUN groupadd -g "${RUNNER_GID}" github-runner \
     && useradd -u "${RUNNER_UID}" -g "${RUNNER_GID}" -m -s /bin/bash github-runner
