@@ -11,7 +11,7 @@
     mode: "0755"
 
 - name: Render Mailu unbound config override
-  template:  # nocheck: conf-template (mailu compose dir, not project nginx tree)
+  template: # nocheck: conf-template (mailu compose dir, not project nginx tree)
     src: unbound.conf.j2
     dest: "{{ MAILU_UNBOUND_CONF_FILE }}"
     mode: "0644"
@@ -23,7 +23,7 @@
     mode: "0755"
 
 - name: Render ratelimit.conf
-  template:  # nocheck: conf-template (mailu compose dir, not project nginx tree)
+  template: # nocheck: conf-template (mailu compose dir, not project nginx tree)
     src: ratelimit.conf.j2
     dest: "{{ MAILU_RSPAMD_HOST_FILE }}"
     mode: "0644"

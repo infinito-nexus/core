@@ -10,7 +10,7 @@ networks:
   internet:
     ip4: "127.0.0.1"
     ip6: "::1"
-    dns: "1.1.1.1" # nocheck: hardcoded-dns-resolver
+    dns: "172.17.0.1" # nocheck: hardcoded-dns-resolver (mgr-01 docker bridge gateway, served by local dnsmasq)
 
 storage:
   backend: nfs

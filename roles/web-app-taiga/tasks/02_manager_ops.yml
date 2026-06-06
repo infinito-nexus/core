@@ -1,6 +1,6 @@
 ---
 - name: "copy taiga gateway config with OIDC route"
-  template:  # nocheck: conf-template (taiga compose dir, not project nginx tree)
+  template: # nocheck: conf-template (taiga compose dir, not project nginx tree)
     src: "taiga-gateway/taiga.conf.j2"
     dest: "{{ [compose_repository_path, 'taiga-gateway', 'taiga.conf'] | path_join }}"
   when: TAIGA_OIDC_ENABLED | bool

@@ -5,7 +5,7 @@
     dest: /etc/locale.gen
 
 - name: Setup locale.conf
-  template:  # nocheck: conf-template (per-host /etc/locale.conf, not stack-host-only)
+  template: # nocheck: conf-template (per-host /etc/locale.conf, not stack-host-only)
     src: locale.conf.j2
     dest: /etc/locale.conf
 
