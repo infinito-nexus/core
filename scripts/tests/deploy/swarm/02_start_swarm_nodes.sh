@@ -49,8 +49,10 @@ for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	fi
 done
 
-MGR_HOSTS_EXTRA="$(python3 -m utils.tests.swarm.write_hosts_entries)"
-docker exec -i "${MGR}" sh -c 'cat >> /etc/hosts' <<<"${MGR_HOSTS_EXTRA}"
+HOSTS_EXTRA="$(python3 -m utils.tests.swarm.write_hosts_entries)"
+for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}"; do
+	docker exec -i "${node}" sh -c 'cat >> /etc/hosts' <<<"${HOSTS_EXTRA}"
+done
 
 # Daemon DNS for containers spawned by the inner daemon; outer --dns is
 # clobbered by systemd-resolved inside DinD.

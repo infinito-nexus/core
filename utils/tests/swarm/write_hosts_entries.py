@@ -43,9 +43,14 @@ def _derived_domains(app_id: str, domain_primary: str) -> list[str]:
         seed=list(transitive),
     )
     derived = _AllDomainsFilter().generate_all_domains(canonical, include_www=True)
-    # Primary is the SOA host the test cluster pretends to serve; not
-    # declared as canonical by any role, so add it explicitly.
-    return sorted({*derived, domain_primary, f"www.{domain_primary}"})
+    return sorted(
+        {
+            *derived,
+            domain_primary,
+            f"www.{domain_primary}",
+            f"test.{domain_primary}",
+        }
+    )
 
 
 def main() -> int:
