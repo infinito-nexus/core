@@ -101,7 +101,7 @@ class TestRunnerBuildParser(unittest.TestCase):
             ["myhost", "--roles", "svc-runner", "--distribution", "debian"]
         )
         self.assertEqual(args.runner_count, DEFAULT_RUNNER_COUNT)
-        self.assertEqual(DEFAULT_RUNNER_COUNT, 15)
+        self.assertIsNone(DEFAULT_RUNNER_COUNT)
 
     def test_runner_count_accepted(self):
         args = build_parser().parse_args(

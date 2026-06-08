@@ -11,7 +11,7 @@ from pathlib import Path
 from . import PROJECT_ROOT
 
 DEFAULT_OUTPUT = str(Path(tempfile.gettempdir()) / "infinito-runner-deploy.log")
-DEFAULT_RUNNER_COUNT = 15
+DEFAULT_RUNNER_COUNT: int | None = None
 RUNNER_ROLE = "svc-runner"
 
 
@@ -84,12 +84,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--runner-count",
         type=int,
-        default=DEFAULT_RUNNER_COUNT,
+        default=None,
         dest="runner_count",
         metavar="N",
         help=(
-            f"Number of parallel runner instances to provision on the target host "
-            f"(default: {DEFAULT_RUNNER_COUNT}). Each instance handles one CI job at a time."
+            "Number of parallel runner instances to provision on the target host "
+            "(default: auto-computed from server vCPUs by the role). "
+            "Each instance handles one CI job at a time."
         ),
     )
     parser.add_argument(
@@ -168,10 +169,10 @@ def _run_deploy(
             "-e",
             f"runner_distribution={distribution}",
             "-e",
-            f"runner_count={runner_count}",
-            "-e",
             "MASK_CREDENTIALS_IN_LOGS=true",
         ]
+        if runner_count is not None:
+            cmd += ["-e", f"runner_count={runner_count}"]
 
         # Pass GitHub identity as extra-vars (direct override, not env-lookup).
         # vars/main.yml resolves RUNNER_GITHUB_OWNER/REPO via lookup('env', ...) which

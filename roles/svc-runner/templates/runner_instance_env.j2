@@ -4,11 +4,6 @@ INFINITO_RUNNER_PREFIX={{ runner_project_prefix }}-{{ runner_instance }}
 # runners on the same host never claim overlapping container IPs.
 # INFINITO_* variants are preserved by load.sh setdefault semantics so the
 # dev compose stack inside this runner uses the instance-specific subnet.
-SUBNET=172.30.{{ runner_instance }}.0/24
-GATEWAY=172.30.{{ runner_instance }}.1
-DNS_IP=172.30.{{ runner_instance }}.53
-IP4=172.30.{{ runner_instance }}.10
-BIND_IP=172.30.{{ runner_instance }}.1
 INFINITO_SUBNET=172.30.{{ runner_instance }}.0/24
 INFINITO_GATEWAY=172.30.{{ runner_instance }}.1
 INFINITO_DNS_IP=172.30.{{ runner_instance }}.53
