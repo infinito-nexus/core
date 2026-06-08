@@ -51,3 +51,14 @@ if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
     echo "SKIP: nested deploy not supported in DinD (DOCKER_IN_CONTAINER=true)"
     exit 0
 fi
+
+# On a real host: verify the compose stack is healthy
+echo "Verifying runner compose stack on localhost..."
+compose_output=$(compose --chdir "${RUNNER_INSTALL_DIR}" ps 2>&1)
+if echo "${compose_output}" | grep -qi "fail\|exit\|dead"; then
+    echo "FAIL: runner compose stack reports failures"
+    echo "${compose_output}"
+    exit 1
+fi
+echo "OK: runner compose stack healthy"
+echo "${compose_output}"

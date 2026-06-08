@@ -34,7 +34,5 @@ jobs:
       - name: Build step summary from annotations
         if: always()
         working-directory: ${{ github.workspace }}
-        env:
-          PYTHONPATH: ${{ github.workspace }}
         run: |
           python3 -m utils.annotations.summarize /tmp/lint-output.txt "Lint Annotation Summary"
