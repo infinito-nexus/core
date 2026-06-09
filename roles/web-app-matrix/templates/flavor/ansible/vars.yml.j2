@@ -42,9 +42,6 @@ matrix_synapse_turn_uris:
 matrix_synapse_turn_shared_secret: "{{ MATRIX_COTURN_AUTH_SECRET }}"
 {% endif %}
 
-matrix_synapse_container_client_api_host_bind_port: "0.0.0.0:{{ MATRIX_SYNAPSE_PORT }}"
-matrix_synapse_container_federation_api_plain_host_bind_port: "0.0.0.0:{{ MATRIX_FEDERATION_PORT }}"
-matrix_client_element_container_http_host_bind_port: "0.0.0.0:{{ MATRIX_ELEMENT_PORT }}"
 
 valkey_enabled: false
 
