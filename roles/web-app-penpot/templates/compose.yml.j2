@@ -24,17 +24,19 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ PENPOT_BACKEND_IMAGE }}:{{ PENPOT_VERSION }}"
     container_name: {{ PENPOT_BACKEND_CONTAINER }}
-    # The shared with-ca-trust.sh entrypoint (injected by the framework's CA
-    # override) installs the internal CA into the OS / NSS / env trust stores
-    # but NOT the JVM truststore, and Penpot's backend (JVM, runs as uid 1001)
-    # cannot write the root-owned cacerts. Without this, server-side OIDC
-    # token/userinfo calls to Keycloak over the internal HTTPS CA fail with
-    # PKIX "unable to find valid certification path". Override the command to
-    # import the CA into a writable truststore copy, point the JVM at it via
-    # JAVA_TOOL_OPTIONS, then exec Penpot's original `run.sh`. The CA path is
-    # the fixed mount destination (hardcoded, NOT $CA_TRUST_CERT — the CA
-    # override re-serialises this command and would double-escape a `$`).
-    command: ["/bin/bash","-c","cp /opt/jdk/lib/security/cacerts /tmp/cacerts 2>/dev/null || true; /opt/jdk/bin/keytool -importcert -keystore /tmp/cacerts -storepass changeit -noprompt -alias infinito-ca -file /tmp/infinito/ca/root-ca.crt >/dev/null 2>&1 || true; export JAVA_TOOL_OPTIONS=\"-Djavax.net.ssl.trustStore=/tmp/cacerts -Djavax.net.ssl.trustStorePassword=changeit\"; exec /bin/bash run.sh"]
+{% if (TLS_MODE | lower) == 'self_signed' %}
+    # Self-signed TLS only: the JVM truststore doesn't trust the internal CA
+    # (with-ca-trust.sh covers OS/NSS/env, not Java cacerts; backend runs uid 1001),
+    # so import it before start; otherwise OIDC calls to Keycloak fail PKIX.
+    command:
+      - /bin/bash
+      - -c
+      - |
+        cp /opt/jdk/lib/security/cacerts /tmp/cacerts 2>/dev/null || true
+        /opt/jdk/bin/keytool -importcert -keystore /tmp/cacerts -storepass changeit -noprompt -alias infinito-ca -file /tmp/infinito/ca/root-ca.crt >/dev/null 2>&1 || true
+        export JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=/tmp/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+        exec /bin/bash run.sh
+{% endif %}
     volumes:
       - "assets:{{ PENPOT_ASSETS_FS_DIRECTORY }}"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}

@@ -6,7 +6,7 @@ status_codes:
     - 302
 domains:
   canonical:
-    - design.{{ DOMAIN_PRIMARY }}
+    - penpot.design.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   whitelist:

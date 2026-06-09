@@ -31,6 +31,9 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 penpot:
   version: "2.5.4"
+  # Self-registration default: on when no IdP, off once OIDC (Keycloak) is the
+  # login path. Overridable per inventory via services.penpot.registration_enabled.
+  registration_enabled: "{{ 'web-app-keycloak' not in group_names }}" # nocheck: dynamic-flag
   min_storage: 10GB
   cpus: "0.5"
   mem_reservation: 512m
