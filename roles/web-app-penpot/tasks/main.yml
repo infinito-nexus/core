@@ -35,7 +35,7 @@
   until: >-
     penpot_admin_create.rc == 0 or
     ('already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default('')))
-  changed_when: "'Created' in (penpot_admin_create.stdout | default(''))"
+  changed_when: "'Created' in penpot_admin_create.stdout"
   failed_when:
     - penpot_admin_create.rc != 0
     - "'already exists' not in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
@@ -58,5 +58,5 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   when: "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
   register: penpot_admin_update
-  changed_when: "'Updated' in (penpot_admin_update.stdout | default(''))"
+  changed_when: "'Updated' in penpot_admin_update.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
