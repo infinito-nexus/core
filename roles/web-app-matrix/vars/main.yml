@@ -55,6 +55,8 @@ MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services
 
 MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 
+MATRIX_CA_MOUNT_PATH: "/etc/ssl/certs/infinito-ca.pem"
+
 MATRIX_POSTGRES_HOST: "{{ lookup('database', application_id, 'host') }}"
 MATRIX_POSTGRES_PORT: "{{ lookup('database', application_id, 'port') }}"
 MATRIX_POSTGRES_USER: "{{ lookup('database', application_id, 'username') }}"
