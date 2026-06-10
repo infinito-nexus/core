@@ -33,12 +33,28 @@
   run_once: true
   become: true
 
+- name: "Ensure NFS client packages are installed on controller for mount.nfs helper"
+  ansible.builtin.package:
+    name: "{{ lookup('vars', 'SVC_STORAGE_NFS_CLIENT_PACKAGES')[ansible_os_family] }}"
+    state: present
+  delegate_to: localhost
+  run_once: true
+  become: true
+  vars:
+    SVC_STORAGE_NFS_CLIENT_PACKAGES:
+      Debian: [nfs-common]
+      Ubuntu: [nfs-common]
+      Archlinux: [nfs-utils]
+      RedHat: [nfs-utils]
+      Fedora: [nfs-utils]
+      Alpine: [nfs-utils]
+
 - name: "Mount cluster-shared infinito state on controller"
   ansible.posix.mount:
     path: "{{ DIR_VAR_LIB }}"
     src: "{{ storage.nfs.server }}:{{ STORAGE_NFS_STATE_PATH }}"
     fstype: "{{ 'nfs4' if (storage.nfs.version | int) >= 4 else 'nfs' }}"
-    opts: "vers={{ storage.nfs.version }},rw,hard,timeo=600"
+    opts: "vers={{ storage.nfs.version }},rw,hard,timeo=600,nolock"
     state: ephemeral
   delegate_to: localhost
   run_once: true
