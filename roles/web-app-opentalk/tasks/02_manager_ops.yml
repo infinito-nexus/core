@@ -41,7 +41,7 @@
         --password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
     '
   vars:
-    KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }}"
+    KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ OPENTALK_KEYCLOAK_CONTAINER_ADDRESS }}"
     KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
     KEYCLOAK_SERVER_INTERNAL_URL: "http://127.0.0.1:8080"
   changed_when: false
@@ -73,7 +73,7 @@
       publicClient: false
       serviceAccountsEnabled: true
       secret: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"
-    kcadm_exec: "container exec -i {{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }} /opt/keycloak/bin/kcadm.sh"
+    kcadm_exec: "container exec -i {{ OPENTALK_KEYCLOAK_CONTAINER_ADDRESS }} /opt/keycloak/bin/kcadm.sh"
     realm: "{{ OIDC.CLIENT.REALM }}"
     assert_mode: "{{ MODE_ASSERT | bool }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -104,7 +104,7 @@
       publicClient: false
       serviceAccountsEnabled: true
       secret: "{{ OPENTALK_RECORDER_OIDC_CLIENT_SECRET }}"
-    kcadm_exec: "container exec -i {{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }} /opt/keycloak/bin/kcadm.sh"
+    kcadm_exec: "container exec -i {{ OPENTALK_KEYCLOAK_CONTAINER_ADDRESS }} /opt/keycloak/bin/kcadm.sh"
     realm: "{{ OIDC.CLIENT.REALM }}"
     assert_mode: "{{ MODE_ASSERT | bool }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -123,7 +123,7 @@
       $KCADM add-roles -r $REALM --uusername service-account-$CLIENT_ID --cclientid realm-management --rolename view-users --rolename query-users || true
     '
   vars:
-    KCEXEC: "container exec -i {{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }}"
+    KCEXEC: "container exec -i {{ OPENTALK_KEYCLOAK_CONTAINER_ADDRESS }}"
     KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -134,7 +134,7 @@
 
 - name: "Wait for MinIO to accept the configured root credentials"
   ansible.builtin.shell: >
-    container exec {{ OPENTALK_MINIO_CONTAINER }}
+    container exec {{ OPENTALK_MINIO_CONTAINER_ADDRESS }}
     mc alias set local http://127.0.0.1:9000
     {{ OPENTALK_MINIO_USER | quote }}
     {{ OPENTALK_MINIO_PASSWORD | quote }}
@@ -147,7 +147,7 @@
 
 - name: "Ensure OpenTalk MinIO bucket exists"
   ansible.builtin.shell: >
-    container exec {{ OPENTALK_MINIO_CONTAINER }}
+    container exec {{ OPENTALK_MINIO_CONTAINER_ADDRESS }}
     mc mb local/{{ OPENTALK_MINIO_BUCKET }}
   register: minio_bucket
   changed_when: "'Bucket created successfully' in minio_bucket.stdout"

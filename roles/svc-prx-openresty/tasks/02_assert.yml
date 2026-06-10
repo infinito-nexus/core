@@ -10,8 +10,8 @@
       delay: 5
 
     - name: Validate OpenResty configuration (Post-Flight-Check)
-      command: >
-        container exec {{ OPENRESTY_CONTAINER }} openresty -t -q
+      shell: >
+        container exec {{ OPENRESTY_CONTAINER_ADDRESS }} openresty -t -q
       register: openresty_test_post
       changed_when: false
       failed_when: openresty_test_post.rc != 0

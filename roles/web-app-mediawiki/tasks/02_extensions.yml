@@ -19,30 +19,17 @@
     label: "{{ ext.name }}"
 
 - name: "EXT | Copy & extract into container if not installed"
-  shell: >
-    container exec {{ MEDIAWIKI_CONTAINER }} bash -lc '
-      set -e
-      dst="{{ MEDIAWIKI_HTML_DIR }}/extensions/{{ ext.name }}"
-      if [ ! -f "$dst/extension.json" ]; then
-        rm -rf "$dst" && mkdir -p "$dst"
-      fi
-    '
-    && container cp "{{ MEDIAWIKI_EXT_CFG_BASE }}/{{ ext.name }}.tar.gz" "{{ MEDIAWIKI_CONTAINER }}:/tmp/{{ ext.name }}.tar.gz"
-    && container exec {{ MEDIAWIKI_CONTAINER }} bash -lc '
-      set -e
-      dst="{{ MEDIAWIKI_HTML_DIR }}/extensions/{{ ext.name }}"
-      if [ ! -f "$dst/extension.json" ]; then
-        tar -xzf /tmp/{{ ext.name }}.tar.gz -C "$dst" --strip-components=1
-        chown -R {{ MEDIAWIKI_USER }}:{{ MEDIAWIKI_USER }} "$dst"
-        rm -f /tmp/{{ ext.name }}.tar.gz
-        echo INSTALLED:{{ ext.name }}
-      else
-        rm -f /tmp/{{ ext.name }}.tar.gz
-        echo PRESENT:{{ ext.name }}
-      fi
-    '
-  args:
-    executable: /bin/bash
+  script: install_extension.sh
+  environment:
+    EXT_NAME: "{{ ext.name }}"
+    EXT_TARBALL: "{{ MEDIAWIKI_EXT_CFG_BASE }}/{{ ext.name }}.tar.gz"
+    MEDIAWIKI_HTML_DIR: "{{ MEDIAWIKI_HTML_DIR }}"
+    MEDIAWIKI_USER: "{{ MEDIAWIKI_USER }}"
+    BARE_NAME: "{{ MEDIAWIKI_CONTAINER }}"
+    STACK: "{{ application_id | get_entity_name }}"
+    SERVICE_KEY: "mediawiki"
+    DEPLOYMENT_MODE: "{{ DEPLOYMENT_MODE }}"
+    BIN_RESOLVE_CONTAINER_ID: "{{ BIN_RESOLVE_CONTAINER_ID }}"
   loop: "{{ MEDIAWIKI_EXT_LIST }}"
   loop_control:
     loop_var: ext
@@ -67,7 +54,7 @@
 # Sanity check: Jumbojett OIDC client must be loadable
 - name: "EXT | Sanity check: Jumbojett OpenIDConnect client present"
   shell: >
-    container exec {{ MEDIAWIKI_CONTAINER }} bash -lc
+    container exec {{ MEDIAWIKI_CONTAINER_ADDRESS }} bash -lc
     'php -r "(@require \"{{ MEDIAWIKI_HTML_DIR }}/vendor/autoload.php\"); @require \"{{ MEDIAWIKI_HTML_DIR }}/extensions/OpenIDConnect/vendor/autoload.php\"; exit(class_exists(\"Jumbojett\\\\OpenIDConnectClient\")?0:1);"'
   args:
     executable: /bin/bash

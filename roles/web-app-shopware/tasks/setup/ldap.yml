@@ -2,7 +2,7 @@
 # Replace INFX_LDAP_PLUGIN with the actual plugin name you use
 - name: "Install LDAP admin plugin & activate"
   shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
+    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
       set -e
       cd {{ SHOPWARE_ROOT }}
       php bin/console plugin:refresh
@@ -14,7 +14,7 @@
 
 - name: "Configure LDAP connection"
   shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
+    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
       set -e
       cd {{ SHOPWARE_ROOT }}
       php bin/console system:config:set "InfxLdap.config.host"     "{{ LDAP.SERVER.DOMAIN }}"

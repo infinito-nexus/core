@@ -2,7 +2,7 @@
 - name: "probe site_config.json for '{{ ERPNEXT_SITE_NAME }}'"
   ansible.builtin.shell: |
     set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
+    container exec {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       test -f /home/frappe/frappe-bench/sites/{{ ERPNEXT_SITE_NAME }}/site_config.json
   register: erpnext_site_probe
   changed_when: false
@@ -51,7 +51,7 @@
 - name: "wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after restart"
   ansible.builtin.shell: |
     set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
+    container exec {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
   register: erpnext_backend_ready_post_restart
   changed_when: false
@@ -63,7 +63,7 @@
 - name: "ensure encryption_key on site '{{ ERPNEXT_SITE_NAME }}'"
   ansible.builtin.shell: |
     set -euo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} bash -c '
+    container exec {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} bash -c '
       grep -q "encryption_key" /home/frappe/frappe-bench/sites/{{ ERPNEXT_SITE_NAME }}/site_config.json || \
       bench --site {{ ERPNEXT_SITE_NAME }} execute frappe.utils.password.create_auth_table 2>/dev/null || true
     '

@@ -50,7 +50,6 @@
 - name: "Patch database credentials for {{ application_id }}"
   include_tasks: 04_patch_database.yml
   when: matomo_config_exists.rc == 0
-
 - name: "Patch Trusted Hosts for {{ application_id }}"
   include_tasks: 05_patch_trusted_hosts.yml
 

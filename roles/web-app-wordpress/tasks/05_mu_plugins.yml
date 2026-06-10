@@ -4,23 +4,23 @@
 # Currently installs the OIDC→RBAC role mapper.
 
 - name: "Ensure mu-plugins directory exists inside the container"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     mkdir -p {{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins
   changed_when: false
 
 - name: "Copy infinito-oidc-rbac-mapper.php into the container"
-  command: >
+  shell: >
     container cp
     {{ [role_path, 'files/mu-plugins/infinito-oidc-rbac-mapper.php'] | path_join }}
-    {{ WORDPRESS_CONTAINER }}:{{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-oidc-rbac-mapper.php
+    {{ WORDPRESS_CONTAINER_ADDRESS }}:{{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-oidc-rbac-mapper.php
   register: cp_mu_plugin
   changed_when: cp_mu_plugin.rc == 0
   failed_when: cp_mu_plugin.rc != 0
 
 - name: "Ensure WordPress user owns the mu-plugin file"
-  command: >
-    container exec {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec {{ WORDPRESS_CONTAINER_ADDRESS }}
     chown {{ WORDPRESS_USER }}:{{ WORDPRESS_USER }}
     {{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-oidc-rbac-mapper.php
   changed_when: false

@@ -1,6 +1,7 @@
 ---
 # General
 application_id: "web-app-mattermost"
+entity_name: "{{ application_id | get_entity_name }}"
 
 # Docker
 container_port: "{{ lookup('config', application_id, 'services.mattermost.ports.local.http') }}"
@@ -9,6 +10,7 @@ container_port: "{{ lookup('config', application_id, 'services.mattermost.ports.
 MATTERMOST_VERSION: "{{ lookup('config', application_id, 'services.mattermost.version') }}"
 MATTERMOST_IMAGE: "{{ lookup('config', application_id, 'services.mattermost.image') }}"
 MATTERMOST_CONTAINER: "{{ lookup('config', application_id, 'services.mattermost.name') }}"
+MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
 ## Volumes
 MATTERMOST_VOLUME_CONFIG: "{{ lookup('config', application_id, 'volumes.config.name') }}"
@@ -21,9 +23,9 @@ MATTERMOST_VOLUME_CLIENT_PLUGINS: "{{ lookup('config', application_id, 'volumes.
 MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 
 ## Keycloak integration (for 02_keycloak.yml mapper setup)
-MATTERMOST_KEYCLOAK_CONTAINER: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.name') }}"
+MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 MATTERMOST_KEYCLOAK_ADMIN_USER: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
 MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ lookup('users', 'administrator').password }}"
 
 ## LDAP integration
-MATTERMOST_LDAP_CONTAINER: "{{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}"
+MATTERMOST_LDAP_CONTAINER_ADDRESS: "{{ lookup('container_address', 'svc-db-openldap', 'openldap') }}"

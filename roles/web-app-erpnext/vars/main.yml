@@ -7,6 +7,7 @@ ERPNEXT_VERSION: "{{ lookup('config', application_id, 'services.erpnext.version'
 
 ERPNEXT_BACKEND_CONTAINER: "erpnext-backend"
 ERPNEXT_FRONTEND_CONTAINER: "erpnext-frontend"
+ERPNEXT_BACKEND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'backend') }}"
 ERPNEXT_WEBSOCKET_CONTAINER: "erpnext-websocket"
 ERPNEXT_SCHEDULER_CONTAINER: "erpnext-scheduler"
 ERPNEXT_QUEUE_SHORT_CONTAINER: "erpnext-queue-short"

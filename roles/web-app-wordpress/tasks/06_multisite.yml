@@ -13,8 +13,8 @@
 
 - name: "Multisite: convert Single-Site to Multisite network (subdomain install)"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp core multisite-convert
       --subdomains
       --title="{{ WORDPRESS_TITLE }} Network"
@@ -33,8 +33,8 @@
   # SUBDOMAIN_INSTALL must arrive at wp-cli as bareword PHP literals
   # (true, false, 123, ...). For these the value contains no characters
   # that shlex would chew on.
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp config set {{ item.key }} {{ item.value }}
     --raw
     --type=constant
@@ -59,8 +59,8 @@
   # bareword that PHP can't parse. Dropping `--raw` lets wp-cli detect
   # the type as string and quote it for us, which is the SPOT for that
   # decision.
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp config set {{ item.key }} {{ item.value }}
     --type=constant
     --path={{ WORDPRESS_DOCKER_HTML_PATH }}
@@ -72,16 +72,16 @@
   changed_when: true
 
 - name: "Multisite: list the existing sites in the network"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp site list --field=url --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   register: wp_ms_sites
   changed_when: false
 
 - name: "Multisite: create any missing per-canonical-domain site"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp site create
       --slug="{{ item }}"
       --title="{{ item }}"

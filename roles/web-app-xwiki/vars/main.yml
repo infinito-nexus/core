@@ -1,6 +1,7 @@
 ---
 # General
 application_id: "web-app-xwiki"
+entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
 container_port: 8080
@@ -22,6 +23,7 @@ XWIKI_IMAGE_CUSTOM: "xwiki_custom"
 XWIKI_IMAGE: "{{ lookup('config', application_id, 'services.xwiki.image') }}"
 XWIKI_VERSION: "{{ lookup('config', application_id, 'services.xwiki.version') }}"
 XWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.xwiki.name') }}"
+XWIKI_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 XWIKI_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 
 # Feature toggles (must be set in meta/services.yml -> features)

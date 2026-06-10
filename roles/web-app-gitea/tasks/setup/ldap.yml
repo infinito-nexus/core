@@ -1,7 +1,7 @@
 ---
 - name: "Add LDAP Authentication Source"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth add-ldap \
       {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
   args:
@@ -11,7 +11,7 @@
 
 - name: "Lookup existing LDAP auth source ID"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth list \
       | tail -n +2 \
       | grep -F "LDAP ({{ DOMAIN_PRIMARY }})" \
@@ -30,7 +30,7 @@
 
 - name: "Update LDAP Authentication Source"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth update-ldap \
       --id {{ ldap_source_id }} \
       {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}

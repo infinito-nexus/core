@@ -1,7 +1,7 @@
 ---
 - name: "Mattermost | Wait until mmctl local mode is ready"
   shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+    container exec -i {{ MATTERMOST_CONTAINER_ADDRESS }} \
       /mattermost/bin/mmctl --local system status
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
@@ -14,7 +14,7 @@
 
 - name: "Mattermost | Create system administrator user"
   shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+    container exec -i {{ MATTERMOST_CONTAINER_ADDRESS }} \
       /mattermost/bin/mmctl --local user create \
         --email    "{{ lookup('users', 'administrator').email }}" \
         --username "{{ lookup('users', 'administrator').username }}" \
@@ -28,7 +28,7 @@
 
 - name: "Mattermost | Create default team"
   shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+    container exec -i {{ MATTERMOST_CONTAINER_ADDRESS }} \
       /mattermost/bin/mmctl --local team create \
         --name         "main" \
         --display-name "{{ ORGANIZATION }}"
@@ -48,7 +48,7 @@
 
 - name: "Mattermost | Check which users are already in default team"
   shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+    container exec -i {{ MATTERMOST_CONTAINER_ADDRESS }} \
       /mattermost/bin/mmctl --local user list --team main
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
@@ -57,7 +57,7 @@
 
 - name: "Mattermost | Add administrator to default team"
   shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+    container exec -i {{ MATTERMOST_CONTAINER_ADDRESS }} \
       /mattermost/bin/mmctl --local team users add \
         main \
         "{{ lookup('users', 'administrator').email }}"
@@ -79,7 +79,7 @@
 
 - name: "Mattermost | Get administrator uidNumber from LDAP"
   shell: |
-    container exec -i {{ MATTERMOST_LDAP_CONTAINER }} \
+    container exec -i {{ MATTERMOST_LDAP_CONTAINER_ADDRESS }} \
       ldapsearch -x -H ldap://localhost:389 \
         -D {{ LDAP.DN.ADMINISTRATOR.DATA | quote }} \
         -w {{ LDAP.BIND_CREDENTIAL | quote }} \

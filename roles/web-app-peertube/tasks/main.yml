@@ -18,10 +18,13 @@
 - name: "PEERTUBE | Patch the `application` table so the bootstrap INSERT survives fresh installs"
   include_tasks: fix-application-schema.yml
 
-- name: "Install and activate auth-openid-connect plugin if OIDC is enabled"
-  include_tasks: oidc/enable.yml
-  when: PEERTUBE_OIDC_ENABLED | bool
+- name: "PeerTube stack-host OIDC plugin lifecycle"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "Install and activate auth-openid-connect plugin if OIDC is enabled"
+      include_tasks: oidc/enable.yml
+      when: PEERTUBE_OIDC_ENABLED | bool
 
-- name: "Deinstall and disable auth-openid-connect plugin if OIDC is enabled"
-  include_tasks: oidc/disable.yml
-  when: not PEERTUBE_OIDC_ENABLED | bool
+    - name: "Deinstall and disable auth-openid-connect plugin if OIDC is disabled"
+      include_tasks: oidc/disable.yml
+      when: not PEERTUBE_OIDC_ENABLED | bool

@@ -11,7 +11,7 @@
 
 - name: "Run DB migrations inside Gitea container"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       /app/gitea/gitea migrate
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
@@ -20,7 +20,7 @@
 
 - name: "Create initial admin user"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       /app/gitea/gitea admin user create \
         --admin \
         --username "{{ lookup('users', 'administrator').username }}" \
@@ -51,7 +51,6 @@
 - name: Execute Cleanup Routines
   include_tasks: 04_cleanup.yml
   when: MODE_CLEANUP | bool
-
 - name: Include DNS role to register Gitea domain(s)
   include_role:
     name: sys-dns-cloudflare-records

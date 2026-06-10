@@ -43,7 +43,7 @@
     mode: "0755"
 
 - name: "Stage upstream Fediwall files into per-slug folder '{{ wall.slug }}'"
-  copy:  # nocheck: stack-host-consumer (02_manager_ops.yml is parent-gated by IS_STACK_HOST in 01_core.yml:11)
+  copy: # nocheck: stack-host-consumer (02_manager_ops.yml is parent-gated by IS_STACK_HOST in 01_core.yml:11)
     src: "{{ FEDIWALL_UPSTREAM_DIR_ABS }}/"
     dest: "{{ [ FEDIWALL_DIST_DIR_ABS, wall.slug ] | path_join }}/"
     remote_src: true

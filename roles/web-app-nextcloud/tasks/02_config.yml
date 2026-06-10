@@ -24,7 +24,7 @@
     state: started
 
 - name: Wait until Nextcloud is installed (occ status)
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"
   register: occ_status
   retries: 60
   delay: 5
@@ -37,7 +37,7 @@
   ansible.builtin.shell: |
     set -euo pipefail
 
-    container exec -u root {{ NEXTCLOUD_CONTAINER }} sh -lc '
+    container exec -u root {{ NEXTCLOUD_CONTAINER_ADDRESS }} sh -lc '
       cfg="{{ NEXTCLOUD_DOCKER_CONFIG_FILE }}"
       marker="INFINITO:NEXUS CONFIG LOADER"
 

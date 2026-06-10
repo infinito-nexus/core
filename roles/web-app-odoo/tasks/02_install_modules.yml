@@ -6,14 +6,14 @@
     odoo_modules_to_install: "{{ (ODOO_MODULES_CORE + ODOO_MODULES_OPTIONAL) | join(',') }}"
 
 - name: "Install core modules"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
+  shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo -i {{ odoo_modules_to_install }}
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
     --db_port {{ ODOO_DB_PORT }}
     --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
+    --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
   register: module_install
@@ -22,14 +22,14 @@
   when: odoo_modules_to_install | length > 0
 
 - name: "Update installed modules"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
+  shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo -u all
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
     --db_port {{ ODOO_DB_PORT }}
     --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
+    --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
   register: module_update
@@ -37,14 +37,14 @@
   failed_when: false
 
 - name: "Install auth_oauth module for OIDC support"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
+  shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo -i auth_oauth
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
     --db_port {{ ODOO_DB_PORT }}
     --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
+    --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
   register: auth_oauth_install
@@ -53,14 +53,14 @@
   when: ODOO_OIDC_ENABLED | bool
 
 - name: "Install auth_signup module for OAuth user auto-creation"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
+  shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo -i auth_signup
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
     --db_port {{ ODOO_DB_PORT }}
     --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
+    --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
   register: auth_signup_install
@@ -69,14 +69,14 @@
   when: ODOO_OIDC_ENABLED | bool
 
 - name: "Install auth_oauth_https module for HTTPS redirect URI fix"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
+  shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo -i auth_oauth_https
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
     --db_port {{ ODOO_DB_PORT }}
     --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
+    --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
   register: auth_oauth_https_install
@@ -85,14 +85,14 @@
   when: ODOO_OIDC_ENABLED | bool
 
 - name: "Install auth_ldap module for LDAP support"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
+  shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo -i auth_ldap
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
     --db_port {{ ODOO_DB_PORT }}
     --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
+    --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
   register: auth_ldap_install

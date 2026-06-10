@@ -34,6 +34,7 @@ MAGENTO_SEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.search.
 MAGENTO_PHP_VERSION: "{{ lookup('config', application_id, 'services.php.version') }}"
 MAGENTO_PHP_IMAGE: "{{ lookup('config', application_id, 'services.php.image') }}"
 MAGENTO_PHP_CONTAINER: "{{ lookup('config', application_id, 'services.php.name') }}"
+MAGENTO_PHP_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'php') }}"
 
 ## NGINX
 MAGENTO_NGINX_VERSION: "{{ lookup('config', application_id, 'services.nginx.version') }}"

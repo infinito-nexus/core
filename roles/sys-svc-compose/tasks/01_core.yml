@@ -36,3 +36,12 @@
     mode: "0755"
     owner: root
     group: root
+
+- name: Install resolve-container-id helper (Swarm task → container ID)
+  become: true
+  ansible.builtin.copy:
+    src: "resolve_container_id.sh"
+    dest: "{{ BIN_RESOLVE_CONTAINER_ID }}"
+    mode: "0755"
+    owner: root
+    group: root

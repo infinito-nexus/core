@@ -13,7 +13,9 @@
 
 - name: "Load extensions procedures for '{{ application_id }}'"
   include_tasks: "02_extensions.yml"
-  when: MEDIAWIKI_OIDC_ENABLED | bool
+  when:
+    - MEDIAWIKI_OIDC_ENABLED | bool
+    - IS_STACK_HOST | bool
 
 - name: "Load update procedures for '{{ application_id }}'"
   include_tasks: 03_install.yml

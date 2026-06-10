@@ -5,7 +5,7 @@
     -e CONFIG_KEY={{ item.key }}
     -e CONFIG_VALUE={{ item.value | quote }}
     -e CONFIG_FILE={{ ESPOCRM_CONFIG_FILE_PRIVATE | quote }}
-    {{ ESPOCRM_CONTAINER }} sh < {{ role_path }}/files/patch_config_key.sh
+    {{ ESPOCRM_CONTAINER_ADDRESS }} sh < {{ role_path }}/files/patch_config_key.sh
   loop:
     - { key: host, value: "{{ lookup('database', application_id, 'host') }}" }
     - { key: dbname, value: "{{ lookup('database', application_id, 'name') }}" }

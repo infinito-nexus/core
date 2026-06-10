@@ -37,7 +37,7 @@
 - name: "wait for the Zammad Rails server to answer"
   ansible.builtin.shell: |
     set -eo pipefail
-    container exec {{ ZAMMAD_RAILS_CONTAINER }} \
+    container exec {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
       bundle exec rails r 'Setting.any? || raise'
   register: zammad_rails_ready
   changed_when: false
@@ -48,7 +48,7 @@
 - name: "process auto_wizard.json if Zammad's setup wizard hasn't completed yet (idempotent)"
   ansible.builtin.shell: |
     set -euo pipefail
-    container exec -i {{ ZAMMAD_RAILS_CONTAINER }} bundle exec rails r '
+    container exec -i {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} bundle exec rails r '
       if !Setting.get("system_init_done")
         raise "AutoWizard data missing (auto_wizard.json not mounted in rails container)" unless AutoWizard.enabled?
         AutoWizard.setup
@@ -62,7 +62,7 @@
     set -euo pipefail
     container exec -i \
       -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD \
-      {{ ZAMMAD_RAILS_CONTAINER }} \
+      {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
       bundle exec rails r - < {{ role_path }}/files/scripts/apply_api_bot.rb
   environment:
     API_BOT_LOGIN: "{{ ZAMMAD_API_BOT_USER.username }}"
@@ -79,7 +79,7 @@
     container exec -i \
       -e ZAMMAD_FQDN -e ZAMMAD_HTTP_TYPE \
       -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_CLIENT_SECRET -e OIDC_ISSUER_URL \
-      {{ ZAMMAD_RAILS_CONTAINER }} \
+      {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
       bundle exec rails r - < {{ role_path }}/files/scripts/apply_oidc_settings.rb
   environment:
     ZAMMAD_FQDN: "{{ ZAMMAD_HOSTNAME }}"
@@ -98,7 +98,7 @@
     container exec -i \
       -e LDAP_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN \
       -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR \
-      {{ ZAMMAD_RAILS_CONTAINER }} \
+      {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
       bundle exec rails r - < {{ role_path }}/files/scripts/apply_ldap_source.rb
   environment:
     LDAP_NAME: "{{ ORGANIZATION }} svc-db-openldap"
@@ -119,7 +119,7 @@
       -e MAIL_GROUP_NAME -e MAIL_FROM_NAME -e MAIL_FROM_ADDRESS \
       -e IMAP_HOST -e IMAP_PORT -e IMAP_USER -e IMAP_PASS \
       -e SMTP_HOST -e SMTP_PORT -e SMTP_USER -e SMTP_PASS \
-      {{ ZAMMAD_RAILS_CONTAINER }} \
+      {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
       bundle exec rails r - < {{ role_path }}/files/scripts/apply_email_channel.rb
   environment:
     MAIL_GROUP_NAME: "Users"

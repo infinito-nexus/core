@@ -25,6 +25,7 @@ SHOPWARE_COMPOSER_PLATFORM_PHP: "{{ SHOPWARE_PHP_VERSION | regex_replace('^(\\d+
 # Split service container names
 SHOPWARE_INIT_CONTAINER: "{{ lookup('config', application_id, 'services.init.name') }}"
 SHOPWARE_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.web.name') }}"
+SHOPWARE_WEB_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'web') }}"
 SHOPWARE_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
 SHOPWARE_SCHED_CONTAINER: "{{ lookup('config', application_id, 'services.scheduler.name') }}"
 SHOPWARE_INIT_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'init.sh' ] | path_join }}"

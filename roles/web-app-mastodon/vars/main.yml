@@ -1,6 +1,7 @@
 ---
 # General
 application_id: "web-app-mastodon"
+entity_name: "{{ application_id | get_entity_name }}"
 
 # Mastodon
 
@@ -8,6 +9,7 @@ application_id: "web-app-mastodon"
 MASTODON_VERSION: "{{ lookup('config', application_id, 'services.mastodon.version') }}"
 MASTODON_IMAGE: "{{ lookup('config', application_id, 'services.mastodon.image') }}"
 MASTODON_CONTAINER: "{{ lookup('config', application_id, 'services.mastodon.name') }}"
+MASTODON_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 MASTODON_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"
 MASTODON_SERVICE_NAME: "mastodon"
 

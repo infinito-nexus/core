@@ -82,7 +82,8 @@ KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credent
 
 ## Docker
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
-KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_CONTAINER }}"
+KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_CONTAINER_ADDRESS }}"
 KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
 KEYCLOAK_EXEC_KCADM: "{{ KEYCLOAK_EXEC_CONTAINER }} {{ KEYCLOAK_KCADM }}"
 KEYCLOAK_IMAGE: "{{ lookup('config', application_id, 'services.keycloak.image') }}"

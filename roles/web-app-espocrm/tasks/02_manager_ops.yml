@@ -19,8 +19,8 @@
   meta: flush_handlers
 
 - name: Check if config.php exists in EspoCRM
-  command: >
-    container exec --user root {{ ESPOCRM_CONTAINER }} test -f {{ ESPOCRM_CONFIG_FILE_PRIVATE }}
+  shell: >
+    container exec --user root {{ ESPOCRM_CONTAINER_ADDRESS }} test -f {{ ESPOCRM_CONFIG_FILE_PRIVATE }}
   register: config_file_exists
   changed_when: false
   failed_when: false
@@ -28,18 +28,17 @@
 - name: Patch EspoCRM config.php
   include_tasks: 01_patch_config.yml
   when: config_file_exists.rc == 0
-
 - name: Run EspoCRM upgrade
-  command: >
-    container exec --user {{ ESPOCRM_USER }} {{ ESPOCRM_CONTAINER }}
+  shell: >
+    container exec --user {{ ESPOCRM_USER }} {{ ESPOCRM_CONTAINER_ADDRESS }}
     php command.php upgrade -y
   register: espocrm_upgrade
   changed_when: "'Upgrading' in espocrm_upgrade.stdout or 'successfully' in espocrm_upgrade.stdout"
   failed_when: false
 
 - name: Run flag setter as root (fallback)
-  command: >
-    container exec --user root {{ ESPOCRM_CONTAINER }}
+  shell: >
+    container exec --user root {{ ESPOCRM_CONTAINER_ADDRESS }}
     php {{ ESPOCRM_SCRIPT_SEED_DOCKER }}
   register: flags_result_root
   changed_when: "'CHANGED' in flags_result_root.stdout"

@@ -2,10 +2,12 @@
 - name: "Wait until Mailu database schema is initialized (domain table exists)"
   block:
     - name: "Check for Mailu DB domain table"
-      ansible.builtin.command: >
-        container exec {{ lookup('database', application_id, 'container') }} mariadb -u {{ lookup('database', application_id, 'username') }} -p{{ lookup('database',
-        application_id, 'password') }}
-        -e "SHOW TABLES FROM {{ lookup('database', application_id, 'name') }} LIKE 'domain';"
+      ansible.builtin.shell: >
+        container exec
+        -e MARIADB_PWD={{ lookup('database', application_id, 'password') | quote }}
+        {{ lookup('database', application_id, 'address') }} sh -c
+        'mariadb -u {{ lookup('database', application_id, 'username') }} -p"$MARIADB_PWD"
+        -e "SHOW TABLES FROM {{ lookup('database', application_id, 'name') }} LIKE \"domain\";"'
       args:
         chdir: "{{ MAILU_INSTANCE_DIR }}"
       register: mailu_db_schema_check

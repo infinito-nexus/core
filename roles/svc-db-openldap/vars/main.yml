@@ -18,6 +18,7 @@ OPENLDAP_LDIF_TYPES:
 
 # Container
 OPENLDAP_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+OPENLDAP_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 OPENLDAP_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 OPENLDAP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 OPENLDAP_VOLUME: "{{ lookup('config', application_id, 'volumes.data.name') }}"

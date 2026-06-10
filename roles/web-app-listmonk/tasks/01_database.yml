@@ -1,6 +1,6 @@
 ---
 - name: Check if listmonk schema is present (probe the 'subscribers' table)
-  command: '{{ LISTMONK_EXEC_DATABASE }} -c "\dt subscribers"'
+  shell: '{{ LISTMONK_EXEC_DATABASE }} -c "\dt subscribers"'
   register: db_tables
   changed_when: false
   failed_when: false

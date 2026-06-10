@@ -1,13 +1,13 @@
 ---
 # Routines to create the administrator account
 - name: Remove line containing "- administrator" from config/settings.yml to allow creating administrator account
-  command:
-    cmd: "container exec -u root {{ MASTODON_CONTAINER }} sed -i '/- administrator/d' config/settings.yml"
+  shell:
+    cmd: "container exec -u root {{ MASTODON_CONTAINER_ADDRESS }} sed -i '/- administrator/d' config/settings.yml"
   when: lookup('users', 'administrator').username == "administrator"
 - name: Create admin account via tootctl
-  command:
+  shell:
     cmd: >
-      container exec -u root {{ MASTODON_CONTAINER }} bash -c
+      container exec -u root {{ MASTODON_CONTAINER_ADDRESS }} bash -c
       "bin/tootctl accounts create {{ lookup('users', 'administrator').username }}
       --email {{ lookup('users', 'administrator').email }}
       --confirmed --role Owner"
@@ -19,8 +19,8 @@
     ("taken" not in tootctl_create.stderr | lower)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 - name: Approve the administrator account in Mastodon
-  command:
+  shell:
     cmd: >
-      container exec -u root {{ MASTODON_CONTAINER }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
+      container exec -u root {{ MASTODON_CONTAINER_ADDRESS }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

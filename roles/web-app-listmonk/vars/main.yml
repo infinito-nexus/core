@@ -16,7 +16,7 @@ LISTMONK_PUBLIC_API_ENABLED: "{{ lookup('config', application_id, 'services.list
 LISTMONK_USER_SEND: "newsletter"
 LISTMONK_USER_BOUNCE: "bounce"
 
-LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'container') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
+LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'address') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
   lookup('database', application_id, 'name') }}"
 LISTMONK_RUN: "{{ BIN_COMPOSE }} run -T --rm application"
 LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"

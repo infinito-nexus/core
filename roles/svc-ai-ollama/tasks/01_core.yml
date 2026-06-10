@@ -8,7 +8,7 @@
 
 - name: Pre-pull Ollama models
   vars:
-    _cmd: "container exec -i {{ OLLAMA_CONTAINER }} ollama pull {{ model }}"
+    _cmd: "container exec -i {{ OLLAMA_CONTAINER_ADDRESS }} ollama pull {{ model }}"
   shell: "{{ _cmd }}"
   register: pull_result
   loop: "{{ OLLAMA_PRELOAD_MODELS }}"
@@ -16,6 +16,7 @@
     loop_var: model
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  when: IS_STACK_HOST | bool
   changed_when: >
     (not (ASYNC_ENABLED | bool)) and (
       'downloaded' in (pull_result.stdout | default('')) or

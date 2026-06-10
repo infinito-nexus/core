@@ -6,7 +6,7 @@
     mode: "0755"
 
 - name: "Deploy Odoo configuration file"
-  template:  # nocheck: stack-host-template (odoo compose dir, not project nginx tree)
+  template: # nocheck: stack-host-template (odoo compose dir, not project nginx tree)
     src: "odoo.conf.j2"
     dest: "{{ ODOO_CONF_FILE_HOST }}"
     mode: "0644"

@@ -1,13 +1,4 @@
 ---
-# Configure OIDC (Keycloak) provider for Odoo.
-#
-# Static SQL bodies live in roles/web-app-odoo/files/oidc/*.sql and are
-# loaded via `query_file:`. Values that vary per call are passed through
-# `named_args:` and substituted as engine-escaped `%(name)s` placeholders
-# by the database_query module. All queries run against the role's own
-# DB via `container exec` (cross-DB lookups explicitly pass a different
-# `config:`).
-
 - name: "Configure OIDC (Keycloak) for Odoo"
   block:
     - name: "Check if Keycloak OAuth provider exists"

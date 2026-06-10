@@ -3,7 +3,7 @@
 
 - name: "Mattermost | Keycloak — authenticate kcadm.sh"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh config credentials
     --server "http://localhost:8080"
     --realm master
@@ -15,7 +15,7 @@
 
 - name: "Mattermost | Keycloak — resolve Mattermost client UUID"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get clients
     -r {{ OIDC.CLIENT.REALM | quote }}
     -q clientId={{ OIDC.CLIENT.ID | quote }}
@@ -28,7 +28,7 @@
 
 - name: "Mattermost | Keycloak — list existing protocol mappers"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -40,7 +40,7 @@
 
 - name: "Mattermost | Keycloak — list all client scopes"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
@@ -51,7 +51,7 @@
 
 - name: "Mattermost | Keycloak — create 'openid' client scope if missing"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh create client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     -s name=openid
@@ -63,7 +63,7 @@
 
 - name: "Mattermost | Keycloak — re-read client scopes after possible creation"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
@@ -75,7 +75,7 @@
 
 - name: "Mattermost | Keycloak — list existing default client scopes"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -87,7 +87,7 @@
 
 - name: "Mattermost | Keycloak — add 'openid' to client default scopes"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh update
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes/{{ mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | first | split(',')
     | first | trim }}
@@ -98,7 +98,7 @@
 
 - name: "Mattermost | Keycloak — add 'id' mapper (integer from LDAP uidNumber)"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh create
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -117,7 +117,7 @@
 
 - name: "Mattermost | Keycloak — add 'username' mapper (from Keycloak username)"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh create
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}

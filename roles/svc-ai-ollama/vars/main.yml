@@ -1,12 +1,14 @@
 ---
 # General
 application_id: "svc-ai-ollama"
+entity_name: "{{ application_id | get_entity_name }}"
 
 # Ollama
 # https://ollama.com/
 OLLAMA_VERSION: "{{ lookup('config', application_id, 'services.ollama.version') }}"
 OLLAMA_IMAGE: "{{ lookup('config', application_id, 'services.ollama.image') }}"
 OLLAMA_CONTAINER: "{{ lookup('config', application_id, 'services.ollama.name') }}"
+OLLAMA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 OLLAMA_PORT: "{{ lookup('config', application_id, 'services.ollama.ports.internal.http') }}"
 OLLAMA_PRELOAD_MODELS: "{{ lookup('config', application_id, 'services.ollama.preload_models') }}"
 OLLAMA_MODELS_VOLUME: "{{ lookup('config', application_id, 'volumes.ollama_models.name') }}"

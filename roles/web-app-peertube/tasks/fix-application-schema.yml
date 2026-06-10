@@ -22,11 +22,10 @@
 # real node/ABI version strings on every boot, so the defaults only cover the
 # bootstrap INSERT.
 #
-# Both queries run via `container exec` against the DB container the
-# `database` lookup resolves to (central `svc-db-postgres` in shared mode,
-# per-role `peertube-database` in non-shared mode). Running inside the
-# container side-steps the controller-side TCP reachability gap that
-# affects non-shared deploys.
+# Both queries run inside the DB container the `database` lookup resolves
+# to (central `svc-db-postgres` in shared mode, per-role `peertube-database`
+# in non-shared mode). Running inside the container side-steps the
+# controller-side TCP reachability gap that affects non-shared deploys.
 
 - name: "PEERTUBE | Wait for peertube to create the `application` table"
   database_query:
