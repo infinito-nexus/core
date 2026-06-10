@@ -117,7 +117,7 @@ redis:
 opensearch:
   enabled: true
   image: opensearchproject/opensearch
-  version: 3.6.0
+  version: 3.7.0
   name: shopware-opensearch
   cpus: 1.0
   mem_reservation: 2g
