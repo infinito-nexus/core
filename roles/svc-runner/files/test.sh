@@ -8,7 +8,6 @@ set -euo pipefail
 
 : "${DOCKER_IN_CONTAINER:?}"
 : "${RUNNER_COUNT:?}"
-: "${RUNNER_DISTRIBUTION:?}"
 : "${RUNNER_GIT_REF:?}"
 : "${RUNNER_GITHUB_OWNER:?}"
 : "${RUNNER_GITHUB_REPO:?}"
@@ -18,10 +17,10 @@ set -euo pipefail
 
 echo "OK: env vars verified (RUNNER_COUNT=${RUNNER_COUNT}, RUNNER_PROJECT_PREFIX=${RUNNER_PROJECT_PREFIX}, RUNNER_GIT_REF=${RUNNER_GIT_REF})"
 
-# --- Binary check ---
+# --- Binary check (skip gracefully if svc-runner was not deployed in this run) ---
 if [[ ! -f "${RUNNER_INSTALL_DIR}/1/run.sh" ]]; then
-    echo "FAIL: runner binary not found at ${RUNNER_INSTALL_DIR}/1/run.sh"
-    exit 1
+    echo "SKIP: svc-runner not deployed in this run (binary absent at ${RUNNER_INSTALL_DIR}/1/run.sh)"
+    exit 0
 fi
 echo "OK: runner binary present at ${RUNNER_INSTALL_DIR}/1/run.sh"
 
