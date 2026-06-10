@@ -1,7 +1,3 @@
-- name: Mark swapfile as already handled — runner manages its own memory via Docker limits
-  ansible.builtin.set_fact:
-    run_once_svc_opt_swapfile: true
-
 - name: Ensure Docker is installed and running
   ansible.builtin.include_role:
     name: sys-svc-container
@@ -167,7 +163,7 @@
 
 - name: Set docker GID fact
   ansible.builtin.set_fact:
-    _runner_docker_gid: "{{ (_docker_group_entry.stdout | split(':'))[2] | default('999') }}"
+    _runner_docker_gid: "{{ (_docker_group_entry.stdout | split(':'))[2] | default(RUNNER_DOCKER_GID_FALLBACK) }}"
 
 - name: Install compose wrapper
   ansible.builtin.include_role:
@@ -210,6 +206,7 @@
     build:
       path: "{{ runner_install_dir }}/build"
       args:
+        RUNNER_BASE_IMAGE: "{{ RUNNER_BASE_IMAGE }}"
         RUNNER_UID: "{{ runner_uid }}"
         RUNNER_GID: "{{ runner_gid }}"
     force_source: true

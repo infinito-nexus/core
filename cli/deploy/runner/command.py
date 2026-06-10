@@ -214,6 +214,7 @@ def _run_deploy(
         return proc.returncode
 
     finally:
+        # Best-effort cleanup — temp files may already be gone if the OS cleaned up.
         with contextlib.suppress(OSError):
             Path(inv_path).unlink()
         with contextlib.suppress(OSError):

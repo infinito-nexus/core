@@ -45,10 +45,6 @@ jobs:
           set -euo pipefail
           echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
 
-      - name: 📦 Install jq
-        shell: bash
-        run: ./scripts/install/apt.sh jq
-
       - name: Install deps (jq + envsubst)
         shell: bash
         run: ./scripts/install/apt.sh jq gettext-base

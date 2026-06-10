@@ -33,7 +33,7 @@
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
-  loop: "{{ _runner_config_files.files | default([]) }}"
+  loop: "{{ _runner_config_files.files }}"
   loop_control:
     label: "{{ item.path }}"
   when: item.path | basename not in ['.env']

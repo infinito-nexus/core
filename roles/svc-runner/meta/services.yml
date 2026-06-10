@@ -4,3 +4,9 @@ svc-runner:
   github_owner: infinito-nexus
   github_repo: core
   docker_base: /mnt/docker
+  base_image: ubuntu:22.04
+  docker_gid_fallback: 999
+  project_prefix: runner
+  sysctl_conf: /etc/sysctl.d/99-github-runner.conf
+  image_name: infinito-runner
+  image_tag: latest

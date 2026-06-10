@@ -1,7 +1,8 @@
-FROM ubuntu:22.04
+ARG RUNNER_BASE_IMAGE
+FROM ${RUNNER_BASE_IMAGE}
 
-ARG RUNNER_UID=900
-ARG RUNNER_GID=900
+ARG RUNNER_UID
+ARG RUNNER_GID
 
 # Runner binary runtime deps + Docker CLI + Python 3 for CI scripts
 RUN rm -rf /var/lib/apt/lists/* \

@@ -1,0 +1,66 @@
+name: "🏃 Test: Runner smoke"
+
+# Smoke test for self-hosted runners. Dispatched by roles/svc-runner/files/test.sh
+# after a runner deploy to verify end-to-end that the runner can pick up a real CI
+# job, access Docker via DooD, and run a full Ansible deploy.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to check out (branch, tag, or SHA). Defaults to the repo default branch."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  INFINITO_DEPLOY_TYPE: server
+  INFINITO_DISTROS: debian
+  NIX_CONFIG: |
+    access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+  INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+  INFINITO_GHCR_MIRROR_PREFIX: mirror
+
+jobs:
+  smoke:
+    name: 🏃 Runner smoke
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 90
+
+    steps:
+      - name: Fix workspace ownership
+        shell: bash
+        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" 2>/dev/null || true
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: Smoke deploy (dashboard, matomo disabled)
+        shell: bash
+        env:
+          apps: web-app-dashboard
+          disable: matomo
+          INFINITO_TIMEOUT_MULTIPLIER: ${{ vars.INFINITO_TIMEOUT_MULTIPLIER || '1' }}
+          ANSIBLE_LOG_PATH: /tmp/ansible-runner-smoke.log
+        run: ./scripts/tests/deploy/ci/all.sh
+
+      - name: Role runtimes
+        if: always()
+        shell: bash
+        run: python3 utils/github/profile/role_summary.py /tmp/ansible-runner-smoke.log
+
+      - name: Dump runner state (on failure)
+        if: failure()
+        shell: bash
+        run: ./scripts/github/runner/dump_state.sh "runner-smoke failure"
