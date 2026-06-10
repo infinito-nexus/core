@@ -45,20 +45,18 @@ Login methods are toggled through `PENPOT_FLAGS` and configured by Ansible:
   `enable-login-with-oidc`.
 - **LDAP** via [`svc-db-openldap`](../svc-db-openldap/) — enabled when the
   `ldap` service is active. Adds `enable-login-with-ldap`.
-- **Native** local email/password login follows `services.penpot.native_login` —
-  *off* once OIDC (Keycloak) is the login path so users are forced through SSO,
-  *on* otherwise; overridable per inventory. `PENPOT_FLAGS` renders
-  `enable-login-with-password` / `disable-login-with-password` accordingly (no JS
-  injection needed — Penpot disables the password form natively). When native
-  login is on, the role bootstraps a local password for the `administrator`
+- **Native** local email/password login is *off* once OIDC is the login path
+  (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS`
+  renders `enable-login-with-password` / `disable-login-with-password` accordingly
+  (no JS injection needed — Penpot disables the password form natively). When
+  native login is on, the role bootstraps a local password for the `administrator`
   profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` —
   `create-profile` for a fresh profile, `update-profile` to set the password when
   a federated login already created it; the bootstrap is skipped under OIDC.
 
-**Self-registration** follows `services.penpot.registration_enabled` — the
-default is *on* when OIDC (Keycloak) is enabled and *off* otherwise, overridable
-per inventory. Penpot routes first-time OIDC logins through the registration
-path (a disabled flag makes the callback fail with
+**Self-registration** is *on* when OIDC is enabled and *off* otherwise — also
+derived from the `sso` service flag. Penpot routes first-time OIDC logins through
+the registration path (a disabled flag makes the callback fail with
 `?error=registration-disabled` for not-yet-provisioned users), so registration
 must stay on wherever OIDC is. Native admin is bootstrapped and LDAP
 self-provisions without it. `PENPOT_FLAGS` renders `enable-registration` /
