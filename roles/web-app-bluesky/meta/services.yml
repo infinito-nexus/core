@@ -51,7 +51,7 @@ web:
 view:
   enabled: false
   repository: https://github.com/bluesky-social/social-app.git
-  ref: "1.122.0"
+  ref: "1.123.0"
   ports:
     local:
       http: 8051

@@ -44,7 +44,7 @@ bookwyrm:
   # nocheck: docker-version
   version: 3.11-bookworm
   repository: https://github.com/bookwyrm-social/bookwyrm.git
-  ref: v0.8.6
+  ref: v0.8.7
   min_storage: 15GB
   registration_open: false
   allow_invite_request: false
