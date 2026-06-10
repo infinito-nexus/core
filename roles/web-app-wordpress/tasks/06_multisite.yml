@@ -16,9 +16,9 @@
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp core multisite-convert
-      --subdomains
-      --title="{{ WORDPRESS_TITLE }} Network"
-      --path="{{ WORDPRESS_DOCKER_HTML_PATH }}"
+    --subdomains
+    --title="{{ WORDPRESS_TITLE }} Network"
+    --path="{{ WORDPRESS_DOCKER_HTML_PATH }}"
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: wp_ms_convert
@@ -83,10 +83,10 @@
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp site create
-      --slug="{{ item }}"
-      --title="{{ item }}"
-      --email="{{ WORDPRESS_ADMIN_EMAIL }}"
-      --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+    --slug="{{ item }}"
+    --title="{{ item }}"
+    --email="{{ WORDPRESS_ADMIN_EMAIL }}"
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   loop: "{{ (WORDPRESS_DOMAINS | default([]))[1:] }}"
   when:
     - (WORDPRESS_DOMAINS | default([])) | length > 1
