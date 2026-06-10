@@ -209,7 +209,7 @@ class LookupModule(LookupBase):
             service_key = dbtype if central_enabled else "database"
             address = _swarm_address(bin_resolver, stack_name, service_key)
         else:
-            address = instance
+            address = container
 
         resolved = {
             "id": db_id,
