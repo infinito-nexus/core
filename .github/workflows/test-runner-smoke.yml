@@ -12,6 +12,13 @@ on:
         required: false
         default: ""
         type: string
+  workflow_call:
+    inputs:
+      ref:
+        description: "Git ref to check out (branch, tag, or SHA). Defaults to the repo default branch."
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read

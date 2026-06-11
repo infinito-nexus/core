@@ -208,6 +208,15 @@ jobs:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
 
+  test-runner-smoke:
+    needs:
+      - test-deploy-universal
+    if: ${{ needs.test-deploy-universal.result == 'success' }}
+    uses: ./.github/workflows/test-runner-smoke.yml
+    with:
+      ref: ${{ github.sha }}
+    secrets: inherit
+
   test-deploy-workstation:
     needs:
       - code-quality-gate
@@ -249,6 +258,7 @@ jobs:
     needs:
       - test-deploy-server
       - test-deploy-universal
+      - test-runner-smoke
       - test-deploy-workstation
       - test-install-gate
       - test-development
