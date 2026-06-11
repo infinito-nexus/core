@@ -1,5 +1,0 @@
-{% if lookup('sso', application_id, 'is_proxy_gated') and (TLS_MODE | lower) == 'self_signed' %}
-services:
-  sso-proxy:
-    command: --config /oauth2-proxy.cfg --provider-ca-file /tmp/infinito/ca/root-ca.crt
-{% endif %}
