@@ -25,16 +25,15 @@
     - db_info.container.State.Running
   retries: 30
   delay: 5
+  when: DEPLOYMENT_MODE != 'swarm'
 
 - block:
     - name: "Root password reset | Check login with desired password (inside container)"
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['container', 'exec', '-i', MARIADB_NAME, 'mariadb']
-            + (['-h127.0.0.1', '-P3306'] if MARIADB_EXPOSE_LOCAL else [])
-            + ['-uroot', '-p' ~ MARIADB_ROOT_PWD]
-          }}
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %}
+          -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
       register: mariadb_login_desired
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -52,13 +51,11 @@
   when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool
 
 - name: "Wait until MariaDB accepts root credentials (inside container)"
-  ansible.builtin.command:
-    argv: >-
-      {{
-        ['container', 'exec', '-i', MARIADB_NAME, 'mariadb']
-        + (['-h127.0.0.1', '-P3306'] if MARIADB_EXPOSE_LOCAL else [])
-        + ['-uroot', '-p' ~ MARIADB_ROOT_PWD]
-      }}
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ MARIADB_CONTAINER_ADDRESS }}
+      sh -c 'mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %}
+      -uroot -p"$MARIADB_ROOT_PASSWORD"'
     stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
   register: mariadb_cli
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

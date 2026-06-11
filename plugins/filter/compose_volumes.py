@@ -73,21 +73,15 @@ def _resolve_database_volume_name(
     return f"{volume_prefix}{host}"
 
 
-def _swarm_nfs_driver_opts(
-    storage: Mapping[str, Any] | None, volume_name: str
-) -> dict[str, Any]:
-    storage = storage or {}
-    nfs = storage.get("nfs", {}) or {}
-    server = nfs.get("server", "")
-    export_base = nfs.get("export_base", "/srv/nfs")
-    version = nfs.get("version", 4)
-    # `_netdev` is /etc/fstab-only; mount() rejects it with EINVAL.
+def _swarm_nfs_driver_opts(dir_var_lib: str, volume_name: str) -> dict[str, Any]:
+    # Bind from host's already-NFS-mounted DIR_VAR_LIB; Docker's `type: nfs`
+    # would re-handshake portmap, which is unreachable in nested DinD.
     return {
         "driver": "local",
         "driver_opts": {
-            "type": "nfs",
-            "o": f"addr={server},vers={version},rw,hard,timeo=600",
-            "device": f":{export_base}/{volume_name}",
+            "type": "none",
+            "o": "bind",
+            "device": f"{dir_var_lib.rstrip('/')}/{volume_name}",
         },
     }
 
@@ -99,6 +93,7 @@ def compose_volumes(
     extra_volumes: dict[str, dict[str, Any]] | None = None,
     deployment_mode: str = "compose",
     storage: dict[str, Any] | None = None,
+    dir_var_lib: str,
 ) -> str:
     """Render the top-level `volumes:` section for compose or swarm."""
 
@@ -172,7 +167,7 @@ def compose_volumes(
         wants_nfs = bool(vol_spec.pop("nfs", False)) or (vol_name in nfs_keys)
         if wants_nfs and swarm_nfs_enabled:
             named = vol_spec.get("name", vol_name)
-            vol_spec.update(_swarm_nfs_driver_opts(storage, str(named)))
+            vol_spec.update(_swarm_nfs_driver_opts(dir_var_lib, str(named)))
 
     payload = {"volumes": _to_plain(volumes)}
 

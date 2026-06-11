@@ -32,6 +32,9 @@ _NFS_SERVER = "nfs-server"
 
 
 def _host_topology(app_id: str) -> list[tuple[str, str]]:
+    app_hosts: list[tuple[str, str]] = [(app_id, _MANAGER)]
+    if get_role_default_placement(app_id) != "manager":
+        app_hosts.extend((app_id, w) for w in _WORKERS)
     return [
         ("svc-swarm-node", _MANAGER),
         *[("svc-swarm-node", w) for w in _WORKERS],
@@ -39,8 +42,7 @@ def _host_topology(app_id: str) -> list[tuple[str, str]]:
         ("svc-storage-nfs-client", _MANAGER),
         *[("svc-storage-nfs-client", w) for w in _WORKERS],
         ("svc-storage-nfs-server", _NFS_SERVER),
-        (app_id, _MANAGER),
-        *[(app_id, w) for w in _WORKERS],
+        *app_hosts,
     ]
 
 

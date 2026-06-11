@@ -69,11 +69,17 @@ class LookupModule(LookupBase):
         if storage is None:
             storage = vars_.get("storage")
 
+        dir_var_lib = kwargs.get("dir_var_lib")
+        if dir_var_lib is None:
+            dir_var_lib = vars_["DIR_VAR_LIB"]
+
         if templar is not None:
             with contextlib.suppress(Exception):
                 deployment_mode = templar.template(deployment_mode)
             with contextlib.suppress(Exception):
                 storage = templar.template(storage)
+            with contextlib.suppress(Exception):
+                dir_var_lib = templar.template(dir_var_lib)
 
         rendered = _render_compose_volumes(
             applications,
@@ -81,5 +87,6 @@ class LookupModule(LookupBase):
             extra_volumes=kwargs.get("extra_volumes"),
             deployment_mode=str(deployment_mode).strip(),
             storage=storage,
+            dir_var_lib=str(dir_var_lib).strip(),
         )
         return [rendered]
