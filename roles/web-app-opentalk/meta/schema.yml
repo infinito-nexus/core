@@ -20,13 +20,3 @@ credentials:
     algorithm: alphanumeric
     validation:
       min_length: 32
-  minio_root_user:
-    description: MinIO root username used by the embedded asset/recording bucket.
-    algorithm: alphanumeric
-    validation:
-      min_length: 8
-  minio_root_password:
-    description: MinIO root password used by the embedded asset/recording bucket.
-    algorithm: alphanumeric
-    validation:
-      min_length: 16

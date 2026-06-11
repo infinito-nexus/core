@@ -140,23 +140,38 @@
   ansible.builtin.command: "container restart {{ OPENTALK_CTRL_CONTAINER }}"
   changed_when: true
 
-- name: "Wait for MinIO to accept the configured root credentials"
+# The shared (shared:true) path provisions the bucket on the central provider
+# via sys-svc-objstore; only the embedded instance needs its bucket created here.
+- name: "Wait until the embedded object store answers"
   ansible.builtin.shell: >
-    container exec {{ OPENTALK_MINIO_CONTAINER }}
-    mc alias set local http://127.0.0.1:9000
-    {{ OPENTALK_MINIO_USER | quote }}
-    {{ OPENTALK_MINIO_PASSWORD | quote }}
-  register: minio_ready
+    container exec {{ lookup('objstore', application_id, 'container') }}
+    wget -q -O - http://127.0.0.1:{{ lookup('objstore', application_id, 'port') }}/status
+  args:
+    executable: /bin/bash
+  register: objstore_ready
   retries: 60
   delay: 3
-  until: minio_ready.rc == 0
+  until: objstore_ready.rc == 0
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: lookup('objstore', application_id, 'local') | bool
 
-- name: "Ensure OpenTalk MinIO bucket exists"
-  ansible.builtin.shell: >
-    container exec {{ OPENTALK_MINIO_CONTAINER }}
-    mc mb local/{{ OPENTALK_MINIO_BUCKET }}
-  register: minio_bucket
-  changed_when: "'Bucket created successfully' in minio_bucket.stdout"
-  failed_when: minio_bucket.rc != 0 and 'already own it' not in minio_bucket.stderr
+- name: "List embedded object-store buckets"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 's3.bucket.list' | container exec -i {{ lookup('objstore', application_id, 'container') }} weed shell -master=localhost:9333
+  args:
+    executable: /bin/bash
+  register: objstore_buckets
+  changed_when: false
+  when: lookup('objstore', application_id, 'local') | bool
+
+- name: "Ensure the OpenTalk bucket exists (embedded)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 's3.bucket.create -name {{ lookup('objstore', application_id, 'bucket') }}' | container exec -i {{ lookup('objstore', application_id, 'container') }} weed shell -master=localhost:9333
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when:
+    - lookup('objstore', application_id, 'local') | bool
+    - lookup('objstore', application_id, 'bucket') not in objstore_buckets.stdout

@@ -46,6 +46,14 @@ redis:
   backup:
     disabled: true
   enabled: false
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"

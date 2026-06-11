@@ -8,6 +8,7 @@ from ansible.plugins.lookup import LookupBase
 from utils.cache.applications import get_merged_applications
 from utils.roles.applications.config import get
 from utils.roles.entity_name import get_entity_name
+from utils.tls_common import resolve_enabled
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")
 OBJSTORE_PROVIDER_ROLE = {
@@ -104,7 +105,11 @@ class LookupModule(LookupBase):
                 "region": OBJSTORE_DEFAULT_REGION,
                 "env": "",
                 "volume": "",
+                "endpoint": "",
                 "url": "",
+                "public_domain": "",
+                "public_bucket": "",
+                "public_url": "",
                 "reach_host": "127.0.0.1",
             }
             return [resolved if want == "all" else resolved.get(want, "")]
@@ -203,7 +208,30 @@ class LookupModule(LookupBase):
             if bool(_is_enabled(applications, consumer_id, engine) and not shared)
             else ""
         )
-        url = f"http://{host}:{port}"
+        endpoint = f"{host}:{port}"
+        url = f"http://{endpoint}"
+
+        public_domain = get(
+            applications,
+            provider_role,
+            "server.domains.canonical.api",
+            strict=False,
+            default="",
+            skip_missing_app=True,
+        )
+        public_domain = (
+            str(public_domain) if public_domain is not None else ""
+        ).strip()
+        public_bucket = f"{public_domain}/{bucket}" if public_domain else ""
+        provider_app = applications.get(provider_role) or {}
+        if not isinstance(provider_app, dict):
+            provider_app = {}
+        scheme = (
+            "https"
+            if resolve_enabled(provider_app, bool(vars_.get("TLS_ENABLED", True)))
+            else "http"
+        )
+        public_url = f"{scheme}://{public_bucket}" if public_bucket else ""
 
         resolved = {
             "id": provider_role,
@@ -224,7 +252,11 @@ class LookupModule(LookupBase):
             "region": region,
             "env": env,
             "volume": volume,
+            "endpoint": endpoint,
             "url": url,
+            "public_domain": public_domain,
+            "public_bucket": public_bucket,
+            "public_url": public_url,
             "reach_host": "127.0.0.1",
         }
         return [resolved if want == "all" else resolved.get(want, "")]

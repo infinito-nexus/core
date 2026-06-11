@@ -35,6 +35,15 @@ redis:
 postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
 baserow:
   backup:
     no_stop_required: true

@@ -66,6 +66,16 @@ bookwyrm:
 # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 worker:
   enabled: true
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+  public: true
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"

@@ -99,7 +99,11 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["region"], "us-east-1")
         self.assertEqual(out["env"], "")
         self.assertEqual(out["volume"], "")
+        self.assertEqual(out["endpoint"], "")
         self.assertEqual(out["url"], "")
+        self.assertEqual(out["public_domain"], "")
+        self.assertEqual(out["public_bucket"], "")
+        self.assertEqual(out["public_url"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
         self.assertEqual(self._run(["web-app-foo", "url"], applications)[0], "")
@@ -113,7 +117,10 @@ class ObjstoreLookupTests(unittest.TestCase):
             "web-app-seaweedfs": {
                 "services": {
                     "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
-                }
+                },
+                "server": {
+                    "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}}
+                },
             },
         }
 
@@ -129,12 +136,36 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["network"], "seaweedfs")
         self.assertEqual(out["container"], "seaweedfs-central")
         self.assertEqual(out["volume"], "")
+        self.assertEqual(out["endpoint"], "seaweedfs-central:8334")
         self.assertEqual(out["url"], "http://seaweedfs-central:8334")
+        self.assertEqual(out["public_domain"], "api.seaweedfs.s3.example.com")
+        self.assertEqual(out["public_bucket"], "api.seaweedfs.s3.example.com/foo")
+        self.assertEqual(out["public_url"], "https://api.seaweedfs.s3.example.com/foo")
 
         self.assertEqual(
             self._run(["web-app-foo", "url"], applications)[0],
             "http://seaweedfs-central:8334",
         )
+
+    def test_public_url_scheme_follows_provider_tls(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"minio": {"enabled": True, "shared": True}},
+                "credentials": {"objstore_secret_key": "sk"},
+            },
+            "web-app-minio": {
+                "services": {"minio": {"name": "minio-central"}},
+                "server": {
+                    "tls": {"enabled": False},
+                    "domains": {"canonical": {"api": "api.minio.s3.example.com"}},
+                },
+            },
+        }
+
+        out = self._run(["web-app-foo"], applications)[0]
+
+        self.assertEqual(out["public_domain"], "api.minio.s3.example.com")
+        self.assertEqual(out["public_url"], "http://api.minio.s3.example.com/foo")
 
     def test_seaweedfs_dedicated_matches_embedded_instance(self):
         applications = {

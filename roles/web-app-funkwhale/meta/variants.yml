@@ -31,6 +31,9 @@
     prometheus:
       enabled: true
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
 - services:
     css:
       enabled: false
@@ -56,6 +59,9 @@
     postgres:
       shared: false
     prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
       enabled: false
       shared: false
 - services:
@@ -83,5 +89,8 @@
     postgres:
       shared: false
     prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
       enabled: false
       shared: false

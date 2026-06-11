@@ -87,15 +87,19 @@ livekit:
       relay:
         start: 60000
         end: 60999
+# nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-app-minio)
 minio:
-  name: opentalk-minio
-  image: minio/minio
-  version: latest
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
   min_storage: 20GB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 rabbit:
   name: opentalk-rabbit
   image: rabbitmq

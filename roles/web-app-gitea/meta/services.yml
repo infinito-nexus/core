@@ -73,6 +73,14 @@ redis:
   mem_reservation: 0.2g
   mem_limit: 0.3g
   pids_limit: 512
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"

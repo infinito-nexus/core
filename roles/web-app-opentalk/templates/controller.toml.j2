@@ -38,10 +38,10 @@ api_secret = "{{ OPENTALK_LIVEKIT_API_SECRET }}"
 url = "redis://redis:6379"
 
 [minio]
-uri = "http://minio:9000"
-bucket = "{{ OPENTALK_MINIO_BUCKET }}"
-access_key = "{{ OPENTALK_MINIO_USER }}"
-secret_key = "{{ OPENTALK_MINIO_PASSWORD }}"
+uri = "{{ lookup('objstore', application_id, 'url') }}"
+bucket = "{{ lookup('objstore', application_id, 'bucket') }}"
+access_key = "{{ lookup('objstore', application_id, 'access_key') }}"
+secret_key = "{{ lookup('objstore', application_id, 'secret_key') }}"
 
 [rabbit_mq]
 url = "amqp://guest:guest@rabbit/%2F"
