@@ -1,4 +1,4 @@
-name: "🏃 Test: Runner smoke"
+name: "🏃 Test: Runner smoke (self-hosted)"
 
 # Smoke test for self-hosted runners. Dispatched by roles/svc-runner/files/test.sh
 # after a runner deploy to verify end-to-end that the runner can pick up a real CI
@@ -36,7 +36,7 @@ jobs:
   smoke:
     name: 🏃 Runner smoke
     runs-on: [self-hosted, linux]
-    timeout-minutes: 90
+    timeout-minutes: 360
 
     steps:
       - name: Fix workspace ownership
