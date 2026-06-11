@@ -28,7 +28,7 @@
 
 - name: Remove runner instance directory {{ runner_instance }}
   file:
-    path: "{{ runner_install_dir }}/{{ runner_instance }}"
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
     state: absent
 
 - name: Unmount tmpfs from Docker volume directory for runner instance {{ runner_instance }}

@@ -10,3 +10,5 @@ svc-runner:
   sysctl_conf: /etc/sysctl.d/99-github-runner.conf
   image_name: infinito-runner
   image_tag: latest
+  install_dir: /opt/github-runner
+  cpus: 2

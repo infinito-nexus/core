@@ -31,7 +31,7 @@
     append: true
     system: true
     shell: /usr/sbin/nologin
-    home: "{{ runner_install_dir }}"
+    home: "{{ RUNNER_INSTALL_DIR }}"
     create_home: true
 
 - name: Grant passwordless sudo for CI cleanup operations
@@ -44,7 +44,7 @@
 
 - name: Create runner base directory
   file:
-    path: "{{ runner_install_dir }}"
+    path: "{{ RUNNER_INSTALL_DIR }}"
     state: directory
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
@@ -65,14 +65,14 @@
 - name: Download GitHub Actions runner binary
   get_url_retry:
     url: "https://github.com/actions/runner/releases/download/v{{ runner_resolved_version }}/actions-runner-linux-x64-{{ runner_resolved_version }}.tar.gz"
-    dest: "{{ runner_install_dir }}/actions-runner.tar.gz"
+    dest: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0644'
 
 - name: Find existing runner instance directories
   find:
-    paths: "{{ runner_install_dir }}"
+    paths: "{{ RUNNER_INSTALL_DIR }}"
     file_type: directory
     patterns: "^[0-9]+$"
     use_regex: true
@@ -173,14 +173,14 @@
 - name: Render runner compose file
   ansible.builtin.template:
     src: compose.yml.j2
-    dest: "{{ runner_install_dir }}/compose.yml"
+    dest: "{{ RUNNER_INSTALL_DIR }}/compose.yml"
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0640'
 
 - name: Create runner image build context directory
   ansible.builtin.file:
-    path: "{{ runner_install_dir }}/build"
+    path: "{{ RUNNER_INSTALL_DIR }}/build"
     state: directory
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
@@ -189,13 +189,13 @@
 - name: Copy Dockerfile to build context
   ansible.builtin.copy:
     src: Dockerfile
-    dest: "{{ runner_install_dir }}/build/Dockerfile"
+    dest: "{{ RUNNER_INSTALL_DIR }}/build/Dockerfile"
     mode: '0644'
 
 - name: Copy entrypoint to build context
   ansible.builtin.copy:
     src: entrypoint.sh
-    dest: "{{ runner_install_dir }}/build/entrypoint.sh"
+    dest: "{{ RUNNER_INSTALL_DIR }}/build/entrypoint.sh"
     mode: '0755'
 
 - name: Build runner container image
@@ -204,7 +204,7 @@
     tag: "{{ runner_image_tag }}"
     source: build
     build:
-      path: "{{ runner_install_dir }}/build"
+      path: "{{ RUNNER_INSTALL_DIR }}/build"
       args:
         RUNNER_BASE_IMAGE: "{{ RUNNER_BASE_IMAGE }}"
         RUNNER_UID: "{{ runner_uid }}"
@@ -214,7 +214,7 @@
 - name: Deploy runner compose stack
   ansible.builtin.shell: |
     set -euo pipefail
-    compose --chdir {{ runner_install_dir }} up -d --remove-orphans
+    compose --chdir {{ RUNNER_INSTALL_DIR }} up -d --remove-orphans
   args:
     executable: /bin/bash
   changed_when: true

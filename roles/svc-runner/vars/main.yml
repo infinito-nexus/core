@@ -8,6 +8,8 @@ runner_project_prefix: "{{ lookup('config', application_id, 'services.svc-runner
 runner_sysctl_conf: "{{ lookup('config', application_id, 'services.svc-runner.sysctl_conf') }}"
 runner_image_name: "{{ lookup('config', application_id, 'services.svc-runner.image_name') }}"
 runner_image_tag: "{{ lookup('config', application_id, 'services.svc-runner.image_tag') }}"
+RUNNER_INSTALL_DIR: "{{ lookup('config', application_id, 'services.svc-runner.install_dir') }}"
+RUNNER_CPUS: "{{ lookup('config', application_id, 'services.svc-runner.cpus') | int }}"
 RUNNER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.svc-runner.base_image') }}"
 RUNNER_DOCKER_GID_FALLBACK: "{{ lookup('config', application_id, 'services.svc-runner.docker_gid_fallback') }}"
 RUNNER_GITHUB_OWNER: "{{ lookup('env', 'GITHUB_REPOSITORY_OWNER') | default(lookup('config', application_id, 'services.svc-runner.github_owner'), true) }}"

@@ -4,10 +4,10 @@
     image: "{{ runner_image_name }}:{{ runner_image_tag }}"
     container_name: runner-{{ i }}
     restart: unless-stopped
-    working_dir: "{{ runner_install_dir }}/{{ i }}"
-    env_file: "{{ runner_install_dir }}/{{ i }}/.env"
+    working_dir: "{{ RUNNER_INSTALL_DIR }}/{{ i }}"
+    env_file: "{{ RUNNER_INSTALL_DIR }}/{{ i }}/.env"
     volumes:
-      - "{{ runner_install_dir }}/{{ i }}:{{ runner_install_dir }}/{{ i }}"
+      - "{{ RUNNER_INSTALL_DIR }}/{{ i }}:{{ RUNNER_INSTALL_DIR }}/{{ i }}"
       - /var/run/docker.sock:/var/run/docker.sock
       - "{{ runner_docker_base }}/{{ i }}:{{ runner_docker_base }}/{{ i }}"
     group_add:
