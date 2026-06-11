@@ -213,10 +213,9 @@ class TestComposeVolumes(unittest.TestCase):
         vol = data["volumes"]["images"]
         self.assertEqual(vol["name"], "app_images")
         self.assertEqual(vol["driver"], "local")
-        self.assertEqual(vol["driver_opts"]["type"], "nfs")
-        self.assertIn("addr=10.0.0.20", vol["driver_opts"]["o"])
-        self.assertIn("vers=4", vol["driver_opts"]["o"])
-        self.assertEqual(vol["driver_opts"]["device"], ":/srv/nfs/app_images")
+        self.assertEqual(vol["driver_opts"]["type"], "none")
+        self.assertEqual(vol["driver_opts"]["o"], "bind")
+        self.assertEqual(vol["driver_opts"]["device"], "/var/lib/infinito/app_images")
         self.assertNotIn("nfs", vol)
 
     def test_swarm_nfs_disabled_volume_stays_local(self):
