@@ -211,7 +211,11 @@ jobs:
   test-runner-smoke:
     needs:
       - test-deploy-universal
-    if: ${{ needs.test-deploy-universal.result == 'success' }}
+    # Run whenever universal actually executed (success or failure), not when it was
+    # skipped/cancelled. A partial universal failure (e.g. svc-db-mariadb) must not
+    # block the smoke test — only a svc-runner deploy failure will, because in that
+    # case no self-hosted runner picks up the job and it times out / fails correctly.
+    if: ${{ always() && (needs.test-deploy-universal.result == 'success' || needs.test-deploy-universal.result == 'failure') }}
     uses: ./.github/workflows/test-runner-smoke.yml
     with:
       ref: ${{ github.sha }}
