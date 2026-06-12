@@ -1,17 +1,5 @@
 {% set container_port = 80 %}
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-{% if lookup('sso', application_id, 'is_proxy_gated') and (TLS_MODE | lower) == 'self_signed' %}
-  sso-proxy:
-    # Self-signed TLS only: oauth2-proxy is a distroless Go binary; the platform
-    # CA wrapper (with-ca-trust.sh) is skipped because there is no /bin/sh, and
-    # Go ignores SSL_CERT_FILE. Pass the CA cert directly via --provider-ca-file
-    # so oauth2-proxy trusts the internal Keycloak OIDC endpoint.
-    command:
-      - --config
-      - /oauth2-proxy.cfg
-      - --provider-ca-file
-      - /tmp/infinito/ca/root-ca.crt
-{% endif %}
 
   pihole:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
