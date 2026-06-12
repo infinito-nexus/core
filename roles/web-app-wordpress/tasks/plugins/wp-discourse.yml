@@ -15,12 +15,11 @@
     file: "{{ role_path }}/vars/discourse.yml"
 
 - name: "Install WP Discourse plugin"
-  command: >
-    {{ BIN_COMPOSE }} exec -u www-data -T application
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
       wp plugin install wp-discourse --activate
       --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  when: IS_STACK_HOST | bool
 
 - name: "Configure WP Discourse settings"
   loop: "{{ discourse_settings | map(attribute='name') | unique | list }}"
@@ -43,8 +42,8 @@
 
     option_json_b64: "{{ option_kv | to_json | b64encode }}"
 
-  command: >
-    {{ BIN_COMPOSE }} exec -u www-data -T application bash -lc
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
       "wp eval \"update_option(
          '{{ option_name }}',
          json_decode(
@@ -52,5 +51,4 @@
            true
          )
        );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  when: IS_STACK_HOST | bool
