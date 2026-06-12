@@ -19,8 +19,10 @@
   until: baserow_migrate_result.rc == 0
 
 - name: "Restart Baserow application after applying migrations (compose mode)"
+  # nocheck: compose-verb-in-task  legitimate compose path; swarm-equivalent in the next task uses `container service update --force`
   ansible.builtin.command: "compose restart {{ BASEROW_SERVICE_NAME }}"
   args:
+    # nocheck: compose-chdir-in-task  legitimate compose path; swarm-equivalent in the next task uses `container service update --force`
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: baserow_restart_after_migrate
   changed_when: baserow_restart_after_migrate.rc == 0
@@ -29,7 +31,7 @@
     - DEPLOYMENT_MODE != 'swarm'
 
 - name: "Restart Baserow application after applying migrations (swarm mode)"
-  ansible.builtin.command: "docker service update --force {{ application_id | get_entity_name }}_{{ BASEROW_SERVICE_NAME }}"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
   register: baserow_swarm_restart
   changed_when: baserow_swarm_restart.rc == 0
   when:
