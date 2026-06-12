@@ -114,7 +114,7 @@ class TestComposeTemplateNoUnguardedNetworkModeHost(unittest.TestCase):
                 "            protocol: tcp\n"
                 "            mode: host\n"
                 "    {% else %}\n"
-                "        network_mode: \"host\"\n"
+                '        network_mode: "host"\n'
                 "    {% endif %}\n\n"
                 "If the service needs to be on every node (typical for an edge "
                 "proxy), pair the ports form with `deploy.mode: global` rather "

@@ -1,6 +1,6 @@
 """Flag env-file template lines that wrap the value in literal double
 quotes (``KEY="..."``). compose strips those quotes when parsing the
-env file, but ``docker stack deploy`` preserves them literally — the
+env file, but ``docker stack deploy`` preserves them literally - the
 container then sees ``KEY="value"`` instead of ``KEY=value`` and code
 that uses ``int(os.environ['KEY'])`` or parses URLs / DSNs from the env
 breaks.
@@ -74,7 +74,7 @@ class TestEnvFileTemplateNoLiteralQuotes(unittest.TestCase):
             self.fail(
                 "Found env-file template lines wrapping the value in literal "
                 "double quotes. compose strips them, swarm preserves them "
-                "literally — the container sees `KEY=\"value\"` instead of "
+                'literally - the container sees `KEY="value"` instead of '
                 "`KEY=value` and `int()` / URL parsers break.\n\n"
                 "Fix: drop the surrounding quotes (env-file syntax allows "
                 "spaces unquoted), or use `KEY={{ ... | dotenv_quote }}` "

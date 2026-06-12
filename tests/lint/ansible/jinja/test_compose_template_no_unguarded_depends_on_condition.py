@@ -25,7 +25,9 @@ from . import PROJECT_ROOT
 
 _RULE = "compose-only-depends-on-condition"
 
-_CONDITION = re.compile(r"^\s*condition:\s*service_(?:healthy|completed_successfully)\b")
+_CONDITION = re.compile(
+    r"^\s*condition:\s*service_(?:healthy|completed_successfully)\b"
+)
 _IF = re.compile(r"\{%\s*if\s+(?P<expr>.+?)\s*%\}")
 _ELIF = re.compile(r"\{%\s*elif\s+(?P<expr>.+?)\s*%\}")
 _ELSE = re.compile(r"\{%\s*else\s*%\}")

@@ -25,6 +25,9 @@ _COMPOSE_VERB = re.compile(
     r"\{\{\s*BIN_COMPOSE\s*\}\}\s+(?:exec|run|restart|logs|up|down|ps|config)\b"
     r"|(?<![\w.-])compose\s+(?:exec|run|restart|logs|up|down|ps|config)\b"
 )
+# Exclude Ansible handler triggers (`notify: compose up`) and comment lines.
+_HANDLER_TRIGGER = re.compile(r"^\s*notify\s*:")
+_COMMENT_LINE = re.compile(r"^\s*#")
 
 
 def _is_scan_target(rel_path: str) -> bool:
@@ -49,6 +52,8 @@ class TestNoComposeVerbInShellTasks(unittest.TestCase):
                 continue
             lines = content.splitlines()
             for idx, line in enumerate(lines):
+                if _COMMENT_LINE.match(line) or _HANDLER_TRIGGER.match(line):
+                    continue
                 if not _COMPOSE_VERB.search(line):
                     continue
                 if is_suppressed_at(lines, idx + 1, _RULE, mode="same-or-above"):
