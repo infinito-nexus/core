@@ -16,16 +16,7 @@
     hostname: backend
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - {{ KIX_DB_CONTAINER }}
-      - redis
-{% else %}
-      {{ KIX_DB_CONTAINER }}:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-{% endif %}
+    {{ lookup('depends_on', {KIX_DB_CONTAINER: 'service_healthy', 'redis': 'service_healthy'}) }}
     volumes:
       - kix_shared:/mnt/shared
       - kix_backend:/mnt/data
@@ -40,16 +31,7 @@
     hostname: frontend
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - {{ KIX_BACKEND_CONTAINER }}
-      - redis
-{% else %}
-      {{ KIX_BACKEND_CONTAINER }}:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-{% endif %}
+    {{ lookup('depends_on', {KIX_BACKEND_CONTAINER: 'service_healthy', 'redis': 'service_healthy'}) }}
     environment:
       - USE_SSL=0
       - REDIS_CACHE_HOST=redis
@@ -66,9 +48,7 @@
     image: "{{ KIX_PROXY_IMAGE }}:{{ KIX_PROXY_VERSION }}"
     {{ lookup('compose_only', 'container_name', KIX_PROXY_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      - {{ KIX_BACKEND_CONTAINER }}
-      - {{ KIX_FRONTEND_CONTAINER }}
+    {{ lookup('depends_on', [KIX_BACKEND_CONTAINER, KIX_FRONTEND_CONTAINER]) }}
     volumes:
       - "{{ KIX_PROXY_NGINX_HOST_PATH }}:{{ KIX_PROXY_NGINX_CONTAINER_PATH }}:ro"
     ports:

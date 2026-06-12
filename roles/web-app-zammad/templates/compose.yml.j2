@@ -18,13 +18,7 @@
     {{ lookup('compose_only', 'container_name', ZAMMAD_RAILS_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["zammad-railsserver"]
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - {{ ZAMMAD_INIT_CONTAINER }}
-{% else %}
-      {{ ZAMMAD_INIT_CONTAINER }}:
-        condition: service_completed_successfully
-{% endif %}
+    {{ lookup('depends_on', {ZAMMAD_INIT_CONTAINER: 'service_completed_successfully'}, indent=4) }}
     volumes:
       - zammad_storage:/opt/zammad/storage
       - "{{ ZAMMAD_AUTO_WIZARD_HOST_PATH }}:/opt/zammad/auto_wizard.json:ro"
@@ -40,9 +34,7 @@
     {{ lookup('compose_only', 'container_name', ZAMMAD_WEBSOCKET_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["zammad-websocket"]
-    depends_on:
-      {{ ZAMMAD_RAILS_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {ZAMMAD_RAILS_CONTAINER: 'service_started'}, indent=4) }}
     volumes:
       - zammad_storage:/opt/zammad/storage
       - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:{{ ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH }}:ro"
@@ -57,9 +49,7 @@
     {{ lookup('compose_only', 'container_name', ZAMMAD_SCHEDULER_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["zammad-scheduler"]
-    depends_on:
-      {{ ZAMMAD_RAILS_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {ZAMMAD_RAILS_CONTAINER: 'service_started'}, indent=4) }}
     volumes:
       - zammad_storage:/opt/zammad/storage
       - "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}:{{ ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH }}:ro"
@@ -100,11 +90,7 @@
         cp /docker-entrypoint.sh /tmp/entrypoint-patched.sh
         sed -i 's|grep "nameserver" < /etc/resolv.conf|grep -E "^nameserver" /etc/resolv.conf|' /tmp/entrypoint-patched.sh
         exec /tmp/entrypoint-patched.sh zammad-nginx
-    depends_on:
-      {{ ZAMMAD_RAILS_CONTAINER }}:
-        condition: service_started
-      {{ ZAMMAD_WEBSOCKET_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {ZAMMAD_RAILS_CONTAINER: 'service_started', ZAMMAD_WEBSOCKET_CONTAINER: 'service_started'}, indent=4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.zammad.ports.local.http') }}:8080"
     volumes:

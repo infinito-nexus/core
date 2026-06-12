@@ -27,8 +27,7 @@ x-op-app: &app
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.openproject.ports.local.http') }}:80"
     environment:
       APP_HOST: {{ OPENPROJECT_WEB_SERVICE }}
-    depends_on:
-      - {{ OPENPROJECT_WEB_SERVICE }}
+    {{ lookup('depends_on', [OPENPROJECT_WEB_SERVICE]) }}
     volumes:
       - "data:/var/openproject/assets"
       - "{{ OPENPROJECT_DUMMY_DIR }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes

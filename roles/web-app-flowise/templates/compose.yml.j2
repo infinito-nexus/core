@@ -31,9 +31,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: {{ FLOWISE_IMAGE }}:{{ FLOWISE_VERSION }}
     {{ lookup('compose_only', 'container_name', FLOWISE_CONTAINER) }}
-    depends_on: 
-      - qdrant
-      - litellm
+    {{ lookup('depends_on', ['qdrant', 'litellm']) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ FLOWISE_PORT_PUBLIC }}:{{ FLOWISE_PORT_INTERNAL }}"
     volumes:

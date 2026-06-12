@@ -8,9 +8,7 @@
     environment:
       PHP_HOST: "php"
       PHP_PORT: "9000"
-    depends_on:
-      - php
-      - search
+    {{ lookup('depends_on', ['php', 'search']) }}
     volumes:
       - "data:/var/www/html"
     ports:

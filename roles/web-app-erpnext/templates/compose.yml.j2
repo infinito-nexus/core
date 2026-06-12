@@ -29,13 +29,7 @@
     image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
     {{ lookup('compose_only', 'container_name', ERPNEXT_BACKEND_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - {{ ERPNEXT_CONFIGURATOR_CONTAINER }}
-{% else %}
-      {{ ERPNEXT_CONFIGURATOR_CONTAINER }}:
-        condition: service_completed_successfully
-{% endif %}
+    {{ lookup('depends_on', {ERPNEXT_CONFIGURATOR_CONTAINER: 'service_completed_successfully'}) }}
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
       - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
@@ -47,13 +41,7 @@
     {{ lookup('compose_only', 'container_name', ERPNEXT_WEBSOCKET_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - {{ ERPNEXT_CONFIGURATOR_CONTAINER }}
-{% else %}
-      {{ ERPNEXT_CONFIGURATOR_CONTAINER }}:
-        condition: service_completed_successfully
-{% endif %}
+    {{ lookup('depends_on', {ERPNEXT_CONFIGURATOR_CONTAINER: 'service_completed_successfully'}) }}
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
       - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
@@ -65,9 +53,7 @@
     {{ lookup('compose_only', 'container_name', ERPNEXT_SCHEDULER_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bench", "schedule"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {ERPNEXT_BACKEND_CONTAINER: 'service_started'}) }}
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
       - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
@@ -79,9 +65,7 @@
     {{ lookup('compose_only', 'container_name', ERPNEXT_QUEUE_SHORT_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bench", "worker", "--queue", "short,default"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {ERPNEXT_BACKEND_CONTAINER: 'service_started'}) }}
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
       - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
@@ -93,9 +77,7 @@
     {{ lookup('compose_only', 'container_name', ERPNEXT_QUEUE_LONG_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bench", "worker", "--queue", "long,default,short"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {ERPNEXT_BACKEND_CONTAINER: 'service_started'}) }}
     volumes:
       - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
       - {{ ERPNEXT_ASSETS_VOLUME }}:/home/frappe/frappe-bench/sites/assets
@@ -107,11 +89,7 @@
     {{ lookup('compose_only', 'container_name', ERPNEXT_FRONTEND_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["nginx-entrypoint.sh"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
-      {{ ERPNEXT_WEBSOCKET_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {ERPNEXT_BACKEND_CONTAINER: 'service_started', ERPNEXT_WEBSOCKET_CONTAINER: 'service_started'}) }}
     environment:
       BACKEND: "{{ ERPNEXT_BACKEND_CONTAINER }}:{{ ERPNEXT_BACKEND_PORT }}"
       SOCKETIO: "{{ ERPNEXT_WEBSOCKET_CONTAINER }}:{{ ERPNEXT_WEBSOCKET_PORT }}"

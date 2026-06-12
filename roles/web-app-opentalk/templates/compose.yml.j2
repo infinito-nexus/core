@@ -7,9 +7,7 @@
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ OPENTALK_FRONTEND_HTTP_PORT }}:80"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    depends_on:
-      controller:
-        condition: service_started
+    {{ lookup('depends_on', {'controller': 'service_started'}) }}
 
   controller:
     image: "{{ OPENTALK_CTRL_IMAGE }}:{{ OPENTALK_CTRL_VERSION }}"
@@ -83,16 +81,7 @@
     volumes:
       - "{{ [lookup('container', application_id, 'directories.volumes'), 'recorder.toml'] | path_join }}:/recorder/recorder.toml:ro"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - rabbit
-      - controller
-{% else %}
-      rabbit:
-        condition: service_healthy
-      controller:
-        condition: service_started
-{% endif %}
+    {{ lookup('depends_on', {'rabbit': 'service_healthy', 'controller': 'service_started'}) }}
     logging:
       driver: journald
 

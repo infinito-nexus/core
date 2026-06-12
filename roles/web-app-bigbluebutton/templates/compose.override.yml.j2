@@ -32,11 +32,7 @@ services:
 {% endif %}
 {% if BBB_COLLABORA_ENABLED | bool %}
   bbb-web:
-    depends_on:
-      - redis
-      - etherpad
-      - bbb-pads
+    {{ lookup('depends_on', ['redis', 'etherpad', 'bbb-pads']) }}
   etherpad:
-    depends_on:
-      - redis
+    {{ lookup('depends_on', ['redis']) }}
 {% endif %}

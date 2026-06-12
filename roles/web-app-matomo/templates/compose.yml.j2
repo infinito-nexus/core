@@ -32,13 +32,7 @@
 {% endif %}
     {{ lookup('compose_only', 'container_name', MATOMO_BOOTSTRAP_NAME) }}
     image: "{{ MATOMO_BOOTSTRAP_IMAGE }}:{{ MATOMO_BOOTSTRAP_VERSION }}"
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - {{ MATOMO_SERVICE }}
-{% else %}
-      {{ MATOMO_SERVICE }}:
-        condition: service_healthy
-{% endif %}
+    {{ lookup('depends_on', {MATOMO_SERVICE: 'service_healthy'}) }}
 
 {{ lookup('compose_volumes', application_id,
     extra_volumes={'data': {'name': MATOMO_DATA}}

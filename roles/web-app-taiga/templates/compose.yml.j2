@@ -135,9 +135,7 @@ image: "{{ TAIGA_DOCKER_IMAGE_BACKEND_AUTH }}"
       start_period: 30s
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
       taiga:
-    depends_on:
-      {{ TAIGA_EVENTS_RABBITMQ_SERVICE }}:
-        condition: service_started
+    {{ lookup('depends_on', {TAIGA_EVENTS_RABBITMQ_SERVICE: 'service_started'}) }}
 
 {% set service_name = TAIGA_EVENTS_RABBITMQ_SERVICE %}
   {{ service_name }}:
@@ -188,10 +186,7 @@ image: "{{ TAIGA_DOCKER_IMAGE_BACKEND_AUTH }}"
 
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
       taiga:
-    depends_on:
-      - {{ TAIGA_FRONT_SERVICE }}
-      - {{ TAIGA_SERVICE }}
-      - {{ TAIGA_EVENTS_SERVICE }}
+    {{ lookup('depends_on', [TAIGA_FRONT_SERVICE, TAIGA_SERVICE, TAIGA_EVENTS_SERVICE]) }}
 {{ lookup('compose_volumes', application_id,
     extra_volumes={'async-rabbitmq-data': {'name': TAIGA_ASYNC_RABBITMQ_DATA_VOLUME}, 'events-rabbitmq-data': {'name': TAIGA_EVENTS_RABBITMQ_DATA_VOLUME}, 'media-data': {'name': TAIGA_MEDIA_DATA_VOLUME}, 'static-data': {'name': TAIGA_STATIC_DATA_VOLUME}}
 ) }}

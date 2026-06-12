@@ -46,8 +46,7 @@
   front:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ FUNKWHALE_FRONT_IMAGE }}:{{ FUNKWHALE_FRONT_VERSION }}"
-    depends_on:
-      - api
+    {{ lookup('depends_on', ['api']) }}
     environment:
       - "NGINX_MAX_BODY_SIZE=100M"
     volumes:

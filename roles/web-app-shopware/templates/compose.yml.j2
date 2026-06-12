@@ -48,13 +48,7 @@ x-environment: &shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_WEB_CONTAINER) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.shopware.ports.local.http') }}:{{ container_port }}"
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - init
-{% else %}
-      init:
-        condition: service_completed_successfully
-{% endif %}
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:{{ container_port }}/robots.txt || wget -q --spider http://127.0.0.1:{{ container_port }}/ || exit 1"]
       interval: 30s
@@ -74,13 +68,7 @@ x-environment: &shopware
     <<: *shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_WORKER_CONTAINER) }}
     entrypoint: {{ SHOPWARE_WORKER_ENTRYPOINT }}
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - init
-{% else %}
-      init:
-        condition: service_completed_successfully
-{% endif %}
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD", "php", "-v"]
       interval: 30s
@@ -99,13 +87,7 @@ x-environment: &shopware
     <<: *shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_SCHED_CONTAINER) }}
     entrypoint: {{ SHOPWARE_SCHED_ENTRYPOINT }}
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - init
-{% else %}
-      init:
-        condition: service_completed_successfully
-{% endif %}
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD", "php", "-v"]
       interval: 30s
@@ -129,13 +111,7 @@ x-environment: &shopware
       - OPENSEARCH_JAVA_OPTS=-Xms{{ SHOPWARE_OPENSEARCH_MEM_RESERVATION }} -Xmx{{ SHOPWARE_OPENSEARCH_MEM_RESERVATION }}
     ulimits:
       memlock: { soft: -1, hard: -1 }
-    depends_on:
-{% if DEPLOYMENT_MODE == 'swarm' %}
-      - init
-{% else %}
-      init:
-        condition: service_completed_successfully
-{% endif %}
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsSL http://127.0.0.1:{{ SHOPWARE_OPENSEARCH_PORT }}/_cluster/health || exit 1"]
       interval: 30s

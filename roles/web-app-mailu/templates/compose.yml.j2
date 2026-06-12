@@ -68,9 +68,7 @@
     volumes:
       - "dovecot_mail:/mail"
       - "{{ MAILU_OVERRIDES_DIR }}:/overrides:ro"
-    depends_on:
-      - front
-      - resolver
+    {{ lookup('depends_on', ['front', 'resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -83,9 +81,7 @@
     volumes:
       - "{{ MAILU_OVERRIDES_DIR }}:/overrides:ro"
       - "smtp_queue:/queue"
-    depends_on:
-      - front
-      - resolver
+    {{ lookup('depends_on', ['front', 'resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -96,8 +92,7 @@
     {{ lookup('compose_only', 'container_name', MAILU_CONTAINER ~ '_oletools') }}
     image: {{ MAILU_DOCKER_FLAVOR }}/oletools:{{ MAILU_VERSION }}
     hostname: oletools
-    depends_on:
-      - resolver
+    {{ lookup('depends_on', ['resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -112,11 +107,7 @@
       - "filter:/var/lib/rspamd"
       - "dkim:/dkim"
       - "{{ MAILU_RSPAMD_HOST_DIR }}:/overrides:ro"
-    depends_on:
-      - front
-      - redis
-      - antivirus
-      - resolver
+    {{ lookup('depends_on', ['front', 'redis', 'antivirus', 'resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -129,8 +120,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     volumes:
       - "clamav_db:/var/lib/clamav"
-    depends_on:
-      - resolver
+    {{ lookup('depends_on', ['resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -142,8 +132,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     volumes:
       - "webdav_data:/data"
-    depends_on:
-      - resolver
+    {{ lookup('depends_on', ['resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -156,11 +145,7 @@
     volumes:
       - "admin_data:/data"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      - admin
-      - smtp
-      - imap
-      - resolver
+    {{ lookup('depends_on', ['admin', 'smtp', 'imap', 'resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -173,10 +158,7 @@
     volumes:
       - "webmail_data:/data"
       - "{{ MAILU_OVERRIDES_DIR }}:/overrides:ro"
-    depends_on:
-      - imap
-      - front
-      - resolver
+    {{ lookup('depends_on', ['imap', 'front', 'resolver']) }}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}

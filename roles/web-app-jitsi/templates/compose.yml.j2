@@ -17,9 +17,7 @@
     image: "{{ JITSI_JICOFO_IMAGE }}:{{ JITSI_JICOFO_VERSION }}"
     {{ lookup('compose_only', 'container_name', JITSI_JICOFO_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ JITSI_PROSODY_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {JITSI_PROSODY_CONTAINER: 'service_started'}) }}
     volumes:
       - "{{ JITSI_JICOFO_HOST_PATH }}:/config:Z"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -28,9 +26,7 @@
     image: "{{ JITSI_JVB_IMAGE }}:{{ JITSI_JVB_VERSION }}"
     {{ lookup('compose_only', 'container_name', JITSI_JVB_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ JITSI_PROSODY_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {JITSI_PROSODY_CONTAINER: 'service_started'}) }}
     ports:
       - "{{ JITSI_JVB_MEDIA_PORT }}:{{ JITSI_JVB_MEDIA_PORT }}/udp"
     volumes:
@@ -41,9 +37,7 @@
     image: "{{ JITSI_WEB_IMAGE }}:{{ JITSI_WEB_VERSION }}"
     {{ lookup('compose_only', 'container_name', JITSI_WEB_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ JITSI_PROSODY_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {JITSI_PROSODY_CONTAINER: 'service_started'}) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ JITSI_WEB_HTTP_PORT }}:80"
     volumes:
