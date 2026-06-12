@@ -5,7 +5,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: proxy
+      host: seaweedfs-proxy
       port: "80"
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-seaweedfs', role='administrator') }}"

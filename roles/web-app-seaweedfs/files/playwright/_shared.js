@@ -1,29 +1,18 @@
 const { expect } = require("@playwright/test");
 const { isServiceEnabled } = require("./service-gating");
-
-function decode(value) {
-  if (typeof value !== "string" || value.length < 2) return value || "";
-  if (value.startsWith('"') && value.endsWith('"')) {
-    try {
-      return JSON.parse(value);
-    } catch {
-      return value.slice(1, -1);
-    }
-  }
-  return value;
-}
+const { decodeDotenvQuotedValue } = require("./personas");
 
 const env = {
-  filerUrl: decode(process.env.SEAWEEDFS_FILER_URL),
-  masterUrl: decode(process.env.SEAWEEDFS_MASTER_URL),
-  adminUsername: decode(process.env.ADMIN_USERNAME),
-  adminPassword: decode(process.env.ADMIN_PASSWORD),
-  biberUsername: decode(process.env.BIBER_USERNAME),
-  biberPassword: decode(process.env.BIBER_PASSWORD),
+  filerUrl: decodeDotenvQuotedValue(process.env.SEAWEEDFS_FILER_URL),
+  masterUrl: decodeDotenvQuotedValue(process.env.SEAWEEDFS_MASTER_URL),
+  adminUsername: decodeDotenvQuotedValue(process.env.ADMIN_USERNAME),
+  adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
+  biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
+  biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   ssoEnabled: isServiceEnabled("sso"),
   consumerBuckets: (() => {
     try {
-      return JSON.parse(decode(process.env.SEAWEEDFS_CONSUMER_BUCKETS) || "[]");
+      return JSON.parse(decodeDotenvQuotedValue(process.env.SEAWEEDFS_CONSUMER_BUCKETS) || "[]");
     } catch {
       return [];
     }

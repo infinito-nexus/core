@@ -20,7 +20,7 @@
   proxy:
     image: "{{ SEAWEEDFS_PROXY_IMAGE }}:{{ SEAWEEDFS_PROXY_VERSION }}"
     container_name: {{ SEAWEEDFS_PROXY_CONTAINER }}
-    hostname: proxy
+    hostname: {{ SEAWEEDFS_PROXY_CONTAINER }}
     restart: {{ DOCKER_RESTART_POLICY }}
 {% set service_name = 'proxy' %}
 {% filter indent(4) %}

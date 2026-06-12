@@ -9,9 +9,9 @@ status_codes:
     - 403
 domains:
   canonical:
-    api: api.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
     filer: filer.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
     master: master.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
+    api: api.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   flags: {}
