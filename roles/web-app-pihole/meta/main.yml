@@ -1,6 +1,6 @@
 galaxy_info:
   author: Prageeth Panicker
-  description: Deploys Pi-hole — a network-wide DNS sinkhole for ad and tracker blocking with OAuth2/Keycloak authentication.
+  description: Deploys Pi-hole, a network-wide DNS sinkhole that blocks ads and trackers for every device on the network, with built-in DNS/DHCP management and a web admin dashboard.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach
