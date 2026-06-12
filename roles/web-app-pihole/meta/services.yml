@@ -54,8 +54,8 @@ pihole:
   pids_limit: 512
   ports:
     local:
-      http: 8041
-      sso: 16506
+      http: 8078
+      sso: 16507
   run_after:
   - web-app-keycloak
   lifecycle: alpha
