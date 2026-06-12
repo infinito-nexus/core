@@ -1,0 +1,21 @@
+<?php
+{% if lookup('objstore', application_id, 'enabled') | bool %}
+return [
+  'objectstore' => [
+    'class' => '\\OC\\Files\\ObjectStore\\S3',
+    'arguments' => [
+      'bucket'         => '{{ lookup('objstore', application_id, 'bucket') }}',
+      'autocreate'     => false,
+      'key'            => '{{ lookup('objstore', application_id, 'access_key') }}',
+      'secret'         => '{{ lookup('objstore', application_id, 'secret_key') | replace("\\", "\\\\") | replace("'", "\\'") }}',
+      'hostname'       => '{{ lookup('objstore', application_id, 'host') }}',
+      'port'           => {{ lookup('objstore', application_id, 'port') }},
+      'use_ssl'        => false,
+      'use_path_style' => true,
+      'region'         => '{{ lookup('objstore', application_id, 'region') }}',
+    ],
+  ],
+];
+{% else %}
+return [];
+{% endif %}
