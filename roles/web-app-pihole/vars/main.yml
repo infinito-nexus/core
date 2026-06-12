@@ -17,3 +17,14 @@ PIHOLE_PASSWORD:          "{{ '' if PIHOLE_OAUTH2_ENABLED else lookup('users', '
 # Volume names
 PIHOLE_VOLUME_DATA:       "pihole_data"
 PIHOLE_VOLUME_DNSMASQ:    "pihole_dnsmasq"
+
+# SSO-proxy self-signed CA trust (see tasks/01_core.yml for full rationale)
+#
+# This is the container-internal path where the platform's CA cert is
+# bind-mounted into every compose service by compose_ca.py
+# (roles/sys-svc-compose-ca/files/compose_ca.py, var `ca_container`).
+# That path is a hardcoded platform constant there ("well-known by the
+# role's compose template") and is not currently exposed as an Ansible
+# variable centrally, so we mirror it here for our own use. If the platform
+# ever exposes this as a shared variable, switch to that instead.
+PIHOLE_SSO_PROXY_CA_CONTAINER_PATH: "/tmp/infinito/ca/root-ca.crt"
