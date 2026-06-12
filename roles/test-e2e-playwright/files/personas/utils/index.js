@@ -20,6 +20,7 @@ const csp = require("./csp");
 const interaction = require("./interaction");
 const dotenv = require("./dotenv");
 const dom = require("./dom");
+const seaweedfs = require("./seaweedfs");
 
 module.exports = {
   ...env,
@@ -30,4 +31,5 @@ module.exports = {
   ...interaction,
   ...dotenv,
   ...dom,
+  ...seaweedfs,
 };
