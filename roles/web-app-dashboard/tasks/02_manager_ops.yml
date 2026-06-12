@@ -83,6 +83,8 @@
   loop: "{{ dashboard_branding_asset_urls }}"
   loop_control:
     label: "{{ item }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
 
 - name: "Flush compose handlers"
   meta: flush_handlers
@@ -109,3 +111,5 @@
   retries: 60
   delay: 5
   until: dashboard_http.status == 200
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
