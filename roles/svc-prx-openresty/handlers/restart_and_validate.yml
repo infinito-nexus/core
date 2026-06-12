@@ -10,9 +10,10 @@
     ('no such container' not in ((openresty_test_pre.stderr | default('')) | lower)) and
     ('is restarting' not in ((openresty_test_pre.stderr | default('')) | lower))
 
-- name: Restart OpenResty container
-  ansible.builtin.command: >
-    container restart {{ OPENRESTY_CONTAINER }}
+- name: Reload OpenResty configuration (in-place, preserves listeners)
+  ansible.builtin.shell: >
+    container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }}
+    openresty -s reload
   register: openresty_restart
   changed_when: true
   failed_when: >
@@ -32,8 +33,8 @@
       failed_when: false
       ignore_errors: true
 
-    - ansible.builtin.command: >
-        container logs --tail=200 {{ OPENRESTY_CONTAINER }}
+    - ansible.builtin.shell: >
+        container logs --tail=200 {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }}
       register: openresty_logs
       changed_when: false
       failed_when: false
