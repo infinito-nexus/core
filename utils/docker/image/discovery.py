@@ -22,6 +22,7 @@ _ALL_REGISTRY_PREFIXES = (
     "quay.io/",
     "ghcr.io/",
     "mcr.microsoft.com/",
+    "registry.opencode.de/",
 )
 
 # Registries whose images should be mirrored to GHCR.
@@ -33,6 +34,7 @@ _MIRRORABLE_REGISTRIES = frozenset(
         "quay.io",
         "ghcr.io",
         "mcr.microsoft.com",
+        "registry.opencode.de",
     }
 )
 
