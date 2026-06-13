@@ -63,6 +63,14 @@ module.exports = [
     },
   },
   {
+    // SSO sidecar shims (oauth2-proxy header-auth / server patches) are
+    // authored as ES modules (import/export), not CommonJS.
+    files: ["roles/**/files/sso/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
+  {
     files: [
       "roles/**/files/playwright/**/*.js",
       "roles/test-e2e-playwright/files/personas/**/*.js",
