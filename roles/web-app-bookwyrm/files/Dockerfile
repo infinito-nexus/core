@@ -41,6 +41,10 @@ RUN rm -rf /var/lib/apt/lists/* \
 COPY --from=builder /venv /venv
 COPY --from=builder /src /app
 
+COPY header_auth.py /app/bookwyrm/header_auth.py
+COPY settings_patch.py /tmp/settings_patch.py
+RUN cat /tmp/settings_patch.py >> /app/bookwyrm/settings.py
+
 RUN adduser --disabled-password --gecos '' bookwyrm \
  && mkdir -p /app/data /app/media \
  && chown -R bookwyrm:bookwyrm /app /venv

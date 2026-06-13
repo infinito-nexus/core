@@ -19,20 +19,9 @@ BOOKWYRM_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_ke
 BOOKWYRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BOOKWYRM_HOSTNAME: "{{ container_hostname }}"
 
-## OIDC (optional; can be fronted by oauth2-proxy or native if you wire it)
-BOOKWYRM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+## SSO
 BOOKWYRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
-BOOKWYRM_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
-BOOKWYRM_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
-BOOKWYRM_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
-BOOKWYRM_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
-BOOKWYRM_OIDC_AUTH_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
-BOOKWYRM_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
-BOOKWYRM_OIDC_USERINFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
-BOOKWYRM_OIDC_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
-BOOKWYRM_OIDC_JWKS_URL: "{{ OIDC.CLIENT.CERTS }}"
-BOOKWYRM_OIDC_SCOPES: "openid,email,profile"
-BOOKWYRM_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+BOOKWYRM_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 
 ## Docker
 BOOKWYRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"

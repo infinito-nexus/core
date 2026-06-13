@@ -19,8 +19,8 @@ const {
 
 test.use({ ignoreHTTPSErrors: true });
 
-const PNG_1X1_BASE64 =
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+const PNG_AVATAR_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAA60lEQVR4nO3QQQ3AIADAQEDh5CAHqbOwvsiSOwVN537O4Jt1O+BPzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCl7E6QIw0tiFNgAAAABJRU5ErkJggg==";
 
 test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
@@ -57,12 +57,12 @@ test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", as
       await avatarInput.setInputFiles({
         name: `infinito-storage-check-${Date.now()}.png`,
         mimeType: "image/png",
-        buffer: Buffer.from(PNG_1X1_BASE64, "base64"),
+        buffer: Buffer.from(PNG_AVATAR_BASE64, "base64"),
       });
 
       const saveButton = appPage
+        .locator('form[name="edit-profile"]')
         .getByRole("button", { name: /save/i })
-        .or(appPage.locator('button[type="submit"], input[type="submit"]'))
         .first();
       await saveButton.click();
 
