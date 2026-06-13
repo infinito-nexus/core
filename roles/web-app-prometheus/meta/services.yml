@@ -56,7 +56,7 @@ prometheus:
   min_storage: 5GB
 alertmanager:
   image: prom/alertmanager
-  version: v0.32.2
+  version: v0.33.0
   name: prometheus-alertmanager
   cpus: "0.25"
   mem_reservation: 64m
