@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Generate the role×role integration matrix for requirement 027.
+"""Generate the role×role integration matrix.
 
-Source of truth for docs/requirements/027-integration-matrix.md.
-Run: python3 docs/requirements/027-integration-matrix.gen.py
+Source of truth for the integration-matrix markdown emitted alongside this
+script. Regenerate it from the repository root and commit the regenerated file.
 
 Axes are the entity names of every web-app-* and web-svc-* role.
 A cell [row][col] marks whether the ROW role ships an addon/plugin that wires
@@ -13,9 +13,13 @@ in the COLUMN role:
   - dash   -> diagonal (same role)
 """
 
+# nocheck: file-size — curated EDGES data table plus matrix renderers; the data
+# and the renderer read together, splitting them only adds indirection.
+
 import re
 from pathlib import Path
 
+# nocheck: project-root-import — standalone docs generator, no package container to import PROJECT_ROOT from.
 ROLES_DIR = Path(__file__).resolve().parent.parent.parent / "roles"
 
 # Top-level meta/services.yml integration keys -> the in-axis target entity they
@@ -127,7 +131,7 @@ WEB_SVC = [
 ENTITIES = WEB_APP + WEB_SVC
 
 # (source, target, url, kind). kind: "check" or "coin".
-# Verified upstream plugin/integration pages (see requirement 027 research).
+# Verified upstream plugin/integration pages.
 EDGES = [
     # --- Nextcloud integration_* family + office/auth/analytics ---
     (
@@ -502,13 +506,13 @@ EDGES = [
     (
         "suitecrm",
         "mailu",
-        "https://docs.suitecrm.com/user/advanced-modules/inbound-email/",
+        "https://github.com/SuiteCRM/SuiteCRM",
         "check",
     ),
     (
         "odoo",
         "keycloak",
-        "https://apps.odoo-community.org/apps/modules/14.0/auth_oidc",
+        "https://github.com/OCA/server-auth/tree/16.0/auth_oidc",
         "check",
     ),
     (
@@ -642,12 +646,16 @@ Notes:
 
 - The matrix is **directional**: the row hosts the plugin/flag. Bidirectional pairs (e.g. `nextcloud`↔`openproject`) carry a symbol in both cells, each linking to that side.
 - {wired} edges are derived automatically by scanning every role's `meta/services.yml` for integration service keys (`sso`→keycloak, `matomo`→matomo, `prometheus`→prometheus, `email`→mailu, `dashboard`, `css`, `logout`, `cdn`, `coturn`, `collabora`, `onlyoffice`, `libretranslate`). `ldap`/`redis`/`mariadb` map to `svc-db-*` roles that are off these axes and are not shown.
-- `→ keycloak` {wired} cells are the central `sso` service (requirement 021); a {check}/{coin} on `→ keycloak` instead means a role-local OIDC/SAML addon path beyond the central service.
+- `→ keycloak` {wired} cells are the central `sso` service; a {check}/{coin} on `→ keycloak` instead means a role-local OIDC/SAML addon path beyond the central service.
 - Native ActivityPub federation between fediverse roles (`mastodon`, `peertube`, `pixelfed`, `funkwhale`, `mobilizon`, `bookwyrm`, `socialhome`) needs **no plugin** and is therefore not a {check} edge unless an installable connector exists.
 
 ## Matrix
 
 {matrix}
+
+## Maintenance
+
+- [ ] Regenerate this matrix after adding or removing any integration edge.
 """
 
 
