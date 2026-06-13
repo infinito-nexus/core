@@ -156,6 +156,20 @@
   with_fileglob:
     - "{{ _playwright_files_dir }}/*.js"
 
+- name: Create staging fixtures directory
+  ansible.builtin.file:
+    path: "{{ _playwright_stage_tests_dir }}/fixtures"
+    state: directory
+    mode: "0755"
+
+- name: Copy role Playwright binary fixtures into staging fixtures directory
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ _playwright_stage_tests_dir }}/fixtures/{{ item | basename }}"
+    mode: "0644"
+  with_fileglob:
+    - "{{ _playwright_files_dir }}/fixtures/*"
+
 # Stage the shared service-gating helper next to the spec so the spec can
 # `require("./service-gating")`.
 - name: Copy shared service-gating helper into staging tests directory

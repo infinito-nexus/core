@@ -10,6 +10,8 @@ For the env contract see [Agent `playwright.env.j2`](../../../../agents/files/ro
 
 - The spec MUST be at `roles/<role>/files/playwright/playwright.spec.js`. The role-relative path is the SPOT constant `ROLE_FILE_PLAYWRIGHT_SPEC` in [mapping.py](../../../../../utils/roles/mapping.py); registered as optional on `ROLE_TYPE_APPLICATION`, disallowed elsewhere.
 - Companion `.js` helpers (role-local utility modules, like `web-app-dashboard/files/playwright/dashboard-card-flow.js`) MAY live next to the spec under the same `files/playwright/` directory. The runner (`roles/test-e2e-playwright/tasks/02_run_one.yml`) globs every `*.js` in that directory and stages them into the same `tests/` tree, so the spec can `require("./<helper>")` without any further wiring.
+- Each scenario MUST live in its own `test-*.js` module (e.g. `test-login-oidc.js`, `test-seaweedfs.js`). `playwright.spec.js` is the thin aggregator that `require()`s every scenario module, keeping each case atomic and individually inspectable. The runner globs every `*.js`, so no extra wiring is needed.
+- Binary fixtures (sample images, videos, …) MUST live under `roles/<role>/files/playwright/fixtures/`. The `*.js` glob does not ship binaries or subdirectories, so the runner stages the whole `fixtures/` directory next to the tests; specs load a fixture via `path.join(__dirname, "fixtures", "<name>")`.
 - `playwright.config.js` and `package.json` are central, NOT per-role. See [Playwright Tests → Role-Local Files](../../../actions/testing/playwright.md#role-local-files-).
 
 ## Three personas, fixed flow 🚶

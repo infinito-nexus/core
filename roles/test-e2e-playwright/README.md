@@ -26,7 +26,7 @@ This role:
 - Supports allow-/deny-lists via `TEST_E2E_PLAYWRIGHT_ONLY_ROLES` and `TEST_E2E_PLAYWRIGHT_SKIP_ROLES`
 - Stages each Playwright project into `TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR/<application_id>`
 - Renders the central `package.json` template into each staged project and injects the central `playwright.config.js`
-- Copies role-specific `files/playwright/playwright.spec.js` into the staged `tests/playwright.spec.js`
+- Copies every role-specific `files/playwright/*.js` (the `playwright.spec.js` aggregator plus its `test-*.js` scenario modules) into the staged `tests/` directory, and stages `files/playwright/fixtures/` (binary assets such as sample images/videos) alongside them
 - Renders `.env` from `templates/playwright.env.j2` using Ansible variables (`application_id`, `domains`, `users`, `applications`)
 - Optionally waits until the application responds with HTTP `200` or `302`
 - Injects CA trust automatically for `TLS_MODE=self_signed` (via `CA_TRUST.*`), so Playwright accepts self-signed cert chains
