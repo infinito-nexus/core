@@ -98,19 +98,17 @@ jobs:
 
     env:
       APP_ID: ${{ matrix.apps }}
-      MGR: swarm-mgr-01
-      WRK1: swarm-wrk-01
-      WRK2: swarm-wrk-02
-      NFS_SERVER: nfs-server
-      NFS_EXPORT_BASE: /srv/nfs
       RESCHED_TIMEOUT: "120"
       SCRIPTS: scripts/tests/deploy/swarm
-      SWARM_LAB_NETWORK: swarm-lab
 
     steps:
       - name: "Checkout"
         if: ${{ !env.ACT }}
         uses: actions/checkout@v6
+
+      - name: "Load swarm topology SPOT into job env"
+        shell: bash
+        run: grep -vE '^(#|$)' scripts/tests/deploy/swarm/topology.sh >> "$GITHUB_ENV"
 
       - name: Set up Python
         uses: actions/setup-python@v6
