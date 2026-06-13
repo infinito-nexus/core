@@ -92,11 +92,11 @@ class TestBuildIndexSection(TempRepoMixin, unittest.TestCase):
         section = build_index_section(self.archive_dir, self.repo_root)
         self.assertIn("## Older Releases", section)
         self.assertIn(
-            "- [002.000.000-2026-02-01.md](docs/changelog/002.000.000-2026-02-01.md)",
+            "* [002.000.000-2026-02-01.md](docs/changelog/002.000.000-2026-02-01.md)",
             section,
         )
         self.assertIn(
-            "- [001.000.000-2026-01-01.md](docs/changelog/001.000.000-2026-01-01.md)",
+            "* [001.000.000-2026-01-01.md](docs/changelog/001.000.000-2026-01-01.md)",
             section,
         )
         self.assertLess(

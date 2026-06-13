@@ -66,5 +66,5 @@ def build_index_section(archive_dir: Path, repo_root: Path) -> str:
     lines = ["## Older Releases", ""]
     for path in archives:
         rel = path.relative_to(repo_root).as_posix()
-        lines.append(f"- [{path.name}]({rel})")
+        lines.append(f"* [{path.name}]({rel})")
     return "\n".join(lines) + "\n"
