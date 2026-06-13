@@ -36,7 +36,7 @@
     path: >-
       {{ (application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
          }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}
-    line: 'provider_ca_file        =   "{{ PIHOLE_SSO_PROXY_CA_CONTAINER_PATH }}"'
+    line: 'provider_ca_files       =   ["{{ PIHOLE_SSO_PROXY_CA_CONTAINER_PATH }}"]'
     insertafter: '^provider_display_name'
   when:
     - lookup('sso', application_id, 'is_proxy_gated')
