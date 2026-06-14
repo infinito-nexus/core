@@ -28,6 +28,7 @@ BASEROW_PYTHON: "/baserow/venv/bin/python"
 BASEROW_MANAGE_PY: "/baserow/backend/src/baserow/manage.py"
 
 BASEROW_SERVICE_NAME: "application"
+BASEROW_APP_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, BASEROW_SERVICE_NAME) }}"
 
 BASEROW_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
 BASEROW_BOOTSTRAP_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"

@@ -15,6 +15,7 @@ import unittest
 
 from utils.annotations.task_gate import (
     _task_block_bounds,
+    is_file_compose_only_by_header,
     is_task_compose_only_gated,
 )
 
@@ -363,15 +364,27 @@ class TestKnownLimitations(unittest.TestCase):
         idx = _line_index(lines, "compose stop x")
         self.assertFalse(is_task_compose_only_gated(lines, idx))
 
-    def test_outer_when_does_not_propagate_to_inner_block_child(self):
-        # In real Ansible the outer task's `when:` does propagate to
-        # children of its `block:`, but the helper's block-bounds
-        # snap to the inner `- name:` and miss the outer gate.
-        # Roles relying on this propagation must instead carry a
-        # `# nocheck:` marker on the inner task or file.
+
+class TestRecursiveParentWalk(unittest.TestCase):
+    """Pins the recursive parent-walk in ``is_task_compose_only_gated``:
+    a ``when:`` on an outer ``- name:`` / ``- block:`` now covers every
+    child task underneath, matching Ansible's runtime semantics."""
+
+    def test_inline_task_when_recognised(self):
         lines = _lines(
             """
-            - name: Outer (compose-only)
+            - name: Compose-only task
+              shell: compose stop x
+              when: DEPLOYMENT_MODE != 'swarm'
+            """
+        )
+        idx = _line_index(lines, "compose stop x")
+        self.assertTrue(is_task_compose_only_gated(lines, idx))
+
+    def test_block_level_when_covers_child_task(self):
+        lines = _lines(
+            """
+            - name: Compose-only group
               when: DEPLOYMENT_MODE != 'swarm'
               block:
                 - name: Inner
@@ -379,7 +392,91 @@ class TestKnownLimitations(unittest.TestCase):
             """
         )
         idx = _line_index(lines, "compose stop x")
+        self.assertTrue(is_task_compose_only_gated(lines, idx))
+
+    def test_nested_block_with_parent_gate(self):
+        lines = _lines(
+            """
+            - name: Outermost (compose-only)
+              when: DEPLOYMENT_MODE != 'swarm'
+              block:
+                - name: Middle group
+                  block:
+                    - name: Deepest
+                      shell: compose stop x
+            """
+        )
+        idx = _line_index(lines, "compose stop x")
+        self.assertTrue(is_task_compose_only_gated(lines, idx))
+
+    def test_no_when_returns_false(self):
+        lines = _lines(
+            """
+            - name: Plain task
+              shell: compose stop x
+            """
+        )
+        idx = _line_index(lines, "compose stop x")
         self.assertFalse(is_task_compose_only_gated(lines, idx))
+
+    def test_unrelated_when_returns_false(self):
+        lines = _lines(
+            """
+            - name: Plain task
+              shell: compose stop x
+              when: SOMETHING_ELSE | bool
+            """
+        )
+        idx = _line_index(lines, "compose stop x")
+        self.assertFalse(is_task_compose_only_gated(lines, idx))
+
+    def test_compose_equality_form_also_accepted(self):
+        lines = _lines(
+            """
+            - name: Compose-only task
+              shell: compose stop x
+              when: DEPLOYMENT_MODE == 'compose'
+            """
+        )
+        idx = _line_index(lines, "compose stop x")
+        self.assertTrue(is_task_compose_only_gated(lines, idx))
+
+
+class TestIsFileComposeOnlyByHeader(unittest.TestCase):
+    """Pins ``is_file_compose_only_by_header``: a top-of-file marker
+    declares the whole file is meant to be ``include_tasks:`` from a
+    parent already carrying the compose-only gate. The marker MUST sit
+    in the first 5 lines."""
+
+    def test_file_header_recognised(self):
+        lines = _lines(
+            """
+            ---
+            # include-gated: when: DEPLOYMENT_MODE != "swarm"
+            - name: Task
+              shell: compose stop x
+            """
+        )
+        self.assertTrue(is_file_compose_only_by_header(lines))
+
+    def test_file_header_must_be_in_first_5_lines(self):
+        lines = _lines(
+            """
+            ---
+            # line 2
+            # line 3
+            # line 4
+            # line 5
+            # line 6
+            # line 7
+            # line 8
+            # line 9
+            # include-gated: when: DEPLOYMENT_MODE != "swarm"
+            - name: Task
+              shell: compose stop x
+            """
+        )
+        self.assertFalse(is_file_compose_only_by_header(lines))
 
 
 if __name__ == "__main__":

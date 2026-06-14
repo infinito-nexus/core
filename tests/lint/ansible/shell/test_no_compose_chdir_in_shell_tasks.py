@@ -15,7 +15,10 @@ import unittest
 from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_at, is_suppressed_in_head
-from utils.annotations.task_gate import is_task_compose_only_gated
+from utils.annotations.task_gate import (
+    is_file_compose_only_by_header,
+    is_task_compose_only_gated,
+)
 from utils.cache.files import iter_project_files_with_content
 
 from . import PROJECT_ROOT
@@ -50,6 +53,8 @@ class TestNoComposeChdirInShellTasks(unittest.TestCase):
                 continue
             lines = content.splitlines()
             if is_suppressed_in_head(lines, _RULE):
+                continue
+            if is_file_compose_only_by_header(lines):
                 continue
             for idx, line in enumerate(lines):
                 if not _COMPOSE_CHDIR.search(line):

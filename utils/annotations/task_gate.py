@@ -30,6 +30,22 @@ _COMPOSE_ONLY_EXPR = re.compile(
     r"DEPLOYMENT_MODE\s*!=\s*['\"]swarm['\"]"
     r"|DEPLOYMENT_MODE\s*==\s*['\"]compose['\"]"
 )
+_FILE_COMPOSE_ONLY_HEADER = re.compile(
+    r"^\s*#\s*include-gated\s*:\s*when\s*:\s*DEPLOYMENT_MODE\s*"
+    r"(?:!=\s*['\"]swarm['\"]|==\s*['\"]compose['\"])"
+)
+
+
+def is_file_compose_only_by_header(lines: Sequence[str]) -> bool:
+    """True iff the file declares a top-of-file marker
+
+        # include-gated: when: DEPLOYMENT_MODE != "swarm"
+
+    that documents the entire file is meant to be `include_tasks:` from
+    a parent that already carries the compose-only `when:` guard. The
+    marker MUST sit in the first 5 lines.
+    """
+    return any(_FILE_COMPOSE_ONLY_HEADER.search(raw) for raw in lines[:5])
 
 
 def _task_block_bounds(lines: Sequence[str], idx: int) -> tuple[int, int]:
@@ -58,11 +74,31 @@ def _task_block_bounds(lines: Sequence[str], idx: int) -> tuple[int, int]:
 
 
 def is_task_compose_only_gated(lines: Sequence[str], idx: int) -> bool:
-    """True iff the task body containing *idx* carries a `when:` clause
-    whose textual expression evaluates compose-only at deploy time."""
-    start, end = _task_block_bounds(lines, idx)
-    for k in range(start, end):
-        m = _WHEN_RE.match(lines[k])
-        if m and _COMPOSE_ONLY_EXPR.search(m.group("expr")):
-            return True
-    return False
+    """True iff the task body containing *idx* — or any enclosing parent
+    `- block:` / `- name:` block — carries a `when:` clause whose textual
+    expression evaluates compose-only at deploy time. Walks upwards to
+    recognise block-level gates: a single `when: DEPLOYMENT_MODE !=
+    'swarm'` on a parent `- block:` covers every child task underneath.
+    """
+    cur_idx = idx
+    while True:
+        start, end = _task_block_bounds(lines, cur_idx)
+        for k in range(start, end):
+            m = _WHEN_RE.match(lines[k])
+            if m and _COMPOSE_ONLY_EXPR.search(m.group("expr")):
+                return True
+        if start <= 0:
+            return False
+        marker = _TASK_NAME_RE.match(lines[start])
+        if not marker:
+            return False
+        cur_indent = len(marker.group("indent"))
+        parent_idx = None
+        for i in range(start - 1, -1, -1):
+            m = _TASK_NAME_RE.match(lines[i])
+            if m and len(m.group("indent")) < cur_indent:
+                parent_idx = i
+                break
+        if parent_idx is None:
+            return False
+        cur_idx = parent_idx
