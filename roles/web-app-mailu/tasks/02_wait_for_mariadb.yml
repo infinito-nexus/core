@@ -8,8 +8,6 @@
         {{ lookup('database', application_id, 'address') }} sh -c
         'mariadb -u {{ lookup('database', application_id, 'username') }} -p"$MARIADB_PWD"
         -e "SHOW TABLES FROM {{ lookup('database', application_id, 'name') }} LIKE \"domain\";"'
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
       register: mailu_db_schema_check
       retries: 30
       delay: 5
@@ -18,37 +16,33 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
   rescue:
-    - name: "Collect Mailu admin container logs (last 300 lines)"
-      ansible.builtin.command: >
-        {{ BIN_COMPOSE }} logs --tail=300 admin
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_admin_logs
-      changed_when: false
+    - block:
+        - name: "Collect Mailu admin container logs (last 300 lines)"
+          ansible.builtin.shell: >
+            container logs --tail=300 {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+          register: mailu_admin_logs
+          changed_when: false
+      always:
+        - name: "Fail: Mailu database schema not initialized"
+          ansible.builtin.fail:
+            msg: |
+              Mailu database schema was not initialized in time.
 
-    - name: "Fail: Mailu database schema not initialized"
-      ansible.builtin.fail:
-        msg: |
-          Mailu database schema was not initialized in time.
+              Expected table: {{ lookup('database', application_id, 'name') }}.domain
 
-          Expected table: {{ lookup('database', application_id, 'name') }}.domain
+              On swarm, this typically reflects mailu admin's hard requirement on a
+              DNSSEC-validating resolver dialed via the per-service `dns:` field
+              pinned to the resolver container's static ipv4_address (compose-only;
+              the overlay scheduler ignores ipv4_address and `dns:`).
 
-          --- Mailu admin container logs (last 300 lines) ---
-          {{ mailu_admin_logs.stdout | default('No logs available') }}
+              --- Mailu admin container logs (last 300 lines) ---
+              {{ mailu_admin_logs.stdout | default('No logs available') }}
 
 - name: "Wait until Mailu admin Flask app is ready"
   block:
     - name: "Check Mailu admin Flask routes command"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - exec
-          - -T
-          - admin
-          - flask
-          - routes
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
+      ansible.builtin.shell: >
+        container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }} flask routes
       register: mailu_admin_cli_check
       retries: 30
       delay: 5
@@ -56,25 +50,20 @@
       changed_when: false
 
   rescue:
-    - name: "Collect Mailu admin container logs after Flask readiness timeout"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - logs
-          - --tail=300
-          - admin
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_admin_cli_logs
-      changed_when: false
+    - block:
+        - name: "Collect Mailu admin container logs after Flask readiness timeout"
+          ansible.builtin.shell: >
+            container logs --tail=300 {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+          register: mailu_admin_cli_logs
+          changed_when: false
+      always:
+        - name: "Fail: Mailu admin Flask app not ready"
+          ansible.builtin.fail:
+            msg: |
+              Mailu admin Flask app was not ready in time.
 
-    - name: "Fail: Mailu admin Flask app not ready"
-      ansible.builtin.fail:
-        msg: |
-          Mailu admin Flask app was not ready in time.
+              Last stderr:
+              {{ mailu_admin_cli_check.stderr | default('') }}
 
-          Last stderr:
-          {{ mailu_admin_cli_check.stderr | default('') }}
-
-          --- Mailu admin container logs (last 300 lines) ---
-          {{ mailu_admin_cli_logs.stdout | default('No logs available') }}
+              --- Mailu admin container logs (last 300 lines) ---
+              {{ mailu_admin_cli_logs.stdout | default('No logs available') }}
