@@ -6,9 +6,14 @@
     image: "{{ PIHOLE_IMAGE }}:{{ PIHOLE_VERSION }}"
     container_name: "{{ PIHOLE_CONTAINER }}"
     environment:
-      TZ:               "{{ PIHOLE_TIMEZONE }}"
-      WEBPASSWORD:      "{{ PIHOLE_PASSWORD }}"
-      PIHOLE_DNS_:      "{{ PIHOLE_UPSTREAM_DNS }}"
+      TZ:                           "{{ PIHOLE_TIMEZONE }}"
+      # Pi-hole v6: WEBPASSWORD is replaced by FTLCONF_webserver_api_password
+      FTLCONF_webserver_api_password: "{{ PIHOLE_PASSWORD }}"
+      # Trust requests proxied via nginx with the canonical domain Host header.
+      # Pi-hole v6 FTL denies requests with unrecognised Host headers (DNS
+      # rebinding protection); setting webserver.domain whitelists our domain.
+      FTLCONF_webserver_domain:     "{{ domain }}"
+      PIHOLE_DNS_:                  "{{ PIHOLE_UPSTREAM_DNS }}"
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}:80/tcp"
     cap_add:
