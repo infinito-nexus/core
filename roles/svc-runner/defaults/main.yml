@@ -1,0 +1,5 @@
+---
+runner_name: "{{ inventory_hostname }}"
+runner_distribution: ""
+runner_labels: "self-hosted,linux,{{ runner_distribution }}"
+runner_count: "{{ [ansible_processor_vcpus | int // RUNNER_CPUS | int, 1] | max }}"
