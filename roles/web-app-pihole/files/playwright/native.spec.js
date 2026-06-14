@@ -31,7 +31,8 @@ test("administrator: can log in natively to pihole", async ({ page }) => {
   const passwordInput = page.getByRole("textbox", { name: /password/i });
   await passwordInput.waitFor({ state: "visible", timeout: 30_000 });
   await passwordInput.fill(adminPassword);
-  await page.getByRole("button", { name: /sign in|login/i }).click();
+  // Pi-hole v6 login button text is "Log in (uses cookie)"
+  await page.getByRole("button", { name: /log in|sign in/i }).click();
 
   await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => {});
   await expect(page.locator("body")).toBeVisible();

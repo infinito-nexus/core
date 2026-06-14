@@ -5,6 +5,8 @@
     delay:    5
     timeout:  300
 
-- name: "Set Pi-hole admin password"
-  ansible.builtin.command: "container exec {{ PIHOLE_CONTAINER }} pihole setpassword {{ PIHOLE_PASSWORD | quote }}"
-  become: true
+# Pi-hole v6: password is set via FTLCONF_webserver_api_password env var
+# at container startup. The pihole setpassword CLI command is blocked when
+# that env var is set ("set by environment variable; please unset it to
+# use this function"), so we skip the CLI call entirely for v6 images.
+# The env var approach is the v6-idiomatic way to manage the password.
