@@ -1,0 +1,7 @@
+# Strip client-supplied identity headers on non-SSO-gated locations so they cannot be forged.
+proxy_set_header X-Forwarded-User "";
+proxy_set_header X-Forwarded-Preferred-Username "";
+proxy_set_header X-Forwarded-Email "";
+proxy_set_header X-Forwarded-Groups "";
+proxy_set_header X-Forwarded-Access-Token "";
+{% include 'roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2' %}

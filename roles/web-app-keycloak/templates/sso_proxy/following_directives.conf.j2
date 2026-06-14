@@ -24,3 +24,4 @@ proxy_set_header X-Forwarded-Preferred-Username   $authrequest_username;
 proxy_set_header X-Forwarded-Email                $authrequest_email;
 proxy_set_header X-Forwarded-Groups               $authrequest_groups;
 proxy_set_header X-Forwarded-Access-Token         $authrequest_accesstoken;
+{% include 'roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2' %}

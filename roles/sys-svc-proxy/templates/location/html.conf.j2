@@ -3,6 +3,8 @@ location {{location}}
 {
   {% if sso_proxy_enabled | default(false) | bool %}
     {% include 'roles/web-app-keycloak/templates/sso_proxy/following_directives.conf.j2'%}
+  {% else %}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2'%}
   {% endif %}
 
   {% include 'roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2' %}
