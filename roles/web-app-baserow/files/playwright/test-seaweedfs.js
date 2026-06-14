@@ -69,7 +69,7 @@ async function createBaserowFileRow(appPage, baseUrl, accessToken) {
   const table = await readJson(
     await appPage.request.post(`${baseUrl}/api/database/tables/database/${database.id}/`, {
       headers: jsonHeaders,
-      data: { name: "Files", data: null, first_row_header: false },
+      data: { name: "Files", first_row_header: false },
     }),
     "table creation",
   );

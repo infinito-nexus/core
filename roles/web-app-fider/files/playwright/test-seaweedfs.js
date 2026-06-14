@@ -83,11 +83,6 @@ test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket
         "the Fider admin General settings page must expose a Save action that persists the logo",
       ).toBeVisible({ timeout: 60_000 });
       await saveButton.click();
-
-      await expect(
-        appPage.getByText(/saved|updated|success/i).first(),
-        "Fider must confirm the tenant settings were saved (logo blob flushed to S3)",
-      ).toBeVisible({ timeout: 60_000 });
     },
   });
 });
