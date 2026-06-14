@@ -16,6 +16,8 @@ const baseUrl = normalizeBaseUrl(process.env.AKAUNTING_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
+const akauntingAdminEmail = decodeDotenvQuotedValue(process.env.AKAUNTING_ADMIN_EMAIL);
+const akauntingAdminPassword = decodeDotenvQuotedValue(process.env.AKAUNTING_ADMIN_PASSWORD);
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -27,6 +29,8 @@ test("seaweedfs: an uploaded Akaunting company logo is stored in the SeaweedFS b
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
   expect(adminUsername).toBeTruthy();
   expect(adminPassword).toBeTruthy();
+  expect(akauntingAdminEmail, "AKAUNTING_ADMIN_EMAIL must be set").toBeTruthy();
+  expect(akauntingAdminPassword, "AKAUNTING_ADMIN_PASSWORD must be set").toBeTruthy();
 
   const expectedBase = baseUrl.replace(/\/$/, "");
 
@@ -38,6 +42,23 @@ test("seaweedfs: an uploaded Akaunting company logo is stored in the SeaweedFS b
       if (appPage.url().includes("openid-connect/auth")) {
         await performKeycloakLoginForm(appPage, adminUsername, adminPassword);
         await expect.poll(() => appPage.url(), { timeout: 90_000 }).toContain(expectedBase);
+      }
+
+      const nativeEmail = appPage.locator('input[name="email"]').first();
+      if (await nativeEmail.isVisible({ timeout: 15_000 }).catch(() => false)) {
+        await nativeEmail.fill(akauntingAdminEmail);
+        await appPage.locator('input[name="password"]').first().fill(akauntingAdminPassword);
+        await appPage
+          .getByRole("button", { name: /login|sign in|enter/i })
+          .or(appPage.locator('button[type="submit"]'))
+          .first()
+          .click();
+        await expect
+          .poll(() => appPage.url(), {
+            timeout: 90_000,
+            message: "expected Akaunting native login to leave the /auth/login form",
+          })
+          .not.toContain("/auth/login");
       }
 
       await appPage.goto(`${expectedBase}/1/settings/company`, { waitUntil: "domcontentloaded" });
