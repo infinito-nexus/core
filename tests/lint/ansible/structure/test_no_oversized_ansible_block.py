@@ -39,6 +39,7 @@ _MAX_CHILDREN = 3
 _BLOCK_LINE = re.compile(r"^(?P<indent>\s*)(?:-\s+)?block\s*:\s*$")
 _LIST_ITEM_LINE = re.compile(r"^(?P<indent>\s*)-\s+\S")
 _KEY_LINE = re.compile(r"^(?P<indent>\s*)[A-Za-z_][\w-]*\s*:")
+_RESCUE_OR_ALWAYS_LINE = re.compile(r"^(?P<indent>\s*)(?:rescue|always)\s*:\s*$")
 
 
 def _is_role_task_file(rel_path: str) -> bool:
@@ -49,12 +50,20 @@ def _is_role_task_file(rel_path: str) -> bool:
 
 def _count_block_children(lines: list[str], block_idx: int) -> int:
     """Count direct ``- ...`` list items beneath the ``block:`` keyword
-    at *block_idx*, terminating when indentation drops back to or below
-    the block keyword's own indentation."""
+    at *block_idx*. The block body terminates at the next sibling
+    ``rescue:`` / ``always:`` key (which introduce their own separate
+    child lists) or when indentation drops back to or below the block
+    keyword's own column (a real outer-scope sibling). The leading
+    ``- `` of a ``- block:`` form puts the keyword 2 columns deeper
+    than the regex-captured indent, so ``rescue:`` at the same dash-
+    sibling indent IS a valid terminator even though its column equals
+    the captured indent.
+    """
     block_match = _BLOCK_LINE.match(lines[block_idx])
     if not block_match:
         return 0
-    block_indent = len(block_match.group("indent"))
+    captured_indent = len(block_match.group("indent"))
+    block_kw_col = lines[block_idx].find("block:")
     children = 0
     child_indent: int | None = None
     for j in range(block_idx + 1, len(lines)):
@@ -62,7 +71,10 @@ def _count_block_children(lines: list[str], block_idx: int) -> int:
         if not raw.strip():
             continue
         stripped_indent = len(raw) - len(raw.lstrip())
-        if stripped_indent <= block_indent:
+        ra_match = _RESCUE_OR_ALWAYS_LINE.match(raw)
+        if ra_match and len(ra_match.group("indent")) == block_kw_col:
+            break
+        if stripped_indent <= captured_indent:
             list_match = _LIST_ITEM_LINE.match(raw)
             key_match = _KEY_LINE.match(raw)
             if list_match or key_match:
@@ -71,7 +83,7 @@ def _count_block_children(lines: list[str], block_idx: int) -> int:
         if not list_match:
             continue
         item_indent = len(list_match.group("indent"))
-        if item_indent <= block_indent:
+        if item_indent <= captured_indent:
             break
         if child_indent is None:
             child_indent = item_indent

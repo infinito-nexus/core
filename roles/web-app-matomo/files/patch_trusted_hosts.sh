@@ -1,3 +1,4 @@
+#!/bin/sh
 # Env: CFG     Path to config.ini.php inside the matomo container.
 # Env: DOMAIN  Public canonical domain to land in the first trusted_hosts slot.
 # Env: SERVICE Stack-internal service name (added as a trusted host).

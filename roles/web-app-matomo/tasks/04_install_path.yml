@@ -1,6 +1,6 @@
 ---
 - name: "Matomo install | Check whether Matomo is already installed (config.ini.php exists)"
-  ansible.builtin.shell: >
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec {{ MATOMO_LOCAL_CID | quote }}
     sh -lc 'test -f {{ MATOMO_CONFIG | quote }}'
   register: matomo_config_exists

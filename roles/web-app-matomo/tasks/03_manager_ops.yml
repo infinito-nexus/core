@@ -21,7 +21,7 @@
           | head -1 | grep -qE '^Running'
       register: matomo_running_swarm
       changed_when: false
-      retries: 150
+      retries: 600
       delay: 2
       until: matomo_running_swarm.rc == 0
 
