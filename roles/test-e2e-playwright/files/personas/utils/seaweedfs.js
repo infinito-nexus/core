@@ -115,7 +115,7 @@ async function adminCountBucketObjects(browser, env) {
   }
 }
 
-async function runSeaweedfsStorageCheck(page, browser, { action, label = "the application upload", overrides = {} } = {}) {
+async function runSeaweedfsStorageCheck(page, browser, { action, label = "the application upload", overrides = {}, pollDeadlineMs = 60_000 } = {}) {
   const env = { ...seaweedfsEnv(), ...overrides };
   expect(env.filerUrl, "SEAWEEDFS_FILER_URL must be set").toBeTruthy();
   expect(env.bucket, "SEAWEEDFS_APP_BUCKET must be set").toBeTruthy();
@@ -136,7 +136,7 @@ async function runSeaweedfsStorageCheck(page, browser, { action, label = "the ap
 
     // The application may flush to S3 slightly after its UI reports success, so
     // poll the Filer until the bucket grows (or the deadline passes).
-    const deadline = Date.now() + 60_000;
+    const deadline = Date.now() + pollDeadlineMs;
     let after;
     for (;;) {
       after = await countBucketObjects(adminPage, env);
