@@ -1,2 +1,59 @@
 ---
-synapse: matrix_synapse_data
+synapse_data:
+  type: volume
+  name: matrix_synapse_data
+  mounts:
+    - service: synapse
+      target: /data
+
+chatgpt_data:
+  type: volume
+  name: matrix_chatgpt_data
+  mounts:
+    - service: matrix-chatgpt-bot
+      target: /storage
+
+synapse_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), 'homeserver.yaml' ] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: synapse
+      target: /data/homeserver.yaml
+
+synapse_log:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), (lookup('domains', 'web-app-matrix').synapse) ~ '.log.config' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: synapse
+      target: "/data/{{ lookup('domains', 'web-app-matrix').synapse }}.log.config"
+
+element_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), 'element-config.json' ] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: element
+      target: /app/config.json
+
+matrix_mdad_docker:
+  type: volume
+  name: matrix_mdad_docker
+  mounts:
+    - service: matrix-mdad
+      target: /var/lib/docker
+
+matrix_mdad_state:
+  type: volume
+  name: matrix_mdad_state
+  mounts:
+    - service: matrix-mdad
+      target: /var/lib/matrix-mdad
+
+matrix_mdad_matrix:
+  type: volume
+  name: matrix_mdad_matrix
+  mounts:
+    - service: matrix-mdad
+      target: /matrix

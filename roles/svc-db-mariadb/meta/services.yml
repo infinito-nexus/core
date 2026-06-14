@@ -1,5 +1,7 @@
 ---
 mariadb:
+  # nocheck: default-placement-manager  central RDBMS, single-node until multi-replica replication (galera / async) is in scope
+  default_placement: manager
   enabled: true
   shared: true
   version: "12.3"

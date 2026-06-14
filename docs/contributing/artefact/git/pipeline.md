@@ -68,7 +68,7 @@ The three deploy-test workflows listed in the `Infrastructure tests` table of [w
 
 #### Diff-driven app selection 🎯
 
-Each of [test-deploy-server.yml](../../../../.github/workflows/test-deploy-server.yml), [test-deploy-universal.yml](../../../../.github/workflows/test-deploy-universal.yml), and [test-deploy-workstation.yml](../../../../.github/workflows/test-deploy-workstation.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
+Each of [test-deploy-compose.yml](../../../../.github/workflows/test-deploy-compose.yml), [test-deploy-universal.yml](../../../../.github/workflows/test-deploy-universal.yml), and [test-deploy-workstation.yml](../../../../.github/workflows/test-deploy-workstation.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
 
 1. **Sentinel `__ALL__` in the `whitelist` input** (case-insensitive). The diff logic MUST be skipped and an empty whitelist MUST be emitted, which deploys everything in the workflow's scope. This is the explicit opt-out from diff narrowing for manual dispatch.
 2. **Any other non-empty `whitelist`** (forwarded from `entry-manual.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim.

@@ -18,7 +18,7 @@
     - "{{ MAGENTO_PHP_DIR }}"
 
 - name: Render nginx main config (no TLS; single source of truth)
-  template:
+  template: # nocheck: stack-host-template (app compose dir, not project nginx tree)
     src: "docker.conf.j2"
     dest: "{{ MAGENTO_NGINX_CONF_PATH }}"
     mode: "0644"
@@ -26,7 +26,7 @@
   notify: compose up
 
 - name: Render php-fpm pool override (TCP listen; clear_env=no)
-  template:
+  template: # nocheck: stack-host-template (app compose dir, not project nginx tree)
     src: "php-fpm-zz-docker.conf.j2"
     dest: "{{ MAGENTO_PHP_ZZ_CONF_PATH }}"
     mode: "0644"

@@ -1,0 +1,22 @@
+---
+- name: "Create all sys-svc-compose directories (including parent directories) for '{{ application_id }}'"
+  file:
+    path: "{{ item.value }}"
+    state: directory
+    mode: "0755"
+  with_dict: "{{ lookup('container', application_id, 'directories') }}"
+
+- name: "Include routines to set up a git repository based installation for '{{ application_id }}'."
+  include_tasks: "03_repository.yml"
+  when: compose_repository_pull | bool
+
+- name: "Include file management routines for '{{ application_id }}'."
+  include_tasks: "04_files.yml"
+
+- name: "Ensure CA trust assets are installed (only when needed)"
+  ansible.builtin.include_role:
+    name: sys-svc-compose-ca
+  when:
+    - lookup('domains') | has_domain(application_id)
+    - lookup('tls', application_id, 'enabled') | bool
+    - lookup('tls', application_id, 'mode') == 'self_signed'

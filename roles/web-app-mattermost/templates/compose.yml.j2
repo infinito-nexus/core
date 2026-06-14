@@ -1,19 +1,13 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   application:
+{% set service_name = 'application' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ MATTERMOST_IMAGE }}:{{ MATTERMOST_VERSION }}"
-    container_name: "{{ MATTERMOST_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', MATTERMOST_CONTAINER) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mattermost.ports.local.http') }}:{{ container_port }}"
-    volumes:
-      - config:/mattermost/config
-      - data:/mattermost/data
-      - logs:/mattermost/logs
-      - plugins:/mattermost/plugins
-      - client-plugins:/mattermost/client/plugins
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     healthcheck:
       test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
       interval: 1m
@@ -24,14 +18,5 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={
-      'config':   {'name': MATTERMOST_VOLUME_CONFIG},
-      'data':     {'name': MATTERMOST_VOLUME_DATA},
-      'logs':     {'name': MATTERMOST_VOLUME_LOGS},
-      'plugins':        {'name': MATTERMOST_VOLUME_PLUGINS},
-      'client-plugins': {'name': MATTERMOST_VOLUME_CLIENT_PLUGINS},
-    }
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

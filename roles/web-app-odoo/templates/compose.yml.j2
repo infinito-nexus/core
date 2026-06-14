@@ -6,7 +6,7 @@
       args:
         ODOO_IMAGE: "{{ ODOO_IMAGE }}"
         ODOO_VERSION: "{{ ODOO_VERSION }}"
-    container_name: {{ ODOO_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', ODOO_CONTAINER) }}
     image: "{{ ODOO_CUSTOM_IMAGE }}"
     init: true
     stop_signal: SIGTERM
@@ -33,20 +33,8 @@
 {% endif %}
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - {{ ODOO_DATA_VOLUME }}:/var/lib/odoo
-      - {{ ODOO_ADDONS_VOLUME }}:/mnt/extra-addons
-      - {{ ODOO_CONFIG_VOLUME }}:/etc/odoo
-      - "{{ ODOO_CONF_FILE_HOST }}:/etc/odoo/odoo.conf:ro"
-      - "{{ ODOO_ADDONS_HOST }}:/mnt/custom-addons:ro"
+    {{ lookup('container_volumes', application_id, service_name,
+        extra_volumes=[ODOO_ADDONS_HOST ~ ':/mnt/custom-addons:ro']) | indent(4) }}
 
-{% set odoo_extra_volumes = {
-  ODOO_DATA_VOLUME: {'name': ODOO_DATA_VOLUME},
-  ODOO_ADDONS_VOLUME: {'name': ODOO_ADDONS_VOLUME},
-  ODOO_CONFIG_VOLUME: {'name': ODOO_CONFIG_VOLUME}
-} %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes=odoo_extra_volumes
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

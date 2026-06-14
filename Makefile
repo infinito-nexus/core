@@ -25,6 +25,48 @@ act-all:
 act-app:
 	@bash scripts/tests/deploy/act/app.sh
 
+.PHONY: act-debug
+# Param: node=<container_name> cmd='<shell pipeline>'
+act-debug:
+	@docker exec $(node) bash --noprofile --norc -c "$(cmd)"
+
+.PHONY: act-swarm-down
+# Release the preserved swarm-test cluster (DinD nodes, lab network, act outer container).
+# Note: Safe to run multiple times.
+act-swarm-down:
+	@INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/13_cleanup.sh
+	@bash scripts/tests/deploy/act/down_act_outer.sh
+
+.PHONY: act-swarm-exec
+# Run a one-off command inside one of the swarm-test DinD nodes.
+# Param node: container name (swarm-mgr-01 | swarm-wrk-01 | swarm-wrk-02 | nfs-server).
+# Param cmd: shell pipeline executed inside that container.
+act-swarm-exec:
+	@node='$(node)' cmd='$(cmd)' bash scripts/tests/deploy/act/exec_node.sh
+
+.PHONY: act-swarm-shell
+# Drop into an interactive shell on one of the swarm-test DinD nodes.
+# Param node: container name (defaults to swarm-mgr-01).
+act-swarm-shell:
+	@node='$(node)' bash scripts/tests/deploy/act/shell_node.sh
+
+.PHONY: act-swarm-zombie
+# Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
+# Param app: matrix application id (e.g. web-app-baserow).
+# Note: Use `make act-swarm-exec` / `make act-swarm-shell` to inspect, `make act-swarm-down` to release.
+act-swarm-zombie:
+	@test -n '$(app)' || { echo 'usage: make act-swarm-zombie app=<application_id>'; exit 2; }
+	@INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/13_cleanup.sh
+	@bash scripts/tests/deploy/act/down_act_outer.sh
+	@ACT_RM=false \
+	 ACT_BIND=true \
+	 ACT_ENV='INFINITO_KEEP_SWARM_NODES=true' \
+	 ACT_WORKFLOW=.github/workflows/test-deploy-swarm.yml \
+	 ACT_JOB=swarm \
+	 ACT_MATRIX='apps:$(app)' \
+	 ACT_INPUTS='whitelist=$(app)' \
+	 bash scripts/tests/deploy/act/workflow.sh
+
 .PHONY: act-workflow
 # Run the act-based workflow deploy check.
 act-workflow:

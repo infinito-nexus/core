@@ -1,23 +1,19 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  application:
+{% set service_name = 'application' %}
+  {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         JOOMLA_IMAGE: "{{ JOOMLA_IMAGE }}"
         JOOMLA_VERSION: "{{ JOOMLA_VERSION }}"
     image: "{{ JOOMLA_CUSTOM_IMAGE }}"
-    container_name: {{ JOOMLA_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', JOOMLA_CONTAINER) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    volumes:
-      - data:/var/www/html
-      - {{ JOOMLA_UPLOAD_CONFIG }}:/usr/local/etc/php/conf.d/uploads.ini:ro
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.joomla.ports.local.http') }}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': JOOMLA_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

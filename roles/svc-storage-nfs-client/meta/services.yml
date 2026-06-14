@@ -1,0 +1,14 @@
+---
+nfs-server:
+  enabled: "{{ 'svc-storage-nfs-server' in group_names }}"
+  shared: "{{ 'svc-storage-nfs-server' in group_names }}"
+nfs-client:
+  name: nfs-client
+  lifecycle: pre-alpha
+  min_storage: "50MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "128m"
+  pids_limit: 128
+  run_after:
+    - svc-storage-nfs-server

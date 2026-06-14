@@ -14,7 +14,7 @@
       - J_DBPASS={{ lookup('database', application_id, 'password') }}
       - -e
       - J_DBNAME={{ lookup('database', application_id, 'name') }}
-      - "{{ JOOMLA_CONTAINER }}"
+      - "{{ JOOMLA_CONTAINER_ADDRESS }}"
       - php
       - -r
       - |

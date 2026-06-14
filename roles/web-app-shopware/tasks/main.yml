@@ -5,39 +5,6 @@
   vars:
     compose_handlers_flush: false
 
-- name: "Deploy {{ SHOPWARE_INIT_HOST }}"
-  copy:
-    src: init.sh
-    dest: "{{ SHOPWARE_INIT_HOST }}"
-    mode: "0755"
-  notify:
-    - compose up
-    - compose build
-
-- name: "Render framework.yaml (trusted proxies/headers/hosts)"
-  copy:
-    src: "framework.yaml"
-    dest: "{{ SHOPWARE_FRAMEWORK_HOST }}"
-    mode: "0644"
-  notify:
-    - compose up
-
-- name: "Flush compose handlers"
-  meta: flush_handlers
-
-- name: Wait for Shopware HTTP endpoint
-  wait_for:
-    host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ lookup('config', application_id, 'services.shopware.ports.local.http') }}"
-    delay: 5
-    timeout: 300
-
-- name: "Ensure admin user exists with correct password"
-  include_tasks: 01_admin.yml
-
-#- name: Execute setup routines (OIDC/LDAP)
-#  include_tasks: 02_setup.yml
-#
-#- name: Execute cleanup routines
-#  include_tasks: 03_cleanup.yml
-#  when: MODE_CLEANUP
+- name: "Shopware manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

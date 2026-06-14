@@ -122,6 +122,43 @@ def get_role_lifecycle(role: PathLike, *, role_name: str | None = None) -> str |
     return str(raw).strip().lower() if isinstance(raw, str) else None
 
 
+def get_role_default_placement(
+    role: PathLike, *, role_name: str | None = None
+) -> str | None:
+    """Return the role's ``default_placement`` string (or ``None`` when absent)."""
+    role_dir, name = _resolve_role(role, role_name)
+    services = _read_meta_services(role_dir)
+    primary = _primary_entry(name, services)
+    if primary is None:
+        return None
+    raw = primary.get("default_placement")
+    if raw is None:
+        return None
+    return str(raw).strip()
+
+
+def iter_roles_with_default_placement(
+    placement: str, *, roles_dir: PathLike | None = None
+) -> list[str]:
+    """Sorted role names whose primary entity declares ``default_placement: <placement>``."""
+    if not placement:
+        return []
+    base = Path(roles_dir) if roles_dir is not None else PROJECT_ROOT / "roles"
+    if not base.is_dir():
+        return []
+    matches: list[str] = []
+    for role_dir in sorted(base.iterdir()):
+        if not role_dir.is_dir():
+            continue
+        try:
+            value = get_role_default_placement(role_dir, role_name=role_dir.name)
+        except MetaServicesShapeError:
+            continue
+        if value == placement:
+            matches.append(role_dir.name)
+    return matches
+
+
 def _resolve_role(role: PathLike, role_name: str | None) -> tuple[Path, str]:
     role_path = Path(role)
     if role_path.is_absolute() or role_path.parts[:1] == (".",):

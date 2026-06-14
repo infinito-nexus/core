@@ -12,7 +12,12 @@ try:
         FilterModule as _DockerServiceEnabledFilter,
     )
     from plugins.filter.get_entity_name import get_entity_name
+    from utils.cache.applications import get_canonical_volumes
     from utils.roles.applications.config import get
+    from utils.roles.applications.mounts import (
+        content_hash,
+        normalize_volumes_meta,
+    )
     from utils.roles.applications.services.database import (
         get_database_service_config,
         resolve_database_service_key,
@@ -22,7 +27,12 @@ except ModuleNotFoundError:
     from docker_service_enabled import FilterModule as _DockerServiceEnabledFilter
     from get_entity_name import get_entity_name
 
+    from utils.cache.applications import get_canonical_volumes
     from utils.roles.applications.config import get
+    from utils.roles.applications.mounts import (
+        content_hash,
+        normalize_volumes_meta,
+    )
     from utils.roles.applications.services.database import (
         get_database_service_config,
         resolve_database_service_key,
@@ -55,9 +65,6 @@ def _to_plain(obj: Any) -> Any:
 def _resolve_database_volume_name(
     applications: dict[str, Any], application_id: str, dbtype: str
 ) -> str:
-    """Mirror `plugins/lookup/database.py`'s `volume_prefix + host` derivation
-    so callers no longer thread `lookup('database', ..., 'volume')` through
-    every `compose.yml.j2`."""
     consumer_entity = get_entity_name(application_id)
     db_id = f"svc-db-{dbtype}"
     central_name = get(
@@ -76,43 +83,54 @@ def _resolve_database_volume_name(
     return f"{volume_prefix}{host}"
 
 
+def _swarm_nfs_driver_opts(dir_var_lib: str, volume_name: str) -> dict[str, Any]:
+    # Bind from host's already-NFS-mounted DIR_VAR_LIB; Docker's `type: nfs`
+    # would re-handshake portmap, which is unreachable in nested DinD.
+    return {
+        "driver": "local",
+        "driver_opts": {
+            "type": "none",
+            "o": "bind",
+            "device": f"{dir_var_lib.rstrip('/')}/{volume_name}",
+        },
+    }
+
+
+def _read_file_for_hash(source: str) -> str:
+    """Read a file's content for hash-based naming. Returns the path as a
+    stable fallback when the file isn't materialised yet (lint runs)."""
+    try:
+        from utils.cache.files import read_text
+
+        return read_text(source)
+    except (OSError, ValueError):
+        return source
+
+
+def _config_secret_name(role_entity: str, user_name: str, source: str) -> str:
+    """Build a swarm-rotation-safe name: ``{role}_{name}_{sha8(content)}``."""
+    digest = content_hash(_read_file_for_hash(source))
+    return f"{role_entity}_{user_name}_{digest}"
+
+
 def compose_volumes(
     applications: dict[str, Any],
     application_id: str,
     *,
     extra_volumes: dict[str, dict[str, Any]] | None = None,
+    extra_configs: dict[str, dict[str, Any]] | None = None,
+    extra_secrets: dict[str, dict[str, Any]] | None = None,
+    deployment_mode: str = "compose",
+    storage: dict[str, Any] | None = None,
+    dir_var_lib: str,
 ) -> str:
-    """
-    Builds the top-level `volumes:` section for compose.
+    """Render the top-level ``volumes:`` / ``configs:`` / ``secrets:`` block.
 
-    Logic is identical to roles/sys-svc-compose/templates/volumes.yml.j2:
-
-      - database volume if:
-          a direct mariadb/postgres service is enabled
-          and that service is not shared
-
-        name: derived from the central provider's `services.<dbtype>.name`
-        when `shared=true`, or `<consumer-entity>_database` when the role
-        ships a dedicated instance. The volume name is always derived from
-        the applications config — callers MUST NOT thread it in manually.
-
-      - redis volume if:
-          is_docker_service_enabled(redis)
-          or (services.sso.enabled AND services.sso.flavor == 'oauth2')
-
-        The SSO-proxy sidecar uses redis as its session store; only the
-        oauth2 flavor pulls it in. Pure-OIDC roles do NOT need redis.
-
-        name: {{ application_id | get_entity_name }}_redis
-
-    Manual volumes can be appended via extra_volumes (like adding YAML lines after an include).
-
-    TODO: simultaneous postgres + mariadb on a single role is rejected
-    by `resolve_database_service_key` (the embedded service templates
-    both use the `database` service key + host, which would collide).
-    Support is deferred — when a future architecture rewrite gives each
-    dbtype its own service / host / volume key, this filter MUST emit
-    one volume entry per enabled dbtype.
+    Reads the canonical dict-of-dicts shape from
+    ``roles/<role>/meta/volumes.yml`` (YAML key = semantic short name;
+    optional ``name:`` field = docker volume name). Entries with
+    ``type: config`` / ``type: secret`` emit their respective top-level
+    sections; everything else flows through the volumes section.
     """
 
     if applications is None:
@@ -128,7 +146,10 @@ def compose_volumes(
             f"compose_volumes: unknown application_id '{application_id}'"
         )
 
+    role_entity = get_entity_name(application_id)
     volumes: dict[str, Any] = {}
+    configs: dict[str, Any] = {}
+    secrets: dict[str, Any] = {}
 
     try:
         database_service_key = resolve_database_service_key(
@@ -140,8 +161,7 @@ def compose_volumes(
             f"{exc}. Simultaneous postgres + mariadb on the same role "
             "is not supported (the embedded service templates collide "
             "on the `database` service key, host name, and volume "
-            "key); pick one dbtype per role. Future support is tracked "
-            "in the filter's docstring TODO."
+            "key); pick one dbtype per role."
         ) from exc
     database_service = get_database_service_config(applications, application_id)
     database_needed = bool(database_service_key) and not bool(
@@ -163,16 +183,91 @@ def compose_volumes(
         )
         or sso["is_proxy_gated"]
     ):
-        volumes["redis"] = {"name": f"{get_entity_name(application_id)}_redis"}
+        volumes["redis"] = {"name": f"{role_entity}_redis"}
 
     if extra_volumes:
         volumes.update(extra_volumes)
+    if extra_configs:
+        configs.update(extra_configs)
+    if extra_secrets:
+        secrets.update(extra_secrets)
 
-    payload = {"volumes": _to_plain(volumes)}
+    role_data = applications.get(application_id) or {}
+    # Prefer the canonical list from the sibling registry (held outside
+    # `applications` on purpose: its raw Jinja `source:` strings must
+    # not flow through templar). Fall back to the legacy dict view for
+    # roles that still use the unmigrated dict-keyed-by-name shape.
+    raw_meta_volumes = (
+        get_canonical_volumes(application_id) or role_data.get("volumes") or {}
+    )
+    canonical_entries = normalize_volumes_meta(raw_meta_volumes)
+
+    # Legacy nfs opt-in: only present when the meta is dict-shape.
+    legacy_dict_volumes = role_data.get("volumes")
+    nfs_keys_legacy = {
+        k
+        for k, v in (
+            legacy_dict_volumes.items() if isinstance(legacy_dict_volumes, dict) else []
+        )
+        if isinstance(v, dict) and v.get("nfs") is not None
+    }
+
+    for semantic_name, entry in canonical_entries.items():
+        vtype = entry.get("type", "volume")
+
+        if vtype == "volume":
+            if semantic_name in volumes:
+                continue
+            spec: dict[str, Any] = {}
+            docker_name = entry.get("name")
+            if docker_name:
+                spec["name"] = docker_name
+            volumes[semantic_name] = spec
+            continue
+
+        if vtype == "config":
+            source = str(entry.get("source", ""))
+            configs[semantic_name] = {
+                "name": _config_secret_name(role_entity, semantic_name, source),
+                "file": source,
+            }
+            continue
+
+        if vtype == "secret":
+            source = str(entry.get("source", ""))
+            secrets[semantic_name] = {
+                "name": _config_secret_name(role_entity, semantic_name, source),
+                "file": source,
+            }
+            continue
+
+    storage_backend = (storage or {}).get("backend", "local")
+    swarm_nfs_enabled = (
+        deployment_mode == "swarm" and str(storage_backend).lower() == "nfs"
+    )
+
+    nfs_canonical = {
+        semantic_name
+        for semantic_name, entry in canonical_entries.items()
+        if bool(entry.get("nfs"))
+    }
+    nfs_keys = nfs_keys_legacy | nfs_canonical
+
+    for vol_name, vol_spec in list(volumes.items()):
+        if not isinstance(vol_spec, dict):
+            continue
+        wants_nfs = bool(vol_spec.pop("nfs", False)) or (vol_name in nfs_keys)
+        if wants_nfs and swarm_nfs_enabled:
+            named = vol_spec.get("name", vol_name)
+            vol_spec.update(_swarm_nfs_driver_opts(dir_var_lib, str(named)))
+
+    # Always emit `volumes:` (possibly empty) to preserve the legacy
+    # contract callers rely on; emit `configs:`/`secrets:` only when
+    # the role actually declares any.
+    payload: dict[str, Any] = {"volumes": _to_plain(volumes)}
+    if configs:
+        payload["configs"] = _to_plain(configs)
+    if secrets:
+        payload["secrets"] = _to_plain(secrets)
 
     return dump_yaml_str(payload).rstrip()
-
-
-class FilterModule:
-    def filters(self):
-        return {"compose_volumes": compose_volumes}

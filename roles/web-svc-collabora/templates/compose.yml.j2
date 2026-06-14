@@ -3,7 +3,7 @@
   collabora:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ COLLABORA_IMAGE }}:{{ COLLABORA_VERSION }}"
-    container_name: {{ COLLABORA_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', COLLABORA_CONTAINER) }}
     security_opt:
       - seccomp=unconfined
       - apparmor=unconfined
@@ -19,6 +19,6 @@
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

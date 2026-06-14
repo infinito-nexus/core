@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import shlex
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -12,6 +14,13 @@ from utils.roles.applications.services.database import (
     resolve_database_service_key,
 )
 from utils.roles.entity_name import get_entity_name
+
+
+def _swarm_address(bin_resolver: str, stack_name: str, service_key: str) -> str:
+    return (
+        f'"$({shlex.quote(bin_resolver)} '
+        f'{shlex.quote(stack_name)} {shlex.quote(service_key)})"'
+    )
 
 
 class LookupModule(LookupBase):
@@ -60,6 +69,12 @@ class LookupModule(LookupBase):
             templar=getattr(self, "_templar", None),
         )
         path_instances = self._require_var(vars_, "DIR_COMPOSITIONS")
+        if (
+            isinstance(path_instances, str)
+            and "{{" in path_instances
+            and self._templar is not None
+        ):
+            path_instances = self._templar.template(path_instances)
 
         consumer_entity = get_entity_name(consumer_id)
 
@@ -83,6 +98,7 @@ class LookupModule(LookupBase):
                 "type": "",
                 "name": consumer_entity,
                 "instance": "",
+                "address": "",
                 "host": "",
                 "container": "",
                 "network": "",
@@ -178,6 +194,29 @@ class LookupModule(LookupBase):
         volume_prefix = f"{consumer_entity}_" if not central_enabled else ""
         volume = f"{volume_prefix}{host}"
 
+        raw_mode = vars_.get("DEPLOYMENT_MODE", "compose")
+        templar = getattr(self, "_templar", None)
+        if templar is not None:
+            with contextlib.suppress(Exception):
+                raw_mode = templar.template(raw_mode)
+        deployment_mode = str(raw_mode).strip()
+
+        if deployment_mode == "swarm":
+            bin_resolver = vars_.get("BIN_RESOLVE_CONTAINER_ID")
+            if templar is not None and bin_resolver is not None:
+                with contextlib.suppress(Exception):
+                    bin_resolver = templar.template(bin_resolver)
+            bin_resolver = (
+                str(bin_resolver).strip()
+                if bin_resolver
+                else "/usr/bin/resolve-container-id"
+            )
+            stack_name = dbtype if central_enabled else consumer_entity
+            service_key = dbtype if central_enabled else "database"
+            address = _swarm_address(bin_resolver, stack_name, service_key)
+        else:
+            address = container
+
         resolved = {
             "id": db_id,
             "enabled": enabled,
@@ -186,6 +225,7 @@ class LookupModule(LookupBase):
             "type": dbtype,
             "name": name,
             "instance": instance,
+            "address": address,
             "host": host,
             "container": container,
             "network": network,

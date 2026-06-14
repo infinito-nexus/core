@@ -30,7 +30,7 @@
     mode: "700"
     state: directory
 - name: "copy configuration to '{{ DISCOURSE_APPLICATION_YML_DEST }}'"
-  template:
+  stack_host_template:
     src: config.yml.j2
     dest: "{{ DISCOURSE_APPLICATION_YML_DEST }}"
     mode: "0640"

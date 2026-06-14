@@ -1,5 +1,5 @@
-  matrix-mdad:
-    container_name: matrix-mdad
+  {{ MATRIX_MDAD_SERVICE }}:
+    {{ lookup('compose_only', 'container_name', MATRIX_MDAD_CONTAINER) }}
     build:
       context: {{ application_id | abs_role_path_by_application_id }}/files/flavor/ansible/runner
       args:
@@ -8,7 +8,7 @@
         MATRIX_MDAD_RUNNER_DOCKER_CLI_IMAGE: {{ MATRIX_MDAD_RUNNER_DOCKER_CLI_IMAGE }}
         MATRIX_MDAD_RUNNER_DOCKER_CLI_VERSION: {{ MATRIX_MDAD_RUNNER_DOCKER_CLI_VERSION }}
     image: {{ MATRIX_MDAD_RUNNER_IMAGE }}
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('compose_only', 'restart', DOCKER_RESTART_POLICY) }}
     privileged: true
     cgroup: host
     stop_signal: SIGRTMIN+3
@@ -24,9 +24,9 @@
 {% endif %}
     volumes:
       - {{ MATRIX_MDAD_DIR }}:/mdad
-      - matrix_mdad_docker:/var/lib/docker
-      - matrix_mdad_state:/var/lib/matrix-mdad
-      - matrix_mdad_matrix:/matrix
+      - {{ lookup('volume', application_id, 'matrix_mdad_docker').name }}:/var/lib/docker
+      - {{ lookup('volume', application_id, 'matrix_mdad_state').name }}:/var/lib/matrix-mdad
+      - {{ lookup('volume', application_id, 'matrix_mdad_matrix').name }}:/matrix
 {% if (TLS_MODE | lower) == 'self_signed' %}
       - {{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_host }}:ro
 {% endif %}

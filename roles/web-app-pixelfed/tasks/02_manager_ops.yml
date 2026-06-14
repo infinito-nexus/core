@@ -1,0 +1,32 @@
+---
+# Keep the custom entrypoint on disk before the first compose up. If this is
+# moved below the flush, Pixelfed can boot once with the upstream entrypoint and
+# get stuck in the half-initialized state this role is meant to recover from.
+- name: "Deploy '{{ PIXELFED_ENTRYPOINT_HOST_ABS }}'"
+  ansible.builtin.copy:
+    src: "{{ PIXELFED_ENTRYPOINT_FILE }}"
+    dest: "{{ PIXELFED_ENTRYPOINT_HOST_ABS }}"
+    mode: "0755"
+  notify: compose up
+
+- name: "Ensure Pixelfed .env ownership and permissions for www-data"
+  ansible.builtin.file:
+    path: "{{ PIXELFED_ENV_FILE }}"
+    owner: "{{ PIXELFED_APP_USER }}"
+    group: "{{ PIXELFED_APP_USER }}"
+    mode: "0660"
+
+# Flush here on purpose: the application container must start with the
+# repo-managed entrypoint before 02_bootstrap.yml runs any artisan bootstrap.
+- name: "Start Pixelfed containers with the repo-managed entrypoint"
+  ansible.builtin.meta: flush_handlers
+
+- name: "Bootstrap the Pixelfed application"
+  ansible.builtin.import_tasks: 02_bootstrap.yml
+
+- name: "Bootstrap the Pixelfed administrator"
+  ansible.builtin.import_tasks: 03_administrator.yml
+
+- name: "Bootstrap the Pixelfed administrator OIDC mapping"
+  ansible.builtin.import_tasks: 04_oidc_mapping.yml
+  when: PIXELFED_OIDC_ENABLED | bool

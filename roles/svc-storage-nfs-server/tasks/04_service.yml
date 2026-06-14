@@ -1,0 +1,6 @@
+---
+- name: "Enable and start NFS server"
+  ansible.builtin.systemd:
+    name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE[ansible_os_family] }}"
+    enabled: true
+    state: started

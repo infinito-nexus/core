@@ -1,6 +1,51 @@
 ---
-config: mattermost_config
-data: mattermost_data
-logs: mattermost_logs
-plugins: mattermost_plugins
-client-plugins: mattermost_client_plugins
+config:
+  type: volume
+  name: mattermost_config
+  mounts:
+    - service: application
+      target: /mattermost/config
+
+data:
+  type: volume
+  name: mattermost_data
+  mounts:
+    - service: application
+      target: /mattermost/data
+
+logs:
+  type: volume
+  name: mattermost_logs
+  mounts:
+    - service: application
+      target: /mattermost/logs
+
+plugins:
+  type: volume
+  name: mattermost_plugins
+  mounts:
+    - service: application
+      target: /mattermost/plugins
+
+client-plugins:
+  type: volume
+  name: mattermost_client_plugins
+  mounts:
+    - service: application
+      target: /mattermost/client/plugins
+
+timezone:
+  type: bind
+  source: /etc/timezone
+  read_only: true
+  mounts:
+    - service: application
+      target: /etc/timezone
+
+localtime:
+  type: bind
+  source: /etc/localtime
+  read_only: true
+  mounts:
+    - service: application
+      target: /etc/localtime

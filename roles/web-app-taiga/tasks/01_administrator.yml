@@ -1,27 +1,20 @@
 ---
 - name: "Run Taiga migrations (required before admin creation)"
-  command: >
-    compose
-    -f {{ TAIGA_COMPOSE_INIT_PATH }}
-    run --rm {{ TAIGA_MANAGER_SERVICE }}
+  ansible.builtin.shell: >
+    container exec -i
+    {{ TAIGA_MANAGER_CONTAINER_ADDRESS }}
     migrate --noinput
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: taiga_migrate
   changed_when: taiga_migrate.rc == 0
 
 - name: "Create Taiga admin user (idempotent)"
-  command: >
-    compose
-    -f {{ TAIGA_COMPOSE_INIT_PATH }}
-    run --rm
+  ansible.builtin.shell: >
+    container exec -i
     -e DJANGO_SUPERUSER_PASSWORD={{ TAIGA_SUPERUSER_PASSWORD | quote }}
-    {{ TAIGA_MANAGER_SERVICE }}
+    {{ TAIGA_MANAGER_CONTAINER_ADDRESS }}
     createsuperuser --noinput
     --username {{ TAIGA_SUPERUSER_NAME }}
     --email {{ TAIGA_SUPERUSER_EMAIL }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: taiga_create_admin
   changed_when: taiga_create_admin.rc == 0
   failed_when: >
@@ -32,19 +25,15 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Upsert Taiga admin via manage.py shell"
-  command: >
-    compose
-    -f {{ TAIGA_COMPOSE_INIT_PATH }}
-    run --rm
+  ansible.builtin.shell: >
+    container exec -i
     -e DJANGO_SUPERUSER_PASSWORD={{ TAIGA_SUPERUSER_PASSWORD | quote }}
-    {{ TAIGA_MANAGER_SERVICE }}
+    {{ TAIGA_MANAGER_CONTAINER_ADDRESS }}
     shell -c
     "from django.contrib.auth import get_user_model; import os; U=get_user_model(); u,created=U.objects.get_or_create(username='{{ TAIGA_SUPERUSER_NAME }}'); changed=bool(created);
     old=(u.email,u.is_staff,u.is_superuser,u.is_active); u.email='{{ TAIGA_SUPERUSER_EMAIL }}'; u.is_staff=True; u.is_superuser=True; u.is_active=True; changed =
     changed or old!=(u.email,u.is_staff,u.is_superuser,u.is_active); pwd=os.environ.get('DJANGO_SUPERUSER_PASSWORD'); assert pwd, 'Missing DJANGO_SUPERUSER_PASSWORD';
     need_pwd = not u.check_password(pwd); changed = changed or need_pwd; need_pwd and u.set_password(pwd); u.save(); print('CHANGED=1' if changed else 'CHANGED=0')"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: taiga_upsert_admin
   when: taiga_create_admin.rc != 0
   changed_when: "not ASYNC_ENABLED and 'CHANGED=1' in (taiga_upsert_admin.stdout + taiga_upsert_admin.stderr)"

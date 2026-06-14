@@ -1,30 +1,24 @@
 ---
 - name: Check if DKIM private key file exists in the antispam container
-  command: >
-    {{ BIN_COMPOSE }} exec -T antispam
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ANTISPAM_CONTAINER_ADDRESS }}
     test -f {{ MAILU_DKIM_KEY_PATH }}
   register: dkim_key_file_stat
   failed_when: false
   changed_when: false
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
 
 - name: Generate DKIM key
-  command: >
-    {{ BIN_COMPOSE }} exec -T antispam
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ANTISPAM_CONTAINER_ADDRESS }}
     rspamadm dkim_keygen -s dkim -d {{ MAILU_DOMAIN }} -k {{ MAILU_DKIM_KEY_PATH }}
   register: dkim_keygen_output
   when: dkim_key_file_stat.rc != 0
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Fetch DKIM private key from antispam container
-  shell: >
-    {{ BIN_COMPOSE }} exec -T antispam
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ANTISPAM_CONTAINER_ADDRESS }}
     cat {{ MAILU_DKIM_KEY_PATH }}
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
   register: dkim_priv_content
   failed_when: dkim_priv_content.rc != 0
   changed_when: false

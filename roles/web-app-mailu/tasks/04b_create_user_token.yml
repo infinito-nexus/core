@@ -1,11 +1,9 @@
 ---
 - name: "Delete existing API token for '{{ mailu_user_key }};{{ mailu_user_name }}' if local token missing but remote exists"
-  command: >-
-    {{ BIN_COMPOSE }} exec -T admin \
-      curl -s -X DELETE {{ MAILU_API_SERVICE_BASE_URL }}/token/{{ mailu_user_existing_token.id }} \
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+      curl -s -X DELETE {{ MAILU_API_SERVICE_BASE_URL }}/token/{{ mailu_user_existing_token.id }}
         -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
   when:
     - mailu_user_existing_token is not none
     - mailu_user_existing_token.id is defined
@@ -14,51 +12,26 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Create API token for '{{ mailu_user_key }};{{ mailu_user_name }}' if no local token defined"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - exec
-      - -T
-      - admin
-      - curl
-      - -sS
-      - -f
-      - -o
-      - "/tmp/mailu-token-{{ mailu_user_key }}.json"
-      - -X
-      - POST
-      - "{{ MAILU_API_SERVICE_BASE_URL }}/token"
-      - -H
-      - "Authorization: Bearer {{ MAILU_API_TOKEN }}"
-      - -H
-      - "Content-Type: application/json"
-      - -d
-      - >-
-        {{
-          {
-            "comment": mailu_token_name,
-            "email": lookup("users", mailu_user_key).email,
-            "ip": mailu_token_ip
-          } | to_json
-        }}
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+      curl -sS -f -o /tmp/mailu-token-{{ mailu_user_key | quote }}.json
+      -X POST {{ MAILU_API_SERVICE_BASE_URL }}/token
+      -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
+      -H "Content-Type: application/json"
+      -d {{ ({
+              "comment": mailu_token_name,
+              "email": lookup("users", mailu_user_key).email,
+              "ip": mailu_token_ip
+            } | to_json) | quote }}
   register: mailu_token_creation_request
   failed_when: mailu_token_creation_request.rc != 0
   changed_when: mailu_token_creation_request.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Read created API token response for '{{ mailu_user_key }};{{ mailu_user_name }}'"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - exec
-      - -T
-      - admin
-      - cat
-      - "/tmp/mailu-token-{{ mailu_user_key }}.json"
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+      cat /tmp/mailu-token-{{ mailu_user_key | quote }}.json
   register: mailu_token_creation_response
   changed_when: false
   failed_when: mailu_token_creation_response.stdout | trim == ""

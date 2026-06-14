@@ -1,0 +1,77 @@
+---
+- name: "Deploy '{{ MATOMO_BOOTSTRAP_ENV_FILE }}'"
+  stack_host_template:
+    src: "templates/bootstrap.env.j2"
+    dest: "{{ MATOMO_BOOTSTRAP_ENV_FILE }}"
+    mode: "0640"
+    force: true
+  notify: compose up
+
+- name: flush docker service
+  meta: flush_handlers
+
+- name: "Matomo install | Manager-side path (swarm)"
+  when: DEPLOYMENT_MODE == 'swarm'
+  block:
+    - name: "Matomo install | Wait for matomo task to converge"
+      ansible.builtin.shell: |
+        container service ps {{ lookup('container_service', application_id, MATOMO_SERVICE) | quote }} \
+          --filter desired-state=running \
+          --format '{{ "{{.CurrentState}}" }}' \
+          | head -1 | grep -qE '^Running'
+      register: matomo_running_swarm
+      changed_when: false
+      retries: 600
+      delay: 2
+      until: matomo_running_swarm.rc == 0
+
+    - name: "Matomo install | Resolve hosting node"
+      ansible.builtin.shell: |
+        container service ps {{ lookup('container_service', application_id, MATOMO_SERVICE) | quote }} \
+          --filter desired-state=running \
+          --format '{{ "{{.Node}}" }}' | head -1
+      register: matomo_swarm_node_query
+      changed_when: false
+
+    - name: "Matomo install | Set MATOMO_HOST_NODE fact"
+      ansible.builtin.set_fact:
+        MATOMO_HOST_NODE: "{{ matomo_swarm_node_query.stdout | trim }}"
+
+- name: "Matomo install | Manager-side path (compose)"
+  when: DEPLOYMENT_MODE != 'swarm'
+  block:
+    - name: "Matomo install | Wait for matomo container to be running"
+      ansible.builtin.shell: >
+        container inspect -f '{{ "{{" }}.State.Running{{ "}}" }}'
+        {{ lookup('container_address', application_id, MATOMO_SERVICE) }}
+      register: matomo_running_compose
+      changed_when: false
+      retries: 150
+      delay: 2
+      until: >
+        matomo_running_compose.rc == 0 and (matomo_running_compose.stdout | trim) == 'true'
+
+    - name: "Matomo install | Set MATOMO_HOST_NODE fact"
+      ansible.builtin.set_fact:
+        MATOMO_HOST_NODE: "{{ inventory_hostname }}"
+
+- name: "Matomo install | Resolve local container ID on hosting node"
+  ansible.builtin.shell: |
+    {% if DEPLOYMENT_MODE == 'swarm' %}
+    container ps \
+      --filter "label=com.docker.swarm.service.name={{ lookup('container_service', application_id, MATOMO_SERVICE) }}" \
+      --filter status=running \
+      --format '{{ "{{.ID}}" }}' | head -1
+    {% else %}
+    echo {{ MATOMO_NAME | quote }}
+    {% endif %}
+  register: matomo_local_cid_query
+  changed_when: false
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "Matomo install | Set MATOMO_LOCAL_CID fact"
+  ansible.builtin.set_fact:
+    MATOMO_LOCAL_CID: "{{ matomo_local_cid_query.stdout | trim }}"
+
+- name: "Matomo install | Run downstream install path"
+  include_tasks: 04_install_path.yml

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import textwrap
 from collections.abc import Mapping
 from typing import Any
@@ -55,11 +56,12 @@ class LookupModule(LookupBase):
             )
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
+        templar = getattr(self, "_templar", None)
 
         applications = get_merged_applications(
             variables=vars_,
             roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
+            templar=templar,
         )
 
         if application_id not in applications:
@@ -94,7 +96,15 @@ class LookupModule(LookupBase):
             return [""]
 
         indent = int(kwargs.get("indent", 4))
-        body = dump_yaml_str({"depends_on": entries}).rstrip()
+        raw_mode = vars_.get("DEPLOYMENT_MODE", "compose")
+        if templar is not None:
+            with contextlib.suppress(Exception):
+                raw_mode = templar.template(raw_mode)
+        if str(raw_mode).strip() == "swarm":
+            payload: dict[str, object] = {"depends_on": list(entries.keys())}
+        else:
+            payload = {"depends_on": entries}
+        body = dump_yaml_str(payload).rstrip()
         if indent <= 0:
             return [body]
         return [textwrap.indent(body, " " * indent)]

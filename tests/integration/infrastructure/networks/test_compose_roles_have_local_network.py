@@ -6,7 +6,11 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 
 class TestComposeRolesHaveLocalNetwork(unittest.TestCase):
@@ -25,7 +29,7 @@ class TestComposeRolesHaveLocalNetwork(unittest.TestCase):
                 continue
 
             role_name = role_path.name
-            compose_template = role_path / "templates" / "compose.yml.j2"
+            compose_template = role_path / ROLE_FILE_TEMPL_COMPOSE
             if not compose_template.is_file():
                 continue
 

@@ -1,4 +1,5 @@
 ---
+# include-gated: when: DEPLOYMENT_MODE != "swarm"
 - name: create {{ MATRIX_WELL_KNOWN_DIRECTORY }}
   ansible.builtin.file:
     path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"
@@ -6,7 +7,7 @@
     mode: "0755"
 
 - name: create {{ MATRIX_WELL_KNOWN_FILE }}
-  ansible.builtin.template:
+  stack_host_template:
     src: "flavor/compose/well-known.j2"
     dest: "{{ MATRIX_WELL_KNOWN_FILE }}"
 
@@ -25,7 +26,7 @@
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
 
 - name: create {{ MATRIX_SYNAPSE_DOMAIN }}.conf
-  ansible.builtin.template:
+  stack_host_template:
     src: "flavor/compose/synapse.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', MATRIX_SYNAPSE_DOMAIN) }}"
   vars:

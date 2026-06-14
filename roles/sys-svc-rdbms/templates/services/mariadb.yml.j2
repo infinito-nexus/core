@@ -2,11 +2,11 @@
 {% if lookup('database', application_id, 'local') %}
 
   {{ lookup('database', application_id, 'host') }}:
-    container_name: {{ application_id | get_entity_name }}-database
+    {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-database')) }}
     logging:
       driver: journald
     image: {{ lookup('database', application_id, 'image') }}:{{ lookup('database', application_id, 'version') }}
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('compose_restart') }}
     env_file:
       - {{ lookup('database', application_id, 'env') }}
     command: "--transaction-isolation=READ-COMMITTED --binlog-format=ROW"

@@ -1,0 +1,42 @@
+---
+- name: "Matomo install | Check whether Matomo is already installed (config.ini.php exists)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec {{ MATOMO_LOCAL_CID | quote }}
+    sh -lc 'test -f {{ MATOMO_CONFIG | quote }}'
+  register: matomo_config_exists
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "Bootstrap Matomo (Initialisation and setting of API token if not defined)"
+  include_tasks: 05_bootstrap.yml
+  when: >
+    (matomo_config_exists.rc != 0) or
+    ((lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
+
+# Exception: matrix-deploy round-2 uses different MariaDB creds; without rewriting
+# config.ini.php before the healthy-probe, matomo loops on "Database access denied".
+- name: "Patch database credentials for {{ application_id }}"
+  include_tasks: 07_patch_database.yml
+  when: matomo_config_exists.rc == 0
+
+- name: "Patch Trusted Hosts for {{ application_id }}"
+  include_tasks: 08_patch_trusted_hosts.yml
+
+- name: flush docker service
+  meta: flush_handlers
+
+- name: "Matomo install | Wait for Matomo container to be healthy"
+  ansible.builtin.shell: >
+    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    {{ MATOMO_LOCAL_CID | quote }}
+  register: matomo_health
+  changed_when: false
+  retries: 60
+  delay: 2
+  until: >
+    matomo_health.rc == 0 and (matomo_health.stdout | trim) == 'healthy'
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "Config '{{ application_id }}' via API"
+  include_tasks: 09_config.yml

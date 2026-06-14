@@ -60,7 +60,7 @@
       }}
 
 - name: "Deploy NGINX config: '{{ front_proxy_domain }}' -> '{{ front_proxy_domain_conf_dst_resolved }}'"
-  ansible.builtin.template:
+  stack_host_template:
     src: "{{ front_proxy_template_src }}"
     dest: "{{ front_proxy_domain_conf_dst_resolved }}"
   vars:

@@ -1,6 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {{ FEDIWALL_SERVICE }}:
-    container_name: "{{ FEDIWALL_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', FEDIWALL_CONTAINER) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         FEDIWALL_IMAGE:         "{{ FEDIWALL_IMAGE }}"
@@ -13,6 +13,6 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

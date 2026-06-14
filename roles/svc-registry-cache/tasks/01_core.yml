@@ -1,0 +1,7 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: true

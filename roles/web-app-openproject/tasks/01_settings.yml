@@ -14,10 +14,8 @@
 
 - name: Run database migrations
   shell: >
-    {{ BIN_COMPOSE }} exec {{ OPENPROJECT_WEB_SERVICE }} bash -lc
+    container exec -i {{ OPENPROJECT_WEB_CONTAINER_ADDRESS | quote }} bash -lc
     "cd /app && bin/rails db:migrate RAILS_ENV=production"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: openproject_migrate
   retries: 30
   delay: 10
@@ -34,10 +32,9 @@
 
 - name: Set settings in OpenProject (rails runner via STDIN; robust quoting + booleans)
   shell: >
-    {{ BIN_COMPOSE }} exec {{ OPENPROJECT_WEB_SERVICE }} bash -lc
+    container exec -i {{ OPENPROJECT_WEB_CONTAINER_ADDRESS | quote }} bash -lc
     "cd /app && cat | bundle exec rails runner -"
   args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     stdin: |
       {% for kv in (OPENPROJECT_RAILS_SETTINGS | dict2items) %}
       Setting[:{{ kv.key }}] = {{ kv.value | to_json }}

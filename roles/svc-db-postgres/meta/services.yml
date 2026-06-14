@@ -1,5 +1,7 @@
 ---
 postgres:
+  # nocheck: default-placement-manager  central RDBMS, single-node until multi-replica replication (streaming / logical) is in scope
+  default_placement: manager
   enabled: true
   shared: true
   image: postgis/postgis

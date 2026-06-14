@@ -15,7 +15,7 @@
   include_tasks: "_mtu.yml"
 
 - name: Configure docker daemon storage driver (container)
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host docker daemon config, runs on every container-host)
     src: daemon.json.j2
     dest: "{{ SYS_SVC_DOCKER_DAEMON }}"
     mode: "0644"

@@ -6,7 +6,8 @@
     compose_handlers_flush: false
 
 - name: add config.exs
-  template:
+  stack_host_template:
     src: "config.exs.j2"
     dest: "{{ mobilizon_host_conf_exs_file }}"
   notify: compose up
+  when: IS_STACK_HOST | bool

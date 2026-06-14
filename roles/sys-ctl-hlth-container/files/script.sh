@@ -51,6 +51,38 @@ if [ -n "$docker_ps_grep_exited" ]; then
     done
 fi
 
+if command -v container >/dev/null 2>&1; then
+    swarm_state="$(container info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || echo inactive)"
+    is_manager="$(container info --format '{{.Swarm.ControlAvailable}}' 2>/dev/null || echo false)"
+    if [ "$swarm_state" = "active" ] && [ "$is_manager" = "true" ]; then
+        swarm_problems="$(container service ls --format '{{.Name}} {{.Replicas}}' 2>/dev/null \
+            | awk '{
+                split($2, a, "/");
+                if (a[1] != a[2]) {
+                    print $1 " " $2;
+                }
+            }')"
+        if [ -n "$swarm_problems" ]; then
+            echo "❌ Swarm services not fully converged:"
+            echo "$swarm_problems"
+            echo
+            while read -r service_name replicas; do
+                echo "------------------------------------------------------------"
+                echo "🔍 Recent tasks for swarm service: $service_name ($replicas)"
+                echo "------------------------------------------------------------"
+                container service ps --no-trunc "$service_name" 2>&1 | head -20 \
+                    || echo "⚠️ Failed to fetch tasks for $service_name"
+                summary="$summary\n - $service_name (swarm replicas $replicas)"
+            done <<EOF
+$swarm_problems
+EOF
+            if [ "$exitcode" -lt 1 ]; then
+                exitcode=1
+            fi
+        fi
+    fi
+fi
+
 if [ "$exitcode" -ne "0" ]; then
     echo "============================================================"
     echo "🚨 SUMMARY: Unhealthy / Failed Docker Containers"

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from typing import Any
+from typing import Any, ClassVar
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -23,12 +23,12 @@ def _apps(*, db_enabled=False, db_shared=False, redis=False, oauth2=False):
     }
 
 
-def _run(app_id, applications, **kwargs):
+def _run(app_id, applications, *, variables=None, **kwargs):
     with patch(
         "plugins.lookup.container_depends_on.get_merged_applications",
         return_value=applications,
     ):
-        return LookupModule().run([app_id], variables={}, **kwargs)
+        return LookupModule().run([app_id], variables=variables or {}, **kwargs)
 
 
 def _parse(rendered: str) -> dict[str, Any]:
@@ -116,6 +116,51 @@ class TestContainerDependsOnLookup(unittest.TestCase):
     def test_indent_zero(self):
         out = _run("app", _apps(redis=True), indent=0)[0]
         self.assertTrue(out.startswith("depends_on:"))
+
+    def test_swarm_mode_emits_list_form_without_conditions(self):
+        out = _run(
+            "app",
+            _apps(db_enabled=True, redis=True),
+            variables={"DEPLOYMENT_MODE": "swarm"},
+        )[0]
+        parsed = _parse(out)
+        self.assertEqual(set(parsed.keys()), {"depends_on"})
+        self.assertEqual(sorted(parsed["depends_on"]), ["database", "redis"])
+        self.assertNotIn("condition", out)
+
+    def test_compose_mode_keeps_map_form_with_conditions(self):
+        out = _run(
+            "app",
+            _apps(db_enabled=True),
+            variables={"DEPLOYMENT_MODE": "compose"},
+        )[0]
+        self.assertEqual(
+            _parse(out),
+            {"depends_on": {"database": {"condition": "service_healthy"}}},
+        )
+
+    def test_unresolved_jinja_deployment_mode_is_templated(self):
+        jinja_expr = (
+            "{{ 'swarm' if (groups['svc-swarm-node'] | default([]) | length) > 1 "
+            "else 'compose' }}"
+        )
+
+        class _StubTemplar:
+            available_variables: ClassVar[dict[str, Any]] = {}
+
+            def template(self, value):
+                return "swarm" if value == jinja_expr else value
+
+        lookup = LookupModule()
+        lookup._templar = _StubTemplar()
+        with patch(
+            "plugins.lookup.container_depends_on.get_merged_applications",
+            return_value=_apps(db_enabled=True, redis=True),
+        ):
+            out = lookup.run(["app"], variables={"DEPLOYMENT_MODE": jinja_expr})[0]
+        parsed = _parse(out)
+        self.assertEqual(sorted(parsed["depends_on"]), ["database", "redis"])
+        self.assertNotIn("condition", out)
 
 
 if __name__ == "__main__":

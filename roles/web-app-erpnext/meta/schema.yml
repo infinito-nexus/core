@@ -1,17 +1,20 @@
 ---
 credentials:
   initial_admin_password:
-    description: "Password seeded for the Frappe `Administrator` user on first deploy via `bench new-site --admin-password`. Local break-glass credential when OIDC is unavailable."
+    description: "Password seeded for the Frappe `Administrator` user on first deploy via `bench new-site --admin-password`. Local break-glass credential when OIDC
+      is unavailable."
     algorithm: alphanumeric
     validation: "^[A-Za-z0-9]{16,}$"
     length: 32
   api_bot_password:
-    description: "Local password for the role-internal `erpnext-api-bot` user that backs Basic-auth REST-API calls (Playwright). Alphanumeric on purpose to keep the Ansible -> bash -> container-exec -> Python ENV.fetch chain shell-safe."
+    description: "Local password for the role-internal `erpnext-api-bot` user that backs Basic-auth REST-API calls (Playwright). Alphanumeric on purpose to keep the
+      Ansible -> bash -> container-exec -> Python ENV.fetch chain shell-safe."
     algorithm: alphanumeric
     validation: "^[A-Za-z0-9]{32,}$"
     length: 48
   api_key_secret:
-    description: "Long-lived Frappe API key:secret pair used by `tasks/` for post-bootstrap configuration (Social Login Key creation, role assignments). Stored as a single alphanumeric blob; the role splits it at the colon at use time."
+    description: "Long-lived Frappe API key:secret pair used by `tasks/` for post-bootstrap configuration (Social Login Key creation, role assignments). Stored as
+      a single alphanumeric blob; the role splits it at the colon at use time."
     algorithm: alphanumeric
     validation: "^[A-Za-z0-9]{32,}$"
     length: 64

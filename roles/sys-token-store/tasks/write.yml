@@ -39,7 +39,7 @@
       }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Persist store (idempotent)"
+- name: "Persist store (idempotent, single-writer via STACK_HOST)"
   ansible.builtin.copy:
     dest: "{{ FILE_TOKENS }}"
     owner: "{{ SYS_TOKEN_STORE_OWNER }}"
@@ -47,5 +47,7 @@
     mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
     content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
   when: sys_token_store_users_merged != sys_token_store_users
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   become: true

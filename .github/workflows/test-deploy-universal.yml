@@ -75,7 +75,7 @@ jobs:
         run: ./scripts/github/resolve/output_apps.sh
 
   universal:
-    name: ✨ Deploy ${{ matrix.apps }}
+    name: ✨ Universal ${{ matrix.apps }}
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 360

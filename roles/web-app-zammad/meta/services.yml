@@ -46,6 +46,7 @@ memcached:
 zammad:
   image: ghcr.io/zammad/zammad
   version: "6.5.0"
+  name: zammad-railsserver
   min_storage: 15GB
   ports:
     local:

@@ -1,7 +1,7 @@
 ---
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {{ LITTLEJS_SERVICE }}:
-    container_name: {{ LITTLEJS_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', LITTLEJS_CONTAINER) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         LITTLEJS_IMAGE:          "{{ LITTLEJS_IMAGE }}"
@@ -14,6 +14,6 @@
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.littlejs.ports.local.http') }}:80
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,5 +1,21 @@
 ---
-- name: "Ensure docker network for '{{ network_role_id }}' exists"
+- name: "Ensure docker overlay network for '{{ network_role_id }}' exists (swarm scope)"
+  community.docker.docker_network:
+    name: "{{ network_role_id | get_entity_name }}"
+    state: present
+    driver: overlay
+    attachable: true
+    scope: swarm
+    driver_options:
+      encrypted: "{{ 'true' if swarm.network.encryption else 'false' }}"
+    labels:
+      com.docker.compose.network: "default"
+      com.docker.compose.project: "{{ network_role_id | get_entity_name }}"
+  when: SWARM_CLUSTER_AVAILABLE | bool
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "Ensure docker bridge network for '{{ network_role_id }}' exists (compose mode, no swarm)"
   community.docker.docker_network:
     name: "{{ network_role_id | get_entity_name }}"
     state: present
@@ -8,3 +24,4 @@
       com.docker.compose.project: "{{ network_role_id | get_entity_name }}"
     ipam_config:
       - subnet: "{{ lookup('config', network_role_id, 'server.networks.local.subnet') }}"
+  when: not (SWARM_CLUSTER_AVAILABLE | bool)

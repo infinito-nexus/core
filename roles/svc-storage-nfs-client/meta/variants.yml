@@ -1,0 +1,9 @@
+---
+- services:
+    nfs-server:
+      enabled: true
+      shared: true
+- services:
+    nfs-server:
+      enabled: false
+      shared: false

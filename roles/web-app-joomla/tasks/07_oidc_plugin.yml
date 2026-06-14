@@ -16,7 +16,7 @@
     argv:
       - container
       - exec
-      - "{{ JOOMLA_CONTAINER }}"
+      - "{{ JOOMLA_CONTAINER_ADDRESS }}"
       - rm
       - -rf
       - "{{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}"
@@ -41,7 +41,7 @@
       - "COMPOSER_HOME=/tmp/composer-home"
       - -e
       - "COMPOSER_ALLOW_SUPERUSER=1"
-      - "{{ JOOMLA_CONTAINER }}"
+      - "{{ JOOMLA_CONTAINER_ADDRESS }}"
       - composer
       - install
       - "--working-dir={{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}"
@@ -60,8 +60,8 @@
 # ownership stops the loop and lets `extension:install` actually
 # perform the install.
 - name: "Ensure Joomla cache directories are writable by the web user"
-  ansible.builtin.shell: "container exec {{ JOOMLA_CONTAINER }} bash -lc 'mkdir -p /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chown
-    -R {{ JOOMLA_WEB_USER }}:{{ JOOMLA_WEB_USER }} /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chmod -R u+rwX /var/www/html/administrator/cache
+  ansible.builtin.shell: "container exec {{ JOOMLA_CONTAINER_ADDRESS }} bash -lc 'mkdir -p /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp
+    && chown -R {{ JOOMLA_WEB_USER }}:{{ JOOMLA_WEB_USER }} /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chmod -R u+rwX /var/www/html/administrator/cache
     /var/www/html/cache /var/www/html/tmp'"
   changed_when: false
 
@@ -77,7 +77,7 @@
     argv:
       - container
       - exec
-      - "{{ JOOMLA_CONTAINER }}"
+      - "{{ JOOMLA_CONTAINER_ADDRESS }}"
       - php
       - -r
       - >-
@@ -103,7 +103,7 @@
       - exec
       - --user
       - "{{ JOOMLA_WEB_USER }}"
-      - "{{ JOOMLA_CONTAINER }}"
+      - "{{ JOOMLA_CONTAINER_ADDRESS }}"
       - php
       - -d
       - memory_limit=512M
@@ -122,8 +122,8 @@
 # pipe is shell-form because Ansible argv mode doesn't let pipes
 # through.
 - name: "Resolve plg_system_keycloak extension ID"
-  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_CONTAINER }} php -d memory_limit=512M {{ JOOMLA_CLI_FILE }} extension:list | awk '/plg_system_keycloak/
-    {print $2; exit}'"
+  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_CONTAINER_ADDRESS }} php -d memory_limit=512M {{ JOOMLA_CLI_FILE }} extension:list
+    | awk '/plg_system_keycloak/ {print $2; exit}'"
   register: plugin_id_lookup
   changed_when: false
   failed_when: plugin_id_lookup.stdout | trim | length == 0
@@ -135,7 +135,7 @@
       - exec
       - --user
       - "{{ JOOMLA_WEB_USER }}"
-      - "{{ JOOMLA_CONTAINER }}"
+      - "{{ JOOMLA_CONTAINER_ADDRESS }}"
       - php
       - -d
       - memory_limit=512M

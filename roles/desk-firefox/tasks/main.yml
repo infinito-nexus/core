@@ -11,7 +11,7 @@
     mode: "0755"
 
 - name: Deploy Firefox Enterprise Policies file
-  template:
+  template: # nocheck: stack-host-template (per-host workstation firefox policy)
     src: policies.json.j2
     dest: "{{ firefox_policy_file }}"
     mode: "0644"

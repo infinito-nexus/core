@@ -16,7 +16,6 @@ class _FakeTlsResolveLookup:
         self._protocol = protocol
 
     def run(self, terms, variables=None, **kwargs):
-        # New API: second positional term is want-path
         if len(terms) != 2 or terms[1] != "protocols.web":
             raise AssertionError(f"Unexpected terms passed to tls: {terms}")
 
@@ -35,16 +34,22 @@ class TestNginxPathsLookup(unittest.TestCase):
         }
 
     def _fake_get(self, applications, app_id, key, strict=True):
-        if key == "volumes.www":
+        if key == "volumes.www.path":
             return "/opt/mock/www"
-        if key == "volumes.nginx":
+        if key == "volumes.nginx.path":
             return "/opt/mock/nginx"
         raise KeyError(key)
 
     def _run(self, terms, **kwargs):
-        with patch(
-            "plugins.lookup.nginx.get",
-            side_effect=self._fake_get,
+        with (
+            patch(
+                "plugins.lookup.nginx.get",
+                side_effect=self._fake_get,
+            ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value={},
+            ),
         ):
             return self.plugin.run(terms, variables=self.variables, **kwargs)[0]
 
@@ -96,6 +101,26 @@ class TestNginxPathsLookup(unittest.TestCase):
         # well_known is container path → must NOT be part of host dir creation
         self.assertNotIn("/usr/share/nginx/well-known/", ensure_paths)
 
+    def test_canonical_dict_supplies_volume_paths(self):
+        canonical = {
+            "www": {"type": "volume", "path": "/opt/canonical/www"},
+            "nginx": {"type": "volume", "path": "/opt/canonical/nginx"},
+        }
+        with (
+            patch(
+                "plugins.lookup.nginx.get",
+                side_effect=AssertionError(
+                    "get() must not be called when canonical paths are present"
+                ),
+            ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value=canonical,
+            ),
+        ):
+            out = self.plugin.run(["files.configuration"], variables=self.variables)[0]
+        self.assertEqual(out, "/opt/canonical/nginx/nginx.conf")
+
     def test_domain_uses_tls_when_no_override(self):
         fake_tls = _FakeTlsResolveLookup("https")
 
@@ -103,6 +128,10 @@ class TestNginxPathsLookup(unittest.TestCase):
             patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
+            ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value={},
             ),
             patch(
                 "plugins.lookup.nginx.lookup_loader.get",
@@ -119,11 +148,14 @@ class TestNginxPathsLookup(unittest.TestCase):
         )
 
     def test_domain_protocol_override_http(self):
-        # tls should NOT be consulted when override is present
         with (
             patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
+            ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value={},
             ),
             patch(
                 "plugins.lookup.nginx.lookup_loader.get",
@@ -149,6 +181,10 @@ class TestNginxPathsLookup(unittest.TestCase):
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value={},
+            ),
             self.assertRaises(AnsibleError),
         ):
             self.plugin.run(
@@ -158,15 +194,19 @@ class TestNginxPathsLookup(unittest.TestCase):
             )
 
     def test_invalid_usage_raises(self):
-        with patch(
-            "plugins.lookup.nginx.get",
-            side_effect=self._fake_get,
+        with (
+            patch(
+                "plugins.lookup.nginx.get",
+                side_effect=self._fake_get,
+            ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value={},
+            ),
         ):
-            # want-path missing
             with self.assertRaises(AnsibleError):
                 self.plugin.run([], variables=self.variables)
 
-            # too many terms
             with self.assertRaises(AnsibleError):
                 self.plugin.run(
                     ["files.domain", "example.com", "extra"], variables=self.variables

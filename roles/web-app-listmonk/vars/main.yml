@@ -1,9 +1,7 @@
 ---
-# General 
 application_id: "web-app-listmonk"
 container_port: "{{ lookup('config', application_id, 'services.listmonk.ports.internal.http') }}"
 
-# Listmonk
 LISTMONK_VERSION: "{{ lookup('config', application_id, 'services.listmonk.version') }}"
 LISTMONK_IMAGE: "{{ lookup('config', application_id, 'services.listmonk.image') }}"
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
@@ -12,13 +10,12 @@ LISTMONK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enable
 
 LISTMONK_PUBLIC_API_ENABLED: "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
 
-# User Configuration
 LISTMONK_USER_SEND: "newsletter"
 LISTMONK_USER_BOUNCE: "bounce"
 
-LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'container') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
+LISTMONK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'application') }}"
+LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'address') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
   lookup('database', application_id, 'name') }}"
-LISTMONK_RUN: "{{ BIN_COMPOSE }} run -T --rm application"
 LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"
 
 LISTMONK_SETTINGS:
@@ -28,7 +25,6 @@ LISTMONK_SETTINGS:
   - key: "app.notify_emails"
     value: "{{ [ lookup('users', 'administrator').email ] | to_json }}"
 
-  # OIDC integration (conditional)
   - key: "security.oidc"
     value: >-
       {{ {
@@ -39,7 +35,6 @@ LISTMONK_SETTINGS:
       } | to_json }}
     when: LISTMONK_OIDC_ENABLED | bool
 
-  # hCaptcha toggles and credentials
   - key: "security.enable_captcha"
     value: "true"
 
@@ -49,7 +44,6 @@ LISTMONK_SETTINGS:
   - key: "security.captcha_secret"
     value: "\"{{ lookup('config', application_id, 'credentials.hcaptcha.secret') }}\""
 
-  # SMTP servers
   - key: "smtp"
     value: >-
       {{ [
@@ -91,11 +85,9 @@ LISTMONK_SETTINGS:
   - key: "app.site_name"
     value: '"{{ service_provider.company.titel }} Mailing list"'
 
-  # Enable the bounce module
   - key: "bounce.enabled"
     value: "true"
 
-  # Configure POP3 mailbox for processing bounces
   - key: "bounce.mailboxes"
     value: >-
       {{ [

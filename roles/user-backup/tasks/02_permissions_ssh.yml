@@ -8,7 +8,7 @@
     mode: "0700"
 
 - name: "create {{ USER_BACKUP_WRAPPER_DST }}"
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host backup user wrapper, lives in backup home on every backed-up host)
     src: "ssh-wrapper.sh.j2"
     dest: "{{ USER_BACKUP_WRAPPER_DST }}"
     owner: backup

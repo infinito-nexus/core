@@ -1,4 +1,5 @@
 ---
+# include-gated: when: DEPLOYMENT_MODE != "swarm"
 # Expected from caller (loop):
 # - database_name
 # - database_username
@@ -24,4 +25,6 @@
     database_name: "{{ database_name }}"
     database_username: "{{ database_username }}"
     database_password: "{{ database_password }}"
-  when: "'svc-bkp-container-2-local' in group_names"
+  when:
+    - "'svc-bkp-container-2-local' in group_names"
+    - IS_STACK_HOST | bool

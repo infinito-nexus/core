@@ -1,3 +1,98 @@
 ---
-data: prometheus_data
-alertmanager_data: prometheus_alertmanager_data
+data:
+  type: volume
+  name: prometheus_data
+  mounts:
+    - service: application
+      target: /prometheus
+
+alertmanager_data:
+  type: volume
+  name: prometheus_alertmanager_data
+  mounts:
+    - service: alertmanager
+      target: /alertmanager
+
+prometheus_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-prometheus', 'directories.config'), 'prometheus.yml'] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: application
+      target: /etc/prometheus/prometheus.yml
+
+alert_rules:
+  type: config
+  source: "{{ [lookup('container', 'web-app-prometheus', 'directories.config'), 'alert_rules.yml'] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: application
+      target: /etc/prometheus/alert_rules.yml
+
+blackbox_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-prometheus', 'directories.config'), 'blackbox.yml'] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: blackbox-exporter
+      target: /etc/blackbox_exporter/config.yml
+
+alertmanager_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-prometheus', 'directories.config'), 'alertmanager.yml'] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: alertmanager
+      target: /etc/alertmanager/alertmanager.yml
+
+host_rootfs:
+  type: bind
+  source: "/"
+  read_only: true
+  mounts:
+    - service: cadvisor
+      target: /rootfs
+    - service: node-exporter
+      target: /rootfs
+
+host_var_run:
+  type: bind
+  source: "/var/run"
+  read_only: true
+  mounts:
+    - service: cadvisor
+      target: /var/run
+
+host_sys:
+  type: bind
+  source: "/sys"
+  read_only: true
+  mounts:
+    - service: cadvisor
+      target: /sys
+    - service: node-exporter
+      target: /host/sys
+
+host_var_lib_docker:
+  type: bind
+  source: "/var/lib/docker/"
+  read_only: true
+  mounts:
+    - service: cadvisor
+      target: /var/lib/docker
+
+host_dev_disk:
+  type: bind
+  source: "/dev/disk/"
+  read_only: true
+  mounts:
+    - service: cadvisor
+      target: /dev/disk
+
+host_proc:
+  type: bind
+  source: "/proc"
+  read_only: true
+  mounts:
+    - service: node-exporter
+      target: /host/proc

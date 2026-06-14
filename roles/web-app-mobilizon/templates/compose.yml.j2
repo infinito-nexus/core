@@ -1,10 +1,8 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   application:
     image: "{{ mobilizon_image }}{{ ':' ~ mobilizon_version if mobilizon_version }}"
-    container_name: "{{ mobilizon_container }}"
-    volumes:
-      - uploads:/var/lib/mobilizon/uploads
-      - {{ mobilizon_host_conf_exs_file }}:/etc/mobilizon/config.exs:ro
+    {{ lookup('compose_only', 'container_name', mobilizon_container) }}
+    {{ lookup('container_volumes', application_id, 'application') | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mobilizon.ports.local.http') }}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
@@ -12,9 +10,5 @@
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'uploads': {}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
-

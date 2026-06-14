@@ -1,11 +1,18 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "Create LDIF directories under {{ OPENLDAP_LDIF_PATH_HOST }} (must exist before swarm stack bind-mount)"
+  file:
+    path: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ OPENLDAP_LDIF_TYPES }}"
+
 - name: Initialize docker
   include_tasks: 02_docker.yml
 
 - name: Create {{ lookup('domain',application_id) }}.conf if LDAP is exposed to internet
-  template:
+  stack_host_template:
     src: "nginx.stream.conf.j2"
     dest: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
   notify: restart openresty
@@ -24,10 +31,11 @@
     delay: 5
     timeout: 120
     state: started
+  when: DEPLOYMENT_MODE != 'swarm'
 
 - name: Check if current RootDN/RootPW already work
   ansible.builtin.shell: >
-    container exec {{ OPENLDAP_CONTAINER }}
+    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
     ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "{{ OPENLDAP_BIND_PW }}"
   register: openldap_bind_check
   changed_when: false
@@ -42,16 +50,9 @@
 
 # NOTE: Credentials reset removed (Bitnami-specific). RootDN/RootPW are bootstrapped via container env.
 
-- name: "Create LDIF directories under {{ OPENLDAP_LDIF_PATH_HOST }}"
-  file:
-    path: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ item }}"
-    state: directory
-    mode: "0755"
-  loop: "{{ OPENLDAP_LDIF_TYPES }}"
-
 - name: Set OPENLDAP_MODULE_DN (from filesystem)
   shell: >
-    container exec {{ OPENLDAP_CONTAINER }}
+    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
     sh -lc 'grep -m1 "^dn: " /etc/ldap/slapd.d/cn=config/cn=module{0}.ldif | sed "s/^dn: //"'
   register: openldap_module_dn_raw
   changed_when: false
@@ -67,7 +68,7 @@
 
 - name: Query available LDAP databases
   shell: >
-    container exec {{ OPENLDAP_CONTAINER }}
+    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
     ldapsearch -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }} -LLL -b cn=config "(olcDatabase=*)" dn
   register: ldap_databases
   changed_when: false

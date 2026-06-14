@@ -8,7 +8,7 @@
   when: run_once_sys_svc_journalctl is not defined
 
 - name: copy journald.conf
-  template:
+  template: # nocheck: stack-host-template (per-host /etc/systemd/journald.conf, not stack-host-only)
     src: templates/journald.conf.j2
     dest: /etc/systemd/journald.conf
   notify: restart systemd-journald

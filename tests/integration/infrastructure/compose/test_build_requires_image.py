@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
@@ -37,7 +38,7 @@ class TestComposeBuildTemplateRequiresImageTag(unittest.TestCase):
         roles_dir = repo_root / "roles"
         if not roles_dir.is_dir():
             return []
-        return sorted(roles_dir.glob("*/templates/compose.yml.j2"))
+        return sorted(roles_dir.glob(f"*/{ROLE_FILE_TEMPL_COMPOSE}"))
 
     @staticmethod
     def _indent_len(line: str) -> int:
@@ -85,7 +86,7 @@ class TestComposeBuildTemplateRequiresImageTag(unittest.TestCase):
 
         self.assertTrue(
             compose_files,
-            f"No compose templates found under {(repo_root / 'roles').as_posix()}/ */templates/compose.yml.j2",
+            f"No compose templates found under {(repo_root / 'roles').as_posix()}/*/{ROLE_FILE_TEMPL_COMPOSE}",
         )
 
         violations: list[str] = []

@@ -2,7 +2,7 @@
   nginx:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: {{ COTURN_GATEWAY_IMAGE }}:{{ COTURN_GATEWAY_VERSION }}
-    container_name: {{ entity_name }}_nginx
+    {{ lookup('compose_only', 'container_name', entity_name ~ '_nginx') }}
     ports:
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.coturn.ports.local.http') }}:80
     command: >
@@ -13,7 +13,7 @@
   coturn:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: {{ COTURN_IMAGE }}:{{ COTURN_VERSION }}
-    container_name: {{ COTURN_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', COTURN_CONTAINER) }}
     network_mode: {{ COTURN_NETWORK_MODE }}
 {% if COTURN_NETWORK_MODE == 'bridge' %}
     ports:
@@ -25,12 +25,7 @@
       - "{{ COTURN_RELAY_PORT_RANGE }}/udp"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% endif %}
-    volumes:
-{% if COTURN_TLS_ENABLED| bool %}
-      - "{{ COTURN_TLS_CERT_PATH }}:{{ COTURN_TLS_CERT_PATH }}:ro"
-      - "{{ COTURN_TLS_KEY_PATH }}:{{ COTURN_TLS_KEY_PATH }}:ro"
-{% endif %}
-      - "data:/var/lib/coturn"
+    {{ lookup('container_volumes', application_id, 'coturn') | indent(4) }}
     command: >
 {% if COTURN_USER_AUTH_ENABLED | bool %}
       --lt-cred-mech
@@ -67,7 +62,4 @@
       start_period: 10s
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': COTURN_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}

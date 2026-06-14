@@ -71,16 +71,12 @@ MOODLE_IMAGE: "{{ lookup('config', application_id, 'services.moodle.image') }}"
 MOODLE_VERSION: "{{ lookup('config', application_id, 'services.moodle.version') }}"
 MOODLE_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 MOODLE_CONTAINER: "{{ lookup('config', application_id, 'services.moodle.name') }}"
+MOODLE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 MOODLE_NGINX_IMAGE: "{{ lookup('config', application_id, 'services.nginx.image') }}"
 MOODLE_NGINX_VERSION: "{{ lookup('config', application_id, 'services.nginx.version') }}"
 MOODLE_NGINX_CONTAINER: "{{ lookup('config', application_id, 'services.nginx.name') }}"
 MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name') }}"
 
-# Volumes
-MOODLE_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data') }}"
-MOODLE_VOLUME_CODE: "{{ lookup('config', application_id, 'volumes.code') }}"
-
-# Identity-integration toggles
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', true) }}"
 
@@ -92,10 +88,8 @@ MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled
 MOODLE_OIDC_CUSTOM_SCOPE: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.moodle') }}"
 MOODLE_OIDC_SCOPES: "openid profile email phone address {{ MOODLE_OIDC_CUSTOM_SCOPE }}"
 
-# Site title pass-through
 MOODLE_SITE_TITLE: "{{ lookup('config', application_id, 'services.moodle.site_titel') }}"
 
-# Container internal ports
 MOODLE_FPM_PORT: 9000
 MOODLE_NGINX_PORT: 80
 

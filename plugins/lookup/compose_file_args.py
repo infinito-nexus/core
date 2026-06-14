@@ -128,7 +128,14 @@ class LookupModule(LookupBase):
         templar = getattr(self, "_templar", None)
 
         # ALWAYS build compose via utils (no dependency on variables['compose'])
-        base_dir = _as_str(variables.get("DIR_COMPOSITIONS"))
+        raw_base_dir = variables.get("DIR_COMPOSITIONS")
+        if (
+            isinstance(raw_base_dir, str)
+            and "{{" in raw_base_dir
+            and templar is not None
+        ):
+            raw_base_dir = templar.template(raw_base_dir)
+        base_dir = _as_str(raw_base_dir)
         if not base_dir:
             raise AnsibleError(
                 "compose_file_args: missing required variable 'DIR_COMPOSITIONS'"

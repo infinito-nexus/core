@@ -27,9 +27,6 @@ OPENTALK_LIVEKIT_TCP_PORT: 7881
 OPENTALK_LIVEKIT_RTC_START: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.start') }}"
 OPENTALK_LIVEKIT_RTC_END: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.end') }}"
 
-OPENTALK_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-OPENTALK_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
-
 OPENTALK_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENTALK_DOMAIN: "{{ lookup('domain', application_id) }}"
 
@@ -39,6 +36,7 @@ OPENTALK_LIVEKIT_API_KEY: "controller"
 OPENTALK_LIVEKIT_API_SECRET: "{{ lookup('config', application_id, 'credentials.livekit_api_secret') }}"
 
 OPENTALK_MINIO_CONTAINER: "{{ lookup('config', application_id, 'services.minio.name') }}"
+OPENTALK_MINIO_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'minio') }}"
 OPENTALK_MINIO_IMAGE: "{{ lookup('config', application_id, 'services.minio.image') }}"
 OPENTALK_MINIO_VERSION: "{{ lookup('config', application_id, 'services.minio.version') }}"
 OPENTALK_MINIO_USER: "{{ lookup('config', application_id, 'credentials.minio_root_user') }}"
@@ -63,6 +61,7 @@ OPENTALK_RECORDER_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'cred
 
 # Keycloak Admin API (controller user-search backend)
 OPENTALK_KEYCLOAK_BASE_URL: "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$','') }}"
+OPENTALK_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 OPENTALK_KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 
 # The shared `infinito.nexus` Keycloak client is public so it cannot

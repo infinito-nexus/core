@@ -2,21 +2,18 @@
 
   application:
     image: "{{ PIXELFED_IMAGE }}:{{ PIXELFED_VERSION }}"
-    container_name: {{ PIXELFED_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', PIXELFED_CONTAINER) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     # Keep the application on the repo-managed entrypoint so the container is
     # ready for the Ansible bootstrap before Pixelfed's own first-start logic.
     entrypoint: "{{ PIXELFED_ENTRYPOINT_DOCKER }}"
-    volumes:
-      - "data:/var/www/storage"
-      - "{{ PIXELFED_ENV_FILE }}:/var/www/.env"
-      - "{{ PIXELFED_ENTRYPOINT_HOST_ABS }}:{{ PIXELFED_ENTRYPOINT_DOCKER }}:ro"
+    {{ lookup('container_volumes', application_id, 'application') | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pixelfed.ports.local.http') }}:80"
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
   worker:
-    container_name: {{ PIXELFED_WORKER_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', PIXELFED_WORKER_CONTAINER) }}
     image: "{{ PIXELFED_IMAGE }}:{{ PIXELFED_VERSION }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     environment:
@@ -24,9 +21,7 @@
       AUTORUN_LARAVEL_ROUTE_CACHE: "false"
       AUTORUN_LARAVEL_VIEW_CACHE: "false"
       AUTORUN_ENABLED: "false"
-    volumes:
-      - "data:/var/www/storage"
-      - "{{ PIXELFED_ENV_FILE }}:/var/www/.env"
+    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
     entrypoint: /worker-entrypoint.sh
     healthcheck:
       test: php artisan horizon:status | grep running
@@ -38,8 +33,5 @@
 }) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': PIXELFED_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

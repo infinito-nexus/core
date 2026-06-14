@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
@@ -157,7 +158,7 @@ class TestComposeBuildRequiresImage(unittest.TestCase):
         roles_dir = PROJECT_ROOT / "roles"
 
         patterns = [
-            "*/templates/compose.yml.j2",
+            f"*/{ROLE_FILE_TEMPL_COMPOSE}",
             "*/files/compose.yml",
         ]
 

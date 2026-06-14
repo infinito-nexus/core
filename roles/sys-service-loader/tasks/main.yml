@@ -9,16 +9,11 @@
 #
 # Two-phase contract:
 #   1. Preload pass — iterate `_ordered_services` in dependency order and
-#      load each service body once (`_service_loader_preloading: true`).
-#   2. Post-load pass — flush the `_service_loader_post_run` queue that
+#      load each service body once (`service_loader_preloading: true`).
+#   2. Post-load pass — flush the `service_loader_post_run` queue that
 #      roles registered during preload via this role's `list_or_shoot.yml`.
-#      Tasks listed there run with `_service_loader_preloading: false`,
+#      Tasks listed there run with `service_loader_preloading: false`,
 #      so they see the fully preloaded service graph.
-
-- name: "Reset service-loader post-load queue"
-  ansible.builtin.set_fact:
-    _service_loader_post_run: []
-  changed_when: false
 
 - name: "Discover ordered shared services"
   ansible.builtin.set_fact:
@@ -50,6 +45,6 @@
 - name: "Run service-loader post-load roles"
   ansible.builtin.include_role:
     name: "{{ post_run_role }}"
-  loop: "{{ _service_loader_post_run | unique }}"
+  loop: "{{ service_loader_post_run | unique }}"
   loop_control:
     loop_var: post_run_role

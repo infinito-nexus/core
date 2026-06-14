@@ -22,12 +22,8 @@ JITSI_JVB_MEDIA_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports
 JITSI_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
 JITSI_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
-JITSI_CONFIG_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}config"
-JITSI_TRANSCRIPTS_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}transcripts"
 JITSI_PROSODY_CONFIG_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}prosody-config"
 JITSI_PROSODY_PLUGINS_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}prosody-plugins-custom"
-JITSI_JICOFO_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}jicofo"
-JITSI_JVB_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}jvb"
 
 JITSI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 JITSI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"

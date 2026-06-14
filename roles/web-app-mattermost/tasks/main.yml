@@ -11,9 +11,12 @@
   vars:
     compose_handlers_flush: true
 
-- name: "Run Mattermost setup routines"
-  include_tasks: 01_setup.yml
+- name: "Mattermost stack-host post-deploy"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "Run Mattermost setup routines"
+      include_tasks: 01_setup.yml
 
-- name: "Configure Keycloak OIDC mappers for Mattermost"
-  include_tasks: 02_keycloak.yml
-  when: MATTERMOST_OIDC_ENABLED | bool
+    - name: "Configure Keycloak OIDC mappers for Mattermost"
+      include_tasks: 02_keycloak.yml
+      when: MATTERMOST_OIDC_ENABLED | bool

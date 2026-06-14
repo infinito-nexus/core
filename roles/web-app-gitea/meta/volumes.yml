@@ -1,2 +1,23 @@
 ---
-data: gitea_data
+data:
+  type: volume
+  name: gitea_data
+  mounts:
+    - service: application
+      target: /data
+
+timezone:
+  type: bind
+  source: /etc/timezone
+  read_only: true
+  mounts:
+    - service: application
+      target: /etc/timezone
+
+localtime:
+  type: bind
+  source: /etc/localtime
+  read_only: true
+  mounts:
+    - service: application
+      target: /etc/localtime

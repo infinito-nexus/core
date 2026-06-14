@@ -1,3 +1,13 @@
 ---
-data: pretix_data
-config: pretix_config
+data:
+  type: volume
+  name: pretix_data
+  mounts:
+    - service: application
+      target: /data
+config:
+  type: volume
+  name: pretix_config
+  mounts:
+    - service: application
+      target: /etc/pretix

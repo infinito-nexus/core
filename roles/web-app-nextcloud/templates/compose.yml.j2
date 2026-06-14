@@ -2,15 +2,15 @@
 
 {% set service_name = NEXTCLOUD_PROXY_SERVICE %}
   {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     image: "{{ NEXTCLOUD_PROXY_IMAGE }}:{{ NEXTCLOUD_PROXY_VERSION }}"
-    container_name: "{{ NEXTCLOUD_PROXY_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_PROXY_CONTAINER) }}
     logging:
       driver: journald
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('compose_restart') }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ NEXTCLOUD_PORT }}:{{ container_port }}"
-    volumes:
-      - "{{ NEXTCLOUD_HOST_NGINX_PATH }}:/etc/nginx/nginx.conf:ro"
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     volumes_from:
       - {{ NEXTCLOUD_SERVICE }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2'  %}
@@ -23,13 +23,10 @@
 {% set service_name = NEXTCLOUD_SERVICE %}
   {{ service_name }}:
     image: "{{ NEXTCLOUD_CUSTOM_IMAGE }}"
-    container_name: {{ NEXTCLOUD_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_CONTAINER) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
 
-    volumes:
-      - data:{{ NEXTCLOUD_DOCKER_WORK_DIRECTORY }}
-      - {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}:{{ NEXTCLOUD_DOCKER_CONF_ADD_PATH }}:ro
-      - {{ NEXTCLOUD_HOST_INCL_PATH }}:{{ NEXTCLOUD_DOCKER_INCL_PATH }}:ro
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     sysctls:
       net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
     healthcheck:
@@ -48,7 +45,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
     image: "{{ NEXTCLOUD_HPB_IMAGE }}:{{ NEXTCLOUD_HPB_VERSION }}"
-    container_name: {{ NEXTCLOUD_HPB_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_HPB_CONTAINER) }}
     init: true
 {% if NEXTCLOUD_HPB_NETWORK_MODE == 'bridge' %}
 {% if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED | bool and NEXTCLOUD_HPB_TURN_ONBOARD_PUBLISH_PORTS | bool %}
@@ -74,34 +71,30 @@
     build:
       context: .
       dockerfile: {{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}
-    pull_policy: never
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     image: "{{ NEXTCLOUD_WHITEBOARD_IMAGE_CUSTOM }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/nc.yml.j2' %}
-    container_name: {{ NEXTCLOUD_WHITEBOARD_CONTAINER }}
-    volumes:
-      - whiteboard_tmp:/tmp
-      - whiteboard_fontcache:/var/cache/fontconfig
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_WHITEBOARD_CONTAINER) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     environment:
       - NODE_OPTIONS=--max-old-space-size={{ NEXTCLOUD_WHITEBOARD_MAX_OLD_SPACE_SIZE }}
     expose:
       - "{{ container_port }}"
     shm_size: 1g
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    depends_on:
-      redis:
-        condition: service_healthy
+    {{ lookup('depends_on', {'redis': 'service_healthy'}) }}
 {% endif %}
 
 
 {% set service_name = NEXTCLOUD_CRON_SERVICE %}
   {{ service_name }}:
-    container_name: "{{ NEXTCLOUD_CRON_CONTAINER }}"
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_CRON_CONTAINER) }}
     image: "{{ NEXTCLOUD_IMAGE }}:{{ NEXTCLOUD_VERSION }}"
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('compose_restart') }}
     logging:
       driver: journald
-    volumes:
-      - data:{{ NEXTCLOUD_DOCKER_WORK_DIRECTORY }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     entrypoint: /cron.sh
     sysctls:
       net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
@@ -118,7 +111,7 @@
   {{ service_name }}:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ NEXTCLOUD_RECORDING_IMAGE }}:{{ NEXTCLOUD_RECORDING_VERSION }}"
-    container_name: "{{ NEXTCLOUD_RECORDING_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_RECORDING_CONTAINER) }}
     environment:
       - HPB_DOMAIN={{ NEXTCLOUD_HPB_DOMAIN }}
       - NC_DOMAIN={{ NEXTCLOUD_DOMAIN }}
@@ -128,8 +121,7 @@
     expose:
       - "{{ NEXTCLOUD_RECORDING_PORT }}"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - talk_recording_tmp:/tmp
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 {% endif %}
 
 {% set _extra_volumes = {'data': {'name': NEXTCLOUD_VOLUME}} %}
@@ -142,8 +134,7 @@
 {% if NEXTCLOUD_RECORDING_ENABLED | bool %}
 {%   set _ = _extra_volumes.update({'talk_recording_tmp': {'name': NEXTCLOUD_RECORDING_TMP_VOLUME}}) %}
 {% endif %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes=_extra_volumes
 ) }}
 

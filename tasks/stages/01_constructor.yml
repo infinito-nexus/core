@@ -87,11 +87,6 @@
   ansible.builtin.include_role:
     name: sys-version
 
-- name: Include Token Store
-  ansible.builtin.include_role:
-    name: sys-token-store
-  when: run_once_sys_token_store is not defined
-
 - name: init root user
   ansible.builtin.include_role:
     name: user-root
@@ -111,6 +106,65 @@
   when:
     - MODE_CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool
+
+- name: "Auto-place single-host shared services on first manager (swarm mode)"
+  ansible.builtin.add_host:
+    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] }}"
+    groups: "{{ role_id }}"
+  loop: "{{ lookup('roles_with_default_placement', 'manager') }}"
+  loop_control:
+    loop_var: role_id
+    label: "{{ role_id }}"
+  when:
+    - (groups['svc-swarm-manager'] | default([]) | length) > 0
+    - (groups[role_id] | default([]) | length) == 0
+  run_once: true
+  changed_when: false
+
+- name: "Auto-place svc-prx-openresty on first play host (compose mode) so web apps get a vhost"
+  ansible.builtin.add_host:
+    name: "{{ ansible_play_hosts | first }}"
+    groups: svc-prx-openresty
+  vars:
+    _web_groups: >-
+      {{
+        groups
+        | dict2items
+        | selectattr('key', 'match', '^web-')
+        | rejectattr('value', 'equalto', [])
+        | list
+      }}
+  when:
+    - (groups['svc-swarm-manager'] | default([]) | length) == 0
+    - (groups['svc-prx-openresty'] | default([]) | length) == 0
+    - (_web_groups | length) > 0
+  run_once: true
+  changed_when: false
+
+- name: "Bootstrap svc-swarm-node"
+  ansible.builtin.include_role:
+    name: svc-swarm-node
+  when: "'svc-swarm-node' | application_allowed(group_names, lookup('deployment').whitelist)"
+
+- name: "Open service-loader preload context BEFORE Bootstrap"
+  ansible.builtin.set_fact:
+    service_loader_post_run: []
+    service_loader_preloading: true
+  changed_when: false
+
+- name: "Bootstrap NFS clients + registry (MUST precede Preload)"
+  ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
+  loop:
+    - svc-storage
+    - svc-registry
+  loop_control:
+    loop_var: role_group
+    label: "{{ role_group }}-roles.yml"
+
+- name: Include Token Store
+  ansible.builtin.include_role:
+    name: sys-token-store
+  when: run_once_sys_token_store is not defined
 
 - name: Preload shared services
   ansible.builtin.include_role:

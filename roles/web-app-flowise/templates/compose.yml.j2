@@ -3,11 +3,10 @@
 {% set service_name = 'litellm' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: {{ FLOWISE_LITELLM_IMAGE }}:{{ FLOWISE_LITELLM_VERSION }}
-    container_name: {{ FLOWISE_LITELLM_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', FLOWISE_LITELLM_CONTAINER) }}
     expose:
       - {{ FLOWISE_LITELLM_PORT }}
-    volumes:
-      - {{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}:{{ FLOWISE_LITELLM_CONFIG_PATH_DOCKER }}:ro
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     command: >
       --host 0.0.0.0
       --port {{ FLOWISE_LITELLM_PORT }}
@@ -18,31 +17,24 @@
 {% set service_name = 'qdrant' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: {{ FLOWISE_QDRANT_IMAGE }}:{{ FLOWISE_QDRANT_VERSION }}
-    container_name: {{ FLOWISE_QDRANT_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', FLOWISE_QDRANT_CONTAINER) }}
     ports:
       - {{ FLOWISE_QDRANT_HTTP_PORT }}
       - {{ FLOWISE_QDRANT_GRPC_PORT }}
-    volumes:
-      - qdrant_data:/qdrant/storage
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   flowise:
 {% set service_name = 'flowise' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: {{ FLOWISE_IMAGE }}:{{ FLOWISE_VERSION }}
-    container_name: {{ FLOWISE_CONTAINER }}
-    depends_on: 
-      - qdrant
-      - litellm
+    {{ lookup('compose_only', 'container_name', FLOWISE_CONTAINER) }}
+    {{ lookup('depends_on', ['qdrant', 'litellm']) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ FLOWISE_PORT_PUBLIC }}:{{ FLOWISE_PORT_INTERNAL }}"
-    volumes:
-      - flowise_data:/root/.flowise
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'flowise_data': {'name': FLOWISE_VOLUME}, 'qdrant_data': {'name': FLOWISE_QDRANT_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}

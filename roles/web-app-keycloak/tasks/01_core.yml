@@ -14,63 +14,6 @@
   vars:
     compose_handlers_flush: true
 
-- name: "Load Login routines for '{{ application_id }}'"
-  include_tasks: 04_login.yml
-
-- name: "Load one-shot realm import routines for '{{ application_id }}'"
-  include_tasks: 05_realm_import.yml
-
-- name: "Load Client Update routines for '{{ application_id }}'"
-  include_tasks: update/01_client.yml
-
-- name: "Load Mail Update routines for '{{ application_id }} - {{ KEYCLOAK_REALM }}'"
-  include_tasks: update/02_mail_realm.yml
-
-- name: "Load Mail Update routines for '{{ application_id }} - master'"
-  include_tasks: update/03_mail_master.yml
-
-- name: Ensure jq is installed
-  become: true
-  package:
-    name: jq
-    state: present
-
-- name: "Load RBAC Update routines for '{{ application_id }}'"
-  include_tasks: update/04_rbac_client_scope.yml
-
-- block:
-    - name: "Load LDAP Update routines for '{{ application_id }}'"
-      include_tasks: update/05_ldap.yml
-
-    - name: Assert Keycloak LDAP configuration
-      include_tasks: assert/05_ldap.yml
-      when: MODE_ASSERT | bool
-
-    - name: "Load per-app group-ldap-mapper routines for '{{ application_id }}'"
-      include_tasks: update/05c_per_app_mappers.yml
-
-  when:
-    - KEYCLOAK_LDAP_ENABLED | bool
-    - KEYCLOAK_LDAP_SHARED | bool
-
-- name: "Remove LDAP federation routines for '{{ application_id }}' when LDAP is disabled"
-  include_tasks: update/05_ldap_disabled.yml
-  when: not KEYCLOAK_LDAP_ENABLED | bool
-
-- name: "Load reCAPTCHA Update routines for '{{ application_id }}'"
-  include_tasks: update/06_recaptcha.yml
-  when: KEYCLOAK_RECAPTCHA_ENABLED | bool
-
-- name: "Load UserProfile (declarative) Update routines for '{{ application_id }}'"
-  include_tasks: update/07_userprofile.yml
-
-- name: "Load Realm User provisioning routines for '{{ application_id }}'"
-  include_tasks: update/08_users_realm.yml
-  when: not KEYCLOAK_LDAP_ENABLED | bool
-
-- name: "Load Users Update routines for '{{ application_id }}' (emailVerified)"
-  include_tasks: update/08_users_email_verified.yml
-  when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
-
-- name: "Flush handlers before leaving Keycloak scope"
-  meta: flush_handlers
+- name: "Keycloak manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

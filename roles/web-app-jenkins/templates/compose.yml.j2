@@ -5,21 +5,16 @@
         JENKINS_IMAGE: "{{ JENKINS_IMAGE }}"
         JENKINS_VERSION: "{{ JENKINS_VERSION }}"
     image: "{{ JENKINS_CUSTOM_IMAGE }}"
-    container_name: {{ JENKINS_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', JENKINS_CONTAINER) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
       CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jenkins.ports.local.http') }}:8080"
-    volumes:
-      - jenkins_data:/var/jenkins_home
-      - {{ JENKINS_CASC_FILE }}:/var/jenkins_home/casc.yaml:ro
+    {{ lookup('container_volumes', application_id, 'application') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'jenkins_data': {'name': JENKINS_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

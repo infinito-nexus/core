@@ -3,7 +3,7 @@
   application:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ FIDER_IMAGE }}:{{ FIDER_VERSION }}"
-    container_name: "{{ FIDER_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', FIDER_CONTAINER) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.fider.ports.local.http') }}:{{ FIDER_CONTAINER_PORT }}"
     healthcheck:
@@ -16,7 +16,6 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

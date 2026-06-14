@@ -1,15 +1,10 @@
 ---
-# General
 application_id: "web-app-dashboard"
 DASHBOARD_APPLICATION_ID: "web-app-dashboard"
 http_port: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.local.http') }}"
 
-## Webserver
 webserver_extra_configuration: "{{ lookup('template', 'nginx/sso.html.conf.j2') }}"
 
-# Dashboard
-
-## Simpleicons
 DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
 # Browser-facing absolute base URL of the public Simple Icons service.
 # Cards reference SVGs directly under this URL (icon.source = "<base>/<slug>.svg").
@@ -19,7 +14,6 @@ DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.ba
 DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |
   string) ~ '/' }}"
 
-## Javascript
 DASHBOARD_JS_CDN_URL: "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
 DASHBOARD_JS_FILES: >-
   {{ ['iframe.js']
@@ -28,16 +22,12 @@ DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | get_entity_name }}/js"
 DASHBOARD_JS_SERVER_DIR: "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
 DASHBOARD_JS_BASE_URL: "{{ (DASHBOARD_JS_CDN_URL | trim('/')) ~ '/' ~ (DASHBOARD_JS_BASE_PATH | trim('/')) }}"
 
-## Webserver
 DASHBOARD_LOCATION_SILENT_CHECK: "/silent-check-sso.html"
 
-## Configuration
 DASHBOARD_CONFIG_YML_SRC_FILE: "config.yaml.j2"
 DASHBOARD_CONFIG_INV_PATH: "{{ [ inventory_dir, 'files', inventory_hostname ,'docker', DASHBOARD_APPLICATION_ID, DASHBOARD_CONFIG_YML_SRC_FILE] | path_join }}"
 DASHBOARD_CONFIG_YML_DEST: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), 'config.yaml' ] | path_join }}"
-DASHBOARD_CONFIG_YML_DOCKER_DEST: "/app/config.yaml"
 
-## OIDC
 DASHBOARD_APP_BASE_URL: "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.base') | regex_replace('/+$', '') }}/"
 DASHBOARD_KEYCLOAK_LOGIN_URL: >-
   {{ OIDC.CLIENT.AUTHORIZE_URL
@@ -48,12 +38,10 @@ DASHBOARD_KEYCLOAK_LOGIN_URL: >-
 DASHBOARD_KEYCLOAK_IFRAME_ENABLED: "{{ lookup('config','web-app-keycloak', 'services.dashboard.enabled') }}"
 DASHBOARD_OIDC_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.sso.enabled') }}"
 
-## Docker
 DASHBOARD_CONTAINER: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.name') }}"
 DASHBOARD_IMAGE: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.image') }}"
 DASHBOARD_VERSION: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.version') }}"
 
-## Branding
 DASHBOARD_PLATFORM_LOGO_SOURCE: "{{ service_provider.platform.logo | string }}"
 DASHBOARD_PLATFORM_LOGO_URL: "{{ ('https:' ~ DASHBOARD_PLATFORM_LOGO_SOURCE) if DASHBOARD_PLATFORM_LOGO_SOURCE.startswith('//') else DASHBOARD_PLATFORM_LOGO_SOURCE
   }}"

@@ -82,7 +82,6 @@ worker:
     - low_priority
     - --time-limit=300
     - --memory-limit=512M
-  replicas: 3
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 2g

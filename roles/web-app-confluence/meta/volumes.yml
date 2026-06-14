@@ -1,2 +1,7 @@
 ---
-data: confluence_data
+data:
+  type: volume
+  name: confluence_data
+  mounts:
+    - service: confluence
+      target: "/var/atlassian/application-data/confluence"

@@ -7,7 +7,7 @@
     - lookup('tls', application_id, 'mode') == 'letsencrypt'
 
 - name: Create HTTP->HTTPS handler per domain
-  ansible.builtin.template:
+  stack_host_template:
     src: "http.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', domain, protocol='http') }}"
   notify: restart openresty

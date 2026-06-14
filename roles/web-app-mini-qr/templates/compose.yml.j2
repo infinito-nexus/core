@@ -4,11 +4,11 @@
   {{ application_id | get_entity_name }}:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ MINI_QR_IMAGE }}:{{ MINI_QR_VERSION }}"
-    container_name: "{{ MINI_QR_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', MINI_QR_CONTAINER) }}
     ports:
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mini-qr.ports.local.http') }}:{{ container_port }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -43,9 +43,10 @@
   until: matrix_element_loopback_probe.status == 200
 
 - name: "ansible-flavor: create native admin in Synapse (DiD, idempotent via shared-secret)"
+  when: IS_STACK_HOST | bool
   ansible.builtin.shell:
-    cmd: >- # nocheck: raw-docker — inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved
-      container exec matrix-mdad docker exec matrix-synapse register_new_matrix_user
+    cmd: >- # nocheck: raw-docker, container-exec-resolver  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved
+      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-synapse register_new_matrix_user
       -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
       -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
       -a -c /data/homeserver.yaml http://localhost:8008

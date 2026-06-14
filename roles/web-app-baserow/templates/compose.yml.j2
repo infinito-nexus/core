@@ -3,16 +3,12 @@
   application:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ BASEROW_IMAGE }}:{{ BASEROW_VERSION }}"
-    container_name: {{ BASEROW_CONTAINER }}
-    volumes:
-      - data:/baserow/data
+    {{ lookup('compose_only', 'container_name', BASEROW_CONTAINER) }}
+{{ lookup('container_volumes', application_id, 'application') | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.baserow.ports.local.http') }}:80"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': BASEROW_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

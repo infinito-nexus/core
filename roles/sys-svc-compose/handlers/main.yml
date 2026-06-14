@@ -13,6 +13,7 @@
   listen:
     - compose up
   when:
+    - DEPLOYMENT_MODE != 'swarm'
     - lookup('domains') | has_domain(application_id)
     - lookup('tls', application_id, 'enabled') | bool
     - lookup('tls', application_id, 'mode') == 'self_signed'
@@ -29,7 +30,9 @@
   failed_when: dc_validate.rc != 0
   listen:
     - compose up
-  when: MODE_ASSERT | bool
+  when:
+    - DEPLOYMENT_MODE != 'swarm'
+    - MODE_ASSERT_LOCAL | bool
 
 - name: compose pull
   ansible.builtin.script:
@@ -51,6 +54,7 @@
   until: pull is succeeded
   listen:
     - compose up
+  when: DEPLOYMENT_MODE != 'swarm'
 
 - name: Build compose
   ansible.builtin.shell: |
@@ -64,6 +68,7 @@
     executable: /bin/bash
   listen:
     - compose build
+  when: DEPLOYMENT_MODE != 'swarm'
 
 - name: compose up
   ansible.builtin.shell: |
@@ -79,6 +84,7 @@
     executable: /bin/bash
   listen:
     - compose up
+  when: DEPLOYMENT_MODE != 'swarm'
 
 - name: Aggressively prune Docker data (keep networks + keep in-use images)
   become: true
@@ -89,3 +95,79 @@
   listen:
     - compose up
     - compose build
+
+- name: "swarm: pre-deploy build of local images"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose build || {
+      echo "Retrying without cache and pulling bases...";
+      compose build --no-cache --pull;
+    }
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  listen:
+    - compose up
+    - swarm deploy
+  when: DEPLOYMENT_MODE == 'swarm'
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "swarm: retag built images for local registry and push"
+  ansible.builtin.script:
+    cmd: >-
+      swarm_registry_push.py
+      --chdir {{ lookup('container', application_id, 'directories.instance') }}
+      --registry-prefix {{ SWARM_REGISTRY_PREFIX | quote }}
+  register: _swarm_registry_push
+  retries: 10
+  delay: 6
+  until: _swarm_registry_push is succeeded
+  listen:
+    - compose up
+    - swarm deploy
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - (swarm.registry.host | default('') | length > 0)
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "swarm: validate stack file via docker stack config"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    docker stack config --compose-file compose.yml > /dev/null
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: swarm_validate
+  changed_when: false
+  failed_when: swarm_validate.rc != 0
+  listen:
+    - compose up
+    - swarm deploy
+  when:
+    - MODE_ASSERT_LOCAL | bool
+    - DEPLOYMENT_MODE == 'swarm'
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "swarm: docker stack deploy"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    docker stack deploy \
+      --compose-file compose.yml \
+      --resolve-image never \
+      --prune \
+      --with-registry-auth \
+      "{{ application_id | get_entity_name }}"
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: swarm_deploy_result
+  changed_when: true
+  listen:
+    - compose up
+    - swarm deploy
+  when: DEPLOYMENT_MODE == 'swarm'
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"

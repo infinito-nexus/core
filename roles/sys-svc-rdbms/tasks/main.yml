@@ -7,13 +7,15 @@
 
 - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Resolve shared database mode"
   set_fact:
+    _sys_svc_rdbms_consumer_local: "{{ lookup('database', _database_consumer_id, 'local') | bool }}"
     _sys_svc_rdbms_central_db_enabled: >-
-      {{ lookup('database', _database_consumer_id, 'shared') | bool }}
+      {{ not (lookup('database', _database_consumer_id, 'local') | bool)
+         and (groups[lookup('database', _database_consumer_id, 'id')] | default([])) | length > 0 }}
   changed_when: false
 
 - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Apply dedicated database setup"
   include_tasks: dedicated.yml
-  when: not (_sys_svc_rdbms_central_db_enabled | bool)
+  when: _sys_svc_rdbms_consumer_local | bool
 
 - name: Central Database Logic
   block:
@@ -29,6 +31,7 @@
         fail_msg: >-
           Shared database provider '{{ _database_provider_role }}' was not preloaded by
           sys-service-loader before sys-svc-rdbms ran.
+      when: MODE_ASSERT_LOCAL | bool
 
     - name: "For '{{ application_id }}': Initialize dedicated database on preloaded provider"
       ansible.builtin.include_role:
@@ -41,7 +44,9 @@
 
     - name: "For '{{ application_id }}': Add Entry for Backup Procedure"
       include_tasks: "{{ playbook_dir }}/roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml"
-      when: "'svc-bkp-container-2-local' in group_names"
+      when:
+        - "'svc-bkp-container-2-local' in group_names"
+        - IS_STACK_HOST | bool
   vars:
     _database_provider_role: "{{ lookup('database', _database_consumer_id, 'id') }}"
     database_consumer_id: "{{ _database_consumer_id }}"
@@ -52,4 +57,6 @@
     database_name: "{{ lookup('database', _database_consumer_id, 'name') }}"
     database_username: "{{ lookup('database', _database_consumer_id, 'username') }}"
     database_password: "{{ lookup('database', _database_consumer_id, 'password') }}"
-  when: _sys_svc_rdbms_central_db_enabled | bool
+  when:
+    - _sys_svc_rdbms_central_db_enabled | bool
+    - inventory_hostname in (groups[lookup('database', _database_consumer_id, 'id')] | default([]))

@@ -52,15 +52,30 @@ def _as_bool(value: Any) -> bool:
     return bool(value)
 
 
-def _render(value: Any, templar: Any | None) -> Any:
+def _render(
+    value: Any,
+    templar: Any | None,
+    variables: dict[str, Any] | None = None,
+) -> Any:
     if templar is None:
         return value
     if not isinstance(value, str) or "{{" not in value:
         return value
-    try:
-        return templar.template(value, fail_on_undefined=False)
-    except Exception:
-        return value
+    # Loop: inventory expressions like DOMAIN_PRIMARY="{{ lookup('env','INFINITO_DOMAIN') }}" need multiple substitution passes.
+    from utils.templating.ansible import _templar_render_best_effort
+
+    base_vars: dict[str, Any] = dict(variables or {})
+    for _ in range(4):
+        if not isinstance(value, str) or "{{" not in value:
+            break
+        prev = value
+        try:
+            value = _templar_render_best_effort(templar, value, base_vars)
+        except Exception:
+            break
+        if value == prev:
+            break
+    return value
 
 
 class LookupModule(LookupBase):
@@ -86,10 +101,12 @@ class LookupModule(LookupBase):
             raw = variables.get(var_name)
             if raw is None or raw == "":
                 resolved[short_key] = _render(
-                    self._compute(short_key, resolved, variables), templar
+                    self._compute(short_key, resolved, variables),
+                    templar,
+                    variables,
                 )
             else:
-                resolved[short_key] = _render(raw, templar)
+                resolved[short_key] = _render(raw, templar, variables)
 
         if len(terms) == 0:
             return [resolved]
@@ -98,7 +115,7 @@ class LookupModule(LookupBase):
         overrides = self._app_email_overrides(application_id, variables)
         merged = dict(resolved)
         for key, value in overrides.items():
-            merged[str(key).lower()] = _render(value, templar)
+            merged[str(key).lower()] = _render(value, templar, variables)
         return [merged]
 
     def _compute(

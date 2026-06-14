@@ -1,7 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   mariadb:
-    container_name:   "{{ MARIADB_NAME }}"
+    {{ lookup('compose_only', 'container_name', MARIADB_NAME) }}
     image:            "{{ MARIADB_CUSTOM_IMAGE }}"
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
@@ -16,19 +16,16 @@
     ports: 
       - "{{ DOCKER_BIND_HOST }}:{{ MARIADB_PORT }}:3306"
 {% endif %}
-    volumes:
-      - "data:/var/lib/mysql"
+    {{ lookup('container_volumes', application_id, 'mariadb') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %} -u root -p\"$MARIADB_ROOT_PASSWORD\" -e 'SHOW DATABASES;'"
+        - "mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %} -u root -p\"$${MARIADB_ROOT_PASSWORD}\" -e 'SHOW DATABASES;'"
       interval: 10s
       timeout: 5s
       retries: 18
+      start_period: 90s
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': MARIADB_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

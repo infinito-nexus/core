@@ -7,7 +7,7 @@
         BRIDGY_REF: "{{ BRIDGY_REF }}"
         CONTAINER_PORT:  "{{ container_port | string }}"
     image: "{{ BRIDGY_IMAGE }}:{{ BRIDGY_VERSION }}"
-    container_name: "{{ BRIDGY_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', BRIDGY_CONTAINER) }}
     hostname: "{{ container_hostname }}"
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ http_port }}:{{ container_port }}"
@@ -15,6 +15,6 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

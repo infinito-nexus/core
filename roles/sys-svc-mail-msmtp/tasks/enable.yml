@@ -1,6 +1,17 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "Assert {{ DIR_VAR_LIB }} is cluster-shared in swarm mode (skip on dedicated NFS server / non-swarm hosts)"
+  ansible.builtin.assert:
+    that:
+      - (DEPLOYMENT_MODE != 'swarm') or ('svc-storage-nfs-client' in group_names) or ('svc-storage-nfs-server' in group_names)
+    fail_msg: >-
+      sys-svc-mail-msmtp in swarm mode requires svc-storage-nfs-client on
+      every swarm host so {{ DIR_VAR_LIB }} is cluster-shared. Set
+      `storage.backend=nfs` and add this host to the
+      `svc-storage-nfs-client` group, unless this host is the dedicated
+      NFS server (svc-storage-nfs-server).
+
 - name: Enable EPEL repository on EL distributions
   package:
     name: epel-release
@@ -56,11 +67,16 @@
       }}
 
 - name: configure msmtprc.conf.j2
-  template:
+  template: # nocheck: stack-host-template (per-host /root/.msmtprc, not stack-host-only)
     src: "msmtprc.conf.j2"
     dest: "/root/.msmtprc"
     mode: 600
 
-- include_role:
-    name: sys-ctl-hlth-msmtp
+- name: "Route hlth-msmtp through service-loader so it runs after web-app-mailu compose-up"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - sys-ctl-hlth-msmtp
   when: run_once_sys_ctl_hlth_msmtp is not defined

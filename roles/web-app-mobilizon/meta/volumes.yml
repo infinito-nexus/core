@@ -1,0 +1,15 @@
+---
+uploads:
+  type: volume
+  name: mobilizon_uploads
+  mounts:
+    - service: application
+      target: /var/lib/mobilizon/uploads
+
+config_exs:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-mobilizon', 'directories.config'), 'config.exs' ] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: application
+      target: /etc/mobilizon/config.exs

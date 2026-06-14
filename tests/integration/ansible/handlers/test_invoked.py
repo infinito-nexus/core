@@ -182,11 +182,12 @@ def collect_notify_calls_from_tasks(
                 if rx is not None:
                     notified_patterns.append(rx)
 
-        # package_notify anywhere in the task (top-level or nested)
-        def walk_for_package_notify(node: Any):
+        # package_notify and nested notify anywhere in the task tree
+        # (top-level or nested under vars/role_templates/etc.)
+        def walk_for_nested_notify(node: Any):
             if isinstance(node, dict):
                 for k, v in node.items():
-                    if k == "package_notify":
+                    if k in ("package_notify", "notify"):
                         for item in as_str_list(v):
                             item_str = item.strip()
 
@@ -210,12 +211,12 @@ def collect_notify_calls_from_tasks(
                             if rx is not None:
                                 notified_patterns.append(rx)
                     else:
-                        walk_for_package_notify(v)
+                        walk_for_nested_notify(v)
             elif isinstance(node, list):
                 for v in node:
-                    walk_for_package_notify(v)
+                    walk_for_nested_notify(v)
 
-        walk_for_package_notify(entry)
+        walk_for_nested_notify(entry)
 
     return notified_exact, notified_patterns
 

@@ -22,4 +22,6 @@
     path: "{{ AKAUNTING_SETUP_MARKER }}"
     state: touch
     mode: "0644"
-  when: akaunting_setup_enabled | bool
+  when:
+    - akaunting_setup_enabled | bool
+    - IS_STACK_HOST | bool

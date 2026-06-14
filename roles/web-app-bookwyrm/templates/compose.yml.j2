@@ -17,13 +17,11 @@
         BOOKWYRM_REPOSITORY: "{{ BOOKWYRM_REPOSITORY }}"
         BOOKWYRM_REF:        "{{ BOOKWYRM_REF }}"
     image: "{{ BOOKWYRM_CUSTOM_IMAGE }}"
-    container_name: "{{ BOOKWYRM_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', BOOKWYRM_CONTAINER) }}
     hostname: "{{ BOOKWYRM_HOSTNAME }}"
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.bookwyrm.ports.local.http') }}:{{ container_port }}"
-    volumes:
-      - 'data:/app/data'
-      - 'media:/app/media'
+    {{ lookup('container_volumes', application_id, 'application') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -31,17 +29,12 @@
   worker:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ BOOKWYRM_CUSTOM_IMAGE }}"
-    container_name: "{{ BOOKWYRM_WORKER_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', BOOKWYRM_WORKER_CONTAINER) }}
     command: "/venv/bin/celery -A celerywyrm worker -l INFO"
-    pull_policy: never
-    volumes:
-      - 'data:/app/data'
-      - 'media:/app/media'
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': BOOKWYRM_DATA_VOLUME}, 'media': {'name': BOOKWYRM_MEDIA_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

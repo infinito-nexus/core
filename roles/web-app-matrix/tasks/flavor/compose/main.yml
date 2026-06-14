@@ -1,4 +1,5 @@
 ---
+# include-gated: when: DEPLOYMENT_MODE != "swarm"
 - name: Load bridges configuration
   include_vars:
     file: "bridges.yml"

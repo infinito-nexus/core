@@ -3,7 +3,7 @@
   block:
     - name: "Mark shared service preload context for {{ service_key }}"
       ansible.builtin.set_fact:
-        _service_loader_preloading: true
+        service_loader_preloading: true
       changed_when: false
 
     - name: "Load {{ service_key }} (Once)"
@@ -16,5 +16,5 @@
   always:
     - name: "Clear shared service preload context for {{ service_key }}"
       ansible.builtin.set_fact:
-        _service_loader_preloading: false
+        service_loader_preloading: false
       changed_when: false

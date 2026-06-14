@@ -24,6 +24,7 @@ import re
 import unittest
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
@@ -66,7 +67,7 @@ def _scan(path) -> tuple[list[int], int, int, bool]:
 
 
 def _compose_templates() -> list:
-    return sorted((PROJECT_ROOT / "roles").glob("*/templates/compose.yml.j2"))
+    return sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_TEMPL_COMPOSE}"))
 
 
 class TestComposeNetworkIncludes(unittest.TestCase):

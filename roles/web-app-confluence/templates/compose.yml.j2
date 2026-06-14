@@ -6,19 +6,15 @@
         CONFLUENCE_VERSION: "{{ CONFLUENCE_VERSION }}"
         CONFLUENCE_HOME: "{{ CONFLUENCE_HOME }}"
     image: "{{ CONFLUENCE_CUSTOM_IMAGE }}"
-    container_name: "{{ CONFLUENCE_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', CONFLUENCE_CONTAINER) }}
     hostname: '{{ CONFLUENCE_HOSTNAME}}'
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.confluence.ports.local.http') }}:8090"
-    volumes:
-      - 'data:{{ CONFLUENCE_HOME }}'
+    {{ lookup('container_volumes', application_id, 'confluence') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': CONFLUENCE_DATA_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -5,56 +5,6 @@
   vars:
     compose_handlers_flush: false
 
-- name: "Create Odoo addons directory"
-  file:
-    path: "{{ ODOO_ADDONS_HOST }}"
-    state: directory
-    mode: "0755"
-
-- name: "Deploy Odoo configuration file"
-  template:
-    src: "odoo.conf.j2"
-    dest: "{{ ODOO_CONF_FILE_HOST }}"
-    mode: "0644"
-  notify:
-    - compose up
-
-- name: "Copy custom addons"
-  copy:
-    src: "addons/"
-    dest: "{{ ODOO_ADDONS_HOST }}"
-    mode: "0644"
-  notify:
-    - compose up
-    - compose build
-
-- name: "Docker Compose Up for '{{ application_id }}'"
-  meta: flush_handlers
-
-- name: "Wait for Odoo to be ready"
-  uri_retry:
-    url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.odoo.ports.local.http') }}/web/health"
-    status_code: 200
-    timeout: 10
-  register: odoo_health
-  until: odoo_health.status == 200
-  retries: 30
-  delay: 10
-  ignore_errors: true
-
-- name: "Initialize Odoo database"
-  include_tasks: 01_init_database.yml
-
-- name: "Install core modules"
-  include_tasks: 02_install_modules.yml
-
-- name: "Create administrator user"
-  include_tasks: 05_admin.yml
-
-- name: "Configure OIDC provider"
-  include_tasks: 03_oidc.yml
-  when: ODOO_OIDC_ENABLED | bool
-
-- name: "Configure LDAP authentication"
-  include_tasks: 04_ldap.yml
-  when: ODOO_LDAP_ENABLED | bool
+- name: "web-app-odoo manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

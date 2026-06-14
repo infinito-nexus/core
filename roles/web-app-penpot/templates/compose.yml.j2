@@ -1,16 +1,13 @@
-{# Penpot stack: frontend + backend + exporter, with shared postgres and a #}
-{# role-local redis sidecar (both emitted by the sys-svc-compose base). #}
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   {{ PENPOT_FRONTEND_SERVICE }}:
 {% set service_name = PENPOT_FRONTEND_SERVICE %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ PENPOT_FRONTEND_IMAGE }}:{{ PENPOT_VERSION }}"
-    container_name: {{ PENPOT_FRONTEND_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', PENPOT_FRONTEND_CONTAINER) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.penpot.ports.local.http') }}:{{ PENPOT_FRONTEND_INTERNAL_PORT }}"
-    volumes:
-      - "assets:{{ PENPOT_ASSETS_FS_DIRECTORY }}"
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 {% set container_port = PENPOT_FRONTEND_INTERNAL_PORT %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
@@ -23,7 +20,7 @@
 {% set service_name = PENPOT_BACKEND_SERVICE %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ PENPOT_BACKEND_IMAGE }}:{{ PENPOT_VERSION }}"
-    container_name: {{ PENPOT_BACKEND_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', PENPOT_BACKEND_CONTAINER) }}
 {% if (TLS_MODE | lower) == 'self_signed' %}
     # Self-signed TLS only: the JVM truststore doesn't trust the internal CA
     # (with-ca-trust.sh covers OS/NSS/env, not Java cacerts; backend runs uid 1001),
@@ -37,8 +34,7 @@
         export JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=/tmp/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
         exec /bin/bash run.sh
 {% endif %}
-    volumes:
-      - "assets:{{ PENPOT_ASSETS_FS_DIRECTORY }}"
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
@@ -46,12 +42,9 @@
 {% set service_name = PENPOT_EXPORTER_SERVICE %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ PENPOT_EXPORTER_IMAGE }}:{{ PENPOT_VERSION }}"
-    container_name: {{ PENPOT_EXPORTER_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', PENPOT_EXPORTER_CONTAINER) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'assets': {'name': PENPOT_ASSETS_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

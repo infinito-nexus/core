@@ -1,0 +1,25 @@
+---
+data:
+  name: coturn_data
+  type: volume
+  mounts:
+    - service: coturn
+      target: /var/lib/coturn
+
+tls_cert:
+  type: bind
+  source: "{{ lookup('cert', 'web-svc-coturn', 'files.cert') }}"
+  mounts:
+    - service: coturn
+      target: "{{ lookup('cert', 'web-svc-coturn', 'files.cert') }}"
+      read_only: true
+      when: "{{ lookup('tls', 'web-svc-coturn', 'enabled') | bool }}"
+
+tls_key:
+  type: secret
+  source: "{{ lookup('cert', 'web-svc-coturn', 'files.key') }}"
+  mode: "0400"
+  mounts:
+    - service: coturn
+      target: "{{ lookup('cert', 'web-svc-coturn', 'files.key') }}"
+      when: "{{ lookup('tls', 'web-svc-coturn', 'enabled') | bool }}"

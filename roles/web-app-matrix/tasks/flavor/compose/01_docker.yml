@@ -1,4 +1,5 @@
 ---
+# include-gated: when: DEPLOYMENT_MODE != "swarm"
 - name: "load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
@@ -13,6 +14,12 @@
     database_name: "{{ item.database_name }}"
   loop: "{{ MATRIX_BRIDGES }}"
 
+- name: shut down compose project
+  command:
+    cmd: "{{ BIN_COMPOSE }} down"
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  when: DEPLOYMENT_MODE != 'swarm'
+
 - name: "cleanup project folder"
   file:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/"
@@ -26,37 +33,44 @@
   loop: "{{ MATRIX_BRIDGES }}"
 
 - name: add multiple mautrix bridge configuration
-  template:
+  stack_host_template:
     src: "flavor/compose/mautrix/{{ item.bridge_name }}.config.yml.j2"
     dest: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/config.yaml"
   loop: "{{ MATRIX_BRIDGES }}"
   notify: compose up
 
 - name: add element configuration
-  template:
+  stack_host_template:
     src: "flavor/compose/element.config.json.j2"
     dest: "{{ MATRIX_ELEMENT_CONFIG_PATH_HOST }}"
   notify: compose up
 
-- name: add synapse homeserver configuration
-  template:
-    src: "flavor/compose/synapse/homeserver.yaml.j2"
-    dest: "{{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}"
-  notify: compose up
-
-- name: add synapse log configuration
-  template:
-    src: "flavor/compose/synapse/log.config.j2"
-    dest: "{{ MATRIX_SYNAPSE_LOG_PATH_HOST }}"
-  notify: compose up
+- name: "Render Synapse config files (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "flavor/compose/synapse/homeserver.yaml.j2"
+        dest: "{{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}"
+        mode: "{{ MATRIX_SYNAPSE_BIND_MOUNT_MODE }}"
+      - src: "flavor/compose/synapse/log.config.j2"
+        dest: "{{ MATRIX_SYNAPSE_LOG_PATH_HOST }}"
+        mode: "{{ MATRIX_SYNAPSE_BIND_MOUNT_MODE }}"
 
 - name: set correct folder permissions
   command:
     cmd: "container run --rm --mount type=volume,src={{ MATRIX_SYNAPSE_VOLUME }},dst=/data -e SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }} -e SYNAPSE_REPORT_STATS=no
       --entrypoint /bin/sh matrixdotorg/synapse:latest -c 'chown -vR 991:991 /data'"
 
-- name: Flush handlers
-  meta: flush_handlers
+- name: add compose.yml
+  stack_host_template:
+    src: "compose.yml.j2"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'),'compose.yml' ] | path_join }}"
+  notify: compose up
+
+- name: "compose-mode lifecycle (pull + up)"
+  include_tasks: 03_compose_pull_and_up.yml
+  when: DEPLOYMENT_MODE != 'swarm'
 
 - name: wait for registration files
   wait_for:
@@ -84,25 +98,36 @@
   until: matrix_synapse_health.status == 200
 
 - name: create admin account
-  command:
-    cmd: "{{ BIN_COMPOSE }} exec -T synapse register_new_matrix_user -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }} -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
-      -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }} http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  shell: >-
+    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS | quote }}
+    register_new_matrix_user
+    -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
+    -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
+    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
   register: matrix_create_admin
   changed_when: matrix_create_admin.rc == 0
   failed_when: >
     matrix_create_admin.rc != 0 and
     'User ID already taken' not in (matrix_create_admin.stdout + matrix_create_admin.stderr)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: IS_STACK_HOST | bool
 
 - name: create chatgpt bot
-  command:
-    cmd: "{{ BIN_COMPOSE }} exec -T synapse register_new_matrix_user -u chatgptbot -p {{ lookup('config', application_id, 'credentials.chatgpt_bridge_user_password')
-      | quote }} -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }} http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  shell: >-
+    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS | quote }}
+    register_new_matrix_user
+    -u chatgptbot
+    -p {{ lookup('config', application_id, 'credentials.chatgpt_bridge_user_password') | quote }}
+    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
   register: matrix_create_chatgptbot
   changed_when: matrix_create_chatgptbot.rc == 0
   failed_when: >
     matrix_create_chatgptbot.rc != 0 and
     'User ID already taken' not in (matrix_create_chatgptbot.stdout + matrix_create_chatgptbot.stderr)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: IS_STACK_HOST | bool
+
+- name: Flush all handlers after docker setup so that they don't intervine with openresty
+  meta: flush_handlers

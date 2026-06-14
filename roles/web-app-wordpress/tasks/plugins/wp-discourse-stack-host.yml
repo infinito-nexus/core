@@ -1,0 +1,35 @@
+---
+- name: Add /var/www/discourse to Git safe.directory
+  shell: >
+    container exec {{ WORDPRESS_DISCOURSE_CONTAINER_ADDRESS }} \
+      git config --global --add safe.directory /var/www/discourse
+
+  changed_when: false
+
+- name: Revoke old WP Discourse API keys via Rails
+  shell: >
+    container exec {{ WORDPRESS_DISCOURSE_CONTAINER_ADDRESS }} bash -lc "\
+      cd /var/www/discourse && \
+      script/rails runner \"\
+        ApiKey.where(\
+          user_id: User.find_by_username('system').id,\
+          description: 'WP Discourse Integration',\
+          revoked_at: nil\
+        ).update_all(revoked_at: Time.current)\
+      \""
+
+  changed_when: false
+  failed_when: false
+
+- name: Generate new WP Discourse API key via Rake task
+  shell: >
+    container exec {{ WORDPRESS_DISCOURSE_CONTAINER_ADDRESS }} bash -lc "\
+      cd /var/www/discourse && \
+      bin/rake api_key:create_master['WP Discourse Integration']\
+    "
+
+  register: discourse_generated_api_key
+
+- name: Store the new WP Discourse API key in a fact
+  set_fact:
+    vault_discourse_api_key: "{{ discourse_generated_api_key.stdout | trim }}"

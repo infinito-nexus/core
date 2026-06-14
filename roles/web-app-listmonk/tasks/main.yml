@@ -11,51 +11,6 @@
       ""
       {% endif %}
 
-- name: add config.toml
-  template:
-    src: "config.toml.j2"
-    dest: "{{ LISTMONK_CONFIG_HOST }}"
-  notify: compose up
-
-- meta: flush_handlers
-
-- name: Include database setup routine for Listmonk
-  include_tasks: "01_database.yml"
-
-- name: Build OIDC settings JSON
-  set_fact:
-    oidc_settings_json: >-
-      {{ {
-         "enabled":       True,
-         "client_id":     OIDC.CLIENT.ID,
-         "provider_url":  OIDC.CLIENT.ISSUER_URL,
-         "client_secret": OIDC.CLIENT.SECRET
-      } | to_json }}
-
-- name: Update administrator email and password login in Listmonk (as superuser)
-  shell: |
-    {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
-    UPDATE users
-    SET email = '{{ lookup('users', 'administrator').email }}',
-        password_login = {{ 'false' if lookup('config',application_id, 'services.sso.enabled') else 'true' }}
-    WHERE username = 'administrator';
-    EOSQL
-  args:
-    executable: /bin/bash
-
-- name: Apply all Listmonk settings
-  shell: |
-    {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
-    UPDATE settings
-    SET value = '{{ item.value }}'::jsonb
-    WHERE key = '{{ item.key }}';
-    EOSQL
-  args:
-    executable: /bin/bash
-  loop: "{{ LISTMONK_SETTINGS }}"
-  loop_control:
-    label: "{{ item.key }}"
-  when: (item.when | default(true)) | bool
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+- name: "Listmonk manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

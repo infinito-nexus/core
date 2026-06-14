@@ -19,7 +19,7 @@
         mode: "0755"
 
     - name: "Deploy Whiteboard Dockerfile to '{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}'"
-      template:
+      stack_host_template:
         src: "Dockerfiles/Whiteboard.j2"
         dest: "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
       notify: compose build
@@ -32,15 +32,16 @@
     group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
     mode: "0755"
 
-- name: "Create config files at {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
-  template:
-    src: "{{ item }}"
-    dest: "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
-    owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    mode: "0644"
-  loop: "{{ lookup('fileglob', role_path ~ '/templates/config/*.j2', wantlist=True) }}"
-  notify: compose up
+- name: "Render Nextcloud config files at {{ NEXTCLOUD_HOST_CONF_ADD_PATH }} (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src_glob: "config/*.j2"
+        dest_dir: "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
+        owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        mode: "0644"
 
 - name: "NEXTCLOUD | Ensure host-mounted infinito config files ownership/permissions (recursive)"
   ansible.builtin.file:
@@ -51,8 +52,10 @@
     group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
     mode: "u=rwX,g=rX,o=rX"
 
-- name: create internal nextcloud nginx configuration
-  template:
-    src: "docker.conf.j2"
-    dest: "{{ NEXTCLOUD_HOST_NGINX_PATH }}"
-  notify: compose up
+- name: "Render Nextcloud internal nginx config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "docker.conf.j2"
+        dest: "{{ NEXTCLOUD_HOST_NGINX_PATH }}"

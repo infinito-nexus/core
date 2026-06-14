@@ -4,15 +4,13 @@
       context:    {{ path_infinito_presentation_output.stdout }}
       dockerfile: {{ path_infinito_presentation_output.stdout }}/Dockerfile
     image: {{ NAVIGATOR_IMAGE }}
-    pull_policy: never
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.navigator.ports.local.http') }}:5000"
-    volumes:
-      - {{ path_infinito_presentation_output.stdout }}:/app
-      - {{ path_infinito_output.stdout }}:/source
+    {{ lookup('container_volumes', application_id, NAVIGATOR_SERVICE) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

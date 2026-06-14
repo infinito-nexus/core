@@ -2,44 +2,30 @@
 
   {{ KIX_DB_CONTAINER }}:
     image: "{{ KIX_DB_IMAGE }}:{{ KIX_DB_VERSION }}"
-    container_name: "{{ KIX_DB_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', KIX_DB_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     hostname: db
-    volumes:
-      - kix_db:/var/lib/postgresql/data
+    {{ lookup('container_volumes', application_id, KIX_DB_CONTAINER) | indent(4) }}
     shm_size: '2gb'
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   {{ KIX_BACKEND_CONTAINER }}:
     image: "{{ KIX_BACKEND_IMAGE }}:{{ KIX_BACKEND_VERSION }}"
-    container_name: "{{ KIX_BACKEND_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', KIX_BACKEND_CONTAINER) }}
     hostname: backend
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ KIX_DB_CONTAINER }}:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - kix_shared:/mnt/shared
-      - kix_backend:/mnt/data
-{% if KIX_LDAP_ENABLED | bool %}
-      - "{{ KIX_AUTH_LDAP_HOST_PATH }}:{{ KIX_AUTH_LDAP_CONTAINER_PATH }}:ro"
-{% endif %}
+    {{ lookup('depends_on', {KIX_DB_CONTAINER: 'service_healthy', 'redis': 'service_healthy'}) }}
+    {{ lookup('container_volumes', application_id, KIX_BACKEND_CONTAINER) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   {{ KIX_FRONTEND_CONTAINER }}:
     image: "{{ KIX_FRONTEND_IMAGE }}:{{ KIX_FRONTEND_VERSION }}"
-    container_name: "{{ KIX_FRONTEND_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', KIX_FRONTEND_CONTAINER) }}
     hostname: frontend
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ KIX_BACKEND_CONTAINER }}:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+    {{ lookup('depends_on', {KIX_BACKEND_CONTAINER: 'service_healthy', 'redis': 'service_healthy'}) }}
     environment:
       - USE_SSL=0
       - REDIS_CACHE_HOST=redis
@@ -47,26 +33,18 @@
       - FRONTEND_NOTIFICATION_ID=kix-agent-frontend
       - NOTIFICATION_URL=http://frontend:3000/notifications
       - BACKEND_API_URL=http://backend:8080/api/v1
-    volumes:
-      - kix_shared:/mnt/shared
-      - kix_frontend:/mnt/data
+    {{ lookup('container_volumes', application_id, KIX_FRONTEND_CONTAINER) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
   {{ KIX_PROXY_CONTAINER }}:
     image: "{{ KIX_PROXY_IMAGE }}:{{ KIX_PROXY_VERSION }}"
-    container_name: "{{ KIX_PROXY_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', KIX_PROXY_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      - {{ KIX_BACKEND_CONTAINER }}
-      - {{ KIX_FRONTEND_CONTAINER }}
-    volumes:
-      - "{{ KIX_PROXY_NGINX_HOST_PATH }}:{{ KIX_PROXY_NGINX_CONTAINER_PATH }}:ro"
+    {{ lookup('depends_on', [KIX_BACKEND_CONTAINER, KIX_FRONTEND_CONTAINER]) }}
+    {{ lookup('container_volumes', application_id, KIX_PROXY_CONTAINER) | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.kix.ports.local.http') }}:80"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'kix_db': {}, 'kix_shared': {}, 'kix_backend': {}, 'kix_frontend': {}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

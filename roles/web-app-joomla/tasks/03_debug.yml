@@ -8,7 +8,7 @@
       - "J_MODE_DEBUG={{ MODE_DEBUG | bool | ternary('1','0') }}"
       - -e
       - "J_ERR_LEVEL={{ MODE_DEBUG | bool | ternary('maximum','default') }}"
-      - "{{ JOOMLA_CONTAINER }}"
+      - "{{ JOOMLA_CONTAINER_ADDRESS }}"
       - php
       - -r
       - |

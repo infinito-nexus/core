@@ -35,6 +35,7 @@ redis:
   mem_reservation: 1g
   mem_limit: 8g
   pids_limit: 512
+  name: "{{ 'web-app-nextcloud' | get_entity_name }}-redis"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   enabled: true # nocheck: dynamic-flag

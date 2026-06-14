@@ -2,7 +2,6 @@
 - name: Execute OIDC Cleanup Routine
   include_tasks: cleanup/oidc.yml
   when: not (GITEA_OIDC_ENABLED | bool)
-
 - name: Execute LDAP Cleanup Routine
   include_tasks: cleanup/ldap.yml
   when: not (GITEA_LDAP_ENABLED | bool)

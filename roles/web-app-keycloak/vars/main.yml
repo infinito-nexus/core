@@ -1,23 +1,18 @@
 ---
-# General
 application_id: "web-app-keycloak"
 entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 webserver_extra_configuration: "{{ lookup('template', 'nginx/helper_iframes.conf.j2') }}"
 
-# Keycloak
-
-## General
 KEYCLOAK_CONTAINER_HOSTNAME: "{{ entity_name }}"
 KEYCLOAK_DOMAIN: "{{ domain }}"
-KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}" # This is the name of the default realm which is used by the applications
+KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 KEYCLOAK_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 KEYCLOAK_REALM_URL: "{{ KEYCLOAK_URL }}/realms/{{ KEYCLOAK_REALM }}"
 KEYCLOAK_DEBUG_ENABLED: "{{ MODE_DEBUG }}"
 KEYCLOAK_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 KEYCLOAK_SERVER_INTERNAL_URL: "http://127.0.0.1:8080"
 
-# RBAC
 KEYCLOAK_RBAC_GROUP_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
 KEYCLOAK_RBAC_GROUP_NAME: "{{ RBAC.GROUP.NAME }}"
 KEYCLOAK_RBAC_ALL_APP_IDS: "{{ lookup('deployment').groups | rbac_app_ids }}"
@@ -57,10 +52,8 @@ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER: >-
       }, recursive=True)
   }}
 
-## Health
 KEYCLOAK_HEALTH_ENABLED: true
 
-## Import
 KEYCLOAK_REALM_IMPORT_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.import_enabled') }}"
 KEYCLOAK_REALM_IMPORT_DIR_HOST: "{{ [lookup('container', application_id, 'directories.volumes'),'import'] | path_join }}"
 KEYCLOAK_REALM_IMPORT_DIR_DOCKER: "/opt/keycloak/data/import/"
@@ -70,28 +63,25 @@ KEYCLOAK_REALM_IMPORT_FILE_DST: "{{ [KEYCLOAK_REALM_IMPORT_DIR_HOST,KEYCLOAK_REA
 KEYCLOAK_REALM_IMPORT_FILE_DOCKER: "{{ [KEYCLOAK_REALM_IMPORT_DIR_DOCKER,KEYCLOAK_REALM_IMPORT_FILENAME] | path_join }}"
 KEYCLOAK_REALM_TOTP_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.totp_enabled') }}"
 
-## Credentials
-
-### Bootstrap
 KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.bootstrap.username') }}"
 KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 
-### Permanent
 KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.system.username') }}"
 KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 
-## Docker
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
-KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_CONTAINER }}"
+KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+# Exception: KEYCLOAK_LOCAL_CID is set by 04_login.yml after resolving the swarm-hosting
+# node; fall back to the compose-mode container_address when the fact is not yet set
+# so vars resolve cleanly before the manager-side ops kick in.
+KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_LOCAL_CID | default(KEYCLOAK_CONTAINER_ADDRESS) }}" # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at 04_login runtime; container_address used only as compose-mode fallback
 KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
 KEYCLOAK_EXEC_KCADM: "{{ KEYCLOAK_EXEC_CONTAINER }} {{ KEYCLOAK_KCADM }}"
 KEYCLOAK_IMAGE: "{{ lookup('config', application_id, 'services.keycloak.image') }}"
 KEYCLOAK_VERSION: "{{ lookup('config', application_id, 'services.keycloak.version') }}"
 
-## Server
 KEYCLOAK_SERVER_HOST: "127.0.0.1:{{ lookup('config', application_id, 'services.keycloak.ports.local.http') }}"
 
-## Update
 KEYCLOAK_REDIRECT_FEATURES: ["services.sso.enabled", "services.sso.enabled"]
 KEYCLOAK_FRONTCHANNEL_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
 # This will lead to issues later @todo; Optimize:
@@ -105,7 +95,6 @@ KEYCLOAK_WEB_ORIGINS: >-
       | list | unique }}
 KEYCLOAK_POST_LOGOUT_URIS: "+"
 
-## LDAP
 KEYCLOAK_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 KEYCLOAK_LDAP_SHARED: "{{ lookup('config', application_id, 'services.ldap.shared') }}"
 KEYCLOAK_LDAP_CMP_NAME: "{{ LDAP.SERVER.DOMAIN }}" # Name of the LDAP User Federation component in Keycloak (as shown in UI)
@@ -124,7 +113,6 @@ KEYCLOAK_LDAP_USER_OBJECT_CLASSES: >
       ) | join(', ')
   }}
 
-# User
 KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.keycloak.users.emails_verified') }}"
 
 # Moodle integration toggle. The realm import file, the per-app
@@ -133,7 +121,6 @@ KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.ke
 # single SPOT.
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 
-# reCAPTCHA
 KEYCLOAK_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'credentials.recaptcha.key') }}"
 KEYCLOAK_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'credentials.recaptcha.secret') }}"

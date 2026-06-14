@@ -18,6 +18,35 @@ Database seeding for individual apps is contributed by the consumer roles via `t
 - **Systemd-driven:** a generated unit fires on the configured schedule (`SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL`), serialised against other backup/cleanup/repair groups by `sys-lock`.
 - **Self-cleaning:** failed backup attempts are torn down by `sys-ctl-cln-faild-bkps` so a broken run cannot poison the next.
 
+## NFS-backed volumes
+
+When a host runs Docker Swarm with NFSv4-backed shared volumes
+(see [svc-storage-nfs-server](../svc-storage-nfs-server/) and
+[svc-storage-nfs-client](../svc-storage-nfs-client/)), the backup
+machinery operates transparently against the existing
+`/var/lib/docker/volumes/<vol>/_data` mount paths: the Linux
+kernel routes the I/O over NFS instead of the local
+filesystem. The rsync hard-link semantics still apply, but with
+two caveats:
+
+- **Source-of-truth.** Take backups from the NFS server itself, or
+  from a single designated swarm node, NOT from every node. The
+  same data is visible from every node, but running multiple
+  parallel backups against the same export wastes I/O and may
+  race on the `link-dest` target.
+- **Snapshot consistency.** For DB data directories that stay
+  local-only,
+  the existing `databases.csv` SQL-dump path is unchanged. For
+  NFS-backed file volumes (e.g. MediaWiki `images/`), point the
+  backup directly at the NFS export base on the server side for
+  faster snapshots than going through the docker volume.
+
+Restore procedure for an NFS-backed volume: stop the consuming
+stack on the swarm manager (`docker stack rm <stack>`), rsync
+the desired backup snapshot into the NFS export subdirectory,
+re-deploy the stack. The docker volume's NFS driver remounts on
+re-deploy and picks up the restored state.
+
 ## Credits
 
 Developed and maintained by **Kevin Veen-Birkenbach**.

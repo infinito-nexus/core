@@ -1,7 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   application:
     image: "{{ YOURLS_IMAGE }}:{{ YOURLS_VERSION }}"
-    container_name: "{{ YOURLS_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', YOURLS_CONTAINER) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.yourls.ports.local.http') }}:{{ container_port }}"
@@ -11,8 +11,7 @@
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

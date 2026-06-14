@@ -1,19 +1,13 @@
 ---
-# General
 application_id: "web-app-taiga"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Taiga
+TAIGA_EMAIL_BACKEND: "{{ 'smtp' if lookup('email', application_id).smtp else 'console' }}"
 
-## General
-TAIGA_EMAIL_BACKEND: "{{ 'smtp' if lookup('email', application_id).smtp else 'console' }}" # # use an SMTP server or display the emails in the console (either "smtp" or "console")
-
-## User
 TAIGA_SUPERUSER_NAME: "{{ lookup('users', 'administrator').username }}"
 TAIGA_SUPERUSER_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 TAIGA_SUPERUSER_EMAIL: "{{ lookup('users', 'administrator').email }}"
 
-## Authentication
 TAIGA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 TAIGA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', false) }}"
 TAIGA_PLUGINS_ENABLED: "{{ TAIGA_OIDC_ENABLED | bool or TAIGA_LDAP_ENABLED | bool }}"
@@ -40,7 +34,6 @@ TAIGA_PLUGIN_PIP_INSTALL_ARGS: >-
     ) | join(' ')
   }}
 
-## Docker
 TAIGA_REPOSITORY: "{{ lookup('config', application_id, 'services.taiga.repository') }}"
 TAIGA_REF: "{{ lookup('config', application_id, 'services.taiga.ref') }}"
 TAIGA_VERSION: "{{ lookup('config', application_id, 'services.taiga.version') }}"
@@ -65,15 +58,12 @@ TAIGA_DOCKER_VERSION_ASYNC_RABBITMQ: "{{ lookup('config', application_id, 'servi
 TAIGA_DOCKER_IMAGE_EVENTS_RABBITMQ: "{{ lookup('config', application_id, 'services.events-rabbitmq.image') }}"
 TAIGA_DOCKER_VERSION_EVENTS_RABBITMQ: "{{ lookup('config', application_id, 'services.events-rabbitmq.version') }}"
 
-### Backend
 TAIGA_SERVICE: "{{ entity_name }}"
 TAIGA_HOSTNAME: "taiga-back"
 TAIGA_CONTAINER: "{{ entity_name }}"
-TAIGA_VOLUME_MEDIA: "/taiga-back/media"
-TAIGA_VOLUME_STATIC: "/taiga-back/static"
 
-## Services
 TAIGA_MANAGER_SERVICE: "manager"
+TAIGA_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, TAIGA_MANAGER_SERVICE) }}"
 TAIGA_ASYNC_SERVICE: "async"
 TAIGA_ASYNC_RABBITMQ_SERVICE: "async-rabbitmq"
 TAIGA_EVENTS_RABBITMQ_SERVICE: "events-rabbitmq"

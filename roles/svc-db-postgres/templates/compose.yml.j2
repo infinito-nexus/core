@@ -1,7 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   postgres:
-    container_name:   "{{ POSTGRES_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', POSTGRES_CONTAINER) }}
     image:            "{{ POSTGRES_CUSTOM_IMAGE }}"
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
     command:
@@ -22,12 +22,8 @@
     ports: 
       - "{{ DOCKER_BIND_HOST }}:{{ POSTGRES_PORT }}:5432"
 {% endif %}
-    volumes:
-      - "data:/var/lib/postgresql/data"
+    {{ lookup('container_volumes', application_id, 'postgres') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': POSTGRES_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

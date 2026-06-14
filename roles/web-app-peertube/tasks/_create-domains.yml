@@ -4,7 +4,7 @@
     name: sys-front-inj-all
 
 - name: configure {{ domain }}.conf
-  template:
+  stack_host_template:
     src: "templates/peertube.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', domain) }}"
   notify: restart openresty

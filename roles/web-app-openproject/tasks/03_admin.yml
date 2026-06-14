@@ -1,7 +1,7 @@
 ---
 - name: Ensure administrator user exists and is admin
   shell: >
-    {{ BIN_COMPOSE }} exec -e OPENPROJECT_ADMIN_PASSWORD={{ OPENPROJECT_ADMINISTRATOR_PASSWORD | quote }} web bash -c "
+    container exec -i -e OPENPROJECT_ADMIN_PASSWORD={{ OPENPROJECT_ADMINISTRATOR_PASSWORD | quote }} {{ OPENPROJECT_WEB_CONTAINER_ADDRESS | quote }} bash -c "
       cd /app &&
       bundle exec rails runner \"
         pw = ENV['OPENPROJECT_ADMIN_PASSWORD']
@@ -25,8 +25,6 @@
         end
       \"
     "
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

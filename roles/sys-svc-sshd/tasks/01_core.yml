@@ -10,7 +10,7 @@
   when: run_once_user_administrator is not defined
 
 - name: create sshd_config
-  template:
+  template: # nocheck: stack-host-template (per-host sshd_config)
     src: "sshd_config.j2"
     dest: /etc/ssh/sshd_config
     owner: root

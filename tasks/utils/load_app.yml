@@ -13,3 +13,5 @@
   vars:
     application_id: "{{ load_app_id }}"
     domain: "{{ lookup('domain', load_app_id) }}"
+  when:
+    - groups[load_app_id] is not defined or inventory_hostname in groups[load_app_id]

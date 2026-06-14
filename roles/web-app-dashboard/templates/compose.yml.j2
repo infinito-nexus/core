@@ -1,16 +1,17 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  dashboard:
+{% set service_name = 'dashboard' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {% set container_port = 5000 %}
     image: {{ DASHBOARD_IMAGE }}:{{ DASHBOARD_VERSION }}
-    container_name: {{ DASHBOARD_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', DASHBOARD_CONTAINER) }}
     ports:
       - {{ DOCKER_BIND_HOST }}:{{ http_port }}:{{ container_port }}
-    volumes:
-      - "{{ DASHBOARD_CONFIG_YML_DEST }}:{{ DASHBOARD_CONFIG_YML_DOCKER_DEST }}:ro"
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('compose_restart') }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

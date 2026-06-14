@@ -11,12 +11,13 @@ PENPOT_EXPORTER_IMAGE: "{{ lookup('config', application_id, 'services.exporter.i
 PENPOT_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 PENPOT_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.backend.name') }}"
 PENPOT_EXPORTER_CONTAINER: "{{ lookup('config', application_id, 'services.exporter.name') }}"
-PENPOT_ASSETS_VOLUME: "{{ lookup('config', application_id, 'volumes.assets') }}"
 
 # Compose-internal service names (must match the keys emitted in compose.yml.j2)
 PENPOT_FRONTEND_SERVICE: "frontend"
 PENPOT_BACKEND_SERVICE: "backend"
 PENPOT_EXPORTER_SERVICE: "exporter"
+
+PENPOT_BACKEND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, PENPOT_BACKEND_SERVICE) }}"
 
 # Internal container ports (upstream defaults)
 PENPOT_FRONTEND_INTERNAL_PORT: 8080

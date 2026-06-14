@@ -1,6 +1,6 @@
 ---
 - name: "Deploy xwiki.properties"
-  template:
+  stack_host_template:
     src: "xwiki.properties.j2"
     dest: "{{ XWIKI_HOST_PROPERTIES_PATH }}"
   notify: compose up

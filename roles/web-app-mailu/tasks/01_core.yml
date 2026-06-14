@@ -11,7 +11,7 @@
     mode: "0755"
 
 - name: Render Mailu unbound config override
-  template:
+  template: # nocheck: stack-host-template (mailu compose dir, not project nginx tree)
     src: unbound.conf.j2
     dest: "{{ MAILU_UNBOUND_CONF_FILE }}"
     mode: "0644"
@@ -23,7 +23,7 @@
     mode: "0755"
 
 - name: Render ratelimit.conf
-  template:
+  template: # nocheck: stack-host-template (mailu compose dir, not project nginx tree)
     src: ratelimit.conf.j2
     dest: "{{ MAILU_RSPAMD_HOST_FILE }}"
     mode: "0644"
@@ -36,45 +36,6 @@
     webserver_vhost_flavour: "basic"
     domain: "{{ MAILU_HOSTNAME }}"
 
-- name: "Flush Docker Compose handlers"
-  meta: flush_handlers
-
-- name: Wait for Mailu MariaDB
-  include_tasks: 02_wait_for_mariadb.yml
-
-- name: Wait for Mailu Redis
-  include_tasks: 03_wait_for_redis.yml
-
-- name: "Create Mailu accounts"
-  include_tasks: 04_manage_user.yml
-  vars:
-    mailu_action: >-
-      {{
-        (
-          'administrator' in (user_item.value.get('roles', []))
-        )
-        | ternary('admin','user')
-      }}
-    mailu_user_key: "{{ user_item.key }}"
-    mailu_user_name: "{{ user_item.value.username }}"
-    mailu_user_password: "{{ user_item.value.password }}"
-    mailu_token_ip: "{{ user_item.value.ip | default(networks.internet.ip4) }}"
-    mailu_token_name: "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
-    mailu_user_roles: "{{ user_item.value.roles | default([]) }}"
-  loop: "{{ lookup('users') | dict2items }}"
-  loop_control:
-    loop_var: user_item
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "Include Cert deploy service for '{{ role_name }}'"
-  include_role:
-    name: sys-ctl-mtn-cert-deploy
-  when: lookup('tls', application_id, 'enabled') | bool
-  # Alarm mail setup reaches sys-svc-mail and therefore requires the Mailu
-  # API token that is created in 04_manage_user.yml.
-
-- name: Generate DKIM public key
-  include_tasks: 05_generate-and-read-dkim.yml
-
-- name: Set Mailu DNS records
-  include_tasks: 06_dns-records.yml
+- name: "Mailu manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

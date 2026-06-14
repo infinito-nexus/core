@@ -4,3 +4,4 @@ collections:
   - name: community.general
   - name: community.docker
   - name: hetzner.hcloud
+  - name: ansible.posix

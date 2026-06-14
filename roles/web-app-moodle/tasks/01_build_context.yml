@@ -42,7 +42,7 @@
     - compose up
 
 - name: "Transfer msmtprc to {{ MOODLE_MSMTP_ABS }} (Mailu relay used by mail() + healthcheck)"
-  ansible.builtin.template:
+  stack_host_template:
     src: "{{ MOODLE_MSMTP_SRC }}"
     dest: "{{ MOODLE_MSMTP_ABS }}"
     mode: "0640"
@@ -51,7 +51,7 @@
     - compose up
 
 - name: "Render PHP runtime tuning into compose context"
-  ansible.builtin.template:
+  stack_host_template:
     src: "{{ [MOODLE_BUILD_DIR, MOODLE_BUILD_FILES.runtime_ini ~ '.j2'] | path_join }}"
     dest: "{{ [_moodle_build_dir, MOODLE_BUILD_FILES.runtime_ini] | path_join }}"
     mode: "0644"

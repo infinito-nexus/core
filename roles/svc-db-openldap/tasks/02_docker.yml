@@ -25,3 +25,6 @@
 
 - name: "Flush compose handlers"
   meta: flush_handlers
+
+- name: "Wait for openldap stack to converge (swarm only)"
+  ansible.builtin.include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/post_deploy.yml'] | path_join }}"

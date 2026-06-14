@@ -44,8 +44,7 @@ def run(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str, st
 def run_checked(cmd: list[str], *, cwd: Path, env: dict[str, str], label: str) -> None:
     rc, out, err = run(cmd, cwd=cwd, env=env)
     if rc != 0:
-        details = (err or out).strip()
-        die(f"{label} failed (rc={rc}): {details}")
+        die(f"{label} failed (rc={rc})\nSTDERR:\n{err.strip()}\nSTDOUT:\n{out.strip()}")
 
 
 def parse_yaml(text: str, label: str) -> dict[str, Any]:

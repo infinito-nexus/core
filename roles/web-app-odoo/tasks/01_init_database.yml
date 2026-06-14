@@ -20,8 +20,8 @@
   block:
     # Use container exec - the running container already has network access to postgres
     - name: Run Odoo database initialization
-      ansible.builtin.command: >
-        container exec {{ ODOO_CONTAINER }}
+      ansible.builtin.shell: >
+        container exec {{ ODOO_CONTAINER_ADDRESS }}
         odoo --no-http
         --database={{ ODOO_DB_NAME }}
         --init={{ ODOO_MODULES_CORE | join(',') }}
@@ -44,8 +44,8 @@
   when: odoo_schema_exists.rows is not defined or odoo_schema_exists.rows | length == 0
 
 - name: Update existing Odoo modules (if schema exists)
-  ansible.builtin.command: >
-    container exec {{ ODOO_CONTAINER }}
+  ansible.builtin.shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo --no-http
     --database={{ ODOO_DB_NAME }}
     --update={{ ODOO_MODULES_CORE | join(',') }}

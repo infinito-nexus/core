@@ -1,4 +1,19 @@
 ---
-data: gitlab_data
-logs: gitlab_logs
-config: gitlab_config
+config:
+  type: volume
+  name: gitlab_config
+  mounts:
+    - service: gitlab
+      target: /etc/gitlab
+logs:
+  type: volume
+  name: gitlab_logs
+  mounts:
+    - service: gitlab
+      target: /var/log/gitlab
+data:
+  type: volume
+  name: gitlab_data
+  mounts:
+    - service: gitlab
+      target: /var/opt/gitlab

@@ -38,6 +38,19 @@ _VARIANTS_CACHE: dict[str, dict[str, list[Any]]] = {}
 _VARIANT_OVERRIDES_ONLY_CACHE: dict[str, dict[str, list[dict[str, Any]]]] = {}
 _MERGED_APPLICATIONS_CACHE: dict[tuple, dict[str, Any]] = {}
 
+# Canonical `meta/volumes.yml` dict-of-dicts kept OUT of the applications
+# payload on purpose: the entries hold raw Jinja strings (`source:
+# "{{ lookup('container', ...) }}"`) that `compose_volumes` /
+# `container_volumes` emit verbatim into the rendered compose template
+# where Ansible resolves them at deploy time. If these strings ride
+# along inside the merged applications dict, `_render_with_templar`
+# walks them every play and either explodes (236 roles × deep Jinja)
+# or recurses (volume Jinja calls lookups that re-enter applications).
+# Keyed by role name; value is the canonical dict-of-dicts itself
+# (semantic_name -> entry). Populated alongside
+# `_APPLICATIONS_DEFAULTS_CACHE`.
+_CANONICAL_VOLUMES_BY_ROLE: dict[str, dict[str, Any]] = {}
+
 # Every role's metadata lives under these `meta/<topic>.yml` files.
 # The file root IS the value of `applications.<app>.<topic>` — there
 # is NO wrapping key matching the filename.
@@ -141,7 +154,20 @@ def _build_role_base_config(
     meta_dir = role_dir / "meta"
 
     for topic in _META_TOPICS:
-        topic_data = _load_yaml_cached(meta_dir / f"{topic}.yml", default_if_missing={})
+        # `volumes.yml` is canonical dict-of-dicts (semantic_name → spec);
+        # use the shape-agnostic loader so a stray legacy list still loads
+        # for the validator's error path. Other meta topics stay dict-only.
+        loader = _load_yaml_any_cached if topic == "volumes" else _load_yaml_cached
+        topic_data = loader(meta_dir / f"{topic}.yml", default_if_missing={})
+        if topic == "volumes" and isinstance(topic_data, dict) and topic_data:
+            # Canonical dict-of-dicts lives in a sibling registry kept OUT
+            # of the templar-rendered applications payload so the
+            # embedded Jinja `source:` strings stay verbatim until the
+            # compose template renders. Consumers reach the raw dict via
+            # `get_canonical_volumes(role)`; nothing lands under
+            # `config_data['volumes']`.
+            _CANONICAL_VOLUMES_BY_ROLE[role_dir.name] = topic_data
+            continue
         if topic_data:
             config_data[topic] = topic_data
 
@@ -373,8 +399,21 @@ def get_merged_applications(
     return rendered
 
 
+def get_canonical_volumes(application_id: str) -> dict[str, Any]:
+    """Return the canonical dict-of-dicts `meta/volumes.yml` for *application_id*.
+
+    Lives outside the applications payload so its embedded Jinja `source:`
+    strings stay raw — see the `_CANONICAL_VOLUMES_BY_ROLE` doc-comment.
+    The registry populates lazily: callers should hold a reference to the
+    role's config_data (which forces `_build_application_defaults` to run
+    first) or call `get_application_defaults` explicitly before this.
+    """
+    return _CANONICAL_VOLUMES_BY_ROLE.get(application_id, {})
+
+
 def _reset() -> None:
     _APPLICATIONS_DEFAULTS_CACHE.clear()
     _VARIANTS_CACHE.clear()
     _VARIANT_OVERRIDES_ONLY_CACHE.clear()
     _MERGED_APPLICATIONS_CACHE.clear()
+    _CANONICAL_VOLUMES_BY_ROLE.clear()

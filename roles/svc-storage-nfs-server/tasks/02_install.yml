@@ -1,0 +1,5 @@
+---
+- name: "Install NFS server packages"
+  ansible.builtin.package:
+    name: "{{ SVC_STORAGE_NFS_SERVER_PACKAGES[ansible_os_family] }}"
+    state: present

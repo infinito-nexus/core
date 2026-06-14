@@ -190,11 +190,11 @@ jobs:
 
   # Deploy tests
 
-  test-deploy-server:
+  test-deploy-compose:
     needs:
       - test-dns
       - images-mirror-missing
-    uses: ./.github/workflows/test-deploy-server.yml
+    uses: ./.github/workflows/test-deploy-compose.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
@@ -215,6 +215,13 @@ jobs:
     uses: ./.github/workflows/test-deploy-workstation.yml
     with:
       distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.whitelist }}
+
+  test-deploy-swarm:
+    needs:
+      - code-quality-gate
+    uses: ./.github/workflows/test-deploy-swarm.yml
+    with:
       whitelist: ${{ inputs.whitelist }}
 
   # Test Installation
@@ -247,9 +254,10 @@ jobs:
   done:
     name: 🏁 Finish pipeline
     needs:
-      - test-deploy-server
+      - test-deploy-compose
       - test-deploy-universal
       - test-deploy-workstation
+      - test-deploy-swarm
       - test-install-gate
       - test-development
     if: ${{ always() }}

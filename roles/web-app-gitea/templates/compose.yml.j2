@@ -3,20 +3,14 @@
   application:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     image: "{{ GITEA_IMAGE }}:{{ GITEA_VERSION }}"
-    container_name:  "{{ GITEA_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', GITEA_CONTAINER) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}:{{ container_port }}"
       - "{{lookup('config', application_id, 'services.gitea.ports.public.ssh')}}:22"
-    volumes:
-      - data:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+    {{ lookup('container_volumes', application_id, 'application') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': GITEA_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

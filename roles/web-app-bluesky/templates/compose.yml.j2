@@ -5,9 +5,7 @@
 {% set container_healthcheck = 'xrpc/_health' %}
     image: "{{ BLUESKY_PDS_IMAGE }}:{{ BLUESKY_PDS_VERSION }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    volumes:
-        - pds_data:{{ BLUESKY_PDS_DATA_DIR }}
-        - {{ BLUESKY_PDSADMIN_FILE }}:/usr/local/bin/pdsadmin:ro
+    {{ lookup('container_volumes', application_id, 'pds') | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ BLUESKY_API_PORT }}:{{ container_port }}"
 
@@ -16,19 +14,23 @@
 
 {% if BLUESKY_WEB_ENABLED %}
 {% set container_port = 8100 %}
-  web:
+{% set service_name = 'web' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     command: ["bskyweb","serve"]
     build:
       context: "{{ BLUESKY_SOCIAL_APP_DIR }}"
       dockerfile: Dockerfile
     image: {{ BLUESKY_WEB_IMAGE_CUSTOM }}
-    pull_policy: never
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ BLUESKY_WEB_PORT }}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-  bluesky-broker:
+{% set service_name = 'bluesky-broker' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     build:
       context: "{{ BLUESKY_BROKER_BUILD_CONTEXT }}"
       dockerfile: Dockerfile
@@ -36,10 +38,10 @@
         BLUESKY_BROKER_BASE_IMAGE: "{{ BLUESKY_BROKER_BASE_IMAGE }}"
         BLUESKY_BROKER_BASE_VERSION: "{{ BLUESKY_BROKER_BASE_VERSION }}"
     image: {{ BLUESKY_BROKER_IMAGE }}
-    container_name: {{ BLUESKY_BROKER_CONTAINER }}
-    hostname: bluesky-broker
-    pull_policy: never
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('compose_only', 'container_name', BLUESKY_BROKER_CONTAINER) }}
+    hostname: {{ service_name }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('compose_restart') }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ BLUESKY_BROKER_PORT }}:8080"
     environment:
@@ -47,17 +49,6 @@
       SOCIAL_APP_URL: "http://web:8100"
       PDS_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ BLUESKY_API_DOMAIN }}"
       PDS_HANDLE_DOMAIN: "{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
-      # Same admin password the PDS itself uses (env.j2 sets
-      # PDS_ADMIN_PASSWORD on the pds container). The broker reuses it
-      # to recover from `Handle already taken` via the PDS admin
-      # `updateAccountPassword` API when its in-memory cache has been
-      # lost but the PDS still holds the account from a previous
-      # broker session (cross-variant deploy / broker container
-      # restart with persistent pds_data volume).
-      # `$` doubled to `$$` because docker compose interpolates the
-      # `environment:` map at parse time and would otherwise eat any
-      # `$word` substring in the password (silently truncating it
-      # to whatever survives interpolation; PDS rejects with 401).
       PDS_ADMIN_PASSWORD: "{{ BLUESKY_ADMIN_PASSWORD | replace('$', '$$') }}"
       BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ BLUESKY_BRIDGE_ENCRYPTION_KEY }}"
       INSECURE_TLS: "{{ MODE_DEBUG | string | lower }}"
@@ -69,8 +60,5 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'pds_data': {'name': BLUESKY_PDS_DATA_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

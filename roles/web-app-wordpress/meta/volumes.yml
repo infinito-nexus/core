@@ -1,2 +1,14 @@
 ---
-data: wordpress_data
+data:
+  type: volume
+  name: wordpress_data
+  mounts:
+    - service: application
+      target: "/var/www/html"
+msmtprc:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wordpress', 'directories.config'), 'msmtprc.conf'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: application
+      target: /etc/msmtprc

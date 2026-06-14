@@ -44,7 +44,7 @@
   when: inj_enabled.javascript
 
 - name: "Render body_filter Lua for '{{ application_id }}'"
-  ansible.builtin.template:
+  stack_host_template:
     src: body_filter.lua.j2
     dest: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}.lua"
     mode: "0644"

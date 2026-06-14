@@ -2,7 +2,7 @@
 # nocheck: run-once
 
 - name: Deploy shell dotfiles
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host user dotfiles, shared user role runs on every host)
     src: "{{ dotfile }}.j2"
     dest: "{{ user_home }}/.{{ dotfile }}"
     owner: "{{ user_username }}"

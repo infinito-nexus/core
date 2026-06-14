@@ -2,7 +2,7 @@
 
   application:
     image: "{{ OPENCLOUD_IMAGE }}:{{ OPENCLOUD_VERSION }}"
-    container_name: {{ OPENCLOUD_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', OPENCLOUD_CONTAINER) }}
     user: "0:0"
     entrypoint:
       - /bin/sh
@@ -10,16 +10,8 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ OPENCLOUD_HTTP_PORT }}:9200"
-    volumes:
-      - data:/var/lib/opencloud
-      - config:/etc/opencloud
+    {{ lookup('container_volumes', application_id, 'application') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={
-      'data':   {'name': OPENCLOUD_DATA_VOLUME},
-      'config': {'name': OPENCLOUD_CONFIG_VOLUME}
-    }
-) }}
+{{ lookup('compose_volumes', application_id) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

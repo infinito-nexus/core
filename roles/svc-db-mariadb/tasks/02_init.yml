@@ -26,20 +26,13 @@
         config_file: ""
   when: MARIADB_EXPOSE_LOCAL | bool
 
-# ---------------------------------------------------------------------------
-# CI / Container path: no port publishing → initialize via container exec
-# ---------------------------------------------------------------------------
 - block:
     - name: "Create database: {{ database_name }} (container via mariadb CLI)"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MARIADB_NAME }}"
-          - mariadb
-          - -uroot
-          - "-p{{ MARIADB_ROOT_PWD }}"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i
+          {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: |
           SET @db_name   := '{{ database_name }}';
           SET @charset   := '{{ MARIADB_ENCODING }}';
@@ -50,15 +43,11 @@
       changed_when: false
 
     - name: "Create database user + grant privileges (container via mariadb CLI)"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MARIADB_NAME }}"
-          - mariadb
-          - -uroot
-          - "-p{{ MARIADB_ROOT_PWD }}"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i
+          {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: |
           SET @db_user := '{{ database_username }}';
           SET @db_pwd  := '{{ database_password | replace("'", "''") }}';

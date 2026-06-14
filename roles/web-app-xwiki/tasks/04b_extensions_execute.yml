@@ -1,0 +1,29 @@
+---
+- name: "XWIKI | Execute installer page"
+  uri_retry:
+    url: "{{ XWIKI_DOCKER_REACH_URL }}/bin/view/XWiki/InstallExtensions?xpage=plain"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200]
+    return_content: true
+    timeout: 300
+  register: _exec_page
+  retries: 12
+  delay: 20
+  until:
+    - _exec_page is succeeded
+    - (_exec_page.content | default('')) is not search('WARN::')
+  changed_when: false
+
+- name: "XWIKI | Assert installer output has no errors"
+  assert:
+    that:
+      - (_exec_page.content | default('')) is not search('ERROR::')
+      - (_exec_page.content | default('')) is not search('INSTALLED_MISSING::')
+      - (_exec_page.content | default('')) is not search('WARN::')
+    fail_msg: |
+      XWiki extension installer reported errors.
+      Output:
+      {{ _exec_page.content | default('') }}
