@@ -29,6 +29,7 @@
 
 - name: "start setup procedures for mastodon"
   include_tasks: 03_setup.yml
+  when: IS_STACK_HOST | bool
 
 - name: "Wait for Mastodon"
   include_tasks: 04_wait.yml

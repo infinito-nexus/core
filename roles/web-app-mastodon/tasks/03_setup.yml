@@ -1,13 +1,13 @@
 ---
 - name: "Execute migration for '{{ application_id }}'"
-  command:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    cmd: "{{ BIN_COMPOSE }} run --rm {{ MASTODON_SERVICE_NAME }} bundle exec rails db:migrate"
+  ansible.builtin.shell: >
+    container exec {{ MASTODON_CONTAINER_ADDRESS }}
+    bundle exec rails db:migrate
 
 - name: "MASTODON | Seed database (idempotent)"
-  command:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    cmd: "{{ BIN_COMPOSE }} run --rm {{ MASTODON_SERVICE_NAME }} bash -lc 'bin/rails db:seed'"
+  ansible.builtin.shell: >
+    container exec {{ MASTODON_CONTAINER_ADDRESS }}
+    bash -lc 'bin/rails db:seed'
   register: mastodon_seed
   changed_when: false
   failed_when: mastodon_seed.rc != 0
