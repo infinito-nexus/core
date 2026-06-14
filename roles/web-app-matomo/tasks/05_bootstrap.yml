@@ -45,8 +45,10 @@
         msg: >-
           Matomo bootstrap run failed after {{ matomo_bootstrap_run.attempts | default(MATOMO_BOOTSTRAP_RETRIES) }} attempt(s)
           with rc={{ matomo_bootstrap_run.rc | default('n/a') }}.
-          stderr={{ (matomo_bootstrap_run.stderr | default('') | trim) if not (MASK_CREDENTIALS_IN_LOGS | bool) else ('<masked,len=' ~ ((matomo_bootstrap_run.stderr | default('') | string | length) | string) ~ '>') }}
-          stdout={{ (matomo_bootstrap_run.stdout | default('') | trim) if not (MASK_CREDENTIALS_IN_LOGS | bool) else ('<masked,len=' ~ ((matomo_bootstrap_run.stdout | default('') | string | length) | string) ~ '>') }}
+          stderr={{ (matomo_bootstrap_run.stderr | default('') | trim) if not (MASK_CREDENTIALS_IN_LOGS | bool) else ('<masked,len=' ~ ((matomo_bootstrap_run.stderr
+          | default('') | string | length) | string) ~ '>') }}
+          stdout={{ (matomo_bootstrap_run.stdout | default('') | trim) if not (MASK_CREDENTIALS_IN_LOGS | bool) else ('<masked,len=' ~ ((matomo_bootstrap_run.stdout
+          | default('') | string | length) | string) ~ '>') }}
 
 - name: "Matomo bootstrap | Set effective token (prefer existing, else parse bootstrap stdout)"
   ansible.builtin.set_fact:

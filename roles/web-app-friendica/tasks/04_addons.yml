@@ -72,7 +72,8 @@
 - name: Ensure Friendica addons are in sync
   script: >-
     shell/sync_addon.sh
-    "container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_CONTAINER_ADDRESS | quote }} {{ FRIENDICA_APPLICATION_DIR }}/bin/console"
+    "container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_CONTAINER_ADDRESS | quote }} {{ FRIENDICA_APPLICATION_DIR
+    }}/bin/console"
     "{{ item.name }}"
     "{{ 'true' if item.enabled else 'false' }}"
   args:
