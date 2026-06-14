@@ -1,0 +1,36 @@
+{% set container_port = 80 %}
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  pihole:
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    image: "{{ PIHOLE_IMAGE }}:{{ PIHOLE_VERSION }}"
+    container_name: "{{ PIHOLE_CONTAINER }}"
+    environment:
+      TZ:                           "{{ PIHOLE_TIMEZONE }}"
+      # Pi-hole v6: WEBPASSWORD is replaced by FTLCONF_webserver_api_password
+      FTLCONF_webserver_api_password: "{{ PIHOLE_PASSWORD }}"
+      # Trust requests proxied via nginx with the canonical domain Host header.
+      # Pi-hole v6 FTL denies requests with unrecognised Host headers (DNS
+      # rebinding protection); setting webserver.domain whitelists our domain.
+      FTLCONF_webserver_domain:     "{{ domain }}"
+      PIHOLE_DNS_:                  "{{ PIHOLE_UPSTREAM_DNS }}"
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}:80/tcp"
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - pihole_data:/etc/pihole
+      - pihole_dnsmasq:/etc/dnsmasq.d
+{% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={
+      'pihole_data':   {'name': PIHOLE_VOLUME_DATA},
+      'pihole_dnsmasq': {'name': PIHOLE_VOLUME_DNSMASQ},
+      'redis':         {}
+    }
+) }}

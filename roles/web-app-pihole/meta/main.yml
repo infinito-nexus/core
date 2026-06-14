@@ -1,0 +1,33 @@
+galaxy_info:
+  author: Prageeth Panicker
+  description: Deploys Pi-hole, a network-wide DNS sinkhole that blocks ads and trackers for every device on the network, with built-in DNS/DHCP management and a web admin dashboard.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+  - network
+  - dns
+  - adblock
+  - privacy
+  - sinkhole
+  - self-hosted
+  - pihole
+  - oauth2
