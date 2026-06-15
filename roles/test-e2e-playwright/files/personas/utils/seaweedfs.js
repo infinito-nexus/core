@@ -86,7 +86,7 @@ async function listDirFiles(page, filerUrl, dirPath, files, budget) {
       if (isDir) {
         await listDirFiles(page, filerUrl, `${fullPath}/`, files, budget);
       } else {
-        files.add(fullPath);
+        files.set(fullPath, String(entry.Mtime || entry.Md5 || ""));
       }
     }
     if (!json || !json.ShouldDisplayLoadMore || !json.LastFileName) {
@@ -96,12 +96,16 @@ async function listDirFiles(page, filerUrl, dirPath, files, budget) {
   }
 }
 
-async function countBucketObjects(adminPage, env) {
-  const files = new Set();
+async function collectBucketObjects(adminPage, env) {
+  const files = new Map();
   await listDirFiles(adminPage, env.filerUrl, `/buckets/${env.bucket}/`, files, {
     remaining: WALK_BUDGET,
   });
-  return files.size;
+  return files;
+}
+
+async function countBucketObjects(adminPage, env) {
+  return (await collectBucketObjects(adminPage, env)).size;
 }
 
 async function adminCountBucketObjects(browser, env) {
@@ -115,7 +119,7 @@ async function adminCountBucketObjects(browser, env) {
   }
 }
 
-async function runSeaweedfsStorageCheck(page, browser, { action, label = "the application upload", overrides = {}, pollDeadlineMs = 60_000 } = {}) {
+async function runSeaweedfsStorageCheck(page, browser, { action, label = "the application upload", overrides = {}, pollDeadlineMs = 60_000, expectInPlaceOverwrite = false } = {}) {
   const env = { ...seaweedfsEnv(), ...overrides };
   expect(env.filerUrl, "SEAWEEDFS_FILER_URL must be set").toBeTruthy();
   expect(env.bucket, "SEAWEEDFS_APP_BUCKET must be set").toBeTruthy();
@@ -130,27 +134,36 @@ async function runSeaweedfsStorageCheck(page, browser, { action, label = "the ap
     const adminPage = await adminContext.newPage();
     await adminLoginFiler(adminPage, env);
 
-    const before = await countBucketObjects(adminPage, env);
+    const before = await collectBucketObjects(adminPage, env);
 
     await action(page);
 
-    // The application may flush to S3 slightly after its UI reports success, so
-    // poll the Filer until the bucket grows (or the deadline passes).
+    // Default: require a NEW object key. This stays immune to background
+    // workers (PeerTube transcode, Pixelfed media jobs) that rewrite EXISTING
+    // objects during the poll window. Single-slot consumers that overwrite one
+    // fixed key in place (e.g. a tenant logo) opt in via expectInPlaceOverwrite
+    // to also accept a changed mtime on an existing key.
     const deadline = Date.now() + pollDeadlineMs;
-    let after;
+    let after = before;
+    let newObjects = [];
     for (;;) {
-      after = await countBucketObjects(adminPage, env);
-      if (after > before || Date.now() >= deadline) {
+      after = await collectBucketObjects(adminPage, env);
+      newObjects = [...after.keys()].filter(
+        (path) =>
+          !before.has(path) ||
+          (expectInPlaceOverwrite && before.get(path) !== after.get(path)),
+      );
+      if (newObjects.length > 0 || Date.now() >= deadline) {
         break;
       }
       await page.waitForTimeout(2_000);
     }
 
     expect(
-      after,
-      `${label} must store at least one new object in the SeaweedFS bucket '${env.bucket}' ` +
-        `(objects before: ${before}, after: ${after})`,
-    ).toBeGreaterThan(before);
+      newObjects.length,
+      `${label} must write at least one ${expectInPlaceOverwrite ? "new or changed" : "new"} object to the SeaweedFS bucket '${env.bucket}' ` +
+        `(objects before: ${before.size}, after: ${after.size}, matched: ${newObjects.length})`,
+    ).toBeGreaterThan(0);
   } finally {
     await adminContext.close();
   }

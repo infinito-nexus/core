@@ -53,6 +53,7 @@ test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "a Fider admin tenant-logo upload",
+    expectInPlaceOverwrite: true,
     action: async (appPage) => {
       expect(fiderBaseUrl, "FIDER_BASE_URL must be set for the Fider seaweedfs check").toBeTruthy();
       expect(adminUsername, "ADMIN_USERNAME must be set for the Fider seaweedfs check").toBeTruthy();
@@ -84,6 +85,11 @@ test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket
         buffer: LOGO_PNG,
       });
 
+      await expect(
+        appPage.locator('.c-image-upload img[src^="data:image"], .preview img[src^="data:image"]').first(),
+        "the selected logo must be loaded into the form (preview rendered) before saving",
+      ).toBeVisible({ timeout: 30_000 });
+
       const saveButton = appPage.getByRole("button", { name: /^save$/i }).first();
       await expect(
         saveButton,
@@ -100,6 +106,11 @@ test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket
         settingsResp.ok(),
         `Fider must accept the General-settings save that persists the logo (got HTTP ${settingsResp.status()})`,
       ).toBeTruthy();
+      const reqBody = settingsResp.request().postData() || "";
+      expect(
+        reqBody,
+        "the General-settings save must carry the logo upload payload (empty upload = silent no-op)",
+      ).toMatch(/"upload"\s*:\s*\{[^}]*"content"/);
     },
   });
 });
