@@ -5,7 +5,6 @@ per-service ``volumes:`` / ``configs:`` / ``secrets:`` block fed from
 
 from __future__ import annotations
 
-import contextlib
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -15,6 +14,7 @@ from plugins.filter.container_volumes import (
     container_volumes as _render_container_volumes,
 )
 from utils.cache.applications import get_merged_applications
+from utils.templating.ansible import _trust_as_template
 
 
 class LookupModule(LookupBase):
@@ -53,10 +53,12 @@ class LookupModule(LookupBase):
             # expressions are evaluated against the same context the
             # caller template sees, including `{% set %}` vars.
             def render_jinja(expr: str) -> Any:
-                rendered: Any = expr
-                with contextlib.suppress(Exception):
-                    rendered = templar.template(expr, fail_on_undefined=False)
-                return rendered
+                if not isinstance(expr, str):
+                    return expr
+                return templar.template(
+                    _trust_as_template(expr),
+                    fail_on_undefined=False,
+                )
 
         rendered = _render_container_volumes(
             applications,

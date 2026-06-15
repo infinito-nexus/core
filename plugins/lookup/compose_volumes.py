@@ -13,6 +13,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.compose_volumes import compose_volumes as _render_compose_volumes
 from utils.cache.applications import get_merged_applications
+from utils.templating.ansible import _trust_as_template
 
 
 class LookupModule(LookupBase):
@@ -61,6 +62,17 @@ class LookupModule(LookupBase):
             with contextlib.suppress(Exception):
                 dir_var_lib = templar.template(dir_var_lib)
 
+        render_jinja = None
+        if templar is not None:
+
+            def render_jinja(expr: str) -> Any:
+                if not isinstance(expr, str):
+                    return expr
+                return templar.template(
+                    _trust_as_template(expr),
+                    fail_on_undefined=False,
+                )
+
         rendered = _render_compose_volumes(
             applications,
             application_id,
@@ -70,5 +82,6 @@ class LookupModule(LookupBase):
             deployment_mode=str(deployment_mode).strip(),
             storage=storage,
             dir_var_lib=str(dir_var_lib).strip(),
+            render_jinja=render_jinja,
         )
         return [rendered]
