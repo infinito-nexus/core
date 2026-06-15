@@ -6,7 +6,6 @@ container_port: "3000"
 
 DECIDIM_VERSION: "{{ lookup('config', application_id, 'services.decidim.version') }}"
 DECIDIM_IMAGE: "{{ lookup('config', application_id, 'services.decidim.image') }}"
-DECIDIM_CUSTOM_IMAGE: "{{ DECIDIM_IMAGE }}:{{ DECIDIM_VERSION }}-infinito"
 DECIDIM_CONTAINER: "{{ lookup('config', application_id, 'services.decidim.name') }}"
 
 DECIDIM_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"

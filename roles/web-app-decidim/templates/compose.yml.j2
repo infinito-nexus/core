@@ -12,7 +12,7 @@
         DECIDIM_PATCH_SCRIPT_DOCKER: "{{ DECIDIM_PATCH_SCRIPT_DOCKER }}"
         DECIDIM_PATCH_RUBY_HOST_REL: "{{ DECIDIM_PATCH_RUBY_HOST_REL }}"
         DECIDIM_PATCH_RUBY_DOCKER: "{{ DECIDIM_PATCH_RUBY_DOCKER }}"
-    {{ lookup('container_image', application_id, 'decidim', image=DECIDIM_CUSTOM_IMAGE, version=DECIDIM_VERSION) }}
+    {{ lookup('container_image', application_id, 'decidim', version=DECIDIM_VERSION ~ '-infinito') }}
     {{ lookup('compose_only', 'container_name', DECIDIM_CONTAINER) }}
     command: bundle exec puma -C config/puma.rb
     ports:
