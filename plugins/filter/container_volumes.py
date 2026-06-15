@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from ansible.errors import AnsibleFilterError
+from ansible.errors import AnsibleFilterError, AnsibleUndefinedVariable
 
 from utils.cache.yaml import dump_yaml_str
 
@@ -48,6 +48,24 @@ def _mount_when_passes(
     if isinstance(rendered, bool):
         return rendered
     return str(rendered).strip().lower() not in {"false", "no", "0", "off", ""}
+
+
+def _coerce_mode_int(value: Any) -> int:
+    if isinstance(value, bool):
+        raise AnsibleFilterError(
+            f"container_volumes: mode must be an octal int or string, got bool: {value!r}"
+        )
+    if isinstance(value, int):
+        return value
+    text = str(value).strip()
+    if not text:
+        raise AnsibleFilterError("container_volumes: mode is empty")
+    try:
+        return int(text, 8)
+    except ValueError as exc:
+        raise AnsibleFilterError(
+            f"container_volumes: mode {value!r} is not a valid octal: {exc}"
+        ) from exc
 
 
 def _short_form_volume(source_name: str, target: str, read_only: bool) -> str:
@@ -104,6 +122,18 @@ def container_volumes(
             target = mount.get("target")
             if not target:
                 continue
+            target_text = str(target)
+            if render_jinja is not None and (
+                "{{" in target_text or "{%" in target_text
+            ):
+                try:
+                    target = str(render_jinja(target_text))
+                except AnsibleUndefinedVariable as exc:
+                    raise AnsibleFilterError(
+                        f"container_volumes: failed to render mount target "
+                        f"{target_text!r} for application {application_id!r}, "
+                        f"service {service!r}: {exc}"
+                    ) from exc
 
             if vtype == "volume":
                 read_only = bool(mount.get("read_only", volume_level_ro))
@@ -113,6 +143,15 @@ def container_volumes(
 
             elif vtype == "bind":
                 source = str(entry.get("source", ""))
+                if render_jinja is not None and ("{{" in source or "{%" in source):
+                    try:
+                        source = str(render_jinja(source))
+                    except AnsibleUndefinedVariable as exc:
+                        raise AnsibleFilterError(
+                            f"container_volumes: failed to render bind source "
+                            f"{source!r} for application {application_id!r}, "
+                            f"service {service!r}: {exc}"
+                        ) from exc
                 read_only = bool(mount.get("read_only", volume_level_ro))
                 volumes_block.append(_short_form_volume(source, target, read_only))
 
@@ -127,14 +166,16 @@ def container_volumes(
 
             elif vtype == "config":
                 cfg_ref: dict[str, Any] = {"source": semantic_name, "target": target}
-                if entry.get("mode"):
-                    cfg_ref["mode"] = entry["mode"]
+                mode_value = entry.get("mode")
+                if mode_value:
+                    cfg_ref["mode"] = _coerce_mode_int(mode_value)
                 configs_block.append(cfg_ref)
 
             elif vtype == "secret":
                 sec_ref: dict[str, Any] = {"source": semantic_name, "target": target}
-                if entry.get("mode"):
-                    sec_ref["mode"] = entry["mode"]
+                mode_value = entry.get("mode")
+                if mode_value:
+                    sec_ref["mode"] = _coerce_mode_int(mode_value)
                 secrets_block.append(sec_ref)
 
     if extra_volumes:

@@ -113,6 +113,16 @@ def _config_secret_name(role_entity: str, user_name: str, source: str) -> str:
     return f"{role_entity}_{user_name}_{digest}"
 
 
+def _maybe_render(value: Any, render_jinja: Any) -> str:
+    text = str(value)
+    if render_jinja is None or ("{{" not in text and "{%" not in text):
+        return text
+    try:
+        return str(render_jinja(text))
+    except Exception:
+        return text
+
+
 def compose_volumes(
     applications: dict[str, Any],
     application_id: str,
@@ -123,6 +133,7 @@ def compose_volumes(
     deployment_mode: str = "compose",
     storage: dict[str, Any] | None = None,
     dir_var_lib: str,
+    render_jinja: Any = None,
 ) -> str:
     """Render the top-level ``volumes:`` / ``configs:`` / ``secrets:`` block.
 
@@ -226,7 +237,7 @@ def compose_volumes(
             continue
 
         if vtype == "config":
-            source = str(entry.get("source", ""))
+            source = _maybe_render(entry.get("source", ""), render_jinja)
             configs[semantic_name] = {
                 "name": _config_secret_name(role_entity, semantic_name, source),
                 "file": source,
@@ -234,7 +245,7 @@ def compose_volumes(
             continue
 
         if vtype == "secret":
-            source = str(entry.get("source", ""))
+            source = _maybe_render(entry.get("source", ""), render_jinja)
             secrets[semantic_name] = {
                 "name": _config_secret_name(role_entity, semantic_name, source),
                 "file": source,

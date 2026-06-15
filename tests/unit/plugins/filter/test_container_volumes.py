@@ -95,7 +95,7 @@ class TestContainerVolumesConfigSecret(unittest.TestCase):
             data,
             {
                 "configs": [
-                    {"source": "appcfg", "target": "/app/foo.yaml", "mode": "0440"}
+                    {"source": "appcfg", "target": "/app/foo.yaml", "mode": 0o440}
                 ]
             },
         )
@@ -115,7 +115,7 @@ class TestContainerVolumesConfigSecret(unittest.TestCase):
             data,
             {
                 "secrets": [
-                    {"source": "tlskey", "target": "/run/secrets/key", "mode": "0400"}
+                    {"source": "tlskey", "target": "/run/secrets/key", "mode": 0o400}
                 ]
             },
         )
