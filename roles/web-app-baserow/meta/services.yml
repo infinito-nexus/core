@@ -21,9 +21,6 @@ sso:
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-baserow', role='administrator') }}"
-ldap:
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
@@ -35,6 +32,14 @@ redis:
 postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
 baserow:
   backup:
     no_stop_required: true
@@ -62,8 +67,8 @@ css:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
-  enabled: false
-  shared: false
+  enabled: "{{ lookup('config', 'web-app-baserow', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-baserow', 'services.sso.enabled') | bool }}"
 prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"

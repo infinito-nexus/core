@@ -15,6 +15,18 @@ PHP_BIN="php"
 log() { printf "%s %s\n" "$LOG_PREFIX" "$1"; }
 fail() { printf "%s [ERROR] %s\n" "$LOG_PREFIX" "$1" >&2; exit 1; }
 
+retry() {
+  _max="$1"; shift
+  _n=1
+  while true; do
+    if "$@"; then return 0; fi
+    if [ "$_n" -ge "$_max" ]; then fail "command failed after $_max attempts: $*"; fi
+    log "attempt $_n/$_max failed, retrying in 5s: $*"
+    _n=$((_n + 1))
+    sleep 5
+  done
+}
+
 # ---------------------------
 # 0) Root phase (if running as root)
 # ---------------------------
@@ -120,24 +132,45 @@ $PHP_BIN -d memory_limit=1024M bin/console database:migrate-destructive --all
 # ---------------------------
 # 4) Always rebuild caches, bundles, and themes
 # ---------------------------
+if [ "${SHOPWARE_OBJSTORE_ENABLED:-false}" = "true" ]; then
+  log "Waiting for S3 object store to become reachable..."
+  # shellcheck disable=SC2016
+  $PHP_BIN -r '
+$ep = getenv("SHOPWARE_OBJSTORE_ENDPOINT");
+if (!$ep) { exit(0); }
+$p = parse_url($ep);
+$host = $p["host"] ?? $ep;
+$port = $p["port"] ?? ((($p["scheme"] ?? "http") === "https") ? 443 : 80);
+$retries = 60;
+while ($retries-- > 0) {
+  $fp = @fsockopen($host, $port, $e, $s, 3);
+  if ($fp) { fclose($fp); exit(0); }
+  sleep(2);
+}
+fwrite(STDERR, "S3 endpoint ".$host.":".$port." not reachable\n"); exit(1);
+' || fail "S3 object store not reachable"
+fi
+
 log "Rebuilding caches and assets..."
 $PHP_BIN bin/console cache:clear
-$PHP_BIN bin/console bundle:dump
+retry 5 $PHP_BIN bin/console bundle:dump
 # Use --copy if symlinks cause issues
-$PHP_BIN bin/console assets:install --no-interaction --force
-$PHP_BIN bin/console theme:refresh
-$PHP_BIN bin/console theme:compile
+retry 5 $PHP_BIN bin/console assets:install --no-interaction --force
+retry 5 $PHP_BIN bin/console theme:refresh
+retry 5 $PHP_BIN bin/console theme:compile
 # Best-effort: not critical if it fails
 $PHP_BIN bin/console dal:refresh:index || log "dal:refresh:index failed (non-critical)"
 
 # ---------------------------
 # 5) Verify admin bundles
 # ---------------------------
-if [ ! -d "public/bundles/administration" ]; then
-  fail "Missing directory public/bundles/administration (asset build failed)"
-fi
-if ! ls public/bundles/administration/* >/dev/null 2>&1; then
-  fail "No files found in public/bundles/administration (asset build failed)"
+if [ "${SHOPWARE_OBJSTORE_ENABLED:-false}" != "true" ]; then
+  if [ ! -d "public/bundles/administration" ]; then
+    fail "Missing directory public/bundles/administration (asset build failed)"
+  fi
+  if ! ls public/bundles/administration/* >/dev/null 2>&1; then
+    fail "No files found in public/bundles/administration (asset build failed)"
+  fi
 fi
 
 # ---------------------------

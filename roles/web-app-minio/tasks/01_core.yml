@@ -1,0 +1,28 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker and db for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: true
+    compose_repository_pull: false
+
+- name: "Include role sys-stk-front-proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ minio_proxy.domain }}"
+    http_port: "{{ minio_proxy.http_port }}"
+  loop: "{{ MINIO_FRONT_PROXY_MATRIX }}"
+  loop_control:
+    loop_var: minio_proxy
+    label: "{{ minio_proxy.domain }} -> {{ minio_proxy.http_port }}"
+
+- name: "Configure MinIO OIDC (Keycloak as named IdP + policy)"
+  include_tasks: 02_oidc.yml
+  when: MINIO_OIDC_ENABLED | bool
+
+- name: "Bind the MinIO administrator policy to the LDAP group (LDAP variant)"
+  include_tasks: 03_ldap.yml
+  when: MINIO_LDAP_ENABLED | bool

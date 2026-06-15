@@ -1,0 +1,27 @@
+---
+- services:
+    sso:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+- services:
+    sso:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

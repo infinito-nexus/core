@@ -1,7 +1,9 @@
 ---
+# nocheck: seaweedfs-playwright — S3 backs work-package attachments (embedded FOG storage); no standalone object-browser surface to script, consistent with the playwright-service-flag exemption on the seaweedfs key.
 logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: playwright-service-flag — identity backend, no Playwright surface (verified by the OIDC bridge specs)
 ldap:
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
@@ -14,9 +16,18 @@ matomo:
 email:
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 web:
   name: openproject-web
   image: openproject/openproject
@@ -78,6 +89,7 @@ sso:
         - /users/me
         - /api/
         - /oauth/token
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"

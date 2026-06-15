@@ -204,3 +204,5 @@ test("administrator: app → universal logout", async ({ page }) => {
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {
   await runGuestFlow(page);
 });
+
+require("./test-seaweedfs");

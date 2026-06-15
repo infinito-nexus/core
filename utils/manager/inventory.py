@@ -196,6 +196,22 @@ class InventoryManager:
                 self.value_generator.generate_value("random_hex_16")
             )
 
+        objstore_enabled = False
+        if isinstance(services, dict):
+            for engine in ("seaweedfs", "minio"):
+                engine_cfg = services.get(engine)
+                if isinstance(engine_cfg, dict) and is_explicit_truth(
+                    engine_cfg.get("enabled")
+                ):
+                    objstore_enabled = True
+                    break
+        if objstore_enabled:
+            apps = self.inventory.setdefault("applications", {})
+            target = apps.setdefault(app_id, {})
+            target.setdefault("credentials", {})["objstore_secret_key"] = (
+                self.value_generator.generate_value("alphanumeric")
+            )
+
     def apply_schema(self) -> dict:
         """
         Apply schema into inventory for:

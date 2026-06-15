@@ -184,6 +184,45 @@ class TestComposeVolumes(unittest.TestCase):
         ):
             compose_volumes(apps, "app")
 
+    def test_seaweedfs_enabled_not_shared_adds_seaweedfs_volume(self):
+        apps = self._base_apps()
+        apps["app"]["services"]["seaweedfs"] = {"enabled": True, "shared": False}
+
+        rendered = compose_volumes(apps, "app")
+        data = self._parse_yaml(rendered)
+
+        self.assertIn("seaweedfs", data["volumes"])
+        self.assertEqual(data["volumes"]["seaweedfs"]["name"], "app_seaweedfs")
+
+    def test_seaweedfs_enabled_shared_true_does_not_add_seaweedfs_volume(self):
+        apps = self._base_apps()
+        apps["app"]["services"]["seaweedfs"] = {"enabled": True, "shared": True}
+
+        rendered = compose_volumes(apps, "app")
+        data = self._parse_yaml(rendered)
+
+        self.assertNotIn("seaweedfs", data["volumes"])
+
+    def test_minio_enabled_not_shared_adds_minio_volume(self):
+        apps = self._base_apps()
+        apps["app"]["services"]["minio"] = {"enabled": True, "shared": False}
+
+        rendered = compose_volumes(apps, "app")
+        data = self._parse_yaml(rendered)
+
+        self.assertIn("minio", data["volumes"])
+        self.assertEqual(data["volumes"]["minio"]["name"], "app_minio")
+
+    def test_objstore_engines_disabled_add_no_volumes(self):
+        apps = self._base_apps()
+        apps["app"]["services"]["seaweedfs"] = {"enabled": False, "shared": False}
+        apps["app"]["services"]["minio"] = {"enabled": False, "shared": False}
+
+        rendered = compose_volumes(apps, "app")
+        data = self._parse_yaml(rendered)
+
+        self.assertEqual(data["volumes"], {})
+
     def test_extra_volume_with_none_name_serializes_to_null(self):
         apps = self._base_apps()
 

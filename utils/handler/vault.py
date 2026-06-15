@@ -34,12 +34,14 @@ class VaultHandler:
         cmd = [
             "ansible-vault",
             "encrypt_string",
-            value,
-            f"--name={name}",
+            "--stdin-name",
+            name,
             "--vault-password-file",
             self.vault_password_file,
         ]
-        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        proc = subprocess.run(
+            cmd, input=value, capture_output=True, text=True, check=False
+        )
         if proc.returncode != 0:
             raise RuntimeError(f"ansible-vault encrypt_string failed:\n{proc.stderr}")
         return proc.stdout

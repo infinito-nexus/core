@@ -9,9 +9,6 @@ sso:
       port: 8000
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-bookwyrm', role='administrator') }}"
-ldap:
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
 logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
@@ -66,6 +63,15 @@ bookwyrm:
 # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 worker:
   enabled: true
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+  public: true
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"

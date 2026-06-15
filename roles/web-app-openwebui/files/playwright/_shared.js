@@ -334,6 +334,7 @@ async function beforeEach({ page }) {
 module.exports = {
   env,
   attachDiagnostics,
+  dismissAllOpenModals,
   openwebuiLogout,
   signInViaDashboardOidc,
   ensureNativeAdminExists,

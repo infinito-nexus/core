@@ -1,6 +1,6 @@
 # Runtime image for Postmarks (Node.js bookmarking app) with a build
 # step that clones upstream from GitHub.
-ARG NODE_BASE="node:20-bookworm"
+ARG NODE_BASE="node:26-bookworm"
 FROM ${NODE_BASE} AS build
 
 ARG POSTMARKS_REPO_URL
@@ -14,6 +14,11 @@ RUN rm -rf /var/lib/apt/lists/* && \
 WORKDIR /app
 RUN git clone --depth=1 --branch "${POSTMARKS_REF}" "${POSTMARKS_REPO_URL}" ./
 RUN npm install --no-fund --no-audit --omit=dev
+
+# Trusted-header SSO bridge (gated at runtime on PROXY_HEADER_SSO).
+COPY header_auth.js /app/src/sso-header-auth.js
+COPY patch_server.js /app/sso-patch-server.js
+RUN node /app/sso-patch-server.js /app/server.js && rm -f /app/sso-patch-server.js
 
 # Final stage. Carry over the application directory and the npm
 # install artefacts so Postmarks does not have to refetch packages

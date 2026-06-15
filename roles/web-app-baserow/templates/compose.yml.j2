@@ -2,7 +2,11 @@
 
   application:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ BASEROW_IMAGE }}:{{ BASEROW_VERSION }}"
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        BASEROW_IMAGE: "{{ BASEROW_IMAGE }}"
+        BASEROW_VERSION: "{{ BASEROW_VERSION }}"
+    image: "{{ BASEROW_CUSTOM_IMAGE }}"
     container_name: {{ BASEROW_CONTAINER }}
     volumes:
       - data:/baserow/data

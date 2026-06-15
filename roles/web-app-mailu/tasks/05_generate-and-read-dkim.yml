@@ -6,6 +6,9 @@
   register: dkim_key_file_stat
   failed_when: false
   changed_when: false
+  retries: 10
+  delay: 6
+  until: "'is not running' not in dkim_key_file_stat.stderr"
   args:
     chdir: "{{ MAILU_INSTANCE_DIR }}"
 
@@ -15,6 +18,9 @@
     rspamadm dkim_keygen -s dkim -d {{ MAILU_DOMAIN }} -k {{ MAILU_DKIM_KEY_PATH }}
   register: dkim_keygen_output
   when: dkim_key_file_stat.rc != 0
+  retries: 10
+  delay: 6
+  until: dkim_keygen_output.rc == 0
   args:
     chdir: "{{ MAILU_INSTANCE_DIR }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -23,7 +23,14 @@ This role deploys Baserow using Docker Compose, integrating key components such 
 
 ## SSO
 
-SSO is only available in the Enterprise Edition. LDAP configuration is not supported. For more details, please refer to the [Baserow SSO Documentation](https://baserow.io/user-docs/enable-single-sign-on-sso).
+The official Baserow SSO feature is Enterprise-only. This role instead gates the
+community image with the shared Keycloak oauth2-proxy and installs a small
+trusted-header bridge in the Baserow backend. The bridge trusts the identity
+headers injected by nginx after oauth2-proxy authentication and converts them
+into native Baserow JWT refresh/access tokens for the frontend.
+
+Directory-backed identities are handled before they reach this role: Keycloak
+can federate external user stores and then expose the result to Baserow via OIDC.
 
 ## Bootstrap Admin (Django Superuser)
 

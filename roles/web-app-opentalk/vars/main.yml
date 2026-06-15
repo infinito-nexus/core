@@ -38,12 +38,9 @@ OPENTALK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enable
 OPENTALK_LIVEKIT_API_KEY: "controller"
 OPENTALK_LIVEKIT_API_SECRET: "{{ lookup('config', application_id, 'credentials.livekit_api_secret') }}"
 
-OPENTALK_MINIO_CONTAINER: "{{ lookup('config', application_id, 'services.minio.name') }}"
-OPENTALK_MINIO_IMAGE: "{{ lookup('config', application_id, 'services.minio.image') }}"
-OPENTALK_MINIO_VERSION: "{{ lookup('config', application_id, 'services.minio.version') }}"
-OPENTALK_MINIO_USER: "{{ lookup('config', application_id, 'credentials.minio_root_user') }}"
-OPENTALK_MINIO_PASSWORD: "{{ lookup('config', application_id, 'credentials.minio_root_password') }}"
-OPENTALK_MINIO_BUCKET: "opentalk"
+# Object store is consumed via the engine-agnostic `objstore` lookup:
+# `lookup('objstore', application_id, ...)` resolves either an embedded
+# instance (shared:false) or the shared central provider (shared:true).
 
 # RabbitMQ broker that ferries recording task hand-offs between the
 # controller and the recorder service.

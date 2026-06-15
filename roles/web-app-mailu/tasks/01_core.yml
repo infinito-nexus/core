@@ -73,6 +73,9 @@
   # Alarm mail setup reaches sys-svc-mail and therefore requires the Mailu
   # API token that is created in 04_manage_user.yml.
 
+- name: Wait for Mailu antispam
+  include_tasks: 07_wait_for_antispam.yml
+
 - name: Generate DKIM public key
   include_tasks: 05_generate-and-read-dkim.yml
 

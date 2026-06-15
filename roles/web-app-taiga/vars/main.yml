@@ -16,13 +16,15 @@ TAIGA_SUPERUSER_EMAIL: "{{ lookup('users', 'administrator').email }}"
 ## Authentication
 TAIGA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 TAIGA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', false) }}"
-TAIGA_PLUGINS_ENABLED: "{{ TAIGA_OIDC_ENABLED | bool or TAIGA_LDAP_ENABLED | bool }}"
+TAIGA_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
+TAIGA_PLUGINS_ENABLED: "{{ TAIGA_OIDC_ENABLED | bool or TAIGA_LDAP_ENABLED | bool or TAIGA_OBJSTORE_ENABLED | bool }}"
 TAIGA_CONFIG_APPEND_MARKER: "INFINITO_TAIGA_AUTH_CONFIG"
 TAIGA_OIDC_PLUGIN_REPOSITORY: "{{ lookup('config', application_id, 'services.sso.oidc.repository') }}"
 TAIGA_OIDC_PLUGIN_REF: "{{ lookup('config', application_id, 'services.sso.oidc.ref') }}"
 TAIGA_OIDC_BACKEND_PIP_SPEC: "{{ 'git+' ~ TAIGA_OIDC_PLUGIN_REPOSITORY ~ '@' ~ TAIGA_OIDC_PLUGIN_REF ~ '#egg=taiga-contrib-oidc-auth&subdirectory=back' }}"
 TAIGA_OIDC_FRONTEND_BUILD_COMMAND: "./node_modules/.bin/gulp build"
 TAIGA_LDAP_PIP_SPEC: "taiga-contrib-ldap-auth-ext==0.5.0"
+TAIGA_OBJSTORE_PIP_SPEC: "django-storages[s3]==1.14.4"
 TAIGA_PLUGIN_PIP_INSTALL_ARGS: >-
   {{
     (
@@ -35,6 +37,12 @@ TAIGA_PLUGIN_PIP_INSTALL_ARGS: >-
       (
         [TAIGA_LDAP_PIP_SPEC]
         if TAIGA_LDAP_ENABLED | bool
+        else []
+      )
+      +
+      (
+        ["'" ~ TAIGA_OBJSTORE_PIP_SPEC ~ "'"]
+        if TAIGA_OBJSTORE_ENABLED | bool
         else []
       )
     ) | join(' ')

@@ -1,32 +1,38 @@
 ---
 - name: Ensure administrator user exists and is admin
-  shell: >
-    {{ BIN_COMPOSE }} exec -e OPENPROJECT_ADMIN_PASSWORD={{ OPENPROJECT_ADMINISTRATOR_PASSWORD | quote }} web bash -c "
-      cd /app &&
-      bundle exec rails runner \"
-        pw = ENV['OPENPROJECT_ADMIN_PASSWORD']
-        u = User.find_by(login: '{{ OPENPROJECT_ADMINISTRATOR_USERNAME }}')
-        if u.nil?
-          u = User.new(
-            login: '{{ OPENPROJECT_ADMINISTRATOR_USERNAME }}',
-            mail: '{{ OPENPROJECT_ADMINISTRATOR_EMAIL }}',
-            firstname: 'Admin',
-            lastname: 'User',
-            password: pw,
-            password_confirmation: pw
-          )
-          u.admin = true
-          u.save!
-          puts 'Administrator {{ OPENPROJECT_ADMINISTRATOR_USERNAME }} created and set as admin.'
-        else
-          u.admin = true
-          u.save!
-          puts 'User {{ OPENPROJECT_ADMINISTRATOR_USERNAME }} updated to admin.'
-        end
-      \"
-    "
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "OPENPROJECT_ADMIN_PASSWORD={{ OPENPROJECT_ADMINISTRATOR_PASSWORD }}"
+      - -e
+      - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
+      - -e
+      - "OPENPROJECT_ADMIN_EMAIL={{ OPENPROJECT_ADMINISTRATOR_EMAIL }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - bash
+      - -lc
+      - "cd /app && bundle exec rails runner -"
+    stdin: "{{ lookup('file', 'ruby/ensure_admin_user.rb') }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: Link administrator to the LDAP auth source so the trusted-header bridge can resolve it
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "OPENPROJECT_LDAP_NAME={{ OPENPROJECT_LDAP.name }}"
+      - -e
+      - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - bash
+      - -lc
+      - "cd /app && bundle exec rails runner -"
+    stdin: "{{ lookup('file', 'ruby/link_admin_to_ldap.rb') }}"
+  when: OPENPROJECT_HEADER_SSO_ENABLED | bool
+  register: openproject_ldap_link
+  changed_when: "'Linked' in openproject_ldap_link.stdout"

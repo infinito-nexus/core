@@ -1,0 +1,10 @@
+# Identity headers oauth2-proxy never sets upstream; always cleared so a client cannot forge them.
+proxy_set_header Remote-User "";
+proxy_set_header Remote-Groups "";
+proxy_set_header Remote-Email "";
+proxy_set_header Remote-Name "";
+proxy_set_header X-Auth-Request-User "";
+proxy_set_header X-Auth-Request-Preferred-Username "";
+proxy_set_header X-Auth-Request-Email "";
+proxy_set_header X-Auth-Request-Groups "";
+proxy_set_header X-Auth-Request-Access-Token "";

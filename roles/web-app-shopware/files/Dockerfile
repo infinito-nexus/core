@@ -26,7 +26,8 @@ ARG SHOPWARE_COMPOSER_PLATFORM_PHP
 # 1) Scaffold project without installing dependencies
 RUN set -eux; \
     composer create-project "${SHOPWARE_PKG_NAME}:${SHOPWARE_PKG_VERSION}" /app --no-install; \
-    composer config platform.php "${SHOPWARE_COMPOSER_PLATFORM_PHP}"
+    composer config platform.php "${SHOPWARE_COMPOSER_PLATFORM_PHP}"; \
+    composer config policy.advisories.block false
 
 # 2) Install dependencies (ignoring build-time extension checks) + add Redis transport
 RUN set -eux; \
@@ -38,7 +39,7 @@ RUN set -eux; \
       --ignore-platform-req=ext-gd \
       --ignore-platform-req=ext-intl \
       --ignore-platform-req=ext-pdo_mysql; \
-    composer require symfony/redis-messenger:^6.4 \
+    composer require symfony/redis-messenger:^7.4 league/flysystem-async-aws-s3:^3.0 \
       -W \
       --no-scripts \
       --no-progress \

@@ -37,6 +37,12 @@ The pipeline MUST treat this as a non-fatal condition:
 
 Once a compatible release ships, the next deploy run will install + enable + configure the plugin automatically without operator intervention.
 
+## Mandatory plugins
+
+A plugin entry MAY set `mandatory: true`. This inverts the tolerance above: when the plugin is `enabled` for the current deployment but its install result is not `runnable` (incompatible with the pinned server major, or unavailable on the appstore), [01_install.yml](./01_install.yml) aborts the deployment with `ansible.builtin.fail` instead of emitting the skip warning.
+
+The OIDC login entry points (`oidc_login`, `sociallogin`, `user_oidc`) are mandatory because they gate SSO login: when one of them is the selected flavor and the system hides the native login form, an un-installed OIDC app leaves the instance with no usable login path. Failing at install time surfaces the version-pin mismatch immediately rather than as a downstream login timeout in the Playwright e2e suite.
+
 ## Adding configuration for a plugin
 
 Per-plugin configuration is keyed by the plugin name and rendered by [03_configure.yml](./03_configure.yml).

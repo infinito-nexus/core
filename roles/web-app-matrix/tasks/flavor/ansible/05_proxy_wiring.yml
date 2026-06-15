@@ -5,7 +5,7 @@
     status_code: 200
     follow_redirects: none
   register: matrix_synapse_loopback_probe
-  retries: 180
+  retries: 360
   delay: 5
   until: matrix_synapse_loopback_probe.status == 200
   ignore_errors: true

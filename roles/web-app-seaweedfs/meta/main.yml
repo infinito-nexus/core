@@ -1,0 +1,33 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: SeaweedFS S3-compatible object store. Provides the project-wide object-store service (engine seaweedfs) consumed like a database, with the Filer
+    and Master web UIs gated behind an admin-only oauth2-proxy and the S3 API exposed for app and media access.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - seaweedfs
+    - objectstore
+    - s3
+    - storage
+    - docker
+dependencies: []

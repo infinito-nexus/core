@@ -4,8 +4,8 @@ status_codes:
   console: 200
 domains:
   canonical:
-    console: console.s3.{{ DOMAIN_PRIMARY }}
-    api: api.s3.{{ DOMAIN_PRIMARY }}
+    console: console.minio.s3.{{ DOMAIN_PRIMARY }}
+    api: api.minio.s3.{{ DOMAIN_PRIMARY }}
   aliases: []
 csp:
   flags: {}

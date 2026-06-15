@@ -2,7 +2,7 @@ http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-keycloak', 'se
 cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'credentials.sso_proxy_cookie_secret') }}"
 cookie_secure           =   "{{ lookup('tls', sso_proxy_application_id, 'enabled') | string | lower }}"                                                                            # True is necessary to force the cookie set via https
 upstreams               =   "http://{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
-cookie_domains          =   ["{{ lookup('domain', sso_proxy_application_id) }}", "{{ lookup('domain', 'web-app-keycloak') }}"]   # Required so cookie can be read on all subdomains.
+cookie_domains          =   ["{{ lookup('domains', sso_proxy_application_id) | common_dns_suffix }}", "{{ lookup('domain', 'web-app-keycloak') }}"]   # Shared parent for a multi-domain app (filer/master/api) so one session cookie spans them; single-domain apps keep their exact host.
 whitelist_domains       =   [".{{ DOMAIN_PRIMARY }}"]                                                                                       # Required to allow redirection back to original requested target.
 
 # keycloak provider

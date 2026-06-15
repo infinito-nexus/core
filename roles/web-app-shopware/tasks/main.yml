@@ -22,6 +22,16 @@
   notify:
     - compose up
 
+- name: "Render shopware.yaml (SeaweedFS S3 filesystem)"
+  template:
+    src: "shopware.yaml.j2"
+    dest: "{{ SHOPWARE_FILESYSTEM_HOST }}"
+    mode: "0644"
+  when: SHOPWARE_OBJSTORE_ENABLED | bool
+  notify:
+    - compose up
+    - compose build
+
 - name: "Flush compose handlers"
   meta: flush_handlers
 

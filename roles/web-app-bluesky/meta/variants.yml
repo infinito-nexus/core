@@ -1,10 +1,7 @@
 ---
-# Matrix-deploy variant overrides for this role. Both variants ride the same OIDC →
-# login-broker → social-app handoff (variant A+); the difference is
-# whether Keycloak's user storage is local (variant 0) or LDAP-
-# federated against svc-db-openldap (variant 1). This matches the
-# contract that 🛠️ glue paths MUST exercise both an
-# `oidc` and an `ldap` variant.
+# Matrix-deploy variant overrides for this role. The OIDC variant rides the
+# login-broker → social-app handoff behind the web-app-keycloak SSO-proxy
+# sidecar (flavor: oauth2).
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: OIDC variant (canonical default).
@@ -28,9 +25,6 @@
     prometheus:
       enabled: true
       shared: true
-    ldap:
-      enabled: true
-      shared: true
     css:
       enabled: true
       shared: true
@@ -53,34 +47,6 @@
     prometheus:
       enabled: false
       shared: false
-    ldap:
-      enabled: false
-      shared: false
     css:
-      enabled: false
-      shared: false
-- services:
-    ldap:
-      enabled: true
-      shared: true
-    sso:
-      enabled: false
-      shared: false
-    css:
-      enabled: false
-      shared: false
-    dashboard:
-      enabled: false
-      shared: false
-    email:
-      enabled: false
-      shared: false
-    logout:
-      enabled: false
-      shared: false
-    matomo:
-      enabled: false
-      shared: false
-    prometheus:
       enabled: false
       shared: false

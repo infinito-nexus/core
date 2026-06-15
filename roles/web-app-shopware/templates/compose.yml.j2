@@ -9,6 +9,9 @@ x-environment: &shopware
     - "{{ SHOPWARE_INIT_HOST }}:{{ SHOPWARE_INIT_DOCKER }}:ro"
     - bundles:/var/www/html/public/bundles
     - "{{ SHOPWARE_FRAMEWORK_HOST }}:{{ SHOPWARE_FRAMEWORK_DOCKER }}:ro"
+{% if SHOPWARE_OBJSTORE_ENABLED | bool %}
+    - "{{ SHOPWARE_FILESYSTEM_HOST }}:{{ SHOPWARE_FILESYSTEM_DOCKER }}:ro"
+{% endif %}
   working_dir: {{ SHOPWARE_ROOT }}
   pull_policy: never
 

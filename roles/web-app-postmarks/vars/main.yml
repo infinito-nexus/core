@@ -16,3 +16,7 @@ POSTMARKS_VERSION: "{{ lookup('config', application_id, 'services.application.ve
 # Source
 POSTMARKS_REPO_URL: "{{ lookup('config', application_id, 'services.application.repository') }}"
 POSTMARKS_REF: "{{ lookup('config', application_id, 'services.application.ref') }}"
+
+# Trusted-header SSO bridge
+POSTMARKS_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
+POSTMARKS_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"

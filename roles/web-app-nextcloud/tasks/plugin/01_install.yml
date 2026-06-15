@@ -35,15 +35,30 @@
   retries: 6
   delay: 30
   until: (install_result | nextcloud_install_status).ok
-  failed_when: not (install_result | nextcloud_install_status).ok
+  failed_when: >
+    not (install_result | nextcloud_install_status).ok
+    and not (install_result | nextcloud_install_status).unavailable
   changed_when: (install_result | nextcloud_install_status).changed
 
-- name: "warn: {{ plugin_key }} is incompatible with current Nextcloud version — skipping"
+- name: "Fail: mandatory plugin {{ plugin_key }} is not installable on this Nextcloud version"
+  ansible.builtin.fail:
+    msg: >-
+      Mandatory Nextcloud plugin '{{ plugin_key }}' is
+      {{ 'not compatible with' if (install_result | nextcloud_install_status).incompatible else 'not available on the appstore for' }}
+      the pinned Nextcloud server version. This plugin gates SSO login, so the
+      deployment is aborted instead of provisioning a login-broken instance.
+  when:
+    - plugin_value.mandatory | default(false) | bool
+    - not (install_result | nextcloud_install_status).runnable
+
+- name: "warn: {{ plugin_key }} cannot be installed on this Nextcloud version — skipping"
   ansible.builtin.debug:
     msg: >-
-      Plugin '{{ plugin_key }}' is not compatible with the currently pinned
-      Nextcloud server version. Skipping enable/configure for this run.
-  when: (install_result | nextcloud_install_status).incompatible
+      Plugin '{{ plugin_key }}' is {{ 'not compatible with' if (install_result | nextcloud_install_status).incompatible else 'not available on the appstore for' }}
+      the currently pinned Nextcloud server version. Skipping enable/configure for this run.
+  when: >
+    (install_result | nextcloud_install_status).incompatible
+    or (install_result | nextcloud_install_status).unavailable
 
 - include_tasks: 02_enable.yml
   when: (install_result | nextcloud_install_status).runnable

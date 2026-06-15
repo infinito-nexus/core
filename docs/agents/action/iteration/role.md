@@ -21,7 +21,7 @@ For workflow-level iteration with Act, see [Workflow Loop](workflow.md).
 - Unless the user explicitly says to reuse the existing setup, you MUST start once with `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` to establish the baseline inventory and clean app state. `full_cycle=true` adds the async update pass (pass 2) and MUST stay on unless the user explicitly asks to skip it.
 - You MUST NOT run more than one deploy command at the same time. Deployments MUST be executed serially, never in parallel.
 - To speed up debugging, you MAY pass multiple apps at once, e.g. `make compose-deploy mode=reinstall apps="<roles> <roles>" full_cycle=true`.
-- After that, you MUST use `make compose-deploy mode=update apps=<roles>` for the default edit-fix-redeploy loop.
+- After that, you MUST use `make compose-deploy mode=update apps=<roles>` for the default edit-fix-redeploy loop. Matrix-variant roles instead follow the explicit command table in [Full-matrix iteration flow](#full-matrix-iteration-flow); there every `mode=update` is variant-pinned and a no-variant `mode=reinstall` is reserved for the baseline and the final gate.
 - Do NOT rerun `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` just because a deploy failed or you changed code. That restarts the stack unnecessarily and burns time.
 - If the same failure still reproduces on the reuse path and you want to test whether app entity state is involved, use `make compose-deploy mode=update apps=<roles> purge=true` once.
 - After that targeted purge check, you MUST return to `make compose-deploy mode=update apps=<roles>`.
@@ -38,16 +38,26 @@ For the matrix-variant mechanism (folder layout, round semantics, `--variant` / 
 - Default focused-debug recipe: `make compose-deploy mode=reinstall apps=<role> full_cycle=true variant=<idx>` once for the variant baseline, then `make compose-deploy mode=update apps=<role> variant=<idx>` for the edit-fix-redeploy loop.
 - First contact with a previously-untouched `variant=<idx>` MUST be `make compose-deploy mode=reinstall apps=<roles> variant=<idx>`, never a reuse target. Reuse re-pins the live stack onto stale volumes, DB rows and network aliases from the previously-pinned variant, producing split-brain app state.
 - If a reuse target aborts with "inventory not found", you MUST add `variant=<idx>` and re-run; do NOT work around the error by re-creating the unsuffixed folder by hand.
-- For FULL-matrix iteration, omit `variant=`. If any round fails, capture WHICH round was the last successful one so the next redeploy can pin `variant=<that-idx>` to it.
+- For FULL-matrix iteration, the exact `mode` and `variant=` for every situation is fixed by the table in [Full-matrix iteration flow](#full-matrix-iteration-flow); follow it instead of improvising. If a round fails, note which variant failed so you can pin it (row 2 of that table).
 - When debugging cross-variant interaction (for example "the multisite variant breaks because single-site state was not purged"), reproduce with the FULL matrix once, then pin `variant=<failing-idx>` and iterate the fix. Re-run the FULL matrix only when you believe the fix is complete.
 
 ### Full-matrix iteration flow
 
-When the iteration target is the full matrix (cross-variant coverage matters more than focused-debug speed), apply the following recipe instead of cycling all variants on every loop:
+When the iteration target is the full matrix (cross-variant coverage matters more than focused-debug speed), the command you run is fixed by your current situation. Do NOT improvise `mode` or `variant=`: find your situation in the table and run exactly that command.
 
-1. **Iterate the failing variant with `mode=update`, variant-pinned.** `mode=update` MUST always carry `variant=<idx>`. Never use `mode=update` to cycle the full matrix. Loop `make compose-deploy mode=update apps=<roles> variant=<idx>` until that variant is green.
-2. **Deploy each remaining variant that has NOT yet been re-deployed against the current code** with `make compose-deploy mode=reinstall apps=<roles> full_cycle=true variant=<other-idx>`. This avoids re-doing the fixed variant while validating the others against the current code as a fresh baseline.
-3. **Finally, re-run the FULL matrix one more time** with `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `variant=`). This is the canonical end-of-iteration gate — every variant against the current code, fresh state.
+| # | Situation | Exact command |
+| --- | --- | --- |
+| 1 | Initial baseline — run once, before any edit | `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `variant=`) |
+| 2 | A variant `<idx>` failed and you changed code to fix it | `make compose-deploy mode=update apps=<roles> variant=<idx>` — repeat until that variant is green |
+| 3 | A variant `<idx>` has not yet been deployed against the current code | `make compose-deploy mode=reinstall apps=<roles> full_cycle=true variant=<idx>` |
+| 4 | Final gate — run once, after every variant is green | `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `variant=`) |
+
+Order of use: establish the baseline (row 1), then for each failing variant pin it and loop row 2 until green, then bring every still-untouched variant up against the fixed code with row 3, then run row 4 once as the end-of-iteration gate.
+
+FORBIDDEN:
+
+- A bare `mode=update` without `variant=` on a matrix-variant role. Every `mode=update` MUST carry `variant=<idx>` (row 2). A missing `variant=` is never a reason to switch to `mode=reinstall`.
+- A no-variant `mode=reinstall` as the reaction to a failed variant or a code change. Only rows 1 and 4 omit `variant=`. To retry one failing variant, pin it with row 2; never restart the whole matrix to retry a single variant.
 
 ## Certificate Authority
 

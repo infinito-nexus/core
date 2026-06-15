@@ -12,7 +12,7 @@ MINIO_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 ## Api
 MINIO_API_DOMAIN: "{{ lookup('config', application_id, 'server.domains.canonical.api') }}"
 MINIO_API_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ MINIO_API_DOMAIN }}"
-MINIO_API_PORT_INTERNAL: 9000
+MINIO_API_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.minio.api_port') }}"
 MINIO_API_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.api.ports.local.http') }}"
 
 ## Console
@@ -27,7 +27,7 @@ MINIO_CONSOLE_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.consol
 # credentials read from the env-var URL form, while MinIO server stores the
 # decoded password, which mismatches sigv4 for any password that contains
 # URL-reserved characters.
-MINIO_MC_IMAGE: "quay.io/minio/mc:latest"
+MINIO_MC_IMAGE: "{{ lookup('minio', application_id, 'mc_image') }}"
 
 ## OIDC
 MINIO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

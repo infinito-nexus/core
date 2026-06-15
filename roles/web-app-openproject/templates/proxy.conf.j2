@@ -1,0 +1,32 @@
+{% set application_id = front_proxy_application_id | default(application_id) %}
+{% set domain = front_proxy_domain | default(domain) %}
+server
+{
+  server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
+
+  {% if lookup('sso', application_id, 'is_proxy_gated') %}
+    {% include 'roles/web-app-keycloak/templates/sso_proxy/endpoint.conf.j2'%}
+  {% endif %}
+
+  {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  {% if lookup('sso', application_id, 'is_proxy_gated') %}
+    {% set sso_proxy_enabled = true %}
+    {% set webserver_location_extra_configuration %}
+  proxy_set_header X-Remote-User "${authrequest_username}:{{ lookup('config', application_id, 'credentials.auth_source_sso_secret') }}";
+    {% endset %}
+    {% set location = '/' %}
+    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+    {% set webserver_location_extra_configuration = '' %}
+  {% else %}
+    {% set sso_proxy_enabled = false %}
+    {% set webserver_location_extra_configuration = '' %}
+    {% set location = '/' %}
+    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+  {% endif %}
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+}

@@ -1,0 +1,39 @@
+{% set application_id = front_proxy_application_id | default(application_id) %}
+{% set domain = front_proxy_domain | default(domain) %}
+server
+{
+  server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
+
+  {% if domain == lookup('config', application_id, 'server.domains.canonical.api') %}
+    {# Public S3 endpoint: ungated, S3 enforces its own credentials #}
+    {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+    {% set sso_proxy_enabled = false %}
+    {% set proxy_lua_enabled = false %}
+    {% set webserver_client_max_body_size = '0' %}
+    {% set location = "/" %}
+    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+
+  {% elif lookup('sso', application_id, 'is_proxy_gated') %}
+    {# Admin UIs (filer/master): gated by the admin-only oauth2-proxy #}
+    {% include 'roles/web-app-keycloak/templates/sso_proxy/endpoint.conf.j2'%}
+    {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
+    {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+    {% set sso_proxy_enabled = true %}
+    {% set location = "/" %}
+    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+
+    {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% else %}
+    {# Admin UIs without SSO: deny instead of exposing unauthenticated UIs #}
+    {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+    location /
+    {
+      return 403;
+    }
+  {% endif %}
+}

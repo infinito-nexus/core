@@ -7,8 +7,6 @@
       {{ database_consumer_id | default(application_id) }}
     _sys_stk_backend_database_enabled: >-
       {{ lookup('database', application_id, 'enabled') | bool }}
-    _sys_stk_backend_sso_proxy_enabled: >-
-      {{ lookup('sso', application_id, 'is_proxy_gated') }}
   changed_when: false
 
 - name: "DEBUG | SYS-STK-BACKEND | Application context"
@@ -17,7 +15,7 @@
       - "application_id={{ application_id }}"
       - "database_consumer_id={{ _sys_stk_backend_database_consumer_id }}"
       - "database_enabled={{ _sys_stk_backend_database_enabled }}"
-      - "sso_proxy_enabled={{ _sys_stk_backend_sso_proxy_enabled }}"
+      - "sso_proxy_enabled={{ lookup('sso', application_id, 'is_proxy_gated') }}"
   when: MODE_DEBUG | bool
 
 - name: "For '{{ application_id }}': Load central RDBMS"
@@ -27,6 +25,17 @@
   vars:
     database_consumer_id: "{{ _sys_stk_backend_database_consumer_id }}"
   when: _sys_stk_backend_database_enabled | bool
+
+- name: "For '{{ application_id }}': Load central object store (per-consumer provisioning)"
+  include_role:
+    name: sys-svc-objstore
+    public: false
+  vars:
+    objstore_consumer_id: "{{ application_id }}"
+  when:
+    - lookup('objstore', application_id, 'enabled') | bool
+    - lookup('objstore', application_id, 'shared') | bool
+    - application_id != lookup('objstore', application_id, 'id')
 
 - name: "For '{{ application_id }}': Load sys-svc-compose"
   include_role:
@@ -41,7 +50,7 @@
         sso_proxy_application_id: "{{ application_id }}"
     - name: "render web-app-keycloak SSO-proxy sidecar config"
       include_tasks: "{{ playbook_dir }}/roles/web-app-keycloak/tasks/sso_proxy.yml"
-  when: _sys_stk_backend_sso_proxy_enabled | bool
+  when: lookup('sso', application_id, 'is_proxy_gated') | bool
 
 - name: "flush compose and SSO proxy"
   meta: flush_handlers

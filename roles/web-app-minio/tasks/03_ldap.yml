@@ -1,0 +1,63 @@
+---
+- name: "Wait for MinIO IAM subsystem before policy attach"
+  environment:
+    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+  shell: |
+    set -euo pipefail
+    container run --rm \
+        -e MINIO_ROOT_USER \
+        -e MINIO_ROOT_PASSWORD \
+        --entrypoint /bin/sh \
+        {{ MINIO_MC_IMAGE }} \
+        -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
+            && mc admin policy ls minio'
+  args: { executable: /bin/bash }
+  register: mc_admin_policy_ls_ldap
+  retries: 60
+  delay: 5
+  until: mc_admin_policy_ls_ldap.rc == 0
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Create administrator policy (LDAP variant)"
+  environment:
+    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+  shell: |
+    set -euo pipefail
+    printf '%s' '{{ (MINIO_OIDC_POLICY_CONTENT | from_yaml | to_json) | b64encode }}' \
+      | base64 -d \
+      | container run --rm -i \
+          -e MINIO_ROOT_USER \
+          -e MINIO_ROOT_PASSWORD \
+          --entrypoint /bin/sh \
+          {{ MINIO_MC_IMAGE }} \
+          -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
+              && mc admin policy create minio {{ MINIO_OIDC_POLICY_NAME | quote }} /dev/stdin || true'
+  args: { executable: /bin/bash }
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Attach MinIO policy to LDAP administrator group"
+  environment:
+    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_LDAP_ADMIN_GROUP_DN: "cn=web-app-minio-administrator,ou=roles,{{ LDAP.DN.ROOT }}"
+  shell: |
+    set -euo pipefail
+    container run --rm \
+        -e MINIO_ROOT_USER \
+        -e MINIO_ROOT_PASSWORD \
+        -e MINIO_LDAP_ADMIN_GROUP_DN \
+        --entrypoint /bin/sh \
+        {{ MINIO_MC_IMAGE }} \
+        -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
+            && mc admin policy attach minio {{ MINIO_OIDC_POLICY_NAME | quote }} --group "$MINIO_LDAP_ADMIN_GROUP_DN"'
+  args: { executable: /bin/bash }
+  register: mc_policy_attach_ldap
+  changed_when: '"already attached" not in mc_policy_attach_ldap.stderr'
+  failed_when:
+    - mc_policy_attach_ldap.rc != 0
+    - '"already attached" not in (mc_policy_attach_ldap.stderr | default(""))'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

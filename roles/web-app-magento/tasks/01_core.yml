@@ -36,6 +36,15 @@
       --search-engine='opensearch' \
       --opensearch-host=\"$OPENSEARCH_HOST\" \
       --opensearch-port=\"$OPENSEARCH_PORT_NUMBER\" \
+    {% if lookup('objstore', application_id, 'enabled') | bool %} \
+      --remote-storage-driver=\"$MAGENTO_REMOTE_STORAGE_DRIVER\" \
+      --remote-storage-bucket=\"$MAGENTO_REMOTE_STORAGE_BUCKET\" \
+      --remote-storage-region=\"$MAGENTO_REMOTE_STORAGE_REGION\" \
+      --remote-storage-key=\"$MAGENTO_REMOTE_STORAGE_KEY\" \
+      --remote-storage-secret=\"$MAGENTO_REMOTE_STORAGE_SECRET\" \
+      --remote-storage-endpoint=\"$MAGENTO_REMOTE_STORAGE_ENDPOINT\" \
+      --remote-storage-path-style=\"$MAGENTO_REMOTE_STORAGE_PATH_STYLE\" \
+    {% endif %} \
       --admin-firstname=\"$MAGENTO_ADMIN_FIRSTNAME\" \
       --admin-lastname=\"$MAGENTO_ADMIN_LASTNAME\" \
       --admin-email=\"$MAGENTO_ADMIN_EMAIL\" \

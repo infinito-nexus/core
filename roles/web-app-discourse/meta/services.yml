@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required — Discourse's aws-sdk-s3 defaults a custom endpoint to virtual-host addressing and exposes no force_path_style option, incompatible with SeaweedFS path-style without a global SeaweedFS virtual-host/wildcard-DNS change affecting all consumers; uploads stay on the local volume
 # nocheck: playwright-service-flag — static-asset provider, no Playwright surface
 asset:
   enabled: "{{ 'web-svc-asset' in group_names }}"

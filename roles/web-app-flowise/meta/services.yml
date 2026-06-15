@@ -18,9 +18,10 @@ sso:
       port: 3000
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-flowise', role='administrator') }}"
+# nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
+  enabled: false
+  shared: false
 litellm:
   backup:
     no_stop_required: true

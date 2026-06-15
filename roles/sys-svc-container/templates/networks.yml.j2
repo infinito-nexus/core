@@ -19,6 +19,7 @@
   lookup('config', application_id, 'services.ollama.enabled', False)
   and lookup('config', application_id, 'services.ollama.shared', False)
 ) %}
+{% set _objstore = lookup('objstore', application_id) %}
     networks:
 {# Central RDMS-Database Network #}
 {% if 
@@ -42,6 +43,10 @@
 {# Central AI Network #}
 {% if _ollama_shared and _ollama_network_name %}
       {{ _ollama_network_name }}:
+{% endif %}
+{# Central object-store network (seaweedfs|minio) #}
+{% if _objstore.enabled and _objstore.shared and application_id != _objstore.id %}
+      {{ _objstore.network }}:
 {% endif %}
 {% if not application_id.startswith('svc-db-') and not application_id.startswith('svc-ai-') %}
       default:

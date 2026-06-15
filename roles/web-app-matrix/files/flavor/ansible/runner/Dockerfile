@@ -14,6 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     container=docker
 
 COPY --from=docker-cli /usr/local/bin/docker /usr/bin/docker
+COPY --from=docker-cli /usr/local/libexec/docker/cli-plugins/ /usr/local/libexec/docker/cli-plugins/
 
 RUN rm -rf /var/lib/apt/lists/* \
  && apt-get update \

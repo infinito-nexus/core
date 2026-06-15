@@ -1,0 +1,53 @@
+---
+- name: "Ensure Mailu antispam container is up"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - up
+      - -d
+      - antispam
+  args:
+    chdir: "{{ MAILU_INSTANCE_DIR }}"
+  changed_when: false
+
+- name: "Wait until Mailu antispam container is running"
+  block:
+    - name: "Probe Mailu antispam"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - exec
+          - -T
+          - antispam
+          - "true"
+      args:
+        chdir: "{{ MAILU_INSTANCE_DIR }}"
+      register: mailu_antispam_check
+      retries: 30
+      delay: 5
+      until: mailu_antispam_check.rc == 0
+      changed_when: false
+
+  rescue:
+    - name: "Collect Mailu antispam container logs after readiness timeout"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - logs
+          - --tail=300
+          - antispam
+      args:
+        chdir: "{{ MAILU_INSTANCE_DIR }}"
+      register: mailu_antispam_logs
+      changed_when: false
+
+    - name: "Fail: Mailu antispam not ready"
+      ansible.builtin.fail:
+        msg: |
+          Mailu antispam container did not become ready in time.
+
+          Last stderr:
+          {{ mailu_antispam_check.stderr | default('') }}
+
+          --- Mailu antispam container logs (last 300 lines) ---
+          {{ mailu_antispam_logs.stdout | default('No logs available') }}

@@ -1,0 +1,32 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Engine-agnostic object-store consumer wiring. Resolves the active object-store engine (seaweedfs or minio) for a consumer and delegates
+    per-consumer provisioning (a dedicated bucket plus scoped credentials) to the resolved provider role's objstore_init entrypoint when the service is shared.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - minio
+    - objectstore
+    - s3
+    - docker
+dependencies: []

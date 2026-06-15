@@ -1,6 +1,7 @@
 ---
 # General
 application_id: "web-app-yourls"
+entity_name: "{{ application_id | get_entity_name }}"
 
 # Webserver
 webserver_extra_configuration: "{{ lookup('template', 'redirect.conf.j2') }}"
@@ -10,9 +11,14 @@ YOURLS_USER: "{{ lookup('config', application_id, 'users.administrator.username'
 YOURLS_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 YOURLS_VERSION: "{{ lookup('config', application_id, 'services.yourls.version') }}"
 YOURLS_IMAGE: "{{ lookup('config', application_id, 'services.yourls.image') }}"
+YOURLS_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ YOURLS_VERSION }}"
 YOURLS_CONTAINER: "{{ lookup('config', application_id, 'services.yourls.name') }}"
 YOURLS_ADMIN_LOCATION: "{{ lookup('config', application_id, 'server.locations.admin') }}"
 YOURLS_LANDINGPAGE_STATUS_CODE: "{{ lookup('config', application_id, 'server.status_codes.default') }}"
+
+# Trusted-header SSO bridge
+YOURLS_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
+YOURLS_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 
 # Container
 container_port: 8080

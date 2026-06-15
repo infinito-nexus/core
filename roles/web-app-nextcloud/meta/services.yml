@@ -122,6 +122,7 @@ nextcloud:
       enabled: true
     oidc_login:
       enabled: "{{ lookup('sso_oidc_plugin') == 'oidc_login' }}"
+      mandatory: true
       incompatible_plugins:
         - user_oidc
         - sociallogin
@@ -142,6 +143,7 @@ nextcloud:
         - fileslibreofficeedit
     sociallogin:
       enabled: "{{ lookup('sso_oidc_plugin') == 'sociallogin' }}"
+      mandatory: true
       incompatible_plugins:
         - user_oidc
         - oidc_login
@@ -161,6 +163,7 @@ nextcloud:
         enabled: true
     user_oidc:
       enabled: "{{ lookup('sso_oidc_plugin') == 'user_oidc' }}"
+      mandatory: true
       incompatible_plugins:
         - oidc_login
         - sociallogin
@@ -234,6 +237,13 @@ onlyoffice:
 collabora:
   enabled: "{{ 'web-svc-collabora' in group_names }}"
   shared: "{{ 'web-svc-collabora' in group_names }}"
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 talk_recording:
   name: nextcloud-talk-recording
   image: nextcloud/aio-talk-recording

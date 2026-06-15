@@ -18,6 +18,7 @@
   lookup('config', application_id, 'services.ollama.enabled', False)
   and lookup('config', application_id, 'services.ollama.shared', False)
 ) %}
+{% set _objstore = lookup('objstore', application_id) %}
 networks:
 {# Central RDMS-Database Network #}
 {% if 
@@ -39,6 +40,11 @@ networks:
 {# Central AI Network #}
 {% if _ollama_shared and _ollama_network_name %}
   {{ _ollama_network_name }}:
+    external: true
+{% endif %}
+{# Central object-store network (seaweedfs|minio) #}
+{% if _objstore.enabled and _objstore.shared and application_id != _objstore.id %}
+  {{ _objstore.network }}:
     external: true
 {% endif %}
 {# Default Network — the subnet lives at

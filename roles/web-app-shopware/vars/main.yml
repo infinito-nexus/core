@@ -31,6 +31,9 @@ SHOPWARE_INIT_HOST: "{{ [ lookup('container', application_id, 'directories.volum
 SHOPWARE_INIT_DOCKER: "/usr/local/bin/init.sh"
 SHOPWARE_FRAMEWORK_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'framework.yaml' ] | path_join }}"
 SHOPWARE_FRAMEWORK_DOCKER: "/var/www/html/config/packages/framework.yaml"
+SHOPWARE_FILESYSTEM_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'shopware.yaml' ] | path_join }}"
+SHOPWARE_FILESYSTEM_DOCKER: "/var/www/html/config/packages/zz-infinito-filesystem.yaml"
+SHOPWARE_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 
 # Entrypoints & replicas
 SHOPWARE_WORKER_ENTRYPOINT: "{{ lookup('config', application_id, 'services.worker.entrypoint') }}"

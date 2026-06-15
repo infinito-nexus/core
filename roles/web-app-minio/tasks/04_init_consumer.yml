@@ -1,0 +1,73 @@
+---
+- name: "Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'web-app-minio'
+      - objstore_consumer_id != 'web-app-minio'
+
+- name: "Resolve object-store facts for '{{ objstore_consumer_id }}'"
+  ansible.builtin.set_fact:
+    _minio_consumer_bucket: "{{ lookup('objstore', objstore_consumer_id, 'bucket') }}"
+    _minio_consumer_access_key: "{{ lookup('objstore', objstore_consumer_id, 'access_key') }}"
+    _minio_consumer_secret_key: "{{ lookup('objstore', objstore_consumer_id, 'secret_key') }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Provision bucket + scoped service account for '{{ objstore_consumer_id }}'"
+  environment:
+    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_CONSUMER_ACCESS_KEY: "{{ _minio_consumer_access_key }}"
+    MINIO_CONSUMER_SECRET_KEY: "{{ _minio_consumer_secret_key }}"
+    MINIO_CONSUMER_POLICY_B64: "{{ lookup('template', 'consumer-policy.json.j2') | b64encode }}"
+  shell: |
+    set -euo pipefail
+    container run --rm \
+        -e MINIO_ROOT_USER \
+        -e MINIO_ROOT_PASSWORD \
+        -e MINIO_CONSUMER_ACCESS_KEY \
+        -e MINIO_CONSUMER_SECRET_KEY \
+        -e MINIO_CONSUMER_POLICY_B64 \
+        --entrypoint /bin/sh \
+        {{ MINIO_MC_IMAGE }} \
+        -c 'set -eu
+            mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null
+            mc mb --ignore-existing minio/{{ _minio_consumer_bucket }}
+            printf "%s" "$MINIO_CONSUMER_POLICY_B64" | base64 -d > /tmp/consumer-policy.json
+            if ! mc admin user svcacct info minio "$MINIO_CONSUMER_ACCESS_KEY" >/dev/null 2>&1; then
+              mc admin user svcacct add \
+                --access-key "$MINIO_CONSUMER_ACCESS_KEY" \
+                --secret-key "$MINIO_CONSUMER_SECRET_KEY" \
+                --policy /tmp/consumer-policy.json \
+                minio "$MINIO_ROOT_USER"
+            fi'
+  args: { executable: /bin/bash }
+  register: minio_consumer_provision
+  changed_when: >-
+    ('Bucket created' in (minio_consumer_provision.stdout | default('')))
+    or ('Access Key' in (minio_consumer_provision.stdout | default('')))
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Allow anonymous downloads on the public bucket for '{{ objstore_consumer_id }}'"
+  when: lookup('objstore', objstore_consumer_id, 'public') | bool
+  environment:
+    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container run --rm \
+        -e MINIO_ROOT_USER \
+        -e MINIO_ROOT_PASSWORD \
+        --entrypoint /bin/sh \
+        {{ MINIO_MC_IMAGE }} \
+        -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null
+            if mc anonymous get minio/{{ _minio_consumer_bucket }} | grep -q download; then
+              echo unchanged
+            else
+              mc anonymous set download minio/{{ _minio_consumer_bucket }}
+            fi'
+  args:
+    executable: /bin/bash
+  register: minio_consumer_anonymous
+  changed_when: "'unchanged' not in minio_consumer_anonymous.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

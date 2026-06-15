@@ -11,9 +11,10 @@ matomo:
 email:
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
+  enabled: false
+  shared: false
 sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"

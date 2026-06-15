@@ -19,4 +19,11 @@ RUN f=/app/app/models/queries/projects/filters/custom_field_filter.rb; g=/app/ap
 # RUN npm add npm <package-name>*
 
 RUN bundle config unset deployment && bundle install && bundle config set deployment 'true'
+
+# Work around grape eager-load ordering under Ruby 4.0 (Grape::Exceptions::Base referenced before it loads, breaking db:migrate).
+RUN f=$(find /app/vendor/bundle -path '*grape*/lib/grape/exceptions/incompatible_option_values.rb' | head -1); \
+    if [ -n "$f" ] && ! grep -q "require_relative 'base'" "$f"; then \
+      sed -i "1irequire_relative 'base'" "$f"; \
+    fi
+
 RUN ./docker/prod/setup/precompile-assets.sh

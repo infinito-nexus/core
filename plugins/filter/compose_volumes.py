@@ -155,6 +155,28 @@ def compose_volumes(
             )
         }
 
+    for engine in ("seaweedfs", "minio"):
+        engine_enabled = bool(
+            get(
+                applications=applications,
+                application_id=application_id,
+                config_path=f"services.{engine}.enabled",
+                strict=False,
+                default=False,
+            )
+        )
+        engine_shared = bool(
+            get(
+                applications=applications,
+                application_id=application_id,
+                config_path=f"services.{engine}.shared",
+                strict=False,
+                default=False,
+            )
+        )
+        if engine_enabled and not engine_shared:
+            volumes[engine] = {"name": f"{get_entity_name(application_id)}_{engine}"}
+
     sso = get_sso_config(applications, application_id)
 
     if (

@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-playwright — GitLab ships no templates/playwright.env.j2 and object storage is server-side consolidated storage with no isolated upload surface
 sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
@@ -43,6 +44,9 @@ gitlab:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"

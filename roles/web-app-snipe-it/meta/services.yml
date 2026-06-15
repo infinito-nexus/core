@@ -1,7 +1,9 @@
 ---
+# nocheck: seaweedfs-playwright — the role's persona Playwright flow exercises no SeaweedFS storage surface (no object-browser/upload UI to assert against)
 logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: playwright-service-flag — identity backend, no distinct Playwright surface (login covered by the persona flow)
 ldap:
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
@@ -16,13 +18,20 @@ email:
   shared: "{{ 'web-app-mailu' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
+# nocheck: playwright-service-flag — cache engine, no Playwright surface
 redis:
   backup:
     disabled: true
   enabled: true
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
 snipe-it:
   version: latest-alpine
   name: snipe-it
@@ -52,6 +61,7 @@ sso:
     acl:
       blacklist:
         - /login
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"

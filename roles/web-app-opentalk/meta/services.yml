@@ -1,13 +1,15 @@
 ---
+# nocheck: seaweedfs-playwright — S3 holds only recordings/whiteboard exports; needs the recorder service + a live multi-party meeting, so no single-user UI action deterministically triggers an S3 write
 sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
   oidc:
     plugin: ""
+# nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
+  enabled: false
+  shared: false
 logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
@@ -87,15 +89,19 @@ livekit:
       relay:
         start: 60000
         end: 60999
+# nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-app-minio)
 minio:
-  name: opentalk-minio
-  image: minio/minio
-  version: latest
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
   min_storage: 20GB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: playwright-service-flag — object store holds only recordings/whiteboard exports; no single-user UI write surface
+seaweedfs:
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 rabbit:
   name: opentalk-rabbit
   image: rabbitmq

@@ -19,6 +19,11 @@ SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'credentials.app_key') }}
 SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 
+# SSO (trusted-header bridge via oauth2-proxy)
+SNIPE_IT_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
+SNIPE_IT_SSO_HEADER_NAME: "HTTP_X_FORWARDED_PREFERRED_USERNAME"
+SNIPE_IT_SSO_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+
 #LDAP
 SNIPE_IT_LDAP_FILTER_FRAGMENT: "&(objectClass=inetOrgPerson)"
 SNIPE_IT_LDAP_AUTH_FILTER_QUERY: "{{ LDAP.USER.ATTRIBUTES.ID }}="

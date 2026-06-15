@@ -1,0 +1,25 @@
+---
+status_codes:
+  api:
+    - 403
+    - 405
+  filer:
+    - 302
+    - 403
+  master:
+    - 302
+    - 403
+domains:
+  canonical:
+    filer: filer.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
+    master: master.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
+    api: api.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
+  aliases: []
+csp:
+  flags: {}
+  whitelist:
+    font-src: []
+    connect-src: []
+networks:
+  local:
+    subnet: 192.168.204.0/24

@@ -1,0 +1,32 @@
+server {
+    listen 80;
+    server_name {{ SEAWEEDFS_FILER_DOMAIN }};
+    client_max_body_size 0;
+
+    location / {
+        proxy_pass http://seaweedfs:{{ SEAWEEDFS_FILER_PORT_INTERNAL }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 80;
+    server_name {{ SEAWEEDFS_MASTER_DOMAIN }};
+
+    location / {
+        proxy_pass http://seaweedfs:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 80 default_server;
+    server_name _;
+    return 404;
+}

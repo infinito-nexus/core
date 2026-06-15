@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required — open-source pretix has no S3/object-store backend: src/pretix/settings.py hardcodes MEDIA_ROOT=DATA_DIR/media (local disk), ships no django-storages/boto3, and the upstream config reference (https://docs.pretix.eu/self-hosting/config/) documents no storage/S3/bucket section
 sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"

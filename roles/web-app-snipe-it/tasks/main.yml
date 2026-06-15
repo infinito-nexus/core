@@ -14,3 +14,7 @@
 
 - name: "Create bootstrap Snipe-IT administrator"
   import_tasks: 03_admin.yml
+
+- name: "Configure Snipe-IT trusted-header SSO bridge"
+  import_tasks: 04_sso.yml
+  when: SNIPE_IT_SSO_ENABLED | bool

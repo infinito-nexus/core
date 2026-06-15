@@ -235,3 +235,35 @@ LISTMONK_SETTINGS:
 
   - key: "app.enable_public_archive_rss_content"
     value: "true"
+
+  - key: "upload.provider"
+    value: '"s3"'
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+  - key: "upload.s3.aws_access_key_id"
+    value: "{{ lookup('objstore', application_id, 'access_key') | to_json }}"
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+  - key: "upload.s3.aws_secret_access_key"
+    value: "{{ lookup('objstore', application_id, 'secret_key') | to_json }}"
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+  - key: "upload.s3.aws_default_region"
+    value: "{{ lookup('objstore', application_id, 'region') | to_json }}"
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+  - key: "upload.s3.bucket"
+    value: "{{ lookup('objstore', application_id, 'bucket') | to_json }}"
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+  - key: "upload.s3.url"
+    value: "{{ lookup('objstore', application_id, 'url') | to_json }}"
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+  - key: "upload.s3.public_url"
+    value: "{{ lookup('objstore', application_id, 'public_url') | to_json }}"
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+  - key: "upload.s3.bucket_type"
+    value: '"public"'
+    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"

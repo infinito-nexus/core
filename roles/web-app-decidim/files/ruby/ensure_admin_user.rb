@@ -13,5 +13,6 @@ if is_new || !user.valid_password?(password)
   user.password = password
   user.password_confirmation = password
 end
+user.password_updated_at = Time.current if user.respond_to?(:password_updated_at)
 user.save!
 puts "Admin user ready: #{user.email}"

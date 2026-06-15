@@ -15,12 +15,21 @@ dashboard:
 matomo:
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — central object-store provider entity
 minio:
+  enabled: true
+  shared: true
   backup:
     no_stop_required: false
   image: quay.io/minio/minio
-  version: latest
+  # MinIO publishes only date-based RELEASE.* tags (never semver), so the
+  # auto-update bot cannot bump it; pin explicitly and opt out of the
+  # semver-freshness check. This single pin is the source of truth for the
+  # central instance AND every embedded consumer (resolved via lookup('objstore')).
+  version: "RELEASE.2025-09-07T16-13-09Z" # nocheck: docker-version
   name: minio
+  api_port: 9000
+  region: us-east-1
   min_storage: 20GB
   cpus: "2.0"
   mem_reservation: 2g
@@ -29,7 +38,7 @@ minio:
   run_after:
     - web-app-keycloak
     - web-app-matomo
-  lifecycle: beta
+  lifecycle: unsupported
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
@@ -70,3 +79,7 @@ console:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+# nocheck: playwright-service-flag — mc admin client, run as a one-shot, no Playwright surface
+client:
+  image: quay.io/minio/mc
+  version: "RELEASE.2025-08-13T08-35-41Z" # nocheck: docker-version

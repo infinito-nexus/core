@@ -114,6 +114,25 @@ class TestIterRoleImagesMetaServices(unittest.TestCase):
         self.assertEqual(ref.source, "ghcr.io/matrixgpt/matrix-chatgpt-bot:latest")
         self.assertEqual(ref.source_file, ROLE_FILE_META_SERVICES)
 
+    def test_opencode_gitlab_image_strips_registry_from_name(self):
+        refs = self._run(
+            {
+                f"roles/web-app-opentalk/{ROLE_FILE_META_SERVICES}": """
+                controller:
+                  image: registry.opencode.de/opentalk/controller
+                  version: v0.33.2
+            """,
+            }
+        )
+        self.assertEqual(len(refs), 1)
+        ref = refs[0]
+        self.assertEqual(ref.role, "web-app-opentalk")
+        self.assertEqual(ref.service, "controller")
+        self.assertEqual(ref.name, "opentalk/controller")
+        self.assertEqual(ref.registry, "registry.opencode.de")
+        self.assertEqual(ref.source, "registry.opencode.de/opentalk/controller:v0.33.2")
+        self.assertEqual(ref.source_file, ROLE_FILE_META_SERVICES)
+
 
 if __name__ == "__main__":
     unittest.main()

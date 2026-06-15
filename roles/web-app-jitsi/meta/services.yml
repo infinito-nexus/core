@@ -36,8 +36,8 @@ css:
 # Jitsi's React SPA (which has no native sign-out control) still exposes a click target
 # that survives the persona contract's no-direct-URL logout rule.
 javascript:
-  enabled: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled', False) | bool }}"
-  shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled', False) | bool }}"
+  enabled: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
 jitsi:
   image: jitsi/web
   version: "stable-9646"

@@ -4,3 +4,19 @@
     name: sys-stk-full
   vars:
     application_id: web-app-yourls
+    compose_handlers_flush: false
+
+- name: "Stage trusted-header SSO build-context files for {{ application_id }}"
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
+    mode: "0644"
+  loop:
+    - { src: "Dockerfile", dest: "Dockerfile" }
+    - { src: "sso/infinito_sso.php", dest: "infinito_sso.php" }
+
+- name: "Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "Install the YOURLS database schema for {{ application_id }}"
+  ansible.builtin.include_tasks: install.yml

@@ -1,6 +1,10 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   application:
-    image: "{{ YOURLS_IMAGE }}:{{ YOURLS_VERSION }}"
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        YOURLS_IMAGE: "{{ YOURLS_IMAGE }}"
+        YOURLS_VERSION: "{{ YOURLS_VERSION }}"
+    image: "{{ YOURLS_CUSTOM_IMAGE }}"
     container_name: "{{ YOURLS_CONTAINER }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:

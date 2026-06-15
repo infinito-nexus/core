@@ -14,6 +14,7 @@
     stop_signal: SIGRTMIN+3
     environment:
       MATRIX_MDAD_PLAYBOOK_TAGS: "{{ MATRIX_MDAD_PLAYBOOK_TAGS }}"
+{% set _objstore = lookup('objstore', application_id) %}
     networks:
       default: {}
 {% if lookup('database', application_id, 'enabled') and lookup('database', application_id, 'shared') %}
@@ -21,6 +22,9 @@
 {% endif %}
 {% if MATRIX_LDAP_ENABLED %}
       openldap: {}
+{% endif %}
+{% if _objstore.enabled and _objstore.shared and application_id != _objstore.id %}
+      {{ _objstore.network }}: {}
 {% endif %}
     volumes:
       - {{ MATRIX_MDAD_DIR }}:/mdad

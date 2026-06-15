@@ -32,16 +32,19 @@
   until: openproject_web_state_after_migrate.stdout.strip() == "running"
   changed_when: false
 
-- name: Set settings in OpenProject (rails runner via STDIN; robust quoting + booleans)
-  shell: >
-    {{ BIN_COMPOSE }} exec {{ OPENPROJECT_WEB_SERVICE }} bash -lc
-    "cd /app && cat | bundle exec rails runner -"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    stdin: |
-      {% for kv in (OPENPROJECT_RAILS_SETTINGS | dict2items) %}
-      Setting[:{{ kv.key }}] = {{ kv.value | to_json }}
-      {% endfor %}
+- name: Set settings in OpenProject (rails runner via STDIN from an external script)
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "OPENPROJECT_RAILS_SETTINGS={{ OPENPROJECT_RAILS_SETTINGS | to_json }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - bash
+      - -lc
+      - "cd /app && bundle exec rails runner -"
+    stdin: "{{ lookup('file', 'ruby/apply_settings.rb') }}"
   register: openproject_apply_settings
   retries: 30
   delay: 5

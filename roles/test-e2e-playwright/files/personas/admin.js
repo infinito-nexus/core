@@ -120,6 +120,31 @@ async function runAdminFlow(page, opts = {}) {
     }
   }
 
+  // No-SSO fallback: with SSO disabled the OIDC step above is a no-op, so if
+  // the role renders its own username/password form, drive it with the admin
+  // credentials (the app's native auth is the only path without SSO).
+  if (!oidcEnabled && adminUsername && adminPassword) {
+    const passwordField = page.locator("input[type='password']").first();
+    if (await passwordField.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      const usernameField = page
+        .locator(
+          "input[name='username'], input[name='email'], input[name='login'], input[type='email'], input[autocomplete='username']",
+        )
+        .first();
+      if (await usernameField.isVisible().catch(() => false)) {
+        await usernameField.fill(adminUsername).catch(() => {});
+      }
+      await passwordField.fill(adminPassword).catch(() => {});
+      await page
+        .getByRole("button", { name: /log\s*in|sign\s*in|login|submit/i })
+        .or(page.locator("button[type='submit'], input[type='submit']"))
+        .first()
+        .click()
+        .catch(() => {});
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
+  }
+
   // Verify administrator actually reached an authenticated surface.
   // The persona contract demands a full app → logout journey. When
   // the post-OIDC page does NOT expose a logout control / user menu,

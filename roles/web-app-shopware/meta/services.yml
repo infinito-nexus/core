@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-playwright — Shopware ships no templates/playwright.env.j2; the object-store upload is covered by the Flysystem amazon-s3 public/private/theme/sitemap config, not a Playwright surface
 logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
@@ -124,6 +125,10 @@ opensearch:
   mem_limit: 4g
   min_storage: 10GB
   pids_limit: 1024
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"

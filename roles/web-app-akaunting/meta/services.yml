@@ -25,9 +25,10 @@ sso:
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-akaunting', role='administrator') }}"
+# nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
+  enabled: false
+  shared: false
 akaunting:
   backup:
     no_stop_required: true
@@ -60,6 +61,9 @@ redis:
   backup:
     disabled: true
   enabled: false
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"

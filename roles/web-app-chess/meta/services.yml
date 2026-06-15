@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required — object storage not implemented for this role
 # nocheck: dynamic-flag
 # nocheck: logout
 logout:

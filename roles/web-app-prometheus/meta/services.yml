@@ -28,8 +28,8 @@ css:
 # nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag — runtime DOM patch, no probe-able surface flag
 javascript:
-  enabled: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled', False) | bool }}"
-  shared: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled', False) | bool }}"
+  enabled: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag — self-provider
 prometheus:
   enabled: true

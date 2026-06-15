@@ -1,0 +1,117 @@
+(function () {
+  const LOGOUT_URL =
+    "{{ OIDC.CLIENT.LOGOUT_URL }}?redirect_uri=" +
+    encodeURIComponent("{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}");
+  const INJECTED_ATTR = "data-injected-logout";
+  const LOGOUT_SVG =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+      '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>' +
+      '<polyline points="10 17 15 12 10 7"/>' +
+      '<line x1="15" y1="12" x2="3" y2="12"/>' +
+    "</svg>";
+
+  function findIconGroupAnchor() {
+    const banner =
+      document.querySelector(
+        "header, [role='banner'], .navbar, nav.navbar, nav.menu-header",
+      ) || document.querySelector("nav");
+    if (!banner) return null;
+
+    let best = null;
+    let bestRight = -1;
+    banner.querySelectorAll("div, ul, nav").forEach((el) => {
+      const directControls = el.querySelectorAll(
+        ":scope > button, :scope > a, :scope > li > button, :scope > li > a",
+      );
+      if (directControls.length < 2) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      if (rect.right > bestRight) {
+        best = el;
+        bestRight = rect.right;
+      }
+    });
+    return best || banner;
+  }
+
+  function ensureLogoutIcon() {
+    if (document.querySelector("[" + INJECTED_ATTR + "]")) return;
+    if (!document.body) return;
+
+    const anchor = findIconGroupAnchor();
+    if (!anchor) return;
+
+    const sibling = anchor.querySelector(
+      ":scope > button, :scope > a, :scope > li > button, :scope > li > a",
+    );
+
+    const btn = document.createElement(
+      sibling && sibling.tagName === "BUTTON" ? "button" : "a",
+    );
+    btn.setAttribute(INJECTED_ATTR, "true");
+    if (btn.tagName === "A") btn.setAttribute("href", LOGOUT_URL);
+    btn.setAttribute("title", "Logout");
+    btn.setAttribute("aria-label", "Logout");
+    btn.setAttribute("type", btn.tagName === "BUTTON" ? "button" : "");
+    if (sibling) {
+      btn.className = sibling.className;
+      const cs = window.getComputedStyle(sibling);
+      btn.style.cssText = [
+        "display:" + (cs.display === "inline" ? "inline-flex" : cs.display),
+        "align-items:center",
+        "justify-content:center",
+        "width:" + cs.width,
+        "height:" + cs.height,
+        "padding:" + cs.padding,
+        "background:" + cs.backgroundColor,
+        "color:" + cs.color,
+        "border:" + cs.border,
+        "border-radius:" + cs.borderRadius,
+        "cursor:pointer",
+        "text-decoration:none",
+      ].join(";");
+    } else {
+      btn.style.cssText = [
+        "display:inline-flex",
+        "align-items:center",
+        "justify-content:center",
+        "width:32px",
+        "height:32px",
+        "padding:4px",
+        "background:rgba(127,127,127,0.18)",
+        "color:inherit",
+        "border:1px solid rgba(127,127,127,0.25)",
+        "border-radius:6px",
+        "cursor:pointer",
+        "text-decoration:none",
+      ].join(";");
+    }
+    btn.innerHTML = LOGOUT_SVG;
+    btn.addEventListener(
+      "click",
+      (e) => {
+        e.preventDefault();
+        window.location.href = LOGOUT_URL;
+      },
+      { capture: true },
+    );
+    anchor.appendChild(btn);
+  }
+
+  function start() {
+    ensureLogoutIcon();
+    if (!("MutationObserver" in window)) return;
+    new MutationObserver(() => ensureLogoutIcon()).observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+    setTimeout(ensureLogoutIcon, 750);
+    setTimeout(ensureLogoutIcon, 2500);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+})();

@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required — object storage not implemented for this role
 logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"

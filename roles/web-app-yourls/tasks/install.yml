@@ -1,0 +1,20 @@
+---
+- name: "Wait until YOURLS is reachable inside {{ YOURLS_CONTAINER }}"
+  ansible.builtin.command:
+    cmd: >-
+      container exec {{ YOURLS_CONTAINER }}
+      curl -fsS -o /dev/null http://127.0.0.1:{{ container_port }}/admin/install.php
+  register: yourls_install_probe
+  retries: 30
+  delay: 2
+  until: yourls_install_probe.rc == 0
+  changed_when: false
+
+- name: "Create the YOURLS database schema via the installer (idempotent)"
+  ansible.builtin.command:
+    cmd: >-
+      container exec {{ YOURLS_CONTAINER }}
+      curl -fsS -d install=1 http://127.0.0.1:{{ container_port }}/admin/install.php
+  register: yourls_install
+  changed_when: "'tables successfully created' in yourls_install.stdout"
+  failed_when: yourls_install.rc != 0

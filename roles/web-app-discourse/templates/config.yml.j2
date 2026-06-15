@@ -159,9 +159,6 @@ run:
 
   - exec: rails r "SiteSetting.username_change_period = 0" # Deactivate changing of username
 
-  # The following code is just an inspiration, how to connect with the oidc account. as long as this is not set the admini account needs to be manually connected with oidc 
-  # container exec -it {{ DISCOURSE_CONTAINER }} rails runner "user = User.find_by_email('test@infinito.nexus'); UserAuth.create(user_id: user.id, provider: 'oidc', uid: 'eindeutige_oidc_id', info: { name: user.username, email: user.email })"
-
   # OIDC Activation
   - exec: rails r "SiteSetting.openid_connect_enabled = true"
   - exec: rails r "SiteSetting.openid_connect_discovery_document = '{{OIDC.CLIENT.DISCOVERY_DOCUMENT}}'"

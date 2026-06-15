@@ -87,4 +87,35 @@ GITLAB_OMNIBUS_SMTP:
   - "gitlab_rails['gitlab_email_from']={{ GITLAB_EMAIL['from'] | ruby_dq }}"
   - "gitlab_rails['gitlab_email_reply_to']={{ GITLAB_EMAIL['from'] | ruby_dq }}"
 
-GITLAB_OMNIBUS_ALL: "{{ GITLAB_OMNIBUS_BASE + (GITLAB_OMNIBUS_OIDC if GITLAB_OIDC_ENABLED else []) + (GITLAB_OMNIBUS_SMTP if GITLAB_EMAIL_ENABLED else []) }}"
+## Object storage (consolidated, S3-compatible — SeaweedFS)
+GITLAB_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+GITLAB_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"
+GITLAB_OBJSTORE_ACCESS_KEY: "{{ lookup('objstore', application_id, 'access_key') }}"
+GITLAB_OBJSTORE_SECRET_KEY: "{{ lookup('objstore', application_id, 'secret_key') }}"
+GITLAB_OBJSTORE_ENDPOINT: "{{ lookup('objstore', application_id, 'url') }}"
+GITLAB_OBJSTORE_REGION: "{{ lookup('objstore', application_id, 'region') }}"
+
+GITLAB_OMNIBUS_OBJSTORE:
+  - ""
+  - "gitlab_rails['object_store']['enabled']=true"
+  - "gitlab_rails['object_store']['proxy_download']=true"
+  - "gitlab_rails['object_store']['connection']={"
+  - "  'provider' => 'AWS',"
+  - "  'endpoint' => {{ GITLAB_OBJSTORE_ENDPOINT | ruby_dq }},"
+  - "  'region' => {{ GITLAB_OBJSTORE_REGION | ruby_dq }},"
+  - "  'path_style' => true,"
+  - "  'aws_access_key_id' => {{ GITLAB_OBJSTORE_ACCESS_KEY | ruby_dq }},"
+  - "  'aws_secret_access_key' => {{ GITLAB_OBJSTORE_SECRET_KEY | ruby_dq }}"
+  - "}"
+  - "gitlab_rails['object_store']['objects']['artifacts']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/artifacts') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['external_diffs']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/external-diffs') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['lfs']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/lfs') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['uploads']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/uploads') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['packages']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/packages') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['dependency_proxy']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/dependency-proxy') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['terraform_state']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/terraform-state') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['ci_secure_files']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/ci-secure-files') | ruby_dq }}"
+  - "gitlab_rails['object_store']['objects']['pages']['bucket']={{ (GITLAB_OBJSTORE_BUCKET ~ '/pages') | ruby_dq }}"
+
+GITLAB_OMNIBUS_ALL: "{{ GITLAB_OMNIBUS_BASE + (GITLAB_OMNIBUS_OIDC if GITLAB_OIDC_ENABLED else []) + (GITLAB_OMNIBUS_SMTP if GITLAB_EMAIL_ENABLED else []) + (GITLAB_OMNIBUS_OBJSTORE
+  if GITLAB_OBJSTORE_ENABLED else []) }}"

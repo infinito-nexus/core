@@ -36,20 +36,6 @@
     logging:
       driver: journald
 
-  minio:
-    image: "{{ OPENTALK_MINIO_IMAGE }}:{{ OPENTALK_MINIO_VERSION }}"
-    container_name: {{ OPENTALK_MINIO_CONTAINER }}
-    restart: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) }}
-    command: ["server", "/data"]
-    environment:
-      MINIO_ROOT_USER: "{{ OPENTALK_MINIO_USER }}"
-      MINIO_ROOT_PASSWORD: "{{ OPENTALK_MINIO_PASSWORD }}"
-    volumes:
-      - minio:/data
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    logging:
-      driver: journald
-
   rabbit:
     image: "{{ OPENTALK_RABBIT_IMAGE }}:{{ OPENTALK_RABBIT_VERSION }}"
     container_name: {{ OPENTALK_RABBIT_CONTAINER }}
@@ -87,7 +73,6 @@
     extra_volumes={
       'data':   {'name': OPENTALK_DATA_VOLUME},
       'config': {'name': OPENTALK_CONFIG_VOLUME},
-      'minio':  {'name': lookup('config', application_id, 'volumes.minio')},
       'rabbit': {'name': lookup('config', application_id, 'volumes.rabbit')}
     }
 ) }}

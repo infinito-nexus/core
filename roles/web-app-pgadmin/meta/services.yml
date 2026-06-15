@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required — object storage not implemented for this role
 pgadmin:
   image: dpage/pgadmin4
   version: latest

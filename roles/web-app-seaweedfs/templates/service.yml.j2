@@ -1,0 +1,27 @@
+{% if lookup('objstore', application_id, 'local') %}
+{% set _objstore = lookup('objstore', application_id) %}
+  seaweedfs:
+    image: "{{ _objstore.image }}:{{ _objstore.version }}"
+    container_name: {{ _objstore.container }}
+    restart: {{ DOCKER_RESTART_POLICY }}
+    command:
+      - server
+      - -dir=/data
+      - -filer
+      - -s3
+    volumes:
+      - seaweedfs:/data
+    networks:
+      - default
+    logging:
+      driver: journald
+{% macro include_resource_for(svc, indent=4) -%}
+  {% set service_name = svc -%}
+  {%- set _snippet -%}
+{% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
+  {%- endset -%}
+{{ _snippet | indent(indent, true) }}
+{%- endmacro %}
+{{ include_resource_for('seaweedfs') }}
+{% endif %}
+{{ "\n" }}

@@ -19,6 +19,20 @@ This Docker deployment uses Ansible automation to set up Snipe‑IT along with n
 - **Configurable SMTP Settings:**  
   Manage email notifications and alerts with customizable SMTP configurations.
 
+- **Trusted-Header SSO Bridge:**  
+  When the oauth2-proxy SSO flavor is active, Snipe-IT's native
+  `loginViaRemoteUser()` is enabled via the `Setting` model
+  (`login_remote_user_enabled`, `login_remote_user_header_name =
+  HTTP_X_FORWARDED_PREFERRED_USERNAME`). nginx gates `/login` through
+  oauth2-proxy/Keycloak and injects the verified
+  `X-Forwarded-Preferred-Username` header, which Snipe-IT matches against
+  `users.username` (the user must pre-exist and be activated — sync them
+  via LDAP) to mint a native `snipeit_session`. Visitors without a matching
+  activated user silently fall through to the normal login form (no error).
+  The password/LDAP login form stays available as a fallback
+  (`login_common_disabled = 0`), and the in-app logout is redirected to the
+  central OIDC end-session URL.
+
 - **Optional SAML Authentication:**  
   Prepare for enhanced, standards‑based authentication (integration pending).
 

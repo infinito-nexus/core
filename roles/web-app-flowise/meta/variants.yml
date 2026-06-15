@@ -1,9 +1,6 @@
 ---
-# Matrix-deploy variant overrides for this role. Both auth-flow variants ride the same
-# the `web-app-keycloak` SSO-proxy sidecar (flavor: oauth2) sidecar in front of the Flowise web UI;
-# variant 0 is the canonical OIDC variant (Keycloak with local user
-# storage), variant 1 flips the LDAP marker so the underlying
-# Keycloak user storage is federated from `svc-db-openldap`.
+# Matrix-deploy variant overrides for this role. The SSO variant rides the
+# `web-app-keycloak` SSO-proxy sidecar (flavor: oauth2) in front of the Flowise web UI.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 # variant 0: OIDC variant (canonical default).
@@ -30,9 +27,6 @@
     prometheus:
       enabled: true
       shared: true
-    ldap:
-      enabled: true
-      shared: true
     css:
       enabled: true
       shared: true
@@ -58,37 +52,6 @@
     prometheus:
       enabled: false
       shared: false
-    ldap:
-      enabled: false
-      shared: false
     css:
-      enabled: false
-      shared: false
-- services:
-    ldap:
-      enabled: true
-      shared: true
-    sso:
-      enabled: false
-      shared: false
-    css:
-      enabled: false
-      shared: false
-    dashboard:
-      enabled: false
-      shared: false
-    email:
-      enabled: false
-      shared: false
-    logout:
-      enabled: false
-      shared: false
-    matomo:
-      enabled: false
-      shared: false
-    ollama:
-      enabled: false
-      shared: false
-    prometheus:
       enabled: false
       shared: false

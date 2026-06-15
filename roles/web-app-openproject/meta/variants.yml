@@ -31,6 +31,9 @@
     prometheus:
       enabled: true
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
 - services:
     css:
       enabled: false
@@ -58,6 +61,9 @@
     prometheus:
       enabled: false
       shared: false
+    seaweedfs:
+      enabled: false
+      shared: false
 - services:
     ldap:
       enabled: true
@@ -81,5 +87,8 @@
       enabled: false
       shared: false
     prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
       enabled: false
       shared: false

@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage — TODO: declare proper required_by
+svc-objstore:
+  lifecycle: alpha

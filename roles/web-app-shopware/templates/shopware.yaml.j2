@@ -1,0 +1,65 @@
+---
+{% if lookup('objstore', application_id, 'enabled') | bool %}
+shopware:
+  filesystem:
+    public:
+      type: "amazon-s3"
+      url: "{{ lookup('objstore', application_id, 'public_url') }}"
+      config:
+        bucket: "{{ lookup('objstore', application_id, 'bucket') }}"
+        region: "{{ lookup('objstore', application_id, 'region') }}"
+        endpoint: "{{ lookup('objstore', application_id, 'url') }}"
+        root: "public"
+        use_path_style_endpoint: true
+        credentials:
+          key: "{{ lookup('objstore', application_id, 'access_key') }}"
+          secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
+    private:
+      type: "amazon-s3"
+      visibility: "private"
+      config:
+        bucket: "{{ lookup('objstore', application_id, 'bucket') }}"
+        region: "{{ lookup('objstore', application_id, 'region') }}"
+        endpoint: "{{ lookup('objstore', application_id, 'url') }}"
+        root: "private"
+        use_path_style_endpoint: true
+        credentials:
+          key: "{{ lookup('objstore', application_id, 'access_key') }}"
+          secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
+    theme:
+      type: "amazon-s3"
+      url: "{{ lookup('objstore', application_id, 'public_url') }}"
+      config:
+        bucket: "{{ lookup('objstore', application_id, 'bucket') }}"
+        region: "{{ lookup('objstore', application_id, 'region') }}"
+        endpoint: "{{ lookup('objstore', application_id, 'url') }}"
+        root: "theme"
+        use_path_style_endpoint: true
+        credentials:
+          key: "{{ lookup('objstore', application_id, 'access_key') }}"
+          secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
+    sitemap:
+      type: "amazon-s3"
+      url: "{{ lookup('objstore', application_id, 'public_url') }}"
+      config:
+        bucket: "{{ lookup('objstore', application_id, 'bucket') }}"
+        region: "{{ lookup('objstore', application_id, 'region') }}"
+        endpoint: "{{ lookup('objstore', application_id, 'url') }}"
+        root: "sitemap"
+        use_path_style_endpoint: true
+        credentials:
+          key: "{{ lookup('objstore', application_id, 'access_key') }}"
+          secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
+    asset:
+      type: "amazon-s3"
+      url: "{{ lookup('objstore', application_id, 'public_url') }}"
+      config:
+        bucket: "{{ lookup('objstore', application_id, 'bucket') }}"
+        region: "{{ lookup('objstore', application_id, 'region') }}"
+        endpoint: "{{ lookup('objstore', application_id, 'url') }}"
+        root: "asset"
+        use_path_style_endpoint: true
+        credentials:
+          key: "{{ lookup('objstore', application_id, 'access_key') }}"
+          secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
+{% endif %}

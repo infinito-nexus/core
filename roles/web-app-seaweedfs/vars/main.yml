@@ -1,0 +1,37 @@
+---
+application_id: "web-app-seaweedfs"
+entity_name: "{{ application_id | get_entity_name }}"
+
+SEAWEEDFS_CONTAINER: "{{ lookup('config', application_id, 'services.seaweedfs.name') }}"
+SEAWEEDFS_IMAGE: "{{ lookup('config', application_id, 'services.seaweedfs.image') }}"
+SEAWEEDFS_VERSION: "{{ lookup('config', application_id, 'services.seaweedfs.version') }}"
+SEAWEEDFS_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+
+SEAWEEDFS_S3_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.seaweedfs.api_port') }}"
+SEAWEEDFS_FILER_PORT_INTERNAL: 8888
+SEAWEEDFS_MASTER_PORT_INTERNAL: 9333
+
+SEAWEEDFS_S3_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.seaweedfs.ports.local.http') }}"
+
+SEAWEEDFS_PROXY_CONTAINER: "{{ application_id | get_entity_name }}-proxy"
+SEAWEEDFS_PROXY_IMAGE: "{{ lookup('config', application_id, 'services.proxy.image') }}"
+SEAWEEDFS_PROXY_VERSION: "{{ lookup('config', application_id, 'services.proxy.version') }}"
+
+SEAWEEDFS_S3_DOMAIN: "{{ lookup('config', application_id, 'server.domains.canonical.api') }}"
+SEAWEEDFS_FILER_DOMAIN: "{{ lookup('config', application_id, 'server.domains.canonical.filer') }}"
+SEAWEEDFS_MASTER_DOMAIN: "{{ lookup('config', application_id, 'server.domains.canonical.master') }}"
+
+SEAWEEDFS_ADMIN_ACCESS_KEY: "{{ lookup('users', 'administrator').username }}"
+SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'administrator').password }}"
+
+SEAWEEDFS_S3_CONFIG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3.json' ] | path_join }}"
+
+SEAWEEDFS_SSO_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.seaweedfs.ports.local.sso') }}"
+SEAWEEDFS_FRONT_PROXY_MATRIX: >-
+  {{
+    [
+      { 'domain': SEAWEEDFS_FILER_DOMAIN,  'http_port': SEAWEEDFS_SSO_PORT_PUBLIC },
+      { 'domain': SEAWEEDFS_MASTER_DOMAIN, 'http_port': SEAWEEDFS_SSO_PORT_PUBLIC },
+      { 'domain': SEAWEEDFS_S3_DOMAIN,     'http_port': SEAWEEDFS_S3_PORT_PUBLIC }
+    ]
+  }}

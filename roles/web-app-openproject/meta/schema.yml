@@ -4,3 +4,7 @@ credentials:
     description: Main secret used by OpenProject to sign cookies and encrypt session data
     algorithm: sha256
     validation: ^[a-f0-9]{64}$
+  auth_source_sso_secret:
+    description: Shared secret appended to the trusted X-Remote-User header so only the front proxy can drive header-based SSO
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$

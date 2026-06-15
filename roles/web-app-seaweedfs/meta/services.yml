@@ -1,0 +1,52 @@
+---
+sso:
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: seaweedfs-proxy
+      port: "80"
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-seaweedfs', role='administrator') }}"
+# nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
+ldap:
+  enabled: false
+  shared: false
+logout:
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+prometheus:
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag — central object-store provider entity
+seaweedfs:
+  enabled: true
+  shared: true
+  image: chrislusf/seaweedfs
+  version: "4.33"
+  name: seaweedfs
+  api_port: 8333
+  region: us-east-1
+  min_storage: 30GB
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 2048
+  run_after:
+    - web-app-keycloak
+  lifecycle: alpha
+  ports:
+    local:
+      http: 8085
+      sso: 16507
+proxy:
+  image: nginx
+  version: 1.31-alpine
+  cpus: "0.2"
+  mem_reservation: 64m
+  mem_limit: 128m
+  pids_limit: 128

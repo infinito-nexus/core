@@ -1,0 +1,53 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "For '{{ application_id }}': load docker and compose"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "Ensure volumes directory exists"
+  ansible.builtin.file:
+    path: "{{ lookup('container', application_id, 'directories.volumes') }}"
+    state: directory
+    mode: "0755"
+
+- name: "Render SeaweedFS S3 identities config"
+  ansible.builtin.template:
+    src: s3.json.j2
+    dest: "{{ SEAWEEDFS_S3_CONFIG_PATH }}"
+  notify: compose up
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Render role proxy nginx config"
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'nginx.conf'] | path_join }}"
+  notify: compose up
+
+- name: "Start the SeaweedFS stack"
+  ansible.builtin.meta: flush_handlers
+
+- name: "Include role sys-stk-front-proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ seaweedfs_proxy.domain }}"
+    http_port: "{{ seaweedfs_proxy.http_port }}"
+  loop: "{{ SEAWEEDFS_FRONT_PROXY_MATRIX }}"
+  loop_control:
+    loop_var: seaweedfs_proxy
+    label: "{{ seaweedfs_proxy.domain }} -> {{ seaweedfs_proxy.http_port }}"
+
+- name: "Wait until the SeaweedFS S3 gateway answers"
+  ansible.builtin.shell: >
+    container exec {{ SEAWEEDFS_CONTAINER }}
+    wget -q -O - http://127.0.0.1:{{ SEAWEEDFS_S3_PORT_INTERNAL }}/status
+  args:
+    executable: /bin/bash
+  register: _seaweedfs_ready
+  retries: 30
+  delay: 5
+  until: _seaweedfs_ready.rc == 0
+  changed_when: false

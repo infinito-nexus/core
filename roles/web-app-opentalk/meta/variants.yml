@@ -17,9 +17,6 @@
     email:
       enabled: true
       shared: true
-    ldap:
-      shared: true
-      enabled: true
     logout:
       enabled: true
       shared: true
@@ -33,6 +30,8 @@
       shared: true
     prometheus:
       enabled: true
+      shared: true
+    seaweedfs:
       shared: true
 - services:
     coturn:
@@ -47,9 +46,6 @@
     email:
       enabled: false
       shared: false
-    ldap:
-      shared: false
-      enabled: false
     logout:
       enabled: false
       shared: false
@@ -64,33 +60,5 @@
     prometheus:
       enabled: false
       shared: false
-- services:
-    ldap:
-      enabled: true
-      shared: true
-    sso:
-      enabled: false
-      shared: false
-    coturn:
-      enabled: false
-      shared: false
-    css:
-      enabled: false
-      shared: false
-    dashboard:
-      enabled: false
-      shared: false
-    email:
-      enabled: false
-      shared: false
-    logout:
-      enabled: false
-      shared: false
-    matomo:
-      enabled: false
-      shared: false
-    postgres:
-      shared: false
-    prometheus:
-      enabled: false
+    seaweedfs:
       shared: false

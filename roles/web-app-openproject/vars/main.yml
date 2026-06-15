@@ -45,6 +45,15 @@ OPENPROJECT_RAILS_SETTINGS:
   smtp_password: "{{ OPENPROJECT_EMAIL.password }}"
   smtp_ssl: false
 
+# Auth integrations
+OPENPROJECT_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
+OPENPROJECT_SSO_HEADER: "X-Remote-User"
+OPENPROJECT_SSO_SECRET: "{{ lookup('config', application_id, 'credentials.auth_source_sso_secret') }}"
+OPENPROJECT_SSO_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') if (lookup('config', application_id, 'services.logout.enabled') | bool) else '' }}"
+# AuthSourceSSO resolves the header login only via the LDAP auth source, so the
+# header bridge is gated on LDAP being enabled too (else every login would fail).
+OPENPROJECT_HEADER_SSO_ENABLED: "{{ (OPENPROJECT_SSO_PROXY_GATED | bool) and (OPENPROJECT_LDAP_ENABLED | bool) }}"
+
 ## LDAP
 OPENPROJECT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED: "{{ lookup('config', application_id, 'services.openproject.ldap.filters.administrators') }}"

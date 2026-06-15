@@ -26,10 +26,10 @@
     prometheus:
       enabled: true
       shared: true
-    ldap:
+    css:
       enabled: true
       shared: true
-    css:
+    seaweedfs:
       enabled: true
       shared: true
 - services:
@@ -53,34 +53,9 @@
     prometheus:
       enabled: false
       shared: false
-    ldap:
-      enabled: false
-      shared: false
     css:
       enabled: false
       shared: false
-- services:
-    ldap:
-      enabled: true
-      shared: true
-    sso:
-      enabled: false
-      shared: false
-    css:
-      enabled: false
-      shared: false
-    dashboard:
-      enabled: false
-      shared: false
-    email:
-      enabled: false
-      shared: false
-    logout:
-      enabled: false
-      shared: false
-    matomo:
-      enabled: false
-      shared: false
-    prometheus:
+    seaweedfs:
       enabled: false
       shared: false

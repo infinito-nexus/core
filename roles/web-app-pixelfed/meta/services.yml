@@ -56,6 +56,15 @@ worker:
   mem_limit: 1g
   pids_limit: 512
   min_storage: 5GB
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+  public: true
+seaweedfs:
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   enabled: "{{ 'web-svc-css' in group_names }}"

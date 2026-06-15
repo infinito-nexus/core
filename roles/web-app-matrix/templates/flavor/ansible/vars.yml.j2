@@ -7,6 +7,17 @@ matrix_playbook_migration_validated_version: "{{ MATRIX_MDAD_MIGRATION_VALIDATED
 matrix_synapse_macaroon_secret_key: "{{ lookup('config', application_id, 'credentials.macaroon_secret_key') }}"
 matrix_homeserver_generic_secret_key: "{{ lookup('config', application_id, 'credentials.macaroon_secret_key') }}"
 
+{% if lookup('objstore', application_id, 'enabled') | bool %}
+matrix_synapse_ext_synapse_s3_storage_provider_enabled: true
+matrix_synapse_ext_synapse_s3_storage_provider_store_synchronous: true
+matrix_synapse_ext_synapse_s3_storage_provider_config_bucket: "{{ lookup('objstore', application_id, 'bucket') }}"
+matrix_synapse_ext_synapse_s3_storage_provider_config_region_name: "{{ lookup('objstore', application_id, 'region') }}"
+matrix_synapse_ext_synapse_s3_storage_provider_config_endpoint_url: "{{ lookup('objstore', application_id, 'url') }}"
+matrix_synapse_ext_synapse_s3_storage_provider_config_access_key_id: "{{ lookup('objstore', application_id, 'access_key') }}"
+matrix_synapse_ext_synapse_s3_storage_provider_config_secret_access_key: "{{ lookup('objstore', application_id, 'secret_key') }}"
+matrix_synapse_ext_synapse_s3_storage_provider_config_storage_class: STANDARD
+{% endif %}
+
 traefik_enabled: false
 matrix_playbook_reverse_proxy_type: none
 

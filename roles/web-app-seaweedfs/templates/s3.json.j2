@@ -1,0 +1,29 @@
+{% set identities = [] %}
+{% set _ = identities.append({
+  "name": "admin",
+  "credentials": [{"accessKey": SEAWEEDFS_ADMIN_ACCESS_KEY, "secretKey": SEAWEEDFS_ADMIN_SECRET_KEY}],
+  "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+}) %}
+{% set anonymous_actions = [] %}
+{% for role in group_names | select('match', '^web-app-') | reject('equalto', application_id) | list %}
+{%   set objstore = lookup('objstore', role) %}
+{%   if objstore.engine == 'seaweedfs' and objstore.shared %}
+{%     set _ = identities.append({
+         "name": role,
+         "credentials": [{"accessKey": objstore.access_key, "secretKey": objstore.secret_key}],
+         "actions": [
+           "Read:" ~ objstore.bucket,
+           "Write:" ~ objstore.bucket,
+           "List:" ~ objstore.bucket,
+           "Tagging:" ~ objstore.bucket
+         ]
+       }) %}
+{%     if objstore.public %}
+{%       set _ = anonymous_actions.append("Read:" ~ objstore.bucket) %}
+{%     endif %}
+{%   endif %}
+{% endfor %}
+{% if anonymous_actions %}
+{%   set _ = identities.append({"name": "anonymous", "actions": anonymous_actions}) %}
+{% endif %}
+{{ {"identities": identities} | to_nice_json }}

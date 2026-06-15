@@ -14,6 +14,12 @@ const {
   runGuestFlow,
 } = require("./personas");
 
+const VALID_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAKklEQVR4nGPQqDhBU8QwasGoBaMWjFowasGoBaMWjFowasGoBaMWDBULAIuXoEzkdmPIAAAAAElFTkSuQmCC";
+function validImagePng() {
+  return Buffer.from(VALID_PNG_BASE64, "base64");
+}
+
 const env = {
   baseUrl: normalizeBaseUrl(process.env.PENPOT_BASE_URL || ""),
   oidcIssuerUrl: normalizeBaseUrl(process.env.OIDC_ISSUER_URL || ""),
@@ -121,4 +127,5 @@ module.exports = {
   penpotLdapLogin,
   penpotNativeLogin,
   penpotRegister,
+  validImagePng,
 };

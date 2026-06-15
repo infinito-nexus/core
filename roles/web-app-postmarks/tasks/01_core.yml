@@ -6,4 +6,16 @@
     domain: "{{ lookup('domain', application_id) }}"
     http_port: "{{ lookup('config', application_id, 'services.postmarks.ports.local.http') }}"
 
+- name: "Stage trusted-header SSO build-context files for {{ application_id }}"
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
+    mode: "0644"
+  loop:
+    - { src: "sso/header_auth.js", dest: "header_auth.js" }
+    - { src: "sso/patch_server.js", dest: "patch_server.js" }
+  notify:
+    - compose build
+    - compose up
+
 - include_tasks: utils/once/flag.yml

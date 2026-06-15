@@ -2,6 +2,9 @@ const { test, expect } = require("@playwright/test");
 
 const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
+
+require("./test-seaweedfs");
+
 test.use({
   ignoreHTTPSErrors: true
 });

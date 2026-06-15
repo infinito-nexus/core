@@ -31,6 +31,9 @@
     prometheus:
       enabled: true
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
 # Variant pinning every dynamic services.yml flag to false.
 - services:
     css:
@@ -59,6 +62,9 @@
     prometheus:
       enabled: false
       shared: false
+    seaweedfs:
+      enabled: false
+      shared: false
 # LDAP-only variant: LDAP bind login on, OIDC/SSO off, so the matrix
 # exercises the LDAP authentication branch in isolation.
 - services:
@@ -84,5 +90,8 @@
       enabled: false
       shared: false
     prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
       enabled: false
       shared: false

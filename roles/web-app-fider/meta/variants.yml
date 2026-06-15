@@ -28,6 +28,9 @@
     css:
       enabled: true
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
 - services:
     dashboard:
       enabled: false
@@ -50,5 +53,8 @@
       enabled: false
       shared: false
     css:
+      enabled: false
+      shared: false
+    seaweedfs:
       enabled: false
       shared: false

@@ -1,0 +1,44 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  seaweedfs:
+    image: "{{ SEAWEEDFS_IMAGE }}:{{ SEAWEEDFS_VERSION }}"
+    container_name: {{ SEAWEEDFS_CONTAINER }}
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command:
+      - server
+      - -dir=/data
+      - -ip.bind=0.0.0.0
+      - -filer
+      - -s3
+      - -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ SEAWEEDFS_S3_PORT_PUBLIC }}:{{ SEAWEEDFS_S3_PORT_INTERNAL }}"
+    volumes:
+      - data:/data
+      - "{{ SEAWEEDFS_S3_CONFIG_PATH }}:/etc/seaweedfs/s3.json:ro"
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+
+  proxy:
+    image: "{{ SEAWEEDFS_PROXY_IMAGE }}:{{ SEAWEEDFS_PROXY_VERSION }}"
+    container_name: {{ SEAWEEDFS_PROXY_CONTAINER }}
+    hostname: {{ SEAWEEDFS_PROXY_CONTAINER }}
+    restart: {{ DOCKER_RESTART_POLICY }}
+{% set service_name = 'proxy' %}
+{% filter indent(4) %}
+    {% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
+{% endfilter %}
+{{ "\n" }}
+    volumes:
+      - "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}:/etc/nginx/conf.d/default.conf:ro"
+    depends_on:
+      seaweedfs:
+        condition: service_started
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    logging:
+      driver: journald
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={'data': {'name': SEAWEEDFS_DATA_VOLUME}}
+) }}
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
