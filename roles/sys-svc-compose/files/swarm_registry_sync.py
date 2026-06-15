@@ -44,6 +44,15 @@ def sync(*, compose_file: Path, prefix: str) -> int:
 
         if image.startswith(prefix):
             targets.append(image)
+            if "build" in svc or manifest_exists(image):
+                continue
+            upstream = image[len(prefix) :]
+            rc = run(["docker", "pull", upstream])
+            if rc != 0:
+                raise RuntimeError(f"docker pull {upstream} failed (rc={rc})")
+            rc = run(["docker", "tag", upstream, image])
+            if rc != 0:
+                raise RuntimeError(f"docker tag {upstream} {image} failed (rc={rc})")
             continue
 
         if "build" in svc:
