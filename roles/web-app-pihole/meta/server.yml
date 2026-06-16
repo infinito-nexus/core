@@ -2,6 +2,12 @@ domains:
   canonical:
   - pihole.{{ DOMAIN_PRIMARY }}
   aliases: []
+status_codes:
+  default:
+    - 200
+    - 301
+    - 302
+    - 308
 networks:
   local:
     subnet: 192.168.103.80/28
