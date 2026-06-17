@@ -52,6 +52,8 @@ def _is_consumer(
             ):
                 return False
         return True
+    if kind == "web_facing":
+        return application_id.startswith(("web-app-", "web-svc-"))
     return False
 
 
@@ -102,9 +104,24 @@ def _compute_attachments(
                         continue
                     default_aliases.extend(peer_overlay.get("aliases") or [])
             elif topology:
-                aliases = overlay.get("aliases", [entry.get("entity_name")]) or [
-                    entry.get("entity_name")
-                ]
+                aliases = list(
+                    overlay.get("aliases", [entry.get("entity_name")])
+                    or [entry.get("entity_name")]
+                )
+                if overlay.get("collect_proxy_resolvable"):
+                    for peer in registry.values():
+                        peer_overlay = peer.get("overlay")
+                        if not peer_overlay:
+                            continue
+                        if not peer_overlay.get("proxy_resolvable"):
+                            continue
+                        if deployment_mode not in peer_overlay.get("modes", []):
+                            continue
+                        if "canonical" in peer:
+                            continue
+                        if peer.get("role") == entry.get("role"):
+                            continue
+                        aliases.extend(peer_overlay.get("aliases") or [])
                 attachments.append(
                     {
                         "role": entry["role"],
@@ -155,9 +172,17 @@ def render_compose_networks(
         lines.append("    external: true")
 
     if not _suppress_default(application_id):
+        own_entity = get_entity_name(application_id)
+        is_own_shared_net_provider = any(
+            att["is_provider"]
+            and att["topology"] == "shared_net"
+            and get_entity_name(att["role"]) == own_entity
+            for att in attachments
+        )
         lines.append("  default:")
         if deployment_mode == "swarm":
-            lines.append(f"    name: {get_entity_name(application_id)}")
+            if not is_own_shared_net_provider:
+                lines.append(f"    name: {own_entity}")
             lines.append("    driver: overlay")
             lines.append("    attachable: true")
             lines.append("    driver_opts:")
@@ -165,7 +190,8 @@ def render_compose_networks(
         else:
             subnet = lookup_config(application_id, "server.networks.local.subnet", "")
             if subnet:
-                lines.append(f"    name: {get_entity_name(application_id)}")
+                if not is_own_shared_net_provider:
+                    lines.append(f"    name: {own_entity}")
                 lines.append("    driver: bridge")
                 lines.append("    ipam:")
                 lines.append("      driver: default")

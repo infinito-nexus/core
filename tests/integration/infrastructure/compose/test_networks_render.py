@@ -72,12 +72,9 @@ def _registry():
             "enabled": True,
             "overlay": {
                 "modes": ["swarm"],
-                "topology": "default_net",
-                "consumer": {
-                    "kind": "services_flags",
-                    "key": "sso",
-                    "flags": ["enabled"],
-                },
+                "topology": "shared_net",
+                "collect_proxy_resolvable": True,
+                "consumer": {"kind": "web_facing"},
             },
         },
         "sso": {
@@ -148,8 +145,9 @@ class TestNetworksRender(unittest.TestCase):
     def test_openresty_swarm_top_level(self):
         expected = (
             "networks:\n"
+            "  openresty:\n"
+            "    external: true\n"
             "  default:\n"
-            "    name: openresty\n"
             "    driver: overlay\n"
             "    attachable: true\n"
             "    driver_opts:\n"
@@ -158,7 +156,14 @@ class TestNetworksRender(unittest.TestCase):
         self.assertEqual(_compose("svc-prx-openresty", "swarm"), expected)
 
     def test_openresty_swarm_service_level_collects_keycloak_alias(self):
-        expected = "\nnetworks:\n  default:\n    aliases:\n      - auth.example.com"
+        expected = (
+            "\nnetworks:\n"
+            "  openresty:\n"
+            "    aliases:\n"
+            "      - openresty\n"
+            "      - auth.example.com\n"
+            "  default:"
+        )
         self.assertEqual(_container("svc-prx-openresty", "swarm"), expected)
 
     def test_openresty_compose_skips_overlay(self):
@@ -214,9 +219,13 @@ class TestNetworksRender(unittest.TestCase):
         )
 
     def test_ldap_consumer_swarm_uses_default_consumer_derivation(self):
+        # web-app-bookwyrm is web-facing, so it also attaches to the openresty
+        # shared net (consumer kind 'web_facing').
         expected = (
             "networks:\n"
             "  openldap:\n"
+            "    external: true\n"
+            "  openresty:\n"
             "    external: true\n"
             "  default:\n"
             "    name: bookwyrm\n"
@@ -235,7 +244,7 @@ class TestNetworksRender(unittest.TestCase):
         )
 
     def test_ollama_consumer_swarm_uses_default_consumer_derivation(self):
-        expected = "\nnetworks:\n  ollama:\n    {}\n  default:"
+        expected = "\nnetworks:\n  ollama:\n    {}\n  openresty:\n    {}\n  default:"
         self.assertEqual(
             _container(
                 "web-app-openwebui",

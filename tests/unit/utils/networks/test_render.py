@@ -178,6 +178,32 @@ class TestIsConsumer(unittest.TestCase):
             )
         )
 
+    def test_web_facing_matches_web_app_and_web_svc(self):
+        entry = {
+            "role": "svc-prx-openresty",
+            "overlay": {"consumer": {"kind": "web_facing"}},
+        }
+        for app in ("web-app-baserow", "web-svc-logout"):
+            self.assertTrue(
+                _is_consumer(
+                    entry, app, _const_lookup_config(), _const_lookup_database()
+                ),
+                msg=app,
+            )
+
+    def test_web_facing_rejects_non_web_roles(self):
+        entry = {
+            "role": "svc-prx-openresty",
+            "overlay": {"consumer": {"kind": "web_facing"}},
+        }
+        for app in ("svc-db-mariadb", "svc-ai-ollama", "sys-svc-x"):
+            self.assertFalse(
+                _is_consumer(
+                    entry, app, _const_lookup_config(), _const_lookup_database()
+                ),
+                msg=app,
+            )
+
 
 class TestComputeAttachments(unittest.TestCase):
     def test_skips_canonical_aliases(self):
