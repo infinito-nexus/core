@@ -22,16 +22,25 @@ trap cleanup EXIT
 for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
     server="${PROJECT}-wg${i}"
     client="${PROJECT}-client${i}"
+    # Per local.sh: server i uses INTERNAL_SUBNET 10.13.<12+i>.0 and takes .1.
+    server_subnet="10.13.$(( 12 + i )).0/24"
+    server_ip="10.13.$(( 12 + i )).1"
 
-    # Pull the generated peer config out of the server and point its Endpoint at
-    # the server's service name on the shared compose network (port 51820/udp).
+    # Pull the generated peer config and rewrite it for the in-DinD topology:
+    #  - Endpoint -> the server's service name on the shared compose network.
+    #  - AllowedIPs -> only the server's tunnel subnet (0.0.0.0/0 would route the
+    #    endpoint itself through the tunnel and deadlock the handshake).
+    #  - PersistentKeepalive so the client actively initiates the handshake.
     peer_conf="$(container exec "${server}" cat /config/peer1/peer1.conf 2>/dev/null || true)"
     if [ -z "${peer_conf}" ]; then
         echo "FAIL: ${server} produced no peer1 config"
         failures=$(( failures + 1 ))
         continue
     fi
-    peer_conf="$(printf '%s\n' "${peer_conf}" | sed -E "s#^Endpoint =.*#Endpoint = wg${i}:51820#")"
+    peer_conf="$(printf '%s\n' "${peer_conf}" \
+        | sed -E "s#^Endpoint =.*#Endpoint = wg${i}:51820#" \
+        | sed -E "s#^AllowedIPs =.*#AllowedIPs = ${server_subnet}#")"
+    peer_conf="$(printf '%s\nPersistentKeepalive = 25\n' "${peer_conf}")"
 
     # Start an idle client (no conf yet), inject the rewritten conf, restart.
     container rm -f "${client}" >/dev/null 2>&1 || true
@@ -46,10 +55,12 @@ for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
         container exec -i "${client}" sh -c 'mkdir -p /config/wg_confs && cat > /config/wg_confs/wg0.conf'
     container restart "${client}" >/dev/null
 
-    # Assert a handshake is established within the timeout.
+    # Poll for a handshake; actively ping the server's tunnel IP each round to
+    # trigger one, bounded by the timeout.
     deadline=$(( $(date +%s) + WIREGUARD_E2E_TIMEOUT ))
     ok=0
     while true; do
+        container exec "${client}" ping -c1 -W2 "${server_ip}" >/dev/null 2>&1 || true
         hs="$(container exec "${client}" wg show all latest-handshakes 2>/dev/null | awk '{print $NF}' | sort -nr | head -n1)"
         case "${hs}" in (''|*[!0-9]*) hs=0 ;; esac
         if [ "${hs}" -gt 0 ]; then
