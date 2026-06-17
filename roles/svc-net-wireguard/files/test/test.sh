@@ -28,5 +28,6 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 bash "${DIR}/local.sh"
 bash "${DIR}/external.sh"
 bash "${DIR}/mesh.sh"
+bash "${DIR}/nat.sh"
 
 echo "ALL CHECKS PASSED"
