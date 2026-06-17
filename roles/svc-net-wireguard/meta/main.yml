@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birkenbach
+  author: Evangelos Tsakoudis
   description: Runs WireGuard in a Docker container (linuxserver image) in server or
     client mode. Replaces the host-native svc-net-wireguard-core / -plain / -firewalled
     roles, consolidating peer termination, MTU handling and NAT masquerading into one
