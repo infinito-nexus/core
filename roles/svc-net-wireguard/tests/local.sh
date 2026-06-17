@@ -37,8 +37,6 @@ mkdir -p "${WORKDIR}"
       - PEERS=1
       - PEERDNS=auto
       - INTERNAL_SUBNET=${subnet}
-    ports:
-      - "${port}:51820/udp"
     volumes:
       - "wg${i}_config:/config"
     healthcheck:
