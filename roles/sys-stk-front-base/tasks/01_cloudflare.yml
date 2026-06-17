@@ -17,7 +17,7 @@
     url: "{{ cf_api_url }}?name={{ domain | to_primary_domain }}"
     method: GET
     headers:
-      Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
       Content-Type: "application/json"
     return_content: true
   register: cf_zone_lookup_dev

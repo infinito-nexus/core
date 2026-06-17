@@ -1,10 +1,10 @@
-# Cloudflare API Token for Ansible (`CLOUDFLARE_API_TOKEN`)
+# Cloudflare API Token for Ansible (`API.cloudflare.api_token`)
 
 This document explains how to generate and use a Cloudflare API Token for DNS automation and certificate operations in Ansible (e.g., with Certbot).
 
 ## Purpose
 
-The `CLOUDFLARE_API_TOKEN` variable must contain a valid Cloudflare API Token.  
+The `API.cloudflare.api_token` value (declared in `group_vars/all/18_api.yml`, read via `lookup('api', 'cloudflare.api_token')`) must contain a valid Cloudflare API Token.  
 This token is used for all DNS operations and ACME (SSL/TLS certificate) challenges that require access to your Cloudflare-managed domains.
 
 **Never commit your API token to a public repository. Always keep it secure!**
@@ -58,4 +58,6 @@ Add the following permissions:
 Set the token in your Ansible inventory or secrets file:
 
 ```yaml
-CLOUDFLARE_API_TOKEN: "cf_your_generated_token_here"
+API:
+  cloudflare:
+    api_token: "cf_your_generated_token_here"

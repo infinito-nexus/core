@@ -1,7 +1,7 @@
 ---
 - name: "Ensure A @ for {{ base_domain }}"
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ base_domain }}"
     type: A
     name: "@"
@@ -14,7 +14,7 @@
 
 - name: "Ensure AAAA @ for {{ base_domain }} with '{{ networks.internet.ip6 | default('None') }}"
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ base_domain }}"
     type: AAAA
     name: "@"

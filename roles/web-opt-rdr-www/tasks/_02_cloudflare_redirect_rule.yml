@@ -5,7 +5,7 @@
 # Required vars to pass in:
 #   www_fqdn:   "www.example.com"
 #   apex_url:   "https://example.com"
-#   CLOUDFLARE_API_TOKEN
+#   API.cloudflare.api_token (via lookup('api', 'cloudflare.api_token'))
 
 - name: "Derive zone from www_fqdn; apex comes from caller"
   set_fact:
@@ -17,7 +17,7 @@
     url: "https://api.cloudflare.com/client/v4/zones?name={{ cf_zone_name }}"
     method: GET
     headers:
-      Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
       Content-Type: "application/json"
     return_content: true
   register: cf_zone_lookup
@@ -31,7 +31,7 @@
 
 - name: "Remove conflicting A/AAAA record for {{ www_fqdn }}"
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ cf_zone_name }}"
     type: "A"
     name: "{{ www_fqdn }}"
@@ -40,7 +40,7 @@
 
 - name: "Cloudflare DNS: ensure {{ www_fqdn }} is proxied (CNAME)"
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ cf_zone_name }}"
     type: "CNAME"
     name: "{{ www_fqdn }}"
@@ -55,7 +55,7 @@
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets?phase=http_request_dynamic_redirect"
     method: GET
     headers:
-      Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
       Content-Type: "application/json"
     return_content: true
   register: cf_rulesets
@@ -102,7 +102,7 @@
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets/{{ cf_redirect_ruleset_id }}"
     method: PUT
     headers:
-      Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
       Content-Type: "application/json"
     status_code: 200
     body_format: json
@@ -121,7 +121,7 @@
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets"
     method: POST
     headers:
-      Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
       Content-Type: "application/json"
     status_code: 200
     body_format: json

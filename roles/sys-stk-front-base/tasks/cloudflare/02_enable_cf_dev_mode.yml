@@ -1,6 +1,6 @@
 ---
 # Enables Cloudflare Development Mode (bypasses cache for ~3 hours).
-# Uses the same auth token as in 01_cleanup.yml: CLOUDFLARE_API_TOKEN
+# Uses the same auth token as in 01_cleanup.yml: lookup('api', 'cloudflare.api_token')
 # Assumes `domain` and (optionally) `cf_zone_id` are available.
 # Safe to run repeatedly; only changes when the mode is not already "on".
 
@@ -9,7 +9,7 @@
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/settings/development_mode"
     method: GET
     headers:
-      Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
       Content-Type: "application/json"
     return_content: true
   register: cf_dev_mode_current
@@ -20,7 +20,7 @@
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/settings/development_mode"
     method: PATCH
     headers:
-      Authorization: "Bearer {{ CLOUDFLARE_API_TOKEN }}"
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
       Content-Type: "application/json"
     body:
       value: "on"

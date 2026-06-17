@@ -16,7 +16,7 @@
   copy:
     dest: "{{ CERTBOT_CREDENTIALS_FILE }}"
     content: |
-      dns_{{ CERTBOT_ACME_CHALLENGE_METHOD }}_api_token = {{ CLOUDFLARE_API_TOKEN }}
+      dns_{{ CERTBOT_ACME_CHALLENGE_METHOD }}_api_token = {{ lookup('api', 'cloudflare.api_token') }}
     owner: root
     group: root
     mode: "0600"

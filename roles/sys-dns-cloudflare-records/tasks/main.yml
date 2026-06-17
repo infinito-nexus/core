@@ -3,13 +3,13 @@
 
 - name: Assert token
   ansible.builtin.assert:
-    that: ["CLOUDFLARE_API_TOKEN | length > 0"]
+    that: ["lookup('api', 'cloudflare.api_token') | length > 0"]
   no_log: "{{ cloudflare_no_log | bool }}"
   when: MODE_ASSERT | bool
 
 - name: Apply A/AAAA
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.zone }}"
     type: "{{ item.type }}"
     name: "{{ item.name }}"
@@ -41,7 +41,7 @@
 
 - name: Apply CNAME/MX/TXT
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.zone }}"
     type: "{{ item.type }}"
     name: "{{ item.name }}"
@@ -73,7 +73,7 @@
 
 - name: Apply SRV
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.zone }}"
     type: SRV
     service: "{{ item.service }}"

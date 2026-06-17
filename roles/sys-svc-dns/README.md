@@ -24,7 +24,7 @@ This role cloudflare DNS bootstrap: parent host A/AAAA (and optional CAA), runs 
 
 ## What it does
 
-1. **Validate `CLOUDFLARE_API_TOKEN`** is present (early fail if missing).
+1. **Validate the Cloudflare API token** (`API.cloudflare.api_token`) is present (early fail if missing).
 2. **Ensure apex A/AAAA exist** for every **base SLD** in `SYS_SVC_DNS_BASE_DOMAINS`:
    - Writes `@  A` → `networks.internet.ip4`
    - Writes `@ AAAA` → `networks.internet.ip6` (only if global and present)

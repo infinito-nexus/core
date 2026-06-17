@@ -1,9 +1,9 @@
 ---
-- name: "Validate CLOUDFLARE_API_TOKEN"
+- name: "Validate the Cloudflare API token"
   fail:
     msg: >
-      The variable "CLOUDFLARE_API_TOKEN" must be defined and cannot be empty!
-  when: (CLOUDFLARE_API_TOKEN | default('') | trim) == ''
+      API.cloudflare.api_token must be set (via lookup('api', 'cloudflare.api_token')) and cannot be empty!
+  when: (lookup('api', 'cloudflare.api_token') | trim) == ''
 
 - name: "Apply apex A/AAAA for base domains"
   include_tasks: 02_apex.yml
@@ -14,7 +14,7 @@
 
 - name: "Ensure all CAA records are present"
   community.general.cloudflare_dns:
-    api_token: "{{ CLOUDFLARE_API_TOKEN }}"
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.0 }}"
     record: "@"
     type: CAA
