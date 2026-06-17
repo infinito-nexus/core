@@ -43,13 +43,14 @@ ip_of() {
     done
 }
 
-# The role image (linuxserver) ships wg/wg-quick and only needs ping; the distro
-# clients install wireguard-tools with their own package manager.
+# The role image (linuxserver) is Alpine and ships wg/wg-quick; it only needs a
+# full ping (apk). The distro clients install wireguard-tools with their own
+# package manager.
 install_deps() {
     local cn="$1" kind="$2"
     case "${kind}" in
         server)
-            container exec "${cn}" sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping' ;;
+            container exec "${cn}" sh -c 'apk add --no-cache iputils-ping 2>/dev/null || apk add --no-cache iputils' ;;
         centos)
             container exec "${cn}" sh -c 'dnf -y install epel-release && dnf -y install wireguard-tools iproute iputils' ;;
         debian)
