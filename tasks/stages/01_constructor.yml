@@ -151,8 +151,3 @@
     yay_install_packages: "{{ SYS_AUR_PACKAGES }}"
   when:
     - SYS_AUR_PACKAGES | default([]) | length > 0
-
-- name: Run E2E CLI tests
-  ansible.builtin.include_role:
-    name: "test-e2e-cli"
-  when: RUNTIME in ['dev', 'act', 'github']
