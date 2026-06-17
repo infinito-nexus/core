@@ -9,6 +9,11 @@ INFINITO_GATEWAY=172.30.{{ runner_instance }}.1
 INFINITO_DNS_IP=172.30.{{ runner_instance }}.53
 INFINITO_IP4=172.30.{{ runner_instance }}.10
 INFINITO_BIND_IP=172.30.{{ runner_instance }}.1
+# Package-cache frontend pins a static IP inside the default network; it MUST
+# move with the per-instance subnet too, otherwise compose rejects it with
+# "no configured subnet contains IP address" (default.env keeps it on the
+# .0 subnet, which no longer matches this instance's relocated /24).
+INFINITO_CACHE_PACKAGE_FRONTEND_IP=172.30.{{ runner_instance }}.4
 DOMAIN=infinito.example
 DOMAIN_RE=infinito\.example
 INVENTORY_DIR={{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/inventories/github
