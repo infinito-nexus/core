@@ -27,9 +27,10 @@ successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`
 - **Host/container ownership mapping:** `PUID` / `PGID` map `/config` ownership onto a host user per
   the linuxserver [User/Group Identifiers](https://docs.linuxserver.io/images/docker-wireguard/#user-group-identifiers) contract.
 - **Pinned image:** The upstream tag is pinned in `meta/services.yml`; bump and redeploy to upgrade.
-- **Docker-in-Docker test harness:** The `files/test/` suite stands up at least three servers and
-  asserts peer handshakes, then builds a full mesh across all six nodes (3 servers +
-  CentOS/Debian/Manjaro clients) and verifies every node reaches every other (handshake + ICMP ping).
+- **Docker-in-Docker test harness:** The `files/test/` suite asserts server-mode peer handshakes,
+  builds a full mesh across all six nodes (3 servers + CentOS/Debian/Manjaro clients), and validates
+  client mode + MTU 1400 + NAT masquerade (a client reaching an upstream host only via a masquerading
+  gateway).
 
 ## Migration
 
