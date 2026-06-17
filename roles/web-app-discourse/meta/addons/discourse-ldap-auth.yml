@@ -1,0 +1,25 @@
+---
+enabled: "{{ lookup('config', 'web-app-discourse', 'services.ldap.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - ldap
+version: "master"
+config:
+  repository: https://github.com/jonmbake/discourse-ldap-auth.git  # nocheck: repository-declared
+  ref: master
+  site_settings:
+    ldap_auth_enabled: true
+    ldap_sync_enabled: true
+    ldap_sync_host: "{{ LDAP.SERVER.DOMAIN }}"
+    ldap_sync_port: "{{ LDAP.SERVER.PORT }}"
+    ldap_encryption: simple_tls
+    ldap_base_dn: "{{ LDAP.DN.ROOT }}"
+    ldap_bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    ldap_bind_password: "{{ LDAP.BIND_CREDENTIAL }}"
+    ldap_user_filter: "{{ LDAP.FILTERS.USERS.LOGIN }}"
+    ldap_group_base_dn: "{{ LDAP.DN.OU.GROUPS }}"
+    ldap_group_member_check: memberUid
+    ldap_sync_period: 1
+    ldap_sync_unit: hours

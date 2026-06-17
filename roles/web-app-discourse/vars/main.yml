@@ -11,13 +11,13 @@ database_password: "{{ lookup('config', application_id, 'credentials.database_pa
 DISCOURSE_CONTAINER: "{{ application_id | get_entity_name }}"
 DISCOURSE_NETWORK: "{{ application_id | get_entity_name }}"
 DISCOURSE_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-DISCOURSE_PLUGINS: "{{ lookup('config', application_id, 'services.discourse.plugins') }}"
+DISCOURSE_PLUGINS: "{{ lookup('config', application_id, 'addons') }}"
 DISCOURSE_PG_NETWORK: "{{ ('svc-db-' ~ DISCOURSE_DATABASE_TYPE) | get_entity_name }}"
 DISCOURSE_REDIS_HOST: "{{ application_id | get_entity_name }}-redis"
 DISCOURSE_REPOSITORY_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
 DISCOURSE_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ref') }}"
-DISCOURSE_LDAP_AUTH_PLUGIN_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.plugins.discourse-ldap-auth.repository') }}"
-DISCOURSE_LDAP_AUTH_PLUGIN_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.plugins.discourse-ldap-auth.ref') }}"
+DISCOURSE_LDAP_AUTH_PLUGIN_REPOSITORY: "{{ lookup('config', application_id, 'addons.discourse-ldap-auth.config.repository') }}"
+DISCOURSE_LDAP_AUTH_PLUGIN_REF: "{{ lookup('config', application_id, 'addons.discourse-ldap-auth.config.ref') }}"
 
 ## Database
 DISCOURSE_DATABASE: "{{ lookup('database', application_id ) }}"

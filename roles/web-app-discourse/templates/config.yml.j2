@@ -205,26 +205,15 @@ run:
       rails r "User.find_by_email('{{ lookup('users', 'administrator').email }}')&.update!(username: '{{ lookup('users', 'administrator').username }}')"
 
 {% if DISCOURSE_LDAP_ENABLED | bool %}
-  # Enable LDAP authentication
-  - exec: rails r "SiteSetting.ldap_auth_enabled = true"
-  - exec: rails r "SiteSetting.ldap_sync_enabled = true"
-
-  # LDAP connection settings
-  - exec: rails r "SiteSetting.ldap_sync_host = '{{ LDAP.SERVER.DOMAIN }}'"
-  - exec: rails r "SiteSetting.ldap_sync_port = {{ LDAP.SERVER.PORT }}"
-  - exec: rails r "SiteSetting.ldap_encryption = 'simple_tls'"
-  - exec: rails r "SiteSetting.ldap_base_dn = '{{ LDAP.DN.ROOT }}'"
-  - exec: rails r "SiteSetting.ldap_bind_dn = '{{ LDAP.DN.ADMINISTRATOR.DATA }}'"
-  - exec: rails r "SiteSetting.ldap_bind_password = '{{ LDAP.BIND_CREDENTIAL }}'"
-
-  # LDAP additional configuration
-  - exec: rails r "SiteSetting.ldap_user_filter = '{{ LDAP.FILTERS.USERS.LOGIN }}'"
-  - exec: rails r "SiteSetting.ldap_group_base_dn = '{{ LDAP.DN.OU.GROUPS }}'"
-  - exec: rails r "SiteSetting.ldap_group_member_check = 'memberUid'"
-
-  - exec: rails r "SiteSetting.ldap_sync_period = 1"
-  - exec: rails r "SiteSetting.ldap_sync_unit = 'hours'"
-
+{% for setting_key, setting_value in DISCOURSE_PLUGINS['discourse-ldap-auth'].config.site_settings.items() %}
+{% if setting_value is boolean %}
+  - exec: rails r "SiteSetting.{{ setting_key }} = {{ setting_value | string | lower }}"
+{% elif setting_value is string %}
+  - exec: rails r "SiteSetting.{{ setting_key }} = '{{ setting_value }}'"
+{% else %}
+  - exec: rails r "SiteSetting.{{ setting_key }} = {{ setting_value }}"
+{% endif %}
+{% endfor %}
 {% endif %}
 
   - exec: echo "End of custom commands"

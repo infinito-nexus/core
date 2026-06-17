@@ -52,17 +52,6 @@ discourse:
   ref: main
   min_storage: 15GB
   repository: https://github.com/discourse/discourse_docker.git
-  plugins:
-    docker_manager:
-      enabled: true
-    discourse-activity-pub:
-      enabled: true
-    discourse-akismet:
-      enabled: true
-    discourse-ldap-auth:
-      enabled: "{{ lookup('config', 'web-app-discourse', 'services.ldap.enabled') | bool }}"
-      repository: https://github.com/jonmbake/discourse-ldap-auth.git
-      ref: master
   ports:
     local:
       http: 8020

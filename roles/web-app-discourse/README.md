@@ -16,6 +16,19 @@ This role deploys Discourse using Docker, automating tasks such as container orc
 - **Scalable Architecture:** Utilize a Docker-based deployment that adapts easily to increasing traffic and community size.
 - **Extensive Plugin Support:** Enhance your forum with a wide range of plugins and integrations for additional functionality.
 
+## Addons
+
+Addons are declared in [`meta/addons/`](./meta/addons/) and read at deploy time via `lookup('config', application_id, 'addons')`.
+
+| Addon | Mechanism | Default state | Bridges |
+|---|---|---|---|
+| `docker_manager` | plugin | enabled | none |
+| `discourse-activity-pub` | plugin | enabled | none |
+| `discourse-akismet` | plugin | enabled | none |
+| `discourse-ldap-auth` | plugin | follows `services.ldap.enabled` (currently off) | `ldap` |
+
+The `ldap` service block in [`meta/services.yml`](./meta/services.yml) is intentionally pinned to literal `false` (see [TODO.md](./TODO.md)): the `jonmbake/discourse-ldap-auth` plugin breaks Discourse bootstrap on recent versions. `discourse-ldap-auth` therefore resolves to disabled until that block is flipped back to the dynamic group-membership form.
+
 ## Further Resources
 
 - [Discourse Official Website](https://www.discourse.org/)
