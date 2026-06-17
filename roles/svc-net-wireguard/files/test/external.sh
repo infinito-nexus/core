@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Register each server's generated peer on a fresh client and assert a WireGuard
-# handshake. Non-zero exit if any server is unreachable within the timeout.
+# For each server, register its generated peer on a fresh client and assert a handshake.
 set -euo pipefail
 
 : "${WIREGUARD_E2E_SERVER_COUNT:?}"
@@ -22,27 +21,22 @@ trap cleanup EXIT
 for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
     server="${PROJECT}-wg${i}"
     client="${PROJECT}-client${i}"
-    # Per local.sh: server i uses INTERNAL_SUBNET 10.13.<12+i>.0 and takes .1.
     server_subnet="10.13.$(( 12 + i )).0/24"
     server_ip="10.13.$(( 12 + i )).1"
 
-    # Pull the generated peer config and rewrite it for the in-DinD topology:
-    #  - Endpoint -> the server's service name on the shared compose network.
-    #  - AllowedIPs -> only the server's tunnel subnet (0.0.0.0/0 would route the
-    #    endpoint itself through the tunnel and deadlock the handshake).
-    #  - PersistentKeepalive so the client actively initiates the handshake.
     peer_conf="$(container exec "${server}" cat /config/peer1/peer1.conf 2>/dev/null || true)"
     if [ -z "${peer_conf}" ]; then
         echo "FAIL: ${server} produced no peer1 config"
         failures=$(( failures + 1 ))
         continue
     fi
+    # Endpoint -> server service name; AllowedIPs -> tunnel subnet only (0.0.0.0/0
+    # would route the endpoint through the tunnel and deadlock the handshake).
     peer_conf="$(printf '%s\n' "${peer_conf}" \
         | sed -E "s#^Endpoint =.*#Endpoint = wg${i}:51820#" \
         | sed -E "s#^AllowedIPs =.*#AllowedIPs = ${server_subnet}#")"
     peer_conf="$(printf '%s\nPersistentKeepalive = 25\n' "${peer_conf}")"
 
-    # Start an idle client (no conf yet), inject the rewritten conf, restart.
     container rm -f "${client}" >/dev/null 2>&1 || true
     container run -d --name "${client}" \
         --network "${NETWORK}" \
@@ -55,8 +49,6 @@ for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
         container exec -i "${client}" sh -c 'mkdir -p /config/wg_confs && cat > /config/wg_confs/wg0.conf'
     container restart "${client}" >/dev/null
 
-    # Poll for a handshake; actively ping the server's tunnel IP each round to
-    # trigger one, bounded by the timeout.
     deadline=$(( $(date +%s) + WIREGUARD_E2E_TIMEOUT ))
     ok=0
     while true; do

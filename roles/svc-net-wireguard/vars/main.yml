@@ -1,32 +1,26 @@
 ---
-# General
 application_id: svc-net-wireguard
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Mode dispatch (server | client)
 WIREGUARD_MODE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.mode') }}"
 
-# Container / image
 WIREGUARD_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 WIREGUARD_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 WIREGUARD_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 WIREGUARD_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
 WIREGUARD_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.public.relay') }}"
 
-# linuxserver User/Group Identifiers + timezone
 WIREGUARD_PUID: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.puid') }}"
 WIREGUARD_PGID: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.pgid') }}"
 WIREGUARD_TIMEZONE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.timezone') }}"
 WIREGUARD_SYS_MODULE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.sys_module') | bool }}"
 
-# Server-mode knobs (linuxserver server env)
 WIREGUARD_SERVER_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.url') }}"
 WIREGUARD_SERVER_PEERS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.peers') }}"
 WIREGUARD_SERVER_PEER_DNS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.peer_dns') }}"
 WIREGUARD_SERVER_INTERNAL_SUBNET: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.internal_subnet') }}"
 WIREGUARD_SERVER_ALLOWED_IPS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.allowed_ips') }}"
 
-# Client-mode knobs (MTU + legacy firewalled NAT)
 WIREGUARD_CLIENT_MTU: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.mtu') }}"
 WIREGUARD_NAT_ENABLED: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.nat') | bool }}"
 WIREGUARD_NAT_IN_INTERFACE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.nat_in_interface') }}"
