@@ -66,11 +66,11 @@ for n in "${names[@]}"; do
     container rm -f "${cn}" >/dev/null 2>&1 || true
     if [ "${kinds[$i]}" = "server" ]; then
         container run -d --name "${cn}" --network "${NETWORK}" \
-            --cap-add NET_ADMIN --cap-add SYS_MODULE --device /dev/net/tun \
+            --cap-add NET_ADMIN --cap-add SYS_MODULE --device=/dev/net/tun \
             --entrypoint sleep "${images[$i]}" infinity >/dev/null
     else
         container run -d --name "${cn}" --network "${NETWORK}" \
-            --cap-add NET_ADMIN --cap-add SYS_MODULE --device /dev/net/tun \
+            --cap-add NET_ADMIN --cap-add SYS_MODULE --device=/dev/net/tun \
             "${images[$i]}" sleep infinity >/dev/null
     fi
     i=$(( i + 1 ))

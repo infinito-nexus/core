@@ -27,9 +27,9 @@ successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`
 - **Host/container ownership mapping:** `PUID` / `PGID` map `/config` ownership onto a host user per
   the linuxserver [User/Group Identifiers](https://docs.linuxserver.io/images/docker-wireguard/#user-group-identifiers) contract.
 - **Pinned image:** The upstream tag is pinned in `meta/services.yml`; bump and redeploy to upgrade.
-- **Docker-in-Docker test harness:** The `tests/` suite stands up at least three servers and asserts
-  peer handshakes, then builds a full mesh across all six nodes (3 servers + CentOS/Debian/Manjaro
-  clients) and verifies every node reaches every other (handshake + ICMP ping).
+- **Docker-in-Docker test harness:** The `files/test/` suite stands up at least three servers and
+  asserts peer handshakes, then builds a full mesh across all six nodes (3 servers +
+  CentOS/Debian/Manjaro clients) and verifies every node reaches every other (handshake + ICMP ping).
 
 ## Migration
 
@@ -42,14 +42,14 @@ successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`
 ## Developer notes
 
 See [Administration.md](./Administration.md) for peer key creation, config activation, and live
-container inspection. The end-to-end harness lives under `tests/`: `e2e.sh` orchestrates `local.sh` (servers),
-`external.sh` (server handshakes) and `mesh.sh` (full mesh across all 6 nodes: 3 servers +
-CentOS/Debian/Manjaro clients, all-pairs handshake + ping). `WIREGUARD_E2E_BACKEND` selects the
-provisioning backend (Compose today).
+container inspection. The end-to-end harness lives under `files/test/`: `test.sh` orchestrates
+`local.sh` (servers), `external.sh` (server handshakes) and `mesh.sh` (full mesh across all 6 nodes:
+3 servers + CentOS/Debian/Manjaro clients, all-pairs handshake + ping). `WIREGUARD_E2E_BACKEND`
+selects the provisioning backend (Compose today).
 
-The harness is discovered and run automatically by the `test-e2e-cli` role (the CLI counterpart to
-`test-e2e-playwright`): any role shipping `tests/e2e.sh` is picked up post-deploy and run in the deploy
-container (Docker-in-Docker via the host socket), with `tests/test.env.j2` rendered as its env.
+The harness is discovered and run automatically by the `test-e2e-cli` role: any role shipping
+`templates/test.env.j2` plus `files/test/test.sh` is picked up post-deploy and run in the deploy
+container (Docker-in-Docker via the host socket), with `templates/test.env.j2` rendered as its env.
 
 ## Further resources
 
