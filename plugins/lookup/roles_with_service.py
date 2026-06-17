@@ -14,6 +14,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache.applications import get_merged_applications
+from utils.roles.entity_name import get_entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -52,12 +53,16 @@ class LookupModule(LookupBase):
         if not service_name:
             raise AnsibleError("roles_with_service: service name must be non-empty")
 
+        vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         applications = get_merged_applications(
-            variables=variables
-            or getattr(self._templar, "available_variables", {})
-            or {},
+            variables=vars_,
             roles_dir=kwargs.get("roles_dir"),
             templar=getattr(self, "_templar", None),
+        )
+
+        gn = vars_.get("group_names")
+        deployed = (
+            {str(g) for g in gn} if isinstance(gn, (list, tuple, set)) and gn else None
         )
 
         tls_lookup = lookup_loader.get(
@@ -77,6 +82,10 @@ class LookupModule(LookupBase):
             if not bool(block.get("enabled")):
                 continue
             if not bool(block.get("shared")):
+                continue
+            if deployed is not None and str(role_id) not in deployed:
+                continue
+            if get_entity_name(str(role_id)) == service_name:
                 continue
             canonical = _resolve_canonical_domain(app_config)
             if not canonical:

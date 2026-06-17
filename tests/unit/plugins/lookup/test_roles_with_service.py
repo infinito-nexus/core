@@ -265,6 +265,50 @@ class RolesWithServiceLookupTests(unittest.TestCase):
             "relies on a templar-rendered payload for correct filtering",
         )
 
+    def test_group_names_scopes_to_deployed_consumers(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "server": {"domains": {"canonical": ["foo.example.com"]}},
+            },
+            "web-app-bar": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "server": {"domains": {"canonical": ["bar.example.com"]}},
+            },
+        }
+        result = self._run(
+            ["logout"], applications, vars_={"group_names": ["web-app-foo"]}
+        )[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-foo"])
+
+    def test_self_provider_is_excluded(self):
+        applications = {
+            "web-svc-logout": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "server": {"domains": {"canonical": ["logout.example.com"]}},
+            },
+            "web-app-foo": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "server": {"domains": {"canonical": ["foo.example.com"]}},
+            },
+        }
+        result = self._run(["logout"], applications)[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-foo"])
+
+    def test_absent_group_names_keeps_all_consumers(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "server": {"domains": {"canonical": ["foo.example.com"]}},
+            },
+            "web-app-bar": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "server": {"domains": {"canonical": ["bar.example.com"]}},
+            },
+        }
+        result = self._run(["logout"], applications)[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-bar", "web-app-foo"])
+
 
 if __name__ == "__main__":
     unittest.main()
