@@ -5,6 +5,10 @@
 # swarm/kubernetes means swapping local.sh only; external.sh stays unchanged.
 set -euo pipefail
 
+# Ephemeral test containers don't need the internal CA; keep `container run` a
+# plain passthrough so --device/--sysctl are not misparsed by the CA wrapper.
+export CA_CONTAINER_ENABLED=0
+
 : "${WIREGUARD_E2E_BACKEND:=compose}"
 : "${WIREGUARD_E2E_SERVER_COUNT:?set WIREGUARD_E2E_SERVER_COUNT (>=3)}"
 : "${WIREGUARD_IMAGE:?set WIREGUARD_IMAGE}"

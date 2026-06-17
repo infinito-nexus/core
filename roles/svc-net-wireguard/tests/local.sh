@@ -56,7 +56,7 @@ SVC
 
 echo "OK: rendered ${COMPOSE_FILE} (${WIREGUARD_E2E_SERVER_COUNT} servers)"
 
-compose -f "${COMPOSE_FILE}" -p "${PROJECT}" up -d
+compose --chdir "${WORKDIR}" --project "${PROJECT}" up -d
 
 # Wait until every server container reports healthy, bounded by the timeout.
 deadline=$(( $(date +%s) + WIREGUARD_E2E_TIMEOUT ))
@@ -70,7 +70,7 @@ for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
         fi
         if [ "$(date +%s)" -ge "${deadline}" ]; then
             echo "FAIL: ${name} not healthy within ${WIREGUARD_E2E_TIMEOUT}s (status=${status})"
-            compose -f "${COMPOSE_FILE}" -p "${PROJECT}" logs "wg${i}" || true
+            compose --chdir "${WORKDIR}" --project "${PROJECT}" logs "wg${i}" || true
             exit 1
         fi
         sleep 3
