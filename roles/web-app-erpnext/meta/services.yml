@@ -40,7 +40,7 @@ redis:
   shared: "{{ 'svc-db-redis' in group_names }}"
 erpnext:
   image: frappe/erpnext
-  version: "v16.22.0"
+  version: "v16.23.0"
   name: erpnext
   min_storage: 15GB
   ports:
