@@ -1,0 +1,80 @@
+---
+- name: Define per-role E2E CLI paths
+  ansible.builtin.set_fact:
+    _e2e_cli_script: "{{ playbook_dir }}/roles/{{ application_id }}/tests/e2e.sh"
+    _e2e_cli_env_template: "{{ playbook_dir }}/roles/{{ application_id }}/tests/test.env.j2"
+    _e2e_cli_app_vars: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
+    _e2e_cli_stage_dir: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}/{{ application_id }}"
+
+- name: Assert e2e.sh exists
+  ansible.builtin.stat:
+    path: "{{ _e2e_cli_script }}"
+  register: _e2e_cli_script_stat
+
+- name: Fail if e2e.sh is missing
+  ansible.builtin.fail:
+    msg: "Missing E2E CLI script: {{ _e2e_cli_script }}"
+  when: not _e2e_cli_script_stat.stat.exists
+
+- name: Check optional application vars file
+  ansible.builtin.stat:
+    path: "{{ _e2e_cli_app_vars }}"
+  register: _e2e_cli_app_vars_stat
+
+- name: Load optional application vars
+  ansible.builtin.include_vars:
+    file: "{{ _e2e_cli_app_vars }}"
+  when: _e2e_cli_app_vars_stat.stat.exists
+
+- name: Recreate staging directory
+  ansible.builtin.file:
+    path: "{{ _e2e_cli_stage_dir }}"
+    state: "{{ item }}"
+    mode: "0755"
+  loop:
+    - absent
+    - directory
+
+- name: Check optional env template
+  ansible.builtin.stat:
+    path: "{{ _e2e_cli_env_template }}"
+  register: _e2e_cli_env_stat
+
+- name: Render test.env from tests/test.env.j2
+  ansible.builtin.copy:
+    dest: "{{ _e2e_cli_stage_dir }}/test.env"
+    mode: "0644"
+    content: "{{ lookup('template', _e2e_cli_env_template) }}"
+  when: _e2e_cli_env_stat.stat.exists
+
+- name: "Run E2E CLI suite for {{ application_id }}"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    if [ -f "{{ _e2e_cli_stage_dir }}/test.env" ]; then
+      set -a
+      . "{{ _e2e_cli_stage_dir }}/test.env"
+      set +a
+    fi
+    bash "{{ _e2e_cli_script }}"
+  args:
+    executable: /bin/bash
+  register: _e2e_cli_run
+  changed_when: false
+  failed_when: false
+  timeout: "{{ TEST_E2E_CLI_RUN_TIMEOUT | int }}"
+
+- name: Print E2E CLI output (on failure)
+  ansible.builtin.debug:
+    msg: |
+      stdout:
+      {{ _e2e_cli_run.stdout }}
+
+      stderr:
+      {{ _e2e_cli_run.stderr }}
+  when: _e2e_cli_run.rc != 0
+  changed_when: false
+
+- name: Record failure
+  ansible.builtin.set_fact:
+    _e2e_cli_failures: "{{ (_e2e_cli_failures | default([])) + [application_id] }}"
+  when: _e2e_cli_run.rc != 0

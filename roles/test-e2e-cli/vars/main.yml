@@ -1,0 +1,9 @@
+---
+TEST_E2E_CLI_APPS: >-
+  {{
+    playbook_dir
+    | discover_e2e_cli_roles(
+        only_roles=TEST_E2E_CLI_ONLY_ROLES,
+        skip_roles=TEST_E2E_CLI_SKIP_ROLES
+      )
+  }}

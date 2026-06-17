@@ -1,0 +1,17 @@
+---
+- name: Show detected E2E CLI roles
+  ansible.builtin.debug:
+    msg: "E2E CLI roles: {{ TEST_E2E_CLI_APPS }}"
+  changed_when: false
+
+- name: Run E2E CLI suite for each detected role
+  ansible.builtin.include_tasks: 02_run_one.yml
+  loop: "{{ TEST_E2E_CLI_APPS }}"
+  loop_control:
+    loop_var: application_id
+    label: "{{ application_id }}"
+
+- name: Fail if there were E2E CLI failures
+  ansible.builtin.fail:
+    msg: "E2E CLI failed for roles: {{ _e2e_cli_failures }}"
+  when: (_e2e_cli_failures | default([])) | length > 0
