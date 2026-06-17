@@ -40,23 +40,6 @@ xwiki:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-  plugins:
-    oidc:
-      enabled: true
-      shared: true
-      items:
-        - id: org.xwiki.contrib.oidc:oidc-authenticator
-          version: 2.19.6
-    ldap:
-      enabled: false
-      items:
-        - id: org.xwiki.contrib.ldap:ldap-authenticator
-          version: 9.15.7
-    matomo:
-      enabled: false
-      items:
-        - id: org.xwiki.contrib:matomo
-          version: "1.0"
   ports:
     local:
       http: 8054

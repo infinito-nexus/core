@@ -52,3 +52,35 @@
     css:
       enabled: false
       shared: false
+# LDAP-only auth backend: exercises the ldap-authenticator addon's enabled
+# branch. OIDC stays off because the two auth backends are mutually exclusive
+# (tasks/02_validation.yml); the ldap service block is a static-false opt-in by
+# design (auto-enabling it would collide with sso when both partners deploy),
+# so the on-override is a sanctioned static override.
+- services:
+    sso:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: true # nocheck: variants-static-override
+      shared: true # nocheck: variants-static-override
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    css:
+      enabled: false
+      shared: false

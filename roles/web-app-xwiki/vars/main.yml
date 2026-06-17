@@ -71,10 +71,4 @@ XWIKI_OIDC_SCOPES: "openid,email,profile,{{ RBAC.GROUP.CLAIM }}"
 XWIKI_OIDC_GROUPS_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
 XWIKI_OIDC_ADMIN_PROVIDER_GROUP: "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 
-# Collect enabled plugin items from meta/services.yml
-XWIKI_PLUGINS: >-
-  {{
-    (lookup('config', application_id, 'services.xwiki.plugins'))
-    | dict2items | selectattr('value.enabled','equalto', true)
-    | map(attribute='value.items') | list | sum(start=[])
-  }}
+XWIKI_PLUGINS: "{{ lookup('config', application_id, 'addons') | xwiki_enabled_install_items }}"

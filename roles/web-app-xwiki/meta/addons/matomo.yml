@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-xwiki', 'services.matomo.enabled') | bool }}"
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - matomo
+version: "1.0"
+group: matomo
+config:
+  id: org.xwiki.contrib:matomo

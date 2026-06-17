@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-xwiki', 'services.ldap.enabled') | bool }}"
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - ldap
+version: "9.15.7"
+group: ldap
+config:
+  id: org.xwiki.contrib.ldap:ldap-authenticator

@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-xwiki', 'services.sso.enabled') | bool }}"
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - sso
+version: "2.19.6"
+group: oidc
+config:
+  id: org.xwiki.contrib.oidc:oidc-authenticator
