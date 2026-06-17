@@ -87,15 +87,15 @@ done
 declare -A pub
 for n in "${names[@]}"; do
     cn="${PROJECT}-${n}"
-    container exec "${cn}" sh -c 'mkdir -p /etc/wireguard; umask 077; wg genkey > /etc/wireguard/priv; wg pubkey < /etc/wireguard/priv > /etc/wireguard/pub'
-    pub[${n}]="$(container exec "${cn}" cat /etc/wireguard/pub)"
+    container exec "${cn}" sh -c 'mkdir -p /tmp/wg; umask 077; wg genkey > /tmp/wg/priv; wg pubkey < /tmp/wg/priv > /tmp/wg/pub'
+    pub[${n}]="$(container exec "${cn}" cat /tmp/wg/pub)"
 done
 
 # 3. Render a full-mesh wg0.conf per node (the other five as direct peers) and bring it up.
 i=0
 for n in "${names[@]}"; do
     cn="${PROJECT}-${n}"
-    priv="$(container exec "${cn}" cat /etc/wireguard/priv)"
+    priv="$(container exec "${cn}" cat /tmp/wg/priv)"
     conf="[Interface]
 PrivateKey = ${priv}
 Address = ${ips[$i]}/24
@@ -112,8 +112,8 @@ PersistentKeepalive = 25
 "
         fi
     done
-    printf '%s' "${conf}" | container exec -i "${cn}" sh -c 'cat > /etc/wireguard/wg0.conf'
-    container exec "${cn}" wg-quick up wg0
+    printf '%s' "${conf}" | container exec -i "${cn}" sh -c 'cat > /tmp/wg/wg0.conf'
+    container exec "${cn}" wg-quick up /tmp/wg/wg0.conf
     echo "OK: ${n} tunnel up (${ips[$i]})"
     i=$(( i + 1 ))
 done
