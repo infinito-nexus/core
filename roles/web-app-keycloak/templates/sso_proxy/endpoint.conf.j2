@@ -1,6 +1,6 @@
 # OAuth2-Proxy-Endpoint
 location /oauth2/ {
-    proxy_pass http://127.0.0.1:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso') }};
+    {{ lookup('proxy_pass', application_id, 'sso-proxy', 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso'), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
 
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 

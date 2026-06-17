@@ -5,6 +5,16 @@
   ansible.builtin.set_fact:
     front_proxy_application_id: "{{ application_id }}"
     front_proxy_domain: "{{ domain | default(lookup('domain', application_id)) }}"
+    front_proxy_service_key: >-
+      {{
+        webserver_proxy_service_key
+        | default(
+            lookup('config', application_id,
+              'services.' ~ (application_id | get_entity_name) ~ '.proxy.service_key',
+              application_id | get_entity_name
+            )
+          )
+      }}
     front_proxy_http_port: >-
       {{
         http_port
@@ -67,6 +77,7 @@
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
     http_port: "{{ front_proxy_http_port }}"
+    proxy_service_key: "{{ front_proxy_service_key }}"
   register: nginx_conf
   notify: restart openresty
 

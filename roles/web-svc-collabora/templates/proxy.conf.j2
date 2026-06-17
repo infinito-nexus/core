@@ -9,6 +9,8 @@ server {
 
   {% include 'roles/sys-svc-proxy/templates/headers/access_control_allow.conf.j2' %}
 
+  {% set proxy_service_key = 'collabora' %}
+
   {# Normal HTTP routes (discovery, browser, assets) – no Lua injection #}
   {% set proxy_lua_enabled = false %}
   {% set location = "/" %}
