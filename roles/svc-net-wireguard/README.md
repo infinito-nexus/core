@@ -47,6 +47,10 @@ container inspection. The end-to-end harness lives under `tests/`: `e2e.sh` orch
 CentOS/Debian/Manjaro clients, all-pairs handshake + ping). `WIREGUARD_E2E_BACKEND` selects the
 provisioning backend (Compose today).
 
+The harness is discovered and run automatically by the `test-e2e-cli` role (the CLI counterpart to
+`test-e2e-playwright`): any role shipping `tests/e2e.sh` is picked up post-deploy and run in the deploy
+container (Docker-in-Docker via the host socket), with `tests/test.env.j2` rendered as its env.
+
 ## Further resources
 
 - [WireGuard official website](https://www.wireguard.com/)

@@ -139,6 +139,7 @@ roles/svc-net-wireguard-firewalled/   # deleted
 - [x] The mesh stands up **all six nodes**: 3 servers (the role's `lscr.io/linuxserver/wireguard` image) plus 3 client workstations on **CentOS, Debian, and Manjaro** from their native base images (overridable via `WIREGUARD_E2E_{CENTOS,DEBIAN,MANJARO}_IMAGE`). Each node installs/has `wireguard-tools` via its own package manager (`apt` / `dnf` / `pacman`).
 - [x] All six nodes form a **full mesh**: each node's `wg0.conf` peers it directly to the other five (generated keypairs, per-peer `AllowedIPs`, container-name endpoints).
 - [x] `mesh.sh` verifies **every node communicates with every other**: it asserts a WireGuard handshake on every link (each node shows 5 peer handshakes) and ICMP ping reachability across every node pair, failing non-zero (bounded by `WIREGUARD_E2E_TIMEOUT`) if any pair cannot reach the other. (Authored + shellcheck-clean; live DinD run needs a privileged host — see Validation Status.)
+- [x] CI discovers and runs the harness automatically (no manual step): the generic `test-e2e-cli` role discovers any `roles/<role>/tests/e2e.sh`, renders its `tests/test.env.j2`, and runs it in the deploy container (Docker-in-Docker via the host socket). It mirrors the `test-e2e-playwright` discovery model and is invoked post-deploy from `tasks/stages/01_constructor.yml`, gated `RUNTIME in ['dev','act','github']`.
 
 ### Repo gate & docs
 
