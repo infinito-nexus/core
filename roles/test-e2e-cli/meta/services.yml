@@ -1,4 +1,5 @@
 ---
-# nocheck: required-by-coverage
 test-e2e-cli:
   lifecycle: alpha
+  required_by:
+    categories: [web]

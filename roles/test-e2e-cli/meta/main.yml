@@ -1,12 +1,8 @@
 ---
 galaxy_info:
-  author: Evangelos Tsakoudis
-  description: Discovers and runs CLI/shell end-to-end test harnesses shipped by roles
-    under tests/e2e.sh, in the deploy container (Docker-in-Docker via the host socket).
+  author: Alejandro Roman Ibanez
+  description: Runs CLI test scripts (files/test.sh) for roles that declare templates/test.env.j2.
   license: Infinito.Nexus Community License (Non-Commercial)
-  company: |
-    Kevin Veen-Birkenbach
-    https://www.veen.world
   min_ansible_version: "2.9"
   platforms:
     - name: ArchLinux
@@ -29,6 +25,5 @@ galaxy_info:
     - testing
     - e2e
     - cli
-    - docker
     - automation
 dependencies: []

@@ -1,5 +1,6 @@
----
 TEST_E2E_CLI_STAGE_BASE_DIR: "/tmp/test-e2e-cli"
-TEST_E2E_CLI_RUN_TIMEOUT: 1800
-TEST_E2E_CLI_ONLY_ROLES: "{{ lookup('deployment').groups }}"
+
+# Run only a subset (optional; override via extra-vars to restrict which roles are tested)
+allowed_applications: []
+TEST_E2E_CLI_ONLY_ROLES: "{{ allowed_applications }}"
 TEST_E2E_CLI_SKIP_ROLES: []

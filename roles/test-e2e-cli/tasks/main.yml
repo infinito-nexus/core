@@ -1,17 +1,35 @@
 ---
-- name: Show detected E2E CLI roles
+- name: Apply role include/exclude filters
+  ansible.builtin.set_fact:
+    _cli_apps: >-
+      {{
+        playbook_dir
+        | discover_cli_roles(
+            group_names=group_names,
+            only_roles=TEST_E2E_CLI_ONLY_ROLES,
+            skip_roles=TEST_E2E_CLI_SKIP_ROLES
+          )
+      }}
+
+- name: Show detected CLI test roles
   ansible.builtin.debug:
-    msg: "E2E CLI roles: {{ TEST_E2E_CLI_APPS }}"
+    msg: "CLI-test-enabled roles: {{ _cli_apps }}"
   changed_when: false
 
-- name: Run E2E CLI suite for each detected role
-  ansible.builtin.include_tasks: 02_run_one.yml
-  loop: "{{ TEST_E2E_CLI_APPS }}"
+- name: Ensure stage base dir exists
+  ansible.builtin.file:
+    path: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: Run CLI test for each detected role
+  ansible.builtin.include_tasks: run_one.yml
+  loop: "{{ _cli_apps }}"
   loop_control:
     loop_var: application_id
     label: "{{ application_id }}"
 
-- name: Fail if there were E2E CLI failures
+- name: Fail if there were CLI test failures
   ansible.builtin.fail:
-    msg: "E2E CLI failed for roles: {{ _e2e_cli_failures }}"
-  when: (_e2e_cli_failures | default([])) | length > 0
+    msg: "CLI tests failed for roles: {{ _cli_failures }}"
+  when: (_cli_failures | default([])) | length > 0
