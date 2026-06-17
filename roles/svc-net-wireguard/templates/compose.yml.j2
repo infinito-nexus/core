@@ -1,0 +1,31 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  wireguard:
+    container_name: "{{ WIREGUARD_CONTAINER }}"
+    image: "{{ WIREGUARD_IMAGE }}:{{ WIREGUARD_VERSION }}"
+    cap_add:
+      - NET_ADMIN
+{% if WIREGUARD_SYS_MODULE | bool %}
+      - SYS_MODULE
+{% endif %}
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    ports:
+      - "{{ WIREGUARD_PORT_PUBLIC }}:51820/udp"
+    volumes:
+      - "config:/config"
+      - "/lib/modules:/lib/modules:ro"
+    healthcheck:
+      test: ["CMD-SHELL", "wg show | grep -q interface || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={'config': {'name': WIREGUARD_VOLUME}}
+) }}
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

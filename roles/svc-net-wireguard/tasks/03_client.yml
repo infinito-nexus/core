@@ -1,0 +1,24 @@
+---
+- name: "include sys-svc-compose role"
+  include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+    compose_repository_pull: false
+    application_id: "svc-net-wireguard"
+
+- name: Create container network
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/create.yml' ] | path_join }}"
+  vars:
+    network_role_id: "{{ application_id }}"
+
+- name: "Flush compose handlers"
+  meta: flush_handlers
+
+- name: "adapt iptable rules (NAT masquerade for WireGuard client behind NAT)"
+  shell: >-
+    iptables -A FORWARD -i {{ WIREGUARD_NAT_IN_INTERFACE }} -j ACCEPT &&
+    iptables -t nat -A POSTROUTING -o {{ WIREGUARD_NAT_OUT_INTERFACE }} -j MASQUERADE
+  when:
+    - WIREGUARD_NAT_ENABLED | bool
+    - not (DOCKER_IN_CONTAINER | bool)

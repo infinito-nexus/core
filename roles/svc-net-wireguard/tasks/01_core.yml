@@ -1,0 +1,18 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "Validate services.wireguard.mode"
+  ansible.builtin.assert:
+    that:
+      - WIREGUARD_MODE in ['server', 'client']
+    fail_msg: >-
+      services.wireguard.mode must be 'server' or 'client' (got '{{ WIREGUARD_MODE }}').
+    quiet: true
+
+- name: "Deploy WireGuard server stack ({{ WIREGUARD_MODE }})"
+  include_tasks: 02_server.yml
+  when: WIREGUARD_MODE == 'server'
+
+- name: "Deploy WireGuard client stack ({{ WIREGUARD_MODE }})"
+  include_tasks: 03_client.yml
+  when: WIREGUARD_MODE == 'client'
