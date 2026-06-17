@@ -1,8 +1,0 @@
----
-wireguard-core:
-  min_storage: 0GB
-  lifecycle: alpha
-  cpus: "0.1"
-  mem_reservation: "32m"
-  mem_limit: "64m"
-  pids_limit: 64
