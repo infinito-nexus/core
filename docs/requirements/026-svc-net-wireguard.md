@@ -106,20 +106,22 @@ roles/svc-net-wireguard-firewalled/   # deleted
 
 - [x] `roles/svc-net-wireguard/` exists and follows the role-meta layout (`meta/services.yml` with a `lifecycle` key, `meta/main.yml`, `vars/main.yml`, `tasks/main.yml`), matching the `svc-db-postgres` precedent.
 - [x] The role runs WireGuard from the pinned `lscr.io/linuxserver/wireguard` image via a Compose stack assembled from `sys-svc-compose` / `sys-svc-container` base templates (no host `wg-quick` / host package install in the deploy path).
-- [x] `templates/env.j2` sets `PUID` / `PGID` from the role's run user per the linuxserver [User/Group Identifiers](https://docs.linuxserver.io/images/docker-wireguard/#user-group-identifiers) contract. (Template verified; live `/config` ownership confirmation needs a privileged deploy — see Validation Status.)
+- [x] `templates/env.j2` sets `PUID` / `PGID` from the role's run user per the linuxserver [User/Group Identifiers](https://docs.linuxserver.io/images/docker-wireguard/#user-group-identifiers) contract. (Server-mode deploy succeeds in the fork CI run, so the image starts with these values.)
 - [x] The container is granted `NET_ADMIN`, sets `net.ipv4.conf.all.src_valid_mark=1`, and publishes the configured UDP port to `51820/udp` (verified in `templates/compose.yml.j2`).
 
 ### Mode dispatch (server + client)
 
 - [x] `services.wireguard.mode` accepts exactly `server` and `client`; any other value fails fast via an `assert` task in `tasks/01_core.yml` (adapted from the AC's "fails role-meta lint" intent — a runtime guard rather than a separate lint rule).
 - [x] `tasks/main.yml` → `01_core.yml` includes exactly one of `tasks/02_server.yml` or `tasks/03_client.yml` based on `services.wireguard.mode` (mutually-exclusive `when`; no double execution).
-- [ ] In `server` mode, the container runs with `PEERS` set so the linuxserver image enters server mode and generates the configured peer configs under `/config`. Verified by listing generated peer configs after deploy.
-- [ ] In `client` mode, the container joins the configured upstream peer; the MTU-1400 behaviour of the old `svc-net-wireguard-plain` role is preserved (interface MTU is 1400 after deploy).
+- [x] In `server` mode, the container runs with `PEERS` set so the linuxserver image enters server mode and generates the configured peer configs under `/config`. Proven in the fork CI run: `local.sh` brings up `PEERS=1` servers and `external.sh` reads each `/config/peer1/peer1.conf` and completes a handshake.
+- [ ] In `client` mode, the container joins the configured upstream peer; the MTU-1400 behaviour of the old `svc-net-wireguard-plain` role is preserved (interface MTU is 1400 after deploy). (Not exercised: CI deploys the role in `server` mode only.)
 
 ### NAT / firewalled behaviour preserved
 
 - [ ] When NAT is enabled (`services.wireguard.nat: true`, default consistent with the old `-firewalled` role), the role applies the same logic as the old role: `iptables -A FORWARD -i wg0-client -j ACCEPT` and `iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE`. Verified by reading the active rules after deploy.
 - [ ] When NAT is disabled, those rules are absent and peer traffic is a pure tunnel (no masquerade). Verified by reading the active rules.
+
+> **NAT is currently unverified.** The rules live in `tasks/03_client.yml`, gated `when: nat and not DOCKER_IN_CONTAINER`, and only run in `client` mode. CI deploys the role in `server` mode (so `03_client.yml` never runs) and on a container host (so the `not DOCKER_IN_CONTAINER` guard would skip the rules anyway). The e2e harness exercises peer/mesh connectivity, not host masquerade. Verifying NAT needs a `client`-mode deploy with `nat: true` on a non-container host, then asserting `iptables -t nat -S` contains the `POSTROUTING … MASQUERADE` rule (and a peer reaching the internet through it). See Validation Status.
 
 ### Old roles removed cleanly
 
@@ -130,8 +132,8 @@ roles/svc-net-wireguard-firewalled/   # deleted
 ### Multi-server Docker-in-Docker E2E test
 
 - [x] `roles/svc-net-wireguard/files/test/` contains an orchestrator (`test.sh`) that mirrors the svc-runner test pattern: it env-gates required variables, verifies the backend, then delegates to `local.sh` and `external.sh`. The `example.sh.example` stub is removed. (Scripts are shellcheck-clean.)
-- [x] `local.sh` brings up **at least three** independent WireGuard **server** instances inside Docker-in-Docker via Docker Compose (one server per instance) and enforces `WIREGUARD_E2E_SERVER_COUNT >= 3`. (Authored + shellcheck-clean; live DinD run needs a privileged host — see Validation Status.)
-- [x] `external.sh` registers a peer on each server and asserts a successful WireGuard handshake against all servers, failing loudly (non-zero exit) if any is unreachable, bounded by `WIREGUARD_E2E_TIMEOUT`. (Authored + shellcheck-clean; live run needs a privileged host.)
+- [x] `local.sh` brings up **at least three** independent WireGuard **server** instances inside Docker-in-Docker via Docker Compose (one server per instance) and enforces `WIREGUARD_E2E_SERVER_COUNT >= 3`. Proven in the fork CI run (`OK: all 3 WireGuard servers healthy`).
+- [x] `external.sh` registers a peer on each server and asserts a successful WireGuard handshake against all servers, failing loudly (non-zero exit) if any is unreachable, bounded by `WIREGUARD_E2E_TIMEOUT`. Proven in the fork CI run (`OK: all 3 servers reachable via WireGuard handshake`).
 - [x] The orchestrator is structured so the instance-provisioning backend is swappable via `WIREGUARD_E2E_BACKEND` (Compose today; Swarm / Kubernetes later) without changing `external.sh`. Documented in the `test.sh` header.
 
 ### Full mesh across all servers and clients
@@ -139,13 +141,13 @@ roles/svc-net-wireguard-firewalled/   # deleted
 - [x] `files/test/mesh.sh` exists, is wired into `test.sh` (runs after `local.sh` / `external.sh`), and runs entirely in Docker-in-Docker alongside the 3-server stage (DinD logic preserved). (Shellcheck-clean.)
 - [x] The mesh stands up **all six nodes**: 3 servers (the role's `lscr.io/linuxserver/wireguard` image) plus 3 client workstations on **CentOS, Debian, and Manjaro** from their native base images (overridable via `WIREGUARD_E2E_{CENTOS,DEBIAN,MANJARO}_IMAGE`). Each node installs/has `wireguard-tools` via its own package manager (`apt` / `dnf` / `pacman`).
 - [x] All six nodes form a **full mesh**: each node's `wg0.conf` peers it directly to the other five (generated keypairs, per-peer `AllowedIPs`, container-name endpoints).
-- [x] `mesh.sh` verifies **every node communicates with every other**: it asserts a WireGuard handshake on every link (each node shows 5 peer handshakes) and ICMP ping reachability across every node pair, failing non-zero (bounded by `WIREGUARD_E2E_TIMEOUT`) if any pair cannot reach the other. (Authored + shellcheck-clean; live DinD run needs a privileged host — see Validation Status.)
+- [x] `mesh.sh` verifies **every node communicates with every other**: it asserts a WireGuard handshake on every link (each node shows 5 peer handshakes) and ICMP ping reachability across every node pair, failing non-zero (bounded by `WIREGUARD_E2E_TIMEOUT`) if any pair cannot reach the other. Proven in the fork CI run: all 30 directed pairs `reachable over tunnel`, every node `5/5 peer handshake(s)`, `full-mesh connectivity verified across all servers + clients (6 nodes)`.
 - [x] CI discovers and runs the harness automatically (no manual step) via the `test-e2e-cli` role adopted from upstream ([infinito-nexus/core#231](https://github.com/infinito-nexus/core/pull/231)): it discovers any role shipping `templates/test.env.j2`, renders that env, and runs `files/test/test.sh` in the deploy container (Docker-in-Docker via the host socket). The wireguard role conforms by shipping `templates/test.env.j2` + `files/test/{test.sh,local.sh,external.sh,mesh.sh}`. `test-e2e-cli` is invoked post-deploy from `tasks/stages/02_{server,universal,workstation}.yml`, gated `RUNTIME in ['dev','act','github']`.
 
 ### Repo gate & docs
 
 - [x] `make test` passes with the new role in place and the three old roles removed (all five targets green: lint, test-external, test-integration, test-lint, test-unit).
-- [ ] The new role deploys cleanly in both `server` and `client` mode on a fresh box.
+- [ ] The new role deploys cleanly in both `server` and `client` mode on a fresh box. (`server` mode proven in the fork CI universal deploy; `client` mode not yet exercised.)
 - [ ] This requirement file is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md).
 
 ## Validation Status
@@ -169,13 +171,20 @@ Verified in the sandbox (no privileged Docker, no `sudo`):
   is ignored in `.ansible-lint-ignore`, matching the `svc-db-openldap` precedent.
 - `shellcheck` clean (via `make test`) on `files/test/{test.sh,local.sh,external.sh,mesh.sh}`.
 
-Needs a privileged host / CI to verify end-to-end (left unchecked above):
+Verified end-to-end in the fork CI (manual run, universal deploy, green):
 
-- A real `svc-net-wireguard` deploy in both `server` and `client` mode on a fresh box
-  (`/config` PUID/PGID ownership, peer-config generation, MTU-1400, live NAT rules, healthcheck).
-- The DinD `files/test/test.sh` run — ≥3 servers + handshake (`local.sh` / `external.sh`) and the
-  all-node full mesh (`mesh.sh`: 3 servers + CentOS/Debian/Manjaro clients, all-pairs handshake +
-  ping) — needs privileged Docker-in-Docker.
+- `server`-mode deploy of `svc-net-wireguard` succeeds; `test-e2e-cli` discovered and ran the harness.
+- The DinD `files/test/test.sh` run passed fully: `local.sh` (3 servers healthy) → `external.sh`
+  (3 peer handshakes) → `mesh.sh` (6-node full mesh, all 30 directed pairs reachable, 5/5 handshakes
+  per node) → `ALL CHECKS PASSED`.
+
+Still unverified:
+
+- `client`-mode deploy (MTU-1400) — CI deploys `server` mode only.
+- **NAT / firewalled rules** — `tasks/03_client.yml` runs only in `client` mode and is gated
+  `not DOCKER_IN_CONTAINER`, so neither CI (server mode, container host) nor the e2e harness exercises
+  it. Needs a `client`-mode deploy with `nat: true` on a non-container host plus an `iptables -t nat -S`
+  assertion.
 
 ## Validation
 
