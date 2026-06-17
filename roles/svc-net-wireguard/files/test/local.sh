@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Bring up WIREGUARD_E2E_SERVER_COUNT WireGuard servers (compose, in DinD) and
-# assert each is healthy. Uses the `container` / `compose` wrappers.
+# Bring up WIREGUARD_E2E_SERVER_COUNT WireGuard servers (compose, DinD) and wait healthy.
 set -euo pipefail
 
 : "${WIREGUARD_E2E_SERVER_COUNT:?}"
@@ -15,7 +14,6 @@ WORKDIR="${WIREGUARD_E2E_WORKDIR}"
 COMPOSE_FILE="${WORKDIR}/compose.yml"
 mkdir -p "${WORKDIR}"
 
-# Render a compose file with one WireGuard server service per instance.
 {
     echo "services:"
     for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
@@ -56,7 +54,6 @@ echo "OK: rendered ${COMPOSE_FILE} (${WIREGUARD_E2E_SERVER_COUNT} servers)"
 
 compose --chdir "${WORKDIR}" --project "${PROJECT}" up -d
 
-# Wait until every server container reports healthy, bounded by the timeout.
 deadline=$(( $(date +%s) + WIREGUARD_E2E_TIMEOUT ))
 for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
     name="${PROJECT}-wg${i}"

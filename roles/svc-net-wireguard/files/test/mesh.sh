@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Full-mesh DinD test across ALL nodes: 3 servers (role image) + 3 distro client
-# workstations (CentOS / Debian / Manjaro). Every node is peered directly to the
-# other five. Asserts a WireGuard handshake on every link (5 peers per node) and
-# ICMP ping reachability across every node pair.
+# Full mesh across all nodes: 3 servers (role image) + CentOS/Debian/Manjaro clients,
+# each peered to the other five. Asserts a handshake per link and all-pairs ping.
 set -euo pipefail
 
 : "${WIREGUARD_IMAGE:?}"
@@ -43,9 +41,8 @@ ip_of() {
     done
 }
 
-# The role image (linuxserver) is Alpine and ships wg/wg-quick; it only needs a
-# full ping (apk). The distro clients install wireguard-tools with their own
-# package manager.
+# Server nodes (linuxserver/Alpine) ship wg/wg-quick and need ping via apk; the
+# distro clients install wireguard-tools with their own package manager.
 install_deps() {
     local cn="$1" kind="$2"
     case "${kind}" in
@@ -60,7 +57,6 @@ install_deps() {
     esac
 }
 
-# 1. Start every node and install dependencies.
 i=0
 for n in "${names[@]}"; do
     cn="${PROJECT}-${n}"
@@ -83,7 +79,6 @@ for n in "${names[@]}"; do
     i=$(( i + 1 ))
 done
 
-# 2. Generate a keypair on each node; collect public keys.
 declare -A pub
 for n in "${names[@]}"; do
     cn="${PROJECT}-${n}"
@@ -91,7 +86,6 @@ for n in "${names[@]}"; do
     pub[${n}]="$(container exec "${cn}" cat /tmp/wg/pub)"
 done
 
-# 3. Render a full-mesh wg0.conf per node (the other five as direct peers) and bring it up.
 i=0
 for n in "${names[@]}"; do
     cn="${PROJECT}-${n}"
@@ -118,7 +112,6 @@ PersistentKeepalive = 25
     i=$(( i + 1 ))
 done
 
-# 4. Verify ICMP reachability across every node pair, bounded by the timeout.
 deadline=$(( $(date +%s) + WIREGUARD_E2E_TIMEOUT ))
 failures=0
 for n in "${names[@]}"; do
@@ -147,7 +140,6 @@ for n in "${names[@]}"; do
     done
 done
 
-# 5. Assert every node established a handshake with all five peers.
 peers_expected=$(( ${#names[@]} - 1 ))
 for n in "${names[@]}"; do
     cn="${PROJECT}-${n}"

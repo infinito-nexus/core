@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-# E2E orchestrator: env-gate, then delegate to local.sh (servers),
-# external.sh (server handshakes), mesh.sh (full mesh: all servers + clients).
-# Backend pluggable via WIREGUARD_E2E_BACKEND; v1 = "compose" (DinD). Adding
-# swarm/kubernetes means swapping local.sh only; external.sh stays unchanged.
+# E2E orchestrator: runs local.sh, external.sh, mesh.sh. Backend: WIREGUARD_E2E_BACKEND.
 set -euo pipefail
 
-# Ephemeral test containers don't need the internal CA; keep `container run` a
-# plain passthrough so --device/--sysctl are not misparsed by the CA wrapper.
+# test containers don't need the internal CA
 export CA_CONTAINER_ENABLED=0
 
 : "${WIREGUARD_E2E_BACKEND:=compose}"
