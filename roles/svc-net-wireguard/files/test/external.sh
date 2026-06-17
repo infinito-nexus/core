@@ -38,7 +38,7 @@ for i in $(seq 1 "${WIREGUARD_E2E_SERVER_COUNT}"); do
     container run -d --name "${client}" \
         --network "${NETWORK}" \
         --cap-add NET_ADMIN \
-        --sysctl net.ipv4.conf.all.src_valid_mark=1 \
+        --sysctl=net.ipv4.conf.all.src_valid_mark=1 \
         -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC \
         "${WIREGUARD_IMAGE}:${WIREGUARD_VERSION}" >/dev/null
 
