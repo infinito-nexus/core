@@ -15,6 +15,19 @@
 - name: "Flush compose handlers"
   meta: flush_handlers
 
+- name: "Apply the inventory WireGuard config (mesh peer set)"
+  when: _wg_inventory_conf.stat.exists | default(false)
+  block:
+    - name: "Copy wg0.conf into the wireguard container"
+      ansible.builtin.command: >-
+        container cp {{ WIREGUARD_INVENTORY_CONF }}
+        {{ WIREGUARD_CONTAINER }}:/config/wg_confs/wg0.conf
+      changed_when: true
+
+    - name: "Restart the wireguard container to bring up the tunnel"
+      ansible.builtin.command: "container restart {{ WIREGUARD_CONTAINER }}"
+      changed_when: true
+
 - name: "adapt iptable rules (NAT masquerade for WireGuard client behind NAT)"
   shell: >-
     iptables -C FORWARD -i {{ WIREGUARD_NAT_IN_INTERFACE }} -j ACCEPT 2>/dev/null ||

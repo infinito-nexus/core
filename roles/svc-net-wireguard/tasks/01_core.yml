@@ -9,10 +9,17 @@
     fail_msg: "services.wireguard.flavor must be a non-empty subset of [server, client, nat] (got {{ WIREGUARD_FLAVOR }})."
     quiet: true
 
+- name: "Detect an inventory-provided WireGuard config"
+  ansible.builtin.stat:
+    path: "{{ WIREGUARD_INVENTORY_CONF }}"
+  register: _wg_inventory_conf
+
+- name: "Deploy WireGuard client/mesh stack"
+  include_tasks: 03_client.yml
+  when: _wg_inventory_conf.stat.exists or ('client' in WIREGUARD_FLAVOR)
+
 - name: "Deploy WireGuard server stack"
   include_tasks: 02_server.yml
-  when: "'server' in WIREGUARD_FLAVOR"
-
-- name: "Deploy WireGuard client stack"
-  include_tasks: 03_client.yml
-  when: "'client' in WIREGUARD_FLAVOR"
+  when:
+    - not _wg_inventory_conf.stat.exists
+    - "'server' in WIREGUARD_FLAVOR"
