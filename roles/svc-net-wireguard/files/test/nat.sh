@@ -18,7 +18,6 @@ TUN_SUBNET="10.13.20.0/24"
 GW_TUN_IP="10.13.20.1"
 CLIENT_TUN_IP="10.13.20.2"
 UP_SUBNET="10.30.30.0/24"
-GW_UP_IP="10.30.30.1"
 UP_IP="10.30.30.9"
 MTU=1400
 PORT=51820
@@ -46,7 +45,7 @@ start_wg_node() {
 
 start_wg_node "${GW}"
 start_wg_node "${CLIENT}"
-container network connect --ip "${GW_UP_IP}" "${UPNET}" "${GW}" >/dev/null
+container network connect "${UPNET}" "${GW}" >/dev/null
 
 container rm -f "${UP}" >/dev/null 2>&1 || true
 container run -d --name "${UP}" --network "${UPNET}" --ip "${UP_IP}" \
