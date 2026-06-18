@@ -22,7 +22,8 @@ done
 i=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
-    container exec "${cn}" sh -c "cd /opt/src/infinito && python3 -m cli administration inventory provision ${INV_DIR} --host ${cn} --include svc-net-wireguard"
+    timeout 600 container exec "${cn}" \
+        sh -c "cd /opt/src/infinito && python3 -m cli administration inventory provision ${INV_DIR} --host ${cn} --include svc-net-wireguard" </dev/null
 
     self_ip="${TUN_PREFIX}.${NODE_OCTET[$i]}"
     conf="[Interface]
