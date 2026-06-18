@@ -3,6 +3,9 @@
 docker_ps_grep_unhealthy="$(container ps --filter health=unhealthy --format '{{.Names}}')"
 docker_ps_grep_exited="$(container ps --filter status=exited --format '{{.ID}}')"
 
+swarm_state="$(container info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || echo inactive)"
+is_manager="$(container info --format '{{.Swarm.ControlAvailable}}' 2>/dev/null || echo false)"
+
 exitcode=0
 summary=""
 
@@ -27,7 +30,7 @@ if [ -n "$docker_ps_grep_unhealthy" ]; then
     fi
 fi
 
-if [ -n "$docker_ps_grep_exited" ]; then
+if [ "$swarm_state" != "active" ] && [ -n "$docker_ps_grep_exited" ]; then
     for container_id in $docker_ps_grep_exited
     do
         container_exit_code="$(container inspect "$container_id" --format='{{.State.ExitCode}}')"
@@ -52,8 +55,6 @@ if [ -n "$docker_ps_grep_exited" ]; then
 fi
 
 if command -v container >/dev/null 2>&1; then
-    swarm_state="$(container info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || echo inactive)"
-    is_manager="$(container info --format '{{.Swarm.ControlAvailable}}' 2>/dev/null || echo false)"
     if [ "$swarm_state" = "active" ] && [ "$is_manager" = "true" ]; then
         swarm_problems="$(container service ls --format '{{.Name}} {{.Replicas}}' 2>/dev/null \
             | awk '{
