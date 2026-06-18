@@ -6,8 +6,8 @@ wireguard:
   image: lscr.io/linuxserver/wireguard
   name: wireguard
   version: "1.0.20250521"
-  mode: server
-  nat: true
+  flavor:
+    - server
   sys_module: false
   puid: 1000
   pgid: 1000
@@ -16,14 +16,13 @@ wireguard:
     url: auto
     peers: 1
     peer_dns: auto
-    internal_subnet: "10.13.13.0"
     allowed_ips: "0.0.0.0/0, ::/0"
   client:
     mtu: 1400
     nat_in_interface: wg0-client
     nat_out_interface: eth0
   min_storage: 0GB
-  lifecycle: alpha
+  lifecycle: beta
   cpus: "0.1"
   mem_reservation: "32m"
   mem_limit: "64m"

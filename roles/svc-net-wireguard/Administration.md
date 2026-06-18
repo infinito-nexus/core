@@ -45,7 +45,7 @@ container exec <wireguard-container> wg show
 
 ## NAT (client behind NAT)
 
-When `services.wireguard.nat: true` the role applies the legacy firewalled rules on the host:
+When the `nat` flavor is set the role applies the legacy firewalled rules on the host:
 
 ```bash
 iptables -A FORWARD -i wg0-client -j ACCEPT

@@ -1,18 +1,18 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Validate services.wireguard.mode"
+- name: "Validate services.wireguard.flavor"
   ansible.builtin.assert:
     that:
-      - WIREGUARD_MODE in ['server', 'client']
-    fail_msg: >-
-      services.wireguard.mode must be 'server' or 'client' (got '{{ WIREGUARD_MODE }}').
+      - WIREGUARD_FLAVOR | length > 0
+      - (WIREGUARD_FLAVOR | difference(['server', 'client', 'nat'])) | length == 0
+    fail_msg: "services.wireguard.flavor must be a non-empty subset of [server, client, nat] (got {{ WIREGUARD_FLAVOR }})."
     quiet: true
 
-- name: "Deploy WireGuard server stack ({{ WIREGUARD_MODE }})"
+- name: "Deploy WireGuard server stack"
   include_tasks: 02_server.yml
-  when: WIREGUARD_MODE == 'server'
+  when: "'server' in WIREGUARD_FLAVOR"
 
-- name: "Deploy WireGuard client stack ({{ WIREGUARD_MODE }})"
+- name: "Deploy WireGuard client stack"
   include_tasks: 03_client.yml
-  when: WIREGUARD_MODE == 'client'
+  when: "'client' in WIREGUARD_FLAVOR"
