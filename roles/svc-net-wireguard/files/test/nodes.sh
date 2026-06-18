@@ -18,3 +18,4 @@ NODE_IMAGES=(
     "${WIREGUARD_E2E_CENTOS_IMAGE:-quay.io/centos/centos:stream9}"
 )
 NODE_OCTET=(11 12 13 14 15 16)
+NODE_DISTRO=(debian debian debian manjaro debian centos)
