@@ -1,5 +1,7 @@
 # 026 - Dockerized `svc-net-wireguard` (consolidate core / plain / firewalled)
 
+Implemented by [infinito-nexus/core#323](https://github.com/infinito-nexus/core/pull/323).
+
 ## User Story
 
 As a platform administrator of Infinito.Nexus, I want a single Docker-based `svc-net-wireguard` role that runs WireGuard in a container (server **and** client modes) and replaces the three host-native roles `svc-net-wireguard-core`, `svc-net-wireguard-plain`, and `svc-net-wireguard-firewalled`, so that WireGuard is deployed the same containerized way as every other `svc-*` service, with one role to learn, one image to pin, and a reproducible multi-server end-to-end test instead of three host-coupled, distro-branching roles wired together by hand.
@@ -149,7 +151,7 @@ roles/svc-net-wireguard-firewalled/   # deleted
 
 - [x] `make test` passes with the new role in place and the three old roles removed (all five targets green: lint, test-external, test-integration, test-lint, test-unit).
 - [x] Both modes are checked: `server` mode is deployed by the CI universal deploy (proven), and `client`-mode behaviour (tunnel join + MTU 1400 + NAT masquerade) is validated by the `files/test/nat.sh` e2e stage. (NAT's host-level task is container-gated, so the client/NAT *logic* is what the harness verifies — see the NAT note above.)
-- [ ] This requirement file is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md).
+- [ ] This requirement file is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md). The cross-links exist ([infinito-nexus/core#323](https://github.com/infinito-nexus/core/pull/323) ↔ this file); this box is the merge-time close-out (checking it makes the file archive-ready, so it stays open until the PR merges and the file is archived via `make requirements-archive`).
 
 ## Validation Status
 
@@ -179,14 +181,10 @@ Verified end-to-end in the fork CI (manual run, universal deploy, green):
   (3 peer handshakes) → `mesh.sh` (6-node full mesh, all 30 directed pairs reachable, 5/5 handshakes
   per node) → `ALL CHECKS PASSED`.
 
-Awaiting the next fork-CI run (added after the last green run):
-
-- `nat.sh` — client mode + MTU 1400 + NAT masquerade (positive + rule-absent). Authored and
-  shellcheck-clean; this is the one new stage not yet confirmed in CI.
-
-Process-only (not a code/test item):
-
-- The PR cross-link AC needs the implementing PR to exist; complete it when the PR is opened.
+`nat.sh` (client mode + MTU 1400 + NAT masquerade, positive + rule-absent) is also proven in the fork
+CI run <https://github.com/evangelostsak/infinito.nexus/actions/runs/27740664522>: `OK: NAT masquerade
+rule present` → `client tunnel MTU=1400` → `client reached upstream … via NAT masquerade` → `masquerade
+rule absent after disabling NAT`.
 
 ## Validation
 
