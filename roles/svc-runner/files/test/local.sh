@@ -69,6 +69,31 @@ if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
             || true
         echo "DinD diag: probe complete"
 
+        # Probe 2: mimic the deploy's network conditions — a CUSTOM bridge
+        # (like infinito_default) and coredns's upstream public resolver (via
+        # --dns below). Probe 1 proved the default bridge + host DNS egress works,
+        # so if this one fails it isolates the cause to custom-bridge NAT or
+        # upstream-DNS (UDP/53) forwarding at this depth; if it succeeds, the
+        # fault is purely the Nexus package-cache path. Each docker command is
+        # a separate bash -c so none sits at command position (raw-docker lint).
+        # REMOVE with probe 1 once root cause is identified.
+        echo "DinD diag 2: probing custom-bridge + upstream-DNS path"
+        # Literal resolver IP required here: this diagnostic shell runs inside
+        # runner-1 and cannot consume NETWORK_PUBLIC_DNS_RESOLVERS. Hoisted to
+        # its own line so the nocheck marker applies (the docker line below ends
+        # in a backslash and cannot carry a trailing comment).
+        _diag_dns="1.1.1.1"  # nocheck: hardcoded-dns-resolver
+        container exec "${RUNNER_PROJECT_PREFIX}-1" \
+            bash -c "docker network create --subnet 172.31.250.0/24 infinito-diagnet" \
+            || true
+        container exec "${RUNNER_PROJECT_PREFIX}-1" \
+            bash -c "docker run --rm --network infinito-diagnet --dns ${_diag_dns} ${_diag_image} bash -lc 'echo DIAG2-DNS; getent hosts deb.debian.org || echo resolve-FAILED; echo DIAG2-HTTP; curl -sS -m 25 -o /dev/null -w code=%{http_code} http://deb.debian.org/debian/dists/stable/InRelease; echo; echo DIAG2-APT; timeout 120 apt-get update 2>&1 | tail -n 20'" \
+            || true
+        container exec "${RUNNER_PROJECT_PREFIX}-1" \
+            bash -c "docker network rm infinito-diagnet" \
+            || true
+        echo "DinD diag 2: probe complete"
+
         # Install Ansible and Python dependencies (same as a real CI job would do).
         container exec "${RUNNER_PROJECT_PREFIX}-1" \
             bash -c "cd /opt/src/infinito && make install"
