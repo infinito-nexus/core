@@ -153,6 +153,41 @@ roles/svc-net-wireguard-firewalled/   # deleted
 - [x] Both modes are checked: `server` mode is deployed by the CI universal deploy (proven), and `client`-mode behaviour (tunnel join + MTU 1400 + NAT masquerade) is validated by the `files/test/nat.sh` e2e stage. (NAT's host-level task is container-gated, so the client/NAT *logic* is what the harness verifies — see the NAT note above.)
 - [ ] This requirement file is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md). The cross-links exist ([infinito-nexus/core#323](https://github.com/infinito-nexus/core/pull/323) ↔ this file); this box is the merge-time close-out (checking it makes the file archive-ready, so it stays open until the PR merges and the file is archived via `make requirements-archive`).
 
+## Revision 2 — PR #323 review (Kevin Veen-Birkenbach)
+
+Review feedback on [infinito-nexus/core#323](https://github.com/infinito-nexus/core/pull/323) pivots the
+role API and, more importantly, the **test methodology**. The v1 e2e harness (`local.sh` /
+`external.sh` / `mesh.sh` / `nat.sh`) hand-rolled WireGuard with the linuxserver image. Revision 2
+replaces that with a **deploy-driven** harness that provisions clean hosts and deploys the *actual*
+role against them via the Infinito.Nexus CLI — the same pattern `svc-runner` (req 014 / PR #231) uses.
+All v1 e2e ACs under "Multi-server Docker-in-Docker E2E test" and "Full mesh across all servers and
+clients" are **superseded** by the Revision-2 ACs below.
+
+### Confirmed decisions (Revision 2)
+
+| # | Decision | Source |
+|---|----------|--------|
+| 6 | Role API: replace the `mode` (server/client) + `nat` boolean with a **`flavor`** list (`flavor: [server]`, `[client]`, `[client, nat]`, …). Tasks dispatch on flavor membership. | Kevin: "manage server, client, behind NAT in one role … `flavor: [nat, server, client]` and react on this variables." |
+| 7 | E2E is **deploy-driven**, not simulated. The harness boots raw base containers, runs `make install` in each, builds a **dedicated inventory per host**, and runs `infinito administration deploy` of `svc-net-wireguard` against each (server / client / behind-NAT flavor) via DooD, then tests connectivity between all of them. | Kevin: "don't manual setup wireguard … `make install` … dedicated inventory for THIS host … deploy … test connection between all of them." |
+| 8 | Topology: **3 servers + 3 workstations**. Servers run `debian:latest`; workstations run **Manjaro, Debian, CentOS**. All nodes must reach each other after deploy. | Operator: "again 3 servers and 3 workstations (manjaro, debian, centOS)"; servers `debian:latest`. |
+| 9 | **NAT applies on the deployed host.** The masquerade task's `not DOCKER_IN_CONTAINER` gate is adjusted so the rule actually runs on a deployed node, and the behind-NAT workstation flavor is verified functionally. | Operator decision. |
+| 10 | The WireGuard internal subnet range is declared in `group_vars/all/08_networks.yml` (transparent, central), not buried in the role. | Kevin: "add an entry to group_vars/all/*network*.yml to make the range transparent." |
+| 11 | The client MTU default is auto-generated where possible (pkgmgr `auto-mtu`) instead of hardcoding `1400`. | Kevin: "autogeneration for default value … script in pkgmgr is called auto-mtu." |
+| 12 | `lifecycle: beta` on both `svc-net-wireguard` and `test-e2e-cli`. | Kevin: "beta" / `lifecycle: beta` suggestion. |
+
+### Acceptance Criteria (Revision 2)
+
+- [ ] `services.wireguard` uses a `flavor` list (`server` / `client` / `nat`); `tasks/` dispatch on flavor membership (server-stack, client-stack, NAT). `mode` + the `nat` boolean are removed. Invalid flavors fail fast.
+- [ ] The WireGuard internal subnet range is declared in `group_vars/all/08_networks.yml` and the role consumes it from there.
+- [ ] The client MTU default is auto-derived (pkgmgr `auto-mtu`) when available, with `1400` as the documented fallback.
+- [ ] `meta/services.yml::wireguard.lifecycle = beta` and `roles/test-e2e-cli/meta/services.yml::test-e2e-cli.lifecycle = beta`.
+- [ ] The NAT masquerade task runs on a real deployed host (gate adjusted so it is not skipped purely because the host is a container), and is idempotent.
+- [ ] The e2e harness is renamed to phase scripts under `files/test/`: `01_bootstrap.sh` (boot raw containers + `make install`), `02_registration.sh` (per-host dedicated inventory + credentials), `03_handshake.sh` (deploy the role per host + assert all-to-all connectivity). `test.sh` orchestrates them.
+- [ ] `01_bootstrap.sh` boots **6** raw containers — 3 servers (`debian:latest`) + 3 workstations (Manjaro / Debian / CentOS) — and runs `make install` in each so it is Ansible-ready.
+- [ ] `02_registration.sh` generates a **dedicated inventory per host** (credentials + cross-host config) via `infinito administration inventory …`, so each host is preconfigured for the others.
+- [ ] `03_handshake.sh` deploys `svc-net-wireguard` against each host with its inventory and flavor (servers = `server`; workstations = `client`, at least one `client + nat` behind a gateway) via `infinito administration deploy` / `scripts/tests/deploy/ci/all.sh` over DooD, then asserts every node reaches every other node over WireGuard (handshake + ICMP), and that the behind-NAT workstation reaches an upstream only via the masquerade.
+- [ ] The full Revision-2 harness passes in the fork CI (`test-e2e-cli` post-deploy), ending in `ALL CHECKS PASSED`.
+
 ## Validation Status
 
 Verified in the sandbox (no privileged Docker, no `sudo`):
