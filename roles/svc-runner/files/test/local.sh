@@ -39,10 +39,12 @@ if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
     if [[ -n "${GITHUB_TOKEN:-}" ]] && [[ "${INFINITO_IMAGE_TAG:-}" == ci-* ]]; then
         echo "DinD mode: running full deploy test inside ${RUNNER_PROJECT_PREFIX}-1..."
 
-        # Fix repo ownership so github-runner can write the venv and install stamp.
-        # Mirrors the 'Fix workspace ownership' step in test-runner-smoke.yml.
+        # Run from a per-instance copy, not the shared /opt/src/infinito (the
+        # outer runner's .env/Corefile there would make inner coredns serve the
+        # wrong IP). Same-path dir keeps DooD bind-mounts valid.
+        _iso_src="${RUNNER_INSTALL_DIR}/1/nested-src"
         container exec --user root "${RUNNER_PROJECT_PREFIX}-1" \
-            bash -c "chown -R github-runner:github-runner /opt/src/infinito"
+            bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C /opt/src/infinito --exclude='./.venvs' --exclude='./venv' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && chown -R github-runner:github-runner ${_iso_src}"
 
         # Authenticate to GHCR so runner-1 can pull the infinito CI image via DooD.
         # docker login runs INSIDE runner-1 (no container wrapper there); <<< avoids
@@ -52,7 +54,7 @@ if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
 
         # Install Ansible and Python dependencies (same as a real CI job would do).
         container exec "${RUNNER_PROJECT_PREFIX}-1" \
-            bash -c "cd /opt/src/infinito && make install"
+            bash -c "cd ${_iso_src} && make install"
 
         # Deploy web-app-dashboard exactly as the smoke test does.
         # DooD routes Docker commands to the DinD daemon, so the infinito
@@ -84,7 +86,7 @@ if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
             -e "GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-}" \
             -e "ANSIBLE_LOG_PATH=/tmp/ansible-runner-dind-test.log" \
             "${RUNNER_PROJECT_PREFIX}-1" \
-            bash /opt/src/infinito/scripts/tests/deploy/ci/all.sh
+            bash "${_iso_src}/scripts/tests/deploy/ci/all.sh"
 
         echo "OK: full deploy inside ${RUNNER_PROJECT_PREFIX}-1 succeeded"
     else
