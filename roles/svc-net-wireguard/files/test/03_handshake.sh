@@ -10,11 +10,13 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
-    container exec "${cn}" sh -c "cd /opt/src/infinito && python3 -m cli administration deploy dedicated ${INV_DIR}/devices.yml --id svc-net-wireguard"
+    timeout 1800 container exec "${cn}" \
+        sh -c "cd /opt/src/infinito && python3 -m cli administration deploy dedicated ${INV_DIR}/devices.yml --id svc-net-wireguard" </dev/null
     echo "OK: ${n} deployed svc-net-wireguard"
 done
 
-deadline=$(( $(date +%s) + WIREGUARD_E2E_TIMEOUT ))
+# Tunnels establish in seconds; fail hard rather than wait out the full budget.
+deadline=$(( $(date +%s) + 180 ))
 failures=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"

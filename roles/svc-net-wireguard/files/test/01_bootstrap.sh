@@ -25,7 +25,8 @@ done
 
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
-    container exec "${cn}" sh -c 'cd /opt/src/infinito && make install'
+    timeout 1200 container exec "${cn}" \
+        sh -c 'export DEBIAN_FRONTEND=noninteractive CI=true; cd /opt/src/infinito && make install' </dev/null
     container exec -d "${cn}" sh -c 'dockerd >/tmp/dockerd.log 2>&1'
     # shellcheck disable=SC2016  # the $(...) runs inside the node, not in this shell
     container exec "${cn}" sh -c 'for _ in $(seq 1 60); do docker info >/dev/null 2>&1 && exit 0; sleep 2; done; echo "dockerd did not come up"; exit 1'
