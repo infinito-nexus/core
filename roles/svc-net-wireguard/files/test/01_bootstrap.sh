@@ -23,14 +23,31 @@ for n in "${NODE_NAMES[@]}"; do
     i=$(( i + 1 ))
 done
 
+# Raw base images ship no make/git/python; install the bootstrap prerequisites
+# before `make install` runs the full Infinito.Nexus install.
+install_prereqs() {
+    local cn="$1" distro="$2"
+    case "${distro}" in
+        debian)
+            timeout 600 container exec "${cn}" sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update && apt-get install -y make git python3 python3-venv python3-pip sudo curl ca-certificates' </dev/null ;;
+        manjaro)
+            timeout 600 container exec "${cn}" sh -c 'pacman -Sy --noconfirm make git python python-pip sudo curl ca-certificates' </dev/null ;;
+        centos)
+            timeout 600 container exec "${cn}" sh -c 'dnf -y install make git python3 python3-pip sudo curl ca-certificates' </dev/null ;;
+    esac
+}
+
+i=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
+    install_prereqs "${cn}" "${NODE_DISTRO[$i]}"
     timeout 1200 container exec "${cn}" \
         sh -c 'export DEBIAN_FRONTEND=noninteractive CI=true; cd /opt/src/infinito && make install' </dev/null
     container exec -d "${cn}" sh -c 'dockerd >/tmp/dockerd.log 2>&1'
     # shellcheck disable=SC2016  # the $(...) runs inside the node, not in this shell
     container exec "${cn}" sh -c 'for _ in $(seq 1 60); do docker info >/dev/null 2>&1 && exit 0; sleep 2; done; echo "dockerd did not come up"; exit 1'
     echo "OK: ${n} make install + dockerd ready"
+    i=$(( i + 1 ))
 done
 
 echo "OK: all nodes bootstrapped"
