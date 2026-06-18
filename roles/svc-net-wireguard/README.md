@@ -27,10 +27,10 @@ successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`
 - **Host/container ownership mapping:** `PUID` / `PGID` map `/config` ownership onto a host user per
   the linuxserver [User/Group Identifiers](https://docs.linuxserver.io/images/docker-wireguard/#user-group-identifiers) contract.
 - **Pinned image:** The upstream tag is pinned in `meta/services.yml`; bump and redeploy to upgrade.
-- **Docker-in-Docker test harness:** The `files/test/` suite asserts server-mode peer handshakes,
-  builds a full mesh across all six nodes (3 servers + CentOS/Debian/Manjaro clients), and validates
-  client mode + MTU 1400 + NAT masquerade (a client reaching an upstream host only via a masquerading
-  gateway).
+- **Deploy-driven test harness:** The `files/test/` suite boots 6 empty containers (3 `debian:latest`
+  servers + Manjaro/Debian/CentOS workstations), runs `make install` in each, provisions a dedicated
+  inventory per host with a full-mesh `wg0.conf`, deploys this role into each (Docker-in-Docker), and
+  asserts every node reaches every other over WireGuard.
 
 ## Migration
 
@@ -44,9 +44,8 @@ successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`
 
 See [Administration.md](./Administration.md) for peer key creation, config activation, and live
 container inspection. The end-to-end harness lives under `files/test/`: `test.sh` orchestrates
-`local.sh` (servers), `external.sh` (server handshakes) and `mesh.sh` (full mesh across all 6 nodes:
-3 servers + CentOS/Debian/Manjaro clients, all-pairs handshake + ping). `WIREGUARD_E2E_BACKEND`
-selects the provisioning backend (Compose today).
+`01_bootstrap.sh` (boot 6 empty containers + `make install`), `02_registration.sh` (per-host dedicated
+inventory + full-mesh `wg0.conf`), and `03_handshake.sh` (deploy this role per host + all-pairs check).
 
 The harness is discovered and run automatically by the `test-e2e-cli` role: any role shipping
 `templates/test.env.j2` plus `files/test/test.sh` is picked up post-deploy and run in the deploy

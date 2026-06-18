@@ -21,6 +21,8 @@ WIREGUARD_SERVER_PEER_DNS: "{{ lookup('config', application_id, 'services.' ~ en
 WIREGUARD_SERVER_INTERNAL_SUBNET: "{{ WIREGUARD_INTERNAL_SUBNET }}"
 WIREGUARD_SERVER_ALLOWED_IPS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.allowed_ips') }}"
 
+WIREGUARD_INVENTORY_CONF: "{{ [inventory_dir, 'files', inventory_hostname, 'wireguard', 'wg0.conf'] | path_join }}"
+
 WIREGUARD_CLIENT_MTU: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.mtu') }}"
 WIREGUARD_NAT_IN_INTERFACE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.nat_in_interface') }}"
 WIREGUARD_NAT_OUT_INTERFACE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.nat_out_interface') }}"
