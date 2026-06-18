@@ -12,7 +12,7 @@ operate.
 This role runs WireGuard in a Docker container using the
 [linuxserver/wireguard](https://docs.linuxserver.io/images/docker-wireguard/) image, in either
 **server** mode (this host terminates peers and generates their configs) or **client** mode (this host
-joins an upstream peer), selected by `services.wireguard.mode`. It assembles a Compose stack from the
+joins an upstream peer), selected by the `services.wireguard.flavor` list (`server`, `client`, `nat`). It assembles a Compose stack from the
 shared `sys-svc-compose` / `sys-svc-container` bases, grants the container the capabilities WireGuard
 needs, optionally masquerades client traffic, and publishes the tunnel port. It is the containerized
 successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`, and
@@ -20,9 +20,9 @@ successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`
 
 ## Features
 
-- **Server and client modes:** One `services.wireguard.mode` switch picks peer termination (`PEERS`
+- **Server and client flavors:** The `services.wireguard.flavor` list picks peer termination (`PEERS`
   set) or joining an upstream peer; replaces the old `-core` / `-plain` split.
-- **NAT masquerading:** `services.wireguard.nat` preserves the legacy firewalled behaviour
+- **NAT masquerading:** the `nat` flavor preserves the legacy firewalled behaviour
   (`iptables` FORWARD + POSTROUTING MASQUERADE) for clients behind NAT.
 - **Host/container ownership mapping:** `PUID` / `PGID` map `/config` ownership onto a host user per
   the linuxserver [User/Group Identifiers](https://docs.linuxserver.io/images/docker-wireguard/#user-group-identifiers) contract.
@@ -36,9 +36,9 @@ successor to the host-native `svc-net-wireguard-core`, `svc-net-wireguard-plain`
 
 | Legacy role | Behaviour | Replacement |
 |-------------|-----------|-------------|
-| `svc-net-wireguard-core` | host package + `wg-quick` server, sysctl IP-forward, `/etc/wireguard/wg0.conf` | `mode: server` (linuxserver image, `PEERS` set) |
-| `svc-net-wireguard-plain` | systemd unit forcing MTU 1400 on the uplink | `mode: client` + `services.wireguard.client.mtu` |
-| `svc-net-wireguard-firewalled` | `iptables` FORWARD + NAT MASQUERADE behind NAT | `mode: client` + `services.wireguard.nat: true` (same rules) |
+| `svc-net-wireguard-core` | host package + `wg-quick` server, sysctl IP-forward, `/etc/wireguard/wg0.conf` | `flavor: [server]` (linuxserver image, `PEERS` set) |
+| `svc-net-wireguard-plain` | systemd unit forcing MTU 1400 on the uplink | `flavor: [client]` + `services.wireguard.client.mtu` |
+| `svc-net-wireguard-firewalled` | `iptables` FORWARD + NAT MASQUERADE behind NAT | `flavor: [client, nat]` (same rules) |
 
 ## Developer notes
 

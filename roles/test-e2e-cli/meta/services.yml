@@ -1,5 +1,5 @@
 ---
 test-e2e-cli:
-  lifecycle: alpha
+  lifecycle: beta
   required_by:
     categories: [web]

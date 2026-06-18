@@ -2,7 +2,7 @@
 application_id: svc-net-wireguard
 entity_name: "{{ application_id | get_entity_name }}"
 
-WIREGUARD_MODE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.mode') }}"
+WIREGUARD_FLAVOR: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.flavor') }}"
 
 WIREGUARD_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 WIREGUARD_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
@@ -18,10 +18,9 @@ WIREGUARD_SYS_MODULE: "{{ lookup('config', application_id, 'services.' ~ entity_
 WIREGUARD_SERVER_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.url') }}"
 WIREGUARD_SERVER_PEERS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.peers') }}"
 WIREGUARD_SERVER_PEER_DNS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.peer_dns') }}"
-WIREGUARD_SERVER_INTERNAL_SUBNET: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.internal_subnet') }}"
+WIREGUARD_SERVER_INTERNAL_SUBNET: "{{ WIREGUARD_INTERNAL_SUBNET }}"
 WIREGUARD_SERVER_ALLOWED_IPS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server.allowed_ips') }}"
 
 WIREGUARD_CLIENT_MTU: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.mtu') }}"
-WIREGUARD_NAT_ENABLED: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.nat') | bool }}"
 WIREGUARD_NAT_IN_INTERFACE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.nat_in_interface') }}"
 WIREGUARD_NAT_OUT_INTERFACE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.nat_out_interface') }}"
