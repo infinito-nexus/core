@@ -2,46 +2,59 @@ const { test, expect } = require("@playwright/test");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
-// Functional cross-role check: the Nextcloud `integration_github` app must be
-// wired with a real GitHub OAuth client (client_id/client_secret rendered from
-// the `api` lookup in meta/addons/integration_github.yml). The strongest
-// deterministic signal that the wiring is correct is that clicking "Connect to
-// GitHub with OAuth" hands the browser off to github.com/login/oauth/authorize
-// with the configured client_id. We do NOT complete consent (that needs live
-// GitHub credentials and is a separate Tier-2 concern); reaching the GitHub
-// authorize endpoint already proves the integration URL + client are live.
-test("integration integration_github: connects Nextcloud to github.com", async ({ browser }) => {
+test("integration integration_github: per-user OAuth connect reaches github.com/login/oauth/authorize with the provisioned client_id", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_github");
+  test.setTimeout(120_000);
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
 
   try {
     await shared.loginToStandaloneNextcloud(page);
+
     await page.goto(
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: 60_000 }
     );
+    await shared.dismissBlockingNextcloudModals(page, page);
 
-    // The OAuth button (NcButton) only renders when the admin client_id is
-    // configured; it navigates the top frame via window.location.replace() to
-    // github.com/login/oauth/authorize. Match it by its OAuth-specific label so
-    // we never click the "personal token" button instead.
     const connect = page.getByRole("button", { name: /connect to github with oauth/i });
+    await expect(
+      connect.first(),
+      "the 'Connect to GitHub with OAuth' control must render once the admin OAuth client_id is provisioned — its absence means the github.client_id/client_secret api wiring failed to land"
+    ).toBeVisible({ timeout: 60_000 });
 
-    if ((await connect.count()) === 0) {
-      test.skip(true, "integration_github: connect control not present (integration not provisioned)");
-      return;
-    }
+    const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
 
     await Promise.all([
-      page.waitForEvent("framenavigated", { timeout: 60_000 }).catch(() => {}),
-      connect.first().click()
+      page
+        .waitForURL((u) => /github\.com\/login\/oauth\/authorize/i.test(u), { timeout: 60_000 })
+        .catch(() => {}),
+      connect.first().click(),
     ]);
 
     await expect
       .poll(() => page.url(), { timeout: 60_000 })
-      .toMatch(/github\.com\/login\/oauth\/authorize|connected-accounts/);
+      .toMatch(/github\.com\/login\/oauth\/authorize/i);
+
+    const authorize = new URL(page.url());
+    expect(
+      authorize.host,
+      "the OAuth connect must hand off to the partner GitHub (github.com), not stay on the Nextcloud host"
+    ).toBe("github.com");
+    expect(authorize.host, "the authorize endpoint must not be Nextcloud itself").not.toBe(nextcloudHost);
+    expect(
+      authorize.pathname,
+      "the connect must reach GitHub's authorization-code endpoint"
+    ).toBe("/login/oauth/authorize");
+    expect(
+      (authorize.searchParams.get("client_id") || "").length,
+      "the authorize redirect must carry the provisioned GitHub OAuth client_id (proves the github.client_id api wiring is live)"
+    ).toBeGreaterThan(0);
+    expect(
+      authorize.searchParams.get("redirect_uri") || "",
+      "the authorize redirect_uri must point back at this Nextcloud instance to complete the code grant"
+    ).toContain(nextcloudHost);
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});
