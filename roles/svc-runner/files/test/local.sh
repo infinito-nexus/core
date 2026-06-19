@@ -56,6 +56,17 @@ if [[ "${DOCKER_IN_CONTAINER}" == "true" ]]; then
         container exec "${RUNNER_PROJECT_PREFIX}-1" \
             bash -c "cd ${_iso_src} && make install"
 
+        # Start from clean nested state, like a fresh CI run. /etc/nginx is a
+        # named volume (svc-prx-openresty meta/volumes.yml); a prior run can
+        # leave nginx.conf there as a directory, breaking the openresty
+        # bootstrap. Remove the nested project's containers + volumes first.
+        container exec "${RUNNER_PROJECT_PREFIX}-1" \
+            bash -c "docker ps -aq --filter label=com.docker.compose.project=infinito | xargs -r docker rm -f" \
+            || true
+        container exec "${RUNNER_PROJECT_PREFIX}-1" \
+            bash -c "docker volume ls -q --filter name=^infinito_ | xargs -r docker volume rm" \
+            || true
+
         # Deploy web-app-dashboard exactly as the smoke test does.
         # DooD routes Docker commands to the DinD daemon, so the infinito
         # container and web-app-dashboard containers are created inside DinD —
