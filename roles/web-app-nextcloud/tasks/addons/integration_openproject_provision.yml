@@ -16,6 +16,8 @@
       - "NEXTCLOUD_HOST={{ lookup('tls', 'web-app-nextcloud', 'url.base') }}"
       - -e
       - "STORAGE_NAME={{ nextcloud_op_storage_name }}"
+      - -e
+      - "NC_HAS_OP_SECRET={{ nextcloud_op_client_secret_current.stdout | trim }}"
       - "{{ nextcloud_op_web_container }}"
       - bash
       - -lc
@@ -34,7 +36,7 @@
   set_fact:
     nextcloud_op_client_secret: >-
       {{ nextcloud_op_oauth.openproject_client_secret
-         | default((nextcloud_op_client_secret_current.stdout | default('') | trim), true) }}
+         | default((nextcloud_op_client_secret_current.stdout | trim), true) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Fail when no usable OpenProject OAuth application secret is available

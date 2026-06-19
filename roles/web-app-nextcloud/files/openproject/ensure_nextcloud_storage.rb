@@ -4,6 +4,7 @@ host = ENV.fetch("NEXTCLOUD_HOST").sub(%r{/+\z}, "")
 name = ENV.fetch("STORAGE_NAME")
 nc_client_id = ENV["NC_OAUTH_CLIENT_ID"].to_s.strip
 nc_client_secret = ENV["NC_OAUTH_CLIENT_SECRET"].to_s.strip
+nc_has_op_secret = ENV["NC_HAS_OP_SECRET"].to_s.strip
 
 admins = User.where(admin: true)
 creator =
@@ -30,6 +31,12 @@ end
 
 application = storage.oauth_application
 op_client_secret = nil
+
+if application && nc_client_id.empty? && nc_has_op_secret.empty?
+  application.destroy
+  storage.reload
+  application = nil
+end
 
 if application.nil?
   result = ::OAuth::Applications::CreateService
