@@ -43,9 +43,13 @@ for n in "${NODE_NAMES[@]}"; do
     install_prereqs "${cn}" "${NODE_DISTRO[$i]}"
     timeout 1200 container exec "${cn}" \
         sh -c 'export DEBIAN_FRONTEND=noninteractive CI=true; cd /opt/src/infinito && make install' </dev/null
-    container exec -d "${cn}" sh -c 'dockerd >/tmp/dockerd.log 2>&1'
+    container exec -d "${cn}" sh -c 'dockerd --storage-driver=vfs >/tmp/dockerd.log 2>&1'
     # shellcheck disable=SC2016  # the $(...) runs inside the node, not in this shell
-    container exec "${cn}" sh -c 'for _ in $(seq 1 60); do docker info >/dev/null 2>&1 && exit 0; sleep 2; done; echo "dockerd did not come up"; exit 1'
+    if ! container exec "${cn}" sh -c 'for _ in $(seq 1 60); do docker info >/dev/null 2>&1 && exit 0; sleep 2; done; exit 1'; then
+        echo "FAIL: dockerd did not come up on ${n}; last 40 log lines:"
+        container exec "${cn}" sh -c 'tail -n 40 /tmp/dockerd.log' || true
+        exit 1
+    fi
     echo "OK: ${n} make install + dockerd ready"
     i=$(( i + 1 ))
 done
