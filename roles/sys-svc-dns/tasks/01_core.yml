@@ -6,7 +6,11 @@
   when: (CLOUDFLARE_API_TOKEN | default('') | trim) == ''
 
 - name: "Apply apex A/AAAA for base domains"
-  include_tasks: 02_apex.yml
+  include_tasks:
+    file: 02_apex.yml
+    apply:
+      async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+      poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   loop: "{{ SYS_SVC_DNS_BASE_DOMAINS | list }}"
   loop_control:
     loop_var: base_domain

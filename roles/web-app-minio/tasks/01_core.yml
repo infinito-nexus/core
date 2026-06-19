@@ -20,9 +20,15 @@
     label: "{{ minio_proxy.domain }} -> {{ minio_proxy.http_port }}"
 
 - name: "Configure MinIO OIDC (Keycloak as named IdP + policy)"
-  include_tasks: 02_oidc.yml
+  ansible.builtin.include_tasks:
+    file: 02_oidc.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: MINIO_OIDC_ENABLED | bool
 
 - name: "Bind the MinIO administrator policy to the LDAP group (LDAP variant)"
-  include_tasks: 03_ldap.yml
+  ansible.builtin.include_tasks:
+    file: 03_ldap.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: MINIO_LDAP_ENABLED | bool

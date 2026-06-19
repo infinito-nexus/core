@@ -22,7 +22,10 @@
   failed_when: false
 
 - name: Patch Friendica local.config.php with updated DB credentials
-  include_tasks: 03_patch_config.yml
+  ansible.builtin.include_tasks:
+    file: 03_patch_config.yml
+    apply:
+      notify: compose up
   when: friendica_config_exists.rc == 0
 - name: Add Friendica Add Ons
   include_tasks: 04_addons.yml

@@ -9,7 +9,6 @@
     - mailu_user_existing_token.id is defined
   register: mailu_token_delete
   changed_when: mailu_token_delete.rc == 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Create API token for '{{ mailu_user_key }};{{ mailu_user_name }}' if no local token defined"
   ansible.builtin.shell: >-
@@ -26,7 +25,6 @@
   register: mailu_token_creation_request
   failed_when: mailu_token_creation_request.rc != 0
   changed_when: mailu_token_creation_request.rc == 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Read created API token response for '{{ mailu_user_key }};{{ mailu_user_name }}'"
   ansible.builtin.shell: >-
@@ -35,7 +33,6 @@
   register: mailu_token_creation_response
   changed_when: false
   failed_when: mailu_token_creation_response.stdout | trim == ""
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Extract created API token for '{{ mailu_user_key }};{{ mailu_user_name }}'"
   ansible.builtin.set_fact:
@@ -47,7 +44,6 @@
         ).token | default('')
       }}
   failed_when: mailu_created_token | trim == ""
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Persist + inject Mailu API token via sys-token-store"
   ansible.builtin.include_role:
@@ -57,4 +53,3 @@
     sys_token_store_user_key: "{{ mailu_user_key }}"
     sys_token_store_app: "{{ application_id }}"
     sys_token_store_token: "{{ mailu_created_token }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

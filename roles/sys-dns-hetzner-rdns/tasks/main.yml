@@ -22,7 +22,10 @@
   when: _use_cloud | bool
 
 - name: Include Robot flavor (Robot Webservice)
-  include_tasks: flavors/robot.yml
+  ansible.builtin.include_tasks:
+    file: flavors/robot.yml
+    apply:
+      no_log: "{{ hetzner_no_log | bool }}"
   when: (not _use_cloud) and _use_robot
 
 - name: Fail if no credentials provided

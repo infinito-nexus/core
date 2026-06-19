@@ -27,4 +27,7 @@
       lookup('users').get(mailu_user_key, {}).get('tokens', {}).get(application_id, '')
       | string | trim
     ) == ''
-  include_tasks: 04b_create_user_token.yml
+  ansible.builtin.include_tasks:
+    file: 04b_create_user_token.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

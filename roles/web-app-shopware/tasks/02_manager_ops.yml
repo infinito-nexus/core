@@ -37,7 +37,10 @@
     timeout: 300
 
 - name: "Ensure admin user exists with correct password"
-  include_tasks: 01_admin.yml
+  ansible.builtin.include_tasks:
+    file: 01_admin.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 #- name: Execute setup routines (OIDC/LDAP)
 #  include_tasks: 02_setup.yml

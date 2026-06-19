@@ -9,7 +9,6 @@
     -e "s/('username'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'username') | sed_escape('/') }}\2/"
     -e "s#('url'\s*=>\s*')[^']*(',)#\1{{ FRIENDICA_BASE_URL | sed_escape('#') }}\2#"
     {{ FRIENDICA_CONFIG_FILE }}
-  notify: compose up
 
 - name: Patch Friendica local.config.php (DB password)
   shell: >
@@ -17,5 +16,4 @@
     -e PATCH_PASSWORD={{ lookup('database', application_id, 'password') | sed_escape('/') | quote }}
     {{ FRIENDICA_CONTAINER_ADDRESS }}
     sh -c "sed -ri -e \"s/('password'\\s*=>\\s*')[^']*(',)/\\1\${PATCH_PASSWORD}\\2/\" {{ FRIENDICA_CONFIG_FILE }}"
-  notify: compose up
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

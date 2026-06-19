@@ -20,4 +20,9 @@
   ansible.builtin.include_tasks: 04_service.yml
 
 - name: "Include controller-side mount step"
-  ansible.builtin.include_tasks: 05_controller_mount.yml
+  ansible.builtin.include_tasks:
+    file: 05_controller_mount.yml
+    apply:
+      delegate_to: localhost
+      run_once: true
+      become: true

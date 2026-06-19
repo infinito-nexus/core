@@ -7,7 +7,6 @@
     {{ SHOPWARE_WEB_CONTAINER_ADDRESS }}
     sh < {{ role_path }}/files/rename_admin_user.sh
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Ensure Shopware admin exists and has the desired password"
   shell: >-
@@ -20,4 +19,3 @@
     -e ADMIN_EMAIL={{ lookup('users', 'administrator').email | quote }}
     {{ SHOPWARE_WEB_CONTAINER_ADDRESS }}
     sh < {{ role_path }}/files/ensure_admin_user.sh
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

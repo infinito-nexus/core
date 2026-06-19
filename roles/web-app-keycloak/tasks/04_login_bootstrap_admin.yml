@@ -13,7 +13,6 @@
   retries: 30
   delay: 5
   until: kc_login_bootstrap.rc == 0
-  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
 - name: Ensure permanent admin user exists (create if missing)
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
@@ -30,7 +29,6 @@
       ('User exists with same username' in kc_create_perm_admin.stderr))
     )
   changed_when: kc_create_perm_admin.rc == 0
-  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
 - name: Set permanent admin password (by username, no ID needed)
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
@@ -40,7 +38,6 @@
         --new-password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
     '
   changed_when: true
-  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
 - name: Grant global admin via master realm role 'admin'
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
@@ -53,7 +50,6 @@
   changed_when: (kc_grant_master_admin.stderr is defined and kc_grant_master_admin.stderr | length > 0) or (kc_grant_master_admin.stdout is defined and
     kc_grant_master_admin.stdout | length > 0)
   failed_when: false
-  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
 - name: Verify login with permanent admin (after creation)
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
@@ -65,4 +61,3 @@
         --password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
     '
   changed_when: false
-  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"

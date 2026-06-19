@@ -98,5 +98,8 @@
   delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
 - name: Ensure permanent Keycloak admin exists (bootstrap path when permanent login fails)
-  ansible.builtin.include_tasks: 04_login_bootstrap_admin.yml
+  ansible.builtin.include_tasks:
+    file: 04_login_bootstrap_admin.yml
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   when: kc_login_perm.rc != 0

@@ -17,7 +17,11 @@
 # Exception: matrix-deploy round-2 uses different MariaDB creds; without rewriting
 # config.ini.php before the healthy-probe, matomo loops on "Database access denied".
 - name: "Patch database credentials for {{ application_id }}"
-  include_tasks: 07_patch_database.yml
+  include_tasks:
+    file: 07_patch_database.yml
+    apply:
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
+      notify: compose up
   when: matomo_config_exists.rc == 0
 
 - name: "Patch Trusted Hosts for {{ application_id }}"
@@ -39,4 +43,8 @@
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
 - name: "Config '{{ application_id }}' via API"
-  include_tasks: 09_config.yml
+  include_tasks:
+    file: 09_config.yml
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true

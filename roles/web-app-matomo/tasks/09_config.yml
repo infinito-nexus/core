@@ -16,8 +16,6 @@
   until: matomo_exclude.status == 200
   retries: 5
   delay: 10
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
 
 - name: Exclude CSP-CheckerBot user agent in Matomo
   uri_retry:
@@ -32,5 +30,3 @@
       token_auth: "{{ matomo_token_value }}"
     return_content: true
     status_code: 200
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
