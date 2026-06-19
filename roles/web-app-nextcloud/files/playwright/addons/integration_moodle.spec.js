@@ -7,38 +7,26 @@ test.use({ ignoreHTTPSErrors: true });
 // Cross-role coupling check for the upstream nextcloud/integration_moodle app.
 //
 // Reality of the app (confirmed against upstream source):
-//   - Admin settings (AdminSettings.vue) render ONLY a `#disable-search`
-//     checkbox inside `#moodle_prefs` (admin-config). There is NO admin OAuth
-//     client (no client_id/client_secret) and NO admin-visible URL field, so
-//     the admin-set app `url` (our config:app:set) is NOT rendered in the UI.
-//   - Personal settings (PersonalSettings.vue) render `#moodle_prefs` with the
-//     Moodle service URL input `#moodle-url` (bound to state.url, seeded from
-//     loadState('integration_moodle', 'user-config')). Personal.php seeds that
-//     url from the PER-USER getUserValue('url') with NO fallback to the admin
-//     app value, so for a fresh admin user the field is EMPTY until they
-//     connect. Connecting is per-user: onValidate() POSTs login+password to
-//     /apps/integration_moodle/get-token to mint that user's webservice token
-//     (no OAuth redirect to a partner authorize endpoint).
+//   - PersonalSettings.vue renders `#moodle_prefs` with the `#moodle-url`
+//     instance-address input (v-model state.url), `#moodle-login`,
+//     `#moodle-password`, and a "Connect to Moodle" button that only appears
+//     once BOTH login and password are typed (showConnect = login && password).
+//   - Typing into `#moodle-url` debounce-saves the per-user url via PUT /config.
+//   - Clicking Connect runs onValidate() -> POST /apps/integration_moodle/get-token
+//     {login,password}. MoodleAPIController::getToken uses the PER-USER url
+//     (getUserValue('url')) to call the partner Moodle webservice token endpoint
+//     ({url}/login/token.php). On success it returns 200 {user_name}; on a
+//     refused login it returns 401 {error}. Either verdict proves the request
+//     reached the PARTNER Moodle host server-side (not Nextcloud, not a config
+//     stub) — that is the real bridge coupling.
 //
-// Because the admin-set url is never surfaced in the DOM, the authoritative
-// proof that config:app:set integration_moodle url == the Moodle partner URL
-// lives in the Ansible hook (tasks/addons/integration_moodle.yml, which reads
-// it back via occ config:app:get and asserts equality). What this Playwright
-// test proves about the coupling is the part that IS observable in the UI: that
-// the app is provisioned into Nextcloud's settings — the personal #moodle_prefs
-// section, the #moodle-url connect field, and the "Connect to Moodle" per-user
-// get-token control all render.
-//
-// GENUINE ABSENCE: integration_moodle is incompatible with Nextcloud 33, so the
-// loader's `occ app:enable integration_moodle` is a no-op there — the app stays
-// disabled and the personal #moodle_prefs section is never injected. That is a
-// real "partner not enable-able" state, not a spec bug, so the test SKIPs (does
-// not fail) when, after a bounded wait, the app's own settings section does not
-// render. We determine presence from the app's OWN provisioned UI (the personal
-// #moodle_prefs section), NOT from the lazy settings/apps/enabled [data-id] list,
-// which yields false negatives for enabled apps. When the section IS present
-// (compatible NC), the observable provisioning coupling is asserted unconditionally.
-test("integration integration_moodle: Nextcloud is configured and coupled to the Moodle partner", async ({ browser }) => {
+// This spec drives that coupling end to end: it pins the per-user url to the
+// deployed partner Moodle base URL, then connects and asserts the get-token
+// response is a partner auth verdict. The only allowed skip is the top-level
+// skipUnlessAddonEnabled gate; the addon flag is false unless the web-app-moodle
+// partner is deployed, so when this body runs the partner exists and the section
+// MUST render (its absence is a real coupling failure and fails the test).
+test("integration integration_moodle: per-user get-token connect reaches the partner Moodle token endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_moodle");
   test.setTimeout(120_000);
 
@@ -46,15 +34,20 @@ test("integration integration_moodle: Nextcloud is configured and coupled to the
   const page = await context.newPage();
 
   try {
+    const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
+    const partnerBaseUrl = (shared.env.moodleBaseUrl || "").trim();
+    expect(
+      /^https?:\/\//i.test(partnerBaseUrl),
+      "MOODLE_BASE_URL must resolve to the deployed partner Moodle base URL when integration_moodle is enabled"
+    ).toBeTruthy();
+    const partnerHost = new URL(partnerBaseUrl).host;
+    expect(
+      partnerHost,
+      "the Moodle partner host must be distinct from the Nextcloud host"
+    ).not.toBe(nextcloudHost);
+
     await shared.loginToStandaloneNextcloud(page);
 
-    // (1) Activation + provisioning signal, derived from the app's OWN UI: the
-    // personal #moodle_prefs section only renders when the app is enabled and
-    // injects its personal settings. We use a bounded wait on that section as the
-    // presence signal — NOT the lazy settings/apps/enabled [data-id] list, which
-    // false-negatives for enabled apps. On Nextcloud 33 the app is incompatible
-    // and cannot be enabled, so the section never renders: detect that genuine
-    // absence and SKIP rather than fail.
     await page.goto(
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: 60_000 }
@@ -62,50 +55,73 @@ test("integration integration_moodle: Nextcloud is configured and coupled to the
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const section = page.locator("#moodle_prefs");
-    const sectionRendered = await section
-      .first()
-      .waitFor({ state: "visible", timeout: 30_000 })
-      .then(() => true)
-      .catch(() => false);
-    test.skip(
-      !sectionRendered,
-      "integration_moodle personal settings section (#moodle_prefs) absent — app not enabled (incompatible with this Nextcloud major; app:enable is a no-op) — nothing to couple"
-    );
-
-    // (2) Provisioning coupling: with the section present, assert the integration
-    // is wired into the personal settings — the #moodle-url connect field and the
-    // "Connect to Moodle" per-user get-token control render. We do NOT assert the
-    // field is pre-filled: upstream Personal.php seeds it from the per-user value
-    // with no fallback to the admin app url, so it is legitimately empty for a
-    // fresh user even when the partner url IS wired. That url equality (admin app
-    // url == Moodle partner URL) is proven by the Ansible hook, since the admin
-    // url is never surfaced in the DOM.
     await expect(
       section.first(),
-      "the integration_moodle settings section (#moodle_prefs) must render, proving the app is provisioned"
+      "the integration_moodle personal settings section (#moodle_prefs) must render — its absence means the app failed to enable/provision when the partner is deployed"
     ).toBeVisible({ timeout: 60_000 });
 
-    const urlField = page.locator("#moodle-url");
+    const urlField = section.locator("#moodle-url");
     await expect(
       urlField.first(),
-      "the Moodle service URL field (#moodle-url) must render in the connect form, proving the personal integration settings are wired"
+      "the Moodle instance-address field (#moodle-url) must render in the connect form"
     ).toBeVisible({ timeout: 30_000 });
 
-    // The connect control must exist (per-user get-token grant entry point).
-    // Clicking it with no credentials must keep us on Nextcloud — there is no
-    // OAuth redirect to a partner authorize endpoint — confirming the flow is
-    // the get-token grant rather than an OAuth handoff.
-    const connect = page.locator("#moodle_prefs button:has-text('Connect to Moodle')");
+    const configSavePromise = page.waitForResponse(
+      (response) =>
+        /\/apps\/integration_moodle\/config$/.test(new URL(response.url()).pathname) &&
+        response.request().method() === "PUT",
+      { timeout: 30_000 }
+    );
+    await urlField.first().fill(partnerBaseUrl);
+    await urlField.first().blur().catch(() => {});
+    const configSave = await configSavePromise;
+    expect(
+      configSave.ok(),
+      "pinning #moodle-url to the partner base URL must persist via PUT /config (per-user url the get-token call will use)"
+    ).toBeTruthy();
+
+    await section.locator("#moodle-login").fill(shared.env.loginUsername);
+    await section.locator("#moodle-password").fill(shared.env.loginPassword);
+
+    const connect = section.getByRole("button", { name: /connect to moodle/i });
     await expect(
       connect.first(),
-      "the 'Connect to Moodle' control must render, proving the per-user get-token connect flow is wired"
+      "the 'Connect to Moodle' control must render once login and password are entered (per-user get-token grant entry point)"
     ).toBeVisible({ timeout: 30_000 });
 
-    await connect.first().click().catch(() => {});
-    await page.waitForTimeout(2_000);
-    await expect
-      .poll(() => page.url(), { timeout: 30_000 })
-      .toMatch(/connected-accounts/);
+    const getTokenPromise = page.waitForResponse(
+      (response) =>
+        /\/apps\/integration_moodle\/get-token$/.test(new URL(response.url()).pathname) &&
+        response.request().method() === "POST",
+      { timeout: 60_000 }
+    );
+    await connect.first().click();
+    const getTokenResponse = await getTokenPromise;
+
+    const status = getTokenResponse.status();
+    const body = await getTokenResponse.json().catch(() => ({}));
+
+    expect(
+      [200, 401].includes(status),
+      `the get-token call must resolve to a partner Moodle auth verdict (200 connected or 401 refused login), got ${status} ${JSON.stringify(body)} — a different status means the request never reached the partner token endpoint`
+    ).toBeTruthy();
+
+    if (status === 200) {
+      expect(
+        body.user_name,
+        "a successful get-token must return the authenticated Moodle user_name minted by the partner webservice"
+      ).toBeTruthy();
+      await expect(
+        section.getByText(/connected as/i),
+        "the panel must flip to a connected state after the partner minted a webservice token"
+      ).toBeVisible({ timeout: 30_000 });
+      await expect(section.locator("#moodle-rm-cred")).toBeVisible({ timeout: 30_000 });
+    } else {
+      expect(
+        body.error,
+        "a refused get-token must surface the partner Moodle token-endpoint error, proving the request reached the partner rather than failing on missing/unpinned url"
+      ).toBeTruthy();
+    }
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});
