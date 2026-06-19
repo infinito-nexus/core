@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Boot 6 empty containers (3 debian servers + manjaro/debian/centos workstations),
-# make install in each, and start an inner dockerd (DinD) so the role can deploy.
-# nocheck: raw-docker  # dockerd/docker run inside the DinD nodes (no wrapper there)
+# Boot 6 empty containers (3 debian servers + manjaro/debian/centos workstations)
+# and make install in each -> deploy-ready Infinito.Nexus environment. The Docker
+# engine itself is installed + started by the deploy (sys-svc-container, DinD-aware).
 set -euo pipefail
 : "${WIREGUARD_E2E_TIMEOUT:?}"
 
@@ -43,14 +43,7 @@ for n in "${NODE_NAMES[@]}"; do
     install_prereqs "${cn}" "${NODE_DISTRO[$i]}"
     timeout 1200 container exec "${cn}" \
         sh -c 'export DEBIAN_FRONTEND=noninteractive CI=true; cd /opt/src/infinito && make install' </dev/null
-    container exec -d "${cn}" sh -c 'dockerd --storage-driver=vfs >/tmp/dockerd.log 2>&1'
-    # shellcheck disable=SC2016  # the $(...) runs inside the node, not in this shell
-    if ! container exec "${cn}" sh -c 'for _ in $(seq 1 60); do docker info >/dev/null 2>&1 && exit 0; sleep 2; done; exit 1'; then
-        echo "FAIL: dockerd did not come up on ${n}; last 40 log lines:"
-        container exec "${cn}" sh -c 'tail -n 40 /tmp/dockerd.log' || true
-        exit 1
-    fi
-    echo "OK: ${n} make install + dockerd ready"
+    echo "OK: ${n} make install complete"
     i=$(( i + 1 ))
 done
 
