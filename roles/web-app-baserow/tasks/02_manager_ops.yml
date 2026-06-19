@@ -7,7 +7,7 @@
       -e SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
       -e BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
       {{ BASEROW_APP_CONTAINER_ADDRESS }}
-      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} migrate --noinput
+      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} locked_migrate --noinput
   register: baserow_migrate_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: >
