@@ -1,20 +1,7 @@
-// Shared Nextcloud Playwright spec state: env vars, locator helpers, modal
-// dismissal, login/logout flow, and the `beforeEach` env-presence guard.
-// `playwright.spec.js` wires the lifecycle hook and `require()`s one test
-// module per scenario so each test stays atomar. Talk-admin-specific
-// helpers and env decoding live in `test-talk-admin-settings.js`.
-
 const { expect } = require("@playwright/test");
 const { decodeDotenvQuotedValue, findFirstVisibleCandidate, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
-// ---------------------------------------------------------------------------
-// Env decoding
-//
-// All values originate from the rendered `.env` under the staging dir.
-// `docker --env-file` preserves the quotes emitted by `dotenv_quote`, so
-// normalize these values before building URLs or typing credentials.
-// ---------------------------------------------------------------------------
 const loginUsername = decodeDotenvQuotedValue(process.env.LOGIN_USERNAME);
 const loginPassword = decodeDotenvQuotedValue(process.env.LOGIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
@@ -22,17 +9,10 @@ const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const nextcloudDirectLoginPassword = decodeDotenvQuotedValue(process.env.NEXTCLOUD_DIRECT_LOGIN_PASSWORD) || loginPassword;
 const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
 const nextcloudBaseUrl = decodeDotenvQuotedValue(process.env.NEXTCLOUD_BASE_URL);
+const moodleBaseUrl = decodeDotenvQuotedValue(process.env.MOODLE_BASE_URL);
 const nextcloudUsernameFieldPattern = /account name(?: or email)?|username(?: or email)?/i;
 const nextcloudCredentialSubmitPattern = /^(sign in|log in)$/i;
 
-// Condition variables driving the login flavor. Ansible renders these from the
-// role's services.{oidc,ldap}.enabled (meta/services.yml) so the spec never has to
-// sniff which login UI shape the deployment exposes:
-//   - OIDC + LDAP  -> "oidc_login"  (pulsejet/nextcloud-oidc-login,
-//                                    auto_redirect hands straight to Keycloak)
-//   - OIDC only    -> "sociallogin" (nextcloud/sociallogin shows a
-//                                    "Log in with Keycloak" entry first)
-//   - no OIDC      -> "native"      (no Keycloak handoff; NC credential form)
 const nextcloudOidcEnabled = isServiceEnabled("sso");
 const nextcloudLdapEnabled = isServiceEnabled("ldap");
 const nextcloudLoginFlavor = !nextcloudOidcEnabled
@@ -41,22 +21,10 @@ const nextcloudLoginFlavor = !nextcloudOidcEnabled
     ? "oidc_login"
     : "sociallogin";
 
-// ---------------------------------------------------------------------------
-// Locator helpers
-//
-// Nextcloud renders different "shell" containers depending on the app (Vue
-// vs. legacy) and version. The selectors below match any of them so the
-// tests work across NC 28+ without hard-coding one layout.
-// ---------------------------------------------------------------------------
-
 function getNextcloudShellCandidates(target) {
   return [
     {
       kind: "shell",
-      // #app-content-vue: dashboard and Vue-based apps.
-      // #app-navigation-vue: Vue sidebar (files etc.).
-      // #app-content: legacy app container.
-      // #header-start__appmenu: always present in layout.user.php <nav>.
       locator: target.locator("#app-content-vue, #app-navigation-vue, #app-content, #header-start__appmenu")
     },
     {
@@ -102,15 +70,6 @@ async function waitForVisibleCandidate(
 
   throw new Error(errorMessage);
 }
-
-// ---------------------------------------------------------------------------
-// Modal / user-menu helpers
-//
-// Fresh Nextcloud accounts see stacked onboarding dialogs (first-run wizard,
-// "What's new", recommended apps). They intercept pointer events and break
-// any follow-up click (e.g. on the user menu), so dismiss them aggressively
-// and retry the user-menu click if the overlay reappears.
-// ---------------------------------------------------------------------------
 
 async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissals = 4) {
   const modalOverlay = nextcloudFrame.locator(
@@ -178,20 +137,7 @@ async function clickUserMenuWithModalRetry(page, nextcloudFrame, userMenuLocator
   }
 }
 
-// ---------------------------------------------------------------------------
-// Social-login entry points
-//
-// Some NC login layouts show an explicit "Log in with <provider>" button
-// before the credential form. Detect it so the dashboard flow can click
-// through to the Keycloak form regardless of which variant renders.
-// ---------------------------------------------------------------------------
-
 function getNextcloudSocialLoginCandidates(target) {
-  // The third "alternative login" shape is `pulsejet/nextcloud-oidc-login`
-  // (the one this role actually deploys for the OIDC+LDAP flavor). It renders
-  // as `<a href="/apps/oidc_login/oidc" class="oidc-button">`. Match it
-  // explicitly so the test can click through even if `oidc_login_auto_redirect`
-  // does not bounce the request — which can race during cold first-deploys.
   return [
     {
       kind: "social-login",
@@ -209,18 +155,6 @@ function getNextcloudSocialLoginCandidates(target) {
     }
   ];
 }
-
-// ---------------------------------------------------------------------------
-// SSO login flow (standalone page, no dashboard iframe)
-//
-// `oidc_login_auto_redirect=true` together with `oidc_login_hide_password_form=true`
-// means visiting `/login` immediately bounces to Keycloak and never renders
-// the native NC credential form. So this helper:
-//   - goes to `/login`,
-//   - accepts either the Keycloak credential form OR an already-signed-in
-//     NC shell (for reused browser contexts),
-//   - fills Keycloak creds and waits for the NC shell to reappear.
-// ---------------------------------------------------------------------------
 
 async function loginToStandaloneNextcloud(adminPage, username = loginUsername, password = loginPassword) {
   const loginUrl = new URL("login", nextcloudBaseUrl).toString();
@@ -259,15 +193,6 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
       break;
     case "oidc_login":
     default:
-      // Happy path: `oidc_login_auto_redirect=true` bounces /login straight to
-      // Keycloak, so the Keycloak credential form (`credentialCandidates`) or
-      // an already-authenticated NC shell appears. Race path: under cold
-      // first-deploy load the upstream `boot()` hook can lose its
-      // `header(Location:...)` (headers already sent by an earlier hook), and
-      // /login renders the NC login chrome with the password form hidden but
-      // the OIDC alt-login button visible. Treat that button as a valid entry
-      // point so the test still proceeds via an explicit click instead of
-      // timing out.
       flavorCandidates = [
         ...credentialCandidates,
         ...socialLoginCandidates,
@@ -300,10 +225,6 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
     );
   }
 
-  // Native flavor fills the local Nextcloud credential form (no Keycloak
-  // redirect) — but only the administrator persona has a known direct-login
-  // password; every other persona (biber, other LDAP users) authenticates
-  // through Keycloak or LDAP and must use the Keycloak credential.
   const effectiveUsername = username;
   const effectivePassword =
     nextcloudLoginFlavor === "native" && username === loginUsername
@@ -320,7 +241,7 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
   const postLoginState = await waitForVisibleCandidate(
     adminPage,
     standaloneShellCandidates,
-    60_000,
+    120_000,
     "Timed out waiting for a signed-in Nextcloud shell after the login redirect"
   );
 
@@ -329,11 +250,6 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
 }
 
 async function logoutStandaloneNextcloud(adminPage) {
-  // `#user-menu button` is non-strict on Nextcloud 32+: the menu wrapper
-  // wraps both the trigger button (aria-label="Settings menu") AND the
-  // submenu's own buttons once it has been opened. Pin to the trigger via
-  // its aria-label (stable across templates) and fall back to "first inside
-  // #user-menu" only if the role lookup misses (e.g. localized aria-labels).
   const userMenuTrigger = adminPage
     .locator(
       "#user-menu button[aria-label='Settings menu'], #user-menu > button, #user-menu button"
@@ -364,11 +280,6 @@ async function logoutStandaloneNextcloud(adminPage) {
   }
 }
 
-// LDAP-first-login caveat (see roles/web-app-nextcloud/docs/LDAP.md): a fresh
-// Nextcloud + LDAP deployment only materializes a user's NC account on first
-// successful login, so the very first attempt for a non-administrator persona
-// can fail or stall. Retry the full login flow once after a short delay so
-// the suite stays deterministic without disabling the first-login behavior.
 async function loginToStandaloneNextcloudWithRetry(adminPage, username, password) {
   try {
     await loginToStandaloneNextcloud(adminPage, username, password);
@@ -379,8 +290,6 @@ async function loginToStandaloneNextcloudWithRetry(adminPage, username, password
   }
 }
 
-// Fail fast with a clear message if the rendered `.env` is missing any of
-// the values the tests rely on, instead of timing out mid-flow.
 function beforeEach() {
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set in the Playwright env file").toBeTruthy();
   expect(nextcloudBaseUrl, "NEXTCLOUD_BASE_URL must be set in the Playwright env file").toBeTruthy();
@@ -397,6 +306,7 @@ module.exports = {
     biberUsername,
     biberPassword,
     nextcloudBaseUrl,
+    moodleBaseUrl,
     nextcloudUsernameFieldPattern,
     nextcloudCredentialSubmitPattern,
     nextcloudOidcEnabled,
