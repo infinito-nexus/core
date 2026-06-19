@@ -42,8 +42,10 @@ if [ -z "${APP_CTR}" ]; then
 	exit 1
 fi
 for i in $(seq 1 30); do
+	# No -f: many app roots legitimately 404 (UI/API live elsewhere); we only
+	# assert the rescheduled HTTP server responds, not that '/' is 2xx.
 	if docker exec "${NEW_NODE}" docker exec "${APP_CTR}" \
-		curl -fsS http://localhost:80/ >/dev/null 2>&1; then
+		curl -sS http://localhost:80/ >/dev/null 2>&1; then
 		echo "${ENTITY} reachable after reschedule"
 		exit 0
 	fi

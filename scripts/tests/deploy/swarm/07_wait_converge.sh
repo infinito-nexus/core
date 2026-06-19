@@ -5,11 +5,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
 source "${SCRIPT_DIR}/_context.sh"
 
-# DB containers are stateful (service_is_stateful: true) so they run as plain
-# compose containers, not swarm tasks. Their container name equals DB_DEP for
-# every shipped DB role; empty when APP_ID has no DB dep.
-DB_CONTAINER=""
-[ "${DB_DEP}" != "none" ] && DB_CONTAINER="${DB_DEP}"
+# With NFS shared storage the DB dep runs as its own single-replica swarm service
+# (volumes on NFS, schedulable on any node), named "<dep>_<dep>" like the app
+# service; empty when APP_ID has no DB dep.
+DB_SERVICE=""
+[ "${DB_DEP}" != "none" ] && DB_SERVICE="${DB_DEP}_${DB_DEP}"
 
 converged=false
 for i in $(seq 1 90); do
@@ -23,13 +23,21 @@ for i in $(seq 1 90); do
     | head -1
   ")
 
+	db_replicas=""
 	db_state="n/a"
-	if [ -n "${DB_CONTAINER}" ]; then
-		db_state=$(docker exec "${MGR}" docker inspect \
-			--format '{{.State.Status}}' "${DB_CONTAINER}" 2>/dev/null || echo "missing")
+	if [ -n "${DB_SERVICE}" ]; then
+		db_replicas=$(docker exec "${MGR}" docker service ls \
+			--filter "name=${DB_SERVICE}" \
+			--format '{{.Replicas}}')
+		db_state=$(docker exec "${MGR}" sh -c "
+      docker service ps --no-trunc \
+        --format '{{.CurrentState}}' \
+        ${DB_SERVICE} \
+      | head -1
+    ")
 	fi
 
-	echo "[${i}] ${ENTITY}: ${app_replicas} | state: ${app_state} | db(${DB_DEP}): ${db_state}"
+	echo "[${i}] ${ENTITY}: ${app_replicas} | state: ${app_state} | db(${DB_DEP}): ${db_replicas} ${db_state}"
 
 	app_ok="false"
 	if [ -n "${app_replicas}" ] &&
@@ -38,7 +46,9 @@ for i in $(seq 1 90); do
 		app_ok="true"
 	fi
 	db_ok="true"
-	if [ -n "${DB_CONTAINER}" ] && [ "${db_state}" != "running" ]; then
+	if [ -n "${DB_SERVICE}" ] &&
+		! { echo "${db_replicas}" | grep -qE '^([0-9]+)/\1$' &&
+			echo "${db_state}" | grep -q '^Running'; }; then
 		db_ok="false"
 	fi
 
@@ -53,8 +63,8 @@ done
 if [ "${converged}" != "true" ]; then
 	echo "FAILURE: stack did not converge within timeout"
 	docker exec "${MGR}" docker service ps --no-trunc "${SERVICE_NAME}" || true
-	if [ -n "${DB_CONTAINER}" ]; then
-		docker exec "${MGR}" docker inspect --format '{{json .State}}' "${DB_CONTAINER}" || true
+	if [ -n "${DB_SERVICE}" ]; then
+		docker exec "${MGR}" docker service ps --no-trunc "${DB_SERVICE}" || true
 	fi
 	exit 1
 fi
