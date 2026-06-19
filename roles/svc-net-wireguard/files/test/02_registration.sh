@@ -23,7 +23,7 @@ i=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     timeout 600 container exec "${cn}" \
-        bash -c "cd /opt/src/infinito && . scripts/meta/env/load.sh && \"\$PYTHON\" -m cli administration inventory provision ${INV_DIR} --host ${cn} --include svc-net-wireguard" </dev/null
+        bash -c "cd /opt/src/infinito && . scripts/meta/env/load.sh; ${NODE_VENV_PY}; \"\$PY\" -m cli administration inventory provision ${INV_DIR} --host ${cn} --include svc-net-wireguard" </dev/null
 
     self_ip="${TUN_PREFIX}.${NODE_OCTET[$i]}"
     conf="[Interface]
