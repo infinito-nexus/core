@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.0.1] - 2026-06-19
+
+* Mark the *web-app-erpnext* role's own *erpnext* provider service with the *playwright-service-flag* self-provider suppression in *meta/services.yml*, fixing the Playwright service-flag integration guard that 10.0.0 tripped by exposing ERPNext as a consumable shared service.
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): ERPNext self-provider test fix
+
 ## [10.0.0] - 2026-06-19
 
 * New engine-agnostic object-store service (*web-app-seaweedfs*, backed by either *SeaweedFS* or *MinIO*) that exposes a shared S3 endpoint, now consumed across 14 web-app roles for media and asset storage. Nextcloud, Decidim, Shopware, PeerTube, Pixelfed, Taiga, Fider, Akaunting, Mobilizon and Matrix route their uploads to the central bucket, each exercised end-to-end with a SeaweedFS consumer check that requires a fresh object key per upload.
