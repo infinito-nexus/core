@@ -33,7 +33,7 @@ install_prereqs() {
         manjaro)
             timeout 600 container exec "${cn}" sh -c 'pacman -Sy --noconfirm make git python python-pip sudo curl ca-certificates' </dev/null ;;
         centos)
-            timeout 600 container exec "${cn}" sh -c 'dnf -y install make git python3 python3-pip sudo curl ca-certificates' </dev/null ;;
+            timeout 600 container exec "${cn}" sh -c 'dnf -y --allowerasing install make git python3 python3-pip sudo curl ca-certificates' </dev/null ;;
     esac
 }
 
