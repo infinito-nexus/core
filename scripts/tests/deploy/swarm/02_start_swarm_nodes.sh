@@ -64,6 +64,7 @@ docker exec "${MGR}" apt-get install -y -qq dnsmasq
 # bind-dynamic: pick up docker0 when the Ansible-installed dockerd creates it later.
 dnsmasq_conf="bind-dynamic
 no-resolv
+server=/${MGR}/${WRK1}/${WRK2}/${NFS_SERVER}/127.0.0.11 # nocheck: hardcoded-dns-resolver
 server=1.1.1.1 # nocheck: hardcoded-dns-resolver
 server=8.8.8.8 # nocheck: hardcoded-dns-resolver
 address=/${INFINITO_DOMAIN}/127.0.0.1"
@@ -85,6 +86,7 @@ MGR_IP=$(docker inspect "${MGR}" \
 : "${MGR_IP:?Failed to capture ${MGR} IP on ${SWARM_LAB_NETWORK}}"
 wrk_dnsmasq_conf="bind-dynamic
 no-resolv
+server=/${MGR}/${WRK1}/${WRK2}/${NFS_SERVER}/127.0.0.11 # nocheck: hardcoded-dns-resolver
 server=1.1.1.1 # nocheck: hardcoded-dns-resolver
 server=8.8.8.8 # nocheck: hardcoded-dns-resolver
 address=/${INFINITO_DOMAIN}/${MGR_IP}"
