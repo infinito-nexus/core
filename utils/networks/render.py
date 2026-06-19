@@ -151,6 +151,19 @@ def _suppress_default(application_id: str) -> bool:
     return application_id.startswith(("svc-db-", "svc-ai-"))
 
 
+def _own_shared_net_provider(
+    attachments: list[dict[str, Any]],
+    own_entity: str,
+    get_entity_name: Callable[[str], str],
+) -> bool:
+    return any(
+        att["is_provider"]
+        and att["topology"] == "shared_net"
+        and get_entity_name(att["role"]) == own_entity
+        for att in attachments
+    )
+
+
 def render_compose_networks(
     *,
     application_id: str,
@@ -171,14 +184,11 @@ def render_compose_networks(
         lines.append(f"  {get_entity_name(att['role'])}:")
         lines.append("    external: true")
 
+    own_entity = get_entity_name(application_id)
+    is_own_shared_net_provider = _own_shared_net_provider(
+        attachments, own_entity, get_entity_name
+    )
     if not _suppress_default(application_id):
-        own_entity = get_entity_name(application_id)
-        is_own_shared_net_provider = any(
-            att["is_provider"]
-            and att["topology"] == "shared_net"
-            and get_entity_name(att["role"]) == own_entity
-            for att in attachments
-        )
         lines.append("  default:")
         if deployment_mode == "swarm":
             if not is_own_shared_net_provider:
@@ -187,11 +197,12 @@ def render_compose_networks(
             lines.append("    attachable: true")
             lines.append("    driver_opts:")
             lines.append(f'      encrypted: "{"true" if swarm_encrypted else "false"}"')
+        elif is_own_shared_net_provider:
+            lines.append("    driver: bridge")
         else:
             subnet = lookup_config(application_id, "server.networks.local.subnet", "")
             if subnet:
-                if not is_own_shared_net_provider:
-                    lines.append(f"    name: {own_entity}")
+                lines.append(f"    name: {own_entity}")
                 lines.append("    driver: bridge")
                 lines.append("    ipam:")
                 lines.append("      driver: default")
@@ -209,6 +220,7 @@ def render_container_networks(
     get_entity_name: Callable[[str], str],
     lookup_config: Callable[[str, str, Any], Any],
     lookup_database: Callable[[str, str], Any],
+    provider_self_alias: bool = True,
 ) -> str:
     attachments, default_aliases = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
@@ -218,9 +230,12 @@ def render_container_networks(
         if att["is_provider"] and att["topology"] == "default_net":
             continue
         lines.append(f"  {get_entity_name(att['role'])}:")
-        if att["aliases"]:
+        aliases = att["aliases"]
+        if att["is_provider"] and not provider_self_alias:
+            aliases = []
+        if aliases:
             lines.append("    aliases:")
-            lines.extend(f"      - {alias}" for alias in att["aliases"])
+            lines.extend(f"      - {alias}" for alias in aliases)
         else:
             lines.append("    {}")
 

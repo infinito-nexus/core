@@ -57,6 +57,7 @@ class LookupModule(LookupBase):
         deployment_mode = str(
             _resolve_var(templar, vars_.get("DEPLOYMENT_MODE", "compose"))
         )
+        provider_self_alias = bool(kwargs.get("provider_self_alias", True))
 
         applications = get_merged_applications(
             variables=vars_,
@@ -85,5 +86,6 @@ class LookupModule(LookupBase):
             get_entity_name=get_entity_name,
             lookup_config=_lookup_config,
             lookup_database=_lookup_database,
+            provider_self_alias=provider_self_alias,
         )
         return [rendered]

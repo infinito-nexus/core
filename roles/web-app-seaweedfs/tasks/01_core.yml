@@ -13,6 +13,11 @@
     state: directory
     mode: "0755"
 
+- name: "Create shared object-store network for '{{ application_id }}'"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/create.yml'] | path_join }}"
+  vars:
+    network_role_id: "{{ application_id }}"
+
 - name: "Render SeaweedFS S3 identities config"
   stack_host_template:
     src: s3.json.j2

@@ -16,6 +16,7 @@ from utils.networks.render import (
     _coerce_bool,
     _compute_attachments,
     _is_consumer,
+    _own_shared_net_provider,
     _suppress_default,
     render_compose_networks,
     render_container_networks,
@@ -539,6 +540,82 @@ class TestRenderEncryption(unittest.TestCase):
         self.assertIn('encrypted: "false"', rendered)
         self.assertNotIn("encrypted: false\n", rendered)
         self.assertNotIn('encrypted: "False"', rendered)
+
+
+_PROVIDER_REGISTRY = {
+    "seaweedfs": {
+        "role": "web-app-seaweedfs",
+        "entity_name": "seaweedfs",
+        "overlay": {"modes": ["compose", "swarm"], "topology": "shared_net"},
+    },
+}
+
+
+class TestOwnSharedNetProvider(unittest.TestCase):
+    """A multi-service objstore provider (seaweedfs/minio) renders its own
+    ``<entity>`` net as external + a bare auto-IPAM project default (so the
+    role subnet, owned by the external net, is never re-requested), and its
+    sidecar services attach without the provider alias. Locks the
+    objstore-net-fix contract so a render edit cannot silently regress it."""
+
+    def test_helper_true_only_for_own_shared_net_provider(self):
+        own = [
+            {"role": "web-app-seaweedfs", "topology": "shared_net", "is_provider": True}
+        ]
+        consumer = [
+            {
+                "role": "web-app-seaweedfs",
+                "topology": "shared_net",
+                "is_provider": False,
+            }
+        ]
+        self.assertTrue(_own_shared_net_provider(own, "seaweedfs", _entity_name))
+        self.assertFalse(_own_shared_net_provider(consumer, "baserow", _entity_name))
+        self.assertFalse(_own_shared_net_provider([], "seaweedfs", _entity_name))
+
+    def test_compose_default_drops_name_and_subnet(self):
+        rendered = render_compose_networks(
+            application_id="web-app-seaweedfs",
+            deployment_mode="compose",
+            registry=_PROVIDER_REGISTRY,
+            get_entity_name=_entity_name,
+            lookup_config=_const_lookup_config(
+                **{"server.networks.local.subnet": "192.168.206.0/24"}
+            ),
+            lookup_database=_const_lookup_database(),
+        )
+        self.assertIn("  seaweedfs:\n    external: true", rendered)
+        self.assertIn("  default:\n    driver: bridge", rendered)
+        self.assertNotIn("192.168.206", rendered)
+        self.assertNotIn("name: seaweedfs", rendered)
+
+    def test_swarm_default_is_nameless_overlay(self):
+        rendered = render_compose_networks(
+            application_id="web-app-seaweedfs",
+            deployment_mode="swarm",
+            registry=_PROVIDER_REGISTRY,
+            get_entity_name=_entity_name,
+            lookup_config=_const_lookup_config(),
+            lookup_database=_const_lookup_database(),
+        )
+        self.assertIn("  seaweedfs:\n    external: true", rendered)
+        self.assertIn("  default:\n    driver: overlay", rendered)
+        self.assertNotIn("name: seaweedfs", rendered)
+
+    def test_main_publishes_alias_sidecar_does_not(self):
+        kwargs = {
+            "application_id": "web-app-seaweedfs",
+            "deployment_mode": "compose",
+            "registry": _PROVIDER_REGISTRY,
+            "get_entity_name": _entity_name,
+            "lookup_config": _const_lookup_config(),
+            "lookup_database": _const_lookup_database(),
+        }
+        main = render_container_networks(**kwargs)
+        sidecar = render_container_networks(provider_self_alias=False, **kwargs)
+        self.assertIn("seaweedfs:\n    aliases:\n      - seaweedfs", main)
+        self.assertIn("seaweedfs:\n    {}", sidecar)
+        self.assertNotIn("- seaweedfs", sidecar)
 
 
 if __name__ == "__main__":

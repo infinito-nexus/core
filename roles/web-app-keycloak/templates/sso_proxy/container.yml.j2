@@ -13,7 +13,7 @@
       - "{{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_container }}:ro"
 {% endif %}
 {% if DEPLOYMENT_MODE == 'swarm' %}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
     deploy:
       placement:
         constraints:

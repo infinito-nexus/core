@@ -15,3 +15,8 @@ csp:
 networks:
   local:
     subnet: 192.168.104.32/28
+  overlay:
+    modes: [compose, swarm]
+    topology: shared_net
+    consumer:
+      key: minio
