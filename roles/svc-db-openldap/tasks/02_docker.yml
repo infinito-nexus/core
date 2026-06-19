@@ -32,5 +32,3 @@
     apply:
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
-      delay: 2
-      changed_when: false

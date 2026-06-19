@@ -81,25 +81,35 @@ _TASK_KEYWORDS = frozenset(
     }
 )
 
-# Exception: blacklist of task keywords that must NOT be flagged even when uniform.
-# They bind to a single task's identity (name), result (register), arguments
-# (args), or iteration (loop*); `vars` changes scoping; `when` belongs on the
-# dynamic include's own `when:` (which gates the whole include) rather than
-# `apply:`; block/rescue/always are structure, not hoistable directives.
+# Blacklist of task keywords that must NOT be flagged even when uniform. Two
+# reasons: (1) per-task binding (name/register/args/loop*/vars), block structure
+# (block/rescue/always), or the include's own gate (when) are not hoistable;
+# (2) LEAF-ONLY keywords (async/changed_when/delay/failed_when/poll/retries/until)
+# are not valid Block attributes, and apply: wraps the included tasks in a Block,
+# so it rejects them at parse ("'<kw>' is not a valid attribute for a Block").
+# Only Block-valid keywords (delegate_to, run_once, become*, no_log, notify,
+# tags, environment, connection, ...) can be hoisted to apply:.
 _IGNORED_KEYWORDS = frozenset(
     {
         "action",
         "always",
         "args",
+        "async",
         "block",
+        "changed_when",
         "collections",
+        "delay",
+        "failed_when",
         "local_action",
         "loop",
         "loop_control",
         "module_defaults",
         "name",
+        "poll",
         "register",
         "rescue",
+        "retries",
+        "until",
         "vars",
         "when",
     }

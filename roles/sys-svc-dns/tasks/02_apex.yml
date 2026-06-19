@@ -9,6 +9,8 @@
     proxied: false
     ttl: 1
     state: present
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
 - name: "Ensure AAAA @ for {{ base_domain }} with '{{ networks.internet.ip6 | default('None') }}"
   community.general.cloudflare_dns:
@@ -22,3 +24,5 @@
     state: present
   when:
     - (networks.internet.ip6 | default('') | trim) != ''
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

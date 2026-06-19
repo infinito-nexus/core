@@ -25,10 +25,7 @@
   meta: flush_handlers
 
 - name: "Ensure PostgreSQL password matches POSTGRESQL_SECRET"
-  ansible.builtin.include_tasks:
-    file: "02a_postgres_password_sync.yml"
-    apply:
-      changed_when: false
+  ansible.builtin.include_tasks: "02a_postgres_password_sync.yml"
 
 - name: "Setup administrator"
   include_tasks: "03_administrator.yml"
