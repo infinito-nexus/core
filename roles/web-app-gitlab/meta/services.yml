@@ -27,7 +27,7 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 gitlab:
   image: gitlab/gitlab-ee
-  version: 19.0.2-ee.0
+  version: 19.1.0-ee.0
   name: gitlab
   min_storage: 30GB
   cpus: "4.0"
