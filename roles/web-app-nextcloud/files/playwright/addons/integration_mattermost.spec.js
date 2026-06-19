@@ -65,12 +65,12 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
       "the Mattermost connect control must render on Connected accounts when the app is enabled"
     ).toBeVisible({ timeout: 60_000 });
 
-    // In topologies where Mattermost is not deployed, the integration hook probes the
-    // partner container, finds it absent, and skips provisioning entirely: the OAuth app
-    // is never registered, so oauth_instance_url / client_id are never written. The admin
-    // settings surface then shows empty OAuth fields and the connect control cannot reach a
-    // partner /oauth/authorize endpoint. That is a valid degraded state, not a failure —
-    // skip rather than assert.
+    // The hook (integration_mattermost_provision.yml) registers an OAuth app on the
+    // partner Mattermost and writes oauth_instance_url (= web-app-mattermost url.base)
+    // + client_id + client_secret. When integration_mattermost is enabled the admin OAuth
+    // instance URL MUST be configured and MUST point at the partner host, not Nextcloud.
+    // An absent/empty/self-pointing instance URL means the coupling failed to provision —
+    // the test FAILS here, it does not skip.
     await page.goto(
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: 60_000 }
@@ -78,26 +78,39 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     await shared.dismissBlockingNextcloudModals(page, page).catch(() => {});
     await page.waitForLoadState("networkidle").catch(() => {});
 
-    const oauthFields = page.locator(
+    const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
+    const instanceFields = page.locator(
       'input[id*="mattermost-oauth-instance"], input[id*="mattermost"][id*="instance"], ' +
-        'input[id*="mattermost"][id*="client-id"], input[id*="mattermost-client-id"]'
+        'input[id*="mattermost"][type="url"]'
     );
-    const oauthFieldCount = await oauthFields.count();
-    let mattermostConfigured = false;
-    for (let i = 0; i < oauthFieldCount; i += 1) {
-      const value = (await oauthFields.nth(i).inputValue().catch(() => "")) || "";
-      if (value.trim().length > 0) {
-        mattermostConfigured = true;
+    const instanceFieldCount = await instanceFields.count();
+    let instanceHost = null;
+    for (let i = 0; i < instanceFieldCount; i += 1) {
+      const value = ((await instanceFields.nth(i).inputValue().catch(() => "")) || "").trim();
+      if (/^https?:\/\//i.test(value)) {
+        instanceHost = new URL(value).host;
         break;
       }
     }
-    if (!mattermostConfigured) {
-      test.skip(
-        true,
-        "Mattermost not deployed in this topology: the integration_mattermost hook skipped OAuth provisioning, so oauth_instance_url/client_id are not configured"
-      );
-      return;
-    }
+    expect(
+      instanceHost,
+      "the Mattermost oauth_instance_url must be configured on the admin panel — its absence means the integration hook never provisioned the partner OAuth app"
+    ).toBeTruthy();
+    expect(
+      instanceHost,
+      "the configured Mattermost instance URL must be the partner host, not the Nextcloud host"
+    ).not.toBe(nextcloudHost);
+
+    const clientIdField = page
+      .locator('input[id*="mattermost"][id*="client-id"], input[id*="mattermost-client-id"]')
+      .first();
+    const clientIdConfigured = page
+      .getByText(/oauth client id|client secret|reset oauth|replace oauth/i)
+      .first();
+    await expect(
+      clientIdField.or(clientIdConfigured),
+      "the admin panel must expose the provisioned Mattermost OAuth client (proves the OAuth app was registered on the partner)"
+    ).toBeVisible({ timeout: 60_000 });
 
     await page.goto(
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
@@ -110,27 +123,36 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     // Mattermost. This only works when the hook provisioned the OAuth client and
     // persisted client_id/oauth_instance_url. A token/login-only fallback would
     // NOT navigate off-Nextcloud to an /oauth/authorize endpoint.
+    const popupPromise = page.waitForEvent("popup", { timeout: 15_000 }).catch(() => null);
     await Promise.all([
       page.waitForEvent("framenavigated", { timeout: 60_000 }).catch(() => {}),
-      connect.click().catch(() => {}),
+      connect.click(),
     ]);
 
+    const popup = await popupPromise;
+    const currentUrl = () => (popup ? popup.url() : page.url());
+
     await expect
-      .poll(() => page.url(), { timeout: 60_000 })
+      .poll(currentUrl, { timeout: 60_000 })
       .toMatch(/\/oauth\/authorize\?/i);
 
-    const authorizeUrl = new URL(page.url());
-    const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
+    const authorizeUrl = new URL(currentUrl());
 
     expect(
       authorizeUrl.host,
       "Mattermost OAuth authorize must be served by the partner instance, not Nextcloud"
     ).not.toBe(nextcloudHost);
     expect(
+      authorizeUrl.host,
+      "the OAuth authorize must land on the same partner host configured as oauth_instance_url"
+    ).toBe(instanceHost);
+    expect(
       authorizeUrl.searchParams.get("client_id"),
       "OAuth authorize must carry the provisioned Mattermost client_id"
     ).toBeTruthy();
     expect(authorizeUrl.searchParams.get("response_type")).toBe("code");
+
+    if (popup) await popup.close().catch(() => {});
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});
