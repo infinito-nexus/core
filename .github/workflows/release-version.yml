@@ -43,7 +43,7 @@ jobs:
       publish_latest: ${{ steps.highest.outputs.publish_latest }}
     steps:
       - name: Checkout trusted workflow repo (helpers)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           path: _helpers
@@ -55,7 +55,7 @@ jobs:
         run: bash _helpers/scripts/github/resolve/release_inputs.sh "${{ inputs.tag || github.event.inputs.tag }}"
 
       - name: Checkout repository at version tag
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.vars.outputs.version_tag }}
           path: _src
@@ -133,7 +133,7 @@ jobs:
 
     steps:
       - name: Checkout trusted workflow repo (helpers)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           persist-credentials: false

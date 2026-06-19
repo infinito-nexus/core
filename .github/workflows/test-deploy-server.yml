@@ -35,7 +35,7 @@ jobs:
       apps: ${{ steps.discover.outputs.apps }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -106,7 +106,7 @@ jobs:
           docker-images: true
           swap-storage: true
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Replace the default ~4 GB runner swap with a larger file so transient
       # memory spikes (e.g. peertube plugin install, issue #162) don't trip

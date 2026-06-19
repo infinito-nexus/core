@@ -34,7 +34,7 @@ jobs:
       commit_in_main: ${{ steps.decide.outputs.commit_in_main }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -78,7 +78,7 @@ jobs:
       version_tag: ${{ steps.pick.outputs.version_tag }}
     steps:
       - name: Checkout (with tags)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -112,7 +112,7 @@ jobs:
       allowed: ${{ steps.guard.outputs.allowed }}
     steps:
       - name: Checkout (with full history)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true

@@ -46,7 +46,7 @@ jobs:
       whitelist: ${{ steps.vars.outputs.whitelist }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Resolve effective inputs/env
         id: vars
@@ -109,7 +109,7 @@ jobs:
           docker-images: true
           swap-storage: true
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Replace the default ~4 GB runner swap with a larger file so transient
       # memory spikes (e.g. peertube plugin install, issue #162) don't trip

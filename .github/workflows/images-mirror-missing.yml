@@ -85,7 +85,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Resolve GHCR namespace and repository
         id: vars
@@ -96,7 +96,7 @@ jobs:
 
       - name: Checkout source repo for scan (optional)
         if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ inputs.source_repository }}
           ref: ${{ inputs.source_ref }}

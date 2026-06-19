@@ -33,7 +33,7 @@ jobs:
       repo_name: ${{ steps.vars.outputs.repo_name }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Resolve image coordinates
         id: vars
@@ -80,7 +80,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install dnsutils (dig)
         shell: bash
