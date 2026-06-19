@@ -109,7 +109,8 @@ jobs:
           docker-images: true
           swap-storage: true
 
-      - uses: actions/checkout@v6
+      - if: ${{ !env.ACT }}
+        uses: actions/checkout@v6
 
       # Replace the default ~4 GB runner swap with a larger file so transient
       # memory spikes (e.g. peertube plugin install, issue #162) don't trip
