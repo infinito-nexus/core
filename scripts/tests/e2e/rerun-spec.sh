@@ -66,17 +66,10 @@ for role_js in "$role_playwright_dir"/*.js; do
 	[[ -f "$role_js" ]] || continue
 	cp "$role_js" "$stage_dir/tests/$(basename "$role_js")"
 done
-# Stage the shared service-gating helper so the spec can require("./service-gating").
 helper_src="$repo_root/roles/test-e2e-playwright/files/service-gating.js"
 if [[ -f "$helper_src" ]]; then
 	cp "$helper_src" "$stage_dir/tests/service-gating.js"
 fi
-# Stage the shared persona-flow helpers.
-# personas/ holds the persona flow runners (biber.js, admin.js, guest.js,
-# index.js) at the top and every helper module under personas/utils/. Copy
-# both levels so a spec can `require("./personas")` (resolves to
-# personas/index.js) or directly `require("./personas/<flow>")` /
-# `require("./personas/utils/<helper>")` for a subset.
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"
@@ -89,6 +82,16 @@ if [[ -d "$personas_dir" ]]; then
 		cp "$util_file" "$stage_dir/tests/personas/utils/$(basename "$util_file")"
 	done
 fi
+
+for sub in addons fixtures; do
+	sub_dir="$role_playwright_dir/$sub"
+	[[ -d "$sub_dir" ]] || continue
+	mkdir -p "$stage_dir/tests/$sub"
+	for sub_file in "$sub_dir"/*.js; do
+		[[ -f "$sub_file" ]] || continue
+		cp "$sub_file" "$stage_dir/tests/$sub/$(basename "$sub_file")"
+	done
+done
 
 cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"
 
