@@ -11,7 +11,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     timeout 1800 container exec "${cn}" \
-        bash -c "cd /opt/src/infinito && . scripts/meta/env/load.sh; ${NODE_VENV_PY}; \"\$PY\" -m cli administration deploy dedicated ${INV_DIR}/devices.yml --id svc-net-wireguard --password-file ${INV_DIR}/.password" </dev/null
+        bash -c "cd /opt/src/infinito && . scripts/meta/env/load.sh; ${NODE_VENV_PY}; \"\$PY\" -m cli administration deploy dedicated ${INV_DIR}/devices.yml --id svc-net-wireguard --password-file ${INV_DIR}/.password -e ansible_connection=local" </dev/null
     echo "OK: ${n} deployed svc-net-wireguard"
 done
 
