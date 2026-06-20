@@ -4,11 +4,7 @@ const shared = require("../_shared");
 
 test.use({ ignoreHTTPSErrors: true });
 
-// groupfolders is an admin-managed app: admins define group folders under the
-// admin settings section, and end users only see the resulting folders inside
-// the Files app. Its dedicated browser-observable surface is the admin
-// groupfolders settings page, so log in as administrator and assert it renders.
-test("groupfolders addon: admin group-folders settings page renders", async ({ browser }) => {
+test("groupfolders addon: admin group-folders settings app mounts", async ({ browser }) => {
   skipUnlessAddonEnabled("groupfolders");
   test.setTimeout(120_000);
 
@@ -22,9 +18,12 @@ test("groupfolders addon: admin group-folders settings page renders", async ({ b
     await page.goto(settingsUrl, { waitUntil: "domcontentloaded", timeout: 60_000 });
     await shared.dismissBlockingNextcloudModals(page, page);
 
+    const groupfoldersApp = page
+      .locator("#groupfolders-wrapper, #groupfolders-root")
+      .or(page.getByRole("heading", { name: /^(group|team) folders$/i }));
     await expect(
-      page.locator("#app-content, #app-content-vue, #content, #content-vue").first(),
-      "the Nextcloud admin group-folders settings page must be visible",
+      groupfoldersApp.first(),
+      "the groupfolders admin app must mount (#groupfolders-wrapper/#groupfolders-root), proving the app is installed and enabled",
     ).toBeVisible({ timeout: 60_000 });
   } finally {
     await page.close().catch(() => {});
