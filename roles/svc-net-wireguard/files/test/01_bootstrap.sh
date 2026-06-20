@@ -17,14 +17,16 @@ for n in "${NODE_NAMES[@]}"; do
     container rm -f "${cn}" >/dev/null 2>&1 || true
     # systemd-in-container needs the host cgroup ns, a writable cgroupfs and
     # tmpfs /run; --privileged also lets the node run its own dockerd (DinD).
-    # container=docker makes Infinito's DOCKER_IN_CONTAINER autodetect true.
+    # container=docker makes Infinito's DOCKER_IN_CONTAINER autodetect true. The
+    # pkgmgr base entrypoint runs the pkgmgr CLI, so override it with systemd.
     container run -d --name "${cn}" --hostname "${cn}" --network "${WGNET}" \
         --privileged --cgroupns=host \
         --tmpfs /run --tmpfs /run/lock \
         -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
         -e container=docker \
+        --entrypoint=/sbin/init \
         -v "${REPO_DIR}:/opt/src/infinito-src:ro" \
-        "${NODE_IMAGES[$i]}" /sbin/init >/dev/null
+        "${NODE_IMAGES[$i]}" >/dev/null
     echo "OK: ${n} booted (${NODE_IMAGES[$i]})"
     i=$(( i + 1 ))
 done
@@ -42,6 +44,8 @@ for n in "${NODE_NAMES[@]}"; do
         esac
         if [ "$(date +%s)" -ge "${deadline}" ]; then
             echo "FAIL: systemd did not become ready in ${n} (state=${state})"
+            container exec "${cn}" sh -c 'cat /proc/1/comm; ls -l /sbin/init' 2>&1 || true
+            container logs "${cn}" 2>&1 | tail -n 20 || true
             exit 1
         fi
         sleep 2
