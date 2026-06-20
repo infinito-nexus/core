@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Boot 6 empty containers (3 debian servers + manjaro/debian/centos workstations)
-# and make install in each -> deploy-ready Infinito.Nexus environment. The Docker
-# engine itself is installed + started by the deploy (sys-svc-container, DinD-aware).
+# Boot 6 fresh systemd nodes (3 debian servers + arch/debian/centos workstations)
+# and make install in each -> deploy-ready Infinito.Nexus environment. systemd
+# runs as PID 1 so the deploy can install + start docker.service like a real host.
 set -euo pipefail
 : "${WIREGUARD_E2E_TIMEOUT:?}"
 
@@ -15,25 +15,47 @@ i=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     container rm -f "${cn}" >/dev/null 2>&1 || true
-    # container=docker makes Infinito's DOCKER_IN_CONTAINER autodetect true
-    # (it keys off the `container` env var, which plain Docker does not set).
+    # systemd-in-container needs the host cgroup ns, a writable cgroupfs and
+    # tmpfs /run; --privileged also lets the node run its own dockerd (DinD).
+    # container=docker makes Infinito's DOCKER_IN_CONTAINER autodetect true.
     container run -d --name "${cn}" --hostname "${cn}" --network "${WGNET}" \
-        --privileged \
+        --privileged --cgroupns=host \
+        --tmpfs /run --tmpfs /run/lock \
+        -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
         -e container=docker \
         -v "${REPO_DIR}:/opt/src/infinito-src:ro" \
-        "${NODE_IMAGES[$i]}" sleep infinity >/dev/null
+        "${NODE_IMAGES[$i]}" /sbin/init >/dev/null
     echo "OK: ${n} booted (${NODE_IMAGES[$i]})"
     i=$(( i + 1 ))
 done
 
-# Raw base images ship no make/git/python; install the bootstrap prerequisites
-# before `make install` runs the full Infinito.Nexus install.
+# Wait for systemd to finish booting before installing/deploying (running or
+# degraded both mean PID 1 is up; some units legitimately fail in a container).
+for n in "${NODE_NAMES[@]}"; do
+    cn="${PROJECT}-${n}"
+    deadline=$(( $(date +%s) + 120 ))
+    while true; do
+        # is-system-running exits non-zero on 'degraded'; capture to dodge pipefail.
+        state="$(container exec "${cn}" systemctl is-system-running 2>/dev/null || true)"
+        case "${state}" in
+            *running*|*degraded*) break ;;
+        esac
+        if [ "$(date +%s)" -ge "${deadline}" ]; then
+            echo "FAIL: systemd did not become ready in ${n} (state=${state})"
+            exit 1
+        fi
+        sleep 2
+    done
+    echo "OK: ${n} systemd ready"
+done
+
+# Install the bootstrap prerequisites before `make install` runs the full install.
 install_prereqs() {
     local cn="$1" distro="$2"
     case "${distro}" in
         debian)
             timeout 600 container exec "${cn}" sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update && apt-get install -y make git python3 python3-venv python3-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
-        manjaro)
+        arch)
             timeout 600 container exec "${cn}" sh -c 'pacman -Sy --noconfirm make git python python-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
         centos)
             timeout 600 container exec "${cn}" sh -c 'dnf -y --allowerasing install make git python3 python3-pip sudo curl ca-certificates tar gnupg2' </dev/null ;;
