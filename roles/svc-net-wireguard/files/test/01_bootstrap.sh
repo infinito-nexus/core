@@ -15,8 +15,11 @@ i=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     container rm -f "${cn}" >/dev/null 2>&1 || true
+    # container=docker makes Infinito's DOCKER_IN_CONTAINER autodetect true
+    # (it keys off the `container` env var, which plain Docker does not set).
     container run -d --name "${cn}" --hostname "${cn}" --network "${WGNET}" \
         --privileged \
+        -e container=docker \
         -v "${REPO_DIR}:/opt/src/infinito-src:ro" \
         "${NODE_IMAGES[$i]}" sleep infinity >/dev/null
     echo "OK: ${n} booted (${NODE_IMAGES[$i]})"
