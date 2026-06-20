@@ -12,7 +12,7 @@ REPO_DIR="${WIREGUARD_E2E_REPO_DIR:-/opt/src/infinito}"
 # resolver falls back to the system python3 (no install deps) when it can't confirm
 # the venv, so pin the path explicitly and fail loudly if it is missing.
 # shellcheck disable=SC2016  # $PY/$HOME must stay literal; evaluated in the node shell
-NODE_VENV_PY='PY=/opt/venvs/infinito/bin/python; [ -x "$PY" ] || PY="$HOME/.venvs/infinito/bin/python"; [ -x "$PY" ] || { echo "FAIL: no infinito venv python" >&2; exit 1; }'
+NODE_VENV_PY='PY="$(ls -1 /opt/venvs/*/bin/python /root/.venvs/*/bin/python "$HOME"/.venvs/*/bin/python 2>/dev/null | head -n1)"; [ -x "$PY" ] || { echo "FAIL: no infinito venv python; candidates:" >&2; ls -ld /opt/venvs/* /root/.venvs/* "$HOME"/.venvs/* 2>/dev/null >&2; grep -iE "venv" /opt/src/infinito/.env >&2 || true; exit 1; }'
 
 NODE_NAMES=(server1 server2 server3 wsmanjaro wsdebian wscentos)
 NODE_IMAGES=(
