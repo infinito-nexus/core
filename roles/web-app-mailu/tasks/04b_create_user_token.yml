@@ -2,8 +2,8 @@
 - name: "Delete existing API token for '{{ mailu_user_key }};{{ mailu_user_name }}' if local token missing but remote exists"
   ansible.builtin.shell: >-
     container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-      curl -s -X DELETE {{ MAILU_API_SERVICE_BASE_URL }}/token/{{ mailu_user_existing_token.id }}
-        -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
+    curl -s -X DELETE {{ MAILU_API_SERVICE_BASE_URL }}/token/{{ mailu_user_existing_token.id }}
+    -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
   when:
     - mailu_user_existing_token is not none
     - mailu_user_existing_token.id is defined
@@ -13,15 +13,15 @@
 - name: "Create API token for '{{ mailu_user_key }};{{ mailu_user_name }}' if no local token defined"
   ansible.builtin.shell: >-
     container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-      curl -sS -f -o /tmp/mailu-token-{{ mailu_user_key | quote }}.json
-      -X POST {{ MAILU_API_SERVICE_BASE_URL }}/token
-      -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
-      -H "Content-Type: application/json"
-      -d {{ ({
-              "comment": mailu_token_name,
-              "email": lookup("users", mailu_user_key).email,
-              "ip": mailu_token_ip
-            } | to_json) | quote }}
+    curl -sS -f -o /tmp/mailu-token-{{ mailu_user_key | quote }}.json
+    -X POST {{ MAILU_API_SERVICE_BASE_URL }}/token
+    -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
+    -H "Content-Type: application/json"
+    -d {{ ({
+    "comment": mailu_token_name,
+    "email": lookup("users", mailu_user_key).email,
+    "ip": mailu_token_ip
+    } | to_json) | quote }}
   register: mailu_token_creation_request
   failed_when: mailu_token_creation_request.rc != 0
   changed_when: mailu_token_creation_request.rc == 0
@@ -29,7 +29,7 @@
 - name: "Read created API token response for '{{ mailu_user_key }};{{ mailu_user_name }}'"
   ansible.builtin.shell: >-
     container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-      cat /tmp/mailu-token-{{ mailu_user_key | quote }}.json
+    cat /tmp/mailu-token-{{ mailu_user_key | quote }}.json
   register: mailu_token_creation_response
   changed_when: false
   failed_when: mailu_token_creation_response.stdout | trim == ""
