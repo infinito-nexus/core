@@ -11,15 +11,12 @@
   ansible.builtin.shell: |
     set -euo pipefail
 
-    # Show current journald usage (best effort)
+    # journald may be absent (minimal containers) -> nothing to clean
+    command -v journalctl >/dev/null 2>&1 || exit 0
+
     journalctl --disk-usage || true
-
-    # Keep a small budget (adjust if you want)
-    journalctl --vacuum-size=100M
-
-    # Optional: also cap by age
+    journalctl --vacuum-size=100M || true
     journalctl --vacuum-time=3h || true
-
     journalctl --disk-usage || true
   args:
     executable: /bin/bash
