@@ -43,18 +43,21 @@
       retrievable when the app is first created or its secret is renewed; reset the
       integration_gitlab client_id/client_secret app config to re-provision.
 
-- name: Set integration_gitlab OAuth client_id
-  command: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_gitlab client_id
-    --value '{{ nextcloud_gl_client_id }}' --sensitive
-  register: nextcloud_gl_client_id_set
-  changed_when: "' set to ' in nextcloud_gl_client_id_set.stdout"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: Set integration_gitlab OAuth client_secret
-  command: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_gitlab client_secret
-    --value '{{ nextcloud_gl_client_secret }}' --sensitive
-  register: nextcloud_gl_client_secret_set
-  changed_when: "' set to ' in nextcloud_gl_client_secret_set.stdout"
+- name: Store integration_gitlab OAuth credentials Nextcloud-encrypted (ICrypto, lazy)
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - -e
+      - "NC_APP_ID=integration_gitlab"
+      - -e
+      - "NC_ENC_B64={{ {'client_id': nextcloud_gl_client_id, 'client_secret': nextcloud_gl_client_secret} | to_json | b64encode }}"
+      - "{{ NEXTCLOUD_CONTAINER }}"
+      - php
+    stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
+  register: nextcloud_gl_enc_set
+  changed_when: "'OK' in nextcloud_gl_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
