@@ -1,4 +1,8 @@
 ---
+# Service-loader flushes this cluster-wide, but the webserver only serves on
+# routing-mesh nodes; non-mesh infra (NFS server) resolves app domains to
+# 127.0.0.1 with no webserver. Self-gate like sys-ctl-hlth-csp does.
 - include_tasks: 01_core.yml
   when:
     - run_once_sys_ctl_hlth_webserver is not defined
+    - DEPLOYMENT_MODE != 'swarm' or inventory_hostname in (groups['svc-swarm-node'] | default([]))
