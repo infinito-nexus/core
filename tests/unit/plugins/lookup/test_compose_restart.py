@@ -57,25 +57,25 @@ class TestComposeRestartLookup(unittest.TestCase):
         vars_ = {"DEPLOYMENT_MODE": "compose", "DOCKER_RESTART_POLICY": "always"}
         lm = self._make(vars_)
         result = lm.run([], variables=vars_)
-        self.assertEqual(result, ["restart: always"])
+        self.assertEqual(result, ['restart: "always"'])
 
     def test_no_arg_with_no_constant_uses_unless_stopped_default(self):
         vars_ = {"DEPLOYMENT_MODE": "compose"}
         lm = self._make(vars_)
         result = lm.run([], variables=vars_)
-        self.assertEqual(result, ["restart: unless-stopped"])
+        self.assertEqual(result, ['restart: "unless-stopped"'])
 
     def test_explicit_arg_wins_over_constant(self):
         vars_ = {"DEPLOYMENT_MODE": "compose", "DOCKER_RESTART_POLICY": "always"}
         lm = self._make(vars_)
         result = lm.run(["on-failure"], variables=vars_)
-        self.assertEqual(result, ["restart: on-failure"])
+        self.assertEqual(result, ['restart: "on-failure"'])
 
     def test_explicit_arg_no_policy(self):
         vars_ = {"DEPLOYMENT_MODE": "compose"}
         lm = self._make(vars_)
         result = lm.run(["no"], variables=vars_)
-        self.assertEqual(result, ["restart: no"])
+        self.assertEqual(result, ['restart: "no"'])
 
     def test_swarm_mode_emits_empty_no_arg(self):
         vars_ = {"DEPLOYMENT_MODE": "swarm", "DOCKER_RESTART_POLICY": "always"}
@@ -100,13 +100,13 @@ class TestComposeRestartLookup(unittest.TestCase):
         vars_ = {"DOCKER_RESTART_POLICY": "always"}
         lm = self._make(vars_)
         result = lm.run([], variables=vars_)
-        self.assertEqual(result, ["restart: always"])
+        self.assertEqual(result, ['restart: "always"'])
 
     def test_none_terms_treated_as_no_args(self):
         vars_ = {"DEPLOYMENT_MODE": "compose", "DOCKER_RESTART_POLICY": "always"}
         lm = self._make(vars_)
         result = lm.run(None, variables=vars_)
-        self.assertEqual(result, ["restart: always"])
+        self.assertEqual(result, ['restart: "always"'])
 
     def test_too_many_terms_raises(self):
         vars_ = {"DEPLOYMENT_MODE": "compose"}
@@ -127,7 +127,7 @@ class TestComposeRestartLookup(unittest.TestCase):
         }
         lm = self._make(vars_)
         result = lm.run([], variables=vars_)
-        self.assertEqual(result, ["restart: always"])
+        self.assertEqual(result, ['restart: "always"'])
 
 
 if __name__ == "__main__":

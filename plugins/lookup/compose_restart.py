@@ -67,4 +67,4 @@ class LookupModule(LookupBase):
                 with contextlib.suppress(Exception):
                     policy = templar.template(policy)
 
-        return [f"restart: {policy}"]
+        return [f'restart: "{policy}"']
