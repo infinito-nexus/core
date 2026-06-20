@@ -5,6 +5,7 @@ This page defines the inner loop for iterating on a role-local `files/playwright
 ## Definitions
 
 - **Inner loop**: the edit-rerun cycle on `roles/<role>/files/playwright/playwright.spec.js` driven by `make compose-playwright role=<role>`, without a redeploy. On the act-swarm test cluster the equivalent is `make act-swarm-playwright role=<role>`, which first copies the working-tree's modified files into the node's frozen bootstrap copy (swarm nodes are not bind-mounted like compose).
+  - If any `make act-swarm-*` target aborts at **Set up job** with `mkdirat var/run...` on a recent Docker engine, point act at a fixed runner image per [Workflow Loop](workflow.md#newer-docker-breaks-the-stock-act-runner-image).
 - **Staging dir**: `TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR/<role>` (default `/tmp/test-e2e-playwright/<role>`). Contains the rendered `.env` and the Playwright project from the last deploy.
 - **Baseline deploy**: a successful `make compose-deploy mode=reinstall apps=<role> full_cycle=true` run as defined in [Role Loop](role.md).
 - **Pass**: `make compose-playwright role=<role>` exits `0` AND every MUST in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) holds for the resulting run.

@@ -30,6 +30,13 @@ act-app:
 act-debug:
 	@docker exec $(node) bash --noprofile --norc -c "$(cmd)"
 
+.PHONY: act-runner-image
+# Build local/act-runner-fixed: the stock act runner image with /var/run removed so a recent Docker engine accepts act's job-setup content copy.
+# Usage: ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make act-swarm-zombie app=<app>
+# Note: see docs/agents/action/iteration/workflow.md.
+act-runner-image:
+	@bash scripts/tests/deploy/act/build_runner_image.sh
+
 .PHONY: act-swarm-down
 # Release the preserved swarm-test cluster (DinD nodes, lab network, act outer container).
 # Note: Safe to run multiple times.

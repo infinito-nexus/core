@@ -25,3 +25,9 @@ A swarm `act-swarm-zombie` run rebuilds a full DinD cluster over tens of minutes
 - Do NOT commit during an active iteration. Commit only after it reaches green: a mid-iteration commit is unverified, and committing while a deploy is live makes the pre-commit hook stash the working-tree files the deploy is reading and corrupts the run.
 - If a commit is genuinely unavoidable mid-iteration, use `--no-verify` (it skips the stashing hook). `make autoformat` and `make test` are safe to run at any time (they do not stash).
 - Exception: failures the current cluster cannot show (pre-cluster steps like app discovery, render-time lookup errors, multi-node placement). Say so instead of faking an in-cluster check.
+
+## act fails at "Set up job" on recent Docker
+
+`make act-*` aborts with `failed to copy content to container: mkdirat var/run...` because the stock runner image's `/var/run` symlink trips Docker 28/29's stricter `docker cp`.
+
+Fix: run `make act-runner-image` once, then prefix any act target with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (e.g. `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make act-swarm-zombie app=<app>`).
