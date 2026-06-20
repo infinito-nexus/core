@@ -32,11 +32,11 @@ install_prereqs() {
     local cn="$1" distro="$2"
     case "${distro}" in
         debian)
-            timeout 600 container exec "${cn}" sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update && apt-get install -y make git python3 python3-venv python3-pip sudo curl ca-certificates tar' </dev/null ;;
+            timeout 600 container exec "${cn}" sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update && apt-get install -y make git python3 python3-venv python3-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
         manjaro)
-            timeout 600 container exec "${cn}" sh -c 'pacman -Sy --noconfirm make git python python-pip sudo curl ca-certificates tar' </dev/null ;;
+            timeout 600 container exec "${cn}" sh -c 'pacman -Sy --noconfirm make git python python-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
         centos)
-            timeout 600 container exec "${cn}" sh -c 'dnf -y --allowerasing install make git python3 python3-pip sudo curl ca-certificates tar' </dev/null ;;
+            timeout 600 container exec "${cn}" sh -c 'dnf -y --allowerasing install make git python3 python3-pip sudo curl ca-certificates tar gnupg2' </dev/null ;;
     esac
 }
 
