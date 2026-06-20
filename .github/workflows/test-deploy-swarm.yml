@@ -152,7 +152,13 @@ jobs:
       - name: "Matrix-deploy ${{ matrix.apps }} across variant rounds (provision + deploy + in-deploy e2e + converge/verify per round)"
         run: |
           source scripts/meta/env/load.sh
-          python3 -m cli.administration.deploy.swarm.matrix
+          # Controller lookups can't `become` but must read the root:root NFS token
+          # store -> run the orchestrator as root; re-pin PATH/HOME (sudo resets them).
+          if [ "$(id -u)" -eq 0 ]; then
+            python3 -m cli.administration.deploy.swarm.matrix
+          else
+            sudo -E env "PATH=$PATH" "HOME=$HOME" python3 -m cli.administration.deploy.swarm.matrix
+          fi
 
       - name: "Seed content (pre-drain marker on NFS volume)"
         run: ${{ env.SCRIPTS }}/09_seed_content.sh
