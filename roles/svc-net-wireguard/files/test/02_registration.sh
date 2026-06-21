@@ -34,11 +34,15 @@ ListenPort = 51820
     j=0
     for m in "${NODE_NAMES[@]}"; do
         if [ "${m}" != "${n}" ]; then
+            # The wireguard container runs in the peer node's inner dockerd and
+            # cannot resolve outer node names, so address the peer by its WGNET IP
+            # (reached via the node's published relay port).
+            ep_ip="$(container inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "${PROJECT}-${m}")"
             conf="${conf}
 [Peer]
 PublicKey = $(cat "${WORK}/${m}.pub")
 AllowedIPs = ${TUN_PREFIX}.${NODE_OCTET[$j]}/32
-Endpoint = ${PROJECT}-${m}:${WG_PORT}
+Endpoint = ${ep_ip}:${WG_PORT}
 PersistentKeepalive = 25
 "
         fi
