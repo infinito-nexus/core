@@ -15,6 +15,13 @@ for n in "${NODE_NAMES[@]}"; do
     echo "OK: ${n} deployed svc-net-wireguard"
 done
 
+# Surface the tunnel state of every node up front to make handshake debugging
+# possible from the CI log.
+for n in "${NODE_NAMES[@]}"; do
+    echo "--- wg show on ${n} ---"
+    container exec "${PROJECT}-${n}" docker exec wireguard wg show 2>&1 || true
+done
+
 # Tunnels establish in seconds; fail hard rather than wait out the full budget.
 deadline=$(( $(date +%s) + 180 ))
 failures=0
