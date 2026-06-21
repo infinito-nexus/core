@@ -108,5 +108,59 @@ class TestRuntimeBudget(unittest.TestCase):
             self.assertEqual(budget._longest_round, 1000)
 
 
+class TestOverflowMode(unittest.TestCase):
+    def test_default_mode_is_cut(self) -> None:
+        with patch.dict(os.environ, {"INFINITO_VARIANT_TIME_OVERFLOW": ""}):
+            self.assertEqual(rb.RuntimeBudget().overflow_mode, "cut")
+
+    def test_invalid_mode_raises_at_construction(self) -> None:
+        with (
+            patch.dict(os.environ, {"INFINITO_VARIANT_TIME_OVERFLOW": "bogus"}),
+            self.assertRaises(SystemExit),
+        ):
+            rb.RuntimeBudget()
+
+    def test_fail_mode_raises_instead_of_warning(self) -> None:
+        clock = _Clock()
+        with (
+            patch.object(rb.time, "monotonic", clock),
+            patch.object(rb, "warning") as mock_warning,
+            patch.dict(
+                os.environ,
+                {
+                    "INFINITO_MAX_RUNTIME": "3600",
+                    "INFINITO_VARIANT_TIME_OVERFLOW": "fail",
+                },
+            ),
+        ):
+            budget = rb.RuntimeBudget()
+            budget.start_round()
+            clock.t = 1000
+            budget.end_round()
+            with self.assertRaises(SystemExit):
+                budget.exhausted(1, 3)
+            mock_warning.assert_not_called()
+
+    def test_cut_mode_warns_and_returns_true(self) -> None:
+        clock = _Clock()
+        with (
+            patch.object(rb.time, "monotonic", clock),
+            patch.object(rb, "warning") as mock_warning,
+            patch.dict(
+                os.environ,
+                {
+                    "INFINITO_MAX_RUNTIME": "3600",
+                    "INFINITO_VARIANT_TIME_OVERFLOW": "cut",
+                },
+            ),
+        ):
+            budget = rb.RuntimeBudget()
+            budget.start_round()
+            clock.t = 1000
+            budget.end_round()
+            self.assertTrue(budget.exhausted(1, 3))
+            mock_warning.assert_called_once()
+
+
 if __name__ == "__main__":
     unittest.main()

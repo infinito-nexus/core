@@ -9,6 +9,20 @@ from utils.annotations.message import warning
 
 _BUFFER_SECONDS = 30 * 60
 
+_OVERFLOW_CUT = "cut"
+_OVERFLOW_FAIL = "fail"
+_OVERFLOW_MODES = (_OVERFLOW_CUT, _OVERFLOW_FAIL)
+
+
+def _parse_overflow_mode(raw: str | None) -> str:
+    mode = (raw or "").strip().lower() or _OVERFLOW_CUT
+    if mode not in _OVERFLOW_MODES:
+        raise SystemExit(
+            f"INFINITO_VARIANT_TIME_OVERFLOW must be one of {_OVERFLOW_MODES}, "
+            f"got {raw!r}"
+        )
+    return mode
+
 
 def _parse_duration_seconds(raw: str | None) -> int | None:
     if not raw:
@@ -31,11 +45,19 @@ def _parse_duration_seconds(raw: str | None) -> int | None:
 class RuntimeBudget:
     """Stops the variant matrix before INFINITO_MAX_RUNTIME is exceeded by
     projecting the next round from the longest round so far plus a buffer.
-    Warns (CI annotation) on early stop; never fails the deploy."""
+
+    INFINITO_VARIANT_TIME_OVERFLOW decides what happens when the remaining
+    rounds no longer fit the budget: ``cut`` (default) warns via a CI
+    annotation and skips the rest without failing; ``fail`` aborts the deploy
+    with a non-zero exit so a runner that cannot complete its whole variant
+    slice in time is treated as a hard failure rather than a silent cut."""
 
     def __init__(self) -> None:
         self.max_seconds = _parse_duration_seconds(
             os.environ.get("INFINITO_MAX_RUNTIME")
+        )
+        self.overflow_mode = _parse_overflow_mode(
+            os.environ.get("INFINITO_VARIANT_TIME_OVERFLOW")
         )
         self._start = time.monotonic()
         self._longest_round = 0.0
@@ -48,12 +70,21 @@ class RuntimeBudget:
         projected = elapsed + self._longest_round + _BUFFER_SECONDS
         if projected <= self.max_seconds:
             return False
+        detail = (
+            f"after {done}/{total} round(s): elapsed {int(elapsed)}s + longest "
+            f"round {int(self._longest_round)}s + {_BUFFER_SECONDS}s buffer "
+            f"({int(projected)}s) would exceed INFINITO_MAX_RUNTIME "
+            f"({self.max_seconds}s); {total - done} round(s) remaining"
+        )
+        if self.overflow_mode == _OVERFLOW_FAIL:
+            raise SystemExit(
+                f"Variant matrix budget exceeded {detail}. "
+                "INFINITO_VARIANT_TIME_OVERFLOW=fail — failing the deploy "
+                "instead of cutting the remaining rounds."
+            )
         warning(
-            f"Stopped the variant matrix after {done}/{total} round(s): elapsed "
-            f"{int(elapsed)}s + longest round {int(self._longest_round)}s + "
-            f"{_BUFFER_SECONDS}s buffer ({int(projected)}s) would exceed "
-            f"INFINITO_MAX_RUNTIME ({self.max_seconds}s). Skipped {total - done} "
-            "remaining round(s) — not a failure.",
+            f"Stopped the variant matrix {detail}. Skipped the remaining "
+            "round(s) — not a failure (INFINITO_VARIANT_TIME_OVERFLOW=cut).",
             title="Deploy runtime budget",
         )
         return True

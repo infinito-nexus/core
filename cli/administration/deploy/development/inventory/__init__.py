@@ -35,7 +35,7 @@ from __future__ import annotations
 from .builder import build_dev_inventory, build_dev_inventory_matrix
 from .legacy_resolver import _build_services_overrides_for_round, _resolve_round_include
 from .payload import _bake_overrides, _resolve_variant_payloads
-from .planner import filter_plan_to_variant, plan_dev_inventory_matrix
+from .planner import filter_plan_to_variants, plan_dev_inventory_matrix
 from .spec import DevInventorySpec, PlanEntry
 
 # Private helper names appear in `__all__` to silence ruff's F401
@@ -51,6 +51,6 @@ __all__ = [
     "_resolve_variant_payloads",
     "build_dev_inventory",
     "build_dev_inventory_matrix",
-    "filter_plan_to_variant",
+    "filter_plan_to_variants",
     "plan_dev_inventory_matrix",
 ]

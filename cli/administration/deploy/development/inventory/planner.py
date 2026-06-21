@@ -25,24 +25,28 @@ if TYPE_CHECKING:
     from .spec import PlanEntry
 
 
-def filter_plan_to_variant(
+def filter_plan_to_variants(
     plan: list[PlanEntry],
-    variant: int | None,
+    variants: list[int] | None,
 ) -> list[PlanEntry]:
-    """Pin a matrix plan to a single round when `variant` is set.
+    """Pin a matrix plan to a subset of rounds when `variants` is set.
 
-    `variant=None` returns the plan unchanged (full-matrix mode). An
-    explicit variant index is matched against the plan's round indices;
-    if it's out of range, raises `ValueError` so callers can surface a
-    clean operator-facing error rather than silently doing nothing.
+    `variants=None` returns the plan unchanged (full-matrix mode). This is the
+    runner-split entry point: a role with more variants than one runner should
+    iterate is sliced into bundles (e.g. ``0,1,2`` on one runner and ``3,4`` on
+    the next), each bundle passed as `variants`. Out-of-range indices raise
+    `ValueError` so the caller surfaces a clean operator error.
     """
-    if variant is None:
+    if variants is None:
         return plan
-    for entry in plan:
-        if entry[0] == variant:
-            return [entry]
     available = sorted(entry[0] for entry in plan)
-    raise ValueError(f"variant {variant} out of range; available rounds: {available}")
+    missing = sorted(v for v in variants if v not in available)
+    if missing:
+        raise ValueError(
+            f"variants {missing} out of range; available rounds: {available}"
+        )
+    wanted = set(variants)
+    return [entry for entry in plan if entry[0] in wanted]
 
 
 def plan_dev_inventory_matrix(

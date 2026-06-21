@@ -1,7 +1,7 @@
 """Unit tests for `cli.administration.deploy.development.inventory.planner`.
 
 Covers ``plan_dev_inventory_matrix`` (mocking ``legacy_resolver``) and
-``filter_plan_to_variant``.
+``filter_plan_to_variants``.
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from typing import ClassVar
 from unittest.mock import MagicMock, patch
 
 from cli.administration.deploy.development.inventory import (
-    filter_plan_to_variant,
+    filter_plan_to_variants,
     plan_dev_inventory_matrix,
 )
 
@@ -220,36 +220,34 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
             )
 
 
-class TestFilterPlanToVariant(unittest.TestCase):
+class TestFilterPlanToVariants(unittest.TestCase):
     PLAN: ClassVar[list[tuple]] = [
-        (
-            0,
-            "/srv/inv-0",
-            {"web-app-multi": 0, "web-app-keycloak": 0},
-            ("web-app-multi", "web-app-keycloak"),
-            ("web-app-multi", "web-app-keycloak"),
-        ),
-        (
-            1,
-            "/srv/inv-1",
-            {"web-app-multi": 1, "web-app-keycloak": 0},
-            ("web-app-multi", "web-app-keycloak"),
-            ("web-app-multi", "web-app-keycloak"),
-        ),
+        (i, f"/srv/inv-{i}", {"web-app-multi": i}, ("web-app-multi",), ())
+        for i in range(5)
     ]
 
     def test_none_returns_full_plan(self):
-        self.assertEqual(filter_plan_to_variant(self.PLAN, None), self.PLAN)
+        self.assertEqual(filter_plan_to_variants(self.PLAN, None), self.PLAN)
 
-    def test_pins_to_named_round(self):
+    def test_subset_keeps_only_listed_rounds_in_plan_order(self):
         self.assertEqual(
-            filter_plan_to_variant(self.PLAN, 1),
-            [self.PLAN[1]],
+            filter_plan_to_variants(self.PLAN, [0, 1, 2]),
+            self.PLAN[:3],
+        )
+        self.assertEqual(
+            filter_plan_to_variants(self.PLAN, [3, 4]),
+            self.PLAN[3:],
+        )
+
+    def test_order_follows_plan_not_argument(self):
+        self.assertEqual(
+            filter_plan_to_variants(self.PLAN, [4, 0]),
+            [self.PLAN[0], self.PLAN[4]],
         )
 
     def test_out_of_range_raises_value_error(self):
-        with self.assertRaisesRegex(ValueError, "variant 7 out of range"):
-            filter_plan_to_variant(self.PLAN, 7)
+        with self.assertRaisesRegex(ValueError, r"variants \[7\] out of range"):
+            filter_plan_to_variants(self.PLAN, [0, 7])
 
 
 if __name__ == "__main__":  # pragma: no cover

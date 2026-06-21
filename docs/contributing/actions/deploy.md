@@ -46,19 +46,22 @@ This purges the app's containers + volumes + Ansible-managed state on the host, 
 
 Only return to `mode=reinstall` when you have concrete evidence that the inventory or the host stack itself is broken (for example DNS or network failures during the deploy).
 
-## Pinning A Single Variant 🎯
+## Pinning Variants (Single Or Bundle) 🎯
 
-For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to a single matrix round by setting `variant=<idx>`:
+For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to one or more matrix rounds by setting `variant=<csv>` — a single index pins one round, a comma-separated list iterates that subset (the runner-split bundle CI produces), and empty/unset is the full matrix:
 
 ```bash
 # Variant 1 baseline only (no full matrix):
 make compose-deploy mode=reinstall apps="<role>" full_cycle=true variant=1
 
+# A 3-round bundle (one CI runner's slice):
+make compose-deploy mode=reinstall apps="<role>" full_cycle=true variant=0,1,2
+
 # Edit-fix-redeploy loop pinned to that variant:
 make compose-deploy mode=update apps="<role>" variant=1
 ```
 
-Pinning is sticky: when iterating with `variant=<idx>`, you MUST set it on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder. The full semantics (single-folder mode, no inter-round cleanup, out-of-range error) live in [variants.md](../design/variants.md).
+Pinning is sticky: when iterating with `variant=<csv>`, you MUST set it on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder. The full semantics (subset selection, no inter-round cleanup when one round, out-of-range error, CI runner-split) live in [variants.md](../design/variants.md).
 
 ## Direct CLI Invocation ⚙️
 
@@ -66,7 +69,7 @@ When you need a flag the make wrappers do not expose, call the dev CLI directly:
 
 ```bash
 infinito administration deploy development init   --inventory-dir "${INFINITO_INVENTORY_DIR}" --apps "<role>"
-infinito administration deploy development deploy --inventory-dir "${INFINITO_INVENTORY_DIR}" --apps "<role>" [--variant <idx>] [--debug]
+infinito administration deploy development deploy --inventory-dir "${INFINITO_INVENTORY_DIR}" --apps "<role>" [--variant <csv>] [--debug]
 ```
 
 - `--inventory-dir` is always the BASE path. The wrapper appends the `-<round>` suffix internally for matrix folders.

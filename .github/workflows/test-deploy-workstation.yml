@@ -75,7 +75,7 @@ jobs:
         run: ./scripts/github/resolve/output_apps.sh
 
   workstation:
-    name: 🖥️ Deploy ${{ matrix.apps }}
+    name: 🖥️ Deploy ${{ matrix.apps }}${{ matrix.variant && format(' [{0}]', matrix.variant) || '' }}
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 360
@@ -84,7 +84,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        apps: ${{ fromJson(needs.discover.outputs.apps) }}
+        include: ${{ fromJson(needs.discover.outputs.apps) }}
 
     steps:
       # Reclaim runner space before Docker pulls start. Deploy jobs otherwise
@@ -124,6 +124,7 @@ jobs:
         shell: bash
         env:
           apps: ${{ matrix.apps }}
+          variant: ${{ matrix.variant }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
         run: ./scripts/tests/deploy/ci/all.sh
 

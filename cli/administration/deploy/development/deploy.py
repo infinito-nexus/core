@@ -16,23 +16,12 @@ from .common import (
     make_compose,
     resolve_container,
 )
-from .inventory import filter_plan_to_variant, plan_dev_inventory_matrix
+from .inventory import plan_dev_inventory_matrix
 from .runtime_budget import RuntimeBudget
+from .variant_select import add_variant_args, apply_variant_filter
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-
-
-def _env_variant() -> int | None:
-    raw = os.environ.get("variant", "").strip()
-    if not raw:
-        return None
-    try:
-        return int(raw)
-    except ValueError:
-        raise SystemExit(
-            f"variant environment variable must be an integer, got {raw!r}"
-        ) from None
 
 
 def _env_full_cycle() -> bool:
@@ -177,18 +166,7 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         default=False,
         help="Enable/disable Ansible debug mode (default: disabled).",
     )
-    p.add_argument(
-        "--variant",
-        type=int,
-        default=_env_variant(),
-        help=(
-            "Pin the matrix deploy to a single round (zero-based index), "
-            "skipping inter-round cleanup. Useful for redeploying one "
-            "specific variant without iterating the whole matrix. Defaults "
-            "to the variant environment variable when set, otherwise "
-            "full-matrix mode."
-        ),
-    )
+    add_variant_args(p, action="deploy")
     p.add_argument(
         "--full-cycle",
         action=argparse.BooleanOptionalAction,
@@ -262,7 +240,7 @@ def handler(args: argparse.Namespace) -> int:
         base_inventory_dir=str(args.inventory_dir),
     )
     try:
-        plan = filter_plan_to_variant(plan, args.variant)
+        plan = apply_variant_filter(plan, args)
     except ValueError as exc:
         raise SystemExit(f"--variant: {exc}") from exc
 

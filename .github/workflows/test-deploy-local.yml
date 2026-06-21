@@ -82,7 +82,7 @@ jobs:
         run: ./scripts/github/resolve/output_apps.sh
 
   deploy:
-    name: 🚀 Deploy ${{ needs.discover.outputs.test_deploy_type }} app (${{ matrix.apps }})
+    name: 🚀 Deploy ${{ needs.discover.outputs.test_deploy_type }} app (${{ matrix.apps }}${{ matrix.variant && format(' [{0}]', matrix.variant) || '' }})
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 360
@@ -92,7 +92,7 @@ jobs:
       fail-fast: false
       max-parallel: 1   # immer linear
       matrix:
-        apps: ${{ fromJson(needs.discover.outputs.apps) }}
+        include: ${{ fromJson(needs.discover.outputs.apps) }}
 
     steps:
       # Reclaim runner space before Docker pulls start. Deploy jobs otherwise
@@ -128,6 +128,7 @@ jobs:
           INFINITO_DEPLOY_TYPE: ${{ needs.discover.outputs.test_deploy_type }}
           INFINITO_DISTROS: ${{ needs.discover.outputs.distros }}
           apps: ${{ matrix.apps }}
+          variant: ${{ matrix.variant }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
         run: ./scripts/tests/deploy/ci/all.sh
 

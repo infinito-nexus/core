@@ -9,6 +9,11 @@ set -euo pipefail
 apps="$(./scripts/meta/resolve/apps.sh)"
 [[ -n "$apps" ]] || apps='[]'
 
-echo "apps=$apps" >>"$GITHUB_OUTPUT"
-echo "apps_json=$apps" >>"$GITHUB_OUTPUT"
-echo "apps_json=$apps"
+# Expand the flat app-id list into deploy-matrix entries, splitting any role
+# with more variants than INFINITO_VARIANT_BUNDLE_SIZE (default 3) into bundles
+# of consecutive variant indices — one runner per bundle.
+matrix="$(printf '%s' "$apps" | "${PYTHON:-python3}" -m utils.github.variant_bundles)"
+[[ -n "$matrix" ]] || matrix='[]'
+
+echo "apps=$matrix" >>"$GITHUB_OUTPUT"
+echo "apps=$matrix"

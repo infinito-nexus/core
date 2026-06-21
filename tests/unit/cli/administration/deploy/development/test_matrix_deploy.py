@@ -26,7 +26,7 @@ from cli.administration.deploy.development.deploy import handler  # noqa: E402
 def _args(
     *,
     apps: list[str] | None = None,
-    variant: int | None = None,
+    variant: list[int] | None = None,
     full_cycle: bool = False,
 ) -> argparse.Namespace:
     # `distro` is intentionally absent: deploy.handler no longer consumes
@@ -367,7 +367,7 @@ class TestHandlerVariantPin(unittest.TestCase):
         ]
         run_deploy_mock.return_value = 0
 
-        rc = handler(_args(apps=["web-app-multi"], variant=1))
+        rc = handler(_args(apps=["web-app-multi"], variant=[1]))
 
         self.assertEqual(rc, 0)
         # Only the picked round runs; no cleanup because there is no
@@ -401,8 +401,8 @@ class TestHandlerVariantPin(unittest.TestCase):
             _entry(1, "/srv/inv-1", {"web-app-multi": 1}),
         ]
 
-        with self.assertRaisesRegex(SystemExit, "variant 7 out of range"):
-            handler(_args(apps=["web-app-multi"], variant=7))
+        with self.assertRaisesRegex(SystemExit, r"variants \[7\] out of range"):
+            handler(_args(apps=["web-app-multi"], variant=[7]))
         run_deploy_mock.assert_not_called()
 
 
@@ -518,7 +518,7 @@ class TestHandlerFullCycle(unittest.TestCase):
         ]
         run_deploy_mock.return_value = 0
 
-        rc = handler(_args(apps=["web-app-multi"], variant=1, full_cycle=True))
+        rc = handler(_args(apps=["web-app-multi"], variant=[1], full_cycle=True))
 
         self.assertEqual(rc, 0)
         self.assertEqual(run_deploy_mock.call_count, 2)
@@ -534,6 +534,76 @@ class TestHandlerFullCycle(unittest.TestCase):
             ],
         )
         purge_mock.assert_not_called()
+
+
+class TestHandlerBudget(unittest.TestCase):
+    """The runtime-budget guard gates the round loop: `cut` mode stops early
+    and still returns success; `fail` mode propagates SystemExit."""
+
+    @patch("cli.administration.deploy.development.deploy.RuntimeBudget", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy._purge_app_entities",
+        autospec=True,
+    )
+    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        autospec=True,
+    )
+    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    def test_cut_stops_early_and_returns_success(
+        self,
+        make_compose_mock: MagicMock,
+        plan_mock: MagicMock,
+        run_deploy_mock: MagicMock,
+        purge_mock: MagicMock,
+        budget_cls_mock: MagicMock,
+    ) -> None:
+        make_compose_mock.return_value = _make_compose_mock()
+        plan_mock.return_value = [
+            _entry(0, "/srv/inv-0", {"web-app-wordpress": 0}),
+            _entry(1, "/srv/inv-1", {"web-app-wordpress": 1}),
+        ]
+        run_deploy_mock.return_value = 0
+        budget = budget_cls_mock.return_value
+        budget.exhausted.side_effect = [False, True]  # round 1 over budget
+
+        rc = handler(_args(apps=["web-app-wordpress"]))
+
+        self.assertEqual(rc, 0)  # cut is NOT a failure
+        run_deploy_mock.assert_called_once()  # only round 0 ran
+
+    @patch("cli.administration.deploy.development.deploy.RuntimeBudget", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy._purge_app_entities",
+        autospec=True,
+    )
+    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        autospec=True,
+    )
+    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    def test_fail_mode_propagates_systemexit(
+        self,
+        make_compose_mock: MagicMock,
+        plan_mock: MagicMock,
+        run_deploy_mock: MagicMock,
+        purge_mock: MagicMock,
+        budget_cls_mock: MagicMock,
+    ) -> None:
+        make_compose_mock.return_value = _make_compose_mock()
+        plan_mock.return_value = [
+            _entry(0, "/srv/inv-0", {"web-app-wordpress": 0}),
+            _entry(1, "/srv/inv-1", {"web-app-wordpress": 1}),
+        ]
+        run_deploy_mock.return_value = 0
+        budget = budget_cls_mock.return_value
+        budget.exhausted.side_effect = [False, SystemExit("budget exceeded")]
+
+        with self.assertRaises(SystemExit):
+            handler(_args(apps=["web-app-wordpress"]))
+        run_deploy_mock.assert_called_once()  # round 0 ran, then hard-fail
 
 
 if __name__ == "__main__":

@@ -14,10 +14,10 @@ from .common import make_compose
 from .inventory import (
     DevInventorySpec,
     build_dev_inventory,
-    filter_plan_to_variant,
     plan_dev_inventory_matrix,
 )
 from .storage import detect_storage_constrained
+from .variant_select import add_variant_args, apply_variant_filter
 
 if TYPE_CHECKING:
     import argparse
@@ -67,30 +67,8 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         default=None,
         help="JSON object merged into inventory variables (overrides win).",
     )
-    p.add_argument(
-        "--variant",
-        type=int,
-        default=_env_variant(),
-        help=(
-            "Pin the matrix init to a single round (zero-based index). "
-            "Useful when only one variant of a multi-variant app needs to "
-            "be (re-)materialised. Defaults to the variant "
-            "environment variable when set, otherwise full-matrix mode."
-        ),
-    )
+    add_variant_args(p, action="init")
     p.set_defaults(_handler=handler)
-
-
-def _env_variant() -> int | None:
-    raw = os.environ.get("variant", "").strip()
-    if not raw:
-        return None
-    try:
-        return int(raw)
-    except ValueError:
-        raise SystemExit(
-            f"variant environment variable must be an integer, got {raw!r}"
-        ) from None
 
 
 def handler(args: argparse.Namespace) -> int:
@@ -154,7 +132,7 @@ def handler(args: argparse.Namespace) -> int:
         base_inventory_dir=str(args.inventory_dir),
     )
     try:
-        plan = filter_plan_to_variant(plan, args.variant)
+        plan = apply_variant_filter(plan, args)
     except ValueError as exc:
         raise SystemExit(f"--variant: {exc}") from exc
 
