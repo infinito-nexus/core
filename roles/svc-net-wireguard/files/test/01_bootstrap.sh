@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Boot 6 fresh systemd nodes (3 debian servers + arch/debian/centos workstations)
-# and make install in each -> deploy-ready Infinito.Nexus environment. systemd
-# runs as PID 1 so the deploy can install + start docker.service like a real host.
+# Boot 6 fresh nodes (pkgmgr bases: 3 debian servers + arch/debian/centos
+# workstations), run a full per-node `make install` in each (which also pulls in
+# systemd), then re-create every node as a systemd-PID1 container from its
+# installed filesystem -> the deploy can install + start docker.service exactly
+# like a real host, while each node is still a freshly-installed environment.
+# nocheck: raw-docker  # commit/run/logs against the DinD nodes
 set -euo pipefail
 : "${WIREGUARD_E2E_TIMEOUT:?}"
 
@@ -11,27 +14,64 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 container network create "${WGNET}" >/dev/null 2>&1 || true
 
+# Phase 1: boot the bare bases (no systemd yet) just to run the install in them.
 i=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     container rm -f "${cn}" >/dev/null 2>&1 || true
-    # systemd-in-container needs the host cgroup ns, a writable cgroupfs and
-    # tmpfs /run; --privileged also lets the node run its own dockerd (DinD).
-    # container=docker makes Infinito's DOCKER_IN_CONTAINER autodetect true. The
-    # pkgmgr base entrypoint runs the pkgmgr CLI, so override it with systemd.
+    container run -d --name "${cn}" --hostname "${cn}" --network "${WGNET}" \
+        --entrypoint=sleep \
+        -v "${REPO_DIR}:/opt/src/infinito-src:ro" \
+        "${NODE_IMAGES[$i]}" infinity >/dev/null
+    echo "OK: ${n} base booted (${NODE_IMAGES[$i]})"
+    i=$(( i + 1 ))
+done
+
+# Bases ship no make/git/python; install the bootstrap prerequisites first.
+install_prereqs() {
+    local cn="$1" distro="$2"
+    case "${distro}" in
+        debian)
+            timeout 600 container exec "${cn}" sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update && apt-get install -y make git python3 python3-venv python3-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
+        arch)
+            timeout 600 container exec "${cn}" sh -c 'pacman -Sy --noconfirm make git python python-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
+        centos)
+            timeout 600 container exec "${cn}" sh -c 'dnf -y --allowerasing install make git python3 python3-pip sudo curl ca-certificates tar gnupg2' </dev/null ;;
+    esac
+}
+
+# Phase 2: per-node install into its own copy, then re-create as a systemd node.
+i=0
+for n in "${NODE_NAMES[@]}"; do
+    cn="${PROJECT}-${n}"
+    install_prereqs "${cn}" "${NODE_DISTRO[$i]}"
+    # Node-local repo copy (excluding .git): the bind-mount is shared+read-only, so
+    # make install state must not leak across nodes.
+    container exec "${cn}" \
+        sh -c 'mkdir -p /opt/src/infinito && tar -C /opt/src/infinito-src --exclude=./.git -cf - . | tar -C /opt/src/infinito -xf -' </dev/null
+    timeout 1200 container exec "${cn}" \
+        sh -c 'export DEBIAN_FRONTEND=noninteractive CI=true; cd /opt/src/infinito && make install' </dev/null
+    # make install pulled in systemd. Mask container-hostile first-boot units and
+    # seed a machine-id so systemd reaches a ready state once it is PID 1.
+    container exec "${cn}" \
+        sh -c 'ln -sf /dev/null /etc/systemd/system/systemd-firstboot.service; ln -sf /dev/null /etc/systemd/system/first-boot-complete.target; : > /etc/machine-id' </dev/null
+    container commit "${cn}" "wg-e2e-img-${n}" >/dev/null
+    container rm -f "${cn}" >/dev/null
+    # Re-create as systemd PID 1: host cgroup ns + writable cgroupfs + tmpfs /run;
+    # --privileged lets the node run its own dockerd (DinD). container=docker makes
+    # Infinito's DOCKER_IN_CONTAINER autodetect true.
     container run -d --name "${cn}" --hostname "${cn}" --network "${WGNET}" \
         --privileged --cgroupns=host \
         --tmpfs /run --tmpfs /run/lock \
         -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
         -e container=docker \
         --entrypoint=/sbin/init \
-        -v "${REPO_DIR}:/opt/src/infinito-src:ro" \
-        "${NODE_IMAGES[$i]}" >/dev/null
-    echo "OK: ${n} booted (${NODE_IMAGES[$i]})"
+        "wg-e2e-img-${n}" >/dev/null
+    echo "OK: ${n} make install complete + re-created as systemd node"
     i=$(( i + 1 ))
 done
 
-# Wait for systemd to finish booting before installing/deploying (running or
+# Phase 3: wait until systemd has finished booting in every node (running or
 # degraded both mean PID 1 is up; some units legitimately fail in a container).
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
@@ -51,34 +91,6 @@ for n in "${NODE_NAMES[@]}"; do
         sleep 2
     done
     echo "OK: ${n} systemd ready"
-done
-
-# Install the bootstrap prerequisites before `make install` runs the full install.
-install_prereqs() {
-    local cn="$1" distro="$2"
-    case "${distro}" in
-        debian)
-            timeout 600 container exec "${cn}" sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update && apt-get install -y make git python3 python3-venv python3-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
-        arch)
-            timeout 600 container exec "${cn}" sh -c 'pacman -Sy --noconfirm make git python python-pip sudo curl ca-certificates tar gnupg' </dev/null ;;
-        centos)
-            timeout 600 container exec "${cn}" sh -c 'dnf -y --allowerasing install make git python3 python3-pip sudo curl ca-certificates tar gnupg2' </dev/null ;;
-    esac
-}
-
-i=0
-for n in "${NODE_NAMES[@]}"; do
-    cn="${PROJECT}-${n}"
-    install_prereqs "${cn}" "${NODE_DISTRO[$i]}"
-    # Node-local repo copy (excluding .git): the bind-mount is shared+read-only, so
-    # make install state (.env, venv stamps) must not leak across nodes — otherwise
-    # later nodes short-circuit the install and never create their own venv.
-    container exec "${cn}" \
-        sh -c 'mkdir -p /opt/src/infinito && tar -C /opt/src/infinito-src --exclude=./.git -cf - . | tar -C /opt/src/infinito -xf -' </dev/null
-    timeout 1200 container exec "${cn}" \
-        sh -c 'export DEBIAN_FRONTEND=noninteractive CI=true; cd /opt/src/infinito && make install' </dev/null
-    echo "OK: ${n} make install complete"
-    i=$(( i + 1 ))
 done
 
 echo "OK: all nodes bootstrapped"
