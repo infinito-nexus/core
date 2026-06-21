@@ -2,6 +2,11 @@
 SYS_SVC_DOCKER_DIR: "/etc/docker/"
 SYS_SVC_DOCKER_DAEMON: "{{ [SYS_SVC_DOCKER_DIR, 'daemon.json' ] | path_join }}"
 
+# Docker storage driver for the in-container daemon. fuse-overlayfs suits normal
+# DinD; override (e.g. vfs) for deeply-nested CI where fuse-overlayfs copy-up
+# breaks on images that ship an /etc/mtab symlink.
+SYS_SVC_CONTAINER_STORAGE_DRIVER: "fuse-overlayfs"
+
 # Targets to calculate the optimal MTU. Public DNS resolvers come from
 # the central NETWORK_PUBLIC_DNS_RESOLVERS list so the literal IPs live
 # in exactly one place.
