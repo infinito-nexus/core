@@ -41,8 +41,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 ROLES_DIR = PROJECT_ROOT / "roles"
-MAX_MEM_RESERVATION = parse_size("32GB")
-MAX_MEM_LIMIT = parse_size("72GB")
+MAX_MEM_RESERVATION = parse_size("37GB")
+MAX_MEM_LIMIT = parse_size("73GB")
 
 
 @dataclass(frozen=True)
