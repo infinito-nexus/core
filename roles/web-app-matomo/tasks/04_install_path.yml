@@ -42,6 +42,13 @@
     matomo_health.rc == 0 and (matomo_health.stdout | trim) == 'healthy'
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
+- name: "Matomo install | Make config writable by the web user (entrypoint re-owns it root)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user root {{ MATOMO_LOCAL_CID | quote }}
+    chown www-data:www-data {{ MATOMO_CONFIG }}
+  changed_when: true
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
 - name: "Config '{{ application_id }}' via API"
   include_tasks:
     file: 09_config.yml
