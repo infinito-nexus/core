@@ -1,4 +1,5 @@
 ---
+# nocheck: addon-enabled-group-names: anti-dependency on web-app-taiga, which has no nextcloud service flag to defer to
 enabled: "{{ 'web-app-taiga' not in group_names | lower }}"
 required: true
 mechanism: plugin
