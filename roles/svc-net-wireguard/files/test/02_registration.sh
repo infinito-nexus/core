@@ -1,58 +1,59 @@
 #!/usr/bin/env bash
-# Per node: provision a dedicated inventory and render a full-mesh wg0.conf into it.
+# Provision each node's inventory, deploy the 3 servers in [server] flavor, and
+# turn each server's generated peer config into its paired client's wg0.conf.
+# nocheck: raw-docker  # nested docker exec to read the server's generated peer conf
 set -euo pipefail
-: "${WIREGUARD_IMAGE:?}"
-: "${WIREGUARD_VERSION:?}"
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=roles/svc-net-wireguard/files/test/nodes.sh
 . "${DIR}/nodes.sh"
 
-WG_IMAGE="${WIREGUARD_IMAGE}:${WIREGUARD_VERSION}"
-WORK="/tmp/wg-e2e-keys"
-mkdir -p "${WORK}"
-
-for n in "${NODE_NAMES[@]}"; do
-    priv="$(container run --rm --entrypoint wg "${WG_IMAGE}" genkey)"
-    pub="$(printf '%s' "${priv}" | container run --rm -i --entrypoint sh "${WG_IMAGE}" -c 'wg pubkey')"
-    printf '%s' "${priv}" > "${WORK}/${n}.priv"
-    printf '%s' "${pub}" > "${WORK}/${n}.pub"
-done
-
-i=0
+# 1) Provision a dedicated inventory on every node.
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     timeout 600 container exec "${cn}" \
         bash -c "cd /opt/src/infinito && . scripts/meta/env/load.sh; ${NODE_VENV_PY}; \"\$PY\" -m cli administration inventory provision ${INV_DIR} --host ${cn} --include svc-net-wireguard" </dev/null
+    echo "OK: ${n} inventory provisioned"
+done
 
-    self_ip="${TUN_PREFIX}.${NODE_OCTET[$i]}"
-    conf="[Interface]
-PrivateKey = $(cat "${WORK}/${n}.priv")
-Address = ${self_ip}/24
-ListenPort = 51820
-"
-    j=0
-    for m in "${NODE_NAMES[@]}"; do
-        if [ "${m}" != "${n}" ]; then
-            # The wireguard container runs in the peer node's inner dockerd and
-            # cannot resolve outer node names, so address the peer by its WGNET IP
-            # (reached via the node's published relay port).
-            ep_ip="$(container inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "${PROJECT}-${m}")"
-            conf="${conf}
-[Peer]
-PublicKey = $(cat "${WORK}/${m}.pub")
-AllowedIPs = ${TUN_PREFIX}.${NODE_OCTET[$j]}/32
-Endpoint = ${ep_ip}:${WG_PORT}
-PersistentKeepalive = 25
-"
+# 2) Deploy the servers ([server] flavor, the role default). SERVERURL is the node
+#    WGNET IP so the generated peer Endpoint is reachable; AllowedIPs are limited
+#    to the wg subnet so the client does not route its default through the tunnel.
+for s in "${SERVER_NODES[@]}"; do
+    cn="${PROJECT}-${s}"
+    sip="$(container inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "${cn}")"
+    timeout 1800 container exec "${cn}" \
+        bash -c "cd /opt/src/infinito && . scripts/meta/env/load.sh; ${NODE_VENV_PY}; \"\$PY\" -m cli administration deploy dedicated ${INV_DIR}/devices.yml --id svc-net-wireguard --password-file ${INV_DIR}/.password -e ansible_connection=local -e DOCKER_IN_CONTAINER=true -e SYS_SVC_CONTAINER_STORAGE_DRIVER=vfs -e WIREGUARD_SERVER_URL=${sip} -e WIREGUARD_SERVER_ALLOWED_IPS=${WG_SUBNET}" </dev/null
+    echo "OK: ${s} deployed (server flavor, url=${sip})"
+done
+
+# 3) Extract each server's generated peer config and install it as the paired
+#    client's inventory wg0.conf (its Endpoint already points at the server IP).
+i=0
+for s in "${SERVER_NODES[@]}"; do
+    scn="${PROJECT}-${s}"
+    c="${CLIENT_NODES[$i]}"
+    ccn="${PROJECT}-${c}"
+    peer_conf=""
+    deadline=$(( $(date +%s) + 120 ))
+    while true; do
+        peer_conf="$(container exec "${scn}" docker exec wireguard sh -c 'cat /config/peer1/peer1.conf 2>/dev/null' 2>/dev/null || true)"
+        [ -n "${peer_conf}" ] && break
+        if [ "$(date +%s)" -ge "${deadline}" ]; then
+            echo "FAIL: ${s} did not generate /config/peer1/peer1.conf"
+            container exec "${scn}" docker exec wireguard sh -c 'ls -la /config /config/peer1 2>&1' || true
+            exit 1
         fi
-        j=$(( j + 1 ))
+        sleep 3
     done
-
-    container exec "${cn}" sh -c "mkdir -p ${INV_DIR}/files/${cn}/wireguard"
-    printf '%s' "${conf}" | container exec -i "${cn}" sh -c "cat > ${INV_DIR}/files/${cn}/wireguard/wg0.conf"
-    echo "OK: ${n} inventory provisioned + full-mesh conf rendered"
+    # Drop the DNS line (no resolvconf target in the client container) and ensure a
+    # keepalive so the behind-NAT client holds the tunnel open.
+    peer_conf="$(printf '%s\n' "${peer_conf}" | grep -v '^DNS')
+PersistentKeepalive = 25"
+    container exec "${ccn}" sh -c "mkdir -p ${INV_DIR}/files/${ccn}/wireguard"
+    printf '%s' "${peer_conf}" | container exec -i "${ccn}" sh -c "cat > ${INV_DIR}/files/${ccn}/wireguard/wg0.conf"
+    echo "OK: ${c} client config installed from ${s} peer1"
     i=$(( i + 1 ))
 done
 
-echo "OK: all inventories registered"
+echo "OK: servers deployed, client configs registered"
