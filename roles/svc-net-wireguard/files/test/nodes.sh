@@ -30,3 +30,16 @@ NODE_IMAGES=(
 )
 NODE_OCTET=(11 12 13 14 15 16)
 NODE_DISTRO=(debian debian debian arch debian centos)
+
+# Hub-spoke pairs: CLIENT_NODES[i] is a WireGuard client of SERVER_NODES[i].
+# Servers deploy in [server] flavor (linuxserver generates the peer config);
+# workstations deploy in [client] flavor and join via that config.
+SERVER_NODES=(server1 server2 server3)
+CLIENT_NODES=(wsarch wsdebian wscentos)
+# Workstations additionally deployed behind NAT ([client, nat] flavor).
+NAT_NODES=(wsdebian)
+# linuxserver server mode addresses on INTERNAL_SUBNET=10.13.13.0: the server
+# interface is .1 and its single generated peer is .2.
+WG_SERVER_IP="${TUN_PREFIX}.1"
+WG_CLIENT_IP="${TUN_PREFIX}.2"
+WG_SUBNET="${TUN_PREFIX}.0/24"
