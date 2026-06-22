@@ -16,9 +16,8 @@ for n in "${NODE_NAMES[@]}"; do
     echo "OK: ${n} inventory provisioned"
 done
 
-# 2) Deploy the servers ([server] flavor, the role default). SERVERURL is the node
-#    WGNET IP so the generated peer Endpoint is reachable; AllowedIPs are limited
-#    to the wg subnet so the client does not route its default through the tunnel.
+# 2) Deploy the servers ([server] flavor). SERVERURL=node IP makes the generated
+#    peer Endpoint reachable; AllowedIPs are scoped to the wg subnet.
 for s in "${SERVER_NODES[@]}"; do
     cn="${PROJECT}-${s}"
     sip="$(container inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "${cn}")"
@@ -46,8 +45,7 @@ for s in "${SERVER_NODES[@]}"; do
         fi
         sleep 3
     done
-    # Drop the DNS line (no resolvconf target in the client container) and ensure a
-    # keepalive so the behind-NAT client holds the tunnel open.
+    # Drop the DNS line (no resolvconf in the client) + add a NAT keepalive.
     peer_conf="$(printf '%s\n' "${peer_conf}" | grep -v '^DNS')
 PersistentKeepalive = 25"
     container exec "${ccn}" sh -c "mkdir -p ${INV_DIR}/files/${ccn}/wireguard"

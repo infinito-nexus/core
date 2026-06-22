@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# Boot 6 fresh nodes (pkgmgr bases: 3 debian servers + arch/debian/centos
-# workstations), run a full per-node `make install` in each (which also pulls in
-# systemd), then re-create every node as a systemd-PID1 container from its
-# installed filesystem -> the deploy can install + start docker.service exactly
-# like a real host, while each node is still a freshly-installed environment.
+# Boot 6 fresh pkgmgr nodes, make install in each (pulls in systemd), then
+# re-create each as a systemd-PID1 container so the deploy can run docker.service.
 # nocheck: raw-docker  # commit/run/logs against the DinD nodes
 set -euo pipefail
 : "${WIREGUARD_E2E_TIMEOUT:?}"
@@ -27,9 +24,7 @@ for n in "${NODE_NAMES[@]}"; do
     i=$(( i + 1 ))
 done
 
-# Bases ship no make/git/python and no systemd; install the bootstrap
-# prerequisites first. systemd (+ the sysv-compat that provides /sbin/init) lets
-# the node be re-created as a systemd PID 1 below.
+# Install bootstrap prerequisites (incl. systemd + sysv-compat for /sbin/init).
 install_prereqs() {
     local cn="$1" distro="$2"
     case "${distro}" in
@@ -47,21 +42,18 @@ i=0
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     install_prereqs "${cn}" "${NODE_DISTRO[$i]}"
-    # Node-local repo copy (excluding .git): the bind-mount is shared+read-only, so
-    # make install state must not leak across nodes.
+    # Node-local repo copy (excl .git): keep per-node make install state isolated.
     container exec "${cn}" \
         sh -c 'mkdir -p /opt/src/infinito && tar -C /opt/src/infinito-src --exclude=./.git -cf - . | tar -C /opt/src/infinito -xf -' </dev/null
     timeout 1200 container exec "${cn}" \
         sh -c 'export DEBIAN_FRONTEND=noninteractive CI=true; cd /opt/src/infinito && make install' </dev/null
-    # make install pulled in systemd. Mask container-hostile first-boot units and
-    # seed a machine-id so systemd reaches a ready state once it is PID 1.
+    # Mask first-boot units + seed machine-id so systemd boots clean as PID 1.
     container exec "${cn}" \
         sh -c 'ln -sf /dev/null /etc/systemd/system/systemd-firstboot.service; ln -sf /dev/null /etc/systemd/system/first-boot-complete.target; : > /etc/machine-id' </dev/null
     container commit "${cn}" "wg-e2e-img-${n}" >/dev/null
     container rm -f "${cn}" >/dev/null
-    # Re-create as systemd PID 1: host cgroup ns + writable cgroupfs + tmpfs /run;
-    # --privileged lets the node run its own dockerd (DinD). container=docker makes
-    # Infinito's DOCKER_IN_CONTAINER autodetect true.
+    # Re-create as systemd PID 1 (cgroup/tmpfs); --privileged + container=docker
+    # give a DinD-capable, container-autodetected node.
     container run -d --name "${cn}" --hostname "${cn}" --network "${WGNET}" \
         --privileged --cgroupns=host \
         --tmpfs /run --tmpfs /run/lock \
@@ -73,8 +65,7 @@ for n in "${NODE_NAMES[@]}"; do
     i=$(( i + 1 ))
 done
 
-# Phase 3: wait until systemd has finished booting in every node (running or
-# degraded both mean PID 1 is up; some units legitimately fail in a container).
+# Phase 3: wait for systemd to finish booting (running or degraded = PID 1 up).
 for n in "${NODE_NAMES[@]}"; do
     cn="${PROJECT}-${n}"
     deadline=$(( $(date +%s) + 120 ))
