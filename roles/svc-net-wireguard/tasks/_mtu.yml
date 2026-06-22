@@ -1,0 +1,38 @@
+---
+# Auto-derive the WireGuard client MTU via pkgmgr automtu, falling back to the
+# configured WIREGUARD_CLIENT_MTU. Never fails the deploy: probe issues rescue to
+# the fallback.
+- name: "Derive client MTU via automtu"
+  block:
+    - name: "Ensure automtu is installed"
+      ansible.builtin.include_role:
+        name: sys-pip-install
+      vars:
+        package_name: automtu
+        global_install: true
+
+    - name: "Probe effective path MTU"
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_python_interpreter }}"
+          - -m
+          - automtu
+          - --pmtu-target
+          - "{{ NETWORK_PUBLIC_DNS_RESOLVERS | join(',') }}"
+          - --pmtu-policy
+          - min
+          - --print-mtu
+          - effective
+      register: _wg_automtu
+      changed_when: false
+
+    - name: "Set client MTU to path MTU minus WireGuard overhead"
+      ansible.builtin.set_fact:
+        WIREGUARD_CLIENT_MTU: "{{ (_wg_automtu.stdout | int) - WIREGUARD_WG_OVERHEAD }}"
+      when:
+        - _wg_automtu.stdout is match('^[0-9]+$')
+        - (_wg_automtu.stdout | int) > (WIREGUARD_WG_OVERHEAD + 576)
+  rescue:
+    - name: "Keep configured client MTU as fallback"
+      ansible.builtin.debug:
+        msg: "automtu unavailable; keeping WIREGUARD_CLIENT_MTU={{ WIREGUARD_CLIENT_MTU }}"
