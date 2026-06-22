@@ -23,6 +23,10 @@ WIREGUARD_SERVER_ALLOWED_IPS: "{{ lookup('config', application_id, 'services.' ~
 
 WIREGUARD_INVENTORY_CONF: "{{ [inventory_dir, 'files', inventory_hostname, 'wireguard', 'wg0.conf'] | path_join }}"
 
+# Fallback MTU (overridden by automtu in tasks/_mtu.yml when probing succeeds).
 WIREGUARD_CLIENT_MTU: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.mtu') }}"
+# WireGuard encapsulation overhead (IPv4/IPv6 + UDP + WG headers) subtracted from
+# the probed path MTU to size the tunnel interface.
+WIREGUARD_WG_OVERHEAD: 80
 WIREGUARD_NAT_IN_INTERFACE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.nat_in_interface') }}"
 WIREGUARD_NAT_OUT_INTERFACE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.client.nat_out_interface') }}"

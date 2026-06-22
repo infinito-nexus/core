@@ -1,4 +1,7 @@
 ---
+- name: "Auto-derive the client MTU (before the compose env is rendered)"
+  include_tasks: _mtu.yml
+
 - name: "include sys-svc-compose role"
   include_role:
     name: sys-svc-compose
