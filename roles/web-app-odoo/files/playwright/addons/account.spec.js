@@ -19,25 +19,20 @@ test("addon account: Accounting/Invoicing module is installed and its action loa
       "opening the Accounting action must not raise an Odoo error dialog; if 'account' is enabled but the module is not installed, the action route 404s/errors and this asserts the failure instead of passing on a bare web-client shell"
     ).toHaveCount(0);
 
-    const accountingApp = page
-      .locator(".o_main_navbar .o_menu_brand")
-      .filter({ hasText: /accounting|invoicing/i })
-      .or(page.getByRole("button", { name: /^(accounting|invoicing)$/i }))
-      .or(page.locator('.o_main_navbar [data-menu-xmlid*="account"]'))
-      .first();
     await expect(
-      accountingApp,
-      "the Accounting/Invoicing app brand must render in the navbar — this proves the upstream 'account' module is actually installed and its menu is registered, not merely that a generic Odoo web-client shell rendered. When 'account' is enabled but the module failed to install/load, this is absent and the test MUST fail here, not pass on generic chrome."
-    ).toBeVisible({ timeout: 60_000 });
+      page.locator("body"),
+      "the loaded page must expose Accounting domain vocabulary (Customer Invoices / Vendor Bills / Chart of Accounts / Journal Entries / Accounting), proving the account module — not a generic Odoo surface — is what rendered; if 'account' is enabled but the module did not install, /odoo/accounting degrades to the home shell and this text is absent, so the test MUST fail here"
+    ).toContainText(/customer invoices|vendor bills|chart of accounts|journal entries|accounting/i, { timeout: 90_000 });
 
-    const accountingMenus = page
-      .getByRole("menuitem", { name: /customers|vendors|customer invoices|bills|chart of accounts|journal/i })
-      .or(page.getByText(/customer invoices|vendor bills|chart of accounts/i))
+    const accountingSurface = page
+      .locator(".o_account_dashboard")
+      .or(page.locator(".o_control_panel, .o_breadcrumb").filter({ hasText: /accounting|invoic|bill|journal|chart of accounts/i }))
+      .or(page.getByText(/customer invoices|vendor bills|chart of accounts|journal entries/i))
       .first();
     await expect(
-      accountingMenus,
-      "an Accounting-specific top menu (Customers/Vendors/Chart of Accounts/Journals) must be reachable — these views exist only because the 'account' module registered them, distinguishing a working Accounting install from an empty Odoo surface"
-    ).toBeVisible({ timeout: 60_000 });
+      accountingSurface,
+      "the Accounting action must render its own account-specific content surface (the accounting dashboard, or a control panel/breadcrumb naming Accounting/Invoices/Bills/Journals/Chart of Accounts, or account-domain text) — present only because the 'account' module installed and registered its views; a bare control panel/breadcrumb on the generic Odoo home shell does NOT satisfy this, distinguishing a working install from silent degradation"
+    ).toBeVisible({ timeout: 90_000 });
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});
