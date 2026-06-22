@@ -1,7 +1,5 @@
 ---
-# Auto-derive the WireGuard client MTU via pkgmgr automtu, falling back to the
-# configured WIREGUARD_CLIENT_MTU. Never fails the deploy: probe issues rescue to
-# the fallback.
+# Auto-derive the client MTU via pkgmgr automtu; rescue to the configured fallback.
 - name: "Derive client MTU via automtu"
   block:
     - name: "Ensure automtu is installed"

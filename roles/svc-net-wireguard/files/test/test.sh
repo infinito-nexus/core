@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-# Deploy-driven e2e: bootstrap empty hosts, register inventories, deploy + test full mesh.
+# Deploy-driven e2e: bootstrap fresh hosts, deploy the role (server/client/nat),
+# then verify the tunnels.
 set -euo pipefail
 
 # test containers don't need the internal CA
 export CA_CONTAINER_ENABLED=0
 
-: "${WIREGUARD_IMAGE:?}"
-: "${WIREGUARD_VERSION:?}"
 : "${WIREGUARD_E2E_TIMEOUT:?}"
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
