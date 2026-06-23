@@ -58,4 +58,4 @@ pihole:
       sso: 16508
   run_after:
   - web-app-keycloak
-  lifecycle: alpha
+  lifecycle: beta
