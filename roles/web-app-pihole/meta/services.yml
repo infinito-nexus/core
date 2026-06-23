@@ -55,7 +55,7 @@ pihole:
   ports:
     local:
       http: 8078
-      sso: 16507
+      sso: 16508
   run_after:
   - web-app-keycloak
   lifecycle: alpha
