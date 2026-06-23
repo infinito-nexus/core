@@ -204,15 +204,6 @@ compose-deploy:
 	 $(if $(debug),INFINITO_DEBUG="$(debug)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
-.PHONY: roundtrip
-# Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
-# Param apps: space-separated role ids (>=1), e.g. apps="web-app-baserow web-app-nextcloud".
-# Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
-# Param keep: true keeps each validated swarm cluster instead of releasing it.
-roundtrip:
-	@test -n '$(apps)' || { echo 'usage: make roundtrip apps="<app> [app...]" [modes="compose swarm"] [keep=true]'; exit 2; }
-	@apps='$(apps)' modes='$(modes)' keep='$(keep)' bash scripts/tests/deploy/roundtrip.sh
-
 .PHONY: compose-down
 # Stop the development stack.
 compose-down:
@@ -509,6 +500,14 @@ network-trust-ca:
 requirements-archive:
 	@"$${PYTHON}" -m pip install --quiet --upgrade kpmx
 	@"$${PYTHON}" -m pkgmgr archive docs/requirements
+
+.PHONY: roundtrip
+# Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
+# Param apps: space-separated role ids; default = every application, most-complex first (complexity CLI).
+# Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
+# Param keep: true keeps each validated swarm cluster instead of releasing it.
+roundtrip:
+	@apps='$(apps)' modes='$(modes)' keep='$(keep)' bash scripts/tests/deploy/roundtrip.sh
 
 .PHONY: security-apparmor-restore
 # Restore AppArmor profiles.

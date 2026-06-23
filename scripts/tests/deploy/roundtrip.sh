@@ -3,13 +3,24 @@ set -euo pipefail
 
 # Iterate one or more roles through every deploy mode in order, stopping at the
 # first failure. Inputs (env):
-#   apps  - space-separated role ids (required)
+#   apps  - space-separated role ids; defaults to every application, most complex
+#           first, via the complexity CLI when unset
 #   modes - mode sequence (default "compose swarm"; append "k8s" here once it exists)
 #   keep  - true keeps each validated swarm cluster instead of releasing it
-: "${apps:?apps=\"<app> [app...]\" required}"
-modes="${modes:-compose swarm}"
-
 _repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
+
+if [ -z "${apps:-}" ]; then
+	# shellcheck source=scripts/meta/env/load.sh
+	. "${_repo_root}/scripts/meta/env/load.sh"
+	apps="$("${PYTHON:-python3}" -m cli.meta.roles.applications.complexity \
+		--sort total --order desc --format string)"
+fi
+[ -n "${apps// /}" ] || {
+	echo "roundtrip: no roles to run" >&2
+	exit 2
+}
+
+modes="${modes:-compose swarm}"
 _log_dir="${TMPDIR:-/tmp}"
 
 read -ra _apps <<<"$apps"
