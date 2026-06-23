@@ -30,7 +30,7 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_canonical_volumes
+from utils.cache.applications import get_application_defaults, get_canonical_volumes
 
 
 class LookupModule(LookupBase):
@@ -50,6 +50,14 @@ class LookupModule(LookupBase):
             raise AnsibleError("volume lookup: application_id must be non-empty")
 
         canonical = get_canonical_volumes(application_id)
+        if not canonical:
+            # The canonical-volumes registry fills lazily as a side effect of
+            # building the application defaults; force it on a miss so a lookup
+            # that runs before any consumer built this role (e.g. nfs_prep's
+            # pre-create loop) does not see an empty registry and silently skip
+            # the subdir. Guarded so the populated hot path skips the deepcopy.
+            get_application_defaults()
+            canonical = get_canonical_volumes(application_id)
 
         if len(terms) == 1:
             return [dict(canonical)]

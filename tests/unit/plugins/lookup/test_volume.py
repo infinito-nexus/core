@@ -29,7 +29,7 @@ def _run(
     with patch(
         "plugins.lookup.volume.get_canonical_volumes",
         return_value=canonical if canonical is not None else {},
-    ):
+    ), patch("plugins.lookup.volume.get_application_defaults"):
         return LookupModule().run([application_id, name], variables={})
 
 
@@ -168,7 +168,7 @@ class TestVolumeLookup(unittest.TestCase):
         with patch(
             "plugins.lookup.volume.get_canonical_volumes",
             return_value=canonical,
-        ):
+        ), patch("plugins.lookup.volume.get_application_defaults"):
             result = LookupModule().run(["web-app-mattermost"], variables={})
         self.assertEqual(result, [canonical])
 
@@ -176,7 +176,7 @@ class TestVolumeLookup(unittest.TestCase):
         with patch(
             "plugins.lookup.volume.get_canonical_volumes",
             return_value={},
-        ):
+        ), patch("plugins.lookup.volume.get_application_defaults"):
             result = LookupModule().run(["web-app-no-meta"], variables={})
         self.assertEqual(result, [{}])
 
@@ -187,6 +187,32 @@ class TestVolumeLookup(unittest.TestCase):
     def test_empty_name_raises(self):
         with self.assertRaises(AnsibleError):
             _run("web-app-mattermost", "", canonical={"data": {}})
+
+    def test_forces_defaults_build_on_registry_miss(self):
+        # Empty on the first read (lookup runs before any consumer built the
+        # role); populated after the forced build — the nfs_prep/ollama case.
+        populated = {"data": {"type": "volume"}}
+        with patch(
+            "plugins.lookup.volume.get_canonical_volumes",
+            side_effect=[{}, populated],
+        ) as gcv, patch(
+            "plugins.lookup.volume.get_application_defaults",
+        ) as gad:
+            result = LookupModule().run(["svc-ai-ollama"], variables={})
+        self.assertEqual(result, [populated])
+        gad.assert_called_once()
+        self.assertEqual(gcv.call_count, 2)
+
+    def test_populated_registry_skips_build(self):
+        # Already populated: no forced build, no wasted defaults deepcopy.
+        with patch(
+            "plugins.lookup.volume.get_canonical_volumes",
+            return_value={"data": {"type": "volume"}},
+        ), patch(
+            "plugins.lookup.volume.get_application_defaults",
+        ) as gad:
+            LookupModule().run(["web-app-mattermost"], variables={})
+        gad.assert_not_called()
 
 
 if __name__ == "__main__":
