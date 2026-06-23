@@ -212,6 +212,19 @@ class InventoryManager:
                 self.value_generator.generate_value("alphanumeric")
             )
 
+        for engine_name in ("rabbitmq", "elasticsearch", "typesense"):
+            engine_cfg = (
+                services.get(engine_name) if isinstance(services, dict) else None
+            )
+            if isinstance(engine_cfg, dict) and is_explicit_truth(
+                engine_cfg.get("enabled")
+            ):
+                apps = self.inventory.setdefault("applications", {})
+                target = apps.setdefault(app_id, {})
+                target.setdefault("credentials", {})[f"{engine_name}_password"] = (
+                    self.value_generator.generate_value("alphanumeric")
+                )
+
     def apply_schema(self) -> dict:
         """
         Apply schema into inventory for:

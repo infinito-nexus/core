@@ -26,6 +26,13 @@ roles/web-app-minio/tasks/roles/sys-svc-compose/tasks/utils/network/create.yml l
 roles/web-app-seaweedfs/tasks/roles/sys-svc-compose/tasks/utils/network/create.yml load-failure[filenotfounderror]
 roles/svc-db-mariadb/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_container.yml load-failure[filenotfounderror]
 roles/web-app-mediawiki/tasks/roles/sys-svc-compose/tasks/utils/finalize.yml load-failure[filenotfounderror]
+roles/svc-db-elasticsearch/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
+roles/svc-db-memcached/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
+roles/svc-db-qdrant/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
+roles/svc-db-rabbitmq/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
+roles/svc-db-redis/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
+roles/svc-db-typesense/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
+roles/svc-dns-unbound/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
 
 # syntax-check ----------------------------------------------------------
 # `keycloak_kcadm_update` is a role-local module shipped at

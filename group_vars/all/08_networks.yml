@@ -84,9 +84,30 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     postgres:
       start: 5432
       end: 5432
+    redis:
+      start: 6379
+      end: 6379
+    memcached:
+      start: 11211
+      end: 11211
+    rabbitmq:
+      start: 5672
+      end: 5672
+    typesense:
+      start: 8108
+      end: 8108
+    qdrant:
+      start: 6333
+      end: 6333
+    elasticsearch:
+      start: 9200
+      end: 9200
     ldap:
       start: 389
       end: 389
+    unbound:
+      start: 53
+      end: 53
     registry:
       start: 5000
       end: 5001

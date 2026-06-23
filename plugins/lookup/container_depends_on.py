@@ -75,10 +75,12 @@ class LookupModule(LookupBase):
         if db_host:
             entries[db_host] = {"condition": "service_healthy"}
 
+        redis_cfg = applications[application_id].get("services", {}).get("redis", {})
+        redis_local = _DockerServiceEnabledFilter.is_docker_service_enabled(
+            applications, application_id, "redis"
+        ) and not bool(redis_cfg.get("shared", False))
         redis_enabled = (
-            _DockerServiceEnabledFilter.is_docker_service_enabled(
-                applications, application_id, "redis"
-            )
+            redis_local
             or get_sso_config(applications, application_id)["is_proxy_gated"]
         )
         if redis_enabled:

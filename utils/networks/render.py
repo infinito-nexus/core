@@ -197,6 +197,15 @@ def render_compose_networks(
             lines.append("    attachable: true")
             lines.append("    driver_opts:")
             lines.append(f'      encrypted: "{"true" if swarm_encrypted else "false"}"')
+            if not is_own_shared_net_provider:
+                subnet = lookup_config(
+                    application_id, "server.networks.local.subnet", ""
+                )
+                if subnet:
+                    lines.append("    ipam:")
+                    lines.append("      driver: default")
+                    lines.append("      config:")
+                    lines.append(f"        - subnet: {subnet}")
         elif is_own_shared_net_provider:
             lines.append("    driver: bridge")
         else:

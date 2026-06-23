@@ -23,6 +23,7 @@ try:
         resolve_database_service_key,
     )
     from utils.roles.applications.services.sso import get_sso_config
+    from utils.roles.meta_lookup import get_role_default_placement
 except ModuleNotFoundError:
     from docker_service_enabled import FilterModule as _DockerServiceEnabledFilter
     from get_entity_name import get_entity_name
@@ -38,6 +39,7 @@ except ModuleNotFoundError:
         resolve_database_service_key,
     )
     from utils.roles.applications.services.sso import get_sso_config
+    from utils.roles.meta_lookup import get_role_default_placement
 
 
 def _to_plain(obj: Any) -> Any:
@@ -235,16 +237,6 @@ def compose_volumes(
     )
     canonical_entries = normalize_volumes_meta(raw_meta_volumes)
 
-    # Legacy nfs opt-in: only present when the meta is dict-shape.
-    legacy_dict_volumes = role_data.get("volumes")
-    nfs_keys_legacy = {
-        k
-        for k, v in (
-            legacy_dict_volumes.items() if isinstance(legacy_dict_volumes, dict) else []
-        )
-        if isinstance(v, dict) and v.get("nfs") is not None
-    }
-
     for semantic_name, entry in canonical_entries.items():
         vtype = entry.get("type", "volume")
 
@@ -278,19 +270,21 @@ def compose_volumes(
     swarm_nfs_enabled = (
         deployment_mode == "swarm" and str(storage_backend).lower() == "nfs"
     )
-
-    nfs_canonical = {
-        semantic_name
-        for semantic_name, entry in canonical_entries.items()
-        if bool(entry.get("nfs"))
-    }
-    nfs_keys = nfs_keys_legacy | nfs_canonical
+    # NFS placement is derived from the role's default_placement, never a per-volume
+    # flag: a pinned (default_placement: manager) role stays on one node so its volumes
+    # are node-local; an unpinned role can reschedule, so its volumes must live on shared
+    # NFS to survive and stay consistent across nodes. State that cannot live on NFS
+    # (DB / queue / sqlite engines) is kept node-local by pinning its role instead.
+    role_pinned = (
+        str(get_role_default_placement(application_id) or "").strip().lower()
+        == "manager"
+    )
 
     for vol_name, vol_spec in list(volumes.items()):
         if not isinstance(vol_spec, dict):
             continue
-        wants_nfs = bool(vol_spec.pop("nfs", False)) or (vol_name in nfs_keys)
-        if wants_nfs and swarm_nfs_enabled:
+        vol_spec.pop("nfs", None)  # legacy per-volume flag: ignored, placement decides
+        if swarm_nfs_enabled and not role_pinned:
             named = vol_spec.get("name", vol_name)
             vol_spec.update(_swarm_nfs_driver_opts(dir_var_lib, str(named)))
 

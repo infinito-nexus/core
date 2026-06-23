@@ -112,6 +112,11 @@ roles:
       description: "Database applications (DBMS, LDAP, Redis, etc.)"
       icon: "fas fa-database"
       invokable: true
+    dns:
+      title: "DNS Resolvers"
+      description: "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
+      icon: "fas fa-globe"
+      invokable: true
     opt:
       title: "Service Optimation"
       description: "Optimation Services to improve your system"

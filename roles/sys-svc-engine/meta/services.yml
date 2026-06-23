@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage
+svc-engine:
+  lifecycle: alpha

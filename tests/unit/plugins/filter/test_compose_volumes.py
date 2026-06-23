@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import unittest
 from typing import Any
+from unittest import mock
 
 from ansible.errors import AnsibleFilterError
 
@@ -264,24 +265,31 @@ class TestComposeVolumes(unittest.TestCase):
         self.assertEqual(vol["driver_opts"]["device"], "/var/lib/infinito/app_images")
         self.assertNotIn("nfs", vol)
 
-    def test_swarm_nfs_disabled_volume_stays_local(self):
+    def test_swarm_pinned_role_stays_node_local(self):
+        # NFS is derived from the role's placement: a pinned role
+        # (default_placement: manager) keeps its volumes node-local even on a
+        # swarm/nfs backend, so engine state stays put instead of being shared.
         apps = self._base_apps()
-        rendered = _call(
-            apps,
-            "app",
-            extra_volumes={
-                "images": {"name": "app_images", "nfs": True},
-                "data": {"name": "app_data"},
-            },
-            deployment_mode="swarm",
-            storage={
-                "backend": "nfs",
-                "nfs": {"server": "10.0.0.20", "export_base": "/srv/nfs"},
-            },
-        )
+        with mock.patch(
+            "plugins.filter.compose_volumes.get_role_default_placement",
+            return_value="manager",
+        ):
+            rendered = _call(
+                apps,
+                "app",
+                extra_volumes={
+                    "images": {"name": "app_images"},
+                    "data": {"name": "app_data"},
+                },
+                deployment_mode="swarm",
+                storage={
+                    "backend": "nfs",
+                    "nfs": {"server": "10.0.0.20", "export_base": "/srv/nfs"},
+                },
+            )
         data = self._parse_yaml(rendered)
 
-        self.assertIn("driver_opts", data["volumes"]["images"])
+        self.assertNotIn("driver_opts", data["volumes"]["images"])
         self.assertNotIn("driver_opts", data["volumes"]["data"])
 
     def test_compose_mode_ignores_nfs_flag(self):
