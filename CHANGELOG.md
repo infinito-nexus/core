@@ -1,5 +1,15 @@
 # Changelog
 
+## [10.1.0] - 2026-06-23
+
+* New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta.
+* Routine maintenance: Docker image version bumps, a dependabot update of *globals* from 15.15.0 to 17.7.0, and minor *services.yml* self-provider flag corrections for ERPNext, GitLab, SeaweedFS and the Playwright end-to-end role.
+
+**Contributors**
+
+* [Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite
+* [Kevin Veen-Birkenbach](https://veen.world): Pi-hole role hardening and review
+
 ## [10.0.1] - 2026-06-19
 
 * Mark the *web-app-erpnext* role's own *erpnext* provider service with the *playwright-service-flag* self-provider suppression in *meta/services.yml*, fixing the Playwright service-flag integration guard that 10.0.0 tripped by exposing ERPNext as a consumable shared service.
