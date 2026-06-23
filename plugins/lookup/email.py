@@ -129,8 +129,13 @@ class LookupModule(LookupBase):
         if short_key == "timeout":
             return "30"
         if short_key == "external":
-            group_names = variables.get("group_names") or []
-            return bool("web-app-mailu" in group_names)
+            # Cluster-wide, not per-host: in swarm mailu is manager-pinned so
+            # worker group_names lack it, yet every node relays through the
+            # central mailu (routing mesh). Gate on the group having a host so
+            # workers use the authenticated config, not a localhost root sender
+            # mailu rejects ("Sender address rejected: Domain not found").
+            groups = variables.get("groups") or {}
+            return bool(groups.get("web-app-mailu"))
         if short_key == "environment":
             external = _as_bool(resolved.get("external"))
             tls_enabled = _as_bool(variables.get("TLS_ENABLED"))

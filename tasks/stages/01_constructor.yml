@@ -117,13 +117,15 @@
     label: "{{ role_id }}"
   when:
     - (groups['svc-swarm-manager'] | default([]) | length) > 0
+    # Only fill an inventory-present group that has no host yet; an absent group means no app consumes this central engine, so it must not be deployed.
+    - role_id in groups
     - (groups[role_id] | default([]) | length) == 0
   run_once: true
   changed_when: false
 
-- name: "Auto-place svc-prx-openresty on first play host (compose mode) so web apps get a vhost"
+- name: "Auto-place svc-prx-openresty (manager in swarm, first play host in compose) so web apps get a vhost"
   ansible.builtin.add_host:
-    name: "{{ ansible_play_hosts | first }}"
+    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] | default(ansible_play_hosts | first) }}"
     groups: svc-prx-openresty
   vars:
     _web_groups: >-
@@ -135,7 +137,6 @@
         | list
       }}
   when:
-    - (groups['svc-swarm-manager'] | default([]) | length) == 0
     - (groups['svc-prx-openresty'] | default([]) | length) == 0
     - (_web_groups | length) > 0
   run_once: true
@@ -178,6 +179,7 @@
     - gen # 3. Load generic roles
     - svc-net # 4. Load network roles
     - svc-db # 5. Load database roles
+    - svc-dns # 5b. Load central DNS resolver roles
     - svc-prx # 6. Load proxy roles
     - svc-ai # 7. Load AI roles
     - svc-bkp # 8. Load Backup Roles

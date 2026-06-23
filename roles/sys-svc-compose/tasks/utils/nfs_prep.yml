@@ -1,11 +1,15 @@
 ---
+# compose_volumes pops the legacy per-volume `nfs:` flag and binds EVERY volume
+# of an unpinned role to DIR_VAR_LIB/<name> (placement decides, not the flag).
+# The backing dir must therefore be pre-created for the same set: unpinned roles,
+# not just volumes that still carry an `nfs:` block (e.g. baserow has none).
 - name: "Pre-create NFS subdir for '{{ application_id }}' volume '{{ item.key }}' on the NFS server"
   ansible.builtin.file:
     path: "{{ STORAGE_NFS_STATE_PATH }}/{{ item.value.name | default(item.key) }}"
     state: directory
-    owner: "{{ item.value.nfs.uid | default('0') | string }}"
-    group: "{{ item.value.nfs.gid | default('0') | string }}"
-    mode: "{{ item.value.nfs.mode | default('0755') }}"
+    owner: "{{ (item.value.nfs | default({})).uid | default('0') | string }}"
+    group: "{{ (item.value.nfs | default({})).gid | default('0') | string }}"
+    mode: "{{ (item.value.nfs | default({})).mode | default('0755') }}"
   delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
   run_once: true
   loop: "{{ lookup('volume', application_id) | dict2items }}"
@@ -14,4 +18,4 @@
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
     - item.value is mapping
-    - item.value.nfs is defined
+    - application_id not in lookup('roles_with_default_placement', 'manager')
