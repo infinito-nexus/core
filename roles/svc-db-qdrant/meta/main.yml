@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: The Docker Qdrant Role offers an easy and efficient way to run a Qdrant vector database inside a Docker container. Manage your embeddings securely and
-    effectively, making it ideal for production or local development.
+  description: Central Qdrant vector-database engine for storing per-consumer embeddings.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach
