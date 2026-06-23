@@ -1,0 +1,2 @@
+- include_tasks: 01_core.yml
+  when: run_once_web_app_pihole is not defined

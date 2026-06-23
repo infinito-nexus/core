@@ -1,0 +1,53 @@
+- include_tasks: utils/once/flag.yml
+
+- name: "Load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+# Why this task exists:
+#
+# oauth2-proxy (quay.io/oauth2-proxy/oauth2-proxy) is a distroless image with
+# no /bin/sh, so the platform's CA-trust wrapper (with-ca-trust.sh, applied by
+# compose_ca.py for services that have a shell) is skipped for this container.
+# Go binaries ignore SSL_CERT_FILE/REQUESTS_CA_BUNDLE/CURL_CA_BUNDLE and use
+# only the OS system cert pool, so on self-signed TLS setups oauth2-proxy
+# fails OIDC discovery against Keycloak with
+# "x509: certificate signed by unknown authority". nginx then falls back to
+# pihole's native /admin/login instead of redirecting to Keycloak, breaking
+# SSO entirely in CI (and on any self-signed deployment).
+#
+# Fix: oauth2-proxy supports a `provider_ca_file` config option to load a CA
+# explicitly for the OIDC provider connection, bypassing the system cert pool
+# entirely. We append this line to the rendered sso-proxy config file here —
+# AFTER web-app-keycloak/tasks/sso_proxy.yml has rendered it (inside
+# sys-stk-full -> sys-stk-backend, called above with
+# compose_handlers_flush: false) and BEFORE `compose up` runs (flushed
+# explicitly below).
+#
+# Scope: deliberately role-local. We avoid touching the shared
+# oauth2-proxy-keycloak.cfg.j2 template, since a central change there would
+# affect every `flavor: oauth2` role platform-wide and was out of scope per
+# review feedback. This task is a no-op on production (TLS_MODE=letsencrypt),
+# where a real CA is trusted and this isn't needed.
+- name: "Pi-hole | Trust self-signed platform CA for sso-proxy OIDC discovery"
+  ansible.builtin.lineinfile:
+    path: >-
+      {{ (application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
+         }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}
+    line: 'provider_ca_files       =   ["{{ PIHOLE_SSO_PROXY_CA_CONTAINER_PATH }}"]'
+    insertafter: '^provider_display_name'
+  when:
+    - lookup('sso', application_id, 'is_proxy_gated')
+    - (TLS_MODE | lower) == 'self_signed'
+
+- name: "flush compose and SSO proxy"
+  meta: flush_handlers
+
+- name: "Wait for Pi-hole HTTP endpoint"
+  wait_for:
+    host:     "{{ DOCKER_REACH_HOST }}"
+    port:     "{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}"
+    delay:    5
+    timeout:  300

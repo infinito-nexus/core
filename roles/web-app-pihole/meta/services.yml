@@ -1,0 +1,61 @@
+# nocheck: playwright-service-flag
+logout:
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: playwright-service-flag
+dashboard:
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+# nocheck: playwright-service-flag
+matomo:
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag
+email:
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+redis:
+  enabled: true
+  shared: true
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+# nocheck: playwright-service-flag
+prometheus:
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag
+css:
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: playwright-service-flag
+sso:
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: pihole
+      port: "80"
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-pihole', role='administrator') }}"
+pihole:
+  image: pihole/pihole
+  version: "2026.06.0"
+  upstream_dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS }}"
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "256m"
+  min_storage: "1GB"
+  pids_limit: 512
+  ports:
+    local:
+      http: 8078
+      sso: 16508
+  run_after:
+  - web-app-keycloak
+  lifecycle: beta

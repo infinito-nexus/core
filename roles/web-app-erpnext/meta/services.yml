@@ -38,9 +38,12 @@ mariadb:
 redis:
   enabled: true
   shared: "{{ 'svc-db-redis' in group_names }}"
+# nocheck: playwright-service-flag — self-provider
 erpnext:
+  enabled: true
+  shared: true
   image: frappe/erpnext
-  version: "v16.23.0"
+  version: "v16.23.1"
   name: erpnext
   min_storage: 15GB
   ports:
@@ -52,7 +55,6 @@ erpnext:
   proxy:
     service_key: erpnext-frontend
   run_after:
-    - svc-db-mariadb
     - web-app-keycloak
     - web-app-mailu
   lifecycle: alpha

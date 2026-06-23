@@ -1,5 +1,35 @@
 # Changelog
 
+## [10.1.0] - 2026-06-23
+
+* New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta.
+* Routine maintenance: Docker image version bumps, a dependabot update of *globals* from 15.15.0 to 17.7.0, and minor *services.yml* self-provider flag corrections for ERPNext, GitLab, SeaweedFS and the Playwright end-to-end role.
+
+**Contributors**
+
+* [Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite
+* [Kevin Veen-Birkenbach](https://veen.world): Pi-hole role hardening and review
+
+## [10.0.1] - 2026-06-19
+
+* Mark the *web-app-erpnext* role's own *erpnext* provider service with the *playwright-service-flag* self-provider suppression in *meta/services.yml*, fixing the Playwright service-flag integration guard that 10.0.0 tripped by exposing ERPNext as a consumable shared service.
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): ERPNext self-provider test fix
+
+## [10.0.0] - 2026-06-19
+
+* New engine-agnostic object-store service (*web-app-seaweedfs*, backed by either *SeaweedFS* or *MinIO*) that exposes a shared S3 endpoint, now consumed across 14 web-app roles for media and asset storage. Nextcloud, Decidim, Shopware, PeerTube, Pixelfed, Taiga, Fider, Akaunting, Mobilizon and Matrix route their uploads to the central bucket, each exercised end-to-end with a SeaweedFS consumer check that requires a fresh object key per upload.
+* Trusted-header single-sign-on bridges (wave 1) for *web-app-openproject*, *web-app-snipe-it*, *web-app-postmarks* and *web-app-yourls*, with *web-app-baserow* and *web-app-bookwyrm* migrating to the header bridge and dropping their LDAP configuration. The shared proxy (*sys-svc-proxy*) now strips forgeable identity headers on every location to close trusted-header injection.
+* ERPNext is exposed as a consumable shared service and renders the Keycloak SSO button on */login* under gunicorn *--preload*. Nextcloud is provisioned on the SeaweedFS S3 object store with a dedicated consumer end-to-end test and has its OIDC plugins gated as mandatory; the upgrade to version 34 is deliberately not carried out because of plugin incompatibilities, so it stays pinned at 33.
+* Extensive deploy and end-to-end hardening, much of it reproduced in Docker-in-Docker: native username and password login fallbacks for the no-SSO admin persona across Akaunting, Snipe-IT, YOURLS and OpenProject; OpenProject linked to the LDAP auth source for header SSO to fix a trusted-header 401, with all rails-runner Ruby extracted to dedicated files under *files/ruby/*; Shopware retries asset and theme builds against a restarting SeaweedFS; Mailu retries user creation and waits for antispam readiness before DKIM keygen; YOURLS creates its database schema on deploy; and OpenProject boots db:migrate under Ruby 4.0.
+* Routine maintenance: Docker image and git-reference bumps, skills-lock refreshes, and dependabot updates (actions/checkout 6 to 7, @playwright/test 1.60.0 to 1.61.0, eslint 10.4.1 to 10.5.0).
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): object-store service, trusted-header SSO bridges, role fixes and review
+
 ## [9.3.0] - 2026-06-11
 
 * New Penpot role (web-app-penpot, requirement 235) that ships the upstream Penpot design platform comprising frontend, backend, exporter and Redis at image version 2.5.4, wired into the central Keycloak via OIDC and into the central OpenLDAP. Native local-password login is available as a toggle that is disabled automatically under OIDC, with the native-login and registration flags derived from the SSO flag. A custom JVM truststore imports the Infinito self-signed CA so OIDC over TLS succeeds, and the role is exercised end-to-end with Playwright covering OIDC login, logout and project creation. The local subnet was moved to 192.168.105.192/28 to avoid a collision with the ERPNext range.
