@@ -22,8 +22,8 @@ redis:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
 javascript:
-  enabled: true
-  shared: true
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
 # nocheck: playwright-service-flag
 prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -45,7 +45,7 @@ sso:
       - "{{ lookup('rbac_group_path', application_id='web-app-pihole', role='administrator') }}"
 pihole:
   image: pihole/pihole
-  version: latest
+  version: "2026.06.0"
   upstream_dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS }}"
   cpus: "0.5"
   mem_reservation: "128m"
