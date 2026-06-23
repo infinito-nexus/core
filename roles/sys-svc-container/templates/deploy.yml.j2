@@ -1,7 +1,7 @@
 {% if DEPLOYMENT_MODE == 'swarm' %}
 {{ "\n" }}
     deploy:
-      {{ lookup('compose_replicas') }}
+      {{ lookup('compose_replicas', service_replicas) if service_replicas is defined else lookup('compose_replicas') }}
 {% if application_id in lookup('roles_with_default_placement', 'manager') %}
       placement:
         constraints:

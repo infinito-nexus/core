@@ -22,6 +22,7 @@
   {{ MATOMO_BOOTSTRAP_SERVICE }}:
 {% set docker_restart_policy = 'no' %}
 {% set docker_compose_env = MATOMO_BOOTSTRAP_ENV_FILE %}
+{% set service_replicas = 1 %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% set docker_compose_env = '' %}
 {% set docker_restart_policy = DOCKER_RESTART_POLICY %}
