@@ -1,0 +1,14 @@
+---
+data:
+  type: volume
+  name: pihole_data
+  mounts:
+    - service: pihole
+      target: /etc/pihole
+
+dnsmasq:
+  type: volume
+  name: pihole_dnsmasq
+  mounts:
+    - service: pihole
+      target: /etc/dnsmasq.d

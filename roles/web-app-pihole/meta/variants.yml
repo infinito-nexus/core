@@ -1,3 +1,4 @@
+---
 # Matrix-deploy variant overrides for web-app-pihole.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
@@ -9,7 +10,7 @@
     dashboard:
       enabled: true
       shared: true
-    email:
+    javascript:
       enabled: true
       shared: true
     logout:
@@ -31,7 +32,7 @@
     dashboard:
       enabled: false
       shared: false
-    email:
+    javascript:
       enabled: false
       shared: false
     logout:

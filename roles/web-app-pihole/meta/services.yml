@@ -10,10 +10,11 @@ dashboard:
 matomo:
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
 # nocheck: playwright-service-flag
 email:
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: false
+  shared: false
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
 redis:
