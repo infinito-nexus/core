@@ -45,5 +45,9 @@
 - name: "flush compose and SSO proxy"
   meta: flush_handlers
 
-- name: "Run Pi-hole setup routines"
-  include_tasks: 01_setup.yml
+- name: "Wait for Pi-hole HTTP endpoint"
+  wait_for:
+    host:     "{{ DOCKER_REACH_HOST }}"
+    port:     "{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}"
+    delay:    5
+    timeout:  300
