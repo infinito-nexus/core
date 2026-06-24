@@ -1,3 +1,4 @@
+---
 - include_tasks: utils/once/flag.yml
 
 - name: "Load docker, db and proxy for {{ application_id }}"
@@ -37,7 +38,7 @@
       {{ (application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
          }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}
     line: 'provider_ca_files       =   ["{{ PIHOLE_SSO_PROXY_CA_CONTAINER_PATH }}"]'
-    insertafter: '^provider_display_name'
+    insertafter: "^provider_display_name"
   when:
     - lookup('sso', application_id, 'is_proxy_gated')
     - (TLS_MODE | lower) == 'self_signed'
@@ -47,7 +48,7 @@
 
 - name: "Wait for Pi-hole HTTP endpoint"
   wait_for:
-    host:     "{{ DOCKER_REACH_HOST }}"
-    port:     "{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}"
-    delay:    5
-    timeout:  300
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}"
+    delay: 5
+    timeout: 300
