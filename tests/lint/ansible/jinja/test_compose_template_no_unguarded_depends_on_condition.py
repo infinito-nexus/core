@@ -1,7 +1,7 @@
 """Flag ``condition: service_healthy`` (and
 ``service_completed_successfully``) under ``depends_on:`` in
 ``compose.yml.j2`` templates when the line is NOT inside a
-``{% if DEPLOYMENT_MODE != 'swarm' %}`` (or equivalent compose-only)
+``{% if DEPLOYMENT_MODE == 'compose' %}`` (or equivalent compose-only)
 Jinja gate.
 
 ``docker stack deploy`` accepts only the list form of ``depends_on``;

@@ -31,7 +31,7 @@
   {%- endset -%}
 {{ _snippet | indent(indent, true) }}
 {%- endmacro %}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
 {{ include_resource_for('redis') }}
 {% endif %}
 {{ "\n" }}

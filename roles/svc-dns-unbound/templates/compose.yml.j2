@@ -5,7 +5,7 @@
     {{ lookup('container_image', application_id, 'unbound') }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {# Publish :53 to the host only on a real host: under DinD the host already binds :53 (its own systemd-resolved) so the publish clashes (address already in use), and consumers reach unbound at UNBOUND_RESOLVER_IP on the overlay, never via the host port. #}
-{% if DEPLOYMENT_MODE != 'swarm' and not (DOCKER_IN_CONTAINER | bool) %}
+{% if DEPLOYMENT_MODE == 'compose' and not (DOCKER_IN_CONTAINER | bool) %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ UNBOUND_PORT }}:53/udp"
       - "{{ DOCKER_BIND_HOST }}:{{ UNBOUND_PORT }}:53/tcp"

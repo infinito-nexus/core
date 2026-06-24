@@ -93,7 +93,7 @@ class TestNoComposeVerbInShellTasks(unittest.TestCase):
                 "Fix: replace with `container <verb>` via the wrapper and use "
                 "`lookup('container_address', ...)` / `lookup('container_service', ...)` "
                 "for the target. If the call is legitimately compose-only, wrap it "
-                "in a block gated by `when: DEPLOYMENT_MODE != 'swarm'` and add a "
+                "in a block gated by `when: DEPLOYMENT_MODE == 'compose'` and add a "
                 "swarm-equivalent alongside, OR mark with "
                 "`# nocheck: compose-verb-in-task` if the role itself is "
                 "compose-only by design.\n\n"

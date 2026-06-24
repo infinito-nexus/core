@@ -2,4 +2,4 @@
 - include_tasks: 01_core.yml
   when:
     - run_once_sys_ctl_rpr_container_soft is not defined
-    - DEPLOYMENT_MODE != 'swarm'
+    - DEPLOYMENT_MODE == 'compose'

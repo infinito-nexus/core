@@ -27,7 +27,7 @@
         MATOMO_HOST_NODE: "{{ matomo_swarm_node_query.stdout | trim }}"
 
 - name: "Matomo resolve | Compose host node"
-  when: DEPLOYMENT_MODE != 'swarm'
+  when: DEPLOYMENT_MODE == 'compose'
   block:
     - name: "Matomo resolve | Wait for matomo container to be running"
       ansible.builtin.shell: >

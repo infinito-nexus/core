@@ -95,7 +95,7 @@ host_dev_disk:
   mounts:
     - service: cadvisor
       target: /dev/disk
-      when: "{{ DEPLOYMENT_MODE != 'swarm' }}"
+      when: "{{ DEPLOYMENT_MODE == 'compose' }}"
 
 host_proc:
   type: bind

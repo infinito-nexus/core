@@ -116,7 +116,7 @@ def _is_special_source(src: str) -> bool:
 
 
 def _is_inside_compose_only_gate(lines: list[str], target_idx: int) -> bool:
-    """True iff lines[target_idx] sits under a `DEPLOYMENT_MODE != 'swarm'` gate."""
+    """True iff lines[target_idx] sits under a `DEPLOYMENT_MODE == 'compose'` gate."""
     stack: list[tuple[str, bool]] = []
     for i, raw in enumerate(lines):
         if i == target_idx:

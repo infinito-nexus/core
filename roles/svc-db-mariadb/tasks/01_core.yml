@@ -25,7 +25,7 @@
     - db_info.container.State.Running
   retries: 30
   delay: 5
-  when: DEPLOYMENT_MODE != 'swarm'
+  when: DEPLOYMENT_MODE == 'compose'
 
 - block:
     - name: "Root password reset | Check login with desired password (inside container)"

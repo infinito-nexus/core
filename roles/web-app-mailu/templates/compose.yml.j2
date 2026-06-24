@@ -18,7 +18,7 @@
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 {{ lookup('container_depends_on', application_id) }}
     {{ lookup('container_networks') | indent(4) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
       webmail:
       radicale:
     dns:
@@ -34,7 +34,7 @@
 {{ lookup('container_depends_on', application_id, extra={
   'front': {'condition': 'service_started'},
 }) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% else %}
@@ -64,7 +64,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('depends_on', ['front']) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
@@ -77,7 +77,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('depends_on', ['front']) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
@@ -89,12 +89,12 @@
     {{ lookup('compose_only', 'container_name', MAILU_OLETOOLS_CONTAINER_ADDRESS) }}
     {{ lookup('container_image', application_id, 'oletools', image=MAILU_DOCKER_FLAVOR ~ '/oletools', version=MAILU_VERSION) }}
     hostname: oletools
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
     {{ lookup('container_networks') | indent(4) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
       noinet:
 {% endif %}
 
@@ -105,12 +105,12 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('depends_on', ['front', 'antivirus'] + (['redis'] if lookup('engine', 'redis', application_id, 'local') else [])) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
     {{ lookup('container_networks') | indent(4) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
       noinet:
 {% endif %}
 
@@ -120,7 +120,7 @@
     {{ lookup('container_image', application_id, 'antivirus') }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
@@ -132,12 +132,12 @@
     {{ lookup('container_image', application_id, 'webdav', image=MAILU_DOCKER_FLAVOR ~ '/radicale', version=MAILU_VERSION) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
     {{ lookup('container_networks') | indent(4) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
       radicale:
 {% endif %}
 
@@ -148,7 +148,7 @@
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('depends_on', ['admin', 'smtp', 'imap']) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
@@ -161,12 +161,12 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('depends_on', ['imap', 'front']) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     dns:
       - {{ MAILU_DNS_RESOLVER }}
 {% endif %}
     {{ lookup('container_networks') | indent(4) }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
       webmail:
 {% endif %}
 
@@ -174,7 +174,7 @@
     extra_volumes={'admin_data': {'name': MAILU_ADMIN_DATA_VOLUME}, 'clamav_db': {'name': MAILU_CLAMAV_DB_VOLUME}, 'dkim': {'name': MAILU_DKIM_VOLUME}, 'dovecot_mail': {'name': MAILU_DOVECOT_MAIL_VOLUME}, 'filter': {'name': MAILU_FILTER_VOLUME}, 'smtp_queue': {'name': MAILU_SMTP_QUEUE_VOLUME}, 'webdav_data': {'name': MAILU_WEBDAV_DATA_VOLUME}, 'webmail_data': {'name': MAILU_WEBMAIL_DATA_VOLUME}}
 ) }}
 {{ lookup('compose_networks') }}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
   radicale:
     driver: bridge
   webmail:

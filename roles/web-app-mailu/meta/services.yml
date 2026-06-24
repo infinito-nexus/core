@@ -51,7 +51,7 @@ redis:
   enabled: true
   # Swarm ignores per-service dns: and ipv4_address, and mailu is manager-pinned,
   # so the central redis overlay only adds VIP pressure: use the embedded sidecar.
-  shared: "{{ ('svc-db-redis' in group_names) and (DEPLOYMENT_MODE != 'swarm') }}"
+  shared: "{{ ('svc-db-redis' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
   cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
@@ -59,7 +59,7 @@ redis:
 # nocheck: playwright-service-flag - central DNS resolver, infrastructural (no Playwright surface)
 # nocheck: dynamic-flag  enabled+shared (not the `in group_names` form) marks svc-dns-unbound `required` so the loader deploys it every compose round; reverting reintroduces the admin DNS hang.
 unbound:
-  enabled: "{{ DEPLOYMENT_MODE != 'swarm' }}"
+  enabled: "{{ DEPLOYMENT_MODE == 'compose' }}"
   shared: true
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:

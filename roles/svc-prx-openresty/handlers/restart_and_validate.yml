@@ -5,7 +5,7 @@
 # mounted and `openresty -s reload` reads stale config. Force a task
 # redeploy on the manager to remount the live inode.
 - name: Compose-mode force-recreate (file bind-mount pins the inode; -s reload reads stale config)
-  when: DEPLOYMENT_MODE != 'swarm'
+  when: DEPLOYMENT_MODE == 'compose'
   block:
     - name: Force-recreate OpenResty (remounts the config bind to the live inode)
       ansible.builtin.shell: |

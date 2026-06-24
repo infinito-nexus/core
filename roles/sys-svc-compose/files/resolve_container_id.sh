@@ -6,7 +6,7 @@
 #
 # Compose-mode callers never reach this script: the `container_address`
 # lookup returns the bare service name unchanged when
-# DEPLOYMENT_MODE != 'swarm'.
+# DEPLOYMENT_MODE == 'compose'.
 #
 # Uses the project-wide `container` wrapper for every container-engine
 # call (per the no-raw-docker convention) so a podman substitution

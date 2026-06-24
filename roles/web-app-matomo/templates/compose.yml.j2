@@ -26,7 +26,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% set docker_compose_env = '' %}
 {% set docker_restart_policy = DOCKER_RESTART_POLICY %}
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
     profiles:
       - "{{ MATOMO_BOOTSTRAP_PROFILE }}"
 {% endif %}

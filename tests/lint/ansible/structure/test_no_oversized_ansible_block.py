@@ -6,10 +6,10 @@ and tempt callers to express conditions / delegate_to / vars on the
 outer wrapper that semantically belong to a single grouped concern.
 The convention is: ≤ 3 direct children, otherwise extract the body
 into its own ``include_tasks:`` sub-file. If the include is gated by
-``when: DEPLOYMENT_MODE != "swarm"`` (or another compose-only guard),
+``when: DEPLOYMENT_MODE == "compose"`` (or another compose-only guard),
 the sub-file MAY carry the file-header marker
 
-    # include-gated: when: DEPLOYMENT_MODE != "swarm"
+    # include-gated: when: DEPLOYMENT_MODE == "compose"
 
 so the swarm-compat lints (``compose-chdir-in-task`` /
 ``compose-verb-in-task``) treat the file as exempt — see

@@ -1,5 +1,5 @@
 """Flag ``network_mode: host`` in ``compose.yml.j2`` templates when the
-line is NOT inside a ``{% if DEPLOYMENT_MODE != 'swarm' %}`` (or
+line is NOT inside a ``{% if DEPLOYMENT_MODE == 'compose' %}`` (or
 equivalent compose-only) Jinja gate.
 
 ``docker stack deploy`` has had inconsistent / incomplete support for

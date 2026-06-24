@@ -4,7 +4,7 @@
 - name: "Assert {{ DIR_VAR_LIB }} is cluster-shared in swarm mode (skip on dedicated NFS server / non-swarm hosts)"
   ansible.builtin.assert:
     that:
-      - (DEPLOYMENT_MODE != 'swarm') or ('svc-storage-nfs-client' in group_names) or ('svc-storage-nfs-server' in group_names)
+      - (DEPLOYMENT_MODE == 'compose') or ('svc-storage-nfs-client' in group_names) or ('svc-storage-nfs-server' in group_names)
     fail_msg: >-
       sys-svc-mail-msmtp in swarm mode requires svc-storage-nfs-client on
       every swarm host so {{ DIR_VAR_LIB }} is cluster-shared. Set

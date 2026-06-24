@@ -25,7 +25,7 @@
   changed_when: baserow_restart_after_migrate.rc == 0
   when:
     - baserow_migrate_result.changed
-    - DEPLOYMENT_MODE != 'swarm'
+    - DEPLOYMENT_MODE == 'compose'
 
 - name: "Restart Baserow application after applying migrations (swarm mode)"
   ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"

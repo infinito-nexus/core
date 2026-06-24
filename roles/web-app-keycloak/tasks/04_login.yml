@@ -34,7 +34,7 @@
 
 - name: "Keycloak login | Manager-side path (compose)"
   when:
-    - DEPLOYMENT_MODE != 'swarm'
+    - DEPLOYMENT_MODE == 'compose'
     - KEYCLOAK_HOST_NODE is not defined or KEYCLOAK_HOST_NODE is none
   block:
     - name: "Keycloak login | Wait for keycloak container to be running"
@@ -77,7 +77,7 @@
   ansible.builtin.set_fact:
     KEYCLOAK_LOCAL_CID: "{{ lookup('container_address', application_id, entity_name) }}"
   when:
-    - DEPLOYMENT_MODE != 'swarm'
+    - DEPLOYMENT_MODE == 'compose'
     - KEYCLOAK_LOCAL_CID is not defined or KEYCLOAK_LOCAL_CID is none
 
 - name: "Keycloak login | Wait for keycloak container to be healthy"

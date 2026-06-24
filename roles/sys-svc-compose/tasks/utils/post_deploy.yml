@@ -10,7 +10,7 @@
   changed_when: false
   until: (_app_db_health.stdout | trim) == 'healthy'
   when:
-    - DEPLOYMENT_MODE != 'swarm'
+    - DEPLOYMENT_MODE == 'compose'
     - lookup('database', application_id, 'enabled') | bool
 
 - name: "Wait until all swarm tasks for '{{ application_id | get_entity_name }}' converge to running"

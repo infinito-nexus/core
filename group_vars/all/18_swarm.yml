@@ -4,7 +4,7 @@ DEPLOYMENT_MODE: "{{ 'swarm' if (groups['svc-swarm-node'] | default([]) | length
 SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-swarm-node'] | default([]) | length) > 0 }}"
 
 IS_STACK_HOST: >-
-  {{ DEPLOYMENT_MODE != 'swarm'
+  {{ DEPLOYMENT_MODE == 'compose'
      or inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
 
 STACK_HOST: >-

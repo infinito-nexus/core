@@ -1,5 +1,5 @@
 ---
-# include-gated: when: DEPLOYMENT_MODE != "swarm"
+# include-gated: when: DEPLOYMENT_MODE == "compose"
 - name: "create compose.yml for bigbluebutton"
   command:
     cmd: bash ./scripts/generate-compose

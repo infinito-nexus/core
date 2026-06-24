@@ -1,5 +1,5 @@
 """Flag ``profiles:`` blocks in ``compose.yml.j2`` templates when the
-block is NOT inside a ``{% if DEPLOYMENT_MODE != 'swarm' %}`` (or
+block is NOT inside a ``{% if DEPLOYMENT_MODE == 'compose' %}`` (or
 equivalent compose-only) Jinja gate.
 
 ``docker stack deploy`` silently ignores ``profiles:`` — a
@@ -101,7 +101,7 @@ class TestComposeTemplateNoUnguardedProfiles(unittest.TestCase):
                 "without a compose-only gate. swarm silently ignores "
                 "profiles, so a profile-gated one-shot bootstrap deploys "
                 "as a regular replicated service and restart-loops.\n\n"
-                "Fix: wrap in `{% if DEPLOYMENT_MODE != 'swarm' %}` and "
+                "Fix: wrap in `{% if DEPLOYMENT_MODE == 'compose' %}` and "
                 "adjust the swarm path so the bootstrap is either deployed "
                 "as a true one-shot (restart_policy: condition: none) or "
                 "tail-its-logs-driven. Mark with "

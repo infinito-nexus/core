@@ -31,7 +31,7 @@
     delay: 5
     timeout: 120
     state: started
-  when: DEPLOYMENT_MODE != 'swarm'
+  when: DEPLOYMENT_MODE == 'compose'
 
 - name: Check if current RootDN/RootPW already work
   ansible.builtin.shell: >

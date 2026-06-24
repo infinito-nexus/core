@@ -1,5 +1,5 @@
 ---
-# include-gated: when: DEPLOYMENT_MODE != "swarm"
+# include-gated: when: DEPLOYMENT_MODE == "compose"
 - name: create {{ MATRIX_WELL_KNOWN_DIRECTORY }}
   ansible.builtin.file:
     path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"

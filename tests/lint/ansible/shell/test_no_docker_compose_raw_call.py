@@ -65,7 +65,7 @@ class TestNoDockerComposeRawCall(unittest.TestCase):
                 "`container` wrapper for everything else.\n\n"
                 "Fix: replace `docker compose <verb> ...` with "
                 "`{{ BIN_COMPOSE }} <verb> ...` and gate behind "
-                "`when: DEPLOYMENT_MODE != 'swarm'` because compose verbs "
+                "`when: DEPLOYMENT_MODE == 'compose'` because compose verbs "
                 "don't work under `docker stack deploy`. For inspect/exec "
                 "use `container <verb>` via the wrapper. Mark with "
                 "`# nocheck: docker-compose-raw-call` only for compose-only "

@@ -1,4 +1,4 @@
 ---
 - name: "Bootstrap bigbluebutton compose project (compose-mode only)"
   include_tasks: 02b_bootstrap_compose_project.yml
-  when: DEPLOYMENT_MODE != "swarm"
+  when: DEPLOYMENT_MODE == "compose"

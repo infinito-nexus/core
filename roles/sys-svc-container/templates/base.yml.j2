@@ -10,7 +10,7 @@
 {% endif %}
     logging:
       driver: journald
-{% if DEPLOYMENT_MODE != 'swarm' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
 {% filter indent(4) %}
     {% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
 {% endfilter %}
