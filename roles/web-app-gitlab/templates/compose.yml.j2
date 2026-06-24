@@ -13,8 +13,8 @@
         GITLAB_VERSION: "{{ GITLAB_VERSION }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.gitlab.ports.local.http') }}:80"
-      - "{{lookup('config', application_id, 'services.gitlab.ports.public.ssh')}}:22"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.gitlab.ports.local.http') }}:{{ lookup('config', application_id, 'services.gitlab.ports.internal.http') }}"
+      - "{{lookup('config', application_id, 'services.gitlab.ports.public.ssh')}}:{{ lookup('config', application_id, 'services.gitlab.ports.internal.ssh') }}"
     {{ lookup('container_volumes', application_id, 'gitlab') | indent(4) }}
     shm_size: '256m'
 {{ lookup('container_depends_on', application_id) }}

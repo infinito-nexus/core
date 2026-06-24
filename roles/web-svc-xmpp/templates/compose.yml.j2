@@ -5,7 +5,7 @@
     {{ lookup('compose_only', 'container_name', EJABBERD_CONTAINER) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.xmpp.ports.local.http') }}:5280"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.xmpp.ports.local.http') }}:{{ lookup('config', application_id, 'services.xmpp.ports.internal.http') }}"
       - "5222:5222"
       - "5269:5269"
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}

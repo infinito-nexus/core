@@ -18,7 +18,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.http') }}:{{ lookup('config', application_id, 'services.espocrm.ports.internal.http') }}"
 {{ lookup('container_depends_on', application_id) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
@@ -63,7 +63,7 @@
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}:8080"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}:{{ lookup('config', application_id, 'services.espocrm.ports.internal.websocket') }}"
 {{ lookup('container_depends_on', application_id, extra={
   ESPOCRM_SERVICE: {'condition': 'service_healthy'},
 }) }}

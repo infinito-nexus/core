@@ -80,7 +80,7 @@
         exec /tmp/entrypoint-patched.sh zammad-nginx
     {{ lookup('depends_on', {ZAMMAD_RAILS_CONTAINER: 'service_started', ZAMMAD_WEBSOCKET_CONTAINER: 'service_started'}, indent=4) }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.zammad.ports.local.http') }}:8080"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.zammad.ports.local.http') }}:{{ lookup('config', application_id, 'services.zammad.ports.internal.http') }}"
     {{ lookup('container_volumes', application_id, ZAMMAD_NGINX_CONTAINER) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

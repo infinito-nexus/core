@@ -9,7 +9,7 @@
     {{ lookup('compose_only', 'container_name', CONFLUENCE_CONTAINER) }}
     hostname: '{{ CONFLUENCE_HOSTNAME}}'
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.confluence.ports.local.http') }}:8090"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.confluence.ports.local.http') }}:{{ lookup('config', application_id, 'services.confluence.ports.internal.http') }}"
     {{ lookup('container_volumes', application_id, 'confluence') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

@@ -43,7 +43,7 @@
     {{ lookup('depends_on', [KIX_BACKEND_CONTAINER, KIX_FRONTEND_CONTAINER]) }}
     {{ lookup('container_volumes', application_id, KIX_PROXY_CONTAINER) | indent(4) }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.kix.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.kix.ports.local.http') }}:{{ lookup('config', application_id, 'services.kix.ports.internal.http') }}"
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}

@@ -5,7 +5,7 @@
     {{ lookup('container_image', application_id, 'prometheus') }}
     {{ lookup('compose_only', 'container_name', PROMETHEUS_CONTAINER) }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}:9090"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}:{{ lookup('config', application_id, 'services.prometheus.ports.internal.http') }}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command:

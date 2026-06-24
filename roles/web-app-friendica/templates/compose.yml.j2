@@ -5,7 +5,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, FRIENDICA_SERVICE) | indent(4) }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.friendica.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.friendica.ports.local.http') }}:{{ lookup('config', application_id, 'services.friendica.ports.internal.http') }}"
 
 {% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}

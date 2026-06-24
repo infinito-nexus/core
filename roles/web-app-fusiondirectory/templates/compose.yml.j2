@@ -4,7 +4,7 @@
     {{ lookup('compose_only', 'container_name', FUSIONDIRECTORY_CONTAINER) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.fusiondirectory.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.fusiondirectory.ports.local.http') }}:{{ lookup('config', application_id, 'services.fusiondirectory.ports.internal.http') }}"
 {{ lookup('container_volumes', application_id, 'fusiondirectory') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}

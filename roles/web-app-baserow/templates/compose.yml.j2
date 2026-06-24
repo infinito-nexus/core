@@ -10,7 +10,7 @@
     {{ lookup('compose_only', 'container_name', BASEROW_CONTAINER) }}
 {{ lookup('container_volumes', application_id, 'baserow') | indent(4) }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.baserow.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.baserow.ports.local.http') }}:{{ lookup('config', application_id, 'services.baserow.ports.internal.http') }}"
     {{ lookup('container_networks') | indent(4) }}
 {{ lookup('container_depends_on', application_id) }}
 

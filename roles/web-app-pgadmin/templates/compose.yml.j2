@@ -6,7 +6,7 @@
     {{ lookup('compose_only', 'container_name', entity_name) }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pgadmin.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pgadmin.ports.local.http') }}:{{ lookup('config', application_id, 'services.pgadmin.ports.internal.http') }}"
 {{ lookup('container_depends_on', application_id) }}
     {{ lookup('container_networks') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}

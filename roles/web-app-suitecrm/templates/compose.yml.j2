@@ -18,7 +18,7 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.suitecrm.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.suitecrm.ports.local.http') }}:{{ lookup('config', application_id, 'services.suitecrm.ports.internal.http') }}"
 {{ lookup('container_depends_on', application_id) }}
     {{ lookup('container_networks') | indent(4) }}
 {% set _extra_mounts = [] %}

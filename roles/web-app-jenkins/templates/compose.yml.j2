@@ -11,7 +11,7 @@
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
       CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jenkins.ports.local.http') }}:8080"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jenkins.ports.local.http') }}:{{ lookup('config', application_id, 'services.jenkins.ports.internal.http') }}"
     {{ lookup('container_volumes', application_id, 'jenkins') | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}

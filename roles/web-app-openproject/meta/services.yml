@@ -108,7 +108,7 @@ openproject:
       sso: 16483
       http: 8023
     internal:
-      http: 8080
+      http: 80
   proxy:
     service_key: web
   run_after:

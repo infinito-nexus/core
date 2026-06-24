@@ -94,6 +94,47 @@ class TestSwarmInternalPorts(unittest.TestCase):
                 "declarations:\n" + "\n".join(sorted(set(findings)))
             )
 
+    def test_published_mapping_container_comes_from_internal(self) -> None:
+        findings: list[str] = []
+        for role_dir in sorted((PROJECT_ROOT / "roles").iterdir()):
+            compose = role_dir / "templates" / "compose.yml.j2"
+            services = role_dir / "meta" / "services.yml"
+            if not compose.is_file() or not services.is_file():
+                continue
+            if is_suppressed_in_head(services.read_text().splitlines(), _RULE):
+                continue
+            for raw in compose.read_text().splitlines():
+                stripped = raw.strip()
+                if not (
+                    stripped.startswith('- "')
+                    and "ports." in stripped
+                    and "=" not in stripped
+                    and _PUBLISHED_REF.search(stripped)
+                ):
+                    continue
+                inner = re.match(r'-\s*"(.*)"', stripped)
+                if not inner:
+                    continue
+                # container port = last ':'-segment of the mapping, minus protocol.
+                container = inner.group(1).rsplit(":", 1)[-1].split("/")[0].strip()
+                # It must come from ports.internal via a lookup (or a variable that
+                # references that lookup), never a hardcoded literal, so the
+                # published (local/public) and container (internal) ports stay one
+                # declared source of truth.
+                if "{{" not in container:
+                    findings.append(f"- {role_dir.name}: {stripped}")
+        if findings:
+            self.fail(
+                "compose.yml.j2 port mappings hardcode the container port as a "
+                "literal. It must come from ports.internal via a lookup (or a "
+                "variable that references it):\n"
+                "  {{ lookup('config', application_id, "
+                "'services.<entity>.ports.internal.<kind>') }}\n"
+                "so the published (local/public) port and the container (internal) "
+                "port stay a single declared source of truth.\n\n"
+                "Offending mappings:\n" + "\n".join(sorted(set(findings)))
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

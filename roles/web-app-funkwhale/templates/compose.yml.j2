@@ -35,7 +35,7 @@
       - "NGINX_MAX_BODY_SIZE=100M"
     {{ lookup('container_volumes', application_id, 'front') | indent(4) }}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.funkwhale.ports.local.http') }}:80"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.funkwhale.ports.local.http') }}:{{ lookup('config', application_id, 'services.funkwhale.ports.internal.http') }}"
 
   typesense:
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

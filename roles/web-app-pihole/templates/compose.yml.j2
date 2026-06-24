@@ -15,7 +15,7 @@
       FTLCONF_webserver_domain:     "{{ domain }}"
       PIHOLE_DNS_:                  "{{ PIHOLE_UPSTREAM_DNS }}"
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}:80/tcp"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}:{{ lookup('config', application_id, 'services.pihole.ports.internal.http') }}/tcp"
     cap_add:
       - NET_ADMIN
     {{ lookup('container_volumes', application_id, 'pihole') | indent(4) }}
