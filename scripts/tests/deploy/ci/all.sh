@@ -10,7 +10,6 @@ set -euo pipefail
 #
 # Required env:
 #   apps="web-app-keycloak"
-#   INFINITO_DEPLOY_TYPE="server|workstation|universal"
 #   INFINITO_DISTROS="arch debian ubuntu fedora centos"
 #   INFINITO_INVENTORY_DIR="/path/to/inventory"
 #
@@ -35,17 +34,8 @@ else
 fi
 
 : "${apps:?apps is required (e.g. apps=web-app-keycloak)}"
-: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE is required (server|workstation|universal)}"
 : "${INFINITO_DISTROS:?INFINITO_DISTROS is required (e.g. 'arch debian ubuntu fedora centos')}"
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR is required}"
-
-case "${INFINITO_DEPLOY_TYPE}" in
-server | workstation | universal) ;;
-*)
-	echo "[ERROR] Invalid INFINITO_DEPLOY_TYPE: ${INFINITO_DEPLOY_TYPE}" >&2
-	exit 2
-	;;
-esac
 
 : "${PYTHON:=python3}"
 : "${MISSING_ONLY:=true}"
@@ -128,7 +118,7 @@ for distro in "${distro_arr[@]}"; do
 		fi
 	fi
 
-	echo "=== Running dedicated distro deploy: distro=${distro} app=${apps} type=${INFINITO_DEPLOY_TYPE} ==="
+	echo "=== Running dedicated distro deploy: distro=${distro} app=${apps} ==="
 	if [[ -n "${remaining}" ]]; then
 		echo ">>> Time budget: remaining=${remaining}s max_seen=${max_seen}s"
 	fi
@@ -172,7 +162,7 @@ total="$((global_end - global_start))"
 
 echo
 echo "=== Summary ==="
-echo "app=${apps} type=${INFINITO_DEPLOY_TYPE}"
+echo "app=${apps}"
 echo "ran=${ran} skipped=${skipped} failed=${failed}"
 echo "total_runtime=${total}s max_seen_duration=${max_seen}s"
 if [[ -n "${deadline}" ]]; then

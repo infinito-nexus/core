@@ -18,7 +18,6 @@ permissions:
   packages: read
 
 env:
-  INFINITO_DEPLOY_TYPE: server
   INFINITO_DISTROS: ${{ inputs.distros }}
   NIX_CONFIG: |
     access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}

@@ -1,17 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Purpose (SRP): Return JSON list of apps based on deployment type,
-# optionally filtered by lifecycle and CI storage constraints.
+# Purpose (SRP): Return JSON list of every application role (all deployment
+# types), filtered by lifecycle and CI storage constraints.
 #
 # Inputs via env:
-#   INFINITO_DEPLOY_TYPE   = server|workstation|universal (required)
 #   INFINITO_WHITELIST = optional space-separated list of app ids to keep
 #
 # Output:
 #   JSON array to stdout (single line, always valid)
-
-: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE is required (server|workstation|universal)}"
 
 PYTHON="${PYTHON:-python3}"
 
@@ -86,15 +83,15 @@ run_meta_cli() {
 lifecycles_args=(--lifecycles alpha beta rc stable)
 
 # ------------------------------------------------------------
-# 1) Get JSON list from container (keep as JSON)
+# 1) Resolve the candidate app set: every type's apps (lifecycle-filtered),
+#    flattened across the type groups + deduped into one JSON array.
 # ------------------------------------------------------------
 apps_json="$(
 	run_meta_cli \
 		-m cli.meta.roles.applications.type \
 		--format json \
-		--type "${INFINITO_DEPLOY_TYPE}" \
 		"${lifecycles_args[@]}" |
-		json_compact_array
+		jq -c '[.[][]] | unique'
 )"
 
 # ------------------------------------------------------------

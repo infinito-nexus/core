@@ -199,24 +199,6 @@ jobs:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
 
-  test-deploy-universal:
-    needs:
-      - test-dns
-      - images-mirror-missing
-    uses: ./.github/workflows/test-deploy-universal.yml
-    with:
-      distros: ${{ inputs.distros }}
-      whitelist: ${{ inputs.whitelist }}
-
-  test-deploy-workstation:
-    needs:
-      - code-quality-gate
-      - build-ci-images
-    uses: ./.github/workflows/test-deploy-workstation.yml
-    with:
-      distros: ${{ inputs.distros }}
-      whitelist: ${{ inputs.whitelist }}
-
   test-deploy-swarm:
     needs:
       - code-quality-gate
@@ -255,8 +237,6 @@ jobs:
     name: 🏁 Finish pipeline
     needs:
       - test-deploy-compose
-      - test-deploy-universal
-      - test-deploy-workstation
       - test-deploy-swarm
       - test-install-gate
       - test-development

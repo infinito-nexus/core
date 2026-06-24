@@ -4,13 +4,11 @@ set -euo pipefail
 # Update a selection of apps inside the running infinito container (reuses inventory, no down/up).
 # Expects (ALL required):
 #   apps      e.g. web-app-nextcloud
-#   INFINITO_DEPLOY_TYPE   server|workstation|universal
 #   INFINITO_CONTAINER e.g. infinito_nexus_arch
 #   INFINITO_DEBUG     true|false
 #   INFINITO_INVENTORY_DIR      e.g. /etc/inventories/local-full-server
 
 : "${apps:?apps is not set (e.g. apps=web-app-nextcloud)}"
-: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE is not set (server|workstation|universal)}"
 : "${INFINITO_CONTAINER:?INFINITO_CONTAINER is not set (e.g. infinito_nexus_arch)}"
 : "${INFINITO_DEBUG:?INFINITO_DEBUG is not set (true|false)}"
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR is not set (e.g. INFINITO_INVENTORY_DIR=/etc/inventories/local-full-server)}"
@@ -27,15 +25,6 @@ if [[ -n "${variant:-}" ]]; then
 	INFINITO_INVENTORY_FILE="${INFINITO_INVENTORY_DIR}/devices.yml"
 fi
 
-case "${INFINITO_DEPLOY_TYPE}" in
-server | workstation | universal) ;;
-*)
-	echo "Invalid INFINITO_DEPLOY_TYPE: ${INFINITO_DEPLOY_TYPE}" >&2
-	echo "Allowed: server | workstation | universal" >&2
-	exit 2
-	;;
-esac
-
 case "${INFINITO_DEBUG}" in
 true | false) ;;
 *)
@@ -51,7 +40,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../../../.." && pwd)"
 # shellcheck source=scripts/tests/deploy/local/utils/cache-retry.sh
 source "${SCRIPT_DIR}/../../../utils/cache-retry.sh"
 
-echo "=== rapid deploy: type=${INFINITO_DEPLOY_TYPE} app=${apps} container=${INFINITO_CONTAINER} debug=${INFINITO_DEBUG} ==="
+echo "=== rapid deploy: app=${apps} container=${INFINITO_CONTAINER} debug=${INFINITO_DEBUG} ==="
 echo "inventory_dir=${INFINITO_INVENTORY_DIR}"
 
 deploy_with_cache_retry "update-${apps//[^A-Za-z0-9._-]/-}" -- \

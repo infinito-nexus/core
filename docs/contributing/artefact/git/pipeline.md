@@ -64,11 +64,11 @@ GHCR publication uses the workflow `GITHUB_TOKEN`; optional Docker Hub secrets a
 
 ### 9. Deploy Tests 🚀
 
-The three deploy-test workflows listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) (server, universal, workstation scopes) run in parallel once DNS and mirroring have completed.
+The two deploy-test workflows listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) (compose and swarm modes) run in parallel once DNS and mirroring have completed. Both cover all deployment types (`INFINITO_DISCOVER_ALL`, lifecycle-filtered to `alpha beta rc stable`), not just the `web-*` server scope.
 
 #### Diff-driven app selection 🎯
 
-Each of [test-deploy-compose.yml](../../../../.github/workflows/test-deploy-compose.yml), [test-deploy-universal.yml](../../../../.github/workflows/test-deploy-universal.yml), and [test-deploy-workstation.yml](../../../../.github/workflows/test-deploy-workstation.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
+Both [test-deploy-compose.yml](../../../../.github/workflows/test-deploy-compose.yml) and [test-deploy-swarm.yml](../../../../.github/workflows/test-deploy-swarm.yml) narrow their app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
 
 1. **Sentinel `__ALL__` in the `whitelist` input** (case-insensitive). The diff logic MUST be skipped and an empty whitelist MUST be emitted, which deploys everything in the workflow's scope. This is the explicit opt-out from diff narrowing for manual dispatch.
 2. **Any other non-empty `whitelist`** (forwarded from `entry-manual.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim.
@@ -80,7 +80,7 @@ The reverse closure is fail-safe: any seed that is not modellable in the resolve
 
 The PR-scope short-circuits in [scope.sh](../../../../scripts/meta/resolve/pr/scope.sh) (documentation-only, agent-only) still apply at the entry layer. They skip the orchestrator entirely and are independent of the diff-driven whitelist resolution above.
 
-The reverse closure is implemented in [affected resolver](../../../../cli/meta/roles/applications/resolution/affected/__main__.py) and invoked from [affected_roles.sh](../../../../scripts/meta/resolve/diff/affected_roles.sh). The workflow glue lives in [effective_whitelist.sh](../../../../scripts/github/resolve/effective_whitelist.sh). [test-deploy-local.yml](../../../../.github/workflows/test-deploy-local.yml) MUST NOT apply this resolution. Local dispatch keeps the explicit whitelist semantics.
+The reverse closure is implemented in [affected resolver](../../../../cli/meta/roles/applications/resolution/affected/__main__.py) and invoked from [affected_roles.sh](../../../../scripts/meta/resolve/diff/affected_roles.sh). The workflow glue lives in [effective_whitelist.sh](../../../../scripts/github/resolve/effective_whitelist.sh).
 
 ### 10. Installation Tests 📦
 

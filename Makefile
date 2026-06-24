@@ -15,16 +15,6 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: act-all
-# Run all act-based deploy checks.
-act-all:
-	@bash scripts/tests/deploy/act/all.sh
-
-.PHONY: act-app
-# Run the act-based app deploy check.
-act-app:
-	@bash scripts/tests/deploy/act/app.sh
-
 .PHONY: act-debug
 # Param: node=<container_name> cmd='<shell pipeline>'
 act-debug:
@@ -202,15 +192,13 @@ clean-sudo:
 # Param mode: initialize | reinstall | update (default: initialize)
 # Param apps: comma-separated app ids (e.g. web-app-matomo,web-app-keycloak)
 # Param purge: true | false (default: false) — purge entities before deploy
-# Param type: server | workstation | universal (default: from default.env)
 # Param bundles: comma-separated bundle names; overrides apps when set
 # Param disable: comma-separated service names to render as disabled
 # Param full_cycle: true | false — when true, also run the async update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
 compose-deploy:
-	@$(if $(type),INFINITO_DEPLOY_TYPE="$(type)") \
-	 $(if $(debug),INFINITO_DEBUG="$(debug)") \
+	@$(if $(debug),INFINITO_DEBUG="$(debug)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
 .PHONY: compose-down

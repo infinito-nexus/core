@@ -21,7 +21,6 @@ permissions:
   packages: read
 
 env:
-  INFINITO_DEPLOY_TYPE: server
   NIX_CONFIG: |
     access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
   INFINITO_IMAGE_TAG: ci-${{ github.sha }}

@@ -57,7 +57,7 @@ Any other value, including unset or empty, keeps artefacts only when a test fail
 
 The propagation chain has four hops:
 
-1. The host environment variable `INFINITO_PLAYWRIGHT_KEEP` (set on the host shell, by `act --env INFINITO_PLAYWRIGHT_KEEP=true`, or by the GitHub Actions repository variable forwarded into each `test-deploy-*.yml` workflow as `INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}`).
+1. The host environment variable `INFINITO_PLAYWRIGHT_KEEP` (set on the host shell, by `act --env INFINITO_PLAYWRIGHT_KEEP=true`, or by the GitHub Actions repository variable forwarded into `test-deploy-compose.yml` as `INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}`).
 2. `roles/test-e2e-playwright/defaults/main.yml` reads the host value into `TEST_E2E_PLAYWRIGHT_KEEP` via `lookup('env', 'INFINITO_PLAYWRIGHT_KEEP')`. Inventory MAY override the role variable per environment in `group_vars` or `host_vars`.
 3. `roles/test-e2e-playwright/tasks/02_run_one.yml` forwards the resolved value into the Playwright container as `-e INFINITO_PLAYWRIGHT_KEEP={{ TEST_E2E_PLAYWRIGHT_KEEP }}`.
 4. `roles/test-e2e-playwright/files/playwright.config.js` switches `trace`, `screenshot`, and `video` to `on` when the container value is `true`. It otherwise leaves the failure-only defaults (`retain-on-failure` for trace and video, `only-on-failure` for screenshot).
