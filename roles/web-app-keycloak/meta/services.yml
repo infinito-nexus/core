@@ -27,7 +27,7 @@ keycloak:
   shared: true
   provides: sso
   image: quay.io/keycloak/keycloak
-  version: latest
+  version: "26.6.3"
   name: keycloak
   min_storage: 5GB
   cpus: "2.0"
@@ -67,7 +67,7 @@ keycloak:
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag
 sso_proxy:
   image: quay.io/oauth2-proxy/oauth2-proxy
-  version: "26.6.3"
+  version: "v7.15.3"
   min_storage: 1GB
   configuration_file: oauth2-proxy-keycloak.cfg
   ports:
