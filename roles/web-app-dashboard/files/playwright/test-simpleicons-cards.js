@@ -58,7 +58,7 @@ async function expectStableCardHover(page, cardTitle) {
   });
 
   await card.scrollIntoViewIfNeeded();
-  await page.waitForLoadState("networkidle").catch(() => undefined);
+  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => undefined);
   const settledBox = await waitForBoundingBoxStable(card);
   expect(settledBox, `Expected the ${cardTitle} card to expose a measurable bounding box`).toBeTruthy();
 
