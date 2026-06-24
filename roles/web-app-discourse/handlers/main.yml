@@ -13,7 +13,9 @@
     result.rc != 0 and
     'already exists in network' not in result.stderr
   register: result
-  when: DISCOURSE_DATABASE_IS_SHARED | bool
+  when:
+    - DISCOURSE_DATABASE_IS_SHARED | bool
+    - DEPLOYMENT_MODE == 'compose'
   listen: recreate discourse
 
 - name: rebuild discourse
