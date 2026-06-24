@@ -84,7 +84,6 @@ KEYCLOAK_CID_RESOLVE_CMD: >-
   container ps
   --filter "label=com.docker.swarm.service.name={{ lookup('container_service', application_id, entity_name) }}"
   --filter status=running
-  --filter health=healthy
   --format '{{ "{{.ID}}" }}' | head -1
 KEYCLOAK_IMAGE: "{{ lookup('config', application_id, 'services.keycloak.image') }}"
 KEYCLOAK_VERSION: "{{ lookup('config', application_id, 'services.keycloak.version') }}"

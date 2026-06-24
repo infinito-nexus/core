@@ -35,6 +35,17 @@ def sync(*, compose_file: Path, prefix: str) -> int:
     targets: list[str] = []
     changed = False
 
+    # Refs some service builds locally; a sibling service may reference the same
+    # (already-prefixed) image without its own build:, and must not try to pull
+    # that local-only ref from the registry.
+    locally_built = {
+        svc["image"]
+        for svc in services.values()
+        if isinstance(svc, dict)
+        and "build" in svc
+        and isinstance(svc.get("image"), str)
+    }
+
     for svc in services.values():
         if not isinstance(svc, dict):
             continue
@@ -44,9 +55,9 @@ def sync(*, compose_file: Path, prefix: str) -> int:
 
         if image.startswith(prefix):
             targets.append(image)
-            if "build" in svc or manifest_exists(image):
-                continue
             upstream = image[len(prefix) :]
+            if "build" in svc or manifest_exists(image) or upstream in locally_built:
+                continue
             rc = run(["docker", "pull", upstream])
             if rc != 0:
                 raise RuntimeError(f"docker pull {upstream} failed (rc={rc})")
