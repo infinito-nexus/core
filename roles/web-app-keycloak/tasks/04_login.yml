@@ -63,6 +63,7 @@
         container ps \
           --filter "label=com.docker.swarm.service.name={{ lookup('container_service', application_id, entity_name) }}" \
           --filter status=running \
+          --filter health=healthy \
           --format '{{ "{{.ID}}" }}' | head -1
       register: kc_local_cid_query
       changed_when: false

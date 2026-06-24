@@ -2,11 +2,17 @@
 
 
 import json
+import re
 import subprocess
+import time
 from copy import deepcopy
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.kcadm_json import json_from_noisy_stdout
+
+NO_SUCH_CONTAINER_RE = re.compile(r"no such container", re.IGNORECASE)
+DEAD_CID_MAX_RETRIES = 5
+DEAD_CID_RETRY_DELAY = 3
 
 DOCUMENTATION = r"""
 ---
@@ -73,6 +79,20 @@ options:
     type: bool
     required: False
     default: True
+  cid_resolve_cmd:
+    description:
+      - Swarm-only. Shell command that prints a fresh, live, healthy container id.
+      - When a kcadm exec aborts with 'No such container' (the cached swarm id
+        was rescheduled mid-block), this command is re-run to obtain a live id
+        and the exec is retried.
+    type: str
+    required: False
+  current_cid:
+    description:
+      - Swarm-only. The container id currently embedded in C(kcadm_exec).
+      - Used as the literal token to swap for a freshly resolved id on retry.
+    type: str
+    required: False
 
 author:
   - Your Name
@@ -98,21 +118,75 @@ result:
 """
 
 
-def run_kcadm(module, cmd, ignore_rc=False):
-    """Run a shell command for kcadm."""
+def _shell(cmd, check):
     # `cmd` comes from this Ansible module's own argv plus inventory
     # overrides (host-trusted), and shell features (pipes, &&) are
     # required by the kcadm-wrapper invocations the module composes.
     rc = subprocess.run(  # noqa: S602
         cmd,
         shell=True,
-        check=not ignore_rc,
+        check=check,
         capture_output=True,
     )
     # kcadm/JVM warnings can appear on stdout; keep raw output.
     stdout = rc.stdout.decode("utf-8", errors="replace").strip()
     stderr = rc.stderr.decode("utf-8", errors="replace").strip()
     return rc.returncode, stdout, stderr
+
+
+def _resolve_live_cid(module):
+    """Resolve a fresh, healthy container id via the swarm-service resolver.
+
+    Returns the new id or "" when no resolver hint was provided or the
+    resolver yielded nothing.
+    """
+    state = getattr(module, "_kcadm_cid_state", None)
+    if not state or not state.get("cid_resolve_cmd"):
+        return ""
+    _rc, out, _err = _shell(state["cid_resolve_cmd"], check=False)
+    return (out or "").strip()
+
+
+def run_kcadm(module, cmd, ignore_rc=False):
+    """Run a shell command for kcadm.
+
+    In swarm the keycloak service runs multiple replicas that swarm may
+    reschedule between any two of the sequential execs this module issues,
+    so a container id resolved earlier can die mid-block. When that happens
+    `container exec` aborts with 'No such container' BEFORE kcadm runs; if a
+    resolver hint is present, re-resolve a live healthy id, splice it into
+    the command and retry (bounded) instead of failing the whole client
+    update on an ephemeral id.
+    """
+    state = getattr(module, "_kcadm_cid_state", None)
+    attempt_cmd = cmd
+
+    for attempt in range(DEAD_CID_MAX_RETRIES + 1):
+        rc, stdout, stderr = _shell(attempt_cmd, check=False)
+
+        retryable = (
+            rc != 0
+            and state
+            and state.get("cid_resolve_cmd")
+            and state.get("current_cid")
+            and NO_SUCH_CONTAINER_RE.search(stderr or "")
+            and attempt < DEAD_CID_MAX_RETRIES
+        )
+        if not retryable:
+            if rc != 0 and not ignore_rc:
+                raise subprocess.CalledProcessError(rc, attempt_cmd, stdout, stderr)
+            return rc, stdout, stderr
+
+        time.sleep(DEAD_CID_RETRY_DELAY)
+        new_cid = _resolve_live_cid(module)
+        if not new_cid or new_cid == state["current_cid"]:
+            continue
+        old_cid = state["current_cid"]
+        attempt_cmd = cmd.replace(old_cid, new_cid)
+        cmd = attempt_cmd
+        state["current_cid"] = new_cid
+
+    return rc, stdout, stderr
 
 
 def deep_merge(a, b):
@@ -254,6 +328,8 @@ def run_module():
         "kcadm_exec": {"type": "str", "required": True},
         "realm": {"type": "str", "required": False, "default": None},
         "assert_mode": {"type": "bool", "required": False, "default": True},
+        "cid_resolve_cmd": {"type": "str", "required": False, "default": None},
+        "current_cid": {"type": "str", "required": False, "default": None},
     }
 
     result = {
@@ -274,6 +350,11 @@ def run_module():
     kcadm_exec = module.params["kcadm_exec"]
     realm = module.params["realm"]
     assert_mode = module.params["assert_mode"]
+
+    module._kcadm_cid_state = {
+        "cid_resolve_cmd": module.params.get("cid_resolve_cmd"),
+        "current_cid": (module.params.get("current_cid") or "").strip(),
+    }
 
     if object_kind != "realm" and not realm:
         module.fail_json(msg="Parameter 'realm' is required for non-realm objects.")

@@ -78,6 +78,14 @@ KEYCLOAK_TARGET_CONTAINER: "{{ KEYCLOAK_LOCAL_CID | default(KEYCLOAK_CONTAINER_A
 KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_TARGET_CONTAINER }}" # nocheck: container-exec-resolver
 KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
 KEYCLOAK_EXEC_KCADM: "{{ KEYCLOAK_EXEC_CONTAINER }} {{ KEYCLOAK_KCADM }}"
+# Swarm-only resolver: prints a fresh, healthy keycloak container id so the
+# kcadm module can recover when swarm reschedules the cached id mid-block.
+KEYCLOAK_CID_RESOLVE_CMD: >-
+  container ps
+  --filter "label=com.docker.swarm.service.name={{ lookup('container_service', application_id, entity_name) }}"
+  --filter status=running
+  --filter health=healthy
+  --format '{{ "{{.ID}}" }}' | head -1
 KEYCLOAK_IMAGE: "{{ lookup('config', application_id, 'services.keycloak.image') }}"
 KEYCLOAK_VERSION: "{{ lookup('config', application_id, 'services.keycloak.version') }}"
 

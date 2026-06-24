@@ -67,17 +67,30 @@
   changed_when: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "Keycloak realm-import | Wait for keycloak task to converge after scale-up"
+- name: "Keycloak realm-import | Wait until replicas converge X/X and stay stable"
   ansible.builtin.shell: |
-    container service ps {{ lookup('container_service', application_id, entity_name) | quote }} \
-      --filter desired-state=running \
-      --format '{{ "{{.CurrentState}}" }}' \
-      | head -1 | grep -qE '^Running'
-  register: kc_running_after_import
+    set -euo pipefail
+    SVC={{ lookup('container_service', application_id, entity_name) | quote }}
+    WANT={{ groups[application_id] | default([inventory_hostname]) | length }}/{{ groups[application_id] | default([inventory_hostname]) | length }}
+    got="$(container service ls --filter name="$SVC" --format '{{ "{{.Replicas}}" }}' | head -1)"
+    test "$got" = "$WANT"
+  register: kc_replicas_converged
   changed_when: false
   retries: 60
   delay: 5
-  until: kc_running_after_import.rc == 0
+  until: kc_replicas_converged.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "Keycloak realm-import | Confirm replicas stay X/X for consecutive polls"
+  ansible.builtin.script: "{{ role_path }}/files/wait_replicas_stable.sh"
+  environment:
+    SVC: "{{ lookup('container_service', application_id, entity_name) }}"
+    WANT: "{{ groups[application_id] | default([inventory_hostname]) | length }}/{{ groups[application_id] | default([inventory_hostname]) | length }}"
+  register: kc_replicas_stable
+  changed_when: false
+  retries: 10
+  delay: 5
+  until: kc_replicas_stable.rc == 0
   delegate_to: "{{ STACK_HOST }}"
 
 - name: "Keycloak realm-import | Re-resolve hosting node after scale-up"
@@ -94,6 +107,7 @@
     container ps \
       --filter "label=com.docker.swarm.service.name={{ lookup('container_service', application_id, entity_name) }}" \
       --filter status=running \
+      --filter health=healthy \
       --format '{{ "{{.ID}}" }}' | head -1
   register: kc_local_cid_after_import
   changed_when: false
