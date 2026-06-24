@@ -9,7 +9,7 @@
     dashboard:
       enabled: true
       shared: true
-    email:
+    javascript:
       enabled: true
       shared: true
     logout:
@@ -31,7 +31,7 @@
     dashboard:
       enabled: false
       shared: false
-    email:
+    javascript:
       enabled: false
       shared: false
     logout:
