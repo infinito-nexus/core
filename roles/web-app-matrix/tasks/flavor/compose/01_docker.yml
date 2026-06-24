@@ -25,14 +25,6 @@
     mode: "0755"
   loop: "{{ MATRIX_BRIDGES }}"
 
-- name: "Pre-create empty registration files so docker bind-mounts them as files (synapse may start before the bridge writes them)"
-  copy:
-    content: ""
-    dest: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
-    mode: "0666"
-    force: false
-  loop: "{{ MATRIX_BRIDGES }}"
-
 - name: add multiple mautrix bridge configuration
   template:
     src: "flavor/compose/mautrix/{{ item.bridge_name }}.config.yml.j2"
@@ -69,8 +61,8 @@
 - name: wait for registration files
   wait_for:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
-    search_regex: "as_token"
-    timeout: 180
+    state: present
+    timeout: 120
   loop: "{{ MATRIX_BRIDGES }}"
 
 - name: "change file permissions"
