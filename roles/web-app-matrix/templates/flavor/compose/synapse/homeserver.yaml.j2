@@ -74,6 +74,6 @@ oidc_providers:
 {% if MATRIX_BRIDGES | bool %}
 app_service_config_files:
 {% for item in MATRIX_BRIDGES %}
-  - {{ MATRIX_REGISTRATION_FILE_FOLDER }}{{ item.bridge_name }}.registration.yaml
+  - {{ MATRIX_REGISTRATION_FILE_FOLDER }}mautrix-{{ item.bridge_name }}/registration.yaml
 {% endfor %}
 {% endif %}

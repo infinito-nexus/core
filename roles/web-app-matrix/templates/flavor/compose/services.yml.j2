@@ -10,7 +10,7 @@
       - {{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}:{{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER }}:ro
       - {{ MATRIX_SYNAPSE_LOG_PATH_HOST }}:{{ MATRIX_SYNAPSE_LOG_PATH_CONTAINER }}:ro
 {% for item in MATRIX_BRIDGES %}
-      - {{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml:{{ MATRIX_REGISTRATION_FILE_FOLDER }}{{ item.bridge_name }}.registration.yaml:ro
+      - {{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}:{{ MATRIX_REGISTRATION_FILE_FOLDER }}mautrix-{{ item.bridge_name }}:ro
 {% endfor %}
     environment:
       - SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }}
