@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.1.1] - 2026-06-24
+
+* Disabled the *email* service in the *web-app-pihole* role by pinning *services.email* to a static *enabled: false* / *shared: false* with the matching *dynamic-flag* and *email* nocheck suppressions, removing the now-static email overrides from *meta/variants.yml*, and adding *javascript* true/false variant pins to keep the dynamic-flag matrix-coverage guard green.
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): Pi-hole email service disablement
+
 ## [10.1.0] - 2026-06-23
 
 * New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta.
