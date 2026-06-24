@@ -55,6 +55,23 @@ has_tpl = any(os.path.exists(os.path.join('${ROLE_DIR}', 'templates', t)) for t 
 print('false' if (swarm_skipped or not (has_image or has_tpl)) else 'true')
 ")"
 
+# In-container HTTP probe port for the chaos reachability checks (09/11): most
+# apps listen on :80, but some (ollama:11434) declare ports.internal.http.
+PROBE_PORT="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
+import os, yaml
+port = 80
+svc = os.path.join('${ROLE_DIR}', 'meta', 'services.yml')
+if os.path.exists(svc):
+    data = yaml.safe_load(open(svc)) or {}
+    entity = data.get('${ENTITY}') if isinstance(data, dict) else None
+    if isinstance(entity, dict):
+        try:
+            port = entity['ports']['internal']['http'] or 80
+        except Exception:
+            port = 80
+print(port)
+")"
+
 NFS_VOLUMES=""
 if [ -f "${ROLE_DIR}/meta/volumes.yml" ]; then
 	NFS_VOLUMES="$(python3 -c "
@@ -78,7 +95,7 @@ fi
 
 PRIMARY_NFS_VOLUME="$(printf '%s\n' "${NFS_VOLUMES}" | head -n1)"
 
-export APP_ID ENTITY STACK_NAME SERVICE_NAME CUSTOM_IMAGE_REPO DB_DEP NFS_VOLUMES PRIMARY_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER HAS_SWARM_SERVICE
+export APP_ID ENTITY STACK_NAME SERVICE_NAME CUSTOM_IMAGE_REPO DB_DEP NFS_VOLUMES PRIMARY_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER HAS_SWARM_SERVICE PROBE_PORT
 
 # Exits the calling chaos step (09/10/11) with success when the role is
 # manager-pinned (no worker task exists to drain).
@@ -108,4 +125,5 @@ if [ "${SWARM_NFS_PILOT_VERBOSE:-0}" = "1" ]; then
 	echo "    PRIMARY_NFS_VOLUME=${PRIMARY_NFS_VOLUME}"
 	echo "    DEFAULT_PLACEMENT_MANAGER=${DEFAULT_PLACEMENT_MANAGER}"
 	echo "    HAS_SWARM_SERVICE=${HAS_SWARM_SERVICE}"
+	echo "    PROBE_PORT=${PROBE_PORT}"
 fi

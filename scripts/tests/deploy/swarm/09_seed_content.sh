@@ -47,7 +47,7 @@ for i in $(seq 1 30); do
 	# No -f: many app roots legitimately 404 (UI/API live elsewhere); we only
 	# assert the HTTP server responds, not that '/' is 2xx.
 	if docker exec "${NODE}" docker exec "${APP_CTR}" \
-		curl -sS http://localhost:80/ >/dev/null 2>&1; then
+		curl -sS "http://localhost:${PROBE_PORT}/" >/dev/null 2>&1; then
 		echo "${ENTITY} HTTP reachable inside container after ${i}s"
 		break
 	fi
