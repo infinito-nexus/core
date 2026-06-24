@@ -46,7 +46,7 @@ mariadb:
 nextcloud:
   name: nextcloud
   image: nextcloud
-  version: 34-fpm-alpine
+  version: 33-fpm-alpine
   min_storage: 20GB
   backup:
     no_stop_required: true
@@ -221,7 +221,7 @@ talk:
 whiteboard:
   name: nextcloud-whiteboard
   image: ghcr.io/nextcloud-releases/whiteboard
-  version: latest
+  version: v1.5.9
   backup:
     no_stop_required: true
   cpus: "1"
