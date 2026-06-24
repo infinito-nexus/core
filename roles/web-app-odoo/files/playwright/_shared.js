@@ -38,7 +38,11 @@ async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
   await page.goto(`${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.locator('input[name="login"]').fill(env.adminUsername);
   await page.locator('input[name="password"]').fill(env.adminPassword);
-  await page.locator('.oe_login_form button[type="submit"], form button[type="submit"]').first().click();
+  await page
+    .locator('form:has(input[name="login"])')
+    .getByRole("button", { name: /log\s*in/i })
+    .first()
+    .click();
   await page.goto(`${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await expect(
     webClient,
