@@ -29,7 +29,7 @@ env:
 
 jobs:
   discover:
-    name: 🌐 Discover apps
+    name: 🍯 Lure swarms
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
@@ -138,6 +138,7 @@ jobs:
             echo "NFS_SERVER=$NFS_SERVER"
             echo "NFS_EXPORT_BASE=$NFS_EXPORT_BASE"
             echo "SWARM_LAB_NETWORK=$SWARM_LAB_NETWORK"
+            echo "INFINITO_SWARM_TEST_LABEL=$INFINITO_SWARM_TEST_LABEL"
           } >> "$GITHUB_ENV"
 
       - name: Set up Python

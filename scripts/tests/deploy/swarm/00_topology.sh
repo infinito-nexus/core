@@ -6,7 +6,7 @@
 # workflow sources this file before `make dotenv` runs, so .env may not exist yet.
 _default_env="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/default.env"
 # shellcheck source=/dev/null
-source <(grep -E '^INFINITO_SWARM_(MGR_NAME|WRK[12]_NAME|NFS_NAME|NFS_EXPORT_BASE|LAB_NET_NAME)=' "$_default_env")
+source <(grep -E '^INFINITO_SWARM_[A-Z0-9_]+=' "$_default_env")
 
 # Mandatory cluster-id prefix so every swarm-test cluster gets distinct container +
 # network names and never reuses a shared default. Callers (Makefile targets, the
