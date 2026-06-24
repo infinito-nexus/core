@@ -11,7 +11,7 @@
   meta: flush_handlers
 
 - name: "Matomo install | Resolve hosting node + local container ID"
-  include_tasks: 10_resolve_host_cid.yml
+  include_tasks: 09_resolve_host_cid.yml
 
 - name: "Matomo install | Run downstream install path"
   include_tasks: 04_install_path.yml

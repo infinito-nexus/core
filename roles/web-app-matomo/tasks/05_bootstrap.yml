@@ -1,41 +1,15 @@
 ---
 - block:
-    - name: "Matomo bootstrap | Compose: Run one-shot bootstrap via compose profile"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - --chdir
-          - "{{ lookup('container', application_id, 'directories.instance') }}"
-          - --project
-          - "{{ (lookup('container', application_id, 'directories.instance') | regex_replace('/+$', '')) | basename }}"
-          - --
-          - --profile
-          - "{{ MATOMO_BOOTSTRAP_PROFILE }}"
-          - run
-          - "-T"
-          - --rm
-          - "{{ MATOMO_BOOTSTRAP_SERVICE }}"
-      register: matomo_bootstrap_compose
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      changed_when: true
-      retries: "{{ MATOMO_BOOTSTRAP_RETRIES | int }}"
-      delay: "{{ MATOMO_BOOTSTRAP_RETRY_DELAY_S | int }}"
-      until: matomo_bootstrap_compose.rc == 0
-      when: DEPLOYMENT_MODE != 'swarm'
-
-    - name: "Matomo bootstrap | Swarm: bootstrap against a healthy Matomo"
-      ansible.builtin.include_tasks: 05_bootstrap_swarm.yml
-      vars:
-        matomo_bootstrap_service_ref: "{{ lookup('container_service', application_id, MATOMO_BOOTSTRAP_SERVICE) }}"
-      when: DEPLOYMENT_MODE == 'swarm'
+    - name: "Matomo bootstrap | Run bootstrap ({{ DEPLOYMENT_MODE }})"
+      ansible.builtin.include_tasks: "05_bootstrap/flavors/{{ DEPLOYMENT_MODE }}.yml"
 
   rescue:
     - name: "Matomo bootstrap | Select effective bootstrap result for diagnostics"
       ansible.builtin.set_fact:
         matomo_bootstrap_run: "{{ matomo_bootstrap_compose if DEPLOYMENT_MODE != 'swarm' else matomo_bootstrap_swarm }}"
 
-    - name: "Load Bootstrap Debug Info"
-      include_tasks: 06_bootstrap_debug.yml
+    - name: "Matomo bootstrap | Dump bootstrap diagnostics ({{ DEPLOYMENT_MODE }})"
+      ansible.builtin.include_tasks: "05_bootstrap/debug/{{ DEPLOYMENT_MODE }}.yml"
       when: MODE_DEBUG | bool
 
     - name: "Matomo bootstrap | Abort with bootstrap root cause"

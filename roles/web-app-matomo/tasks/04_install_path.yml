@@ -18,14 +18,14 @@
 # config.ini.php before the healthy-probe, matomo loops on "Database access denied".
 - name: "Patch database credentials for {{ application_id }}"
   include_tasks:
-    file: 07_patch_database.yml
+    file: 06_patch_database.yml
     apply:
       delegate_to: "{{ MATOMO_HOST_NODE }}"
       notify: compose up
   when: matomo_config_exists.rc == 0
 
 - name: "Patch Trusted Hosts for {{ application_id }}"
-  include_tasks: 08_patch_trusted_hosts.yml
+  include_tasks: 07_patch_trusted_hosts.yml
 
 - name: flush docker service
   meta: flush_handlers
@@ -45,7 +45,7 @@
       timeout: 600
 
     - name: "Matomo install | Swarm: re-resolve hosting node + container ID after restart"
-      include_tasks: 10_resolve_host_cid.yml
+      include_tasks: 09_resolve_host_cid.yml
 
 - name: "Matomo install | Wait for Matomo container to be healthy"
   ansible.builtin.shell: >
@@ -68,7 +68,7 @@
 
 - name: "Config '{{ application_id }}' via API"
   include_tasks:
-    file: 09_config.yml
+    file: 08_config.yml
     apply:
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
