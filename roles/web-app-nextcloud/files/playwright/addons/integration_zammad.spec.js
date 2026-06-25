@@ -63,15 +63,15 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
 
     let authorizeHref = await connect.getAttribute("href").catch(() => null);
     if (!authorizeHref || !/\/oauth\/authorize/i.test(authorizeHref)) {
-      const popupPromise = context.waitForEvent("page", { timeout: 15_000 }).catch(() => null);
-      await Promise.all([
-        page.waitForURL((u) => new URL(u).host === partnerHost, { timeout: 30_000 }).catch(() => {}),
-        connect.click({ timeout: 10_000 }).catch(() => {}),
-      ]);
-      const popup = await popupPromise;
-      const target = popup || page;
-      await target.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
-      authorizeHref = target.url();
+      // The control is a button doing window.location.replace(<partner>/oauth/authorize?...); Zammad's
+      // SPA then bounces the unauthenticated browser to login at "/", so the settled URL is no longer the
+      // authorize endpoint. Capture the authorize request itself — it carries the provisioned client_id.
+      const requestPromise = page
+        .waitForRequest((req) => /\/oauth\/authorize/i.test(req.url()), { timeout: 30_000 })
+        .catch(() => null);
+      await connect.click({ timeout: 10_000 }).catch(() => {});
+      const request = await requestPromise;
+      authorizeHref = request ? request.url() : page.url();
     }
 
     const authorize = new URL(authorizeHref, instanceUrl);
