@@ -6,8 +6,8 @@
 # if it runs before the plugin tarball has finished extracting. Waiting for that
 # specific manifest is the cheapest end-of-extract marker.
 - name: "Wait for Joomla files to exist"
-  shell:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER_ADDRESS }}", test, -f, /var/www/html/plugins/actionlog/joomla/joomla.xml]
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f /var/www/html/plugins/actionlog/joomla/joomla.xml
   register: joomla_files
   changed_when: false
   retries: 60
@@ -16,16 +16,16 @@
 
 # (Optional) specifically wait for the CLI installer script
 - name: "Check for CLI installer"
-  shell:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER_ADDRESS }}", test, -f, "{{ JOOMLA_INSTALLER_CLI_FILE }}"]
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_INSTALLER_CLI_FILE }}
   register: has_installer
   changed_when: false
   failed_when: false
 
 # Only if not already installed (no configuration.php)
 - name: "Check if Joomla is already installed"
-  shell:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER_ADDRESS }}", test, -f, "{{ JOOMLA_CONFIG_FILE }}"]
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_CONFIG_FILE }}
   register: joomla_installed
   changed_when: false
   failed_when: false
@@ -133,8 +133,8 @@
 # Joomla 5.x CLI installer intermittently fails to remove the installation folder
 # (non-fatal — install itself completed). Force-remove as root to finish cleanup.
 - name: "Force-remove installation folder (root)"
-  shell:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER_ADDRESS }}", rm, -rf, /var/www/html/installation]
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -rf /var/www/html/installation
   changed_when: false
   when:
     - joomla_installed.rc != 0

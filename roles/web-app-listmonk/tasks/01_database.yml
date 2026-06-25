@@ -29,7 +29,7 @@
 
 - name: Run Listmonk initial database setup
   shell: |
-    container exec -i {{ LISTMONK_CONTAINER_ADDRESS | quote }} sh -c 'set -euo pipefail; yes | ./listmonk --install'
+    container exec -i {{ LISTMONK_CONTAINER_ADDRESS }} sh -c 'set -euo pipefail; yes | ./listmonk --install'
   register: listmonk_install
   notify: compose up
   changed_when: true
@@ -38,7 +38,7 @@
 
 - name: Run Listmonk DB/schema upgrade (non-interactive)
   shell: |
-    container exec -i {{ LISTMONK_CONTAINER_ADDRESS | quote }} sh -c 'set -euo pipefail; echo y | ./listmonk --upgrade'
+    container exec -i {{ LISTMONK_CONTAINER_ADDRESS }} sh -c 'set -euo pipefail; echo y | ./listmonk --upgrade'
   register: listmonk_upgrade
   changed_when: true
   failed_when: listmonk_upgrade.rc not in [0, 141]
