@@ -27,7 +27,16 @@ This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/
 
 ## First-Run Setup
 
-n8n CE requires an owner account to be created on first access. After deployment, navigate to the canonical URL and complete the owner setup wizard. In V1, the wizard is presented after the oauth2-proxy SSO gate, so only Keycloak-authenticated users can reach it.
+The deployment bootstrap (`tasks/02_bootstrap.yml`) automatically creates the owner account on first run using the platform-generated `owner_password` credential. No manual wizard step is required.
+
+**V1 (SSO + LDAP):** The oauth2-proxy edge gate redirects all requests to Keycloak. Normal users log in via Keycloak SSO. The owner account is used only as a break-glass credential.
+
+**V2 (no auth):** n8n presents its native login UI. The administrator logs in with the email configured in `users.administrator.email` and the password stored in the platform credential `credentials.owner_password`. Retrieve it with:
+```
+ansible-vault view group_vars/web-app-n8n.yml
+```
+
+**V3 (LDAP only):** Users authenticate via n8n's built-in LDAP integration against `svc-db-openldap`. The owner account remains available as a break-glass credential using the same `owner_password`.
 
 ## Developer Notes
 
