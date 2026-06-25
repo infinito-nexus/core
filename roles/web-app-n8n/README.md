@@ -32,6 +32,7 @@ The deployment bootstrap (`tasks/02_bootstrap.yml`) automatically creates the ow
 **V1 (SSO + LDAP):** The oauth2-proxy edge gate redirects all requests to Keycloak. Normal users log in via Keycloak SSO. The owner account is used only as a break-glass credential.
 
 **V2 (no auth):** n8n presents its native login UI. The administrator logs in with the email configured in `users.administrator.email` and the password stored in the platform credential `credentials.owner_password`. Retrieve it with:
+
 ```
 ansible-vault view group_vars/web-app-n8n.yml
 ```
