@@ -2,4 +2,5 @@
 container-soft:
   lifecycle: beta
   required_by:
-    categories: [web]
+    compose:
+      categories: [web]

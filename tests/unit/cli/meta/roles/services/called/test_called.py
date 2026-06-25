@@ -162,6 +162,56 @@ class TestRequiredRoleIds(unittest.TestCase):
         )
         self.assertEqual(result, {"sys-x"})
 
+    def test_mode_scoped_required_by_compose_only(self) -> None:
+        _write_services_yml(
+            self.roles_dir / "sys-ctl-rpr-container-hard",
+            """
+            ---
+            container-hard:
+              required_by:
+                compose:
+                  categories: [web]
+            """,
+        )
+        self.assertEqual(
+            required_role_ids(
+                roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
+            ),
+            {"sys-ctl-rpr-container-hard"},
+        )
+        self.assertEqual(
+            required_role_ids(
+                roles_dir=self.roles_dir,
+                deployed_role_ids=["web-app-yourls", "svc-swarm-node"],
+            ),
+            set(),
+        )
+
+    def test_mode_scoped_required_by_swarm_only(self) -> None:
+        _write_services_yml(
+            self.roles_dir / "sys-x",
+            """
+            ---
+            x:
+              required_by:
+                swarm:
+                  categories: [web]
+            """,
+        )
+        self.assertEqual(
+            required_role_ids(
+                roles_dir=self.roles_dir,
+                deployed_role_ids=["web-app-yourls", "svc-swarm-manager"],
+            ),
+            {"sys-x"},
+        )
+        self.assertEqual(
+            required_role_ids(
+                roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
+            ),
+            set(),
+        )
+
     def test_no_category_match(self) -> None:
         _write_services_yml(
             self.roles_dir / "sys-x",
