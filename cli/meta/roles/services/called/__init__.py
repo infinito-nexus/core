@@ -39,6 +39,15 @@ _NON_SKIP_RE = re.compile(
     r"^\s*(?:ok|changed|fatal|included):\s+",
     re.MULTILINE,
 )
+# Ansible's log_path file (ANSIBLE_LOG_PATH, what the swarm/compose deploy feeds
+# this verifier) prefixes every line with "<ts> p=<pid> u=<user> n=<name> <LVL>| ".
+# Unstripped, that prefix defeats both the line-anchored _NON_SKIP_RE and the
+# "\nTASK [" block split below (the TASK header no longer follows the newline),
+# so every required role false-positives as "did not execute".
+_LOG_PREFIX_RE = re.compile(
+    r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d,\d+ p=\d+ u=\S+ n=\S+ \w+\| ",
+    re.MULTILINE,
+)
 
 
 def categories_of(role_id: str) -> set[str]:
@@ -169,7 +178,7 @@ def _role_body_executed(log_content: str, role_id: str) -> bool:
     `skipping:` status line, so a header alone is insufficient evidence
     that the role's body ran — we must see at least one non-skip outcome.
     """
-    clean = _ANSI_RE.sub("", log_content)
+    clean = _LOG_PREFIX_RE.sub("", _ANSI_RE.sub("", log_content))
     marker = f"TASK [{role_id} :"
     pos = 0
     while True:
