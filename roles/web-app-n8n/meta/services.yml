@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required — n8n stores workflows in postgres, not object storage
 sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
