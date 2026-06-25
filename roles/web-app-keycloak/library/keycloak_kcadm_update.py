@@ -11,7 +11,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.kcadm_json import json_from_noisy_stdout
 
 NO_SUCH_CONTAINER_RE = re.compile(r"no such container", re.IGNORECASE)
-DEAD_CID_MAX_RETRIES = 5
+DEAD_CID_MAX_RETRIES = 40
 DEAD_CID_RETRY_DELAY = 3
 
 DOCUMENTATION = r"""
