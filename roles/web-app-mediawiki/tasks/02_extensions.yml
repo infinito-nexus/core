@@ -42,8 +42,14 @@
 - name: "EXT | composer install in each extension when needed"
   script: >-
     composer_install_extension.sh
-    "{{ MEDIAWIKI_CONTAINER }}" "{{ MEDIAWIKI_USER }}" "{{ MEDIAWIKI_HTML_DIR }}"
+    "{{ MEDIAWIKI_USER }}" "{{ MEDIAWIKI_HTML_DIR }}"
     "{{ ext.name }}" "{{ MEDIAWIKI_EXT_BRANCH }}"
+  environment:
+    BARE_NAME: "{{ MEDIAWIKI_CONTAINER }}"
+    STACK: "{{ application_id | get_entity_name }}"
+    SERVICE_KEY: "mediawiki"
+    DEPLOYMENT_MODE: "{{ DEPLOYMENT_MODE }}"
+    BIN_RESOLVE_CONTAINER_ID: "{{ BIN_RESOLVE_CONTAINER_ID }}"
   loop: "{{ MEDIAWIKI_EXT_LIST }}"
   loop_control:
     loop_var: ext
