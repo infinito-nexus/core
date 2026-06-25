@@ -5,7 +5,7 @@ from pathlib import Path
 from types import ModuleType
 from unittest.mock import patch
 
-import yaml
+from utils.cache.yaml import dump_yaml
 
 from . import PROJECT_ROOT
 
@@ -28,7 +28,9 @@ class TestSwarmRegistrySync(unittest.TestCase):
             "swarm_registry_sync_mod",
         )
 
-    def _sync(self, services: dict, *, prefix: str = PREFIX, manifest=lambda img: False):
+    def _sync(
+        self, services: dict, *, prefix: str = PREFIX, manifest=lambda img: False
+    ):
         """Run sync() against a temp compose with docker mocked out; return the
         list of docker argv lists the script issued."""
         calls: list[list[str]] = []
@@ -39,7 +41,7 @@ class TestSwarmRegistrySync(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as td:
             cf = Path(td) / "compose.yml"
-            cf.write_text(yaml.safe_dump({"services": services}), encoding="utf-8")
+            dump_yaml(cf, {"services": services})
             with (
                 patch.object(self.m, "run", side_effect=fake_run),
                 patch.object(self.m, "manifest_exists", side_effect=manifest),
