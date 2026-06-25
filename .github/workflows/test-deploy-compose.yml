@@ -128,7 +128,20 @@ jobs:
       - name: 📊 Role runtimes
         if: always()
         shell: bash
-        run: python3 utils/github/profile/role_summary.py /tmp/ansible-${{ matrix.apps }}.log
+        run: |
+          set -euo pipefail
+          python3 -m cli.meta.ci.roles.runtime "/tmp/ansible-${{ matrix.apps }}.log" \
+            --format csv --output "/tmp/role-runtimes-${{ matrix.apps }}.csv"
+          python3 -m cli.meta.ci.roles.runtime "/tmp/role-runtimes-${{ matrix.apps }}.csv" \
+            --format markdown >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload role runtimes CSV
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: role-runtimes-${{ matrix.apps }}
+          path: /tmp/role-runtimes-${{ matrix.apps }}.csv
+          if-no-files-found: ignore
 
       - name: 🩺 Dump runner state (on failure)
         if: failure()
