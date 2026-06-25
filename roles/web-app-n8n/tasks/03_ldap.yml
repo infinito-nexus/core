@@ -1,0 +1,56 @@
+---
+# n8n LDAP configuration is written directly to the PostgreSQL settings table
+# (key 'features.ldap') because the LDAP REST controller routes
+# (/rest/ldap/*) are never registered in n8n 1.95.3 CE —
+# ldap.controller.ee.js is not imported by server.js, so all
+# /rest/ldap/* endpoints return 404.
+#
+# n8n's Cipher uses AES-256-CBC with OpenSSL EVP_BytesToKey (MD5, 1 iteration)
+# for bindingAdminPassword, output format:
+#   base64("Salted__" + 8-byte-salt + ciphertext)
+# This is byte-identical to:
+#   printf '%s' "$PASS" | openssl enc -aes-256-cbc -md md5 -pass pass:"$KEY" -base64 -A
+# See cipher.js for the derivation (identical to EVP_BytesToKey with MD5).
+
+- name: "n8n | Encrypt LDAP bind password (AES-256-CBC / EVP_BytesToKey)"
+  ansible.builtin.shell:
+    cmd: printf '%s' "$LDAP_PASS" | openssl enc -aes-256-cbc -md md5 -pass pass:"$N8N_ENC_KEY" -base64 -A 2>/dev/null
+  environment:
+    LDAP_PASS: "{{ LDAP.BIND_CREDENTIAL }}"
+    N8N_ENC_KEY: "{{ N8N_ENCRYPTION_KEY }}"
+  register: n8n_ldap_encrypted_password
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: false
+
+- name: "n8n | Build LDAP configuration dict"
+  ansible.builtin.set_fact:
+    n8n_ldap_config:
+      loginEnabled: true
+      loginLabel: "{{ ORGANIZATION }} LDAP"
+      connectionUrl: "ldap://{{ LDAP.SERVER.DOMAIN }}:{{ LDAP.SERVER.PORT }}"
+      allowUnauthorizedCerts: false
+      connectionSecurity: "none"
+      connectionPort: "{{ LDAP.SERVER.PORT | int }}"
+      baseDn: "{{ LDAP.DN.OU.USERS }}"
+      bindingAdminDn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+      bindingAdminPassword: "{{ n8n_ldap_encrypted_password.stdout }}"
+      firstNameAttribute: "givenName"
+      lastNameAttribute: "sn"
+      emailAttribute: "mail"
+      loginIdAttribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      ldapIdAttribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      userFilter: "({{ LDAP.USER.ATTRIBUTES.ID }}={login})"
+      synchronizationEnabled: false
+      synchronizationInterval: 60
+      searchPageSize: 0
+      searchTimeout: 60
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "n8n | Upsert LDAP configuration in settings table"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/upsert-ldap-config.sql"
+    named_args:
+      ldap_config: "{{ n8n_ldap_config | to_json }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true

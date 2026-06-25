@@ -1,0 +1,35 @@
+---
+galaxy_info:
+  author: Prageeth Panicker
+  description: n8n is an open-source workflow automation platform for connecting services, transforming data, and building integrations with a visual low-code editor.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - n8n
+    - workflow
+    - automation
+    - integration
+    - low-code
+    - self-hosted
+    - docker
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+dependencies: []

@@ -1,0 +1,31 @@
+---
+# General
+application_id: "web-app-n8n"
+entity_name: "{{ application_id | get_entity_name }}"
+
+# n8n
+# https://n8n.io/
+N8N_IMAGE: "{{ lookup('config', application_id, 'services.n8n.image') }}"
+N8N_VERSION: "{{ lookup('config', application_id, 'services.n8n.version') }}"
+N8N_CONTAINER: "{{ lookup('config', application_id, 'services.n8n.name') }}"
+N8N_VOLUME: "{{ lookup('config', application_id, 'volumes.n8n') }}"
+N8N_HTTP_PORT: "{{ lookup('config', application_id, 'services.n8n.ports.local.http') }}"
+N8N_INTERNAL_PORT: 5678
+
+N8N_HOSTNAME: "{{ lookup('domain', application_id) }}"
+N8N_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
+N8N_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'credentials.encryption_key') }}"
+N8N_OWNER_PASSWORD: "{{ lookup('config', application_id, 'credentials.owner_password') }}"
+
+# Internal API base URL (host-reachable, used by Ansible uri_retry tasks)
+N8N_INTERNAL_API_URL: "http://{{ DOCKER_REACH_HOST }}:{{ N8N_HTTP_PORT }}"
+
+# SSO-proxy self-signed CA trust (see tasks/01_core.yml for full rationale).
+# Container-internal path where compose_ca.py bind-mounts the platform CA cert
+# into every service. Mirrors the same constant in web-app-pihole/vars/main.yml.
+N8N_SSO_PROXY_CA_CONTAINER_PATH: "/tmp/infinito/ca/root-ca.crt"
+
+# Auth integrations
+N8N_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+N8N_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
+N8N_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
