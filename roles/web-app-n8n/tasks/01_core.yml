@@ -1,0 +1,70 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+# Why this task exists:
+#
+# oauth2-proxy (quay.io/oauth2-proxy/oauth2-proxy) is a distroless image with
+# no /bin/sh, so the platform's CA-trust wrapper (with-ca-trust.sh, applied by
+# compose_ca.py for services that have a shell) is skipped for this container.
+# Go binaries ignore SSL_CERT_FILE/REQUESTS_CA_BUNDLE/CURL_CA_BUNDLE and use
+# only the OS system cert pool, so on self-signed TLS setups oauth2-proxy
+# fails OIDC discovery against Keycloak with
+# "x509: certificate signed by unknown authority". nginx then falls back to
+# n8n's own login instead of redirecting to Keycloak, breaking SSO entirely
+# in CI (and on any self-signed deployment).
+#
+# Fix: oauth2-proxy supports a `provider_ca_file` config option to load a CA
+# explicitly for the OIDC provider connection, bypassing the system cert pool
+# entirely. We append this line to the rendered sso-proxy config file here —
+# AFTER web-app-keycloak/tasks/sso_proxy.yml has rendered it (inside
+# sys-stk-full -> sys-stk-backend, called above with
+# compose_handlers_flush: false) and BEFORE `compose up` runs (flushed
+# explicitly below).
+#
+# Scope: deliberately role-local. See web-app-pihole/tasks/01_core.yml for
+# the canonical rationale. This task is a no-op on production
+# (TLS_MODE=letsencrypt), where a real CA is trusted and this isn't needed.
+- name: "n8n | Trust self-signed platform CA for sso-proxy OIDC discovery"
+  ansible.builtin.lineinfile:
+    path: >-
+      {{ (application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
+         }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}
+    line: 'provider_ca_files       =   ["{{ N8N_SSO_PROXY_CA_CONTAINER_PATH }}"]'
+    insertafter: "^provider_display_name"
+  when:
+    - lookup('sso', application_id, 'is_proxy_gated')
+    - (TLS_MODE | lower) == 'self_signed'
+
+- name: "flush compose and SSO proxy"
+  meta: flush_handlers
+
+- name: "Wait for n8n HTTP endpoint"
+  wait_for:
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ N8N_HTTP_PORT }}"
+    delay: 5
+    timeout: 300
+
+- name: "Wait for n8n health check to pass"
+  uri_retry:
+    url: "{{ N8N_INTERNAL_API_URL }}/healthz"
+    method: GET
+    status_code: 200
+    return_content: false
+  register: n8n_health
+  until: n8n_health.status == 200
+  retries: 60
+  delay: 5
+
+- name: "Bootstrap n8n owner account"
+  include_tasks: 02_bootstrap.yml
+
+- name: "Configure n8n LDAP against svc-db-openldap"
+  include_tasks: 03_ldap.yml
+  when: N8N_LDAP_ENABLED | bool

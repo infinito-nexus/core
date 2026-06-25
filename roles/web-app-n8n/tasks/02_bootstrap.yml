@@ -1,0 +1,40 @@
+---
+# n8n owner setup: probe whether the owner account exists by attempting a
+# single login with the alphanumeric break-glass owner_password. This
+# replaces the deprecated /api/v1/owner/pre-setup probe (removed in n8n 1.x,
+# always returns 404) and avoids two n8n class-validator false-positives:
+# 1. @NoXss() on password: escapeHtml turns special chars (e.g. single quotes)
+#    to HTML entities, so the system admin password fails the check. Fix: use a
+#    dedicated alphanumeric owner_password (meta/schema.yml).
+# 2. @NoUrl() on firstName/lastName: regex /(\.[\p{L}\d-]+)/iu flags ANY dot
+#    followed by letters — including org names like "Infinito.Nexus". Fix:
+#    replace dots with spaces before sending (see firstName/lastName below).
+# Normal users authenticate via SSO/Keycloak; this password is break-glass only.
+#
+# A single probe (uri, not uri_retry) avoids triggering n8n's rate limiter.
+- name: "n8n | Probe owner account via single login attempt"
+  uri:
+    url: "{{ N8N_INTERNAL_API_URL }}/rest/login"
+    method: POST
+    body_format: json
+    body:
+      emailOrLdapLoginId: "{{ lookup('users', 'administrator').email }}"
+      password: "{{ N8N_OWNER_PASSWORD }}"
+    status_code: [200, 401, 403]
+    return_content: false
+  register: n8n_owner_probe
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "n8n | Initialise owner account (first-time only)"
+  uri_retry:
+    url: "{{ N8N_INTERNAL_API_URL }}/rest/owner/setup"
+    method: POST
+    body_format: json
+    body:
+      email: "{{ lookup('users', 'administrator').email }}"
+      firstName: "{{ lookup('users', 'administrator').firstname | replace('.', ' ') | trim }}"
+      lastName: "{{ lookup('users', 'administrator').lastname | replace('.', ' ') | trim }}"
+      password: "{{ N8N_OWNER_PASSWORD }}"
+    status_code: [200, 201]
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: n8n_owner_probe.status != 200

@@ -1,0 +1,18 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  n8n:
+{% set service_name = 'n8n' %}
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    image: {{ N8N_IMAGE }}:{{ N8N_VERSION }}
+    container_name: {{ N8N_CONTAINER }}
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ N8N_HTTP_PORT }}:{{ N8N_INTERNAL_PORT }}"
+    volumes:
+      - n8n_data:/home/node/.n8n
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={'n8n_data': {'name': N8N_VOLUME}}
+) }}
