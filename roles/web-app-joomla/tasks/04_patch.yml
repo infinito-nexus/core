@@ -9,7 +9,8 @@
     -e J_DBPASS={{ lookup('database', application_id, 'password') | quote }}
     -e J_DBNAME={{ lookup('database', application_id, 'name') | quote }}
     {{ JOOMLA_CONTAINER_ADDRESS }} php --
-  stdin: "{{ lookup('file', role_path ~ '/files/php/configure_db.php') }}"
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/php/configure_db.php') }}"
   register: cfg_patch
   changed_when: cfg_patch.stdout == "changed"
   failed_when: cfg_patch.rc != 0

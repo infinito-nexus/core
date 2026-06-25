@@ -62,7 +62,8 @@
     -e J_ZIP={{ JOOMLA_OIDC_PLUGIN_ZIP | quote }}
     -e J_BUILD_DIR={{ JOOMLA_OIDC_PLUGIN_BUILD_DIR | quote }}
     {{ JOOMLA_CONTAINER_ADDRESS }} php --
-  stdin: "{{ lookup('file', role_path ~ '/files/php/package_plugin.php') }}"
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/php/package_plugin.php') }}"
   changed_when: true
 
 - name: "Install plg_system_keycloak via Joomla CLI"
