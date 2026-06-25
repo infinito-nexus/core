@@ -28,4 +28,3 @@ N8N_SSO_PROXY_CA_CONTAINER_PATH: "/tmp/infinito/ca/root-ca.crt"
 # Auth integrations
 N8N_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 N8N_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
-N8N_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"

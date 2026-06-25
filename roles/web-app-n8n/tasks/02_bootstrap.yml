@@ -11,9 +11,9 @@
 #    replace dots with spaces before sending (see firstName/lastName below).
 # Normal users authenticate via SSO/Keycloak; this password is break-glass only.
 #
-# A single probe (uri, not uri_retry) avoids triggering n8n's rate limiter.
+# A single probe avoids triggering n8n's rate limiter.
 - name: "n8n | Probe owner account via single login attempt"
-  uri:
+  uri_retry:
     url: "{{ N8N_INTERNAL_API_URL }}/rest/login"
     method: POST
     body_format: json
