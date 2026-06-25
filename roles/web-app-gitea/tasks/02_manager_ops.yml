@@ -9,6 +9,16 @@
 - name: Patch Gitea database settings in app.ini
   include_tasks: 02_database.yml
 
+- name: "Wait for Gitea app.ini to be present after redeploy"
+  shell: |
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
+      test -f {{ GITEA_CONFIG }}
+  register: gitea_config_ready
+  changed_when: false
+  retries: 30
+  delay: 2
+  until: gitea_config_ready.rc == 0
+
 - name: "Run DB migrations inside Gitea container"
   shell: |
     container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
