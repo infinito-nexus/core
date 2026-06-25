@@ -56,6 +56,8 @@ element:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+matrix-mdad:
+  name: matrix-mdad
 matrix-chatgpt-bot:
   version: latest
   image: ghcr.io/matrixgpt/matrix-chatgpt-bot
