@@ -12,6 +12,9 @@ redirect_url            =   "{{ lookup('tls', sso_proxy_application_id, 'protoco
 oidc_issuer_url         =   "{{ OIDC.CLIENT.ISSUER_URL }}"
 provider                =   "oidc"
 provider_display_name   =   "{{ OIDC.BUTTON_TEXT }}"
+{% if (TLS_MODE | lower) == 'self_signed' %}
+provider_ca_files       =   ["/tmp/infinito/ca/root-ca.crt"]
+{% endif %}
 
 {% set allowed_groups_raw = lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') %}
 {% if allowed_groups_raw %}
