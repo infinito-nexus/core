@@ -1,7 +1,7 @@
 ---
 keyboard-color:
   vendor_and_product_id: 1038:113a
-  lifecycle: beta
+  lifecycle: pre-alpha
   min_storage: "50MB"
   cpus: "0.1"
   mem_reservation: "32m"

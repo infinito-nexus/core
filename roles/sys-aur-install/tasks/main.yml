@@ -24,4 +24,3 @@
     aur_only: "{{ yay_install_aur_only }}"
   become: true
   become_user: "{{ yay_install_become_user }}"
-  when: (yay_install_packages | length > 0) or (yay_install_upgrade | bool)
