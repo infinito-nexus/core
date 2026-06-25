@@ -41,6 +41,15 @@ def main(argv: list[str] | None = None) -> int:
         metavar='"app1 app2 ..."',
         help="Explicit space-separated role ids to trigger.",
     )
+    p.add_argument(
+        "--run",
+        default=None,
+        metavar="URL",
+        help=(
+            "Run URL whose results determine the --failed apps. Default: the "
+            "latest deploy run on the current branch."
+        ),
+    )
     args = p.parse_args(argv)
 
     branch = runs.current_branch()
@@ -53,16 +62,22 @@ def main(argv: list[str] | None = None) -> int:
         whitelist = apps
     elif args.failed is not None:
         scope = "docker" if args.failed == "compose" else args.failed
-        run = runs.find_last_deploy_run(branch, repo=repo)
-        if run is None:
-            print(
-                f"No CI run with deploy jobs found on {repo}@{branch}.",
-                file=sys.stderr,
+        if args.run:
+            jobs = runs.fetch_jobs(
+                runs.run_id_from_url(args.run), repo=runs.slug_from_url(args.run)
             )
-            return 1
-        failed = runs.failed_roles(runs.parse_role_statuses(run["_jobs"]), scope)
+        else:
+            run = runs.find_last_deploy_run(branch, repo=repo)
+            if run is None:
+                print(
+                    f"No CI run with deploy jobs found on {repo}@{branch}.",
+                    file=sys.stderr,
+                )
+                return 1
+            jobs = run["_jobs"]
+        failed = runs.failed_roles(runs.parse_role_statuses(jobs), scope)
         if not failed:
-            print(f"Nothing failed ({args.failed}) in the last run; not triggering.")
+            print(f"Nothing failed ({args.failed}) in that run; not triggering.")
             return 0
         whitelist = " ".join(failed)
     else:

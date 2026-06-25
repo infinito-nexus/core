@@ -15,6 +15,8 @@ _JOBS = [
     {"name": "🐝 Swarm web-app-y", "status": "completed", "conclusion": "success"},
 ]
 
+_RUN_URL = "https://github.com/o/r/actions/runs/55"  # nocheck: url
+
 
 class TestTriggerMain(unittest.TestCase):
     def _run(self, argv: list[str], run: dict | None = None) -> tuple[int, list]:
@@ -76,6 +78,26 @@ class TestTriggerMain(unittest.TestCase):
         rc, calls = self._run(["--failed"], run={"_jobs": green})
         self.assertEqual(rc, 0)
         self.assertEqual(calls, [])
+
+    def test_failed_with_run_url_uses_that_run(self) -> None:
+        calls: list = []
+        with (
+            mock.patch.object(runs, "current_branch", return_value="feature/x"),
+            mock.patch.object(runs, "resolve_repo", return_value="o/r"),
+            mock.patch.object(runs, "fetch_jobs", return_value=_JOBS) as fetch,
+            mock.patch.object(runs, "find_last_deploy_run") as find_last,
+            mock.patch.object(
+                runs,
+                "dispatch_workflow",
+                side_effect=lambda wf, ref, wl, repo=None: calls.append(wl),
+            ),
+            redirect_stdout(io.StringIO()),
+        ):
+            rc = trigger.main(["--failed", "--run", _RUN_URL])
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0], "web-app-x web-app-y")
+        fetch.assert_called_once()
+        find_last.assert_not_called()
 
     def test_failed_no_run_found(self) -> None:
         rc, calls = self._run(["--failed"], run=None)
