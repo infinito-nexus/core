@@ -32,6 +32,7 @@ from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
+from ansible.template import trust_as_template
 
 from utils.cache.applications import get_merged_applications
 from utils.roles.applications.config import get
@@ -79,12 +80,11 @@ class LookupModule(LookupBase):
         application_id = _as_str(
             kwargs.get("application_id") or variables.get("application_id")
         )
-        # application_id can arrive as an unrendered include var (sys-stk-full sets
-        # application_id="{{ sys_stk_full_application_id }}" when rendering a shared
-        # service); resolve it through the templar, as the other lookups effectively do.
         if templar is not None and "{{" in application_id:
             with contextlib.suppress(Exception):
-                application_id = _as_str(templar.template(application_id))
+                application_id = _as_str(
+                    templar.template(trust_as_template(application_id))
+                )
         if not application_id:
             raise AnsibleError(
                 "container_ports: no application_id in the play vars; pass "
