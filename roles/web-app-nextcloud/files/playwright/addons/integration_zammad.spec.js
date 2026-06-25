@@ -87,10 +87,15 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
       authorize.pathname,
       "the per-user connect must initiate OAuth on the partner /oauth/authorize endpoint"
     ).toContain("/oauth/authorize");
+    const clientId = authorize.searchParams.get("client_id") || "";
     expect(
-      (authorize.searchParams.get("client_id") || "").length,
+      clientId.length,
       "the authorize request must carry the provisioned OAuth client_id (proves the partner-registered app)"
     ).toBeGreaterThan(0);
+    expect(
+      clientId.includes("|"),
+      "the client_id must be the plaintext OAuth uid, not an ICrypto ciphertext - a '|' means integration_zammad read an encrypted value it could not decrypt (NC_ENC_MODE/encryption regression)"
+    ).toBe(false);
     expect(
       authorize.searchParams.get("response_type"),
       "the coupling must use the authorization-code grant"
