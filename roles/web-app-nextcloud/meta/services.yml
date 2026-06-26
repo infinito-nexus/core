@@ -185,7 +185,7 @@ nextcloud:
 proxy:
   name: nextcloud-proxy
   image: nginx
-  version: alpine
+  version: 1.31.2-alpine
   backup:
     no_stop_required: true
   cpus: "0.5"

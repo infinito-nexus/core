@@ -23,7 +23,7 @@ email:
 opencloud:
   name: opencloud
   image: opencloudeu/opencloud
-  version: 4.0.7
+  version: 7.2.0
   min_storage: 20GB
   backup:
     no_stop_required: true
