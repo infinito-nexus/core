@@ -152,7 +152,11 @@
   when: MODE_DEBUG | bool
 
 - name: "Include Schemas (if enabled)"
-  include_tasks: 03_schemas.yml
+  include_tasks:
+    file: 03_schemas.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_SCHEMAS | bool
 
 - name: "Import LDAP Entries (if enabled)"
