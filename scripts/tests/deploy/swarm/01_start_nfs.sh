@@ -2,7 +2,7 @@
 set -euo pipefail
 
 mkdir -p "${RUNNER_TEMP}/nfs-export"
-# A killed prior run leaves the nfs-server container behind; --name then conflicts.
+bash "$(dirname "$0")/unmount_nfs_mounts.sh" "${NFS_SERVER}" >/dev/null 2>&1 || true
 docker rm -f "${NFS_SERVER}" >/dev/null 2>&1 || true
 docker run -d --name "${NFS_SERVER}" \
 	--label "${INFINITO_SWARM_TEST_LABEL}" \

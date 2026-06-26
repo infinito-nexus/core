@@ -15,9 +15,13 @@ REPO_ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
 DIR_VAR_LIB="$(python3 -c "import yaml,sys;print(yaml.safe_load(open(sys.argv[1]))['DIR_VAR_LIB'])" \
 	"${REPO_ROOT}/group_vars/all/05_paths.yml")"
 
+bash "$(dirname "$0")/unmount_nfs_mounts.sh" "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" || true
+
 if mountpoint -q "${DIR_VAR_LIB}" 2>/dev/null; then
 	umount -lf "${DIR_VAR_LIB}" || true
 fi
+
+docker exec "${NFS_SERVER}" systemctl stop nfs-ganesha 2>/dev/null || true
 
 for _node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}"; do
 	docker kill "${_node}" 2>/dev/null

@@ -34,6 +34,13 @@ act-runner-image:
 act-swarm-clean:
 	@bash scripts/tests/deploy/swarm/clean_all.sh
 
+.PHONY: act-swarm-clean-stale-nfs
+# Recover stale in-namespace NFS mounts from wedged act-swarm nfs-server containers.
+# Usage: make act-swarm-clean-stale-nfs [cid=<container-id-or-name>] [mount=/mnt/gtest]
+# Note: needs sudo; may restart containerd/docker only if docker rm still cannot reap the container.
+act-swarm-clean-stale-nfs:
+	@CID='$(cid)' NFS_MOUNT='$(mount)' bash scripts/tests/deploy/swarm/clean_stale_nfs.sh
+
 .PHONY: act-swarm-down
 # Release a named swarm-test cluster (DinD nodes, lab network, act outer container).
 # Param name: REQUIRED cluster id matching the one act-swarm-zombie used (the app id when no name= was passed).
@@ -162,6 +169,11 @@ clean:
 # Note: stops cache containers first; re-run `make compose-up` to recreate them.
 clean-cache:
 	@bash scripts/system/cache/clean.sh
+
+.PHONY: clean-stale-nfs
+# Recover stale in-namespace NFS mounts from wedged act-swarm nfs-server containers.
+# Usage: make clean-stale-nfs [cid=<container-id-or-name>] [mount=/mnt/gtest]
+clean-stale-nfs: act-swarm-clean-stale-nfs
 
 .PHONY: clean-container-owned
 # Remove container-owned generated artefacts (build/, tasks/groups/*.yml).
