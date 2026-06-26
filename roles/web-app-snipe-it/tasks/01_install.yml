@@ -2,7 +2,7 @@
 - name: Wait until application container is up
   ansible.builtin.shell: >-
     container ps
-    --filter label=com.docker.swarm.service.name={{ SNIPE_IT_CONTAINER_ADDRESS }}
+    --filter label=com.docker.swarm.service.name={{ lookup('container_service', application_id, SNIPE_IT_SERVICE) }}
     --format '{% raw %}{{.ID}}{% endraw %}'
   register: snipeit_app_id
   retries: 30
