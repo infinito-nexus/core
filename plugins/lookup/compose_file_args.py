@@ -125,7 +125,6 @@ class LookupModule(LookupBase):
         if not isinstance(include_ca, bool):
             raise AnsibleError("compose_file_args: include_ca must be a bool")
 
-        # `docker compose` takes -f; `docker stack deploy` takes --compose-file.
         flag = kwargs.get("flag", "-f")
         if flag not in ("-f", "--compose-file", "-c"):
             raise AnsibleError(
