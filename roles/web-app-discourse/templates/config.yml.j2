@@ -235,4 +235,10 @@ run:
 
 docker_args:
   - --network={{ DISCOURSE_NETWORK }}
+{% if DISCOURSE_REDIS_SHARED | bool %}
+  - --network={{ DISCOURSE_REDIS_NETWORK }}
+{% endif %}
+{% if DISCOURSE_DATABASE_IS_SHARED | bool %}
+  - --network={{ DISCOURSE_PG_NETWORK }}
+{% endif %}
   - --name={{ DISCOURSE_CONTAINER }}
