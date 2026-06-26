@@ -176,7 +176,9 @@ def _resolve_exec_target(config: dict) -> str:
     container = str(config["container"])
     if not address or address == container or not address.startswith('"$('):
         return container
-    inner = address[1:-1] if address.startswith('"') and address.endswith('"') else address
+    inner = (
+        address[1:-1] if address.startswith('"') and address.endswith('"') else address
+    )
     if inner.startswith("$(") and inner.endswith(")"):
         inner = inner[2:-1]
     argv = shlex.split(inner)

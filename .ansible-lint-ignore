@@ -41,6 +41,7 @@ roles/web-app-keycloak/tasks/05_realm_import/roles/sys-svc-compose/tasks/utils/s
 roles/web-app-keycloak/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
 roles/web-app-listmonk/tasks/roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml load-failure[filenotfounderror]
 roles/web-app-matomo/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
+roles/web-app-pixelfed/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
 
 # syntax-check ----------------------------------------------------------
 # `keycloak_kcadm_update` is a role-local module shipped at

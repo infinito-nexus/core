@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 
 
 def _dir_var_lib() -> str:
@@ -20,9 +21,7 @@ def _dir_var_lib() -> str:
     if env:
         return env
     prefix = "INFINITO_DIR_VAR_LIB="
-    # Plain read (not utils.cache.read_text) to avoid a utils.paths -> utils.cache
-    # -> utils.paths import cycle: utils.cache.base binds FILE_TOKENS at import.
-    for line in (PROJECT_ROOT / "default.env").read_text(encoding="utf-8").splitlines():
+    for line in read_text(str(PROJECT_ROOT / "default.env")).splitlines():
         stripped = line.strip()
         if stripped.startswith(prefix):
             return stripped[len(prefix) :].strip().strip('"').strip("'")
