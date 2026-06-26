@@ -22,7 +22,7 @@
   block:
     - name: Wait until the Moodle container is healthy
       ansible.builtin.shell: >
-        container inspect --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ MOODLE_CONTAINER }}
+        container inspect --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ MOODLE_CONTAINER_ADDRESS }}
       register: health_check
       until: health_check.stdout.strip() == "healthy"
       retries: 120
@@ -31,14 +31,14 @@
   rescue:
     - name: Show Moodle container status
       ansible.builtin.shell: >
-        container inspect {{ MOODLE_CONTAINER }}
+        container inspect {{ MOODLE_CONTAINER_ADDRESS }}
       register: moodle_inspect
       changed_when: false
       failed_when: false
 
     - name: Show Moodle container logs
       ansible.builtin.shell: >
-        container logs --tail=200 {{ MOODLE_CONTAINER }}
+        container logs --tail=200 {{ MOODLE_CONTAINER_ADDRESS }}
       register: moodle_logs
       changed_when: false
       failed_when: false
