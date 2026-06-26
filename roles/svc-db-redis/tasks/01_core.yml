@@ -13,6 +13,8 @@
   ansible.builtin.shell: >
     container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ REDIS_CONTAINER_ADDRESS }}
   register: redis_state
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   retries: 120
   delay: 2
   until: >
@@ -25,6 +27,8 @@
     {{ REDIS_EXEC_SHELL }}
     '{{ REDIS_CLI }} ping'
   register: redis_ping_ready
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   retries: 30
   delay: 2
   until: redis_ping_ready.stdout is search('PONG')
