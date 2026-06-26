@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 import unittest
 from typing import Any
@@ -20,7 +21,7 @@ _ensure_repo_root_on_syspath()
 from plugins.filter.compose_volumes import compose_volumes  # noqa: E402
 from utils.cache.yaml import load_yaml_str  # noqa: E402
 
-_DIR_VAR_LIB = "/var/lib/infinito"
+_DIR_VAR_LIB = os.environ["INFINITO_DIR_VAR_LIB"]
 
 
 def _call(applications: Any, application_id: str, **kwargs: Any) -> str:
@@ -262,7 +263,7 @@ class TestComposeVolumes(unittest.TestCase):
         self.assertEqual(vol["driver"], "local")
         self.assertEqual(vol["driver_opts"]["type"], "none")
         self.assertEqual(vol["driver_opts"]["o"], "bind")
-        self.assertEqual(vol["driver_opts"]["device"], "/var/lib/infinito/app_images")
+        self.assertEqual(vol["driver_opts"]["device"], f"{_DIR_VAR_LIB}/app_images")
         self.assertNotIn("nfs", vol)
 
     def test_swarm_pinned_role_stays_node_local(self):

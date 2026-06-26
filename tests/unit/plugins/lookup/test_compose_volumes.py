@@ -9,12 +9,15 @@ context.
 from __future__ import annotations
 
 import importlib.util
+import os
 import unittest
 from unittest import mock
 
 from ansible.errors import AnsibleError
 
 from . import PROJECT_ROOT
+
+_DIR_VAR_LIB = os.environ["INFINITO_DIR_VAR_LIB"]
 
 
 def _load_lookup():
@@ -65,7 +68,7 @@ class TestComposeVolumesLookup(unittest.TestCase):
         )
 
     def test_single_term_renders(self):
-        vars_ = {"DEPLOYMENT_MODE": "compose", "DIR_VAR_LIB": "/var/lib/infinito"}
+        vars_ = {"DEPLOYMENT_MODE": "compose", "DIR_VAR_LIB": _DIR_VAR_LIB}
         lm = self._make(vars_)
         patches = self._patched()
         with patches[0], patches[1]:
@@ -73,7 +76,7 @@ class TestComposeVolumesLookup(unittest.TestCase):
         self.assertEqual(result, ["called(web-app-x, mode=compose)"])
 
     def test_deployment_mode_auto_wires_from_vars(self):
-        vars_ = {"DEPLOYMENT_MODE": "swarm", "DIR_VAR_LIB": "/var/lib/infinito"}
+        vars_ = {"DEPLOYMENT_MODE": "swarm", "DIR_VAR_LIB": _DIR_VAR_LIB}
         lm = self._make(vars_)
         captured = {}
 
@@ -95,7 +98,7 @@ class TestComposeVolumesLookup(unittest.TestCase):
     def test_storage_auto_wires_from_vars(self):
         vars_ = {
             "DEPLOYMENT_MODE": "swarm",
-            "DIR_VAR_LIB": "/var/lib/infinito",
+            "DIR_VAR_LIB": _DIR_VAR_LIB,
             "storage": {"backend": "nfs", "nfs": {"server": "10.0.0.1"}},
         }
         lm = self._make(vars_)
@@ -117,7 +120,7 @@ class TestComposeVolumesLookup(unittest.TestCase):
         self.assertEqual(captured.get("storage"), vars_["storage"])
 
     def test_explicit_kwargs_override_auto_wired(self):
-        vars_ = {"DEPLOYMENT_MODE": "swarm", "DIR_VAR_LIB": "/var/lib/infinito"}
+        vars_ = {"DEPLOYMENT_MODE": "swarm", "DIR_VAR_LIB": _DIR_VAR_LIB}
         lm = self._make(vars_)
         captured = {}
 
@@ -143,7 +146,7 @@ class TestComposeVolumesLookup(unittest.TestCase):
         self.assertEqual(captured.get("storage"), {"backend": "local"})
 
     def test_extra_volumes_kwarg_passes_through(self):
-        vars_ = {"DEPLOYMENT_MODE": "compose", "DIR_VAR_LIB": "/var/lib/infinito"}
+        vars_ = {"DEPLOYMENT_MODE": "compose", "DIR_VAR_LIB": _DIR_VAR_LIB}
         lm = self._make(vars_)
         captured = {}
 
@@ -164,7 +167,7 @@ class TestComposeVolumesLookup(unittest.TestCase):
         self.assertEqual(captured.get("extra_volumes"), extra)
 
     def test_missing_deployment_mode_defaults_to_compose(self):
-        vars_ = {"DIR_VAR_LIB": "/var/lib/infinito"}
+        vars_ = {"DIR_VAR_LIB": _DIR_VAR_LIB}
         lm = self._make(vars_)
         captured = {}
 
@@ -184,9 +187,7 @@ class TestComposeVolumesLookup(unittest.TestCase):
         self.assertEqual(captured.get("deployment_mode"), "compose")
 
     def test_empty_terms_raises(self):
-        lm = self._make(
-            {"DEPLOYMENT_MODE": "compose", "DIR_VAR_LIB": "/var/lib/infinito"}
-        )
+        lm = self._make({"DEPLOYMENT_MODE": "compose", "DIR_VAR_LIB": _DIR_VAR_LIB})
         with self.assertRaises(AnsibleError):
             lm.run([], variables={"DEPLOYMENT_MODE": "compose"})
 

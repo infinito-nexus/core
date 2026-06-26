@@ -30,7 +30,7 @@ spec_src="$role_playwright_dir/playwright.spec.js"
 services_yml="$repo_root/roles/test-e2e-playwright/meta/services.yml"
 
 stage_base="${TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR:-/tmp/test-e2e-playwright}"
-reports_base="${TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR:-/var/lib/infinito/logs/test-e2e-playwright}"
+reports_base="${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR:?source scripts/meta/env/load.sh or run via make}"
 
 stage_dir="$stage_base/$role"
 reports_dir="$reports_base/$role"

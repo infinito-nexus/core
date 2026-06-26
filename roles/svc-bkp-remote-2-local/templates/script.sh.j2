@@ -5,7 +5,7 @@ hosts="{{ DOCKER_BACKUP_REMOTE_2_LOCAL_BACKUP_PROVIDERS | join(' ') }}"
 errors=0
 
 for host in $hosts; do
-  python3 {{ DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT }} "$host" || ((errors+=1))
+  python3 {{ DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT }} "$host" --folder "{{ DIR_BACKUPS }}" || ((errors+=1))
 done
 
 # Continue across hosts, but fail overall if any host failed.

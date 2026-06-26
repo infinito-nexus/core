@@ -21,6 +21,7 @@ DOMAIN_PRIMARY: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
 BUILDKIT_ENABLED: "{{ lookup('env', 'INFINITO_BUILDKIT_ENABLED') | bool }}"
 CA_CONTAINER_ENABLED: "{{ lookup('env', 'INFINITO_CONTAINER_CA_ENABLED') | bool }}"
 TEST_E2E_PLAYWRIGHT_KEEP: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }}"
+DIR_VAR_LIB: "{{ lookup('env', 'INFINITO_DIR_VAR_LIB') }}"
 networks:
   internet:
     ip4: "{{ lookup('env', 'INFINITO_IP4') }}"

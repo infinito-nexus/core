@@ -3,7 +3,7 @@
 TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
 # Where to store per-role reports/artifacts (host dir)
-TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "/var/lib/infinito/logs/test-e2e-playwright"
+TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR') }}"
 
 # `--max-failures=5` bounds the retry budget when a role is broken.
 TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"

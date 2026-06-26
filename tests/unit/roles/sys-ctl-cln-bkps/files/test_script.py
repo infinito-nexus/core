@@ -75,7 +75,7 @@ class TestSysCtlClnBkpsScript(unittest.TestCase):
         If disk usage is already <= threshold, the while-loop must not run.
         Script should print final usage and finish message.
         """
-        backup_dir = "/var/lib/infinito/backup"
+        backup_dir = f"{os.environ['INFINITO_DIR_VAR_LIB']}/backup"
         argv = [
             "script.py",
             "--maximum-backup-size-percent",
@@ -101,7 +101,7 @@ class TestSysCtlClnBkpsScript(unittest.TestCase):
         average_version_directories_per_application() returns 0 and the script
         must break out.
         """
-        backup_dir = "/var/lib/infinito/backup"
+        backup_dir = f"{os.environ['INFINITO_DIR_VAR_LIB']}/backup"
         argv = [
             "script.py",
             "--maximum-backup-size-percent",

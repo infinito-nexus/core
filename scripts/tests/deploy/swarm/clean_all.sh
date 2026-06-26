@@ -61,12 +61,12 @@ echo ">>> act-swarm-clean: D-state remnants survived docker rm -f:"
 echo "    ${_left//$'\n'/$'\n'    }"
 if sudo -n true 2>/dev/null; then
 	echo ">>> clearing wedged kernel NFS on host (sudo)"
-	sudo umount -f -l /var/lib/infinito 2>/dev/null || true
+	sudo umount -f -l "${INFINITO_DIR_VAR_LIB:?}" 2>/dev/null || true
 	sudo exportfs -ua 2>/dev/null || true
 	sudo systemctl restart docker
 	echo ">>> docker restarted; D-state remnants cleared"
 else
 	echo "!!! sudo unavailable here (sandbox). Clear on the host:"
-	echo "    sudo umount -f -l /var/lib/infinito; sudo exportfs -ua; sudo systemctl restart docker"
+	echo "    sudo umount -f -l ${INFINITO_DIR_VAR_LIB}; sudo exportfs -ua; sudo systemctl restart docker"
 	exit 1
 fi

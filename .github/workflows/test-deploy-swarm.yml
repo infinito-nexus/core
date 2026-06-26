@@ -220,6 +220,21 @@ jobs:
           path: /tmp/inventory-swarm-${{ matrix.apps }}.zip
           if-no-files-found: ignore
 
+      - name: "Collect Playwright reports from the manager"
+        if: always()
+        shell: bash
+        env:
+          APP_ID: ${{ matrix.apps }}
+        run: ${{ env.SCRIPTS }}/collect_playwright_reports.sh
+
+      - name: "Upload Playwright artifacts"
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-swarm-${{ matrix.apps }}
+          path: /tmp/playwright-artifacts/
+          if-no-files-found: ignore
+
       - name: "Cleanup"
         if: always()
         run: ${{ env.SCRIPTS }}/13_cleanup.sh
