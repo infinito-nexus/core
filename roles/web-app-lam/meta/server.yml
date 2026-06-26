@@ -14,4 +14,4 @@ domains:
     - lam.{{ DOMAIN_PRIMARY }}
 networks:
   local:
-    subnet: 192.168.103.0/28
+    subnet: 192.168.26.0/24

@@ -21,4 +21,4 @@ domains:
   aliases: []
 networks:
   local:
-    subnet: 192.168.102.32/28
+    subnet: 192.168.39.0/24

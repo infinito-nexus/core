@@ -17,4 +17,4 @@ csp:
       - "data:"
 networks:
   local:
-    subnet: 192.168.102.160/28
+    subnet: 192.168.59.0/24

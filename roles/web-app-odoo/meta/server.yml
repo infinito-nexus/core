@@ -28,4 +28,4 @@ domains:
   aliases: []
 networks:
   local:
-    subnet: 192.168.105.16/28
+    subnet: 192.168.42.0/24

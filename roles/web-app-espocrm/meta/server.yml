@@ -21,4 +21,4 @@ domains:
     - espo.crm.{{ DOMAIN_PRIMARY }}
 networks:
   local:
-    subnet: 192.168.103.64/28
+    subnet: 192.168.10.0/24

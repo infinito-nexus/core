@@ -19,4 +19,4 @@ domains:
     - tea.git.{{ DOMAIN_PRIMARY }}
 networks:
   local:
-    subnet: 192.168.101.112/28
+    subnet: 192.168.17.0/24

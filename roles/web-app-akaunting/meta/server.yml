@@ -19,4 +19,4 @@ csp:
       - https://akaunting.com
 networks:
   local:
-    subnet: 192.168.101.0/28
+    subnet: 192.168.0.0/24

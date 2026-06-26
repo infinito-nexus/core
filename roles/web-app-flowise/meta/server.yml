@@ -20,4 +20,4 @@ csp:
     connect-src: []
 networks:
   local:
-    subnet: 192.168.104.16/28
+    subnet: 192.168.13.0/24

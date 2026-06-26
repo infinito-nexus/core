@@ -11,4 +11,4 @@ domains:
     - phpmyadmin.{{ DOMAIN_PRIMARY }}
 networks:
   local:
-    subnet: 192.168.102.112/28
+    subnet: 192.168.51.0/24

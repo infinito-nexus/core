@@ -22,4 +22,4 @@ csp:
       - https://www.googletagmanager.com # nocheck: url
 networks:
   local:
-    subnet: 192.168.105.80/28
+    subnet: 192.168.19.0/24

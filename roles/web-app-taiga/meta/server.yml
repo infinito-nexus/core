@@ -13,4 +13,4 @@ domains:
     - taiga.kanban.{{ DOMAIN_PRIMARY }}
 networks:
   local:
-    subnet: 192.168.102.176/28
+    subnet: 192.168.62.0/24

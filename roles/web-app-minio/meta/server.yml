@@ -14,7 +14,7 @@ csp:
     connect-src: []
 networks:
   local:
-    subnet: 192.168.104.32/28
+    subnet: 192.168.37.0/24
   overlay:
     modes: [compose, swarm]
     topology: shared_net

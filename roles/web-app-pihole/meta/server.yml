@@ -11,4 +11,4 @@ status_codes:
     - 308
 networks:
   local:
-    subnet: 192.168.103.80/28
+    subnet: 192.168.52.0/24
