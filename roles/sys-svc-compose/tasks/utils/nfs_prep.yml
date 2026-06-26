@@ -1,8 +1,4 @@
 ---
-# compose_volumes pops the legacy per-volume `nfs:` flag and binds EVERY volume
-# of an unpinned role to DIR_VAR_LIB/<name> (placement decides, not the flag).
-# The backing dir must therefore be pre-created for the same set: unpinned roles,
-# not just volumes that still carry an `nfs:` block (e.g. baserow has none).
 - name: "Pre-create NFS subdir for '{{ application_id }}' volume '{{ item.key }}' on the NFS server"
   ansible.builtin.file:
     path: "{{ STORAGE_NFS_STATE_PATH }}/{{ item.value.name | default(item.key) }}"
@@ -12,7 +8,7 @@
     mode: "{{ (item.value.nfs | default({})).mode | default('0755') }}"
   delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
   run_once: true
-  loop: "{{ lookup('volume', application_id) | dict2items }}"
+  loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items }}"
   when:
     - DEPLOYMENT_MODE == 'swarm'
     - (storage.backend | default('local')) == 'nfs'
