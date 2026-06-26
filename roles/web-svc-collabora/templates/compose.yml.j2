@@ -14,7 +14,7 @@
       - SETGID
       - FOWNER
     {{ lookup('container_ports', ['collabora', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-{% set container_healthcheck = COLLABORA_DISCOVERY_PATH %}
+{% set container_healthcheck = COLLABORA_DISCOVERY_PATH | regex_replace('^/+', '') %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}
 
