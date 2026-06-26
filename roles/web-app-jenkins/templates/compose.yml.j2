@@ -6,6 +6,7 @@
         JENKINS_VERSION: "{{ JENKINS_VERSION }}"
     {{ lookup('container_image', application_id, 'jenkins', custom=True) }}
     {{ lookup('compose_only', 'container_name', JENKINS_CONTAINER) }}
+{% set service_replicas = 1 %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
