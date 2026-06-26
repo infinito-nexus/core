@@ -69,6 +69,17 @@ def filter_roles_by_min_storage(
 
         entity_name = get_entity_name(role_name)
         if not entity_name:
+            # Role name exactly matches a category path — check if services.yml
+            # has an entry keyed by the role name itself before giving up.
+            cfg_path_early = role_dir / ROLE_FILE_META_SERVICES
+            if cfg_path_early.is_file():
+                try:
+                    early_cfg = _load_yaml_file(cfg_path_early)
+                    if isinstance(early_cfg, dict) and role_name in early_cfg:
+                        entity_name = role_name
+                except Exception:  # noqa: S110 — best-effort; missing/invalid services.yml is not fatal
+                    pass  # intentional: bad or missing file → entity_name stays None
+        if not entity_name:
             if emit_warnings:
                 warning(
                     f"Could not derive entity_name from role_name '{role_name}'.",

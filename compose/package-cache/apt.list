@@ -5,5 +5,9 @@
 # at runtime via apt's standard suite-resolution. The bootstrap helper
 # pins debian -> bookworm and ubuntu -> jammy; older runners still
 # resolve fine because Nexus serves the entire upstream tree.
-deb [trusted=yes] http://package-cache:8081/repository/apt-debian bookworm main
-deb [trusted=yes] http://package-cache:8081/repository/apt-ubuntu jammy main
+#
+# Uses the real mirror hostnames (mapped to the cache frontend via
+# extra_hosts in compose/cache.override.yml), not the `package-cache`
+# service name which coredns — the container's resolver — cannot resolve.
+deb [trusted=yes] http://deb.debian.org/debian bookworm main
+deb [trusted=yes] http://archive.ubuntu.com/ubuntu jammy main

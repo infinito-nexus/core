@@ -1,0 +1,18 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+{% for i in range(1, RUNNER_COUNT | int + 1) %}
+  runner-{{ i }}:
+    image: "{{ RUNNER_IMAGE_NAME }}:{{ RUNNER_IMAGE_TAG }}"
+    container_name: runner-{{ i }}
+    restart: unless-stopped
+    working_dir: "{{ RUNNER_INSTALL_DIR }}/{{ i }}"
+    env_file: "{{ RUNNER_INSTALL_DIR }}/{{ i }}/.env"
+    volumes:
+      - "{{ RUNNER_INSTALL_DIR }}/{{ i }}:{{ RUNNER_INSTALL_DIR }}/{{ i }}"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{ RUNNER_DOCKER_BASE }}/{{ i }}:{{ RUNNER_DOCKER_BASE }}/{{ i }}"
+    group_add:
+      - "{{ _runner_docker_gid }}"
+{% endfor %}
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(application_id) }}

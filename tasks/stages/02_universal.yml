@@ -3,3 +3,8 @@
   ansible.builtin.debug:
     msg: "Universal roles are covered by constructor and destructor."
   when: MODE_DEBUG | bool
+
+- name: Run CLI tests for universal roles
+  include_role:
+    name: test-e2e-cli
+  when: RUNTIME in ['dev', 'act', 'github']

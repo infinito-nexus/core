@@ -1,4 +1,16 @@
 ---
+# Runs before the `update` role, so refresh the cache first (raw apt-get: the apt
+# module needs python3-apt). Retry: nested CI egress is flaky and apt-get update
+# returns 0 even on partial fetch failure, so also fail on "Failed to fetch".
+- name: Refresh apt cache before first install (Debian family)
+  ansible.builtin.command: apt-get update -o Acquire::Retries=3
+  register: _apt_update
+  changed_when: false
+  retries: 5
+  delay: 15
+  until: _apt_update.rc == 0 and 'Failed to fetch' not in _apt_update.stderr
+  when: ansible_facts['os_family'] == 'Debian'
+
 - name: Install OpenSSH client
   package:
     name: >-

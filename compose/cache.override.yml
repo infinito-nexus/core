@@ -31,6 +31,9 @@ services:
       timeout: 3s
       retries: 30
       start_period: 30s
+    networks:
+      default:
+        ipv4_address: ${INFINITO_CACHE_REGISTRY_IP:?Run 'make dotenv' to generate the .env single source of truth}
     restart: unless-stopped
 
   package-cache:
@@ -110,6 +113,14 @@ services:
     environment:
       INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
     extra_hosts:
+      # Docker daemon image-pull proxy → registry-cache by its static IP;
+      # /etc/hosts beats coredns, which can't resolve the container name.
+      - "infinito-registry-cache:${INFINITO_CACHE_REGISTRY_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      # apt mirrors → cache frontend, like the package managers below.
+      # /etc/hosts beats coredns, which can't resolve the `package-cache` name.
+      - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
       - "pypi.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
       - "files.pythonhosted.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
       - "registry.npmjs.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"

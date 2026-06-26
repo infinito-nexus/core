@@ -1,0 +1,58 @@
+name: "🏃 Test: Runner smoke (self-hosted)"
+
+# Dispatched by roles/svc-runner/files/test.sh after a runner deploy: verifies a
+# self-hosted runner picks up a CI job and has Docker (DooD) access. Full deploy
+# capability is covered by the svc-runner DinD test (test-e2e-cli).
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to check out (branch, tag, or SHA). Defaults to the repo default branch."
+        required: false
+        default: ""
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        description: "Git ref to check out (branch, tag, or SHA). Defaults to the repo default branch."
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: runner-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  smoke:
+    name: 🏃 Runner pickup + DooD
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 360
+
+    steps:
+      - name: Fix workspace ownership
+        shell: bash
+        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" 2>/dev/null || true
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Verify runner pickup + Docker (DooD) access
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo ">>> Job picked up on self-hosted runner: $(hostname)"
+          docker version
+          docker info >/dev/null
+          docker run --rm hello-world
+
+      - name: Dump runner state (on failure)
+        if: failure()
+        shell: bash
+        run: ./scripts/github/runner/dump_state.sh "runner-smoke failure"

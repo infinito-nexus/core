@@ -18,8 +18,6 @@ This role deploys FusionDirectory on Docker Compose against the project's centra
 ## Further Resources
 
 - [FusionDirectory Official Website](https://www.fusiondirectory.org/)
-- [FusionDirectory Documentation](https://www.fusiondirectory.org/en/documentations/)
-- [FusionDirectory Docker Image (nfrastack/fusiondirectory)](https://hub.docker.com/r/nfrastack/fusiondirectory)
 
 ## Credits
 
