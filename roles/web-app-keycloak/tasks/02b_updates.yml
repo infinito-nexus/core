@@ -1,37 +1,35 @@
 ---
-- name: "Load Client Update routines for '{{ application_id }}'"
-  include_tasks: update/01_client.yml
+- name: "Keycloak | Apply object updates, recovering from cross-node reschedules"
+  vars:
+    kc_update_max_attempts: 5
+  block:
+    - name: "Load all Keycloak object-update routines for '{{ application_id }}'"
+      include_tasks: 02b_update_routines.yml
+  rescue:
+    - name: "Keycloak updates | Re-raise failure unchanged in compose (no swarm recovery)"
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg | default('Keycloak object update failed') }}"
+      when: DEPLOYMENT_MODE == 'compose'
 
-- name: "Load Mail Update routines for '{{ application_id }} - {{ KEYCLOAK_REALM }}'"
-  include_tasks: update/02_mail_realm.yml
+    - name: "Keycloak updates | Fail after exhausting cross-node recovery retries"
+      ansible.builtin.fail:
+        msg: >-
+          Keycloak object updates failed after {{ kc_update_max_attempts }}
+          cross-node recovery attempts: {{ ansible_failed_result.msg | default('see above') }}
+      when: (kc_update_attempt | default(0) | int) + 1 >= (kc_update_max_attempts | int)
 
-- name: "Load Mail Update routines for '{{ application_id }} - master'"
-  include_tasks: update/03_mail_master.yml
+    - name: "Keycloak updates | Re-resolve hosting node + live container id (recovery)"
+      ansible.builtin.include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml'] | path_join }}"
+      vars:
+        resolve_service_key: "{{ entity_name }}"
+        resolve_output_prefix: KEYCLOAK
+        resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+        resolve_run_host: "{{ STACK_HOST if DEPLOYMENT_MODE == 'swarm' else inventory_hostname }}"
 
-- name: "Load RBAC Update routines for '{{ application_id }}'"
-  include_tasks: update/04_rbac_client_scope.yml
-
-- name: "Load LDAP shared-federation routines for '{{ application_id }}'"
-  include_tasks: update/05_ldap_shared.yml
-  when:
-    - KEYCLOAK_LDAP_ENABLED | bool
-    - KEYCLOAK_LDAP_SHARED | bool
-
-- name: "Remove LDAP federation routines for '{{ application_id }}' when LDAP is disabled"
-  include_tasks: update/05_ldap_disabled.yml
-  when: not KEYCLOAK_LDAP_ENABLED | bool
-
-- name: "Load reCAPTCHA Update routines for '{{ application_id }}'"
-  include_tasks: update/06_recaptcha.yml
-  when: KEYCLOAK_RECAPTCHA_ENABLED | bool
-
-- name: "Load UserProfile (declarative) Update routines for '{{ application_id }}'"
-  include_tasks: update/07_userprofile.yml
-
-- name: "Load Realm User provisioning routines for '{{ application_id }}'"
-  include_tasks: update/08_users_realm.yml
-  when: not KEYCLOAK_LDAP_ENABLED | bool
-
-- name: "Load Users Update routines for '{{ application_id }}' (emailVerified)"
-  include_tasks: update/08_users_email_verified.yml
-  when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
+    - name: "Keycloak updates | Retry object updates on the freshly resolved node"
+      ansible.builtin.include_tasks:
+        file: 02b_updates.yml
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+      vars:
+        kc_update_attempt: "{{ (kc_update_attempt | default(0) | int) + 1 }}"

@@ -1,0 +1,37 @@
+---
+- name: "Load Client Update routines for '{{ application_id }}'"
+  include_tasks: update/01_client.yml
+
+- name: "Load Mail Update routines for '{{ application_id }} - {{ KEYCLOAK_REALM }}'"
+  include_tasks: update/02_mail_realm.yml
+
+- name: "Load Mail Update routines for '{{ application_id }} - master'"
+  include_tasks: update/03_mail_master.yml
+
+- name: "Load RBAC Update routines for '{{ application_id }}'"
+  include_tasks: update/04_rbac_client_scope.yml
+
+- name: "Load LDAP shared-federation routines for '{{ application_id }}'"
+  include_tasks: update/05_ldap_shared.yml
+  when:
+    - KEYCLOAK_LDAP_ENABLED | bool
+    - KEYCLOAK_LDAP_SHARED | bool
+
+- name: "Remove LDAP federation routines for '{{ application_id }}' when LDAP is disabled"
+  include_tasks: update/05_ldap_disabled.yml
+  when: not KEYCLOAK_LDAP_ENABLED | bool
+
+- name: "Load reCAPTCHA Update routines for '{{ application_id }}'"
+  include_tasks: update/06_recaptcha.yml
+  when: KEYCLOAK_RECAPTCHA_ENABLED | bool
+
+- name: "Load UserProfile (declarative) Update routines for '{{ application_id }}'"
+  include_tasks: update/07_userprofile.yml
+
+- name: "Load Realm User provisioning routines for '{{ application_id }}'"
+  include_tasks: update/08_users_realm.yml
+  when: not KEYCLOAK_LDAP_ENABLED | bool
+
+- name: "Load Users Update routines for '{{ application_id }}' (emailVerified)"
+  include_tasks: update/08_users_email_verified.yml
+  when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
