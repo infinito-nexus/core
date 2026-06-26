@@ -1,5 +1,5 @@
 {# Base template for all compose.yml.j2 #}
-services:
+{% set _services %}
 {# Load Database #}
 {% if lookup('database', application_id, 'enabled') %}
 {% include 'roles/sys-svc-rdbms/templates/services/main.yml.j2' %}
@@ -16,4 +16,5 @@ services:
 {% if lookup('sso', application_id, 'is_proxy_gated') %}
 {% include 'roles/web-app-keycloak/templates/sso_proxy/container.yml.j2' %}
 {% endif %}
-{{ "\n" }}
+{% endset %}
+services:{{ '\n' ~ _services if (_services | trim) else ' {}' }}

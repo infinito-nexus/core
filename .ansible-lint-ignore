@@ -38,6 +38,7 @@ roles/web-app-decidim/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host
 roles/web-app-discourse/tasks/roles/sys-svc-compose/tasks/utils/network/create.yml load-failure[filenotfounderror]
 roles/web-app-fider/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
 roles/web-app-keycloak/tasks/05_realm_import/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
+roles/web-app-keycloak/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
 roles/web-app-listmonk/tasks/roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml load-failure[filenotfounderror]
 roles/web-app-matomo/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
 

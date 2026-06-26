@@ -322,6 +322,56 @@ class TestComposeCaInject(unittest.TestCase):
 
     @patch.object(Path, "exists", autospec=True, return_value=True)
     @patch.object(Path, "is_dir", autospec=True, return_value=True)
+    @patch.object(Path, "read_text", autospec=True)
+    @patch.object(Path, "write_text", autospec=True)
+    @patch.object(Path, "mkdir", autospec=True)
+    def test_main_empty_services_writes_noop_override(
+        self, _mkdir, _write_text, _read_text, _is_dir, _exists
+    ):
+        """main(): an app whose merged compose has no services (a launcher-based
+        app such as discourse with all backends shared) writes an empty override
+        and exits 0 instead of dying with 'No services found'."""
+        _read_text.return_value = "services: {}\n"
+
+        def fake_run(cmd, *, cwd, env):
+            if (
+                len(cmd) >= 3
+                and cmd[0:2] == ["docker", "compose"]
+                and cmd[-1] == "config"
+            ):
+                return 0, "services: {}\n", ""
+            return 1, "", "unexpected"
+
+        with patch.object(self.m, "run", side_effect=fake_run):
+            argv = [
+                "compose_ca.py",
+                "--chdir",
+                "/tmp/app",
+                "--project",
+                "p",
+                "--compose-files",
+                "-f compose.yml",
+                "--out",
+                "compose.ca.override.yml",
+                "--ca-host",
+                "/etc/infinito/ca/root-ca.crt",
+                "--wrapper-host",
+                "/etc/infinito/bin/with-ca-trust.sh",
+                "--trust-name",
+                "infinito.local",
+            ]
+            with patch("sys.argv", argv):
+                rc = self.m.main()
+
+        self.assertEqual(rc, 0)
+        self.assertTrue(_write_text.called)
+        args, _kwargs = _write_text.call_args
+        written = args[1] if len(args) > 1 else ""
+        self.assertIn("services", written)
+        self.assertNotIn("CA_TRUST_NAME", written)
+
+    @patch.object(Path, "exists", autospec=True, return_value=True)
+    @patch.object(Path, "is_dir", autospec=True, return_value=True)
     def test_main_requires_trust_name(self, _is_dir, _exists):
         argv = [
             "compose_ca.py",

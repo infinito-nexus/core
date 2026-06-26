@@ -654,18 +654,18 @@ def main() -> int:
                 merged_services[svc_name] = svc_def
                 service_to_compose_cmd[svc_name] = cmd_p
 
-    if not merged_services:
-        die("No services found after merging default + profile configs")
-
-    override_doc = render_override(
-        merged_services,
-        service_to_compose_cmd,
-        cwd=cwd,
-        env=env,
-        ca_host=ca_host,
-        wrapper_host=wrapper_host,
-        trust_name=trust_name,
-    )
+    if merged_services:
+        override_doc = render_override(
+            merged_services,
+            service_to_compose_cmd,
+            cwd=cwd,
+            env=env,
+            ca_host=ca_host,
+            wrapper_host=wrapper_host,
+            trust_name=trust_name,
+        )
+    else:
+        override_doc = {"services": {}}
 
     out_path = Path(args.out)
     if not out_path.is_absolute():
