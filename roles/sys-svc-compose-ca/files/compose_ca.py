@@ -634,45 +634,53 @@ def main() -> int:
     if not parts:
         die("--compose-files must be non-empty")
 
-    # Base compose cmd (no profile)
-    compose_base_cmd = _compose_base_cmd(
-        project=str(args.project),
-        parts=parts,
-        env_file=env_file or "",
-    )
-
-    # Discover all profiles referenced in compose files so we can include profile-only services too.
     compose_files = _extract_compose_files(parts, cwd=cwd)
-    profiles = _discover_profiles_from_files(compose_files)
 
-    # Load services from default config, then from each profile config, and merge.
     merged_services: dict[str, Any] = {}
     service_to_compose_cmd: dict[str, list[str]] = {}
 
-    # 1) default (no profile)
-    default_services = _load_services_via_config(
-        compose_cmd=compose_base_cmd,
-        cwd=cwd,
-        env=env,
-        label="default",
-    )
-    for svc_name, svc_def in default_services.items():
-        merged_services[svc_name] = svc_def
-        service_to_compose_cmd[svc_name] = compose_base_cmd
+    if args.no_wrapper:
+        # Avoid `docker compose config` here: its dotenv parser aborts on swarm
+        # env files with verbatim special-char secrets. wrap=False needs only names.
+        for cf in compose_files:
+            doc = parse_yaml(
+                cf.read_text(encoding="utf-8"),  # nocheck: direct-yaml
+                f"compose file ({cf})",
+            )
+            svcs = doc.get("services")
+            if isinstance(svcs, dict):
+                for svc_name, svc_def in svcs.items():
+                    merged_services.setdefault(svc_name, svc_def)
+    else:
+        compose_base_cmd = _compose_base_cmd(
+            project=str(args.project),
+            parts=parts,
+            env_file=env_file or "",
+        )
+        profiles = _discover_profiles_from_files(compose_files)
 
-    # 2) each profile (adds profile-only services like "bootstrap")
-    for p in profiles:
-        cmd_p = _compose_cmd_with_profile(compose_base_cmd, p)
-        prof_services = _load_services_via_config(
-            compose_cmd=cmd_p,
+        default_services = _load_services_via_config(
+            compose_cmd=compose_base_cmd,
             cwd=cwd,
             env=env,
-            label=f"profile:{p}",
+            label="default",
         )
-        for svc_name, svc_def in prof_services.items():
-            if svc_name not in merged_services:
-                merged_services[svc_name] = svc_def
-                service_to_compose_cmd[svc_name] = cmd_p
+        for svc_name, svc_def in default_services.items():
+            merged_services[svc_name] = svc_def
+            service_to_compose_cmd[svc_name] = compose_base_cmd
+
+        for p in profiles:
+            cmd_p = _compose_cmd_with_profile(compose_base_cmd, p)
+            prof_services = _load_services_via_config(
+                compose_cmd=cmd_p,
+                cwd=cwd,
+                env=env,
+                label=f"profile:{p}",
+            )
+            for svc_name, svc_def in prof_services.items():
+                if svc_name not in merged_services:
+                    merged_services[svc_name] = svc_def
+                    service_to_compose_cmd[svc_name] = cmd_p
 
     if merged_services:
         override_doc = render_override(

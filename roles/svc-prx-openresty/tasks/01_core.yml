@@ -41,6 +41,17 @@
   vars:
     compose_handlers_flush: true
 
+- name: "swarm: add openresty to the docker.sock supplementary group (compose group_add is rejected by docker stack deploy)"
+  ansible.builtin.command: >-
+    container service update --detach=false
+    --group-add {{ OPENRESTY_DOCKER_SOCK_GID | quote }}
+    {{ lookup('container_service', application_id, 'openresty') | quote }}
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - OPENRESTY_DOCKER_SOCK_GID is defined
+
 - name: "Verify that '{{ role_name }}' works"
   include_tasks: 02_assert.yml
   when: MODE_ASSERT_LOCAL | bool
