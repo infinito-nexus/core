@@ -12,6 +12,11 @@ test_e2e_playwright_test_timeout: 300000
 # concurrency limits, and reduced on CI.
 test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
 
+# globalTimeout = run_timeout minus this buffer; leaves room for Ansible to
+# collect artifacts before it kills the sidecar at run_timeout.
+TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER: 60
+TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS: "{{ (((test_e2e_playwright_run_timeout | int) - (TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER | int)) * 1000) | string }}"
+
 # Optional readiness wait
 test_e2e_playwright_wait_enabled: true
 test_e2e_playwright_wait_retries: 30

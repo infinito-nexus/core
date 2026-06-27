@@ -2,16 +2,8 @@
 - name: "Wait until Mailu redis backend responds to PING"
   block:
     - name: "Probe Mailu redis"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - exec
-          - -T
-          - redis
-          - redis-cli
-          - ping
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
+      ansible.builtin.shell: >
+        container exec -i {{ MAILU_REDIS_CONTAINER_ADDRESS }} redis-cli ping
       register: mailu_redis_check
       retries: 30
       delay: 5
@@ -21,47 +13,31 @@
       changed_when: false
 
   rescue:
-    - name: "Collect Mailu redis container logs after readiness timeout"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - logs
-          - --tail=300
-          - redis
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_redis_logs
-      changed_when: false
+    - block:
+        - name: "Collect Mailu redis container logs after readiness timeout"
+          ansible.builtin.shell: >
+            container logs --tail=300 {{ MAILU_REDIS_CONTAINER_ADDRESS }}
+          register: mailu_redis_logs
+          changed_when: false
+      always:
+        - name: "Fail: Mailu redis not ready"
+          ansible.builtin.fail:
+            msg: |
+              Mailu redis did not respond to PING in time.
 
-    - name: "Fail: Mailu redis not ready"
-      ansible.builtin.fail:
-        msg: |
-          Mailu redis did not respond to PING in time.
+              Last stderr:
+              {{ mailu_redis_check.stderr | default('') }}
 
-          Last stderr:
-          {{ mailu_redis_check.stderr | default('') }}
-
-          --- Mailu redis container logs (last 300 lines) ---
-          {{ mailu_redis_logs.stdout | default('No logs available') }}
+              --- Mailu redis container logs (last 300 lines) ---
+              {{ mailu_redis_logs.stdout | default('No logs available') }}
+  when: lookup('engine', 'redis', application_id, 'local')
 
 - name: "Wait until Mailu admin HTTP API listens on :8080"
   block:
     - name: "Probe Mailu admin HTTP API"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - exec
-          - -T
-          - admin
-          - curl
-          - -sS
-          - -o
-          - /dev/null
-          - -w
-          - "%{http_code}"
-          - http://localhost:8080/sso/login
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
+      ansible.builtin.shell: >
+        container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+        curl -sS -o /dev/null -w "%{http_code}" http://localhost:8080/sso/login
       register: mailu_admin_http_check
       retries: 30
       delay: 5
@@ -71,28 +47,23 @@
       changed_when: false
 
   rescue:
-    - name: "Collect Mailu admin container logs after HTTP API readiness timeout"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - logs
-          - --tail=300
-          - admin
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_admin_http_logs
-      changed_when: false
+    - block:
+        - name: "Collect Mailu admin container logs after HTTP API readiness timeout"
+          ansible.builtin.shell: >
+            container logs --tail=300 {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+          register: mailu_admin_http_logs
+          changed_when: false
+      always:
+        - name: "Fail: Mailu admin HTTP API not ready"
+          ansible.builtin.fail:
+            msg: |
+              Mailu admin HTTP API did not respond on :8080 in time.
 
-    - name: "Fail: Mailu admin HTTP API not ready"
-      ansible.builtin.fail:
-        msg: |
-          Mailu admin HTTP API did not respond on :8080 in time.
+              Last stderr:
+              {{ mailu_admin_http_check.stderr | default('') }}
 
-          Last stderr:
-          {{ mailu_admin_http_check.stderr | default('') }}
+              Last status code:
+              {{ mailu_admin_http_check.stdout | default('') }}
 
-          Last status code:
-          {{ mailu_admin_http_check.stdout | default('') }}
-
-          --- Mailu admin container logs (last 300 lines) ---
-          {{ mailu_admin_http_logs.stdout | default('No logs available') }}
+              --- Mailu admin container logs (last 300 lines) ---
+              {{ mailu_admin_http_logs.stdout | default('No logs available') }}

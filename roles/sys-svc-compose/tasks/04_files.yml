@@ -15,7 +15,7 @@
       }}
 
 - name: "Create (optional) Dockerfile for {{ application_id }}"
-  template:
+  stack_host_template:
     src: "{{ dockerfile_src }}"
     dest: "{{ lookup('container', application_id, 'files.dockerfile') }}"
     mode: "0640"
@@ -26,7 +26,7 @@
     - dockerfile_src | default('') | length > 0
 
 - name: "Create (optional) '{{ lookup('container', application_id, 'files.env') }}'"
-  template:
+  stack_host_template:
     src: "{{ item }}"
     dest: "{{ lookup('container', application_id, 'files.env') }}"
     mode: "0640"
@@ -42,7 +42,7 @@
   register: env_template
 
 - name: "Create (optional) '{{ lookup('container', application_id, 'files.compose_override') }}'"
-  template:
+  stack_host_template:
     src: "{{ item }}"
     dest: "{{ lookup('container', application_id, 'files.compose_override') }}"
     mode: "0640"
@@ -55,7 +55,7 @@
       skip: true
 
 - name: "Create (optional) '{{ lookup('container', application_id, 'files.compose') }}'"
-  ansible.builtin.template:
+  stack_host_template:
     src: "{{ item }}"
     dest: "{{ lookup('container', application_id, 'files.compose') }}"
     mode: "0640"

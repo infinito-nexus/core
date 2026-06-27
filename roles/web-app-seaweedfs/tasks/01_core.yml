@@ -13,15 +13,20 @@
     state: directory
     mode: "0755"
 
+- name: "Create shared object-store network for '{{ application_id }}'"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/create.yml'] | path_join }}"
+  vars:
+    network_role_id: "{{ application_id }}"
+
 - name: "Render SeaweedFS S3 identities config"
-  ansible.builtin.template:
+  stack_host_template:
     src: s3.json.j2
     dest: "{{ SEAWEEDFS_S3_CONFIG_PATH }}"
   notify: compose up
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Render role proxy nginx config"
-  ansible.builtin.template:
+  stack_host_template:
     src: nginx.conf.j2
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'nginx.conf'] | path_join }}"
   notify: compose up
@@ -42,7 +47,7 @@
 
 - name: "Wait until the SeaweedFS S3 gateway answers"
   ansible.builtin.shell: >
-    container exec {{ SEAWEEDFS_CONTAINER }}
+    container exec {{ SEAWEEDFS_CONTAINER_ADDRESS }}
     wget -q -O - http://127.0.0.1:{{ SEAWEEDFS_S3_PORT_INTERNAL }}/status
   args:
     executable: /bin/bash
@@ -51,3 +56,4 @@
   delay: 5
   until: _seaweedfs_ready.rc == 0
   changed_when: false
+  when: IS_STACK_HOST | bool

@@ -33,7 +33,7 @@
       - exec
       - -u
       - "{{ PIXELFED_APP_USER }}"
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - php
       - artisan
       - user:create
@@ -43,12 +43,11 @@
       - "--password={{ PIXELFED_ADMIN_PASSWORD }}"
       - --is_admin=1
       - --confirm_email=1
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   when: pixelfed_admin_id_existing.rows | length == 0
   register: pixelfed_admin_create
   changed_when: pixelfed_admin_create.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
 - name: "Resolve the Pixelfed administrator id"
   database_query:

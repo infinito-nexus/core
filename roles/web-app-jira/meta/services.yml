@@ -39,6 +39,10 @@ jira:
   ports:
     local:
       http: 8015
+    internal:
+      http: 8080
+  proxy:
+    service_key: jira
   run_after:
     - web-app-matomo
   lifecycle: unsupported

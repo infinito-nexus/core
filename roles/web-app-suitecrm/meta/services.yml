@@ -55,6 +55,8 @@ suitecrm:
     local:
       sso: 16490
       http: 8062
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
     - web-app-mailu

@@ -27,7 +27,7 @@
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP| join(" ") }} --timeout
       "{{ SYS_TIMEOUT_CLEANUP_SERVICES }}"'
     system_service_tpl_exec_start: >-
-      /bin/sh -c "{{ lookup('command_path', CLEANUP_FAILED_BACKUPS_COMMAND) }}
+      /bin/sh -c "{{ CLEANUP_FAILED_BACKUPS_COMMAND }}
       --backups-root {{ DIR_BACKUPS | quote }}
       --all
       --force-keep {{ CLEANUP_FAILED_BACKUPS_FORCE_KEEP }}

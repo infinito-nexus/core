@@ -22,3 +22,4 @@
 - include_tasks: 02_permissions_ssh.yml
 
 - include_tasks: 03_permissions_folders.yml
+  when: IS_STACK_HOST | bool

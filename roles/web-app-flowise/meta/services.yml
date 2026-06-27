@@ -37,7 +37,11 @@ litellm:
   mem_limit: 1g
   pids_limit: 1024
   min_storage: 1GB
+# nocheck: playwright-service-flag — vector engine, covered by role-local integration tests
 qdrant:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-qdrant' in group_names }}"
   backup:
     no_stop_required: true
   image: qdrant/qdrant
@@ -50,6 +54,8 @@ qdrant:
   min_storage: 1GB
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 flowise:
+  # nocheck: default-placement-manager  embedded qdrant + sqlite engine state; node-local in swarm
+  default_placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -67,6 +73,10 @@ flowise:
     local:
       http: 8056
       sso: 16480
+    internal:
+      http: 3000
+  proxy:
+    service_key: flowise
   run_after:
     - web-app-keycloak
     - web-app-matomo
@@ -78,6 +88,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag — AI backend, infrastructural
 ollama:
   bond: 1

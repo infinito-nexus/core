@@ -12,6 +12,8 @@
     sso:
       enabled: true
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -24,6 +26,8 @@
       shared: false
     sso:
       enabled: false
+      shared: false
+    redis:
       shared: false
     prometheus:
       enabled: false

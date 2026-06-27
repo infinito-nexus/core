@@ -11,7 +11,7 @@
       - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
       - -e
       - "OPENPROJECT_ADMIN_EMAIL={{ OPENPROJECT_ADMINISTRATOR_EMAIL }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"
@@ -28,7 +28,7 @@
       - "OPENPROJECT_LDAP_NAME={{ OPENPROJECT_LDAP.name }}"
       - -e
       - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"

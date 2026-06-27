@@ -7,11 +7,13 @@
   vars:
     compose_handlers_flush: false
 
-- name: "create {{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
-  template:
-    src: "litellm.config.yaml.j2"
-    dest: "{{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
-  notify: compose up
+- name: "Render Flowise LiteLLM config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "litellm.config.yaml.j2"
+        dest: "{{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
 
 - name: "flush handlers of compose"
   meta: flush_handlers

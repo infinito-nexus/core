@@ -8,7 +8,7 @@
     compose_handlers_flush: false
 
 - name: "Stage trusted-header SSO build-context files for {{ application_id }}"
-  ansible.builtin.copy:
+  stack_host_copy:
     src: "{{ item.src }}"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "0644"

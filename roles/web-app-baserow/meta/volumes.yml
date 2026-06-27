@@ -1,2 +1,7 @@
 ---
-data: baserow_data
+data:
+  type: volume
+  name: baserow_data
+  mounts:
+    - service: baserow
+      target: /baserow/data

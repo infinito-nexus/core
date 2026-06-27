@@ -6,8 +6,13 @@
   changed_when: false
   failed_when: false
 
-- name: Import realm with one-shot Keycloak import command when missing
-  include_tasks: 05a_realm_import_run.yml
+- name: "Keycloak realm-import | Import missing realm + re-check login"
   when:
     - KEYCLOAK_REALM_IMPORT_ENABLED | bool
     - keycloak_imported_realm_probe.rc != 0
+  block:
+    - name: "Keycloak realm-import | Run the import path ({{ DEPLOYMENT_MODE }})"
+      ansible.builtin.include_tasks: "05_realm_import/{{ DEPLOYMENT_MODE }}.yml"
+
+    - name: "Keycloak realm-import | Re-run login/bootstrap checks after import"
+      ansible.builtin.include_tasks: 04_login.yml

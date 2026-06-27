@@ -1,0 +1,7 @@
+---
+data:
+  type: volume
+  name: rabbitmq_data
+  mounts:
+    - service: rabbitmq
+      target: /var/lib/rabbitmq

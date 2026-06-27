@@ -1,7 +1,7 @@
 ---
 - name: Wait until Mattermost mmctl local mode is ready
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local system status
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"
@@ -13,8 +13,8 @@
   failed_when: nextcloud_mm_ready.rc != 0 and nextcloud_mm_ready.attempts | default(0) >= 60
 
 - name: Enable the Mattermost OAuth 2.0 service provider (required for the connector)
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local config set ServiceSettings.EnableOAuthServiceProvider true
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"
@@ -22,8 +22,8 @@
   changed_when: "'true' in nextcloud_mm_oauth_provider.stdout"
 
 - name: Generate a short-lived admin personal access token for OAuth provisioning
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local token generate {{ lookup('users', 'administrator').username }} infinito-nc-oauth-provision --json
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"
@@ -82,7 +82,7 @@
       - "NC_ENC_MODE=sensitive"
       - -e
       - "NC_ENC_B64={{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
-      - "{{ NEXTCLOUD_CONTAINER }}"
+      - "{{ NEXTCLOUD_CONTAINER_ADDRESS }}"
       - php
     stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
   register: nextcloud_mm_enc_set
@@ -90,8 +90,8 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Revoke the short-lived admin personal access token
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local token revoke {{ nextcloud_mm_token_id }}
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"

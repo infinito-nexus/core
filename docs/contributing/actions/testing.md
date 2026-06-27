@@ -29,7 +29,7 @@ Use the following table to choose the right lint, syntax, unit, integration, or 
 
 ## Local Deploy and End-to-End Checks 🚀
 
-For the retry-loop policy, use [Role Loop](../../agents/action/iteration/role.md) as the SPOT.
+For the retry-loop policy, use [Compose Loop](../../agents/action/iteration/compose.md) as the SPOT.
 The table below is a command reference for the supported local deployment paths.
 
 ### Local Validation Commands 🏠

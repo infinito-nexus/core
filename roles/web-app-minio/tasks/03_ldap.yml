@@ -18,7 +18,6 @@
   delay: 5
   until: mc_admin_policy_ls_ldap.rc == 0
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Create administrator policy (LDAP variant)"
   environment:
@@ -37,7 +36,6 @@
               && mc admin policy create minio {{ MINIO_OIDC_POLICY_NAME | quote }} /dev/stdin || true'
   args: { executable: /bin/bash }
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "Attach MinIO policy to LDAP administrator group"
   environment:
@@ -60,4 +58,3 @@
   failed_when:
     - mc_policy_attach_ldap.rc != 0
     - '"already attached" not in (mc_policy_attach_ldap.stderr | default(""))'
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

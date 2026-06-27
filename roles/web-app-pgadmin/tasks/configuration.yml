@@ -4,14 +4,14 @@
     file: "{{ role_path }}/vars/db_config.yml"
 
 - name: "Render servers.json file"
-  template:
+  stack_host_template:
     src: servers.json.j2
     dest: "{{ pgadmin_host_server_file }}"
     mode: "0644"
   notify: compose up
 
 - name: "Render .pgpass file"
-  template:
+  stack_host_template:
     src: pgpass.j2
     dest: "{{ pgadmin_host_password_file }}"
     owner: "{{ PGADMIN_USER }}"

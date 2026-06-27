@@ -8,3 +8,5 @@
     compose_repository_pull: false
     compose_handlers_flush: true
     webserver_vhost_flavour: "basic"
+    proxy_service_key: nginx
+    proxy_internal_port: 80

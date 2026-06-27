@@ -1,4 +1,14 @@
 ---
-# Storage Space-Related Configurations          
 SIZE_PERCENT_MAXIMUM_BACKUP: 75 # Maximum storage space in percent for backups
 SIZE_PERCENT_CLEANUP_DISC_SPACE: 85 # Threshold for triggering cleanup actions
+
+STORAGE_NFS_STATE_SUBDIR: infinito-state
+STORAGE_NFS_STATE_PATH: "{{ [ storage.nfs.export_base, STORAGE_NFS_STATE_SUBDIR ] | path_join }}"
+STORAGE_NFS_MOUNT_OPTS: "vers={{ storage.nfs.version }},rw,{{ 'soft,timeo=50,retrans=3' if RUNTIME in ['dev', 'act'] else 'hard,timeo=600' }},nolock"
+
+storage:
+  backend: local
+  nfs:
+    server: ""
+    export_base: /srv/nfs
+    version: 4

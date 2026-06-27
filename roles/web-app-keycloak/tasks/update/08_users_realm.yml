@@ -7,8 +7,6 @@
 
 - name: "Ensure administrator exists in realm '{{ KEYCLOAK_REALM }}' when LDAP is disabled"
   ansible.builtin.script: ensure_realm_user.sh
-  args:
-    chdir: "{{ role_path }}/files"
   environment:
     KEYCLOAK_EXEC_CONTAINER: "{{ KEYCLOAK_EXEC_CONTAINER }}"
     KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"

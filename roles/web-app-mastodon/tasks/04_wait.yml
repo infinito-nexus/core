@@ -1,12 +1,8 @@
 ---
 - name: Check health status of '{{ item }}' container
-  shell: |
-    cid=$({{ BIN_COMPOSE }} ps -q {{ item }})
-    container inspect \
-      --format '{{ "{{.State.Health.Status}}" }}' \
-      $cid
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{.State.Health.Status}}" }}'
+    {{ lookup('container_address', application_id, item) }}
   register: healthcheck
   retries: 60
   delay: 5

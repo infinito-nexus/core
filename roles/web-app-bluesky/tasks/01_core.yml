@@ -61,6 +61,8 @@
   vars:
     domain: "{{ BLUESKY_API_DOMAIN }}"
     http_port: "{{ BLUESKY_API_PORT }}"
+    webserver_proxy_service_key: "{{ 'pds' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
+    proxy_internal_port: "{{ lookup('config', application_id, 'services.api.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
 
 - name: "Include front proxy for {{ BLUESKY_WEB_DOMAIN }} (broker when oauth2 enabled, stock social-app otherwise)"
   include_role:
@@ -69,6 +71,18 @@
     domain: "{{ BLUESKY_WEB_DOMAIN }}"
     http_port: "{{ BLUESKY_BROKER_PORT if (lookup('config', application_id, 'services.sso.enabled') | bool) else BLUESKY_WEB_PORT }}"
     webserver_extra_configuration: "{{ BLUESKY_FRONT_PROXY_CONTENT }}"
+    webserver_proxy_service_key: >-
+      {{
+        ('bluesky-broker' if (lookup('config', application_id, 'services.sso.enabled') | bool) else 'web')
+        if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name)
+      }}
+    proxy_internal_port: >-
+      {{
+        (lookup('config', application_id, 'services.broker.ports.internal.http')
+         if (lookup('config', application_id, 'services.sso.enabled') | bool)
+         else lookup('config', application_id, 'services.web.ports.internal.http'))
+        if DEPLOYMENT_MODE == 'swarm' else ''
+      }}
   when: BLUESKY_WEB_ENABLED | bool
 
 - name: "Include front proxy for {{ BLUESKY_VIEW_DOMAIN_FINAL }}:{{ BLUESKY_VIEW_PORT }}"
@@ -77,6 +91,8 @@
   vars:
     domain: "{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
     http_port: "{{ BLUESKY_VIEW_PORT }}"
+    webserver_proxy_service_key: "{{ 'view' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
+    proxy_internal_port: "{{ lookup('config', application_id, 'services.view.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
   when: BLUESKY_VIEW_ENABLED | bool
 
 - name: "Execute PDS routines"

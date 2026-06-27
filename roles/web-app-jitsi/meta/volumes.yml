@@ -1,0 +1,42 @@
+---
+prosody_config:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'prosody-config'] | path_join }}"
+  mounts:
+    - service: jitsi-prosody
+      target: /config
+
+prosody_plugins:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'prosody-plugins-custom'] | path_join }}"
+  mounts:
+    - service: jitsi-prosody
+      target: /prosody-plugins-custom
+
+jicofo_config:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'jicofo'] | path_join }}"
+  mounts:
+    - service: jitsi-jicofo
+      target: /config
+
+jvb_config:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'jvb'] | path_join }}"
+  mounts:
+    - service: jitsi-jvb
+      target: /config
+
+web_config:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'config'] | path_join }}"
+  mounts:
+    - service: jitsi-web
+      target: /config
+
+web_transcripts:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'transcripts'] | path_join }}"
+  mounts:
+    - service: jitsi-web
+      target: /usr/share/jitsi-meet/transcripts

@@ -5,6 +5,16 @@
   ansible.builtin.set_fact:
     front_proxy_application_id: "{{ application_id }}"
     front_proxy_domain: "{{ domain | default(lookup('domain', application_id)) }}"
+    front_proxy_service_key: >-
+      {{
+        webserver_proxy_service_key
+        | default(
+            lookup('config', application_id,
+              'services.' ~ (application_id | get_entity_name) ~ '.proxy.service_key',
+              application_id | get_entity_name
+            )
+          )
+      }}
     front_proxy_http_port: >-
       {{
         http_port
@@ -15,6 +25,7 @@
             )
           )
       }}
+    front_proxy_internal_port: "{{ proxy_internal_port | default('') }}"
     front_proxy_domain_conf_dst_resolved: >-
       {{
         lookup(
@@ -62,13 +73,15 @@
     webserver_vhost_flavour: basic
 
 - name: "Deploy NGINX config: '{{ front_proxy_domain }}' -> '{{ front_proxy_domain_conf_dst_resolved }}'"
-  ansible.builtin.template:
+  stack_host_template:
     src: "{{ front_proxy_template_src }}"
     dest: "{{ front_proxy_domain_conf_dst_resolved }}"
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
     http_port: "{{ front_proxy_http_port }}"
+    proxy_service_key: "{{ front_proxy_service_key }}"
+    proxy_internal_port: "{{ front_proxy_internal_port }}"
     webserver_extra_configuration: ""
     webserver_websocket_location: ""
     webserver_client_max_body_size: "{{ lookup('config', front_proxy_application_id, 'server.client_max_body_size', '100m') }}"

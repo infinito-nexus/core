@@ -6,7 +6,7 @@
     mode: "0755"
 
 - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Create {{ _database_env }}"
-  template:
+  stack_host_template:
     src: "env/{{ _database_type }}.env.j2"
     dest: "{{ _database_env }}"
   notify: compose up

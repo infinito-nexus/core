@@ -55,7 +55,7 @@
   become: true
 
 - name: Deploy Nix configuration (nix.conf)
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host /etc/nix/nix.conf, not stack-host-only)
     src: "nix.conf.j2"
     dest: "/etc/nix/nix.conf"
     mode: "0644"

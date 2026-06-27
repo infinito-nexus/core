@@ -24,9 +24,11 @@ email:
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -52,6 +54,11 @@ gitlab:
       http: 8024
     public:
       ssh: 2202
+    internal:
+      http: 80
+      ssh: 22
+  proxy:
+    service_key: gitlab
   run_after:
     - web-app-matomo
     - web-app-keycloak

@@ -8,7 +8,7 @@
 - name: "template or copy script"
   block:
     - name: "render template"
-      template:
+      template: # nocheck: stack-host-template (per-host script for per-host systemd service)
         src: "{{ system_service_script_src }}"
         dest: "{{ [system_service_script_dir, (system_service_script_src | basename | regex_replace('\\.j2$', ''))] | path_join }}"
         mode: "0755"

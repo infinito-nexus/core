@@ -30,6 +30,27 @@ This role ships its OIDC login stack as unified addons declared in [`meta/addons
 - [MediaWiki Official Website](https://www.mediawiki.org/)
 - [MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)
 
+## Swarm + NFS pilot
+
+Volume layout under `DEPLOYMENT_MODE: swarm` with `storage.backend: nfs`:
+
+- **`images/`** opts into NFS (`nfs: true` in the `compose_volumes`
+  call from `templates/compose.yml.j2`). The volume is shared across
+  all swarm nodes so the MediaWiki application service can be
+  rescheduled freely.
+- **`extensions/`** stays local. Extensions are rebuilt from the
+  role-managed git source on every install — no shared state needs
+  to survive a node move.
+- **MariaDB data** stays local on the manager node via
+  [svc-db-mariadb](../svc-db-mariadb/) pinning. NFS for the DB data
+  directory is intentionally out of scope for v1 (locking / `fsync`
+  semantics). See 023's Future Extensions.
+
+CI gate: [.github/workflows/test-deploy-swarm.yml](../../.github/workflows/test-deploy-swarm.yml)
+provisions a 3-node DinD swarm, deploys this role as a stack, drains
+the worker running the application service, and asserts that wiki
+content survives the reschedule.
+
 ## Credits
 
 Developed and maintained by **Kevin Veen-Birkenbach**.

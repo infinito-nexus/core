@@ -17,7 +17,6 @@ ORGANIZATION: "{{ SOFTWARE_NAME }}"
 # Deployment
 ENVIRONMENT: "production" # Possible values: production, development
 RUNTIME: "host" # Where does this instance run in? Valid: act, github, dev, host
-DEPLOYMENT_MODE: "single" # Use single, if you deploy on one server. Use cluster if you setup in cluster mode.
 STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefers free storage space over cache
 
 # If true, sensitive credentials will be masked or hidden from all Ansible task logs
@@ -27,6 +26,7 @@ MASK_CREDENTIALS_IN_LOGS: true
 
 HOST_CURRENCY: "EUR"
 HOST_TIMEZONE: "UTC"
+HOST_TIMEZONE_LABEL: "United Kingdom"
 
 # https://en.wikipedia.org/wiki/ISO_639
 HOST_LL: "en" # Some applications are case sensitive

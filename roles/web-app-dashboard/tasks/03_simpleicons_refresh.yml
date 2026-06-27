@@ -18,19 +18,13 @@
   set_fact:
     portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
 
-- name: Refresh host-specific config.yaml after Simple Icons is reachable
-  template:
-    src: "{{ DASHBOARD_CONFIG_INV_PATH }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: config_file.stat.exists
-
-- name: Refresh default config.yaml after Simple Icons is reachable
-  template:
-    src: "{{ DASHBOARD_CONFIG_YML_SRC_FILE }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: not config_file.stat.exists
+- name: "Refresh Dashboard config.yaml after Simple Icons is reachable (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml'] | path_join }}"
+  vars:
+    role_templates:
+      - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
+        dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
 
 - name: Flush compose handlers after Simple Icons refresh
   meta: flush_handlers

@@ -41,9 +41,11 @@ postgres:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -64,9 +66,24 @@ discourse:
   ref: main
   min_storage: 15GB
   repository: https://github.com/discourse/discourse_docker.git
+  plugins:
+    docker_manager:
+      enabled: true
+    discourse-activity-pub:
+      enabled: true
+    discourse-akismet:
+      enabled: true
+    discourse-ldap-auth:
+      enabled: "{{ lookup('config', 'web-app-discourse', 'services.ldap.enabled') | bool }}"
+      repository: https://github.com/jonmbake/discourse-ldap-auth.git
+      ref: master
   ports:
     local:
       http: 8020
+    internal:
+      http: 80
+  proxy:
+    service_key: discourse
   lifecycle: beta
   cpus: "1.0"
   mem_reservation: 1g

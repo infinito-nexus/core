@@ -1,0 +1,29 @@
+# This template needs to be included in compose.yml, which depend on memcached
+  memcached:
+    {{ lookup('container_image', 'svc-db-memcached', 'memcached') }}
+    {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-memcached')) }}
+    {{ lookup('compose_restart') }}
+    logging:
+      driver: journald
+    command:
+      - memcached
+      - -m
+      - "64"
+    healthcheck:
+      test: ["CMD-SHELL", "printf 'version\\r\\n' | nc -w 1 127.0.0.1 11211 | grep -q VERSION"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:  # nocheck: networks-literal  local sidecar inside consumer stack, default-only attachment
+      - default
+{% macro include_resource_for(svc, indent=4) -%}
+  {% set service_name = svc -%}
+  {%- set _snippet -%}
+{% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
+  {%- endset -%}
+{{ _snippet | indent(indent, true) }}
+{%- endmacro %}
+{% if DEPLOYMENT_MODE == 'compose' %}
+{{ include_resource_for('memcached') }}
+{% endif %}
+{{ "\n" }}

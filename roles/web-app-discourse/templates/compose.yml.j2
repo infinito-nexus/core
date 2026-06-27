@@ -1,9 +1,16 @@
+{% set _has_local_sidecar = lookup('database', application_id, 'local')
+   or lookup('objstore', application_id, 'local')
+   or lookup('engine', 'redis', application_id, 'local')
+   or lookup('sso', application_id, 'is_proxy_gated') %}
+{% if _has_local_sidecar %}
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+{% else %}
+services: {}
+{% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}
   {{ DISCOURSE_NETWORK }}:
     external: true

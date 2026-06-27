@@ -1,4 +1,31 @@
 ---
+- name: "Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml'] | path_join }}"
+  vars:
+    resolve_service_key: fider
+    resolve_output_prefix: FIDER
+    resolve_compose_cid: "{{ FIDER_CONTAINER }}"
+
+- name: "Wait for {{ application_id }} HTTP endpoint (compose host-port)"
+  wait_for:
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', application_id, 'services.fider.ports.local.http') }}"
+    delay: 5
+    timeout: 300
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "Wait for {{ application_id }} HTTP endpoint (swarm in-container)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ FIDER_LOCAL_CID | quote }}
+    wget -qO- http://127.0.0.1:{{ FIDER_CONTAINER_PORT }}/_health
+  register: fider_http_ready
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: fider_http_ready.rc == 0
+  delegate_to: "{{ FIDER_HOST_NODE }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
 - name: "Fider | Check if tenant is already initialized"
   database_query:
     config: "{{ lookup('database', application_id) }}"
@@ -8,20 +35,29 @@
   register: fider_tenant_count
   changed_when: false
 
-- name: "Fider | Bootstrap initial tenant via API"
+- name: "Fider | Bootstrap initial tenant via API (compose host-port)"
   uri_retry:
     url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.fider.ports.local.http') }}/_api/tenants"
     method: POST
     body_format: json
-    body:
-      tenantName: "{{ SOFTWARE_NAME }}"
-      subdomain: "fider"
-      name: "{{ lookup('users', 'administrator').firstname }} {{ lookup('users', 'administrator').lastname }}"
-      email: "{{ lookup('users', 'administrator').email }}"
-      legalAgreement: true
-      token: ""
+    body: "{{ FIDER_TENANT_BOOTSTRAP_BODY }}"
     status_code: [200, 201]
-  when: (fider_tenant_count.rows[0][0] | int) == 0
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - (fider_tenant_count.rows[0][0] | int) == 0
+
+- name: "Fider | Bootstrap initial tenant via API (swarm in-container)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ FIDER_LOCAL_CID | quote }}
+    wget -qO- --header='Content-Type: application/json'
+    --post-data={{ FIDER_TENANT_BOOTSTRAP_BODY | to_json | quote }}
+    http://127.0.0.1:{{ FIDER_CONTAINER_PORT }}/_api/tenants
+  register: fider_tenant_bootstrap
+  changed_when: true
+  delegate_to: "{{ FIDER_HOST_NODE }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - (fider_tenant_count.rows[0][0] | int) == 0
 
 - name: "Fider | Create admin user (bypass email verification)"
   database_query:

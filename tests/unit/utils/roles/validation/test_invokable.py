@@ -113,6 +113,28 @@ class TestInvokable(TestCase):
 
         self.assertNotIn("web-app-excluded", grouped["server"])
 
+    def test_list_invokables_by_type_skip_mode(self) -> None:
+        def fake_skip(role_dir):
+            return ["compose"] if role_dir.name == "web-app-matomo" else []
+
+        with (
+            patch.object(inv, "PROJECT_ROOT", self.tmp),
+            patch.object(
+                inv,
+                "_get_invokable_paths",
+                return_value=["web-app", "update", "util-desk"],
+            ),
+            patch.object(inv, "_role_skip_modes", side_effect=fake_skip),
+        ):
+            excluded = inv.list_invokables_by_type(skip_mode="compose")
+            kept = inv.list_invokables_by_type(skip_mode="swarm")
+
+        # web-app-matomo (app_id matomo-app) skips compose -> gone for compose,
+        # present for swarm; a role without a skip list stays in both.
+        self.assertNotIn("matomo-app", excluded["server"])
+        self.assertIn("matomo-app", kept["server"])
+        self.assertIn("web-app-nextcloud", excluded["server"])
+
     def test_types_from_group_names(self) -> None:
         with (
             patch.object(inv, "PROJECT_ROOT", self.tmp),

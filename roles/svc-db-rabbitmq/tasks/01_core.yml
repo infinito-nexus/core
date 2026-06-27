@@ -1,0 +1,31 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "Setup container network for {{ application_id }}"
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml' ] | path_join }}"
+  vars:
+    compose_handlers_flush: true
+    # Explicit overwritting to be sure that there isn't a scope leak by another variable
+    application_id: "svc-db-rabbitmq"
+    database_consumer_id: "svc-db-rabbitmq"
+
+- name: "RABBITMQ | Wait until container is running (not restarting)"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ RABBITMQ_CONTAINER_ADDRESS }}
+  register: rmq_state
+  retries: 120
+  delay: 2
+  until: >
+    (rmq_state.stdout is search('running')) and
+    (rmq_state.stdout is not search('true'))
+  changed_when: false
+
+- name: "RABBITMQ | Confirm broker answers (rabbitmq-diagnostics ping)"
+  ansible.builtin.shell: >
+    {{ RABBITMQ_EXEC_SHELL }}
+    'rabbitmq-diagnostics -q ping'
+  register: rmq_ping_ready
+  retries: 60
+  delay: 5
+  until: rmq_ping_ready.rc == 0
+  changed_when: false

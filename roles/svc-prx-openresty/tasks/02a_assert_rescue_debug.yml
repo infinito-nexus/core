@@ -1,0 +1,24 @@
+---
+- name: Debug containers (before OpenResty restart)
+  command: container ps -a --format '{{"{{.Names}} {{.Status}}"}}'
+  register: docker_ps
+  changed_when: false
+  failed_when: false
+
+- name: Show docker containers
+  debug:
+    var: docker_ps.stdout_lines
+
+- name: Dump OpenResty container logs on failure
+  command: >
+    container logs --tail=200 {{ OPENRESTY_CONTAINER }}
+  register: openresty_logs
+  changed_when: false
+  failed_when: false
+
+- name: Show OpenResty logs
+  debug:
+    msg: |
+      ===== OpenResty container logs (last 200 lines) =====
+      {{ openresty_logs.stdout | default('') }}
+      {{ openresty_logs.stderr | default('') }}

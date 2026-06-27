@@ -6,8 +6,6 @@ domain: "{{ lookup('domain',application_id) }}"
 
 # Database
 
-# Webserver
-
 # General
 SUITECRM_WELL_SOFTWARE_NAME: "{{ SOFTWARE_DOMAIN | replace('.', '-') }}"
 SUITECRM_PHP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'php.ini'] | path_join }}"
@@ -19,12 +17,8 @@ SUITECRM_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity
 # Upstream SuiteCRM application version (Git tag, e.g. 8.6.0)
 SUITECRM_APP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.app_version') }}"
 
-SUITECRM_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ SUITECRM_APP_VERSION }}"
 SUITECRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 SUITECRM_SERVICE: "{{ entity_name }}"
-
-# Volumes
-SUITECRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 
 # URLs & feature flags
 SUITECRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"

@@ -10,4 +10,4 @@ csp:
       unsafe-inline: true
 networks:
   local:
-    subnet: 192.168.105.144/28
+    subnet: 192.168.66.0/24

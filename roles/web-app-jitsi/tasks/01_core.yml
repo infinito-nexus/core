@@ -7,23 +7,6 @@
   vars:
     compose_handlers_flush: false
 
-- name: "ensure prosody plugin + config override dirs exist (templates need them before containers come up)"
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: "0755"
-  loop:
-    - "{{ JITSI_PROSODY_PLUGINS_HOST_PATH }}"
-    - "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}"
-    - "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d"
-
-- name: "stage prosody LDAP authentication override (mod_auth_ldap2)"
-  ansible.builtin.template:
-    src: prosody-ldap.cfg.lua.j2
-    dest: "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d/ldap.cfg.lua"
-    mode: "0644"
-  notify: compose up
-  when: JITSI_LDAP_ENABLED
-
-- name: "flush handlers so Jitsi containers start with rendered env"
-  meta: flush_handlers
+- name: "Jitsi manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

@@ -3,20 +3,16 @@
 application_id: "web-app-penpot"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Penpot images / versions (all three containers share the upstream tag)
-PENPOT_VERSION: "{{ lookup('config', application_id, 'services.penpot.version') }}"
-PENPOT_FRONTEND_IMAGE: "{{ lookup('config', application_id, 'services.frontend.image') }}"
-PENPOT_BACKEND_IMAGE: "{{ lookup('config', application_id, 'services.backend.image') }}"
-PENPOT_EXPORTER_IMAGE: "{{ lookup('config', application_id, 'services.exporter.image') }}"
 PENPOT_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 PENPOT_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.backend.name') }}"
 PENPOT_EXPORTER_CONTAINER: "{{ lookup('config', application_id, 'services.exporter.name') }}"
-PENPOT_ASSETS_VOLUME: "{{ lookup('config', application_id, 'volumes.assets') }}"
 
 # Compose-internal service names (must match the keys emitted in compose.yml.j2)
 PENPOT_FRONTEND_SERVICE: "frontend"
 PENPOT_BACKEND_SERVICE: "backend"
 PENPOT_EXPORTER_SERVICE: "exporter"
+
+PENPOT_BACKEND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, PENPOT_BACKEND_SERVICE) }}"
 
 # Internal container ports (upstream defaults)
 PENPOT_FRONTEND_INTERNAL_PORT: 8080
@@ -40,10 +36,8 @@ PENPOT_DATABASE_PORT: "{{ lookup('database', application_id, 'port') }}"
 PENPOT_DATABASE_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
 PENPOT_DATABASE_URI: "postgresql://{{ PENPOT_DATABASE_HOST }}:{{ PENPOT_DATABASE_PORT }}/{{ PENPOT_DATABASE_NAME }}"
 
-# Redis (role-local sidecar emitted by sys-svc-compose; service name == "redis")
-PENPOT_REDIS_HOST: "redis"
-PENPOT_REDIS_PORT: 6379
-PENPOT_REDIS_URI: "redis://{{ PENPOT_REDIS_HOST }}:{{ PENPOT_REDIS_PORT }}/0"
+# Redis (central svc-db-redis when shared, role-local sidecar otherwise)
+PENPOT_REDIS_URI: "{{ lookup('engine', 'redis', application_id, 'url') }}/0"
 
 # Internal service URIs (frontend ↔ backend ↔ exporter)
 PENPOT_BACKEND_URI: "http://{{ PENPOT_BACKEND_SERVICE }}:{{ PENPOT_BACKEND_INTERNAL_PORT }}"

@@ -1,7 +1,10 @@
 ---
-- include_tasks: 01_core.yml
-  when: run_once_svc_bkp_container_2_local is not defined
+- name: "Manage container backups on STACK_HOST only"
+  when: IS_STACK_HOST | bool
+  block:
+    - include_tasks: 01_core.yml
+      when: run_once_svc_bkp_container_2_local is not defined
 
-- name: "include 04_seed-database-to-backup.yml"
-  include_tasks: 04_seed-database-to-backup.yml
-  when: BKP_CONTAINER_2_LOCAL_DB_ENABLED | bool
+    - name: "include 04_seed-database-to-backup.yml"
+      include_tasks: 04_seed-database-to-backup.yml
+      when: BKP_CONTAINER_2_LOCAL_DB_ENABLED | bool

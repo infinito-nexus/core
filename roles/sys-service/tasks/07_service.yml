@@ -26,7 +26,7 @@
   when: MODE_ASSERT | bool
 
 - name: "setup systemctl '{{ system_service_id }}'"
-  template:
+  template: # nocheck: stack-host-template (per-host systemd service unit)
     src: "{{ system_service_template_src }}"
     dest: "{{ [ DIR_SYSTEM_SERVICE, system_service_name ] | path_join }}"
     owner: root

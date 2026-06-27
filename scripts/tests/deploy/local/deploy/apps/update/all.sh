@@ -5,7 +5,6 @@ set -euo pipefail
 #
 # Required:
 #   INFINITO_DISTRO   (arch|debian|ubuntu|fedora|centos)
-#   INFINITO_DEPLOY_TYPE  (server|workstation|universal)
 #   INFINITO_INVENTORY_DIR     (e.g. /etc/inventories/local-full-server)
 #
 # Optional:
@@ -27,7 +26,6 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../../../.." && pwd)"
 cd "${REPO_ROOT}"
 
 : "${INFINITO_DISTRO:?INFINITO_DISTRO must be set (arch|debian|ubuntu|fedora|centos)}"
-: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE must be set (server|workstation|universal)}"
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR must be set (e.g. /etc/inventories/local-full-server)}"
 
 INFINITO_DEBUG="$(normalize_bool_or_default "${INFINITO_DEBUG:-}" false INFINITO_DEBUG)"
@@ -57,7 +55,6 @@ fi
 
 echo "=== local run (ALL apps) ==="
 echo "distro        = ${INFINITO_DISTRO}"
-echo "type          = ${INFINITO_DEPLOY_TYPE}"
 echo "limit         = ${INFINITO_LIMIT_HOST}"
 echo "debug         = ${INFINITO_DEBUG}"
 echo "inventory_dir = ${inv_dir}"
@@ -71,8 +68,7 @@ echo
 
 # Recompute apps list (optional, but keeps filters consistent)
 apps_json="$(
-	INFINITO_DEPLOY_TYPE="${INFINITO_DEPLOY_TYPE}" \
-		INFINITO_WHITELIST="${INFINITO_WHITELIST:-}" \
+	INFINITO_WHITELIST="${INFINITO_WHITELIST:-}" \
 		scripts/meta/resolve/apps.sh
 )"
 

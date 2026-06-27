@@ -1,3 +1,4 @@
+---
 # nocheck: playwright-service-flag
 logout:
   bond: 1
@@ -15,7 +16,6 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
-# nocheck: email
 email:
   enabled: false
   shared: false
@@ -63,9 +63,11 @@ pihole:
   min_storage: "1GB"
   pids_limit: 512
   ports:
+    internal:
+      http: 80
     local:
       http: 8078
       sso: 16508
   run_after:
-  - web-app-keycloak
+    - web-app-keycloak
   lifecycle: beta

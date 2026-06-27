@@ -2,4 +2,7 @@
 front-proxy:
   lifecycle: beta
   required_by:
-    categories: [web-app, web-svc]
+    compose:
+      categories: [web-app, web-svc]
+    swarm:
+      categories: [web-app, web-svc]

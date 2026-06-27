@@ -1,0 +1,6 @@
+---
+credentials:
+  api_key:
+    description: Bootstrap admin API key for the central Typesense engine
+    algorithm: alphanumeric
+    validation: ^[A-Za-z0-9]{64}$

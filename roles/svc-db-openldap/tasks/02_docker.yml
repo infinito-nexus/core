@@ -13,7 +13,7 @@
     network_role_id: "{{ application_id }}"
 
 - name: Copy OpenLDAP image files to instance dir
-  ansible.builtin.copy:
+  stack_host_copy:
     src: "{{ item.src }}"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "{{ item.mode }}"
@@ -25,3 +25,10 @@
 
 - name: "Flush compose handlers"
   meta: flush_handlers
+
+- name: "Wait for openldap stack to converge (swarm only)"
+  ansible.builtin.include_tasks:
+    file: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/post_deploy.yml'] | path_join }}"
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true

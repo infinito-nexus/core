@@ -1,0 +1,33 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: |
+    Cluster-local Docker registry pinned to the swarm manager. Workers pull
+    custom-built images via this registry so swarm reschedule no longer needs
+    out-of-band `docker save | docker load` to every worker.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - registry
+    - docker
+    - swarm
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

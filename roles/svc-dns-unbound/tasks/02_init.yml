@@ -1,0 +1,23 @@
+---
+- name: "Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-dns-unbound'
+      - database_consumer_id != 'svc-dns-unbound'
+
+- name: "UNBOUND | Wait until the resolver answers before handing it to {{ database_consumer_id }}"
+  ansible.builtin.shell: >
+    container exec {{ UNBOUND_CONTAINER_ADDRESS }} sh -lc
+    'drill -p 53 localhost @127.0.0.1 >/dev/null 2>&1 || nslookup -port=53 localhost 127.0.0.1 >/dev/null 2>&1'
+  register: unbound_consumer_ready
+  retries: 30
+  delay: 5
+  until: unbound_consumer_ready.rc == 0
+  changed_when: false
+
+- name: "UNBOUND | No per-consumer provisioning (isolation: none)"
+  ansible.builtin.debug:
+    msg: >-
+      svc-dns-unbound is a shared recursive/forwarding DNSSEC resolver; consumer
+      '{{ database_consumer_id }}' reaches it at the static IP {{ UNBOUND_RESOLVER_IP }}
+      on the '{{ UNBOUND_NETWORK_NAME }}' network. No isolated slice is created.

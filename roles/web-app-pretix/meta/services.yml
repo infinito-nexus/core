@@ -25,9 +25,11 @@ email:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — Redis cache, no Playwright surface
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -51,6 +53,8 @@ pretix:
   ports:
     local:
       http: 8046
+    internal:
+      http: 80
   run_after:
     - web-app-matomo
     - web-app-keycloak

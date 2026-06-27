@@ -1,0 +1,46 @@
+---
+- name: Set matomo_site_id to Null
+  set_fact:
+    matomo_site_id:
+
+- name: Set fact for site ID if site already exists
+  set_fact:
+    matomo_site_id: "{{ site_check.json[0].idsite }}"
+  when: "(site_check.json | length) > 0"
+  changed_when: false
+
+- name: Add site to Matomo and get ID if not exists
+  uri_retry:
+    url: "{{ matomo_index_php_url }}"
+    method: POST
+    body: "module=API&method=SitesManager.addSite&siteName={{ base_domain }}&urls={{ lookup('tls', application_id, 'protocols.web') }}://{{ base_domain }}&format=json&token_auth={{
+      lookup('users', 'administrator').tokens['web-app-matomo'] }}"
+    body_format: form-urlencoded
+    status_code: 200
+    return_content: true
+    validate_certs: true
+  register: add_site
+  when: "matomo_site_id is not defined or matomo_site_id is none"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: Set fact for site ID if site was added
+  set_fact:
+    matomo_site_id: "{{ add_site.json.value }}"
+  when: "matomo_site_id is not defined or matomo_site_id is none"
+  changed_when: false
+
+- name: Load Matomo tracking JS template
+  set_fact:
+    matomo_tracking_code: "{{ lookup('template','matomo-tracking.js.j2') }}"
+
+- name: Collapse Matomo code into one-liner
+  set_fact:
+    matomo_tracking_code_one_liner: "{{ matomo_tracking_code | to_one_liner }}"
+
+- name: Append Matomo CSP hash
+  set_fact:
+    webserver_csp_hashes_extra_by_app: >-
+      {{ webserver_csp_hashes_extra_by_app | default({})
+         | add_csp_hash(application_id, 'script-src-elem', matomo_tracking_code_one_liner) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: false

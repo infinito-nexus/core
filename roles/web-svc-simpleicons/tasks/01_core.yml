@@ -11,7 +11,7 @@
     webserver_vhost_flavour: "basic"
 
 - name: "Copy '{{ application_id }}' files"
-  template:
+  stack_host_template:
     src: "{{ item.source }}"
     dest: "{{ item.target }}"
     mode: "0755"

@@ -8,7 +8,7 @@
 # Rendering before that fails with `Destination directory
 # /opt/compose/xmpp does not exist`.
 - name: "Render ejabberd configuration"
-  template:
+  stack_host_template:
     src: configuration.yml.j2
     dest: "{{ XMPP_CONFIG_FILE }}"
     mode: "0644"

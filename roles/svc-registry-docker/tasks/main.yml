@@ -1,0 +1,5 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_svc_registry_docker is not defined
+  vars:
+    application_id: svc-registry-docker

@@ -1,19 +1,13 @@
 ---
-# General
 application_id: "web-app-taiga"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Taiga
+TAIGA_EMAIL_BACKEND: "{{ 'smtp' if lookup('email', application_id).smtp else 'console' }}"
 
-## General
-TAIGA_EMAIL_BACKEND: "{{ 'smtp' if lookup('email', application_id).smtp else 'console' }}" # # use an SMTP server or display the emails in the console (either "smtp" or "console")
-
-## User
 TAIGA_SUPERUSER_NAME: "{{ lookup('users', 'administrator').username }}"
 TAIGA_SUPERUSER_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 TAIGA_SUPERUSER_EMAIL: "{{ lookup('users', 'administrator').email }}"
 
-## Authentication
 TAIGA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 TAIGA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', false) }}"
 TAIGA_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
@@ -48,7 +42,6 @@ TAIGA_PLUGIN_PIP_INSTALL_ARGS: >-
     ) | join(' ')
   }}
 
-## Docker
 TAIGA_REPOSITORY: "{{ lookup('config', application_id, 'services.taiga.repository') }}"
 TAIGA_REF: "{{ lookup('config', application_id, 'services.taiga.ref') }}"
 TAIGA_VERSION: "{{ lookup('config', application_id, 'services.taiga.version') }}"
@@ -58,30 +51,13 @@ TAIGA_COMPOSE_INIT_PATH: "{{ [TAIGA_INSTANCE_DIRECTORY, 'compose-inits.yml'] | p
 TAIGA_CONFIG_APPEND_PATH: "{{ [TAIGA_CONFIG_DIRECTORY, 'taiga-config.append.py'] | path_join }}"
 TAIGA_URLS_PATH: "{{ [TAIGA_CONFIG_DIRECTORY, 'taiga-urls.py'] | path_join }}"
 TAIGA_FRONTEND_CONF_PATH: "{{ [TAIGA_CONFIG_DIRECTORY, 'conf.json'] | path_join }}"
-TAIGA_DOCKER_IMAGE_BACKEND: "taigaio/taiga-back"
-TAIGA_DOCKER_IMAGE_BACKEND_AUTH: "{{ entity_name }}-back-auth:{{ TAIGA_VERSION }}"
-TAIGA_DOCKER_IMAGE_FRONTEND: "taigaio/taiga-front"
-TAIGA_DOCKER_IMAGE_FRONTEND_OIDC: "{{ entity_name }}-front-oidc:{{ TAIGA_VERSION }}"
-TAIGA_DOCKER_IMAGE_EVENTS: "{{ lookup('config', application_id, 'services.events.image') }}"
-TAIGA_DOCKER_VERSION_EVENTS: "{{ lookup('config', application_id, 'services.events.version') }}"
-TAIGA_DOCKER_IMAGE_PROTECTED: "{{ lookup('config', application_id, 'services.protected.image') }}"
-TAIGA_DOCKER_VERSION_PROTECTED: "{{ lookup('config', application_id, 'services.protected.version') }}"
-TAIGA_DOCKER_IMAGE_GATEWAY: "{{ lookup('config', application_id, 'services.gateway.image') }}"
-TAIGA_DOCKER_VERSION_GATEWAY: "{{ lookup('config', application_id, 'services.gateway.version') }}"
-TAIGA_DOCKER_IMAGE_ASYNC_RABBITMQ: "{{ lookup('config', application_id, 'services.async-rabbitmq.image') }}"
-TAIGA_DOCKER_VERSION_ASYNC_RABBITMQ: "{{ lookup('config', application_id, 'services.async-rabbitmq.version') }}"
-TAIGA_DOCKER_IMAGE_EVENTS_RABBITMQ: "{{ lookup('config', application_id, 'services.events-rabbitmq.image') }}"
-TAIGA_DOCKER_VERSION_EVENTS_RABBITMQ: "{{ lookup('config', application_id, 'services.events-rabbitmq.version') }}"
-
-### Backend
 TAIGA_SERVICE: "{{ entity_name }}"
 TAIGA_HOSTNAME: "taiga-back"
 TAIGA_CONTAINER: "{{ entity_name }}"
-TAIGA_VOLUME_MEDIA: "/taiga-back/media"
-TAIGA_VOLUME_STATIC: "/taiga-back/static"
 
-## Services
 TAIGA_MANAGER_SERVICE: "manager"
+TAIGA_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ TAIGA_MANAGER_SERVICE ~ '.name') }}"
+TAIGA_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, TAIGA_MANAGER_SERVICE) }}"
 TAIGA_ASYNC_SERVICE: "async"
 TAIGA_ASYNC_RABBITMQ_SERVICE: "async-rabbitmq"
 TAIGA_EVENTS_RABBITMQ_SERVICE: "events-rabbitmq"

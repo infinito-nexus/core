@@ -10,7 +10,6 @@ FEDIWALL_SERVICE: "{{ entity_name }}"
 FEDIWALL_CONTAINER: "{{ entity_name }}"
 FEDIWALL_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 FEDIWALL_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
-FEDIWALL_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 
 # Upstream release
 FEDIWALL_UPSTREAM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upstream.version') }}"

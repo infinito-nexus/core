@@ -1,8 +1,11 @@
 import os
+import tempfile
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from unittest.mock import patch
+
+from utils.cache.files import read_text
 
 
 def load_script_module():
@@ -196,6 +199,67 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
             s.Path.is_file = old_is_file  # type: ignore[assignment]
             if old_resolve_files is not None:
                 s.resolve_files = old_resolve_files  # type: ignore[assignment]
+
+    def test_subcommand_is_first_passthrough_token(self):
+        s = self.script
+        self.assertEqual(s._subcommand(["build"]), "build")
+        self.assertEqual(s._subcommand(["config", "-q"]), "config")
+        self.assertEqual(s._subcommand(["up", "-d"]), "up")
+        self.assertEqual(s._subcommand([]), "")
+
+    def test_build_cmd_build_strips_env_files_and_drops_env_file_flag(self):
+        """`build` runs against env_file-stripped copies with no --env-file.
+
+        compose build parses every service env_file and rejects $-bearing
+        secrets, so the build (which needs no runtime env) must not load it.
+        """
+        s = self.script
+        base = Path("/proj")
+
+        old_is_file = s.Path.is_file
+        old_strip = s.strip_env_files
+        try:
+
+            def fake_is_file(self: Path) -> bool:
+                return str(self) in (
+                    "/proj/compose.yml",
+                    "/proj/.env",
+                    "/proj/.env/env",
+                )
+
+            def fake_strip(project_dir: Path, files):
+                return [Path(f"{f}.noenv.yml") for f in files]
+
+            s.Path.is_file = fake_is_file  # type: ignore[assignment]
+            s.strip_env_files = fake_strip  # type: ignore[assignment]
+
+            cmd = s.build_cmd("myproj", base, ["build"])
+
+            self.assertNotIn("--env-file", cmd)
+            self.assertIn("/proj/compose.yml.noenv.yml", cmd)
+            self.assertNotIn("/proj/compose.yml", cmd)
+            self.assertEqual(cmd[-1], "build")
+        finally:
+            s.Path.is_file = old_is_file  # type: ignore[assignment]
+            s.strip_env_files = old_strip  # type: ignore[assignment]
+
+    def test_strip_env_files_removes_env_file_key(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            project_dir = Path(td)
+            src = project_dir / "compose.yml"
+            src.write_text(
+                "services:\n"
+                "  app:\n"
+                "    image: x\n"
+                "    env_file:\n"
+                '      - "/proj/.env/env"\n'
+            )
+            out = s.strip_env_files(project_dir, [src])
+            self.assertEqual([p.name for p in out], ["compose.noenv.yml"])
+            text = read_text(str(out[0]))
+            self.assertNotIn("env_file", text)
+            self.assertIn("image", text)
 
     def test_main_defaults_to_cwd_and_project_basename(self):
         s = self.script

@@ -130,6 +130,35 @@ def resolve_files(project_dir: Path, files: list[str]) -> list[Path]:
     return out
 
 
+# Subcommands that parse service `env_file:` values. Compose's env parser
+# rejects $-bearing secrets, but the swarm dotenv keeps $ literal because
+# `docker stack deploy` does NOT parse env_file. build/config need no runtime
+# env, so they get env_file-stripped copies (and no --env-file) instead.
+_ENV_PARSING_SUBCOMMANDS = {"build", "config"}
+
+
+def _subcommand(passthrough: list[str]) -> str:
+    # The docker compose subcommand is the first passthrough token (main()
+    # strips a leading `--`; the wrapper's own flags are parsed off earlier).
+    return passthrough[0] if passthrough else ""
+
+
+def strip_env_files(project_dir: Path, files: list[Path]) -> list[Path]:
+    """Return env_file-free copies of the compose files for build/config."""
+    out: list[Path] = []
+    for f in files:
+        with Path(f).open() as fh:
+            doc = yaml.safe_load(fh)  # nocheck: direct-yaml
+        for svc in ((doc or {}).get("services") or {}).values():
+            if isinstance(svc, dict):
+                svc.pop("env_file", None)
+        dst = project_dir / f"{Path(f).stem}.noenv.yml"
+        with Path(dst).open("w") as fh:
+            yaml.safe_dump(doc, fh, sort_keys=False)  # nocheck: direct-yaml
+        out.append(dst)
+    return out
+
+
 def build_cmd(
     project: str,
     project_dir: Path,
@@ -142,13 +171,17 @@ def build_cmd(
     if extra_files:
         files.extend(resolve_files(project_dir, extra_files))
 
-    env_file = detect_env_file(project_dir)
-
     cmd: list[str] = ["docker", "compose", "-p", project]
-    for f in files:
-        cmd += ["-f", str(f)]
-    if env_file:
-        cmd += ["--env-file", str(env_file)]
+
+    if _subcommand(passthrough) in _ENV_PARSING_SUBCOMMANDS:
+        for f in strip_env_files(project_dir, files):
+            cmd += ["-f", str(f)]
+    else:
+        for f in files:
+            cmd += ["-f", str(f)]
+        env_file = detect_env_file(project_dir)
+        if env_file:
+            cmd += ["--env-file", str(env_file)]
 
     cmd += passthrough
     return cmd

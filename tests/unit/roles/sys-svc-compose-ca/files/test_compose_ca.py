@@ -322,6 +322,56 @@ class TestComposeCaInject(unittest.TestCase):
 
     @patch.object(Path, "exists", autospec=True, return_value=True)
     @patch.object(Path, "is_dir", autospec=True, return_value=True)
+    @patch.object(Path, "read_text", autospec=True)
+    @patch.object(Path, "write_text", autospec=True)
+    @patch.object(Path, "mkdir", autospec=True)
+    def test_main_empty_services_writes_noop_override(
+        self, _mkdir, _write_text, _read_text, _is_dir, _exists
+    ):
+        """main(): an app whose merged compose has no services (a launcher-based
+        app such as discourse with all backends shared) writes an empty override
+        and exits 0 instead of dying with 'No services found'."""
+        _read_text.return_value = "services: {}\n"
+
+        def fake_run(cmd, *, cwd, env):
+            if (
+                len(cmd) >= 3
+                and cmd[0:2] == ["docker", "compose"]
+                and cmd[-1] == "config"
+            ):
+                return 0, "services: {}\n", ""
+            return 1, "", "unexpected"
+
+        with patch.object(self.m, "run", side_effect=fake_run):
+            argv = [
+                "compose_ca.py",
+                "--chdir",
+                "/tmp/app",
+                "--project",
+                "p",
+                "--compose-files",
+                "-f compose.yml",
+                "--out",
+                "compose.ca.override.yml",
+                "--ca-host",
+                "/etc/infinito/ca/root-ca.crt",
+                "--wrapper-host",
+                "/etc/infinito/bin/with-ca-trust.sh",
+                "--trust-name",
+                "infinito.local",
+            ]
+            with patch("sys.argv", argv):
+                rc = self.m.main()
+
+        self.assertEqual(rc, 0)
+        self.assertTrue(_write_text.called)
+        args, _kwargs = _write_text.call_args
+        written = args[1] if len(args) > 1 else ""
+        self.assertIn("services", written)
+        self.assertNotIn("CA_TRUST_NAME", written)
+
+    @patch.object(Path, "exists", autospec=True, return_value=True)
+    @patch.object(Path, "is_dir", autospec=True, return_value=True)
     def test_main_requires_trust_name(self, _is_dir, _exists):
         argv = [
             "compose_ca.py",
@@ -803,6 +853,42 @@ class TestComposeCaInject(unittest.TestCase):
             out.get("command"),
             ["sh", "-lc", 'exec "$$CHESS_ENTRYPOINT_INT"'],
         )
+
+    def test_render_override_no_wrapper_emits_env_and_mounts_only(self):
+        """
+        render_override(wrap=False): swarm path must emit only volumes + environment,
+        never entrypoint/command (docker stack deploy does not un-escape $$), and must
+        not probe/inspect/pull the image (images need not exist at generation time).
+        """
+        services = {"svc": {"image": "img:1"}}
+        service_to_cmd = {"svc": ["docker", "compose", "-p", "p", "-f", "compose.yml"]}
+
+        with (
+            patch.object(self.m, "ensure_image_available") as p_ensure,
+            patch.object(self.m, "docker_image_inspect") as p_inspect,
+            patch.object(self.m, "docker_image_has_bin_sh") as p_has_sh,
+        ):
+            doc = self.m.render_override(
+                services,
+                service_to_cmd,
+                cwd=Path("/tmp"),
+                env={},
+                ca_host="/host/ca.crt",
+                wrapper_host="/host/with-ca-trust.sh",
+                trust_name="infinito.local",
+                wrap=False,
+            )
+
+        out = doc["services"]["svc"]
+        self.assertIn("volumes", out)
+        self.assertEqual(
+            out["environment"].get("SSL_CERT_FILE"), "/tmp/infinito/ca/root-ca.crt"
+        )
+        self.assertNotIn("entrypoint", out)
+        self.assertNotIn("command", out)
+        p_ensure.assert_not_called()
+        p_inspect.assert_not_called()
+        p_has_sh.assert_not_called()
 
     def test_render_override_does_not_escape_when_not_wrapping(self):
         """

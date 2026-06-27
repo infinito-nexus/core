@@ -10,28 +10,21 @@
         SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL: "{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL }}"
         SUITECRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ SUITECRM_ENTRYPOINT_SCRIPT_DOCKER }}"
         SUITECRM_LDAP_EXTENSION_DIR: "{{ SUITECRM_LDAP_EXTENSION_DIR }}"
-    container_name: {{ SUITECRM_CONTAINER }}
-    image: "{{ SUITECRM_CUSTOM_IMAGE }}"
+    {{ lookup('compose_only', 'container_name', SUITECRM_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'suitecrm', custom=True, version=SUITECRM_APP_VERSION) }}
     init: true
     stop_signal: SIGTERM
     stop_grace_period: 30s
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.suitecrm.ports.local.http') }}:80"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - data:/var/www/html/
-      - "{{ SUITECRM_PHP_CONFIG_HOST }}:/usr/local/etc/php/conf.d/{{ SUITECRM_WELL_SOFTWARE_NAME }}.ini:ro"
-
+    {{ lookup('container_ports', ['suitecrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+{% set _extra_mounts = [] %}
 {% if SUITECRM_LDAP_ENABLED | bool %}
-      # Readonly isn't possible for LDAP config, because otherwise file permission script will fail
-      - "{{ SUITECRM_LDAP_CONFIG_HOST }}:{{ SUITECRM_LDAP_EXTENSION_DIR }}/ldap.yaml"
+{%   set _ = _extra_mounts.append(SUITECRM_LDAP_CONFIG_HOST ~ ':' ~ SUITECRM_LDAP_EXTENSION_DIR ~ '/ldap.yaml') %}
 {% endif %}
+    {{ lookup('container_volumes', application_id, service_name, extra_volumes=_extra_mounts) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': SUITECRM_DATA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

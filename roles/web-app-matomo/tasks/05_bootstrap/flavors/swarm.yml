@@ -1,0 +1,24 @@
+---
+- name: "Matomo bootstrap | Swarm: wait for Matomo to be healthy before running the installer"
+  ansible.builtin.shell: >
+    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    {{ MATOMO_LOCAL_CID | quote }}
+  register: matomo_health_preboot
+  changed_when: false
+  retries: 60
+  delay: 2
+  until: matomo_health_preboot.rc == 0 and (matomo_health_preboot.stdout | trim) == 'healthy'
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "Matomo bootstrap | Swarm: force a fresh installer run and wait for its token"
+  ansible.builtin.script: "{{ role_path }}/files/bootstrap_swarm_poll.sh"
+  environment:
+    SERVICE_REF: "{{ lookup('container_service', application_id, MATOMO_BOOTSTRAP_SERVICE) }}"
+    DEADLINE_S: "{{ MATOMO_INSTALLER_STEP_DEADLINE_S | int }}"
+    POLL_DELAY_S: "{{ MATOMO_BOOTSTRAP_SWARM_POLL_DELAY_S | int }}"
+  register: matomo_bootstrap_swarm
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  retries: "{{ MATOMO_BOOTSTRAP_SWARM_ATTEMPTS | int }}"
+  delay: 0
+  until: matomo_bootstrap_swarm.rc == 0 and (matomo_bootstrap_swarm.stdout | trim | length) > 0

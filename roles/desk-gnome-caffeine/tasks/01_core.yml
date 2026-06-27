@@ -12,7 +12,7 @@
     state: directory
 
 - name: Copy caffeine.desktop file to autostart directory
-  template:
+  template: # nocheck: stack-host-template (per-host workstation autostart file)
     src: caffeine.desktop.j2
     dest: "{{auto_start_directory}}caffeine.desktop"
 

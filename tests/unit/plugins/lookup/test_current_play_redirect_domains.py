@@ -54,7 +54,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             [{"source": "old.example.com", "target": "new.example.com"}],
         )
 
-    def test_primary_redirect_appended_when_rdr_domains_deployed(self):
+    def test_primary_redirect_appended_when_both_domains_set(self):
         lm = self._make_lookup()
         variables = {
             "DOMAIN_PRIMARY": "infinito.example",
@@ -69,13 +69,28 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result,
         )
 
-    def test_primary_redirect_absent_when_rdr_domains_not_deployed(self):
+    def test_primary_redirect_appended_even_when_rdr_domains_not_in_deployed(self):
         lm = self._make_lookup()
         variables = {
             "DOMAIN_PRIMARY": "infinito.example",
             "DOMAIN_HOMEPAGE": "infinito.nexus",
         }
         with self._patch_lookups(deployed=["web-opt-rdr-www"], current_play_apps={}):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [{"source": "infinito.example", "target": "infinito.nexus"}],
+        )
+
+    def test_primary_redirect_absent_when_primary_equals_homepage(self):
+        lm = self._make_lookup()
+        variables = {
+            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_HOMEPAGE": "infinito.example",
+        }
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(result, [])
 

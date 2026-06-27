@@ -119,7 +119,10 @@
   changed_when: false
 
 - name: "TLS | (self_signed) generate leaf cert (only when missing or SAN drift)"
-  ansible.builtin.include_tasks: 02_generate_leaf.yml
+  ansible.builtin.include_tasks:
+    file: 02_generate_leaf.yml
+    apply:
+      become: true
   when: >-
     {{
       (not (_ss_cert_stat.stat.exists | default(false))) or

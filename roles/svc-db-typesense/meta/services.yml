@@ -1,0 +1,23 @@
+---
+typesense:
+  # nocheck: default-placement-manager  engine on-disk search index, node-local in swarm (fsync/lock corruption on NFS)
+  default_placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: typesense/typesense
+  name: typesense
+  version: 0.25.2
+  min_storage: 5GB
+  backup:
+    database_routine: true
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 1024
+  ports:
+    local:
+      typesense: 8108
+    internal:
+      typesense: 8108
+  lifecycle: beta

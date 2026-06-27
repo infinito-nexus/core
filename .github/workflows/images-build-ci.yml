@@ -1,4 +1,4 @@
-name: "🐳 Build: CI Images (all distros)"
+name: "🖼️ Build: CI Images (all distros)"
 
 on:
   workflow_call:

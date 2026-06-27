@@ -14,4 +14,5 @@ domains:
   aliases: []
 networks:
   local:
-    subnet: 192.168.102.208/28
+    subnet: 192.168.9.0/24
+    force_bridge: true

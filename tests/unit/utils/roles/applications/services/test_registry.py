@@ -82,6 +82,71 @@ class TestServiceRegistryDiscovery(unittest.TestCase):
         self.assertEqual(detect_service_bucket("web-svc-file"), "web-svc")
         self.assertEqual(detect_service_bucket("svc-db-mariadb"), "universal")
 
+    def test_discovery_passes_overlay_block_through(self):
+        applications = {
+            "svc-db-mariadb": {
+                "services": {"mariadb": {"enabled": True, "shared": True}},
+                "server": {
+                    "networks": {
+                        "overlay": {
+                            "modes": ["compose", "swarm"],
+                            "topology": "shared_net",
+                            "aliases": ["mariadb"],
+                            "consumer": {"kind": "database"},
+                        }
+                    }
+                },
+            },
+            "svc-prx-openresty": {
+                "services": {"openresty": {"enabled": True, "shared": True}},
+                "server": {
+                    "networks": {
+                        "overlay": {
+                            "modes": ["swarm"],
+                            "topology": "default_net",
+                            "aliases": [],
+                            "consumer": {
+                                "kind": "services_flags",
+                                "key": "sso",
+                                "flags": ["enabled"],
+                            },
+                        }
+                    }
+                },
+            },
+            "web-app-keycloak": {
+                "services": {
+                    "keycloak": {
+                        "enabled": True,
+                        "shared": True,
+                        "provides": "oidc",
+                    }
+                },
+                "server": {
+                    "networks": {
+                        "overlay": {
+                            "modes": ["swarm"],
+                            "proxy_resolvable": True,
+                            "aliases": ["auth.example"],
+                        }
+                    }
+                },
+            },
+            "web-app-plain": {"services": {"plain": {"enabled": True, "shared": True}}},
+        }
+
+        registry = build_service_registry_from_applications(applications)
+
+        self.assertEqual(registry["mariadb"]["overlay"]["modes"], ["compose", "swarm"])
+        self.assertEqual(registry["mariadb"]["overlay"]["topology"], "shared_net")
+        self.assertEqual(registry["mariadb"]["overlay"]["consumer"]["kind"], "database")
+        self.assertEqual(registry["openresty"]["overlay"]["modes"], ["swarm"])
+        self.assertEqual(registry["openresty"]["overlay"]["aliases"], [])
+        self.assertTrue(registry["oidc"]["overlay"]["proxy_resolvable"])
+        self.assertNotIn("topology", registry["oidc"]["overlay"])
+        self.assertEqual(registry["oidc"]["overlay"]["aliases"], ["auth.example"])
+        self.assertNotIn("overlay", registry["plain"])
+
     def test_direct_service_resolution_uses_role_local_names(self):
         registry = {
             "ldap": {"role": "svc-db-openldap"},

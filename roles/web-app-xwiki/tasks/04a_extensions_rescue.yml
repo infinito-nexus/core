@@ -1,0 +1,63 @@
+---
+- name: "XWIKI | DEBUG | Show installer page output"
+  debug:
+    var: _exec_page.content
+
+- name: "XWIKI | DEBUG | Repo reachability from container (nexus + maven central)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec "{{ XWIKI_CONTAINER_ADDRESS }}" sh -lc '
+      echo "== DNS ==";
+      (getent hosts nexus.xwiki.org || true);
+      (getent hosts repo1.maven.org || true);
+      echo "== HTTP ==";
+      (wget -S -O- -T 10 https://nexus.xwiki.org/ 2>&1 | head -n 30) || true;
+      (wget -S -O- -T 10 https://repo1.maven.org/maven2/ 2>&1 | head -n 30) || true;
+    '
+  register: _dbg_net
+  changed_when: false
+  failed_when: false
+
+- name: "XWIKI | DEBUG | Dump mounted xwiki.properties (first 200 lines)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container exec "{{ XWIKI_CONTAINER_ADDRESS }}" sh -lc '
+      echo "== xwiki.properties ==";
+      ls -la /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties || true;
+      sed -n "1,200p" /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties 2>/dev/null || true;
+      echo "== extension.repositories ==";
+      grep -n "^[[:space:]]*extension\.repositories" /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties 2>/dev/null || true;
+    '
+  register: _dbg_props
+  changed_when: false
+  failed_when: false
+
+- name: "XWIKI | DEBUG | Tail container logs"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container logs --tail 300 "{{ XWIKI_CONTAINER }}" || true
+  register: _dbg_logs
+  changed_when: false
+  failed_when: false
+
+- name: "XWIKI | DEBUG | Print debug outputs"
+  debug:
+    msg: |
+      ===== XWIKI DEBUG NET =====
+      {{ _dbg_net.stdout | default('') }}
+      {{ _dbg_net.stderr | default('') }}
+
+      ===== XWIKI DEBUG PROPS =====
+      {{ _dbg_props.stdout | default('') }}
+      {{ _dbg_props.stderr | default('') }}
+
+      ===== XWIKI DEBUG LOGS =====
+      {{ _dbg_logs.stdout | default('') }}
+      {{ _dbg_logs.stderr | default('') }}
+
+- name: "XWIKI | FAIL | Extension installation failed (see debug above)"
+  fail:
+    msg: |
+      Extension installation failed.
+      Installer output:
+      {{ _exec_page.content | default('') }}

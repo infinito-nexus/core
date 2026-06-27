@@ -1,0 +1,23 @@
+---
+- name: "Install kernel NFS server packages"
+  ansible.builtin.package:
+    name: "{{ SVC_STORAGE_NFS_SERVER_PACKAGES['kernel'][ansible_os_family] }}"
+    state: present
+
+- name: "Render /etc/exports"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host NFS server /etc/exports (NFS host is its own group, not the stack host))
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "Reload NFS exports"
+
+- name: "Flush handlers (exports reload before next step)"
+  ansible.builtin.meta: flush_handlers
+
+- name: "Enable and start the kernel NFS server"
+  ansible.builtin.systemd:
+    name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE['kernel'][ansible_os_family] }}"
+    enabled: true
+    state: started

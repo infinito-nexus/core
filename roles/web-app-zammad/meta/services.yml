@@ -60,10 +60,15 @@ zammad:
   bond: 1
   enabled: true
   shared: true
+  # nocheck: default-placement-manager  embedded elasticsearch engine state; node-local in swarm
+  default_placement: manager
   image: ghcr.io/zammad/zammad
   version: "6.5.0"
+  name: zammad-railsserver
   min_storage: 15GB
   ports:
+    internal:
+      http: 8080
     local:
       http: 8077
   run_after:

@@ -57,6 +57,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_env_template }}"
   register: _env_template_stat
+  delegate_to: localhost
 
 - name: Fail if Playwright env template is missing
   ansible.builtin.fail:
@@ -67,6 +68,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_spec_src }}"
   register: _spec_stat
+  delegate_to: localhost
 
 - name: Fail if Playwright spec is missing
   ansible.builtin.fail:
@@ -77,6 +79,7 @@
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
   register: _playwright_app_vars_stat
+  delegate_to: localhost
 
 - name: Load optional application vars
   ansible.builtin.include_vars:
@@ -105,6 +108,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_default_package_template }}"
   register: _default_package_stat
+  delegate_to: localhost
 
 - name: Fail when central default package.json template is missing
   ansible.builtin.fail:
@@ -127,7 +131,7 @@
   until: _playwright_pull.rc == 0
 
 - name: Render package.json from template
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host playwright stage dir, runs on every test host)
     src: "{{ _playwright_default_package_template }}"
     dest: "{{ _playwright_stage_dir }}/package.json"
     mode: "0644"
@@ -136,6 +140,7 @@
   ansible.builtin.stat:
     path: "{{ _playwright_default_config_js }}"
   register: _default_config_stat
+  delegate_to: localhost
 
 - name: Fail when central default playwright.config.js is missing
   ansible.builtin.fail:
@@ -267,37 +272,28 @@
 
 - name: Run Playwright container
   ansible.builtin.command:
-    argv:
-      - container
-      - run
-      - --rm
-      - --ipc=host
-      - --shm-size=1g
-      - --add-host=host.docker.internal:host-gateway
-      - --env-file
-      - "{{ _playwright_stage_dir }}/.env"
-      - -e
-      - "INFINITO_PLAYWRIGHT_KEEP={{ test_e2e_playwright_keep }}"
-      - -e
-      - "PLAYWRIGHT_WORKERS={{ test_e2e_playwright_workers }}"
-      - -e
-      - "PLAYWRIGHT_FULLY_PARALLEL={{ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL }}"
-      - -e
-      - "PLAYWRIGHT_TEST_TIMEOUT={{ test_e2e_playwright_test_timeout }}"
-      - -v
-      - "{{ _playwright_stage_dir }}:/e2e"
-      - -v
-      - "{{ _playwright_stage_dir }}/volume:/volume"
-      - -v
-      - "{{ _playwright_reports_dir }}:/reports"
-      - -v
-      - "{{ TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES }}:/e2e/node_modules:ro"
-      - -w
-      - /e2e
-      - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"
-      - /bin/bash
-      - -lc
-      - "{{ TEST_E2E_PLAYWRIGHT_COMMAND }}"
+    argv: >-
+      {{
+        ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
+        + (
+            ['--network', 'host']
+            if DEPLOYMENT_MODE == 'swarm'
+            else ['--add-host=host.docker.internal:host-gateway']
+          )
+        + ['--env-file', _playwright_stage_dir ~ '/.env']
+        + ['-e', 'INFINITO_PLAYWRIGHT_KEEP=' ~ test_e2e_playwright_keep]
+        + ['-e', 'INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS=' ~ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS]
+        + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
+        + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
+        + ['-e', 'PLAYWRIGHT_TEST_TIMEOUT=' ~ test_e2e_playwright_test_timeout]
+        + ['-v', _playwright_stage_dir ~ ':/e2e']
+        + ['-v', _playwright_stage_dir ~ '/volume:/volume']
+        + ['-v', _playwright_reports_dir ~ ':/reports']
+        + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
+        + ['-w', '/e2e']
+        + [TEST_E2E_PLAYWRIGHT_IMAGE]
+        + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
+      }}
   timeout: "{{ test_e2e_playwright_run_timeout | int }}"
   environment: >-
     {{

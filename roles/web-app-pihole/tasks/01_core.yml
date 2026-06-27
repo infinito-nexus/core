@@ -40,6 +40,7 @@
     line: 'provider_ca_files       =   ["{{ PIHOLE_SSO_PROXY_CA_CONTAINER_PATH }}"]'
     insertafter: "^provider_display_name"
   when:
+    - IS_STACK_HOST | bool
     - lookup('sso', application_id, 'is_proxy_gated')
     - (TLS_MODE | lower) == 'self_signed'
 

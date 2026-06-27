@@ -5,4 +5,13 @@ domains:
   aliases: []
 networks:
   local:
-    subnet: 192.168.105.32/28
+    # /24 not /28: the swarm overlay is the web_facing fan-in every web-app
+    # service attaches to (mailu alone adds 13); a /28's ~13 IPs deadlocks
+    # the swarm allocator ("could not find an available IP") under load.
+    subnet: 192.168.107.0/24
+  overlay:
+    modes: [swarm]
+    topology: shared_net
+    collect_proxy_resolvable: true
+    consumer:
+      kind: web_facing

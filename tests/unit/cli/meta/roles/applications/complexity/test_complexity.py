@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import io
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest import mock
 
-from cli.meta.roles.applications.complexity.__main__ import (
-    compute_complexity_rows,
-)
+from cli.meta.roles.applications.complexity.cli import main
+from cli.meta.roles.applications.complexity.model import compute_complexity_rows
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 
@@ -212,6 +214,85 @@ class TestComplexityRows(unittest.TestCase):
             rows = compute_complexity_rows(roles_dir)
             names = [row[0] for row in rows]
             self.assertEqual(names, ["r1"])
+
+    def test_format_string_prints_only_role_names(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            roles_dir = Path(td) / "roles"
+            roles_dir.mkdir()
+            self._build_chain_roles(roles_dir)
+
+            buf = io.StringIO()
+            with (
+                mock.patch(
+                    "cli.meta.roles.applications.complexity.cli.PROJECT_ROOT",
+                    Path(td),
+                ),
+                redirect_stdout(buf),
+            ):
+                rc = main(["--format", "string", "--sort", "name"])
+
+            self.assertEqual(rc, 0)
+            self.assertEqual(buf.getvalue().split(), ["r1", "r2", "r3"])
+
+    def _build_mutual_roles(self, roles_dir: Path) -> None:
+        # r1 and r2 embed each other -> identical {name} ∪ services set
+        # -> identical base. r3 stands alone with its own base.
+        _mk_role(
+            roles_dir,
+            "r1",
+            (
+                "r1:\n  enabled: true\n  shared: true\n"
+                "r2:\n  enabled: true\n  shared: true\n"
+            ),
+        )
+        _mk_role(
+            roles_dir,
+            "r2",
+            (
+                "r2:\n  enabled: true\n  shared: true\n"
+                "r1:\n  enabled: true\n  shared: true\n"
+            ),
+        )
+        _mk_role(
+            roles_dir,
+            "r3",
+            "r3:\n  enabled: true\n  shared: true\n",
+        )
+
+    def test_base_groups_same_service_cluster(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            roles_dir = Path(td) / "roles"
+            roles_dir.mkdir()
+            self._build_mutual_roles(roles_dir)
+
+            rows = compute_complexity_rows(roles_dir)
+            row_map = {row.name: row for row in rows}
+
+            self.assertEqual(row_map["r1"].base, row_map["r2"].base)
+            self.assertNotEqual(row_map["r1"].base, row_map["r3"].base)
+            self.assertEqual(row_map["r1"].siblings, ["r2"])
+            self.assertEqual(row_map["r2"].siblings, ["r1"])
+            self.assertEqual(row_map["r3"].siblings, [])
+
+    def test_unique_hides_same_base_roles(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            roles_dir = Path(td) / "roles"
+            roles_dir.mkdir()
+            self._build_mutual_roles(roles_dir)
+
+            buf = io.StringIO()
+            with (
+                mock.patch(
+                    "cli.meta.roles.applications.complexity.cli.PROJECT_ROOT",
+                    Path(td),
+                ),
+                redirect_stdout(buf),
+            ):
+                rc = main(["--format", "string", "--sort", "name", "--unique"])
+
+            self.assertEqual(rc, 0)
+            # r1/r2 share a base -> only the first by name survives; r3 stays.
+            self.assertEqual(buf.getvalue().split(), ["r1", "r3"])
 
 
 if __name__ == "__main__":

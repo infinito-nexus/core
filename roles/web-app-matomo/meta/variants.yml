@@ -17,6 +17,8 @@
       shared: true
     mariadb:
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -31,6 +33,8 @@
       enabled: false
       shared: false
     mariadb:
+      shared: false
+    redis:
       shared: false
     prometheus:
       enabled: false

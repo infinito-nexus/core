@@ -23,6 +23,10 @@ server
 
     {% set sso_proxy_enabled = true %}
     {% set location = "/" %}
+    {# filer/master admin UIs sit behind the oauth2-proxy sidecar; in swarm
+       route the content upstream to it (compose uses the published sso port). #}
+    {% set proxy_service_key = 'sso-proxy' %}
+    {% set proxy_internal_port = lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') %}
     {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
 
     {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}

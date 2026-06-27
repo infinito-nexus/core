@@ -10,32 +10,30 @@
     argv:
       - container
       - exec
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - sh
       - -lc
       - 'ps -ef | grep -v grep | grep -q "apache2 -DFOREGROUND"'
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_entrypoint_bootstrap
   changed_when: false
   retries: 120
   delay: 5
   until: pixelfed_entrypoint_bootstrap.rc == 0
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
 - name: "Check whether the Pixelfed bootstrap marker exists"
   ansible.builtin.command:
     argv:
       - container
       - exec
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - sh
       - -lc
       - test -e /var/www/storage/.docker.init
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_bootstrap_marker_exists
   changed_when: false
   failed_when: false
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
 - name: "Check whether the Pixelfed users table exists"
   database_query:
@@ -78,7 +76,7 @@
       }}
     pixelfed_migrate_argv: >-
       {{
-        ['container', 'exec', '-u', PIXELFED_APP_USER, PIXELFED_CONTAINER, 'php', 'artisan']
+        ['container', 'exec', '-u', PIXELFED_APP_USER, PIXELFED_LOCAL_CID, 'php', 'artisan']
         + (
           ['migrate:fresh', '--force']
           if (
@@ -92,13 +90,12 @@
 - name: "Run Pixelfed migrations"
   ansible.builtin.command:
     argv: "{{ pixelfed_migrate_argv }}"
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_migrate
   changed_when: "'Nothing to migrate' not in pixelfed_migrate.stdout"
   retries: 60
   delay: 5
   until: pixelfed_migrate.rc == 0
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
 - name: "Ensure Pixelfed Passport keys exist"
   ansible.builtin.command:
@@ -107,20 +104,19 @@
       - exec
       - -u
       - "{{ PIXELFED_APP_USER }}"
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - sh
       - -lc
       - |
         if [ ! -f /var/www/storage/oauth-private.key ] || [ ! -f /var/www/storage/oauth-public.key ]; then
           php artisan passport:keys --force
         fi
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_passport_keys
   changed_when: false
   retries: 20
   delay: 5
   until: pixelfed_passport_keys.rc == 0
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
 - name: "Ensure the Pixelfed public storage symlink exists"
   ansible.builtin.command:
@@ -129,20 +125,19 @@
       - exec
       - -u
       - "{{ PIXELFED_APP_USER }}"
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - sh
       - -lc
       - |
         if [ ! -L /var/www/public/storage ]; then
           php artisan storage:link
         fi
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_storage_link
   changed_when: false
   retries: 20
   delay: 5
   until: pixelfed_storage_link.rc == 0
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
 - name: "Initialize the Pixelfed instance actor"
   ansible.builtin.command:
@@ -151,17 +146,16 @@
       - exec
       - -u
       - "{{ PIXELFED_APP_USER }}"
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - php
       - artisan
       - instance:actor
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_instance_actor
   changed_when: false
   retries: 20
   delay: 5
   until: pixelfed_instance_actor.rc == 0
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
 # The worker uses this marker to skip its own init path. Do not move this above
 # the actor/storage setup or the worker can start against an incomplete app.
@@ -172,17 +166,16 @@
       - exec
       - -u
       - "{{ PIXELFED_APP_USER }}"
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - sh
       - -lc
       - |
         if [ ! -e /var/www/storage/.docker.init ]; then
           touch /var/www/storage/.docker.init
         fi
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   register: pixelfed_bootstrap_marker
   changed_when: false
   retries: 20
   delay: 5
   until: pixelfed_bootstrap_marker.rc == 0
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"

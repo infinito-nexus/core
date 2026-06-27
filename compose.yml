@@ -68,7 +68,7 @@ services:
       - .:${INFINITO_SRC_DIR}
       - ${INFINITO_DOCKER_VOLUME:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_DOCKER_MOUNT:?Run 'make dotenv' to generate the .env
         single source of truth}
-      - infinito:/var/lib/infinito/
+      - infinito:${INFINITO_DIR_VAR_LIB:?Run 'make dotenv' to generate the .env single source of truth}/
       - letsencrypt:/etc/letsencrypt/
 
     environment:

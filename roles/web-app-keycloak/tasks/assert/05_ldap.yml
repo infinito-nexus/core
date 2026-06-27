@@ -130,37 +130,37 @@
 # Verify top-level group for groups.path exists
 # ---------------------------------------------------------------------------
 
-- name: Assert | Fetch groups (JSON)
+- name: Assert | Verify top-level group exists when groups.path is set
   when: desired_groups_top_assert | length > 0
-  shell: >
-    {{ KEYCLOAK_EXEC_KCADM }} get groups -r {{ KEYCLOAK_REALM }} --format json
-  register: kc_groups_assert
-  changed_when: false
+  block:
+    - name: Assert | Fetch groups (JSON)
+      shell: >
+        {{ KEYCLOAK_EXEC_KCADM }} get groups -r {{ KEYCLOAK_REALM }} --format json
+      register: kc_groups_assert
+      changed_when: false
 
-- name: Assert | Resolve top-level group id
-  when: desired_groups_top_assert | length > 0
-  set_fact:
-    groups_top_id_assert: >-
-      {{
-        (
-          kc_groups_assert.stdout | kcadm_json
-          | selectattr('name','equalto', desired_groups_top_assert)
-          | map(attribute='id')
-          | list
-          | first
-          | default('')
-        ) | string | trim
-      }}
-  changed_when: false
+    - name: Assert | Resolve top-level group id
+      set_fact:
+        groups_top_id_assert: >-
+          {{
+            (
+              kc_groups_assert.stdout | kcadm_json
+              | selectattr('name','equalto', desired_groups_top_assert)
+              | map(attribute='id')
+              | list
+              | first
+              | default('')
+            ) | string | trim
+          }}
+      changed_when: false
 
-- name: Assert | Top-level group exists
-  when: desired_groups_top_assert | length > 0
-  assert:
-    that:
-      - groups_top_id_assert not in ["", "null"]
-    fail_msg: >-
-      groups.path='{{ desired_groups_path_assert }}' requires top-level group
-      '{{ desired_groups_top_assert }}', but it does not exist.
+    - name: Assert | Top-level group exists
+      assert:
+        that:
+          - groups_top_id_assert not in ["", "null"]
+        fail_msg: >-
+          groups.path='{{ desired_groups_path_assert }}' requires top-level group
+          '{{ desired_groups_top_assert }}', but it does not exist.
 
 # ---------------------------------------------------------------------------
 # Final summary (debug only)

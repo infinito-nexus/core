@@ -42,7 +42,7 @@
     cmd: "files/scripts/per_app_mapper/delete_default_ldap_roles_mapper.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
   changed_when: true
@@ -54,7 +54,7 @@
     cmd: "files/scripts/per_app_mapper/purge_root_orphans.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
     DEPLOYED_APP_IDS: "{{ KEYCLOAK_RBAC_ALL_APP_IDS | join(' ') }}"

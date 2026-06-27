@@ -3,27 +3,18 @@ application_id: "web-app-opentalk"
 entity_name: "{{ application_id | get_entity_name }}"
 
 OPENTALK_CTRL_CONTAINER: "{{ lookup('config', application_id, 'services.controller.name') }}"
-OPENTALK_CTRL_IMAGE: "{{ lookup('config', application_id, 'services.controller.image') }}"
-OPENTALK_CTRL_VERSION: "{{ lookup('config', application_id, 'services.controller.version') }}"
 OPENTALK_CTRL_HTTP_PORT: "{{ lookup('config', application_id, 'services.controller.ports.local.http') }}"
 
 OPENTALK_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.opentalk.name') }}"
-OPENTALK_FRONTEND_IMAGE: "{{ lookup('config', application_id, 'services.opentalk.image') }}"
-OPENTALK_FRONTEND_VERSION: "{{ lookup('config', application_id, 'services.opentalk.version') }}"
 OPENTALK_FRONTEND_HTTP_PORT: "{{ lookup('config', application_id, 'services.opentalk.ports.local.http') }}"
 
 OPENTALK_LIVEKIT_CONTAINER: "{{ lookup('config', application_id, 'services.livekit.name') }}"
-OPENTALK_LIVEKIT_IMAGE: "{{ lookup('config', application_id, 'services.livekit.image') }}"
-OPENTALK_LIVEKIT_VERSION: "{{ lookup('config', application_id, 'services.livekit.version') }}"
 # LiveKit runs in host network mode; control ports 7880 (HTTP API) and 7881
 # (TCP fallback) are exposed by host networking, not via Docker port mapping.
 OPENTALK_LIVEKIT_HTTP_PORT: 7880
 OPENTALK_LIVEKIT_TCP_PORT: 7881
 OPENTALK_LIVEKIT_RTC_START: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.start') }}"
 OPENTALK_LIVEKIT_RTC_END: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.end') }}"
-
-OPENTALK_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-OPENTALK_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
 
 OPENTALK_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENTALK_DOMAIN: "{{ lookup('domain', application_id) }}"
@@ -36,25 +27,23 @@ OPENTALK_LIVEKIT_API_SECRET: "{{ lookup('config', application_id, 'credentials.l
 # Object store is consumed via the engine-agnostic `objstore` lookup:
 # `lookup('objstore', application_id, ...)` resolves either an embedded
 # instance (shared:false) or the shared central provider (shared:true).
+OPENTALK_OBJSTORE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, lookup('objstore', application_id, 'engine')) }}"
 
 # RabbitMQ broker that ferries recording task hand-offs between the
 # controller and the recorder service.
 OPENTALK_RABBIT_CONTAINER: "{{ lookup('config', application_id, 'services.rabbit.name') }}"
-OPENTALK_RABBIT_IMAGE: "{{ lookup('config', application_id, 'services.rabbit.image') }}"
-OPENTALK_RABBIT_VERSION: "{{ lookup('config', application_id, 'services.rabbit.version') }}"
 OPENTALK_RABBIT_QUEUE: "opentalk_recorder"
 
 # Recorder turns a meeting room into an MP4 archive on demand. It
 # authenticates as a service account via its own confidential Keycloak
 # client and consumes recording jobs from the RabbitMQ queue above.
 OPENTALK_RECORDER_CONTAINER: "{{ lookup('config', application_id, 'services.recorder.name') }}"
-OPENTALK_RECORDER_IMAGE: "{{ lookup('config', application_id, 'services.recorder.image') }}"
-OPENTALK_RECORDER_VERSION: "{{ lookup('config', application_id, 'services.recorder.version') }}"
 OPENTALK_RECORDER_OIDC_CLIENT_ID: "opentalk-recorder"
 OPENTALK_RECORDER_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'credentials.recorder_oidc_client_secret') }}"
 
 # Keycloak Admin API (controller user-search backend)
 OPENTALK_KEYCLOAK_BASE_URL: "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$','') }}"
+OPENTALK_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 OPENTALK_KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 
 # The shared `infinito.nexus` Keycloak client is public so it cannot

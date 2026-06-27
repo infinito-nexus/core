@@ -1,6 +1,8 @@
 ---
 # nocheck: seaweedfs-required — object storage not implemented for this role
 pgadmin:
+  # nocheck: default-placement-manager  embedded sqlite config db; node-local in swarm
+  default_placement: manager
   image: dpage/pgadmin4
   version: latest
   min_storage: 1GB
@@ -10,6 +12,10 @@ pgadmin:
     local:
       sso: 16485
       http: 8016
+    internal:
+      http: 80
+  proxy:
+    service_key: pgadmin
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -46,7 +52,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: pgadmin
       port: "80"
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-pgadmin', role='administrator') }}"

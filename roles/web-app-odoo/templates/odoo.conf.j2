@@ -49,8 +49,9 @@ email_from = {{ email['from'] }}
 {% if ODOO_REDIS_ENABLED | bool %}
 ; Redis session store
 session_store_redis = True
-session_store_redis_host = redis
-session_store_redis_port = 6379
+session_store_redis_host = {{ lookup('engine', 'redis', application_id, 'host') }}
+session_store_redis_port = {{ lookup('engine', 'redis', application_id, 'port') }}
+session_store_redis_pass = {{ lookup('engine', 'redis', application_id, 'password') }}
 session_store_redis_prefix = odoo_session
 {% endif %}
 

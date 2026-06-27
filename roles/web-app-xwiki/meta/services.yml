@@ -30,6 +30,7 @@ email:
 # nocheck: playwright-service-flag — Redis cache, no Playwright surface
 redis:
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
   backup:
     disabled: true
 # nocheck: playwright-service-flag — DB engine, no Playwright surface (role-local integration tests)
@@ -55,6 +56,8 @@ xwiki:
   ports:
     local:
       http: 8054
+    internal:
+      http: 8080
   run_after:
     - web-app-matomo
     - web-app-keycloak

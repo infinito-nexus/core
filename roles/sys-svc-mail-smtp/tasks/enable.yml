@@ -19,14 +19,14 @@
     state: present
 
 - name: "Configure Postfix as localhost-only relay"
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host postfix localhost-relay config)
     src: "postfix-main.cf.j2"
     dest: "/etc/postfix/main.cf"
     mode: "0644"
   notify: restart postfix
 
 - name: "Deploy postfix aliases"
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host postfix aliases)
     src: "aliases.j2"
     dest: "/etc/postfix/aliases"
     mode: "0644"

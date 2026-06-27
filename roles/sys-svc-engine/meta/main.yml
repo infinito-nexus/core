@@ -1,0 +1,34 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Engine-agnostic consumer wiring for the central cache / queue / search / vector engines (redis, memcached, rabbitmq, elasticsearch, typesense,
+    qdrant). Delegates per-consumer provisioning (ACL user / vhost / index / scoped key) to the resolved svc-db-<engine> provider role's init entrypoint when
+    the engine is shared.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - redis
+    - rabbitmq
+    - elasticsearch
+    - cache
+    - docker
+dependencies: []

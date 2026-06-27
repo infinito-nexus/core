@@ -9,7 +9,7 @@
       - "( 1.3.6.1.4.1.99999.2 NAME '{{ LDAP.USER.OBJECTS.AUXILIARY.NEXTCLOUD_USER }}' DESC 'Auxiliary class for Nextcloud attributes' AUXILIARY MAY ( {{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA
         }} ) )"
   command: >
-    {{ lookup('command_path', 'ldapsm') }}
+    ldapsm
       -s {{ OPENLDAP_SERVER_URI }}
       -D '{{ OPENLDAP_BIND_DN }}'
       -W '{{ OPENLDAP_BIND_PW }}'

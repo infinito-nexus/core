@@ -1,6 +1,6 @@
 ---
 - name: Deploy {{ js_file_name }}
-  template:
+  stack_host_template:
     src: "javascript/{{ js_file_name }}.j2"
     dest: "{{ DASHBOARD_JS_SERVER_DIR }}/{{ js_file_name }}"
     mode: "0644"

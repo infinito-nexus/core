@@ -11,5 +11,3 @@ entity_name: "{{ application_id | get_entity_name }}"
 container_port: 5000
 
 LIBRETRANSLATE_SERVICE: "{{ entity_name }}"
-LIBRETRANSLATE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
-LIBRETRANSLATE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"

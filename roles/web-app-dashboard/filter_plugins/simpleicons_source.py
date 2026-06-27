@@ -67,7 +67,10 @@ def resolve_simpleicons_base(simpleicons_value, web_protocol="https"):
 
 
 def add_simpleicon_source(
-    cards, simpleicons_value, web_protocol="https", public_url_base=None
+    cards,
+    simpleicons_value,
+    web_protocol="https",
+    public_url_base=None,
 ):
     """
     For each card in portfolio_cards, check if an icon exists in the simpleicons server.

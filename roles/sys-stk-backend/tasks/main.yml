@@ -37,6 +37,13 @@
     - lookup('objstore', application_id, 'shared') | bool
     - application_id != lookup('objstore', application_id, 'id')
 
+- name: "For '{{ application_id }}': Load central engines (per-consumer provisioning)"
+  include_role:
+    name: sys-svc-engine
+    public: false
+  vars:
+    engine_consumer_id: "{{ application_id }}"
+
 - name: "For '{{ application_id }}': Load sys-svc-compose"
   include_role:
     name: sys-svc-compose

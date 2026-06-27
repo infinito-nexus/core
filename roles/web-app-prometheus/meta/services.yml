@@ -6,7 +6,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: prometheus
       port: "9090"
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-prometheus', role='administrator') }}"
@@ -40,6 +40,8 @@ javascript:
 # nocheck: playwright-service-flag — self-provider
 prometheus:
   bond: 1
+  # nocheck: default-placement-manager  TSDB on-disk data; node-local in swarm
+  default_placement: manager
   enabled: true
   shared: true
   provides:
@@ -58,6 +60,8 @@ prometheus:
     local:
       sso: 16492
       http: 8066
+    internal:
+      http: 9090
   run_after:
     - web-app-keycloak
   lifecycle: beta

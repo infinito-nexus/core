@@ -8,12 +8,13 @@
 # instance directory). Rendering before that fails with
 # `Destination directory /opt/compose/jenkins does not exist`.
 - name: "Render Jenkins JCasC config"
-  template:
+  stack_host_template:
     src: casc.yaml.j2
     dest: "{{ JENKINS_CASC_FILE }}"
     mode: "0644"
   notify:
     - compose up
+  when: IS_STACK_HOST | bool
 
 # `sys-svc-compose` auto-discovers and lays down the Dockerfile, but
 # the Dockerfile `COPY` lines reference sidecar artefacts (plugins.txt,
@@ -22,7 +23,7 @@
 # `docker compose build` step fails with `failed to calculate checksum
 # of ref ...: "/plugins.txt": not found`.
 - name: "Stage Jenkins build-context sidecar files into the compose dir"
-  ansible.builtin.copy:
+  stack_host_copy:
     src: "{{ item }}"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item ] | path_join }}"
     mode: "0644"

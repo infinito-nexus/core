@@ -26,6 +26,8 @@ phpmyadmin:
     local:
       sso: 16481
       http: 8034
+    internal:
+      http: 80
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -42,7 +44,7 @@ sso:
   oauth2:
     origin:
       port: "80"
-      host: application
+      host: phpmyadmin
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-phpmyadmin', role='administrator') }}"
 css:

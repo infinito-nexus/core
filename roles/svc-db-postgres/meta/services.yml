@@ -1,5 +1,7 @@
 ---
 postgres:
+  # nocheck: default-placement-manager  central RDBMS, single-node until multi-replica replication (streaming / logical) is in scope
+  default_placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -15,5 +17,7 @@ postgres:
   pids_limit: 1024
   ports:
     local:
+      postgres: 5432
+    internal:
       postgres: 5432
   lifecycle: beta

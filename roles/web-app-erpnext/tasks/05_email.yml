@@ -5,7 +5,7 @@
     container exec -i \
       -e SITE_NAME -e MAIL_FROM_NAME -e MAIL_FROM_ADDRESS \
       -e SMTP_HOST -e SMTP_PORT -e SMTP_USER -e SMTP_PASS \
-      {{ ERPNEXT_BACKEND_CONTAINER }} \
+      {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -' < {{ role_path }}/files/scripts/apply_email_account.py
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"

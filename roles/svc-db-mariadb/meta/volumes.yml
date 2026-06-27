@@ -1,2 +1,7 @@
 ---
-data: mariadb_data
+data:
+  type: volume
+  name: mariadb_data
+  mounts:
+    - service: mariadb
+      target: /var/lib/mysql

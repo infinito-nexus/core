@@ -23,6 +23,8 @@
       shared: true
     postgres:
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -49,6 +51,8 @@
       enabled: false
       shared: false
     postgres:
+      shared: false
+    redis:
       shared: false
     prometheus:
       enabled: false

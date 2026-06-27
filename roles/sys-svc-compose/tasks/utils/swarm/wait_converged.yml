@@ -1,0 +1,47 @@
+---
+# Block until a swarm service's task reaches desired-state=running. Swarm only;
+# in compose the flushed `compose up` already blocks until the container is up.
+#
+# Param: wait_service_key    - swarm service key
+# Param: wait_retries        - retries (default 600)
+# Param: wait_delay          - delay seconds (default 2)
+# Param: wait_run_host       - host that runs the manager-only query (default: inventory_hostname)
+- when: DEPLOYMENT_MODE == 'swarm'
+  block:
+    - name: "swarm | wait for '{{ wait_service_key }}' task to converge"
+      ansible.builtin.shell: |
+        container service ps {{ lookup('container_service', application_id, wait_service_key) | quote }} \
+          --filter desired-state=running \
+          --format '{{ "{{.CurrentState}}" }}' \
+          | head -1 | grep -qE '^Running'
+      register: _swarm_converged
+      changed_when: false
+      retries: "{{ wait_retries | default(600) }}"
+      delay: "{{ wait_delay | default(2) }}"
+      until: _swarm_converged.rc == 0
+      delegate_to: "{{ wait_run_host | default(inventory_hostname) }}"
+
+  rescue:
+    - name: "swarm | dump '{{ wait_service_key }}' service ps + logs on converge failure"
+      ansible.builtin.shell: |
+        echo "===== container service ps {{ wait_service_key }} ====="
+        container service ps --no-trunc {{ lookup('container_service', application_id, wait_service_key) | quote }} 2>&1 || true
+        echo "===== container service logs (tail 50) ====="
+        container service logs --no-task-ids --tail 50 {{ lookup('container_service', application_id, wait_service_key) | quote }} 2>&1 || true
+      register: _swarm_converge_dump
+      changed_when: false
+      failed_when: false
+      delegate_to: "{{ wait_run_host | default(inventory_hostname) }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "swarm | show '{{ wait_service_key }}' converge diagnostics"
+      ansible.builtin.debug:
+        msg: "{{ (_swarm_converge_dump.stdout | default('')).split('\n') }}"
+      when: not (MASK_CREDENTIALS_IN_LOGS | bool)
+
+    - name: "swarm | abort with '{{ wait_service_key }}' converge root cause"
+      ansible.builtin.fail:
+        msg: >-
+          swarm service '{{ wait_service_key }}' did not converge after
+          {{ wait_retries | default(600) }} retries
+          (delay {{ wait_delay | default(2) }}s). See the service ps + logs dump above.

@@ -9,6 +9,7 @@ domains:
   aliases: []
   canonical:
     - suite.crm.{{ DOMAIN_PRIMARY }}
+client_max_body_size: 100M
 networks:
   local:
-    subnet: 192.168.104.112/28
+    subnet: 192.168.61.0/24

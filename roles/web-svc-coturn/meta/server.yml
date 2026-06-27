@@ -4,4 +4,4 @@ domains:
     - coturn.{{ DOMAIN_PRIMARY }}
 networks:
   local:
-    subnet: 192.168.104.48/28
+    subnet: 192.168.68.0/24

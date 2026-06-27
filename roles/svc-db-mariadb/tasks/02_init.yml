@@ -26,45 +26,36 @@
         config_file: ""
   when: MARIADB_EXPOSE_LOCAL | bool
 
-# ---------------------------------------------------------------------------
-# CI / Container path: no port publishing → initialize via container exec
-# ---------------------------------------------------------------------------
 - block:
     - name: "Create database: {{ database_name }} (container via mariadb CLI)"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MARIADB_NAME }}"
-          - mariadb
-          - -uroot
-          - "-p{{ MARIADB_ROOT_PWD }}"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i
+          {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: |
           SET @db_name   := '{{ database_name }}';
           SET @charset   := '{{ MARIADB_ENCODING }}';
           SET @collation := '{{ MARIADB_COLLATION }}';
           {{ lookup('file', role_path ~ '/files/sql/create_database.sql') }}
       register: mariadb_create_db
+      delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
 
     - name: "Create database user + grant privileges (container via mariadb CLI)"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MARIADB_NAME }}"
-          - mariadb
-          - -uroot
-          - "-p{{ MARIADB_ROOT_PWD }}"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i
+          {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: |
           SET @db_user := '{{ database_username }}';
           SET @db_pwd  := '{{ database_password | replace("'", "''") }}';
           SET @db_name := '{{ database_name }}';
           {{ lookup('file', role_path ~ '/files/sql/create_user_grant.sql') }}
       register: mariadb_create_user
+      delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
   when: not (MARIADB_EXPOSE_LOCAL | bool)

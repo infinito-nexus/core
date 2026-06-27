@@ -9,7 +9,7 @@
     cmd: "files/scripts/per_app_mapper/resolve_root_group_id.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
   register: per_app_root_id
@@ -31,7 +31,7 @@
     cmd: "files/scripts/per_app_mapper/ensure_app_group.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     APP_ID: "{{ kc_app_id }}"
     ROOT_GROUP_ID: "{{ kc_root_group_id }}"
@@ -50,7 +50,7 @@
     cmd: "files/scripts/per_app_mapper/purge_app_subgroups.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     APP_GROUP_ID: "{{ kc_app_group_id }}"
   changed_when: true
@@ -72,7 +72,7 @@
     cmd: "files/scripts/per_app_mapper/upsert_app_mapper.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
     MAPPER_NAME: "{{ kc_app_id | kc_per_app_mapper_name }}"
@@ -87,7 +87,7 @@
     cmd: "files/scripts/per_app_mapper/sync_app_mapper.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
     MAPPER_ID: "{{ (per_app_mapper_id_out.stdout | default('')) | trim }}"

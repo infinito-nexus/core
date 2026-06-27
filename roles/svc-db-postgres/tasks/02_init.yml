@@ -149,7 +149,7 @@
       failed_when: false
 
     - name: "POSTGRES | pg_isready inside container"
-      ansible.builtin.shell: "container exec {{ POSTGRES_CONTAINER }} pg_isready -U postgres || true"
+      ansible.builtin.shell: "container exec {{ POSTGRES_CONTAINER_ADDRESS }} pg_isready -U postgres || true"
       register: dbg_pg_isready
       changed_when: false
       failed_when: false
@@ -176,15 +176,10 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: "POSTGRES | Dump pg_hba.conf (best effort)"
-      ansible.builtin.shell: |
-        set -e
-        hba="$(container exec {{ POSTGRES_CONTAINER }} sh -lc 'PGPASSWORD={{ POSTGRES_PASSWORD | quote }} psql -U postgres -d postgres -Atc "SHOW hba_file;" 2>/dev/null' || true)"
-        if [ -n "$hba" ]; then
-          echo "hba_file=$hba"
-          container exec {{ POSTGRES_CONTAINER }} sh -lc "sed -n '1,200p' \"$hba\" 2>/dev/null || true"
-        else
-          echo "hba_file could not be determined"
-        fi
+      ansible.builtin.script: "{{ role_path }}/files/dump_pg_hba.sh"
+      environment:
+        POSTGRES_CONTAINER_ADDRESS: "{{ POSTGRES_CONTAINER_ADDRESS }}"
+        PGPASSWORD: "{{ POSTGRES_PASSWORD }}"
       register: dbg_pg_hba
       changed_when: false
       failed_when: false

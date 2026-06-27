@@ -74,6 +74,8 @@ api:
   ports:
     local:
       http: 8057
+    internal:
+      http: 9000
   min_storage: 5GB
   cpus: "0.5"
   mem_reservation: 256m
@@ -83,6 +85,8 @@ console:
   ports:
     local:
       http: 8058
+    internal:
+      http: 9001
   min_storage: 1GB
   cpus: "0.2"
   mem_reservation: 128m

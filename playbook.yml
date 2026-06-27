@@ -1,6 +1,7 @@
 ---
 - name: "Execute Infinito.Nexus Play"
   hosts: all
+  any_errors_fatal: true
   environment:
     CA_TRUST_CERT_HOST: "{{ CA_TRUST.cert_host }}"
     CA_TRUST_WRAPPER_HOST: "{{ CA_TRUST.wrapper_host }}"

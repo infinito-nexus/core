@@ -4,8 +4,8 @@
   changed_when: false
 
 - name: Check if OIDC plugin is already installed
-  command: >
-    container exec {{ PEERTUBE_CONTAINER }} test -d /data/plugins/data/peertube-plugin-auth-openid-connect
+  shell: >
+    container exec {{ PEERTUBE_CONTAINER_ADDRESS }} test -d /data/plugins/data/peertube-plugin-auth-openid-connect
   register: peertube_oidc_plugin_check
   failed_when: false
   changed_when: false
@@ -33,10 +33,10 @@
       # V8 heap is still capped tight — the cgroup bump above covers native
       # memory and spawned workers, while --max-old-space-size keeps the
       # install's V8 old-generation predictable.
-      ansible.builtin.command: >
+      ansible.builtin.shell: >
         container exec
         -e NODE_OPTIONS=--max-old-space-size={{ PEERTUBE_OIDC_PLUGIN_INSTALL_MAX_OLD_SPACE_MB }}
-        {{ PEERTUBE_CONTAINER }} npm run plugin:install -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }}
+        {{ PEERTUBE_CONTAINER_ADDRESS }} npm run plugin:install -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }}
       register: peertube_oidc_install
       changed_when: peertube_oidc_install.rc == 0
       retries: 3
@@ -79,7 +79,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/upsert-oidc-plugin.sql"
+    query: "{{ lookup('file', role_path ~ '/files/sql/upsert-oidc-plugin.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
     named_args:
       settings: "{{ oidc_settings | to_json }}"
   register: _peertube_oidc_update
@@ -89,8 +89,8 @@
   notify: compose up
 
 - name: "Ensure plugin is enabled in PeerTube (CLI)"
-  command: >
-    container exec {{ PEERTUBE_CONTAINER }} npm run plugin:enable -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }}
+  shell: >
+    container exec {{ PEERTUBE_CONTAINER_ADDRESS }} npm run plugin:enable -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }}
   register: _peertube_enable
   failed_when: false
   changed_when: >

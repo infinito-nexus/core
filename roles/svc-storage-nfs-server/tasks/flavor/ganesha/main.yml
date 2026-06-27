@@ -1,0 +1,38 @@
+---
+- name: "Install userspace nfs-ganesha packages"
+  ansible.builtin.package:
+    name: "{{ SVC_STORAGE_NFS_SERVER_PACKAGES['ganesha'][ansible_os_family] }}"
+    state: present
+
+# Debian/Ubuntu ship a broken nfs-ganesha-config.service that wedges the unit
+# start; mask it so the main nfs-ganesha service comes up.
+- name: "Mask the broken nfs-ganesha-config helper unit"
+  ansible.builtin.systemd:
+    name: nfs-ganesha-config.service
+    masked: true
+
+- name: "Ensure the ganesha config directory exists"
+  ansible.builtin.file:
+    path: /etc/ganesha
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "Render /etc/ganesha/ganesha.conf"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host NFS server config (NFS host is its own group, not the stack host))
+    src: ganesha.conf.j2
+    dest: /etc/ganesha/ganesha.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "Restart NFS ganesha"
+
+- name: "Enable and start nfs-ganesha"
+  ansible.builtin.systemd:
+    name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha'][ansible_os_family] }}"
+    enabled: true
+    state: started
+
+- name: "Flush handlers (ganesha restart applies the rendered export set)"
+  ansible.builtin.meta: flush_handlers

@@ -35,6 +35,8 @@ littlejs:
   ports:
     local:
       http: 8063
+    internal:
+      http: 80
   run_after:
     - web-app-matomo
   lifecycle: alpha

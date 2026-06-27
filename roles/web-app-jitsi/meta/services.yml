@@ -6,7 +6,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: jitsi-web
       port: 80
 ldap:
   bond: 1
@@ -57,6 +57,10 @@ jitsi:
       sso: 16505
     public:
       media: 10000
+    internal:
+      http: 80
+  proxy:
+    service_key: jitsi-web
   run_after:
     - web-app-keycloak
   lifecycle: beta

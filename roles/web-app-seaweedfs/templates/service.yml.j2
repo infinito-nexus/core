@@ -1,17 +1,13 @@
 {% if lookup('objstore', application_id, 'local') %}
 {% set _objstore = lookup('objstore', application_id) %}
   seaweedfs:
-    image: "{{ _objstore.image }}:{{ _objstore.version }}"
-    container_name: {{ _objstore.container }}
-    restart: {{ DOCKER_RESTART_POLICY }}
-    command:
-      - server
-      - -dir=/data
-      - -filer
-      - -s3
+    image: "{{ _objstore.image }}:{{ _objstore.version }}"  # nocheck: container-image-lookup
+    {{ lookup('compose_only', 'container_name', _objstore.container) }}
+    {{ lookup('compose_restart', DOCKER_RESTART_POLICY) }}
+    command: {{ '' | seaweedfs_command | to_json }}
     volumes:
       - seaweedfs:/data
-    networks:
+    networks:  # nocheck: networks-literal
       - default
     logging:
       driver: journald

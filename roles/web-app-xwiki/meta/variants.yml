@@ -22,6 +22,8 @@
       shared: true
     postgres:
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -46,6 +48,8 @@
       shared: false
     postgres:
       shared: false
+    redis:
+      shared: false
     prometheus:
       enabled: false
       shared: false
@@ -57,7 +61,7 @@
 # (tasks/02_validation.yml); the ldap service block is a static-false opt-in by
 # design (auto-enabling it would collide with sso when both partners deploy),
 # so the on-override is a sanctioned static override.
-- services:
+- services: # nocheck: variants-auth-isolation
     sso:
       enabled: false
       shared: false

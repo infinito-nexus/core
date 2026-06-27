@@ -1,0 +1,46 @@
+---
+- name: "Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-memcached'
+      - database_consumer_id != 'svc-db-memcached'
+
+- name: Wait until Memcached answers
+  block:
+    - name: "MEMCACHED | Confirm engine answers before provisioning (version handshake)"
+      ansible.builtin.shell: >
+        {{ MEMCACHED_EXEC_SHELL }}
+        '{{ MEMCACHED_PROBE }}'
+      register: memcached_ready
+      until: memcached_ready.rc == 0
+      retries: "{{ MEMCACHED_RETRIES }}"
+      delay: "{{ MEMCACHED_DELAY }}"
+      changed_when: false
+
+  rescue:
+    - name: "MEMCACHED | container logs (last 200 lines)"
+      ansible.builtin.command: "container logs --tail 200 {{ MEMCACHED_CONTAINER }}"
+      register: dbg_memcached_logs
+      changed_when: false
+      failed_when: false
+
+    - name: "MEMCACHED | Failure report"
+      ansible.builtin.debug:
+        msg:
+          memcached_container: "{{ MEMCACHED_CONTAINER }}"
+          memcached_host: "{{ MEMCACHED_LOCAL_HOST }}"
+          memcached_port: "{{ MEMCACHED_PORT }}"
+          last_logs: "{{ dbg_memcached_logs.stdout | default('') }}"
+
+    - name: "MEMCACHED | Fail explicitly after logs"
+      ansible.builtin.fail:
+        msg: >-
+          Memcached did not answer the version handshake.
+          Last 200 container log lines were printed above.
+
+- name: "MEMCACHED | No per-consumer provisioning (key-prefix isolation only)"
+  ansible.builtin.debug:
+    msg: >-
+      Memcached has no native auth or namespace; consumer '{{ database_consumer_id }}'
+      is isolated by the key-prefix '{{ database_consumer_id | get_entity_name }}' which
+      the 'engine' lookup resolves at consume time. Nothing to provision here.

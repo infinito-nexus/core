@@ -31,6 +31,8 @@ jenkins:
   ports:
     local:
       http: 8070
+    internal:
+      http: 8080
   run_after:
     - web-app-keycloak
     - web-app-matomo

@@ -42,6 +42,9 @@ espocrm:
     from_name: Customer Relationship Management ({{ DOMAIN_PRIMARY }})
   maintenance_mode: false
   ports:
+    internal:
+      http: 80
+      websocket: 8080
     local:
       websocket: 4002
       http: 8040

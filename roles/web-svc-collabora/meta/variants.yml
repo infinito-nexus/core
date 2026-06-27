@@ -9,12 +9,16 @@
     matomo:
       enabled: true
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
 - services:
     matomo:
       enabled: false
+      shared: false
+    redis:
       shared: false
     prometheus:
       enabled: false

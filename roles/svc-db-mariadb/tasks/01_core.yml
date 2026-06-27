@@ -16,30 +16,28 @@
   when: MARIADB_EXPOSE_LOCAL | bool
 
 - name: "Wait until the MariaDB container with hostname '{{ MARIADB_NAME }}' is running"
-  # We only wait for the container process here. A healthcheck can stay red
-  # when the persisted volume still has an older root password, and that would
-  # block the recovery reset path below. The login probe below retries so we
-  # do not treat normal startup lag as a password mismatch.
   community.docker.docker_container_info:
     name: "{{ MARIADB_NAME }}"
   register: db_info
   until:
     - db_info.container is defined
+    - db_info.container is not none
     - db_info.container.State.Running
   retries: 30
   delay: 5
+  when: DEPLOYMENT_MODE == 'compose'
 
 - block:
     - name: "Root password reset | Check login with desired password (inside container)"
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['container', 'exec', '-i', MARIADB_NAME, 'mariadb']
-            + (['-h127.0.0.1', '-P3306'] if MARIADB_EXPOSE_LOCAL else [])
-            + ['-uroot', '-p' ~ MARIADB_ROOT_PWD]
-          }}
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %}
+          -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
       register: mariadb_login_desired
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
       failed_when: false
@@ -49,20 +47,21 @@
 
     - name: "Ensure MariaDB root password matches desired value"
       include_tasks: 03_reset_root_password.yml
-      when: mariadb_login_desired.rc != 0
+      when:
+        - mariadb_login_desired.rc != 0
 
   when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool
 
 - name: "Wait until MariaDB accepts root credentials (inside container)"
-  ansible.builtin.command:
-    argv: >-
-      {{
-        ['container', 'exec', '-i', MARIADB_NAME, 'mariadb']
-        + (['-h127.0.0.1', '-P3306'] if MARIADB_EXPOSE_LOCAL else [])
-        + ['-uroot', '-p' ~ MARIADB_ROOT_PWD]
-      }}
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ MARIADB_CONTAINER_ADDRESS }}
+      sh -c 'mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %}
+      -uroot -p"$MARIADB_ROOT_PASSWORD"'
     stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
   register: mariadb_cli
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false
   retries: 30

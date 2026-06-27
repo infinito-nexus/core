@@ -35,6 +35,7 @@ CA_ROOT:
     CN: "{{ DOMAIN_PRIMARY }} Root CA"
 CA_TRUST:
   cert_host: "{{ CA_ROOT.cert_host }}"
+  cert_container: "/etc/ssl/certs/infinito-ca.pem"
   trust_name: "{{ DOMAIN_PRIMARY | lower }}"
   wrapper_host: "{{ BIN_CA_TRUST }}"
   inject_script: "{{ BIN_CA_INJECT }}"

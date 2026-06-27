@@ -1,0 +1,119 @@
+---
+- name: "Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-rabbitmq'
+      - database_consumer_id != 'svc-db-rabbitmq'
+
+- name: "Resolve consumer vhost + credentials"
+  ansible.builtin.set_fact:
+    rabbitmq_consumer_vhost: "{{ database_consumer_id | get_entity_name }}"
+    rabbitmq_consumer_username: "{{ lookup('engine', 'rabbitmq', database_consumer_id, 'username') }}"
+    rabbitmq_consumer_password: "{{ database_password | default(lookup('engine', 'rabbitmq', database_consumer_id, 'password')) | string }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: Wait until rabbitmqctl reaches the broker
+  block:
+    - name: "RABBITMQ | Wait for management API readiness"
+      ansible.builtin.shell: >
+        {{ RABBITMQ_EXEC_SHELL }}
+        'rabbitmqctl -q await_startup'
+      register: rmq_startup_ready
+      until: rmq_startup_ready.rc == 0
+      retries: 30
+      delay: 5
+      changed_when: false
+
+  rescue:
+    - name: "RABBITMQ | container logs (last 200 lines)"
+      ansible.builtin.command: "container logs --tail 200 {{ RABBITMQ_CONTAINER }}"
+      register: dbg_rmq_logs
+      changed_when: false
+      failed_when: false
+
+    - name: "RABBITMQ | Failure report"
+      ansible.builtin.debug:
+        msg:
+          rabbitmq_container: "{{ RABBITMQ_CONTAINER }}"
+          rabbitmq_host: "{{ RABBITMQ_LOCAL_HOST }}"
+          rabbitmq_port: "{{ RABBITMQ_PORT }}"
+          last_logs: "{{ dbg_rmq_logs.stdout | default('') }}"
+
+    - name: "RABBITMQ | Fail explicitly after logs"
+      ansible.builtin.fail:
+        msg: >-
+          RabbitMQ did not become ready for rabbitmqctl management requests.
+          Last 200 container log lines were printed above.
+
+- name: "RABBITMQ | List existing vhosts"
+  ansible.builtin.shell: >
+    {{ RABBITMQ_EXEC_SHELL }}
+    'rabbitmqctl -q list_vhosts --formatter json'
+  register: rmq_vhosts
+  changed_when: false
+  retries: "{{ RABBITMQ_RETRIES }}"
+  delay: "{{ RABBITMQ_DELAY }}"
+  until: rmq_vhosts.rc == 0
+
+- name: "Create vhost: {{ rabbitmq_consumer_vhost }}"
+  ansible.builtin.shell: >
+    {{ RABBITMQ_EXEC_SHELL }}
+    'rabbitmqctl -q add_vhost {{ rabbitmq_consumer_vhost | quote }}'
+  register: rmq_add_vhost
+  changed_when: rmq_add_vhost.rc == 0
+  retries: "{{ RABBITMQ_RETRIES }}"
+  delay: "{{ RABBITMQ_DELAY }}"
+  until: rmq_add_vhost.rc == 0
+  when: >
+    rabbitmq_consumer_vhost not in
+    (rmq_vhosts.stdout | from_json | map(attribute='name') | list)
+
+- name: "RABBITMQ | List existing users"
+  ansible.builtin.shell: >
+    {{ RABBITMQ_EXEC_SHELL }}
+    'rabbitmqctl -q list_users --formatter json'
+  register: rmq_users
+  changed_when: false
+  retries: "{{ RABBITMQ_RETRIES }}"
+  delay: "{{ RABBITMQ_DELAY }}"
+  until: rmq_users.rc == 0
+
+- name: "Create user: {{ rabbitmq_consumer_username }}"
+  ansible.builtin.shell: >
+    container exec -e RMQ_PW={{ rabbitmq_consumer_password | quote }} {{ RABBITMQ_CONTAINER_ADDRESS }} sh -lc
+    'rabbitmqctl -q add_user {{ rabbitmq_consumer_username | quote }} "$RMQ_PW"'
+  register: rmq_add_user
+  changed_when: rmq_add_user.rc == 0
+  retries: "{{ RABBITMQ_RETRIES }}"
+  delay: "{{ RABBITMQ_DELAY }}"
+  until: rmq_add_user.rc == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: >
+    rabbitmq_consumer_username not in
+    (rmq_users.stdout | from_json | map(attribute='user') | list)
+
+- name: "Ensure user password matches inventory: {{ rabbitmq_consumer_username }}"
+  ansible.builtin.shell: >
+    container exec -e RMQ_PW={{ rabbitmq_consumer_password | quote }} {{ RABBITMQ_CONTAINER_ADDRESS }} sh -lc
+    'rabbitmqctl -q change_password {{ rabbitmq_consumer_username | quote }} "$RMQ_PW"'
+  register: rmq_change_password
+  changed_when: false
+  retries: "{{ RABBITMQ_RETRIES }}"
+  delay: "{{ RABBITMQ_DELAY }}"
+  until: rmq_change_password.rc == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: >
+    rabbitmq_consumer_username in
+    (rmq_users.stdout | from_json | map(attribute='user') | list)
+
+- name: "Grant full permissions on vhost '{{ rabbitmq_consumer_vhost }}' to '{{ rabbitmq_consumer_username }}'"
+  ansible.builtin.shell: >
+    {{ RABBITMQ_EXEC_SHELL }}
+    'rabbitmqctl -q set_permissions -p {{ rabbitmq_consumer_vhost | quote }}
+    {{ rabbitmq_consumer_username | quote }} ".*" ".*" ".*"'
+  register: rmq_set_permissions
+  changed_when: false
+  retries: "{{ RABBITMQ_RETRIES }}"
+  delay: "{{ RABBITMQ_DELAY }}"
+  until: rmq_set_permissions.rc == 0

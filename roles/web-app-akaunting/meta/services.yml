@@ -27,7 +27,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: akaunting
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-akaunting', role='administrator') }}"
@@ -52,6 +52,8 @@ akaunting:
     local:
       http: 8025
       sso: 16499
+    internal:
+      http: 80
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -67,6 +69,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"

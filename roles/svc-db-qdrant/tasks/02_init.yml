@@ -1,0 +1,23 @@
+---
+- name: "Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-qdrant'
+      - database_consumer_id != 'svc-db-qdrant'
+
+- name: "QDRANT | Wait until HTTP API is ready (/readyz)"
+  ansible.builtin.shell: >
+    {{ QDRANT_EXEC_SHELL }}
+    'exec 3<>/dev/tcp/127.0.0.1/6333; printf "GET /readyz HTTP/1.0\r\n\r\n" >&3; grep -q "200 OK" <&3'
+  register: qdrant_init_ready
+  retries: 30
+  delay: "{{ QDRANT_DELAY }}"
+  until: qdrant_init_ready.rc == 0
+  changed_when: false
+
+- name: "QDRANT | Per-consumer collection namespace is prefix-only (no server-side provisioning)"
+  ansible.builtin.debug:
+    msg: >-
+      Qdrant consumer '{{ database_consumer_id }}' uses collection prefix
+      '{{ database_consumer_id | get_entity_name }}_' on central instance
+      '{{ QDRANT_CONTAINER }}'; nothing to provision server-side.

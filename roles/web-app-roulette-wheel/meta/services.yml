@@ -35,6 +35,8 @@ roulette-wheel:
   ports:
     local:
       http: 8013
+    internal:
+      http: 8080
   run_after:
     - web-app-matomo
   lifecycle: alpha

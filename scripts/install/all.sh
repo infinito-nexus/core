@@ -54,3 +54,4 @@ stamp_dir="$(dirname "${STAMP}")"
 mkdir -p "${stamp_dir}"
 chmod 0777 "${stamp_dir}" 2>/dev/null || true
 touch "${STAMP}"
+chmod 0777 "${STAMP}" 2>/dev/null || true

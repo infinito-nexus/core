@@ -23,6 +23,8 @@ phpldapadmin:
     local:
       sso: 16486
       http: 8037
+    internal:
+      http: 8080
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -38,7 +40,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: phpldapadmin
       port: 8080
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-phpldapadmin', role='administrator') }}"

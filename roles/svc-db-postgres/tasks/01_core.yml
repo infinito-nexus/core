@@ -18,8 +18,10 @@
 
 - name: "POSTGRES | Wait until container is running (not restarting)"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ POSTGRES_CONTAINER }}
+    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ POSTGRES_CONTAINER_ADDRESS }}
   register: pg_state
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   retries: 120
   delay: 2
   until: >
@@ -29,9 +31,11 @@
 
 - name: "POSTGRES | Confirm SQL works (socket)"
   ansible.builtin.shell: >
-    container exec --user postgres {{ POSTGRES_CONTAINER }} sh -lc
+    container exec --user postgres {{ POSTGRES_CONTAINER_ADDRESS }} sh -lc
     'psql -U postgres -d postgres -Atc "SELECT 1" >/dev/null'
   register: pg_sql_ready
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   retries: 30
   delay: 2
   until: pg_sql_ready.rc == 0
@@ -40,9 +44,11 @@
 - name: "POSTGRES | Ensure postgres superuser password matches inventory"
   ansible.builtin.script: >
     set_postgres_superuser_password.sh
-    {{ POSTGRES_CONTAINER | quote }}
+    {{ POSTGRES_CONTAINER_ADDRESS | quote }}
     {{ POSTGRES_PASSWORD | quote }}
   register: postgres_pw_result
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: >
     postgres_pw_result.stdout is search('\\[CHANGED\\]')

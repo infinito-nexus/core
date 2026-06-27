@@ -11,6 +11,10 @@ libretranslate:
     local:
       http: 8045
       sso: 16493
+    internal:
+      http: 5000
+  proxy:
+    service_key: libretranslate
   lifecycle: beta
   cpus: "0.2"
   mem_reservation: 128m
@@ -50,6 +54,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

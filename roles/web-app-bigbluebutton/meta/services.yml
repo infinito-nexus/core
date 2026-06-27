@@ -56,13 +56,19 @@ bigbluebutton:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
+  name: bigbluebutton-postgres-1
   shared: false
   enabled: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 greenlight:
+  name: bigbluebutton-greenlight-1
   enabled: true
   shared: false
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
 # nocheck: playwright-service-flag — infrastructural sub-component (TURN/STUN)
 coturn:
   bond: 1

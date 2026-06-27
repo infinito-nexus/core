@@ -2,11 +2,9 @@
 application_id: "web-app-erpnext"
 entity_name: "{{ application_id | get_entity_name }}"
 
-ERPNEXT_IMAGE: "{{ lookup('config', application_id, 'services.erpnext.image') }}"
-ERPNEXT_VERSION: "{{ lookup('config', application_id, 'services.erpnext.version') }}"
-
 ERPNEXT_BACKEND_CONTAINER: "erpnext-backend"
 ERPNEXT_FRONTEND_CONTAINER: "erpnext-frontend"
+ERPNEXT_BACKEND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'backend') }}"
 ERPNEXT_WEBSOCKET_CONTAINER: "erpnext-websocket"
 ERPNEXT_SCHEDULER_CONTAINER: "erpnext-scheduler"
 ERPNEXT_QUEUE_SHORT_CONTAINER: "erpnext-queue-short"
@@ -15,13 +13,9 @@ ERPNEXT_CONFIGURATOR_CONTAINER: "erpnext-configurator"
 
 ERPNEXT_BACKEND_PORT: 8000
 ERPNEXT_WEBSOCKET_PORT: 9000
-ERPNEXT_FRONTEND_PORT: 8080
 
 ERPNEXT_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ERPNEXT_SITE_NAME: "{{ ERPNEXT_HOSTNAME }}"
-
-ERPNEXT_SITES_VOLUME: "{{ lookup('config', application_id, 'volumes.sites') }}"
-ERPNEXT_LOGS_VOLUME: "{{ lookup('config', application_id, 'volumes.logs') }}"
 
 ERPNEXT_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.initial_admin_password') }}"
 ERPNEXT_API_BOT_PASSWORD: "{{ lookup('config', application_id, 'credentials.api_bot_password') }}"
@@ -44,8 +38,7 @@ ERPNEXT_DB_ROOT_PASSWORD: >-
      if (lookup('config', application_id, 'services.mariadb.shared') | bool)
      else lookup('database', application_id, 'password') }}
 
-ERPNEXT_REDIS_HOST: "redis"
-ERPNEXT_REDIS_PORT: 6379
+ERPNEXT_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
 ERPNEXT_MAIL: "{{ lookup('email', application_id) if ERPNEXT_EMAIL_ENABLED else {} }}"
 

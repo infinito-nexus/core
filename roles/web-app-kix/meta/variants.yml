@@ -23,6 +23,8 @@
     matomo:
       enabled: true
       shared: true
+    redis:
+      shared: true
     sso:
       enabled: true
       shared: true
@@ -47,6 +49,8 @@
       shared: false
     matomo:
       enabled: false
+      shared: false
+    redis:
       shared: false
     sso:
       enabled: false

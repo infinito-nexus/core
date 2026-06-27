@@ -17,6 +17,7 @@
       indicates that a service was loaded outside the constructor service-loader path.
   when:
     - "'web-app-mailu' in group_names"
+    - MODE_ASSERT_LOCAL | bool
 
 - name: Setup emails via localhost
   include_role:

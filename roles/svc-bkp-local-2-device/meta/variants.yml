@@ -1,0 +1,12 @@
+---
+# Matrix-deploy variant overrides for svc-bkp-local-2-device.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant 0: pin non-empty USB backup paths so the config assert passes and the
+# plug-triggered backup service deploys. No device appears in CI, so the .mount
+# unit only waits and the oneshot backup never fires.
+- services:
+    local-2-device:
+      mount: /mnt/backup-to-device
+      target: /infinito
+      source: /Backups

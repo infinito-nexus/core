@@ -21,7 +21,7 @@
     mode: "0755"
 
 - name: Copy the extensions policy file for Chromium
-  template:
+  template: # nocheck: stack-host-template (per-host workstation chromium policy)
     src: extensions_policy.json.j2
     dest: /etc/chromium/policies/managed/extensions_policy.json
     mode: "0644"

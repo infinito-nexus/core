@@ -22,7 +22,7 @@
       }}
 
 - name: Deploy default CSS files
-  template:
+  stack_host_template:
     src: "{{ ['css', css_file ~ '.j2'] | path_join }}"
     dest: "{{ [lookup('cdn', 'web-svc-cdn').shared.css, css_file] | path_join }}"
     mode: "0644"

@@ -86,6 +86,28 @@ class TestComposeFArgs(unittest.TestCase):
 
         self.assertEqual(out, "-f /x/compose.yml -f /x/compose.override.yml")
 
+    def test_flag_kwarg_emits_compose_file_for_stack_deploy(self):
+        with (
+            patch.object(
+                self.m, "get_docker_paths", side_effect=self._stub_get_docker_paths
+            ),
+            patch.object(self.m, "_role_provides_override", return_value=True),
+            patch.object(
+                self.m.lookup_loader, "get", return_value=_TlsResolveStub(False, "off")
+            ),
+        ):
+            out = self.lookup.run(
+                ["web-app-a"], variables=self.vars, flag="--compose-file"
+            )[0]
+
+        self.assertEqual(
+            out, "--compose-file /x/compose.yml --compose-file /x/compose.override.yml"
+        )
+
+    def test_invalid_flag_rejected(self):
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(["web-app-a"], variables=self.vars, flag="-bad")
+
     def test_includes_ca_override_when_self_signed_and_domain_exists(self):
         with (
             patch.object(

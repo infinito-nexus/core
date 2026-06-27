@@ -5,7 +5,7 @@
     container exec -i \
       -e SITE_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN \
       -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR \
-      {{ ERPNEXT_BACKEND_CONTAINER }} \
+      {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -' < {{ role_path }}/files/scripts/apply_ldap_source.py
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"

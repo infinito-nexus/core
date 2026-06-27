@@ -6,7 +6,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: bookwyrm
       port: 8000
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-bookwyrm', role='administrator') }}"
@@ -37,9 +37,11 @@ postgres:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -59,6 +61,8 @@ bookwyrm:
     local:
       http: 8049
       sso: 16498
+    internal:
+      http: 8000
   run_after:
     - web-app-matomo
     - web-app-keycloak

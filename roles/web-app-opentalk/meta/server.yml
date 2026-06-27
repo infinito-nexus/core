@@ -25,4 +25,4 @@ csp:
       - "blob:"
 networks:
   local:
-    subnet: 192.168.105.64/28
+    subnet: 192.168.45.0/24

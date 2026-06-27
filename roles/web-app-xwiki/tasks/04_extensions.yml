@@ -35,98 +35,12 @@
   register: _put_page
 
 - block:
-    - name: "XWIKI | Execute installer page"
-      uri_retry:
-        url: "{{ XWIKI_DOCKER_REACH_URL }}/bin/view/XWiki/InstallExtensions?xpage=plain"
-        method: GET
-        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-        force_basic_auth: true
-        status_code: [200]
-        return_content: true
-        timeout: 300
-      register: _exec_page
-      retries: 12
-      delay: 20
-      until:
-        - _exec_page is succeeded
-        - (_exec_page.content | default('')) is not search('WARN::')
-      changed_when: false
-
-    - name: "XWIKI | Assert installer output has no errors"
-      assert:
-        that:
-          - (_exec_page.content | default('')) is not search('ERROR::')
-          - (_exec_page.content | default('')) is not search('INSTALLED_MISSING::')
-          - (_exec_page.content | default('')) is not search('WARN::')
-        fail_msg: |
-          XWiki extension installer reported errors.
-          Output:
-          {{ _exec_page.content | default('') }}
+    - name: "XWIKI | Load installer-page execution + assertion routines"
+      include_tasks: 04b_extensions_execute.yml
 
   rescue:
-    - name: "XWIKI | DEBUG | Show installer page output"
-      debug:
-        var: _exec_page.content
-
-    - name: "XWIKI | DEBUG | Repo reachability from container (nexus + maven central)"
-      ansible.builtin.shell: |
-        set -euo pipefail
-        container exec "{{ XWIKI_CONTAINER }}" sh -lc '
-          echo "== DNS ==";
-          (getent hosts nexus.xwiki.org || true);
-          (getent hosts repo1.maven.org || true);
-          echo "== HTTP ==";
-          (wget -S -O- -T 10 https://nexus.xwiki.org/ 2>&1 | head -n 30) || true;
-          (wget -S -O- -T 10 https://repo1.maven.org/maven2/ 2>&1 | head -n 30) || true;
-        '
-      register: _dbg_net
-      changed_when: false
-      failed_when: false
-
-    - name: "XWIKI | DEBUG | Dump mounted xwiki.properties (first 200 lines)"
-      ansible.builtin.shell: |
-        set -euo pipefail
-        container exec "{{ XWIKI_CONTAINER }}" sh -lc '
-          echo "== xwiki.properties ==";
-          ls -la /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties || true;
-          sed -n "1,200p" /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties 2>/dev/null || true;
-          echo "== extension.repositories ==";
-          grep -n "^[[:space:]]*extension\.repositories" /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties 2>/dev/null || true;
-        '
-      register: _dbg_props
-      changed_when: false
-      failed_when: false
-
-    - name: "XWIKI | DEBUG | Tail container logs"
-      ansible.builtin.shell: |
-        set -euo pipefail
-        container logs --tail 300 "{{ XWIKI_CONTAINER }}" || true
-      register: _dbg_logs
-      changed_when: false
-      failed_when: false
-
-    - name: "XWIKI | DEBUG | Print debug outputs"
-      debug:
-        msg: |
-          ===== XWIKI DEBUG NET =====
-          {{ _dbg_net.stdout | default('') }}
-          {{ _dbg_net.stderr | default('') }}
-
-          ===== XWIKI DEBUG PROPS =====
-          {{ _dbg_props.stdout | default('') }}
-          {{ _dbg_props.stderr | default('') }}
-
-          ===== XWIKI DEBUG LOGS =====
-          {{ _dbg_logs.stdout | default('') }}
-          {{ _dbg_logs.stderr | default('') }}
-
-    - name: "XWIKI | FAIL | Extension installation failed (see debug above)"
-      fail:
-        msg: |
-          Extension installation failed.
-          Installer output:
-          {{ _exec_page.content | default('') }}
+    - name: "XWIKI | Load extension-install rescue/debug routines"
+      include_tasks: 04a_extensions_rescue.yml
 
   always:
     - name: "XWIKI | Delete installer page (best effort)"

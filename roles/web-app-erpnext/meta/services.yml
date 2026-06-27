@@ -61,10 +61,21 @@ erpnext:
     local:
       http: 8079
       websocket: 4004
+    internal:
+      http: 8080
+      websocket: 9000
+  proxy:
+    service_key: erpnext-frontend
   run_after:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
+  cpus: "2.0"
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 2048
+backend:
+  name: erpnext-backend
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

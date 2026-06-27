@@ -5,7 +5,7 @@
     -e CONFIG_KEY={{ item.key }}
     -e CONFIG_VALUE={{ item.value | quote }}
     -e CONFIG_FILE={{ ESPOCRM_CONFIG_FILE_PRIVATE | quote }}
-    {{ ESPOCRM_CONTAINER }} sh < {{ role_path }}/files/patch_config_key.sh
+    {{ ESPOCRM_CONTAINER_ADDRESS }} sh < {{ role_path }}/files/patch_config_key.sh
   loop:
     - { key: host, value: "{{ lookup('database', application_id, 'host') }}" }
     - { key: dbname, value: "{{ lookup('database', application_id, 'name') }}" }
@@ -19,11 +19,9 @@
 - name: Ensure siteUrl matches canonical domain
   ansible.builtin.shell:
     cmd: >-
-      {{ BIN_COMPOSE }} exec -T
+      container exec -i --user {{ ESPOCRM_USER }}
       -e ESPOCRM_URL={{ ESPOCRM_URL | quote }}
-      --user {{ ESPOCRM_USER }}
-      {{ ESPOCRM_SERVICE }} php
+      {{ ESPOCRM_CONTAINER_ADDRESS | quote }} php
     stdin: "{{ lookup('file', 'set_siteurl.php') }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: siteurl_set
   changed_when: "'CHANGED' in siteurl_set.stdout"

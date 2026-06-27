@@ -84,9 +84,33 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     postgres:
       start: 5432
       end: 5432
+    redis:
+      start: 6379
+      end: 6379
+    memcached:
+      start: 11211
+      end: 11211
+    rabbitmq:
+      start: 5672
+      end: 5672
+    typesense:
+      start: 8108
+      end: 8108
+    qdrant:
+      start: 6333
+      end: 6333
+    elasticsearch:
+      start: 9200
+      end: 9200
     ldap:
       start: 389
       end: 389
+    unbound:
+      start: 53
+      end: 53
+    registry:
+      start: 5000
+      end: 5001
   public:
     ssh:
       start: 2201
@@ -109,3 +133,36 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     relay:
       start: 20000
       end: 65535
+    smtp:
+      start: 25
+      end: 25
+    smtps:
+      start: 465
+      end: 465
+    submission:
+      start: 587
+      end: 587
+    pop3:
+      start: 110
+      end: 110
+    pop3s:
+      start: 995
+      end: 995
+    imap:
+      start: 143
+      end: 143
+    imaps:
+      start: 993
+      end: 993
+    sieve:
+      start: 4190
+      end: 4190
+    rtmp:
+      start: 1935
+      end: 1935
+    c2s:
+      start: 5222
+      end: 5222
+    s2s:
+      start: 5269
+      end: 5269

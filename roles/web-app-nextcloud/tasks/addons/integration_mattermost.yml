@@ -20,5 +20,7 @@
   failed_when: false
 
 - name: Provision the bidirectional Mattermost <-> Nextcloud OAuth coupling
-  include_tasks: "{{ [role_path, 'tasks/addons/integration_mattermost_provision.yml'] | path_join }}"
-  when: (nextcloud_mm_partner_running.stdout | trim) == 'true'
+  include_tasks: integration_mattermost_provision.yml
+  when:
+    - IS_STACK_HOST | bool
+    - (nextcloud_mm_partner_running.stdout | trim) == 'true'

@@ -6,7 +6,7 @@
       -e SITE_NAME -e PROVIDER_NAME -e BUTTON_TEXT \
       -e CLIENT_ID -e CLIENT_SECRET -e ISSUER_URL \
       -e GROUP_ROLE_MAP_JSON \
-      {{ ERPNEXT_BACKEND_CONTAINER }} \
+      {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -' < {{ role_path }}/files/scripts/apply_oidc_settings.py
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
@@ -31,7 +31,7 @@
 - name: "wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after OIDC restart"
   ansible.builtin.shell: |
     set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
+    container exec {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
   register: erpnext_backend_ready_post_oidc
   changed_when: false

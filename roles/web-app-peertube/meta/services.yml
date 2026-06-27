@@ -24,9 +24,11 @@ email:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 512m
@@ -64,6 +66,11 @@ peertube:
   ports:
     local:
       http: 8011
+    public:
+      rtmp: 1935
+    internal:
+      http: 9000
+      rtmp: 1935
   run_after:
     - web-app-keycloak
   lifecycle: beta

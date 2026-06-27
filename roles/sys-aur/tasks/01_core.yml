@@ -17,6 +17,12 @@
       - git
     state: present
 
+- name: Ensure the AUR builder primary group exists
+  become: true
+  ansible.builtin.group:
+    name: "{{ AUR_BUILDER_GROUP }}"
+    state: present
+
 - name: Create the AUR builder user
   become: true
   ansible.builtin.user:

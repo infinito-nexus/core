@@ -1,2 +1,7 @@
 ---
-data: matomo_data
+data:
+  type: volume
+  name: matomo_data
+  mounts:
+    - service: matomo
+      target: /var/www/html

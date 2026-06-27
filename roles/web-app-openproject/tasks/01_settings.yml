@@ -14,10 +14,8 @@
 
 - name: Run database migrations
   shell: >
-    {{ BIN_COMPOSE }} exec {{ OPENPROJECT_WEB_SERVICE }} bash -lc
+    container exec -i {{ OPENPROJECT_WEB_CONTAINER_ADDRESS | quote }} bash -lc
     "cd /app && bin/rails db:migrate RAILS_ENV=production"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: openproject_migrate
   retries: 30
   delay: 10
@@ -40,7 +38,7 @@
       - -i
       - -e
       - "OPENPROJECT_RAILS_SETTINGS={{ OPENPROJECT_RAILS_SETTINGS | to_json }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"

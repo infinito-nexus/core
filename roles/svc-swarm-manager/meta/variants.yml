@@ -1,0 +1,9 @@
+---
+- services:
+    node:
+      enabled: true
+      shared: true
+- services:
+    node:
+      enabled: false
+      shared: false

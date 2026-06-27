@@ -7,8 +7,6 @@
 
 - name: "Set emailVerified=true for all configured users in realm '{{ KEYCLOAK_REALM }}'"
   ansible.builtin.script: set_email_verified.sh
-  args:
-    chdir: "{{ role_path }}/files"
   environment:
     KEYCLOAK_EXEC_CONTAINER: "{{ KEYCLOAK_EXEC_CONTAINER }}"
     KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"

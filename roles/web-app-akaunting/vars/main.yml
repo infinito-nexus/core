@@ -1,18 +1,13 @@
 ---
-# General
 application_id: "web-app-akaunting"
 
-# Database
 database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
 
-# Akaunting
 AKAUNTING_URL: "{{ lookup('tls', application_id, 'url.base') }}"
-AKAUNTING_VERSION: "{{ lookup('config', application_id, 'services.akaunting.version') }}"
-AKAUNTING_IMAGE: "{{ lookup('config', application_id, 'services.akaunting.image') }}"
 AKAUNTING_REPOSITORY: "{{ lookup('config', application_id, 'services.akaunting.repository') }}"
 AKAUNTING_REF: "{{ lookup('config', application_id, 'services.akaunting.ref') }}"
 AKAUNTING_CONTAINER: "{{ lookup('config', application_id, 'services.akaunting.name') }}"
-AKAUNTING_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+AKAUNTING_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
 AKAUNTING_COMPANY_NAME: "{{ lookup('config', application_id, 'services.akaunting.company.name') }}"
 AKAUNTING_COMPANY_EMAIL: "{{ lookup('config', application_id, 'services.akaunting.company.email') }}"
 AKAUNTING_ADMIN_EMAIL: "{{ lookup('config', application_id, 'services.akaunting.setup_admin_email') }}"
@@ -21,5 +16,4 @@ AKAUNTING_SETUP_MARKER: "{{ [ (AKAUNTING_VOLUME | docker_volume_path), '.akaunti
 AKAUNTING_APP_KEY: "{{ lookup('config', application_id, 'credentials.app_key') }}"
 AKAUNTING_CACHE_DRIVER: "{{ 'redis' if lookup('config',application_id, 'services.redis.enabled') else 'file' }}"
 
-# Auth integrations
 AKAUNTING_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"

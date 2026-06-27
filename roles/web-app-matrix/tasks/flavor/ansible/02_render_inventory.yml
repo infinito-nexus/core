@@ -6,13 +6,13 @@
     mode: "0755"
 
 - name: "render MDAD inventory hosts file"
-  ansible.builtin.template:
+  stack_host_template:
     src: "flavor/ansible/hosts.j2"
     dest: "{{ MATRIX_MDAD_DIR }}/inventory/hosts"
     mode: "0644"
 
 - name: "render MDAD host_vars vars.yml"
-  ansible.builtin.template:
+  stack_host_template:
     src: "flavor/ansible/vars.yml.j2"
     dest: "{{ MATRIX_MDAD_DIR }}/inventory/host_vars/{{ MATRIX_SYNAPSE_DOMAIN }}/vars.yml"
     mode: "0644"

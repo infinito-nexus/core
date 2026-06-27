@@ -49,7 +49,7 @@
     mode: "0755"
 
 - name: "Copy REALM import file '{{ KEYCLOAK_REALM_IMPORT_FILE_SRC }}' to '{{ KEYCLOAK_REALM_IMPORT_FILE_DST }}'"
-  template:
+  stack_host_template:
     src: "{{ KEYCLOAK_REALM_IMPORT_FILE_SRC }}"
     dest: "{{ KEYCLOAK_REALM_IMPORT_FILE_DST }}"
     mode: "0770"

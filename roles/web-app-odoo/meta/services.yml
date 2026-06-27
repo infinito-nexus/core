@@ -47,6 +47,11 @@ odoo:
     local:
       websocket: 4003
       http: 8068
+    internal:
+      http: 8069
+      websocket: 8072
+  proxy:
+    service_key: odoo
   run_after:
     - web-app-keycloak
     - web-app-mailu
@@ -54,8 +59,9 @@ odoo:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   enabled: true
-  shared: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 512m

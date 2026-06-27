@@ -25,4 +25,4 @@ csp:
       unsafe-eval: true
 networks:
   local:
-    subnet: 192.168.104.96/28
+    subnet: 192.168.71.0/24

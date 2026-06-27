@@ -31,41 +31,19 @@
     database_username: "postgres"
     database_password: "{{ lookup('config', application_id, 'credentials.postgresql_secret') }}"
     database_name: "" # Multiple databases
-  when: "'svc-bkp-container-2-local' in group_names"
+  when:
+    - "'svc-bkp-container-2-local' in group_names"
+    - IS_STACK_HOST | bool
 
 - name: configure websocket_upgrade.conf
   copy:
     src: "websocket_upgrade.conf"
     dest: "{{ [ lookup('nginx','directories.configuration.maps'), 'websocket_upgrade.conf' ] | path_join }}"
+  when: IS_STACK_HOST | bool
   notify: restart openresty
 
-- name: "Set BBB Facts"
-  set_fact:
-    BBB_ENV_FILE_LINK: "{{ [ compose_repository_path, '.env' ] | path_join }}"
-    BBB_ENV_FILE_ORIGINE: "{{ lookup('container', application_id, 'files.env') }}"
-    BBB_COMPOSE_FILE_ORIGINE: "{{ [ compose_repository_path, 'docker-compose.yml' ] | path_join }}"
-    BBB_COMPOSE_FILE_FINAL: "{{ [ lookup('container', application_id, 'directories.instance'), 'compose.yml' ] | path_join }}"
+- name: "BBB manager-side operations (compose render + container exec)"
+  include_tasks: 01a_manager_ops.yml
+  when: IS_STACK_HOST | bool
 
-- name: Write compose.override.yml for BigBlueButton
-  template:
-    src: compose.override.yml.j2
-    dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'compose.override.yml' ] | path_join }}"
-  notify: compose up
-
-- name: Create symbolic link from .env file to target location
-  file:
-    src: "{{ BBB_ENV_FILE_ORIGINE }}"
-    dest: "{{ BBB_ENV_FILE_LINK }}"
-    state: link
-
-- name: "Setup compose.yml file"
-  include_tasks: "02_compose.yml"
-
-- name: flush docker service
-  meta: flush_handlers
-
-- name: "Ensure PostgreSQL password matches POSTGRESQL_SECRET"
-  include_tasks: "02a_postgres_password_sync.yml"
-
-- name: "Setup administrator"
-  include_tasks: "03_administrator.yml"
+- include_tasks: utils/once/flag.yml

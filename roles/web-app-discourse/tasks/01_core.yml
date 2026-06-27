@@ -10,4 +10,7 @@
   include_tasks: 03_docker.yml
 
 - name: "Setup '{{ application_id }}' network"
-  include_tasks: 04_network.yml
+  include_tasks: 05_network.yml
+  when:
+    - IS_STACK_HOST | bool
+    - lookup('database', application_id, 'shared')

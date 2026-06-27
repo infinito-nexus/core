@@ -1,0 +1,3 @@
+---
+database_init: false # When true a per-consumer ACL user is provisioned
+database_consumer_id: "svc-db-redis" # Self consumer

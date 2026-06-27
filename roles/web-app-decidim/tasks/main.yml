@@ -5,31 +5,6 @@
   vars:
     compose_handlers_flush: false
 
-- name: "Render allowed_hosts initializer for {{ application_id }}"
-  ansible.builtin.template:
-    src: "allowed_hosts.rb.j2"
-    dest: "{{ lookup('container', application_id, 'directories.instance') }}allowed_hosts.rb"
-    mode: "0644"
-  notify: compose up
-
-- name: "Deploy '{{ DECIDIM_PATCH_SCRIPT_HOST_ABS }}'"
-  copy:
-    src: "{{ DECIDIM_PATCH_SCRIPT_FILE }}"
-    dest: "{{ DECIDIM_PATCH_SCRIPT_HOST_ABS }}"
-  notify:
-    - compose build
-    - compose up
-
-- name: "Deploy '{{ DECIDIM_PATCH_RUBY_HOST_ABS }}'"
-  copy:
-    src: "{{ DECIDIM_PATCH_RUBY_DIR }}/"
-    dest: "{{ DECIDIM_PATCH_RUBY_HOST_ABS }}/"
-  notify:
-    - compose build
-    - compose up
-
-- name: "flush handlers of compose"
-  meta: flush_handlers
-
-- name: "Run Decidim setup routines"
-  include_tasks: 01_setup.yml
+- name: "Decidim manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

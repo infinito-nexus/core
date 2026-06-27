@@ -17,4 +17,4 @@ status_codes:
   default: 301
 networks:
   local:
-    subnet: 192.168.102.192/28
+    subnet: 192.168.65.0/24

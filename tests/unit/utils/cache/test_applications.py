@@ -89,6 +89,26 @@ class TestGetApplicationDefaults(unittest.TestCase):
             )
 
 
+class TestGetCanonicalVolumes(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_forces_rebuild_when_registry_empty(self):
+        cache_apps._CANONICAL_VOLUMES_BY_ROLE.clear()
+        self.assertIn(
+            "ollama_models",
+            cache_apps.get_canonical_volumes("svc-ai-ollama"),
+        )
+
+    def test_warm_defaults_cache_does_not_mask_empty_registry(self):
+        cache_apps.get_application_defaults()
+        cache_apps._CANONICAL_VOLUMES_BY_ROLE.clear()
+        self.assertIn(
+            "ollama_models",
+            cache_apps.get_canonical_volumes("svc-ai-ollama"),
+        )
+
+
 class TestGetVariants(unittest.TestCase):
     def setUp(self) -> None:
         _reset_cache_for_tests()

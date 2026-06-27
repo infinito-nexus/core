@@ -1,0 +1,51 @@
+# Managed by Ansible role svc-storage-nfs-server (flavor: ganesha / FSAL_VFS).
+# NFSv4-only userspace export set; Pseudo == Path so clients mount the real
+# paths unchanged (mirrors the kernel /etc/exports without an fsid=0 pseudo-root).
+NFS_CORE_PARAM {
+    Protocols = 4;
+    NLM_Param = false;
+    Enable_RPCSTATD = false;
+}
+
+NFSV4 {
+    Graceless = true;
+    Minor_Versions = 0, 1, 2;
+}
+
+EXPORT {
+    Export_Id = 1;
+    Path = {{ storage.nfs.export_base }};
+    Pseudo = {{ storage.nfs.export_base }};
+    Access_Type = RW;
+    Squash = Root_Squash;
+    SecType = sys;
+    Protocols = 4;
+    Transports = TCP;
+    FSAL { Name = VFS; }
+{% for ip in svc_storage_nfs_server_allowed_ips %}
+    CLIENT {
+        Clients = {{ ip }};
+        Access_Type = RW;
+        Squash = Root_Squash;
+    }
+{% endfor %}
+}
+
+EXPORT {
+    Export_Id = 2;
+    Path = {{ STORAGE_NFS_STATE_PATH }};
+    Pseudo = {{ STORAGE_NFS_STATE_PATH }};
+    Access_Type = RW;
+    Squash = No_Root_Squash;
+    SecType = sys;
+    Protocols = 4;
+    Transports = TCP;
+    FSAL { Name = VFS; }
+{% for cidr in SVC_STORAGE_NFS_SERVER_STATE_ALLOWED_CIDRS %}
+    CLIENT {
+        Clients = {{ cidr }};
+        Access_Type = RW;
+        Squash = No_Root_Squash;
+    }
+{% endfor %}
+}

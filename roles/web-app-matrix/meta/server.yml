@@ -21,4 +21,4 @@ domains:
 client_max_body_size: 15M
 networks:
   local:
-    subnet: 192.168.102.0/28
+    subnet: 192.168.32.0/24

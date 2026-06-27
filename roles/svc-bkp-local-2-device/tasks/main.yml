@@ -14,7 +14,7 @@
   assert:
     that:
       - BACKUP_TO_USB_MOUNT != ""
-      - BACKUP_TO_USB_target != ""
+      - BACKUP_TO_USB_TARGET != ""
       - BACKUP_TO_USB_SOURCE != ""
     fail_msg: |
       One or more of the configuration variables are empty!
@@ -27,3 +27,5 @@
 
 - include_role:
     name: sys-service
+  vars:
+    system_service_suppress_flush: true # plug-triggered via the .mount unit; no USB device at deploy time, so never ExecStart the oneshot during the flush

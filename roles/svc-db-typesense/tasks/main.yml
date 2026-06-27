@@ -1,0 +1,9 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_svc_db_typesense is not defined
+  vars:
+    application_id: svc-db-typesense
+
+- name: "Provision dedicated API key"
+  include_tasks: 02_init.yml
+  when: database_init | bool

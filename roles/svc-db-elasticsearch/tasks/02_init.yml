@@ -1,0 +1,109 @@
+---
+- name: "Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-elasticsearch'
+      - database_consumer_id != 'svc-db-elasticsearch'
+
+- name: "Resolve consumer index namespace + credentials"
+  ansible.builtin.set_fact:
+    elasticsearch_consumer_entity: "{{ database_consumer_id | get_entity_name }}"
+    elasticsearch_consumer_username: "{{ lookup('engine', 'elasticsearch', database_consumer_id, 'username') }}"
+    elasticsearch_consumer_password: "{{ database_password | default(lookup('engine', 'elasticsearch', database_consumer_id, 'password')) | string }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: Wait until elasticsearch security API works
+  block:
+    - name: "ELASTICSEARCH | Wait for security API"
+      ansible.builtin.shell: >
+        {{ ELASTICSEARCH_EXEC_SHELL }}
+        'curl -fsS -u "elastic:$ELASTIC_PW"
+        "{{ ELASTICSEARCH_API_BASE }}/_security/_authenticate" >/dev/null'
+      register: es_security_ready
+      until: es_security_ready.rc == 0
+      retries: 30
+      delay: 5
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+  rescue:
+    - name: "ELASTICSEARCH | container logs (last 200 lines)"
+      ansible.builtin.command: "container logs --tail 200 {{ ELASTICSEARCH_CONTAINER }}"
+      register: dbg_es_logs
+      changed_when: false
+      failed_when: false
+
+    - name: "ELASTICSEARCH | Failure report"
+      ansible.builtin.debug:
+        msg:
+          elasticsearch_container: "{{ ELASTICSEARCH_CONTAINER }}"
+          elasticsearch_host: "{{ ELASTICSEARCH_LOCAL_HOST }}"
+          elasticsearch_port: "{{ ELASTICSEARCH_PORT }}"
+          last_logs: "{{ dbg_es_logs.stdout | default('') }}"
+
+    - name: "ELASTICSEARCH | Fail explicitly after logs"
+      ansible.builtin.fail:
+        msg: >-
+          Elasticsearch did not become ready for security API requests.
+          Last 200 container log lines were printed above.
+
+- name: "Create role scoped to '{{ elasticsearch_consumer_entity }}-*' indices"
+  ansible.builtin.shell: >
+    {{ ELASTICSEARCH_EXEC_SHELL }}
+    'curl -fsS -u "elastic:$ELASTIC_PW"
+    -X PUT "{{ ELASTICSEARCH_API_BASE }}/_security/role/{{ elasticsearch_consumer_entity }}"
+    -H "Content-Type: application/json"
+    -d {{ {
+      "cluster": ["monitor"],
+      "indices": [
+        {
+          "names": [elasticsearch_consumer_entity ~ "-*"],
+          "privileges": ["all"],
+        }
+      ],
+    } | to_json | quote }}'
+  register: es_role_result
+  until: es_role_result.rc == 0
+  retries: "{{ ELASTICSEARCH_RETRIES }}"
+  delay: "{{ ELASTICSEARCH_DELAY }}"
+  changed_when: es_role_result.stdout is search('\"created\"\\s*:\\s*true')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Build elasticsearch user payload for {{ elasticsearch_consumer_username }}"
+  ansible.builtin.set_fact:
+    es_user_payload:
+      password: "{{ elasticsearch_consumer_password }}"
+      roles: ["{{ elasticsearch_consumer_entity }}"]
+      full_name: "{{ database_consumer_id }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Create user '{{ elasticsearch_consumer_username }}' bound to its index role"
+  ansible.builtin.shell: >
+    {{ ELASTICSEARCH_EXEC_SHELL }}
+    'curl -fsS -u "elastic:$ELASTIC_PW"
+    -X PUT "{{ ELASTICSEARCH_API_BASE }}/_security/user/{{ elasticsearch_consumer_username }}"
+    -H "Content-Type: application/json"
+    -d {{ es_user_payload | to_json | quote }}'
+  register: es_user_result
+  until: es_user_result.rc == 0
+  retries: "{{ ELASTICSEARCH_RETRIES }}"
+  delay: "{{ ELASTICSEARCH_DELAY }}"
+  changed_when: es_user_result.stdout is search('\"created\"\\s*:\\s*true')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "Ensure consumer index namespace exists: {{ elasticsearch_consumer_entity }}"
+  ansible.builtin.shell: >
+    {{ ELASTICSEARCH_EXEC_SHELL }}
+    'curl -sS -o /dev/null -w "%{http_code}" -u "elastic:$ELASTIC_PW"
+    -X PUT "{{ ELASTICSEARCH_API_BASE }}/{{ elasticsearch_consumer_entity }}-default"'
+  register: es_index_result
+  until: es_index_result.rc == 0 and es_index_result.stdout is search('20[0-9]|400')
+  retries: "{{ ELASTICSEARCH_RETRIES }}"
+  delay: "{{ ELASTICSEARCH_DELAY }}"
+  changed_when: es_index_result.stdout is search('200')
+  failed_when: >
+    es_index_result.rc != 0 or
+    es_index_result.stdout is not search('20[0-9]|400')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

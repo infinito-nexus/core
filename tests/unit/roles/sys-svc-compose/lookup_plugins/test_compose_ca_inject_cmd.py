@@ -232,6 +232,53 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
         self.assertIn("missing required variable 'CA_TRUST'", str(ctx.exception))
 
+    def _run_with_wrapper_kwarg(self, **run_kwargs):
+        docker_map = {
+            "directories.instance": "/opt/compose/app",
+            "files.env": ".env",
+            "files.compose_ca_override": "/opt/compose/app/compose.ca.override.yml",
+        }
+        compose_file_args = _FakeComposeFArgsLookup("-f compose.yml")
+
+        def _fake_get(name, _loader, _templar):
+            if name == "container":
+                return _FakeDockerLookup(docker_map)
+            if name == "compose_file_args":
+                return compose_file_args
+            raise AssertionError(f"Unexpected lookup requested: {name}")
+
+        variables = {
+            "CA_TRUST": {
+                "inject_script": "/usr/local/bin/compose_ca.py",
+                "cert_host": "/etc/infinito.nexus/ca/root-ca.crt",
+                "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
+                "trust_name": "infinito-root-ca",
+            }
+        }
+
+        with (
+            patch.object(self.mod.lookup_loader, "get", side_effect=_fake_get),
+            patch.object(
+                self.mod, "render_ansible_strict", side_effect=lambda **kw: kw["raw"]
+            ),
+            patch.object(self.mod, "get_entity_name", side_effect=lambda _x: "myproj"),
+        ):
+            lk = self._mk_lookup_module()
+            return lk.run(["web-app-test"], variables=variables, **run_kwargs)[0]
+
+    def test_no_wrapper_flag_appended_when_wrapper_false(self):
+        cmd = self._run_with_wrapper_kwarg(wrapper=False)
+        self.assertIn("--no-wrapper", cmd)
+
+    def test_no_wrapper_flag_absent_by_default(self):
+        cmd = self._run_with_wrapper_kwarg()
+        self.assertNotIn("--no-wrapper", cmd)
+
+    def test_wrapper_must_be_bool(self):
+        with self.assertRaises(AnsibleError) as ctx:
+            self._run_with_wrapper_kwarg(wrapper="yes")
+        self.assertIn("wrapper must be a bool", str(ctx.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

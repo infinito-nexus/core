@@ -1,0 +1,6 @@
+---
+credentials:
+  ELASTIC_PASSWORD:
+    description: Bootstrap password for the Elasticsearch built-in 'elastic' superuser
+    algorithm: alphanumeric
+    validation: ^[A-Za-z0-9]{64}$

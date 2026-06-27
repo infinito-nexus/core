@@ -1,0 +1,16 @@
+---
+nfs-server:
+  name: nfs-server
+  flavor: "{{ 'ganesha' if RUNTIME in ['dev', 'act'] else 'kernel' }}"
+  lifecycle: beta
+  skip:
+    - compose
+    - swarm
+  enabled: true
+  shared: true
+  bond: 1
+  min_storage: "100MB"
+  cpus: "0.2"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256

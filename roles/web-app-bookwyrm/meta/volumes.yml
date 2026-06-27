@@ -1,3 +1,17 @@
 ---
-data: bookwyrm_data
-media: bookwyrm_media
+data:
+  type: volume
+  name: bookwyrm_data
+  mounts:
+    - service: bookwyrm
+      target: /app/data
+    - service: worker
+      target: /app/data
+media:
+  type: volume
+  name: bookwyrm_media
+  mounts:
+    - service: bookwyrm
+      target: /app/media
+    - service: worker
+      target: /app/media

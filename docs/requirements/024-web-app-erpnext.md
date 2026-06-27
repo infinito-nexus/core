@@ -287,7 +287,7 @@ Before starting any implementation work, the agent MUST read [AGENTS.md](../../A
 
 The agent MUST execute this requirement **autonomously**. Open clarifications only when a decision is genuinely ambiguous and would otherwise block progress; default to the intent already captured in this document and proceed. Avoid back-and-forth questions on choices already resolved in [Confirmed Decisions](#confirmed-decisions).
 
-1. Read [Role Loop](../agents/action/iteration/role.md) before starting.
+1. Read [Compose Loop](../agents/action/iteration/compose.md) before starting.
 2. Scaffold the role using [`roles/web-app-odoo/`](../../roles/web-app-odoo/) as the structural template (closest analogue: ERP-shaped, OIDC + LDAP variants, central-service consumer pattern, dual HTTP + WebSocket vhost).
 3. Wire the upstream `frappe/erpnext` image into the compose template, plus the SocketIO, scheduler, three worker, and Nginx frontend containers (per [frappe_docker](https://github.com/frappe/frappe_docker)).
 4. Template `common_site_config.json` with the central MariaDB endpoint and the three Redis URLs split by DB number.

@@ -38,7 +38,7 @@
     user_key: "{{ USER_WORKSTATION_KEY }}"
 
 - name: Enable sudo via sudoers drop-in (optional)
-  ansible.builtin.template:
+  ansible.builtin.template: # nocheck: stack-host-template (per-host workstation sudoers drop-in)
     src: sudoers.j2
     dest: "/etc/sudoers.d/{{ USER_WORKSTATION_USERNAME }}"
     owner: root

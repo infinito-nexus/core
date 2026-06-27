@@ -15,13 +15,17 @@
       }}
   changed_when: false
 
-- name: "For '{{ application_id }}': include role sys-stk-front-proxy"
+- name: "For '{{ application_id }}': include role sys-stk-front-proxy (delegated to openresty host, run-once)"
   include_role:
     name: sys-stk-front-proxy
+    apply:
+      delegate_to: "{{ (groups['svc-prx-openresty'] | default([]))[0] | default(inventory_hostname) }}"
+      run_once: true
   vars:
     application_id: "{{ sys_stk_full_application_id }}"
     domain: "{{ sys_stk_full_domain }}"
     http_port: "{{ sys_stk_full_http_port }}"
+  when: (groups['svc-prx-openresty'] | default([])) | length > 0
 
 - name: "For '{{ application_id }}': load docker and db"
   include_role:

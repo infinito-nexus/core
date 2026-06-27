@@ -20,11 +20,6 @@ collections/
 .env
 logs/
 job-logs.txt
-.claude/skills
-.claude/agents
-.claude/commands
-.claude/hooks
-.claude/settings.local.json
 *.lock
 node_modules/
 
@@ -43,4 +38,3 @@ node_modules/
 .vscode
 .zprofile
 .zshrc
-

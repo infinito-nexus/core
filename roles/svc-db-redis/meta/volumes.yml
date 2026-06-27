@@ -1,0 +1,7 @@
+---
+data:
+  type: volume
+  name: redis_data
+  mounts:
+    - service: redis
+      target: /data
