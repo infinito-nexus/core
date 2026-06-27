@@ -27,6 +27,11 @@ on:
         required: false
         type: string
         default: "false"
+      trusted_pr:
+        description: "True when the PR carries the maintainer trusted-pr label; skips the fork-prereq wait."
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: infinito-test-${{ github.ref }}
@@ -42,23 +47,25 @@ jobs:
   wait-fork-prereq-run:
     name: ⏳ Wait for fork run
     runs-on: ubuntu-latest
+    env:
+      WAIT_REQUIRED: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && !inputs.trusted_pr }}
     steps:
-      - name: Mark fork prerequisites as ready outside fork PRs
-        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+      - name: Mark fork prerequisites as ready outside fork PRs or for trusted PRs
+        if: ${{ env.WAIT_REQUIRED != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
-          echo "Fork prerequisites are implicitly ready outside fork pull_request events."
+          echo "Fork prerequisites are implicitly ready (non-fork PR or trusted-pr label)."
 
       - name: Checkout trusted workflow repo (helpers)
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+        if: ${{ env.WAIT_REQUIRED == 'true' }}
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
       - name: Login to GHCR for CI image checks
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+        if: ${{ env.WAIT_REQUIRED == 'true' }}
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ghcr.io
@@ -66,7 +73,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Wait for privileged fork CI images
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+        if: ${{ env.WAIT_REQUIRED == 'true' }}
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -115,6 +122,8 @@ jobs:
     uses: ./.github/workflows/lint-markdown.yml
   lint-makefile:
     uses: ./.github/workflows/lint-makefile.yml
+  lint-packages:
+    uses: ./.github/workflows/lint-packages.yml
   lint-javascript:
     uses: ./.github/workflows/lint-javascript.yml
   lint-playwright:
@@ -128,6 +137,7 @@ jobs:
       - lint-shell
       - lint-markdown
       - lint-makefile
+      - lint-packages
       - lint-javascript
       - lint-playwright
     runs-on: ubuntu-latest

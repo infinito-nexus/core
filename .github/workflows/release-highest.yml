@@ -34,13 +34,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          source scripts/meta/env/load.sh
           owner="$(scripts/meta/resolve/repository/owner.sh)"
           repo_prefix="$(scripts/meta/resolve/repository/name.sh)"
-          distros="$(scripts/meta/resolve/distros.sh)"
           {
             echo "owner=${owner}"
             echo "repo_prefix=${repo_prefix}"
-            echo "distros=${distros}"
+            echo "distros=${INFINITO_DISTROS}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Login to GHCR (for manifest checks)

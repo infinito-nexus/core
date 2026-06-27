@@ -10,7 +10,6 @@ Examples in this folder and its subfolders:
 
 - `repository/name.sh` resolves the concrete repository name once for callers
 - `repository/owner.sh` resolves the concrete repository owner once for callers
-- `distros.sh` holds the canonical distro list used by workflows
 - See [pr/README.md](pr/README.md) for the Pull Request-specific resolvers.
 
 The scope of this folder is value resolution.

@@ -34,10 +34,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          source scripts/meta/env/load.sh
           {
             echo "owner=$(scripts/meta/resolve/repository/owner.sh)"
             echo "repo_prefix=$(scripts/meta/resolve/repository/name.sh)"
-            echo "distros=$(scripts/meta/resolve/distros.sh)"
+            echo "distros=${INFINITO_DISTROS}"
           } >> "$GITHUB_OUTPUT"
 
       - name: 📦 Install jq

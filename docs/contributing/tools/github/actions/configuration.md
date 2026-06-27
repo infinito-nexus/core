@@ -9,6 +9,7 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 | Variable | Workflow | Default (unset) | Set to activate |
 |---|---|---|---|
 | `CI_CANCEL_IN_PROGRESS` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Cancels in-progress runs on new push | `false` to keep in-progress runs alive |
+| `CI_SYNC_MAIN_SOURCE_REPOSITORY` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Syncs `main` from `infinito-nexus/core` before CI scope discovery | `<owner>/<repo>` to use another source, or `false`, empty, or the current repository to skip |
 | `CI_RUN_ON_MAIN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Pushes to `main` skip CI | `true` to run CI on `main` pushes too |
 | `CI_ENABLE_AUTO_UPDATES` | [update.yml](../../../../../.github/workflows/update.yml), [dependabot-close.yml](../../../../../.github/workflows/dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
 | `INFINITO_PLAYWRIGHT_KEEP` | [test-deploy-server.yml](../../../../../.github/workflows/test-deploy-server.yml), [test-deploy-universal.yml](../../../../../.github/workflows/test-deploy-universal.yml), [test-deploy-workstation.yml](../../../../../.github/workflows/test-deploy-workstation.yml), [test-deploy-local.yml](../../../../../.github/workflows/test-deploy-local.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included) |
@@ -44,6 +45,40 @@ cancel-in-progress: ${{ vars.CI_CANCEL_IN_PROGRESS != 'false' }}
 | *(not set / empty)* | `'' != 'false'` → `true` | Cancels in-progress runs ✓ |
 | `false` | `'false' != 'false'` → `false` | Does **not** cancel ✓ |
 | `true` | `'true' != 'false'` → `true` | Cancels in-progress runs ✓ |
+
+## `CI_SYNC_MAIN_SOURCE_REPOSITORY` 🔄
+
+Controls whether the push workflow updates the current repository's `main` branch before any later job derives deploy scope from `origin/main`.
+This keeps fork branch pushes aligned with the canonical default branch so diff-driven role discovery sees only the branch's own changes.
+
+> ⚠️ **Forced overwrite — do not work in `main`.**
+> When the sync runs, the current repository's `main` is **force-pushed** from the source repository's `main`. Any commit that exists only on the fork's `main` is **discarded without warning** on the next push to any covered branch.
+> Never commit or merge work directly into `main` on a synced repository. Always work on a `feature/**`, `fix/**`, or `hotfix/**` branch; treat `main` as a read-only mirror of the source.
+> If you must use `main` as a working branch, disable the sync first (see **To disable the sync** below).
+
+**Default behaviour (variable not set):**
+The workflow uses `infinito-nexus/core` as the source repository.
+When the current repository is already `infinito-nexus/core`, the same-repository skip applies.
+
+**To use a different source repository:**
+
+1. Open the repository on GitHub.
+2. Go to **Settings → Secrets and variables → Actions**.
+3. Switch to the **Variables** tab.
+4. Click **New repository variable**.
+5. Set **Name** to `CI_SYNC_MAIN_SOURCE_REPOSITORY` and **Value** to `<owner>/<repo>`.
+6. Save.
+
+**To disable the sync:**
+
+Set the variable to `false`, `0`, `no`, `off`, `none`, an empty value, or the current repository name.
+
+| Variable value | Behaviour |
+|---|---|
+| *(not set)* | Uses `infinito-nexus/core`; syncs forks and skips in `infinito-nexus/core` itself ✓ |
+| `infinito-nexus/core` in a fork | Syncs the fork's `main` from `infinito-nexus/core` ✓ |
+| current repository | Sync skipped ✓ |
+| `false`, `0`, `no`, `off`, `none`, or empty | Sync skipped ✓ |
 
 ## `CI_RUN_ON_MAIN` 🎯
 

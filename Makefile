@@ -332,6 +332,7 @@ lint: install-lint
 		lint-javascript \
 		lint-makefile \
 		lint-markdown \
+		lint-packages \
 		lint-playwright \
 		lint-python \
 		lint-shellcheck
@@ -362,6 +363,13 @@ lint-makefile: install-lint
 # Run Markdown lint checks via markdownlint-cli2.
 lint-markdown: install-lint
 	@bash scripts/lint/wrapper.sh markdown
+
+.PHONY: lint-packages
+# Validate distro packaging metadata (debian changelog, fedora spec, arch PKGBUILD).
+# Note: provisions the native parsers explicitly, then validates; absent tools are skipped.
+lint-packages: install-lint
+	@bash scripts/install/wrapper.sh packages
+	@bash scripts/lint/wrapper.sh packages
 
 .PHONY: lint-playwright
 # Verify every role's Playwright spec parses + resolves its helpers.

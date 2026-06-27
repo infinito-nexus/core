@@ -95,6 +95,9 @@ def trim_and_archive(
     )  # nocheck: cache-read — function reads then rewrites changelog_path; cached value would go stale on subsequent calls
     entries, _existing_trailing = split_into_entries(content)
 
+    first_header = _VERSION_HEADER_RE.search(content)
+    preamble = content[: first_header.start()] if first_header else ""
+
     keep_entries = entries[:keep]
     archive_entries = entries[keep:]
     archive_paths: list[Path] = [
@@ -118,9 +121,9 @@ def trim_and_archive(
     keep_text = "".join(body for _v, _d, body in keep_entries).rstrip()
     index_section = build_index_section(archive_dir, repo_root)
     if index_section:
-        new_content = keep_text + "\n\n" + index_section
+        new_content = preamble + keep_text + "\n\n" + index_section
     else:
-        new_content = keep_text + "\n" if keep_text else ""
+        new_content = preamble + keep_text + "\n" if keep_text else ""
 
     if new_content != content:
         changelog_path.write_text(new_content, encoding="utf-8")

@@ -1,22 +1,23 @@
+---
 # General
-application_id:           "web-app-pihole"
-entity_name:              "{{ application_id | get_entity_name }}"
-domain:                   "{{ lookup('domain', application_id) }}"
+application_id: "web-app-pihole"
+entity_name: "{{ application_id | get_entity_name }}"
+domain: "{{ lookup('domain', application_id) }}"
 
 # Pi-hole
-PIHOLE_VERSION:           "{{ lookup('config', application_id, 'services.pihole.version') }}"
-PIHOLE_IMAGE:             "{{ lookup('config', application_id, 'services.pihole.image') }}"
-PIHOLE_CONTAINER:         "{{ entity_name }}"
-PIHOLE_UPSTREAM_DNS:      "{{ lookup('config', application_id, 'services.pihole.upstream_dns') | join(';') }}"
-PIHOLE_TIMEZONE:          "{{ HOST_TIMEZONE }}"
+PIHOLE_VERSION: "{{ lookup('config', application_id, 'services.pihole.version') }}"
+PIHOLE_IMAGE: "{{ lookup('config', application_id, 'services.pihole.image') }}"
+PIHOLE_CONTAINER: "{{ entity_name }}"
+PIHOLE_UPSTREAM_DNS: "{{ lookup('config', application_id, 'services.pihole.upstream_dns') | join(';') }}"
+PIHOLE_TIMEZONE: "{{ HOST_TIMEZONE }}"
 
 # OAuth2 enabled
-PIHOLE_OAUTH2_ENABLED:    "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
-PIHOLE_PASSWORD:          "{{ '' if PIHOLE_OAUTH2_ENABLED else lookup('users', 'administrator').password }}"
+PIHOLE_OAUTH2_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+PIHOLE_PASSWORD: "{{ '' if PIHOLE_OAUTH2_ENABLED else lookup('users', 'administrator').password }}"
 
 # Volume names
-PIHOLE_VOLUME_DATA:       "pihole_data"
-PIHOLE_VOLUME_DNSMASQ:    "pihole_dnsmasq"
+PIHOLE_VOLUME_DATA: "pihole_data"
+PIHOLE_VOLUME_DNSMASQ: "pihole_dnsmasq"
 
 # SSO-proxy self-signed CA trust (see tasks/01_core.yml for full rationale)
 #

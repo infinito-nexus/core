@@ -173,6 +173,21 @@ class TestTrimAndArchive(TempRepoMixin, unittest.TestCase):
         positions = [new_changelog.index(archive.name) for archive in archives_on_disk]
         self.assertEqual(positions, sorted(positions))
 
+    def test_preamble_title_is_preserved_on_rewrite(self) -> None:
+        """The ``# Changelog`` H1 above the first version header MUST
+        survive a trimming rewrite; otherwise the kept file starts with
+        ``## [...]`` and fails the MD041 markdown lint.
+        """
+        versions = [
+            (f"{i}.0.0", f"2026-01-{i:02d}", f"bullet-{i}") for i in range(10, 0, -1)
+        ]
+        self.changelog.write_text(
+            "# Changelog\n\n" + make_changelog_md(versions), encoding="utf-8"
+        )
+        trim_and_archive(self.changelog, self.archive_dir, self.repo_root, keep=7)
+        text = read_text(str(self.changelog))
+        self.assertTrue(text.startswith("# Changelog\n\n## ["))
+
     def test_custom_keep_value(self) -> None:
         self._write_changelog(5)
         kept, paths = trim_and_archive(

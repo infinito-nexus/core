@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
+
+# shellcheck source=scripts/meta/env/load.sh
+# shellcheck disable=SC1091
+source "${REPO_ROOT}/scripts/meta/env/load.sh"
+
 usage() {
 	cat <<'USAGE'
 Usage:
@@ -104,9 +111,7 @@ if [[ -z "${OWNER}" && "${REPOSITORY}" == */* ]]; then
 	OWNER="${REPOSITORY%%/*}"
 fi
 
-if [[ -z "${INFINITO_DISTROS}" ]]; then
-	INFINITO_DISTROS="$(scripts/meta/resolve/distros.sh)"
-fi
+: "${INFINITO_DISTROS:?Missing INFINITO_DISTROS}"
 
 if ! command -v gh >/dev/null 2>&1; then
 	echo "ERROR: gh CLI not found." >&2

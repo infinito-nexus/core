@@ -58,6 +58,20 @@ class TestMirrorToDebianChangelog(TempRepoMixin, unittest.TestCase):
         text = read_text(str(self._path()))
         self.assertIn("  * summary line", text)
 
+    def test_every_body_line_is_indented(self) -> None:
+        body = "* first bullet\n* second bullet\n  * nested bullet\n"
+        mirror_to_debian_changelog(self._path(), [("1.0.0", "2026-01-01", body)], [])
+        text = read_text(str(self._path()))
+        header = "infinito-nexus (1.0.0-1) unstable; urgency=medium"
+        body_block = text[text.index(header) + len(header) : text.index("\n -- ")]
+        body_lines = [line for line in body_block.splitlines() if line.strip()]
+        self.assertEqual(len(body_lines), 3)
+        for line in body_lines:
+            self.assertTrue(
+                line.startswith("  "),
+                msg=f"un-indented body line would break dpkg-buildpackage: {line!r}",
+            )
+
     def test_archived_versions_appear_in_footer_without_links(self) -> None:
         entries = kept_for_mirror([("3.0.0", "2026-01-03", "third")])
         archived = [("2.0.0", "2026-01-02"), ("1.0.0", "2026-01-01")]
@@ -67,6 +81,16 @@ class TestMirrorToDebianChangelog(TempRepoMixin, unittest.TestCase):
         for v, d in archived:
             self.assertIn(f"  {v} ({d})", text)
             self.assertNotIn(f"]({v}", text)
+
+    def test_footer_folds_into_last_entry_not_after_trailer(self) -> None:
+        entries = kept_for_mirror(
+            [("2.0.0", "2026-01-02", "two"), ("1.0.0", "2026-01-01", "one")]
+        )
+        mirror_to_debian_changelog(self._path(), entries, [("0.9.0", "2025-12-31")])
+        text = read_text(str(self._path()))
+        self.assertIn(f"  {FOOTER_REFERENCE}", text)
+        self.assertLess(text.index(FOOTER_REFERENCE), text.rindex("\n -- "))
+        self.assertTrue(text.rstrip().endswith(DEBIAN_SIG_TIME))
 
     def test_idempotent_repeated_runs(self) -> None:
         entries = kept_for_mirror(
@@ -127,6 +151,23 @@ class TestMirrorToRpmSpecChangelog(TempRepoMixin, unittest.TestCase):
         mirror_to_rpm_spec_changelog(self._path(), entries, [])
         text = read_text(str(self._path()))
         self.assertIn("- * summary line", text)
+
+    def test_every_body_line_gets_dash_prefix(self) -> None:
+        self._write_spec_skeleton()
+        body = "* first bullet\n* second bullet\n  * nested bullet\n"
+        mirror_to_rpm_spec_changelog(self._path(), [("1.0.0", "2026-01-01", body)], [])
+        text = read_text(str(self._path()))
+        changelog = text[text.index("%changelog") + len("%changelog") :]
+        body_lines = [line for line in changelog.splitlines() if line.strip()]
+        headers = [line for line in body_lines if line.startswith("* ")]
+        self.assertEqual(len(headers), 1)
+        for line in body_lines:
+            if line.startswith("* "):
+                continue
+            self.assertTrue(
+                line.startswith("- "),
+                msg=f"rpm body line would be misread as a new entry: {line!r}",
+            )
 
     def test_archived_versions_appear_in_footer(self) -> None:
         self._write_spec_skeleton()
