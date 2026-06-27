@@ -9,12 +9,14 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+      - labeled
   pull_request_target:
     types:
       - opened
       - synchronize
       - reopened
       - ready_for_review
+      - labeled
 
 concurrency:
   # Keep only the newest run per PR and event type.
@@ -128,6 +130,7 @@ jobs:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
       roles_only: ${{ needs.detect-affected-roles.outputs.roles_only }}
+      trusted_pr: ${{ contains(github.event.pull_request.labels.*.name, 'trusted-pr') }}
 
   prepare-fork-merge-ref:
     needs:
@@ -138,6 +141,7 @@ jobs:
     outputs:
       checkout_ref: ${{ steps.out.outputs.checkout_ref }}
       image_tag: ${{ steps.out.outputs.image_tag }}
+      trusted: ${{ contains(github.event.pull_request.labels.*.name, 'trusted-pr') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -154,7 +158,8 @@ jobs:
     uses: ./.github/workflows/images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
-      checkout_ref: ${{ needs.prepare-fork-merge-ref.outputs.checkout_ref }}
+      checkout_ref: ${{ needs.prepare-fork-merge-ref.outputs.trusted == 'true' && github.event.pull_request.head.sha || needs.prepare-fork-merge-ref.outputs.checkout_ref }}
+      source_repository: ${{ needs.prepare-fork-merge-ref.outputs.trusted == 'true' && github.event.pull_request.head.repo.full_name || github.repository }}
       image_tag: ${{ needs.prepare-fork-merge-ref.outputs.image_tag }}
       concurrency_channel: pr-target-build-producer
     secrets: inherit

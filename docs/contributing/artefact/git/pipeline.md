@@ -32,7 +32,7 @@ The orchestrator runs the following stages in order:
 
 ### 1. Fork Prerequisites ⏳
 
-For fork PRs, CI waits for privileged images to be built by the `pull_request_target` event before proceeding. This ensures untrusted code never runs with elevated permissions.
+For fork PRs, CI waits for privileged images to be built by the `pull_request_target` event before proceeding. This ensures untrusted code never runs with elevated permissions. A maintainer-applied `trusted-pr` label opts the PR out of this wait — see [Trusted fork PRs](#trusted-fork-prs-).
 
 ### 2. Security 🛡️
 
@@ -109,3 +109,21 @@ See [configuration.md](../../tools/github/actions/configuration.md) for all repo
 ## Fork PRs 🍴
 
 Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target` after a maintainer review. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow.
+
+By default the privileged `pull_request_target` build checks out the **base merge ref** (`refs/pull/<N>/merge`) from the base repository — the PR's changes merged onto base, with all workflow and build-orchestration scripts coming from base, never from the fork.
+
+### Trusted fork PRs 🔓
+
+When a maintainer applies the `trusted-pr` label, the fork PR is treated as deliberately released code:
+
+- The orchestrator's `wait-fork-prereq-run` job **skips the wait** for the privileged fork images.
+- The privileged `pull_request_target` build switches its **build source** from the base merge ref to the **raw PR head** (`head.repo.full_name` @ `head.sha`).
+- The built image **keeps the merge-SHA tag** (`ci-<merge_sha>`) so the `pull_request` orchestrator finds it unchanged — no consumer workflow has to know about the label.
+
+Security gates:
+
+- Only the `trusted-pr` label flips the build source; without it the safe base merge ref is used. Restrict who may set the label via repository label permissions / branch protection so only maintainers can grant it.
+- Build-orchestration scripts (`scripts/image/push.sh` and the helper checkout) always come from the base repo at `github.sha`; only the Docker build **context** (`_src`) is the fork head. `persist-credentials: false` keeps the token out of the source checkout, and `USE_NIX_TOKEN` stays disabled for fork-sourced builds.
+- Fork `pull_request` runs always receive a read-only token (GitHub-enforced); the label never grants write tokens or secrets to the untrusted event.
+
+Both events carry a `labeled` trigger, so applying the `trusted-pr` label starts fresh runs that already observe it: the `pull_request_target` build switches to the PR head and the `pull_request` orchestrator skips the wait — no extra push is needed. (Re-running an existing run does not pick up a new label, because GitHub replays the original event payload.) The trade-off is that any label change starts a fresh PR CI run.
