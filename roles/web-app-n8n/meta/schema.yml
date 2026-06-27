@@ -1,0 +1,12 @@
+---
+credentials:
+  encryption_key:
+    description: "AES encryption key n8n uses to encrypt stored credentials at rest. Must remain stable across deploys — changing it invalidates all saved credentials."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48
+  owner_password:
+    description: "Break-glass local password for the n8n owner account created during bootstrap. Alphanumeric on purpose — the system admin password carries special characters (e.g. Unicode, single quotes) that fail n8n's xssCheck on the /rest/owner/setup endpoint. Normal users authenticate via SSO/Keycloak; this password is only used for the one-time bootstrap and as a break-glass credential."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48
