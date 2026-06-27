@@ -1,3 +1,23 @@
+infinito-nexus (11.1.0-1) unstable; urgency=medium
+
+  * Trusted fork PRs: a maintainer-applied *trusted-pr* label runs a fork PR as deliberately released code — the orchestrator skips the fork-prerequisite wait and the privileged *pull_request_target* build switches its source from the base merge ref to the raw PR head, while the built image keeps the merge-SHA tag so every downstream consumer is unchanged. The label is the only switch (applying a label is collaborator-only on GitHub, so fork authors cannot grant it), build-orchestration scripts always come from the base repository, and both unlabeled fork PRs and same-repository PRs are untouched. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the contributor fork workflow](docs/contributing/artefact/git/pull-request.md).
+
+  * Fork main-branch sync: the push entry workflow now synchronizes the current repository's *main* from a configured source repository (default *infinito-nexus/core*) before CI scope and deploy discovery run, so a fork branch push sees only its own changes against an up-to-date base. The source is overridable or disablable through the *CI_SYNC_MAIN_SOURCE_REPOSITORY* repository variable, and the sync force-overwrites *main*, so a synced repository must not be used as a working branch. See [the Actions configuration reference](docs/contributing/tools/github/actions/configuration.md).
+
+  * Package-changelog generator hardening: the Debian changelog and the Fedora spec *%changelog* are mirrored from CHANGELOG.md without tripping their native parsers — every change line is indented for Debian, every body line gains a dash continuation for RPM, and the archived-releases notice is folded into the oldest kept entry instead of trailing after the final entry. Previously the un-indented bodies made *dpkg-buildpackage* abort the Debian package build with an empty maintainer. The *Changelog* title is also preserved when the active window is trimmed. See [the release procedure](docs/contributing/actions/release.md).
+
+  * New packaging lint: a *lint-packages* check, wired into *make lint* and its own CI workflow, validates the generated *debian/changelog* with *dpkg-parsechangelog*, the Fedora spec with *rpmspec* and the Arch *PKGBUILD* with a *bash -n* syntax pass, failing on any parser warning rather than only on a non-zero exit. A complementary *test-lint* check asserts that both package changelogs list every released version and that their inline window matches CHANGELOG.md. See [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
+
+  * Repository cleanup automation: a scheduled cleanup workflow plus a GHCR helper prune stale CI images so the container registry does not accumulate per-commit build artefacts.
+
+  * Routine maintenance: YAML normalization of the *web-app-pihole* role variables (document start, single-space keys).
+
+  **Contributors**
+
+  * [Kevin Veen-Birkenbach](https://veen.world): trusted-fork-PR flow, fork main sync, package-changelog generator and packaging lint, cleanup automation
+
+ -- Kevin Veen-Birkenbach <kevin@veen.world>  Sat, 27 Jun 2026 00:00:00 +0000
+
 infinito-nexus (11.0.0-1) unstable; urgency=medium
 
   * Unified addon syntax (requirement 026): every role-level plugin, browser/GNOME extension, Matrix bridge and cross-role integration was migrated to a single declarative *meta/addons/* contract, replacing the per-role ad-hoc plugin definitions. 86 addon files now describe addons for *desk-chromium*, *desk-firefox*, *desk-gnome*, *web-app-discourse*, *web-app-friendica*, *web-app-joomla*, *web-app-mediawiki*, *web-app-pretix*, *web-app-wordpress*, *web-app-xwiki*, *web-app-nextcloud*, *web-app-odoo* and *web-app-matrix*. Each service-coupled addon gets a *tasks/addons* integration hook and its own Playwright spec (87 per-addon specs added), addon flags are gated on actual partner deployment through a new *addon_env_flags* lookup, and a lint requires a hook plus a spec for every coupled addon. The cross-role integration matrix is regenerated from a dedicated data module (*integration_matrix_data.py*).
