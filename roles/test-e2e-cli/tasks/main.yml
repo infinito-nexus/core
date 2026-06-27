@@ -1,0 +1,35 @@
+---
+- name: Apply role include/exclude filters
+  ansible.builtin.set_fact:
+    _cli_apps: >-
+      {{
+        playbook_dir
+        | discover_cli_roles(
+            group_names=group_names,
+            only_roles=TEST_E2E_CLI_ONLY_ROLES,
+            skip_roles=TEST_E2E_CLI_SKIP_ROLES
+          )
+      }}
+
+- name: Show detected CLI test roles
+  ansible.builtin.debug:
+    msg: "CLI-test-enabled roles: {{ _cli_apps }}"
+  changed_when: false
+
+- name: Ensure stage base dir exists
+  ansible.builtin.file:
+    path: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: Run CLI test for each detected role
+  ansible.builtin.include_tasks: run_one.yml
+  loop: "{{ _cli_apps }}"
+  loop_control:
+    loop_var: application_id
+    label: "{{ application_id }}"
+
+- name: Fail if there were CLI test failures
+  ansible.builtin.fail:
+    msg: "CLI tests failed for roles: {{ _cli_failures }}"
+  when: (_cli_failures | default([])) | length > 0

@@ -1,3 +1,0 @@
----
-application_id: svc-net-wireguard-plain
-system_service_id: "{{ application_id }}"

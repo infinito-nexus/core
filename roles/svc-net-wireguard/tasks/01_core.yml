@@ -1,0 +1,25 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "Validate services.wireguard.flavor"
+  ansible.builtin.assert:
+    that:
+      - WIREGUARD_FLAVOR | length > 0
+      - (WIREGUARD_FLAVOR | difference(['server', 'client', 'nat'])) | length == 0
+    fail_msg: "services.wireguard.flavor must be a non-empty subset of [server, client, nat] (got {{ WIREGUARD_FLAVOR }})."
+    quiet: true
+
+- name: "Detect an inventory-provided WireGuard config"
+  ansible.builtin.stat:
+    path: "{{ WIREGUARD_INVENTORY_CONF }}"
+  register: _wg_inventory_conf
+
+- name: "Deploy WireGuard client/mesh stack"
+  include_tasks: 03_client.yml
+  when: _wg_inventory_conf.stat.exists or ('client' in WIREGUARD_FLAVOR)
+
+- name: "Deploy WireGuard server stack"
+  include_tasks: 02_server.yml
+  when:
+    - not _wg_inventory_conf.stat.exists
+    - "'server' in WIREGUARD_FLAVOR"

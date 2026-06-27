@@ -1,0 +1,16 @@
+---
+- name: "include sys-svc-compose role"
+  include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+    compose_repository_pull: false
+    application_id: "svc-net-wireguard"
+
+- name: Create container network
+  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/create.yml' ] | path_join }}"
+  vars:
+    network_role_id: "{{ application_id }}"
+
+- name: "Flush compose handlers"
+  meta: flush_handlers
