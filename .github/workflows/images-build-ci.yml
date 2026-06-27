@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: ""
+      source_repository:
+        description: "Repository to checkout as the build source (default: github.repository). Set to a fork only for maintainer-trusted PRs."
+        required: false
+        type: string
+        default: ""
       image_tag:
         description: "Optional image tag override (default: ci-${github.sha})"
         required: false
@@ -68,7 +73,7 @@ jobs:
       - name: Checkout source to build
         uses: actions/checkout@v7
         with:
-          repository: ${{ github.repository }}
+          repository: ${{ inputs.source_repository || github.repository }}
           ref: ${{ inputs.checkout_ref || github.ref }}
           path: _src
           persist-credentials: false

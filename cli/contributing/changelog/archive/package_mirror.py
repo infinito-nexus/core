@@ -1,9 +1,12 @@
 """Mirror the kept ``CHANGELOG.md`` entries into the package changelogs.
 
 Both targets (Debian changelog and the RPM ``%changelog`` section) are
-fully regenerated on every run from the kept entries plus a trailing
-notice that points at the documentation site and lists the archived
-versions and dates as plain text. Because the package files are
+fully regenerated on every run from the kept entries plus an
+archived-releases notice that points at the documentation site and lists
+the archived versions and dates as plain text. The notice is folded into
+the body of the oldest kept entry (not appended after the last entry),
+because free text after the final entry is not valid changelog data and
+makes the native parsers warn. Because the package files are
 regenerated, they cannot drift from the CHANGELOG.md SPOT.
 """
 
@@ -39,21 +42,33 @@ def build_package_footer(archived: list[tuple[str, str]]) -> str:
 
 
 def format_debian_entry(
-    version: str, date_iso: str, body_md: str, maintainer: str
+    version: str,
+    date_iso: str,
+    body_md: str,
+    maintainer: str,
+    footer_md: str = "",
 ) -> str:
     """Render one CHANGELOG.md entry as a Debian changelog stanza.
 
-    The first non-empty line of the markdown body gets a two-space
-    indent so it satisfies Debian's "summary line MUST start with two
-    spaces and a bullet" expectation; subsequent lines stay verbatim.
-    The signature time is a placeholder because CHANGELOG.md only
-    carries calendar dates.
+    Every non-empty line of the markdown body gets a two-space indent so
+    Debian's parser accepts it: each change line MUST start with at least
+    two spaces, otherwise dpkg treats it as a badly formatted line, loses
+    the entry boundary and reports an empty maintainer. Blank lines stay
+    blank.
+
+    *footer_md* (the archived-releases notice) is folded into this
+    entry's change body — indented like the rest — rather than appended
+    after the trailer, because free text after the final ``--`` line is
+    not valid changelog data and makes ``dpkg-parsechangelog`` warn. The
+    signature time is a placeholder because CHANGELOG.md only carries
+    calendar dates.
     """
     sig_date = date.fromisoformat(date_iso).strftime("%a, %d %b %Y")
     body = md_body_after_header(f"## [{version}] - {date_iso}\n{body_md}")
     lines = body.rstrip().split("\n")
-    if lines:
-        lines[0] = "  " + lines[0]
+    if footer_md:
+        lines.extend(footer_md.rstrip("\n").split("\n"))
+    lines = ["  " + ln if ln.strip() else ln for ln in lines]
     body_text = "\n".join(lines)
     return (
         f"infinito-nexus ({version}-1) {_DEBIAN_DISTRIBUTION}; "
@@ -65,13 +80,28 @@ def format_debian_entry(
     )
 
 
-def format_rpm_entry(version: str, date_iso: str, body_md: str, maintainer: str) -> str:
-    """Render one CHANGELOG.md entry as an RPM ``%changelog`` stanza."""
+def format_rpm_entry(
+    version: str,
+    date_iso: str,
+    body_md: str,
+    maintainer: str,
+    footer_md: str = "",
+) -> str:
+    """Render one CHANGELOG.md entry as an RPM ``%changelog`` stanza.
+
+    Every non-empty body line gets a ``- `` continuation prefix so rpm
+    does not read a markdown ``*`` bullet at column 0 as a new changelog
+    entry header (which makes ``rpmspec`` report ``bad date``). Blank
+    lines stay blank. *footer_md* (the archived-releases notice) is
+    folded into this entry's body for the same reason it is on the Debian
+    side: trailing free text confuses the parser.
+    """
     rpm_date = date.fromisoformat(date_iso).strftime("%a %b %d %Y")
     body = md_body_after_header(f"## [{version}] - {date_iso}\n{body_md}")
     lines = body.rstrip().split("\n")
-    if lines:
-        lines[0] = "- " + lines[0]
+    if footer_md:
+        lines.extend(footer_md.rstrip("\n").split("\n"))
+    lines = ["- " + ln if ln.strip() else ln for ln in lines]
     body_text = "\n".join(lines)
     return f"* {rpm_date} {maintainer} - {version}-1\n{body_text}\n"
 
@@ -96,10 +126,13 @@ def mirror_to_debian_changelog(
     """
     if not entries:
         return False
-    blocks = [format_debian_entry(v, d, b, maintainer) for v, d, b in entries]
+    footer = build_package_footer(archived) if archived else ""
+    last = len(entries) - 1
+    blocks = [
+        format_debian_entry(v, d, b, maintainer, footer if i == last else "")
+        for i, (v, d, b) in enumerate(entries)
+    ]
     new_content = "\n".join(blocks).rstrip() + "\n"
-    if archived:
-        new_content += build_package_footer(archived)
     if dry_run:
         return True
     if path.is_file():
@@ -138,10 +171,13 @@ def mirror_to_rpm_spec_changelog(
     if section is None:
         return False
     head = content[: section.end()] + "\n"
-    blocks = [format_rpm_entry(v, d, b, maintainer) for v, d, b in entries]
+    footer = build_package_footer(archived) if archived else ""
+    last = len(entries) - 1
+    blocks = [
+        format_rpm_entry(v, d, b, maintainer, footer if i == last else "")
+        for i, (v, d, b) in enumerate(entries)
+    ]
     new_changelog = "\n".join(blocks).rstrip() + "\n"
-    if archived:
-        new_changelog += build_package_footer(archived)
     new_content = head + new_changelog
     if dry_run:
         return True

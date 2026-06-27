@@ -1,0 +1,89 @@
+name: "🧹 Cleanup: Stale Repository Data"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  stale:
+    name: 🏷️ Close inactive issues and pull requests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🏷️ Mark stale issues and pull requests
+        uses: actions/stale@v9
+        with:
+          # Issues
+          days-before-issue-stale: 90
+          days-before-issue-close: 7
+          stale-issue-label: "stale"
+          stale-issue-message: >
+            This issue has been marked as stale because it has had no activity
+            for the last 90 days. It will be automatically closed in 7 days
+            unless there is further activity.
+          close-issue-message: >
+            This issue has been automatically closed due to inactivity.
+
+          # Pull Requests
+          days-before-pr-stale: 180
+          days-before-pr-close: 30
+          stale-pr-label: "stale"
+          stale-pr-message: >
+            This pull request has been marked as stale because it has had no
+            activity for the last 180 days. It will be automatically closed in
+            30 days unless there is further activity.
+          close-pr-message: >
+            This pull request has been automatically closed due to inactivity.
+
+          remove-stale-when-updated: true
+
+  delete-stale-branches:
+    name: 🌿 Delete inactive branches
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🌿 Delete branches inactive for 360 days
+        uses: crs-k/stale-branches@v8
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 360
+          days-before-delete: 0
+
+          protected-branches: |
+            main
+            master
+            develop
+            dev
+            release/**
+            hotfix/**
+
+          compare-branches: info
+          dry-run: false
+
+  cleanup-ghcr-ci-images:
+    name: 📦 Delete old GHCR CI images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v7
+
+      - name: 📦 Install project environment
+        run: make install
+
+      - name: 📦 Delete ci-* images older than 60 days
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG: infinito-nexus
+          PACKAGE_PREFIX: core
+          MAX_AGE_DAYS: 60
+          TAG_PREFIX: ci-
+        run: bash scripts/github/cleanup/ghcr_ci_images.sh

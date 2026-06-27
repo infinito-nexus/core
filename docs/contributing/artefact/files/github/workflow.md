@@ -19,7 +19,7 @@ Every workflow MUST follow the schema `"[Emoji] Category: Subject (Qualifier)"`.
 |---|---|---|
 | `🔄` | Update / Sync | Automated version or dependency updates |
 | `🪞` | Mirror | Image mirroring between registries |
-| `🧹` | Images | Image cleanup and pruning |
+| `🧹` | Cleanup / Images | Repository cleanup, image cleanup, and pruning |
 | `🐳` | Build | Docker image builds |
 | `🔍` | Lint | Static analysis and linting |
 | `🔒` | Scan | Security scanning |

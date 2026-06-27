@@ -1,0 +1,25 @@
+name: "🔍 Lint: Packages"
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-packages:
+    name: 🧹 Lint Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install packaging validators
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends dpkg-dev rpm
+
+      - name: Validate distro packaging metadata
+        run: bash scripts/lint/packages.sh

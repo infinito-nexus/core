@@ -23,6 +23,7 @@ from utils.install.lint import (
     eslint,
     markdownlint_cli2,
     mbake,
+    packages,
     playwright,
     ruff,
     shellcheck,
@@ -93,6 +94,10 @@ def _install_playwright_tools() -> None:
     playwright.ensure()
 
 
+def _install_packages_tools() -> None:
+    packages.ensure()
+
+
 _GROUP_FN_NAMES = {
     "action": "_install_action_tools",
     "ansible": "_install_ansible_tools",
@@ -102,6 +107,7 @@ _GROUP_FN_NAMES = {
     "makefile": "_install_makefile_tools",
     "javascript": "_install_javascript_tools",
     "playwright": "_install_playwright_tools",
+    "packages": "_install_packages_tools",
 }
 
 
@@ -147,7 +153,7 @@ def _dispatch(group: str) -> None:
     if fn_name is None:
         raise RuntimeError(
             "Usage: python -m utils.install.lint "
-            "[all|action|ansible|python|shellcheck|markdown|makefile|javascript|playwright]..."
+            "[all|action|ansible|python|shellcheck|markdown|makefile|javascript|playwright|packages]..."
         )
     # Resolve by name so test patches via `mock.patch.object(cli, ...)` take effect.
     globals()[fn_name]()

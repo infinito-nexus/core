@@ -17,11 +17,14 @@ version_tag="$1"
 
 owner="$(_helpers/scripts/meta/resolve/repository/owner.sh)"
 repo_prefix="$(_helpers/scripts/meta/resolve/repository/name.sh)"
-distros="$(_helpers/scripts/meta/resolve/distros.sh)"
+# shellcheck source=scripts/meta/env/load.sh
+# shellcheck disable=SC1091
+source "_helpers/scripts/meta/env/load.sh"
+: "${INFINITO_DISTROS:?Missing INFINITO_DISTROS}"
 
 {
 	echo "version_tag=${version_tag}"
-	echo "distros=${distros}"
+	echo "distros=${INFINITO_DISTROS}"
 	echo "repo_prefix=${repo_prefix}"
 	echo "owner=${owner}"
 } >>"$GITHUB_OUTPUT"
