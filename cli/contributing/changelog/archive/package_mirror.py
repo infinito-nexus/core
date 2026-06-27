@@ -43,17 +43,17 @@ def format_debian_entry(
 ) -> str:
     """Render one CHANGELOG.md entry as a Debian changelog stanza.
 
-    The first non-empty line of the markdown body gets a two-space
-    indent so it satisfies Debian's "summary line MUST start with two
-    spaces and a bullet" expectation; subsequent lines stay verbatim.
-    The signature time is a placeholder because CHANGELOG.md only
+    Every non-empty line of the markdown body gets a two-space indent so
+    Debian's parser accepts it: each change line MUST start with at least
+    two spaces, otherwise dpkg treats it as a badly formatted line, loses
+    the entry boundary and reports an empty maintainer. Blank lines stay
+    blank. The signature time is a placeholder because CHANGELOG.md only
     carries calendar dates.
     """
     sig_date = date.fromisoformat(date_iso).strftime("%a, %d %b %Y")
     body = md_body_after_header(f"## [{version}] - {date_iso}\n{body_md}")
     lines = body.rstrip().split("\n")
-    if lines:
-        lines[0] = "  " + lines[0]
+    lines = ["  " + ln if ln.strip() else ln for ln in lines]
     body_text = "\n".join(lines)
     return (
         f"infinito-nexus ({version}-1) {_DEBIAN_DISTRIBUTION}; "

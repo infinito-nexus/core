@@ -59,7 +59,7 @@ install -d %{buildroot}%{_docdir}/%{name}
 
 %changelog
 * Sat Jun 27 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 11.0.0-1
-- Unified addon syntax (requirement 026): every role-level plugin, browser/GNOME extension, Matrix bridge and cross-role integration was migrated to a single declarative *meta/addons/* contract, replacing the per-role ad-hoc plugin definitions. 86 addon files now describe addons for *desk-chromium*, *desk-firefox*, *desk-gnome*, *web-app-discourse*, *web-app-friendica*, *web-app-joomla*, *web-app-mediawiki*, *web-app-pretix*, *web-app-wordpress*, *web-app-xwiki*, *web-app-nextcloud*, *web-app-odoo* and *web-app-matrix*. Each service-coupled addon gets a *tasks/addons* integration hook and its own Playwright spec (87 per-addon specs added), addon flags are gated on actual partner deployment through a new *addon_env_flags* lookup, and a lint requires a hook plus a spec for every coupled addon. The cross-role integration matrix is regenerated from a dedicated data module (*integration_matrix_data.py*).
+- * Unified addon syntax (requirement 026): every role-level plugin, browser/GNOME extension, Matrix bridge and cross-role integration was migrated to a single declarative *meta/addons/* contract, replacing the per-role ad-hoc plugin definitions. 86 addon files now describe addons for *desk-chromium*, *desk-firefox*, *desk-gnome*, *web-app-discourse*, *web-app-friendica*, *web-app-joomla*, *web-app-mediawiki*, *web-app-pretix*, *web-app-wordpress*, *web-app-xwiki*, *web-app-nextcloud*, *web-app-odoo* and *web-app-matrix*. Each service-coupled addon gets a *tasks/addons* integration hook and its own Playwright spec (87 per-addon specs added), addon flags are gated on actual partner deployment through a new *addon_env_flags* lookup, and a lint requires a hook plus a spec for every coupled addon. The cross-role integration matrix is regenerated from a dedicated data module (*integration_matrix_data.py*).
 * New centralized API single-point-of-truth: an *api* lookup plugin plus a global API dict so API tokens and endpoints (Cloudflare, the Nextcloud proprietary OAuth integrations) resolve from one place instead of scattered role lookups.
 * Real Nextcloud integration coupling: end-to-end tests now assert genuine two-way OAuth/API coupling for *gitlab*, *mattermost*, *openproject*, *zammad*, *peertube*, *discourse*, *github*, *google*, *jira*, *mastodon*, *matrix*, *moodle* and *suitecrm*, rather than the mere presence of a connect button. All integration OAuth credentials are stored Nextcloud-encrypted via ICrypto (sensitive app values), OpenProject and Zammad secrets survive a re-deploy, and OpenWebUI/Ollama is wired in as a real *integration_openai* chat backend. Bridges with no Nextcloud-33 plugin (Moodle, SuiteCRM) are disabled.
 * Nextcloud deploy-variant rebalancing: Discourse and OnlyOffice are each isolated into their own loosely-coupled partner variant, the matrix is repacked to five variants overriding only the dynamic flags, LDAP is enabled wherever SSO is on, and the database is shared outside variant 1. The GitLab 19 OAuth app now carries an organization, and *fileslibreofficeedit* is gated on OnlyOffice absence.
@@ -80,8 +80,43 @@ install -d %{buildroot}%{_docdir}/%{name}
   * Dev/CI dependencies: *globals* 15.15.0 to 17.7.0, *@playwright/test* 1.61.0 to 1.61.1, *actions/cache* 5 to 6
   * Intermediate bot bumps were corrected back down: Mattermost 11.8.2 to 11.8.1 and Nextcloud 34 to 33 (kept at 33 because of plugin incompatibilities, same pin as 10.0.0)
 
-Contributors
+**Contributors**
+
 * [Kevin Veen-Birkenbach](https://veen.world): unified addon syntax, API single-point-of-truth, Nextcloud integrations and variant rebalancing, CI variant bundling, resource governance, Matrix bridge migration and version maintenance
+
+* Wed Jun 24 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 10.1.1-1
+- * Disabled the *email* service in the *web-app-pihole* role by pinning *services.email* to a static *enabled: false* / *shared: false* with the matching *dynamic-flag* and *email* nocheck suppressions, removing the now-static email overrides from *meta/variants.yml*, and adding *javascript* true/false variant pins to keep the dynamic-flag matrix-coverage guard green.
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): Pi-hole email service disablement
+
+* Tue Jun 23 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 10.1.0-1
+- * New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta.
+* Routine maintenance: Docker image version bumps, a dependabot update of *globals* from 15.15.0 to 17.7.0, and minor *services.yml* self-provider flag corrections for ERPNext, GitLab, SeaweedFS and the Playwright end-to-end role.
+
+**Contributors**
+
+* [Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite
+* [Kevin Veen-Birkenbach](https://veen.world): Pi-hole role hardening and review
+
+* Fri Jun 19 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 10.0.1-1
+- * Mark the *web-app-erpnext* role's own *erpnext* provider service with the *playwright-service-flag* self-provider suppression in *meta/services.yml*, fixing the Playwright service-flag integration guard that 10.0.0 tripped by exposing ERPNext as a consumable shared service.
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): ERPNext self-provider test fix
+
+* Fri Jun 19 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 10.0.0-1
+- * New engine-agnostic object-store service (*web-app-seaweedfs*, backed by either *SeaweedFS* or *MinIO*) that exposes a shared S3 endpoint, now consumed across 14 web-app roles for media and asset storage. Nextcloud, Decidim, Shopware, PeerTube, Pixelfed, Taiga, Fider, Akaunting, Mobilizon and Matrix route their uploads to the central bucket, each exercised end-to-end with a SeaweedFS consumer check that requires a fresh object key per upload.
+* Trusted-header single-sign-on bridges (wave 1) for *web-app-openproject*, *web-app-snipe-it*, *web-app-postmarks* and *web-app-yourls*, with *web-app-baserow* and *web-app-bookwyrm* migrating to the header bridge and dropping their LDAP configuration. The shared proxy (*sys-svc-proxy*) now strips forgeable identity headers on every location to close trusted-header injection.
+* ERPNext is exposed as a consumable shared service and renders the Keycloak SSO button on */login* under gunicorn *--preload*. Nextcloud is provisioned on the SeaweedFS S3 object store with a dedicated consumer end-to-end test and has its OIDC plugins gated as mandatory; the upgrade to version 34 is deliberately not carried out because of plugin incompatibilities, so it stays pinned at 33.
+* Extensive deploy and end-to-end hardening, much of it reproduced in Docker-in-Docker: native username and password login fallbacks for the no-SSO admin persona across Akaunting, Snipe-IT, YOURLS and OpenProject; OpenProject linked to the LDAP auth source for header SSO to fix a trusted-header 401, with all rails-runner Ruby extracted to dedicated files under *files/ruby/*; Shopware retries asset and theme builds against a restarting SeaweedFS; Mailu retries user creation and waits for antispam readiness before DKIM keygen; YOURLS creates its database schema on deploy; and OpenProject boots db:migrate under Ruby 4.0.
+* Routine maintenance: Docker image and git-reference bumps, skills-lock refreshes, and dependabot updates (actions/checkout 6 to 7, @playwright/test 1.60.0 to 1.61.0, eslint 10.4.1 to 10.5.0).
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): object-store service, trusted-header SSO bridges, role fixes and review
 
 * Thu Jun 11 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 9.3.0-1
 - * New Penpot role (web-app-penpot, requirement 235) that ships the upstream Penpot design platform comprising frontend, backend, exporter and Redis at image version 2.5.4, wired into the central Keycloak via OIDC and into the central OpenLDAP. Native local-password login is available as a toggle that is disabled automatically under OIDC, with the native-login and registration flags derived from the SSO flag. A custom JVM truststore imports the Infinito self-signed CA so OIDC over TLS succeeds, and the role is exercised end-to-end with Playwright covering OIDC login, logout and project creation. The local subnet was moved to 192.168.105.192/28 to avoid a collision with the ERPNext range.
@@ -100,15 +135,19 @@ Contributors
 * Outbound mail and Nix install resilience: the dev-nix role guards its set_fact against getent returning None on hosts without an nixbld group, and the host-stack mail health checks keep behaving cleanly on minimal images.
 * Routine maintenance: Docker image version bumps including Friendica 2026.01, eslint 10.4.0 to 10.4.1, and a dockerignore re-sync after the recent claude hooks addition.
 
-Release maintained by Kevin Veen-Birkenbach, <https://veen.world>.
+**Contributors**
+
+* Release maintained by Kevin Veen-Birkenbach, <https://veen.world>.
 
 * Mon Jun 01 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 9.1.0-1
-- * * More robust Nix installer on Debian, Ubuntu, Fedora and CentOS systems: stale nixbld users from earlier installation attempts are cleaned up before the multi-user installer runs, and a long-standing crash on hosts where the nixbld group is absent has been resolved.
+- * More robust Nix installer on Debian, Ubuntu, Fedora and CentOS systems: stale nixbld users from earlier installation attempts are cleaned up before the multi-user installer runs, and a long-standing crash on hosts where the nixbld group is absent has been resolved.
 * Outbound mail health checks no longer fail silently on minimal container images: the heartbeat-email script copes with images that ship without the hostname binary, and the SSL trust file path is detected automatically across Red Hat, Debian, Ubuntu, Alpine and NixOS layouts.
 * The Zammad helpdesk role completes its single-sign-on schema unification, with the variant matrix and Playwright test suite brought in line with the new shape.
 * Internal infrastructure cleanups: re-synchronised .dockerignore and a shifted weekly CI schedule.
 
-Release maintained by [Kevin Veen-Birkenbach](https://veen.world).
+**Contributors**
+
+* Release maintained by [Kevin Veen-Birkenbach](https://veen.world).
 
 * Fri May 29 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 9.0.2-1
 - * Restores the Debian dev-image build by introducing the INFINITO_VENV_DIR SPOT and calling infinito via its absolute venv path in scripts/docker/entry.sh, so the post-`make install` version check no longer trips on the PATH that bash -lc clobbers via /etc/profile; also scopes the auto-update PR dedup fingerprint to the files a run actually committed (instead of the whole commit tree) so unrelated drift on main no longer forces a fresh PR on every daily cron, nests web-app-bluesky's nocheck markers under the acl block they describe, and rolls up dependabot bumps (actions/cache 4→5, actions/setup-node 4→6) plus routine Docker image / git ref refreshes.
