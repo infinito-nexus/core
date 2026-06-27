@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        9.3.0
+Version:        11.0.0
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,31 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Sat Jun 27 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 11.0.0-1
+- Unified addon syntax (requirement 026): every role-level plugin, browser/GNOME extension, Matrix bridge and cross-role integration was migrated to a single declarative *meta/addons/* contract, replacing the per-role ad-hoc plugin definitions. 86 addon files now describe addons for *desk-chromium*, *desk-firefox*, *desk-gnome*, *web-app-discourse*, *web-app-friendica*, *web-app-joomla*, *web-app-mediawiki*, *web-app-pretix*, *web-app-wordpress*, *web-app-xwiki*, *web-app-nextcloud*, *web-app-odoo* and *web-app-matrix*. Each service-coupled addon gets a *tasks/addons* integration hook and its own Playwright spec (87 per-addon specs added), addon flags are gated on actual partner deployment through a new *addon_env_flags* lookup, and a lint requires a hook plus a spec for every coupled addon. The cross-role integration matrix is regenerated from a dedicated data module (*integration_matrix_data.py*).
+* New centralized API single-point-of-truth: an *api* lookup plugin plus a global API dict so API tokens and endpoints (Cloudflare, the Nextcloud proprietary OAuth integrations) resolve from one place instead of scattered role lookups.
+* Real Nextcloud integration coupling: end-to-end tests now assert genuine two-way OAuth/API coupling for *gitlab*, *mattermost*, *openproject*, *zammad*, *peertube*, *discourse*, *github*, *google*, *jira*, *mastodon*, *matrix*, *moodle* and *suitecrm*, rather than the mere presence of a connect button. All integration OAuth credentials are stored Nextcloud-encrypted via ICrypto (sensitive app values), OpenProject and Zammad secrets survive a re-deploy, and OpenWebUI/Ollama is wired in as a real *integration_openai* chat backend. Bridges with no Nextcloud-33 plugin (Moodle, SuiteCRM) are disabled.
+* Nextcloud deploy-variant rebalancing: Discourse and OnlyOffice are each isolated into their own loosely-coupled partner variant, the matrix is repacked to five variants overriding only the dynamic flags, LDAP is enabled wherever SSO is on, and the database is shared outside variant 1. The GitLab 19 OAuth app now carries an organization, and *fileslibreofficeedit* is gated on OnlyOffice absence.
+* Storage- and runtime-aware CI variant matrix: variant bundles are split per runner by a storage-aware job splitter driven by an explicit variant CSV, behind a unified variant selector (*variant_select.py*). The default per-bundle storage cap is centralized at 350GB, per-variant memory budgets are guarded against the host budget, shared database providers are enforced by a shared-false-once lint, and the full variant matrix always runs (the earlier runtime time-cut was removed).
+* Container resource governance: self-run and shared-provider services declare explicit compose mem/pids limits, container limits were right-sized across roles, and Node-heap services respect a floor via a new *node_max_old_space_size* lookup (Nextcloud whiteboard raised to 1g). A reworked *ressources* CLI emits per-variant and all-role resource summaries, the footprint tool gains a *min_storage* column, and shared services carry a *bond* integration-importance factor.
+* Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream.
+* CA-trust and OIDC-over-self-signed-TLS hardening: the internal CA is installed into the OS bundle for PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*, plus a WordPress must-use plugin), the CA-trust wrapper is kept on probe timeout instead of degrading to env-only, and the CA injection is bounded so it cannot hang the handler. HSTS is now emitted on every response including non-2xx, *ansible-vault encrypt_string* reads plaintext from stdin so leading-dash values encrypt, and Mastodon allows inline *script-src-elem* for its server-rendered SPA.
+* Image and dependency version jumps (net since 10.1.1):
+  * *web-app-erpnext*: v16.23.1 to v16.25.0
+  * *web-app-gitlab*: 19.1.0-ee.0 to 19.1.1-ee.0
+  * *web-app-opencloud*: 4.0.7 to 7.2.0
+  * *web-app-seaweedfs*: 4.35 to 4.36
+  * *web-app-matomo*: unpinned *latest* to pinned 5.3.2 (matches the bootstrap installer)
+  * *web-app-nextcloud* proxy (nginx): unpinned *alpine* to pinned 1.31.2-alpine
+  * *web-app-nextcloud* whiteboard: unpinned *latest* to pinned v1.5.9
+  * *svc-ai-ollama*: switched to the official *ollama* image so inference works
+  * *web-app-pretix* and *web-app-xwiki*: their inline plugin/extension version pins (2.3.1; 2.19.6, 9.15.7, 1.0) were removed as those addons moved into *meta/addons*
+  * Dev/CI dependencies: *globals* 15.15.0 to 17.7.0, *@playwright/test* 1.61.0 to 1.61.1, *actions/cache* 5 to 6
+  * Intermediate bot bumps were corrected back down: Mattermost 11.8.2 to 11.8.1 and Nextcloud 34 to 33 (kept at 33 because of plugin incompatibilities, same pin as 10.0.0)
+
+Contributors
+* [Kevin Veen-Birkenbach](https://veen.world): unified addon syntax, API single-point-of-truth, Nextcloud integrations and variant rebalancing, CI variant bundling, resource governance, Matrix bridge migration and version maintenance
+
 * Thu Jun 11 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 9.3.0-1
 - * New Penpot role (web-app-penpot, requirement 235) that ships the upstream Penpot design platform comprising frontend, backend, exporter and Redis at image version 2.5.4, wired into the central Keycloak via OIDC and into the central OpenLDAP. Native local-password login is available as a toggle that is disabled automatically under OIDC, with the native-login and registration flags derived from the SSO flag. A custom JVM truststore imports the Infinito self-signed CA so OIDC over TLS succeeds, and the role is exercised end-to-end with Playwright covering OIDC login, logout and project creation. The local subnet was moved to 192.168.105.192/28 to avoid a collision with the ERPNext range.
 * The Matrix role gains an ansible flavor (requirement 025) built on a unified compose template, with full Docker-in-Docker isolation, host-network mode cascaded to the addons and Jitsi, a central Postgres backend sharing the MATRIX_POSTGRES variables, and a central coturn aligned to the shared coturn variables for the MASH role. A dedicated MDAD runner image (python 3.13-slim with docker 28.0.4 CLI, migration validated against v2026.05.18.0) mounts the Infinito self-signed CA into both the runner and Synapse, and bootstrap now recovers cleanly from a stale marker.

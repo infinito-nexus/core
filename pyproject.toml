@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "infinito-nexus"
-version = "9.3.0"
+version = "11.0.0"
 description = "Infinito.Nexus"
 readme = "README.md"
 requires-python = ">=3.11"
