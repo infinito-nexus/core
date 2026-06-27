@@ -30,18 +30,6 @@ _SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
 _DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108
 
 
-def _env_variant() -> int | None:
-    raw = os.environ.get("variant", "").strip()
-    if not raw:
-        return None
-    try:
-        return int(raw)
-    except ValueError:
-        raise SystemExit(
-            f"variant environment variable must be an integer, got {raw!r}"
-        ) from None
-
-
 def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
     print(f"=== swarm-matrix: {label} ===", flush=True)
     return int(
@@ -148,6 +136,8 @@ def _purge(*, purge_set: tuple[str, ...]) -> int:
 
 
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
+    from cli.administration.deploy.development.variant_select import add_variant_args
+
     p = argparse.ArgumentParser(
         prog="cli.administration.deploy.swarm.matrix",
         description=(
@@ -172,15 +162,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
             "<dir>-<n> (default: $INFINITO_INVENTORY_DIR or /tmp/inv)."
         ),
     )
-    p.add_argument(
-        "--variant",
-        type=int,
-        default=_env_variant(),
-        help=(
-            "Pin to a single round (zero-based); defaults to the `variant` "
-            "env var, else the full matrix."
-        ),
-    )
+    add_variant_args(p, action="deploy")
     return p.parse_args(argv)
 
 
@@ -197,8 +179,10 @@ def main(argv: list[str] | None = None) -> int:
     from cli.administration.deploy.development.inventory import (
         _bake_overrides,
         _resolve_variant_payloads,
-        filter_plan_to_variant,
         plan_dev_inventory_matrix,
+    )
+    from cli.administration.deploy.development.variant_select import (
+        apply_variant_filter,
     )
 
     plan = plan_dev_inventory_matrix(
@@ -207,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
         base_inventory_dir=str(args.inventory_dir),
     )
     try:
-        plan = filter_plan_to_variant(plan, args.variant)
+        plan = apply_variant_filter(plan, args)
     except ValueError as exc:
         raise SystemExit(f"--variant: {exc}") from exc
 
