@@ -23,6 +23,15 @@
       STORAGE_NFS_STATE_PATH must be a strict subdir of storage.nfs.export_base;
       equal paths collide on the two distinct exports (root_squash vs no_root_squash).
 
+- name: "Bind-mount the state subdir onto itself (kernel nfsd needs a real mount boundary to cross into the fsid=2 export)"
+  ansible.posix.mount:
+    path: "{{ STORAGE_NFS_STATE_PATH }}"
+    src: "{{ STORAGE_NFS_STATE_PATH }}"
+    fstype: none
+    opts: bind
+    state: mounted
+  when: SVC_STORAGE_NFS_SERVER_FLAVOR == 'kernel'
+
 - name: "Gather facts on swarm members so their IPs become available"
   ansible.builtin.setup:
     gather_subset: network
