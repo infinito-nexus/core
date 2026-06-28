@@ -214,7 +214,7 @@ class LookupModule(LookupBase):
         public_domain = get(
             applications,
             provider_role,
-            "server.domains.canonical.api",
+            "domains.canonical.api",
             strict=False,
             default="",
             skip_missing_app=True,

@@ -1,0 +1,6 @@
+---
+local:
+  subnet: 192.168.202.0/24
+overlay:
+  modes: [compose, swarm]
+  topology: shared_net

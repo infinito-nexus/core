@@ -20,9 +20,9 @@ def _per_app_redirect_mappings(
 ) -> list[dict[str, str]]:
     """Build a flat list of {source, target} 301 mappings for all apps.
 
-    For each app, the canonical (first entry of ``server.domains.canonical``,
+    For each app, the canonical (first entry of ``domains.canonical``,
     falling back to ``<entity>.<primary_domain>``) is the redirect target.
-    Each alias from ``server.domains.aliases`` becomes a source. When
+    Each alias from ``domains.aliases`` becomes a source. When
     ``auto_build_alias`` is true, ``<entity>.<primary_domain>`` is also
     added as an alias unless already canonical. Self-mappings are skipped.
     """
@@ -33,7 +33,7 @@ def _per_app_redirect_mappings(
         entry = render_domain_value(
             domains_cfg[key],
             {"DOMAIN_PRIMARY": primary_domain},
-            f"{app_id}.server.domains.{key}",
+            f"{app_id}.domains.{key}",
         )
         if isinstance(entry, dict):
             values = list(entry.values())
@@ -61,7 +61,7 @@ def _per_app_redirect_mappings(
             entry = render_domain_value(
                 domains_cfg["canonical"],
                 {"DOMAIN_PRIMARY": primary_domain},
-                f"{app_id}.server.domains.canonical",
+                f"{app_id}.domains.canonical",
             )
             if isinstance(entry, dict):
                 canonical_map[app_id] = list(entry.values())
@@ -69,7 +69,7 @@ def _per_app_redirect_mappings(
                 canonical_map[app_id] = list(entry)
             else:
                 raise AnsibleError(
-                    f"Unexpected type for 'server.domains.canonical' in "
+                    f"Unexpected type for 'domains.canonical' in "
                     f"application '{app_id}': {type(entry).__name__}"
                 )
         else:

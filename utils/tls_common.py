@@ -200,7 +200,7 @@ def resolve_term(
 
     Behavior:
       1) If term is a domain and exists in *global* domains mapping -> primary_domain = that term (normalized).
-      2) If term is a domain and only exists in applications[*].server.domains -> map to app_id,
+      2) If term is a domain and only exists in applications[*].domains -> map to app_id,
          and primary_domain = canonical primary from global domains mapping (first entry).
     """
     t = as_str(term)
@@ -231,7 +231,7 @@ def resolve_term(
         except AnsibleError:
             pass
 
-        # 2) Fallback: resolve via applications[*].server.domains.{canonical,aliases}
+        # 2) Fallback: resolve via applications[*].domains.{canonical,aliases}
         apps = applications or {}
         if not isinstance(apps, dict):
             raise AnsibleError(

@@ -6,7 +6,7 @@ and `roles/sys-svc-container/templates/networks.yml.j2` used to emit:
 * :func:`render_compose_networks` -> top-level ``networks:`` block (column 0)
 * :func:`render_container_networks` -> per-service ``networks:`` attachment (4-space indent)
 
-The schema lives at ``meta/server.yml.networks.overlay`` per provider role,
+The schema lives at ``meta/networks.yml.overlay`` per provider role,
 discovered into the service_registry by ``discover_role_services``. Keys:
 
 * ``modes``: list of DEPLOYMENT_MODE values where this overlay applies
@@ -198,9 +198,7 @@ def render_compose_networks(
             lines.append("    driver_opts:")
             lines.append(f'      encrypted: "{"true" if swarm_encrypted else "false"}"')
             if not is_own_shared_net_provider:
-                subnet = lookup_config(
-                    application_id, "server.networks.local.subnet", ""
-                )
+                subnet = lookup_config(application_id, "networks.local.subnet", "")
                 if subnet:
                     lines.append("    ipam:")
                     lines.append("      driver: default")
@@ -209,7 +207,7 @@ def render_compose_networks(
         elif is_own_shared_net_provider:
             lines.append("    driver: bridge")
         else:
-            subnet = lookup_config(application_id, "server.networks.local.subnet", "")
+            subnet = lookup_config(application_id, "networks.local.subnet", "")
             if subnet:
                 lines.append(f"    name: {own_entity}")
                 lines.append("    driver: bridge")

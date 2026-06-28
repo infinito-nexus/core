@@ -1,22 +1,5 @@
 ---
 status_codes:
   default:
-    - 301
-    - 200
-domains:
-  canonical:
-    - mail.{{ DOMAIN_PRIMARY }}
-  aliases: []
-csp:
-  flags:
-    style-src-attr:
-      unsafe-inline: true
-    script-src-elem:
-      unsafe-inline: true
-    script-src-attr:
-      unsafe-inline: true
-      unsafe-eval: true
-networks:
-  local:
-    subnet: 192.168.106.0/24
-    dns_resolver: 192.168.106.29
+  - 301
+  - 200

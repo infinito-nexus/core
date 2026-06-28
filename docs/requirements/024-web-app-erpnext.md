@@ -27,7 +27,7 @@ These decisions were confirmed by the operator before implementation starts and 
 
 | # | Decision | Rationale |
 |---|---|---|
-| 1 | Canonical hostname: `next.erp.{{ DOMAIN_PRIMARY }}`. No alias on first iteration. | Mirrors the `odoo.erp.{{ DOMAIN_PRIMARY }}` convention used by [`web-app-odoo`](../../roles/web-app-odoo/meta/server.yml); both ERPs sit under the `.erp.` subdomain. |
+| 1 | Canonical hostname: `next.erp.{{ DOMAIN_PRIMARY }}`. No alias on first iteration. | Mirrors the `odoo.erp.{{ DOMAIN_PRIMARY }}` convention used by [`web-app-odoo`](../../roles/web-app-odoo/meta/domains.yml); both ERPs sit under the `.erp.` subdomain. |
 | 2 | SSO flavor is **OIDC-direct** (`services.sso.flavor: oidc`), NOT oauth2-proxy. The role uses Frappe's built-in Social Login Key. | Frappe supports OIDC natively as an OAuth client; an oauth2-proxy sidecar would be redundant and break the Frappe "Login with X" UX. |
 | 3 | Use the unified post-[021](README.md#archive) `services.sso.*` schema (matches [`web-app-odoo`](../../roles/web-app-odoo/meta/services.yml)). | [021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape. |
 | 4 | The Keycloak OIDC client for ERPNext is **auto-provisioned** via `web-app-keycloak`, consistent with every other OIDC-consuming role in the repo. | No manual operator step on deploy. |
@@ -194,7 +194,7 @@ DB numbers (0 / 1 / 2) are stable for v1; if `svc-db-redis` later partitions ten
 
 - [x] `next.erp.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to the ERPNext Nginx frontend and returns HTTP 200 on `GET /` with a Frappe-served HTML body (verified in matrix r3 across all three variants; CSP `unsafe-eval` added to satisfy Frappe's `eval()` use).
 - [x] WebSocket upgrade to the SocketIO container is wired (`websocket` port in `meta/services.yml`, `BACKEND`/`SOCKETIO` env on the frontend nginx).
-- [x] CSP `connect-src` whitelist includes the canonical host and its `wss://` variant (mirrors the [`web-app-odoo`](../../roles/web-app-odoo/meta/server.yml) precedent).
+- [x] CSP `connect-src` whitelist includes the canonical host and its `wss://` variant (mirrors the [`web-app-odoo`](../../roles/web-app-odoo/meta/csp.yml) precedent).
 
 ### Role layout & image
 

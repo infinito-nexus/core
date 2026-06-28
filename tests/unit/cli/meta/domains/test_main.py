@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import cli.meta.domains.__main__ as mod
 from utils.cache.yaml import dump_yaml_str
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
 
 
 class TestCliMetaApplicationsDomains(TestCase):
@@ -22,9 +22,9 @@ class TestCliMetaApplicationsDomains(TestCase):
             dump_yaml_str({"application_id": app_id}),
             encoding="utf-8",
         )
-        server_payload = config.get("server", {}) if isinstance(config, dict) else {}
-        (role_dir / ROLE_FILE_META_SERVER).write_text(
-            dump_yaml_str(server_payload),
+        domains_payload = config.get("domains", {}) if isinstance(config, dict) else {}
+        (role_dir / ROLE_FILE_META_DOMAINS).write_text(
+            dump_yaml_str(domains_payload),
             encoding="utf-8",
         )
 
@@ -49,11 +49,9 @@ class TestCliMetaApplicationsDomains(TestCase):
                 "web-app-dashboard",
                 "web-app-dashboard",
                 {
-                    "server": {
-                        "domains": {
-                            "canonical": ["dashboard.{{ DOMAIN_PRIMARY }}"],
-                            "aliases": ["alias.{{ DOMAIN_PRIMARY }}"],
-                        }
+                    "domains": {
+                        "canonical": ["dashboard.{{ DOMAIN_PRIMARY }}"],
+                        "aliases": ["alias.{{ DOMAIN_PRIMARY }}"],
                     }
                 },
             )

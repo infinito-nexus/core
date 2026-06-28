@@ -1,30 +1,6 @@
 ---
 status_codes:
   default:
-    - 200
-    - 301
-    - 302
-domains:
-  canonical:
-    - penpot.design.{{ DOMAIN_PRIMARY }}
-  aliases: []
-csp:
-  whitelist:
-    worker-src:
-      - "blob:"
-    img-src:
-      - "data:"
-      - "blob:"
-    font-src:
-      - "data:"
-  flags:
-    script-src-elem:
-      unsafe-inline: true
-      unsafe-eval: true
-    script-src-attr:
-      unsafe-eval: true
-    style-src-attr:
-      unsafe-inline: true
-networks:
-  local:
-    subnet: 192.168.48.0/24
+  - 200
+  - 301
+  - 302

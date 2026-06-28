@@ -16,7 +16,7 @@ class LookupModule(LookupBase):
 
     Resolves the canonical primary domain for `application_id` via
     utils.cache.domains.get_merged_domains (cached). Per-app overrides
-    belong in `applications.<app>.server.domains` and flow through the
+    belong in `applications.<app>.domains` and flow through the
     regular applications-merge pipeline.
     """
 

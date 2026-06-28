@@ -11,7 +11,7 @@ across every role:
 
 Writing a literal ``networks:`` mapping key by hand is forbidden -- the
 lookups already derive the correct network name from the service registry
-and the role's ``server.networks.overlay`` metadata. The rule applies to
+and the role's ``networks.overlay`` metadata. The rule applies to
 ANY ``*.yml.j2`` under ``roles/*/templates/`` because compose.yml.j2 often
 ``{% include %}``-pulls service definitions from sibling templates. The
 legacy ``{% include 'roles/sys-svc-{compose,container}/templates/networks.yml.j2' %}``

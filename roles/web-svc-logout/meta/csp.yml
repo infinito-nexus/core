@@ -1,0 +1,17 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+whitelist:
+  connect-src:
+  - "*.{{ DOMAIN_PRIMARY }}"
+  - "{{ DOMAIN_PRIMARY }}"
+  - https://cdn.jsdelivr.net
+  script-src-elem:
+  - https://cdn.jsdelivr.net
+  style-src-elem:
+  - https://cdn.jsdelivr.net
+  frame-ancestors:
+  - "{{ lookup('domain', 'web-app-keycloak') }}"

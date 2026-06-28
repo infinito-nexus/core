@@ -54,7 +54,15 @@ _CANONICAL_VOLUMES_BY_ROLE: dict[str, dict[str, Any]] = {}
 
 # The file root IS the value of `applications.<app>.<topic>`; there is NO
 # wrapping key matching the filename.
-_META_TOPICS: tuple[str, ...] = ("server", "rbac", "services", "volumes")
+_META_TOPICS: tuple[str, ...] = (
+    "server",
+    "rbac",
+    "services",
+    "volumes",
+    "csp",
+    "domains",
+    "networks",
+)
 
 _META_ADDONS_DIR: str = "addons"
 

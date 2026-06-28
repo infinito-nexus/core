@@ -1,5 +1,5 @@
 """Lint guard: never glue a literal ``http://`` / ``https://`` in front of a
-domain that comes from a ``lookup(...)`` (or from a ``server.domains.canonical``
+domain that comes from a ``lookup(...)`` (or from a ``domains.canonical``
 member access). The protocol must come from the same source as the domain so
 TLS-on / TLS-off / self-signed / public-CA stays consistent across the stack.
 
@@ -33,7 +33,7 @@ The regex catches three concrete shapes:
 1. ``https?://{{ ... lookup( ... }}``    — Jinja interpolation with a lookup
 2. ``"https?://" ~ lookup(...)``         — Jinja string concatenation with lookup
 3. ``"https?://" ~ ... canonical.<key>`` — concatenation with a
-   ``server.domains.canonical`` member access.
+   ``domains.canonical`` member access.
 
 Plain ``"http://" ~ host ~ ":" ~ port`` style internal URLs (the protocol is
 fixed because the upstream is on a docker network with no TLS) are *not*
@@ -63,7 +63,7 @@ _CONCAT_LOOKUP_RE: re.Pattern[str] = re.compile(
     r"['\"]https?://['\"]\s*~\s*\(?\s*\blookup\s*\("
 )
 # 3. ``"https?://" ~ ANY.canonical.<key>`` — Jinja concat that drills into a
-#    canonical hostname through attribute access (``.server.domains.canonical.<key>``).
+#    canonical hostname through attribute access (``.domains.canonical.<key>``).
 _CONCAT_CANONICAL_RE: re.Pattern[str] = re.compile(
     r"['\"]https?://['\"]\s*~[^'\"]*\bcanonical\b"
 )

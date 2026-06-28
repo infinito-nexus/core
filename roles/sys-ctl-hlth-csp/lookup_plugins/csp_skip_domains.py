@@ -103,14 +103,14 @@ class LookupModule(LookupBase):
             canonical = get(
                 applications,
                 app_id,
-                "server.domains.canonical",
+                "domains.canonical",
                 strict=False,
                 default=[],
             )
             aliases = get(
                 applications,
                 app_id,
-                "server.domains.aliases",
+                "domains.aliases",
                 strict=False,
                 default=[],
             )

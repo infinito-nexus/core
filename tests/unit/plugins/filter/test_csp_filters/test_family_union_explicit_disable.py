@@ -10,15 +10,13 @@ class TestCspFamilyUnionExplicitDisable(unittest.TestCase):
         self.apps = {
             "app1": {
                 "services": {"matomo": {"enabled": True}},
-                "server": {
-                    "csp": {
-                        "whitelist": {},
-                        "flags": {
-                            "script-src": {"unsafe-inline": False, "unsafe-eval": True},
-                            "style-src": {"unsafe-inline": True},
-                        },
-                        "hashes": {},
-                    }
+                "csp": {
+                    "whitelist": {},
+                    "flags": {
+                        "script-src": {"unsafe-inline": False, "unsafe-eval": True},
+                        "style-src": {"unsafe-inline": True},
+                    },
+                    "hashes": {},
                 },
             }
         }
@@ -45,11 +43,9 @@ class TestCspFamilyUnionExplicitDisable(unittest.TestCase):
         apps = copy.deepcopy(self.apps)
 
         # Explicitly disable unsafe-inline for the base
-        apps["app1"].setdefault("server", {}).setdefault("csp", {}).setdefault(
-            "flags", {}
-        )
-        apps["app1"]["server"]["csp"]["flags"].setdefault("style-src", {})
-        apps["app1"]["server"]["csp"]["flags"]["style-src"]["unsafe-inline"] = False
+        apps["app1"].setdefault("csp", {}).setdefault("flags", {})
+        apps["app1"]["csp"]["flags"].setdefault("style-src", {})
+        apps["app1"]["csp"]["flags"]["style-src"]["unsafe-inline"] = False
 
         header = self.filter.build_csp_header(apps, "app1", self.domains, "https")
 
@@ -72,18 +68,12 @@ class TestCspFamilyUnionExplicitDisable(unittest.TestCase):
         apps = copy.deepcopy(self.apps)
 
         # Force elem/attr to allow unsafe-inline explicitly
-        apps["app1"].setdefault("server", {}).setdefault("csp", {}).setdefault(
-            "flags", {}
-        )
-        apps["app1"]["server"]["csp"]["flags"]["script-src-elem"] = {
-            "unsafe-inline": True
-        }
-        apps["app1"]["server"]["csp"]["flags"]["script-src-attr"] = {
-            "unsafe-inline": True
-        }
+        apps["app1"].setdefault("csp", {}).setdefault("flags", {})
+        apps["app1"]["csp"]["flags"]["script-src-elem"] = {"unsafe-inline": True}
+        apps["app1"]["csp"]["flags"]["script-src-attr"] = {"unsafe-inline": True}
 
         # Explicitly disable on base
-        apps["app1"]["server"]["csp"]["flags"]["script-src"] = {
+        apps["app1"]["csp"]["flags"]["script-src"] = {
             "unsafe-inline": False,
             "unsafe-eval": True,
         }

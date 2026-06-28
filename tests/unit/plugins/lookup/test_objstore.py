@@ -121,9 +121,7 @@ class ObjstoreLookupTests(unittest.TestCase):
                 "services": {
                     "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
                 },
-                "server": {
-                    "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}}
-                },
+                "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}},
             },
         }
 
@@ -158,10 +156,8 @@ class ObjstoreLookupTests(unittest.TestCase):
             },
             "web-app-minio": {
                 "services": {"minio": {"name": "minio-central"}},
-                "server": {
-                    "tls": {"enabled": False},
-                    "domains": {"canonical": {"api": "api.minio.s3.example.com"}},
-                },
+                "server": {"tls": {"enabled": False}},
+                "domains": {"canonical": {"api": "api.minio.s3.example.com"}},
             },
         }
 

@@ -1,15 +1,2 @@
 ---
-csp:
-  flags:
-    script-src-attr:
-      unsafe-eval: true
-  whitelist:
-    manifest-src: "{{ lookup('domain', 'web-app-keycloak') }}"
-domains:
-  aliases: []
-  canonical:
-    - suite.crm.{{ DOMAIN_PRIMARY }}
 client_max_body_size: 100M
-networks:
-  local:
-    subnet: 192.168.61.0/24

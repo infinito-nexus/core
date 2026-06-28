@@ -33,7 +33,7 @@ MAILU_ADMIN_DATA_VOLUME: "{{ lookup('volume', application_id, 'admin_data').name
 MAILU_FILTER_VOLUME: "{{ lookup('volume', application_id, 'filter').name }}"
 MAILU_DKIM_VOLUME: "{{ lookup('volume', application_id, 'dkim').name }}"
 MAILU_DOVECOT_MAIL_VOLUME: "{{ lookup('volume', application_id, 'dovecot_mail').name }}"
-MAILU_DNS_RESOLVER: "{{ lookup('config', 'svc-dns-unbound', 'server.networks.local.dns_resolver') }}"
+MAILU_DNS_RESOLVER: "{{ lookup('config', 'svc-dns-unbound', 'networks.local.dns_resolver') }}"
 # Names the admin container dials at startup (must match env.j2 verbatim) and the
 # swarm overlay each shares with the central service. On swarm admin's `dns:` is
 # pinned to a public DNSSEC resolver, so these names are served via extra_hosts.
@@ -42,7 +42,7 @@ MAILU_SWARM_DB_ENGINE: "{{ lookup('database', application_id, 'type') }}"
 MAILU_SWARM_REDIS_HOST: "{{ lookup('engine', 'redis', application_id, 'host') }}"
 MAILU_IP4_PUBLIC: "{{ DOCKER_PUBLIC_BIND_HOST }}"
 MAILU_IP6_PUBLIC: "" # Deactivated atm. but cloudflare logic present @todo activate it when it's configured for docker.
-MAILU_SUBNET: "{{ lookup('config', 'web-app-mailu', 'server.networks.local.subnet') }}"
+MAILU_SUBNET: "{{ lookup('config', 'web-app-mailu', 'networks.local.subnet') }}"
 MAILU_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 MAILU_API_TOKEN: "{{ lookup('config', application_id, 'credentials.api_token') }}"
 MAILU_OIDC_HOST: "{{ lookup('domain','web-app-keycloak') }}"

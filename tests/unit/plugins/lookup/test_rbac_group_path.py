@@ -46,7 +46,7 @@ class TestRbacGroupPathLookup(unittest.TestCase):
         self.tenant_apps = {
             "web-app-wordpress": {
                 "rbac": {
-                    "tenancy": {"axis": "domain", "source": "server.domains.canonical"},
+                    "tenancy": {"axis": "domain", "source": "domains.canonical"},
                     "roles": {
                         "editor": {"description": "Editor"},
                         "subscriber": {"description": "Subscriber"},

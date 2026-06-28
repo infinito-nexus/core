@@ -2,7 +2,7 @@
 
 The ``compose_networks`` and ``container_networks`` lookup plugins emit
 overlay attachments based on each service_registry entry's
-``server.networks.overlay`` metadata. These tests pin the exact rendered
+``networks.overlay`` metadata. These tests pin the exact rendered
 YAML for representative scenarios against the pure-Python rendering
 functions so future schema edits have to update the expected snapshots --
 guarding against silent regressions between `make test green` and
@@ -98,7 +98,7 @@ def _make_lookups(*, database=None, services=None, subnet=""):
     services = services or {}
     database = database or {}
     config_data = {
-        "server": {"networks": {"local": {"subnet": subnet} if subnet else {}}},
+        "networks": {"local": {"subnet": subnet} if subnet else {}},
         "services": services,
     }
 

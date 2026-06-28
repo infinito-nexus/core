@@ -86,31 +86,27 @@ class TestServiceRegistryDiscovery(unittest.TestCase):
         applications = {
             "svc-db-mariadb": {
                 "services": {"mariadb": {"enabled": True, "shared": True}},
-                "server": {
-                    "networks": {
-                        "overlay": {
-                            "modes": ["compose", "swarm"],
-                            "topology": "shared_net",
-                            "aliases": ["mariadb"],
-                            "consumer": {"kind": "database"},
-                        }
+                "networks": {
+                    "overlay": {
+                        "modes": ["compose", "swarm"],
+                        "topology": "shared_net",
+                        "aliases": ["mariadb"],
+                        "consumer": {"kind": "database"},
                     }
                 },
             },
             "svc-prx-openresty": {
                 "services": {"openresty": {"enabled": True, "shared": True}},
-                "server": {
-                    "networks": {
-                        "overlay": {
-                            "modes": ["swarm"],
-                            "topology": "default_net",
-                            "aliases": [],
-                            "consumer": {
-                                "kind": "services_flags",
-                                "key": "sso",
-                                "flags": ["enabled"],
-                            },
-                        }
+                "networks": {
+                    "overlay": {
+                        "modes": ["swarm"],
+                        "topology": "default_net",
+                        "aliases": [],
+                        "consumer": {
+                            "kind": "services_flags",
+                            "key": "sso",
+                            "flags": ["enabled"],
+                        },
                     }
                 },
             },
@@ -122,13 +118,11 @@ class TestServiceRegistryDiscovery(unittest.TestCase):
                         "provides": "oidc",
                     }
                 },
-                "server": {
-                    "networks": {
-                        "overlay": {
-                            "modes": ["swarm"],
-                            "proxy_resolvable": True,
-                            "aliases": ["auth.example"],
-                        }
+                "networks": {
+                    "overlay": {
+                        "modes": ["swarm"],
+                        "proxy_resolvable": True,
+                        "aliases": ["auth.example"],
                     }
                 },
             },

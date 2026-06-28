@@ -411,7 +411,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             registry=registry,
             get_entity_name=_entity_name,
             lookup_config=_const_lookup_config(
-                **{"server.networks.local.subnet": "10.0.0.0/24"}
+                **{"networks.local.subnet": "10.0.0.0/24"}
             ),
             lookup_database=_const_lookup_database(),
         )
@@ -580,7 +580,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
             registry=_PROVIDER_REGISTRY,
             get_entity_name=_entity_name,
             lookup_config=_const_lookup_config(
-                **{"server.networks.local.subnet": "192.168.206.0/24"}
+                **{"networks.local.subnet": "192.168.206.0/24"}
             ),
             lookup_database=_const_lookup_database(),
         )

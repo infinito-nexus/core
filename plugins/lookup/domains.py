@@ -25,7 +25,7 @@ class LookupModule(LookupBase):
     Behavior:
         Builds (and caches) the canonical-domains map via
         utils.cache.domains.get_merged_domains. Per-app overrides belong
-        in `applications.<app>.server.domains` (canonical/aliases) and flow
+        in `applications.<app>.domains` (canonical/aliases) and flow
         through the regular applications-merge pipeline. No upstream set_fact
         required.
     """

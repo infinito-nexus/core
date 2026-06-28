@@ -43,8 +43,8 @@ def _selection_from(group_names: Any) -> set[str]:
 class LookupModule(LookupBase):
     """Return the full redirect-mapping list for the www-redirect helper.
 
-    For every selected application, iterate ``server.domains.canonical`` and
-    ``server.domains.aliases`` and emit a ``{source, target}`` 301-mapping:
+    For every selected application, iterate ``domains.canonical`` and
+    ``domains.aliases`` and emit a ``{source, target}`` 301-mapping:
       * if the entry already begins with ``www.``: source = entry,
         target = entry without the ``www.`` prefix,
       * otherwise: source = ``www.<entry>``, target = entry.
@@ -101,14 +101,14 @@ class LookupModule(LookupBase):
             canonical = get(
                 applications,
                 app_id,
-                "server.domains.canonical",
+                "domains.canonical",
                 strict=False,
                 default=[],
             )
             aliases = get(
                 applications,
                 app_id,
-                "server.domains.aliases",
+                "domains.aliases",
                 strict=False,
                 default=[],
             )

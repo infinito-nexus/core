@@ -1,0 +1,4 @@
+---
+canonical:
+- mail.{{ DOMAIN_PRIMARY }}
+aliases: []

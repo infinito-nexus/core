@@ -36,7 +36,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 | `services.sso.enabled` | `true` | Enable Keycloak SSO via GitLab OAuth2 |
 | `services.postgres.shared` | `true` | Use the shared PostgreSQL service instead of a role-local one |
 | `services.mattermost.version` | `latest` | Docker image tag |
-| `server.domains.canonical` | `mattermost.{{ DOMAIN_PRIMARY }}` | Public domain |
+| `domains.canonical` | `mattermost.{{ DOMAIN_PRIMARY }}` | Public domain |
 
 ## Addons
 

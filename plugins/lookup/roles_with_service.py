@@ -34,10 +34,7 @@ if TYPE_CHECKING:
 
 
 def _resolve_canonical_domain(app_config: dict[str, Any]) -> str:
-    server = app_config.get("server")
-    if not isinstance(server, dict):
-        return ""
-    domains = server.get("domains")
+    domains = app_config.get("domains")
     if not isinstance(domains, dict):
         return ""
     canonical = domains.get("canonical")
