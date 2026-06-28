@@ -138,8 +138,17 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
 
+      - name: Pre-pull buildkit image (retry 7x, 20s)
+        shell: bash
+        env:
+          MAX_ATTEMPTS: "7"
+          RETRY_DELAY_SECONDS: "20"
+        run: bash scripts/github/runner/pull_with_retry.sh moby/buildkit:buildx-stable-1
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+        with:
+          driver-opts: image=moby/buildkit:buildx-stable-1
 
       - name: Login to GHCR
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
