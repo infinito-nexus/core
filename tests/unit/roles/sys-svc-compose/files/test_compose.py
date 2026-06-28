@@ -576,6 +576,67 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
             s.build_cmd = old_build_cmd  # type: ignore[assignment]
             s.os.execvp = old_execvp  # type: ignore[assignment]
 
+    def test_build_cmd_up_returns_none_for_serviceless_project(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "compose.yml").write_text("services: {}\n")
+            self.assertIsNone(s.build_cmd("proj", tmp, ["up", "-d"]))
+
+    def test_build_cmd_up_runs_when_services_present(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "compose.yml").write_text("services:\n  web:\n    image: x\n")
+            cmd = s.build_cmd("proj", tmp, ["up", "-d"])
+            self.assertIsNotNone(cmd)
+            self.assertEqual(cmd[-2:], ["up", "-d"])
+
+    def test_build_cmd_up_runs_when_compose_unparseable(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "compose.yml").write_text("services: [unbalanced\n")
+            self.assertIsNotNone(s.build_cmd("proj", tmp, ["up", "-d"]))
+
+    def test_main_returns_0_when_no_services(self):
+        s = self.script
+        old_argv = s.sys.argv
+        old_is_dir = s.Path.is_dir
+        old_resolve = s.Path.resolve
+        old_build_cmd = s.build_cmd
+        old_execvp = s.os.execvp
+        execvp_called = {"v": False}
+        try:
+
+            def fake_resolve(self: Path) -> Path:
+                return self
+
+            def fake_is_dir(self: Path) -> bool:
+                return str(self) == "/work/discourse"
+
+            def fake_build_cmd(project, project_dir, passthrough, extra_files=None):
+                return None
+
+            def fake_execvp(prog, argv):
+                execvp_called["v"] = True
+                raise RuntimeError("execvp must not run when there are no services")
+
+            s.Path.resolve = fake_resolve  # type: ignore[assignment]
+            s.Path.is_dir = fake_is_dir  # type: ignore[assignment]
+            s.build_cmd = fake_build_cmd  # type: ignore[assignment]
+            s.os.execvp = fake_execvp  # type: ignore[assignment]
+
+            s.sys.argv = ["compose.py", "--chdir", "/work/discourse", "up", "-d"]
+            self.assertEqual(s.main(), 0)
+            self.assertFalse(execvp_called["v"])
+        finally:
+            s.sys.argv = old_argv
+            s.Path.is_dir = old_is_dir  # type: ignore[assignment]
+            s.Path.resolve = old_resolve  # type: ignore[assignment]
+            s.build_cmd = old_build_cmd  # type: ignore[assignment]
+            s.os.execvp = old_execvp  # type: ignore[assignment]
+
 
 class TestCaOverrideStaleDetection(unittest.TestCase):
     @classmethod

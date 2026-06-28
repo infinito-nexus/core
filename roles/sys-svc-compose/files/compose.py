@@ -159,17 +159,36 @@ def strip_env_files(project_dir: Path, files: list[Path]) -> list[Path]:
     return out
 
 
+def _declared_services(files: list[Path]) -> set[str] | None:
+    """Top-level `services:` keys across *files*; None if any file fails to parse."""
+    services: set[str] = set()
+    for f in files:
+        try:
+            with Path(f).open() as fh:
+                doc = yaml.safe_load(fh)  # nocheck: direct-yaml
+        except (OSError, yaml.YAMLError):
+            return None
+        if isinstance(doc, dict) and isinstance(doc.get("services"), dict):
+            services.update(doc["services"].keys())
+    return services
+
+
 def build_cmd(
     project: str,
     project_dir: Path,
     passthrough: list[str],
     extra_files: list[str] | None = None,
-) -> list[str]:
-    """Auto-detected compose files, with extra_files appended last."""
+) -> list[str] | None:
+    """Compose files (extra_files last); None for `up` with no services."""
     files = detect_compose_files(project_dir)
 
     if extra_files:
         files.extend(resolve_files(project_dir, extra_files))
+
+    if _subcommand(passthrough) == "up":
+        services = _declared_services(files)
+        if services is not None and not services:
+            return None
 
     cmd: list[str] = ["docker", "compose", "-p", project]
 
@@ -247,6 +266,13 @@ def main() -> int:
     except Exception as exc:
         print(f"[compose] {exc}", file=sys.stderr)
         return 2
+
+    if cmd is None:
+        print(
+            "[compose] project defines no services; skipping 'up'.",
+            file=sys.stderr,
+        )
+        return 0
 
     if args.debug:
         print(">>> " + " ".join(shlex.quote(x) for x in cmd), file=sys.stderr)
