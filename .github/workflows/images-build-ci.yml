@@ -27,6 +27,11 @@ on:
         required: false
         type: string
         default: "default"
+      allow_unsafe_checkout:
+        description: "Allow actions/checkout to fetch PR head/merge code under pull_request_target. Only set for maintainer-trusted fork PRs."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -77,20 +82,30 @@ jobs:
           ref: ${{ inputs.checkout_ref || github.ref }}
           path: _src
           persist-credentials: false
+          allow-unsafe-pr-checkout: ${{ inputs.allow_unsafe_checkout }}
 
       - name: 💽 Disk pressure (start)
         shell: bash
         run: bash scripts/github/runner/disk_pressure_report.sh START
 
+      - name: ⬇️ Pre-pull buildkit image (retry 7x, 20s)
+        shell: bash
+        env:
+          MAX_ATTEMPTS: "7"
+          RETRY_DELAY_SECONDS: "20"
+        run: bash scripts/github/runner/pull_with_retry.sh moby/buildkit:buildx-stable-1
+
       - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+        with:
+          driver-opts: image=moby/buildkit:buildx-stable-1
 
       - name: 🔑 Login to GHCR
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ github.token }}
 
       - name: 💽 Disk pressure (pre-build)
         shell: bash
@@ -112,7 +127,7 @@ jobs:
           MATRIX_DISTRO: ${{ matrix.distro }}
           IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
           USE_NIX_TOKEN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) }}
-          NIX_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NIX_GITHUB_TOKEN: ${{ github.token }}
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
         run: ./scripts/image/push.sh

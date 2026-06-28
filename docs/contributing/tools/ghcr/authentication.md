@@ -39,11 +39,11 @@ These are used only for pulling source images from Docker Hub and are not requir
 
 ## Fork Pull Requests 🍴
 
-Secrets are NOT available in `pull_request` workflows triggered by forks. This is a GitHub security restriction. The mirror workflow handles this transparently:
+Secrets are NOT available in `pull_request` workflows triggered by forks. This is a GitHub security restriction. The mirror and image build run via `pull_request_target` instead:
 
-- Fork PRs trigger a `pull_request_target` run with the base repository's trusted `GITHUB_TOKEN`.
-- That trusted run mirrors any new images needed by the fork.
-- The fork PR's CI then waits for those images to appear on GHCR before proceeding.
+- A fork PR triggers a `pull_request_target` run that builds and mirrors any new images needed by the fork, authenticating to GHCR with the per-job `GITHUB_TOKEN`.
+- The `pull_request` orchestrator then waits for and consumes those images.
+- Untrusted fork builds run **without** organization secrets (`secrets: inherit` is not passed); Docker Hub mirror credentials are passed only for maintainer-trusted PRs (the `🛡️ Trusted` label). See [pipeline.md](../../artefact/git/pipeline.md#fork-prs-).
 
 ## Troubleshooting 🔧
 

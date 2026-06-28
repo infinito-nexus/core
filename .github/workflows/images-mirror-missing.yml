@@ -32,6 +32,11 @@ on:
         required: false
         type: string
         default: "_pr_source"
+      allow_unsafe_checkout:
+        description: "Allow actions/checkout to fetch PR head/merge code under pull_request_target. Only set for maintainer-trusted fork PRs."
+        required: false
+        type: boolean
+        default: false
       images_per_hour:
         description: "Optional throttle: max images mirrored per hour"
         required: false
@@ -103,6 +108,7 @@ jobs:
           path: ${{ inputs.source_path }}
           fetch-depth: 1
           persist-credentials: false
+          allow-unsafe-pr-checkout: ${{ inputs.allow_unsafe_checkout }}
 
       - name: 🔧 Setup Python
         uses: actions/setup-python@v6
@@ -132,7 +138,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ github.token }}
 
       - name: ⏳ Wait for mirrored images (fork PR)
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}

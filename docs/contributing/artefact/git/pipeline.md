@@ -32,7 +32,7 @@ The orchestrator runs the following stages in order:
 
 ### 1. Fork Prerequisites ⏳
 
-For fork PRs, CI waits for privileged images to be built by the `pull_request_target` event before proceeding. This ensures untrusted code never runs with elevated permissions. A maintainer-applied `trusted-pr` label opts the PR out of this wait — see [Trusted fork PRs](#trusted-fork-prs-).
+For fork PRs, CI waits for privileged images built by the `pull_request_target` event before proceeding. For an untrusted fork that build runs from the safe base merge ref **without organization secrets** (only the per-job `GITHUB_TOKEN`); a maintainer-applied `🛡️ Trusted` label switches the build source to the PR head, unlocks the mirror credentials, and skips the wait — see [Trusted fork PRs](#trusted-fork-prs-).
 
 ### 2. Security 🛡️
 
@@ -62,7 +62,7 @@ The `code-quality-gate` requires linting, code tests, and security checks to all
 
 [images-mirror-missing.yml](../../../../.github/workflows/images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages.
 
-Fork PRs cannot publish mirror packages directly, so their untrusted runs wait for the trusted mirror producer before continuing. See [mirror.md](../image/mirror.md) for the mirroring architecture and naming convention.
+Fork PRs cannot publish mirror packages directly, so their runs wait for the `pull_request_target` mirror producer before continuing. The producer mirrors with the Docker Hub credentials only for trusted PRs ([🛡️ Trusted](#trusted-fork-prs-)); untrusted forks mirror anonymously (no organization secrets). See [mirror.md](../image/mirror.md) for the mirroring architecture and naming convention.
 
 GHCR publication uses the workflow `GITHUB_TOKEN`; optional Docker Hub secrets are used only to reduce source-side Docker Hub rate limits while mirroring. See [authentication.md](../../tools/ghcr/authentication.md).
 
@@ -108,22 +108,23 @@ See [configuration.md](../../tools/github/actions/configuration.md) for all repo
 
 ## Fork PRs 🍴
 
-Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target` after a maintainer review. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow.
+Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target`. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow.
 
-By default the privileged `pull_request_target` build checks out the **base merge ref** (`refs/pull/<N>/merge`) from the base repository — the PR's changes merged onto base, with all workflow and build-orchestration scripts coming from base, never from the fork.
+By default — for an **untrusted** fork PR — the privileged `pull_request_target` build checks out the **base merge ref** (`refs/pull/<N>/merge`) from the base repository: the PR's changes merged onto base, with all workflow and build-orchestration scripts coming from base, never from the fork. Because `actions/checkout` otherwise refuses to fetch a PR ref under `pull_request_target`, the source checkout sets `allow-unsafe-pr-checkout: true`. The untrusted build runs **without organization secrets** — `secrets: inherit` is not passed and it authenticates to GHCR with the per-job `GITHUB_TOKEN` only, so a malicious fork cannot read repository/organization secrets. (The `pull_request_target` token still carries `packages: write`, so the `🛡️ Trusted` label remains the real trust boundary for anything beyond image publication.)
 
 ### Trusted fork PRs 🔓
 
-When a maintainer applies the `trusted-pr` label, the fork PR is treated as deliberately released code:
+When a maintainer applies the `🛡️ Trusted` label, the fork PR is treated as deliberately released code:
 
 - The orchestrator's `wait-fork-prereq-run` job **skips the wait** for the privileged fork images.
 - The privileged `pull_request_target` build switches its **build source** from the base merge ref to the **raw PR head** (`head.repo.full_name` @ `head.sha`).
+- The trusted build additionally receives the Docker Hub mirror credentials (passed only when the label is present); untrusted builds mirror anonymously.
 - The built image **keeps the merge-SHA tag** (`ci-<merge_sha>`) so the `pull_request` orchestrator finds it unchanged — no consumer workflow has to know about the label.
 
 Security gates:
 
-- Only the `trusted-pr` label flips the build source; without it the safe base merge ref is used. Restrict who may set the label via repository label permissions / branch protection so only maintainers can grant it.
+- The `🛡️ Trusted` label flips the build source to the PR head and unlocks the Docker Hub credentials; without it the safe base merge ref is built with no organization secrets. Restrict who may set the label via repository label permissions / branch protection so only maintainers can grant it.
 - Build-orchestration scripts (`scripts/image/push.sh` and the helper checkout) always come from the base repo at `github.sha`; only the Docker build **context** (`_src`) is the fork head. `persist-credentials: false` keeps the token out of the source checkout, and `USE_NIX_TOKEN` stays disabled for fork-sourced builds.
 - Fork `pull_request` runs always receive a read-only token (GitHub-enforced); the label never grants write tokens or secrets to the untrusted event.
 
-Both events carry a `labeled` trigger, so applying the `trusted-pr` label starts fresh runs that already observe it: the `pull_request_target` build switches to the PR head and the `pull_request` orchestrator skips the wait — no extra push is needed. (Re-running an existing run does not pick up a new label, because GitHub replays the original event payload.) The trade-off is that any label change starts a fresh PR CI run.
+Both events carry a `labeled` trigger, so applying the `🛡️ Trusted` label starts fresh runs that already observe it: the `pull_request_target` build switches to the PR head and the `pull_request` orchestrator skips the wait — no extra push is needed. (Re-running an existing run does not pick up a new label, because GitHub replays the original event payload.) The trade-off is that any label change starts a fresh PR CI run.

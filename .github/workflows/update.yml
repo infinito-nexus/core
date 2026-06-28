@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: 🔧 Set up Python
         uses: actions/setup-python@v6
@@ -56,7 +58,7 @@ jobs:
           UPDATE_PR_TITLE: "update(images): update Docker image versions"
           UPDATE_PR_BODY: "Automated update of semver-based Docker image versions in `roles/*/meta/services.yml`."
           UPDATE_BASE_BRANCH: main
-        run: bash scripts/github/update/open_pr.sh roles
+        run: bash scripts/github/update/open_role_prs.sh roles
 
   update-repository-refs:
     name: 🌿 Update repository refs
@@ -65,6 +67,8 @@ jobs:
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: 🔧 Set up Python
         uses: actions/setup-python@v6
@@ -101,7 +105,7 @@ jobs:
           UPDATE_PR_TITLE: "update(repos): bump git refs to latest semver tags"
           UPDATE_PR_BODY: "Automated update of semver-based git `ref:` values in `roles/*/meta/services.yml`. Upstream tags resolved via `git ls-remote --tags`."
           UPDATE_BASE_BRANCH: main
-        run: bash scripts/github/update/open_pr.sh roles
+        run: bash scripts/github/update/open_role_prs.sh roles
 
   update-skills:
     name: 🧠 Update skills-lock.json
@@ -110,6 +114,8 @@ jobs:
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: 🔧 Set up Node.js
         uses: actions/setup-node@v6

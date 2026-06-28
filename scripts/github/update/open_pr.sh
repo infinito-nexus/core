@@ -9,6 +9,7 @@ set -euo pipefail
 
 UPDATE_BASE_BRANCH="${UPDATE_BASE_BRANCH:-master}"
 UPDATE_BRANCH_SUFFIX="${UPDATE_BRANCH_SUFFIX:-$(date +%Y%m%d)}"
+UPDATE_DEDUPE_PREFIX="${UPDATE_DEDUPE_PREFIX:-${UPDATE_BRANCH_PREFIX}-}"
 
 if ! command -v gh >/dev/null 2>&1; then
 	echo "ERROR: gh CLI not found." >&2
@@ -70,7 +71,7 @@ mapfile -t OPEN_PRS < <(
 		--base "${UPDATE_BASE_BRANCH}" \
 		--limit 100 \
 		--json number,headRefName \
-		--jq ".[] | select(.headRefName | startswith(\"${UPDATE_BRANCH_PREFIX}-\")) | \"\(.number)\t\(.headRefName)\""
+		--jq ".[] | select(.headRefName | startswith(\"${UPDATE_DEDUPE_PREFIX}\")) | \"\(.number)\t\(.headRefName)\""
 )
 
 DUPLICATE_PR=""

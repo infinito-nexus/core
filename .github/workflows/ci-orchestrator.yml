@@ -28,7 +28,7 @@ on:
         type: string
         default: "false"
       trusted_pr:
-        description: "True when the PR carries the maintainer trusted-pr label; skips the fork-prereq wait."
+        description: "True when the PR carries the maintainer '🛡️ Trusted' label; skips the fork-prereq wait."
         required: false
         type: boolean
         default: false
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "Fork prerequisites are implicitly ready (non-fork PR or trusted-pr label)."
+          echo "Fork prerequisites are implicitly ready (non-fork PR or '🛡️ Trusted' label)."
 
       - name: ⬇️ Checkout trusted workflow repo (helpers)
         if: ${{ env.WAIT_REQUIRED == 'true' }}
