@@ -59,3 +59,18 @@
   when:
     - matomo_token_value is defined
     - matomo_token_value | length > 0
+
+# web-svc-* only: re-running sys-front-inj-all for web-app consumers crashes on their unloaded role vars
+- name: "Matomo | Re-render injection for early-rendered web-svc consumers"
+  ansible.builtin.include_role:
+    name: sys-front-inj-all
+  vars:
+    application_id: "{{ matomo_inj_consumer.id }}"
+    domain: "{{ lookup('domain', matomo_inj_consumer.id) }}"
+  loop: "{{ lookup('roles_with_service', 'matomo') | selectattr('id', 'match', '^web-svc-') | list }}"
+  loop_control:
+    loop_var: matomo_inj_consumer
+    label: "{{ matomo_inj_consumer.id }}"
+  when:
+    - matomo_token_value is defined
+    - matomo_token_value | length > 0

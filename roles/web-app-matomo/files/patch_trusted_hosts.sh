@@ -32,3 +32,11 @@ sed -i "0,/^trusted_hosts\[\].*/s//trusted_hosts[] = \"${DOMAIN}\"/" "$CFG"
 
 ensure_host "$SERVICE"
 ensure_host "$LOCAL"
+
+# enable_framed_pages=1: let the dashboard iframe-embed matomo (CSP still gates framing)
+if ! grep -qE "^enable_framed_pages[[:space:]]*=" "$CFG"; then
+  awk '
+    /^\[General\]$/ { print; print "enable_framed_pages = 1"; next }
+    { print }
+  ' "$CFG" > "$CFG.tmp" && mv "$CFG.tmp" "$CFG"
+fi
