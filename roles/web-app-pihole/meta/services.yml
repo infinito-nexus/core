@@ -1,3 +1,4 @@
+---
 # nocheck: playwright-service-flag
 logout:
   bond: 1
@@ -67,5 +68,5 @@ pihole:
       http: 8078
       sso: 16508
   run_after:
-  - web-app-keycloak
+    - web-app-keycloak
   lifecycle: beta
