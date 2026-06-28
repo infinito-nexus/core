@@ -1,5 +1,26 @@
 # Changelog
 
+## [11.2.0] - 2026-06-28
+
+* Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md).
+
+* Fork-PR CI hardening (follow-up to the 11.1.0 trusted-fork flow): the privileged *pull_request_target* image producer and mirror now set *allow-unsafe-pr-checkout* so *actions/checkout* stops refusing the merged fork ref it had begun rejecting. Untrusted fork builds run without organization secrets — they authenticate to GHCR with the per-job *GITHUB_TOKEN* only and mirror Docker Hub anonymously — while the maintainer-trusted path keeps full credentials and builds the raw PR head. The trust switch moved to the *🛡️ Trusted* label. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the GHCR authentication reference](docs/contributing/tools/ghcr/authentication.md).
+
+* Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present.
+
+* Cleanup-workflow fixes (follow-up to the 11.1.0 cleanup automation): the *crs-k/stale-branches* action is pinned to *v9.0.1* (the previous *@v8* was unresolvable and failed the job) and its non-existent *protected-branches* input is replaced with the action's real *branches-filter-regex*; the GHCR CI-image cleanup script now reports what it scans, keeps and deletes with a per-package summary and a *DRY_RUN* mode, so a no-op run is no longer indistinguishable from a broken one.
+
+* Routine maintenance: YAML normalization of the *web-app-pihole* role's *meta/services.yml* (document start, list indentation) and an autoformat pass.
+
+* Image and dependency version jumps (net since 11.1.0):
+  * *web-app-matomo*: 5.3.2 to 5.11.2
+  * *web-app-mattermost*: 11.8.1 to 11.8.2
+  * *web-app-opentalk* (LiveKit): v1.13.1 to v1.13.2
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): per-role update PRs, fork-PR CI hardening, buildx retry, cleanup-workflow fixes and version maintenance
+
 ## [11.1.0] - 2026-06-27
 
 * Trusted fork PRs: a maintainer-applied *trusted-pr* label runs a fork PR as deliberately released code — the orchestrator skips the fork-prerequisite wait and the privileged *pull_request_target* build switches its source from the base merge ref to the raw PR head, while the built image keeps the merge-SHA tag so every downstream consumer is unchanged. The label is the only switch (applying a label is collaborator-only on GitHub, so fork authors cannot grant it), build-orchestration scripts always come from the base repository, and both unlabeled fork PRs and same-repository PRs are untouched. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the contributor fork workflow](docs/contributing/artefact/git/pull-request.md).
