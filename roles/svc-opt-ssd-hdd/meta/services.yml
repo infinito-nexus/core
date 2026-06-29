@@ -1,5 +1,8 @@
 ---
 ssd-hdd:
+  skip:
+    - compose
+    - swarm
   lifecycle: beta
   min_storage: "50MB"
   cpus: "0.1"
