@@ -62,7 +62,7 @@ _RUN_START_RE = re.compile(r"^\s*RUN\b", re.IGNORECASE)
 # in between, but not arbitrary words (so `apt-get install update` does
 # NOT match).
 _APT_UPDATE_RE = re.compile(
-    r"\bapt-get\b(?:\s+(?:-[^\s]+|-o\s+[^\s]+))*\s+update\b",
+    r"\bapt-get\b(?:\s+-\S+(?:\s+[^-\s]\S*)?)*\s+update\b",
     re.IGNORECASE,
 )
 _RM_LISTS_RE = re.compile(r"\brm\s+-[rRfv]*r[rRfv]*f?[rRfv]*\s+/var/lib/apt/lists/\*")

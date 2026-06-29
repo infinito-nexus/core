@@ -34,9 +34,6 @@ class TestParseOverrides(unittest.TestCase):
 
 class TestOverrideFor(unittest.TestCase):
     def test_application_qualified_form(self):
-        overrides = {"applications.web-app-x.credentials.key=Z": "Z"}
-        # The dict above uses literal '=' in the key (no separate value);
-        # use the canonical parsed form instead:
         overrides = {"applications.web-app-x.credentials.key": "Z"}
         self.assertEqual(
             override_for("web-app-x", "key", overrides, is_primary=False),

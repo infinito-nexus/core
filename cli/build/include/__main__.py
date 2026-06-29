@@ -230,7 +230,7 @@ def main():
             try:
                 os.unlink(args.output)
             except OSError:
-                pass
+                pass  # best-effort: proceed to open(); a real failure surfaces there
         with open(args.output, 'w') as f:
             f.write(output)
         print(f"Playbook entries written to {args.output}")

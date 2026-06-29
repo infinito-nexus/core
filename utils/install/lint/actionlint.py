@@ -73,7 +73,14 @@ def _install_binary() -> None:
         download_release_asset(url, str(archive_path))
 
         with tarfile.open(archive_path) as tar:
-            tar.extractall(tmpdir)  # noqa: S202 - controlled github asset
+            dest_root = tmp_path.resolve()
+            for member in tar.getmembers():
+                member_path = (tmp_path / member.name).resolve()
+                if not member_path.is_relative_to(dest_root):
+                    raise RuntimeError(
+                        f"Archive {archive_name} contains an unsafe path: {member.name}"
+                    )
+            tar.extractall(tmpdir)  # noqa: S202 - members validated for path traversal
 
         binary_src = tmp_path / "actionlint"
         if not binary_src.is_file():

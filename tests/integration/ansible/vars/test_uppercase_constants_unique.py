@@ -24,14 +24,6 @@ from pathlib import Path
 
 from utils.cache.yaml import load_yaml_all
 
-try:
-    pass
-except Exception as e:  # pragma: no cover
-    raise SystemExit(
-        "PyYAML is required for this test. Install with: pip install pyyaml"
-    ) from e
-
-
 UPPER_CONST_RE = re.compile(r"^[A-Z0-9_]+$")
 
 

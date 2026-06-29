@@ -62,8 +62,6 @@ _PATTERN: re.Pattern[str] = re.compile(
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 
-_DOMAIN_LIST_KEYS: frozenset[str] = frozenset({"canonical", "aliases"})
-
 
 @lru_cache(maxsize=4096)
 def _exempt_lines_for_lists(path: Path) -> frozenset[int]:

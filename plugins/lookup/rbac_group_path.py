@@ -37,12 +37,6 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-try:
-    from ansible.utils.display import Display
-except Exception:  # pragma: no cover
-    Display = None
-
-
 _IMPLICIT_ADMIN_ROLE = "administrator"
 _TENANCY_AXIS_NONE = "none"
 _TENANCY_AXIS_DOMAIN = "domain"

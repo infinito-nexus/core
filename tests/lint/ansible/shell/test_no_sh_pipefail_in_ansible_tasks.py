@@ -6,10 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 import yaml
 
-from utils.cache.files import (  # noqa: F401  read_text retained for parity with other lint helpers
-    iter_project_files_with_content,
-    read_text,
-)
+from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_all_str, load_yaml_any
 
 from . import PROJECT_ROOT

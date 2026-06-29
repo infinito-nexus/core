@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: 🌿 Delete branches inactive for 360 days
-        uses: crs-k/stale-branches@v9.0.1
+        uses: crs-k/stale-branches@e876b957ab08f0bad43c8cc271a22cdd7604bd09 # v9.0.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 350

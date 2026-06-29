@@ -160,8 +160,8 @@ function fetchJson(method, urlString, opts = {}) {
 
 function sanitiseHandle(username) {
   if (!username) return "kc-user";
-  const lower = username.toLowerCase();
-  const mapped = lower.replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "");
+  const lower = username.toLowerCase().slice(0, 256);
+  const mapped = lower.replace(/[^a-z0-9-]+/g, "-").replace(/^-+/, "").replace(/-+$/, "");
   // PDS reserves common service handles ("administrator", "admin", "api",
   // "support", "www", "bsky", "atproto", etc.) and rejects createAccount
   // with `HandleNotAvailable: Reserved handle`. Always prefix with `kc-`
@@ -290,14 +290,30 @@ async function ensurePdsSession({ kcUsername, kcEmail }) {
 
 // --- HTTP server ----------------------------------------------------
 
+function logSafe(v) {
+  // eslint-disable-next-line no-control-regex -- intentional: strip control chars to prevent log injection
+  return String(v).replace(/[\r\n]+/g, " ").replace(/[\x00-\x1f\x7f]/g, "");
+}
+
+function escapeHtml(v) {
+  return String(v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function parseCookies(req) {
-  const out = {};
+  const out = Object.create(null);
   const header = req.headers["cookie"];
   if (!header) return out;
   for (const part of header.split(";")) {
     const i = part.indexOf("=");
     if (i < 0) continue;
-    out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+    const key = part.slice(0, i).trim();
+    if (key === "__proto__" || key === "prototype" || key === "constructor") continue;
+    out[key] = decodeURIComponent(part.slice(i + 1).trim());
   }
   return out;
 }
@@ -404,7 +420,7 @@ function proxyToSocialApp(req, res) {
     upstreamRes.pipe(res);
   });
   upstreamReq.on("error", (err) => {
-    endText(res, 502, `social-app upstream error: ${err.message}`);
+    endText(res, 502, `social-app upstream error: ${escapeHtml(err.message)}`);
   });
   req.pipe(upstreamReq);
 }
@@ -412,7 +428,7 @@ function proxyToSocialApp(req, res) {
 const server = http.createServer(async (req, res) => {
   const reqId = Math.random().toString(36).slice(2, 8);
   const reqStart = Date.now();
-  console.log(`[broker:${reqId}] ${req.method} ${req.url} from=${req.headers["x-forwarded-for"] || "?"} fwd-user=${req.headers["x-forwarded-user"] || req.headers["x-forwarded-preferred-username"] || "-"}`);
+  console.log(`[broker:${reqId}] ${logSafe(req.method)} ${logSafe(req.url)} from=${logSafe(req.headers["x-forwarded-for"] || "?")} fwd-user=${logSafe(req.headers["x-forwarded-user"] || req.headers["x-forwarded-preferred-username"] || "-")}`);
   try {
     const requestUrl = new URL(req.url, "http://internal");
     const path = requestUrl.pathname;
@@ -451,13 +467,13 @@ const server = http.createServer(async (req, res) => {
     }
 
     const session = await ensurePdsSession({ kcUsername, kcEmail });
-    console.log(`[broker:${reqId}] PDS session ready did=${session.did} handle=${session.handle} hasAccessJwt=${!!session.accessJwt} (${Date.now() - reqStart}ms)`);
+    console.log(`[broker:${reqId}] PDS session ready did=${logSafe(session.did)} handle=${logSafe(session.handle)} hasAccessJwt=${!!session.accessJwt} (${Date.now() - reqStart}ms)`);
     const html = renderHandoff(session, requestUrl.pathname + (requestUrl.search || ""));
     endHtml(res, 200, html);
     console.log(`[broker:${reqId}] handoff HTML sent (${Date.now() - reqStart}ms)`);
   } catch (err) {
     console.error(`[broker:${reqId}] error:`, err.stack || err.message);
-    endText(res, 500, `Broker error: ${err.message}`);
+    endText(res, 500, `Broker error: ${escapeHtml(err.message)}`);
   }
 });
 

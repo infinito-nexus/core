@@ -261,10 +261,7 @@ class TestRbacGroupPathRoleDeclarations(unittest.TestCase):
         # contributor sees what this static check could not verify.
         if offenders:
             msg_lines = [
-                "rbac_group_path callsites reference roles that are not "
-                "declared in the target application's meta/rbac.yml. This "
-                "is the static counterpart of the runtime AnsibleError raised "
-                "by plugins/lookup/rbac_group_path.py.",
+                "rbac_group_path callsites reference roles that are not declared in the target application's meta/rbac.yml. This is the static counterpart of the runtime AnsibleError raised by plugins/lookup/rbac_group_path.py.",
                 "",
                 "Offenders:",
                 *(f"  - {item}" for item in offenders),
@@ -272,8 +269,7 @@ class TestRbacGroupPathRoleDeclarations(unittest.TestCase):
             if unresolved:
                 msg_lines += [
                     "",
-                    "Note — the following callsites were skipped by the "
-                    "static check (non-literal kwargs); verify them manually:",
+                    "Note — the following callsites were skipped by the static check (non-literal kwargs); verify them manually:",
                     *(f"  - {item}" for item in unresolved),
                 ]
             self.fail("\n".join(msg_lines))

@@ -50,7 +50,7 @@ test("integration integration_openproject: two-way OAuth coupling provisioned an
         (await adminConfig.inputValue().catch(() => "")) ||
         (await adminConfig.getAttribute("value").catch(() => "")) ||
         "";
-      let decoded = raw;
+      let decoded;
       try {
         decoded = Buffer.from(raw, "base64").toString("utf8");
       } catch {

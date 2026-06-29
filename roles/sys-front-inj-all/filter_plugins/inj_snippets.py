@@ -18,8 +18,6 @@ from pathlib import Path
 # Role-bundled plugin: Ansible loads this file by file path with no
 # package context, so `from . import PROJECT_ROOT` cannot resolve here.
 # nocheck: project-root-import
-_ROLE_DIR = str(Path(__file__).resolve().parents[1])
-# nocheck: project-root-import
 _ROLES_DIR = str(Path(__file__).resolve().parents[2])
 
 

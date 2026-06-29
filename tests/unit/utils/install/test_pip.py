@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils.install import pip as pip_mod
 

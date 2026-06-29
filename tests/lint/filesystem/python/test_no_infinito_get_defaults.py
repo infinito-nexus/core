@@ -123,12 +123,7 @@ class TestPythonNoInfinitoGetDefaults(unittest.TestCase):
             f"INFINITO_* defaults declared in `.get(KEY, default)` "
             f"({len(violations)} violations across {len(grouped)} file(s)):",
             "",
-            "INFINITO_* defaults belong in default.env (SPOT); the "
-            "handler builders in utils/env/handlers/ then apply them via "
-            "setdefault. Use `os.environ.get(KEY)` (None when unset) or "
-            "`os.environ[KEY]` (loud KeyError) instead -- the empty-string "
-            "fallback is also forbidden because it silently masks an unset "
-            "key. Suppress per line with `# nocheck: <reason>`.",
+            "INFINITO_* defaults belong in default.env (SPOT); the handler builders in utils/env/handlers/ then apply them via setdefault. Use `os.environ.get(KEY)` (None when unset) or `os.environ[KEY]` (loud KeyError) instead -- the empty-string fallback is also forbidden because it silently masks an unset key. Suppress per line with `# nocheck: <reason>`.",
             "",
             "Offenders:",
         ]

@@ -101,7 +101,7 @@ def patch_storage_yml(content: str) -> str:
     if "force_path_style" in content:
         return content
     return re.sub(
-        r"(^s3:\n(?:[ \t]+.*\n)*?[ \t]+service: S3\n)",
+        r"(^s3:\n[\s\S]*?^[ \t]+service: S3\n)",
         r"\1  force_path_style: true\n",
         content,
         count=1,

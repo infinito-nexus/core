@@ -66,11 +66,7 @@ class TestEnvFilesInfinitoPrefix(unittest.TestCase):
             f"default.env keys without the INFINITO_ prefix "
             f"({len(violations)} violations):",
             "",
-            "Every key in default.env must start with INFINITO_ so it cannot "
-            "collide with generic shell or Ansible-role variables of the "
-            "same short name. Rename the key to INFINITO_<NAME> (and update "
-            "callers) or move it out of default.env if it is not part of "
-            "the project's INFINITO_* namespace.",
+            "Every key in default.env must start with INFINITO_ so it cannot collide with generic shell or Ansible-role variables of the same short name. Rename the key to INFINITO_<NAME> (and update callers) or move it out of default.env if it is not part of the project's INFINITO_* namespace.",
             "",
             "Offenders:",
         ]

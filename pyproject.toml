@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "infinito-nexus"
-version = "11.2.0"
+version = "11.3.0"
 description = "Infinito.Nexus"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -26,6 +26,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "ruff",
+  "import-linter",
   "pre-commit",
   "git-maintainer-tools",
 ]
@@ -108,6 +109,7 @@ exclude = [
 # - `TRY004`                — type-check failures must `raise TypeError`, not `ValueError`
 # - `TRY300`                — put the success-path under `else:` so `except:` only sees the dangerous bit
 # - `TRY301`                — don't `raise` inside `try:` for an exception caught by the same `except:`
+# - `BLE001` (flake8-blind-except) — catch-all `except Exception:`/bare `except:` (ratchet; see per-file-ignores)
 select = [
     "E", "F", "I", "B", "UP", "RUF", "SIM", "C4", "PERF", "RET", "PIE",
     "T10", "PGH", "EXE", "RSE", "ICN", "DTZ",
@@ -121,6 +123,7 @@ select = [
     "PLW1510", "PLW2901", "PLW0108", "PLW0603",
     "PLR5501", "PLC0207", "PLR1722", "PLR1714",
     "TRY002", "TRY004", "TRY300", "TRY301",
+    "BLE001",
 ]
 
 # `ruff format` (run via `make autoformat`) reflows whatever it can.
@@ -171,7 +174,9 @@ ignore = [
 # - S105/S106 (hardcoded passwords) appear in fixtures / dummy creds.
 # - S108 (hardcoded /tmp paths) appears in tempdir fixtures.
 # - S110/S112 (try/except pass/continue) appear in cleanup helpers.
-"tests/**" = ["S101", "S102", "S105", "S106", "S108", "S110", "S112"]
+# - BLE001 (broad `except Exception`) is idiomatic in test fixtures /
+#   cleanup helpers that must never abort the suite on teardown.
+"tests/**" = ["S101", "S102", "S105", "S106", "S108", "S110", "S112", "BLE001"]
 
 # Standalone scripts under ``roles/*/files/`` and ``utils/cert_utils.py``
 # are exercised by test fixtures that monkey-patch the legacy ``os.*``
@@ -181,7 +186,63 @@ ignore = [
 # test in lockstep — out of scope for the use-pathlib pass.
 "roles/sys-ctl-rpr-container-hard/files/script.py" = ["PTH"]
 "roles/sys-ctl-rpr-container-soft/files/script.py" = ["PTH"]
-"utils/cert_utils.py" = ["PTH"]
+
+# BLE001 (flake8-blind-except) ratchet.
+# Broad `except Exception:` is now selected project-wide so NEW code is
+# gated. Standalone role scripts under ``roles/*/files/`` legitimately
+# swallow-and-continue for resilience, so the whole tree is exempt. The
+# production modules below predate the rule and are grandfathered pending
+# a focused burn-down; they should shrink, not grow. New production files
+# are gated. CodeQL (`py/empty-except`) still covers the empty-body case
+# everywhere, including the exempt paths.
+"roles/**" = ["BLE001"]
+"cli/administration/deploy/container/command.py" = ["BLE001"]
+"cli/administration/deploy/dedicated/apps.py" = ["BLE001"]
+"cli/administration/deploy/dedicated/command.py" = ["BLE001"]
+"cli/administration/deploy/development/inventory/legacy_resolver.py" = ["BLE001"]
+"cli/administration/deploy/development/proc.py" = ["BLE001"]
+"cli/administration/inventory/credentials/vault.py" = ["BLE001"]
+"cli/administration/inventory/devices/command.py" = ["BLE001"]
+"cli/administration/inventory/provision/cli.py" = ["BLE001"]
+"cli/administration/inventory/provision/credentials_generator.py" = ["BLE001"]
+"cli/administration/inventory/provision/host_vars.py" = ["BLE001"]
+"cli/administration/inventory/provision/services_disabler.py" = ["BLE001"]
+"cli/administration/inventory/validate/loaders.py" = ["BLE001"]
+"cli/contributing/mirror/sync/__main__.py" = ["BLE001"]
+"cli/core/help.py" = ["BLE001"]
+"cli/meta/ci/roles/runtime/__main__.py" = ["BLE001"]
+"cli/meta/j2/compiler/__main__.py" = ["BLE001"]
+"cli/meta/roles/applications/all/__main__.py" = ["BLE001"]
+"cli/meta/roles/applications/in_group_deps/__main__.py" = ["BLE001"]
+"cli/meta/roles/applications/invokable/__main__.py" = ["BLE001"]
+"cli/meta/roles/applications/type/__main__.py" = ["BLE001"]
+"cli/meta/roles/lifecycle/__main__.py" = ["BLE001"]
+"cli/meta/roles/services/called/__init__.py" = ["BLE001"]
+"library/docker_bridge_gateway.py" = ["BLE001"]
+"plugins/filter/active_docker.py" = ["BLE001"]
+"plugins/filter/compose_volumes.py" = ["BLE001"]
+"plugins/filter/container_volumes.py" = ["BLE001"]
+"plugins/filter/docker_service_enabled.py" = ["BLE001"]
+"plugins/filter/dotenv.py" = ["BLE001"]
+"plugins/filter/get_all_application_ids.py" = ["BLE001"]
+"plugins/filter/role_path_by_app_id.py" = ["BLE001"]
+"plugins/filter/split_postgres_connections.py" = ["BLE001"]
+"plugins/lookup/addon_env_flags.py" = ["BLE001"]
+"plugins/lookup/applications_current_play.py" = ["BLE001"]
+"plugins/lookup/container_image.py" = ["BLE001"]
+"plugins/lookup/email.py" = ["BLE001"]
+"plugins/lookup/prometheus_integration_active.py" = ["BLE001"]
+"plugins/lookup/version.py" = ["BLE001"]
+"utils/cache/base.py" = ["BLE001"]
+"utils/github/variant_bundles.py" = ["BLE001"]
+"utils/nexus/list_apt_proxy_repos.py" = ["BLE001"]
+"utils/roles/applications/in_group_deps.py" = ["BLE001"]
+"utils/roles/applications/services/resources.py" = ["BLE001"]
+"utils/roles/dependency_resolver.py" = ["BLE001"]
+"utils/roles/validation/invokable.py" = ["BLE001"]
+"utils/roles/validation/resources.py" = ["BLE001"]
+"utils/templating/ansible.py" = ["BLE001"]
+"utils/cert_utils.py" = ["PTH", "BLE001"]
 
 # N999 (invalid module name) on Ansible-invoked role-level scripts
 # whose filenames contain hyphens. Renaming to snake_case would break
@@ -202,3 +263,31 @@ ignore = [
 # rebinds the imported class inside the function. PEP 8 keeps the
 # UpperCamelCase form for class identifiers, including local re-binds.
 "plugins/filter/value_generator.py" = ["N806"]
+
+# ---------------------------------------------------------------------------
+# import-linter — architectural import contracts (run via `lint-imports`,
+# enforced by tests/lint/filesystem/python/test_import_contracts.py).
+# ---------------------------------------------------------------------------
+[tool.importlinter]
+root_package = "cli"
+
+[[tool.importlinter.contracts]]
+# The dev/CI deploy package was repeatedly hit by CodeQL
+# `py/unsafe-cyclic-import`. The fix split the env/arg helpers into the
+# leaf module `env`, giving the load-time DAG compose -> common -> deps
+# -> env. This layers contract locks that order in: a lower layer
+# importing a higher one (i.e. a new cycle) breaks the build.
+name = "cli.administration.deploy.development stays acyclic (compose -> common -> deps -> env)"
+type = "layers"
+layers = [
+    "cli.administration.deploy.development.compose",
+    "cli.administration.deploy.development.common",
+    "cli.administration.deploy.development.deps",
+    "cli.administration.deploy.development.env",
+]
+# Type-checking-only / lazily-deferred back-references to `compose` do
+# not run at import time, so they cannot form a load-time cycle.
+ignore_imports = [
+    "cli.administration.deploy.development.common -> cli.administration.deploy.development.compose",
+    "cli.administration.deploy.development.deps -> cli.administration.deploy.development.compose",
+]

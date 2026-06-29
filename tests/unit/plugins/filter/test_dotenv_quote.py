@@ -75,7 +75,7 @@ class TestDotenvQuoteModeAware(unittest.TestCase):
         # The filter renders shell env-file values, not HTML; autoescape
         # would replace `&`, `<`, `>`, `'`, `"` with HTML entities and
         # break every assertion below.
-        env = jinja2.Environment(autoescape=False)  # noqa: S701
+        env = jinja2.Environment(autoescape=False)  # noqa: S701 - test renders a .env value, not HTML
         env.filters["dotenv_quote"] = FilterModule().filters()["dotenv_quote"]
         self.env = env
 

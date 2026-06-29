@@ -49,7 +49,7 @@ test("integration integration_jira: per-user OAuth connect reaches the Atlassian
     const popupPromise = context.waitForEvent("page", { timeout: 15_000 }).catch(() => null);
     await Promise.all([
       page
-        .waitForURL((u) => /auth\.atlassian\.com/i.test(String(u)), { timeout: 60_000 })
+        .waitForURL((u) => /^https?:\/\/auth\.atlassian\.com(?:[:/?#]|$)/i.test(String(u)), { timeout: 60_000 })
         .catch(() => {}),
       connect.click(),
     ]);
@@ -59,7 +59,7 @@ test("integration integration_jira: per-user OAuth connect reaches the Atlassian
     await target.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
     await expect
       .poll(() => target.url(), { timeout: 60_000 })
-      .toMatch(/auth\.atlassian\.com\/authorize/i);
+      .toMatch(/^https?:\/\/auth\.atlassian\.com\/authorize(?:[?#/]|$)/i);
 
     const authorize = new URL(target.url());
     expect(

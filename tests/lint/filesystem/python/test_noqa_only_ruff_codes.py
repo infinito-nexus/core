@@ -120,10 +120,7 @@ class TestNoqaOnlyRuffCodes(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT).as_posix()  # noqa: E731
         lines = [
-            f"{len(offenders)} file(s) carry ``# noqa: <code>`` markers "
-            "with non-ruff codes. Switch project rule keys to "
-            "``# nocheck: <rule>``; reserve ``# noqa:`` for real "
-            "ruff/flake8 codes (E402, F401, …).",
+            f"{len(offenders)} file(s) carry ``# noqa: <code>`` markers with non-ruff codes. Switch project rule keys to ``# nocheck: <rule>``; reserve ``# noqa:`` for real ruff/flake8 codes (E402, F401, …).",
             "",
             "Catalog of project rules: "
             "docs/contributing/actions/testing/suppression.md",

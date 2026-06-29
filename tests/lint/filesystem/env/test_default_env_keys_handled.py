@@ -64,11 +64,7 @@ class TestDefaultEnvKeysHandled(unittest.TestCase):
             f"INFINITO_* keys in default.env are not wired through any handler "
             f"({len(missing)} unhandled):",
             "",
-            "default.env is the SPOT for static defaults; each key MUST be "
-            "applied via setdefault by a handler in utils/env/handlers/ "
-            "(typically the static-passthrough handler). Add the key to the "
-            "handler's STATIC_KEYS / KEY constant so `make dotenv` materialises "
-            "the default into the generated .env.",
+            "default.env is the SPOT for static defaults; each key MUST be applied via setdefault by a handler in utils/env/handlers/ (typically the static-passthrough handler). Add the key to the handler's STATIC_KEYS / KEY constant so `make dotenv` materialises the default into the generated .env.",
             "",
             "Unhandled keys:",
         ]

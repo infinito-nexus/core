@@ -53,6 +53,7 @@ def tls_handshake(
     host: str, addr: str, family: int, port: int = 443, timeout: float = 8.0
 ) -> tuple[bool, str]:
     ctx = ssl.create_default_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
     start = time.monotonic()
     try:
         s = socket.socket(family, socket.SOCK_STREAM)

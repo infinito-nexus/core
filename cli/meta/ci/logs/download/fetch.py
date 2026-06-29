@@ -17,7 +17,7 @@ _SAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
 def jitter(delay_max: float) -> None:
     # Spread the gh API calls over time to avoid rate limits; not security sensitive.
-    time.sleep(random.uniform(1, delay_max))  # noqa: S311
+    time.sleep(random.uniform(1, delay_max))  # noqa: S311 - non-crypto jitter for download backoff
 
 
 def download_log(

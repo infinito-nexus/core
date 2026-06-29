@@ -21,7 +21,7 @@ test("addon sale_management: Sales module is installed and serves its quotations
       .locator(".o_menu_brand, .o_navbar .o_menu_sections, .o_control_panel")
       .getByText(/sales|quotations|orders/i)
       .first();
-    const salesIdentity = breadcrumb.or(appTitle);
+    const salesIdentity = breadcrumb.or(appTitle).first();
     await expect(
       salesIdentity,
       "the Sales app identity (breadcrumb/title naming Sales/Quotations/Orders) must render — when sale_management is enabled but the module failed to install, /odoo/sales falls back to the generic home shell and this is absent, so the test MUST fail here, not pass on the bare web client"

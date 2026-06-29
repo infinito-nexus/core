@@ -19,7 +19,7 @@ def detect_distro_id(*, os_release_path: str = "/etc/os-release") -> str:
             if raw.startswith("ID="):
                 return raw.split("=", 1)[1].strip().strip('"').lower()
     except OSError:
-        pass
+        pass  # best-effort: return empty distro id when /etc/os-release is unreadable
     return ""
 
 

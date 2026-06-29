@@ -145,12 +145,7 @@ class TestShellNoInfinitoDefaults(unittest.TestCase):
                 f"({len(all_violations)} violations across "
                 f"{len(grouped)} file(s)):",
                 "",
-                "INFINITO_* defaults belong in default.env (SPOT); the "
-                "generated .env then carries them. Shell-side defaults are "
-                "a second source that drifts silently. Read bare "
-                "${INFINITO_VAR} or use ${INFINITO_VAR:?msg}; the empty-form "
-                "${INFINITO_VAR:-} stays allowed for `set -u` safety. "
-                "Suppress per line with `# nocheck: <reason>`.",
+                "INFINITO_* defaults belong in default.env (SPOT); the generated .env then carries them. Shell-side defaults are a second source that drifts silently. Read bare ${INFINITO_VAR} or use ${INFINITO_VAR:?msg}; the empty-form ${INFINITO_VAR:-} stays allowed for `set -u` safety. Suppress per line with `# nocheck: <reason>`.",
                 "",
                 "Offenders:",
             ]

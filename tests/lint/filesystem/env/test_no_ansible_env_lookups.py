@@ -90,12 +90,7 @@ class TestNoAnsibleEnvLookupsForDefaultEnvKeys(unittest.TestCase):
             f"Ansible internals reference {len(violations)} default.env "
             f"key(s) via lookup('env', ...):",
             "",
-            "default.env is the dev/CI env contract; pulling those keys "
-            "directly inside group_vars / tasks / roles / playbook.yml "
-            "couples deployment-agnostic Ansible code to a deployment-"
-            "specific source. Inject the value via the inventory "
-            "vars-file instead. For dev/CI this is "
-            "`inventories/development/default.yml`:",
+            "default.env is the dev/CI env contract; pulling those keys directly inside group_vars / tasks / roles / playbook.yml couples deployment-agnostic Ansible code to a deployment-specific source. Inject the value via the inventory vars-file instead. For dev/CI this is `inventories/development/default.yml`:",
             "",
             "    # inventories/development/default.yml",
             "    networks:",
@@ -104,10 +99,7 @@ class TestNoAnsibleEnvLookupsForDefaultEnvKeys(unittest.TestCase):
             "        ip6: \"{{ lookup('env', 'INFINITO_IP6') | default('::1', true) }}\"",
             "        dns: \"{{ lookup('env', 'INFINITO_DNS_IP') | default('') }}\"",
             "",
-            "Production / bundle inventories carry literal values "
-            "without the env lookup. Suppress per line with a same-line "
-            "`# nocheck: <reason>` marker only when the reference is "
-            "genuinely required.",
+            "Production / bundle inventories carry literal values without the env lookup. Suppress per line with a same-line `# nocheck: <reason>` marker only when the reference is genuinely required.",
             "",
             "Offenders:",
         ]

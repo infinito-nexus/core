@@ -28,14 +28,14 @@ test("integration integration_github: per-user OAuth connect reaches github.com/
 
     await Promise.all([
       page
-        .waitForURL((u) => /github\.com\/login\/oauth\/authorize/i.test(u), { timeout: 60_000 })
+        .waitForURL((u) => /^https?:\/\/github\.com\/login\/oauth\/authorize(?:[/?#]|$)/i.test(u), { timeout: 60_000 })
         .catch(() => {}),
       connect.first().click(),
     ]);
 
     await expect
       .poll(() => page.url(), { timeout: 60_000 })
-      .toMatch(/github\.com\/login\/oauth\/authorize/i);
+      .toMatch(/^https?:\/\/github\.com\/login\/oauth\/authorize(?:[/?#]|$)/i);
 
     const authorize = new URL(page.url());
     expect(

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from . import PROJECT_ROOT
-from .common import compose_file_args, resolve_distro
+from .env import compose_file_args, resolve_distro
 
 if TYPE_CHECKING:
     import argparse

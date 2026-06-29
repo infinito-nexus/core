@@ -110,5 +110,5 @@ def has_ipv6_default_route() -> bool:
             if len(parts) >= 10 and parts[0] == "0" * 32 and parts[-1] != "lo":
                 return True
     except OSError:
-        pass
+        pass  # best-effort: treat unreadable /proc/net/ipv6_route as no default route
     return False

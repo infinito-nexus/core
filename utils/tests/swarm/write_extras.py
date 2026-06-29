@@ -52,8 +52,8 @@ def main() -> int:
     nfs_ip = os.environ["NFS_IP"]
     mgr_ip = os.environ["MGR_IP"]
     mgr = os.environ["MGR"]
-    out_path = Path(os.environ.get("OUT_PATH", "/tmp/swarm-nfs-extras.yml"))  # noqa: S108
-    key_path = Path(os.environ.get("KEY_PATH", "/tmp/swarm-nfs-admin.key"))  # noqa: S108
+    out_path = Path(os.environ.get("OUT_PATH", "/tmp/swarm-nfs-extras.yml"))  # noqa: S108 - ephemeral swarm-test path, overridable via OUT_PATH
+    key_path = Path(os.environ.get("KEY_PATH", "/tmp/swarm-nfs-admin.key"))  # noqa: S108 - ephemeral swarm-test path, overridable via KEY_PATH
 
     admin_pubkey = _ensure_keypair(key_path)
 

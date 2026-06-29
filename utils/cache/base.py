@@ -21,8 +21,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-# `merge_with_defaults` is a pure-Python helper with no `ansible` dependency,
-# so it stays at module scope.
 from plugins.filter.merge_with_defaults import (
     merge_with_defaults,  # noqa: F401  re-exported
 )

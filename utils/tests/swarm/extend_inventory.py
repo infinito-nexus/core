@@ -79,7 +79,7 @@ def main() -> int:
     if not os.environ.get("SWARM_NAME"):
         raise SystemExit("extend_inventory: SWARM_NAME is required (cluster id)")
     app_id = os.environ["APP_ID"]
-    inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108
+    inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_PATH
 
     group_hosts = _host_topology(app_id) + _default_placement_dep_groups(app_id)
 

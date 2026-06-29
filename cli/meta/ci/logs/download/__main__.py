@@ -135,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[ci-logs] gh failed: {(exc.stderr or '').strip()}", file=sys.stderr)
         return 1
 
-    dest = Path(args.destination) if args.destination else Path("/tmp/logs") / run  # noqa: S108
+    dest = Path(args.destination) if args.destination else Path("/tmp/logs") / run  # noqa: S108 - default CI log dir, overridable via --destination
     dest.mkdir(parents=True, exist_ok=True)
     workers = max(1, args.jobs)
     delay_max = workers * 2

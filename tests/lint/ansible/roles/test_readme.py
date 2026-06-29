@@ -48,7 +48,7 @@ ROLES_DIR = PROJECT_ROOT / "roles"
 
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*$", re.MULTILINE)
 _EMOJI_RE = re.compile(
-    "[\U0001f300-\U0001faff\U00002600-\U000027bf\U0001f000-\U0001f2ff]"
+    "[\U00002600-\U000027bf\U0001f000-\U0001f2ff\U0001f300-\U0001faff]"
 )
 
 _REQUIRED_H2_ORDER: tuple[str, ...] = ("Description", "Overview", "Features")

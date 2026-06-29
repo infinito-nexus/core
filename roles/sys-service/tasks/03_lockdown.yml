@@ -47,6 +47,10 @@
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
+  register: deploy_stop_service
+  retries: 5
+  delay: 3
+  until: deploy_stop_service is success
   loop: "{{ deploy_services }}"
   when: deploy_services | length > 0
 

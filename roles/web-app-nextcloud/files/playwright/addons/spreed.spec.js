@@ -89,7 +89,7 @@ test("spreed addon: Talk HPB signaling/turn backends are configured and coupled"
     }
 
     if (expectedSignalingUrl) {
-      let signalingNeedle = expectedSignalingUrl;
+      let signalingNeedle;
       try {
         signalingNeedle = new URL(expectedSignalingUrl).host;
       } catch {

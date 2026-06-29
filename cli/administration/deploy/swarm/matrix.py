@@ -27,7 +27,7 @@ from . import PROJECT_ROOT
 _SWARM_SCRIPTS = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
 _ROLES_DIR = str(PROJECT_ROOT / "roles")
 _SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
-_DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108
+_DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108 - ephemeral swarm-test inventory base in CI
 
 
 def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:

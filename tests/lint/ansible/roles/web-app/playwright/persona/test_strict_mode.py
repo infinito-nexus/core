@@ -51,7 +51,6 @@ _FLOW_FILES: tuple[str, ...] = ("biber.js", "admin.js", "guest.js")
 _DENY_HELPER_FILES: tuple[str, ...] = ("prometheus.js", "matomo.js")
 
 _TEST_SKIP_RE = re.compile(r"\btest\.skip\s*\(", re.MULTILINE)
-_IF_HEAD_RE = re.compile(r"\bif\s*\(", re.MULTILINE)
 _STATUS_200_RE = re.compile(r"\b(?:status\s*===\s*200|=== 200|status\s*==\s*200)\b")
 
 _ALLOWED_SKIP_GUARDS: tuple[str, ...] = (

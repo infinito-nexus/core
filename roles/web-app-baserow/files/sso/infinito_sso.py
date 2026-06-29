@@ -227,10 +227,13 @@ def _login_payload(request):
 
 def _safe_next_url(request):
     next_url = request.GET.get("next") or "/"
+    next_url = next_url.replace("\\", "/")
     parsed = urlsplit(next_url)
-    if parsed.scheme or parsed.netloc or not next_url.startswith("/"):
+    if parsed.scheme or parsed.netloc:
         return "/"
-    return next_url
+    if not next_url.startswith("/") or next_url.startswith("//"):
+        return "/"
+    return parsed.path + (f"?{parsed.query}" if parsed.query else "")
 
 
 class ProxyHeaderTokenView(APIView):

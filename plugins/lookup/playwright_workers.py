@@ -33,7 +33,7 @@ def _ram_gb() -> float:
                 if line.startswith("MemTotal:"):
                     return int(line.split()[1]) / (1024.0 * 1024.0)
     except (OSError, ValueError, IndexError):
-        pass
+        pass  # best-effort: fall back to default when /proc/meminfo is unreadable/malformed
     return 4.0  # conservative fallback when /proc/meminfo is unreadable
 
 

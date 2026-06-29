@@ -95,7 +95,7 @@ test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger 
       .concat(actor["@context"] || [])
       .map((c) => (typeof c === "string" ? c : (c && c["@vocab"]) || ""));
     expect(
-      contextValues.some((c) => /www\.w3\.org\/ns\/activitystreams/i.test(c)),
+      contextValues.some((c) => /^https?:\/\/www\.w3\.org\/ns\/activitystreams$/i.test(c)),
       "the actor JSON-LD must declare the ActivityStreams @context (proves it is a real federation object)"
     ).toBeTruthy();
 

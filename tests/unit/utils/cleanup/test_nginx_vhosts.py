@@ -11,8 +11,8 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-import utils.cleanup.nginx_vhosts as mod
 from utils.cache.yaml import _reset_cache_for_tests, dump_yaml
+from utils.cleanup import nginx_vhosts as mod
 from utils.cleanup.nginx_vhosts import (
     iter_vhost_files_for_entity,
     main,

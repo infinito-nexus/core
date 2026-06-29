@@ -5,8 +5,8 @@ import subprocess
 import time
 from typing import TYPE_CHECKING
 
-from .common import compose_file_args
 from .coredns import CoreDNSCorefileRenderer
+from .env import compose_file_args
 from .network import detect_outer_network_mtu
 from .proc import run_streaming
 from .profile import Profile
