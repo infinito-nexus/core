@@ -1,0 +1,62 @@
+---
+# nocheck: seaweedfs-required — Semaphore stores all state in PostgreSQL and clones repos to ephemeral tmp; it has no uploads/media/attachment surface that needs object storage.
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+email:
+  bond: 1
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+semaphore:
+  cpus: 1.0
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 1024
+  min_storage: 5GB
+  image: semaphoreui/semaphore
+  version: "v2.18.12"
+  backup:
+    no_stop_required: true
+  name: semaphore
+  ports:
+    internal:
+      http: 3000
+    local:
+      http: 8086
+  run_after:
+    - svc-db-postgres
+    - svc-db-openldap
+    - web-app-keycloak
+    - web-app-matomo
+  lifecycle: beta

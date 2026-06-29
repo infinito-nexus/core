@@ -1,0 +1,56 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    application_id: "web-app-semaphore"
+    compose_handlers_flush: false
+
+- name: flush docker service
+  meta: flush_handlers
+
+- name: Wait until the Semaphore API/DB is ready
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ SEMAPHORE_NAME }}"
+      - semaphore
+      - user
+      - list
+  register: semaphore_user_list
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: semaphore_user_list.rc == 0
+  when: SEMAPHORE_OIDC_ENABLED | bool
+
+- name: Ensure the OIDC administrator exists as an external Semaphore admin
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ SEMAPHORE_NAME }}"
+      - semaphore
+      - user
+      - add
+      - --admin
+      - --external
+      - --login
+      - "{{ SEMAPHORE_OIDC_ADMIN_LOGIN }}"
+      - --name
+      - "{{ SEMAPHORE_OIDC_ADMIN_NAME }}"
+      - --email
+      - "{{ SEMAPHORE_OIDC_ADMIN_EMAIL }}"
+  register: semaphore_oidc_admin
+  changed_when: semaphore_oidc_admin.rc == 0
+  failed_when: >-
+    semaphore_oidc_admin.rc != 0
+    and 'duplicate key' not in (semaphore_oidc_admin.stderr | default('') | lower)
+    and 'exist' not in (semaphore_oidc_admin.stderr | default('') | lower)
+    and 'exist' not in (semaphore_oidc_admin.stdout | default('') | lower)
+  when:
+    - SEMAPHORE_OIDC_ENABLED | bool
+    - SEMAPHORE_OIDC_ADMIN_LOGIN not in (semaphore_user_list.stdout_lines | default([]))

@@ -1,0 +1,20 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  application:
+{% set container_healthcheck = 'api/ping' %}
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    image: "{{ SEMAPHORE_IMAGE }}:{{ SEMAPHORE_VERSION }}"
+    container_name: "{{ SEMAPHORE_NAME }}"
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.semaphore.ports.local.http') }}:{{ container_port }}"
+    volumes:
+      - "data:/var/lib/semaphore"
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
+{% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={'data': {'name': SEMAPHORE_VOLUME}}
+) }}
+
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
