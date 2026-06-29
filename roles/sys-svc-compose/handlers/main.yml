@@ -73,6 +73,9 @@
   register: dc_up
   changed_when: true
   timeout: 1800
+  retries: 5
+  delay: 10
+  until: dc_up is succeeded
   environment:
     COMPOSE_PARALLEL_LIMIT: "{{ '4' if (DOCKER_IN_CONTAINER | bool) else omit }}"
   args:

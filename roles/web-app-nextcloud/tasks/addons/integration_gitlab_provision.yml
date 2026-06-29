@@ -18,6 +18,9 @@
     stdin: "{{ lookup('file', 'gitlab/provision_oauth_app.rb') }}"
   register: nextcloud_gl_provision
   changed_when: "'CLIENT_ID=' in nextcloud_gl_provision.stdout"
+  retries: 12
+  delay: 5
+  until: nextcloud_gl_provision.rc == 0 and 'CLIENT_ID=' in nextcloud_gl_provision.stdout
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: Parse the GitLab OAuth client id
