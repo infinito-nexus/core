@@ -6,6 +6,12 @@
   vars:
     compose_handlers_flush: true
 
+- name: "⏳ Ollama resolve | Wait for ollama task to converge"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ entity_name }}"
+  when: IS_STACK_HOST | bool
+
 - name: ⬇️ Pre-pull Ollama models
   vars:
     _cmd: "container exec -i {{ OLLAMA_CONTAINER_ADDRESS }} ollama pull {{ model }}"
