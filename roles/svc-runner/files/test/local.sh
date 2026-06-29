@@ -54,11 +54,14 @@ if ! container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c '
     # Throwaway sealed dockerd (runner-1 netns); repo mounted at the same path for
     # the infinito compose bind-mount; torn down on exit.
     SB="runner-dind-sandbox"
+    # Inner dockerd data-root on the host big disk (GitHub /mnt ~70G) so nested images + 2G Playwright pull fit.
+    SB_DATA="/mnt/runner-dind-data"
     docker rm -f "$SB" >/dev/null 2>&1 || true
     trap '"'"'docker rm -f "$SB" >/dev/null 2>&1 || true'"'"' EXIT
     docker run -d --privileged --name "$SB" \
         --network "container:'"${RUNNER_PROJECT_PREFIX}"'-1" \
         -v "'"${_iso_src}"'":"'"${_iso_src}"'" \
+        -v "$SB_DATA":/var/lib/docker \
         -e DOCKER_TLS_CERTDIR= docker:dind --host=tcp://0.0.0.0:2375 >/dev/null
     export DOCKER_HOST=tcp://127.0.0.1:2375
     ready=0
