@@ -1,7 +1,7 @@
 ---
 funkwhale:
   image: funkwhale/front
-  version: 2.0.4
+  version: 2.0.5
   min_storage: 20GB
   ports:
     local:
@@ -18,7 +18,7 @@ funkwhale:
   pids_limit: 1024
 api:
   image: funkwhale/api
-  version: 2.0.4
+  version: 2.0.5
   min_storage: 5GB
   cpus: "0.5"
   mem_reservation: 256m
