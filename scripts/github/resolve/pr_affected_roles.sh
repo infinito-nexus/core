@@ -8,9 +8,9 @@
 # Inputs via env:
 #   SUBSET_LABELED  "true" when the PR carries the '🧩 Subset' label.
 #                   When set, the explicit role list declared in the PR
-#                   body wins, resolved by
-#                   scripts/meta/resolve/pr/subset_roles.py (strict: it
-#                   fails the run on invalid/empty/unknown roles).
+#                   body wins, resolved by the cli.meta.ci.subset_roles
+#                   module (strict: it fails the run on
+#                   invalid/empty/unknown roles).
 #                   Otherwise the diff-derived resolver runs unchanged.
 #   PR_BODY         PR body markdown (only read on the subset path).
 #
@@ -24,7 +24,7 @@ set -euo pipefail
 
 if [[ "${SUBSET_LABELED:-}" == "true" ]]; then
 	echo "🧩 Subset label present: restricting CI to the roles listed in the PR body."
-	exec python scripts/meta/resolve/pr/subset_roles.py
+	exec python -m cli.meta.ci.subset_roles
 fi
 
 resolved="$(./scripts/meta/resolve/diff/affected_roles.sh)"

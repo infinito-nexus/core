@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
 """Resolve the explicit role subset declared in a pull-request body.
 
 Activated by the ``🧩 Subset`` label: the entry-pull-request workflow only
-runs this script when the label is present. It gives fork contributors the
+runs this module when the label is present. It gives fork contributors the
 selective-CI capability that ``entry-manual.yml`` (``workflow_dispatch``)
 grants maintainers, which forks cannot trigger.
 
@@ -15,7 +14,12 @@ diff-derived resolver produces.
 Unlike the fail-safe diff resolver (which widens to ``__ALL__`` on any
 problem), the subset path is strict: invalid YAML, a missing/empty ``roles:``
 list, or an unknown role id each abort with a clear message and a non-zero
-exit, so a mistyped subset never silently deploys the wrong set.
+exit, so a mistyped subset never silently deploys the wrong set. Role ids must
+match ``^[a-z0-9-]+$``, which also blocks path traversal before any filesystem
+lookup.
+
+Invoked from scripts/github/resolve/pr_affected_roles.sh via
+``python -m cli.meta.ci.subset_roles``.
 """
 
 import os
@@ -26,12 +30,11 @@ from typing import NoReturn
 
 import yaml
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
-ROLES_DIR = REPO_ROOT / "roles"
+from utils import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_str
+
+ROLES_DIR = PROJECT_ROOT / "roles"
 FENCE_RE = re.compile(r"```[^\n]*\n(.*?)```", re.DOTALL)
-# Role dir names are lowercase alphanumerics + dashes. Enforcing this on the
-# untrusted PR body also blocks path traversal (no '/', no '.') before any
-# filesystem lookup.
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
 
 
@@ -49,7 +52,7 @@ def extract_roles(body: str):
         )
     for block in blocks:
         try:
-            data = yaml.safe_load(block)
+            data = load_yaml_str(block)
         except yaml.YAMLError as exc:
             fail(f"invalid YAML in the PR body roles block: {exc}")
         if isinstance(data, dict) and "roles" in data:

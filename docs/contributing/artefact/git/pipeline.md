@@ -88,11 +88,7 @@ The reverse closure is implemented in [affected resolver](../../../../cli/meta/r
 
 #### Subset label 🧩
 
-The manual whitelist (`entry-manual.yml`, `workflow_dispatch`) is only reachable by maintainers on the upstream repository; **fork contributors cannot dispatch it**. The `🧩 Subset` label closes that gap: it lets a PR pin CI to an explicit role list declared in the PR body, so a fork PR can run the same narrowed matrix a maintainer would have dispatched manually.
-
-The mechanism is **opt-in and fully backwards-compatible**. Without the `🧩 Subset` label nothing changes: the diff-driven precedence above applies exactly as before. The label is what activates the subset; the role list alone does nothing.
-
-The `detect-affected-roles` job in [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml) always calls the single dispatcher [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which branches on the label: with `🧩 Subset` it runs [subset_roles.py](../../../../scripts/meta/resolve/pr/subset_roles.py) **instead of** the diff resolver, otherwise it falls through to the unchanged diff path. The subset script reads the PR body and expects a fenced YAML block with a `roles:` list, conventionally under a `## Roles` heading:
+Add a `## Roles` section with a fenced `roles:` YAML list to the PR body and apply the `🧩 Subset` label:
 
 ````markdown
 ## Roles
@@ -105,16 +101,16 @@ roles:
 ```
 ````
 
-The resolved list becomes the `whitelist` output (with `roles_only=true`), which flows through the orchestrator into the deploy tests as precedence rung 2 above (explicit whitelist wins over the diff). The first fenced block whose YAML carries a `roles:` key is used, so the heading text is not significant.
+With the label set, the `detect-affected-roles` job in [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output with `roles_only=true`, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies.
 
-Unlike the diff resolver (which fail-safe widens to `__ALL__` on any problem), the subset path is **strict** and fails the run with a clear message when:
+The subset path fails the run when:
 
 - the YAML is invalid,
 - no `roles:` block is found,
 - the `roles:` list is empty, or
 - any listed id is not an existing `roles/<id>` directory.
 
-This prevents a mistyped subset from silently deploying the wrong set. The `🧩 Subset` label, like `🛡️ Trusted`, must exist in the repository's label set and is applied through the PR labels UI; both the `pull_request` and `pull_request_target` events carry a `labeled` trigger, so adding it starts a fresh run that observes the subset. Because applying labels requires triage/write access, in practice a maintainer applies it after the contributor has filled in the `## Roles` block.
+The `🧩 Subset` label must exist in the repository's label set and is applied through the PR labels UI. Both the `pull_request` and `pull_request_target` events carry a `labeled` trigger, so adding it starts a fresh run.
 
 ### 10. Installation Tests 📦
 
