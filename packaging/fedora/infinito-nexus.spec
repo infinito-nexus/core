@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        11.2.0
+Version:        11.3.0
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,21 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Mon Jun 29 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 11.3.0-1
+- * Security: resolve all 80 open CodeQL/code-scanning alerts on the branch and add guards so they cannot recur. The security-sensitive fixes break an unsafe import cycle in the *cli/administration/deploy/development* package by extracting the env/arg helpers into a leaf *env.py* (load-time DAG *compose → common → deps → env*); harden the *web-app-bluesky* login-broker (*server.js*) with a prototype-pollution guard on cookie parsing, CR/LF + control-char log sanitisation, HTML-escaped exception text and a ReDoS-bounded handle regex; harden the *web-app-baserow* SSO open-redirect *next* handling; require TLS ≥ 1.2 in the network diagnose probes; validate *actionlint* installer tar members against path traversal; rewrite the *decidim*/*apt-purge* lint regexes to avoid catastrophic backtracking; and anchor six Playwright URL regexes while pinning *crs-k/stale-branches* to a commit SHA. Recurrence guards: an *import-linter* contract (wired into *pyproject* and *tests/lint*) now fails CI on a new dev-deploy cycle instead of relying on CodeQL, a new lint requires every bandit *S###* *noqa* to carry a justification, and *BLE001* (blind-except) is added to ruff as a ratchet (tests/roles exempt, current production offenders grandfathered). Intentional false positives (Django settings patches, the Odoo `__manifest__`, side-effect and cross-module imports) are left in place.
+
+- * CI flakiness and fork-PR fixes: the Odoo *sale_management* Playwright spec adds *.first()* so the success case no longer trips a strict-mode violation when both the menu brand and the breadcrumb render; the Nextcloud GitLab-OAuth provisioning now resolves/creates the default Organization defensively with *retries/until* instead of hard-raising during the async seed window; the Jenkins deploy-lockdown service stop and the Moodle shared *compose up* handler each gain *retries/until* to ride out transient systemd "Transaction is destructive" contention and a not-yet-created external network. The fork image mirror gets *secrets: inherit* restored (follow-up to the 11.2.0 credential hardening) so untrusted fork PRs authenticate to Docker Hub again rather than mirroring anonymously and hitting rate limits — the build keeps its hardening since it pulls its parent from GHCR. The stale-branches cleanup is adjusted for *crs-k/stale-branches@v9.0.1*, which rejects *days-before-stale ≥ days-before-delete*: stale is now 350 days and delete 360 (10-day warning before deletion at 360 days of inactivity). See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
+
+- * Routine maintenance: *.gitignore* now excludes local Claude agent artefacts (*launch.json*, *routines*, *workflows*), and dependabot bumps of *actions/stale* 9 → 10 and *eslint* 10.5.0 → 10.6.0.
+
+- * Image and dependency version jumps (net since 11.2.0):
+-   * *web-app-seaweedfs*: 4.36 to 4.37
+-   * *pkgmgr* (package-manager git ref): v1.15.2 to v1.16.0
+
+- **Contributors**
+
+- * [Kevin Veen-Birkenbach](https://veen.world): code-scanning alert resolution and recurrence guards, CI/fork-PR fixes and version maintenance
+
 * Sun Jun 28 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 11.2.0-1
 - * Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md).
 
