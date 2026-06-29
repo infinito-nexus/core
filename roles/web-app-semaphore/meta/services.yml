@@ -59,4 +59,4 @@ semaphore:
     - svc-db-openldap
     - web-app-keycloak
     - web-app-matomo
-  lifecycle: alpha
+  lifecycle: beta
