@@ -175,6 +175,4 @@ jobs:
       concurrency_channel: pr-target-mirror-producer
       concurrency_key: pr-${{ github.event.pull_request.number }}
       allow_unsafe_checkout: true
-    secrets:
-      DOCKERHUB_USERNAME: ${{ needs.prepare-fork-merge-ref.outputs.trusted == 'true' && secrets.DOCKERHUB_USERNAME || '' }}
-      DOCKERHUB_TOKEN: ${{ needs.prepare-fork-merge-ref.outputs.trusted == 'true' && secrets.DOCKERHUB_TOKEN || '' }}
+    secrets: inherit
