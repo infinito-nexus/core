@@ -9,7 +9,7 @@ A comment is VALID only when it is one of:
 * a **marked exception** -- a mid-code comment that flags a real trip-wire
   (warning, pitfall, deliberate non-idiomatic choice, upstream bug, security /
   performance gotcha) whose text starts with one of the exception markers
-  (`Warning`, `Exception`, `Caution`, `Gotcha`, `Workaround`, `Security`, ...).
+  (`Warning`, `Exception`, `Caution`, `Workaround`, `Security`, ...).
 
 Mid-code comments are ONLY allowed as exceptions. Plain narration, banners,
 restating the next line, or neutral `Note:`-style info carry no warning and so
@@ -63,7 +63,6 @@ _MARKERS = (
     "deprecated",
     "workaround",
     "upstream",
-    "gotcha",
     "pitfall",
     "invariant",
     "trap",
@@ -281,9 +280,12 @@ _EXTS = (".py", ".sh", ".yml", ".yaml", ".rb", ".php", ".css")
 
 
 def _git_lines(args: list[str]) -> list[str]:
+    # Caveat: safe.directory='*' is needed because the make-test container mounts the
+    # repo as a different uid, so bare git aborts with dubious-ownership and the linter
+    # would silently scan zero files.
     try:
         result = subprocess.run(
-            ["git", *args],
+            ["git", "-c", "safe.directory=*", *args],
             cwd=str(PROJECT_ROOT),
             capture_output=True,
             text=True,
@@ -324,7 +326,7 @@ class TestCommentsValid(unittest.TestCase):
                 f"{len(offenders)} invalid comment(s). A comment is allowed only as a "
                 "file header, a doc comment directly above a class/function/rule, a "
                 "tool directive (noqa/nocheck/...), or a mid-code EXCEPTION that flags "
-                "a real trip-wire (starts with Warning/Exception/Caution/Gotcha/"
+                "a real trip-wire (starts with Warning/Exception/Caution/"
                 "Workaround/Security/...). Everything else is narration: DELETE it "
                 "(move real explanation into the file header or a doc comment):\n"
                 + shown
