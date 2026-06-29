@@ -9,11 +9,13 @@ When Act aborts at "Set up job" on a recent Docker engine, see [Workflow Loop](w
 
 An `act-swarm-zombie` run rebuilds a full DinD cluster over tens of minutes, so you MUST confirm a fix on the live cluster before redeploying.
 
+- Before every redeploy you MUST fully resolve the failure in swarm and reach at least **95% confidence that your fix actually fixes it**. That confidence MUST come from inspecting the live cluster in-container: reproduce the failure, walk the fix path, and confirm the corrected behaviour on the running services. Never redeploy on a guess — a swarm redeploy costs tens of minutes.
 - The run leaves the cluster up (`INFINITO_KEEP_SWARM_NODES=true`). You MUST reproduce the failure on it via `make act-swarm-exec` / `make act-swarm-shell`, then release it with `make act-swarm-down`.
 - You MAY confirm an early-stage fix (config render, realm import) while the run is still going.
 - In-cluster edits are validation only. You MUST apply the real fix in the repository before the next redeploy.
 - You MUST NOT commit during an active iteration, because a live deploy makes the pre-commit hook stash the files it reads. If a commit is unavoidable, you MUST pass `--no-verify`.
 - For failures the cluster cannot show (app discovery, render-time lookups, multi-node placement), you MUST say so instead of faking an in-cluster check.
+- When it helps isolate a swarm-only failure from a shared one, you MAY bring up the compose deploy of the same role in parallel (see [Compose Loop](compose.md)) purely for comparison and inspection.
 
 ## NFS server flavor
 

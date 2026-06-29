@@ -68,6 +68,7 @@ FORBIDDEN:
 
 ## Inspect
 
+- Before every redeploy you MUST fully resolve the failure and reach at least **95% confidence that your fix actually fixes it**. That confidence MUST come from in-container inspection (`make compose-exec` / `make compose-inner-run`): reproduce the failure, walk the fix path, and confirm the corrected behaviour. Never redeploy on a guess.
 - Before you redeploy, you MUST complete all available inspections first. Check the live local output, local logs, and current browser state so the original state stays visible.
 - To inspect files or run commands inside a running container, use `make compose-exec`.
 - To run a one-off sidecar image against the same docker daemon (e.g. a Playwright runner with a patched `.env`), use `make compose-inner-run` (see `make help target=compose-inner-run` for `IMAGE` / `cmd` / `INFINITO_RUN_FLAGS`).
@@ -75,3 +76,4 @@ FORBIDDEN:
 - When the failure is in a Playwright spec, "in-container validation" specifically means running `make compose-playwright role=<role>` against the live stack (per [Playwright Spec Loop](playwright.md)).
 - Use the same live investigation to identify the concrete root cause and save iteration time.
 - Once the root cause is understood, you MUST apply the real fix in the repository files and then continue the redeploy loop with the usual commands from this page. In-container fixes are only for diagnosis or short validation and MUST NOT replace the repo change.
+- When it helps isolate a compose-only failure from a shared one, you MAY bring up the swarm deploy of the same role in parallel (see [Swarm Loop](swarm.md)) purely for comparison and inspection.
