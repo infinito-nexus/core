@@ -72,6 +72,9 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     http:
       start: 8001
       end: 8099
+    agent:
+      start: 8500
+      end: 8599
     websocket:
       start: 4001
       end: 4099

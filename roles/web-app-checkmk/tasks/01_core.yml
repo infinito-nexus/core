@@ -1,0 +1,63 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    application_id: "web-app-checkmk"
+    compose_handlers_flush: false
+
+- name: flush docker service
+  meta: flush_handlers
+
+- name: Wait until the Checkmk site web interface is ready
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ CHECKMK_NAME }}"
+      - curl
+      - -fsS
+      - -o
+      - /dev/null
+      - "http://localhost:{{ container_port }}/{{ CHECKMK_SITE }}/check_mk/login.py"
+  register: checkmk_ready
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: checkmk_ready.rc == 0
+
+- name: Configure Checkmk header-auth (oauth2 gate) and the central LDAP connection
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "CMK_SITE_ID={{ CHECKMK_SITE }}"
+      - -e
+      - "CHECKMK_SSO_ENABLED={{ CHECKMK_SSO_ENABLED | string | lower }}"
+      - -e
+      - "CHECKMK_LDAP_ENABLED={{ CHECKMK_LDAP_ENABLED | string | lower }}"
+      - -e
+      - "LDAP_SERVER={{ CHECKMK_LDAP_SERVER }}"
+      - -e
+      - "LDAP_PORT={{ CHECKMK_LDAP_PORT }}"
+      - -e
+      - "LDAP_BIND_DN={{ CHECKMK_LDAP_BIND_DN }}"
+      - -e
+      - "LDAP_BIND_PASSWORD={{ CHECKMK_LDAP_BIND_PASSWORD }}"
+      - -e
+      - "LDAP_USER_DN={{ CHECKMK_LDAP_USER_DN }}"
+      - -e
+      - "LDAP_GROUP_DN={{ CHECKMK_LDAP_GROUP_DN }}"
+      - -e
+      - "LDAP_UID_ATTR={{ CHECKMK_LDAP_USER_ID_ATTR }}"
+      - "{{ CHECKMK_NAME }}"
+      - bash
+      - -s
+    stdin: "{{ lookup('file', 'configure-sso.sh') }}"
+  when: (CHECKMK_SSO_ENABLED | bool) or (CHECKMK_LDAP_ENABLED | bool)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
