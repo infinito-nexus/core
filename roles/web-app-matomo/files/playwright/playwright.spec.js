@@ -276,6 +276,26 @@ const matomoTargetRoles = (() => {
   }
 })();
 
+// alias_urls / main_url may be a full URL or a bare host; normalise both to the hostname before matching
+function hostOf(value) {
+  const s = String(value || "")
+    .trim()
+    .toLowerCase();
+  if (!s) return "";
+  try {
+    return new URL(s.includes("://") ? s : `https://${s}`).hostname;
+  } catch {
+    return s.replace(/^[a-z][a-z0-9+.-]*:\/\//, "").split("/")[0];
+  }
+}
+
+// MUST mirror sys-front-inj-matomo/vars/main.yml base_domain: matomo registers one shared site per registrable domain, not per subdomain
+function baseDomainOf(host) {
+  return String(host || "")
+    .toLowerCase()
+    .replace(/^(?:.*\.)?(.+\..+)$/, "$1");
+}
+
 test("matomo SitesManager registers a tracker site for every consumer role", async ({ page, request }) => {
   test.skip(matomoTargetRoles.length === 0, "no matomo consumer roles in inventory");
 
@@ -328,7 +348,7 @@ test("matomo SitesManager registers a tracker site for every consumer role", asy
 
   const failures = [];
   for (const target of matomoTargetRoles) {
-    const needle = String(target.canonical_domain || "").toLowerCase();
+    const needle = baseDomainOf(target.canonical_domain);
     if (!needle) {
       failures.push(`${target.id}: empty canonical_domain in MATOMO_TARGET_ROLES_JSON`);
       continue;
@@ -337,12 +357,11 @@ test("matomo SitesManager registers a tracker site for every consumer role", asy
       const candidates = [
         String(site?.main_url || ""),
         ...(Array.isArray(site?.alias_urls) ? site.alias_urls.map(String) : []),
-      ]
-        .map((s) => s.toLowerCase());
-      return candidates.some((c) => c.includes(needle));
+      ];
+      return candidates.some((c) => hostOf(c) === needle);
     });
     if (!matchingSite) {
-      failures.push(`${target.id}: no Matomo site has main_url / alias_urls covering base domain "${needle}" (from canonical "${target.canonical_domain}")`);
+      failures.push(`${target.id}: no Matomo site main_url / alias_urls host equals base domain "${needle}" (canonical "${target.canonical_domain}")`);
     }
   }
 
