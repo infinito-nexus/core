@@ -4,6 +4,13 @@ Reads GitHub Actions runs via the ``gh`` CLI and maps the per-app
 compose ("docker") and swarm deploy jobs to pass/fail/abort states.
 A job that did not finish successfully (cancelled, timed out, skipped,
 still running) counts as a failure in the aggregated ``all`` column.
+
+Deploy jobs are matched by the 🐳 (compose) / 🐝 (swarm) glyph their
+test-deploy-{compose,swarm}.yml matrix titles them with -- NOT the words
+"Compose"/"Swarm", which no real job carries (matching those made
+``--failed swarm`` silently find nothing). The orchestrator prepends a
+"caller / " prefix and GitHub appends a " <variant>" shard suffix (e.g.
+" 0,1"); both are tolerated.
 """
 
 from __future__ import annotations
@@ -19,13 +26,15 @@ ABORT = "🚫"
 RUNNING = "⏳"
 MISSING = "➖"
 
-# Display order of the two deploy modes. "docker" is the compose mode.
 MODES = ("docker", "swarm")
 
-# Match a deploy job display name and pull out (mode, app id). Tolerates a
-# leading emoji and an optional reusable-workflow "caller / " prefix; the app
-# id is the trailing hyphenated token (every role id contains a hyphen).
-_JOB_RE = re.compile(r"(Compose|Swarm)\s+([a-z0-9]+(?:-[a-z0-9]+)+)\s*$")
+MODE_GLYPHS = {"docker": "🐳", "swarm": "🐝"}
+_GLYPH_MODE = {glyph: mode for mode, glyph in MODE_GLYPHS.items()}
+
+_JOB_RE = re.compile(
+    rf"({'|'.join(map(re.escape, MODE_GLYPHS.values()))})"
+    r"\s+([a-z0-9]+(?:-[a-z0-9]+)+)(?:\s+[\d,]+)?\s*$"
+)
 
 
 def _effective(job: dict) -> str:
@@ -53,8 +62,13 @@ def _iter_deploy_jobs(jobs: list[dict]):
         match = _JOB_RE.search(str(job.get("name", "")))
         if not match:
             continue
-        mode = "docker" if match.group(1) == "Compose" else "swarm"
-        yield match.group(2), mode, job
+        yield match.group(2), _GLYPH_MODE[match.group(1)], job
+
+
+def app_of_job(name: str) -> str | None:
+    """The role id a deploy job ``name`` encodes, or None if it is not one."""
+    match = _JOB_RE.search(name)
+    return match.group(2) if match else None
 
 
 def parse_role_statuses(jobs: list[dict]) -> dict[str, dict[str, str]]:

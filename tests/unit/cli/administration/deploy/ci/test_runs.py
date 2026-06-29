@@ -4,6 +4,7 @@ import unittest
 from typing import ClassVar
 
 from cli.administration.deploy.ci import runs
+from tests.utils.ci_job_names import deploy_job_name
 
 
 def _job(name: str, conclusion: str | None, status: str = "completed") -> dict:
@@ -13,11 +14,11 @@ def _job(name: str, conclusion: str | None, status: str = "completed") -> dict:
 class TestParseRoleStatuses(unittest.TestCase):
     def test_maps_compose_and_swarm_jobs_to_modes(self) -> None:
         jobs = [
-            _job("🐳 Compose web-app-baserow", "success"),
-            _job("🐝 Swarm web-app-baserow", "failure"),
-            _job("test-deploy-compose / 🐳 Compose svc-db-postgres", "success"),
-            _job("🍯 Lure swarms", "success"),  # discover job: must be ignored
-            _job("⛵ Navigate compositions", "success"),  # discover job: ignored
+            _job(deploy_job_name("docker", "web-app-baserow"), "success"),
+            _job(deploy_job_name("swarm", "web-app-baserow"), "failure"),
+            _job(deploy_job_name("docker", "svc-db-postgres", "0"), "success"),
+            _job("🍯 Lure swarms", "success"),
+            _job("⛵ Navigate compositions", "success"),
         ]
         statuses = runs.parse_role_statuses(jobs)
         self.assertEqual(
@@ -29,29 +30,40 @@ class TestParseRoleStatuses(unittest.TestCase):
         )
 
     def test_running_job_is_not_completed(self) -> None:
-        jobs = [_job("🐳 Compose web-app-x", None, status="in_progress")]
+        jobs = [
+            _job(deploy_job_name("docker", "web-app-x"), None, status="in_progress")
+        ]
         self.assertEqual(
             runs.parse_role_statuses(jobs), {"web-app-x": {"docker": "running"}}
         )
+
+
+class TestAppOfJob(unittest.TestCase):
+    def test_extracts_app_from_orchestrated_name(self) -> None:
+        name = deploy_job_name("swarm", "web-app-matomo", "0,1")
+        self.assertEqual(runs.app_of_job(name), "web-app-matomo")
+
+    def test_none_for_non_deploy_job(self) -> None:
+        self.assertIsNone(runs.app_of_job("🍯 Lure swarm"))
 
 
 class TestParseRoleUrls(unittest.TestCase):
     def test_maps_job_urls_per_mode(self) -> None:
         jobs = [
             {
-                "name": "🐳 Compose web-app-x",
+                "name": deploy_job_name("docker", "web-app-x"),
                 "url": "https://gh/c",
                 "status": "completed",
                 "conclusion": "success",
             },
             {
-                "name": "🐝 Swarm web-app-x",
+                "name": deploy_job_name("swarm", "web-app-x"),
                 "url": "https://gh/s",
                 "status": "completed",
                 "conclusion": "failure",
             },
             {
-                "name": "🐝 Swarm web-app-y",
+                "name": deploy_job_name("swarm", "web-app-y"),
                 "url": None,
                 "status": "completed",
                 "conclusion": "success",
@@ -105,7 +117,7 @@ class TestFailedRoles(unittest.TestCase):
         "web-app-b": {"docker": "success", "swarm": "success"},
         "web-app-a": {"docker": "success", "swarm": "failure"},
         "web-app-c": {"docker": "cancelled", "swarm": "success"},
-        "web-app-d": {"docker": "success"},  # missing swarm
+        "web-app-d": {"docker": "success"},
     }
 
     def test_total_scope_default(self) -> None:
@@ -115,13 +127,11 @@ class TestFailedRoles(unittest.TestCase):
         )
 
     def test_swarm_scope(self) -> None:
-        # only roles whose swarm mode is not green
         self.assertEqual(
             runs.failed_roles(self._STATUSES, "swarm"), ["web-app-a", "web-app-d"]
         )
 
     def test_docker_scope(self) -> None:
-        # only roles whose docker (compose) mode is not green
         self.assertEqual(runs.failed_roles(self._STATUSES, "docker"), ["web-app-c"])
 
 

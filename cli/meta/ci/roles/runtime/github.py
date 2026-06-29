@@ -6,6 +6,8 @@ import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from cli.administration.deploy.ci.runs import app_of_job
+
 from .csvio import read_csv
 
 if TYPE_CHECKING:
@@ -32,13 +34,11 @@ def _gh(args: list[str]) -> str:
 
 
 def app_for_job(owner: str, repo: str, job: str) -> str:
-    """Resolve the matrix app id from a job's name (`… Compose <app>`)."""
+    """Resolve the matrix app id from a deploy job's display name."""
     name = _gh(
         ["api", f"repos/{owner}/{repo}/actions/jobs/{job}", "--jq", ".name"]
     ).strip()
-    if "Compose" in name:
-        return name.split("Compose", 1)[1].strip()
-    return name.split()[-1] if name.split() else name
+    return app_of_job(name) or name
 
 
 def records_from_job_url(url: str) -> list[RoleRuntime]:

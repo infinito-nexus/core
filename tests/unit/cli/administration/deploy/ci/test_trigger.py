@@ -7,12 +7,22 @@ from unittest import mock
 
 from cli.administration.deploy.ci import runs
 from cli.administration.deploy.ci.trigger import __main__ as trigger
+from tests.utils.ci_job_names import deploy_job_name
+
+
+def _job(mode: str, app: str, conclusion: str) -> dict:
+    return {
+        "name": deploy_job_name(mode, app, "0,1"),
+        "status": "completed",
+        "conclusion": conclusion,
+    }
+
 
 _JOBS = [
-    {"name": "🐳 Compose web-app-x", "status": "completed", "conclusion": "success"},
-    {"name": "🐝 Swarm web-app-x", "status": "completed", "conclusion": "failure"},
-    {"name": "🐳 Compose web-app-y", "status": "completed", "conclusion": "failure"},
-    {"name": "🐝 Swarm web-app-y", "status": "completed", "conclusion": "success"},
+    _job("docker", "web-app-x", "success"),
+    _job("swarm", "web-app-x", "failure"),
+    _job("docker", "web-app-y", "failure"),
+    _job("swarm", "web-app-y", "success"),
 ]
 
 _RUN_URL = "https://github.com/o/r/actions/runs/55"  # nocheck: url
@@ -51,29 +61,20 @@ class TestTriggerMain(unittest.TestCase):
     def test_failed_total(self) -> None:
         rc, calls = self._run(["--failed"], run={"_jobs": _JOBS})
         self.assertEqual(rc, 0)
-        # both roles not green in total
         self.assertEqual(calls[0][2], "web-app-x web-app-y")
 
     def test_failed_swarm_scope(self) -> None:
         _rc, calls = self._run(["--failed", "swarm"], run={"_jobs": _JOBS})
-        self.assertEqual(calls[0][2], "web-app-x")  # only x swarm failed
+        self.assertEqual(calls[0][2], "web-app-x")
 
     def test_failed_compose_scope(self) -> None:
         _rc, calls = self._run(["--failed", "compose"], run={"_jobs": _JOBS})
-        self.assertEqual(calls[0][2], "web-app-y")  # only y compose failed
+        self.assertEqual(calls[0][2], "web-app-y")
 
     def test_failed_nothing_does_not_dispatch(self) -> None:
         green = [
-            {
-                "name": "🐳 Compose web-app-x",
-                "status": "completed",
-                "conclusion": "success",
-            },
-            {
-                "name": "🐝 Swarm web-app-x",
-                "status": "completed",
-                "conclusion": "success",
-            },
+            _job("docker", "web-app-x", "success"),
+            _job("swarm", "web-app-x", "success"),
         ]
         rc, calls = self._run(["--failed"], run={"_jobs": green})
         self.assertEqual(rc, 0)
