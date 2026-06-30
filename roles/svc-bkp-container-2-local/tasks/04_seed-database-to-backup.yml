@@ -43,7 +43,6 @@
       - database_password is defined
       - (database_password | string | trim) != ""
 
-      # database_name may be empty string to represent "all databases"
       - database_name is defined
     fail_msg: >-
       You must pass ALL database variables explicitly when including
@@ -58,7 +57,7 @@
 - name: 🌱 Seed database definition via baudolo-seed (system binary)
   ansible.builtin.command:
     argv:
-      - "{{ lookup('command_path', 'baudolo-seed') | string }}"
+      - baudolo-seed
       - "{{ FILE_DATABASE_SECRETS | string }}"
       - "{{ database_instance | string }}"
       - "{{ '*' if (database_name | string | length) == 0 else (database_name | string) }}"

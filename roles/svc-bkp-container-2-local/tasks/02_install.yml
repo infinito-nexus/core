@@ -7,9 +7,7 @@
     global_install: true
 
 - name: ✅ Assert required baudolo commands are available
-  ansible.builtin.assert:
-    that:
-      - (lookup('command_path', cmd_name) | string | length) > 0
+  ansible.builtin.shell: "command -v {{ cmd_name }}"
   loop:
     - baudolo
     - baudolo-seed
