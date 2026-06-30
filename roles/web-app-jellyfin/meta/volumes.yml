@@ -1,0 +1,4 @@
+---
+config: jellyfin_config
+cache: jellyfin_cache
+media: jellyfin_media

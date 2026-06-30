@@ -1,0 +1,41 @@
+---
+# General
+application_id: "web-app-jellyfin"
+container_port: "{{ lookup('config', application_id, 'services.jellyfin.ports.internal.http') }}"
+
+# Jellyfin image / volumes
+JELLYFIN_VERSION: "{{ lookup('config', application_id, 'services.jellyfin.version') }}"
+JELLYFIN_IMAGE: "{{ lookup('config', application_id, 'services.jellyfin.image') }}"
+JELLYFIN_NAME: "{{ lookup('config', application_id, 'services.jellyfin.name') }}"
+JELLYFIN_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
+JELLYFIN_CACHE_VOLUME: "{{ lookup('config', application_id, 'volumes.cache') }}"
+JELLYFIN_MEDIA_VOLUME: "{{ lookup('config', application_id, 'volumes.media') }}"
+
+JELLYFIN_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+# Host-published API base (the deploy host reaches the container via the bound local port).
+JELLYFIN_API: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jellyfin.ports.local.http') }}"
+
+# Break-glass local admin (seeded via the first-run /Startup wizard)
+JELLYFIN_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
+JELLYFIN_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+
+# Auth toggles
+JELLYFIN_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+JELLYFIN_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+
+# Plugin install (Jellyfin self-installs via /Packages; the SSO manifest repo is
+# registered first). Catalog package names are hardcoded in files/configure-auth.sh.
+JELLYFIN_SSO_PLUGIN_MANIFEST: "https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json"
+
+# LDAP connection (central OpenLDAP) — consumed by files/configure-auth.sh
+JELLYFIN_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
+JELLYFIN_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
+JELLYFIN_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+JELLYFIN_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+JELLYFIN_LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
+JELLYFIN_LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+
+# OIDC (Keycloak) — consumed by files/configure-auth.sh
+JELLYFIN_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
+JELLYFIN_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+JELLYFIN_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
