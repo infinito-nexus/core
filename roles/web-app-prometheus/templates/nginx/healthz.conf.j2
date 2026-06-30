@@ -48,7 +48,7 @@
     }
   }
 
-{% set prometheus_backend = lookup('proxy_pass', application_id, application_id | get_entity_name, 'http', tail='/', local_port=http_port) %}
+{% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
   # Internal backend probe used by /healthz/live and /metricz.
   # Not accessible to external clients.
   location = /_live_probe {
