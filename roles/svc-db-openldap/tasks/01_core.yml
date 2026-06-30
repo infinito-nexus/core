@@ -50,8 +50,6 @@
     - OPENLDAP_PROVISION_CREDENTIALS | bool
     - openldap_bind_check.rc != 0
 
-# NOTE: Credentials reset removed (Bitnami-specific). RootDN/RootPW are bootstrapped via container env.
-
 - name: 🔧 Set OPENLDAP_MODULE_DN (from filesystem)
   shell: >
     container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
@@ -160,7 +158,11 @@
   when: OPENLDAP_PROVISION_SCHEMAS | bool
 
 - name: "📂 Import LDAP Entries (if enabled)"
-  include_tasks: 04_users.yml
+  include_tasks:
+    file: 04_users.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_USERS | bool
 
 - name: "📂 Import LDIF Data (if enabled)"
@@ -174,5 +176,9 @@
 - meta: flush_handlers
 
 - name: "➕ Add Objects to all users"
-  include_tasks: 05_update.yml
+  include_tasks:
+    file: 05_update.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_UPDATE | bool
