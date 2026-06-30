@@ -5,7 +5,9 @@ Pins the SPOT contract for swarm replica calculation:
 * swarm mode: emits `replicas: N` where N defaults to
   `len(groups[application_id])` or the override term.
 * non-swarm mode: emits empty string.
-* override < 1 or missing group: clamped to 1.
+* missing group / empty topology default: clamped to 1.
+* an explicit override term is respected as-is, including 0 (lets a
+  service stay unscheduled until the role scales it up).
 """
 
 from __future__ import annotations
@@ -120,10 +122,10 @@ class TestComposeReplicasLookup(unittest.TestCase):
         lm = self._make(vars_)
         self.assertEqual(lm.run(["2"], variables=vars_), ["replicas: 2"])
 
-    def test_swarm_mode_override_zero_clamped_to_one(self):
+    def test_swarm_mode_override_zero_respected(self):
         vars_ = {"DEPLOYMENT_MODE": "swarm"}
         lm = self._make(vars_)
-        self.assertEqual(lm.run([0], variables=vars_), ["replicas: 1"])
+        self.assertEqual(lm.run([0], variables=vars_), ["replicas: 0"])
 
     def test_too_many_terms_raises(self):
         vars_ = {"DEPLOYMENT_MODE": "swarm"}

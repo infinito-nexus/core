@@ -69,6 +69,6 @@ class LookupModule(LookupBase):
             raise AnsibleError(
                 f"compose_replicas: cannot coerce '{replicas}' to int: {exc}"
             ) from exc
-        if n < 1:
+        if not terms and n < 1:
             n = 1
         return [f"replicas: {n}"]
