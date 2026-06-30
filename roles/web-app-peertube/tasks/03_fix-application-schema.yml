@@ -50,6 +50,13 @@
   register: _peertube_app_defaults
   notify: compose up
 
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: PEERTUBE
+    resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
+
 - name: "⏳ PEERTUBE | Wait for peertube container healthy after schema back-fill"
   ansible.builtin.command:
     argv:
@@ -57,9 +64,10 @@
       - inspect
       - -f
       - "{{ '{{.State.Health.Status}}' }}"
-      - "{{ PEERTUBE_CONTAINER }}"
+      - "{{ PEERTUBE_LOCAL_CID }}"
   register: _peertube_health
   retries: 60
   delay: 5
   until: _peertube_health.rc == 0 and _peertube_health.stdout == "healthy"
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
   changed_when: false
