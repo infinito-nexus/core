@@ -23,6 +23,8 @@ _JOBS = [
     _job("docker", "web-app-x", "success", "https://gh/cx"),
     _job("swarm", "web-app-x", "failure", "https://gh/sx"),
     _job("swarm", "web-app-y", "success", "https://gh/sy"),
+    _job("docker", "web-app-z", "failure", "https://gh/cz"),
+    _job("swarm", "web-app-z", "success", "https://gh/sz"),
 ]
 
 _URL = "https://github.com/o/r/actions/runs/123"  # nocheck: url
@@ -40,7 +42,8 @@ class TestBuildRows(unittest.TestCase):
         statuses = runs.parse_role_statuses(_JOBS)
         rows = {r[0]: r for r in status._build_rows(statuses, {})}
         self.assertEqual(rows["web-app-x"][1:4], (runs.PASS, runs.FAIL, runs.FAIL))
-        self.assertEqual(rows["web-app-y"][1:4], (runs.MISSING, runs.PASS, runs.FAIL))
+        self.assertEqual(rows["web-app-y"][1:4], (runs.MISSING, runs.PASS, runs.PASS))
+        self.assertEqual(rows["web-app-z"][1:4], (runs.FAIL, runs.PASS, runs.FAIL))
 
 
 class TestRender(unittest.TestCase):
@@ -60,7 +63,7 @@ class TestRender(unittest.TestCase):
         out = status._render_string(rows)
         line = next(line for line in out.splitlines() if line.startswith("web-app-y"))
         self.assertEqual(
-            line, f"web-app-y {runs.MISSING} {runs.PASS} {runs.FAIL} https://gh/sy"
+            line, f"web-app-y {runs.MISSING} {runs.PASS} {runs.PASS} https://gh/sy"
         )
 
 
@@ -87,8 +90,9 @@ class TestMain(unittest.TestCase):
 
     def test_failed_compose_filters_to_non_green_docker(self) -> None:
         out = self._run(["--failed", "compose"])
-        self.assertIn("web-app-y", out)
+        self.assertIn("web-app-z", out)
         self.assertNotIn("web-app-x", out)
+        self.assertNotIn("web-app-y", out)
 
 
 if __name__ == "__main__":

@@ -76,7 +76,7 @@ class TestParseRoleUrls(unittest.TestCase):
 
 
 class TestTotalState(unittest.TestCase):
-    """``total`` is green only when BOTH modes are green; anything else fails."""
+    """``total`` is green when every mode that ran is green; an absent mode is N/A."""
 
     def test_both_success(self) -> None:
         self.assertEqual(
@@ -98,8 +98,8 @@ class TestTotalState(unittest.TestCase):
             runs.total_state({"docker": "success", "swarm": "running"}), "failure"
         )
 
-    def test_missing_mode_counts_as_failure(self) -> None:
-        self.assertEqual(runs.total_state({"docker": "success"}), "failure")
+    def test_missing_mode_is_na_not_failure(self) -> None:
+        self.assertEqual(runs.total_state({"docker": "success"}), "success")
 
 
 class TestCellSymbols(unittest.TestCase):
@@ -123,13 +123,11 @@ class TestFailedRoles(unittest.TestCase):
     def test_total_scope_default(self) -> None:
         self.assertEqual(
             runs.failed_roles(self._STATUSES),
-            ["web-app-a", "web-app-c", "web-app-d"],
+            ["web-app-a", "web-app-c"],
         )
 
-    def test_swarm_scope(self) -> None:
-        self.assertEqual(
-            runs.failed_roles(self._STATUSES, "swarm"), ["web-app-a", "web-app-d"]
-        )
+    def test_swarm_scope_skips_roles_without_a_swarm_job(self) -> None:
+        self.assertEqual(runs.failed_roles(self._STATUSES, "swarm"), ["web-app-a"])
 
     def test_docker_scope(self) -> None:
         self.assertEqual(runs.failed_roles(self._STATUSES, "docker"), ["web-app-c"])

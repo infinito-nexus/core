@@ -2,8 +2,9 @@
 
 Reads GitHub Actions runs via the ``gh`` CLI and maps the per-app
 compose ("docker") and swarm deploy jobs to pass/fail/abort states.
-A job that did not finish successfully (cancelled, timed out, skipped,
-still running) counts as a failure in the aggregated ``all`` column.
+A mode job that ran but did not finish successfully (cancelled, timed out,
+still running) counts as a failure; a mode the role has no job for is N/A
+and never fails the aggregated ``total`` column.
 
 Deploy jobs are matched by the 🐳 (compose) / 🐝 (swarm) glyph their
 test-deploy-{compose,swarm}.yml matrix titles them with -- NOT the words
@@ -94,24 +95,28 @@ def parse_role_urls(jobs: list[dict]) -> dict[str, dict[str, str]]:
 
 
 def total_state(modes: dict[str, str]) -> str:
-    """Aggregate per-mode states into the ``total`` column: a pass only when
-    BOTH modes are green; anything else (failure, abort, still-running,
-    never-ran) is a failure."""
-    if all(modes.get(m) == "success" for m in MODES):
-        return "success"
-    return "failure"
+    """Aggregate the per-mode states into the ``total`` column: green only when
+    every mode that actually ran is green. A mode the role has no job for is N/A
+    (a host driver never deploys in swarm) and does NOT fail the total;
+    ``parse_role_statuses`` only lists roles with at least one deploy job, so
+    there is always a present mode to judge."""
+    present = [modes[m] for m in MODES if m in modes]
+    return "success" if present and all(s == "success" for s in present) else "failure"
 
 
 def failed_roles(
     statuses: dict[str, dict[str, str]], scope: str = "total"
 ) -> list[str]:
-    """Roles that are not green for the given scope: ``total`` (either mode not
-    green), ``swarm``, or ``docker`` (compose)."""
+    """Roles that are not green for the given scope: ``total`` (a mode that ran
+    is not green), ``swarm``, or ``docker`` (compose). A role with no job in the
+    requested mode is skipped, not failed: a host driver that never deploys in
+    swarm is not a swarm failure, only roles whose swarm job ran and did not pass
+    are."""
 
     def fails(modes: dict[str, str]) -> bool:
         if scope == "total":
             return total_state(modes) != "success"
-        return modes.get(scope) != "success"
+        return scope in modes and modes[scope] != "success"
 
     return sorted(app for app, modes in statuses.items() if fails(modes))
 

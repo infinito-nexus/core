@@ -52,8 +52,8 @@ def main(argv: list[str] | None = None) -> int:
         prog="infinito administration deploy ci status",
         description=(
             "Show every role's compose (docker) and swarm deploy result from a "
-            "CI run, plus an aggregated 'total' column (green only when both "
-            "modes are green; anything else counts as failed)."
+            "CI run, plus an aggregated 'total' column (green when every mode "
+            "that ran is green; a mode the role skips is N/A)."
         ),
     )
     p.add_argument(
