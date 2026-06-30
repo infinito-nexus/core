@@ -28,7 +28,7 @@
 - name: "🔎 Fider | Check if tenant is already initialized"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('file', role_path ~ '/files/sql/count-tenants.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    query_file: "{{ role_path }}/files/sql/count-tenants.sql"
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: fider_tenant_count
@@ -62,7 +62,7 @@
 - name: "📁 Fider | Create admin user (bypass email verification)"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('file', role_path ~ '/files/sql/create-admin-user.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    query_file: "{{ role_path }}/files/sql/create-admin-user.sql"
     named_args:
       full_name: "{{ lookup('users', 'administrator').firstname }} {{ lookup('users', 'administrator').lastname }}"
       email: "{{ lookup('users', 'administrator').email }}"
@@ -72,14 +72,14 @@
 - name: "🟢 Fider | Activate tenant (set status=1 to bypass email confirmation)"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('file', role_path ~ '/files/sql/activate-tenants.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    query_file: "{{ role_path }}/files/sql/activate-tenants.sql"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
 
 - name: "🔧 Fider | Configure Keycloak as OIDC provider in database"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('file', role_path ~ '/files/sql/configure-oidc-provider.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    query_file: "{{ role_path }}/files/sql/configure-oidc-provider.sql"
     named_args:
       display_name: "{{ SOFTWARE_NAME }} SSO"
       client_id: "{{ OIDC.CLIENT.ID }}"
