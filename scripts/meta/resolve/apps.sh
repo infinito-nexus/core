@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Purpose (SRP): Return JSON list of every application role (all deployment
-# types), filtered by lifecycle and CI storage constraints.
+# Resolve the JSON list of application roles the CI matrix deploys for the
+# current INFINITO_DEPLOY_MODE, via the complexity report: it filters to the
+# mode's tested+invokable roles (the 'compose'/'swarm' column already bakes in
+# invokable + tested-lifecycle + per-mode skip), orders them coverage-first
+# (uncovered roles before ones a peer already embeds), and hard-caps the
+# cumulative per-mode job budget (--max-jobs over 'bundles', the runner count).
+# Whole role names are emitted; variant_bundles expands them into the matrix.
 #
-# Inputs via env:
-#   INFINITO_WHITELIST = optional space-separated list of app ids to keep
+# Inputs via env (defaults live in default.env, the single source of truth):
+#   INFINITO_DEPLOY_MODE           compose|swarm (required; workflows set it)
+#   INFINITO_WHITELIST             optional space-separated app ids to keep
+#   INFINITO_MAX_JOBS              cumulative job cap
+#   INFINITO_DISCOVERY_SORT        complexity --sort spec (coverage-first)
+#   INFINITO_REQUIRED_STORAGE      per-runner CI storage budget
+#   INFINITO_APP_DISCOVERY_RUNNER  host|docker
 #
-# Output:
-#   JSON array to stdout (single line, always valid)
+# Output: JSON array to stdout (single line, always valid).
 
 PYTHON="${PYTHON:-python3}"
 
@@ -16,40 +25,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$REPO_ROOT"
 
-# ------------------------------------------------------------
-# Load default environment (safe if already loaded via BASH_ENV)
-# ------------------------------------------------------------
 if [[ -f "scripts/meta/env/load.sh" ]]; then
 	# shellcheck source=scripts/meta/env/load.sh
 	source "scripts/meta/env/load.sh"
 fi
 
-# ------------------------------------------------------------
-# Helpers (JSON-only, no text roundtrips)
-# ------------------------------------------------------------
-
 json_compact_array() {
-	# Read JSON from stdin, ensure it's an array, output compact single-line JSON.
 	jq -c 'if type=="array" then . else [] end'
 }
 
-jq_whitelist_filter() {
-	# Args: whitelist (space-separated app ids)
-	# Reads JSON array from stdin, keeps only entries in whitelist, outputs compact JSON.
-	local wl="${1:-}"
-	if [[ -z "${wl// /}" ]]; then
-		json_compact_array
-		return 0
-	fi
-	local wl_json
-	wl_json="$(printf '%s' "${wl}" | jq -Rc 'split(" ") | map(select(length>0))')"
-	jq -c --argjson wl "${wl_json}" 'map(select(. as $a | ($wl | index($a)) != null))'
-}
-
 run_meta_cli() {
-	# Dispatch on INFINITO_APP_DISCOVERY_RUNNER:
-	#   host   -- invoke the venv python directly (no container overhead)
-	#   docker -- exec inside the running infinito compose container
 	case "${INFINITO_APP_DISCOVERY_RUNNER:?INFINITO_APP_DISCOVERY_RUNNER must be set}" in
 	host)
 		"${PYTHON}" "$@"
@@ -66,41 +51,45 @@ run_meta_cli() {
 	esac
 }
 
-# ------------------------------------------------------------
-# Lifecycle handling (always-on, original set)
-# ------------------------------------------------------------
-lifecycles_args=(--lifecycles alpha beta rc stable)
+mode="${INFINITO_DEPLOY_MODE:?INFINITO_DEPLOY_MODE must be set to compose or swarm}"
+case "$mode" in
+compose | swarm) ;;
+*)
+	echo "apps.sh: INFINITO_DEPLOY_MODE must be compose or swarm, got '$mode'" >&2
+	exit 2
+	;;
+esac
 
-# Per-mode discovery opt-out: the workflow sets INFINITO_DEPLOY_MODE so a
-# role's meta/services.yml `skip` list can drop it from this mode's matrix.
-skip_mode_args=()
-if [[ -n "${INFINITO_DEPLOY_MODE:-}" ]]; then
-	skip_mode_args=(--skip-mode "${INFINITO_DEPLOY_MODE}")
+filter="${mode} == true"
+if [[ -n "${INFINITO_WHITELIST// /}" ]]; then
+	wl_csv="$(printf '%s' "${INFINITO_WHITELIST}" | tr -s ' ' ',')"
+	wl_csv="${wl_csv#,}"
+	wl_csv="${wl_csv%,}"
+	filter="${filter} and name %% {${wl_csv}}"
 fi
 
-# ------------------------------------------------------------
-# 1) Resolve the candidate app set: every type's apps (lifecycle- and
-#    skip-mode-filtered), flattened across the type groups + deduped.
-# ------------------------------------------------------------
+unique_args=()
+if [[ "$mode" == "compose" ]]; then
+	unique_args=(--unique)
+fi
+
 apps_json="$(
 	run_meta_cli \
-		-m cli.meta.roles.applications.type \
-		--format json \
-		"${lifecycles_args[@]}" \
-		"${skip_mode_args[@]}" |
-		jq -c '[.[][]] | unique'
+		-m cli.meta.roles.applications.complexity \
+		--deploy-mode "$mode" \
+		"${unique_args[@]}" \
+		--filter "$filter" \
+		--sort "${INFINITO_DISCOVERY_SORT}" \
+		--max-jobs "${INFINITO_MAX_JOBS}" \
+		--format string |
+		jq -R -s -c 'split("\n") | map(select(length>0))'
 )"
 
-# ------------------------------------------------------------
-# 3) CI storage filter (JSON-only)
-# ------------------------------------------------------------
 if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
-	required_storage="60GB"
+	required_storage="${INFINITO_REQUIRED_STORAGE}"
 
-	# Extract roles from JSON to pass as args (safe: one per line -> bash array)
 	mapfile -t roles < <(printf '%s\n' "${apps_json}" | jq -r '.[]')
 	if [[ "${#roles[@]}" -gt 0 ]]; then
-		# Warnings pass (best-effort)
 		run_meta_cli \
 			-m cli.meta.roles.applications.sufficient_storage \
 			--roles "${roles[@]}" \
@@ -109,7 +98,6 @@ if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 			--format json \
 			>/dev/null || true
 
-		# Real filter (JSON output)
 		apps_json="$(
 			run_meta_cli \
 				-m cli.meta.roles.applications.sufficient_storage \
@@ -121,15 +109,4 @@ if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 	fi
 fi
 
-# ------------------------------------------------------------
-# 3b) Optional whitelist filter (space-separated list of app ids)
-# ------------------------------------------------------------
-apps_json="$(
-	printf '%s\n' "${apps_json}" |
-		jq_whitelist_filter "${INFINITO_WHITELIST:-}"
-)"
-
-# ------------------------------------------------------------
-# 4) Final safety: compact JSON array, single line
-# ------------------------------------------------------------
 printf '%s\n' "${apps_json}" | json_compact_array

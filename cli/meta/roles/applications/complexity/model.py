@@ -54,10 +54,11 @@ class ComplexityRow(NamedTuple):
     ``covered_by`` scrambles ``id``. ``variants`` is the number of
     ``meta/variants.yml`` variants of the role in whole-role mode; under
     ``--variant`` each row already is a single variant, so it is ``1``.
-    ``bundles`` is the number of CI jobs the row maps to: in whole-role mode
-    the role's compose bundle count (variants packed by bundle size +
-    ``min_storage`` via the shared ``compose_bundle_counts`` SPOT), and ``1``
-    per row under ``--variant`` (one variant = one bundle). ``jobs`` is the
+    ``bundles`` is the number of CI jobs the row maps to in the target
+    ``deploy_mode``: compose packs variants into size/storage bundles
+    (``compose_bundle_counts`` SPOT), swarm runs one per deployable variant
+    (``deployable_variant_indices``); under ``--variant`` it is ``1`` per row
+    (one variant = one bundle). ``jobs`` is the
     running sum of ``bundles`` down the rendered rows. ``lifecycle`` is the
     role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…).
     ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises
@@ -172,6 +173,7 @@ def compute_complexity_rows(
     *,
     include_group_names: bool = True,
     max_level: int | None = None,
+    deploy_mode: str = "compose",
 ) -> list[ComplexityRow]:
     truth = truth_predicate(include_group_names=include_group_names)
     forward, reverse = build_graphs(roles_dir, truth=truth)
@@ -182,7 +184,13 @@ def compute_complexity_rows(
         for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir())
         if is_application_role(role_dir)
     ]
-    bundles = compose_bundle_counts(names, variants, roles_dir=roles_dir)
+    if deploy_mode == "swarm":
+        bundles = {
+            name: len(deployable_variant_indices(overrides.get(name)))
+            for name in names
+        }
+    else:
+        bundles = compose_bundle_counts(names, variants, roles_dir=roles_dir)
     compose_apps = _tested_apps("compose")
     swarm_apps = _tested_apps("swarm")
 

@@ -170,6 +170,31 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p.add_argument(
+        "--deploy-mode",
+        choices=("compose", "swarm"),
+        default="compose",
+        help=(
+            "Deploy mode the 'bundles'/'jobs' columns count CI runners for "
+            "(whole-role mode only): 'compose' (default) packs variants into "
+            "size/storage bundles; 'swarm' counts one runner per deployable "
+            "variant. Drives the --max-jobs budget per mode."
+        ),
+    )
+    p.add_argument(
+        "--max-jobs",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "Hard-cut the output once the cumulative 'jobs' (running sum of "
+            "'bundles' down the sorted/filtered rows) reaches N: keep only the "
+            "leading rows whose cumulative job count stays below N. Use to cap "
+            "a CI run's total deploy jobs. Combine with a coverage-first sort "
+            "(e.g. 'asc covered_by, desc weight') to keep the highest-value "
+            "jobs under the budget."
+        ),
+    )
+    p.add_argument(
         "--unique",
         action="store_true",
         help=(
@@ -282,6 +307,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.level is not None and args.level < 1:
         p.error("--level/-L must be >= 1")
 
+    if args.max_jobs is not None and args.max_jobs < 1:
+        p.error("--max-jobs must be >= 1")
+
     try:
         sort_spec = parse_sort_spec(args.sort)
     except ValueError as exc:
@@ -292,14 +320,19 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: roles directory not found: {roles_dir}", file=sys.stderr)
         return 1
 
-    compute = (
-        compute_variant_complexity_rows if args.variant else compute_complexity_rows
-    )
-    rows = compute(
-        roles_dir,
-        include_group_names=not args.no_group_names,
-        max_level=args.level,
-    )
+    if args.variant:
+        rows = compute_variant_complexity_rows(
+            roles_dir,
+            include_group_names=not args.no_group_names,
+            max_level=args.level,
+        )
+    else:
+        rows = compute_complexity_rows(
+            roles_dir,
+            include_group_names=not args.no_group_names,
+            max_level=args.level,
+            deploy_mode=args.deploy_mode,
+        )
 
     _apply_sort(rows, sort_spec)
     rows = _mark_covered(rows)
@@ -321,6 +354,9 @@ def main(argv: list[str] | None = None) -> int:
         running += r.bundles
         numbered.append(r._replace(row=line, jobs=running))
     rows = numbered
+
+    if args.max_jobs is not None:
+        rows = [r for r in rows if r.jobs < args.max_jobs]
 
     if args.format == "json":
         rendered = render_json(rows)
