@@ -76,13 +76,17 @@ echo "=== distro=${INFINITO_DISTRO} app=${apps} (debug always on) ==="
 cleanup() {
 	rc=$?
 
-	# Copy Playwright reports from the infinito container to the runner filesystem
-	# BEFORE containers/volumes are destroyed, so GitHub Actions can upload them as artifacts.
 	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${apps}"
 	mkdir -p "${_playwright_host_dir}"
 	echo ">>> Copying Playwright artifacts from ${INFINITO_CONTAINER} to ${_playwright_host_dir}"
 	docker cp "${INFINITO_CONTAINER}:${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR}/." \
 		"${_playwright_host_dir}" 2>/dev/null || true
+
+	local _inv_parent
+	_inv_parent="$(dirname "${INFINITO_INVENTORY_DIR}")"
+	echo ">>> Copying generated inventory from ${INFINITO_CONTAINER} to host ${_inv_parent}"
+	mkdir -p "${_inv_parent}"
+	docker cp "${INFINITO_CONTAINER}:${_inv_parent}/." "${_inv_parent}/" 2>/dev/null || true
 
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"
 	"${PYTHON}" -m cli.administration.deploy.development down || true
@@ -91,32 +95,19 @@ cleanup() {
 	echo ">>> Docker disk usage before HARD cleanup"
 	docker system df || true
 
-	# 1) Remove ALL containers (including running ones)
 	mapfile -t ids < <(docker ps -aq || true)
 	if ((${#ids[@]} > 0)); then
 		docker rm -f "${ids[@]}" >/dev/null 2>&1 || true
 	fi
 
-	# 2) Remove networks (except default ones)
 	docker network prune -f >/dev/null 2>&1 || true
-
-	# 3) Remove ALL volumes
 	docker volume prune -f >/dev/null 2>&1 || true
-
-	# 4) Optional: leftover stopped containers (usually redundant after rm -f)
 	docker container prune -f >/dev/null 2>&1 || true
 
-	# 5) Remove ALL images and build cache.
-	# Important for serial multi-distro CI runs on the same runner.
 	docker image prune -af >/dev/null 2>&1 || true
 	docker buildx prune -af >/dev/null 2>&1 || true
 	docker builder prune -af >/dev/null 2>&1 || true
 
-	# 6) Remove host-mounted Docker data dir (CI runner only)
-	# IMPORTANT:
-	# - In CI, Docker/DIND/buildx may create root-owned files under this directory.
-	# - A plain 'rm -rf' can fail with "Permission denied" and poison the next distro run.
-	# - Use sudo for a hard reset, then recreate the directory.
 	if [[ -n "${INFINITO_DOCKER_VOLUME:-}" ]]; then
 		if [[ "${INFINITO_DOCKER_VOLUME}" == /* ]]; then
 			echo ">>> CI cleanup: wiping Docker root: ${INFINITO_DOCKER_VOLUME}"
@@ -129,7 +120,6 @@ cleanup() {
 			sudo rm -rf "${INFINITO_DOCKER_VOLUME}" || true
 			sudo mkdir -vp "${INFINITO_DOCKER_VOLUME}" || true
 
-			# Optional: keep it writable for the runner user
 			sudo chown -R "$(id -u):$(id -g)" "${INFINITO_DOCKER_VOLUME}" || true
 
 			echo ">>> Post-clean ownership/permissions (best-effort)"
@@ -148,8 +138,6 @@ cleanup() {
 trap cleanup EXIT
 
 echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
-# Always reconcile the stack to the requested distro.
-# This avoids reusing a pre-started stack with a different INFINITO_DISTRO.
 "${PYTHON}" -m cli.administration.deploy.development up
 
 deploy_args=(
@@ -169,12 +157,6 @@ echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 	--inventory-dir "${INFINITO_INVENTORY_DIR}" \
 	--vars '{"ASYNC_ENABLED": false}'
 
-# PASS 1 (sync) + PASS 2 (async) co-located per variant: the wrapper
-# runs each round's deploy twice, second call with `-e ASYNC_ENABLED=true`
-# overriding the host_var, BEFORE moving to the next variant. That keeps
-# the async re-deploy targeting exactly the host state the matching sync
-# deploy just produced and avoids the matrix-twice race the previous
-# split passes had on multi-variant roles.
 echo ">>> deploy (PASS 1 sync + PASS 2 async per variant, --full-cycle)"
 "${PYTHON}" -m cli.administration.deploy.development deploy "${deploy_args[@]}" --full-cycle
 
