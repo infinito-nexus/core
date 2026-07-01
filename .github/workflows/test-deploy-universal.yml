@@ -166,7 +166,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" 2>/dev/null || true
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Resolve repository owner
         shell: bash
