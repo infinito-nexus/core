@@ -37,9 +37,12 @@
       firstNameAttribute: "givenName"
       lastNameAttribute: "sn"
       emailAttribute: "mail"
-      loginIdAttribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      # n8n's sign-in form always validates the login field as an email
+      # address, regardless of auth method, so the LDAP lookup must resolve
+      # on mail rather than uid or the form never lets users submit.
+      loginIdAttribute: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
       ldapIdAttribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
-      userFilter: "({{ LDAP.USER.ATTRIBUTES.ID }}={login})"
+      userFilter: "({{ LDAP.USER.ATTRIBUTES.MAIL }}={login})"
       synchronizationEnabled: false
       synchronizationInterval: 60
       searchPageSize: 0

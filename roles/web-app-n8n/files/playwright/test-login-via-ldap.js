@@ -6,10 +6,10 @@ exports.register = function (shared) {
     if (shared.env.oidcEnabled) {
       test.skip(true, "OIDC also enabled — LDAP-form login only exercised in LDAP-only variant (V3)");
     }
-    expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
+    expect(shared.env.biberEmail, "BIBER_EMAIL must be set").toBeTruthy();
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 
-    await shared.signInViaN8nLdap(page, shared.env.biberUsername, shared.env.biberPassword);
+    await shared.signInViaN8nLdap(page, shared.env.biberEmail, shared.env.biberPassword);
 
     await expect(page.locator("body")).toContainText(
       /workflow|execution|credential|canvas|overview/i,

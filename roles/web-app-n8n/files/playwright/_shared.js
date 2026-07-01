@@ -10,6 +10,7 @@ const n8nBaseUrl      = normalizeBaseUrl(process.env.N8N_BASE_URL || "");
 const adminUsername   = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword   = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername   = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
+const biberEmail      = decodeDotenvQuotedValue(process.env.BIBER_EMAIL);
 const biberPassword   = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
@@ -45,7 +46,7 @@ async function signInViaN8nOidc(page, username, password, personaLabel) {
     .toContain(canonicalDomain);
 }
 
-async function signInViaN8nLdap(page, username, password) {
+async function signInViaN8nLdap(page, email, password) {
   await page.context().clearCookies();
   await page.goto(`${n8nBaseUrl}/signin`, { waitUntil: "domcontentloaded" });
 
@@ -53,7 +54,7 @@ async function signInViaN8nLdap(page, username, password) {
   const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
   await emailInput.waitFor({ state: "visible", timeout: 60_000 });
 
-  await emailInput.fill(username);
+  await emailInput.fill(email);
   await passwordInput.fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
 
@@ -80,6 +81,7 @@ module.exports = {
     adminUsername,
     adminPassword,
     biberUsername,
+    biberEmail,
     biberPassword,
     canonicalDomain,
   },
