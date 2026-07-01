@@ -79,6 +79,16 @@ test("stalwart: WebAdmin is served under canonical domain with TLS", async ({ pa
   expect(response.headers()["strict-transport-security"], "Stalwart must emit HSTS").toBeTruthy();
 });
 
+// CalDAV/CardDAV auto-discovery is reachable through the proxy (.well-known -> /dav/*).
+test("stalwart: CalDAV/CardDAV discovery is reachable", async ({ request }) => {
+  for (const [wk, path] of [["caldav", "/dav/cal"], ["carddav", "/dav/card"]]) {
+    const res = await request.get(`${appBaseUrl}/.well-known/${wk}`, { maxRedirects: 0 });
+    expect([301, 302, 307, 308].includes(res.status()),
+      `${wk} well-known must redirect (got ${res.status()})`).toBe(true);
+    expect(res.headers()["location"] || "", `${wk} should point at ${path}`).toContain("/dav/");
+  }
+});
+
 // Scenario I: SSO login -> WebAdmin -> logout.
 test("stalwart: sso login, open WebAdmin, logout", async ({ page }) => {
   safeSkipUnlessEnabled("sso");

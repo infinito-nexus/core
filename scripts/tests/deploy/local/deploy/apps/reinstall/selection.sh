@@ -56,7 +56,7 @@ echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 echo ">>> Pre-cleanup shared entities (host docker context)"
 apps='matomo' scripts/tests/deploy/local/purge/entity.sh
 
-if [[ "${INFINITO_SKIP_COMPILE:-false}" == "true" ]]; then
+if [[ "${INFINITO_SKIP_COMPILE:-}" == "true" ]]; then
 	echo ">>> Skipping entry.sh bootstrap recompile (INFINITO_SKIP_COMPILE=true)"
 else
 	echo ">>> Running entry.sh inside container"

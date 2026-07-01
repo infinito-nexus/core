@@ -232,14 +232,20 @@ class TestTemplatingRenderStrict(unittest.TestCase):
         base = {"DOMAIN_PRIMARY": "example.com"}
         self.assertEqual(
             render_ansible_strict(
-                templar=None, raw=raw, var_name="x", err_prefix="t",
+                templar=None,
+                raw=raw,
+                var_name="x",
+                err_prefix="t",
                 variables={**base, "MAIL_PROVIDER": "web-app-mailu"},
             ),
             "mail.example.com",
         )
         self.assertEqual(
             render_ansible_strict(
-                templar=None, raw=raw, var_name="x", err_prefix="t",
+                templar=None,
+                raw=raw,
+                var_name="x",
+                err_prefix="t",
                 variables={**base, "MAIL_PROVIDER": "web-app-stalwart"},
             ),
             "legacy-mail.example.com",
@@ -247,7 +253,10 @@ class TestTemplatingRenderStrict(unittest.TestCase):
         # Unset MAIL_PROVIDER takes the else branch.
         self.assertEqual(
             render_ansible_strict(
-                templar=None, raw=raw, var_name="x", err_prefix="t",
+                templar=None,
+                raw=raw,
+                var_name="x",
+                err_prefix="t",
                 variables=base,
             ),
             "legacy-mail.example.com",

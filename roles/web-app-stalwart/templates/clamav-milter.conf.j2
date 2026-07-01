@@ -1,0 +1,11 @@
+# Bridges Stalwart's DATA-stage milter (inet) to the local clamd (unix socket).
+MilterSocket inet:{{ STALWART_CLAMAV_MILTER_PORT }}
+MilterSocketMode 660
+ClamdSocket unix:/run/clamav/clamd.sock
+OnInfected Reject
+OnClean Accept
+OnFail Defer
+AddHeader Replace
+LogSyslog no
+LogInfected Basic
+Foreground yes

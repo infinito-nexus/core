@@ -31,6 +31,15 @@ STALWART_IMAGE: "{{ lookup('config', application_id, 'services.stalwart.image') 
 STALWART_CONTAINER: "{{ lookup('config', application_id, 'services.stalwart.name') }}"
 STALWART_WEBMAIL_IMAGE: "{{ lookup('config', application_id, 'services.webmail.image') }}"
 STALWART_WEBMAIL_VERSION: "{{ lookup('config', application_id, 'services.webmail.version') }}"
+
+# Antivirus (ClamAV milter scanned on the SMTP DATA stage)
+STALWART_ANTIVIRUS_ENABLED: "{{ lookup('config', application_id, 'services.clamav.enabled') | bool }}"
+STALWART_CLAMAV_IMAGE: "{{ lookup('config', application_id, 'services.clamav.image') }}"
+STALWART_CLAMAV_VERSION: "{{ lookup('config', application_id, 'services.clamav.version') }}"
+STALWART_CLAMAV_HOST: "clamav"
+STALWART_CLAMAV_MILTER_PORT: 7357
+STALWART_CLAMAV_VOLUME: "stalwart_clamav_data"
+STALWART_CLAMAV_MILTER_CONF: "{{ [ STALWART_CONFIG_DIR, 'clamav-milter.conf' ] | path_join }}"
 # webmail is a secondary canonical (declared in meta/server.yml
 # domains.canonical); lookup('domain') only exposes the primary.
 STALWART_WEBMAIL_DOMAIN: "webmail.{{ DOMAIN_PRIMARY }}"  # nocheck: domain-spot

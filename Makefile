@@ -133,9 +133,7 @@ clean-sudo:
 # Param full_cycle: true | false — when true, also run the async update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
-# Param skip_compile: true | false — skip the in-container entry.sh recompile
-#                     (use when the venv is already built and an offline/proxy
-#                     dependency fetch would otherwise abort the bootstrap)
+# Param skip_compile: true | false — skip the in-container entry.sh recompile (use when the venv is prebuilt)
 compose-deploy:
 	@$(if $(type),INFINITO_DEPLOY_TYPE="$(type)") \
 	 $(if $(debug),INFINITO_DEBUG="$(debug)") \
@@ -159,15 +157,6 @@ compose-entity-purge:
 # Param cmd: shell command to run; when unset, opens an interactive shell.
 compose-exec:
 	@cmd='$(cmd)' bash scripts/tests/deploy/local/exec/container.sh
-
-.PHONY: stalwart-mail-e2e
-# Stalwart mail-flow e2e: real send->receive round-trip against the running stack.
-# Provisions a throwaway .test domain in Stalwart (works on any deploy domain,
-# incl. .example), sends alice->bob over SMTP+TLS, asserts receipt via JMAP, cleans up.
-# Requires web-app-stalwart to be deployed first.
-stalwart-mail-e2e:
-	@cmd='python3 /opt/src/infinito/roles/web-app-stalwart/files/tests/mail_flow_e2e.py' \
-	 bash scripts/tests/deploy/local/exec/container.sh
 
 .PHONY: compose-inner-run
 # Run a one-off `docker run` inside the running container (nested Docker-in-Docker).
@@ -485,6 +474,21 @@ setup: fix-dockerignore dotenv
 # Run setup after cleaning ignored files.
 setup-clean: clean setup
 	@echo "Full build with cleanup before was executed."
+
+.PHONY: stalwart-e2e
+# Full mail e2e with SSO: deploy Stalwart + Keycloak, then run mail + Playwright.
+# Note: covers SSO login, send/receive, CalDAV/CardDAV and antivirus.
+stalwart-e2e:
+	@$(MAKE) compose-deploy apps=web-app-stalwart,web-app-keycloak
+	@$(MAKE) stalwart-mail-e2e
+	@$(MAKE) compose-playwright role=web-app-stalwart
+
+.PHONY: stalwart-mail-e2e
+# Stalwart mail-flow e2e: real send->receive round-trip against the running stack.
+# Note: provisions a throwaway .test domain (works on any deploy domain); requires web-app-stalwart deployed.
+stalwart-mail-e2e:
+	@cmd='python3 /opt/src/infinito/roles/web-app-stalwart/files/tests/mail_flow_e2e.py' \
+	 bash scripts/tests/deploy/local/exec/container.sh
 
 .PHONY: system-purge
 # Run the broad low-hardware cleanup routine.

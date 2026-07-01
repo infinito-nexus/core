@@ -80,6 +80,18 @@ webmail:
   ports:
     local:
       http: 8087
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — antivirus milter, covered by role deploy test
+clamav:
+  enabled: true
+  shared: false
+  image: clamav/clamav
+  version: latest
+  # clamd holds the full signature DB in memory.
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 512
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   bond: 1

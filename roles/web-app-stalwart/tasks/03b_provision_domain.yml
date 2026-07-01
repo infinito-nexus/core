@@ -49,6 +49,10 @@
   include_tasks: 08_oidc.yml
   when: STALWART_SSO_ENABLED | bool
 
+- name: "Register the ClamAV antivirus milter"
+  include_tasks: 09_antivirus.yml
+  when: STALWART_ANTIVIRUS_ENABLED | bool
+
 - name: "Read Stalwart-managed DKIM public key"
   include_tasks: 05_read_dkim.yml
 

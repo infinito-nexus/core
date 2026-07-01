@@ -55,9 +55,25 @@
     depends_on:
       - stalwart
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{% if STALWART_ANTIVIRUS_ENABLED | bool %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': STALWART_DATA_VOLUME}, 'webmail_data': {'name': STALWART_WEBMAIL_VOLUME}}
-) }}
+  # ClamAV attachment scanner — Stalwart calls it as an SMTP DATA-stage milter.
+  clamav:
+{% set service_name = 'clamav' %}
+    container_name: {{ STALWART_CONTAINER }}_clamav
+    image: {{ STALWART_CLAMAV_IMAGE }}:{{ STALWART_CLAMAV_VERSION }}
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    environment:
+      CLAMAV_NO_MILTERD: "false"
+    volumes:
+      - "clamav_data:/var/lib/clamav"
+      - "{{ STALWART_CLAMAV_MILTER_CONF }}:/etc/clamav/clamav-milter.conf:ro"
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{% endif %}
+
+{% set _extra_volumes = {'data': {'name': STALWART_DATA_VOLUME}, 'webmail_data': {'name': STALWART_WEBMAIL_VOLUME}} %}
+{% if STALWART_ANTIVIRUS_ENABLED | bool %}
+{%   set _extra_volumes = _extra_volumes | combine({'clamav_data': {'name': STALWART_CLAMAV_VOLUME}}) %}
+{% endif %}
+{{ lookup('applications') | compose_volumes(application_id, extra_volumes=_extra_volumes) }}
 {% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -22,13 +22,15 @@ into one binary. This role runs:
 |-----------|---------|
 | `stalwart` | SMTP/IMAP/JMAP/POP3/Sieve/DAV + built-in spam filter + WebAdmin/REST API |
 | `webmail` (Roundcube) | Browser webmail (parity with Mailu) |
+| `clamav` | Attachment antivirus, called as an SMTP DATA-stage milter |
 | `postgres` *(shared)* | Account / mail / metadata store |
 | `redis` *(shared)* | In-memory / rate-limit store |
 
 Dynamic state (domains, accounts, passwords, DKIM, certificates) is administered
 at runtime via the JMAP management API; `config.json` only bootstraps the data
-store. (Stalwart's spam filter is built in, so no separate ClamAV container is
-needed.)
+store. Spam filtering is built into Stalwart; **antivirus** is provided by the
+`clamav` container (registered via `x:MtaMilter`, `services.clamav.enabled` —
+set it to `false` to run spam-only). Infected mail is rejected at DATA.
 
 ## SSO (Keycloak / OpenID Connect)
 
@@ -57,6 +59,14 @@ With SSO disabled the role uses the Internal directory and password submission,
 exactly as before. Mailu keeps password submission in both modes and does not
 set `submission_via_relay`.
 
+## Calendar & Contacts (CalDAV / CardDAV / WebDAV)
+
+Stalwart serves DAV natively on the mail HTTP listener — no extra container
+(Mailu used a separate Radicale service). Clients auto-discover via
+`https://mail.<domain>/.well-known/{caldav,carddav}`, which redirect to
+`https://mail.<domain>/dav/cal` and `/dav/card`. Authenticate with the mailbox
+account (or the Keycloak SSO token when SSO is enabled).
+
 ## Features
 
 - All-in-one mail server (SMTP/IMAP/JMAP/POP3/ManageSieve)
@@ -73,10 +83,9 @@ set `submission_via_relay`.
 - [`sys-svc-mail`](../sys-svc-mail/) — how applications send mail
 - [`plugins/lookup/email.py`](../../plugins/lookup/email.py) — the email abstraction
 
-> **Note:** Stalwart's `config.toml` schema and management API endpoints are
-> version-sensitive. Pin `services.stalwart.version` and validate the bootstrap
-> config and provisioning tasks against that release on first deployment
-> (`# @todo` markers flag the spots to confirm).
+> **Note:** Stalwart's JMAP object schema is version-sensitive. Pin
+> `services.stalwart.version`; the provisioning payloads in `tasks/` were
+> validated against that release's `GET /api/schema`.
 
 ## Credits
 

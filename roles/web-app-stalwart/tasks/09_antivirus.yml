@@ -1,0 +1,27 @@
+---
+# Register the ClamAV container as a DATA-stage milter (idempotent by hostname).
+- name: "List existing Stalwart milters"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaMilter/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "Resolve existing ClamAV milter id (if any)"
+  ansible.builtin.set_fact:
+    stalwart_av_milter_id: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list
+          | selectattr('hostname', 'equalto', STALWART_CLAMAV_HOST)
+          | map(attribute='id') | first) | default('') }}
+
+- name: "Register the ClamAV milter"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaMilter/set', {'create': {'av': {
+            'hostname': STALWART_CLAMAV_HOST,
+            'port': STALWART_CLAMAV_MILTER_PORT,
+            'stages': {'data': true}
+          }}}, 'c0']]} | to_json }}
+  when: stalwart_av_milter_id | length == 0

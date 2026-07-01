@@ -187,6 +187,11 @@ ignore = [
 "roles/sys-ctl-rpr-container-hard/files/script.py" = ["PTH"]
 "roles/sys-ctl-rpr-container-soft/files/script.py" = ["PTH"]
 
+# Container-internal e2e script: writes to fixed /tmp paths inside the Stalwart
+# container (S108) and uses plain open() (PTH123) — same test-script latitude as
+# ``tests/**`` above.
+"roles/web-app-stalwart/files/tests/mail_flow_e2e.py" = ["S108", "PTH123"]
+
 # BLE001 (flake8-blind-except) ratchet.
 # Broad `except Exception:` is now selected project-wide so NEW code is
 # gated. Standalone role scripts under ``roles/*/files/`` legitimately

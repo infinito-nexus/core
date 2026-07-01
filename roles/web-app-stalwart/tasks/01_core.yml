@@ -32,6 +32,13 @@
     mode: "0644"
   when: STALWART_SSO_ENABLED | bool
 
+- name: Render clamav-milter configuration
+  template:
+    src: clamav-milter.conf.j2
+    dest: "{{ STALWART_CLAMAV_MILTER_CONF }}"
+    mode: "0644"
+  when: STALWART_ANTIVIRUS_ENABLED | bool
+
 - name: "load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

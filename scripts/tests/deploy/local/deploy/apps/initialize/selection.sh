@@ -101,7 +101,7 @@ echo ">>> Ensuring development stack is up (when-down)"
 "${PYTHON}" -m cli.administration.deploy.development up \
 	--when-down
 
-if [[ "${INFINITO_SKIP_COMPILE:-false}" == "true" ]]; then
+if [[ "${INFINITO_SKIP_COMPILE:-}" == "true" ]]; then
 	echo ">>> Skipping entry.sh bootstrap recompile (INFINITO_SKIP_COMPILE=true)"
 else
 	echo ">>> Running entry.sh bootstrap inside container"
