@@ -43,6 +43,16 @@ if [ -n "${_ctrs}" ]; then
 	docker rm -f ${_ctrs} 2>&1 | sed 's/^/    /' || true
 fi
 
+for _reap in 1 2 3 4 5; do
+	_rest="$(_select_ids | sort -u)"
+	[ -n "${_rest}" ] || break
+	# shellcheck disable=SC2086  # intentional word-split of the id list
+	docker kill -s KILL ${_rest} >/dev/null 2>&1 || true
+	# shellcheck disable=SC2086  # intentional word-split of the id list
+	docker rm ${_rest} 2>&1 | sed 's/^/    /' || true
+	sleep 2
+done
+
 echo ">>> swarm-clean: leftover networks"
 _nets="$(docker network ls --format '{{.Name}}' | grep -E "${INFINITO_SWARM_LAB_NET_NAME}" || true)"
 if [ -n "${_nets}" ]; then
