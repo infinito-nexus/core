@@ -20,11 +20,7 @@
     {{ lookup('container_ports', ['suitecrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-{% set _extra_mounts = [] %}
-{% if SUITECRM_LDAP_ENABLED | bool %}
-{%   set _ = _extra_mounts.append(SUITECRM_LDAP_CONFIG_HOST ~ ':' ~ SUITECRM_LDAP_EXTENSION_DIR ~ '/ldap.yaml') %}
-{% endif %}
-    {{ lookup('container_volumes', application_id, service_name, extra_volumes=_extra_mounts) | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}
 {{ lookup('compose_networks') }}

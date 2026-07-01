@@ -13,7 +13,6 @@
     role_templates:
       - src: "ldap.yaml.j2"
         dest: "{{ SUITECRM_LDAP_CONFIG_HOST }}"
-        when: "{{ SUITECRM_LDAP_ENABLED | bool }}"
 
 - name: "🚀 Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:
