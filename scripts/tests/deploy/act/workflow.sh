@@ -38,14 +38,16 @@ if [[ -n "${ACT_JOB}" ]]; then
 	cmd+=(-j "${ACT_JOB}")
 fi
 if [[ -n "${ACT_MATRIX}" ]]; then
-	cmd+=(--matrix "${ACT_MATRIX}")
+	IFS=';' read -ra _act_matrix_filters <<<"${ACT_MATRIX}"
+	for pair in "${_act_matrix_filters[@]}"; do
+		cmd+=(--matrix "${pair}")
+	done
 fi
 if [[ -n "${ACT_INPUTS}" ]]; then
 	for pair in ${ACT_INPUTS}; do
 		cmd+=(--input "${pair}")
 	done
 fi
-# Param ACT_ENV: semicolon-separated KEY=VALUE pairs forwarded to the act runner via --env (values may contain commas).
 if [[ -n "${ACT_ENV}" ]]; then
 	IFS=';' read -ra _act_env_pairs <<<"${ACT_ENV}"
 	for pair in "${_act_env_pairs[@]}"; do

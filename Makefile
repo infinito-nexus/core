@@ -572,11 +572,12 @@ swarm-shell:
 .PHONY: swarm-zombie
 # Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
 # Param app: matrix application id (e.g. web-app-baserow).
+# Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
 # Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie:
-	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [name=<cluster-id>] [disable=<keys>]'; exit 2; }
+	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
 	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/13_cleanup.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
 	@ACT_RM=false \
@@ -584,7 +585,7 @@ swarm-zombie:
 	 ACT_ENV='INFINITO_KEEP_SWARM_NODES=true;INFINITO_APP_DISCOVERY_RUNNER=host;INFINITO_DEPLOY_MODE=swarm;disable=$(disable);SWARM_NAME=$(or $(name),$(app))' \
 	 ACT_WORKFLOW=.github/workflows/test-deploy-swarm.yml \
 	 ACT_JOB=swarm \
-	 ACT_MATRIX='apps:$(app)' \
+	 ACT_MATRIX='apps:$(app);variant:$(or $(variant),0)' \
 	 ACT_INPUTS='whitelist=$(app)' \
 	 bash scripts/tests/deploy/act/workflow.sh
 
