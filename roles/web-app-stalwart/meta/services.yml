@@ -8,6 +8,9 @@ sso:
   oidc:
     email_by_username: true
     enable_user_creation: true
+    # Under SSO, Stalwart disables password submission, so the no-reply bot
+    # relays without SMTP AUTH (see plugins/lookup/email.py). Mailu omits this.
+    submission_via_relay: true
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"

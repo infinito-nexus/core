@@ -17,6 +17,21 @@
     # Must be world-readable: the container runs as UID 2000.
     mode: "0644"
 
+- name: Ensure Roundcube custom-config directory exists
+  file:
+    path: "{{ STALWART_WEBMAIL_CONFIG_DIR }}"
+    state: directory
+    mode: "0755"
+  when: STALWART_SSO_ENABLED | bool
+
+- name: Render Roundcube OAuth (Keycloak SSO) configuration
+  template:
+    src: roundcube-oauth.inc.php.j2
+    dest: "{{ STALWART_WEBMAIL_OAUTH_CONFIG }}"
+    # Included by the roundcube container, which runs as www-data.
+    mode: "0644"
+  when: STALWART_SSO_ENABLED | bool
+
 - name: "load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

@@ -45,6 +45,10 @@
   include_tasks: 07_tls.yml
   when: lookup('tls', application_id, 'enabled') | bool
 
+- name: "Wire Keycloak as the OIDC authentication directory (SSO)"
+  include_tasks: 08_oidc.yml
+  when: STALWART_SSO_ENABLED | bool
+
 - name: "Read Stalwart-managed DKIM public key"
   include_tasks: 05_read_dkim.yml
 

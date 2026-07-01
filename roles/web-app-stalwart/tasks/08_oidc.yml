@@ -1,0 +1,108 @@
+---
+# Point Stalwart's auth directory at Keycloak. The directory is Internal XOR one
+# external directory (no fallback), so SSO switches all interactive auth to OIDC
+# and disables password login — see the role README for the full rationale.
+
+# OIDC directory (Keycloak)
+- name: "List existing Stalwart directories"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Directory/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "Resolve existing Keycloak OIDC directory id (if any)"
+  ansible.builtin.set_fact:
+    stalwart_oidc_dir_id: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list
+          | selectattr('@type', 'equalto', 'Oidc')
+          | selectattr('issuerUrl', 'equalto', OIDC.CLIENT.ISSUER_URL)
+          | map(attribute='id') | first) | default('') }}
+
+- name: "Create the Keycloak OIDC authentication directory"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Directory/set', {'create': {'kc': {
+            '@type': 'Oidc',
+            'description': 'Keycloak SSO (' ~ OIDC.CLIENT.REALM ~ ')',
+            'issuerUrl': OIDC.CLIENT.ISSUER_URL,
+            'requireAudience': OIDC.CLIENT.ID,
+            'claimUsername': OIDC.ATTRIBUTES.USERNAME,
+            'usernameDomain': STALWART_DOMAIN,
+            'claimName': 'name'
+          }}}, 'c0']]} | to_json }}
+  when: stalwart_oidc_dir_id | length == 0
+
+- name: "Capture the newly created OIDC directory id"
+  ansible.builtin.set_fact:
+    stalwart_oidc_dir_id: "{{ stalwart_jmap.methodResponses[0][1].created.kc.id }}"
+  when: stalwart_oidc_dir_id | length == 0
+
+# Point authentication at the OIDC directory
+- name: "Read the Stalwart authentication singleton"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Authentication/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "Record whether the authentication singleton exists"
+  ansible.builtin.set_fact:
+    stalwart_auth_exists: "{{ (stalwart_jmap.methodResponses[0][1].list | length) > 0 }}"
+
+- name: "Create the authentication singleton pointing at Keycloak"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Authentication/set', {'create': {'a':
+            {'directoryId': stalwart_oidc_dir_id}}}, 'c0']]} | to_json }}
+  when: not (stalwart_auth_exists | bool)
+
+- name: "Point the authentication singleton at Keycloak"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Authentication/set', {'update': {'singleton':
+            {'directoryId': stalwart_oidc_dir_id}}}, 'c0']]} | to_json }}
+  when: stalwart_auth_exists | bool
+
+# Trusted-network relay: let the internal nets relay without SMTP AUTH (the
+# no-reply account has no password under OIDC). `remote_ip == '<cidr>'` is a
+# subnet match.
+- name: "Build the trusted-network relay expression"
+  ansible.builtin.set_fact:
+    stalwart_relay_expr: >-
+      !is_empty(authenticated_as){% for net in STALWART_TRUSTED_NETWORKS %} || remote_ip == '{{ net }}'{% endfor %}
+
+- name: "Read the RCPT stage singleton"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaStageRcpt/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "Record whether the RCPT stage singleton exists"
+  ansible.builtin.set_fact:
+    stalwart_rcpt_exists: "{{ (stalwart_jmap.methodResponses[0][1].list | length) > 0 }}"
+
+- name: "Create the RCPT stage with trusted-network relay"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaStageRcpt/set', {'create': {'r':
+            {'allowRelaying': {'else': stalwart_relay_expr | trim}}}}, 'c0']]} | to_json }}
+  when: not (stalwart_rcpt_exists | bool)
+
+- name: "Update the RCPT stage with trusted-network relay"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaStageRcpt/set', {'update': {'singleton':
+            {'allowRelaying': {'else': stalwart_relay_expr | trim}}}}, 'c0']]} | to_json }}
+  when: stalwart_rcpt_exists | bool

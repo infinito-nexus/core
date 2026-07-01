@@ -30,6 +30,33 @@ at runtime via the JMAP management API; `config.json` only bootstraps the data
 store. (Stalwart's spam filter is built in, so no separate ClamAV container is
 needed.)
 
+## SSO (Keycloak / OpenID Connect)
+
+When `web-app-keycloak` is present the role joins the shared Keycloak client and
+delegates **interactive** authentication to Keycloak:
+
+- **WebAdmin + IMAP/SMTP/JMAP** authenticate against an **OIDC directory**
+  (`tasks/08_oidc.yml`): Stalwart validates Keycloak-issued tokens, matching the
+  `preferred_username` claim to the provisioned account.
+- **Roundcube** logs users in over OAuth2 and talks to Stalwart with **XOAUTH2**
+  (`templates/roundcube-oauth.inc.php.j2`).
+
+**Design constraint (validated against the live JMAP schema):** Stalwart's
+authentication directory is *Internal XOR one external directory* — there is no
+chaining or fallback. Enabling SSO therefore **disables password submission**
+for every account, including the machine `no-reply` account. To keep outbound
+notifications working, the role:
+
+1. Widens `x:MtaStageRcpt.allowRelaying` to trust the internal Docker networks
+   (`STALWART_TRUSTED_NETWORKS`), so the bot relays without SMTP AUTH; and
+2. Self-declares `services.sso.oidc.submission_via_relay: true`, which makes
+   [`plugins/lookup/email.py`](../../plugins/lookup/email.py) switch the
+   `no-reply` client to unauthenticated STARTTLS relay on port 25.
+
+With SSO disabled the role uses the Internal directory and password submission,
+exactly as before. Mailu keeps password submission in both modes and does not
+set `submission_via_relay`.
+
 ## Features
 
 - All-in-one mail server (SMTP/IMAP/JMAP/POP3/ManageSieve)

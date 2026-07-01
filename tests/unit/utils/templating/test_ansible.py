@@ -223,6 +223,36 @@ class TestTemplatingRenderStrict(unittest.TestCase):
         )
         self.assertEqual(out, "/etc/infinito.nexus/ca/root-ca.crt")
 
+    def test_inline_conditional_with_concat(self):
+        # Mirrors web-app-mailu/meta/server.yml (inline conditional + ~ concat).
+        raw = (
+            "{{ ('mail.' ~ DOMAIN_PRIMARY) if MAIL_PROVIDER == 'web-app-mailu' "
+            "else ('legacy-mail.' ~ DOMAIN_PRIMARY) }}"
+        )
+        base = {"DOMAIN_PRIMARY": "example.com"}
+        self.assertEqual(
+            render_ansible_strict(
+                templar=None, raw=raw, var_name="x", err_prefix="t",
+                variables={**base, "MAIL_PROVIDER": "web-app-mailu"},
+            ),
+            "mail.example.com",
+        )
+        self.assertEqual(
+            render_ansible_strict(
+                templar=None, raw=raw, var_name="x", err_prefix="t",
+                variables={**base, "MAIL_PROVIDER": "web-app-stalwart"},
+            ),
+            "legacy-mail.example.com",
+        )
+        # Unset MAIL_PROVIDER takes the else branch.
+        self.assertEqual(
+            render_ansible_strict(
+                templar=None, raw=raw, var_name="x", err_prefix="t",
+                variables=base,
+            ),
+            "legacy-mail.example.com",
+        )
+
     def test_filters_lower_upper_default(self):
         variables = {"NAME": "MiXeD", "EMPTY": ""}
         out1 = render_ansible_strict(

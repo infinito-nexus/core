@@ -31,8 +31,13 @@ STALWART_IMAGE: "{{ lookup('config', application_id, 'services.stalwart.image') 
 STALWART_CONTAINER: "{{ lookup('config', application_id, 'services.stalwart.name') }}"
 STALWART_WEBMAIL_IMAGE: "{{ lookup('config', application_id, 'services.webmail.image') }}"
 STALWART_WEBMAIL_VERSION: "{{ lookup('config', application_id, 'services.webmail.version') }}"
-STALWART_WEBMAIL_DOMAIN: "webmail.{{ DOMAIN_PRIMARY }}"
+# webmail is a secondary canonical (declared in meta/server.yml
+# domains.canonical); lookup('domain') only exposes the primary.
+STALWART_WEBMAIL_DOMAIN: "webmail.{{ DOMAIN_PRIMARY }}"  # nocheck: domain-spot
 STALWART_WEBMAIL_HTTP_PORT: "{{ lookup('config', application_id, 'services.webmail.ports.local.http') }}"
+# Roundcube OAuth config include (rendered only when SSO is enabled).
+STALWART_WEBMAIL_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'webmail' ] | path_join }}"
+STALWART_WEBMAIL_OAUTH_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'oauth.inc.php' ] | path_join }}"
 
 # Volumes
 STALWART_DATA_VOLUME: "stalwart_data"
@@ -47,3 +52,12 @@ STALWART_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.admin
 
 # DMARC report address (DKIM selector + key are read at runtime in 05_read_dkim.yml).
 STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+
+# Internal nets trusted to relay without SMTP AUTH under SSO (see tasks/08_oidc.yml).
+STALWART_TRUSTED_NETWORKS:
+  - "10.0.0.0/8"
+  - "172.16.0.0/12"
+  - "192.168.0.0/16"
+  - "127.0.0.0/8"
+
+STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"

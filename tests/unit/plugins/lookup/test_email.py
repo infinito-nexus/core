@@ -136,6 +136,46 @@ class TestEmailLookup(unittest.TestCase):
         with self.assertRaises(AnsibleError):
             self.lookup.run(["a", "b"], variables={})
 
+    def test_sso_relay_provider_disables_auth_and_uses_port_25(self) -> None:
+        # submission_via_relay + Keycloak deployed -> relay on 25, no auth, STARTTLS.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {"sso": {"oidc": {"submission_via_relay": True}}},
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov", "web-app-keycloak"],
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 25)
+        self.assertFalse(result["auth"])
+        self.assertTrue(result["start_tls"])
+
+    def test_sso_relay_inactive_without_keycloak(self) -> None:
+        # Same provider, but Keycloak is not deployed: keep authenticated 465.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {"sso": {"oidc": {"submission_via_relay": True}}},
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov"],
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 465)
+        self.assertTrue(result["auth"])
+        self.assertFalse(result["start_tls"])
+
     def test_computed_defaults_are_templated(self) -> None:
         self.lookup._templar = _DummyTemplar(
             {"DOMAIN_PRIMARY_RESOLVED": "mail.example.org"}

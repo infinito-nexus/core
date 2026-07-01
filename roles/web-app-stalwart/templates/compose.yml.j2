@@ -43,8 +43,15 @@
       ROUNDCUBEMAIL_SMTP_SERVER: "ssl://stalwart"
       ROUNDCUBEMAIL_SMTP_PORT: "465"
       ROUNDCUBEMAIL_DB_TYPE: "sqlite"
+{% if STALWART_SSO_ENABLED | bool %}
+      # Keycloak SSO client secret (kept out of the oauth.inc.php include).
+      ROUNDCUBEMAIL_OAUTH_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+{% endif %}
     volumes:
       - "webmail_data:/var/www/html"
+{% if STALWART_SSO_ENABLED | bool %}
+      - "{{ STALWART_WEBMAIL_OAUTH_CONFIG }}:/var/roundcube/config/oauth.inc.php:ro"
+{% endif %}
     depends_on:
       - stalwart
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}

@@ -9,12 +9,9 @@ const {
   safeSkipUnlessEnabled,
 } = require("./personas");
 
-// Stalwart e2e — mirrors web-app-mailu's scenario set:
-//   smoke (WebAdmin TLS), SSO login -> admin -> logout, biber -> administrator
-//   send/receive (via Roundcube webmail), plus the shared guest/biber/admin
-//   persona flows. SSO scenarios run only when the OIDC chain is wired
-//   (SSO_SERVICE_ENABLED); the persona flows are gated by PERSONA_*_BLOCKED in
-//   templates/playwright.env.j2 (see TODO.md).
+// Stalwart e2e — mirrors web-app-mailu: WebAdmin TLS smoke, SSO login, biber ->
+// admin send/receive via Roundcube, and the shared persona flows. SSO scenarios
+// run when SSO_SERVICE_ENABLED; personas gated by PERSONA_*_BLOCKED.
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL || "").replace(/\/+$/, "");
@@ -24,19 +21,29 @@ const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL || "")
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const biberEmail = decodeDotenvQuotedValue(process.env.BIBER_EMAIL || "");
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME || "");
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || "");
 
-async function roundcubeLogin(page, user, pass) {
+// Roundcube auto-redirects to Keycloak (oauth_login_redirect); drive the login
+// form, then wait for the mail UI.
+async function roundcubeSsoLogin(page, username, password) {
+  const expectedOidcAuthUrl = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   await page.goto(`${webmailBaseUrl}/`);
-  const userField = page.locator("#rcmloginuser, input[name='_user']").first();
-  await userField.waitFor({ state: "visible", timeout: 30_000 });
-  await userField.fill(user);
-  await page.locator("#rcmloginpwd, input[name='_pass']").first().fill(pass);
-  await page.locator("#rcmloginsubmit, button[type='submit'], input[type='submit']").first().click();
+  const ssoButton = page
+    .getByRole("button", { name: /sso|single sign.?on|login with|openid/i })
+    .or(page.getByRole("link", { name: /sso|single sign.?on|login with|openid/i }));
+  if (await ssoButton.first().isVisible({ timeout: 5_000 }).catch(() => false)) {
+    await ssoButton.first().click();
+  }
+  await expect
+    .poll(() => page.url(), {
+      timeout: 30_000,
+      message: `Expected redirect to Keycloak OIDC: ${expectedOidcAuthUrl}`,
+    })
+    .toContain(expectedOidcAuthUrl);
+  await performKeycloakLoginForm(page, username, password);
   await page.locator("#messagelist, .compose, a[href*='_action=compose'], .toolbar").first()
-    .waitFor({ state: "visible", timeout: 30_000 });
+    .waitFor({ state: "visible", timeout: 60_000 });
 }
 
 async function roundcubeLogout(page) {
@@ -72,7 +79,7 @@ test("stalwart: WebAdmin is served under canonical domain with TLS", async ({ pa
   expect(response.headers()["strict-transport-security"], "Stalwart must emit HSTS").toBeTruthy();
 });
 
-// Scenario I: SSO login -> WebAdmin -> logout (runs once the OIDC chain is wired).
+// Scenario I: SSO login -> WebAdmin -> logout.
 test("stalwart: sso login, open WebAdmin, logout", async ({ page }) => {
   safeSkipUnlessEnabled("sso");
   const expectedOidcAuthUrl = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
@@ -98,8 +105,10 @@ test("stalwart: sso login, open WebAdmin, logout", async ({ page }) => {
 });
 
 // Scenario II: biber -> administrator send/receive through the Roundcube webmail UI.
+// Login is via Keycloak SSO (Roundcube XOAUTH2 -> Stalwart), mirroring web-app-mailu.
 // biber and the administrator are separate people: isolated browser contexts.
 test("stalwart: biber sends to administrator, administrator receives it", async ({ browser }) => {
+  safeSkipUnlessEnabled("sso");
   test.skip(!webmailBaseUrl || !biberPassword || !adminPassword,
     "Requires WEBMAIL_BASE_URL + provisioned biber/administrator accounts");
 
@@ -109,7 +118,7 @@ test("stalwart: biber sends to administrator, administrator receives it", async 
 
   try {
     const biberPage = await biberContext.newPage();
-    await roundcubeLogin(biberPage, biberUsername || biberEmail, biberPassword);
+    await roundcubeSsoLogin(biberPage, biberUsername, biberPassword);
     await biberPage.goto(`${webmailBaseUrl}/?_task=mail&_action=compose`);
     await biberPage.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
     await biberPage.locator("#_to, input[name='_to']").first().fill(adminEmail);
@@ -121,7 +130,7 @@ test("stalwart: biber sends to administrator, administrator receives it", async 
     await roundcubeLogout(biberPage);
 
     const adminPage = await adminContext.newPage();
-    await roundcubeLogin(adminPage, adminUsername || adminEmail, adminPassword);
+    await roundcubeSsoLogin(adminPage, adminUsername, adminPassword);
     await adminPage.getByRole("link", { name: "Inbox" }).first().click().catch(() => {});
     const emailRow = await waitForEmailInInbox(adminPage, testSubject, 60_000);
     await expect(emailRow).toBeVisible();
