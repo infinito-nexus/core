@@ -132,6 +132,11 @@ KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.ke
 # single SPOT.
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 
+# Stalwart's WebAdmin SPA uses a fixed `stalwart-webui` client_id (no runtime
+# override), so provision a matching public (PKCE) client when Stalwart is
+# deployed. (Follow-up: replace this/Moodle/Nextcloud gates with self-declaration.)
+KEYCLOAK_STALWART_WEBUI_ENABLED: "{{ 'web-app-stalwart' in group_names }}"
+
 # reCAPTCHA
 KEYCLOAK_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'credentials.recaptcha.key') }}"

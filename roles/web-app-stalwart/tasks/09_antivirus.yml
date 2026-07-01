@@ -1,5 +1,6 @@
 ---
 # Register the ClamAV container as a DATA-stage milter (idempotent by hostname).
+# Short timeouts + fail-open keep mail flowing while clamd warms up.
 - name: "List existing Stalwart milters"
   include_tasks: jmap_call.yml
   vars:
@@ -14,7 +15,7 @@
           | selectattr('hostname', 'equalto', STALWART_CLAMAV_HOST)
           | map(attribute='id') | first) | default('') }}
 
-- name: "Register the ClamAV milter"
+- name: "Create the ClamAV milter"
   include_tasks: jmap_call.yml
   vars:
     stalwart_jmap_body: >-
@@ -23,6 +24,22 @@
             'hostname': STALWART_CLAMAV_HOST,
             'port': STALWART_CLAMAV_MILTER_PORT,
             'stages': {'data': true},
-            'tempFailOnError': false
+            'tempFailOnError': false,
+            'timeoutConnect': STALWART_CLAMAV_MILTER_TIMEOUT_CONNECT_MS,
+            'timeoutCommand': STALWART_CLAMAV_MILTER_TIMEOUT_COMMAND_MS,
+            'timeoutData': STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS
           }}}, 'c0']]} | to_json }}
   when: stalwart_av_milter_id | length == 0
+
+- name: "Update the ClamAV milter timeouts (fail-open on slow/cold clamd)"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaMilter/set', {'update': {stalwart_av_milter_id: {
+            'tempFailOnError': false,
+            'timeoutConnect': STALWART_CLAMAV_MILTER_TIMEOUT_CONNECT_MS,
+            'timeoutCommand': STALWART_CLAMAV_MILTER_TIMEOUT_COMMAND_MS,
+            'timeoutData': STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS
+          }}}, 'c0']]} | to_json }}
+  when: stalwart_av_milter_id | length > 0

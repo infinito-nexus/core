@@ -23,6 +23,8 @@
       - "data:/var/lib/stalwart"
       # 0.16 JSON bootstrap (data store); the rest of the config lives in the DB.
       - "{{ STALWART_CONFIG_FILE }}:/etc/stalwart/config.json:ro"
+      # WebUI (WebAdmin) bundle staged by the controller (see 10_webadmin.yml).
+      - "{{ STALWART_WEBUI_LOCAL_FILE }}:{{ STALWART_WEBUI_CONTAINER_FILE }}:ro"
       # Platform TLS cert for the mail listeners (referenced via x:Certificate).
       - "{{ STALWART_CERT_DIR }}:/etc/stalwart/certs:ro"
 {{ lookup('container_depends_on', application_id) }}

@@ -4,6 +4,11 @@
 // it stays out of this world-readable file. Login -> Keycloak, then XOAUTH2 to
 // Stalwart.
 
+// Reached only over TLS via the reverse proxy (which speaks HTTP to this
+// container); force https so generated URLs (incl. the OAuth redirect_uri, which
+// Keycloak validates against https:// only) don't come out as http://.
+$_SERVER['HTTPS'] = 'on';
+
 $config['oauth_provider'] = 'generic';
 $config['oauth_provider_name'] = '{{ OIDC.BUTTON_TEXT }}';
 $config['oauth_client_id'] = '{{ OIDC.CLIENT.ID }}';
@@ -16,3 +21,13 @@ $config['oauth_auth_parameters'] = [];
 $config['oauth_identity_fields'] = ['email', '{{ OIDC.ATTRIBUTES.USERNAME }}'];
 // Auto-redirect the login form straight to Keycloak (single sign-on).
 $config['oauth_login_redirect'] = true;
+
+// Accept Stalwart's self-signed cert on the internal IMAP(993)/SMTP(465) TLS hop
+// — Roundcube connects by container name, which won't match the cert SAN.
+$stalwart_tls_conn_options = ['ssl' => [
+    'verify_peer'      => false,
+    'verify_peer_name' => false,
+    'allow_self_signed' => true,
+]];
+$config['imap_conn_options'] = $stalwart_tls_conn_options;
+$config['smtp_conn_options'] = $stalwart_tls_conn_options;

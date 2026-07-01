@@ -791,6 +791,9 @@
       ]
     },
     {% include "clients/default.json.j2" %}
+{% if KEYCLOAK_STALWART_WEBUI_ENABLED | bool %}
+    ,{% include "clients/stalwart_webui.json.j2" %}
+{% endif %}
   ],
   "clientScopes": [
     {

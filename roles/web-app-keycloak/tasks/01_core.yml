@@ -24,6 +24,10 @@
 - name: "Load Client Update routines for '{{ application_id }}'"
   include_tasks: update/01_client.yml
 
+- name: "Ensure the stalwart-webui public client (existing realms)"
+  include_tasks: update/01b_stalwart_webui_client.yml
+  when: KEYCLOAK_STALWART_WEBUI_ENABLED | bool
+
 - name: "Load Mail Update routines for '{{ application_id }} - {{ KEYCLOAK_REALM }}'"
   include_tasks: update/02_mail_realm.yml
 

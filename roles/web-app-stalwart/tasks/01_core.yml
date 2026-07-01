@@ -17,6 +17,35 @@
     # Must be world-readable: the container runs as UID 2000.
     mode: "0644"
 
+# Stage the WebUI bundle before container start so the read-only mount targets a
+# real file. The controller can fetch what Stalwart (pinned CA roots) cannot.
+- name: "Stage the Stalwart WebUI bundle for offline unpack"
+  block:
+    - name: "Download the Stalwart WebUI bundle"
+      ansible.builtin.get_url:
+        url: "{{ STALWART_WEBUI_RESOURCE_URL }}"
+        dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
+        mode: "0644"
+      register: stalwart_webui_fetch
+      retries: 3
+      delay: 5
+      until: stalwart_webui_fetch is succeeded
+  rescue:
+    - name: "Warn: WebUI bundle download failed (WebAdmin will 404 until reachable)"
+      ansible.builtin.debug:
+        msg: >-
+          Could not download the Stalwart WebUI bundle from
+          {{ STALWART_WEBUI_RESOURCE_URL }}. WebAdmin (/admin, /account) will
+          return 404 until it is reachable or a bundle is staged at
+          {{ STALWART_WEBUI_LOCAL_FILE }}. Air-gapped hosts should override
+          STALWART_WEBUI_RESOURCE_URL to an internal HTTPS mirror.
+    - name: "Ensure a placeholder exists so the read-only mount is a file"
+      ansible.builtin.copy:
+        dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
+        content: ""
+        mode: "0644"
+        force: false
+
 - name: Ensure Roundcube custom-config directory exists
   file:
     path: "{{ STALWART_WEBMAIL_CONFIG_DIR }}"
@@ -30,6 +59,7 @@
     dest: "{{ STALWART_WEBMAIL_OAUTH_CONFIG }}"
     # Included by the roundcube container, which runs as www-data.
     mode: "0644"
+  register: stalwart_webmail_conf
   when: STALWART_SSO_ENABLED | bool
 
 - name: Render clamav-milter configuration
@@ -37,6 +67,7 @@
     src: clamav-milter.conf.j2
     dest: "{{ STALWART_CLAMAV_MILTER_CONF }}"
     mode: "0644"
+  register: stalwart_clamav_conf
   when: STALWART_ANTIVIRUS_ENABLED | bool
 
 - name: "load docker, db and proxy for {{ application_id }}"
@@ -51,6 +82,38 @@
 - name: "Flush Docker Compose handlers"
   meta: flush_handlers
 
+# `compose up` won't recreate a container when only a bind-mounted config changed,
+# so restart clamav explicitly to load the new clamav-milter.conf.
+- name: "Restart clamav to apply milter config change"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - restart
+      - clamav
+  args:
+    chdir: "{{ STALWART_INSTANCE_DIR }}"
+  changed_when: true
+  when:
+    - STALWART_ANTIVIRUS_ENABLED | bool
+    - stalwart_clamav_conf is defined
+    - stalwart_clamav_conf is changed
+
+# The roundcube image reads its config at container start, so restart webmail to
+# pick up a changed oauth.inc.php (compose up alone won't recreate it).
+- name: "Restart webmail to apply Roundcube config change"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - restart
+      - webmail
+  args:
+    chdir: "{{ STALWART_INSTANCE_DIR }}"
+  changed_when: true
+  when:
+    - STALWART_SSO_ENABLED | bool
+    - stalwart_webmail_conf is defined
+    - stalwart_webmail_conf is changed
+
 - name: "Proxy the Roundcube webmail at {{ STALWART_WEBMAIL_DOMAIN }}"
   include_role:
     name: sys-stk-front-proxy
@@ -62,6 +125,33 @@
 - name: Wait for Stalwart database and management API
   include_tasks: 02_wait_for_api.yml
 
+# WebUI bundle — domain-independent (runs even for reserved TLDs); non-fatal so a
+# 404 WebAdmin never blocks the deploy.
+- name: "Provision the Stalwart WebUI (WebAdmin) bundle"
+  block:
+    - include_tasks: 10_webadmin.yml
+  rescue:
+    - name: "Warn: WebUI provisioning failed (WebAdmin may 404); continuing"
+      ansible.builtin.debug:
+        msg: "Stalwart WebUI provisioning failed; WebAdmin (/admin, /account) may 404."
+
 # Provision the mail domain, accounts, DKIM and DNS via the Stalwart JMAP API.
 - name: "Provision Stalwart mail domain, accounts, DKIM and DNS"
   include_tasks: 03_provision_domain.yml
+
+# Stalwart caches the OIDC directory at startup, so JMAP changes from provisioning
+# (e.g. clearing requireAudience) only apply after a restart.
+- name: "Restart Stalwart so OIDC directory changes take effect"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - restart
+      - stalwart
+  args:
+    chdir: "{{ STALWART_INSTANCE_DIR }}"
+  changed_when: true
+  when: STALWART_SSO_ENABLED | bool
+
+- name: "Wait for Stalwart API after the OIDC restart"
+  include_tasks: 02_wait_for_api.yml
+  when: STALWART_SSO_ENABLED | bool

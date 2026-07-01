@@ -38,6 +38,11 @@ STALWART_CLAMAV_IMAGE: "{{ lookup('config', application_id, 'services.clamav.ima
 STALWART_CLAMAV_VERSION: "{{ lookup('config', application_id, 'services.clamav.version') }}"
 STALWART_CLAMAV_HOST: "clamav"
 STALWART_CLAMAV_MILTER_PORT: 7357
+# Milter timeouts (ms): with fail-open (tempFailOnError:false), short timeouts let
+# Stalwart accept mail while clamd warms up instead of blocking the DATA stage.
+STALWART_CLAMAV_MILTER_TIMEOUT_CONNECT_MS: 5000
+STALWART_CLAMAV_MILTER_TIMEOUT_COMMAND_MS: 5000
+STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS: 15000
 STALWART_CLAMAV_VOLUME: "stalwart_clamav_data"
 STALWART_CLAMAV_MILTER_CONF: "{{ [ STALWART_CONFIG_DIR, 'clamav-milter.conf' ] | path_join }}"
 # webmail is a secondary canonical (declared in meta/server.yml
@@ -47,6 +52,14 @@ STALWART_WEBMAIL_HTTP_PORT: "{{ lookup('config', application_id, 'services.webma
 # Roundcube OAuth config include (rendered only when SSO is enabled).
 STALWART_WEBMAIL_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'webmail' ] | path_join }}"
 STALWART_WEBMAIL_OAUTH_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'oauth.inc.php' ] | path_join }}"
+
+# WebUI (WebAdmin) bundle: Stalwart fetches it from GitHub on first boot; behind
+# restricted/MITM egress that fails (404 on /admin, /account), so the controller
+# stages it locally and 10_webadmin.yml points the Application record at the file.
+STALWART_WEBUI_RESOURCE_URL: "https://github.com/stalwartlabs/webui/releases/latest/download/webui.zip"
+STALWART_WEBUI_LOCAL_FILE: "{{ [ STALWART_CONFIG_DIR, 'webui.zip' ] | path_join }}"
+STALWART_WEBUI_CONTAINER_FILE: "/etc/stalwart/webui.zip"
+STALWART_WEBUI_LOCAL_URL: "file://{{ STALWART_WEBUI_CONTAINER_FILE }}"
 
 # Volumes
 STALWART_DATA_VOLUME: "stalwart_data"

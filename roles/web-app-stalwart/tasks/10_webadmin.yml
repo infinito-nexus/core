@@ -1,0 +1,50 @@
+---
+# The WebUI is a JMAP "Application" record whose bundle Stalwart fetches from
+# GitHub on first boot (404s when egress is blocked/MITM'd). The bundle is staged
+# locally in 01_core; here we point the record's resourceUrl at that file:// path
+# and trigger a re-unpack.
+
+- name: "List Stalwart Application records"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Application/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "Resolve the WebUI Application id"
+  ansible.builtin.set_fact:
+    stalwart_webui_app_id: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list
+          | map(attribute='id') | first) | default('') }}
+
+- name: "Point the WebUI Application at the locally-staged bundle"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Application/set',
+            {'update': {stalwart_webui_app_id: {'resourceUrl': STALWART_WEBUI_LOCAL_URL}}},
+            'c0']]} | to_json }}
+  when: stalwart_webui_app_id | length > 0
+
+# Re-run the bundle unpack now that resourceUrl points at the local file. Not
+# fatal on error (a placeholder/unreachable bundle must not break the deploy).
+- name: "Unpack the WebUI bundle from the local file"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - exec
+      - -T
+      - stalwart
+      - curl
+      - -sS
+      - -u
+      - "{{ STALWART_ADMIN_USER }}:{{ STALWART_ADMIN_PASSWORD }}"
+      - "{{ STALWART_API_BASE_URL }}/update/webadmin"
+  args:
+    chdir: "{{ STALWART_INSTANCE_DIR }}"
+  register: stalwart_webui_unpack
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: stalwart_webui_app_id | length > 0

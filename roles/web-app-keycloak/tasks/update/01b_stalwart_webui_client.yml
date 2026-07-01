@@ -1,0 +1,23 @@
+---
+# The realm import only runs for a MISSING realm, so sync the public
+# `stalwart-webui` client via kcadm (create-or-update) on every deploy so it
+# reaches existing realms too. Desired state comes from the parsed realm dict.
+- name: "Ensure the stalwart-webui public client"
+  vars:
+    kc_desired: >-
+      {{
+        KEYCLOAK_DICTIONARY_REALM.clients
+          | selectattr('clientId', 'equalto', 'stalwart-webui')
+          | list | first
+      }}
+  keycloak_kcadm_update:
+    object_kind: "client"
+    lookup_value: "stalwart-webui"
+    desired: "{{ kc_desired }}"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+    assert_mode: "{{ MODE_ASSERT }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  when: KEYCLOAK_STALWART_WEBUI_ENABLED | bool

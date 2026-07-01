@@ -1,12 +1,21 @@
 {% set email = lookup('email') %}
 # Set default values for all following accounts.
 defaults
+# EHLO/HELO identity — a valid FQDN. Strict servers (e.g. Stalwart) reject a
+# bare container hostname on port 25 (rejectNonFqdn), so pin it to the domain.
+domain              {{ DOMAIN_PRIMARY }}
 logfile             ~/.msmtp.log
 timeout             {{ email.timeout }}
 syslog              {{ MODE_DEBUG | on_off }}
 auth                {{ email.auth | on_off }}
 tls_starttls        {{ email.start_tls | on_off }}
 tls                 {{ email.tls | on_off }}
+{% if DOCKER_IN_CONTAINER | bool %}
+# Loopback submission (127.0.0.1) to the local mail server has no MITM exposure,
+# and the server may present a self-signed/localhost cert (e.g. Stalwart's rcgen
+# default), so skip strict cert verification on this path only.
+tls_certcheck       off
+{% endif %}
 tls_trust_file      {{ sys_svc_mail_msmtp_ca_bundle }}
 tls_host_override   {{ email.host }}
 account             system_email_no_reply

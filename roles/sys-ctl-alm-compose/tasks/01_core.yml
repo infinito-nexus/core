@@ -42,3 +42,11 @@
     # Shared-service preloading happens before Mailu exposes its final TLS SMTP
     # listener, so the notifier self-test must wait for the normal app phase.
     - not (_service_loader_preloading | default(false) | bool)
+    # Only run the self-test (which sends a real email) when mail can actually be
+    # sent: a local relay, or an external provider that provisioned a no-reply
+    # account. On a reserved TLD (e.g. .example) Stalwart rejects the domain, so
+    # no token exists and this send would fail for an expected reason. Mirrors
+    # the sys-ctl-hlth-msmtp guard.
+    - >-
+      not (lookup('email').external | bool)
+      or (lookup('users', 'no-reply').tokens | default({})).get(MAIL_PROVIDER, '') | length > 0

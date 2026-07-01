@@ -90,15 +90,30 @@ test("stalwart: CalDAV/CardDAV discovery is reachable", async ({ request }) => {
 });
 
 // Scenario I: SSO login -> WebAdmin -> logout.
+// WebAdmin is a username-first OAuth flow: enter the email, and (the mail domain
+// being bound to our OIDC directory) the webui redirects to Keycloak. There is no
+// static SSO link, so we type the email first, then drive the Keycloak form.
 test("stalwart: sso login, open WebAdmin, logout", async ({ page }) => {
   safeSkipUnlessEnabled("sso");
   const expectedOidcAuthUrl = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
 
   await page.goto(`${appBaseUrl}/`);
-  const ssoLink = page.locator("a[href*='openid-connect/auth'], a[href*='/auth/oauth'], button:has-text('OpenID')").first();
-  if (await ssoLink.isVisible({ timeout: 5_000 }).catch(() => false)) {
-    await ssoLink.click();
-  }
+  // WebAdmin SPA routes the unauthenticated admin to its own /account/login.
+  await expect.poll(() => page.url(), { timeout: 30_000 }).toContain(`${canonicalDomain}/account/login`);
+
+  // Enter the admin email; the webui discovers the OIDC provider and redirects.
+  const loginField = page
+    .getByRole("textbox", { name: /email|user|login/i })
+    .or(page.locator("input[type='email'], input[type='text'], input[name='username'], input[name='email']"))
+    .first();
+  await loginField.waitFor({ state: "visible", timeout: 30_000 });
+  await loginField.fill(adminEmail);
+  await page
+    .getByRole("button", { name: /continue|next|log ?in|sign ?in/i })
+    .or(page.locator("button[type='submit']"))
+    .first()
+    .click();
+
   await expect.poll(() => page.url(), { timeout: 60_000 }).toContain(expectedOidcAuthUrl);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: 60_000 }).toContain(canonicalDomain);

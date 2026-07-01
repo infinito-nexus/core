@@ -28,7 +28,6 @@
             '@type': 'Oidc',
             'description': 'Keycloak SSO (' ~ OIDC.CLIENT.REALM ~ ')',
             'issuerUrl': OIDC.CLIENT.ISSUER_URL,
-            'requireAudience': OIDC.CLIENT.ID,
             'claimUsername': OIDC.ATTRIBUTES.USERNAME,
             'usernameDomain': STALWART_DOMAIN,
             'claimName': 'name'
@@ -39,6 +38,21 @@
   ansible.builtin.set_fact:
     stalwart_oidc_dir_id: "{{ stalwart_jmap.methodResponses[0][1].created.kc.id }}"
   when: stalwart_oidc_dir_id | length == 0
+
+# Don't pin the token audience: Keycloak access tokens carry aud=account (not the
+# client id) unless a per-client mapper is added, so requireAudience would reject
+# them as InvalidAudience. Any correctly-signed token from this realm still
+# identifies the real user via the username claim. (Update path: create is skipped
+# once the directory exists.)
+- name: "Clear the OIDC directory's required audience"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Directory/set',
+            {'update': {stalwart_oidc_dir_id: {'requireAudience': none}}},
+            'c0']]} | to_json }}
+  when: stalwart_oidc_dir_id | length > 0
 
 # Point authentication at the OIDC directory
 - name: "Read the Stalwart authentication singleton"
