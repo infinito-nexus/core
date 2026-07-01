@@ -24,7 +24,9 @@ set -euo pipefail
 
 if [[ "${SUBSET_LABELED:-}" == "true" ]]; then
 	echo "🧩 Subset label present: restricting CI to the roles listed in the PR body."
-	exec python -m cli.meta.ci.subset_roles
+	# shellcheck source=scripts/meta/env/load.sh
+	source "scripts/meta/env/load.sh"
+	exec "${PYTHON}" -m cli.meta.ci.subset_roles
 fi
 
 resolved="$(./scripts/meta/resolve/diff/affected_roles.sh)"

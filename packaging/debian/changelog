@@ -1,3 +1,25 @@
+infinito-nexus (11.4.0-1) unstable; urgency=medium
+
+  * Self-hosted CI runners: new *svc-runner* role plus *cli/deploy/runner* command spin up N containerised GitHub Actions runners on any server, adding to the 20 GitHub-hosted ones. Each runner is isolated (own subnet, ports, inventory, Docker volume, DNS) and auto-re-registers. Runs on Debian, Ubuntu and Arch, supports Docker-in-Docker, and ships a full in-runner E2E deploy test. See the *svc-runner* README.
+
+  * Fork PRs can now scope the CI matrix: a 🧩 *Subset* label reads a *roles:* block from the PR body and narrows the deploy whitelist. Gives forks the maintainer-only manual dispatch they could not trigger before. Without the label nothing changes. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md).
+
+  * GitHub-hosted runner fixes: free disk before deploys and drop a dead 404 URL from the external tests.
+
+  * *make local* reinstall now works correctly when all services are disabled.
+
+  * Image and dependency version jumps (net since 11.3.0):
+    * *web-app-funkwhale*: 2.0.4 to 2.0.6
+    * *web-app-mobilizon*: 5.2.3 to 5.2.4
+    * *web-app-bluesky* (git ref): 1.125.0 to 1.126.0
+
+  **Contributors**
+
+  * [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners
+  * [Kevin Veen-Birkenbach](https://veen.world): Subset-label CI scoping, runner disk fixes, version maintenance
+
+ -- Kevin Veen-Birkenbach <kevin@veen.world>  Wed, 01 Jul 2026 03:47:55 +0200
+
 infinito-nexus (11.3.0-1) unstable; urgency=medium
 
   * Security: resolve all 80 open CodeQL/code-scanning alerts on the branch and add guards so they cannot recur. The security-sensitive fixes break an unsafe import cycle in the *cli/administration/deploy/development* package by extracting the env/arg helpers into a leaf *env.py* (load-time DAG *compose → common → deps → env*); harden the *web-app-bluesky* login-broker (*server.js*) with a prototype-pollution guard on cookie parsing, CR/LF + control-char log sanitisation, HTML-escaped exception text and a ReDoS-bounded handle regex; harden the *web-app-baserow* SSO open-redirect *next* handling; require TLS ≥ 1.2 in the network diagnose probes; validate *actionlint* installer tar members against path traversal; rewrite the *decidim*/*apt-purge* lint regexes to avoid catastrophic backtracking; and anchor six Playwright URL regexes while pinning *crs-k/stale-branches* to a commit SHA. Recurrence guards: an *import-linter* contract (wired into *pyproject* and *tests/lint*) now fails CI on a new dev-deploy cycle instead of relying on CodeQL, a new lint requires every bandit *S###* *noqa* to carry a justification, and *BLE001* (blind-except) is added to ruff as a ratchet (tests/roles exempt, current production offenders grandfathered). Intentional false positives (Django settings patches, the Odoo `__manifest__`, side-effect and cross-module imports) are left in place.

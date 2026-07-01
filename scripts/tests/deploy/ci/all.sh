@@ -69,7 +69,7 @@ max_seen=0
 skipped=0
 ran=0
 failed=0
-durations=() # store "distro=seconds" lines
+durations=()
 
 sync_ci_image_for_run() {
 	local owner tag repo_name
@@ -82,7 +82,6 @@ sync_ci_image_for_run() {
 	tag="${INFINITO_IMAGE_TAG}"
 	repo_name="${INFINITO_IMAGE_REPOSITORY:-}"
 
-	# Keep local/dev workflows untouched; only adjust image when CI owner context exists.
 	if [[ -z "${owner}" ]]; then
 		return 0
 	fi
@@ -110,7 +109,6 @@ for distro in "${distro_arr[@]}"; do
 			break
 		fi
 
-		# Skip logic: only if we already have a max_seen from a prior run
 		if ((max_seen > 0 && remaining < max_seen)); then
 			echo "[WARN] Skipping distro=${distro}: remaining=${remaining}s < max_seen=${max_seen}s (fast-fail heuristic)"
 			skipped=$((skipped + 1))
@@ -124,18 +122,18 @@ for distro in "${distro_arr[@]}"; do
 	fi
 
 	export INFINITO_DISTRO="${distro}"
-	# Re-source defaults.sh so its always-derived INFINITO_CONTAINER block
-	# (outside the load-once guard) refreshes from the current INFINITO_DISTRO.
-	# This is the single spot that owns the derivation; consumers below
-	# (dedicated.sh, python deploy → entity.sh) just inherit the env.
 	source "scripts/meta/env/load.sh"
 	sync_ci_image_for_run
 
 	distro_start="$(date +%s)"
 
 	set +e
-	scripts/tests/deploy/ci/dedicated.sh \
-		--apps "${apps}"
+	if [[ -f "scripts/tests/deploy/ci/custom/${apps}.sh" ]]; then
+		bash "scripts/tests/deploy/ci/custom/${apps}.sh"
+	else
+		scripts/tests/deploy/ci/dedicated.sh \
+			--apps "${apps}"
+	fi
 	rc=$?
 	set -e
 

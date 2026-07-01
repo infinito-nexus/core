@@ -1,0 +1,8 @@
+---
+test-e2e-cli:
+  lifecycle: alpha
+  required_by:
+    compose:
+      categories: [web]
+    swarm:
+      categories: [web]

@@ -16,7 +16,7 @@ config:
       value: "{{ lookup('tls', 'web-app-discourse', 'url.base') }}"
     - name: discourse_connect
       key: api-key
-      value: "{{ vault_discourse_api_key }}"
+      value: "{{ vault_discourse_api_key | default('') }}"
     - name: discourse_connect
       key: publish-username
       value: "system"

@@ -158,6 +158,11 @@ roles:
       description: "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
       icon: "fas fa-network-wired"
       invokable: true
+    runner:
+      title: "CI Runner"
+      description: "Self-hosted GitHub Actions runner deployment and configuration"
+      icon: "fas fa-play"
+      invokable: true
   user:
     title: "Users & Access"
     description: "User accounts & access control"

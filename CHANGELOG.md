@@ -1,10 +1,30 @@
 # Changelog
 
+## [11.4.0] - 2026-07-01
+
+* Self-hosted CI runners: new *svc-runner* role plus *cli/deploy/runner* command spin up N containerised GitHub Actions runners on any server, adding to the 20 GitHub-hosted ones. Each runner is isolated (own subnet, ports, inventory, Docker volume, DNS) and auto-re-registers. Runs on Debian, Ubuntu and Arch, supports Docker-in-Docker, and ships a full in-runner E2E deploy test. See the *svc-runner* README.
+
+* Fork PRs can now scope the CI matrix: a 🧩 *Subset* label reads a *roles:* block from the PR body and narrows the deploy whitelist. Gives forks the maintainer-only manual dispatch they could not trigger before. Without the label nothing changes. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md).
+
+* GitHub-hosted runner fixes: free disk before deploys and drop a dead 404 URL from the external tests.
+
+* *make local* reinstall now works correctly when all services are disabled.
+
+* Image and dependency version jumps (net since 11.3.0):
+  * *web-app-funkwhale*: 2.0.4 to 2.0.6
+  * *web-app-mobilizon*: 5.2.3 to 5.2.4
+  * *web-app-bluesky* (git ref): 1.125.0 to 1.126.0
+
+**Contributors**
+
+* [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners
+* [Kevin Veen-Birkenbach](https://veen.world): Subset-label CI scoping, runner disk fixes, version maintenance
+
 ## [11.3.0] - 2026-06-29
 
-* Security: resolve all 80 open CodeQL/code-scanning alerts on the branch and add guards so they cannot recur. The security-sensitive fixes break an unsafe import cycle in the *cli/administration/deploy/development* package by extracting the env/arg helpers into a leaf *env.py* (load-time DAG *compose → common → deps → env*); harden the *web-app-bluesky* login-broker (*server.js*) with a prototype-pollution guard on cookie parsing, CR/LF + control-char log sanitisation, HTML-escaped exception text and a ReDoS-bounded handle regex; harden the *web-app-baserow* SSO open-redirect *next* handling; require TLS ≥ 1.2 in the network diagnose probes; validate *actionlint* installer tar members against path traversal; rewrite the *decidim*/*apt-purge* lint regexes to avoid catastrophic backtracking; and anchor six Playwright URL regexes while pinning *crs-k/stale-branches* to a commit SHA. Recurrence guards: an *import-linter* contract (wired into *pyproject* and *tests/lint*) now fails CI on a new dev-deploy cycle instead of relying on CodeQL, a new lint requires every bandit *S###* *noqa* to carry a justification, and *BLE001* (blind-except) is added to ruff as a ratchet (tests/roles exempt, current production offenders grandfathered). Intentional false positives (Django settings patches, the Odoo `__manifest__`, side-effect and cross-module imports) are left in place.
+* Security: resolved all 80 open CodeQL/code-scanning alerts and added recurrence guards. Broke an unsafe import cycle in *cli/administration/deploy/development* via a leaf *env.py*; hardened *web-app-bluesky* *server.js* (cookie prototype-pollution guard, log sanitisation, HTML-escaped exceptions, ReDoS-bounded handle regex) and *web-app-baserow* SSO open-redirect handling; required TLS ≥ 1.2 in network diagnose probes; validated *actionlint* tar members against path traversal; rewrote *decidim*/*apt-purge* regexes to avoid catastrophic backtracking; anchored six Playwright URL regexes and pinned *crs-k/stale-branches* to a SHA. Guards: an *import-linter* contract, a lint requiring justified bandit *noqa*, and ruff *BLE001* as a ratchet.
 
-* CI flakiness and fork-PR fixes: the Odoo *sale_management* Playwright spec adds *.first()* so the success case no longer trips a strict-mode violation when both the menu brand and the breadcrumb render; the Nextcloud GitLab-OAuth provisioning now resolves/creates the default Organization defensively with *retries/until* instead of hard-raising during the async seed window; the Jenkins deploy-lockdown service stop and the Moodle shared *compose up* handler each gain *retries/until* to ride out transient systemd "Transaction is destructive" contention and a not-yet-created external network. The fork image mirror gets *secrets: inherit* restored (follow-up to the 11.2.0 credential hardening) so untrusted fork PRs authenticate to Docker Hub again rather than mirroring anonymously and hitting rate limits — the build keeps its hardening since it pulls its parent from GHCR. The stale-branches cleanup is adjusted for *crs-k/stale-branches@v9.0.1*, which rejects *days-before-stale ≥ days-before-delete*: stale is now 350 days and delete 360 (10-day warning before deletion at 360 days of inactivity). See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
+* CI flakiness and fork-PR fixes: added *.first()* to the Odoo *sale_management* spec to end a strict-mode violation; made Nextcloud GitLab-OAuth Organization provisioning and the Jenkins/Moodle systemd steps defensive with *retries/until*; restored *secrets: inherit* on the fork image mirror so fork PRs authenticate to Docker Hub; and adjusted stale-branches for *crs-k/stale-branches@v9.0.1* (stale 350 / delete 360 days). See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
 
 * Routine maintenance: *.gitignore* now excludes local Claude agent artefacts (*launch.json*, *routines*, *workflows*), and dependabot bumps of *actions/stale* 9 → 10 and *eslint* 10.5.0 → 10.6.0.
 

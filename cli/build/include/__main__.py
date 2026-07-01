@@ -16,7 +16,7 @@ def find_roles(roles_dir, prefixes=None):
     """
     for entry in os.listdir(roles_dir):
         if prefixes:
-            if not any(entry.startswith(pref) for pref in prefixes):
+            if not any(entry.startswith(pref) or entry == pref.rstrip("-") for pref in prefixes):
                 continue
         path = os.path.join(roles_dir, entry)
         meta_file = os.path.join(path, ROLE_FILE_META_MAIN)
@@ -130,7 +130,6 @@ def topological_sort(graph, in_degree, roles=None):
                 queue.append(nbr)
 
     if len(sorted_roles) != len(in_degree):
-        # Something went wrong: likely a cycle
         cycle = find_cycle(roles or {})
         unsorted = [r for r in in_degree if r not in sorted_roles]
 
@@ -225,12 +224,11 @@ def main():
 
     if args.output:
         os.makedirs(os.path.dirname(args.output), exist_ok=True)
-        # Unlink first when an existing file is not writable: the in-container `nobody` UID and the host UID both write here from parallel `make test` targets.
         if os.path.exists(args.output) and not os.access(args.output, os.W_OK):
             try:
                 os.unlink(args.output)
             except OSError:
-                pass  # best-effort: proceed to open(); a real failure surfaces there
+                pass
         with open(args.output, 'w') as f:
             f.write(output)
         print(f"Playbook entries written to {args.output}")

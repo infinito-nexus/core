@@ -1,0 +1,26 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+{% for i in range(1, RUNNER_COUNT | int + 1) %}
+  runner-{{ i }}:
+    # nocheck: container-image-lookup  locally-built runner image, not a services.yml registry entry
+    image: "{{ RUNNER_IMAGE_NAME }}:{{ RUNNER_IMAGE_TAG }}"
+    {{ lookup('compose_only', 'container_name', 'runner-' ~ i) }}
+    {{ lookup('compose_restart') }}
+    working_dir: "{{ RUNNER_INSTALL_DIR }}/{{ i }}"
+    env_file: "{{ RUNNER_INSTALL_DIR }}/{{ i }}/.env"
+    # nocheck: compose-inline-mount-section  per-instance host bind mounts, not services.yml volumes
+    volumes:
+      - "{{ RUNNER_INSTALL_DIR }}/{{ i }}:{{ RUNNER_INSTALL_DIR }}/{{ i }}"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{ RUNNER_DOCKER_BASE }}/{{ i }}:{{ RUNNER_DOCKER_BASE }}/{{ i }}"
+    group_add:
+      - "{{ _runner_docker_gid }}"
+    {{ lookup('container_networks') | indent(4) }}
+{% if DEPLOYMENT_MODE == 'swarm' %}
+    deploy:
+      {{ lookup('compose_replicas', 1) }}
+{% endif %}
+{% endfor %}
+
+{{ lookup('compose_networks') }}
+
+{{ lookup('compose_volumes', application_id) }}

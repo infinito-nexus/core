@@ -59,7 +59,7 @@ web:
 view:
   enabled: false
   repository: https://github.com/bluesky-social/social-app.git
-  ref: "1.125.0"
+  ref: "1.126.0"
   ports:
     local:
       http: 8051
@@ -79,9 +79,6 @@ pds:
   mem_limit: 2g
   pids_limit: 1024
 broker:
-  # Login-broker sidecar that owns the OIDC → PDS app-password
-  # handoff and the AES-256-GCM-encrypted user attribute. The image
-  # is built from `files/login-broker/`.
   name: bluesky-broker
   image: bluesky-broker
   base_image: node
@@ -122,9 +119,6 @@ bluesky:
   default_placement: manager
   ports:
     local:
-      # oauth2-proxy listens here; the front-proxy routes the gated
-      # default `/` path through this port. Picked so it doesn't
-      # collide with the existing api/web/view bindings above.
       sso: 16497
   run_after:
     - web-app-matomo

@@ -5,12 +5,10 @@ x-ci-defaults: &ci_defaults
   dns_opt:
     - ndots:1
 
-# Bare CI/runtime stack. Cache layers in via compose/cache.override.yml.
-
 services:
   coredns:
     image: coredns/coredns:1.14.4
-    container_name: infinito-coredns
+    container_name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-coredns
     command: ["-conf", "/Corefile"]
     volumes:
       - ./compose/coredns/Corefile:/Corefile:ro
@@ -46,7 +44,6 @@ services:
 
     stop_signal: SIGRTMIN+3
 
-    # systemd needs the host cgroup namespace.
     privileged: true
     cgroup: host
     tmpfs:
@@ -58,7 +55,6 @@ services:
 
     container_name: ${INFINITO_CONTAINER:?Run 'make dotenv' to generate the .env single source of truth}
     restart: "no"
-    # Defaults of 0 map to "unlimited" in dockerd.
     mem_limit: ${INFINITO_MEM_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     memswap_limit: ${INFINITO_MEMSWAP_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     cpus: ${INFINITO_CPUS:?Run 'make dotenv' to generate the .env single source of truth}
@@ -77,6 +73,8 @@ services:
       INFINITO_DIR_VAR_LIB: ${INFINITO_DIR_VAR_LIB}
       INFINITO_DNS_IP: ${INFINITO_DNS_IP}
       INFINITO_DOMAIN: ${INFINITO_DOMAIN}
+      INFINITO_GHCR_MIRROR_PREFIX: ${INFINITO_GHCR_MIRROR_PREFIX}
+      INFINITO_IMAGE_TAG: ${INFINITO_IMAGE_TAG}
       INFINITO_IP4: ${INFINITO_IP4}
       INFINITO_IP6: ${INFINITO_IP6}
       INFINITO_PLAYWRIGHT_KEEP: ${INFINITO_PLAYWRIGHT_KEEP}

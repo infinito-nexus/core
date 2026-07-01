@@ -105,11 +105,9 @@ jobs:
           fi
           echo "Fork prerequisites are ready."
 
-  # Security Checks
   security-codeql:
     uses: ./.github/workflows/security-codeql.yml
 
-  # Linting
   lint-ansible:
     uses: ./.github/workflows/lint-ansible.yml
   lint-docker:
@@ -144,7 +142,6 @@ jobs:
     steps:
       - run: echo "lint gate passed"
 
-  # Code Testing
   test-code-integration:
     uses: ./.github/workflows/test-code-integration.yml
   test-code-lint:
@@ -160,7 +157,6 @@ jobs:
     steps:
       - run: echo "code gate passed"
 
-  # Gate for the code Quality
   code-quality-gate:
     name: 🚦 Gate Quality
     needs: 
@@ -171,7 +167,6 @@ jobs:
     steps:
       - run: echo "Quality Checks passed"
 
-  # Build Docker Images
   build-ci-images:
     needs:
       - code-quality-gate
@@ -181,7 +176,6 @@ jobs:
       concurrency_channel: ci-orchestrator-build-consumer
     secrets: inherit
   
-  # Test DNS configuration
   test-dns:
     needs: 
       - build-ci-images
@@ -189,7 +183,6 @@ jobs:
     with:
       distros: "arch debian ubuntu fedora centos"
   
-  # Sync Missing Images
   images-mirror-missing:
     uses: ./.github/workflows/images-mirror-missing.yml
     with:
@@ -197,8 +190,6 @@ jobs:
       image_wait_attempts: ${{ inputs.image_wait_attempts }}
       image_wait_sleep_seconds: ${{ inputs.image_wait_sleep_seconds }}
     secrets: inherit
-
-  # Deploy tests
 
   test-deploy-compose:
     needs:
@@ -216,7 +207,15 @@ jobs:
     with:
       whitelist: ${{ inputs.whitelist }}
 
-  # Test Installation
+  test-runner-smoke:
+    needs:
+      - test-deploy-swarm
+    if: ${{ always() && vars.CI_SELF_HOSTED_RUNNER_COUNT != '0' && vars.CI_SELF_HOSTED_RUNNER_COUNT != '' && (needs.test-deploy-swarm.result == 'success' || needs.test-deploy-swarm.result == 'failure') }}
+    uses: ./.github/workflows/test-runner-smoke.yml
+    with:
+      ref: ${{ github.sha }}
+    secrets: inherit
+
   test-install-make:
     uses: ./.github/workflows/test-install-make.yml
     needs:
@@ -234,7 +233,6 @@ jobs:
     steps:
       - run: echo "Installation is possible via pkgmgr and make"
 
-  # Test Development Environment
   test-development:
     if: ${{ inputs.roles_only != 'true' }}
     uses: ./.github/workflows/test-environment.yml
@@ -248,6 +246,7 @@ jobs:
     needs:
       - test-deploy-compose
       - test-deploy-swarm
+      - test-runner-smoke
       - test-install-gate
       - test-development
     if: ${{ always() }}
