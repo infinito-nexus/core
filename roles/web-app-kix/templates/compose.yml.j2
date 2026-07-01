@@ -29,6 +29,8 @@
     environment:
       - USE_SSL=0
       - REDIS_CACHE_HOST={{ lookup('engine', 'redis', application_id, 'host') }}
+      - REDIS_CACHE_PORT={{ lookup('engine', 'redis', application_id, 'port') }}
+      - REDIS_CACHE_PASSWORD={{ lookup('engine', 'redis', application_id, 'password') }}
       - FRONTEND_CLIENT_ID=kix-agent-frontend
       - FRONTEND_NOTIFICATION_ID=kix-agent-frontend
       - NOTIFICATION_URL=http://frontend:3000/notifications
