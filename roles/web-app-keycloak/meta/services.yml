@@ -5,10 +5,11 @@
 logout:
   enabled: false
   shared: false
+# nocheck: dynamic-flag  cluster-wide LDAP federation keys on inventory groups[]; host-scoped group_names is cross-host cache-poisoned for this destructive flag
 ldap:
   bond: 1
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
+  enabled: "{{ (groups['svc-db-openldap'] | default([]) | length) > 0 }}"
+  shared: "{{ (groups['svc-db-openldap'] | default([]) | length) > 0 }}"
   sync:
     period:
       changes: 900
@@ -64,11 +65,7 @@ keycloak:
     - web-app-matomo
     - web-app-mailu
   lifecycle: beta
-# Per-consumer SSO-proxy sidecar. Rendered via tasks/sso_proxy.yml
-# whenever a consumer role's `services.sso.flavor == 'oauth2'`.
-# The image name `oauth2-proxy` and config filename
-# `oauth2-proxy-keycloak.cfg` are upstream artefacts and stay literal;
-# every project-internal identifier uses the `sso_proxy` namespace.
+# Exception: sso-proxy sidecar; upstream artefact names (oauth2-proxy image, oauth2-proxy-keycloak.cfg) stay literal, project identifiers use the sso_proxy namespace
 # nocheck: dynamic-flag — per-consumer fan-out
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag
 sso_proxy:
