@@ -53,9 +53,7 @@ _JINJA = re.compile(r"\{\{|\{%")
 # A conditional key with an inline scalar value on the same line, e.g.
 #   when: "{{ FLAG | bool }}"
 #   failed_when: rc != 0
-_SCALAR_KEY = re.compile(
-    rf"^\s*(?:{'|'.join(_CONDITIONAL_KEYS)}):\s*(?P<value>\S.*)$"
-)
+_SCALAR_KEY = re.compile(rf"^\s*(?:{'|'.join(_CONDITIONAL_KEYS)}):\s*(?P<value>\S.*)$")
 # A conditional key introducing a YAML list (value on following lines), e.g.
 #   when:
 #     - FLAG | bool
