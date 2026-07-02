@@ -6,12 +6,6 @@
     resolve_output_prefix: MASTODON
     resolve_compose_cid: "{{ MASTODON_CONTAINER_ADDRESS }}"
 
-- name: "▶️ Execute migration for '{{ application_id }}'"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ MASTODON_LOCAL_CID | quote }}
-    bundle exec rails db:migrate
-  delegate_to: "{{ MASTODON_HOST_NODE }}"
-
 - name: "🌱 MASTODON | Seed database (idempotent)"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ MASTODON_LOCAL_CID | quote }}

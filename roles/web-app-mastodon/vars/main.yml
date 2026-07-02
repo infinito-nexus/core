@@ -12,6 +12,9 @@ MASTODON_STREAMING_SERVICE_NAME: "streaming"
 MASTODON_SIDEKIQ_CONTAINER: "{{ lookup('config', application_id, 'services.mastodon.name') }}-sidekiq"
 MASTODON_SIDEKIQ_SERVICE_NAME: "sidekiq"
 
+MASTODON_MIGRATE_CONTAINER: "{{ lookup('config', application_id, 'services.mastodon.name') }}-migrate"
+MASTODON_MIGRATE_SERVICE_NAME: "migrate"
+
 MASTODON_ALLOWED_PRIVATE_ADDRESSES: "{{ lookup('config', 'svc-db-postgres', 'networks.local.subnet') if 'web-app-chess' in group_names else ''}}"
 MASTODON_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  }}"
 

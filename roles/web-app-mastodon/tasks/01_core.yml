@@ -24,7 +24,7 @@
   include_tasks: 02_overrides.yml
   when: MASTODON_HTTP_ONLY_ENABLED | bool
 
-- name: 🚿 Flush handlers to start Mastodon after migration
+- name: 🚿 Flush handlers to start the Mastodon stack
   meta: flush_handlers
 
 - name: "▶️ start setup procedures for mastodon"
