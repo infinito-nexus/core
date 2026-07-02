@@ -37,6 +37,12 @@ css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag — runtime DOM patch (injected logout), no probe-able surface flag
+javascript:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-checkmk', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-checkmk', 'services.sso.enabled') | bool }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
