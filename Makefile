@@ -637,6 +637,11 @@ test-lint: install
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh
 
+.PHONY: test-main-merged
+# Verify upstream main is fully merged into HEAD (pre-push gate); fetches and fails if the branch lags main.
+test-main-merged:
+	@bash scripts/git/assert_main_merged.sh
+
 .PHONY: test-signed
 # Verify HEAD is signed.
 # Note: `git log %G?` returns N for unsigned; gates the pre-push hook against unsigned tips.

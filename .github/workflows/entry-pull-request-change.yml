@@ -65,6 +65,24 @@ jobs:
           PR_SCOPE: ${{ needs.detect-pr-scope.outputs.scope }}
         run: ./scripts/meta/resolve/pr/branch_prefix.sh
 
+  assert-main-merged:
+    name: 🔀 Assert main is merged
+    needs: detect-pr-scope
+    if: ${{ github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout PR head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: ✅ Assert the base branch is fully merged into the PR head
+        env:
+          INFINITO_MAIN_REMOTE: origin
+          INFINITO_MAIN_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: bash scripts/git/assert_main_merged.sh
+
   pr-scope-gate:
     name: 🚦 Gate PR scope
     needs:

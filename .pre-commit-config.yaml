@@ -13,6 +13,14 @@ repos:
         pass_filenames: false
         stages:
           - pre-commit
+      - id: make-test-main-merged
+        name: Run make test-main-merged (pre-push gate)
+        entry: make test-main-merged
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages:
+          - pre-push
       - id: make-test-signed
         name: Run make test-signed (pre-push gate)
         entry: make test-signed
