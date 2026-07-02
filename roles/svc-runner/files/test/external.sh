@@ -11,7 +11,6 @@ fi
 
 fail_count=0
 
-# 4) GitHub API: verify at least RUNNER_COUNT runners are registered and online.
 echo "Checking GitHub runner registration via API..."
 if ! runners_json=$(curl -sf \
     -H "Authorization: Bearer ${RUNNER_API_TOKEN}" \
@@ -32,8 +31,6 @@ else
     echo "OK: ${online_count} runner(s) online on GitHub (${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO})"
 fi
 
-# Dispatch test-runner-smoke.yml and wait for success — the real E2E gate
-# (runner picks up the job, checks out, reaches Docker via DooD, deploys).
 echo "Dispatching test-runner-smoke.yml against ref=${RUNNER_GIT_REF}..."
 dispatch_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
@@ -51,7 +48,6 @@ if [[ "${dispatch_http}" != "204" ]]; then
 else
     echo "OK: smoke workflow dispatched (HTTP 204)"
 
-    # Discover the run ID — GitHub creates it asynchronously; retry for up to 60s.
     smoke_run_id=""
     attempts=0
     while [[ -z "${smoke_run_id}" && "${attempts}" -lt 12 ]]; do
@@ -79,7 +75,6 @@ print(runs[0]['id'] if runs else '')
     else
         echo "OK: smoke run found (id=${smoke_run_id}), polling for completion (timeout=90min)..."
 
-        # Poll until completed or 90-minute timeout.
         deadline=$(($(date +%s) + 5400))
         smoke_conclusion=""
         while [[ "$(date +%s)" -lt "${deadline}" ]]; do

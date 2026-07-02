@@ -1,0 +1,239 @@
+name: "🐝 Test: Deploy (swarm)"
+
+on:
+  workflow_call:
+    inputs:
+      whitelist:
+        description: "Optional space-separated whitelist of app ids"
+        required: false
+        type: string
+        default: ""
+  workflow_dispatch:
+    inputs:
+      whitelist:
+        description: "Optional space-separated whitelist of app ids"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  NIX_CONFIG: |
+    access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+  INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+  INFINITO_GHCR_MIRROR_PREFIX: mirror
+  INFINITO_APP_DISCOVERY_RUNNER: host
+  INFINITO_DEPLOY_MODE: swarm
+
+jobs:
+  discover:
+    name: 🍯 Lure swarm
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      apps: ${{ steps.discover.outputs.apps }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: 📦 Install jq
+        shell: bash
+        run: ./scripts/install/apt.sh jq
+
+      - name: 📦 Install deps (jq + envsubst)
+        shell: bash
+        run: ./scripts/install/apt.sh jq gettext-base
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: |
+          make install-force
+          # shellcheck source=/dev/null
+          source scripts/meta/env/load.sh
+          echo "${VENV}/bin" >> "${GITHUB_PATH}"
+
+      - name: 🔍 Resolve effective whitelist (diff vs origin/main)
+        id: resolve_wl
+        shell: bash
+        env:
+          INPUT_WHITELIST: ${{ inputs.whitelist }}
+        run: ./scripts/github/resolve/effective_whitelist.sh
+
+      - name: 🔍 Discover apps
+        id: discover
+        shell: bash
+        env:
+          INFINITO_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
+        run: ./scripts/github/resolve/output_apps.sh
+
+  swarm:
+    name: "🐝 ${{ matrix.apps }}${{ matrix.variant && format(' {0}',matrix.variant) || '' }}"
+    if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    needs: discover
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.discover.outputs.apps) }}
+
+    env:
+      APP_ID: ${{ matrix.apps }}
+      RESCHED_TIMEOUT: "120"
+      SCRIPTS: scripts/tests/deploy/swarm
+
+    steps:
+      - name: 🧹 Free disk space
+        if: ${{ !env.ACT }}
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: "⬇️ Checkout"
+        if: ${{ !env.ACT }}
+        uses: actions/checkout@v7
+
+      - name: 💾 Enlarge swap space
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/enlarge_swap.sh
+
+      - name: "🔍 Resolve SWARM_NAME (mandatory; default to the matrix app)"
+        shell: bash
+        run: echo "SWARM_NAME=${SWARM_NAME:-${{ matrix.apps }}}" >> "$GITHUB_ENV"
+
+      - name: "📥 Load swarm topology SPOT into job env"
+        shell: bash
+        run: |
+          . scripts/tests/deploy/swarm/00_topology.sh
+          {
+            echo "MGR=$MGR"
+            echo "WRK1=$WRK1"
+            echo "WRK2=$WRK2"
+            echo "NFS_SERVER=$NFS_SERVER"
+            echo "NFS_EXPORT_BASE=$NFS_EXPORT_BASE"
+            echo "NFS_STATE_PATH=$NFS_STATE_PATH"
+            echo "SWARM_LAB_NETWORK=$SWARM_LAB_NETWORK"
+            echo "INFINITO_SWARM_TEST_LABEL=$INFINITO_SWARM_TEST_LABEL"
+          } >> "$GITHUB_ENV"
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: |
+          make install-force
+          # shellcheck source=/dev/null
+          source scripts/meta/env/load.sh
+          echo "${VENV}/bin" >> "${GITHUB_PATH}"
+
+      - name: "📁 Create dedicated network for simulated cluster (MTU 1400)"
+        run: |
+          docker network create \
+            --driver bridge \
+            --subnet 192.168.244.0/24 \
+            --opt com.docker.network.driver.mtu=1400 \
+            "${SWARM_LAB_NETWORK}"
+
+      - name: "▶️ Start NFSv4 server (empty systemd-Ubuntu)"
+        run: ${{ env.SCRIPTS }}/01_start_nfs.sh
+
+      - name: "▶️ Start 3 simulated swarm nodes (systemd Ubuntu)"
+        run: ${{ env.SCRIPTS }}/02_start_swarm_nodes.sh
+
+      - name: "🖥️ Capture node + NFS-server IPs"
+        run: ${{ env.SCRIPTS }}/03_capture_ips.sh
+
+      - name: "🥾 Bootstrap Python on every node (minimum Ansible can connect)"
+        run: ${{ env.SCRIPTS }}/04_bootstrap_nodes.sh
+
+      - name: "🔧 Project setup (.dockerignore + dotenv + scripts/setup.sh)"
+        run: make setup
+
+      - name: "🚀 Matrix-deploy ${{ matrix.apps }}: provision/deploy/e2e/verify per round"
+        env:
+          variant: ${{ matrix.variant }}
+        run: |
+          source scripts/meta/env/load.sh
+          if [ "$(id -u)" -eq 0 ]; then
+            python3 -m cli.administration.deploy.swarm.matrix
+          else
+            sudo -E env "PATH=$PATH" "HOME=$HOME" "SWARM_NAME=${SWARM_NAME:-}" "variant=${variant:-}" python3 -m cli.administration.deploy.swarm.matrix
+          fi
+
+      - name: "🌱 Seed content (pre-drain marker on NFS volume)"
+        run: ${{ env.SCRIPTS }}/09_seed_content.sh
+
+      - name: "💪 Drain the worker running ${{ matrix.apps }} + force reschedule"
+        run: ${{ env.SCRIPTS }}/10_drain_worker.sh
+
+      - name: "✅ Assert state survived the reschedule"
+        run: ${{ env.SCRIPTS }}/11_assert_state.sh
+
+      - name: "📊 Collect diagnostics on failure"
+        if: failure()
+        run: ${{ env.SCRIPTS }}/12_collect_diagnostics.sh
+
+      - name: "🗜️ Zip generated inventory for debugging"
+        if: always()
+        shell: bash
+        env:
+          APP_ID: ${{ matrix.apps }}
+        run: bash scripts/github/inventory/zip_swarm_for_upload.sh
+
+      - name: "⬆️ Upload inventory artifact"
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: inventory-swarm-${{ matrix.apps }}
+          path: /tmp/inventory-swarm-${{ matrix.apps }}.zip
+          if-no-files-found: ignore
+
+      - name: "📊 Collect Playwright reports from the manager"
+        if: always()
+        shell: bash
+        env:
+          APP_ID: ${{ matrix.apps }}
+        run: ${{ env.SCRIPTS }}/collect_playwright_reports.sh
+
+      - name: "⬆️ Upload Playwright artifacts"
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-swarm-${{ matrix.apps }}${{ matrix.variant_slug && format('-{0}', matrix.variant_slug) || '' }}
+          path: /tmp/playwright-artifacts/
+          if-no-files-found: ignore
+
+      - name: "🧹 Cleanup"
+        if: always()
+        run: ${{ env.SCRIPTS }}/13_cleanup.sh

@@ -1,32 +1,12 @@
 ---
-- name: Show detected Playwright roles
+- name: 👁️ Show detected Playwright roles
   ansible.builtin.debug:
     msg: "Playwright-enabled roles: {{ TEST_E2E_PLAYWRIGHT_APPS }}"
   changed_when: false
 
-- name: Ensure staging base dir exists
-  ansible.builtin.file:
-    path: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"
-    state: directory
-    mode: "0755"
-
-- name: Ensure reports base dir exists
-  ansible.builtin.file:
-    path: "{{ TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR }}"
-    state: directory
-    mode: "0755"
-
-- name: Prepare shared @playwright/test install
-  ansible.builtin.include_tasks: 01_setup.yml
-
-- name: Run Playwright for each detected role
-  ansible.builtin.include_tasks: 02_run_one.yml
-  loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
-  loop_control:
-    loop_var: application_id
-    label: "{{ application_id }}"
-
-- name: Fail if there were Playwright failures
-  ansible.builtin.fail:
-    msg: "Playwright failed for roles: {{ _playwright_failures }}"
-  when: (_playwright_failures | default([])) | length > 0
+- name: ▶️ Playwright orchestration (run once on the primary manager)
+  # block: delegate_to/run_once propagate to include_tasks children only via block
+  block:
+    - ansible.builtin.include_tasks: 01a_orchestrate.yml
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true

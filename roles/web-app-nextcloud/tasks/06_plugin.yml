@@ -3,7 +3,7 @@
     - include_tasks: plugin/01_install.yml
   when: plugin_value.enabled | bool
 
-- name: disable {{ plugin_key }} nextcloud plugin
+- name: 🔴 disable {{ plugin_key }} nextcloud plugin
   command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable {{ plugin_key }}"
   register: disable_result
   changed_when: >

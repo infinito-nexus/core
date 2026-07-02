@@ -1,0 +1,4 @@
+---
+- services:
+    nfs-server:
+      flavor: "{{ 'ganesha' if RUNTIME in ['dev', 'act'] else 'kernel' }}"

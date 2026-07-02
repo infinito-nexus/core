@@ -4,28 +4,28 @@
 # application is registered on the partner Zammad. This hook provisions that application on
 # the partner and writes the returned credentials into Nextcloud, encrypted the same way the
 # integration_gitlab coupling does.
-- name: Resolve Zammad integration provisioning facts
+- name: 🔍 Resolve Zammad integration provisioning facts
   set_fact:
     nextcloud_zammad_container: "zammad-railsserver"
     nextcloud_zammad_base_url: "{{ lookup('tls', 'web-app-zammad', 'url.base') | regex_replace('/$', '') }}"
     nextcloud_zammad_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.base') | regex_replace('/$', '') }}"
   changed_when: false
 
-- name: Probe whether the Zammad partner container is running
+- name: 🔍 Probe whether the Zammad partner container is running
   command: >
     container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_zammad_container }}
   register: nextcloud_zammad_partner_running
   changed_when: false
   failed_when: false
 
-- name: Read persisted integration_zammad OAuth client id
+- name: 📖 Read persisted integration_zammad OAuth client id
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_zammad client_id
   register: nextcloud_zammad_client_id_current
   changed_when: false
   failed_when: false
 
-- name: Read persisted integration_zammad OAuth client secret
+- name: 📖 Read persisted integration_zammad OAuth client secret
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_zammad client_secret
   register: nextcloud_zammad_client_secret_current
@@ -33,7 +33,7 @@
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Provision the Zammad <-> Nextcloud OAuth coupling
+- name: 🔧 Provision the Zammad <-> Nextcloud OAuth coupling
   include_tasks: "{{ [role_path, 'tasks/addons/integration_zammad_provision.yml'] | path_join }}"
   when: >-
     (nextcloud_zammad_partner_running.stdout | trim) == 'true'

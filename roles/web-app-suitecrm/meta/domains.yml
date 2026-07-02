@@ -1,0 +1,4 @@
+---
+aliases: []
+canonical:
+  - suite.crm.{{ DOMAIN_PRIMARY }}

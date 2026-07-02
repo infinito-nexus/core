@@ -9,7 +9,7 @@ global:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ["{{ ALERTMANAGER_CONTAINER }}:9093"]
+        - targets: ["{{ lookup('scrape_target', application_id, 'alertmanager') }}"]
 
 rule_files:
   - "{{ ALERT_RULES_CONFIG_DOCKER }}"
@@ -35,14 +35,14 @@ scrape_configs:
   # Container metrics — per-container CPU, memory, network via cAdvisor.
   - job_name: "cadvisor"
     static_configs:
-      - targets: ["{{ CADVISOR_CONTAINER }}:8080"]
+      - targets: ["{{ lookup('scrape_target', application_id, 'cadvisor') }}"]
 
   # Host metrics — system-level CPU, memory, disk, network via node_exporter.
   # node-exporter runs with network_mode: host, so it binds on the real host.
   # host.docker.internal resolves to the host gateway from inside the container.
   - job_name: "node-exporter"
     static_configs:
-      - targets: ["host.docker.internal:9100"]
+      - targets: ["{{ lookup('scrape_target', application_id, 'node-exporter', compose_host='host.docker.internal') }}"]
 
   # ── Native application metrics ────────────────────────────────────────────
   # Auto-discovered via the native_metrics_apps lookup plugin.
@@ -85,4 +85,4 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: "{{ BLACKBOX_CONTAINER }}:9115"
+        replacement: "{{ lookup('scrape_target', application_id, 'blackbox-exporter') }}"

@@ -58,9 +58,6 @@ def _run_deploy(
     if debug:
         cmd.insert(cmd.index("--diff") + 1, "--debug")
 
-    # Ansible extra-vars (`-e key=value`) for caller-supplied runtime toggles
-    # (typically the async-pass override). JSON-encoding the value preserves
-    # bool/int/list semantics across the shell hop into Ansible.
     if extra_ansible_vars:
         for key, value in extra_ansible_vars.items():
             cmd.extend(["-e", f"{key}={json.dumps(value)}"])
@@ -69,7 +66,6 @@ def _run_deploy(
         cmd.extend(passthrough)
 
     extra_env: dict[str, str] = {
-        # Force ANSI colors even when no TTY is allocated (CI default).
         "ANSIBLE_FORCE_COLOR": "1",
         "PY_COLORS": "1",
         "TERM": "xterm-256color",
@@ -94,13 +90,6 @@ def _run_deploy(
         val = os.environ.get(key)
         if val:
             extra_env[key] = val
-
-    # The Playwright E2E gate now keys on `RUNTIME` from the inventory's
-    # host_vars (baked at init time by `cli.administration.deploy.development.init`).
-    # We no longer need to forward GITHUB_ACTIONS / ACT /
-    # INFINITO_MAKE_DEPLOY / INFINITO_SKIP_E2E into the container at deploy
-    # time: by then the runtime decision is already serialised into the
-    # inventory the deploy stage consumes.
 
     r = compose.exec(
         cmd,
@@ -209,8 +198,6 @@ def handler(args: argparse.Namespace) -> int:
     else:
         primary_app_ids = list(args.id or [])
 
-    # Remove any app IDs that were disabled via `disable` so the
-    # deploy list stays consistent with the inventory created by init.
     raw_disabled = os.environ.get("disable", "").strip()
     disabled_app_ids: set[str] = set()
     if raw_disabled:
@@ -225,26 +212,10 @@ def handler(args: argparse.Namespace) -> int:
     if not primary_app_ids:
         raise SystemExit("All primary apps disabled by `disable` — nothing to deploy")
 
-    # argparse.REMAINDER includes the leading '--' if present; drop it
     passthrough = list(args.ansible_args or [])
     if passthrough and passthrough[0] == "--":
         passthrough = passthrough[1:]
 
-    # Matrix-deploy: the init step produced one inventory folder per round
-    # (`<dir>-0`, `<dir>-1`, ...; or just `<dir>` when there is a single
-    # round) with the per-app variant data already baked into each folder's
-    # `host_vars`. Here we just iterate the same plan and deploy against
-    # each folder. Between rounds we purge the previous round's full
-    # include set so round R starts from a clean host; every round then
-    # redeploys its own full include. The final round is followed by no
-    # purge so the last state remains available for inspection /
-    # follow-up specs.
-    #
-    # Matrix planning is variant-aware (see inventory.py): for each round
-    # the planner consults the variant-merged services map of every
-    # primary app and pulls in transitive deps that ROUND wants. This
-    # is the single SPOT for "what is in this round's deploy" — both
-    # init and deploy walk the same plan so they cannot drift.
     plan = plan_dev_inventory_matrix(
         roles_dir=str(compose.repo_root / "roles"),
         primary_apps=primary_app_ids,
@@ -255,9 +226,6 @@ def handler(args: argparse.Namespace) -> int:
     except ValueError as exc:
         raise SystemExit(f"--variant: {exc}") from exc
 
-    # INFINITO_CONTAINER is the single SPOT — defaults.sh keeps it in
-    # lock-step with INFINITO_DISTRO across matrix iterations. Read it
-    # strictly here; no fallback derivation, no env-vs-arg ambiguity.
     container_name = resolve_container()
 
     rc = 0
@@ -271,7 +239,6 @@ def handler(args: argparse.Namespace) -> int:
         round_include = [role for role in include_R if role not in disabled_app_ids]
         round_deploy_ids = round_include
 
-        # WHY purge_set (= union across all rounds) and not previous_round_include: a variant pinning `services.<X>.shared: false` would otherwise leak its bundled provider into the next round's host.
         if plan_index > 0:
             purge_targets = [
                 role for role in purge_set_R if role not in disabled_app_ids
@@ -282,10 +249,6 @@ def handler(args: argparse.Namespace) -> int:
             f"matrix-deploy: round {round_index + 1}/{len(plan)} "
             f"inv={inv_dir} variants={round_variants} apps={round_deploy_ids}"
         )
-        # `VARIANT_INDEX` (0-based round id) is pushed as an Ansible extra
-        # var so consumers like the test-e2e-playwright role can namespace
-        # their per-run artifacts by variant + pass and avoid overwriting
-        # earlier rounds' reports.
         print(f"=== {pass_label} PASS 1 (sync) ===")
         rc = _run_deploy(
             compose,
@@ -299,11 +262,6 @@ def handler(args: argparse.Namespace) -> int:
         if rc != 0:
             return rc
 
-        # When `--full-cycle` is set, the async update pass runs IMMEDIATELY
-        # against the same variant's host state, before we move to the next
-        # round. This co-locates PASS 1 and PASS 2 per variant so the async
-        # re-deploy never accidentally targets a host that was left in a
-        # different variant by a prior round.
         if bool(args.full_cycle):
             print(f"=== {pass_label} PASS 2 (async) ===")
             rc = _run_deploy(

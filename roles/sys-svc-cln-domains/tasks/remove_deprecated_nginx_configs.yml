@@ -1,12 +1,12 @@
 ---
-- name: Find matching nginx configs for {{ domain }}
+- name: 🔍 Find matching nginx configs for {{ domain }}
   ansible.builtin.find:
     paths: "{{ lookup('nginx','directories.configuration.servers') }}"
     recurse: true
     patterns: "*.{{ domain }}.conf"
   register: find_result
 
-- name: Remove wildcard nginx configs for {{ domain }}
+- name: 🗑️ Remove wildcard nginx configs for {{ domain }}
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
@@ -14,7 +14,7 @@
   when: item is defined
   notify: restart openresty
 
-- name: Remove exact nginx config for {{ domain }}
+- name: 🗑️ Remove exact nginx config for {{ domain }}
   ansible.builtin.file:
     path: "{{ lookup('nginx', 'files.domain', domain) }}"
     state: absent

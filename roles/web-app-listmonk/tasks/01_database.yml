@@ -1,11 +1,11 @@
 ---
-- name: Check if listmonk schema is present (probe the 'subscribers' table)
-  command: '{{ LISTMONK_EXEC_DATABASE }} -c "\dt subscribers"'
+- name: 🔎 Check if listmonk schema is present (probe the 'subscribers' table)
+  shell: '{{ LISTMONK_EXEC_DATABASE }} -c "\dt subscribers"'
   register: db_tables
   changed_when: false
   failed_when: false
 
-- name: Determine Listmonk database state
+- name: 🤔 Determine Listmonk database state
   set_fact:
     listmonk_db_reachable: "{{ db_tables.rc == 0 }}"
     listmonk_db_empty: >-
@@ -16,7 +16,7 @@
         ('No matching relations found' in (db_tables.stdout | default('')))
       }}
 
-- name: Abort if Listmonk database is not reachable
+- name: 🛑 Abort if Listmonk database is not reachable
   fail:
     msg: |
       Listmonk database is not reachable.
@@ -27,24 +27,25 @@
       Please ensure the shared PostgreSQL stack is running.
   when: not listmonk_db_reachable
 
-- name: Run Listmonk initial database setup
+- name: ⏳ Wait for Listmonk task to converge before container exec
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ LISTMONK_SERVICE }}"
+    wait_retries: 600
+    wait_delay: 2
+
+- name: ▶️ Run Listmonk initial database setup
   shell: |
-    set -euo pipefail
-    yes | {{ LISTMONK_RUN }} ./listmonk --install
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    container exec -i {{ LISTMONK_CONTAINER_ADDRESS }} sh -c 'set -euo pipefail; yes | ./listmonk --install'
   register: listmonk_install
   notify: compose up
   changed_when: true
   failed_when: listmonk_install.rc not in [0, 141]
   when: listmonk_db_empty
 
-- name: Run Listmonk DB/schema upgrade (non-interactive)
+- name: ▶️ Run Listmonk DB/schema upgrade (non-interactive)
   shell: |
-    set -euo pipefail
-    echo y | {{ LISTMONK_RUN }} ./listmonk --upgrade
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    container exec -i {{ LISTMONK_CONTAINER_ADDRESS }} sh -c 'set -euo pipefail; echo y | ./listmonk --upgrade'
   register: listmonk_upgrade
   changed_when: true
   failed_when: listmonk_upgrade.rc not in [0, 141]

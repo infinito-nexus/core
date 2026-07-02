@@ -36,7 +36,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 |-----|---------|-------------|
 | `services.sso.enabled` | `true` | Enable Keycloak SSO via OpenID Connect |
 | `services.postgres.shared` | `true` | Use the shared PostgreSQL service |
-| `server.domains.canonical` | `decidim.{{ DOMAIN_PRIMARY }}` | Public domain |
+| `domains.canonical` | `decidim.{{ DOMAIN_PRIMARY }}` | Public domain |
 
 ## References
 

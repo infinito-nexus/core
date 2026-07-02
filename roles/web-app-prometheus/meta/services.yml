@@ -6,7 +6,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: prometheus
       port: "9090"
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-prometheus', role='administrator') }}"
@@ -40,6 +40,8 @@ javascript:
 # nocheck: playwright-service-flag — self-provider
 prometheus:
   bond: 1
+  # nocheck: default-placement-manager  TSDB on-disk data; node-local in swarm
+  default_placement: manager
   enabled: true
   shared: true
   provides:
@@ -58,6 +60,8 @@ prometheus:
     local:
       sso: 16492
       http: 8066
+    internal:
+      http: 9090
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -71,6 +75,9 @@ alertmanager:
   mem_limit: 128m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 9093
 blackbox-exporter:
   image: prom/blackbox-exporter
   version: v0.28.0
@@ -80,6 +87,9 @@ blackbox-exporter:
   mem_limit: 64m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 9115
 cadvisor:
   image: gcr.io/cadvisor/cadvisor
   version: v0.52.1
@@ -89,6 +99,9 @@ cadvisor:
   mem_limit: 256m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 8080
 node-exporter:
   image: prom/node-exporter
   version: v1.11.1
@@ -98,3 +111,6 @@ node-exporter:
   mem_limit: 128m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 9100

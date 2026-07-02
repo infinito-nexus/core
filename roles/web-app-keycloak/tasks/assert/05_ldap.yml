@@ -13,7 +13,7 @@
 # Initialize variables (MUST exist before any when/assert)
 # ---------------------------------------------------------------------------
 
-- name: Assert | Initialize LDAP assert variables
+- name: ✅ Assert | Initialize LDAP assert variables
   set_fact:
     ldap_cmp_id_assert: ""
     desired_group_mapper_raw_assert: {}
@@ -26,13 +26,13 @@
 # Resolve LDAP component id (authoritative, client-side filtered)
 # ---------------------------------------------------------------------------
 
-- name: Assert | Fetch components (JSON)
+- name: ✅ Assert | Fetch components (JSON)
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get components -r {{ KEYCLOAK_REALM }} --format json
   register: kc_components_assert
   changed_when: false
 
-- name: Assert | Resolve LDAP component id (client-side filter)
+- name: ✅ Assert | Resolve LDAP component id (client-side filter)
   set_fact:
     ldap_cmp_id_assert: >-
       {{
@@ -49,7 +49,7 @@
       }}
   changed_when: false
 
-- name: Assert | LDAP component exists
+- name: ✅ Assert | LDAP component exists
   assert:
     that:
       - ldap_cmp_id_assert not in ["", "null"]
@@ -59,7 +59,7 @@
 # Load ldap-roles mapper from dictionary (desired state)
 # ---------------------------------------------------------------------------
 
-- name: Assert | Load desired ldap-roles mapper from dictionary
+- name: ✅ Assert | Load desired ldap-roles mapper from dictionary
   set_fact:
     desired_group_mapper_raw_assert: >-
       {{
@@ -74,7 +74,7 @@
       }}
   changed_when: false
 
-- name: Assert | ldap-roles mapper exists in dictionary
+- name: ✅ Assert | ldap-roles mapper exists in dictionary
   assert:
     that:
       - desired_group_mapper_raw_assert | length > 0
@@ -84,14 +84,14 @@
 # Extract desired groups.path (dictionary)
 # ---------------------------------------------------------------------------
 
-- name: Assert | Extract desired groups.path
+- name: ✅ Assert | Extract desired groups.path
   when: desired_group_mapper_raw_assert | length > 0
   set_fact:
     desired_groups_path_assert: "{{ (desired_group_mapper_raw_assert.config['groups.path'] | default([])) | first | default('') | trim }}"
     desired_groups_top_assert: "{{ desired_groups_path_assert.lstrip('/') | split('/') | first | default('') }}"
   changed_when: false
 
-- name: Assert | groups.path defined when mapper exists
+- name: ✅ Assert | groups.path defined when mapper exists
   when: desired_group_mapper_raw_assert | length > 0
   assert:
     that:
@@ -102,7 +102,7 @@
 # Verify ldap-roles mapper instances in Keycloak (actual state)
 # ---------------------------------------------------------------------------
 
-- name: Assert | List ldap-roles mappers under LDAP component (client-side)
+- name: ✅ Assert | List ldap-roles mappers under LDAP component (client-side)
   set_fact:
     grp_mapper_ids_assert: >-
       {{
@@ -118,7 +118,7 @@
       }}
   changed_when: false
 
-- name: Assert | Exactly one ldap-roles mapper exists
+- name: ✅ Assert | Exactly one ldap-roles mapper exists
   assert:
     that:
       - grp_mapper_ids_assert | length == 1
@@ -130,43 +130,43 @@
 # Verify top-level group for groups.path exists
 # ---------------------------------------------------------------------------
 
-- name: Assert | Fetch groups (JSON)
+- name: ✅ Assert | Verify top-level group exists when groups.path is set
   when: desired_groups_top_assert | length > 0
-  shell: >
-    {{ KEYCLOAK_EXEC_KCADM }} get groups -r {{ KEYCLOAK_REALM }} --format json
-  register: kc_groups_assert
-  changed_when: false
+  block:
+    - name: ✅ Assert | Fetch groups (JSON)
+      shell: >
+        {{ KEYCLOAK_EXEC_KCADM }} get groups -r {{ KEYCLOAK_REALM }} --format json
+      register: kc_groups_assert
+      changed_when: false
 
-- name: Assert | Resolve top-level group id
-  when: desired_groups_top_assert | length > 0
-  set_fact:
-    groups_top_id_assert: >-
-      {{
-        (
-          kc_groups_assert.stdout | kcadm_json
-          | selectattr('name','equalto', desired_groups_top_assert)
-          | map(attribute='id')
-          | list
-          | first
-          | default('')
-        ) | string | trim
-      }}
-  changed_when: false
+    - name: ✅ Assert | Resolve top-level group id
+      set_fact:
+        groups_top_id_assert: >-
+          {{
+            (
+              kc_groups_assert.stdout | kcadm_json
+              | selectattr('name','equalto', desired_groups_top_assert)
+              | map(attribute='id')
+              | list
+              | first
+              | default('')
+            ) | string | trim
+          }}
+      changed_when: false
 
-- name: Assert | Top-level group exists
-  when: desired_groups_top_assert | length > 0
-  assert:
-    that:
-      - groups_top_id_assert not in ["", "null"]
-    fail_msg: >-
-      groups.path='{{ desired_groups_path_assert }}' requires top-level group
-      '{{ desired_groups_top_assert }}', but it does not exist.
+    - name: ✅ Assert | Top-level group exists
+      assert:
+        that:
+          - groups_top_id_assert not in ["", "null"]
+        fail_msg: >-
+          groups.path='{{ desired_groups_path_assert }}' requires top-level group
+          '{{ desired_groups_top_assert }}', but it does not exist.
 
 # ---------------------------------------------------------------------------
 # Final summary (debug only)
 # ---------------------------------------------------------------------------
 
-- name: Assert | LDAP summary
+- name: ✅ Assert | LDAP summary
   debug:
     msg:
       ldap_component_id: "{{ ldap_cmp_id_assert }}"

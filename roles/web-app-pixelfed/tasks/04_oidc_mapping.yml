@@ -6,7 +6,7 @@
 # `<entity>-database` container — the database_query module hands the
 # query off to whichever the `database` lookup resolves to.
 
-- name: "Wait until the Pixelfed OIDC mapping table exists"
+- name: "⏳ Wait until the Pixelfed OIDC mapping table exists"
   database_query:
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc-mapping/select-table.sql"
@@ -21,7 +21,7 @@
   until: pixelfed_admin_oidc_table.rows | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Verify the Pixelfed OIDC mapping table contains the expected columns"
+- name: "✅ Verify the Pixelfed OIDC mapping table contains the expected columns"
   database_query:
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc-mapping/count-columns.sql"
@@ -34,7 +34,7 @@
   failed_when: (pixelfed_admin_oidc_columns.rows[0][0] | int) != 4
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Ensure the Pixelfed administrator OIDC mapping exists"
+- name: "✅ Ensure the Pixelfed administrator OIDC mapping exists"
   database_query:
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc-mapping/upsert.sql"

@@ -6,7 +6,6 @@ entity_name: "{{ application_id | get_entity_name }}"
 # Helper variables
 HUGO_CONTAINER: "{{ entity_name }}"
 HUGO_SERVICE: "{{ entity_name }}"
-HUGO_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 
 # Pinned upstream images (read from meta/services.yml; appear in image-drift report)
 HUGO_NGINX_IMAGE: "{{ lookup('config', application_id, 'services.hugo.image') }}"

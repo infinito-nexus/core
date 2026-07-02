@@ -16,33 +16,33 @@ jobs:
       INFINITO_LINT_RUNNER: host
 
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Python
+      - name: 🔧 Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install ansible-core + ansible-lint
+      - name: 📦 Install ansible-core + ansible-lint
         run: |
           python -m pip install --upgrade pip
           pip install ansible-core ansible-lint pyyaml
 
-      - name: Cache Ansible collections
+      - name: 📦 Cache Ansible collections
         uses: actions/cache@v6
         with:
           path: ~/.ansible/collections
           key: ansible-collections-${{ runner.os }}-${{ hashFiles('requirements/requirements.galaxy.yml', 'requirements/requirements.git.yml') }}
 
-      - name: Install required Ansible collections
+      - name: 📦 Install required Ansible collections
         run: |
           ansible-galaxy collection install \
             -r requirements/requirements.galaxy.yml
 
-      - name: Generate role include files
+      - name: ⚙️ Generate role include files
         # `tasks/groups/*-roles.yml` are generated artefacts (gitignored
         # via tasks/groups/.gitignore) referenced by `tasks/stages/*.yml`.
         # Without them ansible-lint reports a fatal load-failure on
@@ -55,5 +55,5 @@ jobs:
         # script directly without going through `make`.
         run: PYTHON=python3 PYTHONPATH=. bash scripts/setup.sh
 
-      - name: Run lint-ansible via make
+      - name: ▶️ Run lint-ansible via make
         run: make lint-ansible

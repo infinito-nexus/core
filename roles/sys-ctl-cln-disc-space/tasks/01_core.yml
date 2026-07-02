@@ -1,5 +1,5 @@
 ---
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
@@ -16,6 +16,18 @@
     system_service_tpl_exec_start: "{{ system_service_script_exec }} {{ SIZE_PERCENT_CLEANUP_DISC_SPACE }}"
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP | join(" ") }} --timeout
       "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"'
+    system_service_tpl_environment:
+      - "SYS_SERVICE_CLEANUP_BACKUPS={{ SYS_SERVICE_CLEANUP_BACKUPS }}"
+      - "SYS_SERVICE_CLEANUP_DOCKER={{ SYS_SERVICE_CLEANUP_DOCKER }}"
+      - "DEPLOYMENT_MODE={{ DEPLOYMENT_MODE }}"
+      - "BIN_RESOLVE_CONTAINER_ID={{ BIN_RESOLVE_CONTAINER_ID }}"
+      - "NEXTCLOUD_APPLICATION_CONTAINER={{ lookup('config', 'web-app-nextcloud', 'services.nextcloud.name') }}"
+      - "NEXTCLOUD_APPLICATION_STACK={{ 'web-app-nextcloud' | get_entity_name }}"
+      - "NEXTCLOUD_APPLICATION_SERVICE_KEY=nextcloud"
+      - "MASTODON_APPLICATION_CONTAINER={{ lookup('config', 'web-app-mastodon', 'services.mastodon.name') }}"
+      - "MASTODON_APPLICATION_STACK={{ 'web-app-mastodon' | get_entity_name }}"
+      - "MASTODON_APPLICATION_SERVICE_KEY=mastodon"
+      - "MASTODON_CLEANUP_DAYS=1"
     system_service_force_linear_sync: false
 
 - include_tasks: utils/once/flag.yml

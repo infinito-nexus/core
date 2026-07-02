@@ -50,21 +50,21 @@ jobs:
     env:
       WAIT_REQUIRED: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && !inputs.trusted_pr }}
     steps:
-      - name: Mark fork prerequisites as ready outside fork PRs or for trusted PRs
+      - name: 🏷️ Mark fork prerequisites as ready outside fork PRs or for trusted PRs
         if: ${{ env.WAIT_REQUIRED != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
           echo "Fork prerequisites are implicitly ready (non-fork PR or '🛡️ Trusted' label)."
 
-      - name: Checkout trusted workflow repo (helpers)
+      - name: ⬇️ Checkout trusted workflow repo (helpers)
         if: ${{ env.WAIT_REQUIRED == 'true' }}
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
-      - name: Login to GHCR for CI image checks
+      - name: 🔑 Login to GHCR for CI image checks
         if: ${{ env.WAIT_REQUIRED == 'true' }}
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
@@ -72,7 +72,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Wait for privileged fork CI images
+      - name: ⏳ Wait for privileged fork CI images
         if: ${{ env.WAIT_REQUIRED == 'true' }}
         shell: bash
         env:
@@ -94,7 +94,7 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Assert privileged prerequisites are ready
+      - name: ✅ Assert privileged prerequisites are ready
         shell: bash
         run: |
           set -euo pipefail
@@ -105,11 +105,9 @@ jobs:
           fi
           echo "Fork prerequisites are ready."
 
-  # Security Checks
   security-codeql:
     uses: ./.github/workflows/security-codeql.yml
 
-  # Linting
   lint-ansible:
     uses: ./.github/workflows/lint-ansible.yml
   lint-docker:
@@ -144,7 +142,6 @@ jobs:
     steps:
       - run: echo "lint gate passed"
 
-  # Code Testing
   test-code-integration:
     uses: ./.github/workflows/test-code-integration.yml
   test-code-lint:
@@ -160,7 +157,6 @@ jobs:
     steps:
       - run: echo "code gate passed"
 
-  # Gate for the code Quality
   code-quality-gate:
     name: 🚦 Gate Quality
     needs: 
@@ -171,7 +167,6 @@ jobs:
     steps:
       - run: echo "Quality Checks passed"
 
-  # Build Docker Images
   build-ci-images:
     needs:
       - code-quality-gate
@@ -181,7 +176,6 @@ jobs:
       concurrency_channel: ci-orchestrator-build-consumer
     secrets: inherit
   
-  # Test DNS configuration
   test-dns:
     needs: 
       - build-ci-images
@@ -189,7 +183,6 @@ jobs:
     with:
       distros: "arch debian ubuntu fedora centos"
   
-  # Sync Missing Images
   images-mirror-missing:
     uses: ./.github/workflows/images-mirror-missing.yml
     with:
@@ -198,51 +191,31 @@ jobs:
       image_wait_sleep_seconds: ${{ inputs.image_wait_sleep_seconds }}
     secrets: inherit
 
-  # Deploy tests
-
-  test-deploy-server:
+  test-deploy-compose:
     needs:
       - test-dns
       - images-mirror-missing
-    uses: ./.github/workflows/test-deploy-server.yml
+    uses: ./.github/workflows/test-deploy-compose.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
 
-  test-deploy-universal:
+  test-deploy-swarm:
     needs:
-      - test-dns
-      - images-mirror-missing
-    uses: ./.github/workflows/test-deploy-universal.yml
+      - code-quality-gate
+    uses: ./.github/workflows/test-deploy-swarm.yml
     with:
-      distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
 
   test-runner-smoke:
     needs:
-      - test-deploy-universal
-    # Skip when no self-hosted runners are configured (CI_SELF_HOSTED_RUNNER_COUNT = 0
-    # or unset) — without this guard the job queues indefinitely and times out.
-    # Run whenever universal actually executed (success or failure), not when it was
-    # skipped/cancelled. A partial universal failure (e.g. svc-db-mariadb) must not
-    # block the smoke test — only a svc-runner deploy failure will, because in that
-    # case no self-hosted runner picks up the job and it times out / fails correctly.
-    if: ${{ always() && vars.CI_SELF_HOSTED_RUNNER_COUNT != '0' && vars.CI_SELF_HOSTED_RUNNER_COUNT != '' && (needs.test-deploy-universal.result == 'success' || needs.test-deploy-universal.result == 'failure') }}
+      - test-deploy-swarm
+    if: ${{ always() && vars.CI_SELF_HOSTED_RUNNER_COUNT != '0' && vars.CI_SELF_HOSTED_RUNNER_COUNT != '' && (needs.test-deploy-swarm.result == 'success' || needs.test-deploy-swarm.result == 'failure') }}
     uses: ./.github/workflows/test-runner-smoke.yml
     with:
       ref: ${{ github.sha }}
     secrets: inherit
 
-  test-deploy-workstation:
-    needs:
-      - code-quality-gate
-      - build-ci-images
-    uses: ./.github/workflows/test-deploy-workstation.yml
-    with:
-      distros: ${{ inputs.distros }}
-      whitelist: ${{ inputs.whitelist }}
-
-  # Test Installation
   test-install-make:
     uses: ./.github/workflows/test-install-make.yml
     needs:
@@ -260,7 +233,6 @@ jobs:
     steps:
       - run: echo "Installation is possible via pkgmgr and make"
 
-  # Test Development Environment
   test-development:
     if: ${{ inputs.roles_only != 'true' }}
     uses: ./.github/workflows/test-environment.yml
@@ -272,19 +244,18 @@ jobs:
   done:
     name: 🏁 Finish pipeline
     needs:
-      - test-deploy-server
-      - test-deploy-universal
+      - test-deploy-compose
+      - test-deploy-swarm
       - test-runner-smoke
-      - test-deploy-workstation
       - test-install-gate
       - test-development
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Fail if any upstream job failed or was cancelled
+      - name: 🛑 Fail if any upstream job failed or was cancelled
         if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: |
           echo "Pipeline failed: at least one upstream job failed or was cancelled." >&2
           exit 1
-      - name: Done
+      - name: ✅ Done
         run: echo "All checks passed."

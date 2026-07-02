@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml as _load_yaml_cached
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -72,8 +72,8 @@ def build_applications_from_roles(
 
     for role_dir in sorted(roles_dir.iterdir()):
         vars_main = role_dir / ROLE_FILE_VARS_MAIN
-        server_meta = role_dir / ROLE_FILE_META_SERVER
-        if not vars_main.exists() or not server_meta.exists():
+        domains_meta = role_dir / ROLE_FILE_META_DOMAINS
+        if not vars_main.exists() or not domains_meta.exists():
             continue
 
         vars_data = load_yaml_mapping(vars_main)
@@ -81,24 +81,18 @@ def build_applications_from_roles(
         if not isinstance(application_id, str) or not application_id.strip():
             continue
 
-        # The file-root of meta/server.yml IS the value of
-        # applications.<app>.server.
-        server = load_yaml_mapping(server_meta)
-        if not isinstance(server, dict):
-            continue
-
-        domains = server.get("domains")
+        # The file-root of meta/domains.yml IS the value of
+        # applications.<app>.domains.
+        domains = load_yaml_mapping(domains_meta)
         if not isinstance(domains, dict):
             continue
 
         applications[application_id] = {
-            "server": {
-                "domains": render_domain_value(
-                    domains,
-                    variables,
-                    f"{application_id}.server.domains",
-                )
-            }
+            "domains": render_domain_value(
+                domains,
+                variables,
+                f"{application_id}.domains",
+            )
         }
 
     return applications

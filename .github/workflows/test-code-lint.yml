@@ -15,23 +15,23 @@ jobs:
       INFINITO_TEST_RUNNER: host
 
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Python
+      - name: 🔧 Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Run lint tests via make
+      - name: ▶️ Run lint tests via make
         shell: bash
         run: |
           set -euo pipefail
           make test-lint 2>&1 | tee /tmp/lint-output.txt
 
-      - name: Build step summary from annotations
+      - name: 🔨 Build step summary from annotations
         if: always()
         working-directory: ${{ github.workspace }}
         run: |

@@ -1,16 +1,16 @@
 ---
-- name: Deploy {{ js_file_name }}
-  template:
+- name: 🚀 Deploy {{ js_file_name }}
+  stack_host_template:
     src: "javascript/{{ js_file_name }}.j2"
     dest: "{{ DASHBOARD_JS_SERVER_DIR }}/{{ js_file_name }}"
     mode: "0644"
 
-- name: Get stat for {{ js_file_name }}
+- name: ⬇️ Get stat for {{ js_file_name }}
   stat:
     path: "{{ DASHBOARD_JS_SERVER_DIR }}/{{ js_file_name }}"
   register: javascript_file_stat
 
-- name: Update javascript_file_version with highest mtime
+- name: 🔄 Update javascript_file_version with highest mtime
   set_fact:
     javascript_file_version: >-
       {{ [ (javascript_file_version | default(0) | int), (javascript_file_stat.stat.mtime | int) ] | max }}

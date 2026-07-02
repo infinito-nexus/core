@@ -1,0 +1,5 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_svc_storage_nfs_server is not defined
+  vars:
+    application_id: svc-storage-nfs-server

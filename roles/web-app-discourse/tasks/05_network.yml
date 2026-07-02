@@ -1,0 +1,19 @@
+---
+- name: "📦 Connect '{{ DISCOURSE_CONTAINER }}' to network '{{ DISCOURSE_PG_NETWORK }}'"
+  command: >
+    container network connect {{ DISCOURSE_PG_NETWORK }} {{ DISCOURSE_CONTAINER }}
+  register: network_connect
+  failed_when: >
+    network_connect.rc != 0 and
+    'already exists in network' not in network_connect.stderr and
+    'already attached to network' not in network_connect.stderr
+  changed_when: network_connect.rc == 0
+
+- name: "🧹 Remove {{ DISCOURSE_NETWORK }} from DB container {{ application_id }}"
+  command: >
+    container network disconnect {{ DISCOURSE_NETWORK }} {{ lookup('database', application_id, 'container') }}
+  register: network_disconnect
+  failed_when: >
+    network_disconnect.rc != 0 and
+    DISCOURSE_ERROR_NOT_CONNECTED not in network_disconnect.stderr
+  changed_when: network_disconnect.rc == 0

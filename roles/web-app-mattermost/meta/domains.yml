@@ -1,0 +1,4 @@
+---
+aliases: []
+canonical:
+  - mattermost.{{ DOMAIN_PRIMARY }}

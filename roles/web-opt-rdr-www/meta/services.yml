@@ -2,6 +2,9 @@
 rdr-www:
   prefered_flavor: origin
   lifecycle: beta
+  skip:
+    - compose
+    - swarm
   min_storage: "50MB"
   cpus: "0.1"
   mem_reservation: "32m"

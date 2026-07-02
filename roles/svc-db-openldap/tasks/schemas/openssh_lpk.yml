@@ -1,5 +1,5 @@
 ---
-- name: Ensure OpenSSH-LPK schema via ldapsm
+- name: ✅ Ensure OpenSSH-LPK schema via ldapsm
   vars:
     schema_name: "openssh-lpk"
     attribute_defs:
@@ -15,7 +15,7 @@
           AUXILIARY
           MAY ( {{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }} $ sshFingerprint ) )
   command: >
-    {{ lookup('command_path', 'ldapsm') }}
+    ldapsm
       -s {{ OPENLDAP_SERVER_URI }}
       -D '{{ OPENLDAP_BIND_DN }}'
       -W '{{ OPENLDAP_BIND_PW }}'
@@ -30,6 +30,6 @@
   changed_when: "'Created schema entry' in opensshlpk_ldapsm.stdout"
   check_mode: false
 
-- name: Show ldapsm output for openssh-lpk
+- name: 👁️ Show ldapsm output for openssh-lpk
   debug:
     var: opensshlpk_ldapsm.stdout_lines

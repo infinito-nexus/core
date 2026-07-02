@@ -43,7 +43,6 @@ class TestSplitRunnerApps(unittest.TestCase):
         self.assertEqual(out["apps_self_hosted"], [])
 
     def test_split_proportionally(self):
-        # 20 github quota + 20 self-hosted → 50/50 split
         apps = list(range(40))
         out = _run(apps, 20)
         self.assertEqual(len(out["apps_github"]) + len(out["apps_self_hosted"]), 40)

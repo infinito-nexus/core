@@ -1,17 +1,13 @@
 ---
-# General
 application_id: "web-app-gitlab"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# GitLab
 GITLAB_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 GITLAB_HOSTNAME: "{{ lookup('domain',application_id) }}"
 
-## Email
 GITLAB_EMAIL: "{{ lookup('email', application_id) }}"
 GITLAB_EMAIL_ENABLED: "{{ GITLAB_EMAIL.enabled | bool }}"
 
-## OIDC
 GITLAB_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 GITLAB_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
 GITLAB_OIDC_UID_FIELD: "{{ OIDC.ATTRIBUTES.USERNAME }}"
@@ -20,17 +16,11 @@ GITLAB_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 GITLAB_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
 GITLAB_OIDC_REDIRECT_URI: "{{ GITLAB_URL }}/users/auth/openid_connect/callback"
 
-## Docker
 GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 GITLAB_VERSION: "{{ lookup('config', application_id, 'services.gitlab.version') }}"
 GITLAB_IMAGE: "{{ lookup('config', application_id, 'services.gitlab.image') }}"
-GITLAB_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ GITLAB_VERSION }}"
 GITLAB_CONTAINER: "{{ lookup('config', application_id, 'services.gitlab.name') }}"
-GITLAB_CONF_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
-GITLAB_LOGS_VOLUME: "{{ lookup('config', application_id, 'volumes.logs') }}"
-GITLAB_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 
-## Configuration
 GITLAB_OMNIBUS_BASE:
   - "external_url '{{ GITLAB_URL }}'"
   - "postgresql['enable']=false"
@@ -49,8 +39,9 @@ GITLAB_OMNIBUS_BASE:
   - "gitlab_rails['initial_root_password']={{ GITLAB_INIT_ROOT_PASSWORD | ruby_dq }}"
   - ""
   - "redis['enable']=false"
-  - "gitlab_rails['redis_host']='redis'"
-  - "gitlab_rails['redis_port']='6379'"
+  - "gitlab_rails['redis_host']='{{ lookup('engine', 'redis', application_id, 'host') }}'"
+  - "gitlab_rails['redis_port']='{{ lookup('engine', 'redis', application_id, 'port') }}'"
+  - "gitlab_rails['redis_password']={{ lookup('engine', 'redis', application_id, 'password') | ruby_dq }}"
 
 GITLAB_OMNIBUS_OIDC:
   - ""

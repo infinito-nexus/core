@@ -6,9 +6,11 @@ matomo:
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -18,6 +20,8 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 onlyoffice:
+  # nocheck: default-placement-manager  embedded postgres/redis/rabbitmq engine state; node-local in swarm
+  default_placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -34,6 +38,10 @@ onlyoffice:
   ports:
     local:
       http: 8061
+    internal:
+      http: 80
+  proxy:
+    service_key: onlyoffice
   lifecycle: beta
 css:
   bond: 1

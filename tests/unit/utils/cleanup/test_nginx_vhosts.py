@@ -18,7 +18,7 @@ from utils.cleanup.nginx_vhosts import (
     main,
     purge_vhost_files_for_entities,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
 
 
 class NginxVhostsTestBase(unittest.TestCase):
@@ -69,8 +69,8 @@ class NginxVhostsTestBase(unittest.TestCase):
         if aliases is not None:
             domains_block["aliases"] = aliases
         dump_yaml(
-            rd / ROLE_FILE_META_SERVER,
-            {"domains": domains_block},
+            rd / ROLE_FILE_META_DOMAINS,
+            domains_block,
         )
 
     def _touch_vhost(self, domain: str, protocol: str = "https") -> Path:

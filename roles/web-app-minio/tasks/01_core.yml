@@ -1,14 +1,22 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker and db for {{ application_id }}"
+- name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
     compose_repository_pull: false
 
-- name: "Include role sys-stk-front-proxy for '{{ application_id }}'"
+- name: "📁 Create shared object-store network for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: "{{ application_id }}"
+
+- name: "▶️ Start the MinIO stack"
+  ansible.builtin.meta: flush_handlers
+
+- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-front-proxy
   vars:
@@ -19,10 +27,16 @@
     loop_var: minio_proxy
     label: "{{ minio_proxy.domain }} -> {{ minio_proxy.http_port }}"
 
-- name: "Configure MinIO OIDC (Keycloak as named IdP + policy)"
-  include_tasks: 02_oidc.yml
+- name: "🔧 Configure MinIO OIDC (Keycloak as named IdP + policy)"
+  ansible.builtin.include_tasks:
+    file: 02_oidc.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: MINIO_OIDC_ENABLED | bool
 
-- name: "Bind the MinIO administrator policy to the LDAP group (LDAP variant)"
-  include_tasks: 03_ldap.yml
+- name: "🔗 Bind the MinIO administrator policy to the LDAP group (LDAP variant)"
+  ansible.builtin.include_tasks:
+    file: 03_ldap.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: MINIO_LDAP_ENABLED | bool

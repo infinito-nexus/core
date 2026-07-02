@@ -1,0 +1,4 @@
+---
+canonical:
+  - phpldapadmin.{{ DOMAIN_PRIMARY }}
+aliases: []

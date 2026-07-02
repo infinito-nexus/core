@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import os
 import re
+import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -168,6 +169,23 @@ def _build_cmd(
         cmd.extend(list(engine["rows_flags"]))  # type: ignore[arg-type]
     env_passthrough = {str(engine["password_env"]): str(config["password"])}
     return cmd, env_passthrough
+
+
+def _resolve_exec_target(config: dict) -> str:
+    address = str(config.get("address") or "").strip()
+    container = str(config["container"])
+    if not address or address == container or not address.startswith('"$('):
+        return container
+    inner = (
+        address[1:-1] if address.startswith('"') and address.endswith('"') else address
+    )
+    if inner.startswith("$(") and inner.endswith(")"):
+        inner = inner[2:-1]
+    argv = shlex.split(inner)
+    if not argv:
+        return container
+    proc = subprocess.run(argv, text=True, capture_output=True, check=False)
+    return (proc.stdout or "").strip() or container
 
 
 def _binary_missing(proc: subprocess.CompletedProcess[str], binary: str) -> bool:
@@ -326,11 +344,14 @@ def main() -> None:
     expect_rows = bool(module.params["expect_rows"])
     binaries = list(_ENGINES[db_type]["binaries"])  # type: ignore[index]
 
+    exec_config = dict(config)
+    exec_config["container"] = _resolve_exec_target(config)
+
     proc = None
     cmd: list[str] = []
     for index, binary in enumerate(binaries):
         cmd, env_passthrough = _build_cmd(
-            config, expect_rows=expect_rows, binary=binary
+            exec_config, expect_rows=expect_rows, binary=binary
         )
         env = dict(os.environ)
         env.update(env_passthrough)

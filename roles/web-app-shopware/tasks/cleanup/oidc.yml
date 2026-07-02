@@ -1,11 +1,9 @@
 ---
-- name: "Deactivate/uninstall OIDC plugin if present"
+- name: "🔴 Deactivate/uninstall OIDC plugin if present"
   shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
+    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
       cd {{ SHOPWARE_ROOT }}
       php bin/console plugin:deactivate INFX_OIDC_PLUGIN || true
       php bin/console plugin:uninstall INFX_OIDC_PLUGIN --keep-user-data || true
       php bin/console cache:clear
     '
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"

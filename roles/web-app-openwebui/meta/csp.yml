@@ -1,0 +1,7 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+whitelist:
+  font-src: []
+  connect-src: []

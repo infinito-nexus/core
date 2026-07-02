@@ -1,11 +1,11 @@
 ---
 - block:
-    - name: Include dependency 'sys-svc-webserver-https'
+    - name: 📂 Include dependency 'sys-svc-webserver-https'
       include_role:
         name: sys-svc-webserver-https
       when: run_once_sys_svc_webserver_https is not defined
 
-    - name: "Load Alias integration"
+    - name: "📥 Load Alias integration"
       include_tasks: "utils/load_app.yml"
       vars:
         load_app_id: web-opt-rdr-domains
@@ -17,7 +17,7 @@
 - include_tasks: "01_cloudflare.yml"
   when: DNS_PROVIDER == "cloudflare"
 
-- name: "Reinitialize OpenResty Handler"
+- name: "🎛️ Reinitialize OpenResty Handler"
   include_tasks: utils/load_handlers.yml
   vars:
     handler_role_name: "svc-prx-openresty"

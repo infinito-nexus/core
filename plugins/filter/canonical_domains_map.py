@@ -91,9 +91,8 @@ class FilterModule:
             is_auto_default = str(app_id).startswith(auto_default_prefixes)
             has_canonical = (
                 isinstance(cfg, dict)
-                and isinstance(cfg.get("server"), dict)
-                and isinstance(cfg["server"].get("domains"), dict)
-                and "canonical" in cfg["server"]["domains"]
+                and isinstance(cfg.get("domains"), dict)
+                and "canonical" in cfg["domains"]
             )
 
             # Roles outside the web-*/svc-db-* families only register when they
@@ -111,12 +110,12 @@ class FilterModule:
                 self._add_default_domain(app_id, domain_primary, seen_domains, result)
                 continue
 
-            domains_cfg = cfg["server"]["domains"]
+            domains_cfg = cfg["domains"]
 
             canonical_domains = render_domain_value(
                 domains_cfg["canonical"],
                 {"DOMAIN_PRIMARY": domain_primary},
-                f"{app_id}.server.domains.canonical",
+                f"{app_id}.domains.canonical",
             )
             self._process_canonical_domains(
                 app_id, canonical_domains, seen_domains, result
@@ -154,7 +153,7 @@ class FilterModule:
             result[app_id] = list(canonical_domains)
         else:
             raise AnsibleFilterError(
-                f"Unexpected type for 'server.domains.canonical' in application '{app_id}': "
+                f"Unexpected type for 'domains.canonical' in application '{app_id}': "
                 f"{type(canonical_domains).__name__}"
             )
 

@@ -1,0 +1,13 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  frame-src:
+    - "*"
+  frame-ancestors:
+    - "{{ lookup('tls', 'web-app-keycloak', 'protocols.web') }}://*.{{ DOMAIN_PRIMARY }}"

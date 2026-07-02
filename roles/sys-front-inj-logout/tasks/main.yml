@@ -1,19 +1,19 @@
 ---
-- name: "Load base for '{{ application_id }}'"
+- name: "🧩 Load base for '{{ application_id }}'"
   include_tasks: 01_core.yml
   when: run_once_sys_front_inj_logout is not defined
 
-- name: "Load logout code for '{{ application_id }}'"
+- name: "📄 Load logout code for '{{ application_id }}'"
   set_fact:
     logout_code: "{{ lookup('template', 'logout_one_liner.js.j2') }}"
   changed_when: false
 
-- name: "Collapse logout code into one-liner for '{{ application_id }}'"
+- name: "🗜️ Collapse logout code into one-liner for '{{ application_id }}'"
   set_fact:
     logout_code_one_liner: "{{ logout_code | to_one_liner }}"
   changed_when: false
 
-- name: "Append logout CSP hash for '{{ application_id }}'"
+- name: "➕ Append logout CSP hash for '{{ application_id }}'"
   set_fact:
     webserver_csp_hashes_extra_by_app: >-
       {{ webserver_csp_hashes_extra_by_app | default({})

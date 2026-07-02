@@ -2,7 +2,7 @@
 # Initialize Odoo database and install core modules
 # Note: The PostgreSQL database is created by sys-svc-rdbms before this role runs
 
-- name: Check if Odoo schema is initialized (ir_module_module table exists)
+- name: 🔎 Check if Odoo schema is initialized (ir_module_module table exists)
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -11,17 +11,17 @@
   register: odoo_schema_exists
   ignore_errors: true
 
-- name: Debug schema check result
+- name: 🐛 Debug schema check result
   debug:
     msg: "Schema exists check: rows={{ odoo_schema_exists.rows | default('NOT DEFINED') }}, failed={{ odoo_schema_exists.failed | default(false) }}"
   when: MODE_DEBUG | bool
 
-- name: Initialize Odoo database with core modules
+- name: 🎬 Initialize Odoo database with core modules
   block:
     # Use container exec - the running container already has network access to postgres
-    - name: Run Odoo database initialization
-      ansible.builtin.command: >
-        container exec {{ ODOO_CONTAINER }}
+    - name: ▶️ Run Odoo database initialization
+      ansible.builtin.shell: >
+        container exec {{ ODOO_CONTAINER_ADDRESS }}
         odoo --no-http
         --database={{ ODOO_DB_NAME }}
         --init={{ ODOO_MODULES_CORE | join(',') }}
@@ -31,10 +31,10 @@
       delay: 10
       until: odoo_init.rc == 0
 
-    - name: Restart Odoo container after initialization
+    - name: 🔄 Restart Odoo container after initialization
       ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
 
-    - name: Wait for Odoo container to be healthy after init
+    - name: ⏳ Wait for Odoo container to be healthy after init
       ansible.builtin.command: container inspect --format {% raw %}'{{.State.Health.Status}}'{% endraw %} {{ ODOO_CONTAINER }}
       register: container_health
       until: container_health.stdout | trim == 'healthy'
@@ -43,9 +43,9 @@
       changed_when: false
   when: odoo_schema_exists.rows is not defined or odoo_schema_exists.rows | length == 0
 
-- name: Update existing Odoo modules (if schema exists)
-  ansible.builtin.command: >
-    container exec {{ ODOO_CONTAINER }}
+- name: 🔄 Update existing Odoo modules (if schema exists)
+  ansible.builtin.shell: >
+    container exec {{ ODOO_CONTAINER_ADDRESS }}
     odoo --no-http
     --database={{ ODOO_DB_NAME }}
     --update={{ ODOO_MODULES_CORE | join(',') }}

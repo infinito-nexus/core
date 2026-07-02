@@ -42,6 +42,10 @@ fusiondirectory:
     local:
       sso: 16487
       http: 8038
+    internal:
+      http: 80
+  proxy:
+    service_key: fusiondirectory
   run_after:
     - web-app-matomo
     - web-app-keycloak

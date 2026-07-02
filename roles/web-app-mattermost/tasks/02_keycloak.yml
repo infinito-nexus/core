@@ -1,9 +1,9 @@
 ---
 # @see https://docs.mattermost.com/deployment/sso-gitlab.html
 
-- name: "Mattermost | Keycloak — authenticate kcadm.sh"
+- name: "🔑 Mattermost | Keycloak — authenticate kcadm.sh"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh config credentials
     --server "http://localhost:8080"
     --realm master
@@ -13,9 +13,9 @@
     chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
   changed_when: false
 
-- name: "Mattermost | Keycloak — resolve Mattermost client UUID"
+- name: "🔍 Mattermost | Keycloak — resolve Mattermost client UUID"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get clients
     -r {{ OIDC.CLIENT.REALM | quote }}
     -q clientId={{ OIDC.CLIENT.ID | quote }}
@@ -26,9 +26,9 @@
   changed_when: false
   failed_when: mm_kc_client_uuid.stdout_lines | last | trim == ''
 
-- name: "Mattermost | Keycloak — list existing protocol mappers"
+- name: "📋 Mattermost | Keycloak — list existing protocol mappers"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -38,9 +38,9 @@
   register: mm_kc_existing_mappers
   changed_when: false
 
-- name: "Mattermost | Keycloak — list all client scopes"
+- name: "📋 Mattermost | Keycloak — list all client scopes"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
@@ -49,9 +49,9 @@
   register: mm_kc_all_scopes
   changed_when: false
 
-- name: "Mattermost | Keycloak — create 'openid' client scope if missing"
+- name: "📁 Mattermost | Keycloak — create 'openid' client scope if missing"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh create client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     -s name=openid
@@ -61,9 +61,9 @@
   when: "mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | list | length == 0"
   register: mm_kc_create_openid_scope
 
-- name: "Mattermost | Keycloak — re-read client scopes after possible creation"
+- name: "📖 Mattermost | Keycloak — re-read client scopes after possible creation"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
@@ -73,9 +73,9 @@
   changed_when: false
   when: mm_kc_create_openid_scope is changed
 
-- name: "Mattermost | Keycloak — list existing default client scopes"
+- name: "📋 Mattermost | Keycloak — list existing default client scopes"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh get
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -85,9 +85,9 @@
   register: mm_kc_default_scopes
   changed_when: false
 
-- name: "Mattermost | Keycloak — add 'openid' to client default scopes"
+- name: "➕ Mattermost | Keycloak — add 'openid' to client default scopes"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh update
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes/{{ mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | first | split(',')
     | first | trim }}
@@ -96,9 +96,9 @@
     chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
   when: "'openid' not in mm_kc_default_scopes.stdout"
 
-- name: "Mattermost | Keycloak — add 'id' mapper (integer from LDAP uidNumber)"
+- name: "➕ Mattermost | Keycloak — add 'id' mapper (integer from LDAP uidNumber)"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh create
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -115,9 +115,9 @@
     chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
   when: "'mattermost-id' not in mm_kc_existing_mappers.stdout"
 
-- name: "Mattermost | Keycloak — add 'username' mapper (from Keycloak username)"
+- name: "➕ Mattermost | Keycloak — add 'username' mapper (from Keycloak username)"
   shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}
     /opt/keycloak/bin/kcadm.sh create
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}

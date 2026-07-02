@@ -51,10 +51,10 @@ jobs:
           docker-images: true
           swap-storage: false
 
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
 
-      - name: Run dev environment routine
+      - name: ▶️ Run dev environment routine
         shell: bash
         run: |
           set -euo pipefail

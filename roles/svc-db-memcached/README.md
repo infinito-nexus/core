@@ -2,20 +2,30 @@
 
 ## Description
 
-This Ansible role provides a Jinja2 snippet to inject a Memcached service definition into your Docker Compose setup.
+This Ansible role runs Memcached as a central engine dependency, mirroring the central-database pattern (`svc-db-postgres`). A consumer reaches it either embedded (a sidecar inside its own stack, `shared: false`) or from this central pinned stack (`shared: true`).
 
 ## Overview
 
-This role provides a Docker Compose snippet for a Memcached service (`memcached`) with optional volume, healthcheck, and logging.
+Built as one of the central engine roles described in `docs/architecture/central-engines.md`, this role:
+
+- Deploys a standalone Memcached stack pinned to the swarm manager (`default_placement: manager`).
+- Waits until the container is running and the engine answers the `version` handshake.
+- Ships an embedded sidecar snippet (`templates/service.yml.j2`) for the `shared: false` opt-out path.
+
+## Per-consumer isolation
+
+Memcached has no native auth or namespace. Consumer isolation is key-prefix only and is resolved by `lookup('engine', 'memcached', consumer_id)` at consume time, so `tasks/02_init.yml` is a no-op.
 
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
+- **Central or embedded:** Same `shared` toggle as the central databases.
+- **Readiness gating:** Bootstrap blocks until the engine accepts connections.
 
 ## Further Resources
 
-- [Official Memcached Docker image on Docker Hub](https://hub.docker.com/_/memcached)  
-- [Memcached official documentation](https://memcached.org/)  
+- [Official Memcached Docker image on Docker Hub](https://hub.docker.com/_/memcached)
+- [Memcached official documentation](https://memcached.org/)
 - [Docker Compose reference](https://docs.docker.com/compose/compose-file/)
 
 ## Credits

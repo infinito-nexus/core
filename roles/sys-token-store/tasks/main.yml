@@ -1,4 +1,4 @@
 ---
-- name: "Execute Role (once)"
+- name: "▶️ Execute Role (once)"
   ansible.builtin.import_tasks: 01_core.yml
   when: run_once_sys_token_store is not defined

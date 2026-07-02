@@ -1,5 +1,5 @@
 ---
-- name: "Read token store from host"
+- name: "📖 Read token store from host"
   ansible.builtin.slurp:
     src: "{{ FILE_TOKENS }}"
   register: sys_token_store_raw
@@ -7,7 +7,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   become: true
 
-- name: "Parse store YAML"
+- name: "🔎 Parse store YAML"
   ansible.builtin.set_fact:
     sys_token_store_data: >-
       {{
@@ -21,7 +21,7 @@
       }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Normalize users dict"
+- name: "📐 Normalize users dict"
   ansible.builtin.set_fact:
     sys_token_store_users: "{{ sys_token_store_data.users | default({}, true) }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

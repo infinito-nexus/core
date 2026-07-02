@@ -24,9 +24,11 @@ email:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 0.1g
   mem_limit: 0.2g
@@ -54,6 +56,8 @@ pixelfed:
   ports:
     local:
       http: 8010
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
   lifecycle: beta

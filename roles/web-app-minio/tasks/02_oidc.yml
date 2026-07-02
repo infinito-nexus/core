@@ -14,7 +14,7 @@
 # `mc admin info` returns rc=0 in a window where the very next
 # `mc admin policy info` still fails with `Server not initialized
 # yet, please try again.`.
-- name: "Wait for MinIO IAM subsystem to finish initializing"
+- name: "⏳ Wait for MinIO IAM subsystem to finish initializing"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -33,7 +33,6 @@
   delay: 5
   until: mc_admin_policy_ls.rc == 0
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 # Register the OIDC provider under the explicit name `keycloak`
 # via `mc idp openid add`. The Console's login page only renders
@@ -42,8 +41,7 @@
 # legacy `MINIO_IDENTITY_OPENID_*` env-var form registers the
 # provider as nameless `(default)` and the SSO button never
 # appears, even when the server-side IdP is fully functional.
-- name: "Register Keycloak as named OIDC IdP on MinIO"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "📝 Register Keycloak as named OIDC IdP on MinIO"
   # All `mc idp openid add` parameters are passed to the inner sh
   # via env vars rather than inline-quoted args. The display name
   # contains parentheses (e.g. `SSO Login (INFINITO.EXAMPLE)`) and
@@ -87,7 +85,7 @@
     - mc_idp_add.rc != 0
     - '"already exists" not in (mc_idp_add.stderr | default(""))'
 
-- name: "Restart MinIO so the named OIDC IdP is picked up by the Console"
+- name: "🔄 Restart MinIO so the named OIDC IdP is picked up by the Console"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -103,10 +101,9 @@
   args: { executable: /bin/bash }
   register: mc_admin_service_restart
   changed_when: mc_admin_service_restart.rc == 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: mc_idp_add.changed | bool
 
-- name: "Wait for MinIO IAM subsystem to come back after restart"
+- name: "⏳ Wait for MinIO IAM subsystem to come back after restart"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -125,11 +122,9 @@
   delay: 5
   until: mc_admin_policy_ls_after_restart.rc == 0
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: mc_idp_add.changed | bool
 
-- name: "Check policy (RAW with slash) exists"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔎 Check policy (RAW with slash) exists"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -147,7 +142,7 @@
   failed_when: false
   changed_when: false
 
-- name: "Create policy (RAW with slash) if missing"
+- name: "📁 Create policy (RAW with slash) if missing"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -163,7 +158,6 @@
           -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
               && mc admin policy create minio {{ MINIO_OIDC_POLICY_NAME | quote }} /dev/stdin'
   args: { executable: /bin/bash }
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   when:

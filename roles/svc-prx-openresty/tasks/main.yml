@@ -2,7 +2,7 @@
 - include_tasks: 01_core.yml
   when: run_once_svc_prx_openresty is not defined
 
-- name: "Reinitialize OpenResty Handler"
+- name: "🎛️ Reinitialize OpenResty Handler"
   # The 'when: run_once_svc_prx_openresty is not defined' prevents otherwise 
   # the handler execution 
   include_tasks: utils/load_handlers.yml

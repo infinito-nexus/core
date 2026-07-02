@@ -8,7 +8,10 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 collabora:
+  # nocheck: default-placement-manager  single-instance office server; deploy-time coolconfig runs `container exec` on STACK_HOST, which reaches the task only when it is placed on the manager
+  default_placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -23,8 +26,14 @@ collabora:
   ports:
     local:
       http: 8042
+    internal:
+      http: 9980
+  proxy:
+    service_key: collabora
   lifecycle: beta
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  # nocheck: prometheus-scrape
+  scrape: false

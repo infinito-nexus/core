@@ -1,5 +1,5 @@
 ---
-- name: "Disconnect DB container from Discourse networks"
+- name: "🗄️ Disconnect DB container from Discourse networks"
   ansible.builtin.command:
     cmd: "container network disconnect {{ discourse_network_item }} {{ lookup('database', application_id, 'container') }}"
   loop:
@@ -17,7 +17,7 @@
     ('no such container' not in (disc_net_disconnect.stderr | default('') | lower)) and
     ('not found' not in (disc_net_disconnect.stderr | default('') | lower))
 
-- name: "destroy container '{{ DISCOURSE_CONTAINER }}'"
+- name: "📦 destroy container '{{ DISCOURSE_CONTAINER }}'"
   ansible.builtin.command:
     cmd: "./launcher destroy {{ DISCOURSE_CONTAINER }}"
     chdir: "{{ DISCOURSE_REPOSITORY_DIR }}"

@@ -1,14 +1,14 @@
 ---
-- name: "Normalize final run list"
+- name: "📐 Normalize final run list"
   ansible.builtin.set_fact:
     system_service_run_list: "{{ (system_service_run_list | default([])) | unique }}"
 
-- name: "Show final run list (debug)"
+- name: "👁️ Show final run list (debug)"
   ansible.builtin.debug:
     var: system_service_run_list
   when: MODE_DEBUG | bool
 
-- name: "Run collected services"
+- name: "▶️ Run collected services"
   ansible.builtin.include_tasks: 01_run_one.yml
   loop: "{{ system_service_run_list }}"
   loop_control:
@@ -16,5 +16,5 @@
     label: "{{ system_service_run_unit }}"
   when: (system_service_run_list | length) > 0
 
-- name: "Unlock all timers"
+- name: "🔓 Unlock all timers"
   ansible.builtin.include_tasks: 02_unlock.yml

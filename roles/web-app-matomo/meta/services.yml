@@ -30,12 +30,18 @@ matomo:
   mem_limit: 1g
   pids_limit: 512
   site_name: Matomo on {{ DOMAIN_PRIMARY }}
+  tracking:
+    scope: sub
   token:
     description: Created by {{ SOFTWARE_NAME }}
   excluded_ips: "{{ networks.internet.values() | list }}"
   ports:
     local:
       http: 8018
+    internal:
+      http: 80
+  proxy:
+    service_key: matomo
   lifecycle: beta
 bootstrap:
   image: ghcr.io/kevinveenbirkenbach/matomo-bootstrap
@@ -60,6 +66,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   bond: 1

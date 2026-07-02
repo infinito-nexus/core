@@ -10,7 +10,6 @@ set -euo pipefail
 #
 # Required env:
 #   apps="web-app-keycloak"
-#   INFINITO_DEPLOY_TYPE="server|workstation|universal"
 #   INFINITO_DISTROS="arch debian ubuntu fedora centos"
 #   INFINITO_INVENTORY_DIR="/path/to/inventory"
 #
@@ -35,17 +34,8 @@ else
 fi
 
 : "${apps:?apps is required (e.g. apps=web-app-keycloak)}"
-: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE is required (server|workstation|universal)}"
 : "${INFINITO_DISTROS:?INFINITO_DISTROS is required (e.g. 'arch debian ubuntu fedora centos')}"
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR is required}"
-
-case "${INFINITO_DEPLOY_TYPE}" in
-server | workstation | universal) ;;
-*)
-	echo "[ERROR] Invalid INFINITO_DEPLOY_TYPE: ${INFINITO_DEPLOY_TYPE}" >&2
-	exit 2
-	;;
-esac
 
 : "${PYTHON:=python3}"
 : "${MISSING_ONLY:=true}"
@@ -79,7 +69,7 @@ max_seen=0
 skipped=0
 ran=0
 failed=0
-durations=() # store "distro=seconds" lines
+durations=()
 
 sync_ci_image_for_run() {
 	local owner tag repo_name
@@ -92,7 +82,6 @@ sync_ci_image_for_run() {
 	tag="${INFINITO_IMAGE_TAG}"
 	repo_name="${INFINITO_IMAGE_REPOSITORY:-}"
 
-	# Keep local/dev workflows untouched; only adjust image when CI owner context exists.
 	if [[ -z "${owner}" ]]; then
 		return 0
 	fi
@@ -120,7 +109,6 @@ for distro in "${distro_arr[@]}"; do
 			break
 		fi
 
-		# Skip logic: only if we already have a max_seen from a prior run
 		if ((max_seen > 0 && remaining < max_seen)); then
 			echo "[WARN] Skipping distro=${distro}: remaining=${remaining}s < max_seen=${max_seen}s (fast-fail heuristic)"
 			skipped=$((skipped + 1))
@@ -128,16 +116,12 @@ for distro in "${distro_arr[@]}"; do
 		fi
 	fi
 
-	echo "=== Running dedicated distro deploy: distro=${distro} app=${apps} type=${INFINITO_DEPLOY_TYPE} ==="
+	echo "=== Running dedicated distro deploy: distro=${distro} app=${apps} ==="
 	if [[ -n "${remaining}" ]]; then
 		echo ">>> Time budget: remaining=${remaining}s max_seen=${max_seen}s"
 	fi
 
 	export INFINITO_DISTRO="${distro}"
-	# Re-source defaults.sh so its always-derived INFINITO_CONTAINER block
-	# (outside the load-once guard) refreshes from the current INFINITO_DISTRO.
-	# This is the single spot that owns the derivation; consumers below
-	# (dedicated.sh, python deploy → entity.sh) just inherit the env.
 	source "scripts/meta/env/load.sh"
 	sync_ci_image_for_run
 
@@ -176,7 +160,7 @@ total="$((global_end - global_start))"
 
 echo
 echo "=== Summary ==="
-echo "app=${apps} type=${INFINITO_DEPLOY_TYPE}"
+echo "app=${apps}"
 echo "ran=${ran} skipped=${skipped} failed=${failed}"
 echo "total_runtime=${total}s max_seen_duration=${max_seen}s"
 if [[ -n "${deadline}" ]]; then

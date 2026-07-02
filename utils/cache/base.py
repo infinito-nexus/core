@@ -21,6 +21,11 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from plugins.filter.merge_with_defaults import (
+    merge_with_defaults,  # noqa: F401  re-exported
+)
+from utils.paths import FILE_TOKENS
+
 from . import PROJECT_ROOT, ROLES_DIR  # noqa: F401
 
 if TYPE_CHECKING:
@@ -54,7 +59,7 @@ def _decrypt_ansible_encrypted_strings(value: Any) -> Any:
     return value
 
 
-DEFAULT_TOKENS_FILE = Path("/var/lib/infinito/secrets/tokens.yml")
+DEFAULT_TOKENS_FILE = FILE_TOKENS
 
 
 # Re-entry guard. Cross-lookups ({{ lookup('users', ...) }} inside applications

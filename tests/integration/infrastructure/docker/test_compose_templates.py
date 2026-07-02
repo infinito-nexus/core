@@ -3,13 +3,14 @@ import unittest
 from typing import ClassVar
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
 
 class TestDockerComposeTemplates(unittest.TestCase):
     # Search for all roles/*/templates/compose.yml.j2
-    TEMPLATE_PATTERN = "roles/*/templates/compose.yml.j2"
+    TEMPLATE_PATTERN = f"roles/*/{ROLE_FILE_TEMPL_COMPOSE}"
 
     # Allowed lines before BASE_INCLUDE
     ALLOWED_BEFORE_BASE: ClassVar[list[re.Pattern]] = [
@@ -20,7 +21,7 @@ class TestDockerComposeTemplates(unittest.TestCase):
     ]
 
     BASE_INCLUDE = "{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}"
-    NET_INCLUDE = "{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}"
+    NET_INCLUDE = "{{ lookup('compose_networks') }}"
     HOST_MODE = 'network_mode: "host"'
 
     def test_docker_compose_includes(self):
@@ -55,11 +56,11 @@ class TestDockerComposeTemplates(unittest.TestCase):
                 # If not host‑mode, NET_INCLUDE must occur exactly once
                 count_net = lines.count(self.NET_INCLUDE)
                 if host_mode:
-                    # No network include needed for host mode
-                    self.assertEqual(
+                    # mode-conditional templates keep the swarm-branch include
+                    self.assertLessEqual(
                         count_net,
-                        0,
-                        f"{template_path}: '{self.NET_INCLUDE}' should be omitted when using host networking",
+                        1,
+                        f"{template_path}: '{self.NET_INCLUDE}' occurs {count_net} times with host networking, expected 0 or 1",
                     )
                 else:
                     # Must include networks.yml exactly once

@@ -1,11 +1,11 @@
 ---
-- name: install git
+- name: 📦 install git
   package:
     name: git
     state: present
   become: true
 
-- name: Install gitcon CLI system-wide via pip
+- name: 📦 Install gitcon CLI system-wide via pip
   include_role:
     name: sys-pip-install
   vars:
@@ -14,7 +14,7 @@
 
 - when: run_once_desk_git is not defined
   block:
-    - name: setup git (as workstation user)
+    - name: 🔧 setup git (as workstation user)
       ansible.builtin.command:
         argv:
           - "{{ lookup('command_path', 'gitcon') }}"

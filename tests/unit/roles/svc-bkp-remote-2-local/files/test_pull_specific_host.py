@@ -37,8 +37,8 @@ class PullSpecificHostTests(unittest.TestCase):
         self.host = "1.2.3.4"
         self.remote = f"backup@{self.host}"
 
-        # Script default is /var/lib/infinito/backup now (via --folder / function argument)
-        self.backups_dir = "/var/lib/infinito/backup"
+        # --folder is required (no default); pass the backup root explicitly via the SPOT
+        self.backups_dir = f"{os.environ['INFINITO_DIR_VAR_LIB']}/backup"
         self.base = f"{self.backups_dir}/{self.hash64}/"
 
         self.backup_type = "backup-docker-to-local"

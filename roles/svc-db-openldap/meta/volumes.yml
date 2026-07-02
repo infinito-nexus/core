@@ -1,2 +1,22 @@
 ---
-data: openldap_data
+data:
+  type: volume
+  name: openldap_data
+  mounts:
+    - service: openldap
+      target: /var/lib/ldap
+
+config:
+  type: volume
+  name: openldap_config
+  mounts:
+    - service: openldap
+      target: /etc/ldap/slapd.d
+
+ldif:
+  type: bind
+  source: "{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'ldif'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: openldap
+      target: /tmp/ldif

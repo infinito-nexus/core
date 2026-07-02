@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
-#
-# MediaWiki database bootstrap: probe whether tables already exist and,
-# if not, run `maintenance/run.php install` once via a throwaway image
-# container. Always run `maintenance/run.php update --quick` against
-# the real container so managed `LocalSettings.php` stays in sync.
-#
-# Usage:
-#   install_or_update.sh \
-#       NETWORK MARIADB_VERSION DB_HOST DB_PORT DB_USER DB_PASSWORD DB_NAME \
-#       MEDIAWIKI_USER MEDIAWIKI_IMAGE MEDIAWIKI_VERSION MEDIAWIKI_HTML_DIR \
-#       MEDIAWIKI_URL MEDIAWIKI_SITENAME ADMIN_NAME ADMIN_PASSWORD \
-#       MEDIAWIKI_CONTAINER
+# Update runs as a one-shot throwaway container, not `container exec` against
+# the live task: under swarm a not-yet-installed task can be reaped by the
+# healthcheck mid-update otherwise.
 set -euo pipefail
 
 NETWORK="$1"; MARIADB_VERSION="$2"
 DB_HOST="$3"; DB_PORT="$4"; DB_USER="$5"; DB_PASSWORD="$6"; DB_NAME="$7"
 MW_USER="$8"; MW_IMAGE="$9"; MW_VERSION="${10}"; MW_HTML_DIR="${11}"
 MW_URL="${12}"; MW_SITENAME="${13}"; ADMIN_NAME="${14}"; ADMIN_PASSWORD="${15}"
-MW_CONTAINER="${16}"
+
+: "${MW_CUSTOM_IMAGE:?MW_CUSTOM_IMAGE env var required for update}"
+: "${MW_LOCALSETTINGS_HOST_PATH:?MW_LOCALSETTINGS_HOST_PATH env var required for update}"
+: "${MW_LOCALSETTINGS_CONTAINER_PATH:?MW_LOCALSETTINGS_CONTAINER_PATH env var required for update}"
+: "${MW_LOCAL_MOUNT_DIR:?MW_LOCAL_MOUNT_DIR env var required for update}"
+: "${MW_LOCAL_PATH:?MW_LOCAL_PATH env var required for update}"
+: "${MW_VOLUME_IMAGES:?MW_VOLUME_IMAGES env var required for update}"
+: "${MW_VOLUME_EXTENSIONS:?MW_VOLUME_EXTENSIONS env var required for update}"
 
 has_tables=0
 if container run --rm --network "$NETWORK" "mariadb:${MARIADB_VERSION:-latest}" \
@@ -49,6 +47,13 @@ else
     echo "[mw] DB already initialized -> skipping install"
 fi
 
-# Always run update in the real container (managed LocalSettings).
-container exec -u "$MW_USER" "$MW_CONTAINER" \
-    php "$MW_HTML_DIR/maintenance/run.php" update --quick
+echo "[mw] Running update --quick via one-shot custom-image container"
+container run --rm \
+    --network "$NETWORK" \
+    -u "$MW_USER" \
+    -v "${MW_VOLUME_IMAGES}:${MW_HTML_DIR}/images" \
+    -v "${MW_VOLUME_EXTENSIONS}:${MW_HTML_DIR}/extensions" \
+    -v "${MW_LOCALSETTINGS_HOST_PATH}:${MW_LOCALSETTINGS_CONTAINER_PATH}:ro" \
+    -v "${MW_LOCAL_MOUNT_DIR}:${MW_LOCAL_PATH}:ro" \
+    "${MW_CUSTOM_IMAGE}" \
+    php "${MW_HTML_DIR}/maintenance/run.php" update --quick

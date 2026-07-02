@@ -1,0 +1,47 @@
+---
+- name: "📌 Keycloak | Apply object updates, recovering from cross-node reschedules"
+  vars:
+    kc_update_max_attempts: 5
+  block:
+    - name: "🔍 Keycloak updates | Resolve live hosting node (swarm may reschedule)"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ entity_name }}"
+        resolve_output_prefix: KEYCLOAK
+        resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+        resolve_run_host: "{{ STACK_HOST if DEPLOYMENT_MODE == 'swarm' else inventory_hostname }}"
+      when: DEPLOYMENT_MODE == 'swarm'
+
+    - name: "📂 Run Keycloak object-update routines on the freshly resolved node"
+      ansible.builtin.include_tasks:
+        file: 02b_update_routines.yml
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  rescue:
+    - name: "🐳 Keycloak updates | Re-raise failure unchanged in compose (no swarm recovery)"
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg | default('Keycloak object update failed') }}"
+      when: DEPLOYMENT_MODE == 'compose'
+
+    - name: "🛑 Keycloak updates | Fail after exhausting cross-node recovery retries"
+      ansible.builtin.fail:
+        msg: >-
+          Keycloak object updates failed after {{ kc_update_max_attempts }}
+          cross-node recovery attempts: {{ ansible_failed_result.msg | default('see above') }}
+      when: (kc_update_attempt | default(0) | int) + 1 >= (kc_update_max_attempts | int)
+
+    - name: "🔍 Keycloak updates | Re-resolve hosting node + live container id (recovery)"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ entity_name }}"
+        resolve_output_prefix: KEYCLOAK
+        resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+        resolve_run_host: "{{ STACK_HOST if DEPLOYMENT_MODE == 'swarm' else inventory_hostname }}"
+
+    - name: "🔁 Keycloak updates | Retry object updates on the freshly resolved node"
+      ansible.builtin.include_tasks:
+        file: 02b_updates.yml
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+      vars:
+        kc_update_attempt: "{{ (kc_update_attempt | default(0) | int) + 1 }}"

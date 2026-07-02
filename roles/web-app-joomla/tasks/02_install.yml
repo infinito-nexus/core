@@ -1,71 +1,36 @@
 ---
-# Wait until the Joomla core is copied into the volume.
-# `index.php` alone is not enough — the upstream image (joomla:5.x-php8.3-apache)
-# copies plugin manifests after the front-controller, and the CLI install crashes
-# on `simplexml_load_file(): failed to load /var/www/html/plugins/actionlog/joomla/joomla.xml`
-# if it runs before the plugin tarball has finished extracting. Waiting for that
-# specific manifest is the cheapest end-of-extract marker.
-- name: "Wait for Joomla files to exist"
-  command:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, /var/www/html/plugins/actionlog/joomla/joomla.xml]
+- name: "⏳ Wait for Joomla files to exist"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f /var/www/html/plugins/actionlog/joomla/joomla.xml
   register: joomla_files
   changed_when: false
   retries: 60
   delay: 2
   until: joomla_files.rc == 0
 
-# (Optional) specifically wait for the CLI installer script
-- name: "Check for CLI installer"
-  command:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, "{{ JOOMLA_INSTALLER_CLI_FILE }}"]
+- name: "🔎 Check for CLI installer"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_INSTALLER_CLI_FILE }}
   register: has_installer
   changed_when: false
   failed_when: false
 
-# Only if not already installed (no configuration.php)
-- name: "Check if Joomla is already installed"
-  command:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", test, -f, "{{ JOOMLA_CONFIG_FILE }}"]
+- name: "🔎 Check if Joomla is already installed"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_CONFIG_FILE }}
   register: joomla_installed
   changed_when: false
   failed_when: false
 
-# The joomla docker image (5.4.5-php8.3-apache) populates /var/www/html
-# asynchronously on first container start: index.php appears early, but
-# a stub configuration.php can land a short time later. Between the check
-# above and the install below, the stub has been observed to appear in CI
-# (~0.7s gap), which then makes the CLI installer refuse with
-# "[ERROR] configuration.php already present! Nothing to install, exiting."
-#
-# An earlier fix added a single "rm -f configuration.php" task between the
-# check and the install, but CI still caught the stub re-appearing between
-# rm and install when image init was slow enough. The retry-safe fix below
-# bundles the stub removal and the CLI install into a single shell step so
-# every retry re-runs BOTH: the install can lose the race at most for its
-# own attempt; the retry window covers the image-init settling period.
-#
-# Scoped by the same `joomla_installed.rc != 0` guard as before so a
-# genuine existing install is never touched.
-- name: "Joomla CLI install (rm stub + install in one retry loop for image-init race)"
+- name: "📦 Joomla CLI install (rm stub + install in one retry loop for image-init race)"
   ansible.builtin.command:
-    # NOTE: argv[0] must be `bash`, not `sh`. On Debian/Ubuntu CI runners
-    # `/bin/sh` is dash, which does not support `set -o pipefail` and aborts
-    # with "sh: 1: set: Illegal option -o pipefail". See infinito-nexus/core#194.
-    #
-    # Secrets travel via `environment:` -> bash env vars rather than direct
-    # Jinja substitution into the script body. With direct substitution a
-    # password like `'$tr0ng€xampl3PW!` (admin default) lands inside `"…"`
-    # in the script and bash performs parameter expansion on `$tr0ng`,
-    # silently truncating the secret to `'€xampl3PW!`. Joomla then installs
-    # with the truncated password while Playwright (and the role's own
-    # password-reset task) try to use the full one — login fails.
     argv:
       - bash
       - -lc
       - |
         set -o pipefail
-        container exec "{{ JOOMLA_CONTAINER }}" rm -f "{{ JOOMLA_CONFIG_FILE }}"
-        exec container exec --user "{{ JOOMLA_WEB_USER }}" "{{ JOOMLA_CONTAINER }}" \
+        container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -f "{{ JOOMLA_CONFIG_FILE }}"
+        exec container exec --user "{{ JOOMLA_WEB_USER }}" {{ JOOMLA_CONTAINER_ADDRESS }} \
           php "{{ JOOMLA_INSTALLER_CLI_FILE }}" install \
           "--db-type={{ JOOMLA_DB_CONNECTOR }}" \
           "--db-host={{ lookup('database', application_id, 'host') }}" \
@@ -85,56 +50,32 @@
   retries: 5
   delay: 5
   vars:
-    # SPOT for the outcome classification of this install attempt. All
-    # three filters below (`until`, `changed_when`, `failed_when`) key
-    # off these two booleans so the soft-success / hard-failure rules
-    # live in one place.
-    #
-    # Joomla 5.x CLI installer has two known cleanup-phase edge cases
-    # where the core install writes configuration.php successfully but
-    # the subsequent cleanup step crashes with rc=1. Both are
-    # distro-sensitive Joomla upstream bugs, not issues in our role:
-    #   * `Unable to delete installation folder` (stdout, older symptom)
-    #   * `Call to a member function deleteInstallationFolder() on null`
-    #     (stderr, Joomla 5.4.5 null-ref in InstallCommand.php:177,
-    #     observed on Debian runners). Retrying would be destructive:
-    #     the retry loop `rm -f`s the freshly written configuration.php
-    #     and then fails because the installer self-deleted its own
-    #     entry file during the crashed cleanup. Treat both as success.
+    # Exception: retrying is destructive; the retry loop `rm -f`s the freshly written configuration.php then fails because the installer self-deleted its entry file.
     _joomla_install_soft_success: >-
       {{
         j_install.rc == 0
         or (j_install.stdout | default('') is search('Unable to delete installation folder'))
         or (j_install.stderr | default('') is search('deleteInstallationFolder'))
       }}
-    # The CLI installer exits rc=0 when refusing to run on a raw git
-    # source tree, which silently masks the failure and the next task
-    # then trips on a missing configuration.php. Treat that refusal as
-    # a hard failure so we surface the real cause (the image ships a
-    # raw git tree) instead of a misleading downstream symptom.
     _joomla_install_git_tree_refusal: >-
       {{ j_install.stdout | default('') is search('trying to run Joomla! from our git repository') }}
-  until: "{{ _joomla_install_soft_success | bool }}"
-  changed_when: "{{ _joomla_install_soft_success | bool }}"
+  until: _joomla_install_soft_success | bool
+  changed_when: _joomla_install_soft_success | bool
   failed_when: >-
-    {{
-      (
-        j_install.rc is defined
-        and j_install.rc != 0
-        and not (_joomla_install_soft_success | bool)
-      )
-      or (_joomla_install_git_tree_refusal | bool)
-    }}
+    (
+      j_install.rc is defined
+      and j_install.rc != 0
+      and not (_joomla_install_soft_success | bool)
+    )
+    or (_joomla_install_git_tree_refusal | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when:
     - joomla_installed.rc != 0
     - has_installer.rc == 0
 
-# Joomla 5.x CLI installer intermittently fails to remove the installation folder
-# (non-fatal — install itself completed). Force-remove as root to finish cleanup.
-- name: "Force-remove installation folder (root)"
-  command:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", rm, -rf, /var/www/html/installation]
+- name: "💪 Force-remove installation folder (root)"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -rf /var/www/html/installation
   changed_when: false
   when:
     - joomla_installed.rc != 0

@@ -1,5 +1,5 @@
 ---
-- name: "Remove databases CSV (reset)"
+- name: "🗑️ Remove databases CSV (reset)"
   ansible.builtin.file:
     path: "{{ FILE_DATABASE_SECRETS }}"
     state: absent

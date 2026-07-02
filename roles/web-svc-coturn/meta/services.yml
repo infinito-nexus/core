@@ -18,6 +18,8 @@ coturn:
   network_mode: host
   username: coturnconsumer
   ports:
+    internal:
+      http: 80
     local:
       http: 8064
     public:
@@ -39,6 +41,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"

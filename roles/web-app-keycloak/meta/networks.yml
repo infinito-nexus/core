@@ -1,0 +1,7 @@
+---
+local:
+  subnet: 192.168.24.0/24
+overlay:
+  modes: [swarm]
+  proxy_resolvable: true
+  aliases: ["{{ lookup('domain', 'web-app-keycloak') }}"]

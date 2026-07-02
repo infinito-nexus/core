@@ -40,17 +40,22 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   bond: 1
   enabled: true
-  shared: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
 kix:
+  # nocheck: default-placement-manager  embedded postgres engine state; node-local in swarm
+  default_placement: manager
   image: docker-registry.kixdesk.com/public/proxy
   version: stable
   min_storage: 10GB
   ports:
+    internal:
+      http: 80
     local:
       http: 8083
       sso: 16500

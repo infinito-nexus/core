@@ -1,16 +1,16 @@
 ---
-- name: Include dependency 'sys-daemon'
+- name: 📂 Include dependency 'sys-daemon'
   include_role:
     name: sys-daemon
   when: run_once_sys_daemon is not defined
 
-- name: Include dependency 'user-administrator'
+- name: 📂 Include dependency 'user-administrator'
   include_role:
     name: user-administrator
   when: run_once_user_administrator is not defined
 
-- name: create sshd_config
-  template:
+- name: 📁 create sshd_config
+  template: # nocheck: stack-host-template (per-host sshd_config)
     src: "sshd_config.j2"
     dest: /etc/ssh/sshd_config
     owner: root

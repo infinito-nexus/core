@@ -1,52 +1,24 @@
 <?php
 // Source: https://git.friendi.ca/friendica/friendica-addons/src/branch/develop/ldapauth
 
-// Warning: Don't change this file! It only holds the default config values for this addon.
-// Instead, copy this file to config/ldapauth.config.php in your Friendica directory and set the correct values there
-
 return [
 	'ldapauth' => [
-		// ldap_server (String)
-		// ldap hostname server - required
-		// Example: ldap_server = host.example.com
 		'ldap_server' => '{{ LDAP.SERVER.URI }}',
 
-		// ldap_binddn (String)
-		// admin dn - optional - only if ldap server dont have anonymous access
-		// Example: ldap_binddn = cn=admin,dc=example,dc=com
 		'ldap_binddn' => '{{ LDAP.DN.ADMINISTRATOR.DATA }}',
 
-		// ldap_bindpw (String)
-		// admin password - optional - only if ldap server dont have anonymous access
 		'ldap_bindpw' => '{{ LDAP.BIND_CREDENTIAL }}',
 
-		// ldap_searchdn (String)
-		// dn to search users - required
-		// Example: ldap_searchdn = ou=users,dc=example,dc=com
 		'ldap_searchdn' => '{{ LDAP.DN.OU.USERS }}',
 
-		// ldap_userattr (String)
-		// attribute to find username - required
-		// Example: ldap_userattr = uid
 		'ldap_userattr' => '{{ LDAP.USER.ATTRIBUTES.ID }}',
 
-		// ldap_group (String)
-		// DN of the group whose member can auth on Friendica - optional
 		'ldap_group' =>'',
 
-		// ldap_autocreateaccount (String "true")
-		// Upstream ldapauth.php checks this with `$val == 'true'`, so the
-		// stored value must be the literal string 'true' — passing a PHP
-		// bool ends up read back as int and the comparison fails in PHP 8+,
-		// which skipped autocreation and rejected every LDAP-only login.
 		'ldap_autocreateaccount' => 'true',
 
-		// ldap_autocreateaccount_emailattribute (String)
-		// attribute to get email - optional - default : 'mail'
 		'ldap_autocreateaccount_emailattribute' => '{{ LDAP.USER.ATTRIBUTES.MAIL }}',
 
-		// ldap_autocreateaccount_nameattribute (String)
-		// attribute to get nickname - optional - default : 'givenName'
 		'ldap_autocreateaccount_nameattribute' => '{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}',
 	],
 ];

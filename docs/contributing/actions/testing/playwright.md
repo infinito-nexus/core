@@ -121,6 +121,6 @@ Generated files are persisted in the local workspace (git-ignored). Copy the rel
 This page owns framework and runner mechanics only. The procedure for writing, deploying, and reviewing a role-local spec lives in the dedicated SPOTs:
 
 - [Agent `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md): authoring procedure and live review.
-- [Role Loop](../../../agents/action/iteration/role.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy.
+- [Compose Loop](../../../agents/action/iteration/compose.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy.
 - [Playwright Spec Loop](../../../agents/action/iteration/playwright.md): spec-only inner loop against the already-running stack.
 - [`playwright.spec.js` (role file rules)](../../artefact/files/role/playwright.specs.js.md): what the spec MUST contain, including logged-out final state and console cleanliness.

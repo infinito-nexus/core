@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Resolve image metadata
+      - name: 🔍 Resolve image metadata
         id: vars
         shell: bash
         run: |
@@ -45,7 +45,7 @@ jobs:
         shell: bash
         run: ./scripts/install/apt.sh jq
 
-      - name: Cleanup old ci-* versions
+      - name: 🧹 Cleanup old ci-* versions
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

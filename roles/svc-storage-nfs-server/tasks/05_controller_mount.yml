@@ -1,0 +1,51 @@
+---
+- name: "🔍 Detect controller {{ DIR_VAR_LIB }} pre-mount state"
+  ansible.builtin.script:
+    cmd: "{{ lookup('path_absolute', 'roles/svc-storage-nfs-client/files/premount_state.sh') }}"
+    executable: /bin/bash
+  environment:
+    DIR_VAR_LIB: "{{ DIR_VAR_LIB }}"
+  register: _ctrl_premount_state
+  changed_when: false
+
+- name: "✅ Assert controller {{ DIR_VAR_LIB }} has no pre-existing data (mount hides it)"
+  ansible.builtin.assert:
+    that:
+      - (_ctrl_premount_state.stdout | trim) in ["mounted", "empty"]
+    fail_msg: >-
+      Pre-existing local data found at controller {{ DIR_VAR_LIB }}; NFS
+      mount-over would silently hide it. Migrate or remove the local tree
+      on the controller, then re-run the deploy.
+
+- name: "✅ Ensure controller mount point exists"
+  ansible.builtin.file:
+    path: "{{ DIR_VAR_LIB }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "✅ Ensure NFS client packages are installed on controller for mount.nfs helper"
+  ansible.builtin.package:
+    name: "{{ lookup('vars', 'SVC_STORAGE_NFS_CLIENT_PACKAGES')[ansible_facts['os_family']] }}"
+    state: present
+  vars:
+    SVC_STORAGE_NFS_CLIENT_PACKAGES:
+      Debian: [nfs-common]
+      Ubuntu: [nfs-common]
+      Archlinux: [nfs-utils]
+      RedHat: [nfs-utils]
+      Fedora: [nfs-utils]
+      Alpine: [nfs-utils]
+
+- name: "🔗 Mount cluster-shared infinito state on controller"
+  ansible.posix.mount:
+    path: "{{ DIR_VAR_LIB }}"
+    src: "{{ STORAGE_NFS_CLIENT_SRC }}"
+    fstype: "{{ STORAGE_NFS_FSTYPE }}"
+    opts: "{{ STORAGE_NFS_MOUNT_OPTS }}"
+    state: ephemeral
+  register: _ctrl_nfs_mount
+  retries: 12
+  delay: 5
+  until: _ctrl_nfs_mount is succeeded

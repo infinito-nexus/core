@@ -1,4 +1,4 @@
 ---
-- name: "Execute Role (once)"
+- name: "▶️ Execute Role (once)"
   include_tasks: 01_core.yml
   when: run_once_user_root is not defined

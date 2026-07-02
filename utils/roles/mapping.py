@@ -156,12 +156,16 @@ ROLE_FILE_HANDLERS_MAIN = "handlers/main.yml"
 ROLE_FILE_TASKS_MAIN = "tasks/main.yml"
 ROLE_FILE_VARS_MAIN = "vars/main.yml"
 ROLE_FILE_README = "README.md"
+ROLE_FILE_TEMPL_COMPOSE = "templates/compose.yml.j2"
 
 # Project-specific meta files
 ROLE_FILE_META_MAIN = "meta/main.yml"
 ROLE_FILE_META_SERVICES = "meta/services.yml"
 ROLE_FILE_META_VARIANTS = "meta/variants.yml"
 ROLE_FILE_META_SERVER = "meta/server.yml"
+ROLE_FILE_META_CSP = "meta/csp.yml"
+ROLE_FILE_META_DOMAINS = "meta/domains.yml"
+ROLE_FILE_META_NETWORKS = "meta/networks.yml"
 ROLE_FILE_META_RBAC = "meta/rbac.yml"
 ROLE_FILE_META_VOLUMES = "meta/volumes.yml"
 ROLE_FILE_META_SCHEMA = "meta/schema.yml"
@@ -246,6 +250,13 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             *_all(mandatory=False),
         ],
     },
+    ROLE_FILE_TEMPL_COMPOSE: {
+        "description": (
+            "Docker Compose template rendered by sys-svc-compose; "
+            "carries the per-role service spec and named volumes."
+        ),
+        "types": _all(mandatory=False),
+    },
     ROLE_FILE_META_MAIN: {
         "description": (
             "Galaxy metadata and Ansible meta dependencies; required "
@@ -282,9 +293,39 @@ ROLE_FILES: dict[str, dict[str, object]] = {
     },
     ROLE_FILE_META_SERVER: {
         "description": (
-            "Server-side compose attributes (CSP, domains, status "
-            "codes). Only meaningful when the role exposes a deployable "
-            "HTTP service."
+            "Server-side proxy attributes (status codes, locations, body "
+            "size limits). Only meaningful when the role exposes a "
+            "deployable HTTP service."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
+    },
+    ROLE_FILE_META_CSP: {
+        "description": (
+            "Content-Security-Policy flags and per-directive whitelist for "
+            "the application's HTTP responses."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
+    },
+    ROLE_FILE_META_DOMAINS: {
+        "description": (
+            "Public domain declarations (canonical, aliases) for the "
+            "application's web-accessible service."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
+    },
+    ROLE_FILE_META_NETWORKS: {
+        "description": (
+            "Docker network declarations (per-network subnets, overlay "
+            "topology) for the application's compose stack."
         ),
         "types": [
             {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},

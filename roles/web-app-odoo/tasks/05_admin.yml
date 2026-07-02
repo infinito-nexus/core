@@ -1,7 +1,7 @@
 ---
 # Create or update Odoo administrator user
 
-- name: "Check if administrator user exists"
+- name: "🔎 Check if administrator user exists"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -11,7 +11,7 @@
     expect_rows: true
   register: admin_check
 
-- name: "Update administrator user password and email"
+- name: "🔄 Update administrator user password and email"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -21,7 +21,7 @@
       login: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
   when: admin_check.rows | length > 0
 
-- name: "Update administrator partner email"
+- name: "🔄 Update administrator partner email"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -31,7 +31,7 @@
       login: "{{ ODOO_ADMINISTRATOR_USERNAME }}"
   when: admin_check.rows | length > 0
 
-- name: "Update default admin user credentials (user id 2)"
+- name: "🔄 Update default admin user credentials (user id 2)"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -41,7 +41,7 @@
       password: "{{ ODOO_ADMINISTRATOR_PASSWORD }}"
   when: admin_check.rows | length == 0
 
-- name: "Update default admin partner details"
+- name: "🔄 Update default admin partner details"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"

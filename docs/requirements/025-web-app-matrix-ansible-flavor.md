@@ -219,11 +219,11 @@ Before starting any implementation work, the agent MUST read [AGENTS.md](../../A
 
 The agent MUST execute this requirement **autonomously** once Proposed Decisions are confirmed. Open clarifications only when a decision is genuinely ambiguous and would otherwise block progress; default to the intent already captured in this document and proceed.
 
-1. Read [Role Loop](../agents/action/iteration/role.md) before starting.
+1. Read [Compose Loop](../agents/action/iteration/compose.md) before starting.
 2. Move the existing compose-flavor tasks + templates into the new `flavor/compose/` subdirectories without behavior change; add a flavor dispatch in `tasks/main.yml`.
 3. Scaffold `tasks/flavor/ansible/` (clone, render inventory, run playbook, wire proxy) plus the matching template tree.
 4. Wire central-service reuse + Keycloak OIDC + Mailu SMTP into the rendered MDAD vars.
-5. Add the new variants, run the matrix gate, iterate per the Role Loop until green.
+5. Add the new variants, run the matrix gate, iterate per the Compose Loop until green.
 6. Add the new Playwright specs.
 7. Mark the compose flavor deprecated in `meta/info.yml`; update README.
 

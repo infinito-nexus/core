@@ -1,0 +1,4 @@
+---
+canonical:
+  - pgadmin.{{ DOMAIN_PRIMARY }}
+aliases: []

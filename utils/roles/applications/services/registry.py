@@ -155,6 +155,10 @@ def discover_role_services(
         "enabled": bool(primary_entry.get("enabled", False)),
         "covers": covers,
     }
+    app_networks = _as_mapping(config.get("networks"))
+    overlay = app_networks.get("overlay")
+    if isinstance(overlay, dict):
+        base_entry["overlay"] = overlay
     if provides:
         base_entry["provides"] = provides
 

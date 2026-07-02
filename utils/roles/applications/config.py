@@ -3,16 +3,10 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from ansible.errors import AnsibleFilterError, AnsibleUndefinedVariable
+from ansible.template import AnsibleUndefined
 
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SCHEMA
-
-try:
-    from ansible.utils.unsafe_proxy import AnsibleUndefined
-except ImportError:
-
-    class AnsibleUndefined:
-        pass
 
 
 class AppConfigKeyError(AnsibleFilterError, ValueError):

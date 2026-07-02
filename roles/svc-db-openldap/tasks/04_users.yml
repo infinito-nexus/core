@@ -13,7 +13,7 @@
 # ##############################################################################
 # 0) Ensure base tree exists (suffix + OUs)
 # ##############################################################################
-- name: Ensure LDAP root (suffix) entry exists
+- name: ✅ Ensure LDAP root (suffix) entry exists
   community.general.ldap_entry:
     dn: "{{ LDAP.DN.ROOT }}"
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -28,7 +28,7 @@
       o: "{{ (LDAP.DN.ROOT | regex_search('dc=([^,]+)', '\\1')) | first | default('infinito') }}"
     state: present
 
-- name: Ensure people OU exists
+- name: ✅ Ensure people OU exists
   community.general.ldap_entry:
     dn: "{{ LDAP.DN.OU.USERS }}"
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -42,7 +42,7 @@
       description: "Users container"
     state: present
 
-- name: Ensure groups OU exists
+- name: ✅ Ensure groups OU exists
   community.general.ldap_entry:
     dn: "{{ LDAP.DN.OU.GROUPS }}"
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -56,7 +56,7 @@
       description: "Groups container"
     state: present
 
-- name: Ensure roles OU exists
+- name: ✅ Ensure roles OU exists
   community.general.ldap_entry:
     dn: "{{ LDAP.DN.OU.ROLES }}"
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -73,7 +73,7 @@
 ###############################################################################
 # 1) Snapshot: remember which LDAP users already existed before this run
 ###############################################################################
-- name: Check whether LDAP users already exist
+- name: 🔎 Check whether LDAP users already exist
   community.general.ldap_search:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
@@ -91,7 +91,7 @@
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Build map of users that existed before this run
+- name: 🔨 Build map of users that existed before this run
   ansible.builtin.set_fact:
     openldap_user_existed_before: >-
       {{
@@ -107,7 +107,7 @@
 ###############################################################################
 # 2) Create the LDAP entry if it does not yet exist
 ###############################################################################
-- name: Ensure LDAP users exist
+- name: ✅ Ensure LDAP users exist
   community.general.ldap_entry:
     dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -142,7 +142,7 @@
 # - Use LDAP Password Modify extended operation
 # - Server-side hashing is applied (your cn=config sets olcPasswordHash: {SSHA})
 ###############################################################################
-- name: Set LDAP user password (per-user update policy)
+- name: 🔧 Set LDAP user password (per-user update policy)
   community.general.ldap_passwd:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
@@ -161,7 +161,7 @@
 ###############################################################################
 # 3) Keep the objectClass list AND the mail attribute up-to-date
 ###############################################################################
-- name: Ensure required objectClass values and mail address are present
+- name: ✅ Ensure required objectClass values and mail address are present
   community.general.ldap_attrs:
     dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"
     server_uri: "{{ OPENLDAP_SERVER_URI }}"

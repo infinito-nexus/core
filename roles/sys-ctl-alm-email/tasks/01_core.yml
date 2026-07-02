@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "sys-svc-mail"
   when: not (run_once_sys_svc_mail | default(false) | bool)

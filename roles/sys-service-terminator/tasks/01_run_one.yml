@@ -1,7 +1,7 @@
 ---
-- name: "Apply state for {{ system_service_run_unit }}"
+- name: "📌 Apply state for {{ system_service_run_unit }}"
   block:
-    - name: "Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times, {{ SYS_SERVICE_RUNNER_DELAY }}s delay)"
+    - name: "🔄 Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times)"
       ansible.builtin.systemd:
         name: "{{ system_service_run_unit }}"
         state: "{{ SYS_SERVICE_RUNNER_STATE }}"
@@ -14,7 +14,7 @@
       until: result is not failed
 
   rescue:
-    - name: Show shared diagnostics for failed final-run service
+    - name: 👁️ Show shared diagnostics for failed final-run service
       ansible.builtin.include_role:
         name: sys-service
         tasks_from: utils/debug.yml
@@ -26,7 +26,7 @@
           - "SYS_SERVICE_RUNNER_RETRIES={{ SYS_SERVICE_RUNNER_RETRIES }}"
           - "SYS_SERVICE_RUNNER_DELAY={{ SYS_SERVICE_RUNNER_DELAY }}"
 
-    - name: "docker diagnostics (best-effort via script file)"
+    - name: "🐳 docker diagnostics (best-effort via script file)"
       ansible.builtin.shell: |
         set -u
         export SYS_SERVICE_RUNNER_DOCKER_LOG_TAIL="{{ SYS_SERVICE_RUNNER_DOCKER_LOG_TAIL }}"
@@ -38,7 +38,7 @@
       failed_when: false
       when: SYS_SERVICE_RUNNER_DOCKER_DIAGNOSTICS | bool
 
-    - name: Show docker diagnostics
+    - name: 👁️ Show docker diagnostics
       ansible.builtin.debug:
         msg: |
           === docker diagnostics ===
@@ -46,7 +46,7 @@
           {{ sys_runner_docker_diag.stderr | default('') }}
       when: SYS_SERVICE_RUNNER_DOCKER_DIAGNOSTICS | bool
 
-    - name: "Fail with diagnostics"
+    - name: "🛑 Fail with diagnostics"
       ansible.builtin.fail:
         msg: >-
           Final-run service failed: {{ system_service_run_unit }}.

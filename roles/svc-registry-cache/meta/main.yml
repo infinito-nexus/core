@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: |
+    Cluster-internal Docker Hub pull-through cache. Worker nodes pull base
+    images from this mirror instead of going to registry-1.docker.io for
+    every node, eliminating duplicate network transfers and avoiding
+    Docker Hub rate limits. The role is single-host (manager) and runs as
+    compose; multi-host fan-out is out of scope.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - registry
+    - docker
+    - cache
+    - swarm
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

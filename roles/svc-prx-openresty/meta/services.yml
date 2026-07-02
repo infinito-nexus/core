@@ -1,5 +1,10 @@
 ---
 openresty:
+  # nocheck: default-placement-manager  edge proxy + TLS terminator at a known IP; sys-front-inj-* Lua pipeline cannot ride the overlay yet (Future Extension: Traefik with Yaegi)
+  default_placement: manager
+  bond: 1
+  enabled: true
+  shared: true
   name: openresty
   min_storage: 1GB
   cpus: 0.5

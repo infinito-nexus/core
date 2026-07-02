@@ -1,16 +1,14 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   {{ LIBRETRANSLATE_SERVICE }}:
-    image: "{{ LIBRETRANSLATE_IMAGE }}:{{ LIBRETRANSLATE_VERSION }}"
+    {{ lookup('container_image', application_id, 'libretranslate') }}
     volumes: []
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.libretranslate.ports.local.http') }}:{{ container_port }}"
+    {{ lookup('container_ports', ['libretranslate', 'http', DOCKER_BIND_HOST]) | indent(4) }}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

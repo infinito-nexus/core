@@ -14,13 +14,37 @@ set -euo pipefail
 : "${MOODLE_RUNTIME_USER:?required}"
 : "${MOODLE_VERSION_FILE:?required}"
 
+MOODLE_BOOTSTRAP_SENTINEL="${MOODLE_CODE_DIR}/.bootstrap.done"
+MOODLE_BOOTSTRAP_LOCK="${MOODLE_CODE_DIR}/.bootstrap.lock"
+
 mkdir -p "${MOODLE_DATA_DIR}"
 chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_DATA_DIR}" || true
 
-if [ ! -f "${MOODLE_CODE_DIR}/${MOODLE_VERSION_FILE}" ] && [ -d "${MOODLE_SOURCE_DIR}" ]; then
-  cp -a "${MOODLE_SOURCE_DIR}/." "${MOODLE_CODE_DIR}/"
+moodle_bootstrap_code_dir() {
+  if [ -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; then
+    return 0
+  fi
+  if [ -d "${MOODLE_SOURCE_DIR}" ]; then
+    cp -an "${MOODLE_SOURCE_DIR}/." "${MOODLE_CODE_DIR}/" || true
+  fi
+  chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_CODE_DIR}" || true
+  find "${MOODLE_CODE_DIR}" -type d -exec chmod 0755 {} + || true
+  find "${MOODLE_CODE_DIR}" -type f -exec chmod 0644 {} + || true
+  touch "${MOODLE_BOOTSTRAP_SENTINEL}"
+}
+
+if [ ! -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; then
+  mkdir -p "${MOODLE_CODE_DIR}"
+  exec 9>"${MOODLE_BOOTSTRAP_LOCK}"
+  flock 9
+  moodle_bootstrap_code_dir
+  flock -u 9
+  exec 9>&-
 fi
-chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_CODE_DIR}" || true
+
+while [ ! -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; do
+  sleep 1
+done
 
 if [ "$(id -u)" -eq 0 ] && [ "${1:-}" != "php-fpm" ]; then
   exec gosu "${MOODLE_RUNTIME_USER}" "$@"

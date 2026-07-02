@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Include dependent services for '{{ system_service_id  }}'"
+- name: "📂 Include dependent services for '{{ system_service_id  }}'"
   include_role:
     name: "{{ item }}"
   loop: "{{ SYSTEMCTL_ALARM_COMPOSER_SUBSERVICES }}"
@@ -12,7 +12,7 @@
     system_service_tpl_on_failure: ""
     system_service_force_linear_sync: false
 
-- name: "Include core service for '{{ system_service_id  }}'"
+- name: "📂 Include core service for '{{ system_service_id  }}'"
   include_role:
     name: sys-service
   vars:
@@ -23,9 +23,9 @@
     system_service_tpl_on_failure: "" # No on failure needed, because it's anyhow the default on failure procedure
     system_service_force_linear_sync: false
 
-- name: Assert '{{ system_service_id }}'
+- name: ✅ Assert '{{ system_service_id }}'
   block:
-    - name: Escape instance name for systemctl call
+    - name: 🔤 Escape instance name for systemctl call
       ansible.builtin.command:
         argv:
           - systemd-escape
@@ -33,12 +33,10 @@
       register: escaped_name
       changed_when: false
 
-    - name: Start '{{ system_service_id }}' instance
+    - name: ▶️ Start '{{ system_service_id }}' instance
       ansible.builtin.systemd:
         name: "{{ lookup('unit_name',system_service_id, suffix=False) ~ escaped_name.stdout }}.service"
         state: started
   when:
-    - MODE_ASSERT | bool
-    # Shared-service preloading happens before Mailu exposes its final TLS SMTP
-    # listener, so the notifier self-test must wait for the normal app phase.
-    - not (_service_loader_preloading | default(false) | bool)
+    - MODE_ASSERT_LOCAL | bool
+    - not (service_loader_preloading | default(false) | bool)

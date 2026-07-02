@@ -1,5 +1,5 @@
 ---
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ dependency_role }}"
   loop:
@@ -9,12 +9,12 @@
   loop_control:
     loop_var: dependency_role
 
-- name: "Include SSH"
+- name: "📂 Include SSH"
   include_role:
     name: "sys-svc-ssh"
   when: not (run_once_sys_svc_ssh | default(false) | bool)
 
-- name: Ensure GitHub host key is in known_hosts
+- name: ✅ Ensure GitHub host key is in known_hosts
   known_hosts:
     path: "~/.ssh/known_hosts"
     name: github.com
@@ -22,7 +22,7 @@
   become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Pull pkgmgr repo (shallow) and pin to stable
+- name: ⬇️ Pull pkgmgr repo (shallow) and pin to stable
   include_role:
     name: sys-util-git-pull
   vars:
@@ -38,7 +38,7 @@
     sys_util_git_pull_remote: "origin"
     sys_util_git_pull_become: true
 
-- name: Run the Package Manager install command to create an alias for Kevins package manager
+- name: 📦 Install Kevins package manager and create its shell alias
   shell: |
     source ~/.venvs/pkgmgr/bin/activate
     make setup
@@ -47,9 +47,9 @@
     executable: /bin/bash
   become: true
 
-- name: "PKGMGR | Update pkgmgr (non-interactive) with safe debug on failure"
+- name: "🔄 PKGMGR | Update pkgmgr (non-interactive) with safe debug on failure"
   block:
-    - name: update pkgmgr (non-interactive)
+    - name: 🔄 update pkgmgr (non-interactive)
       ansible.builtin.shell: |
         set -euo pipefail
         export GIT_TERMINAL_PROMPT=0
@@ -66,7 +66,7 @@
       until: pkgmgr_update.rc == 0
 
   rescue:
-    - name: "PKGMGR | Failure report (sanitized)"
+    - name: "📊 PKGMGR | Failure report (sanitized)"
       ansible.builtin.debug:
         msg:
           note: "Sanitized debug (no credentials printed)."
@@ -96,7 +96,7 @@
             stdout_tail: "{{ (pkgmgr_update.stdout | default('')).splitlines()[-60:] | join('\n') }}"
             stderr_tail: "{{ (pkgmgr_update.stderr | default('')).splitlines()[-60:] | join('\n') }}"
 
-    - name: "PKGMGR | Fail explicitly after sanitized debug"
+    - name: "🛑 PKGMGR | Fail explicitly after sanitized debug"
       ansible.builtin.fail:
         msg: >-
           pkgmgr update failed. See sanitized debug output above (no credentials printed).

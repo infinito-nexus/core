@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Load docker, db and proxy for {{ application_id }}"
+- name: "🧩 Load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
@@ -32,7 +32,7 @@
 # affect every `flavor: oauth2` role platform-wide and was out of scope per
 # review feedback. This task is a no-op on production (TLS_MODE=letsencrypt),
 # where a real CA is trusted and this isn't needed.
-- name: "Pi-hole | Trust self-signed platform CA for sso-proxy OIDC discovery"
+- name: "🤝 Pi-hole | Trust self-signed platform CA for sso-proxy OIDC discovery"
   ansible.builtin.lineinfile:
     path: >-
       {{ (application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
@@ -40,13 +40,14 @@
     line: 'provider_ca_files       =   ["{{ PIHOLE_SSO_PROXY_CA_CONTAINER_PATH }}"]'
     insertafter: "^provider_display_name"
   when:
+    - IS_STACK_HOST | bool
     - lookup('sso', application_id, 'is_proxy_gated')
     - (TLS_MODE | lower) == 'self_signed'
 
-- name: "flush compose and SSO proxy"
+- name: "🚿 flush compose and SSO proxy"
   meta: flush_handlers
 
-- name: "Wait for Pi-hole HTTP endpoint"
+- name: "⏳ Wait for Pi-hole HTTP endpoint"
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}"

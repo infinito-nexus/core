@@ -1,57 +1,46 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker and proxy for '{{ application_id }}'"
+- name: "🧩 load docker and proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-backend
   vars:
     compose_handlers_flush: false
 
-- name: "Deploy prometheus nginx http-block config to {{ lookup('nginx','directories.configuration.global') }}prometheus.conf"
-  template:
+- name: "🚀 Deploy prometheus nginx http-block config"
+  stack_host_template:
     src: "roles/web-app-prometheus/templates/nginx/prometheus.conf.j2"
     dest: "{{ [ lookup('nginx','directories.configuration.global'), 'prometheus.conf' ] | path_join }}"
-    mode: "0644"
   notify: restart openresty
 
-- name: "Render prometheus scrape config to {{ PROMETHEUS_CONFIG_HOST }}"
-  template:
-    src: configuration/prometheus.yml.j2
-    dest: "{{ PROMETHEUS_CONFIG_HOST }}"
-    mode: "0644"
-  notify: compose up
+- name: "📄 Render Prometheus config files (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "configuration/prometheus.yml.j2"
+        dest: "{{ PROMETHEUS_CONFIG_HOST }}"
+        mode: "0644"
+      - src: "configuration/blackbox.yml.j2"
+        dest: "{{ BLACKBOX_CONFIG_HOST }}"
+        mode: "0644"
+      - src: "configuration/alertmanager.yml.j2"
+        dest: "{{ ALERTMANAGER_CONFIG_HOST }}"
+        mode: "0644"
+      - src: "configuration/alert_rules.yml.j2"
+        dest: "{{ ALERT_RULES_CONFIG_HOST }}"
+        mode: "0644"
 
-- name: "Render blackbox exporter config to {{ BLACKBOX_CONFIG_HOST }}"
-  template:
-    src: configuration/blackbox.yml.j2
-    dest: "{{ BLACKBOX_CONFIG_HOST }}"
-    mode: "0644"
-  notify: compose up
-
-- name: "Render alertmanager config to {{ ALERTMANAGER_CONFIG_HOST }}"
-  template:
-    src: configuration/alertmanager.yml.j2
-    dest: "{{ ALERTMANAGER_CONFIG_HOST }}"
-    mode: "0644"
-  notify: compose up
-
-- name: "Render alert rules to {{ ALERT_RULES_CONFIG_HOST }}"
-  template:
-    src: configuration/alert_rules.yml.j2
-    dest: "{{ ALERT_RULES_CONFIG_HOST }}"
-    mode: "0644"
-  notify: compose up
-
-- name: "Pre-create native-metrics docker networks (idempotent)"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/create.yml' ] | path_join }}"
+- name: "📁 Pre-create native-metrics docker networks (idempotent)"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
   vars:
     network_role_id: "{{ item }}"
   loop: "{{ lookup('native_metrics_apps') }}"
 
-- name: "flush handlers for '{{ application_id }}'"
+- name: "🚿 flush handlers for '{{ application_id }}'"
   meta: flush_handlers
 
-- name: "Include role sys-stk-front-proxy for '{{ application_id }}'"
+- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-front-proxy
   vars:

@@ -1,0 +1,7 @@
+---
+data:
+  type: volume
+  name: docker_registry_cache_data
+  mounts:
+    - service: cache
+      target: /var/lib/registry

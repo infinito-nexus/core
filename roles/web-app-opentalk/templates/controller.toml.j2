@@ -35,7 +35,7 @@ api_key = "{{ OPENTALK_LIVEKIT_API_KEY }}"
 api_secret = "{{ OPENTALK_LIVEKIT_API_SECRET }}"
 
 [redis]
-url = "redis://redis:6379"
+url = "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
 [minio]
 uri = "{{ lookup('objstore', application_id, 'url') }}"

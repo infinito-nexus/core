@@ -1,0 +1,5 @@
+---
+canonical:
+  console: console.minio.s3.{{ DOMAIN_PRIMARY }}
+  api: api.minio.s3.{{ DOMAIN_PRIMARY }}
+aliases: []

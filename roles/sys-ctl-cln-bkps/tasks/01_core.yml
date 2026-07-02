@@ -1,17 +1,17 @@
 ---
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
     - sys-ctl-alm-compose
     - sys-lock
 
-- name: install lsof
+- name: 📦 install lsof
   package:
     name: lsof
     state: present
 
-- name: install psutil via pip
+- name: 📦 install psutil via pip
   include_role:
     name: sys-pip-install
   vars:

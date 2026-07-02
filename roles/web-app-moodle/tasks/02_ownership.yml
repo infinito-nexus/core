@@ -9,30 +9,30 @@
 # because only Moodle FPM (running as MOODLE_RUNTIME_USER) needs to
 # read/write user-uploaded content.
 
-- name: "Ensure ownership is correct on Moodle code dir"
-  command: "container exec --user root {{ MOODLE_CONTAINER }} chown -R {{ MOODLE_RUNTIME_USER_GROUP }} {{ MOODLE_CODE_DIR }}"
+- name: "✅ Ensure ownership is correct on Moodle code dir"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} chown -R {{ MOODLE_RUNTIME_USER_GROUP }} {{ MOODLE_CODE_DIR }}"
   changed_when: false
 
-- name: "Ensure ownership is correct on Moodle data dir"
-  command: "container exec --user root {{ MOODLE_CONTAINER }} chown -R {{ MOODLE_RUNTIME_USER_GROUP }} {{ MOODLE_DATA_DIR }}"
+- name: "✅ Ensure ownership is correct on Moodle data dir"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} chown -R {{ MOODLE_RUNTIME_USER_GROUP }} {{ MOODLE_DATA_DIR }}"
   changed_when: false
 
-- name: "Code dir: 0755 dirs (nginx-readable)"
-  command: "container exec --user root {{ MOODLE_CONTAINER }} find {{ MOODLE_CODE_DIR }} -type d -exec chmod 0755 {} \\;"
+- name: "📁 Code dir: 0755 dirs (nginx-readable)"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -type d -exec chmod 0755 {} \\;"
   changed_when: false
 
-- name: "Code dir: 0644 files (nginx-readable)"
-  command: "container exec --user root {{ MOODLE_CONTAINER }} find {{ MOODLE_CODE_DIR }} -type f -exec chmod 0644 {} \\;"
+- name: "📁 Code dir: 0644 files (nginx-readable)"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -type f -exec chmod 0644 {} \\;"
   changed_when: false
 
-- name: "Code dir: 0640 config.php (FPM-only)"
-  command: "container exec --user root {{ MOODLE_CONTAINER }} chmod 0640 {{ MOODLE_CONFIG }}"
+- name: "📁 Code dir: 0640 config.php (FPM-only)"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} chmod 0640 {{ MOODLE_CONFIG }}"
   changed_when: false
 
-- name: "Data dir: 0770 dirs (FPM-only)"
-  command: "container exec --user root {{ MOODLE_CONTAINER }} find {{ MOODLE_DATA_DIR }} -type d -exec chmod 0770 {} \\;"
+- name: "📁 Data dir: 0770 dirs (FPM-only)"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_DATA_DIR }} -type d -exec chmod 0770 {} \\;"
   changed_when: false
 
-- name: "Data dir: 0660 files (FPM-only)"
-  command: "container exec --user root {{ MOODLE_CONTAINER }} find {{ MOODLE_DATA_DIR }} -type f -exec chmod 0660 {} \\;"
+- name: "📁 Data dir: 0660 files (FPM-only)"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_DATA_DIR }} -type f -exec chmod 0660 {} \\;"
   changed_when: false

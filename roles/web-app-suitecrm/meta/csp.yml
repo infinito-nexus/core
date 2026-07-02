@@ -1,0 +1,6 @@
+---
+flags:
+  script-src-attr:
+    unsafe-eval: true
+whitelist:
+  manifest-src: "{{ lookup('domain', 'web-app-keycloak') }}"

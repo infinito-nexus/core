@@ -18,6 +18,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
@@ -44,6 +45,10 @@ simpleicons:
   ports:
     local:
       http: 8044
+    internal:
+      http: 3000
+  proxy:
+    service_key: simpleicons
   lifecycle: beta
 prometheus:
   bond: 1

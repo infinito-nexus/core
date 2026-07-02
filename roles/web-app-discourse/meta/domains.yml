@@ -1,0 +1,4 @@
+---
+canonical:
+  - forum.{{ DOMAIN_PRIMARY }}
+aliases: []

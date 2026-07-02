@@ -1,5 +1,5 @@
 ---
-- name: "Load pure handlers from '{{ handler_role_name }}' without 'when' to guaranty that they are executed"
+- name: "📂 load pure handlers from '{{ handler_role_name }}' (no 'when') to force run"
   import_role:
     name: "{{ handler_role_name }}"
     tasks_from: "none.yml"

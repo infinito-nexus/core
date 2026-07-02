@@ -1,34 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
 
-- name: "wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port"
-  ansible.builtin.shell: |
-    set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
-      bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
-  register: erpnext_backend_ready
-  changed_when: false
-  retries: 60
-  delay: 5
-  until: erpnext_backend_ready.rc == 0
-
-- name: "bench bootstrap"
-  include_tasks: 02_bench_bootstrap.yml
-
-- name: "configure OIDC"
-  include_tasks: 03_oidc.yml
-  when: ERPNEXT_OIDC_ENABLED
-
-- name: "configure LDAP"
-  include_tasks: 04_ldap.yml
-  when: ERPNEXT_LDAP_ENABLED
-
-- name: "configure outbound email"
-  include_tasks: 05_email.yml
-  when: ERPNEXT_EMAIL_ENABLED
+- name: "👔 ERPNext manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

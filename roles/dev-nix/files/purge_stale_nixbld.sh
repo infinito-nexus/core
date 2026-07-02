@@ -32,8 +32,8 @@ if [[ -n "$found_binary" ]]; then
   exit 0
 fi
 
-uid1="$(getent passwd nixbld1 | awk -F: '{print $3}')"
-uid2="$(getent passwd nixbld2 | awk -F: '{print $3}')"
+uid1="$(getent passwd nixbld1 2>/dev/null | awk -F: '{print $3}' || true)"
+uid2="$(getent passwd nixbld2 2>/dev/null | awk -F: '{print $3}' || true)"
 
 if [[ -z "$uid1" || -z "$uid2" ]]; then
   echo "[UNCHANGED] nixbld1/nixbld2 not both present, nothing to purge"

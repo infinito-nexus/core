@@ -41,14 +41,18 @@ postgres:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
 opentalk:
+  # nocheck: default-placement-manager  embedded rabbitmq engine state; node-local in swarm
+  default_placement: manager
   name: opentalk
   image: registry.opencode.de/opentalk/web-frontend
   version: v2.8.1
@@ -62,6 +66,8 @@ opentalk:
   ports:
     local:
       http: 8073
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -79,6 +85,8 @@ controller:
   ports:
     local:
       http: 8072
+    internal:
+      http: 11311
 livekit:
   name: opentalk-livekit
   image: livekit/livekit-server

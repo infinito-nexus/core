@@ -15,6 +15,8 @@
     css:
       enabled: true
       shared: true
+    redis:
+      shared: true
 - services:
     matomo:
       enabled: false
@@ -24,4 +26,6 @@
       shared: false
     css:
       enabled: false
+      shared: false
+    redis:
       shared: false

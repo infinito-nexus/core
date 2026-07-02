@@ -15,17 +15,17 @@ jobs:
       INFINITO_LINT_RUNNER: host
 
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Node.js
+      - name: 🔧 Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
 
-      - name: Install npm dependencies (eslint + @playwright/test)
+      - name: 📦 Install npm dependencies (eslint + @playwright/test)
         run: npm ci --no-fund --no-audit
 
-      - name: Run lint-playwright via make
+      - name: ▶️ Run lint-playwright via make
         run: make lint-playwright

@@ -1,0 +1,3 @@
+---
+canonical:
+  - taiga.kanban.{{ DOMAIN_PRIMARY }}

@@ -1,15 +1,15 @@
 ---
-- name: Install systemd tools (provides systemd-analyze)
+- name: 📦 Install systemd tools (provides systemd-analyze)
   ansible.builtin.package:
     name: "systemd"
     state: present
   become: true
 
-- name: "reset (if enabled) for {{ role_name}}"
+- name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 02_reset.yml
   when: MODE_RESET | bool and run_once_sys_daemon is not defined
 
-- name: Apply systemd manager defaults
+- name: 📌 Apply systemd manager defaults
   include_tasks: 03_defaults.yml
 
 - include_tasks: utils/once/flag.yml

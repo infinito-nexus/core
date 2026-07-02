@@ -48,11 +48,12 @@
     }
   }
 
+{% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
   # Internal backend probe used by /healthz/live and /metricz.
   # Not accessible to external clients.
   location = /_live_probe {
     internal;
-    proxy_pass              http://127.0.0.1:{{ http_port }}/;
+    {{ prometheus_backend }}
     proxy_set_header        Host $host;
     proxy_connect_timeout   2s;
     proxy_read_timeout      3s;
@@ -64,7 +65,7 @@
   # Returns 502/503 when the backend is down. Safe to expose publicly.
   location = /healthz/ready {
     access_log off;
-    proxy_pass              http://127.0.0.1:{{ http_port }}/;
+    {{ prometheus_backend }}
     proxy_set_header        Host $host;
     proxy_connect_timeout   3s;
     proxy_read_timeout      5s;

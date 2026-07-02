@@ -1,28 +1,22 @@
 ---
-# General
 application_id: "web-app-xwiki"
+entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
 container_port: 8080
 container_hostname: "{{ domain }}"
 
-# XWiki
-
 XWIKI_HOST_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
 
-## URLs
 XWIKI_HOSTNAME: "{{ container_hostname }}"
 
-## Paths
 XWIKI_HOST_PROPERTIES_PATH: "{{ [lookup('container', application_id, 'directories.config'), 'xwiki.properties'] | path_join }}"
 XWIKI_DOCK_DATA_DIR: "/usr/local/xwiki"
 
-## Docker
-XWIKI_IMAGE_CUSTOM: "xwiki_custom"
 XWIKI_IMAGE: "{{ lookup('config', application_id, 'services.xwiki.image') }}"
 XWIKI_VERSION: "{{ lookup('config', application_id, 'services.xwiki.version') }}"
 XWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.xwiki.name') }}"
-XWIKI_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+XWIKI_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
 # Feature toggles (must be set in meta/services.yml -> features)
 XWIKI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
@@ -38,7 +32,6 @@ XWIKI_ADMIN_GROUP: "administrator"
 # LDAP group_mapping, OIDC groups.mapping and the XAR-shipped page name.
 XWIKI_ADMIN_GROUP_PAGE: "XWikiAdminGroup"
 
-# Superadministrator
 XWIKI_SUPERADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.superadminpassword') }}"
 XWIKI_SUPERADMIN_USERNAME: "superadmin"
 

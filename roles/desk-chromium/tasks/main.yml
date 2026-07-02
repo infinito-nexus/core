@@ -1,27 +1,27 @@
 ---
-- name: Update package cache (Debian/Ubuntu)
+- name: 🔄 Update package cache (Debian/Ubuntu)
   apt:
     update_cache: true
   when: ansible_facts['os_family'] == "Debian"
 
-- name: Install Chromium browser
+- name: 📦 Install Chromium browser
   package:
     name: "{{ chromium_package }}"
     state: present
 
-- name: Install KeePassXC
+- name: 📦 Install KeePassXC
   package:
     name: keepassxc
     state: present
 
-- name: Ensure Chromium policies directory exists
+- name: ✅ Ensure Chromium policies directory exists
   file:
     path: /etc/chromium/policies/managed
     state: directory
     mode: "0755"
 
-- name: Copy the extensions policy file for Chromium
-  template:
+- name: 📋 Copy the extensions policy file for Chromium
+  template: # nocheck: stack-host-template (per-host workstation chromium policy)
     src: extensions_policy.json.j2
     dest: /etc/chromium/policies/managed/extensions_policy.json
     mode: "0644"

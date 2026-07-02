@@ -15,17 +15,17 @@ jobs:
       INFINITO_LINT_RUNNER: host
 
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Node.js
+      - name: 🔧 Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
 
-      - name: Install ESLint dependencies
+      - name: 📦 Install ESLint dependencies
         run: npm ci --no-fund --no-audit
 
-      - name: Run lint-javascript via make
+      - name: ▶️ Run lint-javascript via make
         run: make lint-javascript

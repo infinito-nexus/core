@@ -1,0 +1,4 @@
+---
+local:
+  subnet: 192.168.9.0/24
+  force_bridge: true

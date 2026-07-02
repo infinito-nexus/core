@@ -1,5 +1,5 @@
 ---
-- name: Resolve Docker package list for current distribution
+- name: 🔍 Resolve Docker package list for current distribution
   ansible.builtin.set_fact:
     sys_svc_container_packages: >-
       {{
@@ -8,7 +8,7 @@
         else []
       }}
 
-- name: Fail for unsupported distribution in Docker role
+- name: 🛑 Fail for unsupported distribution in Docker role
   ansible.builtin.assert:
     that:
       - (sys_svc_container_packages | length) > 0
@@ -16,21 +16,21 @@
       Unsupported distribution for Docker role: {{ ansible_facts['distribution'] }}
       ({{ ansible_facts['os_family'] }}).
 
-- name: Setup Docker repository on Debian and Ubuntu
+- name: 🔧 Setup Docker repository on Debian and Ubuntu
   include_tasks: 01a_debian.yml
   when: ansible_facts['distribution'] in ['Debian', 'Ubuntu']
 
-- name: Setup Docker repository and SDK prerequisites on RedHat family
+- name: 🔧 Setup Docker repository and SDK prerequisites on RedHat family
   include_tasks: 01b_redhat.yml
   when: ansible_facts['os_family'] == 'RedHat'
 
-- name: Install Docker packages
+- name: 📦 Install Docker packages
   ansible.builtin.package:
     name: "{{ sys_svc_container_packages }}"
     state: present
   notify: container manager restart
 
-- name: Install Docker Python SDK dependencies via pip
+- name: 📦 Install Docker Python SDK dependencies via pip
   include_role:
     name: sys-pip-install
   vars:
@@ -40,7 +40,7 @@
     package_state: present
     global_install: true
 
-- name: Install container wrapper (container)
+- name: 📦 Install container wrapper (container)
   become: true
   ansible.builtin.copy:
     src: container.py
@@ -49,50 +49,50 @@
     owner: root
     group: root
 
-- name: "Assert that required services are available"
+- name: "✅ Assert that required services are available"
   include_tasks: "02_assert_requirements.yml"
   when: MODE_ASSERT | bool
 
-- name: "Load docker in docker procedures"
+- name: "🧩 Load docker in docker procedures"
   include_tasks: "03_docker_in_docker.yml"
   when: DOCKER_IN_CONTAINER | bool
 
-- name: Restart and enable docker service
+- name: 🔄 Restart and enable docker service
   meta: flush_handlers
 
-- name: Ensure docker service is enabled and running
+- name: ✅ Ensure docker service is enabled and running
   ansible.builtin.service:
     name: docker.service
     state: started
     enabled: true
 
-- name: Wait for docker socket to be available
+- name: ⏳ Wait for docker socket to be available
   ansible.builtin.wait_for:
     path: /var/run/docker.sock
     state: present
     timeout: 60
 
-- name: "Overwrite when DOCKER_IN_CONTAINER is true"
+- name: "✏️ Overwrite when DOCKER_IN_CONTAINER is true"
   block:
-    - name: Get docker bridge gateway
+    - name: ⬇️ Get docker bridge gateway
       docker_bridge_gateway:
       register: gw
       changed_when: false
 
-    - name: "Set docker bridge gateway fact to '{{ gw.gateway }}'"
+    - name: "🔧 Set docker bridge gateway fact to '{{ gw.gateway }}'"
       set_fact:
         DOCKER_REACH_HOST: "{{ gw.gateway }}"
       changed_when: false
   when: DOCKER_IN_CONTAINER | bool
 
-- name: Setup Swapfile to prevent OOM Failures
+- name: 🔧 Setup Swapfile to prevent OOM Failures
   # @ See https://en.wikipedia.org/wiki/Out_of_memory
   include_tasks: "utils/load_app.yml"
   vars:
     load_app_id: "svc-opt-swapfile"
   when: run_once_svc_opt_swapfile is not defined
 
-- name: "Load reset tasks when MODE_RESET is enabled"
+- name: "📂 Load reset tasks when MODE_RESET is enabled"
   include_tasks: "04_reset.yml"
   when: MODE_RESET | bool
 

@@ -55,8 +55,8 @@ Key sections include:
 - `services.libretranslate`: image and version
 - `services.redis`: enable Redis backend
 - `services.matomo`: enable analytics
-- `server.domains`: canonical and alias domains
-- `server.csp`:
+- `domains`: canonical and alias domains
+- `csp`:
 
 ## Credits
 

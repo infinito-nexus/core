@@ -35,13 +35,16 @@ email:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag: DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "1"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+  name: "{{ 'web-app-nextcloud' | get_entity_name }}-redis"
 # nocheck: playwright-service-flag: DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -75,6 +78,8 @@ nextcloud:
   ports:
     local:
       http: 8001
+    internal:
+      http: 80
     public:
       stun_turn: 3480
       stun_turn_tls: 5350

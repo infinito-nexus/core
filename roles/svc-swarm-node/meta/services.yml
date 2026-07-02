@@ -1,0 +1,13 @@
+---
+# nocheck: required-by-coverage
+node:
+  name: swarm
+  lifecycle: beta
+  bond: 1
+  enabled: true
+  shared: true
+  min_storage: "100MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "128m"
+  pids_limit: 256

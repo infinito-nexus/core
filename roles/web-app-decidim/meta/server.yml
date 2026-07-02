@@ -1,20 +1,4 @@
 ---
-csp:
-  flags:
-    script-src-elem:
-      unsafe-inline: true
-    style-src-attr:
-      unsafe-inline: true
-  whitelist:
-    connect-src:
-      - "{{ lookup('tls', 'web-app-seaweedfs', 'protocols.web') }}://{{ lookup('config', 'web-app-seaweedfs', 'server.domains.canonical.api') }}"
-domains:
-  aliases: []
-  canonical:
-    - decidim.{{ DOMAIN_PRIMARY }}
 status_codes:
   default:
     - 200
-networks:
-  local:
-    subnet: 192.168.104.176/28

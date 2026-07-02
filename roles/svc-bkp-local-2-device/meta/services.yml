@@ -3,7 +3,7 @@ local-2-device:
   mount: ""
   target: ""
   source: ""
-  lifecycle: pre-alpha
+  lifecycle: beta
   min_storage: "200MB"
   cpus: "0.5"
   mem_reservation: "256m"

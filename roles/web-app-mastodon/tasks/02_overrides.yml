@@ -1,12 +1,12 @@
 ---
-- name: "MASTODON | Ensure overrides directory exists"
+- name: "✅ MASTODON | Ensure overrides directory exists"
   ansible.builtin.file:
     path: "{{ MASTODON_OVERRIDES_DIR }}"
     state: directory
     mode: "0755"
   when: MASTODON_HTTP_ONLY_ENABLED | bool
 
-- name: "MASTODON | Install force_ssl override initializer (HTTP-only)"
+- name: "📦 MASTODON | Install force_ssl override initializer (HTTP-only)"
   ansible.builtin.copy:
     dest: "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}"
     mode: "0644"

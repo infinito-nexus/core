@@ -18,6 +18,7 @@ exclude_paths:
   - tests/lint/fixtures/
   - venv/
   - .venv/
+  - build/
 
 # Files that are not Ansible content but live under the same tree as roles
 # and would otherwise be misclassified.

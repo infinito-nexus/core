@@ -34,6 +34,8 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 taiga:
+  # nocheck: default-placement-manager  embedded rabbitmq engine state; node-local in swarm
+  default_placement: manager
   repository: https://github.com/taigaio/taiga-docker
   ref: main
   version: latest
@@ -46,6 +48,10 @@ taiga:
     local:
       sso: 16491
       http: 8027
+    internal:
+      http: 80
+  proxy:
+    service_key: gateway
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -89,6 +95,7 @@ events-rabbitmq:
   mem_limit: 1g
   pids_limit: 512
 manager:
+  name: "taiga-manager"
   cpus: "0.5"
   mem_reservation: 512m
   mem_limit: 1g

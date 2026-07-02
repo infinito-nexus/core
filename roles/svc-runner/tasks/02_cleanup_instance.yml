@@ -1,11 +1,12 @@
-- name: Stop and remove runner container for instance {{ runner_instance }}
+---
+- name: 🗑️ Stop and remove runner container for instance {{ runner_instance }}
   community.docker.docker_container:
     name: "runner-{{ runner_instance }}"
     state: absent
     force_kill: true
   failed_when: false
 
-- name: Gather containers for runner instance {{ runner_instance }}
+- name: 🔍 Gather containers for runner instance {{ runner_instance }}
   community.docker.docker_host_info:
     containers: true
     containers_filters:
@@ -15,7 +16,7 @@
   changed_when: false
   failed_when: false
 
-- name: Remove containers for runner instance {{ runner_instance }}
+- name: 🗑️ Remove containers for runner instance {{ runner_instance }}
   community.docker.docker_container:
     name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/', '') }}"
     state: absent
@@ -26,19 +27,19 @@
   changed_when: true
   failed_when: false
 
-- name: Remove runner instance directory {{ runner_instance }}
+- name: 📂 Remove runner instance directory {{ runner_instance }}
   file:
     path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
     state: absent
 
-- name: Unmount tmpfs from Docker volume directory for runner instance {{ runner_instance }}
+- name: 🚿 Unmount tmpfs from Docker volume dir for runner {{ runner_instance }}
   ansible.builtin.mount:
     path: "{{ RUNNER_DOCKER_BASE }}/{{ runner_instance }}"
     state: unmounted
   failed_when: false
   changed_when: false
 
-- name: Remove Docker volume directory for runner instance {{ runner_instance }}
+- name: 🗑️ Remove Docker volume directory for runner instance {{ runner_instance }}
   ansible.builtin.file:
     path: "{{ RUNNER_DOCKER_BASE }}/{{ runner_instance }}"
     state: absent

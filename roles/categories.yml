@@ -112,6 +112,11 @@ roles:
       description: "Database applications (DBMS, LDAP, Redis, etc.)"
       icon: "fas fa-database"
       invokable: true
+    dns:
+      title: "DNS Resolvers"
+      description: "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
+      icon: "fas fa-globe"
+      invokable: true
     opt:
       title: "Service Optimation"
       description: "Optimation Services to improve your system"
@@ -137,6 +142,21 @@ roles:
       description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration
         across databases, files, and containers."
       icon: "fas fa-database"
+      invokable: true
+    registry:
+      title: "Container Registries"
+      description: "Container-registry services - local registry and pull-through cache."
+      icon: "fas fa-box-archive"
+      invokable: true
+    storage:
+      title: "Shared Storage"
+      description: "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+      icon: "fas fa-hdd"
+      invokable: true
+    swarm:
+      title: "Container Orchestration"
+      description: "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+      icon: "fas fa-network-wired"
       invokable: true
     runner:
       title: "CI Runner"

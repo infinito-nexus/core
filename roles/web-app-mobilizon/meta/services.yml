@@ -38,6 +38,8 @@ mobilizon:
   ports:
     local:
       http: 8043
+    internal:
+      http: 4000
   run_after:
     - web-app-matomo
     - web-app-keycloak

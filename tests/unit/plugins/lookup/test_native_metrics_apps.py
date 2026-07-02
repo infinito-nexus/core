@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 from unittest.mock import patch
 
 from plugins.lookup.native_metrics_apps import LookupModule
@@ -16,8 +17,20 @@ def _run(applications: dict, roles_dir: Path, group_names: list | None = None) -
     """
     if group_names is None:
         group_names = list(applications.keys())
-    with patch("plugins.lookup.native_metrics_apps.ROLES_DIR", roles_dir):
-        return LookupModule().run(
+    lm = LookupModule()
+    lm._loader = mock.MagicMock()
+    with (
+        patch("plugins.lookup.native_metrics_apps.ROLES_DIR", roles_dir),
+        patch("plugins.lookup.native_metrics_apps.lookup_loader") as loader_mock,
+    ):
+
+        def _get(name, *a, **k):
+            if name == "applications":
+                return mock.MagicMock(run=lambda *_a, **_k: [applications])
+            return mock.MagicMock(run=lambda *_a, **_k: [{}])
+
+        loader_mock.get.side_effect = _get
+        return lm.run(
             [],
             variables={"applications": applications, "group_names": group_names},
         )[0]

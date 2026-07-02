@@ -1,12 +1,12 @@
 ---
-- name: "apply Social Login Key for Keycloak"
+- name: "📌 apply Social Login Key for Keycloak"
   ansible.builtin.shell: |
     set -euo pipefail
     container exec -i \
       -e SITE_NAME -e PROVIDER_NAME -e BUTTON_TEXT \
       -e CLIENT_ID -e CLIENT_SECRET -e ISSUER_URL \
       -e GROUP_ROLE_MAP_JSON \
-      {{ ERPNEXT_BACKEND_CONTAINER }} \
+      {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -' < {{ role_path }}/files/scripts/apply_oidc_settings.py
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
@@ -20,7 +20,7 @@
   changed_when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
   timeout: 60
 
-- name: "restart the Frappe backend when the Social Login Key changed so --preload workers re-render the SSO button"
+- name: "🔄 Restart Frappe backend on Social Login Key change to re-render SSO button"
   ansible.builtin.shell: |
     set -euo pipefail
     container restart {{ ERPNEXT_BACKEND_CONTAINER }}
@@ -28,10 +28,10 @@
   when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
   timeout: 120
 
-- name: "wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after OIDC restart"
+- name: "⏳ wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after OIDC restart"
   ansible.builtin.shell: |
     set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
+    container exec {{ ERPNEXT_BACKEND_CONTAINER_ADDRESS }} \
       bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
   register: erpnext_backend_ready_post_oidc
   changed_when: false

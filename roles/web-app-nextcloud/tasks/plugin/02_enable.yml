@@ -1,5 +1,5 @@
 ---
-- name: enable {{ plugin_key }} nextcloud plugin
+- name: 🟢 enable {{ plugin_key }} nextcloud plugin
   command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:enable {{ plugin_key }}"
   register: enable_result
   failed_when: >
@@ -9,17 +9,17 @@
     enable_result.rc == 0
     and ("already enabled" not in enable_result.stdout)
 
-- name: "Classify {{ plugin_key }} enable result"
+- name: "🔑 Classify {{ plugin_key }} enable result"
   ansible.builtin.set_fact:
     plugin_enable_incompatible: "{{ (enable_result | nextcloud_install_status).incompatible }}"
 
-- name: "warn: {{ plugin_key }} is incompatible with current Nextcloud version — skipping enable+configure"
+- name: "🔴 Skip {{ plugin_key }}: incompatible with Nextcloud version (enable+configure)"
   ansible.builtin.debug:
     msg: >-
       Plugin '{{ plugin_key }}' enable refused by occ: not compatible with the
       currently pinned Nextcloud server version. Skipping configure for this run.
   when: plugin_enable_incompatible
 
-- name: "Configure {{ plugin_key }} (skipped when incompatible)"
+- name: "🔧 Configure {{ plugin_key }} (skipped when incompatible)"
   ansible.builtin.include_tasks: 03_configure.yml
   when: not plugin_enable_incompatible

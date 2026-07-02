@@ -5,7 +5,7 @@
     application_id: "web-svc-cdn"
     webserver_vhost_flavour: "basic"
 
-- name: "Reset compose Handler for CDN"
+- name: "♻️ Reset compose Handler for CDN"
   include_tasks: utils/load_handlers.yml
   vars:
     handler_role_name: "sys-svc-compose"

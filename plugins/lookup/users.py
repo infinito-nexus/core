@@ -6,6 +6,8 @@ from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache import _reset_cache_for_tests as _reset_runtime_lookup_cache
+
+# nocheck: lookup-cache-import (this lookup IS the users SPOT provider)
 from utils.cache.users import get_merged_users
 
 

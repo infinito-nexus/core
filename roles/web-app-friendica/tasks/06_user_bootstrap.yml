@@ -1,35 +1,26 @@
 ---
-# Pre-create the administrator user in friendica.user so ldapauth's
-# else-branch (User::getAuthenticationInfo → User::getById) handles the
-# login. The autocreate path inside ldap_createaccount is broken in
-# stock friendica + ldapauth as of the version pinned here — it never
-# materialises the row even when ldap_bind succeeds. Pre-creating side-
-# steps the broken branch; the auto-generated friendica.user password
-# is irrelevant because ldap_bind owns the auth check.
-- name: "Check whether Friendica administrator user already exists"
-  command: >-
-    {{ BIN_COMPOSE }} exec -T --user {{ FRIENDICA_USER }}
+- name: "🔎 Check whether Friendica administrator user already exists"
+  shell: >-
+    container exec -i --user {{ FRIENDICA_USER }}
     --workdir {{ FRIENDICA_APPLICATION_DIR }}
-    {{ FRIENDICA_SERVICE }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
     {{ FRIENDICA_APPLICATION_DIR }}/bin/console user search nick administrator
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}" # nocheck: include-uniform-apply-keyword
   register: friendica_admin_search
   changed_when: false
   failed_when: false
 
-- name: "Pre-create Friendica administrator user"
-  command: >-
-    {{ BIN_COMPOSE }} exec -T --user {{ FRIENDICA_USER }}
+- name: "📁 Pre-create Friendica administrator user"
+  shell: >-
+    container exec -i --user {{ FRIENDICA_USER }}
     --workdir {{ FRIENDICA_APPLICATION_DIR }}
-    {{ FRIENDICA_SERVICE }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
     {{ FRIENDICA_APPLICATION_DIR }}/bin/console user add
     "{{ lookup('users', 'administrator').firstname | default('Administrator') }}"
     administrator
     "{{ lookup('users', 'administrator').email }}"
     en
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   when: "'administrator' not in friendica_admin_search.stdout"
   register: friendica_admin_create
   changed_when: friendica_admin_create.rc == 0

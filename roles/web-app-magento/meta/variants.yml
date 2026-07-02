@@ -29,6 +29,8 @@
     seaweedfs:
       enabled: true
       shared: true
+    redis:
+      shared: true
 - services:
     dashboard:
       enabled: false
@@ -53,4 +55,6 @@
       shared: false
     seaweedfs:
       enabled: false
+      shared: false
+    redis:
       shared: false

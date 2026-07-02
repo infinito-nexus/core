@@ -1,5 +1,5 @@
 ---
-- name: "Load destruction roles"
+- name: "🧩 Load destruction roles"
   include_tasks: "./tasks/groups/{{ destruction_group }}-roles.yml"
   loop:
     - svc-opt # Load optimation services
@@ -7,6 +7,6 @@
     loop_var: destruction_group
     label: "{{ destruction_group }}-roles.yml"
 
-- name: "Finalize services"
+- name: "🛠️ Finalize services"
   include_role:
     name: sys-service-terminator

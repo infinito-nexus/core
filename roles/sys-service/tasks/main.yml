@@ -1,5 +1,5 @@
 ---
-- name: "Reload sys-daemon handlers"
+- name: "🔄 Reload sys-daemon handlers"
   include_tasks: utils/load_handlers.yml
   vars:
     handler_role_name: "sys-daemon"
@@ -8,10 +8,10 @@
 - include_tasks: 01_core.yml
   when: run_once_sys_service is not defined
 
-- name: "Execute service routines for '{{ system_service_id }}'"
+- name: "▶️ Execute service routines for '{{ system_service_id }}'"
   block:
-    - name: "Load base routine for '{{ system_service_id }}'"
+    - name: "🧩 Load base routine for '{{ system_service_id }}'"
       include_tasks: 05_base.yml
-    - name: "Flush system service handlers for '{{ system_service_id }}'"
+    - name: "🚿 Flush system service handlers for '{{ system_service_id }}'"
       meta: flush_handlers
   when: system_service_id is defined

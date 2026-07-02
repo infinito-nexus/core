@@ -1,12 +1,12 @@
 ---
-- name: install libreoffice
+- name: 📦 install libreoffice
   package:
     name:
       - ttf-liberation
       - "libreoffice-{{ lookup('applications', 'desk-libreoffice').flavor }}"
     state: present
 
-- name: install libreoffice language packages
+- name: 📦 install libreoffice language packages
   package:
     name: "libreoffice-{{ lookup('applications', 'desk-libreoffice').flavor }}-{{ item }}"
     state: present

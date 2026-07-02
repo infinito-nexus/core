@@ -25,4 +25,6 @@ RUN pip3 install --no-cache-dir --break-system-packages \
 RUN mkdir -p /var/log/odoo && \
     chown -R odoo:odoo /var/log/odoo
 
+COPY volumes/addons/ /mnt/custom-addons/
+
 USER odoo

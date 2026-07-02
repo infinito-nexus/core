@@ -1,3 +1,5 @@
 ---
 - include_tasks: 01_core.yml
-  when: run_once_sys_aur is not defined
+  when:
+    - run_once_sys_aur is not defined
+    - ansible_facts['os_family'] == "Archlinux"

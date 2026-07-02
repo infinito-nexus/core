@@ -1,2 +1,7 @@
 ---
-data: fusiondirectory_data
+data:
+  type: volume
+  name: fusiondirectory_data
+  mounts:
+    - service: fusiondirectory
+      target: /assets/fusiondirectory

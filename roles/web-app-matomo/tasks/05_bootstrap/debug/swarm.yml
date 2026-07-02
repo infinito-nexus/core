@@ -1,0 +1,16 @@
+---
+- name: "🐝 Matomo bootstrap | Swarm: dump bootstrap service ps + logs"
+  ansible.builtin.shell: |
+    echo "===== container service ps {{ MATOMO_BOOTSTRAP_NAME }} ====="
+    container service ps --no-trunc {{ lookup('container_service', application_id, MATOMO_BOOTSTRAP_SERVICE) | quote }} 2>&1 || true
+    echo "===== container service logs (tail {{ MATOMO_BOOTSTRAP_DEBUG_LOG_TAIL }}) ====="
+    container service logs --no-task-ids --tail {{ MATOMO_BOOTSTRAP_DEBUG_LOG_TAIL | int }} {{ lookup('container_service', application_id, MATOMO_BOOTSTRAP_SERVICE) | quote }} 2>&1 || true
+  register: matomo_bootstrap_swarm_dump
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🐝 Matomo bootstrap | Swarm: show bootstrap service diagnostics"
+  ansible.builtin.debug:
+    msg: "{{ (matomo_bootstrap_swarm_dump.stdout | default('')).split('\n') }}"
+  when: not (MASK_CREDENTIALS_IN_LOGS | bool)

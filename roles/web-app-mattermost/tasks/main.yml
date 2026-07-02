@@ -1,5 +1,5 @@
 ---
-- name: "Execute Role (once)"
+- name: "▶️ Execute Role (once)"
   include_tasks: 01_core.yml
   when: run_once_web_app_mattermost is not defined
   vars:

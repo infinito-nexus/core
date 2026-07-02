@@ -44,6 +44,8 @@ wordpress:
   ports:
     local:
       http: 8003
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
   lifecycle: beta

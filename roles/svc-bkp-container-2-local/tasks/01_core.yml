@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
@@ -13,11 +13,11 @@
 - include_tasks: 02_install.yml
   when: backup_docker_to_local_folder is not defined
 
-- name: "reset (if enabled) for {{ role_name}}"
+- name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 03_reset.yml
   when: MODE_RESET | bool
 
-- name: Ensure secrets directory exists (root only)
+- name: ✅ Ensure secrets directory exists (root only)
   ansible.builtin.file:
     path: "{{ DIR_SECRETS }}"
     state: directory
@@ -25,7 +25,7 @@
     group: root
     mode: "0700"
 
-- name: Ensure databases.csv exists (root only)
+- name: ✅ Ensure databases.csv exists (root only)
   ansible.builtin.file:
     path: "{{ FILE_DATABASE_SECRETS }}"
     state: touch
@@ -33,16 +33,16 @@
     group: root
     mode: "0600"
 
-- name: Check if databases.csv has content
+- name: 🔎 Check if databases.csv has content
   file_has_content:
     path: "{{ FILE_DATABASE_SECRETS }}"
   register: db_csv
 
-- name: Compute backup force-flush flag
+- name: 🧮 Compute backup force-flush flag
   ansible.builtin.set_fact:
     _backup_force_flush_instant: "{{ MODE_BACKUP | bool and db_csv.exists and db_csv.has_content }}"
 
-- name: "Execute system service setup for '{{ system_service_id }}'"
+- name: "▶️ Execute system service setup for '{{ system_service_id }}'"
   include_role:
     name: sys-service
   vars:

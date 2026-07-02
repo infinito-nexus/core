@@ -1,5 +1,5 @@
 ---
-- name: "Extract Google reCAPTCHA config from realm dictionary"
+- name: "📤 Extract Google reCAPTCHA config from realm dictionary"
   set_fact:
     kc_recaptcha_cfg: >-
       {{
@@ -9,14 +9,14 @@
         | first | default({}, true)
       }}
 
-- name: "Sanity check: reCAPTCHA config exists in dictionary"
+- name: "✅ Sanity check: reCAPTCHA config exists in dictionary"
   assert:
     that:
       - kc_recaptcha_cfg | length > 0
     fail_msg: "Google reCAPTCHA config not found in KEYCLOAK_DICTIONARY_REALM.authenticatorConfig."
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
-- name: "Fetch executions of 'registration form' flow"
+- name: "⬇️ Fetch executions of 'registration form' flow"
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get
     "authentication/flows/registration%20form/executions"
@@ -24,7 +24,7 @@
   register: kc_reg_exec
   changed_when: false
 
-- name: "Extract reCAPTCHA authenticator config id"
+- name: "📤 Extract reCAPTCHA authenticator config id"
   set_fact:
     kc_recaptcha_cfg_id: >-
       {{
@@ -34,7 +34,7 @@
         | first | default('')
       }}
 
-- name: "Update Google reCAPTCHA authenticator config from dictionary"
+- name: "🔄 Update Google reCAPTCHA authenticator config from dictionary"
   when: kc_recaptcha_cfg_id | length > 0
   shell: |
     cat <<'JSON' | {{ KEYCLOAK_EXEC_KCADM }} update authentication/config/{{ kc_recaptcha_cfg_id }} -r {{ KEYCLOAK_REALM }} -f -

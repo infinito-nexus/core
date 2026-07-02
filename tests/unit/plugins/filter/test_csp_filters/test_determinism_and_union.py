@@ -10,14 +10,12 @@ class TestCspDeterminismAndUnion(unittest.TestCase):
         self.apps = {
             "app1": {
                 "services": {"matomo": {"enabled": False}},
-                "server": {
-                    "csp": {
-                        "whitelist": {"connect-src": []},
-                        "flags": {
-                            "script-src": {"unsafe-inline": False, "unsafe-eval": True}
-                        },
-                        "hashes": {},
-                    }
+                "csp": {
+                    "whitelist": {"connect-src": []},
+                    "flags": {
+                        "script-src": {"unsafe-inline": False, "unsafe-eval": True}
+                    },
+                    "hashes": {},
                 },
             }
         }
@@ -33,7 +31,7 @@ class TestCspDeterminismAndUnion(unittest.TestCase):
 
     def test_connect_src_tokens_sorted_and_self_first(self):
         apps = copy.deepcopy(self.apps)
-        apps["app1"]["server"]["csp"]["whitelist"]["connect-src"] = [
+        apps["app1"]["csp"]["whitelist"]["connect-src"] = [
             "https://zzz.example.com",
             "https://aaa.example.com",
             "https://mmm.example.com",
@@ -48,12 +46,12 @@ class TestCspDeterminismAndUnion(unittest.TestCase):
         apps1 = copy.deepcopy(self.apps)
         apps2 = copy.deepcopy(self.apps)
 
-        apps1["app1"]["server"]["csp"]["whitelist"]["connect-src"] = [
+        apps1["app1"]["csp"]["whitelist"]["connect-src"] = [
             "https://c.example.com",
             "https://b.example.com",
             "https://a.example.com",
         ]
-        apps2["app1"]["server"]["csp"]["whitelist"]["connect-src"] = [
+        apps2["app1"]["csp"]["whitelist"]["connect-src"] = [
             "https://a.example.com",
             "https://c.example.com",
             "https://b.example.com",
@@ -65,11 +63,11 @@ class TestCspDeterminismAndUnion(unittest.TestCase):
 
     def test_style_family_union_flows_into_base_only_no_mirror_back(self):
         apps = copy.deepcopy(self.apps)
-        apps["app1"]["server"]["csp"].setdefault("whitelist", {})
-        apps["app1"]["server"]["csp"]["whitelist"]["style-src-elem"] = [
+        apps["app1"]["csp"].setdefault("whitelist", {})
+        apps["app1"]["csp"]["whitelist"]["style-src-elem"] = [
             "https://elem-only.example.com"
         ]
-        apps["app1"]["server"]["csp"]["whitelist"]["style-src-attr"] = [
+        apps["app1"]["csp"]["whitelist"]["style-src-attr"] = [
             "https://attr-only.example.com"
         ]
 
@@ -85,8 +83,8 @@ class TestCspDeterminismAndUnion(unittest.TestCase):
 
     def test_no_unintended_mirroring_back_to_elem_attr(self):
         apps = copy.deepcopy(self.apps)
-        apps["app1"]["server"]["csp"].setdefault("whitelist", {})
-        apps["app1"]["server"]["csp"]["whitelist"]["style-src"] = [
+        apps["app1"]["csp"].setdefault("whitelist", {})
+        apps["app1"]["csp"]["whitelist"]["style-src"] = [
             "https://base-only.example.com"
         ]
 

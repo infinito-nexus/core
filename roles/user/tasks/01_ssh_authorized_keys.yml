@@ -1,5 +1,5 @@
 ---
-- name: Validate user authorized_keys is a list when defined
+- name: ✅ Validate user authorized_keys is a list when defined
   ansible.builtin.fail:
     msg: >-
       Invalid SSH key configuration for user key '{{ user_key }}'.
@@ -8,7 +8,7 @@
     - user_config_effective.authorized_keys is defined
     - user_config_effective.authorized_keys is string or user_config_effective.authorized_keys is not iterable
 
-- name: Ensure SSH directory exists for '{{ user_username }}'
+- name: ✅ Ensure SSH directory exists for '{{ user_username }}'
   ansible.builtin.file:
     path: "{{ user_home }}/.ssh"
     state: directory
@@ -18,7 +18,7 @@
   when:
     - user_config_effective.authorized_keys is defined
 
-- name: Write authorized_keys for '{{ user_username }}'
+- name: ✏️ Write authorized_keys for '{{ user_username }}'
   ansible.builtin.copy:
     dest: "{{ user_home }}/.ssh/authorized_keys"
     content: |

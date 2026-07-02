@@ -22,6 +22,7 @@ from . import (
     infinito_package_cache_direct_mem,
     infinito_package_cache_heap,
     infinito_parent_image,
+    infinito_playwright_reports_base_dir,
     infinito_pull_policy,
     infinito_registry_cache_max_size,
     infinito_running_on_act,
@@ -35,6 +36,7 @@ from . import (
 
 ORDERED_HANDLERS = [
     passthrough,
+    infinito_playwright_reports_base_dir,
     infinito_worker_cpu,
     infinito_worker_fetch,
     infinito_container,

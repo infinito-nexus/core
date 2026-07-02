@@ -1,0 +1,4 @@
+---
+canonical:
+  - open.cloud.{{ DOMAIN_PRIMARY }}
+aliases: []

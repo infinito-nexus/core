@@ -1,15 +1,15 @@
 ---
-- name: "ansible-flavor: clone matrix-docker-ansible-deploy upstream"
+- name: "⬇️ ansible-flavor: clone matrix-docker-ansible-deploy upstream"
   include_tasks: 01_clone_upstream.yml
 
-- name: "ansible-flavor: render MDAD inventory"
+- name: "📄 ansible-flavor: render MDAD inventory"
   include_tasks: 02_render_inventory.yml
 
-- name: "ansible-flavor: provision Matrix database on central postgres"
+- name: "🔧 ansible-flavor: provision Matrix database on central postgres"
   include_tasks: 03_database.yml
 
-- name: "ansible-flavor: launch matrix-mdad DiD container"
+- name: "🚀 ansible-flavor: launch matrix-mdad DiD container"
   include_tasks: 04_run_playbook.yml
 
-- name: "ansible-flavor: wire sys-svc-proxy to matrix-mdad loopback ports"
+- name: "🔌 ansible-flavor: wire sys-svc-proxy to matrix-mdad loopback ports"
   include_tasks: 05_proxy_wiring.yml

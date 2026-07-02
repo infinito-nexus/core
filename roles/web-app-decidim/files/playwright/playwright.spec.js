@@ -116,6 +116,8 @@ async function oidcLogin(page, username, password) {
       declineBtn.click({ force: true }),
     ]);
     console.log("After registration URL:", page.url());
+    await page.waitForURL((url) => url.host === new URL(baseUrl).host, { timeout: 30000 }).catch(() => {});
+    await page.waitForLoadState("load", { timeout: 30000 }).catch(() => {});
   }
 }
 
@@ -157,6 +159,7 @@ test("biber can access profile after OIDC login", async ({ page }) => {
   // Biber accesses their account page
   await page.goto(`${baseUrl}/account`);
   await page.waitForLoadState("networkidle");
+  await page.waitForURL(/\/account/, { timeout: 30000 }).catch(() => {});
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(page.locator("h1, h2").first()).toBeVisible();
 });

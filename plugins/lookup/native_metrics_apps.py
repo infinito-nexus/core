@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache import ROLES_DIR
-from utils.cache.applications import get_merged_applications
 from utils.roles.applications.config import get as get_app_conf
 
 
@@ -23,8 +23,7 @@ class LookupModule(LookupBase):
       {% include 'roles/' + app_id + '/templates/prometheus.yml.j2' %}
       {% endfor %}
 
-    'applications' is obtained via get_merged_applications — the same merged view
-    that backs lookup('applications').
+    'applications' is obtained via lookup('applications'), the merged-config SPOT.
     """
 
     def run(
@@ -36,11 +35,9 @@ class LookupModule(LookupBase):
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
         roles_dir = ROLES_DIR
-        applications = get_merged_applications(
-            variables=vars_,
-            roles_dir=kwargs.get("roles_dir") or str(roles_dir),
-            templar=getattr(self, "_templar", None),
-        )
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=vars_)[0]
 
         group_names: list[str] = vars_.get("group_names", [])
 

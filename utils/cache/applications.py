@@ -26,6 +26,7 @@ from .base import (
     _resolve_roles_dir,
     _stable_variables_signature,
 )
+from .schema_credentials import extract_default_credentials
 from .yaml import load_yaml as _load_yaml_cached
 from .yaml import load_yaml_any as _load_yaml_any_cached
 
@@ -38,52 +39,41 @@ _VARIANTS_CACHE: dict[str, dict[str, list[Any]]] = {}
 _VARIANT_OVERRIDES_ONLY_CACHE: dict[str, dict[str, list[dict[str, Any]]]] = {}
 _MERGED_APPLICATIONS_CACHE: dict[tuple, dict[str, Any]] = {}
 
+# Canonical `meta/volumes.yml` dict-of-dicts kept OUT of the templar render
+# on purpose: the entries hold raw Jinja strings (`source:
+# "{{ lookup('container', ...) }}"`) that `compose_volumes` /
+# `container_volumes` emit verbatim into the rendered compose template where
+# Ansible resolves them at deploy time. If `_render_with_templar` walked them
+# it would either explode (236 roles x deep Jinja) or recurse (volume Jinja
+# re-enters applications). `get_merged_applications` re-attaches this raw
+# subtree onto `applications.<app>.volumes` AFTER the render, so the merged
+# SPOT carries volumes unrendered. Keyed by role name; value is the canonical
+# dict-of-dicts itself (semantic_name -> entry). Populated alongside
+# `_APPLICATIONS_DEFAULTS_CACHE`.
+_CANONICAL_VOLUMES_BY_ROLE: dict[str, dict[str, Any]] = {}
+
 # The file root IS the value of `applications.<app>.<topic>`; there is NO
 # wrapping key matching the filename.
-_META_TOPICS: tuple[str, ...] = ("server", "rbac", "services", "volumes")
+_META_TOPICS: tuple[str, ...] = (
+    "server",
+    "rbac",
+    "services",
+    "volumes",
+    "csp",
+    "domains",
+    "networks",
+)
 
 _META_ADDONS_DIR: str = "addons"
 
-# A metadata-only `info.yml` next to a bare `meta/main.yml` does NOT mark a
-# role as an application by itself; it is just documentation, not config.
-_META_INFO_TOPIC: str = "info"
-
-
-def _extract_default_credentials(creds_node: Any) -> dict[str, Any]:
-    """Walk a `meta/schema.yml` `credentials:` tree and return the subset of
-    leaves that carry a literal `default:` Jinja string.
-
-    The shape mirrors the schema tree: nested keys stay nested. The
-    literal string is preserved verbatim, with no rendering and no
-    validation. Leaves WITHOUT `default:` are intentionally absent so the
-    inventory's apply_schema-generated values win the merge.
-    """
-    if not isinstance(creds_node, Mapping):
-        return {}
-
-    is_leaf = any(
-        marker in creds_node
-        for marker in ("default", "algorithm", "validation", "description")
-    )
-    if is_leaf:
-        return {}
-
-    out: dict[str, Any] = {}
-    for key, value in creds_node.items():
-        if not isinstance(value, Mapping):
-            continue
-        leaf = any(
-            marker in value
-            for marker in ("default", "algorithm", "validation", "description")
-        )
-        if leaf:
-            if "default" in value:
-                out[key] = value["default"]
-        else:
-            nested = _extract_default_credentials(value)
-            if nested:
-                out[key] = nested
-    return out
+# Top-level `meta/<name>.yml` files the generic tree-walk must NOT place
+# verbatim: `main`/`variants` are ansible/build mechanism (never app config);
+# `volumes`/`schema`/`users` are reshaped by the bespoke blocks below
+# (volumes carve-out to a sibling registry, schema->credentials,
+# users->lookup rewrite). `addons/` is a directory, assembled separately.
+_META_NON_GENERIC_TOPICS: frozenset[str] = frozenset(
+    {"main", "variants", "volumes", "schema", "users"}
+)
 
 
 def _normalize_addons(addons: Any) -> Any:
@@ -156,24 +146,53 @@ def _has_application_metadata(role_dir: Path) -> bool:
     return addons_dir.is_dir() and any(addons_dir.glob("*.yml"))
 
 
+def _assign_nested(root: dict[str, Any], parts: tuple[str, ...], value: Any) -> None:
+    """Place *value* at the nested key path *parts* inside *root*, mirroring
+    the `meta/` directory layout onto `applications.<app>`: ``("addons", "x")``
+    lands at ``root["addons"]["x"]``. A non-dict value already sitting on an
+    intermediate segment is replaced by a fresh dict so a deeper file always
+    wins its own path.
+    """
+    node = root
+    for key in parts[:-1]:
+        child = node.get(key)
+        if not isinstance(child, dict):
+            child = {}
+            node[key] = child
+        node = child
+    node[parts[-1]] = value
+
+
 def _build_role_base_config(
     role_dir: Path,
     roles_dir: Path,
 ) -> dict[str, Any]:
-    """Assemble a role's effective `applications.<app>` payload from its
-    `meta/<topic>.yml` files.
+    """Assemble a role's effective `applications.<app>` payload by walking its
+    entire `meta/` tree.
+
+    Every `meta/**/*.yml` maps to `applications.<app>.<relpath>` (directory
+    segments become nested keys, the filename stem the leaf), so nested topics
+    work without per-topic wiring:
 
     `meta/server.yml`   → `server`
     `meta/rbac.yml`     → `rbac`
     `meta/services.yml` → `services`
-    `meta/volumes.yml`  → `volumes`
-    `meta/addons/*.yml` → `addons`   (one file per addon id; enable state
-                         normalised by `_normalize_addons`).
-    `meta/info.yml`     → `info`     (descriptive role-level metadata)
-    `meta/schema.yml`   → `credentials` (only the literal `default:` values;
-                         non-default credentials are filled by the
-                         inventory's apply_schema step and merged in by the
-                         caller).
+    `meta/info.yml`     → `info`
+    `meta/addons/x.yml` → `addons.x`
+    `meta/a/b/c.yml`    → `a.b.c`   (any depth)
+
+    Bespoke topics are reshaped instead of placed verbatim:
+
+    `meta/main.yml`, `meta/variants.yml` → skipped (ansible/build mechanism).
+    `meta/volumes.yml`  → canonical dict-of-dicts parked in
+                         `_CANONICAL_VOLUMES_BY_ROLE` (kept OUT of this payload
+                         so its raw Jinja `source:` strings never hit the
+                         templar; `get_merged_applications` re-attaches them).
+    `meta/addons/*.yml` → `addons` (enable state normalised by
+                         `_normalize_addons`).
+    `meta/schema.yml`   → `credentials` (only literal `default:` values;
+                         non-defaults come from the inventory apply_schema step
+                         and are merged in by the caller).
     `meta/users.yml`    → `users` (rewritten to `lookup('users', ...)` so the
                          user-domain cache stays the source of truth).
     Empty role collapses to ``{}`` (no overrides applied).
@@ -185,25 +204,34 @@ def _build_role_base_config(
     application_id = role_dir.name
     config_data: dict[str, Any] = {}
     meta_dir = role_dir / "meta"
+    if not meta_dir.is_dir():
+        return {}
 
-    for topic in _META_TOPICS:
-        topic_data = _load_yaml_cached(meta_dir / f"{topic}.yml", default_if_missing={})
-        if topic_data:
-            config_data[topic] = topic_data
+    for path in sorted(meta_dir.rglob("*.yml")):
+        parts = path.relative_to(meta_dir).with_suffix("").parts
+        if parts[0] == _META_ADDONS_DIR:
+            continue
+        if len(parts) == 1 and parts[0] in _META_NON_GENERIC_TOPICS:
+            continue
+        data = _load_yaml_cached(path, default_if_missing={})
+        if data:
+            _assign_nested(config_data, parts, data)
+
+    # Shape-agnostic loader: a stray legacy list must still load for the
+    # validator's error path. The canonical dict parks in the sibling registry.
+    volumes_data = _load_yaml_any_cached(
+        meta_dir / "volumes.yml", default_if_missing={}
+    )
+    if isinstance(volumes_data, dict) and volumes_data:
+        _CANONICAL_VOLUMES_BY_ROLE[role_dir.name] = volumes_data
 
     addons_data = _load_addons_dir(meta_dir)
     if addons_data:
         config_data["addons"] = addons_data
 
-    info_data = _load_yaml_cached(
-        meta_dir / f"{_META_INFO_TOPIC}.yml", default_if_missing={}
-    )
-    if info_data:
-        config_data[_META_INFO_TOPIC] = info_data
-
     schema_data = _load_yaml_cached(meta_dir / "schema.yml", default_if_missing={})
     if schema_data:
-        creds_defaults = _extract_default_credentials(
+        creds_defaults = extract_default_credentials(
             schema_data.get("credentials") or {}
         )
         if creds_defaults:
@@ -398,6 +426,16 @@ def get_merged_applications(
         # outer templar will resolve remaining Jinja at use-site.
         return merged
 
+    # Drop any `volumes` subtree BEFORE rendering. It can arrive via defaults
+    # OR via a round-tripped `applications` var (the constructor materialises
+    # the full merged config back into the var, volumes included, so a later
+    # lookup reads volumes as overrides). Its raw Jinja `source:` strings must
+    # never reach the templar (explode/recurse); the canonical registry is
+    # re-attached raw below.
+    for app_cfg in merged.values():
+        if isinstance(app_cfg, dict):
+            app_cfg.pop("volumes", None)
+
     _RENDER_GUARD.applications = True
     try:
         raw_users = get_merged_users(
@@ -415,8 +453,29 @@ def get_merged_applications(
     finally:
         _RENDER_GUARD.applications = False
 
+    # Re-attach the raw `volumes` subtree so its Jinja `source:` strings reach
+    # the compose template verbatim. Deep copied so a consumer of the cached
+    # merged payload cannot mutate the canonical registry.
+    for app_id in rendered:
+        raw_volumes = get_canonical_volumes(app_id)
+        if raw_volumes and isinstance(rendered[app_id], dict):
+            rendered[app_id]["volumes"] = copy.deepcopy(raw_volumes)
+
     _MERGED_APPLICATIONS_CACHE[cache_key] = rendered
     return rendered
+
+
+def get_canonical_volumes(application_id: str) -> dict[str, Any]:
+    """Return the canonical dict-of-dicts `meta/volumes.yml` for *application_id*.
+
+    Lives outside the applications payload so its embedded Jinja `source:`
+    strings stay raw — see the `_CANONICAL_VOLUMES_BY_ROLE` doc-comment.
+    """
+    if not _CANONICAL_VOLUMES_BY_ROLE:
+        # Force a real rebuild, not get_application_defaults() which no-ops on a warm
+        # defaults cache and would leave this registry empty (nfs_prep then skips the subdir).
+        _build_application_defaults(_resolve_roles_dir(roles_dir=None))
+    return _CANONICAL_VOLUMES_BY_ROLE.get(application_id, {})
 
 
 def _reset() -> None:
@@ -424,3 +483,4 @@ def _reset() -> None:
     _VARIANTS_CACHE.clear()
     _VARIANT_OVERRIDES_ONLY_CACHE.clear()
     _MERGED_APPLICATIONS_CACHE.clear()
+    _CANONICAL_VOLUMES_BY_ROLE.clear()

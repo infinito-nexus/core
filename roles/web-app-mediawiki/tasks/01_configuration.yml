@@ -1,37 +1,31 @@
 ---
-- name: "MEDIAWIKI | Ensure required host directories exist"
-  file:
-    path: "{{ dir.path }}"
+- name: "✅ MEDIAWIKI | Ensure required host directories exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
     state: directory
     mode: "0755"
   loop:
-    - path: "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}"
-    - path: "{{ MEDIAWIKI_CONFIG_DIR }}"
-  loop_control:
-    loop_var: dir
-    label: "{{ dir.path }}"
+    - "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}"
+    - "{{ MEDIAWIKI_CONFIG_DIR }}"
 
-- name: "MEDIAWIKI | Render host-side PHP config files"
-  template:
-    src: "{{ cfg.src }}"
-    dest: "{{ cfg.dest }}"
-    owner: root
-    group: "{{ MEDIAWIKI_USER_GID }}"
-    mode: "0640"
-  loop:
-    - src: "oidc.php.j2"
-      dest: "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}/oidc.php"
-      when: "{{ MEDIAWIKI_OIDC_ENABLED | bool }}"
-    - src: "debug.php.j2"
-      dest: "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}/debug.php"
-      when: true
-    - src: "LocalSettings.php.j2"
-      dest: "{{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}"
-      when: true
-  loop_control:
-    loop_var: cfg
-    label: "{{ cfg.dest | basename }}"
-  when: cfg.when | bool
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  register: mediawiki_config_render
-  notify: compose up
+- name: "📄 MEDIAWIKI | Render host-side PHP config files"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "oidc.php.j2"
+        dest: "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}/oidc.php"
+        owner: "root"
+        group: "{{ MEDIAWIKI_USER_GID }}"
+        mode: "0640"
+        condition: "{{ MEDIAWIKI_OIDC_ENABLED | bool }}"
+      - src: "debug.php.j2"
+        dest: "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}/debug.php"
+        owner: "root"
+        group: "{{ MEDIAWIKI_USER_GID }}"
+        mode: "0640"
+      - src: "LocalSettings.php.j2"
+        dest: "{{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}"
+        owner: "root"
+        group: "{{ MEDIAWIKI_USER_GID }}"
+        mode: "0640"

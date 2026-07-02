@@ -1,0 +1,18 @@
+[ req ]
+default_bits       = {{ CA_ROOT.key_bits }}
+default_md         = sha256
+prompt             = no
+distinguished_name = dn
+x509_extensions    = v3_ca
+
+[ dn ]
+C  = {{ CA_ROOT.subject.C }}
+O  = {{ CA_ROOT.subject.O }}
+OU = {{ CA_ROOT.subject.OU }}
+CN = {{ CA_ROOT.subject.CN }}
+
+[ v3_ca ]
+basicConstraints       = critical,CA:TRUE,pathlen:1
+keyUsage               = critical,keyCertSign,cRLSign
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer

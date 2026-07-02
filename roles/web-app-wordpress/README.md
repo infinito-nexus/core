@@ -41,7 +41,7 @@ The goal of this deployment is to provide a production-ready, scalable WordPress
 
 ## Multisite (requirement 005)
 
-WordPress Multisite is opt-in. Set `services.wordpress.multisite.enabled: true` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in `server.domains.canonical` becomes a site in the network; the first entry is the network primary, subsequent entries are child sites.
+WordPress Multisite is opt-in. Set `services.wordpress.multisite.enabled: true` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in `domains.canonical` becomes a site in the network; the first entry is the network primary, subsequent entries are child sites.
 
 RBAC under Multisite uses the hierarchical Keycloak group path:
 

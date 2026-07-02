@@ -1,11 +1,11 @@
 ---
 - block:
-    - name: Include dependency 'pkgmgr'
+    - name: 📂 Include dependency 'pkgmgr'
       include_role:
         name: pkgmgr
       when: run_once_pkgmgr is not defined
 
-    - name: install base developer tools
+    - name: 📦 install base developer tools
       package:
         name:
           - code

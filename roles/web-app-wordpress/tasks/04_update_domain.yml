@@ -2,68 +2,68 @@
 # Updates WordPress single-site URLs and normalizes DB references.
 # Expects: wp_new_url (passed from main.yml), WORDPRESS_USER/container/docker_html_path.
 
-- name: Get current 'home' URL
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+- name: ⬇️ Get current 'home' URL
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp option get home --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   register: wp_home
   changed_when: false
   failed_when: false
 
-- name: Get current 'siteurl'
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+- name: ⬇️ Get current 'siteurl'
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp option get siteurl --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   register: wp_siteurl
   changed_when: false
   failed_when: false
 
-- name: Update 'home' (if needed)
+- name: 🔄 Update 'home' (if needed)
   vars:
     wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
     wp_home_norm: "{{ wp_home.stdout | regex_replace('/+$','') }}"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp option update home "{{ wp_new_url_norm }}" --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   when: wp_home_norm != wp_new_url_norm
 
-- name: Update 'siteurl' (if needed)
+- name: 🔄 Update 'siteurl' (if needed)
   vars:
     wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
     wp_siteurl_norm: "{{ wp_siteurl.stdout | regex_replace('/+$','') }}"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp option update siteurl "{{ wp_new_url_norm }}" --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   when: wp_siteurl_norm != wp_new_url_norm
 
-- name: Search-replace old → new URLs in DB (single site)
+- name: 🔍 Search-replace old → new URLs in DB (single site)
   vars:
     wp_old_url_norm: "{{ wp_home.stdout | regex_replace('/+$','') }}"
     wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp search-replace "{{ wp_old_url_norm }}" "{{ wp_new_url_norm }}"
     --skip-columns=guid --all-tables-with-prefix --precise
     --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   register: wp_sr_domain
-  changed_when: "{{ ('Success: Made 0 replacements.' not in wp_sr_domain.stdout) | bool }}"
+  changed_when: "('Success: Made 0 replacements.' not in wp_sr_domain.stdout) | bool"
 
-- name: Normalize scheme to https if needed (http → https)
+- name: 📐 Normalize scheme to https if needed (http → https)
   vars:
     domain_only: "{{ (wp_new_url | regex_replace('^https?://','')) | regex_replace('/+$','') }}"
     http_url: "http://{{ domain_only }}"
     https_url: "https://{{ domain_only }}"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp search-replace "{{ http_url }}" "{{ https_url }}"
     --skip-columns=guid --all-tables-with-prefix --precise
     --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   register: wp_sr_scheme
-  changed_when: "{{ ('Success: Made 0 replacements.' not in wp_sr_scheme.stdout) | bool }}"
+  changed_when: "('Success: Made 0 replacements.' not in wp_sr_scheme.stdout) | bool"
   when: lookup('tls', application_id, 'enabled') | bool
 
-- name: Flush caches and rewrite rules
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }} bash -lc
+- name: 🚿 Flush caches and rewrite rules
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
     "wp cache flush --path={{ WORDPRESS_DOCKER_HTML_PATH }} &&
      wp rewrite flush --hard --path={{ WORDPRESS_DOCKER_HTML_PATH }}"

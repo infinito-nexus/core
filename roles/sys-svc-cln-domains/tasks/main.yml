@@ -1,6 +1,6 @@
 ---
 - block:
-    - name: Include dependencies
+    - name: 📂 Include dependencies
       include_role:
         name: "{{ dependency_role }}"
       loop:
@@ -8,7 +8,7 @@
       loop_control:
         loop_var: dependency_role
 
-    - name: Include task to remove deprecated nginx configs
+    - name: 📂 Include task to remove deprecated nginx configs
       include_tasks: remove_deprecated_nginx_configs.yml
       loop: "{{ deprecated_domains }}"
       loop_control:

@@ -17,6 +17,14 @@ through to ``cli.administration.deploy.development`` via the ``variant``
 environment variable (consumed by ``--variant``), so a runner only iterates the
 rounds in its bundle. ``variant_slug`` is a comma-free copy for artifact/job
 names (GitHub Actions expressions have no string-replace function).
+
+In swarm mode (``INFINITO_DEPLOY_MODE=swarm``) the split is one variant per
+runner (bundle size 1) and variants whose ``meta/variants.yml`` override
+disables every service are dropped: the all-enabled variant already exercises
+the role, so a bare all-off deploy adds no coverage. Surviving variants keep
+their ABSOLUTE index, so the emitted ``variant`` index still maps to the same
+``meta/variants.yml`` round the deploy planner resolves. Compose mode is
+unchanged.
 """
 
 from __future__ import annotations
@@ -29,7 +37,10 @@ from typing import TYPE_CHECKING
 from humanfriendly import parse_size
 
 from utils import PROJECT_ROOT
-from utils.cache.applications import get_variants
+from utils.cache.applications import (
+    get_variant_overrides_only,
+    get_variants,
+)
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
@@ -37,6 +48,9 @@ from utils.roles.applications.services.registry import (
 from utils.roles.applications.services.resources import (
     aggregate,
     collect_role_resources,
+)
+from utils.roles.applications.services.variant_status import (
+    deployable_variant_indices,
 )
 
 if TYPE_CHECKING:
@@ -83,21 +97,21 @@ def resolve_max_storage(raw: str | None = None) -> int | None:
         ) from None
 
 
-def bundle_indices(
-    count: int,
+def _pack_indices(
+    indices: Sequence[int],
     bundle_size: int,
     storages: Sequence[int | None] | None = None,
     max_storage_bytes: int | None = None,
 ) -> list[list[int]]:
-    """Greedily pack variant indices into bundles, opening a new bundle as soon
-    as the current one would exceed ``bundle_size`` variants OR
-    ``max_storage_bytes`` cumulative ``min_storage``; both counters reset per
-    bundle. With no storage cap this matches ``chunk_indices``. A single variant
-    that alone exceeds the storage cap still forms its own bundle."""
+    """Greedily pack the given (absolute) variant indices into bundles, opening
+    a new bundle as soon as the current one would exceed ``bundle_size``
+    variants OR ``max_storage_bytes`` cumulative ``min_storage``; both counters
+    reset per bundle. ``storages`` is indexed by the ABSOLUTE variant index, so
+    a filtered index list still reads the right per-variant storage."""
     bundles: list[list[int]] = []
     current: list[int] = []
     current_storage = 0
-    for index in range(count):
+    for index in indices:
         size = 0
         if storages is not None and index < len(storages):
             size = storages[index] or 0
@@ -118,6 +132,18 @@ def bundle_indices(
     return bundles
 
 
+def bundle_indices(
+    count: int,
+    bundle_size: int,
+    storages: Sequence[int | None] | None = None,
+    max_storage_bytes: int | None = None,
+) -> list[list[int]]:
+    """Pack ``0..count-1`` into bundles. With no storage cap this matches
+    ``chunk_indices``. A single variant that alone exceeds the storage cap still
+    forms its own bundle."""
+    return _pack_indices(list(range(count)), bundle_size, storages, max_storage_bytes)
+
+
 def chunk_indices(count: int, bundle_size: int) -> list[list[int]]:
     return [
         list(range(start, min(start + bundle_size, count)))
@@ -130,8 +156,9 @@ def variant_count(variants_per_app: Mapping[str, Sequence[Any]], app: str) -> in
 
 
 def _entry(app: str, variant_csv: str) -> dict[str, str]:
-    # `variant_slug` is a comma-free copy for artifact/job names: GitHub Actions
-    # expressions have no replace(), so the CSV cannot be sanitised in YAML.
+    """``variant_slug`` is a comma-free copy of ``variant_csv`` for artifact/job
+    names: GitHub Actions expressions have no ``replace()``, so the CSV cannot be
+    sanitised in YAML."""
     return {
         "apps": app,
         "variant": variant_csv,
@@ -146,6 +173,7 @@ def expand_apps(
     *,
     storages_per_app: Mapping[str, Sequence[int | None]] | None = None,
     max_storage_bytes: int | None = None,
+    deployable_indices_per_app: Mapping[str, Sequence[int]] | None = None,
 ) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
     for app in apps:
@@ -153,11 +181,19 @@ def expand_apps(
         if not variant_list:
             entries.append({"apps": app, "variant": "", "variant_slug": ""})
             continue
+        indices = list(range(len(variant_list)))
+        if deployable_indices_per_app is not None:
+            allowed = set(deployable_indices_per_app.get(app, indices))
+            indices = [i for i in indices if i in allowed]
+        if not indices:
+            continue
         storages = (storages_per_app or {}).get(app)
-        bundles = bundle_indices(
-            len(variant_list), bundle_size, storages, max_storage_bytes
+        entries.extend(
+            _entry(app, ",".join(map(str, chunk)))
+            for chunk in _pack_indices(
+                indices, bundle_size, storages, max_storage_bytes
+            )
         )
-        entries.extend(_entry(app, ",".join(map(str, chunk))) for chunk in bundles)
     return entries
 
 
@@ -192,6 +228,51 @@ def app_variant_storages(
     return result
 
 
+def compose_bundle_counts(
+    apps: Iterable[str],
+    variants_per_app: Mapping[str, Sequence[Any]],
+    *,
+    roles_dir: Path = ROLES_DIR,
+) -> dict[str, int]:
+    """Per app, the number of compose CI bundles (jobs) its variants pack into.
+
+    Uses the same bundle-size + cumulative-``min_storage`` packing as the
+    compose deploy matrix (``expand_apps`` / ``bundle_indices``), so the
+    ``complexity`` report and the matrix never diverge on the job count.
+    """
+    apps = list(apps)
+    storages = app_variant_storages(apps, variants_per_app, roles_dir)
+    bundle_size = resolve_bundle_size()
+    max_storage = resolve_max_storage()
+    return {
+        app: len(
+            bundle_indices(
+                variant_count(variants_per_app, app),
+                bundle_size,
+                storages.get(app),
+                max_storage,
+            )
+        )
+        for app in apps
+    }
+
+
+def _swarm_mode() -> bool:
+    return (os.environ.get("INFINITO_DEPLOY_MODE") or "").strip().lower() == "swarm"
+
+
+def _deployable_indices(
+    apps: Iterable[str],
+    overrides_per_app: Mapping[str, Sequence[Any]],
+) -> dict[str, list[int]]:
+    """Per app, the variant indices the swarm matrix may deploy, via the shared
+    ``deployable_variant_indices`` SPOT (drops all-off variants)."""
+    return {
+        app: deployable_variant_indices(list(overrides_per_app.get(app) or []))
+        for app in apps
+    }
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     raw = argv[0] if argv else sys.stdin.read()
@@ -202,13 +283,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"{type(apps).__name__}"
         )
     variants_per_app = get_variants()
-    entries = expand_apps(
-        apps,
-        variants_per_app,
-        resolve_bundle_size(),
-        storages_per_app=app_variant_storages(apps, variants_per_app),
-        max_storage_bytes=resolve_max_storage(),
-    )
+    if _swarm_mode():
+        entries = expand_apps(
+            apps,
+            variants_per_app,
+            1,
+            deployable_indices_per_app=_deployable_indices(
+                apps, get_variant_overrides_only()
+            ),
+        )
+    else:
+        entries = expand_apps(
+            apps,
+            variants_per_app,
+            resolve_bundle_size(),
+            storages_per_app=app_variant_storages(apps, variants_per_app),
+            max_storage_bytes=resolve_max_storage(),
+        )
     print(json.dumps(entries))
     return 0
 

@@ -174,15 +174,11 @@ def _run_deploy(
         if runner_count is not None:
             cmd += ["-e", f"RUNNER_COUNT={runner_count}"]
 
-        # Pass GitHub identity as extra-vars (direct override, not env-lookup).
-        # vars/main.yml resolves RUNNER_GITHUB_OWNER/REPO via lookup('env', ...) which
-        # can be unreliable across subprocess boundaries — direct -e is authoritative.
         if owner is not None:
             cmd += ["-e", f"RUNNER_GITHUB_OWNER={owner}"]
         if repo is not None:
             cmd += ["-e", f"RUNNER_GITHUB_REPO={repo}"]
 
-        # Token via env (avoid leaking into process list).
         extra_env = dict(os.environ)
         token = os.environ.get("RUNNER_API_TOKEN") or os.environ.get("GH_TOKEN") or ""
         if token:
@@ -214,7 +210,6 @@ def _run_deploy(
         return proc.returncode
 
     finally:
-        # Best-effort cleanup — temp files may already be gone if the OS cleaned up.
         with contextlib.suppress(OSError):
             Path(inv_path).unlink()
         with contextlib.suppress(OSError):

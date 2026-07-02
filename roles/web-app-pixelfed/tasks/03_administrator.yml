@@ -1,5 +1,5 @@
 ---
-- name: "Wait until the Pixelfed users table exists"
+- name: "⏳ Wait until the Pixelfed users table exists"
   database_query:
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/select-users-table.sql"
@@ -14,7 +14,7 @@
   until: pixelfed_users_table.rows | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Check whether the Pixelfed administrator already exists"
+- name: "🔎 Check whether the Pixelfed administrator already exists"
   database_query:
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/select-admin-id.sql"
@@ -26,14 +26,14 @@
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Create the Pixelfed administrator via artisan"
+- name: "📁 Create the Pixelfed administrator via artisan"
   ansible.builtin.command:
     argv:
       - container
       - exec
       - -u
       - "{{ PIXELFED_APP_USER }}"
-      - "{{ PIXELFED_CONTAINER }}"
+      - "{{ PIXELFED_LOCAL_CID }}"
       - php
       - artisan
       - user:create
@@ -43,14 +43,13 @@
       - "--password={{ PIXELFED_ADMIN_PASSWORD }}"
       - --is_admin=1
       - --confirm_email=1
-  args:
-    chdir: "{{ PIXELFED_INSTANCE_DIR }}"
   when: pixelfed_admin_id_existing.rows | length == 0
   register: pixelfed_admin_create
   changed_when: pixelfed_admin_create.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
-- name: "Resolve the Pixelfed administrator id"
+- name: "🔍 Resolve the Pixelfed administrator id"
   database_query:
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/select-admin-id.sql"

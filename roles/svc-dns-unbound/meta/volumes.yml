@@ -1,0 +1,14 @@
+---
+data:
+  type: volume
+  name: unbound_data
+  mounts:
+    - service: unbound
+      target: /etc/unbound
+conf:
+  type: config
+  source: "{{ [ lookup('container', 'svc-dns-unbound', 'directories.volumes'), 'unbound.conf' ] | path_join }}"
+  mode: "0440"
+  mounts:
+    - service: unbound
+      target: /unbound.conf

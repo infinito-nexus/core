@@ -40,6 +40,8 @@ opencloud:
   ports:
     local:
       http: 8071
+    internal:
+      http: 9200
   run_after:
     - web-app-keycloak
   lifecycle: beta

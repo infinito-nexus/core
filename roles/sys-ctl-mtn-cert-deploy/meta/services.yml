@@ -2,4 +2,7 @@
 cert-deploy:
   lifecycle: beta
   required_by:
-    roles: [web-app-mailu]
+    compose:
+      roles: [web-app-mailu]
+    swarm:
+      roles: [web-app-mailu]

@@ -1,0 +1,26 @@
+---
+# nocheck: dynamic-flag
+node:
+  enabled: true
+  shared: true
+  bond: 1
+docker:
+  # nocheck: default-placement-manager  local registry that holds locally-built infinito images for docker stack deploy; chicken-and-egg if scheduled on a worker
+  default_placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: registry
+  version: "2"
+  name: registry
+  min_storage: 5GB
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 256
+  ports:
+    local:
+      registry: 5000
+    internal:
+      registry: 5000
+  lifecycle: alpha

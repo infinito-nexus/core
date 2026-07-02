@@ -26,12 +26,12 @@ jobs:
     name: 🔄 Sync main
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Sync main from source repository
+      - name: 🔄 Sync main from source repository
         shell: bash
         env:
           CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
@@ -51,19 +51,19 @@ jobs:
       skip_reason: ${{ steps.decide.outputs.skip_reason }}
       commit_in_main: ${{ steps.decide.outputs.commit_in_main }}
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Fetch main
+      - name: ⬇️ Fetch main
         if: github.event.created == true
         shell: bash
         run: |
           set -euo pipefail
           git fetch origin main:refs/remotes/origin/main --force
 
-      - name: Decide whether CI should run for this push
+      - name: 🤔 Decide whether CI should run for this push
         id: decide
         env:
           GITHUB_EVENT_CREATED: ${{ github.event.created }}
@@ -78,7 +78,7 @@ jobs:
     if: needs.run-policy.outputs.should_run != 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Explain skip
+      - name: ⏭️ Explain skip
         shell: bash
         run: |
           set -euo pipefail
@@ -95,7 +95,7 @@ jobs:
       is_version: ${{ steps.pick.outputs.is_version }}
       version_tag: ${{ steps.pick.outputs.version_tag }}
     steps:
-      - name: Checkout (with tags)
+      - name: ⬇️ Checkout (with tags)
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -129,19 +129,19 @@ jobs:
     outputs:
       allowed: ${{ steps.guard.outputs.allowed }}
     steps:
-      - name: Checkout (with full history)
+      - name: ⬇️ Checkout (with full history)
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Fetch main
+      - name: ⬇️ Fetch main
         shell: bash
         run: |
           set -euo pipefail
           git fetch origin main:refs/remotes/origin/main --force
 
-      - name: "Guard: tag commit must be contained in origin/main"
+      - name: "🛡️ Guard: tag commit must be contained in origin/main"
         id: guard
         shell: bash
         env:

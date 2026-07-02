@@ -1,20 +1,20 @@
 ---
-- name: "Assert correct context"
+- name: "✅ Assert correct context"
   ansible.builtin.assert:
     that:
       - application_id == 'svc-db-postgres'
       - database_consumer_id != 'svc-db-postgres'
 
-- name: Normalize postgres credential strings for module args
+- name: 📐 Normalize postgres credential strings for module args
   ansible.builtin.set_fact:
     postgres_login_password_string: "{{ POSTGRES_PASSWORD | string }}"
     postgres_database_password_string: "{{ database_password | string }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Wait until postgres TCP auth works
+- name: ⏳ Wait until postgres TCP auth works
   block:
-    - name: Wait for Postgres TCP auth
+    - name: ⏳ Wait for Postgres TCP auth
       ansible.builtin.shell: >
         {{ POSTGRES_EXEC_SHELL }}
         'psql -h "{{ POSTGRES_LOCAL_HOST }}" -p "{{ POSTGRES_PORT }}"
@@ -26,13 +26,13 @@
       changed_when: false
 
   rescue:
-    - name: "POSTGRES | container logs (last 200 lines)"
+    - name: "📦 POSTGRES | container logs (last 200 lines)"
       ansible.builtin.command: "container logs --tail 200 {{ POSTGRES_CONTAINER }}"
       register: dbg_docker_logs
       changed_when: false
       failed_when: false
 
-    - name: "POSTGRES | Failure report"
+    - name: "📊 POSTGRES | Failure report"
       ansible.builtin.debug:
         msg:
           postgres_container: "{{ POSTGRES_CONTAINER }}"
@@ -40,14 +40,13 @@
           postgres_port: "{{ POSTGRES_PORT }}"
           last_logs: "{{ dbg_docker_logs.stdout | default('') }}"
 
-    - name: "POSTGRES | Fail explicitly after logs"
+    - name: "🛑 POSTGRES | Fail explicitly after logs"
       ansible.builtin.fail:
         msg: >-
           Postgres did not become ready for TCP authentication.
           Last 200 container log lines were printed above.
 
-# 1) Create the database
-- name: "Create database: {{ database_name }}"
+- name: "📁 Create database: {{ database_name }}"
   community.postgresql.postgresql_db:
     name: "{{ database_name }}"
     state: present
@@ -60,12 +59,11 @@
   retries: "{{ POSTGRES_RETRIES }}"
   delay: "{{ POSTGRES_DELAY }}"
 
-# 2) Create the database user (with password)
-- name: "Create database user: {{ database_username }}"
+- name: "📁 Create database user: {{ database_username }}"
   community.postgresql.postgresql_user:
     name: "{{ database_username }}"
     password: "{{ postgres_database_password_string }}"
-    db: "{{ database_name }}"
+    login_db: "{{ database_name }}"
     state: present
     login_user: postgres
     login_password: "{{ postgres_login_password_string }}"
@@ -76,13 +74,12 @@
   retries: "{{ POSTGRES_RETRIES }}"
   delay: "{{ POSTGRES_DELAY }}"
 
-# 3) Enable LOGIN for the role (removes NOLOGIN)
-- name: "POSTGRES | Ensure LOGIN for role {{ database_username }} (with debug on failure)"
+- name: "✅ Ensure LOGIN for role {{ database_username }} (debug on failure)"
   block:
-    - name: "POSTGRES | Enable login for role {{ database_username }}"
+    - name: "🟢 POSTGRES | Enable login for role {{ database_username }}"
       # nocheck: database-query — svc-db-postgres bootstraps its own DB; the `database_query` module's `lookup('database', ...)` indirection isn't usable from inside the role that provides the lookup target.
       community.postgresql.postgresql_query:
-        db: postgres
+        login_db: postgres
         login_user: postgres
         login_password: "{{ postgres_login_password_string }}"
         login_host: "{{ POSTGRES_LOCAL_HOST }}"
@@ -97,8 +94,7 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
   rescue:
-    # --- High-signal Ansible context -----------------------------------------
-    - name: "POSTGRES | Debug context (vars, without secrets)"
+    - name: "🐛 POSTGRES | Debug context (vars, without secrets)"
       ansible.builtin.debug:
         msg:
           application_id: "{{ application_id }}"
@@ -112,7 +108,7 @@
           POSTGRES_IMAGE: "{{ POSTGRES_IMAGE | default('n/a') }}"
       changed_when: false
 
-    - name: "POSTGRES | container info (DockerRootDir)"
+    - name: "📦 POSTGRES | container info (DockerRootDir)"
       ansible.builtin.shell: |
         set -e
         {% raw %}
@@ -122,40 +118,37 @@
       changed_when: false
       failed_when: false
 
-    # --- Container existence & status ----------------------------------------
-    - name: "POSTGRES | container ps (postgres)"
+    - name: "📦 POSTGRES | container ps (postgres)"
       ansible.builtin.command: "container ps -a --no-trunc --filter name=^/{{ POSTGRES_CONTAINER }}$"
       register: dbg_docker_ps
       changed_when: false
       failed_when: false
 
-    - name: "POSTGRES | container inspect (escaped go-templates)"
+    - name: "📦 POSTGRES | container inspect (escaped go-templates)"
       ansible.builtin.script: "{{ role_path }}/files/inspect_container.sh {{ POSTGRES_CONTAINER }}"
       register: dbg_docker_inspect
       changed_when: false
       failed_when: false
 
-    - name: "POSTGRES | container logs (last 250 lines)"
+    - name: "📦 POSTGRES | container logs (last 250 lines)"
       ansible.builtin.command: "container logs --tail 250 {{ POSTGRES_CONTAINER }}"
       register: dbg_docker_logs
       changed_when: false
       failed_when: false
 
-    # --- Port / connectivity checks ------------------------------------------
-    - name: "POSTGRES | Check port listening on host (ss)"
+    - name: "🔎 POSTGRES | Check port listening on host (ss)"
       ansible.builtin.shell: "ss -lntp | grep -E '(:{{ POSTGRES_PORT }}\\s)' || true"
       register: dbg_ss
       changed_when: false
       failed_when: false
 
-    - name: "POSTGRES | pg_isready inside container"
-      ansible.builtin.shell: "container exec {{ POSTGRES_CONTAINER }} pg_isready -U postgres || true"
+    - name: "📦 POSTGRES | pg_isready inside container"
+      ansible.builtin.shell: "container exec {{ POSTGRES_CONTAINER_ADDRESS }} pg_isready -U postgres || true"
       register: dbg_pg_isready
       changed_when: false
       failed_when: false
 
-    # Password auth test
-    - name: "POSTGRES | psql auth test (SELECT 1) using PGPASSWORD"
+    - name: "🔑 POSTGRES | psql auth test (SELECT 1) using PGPASSWORD"
       ansible.builtin.shell: >
         {{ POSTGRES_EXEC_SHELL }}
         'psql -U postgres -d postgres -c "SELECT 1"'
@@ -164,8 +157,7 @@
       failed_when: false
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    # --- Server-side details (best effort) -----------------------------------
-    - name: "POSTGRES | Show hba_file + config_file"
+    - name: "👁️ POSTGRES | Show hba_file + config_file"
       ansible.builtin.shell: >
         {{ POSTGRES_EXEC_SHELL }}
         'psql -U postgres -d postgres -Atc
@@ -175,22 +167,17 @@
       failed_when: false
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: "POSTGRES | Dump pg_hba.conf (best effort)"
-      ansible.builtin.shell: |
-        set -e
-        hba="$(container exec {{ POSTGRES_CONTAINER }} sh -lc 'PGPASSWORD={{ POSTGRES_PASSWORD | quote }} psql -U postgres -d postgres -Atc "SHOW hba_file;" 2>/dev/null' || true)"
-        if [ -n "$hba" ]; then
-          echo "hba_file=$hba"
-          container exec {{ POSTGRES_CONTAINER }} sh -lc "sed -n '1,200p' \"$hba\" 2>/dev/null || true"
-        else
-          echo "hba_file could not be determined"
-        fi
+    - name: "💾 POSTGRES | Dump pg_hba.conf (best effort)"
+      ansible.builtin.script: "{{ role_path }}/files/dump_pg_hba.sh"
+      environment:
+        POSTGRES_CONTAINER_ADDRESS: "{{ POSTGRES_CONTAINER_ADDRESS }}"
+        PGPASSWORD: "{{ POSTGRES_PASSWORD }}"
       register: dbg_pg_hba
       changed_when: false
       failed_when: false
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: "POSTGRES | Active connections / roles snapshot (best effort)"
+    - name: "📸 POSTGRES | Active connections / roles snapshot (best effort)"
       ansible.builtin.shell: >
         {{ POSTGRES_EXEC_SHELL }}
         'psql -U postgres -d postgres -c
@@ -201,8 +188,7 @@
       failed_when: false
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    # --- Final consolidated output -------------------------------------------
-    - name: "POSTGRES | Failure report (sanitized)"
+    - name: "📊 POSTGRES | Failure report (sanitized)"
       ansible.builtin.debug:
         msg:
           original_error: "{{ ansible_failed_result | default({}) }}"
@@ -224,16 +210,15 @@
           postgres_enable_login: "{{ postgres_enable_login | default({}) }}"
       changed_when: false
 
-    - name: "POSTGRES | Fail explicitly after debug"
+    - name: "🛑 POSTGRES | Fail explicitly after debug"
       ansible.builtin.fail:
         msg: >-
           Failed to ALTER ROLE "{{ database_username }}" WITH LOGIN.
           See debug output above (container logs, inspect, pg_isready, psql auth test, hba/config).
 
-# 4) Grant ALL privileges on all tables in the public schema
-- name: "Grant ALL privileges on tables in public schema to {{ database_username }}"
+- name: "🔐 Grant ALL privileges on tables in public schema to {{ database_username }}"
   community.postgresql.postgresql_privs:
-    db: "{{ database_name }}"
+    login_db: "{{ database_name }}"
     roles: "{{ database_username }}"
     objs: ALL_IN_SCHEMA
     privs: ALL
@@ -249,10 +234,9 @@
   retries: "{{ POSTGRES_RETRIES }}"
   delay: "{{ POSTGRES_DELAY }}"
 
-# 5) Grant ALL privileges at the database level
-- name: "Grant all privileges on database {{ database_name }} to {{ database_username }}"
+- name: "🔐 Grant all privileges on {{ database_name }} to {{ database_username }}"
   community.postgresql.postgresql_privs:
-    db: "{{ database_name }}"
+    login_db: "{{ database_name }}"
     roles: "{{ database_username }}"
     type: database
     privs: ALL
@@ -266,11 +250,10 @@
   retries: "{{ POSTGRES_RETRIES }}"
   delay: "{{ POSTGRES_DELAY }}"
 
-# 6) Grant USAGE/CREATE on schema and set default privileges
-- name: "Set comprehensive schema privileges for {{ database_username }}"
+- name: "🔧 Set comprehensive schema privileges for {{ database_username }}"
   # nocheck: database-query — svc-db-postgres bootstraps its own DB; the `database_query` module's `lookup('database', ...)` indirection isn't usable from inside the role that provides the lookup target.
   community.postgresql.postgresql_query:
-    db: "{{ database_name }}"
+    login_db: "{{ database_name }}"
     login_user: postgres
     login_password: "{{ postgres_login_password_string }}"
     login_host: "{{ POSTGRES_LOCAL_HOST }}"
@@ -281,9 +264,9 @@
   retries: "{{ POSTGRES_RETRIES }}"
   delay: "{{ POSTGRES_DELAY }}"
 
-- name: "Ensure consumer-specific extensions ({{ database_consumer_id }})"
+- name: "✅ Ensure consumer-specific extensions ({{ database_consumer_id }})"
   community.postgresql.postgresql_ext:
-    db: "{{ database_name }}"
+    login_db: "{{ database_name }}"
     ext: "{{ item }}"
     state: present
     login_user: postgres

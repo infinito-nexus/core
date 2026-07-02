@@ -1,0 +1,17 @@
+---
+nfs-server:
+  name: nfs-server
+  # nocheck: dynamic-flag — local/CI swarm test (dev/act) needs userspace ganesha; kernel nfsd wedges in privileged DinD. Prod (host) keeps kernel.
+  flavor: "{{ 'ganesha' if RUNTIME in ['dev', 'act'] else 'kernel' }}"
+  lifecycle: beta
+  skip:
+    - compose
+    - swarm
+  enabled: true
+  shared: true
+  bond: 1
+  min_storage: "100MB"
+  cpus: "0.2"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256

@@ -1,10 +1,20 @@
 ---
 # nocheck: run-once
 
-- name: Freeze front proxy context before nested role loads
+- name: 🧊 Freeze front proxy context before nested role loads
   ansible.builtin.set_fact:
     front_proxy_application_id: "{{ application_id }}"
     front_proxy_domain: "{{ domain | default(lookup('domain', application_id)) }}"
+    front_proxy_service_key: >-
+      {{
+        webserver_proxy_service_key
+        | default(
+            lookup('config', application_id,
+              'services.' ~ (application_id | get_entity_name) ~ '.proxy.service_key',
+              application_id | get_entity_name
+            )
+          )
+      }}
     front_proxy_http_port: >-
       {{
         http_port
@@ -15,6 +25,7 @@
             )
           )
       }}
+    front_proxy_internal_port: "{{ proxy_internal_port | default('') }}"
     front_proxy_domain_conf_dst_resolved: >-
       {{
         lookup(
@@ -25,11 +36,11 @@
       }}
   changed_when: false
 
-- name: Bootstrap Frontend Base
+- name: 🥾 Bootstrap Frontend Base
   ansible.builtin.include_role:
     name: sys-stk-front-base
 
-- name: "TLS | Apply tls layer"
+- name: "📌 TLS | Apply tls layer"
   include_role:
     name: sys-front-tls
   when: lookup('tls', front_proxy_application_id, 'enabled') | bool
@@ -37,18 +48,18 @@
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
 
-- name: "CSP/INJ | Apply global injections for {{ front_proxy_domain }}"
+- name: "📌 CSP/INJ | Apply global injections for {{ front_proxy_domain }}"
   ansible.builtin.include_role:
     name: sys-front-inj-all
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
 
-- name: Resolve application-specific front proxy template path
+- name: 🔍 Resolve application-specific front proxy template path
   ansible.builtin.set_fact:
     front_proxy_application_template: "{{ front_proxy_application_id | abs_role_path_by_application_id }}/templates/proxy.conf.j2"
 
-- name: Resolve front proxy template source
+- name: 🔍 Resolve front proxy template source
   ansible.builtin.set_fact:
     front_proxy_template_src: >-
       {{
@@ -61,14 +72,16 @@
   vars:
     webserver_vhost_flavour: basic
 
-- name: "Deploy NGINX config: '{{ front_proxy_domain }}' -> '{{ front_proxy_domain_conf_dst_resolved }}'"
-  ansible.builtin.template:
+- name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
+  stack_host_template:
     src: "{{ front_proxy_template_src }}"
     dest: "{{ front_proxy_domain_conf_dst_resolved }}"
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
     http_port: "{{ front_proxy_http_port }}"
+    proxy_service_key: "{{ front_proxy_service_key }}"
+    proxy_internal_port: "{{ front_proxy_internal_port }}"
     webserver_extra_configuration: ""
     webserver_websocket_location: ""
     webserver_client_max_body_size: "{{ lookup('config', front_proxy_application_id, 'server.client_max_body_size', '100m') }}"
@@ -76,7 +89,7 @@
   notify: restart openresty
 
 - block:
-    - name: "Check if {{ lookup('domain', front_proxy_application_id) }} is reachable (only if config unchanged)"
+    - name: "🔍 Check if {{ lookup('domain', front_proxy_application_id) }} is reachable"
       uri_probe:
         url: "{{ lookup('tls', front_proxy_application_id, 'url.base') }}"
         status_code:
@@ -87,7 +100,7 @@
       failed_when: false
       changed_when: false
 
-    - name: Restart NGINX if site is down
+    - name: 🔄 Restart NGINX if site is down
       ansible.builtin.command:
         cmd: "true"
       notify: restart openresty
@@ -96,5 +109,5 @@
         - site_check.status not in [200, 301, 302]
   when: not nginx_conf.changed
 
-- name: "Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
+- name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
   ansible.builtin.meta: flush_handlers

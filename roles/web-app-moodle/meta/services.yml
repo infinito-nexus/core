@@ -61,6 +61,10 @@ moodle:
   ports:
     local:
       http: 8026
+    internal:
+      http: 80
+  proxy:
+    service_key: nginx
   run_after:
     - web-app-keycloak
   lifecycle: beta

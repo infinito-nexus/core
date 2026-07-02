@@ -1,5 +1,5 @@
 ---
-- name: Gather all users with their current objectClass list
+- name: 📊 Gather all users with their current objectClass list
   community.general.ldap_search:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
@@ -13,7 +13,7 @@
       - "{{ LDAP.USER.ATTRIBUTES.ID }}"
   register: ldap_users_with_classes
 
-- name: Add only missing auxiliary classes
+- name: ➕ Add only missing auxiliary classes
   community.general.ldap_attrs:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"

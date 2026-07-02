@@ -1,10 +1,10 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   gitlab:
-    image: "{{ GITLAB_CUSTOM_IMAGE }}"
+    {{ lookup('container_image', application_id, 'gitlab', custom=True) }}
     hostname: '{{ GITLAB_HOSTNAME }}'
-    container_name:  "{{ GITLAB_CONTAINER }}"
-    pull_policy: never
+    {{ lookup('compose_only', 'container_name', GITLAB_CONTAINER) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,19 +12,13 @@
         GITLAB_IMAGE: "{{ GITLAB_IMAGE }}"
         GITLAB_VERSION: "{{ GITLAB_VERSION }}"
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.gitlab.ports.local.http') }}:80"
-      - "{{lookup('config', application_id, 'services.gitlab.ports.public.ssh')}}:22"
-    volumes:
-      - 'config:/etc/gitlab'
-      - 'logs:/var/log/gitlab'
-      - 'data:/var/opt/gitlab'
+    {{ lookup('container_ports',
+              ['gitlab', 'http', DOCKER_BIND_HOST],
+              ['gitlab', 'ssh']) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'gitlab') | indent(4) }}
     shm_size: '256m'
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'config': {'name': GITLAB_CONF_VOLUME}, 'data': {'name': GITLAB_DATA_VOLUME}, 'logs': {'name': GITLAB_LOGS_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

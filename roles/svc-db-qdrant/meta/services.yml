@@ -1,0 +1,23 @@
+---
+qdrant:
+  # nocheck: default-placement-manager  central vector engine, on-disk state node-local in swarm (cannot live on NFS)
+  default_placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: qdrant/qdrant
+  name: qdrant
+  version: v1.12.4
+  min_storage: 5GB
+  backup:
+    database_routine: true
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+  ports:
+    local:
+      qdrant: 6333
+    internal:
+      qdrant: 6333
+  lifecycle: beta

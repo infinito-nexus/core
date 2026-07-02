@@ -83,3 +83,6 @@ SYS_SVC_CONTAINER_PACKAGES_BY_DISTRIBUTION:
     - containerd.io
     - docker-compose-plugin
     - docker-buildx-plugin
+  Alpine:
+    - docker
+    - docker-cli-compose

@@ -35,7 +35,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 | `services.postgres.enabled` | `true` | Enable PostgreSQL for Fider |
 | `services.postgres.shared` | `true` | Reuse the shared PostgreSQL provider |
 | `services.fider.version` | `stable` | Docker image tag |
-| `server.domains.canonical` | `fider.{{ DOMAIN_PRIMARY }}` | Public domain |
+| `domains.canonical` | `fider.{{ DOMAIN_PRIMARY }}` | Public domain |
 | `server.status_codes.default` | `[200, 301, 302, 405]` | Expected HTTP codes for health check (405 because Fider returns 405 on HEAD requests to `/`) |
 
 ## Further resources

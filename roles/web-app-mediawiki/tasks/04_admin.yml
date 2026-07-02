@@ -1,9 +1,14 @@
 ---
-- name: "Create / promote MediaWiki admin user"
-  command: >
-    container exec
+- name: "📁 Create / promote MediaWiki admin user (one-shot)"
+  ansible.builtin.command: >-
+    container run --rm
+    --network {{ MEDIAWIKI_NETWORK_DATABASE }}
     -u {{ MEDIAWIKI_USER }}
-    {{ MEDIAWIKI_CONTAINER }}
+    -v {{ MEDIAWIKI_VOLUME_IMAGES }}:{{ MEDIAWIKI_HTML_DIR }}/images
+    -v {{ MEDIAWIKI_VOLUME_EXTENSIONS }}:{{ MEDIAWIKI_HTML_DIR }}/extensions
+    -v {{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}:{{ MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH }}:ro
+    -v {{ MEDIAWIKI_LOCAL_MOUNT_DIR }}:{{ MEDIAWIKI_LOCAL_PATH }}:ro
+    {{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}
     php {{ MEDIAWIKI_HTML_DIR }}/maintenance/run.php createAndPromote
     --bureaucrat --sysop
     {{ MEDIAWIKI_ADMINISTRATOR_NAME }}
@@ -14,6 +19,9 @@
     ('Created' in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
   failed_when: >
     create_admin.rc != 0 and
-    ('already exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default('')))) and
+    ('already exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
+    and
     ('Account exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

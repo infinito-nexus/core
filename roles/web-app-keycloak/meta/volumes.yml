@@ -1,0 +1,8 @@
+---
+realm_import:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'import'] | path_join }}"
+  mounts:
+    - service: keycloak
+      target: /opt/keycloak/data/import/
+      when: "{{ DEPLOYMENT_MODE == 'compose' }}"

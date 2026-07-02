@@ -1,23 +1,27 @@
 ---
-- name: "Ensure base directory"
+- name: "✅ Ensure base directory (single-writer via STACK_HOST)"
   ansible.builtin.file:
     path: "{{ DIR_SECRETS }}"
     state: directory
     owner: "{{ SYS_TOKEN_STORE_OWNER }}"
     group: "{{ SYS_TOKEN_STORE_GROUP }}"
     mode: "{{ SYS_TOKEN_STORE_DIR_MODE }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   become: true
 
-- name: "Ensure store file exists"
+- name: "✅ Ensure store file exists (single-writer via STACK_HOST)"
   ansible.builtin.file:
     path: "{{ FILE_TOKENS }}"
     state: touch
     owner: "{{ SYS_TOKEN_STORE_OWNER }}"
     group: "{{ SYS_TOKEN_STORE_GROUP }}"
     mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   become: true
 
-- name: "Load existing store"
+- name: "🧩 Load existing store"
   ansible.builtin.import_tasks: 02_load.yml
 
 - include_tasks: utils/once/flag.yml

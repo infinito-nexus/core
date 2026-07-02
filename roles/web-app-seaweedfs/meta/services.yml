@@ -28,6 +28,8 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
+  # nocheck: default-placement-manager  central object-store provider, single-replica with a node-local data volume; S3 health check and weed-shell bucket provisioning run via container exec on the stack host, mirroring the svc-db-* providers
+  default_placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -48,6 +50,8 @@ seaweedfs:
     local:
       http: 8085
       sso: 16507
+    internal:
+      http: 8333
 proxy:
   image: nginx
   version: 1.31-alpine

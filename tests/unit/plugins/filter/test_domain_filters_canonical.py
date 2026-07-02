@@ -24,20 +24,14 @@ class TestDomainFilters(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_canonical_with_list(self):
-        apps = {
-            "web-app-app1": {
-                "server": {"domains": {"canonical": ["foo.com", "bar.com"]}}
-            }
-        }
+        apps = {"web-app-app1": {"domains": {"canonical": ["foo.com", "bar.com"]}}}
         result = self.filter_module.canonical_domains_map(apps, self.primary)
         self.assertCountEqual(result["web-app-app1"], ["foo.com", "bar.com"])
 
     def test_canonical_with_dict(self):
         apps = {
             "web-app-app1": {
-                "server": {
-                    "domains": {"canonical": {"one": "one.com", "two": "two.com"}}
-                }
+                "domains": {"canonical": {"one": "one.com", "two": "two.com"}}
             }
         }
         result = self.filter_module.canonical_domains_map(apps, self.primary)
@@ -46,10 +40,10 @@ class TestDomainFilters(unittest.TestCase):
     def test_canonical_duplicate_raises(self):
         apps = {
             "web-app-app1": {
-                "server": {"domains": {"canonical": ["dup.com"]}},
+                "domains": {"canonical": ["dup.com"]},
             },
             "web-app-app2": {
-                "server": {"domains": {"canonical": ["dup.com"]}},
+                "domains": {"canonical": ["dup.com"]},
             },
         }
         with self.assertRaises(AnsibleFilterError) as cm:
@@ -58,7 +52,7 @@ class TestDomainFilters(unittest.TestCase):
         self.assertIn("already configured for", str(cm.exception))
 
     def test_invalid_canonical_type(self):
-        apps = {"web-app-app1": {"server": {"domains": {"canonical": 123}}}}
+        apps = {"web-app-app1": {"domains": {"canonical": 123}}}
         with self.assertRaises(AnsibleFilterError):
             self.filter_module.canonical_domains_map(apps, self.primary)
 
@@ -81,10 +75,8 @@ class TestDomainFilters(unittest.TestCase):
         on this so the tls lookup can resolve them.
         """
         apps = {
-            "svc-prx-openresty": {
-                "server": {"domains": {"canonical": ["example.com"]}}
-            },
-            "db-app-app1": {"server": {"domains": {"canonical": ["db.example.com"]}}},
+            "svc-prx-openresty": {"domains": {"canonical": ["example.com"]}},
+            "db-app-app1": {"domains": {"canonical": ["db.example.com"]}},
         }
         result = self.filter_module.canonical_domains_map(apps, self.primary)
         self.assertEqual(result["svc-prx-openresty"], ["example.com"])
@@ -96,7 +88,7 @@ class TestDomainFilters(unittest.TestCase):
         other roles are included only when they declare a canonical domain.
         """
         apps = {
-            "db-app-app1": {"server": {"domains": {"canonical": ["db.example.com"]}}},
+            "db-app-app1": {"domains": {"canonical": ["db.example.com"]}},
             "web-app-app1": {},
             "sys-ctl-noop": {},
         }

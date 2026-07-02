@@ -48,6 +48,13 @@ class DummyModule:
         raise AssertionError(f"Unexpected fail_json call: {kwargs}")
 
 
+class DummyCompleted:
+    def __init__(self, returncode, stdout, stderr):
+        self.returncode = returncode
+        self.stdout = stdout.encode()
+        self.stderr = stderr.encode()
+
+
 class TestKeycloakKcadmUpdate(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -135,6 +142,63 @@ class TestKeycloakKcadmUpdate(unittest.TestCase):
             )
         self.assertTrue(exists)
         self.assertEqual(obj_id, "x2")
+
+    def test_run_kcadm_retries_dead_cid_with_fresh_resolved_id(self):
+        m = self.mod
+        module = DummyModule()
+        module._kcadm_cid_state = {
+            "cid_resolve_cmd": "resolve-cid",
+            "current_cid": "deadbeef0000",
+        }
+
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            if cmd == "resolve-cid":
+                return DummyCompleted(0, "live1234abcd\n", "")
+            if "deadbeef0000" in cmd:
+                return DummyCompleted(
+                    1, "", "Error response from daemon: No such container: deadbeef0000"
+                )
+            return DummyCompleted(0, "[]", "")
+
+        with (
+            patch.object(m.subprocess, "run", side_effect=fake_run),
+            patch.object(m.time, "sleep", return_value=None),
+        ):
+            rc, out, _ = m.run_kcadm(
+                module,
+                "container exec -i deadbeef0000 kcadm get clients",
+                ignore_rc=True,
+            )
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(out, "[]")
+        self.assertEqual(module._kcadm_cid_state["current_cid"], "live1234abcd")
+        self.assertTrue(any("live1234abcd" in c for c in calls))
+
+    def test_run_kcadm_no_resolver_does_not_retry(self):
+        m = self.mod
+        module = DummyModule()
+
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            return DummyCompleted(
+                1, "", "Error response from daemon: No such container: deadbeef0000"
+            )
+
+        with patch.object(m.subprocess, "run", side_effect=fake_run):
+            rc, _out, _err = m.run_kcadm(
+                module,
+                "container exec -i deadbeef0000 kcadm get clients",
+                ignore_rc=True,
+            )
+
+        self.assertEqual(rc, 1)
+        self.assertEqual(len(calls), 1)
 
     def test_get_current_object_parses_noisy(self):
         m = self.mod

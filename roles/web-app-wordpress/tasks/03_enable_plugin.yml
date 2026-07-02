@@ -1,19 +1,17 @@
 ---
-- name: "Check if plugin has a dedicated install task under '{{ plugin_task_path }}'"
+- name: "🔎 Check if plugin has a dedicated install task under '{{ plugin_task_path }}'"
   stat:
     path: "{{ plugin_task_path }}"
   register: plugin_task_file
   delegate_to: localhost
   become: false
 
-- name: "Include plugin-specific install task if it exists"
+- name: "📂 Include plugin-specific install task if it exists"
   include_tasks: "{{ plugin_task_path }}"
   when: plugin_task_file.stat.exists
 
-- name: "Install and activate WordPress plugin via WP CLI"
-  command: >
-    {{ BIN_COMPOSE }} exec -u www-data -T application
-      wp plugin install {{ plugin_name }} --activate
-      --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+- name: "📦 Install and activate WordPress plugin via WP CLI"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp plugin install {{ plugin_name }} --activate
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}

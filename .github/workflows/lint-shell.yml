@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Run ShellCheck (container)
+      - name: ▶️ Run ShellCheck (container)
         run: |
           mapfile -d '' shell_files < <(find . -type f -name '*.sh' -print0)
           if [ "${#shell_files[@]}" -eq 0 ]; then

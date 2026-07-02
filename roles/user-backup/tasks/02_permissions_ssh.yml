@@ -1,5 +1,5 @@
 ---
-- name: "Ensure backup home directory exists"
+- name: "✅ Ensure backup home directory exists"
   ansible.builtin.file:
     path: "{{ USER_BACKUP_HOME }}"
     state: directory
@@ -7,15 +7,15 @@
     group: backup
     mode: "0700"
 
-- name: "create {{ USER_BACKUP_WRAPPER_DST }}"
-  ansible.builtin.template:
+- name: "📁 create {{ USER_BACKUP_WRAPPER_DST }}"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host backup user wrapper, lives in backup home on every backed-up host)
     src: "ssh-wrapper.sh.j2"
     dest: "{{ USER_BACKUP_WRAPPER_DST }}"
     owner: backup
     group: backup
     mode: "0700"
 
-- name: "Write authorized_keys for 'backup' via shared user role (wrapped)"
+- name: "✏️ Write authorized_keys for 'backup' via shared user role (wrapped)"
   ansible.builtin.include_role:
     name: user
   vars:

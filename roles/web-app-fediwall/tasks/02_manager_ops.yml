@@ -1,0 +1,82 @@
+---
+- name: "✅ Ensure Fediwall build dir '{{ FEDIWALL_BUILD_DIR_ABS }}' exists"
+  file:
+    path: "{{ FEDIWALL_BUILD_DIR_ABS }}"
+    state: directory
+    mode: "0755"
+
+- name: "⬇️ Download Fediwall {{ FEDIWALL_UPSTREAM_VERSION }} release tarball"
+  get_url_retry:
+    url: "{{ FEDIWALL_UPSTREAM_TARBALL_URL }}"
+    dest: "{{ FEDIWALL_TARBALL_FILE }}"
+    mode: "0644"
+  notify:
+    - compose build
+    - compose up
+
+- name: "✅ Ensure Fediwall upstream dir '{{ FEDIWALL_UPSTREAM_DIR_ABS }}' exists"
+  file:
+    path: "{{ FEDIWALL_UPSTREAM_DIR_ABS }}"
+    state: directory
+    mode: "0755"
+
+- name: "📤 Extract Fediwall tarball into '{{ FEDIWALL_UPSTREAM_DIR_ABS }}'"
+  unarchive:
+    src: "{{ FEDIWALL_TARBALL_FILE }}"
+    dest: "{{ FEDIWALL_UPSTREAM_DIR_ABS }}"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+  notify:
+    - compose build
+    - compose up
+
+- name: "🧹 Wipe Fediwall dist tree '{{ FEDIWALL_DIST_DIR_ABS }}' to drop removed slugs"
+  file:
+    path: "{{ FEDIWALL_DIST_DIR_ABS }}"
+    state: absent
+
+- name: "📁 Recreate Fediwall dist tree '{{ FEDIWALL_DIST_DIR_ABS }}'"
+  file:
+    path: "{{ FEDIWALL_DIST_DIR_ABS }}"
+    state: directory
+    mode: "0755"
+
+- name: "🎬 Stage upstream Fediwall files into per-slug folder '{{ wall.slug }}'"
+  copy: # nocheck: stack-host-consumer (02_manager_ops.yml is parent-gated by IS_STACK_HOST in 01_core.yml:11)
+    src: "{{ FEDIWALL_UPSTREAM_DIR_ABS }}/"
+    dest: "{{ [ FEDIWALL_DIST_DIR_ABS, wall.slug ] | path_join }}/"
+    remote_src: true
+    mode: preserve
+  loop: "{{ FEDIWALL_WALLS }}"
+  loop_control:
+    loop_var: wall
+    label: "{{ wall.slug }}"
+  notify:
+    - compose build
+    - compose up
+
+- name: "📄 Render per-slug Fediwall wall-config.json for '{{ wall.slug }}'"
+  stack_host_template:
+    src: "wall-config.json.j2"
+    dest: "{{ [ FEDIWALL_DIST_DIR_ABS, wall.slug, 'wall-config.json' ] | path_join }}"
+    mode: "0644"
+  loop: "{{ FEDIWALL_WALLS }}"
+  loop_control:
+    loop_var: wall
+    label: "{{ wall.slug }}"
+  notify:
+    - compose build
+    - compose up
+
+- name: "📄 Render Fediwall root link list at '{{ FEDIWALL_DIST_DIR_ABS }}/index.html'"
+  stack_host_template:
+    src: "index.html.j2"
+    dest: "{{ [ FEDIWALL_DIST_DIR_ABS, 'index.html' ] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose build
+    - compose up
+
+- name: "🚿 flush compose for '{{ application_id }}'"
+  meta: flush_handlers

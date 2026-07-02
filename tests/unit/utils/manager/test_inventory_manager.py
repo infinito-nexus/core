@@ -1,6 +1,10 @@
+import base64
 import tempfile
 from pathlib import Path
 from unittest import TestCase, main, mock
+
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from utils.handler.vault import VaultScalar
 from utils.manager.inventory import InventoryManager
@@ -10,6 +14,10 @@ from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_VARS_MAIN,
 )
+
+
+def _b64url_decode(value: str) -> bytes:
+    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
 
 
 class TestInventoryManager(TestCase):
@@ -27,7 +35,6 @@ class TestInventoryManager(TestCase):
             (role_path / "vars").mkdir(parents=True, exist_ok=True)
             (role_path / "config").mkdir(parents=True, exist_ok=True)
 
-            # IMPORTANT: ensure files exist for .exists() checks
             (role_path / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
@@ -42,10 +49,8 @@ class TestInventoryManager(TestCase):
                 if p == role_path / ROLE_FILE_META_SCHEMA:
                     return {}
                 if p == role_path / ROLE_FILE_VARS_MAIN:
-                    return {}  # missing application_id on purpose
+                    return {}
                 if p == role_path / ROLE_FILE_META_SERVICES:
-                    # Per: meta/services.yml file root IS the
-                    # services map (no `compose.services` envelope).
                     return {}
                 return {}
 
@@ -80,7 +85,6 @@ class TestInventoryManager(TestCase):
             (role_path / "config").mkdir(parents=True, exist_ok=True)
             inv_path.write_text("{}", encoding="utf-8")
 
-            # IMPORTANT: ensure files exist for .exists() checks
             (role_path / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
@@ -106,8 +110,6 @@ class TestInventoryManager(TestCase):
                 if p == role_path / ROLE_FILE_VARS_MAIN:
                     return {"application_id": "app_test"}
                 if p == role_path / ROLE_FILE_META_SERVICES:
-                    # Per: meta/services.yml file root IS the
-                    # services map (no `compose.services` envelope).
                     return {}
                 return {}
 
@@ -122,7 +124,7 @@ class TestInventoryManager(TestCase):
                     role_path=role_path,
                     inventory_path=inventory_path,
                     vault_pw="dummy",
-                    overrides={},  # no plain override
+                    overrides={},
                     allow_empty_plain=False,
                 )
                 with self.assertRaises(SystemExit) as ctx:
@@ -144,7 +146,6 @@ class TestInventoryManager(TestCase):
             (role_path / "config").mkdir(parents=True, exist_ok=True)
             inv_path.write_text("{}", encoding="utf-8")
 
-            # IMPORTANT: ensure files exist for .exists() checks
             (role_path / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
@@ -170,8 +171,6 @@ class TestInventoryManager(TestCase):
                 if p == role_path / ROLE_FILE_VARS_MAIN:
                     return {"application_id": "app_test"}
                 if p == role_path / ROLE_FILE_META_SERVICES:
-                    # Per: meta/services.yml file root IS the
-                    # services map (no `compose.services` envelope).
                     return {}
                 return {}
 
@@ -191,7 +190,7 @@ class TestInventoryManager(TestCase):
                     role_path=role_path,
                     inventory_path=inventory_path,
                     vault_pw="dummy",
-                    overrides={},  # no override for plain
+                    overrides={},
                     allow_empty_plain=True,
                 )
                 inv = mgr.apply_schema()
@@ -242,8 +241,6 @@ class TestInventoryManager(TestCase):
                 if p == role_path / ROLE_FILE_VARS_MAIN:
                     return {"application_id": "app_test"}
                 if p == role_path / ROLE_FILE_META_SERVICES:
-                    # Per the file root IS the services map
-                    # (no `compose.services` envelope).
                     return {"sso": {"enabled": True}}
                 return {}
 
@@ -397,7 +394,6 @@ class TestInventoryManager(TestCase):
             (role_path / "config").mkdir(parents=True, exist_ok=True)
             inv_path.write_text("{}", encoding="utf-8")
 
-            # IMPORTANT: ensure files exist for .exists() checks
             (role_path / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
@@ -423,8 +419,6 @@ class TestInventoryManager(TestCase):
                 if p == role_path / ROLE_FILE_VARS_MAIN:
                     return {"application_id": "app_test"}
                 if p == role_path / ROLE_FILE_META_SERVICES:
-                    # Per: meta/services.yml file root IS the
-                    # services map (no `compose.services` envelope).
                     return {}
                 return {}
 
@@ -482,7 +476,6 @@ class TestInventoryManager(TestCase):
             (role_path / "config").mkdir(parents=True, exist_ok=True)
             inv_path.write_text("{}", encoding="utf-8")
 
-            # IMPORTANT: ensure files exist for .exists() checks
             (role_path / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
             (role_path / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
@@ -527,9 +520,6 @@ class TestInventoryManager(TestCase):
                 if p == role_path / ROLE_FILE_VARS_MAIN:
                     return {"application_id": "app_test"}
                 if p == role_path / ROLE_FILE_META_SERVICES:
-                    # No provider resolution / no special rules
-                    # Per: meta/services.yml file root IS the
-                    # services map (no `compose.services` envelope).
                     return {}
                 return {}
 
@@ -539,9 +529,6 @@ class TestInventoryManager(TestCase):
                     side_effect=fake_load_yaml,
                 ),
                 mock.patch("utils.manager.inventory.VaultHandler") as mock_vault_cls,
-                # Even though encryption is skipped, the current implementation
-                # may still call ValueGenerator.generate_value() before checking
-                # existing destination values. Keep it deterministic.
                 mock.patch.object(
                     ValueGenerator, "generate_value", return_value="IGNORED"
                 ),
@@ -567,6 +554,82 @@ class TestInventoryManager(TestCase):
 
                 self.assertIs(creds["already_vaulted"], existing_vault)
                 self.assertIs(creds["complex"], existing_dict)
+
+    def test_vapid_keys_generated_through_schema_are_linked(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            role_path = Path(tmpdir) / "role"
+            inv_path = Path(tmpdir) / "inventory.yml"
+
+            role_path.mkdir(parents=True, exist_ok=True)
+            (role_path / "meta").mkdir(parents=True, exist_ok=True)
+            (role_path / "vars").mkdir(parents=True, exist_ok=True)
+            (role_path / "config").mkdir(parents=True, exist_ok=True)
+            inv_path.write_text("{}", encoding="utf-8")
+
+            (role_path / ROLE_FILE_META_SCHEMA).write_text("{}", encoding="utf-8")
+            (role_path / ROLE_FILE_VARS_MAIN).write_text("{}", encoding="utf-8")
+            (role_path / ROLE_FILE_META_SERVICES).write_text("{}", encoding="utf-8")
+
+            schema_data = {
+                "credentials": {
+                    "vapid_private_key": {
+                        "description": "Private VAPID key",
+                        "algorithm": "vapid_private",
+                        "validation": {},
+                    },
+                    "vapid_public_key": {
+                        "description": "Public VAPID key",
+                        "algorithm": "vapid_public",
+                        "validation": {},
+                    },
+                }
+            }
+
+            def fake_load_yaml(path):
+                p = Path(path)
+                if p == inv_path:
+                    return {"applications": {}}
+                if p == role_path / ROLE_FILE_META_SCHEMA:
+                    return schema_data
+                if p == role_path / ROLE_FILE_VARS_MAIN:
+                    return {"application_id": "app_test"}
+                if p == role_path / ROLE_FILE_META_SERVICES:
+                    return {}
+                return {}
+
+            captured = {}
+
+            def fake_encrypt(plain, key):
+                captured[key] = plain
+                return "!vault |\n  $ANSIBLE_VAULT;1.1;AES256\n    ENCRYPTED"
+
+            with (
+                mock.patch(
+                    "utils.manager.inventory.YamlHandler.load_yaml",
+                    side_effect=fake_load_yaml,
+                ),
+                mock.patch("utils.manager.inventory.VaultHandler") as mock_vault_cls,
+            ):
+                mock_vault = mock_vault_cls.return_value
+                mock_vault.encrypt_string.side_effect = fake_encrypt
+
+                mgr = InventoryManager(
+                    role_path=role_path,
+                    inventory_path=inv_path,
+                    vault_pw="dummy",
+                    overrides={},
+                    allow_empty_plain=False,
+                )
+                mgr.apply_schema()
+
+            private = captured["vapid_private_key"]
+            public = captured["vapid_public_key"]
+            scalar = int.from_bytes(_b64url_decode(private), "big")
+            derived = ec.derive_private_key(scalar, ec.SECP256R1())
+            expected_point = derived.public_key().public_bytes(
+                Encoding.X962, PublicFormat.UncompressedPoint
+            )
+            self.assertEqual(_b64url_decode(public), expected_point)
 
 
 class TestInventoryManagerVariant(TestCase):

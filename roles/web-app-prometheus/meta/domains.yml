@@ -1,0 +1,4 @@
+---
+aliases: []
+canonical:
+  - prometheus.{{ DOMAIN_PRIMARY }}

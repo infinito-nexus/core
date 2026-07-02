@@ -1,25 +1,25 @@
 ---
-- name: Resolve GitLab integration provisioning facts
+- name: 🔍 Resolve GitLab integration provisioning facts
   set_fact:
     nextcloud_gl_container: "{{ lookup('config', 'web-app-gitlab', 'services.gitlab.name') }}"
     nextcloud_gl_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.base') | regex_replace('/$', '') }}"
   changed_when: false
 
-- name: Probe whether the GitLab partner container is running
+- name: 🔍 Probe whether the GitLab partner container is running
   command: >
     container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_gl_container }}
   register: integration_gitlab_partner_running
   changed_when: false
   failed_when: false
 
-- name: Read persisted integration_gitlab OAuth client id
+- name: 📖 Read persisted integration_gitlab OAuth client id
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_gitlab client_id
   register: nextcloud_gl_client_id_current
   changed_when: false
   failed_when: false
 
-- name: Read persisted integration_gitlab OAuth client secret
+- name: 📖 Read persisted integration_gitlab OAuth client secret
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_gitlab client_secret
   register: nextcloud_gl_client_secret_current
@@ -27,7 +27,7 @@
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Provision the GitLab <-> Nextcloud OAuth coupling
+- name: 🔧 Provision the GitLab <-> Nextcloud OAuth coupling
   include_tasks: "{{ [role_path, 'tasks/addons/integration_gitlab_provision.yml'] | path_join }}"
   when: >-
     (integration_gitlab_partner_running.stdout | trim) == 'true'

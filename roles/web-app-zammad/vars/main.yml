@@ -2,22 +2,14 @@
 application_id: "web-app-zammad"
 entity_name: "{{ application_id | get_entity_name }}"
 
-ZAMMAD_IMAGE: "{{ lookup('config', application_id, 'services.zammad.image') }}"
-ZAMMAD_VERSION: "{{ lookup('config', application_id, 'services.zammad.version') }}"
-
-ZAMMAD_SEARCH_IMAGE: "{{ lookup('config', application_id, 'services.search.image') }}"
-ZAMMAD_SEARCH_VERSION: "{{ lookup('config', application_id, 'services.search.version') }}"
-
 ZAMMAD_INIT_CONTAINER: "zammad-init"
 ZAMMAD_RAILS_CONTAINER: "zammad-railsserver"
+ZAMMAD_RAILS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 ZAMMAD_WEBSOCKET_CONTAINER: "zammad-websocket"
 ZAMMAD_SCHEDULER_CONTAINER: "zammad-scheduler"
 ZAMMAD_NGINX_CONTAINER: "zammad-nginx"
 ZAMMAD_SEARCH_CONTAINER: "zammad-elasticsearch"
 ZAMMAD_MEMCACHED_CONTAINER: "zammad-memcached"
-
-ZAMMAD_MEMCACHED_IMAGE: "{{ lookup('config', 'svc-db-memcached', 'services.memcached.image') }}"
-ZAMMAD_MEMCACHED_VERSION: "{{ lookup('config', 'svc-db-memcached', 'services.memcached.version') }}"
 
 ZAMMAD_RAILS_PORT: 3000
 ZAMMAD_WEBSOCKET_PORT: 6042
@@ -43,6 +35,7 @@ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH: "/opt/zammad/lib/telegram_helper.rb"
 
 ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH: "/opt/zammad/config/initializers/zz_oidc_group_role_mapping.rb"
+
 ZAMMAD_OIDC_GROUP_ROLE_MAP:
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"

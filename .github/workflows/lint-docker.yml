@@ -14,9 +14,9 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - name: Checkout code
+      - name: ⬇️ Checkout code
         uses: actions/checkout@v7
-      - name: Run hadolint (produce SARIF)
+      - name: ▶️ Run hadolint (produce SARIF)
         id: hadolint
         continue-on-error: true
         uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5
@@ -26,7 +26,7 @@ jobs:
           output-file: hadolint-results.sarif
           failure-threshold: warning
 
-      - name: Upload analysis results to GitHub
+      - name: ⬆️ Upload analysis results to GitHub
         if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
@@ -34,6 +34,6 @@ jobs:
           wait-for-processing: true
           category: hadolint
 
-      - name: Fail if SARIF contains warnings/errors
+      - name: 🛑 Fail if SARIF contains warnings/errors
         if: always()
         run: python3 utils/docker/hadolint.py hadolint-results.sarif

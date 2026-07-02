@@ -1,84 +1,15 @@
 ---
-# Required to be set on the top so global frontend service loading can rely on run_once guards.
 - include_tasks: utils/once/flag.yml
 
-- name: "Matomo | Resolve token from store/config"
+- name: "🔍 Matomo | Resolve token from store/config"
   include_tasks: 02_token_store.yml
 
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    # Suppress flushing of handlers, because bootstrap file needs to be deployed first
     compose_handlers_flush: false
 
-- name: "Deploy '{{ MATOMO_BOOTSTRAP_ENV_FILE }}'"
-  template:
-    src: "templates/bootstrap.env.j2"
-    dest: "{{ MATOMO_BOOTSTRAP_ENV_FILE }}"
-    mode: "0640"
-    force: true
-  notify: compose up
-
-- name: flush docker service
-  meta: flush_handlers
-
-- name: "Matomo install | Wait for Matomo container to be running (any state)"
-  ansible.builtin.command: >
-    container inspect -f '{{ "{{" }}.State.Running{{ "}}" }}' {{ MATOMO_NAME }}
-  register: matomo_running
-  changed_when: false
-  retries: 30
-  delay: 2
-  until: >
-    matomo_running.rc == 0 and (matomo_running.stdout | trim) == 'true'
-
-- name: "Matomo install | Check whether Matomo is already installed (config.ini.php exists)"
-  command:
-    argv:
-      - container
-      - exec
-      - "{{ MATOMO_NAME }}"
-      - sh
-      - -lc
-      - 'test -f "{{ MATOMO_CONFIG }}"'
-  register: matomo_config_exists
-  changed_when: false
-  failed_when: false
-
-- name: "Bootstrap Matomo (Initialisation and setting of API token if not defined)"
-  include_tasks: 03a_bootstrap.yml
-  when: >
-    (matomo_config_exists.rc != 0) or
-    ((lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
-
-# `04_patch_database.yml` rewrites the DB host/name/user/password lines in
-# `config.ini.php` to whatever the current deploy renders. Without this, a
-# matrix-deploy second round restarts the matomo container against the
-# round-2 MariaDB user/password while `config.ini.php` still carries the
-# round-1 credentials, and the healthcheck loops forever on
-# "Database access denied". The patch MUST run before the wait-for-healthy
-# probe so the container has the correct credentials by the time the
-# probe gates the rest of the play.
-- name: "Patch database credentials for {{ application_id }}"
-  include_tasks: 04_patch_database.yml
-  when: matomo_config_exists.rc == 0
-
-- name: "Patch Trusted Hosts for {{ application_id }}"
-  include_tasks: 05_patch_trusted_hosts.yml
-
-- name: flush docker service
-  meta: flush_handlers
-
-- name: "Matomo install | Wait for Matomo container to be healthy"
-  ansible.builtin.command: >
-    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}' {{ MATOMO_NAME }}
-  register: matomo_health
-  changed_when: false
-  retries: 60
-  delay: 2
-  until: >
-    matomo_health.rc == 0 and (matomo_health.stdout | trim) == 'healthy'
-
-- name: "Config '{{ application_id }}' via API"
-  include_tasks: 06_config.yml
+- name: "👔 Matomo manager-side operations (file deploys + container exec)"
+  include_tasks: 03_manager_ops.yml
+  when: IS_STACK_HOST | bool

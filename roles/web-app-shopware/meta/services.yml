@@ -51,6 +51,8 @@ shopware:
     version: 6.7.8.2
   title: "{{ ORGANIZATION }} Shop"
   ports:
+    internal:
+      http: 8000
     local:
       sso: 16503
       http: 8060
@@ -90,7 +92,6 @@ worker:
     - low_priority
     - --time-limit=300
     - --memory-limit=512M
-  replicas: 3
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 2g
@@ -110,9 +111,11 @@ scheduler:
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   image: redis
   version: 8-alpine
   cpus: 0.25

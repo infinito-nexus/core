@@ -2,4 +2,7 @@
 docker:
   lifecycle: beta
   required_by:
-    categories: [web]
+    compose:
+      categories: [web]
+    swarm:
+      categories: [web]

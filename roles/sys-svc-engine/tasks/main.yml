@@ -1,0 +1,13 @@
+---
+# nocheck: run-once
+- name: "🧊 For '{{ application_id }}': Freeze engine consumer id"
+  ansible.builtin.set_fact:
+    _engine_consumer_id: "{{ engine_consumer_id | default(application_id) }}"
+  changed_when: false
+
+- name: "🔧 Provision shared engines for '{{ _engine_consumer_id }}'"
+  include_tasks: provision.yml
+  loop: "{{ ['rabbitmq', 'elasticsearch', 'typesense'] }}"
+  loop_control:
+    loop_var: _engine_type
+  when: lookup('engine', _engine_type, _engine_consumer_id, 'shared') | bool

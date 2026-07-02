@@ -17,6 +17,8 @@
       shared: true
     mariadb:
       shared: true
+    redis:
+      shared: true
     matomo:
       enabled: true
       shared: true
@@ -43,6 +45,8 @@
       enabled: false
       shared: false
     mariadb:
+      shared: false
+    redis:
       shared: false
     matomo:
       enabled: false

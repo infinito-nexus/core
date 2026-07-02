@@ -40,6 +40,10 @@ confluence:
   ports:
     local:
       http: 8005
+    internal:
+      http: 8090
+  proxy:
+    service_key: confluence
   run_after:
     - web-app-matomo
   lifecycle: unsupported

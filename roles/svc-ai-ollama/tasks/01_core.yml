@@ -1,21 +1,30 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Setup container network for {{ application_id }}"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml' ] | path_join }}"
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
     compose_handlers_flush: true
 
-- name: Pre-pull Ollama models
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
-    _cmd: "container exec -i {{ OLLAMA_CONTAINER }} ollama pull {{ model }}"
-  shell: "{{ _cmd }}"
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: OLLAMA
+    resolve_compose_cid: "{{ OLLAMA_CONTAINER }}"
+  when: IS_STACK_HOST | bool
+
+- name: ⬇️ Pre-pull Ollama models
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OLLAMA_LOCAL_CID | quote }} ollama pull {{ model }}
   register: pull_result
   loop: "{{ OLLAMA_PRELOAD_MODELS }}"
   loop_control:
     loop_var: model
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
   changed_when: >
     (not (ASYNC_ENABLED | bool)) and (
       'downloaded' in (pull_result.stdout | default('')) or

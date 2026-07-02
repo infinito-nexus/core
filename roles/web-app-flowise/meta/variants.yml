@@ -24,6 +24,10 @@
     ollama:
       enabled: true
       shared: true
+    qdrant:
+      shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -48,6 +52,10 @@
       shared: false
     ollama:
       enabled: false
+      shared: false
+    qdrant:
+      shared: false
+    redis:
       shared: false
     prometheus:
       enabled: false

@@ -1,5 +1,5 @@
 ---
-- name: Ensure administrator user exists and is admin
+- name: ✅ Ensure administrator user exists and is admin
   ansible.builtin.command:
     argv:
       - container
@@ -11,14 +11,14 @@
       - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
       - -e
       - "OPENPROJECT_ADMIN_EMAIL={{ OPENPROJECT_ADMINISTRATOR_EMAIL }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"
     stdin: "{{ lookup('file', 'ruby/ensure_admin_user.rb') }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Link administrator to the LDAP auth source so the trusted-header bridge can resolve it
+- name: 🔧 Link admin to LDAP auth source so trusted-header bridge can resolve it
   ansible.builtin.command:
     argv:
       - container
@@ -28,7 +28,7 @@
       - "OPENPROJECT_LDAP_NAME={{ OPENPROJECT_LDAP.name }}"
       - -e
       - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"

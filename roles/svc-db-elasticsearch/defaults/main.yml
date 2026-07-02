@@ -1,0 +1,3 @@
+---
+database_init: false # When true a per-consumer index namespace is initialized
+database_consumer_id: "svc-db-elasticsearch" # Self consumer

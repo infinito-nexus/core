@@ -1,5 +1,7 @@
 ---
 epson-multiprinter:
+  skip:
+    - swarm
   min_storage: 0GB
   lifecycle: pre-alpha
   cpus: "0.1"

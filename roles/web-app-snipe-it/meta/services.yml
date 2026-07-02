@@ -25,9 +25,11 @@ email:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — cache engine, no Playwright surface
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -56,6 +58,10 @@ snipe-it:
     local:
       sso: 16489
       http: 8035
+    internal:
+      http: 80
+  proxy:
+    service_key: snipe-it
   run_after:
     - web-app-matomo
     - web-app-keycloak

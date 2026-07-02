@@ -1,5 +1,5 @@
 ---
-- name: "Load core functions for '{{ application_id }}'"
+- name: "📂 Load core functions for '{{ application_id }}'"
   include_tasks: 01_core.yml
   when: run_once_web_svc_onlyoffice is not defined
   vars:

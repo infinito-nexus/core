@@ -2,7 +2,10 @@
 csp:
   lifecycle: beta
   required_by:
-    categories: [web]
+    compose:
+      categories: [web]
+    swarm:
+      categories: [web]
 csp-checker:
   image: ghcr.io/kevinveenbirkenbach/csp-checker
   version: 2.1.2

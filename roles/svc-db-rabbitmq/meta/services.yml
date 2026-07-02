@@ -1,0 +1,23 @@
+---
+rabbitmq:
+  # nocheck: default-placement-manager  engine on-disk state (Mnesia message store + fsync/locking) cannot live on NFS, so the central engine is node-local in swarm
+  default_placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: rabbitmq
+  name: rabbitmq
+  version: "3.13-management-alpine"
+  min_storage: 5GB
+  backup:
+    database_routine: true
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 1024
+  ports:
+    local:
+      rabbitmq: 5672
+    internal:
+      rabbitmq: 5672
+  lifecycle: beta

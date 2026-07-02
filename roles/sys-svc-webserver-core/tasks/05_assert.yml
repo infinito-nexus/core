@@ -1,10 +1,10 @@
 ---
-- name: Stat nginx.conf
+- name: 🔎 Stat nginx.conf
   ansible.builtin.stat:
     path: "{{ lookup('nginx','files.configuration') }}"
   register: nginx_conf_stat
 
-- name: Assert nginx.conf is a file
+- name: ✅ Assert nginx.conf is a file
   ansible.builtin.assert:
     that:
       - nginx_conf_stat.stat.exists
@@ -14,12 +14,12 @@
       but it is missing or not a file (type mismatch). This would break docker bind mounts.
 
 # Optional but very useful: conf.d must be a directory
-- name: Stat conf.d directory
+- name: 🔎 Stat conf.d directory
   ansible.builtin.stat:
     path: "{{ lookup('nginx','directories.configuration.base') }}"
   register: nginx_confd_stat
 
-- name: Assert conf.d is a directory
+- name: ✅ Assert conf.d is a directory
   ansible.builtin.assert:
     that:
       - nginx_confd_stat.stat.exists
@@ -29,7 +29,7 @@
       but it is missing or not a directory.
 
 
-- name: "Assert default webserver responds with 404 for {{ DOMAIN_TEST }}"
+- name: "✅ Assert default webserver responds with 404 for {{ DOMAIN_TEST }}"
   uri_retry:
     url: "http://{{ DOMAIN_TEST }}:80/"
     method: GET
@@ -39,7 +39,7 @@
     timeout: 10
   register: default_vhost_check
 
-- name: Assert default webserver response body
+- name: ✅ Assert default webserver response body
   ansible.builtin.assert:
     that:
       - default_vhost_check.status == 404

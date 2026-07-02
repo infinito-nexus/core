@@ -4,14 +4,14 @@
 # is the primary login plugin. Field mapping is identical between
 # variants.
 
-- name: "Run Moodle DB upgrade for auth_ldap plugin"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+- name: "▶️ Run Moodle DB upgrade for auth_ldap plugin"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
-  changed_when: false
   failed_when: false
+  changed_when: false
 
-- name: "Configure auth_ldap connection + field mapping"
+- name: "🔧 Configure auth_ldap connection + field mapping"
   loop:
     # ── connection ────────────────────────────────────────────────
     - { name: "host_url", value: "{{ LDAP.SERVER.URI }}" }
@@ -91,39 +91,39 @@
     - { name: "field_updatelocal_timezone", value: "oncreate" }
   loop_control:
     label: "{{ item.name }}"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/cfg.php --component=auth_ldap
     --name={{ item.name }} --set="{{ item.value }}"
-  changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: false
 
-- name: "Enable auth_ldap plugin"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+- name: "🟢 Enable auth_ldap plugin"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/cfg.php --name=auth --set=ldap
   when: not (MOODLE_OIDC_ENABLED | bool)
   changed_when: false
 
-- name: "Variant 0: enable both auth_oidc + auth_ldap (oidc primary)"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+- name: "🟢 Variant 0: enable both auth_oidc + auth_ldap (oidc primary)"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/cfg.php --name=auth --set=oidc,ldap
   when: MOODLE_OIDC_ENABLED | bool
   changed_when: false
 
-- name: "Hide auth_ldap from login page in variant 0 (OIDC is the only entry point)"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+- name: "🔑 Hide auth_ldap from login page in variant 0 (OIDC is the only entry point)"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/cfg.php --component=auth_ldap
     --name=removecontexts --set=1
   when: MOODLE_OIDC_ENABLED | bool
   changed_when: false
 
-- name: "Trigger auth_ldap sync to pre-provision LDAP users"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+- name: "⚡ Trigger auth_ldap sync to pre-provision LDAP users"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/scheduled_task.php
     --execute='\auth_ldap\task\sync_task'
-  changed_when: false
   failed_when: false
+  changed_when: false

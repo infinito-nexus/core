@@ -1,5 +1,5 @@
 ---
-- name: "DEPLOY | Collect {{ SOFTWARE_DOMAIN }} timers"
+- name: "🚀 DEPLOY | Collect {{ SOFTWARE_DOMAIN }} timers"
   become: true
   ansible.builtin.command:
     argv:
@@ -12,7 +12,7 @@
   changed_when: false
   failed_when: false
 
-- name: "DEPLOY | Collect {{ SOFTWARE_DOMAIN }} services"
+- name: "🚀 DEPLOY | Collect {{ SOFTWARE_DOMAIN }} services"
   become: true
   ansible.builtin.command:
     argv:
@@ -25,7 +25,7 @@
   changed_when: false
   failed_when: false
 
-- name: "DEPLOY | Build unit lists"
+- name: "🚀 DEPLOY | Build unit lists"
   ansible.builtin.set_fact:
     deploy_timers: >-
       {{
@@ -42,7 +42,7 @@
         | list
       }}
 
-- name: "DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} services"
+- name: "🚀 DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} services"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -54,7 +54,7 @@
   loop: "{{ deploy_services }}"
   when: deploy_services | length > 0
 
-- name: "DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} timers (best-effort)"
+- name: "🚀 DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} timers (best-effort)"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -62,7 +62,7 @@
   loop: "{{ deploy_timers }}"
   when: deploy_timers | length > 0
 
-- name: "DEPLOY | Disable all {{ SOFTWARE_DOMAIN }} timers (keep unit files)"
+- name: "🚀 DEPLOY | Disable all {{ SOFTWARE_DOMAIN }} timers (keep unit files)"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"

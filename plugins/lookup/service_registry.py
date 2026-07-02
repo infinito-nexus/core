@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     ordered_primary_service_entries,
@@ -29,11 +29,9 @@ class LookupModule(LookupBase):
         **kwargs: Any,
     ) -> list[Any]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
-        applications = get_merged_applications(
-            variables=vars_,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=vars_)[0]
 
         roles_dir = Path(kwargs.get("roles_dir") or Path.cwd() / "roles")
         registry = build_service_registry_from_applications(applications)

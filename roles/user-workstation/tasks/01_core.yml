@@ -1,21 +1,21 @@
 ---
-- name: Validate WORKSTATION_USER is defined
+- name: ✅ Validate WORKSTATION_USER is defined
   ansible.builtin.fail:
     msg: "WORKSTATION_USER must be defined (e.g. WORKSTATION_USER: biber)."
   when: WORKSTATION_USER is not defined or (WORKSTATION_USER | string | length) == 0
 
-- name: Validate lookup('users', WORKSTATION_USER) exists
+- name: ✅ Validate lookup('users', WORKSTATION_USER) exists
   ansible.builtin.fail:
     msg: "lookup('users', '{{ WORKSTATION_USER }}') must resolve to a user entry."
   when: lookup('users', WORKSTATION_USER, none) is none
 
-- name: Ensure primary group exists
+- name: ✅ Ensure primary group exists
   ansible.builtin.group:
     name: "{{ USER_WORKSTATION_USERNAME }}"
     gid: "{{ USER_WORKSTATION_GID | default(omit) }}"
     state: present
 
-- name: Create workstation user
+- name: 📁 Create workstation user
   ansible.builtin.user:
     name: "{{ USER_WORKSTATION_USERNAME }}"
     uid: "{{ USER_WORKSTATION_UID }}"
@@ -31,14 +31,14 @@
       }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Deploy workstation user environment via shared user role
+- name: 🚀 Deploy workstation user environment via shared user role
   ansible.builtin.include_role:
     name: user
   vars:
     user_key: "{{ USER_WORKSTATION_KEY }}"
 
-- name: Enable sudo via sudoers drop-in (optional)
-  ansible.builtin.template:
+- name: 🟢 Enable sudo via sudoers drop-in (optional)
+  ansible.builtin.template: # nocheck: stack-host-template (per-host workstation sudoers drop-in)
     src: sudoers.j2
     dest: "/etc/sudoers.d/{{ USER_WORKSTATION_USERNAME }}"
     owner: root

@@ -3,35 +3,35 @@
 # An OAuth application is registered on the OpenProject side and a Nextcloud OAuth2 client is
 # registered back on the OpenProject storage; the partner-derived client ids/secret are linked
 # into integration_openproject. Re-runs only while Nextcloud is not yet coupled.
-- name: Resolve expected OpenProject base URL for the integration
+- name: 🔍 Resolve expected OpenProject base URL for the integration
   set_fact:
     nextcloud_op_expected_url: "{{ lookup('tls', 'web-app-openproject', 'url.base') | trim }}"
     nextcloud_op_web_container: "{{ lookup('config', 'web-app-openproject', 'services.web.name') }}"
     nextcloud_op_storage_name: "Nextcloud ({{ lookup('domain', 'web-app-nextcloud') }})"
   changed_when: false
 
-- name: Probe whether the OpenProject partner container is running
+- name: 🔍 Probe whether the OpenProject partner container is running
   command: >
     container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_op_web_container }}
   register: integration_openproject_partner_running
   changed_when: false
   failed_when: false
 
-- name: Read persisted integration_openproject OpenProject OAuth client id
+- name: 📖 Read persisted integration_openproject OpenProject OAuth client id
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_openproject openproject_client_id
   register: nextcloud_op_client_id_current
   changed_when: false
   failed_when: false
 
-- name: Read persisted integration_openproject Nextcloud OAuth client id
+- name: 📖 Read persisted integration_openproject Nextcloud OAuth client id
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_openproject nc_oauth_client_id
   register: nextcloud_op_nc_client_current
   changed_when: false
   failed_when: false
 
-- name: Read persisted integration_openproject OpenProject OAuth client secret
+- name: 📖 Read persisted integration_openproject OpenProject OAuth client secret
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_openproject openproject_client_secret
   register: nextcloud_op_client_secret_current
@@ -39,7 +39,7 @@
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Provision the bidirectional OpenProject <-> Nextcloud OAuth coupling
+- name: 🔧 Provision the bidirectional OpenProject <-> Nextcloud OAuth coupling
   include_tasks: "{{ [role_path, 'tasks/addons/integration_openproject_provision.yml'] | path_join }}"
   when: >-
     (integration_openproject_partner_running.stdout | trim) == 'true'

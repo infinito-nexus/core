@@ -1,10 +1,10 @@
 ---
-- name: Include dependency 'sys-ctl-alm-compose'
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose
   when: run_once_sys_ctl_alm_compose is not defined
 
-- name: Include dependency 'sys-ctl-rpr-container-soft'
+- name: 📂 Include dependency 'sys-ctl-rpr-container-soft'
   include_role:
     name: sys-ctl-rpr-container-soft
   when: run_once_sys_ctl_rpr_container_soft is not defined

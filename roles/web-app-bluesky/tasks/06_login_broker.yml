@@ -5,13 +5,13 @@
 # (see `services.bluesky-broker` in templates/compose.yml.j2). This
 # task only owns the on-disk staging.
 
-- name: "Ensure broker build-context parent directory exists"
+- name: "✅ Ensure broker build-context parent directory exists"
   ansible.builtin.file:
     path: "{{ BLUESKY_BROKER_BUILD_CONTEXT | dirname }}"
     state: directory
     mode: "0755"
 
-- name: "Copy login-broker source into the broker build-context dir"
+- name: "📋 Copy login-broker source into the broker build-context dir"
   ansible.builtin.copy:
     src: "{{ BLUESKY_BROKER_SRC_DIR }}/"
     dest: "{{ BLUESKY_BROKER_BUILD_CONTEXT }}/"

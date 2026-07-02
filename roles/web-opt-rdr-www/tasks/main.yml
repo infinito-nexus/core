@@ -1,12 +1,12 @@
 ---
-- name: Include web-opt-rdr-domains role for www-to-bare redirects
+- name: 📂 Include web-opt-rdr-domains role for www-to-bare redirects
   include_tasks: "utils/load_app.yml"
   vars:
     load_app_id: web-opt-rdr-domains
     redirect_domain_mappings: "{{ REDIRECT_WWW_DOMAINS }}"
   when: REDIRECT_WWW_FLAVOR == 'origin'
 
-- name: Include Cloudflare edge redirect
+- name: 📂 Include Cloudflare edge redirect
   include_tasks: _01_cloudflare_edge_redirect.yml
   when:
     - DNS_PROVIDER == 'cloudflare'

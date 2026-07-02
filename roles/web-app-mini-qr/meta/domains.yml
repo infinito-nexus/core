@@ -1,0 +1,4 @@
+---
+canonical:
+  - qr.{{ DOMAIN_PRIMARY }}
+aliases: []

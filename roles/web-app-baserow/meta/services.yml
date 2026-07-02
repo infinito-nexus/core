@@ -22,7 +22,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: baserow
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-baserow', role='administrator') }}"
@@ -30,9 +30,11 @@ sso:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
   enabled: true
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -66,10 +68,15 @@ baserow:
     local:
       http: 8017
       sso: 16495
+    internal:
+      http: 80
+  proxy:
+    service_key: baserow
   run_after:
     - web-app-matomo
     - web-app-keycloak
     - web-app-mailu
+    - web-app-seaweedfs
   lifecycle: beta
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:

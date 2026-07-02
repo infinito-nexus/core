@@ -3,12 +3,6 @@ application_id: "web-app-opencloud"
 entity_name: "{{ application_id | get_entity_name }}"
 
 OPENCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.opencloud.name') }}"
-OPENCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.opencloud.image') }}"
-OPENCLOUD_VERSION: "{{ lookup('config', application_id, 'services.opencloud.version') }}"
-OPENCLOUD_HTTP_PORT: "{{ lookup('config', application_id, 'services.opencloud.ports.local.http') }}"
-
-OPENCLOUD_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-OPENCLOUD_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
 
 OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
@@ -21,7 +15,6 @@ OPENCLOUD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enab
 # remains a fallback for emergency local console access).
 OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 
-# Internal service-to-service secrets
 OPENCLOUD_MACHINE_AUTH_API_KEY: "{{ lookup('config', application_id, 'credentials.machine_auth_api_key') }}"
 OPENCLOUD_STORAGE_SYSTEM_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.storage_system_jwt_secret') }}"
 OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.jwt_secret') }}"

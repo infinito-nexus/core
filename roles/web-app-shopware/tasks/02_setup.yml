@@ -1,8 +1,11 @@
 ---
-- name: Install & configure OIDC plugin (if enabled)
-  include_tasks: setup/oidc.yml
-  when: SHOPWARE_OIDC_ENABLED | bool
+- name: "🔧 Shopware setup plugins (manager-only)"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: 📦 Install & configure OIDC plugin (if enabled)
+      include_tasks: setup/oidc.yml
+      when: SHOPWARE_OIDC_ENABLED | bool
 
-- name: Install & configure LDAP plugin (if enabled)
-  include_tasks: setup/ldap.yml
-  when: SHOPWARE_LDAP_ENABLED | bool
+    - name: 📦 Install & configure LDAP plugin (if enabled)
+      include_tasks: setup/ldap.yml
+      when: SHOPWARE_LDAP_ENABLED | bool

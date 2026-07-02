@@ -15,15 +15,17 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: act-all
-# Run all act-based deploy checks.
-act-all:
-	@bash scripts/tests/deploy/act/all.sh
+.PHONY: act-debug
+# Param: node=<container_name> cmd='<shell pipeline>'
+act-debug:
+	@docker exec $(node) bash --noprofile --norc -c "$(cmd)"
 
-.PHONY: act-app
-# Run the act-based app deploy check.
-act-app:
-	@bash scripts/tests/deploy/act/app.sh
+.PHONY: act-runner-image
+# Build local/act-runner-fixed: the stock act runner image with /var/run removed so a recent Docker engine accepts act's job-setup content copy.
+# Usage: ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make swarm-zombie app=<app>
+# Note: see docs/agents/action/iteration/workflow.md.
+act-runner-image:
+	@bash scripts/tests/deploy/act/build_runner_image.sh
 
 .PHONY: act-workflow
 # Run the act-based workflow deploy check.
@@ -113,6 +115,11 @@ clean-container-owned:
 clean-pycache-dirs:
 	@"$${PYTHON}" -m utils.cleanup.pycache_only_dirs
 
+.PHONY: clean-stale-nfs
+# Recover stale in-namespace NFS mounts from wedged act-swarm nfs-server containers.
+# Usage: make clean-stale-nfs [cid=<container-id-or-name>] [mount=/mnt/gtest]
+clean-stale-nfs: swarm-clean-stale-nfs
+
 .PHONY: clean-sudo
 # Remove ignored files from the working tree with sudo.
 clean-sudo:
@@ -127,15 +134,13 @@ clean-sudo:
 # Param mode: initialize | reinstall | update (default: initialize)
 # Param apps: comma-separated app ids (e.g. web-app-matomo,web-app-keycloak)
 # Param purge: true | false (default: false) — purge entities before deploy
-# Param type: server | workstation | universal (default: from default.env)
 # Param bundles: comma-separated bundle names; overrides apps when set
 # Param disable: comma-separated service names to render as disabled
 # Param full_cycle: true | false — when true, also run the async update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
 compose-deploy:
-	@$(if $(type),INFINITO_DEPLOY_TYPE="$(type)") \
-	 $(if $(debug),INFINITO_DEBUG="$(debug)") \
+	@$(if $(debug),INFINITO_DEBUG="$(debug)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
 .PHONY: compose-down
@@ -443,6 +448,14 @@ requirements-archive:
 	@"$${PYTHON}" -m pip install --quiet --upgrade kpmx
 	@"$${PYTHON}" -m pkgmgr archive docs/requirements
 
+.PHONY: roundtrip
+# Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
+# Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
+# Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
+# Param keep: true keeps each validated swarm cluster instead of releasing it.
+roundtrip:
+	@apps='$(apps)' modes='$(modes)' keep='$(keep)' bash scripts/tests/deploy/roundtrip.sh
+
 .PHONY: runner-ci-deploy
 # Provision self-hosted CI runner instances on a remote host.
 # Usage: make runner-ci-deploy HOST=runner.example.com DISTRO=debian [COUNT=15] [PORT=22] [OWNER=myuser] [REPO=infinito-nexus]
@@ -506,6 +519,75 @@ setup: fix-dockerignore dotenv
 # Run setup after cleaning ignored files.
 setup-clean: clean setup
 	@echo "Full build with cleanup before was executed."
+
+.PHONY: swarm-clean
+# Reclaim ALL leftover act-swarm state (DinD nodes, NFS sidecars, lab networks, act outer containers) from aborted/wedged roundtrip runs, across every cluster id.
+# Note: removes what the docker CLI can; D-state remnants (wedged kernel NFS) need a host docker restart under sudo, or are reported in a no-priv sandbox.
+# Note: run BETWEEN swarm runs; it would kill an in-flight one.
+swarm-clean:
+	@bash scripts/tests/deploy/swarm/clean_all.sh
+
+.PHONY: swarm-clean-stale-nfs
+# Recover stale in-namespace NFS mounts from wedged act-swarm nfs-server containers.
+# Usage: make swarm-clean-stale-nfs [cid=<container-id-or-name>] [mount=/mnt/gtest]
+# Note: needs sudo; may restart containerd/docker only if docker rm still cannot reap the container.
+swarm-clean-stale-nfs:
+	@CID='$(cid)' NFS_MOUNT='$(mount)' bash scripts/tests/deploy/swarm/clean_stale_nfs.sh
+
+.PHONY: swarm-down
+# Release a named swarm-test cluster (DinD nodes, lab network, act outer container).
+# Param name: REQUIRED cluster id matching the one swarm-zombie used (the app id when no name= was passed).
+# Note: Safe to run multiple times.
+swarm-down:
+	@test -n '$(name)' || { echo 'usage: make swarm-down name=<cluster-id> (the app id if you did not pass name=)'; exit 2; }
+	@SWARM_NAME='$(name)' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/13_cleanup.sh
+	@bash scripts/tests/deploy/act/down_act_outer.sh
+
+.PHONY: swarm-exec
+# Run a one-off command inside one of the swarm-test DinD nodes.
+# Param node: full container name (e.g. <cluster>-swarm-mgr-01 | <cluster>-nfs-server; cluster = name= or the app id).
+# Param cmd: shell pipeline executed inside that container.
+swarm-exec:
+	@node='$(node)' cmd='$(cmd)' bash scripts/tests/deploy/act/exec_node.sh
+
+.PHONY: swarm-playwright
+# Rerun a role-local Playwright spec against the live swarm-test cluster (no redeploy).
+# Note: nodes hold a frozen bootstrap copy (not a compose-style mount), so the working-tree's modified+untracked files are copied into the node before rerunning via the same rerun-spec.sh engine as compose-playwright; solve ALL of a role's tests (no pw= narrowing) before any redeploy.
+# Usage: make swarm-playwright role=<role> name=<cluster-id> [pw="--grep <pattern>"] [keep=true] [node=<container>]
+# Example: make swarm-playwright role=web-svc-logout name=web-app-baserow pw="--grep baserow" keep=true
+swarm-playwright:
+	@: $${role:?role=<role> required, e.g. role=web-svc-logout}
+	@test -n '$(name)' || { echo 'name=<cluster-id> required (the app id when no name= was passed to swarm-zombie)'; exit 2; }
+	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
+	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd='cd /opt/infinito-nexus && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' bash scripts/tests/deploy/act/exec_node.sh
+
+.PHONY: swarm-shell
+# Drop into an interactive shell on one of the swarm-test DinD nodes.
+# Param name: REQUIRED cluster id (the app id when no name= was passed); node defaults to <name>-swarm-mgr-01.
+# Param node: full container name to target (overrides the default).
+swarm-shell:
+	@test -n '$(name)' || { echo 'usage: make swarm-shell name=<cluster-id> [node=<container>]'; exit 2; }
+	@SWARM_NAME='$(name)' node='$(node)' bash scripts/tests/deploy/act/shell_node.sh
+
+.PHONY: swarm-zombie
+# Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
+# Param app: matrix application id (e.g. web-app-baserow).
+# Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
+# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
+# Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
+# Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
+swarm-zombie:
+	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
+	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/13_cleanup.sh
+	@bash scripts/tests/deploy/act/down_act_outer.sh
+	@ACT_RM=false \
+	 ACT_BIND=true \
+	 ACT_ENV='INFINITO_KEEP_SWARM_NODES=true;INFINITO_APP_DISCOVERY_RUNNER=host;INFINITO_DEPLOY_MODE=swarm;disable=$(disable);SWARM_NAME=$(or $(name),$(app))' \
+	 ACT_WORKFLOW=.github/workflows/test-deploy-swarm.yml \
+	 ACT_JOB=swarm \
+	 ACT_MATRIX='apps:$(app);variant:$(or $(variant),0)' \
+	 ACT_INPUTS='whitelist=$(app)' \
+	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge
 # Run the broad low-hardware cleanup routine.

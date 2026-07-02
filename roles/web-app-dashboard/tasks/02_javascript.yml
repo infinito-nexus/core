@@ -1,11 +1,11 @@
 ---
-- name: Ensure {{ DASHBOARD_JS_SERVER_DIR }} exists
+- name: ✅ Ensure {{ DASHBOARD_JS_SERVER_DIR }} exists
   file:
     path: "{{ DASHBOARD_JS_SERVER_DIR }}"
     state: directory
     mode: "0755"
 
-- name: "Include file specific JS Routines"
+- name: "📂 Include file specific JS Routines"
   include_tasks: "_javascript_file.yml"
   loop: "{{ DASHBOARD_JS_FILES }}"
   loop_control:

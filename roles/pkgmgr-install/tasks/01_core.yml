@@ -1,5 +1,5 @@
 ---
-- name: Include dependency 'pkgmgr'
+- name: 📂 Include dependency 'pkgmgr'
   include_role:
     name: pkgmgr
   when: run_once_pkgmgr is not defined

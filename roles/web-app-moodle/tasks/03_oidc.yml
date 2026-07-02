@@ -2,26 +2,26 @@
 # Configure Moodle's auth_oidc plugin (variant 0 only). Variant 1
 # disables the OIDC shared service so this file is not included.
 
-- name: "Check OIDC plugin presence"
-  command: >
-    container exec --user root {{ MOODLE_CONTAINER }} test -d {{ MOODLE_OIDC_PLUGIN_DIR }}
+- name: "🔎 Check OIDC plugin presence"
+  shell: >
+    container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} test -d {{ MOODLE_OIDC_PLUGIN_DIR }}
   register: oidc_plugin_check
   changed_when: false
   failed_when: false
 
-- name: "Fail if OIDC plugin is missing"
+- name: "🛑 Fail if OIDC plugin is missing"
   fail:
     msg: "auth_oidc plugin not found at {{ MOODLE_OIDC_PLUGIN_DIR }} — image build is incomplete"
   when: oidc_plugin_check.rc != 0
 
-- name: "Run Moodle DB upgrade for OIDC plugin"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+- name: "▶️ Run Moodle DB upgrade for OIDC plugin"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
   changed_when: false
   failed_when: false
 
-- name: "Set Moodle OIDC configuration via CLI"
+- name: "🔧 Set Moodle OIDC configuration via CLI"
   loop:
     - { name: "idptype", value: 3 }
     - { name: "clientauthmethod", value: 1 }
@@ -96,15 +96,15 @@
     - { name: "alternateloginurl", value: "{{ lookup('tls', application_id, 'url.base') }}{{ MOODLE_OIDC_PLUGIN_RELPATH }}/" }
   loop_control:
     label: "{{ item.name }}"
-  command: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER }}
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/cfg.php --component=auth_oidc
     --name={{ item.name }} --set="{{ item.value }}"
   changed_when: false
 
-- name: "Set auth = 'oidc' for all users except guest"
+- name: "🔧 Set auth = 'oidc' for all users except guest"
   shell: >
-    container exec {{ lookup('database', application_id, 'instance') }}
+    container exec {{ MOODLE_DB_CONTAINER_ADDRESS }}
     mariadb -u {{ lookup('database', application_id, 'username') }}
     -p{{ lookup('database', application_id, 'password') | quote }}
     -e "UPDATE {{ lookup('database', application_id, 'name') }}.mdl_user SET auth = 'oidc' WHERE username != 'guest';"

@@ -2,6 +2,7 @@
 # nocheck: seaweedfs-required, object storage not implemented for this role
 # nocheck: playwright-service-flag, self-provider
 friendica:
+  name: friendica
   bond: 1
   shared: true
   enabled: true
@@ -12,6 +13,10 @@ friendica:
     local:
       sso: 16501
       http: 8028
+    internal:
+      http: 80
+  proxy:
+    service_key: friendica
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -35,7 +40,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: friendica
       port: "80"
     # Whitelist semantics: the catch-all `location /` is gated by
     # oauth2-proxy so the SSO entry (`/login`, the authenticated home /

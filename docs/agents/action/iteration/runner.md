@@ -1,7 +1,7 @@
 # Runner Iteration
 
 Use this page when iterating on the `svc-runner` role or any workflow that involves self-hosted CI runner registration, configuration, or the runner infrastructure itself.
-For role-level iteration on other roles, see [Role Loop](role.md).
+For role-level iteration on other roles, see [Role Loop](compose.md).
 For workflow-level iteration, see [Workflow Loop](workflow.md).
 
 ## Context

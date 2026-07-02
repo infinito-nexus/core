@@ -1,4 +1,4 @@
-name: "📥 Test: Install Make"
+name: "📦 Test: Install Make"
 
 on:
   workflow_call:
@@ -22,10 +22,10 @@ jobs:
         distro: [arch, debian, ubuntu, fedora, centos]
 
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7
 
-      - name: Resolve paths from default.env
+      - name: 🔍 Resolve paths from default.env
         run: |
           for key in INFINITO_SRC_DIR INFINITO_VENV_DIR; do
             value="$(awk -F= -v k="^${key}=" '$0 ~ k {print $2; exit}' default.env)"
@@ -33,7 +33,7 @@ jobs:
             echo "${key}=${value}" >> "$GITHUB_ENV"
           done
 
-      - name: Install & test in pkgmgr virgin container
+      - name: 📦 Install & test in pkgmgr virgin container
         run: |
           docker run --rm \
             -e NIX_CONFIG="${NIX_CONFIG}" \

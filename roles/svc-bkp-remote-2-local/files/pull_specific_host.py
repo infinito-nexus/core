@@ -167,9 +167,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--folder",
-        default="/var/lib/infinito/backup",
-        help="Remote and local backup root directory "
-        "(default: /var/lib/infinito/backup)",
+        required=True,
+        help="Remote and local backup root directory",
     )
     args = parser.parse_args()
 

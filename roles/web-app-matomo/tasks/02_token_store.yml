@@ -1,5 +1,5 @@
 ---
-- name: "Matomo | Expose resolved token"
+- name: "🔑 Matomo | Expose resolved token"
   ansible.builtin.set_fact:
     matomo_token_value: "{{ lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

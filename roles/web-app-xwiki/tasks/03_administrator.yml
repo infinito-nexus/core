@@ -1,11 +1,11 @@
 ---
 # Ensure an admin user exists (when SSO is disabled) and can administer XWiki.
 
-- name: "XWIKI | Fetch REST session + form token (admin write ops)"
+- name: "⬇️ XWIKI | Fetch REST session + form token (admin write ops)"
   include_tasks: _rest_session.yml
 
 # 1) Create page XWiki.<userid> (PUT is idempotent)
-- name: "XWIKI | Ensure user page exists: XWiki.{{ XWIKI_ADMIN_USER }}"
+- name: "✅ XWIKI | Ensure user page exists: XWiki.{{ XWIKI_ADMIN_USER }}"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_USER | urlencode] | url_join }}"
     method: PUT
@@ -18,7 +18,7 @@
   register: _user_page
 
 # 2) Add XWiki.XWikiUsers object (only if it does not already exist)
-- name: "XWIKI | Check if XWikiUsers object exists"
+- name: "🔎 XWIKI | Check if XWikiUsers object exists"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_USER | urlencode, 'objects'] | url_join }}?classname=XWiki.XWikiUsers"
     method: GET
@@ -28,7 +28,7 @@
     status_code: [200, 404]
   register: _users_obj_list
 
-- name: "XWIKI | Add XWiki.XWikiUsers object"
+- name: "➕ XWIKI | Add XWiki.XWikiUsers object"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_USER | urlencode, 'objects'] | url_join }}"
     method: POST
@@ -42,7 +42,7 @@
   register: _user_obj_created
 
 - block:
-    - name: "XWIKI | Ensure {{ XWIKI_ADMIN_GROUP_PAGE }} page exists"
+    - name: "✅ XWIKI | Ensure {{ XWIKI_ADMIN_GROUP_PAGE }} page exists"
       uri_retry:
         url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE] | url_join }}"
         method: PUT
@@ -52,7 +52,7 @@
         status_code: [201, 202, 204, 200]
         headers: "{{ xwiki_rest_headers_write }}"
         body: "{{ lookup('template', 'xml/xwiki_admin_group_page.xml.j2') }}"
-    - name: "XWIKI | Ensure user is in {{ XWIKI_ADMIN_GROUP_PAGE }}"
+    - name: "✅ XWIKI | Ensure user is in {{ XWIKI_ADMIN_GROUP_PAGE }}"
       uri_retry:
         url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE, 'objects'] | url_join }}"
         method: POST

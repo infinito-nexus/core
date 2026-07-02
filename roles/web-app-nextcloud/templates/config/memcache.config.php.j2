@@ -3,7 +3,7 @@
 # Implementing redis configuration
 return array (
   # For single server setup APCu is recommended, for multi server setup Redis
-  'memcache.local' => '\\OC\\Memcache\\{% if DEPLOYMENT_MODE == "single" %}APCu{% else %}Redis{% endif %}',
+  'memcache.local' => '\\OC\\Memcache\\{% if DEPLOYMENT_MODE == "compose" %}APCu{% else %}Redis{% endif %}',
   # The following lines are configured via the environment variables
   # 'memcache.locking' => '\\OC\\Memcache\\Redis',
   # 'redis' =>

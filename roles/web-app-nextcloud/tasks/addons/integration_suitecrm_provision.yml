@@ -1,12 +1,12 @@
 ---
-- name: Wait for the SuiteCRM web endpoint
+- name: ⏳ Wait for the SuiteCRM web endpoint
   wait_for:
     host: "{{ lookup('domain', 'web-app-suitecrm') }}"
     port: 80
     delay: 5
     timeout: 600
 
-- name: Provision (idempotently) the SuiteCRM OAuth2 password client and capture credentials
+- name: 🔧 Provision SuiteCRM OAuth2 password client (idempotent), capture credentials
   ansible.builtin.command:
     argv:
       - container
@@ -27,12 +27,12 @@
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Parse the SuiteCRM OAuth client credentials
+- name: 🔎 Parse the SuiteCRM OAuth client credentials
   set_fact:
     nextcloud_crm_client_id: "{{ nextcloud_crm_provision.stdout | regex_search('CLIENT_ID=(.+)', '\\1') | first }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Link the SuiteCRM OAuth password client into integration_suitecrm
+- name: 🔗 Link the SuiteCRM OAuth password client into integration_suitecrm
   command: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_suitecrm {{ item.key }}
     --value '{{ item.value }}'

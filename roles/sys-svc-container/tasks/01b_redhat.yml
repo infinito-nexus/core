@@ -1,5 +1,5 @@
 ---
-- name: Configure Docker yum repository
+- name: 🔧 Configure Docker yum repository
   get_url_retry:
     url: "https://download.docker.com/linux/{{ SYS_SVC_CONTAINER_DOCKER_REPO_DISTRO_BY_DISTRIBUTION[ansible_facts['distribution']] }}/docker-ce.repo"
     dest: /etc/yum.repos.d/docker-ce.repo

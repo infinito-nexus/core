@@ -1,8 +1,11 @@
 import os
+import tempfile
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from unittest.mock import patch
+
+from utils.cache.files import read_text
 
 
 def load_script_module():
@@ -196,6 +199,67 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
             s.Path.is_file = old_is_file  # type: ignore[assignment]
             if old_resolve_files is not None:
                 s.resolve_files = old_resolve_files  # type: ignore[assignment]
+
+    def test_subcommand_is_first_passthrough_token(self):
+        s = self.script
+        self.assertEqual(s._subcommand(["build"]), "build")
+        self.assertEqual(s._subcommand(["config", "-q"]), "config")
+        self.assertEqual(s._subcommand(["up", "-d"]), "up")
+        self.assertEqual(s._subcommand([]), "")
+
+    def test_build_cmd_build_strips_env_files_and_drops_env_file_flag(self):
+        """`build` runs against env_file-stripped copies with no --env-file.
+
+        compose build parses every service env_file and rejects $-bearing
+        secrets, so the build (which needs no runtime env) must not load it.
+        """
+        s = self.script
+        base = Path("/proj")
+
+        old_is_file = s.Path.is_file
+        old_strip = s.strip_env_files
+        try:
+
+            def fake_is_file(self: Path) -> bool:
+                return str(self) in (
+                    "/proj/compose.yml",
+                    "/proj/.env",
+                    "/proj/.env/env",
+                )
+
+            def fake_strip(project_dir: Path, files):
+                return [Path(f"{f}.noenv.yml") for f in files]
+
+            s.Path.is_file = fake_is_file  # type: ignore[assignment]
+            s.strip_env_files = fake_strip  # type: ignore[assignment]
+
+            cmd = s.build_cmd("myproj", base, ["build"])
+
+            self.assertNotIn("--env-file", cmd)
+            self.assertIn("/proj/compose.yml.noenv.yml", cmd)
+            self.assertNotIn("/proj/compose.yml", cmd)
+            self.assertEqual(cmd[-1], "build")
+        finally:
+            s.Path.is_file = old_is_file  # type: ignore[assignment]
+            s.strip_env_files = old_strip  # type: ignore[assignment]
+
+    def test_strip_env_files_removes_env_file_key(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            project_dir = Path(td)
+            src = project_dir / "compose.yml"
+            src.write_text(
+                "services:\n"
+                "  app:\n"
+                "    image: x\n"
+                "    env_file:\n"
+                '      - "/proj/.env/env"\n'
+            )
+            out = s.strip_env_files(project_dir, [src])
+            self.assertEqual([p.name for p in out], ["compose.noenv.yml"])
+            text = read_text(str(out[0]))
+            self.assertNotIn("env_file", text)
+            self.assertIn("image", text)
 
     def test_main_defaults_to_cwd_and_project_basename(self):
         s = self.script
@@ -507,6 +571,67 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
         finally:
             s.sys.argv = old_argv
             s.Path.cwd = old_cwd  # type: ignore[assignment]
+            s.Path.is_dir = old_is_dir  # type: ignore[assignment]
+            s.Path.resolve = old_resolve  # type: ignore[assignment]
+            s.build_cmd = old_build_cmd  # type: ignore[assignment]
+            s.os.execvp = old_execvp  # type: ignore[assignment]
+
+    def test_build_cmd_up_returns_none_for_serviceless_project(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "compose.yml").write_text("services: {}\n")
+            self.assertIsNone(s.build_cmd("proj", tmp, ["up", "-d"]))
+
+    def test_build_cmd_up_runs_when_services_present(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "compose.yml").write_text("services:\n  web:\n    image: x\n")
+            cmd = s.build_cmd("proj", tmp, ["up", "-d"])
+            self.assertIsNotNone(cmd)
+            self.assertEqual(cmd[-2:], ["up", "-d"])
+
+    def test_build_cmd_up_runs_when_compose_unparseable(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "compose.yml").write_text("services: [unbalanced\n")
+            self.assertIsNotNone(s.build_cmd("proj", tmp, ["up", "-d"]))
+
+    def test_main_returns_0_when_no_services(self):
+        s = self.script
+        old_argv = s.sys.argv
+        old_is_dir = s.Path.is_dir
+        old_resolve = s.Path.resolve
+        old_build_cmd = s.build_cmd
+        old_execvp = s.os.execvp
+        execvp_called = {"v": False}
+        try:
+
+            def fake_resolve(self: Path) -> Path:
+                return self
+
+            def fake_is_dir(self: Path) -> bool:
+                return str(self) == "/work/discourse"
+
+            def fake_build_cmd(project, project_dir, passthrough, extra_files=None):
+                return None
+
+            def fake_execvp(prog, argv):
+                execvp_called["v"] = True
+                raise RuntimeError("execvp must not run when there are no services")
+
+            s.Path.resolve = fake_resolve  # type: ignore[assignment]
+            s.Path.is_dir = fake_is_dir  # type: ignore[assignment]
+            s.build_cmd = fake_build_cmd  # type: ignore[assignment]
+            s.os.execvp = fake_execvp  # type: ignore[assignment]
+
+            s.sys.argv = ["compose.py", "--chdir", "/work/discourse", "up", "-d"]
+            self.assertEqual(s.main(), 0)
+            self.assertFalse(execvp_called["v"])
+        finally:
+            s.sys.argv = old_argv
             s.Path.is_dir = old_is_dir  # type: ignore[assignment]
             s.Path.resolve = old_resolve  # type: ignore[assignment]
             s.build_cmd = old_build_cmd  # type: ignore[assignment]

@@ -22,4 +22,4 @@ if [ -n "${PYTHON:-}" ]; then
 fi
 
 make setup
-"${PYTHON:-python3}" -m unittest discover -s "tests/${INFINITO_TEST_TYPE}" -t . -p "${INFINITO_TEST_PATTERN}" # nocheck: makefile-supplied
+"${PYTHON}" -m unittest discover -s "tests/${INFINITO_TEST_TYPE}" -t . -p "${INFINITO_TEST_PATTERN}" # nocheck: makefile-supplied

@@ -1,10 +1,10 @@
 ---
-- name: Gather containers
+- name: 📊 Gather containers
   community.docker.docker_host_info:
     containers: true
   register: docker_info
 
-- name: Remove containers (stops running ones)
+- name: 🗑️ Remove containers (stops running ones)
   community.docker.docker_container:
     name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/','') }}"
     state: absent
@@ -14,7 +14,7 @@
     label: "{{ (item.Names | default([item.Name]))[0] }}"
   when: docker_info.containers | length > 0
 
-- name: Trigger Docker restart
+- name: ⚡ Trigger Docker restart
   ansible.builtin.debug:
     msg: "MODE_RESET is enabled → restarting Docker"
   notify: container manager restart

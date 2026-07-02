@@ -1,9 +1,9 @@
 ---
-- name: Load LDAP configuration variables
+- name: ⚙️ Load LDAP configuration variables
   include_vars:
     file: "ldap.yml"
 
-- name: Check if LDAP source exists
+- name: 🔎 Check if LDAP source exists
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -13,7 +13,7 @@
     expect_rows: true
   register: ldap_check
 
-- name: Update existing LDAP auth source
+- name: 🔄 Update existing LDAP auth source
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -37,7 +37,7 @@
       name: "{{ OPENPROJECT_LDAP.name }}"
   when: ldap_check.rows | length > 0
 
-- name: Create new LDAP auth source
+- name: 📁 Create new LDAP auth source
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"

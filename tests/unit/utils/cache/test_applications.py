@@ -21,9 +21,11 @@ from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
 from utils.roles.mapping import (
     ROLE_DIR_META_ADDONS,
+    ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_META_USERS,
     ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_META_VOLUMES,
 )
 
 from . import PROJECT_ROOT
@@ -87,6 +89,26 @@ class TestGetApplicationDefaults(unittest.TestCase):
                 users["administrator"],
                 "{{ lookup('users', 'administrator') }}",
             )
+
+
+class TestGetCanonicalVolumes(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_forces_rebuild_when_registry_empty(self):
+        cache_apps._CANONICAL_VOLUMES_BY_ROLE.clear()
+        self.assertIn(
+            "ollama_models",
+            cache_apps.get_canonical_volumes("svc-ai-ollama"),
+        )
+
+    def test_warm_defaults_cache_does_not_mask_empty_registry(self):
+        cache_apps.get_application_defaults()
+        cache_apps._CANONICAL_VOLUMES_BY_ROLE.clear()
+        self.assertIn(
+            "ollama_models",
+            cache_apps.get_canonical_volumes("svc-ai-ollama"),
+        )
 
 
 class TestGetVariants(unittest.TestCase):
@@ -316,6 +338,75 @@ class TestGetMergedApplicationsRespectsOverrides(unittest.TestCase):
                 merged["web-app-foo"]["services"]["foo"]["image"],
                 "override",
             )
+
+
+class TestRecursiveMetaWalk(unittest.TestCase):
+    """`_build_role_base_config` walks the whole `meta/` tree: every
+    `meta/**/*.yml` lands at the matching nested path under
+    `applications.<app>` (the live `meta/addons/` case plus any deeper
+    nesting), while `main.yml`/`variants.yml` stay out as build mechanism.
+    """
+
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_nested_dirs_map_to_nested_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            role = roles / "web-app-foo"
+            _write(role / "meta" / "extra" / "widget.yml", "color: blue\n")
+            _write(role / "meta" / "a" / "b" / "c.yml", "deep: true\n")
+            cfg = cache_apps.get_application_defaults(roles_dir=roles)["web-app-foo"]
+            self.assertEqual(cfg["extra"]["widget"], {"color": "blue"})
+            self.assertEqual(cfg["a"]["b"]["c"], {"deep": True})
+
+    def test_main_and_variants_yml_stay_out_of_payload(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            role = roles / "web-app-foo"
+            _write(role / ROLE_FILE_META_MAIN, "galaxy_info:\n  description: x\n")
+            _write(role / ROLE_FILE_META_VARIANTS, "- services: {foo: {image: alt}}\n")
+            cfg = cache_apps.get_application_defaults(roles_dir=roles)["web-app-foo"]
+            self.assertNotIn("main", cfg)
+            self.assertNotIn("variants", cfg)
+
+
+class TestVolumesFoldedRawIntoMerged(unittest.TestCase):
+    """`get_merged_applications` re-attaches the raw `meta/volumes.yml` subtree
+    onto `applications.<app>.volumes` AFTER the templar render, so the merged
+    SPOT carries volumes with their Jinja `source:` strings unrendered.
+    """
+
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_volumes_present_and_raw(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            _write(
+                roles / "web-app-foo" / ROLE_FILE_META_VOLUMES,
+                """
+                data:
+                  type: volume
+                  source: "{{ lookup('container', 'web-app-foo', 'x') }}"
+                """,
+            )
+            merged = cache_apps.get_merged_applications(
+                variables={}, roles_dir=roles, templar=None
+            )
+            vols = merged["web-app-foo"]["volumes"]
+            self.assertEqual(
+                vols["data"]["source"],
+                "{{ lookup('container', 'web-app-foo', 'x') }}",
+            )
+
+    def test_volumes_absent_when_role_has_none(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            merged = cache_apps.get_merged_applications(
+                variables={}, roles_dir=roles, templar=None
+            )
+            self.assertNotIn("volumes", merged["web-app-foo"])
 
 
 class TestApplicationsImportableWithoutAnsible(unittest.TestCase):

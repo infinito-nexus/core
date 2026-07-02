@@ -1,5 +1,5 @@
 ---
-- name: Wait for a known Simple Icons asset before rebuilding dashboard cards
+- name: ⏳ Wait for a known Simple Icons asset before rebuilding dashboard cards
   uri_retry:
     url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}keycloak.svg"
     status_code: 200
@@ -9,28 +9,42 @@
   delay: 5
   until: simpleicons_http.status == 200
 
-- name: Reload docker cards once Simple Icons is reachable
-  set_fact:
-    portfolio_cards: "{{ portfolio_cards | add_simpleicon_source(DASHBOARD_SIMPLEICONS_SYNC_URL_BASE, public_url_base=DASHBOARD_SIMPLEICONS_URL_BASE) }}"
+- name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
+  uri_retry:
+    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
+    method: HEAD
+    status_code: [200, 404]
+    validate_certs: false
+  register: dashboard_simpleicons_probe
+  loop: "{{ portfolio_cards | simpleicon_slugs }}"
+  loop_control:
+    label: "{{ item }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   changed_when: false
 
-- name: Regroup docker cards after Simple Icons refresh
+- name: 🔄 Reload docker cards once Simple Icons is reachable
+  set_fact:
+    portfolio_cards: >-
+      {{ portfolio_cards | add_simpleicon_source(
+           dashboard_simpleicons_probe.results
+             | selectattr('status', 'equalto', 200)
+             | map(attribute='item')
+             | list,
+           DASHBOARD_SIMPLEICONS_URL_BASE) }}
+  changed_when: false
+
+- name: 🐳 Regroup docker cards after Simple Icons refresh
   set_fact:
     portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
 
-- name: Refresh host-specific config.yaml after Simple Icons is reachable
-  template:
-    src: "{{ DASHBOARD_CONFIG_INV_PATH }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: config_file.stat.exists
+- name: "🔄 Refresh Dashboard config.yaml once Simple Icons is reachable (local + swarm)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
+        dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
 
-- name: Refresh default config.yaml after Simple Icons is reachable
-  template:
-    src: "{{ DASHBOARD_CONFIG_YML_SRC_FILE }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: not config_file.stat.exists
-
-- name: Flush compose handlers after Simple Icons refresh
+- name: 🚿 Flush compose handlers after Simple Icons refresh
   meta: flush_handlers

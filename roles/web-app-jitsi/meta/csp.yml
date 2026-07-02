@@ -1,0 +1,15 @@
+---
+flags:
+  script-src:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true
+  style-src:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true
+  connect-src:
+    wss: true
+  worker-src:
+    blob: true

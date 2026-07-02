@@ -11,6 +11,7 @@ import importlib
 import importlib.util
 import sys
 import unittest
+from unittest import mock
 
 from ansible.errors import AnsibleError
 
@@ -78,22 +79,14 @@ class SsoLookupTests(unittest.TestCase):
     def setUpClass(cls):
         cls.mod = _load_module("plugins/lookup/sso.py", "sso")
 
-    def setUp(self):
-        self._original_merge = self.mod.get_merged_applications
-        self._stub_payload = None
-
-        def _stub(*args, **kwargs):
-            return self._stub_payload
-
-        self.mod.get_merged_applications = _stub
-
-    def tearDown(self):
-        self.mod.get_merged_applications = self._original_merge
-
     def _run(self, applications, terms):
-        self._stub_payload = applications
         lk = self.mod.LookupModule()
-        return lk.run(terms, variables={"applications": applications})
+        lk._loader = mock.MagicMock()
+        with mock.patch.object(self.mod, "lookup_loader") as loader_mock:
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [applications]
+            )
+            return lk.run(terms, variables={"applications": applications})
 
     # --- term parsing ----------------------------------------------------
 

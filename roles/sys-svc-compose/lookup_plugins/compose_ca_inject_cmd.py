@@ -89,6 +89,10 @@ class LookupModule(LookupBase):
         if not application_id:
             raise AnsibleError("compose_ca_inject_cmd: application_id is empty")
 
+        wrapper = kwargs.get("wrapper", True)
+        if not isinstance(wrapper, bool):
+            raise AnsibleError("compose_ca_inject_cmd: wrapper must be a bool")
+
         project = _as_str(get_entity_name(application_id))
         if not project:
             raise AnsibleError("compose_ca_inject_cmd: resolved project is empty")
@@ -211,5 +215,8 @@ class LookupModule(LookupBase):
             "--trust-name",
             _shell_quote(trust_name),
         ]
+
+        if not wrapper:
+            cmd += ["--no-wrapper"]
 
         return [" ".join(cmd)]

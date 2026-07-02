@@ -1,0 +1,9 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+whitelist:
+  frame-src:
+    - "*"
+  worker-src:
+    - "blob:"

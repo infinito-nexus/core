@@ -1,5 +1,7 @@
 ---
 mariadb:
+  # nocheck: default-placement-manager  central RDBMS, single-node until multi-replica replication (galera / async) is in scope
+  default_placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -15,5 +17,7 @@ mariadb:
   pids_limit: 1024
   ports:
     local:
+      mariadb: 3306
+    internal:
       mariadb: 3306
   lifecycle: beta

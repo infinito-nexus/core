@@ -1,11 +1,14 @@
 var _paq = window._paq = window._paq || [];
 _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
 // Chromium may reject explicitly dotted cookie domains in embedded/cross-site
-// flows. The bare parent domain still covers all subdomains, so prefer it for
-// the cookie while keeping the wider local-domain match list below.
-_paq.push(["setCookieDomain", "{{base_domain}}"]);
-_paq.push(["setDomains", [".{{base_domain}}"]]);
+// flows, so set the bare domain for the cookie.
+_paq.push(["setCookieDomain", "{{ matomo_site_domain }}"]);
+{% if matomo_tracking_scope == 'root' %}
+_paq.push(["setDomains", [".{{ matomo_site_domain }}"]]);
 _paq.push(["enableCrossDomainLinking"]);
+{% else %}
+_paq.push(["setDomains", ["{{ matomo_site_domain }}"]]);
+{% endif %}
 _paq.push(["trackPageView"]);
 _paq.push(["trackAllContentImpressions"]);
 _paq.push(["enableLinkTracking"]);

@@ -1,7 +1,7 @@
 ---
-- name: Check if DKIM private key file exists in the antispam container
-  command: >
-    {{ BIN_COMPOSE }} exec -T antispam
+- name: 🔎 Check if DKIM private key file exists in the antispam container
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ANTISPAM_CONTAINER_ADDRESS }}
     test -f {{ MAILU_DKIM_KEY_PATH }}
   register: dkim_key_file_stat
   failed_when: false
@@ -12,9 +12,9 @@
   args:
     chdir: "{{ MAILU_INSTANCE_DIR }}"
 
-- name: Generate DKIM key
-  command: >
-    {{ BIN_COMPOSE }} exec -T antispam
+- name: ⚙️ Generate DKIM key
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ANTISPAM_CONTAINER_ADDRESS }}
     rspamadm dkim_keygen -s dkim -d {{ MAILU_DOMAIN }} -k {{ MAILU_DKIM_KEY_PATH }}
   register: dkim_keygen_output
   when: dkim_key_file_stat.rc != 0
@@ -25,23 +25,21 @@
     chdir: "{{ MAILU_INSTANCE_DIR }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Fetch DKIM private key from antispam container
-  shell: >
-    {{ BIN_COMPOSE }} exec -T antispam
+- name: ⬇️ Fetch DKIM private key from antispam container
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ANTISPAM_CONTAINER_ADDRESS }}
     cat {{ MAILU_DKIM_KEY_PATH }}
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
   register: dkim_priv_content
   failed_when: dkim_priv_content.rc != 0
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Ensure openssl is installed on host
+- name: ✅ Ensure openssl is installed on host
   include_role:
     name: sys-openssl
   when: run_once_sys_openssl is not defined
 
-- name: Generate DKIM public key on the host
+- name: ⚙️ Generate DKIM public key on the host
   command: openssl rsa -pubout
   args:
     stdin: "{{ dkim_priv_content.stdout }}"
@@ -49,7 +47,7 @@
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Normalize and build Mailu DKIM TXT record
+- name: 📐 Normalize and build Mailu DKIM TXT record
   set_fact:
     mailu_dkim_public_key: >-
       v=DKIM1; k=rsa; p={{
@@ -60,7 +58,7 @@
       }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Debug Mailu DKIM public key
+- name: 🐛 Debug Mailu DKIM public key
   debug:
     msg: "Mailu DKIM public key: {{ mailu_dkim_public_key }}"
   when: MODE_DEBUG | bool

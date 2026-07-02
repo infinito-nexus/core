@@ -1,5 +1,9 @@
-{# integrate it into service sections to be build by Dockerfile #}
-pull_policy: never
+{# integrate it into service sections to be build by Dockerfile.
+   `pull_policy` is a docker-compose-only field — `docker stack
+   deploy` rejects it as "Additional property pull_policy is not
+   allowed". Skip it under swarm mode (swarm always uses the locally
+   resolved image via --resolve-image always at deploy time). #}
+{{ lookup('compose_only', 'pull_policy', 'never') }}
 build:
   context: .
   dockerfile: Dockerfile

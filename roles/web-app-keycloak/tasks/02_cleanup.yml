@@ -1,5 +1,5 @@
 ---
-- name: "remove directory {{ KEYCLOAK_REALM_IMPORT_DIR_HOST }}"
+- name: "🗑️ remove directory {{ KEYCLOAK_REALM_IMPORT_DIR_HOST }}"
   ansible.builtin.file:
     path: "{{ KEYCLOAK_REALM_IMPORT_DIR_HOST }}"
     state: absent

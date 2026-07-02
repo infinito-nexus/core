@@ -69,8 +69,7 @@ def run(
 def run_checked(cmd: list[str], *, cwd: Path, env: dict[str, str], label: str) -> None:
     rc, out, err = run(cmd, cwd=cwd, env=env)
     if rc != 0:
-        details = (err or out).strip()
-        die(f"{label} failed (rc={rc}): {details}")
+        die(f"{label} failed (rc={rc})\nSTDERR:\n{err.strip()}\nSTDOUT:\n{out.strip()}")
 
 
 def parse_yaml(text: str, label: str) -> dict[str, Any]:
@@ -520,6 +519,7 @@ def render_override(
     ca_host: str,
     wrapper_host: str,
     trust_name: str,
+    wrap: bool = True,
 ) -> dict[str, Any]:
     """
     Generate a compose override that injects CA trust into every service by:
@@ -528,6 +528,13 @@ def render_override(
             - override entrypoint to wrapper script
             - set command to the effective original exec-form (entrypoint+cmd)
         This avoids breaking distroless images that do not provide /bin/sh.
+
+    Args:
+      wrap: when False, emit ONLY volumes + environment and never the
+        entrypoint/command wrapper. `docker stack deploy` does not un-escape
+        the `$$` that the wrapper's command argv carries, so the wrapper is
+        swarm-incompatible; swarm callers pass wrap=False and rely on the
+        SSL_CERT_FILE/CURL_CA_BUNDLE/NODE_EXTRA_CA_CERTS env + the CA mount.
 
     IMPORTANT:
       Docker Compose interpolates $VARS in YAML strings on the host.
@@ -558,6 +565,25 @@ def render_override(
         if not isinstance(svc, dict):
             die(f"Service '{name}' must be a mapping in compose config")
 
+        override_svc: dict[str, Any] = {
+            "volumes": [
+                f"{ca_host}:{ca_container}:ro",
+                f"{wrapper_host}:{wrapper_container}:ro",
+            ],
+            "environment": {
+                "CA_TRUST_CERT": ca_container,
+                "CA_TRUST_NAME": trust_name,
+                "SSL_CERT_FILE": ca_container,
+                "REQUESTS_CA_BUNDLE": ca_container,
+                "CURL_CA_BUNDLE": ca_container,
+                "NODE_EXTRA_CA_CERTS": ca_container,
+            },
+        }
+
+        if not wrap:
+            out_services[name] = override_svc
+            continue
+
         svc_ep = normalize_entrypoint(svc.get("entrypoint"))
         svc_cmd = normalize_cmd(svc.get("command"))
 
@@ -587,22 +613,6 @@ def render_override(
             final_cmd = [_shell_payload(final_cmd)]
 
         effective_cmd = final_ep + final_cmd
-
-        # Always inject env vars + mounts.
-        override_svc: dict[str, Any] = {
-            "volumes": [
-                f"{ca_host}:{ca_container}:ro",
-                f"{wrapper_host}:{wrapper_container}:ro",
-            ],
-            "environment": {
-                "CA_TRUST_CERT": ca_container,
-                "CA_TRUST_NAME": trust_name,
-                "SSL_CERT_FILE": ca_container,
-                "REQUESTS_CA_BUNDLE": ca_container,
-                "CURL_CA_BUNDLE": ca_container,
-                "NODE_EXTRA_CA_CERTS": ca_container,
-            },
-        }
 
         if has_sh and effective_cmd:
             override_svc["entrypoint"] = [wrapper_container]
@@ -641,6 +651,15 @@ def main() -> int:
         required=True,
         help="Trust anchor name for CA installation inside containers (CA_TRUST_NAME)",
     )
+    ap.add_argument(
+        "--no-wrapper",
+        action="store_true",
+        help=(
+            "Emit only volumes + environment, never the entrypoint/command "
+            "wrapper. Use for `docker stack deploy`, which does not un-escape "
+            "the wrapper command's $$ and would run the literal $$VAR."
+        ),
+    )
     args = ap.parse_args()
 
     cwd = Path(args.chdir)
@@ -673,58 +692,67 @@ def main() -> int:
     if not parts:
         die("--compose-files must be non-empty")
 
-    # Base compose cmd (no profile)
-    compose_base_cmd = _compose_base_cmd(
-        project=str(args.project),
-        parts=parts,
-        env_file=env_file or "",
-    )
-
-    # Discover all profiles referenced in compose files so we can include profile-only services too.
     compose_files = _extract_compose_files(parts, cwd=cwd)
-    profiles = _discover_profiles_from_files(compose_files)
 
-    # Load services from default config, then from each profile config, and merge.
     merged_services: dict[str, Any] = {}
     service_to_compose_cmd: dict[str, list[str]] = {}
 
-    # 1) default (no profile)
-    default_services = _load_services_via_config(
-        compose_cmd=compose_base_cmd,
-        cwd=cwd,
-        env=env,
-        label="default",
-    )
-    for svc_name, svc_def in default_services.items():
-        merged_services[svc_name] = svc_def
-        service_to_compose_cmd[svc_name] = compose_base_cmd
+    if args.no_wrapper:
+        # Avoid `docker compose config` here: its dotenv parser aborts on swarm
+        # env files with verbatim special-char secrets. wrap=False needs only names.
+        for cf in compose_files:
+            doc = parse_yaml(
+                cf.read_text(encoding="utf-8"),  # nocheck: direct-yaml
+                f"compose file ({cf})",
+            )
+            svcs = doc.get("services")
+            if isinstance(svcs, dict):
+                for svc_name, svc_def in svcs.items():
+                    merged_services.setdefault(svc_name, svc_def)
+    else:
+        compose_base_cmd = _compose_base_cmd(
+            project=str(args.project),
+            parts=parts,
+            env_file=env_file or "",
+        )
+        profiles = _discover_profiles_from_files(compose_files)
 
-    # 2) each profile (adds profile-only services like "bootstrap")
-    for p in profiles:
-        cmd_p = _compose_cmd_with_profile(compose_base_cmd, p)
-        prof_services = _load_services_via_config(
-            compose_cmd=cmd_p,
+        default_services = _load_services_via_config(
+            compose_cmd=compose_base_cmd,
             cwd=cwd,
             env=env,
-            label=f"profile:{p}",
+            label="default",
         )
-        for svc_name, svc_def in prof_services.items():
-            if svc_name not in merged_services:
-                merged_services[svc_name] = svc_def
-                service_to_compose_cmd[svc_name] = cmd_p
+        for svc_name, svc_def in default_services.items():
+            merged_services[svc_name] = svc_def
+            service_to_compose_cmd[svc_name] = compose_base_cmd
 
-    if not merged_services:
-        die("No services found after merging default + profile configs")
+        for p in profiles:
+            cmd_p = _compose_cmd_with_profile(compose_base_cmd, p)
+            prof_services = _load_services_via_config(
+                compose_cmd=cmd_p,
+                cwd=cwd,
+                env=env,
+                label=f"profile:{p}",
+            )
+            for svc_name, svc_def in prof_services.items():
+                if svc_name not in merged_services:
+                    merged_services[svc_name] = svc_def
+                    service_to_compose_cmd[svc_name] = cmd_p
 
-    override_doc = render_override(
-        merged_services,
-        service_to_compose_cmd,
-        cwd=cwd,
-        env=env,
-        ca_host=ca_host,
-        wrapper_host=wrapper_host,
-        trust_name=trust_name,
-    )
+    if merged_services:
+        override_doc = render_override(
+            merged_services,
+            service_to_compose_cmd,
+            cwd=cwd,
+            env=env,
+            ca_host=ca_host,
+            wrapper_host=wrapper_host,
+            trust_name=trust_name,
+            wrap=not args.no_wrapper,
+        )
+    else:
+        override_doc = {"services": {}}
 
     out_path = Path(args.out)
     if not out_path.is_absolute():

@@ -1,26 +1,24 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
-- name: "render KIX LDAP auth SysConfig fragment for '{{ application_id }}'"
-  ansible.builtin.template:
-    src: "zzz_auth_ldap.xml.j2"
-    dest: "{{ KIX_AUTH_LDAP_HOST_PATH }}"
-    mode: "0644"
-  notify: compose up
-  when: KIX_LDAP_ENABLED | bool
+- name: "📄 Render KIX host-side config files (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "zzz_auth_ldap.xml.j2"
+        dest: "{{ KIX_AUTH_LDAP_HOST_PATH }}"
+        mode: "0644"
+        condition: "{{ KIX_LDAP_ENABLED | bool }}"
+      - src: "kix-proxy.default.conf.j2"
+        dest: "{{ KIX_PROXY_NGINX_HOST_PATH }}"
+        mode: "0644"
 
-- name: "deploy KIX-proxy nginx routing config for '{{ application_id }}'"
-  ansible.builtin.template:
-    src: "kix-proxy.default.conf.j2"
-    dest: "{{ KIX_PROXY_NGINX_HOST_PATH }}"
-    mode: "0644"
-  notify: compose up
-
-- name: "flush handlers to ensure '{{ KIX_PROXY_CONTAINER }}' is up before further config"
+- name: "🔄 Flush handlers so '{{ KIX_PROXY_CONTAINER }}' is up before further config"
   meta: flush_handlers

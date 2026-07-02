@@ -1,0 +1,30 @@
+---
+# include-gated: when: DEPLOYMENT_MODE == "compose"
+- name: "⏹️ Keycloak realm-import | Stop running keycloak (compose)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose stop keycloak
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  changed_when: true
+
+- name: "📂 Keycloak realm-import | Import realm into the database (compose)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose run --rm --no-deps \
+      --entrypoint /opt/keycloak/bin/kc.sh \
+      keycloak import --file {{ KEYCLOAK_REALM_IMPORT_FILE_DOCKER }} --verbose
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  changed_when: true
+
+- name: "🔄 Keycloak realm-import | Restart keycloak after import (compose)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose up -d --force-recreate keycloak
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  changed_when: true

@@ -22,6 +22,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 openwebui:
+  # nocheck: default-placement-manager  embedded sqlite engine state; node-local in swarm
+  default_placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -41,6 +43,10 @@ openwebui:
   ports:
     local:
       http: 8055
+    internal:
+      http: 8080
+  proxy:
+    service_key: openwebui
   run_after:
     - web-app-keycloak
     - web-app-matomo

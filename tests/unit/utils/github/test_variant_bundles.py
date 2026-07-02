@@ -141,7 +141,10 @@ class TestMain(unittest.TestCase):
         with (
             patch.object(vb, "get_variants", return_value={"web-app-five": [{}] * 5}),
             patch.object(vb, "app_variant_storages", return_value={}),
-            patch.dict("os.environ", {"INFINITO_VARIANT_BUNDLE_SIZE": "3"}),
+            patch.dict(
+                "os.environ",
+                {"INFINITO_VARIANT_BUNDLE_SIZE": "3", "INFINITO_DEPLOY_MODE": ""},
+            ),
             patch("builtins.print") as mock_print,
         ):
             rc = vb.main(['["web-app-five"]'])
@@ -172,6 +175,83 @@ class TestMain(unittest.TestCase):
             self.assertRaises(SystemExit),
         ):
             vb.main(['"web-app-five"'])
+
+
+class TestSwarmMode(unittest.TestCase):
+    ENABLED = {"services": {"a": {"enabled": True}}}  # noqa: RUF012
+    DISABLED = {"services": {"a": {"enabled": False}}}  # noqa: RUF012
+
+    def _run_swarm(self, apps_json, variants, overrides):
+        with (
+            patch.object(vb, "get_variants", return_value=variants),
+            patch.object(vb, "get_variant_overrides_only", return_value=overrides),
+            patch.dict("os.environ", {"INFINITO_DEPLOY_MODE": "swarm"}),
+            patch("builtins.print") as mock_print,
+        ):
+            rc = vb.main([apps_json])
+        self.assertEqual(rc, 0)
+        return json.loads(mock_print.call_args.args[0])
+
+    def test_one_variant_per_runner(self) -> None:
+        printed = self._run_swarm(
+            '["web-app-five"]',
+            {"web-app-five": [{}] * 5},
+            {"web-app-five": [{}] * 5},
+        )
+        self.assertEqual(
+            printed,
+            [
+                {"apps": "web-app-five", "variant": str(i), "variant_slug": str(i)}
+                for i in range(5)
+            ],
+        )
+
+    def test_skips_all_disabled_variant_keeping_absolute_index(self) -> None:
+        printed = self._run_swarm(
+            '["web-app-bbb"]',
+            {"web-app-bbb": [{}, {}]},
+            {"web-app-bbb": [self.ENABLED, self.DISABLED]},
+        )
+        self.assertEqual(
+            printed,
+            [{"apps": "web-app-bbb", "variant": "0", "variant_slug": "0"}],
+        )
+
+    def test_non_consecutive_survivors_keep_absolute_indices(self) -> None:
+        printed = self._run_swarm(
+            '["web-app-x"]',
+            {"web-app-x": [{}, {}, {}]},
+            {"web-app-x": [self.ENABLED, self.DISABLED, self.ENABLED]},
+        )
+        self.assertEqual(
+            printed,
+            [
+                {"apps": "web-app-x", "variant": "0", "variant_slug": "0"},
+                {"apps": "web-app-x", "variant": "2", "variant_slug": "2"},
+            ],
+        )
+
+    def test_app_with_only_disabled_variants_is_dropped(self) -> None:
+        printed = self._run_swarm(
+            '["web-app-off"]',
+            {"web-app-off": [{}]},
+            {"web-app-off": [self.DISABLED]},
+        )
+        self.assertEqual(printed, [])
+
+    def test_compose_mode_keeps_bundling_and_all_variants(self) -> None:
+        with (
+            patch.object(vb, "get_variants", return_value={"web-app-bbb": [{}, {}]}),
+            patch.object(vb, "app_variant_storages", return_value={}),
+            patch.dict("os.environ", {"INFINITO_DEPLOY_MODE": "compose"}, clear=False),
+            patch("builtins.print") as mock_print,
+        ):
+            rc = vb.main(['["web-app-bbb"]'])
+        self.assertEqual(rc, 0)
+        self.assertEqual(
+            json.loads(mock_print.call_args.args[0]),
+            [{"apps": "web-app-bbb", "variant": "0,1", "variant_slug": "0-1"}],
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,6 @@
+---
+aliases: []
+canonical:
+  web: web.bluesky.{{ DOMAIN_PRIMARY }}
+  api: api.bluesky.{{ DOMAIN_PRIMARY }}
+  view: view.bluesky.{{ DOMAIN_PRIMARY }}

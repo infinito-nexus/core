@@ -22,11 +22,6 @@ log "skills: restoring from skills-lock.json (.agents/skills)..."
 npx --yes skills experimental_install
 log "skills: installation into .agents/skills complete."
 
-# Claude Code discovers project skills in .claude/skills/, but `skills experimental_install`
-# only writes to .agents/skills/. A symlink between the two collides with the agent sandbox
-# (it treats .claude/skills as a denied path and chokes on a real dir created late).
-# Workaround: mirror the freshly installed .agents/skills/ tree into .claude/skills/ so both
-# locations contain real, independent copies of the skills — no symlink involved.
 skills_src="${REPO_ROOT}/.agents/skills"
 skills_dst="${REPO_ROOT}/.claude/skills"
 

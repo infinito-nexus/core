@@ -1,11 +1,11 @@
 ---
-- name: "Fetch existing Keycloak components for '{{ KEYCLOAK_REALM }}'"
+- name: "⬇️ Fetch existing Keycloak components for '{{ KEYCLOAK_REALM }}'"
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get components -r {{ KEYCLOAK_REALM }} --format json
   register: kc_components_without_ldap
   changed_when: false
 
-- name: "Resolve LDAP federation component ids for '{{ KEYCLOAK_REALM }}'"
+- name: "🔍 Resolve LDAP federation component ids for '{{ KEYCLOAK_REALM }}'"
   set_fact:
     ldap_cmp_ids_without_ldap: >-
       {{
@@ -19,7 +19,7 @@
       }}
   changed_when: false
 
-- name: "Delete LDAP federation components from realm '{{ KEYCLOAK_REALM }}' when LDAP is disabled"
+- name: "🧹 Delete LDAP federation components from realm '{{ KEYCLOAK_REALM }}'"
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} delete components/{{ item }} -r {{ KEYCLOAK_REALM }}
   loop: "{{ ldap_cmp_ids_without_ldap }}"

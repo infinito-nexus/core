@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -17,12 +18,8 @@ _SERVICE_REGISTRY = {
 
 
 def _run(terms, applications, group_names, service_registry=None):
-    patches = [
-        patch(
-            "plugins.lookup.service.get_merged_applications",
-            return_value=applications,
-        )
-    ]
+    loader_patch = patch("plugins.lookup.service.lookup_loader")
+    patches = [loader_patch]
     if service_registry is not None:
         patches.append(
             patch(
@@ -30,10 +27,13 @@ def _run(terms, applications, group_names, service_registry=None):
                 return_value=service_registry,
             )
         )
-    for p in patches:
-        p.start()
+    started = [p.start() for p in patches]
+    loader_mock = started[0]
+    loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [applications])
     try:
-        return LookupModule().run(
+        lm = LookupModule()
+        lm._loader = mock.MagicMock()
+        return lm.run(
             terms,
             variables={"group_names": group_names},
         )
@@ -282,10 +282,13 @@ class TestServiceCycleGuard(unittest.TestCase):
 class TestServiceErrors(unittest.TestCase):
     def test_raises_when_group_names_not_list(self):
         with (
-            patch("plugins.lookup.service.get_merged_applications", return_value={}),
+            patch("plugins.lookup.service.lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
-            LookupModule().run(
+            loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
+            lm = LookupModule()
+            lm._loader = mock.MagicMock()
+            lm.run(
                 ["matomo"],
                 variables={"group_names": "not-a-list"},
             )

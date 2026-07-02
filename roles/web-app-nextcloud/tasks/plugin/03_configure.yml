@@ -1,11 +1,11 @@
 ---
 # Loaded via include_vars (not config lookup or lookup('file')) so the role-scoped vars referenced inside the payload render lazily in this task's scope.
-- name: "Load {{ plugin_key }} addon spec from meta/addons/{{ plugin_key }}.yml"
+- name: "📄 Load {{ plugin_key }} addon spec from meta/addons/{{ plugin_key }}.yml"
   ansible.builtin.include_vars:
     file: "{{ [role_path, 'meta/addons', plugin_key ~ '.yml'] | path_join }}"
     name: addon_spec
 
-- name: "Set plugin configuration (batched shell, no async)"
+- name: "🔧 Set plugin configuration (batched shell, no async)"
   ansible.builtin.shell: |
     set -euo pipefail
     {% for item in (addon_spec.config.plugin_configuration | default([])) %}
@@ -26,13 +26,13 @@
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Check if {{ plugin_task_path }} exists
+- name: 🔎 Check if {{ plugin_task_path }} exists
   stat:
     path: "{{ plugin_task_path }}"
   delegate_to: localhost
   become: false
   register: plugin_tasks_file
 
-- name: "include {{ plugin_task_path }}"
+- name: "📂 include {{ plugin_task_path }}"
   include_tasks: "{{ plugin_task_path }}"
   when: plugin_tasks_file.stat.exists

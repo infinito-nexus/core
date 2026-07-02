@@ -1,5 +1,5 @@
 ---
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
@@ -7,8 +7,8 @@
     compose_handlers_flush: false
     webserver_extra_configuration: "{{ lookup('template', 'redirect.conf.j2') }}"
 
-- name: "Stage trusted-header SSO build-context files for {{ application_id }}"
-  ansible.builtin.copy:
+- name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
+  stack_host_copy:
     src: "{{ item.src }}"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "0644"
@@ -16,8 +16,9 @@
     - { src: "Dockerfile", dest: "Dockerfile" }
     - { src: "sso/infinito_sso.php", dest: "infinito_sso.php" }
 
-- name: "Flush compose handlers for {{ application_id }}"
+- name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
 
-- name: "Install the YOURLS database schema for {{ application_id }}"
+- name: "📦 Install the YOURLS database schema for {{ application_id }}"
   ansible.builtin.include_tasks: install.yml
+  when: IS_STACK_HOST | bool

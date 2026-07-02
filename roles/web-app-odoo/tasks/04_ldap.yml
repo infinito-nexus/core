@@ -2,7 +2,7 @@
 # Configure LDAP authentication for Odoo
 # ODOO_LDAP_CONFIG is defined in vars/main.yml
 
-- name: "Check if LDAP configuration exists"
+- name: "🔎 Check if LDAP configuration exists"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -12,7 +12,7 @@
     expect_rows: true
   register: ldap_check
 
-- name: "Update existing LDAP configuration"
+- name: "🔄 Update existing LDAP configuration"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
@@ -30,7 +30,7 @@
       ldap_server: "{{ ODOO_LDAP_CONFIG.ldap_server }}"
   when: ldap_check.rows | length > 0
 
-- name: "Create new LDAP configuration"
+- name: "📁 Create new LDAP configuration"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
