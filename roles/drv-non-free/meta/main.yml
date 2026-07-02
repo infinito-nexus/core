@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Installs proprietary GPU drivers (`mhwd -a pci nonfree 0300`) on Arch-based systems.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

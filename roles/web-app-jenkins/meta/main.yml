@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Stub for a Jenkins CI server deployment via Docker Compose—role is currently deprecated and pending reimplementation.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Installs GnuCash finance management software on Pacman-based systems, ensuring the latest version is present.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

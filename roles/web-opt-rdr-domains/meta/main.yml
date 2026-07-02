@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Configures Nginx to perform 301 redirects based on a list of source→target domain mappings.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Installs VLC, libaacs and libbluray for Blu-ray playback on Arch Linux–based systems.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

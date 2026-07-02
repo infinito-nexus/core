@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Deploys a legal imprint (Impressum) page in Nginx from a Jinja2 template.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen‑Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Installs micro CLI text editor on Pacman‑based systems.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

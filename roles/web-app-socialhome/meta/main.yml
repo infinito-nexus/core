@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Deploys a SocialHome federated social network via Docker Compose with basic domain wiring.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

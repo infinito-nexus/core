@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Serves static assets via Nginx by copying from a source directory to the Nginx data path.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

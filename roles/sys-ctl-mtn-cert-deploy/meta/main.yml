@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Deploys Let’s Encrypt certificates into Docker Compose Nginx setups via systemd service and timer.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

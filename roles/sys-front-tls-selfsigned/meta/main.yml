@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Self-signed TLS provider for sys-front-tls (SAN aware). Generates and stores self-signed certificates
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen‑Birkenbach
+  author: Kevin Veen-Birkenbach
   role_name: sys-front-inj-logout
   description: "Injects a JavaScript snippet via Nginx sub_filter that intercepts all logout actions (links, buttons, forms) and redirects users to a centralized
     OIDC logout endpoint.\n"

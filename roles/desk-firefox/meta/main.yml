@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Automates Firefox installation and enforces Enterprise Policies (auto-install extensions) on Arch Linux.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |

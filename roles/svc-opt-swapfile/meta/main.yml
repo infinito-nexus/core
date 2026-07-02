@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
+  author: Kevin Veen-Birkenbach
   description: Automates swapfile creation on target systems by cloning and executing a swapfile script.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
