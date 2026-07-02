@@ -26,7 +26,7 @@ logs:
 ejabberd_yml:
   type: config
   source: "{{ [lookup('container', 'web-svc-xmpp', 'directories.instance'), 'ejabberd.yml'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: ejabberd
       target: /home/ejabberd/conf/ejabberd.yml
