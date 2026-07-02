@@ -58,6 +58,7 @@ build:
     {{ lookup('container_networks') | indent(4) }}
       taiga:
     {{ lookup('container_depends_on', application_id, extra={
+  TAIGA_SERVICE: {'condition': 'service_started'},
   TAIGA_EVENTS_RABBITMQ_SERVICE: {'condition': 'service_started'},
   TAIGA_ASYNC_RABBITMQ_SERVICE: {'condition': 'service_started'},
 }) | indent(4) }}
@@ -131,7 +132,7 @@ build:
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 
-{% set service_name = 'protected' %}
+{% set service_name = TAIGA_PROTECTED_SERVICE %}
   {{ service_name }}:
     {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
     {{ lookup('container_image', application_id, 'protected') }}

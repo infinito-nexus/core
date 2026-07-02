@@ -1,9 +1,8 @@
 ---
-- name: "📋 copy taiga gateway config with OIDC route"
+- name: "📋 copy taiga gateway config"
   template: # nocheck: stack-host-template (taiga compose dir, not project nginx tree)
     src: "taiga-gateway/taiga.conf.j2"
     dest: "{{ [compose_repository_path, 'taiga-gateway', 'taiga.conf'] | path_join }}"
-  when: TAIGA_OIDC_ENABLED | bool
   notify: compose up
 
 - name: "📄 render Dockerfile.taiga-back for custom auth-enabled backend image"
