@@ -4,7 +4,12 @@
     {{ lookup('container_image', application_id, 'libretranslate') }}
     volumes: []
     {{ lookup('container_ports', ['libretranslate', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    healthcheck:
+      test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}
 
