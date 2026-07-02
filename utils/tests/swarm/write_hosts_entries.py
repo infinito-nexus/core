@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Print ``127.0.0.1 <domain>`` lines for every canonical domain
+"""Print ``<ip> <domain>`` lines for every canonical domain
 (plus ``www.`` redirects and the primary itself) owned by ``APP_ID``
 or its transitive deps.
 
 Inputs (env): ``APP_ID``, ``INFINITO_DOMAIN`` (the SPOT for the
 deployment domain; defined in ``default.env`` and exported by
 ``scripts/meta/env/load.sh``; the development inventory reads the
-same env var for the play's ``DOMAIN_PRIMARY``).
+same env var for the play's ``DOMAIN_PRIMARY``),
+``HOSTS_ENTRY_IP`` (optional; address the domains map to,
+default ``127.0.0.1``).
 """
 
 from __future__ import annotations
@@ -56,8 +58,9 @@ def _derived_domains(app_id: str, domain_primary: str) -> list[str]:
 def main() -> int:
     app_id = os.environ["APP_ID"]
     domain_primary = os.environ["INFINITO_DOMAIN"]
+    ip = os.environ.get("HOSTS_ENTRY_IP", "127.0.0.1")
     for domain in _derived_domains(app_id, domain_primary):
-        print(f"127.0.0.1 {domain}")
+        print(f"{ip} {domain}")
     return 0
 
 

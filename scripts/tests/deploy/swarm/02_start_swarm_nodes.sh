@@ -60,9 +60,7 @@ for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 done
 
 HOSTS_EXTRA="$(python3 -m utils.tests.swarm.write_hosts_entries)"
-for node in "${MGR}" "${NFS_SERVER}"; do
-	docker exec -i "${node}" sh -c 'cat >> /etc/hosts' <<<"${HOSTS_EXTRA}"
-done
+docker exec -i "${MGR}" sh -c 'cat >> /etc/hosts' <<<"${HOSTS_EXTRA}"
 
 : "${INFINITO_DOMAIN:?Missing INFINITO_DOMAIN; source scripts/meta/env/load.sh first}"
 docker exec "${MGR}" systemctl stop systemd-resolved 2>/dev/null || true
@@ -91,6 +89,8 @@ docker exec "${MGR}" sh -c "
 MGR_IP=$(docker inspect "${MGR}" \
 	--format "{{(index .NetworkSettings.Networks \"${SWARM_LAB_NETWORK}\").IPAddress}}")
 : "${MGR_IP:?Failed to capture ${MGR} IP on ${SWARM_LAB_NETWORK}}"
+NFS_HOSTS_EXTRA="$(HOSTS_ENTRY_IP="${MGR_IP}" python3 -m utils.tests.swarm.write_hosts_entries)"
+docker exec -i "${NFS_SERVER}" sh -c 'cat >> /etc/hosts' <<<"${NFS_HOSTS_EXTRA}"
 wrk_dnsmasq_conf="bind-dynamic
 no-resolv
 server=/${MGR}/${WRK1}/${WRK2}/${NFS_SERVER}/127.0.0.11 # nocheck: hardcoded-dns-resolver

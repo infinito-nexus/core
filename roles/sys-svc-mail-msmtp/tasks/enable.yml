@@ -28,6 +28,13 @@
     name: ca-certificates
     state: present
 
+- name: ✅ Ensure the shared Root CA is trusted for the TLS mail relay
+  include_role:
+    name: sys-ca-selfsigned
+  when:
+    - (TLS_MODE | lower) == 'self_signed'
+    - run_once_sys_ca_selfsigned is not defined
+
 - name: "🔴 Disable SMTP to avoid port conflicts"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
 
@@ -47,24 +54,7 @@
         force: true
       when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta == ''
 
-- name: 🔍 Probe CA bundle candidate paths for msmtp TLS trust file
-  ansible.builtin.stat:
-    path: "{{ item }}"
-  loop: "{{ SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES }}"
-  register: _sys_svc_mail_msmtp_ca_probe
-
-- name: 🎯 Select first existing CA bundle path for msmtp
-  ansible.builtin.set_fact:
-    sys_svc_mail_msmtp_ca_bundle: >-
-      {{
-        (
-          _sys_svc_mail_msmtp_ca_probe.results
-          | selectattr('stat.exists')
-          | map(attribute='item')
-          | list
-          | first
-        ) | default(SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES | first, true)
-      }}
+- include_tasks: ca_bundle.yml
 
 - name: 🔧 configure msmtprc.conf.j2
   template: # nocheck: stack-host-template (per-host /root/.msmtprc, not stack-host-only)

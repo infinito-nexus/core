@@ -44,6 +44,7 @@
 - name: "🔧 Ensure msmtp CA-bundle fact is set before rendering msmtprc"
   ansible.builtin.include_role:
     name: sys-svc-mail-msmtp
+    tasks_from: ca_bundle
   when: sys_svc_mail_msmtp_ca_bundle is not defined
 
 - name: "📋 Copy msmtprc to {{ MOODLE_MSMTP_ABS }} (Mailu relay for mail() + healthcheck)"
