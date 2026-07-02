@@ -60,9 +60,9 @@
     - matomo_token_value is defined
     - matomo_token_value | length > 0
 
-- name: "🔎 Matomo | Stat compose dir of candidate web-svc matomo consumers"
+- name: "🔎 Matomo | Stat rendered body_filter Lua of candidate web-svc matomo consumers"
   ansible.builtin.stat:
-    path: "{{ lookup('container', matomo_inj_consumer.id, 'directories.instance') }}"
+    path: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ matomo_inj_consumer.id }}.lua"
   loop: "{{ lookup('roles_with_service', 'matomo', scope='all') | selectattr('id', 'match', '^web-svc-') | list }}"
   loop_control:
     loop_var: matomo_inj_consumer
