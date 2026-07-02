@@ -1,0 +1,47 @@
+- name: Create runner instance {{ runner_instance }} directory
+  file:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
+    state: directory
+    owner: "{{ RUNNER_USER }}"
+    group: "{{ RUNNER_USER }}"
+    mode: '0755'
+
+- name: Check if runner binary already installed for instance {{ runner_instance }}
+  ansible.builtin.stat:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/run.sh"
+  register: _runner_binary_stat
+
+- name: Extract GitHub Actions runner archive for instance {{ runner_instance }}
+  unarchive:
+    src: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
+    dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
+    remote_src: true
+    owner: "{{ RUNNER_USER }}"
+    group: "{{ RUNNER_USER }}"
+  when: not _runner_binary_stat.stat.exists
+
+- name: Remove existing runner configuration for instance {{ runner_instance }}
+  ansible.builtin.find:
+    paths: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
+    patterns: ".*"
+    hidden: true
+    file_type: file
+    depth: 1
+  register: _runner_config_files
+
+- name: Delete stale runner configuration files for instance {{ runner_instance }}
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ _runner_config_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: item.path | basename not in ['.env']
+
+- name: Write runner environment file for instance {{ runner_instance }}
+  template:
+    src: runner_instance_env.j2
+    dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/.env"
+    owner: "{{ RUNNER_USER }}"
+    group: "{{ RUNNER_USER }}"
+    mode: '0600'

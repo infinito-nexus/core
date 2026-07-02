@@ -37,6 +37,18 @@
   set_fact:
     portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
 
+# Nested DinD auto-creates a missing bind-mount source as a dir; drop it so the template works.
+- name: Stat the rendered dashboard config path
+  ansible.builtin.stat:
+    path: "{{ DASHBOARD_CONFIG_YML_DEST }}"
+  register: _dashboard_config_dest_stat
+
+- name: Drop config.yaml if a container bind-mount created it as a directory
+  ansible.builtin.file:
+    path: "{{ DASHBOARD_CONFIG_YML_DEST }}"
+    state: absent
+  when: _dashboard_config_dest_stat.stat.exists and _dashboard_config_dest_stat.stat.isdir
+
 - name: Copy host-specific config.yaml if it exists
   template:
     src: "{{ DASHBOARD_CONFIG_INV_PATH }}"

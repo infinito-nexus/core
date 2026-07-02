@@ -107,17 +107,10 @@ jobs:
       - name: Resolve affected roles
         id: resolve
         shell: bash
-        run: |
-          set -euo pipefail
-          resolved="$(./scripts/meta/resolve/diff/affected_roles.sh)"
-          echo "Resolver output: ${resolved}"
-          if [[ "${resolved}" == "__ALL__" ]]; then
-            echo "whitelist=__ALL__" >>"${GITHUB_OUTPUT}"
-            echo "roles_only=false" >>"${GITHUB_OUTPUT}"
-          else
-            echo "whitelist=${resolved}" >>"${GITHUB_OUTPUT}"
-            echo "roles_only=true" >>"${GITHUB_OUTPUT}"
-          fi
+        env:
+          SUBSET_LABELED: ${{ contains(github.event.pull_request.labels.*.name, '🧩 Subset') }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: bash scripts/github/resolve/pr_affected_roles.sh
 
   ci-orchestrator:
     needs:

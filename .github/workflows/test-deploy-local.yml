@@ -59,9 +59,9 @@ jobs:
           set -euo pipefail
           scripts/meta/resolve/input.sh
 
-      - name: Install deps (jq + envsubst)
+      - name: 📦 Install jq
         shell: bash
-        run: ./scripts/install/apt.sh jq gettext-base
+        run: ./scripts/install/apt.sh jq
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -118,9 +118,9 @@ jobs:
         shell: bash
         run: ./scripts/github/runner/enlarge_swap.sh
 
-      - name: Install deps (jq + envsubst)
+      - name: 📦 Install jq
         shell: bash
-        run: ./scripts/install/apt.sh jq gettext-base
+        run: ./scripts/install/apt.sh jq
 
       - name: 🚀 Deploy app (same as CI logic)
         shell: bash

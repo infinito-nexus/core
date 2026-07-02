@@ -58,7 +58,9 @@ WHITELIST_PATH_FRAGMENTS: tuple[str, ...] = (
 
 # Optional: allow docker mentions in specific files (keep empty for strict)
 WHITELIST_EXACT_PATHS: tuple[str, ...] = (
-    # "docs/somefile.txt",
+    # svc-runner e2e harness drives a throwaway dind sandbox daemon directly
+    # (the container/compose wrappers are not present inside the runner image).
+    "roles/svc-runner/files/test/local.sh",
 )
 
 # Only treat "docker ..." as a command when it appears in a command-like context.

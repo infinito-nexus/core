@@ -1,0 +1,25 @@
+COMPOSE_PROJECT_NAME={{ RUNNER_PROJECT_PREFIX }}-{{ runner_instance }}
+INFINITO_RUNNER_PREFIX={{ RUNNER_PROJECT_PREFIX }}-{{ runner_instance }}
+# Per-instance /24 keyed on the instance number so parallel runners never claim
+# overlapping IPs. load.sh setdefault keeps these for the nested compose stack.
+INFINITO_SUBNET=172.30.{{ runner_instance }}.0/24
+INFINITO_GATEWAY=172.30.{{ runner_instance }}.1
+INFINITO_DNS_IP=172.30.{{ runner_instance }}.53
+INFINITO_IP4=172.30.{{ runner_instance }}.10
+INFINITO_BIND_IP=172.30.{{ runner_instance }}.1
+# Cache static IPs must move with the per-instance subnet too, else compose
+# rejects them with "no configured subnet contains IP address".
+INFINITO_CACHE_PACKAGE_FRONTEND_IP=172.30.{{ runner_instance }}.4
+INFINITO_CACHE_REGISTRY_IP=172.30.{{ runner_instance }}.6
+DOMAIN={{ DOMAIN_PRIMARY }}
+DOMAIN_RE={{ DOMAIN_PRIMARY | replace('.', '\\.') }}
+INVENTORY_DIR={{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/inventories/github
+INFINITO_DOCKER_VOLUME={{ RUNNER_DOCKER_BASE }}/{{ runner_instance }}
+INFINITO_PRESERVE_DOCKER_CACHE=true
+INFINITO_CPUS={{ RUNNER_CPUS }}
+RUNNER_NAME={{ RUNNER_NAME }}-{{ runner_instance }}
+RUNNER_LABELS={{ RUNNER_LABELS }}
+RUNNER_GITHUB_OWNER={{ RUNNER_GITHUB_OWNER }}
+RUNNER_GITHUB_REPO={{ RUNNER_GITHUB_REPO }}
+RUNNER_API_TOKEN={{ RUNNER_API_TOKEN }}
+DOCKER_IN_CONTAINER={{ DOCKER_IN_CONTAINER | bool | lower }}

@@ -1,0 +1,29 @@
+---
+galaxy_info:
+  author: Alejandro Roman Ibanez
+  description: Runs CLI test scripts (files/test.sh) for roles that declare templates/test.env.j2.
+  license: Infinito.Nexus Community License (Non-Commercial)
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - infinito
+    - testing
+    - e2e
+    - cli
+    - automation
+dependencies: []

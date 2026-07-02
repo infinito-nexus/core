@@ -86,6 +86,32 @@ The PR-scope short-circuits in [scope.sh](../../../../scripts/meta/resolve/pr/sc
 
 The reverse closure is implemented in [affected resolver](../../../../cli/meta/roles/applications/resolution/affected/__main__.py) and invoked from [affected_roles.sh](../../../../scripts/meta/resolve/diff/affected_roles.sh). The workflow glue lives in [effective_whitelist.sh](../../../../scripts/github/resolve/effective_whitelist.sh). [test-deploy-local.yml](../../../../.github/workflows/test-deploy-local.yml) MUST NOT apply this resolution. Local dispatch keeps the explicit whitelist semantics.
 
+#### Subset label 🧩
+
+Add a `## Roles` section with a fenced `roles:` YAML list to the PR body and apply the `🧩 Subset` label:
+
+````markdown
+## Roles
+
+```yaml
+roles:
+  - web-app-nextcloud
+  - web-app-matomo
+  - sys-version
+```
+````
+
+With the label set, the `detect-affected-roles` job in [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output with `roles_only=true`, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies.
+
+The subset path fails the run when:
+
+- the YAML is invalid,
+- no `roles:` block is found,
+- the `roles:` list is empty, or
+- any listed id is not an existing `roles/<id>` directory.
+
+The `🧩 Subset` label must exist in the repository's label set and is applied through the PR labels UI. Both the `pull_request` and `pull_request_target` events carry a `labeled` trigger, so adding it starts a fresh run.
+
 ### 10. Installation Tests 📦
 
 The install-test workflows listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) run in parallel once `code-quality-gate` is green. All of them MUST pass `test-install-gate`.

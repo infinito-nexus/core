@@ -54,7 +54,7 @@ networks:
 {% if not application_id.startswith('svc-db-') and not application_id.startswith('svc-ai-') %}
   default:
 {% if _default_subnet %}
-    name: {{ application_id | get_entity_name }}
+    name: {{ application_id | get_entity_name or application_id }}
     driver: bridge
     ipam:
       driver: default

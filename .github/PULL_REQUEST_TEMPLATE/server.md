@@ -39,6 +39,19 @@ Integrate the change into the following services when possible:
 
 ---
 
+## Roles (optional `🧩 Subset` CI scope)
+
+Optional. Ignored unless a maintainer applies the **🧩 Subset** label; without the label CI uses the diff-derived role set as usual. When the label is set, CI deploys **only** the roles listed here — each must be an existing `roles/<id>` directory, or the run fails. See [pipeline.md](../../docs/contributing/artefact/git/pipeline.md#subset-label-).
+
+```yaml
+roles:
+  # - web-app-nextcloud
+  # - web-app-matomo
+  # - sys-version
+```
+
+---
+
 ## Change Type
 
 Select the semantic version impact of this change:

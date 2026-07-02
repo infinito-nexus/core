@@ -49,10 +49,6 @@ jobs:
         shell: bash
         run: ./scripts/install/apt.sh jq
 
-      - name: Install deps (jq + envsubst)
-        shell: bash
-        run: ./scripts/install/apt.sh jq gettext-base
-
       - name: Set up Python
         uses: actions/setup-python@v6
         with:

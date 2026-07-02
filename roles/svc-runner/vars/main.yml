@@ -1,0 +1,18 @@
+---
+application_id: svc-runner
+RUNNER_USER: "{{ lookup('users', 'github-runner').username }}"
+RUNNER_UID: "{{ lookup('users', 'github-runner').uid }}"
+RUNNER_GID: "{{ lookup('users', 'github-runner').gid }}"
+RUNNER_DOCKER_BASE: "{{ lookup('config', application_id, 'services.svc-runner.docker_base') }}"
+RUNNER_PROJECT_PREFIX: "{{ lookup('config', application_id, 'services.svc-runner.project_prefix') }}"
+RUNNER_SYSCTL_CONF: "{{ lookup('config', application_id, 'services.svc-runner.sysctl_conf') }}"
+RUNNER_IMAGE_NAME: "{{ lookup('config', application_id, 'services.svc-runner.image_name') }}"
+RUNNER_IMAGE_TAG: "{{ lookup('config', application_id, 'services.svc-runner.image_tag') }}"
+RUNNER_INSTALL_DIR: "{{ lookup('config', application_id, 'services.svc-runner.install_dir') }}"
+RUNNER_CPUS: "{{ lookup('config', application_id, 'services.svc-runner.cpus') | int }}"
+RUNNER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.svc-runner.base_image') }}"
+RUNNER_DOCKER_GID_FALLBACK: "{{ lookup('config', application_id, 'services.svc-runner.docker_gid_fallback') }}"
+RUNNER_GITHUB_OWNER: "{{ lookup('env', 'GITHUB_REPOSITORY_OWNER') | default(lookup('config', application_id, 'services.svc-runner.github_owner'), true) }}"
+RUNNER_GITHUB_REPO: "{{ (lookup('env', 'GITHUB_REPOSITORY') | split('/') | last) | default(lookup('config', application_id, 'services.svc-runner.github_repo'), true) }}"
+RUNNER_API_TOKEN: "{{ lookup('env', 'GH_TOKEN') | default(lookup('env', 'GITHUB_TOKEN'), true) }}"
+RUNNER_GIT_REF: "{{ lookup('env', 'GITHUB_REF_NAME') | default('main', true) }}"

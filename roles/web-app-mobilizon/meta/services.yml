@@ -32,7 +32,7 @@ postgres:
 mobilizon:
   image: docker.io/kaihuri/mobilizon
   name: mobilizon
-  version: 5.2.3
+  version: 5.2.4
   min_storage: 5GB
   titel: Mobilizon on {{ DOMAIN_PRIMARY | upper }}
   ports:

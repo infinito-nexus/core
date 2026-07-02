@@ -12,6 +12,7 @@ Every prompt below instructs the agent to first clarify all open requirements th
 |---|---|
 | Building a new feature, app, or larger change | [Development](#development-) |
 | Fixing or evolving a single web app role with the deploy/test loop | [Web Development Iteration](#web-development-iteration-) |
+| Iterating on `svc-runner` or the self-hosted runner infrastructure | [Runner Iteration](#runner-iteration-) |
 | Running or validating tests for a specific scope | [Testing](#testing-) |
 | Writing or updating a Playwright spec for a `web-*` role | [Playwright Tests](#playwright-tests-) |
 | Cleaning up code, docs, or roles after a change | [Refactor and Optimize](#refactor-and-optimize-) |

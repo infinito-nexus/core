@@ -1,2 +1,5 @@
-registry=http://package-cache:8081/repository/npm-proxy/
+# npm → cache frontend via registry.npmjs.org (mapped by extra_hosts);
+# not `package-cache`, which coredns can't resolve. strict-ssl=false
+# accepts the frontend's self-signed cert.
+registry=https://registry.npmjs.org/
 strict-ssl=false

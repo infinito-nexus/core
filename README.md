@@ -60,6 +60,7 @@ Try [Infinito.Nexus](https://infinito.nexus) – sign up in seconds, explore the
 
 * [Installation Guide](docs/administration/installation.md) for local CLI installation, Docker execution, and source builds.
 * [Deploy Guide](docs/administration/deploy.md) for inventory creation, full deploys, and redeploy flows.
+* [CI & Self-Hosted Runners](docs/administration/ci-runners.md) for the test gate and adding your own hardware to the CI pool.
 
 ## Contributing 🔨
 
