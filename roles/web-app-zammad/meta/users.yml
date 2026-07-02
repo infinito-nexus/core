@@ -2,7 +2,7 @@
 administrator: {}
 helpdesk:
   roles:
-    - mail-bot
+    - bot
 zammad-api-bot:
   username: zammad-api-bot
   firstname: Infinito
