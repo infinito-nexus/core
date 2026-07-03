@@ -79,7 +79,7 @@ jobs:
         run: _helpers/scripts/meta/resolve/publish_latest.sh
 
       - name: Login to GHCR (manifest checks)
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -151,7 +151,7 @@ jobs:
           driver-opts: image=moby/buildkit:buildx-stable-1
 
       - name: Login to GHCR
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
