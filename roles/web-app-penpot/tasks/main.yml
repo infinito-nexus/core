@@ -4,7 +4,17 @@
     name: sys-stk-full
   vars:
     webserver_client_max_body_size: "100m"
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+
+- name: "🚀 Deploy the shared JVM CA trust wrapper for the backend"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/files/java-with-ca-trust.sh') }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'java-with-ca-trust.sh' ] | path_join }}"
+    mode: "0755"
+  notify: compose up
+
+- name: "🚿 Flush docker service for '{{ application_id }}'"
+  ansible.builtin.meta: flush_handlers
 
 - name: "🥾 Bootstrap the Penpot administrator's local account"
   when: IS_STACK_HOST | bool

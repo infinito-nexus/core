@@ -21,17 +21,10 @@
     {{ lookup('container_image', application_id, 'backend') }}
     {{ lookup('compose_only', 'container_name', PENPOT_BACKEND_CONTAINER) }}
 {% if (TLS_MODE | lower) == 'self_signed' %}
-    # Self-signed TLS only: the JVM truststore doesn't trust the internal CA
-    # (with-ca-trust.sh covers OS/NSS/env, not Java cacerts; backend runs uid 1001),
-    # so import it before start; otherwise OIDC calls to Keycloak fail PKIX.
     command:
+      - /usr/local/bin/java-with-ca-trust.sh
       - /bin/bash
-      - -c
-      - |
-        cp /opt/jdk/lib/security/cacerts /tmp/cacerts 2>/dev/null || true
-        /opt/jdk/bin/keytool -importcert -keystore /tmp/cacerts -storepass changeit -noprompt -alias infinito-ca -file /tmp/infinito/ca/root-ca.crt >/dev/null 2>&1 || true
-        export JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=/tmp/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
-        exec /bin/bash run.sh
+      - run.sh
 {% endif %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

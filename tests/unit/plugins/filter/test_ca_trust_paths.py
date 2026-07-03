@@ -1,6 +1,6 @@
 import unittest
 
-from plugins.filter.ca_trust_paths import ca_cert_container, ca_cert_host
+from plugins.filter.ca_trust_paths import CA_CONTAINER_CERT, ca_cert_host
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 
@@ -18,12 +18,10 @@ class TestCaTrustPaths(unittest.TestCase):
         self.assertEqual(ca_cert_host("example.org"), "/etc/example.org/ca/root-ca.crt")
 
     def test_container_path_is_stable(self):
-        self.assertEqual(
-            ca_cert_container("infinito.nexus"), "/tmp/infinito/ca/root-ca.crt"
-        )
+        self.assertEqual(CA_CONTAINER_CERT, "/tmp/infinito/ca/root-ca.crt")
 
     def test_runtime_scripts_pin_the_container_spot(self):
-        expected = f'"{ca_cert_container("infinito.nexus")}"'
+        expected = f'"{CA_CONTAINER_CERT}"'
         for script in RUNTIME_SCRIPTS:
             self.assertIn(
                 expected,
