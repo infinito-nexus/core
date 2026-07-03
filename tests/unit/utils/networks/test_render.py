@@ -18,6 +18,7 @@ from utils.networks.render import (
     _is_consumer,
     _own_shared_net_provider,
     _suppress_default,
+    compute_external_network_roles,
     render_compose_networks,
     render_container_networks,
 )
@@ -251,9 +252,6 @@ class TestComputeAttachments(unittest.TestCase):
         self.assertEqual(att, [])
 
     def test_skips_beacon_entries_for_non_provider(self):
-        # Beacon overlay (no topology) must not trigger consumer evaluation
-        # at all -- the only thing it does is be harvested by default_net
-        # providers via the proxy_resolvable sweep.
         registry = {
             "sso": {
                 "role": "web-app-keycloak",
@@ -336,10 +334,6 @@ class TestComputeAttachments(unittest.TestCase):
         self.assertEqual(default_aliases, ["auth.example.com"])
 
     def test_proxy_resolvable_sweep_skips_self_role(self):
-        # Two beacons declare proxy_resolvable. The default_net provider's
-        # own entry is also tagged proxy_resolvable. The sweep MUST skip the
-        # self entry (by role) and pull the other beacon's aliases. If the
-        # skip-self filter regressed, we would see "self-mistake" duplicated.
         registry = {
             "openresty": {
                 "role": "svc-prx-openresty",
@@ -369,8 +363,6 @@ class TestComputeAttachments(unittest.TestCase):
             _const_lookup_config(),
             _const_lookup_database(),
         )
-        # Own aliases get included once; sweep skips self -> "self-mistake"
-        # appears exactly once, not twice.
         self.assertEqual(default_aliases.count("self-mistake"), 1)
         self.assertIn("auth.example.com", default_aliases)
 
@@ -437,6 +429,82 @@ class TestRenderComposeNetworks(unittest.TestCase):
         self.assertIn("mariadb:", rendered)
         self.assertIn("external: true", rendered)
         self.assertNotIn("default:", rendered)
+
+
+class TestComputeExternalNetworkRoles(unittest.TestCase):
+    def test_returns_consumer_provider_role(self):
+        registry = {
+            "redis": {
+                "role": "svc-db-redis",
+                "entity_name": "redis",
+                "overlay": {
+                    "modes": ["swarm"],
+                    "topology": "shared_net",
+                    "consumer": {"kind": "services_flags", "key": "redis"},
+                },
+            },
+        }
+        cfg = _const_lookup_config(
+            **{"services.redis.enabled": True, "services.redis.shared": True}
+        )
+        roles = compute_external_network_roles(
+            application_id="web-app-gitea",
+            deployment_mode="swarm",
+            registry=registry,
+            lookup_config=cfg,
+            lookup_database=_const_lookup_database(),
+        )
+        self.assertEqual(roles, ["svc-db-redis"])
+
+    def test_matches_external_true_entries_in_rendered_compose(self):
+        registry = {
+            "redis": {
+                "role": "svc-db-redis",
+                "entity_name": "redis",
+                "overlay": {
+                    "modes": ["swarm"],
+                    "topology": "shared_net",
+                    "consumer": {"kind": "services_flags", "key": "redis"},
+                },
+            },
+        }
+        cfg = _const_lookup_config(
+            **{"services.redis.enabled": True, "services.redis.shared": True}
+        )
+        rendered = render_compose_networks(
+            application_id="web-app-gitea",
+            deployment_mode="swarm",
+            registry=registry,
+            get_entity_name=_entity_name,
+            lookup_config=cfg,
+            lookup_database=_const_lookup_database(),
+        )
+        roles = compute_external_network_roles(
+            application_id="web-app-gitea",
+            deployment_mode="swarm",
+            registry=registry,
+            lookup_config=cfg,
+            lookup_database=_const_lookup_database(),
+        )
+        self.assertIn("redis:\n    external: true", rendered)
+        self.assertEqual([_entity_name(r) for r in roles], ["redis"])
+
+    def test_own_default_net_provider_not_returned(self):
+        registry = {
+            "openresty": {
+                "role": "svc-prx-openresty",
+                "entity_name": "openresty",
+                "overlay": {"modes": ["swarm"], "topology": "default_net"},
+            },
+        }
+        roles = compute_external_network_roles(
+            application_id="svc-prx-openresty",
+            deployment_mode="swarm",
+            registry=registry,
+            lookup_config=_const_lookup_config(),
+            lookup_database=_const_lookup_database(),
+        )
+        self.assertEqual(roles, [])
 
 
 class TestRenderContainerNetworks(unittest.TestCase):
@@ -524,10 +592,6 @@ class TestRenderContainerNetworks(unittest.TestCase):
 
 class TestRenderEncryption(unittest.TestCase):
     def test_swarm_encrypted_false_emits_lowercase_quoted_literal(self):
-        # Lock the exact YAML form: `encrypted: "false"` (lowercase, quoted).
-        # If a refactor changes this to `false` (unquoted) docker-compose
-        # parses it as a YAML boolean instead of a string, which silently
-        # alters driver behaviour.
         rendered = render_compose_networks(
             application_id="web-app-x",
             deployment_mode="swarm",

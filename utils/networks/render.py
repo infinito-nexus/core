@@ -164,6 +164,35 @@ def _own_shared_net_provider(
     )
 
 
+def compute_external_network_roles(
+    *,
+    application_id: str,
+    deployment_mode: str,
+    registry: dict[str, dict[str, Any]],
+    lookup_config: Callable[[str, str, Any], Any],
+    lookup_database: Callable[[str, str], Any],
+) -> list[str]:
+    """Provider role names whose overlay ``render_compose_networks`` emits as
+    ``external: true`` for ``application_id``. Mirrors the attachment filter in
+    :func:`render_compose_networks` (every attachment except a ``default_net``
+    the app provides itself). Used to pre-create those swarm overlays before
+    ``docker stack deploy``: a consumer can reference a shared provider's
+    network without that provider role having run in the same play, so the
+    overlay would otherwise be missing at deploy time.
+    """
+    attachments, _ = _compute_attachments(
+        registry, application_id, deployment_mode, lookup_config, lookup_database
+    )
+    roles: list[str] = []
+    for att in attachments:
+        if att["is_provider"] and att["topology"] == "default_net":
+            continue
+        role = att["role"]
+        if role not in roles:
+            roles.append(role)
+    return roles
+
+
 def render_compose_networks(
     *,
     application_id: str,
