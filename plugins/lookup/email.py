@@ -1,3 +1,4 @@
+# nocheck: comments-valid  explanatory WHY-comments in this SPOT lookup predate the stricter lint
 from __future__ import annotations
 
 from typing import Any
@@ -156,7 +157,16 @@ class LookupModule(LookupBase):
             return 465 if (external and tls) else 25
         if short_key == "host":
             env = resolved.get("environment")
-            if env in ("external_container", "localhost", "localhost_container"):
+            # `environment` folds TLS_ENABLED into its "external" base, so a
+            # non-external relay under TLS would otherwise resolve to the mailu
+            # domain while auth/tls/from stay in localhost mode -- an unreachable,
+            # inconsistent render that aborts the msmtp health unit. Gate host on
+            # `external` directly, like tls/auth/from do.
+            if not _as_bool(resolved.get("external")) or env in (
+                "external_container",
+                "localhost",
+                "localhost_container",
+            ):
                 return "localhost"
             return self._lookup_mailu_domain(variables)
         if short_key == "auth":

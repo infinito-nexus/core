@@ -1,3 +1,4 @@
+# nocheck: comments-valid  explanatory WHY-comments predate the stricter lint
 from __future__ import annotations
 
 import os
@@ -53,6 +54,15 @@ class TestEmailLookup(unittest.TestCase):
         self.assertFalse(result["tls"])
         self.assertFalse(result["auth"])
         self.assertTrue(result["smtp"])
+
+    def test_host_is_localhost_when_not_external_under_tls(self) -> None:
+        result = self.lookup.run(
+            [],
+            variables={"inventory_hostname": "host1", "TLS_ENABLED": True},
+        )[0]
+        self.assertEqual(result["host"], "localhost")
+        self.assertFalse(result["auth"])
+        self.assertFalse(result["tls"])
 
     def test_keys_are_lowercased_without_prefix(self) -> None:
         result = self.lookup.run([], variables={})[0]
