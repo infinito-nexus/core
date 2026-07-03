@@ -5,7 +5,7 @@
       gitea admin auth add-ldap \
       {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
   register: ldap_manage
-  failed_when: ldap_manage.rc != 0 and "login source already exists" not in ldap_manage.stderr
+  failed_when: ldap_manage.rc != 0 and not (ldap_manage.stderr | gitea_auth_noop)
 
 - name: "🔍 Lookup existing LDAP auth source ID"
   shell: |

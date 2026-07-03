@@ -10,7 +10,7 @@
         --auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}" \
         --scopes   "openid profile email"
   register: oidc_manage
-  failed_when: oidc_manage.rc != 0 and "login source already exists" not in oidc_manage.stderr
+  failed_when: oidc_manage.rc != 0 and not (oidc_manage.stderr | gitea_auth_noop)
 
 - name: "🔍 Lookup existing Keycloak auth source ID"
   shell: |
