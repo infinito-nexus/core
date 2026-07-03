@@ -13,5 +13,4 @@ require("./test-csp-headers").register(shared);
 require("./test-oidc-login").register(shared);
 require("./test-login-administrator").register(shared);
 require("./test-login-biber").register(shared);
-require("./test-login-via-ldap").register(shared);
 require("./test-guest-persona").register(shared);

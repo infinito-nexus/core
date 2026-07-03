@@ -9,10 +9,6 @@ sso:
     origin:
       host: n8n
       port: 5678
-ldap:
-  bond: 1
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"

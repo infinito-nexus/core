@@ -2,7 +2,7 @@
 # Matrix-deploy variant overrides for web-app-n8n.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
-# V1: sso (oauth2-proxy edge) + ldap — everything that can be true, is true
+# V1: sso (oauth2-proxy edge) — everything that can be true, is true
 - services:
     css:
       enabled: true
@@ -11,9 +11,6 @@
       enabled: true
       shared: true
     email:
-      enabled: true
-      shared: true
-    ldap:
       enabled: true
       shared: true
     logout:
@@ -42,9 +39,6 @@
     email:
       enabled: false
       shared: false
-    ldap:
-      enabled: false
-      shared: false
     logout:
       enabled: false
       shared: false
@@ -56,35 +50,6 @@
       shared: false
     postgres:
       shared: false
-    prometheus:
-      enabled: false
-      shared: false
-
-# V3: ldap only — LDAP auth in n8n, no SSO proxy
-- services:
-    css:
-      enabled: false
-      shared: false
-    dashboard:
-      enabled: false
-      shared: false
-    email:
-      enabled: false
-      shared: false
-    ldap:
-      enabled: true
-      shared: true
-    logout:
-      enabled: false
-      shared: false
-    matomo:
-      enabled: false
-      shared: false
-    sso:
-      enabled: false
-      shared: false
-    postgres:
-      shared: true
     prometheus:
       enabled: false
       shared: false

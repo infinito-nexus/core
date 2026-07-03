@@ -27,7 +27,3 @@
 
 - name: "Bootstrap n8n owner account"
   include_tasks: 02_bootstrap.yml
-
-- name: "Configure n8n LDAP against svc-db-openldap"
-  include_tasks: 03_ldap.yml
-  when: N8N_LDAP_ENABLED | bool

@@ -22,4 +22,3 @@ N8N_INTERNAL_API_URL: "http://{{ DOCKER_REACH_HOST }}:{{ N8N_HTTP_PORT }}"
 
 # Auth integrations
 N8N_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
-N8N_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"

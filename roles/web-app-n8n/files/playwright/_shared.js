@@ -3,16 +3,17 @@ const { expect } = require("@playwright/test");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
-const oidcEnabled     = isServiceEnabled("sso");
-const ldapEnabled     = isServiceEnabled("ldap");
-const oidcIssuerUrl   = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
-const n8nBaseUrl      = normalizeBaseUrl(process.env.N8N_BASE_URL || "");
-const adminUsername   = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
-const adminPassword   = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
-const biberUsername   = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
-const biberEmail      = decodeDotenvQuotedValue(process.env.BIBER_EMAIL);
-const biberPassword   = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const oidcEnabled      = isServiceEnabled("sso");
+const oidcIssuerUrl    = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const n8nBaseUrl       = normalizeBaseUrl(process.env.N8N_BASE_URL || "");
+const adminEmail       = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
+const adminUsername    = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
+const adminPassword    = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
+const n8nOwnerPassword = decodeDotenvQuotedValue(process.env.N8N_OWNER_PASSWORD);
+const biberUsername    = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
+const biberEmail       = decodeDotenvQuotedValue(process.env.BIBER_EMAIL);
+const biberPassword    = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+const canonicalDomain  = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 async function n8nLogout(page) {
   if (oidcEnabled && oidcIssuerUrl) {
@@ -24,6 +25,14 @@ async function n8nLogout(page) {
   await page.context().clearCookies();
 }
 
+// Drives the Keycloak SSO round-trip through oauth2-proxy only. n8n
+// Community Edition (`authenticationMethod=email`) does not accept
+// oauth2-proxy's session as its own, so the redirect back lands on
+// n8n's native login form, NOT an authenticated surface. Callers that
+// need n8n's own workflow surface MUST additionally drive
+// `performN8nLoginForm` (see below); callers that only need to prove
+// the SSO edge gate accepted the persona (e.g. biber, who has no
+// n8n-local account) stop here.
 async function signInViaN8nOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
@@ -46,17 +55,18 @@ async function signInViaN8nOidc(page, username, password, personaLabel) {
     .toContain(canonicalDomain);
 }
 
-async function signInViaN8nLdap(page, email, password) {
-  await page.context().clearCookies();
-  await page.goto(`${n8nBaseUrl}/signin`, { waitUntil: "domcontentloaded" });
-
+// Completes n8n's own local login form. Only the owner account
+// (administrator's email + the break-glass N8N_OWNER_PASSWORD) is
+// provisioned by tasks/02_bootstrap.yml, so this is only driven by the
+// administrator persona.
+async function performN8nLoginForm(page, email, password) {
   const emailInput    = page.locator('input[type="email"], input[name="email"]').first();
   const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
   await emailInput.waitFor({ state: "visible", timeout: 60_000 });
 
   await emailInput.fill(email);
   await passwordInput.fill(password);
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await page.getByRole("button", { name: /sign in/i }).click();
 
   await expect(emailInput).toBeHidden({ timeout: 60_000 });
   await expect
@@ -75,18 +85,19 @@ async function beforeEach({ page }) {
 module.exports = {
   env: {
     oidcEnabled,
-    ldapEnabled,
     oidcIssuerUrl,
     n8nBaseUrl,
+    adminEmail,
     adminUsername,
     adminPassword,
+    n8nOwnerPassword,
     biberUsername,
     biberEmail,
     biberPassword,
     canonicalDomain,
   },
   signInViaN8nOidc,
-  signInViaN8nLdap,
+  performN8nLoginForm,
   n8nLogout,
   beforeEach,
   skipUnlessServiceEnabled,
