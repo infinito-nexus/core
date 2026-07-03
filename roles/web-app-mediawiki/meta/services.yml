@@ -28,7 +28,7 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 mediawiki:
   image: mediawiki
-  version: "1.45"
+  version: "1.46"
   min_storage: 8GB
   backup:
     no_stop_required: true
