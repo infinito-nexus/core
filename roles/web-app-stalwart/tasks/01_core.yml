@@ -22,14 +22,11 @@
 - name: "Stage the Stalwart WebUI bundle for offline unpack"
   block:
     - name: "Download the Stalwart WebUI bundle"
-      ansible.builtin.get_url:
+      get_url_retry:
         url: "{{ STALWART_WEBUI_RESOURCE_URL }}"
         dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
         mode: "0644"
       register: stalwart_webui_fetch
-      retries: 3
-      delay: 5
-      until: stalwart_webui_fetch is succeeded
   rescue:
     - name: "Warn: WebUI bundle download failed (WebAdmin will 404 until reachable)"
       ansible.builtin.debug:
@@ -46,21 +43,22 @@
         mode: "0644"
         force: false
 
-- name: Ensure Roundcube custom-config directory exists
-  file:
-    path: "{{ STALWART_WEBMAIL_CONFIG_DIR }}"
-    state: directory
-    mode: "0755"
+- name: "Configure Roundcube SSO (OAuth via Keycloak)"
   when: STALWART_SSO_ENABLED | bool
+  block:
+    - name: Ensure Roundcube custom-config directory exists
+      file:
+        path: "{{ STALWART_WEBMAIL_CONFIG_DIR }}"
+        state: directory
+        mode: "0755"
 
-- name: Render Roundcube OAuth (Keycloak SSO) configuration
-  template:
-    src: roundcube-oauth.inc.php.j2
-    dest: "{{ STALWART_WEBMAIL_OAUTH_CONFIG }}"
-    # Included by the roundcube container, which runs as www-data.
-    mode: "0644"
-  register: stalwart_webmail_conf
-  when: STALWART_SSO_ENABLED | bool
+    - name: Render Roundcube OAuth (Keycloak SSO) configuration
+      template:
+        src: roundcube-oauth.inc.php.j2
+        dest: "{{ STALWART_WEBMAIL_OAUTH_CONFIG }}"
+        # Included by the roundcube container, which runs as www-data.
+        mode: "0644"
+      register: stalwart_webmail_conf
 
 - name: Render clamav-milter configuration
   template:
@@ -141,17 +139,18 @@
 
 # Stalwart caches the OIDC directory at startup, so JMAP changes from provisioning
 # (e.g. clearing requireAudience) only apply after a restart.
-- name: "Restart Stalwart so OIDC directory changes take effect"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - restart
-      - stalwart
-  args:
-    chdir: "{{ STALWART_INSTANCE_DIR }}"
-  changed_when: true
+- name: "Apply Stalwart OIDC directory changes (restart + wait)"
   when: STALWART_SSO_ENABLED | bool
+  block:
+    - name: "Restart Stalwart so OIDC directory changes take effect"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - restart
+          - stalwart
+      args:
+        chdir: "{{ STALWART_INSTANCE_DIR }}"
+      changed_when: true
 
-- name: "Wait for Stalwart API after the OIDC restart"
-  include_tasks: 02_wait_for_api.yml
-  when: STALWART_SSO_ENABLED | bool
+    - name: "Wait for Stalwart API after the OIDC restart"
+      include_tasks: 02_wait_for_api.yml

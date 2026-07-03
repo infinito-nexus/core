@@ -475,21 +475,6 @@ setup: fix-dockerignore dotenv
 setup-clean: clean setup
 	@echo "Full build with cleanup before was executed."
 
-.PHONY: stalwart-e2e
-# Full mail e2e with SSO: deploy Stalwart + Keycloak, then run mail + Playwright.
-# Note: covers SSO login, send/receive, CalDAV/CardDAV and antivirus.
-stalwart-e2e:
-	@$(MAKE) compose-deploy apps=web-app-stalwart,web-app-keycloak
-	@$(MAKE) stalwart-mail-e2e
-	@$(MAKE) compose-playwright role=web-app-stalwart
-
-.PHONY: stalwart-mail-e2e
-# Stalwart mail-flow e2e: real send->receive round-trip against the running stack.
-# Note: provisions a throwaway .test domain (works on any deploy domain); requires web-app-stalwart deployed.
-stalwart-mail-e2e:
-	@cmd='python3 /opt/src/infinito/roles/web-app-stalwart/files/tests/mail_flow_e2e.py' \
-	 bash scripts/tests/deploy/local/exec/container.sh
-
 .PHONY: system-purge
 # Run the broad low-hardware cleanup routine.
 system-purge:

@@ -2,8 +2,10 @@
 # Matrix-deploy variant overrides for web-app-stalwart.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
-# variant pinning every dynamic services.yml flag to true so the
-# matrix exercises the in-group_names branch of web-app-stalwart.
+# Two variants pin every dynamic services.yml flag on then off, so the matrix
+# exercises both the in-group_names and not-in-group_names branches (required by
+# tests/integration/roles/meta/variants/test_coverage.py). For a single-round
+# local deploy, pin one: `make compose-deploy apps=web-app-stalwart variant=0`.
 
 - services:
     css:

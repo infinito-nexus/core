@@ -3,3 +3,8 @@ compose:
   lifecycle: beta
   required_by:
     categories: [web]
+# Sends failure alerts via lookup('email'); depends on the mail provider.
+email:
+  bond: 1
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
