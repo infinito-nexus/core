@@ -74,3 +74,16 @@ FORBIDDEN:
 - When the failure is in a Playwright spec, "in-container validation" specifically means running `make compose-playwright role=<role>` against the live stack (per [Playwright Spec Loop](playwright.md)).
 - Use the same live investigation to identify the concrete root cause and save iteration time.
 - Once the root cause is understood, you MUST apply the real fix in the repository files and then continue the redeploy loop with the usual commands from this page. In-container fixes are only for diagnosis or short validation and MUST NOT replace the repo change.
+
+### Pre-redeploy verification gate (HARD)
+
+- Before EVERY `compose-deploy` that follows a failed deploy, you MUST emit one explicit line, and it MUST be one of exactly two forms — no third option:
+  - `verified-in-container: <command run> → <observed success>`
+  - `post-deploy-state-exception: <the specific multi-container/persistent/post-hook state that genuinely cannot be reproduced in the live container>`
+- The redeploy is NEVER the verification. "The gate/reinstall has to run anyway" or "the next deploy will validate it" is FORBIDDEN as a justification.
+- These are NOT valid exceptions and MUST NOT be invoked:
+  - resetting/reproducing the failing state is fiddly (quoting, tokens, deletes),
+  - the fix was logically inferred from a previous deploy's evidence,
+  - the change "looks obviously correct".
+- Playwright-spec failures are ALWAYS reproducible in the live stack: you MUST reset any polluted state (e.g. delete the conflicting user/entity) and get `make compose-playwright role=<role>` GREEN before the redeploy. A green compose-playwright run IS the required gate; a prior deploy's result is not.
+- A failure whose root cause is container runtime state (config, plugin, user binding, env) is by definition reproducible-there and does NOT qualify for the post-deploy-state exception.
