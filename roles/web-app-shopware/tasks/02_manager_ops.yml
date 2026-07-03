@@ -34,17 +34,10 @@
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.shopware.ports.local.http') }}"
     delay: 5
-    timeout: 300
+    timeout: "{{ lookup('timeout', 300) | int }}"
 
 - name: "✅ Ensure admin user exists with correct password"
   ansible.builtin.include_tasks:
     file: 01_admin.yml
     apply:
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-#- name: Execute setup routines (OIDC/LDAP)
-#  include_tasks: 02_setup.yml
-#
-#- name: Execute cleanup routines
-#  include_tasks: 03_cleanup.yml
-#  when: MODE_CLEANUP

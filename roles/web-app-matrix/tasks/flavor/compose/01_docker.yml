@@ -76,7 +76,7 @@
   wait_for:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
     state: present
-    timeout: 120
+    timeout: "{{ lookup('timeout', 120) | int }}"
   loop: "{{ MATRIX_BRIDGES }}"
 
 - name: "🔐 change file permissions"

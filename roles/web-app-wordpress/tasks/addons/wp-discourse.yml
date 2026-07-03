@@ -4,13 +4,13 @@
     host: "{{ lookup('domain','web-app-discourse') }}"
     port: 80
     delay: 5
-    timeout: 600
+    timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: "🖥️ WP Discourse: stack-host container ops against Discourse"
   include_tasks: wp-discourse-stack-host.yml
   when: IS_STACK_HOST | bool
 
-# Use include_vars (not lookup('file')|from_yaml) so values lazy-render and the deploy-time vault_discourse_api_key resolves in this scope.
+# Exception: include_vars (not lookup('file')|from_yaml) so values lazy-render and the deploy-time vault_discourse_api_key resolves in this scope.
 - name: "📄 Load WP Discourse addon spec from meta/addons/wp-discourse.yml"
   ansible.builtin.include_vars:
     file: "{{ [role_path, 'meta/addons', 'wp-discourse.yml'] | path_join }}"

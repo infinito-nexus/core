@@ -9,6 +9,7 @@
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
+  timeout: "{{ lookup('timeout', 3600) | int }}"
   listen:
     - compose up
     - swarm deploy

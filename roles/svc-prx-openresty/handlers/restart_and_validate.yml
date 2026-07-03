@@ -42,7 +42,7 @@
   until: >-
     openresty_swarm_update.rc == 0 or
     ('update out of sequence' not in ((openresty_swarm_update.stderr | default('')) | lower))
-  timeout: 600
+  timeout: "{{ lookup('timeout', 600) | int }}"
   when:
     - DEPLOYMENT_MODE == 'swarm'
     - IS_STACK_HOST | bool

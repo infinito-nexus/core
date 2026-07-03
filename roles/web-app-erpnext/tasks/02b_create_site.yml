@@ -25,7 +25,7 @@
     ADMIN_PASSWORD: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
   register: erpnext_new_site
   changed_when: true
-  timeout: 1800
+  timeout: "{{ lookup('timeout', 1800) | int }}"
 
 - name: "🔄 restart Frappe containers to pick up newly-installed app (compose mode)"
   ansible.builtin.shell: |
@@ -51,7 +51,7 @@
     - queue-short
     - queue-long
   changed_when: false
-  timeout: 600
+  timeout: "{{ lookup('timeout', 600) | int }}"
   when: DEPLOYMENT_MODE == 'swarm'
 
 - name: "🔍 Re-resolve ERPNext backend node + CID after restart"

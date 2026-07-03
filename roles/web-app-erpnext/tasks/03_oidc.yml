@@ -20,7 +20,7 @@
     GROUP_ROLE_MAP_JSON: "{{ ERPNEXT_OIDC_GROUP_ROLE_MAP | to_json }}"
   register: erpnext_oidc_apply
   changed_when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
-  timeout: 60
+  timeout: "{{ lookup('timeout', 60) | int }}"
 
 - name: "🔄 Restart Frappe on Social Login Key change (compose)"
   ansible.builtin.shell: |
@@ -30,7 +30,7 @@
   when:
     - "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
     - DEPLOYMENT_MODE == 'compose'
-  timeout: 120
+  timeout: "{{ lookup('timeout', 120) | int }}"
 
 - name: "🔄 Restart Frappe on Social Login Key change (swarm)"
   ansible.builtin.command: >-
@@ -39,7 +39,7 @@
   when:
     - "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
     - DEPLOYMENT_MODE == 'swarm'
-  timeout: 600
+  timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: "🔍 Re-resolve ERPNext backend node + CID after OIDC restart"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

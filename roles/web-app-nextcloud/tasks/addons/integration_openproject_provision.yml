@@ -4,7 +4,7 @@
     host: "{{ lookup('domain', 'web-app-openproject') }}"
     port: 80
     delay: 5
-    timeout: 600
+    timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: 📁 Create the Nextcloud storage + OpenProject OAuth application
   ansible.builtin.command:

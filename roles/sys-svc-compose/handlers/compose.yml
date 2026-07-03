@@ -7,7 +7,7 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   register: compose_ca_override
-  timeout: 1200
+  timeout: "{{ lookup('timeout', 1200) | int }}"
   retries: 7
   delay: 20
   until: compose_ca_override is succeeded
@@ -47,7 +47,7 @@
       --ignore-buildable
   register: pull
   changed_when: "'pulled' in pull.stdout"
-  timeout: 3600
+  timeout: "{{ lookup('timeout', 3600) | int }}"
   retries: 10
   delay: 30
   until: pull is succeeded
@@ -64,7 +64,7 @@
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
-  timeout: 3600
+  timeout: "{{ lookup('timeout', 3600) | int }}"
   listen:
     - compose build
 
@@ -74,7 +74,7 @@
     compose up -d --force-recreate --remove-orphans
   register: dc_up
   changed_when: true
-  timeout: 1800
+  timeout: "{{ lookup('timeout', 1800) | int }}"
   environment:
     COMPOSE_PARALLEL_LIMIT: "{{ '4' if (DOCKER_IN_CONTAINER | bool) else omit }}"
   args:

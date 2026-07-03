@@ -19,19 +19,16 @@
       {{ dev_nix_official_sha_response.content.split()[0] | trim }}
   run_once: true
 
-# 2) Download installer script on the target and verify via checksum
 - name: ⬇️ Download Nix installer script from official releases
   get_url_retry:
     url: "{{ dev_nix_installer_url }}"
     dest: "{{ dev_nix_installer_dest }}"
     mode: "0755"
-    timeout: 30
-    # get_url will verify the checksum and fail if it does not match
+    timeout: "{{ lookup('timeout', 30) | int }}"
     checksum: "sha256:{{ dev_nix_installer_sha256 }}"
   register: dev_nix_installer_download_result
   become: true
 
-# 3) Locate nix binary in common paths and install only if missing
 - name: 🔍 Probe common nix binary paths before installation
   ansible.builtin.stat:
     path: "{{ item }}"
@@ -91,7 +88,6 @@
   become: true
   when: dev_nix_binary_path != "/usr/local/bin/nix"
 
-# 4) Optionally drop shell snippet for Nix
 - name: 🗑️ Optionally drop shell snippet for Nix
   ansible.builtin.script:
     cmd: >-
@@ -107,7 +103,6 @@
   become: true
 
 - name: 🧹 Aggressively prune Nix data (GC + optimise)
-  # CI/Debug cleanup to prevent huge disk usage from Nix store + old generations
   become: true
   ansible.builtin.script: >
     aggressive_prune_nix.sh

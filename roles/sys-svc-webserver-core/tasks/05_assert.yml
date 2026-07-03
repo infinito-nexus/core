@@ -13,7 +13,6 @@
       Expected nginx.conf to be a FILE at {{ lookup('nginx','files.configuration') }},
       but it is missing or not a file (type mismatch). This would break docker bind mounts.
 
-# Optional but very useful: conf.d must be a directory
 - name: 🔎 Stat conf.d directory
   ansible.builtin.stat:
     path: "{{ lookup('nginx','directories.configuration.base') }}"
@@ -36,7 +35,7 @@
     return_content: true
     status_code: 404
     use_proxy: false
-    timeout: 10
+    timeout: "{{ lookup('timeout', 10) | int }}"
   register: default_vhost_check
 
 - name: ✅ Assert default webserver response body

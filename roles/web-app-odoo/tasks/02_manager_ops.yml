@@ -29,7 +29,7 @@
   uri_retry:
     url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.odoo.ports.local.http') }}/web/health"
     status_code: 200
-    timeout: 10
+    timeout: "{{ lookup('timeout', 10) | int }}"
   register: odoo_health
   until: odoo_health.status == 200
   retries: 30

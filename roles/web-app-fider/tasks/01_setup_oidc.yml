@@ -11,7 +11,7 @@
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.fider.ports.local.http') }}"
     delay: 5
-    timeout: 300
+    timeout: "{{ lookup('timeout', 300) | int }}"
   when: DEPLOYMENT_MODE == 'compose'
 
 - name: "⏳ Wait for {{ application_id }} HTTP endpoint (swarm in-container)"

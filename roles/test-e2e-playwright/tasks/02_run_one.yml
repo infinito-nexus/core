@@ -273,7 +273,7 @@
         + [TEST_E2E_PLAYWRIGHT_IMAGE]
         + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
       }}
-  timeout: "{{ test_e2e_playwright_run_timeout | int }}"
+  timeout: "{{ lookup('timeout', test_e2e_playwright_run_timeout) | int }}"
   environment: >-
     {{
       {

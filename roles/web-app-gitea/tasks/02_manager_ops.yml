@@ -4,7 +4,7 @@
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}"
     delay: 5
-    timeout: 300
+    timeout: "{{ lookup('timeout', 300) | int }}"
 
 - name: 🩹 Patch Gitea database settings in app.ini
   include_tasks: 02_database.yml

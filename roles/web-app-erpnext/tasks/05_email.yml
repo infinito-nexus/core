@@ -20,4 +20,4 @@
   when: ERPNEXT_MAIL.host is defined and (ERPNEXT_MAIL.host | length > 0)
   register: erpnext_email_apply
   changed_when: false
-  timeout: 60
+  timeout: "{{ lookup('timeout', 60) | int }}"

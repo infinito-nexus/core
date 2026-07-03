@@ -70,7 +70,7 @@
   ansible.builtin.wait_for:
     path: /var/run/docker.sock
     state: present
-    timeout: 60
+    timeout: "{{ lookup('timeout', 60) | int }}"
 
 - name: "✏️ Overwrite when DOCKER_IN_CONTAINER is true"
   block:
@@ -86,7 +86,6 @@
   when: DOCKER_IN_CONTAINER | bool
 
 - name: 🔧 Setup Swapfile to prevent OOM Failures
-  # @ See https://en.wikipedia.org/wiki/Out_of_memory
   include_tasks: "utils/load_app.yml"
   vars:
     load_app_id: "svc-opt-swapfile"

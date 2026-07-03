@@ -4,7 +4,7 @@
     host: "{{ lookup('domain', 'web-app-suitecrm') }}"
     port: 80
     delay: 5
-    timeout: 600
+    timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: 🔧 Provision SuiteCRM OAuth2 password client (idempotent), capture credentials
   ansible.builtin.command:

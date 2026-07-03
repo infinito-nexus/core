@@ -29,7 +29,7 @@
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
     delay: 5
-    timeout: 120
+    timeout: "{{ lookup('timeout', 120) | int }}"
     state: started
   when: DEPLOYMENT_MODE == 'compose'
 

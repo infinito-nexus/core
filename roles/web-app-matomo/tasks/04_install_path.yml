@@ -42,7 +42,7 @@
         container service update --force
         {{ lookup('container_service', application_id, MATOMO_SERVICE) }}
       changed_when: true
-      timeout: 600
+      timeout: "{{ lookup('timeout', 600) | int }}"
 
     - name: "🐝 Matomo install | Swarm: re-resolve hosting node + container ID after restart"
       include_tasks: 09_resolve_host_cid.yml
