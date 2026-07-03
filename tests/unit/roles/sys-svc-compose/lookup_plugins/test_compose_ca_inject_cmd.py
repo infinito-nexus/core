@@ -6,6 +6,8 @@ from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
+from plugins.filter.ca_trust_paths import ca_cert_host
+
 from . import PROJECT_ROOT
 
 
@@ -27,7 +29,6 @@ class _FakeDockerLookup:
         self._mapping = mapping
 
     def run(self, terms, variables=None, **kwargs):
-        # terms = [application_id, key]
         if not isinstance(terms, list) or len(terms) != 2:
             raise AnsibleError(
                 f"Fake container lookup: expected [application_id, key], got {terms}"
@@ -66,7 +67,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
     def _mk_lookup_module(self):
         lk = self.mod.LookupModule()
-        # Provide minimal internal attrs used by lookup_loader.get(...)
         lk._loader = object()
         lk._templar = object()
         return lk
@@ -79,7 +79,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
             docker_map = {
                 "directories.instance": str(instance_dir),
-                "files.env": ".env",  # relative -> resolve against instance_dir
+                "files.env": ".env",
                 "files.compose_ca_override": str(
                     instance_dir / "compose.ca.override.yml"
                 ),
@@ -92,7 +92,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
             variables = {
                 "CA_TRUST": {
                     "inject_script": "/usr/local/bin/compose_ca.py",
-                    "cert_host": "/etc/infinito.nexus/ca/root-ca.crt",
+                    "cert_host": ca_cert_host("infinito.nexus"),
                     "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
                     "trust_name": "infinito-root-ca",
                 }
@@ -124,7 +124,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
                 cmd = out[0]
 
-                # core args
                 self.assertIn("python3", cmd)
                 self.assertIn("--chdir", cmd)
                 self.assertIn(str(instance_dir), cmd)
@@ -133,11 +132,9 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 self.assertIn("--compose-files", cmd)
                 self.assertIn("compose.yml", cmd)
 
-                # env file exists -> included
                 self.assertIn("--env-file", cmd)
                 self.assertIn(str(env_path), cmd)
 
-                # out uses basename only
                 self.assertIn("--out", cmd)
                 self.assertIn("compose.ca.override.yml", cmd)
                 self.assertNotIn(
@@ -145,7 +142,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                     cmd,
                 )
 
-                # ensure compose_file_args called with include_ca=False
                 self.assertTrue(compose_file_args.calls)
                 self.assertEqual(
                     compose_file_args.calls[0]["kwargs"].get("include_ca"), False
@@ -157,7 +153,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
             docker_map = {
                 "directories.instance": str(instance_dir),
-                "files.env": ".env",  # missing
+                "files.env": ".env",
                 "files.compose_ca_override": str(
                     instance_dir / "compose.ca.override.yml"
                 ),
@@ -168,7 +164,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
             variables = {
                 "CA_TRUST": {
                     "inject_script": "/usr/local/bin/compose_ca.py",
-                    "cert_host": "/etc/infinito.nexus/ca/root-ca.crt",
+                    "cert_host": ca_cert_host("infinito.nexus"),
                     "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
                     "trust_name": "infinito-root-ca",
                 }
@@ -196,7 +192,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 out = lk.run(["web-app-test"], variables=variables)
                 cmd = out[0]
 
-                # env file missing -> not included
                 self.assertNotIn("--env-file", cmd)
 
     def test_raises_when_missing_ca_trust(self):
@@ -217,7 +212,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 return compose_file_args
             raise AssertionError(f"Unexpected lookup requested: {name}")
 
-        # CA_TRUST intentionally missing
         variables = {}
 
         with (
@@ -250,7 +244,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
         variables = {
             "CA_TRUST": {
                 "inject_script": "/usr/local/bin/compose_ca.py",
-                "cert_host": "/etc/infinito.nexus/ca/root-ca.crt",
+                "cert_host": ca_cert_host("infinito.nexus"),
                 "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
                 "trust_name": "infinito-root-ca",
             }
