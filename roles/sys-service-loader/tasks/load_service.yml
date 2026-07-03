@@ -6,6 +6,9 @@
         service_loader_preloading: true
       changed_when: false
 
+    - name: "🚿 Flush pending handlers before entering {{ service_key }} context"
+      meta: flush_handlers
+
     - name: "🔌 Load {{ service_key }} (Once)"
       include_tasks: "utils/load_app.yml"
       vars:
