@@ -45,7 +45,7 @@ prometheus:
   provides:
     - prometheus
   image: prom/prometheus
-  version: v3.12.0
+  version: v3.13.0
   name: prometheus
   cpus: "0.5"
   mem_reservation: 512m
