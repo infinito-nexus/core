@@ -32,7 +32,7 @@ kix_frontend:
 auth_ldap:
   type: config
   source: "{{ [lookup('container', 'web-app-kix', 'directories.volumes'), 'auth_ldap.xml'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: kix-backend
       target: /opt/kix/Kernel/Config/Files/zzz_auth_ldap.xml
@@ -41,7 +41,7 @@ auth_ldap:
 proxy_nginx_conf:
   type: config
   source: "{{ [lookup('container', 'web-app-kix', 'directories.volumes'), 'kix-proxy.default.conf'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: kix-proxy
       target: /etc/nginx/conf.d/default.conf

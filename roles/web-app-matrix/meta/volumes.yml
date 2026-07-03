@@ -17,7 +17,7 @@ chatgpt_data:
 synapse_config:
   type: config
   source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), 'homeserver.yaml' ] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: synapse
       target: /data/homeserver.yaml
@@ -35,7 +35,7 @@ synapse_log:
 element_config:
   type: config
   source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), 'element-config.json' ] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: element
       target: /app/config.json

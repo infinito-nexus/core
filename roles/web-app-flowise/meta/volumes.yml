@@ -15,7 +15,7 @@ qdrant_data:
 litellm_config:
   type: config
   source: "{{ [lookup('container', 'web-app-flowise', 'directories.config'), 'litellm.config.yaml'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: litellm
       target: /etc/litellm/config.yaml

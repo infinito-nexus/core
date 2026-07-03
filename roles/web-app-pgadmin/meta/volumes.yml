@@ -9,7 +9,7 @@ data:
 servers_json:
   type: config
   source: "{{ [lookup('container', 'web-app-pgadmin', 'directories.volumes'), 'servers.json'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: pgadmin
       target: /pgadmin4/servers.json

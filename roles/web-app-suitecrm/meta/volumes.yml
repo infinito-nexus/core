@@ -9,7 +9,7 @@ data:
 php_config:
   type: config
   source: "{{ [lookup('container', 'web-app-suitecrm', 'directories.config'), 'php.ini'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: suitecrm
       target: "/usr/local/etc/php/conf.d/{{ SOFTWARE_DOMAIN | replace('.', '-') }}.ini"

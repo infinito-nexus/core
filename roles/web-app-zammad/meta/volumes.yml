@@ -16,7 +16,7 @@ zammad_search:
 auto_wizard:
   type: config
   source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'auto_wizard.json'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: zammad-init
       target: /opt/zammad/auto_wizard.json

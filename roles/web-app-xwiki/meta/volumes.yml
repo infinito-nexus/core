@@ -10,7 +10,7 @@ properties:
   type: config
   name: "xwiki_properties_{{ 'oidc' if xwiki_oidc_enabled_switch | default(false) | bool else 'std' }}"
   source: "{{ [lookup('container', 'web-app-xwiki', 'directories.config'), 'xwiki.properties'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: xwiki
       target: /etc/infinito/xwiki.properties

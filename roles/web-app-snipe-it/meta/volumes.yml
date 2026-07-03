@@ -9,7 +9,7 @@ data:
 env:
   type: config
   source: "{{ lookup('container', 'web-app-snipe-it', 'files.env') }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: snipe-it
       target: /var/www/html/.env

@@ -16,7 +16,7 @@ extensions:
 localsettings:
   type: config
   source: "{{ [lookup('container', 'web-app-mediawiki', 'directories.config'), 'LocalSettings.php'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: mediawiki
       target: /var/www/html/LocalSettings.php

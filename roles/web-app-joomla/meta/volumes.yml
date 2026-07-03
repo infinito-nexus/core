@@ -9,7 +9,7 @@ data:
 php_upload:
   type: config
   source: "{{ [lookup('container', 'web-app-joomla', 'directories.instance'), 'php-upload.ini'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: joomla
       target: /usr/local/etc/php/conf.d/uploads.ini

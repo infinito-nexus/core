@@ -32,7 +32,7 @@ talk_recording_tmp:
 nginx_conf:
   type: config
   source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'nginx.conf' ] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: proxy
       target: /etc/nginx/nginx.conf
@@ -40,7 +40,7 @@ nginx_conf:
 infinito_conf:
   type: config
   source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'infinito' ] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: nextcloud
       target: /var/www/html/config/infinito/
@@ -48,7 +48,7 @@ infinito_conf:
 nextcloud_includes:
   type: config
   source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'includes.php' ] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: nextcloud
       target: /tmp/includes.php

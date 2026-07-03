@@ -21,7 +21,7 @@ code:
 nginx_conf:
   type: config
   source: "{{ [lookup('container', 'web-app-moodle', 'directories.instance'), 'nginx.conf'] | path_join }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: nginx
       target: /etc/nginx/conf.d/default.conf

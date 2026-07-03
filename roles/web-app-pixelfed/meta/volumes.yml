@@ -11,7 +11,7 @@ data:
 env:
   type: config
   source: "{{ lookup('container', 'web-app-pixelfed', 'files.env') }}"
-  mode: "0440"
+  mode: "0444"
   mounts:
     - service: pixelfed
       target: /var/www/.env
