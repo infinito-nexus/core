@@ -1,9 +1,19 @@
 ---
+- name: "🔍 Resolve Mailu redis hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: redis
+    resolve_output_prefix: MAILU_REDIS
+    resolve_compose_cid: "{{ MAILU_REDIS_CONTAINER_ADDRESS }}"
+  when: lookup('engine', 'redis', application_id, 'local')
+
 - name: "⏳ Wait until Mailu redis backend responds to PING"
   block:
     - name: "🔍 Probe Mailu redis"
-      ansible.builtin.shell: >
-        container exec -i {{ MAILU_REDIS_CONTAINER_ADDRESS }} redis-cli ping
+      ansible.builtin.shell: |
+        # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ MAILU_REDIS_LOCAL_CID | quote }} redis-cli ping
+      delegate_to: "{{ MAILU_REDIS_HOST_NODE }}"
       register: mailu_redis_check
       retries: 30
       delay: 5
@@ -16,7 +26,8 @@
     - block:
         - name: "📊 Collect Mailu redis container logs after readiness timeout"
           ansible.builtin.shell: >
-            container logs --tail=300 {{ MAILU_REDIS_CONTAINER_ADDRESS }}
+            container logs --tail=300 {{ MAILU_REDIS_LOCAL_CID | quote }}
+          delegate_to: "{{ MAILU_REDIS_HOST_NODE }}"
           register: mailu_redis_logs
           changed_when: false
       always:
@@ -32,12 +43,21 @@
               {{ mailu_redis_logs.stdout | default('No logs available') }}
   when: lookup('engine', 'redis', application_id, 'local')
 
+- name: "🔍 Resolve Mailu admin hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: admin
+    resolve_output_prefix: MAILU_ADMIN
+    resolve_compose_cid: "{{ MAILU_ADMIN_CONTAINER_ADDRESS }}"
+
 - name: "⏳ Wait until Mailu admin HTTP API listens on :8080"
   block:
     - name: "🔍 Probe Mailu admin HTTP API"
-      ansible.builtin.shell: >
-        container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-        curl -sS -o /dev/null -w "%{http_code}" http://localhost:8080/sso/login
+      ansible.builtin.shell: |
+        # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ MAILU_ADMIN_LOCAL_CID | quote }} \
+          curl -sS -o /dev/null -w "%{http_code}" http://localhost:8080/sso/login
+      delegate_to: "{{ MAILU_ADMIN_HOST_NODE }}"
       register: mailu_admin_http_check
       retries: 30
       delay: 5
@@ -50,7 +70,8 @@
     - block:
         - name: "📊 Collect Mailu admin container logs after HTTP API readiness timeout"
           ansible.builtin.shell: >
-            container logs --tail=300 {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+            container logs --tail=300 {{ MAILU_ADMIN_LOCAL_CID | quote }}
+          delegate_to: "{{ MAILU_ADMIN_HOST_NODE }}"
           register: mailu_admin_http_logs
           changed_when: false
       always:
