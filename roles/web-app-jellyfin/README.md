@@ -27,18 +27,6 @@ Jellyfin has **no native OIDC/LDAP**; auth is plugin-based with an important cli
 
 > **Validation caveat:** the plugin config is written from upstream-verified schemas, but the SSO plugin's `OidConfigs` is a `SerializableDictionary` whose exact XML shape, plus the plugin ABI compatibility with the pinned Jellyfin version, **must be confirmed on the first live deploy**. Each config file is XML-well-formedness checked before the reload.
 
-## Variant matrix
-
-| Variant | `sso` | `ldap` | Sign-in |
-| --- | --- | --- | --- |
-| V1 | on | on | OIDC (web) + LDAP (all clients) + break-glass admin. |
-| V2 | off | off | Local break-glass admin only. |
-| V3 | off | on | LDAP (all clients) + break-glass admin. |
-
-## Image & bump policy
-
-Pinned to `jellyfin/jellyfin:10.11.11` in [`meta/services.yml`](./meta/services.yml) (never `:latest`). Bump by editing the tag after reviewing the upstream [releases](https://github.com/jellyfin/jellyfin/releases) and the plugins' target-ABI compatibility.
-
 ## Further Resources
 
 - [Jellyfin website](https://jellyfin.org)
