@@ -296,6 +296,42 @@ class TestComputeAttachments(unittest.TestCase):
         self.assertEqual(len(att), 1)
         self.assertEqual(att[0]["aliases"], ["openldap"])
 
+    def test_proxy_aliases_override_topology_aliases_in_harvest(self):
+        """A shared_net beacon exposes only proxy_aliases to the harvest; its
+        own topology aliases (the entity name) must stay off the proxy."""
+        registry = {
+            "openresty": {
+                "role": "svc-prx-openresty",
+                "entity_name": "openresty",
+                "overlay": {
+                    "modes": ["swarm"],
+                    "topology": "shared_net",
+                    "collect_proxy_resolvable": True,
+                },
+            },
+            "seaweedfs": {
+                "role": "web-app-seaweedfs",
+                "entity_name": "seaweedfs",
+                "overlay": {
+                    "modes": ["swarm"],
+                    "topology": "shared_net",
+                    "proxy_resolvable": True,
+                    "proxy_aliases": ["api.s3.example.com"],
+                    "aliases": ["seaweedfs"],
+                },
+            },
+        }
+        att, _ = _compute_attachments(
+            registry,
+            "svc-prx-openresty",
+            "swarm",
+            _const_lookup_config(),
+            _const_lookup_database(),
+        )
+        provider = next(a for a in att if a["is_provider"])
+        self.assertIn("api.s3.example.com", provider["aliases"])
+        self.assertNotIn("seaweedfs", provider["aliases"])
+
     def test_proxy_resolvable_sweep_skips_canonical_clones(self):
         registry = {
             "openresty": {

@@ -18,6 +18,10 @@
     {{ lookup('container_ports', ['decidim', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', application_id, 'decidim') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+    {% if DEPLOYMENT_MODE == 'compose' %}
+    extra_hosts:
+      - "{{ lookup('config', 'web-app-seaweedfs', 'domains.canonical.api') }}:host-gateway"
+    {% endif %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 

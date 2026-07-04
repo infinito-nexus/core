@@ -6,3 +6,5 @@ overlay:
   topology: shared_net
   consumer:
     key: seaweedfs
+  proxy_resolvable: true
+  proxy_aliases: ["{{ lookup('config', 'web-app-seaweedfs', 'domains.canonical.api') }}"]

@@ -16,8 +16,12 @@ discovered into the service_registry by ``discover_role_services``. Keys:
    * ``kind``: ``services_flags`` (default) | ``database``
    * ``key``: services.<key>.* lookup base. Default: provides or entity_name
    * ``flags``: list of flags to AND. Default: ``[enabled, shared]``
-* ``proxy_resolvable``: beacon flag — aliases get harvested onto every
-   ``default_net`` provider in the same mode.
+* ``proxy_resolvable``: beacon flag - the harvested aliases get attached to
+   every ``default_net`` provider and every ``collect_proxy_resolvable``
+   provider in the same mode.
+* ``proxy_aliases``: aliases the beacon exposes for harvesting; falls back
+   to ``aliases``. Set it when the overlay also has a topology whose own
+   ``aliases`` (e.g. the entity name) must NOT land on the proxy.
 """
 
 from __future__ import annotations
@@ -102,7 +106,11 @@ def _compute_attachments(
                         continue
                     if peer.get("role") == entry.get("role"):
                         continue
-                    default_aliases.extend(peer_overlay.get("aliases") or [])
+                    default_aliases.extend(
+                        peer_overlay.get("proxy_aliases")
+                        or peer_overlay.get("aliases")
+                        or []
+                    )
             elif topology:
                 aliases = list(
                     overlay.get("aliases", [entry.get("entity_name")])
@@ -121,7 +129,11 @@ def _compute_attachments(
                             continue
                         if peer.get("role") == entry.get("role"):
                             continue
-                        aliases.extend(peer_overlay.get("aliases") or [])
+                        aliases.extend(
+                            peer_overlay.get("proxy_aliases")
+                            or peer_overlay.get("aliases")
+                            or []
+                        )
                 attachments.append(
                     {
                         "role": entry["role"],
