@@ -39,7 +39,6 @@ class TestReservedUsersFilters(unittest.TestCase):
             "not_a_dict": "invalid",
         }
 
-
     def test_reserved_usernames_requires_dict(self):
         with self.assertRaises(AnsibleFilterError):
             reserved_usernames(["not", "a", "dict"])
@@ -70,7 +69,6 @@ class TestReservedUsersFilters(unittest.TestCase):
         result = reserved_usernames({})
         self.assertEqual(result, [])
 
-
     def test_non_reserved_users_requires_dict(self):
         with self.assertRaises(AnsibleFilterError):
             non_reserved_users("not-a-dict")
@@ -91,7 +89,6 @@ class TestReservedUsersFilters(unittest.TestCase):
     def test_non_reserved_users_empty_dict(self):
         result = non_reserved_users({})
         self.assertEqual(result, {})
-
 
     def test_filtermodule_registers_filters(self):
         fm = reserved_users.FilterModule()
