@@ -51,6 +51,26 @@ def _merge_users(
     return merged
 
 
+def _derive_accounts(roles: Any) -> list[str]:
+    roles = roles if isinstance(roles, (list, tuple)) else []
+    return (
+        ["mailbox", "identity"]
+        if ("bot" in roles or "administrator" in roles)
+        else ["identity"]
+    )
+
+
+def _apply_account_defaults(users: dict[str, Any]) -> dict[str, Any]:
+    for user in users.values():
+        if not isinstance(user, dict):
+            continue
+        if user.get("accounts") is None:
+            user["accounts"] = _derive_accounts(user.get("roles", []))
+        if "forward" not in user:
+            user["forward"] = ""
+    return users
+
+
 def _compute_reserved_usernames(roles_dir: Path) -> list[str]:
     reserved: set[str] = set()
     for role_dir in roles_dir.iterdir():
@@ -129,7 +149,10 @@ def _build_users(
         )
         roles = overrides.get("roles", [])
         password = overrides.get("password", become_pwd)
-        reserved = overrides.get("reserved", False)
+        accounts = overrides.get("accounts")
+        if accounts is None:
+            accounts = _derive_accounts(roles)
+        forward = overrides.get("forward", "")
         tokens = overrides.get("tokens", {})
         authorized_keys = overrides.get("authorized_keys", [])
 
@@ -147,7 +170,8 @@ def _build_users(
             "roles": roles,
             "tokens": tokens,
             "authorized_keys": authorized_keys,
-            "reserved": reserved,
+            "accounts": accounts,
+            "forward": forward,
             "description": description,
         }
 
@@ -210,9 +234,6 @@ def _resolve_tokens_file(variables: Mapping[str, Any] | None) -> Path:
     if env_dir_var_lib:
         _add_candidate(Path(env_dir_var_lib) / "secrets" / "tokens.yml")
 
-    # Read at call time so tests that patch
-    # `utils.cache.base.DEFAULT_TOKENS_FILE` take effect on the very
-    # next call rather than being shadowed by an import-time binding.
     candidates.append(_base.DEFAULT_TOKENS_FILE)
 
     seen: set[Path] = set()
@@ -271,8 +292,6 @@ def _materialize_builtin_user_aliases(
     variables: Mapping[str, Any] | None,
     templar: Any = None,
 ) -> dict[str, Any]:
-    # Lazy import: pulls `ansible.errors.AnsibleError` transitively, see the
-    # base module note on why this stays out of the import block.
     from utils.templating.ansible import _templar_render_best_effort
 
     def _normalize_domain_candidate(value: Any) -> str:
@@ -345,7 +364,7 @@ def get_user_defaults(
         definitions = _load_user_defs(resolved_roles_dir)
         for reserved_username in _compute_reserved_usernames(resolved_roles_dir):
             if reserved_username not in definitions:
-                definitions[reserved_username] = {"reserved": True}
+                definitions[reserved_username] = {"accounts": []}
         built = _build_users(
             definitions,
             primary_domain="{{ DOMAIN_PRIMARY }}",
@@ -387,14 +406,13 @@ def get_merged_users(
     defaults = get_user_defaults(roles_dir=roles_dir)
     overrides = _resolve_override_mapping(variables, "users", templar=templar)
 
-    merged = _merge_users(defaults, overrides)
+    merged = _apply_account_defaults(_merge_users(defaults, overrides))
     hydrated = _hydrate_users_tokens(
         merged,
         _load_store_users(tokens_file),
     )
 
     if getattr(_RENDER_GUARD, "users", False):
-        # Re-entry via cross-lookup: skip the heavy materialize+render pass.
         return hydrated
 
     _RENDER_GUARD.users = True

@@ -1,0 +1,72 @@
+---
+# nocheck: seaweedfs-required - Checkmk Raw bundles its own monitoring core + RRD storage on a single OMD-site volume; it has no object-store surface.
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: checkmk
+      port: "5000"
+    acl:
+      whitelist:
+        - /cmk/check_mk/api/
+# nocheck: playwright-service-flag - identity backend (LDAP connection synced into the site); login is driven through the oauth2 gate, so there is no separate LDAP Playwright surface.
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+email:
+  bond: 1
+  enabled: "{{ 'web-app-mailu' in group_names }}"
+  shared: "{{ 'web-app-mailu' in group_names }}"
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag - runtime DOM patch (injected logout), no probe-able surface flag
+javascript:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-checkmk', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-checkmk', 'services.sso.enabled') | bool }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+checkmk:
+  cpus: 2.0
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 2048
+  min_storage: 10GB
+  image: checkmk/check-mk-raw
+  version: "2.4.0p32"
+  backup:
+    no_stop_required: true
+  name: checkmk
+  ports:
+    internal:
+      http: 5000
+      agent: 8000
+    local:
+      http: 8087
+      sso: 16509
+      agent: 8500
+  run_after:
+    - web-app-keycloak
+    - svc-db-openldap
+  lifecycle: alpha

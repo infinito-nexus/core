@@ -4,7 +4,6 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
 
-# cn=config is managed via LDAPI + SASL EXTERNAL (no bind DN/PW needed)
 OPENLDAP_CONFIG_URI: "ldapi:///"
 
 OPENLDAP_LDIF_PATH_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}ldif/"
@@ -31,9 +30,7 @@ OPENLDAP_PROVISION_SCHEMAS: "{{ lookup('config', application_id, 'services.openl
 OPENLDAP_PROVISION_USERS: "{{ lookup('config', application_id, 'services.openldap.provision.users') }}"
 OPENLDAP_PROVISION_GROUPS: "{{ lookup('config', application_id, 'services.openldap.provision.groups') }}"
 OPENLDAP_PROVISION_UPDATE: "{{ lookup('config', application_id, 'services.openldap.provision.update') }}"
-OPENLDAP_PROVISION_RESERVED: "{{ lookup('config', application_id, 'services.openldap.provision.reserved') }}"
-
-OPENLDAP_USERS: "{{ lookup('users') if OPENLDAP_PROVISION_RESERVED else lookup('users') | non_reserved_users }}"
+OPENLDAP_USERS: "{{ lookup('users') | non_reserved_users }}"
 
 OPENLDAP_PYTHON_LDAP_NATIVE_LIB_PACKAGES_BY_OS_FAMILY:
   Debian:

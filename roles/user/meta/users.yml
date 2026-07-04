@@ -2,166 +2,166 @@
 sld:
   description: Auto Generated Account to reserve the SLD
   username: "{{ DOMAIN_PRIMARY.split('.')[0] }}"
-  reserved: true
+  accounts: []
 tld:
   description: Auto Generated Account to reserve the TLD
   username: "{{ DOMAIN_PRIMARY.split('.')[1] if (DOMAIN_PRIMARY is defined and (DOMAIN_PRIMARY.split('.') | length) > 1) else (DOMAIN_PRIMARY ~ '_tld ') }}"
-  reserved: true
+  accounts: []
 root:
   username: root
   uid: 0
   gid: 0
   description: System superuser
-  reserved: true
+  accounts: [host]
 daemon:
   username: daemon
   description: Daemon processes owner
-  reserved: true
+  accounts: []
 bin:
   username: bin
   description: Owner of essential binaries
-  reserved: true
+  accounts: []
 sys:
   username: sys
   description: System files owner
-  reserved: true
+  accounts: []
 sync:
   username: sync
   description: Sync user for filesystem synchronization
-  reserved: true
+  accounts: []
 games:
   username: games
   description: Games and educational software owner
-  reserved: true
+  accounts: []
 man:
   username: man
   description: Manual pages viewer
-  reserved: true
+  accounts: []
 lp:
   username: lp
   description: Printer spooler
-  reserved: true
+  accounts: []
 mail:
   username: mail
   description: Mail system
-  reserved: true
+  accounts: []
 news:
   username: news
   description: Network news system
-  reserved: true
+  accounts: []
 uucp:
   username: uucp
   description: UUCP system
-  reserved: true
+  accounts: []
 proxy:
   username: proxy
   description: Proxy user
-  reserved: true
+  accounts: []
 backup:
   username: backup
   description: Backup operator
-  reserved: true
+  accounts: [host]
 list:
   username: list
   description: Mailing list manager
-  reserved: true
+  accounts: []
 irc:
   username: irc
   description: IRC services user
-  reserved: true
+  accounts: []
 gnats:
   username: gnats
   description: GNATS bug-reporting system
-  reserved: true
+  accounts: []
 nobody:
   username: nobody
   description: Unprivileged user
-  reserved: true
+  accounts: []
 messagebus:
   username: messagebus
   description: D-Bus message bus system
-  reserved: true
+  accounts: []
 sshd:
   username: sshd
   description: SSH daemon
-  reserved: true
+  accounts: []
 rpc:
   username: rpc
   description: Rpcbind daemon
-  reserved: true
+  accounts: []
 ftp:
   username: ftp
   description: FTP server
-  reserved: true
+  accounts: []
 postfix:
   username: postfix
   description: Postfix mail transfer agent
-  reserved: true
+  accounts: []
 mysql:
   username: mysql
   description: MySQL database server
-  reserved: true
+  accounts: []
 mongodb:
   username: mongodb
   description: MongoDB database server
-  reserved: true
+  accounts: []
 admin:
   username: admin
   description: Generic reserved username
-  reserved: true
+  accounts: []
 user:
   username: user
   description: Generic reserved username
-  reserved: true
+  accounts: []
 test:
   username: test
   description: Generic reserved username
-  reserved: true
+  accounts: []
 guest:
   username: guest
   description: Generic reserved username
-  reserved: true
+  accounts: []
 demo:
   username: demo
   description: Generic reserved username
-  reserved: true
+  accounts: []
 info:
   username: info
   description: Generic reserved username
-  reserved: true
+  accounts: []
 support:
   username: support
   description: Generic reserved username
-  reserved: true
+  accounts: []
 helpdesk:
   username: helpdesk
   description: Generic reserved username
-  reserved: true
+  accounts: [mailbox]
 operator:
   username: operator
   description: Generic reserved username
-  reserved: true
+  accounts: []
 staff:
   username: staff
   description: Generic reserved username
-  reserved: true
+  accounts: []
 smtp:
   username: smtp
   description: Generic reserved username
-  reserved: true
+  accounts: []
 imap:
   username: imap
   description: Generic reserved username
-  reserved: true
+  accounts: []
 pop:
   username: pop
   description: Generic reserved username
-  reserved: true
+  accounts: []
 webmaster:
   username: webmaster
   description: Generic reserved username
-  reserved: true
+  accounts: []
 mailman:
   username: mailman
   description: Generic reserved username
-  reserved: true
+  accounts: []

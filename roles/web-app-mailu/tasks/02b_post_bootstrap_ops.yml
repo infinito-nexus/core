@@ -18,9 +18,21 @@
     mailu_token_ip: "{{ user_item.value.ip | default(networks.internet.ip4) }}"
     mailu_token_name: "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
     mailu_user_roles: "{{ user_item.value.roles | default([]) }}"
+    mailu_user_accounts: "{{ user_item.value.accounts | default([]) }}"
   loop: "{{ lookup('users') | dict2items }}"
   loop_control:
     loop_var: user_item
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📁 Create Mailu forward aliases"
+  include_tasks: 04b_manage_alias.yml
+  vars:
+    mailu_alias_localpart: "{{ user_item.value.username }}"
+    mailu_alias_destination: "{{ lookup('users', user_item.value.forward).email }}"
+  loop: "{{ lookup('users') | dict2items }}"
+  loop_control:
+    loop_var: user_item
+  when: (user_item.value.forward | default('')) | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📂 Include Cert deploy service for '{{ role_name }}'"

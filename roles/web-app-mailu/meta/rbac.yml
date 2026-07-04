@@ -1,4 +1,4 @@
 ---
 roles:
-  mail-bot:
-    description: Has an token to send and receive emails
+  bot:
+    description: Bot/service account with an API token (e.g. email send/receive)

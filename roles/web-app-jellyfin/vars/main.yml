@@ -1,0 +1,30 @@
+---
+application_id: "web-app-jellyfin"
+container_port: "{{ lookup('config', application_id, 'services.jellyfin.ports.internal.http') }}"
+
+JELLYFIN_NAME: "{{ lookup('config', application_id, 'services.jellyfin.name') }}"
+
+JELLYFIN_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+JELLYFIN_API: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jellyfin.ports.local.http') }}"
+
+JELLYFIN_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
+JELLYFIN_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+
+JELLYFIN_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+JELLYFIN_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+
+JELLYFIN_SSO_PLUGIN_MANIFEST: "{{ lookup('config', application_id, 'addons.sso-authentication.config.manifest') }}"
+JELLYFIN_LDAP_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.ldap-authentication.version') }}"
+JELLYFIN_LDAP_PLUGIN_URL: "{{ lookup('config', application_id, 'addons.ldap-authentication.config.url') }}"
+JELLYFIN_LDAP_PLUGIN_MD5: "{{ lookup('config', application_id, 'addons.ldap-authentication.config.md5') }}"
+
+JELLYFIN_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
+JELLYFIN_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
+JELLYFIN_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+JELLYFIN_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+JELLYFIN_LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
+JELLYFIN_LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+
+JELLYFIN_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
+JELLYFIN_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+JELLYFIN_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"

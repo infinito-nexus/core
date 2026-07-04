@@ -1,0 +1,6 @@
+---
+checkmk_data:
+  type: volume
+  mounts:
+    - service: checkmk
+      target: /omd/sites

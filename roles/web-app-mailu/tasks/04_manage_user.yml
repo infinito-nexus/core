@@ -23,7 +23,7 @@
       ('already' not in (mailu_user_result.stderr | lower)) and
       ('duplicate' not in (mailu_user_result.stderr | lower))
     )
-  when: "'mail-bot' in mailu_user_roles or 'administrator' in mailu_user_roles"
+  when: "'mailbox' in mailu_user_accounts"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔧 Set password '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
@@ -40,9 +40,9 @@
   until: mailu_user_password_change.rc == 0
   changed_when: mailu_user_password_change.rc == 0
   failed_when: mailu_user_password_change.rc != 0
-  when: "'mail-bot' in mailu_user_roles or 'administrator' in mailu_user_roles"
+  when: "'mailbox' in mailu_user_accounts"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📁 Create Mailu API Token for {{ mailu_user_name }}"
   include_tasks: 04a_manage_user_token.yml
-  when: "'mail-bot' in mailu_user_roles"
+  when: "'bot' in mailu_user_roles"

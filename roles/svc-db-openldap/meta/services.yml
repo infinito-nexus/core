@@ -25,7 +25,6 @@ openldap:
     users: true
     groups: true
     update: true
-    reserved: false
   ports:
     internal:
       ldap: 389

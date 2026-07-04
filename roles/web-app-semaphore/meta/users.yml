@@ -1,0 +1,8 @@
+---
+administrator: {}
+web-app-semaphore-breakglass:
+  username: breakglass-administrator
+  password: "{{ ansible_become_password }}"
+  accounts: []
+  forward: administrator
+  description: Semaphore local break-glass admin; not provisioned to IAM, mail forwards to the administrator mailbox

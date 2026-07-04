@@ -1,0 +1,38 @@
+---
+application_id: "web-app-semaphore"
+container_port: "{{ lookup('config', application_id, 'services.semaphore.ports.internal.http') }}"
+
+SEMAPHORE_NAME: "{{ lookup('config', application_id, 'services.semaphore.name') }}"
+
+SEMAPHORE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+SEMAPHORE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+
+SEMAPHORE_ACCESS_KEY_ENCRYPTION: "{{ lookup('config', application_id, 'credentials.access_key_encryption') | regex_replace('^base64:', '') }}"
+SEMAPHORE_COOKIE_HASH: "{{ lookup('config', application_id, 'credentials.cookie_hash') | regex_replace('^base64:', '') }}"
+SEMAPHORE_COOKIE_ENCRYPTION: "{{ lookup('config', application_id, 'credentials.cookie_encryption') | regex_replace('^base64:', '') }}"
+
+SEMAPHORE_ADMIN_USERNAME: "{{ lookup('users', 'web-app-semaphore-breakglass').username }}"
+SEMAPHORE_ADMIN_PASSWORD: "{{ lookup('users', 'web-app-semaphore-breakglass').password }}"
+SEMAPHORE_ADMIN_EMAIL: "{{ lookup('users', 'web-app-semaphore-breakglass').email }}"
+SEMAPHORE_ADMIN_NAME: "Semaphore Break-glass Admin"
+
+SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'administrator').username }}"
+SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
+SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'administrator').username }}"
+
+SEMAPHORE_OIDC_PROVIDERS_JSON: >-
+  {{ {
+       "keycloak": {
+         "display_name":   "Sign in with Keycloak",
+         "provider_url":   OIDC.CLIENT.ISSUER_URL,
+         "client_id":      OIDC.CLIENT.ID,
+         "client_secret":  OIDC.CLIENT.SECRET,
+         "redirect_url":   (lookup('tls', application_id, 'url.base') | regex_replace('/+$', '')) ~ "/api/auth/oidc/keycloak/redirect",
+         "username_claim": "preferred_username",
+         "email_claim":    "email",
+         "name_claim":     "name",
+         "scopes":         ["openid", "profile", "email"]
+       }
+     } | to_json }}
+
+SEMAPHORE_LDAP_SEARCH_FILTER: "(&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s))"

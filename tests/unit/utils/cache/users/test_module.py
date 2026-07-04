@@ -30,8 +30,6 @@ def _write(path: Path, content: str) -> None:
 
 
 def _seed_minimal_user_role(tmp: Path, role_name: str = "web-app-foo") -> Path:
-    # Per the file root of meta/users.yml IS the users map
-    # (no `users:` wrapper).
     roles = tmp / "roles"
     role = roles / role_name
     _write(role / ROLE_FILE_META_SERVICES, "{}\n")
@@ -153,6 +151,27 @@ class TestBuildUsers(unittest.TestCase):
         )
         self.assertEqual(users["alice"]["email"], "alice@example.org")
 
+    def test_accounts_derivation_and_forward_defaults(self):
+        defs = OrderedDict(
+            [
+                ("plain", {}),
+                ("botuser", {"roles": ["bot"]}),
+                ("adminuser", {"roles": ["administrator"]}),
+                ("pinned", {"accounts": ["host"], "forward": "plain"}),
+                ("empty", {"accounts": []}),
+            ]
+        )
+        users = cache_users._build_users(
+            defs, primary_domain="x.example", start_id=1001, become_pwd="pw"
+        )
+        self.assertEqual(users["plain"]["accounts"], ["identity"])
+        self.assertEqual(users["botuser"]["accounts"], ["mailbox", "identity"])
+        self.assertEqual(users["adminuser"]["accounts"], ["mailbox", "identity"])
+        self.assertEqual(users["pinned"]["accounts"], ["host"])
+        self.assertEqual(users["empty"]["accounts"], [])
+        self.assertEqual(users["plain"]["forward"], "")
+        self.assertEqual(users["pinned"]["forward"], "plain")
+
 
 class TestMergeUsers(unittest.TestCase):
     def test_overrides_extend_defaults(self):
@@ -160,9 +179,22 @@ class TestMergeUsers(unittest.TestCase):
         overrides = {"alice": {"username": "alice-override"}, "bob": {}}
         merged = cache_users._merge_users(defaults, overrides)
         self.assertEqual(merged["alice"]["username"], "alice-override")
-        # The defaults description survives when not overridden.
         self.assertEqual(merged["alice"]["description"], "from-defaults")
         self.assertIn("bob", merged)
+
+    def test_apply_account_defaults_covers_inventory_only_users(self):
+        merged = cache_users._apply_account_defaults(
+            {
+                "invuser": {"username": "invuser"},
+                "invbot": {"username": "invbot", "roles": ["bot"]},
+                "pinned": {"username": "pinned", "accounts": [], "forward": "x"},
+            }
+        )
+        self.assertEqual(merged["invuser"]["accounts"], ["identity"])
+        self.assertEqual(merged["invuser"]["forward"], "")
+        self.assertEqual(merged["invbot"]["accounts"], ["mailbox", "identity"])
+        self.assertEqual(merged["pinned"]["accounts"], [])
+        self.assertEqual(merged["pinned"]["forward"], "x")
 
 
 class TestHydrateUsersTokens(unittest.TestCase):
@@ -177,7 +209,6 @@ class TestHydrateUsersTokens(unittest.TestCase):
         }
         merged = cache_users._hydrate_users_tokens(users, store)
         self.assertEqual(merged["alice"]["tokens"]["web-app-x"], "from-store")
-        # User-supplied non-empty token MUST win.
         self.assertEqual(merged["bob"]["tokens"]["web-app-y"], "from-user")
 
     def test_returns_deep_copy_independent_of_input(self):
@@ -185,15 +216,11 @@ class TestHydrateUsersTokens(unittest.TestCase):
         store = {"alice": {"tokens": {"x": "y"}}}
         merged = cache_users._hydrate_users_tokens(users, store)
         merged["alice"]["tokens"]["x"] = "mutated"
-        # Original `store` is untouched.
         self.assertEqual(store["alice"]["tokens"]["x"], "y")
 
 
 class TestResolveTokensFile(unittest.TestCase):
     def test_falls_back_to_default_when_no_overrides(self):
-        # `_resolve_tokens_file` reads `base.DEFAULT_TOKENS_FILE` at call
-        # time, so a test that patches the constant takes effect on the
-        # very next call.
         previous = cache_base.DEFAULT_TOKENS_FILE
         with tempfile.TemporaryDirectory() as tmp:
             sentinel = Path(tmp) / "sentinel.yml"
@@ -272,14 +299,11 @@ class TestGetUserDefaults(unittest.TestCase):
 
     def test_reserved_usernames_added_when_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
-            # Seed a role whose `meta/users.yml` does NOT declare the
-            # role-suffix as a user. Then create an additional bare
-            # role directory whose suffix MUST be auto-reserved.
             roles = _seed_minimal_user_role(Path(tmp), "web-app-foo")
             (roles / "svc-db-mariadb").mkdir(parents=True)
             defaults = cache_users.get_user_defaults(roles_dir=roles)
             self.assertIn("mariadb", defaults)
-            self.assertTrue(defaults["mariadb"]["reserved"])
+            self.assertEqual(defaults["mariadb"]["accounts"], [])
 
 
 class TestGetMergedUsersWithOverrides(unittest.TestCase):

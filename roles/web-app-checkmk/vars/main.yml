@@ -1,0 +1,19 @@
+---
+application_id: "web-app-checkmk"
+container_port: "{{ lookup('config', application_id, 'services.checkmk.ports.internal.http') }}"
+
+CHECKMK_NAME: "{{ lookup('config', application_id, 'services.checkmk.name') }}"
+CHECKMK_SITE: "cmk"
+
+CHECKMK_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.cmk_password') }}"
+
+CHECKMK_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+CHECKMK_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+
+CHECKMK_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
+CHECKMK_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
+CHECKMK_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+CHECKMK_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+CHECKMK_LDAP_USER_DN: "{{ LDAP.DN.OU.USERS }}"
+CHECKMK_LDAP_GROUP_DN: "{{ LDAP.DN.OU.GROUPS }}"
+CHECKMK_LDAP_USER_ID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"

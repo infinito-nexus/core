@@ -1,0 +1,4 @@
+---
+canonical:
+  - semaphore.{{ DOMAIN_PRIMARY }}
+aliases: []

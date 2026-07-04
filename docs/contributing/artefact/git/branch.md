@@ -19,6 +19,8 @@ The branch prefix MUST match the type of change. The [PR workflow](pull-request.
 
 All rules in this document are actively enforced on `main` via GitHub branch protection. See [branch.md](../../tools/github/branch/security.md) for the full enforcement policy.
 
+The naming conventions below are additionally checked locally by the lint test [test_branch_name.py](../../../../tests/lint/repository/naming/test_branch_name.py), which fails `make test-lint` when the checked-out branch uses an unknown prefix (e.g. `feat/` instead of `feature/`) or a non-kebab-case description.
+
 ## Naming Conventions 🏷️
 
 The description MUST use `kebab-case` (lowercase words separated by hyphens) and SHOULD be short enough to read at a glance.

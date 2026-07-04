@@ -52,3 +52,19 @@
 - name: "🔧 Configure LDAP authentication"
   include_tasks: 04_ldap.yml
   when: ODOO_LDAP_ENABLED | bool
+
+- name: "♻️ Restart Odoo so all workers read the SQL-provisioned config parameters"
+  ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
+  changed_when: true
+  when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
+
+- name: "⏳ Wait for Odoo to be ready after the provisioning restart"
+  uri_retry:
+    url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.odoo.ports.local.http') }}/web/health"
+    status_code: 200
+    timeout: "{{ lookup('timeout', 10) | int }}"
+  register: odoo_health_after_restart
+  until: odoo_health_after_restart.status == 200
+  retries: 30
+  delay: 10
+  when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)

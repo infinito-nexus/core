@@ -10,4 +10,4 @@ administrator:
   roles:
     - administrator
   authorized_keys: []
-  reserved: false
+  accounts: [host, mailbox, identity]

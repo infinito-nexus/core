@@ -130,7 +130,7 @@ class TestUsersLookup(unittest.TestCase):
             {
                 "sld": {
                     "username": "{{ DOMAIN_PRIMARY.split('.')[0] }}",
-                    "reserved": True,
+                    "accounts": [],
                 }
             },
         )
@@ -156,7 +156,7 @@ class TestUsersLookup(unittest.TestCase):
             {
                 "sld": {
                     "username": "{{ DOMAIN_PRIMARY.split('.')[0] }}",
-                    "reserved": True,
+                    "accounts": [],
                 }
             },
         )
@@ -180,7 +180,7 @@ class TestUsersLookup(unittest.TestCase):
             {
                 "sld": {
                     "username": "{{ DOMAIN_PRIMARY.split('.')[0] }}",
-                    "reserved": True,
+                    "accounts": [],
                 }
             },
         )
@@ -202,7 +202,7 @@ class TestUsersLookup(unittest.TestCase):
             {
                 "sld": {
                     "username": "{{ DOMAIN_PRIMARY.split('.')[0] }}",
-                    "reserved": True,
+                    "accounts": [],
                 }
             },
         )
@@ -289,8 +289,6 @@ class TestUsersLookup(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        # Patch the actual constant in `utils.cache.base` —
-        # `_resolve_tokens_file` reads it from there at call time.
         previous_default = runtime_data_base.DEFAULT_TOKENS_FILE
         runtime_data_base.DEFAULT_TOKENS_FILE = default_tokens
         try:
