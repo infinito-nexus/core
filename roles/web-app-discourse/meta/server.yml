@@ -8,6 +8,8 @@ csp:
   whitelist:
     font-src:
       - "{{ lookup('tls', 'web-app-discourse', 'url.base') }}"
+    script-src-elem:
+      - "data:"
 domains:
   canonical:
     - forum.{{ DOMAIN_PRIMARY }}
