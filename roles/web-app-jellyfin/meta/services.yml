@@ -1,0 +1,51 @@
+---
+# nocheck: seaweedfs-required — Jellyfin stores its library on a dedicated media volume and metadata in internal SQLite under /config; it has no S3/object-store surface.
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+jellyfin:
+  cpus: 2.0
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 4096
+  min_storage: 10GB
+  image: jellyfin/jellyfin
+  version: "10.11.11"
+  backup:
+    no_stop_required: true
+  name: jellyfin
+  ports:
+    internal:
+      http: 8096
+    local:
+      http: 8088
+  run_after:
+    - web-app-keycloak
+    - svc-db-openldap
+  lifecycle: alpha

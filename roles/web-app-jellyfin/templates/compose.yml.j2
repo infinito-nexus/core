@@ -1,0 +1,26 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  application:
+{% set container_healthcheck = 'health' %}
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    image: "{{ JELLYFIN_IMAGE }}:{{ JELLYFIN_VERSION }}"
+    container_name: "{{ JELLYFIN_NAME }}"
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jellyfin.ports.local.http') }}:{{ container_port }}"
+    volumes:
+      - "config:/config"
+      - "cache:/cache"
+      - "media:/media"
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{{ lookup('container_depends_on', application_id) }}
+{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={
+      'config': {'name': JELLYFIN_CONFIG_VOLUME},
+      'cache':  {'name': JELLYFIN_CACHE_VOLUME},
+      'media':  {'name': JELLYFIN_MEDIA_VOLUME}
+    }
+) }}
+
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,0 +1,14 @@
+---
+enabled: "{{ lookup('config', 'web-app-jellyfin', 'services.sso.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: "4.0.0.4"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: 9p4/jellyfin-plugin-sso
+config:
+  tag: "manifest-release"
+  manifest: "https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json"
+  guid: "505ce9d1-d916-42fa-86ca-673ef241d7df"

@@ -1,0 +1,4 @@
+---
+# No addon-specific integration beyond the generic addon config: the LDAP plugin
+# is fetched from its GitHub release and configured in files/configure-auth.sh
+# during the single authenticated provisioning pass.

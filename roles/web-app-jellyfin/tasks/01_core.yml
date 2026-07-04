@@ -1,0 +1,38 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    application_id: "web-app-jellyfin"
+    compose_handlers_flush: false
+
+- name: flush docker service
+  meta: flush_handlers
+
+- name: Provision Jellyfin (first-run wizard + break-glass admin; LDAP/OIDC plugins + config when enabled)
+  ansible.builtin.script:
+    cmd: "{{ role_path }}/files/configure-auth.sh"
+  environment:
+    JELLYFIN_API: "{{ JELLYFIN_API }}"
+    JELLYFIN_NAME: "{{ JELLYFIN_NAME }}"
+    JELLYFIN_ADMIN_USERNAME: "{{ JELLYFIN_ADMIN_USERNAME }}"
+    JELLYFIN_ADMIN_PASSWORD: "{{ JELLYFIN_ADMIN_PASSWORD }}"
+    JELLYFIN_SSO_ENABLED: "{{ JELLYFIN_SSO_ENABLED | string | lower }}"
+    JELLYFIN_LDAP_ENABLED: "{{ JELLYFIN_LDAP_ENABLED | string | lower }}"
+    JELLYFIN_SSO_PLUGIN_MANIFEST: "{{ JELLYFIN_SSO_PLUGIN_MANIFEST }}"
+    JELLYFIN_LDAP_PLUGIN_VERSION: "{{ JELLYFIN_LDAP_PLUGIN_VERSION }}"
+    JELLYFIN_LDAP_PLUGIN_URL: "{{ JELLYFIN_LDAP_PLUGIN_URL }}"
+    JELLYFIN_LDAP_PLUGIN_MD5: "{{ JELLYFIN_LDAP_PLUGIN_MD5 }}"
+    JELLYFIN_LDAP_SERVER: "{{ JELLYFIN_LDAP_SERVER }}"
+    JELLYFIN_LDAP_PORT: "{{ JELLYFIN_LDAP_PORT }}"
+    JELLYFIN_LDAP_BIND_DN: "{{ JELLYFIN_LDAP_BIND_DN }}"
+    JELLYFIN_LDAP_BIND_PASSWORD: "{{ JELLYFIN_LDAP_BIND_PASSWORD }}"
+    JELLYFIN_LDAP_BASE_DN: "{{ JELLYFIN_LDAP_BASE_DN }}"
+    JELLYFIN_LDAP_UID_ATTR: "{{ JELLYFIN_LDAP_UID_ATTR }}"
+    JELLYFIN_OIDC_ISSUER: "{{ JELLYFIN_OIDC_ISSUER }}"
+    JELLYFIN_OIDC_CLIENT_ID: "{{ JELLYFIN_OIDC_CLIENT_ID }}"
+    JELLYFIN_OIDC_CLIENT_SECRET: "{{ JELLYFIN_OIDC_CLIENT_SECRET }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true

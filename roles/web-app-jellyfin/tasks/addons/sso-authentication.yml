@@ -1,0 +1,4 @@
+---
+# No addon-specific integration beyond the generic addon config: the SSO plugin
+# manifest is registered and the OIDC provider configured in
+# files/configure-auth.sh during the single authenticated provisioning pass.

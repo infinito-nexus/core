@@ -3,5 +3,5 @@ RUNNER_NAME: "{{ inventory_hostname }}"
 RUNNER_DISTRIBUTION: ""
 RUNNER_LABELS: "self-hosted,linux,{{ RUNNER_DISTRIBUTION }}"
 RUNNER_COUNT: "{{ [ansible_processor_vcpus | int // RUNNER_CPUS | int, 1] | max }}"
-INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') | default('latest', true) }}"  # nocheck
-INFINITO_GHCR_MIRROR_PREFIX: "{{ lookup('env', 'INFINITO_GHCR_MIRROR_PREFIX') | default('', true) }}"  # nocheck
+INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') | default('latest', true) }}" # nocheck
+INFINITO_GHCR_MIRROR_PREFIX: "{{ lookup('env', 'INFINITO_GHCR_MIRROR_PREFIX') | default('', true) }}" # nocheck

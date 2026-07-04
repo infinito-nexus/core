@@ -1,0 +1,15 @@
+---
+enabled: "{{ lookup('config', 'web-app-jellyfin', 'services.ldap.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: "23.0.0.0"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: jellyfin/jellyfin-plugin-ldapauth
+config:
+  tag: "v23"
+  url: "https://github.com/jellyfin/jellyfin-plugin-ldapauth/releases/download/v23/ldap-authentication_23.0.0.0.zip"
+  md5: "e67eda7dd1b91a71315bd6620c8b03f1"
+  guid: "958aad66-3784-4d2a-b89a-a7b6fab6e25c"
