@@ -121,6 +121,12 @@ class TestComposeOnlyLookup(unittest.TestCase):
         result = lm.run(["container_name", 42], variables=vars_)
         self.assertEqual(result, ['container_name: "42"'])
 
+    def test_compose_mode_force_overrides_swarm_cluster_mode(self):
+        vars_ = {"DEPLOYMENT_MODE": "swarm", "compose_mode_force": "compose"}
+        lm = self._make(vars_)
+        result = lm.run(["container_name", "mdad"], variables=vars_)
+        self.assertEqual(result, ['container_name: "mdad"'])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

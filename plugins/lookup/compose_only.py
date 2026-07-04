@@ -52,6 +52,12 @@ class LookupModule(LookupBase):
             with contextlib.suppress(Exception):
                 raw_mode = templar.template(raw_mode)
 
-        if str(raw_mode).strip() == "swarm":
+        mode_force = vars_.get("compose_mode_force", "")
+        if templar is not None:
+            with contextlib.suppress(Exception):
+                mode_force = templar.template(mode_force)
+        effective_mode = str(mode_force or raw_mode).strip()
+
+        if effective_mode == "swarm":
             return [""]
         return [f'{key}: "{value}"']

@@ -1,6 +1,8 @@
 ---
 application_id: "web-app-matrix"
 
+compose_mode_force: "{{ 'compose' if lookup('config', application_id, 'services.matrix.flavor', 'ansible') == 'ansible' else '' }}"
+
 location_upload: "~ ^/_matrix/media/v3/"
 
 MATRIX_SERVER_NAME: "{{ lookup('config', application_id, 'services.matrix.server_name') }}"
