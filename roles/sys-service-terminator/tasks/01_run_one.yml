@@ -1,4 +1,12 @@
 ---
+- name: "🔎 Check {{ system_service_run_unit }} is installed on this host"
+  ansible.builtin.command: "systemctl cat {{ system_service_run_unit }}"
+  register: system_service_run_unit_present
+  changed_when: false
+  failed_when: false
+  become: true
+  when: DEPLOYMENT_MODE == 'swarm'
+
 - name: "📌 Apply state for {{ system_service_run_unit }}"
   block:
     - name: "🔄 Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times)"
@@ -7,11 +15,12 @@
         state: "{{ SYS_SERVICE_RUNNER_STATE }}"
       become: true
       register: result
-      # Retries are required because a compose-managed service might not be ready yet
-      # (e.g., container dependencies / health checks still settling).
       retries: "{{ SYS_SERVICE_RUNNER_RETRIES }}"
       delay: "{{ SYS_SERVICE_RUNNER_DELAY }}"
       until: result is not failed
+      when: >-
+        DEPLOYMENT_MODE != 'swarm'
+        or system_service_run_unit_present.rc == 0
 
   rescue:
     - name: 👁️ Show shared diagnostics for failed final-run service
