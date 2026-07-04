@@ -48,8 +48,7 @@
       PROXY_READ_TIMEOUT: "120"
       CLIENT_MAX_BODY_SIZE: "50m"
     {{ lookup('container_ports',
-              ['erpnext', 'http', DOCKER_BIND_HOST],
-              ['erpnext', 'websocket', DOCKER_BIND_HOST]) | indent(4) }}
+              ['erpnext', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', application_id, ERPNEXT_FRONTEND_CONTAINER) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
