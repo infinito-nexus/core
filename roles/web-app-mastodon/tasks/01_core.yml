@@ -42,4 +42,7 @@
       when: MODE_CLEANUP | bool
 
     - name: "📂 Include administrator routines for '{{ application_id }}'"
-      include_tasks: 06_administrator.yml
+      include_tasks:
+        file: 06_administrator.yml
+        apply:
+          delegate_to: "{{ MASTODON_HOST_NODE }}"
