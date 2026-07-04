@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-required — object storage not implemented for this role
+# nocheck: seaweedfs-required - object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -29,28 +29,28 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 postgres:
   bond: 1
   enabled: true
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 redis:
   bond: 1
   enabled: true
   shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 memcached:
   bond: 1
   enabled: true
@@ -66,6 +66,8 @@ zammad:
   version: "6.5.0"
   name: zammad-railsserver
   min_storage: 15GB
+  proxy:
+    service_key: nginx
   ports:
     internal:
       http: 8080
@@ -79,11 +81,36 @@ zammad:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-# nocheck: playwright-service-flag — internal sub-component (bundled search)
+railsserver:
+  name: zammad-railsserver
+  ports:
+    internal:
+      http: 3000
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+websocket:
+  ports:
+    internal:
+      http: 6042
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 512
+# nocheck: playwright-service-flag - internal sub-component (bundled search)
 search:
   image: docker.elastic.co/elasticsearch/elasticsearch
   version: "8.13.4"
   min_storage: 5GB
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 512
+elasticsearch:
+  ports:
+    internal:
+      http: 9200
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g

@@ -74,7 +74,8 @@ nextcloud:
       upload_limit: 5G
       opcache_memory_consumption: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
   plugins_enabled: true
-  # All Nextcloud apps are declared in meta/addons/.
+  proxy:
+    service_key: proxy
   ports:
     local:
       http: 8001
@@ -149,7 +150,6 @@ collabora:
   bond: 1
   enabled: "{{ 'web-svc-collabora' in group_names }}"
   shared: "{{ 'web-svc-collabora' in group_names }}"
-# Auto-enables the `bbb` addon when the partner role web-app-bigbluebutton is co-deployed.
 # nocheck: playwright-service-flag: bridged web-conferencing partner, covered by partner role spec
 bigbluebutton:
   bond: 1
@@ -242,16 +242,16 @@ peertube:
   bond: 0.5
   enabled: "{{ 'web-app-peertube' in group_names }}"
   shared: "{{ 'web-app-peertube' in group_names }}"
-# nocheck: playwright-service-flag: bridged moodle partner, covered by partner role spec
 # TODO(bridge): no nc-33-compatible integration_moodle on the app store (absent for nc 30/32/33).
 # Re-enable enabled/shared (back to the "web-app-moodle in group_names" form) once a plugin ships.
+# nocheck: playwright-service-flag: bridged moodle partner, covered by partner role spec
 moodle:
   bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
-# nocheck: playwright-service-flag: bridged suitecrm partner, covered by partner role spec
 # TODO(bridge): integration_suitecrm requires nc <= 24 (see meta/addons/integration_suitecrm.yml).
 # Re-enable enabled/shared (back to the "web-app-suitecrm in group_names" form) once a plugin ships.
+# nocheck: playwright-service-flag: bridged suitecrm partner, covered by partner role spec
 suitecrm:
   bond: 0.5
   enabled: false # nocheck: dynamic-flag

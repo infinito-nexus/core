@@ -1,34 +1,34 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {% set service_name = KIX_DB_CONTAINER %}
+  {% set service_name = KIX_DB_SERVICE %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, 'db') }}
+    {{ lookup('container_image', application_id, KIX_DB_SERVICE) }}
     {{ lookup('compose_only', 'container_name', KIX_DB_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    hostname: db
-    {{ lookup('container_volumes', application_id, KIX_DB_CONTAINER) | indent(4) }}
+    hostname: {{ KIX_DB_SERVICE }}
+    {{ lookup('container_volumes', application_id, KIX_DB_SERVICE) | indent(4) }}
     shm_size: '2gb'
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = KIX_BACKEND_CONTAINER %}
+  {% set service_name = KIX_BACKEND_SERVICE %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, 'backend') }}
+    {{ lookup('container_image', application_id, KIX_BACKEND_SERVICE) }}
     {{ lookup('compose_only', 'container_name', KIX_BACKEND_CONTAINER) }}
-    hostname: backend
+    hostname: {{ KIX_BACKEND_SERVICE }}
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {{ lookup('depends_on', {KIX_DB_CONTAINER: 'service_healthy'} | combine({'redis': 'service_healthy'} if lookup('engine', 'redis', application_id, 'local') else {})) }}
-    {{ lookup('container_volumes', application_id, KIX_BACKEND_CONTAINER) | indent(4) }}
+    {{ lookup('depends_on', {KIX_DB_SERVICE: 'service_healthy'} | combine({'redis': 'service_healthy'} if lookup('engine', 'redis', application_id, 'local') else {})) }}
+    {{ lookup('container_volumes', application_id, KIX_BACKEND_SERVICE) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = KIX_FRONTEND_CONTAINER %}
+  {% set service_name = KIX_FRONTEND_SERVICE %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, 'frontend') }}
+    {{ lookup('container_image', application_id, KIX_FRONTEND_SERVICE) }}
     {{ lookup('compose_only', 'container_name', KIX_FRONTEND_CONTAINER) }}
-    hostname: frontend
+    hostname: {{ KIX_FRONTEND_SERVICE }}
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {{ lookup('depends_on', {KIX_BACKEND_CONTAINER: 'service_healthy'} | combine({'redis': 'service_healthy'} if lookup('engine', 'redis', application_id, 'local') else {})) }}
+    {{ lookup('depends_on', {KIX_BACKEND_SERVICE: 'service_healthy'} | combine({'redis': 'service_healthy'} if lookup('engine', 'redis', application_id, 'local') else {})) }}
     environment:
       - USE_SSL=0
       - REDIS_CACHE_HOST={{ lookup('engine', 'redis', application_id, 'host') }}
@@ -36,18 +36,18 @@
       - REDIS_CACHE_PASSWORD={{ lookup('engine', 'redis', application_id, 'password') }}
       - FRONTEND_CLIENT_ID=kix-agent-frontend
       - FRONTEND_NOTIFICATION_ID=kix-agent-frontend
-      - NOTIFICATION_URL=http://frontend:3000/notifications
-      - BACKEND_API_URL=http://backend:8080/api/v1
-    {{ lookup('container_volumes', application_id, KIX_FRONTEND_CONTAINER) | indent(4) }}
+      - NOTIFICATION_URL=http://{{ KIX_FRONTEND_SERVICE }}:{{ KIX_FRONTEND_INTERNAL_PORT }}/notifications
+      - BACKEND_API_URL=http://{{ KIX_BACKEND_SERVICE }}:{{ KIX_BACKEND_INTERNAL_PORT }}/api/v1
+    {{ lookup('container_volumes', application_id, KIX_FRONTEND_SERVICE) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = KIX_PROXY_CONTAINER %}
+  {% set service_name = KIX_PROXY_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'kix') }}
     {{ lookup('compose_only', 'container_name', KIX_PROXY_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {{ lookup('depends_on', [KIX_BACKEND_CONTAINER, KIX_FRONTEND_CONTAINER]) }}
-    {{ lookup('container_volumes', application_id, KIX_PROXY_CONTAINER) | indent(4) }}
+    {{ lookup('depends_on', [KIX_BACKEND_SERVICE, KIX_FRONTEND_SERVICE]) }}
+    {{ lookup('container_volumes', application_id, KIX_PROXY_SERVICE) | indent(4) }}
     {{ lookup('container_ports', ['kix', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

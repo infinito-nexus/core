@@ -27,7 +27,7 @@
     {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = 'bluesky-broker' %}
+  {% set service_name = BLUESKY_BROKER_SERVICE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     build:
@@ -36,12 +36,12 @@
       args:
         BLUESKY_BROKER_BASE_IMAGE: "{{ BLUESKY_BROKER_BASE_IMAGE }}"
         BLUESKY_BROKER_BASE_VERSION: "{{ BLUESKY_BROKER_BASE_VERSION }}"
-    {{ lookup('container_image', application_id, 'broker', image=BLUESKY_BROKER_IMAGE) }}
+    {{ lookup('container_image', application_id, BLUESKY_BROKER_SERVICE, image=BLUESKY_BROKER_IMAGE) }}
     {{ lookup('compose_only', 'container_name', BLUESKY_BROKER_CONTAINER) }}
     hostname: {{ service_name }}
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     {{ lookup('compose_restart') }}
-    {{ lookup('container_ports', ['broker', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_ports', [BLUESKY_BROKER_SERVICE, 'http', DOCKER_BIND_HOST]) | indent(4) }}
     environment:
       BROKER_PORT: "{{ BLUESKY_BROKER_INTERNAL_PORT }}"
       SOCIAL_APP_URL: "http://web:{{ BLUESKY_WEB_INTERNAL_PORT }}"

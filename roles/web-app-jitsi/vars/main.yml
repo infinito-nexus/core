@@ -2,12 +2,21 @@
 application_id: "web-app-jitsi"
 entity_name: "{{ application_id | get_entity_name }}"
 
-JITSI_WEB_CONTAINER: "jitsi-web"
-JITSI_PROSODY_CONTAINER: "jitsi-prosody"
-JITSI_JICOFO_CONTAINER: "jitsi-jicofo"
-JITSI_JVB_CONTAINER: "jitsi-jvb"
+JITSI_WEB_SERVICE: "web"
+JITSI_PROSODY_SERVICE: "prosody"
+JITSI_JICOFO_SERVICE: "jicofo"
+JITSI_JVB_SERVICE: "jvb"
+
+JITSI_WEB_CONTAINER: "{{ entity_name }}-{{ JITSI_WEB_SERVICE }}"
+JITSI_PROSODY_CONTAINER: "{{ entity_name }}-{{ JITSI_PROSODY_SERVICE }}"
+JITSI_JICOFO_CONTAINER: "{{ entity_name }}-{{ JITSI_JICOFO_SERVICE }}"
+JITSI_JVB_CONTAINER: "{{ entity_name }}-{{ JITSI_JVB_SERVICE }}"
 
 JITSI_JVB_MEDIA_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.public.media') }}"
+
+JITSI_PROSODY_XMPP_PORT: "{{ lookup('config', application_id, 'services.' ~ JITSI_PROSODY_SERVICE ~ '.ports.internal.xmpp') }}"
+JITSI_PROSODY_COMPONENT_PORT: "{{ lookup('config', application_id, 'services.' ~ JITSI_PROSODY_SERVICE ~ '.ports.internal.component') }}"
+JITSI_PROSODY_HTTP_PORT: "{{ lookup('config', application_id, 'services.' ~ JITSI_PROSODY_SERVICE ~ '.ports.internal.http') }}"
 
 JITSI_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
@@ -18,7 +27,6 @@ JITSI_PROSODY_PLUGINS_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}prosody-plugins-custom"
 JITSI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 JITSI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 
-# Internal XMPP topology — single-domain Jitsi deploy.
 JITSI_XMPP_DOMAIN: "meet.jitsi"
 JITSI_XMPP_AUTH_DOMAIN: "auth.meet.jitsi"
 JITSI_XMPP_GUEST_DOMAIN: "guest.meet.jitsi"
@@ -33,10 +41,6 @@ JITSI_JIGASI_XMPP_PASSWORD: "{{ lookup('config', application_id, 'credentials.ji
 JITSI_JIBRI_RECORDER_PASSWORD: "{{ lookup('config', application_id, 'credentials.jibri_recorder_password') }}"
 JITSI_JIBRI_XMPP_PASSWORD: "{{ lookup('config', application_id, 'credentials.jibri_xmpp_password') }}"
 
-# Auth model — oauth2-proxy gates the entire web frontend when SSO is on, so prosody
-# stays on `internal` (anonymous JIDs) and ENABLE_AUTH=false. When SSO is off and LDAP
-# is on, prosody falls back to direct mod_auth_ldap2 bind against svc-db-openldap. When
-# both are off (V2: no auth) the deploy is fully anonymous.
 JITSI_AUTH_TYPE: "{{ 'ldap' if (JITSI_LDAP_ENABLED and not JITSI_OIDC_ENABLED) else 'internal' }}"
 JITSI_ENABLE_AUTH: "{{ JITSI_AUTH_TYPE != 'internal' }}"
 JITSI_ENABLE_GUESTS: false

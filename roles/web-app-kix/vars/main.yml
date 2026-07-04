@@ -4,10 +4,18 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 swarm_stack_converge_retries: 600
 
-KIX_PROXY_CONTAINER: "kix-proxy"
-KIX_BACKEND_CONTAINER: "kix-backend"
-KIX_FRONTEND_CONTAINER: "kix-frontend"
-KIX_DB_CONTAINER: "kix-db"
+KIX_PROXY_SERVICE: "proxy"
+KIX_BACKEND_SERVICE: "backend"
+KIX_FRONTEND_SERVICE: "frontend"
+KIX_DB_SERVICE: "db"
+
+KIX_PROXY_CONTAINER: "{{ entity_name }}-{{ KIX_PROXY_SERVICE }}"
+KIX_BACKEND_CONTAINER: "{{ entity_name }}-{{ KIX_BACKEND_SERVICE }}"
+KIX_FRONTEND_CONTAINER: "{{ entity_name }}-{{ KIX_FRONTEND_SERVICE }}"
+KIX_DB_CONTAINER: "{{ entity_name }}-{{ KIX_DB_SERVICE }}"
+
+KIX_BACKEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KIX_BACKEND_SERVICE ~ '.ports.internal.http') }}"
+KIX_FRONTEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KIX_FRONTEND_SERVICE ~ '.ports.internal.http') }}"
 
 KIX_DB_NAME: "kix"
 KIX_DB_USER: "kix"

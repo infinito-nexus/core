@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-playwright — Shopware ships no templates/playwright.env.j2; the object-store upload is covered by the Flysystem amazon-s3 public/private/theme/sitemap config, not a Playwright surface
+# nocheck: seaweedfs-playwright - Shopware ships no templates/playwright.env.j2; the object-store upload is covered by the Flysystem amazon-s3 public/private/theme/sitemap config, not a Playwright surface
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -50,6 +50,8 @@ shopware:
     name: shopware/production
     version: 6.7.8.2
   title: "{{ ORGANIZATION }} Shop"
+  proxy:
+    service_key: web
   ports:
     internal:
       http: 8000

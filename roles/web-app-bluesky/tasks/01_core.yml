@@ -53,7 +53,7 @@
     webserver_extra_configuration: "{{ BLUESKY_FRONT_PROXY_CONTENT }}"
     webserver_proxy_service_key: >-
       {{
-        ('bluesky-broker' if (lookup('config', application_id, 'services.sso.enabled') | bool) else 'web')
+        (BLUESKY_BROKER_SERVICE if (lookup('config', application_id, 'services.sso.enabled') | bool) else 'web')
         if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name)
       }}
     proxy_internal_port: >-

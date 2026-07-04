@@ -1,26 +1,26 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   {% set docker_restart_policy = 'on-failure' %}
-  {% set service_name = ZAMMAD_INIT_CONTAINER %}
+  {% set service_name = ZAMMAD_INIT_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'zammad') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_INIT_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["zammad-init"]
-    {{ lookup('container_volumes', application_id, ZAMMAD_INIT_CONTAINER, extra_volumes=[
+    {{ lookup('container_volumes', application_id, ZAMMAD_INIT_SERVICE, extra_volumes=[
         'zammad_storage:/opt/zammad/storage',
         ZAMMAD_TELEGRAM_HELPER_HOST_PATH ~ ':' ~ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH ~ ':ro',
     ]) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = ZAMMAD_RAILS_CONTAINER %}
+  {% set service_name = ZAMMAD_RAILS_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'zammad') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_RAILS_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["zammad-railsserver"]
-    {{ lookup('depends_on', {ZAMMAD_INIT_CONTAINER: 'service_completed_successfully'}, indent=4) }}
+    {{ lookup('depends_on', {ZAMMAD_INIT_SERVICE: 'service_completed_successfully'}, indent=4) }}
 {% set _rails_extra_volumes = [
     'zammad_storage:/opt/zammad/storage',
     ZAMMAD_OMNIAUTH_INIT_HOST_PATH ~ ':' ~ ZAMMAD_OMNIAUTH_INIT_CONTAINER_PATH ~ ':ro',
@@ -29,30 +29,30 @@
 {% if ZAMMAD_OIDC_ENABLED %}
 {%   set _ = _rails_extra_volumes.append(ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH ~ ':' ~ ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH ~ ':ro') %}
 {% endif %}
-    {{ lookup('container_volumes', application_id, ZAMMAD_RAILS_CONTAINER, extra_volumes=_rails_extra_volumes) | indent(4) }}
+    {{ lookup('container_volumes', application_id, ZAMMAD_RAILS_SERVICE, extra_volumes=_rails_extra_volumes) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = ZAMMAD_WEBSOCKET_CONTAINER %}
+  {% set service_name = ZAMMAD_WEBSOCKET_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'zammad') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_WEBSOCKET_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["zammad-websocket"]
-    {{ lookup('depends_on', {ZAMMAD_RAILS_CONTAINER: 'service_started'}, indent=4) }}
-    {{ lookup('container_volumes', application_id, ZAMMAD_WEBSOCKET_CONTAINER) | indent(4) }}
+    {{ lookup('depends_on', {ZAMMAD_RAILS_SERVICE: 'service_started'}, indent=4) }}
+    {{ lookup('container_volumes', application_id, ZAMMAD_WEBSOCKET_SERVICE) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = ZAMMAD_SCHEDULER_CONTAINER %}
+  {% set service_name = ZAMMAD_SCHEDULER_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'zammad') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_SCHEDULER_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["zammad-scheduler"]
-    {{ lookup('depends_on', {ZAMMAD_RAILS_CONTAINER: 'service_started'}, indent=4) }}
-    {{ lookup('container_volumes', application_id, ZAMMAD_SCHEDULER_CONTAINER) | indent(4) }}
+    {{ lookup('depends_on', {ZAMMAD_RAILS_SERVICE: 'service_started'}, indent=4) }}
+    {{ lookup('container_volumes', application_id, ZAMMAD_SCHEDULER_SERVICE) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = ZAMMAD_SEARCH_CONTAINER %}
+  {% set service_name = ZAMMAD_SEARCH_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'search') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_SEARCH_CONTAINER) }}
@@ -61,10 +61,10 @@
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    {{ lookup('container_volumes', application_id, ZAMMAD_SEARCH_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', application_id, ZAMMAD_SEARCH_SERVICE) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = ZAMMAD_MEMCACHED_CONTAINER %}
+  {% set service_name = ZAMMAD_MEMCACHED_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', 'svc-db-memcached', 'memcached') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_MEMCACHED_CONTAINER) }}
@@ -72,7 +72,7 @@
     command: ["memcached", "-m", "256"]
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = ZAMMAD_NGINX_CONTAINER %}
+  {% set service_name = ZAMMAD_NGINX_SERVICE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'zammad') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_NGINX_CONTAINER) }}
@@ -84,9 +84,9 @@
         cp /docker-entrypoint.sh /tmp/entrypoint-patched.sh
         sed -i 's|grep "nameserver" < /etc/resolv.conf|grep -E "^nameserver" /etc/resolv.conf|' /tmp/entrypoint-patched.sh
         exec /tmp/entrypoint-patched.sh zammad-nginx
-    {{ lookup('depends_on', {ZAMMAD_RAILS_CONTAINER: 'service_started', ZAMMAD_WEBSOCKET_CONTAINER: 'service_started'}, indent=4) }}
+    {{ lookup('depends_on', {ZAMMAD_RAILS_SERVICE: 'service_started', ZAMMAD_WEBSOCKET_SERVICE: 'service_started'}, indent=4) }}
     {{ lookup('container_ports', ['zammad', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, ZAMMAD_NGINX_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', application_id, ZAMMAD_NGINX_SERVICE) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}

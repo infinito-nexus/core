@@ -16,7 +16,7 @@ server {
     listen 80;
     server_name _;
 
-    # Strip client-supplied Remote-User; only the OAuth2-proxy hop is allowed to set it (below).
+    # Exception: strip client-supplied Remote-User; otherwise a client could spoof it past the oauth2-proxy hop that sets it below.
     proxy_set_header Remote-User "";
 
     client_max_body_size 64m;
@@ -33,7 +33,7 @@ server {
         proxy_set_header Upgrade             $http_upgrade;
         proxy_set_header Connection          $connection_upgrade;
         proxy_http_version 1.1;
-        set $upstream_kix_frontend http://frontend:3000;
+        set $upstream_kix_frontend http://{{ KIX_FRONTEND_SERVICE }}:{{ KIX_FRONTEND_INTERNAL_PORT }};
         proxy_pass $upstream_kix_frontend;
     }
 }

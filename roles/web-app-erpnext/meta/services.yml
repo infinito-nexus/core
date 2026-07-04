@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-required — object storage not implemented for this role
+# nocheck: seaweedfs-required - object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -29,26 +29,26 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
   enabled: true
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — cache/queue/socketio buses, covered by role-local integration tests
+# nocheck: playwright-service-flag - cache/queue/socketio buses, covered by role-local integration tests
 redis:
   bond: 1
   enabled: true
   shared: "{{ 'svc-db-redis' in group_names }}"
-# nocheck: playwright-service-flag — self-provider
+# nocheck: playwright-service-flag - self-provider
 erpnext:
   bond: 1
   enabled: true
@@ -65,7 +65,7 @@ erpnext:
       http: 8080
       websocket: 9000
   proxy:
-    service_key: erpnext-frontend
+    service_key: frontend
   run_after:
     - web-app-keycloak
     - web-app-mailu

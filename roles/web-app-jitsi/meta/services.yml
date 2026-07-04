@@ -6,7 +6,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: jitsi-web
+      host: web
       port: 80
 ldap:
   bond: 1
@@ -28,18 +28,18 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag — email not used by Jitsi room flow
+# nocheck: playwright-service-flag - email not used by Jitsi room flow
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
-# nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
-# nocheck: playwright-service-flag — runtime DOM patch, no probe-able surface flag
+# nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag - runtime DOM patch, no probe-able surface flag
 javascript:
   bond: 1
   enabled: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
@@ -59,7 +59,7 @@ jitsi:
     internal:
       http: 80
   proxy:
-    service_key: jitsi-web
+    service_key: web
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -67,15 +67,20 @@ jitsi:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 2048
-# nocheck: playwright-service-flag — internal sub-component (XMPP server, not a user-facing surface)
+# nocheck: playwright-service-flag - internal sub-component (XMPP server, not a user-facing surface)
 prosody:
   image: jitsi/prosody
   version: "stable-9646"
+  ports:
+    internal:
+      xmpp: 5222
+      component: 5347
+      http: 5280
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 1024
-# nocheck: playwright-service-flag — internal sub-component (conference focus)
+# nocheck: playwright-service-flag - internal sub-component (conference focus)
 jicofo:
   image: jitsi/jicofo
   version: "stable-9646"
@@ -83,7 +88,7 @@ jicofo:
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 1024
-# nocheck: playwright-service-flag — internal sub-component (video bridge, media plane)
+# nocheck: playwright-service-flag - internal sub-component (video bridge, media plane)
 jvb:
   image: jitsi/jvb
   version: "stable-9646"
