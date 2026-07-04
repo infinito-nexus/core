@@ -54,6 +54,7 @@ log "CA destination path (host): $CA_DST_PATH"
 log "Extracting Root CA from container"
 sudo mkdir -p "$CA_DST_DIR"
 
+# nocheck: container-cp - container-to-host CA extraction on the operator host
 sudo docker cp \
 	"${CONTAINER_NAME}:${CA_SRC_PATH}" \
 	"$CA_DST_PATH"

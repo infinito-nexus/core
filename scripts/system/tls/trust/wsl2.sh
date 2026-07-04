@@ -35,6 +35,7 @@ if [[ ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
 fi
 
 echo ">>> Extracting CA from container: ${CONTAINER}"
+# nocheck: container-cp - container-to-host CA extraction on the operator host
 docker cp "${CONTAINER}:${CA_SRC}" "${WIN_CA_PATH}"
 echo ">>> CA copied to Windows: ${WIN_CA_PATH_WIN}"
 

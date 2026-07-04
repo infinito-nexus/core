@@ -1,10 +1,4 @@
 ---
-# Build and install the plg_system_keycloak Joomla plugin (requirement
-# 013 native OIDC integration). Composer runs INSIDE the Joomla
-# container (composer is baked into the custom image by the role's
-# Dockerfile) so the host never needs PHP/Composer and we never
-# trigger a `docker run` outside the project's compose stack.
-
 - name: "📌 Define OIDC plugin paths"
   ansible.builtin.set_fact:
     JOOMLA_OIDC_PLUGIN_HOST_DIR: "{{ role_path }}/files/joomla-oidc-plugin"
@@ -17,11 +11,12 @@
   changed_when: false
   failed_when: false
 
-- name: "📋 Copy plugin source into Joomla container"
+- name: "📋 Stream plugin source into Joomla container"
   ansible.builtin.shell: >
-    container cp
-    {{ (JOOMLA_OIDC_PLUGIN_HOST_DIR ~ '/plg_system_keycloak/.') | quote }}
-    {{ JOOMLA_CONTAINER_ADDRESS }}:{{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}/
+    base64 -d | container exec -i {{ JOOMLA_CONTAINER_ADDRESS }}
+    sh -c 'mkdir -p {{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }} && tar -xzf - -C {{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}'
+  args:
+    stdin: "{{ lookup('pipe', 'tar -C ' ~ ((JOOMLA_OIDC_PLUGIN_HOST_DIR ~ '/plg_system_keycloak') | quote) ~ ' -czf - . | base64') }}"
   changed_when: true
 
 - name: "📦 composer install (vendor jumbojett/openid-connect-php inside container)"

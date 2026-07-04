@@ -30,6 +30,7 @@ container exec "$ADDRESS" bash -lc "
   fi
 "
 
+# nocheck: container-cp - EXT_TARBALL is downloaded on the node this script runs on
 container cp "${EXT_TARBALL}" "${ADDRESS}:/tmp/${EXT_NAME}.tar.gz"
 
 container exec "$ADDRESS" bash -lc "

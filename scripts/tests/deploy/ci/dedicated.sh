@@ -67,6 +67,7 @@ cleanup() {
 	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${apps}"
 	mkdir -p "${_playwright_host_dir}"
 	echo ">>> Copying Playwright artifacts from ${INFINITO_CONTAINER} to ${_playwright_host_dir}"
+	# nocheck: container-cp - container-to-host extraction on the CI host itself
 	docker cp "${INFINITO_CONTAINER}:${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR}/." \
 		"${_playwright_host_dir}" 2>/dev/null || true
 
@@ -74,6 +75,7 @@ cleanup() {
 	_inv_parent="$(dirname "${INFINITO_INVENTORY_DIR}")"
 	echo ">>> Copying generated inventory from ${INFINITO_CONTAINER} to host ${_inv_parent}"
 	mkdir -p "${_inv_parent}"
+	# nocheck: container-cp - container-to-host extraction on the CI host itself
 	docker cp "${INFINITO_CONTAINER}:${_inv_parent}/." "${_inv_parent}/" 2>/dev/null || true
 
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"

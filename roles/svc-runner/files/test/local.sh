@@ -34,6 +34,7 @@ fi
 _iso_src="${RUNNER_INSTALL_DIR}/1/nested-src"
 echo "DinD mode: running full reinstall deploy inside ${RUNNER_PROJECT_PREFIX}-1..."
 container exec --user root "${RUNNER_PROJECT_PREFIX}-1" mkdir -p /opt/src/infinito
+# nocheck: container-cp - DinD runner container runs on this host, checkout is local
 container cp /opt/src/infinito/. "${RUNNER_PROJECT_PREFIX}-1:/opt/src/infinito"
 container exec --user root "${RUNNER_PROJECT_PREFIX}-1" \
     bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C /opt/src/infinito --exclude='./.env' --exclude='./compose/coredns/Corefile' --exclude='./.venvs' --exclude='./venv' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && chown -R github-runner:github-runner ${_iso_src}"
