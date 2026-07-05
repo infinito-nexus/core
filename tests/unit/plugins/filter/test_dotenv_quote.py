@@ -90,14 +90,9 @@ class TestDotenvQuoteModeAware(unittest.TestCase):
         self.assertEqual(self._render("plain_secret", mode="swarm"), "plain_secret")
 
     def test_swarm_does_not_escape_dollars(self):
-        # docker stack deploy passes env-file values verbatim - no $$
-        # interpolation - so the filter must NOT double them.
         self.assertEqual(self._render("$ecre$$t", mode="swarm"), "$ecre$$t")
 
     def test_swarm_does_not_escape_double_quotes(self):
-        # An embedded double quote would still be a problem at the
-        # consumer side, but the filter is not the place to mangle the
-        # raw value in swarm - the operator must surface that case.
         self.assertEqual(self._render('pa"ss', mode="swarm"), 'pa"ss')
 
     def test_swarm_none_returns_empty_string(self):
@@ -105,6 +100,12 @@ class TestDotenvQuoteModeAware(unittest.TestCase):
 
     def test_swarm_non_string_is_stringified(self):
         self.assertEqual(self._render(42, mode="swarm"), "42")
+
+    def test_swarm_quotes_value_with_interior_whitespace(self):
+        self.assertEqual(self._render("My Org Helpdesk", mode="swarm"), '"My Org Helpdesk"')
+
+    def test_swarm_whitespace_value_escapes_quotes_not_dollars(self):
+        self.assertEqual(self._render('a "b" $c', mode="swarm"), '"a \\"b\\" $c"')
 
     def test_compose_mode_quotes_like_default(self):
         self.assertEqual(self._render("abc", mode="compose"), '"abc"')

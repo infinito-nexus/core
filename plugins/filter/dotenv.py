@@ -32,10 +32,8 @@ def _quote_compose_style(value: Any) -> str:
 
     s = str(value)
 
-    # Compose interpolates $VAR; $$ becomes literal $.
     s = s.replace("$", "$$")
 
-    # Escape backslash first, then double quotes.
     s = s.replace("\\", "\\\\")
     s = s.replace('"', '\\"')
 
@@ -45,7 +43,11 @@ def _quote_compose_style(value: Any) -> str:
 def _passthrough_swarm(value: Any) -> str:
     if value is None:
         return ""
-    return str(value)
+    s = str(value)
+    if any(c in s for c in " \t\n"):
+        s = s.replace("\\", "\\\\").replace('"', '\\"')
+        return f'"{s}"'
+    return s
 
 
 @jinja2.pass_context
@@ -57,7 +59,6 @@ def dotenv_quote(ctx: jinja2.runtime.Context, value: Any = _MISSING) -> str:
     value and compose-style quoting is used.
     """
     if value is _MISSING:
-        # Called as `dotenv_quote(value)` outside a Jinja render.
         return _quote_compose_style(ctx)
 
     mode = ""
