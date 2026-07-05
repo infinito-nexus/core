@@ -3,7 +3,11 @@
   {% set container_port = 80 %}
   {% set service_name = SNIPE_IT_SERVICE %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, 'snipe-it') }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        SNIPE_IT_IMAGE: "{{ SNIPE_IT_IMAGE }}"
+        SNIPE_IT_VERSION: "{{ SNIPE_IT_VERSION }}"
+    {{ lookup('container_image', application_id, 'snipe-it', custom=True) }}
     {{ lookup('compose_only', 'container_name', SNIPE_IT_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, SNIPE_IT_SERVICE) | indent(4) }}
