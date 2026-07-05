@@ -41,9 +41,9 @@ nginx_conf:
       target: /etc/nginx/nginx.conf
 
 infinito_conf:
-  type: config
+  type: bind
   source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'infinito' ] | path_join }}"
-  mode: "0444"
+  read_only: true
   mounts:
     - service: nextcloud
       target: /var/www/html/config/infinito/
