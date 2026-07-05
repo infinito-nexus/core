@@ -17,6 +17,11 @@ ODOO_SERVICE: "{{ entity_name }}"
 
 ODOO_CONF_FILE_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}odoo.conf"
 ODOO_ADDONS_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}addons/"
+ODOO_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-odoo.sh"
+ODOO_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), ODOO_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+ODOO_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ ODOO_ENTRYPOINT_SCRIPT_FILE }}"
+ODOO_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', ODOO_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+ODOO_INIT_MODULES: "{{ ODOO_MODULES_CORE | join(',') }}"
 
 ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 

@@ -22,6 +22,15 @@
     - compose up
     - compose build
 
+- name: "📋 Copy Odoo entrypoint (first-boot db init)"
+  copy:
+    src: "docker-entrypoint-odoo.sh"
+    dest: "{{ ODOO_ENTRYPOINT_SCRIPT_HOST_ABS }}"
+    mode: "0755"
+  notify:
+    - compose up
+    - compose build
+
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers
 

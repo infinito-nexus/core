@@ -10,6 +10,8 @@
       args:
         ODOO_IMAGE: "{{ ODOO_IMAGE }}"
         ODOO_VERSION: "{{ ODOO_VERSION }}"
+        ODOO_ENTRYPOINT_SCRIPT_HOST_REL: "{{ ODOO_ENTRYPOINT_SCRIPT_HOST_REL }}"
+        ODOO_ENTRYPOINT_SCRIPT_DOCKER: "{{ ODOO_ENTRYPOINT_SCRIPT_DOCKER }}"
     {{ lookup('compose_only', 'container_name', ODOO_CONTAINER) }}
     {{ lookup('container_image', application_id, 'odoo', custom=True) }}
     init: true
@@ -25,6 +27,7 @@
       - USER={{ ODOO_DB_USER }}
       - PASSWORD={{ ODOO_DB_PASSWORD }}
       - ODOO_URL={{ ODOO_URL }}
+      - ODOO_INIT_MODULES={{ ODOO_INIT_MODULES }}
       {% if ODOO_OIDC_ENABLED | bool %}
       - ODOO_OIDC_CLIENT_ID={{ ODOO_OIDC_CLIENT_ID }}
       - ODOO_OIDC_CLIENT_SECRET={{ ODOO_OIDC_CLIENT_SECRET }}
