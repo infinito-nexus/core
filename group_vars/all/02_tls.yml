@@ -32,7 +32,9 @@ CA_ROOT:
     C: "DE"
     O: "{{ DOMAIN_PRIMARY }}"
     OU: "Infinito.Nexus Root CA"
-    CN: "{{ DOMAIN_PRIMARY }} Root CA"
+    # X.509 commonName is capped at 64 chars; a 62-char v3 onion + " Root CA"
+    # (71) overflows, so drop the suffix when it would exceed the limit.
+    CN: "{{ (DOMAIN_PRIMARY ~ ' Root CA') if ((DOMAIN_PRIMARY ~ ' Root CA') | length <= 64) else DOMAIN_PRIMARY }}"
 CA_TRUST:
   cert_host: "{{ CA_ROOT.cert_host }}"
   trust_name: "{{ DOMAIN_PRIMARY | lower }}"

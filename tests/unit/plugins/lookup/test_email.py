@@ -73,6 +73,32 @@ class TestEmailLookup(unittest.TestCase):
         self.assertTrue(result["tls"])
         self.assertEqual(result["from"], "root@host1.localdomain")
 
+    def test_onion_domain_disables_tls(self) -> None:
+        # On an onion node the mail domain is .onion (no TLS cert): relay plaintext
+        # to the loopback Mailu front on port 25 instead of failing the handshake.
+        variables = {
+            "group_names": ["web-app-mailu"],
+            "SYSTEM_EMAIL_HOST": "mail.abc123.onion",
+            "TLS_ENABLED": True,
+            "DOMAIN_PRIMARY": "abc123.onion",
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run([], variables=variables)[0]
+        self.assertFalse(result["tls"])
+        self.assertEqual(result["port"], 25)
+
+    def test_clearnet_external_keeps_tls(self) -> None:
+        variables = {
+            "group_names": ["web-app-mailu"],
+            "SYSTEM_EMAIL_HOST": "mail.example.org",
+            "TLS_ENABLED": True,
+            "DOMAIN_PRIMARY": "example.org",
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run([], variables=variables)[0]
+        self.assertTrue(result["tls"])
+        self.assertEqual(result["port"], 465)
+
     def test_empty_string_falls_back_to_plugin_default(self) -> None:
         variables = {
             "SYSTEM_EMAIL_HOST": "",

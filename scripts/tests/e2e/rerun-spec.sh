@@ -95,10 +95,20 @@ done
 
 cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"
 
+# On an onion node the app is reached over http://<onion>; Chromium can only
+# resolve .onion through Tor, so mirror the deploy-time runner and route the
+# browser through the node SOCKS proxy. Detected from the rendered env so the
+# clearnet inner-loop stays direct. Override with PLAYWRIGHT_PROXY if set.
+proxy_env=()
+if grep -qiE '\.onion' "$env_file"; then
+	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-socks5://host.docker.internal:9050}")
+fi
+
 exec docker run --rm \
 	--ipc=host --shm-size=1g \
 	--add-host=host.docker.internal:host-gateway \
 	--env-file "$env_file" \
+	"${proxy_env[@]}" \
 	-v "$stage_dir:/e2e" \
 	-v "$stage_dir/volume:/volume" \
 	-v "$reports_dir:/reports" \

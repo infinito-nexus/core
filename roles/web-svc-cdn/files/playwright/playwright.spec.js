@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, expectHstsWhenTls, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const cdnBaseUrl = normalizeBaseUrl(process.env.CDN_BASE_URL || "");
@@ -22,7 +22,7 @@ test("cdn index is served under canonical domain with TLS", async ({ page }) => 
     `Expected canonical domain "${canonicalDomain}" to back the CDN URL`
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "CDN must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, cdnBaseUrl, "CDN");
 });
 
 // Persona scenarios.

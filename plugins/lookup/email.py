@@ -127,6 +127,16 @@ class LookupModule(LookupBase):
             external = _as_bool(resolved.get("external"))
             if not external:
                 return False
+            # .onion mail domains have no public TLS certificate (like web onion
+            # vhosts). Relay in plaintext to the local Mailu front over loopback
+            # instead of failing the TLS handshake; the onion transport itself is
+            # already authenticated + encrypted. DOMAIN_PRIMARY may be a template
+            # (e.g. lookup('env', 'INFINITO_DOMAIN')), so render it first.
+            domain = str(
+                _render(variables.get("DOMAIN_PRIMARY"), self._templar) or ""
+            ).lower()
+            if domain.endswith(".onion"):
+                return False
             return _as_bool(variables.get("TLS_ENABLED"))
         if short_key == "port":
             external = _as_bool(resolved.get("external"))

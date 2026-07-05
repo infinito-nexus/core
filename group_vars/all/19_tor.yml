@@ -1,9 +1,24 @@
 ---
 # Tor onion node (svc-net-tor).
-# Extra hidden-service port mappings beyond the web gateway (port 80). Phase-2
-# consumers (e.g. web-app-mailu) append {onion_port, target} entries to expose
-# SMTP/IMAP/submission over the same node onion. Rendered in svc-net-tor/torrc.j2.
-TOR_ONION_EXTRA_PORTS: []
+# SSH over onion: reach the node's sshd at <node>.onion:22 over Tor. This is the
+# way to administer a NAT/CGNAT box with no public IP; the onion address itself
+# authenticates the host. Set false to not expose SSH.
+TOR_ONION_SSH_ENABLED: true
+
+# Extra hidden-service port mappings beyond the web gateway (port 80), rendered in
+# svc-net-tor/torrc.j2. SSH (22) when enabled; Mailu SMTP/submission/IMAP when
+# Mailu is deployed, so mail clients and federating nodes reach it over Tor
+# (transport is encrypted + authenticated by onion v3).
+TOR_ONION_EXTRA_PORTS: "{{
+    ([{'onion_port': 22, 'target': '127.0.0.1:22'}] if (TOR_ONION_SSH_ENABLED | bool) else [])
+    + ([
+        {'onion_port': 25, 'target': '127.0.0.1:25'},
+        {'onion_port': 465, 'target': '127.0.0.1:465'},
+        {'onion_port': 587, 'target': '127.0.0.1:587'},
+        {'onion_port': 143, 'target': '127.0.0.1:143'},
+        {'onion_port': 993, 'target': '127.0.0.1:993'},
+      ] if ('web-app-mailu' in group_names) else [])
+  }}"
 
 # On an onion node every domain is .onion, which Chromium can only reach through
 # Tor. Point the shared Playwright runner's browser at the Tor SOCKS proxy; the
