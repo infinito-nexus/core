@@ -23,7 +23,7 @@
     {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
     entrypoint: "{{ PIXELFED_WORKER_ENTRYPOINT_DOCKER }}"
     healthcheck:
-      test: php artisan horizon:status | grep running
+      test: test ! -e /var/www/storage/.docker.init || (php artisan horizon:status | grep running)
       interval: 60s
       timeout: 5s
       retries: 1
