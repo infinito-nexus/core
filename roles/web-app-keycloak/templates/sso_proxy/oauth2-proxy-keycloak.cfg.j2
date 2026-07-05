@@ -10,6 +10,10 @@ client_secret           =   "{{ OIDC.CLIENT.SECRET }}"
 client_id               =   "{{ OIDC.CLIENT.ID }}"
 redirect_url            =   "{{ lookup('tls', sso_proxy_application_id, 'protocols.web') }}://{{ lookup('domain', sso_proxy_application_id) }}/oauth2/callback"
 oidc_issuer_url         =   "{{ OIDC.CLIENT.ISSUER_URL }}"
+skip_oidc_discovery     =   true
+login_url               =   "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+redeem_url              =   "{{ OIDC.CLIENT.TOKEN_URL }}"
+oidc_jwks_url           =   "{{ OIDC.CLIENT.CERTS }}"
 provider                =   "oidc"
 provider_display_name   =   "{{ OIDC.BUTTON_TEXT }}"
 {% if (TLS_MODE | lower) == 'self_signed' %}
@@ -20,7 +24,6 @@ provider_ca_files       =   ["{{ CA_TRUST.cert_container }}"]
 {% if allowed_groups_raw %}
 scope                   =   "openid email profile {{ RBAC.GROUP.CLAIM }}"
 oidc_groups_claim       =   "{{ RBAC.GROUP.CLAIM }}"
-{# Exception: oauth2-proxy matches allowed_groups by literal string equality; Keycloak emits group paths with a leading slash while rbac_group_path returns them without one, so normalise to exactly one leading slash. #}
 allowed_groups          =   {{ allowed_groups_raw | map('regex_replace', '^/*', '/') | list | to_json }}
 email_domains           =   ["*"]
 {% else %}
