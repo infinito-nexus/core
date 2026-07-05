@@ -2,7 +2,7 @@
 application_id: web-svc-onlyoffice
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.onlyoffice.ports.local.http') }}"
-container_port: 80
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 entity_name: "{{ application_id | get_entity_name }}"
 
 ONLYOFFICE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"

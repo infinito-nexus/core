@@ -29,7 +29,6 @@ fider:
   image: getfider/fider
   version: stable
   name: fider
-  container_port: 3000
   min_storage: 1GB
   backup:
     no_stop_required: true

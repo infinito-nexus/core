@@ -2,7 +2,7 @@
 application_id: "web-app-confluence"
 entity_name: "{{ application_id | get_entity_name }}"
 
-container_port: 8090
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('domain',application_id) }}"
 
 CONFLUENCE_URL: "{{ lookup('tls', application_id, 'url.base') }}"

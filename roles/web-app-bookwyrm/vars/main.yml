@@ -2,7 +2,7 @@
 application_id: "web-app-bookwyrm"
 entity_name: "{{ application_id | get_entity_name }}"
 
-container_port: 8000
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('domain',application_id) }}"
 
 BOOKWYRM_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.bookwyrm.registration_open') | string | lower }}"

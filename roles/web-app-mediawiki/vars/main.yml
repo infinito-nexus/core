@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-mediawiki"
-container_port: 80
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 entity_name: "{{ application_id | get_entity_name }}"
 
 MEDIAWIKI_SITENAME: "{{ lookup('config', application_id, 'services.mediawiki.sitename') }}"

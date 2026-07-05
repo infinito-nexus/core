@@ -1,7 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_replicas = 1 %}
 
-  {% set container_port = 8069 %}
+  {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') %}
   {% set container_healthcheck = 'web/health' %}
   {% set container_healthcheck_start_period = '5m' %}
   {% set service_name = ODOO_SERVICE %}

@@ -6,7 +6,7 @@ swarm_stack_converge_retries: 600
 
 websocket_port: "{{ lookup('config', application_id, 'services.odoo.ports.local.websocket') }}"
 
-container_port: 8069
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_websocket_port: 8072
 
 ODOO_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"

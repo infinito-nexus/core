@@ -59,6 +59,7 @@ keycloak:
       http: 8032
     internal:
       http: 8080
+      management: 9000
   proxy:
     service_key: keycloak
   run_after:

@@ -29,7 +29,7 @@ x-op-app: &app
     {{ lookup('container_volumes', application_id, 'proxy') | indent(4) }}
 
   {% set service_name = OPENPROJECT_WEB_SERVICE %}
-  {% set container_port = 8080 %}
+  {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.web') %}
   {% set container_healthcheck = 'health_checks/default' %}
   {{ service_name }}:
     <<: *app

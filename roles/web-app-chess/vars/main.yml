@@ -3,7 +3,7 @@ application_id: "web-app-chess"
 entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
-container_port: 5080
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ entity_name }}"
 
 CHESS_HOSTNAME: "{{ container_hostname }}"

@@ -69,6 +69,9 @@ redis:
 # nocheck: shared
 # nocheck: dynamic-flag
 search:
+  ports:
+    internal:
+      http: 9200
   enabled: true
   image: opensearchproject/opensearch
   version: latest

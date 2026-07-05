@@ -2,7 +2,7 @@
 application_id: "web-app-jira"
 entity_name: "{{ application_id | get_entity_name }}"
 
-container_port: 8080
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('domain',application_id) }}"
 
 JIRA_URL: "{{ lookup('tls', application_id, 'url.base') }}"

@@ -1,6 +1,6 @@
 ---
 application_id: web-svc-xmpp
-container_port: 5280
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 entity_name: "{{ application_id | get_entity_name }}"
 
 EJABBERD_CONTAINER: "{{ lookup('config', application_id, 'services.xmpp.name') }}"

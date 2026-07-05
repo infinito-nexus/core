@@ -1,8 +1,6 @@
 ---
 application_id: "web-app-prometheus"
 
-container_port: "{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}"
-
 PROMETHEUS_CONTAINER: "{{ lookup('config', application_id, 'services.prometheus.name') }}"
 
 PROMETHEUS_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'prometheus.yml' ] | path_join }}"

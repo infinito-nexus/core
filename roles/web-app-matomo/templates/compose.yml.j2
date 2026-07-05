@@ -1,6 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = MATOMO_SERVICE %}
-  {% set container_port = 80 %}
+  {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') %}
   {{ service_name }}:
     {{ lookup('compose_only', 'container_name', MATOMO_NAME) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

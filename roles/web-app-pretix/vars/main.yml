@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-pretix"
-container_port: 80
+container_port: "{{ lookup('config', application_id, 'services.pretix.ports.internal.http') }}"
 container_hostname: "{{ lookup('domain',application_id) }}"
 
 PRETIX_URL: "{{ lookup('tls', application_id, 'url.base') }}"
@@ -17,7 +17,6 @@ PRETIX_OIDC_USERINFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 PRETIX_OIDC_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
 PRETIX_OIDC_JWKS_URL: "{{ OIDC.CLIENT.CERTS }}"
 PRETIX_OIDC_SCOPES: "openid,email,profile"
-# Use Keycloak username claim by default (plugin default is 'sub')
 PRETIX_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 PRETIX_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.pretix-oidc.version') }}"
 

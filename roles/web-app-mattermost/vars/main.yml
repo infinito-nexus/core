@@ -2,12 +2,12 @@
 application_id: "web-app-mattermost"
 entity_name: "{{ application_id | get_entity_name }}"
 
-container_port: "{{ lookup('config', application_id, 'services.mattermost.ports.local.http') }}"
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 
 MATTERMOST_CONTAINER: "{{ lookup('config', application_id, 'services.mattermost.name') }}"
 MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
-# OIDC via MM_GITLABSETTINGS_* (Team Edition workaround for Keycloak)
+# Exception: OIDC piggybacks on MM_GITLABSETTINGS_* -- Team Edition has no native OIDC provider for Keycloak
 MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 
 MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"

@@ -1,5 +1,5 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {% set container_port = 80 %}
+  {% set container_port = lookup('config', application_id, 'services.akaunting.ports.internal.http') %}
   {% set service_name = 'akaunting' %}
   {{ service_name }}:
 

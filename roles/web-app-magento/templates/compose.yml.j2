@@ -1,6 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = 'nginx' %}
-  {% set container_port = 8000 %}
+  {% set container_port = lookup('config', application_id, 'services.magento.ports.internal.http') %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     {{ lookup('container_image', application_id, 'nginx') }}
@@ -30,7 +30,7 @@
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'search' %}
-  {% set container_port = 9200 %}
+  {% set container_port = lookup('config', application_id, 'services.' ~ service_name ~ '.ports.internal.http') %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'search') }}
     {{ lookup('compose_only', 'container_name', MAGENTO_SEARCH_CONTAINER) }}
