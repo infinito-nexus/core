@@ -1,5 +1,6 @@
 ---
 credentials:
   administrator_password:
-    description: Initial password for the Jellyfin local administrator seeded via the first-run /Startup wizard (break-glass; SSO/LDAP users authenticate via the plugins).
+    description: Initial password for the Jellyfin local administrator seeded via the first-run /Startup wizard (break-glass; SSO/LDAP users authenticate via
+      the plugins).
     algorithm: alphanumeric
