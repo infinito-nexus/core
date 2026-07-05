@@ -14,6 +14,11 @@ JOOMLA_CONFIG_FILE: "/var/www/html/configuration.php"
 JOOMLA_INSTALLER_CLI_FILE: "/var/www/html/installation/joomla.php"
 JOOMLA_CLI_FILE: "/var/www/html/cli/joomla.php"
 
+JOOMLA_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-joomla.sh"
+JOOMLA_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), JOOMLA_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+JOOMLA_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ JOOMLA_ENTRYPOINT_SCRIPT_FILE }}"
+JOOMLA_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', JOOMLA_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+
 JOOMLA_UPLOAD_CONFIG: "{{ [ lookup('container', application_id, 'directories.instance'), 'php-upload.ini' ] | path_join }}"
 JOOMLA_UPLOAD_SIZE: "{{ lookup('config', application_id, 'services.joomla.upload.size_mb') }}"
 JOOMLA_UPLOAD_MAX_FILESIZE: "{{ (JOOMLA_UPLOAD_SIZE | int) }}M"
