@@ -23,6 +23,14 @@ module.exports = defineConfig({
   ],
   use: {
     baseURL,
+    // Route the browser through a SOCKS proxy when set (e.g. Tor for .onion
+    // targets, which Chromium cannot resolve over normal DNS). Empty/unset =
+    // direct connection (unchanged default for clearnet targets).
+    proxy: process.env.PLAYWRIGHT_PROXY ? { server: process.env.PLAYWRIGHT_PROXY } : undefined,
+    // Fail fast instead of hanging until the per-test timeout when a target is
+    // unreachable (e.g. an onion service that is not yet published).
+    navigationTimeout: Number(process.env.PLAYWRIGHT_NAVIGATION_TIMEOUT) || 60_000,
+    actionTimeout: Number(process.env.PLAYWRIGHT_ACTION_TIMEOUT) || 30_000,
     trace: keepAll ? "on" : "retain-on-failure",
     screenshot: keepAll ? "on" : "only-on-failure",
     video: keepAll ? "on" : "retain-on-failure"

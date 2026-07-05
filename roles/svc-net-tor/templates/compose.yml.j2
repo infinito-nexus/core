@@ -1,0 +1,20 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  tor:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        TOR_BASE_IMAGE:   "{{ TOR_IMAGE }}"
+        TOR_BASE_VERSION: "{{ TOR_VERSION }}"
+    container_name: {{ TOR_CONTAINER }}
+    image: {{ TOR_CUSTOM_IMAGE }}:{{ TOR_CUSTOM_VERSION }}
+    network_mode: "host"
+    volumes:
+      - {{ TOR_DATA_DIR }}:/var/lib/tor
+      - {{ TOR_TORRC_HOST }}:/etc/tor/torrc:ro
+    healthcheck:
+      test: ["CMD", "tor", "--verify-config", "-f", "/etc/tor/torrc"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+{{ lookup('applications') | compose_volumes(application_id) }}

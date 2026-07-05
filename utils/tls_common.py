@@ -268,7 +268,18 @@ def resolve_term(
     return app_id, primary
 
 
-def resolve_enabled(app: dict, enabled_default: bool) -> bool:
+def is_onion_domain(domain: Any) -> bool:
+    """True if the domain is a Tor v3 ``.onion`` address."""
+    return norm_domain(domain).endswith(".onion")
+
+
+def resolve_enabled(
+    app: dict, enabled_default: bool, *, primary_domain: str = ""
+) -> bool:
+    # .onion services are authenticated + encrypted by Tor itself and cannot
+    # obtain a public CA certificate, so TLS is always off for them.
+    if is_onion_domain(primary_domain):
+        return False
     override = get_path(app, "server.tls.enabled", None)
     return enabled_default if override is None else bool(override)
 
@@ -278,7 +289,11 @@ def resolve_mode(
 ) -> str:
     if not enabled:
         return "off"
-    override = get_path(app, "server.tls.flavor", None)
+    # Per-app flavor override: 'server.tls.mode' takes precedence over the
+    # legacy 'server.tls.flavor', both over the global TLS_MODE default.
+    override = get_path(app, "server.tls.mode", None)
+    if not (isinstance(override, str) and override.strip()):
+        override = get_path(app, "server.tls.flavor", None)
     if isinstance(override, str) and override.strip():
         mode = override.strip()
     else:

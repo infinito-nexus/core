@@ -12,6 +12,10 @@ test_e2e_playwright_test_timeout: 300000
 # concurrency limits, and reduced on CI.
 test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
 
+# Browser SOCKS proxy for the runner (PLAYWRIGHT_PROXY): empty = direct. The value
+# is provided globally by group_vars/all/19_tor.yml (onion node -> Tor SOCKS), so
+# it is intentionally NOT redeclared here (top-level constants must be unique).
+
 # Optional readiness wait
 test_e2e_playwright_wait_enabled: true
 test_e2e_playwright_wait_retries: 30

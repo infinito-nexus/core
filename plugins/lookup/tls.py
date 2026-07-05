@@ -82,7 +82,9 @@ class LookupModule(LookupBase):
         if not isinstance(app, dict):
             app = {}
 
-        enabled = resolve_enabled(app, bool(enabled_default))
+        enabled = resolve_enabled(
+            app, bool(enabled_default), primary_domain=primary_domain
+        )
         mode = resolve_mode(app, enabled, mode_default, err_prefix="tls")
 
         if mode not in {"off"} | AVAILABLE_FLAVORS:

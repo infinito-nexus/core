@@ -1,0 +1,12 @@
+---
+# Tor onion node (svc-net-tor).
+# Extra hidden-service port mappings beyond the web gateway (port 80). Phase-2
+# consumers (e.g. web-app-mailu) append {onion_port, target} entries to expose
+# SMTP/IMAP/submission over the same node onion. Rendered in svc-net-tor/torrc.j2.
+TOR_ONION_EXTRA_PORTS: []
+
+# On an onion node every domain is .onion, which Chromium can only reach through
+# Tor. Point the shared Playwright runner's browser at the Tor SOCKS proxy; the
+# runner container reaches it via host.docker.internal (Tor binds the DiD bridge,
+# see svc-net-tor/templates/torrc.j2). Empty on non-onion nodes (direct).
+TEST_E2E_PLAYWRIGHT_PROXY: "{{ 'socks5://host.docker.internal:9050' if 'svc-net-tor' in group_names else '' }}"

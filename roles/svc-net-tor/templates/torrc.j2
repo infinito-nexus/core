@@ -1,0 +1,27 @@
+# Managed by Infinito.Nexus (roles/svc-net-tor) — do not edit by hand.
+RunAsDaemon 0
+Log notice stdout
+DataDirectory /var/lib/tor
+
+# SOCKS proxy — required to reach .onion services from the node (health checks,
+# inter-onion federation, and the Playwright runner testing over Tor). Bound on
+# all node interfaces so DiD sibling containers can reach it via
+# host.docker.internal, but restricted by SocksPolicy to loopback + private/DiD
+# ranges so it is never an open proxy.
+SocksPort 0.0.0.0:9050
+SocksPolicy accept 127.0.0.0/8
+SocksPolicy accept 10.0.0.0/8
+SocksPolicy accept 172.16.0.0/12
+SocksPolicy accept 192.168.0.0/16
+SocksPolicy reject *
+ControlPort 127.0.0.1:9051
+CookieAuthentication 1
+
+# Node onion service: one hidden service, per-app subdomains routed by Host in
+# OpenResty. All onion traffic terminates on the host-network OpenResty (:80).
+HiddenServiceDir /var/lib/tor/infinito/node/
+HiddenServiceVersion 3
+HiddenServicePort 80 127.0.0.1:80
+{% for _p in TOR_ONION_EXTRA_PORTS %}
+HiddenServicePort {{ _p.onion_port }} {{ _p.target }}
+{% endfor %}

@@ -322,6 +322,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[INFO] Applying mirror overrides from: {mirrors_file}")
         apply_mirror_overrides(host_vars_file=host_vars_file, mirrors_file=mirrors_file)
 
+    # Tor onion node: when svc-net-tor is deployed, mint (or reuse) the node's
+    # hidden-service identity and set DOMAIN_PRIMARY to the .onion. Runs LAST so
+    # the onion is authoritative — a full onion node cannot have a clearnet
+    # DOMAIN_PRIMARY; every domain (web, SSO, LDAP, CA) must resolve onion.
+    # Note: the Tor onion node's DOMAIN_PRIMARY comes from the inventory
+    # (INFINITO_DOMAIN in dev), and its hidden-service key from the authoritative
+    # `.onion-identity/` files written by `... inventory onion init-env`. The
+    # svc-net-tor role copies those in — no in-deploy minting here (a random mint
+    # would not match the pre-set onion domain).
+
     # Disable services listed in the `disable` env var (space- or comma-separated).
     # Also removes the provider roles from the inventory.
     apply_services_disabled_from_env(

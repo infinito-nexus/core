@@ -1,0 +1,60 @@
+---
+# Set the run-once flag FIRST so a second dynamic load attempt sees it and does
+# not re-include this role (see test_service_core_first_task_run_once).
+- include_tasks: utils/once/flag.yml
+
+- name: "Ensure Tor config directory exists"
+  ansible.builtin.file:
+    path: "{{ TOR_CONFIG_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: "Ensure Tor data + HiddenServiceDir exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop:
+    - "{{ TOR_DATA_DIR }}"
+    - "{{ TOR_HS_DIR }}"
+  become: true
+
+- name: "Install authoritative hidden-service keys (must match DOMAIN_PRIMARY)"
+  ansible.builtin.copy:
+    src: "{{ [ TOR_HS_SRC_DIR, item.name ] | path_join }}"
+    dest: "{{ [ TOR_HS_DIR, item.name ] | path_join }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+    force: true
+  loop:
+    - { name: "hostname", mode: "0600" }
+    - { name: "hs_ed25519_public_key", mode: "0600" }
+    - { name: "hs_ed25519_secret_key", mode: "0600" }
+  become: true
+  notify: "compose up"
+
+- name: "Render torrc"
+  ansible.builtin.template:
+    src: torrc.j2
+    dest: "{{ TOR_TORRC_HOST }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: "compose up"
+
+# Tor runs with network_mode: host, so include sys-svc-compose directly (mirrors
+# the svc-prx-openresty host-mode pattern) instead of the network-create routine.
+- name: "For '{{ application_id }}': Load sys-svc-compose"
+  include_role:
+    name: sys-svc-compose
+  vars:
+    compose_repository_pull: false
+    compose_handlers_flush: true
+    application_id: svc-net-tor

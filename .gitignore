@@ -18,6 +18,7 @@ build/*
 .agents
 collections/
 .env
+.onion-identity/
 logs/
 job-logs.txt
 .claude/skills

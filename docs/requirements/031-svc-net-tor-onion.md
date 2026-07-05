@@ -187,9 +187,31 @@ applications:
 - [ ] `make test` green tree-wide.
 - [ ] README documents: model, mint helper usage, key backup/restore, limitations — no LE for `.onion`; outbound public mail undeliverable from `@onion` senders; fresh-node only (no clearnet migration); extra public domains = per-app opt-in.
 
+## Onion service extensions (phase 2, layered on a green onion core)
+
+These build on the working onion node and are implemented after the web core is verified.
+
+### Mailu listening on the onion (operator: "if possible")
+
+- The node hidden service exposes Mailu's mail ports in addition to `80`, via extra `HiddenServicePort` entries: `HiddenServicePort 25`, `587`, `465`, `143`, `993` → Mailu's local front binds on `127.0.0.1`. Mailu is then reachable at `<node>.onion` for SMTP/submission/IMAP.
+- Mechanism: `torrc.j2` renders extra ports from `TOR_ONION_EXTRA_PORTS` (list of `{onion_port, target}`), populated when `web-app-mailu` is deployed. Mailu's front is bound to `127.0.0.1` in the onion node.
+- [ ] With Mailu deployed on an onion node, `<node>.onion:993` / `:587` accept connections over Tor; the extra `HiddenServicePort` lines are rendered only when Mailu is present.
+
+### Mail egress over Tor (operator: "must")
+
+- Outbound mail to `.onion` recipient domains is routed through Tor's SOCKS proxy (`127.0.0.1:9050`) instead of clearnet DNS/MX — enabling onion-to-onion / federated mail without public MX/rDNS.
+- Mechanism: a Postfix transport for `.onion` next-hops via a SOCKS-aware delivery path (e.g. a `torsocks`-wrapped transport or a SOCKS relay), gated on `svc-net-tor` being active. Public-Internet mail to non-onion domains stays on the normal path.
+- [ ] On an onion node, mail addressed to a `*.onion` domain is delivered via the Tor SOCKS proxy; delivery to non-onion domains is unaffected.
+
+### Playwright over Tor (operator: "probably")
+
+- When the target under test is an `.onion` domain, the Playwright browser routes through Tor's SOCKS proxy so specs exercise the real onion path (aligns with Decision #11's real-Tor E2E).
+- Mechanism: the `test-e2e-playwright` runner sets the browser proxy to `socks5://127.0.0.1:9050` (with `socks5` remote DNS for `.onion` resolution) when the resolved domain ends in `.onion`.
+- [ ] A Playwright spec against a `<sub>.<node>.onion` surface passes through the Tor SOCKS proxy on an onion node; clearnet targets are unaffected.
+
 ## Out of scope
 
-Dual clearnet+onion with `Onion-Location` bridge and mirrored SSO realms; per-app dedicated onions / Tor Client Authorization; Mailu over onion; federation/backups over onion; transparent egress torification; migration of existing clearnet nodes.
+Dual clearnet+onion with `Onion-Location` bridge and mirrored SSO realms; per-app dedicated onions / Tor Client Authorization; distributed backups over onion; transparent full-egress torification (only `.onion`-destination mail egress is in phase 2); migration of existing clearnet nodes.
 
 ## Validation
 

@@ -10,6 +10,7 @@ from utils.tls_common import (
     collect_domains_for_app,
     collect_domains_global,
     get_path,
+    is_onion_domain,
     norm_domain,
     override_san_list,
     require,
@@ -154,6 +155,38 @@ class TestTlsCommon(unittest.TestCase):
                 "letsencrypt",
                 err_prefix="t",
             )
+
+    def test_is_onion_domain(self):
+        self.assertTrue(is_onion_domain("abc.onion"))
+        self.assertTrue(is_onion_domain("next.cloud.ABC123.ONION"))
+        self.assertFalse(is_onion_domain("example.com"))
+        self.assertFalse(is_onion_domain("onion.example.com"))
+        self.assertFalse(is_onion_domain(""))
+
+    def test_resolve_enabled_onion_always_off(self):
+        # .onion forces TLS off regardless of default or per-app override.
+        self.assertFalse(resolve_enabled({}, True, primary_domain="x.onion"))
+        self.assertFalse(
+            resolve_enabled(
+                {"server": {"tls": {"enabled": True}}},
+                True,
+                primary_domain="app.abc.onion",
+            )
+        )
+        # non-onion keeps normal behavior
+        self.assertTrue(resolve_enabled({}, True, primary_domain="example.com"))
+
+    def test_resolve_mode_app_level_mode_over_flavor(self):
+        # server.tls.mode takes precedence over server.tls.flavor.
+        app = {"server": {"tls": {"mode": "self_signed", "flavor": "letsencrypt"}}}
+        self.assertEqual(
+            resolve_mode(app, True, "letsencrypt", err_prefix="t"), "self_signed"
+        )
+        # falls back to flavor when mode unset
+        app2 = {"server": {"tls": {"flavor": "self_signed"}}}
+        self.assertEqual(
+            resolve_mode(app2, True, "letsencrypt", err_prefix="t"), "self_signed"
+        )
 
     def test_resolve_le_name(self):
         app = {}

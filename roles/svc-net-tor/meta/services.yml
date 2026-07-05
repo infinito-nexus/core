@@ -1,0 +1,15 @@
+---
+tor:
+  bond: 1
+  enabled: true
+  shared: true
+  # Base image for the local Debian+tor build (files/Dockerfile).
+  image: debian
+  version: trixie-slim
+  name: tor
+  min_storage: 100MB
+  cpus: "0.25"
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 128
+  lifecycle: alpha

@@ -1,0 +1,30 @@
+---
+# General
+application_id: "svc-net-tor"
+
+# Tor upstream base image (a Debian release; the tor package is installed from it
+# in files/Dockerfile for provenance + reproducible pinning).
+TOR_IMAGE: "{{ lookup('config', application_id, 'services.tor.image') }}"
+TOR_VERSION: "{{ lookup('config', application_id, 'services.tor.version') }}"
+TOR_CONTAINER: "{{ lookup('config', application_id, 'services.tor.name') }}"
+
+# Custom-built image (Debian base + pinned tor), distinguished from the base
+# pull image so compose.yml.j2 makes clear this container is locally built.
+TOR_CUSTOM_IMAGE: "tor_custom"
+TOR_CUSTOM_VERSION: "{{ TOR_VERSION }}"
+
+# Host paths (under DIR_VAR_LIB); Tor's runtime DataDirectory + HiddenServiceDir.
+TOR_DATA_DIR: "{{ [ DIR_VAR_LIB, application_id, 'data' ] | path_join }}"
+TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB, application_id, 'config' ] | path_join }}"
+TOR_TORRC_HOST: "{{ [ TOR_CONFIG_DIR, 'torrc' ] | path_join }}"
+TOR_HS_DIR: "{{ [ TOR_DATA_DIR, 'infinito', 'node' ] | path_join }}"
+
+# Authoritative hidden-service key files, minted by
+# `cli.administration.inventory.onion init-env` and stored at the repo root
+# (mounted into the DiD at {{ playbook_dir }}/.onion-identity/hs). The address of
+# these keys MUST equal DOMAIN_PRIMARY (== INFINITO_DOMAIN). Copied into TOR_HS_DIR
+# before Tor starts so the daemon serves exactly that onion.
+TOR_HS_SRC_DIR: "{{ [ playbook_dir, '.onion-identity', 'hs' ] | path_join }}"
+# TOR_EGRESS_ENABLED and TOR_ONION_EXTRA_PORTS are defined globally in
+# group_vars/all/19_tor.yml (they must not be redefined here — a role var that
+# references itself triggers a Jinja recursion error).

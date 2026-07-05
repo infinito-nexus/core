@@ -14,7 +14,11 @@
   register: dns_check
   changed_when: false
   failed_when: dns_check.rc != 0
-  when: MODE_ASSERT | bool
+  when:
+    - MODE_ASSERT | bool
+    # .onion domains are Tor-only and intentionally not DNS-resolvable, so this
+    # clearnet sanity check does not apply to an onion node.
+    - not (DOMAIN_PRIMARY is search('\.onion$'))
 
 - name: Merge variables
   block:
