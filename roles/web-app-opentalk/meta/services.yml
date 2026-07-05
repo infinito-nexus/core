@@ -1,9 +1,10 @@
 ---
 # nocheck: seaweedfs-playwright — S3 holds only recordings/whiteboard exports; needs the recorder service + a live multi-party meeting, so no single-user UI action deterministically triggers an S3 write
+# nocheck: dynamic-flag — OpenTalk has no no-auth mode (controller/recorder require the OIDC client), so sso is a hard dependency.
 sso:
   bond: 1
-  enabled: "{{ 'web-app-keycloak' in group_names }}"
-  shared: "{{ 'web-app-keycloak' in group_names }}"
+  enabled: true
+  shared: true
   flavor: oidc
   oidc:
     plugin: ""

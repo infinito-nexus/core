@@ -23,9 +23,6 @@
     matomo:
       enabled: true
       shared: true
-    sso:
-      enabled: true
-      shared: true
     postgres:
       shared: true
     redis:
@@ -52,9 +49,6 @@
       enabled: false
       shared: false
     matomo:
-      enabled: false
-      shared: false
-    sso:
       enabled: false
       shared: false
     postgres:
