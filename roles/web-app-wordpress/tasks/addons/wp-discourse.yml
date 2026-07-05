@@ -23,8 +23,8 @@
 - name: "📦 Install WP Discourse plugin"
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-      wp plugin install wp-discourse --activate
-      --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+    wp plugin install wp-discourse --activate
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   when: IS_STACK_HOST | bool
 
 - name: "🔧 Configure WP Discourse settings"
@@ -50,11 +50,11 @@
 
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
-      "wp eval \"update_option(
-         '{{ option_name }}',
-         json_decode(
-           base64_decode('{{ option_json_b64 }}'),
-           true
-         )
-       );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
+    "wp eval \"update_option(
+    '{{ option_name }}',
+    json_decode(
+    base64_decode('{{ option_json_b64 }}'),
+    true
+    )
+    );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
   when: IS_STACK_HOST | bool

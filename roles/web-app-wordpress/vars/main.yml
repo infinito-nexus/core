@@ -11,7 +11,7 @@ WORDPRESS_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_nam
 WORDPRESS_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 WORDPRESS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 WORDPRESS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
-WORDPRESS_DISCOURSE_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-discourse', 'discourse') }}"
+WORDPRESS_DISCOURSE_CONTAINER_ADDRESS: "{{ lookup('config', 'web-app-discourse', 'services.discourse.name') }}"
 WORDPRESS_DOMAINS: "{{ lookup('config', application_id, 'domains.canonical') }}"
 WORDPRESS_PLUGINS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'plugin') | list }}"
 WORDPRESS_USER: "www-data"
