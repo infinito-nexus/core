@@ -3,6 +3,8 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+  # nocheck: matomo-track
+  track: false
 # nocheck: dynamic-flag
 redis:
   backup:
