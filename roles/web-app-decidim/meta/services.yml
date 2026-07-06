@@ -27,7 +27,7 @@ postgres:
   enabled: true # nocheck: dynamic-flag
 decidim:
   image: ghcr.io/decidim/decidim
-  version: 0.31.5
+  version: 0.31.6
   min_storage: 10GB
   name: decidim
   cpus: "1.0"
