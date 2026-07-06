@@ -276,7 +276,7 @@
 - name: Select Playwright proxy (node Tor SOCKS for onion targets, else direct)
   ansible.builtin.set_fact:
     _pw_proxy: >-
-      {{ 'socks5://host.docker.internal:9050' if (_pw_is_onion | bool)
+      {{ ('socks5://' ~ lookup('tor_socks', 'host.docker.internal')) if (_pw_is_onion | bool)
          else '' }}
 
 - name: Probe onion reachability over Tor
@@ -287,7 +287,7 @@
       - --show-error
       - --location
       - --socks5-hostname
-      - 127.0.0.1:9050
+      - "{{ lookup('tor_socks') }}"
       - --max-time
       - "30"
       - -o

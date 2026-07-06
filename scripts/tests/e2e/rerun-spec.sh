@@ -101,7 +101,8 @@ cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx play
 # clearnet inner-loop stays direct. Override with PLAYWRIGHT_PROXY if set.
 proxy_env=()
 if grep -qiE '\.onion' "$env_file"; then
-	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-socks5://host.docker.internal:9050}")
+	default_proxy="socks5://host.docker.internal:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
+	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
 fi
 
 exec docker run --rm \

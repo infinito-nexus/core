@@ -29,7 +29,7 @@
   ansible.builtin.file:
     path: "{{ _cli_stage_dir }}"
     state: directory
-    mode: "0755"
+    mode: "0700"
 
 - name: Check optional application defaults for {{ application_id }}
   ansible.builtin.stat:
@@ -54,7 +54,7 @@
 - name: Render test.env from templates/test.env.j2 for {{ application_id }}
   ansible.builtin.copy:
     dest: "{{ _cli_stage_dir }}/test.env"
-    mode: "0644"
+    mode: "0600"
     content: "{{ lookup('template', _cli_env_template) }}"
 
 - name: Run CLI test script for {{ application_id }}

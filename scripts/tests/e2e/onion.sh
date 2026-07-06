@@ -11,12 +11,12 @@
 #   <this script> <onion-host> [socks-host:port] [retries] [sleep-seconds]
 #
 # Example:
-#   <this script> dashboard.abc...xyz.onion 127.0.0.1:9050 20 15
+#   <this script> dashboard.abc...xyz.onion 127.0.0.1:<socks-port> 20 15
 
 set -euo pipefail
 
 ONION_HOST="${1:?onion host required, e.g. dashboard.<node>.onion}"
-SOCKS="${2:-127.0.0.1:9050}"
+SOCKS="${2:?socks host:port required, pass 127.0.0.1:<svc-net-tor services.tor.ports.local.socks>}"
 RETRIES="${3:-20}"
 SLEEP_SECONDS="${4:-15}"
 

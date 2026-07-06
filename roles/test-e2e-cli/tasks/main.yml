@@ -20,16 +20,23 @@
   ansible.builtin.file:
     path: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}"
     state: directory
-    mode: "0755"
+    mode: "0700"
 
-- name: Run CLI test for each detected role
-  ansible.builtin.include_tasks: run_one.yml
-  loop: "{{ _cli_apps }}"
-  loop_control:
-    loop_var: application_id
-    label: "{{ application_id }}"
+- name: Run CLI tests, always purging the staged secrets afterwards
+  block:
+    - name: Run CLI test for each detected role
+      ansible.builtin.include_tasks: run_one.yml
+      loop: "{{ _cli_apps }}"
+      loop_control:
+        loop_var: application_id
+        label: "{{ application_id }}"
 
-- name: Fail if there were CLI test failures
-  ansible.builtin.fail:
-    msg: "CLI tests failed for roles: {{ _cli_failures }}"
-  when: (_cli_failures | default([])) | length > 0
+    - name: Fail if there were CLI test failures
+      ansible.builtin.fail:
+        msg: "CLI tests failed for roles: {{ _cli_failures }}"
+      when: (_cli_failures | default([])) | length > 0
+  always:
+    - name: Remove CLI test stage dir (holds decodable DB secrets)
+      ansible.builtin.file:
+        path: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}"
+        state: absent
