@@ -4,7 +4,8 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 # LDAP Variables
 OPENLDAP_DOCKER_PORT_OPEN: 389
-OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
+OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
+OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ OPENLDAP_PORT }}"
 
 # cn=config is managed via LDAPI + SASL EXTERNAL (no bind DN/PW needed)
 OPENLDAP_CONFIG_URI: "ldapi:///"
@@ -29,7 +30,8 @@ OPENLDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
 # Network
 OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'services.openldap.network.public') }}"
 OPENLDAP_NETWORK_SWITCH_LOCAL: "{{ lookup('config', application_id, 'services.openldap.network.local') }}"
-OPENLDAP_NETWORK_EXPOSE_LOCAL: "{{ OPENLDAP_NETWORK_SWITCH_PUBLIC | bool or OPENLDAP_NETWORK_SWITCH_LOCAL | bool }}"
+OPENLDAP_EXPOSED: "{{ lookup('config', application_id, 'services.openldap.exposed') | bool }}"
+OPENLDAP_NETWORK_EXPOSE_LOCAL: "{{ OPENLDAP_NETWORK_SWITCH_PUBLIC | bool or OPENLDAP_NETWORK_SWITCH_LOCAL | bool or OPENLDAP_EXPOSED | bool }}"
 
 # Provision
 OPENLDAP_PROVISION_CONFIGURATION: "{{ lookup('config', application_id, 'services.openldap.provision.configuration') }}"

@@ -1,0 +1,10 @@
+---
+- services:
+    tor:
+      enabled: true
+    postgres:
+      exposed: true  # nocheck: variants-static-override
+- services:
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

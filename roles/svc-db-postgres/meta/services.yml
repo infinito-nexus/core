@@ -13,6 +13,7 @@ postgres:
   mem_reservation: 3g
   mem_limit: 6g
   pids_limit: 1024
+  exposed: false
   ports:
     local:
       postgres: 5432
