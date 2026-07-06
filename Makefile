@@ -29,7 +29,7 @@ act-runner-image:
 
 .PHONY: act-workflow
 # Run the act-based workflow deploy check.
-act-workflow:
+act-workflow: install-act
 	@bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: autoformat
@@ -276,6 +276,16 @@ help:
 # Note: incremental via a stamp file (see scripts/install/all.sh).
 install:
 	@bash scripts/install/all.sh
+
+.PHONY: install-act
+# Install act (nektos/act) if missing; provisions the act-based make targets.
+install-act:
+	@bash scripts/install/act.sh
+
+.PHONY: install-act-update
+# Force act (nektos/act) to its latest release.
+install-act-update:
+	@bash scripts/install/act.sh update
 
 .PHONY: install-agent
 # Install OS-level sandbox dependencies required by the Claude Code sandbox.
@@ -587,7 +597,7 @@ swarm-shell:
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
 # Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
-swarm-zombie:
+swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
 	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/13_cleanup.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
