@@ -2,30 +2,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cli.administration.inventory.onion import identity_hs_dir, init_env
+from cli.administration.inventory.onion import ensure_node_onion, identity_hs_dir
 
 HS_NAMES = ("hostname", "hs_ed25519_public_key", "hs_ed25519_secret_key")
 
 
-class TestInitEnv(unittest.TestCase):
-    def test_upsert_preserves_and_replaces(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            env = Path(tmp) / ".env"
-            env.write_text("FOO=bar\nINFINITO_DOMAIN=infinito.example\nBAZ=qux\n")
-            address = init_env(env)
-            txt = env.read_text()  # nocheck: cache-read -- synthetic tempdir file
-            self.assertIn("FOO=bar", txt)
-            self.assertIn("BAZ=qux", txt)
-            self.assertEqual(txt.count("INFINITO_DOMAIN="), 1)
-            self.assertIn(f"INFINITO_DOMAIN={address}", txt)
-            expected_re = address.replace(".", "\\\\.")
-            self.assertIn(f'INFINITO_DOMAIN_RE="{expected_re}"', txt)
-
+class TestEnsureNodeOnion(unittest.TestCase):
     def test_writes_authoritative_key_files(self):
         with tempfile.TemporaryDirectory() as tmp:
-            env = Path(tmp) / ".env"
-            address = init_env(env)
-            hs = identity_hs_dir(env.parent)
+            address = ensure_node_onion(tmp)
+            hs = identity_hs_dir(tmp)
             for name in HS_NAMES:
                 self.assertTrue((hs / name).exists(), name)
             self.assertEqual(
@@ -36,9 +22,15 @@ class TestInitEnv(unittest.TestCase):
                 (hs / "hs_ed25519_secret_key").stat().st_mode & 0o777, 0o600
             )
 
+    def test_reuses_existing_identity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            first = ensure_node_onion(tmp)
+            second = ensure_node_onion(tmp)
+            self.assertEqual(first, second)
+
     def test_address_is_valid_v3(self):
         with tempfile.TemporaryDirectory() as tmp:
-            address = init_env(Path(tmp) / ".env")
+            address = ensure_node_onion(Path(tmp))
             self.assertTrue(address.endswith(".onion"))
             self.assertEqual(len(address) - len(".onion"), 56)
 

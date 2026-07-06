@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""CLI: pre-mint the node Tor v3 onion identity into the env file + key files."""
+"""CLI: pre-mint the node Tor v3 onion identity (key files) and print its address."""
 
 from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
-from cli.administration.inventory.onion import init_env
+from cli.administration.inventory.onion import ensure_node_onion
 
 
 def main() -> int:
@@ -16,13 +17,13 @@ def main() -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     env_parser = sub.add_parser(
         "init-env",
-        help="Mint a node onion and write INFINITO_DOMAIN(+_RE) + key files.",
+        help="Mint (or reuse) the node onion key files and print the .onion address.",
     )
     env_parser.add_argument("--env-file", default=".env")
 
     args = parser.parse_args()
     if args.command == "init-env":
-        print(init_env(args.env_file))
+        print(ensure_node_onion(Path(args.env_file).parent))
         return 0
     return 1
 

@@ -290,6 +290,55 @@ class TestMainShim(NginxVhostsTestBase, unittest.TestCase):
         self.assertIn("No nginx vhost files to remove", stdout.getvalue())
 
 
+class TestOnionVhostVariant(NginxVhostsTestBase, unittest.TestCase):
+    ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
+
+    def _write_node_onion(self, address: str) -> None:
+        from utils.tor_onion import identity_hs_dir
+
+        hs = identity_hs_dir(self.roles_dir.parent)
+        hs.mkdir(parents=True, exist_ok=True)
+        (hs / "hostname").write_text(address + "\n", encoding="ascii")
+
+    def test_onion_vhost_included_when_node_onion_set(self):
+        self._mk_role(
+            "web-app-matomo",
+            application_id="matomo",
+            canonical=["matomo.infinito.example"],
+        )
+        clearnet = self._touch_vhost("matomo.infinito.example", "https")
+        onion = self._touch_vhost(f"matomo.{self.ONION}", "http")
+        self._write_node_onion(self.ONION)
+        found = set(
+            iter_vhost_files_for_entity(
+                "matomo",
+                nginx_dir=self.nginx_dir,
+                domain_primary="infinito.example",
+                roles_dir=self.roles_dir,
+            )
+        )
+        self.assertIn(clearnet, found)
+        self.assertIn(onion, found)
+
+    def test_onion_vhost_ignored_when_node_onion_unset(self):
+        self._mk_role(
+            "web-app-matomo",
+            application_id="matomo",
+            canonical=["matomo.infinito.example"],
+        )
+        onion = self._touch_vhost(f"matomo.{self.ONION}", "http")
+        # No onion identity written -> no node onion -> the onion vhost is ignored.
+        found = set(
+            iter_vhost_files_for_entity(
+                "matomo",
+                nginx_dir=self.nginx_dir,
+                domain_primary="infinito.example",
+                roles_dir=self.roles_dir,
+            )
+        )
+        self.assertNotIn(onion, found)
+
+
 class TestResolveDomainPrimary(unittest.TestCase):
     """Domain precedence: explicit arg > DOMAIN > INFINITO_DOMAIN > default.
 

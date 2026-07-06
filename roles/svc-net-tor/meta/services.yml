@@ -9,7 +9,7 @@ tor:
   image: debian
   version: trixie-slim
   name: tor
-  node: ""  # node onion address SPOT; filled by the inventory from INFINITO_TOR_NODE_ONION
+  node: ""  # node onion address SPOT; set by the inventory provisioner (ensure_node_onion)
   ports:
     local:
       socks: 9050  # Tor SOCKS port SPOT; referenced by torrc, tests and the playwright runner

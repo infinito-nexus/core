@@ -18,12 +18,27 @@ import base64
 import hashlib
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 ONION_VERSION = b"\x03"
 CHECKSUM_SALT = b".onion checksum"
+
+IDENTITY_DIRNAME = ".onion-identity"
+
+
+def identity_hs_dir(base_dir: str | Path) -> Path:
+    """Authoritative hidden-service key dir (``<base_dir>/.onion-identity/hs``).
+
+    Single source of truth for the node's onion identity: ``ensure_node_onion``
+    mints/reuses the key files here and the ``svc-net-tor`` role copies them into
+    the running daemon. Lives outside anything the deploy regenerates and is
+    mounted into the DiD at ``{playbook_dir}/.onion-identity/hs``.
+    """
+    return Path(base_dir) / IDENTITY_DIRNAME / "hs"
+
 
 # Tor key-file headers: 29 ASCII bytes padded with 3 NULs to a 32-byte header.
 SECRET_KEY_HEADER = b"== ed25519v1-secret: type0 ==\x00\x00\x00"

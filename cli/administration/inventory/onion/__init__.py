@@ -1,39 +1,30 @@
 """Node Tor v3 onion identity for the harness.
 
-:func:`init_env` pre-mints the node's onion, writes ``INFINITO_DOMAIN`` (which the
-dev inventory maps to ``DOMAIN_PRIMARY``) into the env file, and stores the
-authoritative hidden-service key files at the repo root. The ``svc-net-tor`` role
-copies those keys into the running daemon so it serves exactly that address, and
-coredns/dns-search resolve the same onion. The onion is a deploy-time input;
-there is no in-deploy minting (a random mint would not match the pre-set domain).
+:func:`ensure_node_onion` pre-mints (or reuses) the node's onion and returns its
+address, storing the authoritative hidden-service key files at the repo root. The
+``svc-net-tor`` role copies those keys into the running daemon so it serves exactly
+that address; the inventory provisioner writes the address into
+``applications.svc-net-tor.services.tor.node``. The onion is a deploy-time input;
+there is no in-deploy minting (a random mint would not match the provisioned node).
 """
 
 from __future__ import annotations
 
 import os
-import re
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from utils.tor_onion import mint
+from utils.tor_onion import IDENTITY_DIRNAME, identity_hs_dir, mint
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+__all__ = ["IDENTITY_DIRNAME", "ensure_node_onion", "identity_hs_dir"]
 
 HS_FILE_MODES = {
     "hostname": 0o600,
     "hs_ed25519_public_key": 0o600,
     "hs_ed25519_secret_key": 0o600,
 }
-
-IDENTITY_DIRNAME = ".onion-identity"
-
-
-def identity_hs_dir(base_dir: str | Path) -> Path:
-    """Authoritative hidden-service key files, next to the env file (repo root).
-
-    Single source of truth for the node's onion identity: the ``svc-net-tor`` role
-    copies them into the running daemon. Lives outside anything the deploy
-    regenerates (unlike ``.env``) and is mounted into the DiD at
-    ``{playbook_dir}/.onion-identity/hs``.
-    """
-    return Path(base_dir) / IDENTITY_DIRNAME / "hs"
 
 
 def _write_files(directory: Path, files: dict[str, bytes]) -> None:
@@ -47,56 +38,22 @@ def _write_files(directory: Path, files: dict[str, bytes]) -> None:
             handle.write(content)
 
 
-def _upsert_env(env_path: Path, updates: dict[str, str]) -> None:
-    """Set/replace ``KEY=VALUE`` lines in an env file, preserving everything else."""
-    raw = ""
-    if env_path.exists():
-        raw = env_path.read_text(encoding="utf-8")  # nocheck: cache-read
-    lines = raw.splitlines(keepends=True)
-    remaining = dict(updates)
-    out: list[str] = []
-    for line in lines:
-        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)=", line)
-        if match and match.group(1) in remaining:
-            key = match.group(1)
-            out.append(f"{key}={remaining.pop(key)}\n")
-        else:
-            out.append(line)
-    if out and not out[-1].endswith("\n"):
-        out.append("\n")
-    for key, value in remaining.items():
-        out.append(f"{key}={value}\n")
-    env_path.write_text("".join(out), encoding="utf-8")
+def ensure_node_onion(base_dir: str | Path) -> str:
+    """Mint (or reuse) the node onion identity and return its ``.onion`` address.
 
-
-def init_env(env_file: str | Path) -> str:
-    """Ensure the node onion identity and (re)write ``INFINITO_DOMAIN`` into the env.
-
-    Idempotent: an existing key at ``.onion-identity/hs`` is reused so the address
-    is stable across runs (and can be restored after ``make test``/``autoformat``
-    regenerate ``.env``). Setting ``INFINITO_DOMAIN`` makes the whole harness —
-    coredns, docker ``dns-search`` and ``DOMAIN_PRIMARY`` — resolve the same onion;
-    the key files make the daemon serve exactly that address. Returns it.
+    Dual-stack model: the node keeps its clearnet ``DOMAIN_PRIMARY``; the node
+    onion is an ADDITIVE address opted-in apps (``services.tor.enabled``) are also
+    reachable under as ``<sub>.<node-onion>`` over Tor. Idempotent: an existing key
+    at ``<base_dir>/.onion-identity/hs`` is reused so the address is stable across
+    runs. The key files are the single source of truth — the ``svc-net-tor`` role
+    copies them into the daemon so it serves exactly this address, and the
+    inventory provisioner writes the returned address into
+    ``applications.svc-net-tor.services.tor.node`` (no env indirection).
     """
-    env_path = Path(env_file)
-    hs = identity_hs_dir(env_path.parent)
+    hs = identity_hs_dir(base_dir)
     hostname_file = hs / "hostname"
     if hostname_file.exists():
-        address = hostname_file.read_text(
-            encoding="ascii"
-        ).strip()  # nocheck: cache-read
-    else:
-        key = mint()
-        _write_files(hs, key.files())
-        address = key.address
-    # Escape the literal dot for the coredns regex; match the existing .env style
-    # (double backslash inside double quotes).
-    domain_re = address.replace(".", "\\\\.")
-    _upsert_env(
-        env_path,
-        {
-            "INFINITO_DOMAIN": address,
-            "INFINITO_DOMAIN_RE": f'"{domain_re}"',
-        },
-    )
-    return address
+        return hostname_file.read_text(encoding="ascii").strip()  # nocheck: cache-read
+    key = mint()
+    _write_files(hs, key.files())
+    return key.address
