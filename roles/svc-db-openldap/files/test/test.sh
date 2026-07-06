@@ -144,19 +144,25 @@ sys.exit(0 if who else 1)
 PY
 }
 
+run_auth() {
+	if [ "${TOR_ENABLED}" = "true" ]; then
+		auth_tor
+	else
+		auth_local
+	fi
+}
+
 if [ "${TOR_ENABLED}" = "true" ]; then
 	[ -n "${ONION_HOST}" ] || { echo "[FATAL] ONION_HOST unset but tor enabled" >&2; exit 2; }
 	mode="over Tor"
-	attempt_fn=auth_tor
 else
 	[ -n "${DB_CONTAINER}" ] || { echo "[FATAL] DB_CONTAINER unset for local auth" >&2; exit 2; }
 	mode="local"
-	attempt_fn=auth_local
 fi
 
 attempt=1
 while [ "${attempt}" -le "${RETRIES}" ]; do
-	if "${attempt_fn}"; then
+	if run_auth; then
 		echo "[OK]   openldap credential bind ${mode} succeeded"
 		exit 0
 	fi

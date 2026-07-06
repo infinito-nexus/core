@@ -147,19 +147,25 @@ sys.exit(0 if row and row[0] == 1 else 1)
 PY
 }
 
+run_auth() {
+	if [ "${TOR_ENABLED}" = "true" ]; then
+		auth_tor
+	else
+		auth_local
+	fi
+}
+
 if [ "${TOR_ENABLED}" = "true" ]; then
 	[ -n "${ONION_HOST}" ] || { echo "[FATAL] ONION_HOST unset but tor enabled" >&2; exit 2; }
 	mode="over Tor"
-	attempt_fn=auth_tor
 else
 	[ -n "${DB_CONTAINER}" ] || { echo "[FATAL] DB_CONTAINER unset for local auth" >&2; exit 2; }
 	mode="local"
-	attempt_fn=auth_local
 fi
 
 attempt=1
 while [ "${attempt}" -le "${RETRIES}" ]; do
-	if "${attempt_fn}"; then
+	if run_auth; then
 		echo "[OK]   postgres credential auth ${mode} succeeded (SELECT 1)"
 		exit 0
 	fi
