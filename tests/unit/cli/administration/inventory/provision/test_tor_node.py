@@ -36,7 +36,9 @@ class TestApplyTorNodeOnion(unittest.TestCase):
                 "node"
             ]
             hs_file = base / ".onion-identity" / "hs" / "hostname"
-            hostname = hs_file.read_text(encoding="ascii").strip()  # nocheck: cache-read -- tempdir
+            hostname = hs_file.read_text(
+                encoding="ascii"
+            ).strip()  # nocheck: cache-read -- tempdir
             self.assertEqual(node, hostname)
 
     def test_noop_when_svc_net_tor_absent(self) -> None:
