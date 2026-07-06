@@ -17,40 +17,17 @@
   when: MODE_DEBUG | bool
 
 - name: 🎬 Initialize Odoo database with core modules
-  block:
-    # Use container exec - the running container already has network access to postgres
-    - name: ▶️ Run Odoo database initialization
-      ansible.builtin.shell: >
-        container exec {{ ODOO_CONTAINER_ADDRESS }}
-        odoo --no-http
-        --database={{ ODOO_DB_NAME }}
-        --init={{ ODOO_MODULES_CORE | join(',') }}
-        --stop-after-init
-      register: odoo_init
-      retries: 3
-      delay: 10
-      until: odoo_init.rc == 0
-
-    - name: 🔄 Restart Odoo container after initialization
-      ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
-
-    - name: ⏳ Wait for Odoo container to be healthy after init
-      ansible.builtin.command: container inspect --format {% raw %}'{{.State.Health.Status}}'{% endraw %} {{ ODOO_CONTAINER }}
-      register: container_health
-      until: container_health.stdout | trim == 'healthy'
-      retries: 30
-      delay: 10
-      changed_when: false
+  include_tasks: 01a_bootstrap_schema.yml
   when: odoo_schema_exists.rows is not defined or odoo_schema_exists.rows | length == 0
 
 - name: 🔄 Update existing Odoo modules (if schema exists)
-  ansible.builtin.shell: >
-    container exec {{ ODOO_CONTAINER_ADDRESS }}
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }}
     odoo --no-http
     --database={{ ODOO_DB_NAME }}
     --update={{ ODOO_MODULES_CORE | join(',') }}
     --stop-after-init
+  delegate_to: "{{ ODOO_HOST_NODE }}"
   register: odoo_update
-  changed_when: "'upgraded' in odoo_update.stdout or 'updated' in odoo_update.stdout"
-  failed_when: false
+  changed_when: "'upgraded' in (odoo_update.stdout ~ odoo_update.stderr) or 'updated' in (odoo_update.stdout ~ odoo_update.stderr)"
   when: odoo_schema_exists.rows is defined and odoo_schema_exists.rows | length > 0

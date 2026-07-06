@@ -12,7 +12,6 @@ container_websocket_port: 8072
 ODOO_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
 ODOO_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
 ODOO_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
-ODOO_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 ODOO_SERVICE: "{{ entity_name }}"
 
 ODOO_CONF_FILE_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}odoo.conf"

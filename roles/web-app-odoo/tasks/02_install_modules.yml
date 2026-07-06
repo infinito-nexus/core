@@ -1,13 +1,11 @@
 ---
-# Install Odoo modules
-
 - name: "🔨 Build list of modules to install"
   set_fact:
     odoo_modules_to_install: "{{ (ODOO_MODULES_CORE + ODOO_MODULES_OPTIONAL) | join(',') }}"
 
 - name: "📦 Install core modules"
-  shell: >
-    container exec {{ ODOO_CONTAINER_ADDRESS }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }}
     odoo -i {{ odoo_modules_to_install }}
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
@@ -16,14 +14,17 @@
     --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
+  delegate_to: "{{ ODOO_HOST_NODE }}"
   register: module_install
-  changed_when: "'loading' in module_install.stdout"
-  failed_when: false
+  changed_when: "'loading' in (module_install.stdout ~ module_install.stderr)"
+  failed_when: >-
+    module_install.rc != 0
+    or 'invalid module names' in (module_install.stdout ~ module_install.stderr)
   when: odoo_modules_to_install | length > 0
 
 - name: "🔄 Update installed modules"
-  shell: >
-    container exec {{ ODOO_CONTAINER_ADDRESS }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }}
     odoo -u all
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
@@ -32,16 +33,16 @@
     --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
+  delegate_to: "{{ ODOO_HOST_NODE }}"
   register: module_update
-  changed_when: "'loading' in module_update.stdout"
-  failed_when: false
+  changed_when: "'loading' in (module_update.stdout ~ module_update.stderr)"
 
 - name: "📦 Install OIDC-related modules (auth_oauth + auth_signup + auth_oauth_https)"
   when: ODOO_OIDC_ENABLED | bool
   block:
     - name: "📦 Install auth_oauth module for OIDC support"
-      shell: >
-        container exec {{ ODOO_CONTAINER_ADDRESS }}
+      shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ ODOO_LOCAL_CID | quote }}
         odoo -i auth_oauth
         -d {{ ODOO_DB_NAME }}
         --db_host {{ ODOO_DB_HOST }}
@@ -50,13 +51,16 @@
         --db_password {{ ODOO_DB_PASSWORD | quote }}
         --stop-after-init
         --no-http
+      delegate_to: "{{ ODOO_HOST_NODE }}"
       register: auth_oauth_install
-      changed_when: "'loading' in auth_oauth_install.stdout"
-      failed_when: false
+      changed_when: "'loading' in (auth_oauth_install.stdout ~ auth_oauth_install.stderr)"
+      failed_when: >-
+        auth_oauth_install.rc != 0
+        or 'invalid module names' in (auth_oauth_install.stdout ~ auth_oauth_install.stderr)
 
     - name: "📦 Install auth_signup module for OAuth user auto-creation"
-      shell: >
-        container exec {{ ODOO_CONTAINER_ADDRESS }}
+      shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ ODOO_LOCAL_CID | quote }}
         odoo -i auth_signup
         -d {{ ODOO_DB_NAME }}
         --db_host {{ ODOO_DB_HOST }}
@@ -65,13 +69,16 @@
         --db_password {{ ODOO_DB_PASSWORD | quote }}
         --stop-after-init
         --no-http
+      delegate_to: "{{ ODOO_HOST_NODE }}"
       register: auth_signup_install
-      changed_when: "'loading' in auth_signup_install.stdout"
-      failed_when: false
+      changed_when: "'loading' in (auth_signup_install.stdout ~ auth_signup_install.stderr)"
+      failed_when: >-
+        auth_signup_install.rc != 0
+        or 'invalid module names' in (auth_signup_install.stdout ~ auth_signup_install.stderr)
 
     - name: "📦 Install auth_oauth_https module for HTTPS redirect URI fix"
-      shell: >
-        container exec {{ ODOO_CONTAINER_ADDRESS }}
+      shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ ODOO_LOCAL_CID | quote }}
         odoo -i auth_oauth_https
         -d {{ ODOO_DB_NAME }}
         --db_host {{ ODOO_DB_HOST }}
@@ -80,13 +87,16 @@
         --db_password {{ ODOO_DB_PASSWORD | quote }}
         --stop-after-init
         --no-http
+      delegate_to: "{{ ODOO_HOST_NODE }}"
       register: auth_oauth_https_install
-      changed_when: "'loading' in auth_oauth_https_install.stdout"
-      failed_when: false
+      changed_when: "'loading' in (auth_oauth_https_install.stdout ~ auth_oauth_https_install.stderr)"
+      failed_when: >-
+        auth_oauth_https_install.rc != 0
+        or 'invalid module names' in (auth_oauth_https_install.stdout ~ auth_oauth_https_install.stderr)
 
 - name: "📦 Install auth_ldap module for LDAP support"
-  shell: >
-    container exec {{ ODOO_CONTAINER_ADDRESS }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }}
     odoo -i auth_ldap
     -d {{ ODOO_DB_NAME }}
     --db_host {{ ODOO_DB_HOST }}
@@ -95,7 +105,10 @@
     --db_password {{ ODOO_DB_PASSWORD | quote }}
     --stop-after-init
     --no-http
+  delegate_to: "{{ ODOO_HOST_NODE }}"
   register: auth_ldap_install
-  changed_when: "'loading' in auth_ldap_install.stdout"
-  failed_when: false
+  changed_when: "'loading' in (auth_ldap_install.stdout ~ auth_ldap_install.stderr)"
+  failed_when: >-
+    auth_ldap_install.rc != 0
+    or 'invalid module names' in (auth_ldap_install.stdout ~ auth_ldap_install.stderr)
   when: ODOO_LDAP_ENABLED | bool
