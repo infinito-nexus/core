@@ -290,5 +290,39 @@ class TestMainShim(NginxVhostsTestBase, unittest.TestCase):
         self.assertIn("No nginx vhost files to remove", stdout.getvalue())
 
 
+class TestResolveDomainPrimary(unittest.TestCase):
+    """Domain precedence: explicit arg > DOMAIN > INFINITO_DOMAIN > default.
+
+    The INFINITO_DOMAIN fallback keeps the vhost purge correct on nodes whose
+    domain differs from the default (e.g. a .onion node), where DOMAIN is unset
+    but INFINITO_DOMAIN carries the real DOMAIN_PRIMARY.
+    """
+
+    def test_explicit_arg_wins(self) -> None:
+        with patch.dict(os.environ, {"DOMAIN": "x", "INFINITO_DOMAIN": "y"}):
+            self.assertEqual(mod._resolve_domain_primary("explicit"), "explicit")
+
+    def test_domain_env_preferred(self) -> None:
+        with patch.dict(
+            os.environ, {"DOMAIN": "a.example", "INFINITO_DOMAIN": "b.onion"}
+        ):
+            self.assertEqual(mod._resolve_domain_primary(None), "a.example")
+
+    def test_falls_back_to_infinito_domain(self) -> None:
+        env = {k: v for k, v in os.environ.items() if k != "DOMAIN"}
+        env["INFINITO_DOMAIN"] = "node.onion"
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(mod._resolve_domain_primary(None), "node.onion")
+
+    def test_default_when_nothing_set(self) -> None:
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k not in ("DOMAIN", "INFINITO_DOMAIN")
+        }
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(mod._resolve_domain_primary(None), "infinito.example")
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
