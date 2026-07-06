@@ -1,6 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = 'joomla' %}
-  {% set container_healthcheck_start_period = '5m' %}
+  {% set container_healthcheck_start_period = '15m' %}
   {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
