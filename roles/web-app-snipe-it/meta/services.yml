@@ -46,7 +46,7 @@ seaweedfs:
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
   public: true
 snipe-it:
-  version: latest-alpine
+  version: v8.6.3-alpine
   name: snipe-it
   image: snipe/snipe-it
   min_storage: 8GB
