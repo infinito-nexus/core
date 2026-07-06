@@ -48,6 +48,7 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 checkmk:
+  # nocheck: single-replica
   replicas: 1
   cpus: 2.0
   mem_reservation: 1g

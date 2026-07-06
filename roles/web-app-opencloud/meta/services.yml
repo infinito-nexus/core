@@ -27,6 +27,7 @@ email:
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
 opencloud:
+  # nocheck: single-replica
   replicas: 1
   name: opencloud
   image: opencloudeu/opencloud

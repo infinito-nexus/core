@@ -97,6 +97,7 @@ events-rabbitmq:
   mem_limit: 1g
   pids_limit: 512
 manager:
+  # nocheck: single-replica
   replicas: 1
   name: "taiga-manager"
   cpus: "0.5"

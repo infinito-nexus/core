@@ -30,6 +30,7 @@ prometheus:
 seaweedfs:
   # nocheck: default-placement-manager  central object-store provider, single-replica with a node-local data volume; S3 health check and weed-shell bucket provisioning run via container exec on the stack host, mirroring the svc-db-* providers
   default_placement: manager
+  # nocheck: single-replica
   replicas: 1
   bond: 1
   enabled: true

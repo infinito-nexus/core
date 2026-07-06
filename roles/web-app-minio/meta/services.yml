@@ -22,6 +22,7 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — central object-store provider entity
 minio:
+  # nocheck: single-replica
   replicas: 1
   bond: 1
   enabled: true
