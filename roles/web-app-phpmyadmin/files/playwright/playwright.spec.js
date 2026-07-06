@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -21,7 +21,7 @@ test("phpMyAdmin front page is served under canonical domain with TLS", async ({
     `Expected canonical domain "${canonicalDomain}" to back the phpMyAdmin URL`
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "phpMyAdmin must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, appBaseUrl, "phpMyAdmin");
 });
 
 test("phpMyAdmin returns HTML content under canonical domain", async ({ request }) => {

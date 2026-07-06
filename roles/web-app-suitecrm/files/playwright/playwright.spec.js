@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -21,7 +21,7 @@ test("SuiteCRM front page is served under canonical domain with TLS", async ({ p
     `Expected canonical domain "${canonicalDomain}" to back the SuiteCRM URL`
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "SuiteCRM must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, appBaseUrl, "SuiteCRM");
 });
 
 test("SuiteCRM returns HTML content under canonical domain", async ({ request }) => {

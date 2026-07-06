@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
+const { expectHstsWhenTls } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -30,7 +31,7 @@ test("Pi-hole front page is served under canonical domain with TLS", async ({ pa
     ).toBe(true);
   }
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "Pi-hole must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, piholeBaseUrl, "Pi-hole");
 });
 
 test("Pi-hole returns HTML content under canonical domain", async ({ request }) => {

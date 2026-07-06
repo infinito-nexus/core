@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue } = require("./personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue , expectHstsWhenTls } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.SNIPE_IT_BASE_URL || process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
@@ -19,7 +19,7 @@ test("baseline: Snipe-IT front page is served under the canonical domain with TL
     `Expected canonical domain "${canonicalDomain}" to back the Snipe-IT URL`,
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "Snipe-IT must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, baseUrl, "Snipe-IT");
 });
 
 test("baseline: Snipe-IT returns HTML content under the canonical domain", async ({ request }) => {

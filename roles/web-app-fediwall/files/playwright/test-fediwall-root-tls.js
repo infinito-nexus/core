@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { expectHstsWhenTls } = require("./personas");
 
 exports.register = function (shared) {
   test("fediwall root is served under canonical domain with TLS", async ({ page }) => {
@@ -10,6 +11,6 @@ exports.register = function (shared) {
       `Expected canonical domain "${shared.env.canonicalDomain}" to back the fediwall URL`
     ).toBe(true);
     const headers = response.headers();
-    expect(headers["strict-transport-security"], "fediwall must emit HSTS").toBeTruthy();
+    expectHstsWhenTls(headers, shared.env.appBaseUrl, "fediwall");
   });
 };

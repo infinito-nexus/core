@@ -4,6 +4,7 @@
 // individually inspectable.
 
 const shared = require("./_shared");
+const { expectHstsWhenTls } = require("./personas");
 const { test, expect, skipUnlessServiceEnabled, runGuestFlow, runBiberFlow, runAdminFlow, env, penpotOidcLogin } = shared;
 
 test.use({ ignoreHTTPSErrors: true });
@@ -22,7 +23,7 @@ test("baseline: Penpot responds on the canonical domain with TLS", async ({ page
     r.url().includes(env.canonicalDomain),
     `Expected canonical domain "${env.canonicalDomain}" to back the Penpot URL`,
   ).toBe(true);
-  expect(r.headers()["strict-transport-security"], "Penpot must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(r.headers(), env.baseUrl, "Penpot");
 });
 
 // Login surfaces — one companion per method × persona.
