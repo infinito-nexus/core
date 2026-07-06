@@ -90,6 +90,9 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     ldap:
       start: 389
       end: 389
+    socks:
+      start: 9050
+      end: 9050
   public:
     ssh:
       start: 2201
