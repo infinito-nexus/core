@@ -81,7 +81,7 @@ SPOT: [refactor.md](../../../agents/action/refactor.md)
 ## Pipeline Debugging 🛠️
 
 ```
-Follow the instructions from AGENTS.md, triage the failing CI run at <github-actions-run-url> by following the procedure in docs/agents/action/debug/ci.md. Begin by clarifying every open requirement through active listening, then act autonomously through to completion with as few follow-up questions as possible.
+Follow the instructions from AGENTS.md, triage the failing CI run at <github-actions-run-url> by following the procedure in docs/agents/action/debug/ci.md. Act autonomously, no questions. While the run is still in progress, poll it every 15 minutes and download the logs and artefacts of every newly failed job as it appears. For each failure, inspect logs, artefacts, and repository code until you are at least 99% certain of the root cause, then apply the real fix in the repository. You MUST NOT run any commit, push, or `ask`-approval command. You MUST NOT stop early. Done only when the CI run has finished and every failure has a verified fix.
 ```
 
 SPOT: [ci.md](../../../agents/action/debug/ci.md)
