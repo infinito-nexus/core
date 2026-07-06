@@ -82,9 +82,6 @@
 - name: "Include Cert deploy service for '{{ role_name }}'"
   include_role:
     name: sys-ctl-mtn-cert-deploy
-  when: lookup('tls', application_id, 'enabled') | bool
-  # Alarm mail setup reaches sys-svc-mail and therefore requires the Mailu
-  # API token that is created in 04_manage_user.yml.
 
 - name: Wait for Mailu antispam
   include_tasks: 07_wait_for_antispam.yml

@@ -41,10 +41,6 @@
 - name: "Ensure CA trust assets are installed (only when needed)"
   ansible.builtin.include_role:
     name: sys-svc-compose-ca
-  when:
-    - lookup('domains') | has_domain(application_id)
-    - lookup('tls', application_id, 'enabled') | bool
-    - lookup('tls', application_id, 'mode') == 'self_signed'
 
 - name: "Ensure that {{ lookup('container', application_id, 'directories.instance') }} is up"
   include_tasks: "utils/up.yml"

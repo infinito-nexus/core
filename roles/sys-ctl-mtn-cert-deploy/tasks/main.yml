@@ -1,3 +1,14 @@
 ---
+- name: "Cert deploy not applicable for '{{ application_id }}' (TLS disabled) — mark role executed"
+  ansible.builtin.debug:
+    msg: >-
+      Skipping certificate deploy: TLS is disabled for '{{ application_id }}'
+      (onion transport is authenticated by the hidden service itself).
+  when:
+    - run_once_sys_ctl_mtn_cert_deploy is not defined
+    - not (lookup('tls', application_id, 'enabled') | bool)
+
 - include_tasks: 01_core.yml
-  when: run_once_sys_ctl_mtn_cert_deploy is not defined
+  when:
+    - run_once_sys_ctl_mtn_cert_deploy is not defined
+    - lookup('tls', application_id, 'enabled') | bool

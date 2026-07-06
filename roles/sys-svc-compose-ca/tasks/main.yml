@@ -1,3 +1,14 @@
 ---
+- name: "CA trust not applicable for '{{ application_id }}' (TLS off or not self_signed) — mark role executed"
+  ansible.builtin.debug:
+    msg: >-
+      Skipping CA trust assets for '{{ application_id }}': no domain, TLS
+      disabled (e.g. onion), or mode is not self_signed.
+  when:
+    - run_once_sys_svc_compose_ca is not defined
+    - not (_compose_ca_applicable | bool)
+
 - include_tasks: 01_core.yml
-  when: run_once_sys_svc_compose_ca is not defined
+  when:
+    - run_once_sys_svc_compose_ca is not defined
+    - _compose_ca_applicable | bool
