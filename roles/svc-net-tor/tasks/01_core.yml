@@ -1,6 +1,4 @@
 ---
-# Set the run-once flag FIRST so a second dynamic load attempt sees it and does
-# not re-include this role (see test_service_core_first_task_run_once).
 - include_tasks: utils/once/flag.yml
 
 - name: "Ensure Tor config directory exists"
@@ -37,7 +35,7 @@
     - { name: "hs_ed25519_public_key", mode: "0600" }
     - { name: "hs_ed25519_secret_key", mode: "0600" }
   become: true
-  notify: "compose up"
+  register: _tor_hs_keys
 
 - name: "Render torrc"
   ansible.builtin.template:
@@ -47,10 +45,8 @@
     group: root
     mode: "0644"
   become: true
-  notify: "compose up"
+  register: _tor_torrc
 
-# Tor runs with network_mode: host, so include sys-svc-compose directly (mirrors
-# the svc-prx-openresty host-mode pattern) instead of the network-create routine.
 - name: "For '{{ application_id }}': Load sys-svc-compose"
   include_role:
     name: sys-svc-compose
@@ -58,3 +54,13 @@
     compose_repository_pull: false
     compose_handlers_flush: true
     application_id: svc-net-tor
+
+- name: "Restart Tor to apply hidden-service key / torrc changes"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose up -d --force-recreate --remove-orphans
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  become: true
+  when: (_tor_hs_keys is changed) or (_tor_torrc is changed)
