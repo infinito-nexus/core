@@ -34,6 +34,8 @@
     seaweedfs:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 - services:
     matrix:
@@ -70,19 +72,11 @@
     seaweedfs:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 
-- addons:
-    mautrix-whatsapp:
-      enabled: true
-    mautrix-telegram:
-      enabled: true
-    mautrix-signal:
-      enabled: true
-    mautrix-slack:
-      enabled: true
-    mautrix-meta:
-      enabled: true
-  services:
+- services:
     matrix:
       flavor: compose
     seaweedfs:
@@ -117,3 +111,17 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
+  addons:
+    mautrix-whatsapp:
+      enabled: true
+    mautrix-telegram:
+      enabled: true
+    mautrix-signal:
+      enabled: true
+    mautrix-slack:
+      enabled: true
+    mautrix-meta:
+      enabled: true

@@ -3,7 +3,12 @@
     dashboard: # nocheck: variants-services-match
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     dashboard: # nocheck: variants-services-match
       enabled: false
-      shared: false
+      shared: false  # nocheck: variants-static-override
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

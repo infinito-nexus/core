@@ -32,9 +32,9 @@
     css:
       enabled: true
       shared: true
-- credentials:
-    administrator_password: "'$tr0ng€xampl3PW!"
-  services:
+    tor:
+      enabled: true
+- services:
     keycloak:
       realm:
         totp_enabled: false
@@ -58,3 +58,8 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
+  credentials:
+    administrator_password: "'$tr0ng€xampl3PW!"

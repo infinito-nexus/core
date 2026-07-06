@@ -34,13 +34,9 @@
     prometheus:
       enabled: true
       shared: true
-- server:
-    domains:
-      canonical:
-        - blog.{{ DOMAIN_PRIMARY }}
-        - biberblog.{{ DOMAIN_PRIMARY }}
-        - biber.blog.{{ DOMAIN_PRIMARY }}
-  services:
+    tor:
+      enabled: true
+- services:
     wordpress:
       multisite:
         enabled: true
@@ -67,3 +63,12 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
+  server:
+    domains:
+      canonical:
+        - blog.{{ DOMAIN_PRIMARY }}
+        - biberblog.{{ DOMAIN_PRIMARY }}
+        - biber.blog.{{ DOMAIN_PRIMARY }}
