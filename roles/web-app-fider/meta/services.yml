@@ -68,6 +68,7 @@ seaweedfs:
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 
+# nocheck: playwright-service-flag
 tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"

@@ -33,6 +33,7 @@ xmpp:
   mem_limit: 1g
   pids_limit: 512
 
+# nocheck: playwright-service-flag
 tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"

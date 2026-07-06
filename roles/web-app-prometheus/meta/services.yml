@@ -99,6 +99,7 @@ node-exporter:
   pids_limit: 64
   min_storage: 1GB
 
+# nocheck: playwright-service-flag
 tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"

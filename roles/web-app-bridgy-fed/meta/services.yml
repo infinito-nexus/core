@@ -55,6 +55,7 @@ bridgy-fed:
   mem_limit: 256m
   pids_limit: 256
 
+# nocheck: playwright-service-flag
 tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"

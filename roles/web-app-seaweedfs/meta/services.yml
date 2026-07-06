@@ -56,6 +56,7 @@ proxy:
   mem_limit: 128m
   pids_limit: 128
 
+# nocheck: playwright-service-flag
 tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"
