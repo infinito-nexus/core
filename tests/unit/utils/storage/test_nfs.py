@@ -17,12 +17,14 @@ class TestNfsHelpers(unittest.TestCase):
     def test_mount_opts_dev_act_soft(self):
         for rt in ("dev", "act"):
             self.assertEqual(
-                mount_opts(4, rt), "vers=4,rw,soft,timeo=50,retrans=3,nolock"
+                mount_opts(4, rt), "vers=4,rw,soft,timeo=50,retrans=3,local_lock=flock"
             )
 
     def test_mount_opts_prod_hard(self):
         for rt in ("github", "host"):
-            self.assertEqual(mount_opts(4, rt), "vers=4,rw,hard,timeo=600,nolock")
+            self.assertEqual(
+                mount_opts(4, rt), "vers=4,rw,hard,timeo=600,local_lock=flock"
+            )
 
     def test_client_src_kernel_v4_is_root(self):
         self.assertEqual(

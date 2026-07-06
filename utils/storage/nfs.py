@@ -15,11 +15,10 @@ def mount_opts(version, runtime):
     reliability = (
         "soft,timeo=50,retrans=3" if runtime in ("dev", "act") else "hard,timeo=600"
     )
-    return f"vers={version},rw,{reliability},nolock"
+    locking = "local_lock=flock" if int(version) >= 4 else "nolock"
+    return f"vers={version},rw,{reliability},{locking}"
 
 
 def client_src(server, version, flavor, state_path_value):
-    # kernel-v4 exports the state dir at fsid=0, so clients mount the bare ':/' root;
-    # ganesha (Pseudo == real path) and v3 mount the full state path.
     use_root = flavor == "kernel" and int(version) >= 4
     return f"{server}:{'/' if use_root else state_path_value}"
