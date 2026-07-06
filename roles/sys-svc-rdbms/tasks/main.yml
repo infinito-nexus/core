@@ -40,6 +40,7 @@
         application_id: "{{ _database_provider_role }}"
         database_init: true
         compose_repository_pull: false
+        compose_mode_force: ""
         database_consumer_id: "{{ _database_consumer_id }}"
 
     - name: "➕ For '{{ application_id }}': Add Entry for Backup Procedure"
