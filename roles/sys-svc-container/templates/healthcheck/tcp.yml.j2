@@ -5,4 +5,8 @@
         - "bash"
         - "-c"
         - "exec 3<>/dev/tcp/localhost/{{ container_port }} && echo -e 'GET /{{ container_healthcheck | default('') }} HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q 'HTTP/1.1'"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: {{ container_healthcheck_start_period | default('30s') }}
 {{ "\n" }}

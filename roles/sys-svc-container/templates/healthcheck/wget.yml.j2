@@ -9,4 +9,5 @@
       interval: 1m
       timeout: 10s
       retries: 3
+      start_period: {{ container_healthcheck_start_period | default('30s') }}
 {{ "\n" }}
