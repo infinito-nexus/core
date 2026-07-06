@@ -9,6 +9,10 @@ tor:
   image: debian
   version: trixie-slim
   name: tor
+  node: ""  # node onion address SPOT; filled by the inventory from INFINITO_TOR_NODE_ONION
+  ports:
+    local:
+      socks: 9050  # Tor SOCKS port SPOT; referenced by torrc, tests and the playwright runner
   min_storage: 100MB
   cpus: "0.25"
   mem_reservation: 128m

@@ -8,7 +8,7 @@ DataDirectory /var/lib/tor
 # all node interfaces so DiD sibling containers can reach it via
 # host.docker.internal, but restricted by SocksPolicy to loopback + private/DiD
 # ranges so it is never an open proxy.
-SocksPort 0.0.0.0:9050
+SocksPort {{ lookup('tor_socks', '0.0.0.0') }}
 SocksPolicy accept 127.0.0.0/8
 SocksPolicy accept 10.0.0.0/8
 SocksPolicy accept 172.16.0.0/12

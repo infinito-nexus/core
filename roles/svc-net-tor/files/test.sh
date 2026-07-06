@@ -12,14 +12,15 @@
 #   make compose-exec cmd="bash /opt/src/infinito/roles/svc-net-tor/test.sh"
 #
 # Env overrides:
-#   TOR_SOCKS         SOCKS proxy for .onion (default 127.0.0.1:9050)
+#   TOR_SOCKS         SOCKS proxy for .onion (required env; pass
+#                     127.0.0.1:<svc-net-tor services.tor.ports.local.socks>)
 #   NGINX_SERVERS_DIR vhost servers dir     (default /etc/nginx/conf.d/servers)
 #   RETRIES           attempts per domain   (default 20)
 #   SLEEP_SECONDS     wait between attempts (default 15)
 
 set -uo pipefail
 
-TOR_SOCKS="${TOR_SOCKS:-127.0.0.1:9050}"
+TOR_SOCKS="${TOR_SOCKS:?pass TOR_SOCKS as env (127.0.0.1:<svc-net-tor services.tor.ports.local.socks>)}"
 NGINX_SERVERS_DIR="${NGINX_SERVERS_DIR:-/etc/nginx/conf.d/servers}"
 RETRIES="${RETRIES:-20}"
 SLEEP_SECONDS="${SLEEP_SECONDS:-15}"
