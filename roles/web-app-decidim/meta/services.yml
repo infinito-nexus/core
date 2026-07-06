@@ -66,3 +66,8 @@ seaweedfs:
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
   public: true
+
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true  # nocheck: dynamic-flag

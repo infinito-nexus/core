@@ -88,3 +88,8 @@ jvb:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 2048
+
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true  # nocheck: dynamic-flag

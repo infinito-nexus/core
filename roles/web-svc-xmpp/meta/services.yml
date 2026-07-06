@@ -32,3 +32,8 @@ xmpp:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true  # nocheck: dynamic-flag

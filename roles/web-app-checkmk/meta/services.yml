@@ -70,3 +70,8 @@ checkmk:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: alpha
+
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true  # nocheck: dynamic-flag

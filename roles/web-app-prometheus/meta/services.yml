@@ -98,3 +98,8 @@ node-exporter:
   mem_limit: 128m
   pids_limit: 64
   min_storage: 1GB
+
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true  # nocheck: dynamic-flag

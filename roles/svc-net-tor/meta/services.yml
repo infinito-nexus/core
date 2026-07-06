@@ -3,6 +3,8 @@ tor:
   bond: 1
   enabled: true
   shared: true
+  exclusive: true
+  primary: true
   # Base image for the local Debian+tor build (files/Dockerfile).
   image: debian
   version: trixie-slim
