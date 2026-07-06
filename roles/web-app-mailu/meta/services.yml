@@ -33,6 +33,12 @@ mailu:
   ports:
     local:
       http: 8007
+    public:
+      smtp: 25
+      submission: 587
+      smtps: 465
+      imap: 143
+      imaps: 993
   run_after:
     - web-app-matomo
   lifecycle: beta

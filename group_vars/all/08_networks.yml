@@ -109,6 +109,21 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     ldaps:
       start: 636
       end: 636
+    smtp:
+      start: 25
+      end: 25
+    submission:
+      start: 587
+      end: 587
+    smtps:
+      start: 465
+      end: 465
+    imap:
+      start: 143
+      end: 143
+    imaps:
+      start: 993
+      end: 993
     relay:
       start: 20000
       end: 65535
