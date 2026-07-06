@@ -1,3 +1,4 @@
+---
 - name: Define per-role paths for {{ application_id }}
   ansible.builtin.set_fact:
     _cli_env_template: "{{ playbook_dir }}/roles/{{ application_id }}/templates/test.env.j2"

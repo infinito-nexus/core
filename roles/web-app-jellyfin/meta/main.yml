@@ -1,8 +1,8 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Jellyfin, the free open-source media server, behind the platform reverse proxy with Keycloak OIDC (web) and central LDAP authentication via
-    the official Jellyfin auth plugins.
+  description: Deploys Jellyfin, the free open-source media server, behind the platform reverse proxy with Keycloak OIDC (web) and central LDAP authentication
+    via the official Jellyfin auth plugins.
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

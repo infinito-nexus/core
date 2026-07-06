@@ -1,3 +1,4 @@
+---
 networks:
   local:
     subnet: 192.168.106.0/28

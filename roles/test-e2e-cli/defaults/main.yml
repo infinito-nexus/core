@@ -1,3 +1,4 @@
+---
 TEST_E2E_CLI_STAGE_BASE_DIR: "/tmp/test-e2e-cli"
 
 # Run only a subset (optional; override via extra-vars to restrict which roles are tested)
