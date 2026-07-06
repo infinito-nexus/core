@@ -1,35 +1,5 @@
 ---
-# Hard cap per role; Ansible kills the sidecar if exceeded. Sized for
-# addon-heavy roles that run many per-addon specs, e.g. nextcloud (~50 addons).
-test_e2e_playwright_run_timeout: 3600
-
-# Per-test timeout (ms) inside Playwright (config.timeout); caps a single spec.
-test_e2e_playwright_test_timeout: 300000
-
-# Parallel Playwright workers. Spec FILES run concurrently (tests within a file
-# stay serial while TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL is false). The count is
-# computed conservatively from the host CPU/RAM, capped for the app-under-test's
-# concurrency limits, and reduced on CI.
-test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
-
-# Browser SOCKS proxy for the runner (PLAYWRIGHT_PROXY): empty = direct. The value
-# is provided globally by group_vars/all/19_tor.yml (onion node -> Tor SOCKS), so
-# it is intentionally NOT redeclared here (top-level constants must be unique).
-
-# Optional readiness wait
-test_e2e_playwright_wait_enabled: true
-test_e2e_playwright_wait_retries: 30
-test_e2e_playwright_wait_delay: 5
-
-# Run only a subset (optional)
 test_e2e_playwright_only_roles: "{{ lookup('deployment').groups }}"
-test_e2e_playwright_skip_roles: [] # e.g. ["svc-something"]
-
+test_e2e_playwright_skip_roles: []
 test_e2e_playwright_keep: false
-
-# 0-based matrix-deploy round id. Pushed as an Ansible extra var by
-# `cli/administration/deploy/development/deploy.py` when the matrix
-# orchestrator runs; defaults to 0 for dev / non-matrix invocations
-# so per-(variant, pass) artifact archiving still produces a valid
-# `variant-0/<sync|async>/` slot.
 VARIANT_INDEX: 0

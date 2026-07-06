@@ -249,11 +249,11 @@
     validate_certs: false
     follow_redirects: none
   register: _wait_result
-  retries: "{{ test_e2e_playwright_wait_retries }}"
-  delay: "{{ test_e2e_playwright_wait_delay }}"
+  retries: "{{ TEST_E2E_PLAYWRIGHT_WAIT_RETRIES }}"
+  delay: "{{ TEST_E2E_PLAYWRIGHT_WAIT_DELAY }}"
   until: _wait_result.status is defined and _wait_result.status | int < 500
   when:
-    - test_e2e_playwright_wait_enabled | bool
+    - TEST_E2E_PLAYWRIGHT_WAIT_ENABLED | bool
     # .onion targets are only reachable via Tor; the HTTP readiness probe cannot
     # resolve them, so skip it there and let the proxied Playwright run assert.
     - not (lookup('tls', application_id, 'url.base') is search('\.onion'))
@@ -269,6 +269,52 @@
   changed_when: false
   when: MODE_DEBUG | bool
 
+- name: Detect whether this app's canonical target is an onion
+  ansible.builtin.set_fact:
+    _pw_is_onion: "{{ lookup('tls', application_id, 'url.base') is search('\\.onion') }}"
+
+- name: Select Playwright proxy (node Tor SOCKS for onion targets, else direct)
+  ansible.builtin.set_fact:
+    _pw_proxy: >-
+      {{ 'socks5://host.docker.internal:9050' if (_pw_is_onion | bool)
+         else '' }}
+
+- name: Probe onion reachability over Tor
+  ansible.builtin.command:
+    argv:
+      - curl
+      - --silent
+      - --show-error
+      - --location
+      - --socks5-hostname
+      - 127.0.0.1:9050
+      - --max-time
+      - "30"
+      - -o
+      - /dev/null
+      - "http://{{ lookup('domain', application_id) }}/"  # nocheck: literal-protocol-lookup -- .onion is plaintext-only (no TLS), via Tor SOCKS
+  register: _pw_onion_probe
+  changed_when: false
+  failed_when: false
+  retries: "{{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int }}"
+  delay: "{{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int }}"
+  until: _pw_onion_probe.rc == 0
+  ignore_errors: true
+  when: _pw_is_onion | bool
+
+- name: Decide whether to run Playwright (skip onion apps Tor cannot reach)
+  ansible.builtin.set_fact:
+    _pw_run: "{{ (not (_pw_is_onion | bool)) or (_pw_onion_probe.rc | default(1) == 0) }}"
+
+- name: Note skipped Playwright run (onion unreachable over Tor)
+  ansible.builtin.debug:
+    msg: >-
+      SKIP Playwright for {{ application_id }}: onion
+      {{ lookup('domain', application_id) }} did not answer over Tor after
+      {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES }} attempts (Tor not
+      bootstrapped or hidden service not yet published). Deploy not failed.
+  when: (_pw_is_onion | bool) and not (_pw_run | bool)
+
 - name: Run Playwright container
   ansible.builtin.command:
     argv:
@@ -283,13 +329,13 @@
       - -e
       - "INFINITO_PLAYWRIGHT_KEEP={{ test_e2e_playwright_keep }}"
       - -e
-      - "PLAYWRIGHT_PROXY={{ TEST_E2E_PLAYWRIGHT_PROXY }}"
+      - "PLAYWRIGHT_PROXY={{ _pw_proxy }}"
       - -e
-      - "PLAYWRIGHT_WORKERS={{ test_e2e_playwright_workers }}"
+      - "PLAYWRIGHT_WORKERS={{ TEST_E2E_PLAYWRIGHT_WORKERS }}"
       - -e
       - "PLAYWRIGHT_FULLY_PARALLEL={{ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL }}"
       - -e
-      - "PLAYWRIGHT_TEST_TIMEOUT={{ test_e2e_playwright_test_timeout }}"
+      - "PLAYWRIGHT_TEST_TIMEOUT={{ TEST_E2E_PLAYWRIGHT_TEST_TIMEOUT }}"
       - -v
       - "{{ _playwright_stage_dir }}:/e2e"
       - -v
@@ -304,7 +350,7 @@
       - /bin/bash
       - -lc
       - "{{ TEST_E2E_PLAYWRIGHT_COMMAND }}"
-  timeout: "{{ test_e2e_playwright_run_timeout | int }}"
+  timeout: "{{ TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT | int }}"
   environment: >-
     {{
       {
@@ -316,6 +362,7 @@
   register: _playwright_run
   changed_when: false
   failed_when: false
+  when: _pw_run | bool
 
 - name: Print Playwright output (on failure)
   ansible.builtin.debug:
@@ -325,13 +372,13 @@
 
       stderr:
       {{ _playwright_run.stderr }}
-  when: _playwright_run.rc != 0
+  when: _playwright_run.rc | default(0) != 0
   changed_when: false
 
 - name: Record failure
   ansible.builtin.set_fact:
     _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
-  when: _playwright_run.rc != 0
+  when: _playwright_run.rc | default(0) != 0
 
 - name: Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-

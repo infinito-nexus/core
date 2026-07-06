@@ -85,12 +85,6 @@ Both are used as central defaults for every app role.
 - `TEST_E2E_PLAYWRIGHT_IMAGE_DISTRO` (default: `noble`)
 - `TEST_E2E_PLAYWRIGHT_COMMAND` (default: `npm install --no-fund --no-audit && npx playwright test`)
 
-### Readiness wait
-
-- `test_e2e_playwright_wait_enabled` (default: `true`)
-- `test_e2e_playwright_wait_retries` (default: `30`)
-- `test_e2e_playwright_wait_delay` (default: `5`)
-
 ### Discovery filters
 
 - `test_e2e_playwright_only_roles` (default: `allowed_applications`)

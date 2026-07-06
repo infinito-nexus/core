@@ -3,17 +3,12 @@ TEST_E2E_PLAYWRIGHT_IMAGE: "{{ lookup('config', 'test-e2e-playwright', 'services
   }}"
 TEST_E2E_PLAYWRIGHT_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version') | image_version }}"
 
-# Where we stage per-role Playwright projects on the host
 TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
-# Where to store per-role reports/artifacts (host dir)
 TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "/var/lib/infinito/logs/test-e2e-playwright"
 
-# `--max-failures=5` bounds the retry budget when a role is broken.
 TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"
 
-# Keep false: parallelises only at the file level, so intra-file ordering
-# assumptions (rate-limit waits, shared-account mutations) stay safe.
 TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL: false
 
 TEST_E2E_PLAYWRIGHT_APPS: >-
@@ -28,3 +23,12 @@ TEST_E2E_PLAYWRIGHT_APPS: >-
 TEST_E2E_PLAYWRIGHT_SHARED_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_shared"
 TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/node_modules"
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
+
+TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT: 3600
+TEST_E2E_PLAYWRIGHT_TEST_TIMEOUT: 300000
+TEST_E2E_PLAYWRIGHT_WORKERS: "{{ lookup('playwright_workers') }}"
+TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: true
+TEST_E2E_PLAYWRIGHT_WAIT_RETRIES: 30
+TEST_E2E_PLAYWRIGHT_WAIT_DELAY: 5
+TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES: 8
+TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY: 15

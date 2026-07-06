@@ -5,5 +5,3 @@ TOR_ONION_EXTRA_PORTS: "{{
     ([{'onion_port': 22, 'target': '127.0.0.1:22'}] if (TOR_ONION_SSH_ENABLED | bool) else [])
     + lookup('tor_ports')
   }}"
-
-TEST_E2E_PLAYWRIGHT_PROXY: "{{ 'socks5://host.docker.internal:9050' if 'svc-net-tor' in group_names else '' }}"
