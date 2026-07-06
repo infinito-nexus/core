@@ -28,6 +28,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     sso:
       enabled: false
@@ -50,6 +52,9 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 - services:
     ldap:
       enabled: true
@@ -72,3 +77,6 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

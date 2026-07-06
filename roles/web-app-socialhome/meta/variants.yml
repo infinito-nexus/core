@@ -14,6 +14,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     dashboard:
       enabled: false
@@ -24,3 +26,6 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

@@ -34,6 +34,8 @@
     seaweedfs:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 # Variant pinning every dynamic services.yml flag to false.
 - services:
     css:
@@ -65,6 +67,9 @@
     seaweedfs:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 # LDAP-only variant: LDAP bind login on, OIDC/SSO off, so the matrix
 # exercises the LDAP authentication branch in isolation.
 - services:
@@ -95,3 +100,6 @@
     seaweedfs:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

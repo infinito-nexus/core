@@ -18,6 +18,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 # variant 1: every dynamic flag off — auth-coverage matrix's
 # false-pinning branch.
@@ -31,6 +33,9 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 
 # variant 2: LDAP-only branch — ejabberd stays bound to
 # the project LDAP store while OIDC stays opted out.
@@ -44,3 +49,6 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

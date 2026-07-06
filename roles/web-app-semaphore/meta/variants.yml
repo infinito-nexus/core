@@ -30,6 +30,8 @@
     sso:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 # V2: no auth — everything false
 - services:
@@ -59,6 +61,9 @@
     sso:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 
 # V3: ldap only
 - services:
@@ -88,3 +93,6 @@
     sso:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

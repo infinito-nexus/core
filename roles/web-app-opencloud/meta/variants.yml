@@ -29,6 +29,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 # Baseline-only variant: pin every dynamic flag false so the matrix
 # also exercises the out-of-group_names branch and satisfies the
@@ -58,6 +60,9 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 
 # LDAP-only variant: pin ldap.enabled true with
 # oidc.enabled false so the spec exercises the LDAP-bind login path
@@ -87,3 +92,6 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

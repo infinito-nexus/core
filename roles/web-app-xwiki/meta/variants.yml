@@ -28,6 +28,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     dashboard:
       enabled: false
@@ -52,6 +54,9 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 # LDAP-only auth backend: exercises the ldap-authenticator addon's enabled
 # branch. OIDC stays off because the two auth backends are mutually exclusive
 # (tasks/02_validation.yml); the ldap service block is a static-false opt-in by
@@ -84,3 +89,6 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

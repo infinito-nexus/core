@@ -32,6 +32,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     collabora:
       enabled: false
@@ -60,3 +62,6 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

@@ -34,6 +34,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 # LDAP-only variant: auth_ldap only, auth_oidc disabled.
 - services:
@@ -64,6 +66,9 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 - services:
     css:
       enabled: false
@@ -91,3 +96,6 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

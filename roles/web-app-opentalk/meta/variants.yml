@@ -33,6 +33,8 @@
       shared: true
     seaweedfs:
       shared: true
+    tor:
+      enabled: true
 - services:
     coturn:
       enabled: false
@@ -62,3 +64,6 @@
       shared: false
     seaweedfs:
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

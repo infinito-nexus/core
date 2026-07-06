@@ -40,6 +40,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     mastodon:
       enabled: false
@@ -51,6 +53,9 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 - services:
     mastodon:
       enabled: true
@@ -112,3 +117,6 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override

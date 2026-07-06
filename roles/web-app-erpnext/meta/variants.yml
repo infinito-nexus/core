@@ -32,6 +32,8 @@
       shared: true
     redis:
       shared: true
+    tor:
+      enabled: true
 
 # V2: no auth — everything false
 - services:
@@ -63,6 +65,9 @@
       shared: false
     redis:
       shared: false
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
 
 # V3: ldap only
 - services:
@@ -94,3 +99,6 @@
       shared: false
     redis:
       shared: true
+    tor:
+      enabled: false
+      shared: false  # nocheck: variants-static-override
