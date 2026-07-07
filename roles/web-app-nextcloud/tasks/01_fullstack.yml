@@ -7,6 +7,16 @@
     application_id: web-app-nextcloud
     webserver_client_max_body_size: 10G
 
+- name: "📄 Deploy '{{ NEXTCLOUD_INIT_GATE_HOST }}'"
+  copy:
+    src: "{{ NEXTCLOUD_INIT_GATE_FILE }}"
+    dest: "{{ NEXTCLOUD_INIT_GATE_HOST }}"
+    mode: "0755"
+  when: IS_STACK_HOST | bool
+  notify:
+    - compose build
+    - compose up
+
 - when: NEXTCLOUD_WHITEBOARD_ENABLED | bool
   block:
     - name: "📁 Create '{{ NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY }}' Directory"

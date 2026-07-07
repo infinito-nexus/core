@@ -61,7 +61,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔧 Point integration_mattermost at partner instance (admin OAuth instance URL)
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }}
     config:app:set integration_mattermost oauth_instance_url
     --value '{{ nextcloud_mm_base_url }}'

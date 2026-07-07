@@ -18,7 +18,7 @@
   when: nextcloud_openai_use_flowise | bool
 
 - name: 🔧 Provision integration_openai api_key for the Flowise/LiteLLM backend
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openai api_key
     --value '{{ nextcloud_openai_flowise_api_key }}'
   register: nextcloud_openai_set_api_key

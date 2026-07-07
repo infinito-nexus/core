@@ -50,7 +50,7 @@
       integration_zammad client_id/client_secret app config to re-provision.
 
 - name: 🔑 Point integration_zammad at the partner instance (admin OAuth instance URL)
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }}
     config:app:set integration_zammad oauth_instance_url
     --value '{{ nextcloud_zammad_base_url }}'

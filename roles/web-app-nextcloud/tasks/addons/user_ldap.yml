@@ -5,7 +5,7 @@
     nextcloud_ldap_config_id: "{{ (NEXTCLOUD_LDAP_CONFIG_PREFIX | default('s01')) | string | trim }}"
   changed_when: false
 - name: 🔎 Check if desired Nextcloud LDAP config ID exists
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:show-config {{ nextcloud_ldap_config_id }}
   register: nextcloud_ldap_config_probe
   changed_when: false
@@ -20,7 +20,7 @@
     - nextcloud_ldap_config_probe.rc != 0
     - "'Invalid configID' not in ((nextcloud_ldap_config_probe.stdout) ~ (nextcloud_ldap_config_probe.stderr))"
 - name: 📁 Auto-create empty Nextcloud LDAP config when desired config ID is missing
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:create-empty-config
   register: nextcloud_ldap_config_create
   changed_when: nextcloud_ldap_config_create.rc == 0
@@ -28,7 +28,7 @@
     - nextcloud_ldap_config_probe.rc != 0
     - "'Invalid configID' in ((nextcloud_ldap_config_probe.stdout) ~ (nextcloud_ldap_config_probe.stderr))"
 - name: 🔎 Re-check desired Nextcloud LDAP config ID after auto-create
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:show-config {{ nextcloud_ldap_config_id }}
   register: nextcloud_ldap_config_reprobe
   changed_when: false
@@ -48,14 +48,14 @@
     - nextcloud_ldap_config_create is defined
     - nextcloud_ldap_config_create is changed
 - name: 🔧 Set Nextcloud LDAP bind password
-  command: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:set-config {{ nextcloud_ldap_config_id }} ldapAgentPassword "{{ LDAP.BIND_CREDENTIAL }}"
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:set-config {{ nextcloud_ldap_config_id }} ldapAgentPassword '{{ LDAP.BIND_CREDENTIAL }}'
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 - name: 🟢 Activate Nextcloud LDAP configuration
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:set-config {{ nextcloud_ldap_config_id }} ldapConfigurationActive 1
 - name: 🗂️ Warm LDAP cache (to guaranty that all LDAP users are present)
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:search ""
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

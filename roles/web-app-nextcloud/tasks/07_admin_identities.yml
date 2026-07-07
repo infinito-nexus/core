@@ -1,6 +1,6 @@
 ---
 - name: 🔎 Check whether Nextcloud LDAP OCC namespace is available
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} list ldap
   register: nextcloud_admin_ldap_namespace
   changed_when: false
@@ -8,7 +8,7 @@
   when: lookup('config', application_id, 'addons.user_ldap.enabled', False) | bool
 
 - name: 🔍 Resolve LDAP-backed Nextcloud administrator identities
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:search {{ NEXTCLOUD_ADMINISTRATOR_USERNAME }}
   register: nextcloud_admin_ldap_search
   changed_when: false
@@ -39,7 +39,7 @@
       }}
 
 - name: ✅ Ensure all Nextcloud administrator identities are in the 'admin' group
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} group:adduser admin {{ item }}
   loop: "{{ nextcloud_administrator_identities }}"
   register: nextcloud_admin_group_membership

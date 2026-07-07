@@ -33,7 +33,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔗 Link the SuiteCRM OAuth password client into integration_suitecrm
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_suitecrm {{ item.key }}
     --value '{{ item.value }}'
   loop:

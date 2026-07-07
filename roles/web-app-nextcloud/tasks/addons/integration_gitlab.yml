@@ -13,14 +13,14 @@
   failed_when: false
 
 - name: 📖 Read persisted integration_gitlab OAuth client id
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_gitlab client_id
   register: nextcloud_gl_client_id_current
   changed_when: false
   failed_when: false
 
 - name: 📖 Read persisted integration_gitlab OAuth client secret
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_gitlab client_secret
   register: nextcloud_gl_client_secret_current
   changed_when: false

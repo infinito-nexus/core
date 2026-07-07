@@ -19,14 +19,14 @@
   failed_when: false
 
 - name: 📖 Read persisted integration_zammad OAuth client id
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_zammad client_id
   register: nextcloud_zammad_client_id_current
   changed_when: false
   failed_when: false
 
 - name: 📖 Read persisted integration_zammad OAuth client secret
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_zammad client_secret
   register: nextcloud_zammad_client_secret_current
   changed_when: false

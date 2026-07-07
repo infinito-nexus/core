@@ -32,6 +32,9 @@ NEXTCLOUD_DOCKER_INCL_PATH: "/tmp/includes.php"
 NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('config', application_id, 'users.administrator.username') }}"
 
+NEXTCLOUD_INIT_GATE_FILE: "nextcloud-init-gate.sh"
+NEXTCLOUD_INIT_GATE_HOST: "{{ [lookup('container', 'web-app-nextcloud', 'directories.instance'), NEXTCLOUD_INIT_GATE_FILE] | path_join }}"
+
 NEXTCLOUD_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
 NEXTCLOUD_SERVICE: "{{ entity_name }}"
 NEXTCLOUD_VERSION: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.version') }}"

@@ -51,7 +51,7 @@
       openproject_client_secret, nc_oauth_client_id) and the OpenProject storage to re-provision.
 
 - name: ⬆️ Push the OpenProject OAuth application credentials into Nextcloud
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openproject {{ item.key }}
     --value '{{ item.value }}'
   loop:
@@ -63,7 +63,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 📝 Register a Nextcloud OAuth2 client for OpenProject
-  command: >
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} oauth2:add-client
     "OpenProject client"
     "{{ nextcloud_op_expected_url }}/oauth_clients/%s/callback"
@@ -82,7 +82,7 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: ⬆️ Push the Nextcloud OAuth2 client id into integration_openproject
-      command: >
+      shell: >
         {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openproject nc_oauth_client_id
         --value '{{ nextcloud_op_ncclient.clientId }}'
       changed_when: true
