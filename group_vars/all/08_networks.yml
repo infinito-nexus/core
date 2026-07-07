@@ -93,6 +93,12 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     socks:
       start: 9050
       end: 9050
+    trans:
+      start: 9040
+      end: 9040
+    dns:
+      start: 9053
+      end: 9053
   public:
     ssh:
       start: 2201
