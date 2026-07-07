@@ -12,16 +12,17 @@ from plugins.lookup.users import LookupModule as UsersLookup
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
 # Declared in resolution order so each computed default sees already-resolved
-# predecessors (for example ``port`` depends on ``tls``).
+# predecessors (for example ``port`` depends on ``tls``, and ``tls`` on the
+# resolved mail ``host`` to detect an .onion mail domain).
 RESOLUTION_ORDER = (
     "enabled",
     "timeout",
     "external",
     "environment",
     "domain",
+    "host",
     "tls",
     "port",
-    "host",
     "auth",
     "start_tls",
     "smtp",
@@ -127,15 +128,15 @@ class LookupModule(LookupBase):
             external = _as_bool(resolved.get("external"))
             if not external:
                 return False
-            # .onion mail domains have no public TLS certificate (like web onion
-            # vhosts). Relay in plaintext to the local Mailu front over loopback
-            # instead of failing the TLS handshake; the onion transport itself is
-            # already authenticated + encrypted. DOMAIN_PRIMARY may be a template
-            # (e.g. lookup('env', 'INFINITO_DOMAIN')), so render it first.
-            domain = str(
-                _render(variables.get("DOMAIN_PRIMARY"), self._templar) or ""
-            ).lower()
-            if domain.endswith(".onion"):
+            # .onion mail hosts have no public TLS certificate (like web onion
+            # vhosts). Relay in plaintext — the onion transport is already
+            # authenticated + encrypted by Tor (the .onion address is the
+            # service's public key). The signal is the resolved mail *host*
+            # (Mailu's canonical domain, which the onion injection may turn into a
+            # .onion), not DOMAIN_PRIMARY, which can stay clearnet while mail alone
+            # is onion. ``host`` is resolved before ``tls`` (see RESOLUTION_ORDER).
+            mail_host = str(resolved.get("host") or "").lower()
+            if mail_host.endswith(".onion"):
                 return False
             return _as_bool(variables.get("TLS_ENABLED"))
         if short_key == "port":
