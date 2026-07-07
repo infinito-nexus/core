@@ -71,7 +71,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 
 # V3: ldap only
 - services:
@@ -107,4 +107,4 @@
       shared: true
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override

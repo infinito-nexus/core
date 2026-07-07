@@ -41,7 +41,7 @@
   template:
     src: sudoers.j2
     dest: "/etc/sudoers.d/{{ RUNNER_USER }}"
-    mode: '0440'
+    mode: "0440"
     validate: visudo -cf %s
   when: not (DOCKER_IN_CONTAINER | bool)
 
@@ -51,7 +51,7 @@
     state: directory
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
-    mode: '0755'
+    mode: "0755"
 
 - name: Fetch latest GitHub Actions runner version tag
   uri_retry:
@@ -71,7 +71,7 @@
     dest: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
-    mode: '0644'
+    mode: "0644"
 
 - name: Find existing runner instance directories
   find:
@@ -149,7 +149,7 @@
     state: directory
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
-    mode: '0755'
+    mode: "0755"
   loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
 
 - name: Provision runner instances
@@ -179,7 +179,7 @@
     dest: "{{ RUNNER_INSTALL_DIR }}/compose.yml"
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
-    mode: '0640'
+    mode: "0640"
 
 - name: Create runner image build context directory
   ansible.builtin.file:
@@ -187,19 +187,19 @@
     state: directory
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
-    mode: '0755'
+    mode: "0755"
 
 - name: Copy Dockerfile to build context
   ansible.builtin.copy:
     src: Dockerfile
     dest: "{{ RUNNER_INSTALL_DIR }}/build/Dockerfile"
-    mode: '0644'
+    mode: "0644"
 
 - name: Copy entrypoint to build context
   ansible.builtin.copy:
     src: entrypoint.sh
     dest: "{{ RUNNER_INSTALL_DIR }}/build/entrypoint.sh"
-    mode: '0755'
+    mode: "0755"
 
 - name: Build runner container image
   community.docker.docker_image:
