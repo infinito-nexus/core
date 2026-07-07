@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
@@ -17,6 +16,15 @@ COMMENT = "Node Tor SOCKS port (SPOT: svc-net-tor services.tor.ports.local.socks
 
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
+    # The .env is first built in a stdlib-only bootstrap (fresh distro image
+    # before pip installs deps), where PyYAML is absent. Import lazily and skip
+    # there — this port is only consumed by shell tooling and is re-set on any
+    # later build that has PyYAML. Keeping PyYAML out of the module top-level
+    # keeps the whole env-handler import chain stdlib-only.
+    try:
+        from utils.cache.yaml import load_yaml_any
+    except ModuleNotFoundError:
+        return
     services = ctx.repo_root / "roles" / "svc-net-tor" / ROLE_FILE_META_SERVICES
     data = load_yaml_any(str(services), default_if_missing={})
     ports = (((data or {}).get("tor") or {}).get("ports") or {}).get("local") or {}
