@@ -17,4 +17,4 @@ status_codes:
     - 405
 networks:
   local:
-    subnet: 192.168.105.208/28
+    subnet: 192.168.106.16/28
