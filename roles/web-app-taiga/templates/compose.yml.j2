@@ -166,7 +166,9 @@ build:
     environment:
       CELERY_ENABLED: "False"
     entrypoint: ["sleep", "infinity"]
-    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  TAIGA_SERVICE: {'condition': 'service_started'},
+}) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
