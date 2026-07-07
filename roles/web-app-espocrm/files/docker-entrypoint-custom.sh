@@ -29,8 +29,6 @@ log "Flags: maintenance=${MAINTENANCE} cron_disabled=${CRON_DISABLED} use_cache=
 : "${ESPOCRM_SCRIPT_SEED:?missing ESPOCRM_SCRIPT_SEED}"
 SEED_CONFIG_SCRIPT="${ESPOCRM_SCRIPT_SEED}"
 
-# Exception: the swarm NFS mount forces local_lock=flock, so flock(2) never
-# crosses nodes; atomic mkdir on the NFS server is the working cross-replica mutex.
 _have_lock=0
 _lock_tries=0
 while :; do
@@ -59,9 +57,9 @@ if [ "$_have_lock" = "1" ]; then
   trap 'rmdir "$BOOT_LOCK" 2>/dev/null || true' EXIT
   trap 'rmdir "$BOOT_LOCK" 2>/dev/null || true; exit 143' TERM INT
 
-  # Exception: the image entrypoint installs/upgrades against the shared volume
-  # and DB, then execs its CMD; /bin/true makes that exec a no-op so control
-  # returns here and the real server starts outside the lock on every replica.
+  mkdir -p "$SESSION_DIR"
+  chown www-data:www-data "$SESSION_DIR" 2>/dev/null || true
+
   if [ -x "$ORIG_ENTRYPOINT" ]; then
     log "Running image entrypoint init via $ORIG_ENTRYPOINT"
     "$ORIG_ENTRYPOINT" /bin/true
