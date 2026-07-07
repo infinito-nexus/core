@@ -14,9 +14,6 @@ COPY ${ESPOCRM_ENTRYPOINT_SCRIPT_HOST_REL} ${ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER}
 RUN chmod +x ${ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER} \
     && ln -sf "${ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER}" /entrypoint.sh
 
-# Exception: default PHP session.save_path is node-local (/tmp), so an OIDC/SAML
-# handshake begun on one swarm replica cannot finish on another; pin sessions to
-# the NFS-shared volume.
 RUN { \
       echo 'session.save_handler = files'; \
       echo 'session.save_path = "/var/www/html/data/.sessions"'; \

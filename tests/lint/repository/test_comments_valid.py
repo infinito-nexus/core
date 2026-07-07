@@ -287,7 +287,7 @@ def find_invalid_comments(path: Path):
         if py is None:
             return []
         comments = [(ln, body, {ln}) for ln, body in py]
-    elif underlying in (".yml", ".yaml", ".sh", ".rb"):
+    elif underlying in (".yml", ".yaml", ".sh", ".rb") or path.name == "Dockerfile":
         comments = _hash_comments(lines)
     elif underlying == ".php":
         comments = _php_comments(lines)
@@ -352,7 +352,7 @@ def _changed_targets():
     rel |= set(_git_lines(["ls-files", "--others", "--exclude-standard"]))
     targets = []
     for r in sorted(rel):
-        if r.endswith(_EXTS):
+        if r.endswith(_EXTS) or r.rsplit("/", 1)[-1] == "Dockerfile":
             path = PROJECT_ROOT / r
             if path.is_file():
                 targets.append(path)
