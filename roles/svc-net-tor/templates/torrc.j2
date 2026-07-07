@@ -17,6 +17,18 @@ SocksPolicy reject *
 ControlPort 127.0.0.1:9051
 CookieAuthentication 1
 
+{% if TOR_EGRESS_ROUTER_ENABLED | bool %}
+# Transparent egress router (host-level): any outbound TCP to a *.onion address
+# — HTTP, SMTP, IMAP, anything — is routed through Tor; clearnet resolves
+# normally and goes direct. .onion names are automapped into a virtual IPv4
+# range that host iptables redirects to TransPort; DNSPort answers the .onion
+# lookups that yield those virtual IPs. Wired host-side by tasks/router.yml.
+AutomapHostsOnResolve 1
+AutomapHostsSuffixes .onion
+VirtualAddrNetworkIPv4 {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }}
+TransPort 127.0.0.1:{{ TOR_TRANS_PORT }}
+DNSPort 127.0.0.1:{{ TOR_DNS_PORT }}
+{% endif %}
 # Node onion service: one hidden service, per-app subdomains routed by Host in
 # OpenResty. All onion traffic terminates on the host-network OpenResty (:80).
 HiddenServiceDir /var/lib/tor/infinito/node/

@@ -64,3 +64,7 @@
     executable: /bin/bash
   become: true
   when: (_tor_hs_keys is changed) or (_tor_torrc is changed)
+
+- name: "Wire the host-level transparent .onion egress router"
+  include_tasks: router.yml
+  when: TOR_EGRESS_ROUTER_ENABLED | bool

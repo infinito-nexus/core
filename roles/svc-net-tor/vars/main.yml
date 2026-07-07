@@ -13,6 +13,18 @@ TOR_CONTAINER: "{{ lookup('config', application_id, 'services.tor.name') }}"
 TOR_CUSTOM_IMAGE: "tor_custom"
 TOR_CUSTOM_VERSION: "{{ TOR_VERSION }}"
 
+# Transparent egress router ports (SPOT in meta/services.yml). TransPort receives
+# the iptables-redirected .onion traffic; DNSPort resolves .onion to a virtual IP.
+TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
+TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
+# Host split-DNS: dnsmasq drop-in with the clearnet upstreams embedded inline
+# (an AppArmor-confined dnsmasq may only read /etc/dnsmasq.d/**, so an external
+# resolv-file is off-limits). The upstreams captured on first setup — before
+# /etc/resolv.conf is pointed at dnsmasq — are persisted here for idempotent
+# re-runs.
+TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+TOR_DNS_UPSTREAMS_FILE: "{{ [ DIR_VAR_LIB, application_id, 'dns-upstreams' ] | path_join }}"
+
 # Host paths (under DIR_VAR_LIB); Tor's runtime DataDirectory + HiddenServiceDir.
 TOR_DATA_DIR: "{{ [ DIR_VAR_LIB, application_id, 'data' ] | path_join }}"
 TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB, application_id, 'config' ] | path_join }}"

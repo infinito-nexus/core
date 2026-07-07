@@ -1,0 +1,15 @@
+# Managed by Infinito.Nexus (roles/svc-net-tor) — transparent Tor egress router.
+# Resolve *.onion through Tor's DNSPort (Tor automaps them to a virtual IP that
+# host iptables redirects to Tor's TransPort). Everything else goes to the
+# clearnet upstreams captured on first setup — embedded inline (not via an
+# external resolv-file) because an AppArmor-confined dnsmasq may only read
+# /etc/dnsmasq.d/**. no-resolv stops dnsmasq reading the now-127.0.0.1
+# /etc/resolv.conf, which would self-loop.
+listen-address=127.0.0.1
+bind-interfaces
+no-hosts
+no-resolv
+server=/onion/127.0.0.1#{{ TOR_DNS_PORT }}
+{% for _ns in TOR_DNS_UPSTREAMS %}
+server={{ _ns }}
+{% endfor %}

@@ -13,6 +13,8 @@ tor:
   ports:
     local:
       socks: 9050  # Tor SOCKS port SPOT; referenced by torrc, tests and the playwright runner
+      trans: 9040  # Tor TransPort SPOT; transparent-router iptables redirect target
+      dns: 9053    # Tor DNSPort SPOT; split-DNS resolves *.onion to an automapped virtual IP
   min_storage: 100MB
   cpus: "0.25"
   mem_reservation: 128m

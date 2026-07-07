@@ -1,6 +1,13 @@
 ---
 TOR_ONION_SSH_ENABLED: true
 
+# Transparent Tor egress router (host-level, protocol-agnostic): route any
+# outbound TCP to a *.onion address through Tor while clearnet traffic goes
+# direct. Installed by svc-net-tor (torrc TransPort/DNSPort + host dnsmasq
+# split-DNS + iptables redirect of the virtual range below).
+TOR_EGRESS_ROUTER_ENABLED: true
+TOR_EGRESS_VIRTUAL_NET_IPV4: "10.192.0.0/10"
+
 TOR_ONION_EXTRA_PORTS: "{{
     ([{'onion_port': 22, 'target': '127.0.0.1:22'}] if (TOR_ONION_SSH_ENABLED | bool) else [])
     + lookup('tor_ports')
