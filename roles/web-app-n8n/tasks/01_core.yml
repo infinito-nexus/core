@@ -1,0 +1,41 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "Stage n8n SSO auto-provisioning hook (EXTERNAL_HOOK_FILES)"
+  ansible.builtin.copy:
+    src: hooks.js
+    dest: "{{ N8N_HOOKS_FILE_HOST }}"
+    mode: "0644"
+  when: N8N_SSO_ENABLED | bool
+  notify:
+    - compose up
+
+- name: "flush handlers to ensure that '{{ N8N_CONTAINER }}' is up with the SSO hook mounted"
+  meta: flush_handlers
+
+- name: "Wait for n8n HTTP endpoint"
+  wait_for:
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ N8N_HTTP_PORT }}"
+    delay: 5
+    timeout: 300
+
+- name: "Wait for n8n health check to pass"
+  uri_retry:
+    url: "{{ N8N_INTERNAL_API_URL }}/healthz"
+    method: GET
+    status_code: 200
+    return_content: false
+  register: n8n_health
+  until: n8n_health.status == 200
+  retries: 60
+  delay: 5
+
+- name: "Bootstrap n8n owner account"
+  include_tasks: 02_bootstrap.yml
