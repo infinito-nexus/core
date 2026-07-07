@@ -54,8 +54,8 @@ n8n:
   pids_limit: 512
   ports:
     local:
-      http: 8086
-      sso: 16509
+      http: 8080
+      sso: 16510
   run_after:
     - web-app-keycloak
     - web-app-matomo
