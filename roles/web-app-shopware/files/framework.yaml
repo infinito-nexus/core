@@ -7,4 +7,4 @@ framework:
     - x-forwarded-host
     - x-forwarded-port
   session:
-    handler_id: "%env(REDIS_URL)%"
+    handler_id:
