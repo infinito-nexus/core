@@ -12,8 +12,12 @@ class VaultScalar(str):
 
 
 def _vault_constructor(loader, node):
-    """Custom constructor to handle !vault tag as plain text."""
-    return node.value
+    """Load a !vault block as a VaultScalar so the tag survives a
+    safe_load -> safe_dump round-trip. Returning a plain str would make
+    SafeDumper re-emit the ciphertext as an untagged quoted string,
+    silently dropping !vault and leaving the value undecryptable by
+    Ansible on the next read."""
+    return VaultScalar(node.value)
 
 
 def _vault_representer(dumper, data):
