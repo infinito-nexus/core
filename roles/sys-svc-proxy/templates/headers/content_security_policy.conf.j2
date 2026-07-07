@@ -1,7 +1,7 @@
 # ===== Content Security Policy: only for documents and workers (no locations needed) =====
 
 # 1) Define your CSP once (Jinja: escape double quotes to be safe)
-set $csp "{{ lookup('applications') | build_csp_header(application_id, lookup('domains'), lookup('tls', application_id, 'protocols.web'), (webserver_csp_whitelist_extra_by_app | default({})).get(application_id, {}), (webserver_csp_hashes_extra_by_app | default({})).get(application_id, {})) | replace('\"','\\\"') }}";
+set $csp "{{ lookup('applications') | build_csp_header(application_id, lookup('domains'), lookup('tls', application_id, 'protocols.web'), (webserver_csp_whitelist_extra_by_app | default({})).get(application_id, {}), (webserver_csp_hashes_extra_by_app | default({})).get(application_id, {}), DOMAIN_PRIMARY) | replace('\"','\\\"') }}";
 
 # 2) Send CSP ONLY for document responses; also for workers via Sec-Fetch-Dest
 header_filter_by_lua_block {

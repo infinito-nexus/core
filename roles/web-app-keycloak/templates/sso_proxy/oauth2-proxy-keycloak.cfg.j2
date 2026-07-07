@@ -2,8 +2,13 @@ http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-keycloak', 'se
 cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'credentials.sso_proxy_cookie_secret') }}"
 cookie_secure           =   "{{ lookup('tls', sso_proxy_application_id, 'enabled') | string | lower }}"                                                                            # True is necessary to force the cookie set via https
 upstreams               =   "http://{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
-cookie_domains          =   ["{{ lookup('domains', sso_proxy_application_id) | common_dns_suffix }}", "{{ lookup('domain', 'web-app-keycloak') }}"]   # Shared parent for a multi-domain app (filer/master/api) so one session cookie spans them; single-domain apps keep their exact host.
-whitelist_domains       =   [".{{ DOMAIN_PRIMARY }}"]                                                                                       # Required to allow redirection back to original requested target.
+{% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
+{% set _app_domains = lookup('domains', sso_proxy_application_id) %}
+{% set _has_onion = _tor_node != '' and (_app_domains | select('search', _tor_node) | list | length > 0) %}
+{% set _clearnet_domains = _app_domains | reject('search', '\.onion$') | list %}
+{% set _has_clearnet = _clearnet_domains | length > 0 %}
+cookie_domains          =   [{% if _has_clearnet %}"{{ _clearnet_domains | common_dns_suffix }}", {% endif %}{% if _has_onion %}".{{ _tor_node }}", {% endif %}"{{ lookup('domain', 'web-app-keycloak') }}"]
+whitelist_domains       =   [{% if _has_clearnet %}".{{ DOMAIN_PRIMARY }}"{% endif %}{% if _has_clearnet and _has_onion %}, {% endif %}{% if _has_onion %}".{{ _tor_node }}"{% endif %}]
 
 # keycloak provider
 client_secret           =   "{{ OIDC.CLIENT.SECRET }}"

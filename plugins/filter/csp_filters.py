@@ -193,6 +193,7 @@ class FilterModule:
         web_protocol,
         extra_whitelist=None,
         extra_hashes=None,
+        domain_primary=None,
     ):
         """
         Builds the Content-Security-Policy header value dynamically based on application settings.
@@ -367,6 +368,36 @@ class FilterModule:
 
             merge_family("style-src", "style-src-elem", "style-src-attr")
             merge_family("script-src", "script-src-elem", "script-src-attr")
+
+            _svc_tor = (applications or {}).get("svc-net-tor")
+            node_onion = ""
+            if isinstance(_svc_tor, dict):
+                node_onion = ((_svc_tor.get("services") or {}).get("tor") or {}).get(
+                    "node"
+                ) or ""
+            if node_onion and domain_primary and domain_primary != node_onion:
+                app_domains = [str(d) for d in (domains.get(application_id) or [])]
+                app_has_onion = any(node_onion in d for d in app_domains)
+                app_has_clearnet = any(domain_primary in d for d in app_domains)
+                if app_has_onion:
+                    for directive in list(tokens_by_dir.keys()):
+                        toks = tokens_by_dir[directive]
+                        if app_has_clearnet:
+                            siblings = [
+                                t.replace(domain_primary, node_onion)
+                                for t in toks
+                                if domain_primary in t
+                            ]
+                            tokens_by_dir[directive] = _dedup_preserve(toks + siblings)
+                        else:
+                            tokens_by_dir[directive] = _dedup_preserve(
+                                [
+                                    t.replace(domain_primary, node_onion)
+                                    if domain_primary in t
+                                    else t
+                                    for t in toks
+                                ]
+                            )
 
             # ----------------------------------------------------------
             # Assemble header
