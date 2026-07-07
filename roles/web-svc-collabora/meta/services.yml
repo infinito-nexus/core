@@ -12,8 +12,8 @@ redis:
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
 collabora:
-  # nocheck: default-placement-manager  single-instance office server; deploy-time coolconfig runs `container exec` on STACK_HOST, which reaches the task only when it is placed on the manager
-  default_placement: manager
+  # nocheck: single-replica
+  replicas: 1
   bond: 1
   enabled: true
   shared: true
