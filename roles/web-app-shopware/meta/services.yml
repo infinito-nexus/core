@@ -37,13 +37,14 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 init:
   name: shopware-init
+  # nocheck: single-replica
+  replicas: 1
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 2g
   min_storage: 1GB
   pids_limit: 256
 shopware:
-  replicas: 1
   image: composer
   version: "2.10"
   min_storage: 20GB
@@ -102,6 +103,8 @@ worker:
   pids_limit: 512
 scheduler:
   name: shopware-scheduler
+  # nocheck: single-replica
+  replicas: 1
   entrypoint:
     - php
     - bin/console
@@ -130,6 +133,8 @@ redis:
 # nocheck: dynamic-flag
 opensearch:
   enabled: true
+  # nocheck: single-replica
+  replicas: 1
   image: opensearchproject/opensearch
   version: 3.7.0
   name: shopware-opensearch
