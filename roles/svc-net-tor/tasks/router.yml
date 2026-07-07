@@ -1,10 +1,4 @@
 ---
-# Host-level transparent Tor egress router: resolve *.onion via Tor's DNSPort
-# (split-DNS through dnsmasq) and redirect the resulting virtual-IP TCP traffic
-# to Tor's TransPort. Any protocol (HTTP, SMTP, IMAP, ...) to a .onion address is
-# thus tunneled through Tor; clearnet traffic resolves normally and goes direct.
-# Runs after Tor is up with TransPort/DNSPort (see 01_core.yml).
-
 - name: "Egress router | Install dnsmasq (host split-DNS forwarder)"
   ansible.builtin.package:
     name: dnsmasq
@@ -34,10 +28,6 @@
   become: true
 
 - name: "Egress router | Persist clearnet upstreams (first setup only)"
-  # Captured once, while /etc/resolv.conf still points at the real upstreams
-  # (before it is pointed at dnsmasq). Guarded on the persisted file's absence so
-  # re-runs never re-read the now-127.0.0.1 resolver — that would filter to an
-  # empty upstream list and fail the copy with "src (or content) is required".
   ansible.builtin.copy:
     dest: "{{ TOR_DNS_UPSTREAMS_FILE }}"
     content: |
@@ -76,14 +66,9 @@
   become: true
 
 - name: "Egress router | Point the host resolver at dnsmasq (127.0.0.1)"
-  # unsafe_writes: /etc/resolv.conf is a Docker bind-mount on the DiD target, so
-  # the default atomic rename-over-mount would fail with EBUSY.
   ansible.builtin.copy:
     dest: /etc/resolv.conf
     content: |
-      # Managed by Infinito.Nexus (roles/svc-net-tor egress router).
-      # dnsmasq (127.0.0.1) resolves *.onion via Tor; clearnet upstreams are
-      # embedded in {{ TOR_DNSMASQ_CONF }}.
       nameserver 127.0.0.1
       options ndots:1
     owner: root

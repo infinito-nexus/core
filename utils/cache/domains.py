@@ -128,10 +128,6 @@ def get_merged_domains(
             "must be set in variables."
         )
 
-    # Inventories define DOMAIN_PRIMARY via lookup('env', ...) and inject the node
-    # onion under applications.svc-net-tor.services.tor.node; Ansible passes lookups
-    # the raw Jinja, so render before onion-suffix matching (canonical_domains_map
-    # already does this for the clearnet map).
     from utils.templating.ansible import render_ansible_strict
 
     def _render_raw(raw: Any, name: str) -> Any:

@@ -12,8 +12,7 @@ from plugins.lookup.users import LookupModule as UsersLookup
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
 # Declared in resolution order so each computed default sees already-resolved
-# predecessors (for example ``port`` depends on ``tls``, and ``tls`` on the
-# resolved mail ``host`` to detect an .onion mail domain).
+# predecessors (for example ``port`` depends on ``tls``).
 RESOLUTION_ORDER = (
     "enabled",
     "timeout",
@@ -128,13 +127,6 @@ class LookupModule(LookupBase):
             external = _as_bool(resolved.get("external"))
             if not external:
                 return False
-            # .onion mail hosts have no public TLS certificate (like web onion
-            # vhosts). Relay in plaintext — the onion transport is already
-            # authenticated + encrypted by Tor (the .onion address is the
-            # service's public key). The signal is the resolved mail *host*
-            # (Mailu's canonical domain, which the onion injection may turn into a
-            # .onion), not DOMAIN_PRIMARY, which can stay clearnet while mail alone
-            # is onion. ``host`` is resolved before ``tls`` (see RESOLUTION_ORDER).
             mail_host = str(resolved.get("host") or "").lower()
             if mail_host.endswith(".onion"):
                 return False
