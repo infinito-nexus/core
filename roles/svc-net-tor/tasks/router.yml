@@ -20,26 +20,34 @@
     mode: "0755"
   become: true
 
+- name: "Egress router | Check for persisted clearnet upstreams"
+  ansible.builtin.stat:
+    path: "{{ TOR_DNS_UPSTREAMS_FILE }}"
+  register: _tor_upstreams_stat
+  become: true
+
 - name: "Egress router | Read the current resolver (to capture upstreams once)"
   ansible.builtin.slurp:
     src: /etc/resolv.conf
   register: _tor_resolv_now
+  when: not _tor_upstreams_stat.stat.exists
   become: true
 
 - name: "Egress router | Persist clearnet upstreams (first setup only)"
-  # force:false → captured once, while /etc/resolv.conf still points at the real
-  # upstreams; later runs (resolv.conf already 127.0.0.1) keep the persisted list
-  # so dnsmasq never forwards clearnet to itself.
+  # Captured once, while /etc/resolv.conf still points at the real upstreams
+  # (before it is pointed at dnsmasq). Guarded on the persisted file's absence so
+  # re-runs never re-read the now-127.0.0.1 resolver — that would filter to an
+  # empty upstream list and fail the copy with "src (or content) is required".
   ansible.builtin.copy:
     dest: "{{ TOR_DNS_UPSTREAMS_FILE }}"
     content: |
       {% for _l in (_tor_resolv_now.content | b64decode).split('\n') if _l.startswith('nameserver ') and _l.split()[1] != '127.0.0.1' %}
       {{ _l.split()[1] }}
       {% endfor %}
-    force: false
     owner: root
     group: root
     mode: "0644"
+  when: not _tor_upstreams_stat.stat.exists
   become: true
 
 - name: "Egress router | Load captured upstreams"
