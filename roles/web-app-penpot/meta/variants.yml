@@ -69,7 +69,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 # LDAP-only variant: LDAP bind login on, OIDC/SSO off, so the matrix
 # exercises the LDAP authentication branch in isolation.
 - services:
@@ -102,4 +102,4 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override

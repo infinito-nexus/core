@@ -74,7 +74,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 
 - services:
     matrix:
@@ -113,7 +113,7 @@
       shared: true
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
   addons:
     mautrix-whatsapp:
       enabled: true

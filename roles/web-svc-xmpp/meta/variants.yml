@@ -35,7 +35,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 
 # variant 2: LDAP-only branch — ejabberd stays bound to
 # the project LDAP store while OIDC stays opted out.
@@ -51,4 +51,4 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override

@@ -292,7 +292,7 @@
       - "30"
       - -o
       - /dev/null
-      - "http://{{ lookup('domain', application_id) }}/"  # nocheck: literal-protocol-lookup -- .onion is plaintext-only (no TLS), via Tor SOCKS
+      - "http://{{ lookup('domain', application_id) }}/" # nocheck: literal-protocol-lookup -- .onion is plaintext-only (no TLS), via Tor SOCKS
   register: _pw_onion_probe
   changed_when: false
   failed_when: false
