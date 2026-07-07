@@ -34,7 +34,7 @@ if [ ! -f "$PERMS_STAMP" ]; then
   echo "applied" > "$PERMS_STAMP"
   chown "$WEB_USER:$WEB_GROUP" "$PERMS_STAMP"
 else
-  log "Permissions stamp present — skipping full-tree permission pass."
+  log "Permissions stamp present - skipping full-tree permission pass."
 fi
 
 TMPDIR="${APP_DIR}/tmp"
@@ -43,36 +43,42 @@ mkdir -p "$TMPDIR"
 chown "$WEB_USER:$WEB_GROUP" "$TMPDIR"
 chmod 775 "$TMPDIR"
 
-CACHE_REFRESH=0
-if [ ! -f "$INSTALL_FLAG" ]; then
-  CACHE_REFRESH=1
-  log "SuiteCRM 8 is not installed — performing automated installation..."
+BOOT_LOCK="${APP_DIR}/.suitecrm-boot.lock"
 
-  php bin/console suitecrm:app:install \
-      -u "$SUITECRM_ADMIN_USERNAME" \
-      -p "$SUITECRM_ADMIN_PASSWORD" \
-      -U "$SUITECRM_DB_USER" \
-      -P "$SUITECRM_DB_PASSWORD" \
-      -H "$SUITECRM_DB_HOST" \
-      -N "$SUITECRM_DB_NAME" \
-      -S "$SUITECRM_URL" \
-      -d "no"
+(
+  flock 9
 
-  echo "installed" > "$INSTALL_FLAG"
-  chown "$WEB_USER:$WEB_GROUP" "$INSTALL_FLAG"
+  CACHE_REFRESH=0
+  if [ ! -f "$INSTALL_FLAG" ]; then
+    CACHE_REFRESH=1
+    log "SuiteCRM 8 is not installed - performing automated installation..."
 
-  log "SuiteCRM installation completed successfully."
-else
-  log "SuiteCRM already installed — skipping installer."
-fi
+    php bin/console suitecrm:app:install \
+        -u "$SUITECRM_ADMIN_USERNAME" \
+        -p "$SUITECRM_ADMIN_PASSWORD" \
+        -U "$SUITECRM_DB_USER" \
+        -P "$SUITECRM_DB_PASSWORD" \
+        -H "$SUITECRM_DB_HOST" \
+        -N "$SUITECRM_DB_NAME" \
+        -S "$SUITECRM_URL" \
+        -d "no"
 
-if [ "$CACHE_REFRESH" = "1" ] || [ ! -d "${APP_DIR}/cache/prod" ]; then
-  log "Clearing Symfony cache..."
-  php bin/console cache:clear --no-warmup || true
-  php bin/console cache:warmup || true
-else
-  log "Existing prod cache — skipping cache:clear/warmup."
-fi
+    echo "installed" > "$INSTALL_FLAG"
+    chown "$WEB_USER:$WEB_GROUP" "$INSTALL_FLAG"
+
+    log "SuiteCRM installation completed successfully."
+  else
+    log "SuiteCRM already installed - skipping installer."
+  fi
+
+  if [ "$CACHE_REFRESH" = "1" ] || [ ! -d "${APP_DIR}/cache/prod" ]; then
+    log "Clearing Symfony cache..."
+    php bin/console cache:clear --no-warmup || true
+    php bin/console cache:warmup || true
+  else
+    log "Existing prod cache - skipping cache:clear/warmup."
+  fi
+) 9>"$BOOT_LOCK"
 
 echo "OK" > "${APP_DIR}/public/healthcheck.html"
 chown "$WEB_USER:$WEB_GROUP" "${APP_DIR}/public/healthcheck.html"

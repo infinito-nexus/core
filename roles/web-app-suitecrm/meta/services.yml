@@ -34,7 +34,6 @@ mariadb:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 suitecrm:
-  replicas: 1
   bond: 1
   enabled: true
   shared: true
