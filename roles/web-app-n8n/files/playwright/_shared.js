@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
@@ -39,7 +40,7 @@ async function signInViaN8nOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
@@ -48,7 +49,7 @@ async function signInViaN8nOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 90_000,
+      timeout: resolveTimeout(90_000),
       message: `${personaLabel}: expected redirect back to n8n at ${n8nBaseUrl}`
     })
     .toContain(canonicalDomain);
@@ -62,15 +63,15 @@ async function signInViaN8nOidc(page, username, password, personaLabel) {
 async function performN8nLoginForm(page, email, password) {
   const emailInput    = page.locator('input[type="email"], input[name="email"]').first();
   const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
-  await emailInput.waitFor({ state: "visible", timeout: 60_000 });
+  await emailInput.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 
   await emailInput.fill(email);
   await passwordInput.fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
 
-  await expect(emailInput).toBeHidden({ timeout: 60_000 });
+  await expect(emailInput).toBeHidden({ timeout: resolveTimeout(60_000) });
   await expect
-    .poll(() => page.url(), { timeout: 60_000 })
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000) })
     .not.toMatch(/\/signin/);
 }
 

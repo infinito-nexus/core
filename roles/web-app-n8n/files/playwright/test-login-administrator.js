@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("administrator: n8n SSO auto-provisioning lands directly on the workflow editor (V1)", async ({ page }) => {
@@ -15,7 +16,7 @@ exports.register = function (shared) {
 
     await expect(page.locator("body")).toContainText(
       /workflow|execution|credential|canvas|overview/i,
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
 
     await shared.n8nLogout(page);
@@ -34,7 +35,7 @@ exports.register = function (shared) {
 
     await expect(page.locator("body")).toContainText(
       /workflow|execution|credential|canvas|overview/i,
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
 
     await shared.n8nLogout(page);
