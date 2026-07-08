@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger -> ActivityStreams actor)", async ({ browser }) => {
@@ -18,7 +19,7 @@ test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger 
       shared.env.adminPassword
     );
 
-    await page.goto(`${shared.env.wpBaseUrl}/wp-admin/profile.php`, {
+    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/profile.php`, {
       waitUntil: "domcontentloaded",
       timeout: resolveTimeout(60_000),
     });

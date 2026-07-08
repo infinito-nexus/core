@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const baseUrl = normalizeBaseUrl(process.env.FUSIONDIRECTORY_BASE_URL || "");
@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("baseline: FusionDirectory responds on the canonical domain", async ({ page }) => {
-  const r = await page.goto(`${baseUrl}/`);
+  const r = await gotoOnion(page, `${baseUrl}/`);
   expect(r).toBeTruthy();
   expect(r.status()).toBeLessThan(500);
   expect(r.url().includes(canonicalDomain)).toBe(true);
@@ -29,7 +29,7 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   expect(adminUsername).toBeTruthy(); expect(adminPassword).toBeTruthy(); expect(oidcIssuerUrl).toBeTruthy();
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
@@ -39,7 +39,7 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
 test("LDAP: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   expect(page.url().includes(canonicalDomain)).toBe(true);
 });
 

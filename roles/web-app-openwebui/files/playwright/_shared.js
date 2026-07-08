@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   installCspViolationObserver,
   normalizeBaseUrl,
   performKeycloakLoginForm,
@@ -106,7 +107,7 @@ async function actionableClick(locator) {
 async function signInViaDashboardOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${env.oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${env.openwebuiBaseUrl}/`);
+  await gotoOnion(page, `${env.openwebuiBaseUrl}/`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -164,7 +165,7 @@ async function ensureNativeAdminExists(page, name, email, password, personaLabel
 }
 
 async function signInViaNativePassword(page, email, password, personaLabel) {
-  await page.goto(`${env.openwebuiBaseUrl}/auth`);
+  await gotoOnion(page, `${env.openwebuiBaseUrl}/auth`);
 
   // Flip from signup mode (name field rendered) to signin so the bootstrap path is not re-exercised.
   const nameField = page
@@ -215,7 +216,7 @@ async function signInViaNativePassword(page, email, password, personaLabel) {
 }
 
 async function signInViaLdap(page, username, password, personaLabel) {
-  await page.goto(`${env.openwebuiBaseUrl}/auth`);
+  await gotoOnion(page, `${env.openwebuiBaseUrl}/auth`);
 
   // ENABLE_LDAP=true makes LDAP the default credential mode (Username + Password + Authenticate).
   const usernameField = page.getByRole("textbox", { name: /^username$/i }).first();
@@ -286,7 +287,7 @@ async function expectSignInRequiredAfterLogout(page) {
   const settledUrl = page.url();
   if (!(settledUrl.startsWith(env.openwebuiBaseUrl) && /\/auth(\b|\?|\/|$)/.test(settledUrl))) {
     await page.context().clearCookies().catch(() => {});
-    await page.goto(`${env.openwebuiBaseUrl}/auth`, { waitUntil: "domcontentloaded" }).catch(() => {});
+    await gotoOnion(page, `${env.openwebuiBaseUrl}/auth`, { waitUntil: "domcontentloaded" }).catch(() => {});
   }
   // Anchor on openwebuiBaseUrl so the intermediate `auth.<domain>` Keycloak hop is not misread as /auth.
   await expect

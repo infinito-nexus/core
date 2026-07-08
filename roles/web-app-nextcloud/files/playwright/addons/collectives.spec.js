@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("addon collectives: nextcloud app route renders", async ({ browser }) => {
   skipUnlessAddonEnabled("collectives");
@@ -13,7 +14,7 @@ test("addon collectives: nextcloud app route renders", async ({ browser }) => {
     await shared.loginToStandaloneNextcloud(page);
 
     const appUrl = new URL("apps/collectives/", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(appUrl, { waitUntil: "commit", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, appUrl, { waitUntil: "commit", timeout: resolveTimeout(60_000) });
 
     const appContainer = page.locator(
       "#app-content, #app-content-vue, #content, #content-vue, .app-collectives"

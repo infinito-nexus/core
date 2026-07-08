@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const platformLogoUrl = decodeDotenvQuotedValue(process.env.PLATFORM_LOGO_URL);
 const platformFaviconUrl = decodeDotenvQuotedValue(process.env.PLATFORM_FAVICON_URL);
@@ -31,7 +31,7 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("cdn");
 
     const diagnostics = shared.attachDiagnostics(page);
-    const documentResponse = await page.goto("/");
+    const documentResponse = await gotoOnion(page,"/");
     expect(documentResponse.status()).toBeLessThan(400);
 
     const documentHtml = await documentResponse.text();

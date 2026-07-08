@@ -13,7 +13,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const { expect } = require("@playwright/test");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const friendicaBaseUrl = decodeDotenvQuotedValue(process.env.FRIENDICA_BASE_URL);
@@ -57,7 +57,7 @@ async function loginViaFriendicaForm(page, username, password) {
 // for the SAML migration that would collapse this back into a single hop.
 async function loginViaOauth2ProxyAndFriendica(page, username, password) {
   const baseUrl = trimmedBaseUrl();
-  await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
   // Step 1: oauth2-proxy intercepted the request — page is now on Keycloak.
   await performKeycloakLoginForm(page, username, password);
@@ -85,7 +85,7 @@ async function loginViaOauth2ProxyAndFriendica(page, username, password) {
   // after the POST redirect — the frio / vier themes both expose
   // #topbar-first on /network; `a[href*='/logout']` is the cross-theme
   // fallback for less-canonical themes.
-  await page.goto(`${baseUrl}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
   const profileMenu = page.locator("#topbar-first, #navbar-apps-menu, a[href*='/logout']").first();
   await profileMenu.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 }
@@ -96,9 +96,9 @@ async function loginViaOauth2ProxyAndFriendica(page, username, password) {
 // hook sets authenticated=1 → session established.
 async function loginViaFriendicaDirect(page, username, password) {
   const baseUrl = trimmedBaseUrl();
-  await page.goto(`${baseUrl}/login`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${baseUrl}/login`, { waitUntil: "domcontentloaded" });
   await loginViaFriendicaForm(page, username, password);
-  await page.goto(`${baseUrl}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
   const profileMenu = page.locator("#topbar-first, #navbar-apps-menu, a[href*='/logout']").first();
   await profileMenu.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 }
@@ -109,7 +109,7 @@ function pickLoginPath() {
 
 async function friendicaLogout(page) {
   const baseUrl = trimmedBaseUrl();
-  await page.goto(`${baseUrl}/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/logout`, { waitUntil: "commit" }).catch(() => {});
 }
 
 // Provision biber's friendica.user row by walking the LDAP login path

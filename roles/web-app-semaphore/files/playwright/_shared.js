@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled         = isServiceEnabled("sso");
@@ -23,7 +23,7 @@ function onLoginPage(page) {
 }
 
 async function gotoLogin(page) {
-  await page.goto(`${semaphoreBaseUrl}${LOGIN_PATH}`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${semaphoreBaseUrl}${LOGIN_PATH}`, { waitUntil: "domcontentloaded" });
 }
 
 async function assertAuthenticated(page, label) {

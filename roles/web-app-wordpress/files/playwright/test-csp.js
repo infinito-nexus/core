@@ -4,6 +4,7 @@ const {
   assertCspMetaParity,
   assertCspResponseHeader,
   expectNoCspViolations,
+  gotoOnion,
 } = require("./personas");
 
 // Baseline scenarios MUST NOT gate on any service.
@@ -12,7 +13,7 @@ exports.register = function (shared) {
     page,
   }) => {
     const diagnostics = shared.attachDiagnostics(page);
-    const response = await page.goto(`${shared.env.wpBaseUrl}/`);
+    const response = await gotoOnion(page, `${shared.env.wpBaseUrl}/`);
     expect(response, "Expected WordPress front page response").toBeTruthy();
     expect(
       response.status(),

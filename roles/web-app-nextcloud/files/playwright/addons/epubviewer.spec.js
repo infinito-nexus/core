@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -16,7 +17,7 @@ test("addon epubviewer: EPUB reader personal settings panel renders and reflects
     await shared.loginToStandaloneNextcloudWithRetry(page);
 
     const settingsUrl = new URL("settings/user/epubviewer", shared.env.nextcloudBaseUrl).toString();
-    const response = await page.goto(settingsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    const response = await gotoOnion(page, settingsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     expect(
       response === null || response.status() !== 404,
       "the epubviewer app must register its settings/user/epubviewer section (app installed + enabled)",

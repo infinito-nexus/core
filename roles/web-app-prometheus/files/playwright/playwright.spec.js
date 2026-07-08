@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -18,7 +18,7 @@ const biberPassword      = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 
 // Log out via the universal logout endpoint.
 async function prometheusLogout(page, baseUrl) {
-  await page.goto(`${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
 }
 
 test.beforeEach(() => {
@@ -89,7 +89,7 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   const expectedPrometheusBaseUrl = prometheusBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Prometheus — oauth2-proxy redirects to Keycloak.
-  await page.goto(`${expectedPrometheusBaseUrl}/`);
+  await gotoOnion(page, `${expectedPrometheusBaseUrl}/`);
 
   await expect
     .poll(() => page.url(), {
@@ -119,7 +119,7 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   await prometheusLogout(page, expectedPrometheusBaseUrl);
 
   // 6. Verify session is gone — oauth2-proxy redirects unauthenticated requests to Keycloak.
-  await page.goto(`${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(15_000),
@@ -211,7 +211,7 @@ test("prometheus scrape: every consumer role reports up=1", async ({ page }) => 
   // Authenticate as administrator via the direct prometheus URL flow.
   // Same shape as scenario II's biber path, just with admin credentials
   // so the OAuth2-Proxy callback succeeds (302 -> prometheus).
-  await page.goto(`${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
   if (page.url().includes("openid-connect/auth")) {
     await performKeycloakLoginForm(page, adminUsername, adminPassword);
   }

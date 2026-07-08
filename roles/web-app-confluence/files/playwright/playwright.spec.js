@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("Confluence front page is served under canonical domain with TLS", async ({ page }) => {
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected Confluence response").toBeTruthy();
   expect(response.status(), "Expected Confluence front page status < 400").toBeLessThan(400);
   expect(

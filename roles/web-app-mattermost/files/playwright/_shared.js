@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const oidcEnabled = isServiceEnabled("sso");
@@ -46,9 +46,9 @@ async function startMattermostSsoFlow(page, baseUrl) {
   let lastErr;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      await page.goto(`${base}/login`, { waitUntil: "load", timeout: resolveTimeout(60_000) });
+      await gotoOnion(page, `${base}/login`, { waitUntil: "load", timeout: resolveTimeout(60_000) });
       if (page.url().includes("/landing")) {
-        await page.goto(`${base}/login`, { waitUntil: "load", timeout: resolveTimeout(60_000) });
+        await gotoOnion(page, `${base}/login`, { waitUntil: "load", timeout: resolveTimeout(60_000) });
       }
       await page.locator("#input_loginId").waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
       lastErr = undefined;
@@ -100,7 +100,7 @@ async function waitForMattermostChannelView(frame, timeout = resolveTimeout(60_0
 // `waitUntil: "commit"` avoids net::ERR_ABORTED from the multi-domain
 // redirect chain the universal-logout service triggers.
 async function mattermostLogout(page, baseUrl) {
-  await page.goto(`${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
 }
 
 function beforeEach() {

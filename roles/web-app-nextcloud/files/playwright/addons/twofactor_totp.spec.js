@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -30,7 +31,7 @@ test("twofactor_totp addon: TOTP provider is registered and offered for enrollme
     // authenticated session. The installed-apps list resolves only when the
     // settings backend recognizes the app id.
     const appsUrl = new URL("settings/apps/installed", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(appsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, appsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const appEntry = page
@@ -48,7 +49,7 @@ test("twofactor_totp addon: TOTP provider is registered and offered for enrollme
     // into the 2FA registry) this section is absent — so this expectation FAILS
     // when the integration is not wired.
     const securityUrl = new URL("settings/user/security", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(securityUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, securityUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     await expect(

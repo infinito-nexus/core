@@ -2,6 +2,7 @@
 // Scenario: Native admin login (Keycloak not enabled)
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -26,7 +27,7 @@ test.beforeEach(() => {
 test("administrator: can log in natively to pihole", async ({ page }) => {
   const expectedPiholeBaseUrl = piholeBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedPiholeBaseUrl}/admin/login`);
+  await gotoOnion(page, `${expectedPiholeBaseUrl}/admin/login`);
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
   const passwordInput = page.getByRole("textbox", { name: /password/i });

@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.OPENPROJECT_BASE_URL || process.env.APP_BASE_URL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
@@ -28,7 +28,7 @@ test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gat
   });
   try {
     const page = await context.newPage();
-    await page.goto(`${expectedBase}/`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${expectedBase}/`, { waitUntil: "domcontentloaded" });
 
     await expect
       .poll(() => page.url(), {
@@ -122,7 +122,7 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
   await page.context().clearCookies();
 
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })

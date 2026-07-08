@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.BASEROW_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -20,7 +20,7 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a Baserow JWT session", as
 
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);

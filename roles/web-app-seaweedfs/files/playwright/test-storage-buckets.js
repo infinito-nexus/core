@@ -1,4 +1,5 @@
 const { test } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   const { env, keycloakLogin, isAuthChain, expect } = shared;
@@ -7,13 +8,13 @@ exports.register = function (shared) {
     test.skip(!env.ssoEnabled, "SSO disabled");
     test.skip(env.consumerBuckets.length === 0, "no object-store consumers on this host");
 
-    await page.goto(env.filerUrl, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, env.filerUrl, { waitUntil: "domcontentloaded" });
     if (isAuthChain(page.url())) {
       await keycloakLogin(page, env.adminUsername, env.adminPassword);
     }
     await page.waitForLoadState("networkidle").catch(() => {});
 
-    await page.goto(`${env.filerUrl.replace(/\/$/, "")}/buckets/`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${env.filerUrl.replace(/\/$/, "")}/buckets/`, { waitUntil: "domcontentloaded" });
     const listing = (await page.locator("body").innerText().catch(() => "")) || "";
 
     const missing = env.consumerBuckets.filter((b) => !listing.includes(b.bucket));

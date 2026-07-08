@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_openproject: two-way OAuth coupling provisioned and connectable to partner OpenProject", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_openproject");
@@ -13,7 +14,7 @@ test("integration integration_openproject: two-way OAuth coupling provisioned an
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/openproject", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

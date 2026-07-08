@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -16,7 +17,7 @@ test("bbb addon: cloud_bbb app route renders its own UI and is coupled to the pa
     await shared.loginToStandaloneNextcloud(page);
 
     const appUrl = new URL("apps/bbb/", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(appUrl, { waitUntil: "commit", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, appUrl, { waitUntil: "commit", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const appContainer = page.locator(
@@ -35,7 +36,7 @@ test("bbb addon: cloud_bbb app route renders its own UI and is coupled to the pa
       "the cloud_bbb app's own UI surface (its room-management view / active app menu entry) must render, so a disabled or broken bbb app fails"
     ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/additional", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

@@ -13,6 +13,7 @@ const {
   runAdminFlow,
   runBiberFlow,
   runGuestFlow,
+  gotoOnion,
 } = require("./personas");
 
 const VALID_PNG_BASE64 =
@@ -47,7 +48,7 @@ async function assertAuthenticated(page) {
 // (clickable text, not a role=button) that redirects to Keycloak.
 async function penpotOidcLogin(page, username, password) {
   const expectedAuth = `${env.oidcIssuerUrl}/protocol/openid-connect/auth`;
-  await page.goto(loginRoute(env.baseUrl));
+  await gotoOnion(page, loginRoute(env.baseUrl));
   const oidcEntry = page.getByText("OpenID", { exact: true });
   await expect(oidcEntry, "Expected a Penpot OpenID login entry").toBeVisible({ timeout: resolveTimeout(60_000) });
   await oidcEntry.click();
@@ -61,7 +62,7 @@ async function penpotOidcLogin(page, username, password) {
 // LDAP: a dedicated "LDAP" submit button (enabled once the form is filled)
 // binds against OpenLDAP directly — no Keycloak round-trip.
 async function penpotLdapLogin(page, email, password) {
-  await page.goto(loginRoute(env.baseUrl));
+  await gotoOnion(page, loginRoute(env.baseUrl));
   const emailField = page.getByLabel(/work email/i);
   const passwordField = page.getByLabel(/^password$/i);
   await expect(emailField, "Expected the Penpot login form").toBeVisible({ timeout: resolveTimeout(60_000) });
@@ -77,7 +78,7 @@ async function penpotLdapLogin(page, email, password) {
 // two-step form: email/password, then full name). SMTP-off deployments activate
 // the profile immediately (no verification), landing on the dashboard.
 async function penpotRegister(page, fullname, email, password) {
-  await page.goto(`${env.baseUrl.replace(/\/$/, "")}/#/auth/register`);
+  await gotoOnion(page, `${env.baseUrl.replace(/\/$/, "")}/#/auth/register`);
   const emailField = page.getByLabel(/work email|^email$/i).first();
   const passwordField = page.getByLabel(/^password$/i).first();
   await expect(emailField, "Expected the Penpot register form").toBeVisible({ timeout: resolveTimeout(60_000) });
@@ -102,7 +103,7 @@ async function penpotRegister(page, fullname, email, password) {
 
 // Native: local-DB account via the email/password form + the "Login" button.
 async function penpotNativeLogin(page, email, password) {
-  await page.goto(loginRoute(env.baseUrl));
+  await gotoOnion(page, loginRoute(env.baseUrl));
   const emailField = page.getByLabel(/work email/i);
   const passwordField = page.getByLabel(/^password$/i);
   await expect(emailField, "Expected the Penpot login form").toBeVisible({ timeout: resolveTimeout(60_000) });

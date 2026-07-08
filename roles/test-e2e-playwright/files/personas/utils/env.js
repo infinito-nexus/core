@@ -42,7 +42,9 @@ const _ONION_TRANSIENT_RE =
   /ERR_TIMED_OUT|ERR_SOCKS|ERR_CONNECTION_(?:CLOSED|RESET|FAILED)|ERR_PROXY_CONNECTION_FAILED|ERR_EMPTY_RESPONSE|ERR_TUNNEL_CONNECTION_FAILED/i;
 
 async function gotoOnion(page, url, opts = {}) {
-  const isOnion = /\.onion(?::\d+)?(?:\/|$|\?)/i.test(url);
+  const isRelative = /^\/(?!\/)/.test(url);
+  const isOnion =
+    /\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical());
   const attempts = isOnion ? Number(process.env.PLAYWRIGHT_ONION_GOTO_RETRIES) || 4 : 1;
   const gotoOpts = { ...opts };
   if (isOnion && gotoOpts.timeout === undefined) gotoOpts.timeout = 60_000;

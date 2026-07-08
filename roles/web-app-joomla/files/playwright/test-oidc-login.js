@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const joomlaBaseUrl = normalizeBaseUrl(process.env.JOOMLA_BASE_URL);
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -31,7 +31,7 @@ test("OIDC: native plg_system_keycloak redirects unauthenticated visitors to Key
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedJoomlaBaseUrl = joomlaBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedJoomlaBaseUrl}/`);
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/`);
 
   await expect
     .poll(() => page.url(), {

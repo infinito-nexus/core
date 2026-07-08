@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 // Functional cross-role coupling check for nextcloud/integration_mastodon.
 //
@@ -33,7 +34,7 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     // addon hook. The field is an NcTextField bound to oauth_instance_url inside the
     // app's admin section (#mastodon_prefs / #mastodon-content) under the
     // "connected-accounts" admin settings page.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
@@ -86,7 +87,7 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     // the PARTNER instance's /oauth/authorize endpoint, carrying the provisioned
     // OAuth client_id & response_type=code. This proves the bridge actually reaches
     // the partner (not Nextcloud) — the real federation/login round-trip.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

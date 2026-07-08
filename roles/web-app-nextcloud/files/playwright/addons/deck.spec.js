@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("addon deck: app is enabled and its board route renders", async ({ browser }) => {
   skipUnlessAddonEnabled("deck");
@@ -17,7 +18,7 @@ test("addon deck: app is enabled and its board route renders", async ({ browser 
     // enabled; a disabled/missing app redirects or 404s. The board shell
     // rendering is the app's own positive proof of being enabled.
     const appUrl = new URL("apps/deck/", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(appUrl, { waitUntil: "commit", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, appUrl, { waitUntil: "commit", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const appContainer = page.locator(

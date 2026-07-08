@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled } = require("./service-gating");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("taiga themed routes stay aligned across stable routes", async ({ page }) => {
@@ -28,7 +29,7 @@ exports.register = function (shared) {
     ];
 
     for (const routeCheck of routeChecks) {
-      await page.goto(routeCheck.url);
+      await gotoOnion(page, routeCheck.url);
       await expect(routeCheck.ready).toBeVisible({ timeout: resolveTimeout(60_000) });
 
       if (!cssEnabled) {

@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -28,7 +29,7 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
     await shared.loginToStandaloneNextcloud(page);
 
     const filesUrl = new URL("apps/files/", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(filesUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, filesUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const docName = `infinito-onlyoffice-${Date.now()}.docx`;

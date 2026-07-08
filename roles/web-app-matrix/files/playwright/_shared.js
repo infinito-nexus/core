@@ -5,6 +5,7 @@ const {
   assertCspResponseHeader,
   decodeDotenvQuotedValue,
   expectNoCspViolations,
+  gotoOnion,
   installCspViolationObserver,
   normalizeBaseUrl,
   performKeycloakLoginForm,
@@ -59,7 +60,7 @@ function attachDiagnostics(page) {
 async function signInViaElementOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${elementBaseUrl}/#/login`);
+  await gotoOnion(page, `${elementBaseUrl}/#/login`);
 
   const ssoButton = page
     .locator(
@@ -329,7 +330,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
 // indistinguishable from Element's side. Skip-verification + service-worker
 // dismissal mirror the OIDC path; Synapse SSO consent does not apply.
 async function signInViaElementPassword(page, username, password, personaLabel) {
-  await page.goto(`${elementBaseUrl}/#/login`);
+  await gotoOnion(page, `${elementBaseUrl}/#/login`);
 
   const userField = page
     .locator('input[name="username"], #mx_LoginForm_username, input[name="mxid"], input[data-testid="login_field_mx_id"]')

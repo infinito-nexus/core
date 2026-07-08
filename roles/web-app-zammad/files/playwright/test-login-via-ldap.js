@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("biber (ldap): regular sign-in form authenticates against svc-db-openldap", async ({ page }) => {
@@ -11,7 +12,7 @@ exports.register = function (shared) {
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 
     await page.context().clearCookies();
-    await page.goto(`${shared.env.zammadBaseUrl}/#login`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${shared.env.zammadBaseUrl}/#login`, { waitUntil: "domcontentloaded" });
 
     const usernameInput = page.locator('input[name="username"]');
     const passwordInput = page.locator('input[name="password"]');

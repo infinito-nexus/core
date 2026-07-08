@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({
@@ -28,7 +28,7 @@ test.beforeEach(() => {
 
 // Helper: local form login (admin only)
 async function login(page, email, password) {
-  await page.goto(`${baseUrl}/users/sign_in`);
+  await gotoOnion(page, `${baseUrl}/users/sign_in`);
   await page.waitForLoadState("networkidle");
   const cookieBanner = page.locator("#dc-dialog-wrapper, .cookies__container, [data-cookie-consent]");
   if (await cookieBanner.isVisible().catch(() => false)) {
@@ -59,7 +59,7 @@ async function dismissCookieBanner(page) {
 
 // Helper: OIDC login via Keycloak
 async function oidcLogin(page, username, password) {
-  await page.goto(`${baseUrl}/users/sign_in`);
+  await gotoOnion(page, `${baseUrl}/users/sign_in`);
   await page.waitForLoadState("networkidle");
   await dismissCookieBanner(page);
   const ssoButton = page.locator("a[href*='openid_connect']").first();
@@ -122,7 +122,7 @@ async function oidcLogin(page, username, password) {
 
 // Scenario I: Homepage loads
 test("homepage loads and shows Decidim", async ({ page }) => {
-  await page.goto(baseUrl);
+  await gotoOnion(page, baseUrl);
   await expect(page).not.toHaveTitle("");
   await expect(page.locator("body")).toBeVisible();
 });
@@ -132,7 +132,7 @@ test("admin can log in and out", async ({ page }) => {
   await login(page, adminEmail, adminPassword);
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(page.locator("body")).toBeVisible();
-  await page.goto(`${baseUrl}/users/sign_out`);
+  await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
 });
@@ -143,7 +143,7 @@ test("biber can log in via OIDC and log out", async ({ page }) => {
   if (result === null) { test.skip(); return; }
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(page.locator("body")).toBeVisible();
-  await page.goto(`${baseUrl}/users/sign_out`);
+  await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
 });
@@ -156,7 +156,7 @@ test("biber can access profile after OIDC login", async ({ page }) => {
   await expect(page).not.toHaveURL(/sign_in/);
 
   // Biber accesses their account page
-  await page.goto(`${baseUrl}/account`);
+  await gotoOnion(page, `${baseUrl}/account`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(page.locator("h1, h2").first()).toBeVisible();
@@ -165,7 +165,7 @@ test("biber can access profile after OIDC login", async ({ page }) => {
 // Scenario V: SSO button visible when OIDC is enabled
 test("SSO login button is visible when OIDC is enabled", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
-  await page.goto(`${baseUrl}/users/sign_in`);
+  await gotoOnion(page, `${baseUrl}/users/sign_in`);
   await page.waitForLoadState("networkidle");
   const ssoButton = page.locator("a[href*='openid_connect']").first();
   await expect(ssoButton).toBeVisible();

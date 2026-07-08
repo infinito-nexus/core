@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.YOURLS_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -26,7 +26,7 @@ test("OIDC: oauth2-proxy + trusted-header bridge sign the visitor into a real YO
   const adminUrl = `${expectedBase}/admin/`;
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(adminUrl);
+  await gotoOnion(page, adminUrl);
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
@@ -35,7 +35,7 @@ test("OIDC: oauth2-proxy + trusted-header bridge sign the visitor into a real YO
     .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${adminUrl}` })
     .toContain(adminUrl);
 
-  await page.goto(adminUrl, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, adminUrl, { waitUntil: "domcontentloaded" });
   await expect(page).toHaveTitle(/yourls/i, { timeout: resolveTimeout(30_000) });
 
   await expect(

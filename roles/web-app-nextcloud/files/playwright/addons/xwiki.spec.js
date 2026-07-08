@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -16,7 +17,7 @@ test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partn
     await shared.loginToStandaloneNextcloud(page);
 
     const settingsUrl = new URL("settings/admin/xwiki", shared.env.nextcloudBaseUrl).toString();
-    const response = await page.goto(settingsUrl, {
+    const response = await gotoOnion(page, settingsUrl, {
       waitUntil: "domcontentloaded",
       timeout: resolveTimeout(60_000)
     });

@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 // Full-coupling check for nextcloud/integration_mattermost.
 //
@@ -30,7 +31,7 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     await shared.loginToStandaloneNextcloud(page);
 
     // 1) App is installed AND enabled.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/apps/installed/integration_mattermost", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
@@ -43,7 +44,7 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // 2) Personal connect surface renders (only when the app is enabled).
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

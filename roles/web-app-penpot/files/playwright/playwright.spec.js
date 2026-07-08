@@ -5,7 +5,7 @@
 
 const shared = require("./_shared");
 const { resolveTimeout } = require("./timeouts");
-const { expectHstsWhenTls } = require("./personas");
+const { expectHstsWhenTls, gotoOnion } = require("./personas");
 const { test, expect, skipUnlessServiceEnabled, runGuestFlow, runBiberFlow, runAdminFlow, env, penpotOidcLogin } = shared;
 
 test.use({ ignoreHTTPSErrors: true });
@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("baseline: Penpot responds on the canonical domain with TLS", async ({ page }) => {
-  const r = await page.goto(`${env.baseUrl}/`);
+  const r = await gotoOnion(page, `${env.baseUrl}/`);
   expect(r, "Expected Penpot response").toBeTruthy();
   expect(r.status(), "Expected Penpot front page status < 500").toBeLessThan(500);
   expect(

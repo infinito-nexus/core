@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const lamEnabled = isServiceEnabled("lam");
@@ -22,7 +22,7 @@ exports.register = function (shared) {
 
       const probe = `LAM-${Date.now()}`;
 
-      await page.goto(`${shared.env.oidcIssuerUrl}/.well-known/openid-configuration`);
+      await gotoOnion(page, `${shared.env.oidcIssuerUrl}/.well-known/openid-configuration`);
       const restResult = await page.evaluate(shared.setMiddleNameViaAccountRest, {
         issuer: shared.env.oidcIssuerUrl,
         clientId: shared.env.oidcClientId,

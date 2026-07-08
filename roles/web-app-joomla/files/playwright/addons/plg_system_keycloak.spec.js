@@ -6,6 +6,7 @@ const {
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
   performKeycloakLoginForm,
+  gotoOnion,
 } = require("../personas");
 
 // plg_system_keycloak is Joomla's native OIDC SSO plugin (in-role plugin,
@@ -44,7 +45,7 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
   const expectedJoomlaBaseUrl = joomlaBaseUrl.replace(/\/$/, "");
 
   // Step 1: the guard MUST redirect a guest to the CONFIGURED Keycloak issuer.
-  await page.goto(`${expectedJoomlaBaseUrl}/`);
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/`);
 
   await expect
     .poll(() => page.url(), {
@@ -81,7 +82,7 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
   // the Keycloak auth endpoint (the guard only redirects guests). A bounce
   // here means the callback failed to provision/log in the user — i.e. the
   // integration is not actually coupled.
-  await page.goto(`${expectedJoomlaBaseUrl}/`);
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/`);
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
 
   expect(

@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("Checkmk front surface is reachable under the canonical domain", async ({ page }) => {
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected a Checkmk front response").toBeTruthy();
   expect(response.status(), "Expected the Checkmk front status to be < 500").toBeLessThan(500);
 });

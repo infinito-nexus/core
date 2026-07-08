@@ -9,6 +9,7 @@ const { expect } = require("@playwright/test");
 
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   normalizeBaseUrl,
   performKeycloakLoginForm,
   runAdminFlow,
@@ -47,7 +48,7 @@ async function beforeEach({ page }) {
 // Rails-UJS by building and submitting an actual <form method="post">
 // in the page, with the CSRF token Mastodon embedded in <meta>.
 async function loginToMastodonViaOidc(page, baseUrl) {
-  await page.goto(`${baseUrl}/auth/sign_in`);
+  await gotoOnion(page, `${baseUrl}/auth/sign_in`);
   const oidcLink = page.locator("a[href*='/auth/auth/openid_connect'], a[href*='/auth/openid_connect']").first();
   await expect(oidcLink, "Expected Mastodon OIDC sign-in link").toBeVisible({ timeout: resolveTimeout(30_000) });
 
@@ -154,7 +155,7 @@ async function loginViaFriendicaForm(page) {
 }
 
 async function postOnFriendicaViaUi(page, baseUrl, statusText) {
-  await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
   const friendicaHost = new URL(baseUrl).host;
 
   // Step 1: if oauth2-proxy intercepted, fill the Keycloak form first.
@@ -181,7 +182,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
     await loginViaFriendicaForm(page);
   }
 
-  await page.goto(`${baseUrl}/compose`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${baseUrl}/compose`, { waitUntil: "domcontentloaded" });
   const compose = page.locator("textarea[name='body']").first();
   await expect(
     compose,
@@ -193,7 +194,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
   // Friendica redirects to /profile/<nick> after a successful post; verify
   // the post text shows up there. The /network feed only surfaces
   // contacts' posts, not your own.
-  await page.goto(`${baseUrl}/profile/${biberUsername}`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${baseUrl}/profile/${biberUsername}`, { waitUntil: "domcontentloaded" });
   await expect(
     page.locator(".wall-item-body, .wall-item-content").filter({ hasText: statusText }).first(),
     "Expected Friendica profile timeline to surface the new status"
@@ -201,7 +202,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
 }
 
 async function expectPostVisibleOnWall(page, wallUrl, needle, timeoutMs = 60000) {
-  await page.goto(wallUrl);
+  await gotoOnion(page, wallUrl);
   await expect(
     page.locator(".wall-item").filter({ hasText: needle }).first(),
     `Expected a wall-item containing "${needle}" on ${wallUrl}`
@@ -209,7 +210,7 @@ async function expectPostVisibleOnWall(page, wallUrl, needle, timeoutMs = 60000)
 }
 
 async function expectPostAbsentFromWall(page, wallUrl, needle, settleMs = 30000) {
-  await page.goto(wallUrl);
+  await gotoOnion(page, wallUrl);
   await page.waitForTimeout(settleMs);
   await expect(
     page.locator(".wall-item").filter({ hasText: needle }),

@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 const moodleLdapBackedProfileFields = [
   "firstname", "lastname", "middlename", "alternatename",
@@ -16,13 +17,13 @@ exports.register = function (shared) {
     test.skip(shared.env.ssoEnabled, "covered by variant 1 LDAP-only run");
 
     test("biber profile-edit form locks all 19 Moodle profile-mapping fields", async ({ page }) => {
-      await page.goto(`${shared.env.moodleBaseUrl}/login/index.php`);
+      await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`);
       await page.locator("input[name='username'], input#username").first().fill(shared.env.biberUsername);
       await page.locator("input[name='password'], input#password").first().fill(shared.env.biberPassword);
       await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click();
       await page.waitForLoadState("load");
 
-      await page.goto(`${shared.env.moodleBaseUrl}/user/edit.php`);
+      await gotoOnion(page, `${shared.env.moodleBaseUrl}/user/edit.php`);
       await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(30_000) });
 
       for (const fieldName of moodleLdapBackedProfileFields) {

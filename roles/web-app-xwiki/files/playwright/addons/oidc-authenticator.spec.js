@@ -6,6 +6,7 @@ const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
+  gotoOnion,
 } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -33,7 +34,7 @@ test("oidc-authenticator: XWiki login is coupled to the Keycloak OIDC provider",
   // extension/config were NOT wired, the login action would instead render
   // XWiki's local username/password form on the XWiki host and never reach
   // the provider, so the assertions below would fail.
-  await page.goto(`${base}/bin/login/XWiki/XWikiLogin`, {
+  await gotoOnion(page, `${base}/bin/login/XWiki/XWikiLogin`, {
     waitUntil: "domcontentloaded",
     timeout: resolveTimeout(60_000),
   });

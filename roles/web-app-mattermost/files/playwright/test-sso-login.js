@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { performKeycloakLoginForm } = require("./personas");
+const { performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("mattermost: sso login, verify channel view, logout", async ({ page }) => {
@@ -33,7 +33,7 @@ exports.register = function (shared) {
     await shared.mattermostLogout(page, baseUrl);
 
     // Mattermost v11+ defaults to /landing#/ rather than /login for unauthenticated requests.
-    await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${baseUrl}/`, { waitUntil: "domcontentloaded" });
     await expect
       .poll(() => page.url(), {
         timeout: resolveTimeout(15_000),

@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { normalizeBaseUrl } = require("./personas");
+const { normalizeBaseUrl, gotoOnion } = require("./personas");
 
 const cdnBaseUrl = normalizeBaseUrl(process.env.CDN_BASE_URL || "");
 const roleCssPrefix = `${cdnBaseUrl.replace(/\/$/, "")}/roles/web-app-dashboard/latest/css`;
@@ -12,7 +12,7 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("css");
 
     const diagnostics = shared.attachDiagnostics(page);
-    const documentResponse = await page.goto("/");
+    const documentResponse = await gotoOnion(page,"/");
     expect(documentResponse.status()).toBeLessThan(400);
 
     const documentHtml = await documentResponse.text();

@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -45,7 +46,7 @@ test("spreed addon: Talk HPB signaling/turn backends are configured and coupled"
     ).toMatch(/signaling/i);
 
     const talkAdminUrl = new URL("settings/admin/talk", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(talkAdminUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, talkAdminUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     await expect(

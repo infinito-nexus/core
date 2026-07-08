@@ -2,6 +2,7 @@
 // Scenarios: SSO login for administrator and biber (Keycloak enabled)
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -41,7 +42,7 @@ test("administrator: can log in via SSO and access pihole", async ({ page }) => 
   const expectedOidcAuthUrl   = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedPiholeBaseUrl = piholeBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedPiholeBaseUrl}/`);
+  await gotoOnion(page, `${expectedPiholeBaseUrl}/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(30_000) }).toContain(expectedOidcAuthUrl);
   await performOidcLogin(page, adminUsername, adminPassword);
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(60_000) }).catch(() => {});
@@ -53,7 +54,7 @@ test("biber: is denied access to pihole admin panel", async ({ page }) => {
   const expectedOidcAuthUrl   = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedPiholeBaseUrl = piholeBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedPiholeBaseUrl}/`);
+  await gotoOnion(page, `${expectedPiholeBaseUrl}/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(30_000) }).toContain(expectedOidcAuthUrl);
   await performOidcLogin(page, biberUsername, biberPassword);
   await page.waitForURL(url => !url.toString().includes("/oauth2/callback"), { timeout: resolveTimeout(30_000) }).catch(() => {});
@@ -73,14 +74,14 @@ test("administrator: can log out via logout button", async ({ page }) => {
   const expectedOidcAuthUrl   = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedPiholeBaseUrl = piholeBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedPiholeBaseUrl}/admin/`);
+  await gotoOnion(page, `${expectedPiholeBaseUrl}/admin/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(30_000) }).toContain(expectedOidcAuthUrl);
   await performOidcLogin(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedPiholeBaseUrl);
   await page.waitForURL(url => !url.toString().includes("/oauth2/callback"), { timeout: resolveTimeout(30_000) }).catch(() => {});
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
-  await page.goto(`${expectedPiholeBaseUrl}/oauth2/sign_out?rd=${encodeURIComponent(oidcIssuerUrl.replace(/\/$/, "").concat("/protocol/openid-connect/logout"))}`);
+  await gotoOnion(page, `${expectedPiholeBaseUrl}/oauth2/sign_out?rd=${encodeURIComponent(oidcIssuerUrl.replace(/\/$/, "").concat("/protocol/openid-connect/logout"))}`);
   const confirmButton = page.locator("#kc-logout");
   await confirmButton.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await confirmButton.click();

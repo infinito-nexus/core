@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_github: per-user OAuth connect reaches github.com/login/oauth/authorize with the provisioned client_id", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_github");
@@ -13,7 +14,7 @@ test("integration integration_github: per-user OAuth connect reaches github.com/
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

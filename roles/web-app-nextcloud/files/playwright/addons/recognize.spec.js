@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -16,7 +17,7 @@ test("recognize addon: admin recognize settings UI mounts its own surface", asyn
     await shared.loginToStandaloneNextcloud(page);
 
     const settingsUrl = new URL("settings/admin/recognize", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(settingsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, settingsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const recognizeRoot = page.locator("#recognize");

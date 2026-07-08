@@ -1,12 +1,13 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("dashboard iframe sync JavaScript responds to iframeLocationChange events", async ({ page }) => {
     shared.skipUnlessServiceEnabled("cdn");
     shared.skipUnlessServiceEnabled("matomo");
 
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
 
     const iframeTargetUrl = `${shared.env.matomoBaseUrl}/?playwright-iframe-sync=1`;

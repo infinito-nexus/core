@@ -5,7 +5,7 @@ const { resolveTimeout } = require("./timeouts");
 // test module per scenario so each test stays atomar.
 
 const { expect } = require("@playwright/test");
-const { decodeDotenvQuotedValue, escapeRegex, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, escapeRegex, gotoOnion, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const loginUsername = decodeDotenvQuotedValue(process.env.LOGIN_USERNAME);
@@ -244,7 +244,7 @@ async function loginToTaiga(page) {
   // entry on `/login`. Going straight to `/login` puts us on the page
   // that actually renders the OIDC button so the directive's click
   // handler is bound by the time we click.
-  await page.goto(`${taigaUrls.expectedTaigaBaseUrl}/login`);
+  await gotoOnion(page, `${taigaUrls.expectedTaigaBaseUrl}/login`);
 
   if (taigaOauth2Enabled) {
     await expect
@@ -333,7 +333,7 @@ async function loginToTaiga(page) {
 
 async function logoutFromTaiga(page, session) {
   if (taigaOauth2Enabled) {
-    await page.goto(session.taigaOauth2SignOutUrl);
+    await gotoOnion(page, session.taigaOauth2SignOutUrl);
     await waitForOauth2ProxyCookie(
       page,
       session.expectedTaigaBaseUrl,
@@ -342,7 +342,7 @@ async function logoutFromTaiga(page, session) {
       "Expected Taiga oauth2-proxy session cookie to be cleared after /oauth2/sign_out"
     );
   } else {
-    await page.goto(session.expectedTaigaBaseUrl);
+    await gotoOnion(page, session.expectedTaigaBaseUrl);
     await waitForAuthenticatedTaigaShell(
       page,
       60_000,
@@ -351,7 +351,7 @@ async function logoutFromTaiga(page, session) {
     await tryLogoutFromTaiga(page, page);
   }
 
-  await page.goto(session.expectedTaigaBaseUrl);
+  await gotoOnion(page, session.expectedTaigaBaseUrl);
 
   const loggedOutState = await waitForTopLevelLoginRequirement(
     page,
@@ -463,7 +463,7 @@ async function loginToTaigaNative(page) {
   // otherwise). The login route stays on Taiga the whole time — no
   // Keycloak round-trip — so the username/password form lives at /login
   // directly.
-  await page.goto(`${taigaUrls.expectedTaigaBaseUrl}/login`);
+  await gotoOnion(page, `${taigaUrls.expectedTaigaBaseUrl}/login`);
 
   const usernameField = page.locator("input[name='username'], input#username");
   const passwordField = page.locator("input[name='password'], input#password");
@@ -486,7 +486,7 @@ async function loginToTaigaNative(page) {
 }
 
 async function logoutFromTaigaNative(page, session) {
-  await page.goto(session.expectedTaigaBaseUrl);
+  await gotoOnion(page, session.expectedTaigaBaseUrl);
   await waitForAuthenticatedTaigaShell(
     page,
     60_000,
@@ -494,7 +494,7 @@ async function logoutFromTaigaNative(page, session) {
   );
   await tryLogoutFromTaiga(page, page);
 
-  await page.goto(`${session.expectedTaigaBaseUrl}/login`);
+  await gotoOnion(page, `${session.expectedTaigaBaseUrl}/login`);
   await expect(page.locator("input[name='username'], input#username").first())
     .toBeVisible({ timeout: resolveTimeout(60_000) });
 }

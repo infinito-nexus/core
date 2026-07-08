@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -16,7 +17,7 @@ test("metadata addon: Files app loads the metadata app's own provider bundle", a
     await shared.loginToStandaloneNextcloud(page);
 
     const filesUrl = new URL("apps/files/", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(filesUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, filesUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     await expect(

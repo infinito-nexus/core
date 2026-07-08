@@ -1,9 +1,9 @@
 const { test, expect } = require("@playwright/test");
-const { expectHstsWhenTls } = require("./personas");
+const { expectHstsWhenTls, gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("fediwall root is served under canonical domain with TLS", async ({ page }) => {
-    const response = await page.goto(`${shared.env.appBaseUrl}/`);
+    const response = await gotoOnion(page, `${shared.env.appBaseUrl}/`);
     expect(response, "Expected fediwall root response").toBeTruthy();
     expect(response.status(), "Expected fediwall root status < 400").toBeLessThan(400);
     expect(

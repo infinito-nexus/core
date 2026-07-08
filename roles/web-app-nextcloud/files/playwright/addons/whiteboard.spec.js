@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -15,7 +16,7 @@ test("whiteboard addon: admin whiteboard settings render and are wired to the co
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/whiteboard", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

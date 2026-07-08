@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { installCspViolationObserver } = require("./personas");
+const { installCspViolationObserver, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 // Auto-provisioned LDAP/Keycloak groups drive WordPress roles via the
@@ -47,7 +47,7 @@ exports.register = function (shared) {
       try {
         const adminKc = await newCtx();
         try {
-          await adminKc.page.goto(`${shared.env.keycloakBaseUrl}/admin/master/console/`);
+          await gotoOnion(adminKc.page, `${shared.env.keycloakBaseUrl}/admin/master/console/`);
           await shared.fillKeycloakLoginForm(
             adminKc.page,
             shared.env.superAdminUsername,
@@ -90,7 +90,7 @@ exports.register = function (shared) {
             shared.env.adminUsername,
             shared.env.adminPassword
           );
-          await wpAdmin.page.goto(`${shared.env.wpBaseUrl}/wp-admin/users.php`, {
+          await gotoOnion(wpAdmin.page, `${shared.env.wpBaseUrl}/wp-admin/users.php`, {
             waitUntil: "domcontentloaded",
           });
           const biberRow = wpAdmin.page

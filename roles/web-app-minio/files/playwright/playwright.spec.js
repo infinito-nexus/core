@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 function parseStsAssumeRoleResponse(body) {
@@ -16,7 +16,7 @@ function parseStsAssumeRoleResponse(body) {
 }
 
 async function minioConsoleFormLogin(page, baseUrl, username, password) {
-  await page.goto(`${baseUrl}/login`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${baseUrl}/login`, { waitUntil: "domcontentloaded" });
 
   const usernameField = page
     .locator("input[name='accessKey'], input[name='username'], input#accessKey, input#username")
@@ -35,7 +35,7 @@ async function minioConsoleFormLogin(page, baseUrl, username, password) {
 }
 
 async function minioConsoleLogout(page, baseUrl) {
-  await page.goto(`${baseUrl}/api/v1/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/api/v1/logout`, { waitUntil: "commit" }).catch(() => {});
   await page.context().clearCookies();
 }
 
@@ -61,7 +61,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("minio console serves canonical domain over HTTPS", async ({ page }) => {
-  const response = await page.goto(`${consoleBaseUrl}/`);
+  const response = await gotoOnion(page, `${consoleBaseUrl}/`);
   expect(response, "Expected MinIO Console landing response").toBeTruthy();
   expect(response.status(), "Expected MinIO Console landing response to be successful").toBeLessThan(400);
 
@@ -135,7 +135,7 @@ test("administrator: MinIO Console form login under LDAP variant", async ({ page
 
   await minioConsoleLogout(page, consoleBaseUrl);
 
-  await page.goto(`${consoleBaseUrl}/login`);
+  await gotoOnion(page, `${consoleBaseUrl}/login`);
   await expect(
     page
       .locator("input[name='accessKey'], input[name='username'], input#accessKey, input#username")

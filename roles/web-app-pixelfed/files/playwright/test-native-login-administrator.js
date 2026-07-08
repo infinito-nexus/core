@@ -15,7 +15,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
-  const { decodeDotenvQuotedValue } = require("./personas");
+  const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
   const pixelfedBaseUrl = shared.env.pixelfedBaseUrl;
   const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
@@ -34,7 +34,7 @@ exports.register = function (shared) {
     const loginUrl = `${expectedBaseUrl}/login`;
 
     // 1. Land on the upstream `/login` form and confirm the stock layout.
-    await page.goto(loginUrl);
+    await gotoOnion(page, loginUrl);
     const emailField = page.locator('input#email[name="email"]');
     const passwordField = page.locator('input#password[name="password"]');
     const submitButton = page.locator('button[type="submit"], input[type="submit"]').first();

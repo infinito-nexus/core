@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
-const { expectHstsWhenTls } = require("./personas");
+const { expectHstsWhenTls, gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("Pi-hole front page is served under canonical domain with TLS", async ({ page }) => {
-  const response = await page.goto(`${piholeBaseUrl.replace(/\/$/, "")}/`);
+  const response = await gotoOnion(page, `${piholeBaseUrl.replace(/\/$/, "")}/`);
   expect(response, "Expected Pi-hole response").toBeTruthy();
   expect(response.status(), "Expected Pi-hole front page status < 400").toBeLessThan(400);
   if (canonicalDomain) {

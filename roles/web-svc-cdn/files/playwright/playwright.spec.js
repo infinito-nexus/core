@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, expectHstsWhenTls, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, expectHstsWhenTls, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const cdnBaseUrl = normalizeBaseUrl(process.env.CDN_BASE_URL || "");
@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("cdn index is served under canonical domain with TLS", async ({ page }) => {
-  const response = await page.goto(`${cdnBaseUrl}/`);
+  const response = await gotoOnion(page, `${cdnBaseUrl}/`);
   expect(response, "Expected CDN index response").toBeTruthy();
   expect(response.status(), "Expected CDN index status < 400").toBeLessThan(400);
   expect(

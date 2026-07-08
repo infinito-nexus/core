@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { escapeRegex } = require("./personas");
+const { escapeRegex, gotoOnion } = require("./personas");
 
 async function waitForBoundingBoxStable(locator, { samples = 3, interval = 100, timeout = resolveTimeout(10_000) } = {}) {
   const deadline = Date.now() + timeout;
@@ -102,7 +102,7 @@ exports.register = function (shared) {
   test("dashboard renders simpleicon-backed cards when simpleicons service is enabled", async ({ page }) => {
     shared.skipUnlessServiceEnabled("simpleicons");
 
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
 
     const simpleiconCard = page

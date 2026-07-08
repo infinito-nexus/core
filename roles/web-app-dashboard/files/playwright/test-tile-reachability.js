@@ -8,6 +8,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 const dashboardTargetRoles = (() => {
   const raw = process.env.DASHBOARD_TARGET_ROLES_JSON || "[]";
@@ -109,7 +110,7 @@ async function assertTabButtonOpensNewTab(page, context, target) {
 exports.register = function (shared) {
   for (const target of dashboardTargetRoles) {
     test(`dashboard tile for ${target.id} embeds ${target.canonical_domain} in iframe and opens it in a new tab`, async ({ page, context }) => {
-      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await gotoOnion(page,"/", { waitUntil: "domcontentloaded" });
       await shared.waitForDashboardReady(page);
       await assertTileLoadsInIframe(page, target);
       await assertTabButtonOpensNewTab(page, context, target);

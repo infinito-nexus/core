@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 // Administrator native login — picks the variant-specific path at runtime.
 // Skips entirely when neither oauth2 nor ldap is enabled (v1 has no auth
@@ -18,7 +19,7 @@ exports.register = function (shared) {
     }
 
     await shared.friendicaLogout(page);
-    await page.goto(`${shared.trimmedBaseUrl()}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
+    await gotoOnion(page, `${shared.trimmedBaseUrl()}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
     await expect(page.locator("a[href*='/logout']")).not.toBeAttached({ timeout: resolveTimeout(10_000) });
   });
 };

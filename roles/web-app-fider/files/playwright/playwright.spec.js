@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 require("./test-seaweedfs");
@@ -55,7 +55,7 @@ test("fider: admin sso login, verify ui, logout", async ({ page }) => {
   const expectedFiderBaseUrl = fiderBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Fider
-  await page.goto(`${expectedFiderBaseUrl}/`);
+  await gotoOnion(page, `${expectedFiderBaseUrl}/`);
 
   // 2. Click through Fider's sign-in flow to trigger the Keycloak SSO redirect
   await clickFiderSsoButton(page);
@@ -69,10 +69,10 @@ test("fider: admin sso login, verify ui, logout", async ({ page }) => {
   await expect(page.locator(".c-menu-user").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   // 5. Logout — navigate to Fider's sign-out endpoint
-  await page.goto(`${expectedFiderBaseUrl}/signout`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${expectedFiderBaseUrl}/signout`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
   // 6. Verify signout — the public Fider page should no longer show the user menu
-  await page.goto(`${expectedFiderBaseUrl}/`);
+  await gotoOnion(page, `${expectedFiderBaseUrl}/`);
   await expect(page.locator(".c-menu-user")).not.toBeAttached({ timeout: resolveTimeout(10_000) });
 });
 

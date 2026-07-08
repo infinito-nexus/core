@@ -1,10 +1,11 @@
 const { test } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   const { env, isAuthChain, expect } = shared;
 
   async function assertRedirectedToAuth(page, targetUrl) {
-    await page.goto(targetUrl, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, targetUrl, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle").catch(() => {});
     expect(
       isAuthChain(page.url()),

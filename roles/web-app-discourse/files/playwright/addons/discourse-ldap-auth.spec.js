@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("../personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -14,7 +14,7 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 async function signInViaOidc(page) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${discourseBaseUrl}/`);
+  await gotoOnion(page, `${discourseBaseUrl}/`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -24,7 +24,7 @@ async function signInViaOidc(page) {
   if ((await oidcSignIn.count().catch(() => 0)) > 0) {
     await oidcSignIn.click();
   } else {
-    await page.goto(`${discourseBaseUrl}/auth/oidc`).catch(() => {});
+    await gotoOnion(page, `${discourseBaseUrl}/auth/oidc`).catch(() => {});
   }
 
   await expect

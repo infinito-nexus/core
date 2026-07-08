@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   installCspViolationObserver,
   normalizeBaseUrl,
 } = require("./personas");
@@ -73,7 +74,7 @@ async function fillKeycloakLoginForm(page, username, password) {
 // there's no WP session. We land at Keycloak, sign in, and get redirected
 // back to /wp-admin/.
 async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
-  await page.goto(`${wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
   const url = page.url();
   if (!url.includes(wpBaseUrl)) {
     await fillKeycloakLoginForm(page, username, password);
@@ -92,7 +93,7 @@ async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
 // navigate out of inside a Playwright flow.
 async function wpSignOut(page, wpBaseUrl) {
   await page.context().clearCookies().catch(() => {});
-  await page.goto(`${wpBaseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${wpBaseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
 }
 
 async function keycloakAdminOpenUserProfile(
@@ -101,7 +102,7 @@ async function keycloakAdminOpenUserProfile(
   realmName,
   username
 ) {
-  await page.goto(`${keycloakBaseUrl}/admin/master/console/#/${realmName}/users`, {
+  await gotoOnion(page, `${keycloakBaseUrl}/admin/master/console/#/${realmName}/users`, {
     waitUntil: "domcontentloaded",
   });
   const searchInput = page

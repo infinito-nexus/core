@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("OIDC: oauth2-proxy + login-broker drop a Bluesky session into social-app via Keycloak (variant A+)", async ({ page }) => {
@@ -25,7 +26,7 @@ exports.register = function (shared) {
     const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
     const expectedBaseUrl = baseUrl.replace(/\/$/, "");
 
-    await page.goto(`${expectedBaseUrl}/`);
+    await gotoOnion(page, `${expectedBaseUrl}/`);
 
     await expect
       .poll(() => page.url(), {

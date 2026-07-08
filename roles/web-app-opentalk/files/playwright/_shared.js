@@ -6,7 +6,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const baseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const issuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -33,7 +33,7 @@ function attachDiagnostics(page) {
 
 async function ssoLoginAndAssertDashboard(page, username, password) {
   const diagnostics = attachDiagnostics(page);
-  await page.goto(baseUrl);
+  await gotoOnion(page, baseUrl);
 
   // The OpenTalk frontend either auto-redirects to Keycloak or renders a
   // "Sign in" CTA first. Race both paths.

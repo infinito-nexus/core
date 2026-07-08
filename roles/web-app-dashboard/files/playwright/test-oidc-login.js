@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isVisible, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, isVisible, normalizeBaseUrl, gotoOnion } = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -172,7 +172,7 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("sso");
     const diagnostics = shared.attachDiagnostics(page);
 
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
     await shared.waitForResourceResponse(diagnostics.responses, `${shared.env.dashboardJsBaseUrl}/oidc.js`, "dashboard oidc script");
 
@@ -229,7 +229,7 @@ exports.register = function (shared) {
       await confirmLogoutIfNeeded(page);
     }
 
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
     await expectLoggedOutHeaderAuthState(page);
   });

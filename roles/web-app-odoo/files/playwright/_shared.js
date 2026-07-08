@@ -1,6 +1,6 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const env = {
@@ -36,7 +36,7 @@ async function clickOdooSsoButton(locator) {
 }
 
 async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
-  await page.goto(`${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+  await gotoOnion(page, `${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await page.locator('input[name="login"]').fill(env.adminUsername);
   await page.locator('input[name="password"]').fill(env.adminPassword);
   await page
@@ -44,7 +44,7 @@ async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
     .getByRole("button", { name: /log\s*in/i })
     .first()
     .click();
-  await page.goto(`${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+  await gotoOnion(page, `${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await expect(
     webClient,
     "native (non-SSO) administrator login must land on the authenticated Odoo web client"
@@ -70,7 +70,7 @@ async function loginToOdoo(page) {
   // Keycloak form only when it appears, then confirm an authenticated web client.
   const issuer = env.oidcIssuerUrl.replace(/\/$/, "");
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    await page.goto(`${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, `${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await clickOdooSsoButton(page);
 
     await Promise.race([
@@ -84,7 +84,7 @@ async function loginToOdoo(page) {
         .toMatch(notLoginUrl);
     }
 
-    await page.goto(`${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    await gotoOnion(page, `${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     const rendered = await webClient
       .waitFor({ state: "visible", timeout: resolveTimeout(120_000) })
       .then(() => true)
@@ -100,7 +100,7 @@ async function loginToOdoo(page) {
 
 async function openModule(page, modulePath) {
   const url = `${baseUrl()}/${String(modulePath).replace(/^\//, "")}`;
-  await page.goto(url, { waitUntil: "domcontentloaded", timeout: resolveTimeout(90_000) });
+  await gotoOnion(page, url, { waitUntil: "domcontentloaded", timeout: resolveTimeout(90_000) });
   const appShell = page.locator(
     ".o_web_client, .o_action_manager, .o_main_navbar, .o_content, .o_list_view, .o_kanban_view"
   );

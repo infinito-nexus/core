@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -21,7 +21,7 @@ test("bridgy-fed responds under canonical domain with TLS", async ({ page }) => 
   // answers on the canonical domain over TLS, regardless of whether
   // the requested path resolves. A 5xx is the only signal of an
   // unhealthy app.
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected bridgy-fed response").toBeTruthy();
   expect(response.status(), "Expected bridgy-fed status < 500 (4xx are by design)").toBeLessThan(500);
   expect(

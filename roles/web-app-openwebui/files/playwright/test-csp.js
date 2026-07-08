@@ -4,6 +4,7 @@ const {
   assertCspMetaParity,
   assertCspResponseHeader,
   expectNoCspViolations,
+  gotoOnion,
 } = require("./personas");
 
 exports.register = function (shared) {
@@ -12,7 +13,7 @@ exports.register = function (shared) {
   }) => {
     const diagnostics = shared.attachDiagnostics(page);
 
-    const response = await page.goto(`${shared.env.openwebuiBaseUrl}/`);
+    const response = await gotoOnion(page, `${shared.env.openwebuiBaseUrl}/`);
     expect(response, "Expected openwebui landing response").toBeTruthy();
     expect(
       response.status(),

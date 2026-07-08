@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_google: per-user OAuth connect reaches the Google authorize endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_google");
@@ -16,7 +17,7 @@ test("integration integration_google: per-user OAuth connect reaches the Google 
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/migration", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
@@ -24,7 +25,7 @@ test("integration integration_google: per-user OAuth connect reaches the Google 
 
     let connect = connectFor(page);
     if ((await connect.count()) === 0) {
-      await page.goto(
+      await gotoOnion(page,
         new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
         { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
       );

@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue , expectHstsWhenTls } = require("./personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue , expectHstsWhenTls, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.SNIPE_IT_BASE_URL || process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
@@ -11,7 +11,7 @@ test("baseline: Snipe-IT front page is served under the canonical domain with TL
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
   await page.context().clearCookies();
 
-  const response = await page.goto(`${baseUrl}/`);
+  const response = await gotoOnion(page, `${baseUrl}/`);
   expect(response, "Expected Snipe-IT response").toBeTruthy();
   expect(response.status(), "Expected Snipe-IT front page status < 500").toBeLessThan(500);
   expect(

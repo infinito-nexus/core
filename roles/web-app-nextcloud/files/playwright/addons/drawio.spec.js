@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("addon drawio: app installed + enabled (registered in OC.appswebroots)", async ({ browser }) => {
   skipUnlessAddonEnabled("drawio");
@@ -13,7 +14,7 @@ test("addon drawio: app installed + enabled (registered in OC.appswebroots)", as
   try {
     await shared.loginToStandaloneNextcloudWithRetry(page);
 
-    await page.goto(new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
+    await gotoOnion(page, new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
       waitUntil: "domcontentloaded",
       timeout: resolveTimeout(60_000),
     });

@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
 
 const joomlaBaseUrl = normalizeBaseUrl(process.env.JOOMLA_BASE_URL);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -13,7 +13,7 @@ test.use({ ignoreHTTPSErrors: true });
 // `location = /logout` and proxies it to web-svc-logout. Using `waitUntil: 'commit'`
 // avoids ERR_ABORTED from the multi-domain redirect chain.
 async function joomlaLogout(page, baseUrl) {
-  await page.goto(`${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
 }
 
 test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administrator (LDAP variant)", async ({ page }) => {
@@ -28,7 +28,7 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
   skipUnlessServiceEnabled("ldap");
   const expectedJoomlaBaseUrl = joomlaBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedJoomlaBaseUrl}/administrator`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/administrator`, { waitUntil: "domcontentloaded" });
 
   const usernameField = page.locator("input[name='username']");
   const passwordField = page.locator("input[name='passwd']");
@@ -67,6 +67,6 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
 
   // After logout, /administrator must render the login form again rather than
   // the control panel.
-  await page.goto(`${expectedJoomlaBaseUrl}/administrator`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/administrator`, { waitUntil: "domcontentloaded" }).catch(() => {});
   await expect(page.locator("input[name='username']")).toBeVisible({ timeout: resolveTimeout(15_000) });
 });

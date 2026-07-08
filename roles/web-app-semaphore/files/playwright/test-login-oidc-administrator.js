@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("administrator: Semaphore OIDC login reaches the admin Users surface", async ({ page }) => {
@@ -13,7 +14,7 @@ exports.register = function (shared) {
 
     // Admin-only interaction: the global Users management surface is admin-gated;
     // the OIDC administrator matches the seeded admin by email and must reach it.
-    await page.goto(`${shared.env.semaphoreBaseUrl}/users`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${shared.env.semaphoreBaseUrl}/users`, { waitUntil: "domcontentloaded" });
     await expect(page, "administrator must not be bounced to login on /users").not.toHaveURL(/\/auth\/login/);
     await expect(page.locator("body")).toContainText(/users|new user|admin/i, { timeout: resolveTimeout(60_000) });
 

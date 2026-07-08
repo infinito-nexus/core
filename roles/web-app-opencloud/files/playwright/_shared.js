@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const baseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const issuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -42,7 +42,7 @@ async function ssoLoginAndAssertUsername(page, username, password) {
       );
     } catch {}
   });
-  await page.goto(baseUrl);
+  await gotoOnion(page, baseUrl);
 
   const onIssuer = async () => issuerPattern.test(page.url());
   if (!(await onIssuer())) {

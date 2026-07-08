@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 test.use({
   ignoreHTTPSErrors: true
@@ -78,7 +78,7 @@ async function isOdooAuthenticated(locator) {
 async function performOdooLogout(page, odooBaseUrl) {
   const logoutUrl = `${odooBaseUrl.replace(/\/$/, "")}/web/session/logout`;
 
-  await page.goto(logoutUrl);
+  await gotoOnion(page, logoutUrl);
 
   // Give the logout a moment to process
   await page.waitForTimeout(resolveTimeout(2_000));
@@ -101,7 +101,7 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
   const odooLoginUrl = `${expectedOdooBaseUrl}/web/login`;
 
   // 1. Navigate directly to Odoo login
-  await page.goto(odooLoginUrl);
+  await gotoOnion(page, odooLoginUrl);
 
   // 2. Click the "Login with SSO" button (waits internally for provider list)
   await clickOdooSsoButton(page);
@@ -163,7 +163,7 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
   const odooLoginUrl = `${expectedOdooBaseUrl}/web/login`;
 
   // 1. Navigate directly to Odoo login
-  await page.goto(odooLoginUrl);
+  await gotoOnion(page, odooLoginUrl);
 
   // 2. Click the "Login with SSO" button
   await clickOdooSsoButton(page);

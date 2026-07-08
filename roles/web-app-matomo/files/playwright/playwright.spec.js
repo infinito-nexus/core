@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { isServiceEnabled } = require("./service-gating");
-const { assertCspMetaParity, assertCspResponseHeader, assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { assertCspMetaParity, assertCspResponseHeader, assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 function attachDiagnostics(page) {
@@ -55,7 +55,7 @@ test.beforeEach(async ({ page }) => {
 test("matomo enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({ page }) => {
   const diagnostics = attachDiagnostics(page);
 
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected Matomo login response").toBeTruthy();
   expect(response.status(), "Expected Matomo login response to be successful").toBeLessThan(400);
 
@@ -75,7 +75,7 @@ test("matomo enforces Content-Security-Policy and exposes canonical domain from 
 test("matomo local administrator logs in and logs out", async ({ page }) => {
   const diagnostics = attachDiagnostics(page);
 
-  await page.goto(`${appBaseUrl}/index.php?module=Login`);
+  await gotoOnion(page, `${appBaseUrl}/index.php?module=Login`);
 
   const usernameField = page
     .locator("input#login_form_login, input[name='form_login']")
@@ -101,7 +101,7 @@ test("matomo local administrator logs in and logs out", async ({ page }) => {
 
   await expect(page.locator("body")).toContainText(/dashboard|websites|matomo/i, { timeout: resolveTimeout(60_000) });
 
-  await page.goto(`${appBaseUrl}/index.php?module=Login&action=logout`);
+  await gotoOnion(page, `${appBaseUrl}/index.php?module=Login&action=logout`);
 
   await expect
     .poll(
@@ -282,7 +282,7 @@ test("matomo SitesManager registers a tracker site for every consumer role", asy
   // Sign in via the local Matomo form so the API call below can reuse
   // the session cookie. Same shape as the local-admin login test above
   // but does not assert logout.
-  await page.goto(`${appBaseUrl}/index.php?module=Login`);
+  await gotoOnion(page, `${appBaseUrl}/index.php?module=Login`);
   await page
     .locator("input#login_form_login, input[name='form_login']")
     .first()
@@ -372,7 +372,7 @@ for (const target of matomoTargetRoles) {
         label: target.id,
       });
     } else {
-      await page.goto(targetUrl, { waitUntil: "domcontentloaded" });
+      await gotoOnion(page, targetUrl, { waitUntil: "domcontentloaded" });
     }
 
     const html = await page.content();

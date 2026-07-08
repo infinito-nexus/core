@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_matrix: per-user login drives a real session against the partner homeserver", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_matrix");
@@ -13,7 +14,7 @@ test("integration integration_matrix: per-user login drives a real session again
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
@@ -54,7 +55,7 @@ test("integration integration_matrix: per-user login drives a real session again
       } catch {}
     });
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

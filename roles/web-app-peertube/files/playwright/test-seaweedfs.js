@@ -7,6 +7,7 @@ const {
   performKeycloakLoginForm,
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
+  gotoOnion,
 } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -20,7 +21,7 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 async function loginAdminViaOidc(page) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${peertubeBaseUrl}/login`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${peertubeBaseUrl}/login`, { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle").catch(() => {});
 
   const oidcButtonPatterns = [
@@ -70,7 +71,7 @@ async function loginAdminViaOidc(page) {
 }
 
 async function uploadWebVideo(page) {
-  await page.goto(`${peertubeBaseUrl}/videos/upload`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${peertubeBaseUrl}/videos/upload`, { waitUntil: "domcontentloaded" });
 
   const marker = `infinito-storage-check-${Date.now()}`;
 

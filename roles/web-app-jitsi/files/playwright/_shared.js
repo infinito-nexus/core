@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   normalizeBaseUrl,
   runAdminFlow,
   runBiberFlow,
@@ -20,7 +21,7 @@ const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 // gate proves the user is on the role's authenticated surface.
 async function reachJitsiPrejoin(page, personaLabel, roomSuffix) {
   const roomName = `e2e-${personaLabel}-${roomSuffix}`.toLowerCase().replace(/[^a-z0-9-]/g, "");
-  await page.goto(`${appBaseUrl}/${roomName}`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${appBaseUrl}/${roomName}`, { waitUntil: "domcontentloaded" });
   const prejoin = page
     .getByRole("button", { name: /join meeting|join|beitreten/i })
     .or(page.locator('[data-testid="prejoin.joinMeeting"], #premeeting-screen'))

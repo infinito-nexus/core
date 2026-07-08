@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 // Functional cross-role coupling check for nextcloud/integration_peertube.
 //
@@ -49,7 +50,7 @@ test("integration integration_peertube: admin panel pins the partner host and re
     // instances field must be pinned to the EXACT partner host. A non-empty value
     // that merely differs from Nextcloud is not enough — a stale/placeholder/
     // wrong-partner URL would green-wash; assert host EQUALS the partner.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

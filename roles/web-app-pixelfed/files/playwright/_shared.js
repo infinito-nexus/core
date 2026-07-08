@@ -8,7 +8,7 @@
 const { resolveTimeout } = require("./timeouts");
 
 const { expect, request } = require("@playwright/test");
-const { decodeDotenvQuotedValue, findFirstVisibleCandidate, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, findFirstVisibleCandidate, gotoOnion, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -208,7 +208,7 @@ async function loginToPixelfed(page, loginScenario) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedPixelfedBaseUrl = pixelfedBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedPixelfedBaseUrl}/`);
+  await gotoOnion(page, `${expectedPixelfedBaseUrl}/`);
 
   if (!page.url().includes(expectedOidcAuthUrl)) {
     let oidcEntry = await waitForVisibleCandidate(

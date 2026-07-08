@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isOnionCanonical, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, isOnionCanonical, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -97,7 +97,7 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
   const expectedMailuBaseUrl = mailuBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Mailu
-  await page.goto(`${expectedMailuBaseUrl}/`);
+  await gotoOnion(page, `${expectedMailuBaseUrl}/`);
 
   // 2. Mailu's SSO fork may land on /sso/login before redirecting to Keycloak — click through it
   await page.waitForTimeout(resolveTimeout(2_000));
@@ -136,7 +136,7 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
     await adminLink.first().click();
   } else {
     // Fallback: navigate directly to the admin URL
-    await page.goto(`${expectedMailuBaseUrl}/admin`);
+    await gotoOnion(page, `${expectedMailuBaseUrl}/admin`);
   }
 
   // 8. Verify admin interface loaded — match any heading visible in Mailu's admin panel
@@ -152,7 +152,7 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
     await logoutByHref.first().click();
   } else {
     // Fallback: navigate directly to the admin logout endpoint
-    await page.goto(`${expectedMailuBaseUrl}/admin/ui/logout`);
+    await gotoOnion(page, `${expectedMailuBaseUrl}/admin/ui/logout`);
   }
 });
 

@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled      = isServiceEnabled("sso");
@@ -18,10 +18,10 @@ const canonicalDomain  = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 async function n8nLogout(page) {
   if (oidcEnabled && oidcIssuerUrl) {
-    await page.goto(`${n8nBaseUrl}/oauth2/sign_out`, { waitUntil: "commit" }).catch(() => {});
-    await page.goto(`${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
+    await gotoOnion(page, `${n8nBaseUrl}/oauth2/sign_out`, { waitUntil: "commit" }).catch(() => {});
+    await gotoOnion(page, `${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
   } else {
-    await page.goto(`${n8nBaseUrl}/signout`, { waitUntil: "commit" }).catch(() => {});
+    await gotoOnion(page, `${n8nBaseUrl}/signout`, { waitUntil: "commit" }).catch(() => {});
   }
   await page.context().clearCookies();
 }
@@ -36,7 +36,7 @@ async function n8nLogout(page) {
 async function signInViaN8nOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${n8nBaseUrl}/`);
+  await gotoOnion(page, `${n8nBaseUrl}/`);
 
   await expect
     .poll(() => page.url(), {

@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const moodleScopeName = decodeDotenvQuotedValue(process.env.MOODLE_OIDC_SCOPE_NAME || "moodle");
 
@@ -23,7 +23,7 @@ exports.register = function (shared) {
       expect(shared.env.oidcIssuerUrl, "OIDC_ISSUER_URL must be set in env").toBeTruthy();
       expect(shared.env.oidcClientId, "OIDC_CLIENT_ID must be set in env").toBeTruthy();
 
-      await page.goto(`${shared.env.oidcIssuerUrl}/.well-known/openid-configuration`);
+      await gotoOnion(page, `${shared.env.oidcIssuerUrl}/.well-known/openid-configuration`);
 
       const probe = `MN-${Date.now()}`;
       const result = await page.evaluate(shared.setMiddleNameViaAccountRest, {

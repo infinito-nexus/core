@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.POSTMARKS_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -20,7 +20,7 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a real Postmarks owner ses
 
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
@@ -35,7 +35,7 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a real Postmarks owner ses
   // .loggedIn) renders the admin surface instead of bouncing to /login.
   // The middleware only flips loggedIn when nginx-overwritten X-Forwarded-*
   // headers are present, so a passing /admin proves the bridge ran.
-  const adminResponse = await page.goto(`${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
+  const adminResponse = await gotoOnion(page, `${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
   expect(adminResponse, "Expected a response from /admin").toBeTruthy();
   expect(
     adminResponse.status(),
@@ -56,7 +56,7 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a real Postmarks owner ses
 
   // The public page reflects the same owner session (res.locals.loggedIn
   // drives the admin / sign-out affordances).
-  await page.goto(`${expectedBase}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedBase}/`, { waitUntil: "domcontentloaded" });
   await expect(page.locator("body")).toContainText(
     /admin|sign\s*out|logout|new bookmark/i,
     { timeout: resolveTimeout(60_000) },

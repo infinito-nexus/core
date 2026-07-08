@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const ssoEnabled        = isServiceEnabled("sso");
@@ -15,7 +15,7 @@ const biberPassword     = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain   = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 async function gotoLogin(page) {
-  await page.goto(`${jellyfinBaseUrl}/web/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${jellyfinBaseUrl}/web/`, { waitUntil: "domcontentloaded" });
 }
 
 function onLoginSurface(page) {

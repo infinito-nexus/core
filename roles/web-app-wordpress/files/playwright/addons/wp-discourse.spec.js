@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
+const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon wp-discourse: WordPress bridge is provisioned for and reaches the partner Discourse", async ({ browser }) => {
@@ -27,7 +28,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
       shared.env.adminPassword
     );
 
-    await page.goto(
+    await gotoOnion(page,
       `${shared.env.wpBaseUrl}/wp-admin/admin.php?page=wp_discourse_options&tab=connection`,
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

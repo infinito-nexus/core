@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const baseUrl = normalizeBaseUrl(process.env.LIBRETRANSLATE_BASE_URL || "");
@@ -42,7 +42,7 @@ test("administrator: oauth2-proxy gates the LibreTranslate UI through Keycloak",
   // it triggers a redirect chain to oauth2-proxy and then to
   // Keycloak's authorization endpoint.
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
-  await page.goto(`${baseUrl}/`);
+  await gotoOnion(page, `${baseUrl}/`);
 
   await expect
     .poll(() => page.url(), {
@@ -67,9 +67,9 @@ test("administrator: oauth2-proxy gates the LibreTranslate UI through Keycloak",
 
   // Logout via oauth2-proxy's sign-out endpoint and confirm the gate
   // re-engages.
-  await page.goto(`${baseUrl}/oauth2/sign_out`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/oauth2/sign_out`, { waitUntil: "commit" }).catch(() => {});
   await page.context().clearCookies();
-  await page.goto(`${baseUrl}/`);
+  await gotoOnion(page, `${baseUrl}/`);
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(60_000),

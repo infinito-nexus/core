@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.FLOWISE_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -22,7 +22,7 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set when OIDC is enabled").toBeTruthy();
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBaseUrl = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBaseUrl}/`);
+  await gotoOnion(page, `${expectedBaseUrl}/`);
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(60_000),

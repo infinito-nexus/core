@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 require("./test-seaweedfs");
 test.use({ ignoreHTTPSErrors: true });
@@ -39,7 +39,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("peertube landing exposes canonical domain from applications lookup", async ({ page }) => {
-  const response = await page.goto(`${peertubeBaseUrl}/`);
+  const response = await gotoOnion(page, `${peertubeBaseUrl}/`);
   expect(response, "Expected peertube landing response").toBeTruthy();
   expect(response.status(), "Expected peertube landing response to be successful").toBeLessThan(400);
   expect(
@@ -51,7 +51,7 @@ test("peertube landing exposes canonical domain from applications lookup", async
 async function signInViaDashboardOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${peertubeBaseUrl}/login`);
+  await gotoOnion(page, `${peertubeBaseUrl}/login`);
 
   const oidcButtonPatterns = [
     oidcButtonText ? new RegExp(oidcButtonText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i") : null,
@@ -122,7 +122,7 @@ test("administrator: peertube OIDC login and logout", async ({ page }) => {
 
   await peertubeLogout(page, peertubeBaseUrl);
 
-  await page.goto(`${peertubeBaseUrl}/login`);
+  await gotoOnion(page, `${peertubeBaseUrl}/login`);
   await expect
     .poll(
       async () =>
@@ -147,7 +147,7 @@ test("biber: peertube OIDC login and logout", async ({ page }) => {
 
   await peertubeLogout(page, peertubeBaseUrl);
 
-  await page.goto(`${peertubeBaseUrl}/login`);
+  await gotoOnion(page, `${peertubeBaseUrl}/login`);
   await expect
     .poll(
       async () =>

@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { runAdminFlow } = require("../personas");
+const { runAdminFlow, gotoOnion } = require("../personas");
 
 // pretix-oidc is Pretix's OIDC SSO plugin. It is pip-installed at image-build
 // time and activated purely through environment: the role appends
@@ -27,7 +27,7 @@ test("addon pretix-oidc: login affordance routes to the Keycloak authorization e
   test.skip(!appBaseUrl, "APP_BASE_URL not set for this role");
 
   await page.context().clearCookies();
-  await page.goto(`${appBaseUrl}/control/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${appBaseUrl}/control/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
   // The pretix-oidc backend renders a login link whose href is the full Keycloak
   // authorization URL (openid-connect/auth?client_id=...&redirect_uri=.../oidc/callback...).

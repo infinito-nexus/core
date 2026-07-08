@@ -8,7 +8,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, performKeycloakLoginForm, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const ssoEnabled    = isServiceEnabled("sso");
@@ -33,7 +33,7 @@ async function performKixLogin(page, username, password) {
 async function runKixLoginLogoutFlow(page, username, password) {
   const expectedAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
 
   await expect
     .poll(() => page.url(), {
@@ -60,10 +60,10 @@ async function runKixLoginLogoutFlow(page, username, password) {
     })
     .not.toContain("/auth");
 
-  await page.goto(logoutUrl, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, logoutUrl, { waitUntil: "commit" }).catch(() => {});
 
   await page.context().clearCookies();
-  await page.goto(`${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(30_000),

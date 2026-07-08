@@ -1,7 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
@@ -16,9 +16,9 @@ const biberPassword       = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain     = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 async function erpnextLogout(page) {
-  await page.goto(`${erpnextBaseUrl}/api/method/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${erpnextBaseUrl}/api/method/logout`, { waitUntil: "commit" }).catch(() => {});
   if (oidcIssuerUrl) {
-    await page.goto(`${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
+    await gotoOnion(page, `${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
   }
   await page.context().clearCookies();
 }
@@ -26,7 +26,7 @@ async function erpnextLogout(page) {
 // Frappe's /login form serves both native local users and LDAP-federated users
 // (local DB lookup first, LDAP fallback when LDAP Settings is enabled).
 async function signInViaErpnextLocal(page, username, password, personaLabel) {
-  await page.goto(`${erpnextBaseUrl}/login`);
+  await gotoOnion(page, `${erpnextBaseUrl}/login`);
   await page.fill("input#login_email", username);
   await page.fill("input#login_password", password);
   await Promise.all([
@@ -46,7 +46,7 @@ async function signInViaErpnextLocal(page, username, password, personaLabel) {
 async function signInViaErpnextOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${erpnextBaseUrl}/login`);
+  await gotoOnion(page, `${erpnextBaseUrl}/login`);
 
   const oidcSignIn = page
     .locator("a, button")

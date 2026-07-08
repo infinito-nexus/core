@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.CHECKMK_BASE_URL || process.env.APP_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -22,7 +22,7 @@ test("OIDC: oauth2-proxy gate + X-Remote-User header establish a real Checkmk se
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);

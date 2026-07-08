@@ -3,7 +3,7 @@ const { resolveTimeout } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("../personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -29,7 +29,7 @@ test("PluggableAuth: framework replaces local login and is bound to the OIDC iss
   await page.context().clearCookies();
 
   const loginUrl = `${appBaseUrl}/index.php?title=Special:UserLogin`;
-  await page.goto(loginUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+  await gotoOnion(page, loginUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
 
   // Let an EnableAutoLogin handoff to the IdP settle.
   await page

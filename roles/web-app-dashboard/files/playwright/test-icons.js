@@ -1,9 +1,10 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("dashboard card icons resolve to the public Simple Icons URL when enabled, and to a Font Awesome icon otherwise", async ({ page }) => {
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
 
     await expect(

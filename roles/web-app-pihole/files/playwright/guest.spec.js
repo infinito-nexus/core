@@ -2,6 +2,7 @@
 // Scenario: Unauthenticated guest is redirected to SSO login
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -23,7 +24,7 @@ test.beforeEach(() => {
 
 test("guest: is redirected to SSO login", async ({ page }) => {
   const expectedOidcAuthUrl = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
-  await page.goto(`${piholeBaseUrl.replace(/\/$/, "")}/`);
+  await gotoOnion(page, `${piholeBaseUrl.replace(/\/$/, "")}/`);
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(30_000), message: "Expected redirect to Keycloak OIDC auth" })
     .toContain(expectedOidcAuthUrl);

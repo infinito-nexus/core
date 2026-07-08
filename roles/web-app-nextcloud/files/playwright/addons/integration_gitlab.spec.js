@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_gitlab: per-user OAuth connect reaches the partner GitLab authorize endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_gitlab");
@@ -13,7 +14,7 @@ test("integration integration_gitlab: per-user OAuth connect reaches the partner
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
@@ -32,7 +33,7 @@ test("integration integration_gitlab: per-user OAuth connect reaches the partner
     expect(partnerHost, "must point at the partner GitLab, not the gitlab.com default").not.toBe("gitlab.com");
     expect(partnerHost, "must not point back at Nextcloud itself").not.toBe(nextcloudHost);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );

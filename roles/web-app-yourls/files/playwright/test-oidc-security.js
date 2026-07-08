@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.YOURLS_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -29,7 +29,7 @@ test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gat
   });
   try {
     const page = await context.newPage();
-    await page.goto(`${expectedBase}/admin/`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${expectedBase}/admin/`, { waitUntil: "domcontentloaded" });
 
     await expect
       .poll(() => page.url(), {
@@ -58,7 +58,7 @@ test("oidc-security: the trusted-header bridge stays inert while SSO is disabled
   });
   try {
     const page = await context.newPage();
-    await page.goto(`${expectedBase}/admin/`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${expectedBase}/admin/`, { waitUntil: "domcontentloaded" });
 
     await expect(
       page.locator('a[href*="action=logout"]'),
@@ -82,13 +82,13 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
   const expectedBase = baseUrl.replace(/\/$/, "");
   const adminUrl = `${expectedBase}/admin/`;
 
-  await page.goto(adminUrl);
+  await gotoOnion(page, adminUrl);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${adminUrl}` })
     .toContain(adminUrl);
 
-  await page.goto(adminUrl, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, adminUrl, { waitUntil: "domcontentloaded" });
   await expect(
     page
       .locator('a[href*="action=logout"], a[href*="openid-connect/logout"]')
@@ -108,7 +108,7 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
     "X-Auth-Request-Email": `${forgedMarker}@attacker.invalid`,
     "Remote-User": forgedMarker,
   });
-  await page.goto(adminUrl, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, adminUrl, { waitUntil: "domcontentloaded" });
 
   await expect(
     page

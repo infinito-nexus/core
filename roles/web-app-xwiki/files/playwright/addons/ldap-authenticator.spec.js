@@ -6,6 +6,7 @@ const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
+  gotoOnion,
 } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -35,7 +36,7 @@ test("ldap-authenticator: XWiki enforces its LDAP-backed native credential form 
 
   const base = appBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${base}/bin/view/XWiki/XWikiPreferences`, {
+  await gotoOnion(page, `${base}/bin/view/XWiki/XWikiPreferences`, {
     waitUntil: "domcontentloaded",
   });
 

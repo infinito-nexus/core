@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
+const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partner carrying the groups scope and lands on the role-mapping surface", async ({ browser }) => {
@@ -17,7 +18,7 @@ test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partne
   const keycloakHost = new URL(shared.env.keycloakBaseUrl).host;
 
   try {
-    await page.goto(`${shared.env.wpBaseUrl}/wp-login.php`, {
+    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-login.php`, {
       waitUntil: "domcontentloaded",
       timeout: resolveTimeout(60_000),
     });
@@ -66,7 +67,7 @@ test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partne
       })
       .toContain("/wp-admin");
 
-    await page.goto(`${shared.env.wpBaseUrl}/wp-admin/users.php`, {
+    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/users.php`, {
       waitUntil: "domcontentloaded",
       timeout: resolveTimeout(60_000),
     });

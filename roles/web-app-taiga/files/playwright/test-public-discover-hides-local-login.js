@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("taiga public discover hides local login fields when oidc is active", async ({ page }) => {
@@ -7,7 +8,7 @@ exports.register = function (shared) {
 
     const taigaUrls = shared.getTaigaUrls();
 
-    await page.goto(taigaUrls.discoverUrl);
+    await gotoOnion(page, taigaUrls.discoverUrl);
     await expect(page.getByRole("heading", { name: /discover projects/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const authState = await shared.reachTopLevelTaigaAuthEntry(

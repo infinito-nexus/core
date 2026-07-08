@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -16,7 +17,7 @@ test("files_bpm addon: BPMN editor route renders the modeler canvas", async ({ b
     await shared.loginToStandaloneNextcloud(page);
 
     const appUrl = new URL("apps/files_bpm/", shared.env.nextcloudBaseUrl).toString();
-    const response = await page.goto(appUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+    const response = await gotoOnion(page, appUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     expect(
       response === null || response.status() !== 404,
       "the files_bpm app must serve its apps/files_bpm/ modeler route (app installed + enabled)",
