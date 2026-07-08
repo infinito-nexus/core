@@ -2,6 +2,7 @@
 repositories:
   type: volume
   name: gitlab_repositories
+  # nocheck: nfs-false-data-loss  Reason: gitaly does not support NFS (GitLab requirement); single-replica, repos are moved manually before a reschedule (see README).
   nfs: false
   mounts:
     - service: gitaly
@@ -37,6 +38,7 @@ builds:
 webservice_logs:
   type: volume
   name: gitlab_webservice_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
   nfs: false
   mounts:
     - service: webservice
@@ -44,6 +46,7 @@ webservice_logs:
 webservice_state:
   type: volume
   name: gitlab_webservice_state
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
   nfs: false
   mounts:
     - service: webservice
@@ -51,6 +54,7 @@ webservice_state:
 sidekiq_logs:
   type: volume
   name: gitlab_sidekiq_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
   nfs: false
   mounts:
     - service: sidekiq
@@ -58,6 +62,7 @@ sidekiq_logs:
 sidekiq_state:
   type: volume
   name: gitlab_sidekiq_state
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
   nfs: false
   mounts:
     - service: sidekiq
@@ -65,6 +70,7 @@ sidekiq_state:
 migrations_logs:
   type: volume
   name: gitlab_migrations_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
   nfs: false
   mounts:
     - service: migrations
@@ -72,6 +78,7 @@ migrations_logs:
 migrations_state:
   type: volume
   name: gitlab_migrations_state
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
   nfs: false
   mounts:
     - service: migrations
@@ -79,6 +86,7 @@ migrations_state:
 shell_logs:
   type: volume
   name: gitlab_shell_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
   nfs: false
   mounts:
     - service: shell
@@ -86,6 +94,7 @@ shell_logs:
 gitaly_logs:
   type: volume
   name: gitlab_gitaly_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
   nfs: false
   mounts:
     - service: gitaly

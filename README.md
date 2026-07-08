@@ -86,10 +86,10 @@ For expert installation, contact details, and project participation, see [SUPPOR
 
 Infinito.Nexus is developed independently. Your support helps fund development, infrastructure, documentation, and the long-term growth of the project.
 
-- 💙 **[GitHub Sponsors](https://github.com/sponsors/kevinveenbirkenbach)**
-- ☕ **[Buy Us a Coffee](https://buymeacoffee.com/kevinveenbirkenbach)**
-- 💳 **[PayPal](https://s.veen.world/paypaldonate)**
-- ₿ `bitcoin:bc1qn667c729cy64p5x58m3vg7zmudwqvf0fww7ph5`
+* 💙 **[GitHub Sponsors](https://github.com/sponsors/kevinveenbirkenbach)**
+* ☕ **[Buy Us a Coffee](https://buymeacoffee.com/kevinveenbirkenbach)**
+* 💳 **[PayPal](https://s.veen.world/paypaldonate)**
+* ₿ `bitcoin:bc1qn667c729cy64p5x58m3vg7zmudwqvf0fww7ph5`
 
 ## License ⚖️
 
