@@ -199,7 +199,7 @@ jobs:
           if [ "$(id -u)" -eq 0 ]; then
             python3 -m cli.administration.deploy.swarm.matrix
           else
-            sudo -E env "PATH=$PATH" "HOME=$HOME" "SWARM_NAME=${SWARM_NAME:-}" "variant=${variant:-}" python3 -m cli.administration.deploy.swarm.matrix
+            sudo -E env "PATH=$PATH" "HOME=$HOME" "SWARM_NAME=${SWARM_NAME:-}" "variant=${variant:-}" "disable=${disable:-}" python3 -m cli.administration.deploy.swarm.matrix
           fi
 
       - name: "🌱 Seed content (pre-drain marker on NFS volume)"
