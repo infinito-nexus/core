@@ -22,9 +22,10 @@ test("seaweedfs: an uploaded Penpot image asset is stored in the SeaweedFS bucke
         .poll(() => appPage.url(), { timeout: 90_000, message: "expected to enter the Penpot workspace editor" })
         .toContain("/workspace");
 
-      const markerBase = `infinito-storage-check-${Date.now()}`;
+      const seed = Date.now();
+      const markerBase = `infinito-storage-check-${seed}`;
       const marker = `${markerBase}.png`;
-      const validPng = Buffer.concat([shared.validImagePng(), Buffer.from(markerBase)]);
+      const validPng = shared.uniqueImagePng(seed);
       const fileInput = appPage.locator('input[type="file"]').first();
       await fileInput.waitFor({ state: "attached", timeout: 60_000 });
       await fileInput.setInputFiles({ name: marker, mimeType: "image/png", buffer: validPng });
