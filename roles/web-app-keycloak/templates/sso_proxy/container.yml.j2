@@ -9,6 +9,9 @@
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso') }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}/tcp
     volumes:
       - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}:/oauth2-proxy.cfg"
+{% if (TLS_MODE | lower) == 'self_signed' and OIDC.CLIENT.ISSUER_URL.startswith('https') %}
+      - "{{ CA_ROOT.cert_host }}:/tmp/infinito/ca/root-ca.crt:ro"
+{% endif %}
     healthcheck:
       test: ["CMD", "/bin/oauth2-proxy", "--version"]
       interval: 30s
