@@ -1,0 +1,6 @@
+---
+status_codes:
+  default:
+    - 200
+    - 302
+    - 405

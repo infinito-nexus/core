@@ -1,0 +1,19 @@
+---
+application_id: "web-app-n8n"
+entity_name: "{{ application_id | get_entity_name }}"
+
+N8N_CONTAINER: "{{ lookup('config', application_id, 'services.n8n.name') }}"
+N8N_HTTP_PORT: "{{ lookup('config', application_id, 'services.n8n.ports.local.http') }}"
+N8N_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.n8n.ports.internal.http') }}"
+
+N8N_HOSTNAME: "{{ lookup('domain', application_id) }}"
+N8N_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
+N8N_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'credentials.encryption_key') }}"
+N8N_OWNER_PASSWORD: "{{ lookup('config', application_id, 'credentials.owner_password') }}"
+
+N8N_INTERNAL_API_URL: "http://{{ DOCKER_REACH_HOST }}:{{ N8N_HTTP_PORT }}"
+
+N8N_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+
+N8N_HOOKS_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'hooks.js' ] | path_join }}"
+N8N_HOOKS_FILE_CONTAINER: "/home/node/hooks.js" # nocheck: container-var-name-lookup

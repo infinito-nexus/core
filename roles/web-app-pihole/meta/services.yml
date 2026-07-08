@@ -57,7 +57,7 @@ pihole:
   skip:
     - swarm
   image: pihole/pihole
-  version: "2026.06.0"
+  version: "2026.07.2"
   upstream_dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS }}"
   cpus: "0.5"
   mem_reservation: "128m"
