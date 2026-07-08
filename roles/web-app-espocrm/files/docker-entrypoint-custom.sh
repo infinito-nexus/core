@@ -17,8 +17,8 @@ bool_norm () {
 
 APP_DIR="/var/www/html"
 SESSION_DIR="${APP_DIR}/data/.sessions"
-BOOT_LOCK="${APP_DIR}/.infinito-espocrm-boot.lock.d"
-READY_MARKER="${APP_DIR}/.infinito-espocrm-boot.ready"
+BOOT_LOCK="${APP_DIR}/data/.infinito-espocrm-boot.lock.d"
+READY_MARKER="${APP_DIR}/data/.infinito-espocrm-boot.ready"
 ORIG_ENTRYPOINT="/usr/local/bin/docker-entrypoint.sh"
 
 MAINTENANCE="$(bool_norm "${ESPOCRM_SEED_MAINTENANCE_MODE:-}")"
@@ -32,6 +32,9 @@ SEED_CONFIG_SCRIPT="${ESPOCRM_SCRIPT_SEED}"
 _have_lock=0
 _lock_tries=0
 while :; do
+  if [ -f "$READY_MARKER" ]; then
+    break
+  fi
   if mkdir "$BOOT_LOCK" 2>/dev/null; then
     _have_lock=1
     break
@@ -41,9 +44,6 @@ while :; do
     log "Stale boot lock detected - removing it and retrying."
     rmdir "$BOOT_LOCK" 2>/dev/null || true
     continue
-  fi
-  if [ -f "$READY_MARKER" ]; then
-    break
   fi
   _lock_tries=$((_lock_tries + 1))
   if [ "$_lock_tries" -ge 180 ]; then
@@ -85,7 +85,8 @@ if [ "$_have_lock" = "1" ]; then
     log "WARN: Cache clearing skipped or failed (non-critical)."
   fi
 
-  chown -R www-data:www-data "${APP_DIR}/data" 2>/dev/null || true
+  chown -R www-data:www-data \
+    "${APP_DIR}/data" "${APP_DIR}/custom" "${APP_DIR}/client/custom" 2>/dev/null || true
 
   touch "$READY_MARKER"
   rmdir "$BOOT_LOCK" 2>/dev/null || true
