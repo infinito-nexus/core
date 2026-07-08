@@ -26,7 +26,9 @@ from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
 
-_PERSONA_FLOW_DIR = PROJECT_ROOT / "roles" / "test-e2e-playwright" / "files" / "personas"
+_PERSONA_FLOW_DIR = (
+    PROJECT_ROOT / "roles" / "test-e2e-playwright" / "files" / "personas"
+)
 _PERSONA_FLOW_FILES: tuple[str, ...] = ("biber.js", "admin.js", "guest.js")
 
 _BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)

@@ -74,7 +74,10 @@ class TestTimeoutsHelper(unittest.TestCase):
     def test_global_factor_scales_clearnet(self):
         out = self._run(
             "t.resolveTimeout(60000)",
-            {"CANONICAL_DOMAIN": "x.infinito.example", "PLAYWRIGHT_TIMEOUT_FACTOR": "2"},
+            {
+                "CANONICAL_DOMAIN": "x.infinito.example",
+                "PLAYWRIGHT_TIMEOUT_FACTOR": "2",
+            },
         )
         self.assertIn("RESULT:120000", out)
 
@@ -92,14 +95,28 @@ class TestTimeoutsHelper(unittest.TestCase):
     def test_invalid_factor_falls_back_to_one(self):
         out = self._run(
             "t.resolveTimeout(60000)",
-            {"CANONICAL_DOMAIN": "x.infinito.example", "PLAYWRIGHT_TIMEOUT_FACTOR": "0"},
+            {
+                "CANONICAL_DOMAIN": "x.infinito.example",
+                "PLAYWRIGHT_TIMEOUT_FACTOR": "0",
+            },
         )
         self.assertIn("RESULT:60000", out)
 
     def test_is_onion_target_detects_quoted_and_bare(self):
-        self.assertIn("RESULT:true", self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.abc.onion"'}))
-        self.assertIn("RESULT:true", self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": "x.abc.onion"}))
-        self.assertIn("RESULT:false", self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.example"'}))
+        self.assertIn(
+            "RESULT:true",
+            self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.abc.onion"'}),
+        )
+        self.assertIn(
+            "RESULT:true",
+            self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": "x.abc.onion"}),
+        )
+        self.assertIn(
+            "RESULT:false",
+            self._run(
+                "t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.example"'}
+            ),
+        )
 
 
 if __name__ == "__main__":

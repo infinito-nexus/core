@@ -3,8 +3,8 @@
     tor:
       enabled: true
     mariadb:
-      exposed: true  # nocheck: variants-static-override
+      exposed: true # nocheck: variants-static-override
 - services:
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override

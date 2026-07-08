@@ -76,7 +76,9 @@ def main(argv=None) -> int:
         url = f"{_protocol_for(domain, args.web_protocol)}://{domain}"
         timeout = 30 if is_onion else 10
         try:
-            r = requests.head(url, allow_redirects=False, timeout=timeout, verify=verify)
+            r = requests.head(
+                url, allow_redirects=False, timeout=timeout, verify=verify
+            )
             if expected and r.status_code in expected:
                 print(f"{domain}: OK")
             elif not expected:
@@ -93,9 +95,7 @@ def main(argv=None) -> int:
             errors += 1
 
     if errors:
-        print(
-            f"Warning: {errors} domains responded with an unexpected status code."
-        )
+        print(f"Warning: {errors} domains responded with an unexpected status code.")
     return errors
 
 
