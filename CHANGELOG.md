@@ -1,5 +1,29 @@
 # Changelog
 
+## [11.6.0] - 2026-07-08
+
+* New *web-app-n8n* role: n8n workflow automation (Community Edition). SSO is wired through a trusted-header edge hook that is copied and mounted only when SSO is enabled (native SSO is enterprise-only in CE), LDAP sign-in is supported, and per-scenario Playwright coverage exercises the CE edge-SSO model. Ships at lifecycle *alpha*; subnet and port collisions with the new *web-app-semaphore* role were resolved on the way in. See the [web-app-n8n README](roles/web-app-n8n/README.md).
+
+* CI fixes: resolved four CI failures across the *web-app-n8n*, *web-app-pihole* and *web-app-mastodon* roles.
+
+* Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*.
+
+* Image and dependency version jumps (net since 11.5.0):
+  * *web-app-baserow*: 2.2.2 to 2.3.0
+  * *web-app-semaphore*: v2.18.16 to v2.18.21
+  * *web-app-pihole*: 2026.06.0 to 2026.07.2
+  * *web-app-seaweedfs*: 4.37 to 4.38
+  * *web-app-opencloud*: 7.2.0 to 7.2.1
+  * *web-app-mattermost*: 11.8.2 to 11.8.3
+  * *web-app-decidim*: 0.31.5 to 0.31.6
+  * *web-app-prometheus* (Alertmanager): v0.33.0 to v0.33.1
+  * *web-app-bluesky* (git ref): 1.126.0 to 1.127.0
+
+**Contributors**
+
+* [Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)
+* [Kevin Veen-Birkenbach](https://veen.world): n8n review, CI fixes and version maintenance
+
 ## [11.5.0] - 2026-07-04
 
 * Three new web-app roles, each with SSO/LDAP wiring and per-scenario Playwright coverage:
