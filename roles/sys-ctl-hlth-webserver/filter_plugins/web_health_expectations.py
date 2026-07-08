@@ -119,8 +119,42 @@ def _normalize_codes(x):
     return [c] if c is not None else []
 
 
+def _apply_onion_deploy_view(per_app, applications, primary_domain, node_onion):
+    """Rewrite each app's expectation domains to what the current deploy serves:
+    for a ``services.tor.enabled`` app the onion domains replace (``exclusive``)
+    or accompany (dual) the clearnet ones, reusing ``_inject_onion_domains`` and
+    letting each onion domain inherit its clearnet source's status codes."""
+    node = str(node_onion or "").strip()
+    primary = str(primary_domain or "").strip()
+    if not node or not primary:
+        return
+
+    from utils.cache.domains import _inject_onion_domains, _onion_of
+
+    clearnet_lists = {app: list(exp.keys()) for app, exp in per_app.items()}
+    served = _inject_onion_domains(clearnet_lists, applications, primary, node)
+
+    for app_id, exp in per_app.items():
+        onion_codes = {}
+        for d, codes in exp.items():
+            o = _onion_of(str(d), primary, node)
+            if o:
+                onion_codes[o] = codes
+        served_list = served.get(app_id, list(exp.keys()))
+        per_app[app_id] = {
+            s: (exp[s] if s in exp else onion_codes[s])
+            for s in served_list
+            if s in exp or s in onion_codes
+        }
+
+
 def web_health_expectations(
-    applications, www_enabled: bool = False, group_names=None, redirect_maps=None
+    applications,
+    www_enabled: bool = False,
+    group_names=None,
+    redirect_maps=None,
+    primary_domain=None,
+    node_onion=None,
 ):
     """Produce a **flat mapping**: domain -> [expected_status_codes].
 
@@ -135,13 +169,17 @@ def web_health_expectations(
       - No legacy fallbacks (ignore 'home'/'landingpage').
       - `redirect_maps`: force <source> -> [301] and override app-derived entries.
       - If `www_enabled`: add and/or force www.* -> [301] for all domains.
+      - Deploy-aware onion view: when `primary_domain` and `node_onion` are set
+        (svc-net-tor deployed), each `services.tor.enabled` app's clearnet
+        domains are swapped (exclusive) or extended (dual) with their onion
+        domains, so the probe checks exactly what the current deploy serves.
     """
     if not isinstance(applications, Mapping):
         return {}
 
     selection = _normalize_selection(group_names)
 
-    expectations = {}
+    per_app = {}
 
     for app_id in applications:
         if app_id not in selection:
@@ -165,6 +203,7 @@ def web_health_expectations(
                 if codes:
                     sc_map[str(k)] = codes
 
+        app_exp = {}
         if isinstance(canonical_raw, Mapping) and canonical_raw:
             for key, domains in canonical_raw.items():
                 domains_list = _to_list(domains, allow_mapping=False)
@@ -172,26 +211,38 @@ def web_health_expectations(
                 expected = list(codes) if codes else list(DEFAULT_OK)
                 for d in domains_list:
                     if d:
-                        expectations[d] = expected
+                        app_exp[d] = expected
         else:
             for d in _to_list(canonical_raw, allow_mapping=True):
                 if not d:
                     continue
                 codes = sc_map.get("default")
-                expectations[d] = list(codes) if codes else list(DEFAULT_OK)
+                app_exp[d] = list(codes) if codes else list(DEFAULT_OK)
 
         for d in aliases:
             if d:
-                expectations[d] = [301]
+                app_exp[d] = [301]
+
+        per_app[app_id] = app_exp
+
+    _apply_onion_deploy_view(per_app, applications, primary_domain, node_onion)
+
+    expectations = {}
+    for app_exp in per_app.values():
+        expectations.update(app_exp)
 
     for src in _extract_redirect_sources(redirect_maps):
         expectations[src] = [301]
 
     if www_enabled:
+        node = str(node_onion or "").strip()
         add = {}
         for d in expectations:
-            if not d.startswith("www."):
-                add[f"www.{d}"] = [301]
+            if d.startswith("www."):
+                continue
+            if node and d.endswith(node):
+                continue
+            add[f"www.{d}"] = [301]
         expectations.update(add)
         for d in list(expectations.keys()):
             if d.startswith("www."):

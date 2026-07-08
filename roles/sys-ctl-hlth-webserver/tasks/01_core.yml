@@ -33,7 +33,7 @@
     system_service_tpl_exec_start: >
       {{ system_service_script_exec }}
       --web-protocol {{ lookup('tls', DOMAIN_PRIMARY, 'protocols.web') }}
-      --expectations '{{ lookup('applications') | web_health_expectations(www_enabled=WWW_REDIRECT_ENABLED | bool, group_names=lookup('deployment').deployed) | to_json
+      --expectations '{{ lookup('applications') | web_health_expectations(www_enabled=WWW_REDIRECT_ENABLED | bool, group_names=lookup('deployment').deployed, primary_domain=DOMAIN_PRIMARY, node_onion=lookup('config', 'svc-net-tor', 'services.tor.node', '')) | to_json
       }}'
     system_service_force_flush_final: true
 

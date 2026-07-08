@@ -525,6 +525,84 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         keys = list(out.keys())
         self.assertEqual(keys, sorted(keys))
 
+    # --------- Deploy-aware onion view ---------
+
+    ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
+
+    def _tor_app(self, canonical=None, status_codes=None, **tor):
+        returns = {
+            ("app-a", "server.domains.canonical"): (
+                ["a.infinito.example"] if canonical is None else canonical
+            ),
+        }
+        if status_codes is not None:
+            returns[("app-a", "server.status_codes")] = status_codes
+        self._configure_returns(returns)
+        return {"app-a": {"services": {"tor": {"enabled": True, **tor}}}}
+
+    def test_onion_exclusive_replaces_clearnet(self):
+        apps = self._tor_app(exclusive=True)
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {f"a.{self.ONION}": [200, 302, 301]})
+
+    def test_onion_dual_adds_onion_alongside_clearnet(self):
+        apps = self._tor_app(exclusive=False)
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(
+            out,
+            {
+                "a.infinito.example": [200, 302, 301],
+                f"a.{self.ONION}": [200, 302, 301],
+            },
+        )
+
+    def test_onion_inherits_clearnet_status_codes(self):
+        apps = self._tor_app(
+            canonical={"default": ["a.infinito.example"]},
+            status_codes={"default": [301, 200]},
+            exclusive=True,
+        )
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {f"a.{self.ONION}": [301, 200]})
+
+    def test_onion_disabled_app_stays_clearnet(self):
+        self._configure_returns(
+            {("app-a", "server.domains.canonical"): ["a.infinito.example"]}
+        )
+        apps = {"app-a": {"services": {"tor": {"enabled": False}}}}
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {"a.infinito.example": [200, 302, 301]})
+
+    def test_onion_skipped_without_node_onion(self):
+        apps = self._tor_app(exclusive=True)
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion="",
+        )
+        self.assertEqual(out, {"a.infinito.example": [200, 302, 301]})
+
 
 if __name__ == "__main__":
     unittest.main()
