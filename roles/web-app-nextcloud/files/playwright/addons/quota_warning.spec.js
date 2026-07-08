@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -12,7 +13,7 @@ test.use({ ignoreHTTPSErrors: true });
 // section exists). Log in as administrator and assert that form renders there.
 test("quota_warning addon: admin quota-warning settings form renders", async ({ browser }) => {
   skipUnlessAddonEnabled("quota_warning");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -21,18 +22,18 @@ test("quota_warning addon: admin quota-warning settings form renders", async ({ 
     await shared.loginToStandaloneNextcloud(page);
 
     const settingsUrl = new URL("settings/admin/additional", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(settingsUrl, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await page.goto(settingsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     await expect(
       page.locator("#app-content, #app-content-vue, #content, #content-vue").first(),
       "the Nextcloud admin Additional settings page must render (quota_warning declares its form there)",
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     await expect(
       page.getByText("Quota warning", { exact: true }).first(),
       "the quota_warning declarative admin settings form (section_id 'additional', title 'Quota warning') must render on settings/admin/additional",
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});

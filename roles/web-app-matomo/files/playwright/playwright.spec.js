@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { isServiceEnabled } = require("./service-gating");
 const { assertCspMetaParity, assertCspResponseHeader, assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
@@ -86,19 +87,19 @@ test("matomo local administrator logs in and logs out", async ({ page }) => {
     .locator("input#login_form_submit, button#login_form_submit, button[type='submit'], input[type='submit']")
     .first();
 
-  await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: 60_000 });
+  await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(adminUsername);
   await passwordField.fill(adminPassword);
   await submitButton.click();
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected Matomo login to leave the Login module"
     })
     .not.toContain("module=Login");
 
-  await expect(page.locator("body")).toContainText(/dashboard|websites|matomo/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/dashboard|websites|matomo/i, { timeout: resolveTimeout(60_000) });
 
   await page.goto(`${appBaseUrl}/index.php?module=Login&action=logout`);
 
@@ -111,7 +112,7 @@ test("matomo local administrator logs in and logs out", async ({ page }) => {
           .count()
           .catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected Matomo login form to reappear after logout"
       }
     )
@@ -149,7 +150,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
     const callbackResponsePromise = biberPage
       .waitForResponse(
         (res) => res.url().includes("/oauth2/callback"),
-        { timeout: 60_000 },
+        { timeout: resolveTimeout(60_000) },
       )
       .catch(() => null);
 
@@ -157,7 +158,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
 
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`,
       })
       .toContain(expectedOidcAuthUrl);
@@ -175,7 +176,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
       .or(biberPage.locator("input#kc-login, button#kc-login, button[type='submit'], input[type='submit']"))
       .first();
 
-    await usernameField.waitFor({ state: "visible", timeout: 60_000 });
+    await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
     await usernameField.fill(biberUsername);
     await usernameField.press("Tab").catch(() => {});
     await passwordField.fill(biberPassword);
@@ -197,7 +198,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
     // Fallback: no callback observed — verify the URL did not settle
     // on the authenticated Matomo surface, AND the body does not
     // expose the admin DOM markers (body validation).
-    await biberPage.waitForLoadState("domcontentloaded", { timeout: 60_000 }).catch(() => {});
+    await biberPage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
     const finalUrl = biberPage.url();
     const onAuthDenialChain =
       /openid-connect\/auth/.test(finalUrl) ||
@@ -296,7 +297,7 @@ test("matomo SitesManager registers a tracker site for every consumer role", asy
     .click();
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected Matomo login to leave the Login module before SitesManager probe",
     })
     .not.toContain("module=Login");
@@ -414,12 +415,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const settingsLink = interactivePage
         .getByRole("link", { name: /administration|settings|websites/i })
         .first();
-      if (await settingsLink.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await settingsLink.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await settingsLink.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /websites|administration|users|general settings/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

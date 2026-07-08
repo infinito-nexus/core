@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const { assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
@@ -83,25 +84,25 @@ async function signInViaBbbOidc(page, username, password, personaLabel) {
   // user on `/signin` instead. Fall back to clicking the explicit OIDC button
   // that Greenlight renders when `OPENID_CONNECT_*` env is set.
   await page
-    .waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), { timeout: 10_000 })
+    .waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), { timeout: resolveTimeout(10_000) })
     .catch(async () => {
       const oidcButton = page
         .locator("a, button")
         .filter({ hasText: /sign\s*in\s*with|openid|oidc|sso|single\s*sign[-\s]*on/i })
         .first();
-      if (await oidcButton.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      if (await oidcButton.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
         await oidcButton.click().catch(() => {});
       }
     });
 
   await page.waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), {
-    timeout: 120_000
+    timeout: resolveTimeout(120_000)
   });
 
   await performKeycloakLoginForm(page, username, password);
 
   await page.waitForURL((u) => u.toString().startsWith(`${bbbBaseUrl}/`) && !u.toString().includes("/auth/openid_connect") && !u.toString().includes("?sso=true"), {
-    timeout: 120_000
+    timeout: resolveTimeout(120_000)
   });
 
   // Authenticated Greenlight renders a header "Sign Out" control in the nav
@@ -111,7 +112,7 @@ async function signInViaBbbOidc(page, username, password, personaLabel) {
   await page.goto(`${bbbBaseUrl}/rooms`, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected /rooms to remain accessible post-login (not to be redirected to / or /signin)`
     })
     .toMatch(new RegExp(`^${bbbBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/rooms(/|\\?|$)`));
@@ -142,7 +143,7 @@ async function assertLoggedOut(page, bbbBaseUrl, personaLabel) {
         return "pending";
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `${personaLabel}: expected bigbluebutton to require a new sign-in after logout`
       }
     )

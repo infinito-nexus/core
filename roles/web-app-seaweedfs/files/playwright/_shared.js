@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue } = require("./personas");
 
@@ -22,7 +23,7 @@ const env = {
 async function keycloakLogin(page, username, password) {
   await page.waitForLoadState("domcontentloaded");
   const user = page.locator("#username, input[name='username']").first();
-  await user.waitFor({ state: "visible", timeout: 60_000 });
+  await user.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await user.fill(username);
   await page.locator("#password, input[name='password']").first().fill(password);
   await page.locator("#kc-login, button[type='submit'], input[type='submit']").first().click();

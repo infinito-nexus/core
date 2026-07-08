@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
@@ -20,8 +21,8 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
   await page.goto(`${expectedBase}/`);
-  await expect.poll(() => page.url(), { timeout: 60_000 }).toContain(expectedAuth);
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  await expect.poll(() => page.url(), { timeout: 90_000 }).toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

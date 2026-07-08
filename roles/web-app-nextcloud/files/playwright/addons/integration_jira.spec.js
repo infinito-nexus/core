@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -19,7 +20,7 @@ const shared = require("../_shared");
 // separate Tier-2 concern); we stop at the partner authorize redirect.
 test("integration integration_jira: per-user OAuth connect reaches the Atlassian Jira Cloud authorize endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_jira");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -28,7 +29,7 @@ test("integration integration_jira: per-user OAuth connect reaches the Atlassian
     await shared.loginToStandaloneNextcloud(page);
     await page.goto(
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -43,22 +44,22 @@ test("integration integration_jira: per-user OAuth connect reaches the Atlassian
     await expect(
       connect,
       "the per-user 'Connect to Jira Cloud' control must render once the Atlassian OAuth client is provisioned — its absence means the coupling failed to land"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
-    const popupPromise = context.waitForEvent("page", { timeout: 15_000 }).catch(() => null);
+    const popupPromise = context.waitForEvent("page", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
       page
-        .waitForURL((u) => /^https?:\/\/auth\.atlassian\.com(?:[:/?#]|$)/i.test(String(u)), { timeout: 60_000 })
+        .waitForURL((u) => /^https?:\/\/auth\.atlassian\.com(?:[:/?#]|$)/i.test(String(u)), { timeout: resolveTimeout(60_000) })
         .catch(() => {}),
       connect.click(),
     ]);
 
     const popup = await popupPromise;
     const target = popup || page;
-    await target.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+    await target.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
     await expect
-      .poll(() => target.url(), { timeout: 60_000 })
+      .poll(() => target.url(), { timeout: resolveTimeout(60_000) })
       .toMatch(/^https?:\/\/auth\.atlassian\.com\/authorize(?:[?#/]|$)/i);
 
     const authorize = new URL(target.url());

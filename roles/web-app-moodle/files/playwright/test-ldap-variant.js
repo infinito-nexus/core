@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test.describe("moodle LDAP-only (variant 1)", () => {
@@ -8,13 +9,13 @@ exports.register = function (shared) {
     test("biber: direct LDAP-bind login via Moodle form", async ({ page }) => {
       await page.goto(`${shared.env.moodleBaseUrl}/login/index.php`);
       const usernameInput = page.locator("input[name='username'], input#username").first();
-      await expect(usernameInput).toBeVisible({ timeout: 30_000 });
+      await expect(usernameInput).toBeVisible({ timeout: resolveTimeout(30_000) });
       await usernameInput.fill(shared.env.biberUsername);
       await page.locator("input[name='password'], input#password").first().fill(shared.env.biberPassword);
       await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click();
       await page.waitForLoadState("load");
       const userMenu = page.locator(".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']").first();
-      await expect(userMenu).toBeVisible({ timeout: 30_000 });
+      await expect(userMenu).toBeVisible({ timeout: resolveTimeout(30_000) });
     });
 
     test("login page does NOT expose an OIDC entry point", async ({ page }) => {

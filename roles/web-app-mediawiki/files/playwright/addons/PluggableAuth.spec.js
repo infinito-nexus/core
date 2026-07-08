@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
@@ -28,11 +29,11 @@ test("PluggableAuth: framework replaces local login and is bound to the OIDC iss
   await page.context().clearCookies();
 
   const loginUrl = `${appBaseUrl}/index.php?title=Special:UserLogin`;
-  await page.goto(loginUrl, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.goto(loginUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
 
   // Let an EnableAutoLogin handoff to the IdP settle.
   await page
-    .waitForLoadState("networkidle", { timeout: 60_000 })
+    .waitForLoadState("networkidle", { timeout: resolveTimeout(60_000) })
     .catch(() => {});
 
   const finalUrl = page.url();
@@ -66,7 +67,7 @@ test("PluggableAuth: framework replaces local login and is bound to the OIDC iss
 
     await expect(page.locator("body")).toContainText(
       /sign in|log ?in|username|password|keycloak|openid/i,
-      { timeout: 60_000 },
+      { timeout: resolveTimeout(60_000) },
     );
     return;
   }
@@ -78,7 +79,7 @@ test("PluggableAuth: framework replaces local login and is bound to the OIDC iss
 
   await expect(body).toContainText(
     /single sign[- ]?on|openid|\bsso\b|log ?in with|continue with|keycloak/i,
-    { timeout: 60_000 },
+    { timeout: resolveTimeout(60_000) },
   );
 
   // Stock MediaWiki local login has a password input named "wpPassword". With

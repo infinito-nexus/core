@@ -1,4 +1,5 @@
 const { test } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const shared = require("./_shared");
 
@@ -14,7 +15,7 @@ test.use({
 // tests in the same spec have drained Synapse's rc_login burst, each
 // sign-in can spend 5+ minutes cycling through consent↔M_LIMIT_EXCEEDED
 // ping-pong before authenticating. 1200s (20 min) covers the worst case.
-test.setTimeout(1_200_000);
+test.setTimeout(resolveTimeout(1_200_000));
 
 test.beforeEach(shared.beforeEach);
 

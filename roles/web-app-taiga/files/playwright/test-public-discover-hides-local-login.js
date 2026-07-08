@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("taiga public discover hides local login fields when oidc is active", async ({ page }) => {
@@ -7,7 +8,7 @@ exports.register = function (shared) {
     const taigaUrls = shared.getTaigaUrls();
 
     await page.goto(taigaUrls.discoverUrl);
-    await expect(page.getByRole("heading", { name: /discover projects/i })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: /discover projects/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const authState = await shared.reachTopLevelTaigaAuthEntry(
       page,
@@ -19,12 +20,12 @@ exports.register = function (shared) {
     expect(authState.kind).not.toBe("taiga-local-login-visible");
 
     if (authState.kind === "taiga-oidc-entry") {
-      await expect(authState.locator).toBeVisible({ timeout: 60_000 });
+      await expect(authState.locator).toBeVisible({ timeout: resolveTimeout(60_000) });
       await expect
         .poll(
           async () => page.locator("input[name='username'], input#username").first().isVisible().catch(() => false),
           {
-            timeout: 10_000,
+            timeout: resolveTimeout(10_000),
             message: "Expected the local Taiga username field to stay hidden when OIDC is active",
           },
         )
@@ -33,7 +34,7 @@ exports.register = function (shared) {
         .poll(
           async () => page.locator("input[name='password'], input#password").first().isVisible().catch(() => false),
           {
-            timeout: 10_000,
+            timeout: resolveTimeout(10_000),
             message: "Expected the local Taiga password field to stay hidden when OIDC is active",
           },
         )
@@ -42,7 +43,7 @@ exports.register = function (shared) {
         .poll(
           async () => page.getByText(/^or login with$/i).first().isVisible().catch(() => false),
           {
-            timeout: 10_000,
+            timeout: resolveTimeout(10_000),
             message: "Expected the legacy Taiga OIDC helper text to stay hidden when OIDC is active",
           },
         )
@@ -51,7 +52,7 @@ exports.register = function (shared) {
         .poll(
           async () => page.getByText(/^forgot it\?$/i).first().isVisible().catch(() => false),
           {
-            timeout: 10_000,
+            timeout: resolveTimeout(10_000),
             message: "Expected the legacy Taiga password reset helper text to stay hidden when OIDC is active",
           },
         )
@@ -62,13 +63,13 @@ exports.register = function (shared) {
         .poll(
           async () => page.url(),
           {
-            timeout: 60_000,
+            timeout: resolveTimeout(60_000),
             message: `Expected the Taiga OIDC entry to navigate to Keycloak: ${taigaUrls.expectedOidcAuthUrl}`,
           },
         )
         .toContain(taigaUrls.expectedOidcAuthUrl);
     }
 
-    await expect(page.locator("input[name='username'], input#username").first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator("input[name='username'], input#username").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   });
 };

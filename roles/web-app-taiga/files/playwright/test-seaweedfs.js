@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
 const shared = require("./_shared");
@@ -21,7 +22,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Taiga avatar is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "a Taiga user avatar upload",
@@ -34,7 +35,7 @@ test("seaweedfs: an uploaded Taiga avatar is stored in the SeaweedFS bucket", as
       await expect(
         fileInput,
         "the Taiga user-profile page must expose a file input to change the avatar photo",
-      ).toBeAttached({ timeout: 60_000 });
+      ).toBeAttached({ timeout: resolveTimeout(60_000) });
 
       const marker = `infinito-storage-check-${Date.now()}.png`;
       await fileInput.setInputFiles({
@@ -47,12 +48,12 @@ test("seaweedfs: an uploaded Taiga avatar is stored in the SeaweedFS bucket", as
         .getByRole("button", { name: /save|upload|change/i })
         .or(appPage.locator('button[type="submit"], a.button-save, .save'))
         .first();
-      if (await saveAction.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await saveAction.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await saveAction.click().catch(() => {});
       }
 
       const rejection = appPage.getByText(/invalid image format|something went wrong/i).first();
-      if (await rejection.isVisible({ timeout: 15_000 }).catch(() => false)) {
+      if (await rejection.isVisible({ timeout: resolveTimeout(15_000) }).catch(() => false)) {
         throw new Error("Taiga rejected the avatar upload (change_avatar pil_image validation) — no object written to SeaweedFS");
       }
     },

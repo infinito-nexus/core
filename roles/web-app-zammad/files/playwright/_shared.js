@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
@@ -75,7 +76,7 @@ async function signInViaZammadOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
@@ -84,7 +85,7 @@ async function signInViaZammadOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to Zammad at ${zammadBaseUrl}`
     })
     .toContain(canonicalDomain);

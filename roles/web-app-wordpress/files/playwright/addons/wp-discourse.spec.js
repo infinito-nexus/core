@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const shared = require("../_shared");
@@ -6,7 +7,7 @@ const shared = require("../_shared");
 test("addon wp-discourse: WordPress bridge is provisioned for and reaches the partner Discourse", async ({ browser }) => {
   skipUnlessAddonEnabled("wp-discourse");
   skipUnlessServiceEnabled("discourse");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const wpHost = new URL(shared.env.wpBaseUrl).host;
   const discourseHost = new URL(shared.env.discourseBaseUrl).host;
@@ -28,7 +29,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
 
     await page.goto(
       `${shared.env.wpBaseUrl}/wp-admin/admin.php?page=wp_discourse_options&tab=connection`,
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
 
     const settingsSurface = page
@@ -40,7 +41,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
     await expect(
       settingsSurface,
       "Expected the WP Discourse settings surface in wp-admin"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const urlField = page
       .locator(
@@ -50,7 +51,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
     await expect(
       urlField,
       "the WP Discourse connection tab must render the provisioned Discourse base-URL field — its absence means the bridge config never landed"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const configuredUrl = (await urlField.inputValue().catch(() => "")) || "";
     expect(

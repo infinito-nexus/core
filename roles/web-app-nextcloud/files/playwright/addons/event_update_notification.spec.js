@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("event_update_notification addon: app is registered as an enabled app in the Nextcloud app registry", async ({ browser }) => {
   skipUnlessAddonEnabled("event_update_notification");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();

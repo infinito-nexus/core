@@ -11,6 +11,7 @@
 // check proves the bucket grew via the Filer UI.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck, decodeDotenvQuotedValue } = require("./personas");
 
@@ -23,7 +24,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   const baseUrl = decodeDotenvQuotedValue(process.env.DECIDIM_BASE_URL || process.env.APP_BASE_URL).replace(/\/$/, "");
   const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
@@ -48,7 +49,7 @@ test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", 
       }
 
       const emailInput = appPage.getByLabel(/email/i).first();
-      await emailInput.waitFor({ state: "attached", timeout: 60_000 });
+      await emailInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
       await emailInput.fill(adminEmail);
       await appPage.locator("input[type='password']").first().fill(adminPassword);
       await appPage.getByRole("button", { name: /log in|sign in/i }).first().click();
@@ -62,7 +63,7 @@ test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", 
         .locator('[data-upload] button, .upload-container button, [data-upload-modal]')
         .or(appPage.getByRole("button", { name: /avatar|add file|add image|edit image|replace image|upload|change/i }))
         .first();
-      if (await openModal.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await openModal.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await openModal.click().catch(() => {});
         await appPage.waitForLoadState("networkidle").catch(() => {});
       }
@@ -70,14 +71,14 @@ test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", 
       const fileInput = appPage
         .locator('[data-upload] input[type="file"], .upload-modal input[type="file"], input[type="file"]')
         .first();
-      await fileInput.waitFor({ state: "attached", timeout: 60_000 });
+      await fileInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
 
       const marker = `infinito-storage-check-${Date.now()}.png`;
       await fileInput.setInputFiles({ name: marker, mimeType: "image/png", buffer: PNG_64x64 });
 
       const saveModal = appPage.locator("[data-dropzone-save]").first();
       if (await saveModal.isVisible().catch(() => false)) {
-        await expect(saveModal).toBeEnabled({ timeout: 60_000 });
+        await expect(saveModal).toBeEnabled({ timeout: resolveTimeout(60_000) });
         await saveModal.click().catch(() => {});
       }
 

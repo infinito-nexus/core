@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({
@@ -106,12 +107,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|index|status)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|status|index|simpleicons/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

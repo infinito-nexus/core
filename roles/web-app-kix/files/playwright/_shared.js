@@ -6,6 +6,7 @@
 // stays in the respective `test-*.js` file.
 
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
@@ -23,7 +24,7 @@ async function performKixLogin(page, username, password) {
   const passwordInput = page.locator('input[type="password"]').first();
   const submitButton  = page.locator('button[type="submit"], input[type="submit"], button:has-text("Login")').first();
 
-  await usernameInput.waitFor({ state: "visible", timeout: 30_000 });
+  await usernameInput.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await usernameInput.fill(username);
   await passwordInput.fill(password);
   await submitButton.click();
@@ -36,7 +37,7 @@ async function runKixLoginLogoutFlow(page, username, password) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `Expected redirect to Keycloak OIDC auth: ${expectedAuthUrl}`,
     })
     .toContain(expectedAuthUrl);
@@ -44,7 +45,7 @@ async function runKixLoginLogoutFlow(page, username, password) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect back to canonical KIX URL on ${canonicalDomain}`,
     })
     .toContain(canonicalDomain);
@@ -54,7 +55,7 @@ async function runKixLoginLogoutFlow(page, username, password) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `Expected SPA to leave /auth after successful LDAP login as ${username}`,
     })
     .not.toContain("/auth");
@@ -65,7 +66,7 @@ async function runKixLoginLogoutFlow(page, username, password) {
   await page.goto(`${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `Expected post-logout request to be re-gated to ${expectedAuthUrl}`,
     })
     .toContain(expectedAuthUrl);

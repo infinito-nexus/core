@@ -4,6 +4,7 @@
 // individually inspectable.
 
 const shared = require("./_shared");
+const { resolveTimeout } = require("./timeouts");
 const { expectHstsWhenTls } = require("./personas");
 const { test, expect, skipUnlessServiceEnabled, runGuestFlow, runBiberFlow, runAdminFlow, env, penpotOidcLogin } = shared;
 
@@ -36,43 +37,43 @@ require("./test-seaweedfs");
 
 test("project: administrator creates a design project", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
-  test.setTimeout(120_000); // OIDC round-trip + dashboard project creation
+  test.setTimeout(resolveTimeout(120_000)); // OIDC round-trip + dashboard project creation
   await penpotOidcLogin(page, env.adminUsername, env.adminPassword);
   const projectName = `pw-project-${Date.now()}`;
   const addProject = page
     .getByRole("button", { name: /new project|add project|create.*project/i })
     .or(page.locator('[data-testid="add-project"], [data-test="add-project"]'))
     .first();
-  await expect(addProject, "Expected a create-project control on the dashboard").toBeVisible({ timeout: 60_000 });
+  await expect(addProject, "Expected a create-project control on the dashboard").toBeVisible({ timeout: resolveTimeout(60_000) });
   await addProject.click();
   const nameInput = page.locator('.project-name input, input[type="text"]:visible, [contenteditable="true"]:visible').first();
   await nameInput.fill(projectName);
   await nameInput.press("Enter");
-  await expect(page.getByText(projectName, { exact: false }).first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(projectName, { exact: false }).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
 });
 
 test("asset: administrator uploads an image asset into a design file", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
-  test.setTimeout(180_000); // OIDC + editor load + image upload
+  test.setTimeout(resolveTimeout(180_000)); // OIDC + editor load + image upload
   await penpotOidcLogin(page, env.adminUsername, env.adminPassword);
 
   // Open Drafts and create a new file; Penpot navigates into the workspace editor.
   await page.getByText("Drafts", { exact: true }).first().click();
   const newFile = page.getByText(/\+\s*New File/i).first();
-  await expect(newFile, "Expected a create-file control in Drafts").toBeVisible({ timeout: 60_000 });
+  await expect(newFile, "Expected a create-file control in Drafts").toBeVisible({ timeout: resolveTimeout(60_000) });
   await newFile.click();
-  await expect.poll(() => page.url(), { timeout: 90_000, message: "expected to enter the Penpot workspace editor" })
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000), message: "expected to enter the Penpot workspace editor" })
     .toContain("/workspace");
 
   // Upload a small PNG into the file via the workspace image file input.
   const validPng = shared.validImagePng();
   const fileInput = page.locator('input[type="file"]').first();
-  await fileInput.waitFor({ state: "attached", timeout: 60_000 });
+  await fileInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
   await fileInput.setInputFiles({ name: "pw-asset.png", mimeType: "image/png", buffer: validPng });
 
   // The uploaded image becomes a board/shape on the canvas; assert Penpot
   // acknowledges the upload (a layer/element named after the file appears).
-  await expect(page.getByText(/pw-asset/i).first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/pw-asset/i).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 // Persona scenarios. Bodies live in the shared persona helpers. Penpot's login

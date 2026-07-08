@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
@@ -28,19 +29,19 @@ async function gotoLogin(page) {
 async function assertAuthenticated(page, label) {
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${label}: expected to leave the Semaphore login page`,
     })
     .not.toContain(LOGIN_PATH);
   await expect(
     page.locator("header, nav, .v-navigation-drawer, .v-app-bar").first(),
     `${label}: authenticated Semaphore chrome must be visible`,
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function fillLocalLogin(page, username, password) {
   const userField = page.locator("#auth-username").first();
-  await userField.waitFor({ state: "visible", timeout: 30_000 });
+  await userField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await userField.fill(username);
   await page.locator("#auth-password").first().fill(password);
   await page
@@ -73,12 +74,12 @@ async function signInViaOidc(page, username, password, label) {
   await expect(
     oidcButton,
     `${label}: the "Sign in with Keycloak" button must render on the Semaphore login page`,
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await oidcButton.click();
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${label}: expected redirect to Keycloak OIDC auth (${oidcIssuerUrl}/protocol/openid-connect/auth)`,
     })
     .toContain(`${oidcIssuerUrl}/protocol/openid-connect/auth`);
@@ -107,14 +108,14 @@ async function logout(page, label = "session") {
   if (await signOut.count()) {
     await signOut.click().catch(() => {});
   }
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(resolveTimeout(1500));
   if (!onLoginPage(page)) {
     await page.context().clearCookies();
     await gotoLogin(page);
   }
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `${label}: expected logged-out landing on the Semaphore login page`,
     })
     .toContain(LOGIN_PATH);

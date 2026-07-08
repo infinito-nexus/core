@@ -183,6 +183,12 @@
     dest: "{{ _playwright_stage_tests_dir }}/addon-gating.js"
     mode: "0644"
 
+- name: Copy shared timeouts helper into staging tests directory
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/roles/test-e2e-playwright/files/timeouts.js"
+    dest: "{{ _playwright_stage_tests_dir }}/timeouts.js"
+    mode: "0644"
+
 # Stage the shared persona-flow helpers.
 # The personas/ tree ships every persona flow runner at the top level
 # (biber.js, admin.js, guest.js, index.js) and every helper under
@@ -336,6 +342,8 @@
       - "PLAYWRIGHT_FULLY_PARALLEL={{ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL }}"
       - -e
       - "PLAYWRIGHT_TEST_TIMEOUT={{ TEST_E2E_PLAYWRIGHT_TEST_TIMEOUT }}"
+      - -e
+      - "PLAYWRIGHT_TIMEOUT_FACTOR={{ TIMEOUT_FACTOR }}"
       - -v
       - "{{ _playwright_stage_dir }}:/e2e"
       - -v

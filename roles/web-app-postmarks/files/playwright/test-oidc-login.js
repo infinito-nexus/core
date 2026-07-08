@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 
@@ -21,13 +22,13 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a real Postmarks owner ses
   const expectedBase = baseUrl.replace(/\/$/, "");
   await page.goto(`${expectedBase}/`);
   await expect
-    .poll(() => page.url(), { timeout: 60_000, message: `expected redirect to ${expectedAuth}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
-    .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${expectedBase}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   // Proof of a genuine authenticated app session (not just the proxy
   // round-trip): the upstream /admin gate (isAuthenticated -> req.session
@@ -50,7 +51,7 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a real Postmarks owner ses
   ).toMatch(/^\/admin/);
   await expect(page.locator("body")).toContainText(
     /bookmarks?|posts?|new bookmark|admin|settings|sign\s*out|logout/i,
-    { timeout: 60_000 },
+    { timeout: resolveTimeout(60_000) },
   );
 
   // The public page reflects the same owner session (res.locals.loggedIn
@@ -58,6 +59,6 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a real Postmarks owner ses
   await page.goto(`${expectedBase}/`, { waitUntil: "domcontentloaded" });
   await expect(page.locator("body")).toContainText(
     /admin|sign\s*out|logout|new bookmark/i,
-    { timeout: 60_000 },
+    { timeout: resolveTimeout(60_000) },
   );
 });

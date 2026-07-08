@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 
@@ -24,16 +25,16 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   await page.goto(`${expectedBaseUrl}/`);
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
     .poll(() => page.url(), {
-      timeout: 90_000,
+      timeout: resolveTimeout(90_000),
       message: `expected redirect back to Flowise at ${expectedBaseUrl}`
     })
     .toContain(expectedBaseUrl);
-  await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

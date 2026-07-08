@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
 
@@ -18,7 +19,7 @@ async function performJoomlaAdminFormLogin(page, baseUrl, username, password) {
   const usernameField = page.locator("input[name='username']");
   const passwordField = page.locator("input[name='passwd']");
 
-  await usernameField.waitFor({ state: "visible", timeout: 60_000 });
+  await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
 
@@ -48,5 +49,5 @@ test("OIDC: /administrator?fallback=local hatch bypasses Keycloak and accepts th
   const controlPanelMarker = page
     .locator("body.com_cpanel, #sidebarmenu, nav[aria-label='Main menu'], a[href*='option=com_cpanel']")
     .first();
-  await controlPanelMarker.waitFor({ state: "visible", timeout: 60_000 });
+  await controlPanelMarker.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 });

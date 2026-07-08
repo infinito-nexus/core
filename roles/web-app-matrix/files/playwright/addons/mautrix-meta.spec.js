@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("mautrix-meta addon: bridge appservice registers @metabot on the partner Synapse homeserver", async ({ request }) => {
   skipUnlessAddonEnabled("mautrix-meta");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const { matrixBaseUrl, matrixServerName } = shared.env;
   expect(matrixBaseUrl, "MATRIX_BASE_URL must be set to reach the partner homeserver").toBeTruthy();

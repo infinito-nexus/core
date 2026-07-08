@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("administrator: zammad OIDC login lands on authenticated surface", async ({ page }) => {
@@ -9,7 +10,7 @@ exports.register = function (shared) {
 
     await shared.signInViaZammadOidc(page, shared.env.adminUsername, shared.env.adminPassword, "administrator");
 
-    await expect(page.locator("body")).toContainText(/dashboard|ticket|overview|zammad/i, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(/dashboard|ticket|overview|zammad/i, { timeout: resolveTimeout(60_000) });
 
     await shared.zammadLogout(page);
   });

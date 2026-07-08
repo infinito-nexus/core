@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -28,7 +29,7 @@ test.use({ ignoreHTTPSErrors: true });
 // MUST render (its absence is a real coupling failure and fails the test).
 test("integration integration_moodle: per-user get-token connect reaches the partner Moodle token endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_moodle");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -50,7 +51,7 @@ test("integration integration_moodle: per-user get-token connect reaches the par
 
     await page.goto(
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -58,19 +59,19 @@ test("integration integration_moodle: per-user get-token connect reaches the par
     await expect(
       section.first(),
       "the integration_moodle personal settings section (#moodle_prefs) must render — its absence means the app failed to enable/provision when the partner is deployed"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const urlField = section.locator("#moodle-url");
     await expect(
       urlField.first(),
       "the Moodle instance-address field (#moodle-url) must render in the connect form"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const configSavePromise = page.waitForResponse(
       (response) =>
         /\/apps\/integration_moodle\/config$/.test(new URL(response.url()).pathname) &&
         response.request().method() === "PUT",
-      { timeout: 30_000 }
+      { timeout: resolveTimeout(30_000) }
     );
     await urlField.first().fill(partnerBaseUrl);
     await urlField.first().blur().catch(() => {});
@@ -87,13 +88,13 @@ test("integration integration_moodle: per-user get-token connect reaches the par
     await expect(
       connect.first(),
       "the 'Connect to Moodle' control must render once login and password are entered (per-user get-token grant entry point)"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const getTokenPromise = page.waitForResponse(
       (response) =>
         /\/apps\/integration_moodle\/get-token$/.test(new URL(response.url()).pathname) &&
         response.request().method() === "POST",
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
     await connect.first().click();
     const getTokenResponse = await getTokenPromise;
@@ -114,8 +115,8 @@ test("integration integration_moodle: per-user get-token connect reaches the par
       await expect(
         section.getByText(/connected as/i),
         "the panel must flip to a connected state after the partner minted a webservice token"
-      ).toBeVisible({ timeout: 30_000 });
-      await expect(section.locator("#moodle-rm-cred")).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await expect(section.locator("#moodle-rm-cred")).toBeVisible({ timeout: resolveTimeout(30_000) });
     } else {
       expect(
         body.error,

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
@@ -45,7 +46,7 @@ test("administrator: oauth2-proxy gates the LibreTranslate UI through Keycloak",
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
@@ -54,7 +55,7 @@ test("administrator: oauth2-proxy gates the LibreTranslate UI through Keycloak",
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect back to LibreTranslate at ${baseUrl}`
     })
     .toContain(canonicalDomain);
@@ -62,7 +63,7 @@ test("administrator: oauth2-proxy gates the LibreTranslate UI through Keycloak",
   // After OIDC the UI MUST render. LibreTranslate's frontend exposes
   // the source/target language selectors and the translate button on
   // the landing page.
-  await expect(page.locator("body")).toContainText(/translate|source|target|language/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/translate|source|target|language/i, { timeout: resolveTimeout(60_000) });
 
   // Logout via oauth2-proxy's sign-out endpoint and confirm the gate
   // re-engages.
@@ -71,7 +72,7 @@ test("administrator: oauth2-proxy gates the LibreTranslate UI through Keycloak",
   await page.goto(`${baseUrl}/`);
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "expected the UI to redirect to Keycloak again after logout"
     })
     .toContain(expectedOidcAuthUrl);

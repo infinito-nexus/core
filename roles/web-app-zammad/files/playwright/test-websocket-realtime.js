@@ -1,4 +1,5 @@
 const { test, expect, request } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 async function seedTicketViaApi(baseUrl, adminApiUsername, adminApiPassword, subject) {
   const api = await request.newContext({
@@ -56,7 +57,7 @@ exports.register = function (shared) {
 
     await shared.signInAsApiBot(page);
     await page.goto(`${shared.env.zammadBaseUrl}/#ticket/zoom/${ticket.id}`, { waitUntil: "domcontentloaded" });
-    await expect(page.locator("body")).toContainText(subject, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(subject, { timeout: resolveTimeout(60_000) });
 
     const wsMarker = `ws-realtime-${Date.now()}`;
     await appendArticleViaApi(
@@ -67,7 +68,7 @@ exports.register = function (shared) {
       wsMarker
     );
 
-    await expect(page.locator("body")).toContainText(wsMarker, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(wsMarker, { timeout: resolveTimeout(60_000) });
 
     await shared.zammadLogout(page);
   });

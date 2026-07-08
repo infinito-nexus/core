@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue } = require("./personas");
 
@@ -10,7 +11,7 @@ async function getCurrentImageSource(locator) {
 }
 
 async function expectImageLoaded(locator, label, expectedUrl) {
-  await expect(locator).toBeVisible({ timeout: 60_000 });
+  await expect(locator).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const loaded = await locator.evaluate((img) => ({
     source: img.currentSrc || img.src || "",

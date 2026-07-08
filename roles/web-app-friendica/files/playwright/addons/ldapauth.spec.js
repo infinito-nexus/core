@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const shared = require("../_shared");
@@ -32,7 +33,7 @@ test("addon ldapauth: a valid LDAP credential binds against openldap and a bogus
     await expect(
       authenticatedSurface,
       "Expected an authenticated Friendica surface after the ldapauth-backed login"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     await expect(
       page.locator("input[name='password']"),
@@ -49,13 +50,13 @@ test("addon ldapauth: a valid LDAP credential binds against openldap and a bogus
     const hasLoginForm = await page
       .locator("input[name='password']")
       .first()
-      .isVisible({ timeout: 2_000 })
+      .isVisible({ timeout: resolveTimeout(2_000) })
       .catch(() => false);
     if (onAdminAddons && !hasLoginForm) {
       await expect(
         page.locator("a[href*='admin/addons/ldapauth'], :text('ldapauth')").first(),
         "Expected ldapauth to appear in Friendica's admin addon list when the admin panel is reachable"
-      ).toBeVisible({ timeout: 15_000 });
+      ).toBeVisible({ timeout: resolveTimeout(15_000) });
     }
 
     await shared.friendicaLogout(page);
@@ -79,7 +80,7 @@ test("addon ldapauth: a valid LDAP credential binds against openldap and a bogus
     const hasForm = await negPage
       .locator("input[name='password']")
       .first()
-      .isVisible({ timeout: 30_000 })
+      .isVisible({ timeout: resolveTimeout(30_000) })
       .catch(() => false);
 
     // Only meaningful where Friendica's own login form is directly reachable

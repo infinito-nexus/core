@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
@@ -29,10 +30,10 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
   await page.goto(`${expectedBase}/`);
-  await expect.poll(() => page.url(), { timeout: 60_000 }).toContain(expectedAuth);
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  await expect.poll(() => page.url(), { timeout: 90_000 }).toContain(expectedBase);
-  await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: 60_000 });
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
+  await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("LDAP: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
@@ -61,12 +62,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(configuration|administration|users|groups|departments)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /configuration|administration|users|groups|departments|posix/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

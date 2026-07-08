@@ -1,4 +1,5 @@
 const { test, expect, request } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 async function seedTicketViaApi(baseUrl, adminApiUsername, adminApiPassword, subject) {
   const api = await request.newContext({
@@ -46,7 +47,7 @@ exports.register = function (shared) {
 
     await shared.signInAsApiBot(page);
     await page.goto(`${shared.env.zammadBaseUrl}/#ticket/zoom/${ticket.id}`, { waitUntil: "domcontentloaded" });
-    await expect(page.locator("body")).toContainText(subject, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(subject, { timeout: resolveTimeout(60_000) });
 
     // Clue-tooltip close handler races the backdrop animation and re-opens; nuke the DOM nodes.
     await page.evaluate(() => {
@@ -55,7 +56,7 @@ exports.register = function (shared) {
 
     const replyText = `agent-reply ${Date.now()}`;
     const replyBody = page.locator('.article-add [contenteditable="true"]').first();
-    await replyBody.waitFor({ state: "visible", timeout: 60_000 });
+    await replyBody.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
     await replyBody.evaluate((el, text) => {
       el.focus();
       el.innerText = text;
@@ -66,10 +67,10 @@ exports.register = function (shared) {
       .locator('button.js-submit, button[data-name="submit"]')
       .or(page.getByRole("button", { name: /^(update|aktualisieren)$/i }))
       .first();
-    await updateButton.waitFor({ state: "visible", timeout: 60_000 });
+    await updateButton.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
     await updateButton.click();
 
-    await expect(page.locator("body")).toContainText(replyText, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(replyText, { timeout: resolveTimeout(60_000) });
 
     await shared.zammadLogout(page);
   });

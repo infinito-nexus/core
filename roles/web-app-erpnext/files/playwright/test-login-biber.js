@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("biber: ERPNext OIDC login lands on authenticated surface", async ({ page }) => {
@@ -9,7 +10,7 @@ exports.register = function (shared) {
 
     await shared.signInViaErpnextOidc(page, shared.env.biberUsername, shared.env.biberPassword, "biber");
 
-    await expect(page.locator("body")).toContainText(/desk|workspace|erpnext|home|dashboard|portal/i, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(/desk|workspace|erpnext|home|dashboard|portal/i, { timeout: resolveTimeout(60_000) });
 
     await shared.erpnextLogout(page);
   });

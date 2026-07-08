@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
 
@@ -34,7 +35,7 @@ test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gat
     // forged header never reaches Postmarks' middleware.
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "a forged identity header must be bounced to Keycloak, never into Postmarks /admin",
       })
       .toContain("openid-connect/auth");
@@ -88,7 +89,7 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
   await page.goto(`${expectedBase}/`);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
-    .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${expectedBase}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase.replace(/^https?:\/\//, ""));
 
   // Establish the genuine owner session via the gated /admin path.

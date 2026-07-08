@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("../personas");
@@ -28,7 +29,7 @@ async function signInViaOidc(page) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -37,7 +38,7 @@ async function signInViaOidc(page) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect back to discourse at ${discourseBaseUrl}`,
     })
     .toContain(discourseBaseUrl);
@@ -56,7 +57,7 @@ function settingValue(settings, name) {
 test("discourse-ldap-auth: LDAP auth plugin binds Discourse to the distinct LDAP partner directory", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-ldap-auth");
   skipUnlessServiceEnabled("ldap");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
   expect(discourseBaseUrl, "DISCOURSE_BASE_URL must be set").toBeTruthy();
@@ -71,7 +72,7 @@ test("discourse-ldap-auth: LDAP auth plugin binds Discourse to the distinct LDAP
 
     await expect(page.locator("body")).toContainText(
       /topic|category|welcome|latest|discourse/i,
-      { timeout: 60_000 },
+      { timeout: resolveTimeout(60_000) },
     );
 
     const siteSettings = await page.evaluate(async (base) => {

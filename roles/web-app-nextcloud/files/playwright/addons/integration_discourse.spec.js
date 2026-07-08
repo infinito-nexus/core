@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -30,7 +31,7 @@ const shared = require("../_shared");
 // happen and the test FAILS.
 test("integration integration_discourse: Nextcloud drives the User-API-Key connect to the partner Discourse", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_discourse");
-  test.setTimeout(240_000);
+  test.setTimeout(resolveTimeout(240_000));
 
   const unquote = (v) => ((v || "").trim().replace(/^"(.*)"$/, "$1"));
   const partnerBaseUrl = unquote(process.env.DISCOURSE_BASE_URL);
@@ -54,7 +55,7 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
 
     await page.goto(
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page).catch(() => {});
 
@@ -67,25 +68,25 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
     await expect(
       section,
       "the integration_discourse mount point (#discourse_prefs) must render on connected-accounts (app installed + enabled)"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // The bundle rendered its inner content container, proving the frontend
     // actually booted (not just an empty section stub).
     await expect(
       section.locator("#discourse-content"),
       "the integration_discourse Vue app must render its #discourse-content block"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     // The fixed User-API-Key scaffolding strings the integration ships. These
     // come ONLY from this integration's bundle, so they fail if it is not wired.
     await expect(
       section.locator("text=web+nextclouddiscourse://auth-redirect"),
       "the integration_discourse protocol-handler redirect URI must be rendered in the settings"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
     await expect(
       section.getByRole("button", { name: /register protocol handler/i }),
       "the integration_discourse 'Register protocol handler' control must render"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     // The "Discourse instance address" NcTextField is emitted only by this
     // integration's component; it must be present and editable for an
@@ -94,7 +95,7 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
     await expect(
       urlField,
       "the integration_discourse 'Discourse instance address' field must render and be editable"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // HARD COUPLING: type the deployed partner URL into the instance field. This
     // makes showOAuth (state.url && !connected) true so the "Connect to
@@ -112,11 +113,11 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
     await expect(
       connect,
       "the 'Connect to Discourse' control must render once the instance address is set (integration provisioned the per-user client_id + app public_key)"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-    const popupPromise = page.waitForEvent("popup", { timeout: 15_000 }).catch(() => null);
+    const popupPromise = page.waitForEvent("popup", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
-      page.waitForEvent("framenavigated", { timeout: 60_000 }).catch(() => {}),
+      page.waitForEvent("framenavigated", { timeout: resolveTimeout(60_000) }).catch(() => {}),
       connect.click(),
     ]);
 
@@ -124,7 +125,7 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
     const currentUrl = () => (popup ? popup.url() : page.url());
 
     await expect
-      .poll(currentUrl, { timeout: 60_000 })
+      .poll(currentUrl, { timeout: resolveTimeout(60_000) })
       .toMatch(/\/user-api-key\/new\?/i);
 
     const authorizeUrl = new URL(currentUrl());

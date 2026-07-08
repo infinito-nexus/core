@@ -16,6 +16,7 @@
 //   and the SEAWEEDFS_* keys consumed by runSeaweedfsStorageCheck.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck, performKeycloakLoginForm, decodeDotenvQuotedValue } = require("./personas");
 
@@ -33,11 +34,11 @@ const LOGO_PNG = Buffer.from(
 
 async function clickFiderSsoButton(locator) {
   const signInLink = locator.getByRole("link", { name: /sign in/i });
-  await signInLink.first().waitFor({ state: "visible", timeout: 30_000 });
+  await signInLink.first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await signInLink.first().click();
 
   const ssoButton = locator.getByRole("link", { name: /continue with/i });
-  await ssoButton.first().waitFor({ state: "visible", timeout: 15_000 });
+  await ssoButton.first().waitFor({ state: "visible", timeout: resolveTimeout(15_000) });
   await ssoButton.first().click({ force: true });
 }
 
@@ -45,7 +46,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   const fiderBaseUrl = decodeDotenvQuotedValue(process.env.FIDER_BASE_URL || "");
   const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
@@ -68,7 +69,7 @@ test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket
       await expect(
         appPage.locator(".c-menu-user").first(),
         "the administrator must be authenticated before opening the admin settings",
-      ).toBeVisible({ timeout: 60_000 });
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
       await appPage.goto(`${baseUrl}/admin`, { waitUntil: "domcontentloaded" });
 
@@ -76,7 +77,7 @@ test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket
       await expect(
         fileInput,
         "the Fider admin General settings page must expose the 'Your Logo' image input",
-      ).toBeAttached({ timeout: 60_000 });
+      ).toBeAttached({ timeout: resolveTimeout(60_000) });
 
       const marker = `infinito-storage-check-${Date.now()}.png`;
       await fileInput.setInputFiles({
@@ -88,17 +89,17 @@ test("seaweedfs: an uploaded Fider tenant logo is stored in the SeaweedFS bucket
       await expect(
         appPage.locator('.c-image-upload img[src^="data:image"], .preview img[src^="data:image"]').first(),
         "the selected logo must be loaded into the form (preview rendered) before saving",
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
       const saveButton = appPage.getByRole("button", { name: /^save$/i }).first();
       await expect(
         saveButton,
         "the Fider admin General settings page must expose a Save action that persists the logo",
-      ).toBeVisible({ timeout: 60_000 });
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
       const [settingsResp] = await Promise.all([
         appPage.waitForResponse(
           (r) => /\/_api\/admin\/settings\/general/.test(r.url()) && r.request().method() === "POST",
-          { timeout: 60_000 },
+          { timeout: resolveTimeout(60_000) },
         ),
         saveButton.click(),
       ]);

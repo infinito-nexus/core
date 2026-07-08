@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
 
@@ -31,7 +32,7 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
 
   const usernameField = page.locator("input[name='username']");
   const passwordField = page.locator("input[name='passwd']");
-  await usernameField.waitFor({ state: "visible", timeout: 60_000 });
+  await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await usernameField.fill(adminUsername);
   await passwordField.fill(adminPassword);
   await Promise.all([
@@ -53,9 +54,9 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
     .filter({ hasText: /Username and password do not match|Login failed|invalid|incorrect/i })
     .first();
   await Promise.race([
-    controlPanelMarker.waitFor({ state: "visible", timeout: 120_000 }),
+    controlPanelMarker.waitFor({ state: "visible", timeout: resolveTimeout(120_000) }),
     loginErrorAlert
-      .waitFor({ state: "visible", timeout: 120_000 })
+      .waitFor({ state: "visible", timeout: resolveTimeout(120_000) })
       .then(async () => {
         const errorText = (await loginErrorAlert.textContent().catch(() => "")) || "(unknown)";
         throw new Error(`Joomla rejected the admin login: ${errorText.trim()}`);
@@ -67,5 +68,5 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
   // After logout, /administrator must render the login form again rather than
   // the control panel.
   await page.goto(`${expectedJoomlaBaseUrl}/administrator`, { waitUntil: "domcontentloaded" }).catch(() => {});
-  await expect(page.locator("input[name='username']")).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("input[name='username']")).toBeVisible({ timeout: resolveTimeout(15_000) });
 });

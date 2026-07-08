@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
 
@@ -22,13 +23,13 @@ test("OIDC: oauth2-proxy + Snipe-IT loginViaRemoteUser mint a native session", a
 
   await page.goto(`${expectedBase}/login`);
   await expect
-    .poll(() => page.url(), { timeout: 60_000, message: `expected redirect to ${expectedAuth}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
-    .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${expectedBase}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase.replace(/^https?:\/\//, ""));
-  await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const sessionCookies = await page.context().cookies(expectedBase);
   expect(

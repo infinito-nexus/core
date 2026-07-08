@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
@@ -34,16 +35,16 @@ test("oidc-authenticator: XWiki login is coupled to the Keycloak OIDC provider",
   // the provider, so the assertions below would fail.
   await page.goto(`${base}/bin/login/XWiki/XWikiLogin`, {
     waitUntil: "domcontentloaded",
-    timeout: 60_000,
+    timeout: resolveTimeout(60_000),
   });
 
   // Follow the OIDC hand-off to Keycloak's authorization endpoint. The
   // redirect is automatic for a preconfigured provider; the explicit wait
   // tolerates a slow IdP round-trip.
   await page
-    .waitForURL(/\/protocol\/openid-connect\/auth/, { timeout: 45_000 })
+    .waitForURL(/\/protocol\/openid-connect\/auth/, { timeout: resolveTimeout(45_000) })
     .catch(() => {});
-  await page.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
   const authUrl = page.url();
   expect(
@@ -78,5 +79,5 @@ test("oidc-authenticator: XWiki login is coupled to the Keycloak OIDC provider",
   await expect(
     keycloakLoginForm,
     "the Keycloak login form must render for the registered XWiki client, confirming the OIDC client coupling",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 });

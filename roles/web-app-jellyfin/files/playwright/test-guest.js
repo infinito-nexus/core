@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { assertCspResponseHeader, assertCspMetaParity } = require("./personas");
 
@@ -19,7 +20,7 @@ exports.register = function (shared) {
     // the login surface, not render the authenticated header controls.
     await expect
       .poll(() => shared.onLoginSurface(page), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: "guest must remain on the Jellyfin login surface",
       })
       .toBe(true);

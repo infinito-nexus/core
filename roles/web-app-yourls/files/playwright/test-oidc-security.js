@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
 
@@ -32,7 +33,7 @@ test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gat
 
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "a forged identity header must be bounced to Keycloak, never into the YOURLS admin",
       })
       .toContain("openid-connect/auth");
@@ -66,7 +67,7 @@ test("oidc-security: the trusted-header bridge stays inert while SSO is disabled
     await expect(
       page.locator('input#password[name="password"]'),
       "with SSO disabled and the bridge inert, YOURLS must fall back to its own login form",
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
   } finally {
     await context.close();
   }
@@ -84,7 +85,7 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
   await page.goto(adminUrl);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
-    .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${adminUrl}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${adminUrl}` })
     .toContain(adminUrl);
 
   await page.goto(adminUrl, { waitUntil: "domcontentloaded" });
@@ -93,7 +94,7 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
       .locator('a[href*="action=logout"], a[href*="openid-connect/logout"]')
       .or(page.getByRole("link", { name: /log\s*out/i })),
     "the genuine oauth2 session must be authenticated before the injection probe",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const forgedMarker = "forgedescalationprobe";
   await page.setExtraHTTPHeaders({
@@ -114,7 +115,7 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
       .locator('a[href*="action=logout"], a[href*="openid-connect/logout"]')
       .or(page.getByRole("link", { name: /log\s*out/i })),
     "the genuine oauth2 session must survive the injection probe",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   expect(
     (await page.content()).toLowerCase(),
     "the oauth2-proxy identity must win; an injected header must not switch the YOURLS_USER",

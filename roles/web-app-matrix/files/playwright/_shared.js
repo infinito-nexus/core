@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   assertCspResponseHeader,
@@ -74,14 +75,14 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     .locator("button, a, div[role='button']")
     .filter({ hasText: /single\s*sign[- ]*on|continue\s+with\s+(sso|oidc|keycloak|openid)|sign\s+in\s+with\s+(sso|oidc|keycloak|openid)/i })
     .first();
-  const candidate = (await ssoButton.isVisible({ timeout: 15_000 }).catch(() => false))
+  const candidate = (await ssoButton.isVisible({ timeout: resolveTimeout(15_000) }).catch(() => false))
     ? ssoButton
     : ssoTextButton;
-  await expect(candidate, `${personaLabel}: Element SSO entry button on #/login must be visible`).toBeVisible({ timeout: 30_000 });
+  await expect(candidate, `${personaLabel}: Element SSO entry button on #/login must be visible`).toBeVisible({ timeout: resolveTimeout(30_000) });
   await candidate.click();
 
   await page.waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), {
-    timeout: 120_000
+    timeout: resolveTimeout(120_000)
   });
 
   await performKeycloakLoginForm(page, username, password);
@@ -92,7 +93,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
   // token to Element. First-time logins also display a username-selection form
   // asking the user to pick their Matrix localpart before this confirmation.
   const usernameSelectField = page.locator("input[name='username'], input#field-username").first();
-  if (await usernameSelectField.isVisible({ timeout: 5_000 }).catch(() => false)) {
+  if (await usernameSelectField.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
     await usernameSelectField.fill(username);
     const submit = page.locator("button[type='submit'], input[type='submit']").first();
     await submit.click();
@@ -102,7 +103,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     .locator("a, button")
     .filter({ hasText: /^\s*continue\s*$/i })
     .first();
-  await expect(continueLink, `${personaLabel}: Synapse SSO confirmation "Continue" link must appear`).toBeVisible({ timeout: 60_000 });
+  await expect(continueLink, `${personaLabel}: Synapse SSO confirmation "Continue" link must appear`).toBeVisible({ timeout: resolveTimeout(60_000) });
   await continueLink.click();
 
   // Element consumes `?loginToken=…` during SPA bootstrap. The token is
@@ -119,7 +120,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     if (/#\/welcome/.test(url) || /#\/home/.test(url) || /#\/room/.test(url)) return true;
     if (u.pathname === "/" && (!u.hash || u.hash === "#" || u.hash === "#/")) return true;
     return false;
-  }, { timeout: 120_000 });
+  }, { timeout: resolveTimeout(120_000) });
 
   // With `feature_rust_crypto: true`, Element renders a full-screen "Confirm
   // your digital identity" / "Skip verification for now" interstitial on each
@@ -215,9 +216,9 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     // requires a few seconds per slot. Wait 45s to leave margin — clicking
     // "Try again" sooner just re-triggers M_LIMIT_EXCEEDED and burns the
     // next burst slot, extending the outage.
-    await page.waitForTimeout(45_000);
+    await page.waitForTimeout(resolveTimeout(45_000));
     const tryAgain = rateLimitDialog.getByRole("button", { name: /^try again$/i }).first();
-    await tryAgain.click({ timeout: 5_000 }).catch(() => {});
+    await tryAgain.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
     return true;
   }
 
@@ -251,7 +252,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
       .or(page.locator("a, button, input[type='submit']").filter({ hasText: /^\s*continue\s*$/i }))
       .first();
     const clickResult = await continueAction
-      .click({ timeout: 10_000 })
+      .click({ timeout: resolveTimeout(10_000) })
       .then(() => "ok")
       .catch((e) => e.message || "click-failed");
     // Only throttle subsequent attempts when the click actually landed.
@@ -274,18 +275,18 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     if (await passSynapseConsentPage()) continue;
     if (await retryOnRateLimitDialog()) continue;
     if (await skipVerificationButton.isVisible().catch(() => false)) {
-      await skipVerificationButton.click({ timeout: 5_000 }).catch(() => {});
+      await skipVerificationButton.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
       // Element may show a secondary confirm dialog for the skip choice.
       // MUST NOT click "Reset identity" — that destroys the device identity
       // and logs the user back out to #/login.
       const confirmSkip = page
         .getByRole("button", { name: /^\s*(skip(\s+anyway)?|i'?ll\s+verify\s+later|continue)\s*$/i })
         .first();
-      await confirmSkip.waitFor({ state: "visible", timeout: 5_000 }).catch(() => {});
+      await confirmSkip.waitFor({ state: "visible", timeout: resolveTimeout(5_000) }).catch(() => {});
       if (await confirmSkip.isVisible().catch(() => false)) {
-        await confirmSkip.click({ timeout: 5_000 }).catch(() => {});
+        await confirmSkip.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
       }
-      await page.waitForTimeout(2_000);
+      await page.waitForTimeout(resolveTimeout(2_000));
       continue;
     }
     // If Element has bounced back to its own #/login page AND no auth signal
@@ -305,18 +306,18 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
         // Short click timeout: if the click is blocked (e.g. by a stale
         // backdrop), we want to fall back to the next poll iteration quickly
         // rather than burning the entire test budget on click-retry.
-        await ssoRetry.click({ timeout: 5_000 }).catch(() => {});
-        await page.waitForURL((u) => !/#\/login(\/|$|\?)/.test(u.toString()), { timeout: 30_000 }).catch(() => {});
+        await ssoRetry.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
+        await page.waitForURL((u) => !/#\/login(\/|$|\?)/.test(u.toString()), { timeout: resolveTimeout(30_000) }).catch(() => {});
       }
     }
-    await page.waitForTimeout(2_000);
+    await page.waitForTimeout(resolveTimeout(2_000));
   }
 
   // Final gate: poll the DOM a few more times. If any of our signals show
   // up, we're authenticated. Otherwise, fail with a descriptive message.
   await expect
     .poll(authenticatedSignalPresent, {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: authenticated Element UI (user menu / room list / welcome) must render`
     })
     .toBe(true);
@@ -333,7 +334,7 @@ async function signInViaElementPassword(page, username, password, personaLabel) 
   const userField = page
     .locator('input[name="username"], #mx_LoginForm_username, input[name="mxid"], input[data-testid="login_field_mx_id"]')
     .first();
-  await expect(userField, `${personaLabel}: Element password login username field must appear`).toBeVisible({ timeout: 30_000 });
+  await expect(userField, `${personaLabel}: Element password login username field must appear`).toBeVisible({ timeout: resolveTimeout(30_000) });
   await userField.fill(username);
 
   const pwField = page
@@ -386,23 +387,23 @@ async function signInViaElementPassword(page, username, password, personaLabel) 
       throw new Error(`${personaLabel}: Element rejected credentials: "${rejection}"`);
     }
     if (await skipBtn.isVisible().catch(() => false)) {
-      await skipBtn.click({ timeout: 5_000 }).catch(() => {});
+      await skipBtn.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
       const confirmSkip = page
         .getByRole("button", { name: /^\s*(skip(\s+anyway)?|i'?ll\s+verify\s+later|continue)\s*$/i })
         .first();
-      await confirmSkip.waitFor({ state: "visible", timeout: 5_000 }).catch(() => {});
+      await confirmSkip.waitFor({ state: "visible", timeout: resolveTimeout(5_000) }).catch(() => {});
       if (await confirmSkip.isVisible().catch(() => false)) {
-        await confirmSkip.click({ timeout: 5_000 }).catch(() => {});
+        await confirmSkip.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
       }
-      await page.waitForTimeout(2_000);
+      await page.waitForTimeout(resolveTimeout(2_000));
       continue;
     }
-    await page.waitForTimeout(2_000);
+    await page.waitForTimeout(resolveTimeout(2_000));
   }
 
   await expect
     .poll(authenticatedSignalPresent, {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: authenticated Element UI (user menu / room list / welcome) must render after password auth`
     })
     .toBe(true);

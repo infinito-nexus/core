@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { assertCspResponseHeader, assertCspMetaParity } = require("./personas");
 
@@ -19,7 +20,7 @@ exports.register = function (shared) {
     await page.locator("#auth-username").first().fill("");
     await page.locator("#auth-password").first().fill("");
     await page.locator('[data-testid="auth-signin"]').first().click().catch(() => {});
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(resolveTimeout(1500));
     expect(page.url(), "guest must remain on the login page after an empty submit").toContain(shared.LOGIN_PATH);
 
     // A protected admin surface must bounce the guest back to the login form
@@ -29,6 +30,6 @@ exports.register = function (shared) {
     await expect(
       page.locator("#auth-username"),
       "guest hitting /users must be forced back to the login form",
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
   });
 };

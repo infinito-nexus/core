@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
@@ -28,10 +29,10 @@ test("OIDC: oic-auth plugin redirects unauthenticated visitors through Keycloak 
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
   await page.goto(`${expectedBase}/`);
-  await expect.poll(() => page.url(), { timeout: 60_000 }).toContain(expectedAuth);
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  await expect.poll(() => page.url(), { timeout: 90_000 }).toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1)", async ({ page }) => {
@@ -43,11 +44,11 @@ test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1
   await page.goto(`${expectedBase}/login`);
   const u = page.locator("input[name='j_username']").first();
   const p = page.locator("input[name='j_password']").first();
-  await expect(u).toBeVisible({ timeout: 60_000 });
+  await expect(u).toBeVisible({ timeout: resolveTimeout(60_000) });
   await u.fill(adminUsername);
   await p.fill(adminPassword);
   await page.locator("button[name='Submit'], input[type='submit']").first().click();
-  await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 // Persona scenarios.
@@ -69,12 +70,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(manage jenkins|configure system|nodes|plugins|users)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /manage jenkins|configure system|nodes|plugins|users|credentials/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

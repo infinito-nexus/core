@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { performKeycloakLoginForm } = require("./personas");
 
@@ -13,7 +14,7 @@ exports.register = function (shared) {
 
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected redirect to Keycloak OIDC: ${oidcAuthUrl}`,
       })
       .toContain(oidcAuthUrl);
@@ -22,20 +23,20 @@ exports.register = function (shared) {
 
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected redirect back to Mattermost: ${baseUrl}`,
       })
       .toContain(baseUrl);
 
     await shared.dismissMattermostPopups(page);
-    await shared.waitForMattermostChannelView(page, 30_000);
+    await shared.waitForMattermostChannelView(page, resolveTimeout(30_000));
     await shared.mattermostLogout(page, baseUrl);
 
     // Mattermost v11+ defaults to /landing#/ rather than /login for unauthenticated requests.
     await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
     await expect
       .poll(() => page.url(), {
-        timeout: 15_000,
+        timeout: resolveTimeout(15_000),
         message: "Expected Mattermost to redirect to /login or /landing after logout",
       })
       .toMatch(/\/(login|landing)/);

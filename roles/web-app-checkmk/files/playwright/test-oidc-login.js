@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 
@@ -11,7 +12,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("OIDC: oauth2-proxy gate + X-Remote-User header establish a real Checkmk session", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
-  test.setTimeout(120_000); // oauth2-proxy + Keycloak round-trip
+  test.setTimeout(resolveTimeout(120_000)); // oauth2-proxy + Keycloak round-trip
   expect(baseUrl, "CHECKMK_BASE_URL must be set").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
@@ -23,7 +24,7 @@ test("OIDC: oauth2-proxy gate + X-Remote-User header establish a real Checkmk se
 
   await page.goto(`${expectedBase}/`);
   await expect
-    .poll(() => page.url(), { timeout: 60_000, message: `expected redirect to ${expectedAuth}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
 
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
@@ -31,10 +32,10 @@ test("OIDC: oauth2-proxy gate + X-Remote-User header establish a real Checkmk se
   // Back on the canonical domain, authenticated into the Checkmk GUI via the
   // trusted X-Remote-User header (no second login form).
   await expect
-    .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${expectedBase}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase.replace(/^https?:\/\//, ""));
   await expect
-    .poll(() => page.url(), { timeout: 60_000, message: "expected to leave the Checkmk login page" })
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected to leave the Checkmk login page" })
     .not.toContain("login.py");
-  await expect(page.locator("body")).toContainText(/checkmk|dashboard|monitor|overview/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/checkmk|dashboard|monitor|overview/i, { timeout: resolveTimeout(60_000) });
 });

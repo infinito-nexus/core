@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
@@ -47,7 +48,7 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected the plg_system_keycloak guard to redirect to the configured Keycloak OIDC auth endpoint (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -70,7 +71,7 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected the OIDC callback to land back on Joomla at ${expectedJoomlaBaseUrl}`,
     })
     .toContain(expectedJoomlaBaseUrl);
@@ -81,7 +82,7 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
   // here means the callback failed to provision/log in the user — i.e. the
   // integration is not actually coupled.
   await page.goto(`${expectedJoomlaBaseUrl}/`);
-  await page.waitForLoadState("domcontentloaded", { timeout: 60_000 }).catch(() => {});
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
 
   expect(
     page.url(),
@@ -95,5 +96,5 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
   await expect(
     page.locator("body"),
     "Expected the authenticated Joomla front-end to render after the plg_system_keycloak OIDC handshake",
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

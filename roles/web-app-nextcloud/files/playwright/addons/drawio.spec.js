@@ -1,10 +1,11 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
 test("addon drawio: app installed + enabled (registered in OC.appswebroots)", async ({ browser }) => {
   skipUnlessAddonEnabled("drawio");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -14,7 +15,7 @@ test("addon drawio: app installed + enabled (registered in OC.appswebroots)", as
 
     await page.goto(new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
     await shared.dismissBlockingNextcloudModals(page, page);
 

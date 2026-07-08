@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const shared = require("../_shared");
@@ -26,7 +27,7 @@ test("addon daggerhart-openid-connect-generic: administrator OIDC login lands in
 
     await expect(page, "Expected to land in wp-admin after the OIDC round-trip").toHaveURL(
       /\/wp-admin\/?/,
-      { timeout: 30_000 }
+      { timeout: resolveTimeout(30_000) }
     );
   } finally {
     await page.close().catch(() => {});

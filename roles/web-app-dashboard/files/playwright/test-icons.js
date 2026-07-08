@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("dashboard card icons resolve to the public Simple Icons URL when enabled, and to a Font Awesome icon otherwise", async ({ page }) => {
@@ -8,7 +9,7 @@ exports.register = function (shared) {
     await expect(
       page.locator(".card-img-top").first(),
       "Expected at least one dashboard card with a rendered icon"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // Regression guard for the original bug: no card may still reference the
     // internal Docker bridge IP that the buggy DASHBOARD_SIMPLEICONS_SYNC_URL_BASE
@@ -23,7 +24,7 @@ exports.register = function (shared) {
       await expect(
         simpleiconsImg,
         "Expected at least one card icon to load from the public Simple Icons domain (icon.<DOMAIN>)"
-      ).toBeVisible({ timeout: 60_000 });
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
       const src = await simpleiconsImg.getAttribute("src");
       expect(
@@ -34,7 +35,7 @@ exports.register = function (shared) {
       await expect(
         page.locator(".card-img-top i[class*='fa']:visible").first(),
         "Expected card icons to fall back to a Font Awesome icon when the Simple Icons service is disabled"
-      ).toBeVisible({ timeout: 60_000 });
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
     }
   });
 };

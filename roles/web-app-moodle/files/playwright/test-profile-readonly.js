@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const moodleLdapBackedProfileFields = [
   "firstname", "lastname", "middlename", "alternatename",
@@ -22,7 +23,7 @@ exports.register = function (shared) {
       await page.waitForLoadState("load");
 
       await page.goto(`${shared.env.moodleBaseUrl}/user/edit.php`);
-      await expect(page.locator("body")).toBeVisible({ timeout: 30_000 });
+      await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(30_000) });
 
       for (const fieldName of moodleLdapBackedProfileFields) {
         const input = page

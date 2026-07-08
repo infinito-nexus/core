@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
@@ -92,7 +93,7 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`
     })
     .toContain(expectedOidcAuthUrl);
@@ -103,7 +104,7 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   // 3. After successful auth, oauth2-proxy redirects back to Prometheus.
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect back to Prometheus after admin login: ${expectedPrometheusBaseUrl}`
     })
     .toContain(expectedPrometheusBaseUrl);
@@ -112,7 +113,7 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   //    The Prometheus v3.x nav always exposes "Graph", "Alerts", and "Status" links.
   await expect(
     page.getByRole("link", { name: /^(Graph|Alerts|Status)$/i }).first()
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   // 5. Logout via universal logout endpoint.
   await prometheusLogout(page, expectedPrometheusBaseUrl);
@@ -121,7 +122,7 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   await page.goto(`${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => page.url(), {
-      timeout: 15_000,
+      timeout: resolveTimeout(15_000),
       message: "Expected redirect to Keycloak after logout"
     })
     .toContain(expectedOidcAuthUrl);
@@ -153,7 +154,7 @@ test("prometheus: biber is denied access after sso login", async ({ browser }) =
     //   • user IS in allowed_groups  → 302 redirect to the app (admin's path)
     const callbackResponsePromise = biberPage.waitForResponse(
       (res) => res.url().includes("/oauth2/callback"),
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
 
     // 1. Navigate directly to Prometheus — oauth2-proxy redirects to Keycloak
@@ -161,7 +162,7 @@ test("prometheus: biber is denied access after sso login", async ({ browser }) =
 
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`
       })
       .toContain(expectedOidcAuthUrl);
@@ -216,7 +217,7 @@ test("prometheus scrape: every consumer role reports up=1", async ({ page }) => 
   }
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected admin to land on the prometheus surface (${expectedPrometheusBaseUrl})`,
     })
     .toContain(expectedPrometheusBaseUrl);
@@ -284,12 +285,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const statusLink = interactivePage
         .getByRole("link", { name: /^(targets|status|alerts|graph|runtime|build)$/i })
         .first();
-      if (await statusLink.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await statusLink.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await statusLink.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /endpoint|state|labels|targets|alerts|series/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

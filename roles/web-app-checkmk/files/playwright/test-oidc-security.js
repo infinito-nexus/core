@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl } = require("./personas");
 
@@ -27,7 +28,7 @@ test("oidc-security: a forged X-Remote-User header cannot bypass the oauth2-prox
 
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "a forged X-Remote-User must be bounced to Keycloak, never into Checkmk",
       })
       .toContain("openid-connect/auth");

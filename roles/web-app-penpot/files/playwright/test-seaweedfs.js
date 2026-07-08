@@ -9,6 +9,7 @@
 // UI. Login reuses the suite's `penpotOidcLogin` helper from `./_shared`.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
 const shared = require("./_shared");
@@ -17,7 +18,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Penpot image asset is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "a Penpot image asset upload",
@@ -26,17 +27,17 @@ test("seaweedfs: an uploaded Penpot image asset is stored in the SeaweedFS bucke
 
       await appPage.getByText("Drafts", { exact: true }).first().click();
       const newFile = appPage.getByText(/\+\s*New File/i).first();
-      await expect(newFile, "Expected a create-file control in Drafts").toBeVisible({ timeout: 60_000 });
+      await expect(newFile, "Expected a create-file control in Drafts").toBeVisible({ timeout: resolveTimeout(60_000) });
       await newFile.click();
       await expect
-        .poll(() => appPage.url(), { timeout: 90_000, message: "expected to enter the Penpot workspace editor" })
+        .poll(() => appPage.url(), { timeout: resolveTimeout(90_000), message: "expected to enter the Penpot workspace editor" })
         .toContain("/workspace");
 
       const validPng = shared.validImagePng();
       const markerBase = `infinito-storage-check-${Date.now()}`;
       const marker = `${markerBase}.png`;
       const fileInput = appPage.locator('input[type="file"]').first();
-      await fileInput.waitFor({ state: "attached", timeout: 60_000 });
+      await fileInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
       await fileInput.setInputFiles({ name: marker, mimeType: "image/png", buffer: validPng });
 
       // Penpot names the created layer/asset after the uploaded basename
@@ -45,7 +46,7 @@ test("seaweedfs: an uploaded Penpot image asset is stored in the SeaweedFS bucke
       await expect(
         appPage.getByText(markerBase, { exact: false }).first(),
         `the uploaded image asset '${marker}' must be acknowledged in the Penpot workspace`,
-      ).toBeVisible({ timeout: 60_000 });
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
     },
   });
 });

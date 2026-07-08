@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -15,11 +16,11 @@ test("addon ldap-authentication: biber signs in via the LDAP plugin and lands on
     shared.env.ssoEnabled === true,
     "SSO is active: biber is OIDC-bound; the LDAP login path runs in the ldap-only variant",
   );
-  test.setTimeout(60_000);
+  test.setTimeout(resolveTimeout(60_000));
   expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 
   await shared.signInViaLdap(page, shared.env.biberUsername, shared.env.biberPassword, "biber-ldap");
-  await expect(page.locator("body")).toContainText(/home|library|media|jellyfin/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/home|library|media|jellyfin/i, { timeout: resolveTimeout(60_000) });
   await shared.logout(page, "biber-ldap");
 });

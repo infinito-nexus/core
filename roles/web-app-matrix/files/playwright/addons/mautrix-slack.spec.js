@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("mautrix-slack addon: Slack bridge appservice bot is provisioned and reachable on Synapse", async ({ request }) => {
   skipUnlessAddonEnabled("mautrix-slack");
-  test.setTimeout(60_000);
+  test.setTimeout(resolveTimeout(60_000));
 
   const matrixBaseUrl = shared.env.matrixBaseUrl;
   const matrixServerName = shared.env.matrixServerName;

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { installCspViolationObserver } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
@@ -54,7 +55,7 @@ exports.register = function (shared) {
           );
           await expect
             .poll(() => adminKc.page.url(), {
-              timeout: 60_000,
+              timeout: resolveTimeout(60_000),
               message: "Expected to land in the Keycloak admin console",
             })
             .toContain("/admin/master/console/");
@@ -99,7 +100,7 @@ exports.register = function (shared) {
           await expect(
             biberRow,
             `Expected biber row to be visible on /wp-admin/users.php`
-          ).toBeVisible({ timeout: 30_000 });
+          ).toBeVisible({ timeout: resolveTimeout(30_000) });
           const rowText = (await biberRow.textContent()) || "";
           const expectedLabel = role.charAt(0).toUpperCase() + role.slice(1);
           expect(

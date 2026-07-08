@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
@@ -62,7 +63,7 @@ async function fillKeycloakLoginForm(page, username, password) {
   await expect(
     usernameField,
     "Expected Keycloak username field to be visible"
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
   await signInButton.click();
@@ -79,7 +80,7 @@ async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
   }
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect back to ${wpBaseUrl}/wp-admin after OIDC login`,
     })
     .toContain("/wp-admin");
@@ -106,18 +107,18 @@ async function keycloakAdminOpenUserProfile(
   const searchInput = page
     .locator("input[placeholder*='Search'], input[name='search']")
     .first();
-  await expect(searchInput).toBeVisible({ timeout: 60_000 });
+  await expect(searchInput).toBeVisible({ timeout: resolveTimeout(60_000) });
   await searchInput.fill(username);
   await searchInput.press("Enter");
   const userRowLink = page
     .locator("table a, [role='gridcell'] a, a[data-testid='user-row']")
     .filter({ hasText: new RegExp(`^${username}$`, "i") })
     .first();
-  await expect(userRowLink).toBeVisible({ timeout: 60_000 });
+  await expect(userRowLink).toBeVisible({ timeout: resolveTimeout(60_000) });
   await userRowLink.click();
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `Expected Keycloak user profile URL after clicking "${username}"`,
     })
     .toMatch(/\/users\/[^/]+/);
@@ -131,11 +132,11 @@ async function keycloakAdminOpenUserGroupsTab(page) {
     .locator("[role='tab']")
     .filter({ hasText: /^Groups$/ })
     .first();
-  await expect(groupsTab).toBeVisible({ timeout: 30_000 });
+  await expect(groupsTab).toBeVisible({ timeout: resolveTimeout(30_000) });
   await groupsTab.click();
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: "Expected Keycloak user profile to switch to the Groups tab",
     })
     .toMatch(/\/users\/[^/]+\/groups/);
@@ -325,14 +326,14 @@ async function keycloakAdminAddUserToGroupViaUi(
   await expect(
     joinButton,
     "Expected the 'Join Group' button on the user's Groups tab"
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await joinButton.click();
 
   const dialog = page.getByRole("dialog", { name: /join groups/i }).first();
-  await expect(dialog).toBeVisible({ timeout: 30_000 });
+  await expect(dialog).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const dialogSearchBox = dialog.getByRole("textbox", { name: /search/i }).first();
-  await expect(dialogSearchBox).toBeVisible({ timeout: 30_000 });
+  await expect(dialogSearchBox).toBeVisible({ timeout: resolveTimeout(30_000) });
   await dialogSearchBox.fill(searchTerm);
   await dialogSearchBox.press("Enter");
 
@@ -358,7 +359,7 @@ async function keycloakAdminAddUserToGroupViaUi(
       break;
     }
     await nextButton.click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
   // When the user is already a member, Keycloak's "Join Group" dialog
   // hides that group entirely. Treat a missing checkbox as "already a
@@ -372,7 +373,7 @@ async function keycloakAdminAddUserToGroupViaUi(
       .first()
       .click()
       .catch(() => {});
-    await expect(dialog).toBeHidden({ timeout: 30_000 });
+    await expect(dialog).toBeHidden({ timeout: resolveTimeout(30_000) });
     return false;
   }
 
@@ -382,15 +383,15 @@ async function keycloakAdminAddUserToGroupViaUi(
       .first()
       .click()
       .catch(() => {});
-    await expect(dialog).toBeHidden({ timeout: 30_000 });
+    await expect(dialog).toBeHidden({ timeout: resolveTimeout(30_000) });
     return false;
   }
 
   await targetCheckbox.check();
   const confirmJoin = dialog.getByRole("button", { name: /^join$/i }).first();
-  await expect(confirmJoin).toBeEnabled({ timeout: 30_000 });
+  await expect(confirmJoin).toBeEnabled({ timeout: resolveTimeout(30_000) });
   await confirmJoin.click();
-  await expect(dialog).toBeHidden({ timeout: 30_000 });
+  await expect(dialog).toBeHidden({ timeout: resolveTimeout(30_000) });
   const lastSegment = pathSegments[pathSegments.length - 1];
   const membershipRow = page
     .locator("tr, li")
@@ -399,7 +400,7 @@ async function keycloakAdminAddUserToGroupViaUi(
   await expect(
     membershipRow,
     `Expected "${targetGroupPath}" to appear as a membership on the user's Groups tab after joining.`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   return true;
 }
 

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
@@ -31,9 +32,9 @@ async function clickOdooSsoButton(locator) {
   const ssoButtonByText = locator.getByRole("link", { name: /login with sso/i }).first();
 
   await Promise.any([
-    providerList.first().waitFor({ state: "visible", timeout: 60_000 }),
-    ssoButton.waitFor({ state: "visible", timeout: 60_000 }),
-    ssoButtonByText.waitFor({ state: "visible", timeout: 60_000 })
+    providerList.first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) }),
+    ssoButton.waitFor({ state: "visible", timeout: resolveTimeout(60_000) }),
+    ssoButtonByText.waitFor({ state: "visible", timeout: resolveTimeout(60_000) })
   ]);
 
   if (await ssoButtonByText.isVisible().catch(() => false)) {
@@ -80,7 +81,7 @@ async function performOdooLogout(page, odooBaseUrl) {
   await page.goto(logoutUrl);
 
   // Give the logout a moment to process
-  await page.waitForTimeout(2_000);
+  await page.waitForTimeout(resolveTimeout(2_000));
 }
 
 test.beforeEach(() => {
@@ -108,7 +109,7 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
   // 3. After clicking SSO, the page navigates to Keycloak.
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected page to navigate to Keycloak for authentication"
     })
     .toContain(oidcIssuerUrl.replace(/\/$/, ""));
@@ -120,7 +121,7 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
   // The URL must contain the Odoo base URL but NOT /web/login (which would mean auth failed).
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected page to navigate back to Odoo authenticated area (not login page)"
     })
     .toMatch(new RegExp(`^${expectedOdooBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?!/web/login)`));
@@ -130,7 +131,7 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
     .poll(
       async () => await isOdooAuthenticated(page),
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected Odoo to show authenticated user interface"
       }
     )
@@ -144,7 +145,7 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
     .poll(
       async () => await isVisible(page.locator(".o_login_auth, .o_auth_oauth_providers")),
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected Odoo to return to login page after logout"
       }
     )
@@ -170,7 +171,7 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
   // 3. Wait for navigation to Keycloak
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected page to navigate to Keycloak for authentication"
     })
     .toContain(oidcIssuerUrl.replace(/\/$/, ""));
@@ -181,7 +182,7 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
   // 5. Wait for navigation back to Odoo after authentication.
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected page to navigate back to Odoo authenticated area (not login page)"
     })
     .toMatch(new RegExp(`^${expectedOdooBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?!/web/login)`));
@@ -191,7 +192,7 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
     .poll(
       async () => await isOdooAuthenticated(page),
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected Odoo to show authenticated user interface for biber"
       }
     )
@@ -205,7 +206,7 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
     .poll(
       async () => await isVisible(page.locator(".o_login_auth, .o_auth_oauth_providers")),
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected Odoo to return to login page after logout"
       }
     )
@@ -231,12 +232,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(settings|users|companies|apps|administrator)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /settings|users|companies|apps|technical|developer/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

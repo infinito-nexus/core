@@ -70,6 +70,10 @@ helper_src="$repo_root/roles/test-e2e-playwright/files/service-gating.js"
 if [[ -f "$helper_src" ]]; then
 	cp "$helper_src" "$stage_dir/tests/service-gating.js"
 fi
+timeouts_src="$repo_root/roles/test-e2e-playwright/files/timeouts.js"
+if [[ -f "$timeouts_src" ]]; then
+	cp "$timeouts_src" "$stage_dir/tests/timeouts.js"
+fi
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"

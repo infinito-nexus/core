@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
@@ -25,11 +26,11 @@ async function reachJitsiPrejoin(page, personaLabel, roomSuffix) {
     .or(page.locator('[data-testid="prejoin.joinMeeting"], #premeeting-screen'))
     .first();
   await expect(prejoin, `${personaLabel}: prejoin surface must render`).toBeVisible({
-    timeout: 60_000,
+    timeout: resolveTimeout(60_000),
   });
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `${personaLabel}: URL must include the room path`,
     })
     .toContain(`/${roomName}`);
@@ -48,7 +49,7 @@ async function openJitsiSettingsPanel(page, personaLabel) {
   await expect(
     settingsTrigger,
     `${personaLabel}: a Settings / More-options control must be visible in the DOM`,
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 }
 
 async function beforeEach({ page }) {

@@ -1,10 +1,11 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
 test("integration integration_zammad: per-user OAuth connect reaches the partner Zammad authorize endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_zammad");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -14,7 +15,7 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
 
     await page.goto(
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -22,7 +23,7 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
     await expect(
       zammadPrefs.first(),
       "the Zammad integration admin section (#zammad_prefs) must render when integration_zammad is enabled"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const instanceInput = zammadPrefs
       .getByRole("textbox", { name: /zammad instance address/i })
@@ -30,7 +31,7 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
     await expect(
       instanceInput.first(),
       "the Zammad instance-address field must be present in the admin section"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const instanceUrl = ((await instanceInput.first().inputValue()) || "").trim();
     expect(
@@ -47,7 +48,7 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
 
     await page.goto(
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -59,7 +60,7 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
     await expect(
       connect,
       "the personal 'Connect to Zammad' control must render once the partner OAuth client is provisioned — its absence means the coupling failed to land"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     let authorizeHref = await connect.getAttribute("href").catch(() => null);
     if (!authorizeHref || !/\/oauth\/authorize/i.test(authorizeHref)) {
@@ -67,9 +68,9 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
       // SPA then bounces the unauthenticated browser to login at "/", so the settled URL is no longer the
       // authorize endpoint. Capture the authorize request itself — it carries the provisioned client_id.
       const requestPromise = page
-        .waitForRequest((req) => /\/oauth\/authorize/i.test(req.url()), { timeout: 30_000 })
+        .waitForRequest((req) => /\/oauth\/authorize/i.test(req.url()), { timeout: resolveTimeout(30_000) })
         .catch(() => null);
-      await connect.click({ timeout: 10_000 }).catch(() => {});
+      await connect.click({ timeout: resolveTimeout(10_000) }).catch(() => {});
       const request = await requestPromise;
       authorizeHref = request ? request.url() : page.url();
     }

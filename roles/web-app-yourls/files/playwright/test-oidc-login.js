@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 
@@ -27,15 +28,15 @@ test("OIDC: oauth2-proxy + trusted-header bridge sign the visitor into a real YO
 
   await page.goto(adminUrl);
   await expect
-    .poll(() => page.url(), { timeout: 60_000, message: `expected redirect to ${expectedAuth}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
-    .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${adminUrl}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${adminUrl}` })
     .toContain(adminUrl);
 
   await page.goto(adminUrl, { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveTitle(/yourls/i, { timeout: 30_000 });
+  await expect(page).toHaveTitle(/yourls/i, { timeout: resolveTimeout(30_000) });
 
   await expect(
     page.locator('input#password[name="password"]'),
@@ -47,9 +48,9 @@ test("OIDC: oauth2-proxy + trusted-header bridge sign the visitor into a real YO
       .locator('a[href*="action=logout"], a[href*="openid-connect/logout"]')
       .or(page.getByRole("link", { name: /log\s*out/i })),
     "an authenticated YOURLS admin session must expose the logout link",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await expect(
     page.locator("body"),
     "the admin chrome must greet the proxied YOURLS_USER",
-  ).toContainText(/Hello/i, { timeout: 30_000 });
+  ).toContainText(/Hello/i, { timeout: resolveTimeout(30_000) });
 });

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue } = require("./personas");
 
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
@@ -18,7 +19,7 @@ exports.register = function (shared) {
     const response = await page.goto(`${shared.env.moodleBaseUrl}/`);
     const csp = response.headers()["content-security-policy"];
     expect(csp, "Content-Security-Policy header expected").toBeTruthy();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
     const violations = await page.evaluate(() => window.__cspViolations || []);
     expect(violations, `unexpected CSP violations: ${JSON.stringify(violations)}`).toEqual([]);
   });

@@ -1,10 +1,11 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
 test("integration integration_google: per-user OAuth connect reaches the Google authorize endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_google");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -17,7 +18,7 @@ test("integration integration_google: per-user OAuth connect reaches the Google 
 
     await page.goto(
       new URL("settings/user/migration", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -25,7 +26,7 @@ test("integration integration_google: per-user OAuth connect reaches the Google 
     if ((await connect.count()) === 0) {
       await page.goto(
         new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-        { waitUntil: "domcontentloaded", timeout: 60_000 }
+        { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
       );
       await shared.dismissBlockingNextcloudModals(page, page);
       connect = connectFor(page);
@@ -34,18 +35,18 @@ test("integration integration_google: per-user OAuth connect reaches the Google 
     await expect(
       connect.first(),
       "the 'Sign in with Google' control must render once the integration_google OAuth client_id is provisioned — its absence means the meta/addons client_id/client_secret coupling failed to land"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-    const popupPromise = context.waitForEvent("page", { timeout: 15_000 }).catch(() => null);
+    const popupPromise = context.waitForEvent("page", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
       page
-        .waitForURL((u) => /^accounts\.google\.com$/i.test(new URL(u).host), { timeout: 60_000 })
+        .waitForURL((u) => /^accounts\.google\.com$/i.test(new URL(u).host), { timeout: resolveTimeout(60_000) })
         .catch(() => {}),
       connect.first().click(),
     ]);
     const popup = await popupPromise;
     const target = popup || page;
-    await target.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+    await target.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
     const authorize = new URL(target.url());
     const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;

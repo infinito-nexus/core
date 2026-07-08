@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
@@ -101,7 +102,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
@@ -110,7 +111,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to discourse at ${discourseBaseUrl}`
     })
     .toContain(discourseBaseUrl);
@@ -122,7 +123,7 @@ test("administrator: discourse OIDC login and logout", async ({ page }) => {
 
   await signInViaDashboardOidc(page, adminUsername, adminPassword, "administrator");
 
-  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: resolveTimeout(60_000) });
 
   await discourseLogout(page, discourseBaseUrl);
 
@@ -137,7 +138,7 @@ test("administrator: discourse OIDC login and logout", async ({ page }) => {
           .count()
           .catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected discourse to require a new sign-in after logout"
       }
     )
@@ -152,7 +153,7 @@ test("biber: discourse OIDC login and logout", async ({ page }) => {
 
   await signInViaDashboardOidc(page, biberUsername, biberPassword, "biber");
 
-  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: resolveTimeout(60_000) });
 
   await discourseLogout(page, discourseBaseUrl);
 
@@ -167,7 +168,7 @@ test("biber: discourse OIDC login and logout", async ({ page }) => {
           .count()
           .catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected discourse to require a new sign-in after logout"
       }
     )

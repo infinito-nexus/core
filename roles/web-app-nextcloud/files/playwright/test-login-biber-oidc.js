@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("biber: nextcloud oidc login and logout", async ({ browser }) => {
@@ -24,7 +25,7 @@ exports.register = function (shared) {
       await shared.logoutStandaloneNextcloud(biberPage);
 
       const loginUrl = new URL("login", shared.env.nextcloudBaseUrl).toString();
-      await biberPage.goto(loginUrl, { waitUntil: "domcontentloaded", timeout: 60_000 }).catch(() => {});
+      await biberPage.goto(loginUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }).catch(() => {});
       const shellAfterLogout = await shared.findFirstVisibleCandidate(shared.getNextcloudShellCandidates(biberPage));
       expect(
         shellAfterLogout,

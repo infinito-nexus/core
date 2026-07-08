@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, findFirstVisibleCandidate, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
@@ -35,7 +36,7 @@ function getNextcloudShellCandidates(target) {
   ];
 }
 
-async function waitForFirstVisible(page, locators, timeout = 60_000) {
+async function waitForFirstVisible(page, locators, timeout = resolveTimeout(60_000)) {
   const deadline = Date.now() + timeout;
 
   while (Date.now() < deadline) {
@@ -45,7 +46,7 @@ async function waitForFirstVisible(page, locators, timeout = 60_000) {
       }
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error("Timed out waiting for one of the expected Nextcloud selectors to become visible");
@@ -54,7 +55,7 @@ async function waitForFirstVisible(page, locators, timeout = 60_000) {
 async function waitForVisibleCandidate(
   page,
   candidates,
-  timeout = 60_000,
+  timeout = resolveTimeout(60_000),
   errorMessage = "Timed out waiting for one of the expected Nextcloud selectors to become visible"
 ) {
   const deadline = Date.now() + timeout;
@@ -66,7 +67,7 @@ async function waitForVisibleCandidate(
       return visibleCandidate;
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error(errorMessage);
@@ -95,7 +96,7 @@ async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissal
       if (stableChecksWithoutModal >= 2) {
         return;
       }
-      await page.waitForTimeout(600);
+      await page.waitForTimeout(resolveTimeout(600));
       continue;
     }
 
@@ -105,7 +106,7 @@ async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissal
     for (const candidate of dismissButtonCandidates) {
       const button = candidate.first();
       if (await button.isVisible().catch(() => false)) {
-        await button.click({ timeout: 2_000 }).catch(() => {});
+        await button.click({ timeout: resolveTimeout(2_000) }).catch(() => {});
         dismissed = true;
         break;
       }
@@ -115,7 +116,7 @@ async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissal
       await page.keyboard.press("Escape").catch(() => {});
     }
 
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(resolveTimeout(300));
   }
 }
 
@@ -124,7 +125,7 @@ async function clickUserMenuWithModalRetry(page, nextcloudFrame, userMenuLocator
     await dismissBlockingNextcloudModals(page, nextcloudFrame, 6);
 
     try {
-      await userMenuLocator.click({ timeout: 4_000 });
+      await userMenuLocator.click({ timeout: resolveTimeout(4_000) });
       return;
     } catch (error) {
       const message = String(error && error.message ? error.message : error);
@@ -133,7 +134,7 @@ async function clickUserMenuWithModalRetry(page, nextcloudFrame, userMenuLocator
       if (!retriable || attempt === attempts) {
         throw error;
       }
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(resolveTimeout(500));
     }
   }
 }
@@ -166,7 +167,7 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
 
   await adminPage.goto(loginUrl, {
     waitUntil: "commit",
-    timeout: 60_000
+    timeout: resolveTimeout(60_000)
   }).catch(() => {});
 
   const credentialCandidates = [
@@ -217,7 +218,7 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
   }
 
   if (initialState.kind === "social-login") {
-    await initialState.locator.click({ timeout: 5_000 });
+    await initialState.locator.click({ timeout: resolveTimeout(5_000) });
     await waitForVisibleCandidate(
       adminPage,
       [...credentialCandidates, ...standaloneShellCandidates],
@@ -273,7 +274,7 @@ async function logoutStandaloneNextcloud(adminPage) {
 
   const logoutConfirmationVisible = await logoutConfirmButton
     .first()
-    .waitFor({ state: "visible", timeout: 10_000 })
+    .waitFor({ state: "visible", timeout: resolveTimeout(10_000) })
     .then(() => true)
     .catch(() => false);
   if (logoutConfirmationVisible) {
@@ -286,7 +287,7 @@ async function loginToStandaloneNextcloudWithRetry(adminPage, username, password
     await loginToStandaloneNextcloud(adminPage, username, password);
     return;
   } catch {
-    await adminPage.waitForTimeout(5_000);
+    await adminPage.waitForTimeout(resolveTimeout(5_000));
     await loginToStandaloneNextcloud(adminPage, username, password);
   }
 }

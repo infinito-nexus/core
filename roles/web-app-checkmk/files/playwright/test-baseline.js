@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 
@@ -37,11 +38,11 @@ test("administrator: app → admin surface → universal logout", async ({ page 
     adminInteraction: async (interactivePage) => {
       // Checkmk admin-only surface: the Setup menu is admin-gated.
       const setup = interactivePage.getByRole("link", { name: /^setup$/i }).first();
-      if (await setup.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await setup.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
         await setup.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(/setup|hosts|services|checkmk/i, {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
         });
       }
     },

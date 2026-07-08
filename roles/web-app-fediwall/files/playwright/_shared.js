@@ -2,6 +2,7 @@
 // the cross-Fediverse posting flow, wall-content assertions, and the
 // `beforeEach` env-presence guard. `playwright.spec.js` wires the
 // lifecycle hook and `require()`s one test module per scenario so each
+const { resolveTimeout } = require("./timeouts");
 // test stays atomar.
 
 const { expect } = require("@playwright/test");
@@ -48,7 +49,7 @@ async function beforeEach({ page }) {
 async function loginToMastodonViaOidc(page, baseUrl) {
   await page.goto(`${baseUrl}/auth/sign_in`);
   const oidcLink = page.locator("a[href*='/auth/auth/openid_connect'], a[href*='/auth/openid_connect']").first();
-  await expect(oidcLink, "Expected Mastodon OIDC sign-in link").toBeVisible({ timeout: 30_000 });
+  await expect(oidcLink, "Expected Mastodon OIDC sign-in link").toBeVisible({ timeout: resolveTimeout(30_000) });
 
   await Promise.all([
     // eslint-disable-next-line playwright/no-wait-for-navigation -- the navigation target depends on the OIDC issuer; waitForURL would need a runtime-built pattern. The Promise.all is the documented Playwright pattern for "click triggers navigation".
@@ -86,7 +87,7 @@ async function loginToMastodonViaOidc(page, baseUrl) {
     .locator("button[type='submit'], button")
     .filter({ hasText: /save and continue/i })
     .first();
-  if (await saveAndContinue.isVisible({ timeout: 10_000 }).catch(() => false)) {
+  if (await saveAndContinue.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
     await saveAndContinue.click();
   }
 
@@ -100,7 +101,7 @@ async function loginToMastodonViaOidc(page, baseUrl) {
       )
       .first(),
     "Expected Mastodon compose textarea after OIDC sign-in"
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function postOnMastodonViaUi(page, baseUrl, statusText) {
@@ -118,7 +119,7 @@ async function postOnMastodonViaUi(page, baseUrl, statusText) {
   // Mastodon clears the textarea after a successful post.
   await expect(compose, "Expected Mastodon compose textarea to clear after publish").toHaveValue(
     "",
-    { timeout: 30_000 }
+    { timeout: resolveTimeout(30_000) }
   );
 }
 
@@ -137,7 +138,7 @@ async function postOnMastodonViaUi(page, baseUrl, statusText) {
 //   v2  no oauth2-proxy gating, /login is friendica's own form directly.
 async function loginViaFriendicaForm(page) {
   const passwordField = page.locator("input[name='password']").first();
-  await passwordField.waitFor({ state: "visible", timeout: 30_000 });
+  await passwordField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   const usernameField = page.locator("input[name='username']").first();
   const loginForm = page.locator("form").filter({ has: passwordField });
   const signInButton = loginForm
@@ -164,7 +165,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
       .poll(() => {
         try { return new URL(page.url()).host; } catch { return ""; }
       }, {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected page host to return to ${friendicaHost} after Keycloak login`,
       })
       .toBe(friendicaHost);
@@ -175,8 +176,8 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
   // trusted SSO addon; fill it so ldapauth's else-branch starts the
   // friendica session. In v2 the password form is already visible from
   // step 1's `/` redirect to `/login`.
-  await page.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
-  if (await page.locator("input[name='password']").first().isVisible({ timeout: 30_000 }).catch(() => false)) {
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+  if (await page.locator("input[name='password']").first().isVisible({ timeout: resolveTimeout(30_000) }).catch(() => false)) {
     await loginViaFriendicaForm(page);
   }
 
@@ -185,7 +186,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
   await expect(
     compose,
     "Expected Friendica /compose textarea after ldapauth sign-in"
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await compose.fill(statusText);
   await page.locator("button[name='submit'][type='submit']").first().click();
 
@@ -196,7 +197,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
   await expect(
     page.locator(".wall-item-body, .wall-item-content").filter({ hasText: statusText }).first(),
     "Expected Friendica profile timeline to surface the new status"
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function expectPostVisibleOnWall(page, wallUrl, needle, timeoutMs = 60000) {

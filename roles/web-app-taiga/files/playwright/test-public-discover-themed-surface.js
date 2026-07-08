@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("taiga public discover keeps the themed surface", async ({ page }) => {
@@ -7,7 +8,7 @@ exports.register = function (shared) {
     const taigaUrls = shared.getTaigaUrls();
 
     await page.goto(taigaUrls.discoverUrl);
-    await expect(page.getByRole("heading", { name: /discover projects/i })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: /discover projects/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
     await shared.expectGradientBackground(
       page.locator("div.master"),
       "Expected the Taiga discover page to use the themed master background",

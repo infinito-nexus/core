@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
@@ -79,7 +80,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
@@ -88,7 +89,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to peertube at ${peertubeBaseUrl}`
     })
     .toContain(peertubeBaseUrl);
@@ -108,7 +109,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
         return "pending";
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `${personaLabel}: expected visible authenticated peertube UI marker after OIDC login`
       }
     )
@@ -133,7 +134,7 @@ test("administrator: peertube OIDC login and logout", async ({ page }) => {
           .catch(() => 0)) > 0 ||
         (await page.locator("input[type='password']").count().catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected peertube to require a new sign-in after logout"
       }
     )
@@ -158,7 +159,7 @@ test("biber: peertube OIDC login and logout", async ({ page }) => {
           .catch(() => 0)) > 0 ||
         (await page.locator("input[type='password']").count().catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected peertube to require a new sign-in after logout"
       }
     )

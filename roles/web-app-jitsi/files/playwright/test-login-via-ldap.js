@@ -1,4 +1,5 @@
 const { test } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 // Dedicated LDAP scenario per the playwright contract: when both OIDC and LDAP
 // are enabled, each persona's primary login path uses OIDC, and each persona
@@ -8,7 +9,7 @@ const { test } = require("@playwright/test");
 exports.register = function (shared) {
   test("biber: ldap-bound login through keycloak", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.setTimeout(180_000);
+    test.setTimeout(resolveTimeout(180_000));
     await shared.runBiberFlow(page, {
       biberInteraction: async (p) => {
         await shared.reachJitsiPrejoin(p, "biber", "biber-ldap-room");
@@ -18,7 +19,7 @@ exports.register = function (shared) {
 
   test("administrator: ldap-bound login through keycloak", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.setTimeout(180_000);
+    test.setTimeout(resolveTimeout(180_000));
     await shared.runAdminFlow(page, {
       adminInteraction: async (p) => {
         await shared.reachJitsiPrejoin(p, "admin", "admin-ldap-room");

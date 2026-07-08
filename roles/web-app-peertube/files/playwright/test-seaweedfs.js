@@ -1,4 +1,5 @@
 const path = require("path");
+const { resolveTimeout } = require("./timeouts");
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
@@ -37,7 +38,7 @@ async function loginAdminViaOidc(page) {
         for (const pattern of oidcButtonPatterns) {
           const candidate = page.locator("a, button").filter({ hasText: pattern }).first();
           if ((await candidate.count().catch(() => 0)) > 0) {
-            await candidate.waitFor({ state: "visible", timeout: 30_000 }).catch(() => {});
+            await candidate.waitFor({ state: "visible", timeout: resolveTimeout(30_000) }).catch(() => {});
             await candidate.click().catch(() => {});
             break;
           }
@@ -45,7 +46,7 @@ async function loginAdminViaOidc(page) {
         return page.url().includes(expectedOidcAuthUrl);
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
       }
     )
@@ -55,7 +56,7 @@ async function loginAdminViaOidc(page) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect back to PeerTube at ${peertubeBaseUrl}`,
     })
     .toContain(peertubeBaseUrl);
@@ -64,7 +65,7 @@ async function loginAdminViaOidc(page) {
     .locator("my-avatar-menu, my-user-notifications, my-header my-avatar, a[href='/my-account'], button.dropdown-toggle my-avatar")
     .first();
   await expect(authenticatedMarker, "expected an authenticated PeerTube UI marker after OIDC login").toBeVisible({
-    timeout: 60_000,
+    timeout: resolveTimeout(60_000),
   });
 }
 
@@ -74,14 +75,14 @@ async function uploadWebVideo(page) {
   const marker = `infinito-storage-check-${Date.now()}`;
 
   const fileInput = page.locator("input[type='file']").first();
-  await fileInput.waitFor({ state: "attached", timeout: 60_000 });
+  await fileInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
   await fileInput.setInputFiles(path.join(__dirname, "fixtures", "video_short.mp4"));
 
   const nameField = page
     .getByLabel(/name/i)
     .or(page.locator("input#name, input[formcontrolname='name'], input[name='name']"))
     .first();
-  await nameField.waitFor({ state: "visible", timeout: 60_000 });
+  await nameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await nameField.fill(marker);
 
   const welcomeDialog = page.locator("ngb-modal-window, .modal.show, [role='dialog']").first();
@@ -95,15 +96,15 @@ async function uploadWebVideo(page) {
     } else {
       await page.keyboard.press("Escape").catch(() => {});
     }
-    await welcomeDialog.waitFor({ state: "hidden", timeout: 15_000 }).catch(() => {});
+    await welcomeDialog.waitFor({ state: "hidden", timeout: resolveTimeout(15_000) }).catch(() => {});
   }
 
   const publishButton = page.locator(".save-button > button").first();
-  await publishButton.waitFor({ state: "visible", timeout: 60_000 });
+  await publishButton.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await expect(
     publishButton,
     "expected the PeerTube publish button to become enabled after the upload finishes",
-  ).toBeEnabled({ timeout: 120_000 });
+  ).toBeEnabled({ timeout: resolveTimeout(120_000) });
 
   await publishButton.click();
 
@@ -115,12 +116,12 @@ async function uploadWebVideo(page) {
   await expect(
     savedMarker,
     `the uploaded video '${marker}' must be saved by PeerTube before the S3 move job runs`,
-  ).toBeVisible({ timeout: 120_000 });
+  ).toBeVisible({ timeout: resolveTimeout(120_000) });
 }
 
 test("seaweedfs: an uploaded PeerTube video is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(480_000);
+  test.setTimeout(resolveTimeout(480_000));
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "a PeerTube video upload",

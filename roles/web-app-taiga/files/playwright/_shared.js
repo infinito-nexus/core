@@ -1,6 +1,7 @@
 // Shared Taiga Playwright spec state: env vars, locator helpers, login/
 // logout flow, themed-surface assertions, and the `beforeEach` env-presence
 // guard. `playwright.spec.js` wires the lifecycle hook and `require()`s one
+const { resolveTimeout } = require("./timeouts");
 // test module per scenario so each test stays atomar.
 
 const { expect } = require("@playwright/test");
@@ -96,15 +97,15 @@ async function tryLogoutFromTaiga(page, taigaFrame) {
 
   for (const directLogoutLocator of directLogoutLocators) {
     if (await activateLocatorClick(directLogoutLocator)) {
-      await page.waitForTimeout(1_000);
+      await page.waitForTimeout(resolveTimeout(1_000));
       return true;
     }
   }
 
   const directLogout = await findFirstVisible(directLogoutLocators);
   if (directLogout) {
-    await directLogout.click({ timeout: 2_000 }).catch(() => {});
-    await page.waitForTimeout(1_000);
+    await directLogout.click({ timeout: resolveTimeout(2_000) }).catch(() => {});
+    await page.waitForTimeout(resolveTimeout(1_000));
     return true;
   }
 
@@ -115,13 +116,13 @@ async function tryLogoutFromTaiga(page, taigaFrame) {
       continue;
     }
 
-    await trigger.click({ timeout: 2_000 }).catch(() => {});
-    await page.waitForTimeout(500);
+    await trigger.click({ timeout: resolveTimeout(2_000) }).catch(() => {});
+    await page.waitForTimeout(resolveTimeout(500));
 
     const revealedLogout = await findFirstVisible(directLogoutLocators);
     if (revealedLogout) {
-      await revealedLogout.click({ timeout: 2_000 }).catch(() => {});
-      await page.waitForTimeout(1_000);
+      await revealedLogout.click({ timeout: resolveTimeout(2_000) }).catch(() => {});
+      await page.waitForTimeout(resolveTimeout(1_000));
       return true;
     }
   }
@@ -191,7 +192,7 @@ async function waitForTopLevelLoginRequirement(
       }
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error(errorMessage);
@@ -220,12 +221,12 @@ async function getComputedStyleValue(locator, propertyName) {
 }
 
 async function expectGradientBackground(locator, message) {
-  await expect(locator.first()).toBeVisible({ timeout: 60_000 });
+  await expect(locator.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect
     .poll(
       async () => getComputedStyleValue(locator, "background-image"),
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message
       }
     )
@@ -248,7 +249,7 @@ async function loginToTaiga(page) {
   if (taigaOauth2Enabled) {
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected Taiga to navigate to Keycloak auth via oauth2-proxy: ${taigaUrls.expectedOidcAuthUrl}`
       })
       .toContain(taigaUrls.expectedOidcAuthUrl);
@@ -265,7 +266,7 @@ async function loginToTaiga(page) {
       await initialAuthState.locator.click();
       await expect
         .poll(() => page.url(), {
-          timeout: 60_000,
+          timeout: resolveTimeout(60_000),
           message: `Expected Taiga OIDC login to navigate to Keycloak auth: ${taigaUrls.expectedOidcAuthUrl}`
         })
         .toContain(taigaUrls.expectedOidcAuthUrl);
@@ -285,7 +286,7 @@ async function loginToTaiga(page) {
         await ssoEntry.locator.click();
         await expect
           .poll(() => page.url(), {
-            timeout: 60_000,
+            timeout: resolveTimeout(60_000),
             message: `Expected Taiga OIDC login to navigate to Keycloak auth: ${taigaUrls.expectedOidcAuthUrl}`
           })
           .toContain(taigaUrls.expectedOidcAuthUrl);
@@ -299,14 +300,14 @@ async function loginToTaiga(page) {
     "input#kc-login, button#kc-login, button[type='submit'], input[type='submit']"
   );
 
-  await expect(usernameField.first()).toBeVisible({ timeout: 60_000 });
+  await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.first().fill(loginUsername);
   await passwordField.first().fill(loginPassword);
   await signInButton.first().click();
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected Taiga to redirect back after Keycloak login: ${taigaUrls.expectedTaigaBaseUrl}`
     })
     .toContain(taigaUrls.expectedTaigaBaseUrl);
@@ -362,12 +363,12 @@ async function logoutFromTaiga(page, session) {
 
   if (taigaOauth2Enabled) {
     expect(loggedOutState.kind).toBe("keycloak");
-    await expect(page.locator("input[name='username'], input#username").first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator("input[name='username'], input#username").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
     await expect
       .poll(
         async () => page.url(),
         {
-          timeout: 60_000,
+          timeout: resolveTimeout(60_000),
           message: "Expected top-level Taiga re-entry to stay on the Keycloak login page after logout"
         }
       )
@@ -378,11 +379,11 @@ async function logoutFromTaiga(page, session) {
   expect(["keycloak", "taiga-login-page", "taiga-oidc-entry"]).toContain(loggedOutState.kind);
 
   if (loggedOutState.kind === "keycloak") {
-    await expect(page.locator("input[name='username'], input#username").first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator("input[name='username'], input#username").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
     return;
   }
 
-  await expect(loggedOutState.locator).toBeVisible({ timeout: 60_000 });
+  await expect(loggedOutState.locator).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function reachTopLevelTaigaAuthEntry(page, taigaUrls, timeout, errorMessage) {
@@ -415,7 +416,7 @@ async function reachTopLevelTaigaAuthEntry(page, taigaUrls, timeout, errorMessag
       if (loginEntry && !loginClicked) {
         await loginEntry.click();
         loginClicked = true;
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(resolveTimeout(500));
         continue;
       }
 
@@ -425,7 +426,7 @@ async function reachTopLevelTaigaAuthEntry(page, taigaUrls, timeout, errorMessag
       ]);
 
       if (visibleLocalLoginField) {
-        await page.waitForTimeout(1_000);
+        await page.waitForTimeout(resolveTimeout(1_000));
 
         const persistedLocalLoginField = await findFirstVisible([
           page.locator("input[name='username'], input#username"),
@@ -438,7 +439,7 @@ async function reachTopLevelTaigaAuthEntry(page, taigaUrls, timeout, errorMessag
       }
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error(errorMessage);
@@ -470,7 +471,7 @@ async function loginToTaigaNative(page) {
     "input#kc-login, button#kc-login, button[type='submit'], input[type='submit']",
   );
 
-  await expect(usernameField.first()).toBeVisible({ timeout: 60_000 });
+  await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.first().fill(loginUsername);
   await passwordField.first().fill(loginPassword);
   await signInButton.first().click();
@@ -495,7 +496,7 @@ async function logoutFromTaigaNative(page, session) {
 
   await page.goto(`${session.expectedTaigaBaseUrl}/login`);
   await expect(page.locator("input[name='username'], input#username").first())
-    .toBeVisible({ timeout: 60_000 });
+    .toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 module.exports = {

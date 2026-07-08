@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("spreed addon: Talk HPB signaling/turn backends are configured and coupled", async ({ browser }) => {
   skipUnlessAddonEnabled("spreed");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const unquote = (v) => ((v || "").trim().replace(/^"(.*)"$/, "$1"));
   const expectedSignalingUrl = unquote(process.env.NEXTCLOUD_TALK_EXPECTED_SIGNALING_URL);
@@ -44,13 +45,13 @@ test("spreed addon: Talk HPB signaling/turn backends are configured and coupled"
     ).toMatch(/signaling/i);
 
     const talkAdminUrl = new URL("settings/admin/talk", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(talkAdminUrl, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await page.goto(talkAdminUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     await expect(
       page.getByText(/signaling/i).first(),
       "the Talk admin settings must render the High-Performance Backend (signaling) section",
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const collectSettingsText = async () => {
       const bodyText = await page.locator("body").innerText().catch(() => "");
@@ -73,7 +74,7 @@ test("spreed addon: Talk HPB signaling/turn backends are configured and coupled"
     if (expectedTurnServer) {
       await expect
         .poll(collectSettingsText, {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
           message: `the Talk admin settings must surface the configured HPB TURN server '${expectedTurnServer}' (turn_servers from the spreed addon, pointing at the web-svc-coturn partner host); a stock Talk install without the HPB wiring would not show it`,
         })
         .toContain(expectedTurnServer);
@@ -82,7 +83,7 @@ test("spreed addon: Talk HPB signaling/turn backends are configured and coupled"
     if (expectedStunServer) {
       await expect
         .poll(collectSettingsText, {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
           message: `the Talk admin settings must surface the configured HPB STUN server '${expectedStunServer}' (stun_servers from the spreed addon)`,
         })
         .toContain(expectedStunServer);
@@ -97,7 +98,7 @@ test("spreed addon: Talk HPB signaling/turn backends are configured and coupled"
       }
       await expect
         .poll(collectSettingsText, {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
           message: `the Talk admin settings must surface the configured HPB signaling server '${signalingNeedle}' (signaling_servers from the spreed addon)`,
         })
         .toContain(signalingNeedle);
@@ -106,7 +107,7 @@ test("spreed addon: Talk HPB signaling/turn backends are configured and coupled"
     const connectionSpans = page.locator("span.test-connection");
     await connectionSpans
       .first()
-      .waitFor({ state: "attached", timeout: 15_000 })
+      .waitFor({ state: "attached", timeout: resolveTimeout(15_000) })
       .catch(() => {});
     const okRows = (await connectionSpans.allInnerTexts().catch(() => [])).filter((t) =>
       /OK:\s*Running version:\s*\S+/i.test(t),

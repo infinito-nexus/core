@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
@@ -30,13 +31,13 @@ async function signInViaErpnextLocal(page, username, password, personaLabel) {
   await page.fill("input#login_password", password);
   await Promise.all([
     page.waitForURL((url) => url.toString().includes(canonicalDomain) && !url.toString().includes("/login"), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     }),
     page.click("button.btn-login, button[type='submit']").catch(() => page.keyboard.press("Enter")),
   ]);
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected post-login redirect on ${canonicalDomain} (not /login)`,
     })
     .not.toContain("/login");
@@ -55,12 +56,12 @@ async function signInViaErpnextOidc(page, username, password, personaLabel) {
   await expect(
     oidcSignIn,
     `${personaLabel}: the Keycloak SSO button must render on /login (Social Login Key not picked up by the workers?)`,
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await oidcSignIn.click();
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -69,7 +70,7 @@ async function signInViaErpnextOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to ERPNext at ${erpnextBaseUrl}`,
     })
     .toContain(canonicalDomain);
