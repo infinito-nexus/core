@@ -1,0 +1,3 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_web_app_n8n is not defined
