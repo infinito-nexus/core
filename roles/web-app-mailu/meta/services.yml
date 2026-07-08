@@ -20,6 +20,11 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# Not MAIL_PROVIDER: a Mailu-active deploy must not pull stalwart into the closure.
+email:
+  bond: 1
+  enabled: "{{ 'web-app-stalwart' in group_names }}"
+  shared: "{{ 'web-app-stalwart' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 mailu:
   bond: 1
@@ -37,6 +42,8 @@ mailu:
       http: 8007
   run_after:
     - web-app-matomo
+    # The mail provider must preload first (sys-svc-mail asserts its token).
+    - web-app-stalwart
   lifecycle: beta
   cpus: "1.0"
   mem_reservation: 512m

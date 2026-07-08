@@ -106,11 +106,12 @@
 - name: "TLS | (self_signed) compute wanted/existing SAN sets"
   ansible.builtin.set_fact:
     _ss_wanted_sans: "{{ _ss_san | map('lower') | list | unique | sort }}"
+    # \\s would put a literal 's' in the class and truncate every SAN.
     _ss_existing_sans: >-
       {{
         (
           (_ss_cert_text.stdout | default('')) |
-          regex_findall('DNS:([^,\\s;]+)') |
+          regex_findall('DNS:([^,\s;]+)') |
           map('lower') | list | unique | sort
         )
         if (_ss_cert_stat.stat.exists | default(false)) else

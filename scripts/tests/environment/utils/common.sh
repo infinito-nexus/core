@@ -51,8 +51,17 @@ load_repo_env() {
 load_repo_env
 ensure_git_safe_directory
 
-# Domain SPOT is INFINITO_DOMAIN (loaded by load_repo_env); never hardcode it.
-DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?Missing INFINITO_DOMAIN in .env}"
+# Bare CI containers lack python3, so load_repo_env may not have run yet.
+if [[ -z "${INFINITO_DOMAIN:-}" ]]; then
+	for _env_file in "${REPO_ROOT}/.env" "${REPO_ROOT}/default.env"; do
+		if [[ -f "${_env_file}" ]]; then
+			INFINITO_DOMAIN="$(sed -n 's/^INFINITO_DOMAIN=//p' "${_env_file}" | head -n1)"
+			[[ -n "${INFINITO_DOMAIN}" ]] && break
+		fi
+	done
+	unset _env_file
+fi
+DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?Missing INFINITO_DOMAIN in .env and default.env}"
 MATOMO_URL="https://matomo.${INFINITO_DOMAIN}"
 
 # These constants are part of the sourced interface consumed by sibling scripts.

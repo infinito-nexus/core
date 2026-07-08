@@ -15,6 +15,7 @@
       {{ (stalwart_jmap.methodResponses[0][1].list
           | map(attribute='id') | first) | default('') }}
 
+# Skip on the empty rescue placeholder — force-unpacking it would break a working UI.
 - name: "Point the WebUI Application at the locally-staged bundle"
   include_tasks: jmap_call.yml
   vars:
@@ -23,11 +24,24 @@
           'methodCalls': [['x:Application/set',
             {'update': {stalwart_webui_app_id: {'resourceUrl': STALWART_WEBUI_LOCAL_URL}}},
             'c0']]} | to_json }}
-  when: stalwart_webui_app_id | length > 0
+  when:
+    - stalwart_webui_app_id | length > 0
+    - stalwart_webui_fetch is succeeded
 
-# Re-run the bundle unpack now that resourceUrl points at the local file. Not
-# fatal on error (a placeholder/unreachable bundle must not break the deploy).
+# UpdateApps force-unpacks from resourceUrl (the /api/update/webadmin endpoint is gone).
 - name: "Unpack the WebUI bundle from the local file"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Action/set',
+            {'create': {'a': {'@type': 'UpdateApps'}}},
+            'c0']]} | to_json }}
+  when:
+    - stalwart_webui_app_id | length > 0
+    - stalwart_webui_fetch is succeeded
+
+- name: "Verify the WebAdmin is served after unpack"
   ansible.builtin.command:
     argv:
       - "{{ BIN_COMPOSE }}"
@@ -36,13 +50,16 @@
       - stalwart
       - curl
       - -sS
-      - -u
-      - "{{ STALWART_ADMIN_USER }}:{{ STALWART_ADMIN_PASSWORD }}"
-      - "{{ STALWART_API_BASE_URL }}/update/webadmin"
+      - -o
+      - /dev/null
+      - -w
+      - "%{http_code}"
+      - http://localhost:8080/
   args:
     chdir: "{{ STALWART_INSTANCE_DIR }}"
-  register: stalwart_webui_unpack
+  register: stalwart_webui_probe
   changed_when: false
-  failed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: stalwart_webui_app_id | length > 0
+  retries: 6
+  delay: 5
+  until: stalwart_webui_probe.stdout in ['200', '301', '302']
+  when: stalwart_webui_fetch is succeeded

@@ -12,6 +12,9 @@
     dashboard:
       enabled: true
       shared: true
+    email:
+      enabled: true
+      shared: true
     logout:
       enabled: true
       shared: true
@@ -31,6 +34,9 @@
       enabled: false
       shared: false
     dashboard:
+      enabled: false
+      shared: false
+    email:
       enabled: false
       shared: false
     logout:

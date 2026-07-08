@@ -18,6 +18,8 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mailu.ports.local.http') }}:80"
+{% if application_id == MAIL_PROVIDER %}
+      # Only the active MAIL_PROVIDER owns the public mail ports.
       - "{{ MAILU_IP4_PUBLIC }}:25:25"
       - "{{ MAILU_IP4_PUBLIC }}:465:465"
       - "{{ MAILU_IP4_PUBLIC }}:587:587"
@@ -26,6 +28,7 @@
       - "{{ MAILU_IP4_PUBLIC }}:143:143"
       - "{{ MAILU_IP4_PUBLIC }}:993:993"
       - "{{ MAILU_IP4_PUBLIC }}:4190:4190"
+{% endif %}
     volumes:
       - "{{ [ MAILU_OVERRIDES_DIR, 'nginx' ] | path_join }}:/overrides:ro"
       - "{{ MAILU_CERT_DIR }}:/certs:ro"

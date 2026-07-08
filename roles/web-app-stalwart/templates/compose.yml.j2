@@ -8,6 +8,8 @@
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.stalwart.ports.local.http') }}:8080"
+{% if application_id == MAIL_PROVIDER %}
+      # Only the active MAIL_PROVIDER owns the public mail ports.
       - "{{ STALWART_IP4_PUBLIC }}:25:25"
       - "{{ STALWART_IP4_PUBLIC }}:465:465"
       - "{{ STALWART_IP4_PUBLIC }}:587:587"
@@ -16,6 +18,7 @@
       - "{{ STALWART_IP4_PUBLIC }}:143:143"
       - "{{ STALWART_IP4_PUBLIC }}:993:993"
       - "{{ STALWART_IP4_PUBLIC }}:4190:4190"
+{% endif %}
     environment:
       # Pins the break-glass admin (instead of a random one) for API provisioning.
       STALWART_RECOVERY_ADMIN: "{{ STALWART_ADMIN_USER }}:{{ STALWART_ADMIN_PASSWORD }}"
