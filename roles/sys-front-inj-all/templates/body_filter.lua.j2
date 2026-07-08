@@ -31,6 +31,20 @@ end
 local whole = table.concat(ngx.ctx.buf)
 ngx.ctx.buf = nil
 
+{% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.base') | regex_replace('/+$', '') %}
+{% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
+{% set _cdn_onion = _cdn_base | to_onion_url(_tor_node, DOMAIN_PRIMARY) %}
+local function onionize(s)
+{% if _tor_node and _cdn_onion != _cdn_base %}
+    local host = ngx.var.http_host or ""
+    if host:sub(-6) == ".onion" then
+        local pat = ([=[{{ _cdn_base }}]=]):gsub("([^%w])", "%%%1")
+        s = (s:gsub(pat, [=[{{ _cdn_onion }}]=]))
+    end
+{% endif %}
+    return s
+end
+
 -- Remove inline CSP <meta http-equiv="Content-Security-Policy"> (case-insensitive)
 local meta_re = [[<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>\s*]]
 whole = ngx.re.gsub(whole, meta_re, "", "ijo")
@@ -38,7 +52,7 @@ whole = ngx.re.gsub(whole, meta_re, "", "ijo")
 -- Build head snippets (rendered by Jinja at template time)
 local head_snippets = {}
 {{ push_snippets('head_snippets', inj_head_features) }}
-local head_payload = table.concat(head_snippets, "\n") .. "</head>"
+local head_payload = onionize(table.concat(head_snippets, "\n")) .. "</head>"
 
 -- Inject before </head> (first occurrence)
 local function repl_head(_) return head_payload end
@@ -60,7 +74,7 @@ end
 -- Build body snippets (rendered by Jinja at template time)
 local body_snippets = {}
 {{ push_snippets('body_snippets', inj_body_features) }}
-local body_payload = table.concat(body_snippets, "\n") .. "</body>"
+local body_payload = onionize(table.concat(body_snippets, "\n")) .. "</body>"
 
 -- Inject before </body> (first occurrence), or append if missing
 local function repl_body(_) return body_payload end
