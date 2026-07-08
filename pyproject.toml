@@ -21,6 +21,9 @@ dependencies = [
   "passlib",
   "requests",
   "humanfriendly",
+  "PyMySQL",
+  "psycopg2-binary",
+  "python-ldap",
 ]
 
 [project.optional-dependencies]
