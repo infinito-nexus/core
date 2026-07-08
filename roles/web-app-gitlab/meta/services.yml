@@ -40,7 +40,7 @@ gitlab:
   enabled: true
   shared: true
   image: gitlab/gitlab-ee
-  version: 19.1.1-ee.0
+  version: 19.1.2-ee.0
   name: gitlab
   min_storage: 30GB
   cpus: "4.0"
