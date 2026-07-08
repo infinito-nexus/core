@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 // -----------------------------------------------------------------------------
@@ -41,7 +42,7 @@ async function fillKeycloakLoginForm(page, username, password) {
     .locator("input#kc-login, button#kc-login, button[type='submit'], input[type='submit']")
     .first();
 
-  await expect(usernameField, "Expected Keycloak username field to be visible").toBeVisible({ timeout: 60_000 });
+  await expect(usernameField, "Expected Keycloak username field to be visible").toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
   await signInButton.click();
@@ -102,7 +103,7 @@ test.beforeEach(async ({ page }) => {
 test("keycloak enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({ page }) => {
   const diagnostics = attachDiagnostics(page);
 
-  const response = await page.goto(`${appBaseUrl}/realms/${realmName}/account/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/realms/${realmName}/account/`);
   expect(response, "Expected Keycloak account page response").toBeTruthy();
   expect(response.status(), "Expected Keycloak account page to respond successfully").toBeLessThan(400);
 
@@ -121,7 +122,7 @@ test("keycloak enforces Content-Security-Policy and exposes canonical domain fro
 test("master-realm super administrator logs into Keycloak admin console and logs out", async ({ page }) => {
   const diagnostics = attachDiagnostics(page);
 
-  const response = await page.goto(`${appBaseUrl}/admin/master/console/`);
+  const response = await gotoOnion(page,`${appBaseUrl}/admin/master/console/`);
   expect(response, "Expected Keycloak admin console response").toBeTruthy();
   expect(response.status(), "Expected Keycloak admin console response to be successful").toBeLessThan(400);
 
@@ -131,20 +132,20 @@ test("master-realm super administrator logs into Keycloak admin console and logs
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected super admin login to leave the Keycloak login page"
     })
     .not.toContain("/login-actions/authenticate");
 
-  await expect(page.locator("body")).toContainText(/master|realm|clients|users/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/master|realm|clients|users/i, { timeout: resolveTimeout(60_000) });
 
   await keycloakSignOutFromMasterAdminConsole(page, appBaseUrl);
 
-  await page.goto(`${appBaseUrl}/admin/master/console/`);
+  await gotoOnion(page,`${appBaseUrl}/admin/master/console/`);
   await expect(
     page.locator("input[name='username'], input#username").first(),
     "Expected Keycloak admin console to require login again after sign out"
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   await expectNoCspViolations(page, diagnostics, "keycloak admin console");
 });
@@ -153,7 +154,7 @@ test("normal-realm administrator logs in through account interface and logs out"
   const diagnostics = attachDiagnostics(page);
 
   const accountUrl = `${appBaseUrl}/realms/${realmName}/account/`;
-  const response = await page.goto(accountUrl);
+  const response = await gotoOnion(page,accountUrl);
   expect(response, "Expected normal-realm account page response").toBeTruthy();
   expect(response.status(), "Expected normal-realm account page response to be successful").toBeLessThan(400);
 
@@ -169,16 +170,16 @@ test("normal-realm administrator logs in through account interface and logs out"
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected administrator login to reach the account interface"
     })
     .toContain("/account");
 
-  await expect(page.locator("body")).toContainText(new RegExp(adminUsername, "i"), { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(new RegExp(adminUsername, "i"), { timeout: resolveTimeout(60_000) });
 
   await keycloakSignOutFromAccountConsole(page);
 
-  await page.goto(accountUrl);
+  await gotoOnion(page,accountUrl);
   const postLogoutSignIn = page.locator("a, button").filter({ hasText: /sign\s*in|log\s*in|anmelden/i }).first();
   const usernameField = page.locator("input[name='username'], input#username").first();
 
@@ -187,7 +188,7 @@ test("normal-realm administrator logs in through account interface and logs out"
       async () =>
         (await postLogoutSignIn.count().catch(() => 0)) > 0 || (await usernameField.count().catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected account interface to require login again after administrator sign out"
       }
     )
@@ -201,7 +202,7 @@ test("normal-realm biber logs in through account interface and logs out", async 
   const diagnostics = attachDiagnostics(page);
 
   const accountUrl = `${appBaseUrl}/realms/${realmName}/account/`;
-  const response = await page.goto(accountUrl);
+  const response = await gotoOnion(page,accountUrl);
   expect(response, "Expected normal-realm account page response").toBeTruthy();
   expect(response.status(), "Expected normal-realm account page response to be successful").toBeLessThan(400);
 
@@ -217,16 +218,16 @@ test("normal-realm biber logs in through account interface and logs out", async 
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected biber login to reach the account interface"
     })
     .toContain("/account");
 
-  await expect(page.locator("body")).toContainText(/personal\s*info|account|profile|signing\s*in/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/personal\s*info|account|profile|signing\s*in/i, { timeout: resolveTimeout(60_000) });
 
   await keycloakSignOutFromAccountConsole(page);
 
-  await page.goto(accountUrl);
+  await gotoOnion(page,accountUrl);
   const postLogoutSignIn = page.locator("a, button").filter({ hasText: /sign\s*in|log\s*in|anmelden/i }).first();
   const usernameField = page.locator("input[name='username'], input#username").first();
 
@@ -235,7 +236,7 @@ test("normal-realm biber logs in through account interface and logs out", async 
       async () =>
         (await postLogoutSignIn.count().catch(() => 0)) > 0 || (await usernameField.count().catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected account interface to require login again after biber sign out"
       }
     )
