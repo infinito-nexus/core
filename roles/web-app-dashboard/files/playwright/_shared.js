@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { normalizeBaseUrl } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
@@ -76,12 +77,26 @@ function isMatomoConsoleNoise(record) {
   );
 }
 
+function isKeycloak3pCookieNoise(record) {
+  if (!record) {
+    return false;
+  }
+  const text = typeof record === "string" ? record : record.text || "";
+  const url = typeof record === "string" ? "" : record.url || "";
+  return (
+    /\/3p-cookies\//.test(url) ||
+    /requestStorageAccess/i.test(text)
+  );
+}
+
 function expectNoUnexpectedDiagnostics(
   diagnostics,
   { ignoreMatomoConsoleNoise = false } = {}
 ) {
   expect(diagnostics.pageErrors, `Unexpected page errors: ${diagnostics.pageErrors.join("\n")}`).toEqual([]);
-  let unexpectedConsoleErrors = diagnostics.consoleErrors;
+  let unexpectedConsoleErrors = diagnostics.consoleErrors.filter(
+    (record) => !isKeycloak3pCookieNoise(record)
+  );
   if (ignoreMatomoConsoleNoise) {
     unexpectedConsoleErrors = unexpectedConsoleErrors.filter((record) => !isMatomoConsoleNoise(record));
   }
@@ -92,9 +107,9 @@ function expectNoUnexpectedDiagnostics(
 }
 
 async function waitForDashboardReady(page) {
-  await expect(page.locator("main#main")).toBeVisible({ timeout: 60_000 });
-  await expect(page.locator("header.header")).toBeVisible({ timeout: 60_000 });
-  await expect(page.locator("#navbar_logo img")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator("main#main")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(page.locator("header.header")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(page.locator("#navbar_logo img")).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function waitForResourceResponse(records, partialUrl, label) {
@@ -103,7 +118,7 @@ async function waitForResourceResponse(records, partialUrl, label) {
       () =>
         records.some((record) => record.url.includes(partialUrl) && record.status >= 200 && record.status < 400),
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected ${label} to load successfully (${partialUrl})`,
       }
     )
