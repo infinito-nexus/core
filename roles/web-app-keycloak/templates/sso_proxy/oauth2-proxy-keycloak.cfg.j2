@@ -7,7 +7,9 @@ upstreams               =   "http://{{ lookup('sso', sso_proxy_application_id, '
 {% set _has_onion = _tor_node != '' and (_app_domains | select('search', _tor_node) | list | length > 0) %}
 {% set _clearnet_domains = _app_domains | reject('search', '\.onion$') | list %}
 {% set _has_clearnet = _clearnet_domains | length > 0 %}
-cookie_domains          =   [{% if _has_clearnet %}"{{ _clearnet_domains | common_dns_suffix }}", {% endif %}{% if _has_onion %}".{{ _tor_node }}", {% endif %}"{{ lookup('domain', 'web-app-keycloak') }}"]
+{% if _has_clearnet %}
+cookie_domains          =   ["{{ _clearnet_domains | common_dns_suffix }}", "{{ lookup('domain', 'web-app-keycloak') }}"]
+{% endif %}
 whitelist_domains       =   [{% if _has_clearnet %}".{{ DOMAIN_PRIMARY }}"{% endif %}{% if _has_clearnet and _has_onion %}, {% endif %}{% if _has_onion %}".{{ _tor_node }}"{% endif %}]
 
 # keycloak provider
