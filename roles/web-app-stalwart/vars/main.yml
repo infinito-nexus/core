@@ -56,7 +56,9 @@ STALWART_WEBMAIL_OIDC_CLIENT_ID: "stalwart-webmail"
 
 # WebUI (WebAdmin) bundle: Stalwart fetches it from GitHub on first boot, which fails
 # behind restricted egress, so the controller stages it locally (see 10_webadmin.yml).
-STALWART_WEBUI_RESOURCE_URL: "https://github.com/stalwartlabs/webui/releases/latest/download/webui.zip"
+# Pinned to match the stalwart image version (meta/services.yml).
+STALWART_WEBUI_VERSION: "v1.0.5"
+STALWART_WEBUI_RESOURCE_URL: "https://github.com/stalwartlabs/webui/releases/download/{{ STALWART_WEBUI_VERSION }}/webui.zip"
 STALWART_WEBUI_LOCAL_FILE: "{{ [ STALWART_CONFIG_DIR, 'webui.zip' ] | path_join }}"
 STALWART_WEBUI_CONTAINER_FILE: "/etc/stalwart/webui.zip"
 STALWART_WEBUI_LOCAL_URL: "file://{{ STALWART_WEBUI_CONTAINER_FILE }}"

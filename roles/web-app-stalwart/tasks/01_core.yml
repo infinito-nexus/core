@@ -135,33 +135,16 @@
 - name: Wait for Stalwart database and management API
   include_tasks: 02_wait_for_api.yml
 
-# WebUI bundle — non-fatal so a 404 WebAdmin never blocks the deploy.
+# A failed download is tolerated (rescue in the staging block above); a failed
+# unpack or 404 WebAdmin fails the deploy — Playwright would fail later anyway.
 - name: "Provision the Stalwart WebUI (WebAdmin) bundle"
-  block:
-    - include_tasks: 10_webadmin.yml
-  rescue:
-    - name: "Warn: WebUI provisioning failed (WebAdmin may 404); continuing"
-      ansible.builtin.debug:
-        msg: "Stalwart WebUI provisioning failed; WebAdmin (/admin, /account) may 404."
+  include_tasks: 10_webadmin.yml
 
 # Provision the mail domain, accounts, DKIM and DNS via the Stalwart JMAP API.
 - name: "Provision Stalwart mail domain, accounts, DKIM and DNS"
   include_tasks: 03_provision_domain.yml
 
-# Stalwart caches the OIDC directory at startup, so JMAP changes from provisioning
-# (e.g. clearing requireAudience) only apply after a restart.
-- name: "Apply Stalwart OIDC directory changes (restart + wait)"
+# Restart-or-defer: a restart while the OIDC issuer is down sticks on internal auth.
+- name: "Apply Stalwart OIDC directory changes"
+  include_tasks: 12_oidc_apply.yml
   when: STALWART_SSO_ENABLED | bool
-  block:
-    - name: "Restart Stalwart so OIDC directory changes take effect"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - restart
-          - stalwart
-      args:
-        chdir: "{{ STALWART_INSTANCE_DIR }}"
-      changed_when: true
-
-    - name: "Wait for Stalwart API after the OIDC restart"
-      include_tasks: 02_wait_for_api.yml
