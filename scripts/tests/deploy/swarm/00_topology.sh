@@ -4,7 +4,8 @@
 # Naming constants are the SPOT in default.env, shared with the Python harness
 # (utils/tests/swarm/*). Read default.env directly (not the generated .env): the
 # workflow sources this file before `make dotenv` runs, so .env may not exist yet.
-_default_env="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/default.env"
+_repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+_default_env="${_repo_root}/default.env"
 # shellcheck source=/dev/null
 source <(grep -E '^INFINITO_SWARM_[A-Z0-9_]+=' "$_default_env")
 
@@ -13,9 +14,13 @@ SWARM_PREFIX="${SWARM_NAME}-"
 
 MGR="${SWARM_PREFIX}${INFINITO_SWARM_MGR_NAME}"
 
-NFS_EXPORT_BASE="${INFINITO_SWARM_NFS_EXPORT_BASE}"
+NFS_EXPORT_BASE="$(grep -A4 '^  nfs:' "${_repo_root}/group_vars/all/15_storage.yml" | grep 'export_base:' | awk '{print $2}')"
+: "${NFS_EXPORT_BASE:?export_base missing in group_vars/all/15_storage.yml}"
 
-NFS_STATE_PATH="${NFS_EXPORT_BASE}/infinito-state"
+NFS_STATE_SUBDIR="$(grep '^STATE_SUBDIR = ' "${_repo_root}/utils/storage/nfs.py" | cut -d'"' -f2)"
+: "${NFS_STATE_SUBDIR:?STATE_SUBDIR missing in utils/storage/nfs.py}"
+
+NFS_STATE_PATH="${NFS_EXPORT_BASE}/${NFS_STATE_SUBDIR}"
 
 NFS_SERVER="${SWARM_PREFIX}${INFINITO_SWARM_NFS_NAME}"
 

@@ -28,6 +28,7 @@ from . import (
     infinito_registry_cache_max_size,
     infinito_running_on_act,
     infinito_running_on_github,
+    infinito_swarm_nfs_export_base,
     infinito_swarm_nfs_state_path,
     infinito_variant_bundle_size,
     infinito_worker_cpu,
@@ -38,6 +39,7 @@ from . import (
 
 ORDERED_HANDLERS = [
     passthrough,
+    infinito_swarm_nfs_export_base,
     infinito_swarm_nfs_state_path,
     infinito_playwright_reports_base_dir,
     infinito_worker_cpu,

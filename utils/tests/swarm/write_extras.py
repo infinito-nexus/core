@@ -72,7 +72,6 @@ def main() -> int:
             "backend": "nfs",
             "nfs": {
                 "server": nfs_ip,
-                "export_base": static_env["INFINITO_SWARM_NFS_EXPORT_BASE"],
                 "version": 4,
             },
         },

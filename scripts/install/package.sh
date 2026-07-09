@@ -3,7 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-DOCKER_CLI_INSTALLER="${REPO_ROOT}/roles/sys-svc-container/files/install-cli.sh"
+# shellcheck source=/dev/null
+source <(grep -E '^INFINITO_DOCKER_CLI_INSTALL_SCRIPT=' "${REPO_ROOT}/default.env")
+DOCKER_CLI_INSTALLER="${REPO_ROOT}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"
 
 bootstrap_docker_repo() {
 	if [[ ! -f "${DOCKER_CLI_INSTALLER}" ]]; then
@@ -24,7 +26,6 @@ build_and_install_arch() {
 	echo "[arch] Initializing pacman keyring..."
 	pacman-key --init
 	pacman-key --populate archlinux
-	# Tolerate missing manjaro keyring on pure Arch images (no manjaro.gpg present).
 	pacman-key --populate manjaro 2>/dev/null || true
 
 	echo "[arch] Installing build toolchain..."

@@ -336,7 +336,7 @@ install-skills:
 .PHONY: install-system-python
 # Install the system Python prerequisites.
 install-system-python:
-	@bash roles/dev-python/files/install.sh ensure
+	@bash "$${INFINITO_PYTHON_INSTALL_SCRIPT:?}" ensure
 
 .PHONY: install-venv
 # Install the virtual environment.

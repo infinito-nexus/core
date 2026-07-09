@@ -12,6 +12,9 @@ cd "${REPO_ROOT}"
 
 # shellcheck source=scripts/meta/env/python.sh
 source "${REPO_ROOT}/scripts/meta/env/python.sh"
+# shellcheck source=/dev/null
+source <(grep -E '^INFINITO_PYTHON_INSTALL_SCRIPT=' "${REPO_ROOT}/default.env")
+: "${INFINITO_PYTHON_INSTALL_SCRIPT:?}"
 
 STAMP="build/install.stamp"
 DEPS=(
@@ -21,7 +24,7 @@ DEPS=(
 	scripts/install/python.sh
 	scripts/install/ansible.sh
 	scripts/install/venv.sh
-	roles/dev-python/files/install.sh
+	"${INFINITO_PYTHON_INSTALL_SCRIPT}"
 )
 
 if [[ "${1:-}" == "--force" ]]; then
@@ -52,7 +55,7 @@ if [[ "${needs_install}" -eq 0 ]]; then
 	exit 0
 fi
 
-bash roles/dev-python/files/install.sh ensure
+bash "${INFINITO_PYTHON_INSTALL_SCRIPT}" ensure
 bash scripts/install/venv.sh
 bash scripts/install/python.sh
 ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" bash scripts/install/ansible.sh

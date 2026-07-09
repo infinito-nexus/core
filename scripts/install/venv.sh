@@ -23,7 +23,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-DEV_PYTHON_INSTALLER="${REPO_ROOT}/roles/dev-python/files/install.sh"
+# shellcheck source=/dev/null
+source <(grep -E '^INFINITO_PYTHON_INSTALL_SCRIPT=' "${REPO_ROOT}/default.env")
+DEV_PYTHON_INSTALLER="${REPO_ROOT}/${INFINITO_PYTHON_INSTALL_SCRIPT:?}"
 
 install_venv() {
 	if [[ ! -f "${DEV_PYTHON_INSTALLER}" ]]; then
@@ -31,12 +33,9 @@ install_venv() {
 		return 1
 	fi
 
-	# 🛠 Bootstrap interpreter (system Python, outside of venv)
-	# Used ONLY to CREATE the virtualenv.
 	local bootstrap_python
 	bootstrap_python="$(bash "${DEV_PYTHON_INSTALLER}" print)"
 
-	# 📦 Target interpreter inside the venv (may not exist yet!)
 	local venv_python="${VENV}/bin/python"
 
 	echo "🐍 Virtualenv target  : ${VENV}"
@@ -44,7 +43,6 @@ install_venv() {
 	echo "🎯 Venv python target : ${venv_python}"
 	echo
 
-	# Probe dirname(VENV) so a non-writable legacy path can't trigger a spurious sudo (fatal under no_new_privs sandboxes).
 	local venv_parent
 	venv_parent="$(dirname "${VENV}")"
 	if [[ -n "${VIRTUAL_ENV:-}" && "${VIRTUAL_ENV}" == "${VENV}" ]]; then
@@ -58,9 +56,6 @@ install_venv() {
 		sudo chown "${USER:-$(whoami)}" "${venv_parent}"
 	fi
 
-	# ------------------------------------------------------------
-	# Create venv if missing
-	# ------------------------------------------------------------
 	if [[ ! -x "${venv_python}" ]]; then
 		echo "→ Creating virtualenv ${VENV}"
 		"${bootstrap_python}" -m venv "${VENV}"
