@@ -130,12 +130,14 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
                 continue
 
             expected_when = f"run_once_{role_slug(role)} is not defined"
+            flat_tasks = []
+            for t in tasks:
+                if isinstance(t, dict) and isinstance(t.get("block"), list):
+                    flat_tasks.extend(c for c in t["block"] if isinstance(c, dict))
+                elif isinstance(t, dict):
+                    flat_tasks.append(t)
             core_task = next(
-                (
-                    t
-                    for t in tasks
-                    if isinstance(t, dict) and t.get("include_tasks") == "01_core.yml"
-                ),
+                (t for t in flat_tasks if t.get("include_tasks") == "01_core.yml"),
                 None,
             )
 

@@ -1,5 +1,9 @@
 ---
 container-2-local:
+  bond: 1
+  enabled: true
+  shared: true
+  provides: container_backup
   lifecycle: beta
   min_storage: 0GB
   cpus: "0.5"

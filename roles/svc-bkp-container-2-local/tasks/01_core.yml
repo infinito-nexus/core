@@ -50,7 +50,6 @@
     system_service_timer_enabled: true
     system_service_force_linear_sync: true
     system_service_force_flush_instant: "{{ _backup_force_flush_instant }}"
-    # Force final flush during ci runs to guaranty that it works:
     system_service_force_flush_final: "{{ (RUNTIME in ['act','github']) and (MODE_BACKUP | bool) }}"
     system_service_suppress_flush: "{{ not _backup_force_flush_instant }}"
     system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL }}"
@@ -58,4 +57,3 @@
       "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"'
     system_service_tpl_exec_start: "/bin/sh -c '{{ BKP_CONTAINER_2_LOCAL_EXEC }}'"
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
-    # system_service_tpl_exec_start_post: "/usr/bin/systemctl start {{ SYS_SERVICE_CLEANUP_BACKUPS }}" # Not possible to use it because it's a deathlock. Keep this line for documentation purposes
