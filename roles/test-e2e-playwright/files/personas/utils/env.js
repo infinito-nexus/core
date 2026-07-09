@@ -47,7 +47,9 @@ async function gotoOnion(page, url, opts = {}) {
     /\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical());
   const attempts = isOnion ? Number(process.env.PLAYWRIGHT_ONION_GOTO_RETRIES) || 4 : 1;
   const gotoOpts = { ...opts };
-  if (isOnion && gotoOpts.timeout === undefined) gotoOpts.timeout = 60_000;
+  if (isOnion && gotoOpts.timeout === undefined) {
+    gotoOpts.timeout = Number(process.env.PLAYWRIGHT_NAVIGATION_TIMEOUT) || 60_000;
+  }
   let lastErr;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
