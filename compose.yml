@@ -27,6 +27,7 @@ services:
       args:
         INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_SRC_DIR: ${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}
+        INFINITO_PACKAGE_INSTALL_SCRIPT: ${INFINITO_PACKAGE_INSTALL_SCRIPT:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_VENV_DIR: ${INFINITO_VENV_DIR:?Run 'make dotenv' to generate the .env single source of truth}
         NIX_CONFIG: ${NIX_CONFIG}
     image: "${INFINITO_IMAGE}"

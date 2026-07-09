@@ -18,6 +18,8 @@ ARG NIX_CONFIG
 # stack forwards default.env's INFINITO_SRC_DIR as a build arg.
 ARG INFINITO_SRC_DIR
 ENV INFINITO_SRC_DIR=${INFINITO_SRC_DIR}
+ARG INFINITO_PACKAGE_INSTALL_SCRIPT
+ENV INFINITO_PACKAGE_INSTALL_SCRIPT=${INFINITO_PACKAGE_INSTALL_SCRIPT}
 ARG INFINITO_VENV_DIR
 ENV INFINITO_VENV_DIR=${INFINITO_VENV_DIR}
 ENV PYTHON="${INFINITO_VENV_DIR}/bin/python"
@@ -44,7 +46,7 @@ COPY . ${INFINITO_SRC_DIR}
 RUN set -euo pipefail; \
   /bin/bash ${INFINITO_SRC_DIR}/roles/dev-python/files/install.sh; \
   /bin/bash ${INFINITO_SRC_DIR}/roles/sys-svc-container/files/install-cli.sh; \
-  /bin/bash ${INFINITO_SRC_DIR}/scripts/install/package.sh
+  /bin/bash ${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT}
 
 # ------------------------------------------------------------
 # Disable interactive first-boot units (CI / container safe)

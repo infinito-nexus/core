@@ -9,7 +9,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 echo "==> Building .deb once on the act-runner"
-DEB_PATH=$(PACKAGE_BUILD_ONLY=1 ${HOST_SUDO} bash "${HOST_SRC}/scripts/install/package.sh" |
+DEB_PATH=$(PACKAGE_BUILD_ONLY=1 ${HOST_SUDO} bash "${HOST_SRC}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}" |
 	tee /dev/stderr | tail -n1)
 [ -f "${DEB_PATH}" ] || {
 	echo "FAILURE: builder did not produce a .deb (${DEB_PATH})"
@@ -29,7 +29,7 @@ provision_node() {
 		-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
 		-e PACKAGE_INSTALL_FROM="/tmp/${DEB_BASENAME}" \
 		"${node}" bash -c \
-		"cd ${INFINITO_NODE_SRC_DIR} && bash scripts/install/package.sh"
+		"cd ${INFINITO_NODE_SRC_DIR} && bash ${INFINITO_PACKAGE_INSTALL_SCRIPT}"
 }
 
 declare -A PIDS
