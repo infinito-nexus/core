@@ -1,5 +1,5 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {% set container_healthcheck_start_period = '10m' %}
+  {% set container_healthcheck_start_period = '20m' %}
 
   {% set service_name = NEXTCLOUD_PROXY_SERVICE %}
   {{ service_name }}:
