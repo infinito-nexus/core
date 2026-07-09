@@ -294,14 +294,19 @@ def docker_image_has_bin_sh(
 ImageMeta = tuple[bool, list[str], list[str], bool | None]
 
 
-def _gather_one_image(image: str, *, cwd: Path, env: dict[str, str]) -> ImageMeta:
+def _gather_one_image(
+    image: str, *, cwd: Path, env: dict[str, str], pull_if_absent: bool = True
+) -> ImageMeta:
     rc, out, _err = run(
         ["docker", "image", "inspect", image], cwd=cwd, env=env, timeout=90
     )
-    if rc not in {0, TIMEOUT_RC}:
+    if rc not in {0, TIMEOUT_RC} and pull_if_absent:
         # This override is generated before the stack's `compose pull`, and
         # `docker image inspect` does not pull. Pull an absent image so the
         # /bin/sh probe (and thus the CA-trust wrapper) is not skipped.
+        # Never pull locally-BUILT tags (pull_if_absent=False): the registry
+        # would serve an unrelated base image whose CMD then gets pinned into
+        # the override, clobbering the built app's entrypoint.
         run(["docker", "pull", image], cwd=cwd, env=env, timeout=600, capture=False)
         rc, out, _err = run(
             ["docker", "image", "inspect", image], cwd=cwd, env=env, timeout=90
@@ -325,17 +330,28 @@ def _gather_one_image(image: str, *, cwd: Path, env: dict[str, str]) -> ImageMet
 
 
 def gather_image_meta(
-    images: list[str], *, cwd: Path, env: dict[str, str]
+    images: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+    built_images: set[str] | None = None,
 ) -> dict[str, ImageMeta]:
     """Gather (exists, entrypoint, cmd, has_sh) per unique image, concurrently
     — the per-image docker reads dominate the inject and must not run serially
     under DiD latency or they blow the handler timeout for many-service apps."""
     if not images:
         return {}
+    built = built_images or set()
     workers = min(8, len(images))
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(_gather_one_image, image, cwd=cwd, env=env): image
+            pool.submit(
+                _gather_one_image,
+                image,
+                cwd=cwd,
+                env=env,
+                pull_if_absent=image not in built,
+            ): image
             for image in images
         }
         return {futures[f]: f.result() for f in as_completed(futures)}
@@ -560,6 +576,14 @@ def render_override(
         ),
         cwd=cwd,
         env=env,
+        built_images={
+            svc["image"].strip()
+            for svc in services.values()
+            if isinstance(svc, dict)
+            and isinstance(svc.get("image"), str)
+            and svc["image"].strip()
+            and _has_build(svc)
+        },
     )
 
     for name, svc in services.items():
