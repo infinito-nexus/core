@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, isVisible, normalizeBaseUrl, gotoOnion } = require("./personas");
@@ -177,6 +177,11 @@ exports.register = function (shared) {
     await shared.waitForResourceResponse(diagnostics.responses, `${shared.env.dashboardJsBaseUrl}/oidc.js`, "dashboard oidc script");
 
     const loggedOutControls = await expectLoggedOutHeaderAuthState(page);
+    await page
+      .waitForFunction(() => window.__oidcLoginReady === true, null, {
+        timeout: resolveTimeout(30_000),
+      })
+      .catch(() => {});
     await loggedOutControls.loginTrigger.click();
 
     const usernameField = page.locator("input[name='username'], input#username").first();

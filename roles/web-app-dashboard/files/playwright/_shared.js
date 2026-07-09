@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 
 const { normalizeBaseUrl } = require("./personas");

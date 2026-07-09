@@ -98,6 +98,8 @@ async function inAppLogout(page) {
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
   await waitForAnyLogoutCandidate(page);
+  await page.waitForTimeout(resolveTimeout(3_000));
+  await waitForAnyLogoutCandidate(page);
 
   if (await tryLogoutFrom(page)) {
     await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});

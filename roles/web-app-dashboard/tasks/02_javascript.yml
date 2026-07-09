@@ -10,3 +10,10 @@
   loop: "{{ DASHBOARD_JS_FILES }}"
   loop_control:
     loop_var: js_file_name
+
+- name: "Vendor keycloak-js adapter next to oidc.js"
+  get_url_retry:
+    url: "{{ DASHBOARD_KEYCLOAK_JS_SRC_URL }}"
+    dest: "{{ [ DASHBOARD_JS_SERVER_DIR, DASHBOARD_KEYCLOAK_JS_FILE_NAME ] | path_join }}"
+    mode: "0644"
+  when: DASHBOARD_OIDC_ENABLED | bool

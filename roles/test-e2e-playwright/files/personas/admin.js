@@ -168,8 +168,8 @@ async function runAdminFlow(page, opts = {}) {
   }
   if (adminReachedAuthenticated) {
     const loginStillVisible = await page
-      .getByRole("link", { name: /^\s*(log\s*in|sign\s*in|login|sso|admin)\s*$/i })
-      .or(page.getByRole("button", { name: /^\s*(log\s*in|sign\s*in|login|sso|admin)\s*$/i }))
+      .getByRole("link", { name: /log\s*in|sign\s*in|sso/i })
+      .or(page.getByRole("button", { name: /log\s*in|sign\s*in|sso/i }))
       .first()
       .isVisible({ timeout: resolveTimeout(2_000) })
       .catch(() => false);

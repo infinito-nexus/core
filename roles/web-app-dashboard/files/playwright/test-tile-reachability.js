@@ -6,7 +6,7 @@
 // personas no longer drive the dashboard click; they go straight to the
 // app URL.
 
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 

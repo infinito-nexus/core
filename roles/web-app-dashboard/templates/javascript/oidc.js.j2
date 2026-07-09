@@ -15,6 +15,13 @@ const KC_CONFIG = {
   silentCheckSsoRedirectUri: "{{ (DASHBOARD_APP_BASE_URL | regex_replace('/+$', '')) ~ DASHBOARD_LOCATION_SILENT_CHECK }}"
 };
 
+// Resolve the vendored keycloak-js adapter relative to THIS script's own URL so a
+// .onion page loads it from the same (onion) CDN origin instead of clearnet/jsdelivr.
+const KC_ADAPTER_URL = new URL(
+  "./{{ DASHBOARD_KEYCLOAK_JS_FILE_NAME }}",
+  (document.currentScript && document.currentScript.src) || "{{ DASHBOARD_JS_BASE_URL | regex_replace('/+$', '') }}/"
+).href;
+
 const DEBUG = {{ MODE_DEBUG | string | lower }};
 // Keycloak's hidden session-status iframe is noisy on newer Chromium builds and
 // collides with dashboard-embedded OIDC flows. We keep explicit init/redirect
@@ -61,16 +68,11 @@ function setItemVisible(el, visible) {
 }
 
 /* ==============================================
-   3) Dynamically load the Keycloak.js adapter
+   3) Load the Keycloak.js ESM adapter (same-origin)
    ============================================== */
-function loadKeycloakAdapter(src) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = src;
-    s.onload = resolve;
-    s.onerror = () => reject(new Error("Failed to load keycloak.js from " + src));
-    document.head.appendChild(s);
-  });
+async function loadKeycloakAdapter(src) {
+  const mod = await import(src);
+  return mod.default;
 }
 
 /* ==============================================
@@ -137,22 +139,22 @@ async function initAuthUI() {
   syncAuthMenuVisibility(false);
 
   // Load keycloak.js
-  const kcJsUrl = "https://cdn.jsdelivr.net/npm/keycloak-js@latest/dist/keycloak.min.js";
+  let KeycloakAdapter;
   try {
-    await loadKeycloakAdapter(kcJsUrl);
+    KeycloakAdapter = await loadKeycloakAdapter(KC_ADAPTER_URL);
   } catch (e) {
     console.error("[oidc] Failed to load adapter:", e);
     return; // nothing else to do
   }
 
-  if (typeof window.Keycloak !== "function") {
-    console.error("[oidc] window.Keycloak is not available after loading:", kcJsUrl);
+  if (typeof KeycloakAdapter !== "function") {
+    console.error("[oidc] Keycloak adapter is not available after loading:", KC_ADAPTER_URL);
     return;
   }
 
   // Initialize the Keycloak instance
   try {
-    keycloak = new Keycloak({ url: KC_CONFIG.url, realm: KC_CONFIG.realm, clientId: KC_CONFIG.clientId });
+    keycloak = new KeycloakAdapter({ url: KC_CONFIG.url, realm: KC_CONFIG.realm, clientId: KC_CONFIG.clientId });
     keycloak.onReady = (nextAuthenticated) => syncAuthMenuVisibility(nextAuthenticated);
     keycloak.onAuthSuccess = () => syncAuthMenuVisibility(true);
     keycloak.onAuthLogout = () => syncAuthMenuVisibility(false);
@@ -212,7 +214,7 @@ async function initAuthUI() {
   if (DEBUG) {
     console.log("[oidc] init done", {
       authenticated,
-      kcJsUrl,
+      kcAdapterUrl: KC_ADAPTER_URL,
       checkLoginIframe: KEYCLOAK_IFRAME_POLLING_ENABLED,
       silentCheckSsoRedirectUri: KC_CONFIG.silentCheckSsoRedirectUri
     });
