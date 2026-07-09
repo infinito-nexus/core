@@ -88,7 +88,7 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
         for role in unique_roles(self.registry):
             path = self._core_path(role)
             if not path.is_file():
-                continue  # covered by test_01_core_exists
+                continue
 
             try:
                 tasks = load_yaml_str(read_text(str(path)))
@@ -146,9 +146,13 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
                 continue
 
             actual_when = core_task.get("when", "")
-            if actual_when != expected_when:
+            guard_present = actual_when == expected_when or (
+                isinstance(actual_when, list) and expected_when in actual_when
+            )
+            if not guard_present:
                 violations.append(
-                    f"{role}: when is '{actual_when}', expected '{expected_when}'"
+                    f"{role}: when is '{actual_when}', expected '{expected_when}' "
+                    "(a when-list containing the guard is accepted)"
                 )
 
         if violations:
