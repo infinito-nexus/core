@@ -5,7 +5,7 @@
 # DN + password (a real credential check) over the transport chosen by the
 # variant:
 #   tor enabled  (variant 0, exposed) -> over the Tor network: bind to
-#                <node-onion>:<port> through the SOCKS proxy (python-ldap via a
+#                <node-onion>:<port> through the SOCKS proxy (ldap3 via a
 #                local SOCKS5 forward).
 #   tor disabled (variant 1)          -> local: bind inside the LDAP container
 #                (ldapwhoami over TCP).
@@ -39,7 +39,7 @@ auth_local() {
 		>/dev/null 2>&1
 }
 
-# Over Tor: python-ldap (on this controller) binds through a local SOCKS5 -> onion
+# Over Tor: ldap3 (on this controller) binds through a local SOCKS5 -> onion
 # forward with the administrator credentials.
 auth_tor() {
 	BIND_DN="${BIND_DN}" DB_PW="${DB_PASSWORD}" \
@@ -128,15 +128,19 @@ def serve():
 
 threading.Thread(target=serve, daemon=True).start()
 
-import ldap
+from ldap3 import Connection, Server
 
 try:
-    conn = ldap.initialize("ldap://127.0.0.1:%d" % lport)
-    conn.set_option(ldap.OPT_NETWORK_TIMEOUT, 30)
-    conn.set_option(ldap.OPT_TIMEOUT, 30)
-    conn.simple_bind_s(os.environ["BIND_DN"], os.environ["DB_PW"])
-    who = conn.whoami_s()
-    conn.unbind_s()
+    server = Server("127.0.0.1", port=lport, connect_timeout=30)
+    conn = Connection(
+        server,
+        user=os.environ["BIND_DN"],
+        password=os.environ["DB_PW"],
+        auto_bind=True,
+        receive_timeout=30,
+    )
+    who = conn.extend.standard.who_am_i()
+    conn.unbind()
 except Exception as exc:
     print("bind error: %s" % exc, file=sys.stderr)
     sys.exit(1)

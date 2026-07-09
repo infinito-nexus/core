@@ -23,7 +23,7 @@ dependencies = [
   "humanfriendly",
   "PyMySQL",
   "psycopg2-binary",
-  "python-ldap",
+  "ldap3",
 ]
 
 [project.optional-dependencies]
