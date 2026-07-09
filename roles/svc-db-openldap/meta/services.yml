@@ -1,7 +1,7 @@
 ---
 openldap:
   # nocheck: default-placement-manager  central identity store, single-node until LDAP replication (syncrepl) is in scope
-  default_placement: manager
+  placement: manager
   bond: 1
   enabled: true
   shared: true

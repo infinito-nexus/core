@@ -21,7 +21,7 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 onlyoffice:
   # nocheck: default-placement-manager  embedded postgres/redis/rabbitmq engine state; node-local in swarm
-  default_placement: manager
+  placement: manager
   bond: 1
   enabled: true
   shared: true

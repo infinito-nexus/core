@@ -150,25 +150,23 @@ def get_role_skip(role: PathLike, *, role_name: str | None = None) -> list[str]:
     return out
 
 
-def get_role_default_placement(
-    role: PathLike, *, role_name: str | None = None
-) -> str | None:
-    """Return the role's ``default_placement`` string (or ``None`` when absent)."""
+def get_role_placement(role: PathLike, *, role_name: str | None = None) -> str | None:
+    """Return the role's ``placement`` string (or ``None`` when absent)."""
     role_dir, name = _resolve_role(role, role_name)
     services = _read_meta_services(role_dir)
     primary = _primary_entry(name, services)
     if primary is None:
         return None
-    raw = primary.get("default_placement")
+    raw = primary.get("placement")
     if raw is None:
         return None
     return str(raw).strip()
 
 
-def iter_roles_with_default_placement(
+def iter_roles_with_placement(
     placement: str, *, roles_dir: PathLike | None = None
 ) -> list[str]:
-    """Sorted role names whose primary entity declares ``default_placement: <placement>``."""
+    """Sorted role names whose primary entity declares ``placement: <placement>``."""
     if not placement:
         return []
     base = Path(roles_dir) if roles_dir is not None else PROJECT_ROOT / "roles"
@@ -179,7 +177,7 @@ def iter_roles_with_default_placement(
         if not role_dir.is_dir():
             continue
         try:
-            value = get_role_default_placement(role_dir, role_name=role_dir.name)
+            value = get_role_placement(role_dir, role_name=role_dir.name)
         except MetaServicesShapeError:
             continue
         if value == placement:
@@ -192,7 +190,6 @@ def _resolve_role(role: PathLike, role_name: str | None) -> tuple[Path, str]:
     if role_path.is_absolute() or role_path.parts[:1] == (".",):
         role_dir = role_path.resolve()
     else:
-        # Treat as a role name relative to <repo>/roles.
         repo_root = PROJECT_ROOT
         role_dir = repo_root / "roles" / str(role)
     name = role_name or role_dir.name

@@ -1,7 +1,7 @@
 ---
 typesense:
   # nocheck: default-placement-manager  engine on-disk search index, node-local in swarm (fsync/lock corruption on NFS)
-  default_placement: manager
+  placement: manager
   enabled: true
   shared: true
   bond: 1

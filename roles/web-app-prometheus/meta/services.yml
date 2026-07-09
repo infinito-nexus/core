@@ -41,7 +41,7 @@ javascript:
 prometheus:
   bond: 1
   # nocheck: default-placement-manager  TSDB on-disk data; node-local in swarm
-  default_placement: manager
+  placement: manager
   enabled: true
   shared: true
   provides:

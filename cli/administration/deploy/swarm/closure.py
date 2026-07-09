@@ -16,7 +16,7 @@ from utils.inventory.groups import inventory_has_group
 from utils.roles.applications.in_group_deps import (
     applications_if_group_and_all_deps,
 )
-from utils.roles.meta_lookup import iter_roles_with_default_placement
+from utils.roles.meta_lookup import iter_roles_with_placement
 
 _SWARM_MANAGER_GROUP = "svc-swarm-manager"
 _MANAGER_PLACEMENT = "manager"
@@ -27,7 +27,7 @@ def is_swarm_inventory(inventory_path: str) -> bool:
 
 
 def swarm_infra_closure(inventory_path: str) -> list[str]:
-    """Inventory-present roles with ``default_placement: manager``.
+    """Inventory-present roles with ``placement: manager``.
 
     Safety net for shared infra (``svc-registry-cache``, ...) that no
     application's ``meta/services.yml`` explicitly depends on.
@@ -36,7 +36,7 @@ def swarm_infra_closure(inventory_path: str) -> list[str]:
         return []
     return [
         role
-        for role in iter_roles_with_default_placement(_MANAGER_PLACEMENT)
+        for role in iter_roles_with_placement(_MANAGER_PLACEMENT)
         if inventory_has_group(inventory_path, role)
     ]
 

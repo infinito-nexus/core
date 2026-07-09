@@ -111,7 +111,7 @@
   ansible.builtin.add_host:
     name: "{{ (groups['svc-swarm-manager'] | default([]))[0] }}"
     groups: "{{ role_id }}"
-  loop: "{{ lookup('roles_with_default_placement', 'manager') }}"
+  loop: "{{ lookup('roles_with_placement', 'manager') }}"
   loop_control:
     loop_var: role_id
     label: "{{ role_id }}"

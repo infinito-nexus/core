@@ -13,9 +13,6 @@ from utils import PROJECT_ROOT
 
 
 def _load_closure():
-    # File-path loader bypasses the package __init__.py, which would
-    # transitively pull in the dedicated CLI surface (and ruamel.yaml,
-    # not available in the unit-test env).
     spec = importlib.util.spec_from_file_location(
         "cli_swarm_closure",
         str(PROJECT_ROOT / "cli/administration/deploy/swarm/closure.py"),
@@ -77,7 +74,7 @@ class TestIsSwarmInventory(_BaseClosureCase, unittest.TestCase):
 
 
 class TestSwarmInfraClosure(_BaseClosureCase, unittest.TestCase):
-    def test_returns_only_inventory_present_default_placement_roles(self) -> None:
+    def test_returns_only_inventory_present_placement_roles(self) -> None:
         path = self._write_inv(
             "swarm.yml",
             """
@@ -93,12 +90,12 @@ class TestSwarmInfraClosure(_BaseClosureCase, unittest.TestCase):
         )
         with mock.patch.object(
             closure,
-            "iter_roles_with_default_placement",
+            "iter_roles_with_placement",
             return_value=[
                 "svc-registry-cache",
-                "svc-db-mariadb",  # NOT in inventory -> excluded
+                "svc-db-mariadb",
                 "svc-registry-docker",
-                "svc-prx-openresty",  # NOT in inventory -> excluded
+                "svc-prx-openresty",
             ],
         ):
             result = closure.swarm_infra_closure(path)
@@ -116,7 +113,7 @@ class TestSwarmInfraClosure(_BaseClosureCase, unittest.TestCase):
         )
         with mock.patch.object(
             closure,
-            "iter_roles_with_default_placement",
+            "iter_roles_with_placement",
             return_value=["svc-registry-docker"],
         ):
             self.assertEqual(closure.swarm_infra_closure(path), [])
@@ -145,7 +142,7 @@ class TestInventoryRoleGroups(_BaseClosureCase, unittest.TestCase):
             "svc-swarm-node",
             "svc-storage-nfs-server",
             "web-app-mediawiki",
-            "svc-db-mariadb",  # not in inventory -> excluded
+            "svc-db-mariadb",
         )
         result = closure.inventory_role_groups(path, roles_dir=roles_dir)
         self.assertEqual(
@@ -195,7 +192,7 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         self,
         *,
         dep_walked: list[str] | None = None,
-        default_placement: list[str] | None = None,
+        placement: list[str] | None = None,
     ):
         return [
             mock.patch.object(
@@ -205,8 +202,8 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
             ),
             mock.patch.object(
                 closure,
-                "iter_roles_with_default_placement",
-                return_value=list(default_placement or []),
+                "iter_roles_with_placement",
+                return_value=list(placement or []),
             ),
         ]
 
@@ -228,17 +225,14 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
                 "svc-swarm-node",
                 "svc-storage-nfs-server",
                 "web-app-mediawiki",
-                "svc-db-mariadb",  # added by dep-walk (mediawiki uses mariadb)
+                "svc-db-mariadb",
             ],
-            default_placement=[],
+            placement=[],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(None, path, roles_dir=roles_dir)
         self.assertIn("svc-db-mariadb", result)
         self.assertIn("web-app-mediawiki", result)
-        # Inventory-seed entries appear first; dep-walk-added entries are now
-        # filtered against inventory presence (entries the operator disabled
-        # via the `disable` env stay out of the deploy target list).
         self.assertEqual(
             result[:4],
             [
@@ -256,7 +250,7 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         )
         patches = self._patches(
             dep_walked=["web-app-mediawiki", "svc-db-mariadb"],
-            default_placement=[],
+            placement=[],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(
@@ -275,7 +269,7 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         )
         patches = self._patches(
             dep_walked=["web-app-mediawiki", "svc-db-mariadb"],
-            default_placement=[],
+            placement=[],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(
@@ -283,30 +277,25 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
             )
         self.assertEqual(result, ["web-app-mediawiki"])
 
-    def test_default_placement_safety_net_picks_up_inventory_extras(self) -> None:
+    def test_placement_safety_net_picks_up_inventory_extras(self) -> None:
         path = self._make_swarm_inv(extra_groups={"svc-registry-cache": ["mgr-01"]})
         roles_dir = self._write_roles(
             "svc-swarm-node",
             "web-app-mediawiki",
             "svc-registry-cache",
         )
-        # dep-walk does NOT include svc-registry-cache (no app declares it
-        # as a service-key dep). The default-placement safety net pulls it
-        # in because it's in inventory + carries default_placement: manager.
         patches = self._patches(
             dep_walked=["svc-swarm-node", "web-app-mediawiki"],
-            default_placement=["svc-registry-cache"],
+            placement=["svc-registry-cache"],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(None, path, roles_dir=roles_dir)
         self.assertIn("svc-registry-cache", result)
-        # Cache-registry is in inventory_role_groups (so it's in the seed),
-        # then dep-walk passes it through unchanged.
         self.assertIn("svc-swarm-node", result)
         self.assertIn("web-app-mediawiki", result)
 
     def test_no_postgres_when_mariadb_app_in_inventory(self) -> None:
-        """Regression guard: with both DBs carrying default_placement:
+        """Regression guard: with both DBs carrying placement:
         manager, the dep-walk must only include the DB the app actually
         depends on (mariadb in this case), not both."""
         path = self._make_swarm_inv(extra_groups={"svc-db-mariadb": ["mgr-01"]})
@@ -316,10 +305,9 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
             "svc-db-mariadb",
             "svc-db-postgres",
         )
-        # mediawiki declares mariadb as service-key dep, NOT postgres.
         patches = self._patches(
             dep_walked=["svc-swarm-node", "web-app-mediawiki", "svc-db-mariadb"],
-            default_placement=["svc-db-mariadb", "svc-db-postgres"],
+            placement=["svc-db-mariadb", "svc-db-postgres"],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(None, path, roles_dir=roles_dir)
@@ -339,7 +327,7 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         roles_dir = self._write_roles("web-app-mediawiki", "svc-registry-cache")
         patches = self._patches(
             dep_walked=["web-app-mediawiki"],
-            default_placement=["svc-registry-cache"],
+            placement=["svc-registry-cache"],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(None, path, roles_dir=roles_dir)
@@ -353,7 +341,7 @@ class TestSwarmDeployTargets(_BaseClosureCase, unittest.TestCase):
         )
         patches = self._patches(
             dep_walked=["svc-registry-docker", "web-app-mediawiki"],
-            default_placement=["svc-registry-docker"],
+            placement=["svc-registry-docker"],
         )
         with patches[0], patches[1]:
             result = closure.swarm_deploy_targets(

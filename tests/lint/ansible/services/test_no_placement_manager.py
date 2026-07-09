@@ -1,10 +1,10 @@
-"""Forbid ``default_placement: manager`` in role ``meta/services.yml``.
+"""Forbid ``placement: manager`` in role ``meta/services.yml``.
 
 Rationale
 =========
 The point of running a service on a Docker Swarm is to let swarm
 distribute it across worker nodes. Every service that carries
-``default_placement: manager`` is hard-pinned to the manager node and
+``placement: manager`` is hard-pinned to the manager node and
 therefore CANNOT use any worker, which defeats the benefit of swarm
 entirely. By default services should run anywhere (no placement
 constraint), so swarm can do its job.
@@ -19,7 +19,7 @@ non-default and MUST be explicitly opted-in per service.
 Per-line opt-out
 ================
 Add ``# nocheck: default-placement-manager`` on the same line as
-``default_placement: manager`` OR on the immediately preceding
+``placement: manager`` OR on the immediately preceding
 non-empty line. The opt-out MUST be accompanied by a short comment
 above explaining WHY this specific service is pinned to the manager
 (e.g. "edge proxy: TLS terminator on a known node"), so reviewers can
@@ -40,7 +40,7 @@ from . import PROJECT_ROOT
 _RULE = "default-placement-manager"
 
 _DEFAULT_PLACEMENT_MANAGER = re.compile(
-    r"^\s*default_placement\s*:\s*['\"]?manager['\"]?\s*(?:#.*)?$"
+    r"^\s*placement\s*:\s*['\"]?manager['\"]?\s*(?:#.*)?$"
 )
 
 
@@ -53,7 +53,7 @@ def _is_scan_target(rel_path: str) -> bool:
 
 
 class TestNoDefaultPlacementManager(unittest.TestCase):
-    def test_no_default_placement_manager_without_explicit_opt_out(self) -> None:
+    def test_no_placement_manager_without_explicit_opt_out(self) -> None:
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".yml", ".yaml"),
@@ -76,7 +76,7 @@ class TestNoDefaultPlacementManager(unittest.TestCase):
                 for p, n, s in sorted(set(findings), key=lambda i: (i[0], i[1]))
             )
             self.fail(
-                "Found `default_placement: manager` in role meta/services.yml "
+                "Found `placement: manager` in role meta/services.yml "
                 "without an explicit nocheck opt-out. Pinning a service to the "
                 "swarm manager removes the worker pool from its scheduling and "
                 "defeats the benefit of swarm: the service runs only on a "
@@ -93,7 +93,7 @@ class TestNoDefaultPlacementManager(unittest.TestCase):
                 "marker `# nocheck: default-placement-manager`. Example:\n\n"
                 "    # nocheck: default-placement-manager  edge proxy must "
                 "terminate TLS at the manager IP (no overlay-routable VIP yet)\n"
-                "    default_placement: manager\n\n"
+                "    placement: manager\n\n"
                 f"Offending lines:\n{formatted}"
             )
 

@@ -34,7 +34,7 @@ opencloud:
   version: 7.2.1
   min_storage: 20GB
   # nocheck: default-placement-manager  opencloud_data holds NFS-hostile engine state: NATS JetStream store (events, micro registry, posixfs id cache), bleve search index, idm.boltdb, posixfs xattr metadata; upstream says search cannot scale, so the volume must stay node-local
-  default_placement: manager
+  placement: manager
   backup:
     no_stop_required: true
   cpus: "2.0"

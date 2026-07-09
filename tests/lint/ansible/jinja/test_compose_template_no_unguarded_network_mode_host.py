@@ -118,7 +118,7 @@ class TestComposeTemplateNoUnguardedNetworkModeHost(unittest.TestCase):
                 "    {% endif %}\n\n"
                 "If the service needs to be on every node (typical for an edge "
                 "proxy), pair the ports form with `deploy.mode: global` rather "
-                "than `default_placement: manager` so swarm-native "
+                "than `placement: manager` so swarm-native "
                 "distribution still applies.\n\n"
                 "Mark with `# nocheck: network-mode-host-without-swarm-gate` "
                 "only when the role is intentionally compose-only by design.\n\n"

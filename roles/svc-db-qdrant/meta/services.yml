@@ -1,7 +1,7 @@
 ---
 qdrant:
   # nocheck: default-placement-manager  central vector engine, on-disk state node-local in swarm (cannot live on NFS)
-  default_placement: manager
+  placement: manager
   enabled: true
   shared: true
   bond: 1

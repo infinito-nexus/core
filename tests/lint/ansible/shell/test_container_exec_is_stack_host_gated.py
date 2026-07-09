@@ -55,7 +55,7 @@ _EXEC = re.compile(r"\b(?:container|docker)\s+exec\b")
 _IS_STACK_HOST = re.compile(r"\bIS_STACK_HOST\b")
 _NAME_LINE = re.compile(r"^\s*-?\s*name\s*:")
 _DEFAULT_PLACEMENT_MANAGER = re.compile(
-    r"^\s*default_placement\s*:\s*['\"]?manager['\"]?", re.MULTILINE
+    r"^\s*placement\s*:\s*['\"]?manager['\"]?", re.MULTILINE
 )
 _INCLUDE_KEYS = frozenset(
     {
@@ -247,7 +247,7 @@ def _build_always_gated_files(role_dir: Path) -> set[Path]:
 
 
 def _role_is_manager_pinned(role_dir: Path) -> bool:
-    """True when meta/services.yml declares default_placement: manager.
+    """True when meta/services.yml declares placement: manager.
     Such roles are auto-placed by the constructor on the swarm manager
     only -- workers never load them, so IS_STACK_HOST gating would be
     redundant noise."""

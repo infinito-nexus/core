@@ -6,7 +6,7 @@ node:
   bond: 1
 cache:
   # nocheck: default-placement-manager  pull-through cache backs docker stack deploy; chicken-and-egg if scheduled on a worker that still needs to pull custom images from it
-  default_placement: manager
+  placement: manager
   enabled: true
   shared: true
   bond: 1

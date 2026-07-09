@@ -3,11 +3,11 @@
 Root-cause architecture for running stateful "engine" dependencies (cache, queue,
 search, vector, DNS resolver) the same way central databases already work, so that
 application roles stay **stateless, unpinned and NFS-shareable** in swarm while the
-engines are the only `default_placement: manager` (node-local) services.
+engines are the only `placement: manager` (node-local) services.
 
 ## Problem this solves
 
-NFS placement is derived from `default_placement` (see
+NFS placement is derived from `placement` (see
 `plugins/filter/compose_volumes.py`): an unpinned role's volumes are bound to the
 shared NFS mount (survive a reschedule), a pinned role keeps its volumes node-local.
 Engine on-disk state (redis/rabbitmq/elasticsearch/sqlite/postfix-queue) **cannot
@@ -41,7 +41,7 @@ One central role per engine, mirroring `svc-db-postgres`:
 
 Each central role provides:
 
-- `meta/services.yml`: `default_placement: manager`, `enabled`, `shared: true`,
+- `meta/services.yml`: `placement: manager`, `enabled`, `shared: true`,
   image/version/ports/name.
 - `templates/compose.yml.j2`: its own standalone stack.
 - `tasks/01_core.yml`: deploy the central stack + wait healthy.
@@ -80,8 +80,8 @@ mailu also stops embedding redis (uses central) -> fewer services -> less VIP pr
 
 ## Placement
 
-- Central `svc-db-*` / `svc-dns-*`: `default_placement: manager` (single node).
-- Application roles: **no** `default_placement` -> distributed + NFS-shared.
+- Central `svc-db-*` / `svc-dns-*`: `placement: manager` (single node).
+- Application roles: **no** `placement` -> distributed + NFS-shared.
 - `tests/lint/ansible/roles/meta/test_unpinned_no_engine_volume.py` stays as the
   guard: an unpinned role must not declare an engine on-disk data volume.
 

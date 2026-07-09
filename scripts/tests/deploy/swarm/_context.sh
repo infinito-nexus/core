@@ -40,7 +40,7 @@ fi
 
 DEFAULT_PLACEMENT_MANAGER=false
 if [ -f "${ROLE_DIR}/meta/services.yml" ] &&
-	grep -qE "default_placement:[[:space:]]*manager\b" "${ROLE_DIR}/meta/services.yml"; then
+	grep -qE "placement:[[:space:]]*manager\b" "${ROLE_DIR}/meta/services.yml"; then
 	DEFAULT_PLACEMENT_MANAGER=true
 fi
 
@@ -107,7 +107,7 @@ export APP_ID ENTITY STACK_NAME SERVICE_NAME PRIMARY_SERVICE_KEY CUSTOM_IMAGE_RE
 # manager-pinned (no worker task exists to drain).
 skip_chaos_if_manager_pinned() {
 	if [ "${DEFAULT_PLACEMENT_MANAGER}" = true ]; then
-		echo "SKIP: ${ENTITY} declares default_placement: manager (single-node on the swarm manager) — drain-a-worker reschedule chaos does not apply"
+		echo "SKIP: ${ENTITY} declares placement: manager (single-node on the swarm manager) — drain-a-worker reschedule chaos does not apply"
 		exit 0
 	fi
 }

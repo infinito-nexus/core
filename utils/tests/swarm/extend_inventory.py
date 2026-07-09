@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Extend the provisioned test inventory with host-topology placements
-plus the dep-walked ``default_placement: manager`` set, so the static
+plus the dep-walked ``placement: manager`` set, so the static
 validator (running before ansible) finds every group the swarm deploy
 will use.
 
@@ -24,7 +24,7 @@ from pathlib import Path
 from utils import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.env.parser import parse_static_env
-from utils.roles.meta_lookup import get_role_default_placement
+from utils.roles.meta_lookup import get_role_placement
 from utils.tests.swarm.derive_includes import derive_includes
 
 _DOCKER_VARS: dict[str, str] = {
@@ -48,10 +48,7 @@ def _host_topology(app_id: str) -> list[tuple[str, str]]:
     # Exception: svc-swarm-manager is the IS_STACK_HOST marker group; leaking
     # workers into it flips IS_STACK_HOST true on workers and skips the CA
     # fetch. Keep it manager-only.
-    if (
-        app_id != "svc-swarm-manager"
-        and get_role_default_placement(app_id) != "manager"
-    ):
+    if app_id != "svc-swarm-manager" and get_role_placement(app_id) != "manager":
         app_hosts.extend((app_id, w) for w in _WORKERS)
     return [
         ("svc-swarm-node", _MANAGER),
@@ -64,11 +61,11 @@ def _host_topology(app_id: str) -> list[tuple[str, str]]:
     ]
 
 
-def _default_placement_dep_groups(app_id: str) -> list[tuple[str, str]]:
+def _placement_dep_groups(app_id: str) -> list[tuple[str, str]]:
     return [
         (role_name, _MANAGER)
         for role_name in derive_includes(app_id)
-        if get_role_default_placement(role_name) == "manager"
+        if get_role_placement(role_name) == "manager"
     ]
 
 
@@ -78,7 +75,7 @@ def main() -> int:
     app_id = os.environ["APP_ID"]
     inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_PATH
 
-    group_hosts = _host_topology(app_id) + _default_placement_dep_groups(app_id)
+    group_hosts = _host_topology(app_id) + _placement_dep_groups(app_id)
 
     inv = load_yaml_any(str(inv_path), default_if_missing={})
     inv.setdefault("all", {}).setdefault("children", {})

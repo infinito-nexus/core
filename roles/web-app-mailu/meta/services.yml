@@ -24,7 +24,7 @@ matomo:
 mailu:
   bond: 1
   # nocheck: default-placement-manager  mail edge at a known IP: MX A-record, PTR and SPF bind inbound/outbound SMTP to the stack host IP (a floating task's egress IP breaks deliverability); postfix /queue and dovecot mail+index state are NFS-hostile and ARE the app (no central-service equivalent); cert renewals land in a node-local bind via a manager-side systemd timer
-  default_placement: manager
+  placement: manager
   enabled: true
   shared: true
   provides: email

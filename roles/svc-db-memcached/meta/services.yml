@@ -1,7 +1,7 @@
 ---
 memcached:
   # nocheck: default-placement-manager  central cache engine: single shared in-memory instance pinned to one node, reached cross-stack over the shared overlay
-  default_placement: manager
+  placement: manager
   bond: 1
   enabled: true
   shared: true

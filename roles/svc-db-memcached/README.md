@@ -8,7 +8,7 @@ This Ansible role runs Memcached as a central engine dependency, mirroring the c
 
 Built as one of the central engine roles described in `docs/architecture/central-engines.md`, this role:
 
-- Deploys a standalone Memcached stack pinned to the swarm manager (`default_placement: manager`).
+- Deploys a standalone Memcached stack pinned to the swarm manager (`placement: manager`).
 - Waits until the container is running and the engine answers the `version` handshake.
 - Ships an embedded sidecar snippet (`templates/service.yml.j2`) for the `shared: false` opt-out path.
 

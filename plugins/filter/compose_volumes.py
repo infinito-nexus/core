@@ -24,7 +24,7 @@ try:
         resolve_database_service_key,
     )
     from utils.roles.applications.services.sso import get_sso_config
-    from utils.roles.meta_lookup import get_role_default_placement
+    from utils.roles.meta_lookup import get_role_placement
 except ModuleNotFoundError:
     from docker_service_enabled import FilterModule as _DockerServiceEnabledFilter
     from get_entity_name import get_entity_name
@@ -41,7 +41,7 @@ except ModuleNotFoundError:
         resolve_database_service_key,
     )
     from utils.roles.applications.services.sso import get_sso_config
-    from utils.roles.meta_lookup import get_role_default_placement
+    from utils.roles.meta_lookup import get_role_placement
 
 
 def _to_plain(obj: Any) -> Any:
@@ -284,8 +284,7 @@ def compose_volumes(
         deployment_mode == "swarm" and str(storage_backend).lower() == "nfs"
     )
     role_pinned = (
-        str(get_role_default_placement(application_id) or "").strip().lower()
-        == "manager"
+        str(get_role_placement(application_id) or "").strip().lower() == "manager"
     )
 
     for vol_name, vol_spec in list(volumes.items()):

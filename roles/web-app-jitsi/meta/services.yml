@@ -49,7 +49,7 @@ jitsi:
   version: "stable-9646"
   min_storage: 5GB
   # nocheck: default-placement-manager  meta/volumes.yml uses type:bind config dirs staged on the stack host; a worker-scheduled task lacks the source paths (unpinning requires migrating them to nfs-backed named volumes)
-  default_placement: manager
+  placement: manager
   ports:
     local:
       http: 8084

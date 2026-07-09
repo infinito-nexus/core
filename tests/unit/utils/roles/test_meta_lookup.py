@@ -18,11 +18,11 @@ from tempfile import TemporaryDirectory
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
-    get_role_default_placement,
     get_role_lifecycle,
+    get_role_placement,
     get_role_run_after,
     get_role_skip,
-    iter_roles_with_default_placement,
+    iter_roles_with_placement,
 )
 
 
@@ -145,20 +145,20 @@ class TestMetaLookup(unittest.TestCase):
         with self.assertRaises(MetaServicesShapeError):
             get_role_lifecycle(role_dir, role_name="web-app-listroot")
 
-    def test_default_placement_manager_is_returned(self) -> None:
+    def test_placement_manager_is_returned(self) -> None:
         role_dir = self.fx.write(
             "svc-registry-cache",
             """
             cache:
-              default_placement: manager
+              placement: manager
             """,
         )
         self.assertEqual(
-            get_role_default_placement(role_dir, role_name="svc-registry-cache"),
+            get_role_placement(role_dir, role_name="svc-registry-cache"),
             "manager",
         )
 
-    def test_default_placement_absent_returns_none(self) -> None:
+    def test_placement_absent_returns_none(self) -> None:
         role_dir = self.fx.write(
             "web-app-yourls",
             """
@@ -166,22 +166,20 @@ class TestMetaLookup(unittest.TestCase):
               lifecycle: beta
             """,
         )
-        self.assertIsNone(
-            get_role_default_placement(role_dir, role_name="web-app-yourls")
-        )
+        self.assertIsNone(get_role_placement(role_dir, role_name="web-app-yourls"))
 
-    def test_iter_roles_with_default_placement_filters_correctly(self) -> None:
+    def test_iter_roles_with_placement_filters_correctly(self) -> None:
         self.fx.write(
             "svc-registry-cache",
-            "cache:\n  default_placement: manager\n",
+            "cache:\n  placement: manager\n",
         )
         self.fx.write(
             "svc-registry-docker",
-            "docker:\n  default_placement: manager\n",
+            "docker:\n  placement: manager\n",
         )
         self.fx.write(
             "svc-prx-openresty",
-            "openresty:\n  default_placement: manager\n",
+            "openresty:\n  placement: manager\n",
         )
         self.fx.write(
             "web-app-yourls",
@@ -189,30 +187,30 @@ class TestMetaLookup(unittest.TestCase):
         )
         self.fx.write(
             "web-app-only-worker",
-            "only-worker:\n  default_placement: worker\n",
+            "only-worker:\n  placement: worker\n",
         )
 
-        managers = iter_roles_with_default_placement("manager", roles_dir=self.fx.root)
+        managers = iter_roles_with_placement("manager", roles_dir=self.fx.root)
         self.assertEqual(
             managers,
             ["svc-prx-openresty", "svc-registry-cache", "svc-registry-docker"],
         )
 
-    def test_iter_roles_with_default_placement_empty_placement_returns_empty(
+    def test_iter_roles_with_placement_empty_placement_returns_empty(
         self,
     ) -> None:
         self.fx.write(
             "svc-registry-cache",
-            "cache:\n  default_placement: manager\n",
+            "cache:\n  placement: manager\n",
         )
         self.assertEqual(
-            iter_roles_with_default_placement("", roles_dir=self.fx.root),
+            iter_roles_with_placement("", roles_dir=self.fx.root),
             [],
         )
 
-    def test_iter_roles_with_default_placement_missing_roles_dir(self) -> None:
+    def test_iter_roles_with_placement_missing_roles_dir(self) -> None:
         self.assertEqual(
-            iter_roles_with_default_placement(
+            iter_roles_with_placement(
                 "manager", roles_dir=self.fx.root / "does-not-exist"
             ),
             [],

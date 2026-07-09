@@ -1,7 +1,7 @@
 ---
 redis:
   # nocheck: default-placement-manager  central cache engine, node-local on-disk state (ACL file + optional AOF), single-node until redis replication is in scope
-  default_placement: manager
+  placement: manager
   bond: 1
   enabled: true
   shared: true

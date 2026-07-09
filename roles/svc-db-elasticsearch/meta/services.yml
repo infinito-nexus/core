@@ -1,7 +1,7 @@
 ---
 elasticsearch:
   # nocheck: default-placement-manager  engine on-disk state (Lucene index segments + translog fsync/locking) cannot live on NFS, so the central engine is node-local in swarm
-  default_placement: manager
+  placement: manager
   enabled: true
   shared: true
   bond: 1

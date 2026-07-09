@@ -1,7 +1,7 @@
 ---
 funkwhale:
   # nocheck: default-placement-manager  embedded typesense index; node-local in swarm
-  default_placement: manager
+  placement: manager
   image: funkwhale/front
   version: 2.0.6
   min_storage: 20GB

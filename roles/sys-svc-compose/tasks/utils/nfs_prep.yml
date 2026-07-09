@@ -15,4 +15,4 @@
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
     - item.value is mapping
     - item.value.driver_opts is defined
-    - application_id not in lookup('roles_with_default_placement', 'manager')
+    - application_id not in lookup('roles_with_placement', 'manager')

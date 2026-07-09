@@ -23,7 +23,7 @@ matomo:
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 openwebui:
   # nocheck: default-placement-manager  embedded sqlite engine state; node-local in swarm
-  default_placement: manager
+  placement: manager
   bond: 1
   enabled: true
   shared: true

@@ -61,7 +61,7 @@ zammad:
   enabled: true
   shared: true
   # nocheck: default-placement-manager  embedded elasticsearch engine state; node-local in swarm
-  default_placement: manager
+  placement: manager
   image: ghcr.io/zammad/zammad
   version: "6.5.0"
   name: zammad-railsserver

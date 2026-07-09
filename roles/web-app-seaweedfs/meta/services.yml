@@ -29,7 +29,7 @@ prometheus:
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
   # nocheck: default-placement-manager  /data IS the storage engine: leveldb2 filer LSM, master raft metadata, needle blob volumes; all NFS-unsafe, so the central provider stays node-local like the svc-db-* engines
-  default_placement: manager
+  placement: manager
   # nocheck: single-replica
   replicas: 1
   bond: 1

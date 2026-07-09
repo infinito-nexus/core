@@ -1,7 +1,7 @@
 ---
 unbound:
   # nocheck: default-placement-manager  engine on-disk state (trust anchors / root hints), node-local in swarm
-  default_placement: manager
+  placement: manager
   enabled: true
   shared: true
   bond: 1

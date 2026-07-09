@@ -2,7 +2,7 @@
 # nocheck: seaweedfs-required — object storage not implemented for this role
 pgadmin:
   # nocheck: default-placement-manager  embedded sqlite config db; node-local in swarm
-  default_placement: manager
+  placement: manager
   image: dpage/pgadmin4
   version: "9.16"
   min_storage: 1GB

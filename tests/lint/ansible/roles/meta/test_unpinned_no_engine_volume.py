@@ -1,10 +1,10 @@
 """A role that is NOT placement-pinned must not own a database / queue / index
 engine's on-disk data volume.
 
-NFS placement is derived from the role's ``default_placement`` (see
+NFS placement is derived from the role's ``placement`` (see
 ``plugins/filter/compose_volumes.py``): an unpinned role's volumes are bound to
 the shared NFS mount so they survive a node reschedule, while a pinned
-(``default_placement: manager``) role keeps its volumes node-local. A database,
+(``placement: manager``) role keeps its volumes node-local. A database,
 message-queue or search-index engine's on-disk state CANNOT live on NFS (fsync +
 locking corruption). Such state must therefore stay node-local -- which means its
 role must be pinned (so the service never leaves the node holding the data), or
@@ -18,7 +18,7 @@ import unittest
 
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES, ROLE_FILE_VARS_MAIN
-from utils.roles.meta_lookup import get_role_default_placement
+from utils.roles.meta_lookup import get_role_placement
 
 from . import PROJECT_ROOT
 
@@ -80,10 +80,7 @@ class TestUnpinnedNoEngineVolume(unittest.TestCase):
         violations: list[str] = []
         for volumes_yml in sorted(roles_root.glob(f"*/{ROLE_FILE_META_VOLUMES}")):
             role_id = volumes_yml.parent.parent.name
-            if (
-                str(get_role_default_placement(role_id) or "").strip().lower()
-                == "manager"
-            ):
+            if str(get_role_placement(role_id) or "").strip().lower() == "manager":
                 continue
             if _forces_compose_mode(volumes_yml.parent.parent):
                 continue
@@ -107,7 +104,7 @@ class TestUnpinnedNoEngineVolume(unittest.TestCase):
                             f"{role_id}: volume '{key}' mounts engine data at "
                             f"'{mount.get('target')}' but the role is not pinned. "
                             "Engine state cannot live on NFS; pin the role "
-                            "(default_placement: manager) or externalise the engine."
+                            "(placement: manager) or externalise the engine."
                         )
                         break
 
