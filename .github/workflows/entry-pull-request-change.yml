@@ -40,7 +40,7 @@ jobs:
       run_ci_orchestrator: ${{ steps.resolve.outputs.run_ci_orchestrator }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
 
       - name: Resolve PR scope
         id: resolve
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
 
       - name: Validate branch prefix for detected scope
         env:
@@ -89,7 +89,7 @@ jobs:
       roles_only: ${{ steps.resolve.outputs.roles_only }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
 
@@ -137,7 +137,7 @@ jobs:
       trusted: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
 
       - name: Resolve merge ref and image tag
         id: out

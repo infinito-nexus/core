@@ -49,7 +49,7 @@ jobs:
       matrix: ${{ steps.out.outputs.matrix }}
       image_tag: ${{ steps.out.outputs.image_tag }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.0
 
       - name: 📦 Install jq
         run: ./scripts/install/apt.sh jq
@@ -70,13 +70,13 @@ jobs:
 
     steps:
       - name: Checkout trusted workflow repo (helpers)
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
 
       - name: Checkout source to build
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           repository: ${{ inputs.source_repository || github.repository }}
           ref: ${{ inputs.checkout_ref || github.ref }}

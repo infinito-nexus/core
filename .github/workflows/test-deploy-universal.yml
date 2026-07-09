@@ -37,7 +37,7 @@ jobs:
       apps_self_hosted: ${{ steps.split.outputs.apps_self_hosted }}
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
 
@@ -111,7 +111,7 @@ jobs:
           docker-images: true
           swap-storage: true
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.0
 
       # Replace the default ~4 GB runner swap with a larger file so transient
       # memory spikes (e.g. peertube plugin install, issue #162) don't trip
@@ -166,7 +166,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" 2>/dev/null || true
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.0
 
       - name: Resolve repository owner
         shell: bash

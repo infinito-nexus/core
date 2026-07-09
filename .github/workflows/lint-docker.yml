@@ -15,7 +15,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
       - name: Run hadolint (produce SARIF)
         id: hadolint
         continue-on-error: true
