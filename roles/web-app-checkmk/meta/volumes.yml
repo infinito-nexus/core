@@ -1,7 +1,6 @@
 ---
 checkmk_data:
   type: volume
-  # nocheck: nfs-false-data-loss  Reason: OMD uses fcntl locks NFS answers with EBADF; single-replica, and the site is backed up (services.checkmk.backup) so a reschedule restores.
   nfs: false
   mounts:
     - service: checkmk

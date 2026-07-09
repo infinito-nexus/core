@@ -11,6 +11,11 @@ that data loss is acceptable here (single-replica that never moves, the
 data is re-provisioned on redeploy, a backup covers the restore, the
 volume holds only regenerable cache, ...).
 
+A role whose primary entity is pinned to the swarm manager
+(``placement: manager`` in ``meta/services.yml``) is exempt: it never
+reschedules away from the node holding its data, so its ``nfs: false``
+volumes survive and need no per-volume justification.
+
 Convention
 ==========
 On the ``nfs: false`` line, or on the immediately preceding contiguous
@@ -32,6 +37,7 @@ import unittest
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES
+from utils.roles.meta_lookup import get_role_placement
 
 from . import PROJECT_ROOT
 
@@ -59,6 +65,18 @@ def _justification_near(lines: list[str], line_no: int) -> tuple[bool, bool]:
     return has_nocheck, has_reason
 
 
+def _is_manager_pinned(role_name: str) -> bool:
+    """True when the role's primary entity declares ``placement: manager``.
+    A manager-pinned role never reschedules away from the node holding its
+    data, so its node-local (``nfs: false``) volumes survive and need no
+    per-volume justification."""
+    try:
+        placement = get_role_placement(role_name)
+    except Exception:
+        return False
+    return (placement or "").strip().lower() == "manager"
+
+
 class TestNfsFalseRequiresDataLossJustification(unittest.TestCase):
     def test_nfs_false_is_justified(self) -> None:
         findings: list[tuple[str, int, str]] = []
@@ -66,6 +84,8 @@ class TestNfsFalseRequiresDataLossJustification(unittest.TestCase):
         for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir()):
             meta_path = role_dir / ROLE_FILE_META_VOLUMES
             if not meta_path.is_file():
+                continue
+            if _is_manager_pinned(role_dir.name):
                 continue
             try:
                 lines = read_text(str(meta_path)).splitlines()
