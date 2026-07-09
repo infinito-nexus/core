@@ -26,3 +26,5 @@ swarm:
     encryption: true
   registry:
     port: 5000
+
+RUNNER_SRC_DIR: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}"

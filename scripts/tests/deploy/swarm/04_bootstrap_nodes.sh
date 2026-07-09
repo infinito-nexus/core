@@ -22,15 +22,14 @@ DEB_BASENAME="$(basename "${DEB_PATH}")"
 provision_node() {
 	local node="$1"
 	echo "==> [${node}] copying repo + .deb + installing"
-	docker exec "${node}" mkdir -p /opt/infinito-nexus
-	tar -C "${HOST_SRC}" -cf - . | docker exec -i "${node}" tar -C /opt/infinito-nexus -xpf -
-	# docker cp to a tmpfs mount lands in the overlay shadow path (moby/22281).
+	docker exec "${node}" mkdir -p "${INFINITO_NODE_SRC_DIR:?}"
+	tar -C "${HOST_SRC}" -cf - . | docker exec -i "${node}" tar -C "${INFINITO_NODE_SRC_DIR}" -xpf -
 	docker exec -i "${node}" sh -c "cat > /tmp/${DEB_BASENAME}" <"${DEB_PATH}"
 	docker exec \
 		-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
 		-e PACKAGE_INSTALL_FROM="/tmp/${DEB_BASENAME}" \
 		"${node}" bash -c \
-		'cd /opt/infinito-nexus && bash scripts/install/package.sh'
+		"cd ${INFINITO_NODE_SRC_DIR} && bash scripts/install/package.sh"
 }
 
 declare -A PIDS

@@ -580,7 +580,7 @@ swarm-playwright:
 	@: $${role:?role=<role> required, e.g. role=web-svc-logout}
 	@test -n '$(name)' || { echo 'name=<cluster-id> required (the app id when no name= was passed to swarm-zombie)'; exit 2; }
 	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
-	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd='cd /opt/infinito-nexus && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' bash scripts/tests/deploy/act/exec_node.sh
+	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec_node.sh
 
 .PHONY: swarm-shell
 # Drop into an interactive shell on one of the swarm-test DinD nodes.

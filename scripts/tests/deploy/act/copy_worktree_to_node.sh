@@ -11,6 +11,9 @@ fi
 repo_root="$(cd "$(dirname "$0")/../../../.." && pwd)"
 cd "${repo_root}"
 
+# shellcheck source=scripts/meta/env/load.sh
+source "${repo_root}/scripts/meta/env/load.sh"
+
 git ls-files -z -m -o --exclude-standard |
 	tar --null -cf - -T - |
-	docker exec -i "${node}" tar -C /opt/infinito-nexus -xpf -
+	docker exec -i "${node}" tar -C "${INFINITO_NODE_SRC_DIR:?}" -xpf -
