@@ -633,7 +633,7 @@ class TestInventoryManager(TestCase):
 
 
 class TestInventoryManagerVariant(TestCase):
-    def _make_role(self, tmp: Path, app_id: str = "svc-bkp-container-2-local") -> Path:
+    def _make_role(self, tmp: Path, app_id: str = "svc-bkp-volume-2-local") -> Path:
         role_path = tmp / "roles" / app_id
         (role_path / "meta").mkdir(parents=True)
         (role_path / "vars").mkdir(parents=True)
@@ -670,7 +670,7 @@ class TestInventoryManagerVariant(TestCase):
     def test_variant_set_uses_variants_overlay_for_root_role(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            app_id = "svc-bkp-container-2-local"
+            app_id = "svc-bkp-volume-2-local"
             role_path = self._make_role(tmp, app_id=app_id)
             inv_path = tmp / "inv.yml"
             inv_path.write_text("{}", encoding="utf-8")
@@ -701,7 +701,7 @@ class TestInventoryManagerVariant(TestCase):
     def test_variant_only_overlays_root_not_other_role_paths(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            root_app = "svc-bkp-container-2-local"
+            root_app = "svc-bkp-volume-2-local"
             other_app = "svc-db-openldap"
             root_path = self._make_role(tmp, app_id=root_app)
             other_path = self._make_role(tmp, app_id=other_app)
@@ -735,7 +735,7 @@ class TestInventoryManagerVariant(TestCase):
     def test_variant_out_of_range_falls_back_to_base(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            app_id = "svc-bkp-container-2-local"
+            app_id = "svc-bkp-volume-2-local"
             role_path = self._make_role(tmp, app_id=app_id)
             inv_path = tmp / "inv.yml"
             inv_path.write_text("{}", encoding="utf-8")

@@ -118,5 +118,5 @@ node-exporter:
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1
-  enabled: "{{ 'svc-bkp-container-2-local' in group_names }}"
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true

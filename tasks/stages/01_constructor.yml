@@ -172,13 +172,13 @@
     - name: "💾 Snapshot the pre-deploy container state"
       ansible.builtin.script:
         cmd: >-
-          {{ lookup('path_absolute', 'roles/svc-bkp-container-2-local/files/pre_deploy_snapshot.sh') }}
-          {{ SYS_SERVICE_BACKUP_CONTAINER_2_LOCAL }}
+          {{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/files/pre_deploy_snapshot.sh') }}
+          {{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }}
           {{ FILE_DATABASE_SECRETS }}
       register: _pre_deploy_snapshot
       changed_when: "'SKIP' not in _pre_deploy_snapshot.stdout"
       timeout: "{{ lookup('timeout', 3600) | int }}"
-      when: "'svc-bkp-container-2-local' in group_names"
+      when: "'svc-bkp-volume-2-local' in group_names"
 
     - name: "💾 Snapshot the pre-deploy NFS export"
       ansible.builtin.script:

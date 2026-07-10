@@ -46,7 +46,7 @@
       - database_name is defined
     fail_msg: >-
       You must pass ALL database variables explicitly when including
-      svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml:
+      svc-bkp-volume-2-local/tasks/04_seed-database-to-backup.yml:
 
         database_instance, database_type, database_host, database_port,
         database_username, database_password, database_name

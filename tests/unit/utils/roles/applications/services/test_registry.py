@@ -274,7 +274,7 @@ class TestServiceRegistryOrdering(unittest.TestCase):
     def test_preload_false_entries_stay_resolvable_but_are_not_ordered(self):
         registry = {
             "container_backup": {
-                "role": "svc-bkp-container-2-local",
+                "role": "svc-bkp-volume-2-local",
                 "bucket": "server",
                 "deploy_type": "server",
                 "preload": False,
@@ -290,9 +290,9 @@ class TestServiceRegistryOrdering(unittest.TestCase):
             roles_dir = Path(td)
             self._mk_role(
                 roles_dir,
-                "svc-bkp-container-2-local",
-                "container-2-local",
-                {"container-2-local": {"enabled": True, "shared": True}},
+                "svc-bkp-volume-2-local",
+                "volume-2-local",
+                {"volume-2-local": {"enabled": True, "shared": True}},
             )
             self._mk_role(
                 roles_dir,

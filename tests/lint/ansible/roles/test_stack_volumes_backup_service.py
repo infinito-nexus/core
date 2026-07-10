@@ -1,12 +1,12 @@
-"""Require the container-2-local backup service flag on stack roles with
+"""Require the volume-2-local backup service flag on stack roles with
 named volumes.
 
 Rationale
 =========
-``svc-bkp-container-2-local`` backs up named docker volumes, but only
+``svc-bkp-volume-2-local`` backs up named docker volumes, but only
 for hosts that carry the role in their inventory group. A stack role
 that declares named volumes in ``meta/volumes.yml`` without the
-``container-2-local`` service flag never advertises the backup
+``volume-2-local`` service flag never advertises the backup
 dependency, so its data silently stays out of every backup plan. Every
 invokable stack role (``templates/compose.yml.j2`` or a
 ``templates/*.compose.yml.j2`` sibling, see
@@ -16,7 +16,7 @@ invokable stack role (``templates/compose.yml.j2`` or a
 
     container_backup:
       bond: 1
-      enabled: "{{ 'svc-bkp-container-2-local' in group_names }}"
+      enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
       shared: true
 
 ``enabled`` MUST reference the provider role through the
@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 
 _RULE = "backup-service-flag"
 _SERVICE_KEY = "container_backup"
-_PROVIDER_ROLE = "svc-bkp-container-2-local"
+_PROVIDER_ROLE = "svc-bkp-volume-2-local"
 _GROUP_NAMES_RE = re.compile(
     r"\{\{\s*'" + re.escape(_PROVIDER_ROLE) + r"'\s+in\s+group_names\s*\}\}"
 )

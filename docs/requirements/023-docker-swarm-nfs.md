@@ -168,7 +168,7 @@ The implementation MUST keep a clean abstraction line between the render backend
   ```
 
 - [x] The existing backup documentation gains an NFS section covering: snapshot semantics on the NFS server, restore procedure, and interaction with the existing `svc-bkp-*` roles.
-- [ ] An end-to-end backup verification is part of the pilot: a [svc-bkp-container-2-local](../../roles/svc-bkp-container-2-local/) run against MediaWiki in Swarm mode MUST produce a readable backup archive of the NFS-backed `images/` volume. The existing backup machinery operates on `/var/lib/docker/volumes/<vol>/_data` and MUST continue to work transparently against an NFS-mounted volume; any divergence found during the pilot MUST be fixed inside this requirement, not deferred.
+- [ ] An end-to-end backup verification is part of the pilot: a [svc-bkp-volume-2-local](../../roles/svc-bkp-volume-2-local/) run against MediaWiki in Swarm mode MUST produce a readable backup archive of the NFS-backed `images/` volume. The existing backup machinery operates on `/var/lib/docker/volumes/<vol>/_data` and MUST continue to work transparently against an NFS-mounted volume; any divergence found during the pilot MUST be fixed inside this requirement, not deferred.
 - [ ] This requirement is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md).
 
 ## Future Extensions

@@ -49,7 +49,7 @@ def _import_module_under_test():
     module_path = (
         PROJECT_ROOT
         / "roles"
-        / "svc-bkp-container-2-local"
+        / "svc-bkp-volume-2-local"
         / "library"
         / "file_has_content.py"
     )
@@ -57,7 +57,7 @@ def _import_module_under_test():
         raise RuntimeError(f"Module file not found at expected path: {module_path}")
 
     spec = importlib.util.spec_from_file_location(
-        "svc_bkp_container_2_local_file_has_content",
+        "svc_bkp_volume_2_local_file_has_content",
         str(module_path),
     )
     if spec is None or spec.loader is None:

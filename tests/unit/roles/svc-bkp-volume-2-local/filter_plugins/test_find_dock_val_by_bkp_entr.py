@@ -7,7 +7,7 @@ PLUGIN_PATH = str(
     Path(
         str(
             Path(TEST_DIR)
-            / "../../../../../roles/svc-bkp-container-2-local/filter_plugins/find_dock_val_by_bkp_entr.py"
+            / "../../../../../roles/svc-bkp-volume-2-local/filter_plugins/find_dock_val_by_bkp_entr.py"
         )
     ).resolve()
 )

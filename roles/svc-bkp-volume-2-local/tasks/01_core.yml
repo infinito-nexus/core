@@ -45,7 +45,7 @@
     system_service_force_flush_final: "{{ (RUNTIME in ['act','github']) and (MODE_BACKUP | bool) }}"
     system_service_suppress_flush: true
     system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL }}"
-    system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_BACKUP_CONTAINER_2_LOCAL }} --timeout
+    system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }} --timeout
       "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"'
-    system_service_tpl_exec_start: "/bin/sh -c '{{ BKP_CONTAINER_2_LOCAL_EXEC }}'"
+    system_service_tpl_exec_start: "/bin/sh -c '{{ BKP_VOLUME_2_LOCAL_EXEC }}'"
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"

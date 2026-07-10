@@ -8,14 +8,14 @@ File payloads are captured with rsync hard-link snapshots; databases register th
 ## Overview
 
 This role installs the `baudolo` CLI, lays out the on-host backup tree, deploys the systemd service that drives the periodic run, and wires the cleanup-of-failed-backups dependency so partial snapshots are not retained.
-Database seeding for individual apps is contributed by the consumer roles via `tasks/04_seed-database-to-backup.yml`, which they include conditionally once `svc-bkp-container-2-local` is in `group_names`.
+Database seeding for individual apps is contributed by the consumer roles via `tasks/04_seed-database-to-backup.yml`, which they include conditionally once `svc-bkp-volume-2-local` is in `group_names`.
 
 ## Schema
 
 ```
 Nightly path (SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL, 01:00)
   systemd timer
-    └─> svc-bkp-container-2-local.<version>.<domain>.service
+    └─> svc-bkp-volume-2-local.<version>.<domain>.service
           ├─ ExecStartPre: sys-lock against the manipulation group
           └─ ExecStart: baudolo backup
                 ├─ file payloads: per-volume rsync snapshots,

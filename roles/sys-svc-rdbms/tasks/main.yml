@@ -44,9 +44,9 @@
         database_consumer_id: "{{ _database_consumer_id }}"
 
     - name: "➕ For '{{ application_id }}': Add Entry for Backup Procedure"
-      include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml') }}"
+      include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/04_seed-database-to-backup.yml') }}"
       when:
-        - "'svc-bkp-container-2-local' in group_names"
+        - "'svc-bkp-volume-2-local' in group_names"
         - IS_STACK_HOST | bool
   vars:
     _database_provider_role: "{{ lookup('database', _database_consumer_id, 'id') }}"

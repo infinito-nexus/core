@@ -23,7 +23,7 @@
   when: lookup('database', _matrix_db_consumer_id, 'shared') | bool
 
 - name: "🌱 Seed database entry to backup routine"
-  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml') }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/04_seed-database-to-backup.yml') }}"
   vars:
     database_consumer_id: "{{ _matrix_db_consumer_id }}"
     database_type: "{{ lookup('database', _matrix_db_consumer_id, 'type') }}"
@@ -34,5 +34,5 @@
     database_username: "{{ database_username }}"
     database_password: "{{ database_password }}"
   when:
-    - "'svc-bkp-container-2-local' in group_names"
+    - "'svc-bkp-volume-2-local' in group_names"
     - IS_STACK_HOST | bool

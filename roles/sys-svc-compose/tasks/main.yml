@@ -13,14 +13,14 @@
       - sys-ctl-hlth-volumes
       - sys-ctl-rpr-container-hard
 
-- name: "🧭 Route svc-bkp-container-2-local through service-loader (when deployed)"
+- name: "🧭 Route svc-bkp-volume-2-local through service-loader (when deployed)"
   ansible.builtin.include_role:
     name: sys-service-loader
     tasks_from: list_or_shoot.yml
   vars:
     list_or_shoot_roles:
-      - svc-bkp-container-2-local
-  when: "'svc-bkp-container-2-local' in group_names"
+      - svc-bkp-volume-2-local
+  when: "'svc-bkp-volume-2-local' in group_names"
 
 - name: "🖥️ Stack-host-only prep (dirs, repo, files, CA trust) for '{{ application_id }}'"
   include_tasks: "02_stack_host_prep.yml"

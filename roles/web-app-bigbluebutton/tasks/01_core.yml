@@ -22,7 +22,7 @@
          ) | trim }}
 
 - name: "📂 Include Seed routines for '{{ application_id }}' database backup"
-  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml') }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/04_seed-database-to-backup.yml') }}"
   vars:
     database_consumer_id: "{{ application_id }}"
     database_type: "postgres"
@@ -33,7 +33,7 @@
     database_password: "{{ lookup('config', application_id, 'credentials.postgresql_secret') }}"
     database_name: "" # Multiple databases
   when:
-    - "'svc-bkp-container-2-local' in group_names"
+    - "'svc-bkp-volume-2-local' in group_names"
     - IS_STACK_HOST | bool
 
 - name: 🔧 configure websocket_upgrade.conf

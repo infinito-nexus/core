@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# E2E orchestrator for svc-bkp-container-2-local.
+# E2E orchestrator for svc-bkp-volume-2-local.
 # Waits for the backup service to terminate, then:
 #   sync pass (ASYNC_ENABLED=false): verify the first backup generation is
 #     stored, then run the destructive restore drill (stop containers, wipe
@@ -20,7 +20,7 @@ set -euo pipefail
 : "${BKP_TEST_HEALTH_TIMEOUT:?}"
 
 if [[ "${BKP_TEST_IS_STACK_HOST}" != "true" ]]; then
-    echo "SKIP: not the stack host; svc-bkp-container-2-local only deploys there"
+    echo "SKIP: not the stack host; svc-bkp-volume-2-local only deploys there"
     exit 0
 fi
 
