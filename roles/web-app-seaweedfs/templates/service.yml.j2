@@ -5,7 +5,7 @@
     {{ lookup('compose_only', 'container_name', _objstore.container) }}
     {{ lookup('compose_restart', DOCKER_RESTART_POLICY) }}
     entrypoint: ["/bin/sh", "-c"]
-    command: {{ [_objstore.bucket | seaweedfs_sidecar_script(_objstore.port)] | to_json }}
+    command: {{ [(_objstore.bucket | seaweedfs_sidecar_script(_objstore.port)) | replace('$', '$$')] | to_json }}
     volumes:
       - seaweedfs:/data
     networks:  # nocheck: networks-literal
