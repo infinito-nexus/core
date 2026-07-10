@@ -473,8 +473,10 @@ network-trust-ca:
 	@bash scripts/system/tls/trust/wsl2.sh
 
 .PHONY: onboard
-# Set up a developer workstation end to end: dependencies, project setup, agent skills, and terminal aliases.
+# Set up a developer workstation end to end: dependencies, project setup, agent skills, terminal aliases, and the dev extras inside the running dev container.
 onboard: bootstrap install-skills install-alias
+	@"$(MAKE)" compose-up
+	@"$(MAKE)" compose-exec cmd="bash scripts/install/dev-extras.sh"
 
 .PHONY: quality
 # Autoformat then run the full test suite in one shot (pre-commit gate).

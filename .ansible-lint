@@ -14,9 +14,11 @@ exclude_paths:
   - .cache/
   - .claude/
   - .github/
+  - /cli/
   - compose/
-  - tests/integration/fixtures/
-  - tests/lint/fixtures/
+  - /docs/
+  - /tests/
+  - /utils/
   - venv/
   - .venv/
   - build/

@@ -11,6 +11,7 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.email import LookupModule
 from utils.cache import _reset_cache_for_tests
+from utils.cache import base as cache_base
 from utils.cache import users as cache_users
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -23,7 +24,16 @@ def _write_role_config(base_dir: Path, role_name: str, payload: dict) -> None:
 
 
 class TestEmailLookup(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        _reset_cache_for_tests()
+        cls.addClassCleanup(_reset_cache_for_tests)
+
     def setUp(self) -> None:
+        # Exception: the fingerprint memo keys by id(); a GC'd variables dict
+        # can hand its id to the next test's dict and alias a stale signature,
+        # so it must clear per test despite the class-shared caches.
+        cache_base._reset()
         self.lookup = LookupModule()
         self.lookup._templar = None
         self._cwd = str(Path.cwd())
@@ -31,7 +41,6 @@ class TestEmailLookup(unittest.TestCase):
         self._tmp = Path(self._tmpdir.name)
         (self._tmp / "roles").mkdir(parents=True, exist_ok=True)
         os.chdir(self._tmp)
-        _reset_cache_for_tests()
         self._tokens_store_patcher = patch.object(
             cache_users, "_load_store_users", return_value={}
         )
@@ -39,7 +48,6 @@ class TestEmailLookup(unittest.TestCase):
 
     def tearDown(self) -> None:
         self._tokens_store_patcher.stop()
-        _reset_cache_for_tests()
         os.chdir(self._cwd)
         self._tmpdir.cleanup()
 

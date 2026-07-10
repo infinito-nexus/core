@@ -7,7 +7,6 @@ into older generations."""
 import os
 import subprocess
 import tempfile
-import time
 import unittest
 from pathlib import Path
 
@@ -29,7 +28,10 @@ class NfsBackupScriptTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def _run(self, source=None):
+    def _run(self, source=None, generation=None):
+        env = os.environ.copy()
+        if generation is not None:
+            env["BKP_NFS_2_LOCAL_GENERATION"] = generation
         return subprocess.run(
             [
                 "bash",
@@ -41,6 +43,7 @@ class NfsBackupScriptTests(unittest.TestCase):
             capture_output=True,
             text=True,
             check=False,
+            env=env,
         )
 
     def _generations(self):
@@ -68,9 +71,8 @@ class NfsBackupScriptTests(unittest.TestCase):
 
     def test_second_run_hardlinks_unchanged_files(self):
         (self.source / "a.txt").write_text("hello")
-        self.assertEqual(self._run().returncode, 0)
-        time.sleep(1.1)
-        self.assertEqual(self._run().returncode, 0)
+        self.assertEqual(self._run(generation="20240101000000").returncode, 0)
+        self.assertEqual(self._run(generation="20240101000001").returncode, 0)
 
         generations = self._generations()
         self.assertEqual(len(generations), 2)
@@ -80,11 +82,12 @@ class NfsBackupScriptTests(unittest.TestCase):
         self.assertEqual(second.stat().st_nlink, 2)
 
     def test_changed_file_gets_own_inode_and_history_survives(self):
-        (self.source / "a.txt").write_text("v1")
-        self.assertEqual(self._run().returncode, 0)
-        time.sleep(1.1)
-        (self.source / "a.txt").write_text("v2")
-        self.assertEqual(self._run().returncode, 0)
+        changed = self.source / "a.txt"
+        changed.write_text("v1")
+        os.utime(changed, (1000000000, 1000000000))
+        self.assertEqual(self._run(generation="20240101000000").returncode, 0)
+        changed.write_text("v2")
+        self.assertEqual(self._run(generation="20240101000001").returncode, 0)
 
         generations = self._generations()
         first = generations[0] / "files" / "a.txt"
@@ -110,10 +113,9 @@ class NfsBackupScriptTests(unittest.TestCase):
     def test_deleted_file_vanishes_only_from_new_generation(self):
         (self.source / "keep.txt").write_text("keep")
         (self.source / "gone.txt").write_text("gone")
-        self.assertEqual(self._run().returncode, 0)
-        time.sleep(1.1)
+        self.assertEqual(self._run(generation="20240101000000").returncode, 0)
         (self.source / "gone.txt").unlink()
-        self.assertEqual(self._run().returncode, 0)
+        self.assertEqual(self._run(generation="20240101000001").returncode, 0)
 
         generations = self._generations()
         self.assertTrue((generations[0] / "files" / "gone.txt").is_file())

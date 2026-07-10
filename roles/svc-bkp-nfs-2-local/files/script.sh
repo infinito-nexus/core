@@ -6,6 +6,10 @@
 #   $1 SOURCE_DIR   NFS export base to back up
 #   $2 BACKUPS_DIR  local backup root
 #   $3 REPO_NAME    repository directory name inside the machine hash dir
+#
+# Environment:
+#   BKP_NFS_2_LOCAL_GENERATION  optional generation name override
+#                               (defaults to the current timestamp)
 set -euo pipefail
 
 SOURCE_DIR="${1:?usage: script.sh SOURCE_DIR BACKUPS_DIR REPO_NAME}"
@@ -19,7 +23,7 @@ fi
 
 MACHINE_HASH="$(sha256sum /etc/machine-id | cut -c1-64)"
 REPO_DIR="${BACKUPS_DIR%/}/${MACHINE_HASH}/${REPO_NAME}"
-GENERATION="$(date +%Y%m%d%H%M%S)"
+GENERATION="${BKP_NFS_2_LOCAL_GENERATION:-$(date +%Y%m%d%H%M%S)}"
 DEST_DIR="${REPO_DIR}/${GENERATION}/files"
 
 PREVIOUS_FILES=""
