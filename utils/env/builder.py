@@ -65,6 +65,23 @@ class EnvBuilder:
         return self.values.get(key, os.environ.get(key, ""))
 
 
+def apply_custom_env(eb: EnvBuilder, repo_root: Path) -> None:
+    """Overwrite every key found in ``<repo_root>/custom.env``.
+
+    ``custom.env`` is the operator's untracked override file; its values
+    win over static defaults AND handler-computed values.
+    """
+    from utils.env.parser import parse_static_env_with_comments
+
+    custom_path = repo_root / "custom.env"
+    if not custom_path.is_file():
+        return
+    custom, custom_comments = parse_static_env_with_comments(custom_path)
+    for key, value in custom.items():
+        eb.set(key, value)
+        eb.comments[key] = custom_comments.get(key) or eb.comments.get(key, "")
+
+
 def build_env(
     static: dict[str, str],
     repo_root: Path,
@@ -77,7 +94,8 @@ def build_env(
     ``comments`` is the parsed per-key comment map from default.env
     (see :func:`utils.env.parser.parse_static_env_with_comments`).
     Dynamic keys carry their comments via each handler's ``COMMENT``
-    constant.
+    constant. ``custom.env`` overrides run last (see
+    :func:`apply_custom_env`).
     """
     on_gha, on_act = detect_gha_act()
     ctx = BuildContext(
@@ -90,4 +108,5 @@ def build_env(
     eb = EnvBuilder()
     for handler in ORDERED_HANDLERS:
         handler.apply(eb, ctx)
+    apply_custom_env(eb, repo_root)
     return eb

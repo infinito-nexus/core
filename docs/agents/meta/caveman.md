@@ -1,6 +1,6 @@
 # Caveman: Token Compression
 
-[Caveman](https://github.com/JuliusBrussee/caveman) is a token-compression plugin installed via `make install-skills`. It reduces output token consumption through progressively terser communication styles. Installation uses `make install-skills` (`scripts/install/skills/install.sh`), which restores all skills from `skills-lock.json` reproducibly. This works universally across all supported agents: Claude Code, Codex, Gemini CLI, Cursor, Copilot, Windsurf, Cline, and more. Skills are kept up to date via the daily `update` CI workflow or manually with `make update-skills`.
+[Caveman](https://github.com/JuliusBrussee/caveman) is a token-compression plugin installed via `make install-skills`. It reduces output token consumption through progressively terser communication styles. `make install-skills` copies the skills from the repository pinned as `INFINITO_SKILLS_REPOSITORY` in the generated `.env` (override via `custom.env`, see `docs/contributing/customize.md`); the [skills](https://github.com/kevinveenbirkenbach/skills) repository pins every skill in its `skills-lock.json` and also supports global installs via its own `make install`. This works universally across all supported agents: Claude Code, Codex, Gemini CLI, Cursor, Copilot, Windsurf, Cline, and more.
 
 ## Default Mode
 

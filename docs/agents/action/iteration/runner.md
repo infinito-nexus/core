@@ -4,7 +4,12 @@ Use this page when iterating on the `svc-runner` role or any workflow that invol
 For role-level iteration on other roles, see [Role Loop](compose.md).
 For workflow-level iteration, see [Workflow Loop](workflow.md).
 
-## Context
+## When to use
+
+- Use this loop when iterating on the `svc-runner` role or the self-hosted CI runner infrastructure (registration, configuration, nested deploy).
+- For role-level iteration on other roles use the [Compose Loop](compose.md); for workflow-level iteration use the [Workflow Loop](workflow.md).
+
+## Preconditions
 
 `svc-runner` provisions one or more GitHub Actions self-hosted runner instances on a dedicated machine. Each instance is an isolated unit with its own Docker volume, network subnet, and systemd service. The role interacts with the GitHub API (`gh api`) at deploy time to fetch registration tokens — it does **not** store long-lived credentials.
 
@@ -15,7 +20,7 @@ Key facts an agent must hold before acting:
 - The systemd services installed by `svc.sh` require a host with a real init system. Registration, service install, and service start are skipped when `DOCKER_IN_CONTAINER=true`; the role can be fully deployed in DinD (binary extraction and `.env` file work). The nested `deploy-fresh-purged-apps` call in `test.sh` is also skipped when `DOCKER_IN_CONTAINER=true` — in DinD, `make up` does not start the package-cache proxy (`registry_cache_active()` returns false in CI), so apt inside the fresh container cannot resolve the proxy hostname and package installs fail. Structural checks (binary + `.env`) are sufficient proof of a correct deploy in DinD; the full end-to-end deploy only runs on a real host.
 - `runner_count` defaults to `ansible_processor_vcpus // runner_cpus` (auto-scaled to hardware). Override explicitly when debugging a specific count.
 
-## Rules
+## The loop
 
 - You MUST NOT register runners against `infinito-nexus/core` from fork CI — the `GITHUB_TOKEN` there lacks organisation-level `administration` scope. The env-var override in `vars/main.yml` handles this automatically.
 - When iterating on the role tasks, deploy to a real Debian, Ubuntu, Arch Linux, or Fedora/EL host, or a systemd-enabled container. Running against the standard DinD test image will fail at the `svc.sh install` step.
@@ -23,7 +28,7 @@ Key facts an agent must hold before acting:
 - When bumping `runner_count`, re-run the full deploy cycle so `test.sh` can run its end-to-end app deploy against the updated runner environment.
 - `runner_docker_base` defaults to `/mnt/docker`. Override via inventory `host_vars` for non-standard machines.
 
-## Iteration loop
+Iteration steps:
 
 1. Make the code change.
 2. Run `make test` — all linting and unit tests must pass before deploy.
@@ -32,7 +37,9 @@ Key facts an agent must hold before acting:
 5. Check `files/test.sh` output from the `test-e2e-cli` run in the deploy log.
 6. If the runner registered correctly, verify it appears in the GitHub repository's runner list.
 
-## Enabling self-hosted runners in the org
+## Recovery & gotchas
+
+### Enabling self-hosted runners in the org
 
 To allow `GITHUB_TOKEN` (with `actions: write`) to register runners on the `infinito-nexus` organisation, a repository admin must enable:
 

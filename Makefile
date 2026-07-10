@@ -32,6 +32,11 @@ act-runner-image:
 act-workflow: install-act
 	@bash scripts/tests/deploy/act/workflow.sh
 
+.PHONY: alias
+# Print the agent conversation shortcuts from docs/contributing/tools/agents/alias.md.
+alias:
+	@bash scripts/make/alias.sh
+
 .PHONY: autoformat
 # Auto-format all source files (skips tools that are not installed).
 autoformat: install-lint
@@ -82,6 +87,11 @@ build-no-cache-all:
 		echo "=== build-no-cache: $$d ==="; \
 		INFINITO_DISTRO="$$d" "$(MAKE)" build-no-cache; \
 	done
+
+.PHONY: cheat
+# Print the operator prompt cheatsheet from docs/contributing/tools/agents/cheatsheet.md.
+cheat:
+	@bash scripts/make/cheatsheet.sh
 
 .PHONY: clean
 # Remove ignored files from the working tree.
@@ -293,6 +303,11 @@ install-act-update:
 install-agent:
 	@bash scripts/install/sandbox.sh
 
+.PHONY: install-alias
+# Install the terminal aliases from INFINITO_ALIAS_REPOSITORY into the user's shell config.
+install-alias:
+	@bash scripts/install/alias.sh
+
 .PHONY: install-ansible
 # Install Ansible dependencies.
 install-ansible:
@@ -329,9 +344,9 @@ install-python-dev: install-python
 	@bash scripts/install/pre-commit.sh
 
 .PHONY: install-skills
-# Install agent skills from skills-lock.json.
+# Install the agent skills from INFINITO_SKILLS_REPOSITORY into this project.
 install-skills:
-	@bash scripts/install/skills/install.sh
+	@bash scripts/install/skills.sh
 
 .PHONY: install-system-python
 # Install the system Python prerequisites.
@@ -456,6 +471,10 @@ network-refresh:
 network-trust-ca:
 	@bash scripts/system/tls/trust/linux.sh
 	@bash scripts/system/tls/trust/wsl2.sh
+
+.PHONY: onboard
+# Set up a developer workstation end to end: dependencies, project setup, agent skills, and terminal aliases.
+onboard: bootstrap install-skills install-alias
 
 .PHONY: quality
 # Autoformat then run the full test suite in one shot (pre-commit gate).
@@ -669,11 +688,6 @@ test-unit: install
 	@INFINITO_TEST_TYPE="unit" \
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh
-
-.PHONY: update-skills
-# Update all agent skills to latest versions and refresh skills-lock.json.
-update-skills:
-	@bash scripts/install/skills/update.sh
 
 .PHONY: wsl2-dns-setup
 # Set up DNS on WSL2.

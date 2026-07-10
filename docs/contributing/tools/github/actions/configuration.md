@@ -118,7 +118,7 @@ Controls whether automated update PRs are created. Covers both the workflow-driv
 The workflow-driven jobs additionally require the `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` repository secrets, see [secrets.md](secrets.md). Without those secrets, runs fail at the token-minting step and no PR is opened.
 
 **Default behaviour (variable not set or set to any value other than `true`):**
-The `update-docker-image-versions` and `update-skills` jobs are skipped. Dependabot PRs are auto-closed on open with a comment pointing to this variable.
+The `update-docker-image-versions` job is skipped. Dependabot PRs are auto-closed on open with a comment pointing to this variable.
 
 **To enable update PRs:**
 

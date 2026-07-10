@@ -19,6 +19,7 @@ build/*
 .claude/skills/
 collections/
 .env
+custom.env
 logs/
 job-logs.txt
 *.lock

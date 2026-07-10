@@ -2,6 +2,11 @@
 
 This page defines the inner loop for iterating on a role-local `files/playwright/playwright.spec.js` against an already-running app stack, without redeploying between edits.
 
+## When to use
+
+- Use this loop when writing, debugging, or fixing a role's `files/playwright/playwright.spec.js` against an already-running stack, without redeploying between edits.
+- For the role deploy that establishes the running stack use the [Compose Loop](compose.md) or [Swarm Loop](swarm.md).
+
 ## Definitions
 
 - **Inner loop**: the edit-rerun cycle on `roles/<role>/files/playwright/playwright.spec.js` driven by `make compose-playwright role=<role>`, without a redeploy. On the act-swarm test cluster the equivalent is `make swarm-playwright role=<role>`, which first copies the working-tree's modified files into the node's frozen bootstrap copy (swarm nodes are not bind-mounted like compose).

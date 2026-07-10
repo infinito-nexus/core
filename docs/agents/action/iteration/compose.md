@@ -5,7 +5,12 @@ For spec-level inner-loop iteration, see [Playwright Spec Loop](playwright.md).
 For the swarm deploy of the same role, see [Swarm Loop](swarm.md).
 For iterating on GitHub Actions workflows with Act, see [Workflow Loop](workflow.md).
 
-## Rules
+## When to use
+
+- Use this loop while actively iterating on or debugging a local compose app deploy for one or more roles.
+- For spec-level inner-loop iteration use the [Playwright Spec Loop](playwright.md); for the swarm deploy of the same role use the [Swarm Loop](swarm.md); for GitHub Actions workflows use the [Workflow Loop](workflow.md).
+
+## The loop
 
 - Before starting the loop, you MUST propose disabling all non-necessary services via the `disable=` make arg to reduce resource usage. In the typical case, this means keeping only the database and disabling everything else. Only proceed without this proposal if the user has already confirmed a full-stack setup.
 - Non-essential provider toggle:
@@ -30,7 +35,7 @@ For iterating on GitHub Actions workflows with Act, see [Workflow Loop](workflow
 - Network or DNS failures during a local deploy count as concrete evidence that the host stack is broken. In that case, the next retry MUST be `make compose-deploy mode=reinstall apps=<roles> full_cycle=true`.
 - If you need to validate the single-app init/deploy path separately, use `make compose-deploy apps=<roles>`.
 
-## Matrix variants
+### Matrix variants
 
 For the matrix-variant mechanism (folder layout, round semantics, `--variant` / `--full-cycle` flags) see [variants.md](../../../contributing/design/variants.md). The agent-side iteration rules below assume that mechanism as background.
 
@@ -42,7 +47,7 @@ For the matrix-variant mechanism (folder layout, round semantics, `--variant` / 
 - For FULL-matrix iteration, the exact `mode` and `variant=` for every situation is fixed by the table in [Full-matrix iteration flow](#full-matrix-iteration-flow); follow it instead of improvising. If a round fails, note which variant failed so you can pin it (row 2 of that table).
 - When debugging cross-variant interaction (for example "the multisite variant breaks because single-site state was not purged"), reproduce with the FULL matrix once, then pin `variant=<failing-idx>` and iterate the fix. Re-run the FULL matrix only when you believe the fix is complete.
 
-### Full-matrix iteration flow
+#### Full-matrix iteration flow
 
 When the iteration target is the full matrix (cross-variant coverage matters more than focused-debug speed), the command you run is fixed by your current situation. Do NOT improvise `mode` or `variant=`: find your situation in the table and run exactly that command.
 
@@ -60,13 +65,13 @@ FORBIDDEN:
 - A bare `mode=update` without `variant=` on a matrix-variant role. Every `mode=update` MUST carry `variant=<idx>` (row 2). A missing `variant=` is never a reason to switch to `mode=reinstall`.
 - A no-variant `mode=reinstall` as the reaction to a failed variant or a code change. Only rows 1 and 4 omit `variant=`. To retry one failing variant, pin it with row 2; never restart the whole matrix to retry a single variant.
 
-## Certificate Authority
+### Certificate Authority
 
 - If the website uses locally deployed certificates, you MUST run `make network-trust-ca` before you inspect it in a browser. Otherwise the browser will warn about the local CA and the inspection will not be reliable.
 - After `make network-trust-ca`, you MUST restart the browser so it picks up the updated trust store.
 - If `make network-trust-ca` fails due to missing root permissions, you MUST use the alternative syntax `curl -k` (or `wget --no-check-certificate`) to skip certificate validation when checking URLs from the command line instead of fixing the trust store.
 
-## Inspect
+## Inspect before redeploy
 
 - Before every redeploy you MUST fully resolve the failure and reach at least **95% confidence that your fix actually fixes it**. That confidence MUST come from in-container inspection (`make compose-exec` / `make compose-inner-run`): reproduce the failure, walk the fix path, and confirm the corrected behaviour. Never redeploy on a guess.
 - Before you redeploy, you MUST complete all available inspections first. Check the live local output, local logs, and current browser state so the original state stays visible.
