@@ -26,7 +26,7 @@ Nightly path (SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL, 01:30)
                 └─ rsync any other failure               -> generation removed, exit != 0
 
 Pre-deploy path (MODE_BACKUP, tasks/stages/01_constructor.yml)
-  pre_deploy_snapshot.sh <unit> <export_base>
+  scripts/system/backup/pre_deploy_snapshot.sh <unit> <export_base>
     ├─ no unit installed (fresh host, version glob checked)  -> SKIP
     ├─ export empty/missing                                  -> SKIP
     └─ else: systemctl start <previous deploy's unit>        -> nightly path above

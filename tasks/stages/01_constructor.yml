@@ -167,29 +167,27 @@
   when: run_once_sys_token_store is not defined
 
 - name: "💾 Snapshot the pre-deploy state via the previous deploy's backup units"
-  when: MODE_BACKUP | bool
-  block:
-    - name: "💾 Snapshot the pre-deploy container state"
-      ansible.builtin.script:
-        cmd: >-
-          {{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/files/pre_deploy_snapshot.sh') }}
-          {{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }}
-          {{ FILE_DATABASE_SECRETS }}
-      register: _pre_deploy_snapshot
-      changed_when: "'SKIP' not in _pre_deploy_snapshot.stdout"
-      timeout: "{{ lookup('timeout', 3600) | int }}"
-      when: "'svc-bkp-volume-2-local' in group_names"
-
-    - name: "💾 Snapshot the pre-deploy NFS export"
-      ansible.builtin.script:
-        cmd: >-
-          {{ lookup('path_absolute', 'roles/svc-bkp-nfs-2-local/files/pre_deploy_snapshot.sh') }}
-          {{ SYS_SERVICE_BACKUP_NFS_2_LOCAL }}
-          {{ lookup('nfs_export_base') }}
-      register: _pre_deploy_nfs_snapshot
-      changed_when: "'SKIP' not in _pre_deploy_nfs_snapshot.stdout"
-      timeout: "{{ lookup('timeout', 3600) | int }}"
-      when: "'svc-bkp-nfs-2-local' in group_names"
+  ansible.builtin.script:
+    cmd: >-
+      {{ lookup('path_absolute', 'scripts/system/backup/pre_deploy_snapshot.sh') }}
+      {{ snapshot.unit }}
+      {{ snapshot.source }}
+  loop:
+    - role: svc-bkp-volume-2-local
+      unit: "{{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }}"
+      source: "{{ FILE_DATABASE_SECRETS }}"
+    - role: svc-bkp-nfs-2-local
+      unit: "{{ SYS_SERVICE_BACKUP_NFS_2_LOCAL }}"
+      source: "{{ lookup('nfs_export_base') }}"
+  loop_control:
+    loop_var: snapshot
+    label: "{{ snapshot.role }}"
+  register: _pre_deploy_snapshot
+  changed_when: "'SKIP' not in (_pre_deploy_snapshot.stdout | default(''))"
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  when:
+    - MODE_BACKUP | bool
+    - snapshot.role in group_names
 
 - name: 🛠️ Preload shared services
   ansible.builtin.include_role:

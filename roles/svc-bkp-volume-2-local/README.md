@@ -27,7 +27,7 @@ Nightly path (SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL, 01:00)
                      others stop for the dump and resume
 
 Pre-deploy path (MODE_BACKUP, tasks/stages/01_constructor.yml)
-  pre_deploy_snapshot.sh <unit> <databases-csv>
+  scripts/system/backup/pre_deploy_snapshot.sh <unit> <databases-csv>
     ├─ no unit installed (fresh host, version glob checked)  -> SKIP
     ├─ databases.csv missing/empty                           -> SKIP
     └─ else: systemctl start <previous deploy's unit>        -> nightly path above

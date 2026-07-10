@@ -40,6 +40,7 @@ wait_service_terminated() {
             failed)
                 echo "FAIL: ${BKP_TEST_SERVICE} terminated in state 'failed'"
                 systemctl status "${BKP_TEST_SERVICE}" --no-pager 2>&1 | tail -20
+                journalctl -u "${BKP_TEST_SERVICE}" --no-pager -n 100 2>&1 || true
                 exit 1
                 ;;
             *)
@@ -62,7 +63,9 @@ MACHINE_DIR="${BKP_TEST_BACKUPS_DIR%/}/${MACHINE_HASH}"
 
 if [[ ! -d "${MACHINE_DIR}" ]]; then
     echo "No backup dir yet at ${MACHINE_DIR}; triggering an initial backup run"
-    systemctl start "${BKP_TEST_SERVICE}"
+    if ! systemctl start "${BKP_TEST_SERVICE}"; then
+        echo "backup unit start returned non-zero; inspecting result"
+    fi
     wait_service_terminated
 fi
 if [[ ! -d "${MACHINE_DIR}" ]]; then
@@ -91,7 +94,9 @@ export MACHINE_HASH REPO_DIR REPO_NAME
 if [[ "${ASYNC_ENABLED}" == "true" ]]; then
     if (( COUNT < 2 )); then
         echo "Only ${COUNT} generation(s); triggering one extra backup run for differential coverage"
-        systemctl start "${BKP_TEST_SERVICE}"
+        if ! systemctl start "${BKP_TEST_SERVICE}"; then
+            echo "backup unit start returned non-zero; inspecting result"
+        fi
         wait_service_terminated
         count_generations
     fi
