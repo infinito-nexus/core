@@ -6,7 +6,7 @@
   rescue:
     - name: "🎯 Matomo bootstrap | Select effective bootstrap result for diagnostics"
       ansible.builtin.set_fact:
-        matomo_bootstrap_run: "{{ matomo_bootstrap_compose if DEPLOYMENT_MODE == 'compose' else matomo_bootstrap_swarm }}"
+        matomo_bootstrap_run: "{{ (matomo_bootstrap_compose | default({})) if DEPLOYMENT_MODE == 'compose' else (matomo_bootstrap_swarm | default({})) }}"
 
     - name: "💾 Matomo bootstrap | Dump bootstrap diagnostics ({{ DEPLOYMENT_MODE }})"
       ansible.builtin.include_tasks: "05_bootstrap/debug/{{ DEPLOYMENT_MODE }}.yml"
@@ -15,7 +15,7 @@
     - name: "🛑 Matomo bootstrap | Abort with bootstrap root cause"
       ansible.builtin.fail:
         msg: >-
-          Matomo bootstrap run failed after {{ matomo_bootstrap_run.attempts | default(MATOMO_BOOTSTRAP_RETRIES) }} attempt(s)
+          Matomo bootstrap run failed after {{ matomo_bootstrap_run.attempts | default(MATOMO_BOOTSTRAP_SWARM_ATTEMPTS if DEPLOYMENT_MODE == 'swarm' else MATOMO_BOOTSTRAP_RETRIES) }} attempt(s)
           with rc={{ matomo_bootstrap_run.rc | default('n/a') }}.
           stderr={{ (matomo_bootstrap_run.stderr | default('') | trim) if not (MASK_CREDENTIALS_IN_LOGS | bool) else ('<masked,len=' ~ ((matomo_bootstrap_run.stderr
           | default('') | string | length) | string) ~ '>') }}

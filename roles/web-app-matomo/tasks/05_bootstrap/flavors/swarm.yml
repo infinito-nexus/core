@@ -18,15 +18,17 @@
   delegate_to: "{{ MATOMO_HOST_NODE }}"
   when: IS_STACK_HOST | bool
 
-- name: "🐝 Matomo bootstrap | Swarm: force a fresh installer run and wait for its token"
-  ansible.builtin.script: "{{ role_path }}/files/bootstrap_swarm_poll.sh"
-  environment:
-    SERVICE_REF: "{{ lookup('container_service', application_id, MATOMO_BOOTSTRAP_SERVICE) }}"
-    DEADLINE_S: "{{ MATOMO_INSTALLER_STEP_DEADLINE_S | int }}"
-    POLL_DELAY_S: "{{ MATOMO_BOOTSTRAP_SWARM_POLL_DELAY_S | int }}"
-  register: matomo_bootstrap_swarm
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  retries: "{{ MATOMO_BOOTSTRAP_SWARM_ATTEMPTS | int }}"
-  delay: 0
-  until: matomo_bootstrap_swarm.rc == 0 and (matomo_bootstrap_swarm.stdout | trim | length) > 0
+- name: "🐝 Matomo bootstrap | Swarm: run installer attempts"
+  ansible.builtin.include_tasks: swarm_attempt.yml
+  loop: "{{ range(MATOMO_BOOTSTRAP_SWARM_ATTEMPTS | int) | list }}"
+  loop_control:
+    loop_var: matomo_attempt_index
+
+- name: "🛑 Matomo bootstrap | Swarm: fail when no attempt yielded a token"
+  ansible.builtin.fail:
+    msg: >-
+      Matomo swarm bootstrap failed after {{ MATOMO_BOOTSTRAP_SWARM_ATTEMPTS }} attempt(s)
+      with rc={{ matomo_bootstrap_swarm.rc | default('n/a') }}.
+  when: >-
+    ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
+    or (((matomo_bootstrap_swarm | default({})).stdout | default('')) | trim | length) == 0
