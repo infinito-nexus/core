@@ -1,42 +1,18 @@
 ---
-# OIDC changes need a restart, but only while the issuer answers (a restart with
-# the issuer down sticks on internal auth). Keycloak loads after the mail
-# provider, so on fresh rounds defer the restart via the service-loader queue.
+# Always defer the OIDC-activating restart to the service-loader post-load
+# flush: mid-play the issuer probe can hit a stale Keycloak that a later round
+# step replaces, leaving Stalwart bound to a dead issuer. The flush runs after
+# the loader finished, i.e. against the final Keycloak (11_oidc_restart still
+# waits for the issuer and fails loudly if it never comes up).
 
-- name: "Probe the OIDC issuer from the Stalwart container"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - exec
-      - -T
-      - stalwart
-      - curl
-      - -ksS
-      - -o
-      - /dev/null
-      - -w
-      - "%{http_code}"
-      - "{{ OIDC.CLIENT.ISSUER_URL }}/.well-known/openid-configuration"
-  args:
-    chdir: "{{ STALWART_INSTANCE_DIR }}"
-  register: stalwart_oidc_issuer_probe
-  changed_when: false
-  failed_when: false
-
-- name: "Restart Stalwart now (issuer reachable)"
-  include_tasks: 11_oidc_restart.yml
-  when: stalwart_oidc_issuer_probe.stdout | default('') == '200'
-
-- name: "Defer the OIDC restart until the issuer is deployed"
+- name: "Defer the OIDC restart to the service-loader post-load flush"
   ansible.builtin.set_fact:
     stalwart_oidc_restart_pending: true
-  when: stalwart_oidc_issuer_probe.stdout | default('') != '200'
 
-- name: "Queue the deferred restart for the service-loader post-load flush"
+- name: "Queue the deferred restart"
   include_role:
     name: sys-service-loader
     tasks_from: list_or_shoot.yml
   vars:
     list_or_shoot_roles:
       - web-app-stalwart
-  when: stalwart_oidc_restart_pending | default(false) | bool

@@ -1,41 +1,17 @@
 ---
-# Refresh-or-defer: heviat-Mailu caches a failed OIDC discovery until the admin
-# container restarts, and Keycloak loads after the mail roles on fresh rounds.
+# Always defer the OIDC refresh to the service-loader post-load flush: mid-play
+# the issuer probe can hit a stale Keycloak that a later round step replaces.
+# The flush runs after the loader finished, i.e. against the final Keycloak
+# (08_oidc_refresh still waits for the issuer and fails loudly if absent).
 
-- name: "Probe the OIDC issuer from the Mailu admin container"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - exec
-      - -T
-      - admin
-      - curl
-      - -ksS
-      - -o
-      - /dev/null
-      - -w
-      - "%{http_code}"
-      - "https://{{ MAILU_OIDC_HOST }}/realms/{{ OIDC.CLIENT.REALM }}/.well-known/openid-configuration"
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
-  register: mailu_oidc_issuer_probe
-  changed_when: false
-  failed_when: false
-
-- name: "Refresh the OIDC provider config now (issuer reachable)"
-  include_tasks: 08_oidc_refresh.yml
-  when: mailu_oidc_issuer_probe.stdout | default('') == '200'
-
-- name: "Defer the OIDC refresh until the issuer is deployed"
+- name: "Defer the OIDC refresh to the service-loader post-load flush"
   ansible.builtin.set_fact:
     mailu_oidc_restart_pending: true
-  when: mailu_oidc_issuer_probe.stdout | default('') != '200'
 
-- name: "Queue the deferred refresh for the service-loader post-load flush"
+- name: "Queue the deferred refresh"
   include_role:
     name: sys-service-loader
     tasks_from: list_or_shoot.yml
   vars:
     list_or_shoot_roles:
       - web-app-mailu
-  when: mailu_oidc_restart_pending | default(false) | bool
