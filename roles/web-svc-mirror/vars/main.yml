@@ -1,0 +1,4 @@
+---
+# General
+application_id: "web-svc-mirror"
+domain: "{{ lookup('domain',application_id) }}"

@@ -31,6 +31,26 @@ end
 local whole = table.concat(ngx.ctx.buf)
 ngx.ctx.buf = nil
 
+{% set _mirror_tor_enabled = lookup('config', application_id, 'services.tor.enabled', False) | bool %}
+{% if _mirror_tor_enabled %}
+{% set _mirror_origins = lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY) %}
+{% set _mirror_tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
+{% set _mirror_onion = lookup('tls', 'web-svc-mirror', 'url.base') | regex_replace('/+$', '') | to_onion_url(_mirror_tor_node, DOMAIN_PRIMARY) %}
+{% if _mirror_origins %}
+-- Onion sessions: rewrite external asset origins to the local mirror (privacy proxy)
+do
+    local host = ngx.var.http_host or ""
+    if host:sub(-6) == ".onion" then
+{% for origin in _mirror_origins %}
+        do
+            local pat = ([=[https://{{ origin }}]=]):gsub("([^%w])", "%%%1")
+            whole = (whole:gsub(pat, [=[{{ _mirror_onion }}/{{ origin }}]=]))
+        end
+{% endfor %}
+    end
+end
+{% endif %}
+{% endif %}
 {% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.base') | regex_replace('/+$', '') %}
 {% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
 {% set _cdn_onion = _cdn_base | to_onion_url(_tor_node, DOMAIN_PRIMARY) %}

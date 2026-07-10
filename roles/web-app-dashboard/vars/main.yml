@@ -24,11 +24,6 @@ DASHBOARD_JS_FILES: >-
 DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | get_entity_name }}/js"
 DASHBOARD_JS_SERVER_DIR: "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
 DASHBOARD_JS_BASE_URL: "{{ (DASHBOARD_JS_CDN_URL | trim('/')) ~ '/' ~ (DASHBOARD_JS_BASE_PATH | trim('/')) }}"
-# keycloak-js adapter, vendored next to oidc.js so the browser loads it same-origin
-# (the public jsdelivr CDN is unreachable from a .onion browser context).
-DASHBOARD_KEYCLOAK_JS_VERSION: "26.2.4"
-DASHBOARD_KEYCLOAK_JS_FILE_NAME: "keycloak.js"
-DASHBOARD_KEYCLOAK_JS_SRC_URL: "https://cdn.jsdelivr.net/npm/keycloak-js@{{ DASHBOARD_KEYCLOAK_JS_VERSION }}/lib/keycloak.js"
 
 ## Webserver
 DASHBOARD_LOCATION_SILENT_CHECK: "/silent-check-sso.html"

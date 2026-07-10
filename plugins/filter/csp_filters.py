@@ -268,6 +268,17 @@ class FilterModule:
                 ):
                     tokens.append(get_url(domains, "web-svc-cdn", web_protocol))
 
+                # Mirror privacy proxy (if tor enabled) – onion sessions load external assets through it
+                if directive in (
+                    "script-src-elem",
+                    "style-src-elem",
+                    "style-src",
+                    "connect-src",
+                    "font-src",
+                    "media-src",
+                ) and self.is_feature_enabled(applications, "tor", application_id):
+                    tokens.append(get_url(domains, "web-svc-mirror", web_protocol))
+
                 # Matomo (if enabled via services.matomo.enabled)
                 if directive in (
                     "script-src-elem",

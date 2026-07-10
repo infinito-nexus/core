@@ -1,4 +1,11 @@
 ---
+# nocheck: playwright-service-flag — Tor Browser users need third-party assets
+# served first-party; deploying tor therefore always deploys the mirror.
+# nocheck: dynamic-flag — hard dependency: every tor deployment serves the mirror.
+mirror:
+  bond: 1
+  enabled: true
+  shared: true
 tor:
   bond: 1
   enabled: true
