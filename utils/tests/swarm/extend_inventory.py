@@ -7,7 +7,7 @@ will use.
 The dep walk delegates to ``derive_includes`` so the group set matches
 the provisioned include/credential closure.
 
-Node base names are the SPOT in default.env (shared with 00_topology.sh);
+Node base names are the SPOT in default.env (shared with scripts/tests/deploy/swarm/topology/base.sh);
 only the SWARM_NAME prefix is applied here so host names match the
 containers. The env get() keeps SWARM_NAME import-safe; main() enforces it
 at run time.
@@ -76,6 +76,9 @@ def main() -> int:
     inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_PATH
 
     group_hosts = _host_topology(app_id) + _placement_dep_groups(app_id)
+    group_hosts.append(("svc-bkp-volume-2-local", _MANAGER))
+    group_hosts.append(("svc-bkp-secrets-2-local", _MANAGER))
+    group_hosts.append(("svc-bkp-nfs-2-local", _NFS_SERVER))
 
     inv = load_yaml_any(str(inv_path), default_if_missing={})
     inv.setdefault("all", {}).setdefault("children", {})

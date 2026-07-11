@@ -20,6 +20,7 @@ class TestWriteExtrasDomainPrimary(unittest.TestCase):
             "MGR": "swarm-mgr-01",
             "OUT_PATH": str(out_path),
             "KEY_PATH": str(Path(td) / "admin.key"),
+            "INFINITO_SWARM_BACKUP_KEY": str(Path(td) / "backup.key"),
             **extra_env,
         }
         with mock.patch.dict("os.environ", env, clear=False):

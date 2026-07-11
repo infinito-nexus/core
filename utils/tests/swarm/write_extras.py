@@ -8,7 +8,10 @@ are loaded by the deploy step. Generates an ed25519 keypair at
 
 Inputs (env): ``NFS_IP``, ``MGR_IP``, ``MGR``, ``OUT_PATH`` (default
 ``/tmp/swarm-nfs-extras.yml``), ``KEY_PATH`` (default
-``/tmp/swarm-nfs-admin.key``).
+``/tmp/swarm-nfs-admin.key``). A second ed25519 keypair is generated at
+``INFINITO_SWARM_BACKUP_KEY`` (SPOT: default.env) and its public half lands
+in ``users.backup.authorized_keys`` so the DR drill's backup host can pull
+over the ``user-backup`` ssh-wrapper.
 """
 
 from __future__ import annotations
@@ -57,12 +60,21 @@ def main() -> int:
 
     admin_pubkey = _ensure_keypair(key_path)
 
+    static_env = parse_static_env(PROJECT_ROOT / "default.env")
+
     default_users = copy.deepcopy(load_yaml(str(_DEFAULT_INVENTORY)).get("users", {}))
     admin = dict(default_users.get("administrator", {}))
     admin["authorized_keys"] = [admin_pubkey]
     default_users["administrator"] = admin
 
-    static_env = parse_static_env(PROJECT_ROOT / "default.env")
+    backup_key_path = Path(
+        os.environ.get("INFINITO_SWARM_BACKUP_KEY")
+        or static_env["INFINITO_SWARM_BACKUP_KEY"]
+    )
+    backup_pubkey = _ensure_keypair(backup_key_path)
+    backup = dict(default_users.get("backup", {"accounts": ["host"]}))
+    backup["authorized_keys"] = [backup_pubkey]
+    default_users["backup"] = backup
 
     extras = {
         "RUNTIME": detect_runtime(),
