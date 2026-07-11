@@ -98,7 +98,11 @@ livekit:
   mem_limit: 2g
   pids_limit: 1024
   ports:
+    internal:
+      http: 7880
+      tcp: 7881
     public:
+      stun_turn: 3479
       relay:
         start: 60000
         end: 60999
