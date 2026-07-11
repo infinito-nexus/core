@@ -30,9 +30,6 @@ class TestEmailLookup(unittest.TestCase):
         cls.addClassCleanup(_reset_cache_for_tests)
 
     def setUp(self) -> None:
-        # Exception: the fingerprint memo keys by id(); a GC'd variables dict
-        # can hand its id to the next test's dict and alias a stale signature,
-        # so it must clear per test despite the class-shared caches.
         cache_base._reset()
         self.lookup = LookupModule()
         self.lookup._templar = None
