@@ -87,7 +87,18 @@ if [ "$_have_lock" = "1" ]; then
 
   if [ -x "$ORIG_ENTRYPOINT" ]; then
     log "Running image entrypoint init via $ORIG_ENTRYPOINT"
-    "$ORIG_ENTRYPOINT" /bin/true
+    _init_rc=0
+    _init_trace="/tmp/espocrm-init-trace.log"
+    bash -x "$ORIG_ENTRYPOINT" /bin/true 2>"$_init_trace" || _init_rc=$?
+    grep -E '^(info|warning|error):' "$_init_trace" >&2 || true
+    if [ "$_init_rc" -ne 0 ]; then
+      log "ERROR: image entrypoint init failed (rc=$_init_rc); last trace lines:"
+      tail -n 40 "$_init_trace" >&2 || true
+      log "----- data/logs (newest) -----"
+      _newest_log=$(ls -t "${APP_DIR}/data/logs/"*.log 2>/dev/null | head -1)
+      [ -n "$_newest_log" ] && tail -n 60 "$_newest_log" >&2 || log "(no app log found)"
+      exit "$_init_rc"
+    fi
   else
     log "ERROR: image entrypoint not found at $ORIG_ENTRYPOINT; an image bump moved it and upgrades/config seeding would silently stop."
     exit 1
