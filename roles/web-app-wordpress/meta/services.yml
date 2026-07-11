@@ -27,7 +27,7 @@ discourse:
   enabled: "{{ 'web-app-discourse' in group_names }}"
   shared: "{{ 'web-app-discourse' in group_names }}"
 wordpress:
-  version: 7.0.0
+  version: 7.0.1
   image: wordpress
   name: wordpress
   min_storage: 8GB
