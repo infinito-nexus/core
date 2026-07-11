@@ -673,6 +673,11 @@ test-lint: install
 test-main-merged:
 	@bash scripts/git/assert_main_merged.sh
 
+.PHONY: test-merge-signed
+# Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (pre-merge-commit gate).
+test-merge-signed:
+	@bash scripts/git/assert_merge_signed.sh
+
 .PHONY: test-signed
 # Verify HEAD is signed.
 # Note: `git log %G?` returns N for unsigned; gates the pre-push hook against unsigned tips.
