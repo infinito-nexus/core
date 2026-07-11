@@ -5,9 +5,15 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.cache.yaml import load_yaml_str
+from utils.cache.yaml import load_yaml, load_yaml_str
 
 from . import PROJECT_ROOT
+
+_CA_TRUST = load_yaml(str(PROJECT_ROOT / "group_vars" / "all" / "02_tls.yml"))[
+    "CA_TRUST"
+]
+CA_CERT_CONTAINER = _CA_TRUST["inject_cert_container"]
+CA_WRAPPER_CONTAINER = _CA_TRUST["inject_wrapper_container"]
 
 
 def _load_module(rel_path: str, name: str):
@@ -125,7 +131,6 @@ class TestComposeCaInject(unittest.TestCase):
         def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
             calls.append(cmd)
 
-            # container image inspect <image>: first missing, second exists
             if cmd[:3] == ["docker", "image", "inspect"]:
                 inspect_calls = [
                     c for c in calls if c[:3] == ["docker", "image", "inspect"]
@@ -134,11 +139,9 @@ class TestComposeCaInject(unittest.TestCase):
                     return 1, "", "no such image"
                 return 0, json.dumps([{"Config": {"Entrypoint": [], "Cmd": []}}]), ""
 
-            # compose ... build app
             if cmd[:2] == ["docker", "compose"] and cmd[-2:] == ["build", "app"]:
                 return 0, "built", ""
 
-            # anything else
             return 1, "", "unexpected"
 
         base_cmd = ["docker", "compose", "-p", "p", "-f", "compose.yml"]
@@ -178,7 +181,6 @@ class TestComposeCaInject(unittest.TestCase):
         def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
             calls.append(cmd)
 
-            # container image inspect: first missing, second exists
             if cmd[:3] == ["docker", "image", "inspect"]:
                 inspect_calls = [
                     c for c in calls if c[:3] == ["docker", "image", "inspect"]
@@ -187,11 +189,9 @@ class TestComposeCaInject(unittest.TestCase):
                     return 1, "", "no such image"
                 return 0, json.dumps([{"Config": {"Entrypoint": [], "Cmd": []}}]), ""
 
-            # build builder (app)
             if cmd[:2] == ["docker", "compose"] and cmd[-2:] == ["build", "app"]:
                 return 0, "built", ""
 
-            # if pull(worker) happens, that's wrong for this test; still return success
             if cmd[:2] == ["docker", "compose"] and cmd[-2:] == ["pull", "worker"]:
                 return 0, "pulled", ""
 
@@ -225,7 +225,6 @@ class TestComposeCaInject(unittest.TestCase):
         def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
             calls.append(cmd)
 
-            # image inspect: first missing, second exists after pull
             if cmd[:3] == ["docker", "image", "inspect"]:
                 inspect_calls = [
                     c for c in calls if c[:3] == ["docker", "image", "inspect"]
@@ -234,7 +233,6 @@ class TestComposeCaInject(unittest.TestCase):
                     return 1, "", "no such image"
                 return 0, json.dumps([{"Config": {"Entrypoint": [], "Cmd": []}}]), ""
 
-            # pull succeeds
             if cmd[:2] == ["docker", "compose"] and cmd[-2:] == ["pull", "worker"]:
                 return 0, "pulled", ""
 
@@ -272,7 +270,6 @@ class TestComposeCaInject(unittest.TestCase):
         _read_text.return_value = "services:\n  app:\n    image: myimage:latest\n"
 
         def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
-            # compose ... config
             if (
                 len(cmd) >= 3
                 and cmd[0:2] == ["docker", "compose"]
@@ -281,7 +278,6 @@ class TestComposeCaInject(unittest.TestCase):
                 yml = "services:\n  app:\n    image: myimage:latest\n"
                 return 0, yml, ""
 
-            # container image inspect <image>
             if cmd[:3] == ["docker", "image", "inspect"]:
                 json_out = json.dumps(
                     [{"Config": {"Entrypoint": ["/entry"], "Cmd": ["run"]}}]
@@ -305,6 +301,10 @@ class TestComposeCaInject(unittest.TestCase):
                 "/etc/infinito/ca/root-ca.crt",
                 "--wrapper-host",
                 "/etc/infinito/bin/with-ca-trust.sh",
+                "--ca-container",
+                CA_CERT_CONTAINER,
+                "--wrapper-container",
+                CA_WRAPPER_CONTAINER,
                 "--trust-name",
                 "infinito.local",
             ]
@@ -314,7 +314,6 @@ class TestComposeCaInject(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertTrue(_write_text.called)
 
-        # Optional sanity: ensure the written YAML contains CA_TRUST_NAME and trust-name value
         args, _kwargs = _write_text.call_args
         written = args[1] if len(args) > 1 else ""
         self.assertIn("CA_TRUST_NAME", written)
@@ -357,6 +356,10 @@ class TestComposeCaInject(unittest.TestCase):
                 "/etc/infinito/ca/root-ca.crt",
                 "--wrapper-host",
                 "/etc/infinito/bin/with-ca-trust.sh",
+                "--ca-container",
+                CA_CERT_CONTAINER,
+                "--wrapper-container",
+                CA_WRAPPER_CONTAINER,
                 "--trust-name",
                 "infinito.local",
             ]
@@ -387,7 +390,10 @@ class TestComposeCaInject(unittest.TestCase):
             "/etc/infinito/ca/root-ca.crt",
             "--wrapper-host",
             "/etc/infinito/bin/with-ca-trust.sh",
-            # missing: --trust-name
+            "--ca-container",
+            CA_CERT_CONTAINER,
+            "--wrapper-container",
+            CA_WRAPPER_CONTAINER,
         ]
         with patch("sys.argv", argv), self.assertRaises(SystemExit):
             self.m.main()
@@ -445,11 +451,13 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
         out = doc["services"]["svc"]
-        self.assertEqual(out.get("entrypoint"), ["/tmp/infinito/bin/with-ca-trust.sh"])
+        self.assertEqual(out.get("entrypoint"), [CA_WRAPPER_CONTAINER])
         self.assertEqual(out.get("command"), ["/entry", "run"])
 
     def test_render_override_wraps_when_inspect_ambiguous(self):
@@ -474,11 +482,13 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
         out = doc["services"]["svc"]
-        self.assertEqual(out.get("entrypoint"), ["/tmp/infinito/bin/with-ca-trust.sh"])
+        self.assertEqual(out.get("entrypoint"), [CA_WRAPPER_CONTAINER])
         self.assertEqual(out.get("command"), ["/svc-entry", "svc-run"])
 
     def test_render_override_env_only_when_probe_clean_negative(self):
@@ -497,6 +507,8 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
@@ -548,6 +560,8 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
@@ -555,24 +569,21 @@ class TestComposeCaInject(unittest.TestCase):
         self.assertIn("svc", doc["services"])
         out = doc["services"]["svc"]
 
-        # Always mounts both CA and wrapper
         self.assertIn("volumes", out)
-        self.assertIn("/host/ca.crt:/tmp/infinito/ca/root-ca.crt:ro", out["volumes"])
+        self.assertIn(f"/host/ca.crt:{CA_CERT_CONTAINER}:ro", out["volumes"])
         self.assertIn(
-            "/host/with-ca-trust.sh:/tmp/infinito/bin/with-ca-trust.sh:ro",
+            f"/host/with-ca-trust.sh:{CA_WRAPPER_CONTAINER}:ro",
             out["volumes"],
         )
 
-        # Always sets env vars
         env = out.get("environment", {})
-        self.assertEqual(env.get("CA_TRUST_CERT"), "/tmp/infinito/ca/root-ca.crt")
+        self.assertEqual(env.get("CA_TRUST_CERT"), CA_CERT_CONTAINER)
         self.assertEqual(env.get("CA_TRUST_NAME"), "infinito.local")
-        self.assertEqual(env.get("SSL_CERT_FILE"), "/tmp/infinito/ca/root-ca.crt")
-        self.assertEqual(env.get("REQUESTS_CA_BUNDLE"), "/tmp/infinito/ca/root-ca.crt")
-        self.assertEqual(env.get("CURL_CA_BUNDLE"), "/tmp/infinito/ca/root-ca.crt")
-        self.assertEqual(env.get("NODE_EXTRA_CA_CERTS"), "/tmp/infinito/ca/root-ca.crt")
+        self.assertEqual(env.get("SSL_CERT_FILE"), CA_CERT_CONTAINER)
+        self.assertEqual(env.get("REQUESTS_CA_BUNDLE"), CA_CERT_CONTAINER)
+        self.assertEqual(env.get("CURL_CA_BUNDLE"), CA_CERT_CONTAINER)
+        self.assertEqual(env.get("NODE_EXTRA_CA_CERTS"), CA_CERT_CONTAINER)
 
-        # For distroless-like images: do NOT override entrypoint/command
         self.assertNotIn("entrypoint", out)
         self.assertNotIn("command", out)
 
@@ -596,11 +607,13 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
         out = doc["services"]["svc"]
-        self.assertEqual(out.get("entrypoint"), ["/tmp/infinito/bin/with-ca-trust.sh"])
+        self.assertEqual(out.get("entrypoint"), [CA_WRAPPER_CONTAINER])
         self.assertEqual(out.get("command"), ["/entry", "run", "--flag"])
 
     def test_render_override_uses_service_entrypoint_command_over_image(self):
@@ -629,6 +642,8 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
@@ -680,11 +695,13 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
         out = doc["services"]["svc"]
-        self.assertEqual(out.get("entrypoint"), ["/tmp/infinito/bin/with-ca-trust.sh"])
+        self.assertEqual(out.get("entrypoint"), [CA_WRAPPER_CONTAINER])
         self.assertEqual(out.get("command")[:2], ["/bin/sh", "-c"])
         self.assertEqual(
             out.get("command")[2],
@@ -714,6 +731,8 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
@@ -724,7 +743,6 @@ class TestComposeCaInject(unittest.TestCase):
         """
         main(): when /bin/sh exists for the image, the written override should include entrypoint wrapper.
         """
-        # Compose file content used for profile discovery only
         with (
             patch.object(Path, "exists", autospec=True, return_value=True),
             patch.object(Path, "is_dir", autospec=True, return_value=True),
@@ -739,7 +757,6 @@ class TestComposeCaInject(unittest.TestCase):
         ):
 
             def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
-                # compose ... config
                 if (
                     len(cmd) >= 3
                     and cmd[0:2] == ["docker", "compose"]
@@ -748,14 +765,12 @@ class TestComposeCaInject(unittest.TestCase):
                     yml = "services:\n  app:\n    image: myimage:latest\n"
                     return 0, yml, ""
 
-                # container image inspect <image>
                 if cmd[:3] == ["docker", "image", "inspect"]:
                     json_out = json.dumps(
                         [{"Config": {"Entrypoint": ["/entry"], "Cmd": ["run"]}}]
                     )
                     return 0, json_out, ""
 
-                # container run --entrypoint /bin/sh ... -c exit 0  (bin/sh probe)
                 if cmd[:6] == [
                     "docker",
                     "run",
@@ -783,6 +798,10 @@ class TestComposeCaInject(unittest.TestCase):
                     "/etc/infinito/ca/root-ca.crt",
                     "--wrapper-host",
                     "/etc/infinito/bin/with-ca-trust.sh",
+                    "--ca-container",
+                    CA_CERT_CONTAINER,
+                    "--wrapper-container",
+                    CA_WRAPPER_CONTAINER,
                     "--trust-name",
                     "infinito.local",
                 ]
@@ -799,7 +818,7 @@ class TestComposeCaInject(unittest.TestCase):
             self.assertIn("app", parsed["services"])
             self.assertEqual(
                 parsed["services"]["app"].get("entrypoint"),
-                ["/tmp/infinito/bin/with-ca-trust.sh"],
+                [CA_WRAPPER_CONTAINER],
             )
 
     def test_escape_compose_vars_replaces_single_dollar(self):
@@ -844,11 +863,13 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
         out = doc["services"]["svc"]
-        self.assertEqual(out.get("entrypoint"), ["/tmp/infinito/bin/with-ca-trust.sh"])
+        self.assertEqual(out.get("entrypoint"), [CA_WRAPPER_CONTAINER])
         self.assertEqual(
             out.get("command"),
             ["sh", "-lc", 'exec "$$CHESS_ENTRYPOINT_INT"'],
@@ -875,15 +896,15 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
                 wrap=False,
             )
 
         out = doc["services"]["svc"]
         self.assertIn("volumes", out)
-        self.assertEqual(
-            out["environment"].get("SSL_CERT_FILE"), "/tmp/infinito/ca/root-ca.crt"
-        )
+        self.assertEqual(out["environment"].get("SSL_CERT_FILE"), CA_CERT_CONTAINER)
         self.assertNotIn("entrypoint", out)
         self.assertNotIn("command", out)
         p_ensure.assert_not_called()
@@ -917,6 +938,8 @@ class TestComposeCaInject(unittest.TestCase):
                 env={},
                 ca_host="/host/ca.crt",
                 wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
                 trust_name="infinito.local",
             )
 
@@ -945,7 +968,6 @@ class TestComposeCaInject(unittest.TestCase):
         ):
 
             def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
-                # compose ... config
                 if (
                     len(cmd) >= 3
                     and cmd[0:2] == ["docker", "compose"]
@@ -954,7 +976,6 @@ class TestComposeCaInject(unittest.TestCase):
                     yml = "services:\n  app:\n    image: myimage:latest\n"
                     return 0, yml, ""
 
-                # container image inspect <image> -> Cmd contains '$'
                 if cmd[:3] == ["docker", "image", "inspect"]:
                     json_out = json.dumps(
                         [
@@ -972,7 +993,6 @@ class TestComposeCaInject(unittest.TestCase):
                     )
                     return 0, json_out, ""
 
-                # container run --entrypoint /bin/sh ... (bin/sh probe)
                 if cmd[:6] == [
                     "docker",
                     "run",
@@ -1000,6 +1020,10 @@ class TestComposeCaInject(unittest.TestCase):
                     "/etc/infinito/ca/root-ca.crt",
                     "--wrapper-host",
                     "/etc/infinito/bin/with-ca-trust.sh",
+                    "--ca-container",
+                    CA_CERT_CONTAINER,
+                    "--wrapper-container",
+                    CA_WRAPPER_CONTAINER,
                     "--trust-name",
                     "infinito.local",
                 ]
@@ -1015,7 +1039,6 @@ class TestComposeCaInject(unittest.TestCase):
 
         self.assertIn("services", parsed)
         self.assertIn("app", parsed["services"])
-        # This is the crucial assertion: '$' must be doubled in YAML.
         self.assertEqual(
             parsed["services"]["app"].get("command"),
             ["sh", "-lc", 'exec "$$CHESS_ENTRYPOINT_INT"'],

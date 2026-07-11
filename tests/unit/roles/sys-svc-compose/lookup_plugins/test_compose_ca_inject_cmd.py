@@ -7,8 +7,15 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from plugins.filter.ca_trust_paths import ca_cert_host
+from utils.cache.yaml import load_yaml
 
 from . import PROJECT_ROOT
+
+_CA_TRUST = load_yaml(str(PROJECT_ROOT / "group_vars" / "all" / "02_tls.yml"))[
+    "CA_TRUST"
+]
+CA_CERT_CONTAINER = _CA_TRUST["inject_cert_container"]
+CA_WRAPPER_CONTAINER = _CA_TRUST["inject_wrapper_container"]
 
 
 def _load_module(rel_path: str, name: str):
@@ -94,6 +101,8 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                     "inject_script": "/usr/local/bin/compose_ca.py",
                     "cert_host": ca_cert_host("infinito.nexus"),
                     "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
+                    "inject_cert_container": CA_CERT_CONTAINER,
+                    "inject_wrapper_container": CA_WRAPPER_CONTAINER,
                     "trust_name": "infinito-root-ca",
                 }
             }
@@ -166,6 +175,8 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                     "inject_script": "/usr/local/bin/compose_ca.py",
                     "cert_host": ca_cert_host("infinito.nexus"),
                     "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
+                    "inject_cert_container": CA_CERT_CONTAINER,
+                    "inject_wrapper_container": CA_WRAPPER_CONTAINER,
                     "trust_name": "infinito-root-ca",
                 }
             }
@@ -246,6 +257,8 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 "inject_script": "/usr/local/bin/compose_ca.py",
                 "cert_host": ca_cert_host("infinito.nexus"),
                 "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
+                "inject_cert_container": CA_CERT_CONTAINER,
+                "inject_wrapper_container": CA_WRAPPER_CONTAINER,
                 "trust_name": "infinito-root-ca",
             }
         }

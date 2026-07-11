@@ -17,12 +17,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-# This script is deployed to the target host via `ansible.builtin.copy`
-# (see roles/sys-svc-compose-ca/tasks/01_core.yml). The deploy target
-# does NOT have the project's `utils/` package on PYTHONPATH, so direct
-# yaml.safe_load / yaml.safe_dump are the only option here. Each call
 # below carries an explicit `# nocheck: direct-yaml` marker that the lint
-# `tests/lint/repository/yaml/test_no_direct_calls.py` honours.
 import yaml
 
 
@@ -39,8 +34,6 @@ def run(
     timeout: int = 600,
     capture: bool = True,
 ) -> tuple[int, str, str]:
-    # killpg the whole group on timeout: a daemon-side docker/buildx grandchild
-    # can keep the captured pipe open and make subprocess's own timeout inert.
     pipe = subprocess.PIPE if capture else subprocess.DEVNULL
     proc = subprocess.Popen(
         cmd,
@@ -488,7 +481,6 @@ def _compose_cmd_with_profile(base_cmd: list[str], profile: str) -> list[str]:
     if len(base_cmd) < 2 or base_cmd[0] != "docker" or base_cmd[1] != "compose":
         die(f"Invalid compose base cmd: {base_cmd}")
 
-    # Insert after the compose wrapper prefix
     return [*base_cmd[:2], "--profile", profile, *base_cmd[2:]]
 
 
@@ -519,6 +511,8 @@ def render_override(
     ca_host: str,
     wrapper_host: str,
     trust_name: str,
+    ca_container: str,
+    wrapper_container: str,
     wrap: bool = True,
 ) -> dict[str, Any]:
     """
@@ -540,11 +534,6 @@ def render_override(
       Docker Compose interpolates $VARS in YAML strings on the host.
       We escape any $ in the command argv with $$ so container-side expansion works.
     """
-    # Container-internal CA-injection paths bind-mounted from the host.
-    # Not user-controllable; well-known by the role's compose template.
-    ca_container = "/tmp/infinito/ca/root-ca.crt"  # noqa: S108
-    wrapper_container = "/tmp/infinito/bin/with-ca-trust.sh"  # noqa: S108
-
     out_services: dict[str, Any] = {}
 
     image_meta = gather_image_meta(
@@ -589,7 +578,6 @@ def render_override(
 
         image = svc.get("image")
         if not isinstance(image, str) or not image.strip():
-            # If there is no image, we can only wrap if effective command is explicitly defined
             if not svc_ep and not svc_cmd:
                 die(
                     f"Service '{name}' has no image and no entrypoint/command in composed config"
@@ -647,6 +635,16 @@ def main() -> int:
         help="Host path to wrapper script (bind-mounted)",
     )
     ap.add_argument(
+        "--ca-container",
+        required=True,
+        help="Container path the CA cert is bind-mounted to",
+    )
+    ap.add_argument(
+        "--wrapper-container",
+        required=True,
+        help="Container path the wrapper script is bind-mounted to",
+    )
+    ap.add_argument(
         "--trust-name",
         required=True,
         help="Trust anchor name for CA installation inside containers (CA_TRUST_NAME)",
@@ -669,6 +667,8 @@ def main() -> int:
     ca_host = str(args.ca_host).strip()
     wrapper_host = str(args.wrapper_host).strip()
     trust_name = str(args.trust_name).strip()
+    ca_container = str(args.ca_container).strip()
+    wrapper_container = str(args.wrapper_container).strip()
 
     if not ca_host:
         die("--ca-host must be non-empty")
@@ -676,6 +676,10 @@ def main() -> int:
         die("--wrapper-host must be non-empty")
     if not trust_name:
         die("--trust-name must be non-empty")
+    if not ca_container:
+        die("--ca-container must be non-empty")
+    if not wrapper_container:
+        die("--wrapper-container must be non-empty")
 
     env = dict(os.environ)
 
@@ -698,8 +702,6 @@ def main() -> int:
     service_to_compose_cmd: dict[str, list[str]] = {}
 
     if args.no_wrapper:
-        # Avoid `docker compose config` here: its dotenv parser aborts on swarm
-        # env files with verbatim special-char secrets. wrap=False needs only names.
         for cf in compose_files:
             doc = parse_yaml(
                 cf.read_text(encoding="utf-8"),  # nocheck: direct-yaml
@@ -749,6 +751,8 @@ def main() -> int:
             ca_host=ca_host,
             wrapper_host=wrapper_host,
             trust_name=trust_name,
+            ca_container=ca_container,
+            wrapper_container=wrapper_container,
             wrap=not args.no_wrapper,
         )
     else:

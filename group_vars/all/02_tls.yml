@@ -30,10 +30,14 @@ CA_TRUST:
   trust_name: "{{ DOMAIN_PRIMARY | lower }}"
   wrapper_host: "{{ BIN_CA_TRUST }}"
   inject_script: "{{ BIN_CA_INJECT }}"
+  inject_cert_container: "/tmp/infinito/ca/root-ca.crt"
+  inject_wrapper_container: "/tmp/infinito/bin/with-ca-trust.sh"
 CA_TRUST_SYSTEMD_ENV:
   - "CA_TRUST_CERT_HOST={{ CA_TRUST.cert_host }}"
   - "CA_TRUST_WRAPPER_HOST={{ CA_TRUST.wrapper_host }}"
   - "CA_TRUST_NAME={{ CA_TRUST.trust_name }}"
+  - "CA_TRUST_CERT_CONTAINER={{ CA_TRUST.inject_cert_container }}"
+  - "CA_TRUST_WRAPPER_CONTAINER={{ CA_TRUST.inject_wrapper_container }}"
 CA_TRUST_SYSTEMD_ENV_SELFSIGNED: >-
   {{ CA_TRUST_SYSTEMD_ENV if (TLS_MODE | lower) == 'self_signed' else [] }}
 CA_CONTAINER_ENABLED: true # When falsy the container wrapper skips CA injection on `container run`

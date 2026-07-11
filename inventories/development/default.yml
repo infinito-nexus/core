@@ -23,6 +23,7 @@ INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') | default('latest', 
 INFINITO_GHCR_MIRROR_PREFIX: "{{ lookup('env', 'INFINITO_GHCR_MIRROR_PREFIX') | default('', true) }}"
 CA_CONTAINER_ENABLED: "{{ lookup('env', 'INFINITO_CONTAINER_CA_ENABLED') | bool }}"
 test_e2e_playwright_keep: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }}"
+SYS_TIMEOUT_CONTAINER_EXEC: "60min"
 networks:
   internet:
     ip4: "{{ lookup('env', 'INFINITO_IP4') }}"

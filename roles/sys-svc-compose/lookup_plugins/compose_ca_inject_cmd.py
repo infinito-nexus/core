@@ -31,7 +31,6 @@ def _require(d: Any, key: str, expected_type: Any, *, label: str) -> Any:
 
 
 def _shell_quote(s: str) -> str:
-    # Safe single-quote shell quoting: ' -> '"'"'
     return "'" + s.replace("'", "'\"'\"'") + "'"
 
 
@@ -77,9 +76,6 @@ class LookupModule(LookupBase):
     def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
 
-        # ---------------------------------------------------------------------
-        # Validate input
-        # ---------------------------------------------------------------------
         if not terms or len(terms) != 1:
             raise AnsibleError(
                 "compose_ca_inject_cmd: exactly one term required (application_id)"
@@ -99,9 +95,6 @@ class LookupModule(LookupBase):
 
         templar = getattr(self, "_templar", None)
 
-        # ---------------------------------------------------------------------
-        # Resolve compose paths via lookup('container', ...)
-        # ---------------------------------------------------------------------
         instance_dir = _docker_lookup(
             self,
             application_id=application_id,
@@ -136,9 +129,6 @@ class LookupModule(LookupBase):
                 "compose_ca_inject_cmd: output basename resolved to empty"
             )
 
-        # ---------------------------------------------------------------------
-        # CA_TRUST variables
-        # ---------------------------------------------------------------------
         ca_trust = _require(variables, "CA_TRUST", dict, label="variable")
 
         script_path = render_ansible_strict(
@@ -169,10 +159,21 @@ class LookupModule(LookupBase):
             err_prefix="compose_ca_inject_cmd",
             variables=variables,
         )
+        ca_container = render_ansible_strict(
+            templar=templar,
+            raw=_require(ca_trust, "inject_cert_container", str, label="CA_TRUST"),
+            var_name="CA_TRUST.inject_cert_container",
+            err_prefix="compose_ca_inject_cmd",
+            variables=variables,
+        )
+        wrapper_container = render_ansible_strict(
+            templar=templar,
+            raw=_require(ca_trust, "inject_wrapper_container", str, label="CA_TRUST"),
+            var_name="CA_TRUST.inject_wrapper_container",
+            err_prefix="compose_ca_inject_cmd",
+            variables=variables,
+        )
 
-        # ---------------------------------------------------------------------
-        # Resolve compose files (without CA override!)
-        # ---------------------------------------------------------------------
         compose_file_args_lkp = lookup_loader.get(
             "compose_file_args", self._loader, self._templar
         )
@@ -187,9 +188,6 @@ class LookupModule(LookupBase):
                 "compose_ca_inject_cmd: compose_file_args returned empty"
             )
 
-        # ---------------------------------------------------------------------
-        # Build command
-        # ---------------------------------------------------------------------
         cmd = [
             "python3",
             _shell_quote(script_path),
@@ -212,6 +210,10 @@ class LookupModule(LookupBase):
             _shell_quote(ca_host),
             "--wrapper-host",
             _shell_quote(wrapper_host),
+            "--ca-container",
+            _shell_quote(ca_container),
+            "--wrapper-container",
+            _shell_quote(wrapper_container),
             "--trust-name",
             _shell_quote(trust_name),
         ]

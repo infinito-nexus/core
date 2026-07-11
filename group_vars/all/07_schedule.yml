@@ -13,6 +13,7 @@ SYS_TIMEOUT_CLEANUP_SERVICES: "15min"
 SYS_TIMEOUT_DOCKER_UPDATE: "20min"
 SYS_TIMEOUT_STORAGE_OPTIMIZER: "{{ SYS_TIMEOUT_DOCKER_UPDATE }}"
 SYS_TIMEOUT_BACKUP_SERVICES: "60min"
+SYS_TIMEOUT_CONTAINER_EXEC: "7d" # Hard OS-level kill for `container exec`; a week so it never beats a production migration
 
 SYS_SCHEDULE_HEALTH_BTRFS: "*-*-* 00:00:00" # Check once per day the btrfs for errors
 SYS_SCHEDULE_HEALTH_JOURNALCTL: "*-*-* 00:00:00" # Check once per day the journalctl for errors
