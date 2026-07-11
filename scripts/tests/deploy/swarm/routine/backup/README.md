@@ -7,13 +7,13 @@ whole loop.
 
 ```mermaid
 flowchart TB
-    subgraph forward["💾 Backup (solid: scheduled units + pull + device sync)"]
+    subgraph forward["💾 Backup (solid: the deployed systemd units end to end)"]
         direction TB
         vol["📂 Live NFS volume + docker volume<br/>marker seeded"]:::live
         sec["🔑 Host secrets on the manager<br/>(secrets, CA, ACME, node identity) marker seeded"]:::live
         localbkp["🗄️ Local backups on manager + NFS server<br/>volume / nfs / secrets generation snapshots"]:::store
-        pulled["🗄️ Backup host<br/>pulled generations (rsync over ssh, pull-only)"]:::store
-        usb["🔒 Encrypted USB (LUKS)<br/>hard-linked snapshot"]:::device
+        pulled["🗄️ Backup host<br/>pulled generations (remote-2-local unit, rsync over ssh, pull-only)"]:::store
+        usb["🔒 Encrypted USB (LUKS)<br/>hard-linked snapshot (local-2-device unit)"]:::device
         vol -->|backup units| localbkp
         sec -->|secrets unit| localbkp
         localbkp -->|remote pull| pulled -->|device sync| usb

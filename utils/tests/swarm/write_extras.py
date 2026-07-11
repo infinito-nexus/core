@@ -11,7 +11,10 @@ Inputs (env): ``NFS_IP``, ``MGR_IP``, ``MGR``, ``OUT_PATH`` (default
 ``/tmp/swarm-nfs-admin.key``). A second ed25519 keypair is generated at
 ``INFINITO_SWARM_BACKUP_KEY`` (SPOT: default.env) and its public half lands
 in ``users.backup.authorized_keys`` so the DR drill's backup host can pull
-over the ``user-backup`` ssh-wrapper.
+over the ``user-backup`` ssh-wrapper. The ``applications`` block configures
+the backup-host roles the drill triggers as real units:
+``remote-2-local.backup_providers`` (manager + NFS server IPs) and the
+``local-2-device`` mount/target/source device paths.
 """
 
 from __future__ import annotations
@@ -93,6 +96,24 @@ def main() -> int:
         },
         "nfs_server_ip": nfs_ip,
         "users": default_users,
+        "applications": {
+            "svc-bkp-remote-2-local": {
+                "services": {
+                    "remote-2-local": {
+                        "backup_providers": [mgr_ip, nfs_ip],
+                    },
+                },
+            },
+            "svc-bkp-local-2-device": {
+                "services": {
+                    "local-2-device": {
+                        "mount": "/mnt/backup-to-device",
+                        "target": "/infinito",
+                        "source": "/var/lib/infinito/backup",
+                    },
+                },
+            },
+        },
     }
 
     dump_yaml(str(out_path), extras)

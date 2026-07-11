@@ -41,6 +41,7 @@ _WORKERS = (
     f"{_PREFIX}{_NAMES['INFINITO_SWARM_WRK2_NAME']}",
 )
 _NFS_SERVER = f"{_PREFIX}{_NAMES['INFINITO_SWARM_NFS_NAME']}"
+_BACKUP = f"{_PREFIX}{_NAMES['INFINITO_SWARM_BACKUP_NAME']}"
 
 
 def _host_topology(app_id: str) -> list[tuple[str, str]]:
@@ -79,6 +80,8 @@ def main() -> int:
     group_hosts.append(("svc-bkp-volume-2-local", _MANAGER))
     group_hosts.append(("svc-bkp-secrets-2-local", _MANAGER))
     group_hosts.append(("svc-bkp-nfs-2-local", _NFS_SERVER))
+    group_hosts.append(("svc-bkp-remote-2-local", _BACKUP))
+    group_hosts.append(("svc-bkp-local-2-device", _BACKUP))
 
     inv = load_yaml_any(str(inv_path), default_if_missing={})
     inv.setdefault("all", {}).setdefault("children", {})

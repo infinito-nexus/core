@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 # Disaster-recovery drill for the swarm test cluster: proves the full
 # backup chain volume + secrets + nfs -> remote -> device through the
-# deployed systemd units and the pull script, then recovers the same data
-# back through every role's recover.py (device -> local root -> nfs export,
-# docker volume and host secrets) onto the live instance. Runs once,
-# between the matrix's first and second round, against the already-
-# converged round-1 stack. Per-host routines live next to this file and
-# execute in-node from the repo copy under INFINITO_NODE_SRC_DIR (one
-# docker exec per routine). Marker probes are scoped per repo (volume/nfs/
-# secrets share DR_MARKER; an unscoped ${MID} glob would cross-select).
+# DEPLOYED systemd units on every host (the backup host runs the real
+# svc-bkp-remote-2-local and svc-bkp-local-2-device roles; the drill only
+# installs the ssh pull identity and simulates the USB plug via a LUKS
+# loop mount), then recovers the same data back through every role's
+# recover.py (device -> local root -> nfs export, docker volume and host
+# secrets) onto the live instance. Runs once, between the matrix's first
+# and second round, against the already-converged round-1 stack. Per-host
+# routines live next to this file and execute in-node from the repo copy
+# under INFINITO_NODE_SRC_DIR (one docker exec per routine). Marker probes
+# are scoped per repo (volume/nfs/secrets share DR_MARKER; an unscoped
+# ${MID} glob would cross-select). Device paths (mount/target) come from
+# the same extras SPOT that configures the deployed role (write_extras).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -34,10 +38,12 @@ VOLUME_REPO="backup-docker-to-local"
 NFS_REPO="backup-nfs-to-local"
 SECRETS_REPO="backup-secrets-to-local"
 USB_IMG="/var/lib/infinito-usb.img"
-USB_MOUNT="/mnt/usb-drill"
 USB_MAPPER="usbdrill"
 USB_PASS="drillpass"
 RESTORE_ROOT="/tmp/dr-device-restored"
+DEV_MOUNT="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]))['applications']['svc-bkp-local-2-device']['services']['local-2-device']['mount'])" "${DRILL_EXTRAS}")"
+DEV_TARGET="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]))['applications']['svc-bkp-local-2-device']['services']['local-2-device']['target'])" "${DRILL_EXTRAS}")"
+DEV_DEST="${DEV_MOUNT}${DEV_TARGET}"
 
 if [ "${HAS_SWARM_SERVICE}" != true ]; then
 	echo "SKIP drill: ${APP_ID} deploys no swarm service"
@@ -91,16 +97,13 @@ fi
 
 echo "==> [3/9] locate the backup generation holding the marker"
 SRC_HOST=""
-SRC_IP=""
 MARKER_PATH="$(docker exec "${NFS_SERVER}" find "${DIR_BACKUPS}/${NFS_MID}/${NFS_REPO}" -type f -name "${DR_MARKER}" -path '*/files/*' 2>/dev/null | sort | tail -1 || true)"
 if [ -n "${MARKER_PATH}" ]; then
 	SRC_HOST="${NFS_SERVER}"
-	SRC_IP="${NFS_IP}"
 else
 	MARKER_PATH="$(docker exec "${MGR}" find "${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO}" -type f -name "${DR_MARKER}" -path '*/files/*' 2>/dev/null | sort | tail -1 || true)"
 	if [ -n "${MARKER_PATH}" ]; then
 		SRC_HOST="${MGR}"
-		SRC_IP="${MGR_IP}"
 	fi
 fi
 if [ -z "${MARKER_PATH}" ]; then
@@ -118,21 +121,36 @@ if [ "${SRC_HOST}" != "${MGR}" ]; then
 	[ -n "${_vol_marker}" ] && VOL_MARKER_REL="${_vol_marker#"${DIR_BACKUPS}"/}"
 fi
 
-echo "==> [4/9] pull to ${BACKUP_NODE} with the real remote-2-local script (backup@${SRC_IP})"
-docker exec -i "${BACKUP_NODE}" bash "${BKP_IN_NODE}/01_pull.sh" \
-	"${SRC_IP}" "${DIR_BACKUPS}" "${NODE_SRC}" "${SRC_REL}" "${DR_MARKER}" <"${BACKUP_KEY_PATH}"
-if [ "${SRC_HOST}" != "${MGR}" ]; then
-	docker exec -i "${BACKUP_NODE}" bash "${BKP_IN_NODE}/01_pull.sh" \
-		"${MGR_IP}" "${DIR_BACKUPS}" "${NODE_SRC}" <"${BACKUP_KEY_PATH}"
+echo "==> [4/9] pull to ${BACKUP_NODE} via the deployed remote-2-local unit (providers: ${MGR_IP}, ${NFS_IP})"
+docker exec -i "${BACKUP_NODE}" bash "${BKP_IN_NODE}/01_ssh_trust.sh" <"${BACKUP_KEY_PATH}"
+if ! docker exec "${BACKUP_NODE}" bash "${TRIGGER_UNITS}" 'svc-bkp-remote-2-local*.service'; then
+	echo "FAILURE: remote-2-local unit missing or failed on ${BACKUP_NODE} (role not deployed?)"
+	exit 1
 fi
+if ! docker exec "${BACKUP_NODE}" test -f "${DIR_BACKUPS}/${SRC_REL}/${DR_MARKER}"; then
+	echo "FAILURE: marker missing on ${BACKUP_NODE} after the unit pull (expected under ${DIR_BACKUPS}/${SRC_REL})"
+	docker exec "${BACKUP_NODE}" find "${DIR_BACKUPS}" -maxdepth 4 2>/dev/null || true
+	exit 1
+fi
+echo "    marker present on backup host after pull"
 
-echo "==> [5/9] mirror to a LUKS loop 'USB' with the real local-2-device script"
-docker exec "${BACKUP_NODE}" bash "${BKP_IN_NODE}/02_mirror_to_device.sh" \
-	"${NODE_SRC}" "${DIR_BACKUPS}" "${USB_IMG}" "${USB_MOUNT}" "${USB_MAPPER}" "${USB_PASS}" "${DR_MARKER}"
+echo "==> [5/9] plug the LUKS 'USB' and sync via the deployed local-2-device unit"
+docker exec "${BACKUP_NODE}" bash "${BKP_IN_NODE}/02_luks_device.sh" \
+	"${USB_IMG}" "${DEV_MOUNT}" "${DEV_DEST}" "${USB_MAPPER}" "${USB_PASS}"
+if ! docker exec "${BACKUP_NODE}" bash "${TRIGGER_UNITS}" 'svc-bkp-local-2-device*.service'; then
+	echo "FAILURE: local-2-device unit missing or failed on ${BACKUP_NODE} (role not deployed?)"
+	exit 1
+fi
+if ! docker exec "${BACKUP_NODE}" find "${DEV_DEST}" -name "${DR_MARKER}" 2>/dev/null | grep -q .; then
+	echo "FAILURE: marker missing on the encrypted USB after the unit sync (expected under ${DEV_DEST})"
+	docker exec "${BACKUP_NODE}" find "${DEV_MOUNT}" -maxdepth 5 2>/dev/null || true
+	exit 1
+fi
+echo "    marker present on encrypted USB"
 
 echo "==> [6/9] recover device -> local root via svc-bkp-local-2-device recover.py (full LUKS open)"
 docker exec "${BACKUP_NODE}" bash "${BKP_IN_NODE}/03_recover_device.sh" \
-	"${NODE_SRC}" "${USB_IMG}" "${USB_MOUNT}" "${RESTORE_ROOT}" "${USB_MAPPER}" "${SRC_REL}" "${DR_MARKER}" "${USB_PASS}"
+	"${NODE_SRC}" "${USB_IMG}" "${DEV_MOUNT}" "${RESTORE_ROOT}" "${USB_MAPPER}" "${DEV_TARGET}" "${SRC_REL}" "${DR_MARKER}" "${USB_PASS}"
 
 echo "==> [7/9] recover local root -> live NFS export via svc-bkp-nfs-2-local recover.py"
 docker exec "${MGR}" bash "${BKP_IN_NODE}/04_stack_rm_wait.sh" "${STACK_NAME}"
