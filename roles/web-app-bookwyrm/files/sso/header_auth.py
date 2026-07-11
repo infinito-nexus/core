@@ -41,6 +41,10 @@ def _first_header(meta, names):
     return None
 
 
+def _localname(remote_user):
+    return remote_user.split("@", 1)[0].lower()
+
+
 class ProxyHeaderMiddleware(PersistentRemoteUserMiddleware):
     """Authenticate from the oauth2-proxy identity header.
 
@@ -64,10 +68,13 @@ class ProxyHeaderBackend(RemoteUserBackend):
 
     create_unknown_user = True
 
+    def clean_username(self, username):
+        return f"{_localname(username)}@{settings.DOMAIN}"
+
     def authenticate(self, request, remote_user):
         if not remote_user:
             return None
-        localname = self.clean_username(remote_user)
+        localname = _localname(remote_user)
         user_model = get_user_model()
         try:
             return self._existing(user_model, localname)
