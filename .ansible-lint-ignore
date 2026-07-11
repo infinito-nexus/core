@@ -13,6 +13,7 @@ roles/svc-ai-ollama/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml 
 roles/svc-db-mariadb/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
 roles/svc-db-openldap/tasks/roles/sys-svc-compose/tasks/utils/network/create.yml load-failure[filenotfounderror]
 roles/svc-db-postgres/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
+roles/svc-net-wireguard/tasks/roles/sys-svc-compose/tasks/utils/network/create.yml load-failure[filenotfounderror]
 roles/sys-front-tls-letsencrypt/tasks/roles/sys-ca-selfsigned/tasks/disable_env.yml load-failure[filenotfounderror]
 roles/sys-svc-compose/tasks/utils/network/roles/sys-svc-compose/tasks/utils/network/create.yml load-failure[filenotfounderror]
 roles/sys-svc-mail-msmtp/tasks/roles/sys-svc-mail-smtp/tasks/disable.yml load-failure[filenotfounderror]

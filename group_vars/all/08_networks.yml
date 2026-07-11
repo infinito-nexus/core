@@ -67,6 +67,8 @@ defaults_networks:
     ip4: "127.0.0.1"
     ip6: "::1"
     dns: ""
+# WireGuard tunnel (internal) subnet, consumed by roles/svc-net-wireguard.
+WIREGUARD_INTERNAL_SUBNET: "10.13.13.0" # nocheck: unused-var
 PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outside the YAML/Jinja scope
   local:
     http:

@@ -1,0 +1,32 @@
+---
+# nocheck: required-by-coverage
+# nocheck: shared
+wireguard:
+  enabled: true
+  image: lscr.io/linuxserver/wireguard
+  name: wireguard
+  version: "1.0.20250521"
+  flavor:
+    - server
+  sys_module: false
+  puid: 1000
+  pgid: 1000
+  timezone: "Etc/UTC"
+  server:
+    url: auto
+    peers: 1
+    peer_dns: auto
+    allowed_ips: "0.0.0.0/0, ::/0"
+  client:
+    mtu: 1400
+    nat_in_interface: wg0-client
+    nat_out_interface: eth0
+  min_storage: 0GB
+  lifecycle: beta
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "64m"
+  pids_limit: 64
+  ports:
+    public:
+      relay: 51821
