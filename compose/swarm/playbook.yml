@@ -122,7 +122,7 @@
         HOSTS_ENTRY_IP: "{{ lab_domain_target }}"
       timeout: 60
       register: lab_hosts_entries
-      when: lab_is_mgr or inventory_hostname == lab_nfs
+      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
       delegate_to: localhost
       changed_when: false
 
@@ -133,7 +133,7 @@
         block: "{{ lab_hosts_entries.stdout }}"
         unsafe_writes: true
       timeout: 30
-      when: lab_is_mgr or inventory_hostname == lab_nfs
+      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
 
     - name: write the dnsmasq lab config
       copy:
