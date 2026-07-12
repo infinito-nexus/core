@@ -14,7 +14,13 @@ in ``users.backup.authorized_keys`` so the DR drill's backup host can pull
 over the ``user-backup`` ssh-wrapper. The ``applications`` block configures
 the backup-host roles the drill triggers as real units:
 ``remote-2-local.backup_providers`` (manager + NFS server IPs) and the
-``local-2-device`` mount/target/source device paths.
+``local-2-device`` mount/target/source device paths. The applications
+block reaches the deploy through the provisioner's host_vars merge
+(INFINITO_VARS_PAYLOAD), NOT through the extras file: extra-vars replace
+the whole inventory ``applications`` dict and would strip every generated
+credential. The deploy-facing twin ``<OUT_PATH stem>.deploy.yml`` therefore
+carries everything except ``applications``; the full file stays for the
+DR drill, which reads the device paths from it.
 """
 
 from __future__ import annotations
@@ -31,6 +37,37 @@ from utils.cache.yaml import dump_yaml, load_yaml
 from utils.env.parser import parse_static_env
 
 _DEFAULT_INVENTORY = PROJECT_ROOT / "inventories" / "development" / "default.yml"
+
+
+def backup_applications_overrides(mgr_ip: str, nfs_ip: str) -> dict:
+    """Application overrides for the backup-host roles the DR drill triggers.
+
+    Args:
+        mgr_ip: manager node IP (backup provider #1).
+        nfs_ip: NFS server node IP (backup provider #2).
+
+    Returns:
+        dict with the ``applications`` subtree for svc-bkp-remote-2-local
+        (backup_providers) and svc-bkp-local-2-device (device paths).
+    """
+    return {
+        "svc-bkp-remote-2-local": {
+            "services": {
+                "remote-2-local": {
+                    "backup_providers": [mgr_ip, nfs_ip],
+                },
+            },
+        },
+        "svc-bkp-local-2-device": {
+            "services": {
+                "local-2-device": {
+                    "mount": "/mnt/backup-to-device",
+                    "target": "/infinito",
+                    "source": "/var/lib/infinito/backup",
+                },
+            },
+        },
+    }
 
 
 def _ensure_keypair(key_path: Path) -> str:
@@ -96,27 +133,13 @@ def main() -> int:
         },
         "nfs_server_ip": nfs_ip,
         "users": default_users,
-        "applications": {
-            "svc-bkp-remote-2-local": {
-                "services": {
-                    "remote-2-local": {
-                        "backup_providers": [mgr_ip, nfs_ip],
-                    },
-                },
-            },
-            "svc-bkp-local-2-device": {
-                "services": {
-                    "local-2-device": {
-                        "mount": "/mnt/backup-to-device",
-                        "target": "/infinito",
-                        "source": "/var/lib/infinito/backup",
-                    },
-                },
-            },
-        },
+        "applications": backup_applications_overrides(mgr_ip, nfs_ip),
     }
 
     dump_yaml(str(out_path), extras)
+    deploy_extras = {k: v for k, v in extras.items() if k != "applications"}
+    deploy_path = out_path.with_suffix(".deploy.yml")
+    dump_yaml(str(deploy_path), deploy_extras)
     print(out_path.read_text())  # nocheck: cache-read — re-reads the file just written
     return 0
 

@@ -230,8 +230,15 @@ def main(argv: list[str] | None = None) -> int:
             include=round_include,
             active_variants=round_variants,
         )
+        from utils.tests.swarm.write_extras import backup_applications_overrides
+
         vars_payload = _bake_overrides(
-            base_overrides={}, variant_payloads=variant_payloads
+            base_overrides={
+                "applications": backup_applications_overrides(
+                    os.environ["MGR_IP"], os.environ["NFS_IP"]
+                )
+            },
+            variant_payloads=variant_payloads,
         )
         extras_path = f"{inv_root}/swarm-nfs-extras.yml"
 
@@ -253,7 +260,7 @@ def main(argv: list[str] | None = None) -> int:
             rc = _deploy(
                 app_id=app_id,
                 inv_dir=inv_root,
-                extras_path=extras_path,
+                extras_path=f"{inv_root}/swarm-nfs-extras.deploy.yml",
                 round_index=round_index,
                 total=total,
             )
