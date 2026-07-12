@@ -11,7 +11,7 @@ hashed_machine_id="$($get_hashed_machine_id | head -c 64)"
 get_backup_types="find {{ DIR_BACKUPS }}/$hashed_machine_id/ -maxdepth 1 -type d -execdir basename {} ;";
 
 
-backup_types="backup-docker-to-local backup-nfs-to-local"
+backup_types="{{ BACKUP_REPOSITORIES | join(' ') }}"
 for backup_type in $backup_types; do
 	get_version_directories="ls -d {{ DIR_BACKUPS }}/$hashed_machine_id/$backup_type/*"
 	last_version_directory="$($get_version_directories 2>/dev/null | tail -1)"
@@ -33,7 +33,11 @@ case "$SSH_ORIGINAL_COMMAND" in
 		$get_hashed_machine_id
 		;;
 	"$get_backup_types")
-		$get_backup_types
+		for backup_type in $backup_types; do
+			if [ -d "{{ DIR_BACKUPS }}/$hashed_machine_id/$backup_type" ]; then
+				echo "$backup_type"
+			fi
+		done
 		;;
 	*)
 		echo "This command is not supported."

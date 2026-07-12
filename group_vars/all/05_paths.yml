@@ -17,6 +17,10 @@ BIN_RESOLVE_CONTAINER_ID: "{{ [ DIR_BIN, 'resolve-container-id' ] | path_join }}
 
 DIR_VAR_LIB: "/var/lib/infinito"
 DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
+BACKUP_REPOSITORIES:
+  - backup-docker-to-local
+  - backup-nfs-to-local
+  - backup-secrets-to-local
 DIR_SECRETS: "{{ [DIR_VAR_LIB, 'secrets'] | path_join }}"
 FILE_TOKENS: "{{ [DIR_SECRETS, 'tokens.yml'] | path_join }}"
 FILE_DATABASE_SECRETS: "{{ [DIR_SECRETS, 'databases.csv'] | path_join }}"
