@@ -13,9 +13,9 @@ PENPOT_EXPORTER_SERVICE: "exporter"
 
 PENPOT_BACKEND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, PENPOT_BACKEND_SERVICE) }}"
 
-PENPOT_FRONTEND_INTERNAL_PORT: 8080
-PENPOT_BACKEND_INTERNAL_PORT: 6060
-PENPOT_EXPORTER_INTERNAL_PORT: 6061
+PENPOT_FRONTEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.penpot.ports.internal.http') }}"
+PENPOT_BACKEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.backend.ports.internal.http') }}"
+PENPOT_EXPORTER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.exporter.ports.internal.http') }}"
 
 PENPOT_PUBLIC_URI: "{{ lookup('tls', application_id, 'url.base') }}"
 

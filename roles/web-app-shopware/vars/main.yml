@@ -37,7 +37,7 @@ SHOPWARE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabl
 SHOPWARE_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 SHOPWARE_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
-SHOPWARE_OPENSEARCH_PORT: "9200"
+SHOPWARE_OPENSEARCH_PORT: "{{ lookup('config', application_id, 'services.opensearch.ports.internal.http') }}"
 SHOPWARE_OPENSEARCH_ENABLED: "{{ lookup('config', application_id, 'services.opensearch.enabled') }}"
 SHOPWARE_OPENSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.opensearch.name') }}"
 SHOPWARE_OPENSEARCH_MEM_RESERVATION: "{{ lookup('config', application_id, 'services.opensearch.mem_reservation') }}"

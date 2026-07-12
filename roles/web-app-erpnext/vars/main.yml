@@ -10,8 +10,8 @@ ERPNEXT_QUEUE_SHORT_CONTAINER: "{{ lookup('config', application_id, 'services.qu
 ERPNEXT_QUEUE_LONG_CONTAINER: "{{ lookup('config', application_id, 'services.queue-long.name') }}"
 ERPNEXT_CONFIGURATOR_CONTAINER: "{{ lookup('config', application_id, 'services.configurator.name') }}"
 
-ERPNEXT_BACKEND_PORT: 8000
-ERPNEXT_WEBSOCKET_PORT: 9000
+ERPNEXT_BACKEND_PORT: "{{ lookup('config', application_id, 'services.backend.ports.internal.http') }}"
+ERPNEXT_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.websocket.ports.internal.socketio') }}"
 
 ERPNEXT_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ERPNEXT_SITE_NAME: "{{ ERPNEXT_HOSTNAME }}"

@@ -31,6 +31,9 @@ php:
   image: markoshust/magento-php
   version: 8.5-fpm
   name: magento-php
+  ports:
+    internal:
+      fpm: 9000
   backup:
     no_stop_required: true
   min_storage: 5GB

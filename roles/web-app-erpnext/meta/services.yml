@@ -76,6 +76,9 @@ erpnext:
   pids_limit: 2048
 backend:
   name: erpnext-backend
+  ports:
+    internal:
+      http: 8000
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g
@@ -90,6 +93,9 @@ websocket:
   # nocheck: single-replica
   replicas: 1
   name: erpnext-websocket
+  ports:
+    internal:
+      socketio: 9000
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m

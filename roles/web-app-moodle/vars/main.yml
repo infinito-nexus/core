@@ -52,8 +52,8 @@ MOODLE_OIDC_SCOPES: "openid profile email phone address {{ MOODLE_OIDC_CUSTOM_SC
 
 MOODLE_SITE_TITLE: "{{ lookup('config', application_id, 'services.moodle.site_titel') }}"
 
-MOODLE_FPM_PORT: 9000
-MOODLE_NGINX_PORT: 80
+MOODLE_FPM_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.fpm') }}"
+MOODLE_NGINX_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.http') }}"
 
 MOODLE_PHP_MEMORY_LIMIT: "{{ lookup('config', application_id, 'services.moodle.performance.php.memory_limit') }}"
 MOODLE_PHP_UPLOAD_MAX_FILESIZE: "{{ lookup('config', application_id, 'services.moodle.performance.php.upload_max_filesize') }}"

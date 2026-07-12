@@ -57,6 +57,7 @@ moodle:
       http: 8026
     internal:
       http: 80
+      fpm: 9000
   proxy:
     service_key: nginx
   run_after:

@@ -131,6 +131,9 @@ talk:
   mem_limit: 2g
   pids_limit: 1024
   min_storage: 1GB
+  ports:
+    internal:
+      signaling: 8081
 whiteboard:
   name: nextcloud-whiteboard
   image: ghcr.io/nextcloud-releases/whiteboard
@@ -181,6 +184,9 @@ talk_recording:
   mem_limit: 3g
   pids_limit: 1024
   min_storage: 1GB
+  ports:
+    internal:
+      recording: 1234
 # nocheck: playwright-service-flag: verified by web-svc-css provider spec
 css:
   bond: 1

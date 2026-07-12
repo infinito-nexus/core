@@ -26,6 +26,9 @@ api:
   image: funkwhale/api
   version: 2.0.6
   min_storage: 5GB
+  ports:
+    internal:
+      http: 5000
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g

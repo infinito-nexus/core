@@ -59,7 +59,7 @@ NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
 
 NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'credentials.talk_signaling_secret') }}"
 NEXTCLOUD_HPB_SIGNALING_LOCATION: "/standalone-signaling/"
-NEXTCLOUD_HPB_SIGNALING_PORT: "8081"
+NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.talk.ports.internal.signaling') }}"
 NEXTCLOUD_HPB_SIGNALING_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_HPB_SIGNALING_LOCATION ] | url_join }}"
 NEXTCLOUD_HPB_SIGNALING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
 NEXTCLOUD_TALK_ADMIN_URL: "{{ [ NEXTCLOUD_URL, 'settings/admin/talk' ] | url_join }}"
@@ -140,7 +140,7 @@ NEXTCLOUD_WHITEBOARD_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', a
 NEXTCLOUD_RECORDING_SERVICE: "talk_recording"
 NEXTCLOUD_RECORDING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.name') }}"
 NEXTCLOUD_RECORDING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
-NEXTCLOUD_RECORDING_PORT: 1234
+NEXTCLOUD_RECORDING_PORT: "{{ lookup('config', application_id, 'services.talk_recording.ports.internal.recording') }}"
 NEXTCLOUD_RECORDING_SECRET: "{{ lookup('config', application_id, 'credentials.talk_recording_secret') }}"
 NEXTCLOUD_RECORDING_TMP_VOLUME: "{{ lookup('volume', application_id, 'talk_recording_tmp').name }}"
 

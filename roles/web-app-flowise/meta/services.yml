@@ -33,6 +33,9 @@ litellm:
   image: ghcr.io/berriai/litellm
   version: main-v1.77.3.dynamic_rates
   name: litellm
+  ports:
+    internal:
+      http: 4000
   cpus: "1.0"
   mem_reservation: 0.5g
   mem_limit: 1g
