@@ -65,23 +65,62 @@ def _inject_onion_domains(
     out: dict[str, Any] = {}
     for app, domains in merged.items():
         tor = ((apps.get(app) or {}).get("services") or {}).get("tor") or {}
-        if not isinstance(domains, list) or not _as_bool(tor.get("enabled")):
+        if not isinstance(domains, (list, dict)) or not _as_bool(tor.get("enabled")):
             out[app] = domains
             continue
+        exclusive = _as_bool(
+            resolve_service_config(
+                apps, app, "tor", "exclusive", default=False, service_registry=registry
+            )
+        )
+        is_primary = _as_bool(
+            resolve_service_config(
+                apps, app, "tor", "primary", default=False, service_registry=registry
+            )
+        )
+        if isinstance(domains, dict):
+            out[app] = _inject_onion_into_dict(
+                domains, primary, node_onion, exclusive, is_primary
+            )
+            continue
         onion = [o for d in domains if (o := _onion_of(str(d), primary, node_onion))]
-        exclusive = resolve_service_config(
-            apps, app, "tor", "exclusive", default=False, service_registry=registry
-        )
-        is_primary = resolve_service_config(
-            apps, app, "tor", "primary", default=False, service_registry=registry
-        )
-        if _as_bool(exclusive):
+        if exclusive:
             out[app] = onion or domains
-        elif _as_bool(is_primary):
+        elif is_primary:
             out[app] = onion + [d for d in domains if d not in onion]
         else:
             out[app] = list(domains) + [o for o in onion if o not in domains]
     return out
+
+
+def _inject_onion_into_dict(
+    domains: dict[str, Any],
+    primary: str,
+    node_onion: str,
+    exclusive: bool,
+    is_primary: bool,
+) -> dict[str, Any]:
+    """Onionize a named-canonical dict (``{key: domain}``) while keeping every
+    value a plain string, so ``get_primary_domain`` still returns a string.
+
+    ``exclusive`` swaps each value for its onion; otherwise the onion domains
+    are added under ``<key>_onion`` siblings (before the clearnet keys when
+    ``primary`` is set) so ``generate_all_domains`` emits an onion vhost per
+    named canonical without changing which value is primary.
+    """
+    if exclusive:
+        return {
+            key: (_onion_of(str(value), primary, node_onion) or value)
+            for key, value in domains.items()
+        }
+    onion_pairs: dict[str, Any] = {}
+    for key, value in domains.items():
+        onion = _onion_of(str(value), primary, node_onion)
+        if onion and onion != value:
+            onion_pairs[f"{key}_onion"] = onion
+    if is_primary:
+        return {**onion_pairs, **domains}
+    return {**domains, **onion_pairs}
 
 
 def get_merged_domains(
