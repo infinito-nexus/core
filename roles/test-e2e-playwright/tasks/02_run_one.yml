@@ -177,6 +177,12 @@
     dest: "{{ _playwright_stage_tests_dir }}/service-gating.js"
     mode: "0644"
 
+- name: Copy shared onion-test fixture into staging tests directory
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/roles/test-e2e-playwright/files/onion-test.js"
+    dest: "{{ _playwright_stage_tests_dir }}/onion-test.js"
+    mode: "0644"
+
 - name: Copy shared addon-gating helper into staging tests directory
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/roles/test-e2e-playwright/files/addon-gating.js"

@@ -50,6 +50,13 @@ async function gotoOnion(page, url, opts = {}) {
   if (isOnion && gotoOpts.timeout === undefined) {
     gotoOpts.timeout = Number(process.env.PLAYWRIGHT_NAVIGATION_TIMEOUT) || 60_000;
   }
+  // Heavy SPAs (Element) fetch 30+ chunked JS bundles; over Tor each request
+  // serialises circuit latency, so the `load` event (every lazy subresource)
+  // can exceed the navigation cap. `domcontentloaded` returns after the HTML
+  // parses; the caller's explicit selector waits (onion-scaled) cover app boot.
+  if (isOnion && gotoOpts.waitUntil === undefined) {
+    gotoOpts.waitUntil = "domcontentloaded";
+  }
   let lastErr;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {

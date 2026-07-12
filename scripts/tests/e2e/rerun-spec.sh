@@ -74,6 +74,10 @@ timeouts_src="$repo_root/roles/test-e2e-playwright/files/timeouts.js"
 if [[ -f "$timeouts_src" ]]; then
 	cp "$timeouts_src" "$stage_dir/tests/timeouts.js"
 fi
+onion_test_src="$repo_root/roles/test-e2e-playwright/files/onion-test.js"
+if [[ -f "$onion_test_src" ]]; then
+	cp "$onion_test_src" "$stage_dir/tests/onion-test.js"
+fi
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"
