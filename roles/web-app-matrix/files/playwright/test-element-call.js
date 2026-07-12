@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
 
 exports.register = function (shared) {
   test("element-call: Element config.json advertises a video-call backend when conferencing is enabled", async ({ request }) => {

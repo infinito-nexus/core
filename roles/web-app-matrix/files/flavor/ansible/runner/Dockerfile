@@ -68,8 +68,10 @@ RUN ansible-galaxy collection install \
 COPY daemon.json /etc/docker/daemon.json
 COPY bootstrap.sh /usr/local/bin/matrix-mdad-bootstrap
 COPY bootstrap.service /etc/systemd/system/matrix-mdad-bootstrap.service
-RUN chmod 0755 /usr/local/bin/matrix-mdad-bootstrap \
- && systemctl enable containerd.service docker.service matrix-mdad-bootstrap.service
+COPY hostpin.sh /usr/local/bin/matrix-mdad-hostpin
+COPY hostpin.service /etc/systemd/system/matrix-mdad-hostpin.service
+RUN chmod 0755 /usr/local/bin/matrix-mdad-bootstrap /usr/local/bin/matrix-mdad-hostpin \
+ && systemctl enable containerd.service docker.service matrix-mdad-bootstrap.service matrix-mdad-hostpin.service
 
 WORKDIR /mdad
 STOPSIGNAL SIGRTMIN+3

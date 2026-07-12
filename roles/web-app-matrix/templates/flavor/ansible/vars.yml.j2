@@ -1,5 +1,8 @@
 ---
-matrix_domain: {{ DOMAIN_PRIMARY }}
+{% set _matrix_onion_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
+{% set _matrix_is_onion = (_matrix_onion_node and lookup('domain', application_id) is search('\.onion$')) %}
+matrix_domain: {{ _matrix_onion_node if _matrix_is_onion else DOMAIN_PRIMARY }}
+matrix_playbook_ssl_enabled: {{ 'false' if _matrix_is_onion else 'true' }}
 matrix_homeserver_implementation: synapse
 matrix_playbook_docker_installation_enabled: false
 matrix_playbook_migration_validated_version: "{{ MATRIX_MDAD_MIGRATION_VALIDATED_VERSION }}"
@@ -59,11 +62,22 @@ jitsi_jicofo_container_network: host
 
 matrix_livekit_jwt_service_container_port: 8030
 
+{% set _synapse_extra_args = [] %}
 {% if (TLS_MODE | lower) == 'self_signed' %}
+{%   set _ = _synapse_extra_args.extend([
+        '--mount type=bind,src=' ~ CA_TRUST.cert_host ~ ',dst=' ~ MATRIX_CA_MOUNT_PATH ~ ',ro',
+        '-e SSL_CERT_FILE=' ~ MATRIX_CA_MOUNT_PATH,
+        '-e REQUESTS_CA_BUNDLE=' ~ MATRIX_CA_MOUNT_PATH,
+     ]) %}
+{% endif %}
+{% if MATRIX_OIDC_ENABLED and MATRIX_OIDC_HOST_IS_ONION %}
+{%   set _ = _synapse_extra_args.append('--mount type=bind,src=/etc/hosts,dst=/etc/hosts,ro') %}
+{% endif %}
+{% if _synapse_extra_args | length > 0 %}
 matrix_synapse_container_extra_arguments:
-  - "--mount type=bind,src={{ CA_TRUST.cert_host }},dst={{ MATRIX_CA_MOUNT_PATH }},ro"
-  - "-e SSL_CERT_FILE={{ MATRIX_CA_MOUNT_PATH }}"
-  - "-e REQUESTS_CA_BUNDLE={{ MATRIX_CA_MOUNT_PATH }}"
+{% for _arg in _synapse_extra_args %}
+  - "{{ _arg }}"
+{% endfor %}
 {% endif %}
 
 {% if MATRIX_COTURN_SHARED %}
@@ -96,6 +110,9 @@ matrix_synapse_oidc_providers:
     idp_name: "{{ OIDC.BUTTON_TEXT }}"
     discover: true
     issuer: "{{ OIDC.CLIENT.ISSUER_URL }}"
+{% if _matrix_is_onion %}
+    skip_verification: true
+{% endif %}
     client_id: "{{ OIDC.CLIENT.ID }}"
     client_secret: "{{ OIDC.CLIENT.SECRET }}"
     scopes:

@@ -14,6 +14,9 @@
     stop_signal: SIGRTMIN+3
     environment:
       MATRIX_MDAD_PLAYBOOK_TAGS: "{{ MATRIX_MDAD_PLAYBOOK_TAGS }}"
+{% if MATRIX_OIDC_ENABLED and MATRIX_OIDC_HOST_IS_ONION %}
+      MATRIX_OIDC_ONION_HOST: "{{ MATRIX_OIDC_HOST }}"
+{% endif %}
 {% set _objstore = lookup('objstore', application_id) %}
     networks:
       default: {}

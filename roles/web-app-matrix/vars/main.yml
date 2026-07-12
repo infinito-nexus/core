@@ -3,7 +3,8 @@ application_id: "web-app-matrix"
 
 location_upload: "~ ^/_matrix/media/v3/"
 
-MATRIX_SERVER_NAME: "{{ lookup('config', application_id, 'services.matrix.server_name') }}"
+MATRIX_ONION_NODE: "{{ lookup('config', 'svc-net-tor', 'services.tor.node', '') }}"
+MATRIX_SERVER_NAME: "{{ MATRIX_ONION_NODE if (MATRIX_ONION_NODE and lookup('domain', application_id) is search('\\.onion$')) else lookup('config', application_id, 'services.matrix.server_name') }}"
 MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
 MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 MATRIX_WELL_KNOWN_DIRECTORY: "{{ [ lookup('nginx','directories.data.well_known'), 'matrix' ] | path_join }}"
@@ -12,6 +13,8 @@ MATRIX_REGISTRATION_FILE_FOLDER: "/data/"
 MATRIX_REGISTRATION_SHARED_SECRET: "{{ lookup('config', application_id, 'credentials.registration_shared_secret') }}"
 MATRIX_FEDERATION_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.public.federation') }}"
 MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MATRIX_OIDC_HOST: "{{ lookup('domain', 'web-app-keycloak') }}"
+MATRIX_OIDC_HOST_IS_ONION: "{{ MATRIX_OIDC_HOST is search('\\.onion$') }}"
 MATRIX_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}"
 
 MATRIX_SYNAPSE_VERSION: "{{ lookup('config', application_id, 'services.synapse.version') }}"
@@ -25,7 +28,7 @@ MATRIX_SYNAPSE_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'dire
 MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER: "/data/homeserver.yaml"
 MATRIX_SYNAPSE_LOG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), MATRIX_SYNAPSE_DOMAIN ~'.log.config' ] | path_join }}"
 MATRIX_SYNAPSE_LOG_PATH_CONTAINER: "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.log.config"
-MATRIX_SYNAPSE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ MATRIX_SYNAPSE_DOMAIN }}"
+MATRIX_SYNAPSE_URL: "{{ lookup('canonical_url', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_LISTEN_FLAGS: "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
 MATRIX_ELEMENT_VERSION: "{{ lookup('config', application_id, 'services.element.version') }}"

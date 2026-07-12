@@ -143,3 +143,4 @@ tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true  # nocheck: dynamic-flag
+  exclusive: true

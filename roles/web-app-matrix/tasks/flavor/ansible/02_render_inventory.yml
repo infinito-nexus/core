@@ -16,3 +16,17 @@
     src: "flavor/ansible/vars.yml.j2"
     dest: "{{ MATRIX_MDAD_DIR }}/inventory/host_vars/{{ MATRIX_SYNAPSE_DOMAIN }}/vars.yml"
     mode: "0644"
+  register: _matrix_mdad_vars
+
+- name: "reconfigure matrix-mdad on inventory change"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    _mp="$(docker volume inspect -f '{% raw %}{{ .Mountpoint }}{% endraw %}' matrix_matrix_mdad_state)"
+    rm -f "${_mp}/bootstrap.done"
+    if docker ps -q -f name=^matrix-mdad$ | grep -q .; then
+      docker restart matrix-mdad
+    fi
+  args:
+    executable: /bin/bash
+  become: true
+  when: _matrix_mdad_vars is changed

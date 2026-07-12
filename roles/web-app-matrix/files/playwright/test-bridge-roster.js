@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
 
 const BRIDGE_TO_BOT_LOCALPART = {
   appservice_irc: "ircbot",

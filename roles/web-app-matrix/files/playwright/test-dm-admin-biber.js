@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
 const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
@@ -62,9 +62,12 @@ exports.register = function (shared) {
       // button we need lives inside the profile panel specifically (there is a
       // separate "Send a Direct Message" button on the welcome screen that
       // opens a search dialog rather than directly messaging biber).
-      await adminPage.goto(`${elementBaseUrl}/#/user/${encodeURIComponent(biberMatrixId)}`);
-
       const profilePanel = adminPage.getByRole("complementary").filter({ hasText: biberMatrixId });
+      await shared.gotoElementApp(
+        adminPage,
+        `${elementBaseUrl}/#/user/${encodeURIComponent(biberMatrixId)}`,
+        profilePanel
+      );
       await expect(profilePanel, "admin: biber profile panel must render").toBeVisible({ timeout: resolveTimeout(60_000) });
 
       const profileSendMessageButton = profilePanel

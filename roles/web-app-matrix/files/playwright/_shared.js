@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { expect } = require("./onion-test");
 const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
@@ -49,6 +49,30 @@ function attachDiagnostics(page) {
   return { consoleErrors, pageErrors, cspRelated };
 }
 
+const ELEMENT_INIT_CRASH_RE = /Unexpected error preparing the app|Element is misconfigured/i;
+
+async function gotoElementApp(page, url, readyLocator) {
+  const attempts = Number(process.env.PLAYWRIGHT_ELEMENT_BOOT_RETRIES) || 4;
+  const perAttempt = resolveTimeout(20_000);
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    if (attempt === 1) {
+      await gotoOnion(page, url, { waitUntil: "domcontentloaded" });
+    } else {
+      await page.reload({ waitUntil: "domcontentloaded", timeout: resolveTimeout(90_000) });
+    }
+    const deadline = Date.now() + perAttempt;
+    while (Date.now() < deadline) {
+      if (await readyLocator.isVisible().catch(() => false)) return;
+      const bodyText = await page.locator("body").innerText().catch(() => "");
+      if (ELEMENT_INIT_CRASH_RE.test(bodyText)) break;
+      await page.waitForTimeout(2_000);
+    }
+  }
+  throw new Error(
+    `Element failed to mount at ${url} after ${attempts} attempt(s) (init crash / no ready signal)`
+  );
+}
+
 // Matrix Element SSO flow. Element stores the selected homeserver in
 // sessionStorage during SSO initiation and reads it back when consuming the
 // `?loginToken=…` the homeserver hands it after Keycloak auth. Hitting
@@ -59,8 +83,6 @@ function attachDiagnostics(page) {
 // sessionStorage itself before redirecting to Synapse.
 async function signInViaElementOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
-
-  await gotoOnion(page, `${elementBaseUrl}/#/login`);
 
   const ssoButton = page
     .locator(
@@ -76,6 +98,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     .locator("button, a, div[role='button']")
     .filter({ hasText: /single\s*sign[- ]*on|continue\s+with\s+(sso|oidc|keycloak|openid)|sign\s+in\s+with\s+(sso|oidc|keycloak|openid)/i })
     .first();
+  await gotoElementApp(page, `${elementBaseUrl}/#/login`, ssoButton.or(ssoTextButton));
   const candidate = (await ssoButton.isVisible({ timeout: resolveTimeout(15_000) }).catch(() => false))
     ? ssoButton
     : ssoTextButton;
@@ -330,11 +353,10 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
 // indistinguishable from Element's side. Skip-verification + service-worker
 // dismissal mirror the OIDC path; Synapse SSO consent does not apply.
 async function signInViaElementPassword(page, username, password, personaLabel) {
-  await gotoOnion(page, `${elementBaseUrl}/#/login`);
-
   const userField = page
     .locator('input[name="username"], #mx_LoginForm_username, input[name="mxid"], input[data-testid="login_field_mx_id"]')
     .first();
+  await gotoElementApp(page, `${elementBaseUrl}/#/login`, userField);
   await expect(userField, `${personaLabel}: Element password login username field must appear`).toBeVisible({ timeout: resolveTimeout(30_000) });
   await userField.fill(username);
 
@@ -453,6 +475,7 @@ module.exports = {
   expectNoCspViolations,
   installCspViolationObserver,
   runGuestFlow,
+  gotoElementApp,
   signInViaElementOidc,
   signInViaElementPassword,
   signInViaElement,

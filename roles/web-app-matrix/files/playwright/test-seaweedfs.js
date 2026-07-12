@@ -16,7 +16,7 @@
 //   signInViaElement, and the SEAWEEDFS_* keys consumed by
 //   runSeaweedfsStorageCheck.
 
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
@@ -31,6 +31,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Matrix avatar is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
+  skipUnlessServiceEnabled("seaweedfs_frontend");
   test.skip(
     !(process.env.MATRIX_FLAVOR || "").toLowerCase().includes("ansible"),
     "Matrix media is offloaded to SeaweedFS only in the ansible flavor; the compose flavor stores media on local disk, so the bucket never grows.",
