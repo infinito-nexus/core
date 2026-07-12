@@ -53,3 +53,34 @@ flowchart TB
 Per-role recover procedures live in each role's `## Recover` README
 section; `svc-bkp-remote-2-local` documents its one-way opt-out in
 `files/recover.py.nocheck`.
+
+## Deploy-time trigger flow
+
+When the backup units actually run during a deploy, keyed on `MODE_BACKUP`
+and whether this is a first install or an update. The nightly systemd
+timers fire independently of every path below.
+
+```mermaid
+flowchart TB
+    start["Deploy starts (tasks/stages/01_constructor.yml)"] --> boot["Pre-preload bootstrap:<br/>docker + NFS export + token store ready"]
+    boot --> mode{"MODE_BACKUP?"}
+
+    mode -->|true| pre["Preload pass instant-starts the pre-state snapshot<br/>(force_flush_instant + state started):<br/>svc-bkp-secrets, svc-bkp-volume (pulls sys-svc-container for a<br/>live dockerd + ensures /opt/compose first), and svc-bkp-nfs<br/>after svc-storage-nfs-server (export must exist)"]
+    pre --> kind{"install or update?"}
+    kind -->|"1st install"| baseline["Source still empty (no volumes/export yet)<br/>-> near-empty baseline generation"]
+    kind -->|update| anchor["Captures the live pre-update state<br/>-> rollback anchor before any mutation"]
+    baseline --> apps
+    anchor --> apps
+    apps["App pass deploys / updates the stacks"] --> term["Terminator (end of play): svc-bkp-remote-2-local<br/>forced pull (force_flush_final)"]
+    term --> done["Deploy done"]
+
+    mode -->|false| install_only["Units installed + enabled, never started here"]
+    install_only --> apps_nb["App pass deploys / updates the stacks"] --> done
+
+    done --> timers["Nightly timers keep running on schedule<br/>(both MODE_BACKUP paths)"]
+```
+
+A failing pre-state snapshot aborts the deploy (no `suppress_flush`):
+no update proceeds without a successful backup of the state it is about
+to change. `svc-bkp-local-2-device` is never started at deploy time (no
+device present); it stays plug-triggered via its `.mount` unit.
