@@ -22,4 +22,4 @@
   delay: 2
   changed_when: false
   until: _swarm_tasks_ready is succeeded
-  when: compose_mode == 'swarm'
+  when: (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm'
