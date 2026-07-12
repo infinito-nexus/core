@@ -14,4 +14,4 @@ error_reporting = E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
 {% endif %}
 
 session.save_handler = files
-session.save_path = "/var/www/html/tmp"
+session.save_path = "{{ SUITECRM_APP_DIR }}/tmp"

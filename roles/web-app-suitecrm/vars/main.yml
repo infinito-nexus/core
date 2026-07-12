@@ -17,9 +17,14 @@ SUITECRM_SERVICE: "{{ entity_name }}"
 
 SUITECRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
+SUITECRM_APP_DIR: /var/www/html
+SUITECRM_SEED_DIR: /usr/src/suitecrm
+SUITECRM_WEB_USER: www-data
+SUITECRM_WEB_GROUP: www-data
+
 SUITECRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SUITECRM_LDAP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ldap.yaml'] | path_join }}"
-SUITECRM_LDAP_EXTENSION_DIR: "{{ ['/var/www/html/extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
+SUITECRM_LDAP_EXTENSION_DIR: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
 
 SUITECRM_INIT_MAINTENANCE_MODE: "{{ lookup('config', application_id, 'services.suitecrm.maintenance_mode') }}"
 

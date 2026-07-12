@@ -1,40 +1,18 @@
 #!/bin/sh
 set -eu
 
-APP_DIR="/var/www/html"
-WEB_USER="www-data"
-WEB_GROUP="www-data"
+APP_DIR="${SUITECRM_APP_DIR:?SUITECRM_APP_DIR must be baked into the image}"
+WEB_USER="${SUITECRM_WEB_USER:?SUITECRM_WEB_USER must be baked into the image}"
+WEB_GROUP="${SUITECRM_WEB_GROUP:?SUITECRM_WEB_GROUP must be baked into the image}"
 INSTALL_FLAG="${APP_DIR}/public/installed.flag"
+SEED_DIR="${SUITECRM_SEED_DIR:?SUITECRM_SEED_DIR must be baked into the image}"
+SEED_STAMP="${APP_DIR}/.tree-seeded"
 
 log() { printf '%s %s\n' "[suitecrm-entrypoint]" "$*" >&2; }
 
 if [ ! -d "$APP_DIR" ]; then
   log "ERROR: Application directory '$APP_DIR' does not exist."
   exit 1
-fi
-
-PERMS_STAMP="${APP_DIR}/.permissions-applied"
-if [ ! -f "$PERMS_STAMP" ]; then
-  log "Adjusting file permissions..."
-  # Exception: read-only docker-config mounts (e.g. ldap.yaml) are immutable by design,
-  # so chown/chmod on them always fails; without || true, set -e aborts the whole boot.
-  # This is the one place silence is correct: the writable app dirs below are still
-  # chown'd strictly, so any real permission failure there is not swallowed.
-  chown -R "$WEB_USER:$WEB_GROUP" "$APP_DIR" || true
-  find "$APP_DIR" -type d -exec chmod 755 {} + || true
-  find "$APP_DIR" -type f -exec chmod 644 {} + || true
-
-  for d in cache public/upload public/legacy/upload public/legacy/cache; do
-    if [ -d "${APP_DIR}/${d}" ]; then
-      chmod -R 775 "${APP_DIR}/${d}"
-      chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/${d}"
-    fi
-  done
-
-  echo "applied" > "$PERMS_STAMP"
-  chown "$WEB_USER:$WEB_GROUP" "$PERMS_STAMP"
-else
-  log "Permissions stamp present - skipping full-tree permission pass."
 fi
 
 TMPDIR="${APP_DIR}/tmp"
@@ -54,7 +32,7 @@ while :; do
     _have_lock=1
     break
   fi
-  # Exception: 1800s exceeds the orchestrator kill ceiling (start_period 15m
+  # Exception: 1800s exceeds the orchestrator kill ceiling (start_period 20m
   # plus retries), so only a dead leader's lock can be this old.
   _lock_mtime=$(stat -c %Y "$BOOT_LOCK" 2>/dev/null || echo 0)
   if [ "$_lock_mtime" -gt 0 ] && [ $(($(date +%s) - _lock_mtime)) -ge 1800 ]; then
@@ -66,7 +44,7 @@ while :; do
     break
   fi
   _lock_tries=$((_lock_tries + 1))
-  if [ "$_lock_tries" -ge 180 ]; then
+  if [ "$_lock_tries" -ge 300 ]; then
     log "ERROR: timed out waiting for the boot lock or install flag."
     exit 1
   fi
@@ -76,6 +54,18 @@ done
 if [ "$_have_lock" = "1" ]; then
   trap 'rmdir "$BOOT_LOCK" 2>/dev/null || true' EXIT
   trap 'rmdir "$BOOT_LOCK" 2>/dev/null || true; exit 143' TERM INT
+
+  if [ ! -f "$SEED_STAMP" ]; then
+    if [ -f "$INSTALL_FLAG" ]; then
+      log "Installed volume without seed stamp - marking as seeded, keeping the live tree."
+    else
+      log "Seeding SuiteCRM tree from ${SEED_DIR} into ${APP_DIR}..."
+      cp -a "${SEED_DIR}/." "${APP_DIR}/"
+      log "Seed complete."
+    fi
+    echo "seeded" > "$SEED_STAMP"
+    chown "$WEB_USER:$WEB_GROUP" "$SEED_STAMP"
+  fi
 
   CACHE_REFRESH=0
   if [ ! -f "$INSTALL_FLAG" ]; then
