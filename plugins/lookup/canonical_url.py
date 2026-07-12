@@ -55,16 +55,15 @@ class LookupModule(LookupBase):
         )
 
         consumer = as_str(
-            templar.template(kwargs["consumer"]) if templar and "consumer" in kwargs
+            templar.template(kwargs["consumer"])
+            if templar and "consumer" in kwargs
             else kwargs.get("consumer", "")
         )
         if consumer:
             consumer_app = applications.get(consumer, {})
             if not isinstance(consumer_app, dict):
                 consumer_app = {}
-            binding = (
-                consumer_app.get("services", {}).get(get_entity_name(app_id), {})
-            )
+            binding = consumer_app.get("services", {}).get(get_entity_name(app_id), {})
             if not (isinstance(binding, dict) and binding.get("enabled")):
                 return [""]
 
