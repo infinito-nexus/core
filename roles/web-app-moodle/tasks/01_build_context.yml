@@ -46,6 +46,8 @@
     src: "{{ MOODLE_MSMTP_SRC }}"
     dest: "{{ MOODLE_MSMTP_ABS }}"
     mode: "0640"
+  vars:
+    sys_svc_mail_msmtp_ca_bundle_override: /etc/ssl/certs/ca-certificates.crt
   notify:
     - compose build
     - compose up
