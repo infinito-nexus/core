@@ -21,10 +21,10 @@
 - name: "reconfigure matrix-mdad on inventory change"
   ansible.builtin.shell: |
     set -euo pipefail
-    _mp="$(docker volume inspect -f '{% raw %}{{ .Mountpoint }}{% endraw %}' matrix_matrix_mdad_state)"
+    _mp="$(container volume inspect -f '{% raw %}{{ .Mountpoint }}{% endraw %}' matrix_matrix_mdad_state)"
     rm -f "${_mp}/bootstrap.done"
-    if docker ps -q -f name=^matrix-mdad$ | grep -q .; then
-      docker restart matrix-mdad
+    if container ps -q -f name=^matrix-mdad$ | grep -q .; then
+      container restart matrix-mdad
     fi
   args:
     executable: /bin/bash

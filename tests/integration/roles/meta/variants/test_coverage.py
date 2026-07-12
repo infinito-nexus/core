@@ -28,10 +28,16 @@ For databases the same rule reduces to coverage of ``shared``: the
 DB-consumer ``enabled`` flag stays literal ``true`` (with
 ``# nocheck: dynamic-flag``), so only ``shared`` is dynamic and needs
 the two-polarity coverage.
+
+Exempt a service with ``# nocheck: variants-coverage`` on (or directly
+above) its ``meta/services.yml`` key — for flags whose group-derived
+value is a hard invariant that variants must never override (e.g. a
+browser frontend that must stay off on onion nodes).
 """
 
 from __future__ import annotations
 
+import re
 import unittest
 from typing import TYPE_CHECKING
 
@@ -49,6 +55,25 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 ROLES_DIR = PROJECT_ROOT / "roles"
+
+
+_NOCHECK_RE = re.compile(r"#\s*nocheck:\s*variants-coverage\b")
+
+
+def _service_nocheck(lines: list[str], key: str) -> bool:
+    pat = re.compile(r"^" + re.escape(key) + r"\s*:")
+    for i, line in enumerate(lines):
+        if not pat.match(line):
+            continue
+        if _NOCHECK_RE.search(line):
+            return True
+        j = i - 1
+        while j >= 0 and lines[j].lstrip().startswith("#"):
+            if _NOCHECK_RE.search(lines[j]):
+                return True
+            j -= 1
+        return False
+    return False
 
 
 def _is_dynamic_flag(value) -> bool:
@@ -114,7 +139,12 @@ class TestVariantsCoverage(unittest.TestCase):
             if not isinstance(services, dict):
                 continue
 
-            pairs = _dynamic_pairs(services)
+            services_lines = services_path.read_text(encoding="utf-8").splitlines()
+            pairs = [
+                (key, flag)
+                for key, flag in _dynamic_pairs(services)
+                if not _service_nocheck(services_lines, key)
+            ]
             if not pairs:
                 continue
 

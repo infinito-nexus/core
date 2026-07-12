@@ -65,7 +65,7 @@ async function gotoElementApp(page, url, readyLocator) {
       if (await readyLocator.isVisible().catch(() => false)) return;
       const bodyText = await page.locator("body").innerText().catch(() => "");
       if (ELEMENT_INIT_CRASH_RE.test(bodyText)) break;
-      await page.waitForTimeout(2_000);
+      await page.waitForTimeout(resolveTimeout(2_000));
     }
   }
   throw new Error(

@@ -2,6 +2,9 @@
 # nocheck: tor-contract — object-storage backend; consumed server-side over the
 # internal network (matrix S3 media etc.), never a Tor-browser surface, so it
 # rides no node onion.
+# nocheck: dynamic-flag — role-local browser UI, never consumed by other roles; shared stays literal.
+# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force the frontend on a tor node.
+# nocheck: bond-baseline — same reason: variant 0 must not pin the frontend on.
 frontend:
   bond: 1
   enabled: "{{ 'svc-net-tor' not in group_names }}"
