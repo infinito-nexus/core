@@ -4,6 +4,8 @@
 - name: 📁 create backup user
   user:
     name: backup
+    home: "{{ USER_BACKUP_HOME }}"
+    shell: /bin/sh
     create_home: true
 
 - name: 📂 Include dependency 'sys-svc-sshd'

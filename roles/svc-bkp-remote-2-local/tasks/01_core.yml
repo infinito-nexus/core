@@ -28,3 +28,4 @@
   vars:
     system_service_timer_enabled: true
     system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_REMOTE_TO_LOCAL }}"
+    system_service_suppress_flush: true
