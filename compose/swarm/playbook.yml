@@ -123,6 +123,7 @@
         path: /etc/hosts
         marker: "# {mark} INFINITO LAB DOMAINS"
         block: "{{ lab_hosts_entries.stdout }}"
+        unsafe_writes: true
       when: lab_is_mgr or inventory_hostname == lab_nfs
 
     - name: write the dnsmasq lab config
@@ -149,6 +150,7 @@
       copy:
         dest: /etc/resolv.conf
         content: "nameserver 127.0.0.1\n"
+        unsafe_writes: true
       when: lab_dns_node
 
     - name: verify the app domain resolves to its lab target
