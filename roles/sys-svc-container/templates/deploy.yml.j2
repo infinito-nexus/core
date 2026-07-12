@@ -1,4 +1,4 @@
-{% if DEPLOYMENT_MODE == 'swarm' %}
+{% if (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm' %}
 {{ "\n" }}
 {% set _replicas = lookup('applications') | resource_filter(application_id, 'replicas', service_name | default(''), '') %}
     deploy:
