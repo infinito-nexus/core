@@ -10,18 +10,18 @@ What it does:
 
 Examples:
   # 1) Print call order per group file
-  python -m cli.meta.roles.callorder
+  python -m cli.meta.roles.order.run
 
   # 2) Marker-only view: show everything before/after marker
-  python -m cli.meta.roles.callorder --marker "web-app-nextcloud"
+  python -m cli.meta.roles.order.run --marker "web-app-nextcloud"
 
   # 3) Filter to selected roles and split relative to marker
-  python -m cli.meta.roles.callorder \
+  python -m cli.meta.roles.order.run \
     --call "web-app-akaunting web-app-bigbluebutton web-app-bookwyrm web-app-chess web-app-discourse web-app-funkwhale web-app-matrix web-app-mediawiki web-app-nextcloud" \
     --marker "web-app-nextcloud"
 
   # 4) Only show effected groups (groups containing the marker role)
-  python -m cli.meta.roles.callorder --marker "web-app-nextcloud" --effected
+  python -m cli.meta.roles.order.run --marker "web-app-nextcloud" --effected
 """
 
 from __future__ import annotations
@@ -135,7 +135,7 @@ def normalize_call_list(s: str) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        prog="python -m cli.meta.roles.callorder",
+        prog="python -m cli.meta.roles.order.run",
         description="Print role call order per tasks/groups/*.yml and analyze relative to a marker role.",
     )
     ap.add_argument(
@@ -160,7 +160,6 @@ def main(argv: list[str] | None = None) -> int:
     groups = build_groups(repo_root)
     global_order = flatten_callorder(groups)
 
-    # Build global index for marker comparisons.
     global_index: dict[str, int] = {}
     for i, (_grp, role) in enumerate(global_order):
         global_index.setdefault(role, i)
@@ -194,7 +193,6 @@ def main(argv: list[str] | None = None) -> int:
     def role_marker_icon(role: str) -> str:
         return " 🎯" if marker_role and role == marker_role else ""
 
-    # --- Mode 1: no --call and no --marker -> simple listing
     if call_set is None and marker_role is None:
         for g in groups:
             print(f"📂 {g.group_name}  ({g.file.relative_to(repo_root)})")
@@ -206,9 +204,6 @@ def main(argv: list[str] | None = None) -> int:
             print()
         return 0
 
-    # Decide group filtering:
-    # - If --call: only groups that contain at least one selected role
-    # - Else: all groups
     filtered_groups: list[Group] = []
     for g in groups:
         if call_set is not None:
@@ -217,11 +212,9 @@ def main(argv: list[str] | None = None) -> int:
         else:
             filtered_groups.append(g)
 
-    # Apply --effected: only groups that contain marker role (if marker exists)
     if args.effected and marker_role:
         filtered_groups = [g for g in filtered_groups if marker_role in g.roles]
 
-    # Header
     print("🧾 === Callorder analysis ===")
     print(f"📍 Repo root: {repo_root}")
     if call_set is not None:
@@ -233,13 +226,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"🧭 Marker location: group '{marker_group}' (global index {marker_pos})")
     print()
 
-    # If marker exists, compute not-effected-by-marker groups (marker not present in group)
     if marker_role:
         not_effected = [g.group_name for g in groups if marker_role not in g.roles]
     else:
         not_effected = []
 
-    # Helper for marker-only group positioning label
     def group_position_label(g: Group) -> str:
         if marker_pos is None:
             return ""
@@ -252,10 +243,8 @@ def main(argv: list[str] | None = None) -> int:
             return "➡️  (after marker)"
         return "🎯 (spans marker)"
 
-    # Print groups
     printed_any = False
     for g in filtered_groups:
-        # Determine roles within scope
         if call_set is not None:
             scoped = [r for r in g.roles if r in call_set]
         else:
@@ -284,13 +273,11 @@ def main(argv: list[str] | None = None) -> int:
             if not called and not remaining:
                 print("  · (no matching roles)")
         else:
-            # --call without --marker: just list scoped roles
             for r in scoped:
                 print(f"  - {r}")
 
         print()
 
-    # Missing roles from --call not present in tasks/groups
     if call_set is not None:
         missing = sorted([r for r in call_set if r not in global_index])
         if missing:
@@ -299,7 +286,6 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"- {r}")
             print()
 
-    # Not effected by marker list
     if marker_role:
         print(
             "🧷 === Not effected by marker (marker role not present in these groups) ==="

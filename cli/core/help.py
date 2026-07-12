@@ -20,12 +20,12 @@ if TYPE_CHECKING:
 def format_command_help(
     name: str, description: str, indent: int = 2, col_width: int = 36, width: int = 80
 ) -> str:
-    # Reserve at least two spaces between the name column and the
-    # description column. Names that would crowd into (or past) the
-    # description column drop the description onto the next line so
-    # the two never collide. The description is rendered in DIM so it
-    # visually steps back from the command name (which keeps the
-    # terminal's default brightness).
+    """Two-column help line: name, then the description in DIM.
+
+    Reserves at least two spaces between the columns; a name that would
+    crowd into the description column drops the description onto the
+    next line so the two never collide.
+    """
     prefix = " " * indent + name
     desc_indent = " " * col_width
     if len(prefix) + 2 > col_width:
@@ -60,8 +60,6 @@ def extract_description_via_help(module: str) -> str:
         )
         out = (result.stdout or "").splitlines()
 
-        # heuristic:
-        # skip usage line(s) then return first non-empty line after the first blank line
         seen_usage = False
         for i, line in enumerate(out):
             if line.strip().startswith("usage:"):
@@ -144,7 +142,7 @@ def _entry_description(cli_dir: Path, entry: DirEntry) -> str:
 
 def _full_invocation(entry: DirEntry) -> str:
     """Return the copy-pasteable invocation for an entry, e.g.
-    ``infinito meta callorder`` instead of just ``callorder``."""
+    ``infinito meta roles order run`` instead of just ``run``."""
     return "infinito " + " ".join(entry.relative_parts)
 
 
@@ -410,9 +408,6 @@ def print_tree(cli_dir: Path, parts: list[str], max_depth: int | None = None) ->
             for line in wrapped[1:]:
                 print(f"{cont_lead}{cont_padding}{color_text(line, Style.DIM)}")
 
-        # Blank-ish separator after each entry. Keep parent verticals so
-        # the tree visual stays continuous; drop the trailing separator
-        # at the very end of the listing.
         if index != last_index:
             print(prefix + ("│" if not is_last else ""))
 
@@ -426,9 +421,7 @@ def show_full_help_for_all(cli_dir: Path) -> None:
     print()
 
     for cmd in commands:
-        file_path = str(
-            cmd.main_path.relative_to(cli_dir.parent)
-        )  # cli/<...>/__main__.py
+        file_path = str(cmd.main_path.relative_to(cli_dir.parent))
         print(color_text("=" * 80, Fore.BLUE + Style.BRIGHT))
         print(color_text(f"Subcommand: {cmd.subcommand}", Fore.YELLOW + Style.BRIGHT))
         print(color_text(f"File: {file_path}", Fore.CYAN))
