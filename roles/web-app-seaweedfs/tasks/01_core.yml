@@ -25,6 +25,7 @@
     src: nginx.conf.j2
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'nginx.conf'] | path_join }}"
   notify: compose up
+  when: SEAWEEDFS_FRONTEND_ENABLED | bool
 
 - name: "Start the SeaweedFS stack"
   ansible.builtin.meta: flush_handlers
@@ -39,6 +40,17 @@
   loop_control:
     loop_var: seaweedfs_proxy
     label: "{{ seaweedfs_proxy.domain }} -> {{ seaweedfs_proxy.http_port }}"
+
+- name: "Remove stale frontend vhosts while the frontend is disabled"
+  ansible.builtin.file:
+    path: "{{ [lookup('nginx', 'directories.configuration.servers'), seaweedfs_vhost[0], seaweedfs_vhost[1] ~ '.conf'] | path_join }}"
+    state: absent
+  loop: "{{ ['http', 'https'] | product([SEAWEEDFS_FILER_DOMAIN, SEAWEEDFS_MASTER_DOMAIN]) | list }}"
+  loop_control:
+    loop_var: seaweedfs_vhost
+    label: "{{ seaweedfs_vhost[0] }}/{{ seaweedfs_vhost[1] }}"
+  when: not (SEAWEEDFS_FRONTEND_ENABLED | bool)
+  notify: restart openresty
 
 - name: "Wait until the SeaweedFS S3 gateway answers"
   ansible.builtin.shell: >

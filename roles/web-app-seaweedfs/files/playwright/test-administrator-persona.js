@@ -5,6 +5,7 @@ exports.register = function (shared) {
   const { env, keycloakLogin, isAuthChain, expect } = shared;
 
   test("administrator: can log in and reach both Filer and Master UIs", async ({ page }) => {
+    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
     test.skip(!env.ssoEnabled, "SSO disabled");
 
     await gotoOnion(page, env.filerUrl, { waitUntil: "domcontentloaded" });

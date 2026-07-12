@@ -1,8 +1,18 @@
 ---
+# nocheck: tor-contract — object-storage backend; consumed server-side over the
+# internal network (matrix S3 media etc.), never a Tor-browser surface, so it
+# rides no node onion.
+frontend:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' not in group_names }}"
+  shared: false
+  domains:
+    - filer
+    - master
 sso:
   bond: 1
-  enabled: "{{ 'web-app-keycloak' in group_names }}"
-  shared: "{{ 'web-app-keycloak' in group_names }}"
+  enabled: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
   flavor: oauth2
   oauth2:
     origin:
@@ -55,9 +65,3 @@ proxy:
   mem_reservation: 64m
   mem_limit: 128m
   pids_limit: 128
-
-# nocheck: playwright-service-flag
-tor:
-  bond: 1
-  enabled: "{{ 'svc-net-tor' in group_names }}"
-  shared: true # nocheck: dynamic-flag

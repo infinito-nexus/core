@@ -21,6 +21,7 @@ exports.register = function (shared) {
   }
 
   test("biber: denied on Filer and Master (admin-only)", async ({ page }) => {
+    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
     test.skip(!env.ssoEnabled, "SSO disabled");
     await assertDenied(page, env.filerUrl);
     await page.context().clearCookies();

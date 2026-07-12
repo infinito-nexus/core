@@ -5,6 +5,7 @@ exports.register = function (shared) {
   const { env, keycloakLogin, isAuthChain, expect } = shared;
 
   test("storage: a bucket exists for every consumer with the service enabled", async ({ page }) => {
+    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
     test.skip(!env.ssoEnabled, "SSO disabled");
     test.skip(env.consumerBuckets.length === 0, "no object-store consumers on this host");
 

@@ -27,11 +27,12 @@ SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'administrator').password }}"
 SEAWEEDFS_S3_CONFIG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3.json' ] | path_join }}"
 
 SEAWEEDFS_SSO_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.seaweedfs.ports.local.sso') }}"
+SEAWEEDFS_FRONTEND_ENABLED: "{{ lookup('config', application_id, 'services.frontend.enabled') | bool }}"
 SEAWEEDFS_FRONT_PROXY_MATRIX: >-
   {{
-    [
+    ([
       { 'domain': SEAWEEDFS_FILER_DOMAIN,  'http_port': SEAWEEDFS_SSO_PORT_PUBLIC },
-      { 'domain': SEAWEEDFS_MASTER_DOMAIN, 'http_port': SEAWEEDFS_SSO_PORT_PUBLIC },
-      { 'domain': SEAWEEDFS_S3_DOMAIN,     'http_port': SEAWEEDFS_S3_PORT_PUBLIC }
-    ]
+      { 'domain': SEAWEEDFS_MASTER_DOMAIN, 'http_port': SEAWEEDFS_SSO_PORT_PUBLIC }
+    ] if SEAWEEDFS_FRONTEND_ENABLED else [])
+    + [{ 'domain': SEAWEEDFS_S3_DOMAIN, 'http_port': SEAWEEDFS_S3_PORT_PUBLIC }]
   }}

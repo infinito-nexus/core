@@ -61,7 +61,38 @@ class LookupModule(LookupBase):
     Skips canonical + alias domains of every selected application whose
     ``server.status_codes.default`` declares any HTTP code >= 400
     (e.g. federation-only roles that legitimately serve 4xx at ``/``).
+
+    Additionally skips canonical domains owned by a disabled service: a
+    service entry may declare ``domains: [<canonical key>, ...]``; when its
+    ``enabled`` resolves falsy those canonicals get no vhost (e.g. the
+    seaweedfs filer/master frontend on an onion node), so probing them can
+    only fail.
     """
+
+    def _service_disabled_domains(self, applications: Mapping, app_id: str) -> set[str]:
+        services = get(applications, app_id, "services", strict=False, default={})
+        canonical = get(
+            applications, app_id, "server.domains.canonical", strict=False, default={}
+        )
+        if not isinstance(services, Mapping) or not isinstance(canonical, Mapping):
+            return set()
+        templar = getattr(self, "_templar", None)
+        skip: set[str] = set()
+        for svc in services.values():
+            if not isinstance(svc, Mapping) or "domains" not in svc:
+                continue
+            enabled = svc.get("enabled", True)
+            if isinstance(enabled, str) and templar is not None:
+                enabled = templar.template(enabled)
+            if enabled:
+                continue
+            for key in _to_list(svc.get("domains")):
+                domain = canonical.get(key)
+                if isinstance(domain, str) and "{{" in domain and templar is not None:
+                    domain = templar.template(domain)
+                if isinstance(domain, str) and domain:
+                    skip.add(domain)
+        return skip
 
     def run(
         self,
@@ -86,6 +117,8 @@ class LookupModule(LookupBase):
         for app_id in applications:
             if selection and app_id not in selection:
                 continue
+
+            skip |= self._service_disabled_domains(applications, app_id)
 
             default = get(
                 applications,

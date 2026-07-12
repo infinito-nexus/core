@@ -14,6 +14,7 @@ exports.register = function (shared) {
   }
 
   test("guest: redirected to auth, never reaches Filer or Master", async ({ page }) => {
+    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
     test.skip(!env.ssoEnabled, "SSO disabled");
     await assertRedirectedToAuth(page, env.filerUrl);
     await page.context().clearCookies();

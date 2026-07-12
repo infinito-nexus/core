@@ -11,6 +11,7 @@ const env = {
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   ssoEnabled: isServiceEnabled("sso"),
+  frontendEnabled: isServiceEnabled("frontend"),
   consumerBuckets: (() => {
     try {
       return JSON.parse(decodeDotenvQuotedValue(process.env.SEAWEEDFS_CONSUMER_BUCKETS) || "[]");

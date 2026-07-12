@@ -18,6 +18,7 @@
       - "{{ SEAWEEDFS_S3_CONFIG_PATH }}:/etc/seaweedfs/s3.json:ro"
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
+{% if SEAWEEDFS_FRONTEND_ENABLED %}
   proxy:
     image: "{{ SEAWEEDFS_PROXY_IMAGE }}:{{ SEAWEEDFS_PROXY_VERSION }}"
     container_name: {{ SEAWEEDFS_PROXY_CONTAINER }}
@@ -36,6 +37,7 @@
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
     logging:
       driver: journald
+{% endif %}
 
 {{ lookup('applications') | compose_volumes(
     application_id,
