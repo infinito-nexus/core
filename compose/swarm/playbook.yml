@@ -69,6 +69,12 @@
           fail:
             msg: "{{ inventory_hostname }} systemd did not become responsive within {{ lab_systemd_timeout }}s"
 
+    - name: permit user logins (degraded lab boot never clears /run/nologin)
+      systemd:
+        name: systemd-user-sessions
+        state: started
+      timeout: 30
+
     - name: wipe stale NFS export state (as root in-node; the act runner cannot)
       command: find {{ lab_export_base }} -mindepth 1 -delete
       timeout: 120
