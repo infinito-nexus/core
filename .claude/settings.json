@@ -141,6 +141,7 @@
       "WebFetch(domain:docs.pixelfed.org)",
       "WebFetch(domain:docs.pretix.eu)",
       "WebFetch(domain:docs.redhat.com)",
+      "WebFetch(domain:docs.rs)",
       "WebFetch(domain:docs.semaphoreui.com)",
       "WebFetch(domain:docs.suitecrm.com)",
       "WebFetch(domain:docs.zammad.org)",
