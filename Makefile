@@ -576,6 +576,15 @@ swarm-clean:
 swarm-clean-stale-nfs:
 	@CID='$(cid)' NFS_MOUNT='$(mount)' bash scripts/tests/deploy/swarm/utils/clean/stale_nfs.sh
 
+.PHONY: swarm-diagnostic
+# Backup/NFS diagnostics for a live swarm-test cluster: backup unit state + journal, NFS mounts, D-state (wedged NFS) processes, rsync/dump processes, disk. Read-only.
+# Param name: REQUIRED cluster id (the app id when no name= was passed to swarm-zombie).
+# Param node: optional single node container name; default probes mgr-01, nfs-server, bkp-01.
+# Param unit: optional systemd unit glob for the journal dump; default svc-bkp-*.
+swarm-diagnostic:
+	@test -n '$(name)' || { echo 'usage: make swarm-diagnostic name=<cluster-id> [node=<container>] [unit=<glob>]'; exit 2; }
+	@SWARM_NAME='$(name)' node='$(node)' unit='$(unit)' bash scripts/tests/deploy/swarm/utils/diagnostic.sh
+
 .PHONY: swarm-down
 # Release a named swarm-test cluster (DinD nodes, lab network, act outer container).
 # Param name: REQUIRED cluster id matching the one swarm-zombie used (the app id when no name= was passed).
