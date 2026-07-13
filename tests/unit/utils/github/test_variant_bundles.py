@@ -123,7 +123,7 @@ class TestBundleIndices(unittest.TestCase):
 
 class TestResolveMaxStorage(unittest.TestCase):
     def test_default_when_unset(self) -> None:
-        self.assertEqual(vb.resolve_max_storage(""), int(parse_size("350GB")))
+        self.assertEqual(vb.resolve_max_storage(""), int(parse_size("330GB")))
 
     def test_explicit_value(self) -> None:
         self.assertEqual(vb.resolve_max_storage("200GB"), int(parse_size("200GB")))

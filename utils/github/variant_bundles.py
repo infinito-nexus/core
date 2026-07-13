@@ -45,7 +45,10 @@ if TYPE_CHECKING:
     from typing import Any
 
 DEFAULT_BUNDLE_SIZE = 3
-DEFAULT_MAX_STORAGE = "350GB"
+# Also a runtime proxy: hosted runners kill jobs at 6h, and heavy multi-round
+# roles (nextcloud) only fit that wall with <= 2 variants per bundle. Keep the
+# cap below their lightest 3-variant sum or the greedy packer overshoots.
+DEFAULT_MAX_STORAGE = "330GB"
 ROLES_DIR = PROJECT_ROOT / "roles"
 
 
