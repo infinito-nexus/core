@@ -5,7 +5,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 # Container
 container_port: 8080 # Standardport Jira
-container_hostname: "{{ lookup('domain',application_id) }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 # Jira
 

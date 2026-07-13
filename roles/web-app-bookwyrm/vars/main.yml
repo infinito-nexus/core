@@ -5,7 +5,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 # Container
 container_port: 8000
-container_hostname: "{{ lookup('domain',application_id) }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 # BookWyrm 
 

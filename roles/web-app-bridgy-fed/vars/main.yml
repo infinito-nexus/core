@@ -6,7 +6,7 @@ application_id: "web-app-bridgy-fed"
 container_port: 8080
 domain: "{{ container_hostname }}"
 http_port: "{{ lookup('config', application_id, 'services.bridgy-fed.ports.local.http') }}"
-container_hostname: "{{ lookup('domain',application_id) }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 # App container
 BRIDGY_CONTAINER: "{{ lookup('config', application_id, 'services.application.name') }}"

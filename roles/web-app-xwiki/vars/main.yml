@@ -4,7 +4,7 @@ application_id: "web-app-xwiki"
 domain: "{{ lookup('domain',application_id) }}"
 
 container_port: 8080
-container_hostname: "{{ domain }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 # XWiki
 
