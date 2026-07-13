@@ -41,6 +41,7 @@ import re
 import unittest
 from typing import TYPE_CHECKING
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
@@ -139,7 +140,7 @@ class TestVariantsCoverage(unittest.TestCase):
             if not isinstance(services, dict):
                 continue
 
-            services_lines = services_path.read_text(encoding="utf-8").splitlines()
+            services_lines = read_text(str(services_path)).splitlines()
             pairs = [
                 (key, flag)
                 for key, flag in _dynamic_pairs(services)
