@@ -2,6 +2,7 @@ listen-address=127.0.0.1
 bind-interfaces
 no-hosts
 no-resolv
+filter-rr=AAAA
 server=/onion/127.0.0.1#{{ TOR_DNS_PORT }}
 {% for _ns in TOR_DNS_UPSTREAMS %}
 server={{ _ns }}
