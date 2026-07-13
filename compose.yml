@@ -9,7 +9,7 @@ x-ci-defaults: &ci_defaults
 
 services:
   coredns:
-    image: coredns/coredns:1.14.4
+    image: coredns/coredns:1.14.6
     container_name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-coredns
     command: ["-conf", "/Corefile"]
     volumes:
