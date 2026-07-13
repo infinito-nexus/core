@@ -46,3 +46,10 @@ defaults_oidc:
     GIVEN_NAME: "givenName"
     FAMILY_NAME: "surname"
     EMAIL: "email"
+  # Keycloak's own built-in bootstrap realm/client used for password-grant
+  # Admin REST API automation (e.g. Playwright specs managing group
+  # membership directly). Distinct from CLIENT.REALM/CLIENT.ID above, which
+  # describe an application's own OIDC client, not Keycloak's admin API.
+  ADMIN:
+    REALM: "master"
+    CLI_CLIENT_ID: "admin-cli"

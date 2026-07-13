@@ -1,0 +1,15 @@
+---
+manager_api_configuration: wazuh_manager_api_configuration
+manager_etc: wazuh_manager_etc
+manager_logs: wazuh_manager_logs
+manager_queue: wazuh_manager_queue
+manager_var_multigroups: wazuh_manager_var_multigroups
+manager_integrations: wazuh_manager_integrations
+manager_active_response: wazuh_manager_active_response
+manager_agentless: wazuh_manager_agentless
+manager_wodles: wazuh_manager_wodles
+manager_filebeat_etc: wazuh_manager_filebeat_etc
+manager_filebeat_var: wazuh_manager_filebeat_var
+indexer_data: wazuh_indexer_data
+dashboard_config: wazuh_dashboard_config
+dashboard_custom: wazuh_dashboard_custom
