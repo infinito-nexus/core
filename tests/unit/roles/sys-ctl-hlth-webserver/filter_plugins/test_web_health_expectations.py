@@ -125,6 +125,50 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         self.assertEqual(out["v2.d.example.org"], [405])  # default used
         self.assertEqual(out["alias.d.example.org"], [301])  # aliases always redirect
 
+    def test_disabled_service_domains_are_suppressed(self):
+        apps = {"app-s": {}}
+        self._configure_returns(
+            {
+                ("app-s", "server.domains.canonical"): {
+                    "api": "api.s.example.org",
+                    "filer": "filer.s.example.org",
+                    "master": "master.s.example.org",
+                },
+                ("app-s", "services"): {
+                    "frontend": {
+                        "enabled": False,
+                        "domains": ["filer", "master"],
+                    },
+                },
+            }
+        )
+        out = self.mod.web_health_expectations(apps, group_names=["app-s"])
+
+        self.assertIn("api.s.example.org", out)
+        self.assertNotIn("filer.s.example.org", out)
+        self.assertNotIn("master.s.example.org", out)
+
+    def test_enabled_service_domains_are_kept(self):
+        apps = {"app-s": {}}
+        self._configure_returns(
+            {
+                ("app-s", "server.domains.canonical"): {
+                    "api": "api.s.example.org",
+                    "filer": "filer.s.example.org",
+                },
+                ("app-s", "services"): {
+                    "frontend": {
+                        "enabled": True,
+                        "domains": ["filer"],
+                    },
+                },
+            }
+        )
+        out = self.mod.web_health_expectations(apps, group_names=["app-s"])
+
+        self.assertIn("api.s.example.org", out)
+        self.assertIn("filer.s.example.org", out)
+
     def test_keyed_canonical_invalid_key_and_default_falls_back(self):
         apps = {"app-y": {}}
         self._configure_returns(

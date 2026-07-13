@@ -203,9 +203,23 @@ def web_health_expectations(
                 if codes:
                     sc_map[str(k)] = codes
 
+        suppressed = set()
+        services_raw = get(applications, app_id, "services", strict=False, default={})
+        if isinstance(services_raw, Mapping):
+            for svc in services_raw.values():
+                if not isinstance(svc, Mapping) or "domains" not in svc:
+                    continue
+                if svc.get("enabled"):
+                    continue
+                for key in _to_list(svc.get("domains"), allow_mapping=False):
+                    if key:
+                        suppressed.add(str(key))
+
         app_exp = {}
         if isinstance(canonical_raw, Mapping) and canonical_raw:
             for key, domains in canonical_raw.items():
+                if str(key) in suppressed:
+                    continue
                 domains_list = _to_list(domains, allow_mapping=False)
                 codes = sc_map.get(key) or sc_map.get("default")
                 expected = list(codes) if codes else list(DEFAULT_OK)
