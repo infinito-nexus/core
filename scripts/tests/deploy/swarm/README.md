@@ -47,7 +47,7 @@ flowchart TB
             s5["5️⃣ mirror to a LUKS loop 'USB'<br/>local-2-device script.py"]:::drill
             s6["6️⃣ recover device → local root<br/>local-2-device recover.py (luksOpen + newest snapshot)"]:::drill
             s7["7️⃣ stack rm + wipe volume, recover root → export<br/>nfs-2-local recover.py"]:::drill
-            s8["8️⃣ recover volume backups → redeploy → assert marker<br/>volume-2-local recover.py"]:::drill
+            s8["8️⃣ recover volume + secrets backups<br/>volume-2-local + secrets recover.py<br/>(marker verified after the update pass)"]:::drill
             s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s7 --> s8
         end
 
@@ -119,10 +119,11 @@ The drill proves the full `svc-bkp-*` chain forward through the DEPLOYED
 systemd units on every host (volume + secrets on the manager, nfs on the
 export host, remote pull + device sync on the backup host) and every
 `recover.py` back (device -> local root -> NFS export, docker volume and
-host secrets onto the live instance), with marker files that must survive
-the whole loop. It reuses the round-1 stack instead of spinning a
-dedicated cluster, and skips cleanly when the app declares no NFS-flagged
-volume. The backup host is started by `routine/01_bootstrap.sh` (drill
+host secrets into the live system paths), with marker files that must
+survive the whole loop: the matrix update pass boots the recovered stack
+and `verify_recovered_marker.sh` asserts the marker on the live volume. It
+reuses the round-1 stack instead of spinning a dedicated cluster, and skips
+cleanly when the app declares no NFS-flagged volume. The backup host is started by `routine/01_bootstrap.sh` (drill
 profile) and receives its two roles via `extend_inventory`; the pull
 trust (backup keypair) and the role config (backup_providers, device
 mount/target/source) come from `utils/tests/swarm/write_extras.py`.
