@@ -69,27 +69,16 @@
   include_tasks: router.yml
   when: TOR_EGRESS_ROUTER_ENABLED | bool
 
-# A (re)started Tor republishes its hidden-service descriptor; until that
-# lands on the HSDirs the node onion is unreachable (~2-5 min) and every
-# later deploy step touching an onion URL (front-proxy checks, injections,
-# Playwright) fails as if transient. Gate the role on self-reachability:
-# any HTTP reaction — including OpenResty's 444 connection-close for the
-# bare node onion — proves the rendezvous works; only no-contact fails.
-- name: "Wait until the node onion answers over the Tor egress router"
+# Gate the role until the node onion answers on both paths the deploy relies
+# on — the internal loopback fast path AND the real Tor network (descriptor
+# published, the path Playwright / real users take). See files/onion_self_reach.py.
+- name: "Wait until the node onion answers both internally and over Tor"
   ansible.builtin.command:
     argv:
       - python3
-      - -c
-      - |
-        import sys, urllib.error, urllib.request
-        try:
-            urllib.request.urlopen("http://{{ TOR_NODE_ONION }}/", timeout=30)
-        except urllib.error.HTTPError:
-            pass
-        except Exception as exc:
-            detail = f"{type(exc).__name__}: {exc}"
-            if "closed connection" not in detail and "RemoteDisconnected" not in detail:
-                sys.exit(detail)
+      - "{{ role_path }}/files/onion_self_reach.py"
+      - "{{ TOR_NODE_ONION }}"
+      - "{{ lookup('tor_socks', '127.0.0.1') }}"
   register: _tor_self_reach
   retries: 90
   delay: 5
