@@ -9,7 +9,7 @@
 // Filer UI.
 
 const { test, expect } = require("@playwright/test");
-const { resolveTimeout } = require("./timeouts");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
   runSeaweedfsStorageCheck,
@@ -24,6 +24,7 @@ const PNG_AVATAR_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAA60lEQVR4nO3QQQ3AIADAQEDh5CAHqbOwvsiSOwVN537O4Jt1O+BPzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCl7E6QIw0tiFNgAAAABJRU5ErkJggg==";
 
 test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", async ({ page, browser }) => {
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
   test.setTimeout(resolveTimeout(180_000));
 

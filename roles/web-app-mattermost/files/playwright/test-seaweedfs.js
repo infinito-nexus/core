@@ -14,7 +14,7 @@
 // draft preview and the posted attachment overlay.
 
 const { test, expect } = require("@playwright/test");
-const { resolveTimeout } = require("./timeouts");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
 const { performKeycloakLoginForm } = require("./personas");
@@ -23,6 +23,7 @@ const shared = require("./_shared");
 test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: a Mattermost message attachment is stored in the SeaweedFS bucket", async ({ page, browser }) => {
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
   test.setTimeout(resolveTimeout(180_000));
 

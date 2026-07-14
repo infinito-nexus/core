@@ -7,7 +7,7 @@
 // check proves that the configured bucket gained an object.
 
 const { test, expect } = require("@playwright/test");
-const { resolveTimeout } = require("./timeouts");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
   runSeaweedfsStorageCheck,
@@ -109,6 +109,7 @@ async function createBaserowFileRow(appPage, baseUrl, accessToken) {
 }
 
 test("seaweedfs: an uploaded Baserow file-field document is stored in the SeaweedFS bucket", async ({ page, browser }) => {
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
   skipUnlessServiceEnabled("sso");
   test.setTimeout(resolveTimeout(180_000));
