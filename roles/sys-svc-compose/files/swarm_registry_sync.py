@@ -9,9 +9,13 @@ from pathlib import Path
 import yaml
 
 
-def run(cmd: list[str]) -> int:
+def run(cmd: list[str], timeout: int = 600) -> int:
     print(f">>> {' '.join(cmd)}", file=sys.stderr)
-    return subprocess.run(cmd, check=False).returncode
+    try:
+        return subprocess.run(cmd, check=False, timeout=timeout).returncode
+    except subprocess.TimeoutExpired:
+        print(f">>> TIMEOUT after {timeout}s: {' '.join(cmd)}", file=sys.stderr)
+        return 124
 
 
 def manifest_exists(image: str) -> bool:
