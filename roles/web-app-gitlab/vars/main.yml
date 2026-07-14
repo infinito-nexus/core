@@ -5,7 +5,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 # GitLab
 GITLAB_URL: "{{ lookup('tls', application_id, 'url.base') }}"
-GITLAB_HOSTNAME: "{{ lookup('domain',application_id) }}"
+GITLAB_HOSTNAME: "{{ lookup('container_hostname', application_id) }}"
 
 ## Email
 GITLAB_EMAIL: "{{ lookup('email', application_id) }}"
