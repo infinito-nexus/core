@@ -15,7 +15,8 @@
 # container -- never on a host whose state matters.
 set -euo pipefail
 
-REPO="${INFINITO_REPO_ROOT:-/opt/src/infinito}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 VOL="recoverdrill_data"
 TOKEN="compose-recover-drill"
 MARKER=".recoverdrill-marker"

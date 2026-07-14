@@ -6,9 +6,11 @@
 # installs the ssh pull identity and simulates the USB plug via a LUKS
 # loop mount), then tears the stack down completely and recovers the same
 # data back through the recover CLI (cli.administration.recover: device ->
-# local root -> nfs export, docker volume and host secrets), then redeploys
-# and verifies. Runs once, between the matrix's first
-# and second round, against the already-converged round-1 stack. Per-host
+# local root -> nfs export, docker volume and host secrets). The matrix update
+# pass then boots the stack onto the recovered export and
+# verify_recovered_marker.sh asserts the live marker, so no dedicated redeploy
+# runs here. Runs once, between the matrix's first and second round, against
+# the already-converged round-1 stack. Per-host
 # routines live next to this file and execute in-node from the repo copy
 # under INFINITO_NODE_SRC_DIR (one docker exec per routine). Marker probes
 # are scoped per repo (volume/nfs/secrets share DR_MARKER; an unscoped
@@ -17,7 +19,6 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../../.." && pwd)"
 # shellcheck source=scripts/tests/deploy/swarm/utils/topology/base.sh
 . "${SCRIPT_DIR}/../../utils/topology/base.sh"
 # shellcheck source=scripts/tests/deploy/swarm/utils/_context.sh
@@ -25,7 +26,6 @@ source "${SCRIPT_DIR}/../../utils/_context.sh"
 
 : "${MGR_IP:?MGR_IP required (01_bootstrap.sh must have run)}"
 : "${NFS_IP:?NFS_IP required (01_bootstrap.sh must have run)}"
-: "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR required (matrix sets it)}"
 : "${DRILL_EXTRAS:?DRILL_EXTRAS required (matrix passes the round extras)}"
 
 DIR_BACKUPS="/var/lib/infinito/backup"
@@ -34,6 +34,8 @@ BACKUP_KEY_PATH="${INFINITO_SWARM_BACKUP_KEY:?INFINITO_SWARM_BACKUP_KEY is not s
 BKP_IN_NODE="${NODE_SRC}/scripts/tests/deploy/swarm/routine/backup"
 DR_MARKER=".dr-drill-marker"
 DR_TOKEN="${SWARM_NAME}-${APP_ID}-dr-drill"
+DR_VERIFY_ENV="/tmp/dr-drill-verify-${APP_ID}.env"
+rm -f "${DR_VERIFY_ENV}"
 SECRETS_DIR="/var/lib/infinito/secrets"
 VOLUME_REPO="backup-docker-to-local"
 NFS_REPO="backup-nfs-to-local"
@@ -70,13 +72,13 @@ echo "==> DR drill for ${APP_ID} (volume '${PRIMARY_NFS_VOLUME}')"
 
 TRIGGER_UNITS="${NODE_SRC}/scripts/tests/deploy/swarm/utils/trigger_units.sh"
 
-echo "==> [1/10] seed markers (live NFS volume + manager secrets)"
+echo "==> [1/9] seed markers (live NFS volume + manager secrets)"
 docker exec "${NFS_SERVER}" sh -c \
 	"mkdir -p '${NFS_VOL_DIR}' && printf '%s' '${DR_TOKEN}' > '${NFS_VOL_DIR}/${DR_MARKER}'"
 docker exec "${MGR}" sh -c \
 	"mkdir -p '${SECRETS_DIR}' && printf '%s' '${DR_TOKEN}' > '${SECRETS_DIR}/${DR_MARKER}'"
 
-echo "==> [2/10] trigger the deployed backup units (volume + secrets on manager, nfs on the export host)"
+echo "==> [2/9] trigger the deployed backup units (volume + secrets on manager, nfs on the export host)"
 _triggered=0
 SECRETS_TRIGGERED=0
 _rc=0
@@ -96,7 +98,7 @@ if [ "${_triggered}" -eq 0 ]; then
 	exit 1
 fi
 
-echo "==> [3/10] locate the backup generation holding the marker"
+echo "==> [3/9] locate the backup generation holding the marker"
 SRC_HOST=""
 MARKER_PATH="$(docker exec "${NFS_SERVER}" find "${DIR_BACKUPS}/${NFS_MID}/${NFS_REPO}" -type f -name "${DR_MARKER}" -path '*/files/*' 2>/dev/null | sort | tail -1 || true)"
 if [ -n "${MARKER_PATH}" ]; then
@@ -122,7 +124,7 @@ if [ "${SRC_HOST}" != "${MGR}" ]; then
 	[ -n "${_vol_marker}" ] && VOL_MARKER_REL="${_vol_marker#"${DIR_BACKUPS}"/}"
 fi
 
-echo "==> [4/10] pull to ${BACKUP_NODE} via the deployed remote-2-local unit (providers: ${MGR_IP}, ${NFS_IP})"
+echo "==> [4/9] pull to ${BACKUP_NODE} via the deployed remote-2-local unit (providers: ${MGR_IP}, ${NFS_IP})"
 docker exec -i "${BACKUP_NODE}" bash "${BKP_IN_NODE}/01_ssh_trust.sh" <"${BACKUP_KEY_PATH}"
 if ! docker exec "${BACKUP_NODE}" bash "${TRIGGER_UNITS}" 'svc-bkp-remote-2-local*.service'; then
 	echo "FAILURE: remote-2-local unit missing or failed on ${BACKUP_NODE} (role not deployed?)"
@@ -135,7 +137,7 @@ if ! docker exec "${BACKUP_NODE}" test -f "${DIR_BACKUPS}/${SRC_REL}/${DR_MARKER
 fi
 echo "    marker present on backup host after pull"
 
-echo "==> [5/10] plug the LUKS 'USB' and sync via the deployed local-2-device unit"
+echo "==> [5/9] plug the LUKS 'USB' and sync via the deployed local-2-device unit"
 USB_SIZE_MB="$(docker exec "${BACKUP_NODE}" du -sm "${DIR_BACKUPS}" | awk '{print $1}')"
 USB_SIZE_MB=$((USB_SIZE_MB * 2 + 256))
 [ "${USB_SIZE_MB}" -lt 2048 ] && USB_SIZE_MB=2048
@@ -153,10 +155,10 @@ if ! docker exec "${BACKUP_NODE}" find "${DEV_DEST}" -name "${DR_MARKER}" 2>/dev
 fi
 echo "    marker present on encrypted USB"
 
-echo "==> [6/10] tear the stack down completely (full disaster) before recovery"
+echo "==> [6/9] tear the stack down completely (full disaster) before recovery"
 docker exec "${MGR}" bash "${BKP_IN_NODE}/04_stack_rm_wait.sh" "${STACK_NAME}"
 
-echo "==> [7/10] recover device -> local root via the recover CLI (full LUKS open)"
+echo "==> [7/9] recover device -> local root via the recover CLI (full LUKS open)"
 docker exec "${BACKUP_NODE}" sh -c \
 	"umount '${DEV_MOUNT}' 2>/dev/null || true; cryptsetup luksClose '${USB_MAPPER}' 2>/dev/null || true; rm -rf '${RESTORE_ROOT}'; mkdir -p '${RESTORE_ROOT}'"
 docker exec "${BACKUP_NODE}" sh -c \
@@ -167,7 +169,7 @@ if ! docker exec "${BACKUP_NODE}" test -f "${RESTORE_ROOT}/${SRC_REL}/${DR_MARKE
 fi
 echo "    marker recovered from device into ${RESTORE_ROOT}"
 
-echo "==> [8/10] recover local root -> live NFS export via the recover CLI"
+echo "==> [8/9] recover local root -> live NFS export via the recover CLI"
 DR_RESTORE_STAGE="/tmp/dr-restore-src"
 docker exec "${NFS_SERVER}" bash "${BKP_IN_NODE}/05_wipe_export.sh" \
 	"${NFS_VOL_DIR}" "${DR_MARKER}" "${DR_RESTORE_STAGE}"
@@ -181,7 +183,7 @@ if ! docker exec "${NFS_SERVER}" test -e "${NFS_VOL_DIR}/${DR_MARKER}"; then
 fi
 echo "    device-recovered files restored to the live NFS export"
 
-echo "==> [9/10] recover docker volume + host secrets via the recover CLI"
+echo "==> [9/9] recover docker volume + host secrets via the recover CLI"
 if [ -n "${VOL_MARKER_REL}" ]; then
 	VOL_SRC_REL="$(dirname "${VOL_MARKER_REL}")"
 	VOL_GEN_REL="${VOL_SRC_REL%/*/files}"
@@ -223,21 +225,7 @@ else
 	echo "    secrets recover skipped: svc-bkp-secrets-2-local not installed on ${MGR}"
 fi
 
-echo "==> [10/10] redeploy + verify the live volume marker"
-echo "    redeploying ${STACK_NAME}"
-# shellcheck source=scripts/meta/env/load.sh
-source "${REPO_ROOT}/scripts/meta/env/load.sh"
-python3 -m cli.administration.deploy.swarm \
-	"${INFINITO_INVENTORY_DIR}/devices.yml" \
-	-p "${INFINITO_INVENTORY_DIR}/.password" \
-	--skip-build --skip-cleanup --skip-backup \
-	-e "@inventories/development/swarm.yml" \
-	-e "@${DRILL_EXTRAS%.yml}.deploy.yml" \
-	-e "VARIANT_INDEX=0"
-APP_ID="${APP_ID}" bash "${SCRIPT_DIR}/../03_wait_converge.sh"
-
-if ! docker exec "${NFS_SERVER}" grep -qF "${DR_TOKEN}" "${NFS_VOL_DIR}/${DR_MARKER}" 2>/dev/null; then
-	echo "FAILURE: marker missing on the live volume after recover + redeploy"
-	exit 1
-fi
-echo "==> DR drill PASSED: full backup -> stack teardown -> recover device->nfs->volume->secrets via the recover CLI verified end to end"
+echo "==> recovery complete: device -> nfs export -> volume -> secrets restored via the recover CLI"
+echo "    the matrix update pass boots the stack onto the recovered export; verify_recovered_marker.sh asserts the live marker there"
+printf 'DR_TOKEN=%s\nDR_MARKER=%s\nNFS_SERVER=%s\nNFS_VOL_DIR=%s\n' \
+	"${DR_TOKEN}" "${DR_MARKER}" "${NFS_SERVER}" "${NFS_VOL_DIR}" >"${DR_VERIFY_ENV}"

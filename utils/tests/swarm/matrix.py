@@ -175,6 +175,16 @@ def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int
     )
 
 
+def _verify_recovered_marker(*, app_id: str) -> int:
+    env = os.environ.copy()
+    env["APP_ID"] = app_id
+    return _run(
+        ["bash", str(_SWARM_SCRIPTS / "backup" / "verify_recovered_marker.sh")],
+        env=env,
+        label="verify recovered marker (post update pass)",
+    )
+
+
 def _purge(*, purge_set: tuple[str, ...]) -> int:
     if not purge_set:
         return 0
@@ -321,6 +331,8 @@ def main(argv: list[str] | None = None) -> int:
             )
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
+        if rc == 0 and plan_index == 0:
+            rc = _verify_recovered_marker(app_id=app_id)
         if rc != 0:
             return rc
 
