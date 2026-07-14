@@ -45,7 +45,7 @@ prometheus:
   provides:
     - prometheus
   image: prom/prometheus
-  version: v3.13.0
+  version: v3.13.1
   name: prometheus
   cpus: "0.5"
   mem_reservation: 512m
@@ -91,7 +91,7 @@ cadvisor:
   min_storage: 1GB
 node-exporter:
   image: prom/node-exporter
-  version: v1.11.1
+  version: v1.12.0
   name: prometheus-node-exporter
   cpus: "0.1"
   mem_reservation: 32m
