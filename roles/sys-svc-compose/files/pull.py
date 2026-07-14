@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 
 def run_cmd(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str]:
     p = subprocess.run(
@@ -55,6 +57,57 @@ def has_buildable_services(
         line.lstrip() != line and line.strip().startswith("build:")
         for line in out.splitlines()
     )
+
+
+def pull_service_targets(
+    *, base_cmd: list[str], cwd: Path, env: dict[str, str]
+) -> list[str] | None:
+    """Service names safe to pass to `docker compose pull`.
+
+    Excludes services that declare `build:` and services that merely REUSE an
+    image some other service builds (registry-less local tag, e.g. a cron
+    service on the app's custom image); `--ignore-buildable` only covers the
+    former, so compose otherwise aborts the whole pull with 'pull access
+    denied' on the reused tag.
+
+    Returns:
+        None when nothing needs excluding (caller pulls everything) or when
+        the config cannot be parsed (fall back to unchanged behavior);
+        otherwise the possibly-empty list of pullable service names.
+    """
+    rc, out = run_cmd([*base_cmd, "config"], cwd=cwd, env=env)
+    if rc != 0:
+        return None
+    try:
+        doc = yaml.safe_load(out)  # nocheck: direct-yaml
+    except yaml.YAMLError:
+        return None
+    services = (doc or {}).get("services")
+    if not isinstance(services, dict):
+        return None
+
+    locally_built = {
+        svc["image"]
+        for svc in services.values()
+        if isinstance(svc, dict)
+        and "build" in svc
+        and isinstance(svc.get("image"), str)
+    }
+    if not locally_built:
+        return None
+
+    targets: list[str] = []
+    excluded = False
+    for name, svc in services.items():
+        if not isinstance(svc, dict):
+            continue
+        image = svc.get("image")
+        if "build" in svc or (isinstance(image, str) and image in locally_built):
+            excluded = True
+            continue
+        targets.append(name)
+
+    return sorted(targets) if excluded else None
 
 
 def main() -> int:
@@ -123,6 +176,18 @@ def main() -> int:
         rc, help_out = run_cmd([*base_cmd, "pull", "--help"], cwd=cwd, env=env)
         if rc == 0 and "--ignore-buildable" in help_out:
             pull_cmd.append("--ignore-buildable")
+
+    targets = pull_service_targets(base_cmd=base_cmd, cwd=cwd, env=env)
+    if targets is not None:
+        if not targets:
+            print(
+                ">>> pull skipped: every service uses a locally-built image",
+                file=sys.stderr,
+            )
+            lock_file.write_text("ok\n", encoding="utf-8")
+            print("pulled")
+            return 0
+        pull_cmd.extend(targets)
 
     print(f">>> {' '.join(pull_cmd)}", file=sys.stderr)
     rc, out = run_cmd(pull_cmd, cwd=cwd, env=env)
