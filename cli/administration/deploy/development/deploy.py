@@ -101,6 +101,23 @@ def _run_deploy(
     return int(r.returncode)
 
 
+def _maybe_recover_drill(compose, plan_index: int) -> None:
+    """Verify recovery between PASS 1 and PASS 2 of the first round: seed a
+    backup tree and `recover full` it back on this single host. Gated by
+    INFINITO_RECOVER_DRILL (off by default); raises on drill failure so the
+    deploy fails fast before the async pass."""
+    if plan_index != 0:
+        return
+    if (os.environ.get("INFINITO_RECOVER_DRILL") or "").strip().lower() != "true":
+        return
+    print("=== recover drill (backup/recover verification between passes) ===")
+    compose.exec(
+        ["bash", "/opt/src/infinito/scripts/tests/deploy/ci/recover_drill.sh"],
+        extra_env={"INFINITO_REPO_ROOT": "/opt/src/infinito"},
+        live=True,
+    )
+
+
 def _purge_app_entities(*, container: str, app_ids: list[str]) -> None:
     """Run the per-app cleanup script for every app from the previous
     matrix-deploy round before the next round starts.
@@ -263,6 +280,7 @@ def handler(args: argparse.Namespace) -> int:
             return rc
 
         if bool(args.full_cycle):
+            _maybe_recover_drill(compose, plan_index)
             print(f"=== {pass_label} PASS 2 (async) ===")
             rc = _run_deploy(
                 compose,
