@@ -2,6 +2,10 @@
 kix_shared:
   type: volume
   name: kix_kix_shared
+  nfs:
+    uid: "110010100"
+    gid: "110010100"
+    mode: "0770"
   mounts:
     - service: backend
       target: /mnt/shared
@@ -11,6 +15,10 @@ kix_shared:
 kix_backend:
   type: volume
   name: kix_kix_backend
+  nfs:
+    uid: "110010100"
+    gid: "110010100"
+    mode: "0770"
   mounts:
     - service: backend
       target: /mnt/data
@@ -18,6 +26,10 @@ kix_backend:
 kix_frontend:
   type: volume
   name: kix_kix_frontend
+  nfs:
+    uid: "110010100"
+    gid: "110010100"
+    mode: "0770"
   mounts:
     - service: frontend
       target: /mnt/data

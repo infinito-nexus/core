@@ -290,10 +290,13 @@ def compose_volumes(
     for vol_name, vol_spec in list(volumes.items()):
         if not isinstance(vol_spec, dict):
             continue
-        nfs_opted_out = vol_spec.pop("nfs", None) is False
+        nfs_meta = vol_spec.pop("nfs", None)
+        nfs_opted_out = nfs_meta is False
         if swarm_nfs_enabled and not role_pinned and not nfs_opted_out:
             named = vol_spec.get("name", vol_name)
             vol_spec.update(_swarm_nfs_driver_opts(dir_var_lib, str(named)))
+            if isinstance(nfs_meta, dict):
+                vol_spec["x-infinito-nfs"] = dict(nfs_meta)
 
     payload: dict[str, Any] = {"volumes": _to_plain(volumes)}
     if configs:
