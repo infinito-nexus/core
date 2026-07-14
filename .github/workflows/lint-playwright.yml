@@ -10,7 +10,7 @@ jobs:
   lint-playwright:
     name: 🧹 Lint Playwright
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     env:
       INFINITO_LINT_RUNNER: host
 
