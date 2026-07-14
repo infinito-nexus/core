@@ -17,9 +17,6 @@ from pathlib import Path
 from utils.cache import PROJECT_ROOT
 from utils.install.lint import (
     actionlint,
-    ansible_collections,
-    ansible_commands,
-    ansible_lint,
     eslint,
     markdownlint_cli2,
     mbake,
@@ -29,12 +26,11 @@ from utils.install.lint import (
     shellcheck,
     shfmt,
 )
+from utils.install.lint.ansible import collections as ansible_collections
+from utils.install.lint.ansible import commands as ansible_commands
+from utils.install.lint.ansible import lint as ansible_lint
 from utils.install.primitives import warn
 
-# Stamp filename includes a hash of sys.executable so the host venv and
-# the container venv track their installs independently even though
-# `build/` is bind-mounted. Without this suffix, a host install would
-# trick the container into thinking its tools were present.
 _STAMP_KEY = hashlib.sha256(sys.executable.encode("utf-8")).hexdigest()[:8]
 _STAMP = f"build/install-lint-{_STAMP_KEY}.stamp"
 _STAMP_DEPS = (
@@ -42,10 +38,6 @@ _STAMP_DEPS = (
     "pyproject.toml",
 )
 
-# Tools the all-mode install must produce. Verified before trusting the
-# stamp so a container rebuild (which wipes the layer that held the
-# binaries but leaves the host-mounted build/ stamp intact) cannot trick
-# us into skipping the reinstall.
 _STAMP_TOOLS = (
     "actionlint",
     "ansible-lint",
@@ -155,7 +147,6 @@ def _dispatch(group: str) -> None:
             "Usage: python -m utils.install.lint "
             "[all|action|ansible|python|shellcheck|markdown|makefile|javascript|playwright|packages]..."
         )
-    # Resolve by name so test patches via `mock.patch.object(cli, ...)` take effect.
     globals()[fn_name]()
 
 
@@ -180,8 +171,6 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     # chdir for installers that resolve relative paths (eslint's npm ci
-    # in node_modules/, etc.); restore on exit so test teardown does
-    # not orphan CWD when the test's repo_root is a TemporaryDirectory.
     previous_cwd = Path.cwd() if Path.cwd().exists() else None
     os.chdir(repo_root)
     try:

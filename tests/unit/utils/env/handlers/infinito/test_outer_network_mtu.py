@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`utils.env.handlers.infinito_outer_network_mtu`."""
+"""Unit tests for :mod:`utils.env.handlers.infinito.outer_network_mtu`."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from utils.env.builder import BuildContext, EnvBuilder
-from utils.env.handlers import infinito_outer_network_mtu as handler
+from utils.env.handlers.infinito import outer_network_mtu as handler
 
 
 def _ctx(static: dict[str, str] | None = None) -> BuildContext:

@@ -65,7 +65,7 @@
         -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'scripts/apply_api_bot.rb') }}"
+    stdin: "{{ lookup('file', 'scripts/apply/api_bot.rb') }}"
   environment:
     API_BOT_LOGIN: "{{ ZAMMAD_API_BOT_USER.username }}"
     API_BOT_EMAIL: "{{ ZAMMAD_API_BOT_USER.email }}"
@@ -84,7 +84,7 @@
         -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_CLIENT_SECRET -e OIDC_ISSUER_URL \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'scripts/apply_oidc_settings.rb') }}"
+    stdin: "{{ lookup('file', 'scripts/apply/oidc_settings.rb') }}"
   environment:
     ZAMMAD_FQDN: "{{ ZAMMAD_HOSTNAME }}"
     ZAMMAD_HTTP_TYPE: "{{ ZAMMAD_WEB_PROTOCOL }}"
@@ -105,7 +105,7 @@
         -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'scripts/apply_ldap_source.rb') }}"
+    stdin: "{{ lookup('file', 'scripts/apply/ldap_source.rb') }}"
   environment:
     LDAP_NAME: "{{ ORGANIZATION }} svc-db-openldap"
     LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
@@ -128,7 +128,7 @@
         -e SMTP_HOST -e SMTP_PORT -e SMTP_USER -e SMTP_PASS \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'scripts/apply_email_channel.rb') }}"
+    stdin: "{{ lookup('file', 'scripts/apply/email_channel.rb') }}"
   environment:
     MAIL_GROUP_NAME: "Users"
     MAIL_FROM_NAME: "{{ ORGANIZATION }} Helpdesk"

@@ -15,14 +15,11 @@ from __future__ import annotations
 import re
 import unittest
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _HANDLERS_DIR = PROJECT_ROOT / "utils" / "env" / "handlers"
 _YAML_CACHE_RE = re.compile(r"\butils\.cache\.yaml\b")
@@ -49,7 +46,11 @@ def _scan_file(path: Path) -> list[Violation]:
 
 class TestNoYamlCacheInEnvHandlers(unittest.TestCase):
     def test_env_handlers_dont_use_yaml_cache(self) -> None:
-        targets = sorted(_HANDLERS_DIR.glob("*.py"))
+        targets = sorted(
+            Path(p)
+            for p in iter_project_files(extensions=(".py",))
+            if Path(p).is_relative_to(_HANDLERS_DIR)
+        )
         self.assertTrue(targets, "no handler modules found to scan")
         all_violations: list[Violation] = []
         for path in targets:

@@ -25,10 +25,8 @@ source.preferences = {
 source.active = true
 source.save!
 
-# ImportJob refuses to sync without this ("Sync cancelled. Ldap integration deactivated.").
 Setting.set("ldap_integration", true)
 
-# Sync now so LDAP users exist in Zammad's user table before the first form sign-in.
 begin
   job = ImportJob.new(name: "Import::Ldap", payload: source.preferences)
   job.start

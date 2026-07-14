@@ -12,13 +12,13 @@
   include_tasks: update/04_rbac_client_scope.yml
 
 - name: "📂 Load LDAP shared-federation routines for '{{ application_id }}'"
-  include_tasks: update/05_ldap_shared.yml
+  include_tasks: update/05_ldap/shared.yml
   when:
     - KEYCLOAK_LDAP_ENABLED | bool
     - KEYCLOAK_LDAP_SHARED | bool
 
 - name: "🧹 Remove LDAP federation routines for '{{ application_id }}' when LDAP disabled"
-  include_tasks: update/05_ldap_disabled.yml
+  include_tasks: update/05_ldap/disabled.yml
   when: not KEYCLOAK_LDAP_ENABLED | bool
 
 - name: "📂 Load reCAPTCHA Update routines for '{{ application_id }}'"

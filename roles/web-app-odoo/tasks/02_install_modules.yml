@@ -7,7 +7,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/update-ir-cron-pause.sql"
+    query_file: "{{ role_path }}/files/sql/update/ir-cron-pause.sql"
   changed_when: true
 
 - name: "📦 Run module install/update with crons paused"
@@ -19,5 +19,5 @@
       database_query:
         mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
         config: "{{ lookup('database', application_id) }}"
-        query_file: "{{ role_path }}/files/sql/update-ir-cron-resume.sql"
+        query_file: "{{ role_path }}/files/sql/update/ir-cron-resume.sql"
       changed_when: true

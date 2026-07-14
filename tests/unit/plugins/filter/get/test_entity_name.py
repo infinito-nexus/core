@@ -10,13 +10,11 @@ from utils.cache.yaml import dump_yaml
 
 class TestGetEntityNameFilter(unittest.TestCase):
     def setUp(self):
-        # Create a temporary directory for roles and categories.yml
         self.temp_dir = tempfile.mkdtemp()
         self.roles_dir = str(Path(self.temp_dir) / "roles")
         Path(self.roles_dir).mkdir(parents=True)
         self.categories_file = str(Path(self.roles_dir) / "categories.yml")
 
-        # Minimal categories.yml for tests
         categories = {
             "roles": {
                 "web": {
@@ -31,24 +29,19 @@ class TestGetEntityNameFilter(unittest.TestCase):
                         "bkp": {"title": "Backup", "invokable": True},
                         "hlth": {"title": "Health", "invokable": True},
                     },
-                    # falls du 'core' o. ä. brauchst, hier ergänzen
                 },
-                # 'svc' ist in deinem echten Baum top-level, nicht unter 'sys'
                 "svc": {"db": {"title": "Databases", "invokable": True}},
             }
         }
         dump_yaml(self.categories_file, categories)
 
-        # Patch working directory so plugin finds the test categories.yml
         self._cwd = str(Path.cwd())
         os.chdir(self.temp_dir)
 
-        # Make sure plugins/filter directory is on sys.path
         plugin_path = str(Path(self._cwd) / "plugins" / "filter")
         if plugin_path not in sys.path and Path(plugin_path).is_dir():
             sys.path.insert(0, plugin_path)
-        # Import plugin fresh each time
-        from plugins.filter.get_entity_name import get_entity_name
+        from plugins.filter.get.entity_name import get_entity_name
 
         self.get_entity_name = get_entity_name
 
@@ -71,7 +64,6 @@ class TestGetEntityNameFilter(unittest.TestCase):
         self.assertEqual(self.get_entity_name("sys-ctl-hlth-btrfs"), "btrfs")
 
     def test_no_category_match(self):
-        # Unknown category, should return input
         self.assertEqual(self.get_entity_name("foobar-role"), "foobar-role")
 
     def test_exact_category_match(self):

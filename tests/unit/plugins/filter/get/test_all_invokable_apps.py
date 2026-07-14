@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from plugins.filter.get_all_invokable_apps import get_all_invokable_apps
+from plugins.filter.get.all_invokable_apps import get_all_invokable_apps
 from utils.cache.yaml import dump_yaml
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
@@ -17,7 +17,6 @@ class TestGetAllInvokableApps(unittest.TestCase):
         self.roles_dir.mkdir(parents=True, exist_ok=True)
         self.categories_file = self.roles_dir / "categories.yml"
 
-        # Write a categories.yml with nested invokable/non-invokable paths
         categories = {
             "roles": {
                 "web": {
@@ -36,12 +35,11 @@ class TestGetAllInvokableApps(unittest.TestCase):
         }
         dump_yaml(self.categories_file, categories)
 
-        # Create roles: some should match invokable paths, some shouldn't
         roles = [
             ("web-app-nextcloud", "web-app-nextcloud"),
-            ("web-app-matomo", "matomo-app"),  # application_id differs
-            ("web-svc-nginx", None),  # should NOT match any invokable path
-            ("update", None),  # exact match to invokable path
+            ("web-app-matomo", "matomo-app"),
+            ("web-svc-nginx", None),
+            ("update", None),
         ]
         for rolename, appid in roles:
             role_dir = self.roles_dir / rolename
@@ -63,9 +61,9 @@ class TestGetAllInvokableApps(unittest.TestCase):
 
         expected = sorted(
             [
-                "web-app-nextcloud",  # application_id from role
-                "matomo-app",  # application_id from role
-                "update",  # role directory name
+                "web-app-nextcloud",
+                "matomo-app",
+                "update",
             ]
         )
         self.assertEqual(sorted(result), expected)
@@ -85,7 +83,6 @@ class TestGetAllInvokableApps(unittest.TestCase):
         shutil.rmtree(self.roles_dir)
         self.roles_dir.mkdir(parents=True, exist_ok=True)
 
-        # Recreate categories.yml after removing roles_dir
         dump_yaml(
             self.categories_file, {"roles": {"web": {"app": {"invokable": True}}}}
         )

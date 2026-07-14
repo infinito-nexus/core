@@ -1,5 +1,5 @@
 -- Create the active "_oauth_template" user. Its group memberships are
--- granted by the follow-up grant_*.sql scripts. New OAuth signups are
+-- granted by the follow-up grant/*.sql scripts. New OAuth signups are
 -- copied from this user (`base.template_portal_user_id` /
 -- `auth_signup.template_user_id`).
 INSERT INTO res_users (

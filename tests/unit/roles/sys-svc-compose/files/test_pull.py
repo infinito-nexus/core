@@ -81,7 +81,6 @@ services:
 
     def test_run_or_fail_success_does_not_raise(self) -> None:
         with patch.object(self.m, "run_cmd", return_value=(0, "ok\n")):
-            # Should not raise
             self.m.run_or_fail(
                 ["docker", "compose", "ps"], cwd=Path("/"), env={}, label="x"
             )
@@ -198,11 +197,10 @@ services:
                 "lock file should be written on success",
             )
 
-            # First the build --pull, then a pull --help probe, then the actual pull.
             self.assertEqual(calls[0], [*base_cmd, "build", "--pull"])
             self.assertEqual(calls[1], [*base_cmd, "pull", "--help"])
-            self.assertEqual(calls[2], [*base_cmd, "pull", "--ignore-buildable"])
-            # No fallback: build --pull succeeded so run_or_fail was never invoked.
+            self.assertEqual(calls[2], [*base_cmd, "config"])
+            self.assertEqual(calls[3], [*base_cmd, "pull", "--ignore-buildable"])
             self.assertEqual(fallback_calls, [])
 
     def test_main_falls_back_to_plain_build_when_build_pull_fails(self) -> None:
@@ -253,7 +251,6 @@ services:
                 rc = self.m.main()
 
             self.assertEqual(rc, 0)
-            # build --pull failed → fall back to plain compose build.
             self.assertEqual(fallback_calls, [[*base_cmd, "build"]])
 
     def test_main_pull_omits_ignore_buildable_when_not_supported(self) -> None:
@@ -288,7 +285,7 @@ services:
             ) -> tuple[int, str]:
                 calls.append(cmd)
                 if cmd[-2:] == ["pull", "--help"]:
-                    return 0, "Usage:\n"  # no --ignore-buildable mentioned
+                    return 0, "Usage:\n"
                 return 0, ""
 
             with (
@@ -300,9 +297,9 @@ services:
                 rc = self.m.main()
 
             self.assertEqual(rc, 0)
-            # --help probe + bare pull (no --ignore-buildable in help → drop the flag).
             self.assertEqual(calls[0], [*base_cmd, "pull", "--help"])
-            self.assertEqual(calls[1], [*base_cmd, "pull"])
+            self.assertEqual(calls[1], [*base_cmd, "config"])
+            self.assertEqual(calls[2], [*base_cmd, "pull"])
 
     def test_main_tolerates_pull_failure_when_images_local(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -331,8 +328,6 @@ services:
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
             ) -> tuple[int, str]:
-                # compose pull fails, but `compose config --images` and every
-                # `docker image inspect` succeed — i.e. all images are local.
                 if cmd[-1] == "pull":
                     return 1, "pull failed\n"
                 if cmd[-2:] == ["config", "--images"]:

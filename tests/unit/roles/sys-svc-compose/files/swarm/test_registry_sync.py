@@ -24,7 +24,7 @@ def _load_module(rel_path: str, name: str) -> ModuleType:
 class TestSwarmRegistrySync(unittest.TestCase):
     def setUp(self) -> None:
         self.m = _load_module(
-            "roles/sys-svc-compose/files/swarm_registry_sync.py",
+            "roles/sys-svc-compose/files/swarm/registry_sync.py",
             "swarm_registry_sync_mod",
         )
 

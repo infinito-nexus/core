@@ -6,7 +6,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-res-company-ldap-exists.sql"
+    query_file: "{{ role_path }}/files/sql/select/res-company-ldap-exists.sql"
     named_args:
       ldap_server: "{{ ODOO_LDAP_CONFIG.ldap_server }}"
     expect_rows: true
@@ -16,7 +16,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/update-res-company-ldap.sql"
+    query_file: "{{ role_path }}/files/sql/update/res-company-ldap.sql"
     named_args:
       sequence: "{{ ODOO_LDAP_CONFIG.sequence }}"
       company_id: "{{ ODOO_LDAP_CONFIG.company_id }}"

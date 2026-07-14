@@ -7,7 +7,7 @@
       -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -'
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/scripts/apply_ldap_source.py') }}"
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/scripts/apply/ldap_source.py') }}"
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"

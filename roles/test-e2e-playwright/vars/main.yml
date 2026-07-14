@@ -9,8 +9,6 @@ TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "{{ [DIR_VAR_LIB, 'logs', 'test-e2e-playwr
 
 TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"
 
-# Exception: keep false - intra-file ordering assumptions (rate-limit waits,
-# shared-account mutations) break under fully-parallel execution.
 TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL: false
 
 TEST_E2E_PLAYWRIGHT_APPS: >-

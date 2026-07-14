@@ -21,7 +21,7 @@
 # `preserve.group.inheritance=false` suffices per mapper because the
 # anchor is per-app — no collisions between apps exist within a mapper.
 #
-# The shared default `ldap-roles` mapper (created by update/05_ldap.yml)
+# The shared default `ldap-roles` mapper (created by update/05_ldap/main.yml)
 # is removed here so it does not shadow the per-app mappers, and any
 # Keycloak groups it had imported flat under /roles are pruned. Each
 # step delegates to a dedicated `.sh` under

@@ -6,7 +6,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-ir-module-module-table-exists.sql"
+    query_file: "{{ role_path }}/files/sql/select/ir-module-module-table-exists.sql"
     expect_rows: true
   register: odoo_schema_exists
   ignore_errors: true

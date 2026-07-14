@@ -11,7 +11,7 @@ try:
     from plugins.filter.docker_service_enabled import (
         FilterModule as _DockerServiceEnabledFilter,
     )
-    from plugins.filter.get_entity_name import get_entity_name
+    from plugins.filter.get.entity_name import get_entity_name
     from utils.cache.applications import get_canonical_volumes
     from utils.roles.applications.config import get
     from utils.roles.applications.mounts import (
@@ -27,7 +27,7 @@ try:
     from utils.roles.meta_lookup import get_role_placement
 except ModuleNotFoundError:
     from docker_service_enabled import FilterModule as _DockerServiceEnabledFilter
-    from get_entity_name import get_entity_name
+    from get.entity_name import get_entity_name
 
     from utils.cache.applications import get_canonical_volumes
     from utils.roles.applications.config import get

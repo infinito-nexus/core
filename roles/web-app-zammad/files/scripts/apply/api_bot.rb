@@ -9,7 +9,6 @@ api_bot.active    = true
 api_bot.roles     = Role.where(name: %w[Admin Agent])
 api_bot.save!
 
-# Without explicit group access, `ticket.agent` permission alone yields 403 on POST /tickets.
 users_group = Group.find_or_create_by!(name: "Users") { |g| g.active = true }
 api_bot.group_names_access_map = { users_group.name => "full" }
 api_bot.save!

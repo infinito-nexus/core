@@ -3,8 +3,6 @@ UserInfo.current_user_id = 1
 Setting.set("fqdn",      ENV.fetch("ZAMMAD_FQDN"))
 Setting.set("http_type", ENV.fetch("ZAMMAD_HTTP_TYPE"))
 
-# Without this, the first OIDC sign-in of an LDAP-synced user hits 422 "Email already used"
-# instead of linking the OmniAuth identity. Upstream typo `inital` is intentional.
 Setting.set("auth_third_party_auto_link_at_inital_login", true)
 
 Setting.set("auth_openid_connect", true)

@@ -101,18 +101,9 @@
       }}"
   changed_when: false
 
-# ---------------------------------------------------------------------------
-# groups.path handling (optional) - do not repeat WHEN; use include_tasks
-# ---------------------------------------------------------------------------
-
 - name: ✅ Ensure groups.path.group is correct (only when groups.path is configured)
-  include_tasks: ldap/groups_path.yml
+  include_tasks: "{{ role_path }}/tasks/update/ldap/groups_path.yml"
   when: desired_groups_top | length > 0
-
-# ---------------------------------------------------------------------------
-# Ensure ONLY ONE canonical 'ldap-roles' mapper exists under this LDAP component
-# Canonical choice is deterministic: keep the lexicographically smallest id.
-# ---------------------------------------------------------------------------
 
 - name: 🔍 List 'ldap-roles' mapper ids under LDAP component (client-side filter)
   set_fact:

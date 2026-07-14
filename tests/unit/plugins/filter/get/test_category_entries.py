@@ -4,17 +4,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from plugins.filter.get_category_entries import get_category_entries
+from plugins.filter.get.category_entries import get_category_entries
 
 
 class TestGetCategoryEntries(unittest.TestCase):
     def setUp(self):
-        # Create an isolated temp directory for each test
         self._tmpdir = tempfile.TemporaryDirectory()
         self.tmp = Path(self._tmpdir.name)
 
     def tearDown(self):
-        # Clean up the temp directory
         self._tmpdir.cleanup()
 
     def test_returns_empty_when_roles_dir_missing(self):
@@ -33,13 +31,11 @@ class TestGetCategoryEntries(unittest.TestCase):
         roles_dir = self.tmp / "roles"
         roles_dir.mkdir()
 
-        # Create role directories
         (roles_dir / "docker-nginx").mkdir()
         (roles_dir / "docker-postgres").mkdir()
         (roles_dir / "web-app-keycloak").mkdir()
         (roles_dir / "docker-redis").mkdir()
 
-        # A file that should be ignored
         (roles_dir / "docker-file").write_text("not a directory")
 
         result = get_category_entries("docker-", roles_path=str(roles_dir))

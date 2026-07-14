@@ -12,12 +12,6 @@ CLIENT_SECRET = os.environ["CLIENT_SECRET"]
 ISSUER_URL = os.environ["ISSUER_URL"]
 GROUP_ROLE_MAP = json.loads(os.environ["GROUP_ROLE_MAP_JSON"])
 
-# Persisted fields whose change must trigger a backend restart: gunicorn runs
-# with --preload, so the running workers keep serving /login from a cache that
-# frappe.clear_cache() in this separate one-shot process does not refresh; only
-# a worker restart makes a changed key render. custom_button_text is excluded
-# on purpose: it is not a persisted field on this build, so tracking it would
-# diff (None -> value) on every run and bounce the backend each deploy.
 TRACKED_FIELDS = (
     "enable_social_login",
     "social_login_provider",
@@ -40,7 +34,6 @@ def _tracked(doc):
 
 
 def upsert_social_login_key():
-    # social_login_provider is set_only_once; a non-Keycloak existing record blocks the update.
     existed = bool(frappe.db.exists("Social Login Key", PROVIDER_NAME))
     if existed:
         existing = frappe.get_doc("Social Login Key", PROVIDER_NAME)

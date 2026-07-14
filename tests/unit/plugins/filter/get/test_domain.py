@@ -2,12 +2,11 @@ import unittest
 
 from ansible.errors import AnsibleFilterError
 
-from plugins.filter.get_domain import FilterModule
+from plugins.filter.get.domain import FilterModule
 
 
 class TestGetDomainFilter(unittest.TestCase):
     def setUp(self):
-        # Retrieve the get_domain filter function
         self.get_domain = FilterModule().filters()["get_domain"]
 
     def test_string_value(self):

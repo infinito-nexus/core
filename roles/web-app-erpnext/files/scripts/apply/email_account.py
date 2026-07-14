@@ -36,8 +36,6 @@ def upsert_outbound_account():
     ea.no_smtp_authentication = 0
     ea.flags.ignore_links = True
     ea.flags.ignore_mandatory = True
-    # Frappe's Email Account validate() opens a live SMTP socket and stalls the deploy
-    # when the SMTP host is unreachable; db_insert/db_update bypasses it.
     try:
         ea.db_insert() if ea.is_new() else ea.db_update()
     except Exception:
