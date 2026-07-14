@@ -69,16 +69,13 @@
   include_tasks: router.yml
   when: TOR_EGRESS_ROUTER_ENABLED | bool
 
-# Gate the role until the node onion answers on both paths the deploy relies
-# on — the internal loopback fast path AND the real Tor network (descriptor
-# published, the path Playwright / real users take). See files/onion_self_reach.py.
-- name: "Wait until the node onion answers both internally and over Tor"
+- name: "Wait until the node onion answers internally (loopback fast path)"
   ansible.builtin.command:
     argv:
       - python3
       - "{{ role_path }}/files/onion_self_reach.py"
+      - internal
       - "{{ TOR_NODE_ONION }}"
-      - "{{ lookup('tor_socks', '127.0.0.1') }}"
   register: _tor_self_reach
   retries: 90
   delay: 5
@@ -87,3 +84,32 @@
   when:
     - TOR_EGRESS_ROUTER_ENABLED | bool
     - TOR_NODE_ONION | length > 0
+
+- name: "Probe the node onion over the real Tor network (non-fatal)"
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "{{ role_path }}/files/onion_self_reach.py"
+      - external
+      - "{{ TOR_NODE_ONION }}"
+      - "{{ lookup('tor_socks', '127.0.0.1') }}"
+  register: _tor_self_reach_ext
+  retries: 90
+  delay: 5
+  until: _tor_self_reach_ext.rc == 0
+  failed_when: false
+  changed_when: false
+  when:
+    - TOR_EGRESS_ROUTER_ENABLED | bool
+    - TOR_NODE_ONION | length > 0
+
+- name: "Warn when the node onion is not yet reachable over Tor"
+  ansible.builtin.debug:
+    msg: >-
+      Node onion not reachable over the real Tor network yet
+      ({{ _tor_self_reach_ext.stderr | default('') | trim }}). Descriptor
+      publication is async; Playwright / real users retry on a fresh circuit.
+  when:
+    - TOR_EGRESS_ROUTER_ENABLED | bool
+    - TOR_NODE_ONION | length > 0
+    - _tor_self_reach_ext.rc | default(0) != 0

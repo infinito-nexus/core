@@ -75,10 +75,22 @@ def check_external(onion: str, socks: str) -> str | None:
 
 
 def main(argv: list[str]) -> None:
-    if len(argv) != 3:
-        sys.exit("usage: onion_self_reach.py <node_onion> <socks_host:port>")
-    onion, socks = argv[1], argv[2]
-    error = check_internal(onion) or check_external(onion, socks)
+    usage = "usage: onion_self_reach.py <internal|external|both> <node_onion> [socks_host:port]"
+    if len(argv) < 3:
+        sys.exit(usage)
+    mode, onion = argv[1], argv[2]
+    socks = argv[3] if len(argv) > 3 else None
+
+    if mode in ("external", "both") and not socks:
+        sys.exit(usage)
+
+    error = None
+    if mode in ("internal", "both"):
+        error = check_internal(onion)
+    if not error and mode in ("external", "both"):
+        error = check_external(onion, socks)
+    if mode not in ("internal", "external", "both"):
+        sys.exit(usage)
     if error:
         sys.exit(error)
 
