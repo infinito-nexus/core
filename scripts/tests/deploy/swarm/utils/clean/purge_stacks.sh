@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Per-round swarm purge for the variant matrix: remove each prior-round stack
 # and clear its NFS-backed volumes so the next round boots from clean state.
-# Driven by cli.administration.deploy.swarm.matrix between rounds; env `apps` is
+# Driven by utils.tests.swarm.matrix between rounds; env `apps` is
 # the plan-constant purge_set (comma/space separated application ids).
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

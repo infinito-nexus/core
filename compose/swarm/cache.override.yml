@@ -1,0 +1,34 @@
+# Optional swarm-node package-cache wiring; 01_bootstrap.sh passes it only when a
+# package-cache-frontend is running (local/act), so CI without a cache is unaffected.
+---
+x-cache: &cache
+  extra_hosts:
+    - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "pypi.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "files.pythonhosted.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "registry.npmjs.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "index.rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "repo.packagist.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "proxy.golang.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "dl-cdn.alpinelinux.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "raw.githubusercontent.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "codeload.github.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+  volumes:
+    - ../package-cache/pip.conf:/etc/pip.conf:ro
+    - ../package-cache/apt.list:/etc/apt/sources.list.d/package-cache.list:ro
+    - ../package-cache/npmrc:/root/.npmrc:ro
+
+services:
+  nfs-server:
+    <<: *cache
+  swarm-mgr-01:
+    <<: *cache
+  swarm-wrk-01:
+    <<: *cache
+  swarm-wrk-02:
+    <<: *cache
+  backup-host:
+    <<: *cache

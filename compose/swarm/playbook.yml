@@ -1,12 +1,13 @@
 ---
 # Lab-only node provisioning for the simulated cluster; never a production
-# role. Runs over ansible_connection: docker right after `compose up` (python3
-# is baked into compose/swarm/Dockerfile, so no prior bootstrap is needed):
-# waits for systemd, captures node IPs (also into $GITHUB_ENV for later CI
-# steps), wires lab DNS (sys-hostname skips /etc/hosts on DOCKER_IN_CONTAINER
-# hosts; the dnsmasq wildcard points the app domain at the manager's ingress),
-# then installs the repo + .deb on every node. Host-side concerns (compose up,
-# .deb build) live in scripts/tests/deploy/swarm/routine/01_bootstrap.sh.
+# role. Runs over ansible_connection: docker right after `compose up` (python +
+# ansible + the CLI are baked into the node image via the distro's infinito
+# image, so no .deb bootstrap is needed): waits for systemd, captures node IPs
+# (also into $GITHUB_ENV for later CI steps), wires lab DNS (sys-hostname skips
+# /etc/hosts on DOCKER_IN_CONTAINER hosts; the dnsmasq wildcard points the app
+# domain at the manager's ingress), then unpacks the current repo onto every
+# node. Host-side concerns (image build, compose up) live in
+# scripts/tests/deploy/swarm/routine/01_bootstrap.sh.
 - name: provision the simulated cluster nodes
   hosts: all
   gather_facts: false
@@ -23,8 +24,6 @@
     lab_domain: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
     lab_export_base: "{{ lookup('env', 'NFS_EXPORT_BASE') }}"
     lab_node_src: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}"
-    lab_deb_path: "{{ lookup('env', 'DEB_PATH') }}"
-    lab_install_script: "{{ lookup('env', 'INFINITO_PACKAGE_INSTALL_SCRIPT') }}"
     lab_runner_temp: "{{ lookup('env', 'RUNNER_TEMP') }}"
     lab_systemd_timeout: "{{ lookup('env', 'SWARM_PILOT_SYSTEMD_TIMEOUT') | default('180', true) }}"
     lab_is_mgr: "{{ inventory_hostname == lab_mgr }}"
@@ -200,21 +199,3 @@
         src: "{{ lab_runner_temp }}/infinito-src.tar"
         dest: "{{ lab_node_src }}"
       timeout: 300
-
-    - name: copy the .deb onto the node
-      copy:
-        src: "{{ lab_deb_path }}"
-        dest: "/tmp/{{ lab_deb_path | basename }}"
-        mode: "0644"
-      timeout: 120
-
-    - name: install the .deb (python + infinito CLI + ansible)
-      command: bash {{ lab_install_script }}
-      args:
-        chdir: "{{ lab_node_src }}"
-      environment:
-        LANG: C.UTF-8
-        LC_ALL: C.UTF-8
-        PACKAGE_INSTALL_FROM: "/tmp/{{ lab_deb_path | basename }}"
-      timeout: 600
-      changed_when: true

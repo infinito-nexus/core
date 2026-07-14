@@ -2,7 +2,7 @@
 
 Sequenced steps of the swarm lab run. Bring-up and the chaos phase are
 workflow steps; the per-round loop in between is driven by
-`cli.administration.deploy.swarm.matrix` (one round per variant of the
+`utils.tests.swarm.matrix` (one round per variant of the
 primary app). Highlighted boxes (⚡) are the moments a backup-executing
 systemd unit actually starts. See [../README.md](../README.md) for
 topology, naming SPOTs and helpers; the DR drill's own steps are

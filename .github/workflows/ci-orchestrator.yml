@@ -215,7 +215,8 @@ jobs:
   test-deploy-swarm:
     if: ${{ contains(inputs.modes, 'swarm') }}
     needs:
-      - code-quality-gate
+      - build-ci-images
+      - images-mirror-missing
     uses: ./.github/workflows/test-deploy-swarm.yml
     with:
       whitelist: ${{ inputs.whitelist }}

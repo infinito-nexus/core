@@ -5,9 +5,11 @@ for the swarm test cluster: for each variant round of the primary app it
 provisions a per-round inventory (baking that round's ``meta/variants.yml``
 overlay into ``host_vars`` so the deploy sees the round's config, e.g. the
 keycloak totp-off variant), extends it with the swarm topology, writes runtime
-extras, deploys via ``cli.administration.deploy.swarm`` (the Playwright e2e runs
-in-deploy), waits for convergence + reachability, and purges the prior round's
-stacks between rounds.
+extras, and deploys via ``cli.administration.deploy.swarm`` (the Playwright e2e
+runs in-deploy). Each round mirrors the compose ``--full-cycle``: an initial
+deploy then an async update pass, each followed by a convergence + reachability
+wait; on the first round the backup + restore DR drill runs between them. Prior
+rounds' stacks are purged between rounds.
 
 Runs on the cluster host (the test-deploy-swarm workflow's single orchestrator
 step) and reaches the nodes through the existing ``scripts/tests/deploy/swarm``
@@ -22,7 +24,7 @@ import os
 import subprocess
 import sys
 
-from . import PROJECT_ROOT
+from utils import PROJECT_ROOT
 
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
 _SWARM_SCRIPTS = _SWARM_DIR / "routine"
@@ -88,7 +90,13 @@ def _write_extras(*, extras_path: str) -> int:
 
 
 def _deploy(
-    *, app_id: str, inv_dir: str, extras_path: str, round_index: int, total: int
+    *,
+    app_id: str,
+    inv_dir: str,
+    extras_path: str,
+    round_index: int,
+    total: int,
+    update_pass: bool = False,
 ) -> int:
     env = os.environ.copy()
     env["APP_ID"] = app_id
@@ -109,7 +117,12 @@ def _deploy(
         "-e",
         f"VARIANT_INDEX={json.dumps(round_index)}",
     ]
-    return _run(env=env, cmd=cmd, label=f"deploy round {round_index + 1}/{total}")
+    if update_pass:
+        cmd += ["-e", "ASYNC_ENABLED=true"]
+        label = f"update pass (round {round_index + 1}/{total})"
+    else:
+        label = f"deploy round {round_index + 1}/{total}"
+    return _run(env=env, cmd=cmd, label=label)
 
 
 def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
@@ -178,7 +191,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     from cli.administration.deploy.development.variant_select import add_variant_args
 
     p = argparse.ArgumentParser(
-        prog="cli.administration.deploy.swarm.matrix",
+        prog="utils.tests.swarm.matrix",
         description=(
             "Iterate the variant-matrix rounds of one application against the "
             "live swarm test cluster."
@@ -297,6 +310,17 @@ def main(argv: list[str] | None = None) -> int:
             rc = _backup_restore_drill(
                 app_id=app_id, inv_dir=inv_root, extras_path=extras_path
             )
+        if rc == 0:
+            rc = _deploy(
+                app_id=app_id,
+                inv_dir=inv_root,
+                extras_path=f"{inv_root}/swarm-nfs-extras.deploy.yml",
+                round_index=round_index,
+                total=total,
+                update_pass=True,
+            )
+        if rc == 0:
+            rc = _converge_and_verify(app_id=app_id)
         if rc != 0:
             return rc
 

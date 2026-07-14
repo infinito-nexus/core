@@ -12,7 +12,7 @@ bridge (`192.168.244.0/24`, MTU 1400): three swarm nodes (1 manager +
 and a non-swarm backup host for the DR drill. The node image
 ([`compose/swarm/Dockerfile`](../../../../compose/swarm/Dockerfile))
 bakes python3 + dnsmasq; the containers and the lab network are declared
-in [`compose/swarm.yml`](../../../../compose/swarm.yml) (project
+in [`compose/swarm/compose.yml`](../../../../compose/swarm/compose.yml) (project
 `${SWARM_NAME}`, backup host behind the `drill` profile) and started by
 one `docker compose up` in `routine/01_bootstrap.sh`. Lab DNS is provisioned
 by `compose/swarm/playbook.yml` over `ansible_connection: docker` (Ansible never
@@ -132,13 +132,13 @@ mount/target/source) come from `utils/tests/swarm/write_extras.py`.
 The sequenced flow lives in `routine/`, the naming SPOT in `utils/topology/`,
 shared helpers in `utils/`, and
 the cluster declaration (image, containers, network, DNS play) in
-`compose/swarm/` + `compose/swarm.yml`.
+`compose/swarm/` + `compose/swarm/compose.yml`.
 
 | Stage | Script | Purpose |
 |---|---|---|
 | bring-up | `utils/topology/base.sh` | SPOT: node names + NFS export/state paths (sourced, not run) |
 | bring-up | `utils/topology/export.sh` | write the topology SPOT into `$GITHUB_ENV` |
-| bring-up | `compose/swarm.yml` + `compose/swarm/Dockerfile` | declare the 5 node containers, node image + lab network (compose SPOT) |
+| bring-up | `compose/swarm/compose.yml` + `compose/swarm/Dockerfile` | declare the 5 node containers, node image + lab network (compose SPOT) |
 | bring-up | `routine/01_bootstrap.sh` | one CI step, host side: pre-clean, `compose build` + one `compose up`, sudo `.deb` build, then the play |
 | bring-up | `compose/swarm/playbook.yml` | node side over docker connection: systemd wait, NFS-export wipe, IPs into `$GITHUB_ENV`, lab DNS, repo + `.deb` install |
 | deploy | `routine/02_provision_inventory.sh` | provision the per-round inventory |
@@ -158,7 +158,7 @@ the cluster declaration (image, containers, network, DNS play) in
 | recovery | `utils/clean/stale_nfs.sh` | recover stale in-namespace NFS mounts |
 
 The matrix orchestrator
-(`cli/administration/deploy/swarm/matrix.py`) drives the deploy stage
+(`utils/tests/swarm/matrix.py`) drives the deploy stage
 per variant round; the workflow `.github/workflows/test-deploy-swarm.yml`
 drives the surrounding stages. Run one app locally with
 `make swarm-zombie app=<id>` (keeps the cluster for inspection) or the

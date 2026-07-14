@@ -1,6 +1,9 @@
 x-node: &node
   image: infinito-swarm-node
-  build: ./swarm
+  build:
+    context: .
+    args:
+      INFINITO_IMAGE: "${INFINITO_IMAGE:?run make dotenv / build the distro image first}"
   privileged: true
   cgroup: host
   security_opt:
@@ -25,7 +28,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - /lib/modules:/lib/modules:ro
-      - "${RUNNER_TEMP:?}/nfs-export:${NFS_EXPORT_BASE:?run utils/topology/export.sh first}"
+      - "nfs-export:${NFS_EXPORT_BASE:?run utils/topology/export.sh first}"
 
   swarm-mgr-01:
     <<: *node
@@ -47,6 +50,9 @@ services:
     container_name: "${BACKUP_NODE:?run utils/topology/export.sh first}"
     hostname: "${BACKUP_NODE:?run utils/topology/export.sh first}"
     profiles: ["drill"]
+
+volumes:
+  nfs-export:
 
 networks:
   lab:

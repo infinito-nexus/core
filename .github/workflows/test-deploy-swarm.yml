@@ -157,7 +157,7 @@ jobs:
           source scripts/meta/env/load.sh
           echo "${VENV}/bin" >> "${GITHUB_PATH}"
 
-      - name: "🥾 Bring up + bootstrap the simulated cluster (compose up, IPs, lab DNS, .deb)"
+      - name: "🥾 Bring up + bootstrap the simulated cluster (compose up, IPs, lab DNS)"
         run: ${{ env.SCRIPTS }}/01_bootstrap.sh
 
       - name: "🔧 Project setup (.dockerignore + dotenv + scripts/setup.sh)"
@@ -170,9 +170,9 @@ jobs:
         run: |
           source scripts/meta/env/load.sh
           if [ "$(id -u)" -eq 0 ]; then
-            python3 -m cli.administration.deploy.swarm.matrix
+            python3 -m utils.tests.swarm.matrix
           else
-            sudo -E env "PATH=$PATH" "HOME=$HOME" "SWARM_NAME=${SWARM_NAME:-}" "variant=${variant:-}" "disable=${disable:-}" python3 -m cli.administration.deploy.swarm.matrix
+            sudo -E env "PATH=$PATH" "HOME=$HOME" "SWARM_NAME=${SWARM_NAME:-}" "variant=${variant:-}" "disable=${disable:-}" python3 -m utils.tests.swarm.matrix
           fi
 
       - name: "🌱 Seed content (pre-drain marker on NFS volume)"
