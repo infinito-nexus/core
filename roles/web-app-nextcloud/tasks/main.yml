@@ -39,5 +39,13 @@
     plugin_value: "{{ plugin_item.value }}"
   when: NEXTCLOUD_PLUGINS_ENABLED | bool
 
+- name: Disable the cloud_bbb app on an onion node
+  ansible.builtin.command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable bbb"
+  register: _nc_onion_bbb_disable
+  changed_when: "'already disabled' not in _nc_onion_bbb_disable.stdout"
+  when:
+    - NEXTCLOUD_PLUGINS_ENABLED | bool
+    - lookup('domain', 'web-app-keycloak') is search('\\.onion$')
+
 - name: Reconcile administrator identities after plugin setup
   include_tasks: 07_admin_identities.yml

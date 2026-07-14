@@ -1,6 +1,8 @@
 ---
 - name: "Execute Role (once)"
   include_tasks: 01_core.yml
-  when: run_once_web_app_bigbluebutton is not defined
+  when:
+    - run_once_web_app_bigbluebutton is not defined
+    - lookup('domain', 'web-app-keycloak') is not search('\\.onion$')
   vars:
     application_id: "web-app-bigbluebutton"

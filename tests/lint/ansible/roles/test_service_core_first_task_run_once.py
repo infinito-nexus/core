@@ -41,9 +41,14 @@ RECURSION_HINT = (
 MAIN_SCHEMA_HINT = (
     "tasks/main.yml must load 01_core.yml with a run_once guard so that roles "
     "included directly (not via load_app.yml) are also protected against duplicate "
-    "execution. Required schema:\n"
+    "execution. The guard may be the sole condition or one entry of a list, as "
+    "long as it is present. Required schema:\n"
     "  - include_tasks: 01_core.yml\n"
-    "    when: run_once_<role_slug> is not defined"
+    "    when: run_once_<role_slug> is not defined\n"
+    "  # or, when the role also needs extra conditions:\n"
+    "    when:\n"
+    "      - run_once_<role_slug> is not defined\n"
+    "      - <extra condition>"
 )
 
 
@@ -146,9 +151,13 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
                 continue
 
             actual_when = core_task.get("when", "")
-            if actual_when != expected_when:
+            if isinstance(actual_when, list):
+                guard_present = expected_when in actual_when
+            else:
+                guard_present = actual_when == expected_when
+            if not guard_present:
                 violations.append(
-                    f"{role}: when is '{actual_when}', expected '{expected_when}'"
+                    f"{role}: when is '{actual_when}', must include '{expected_when}'"
                 )
 
         if violations:

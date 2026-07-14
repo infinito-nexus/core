@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { resolveTimeout } = require("../timeouts");
+const { resolveTimeout, isOnionTarget } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 const { gotoOnion } = require("../personas");
@@ -8,6 +8,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("bbb addon: cloud_bbb app route renders its own UI and is coupled to the partner server", async ({ browser }) => {
   skipUnlessAddonEnabled("bbb");
+  test.skip(isOnionTarget(), "BigBlueButton is WebRTC (UDP/ICE); Tor carries only TCP, so the app is disabled on an onion node");
   test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
