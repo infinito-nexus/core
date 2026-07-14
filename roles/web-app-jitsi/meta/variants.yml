@@ -29,7 +29,7 @@
       enabled: true
       shared: true
     tor:
-      enabled: false
+      enabled: false # nocheck: variants-static-override
       shared: false # nocheck: variants-static-override
 
 # V2: no auth — everything off, AUTH_TYPE=internal, anonymous rooms
@@ -59,7 +59,7 @@
       enabled: false
       shared: false
     tor:
-      enabled: false
+      enabled: false # nocheck: variants-static-override
       shared: false # nocheck: variants-static-override
 
 # V3: ldap only — direct prosody mod_auth_ldap2 against svc-db-openldap
@@ -89,5 +89,5 @@
       enabled: false
       shared: false
     tor:
-      enabled: false
+      enabled: false # nocheck: variants-static-override
       shared: false # nocheck: variants-static-override

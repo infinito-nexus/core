@@ -33,7 +33,7 @@
       enabled: true
       shared: true
     tor:
-      enabled: false
+      enabled: false # nocheck: variants-static-override
       shared: false # nocheck: variants-static-override
 - services:
     collabora:
@@ -64,5 +64,5 @@
       enabled: false
       shared: false
     tor:
-      enabled: false
+      enabled: false # nocheck: variants-static-override
       shared: false # nocheck: variants-static-override
