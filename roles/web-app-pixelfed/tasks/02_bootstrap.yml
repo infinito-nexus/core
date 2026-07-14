@@ -38,7 +38,7 @@
 - name: "🔎 Check whether the Pixelfed users table exists"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-users-table.sql"
+    query_file: "{{ role_path }}/files/sql/select/users-table.sql"
     named_args:
       db_name: "{{ PIXELFED_DB_NAME }}"
     expect_rows: true

@@ -13,7 +13,7 @@
 
     - name: "📂 Run Keycloak object-update routines on the freshly resolved node"
       ansible.builtin.include_tasks:
-        file: 02b_update_routines.yml
+        file: update_routines.yml
         apply:
           delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   rescue:
@@ -42,6 +42,6 @@
 
     - name: "🔁 Keycloak updates | Retry object updates on the freshly resolved node"
       ansible.builtin.include_tasks:
-        file: 02b_updates.yml
+        file: updates.yml
         apply:
           delegate_to: "{{ KEYCLOAK_HOST_NODE }}"

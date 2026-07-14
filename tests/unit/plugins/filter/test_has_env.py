@@ -2,13 +2,11 @@ import shutil
 import unittest
 from pathlib import Path
 
-# Import the filter directly
-from plugins.filter.has_env import has_env
+from plugins.filter.has.env import has_env
 
 
 class TestHasEnvFilter(unittest.TestCase):
     def setUp(self):
-        # Create a test directory structure
         self.base_dir = "./testdata"
         self.app_with_env = "app_with_env"
         self.app_without_env = "app_without_env"
@@ -19,7 +17,6 @@ class TestHasEnvFilter(unittest.TestCase):
             str(Path(self.base_dir) / "roles" / self.app_without_env / "templates")
         ).mkdir(parents=True, exist_ok=True)
 
-        # Create an empty env.j2 file
         with Path(
             str(
                 Path(self.base_dir)
@@ -32,7 +29,6 @@ class TestHasEnvFilter(unittest.TestCase):
             f.write("")
 
     def tearDown(self):
-        # Clean up the test data
         if Path(self.base_dir).exists():
             shutil.rmtree(self.base_dir)
 

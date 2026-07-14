@@ -22,13 +22,11 @@ class FilterModule:
         results = set()
 
         for hostname in domains_list:
-            # type check
             if not isinstance(hostname, str):
                 raise AnsibleFilterError(
                     f"Invalid domain entry (not a string): {hostname!r}"
                 )
 
-            # malformed or empty
             # nocheck: project-root-import  the `".."` below is a substring check, not a path build
             if (
                 not hostname
@@ -40,16 +38,13 @@ class FilterModule:
                     f"Invalid domain entry (malformed): {hostname!r}"
                 )
 
-            # IP addresses disallowed
             if ip_pattern.match(hostname):
                 raise AnsibleFilterError(f"IP addresses not allowed: {hostname!r}")
 
-            # single-label hostnames
             labels = hostname.split(".")
             if len(labels) == 1:
                 results.add(hostname)
             else:
-                # always keep only the last two labels (SLD.TLD)
                 sld = ".".join(labels[-2:])
                 results.add(sld)
 

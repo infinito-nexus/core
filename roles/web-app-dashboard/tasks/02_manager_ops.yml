@@ -114,7 +114,7 @@
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
   block:
     - name: ✅ Ensure shared Simple Icons service is loaded before refresh
-      include_tasks: utils/load_app.yml
+      include_tasks: utils/load/app.yml
       vars:
         load_app_id: web-svc-simpleicons
 

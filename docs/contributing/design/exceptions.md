@@ -15,7 +15,7 @@ It is then resolved through `lookup('users')`, which hydrates tokens from the st
 
 On the **first deployment**, or after a factory reset, the token does not yet exist because the bootstrap
 has not run yet. A second common cause is that [`roles/sys-service-loader/tasks/load_service.yml`](../../../roles/sys-service-loader/tasks/load_service.yml)
-skips `load_app.yml` when the
+skips `load/app.yml` when the
 Matomo container is already reachable. In that case the container is healthy but the token file is still
 absent from the token store, so the variable arrives empty.
 

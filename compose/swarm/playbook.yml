@@ -120,7 +120,7 @@
       run_once: true
 
     - name: render the app-domain hosts entries
-      command: python3 -m utils.tests.swarm.write_hosts_entries
+      command: python3 -m utils.tests.swarm.write.hosts_entries
       args:
         chdir: "{{ lab_repo_root }}"
       environment:

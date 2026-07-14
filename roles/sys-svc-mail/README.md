@@ -17,7 +17,7 @@ This role provides a **unified mail setup** for your hosts:
 
 - If the host is part of the `web-app-mailu` group, it:
   - checks the reachability of the Mailu endpoint,
-  - triggers Mailu startup via the Infinito.Nexus helper (`utils/load_app.yml`),
+  - triggers Mailu startup via the Infinito.Nexus helper (`utils/load/app.yml`),
   - and prepares the system to send emails through Mailu using the `sys-svc-mail-msmtp` role.
 
 - If the host is **not** running Mailu, it:
@@ -41,8 +41,8 @@ The main purpose of this role is to:
 
 - 🔄 **Mailu Integration (when available)**  
   - Checks Mailu reachability using Ansible’s `uri` module.  
-  - Triggers Mailu startup via `utils/load_app.yml`.  
-  - Ensures handlers are flushed/reset via `utils/load_handlers.yml`.
+  - Triggers Mailu startup via `utils/load/app.yml`.  
+  - Ensures handlers are flushed/reset via `utils/load/handlers.yml`.
 
 - 💡 **Smart Fallback to Localhost**  
   - If no `web-app-mailu` is present, the role can configure a local Postfix-based SMTP relay via `sys-svc-mail-smtp`.  

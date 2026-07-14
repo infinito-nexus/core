@@ -9,7 +9,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from plugins.filter.docker_service_enabled import (
+from plugins.filter.docker.service_enabled import (
     FilterModule as _DockerServiceEnabledFilter,
 )
 from utils.cache.yaml import dump_yaml_str

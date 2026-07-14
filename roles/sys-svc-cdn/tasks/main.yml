@@ -11,7 +11,7 @@
     - run_once_sys_svc_cdn is not defined
 
 - name: 🎛️ Overwritte CDN handlers with neutral handlers
-  ansible.builtin.include_tasks: "tasks/utils/load_handlers.yml"
+  ansible.builtin.include_tasks: "tasks/utils/load/handlers.yml"
   loop:
     - svc-prx-openresty
     - sys-svc-compose

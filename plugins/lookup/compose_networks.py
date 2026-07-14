@@ -22,7 +22,7 @@ from utils.networks.render import render_compose_networks
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 
 def _resolve_var(templar, value: Any) -> Any:

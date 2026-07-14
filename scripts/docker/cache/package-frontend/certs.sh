@@ -8,7 +8,7 @@ set -euo pipefail
 : "${INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR:?Source scripts/meta/env/load.sh first}"
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 INNER_SCRIPT="${REPO_ROOT}/compose/package-cache-frontend/cert-gen.sh"
 
 if [[ ! -r "${INNER_SCRIPT}" ]]; then

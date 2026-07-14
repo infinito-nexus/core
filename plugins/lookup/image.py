@@ -24,7 +24,7 @@ containers that do not appear in the services map).
 Locally-built images are declared once, in the service's config:
 ``services.<key>.custom: true`` names the image ``<entity_name>_custom``
 (where ``<entity_name>`` comes from
-``utils.roles.entity_name.get_entity_name``) shared across an app's
+``utils.roles.entity.name.get_entity_name``) shared across an app's
 custom services, while a non-empty STRING names it ``<custom>_custom``
 for a second, distinct custom image inside one app (where the shared
 ``<entity>_custom`` would collide). The compose template's ``build:``
@@ -57,7 +57,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 try:
     from ansible.utils.display import Display

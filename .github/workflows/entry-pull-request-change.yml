@@ -19,8 +19,6 @@ on:
       - labeled
 
 concurrency:
-  # Keep only the newest run per PR and event type.
-  # This avoids pull_request and pull_request_target cancelling each other.
   group: pr-ci-${{ github.repository }}-${{ github.event_name }}-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
@@ -81,7 +79,7 @@ jobs:
         env:
           INFINITO_MAIN_REMOTE: origin
           INFINITO_MAIN_BRANCH: ${{ github.event.pull_request.base.ref }}
-        run: bash scripts/git/assert_main_merged.sh
+        run: bash scripts/git/assert/main_merged.sh
 
   pr-scope-gate:
     name: 🚦 Gate PR scope

@@ -11,7 +11,7 @@ import re
 from typing import Any
 
 from utils.roles.applications.config import get
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 _REGEX_OR_NAMED_LOCATION = re.compile(r"^[@~]")
 _LOCATION_MODIFIER = re.compile(r"^(?:=|\^~)\s*")
@@ -80,9 +80,6 @@ def resolve_upstream(
             f"resolve_upstream: swarm upstream for {application_id!r} needs "
             f"services.{entity}.ports.internal.{port_kind} (or internal_port=)"
         )
-    # Entity-named compose service -> its short DNS alias on the shared overlay
-    # is the unique <entity> name; use it. Named sidecars (sso-proxy) keep a
-    # non-unique short alias and need the full <stack>_<service> name.
     if service_key == entity:
         return f"{entity}:{port}"
     return f"{entity}_{service_key}:{port}"

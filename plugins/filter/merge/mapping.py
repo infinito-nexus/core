@@ -13,24 +13,20 @@ def merge_mapping(list1, list2, key_name="source"):
         raise AnsibleFilterError("merge_mapping expects two lists")
 
     merged = {}
-    # First, copy items from list1
     for item in list1:
         if key_name not in item:
             raise AnsibleFilterError(f"Item {item} is missing the key '{key_name}'")
         merged[item[key_name]] = item.copy()
 
-    # Then merge in items from list2
     for item in list2:
         if key_name not in item:
             raise AnsibleFilterError(f"Item {item} is missing the key '{key_name}'")
         k = item[key_name]
         if k in merged:
-            # update will overwrite existing fields or add new ones
             merged[k].update(item)
         else:
             merged[k] = item.copy()
 
-    # Return as a list of dicts again
     return list(merged.values())
 
 

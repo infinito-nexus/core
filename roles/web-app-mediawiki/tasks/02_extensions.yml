@@ -14,7 +14,7 @@
     loop_var: ext
     label: "{{ ext.name }}"
 - name: "📋 EXT | Copy & extract into container if not installed"
-  script: install_extension.sh
+  script: install/extension.sh
   environment:
     EXT_NAME: "{{ ext.name }}"
     EXT_TARBALL: "{{ MEDIAWIKI_EXT_CFG_BASE }}/{{ ext.name }}.tar.gz"

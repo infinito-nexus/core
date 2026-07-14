@@ -126,7 +126,7 @@ reuses the round-1 stack instead of spinning a dedicated cluster, and skips
 cleanly when the app declares no NFS-flagged volume. The backup host is started by `routine/01_bootstrap.sh` (drill
 profile) and receives its two roles via `extend_inventory`; the pull
 trust (backup keypair) and the role config (backup_providers, device
-mount/target/source) come from `utils/tests/swarm/write_extras.py`.
+mount/target/source) come from `utils/tests/swarm/write/extras.py`.
 
 ## Scripts
 

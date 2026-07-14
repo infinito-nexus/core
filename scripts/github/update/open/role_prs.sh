@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Opens one update PR per top-level entry that changed under the given root
 # (e.g. one PR per role under roles/), instead of a single combined PR.
-# The actual dedup/push/PR logic is reused from open_pr.sh; this wrapper only
+# The actual dedup/push/PR logic is reused from pr.sh; this wrapper only
 # isolates one entry's changes per call.
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,8 +18,6 @@ ROOT="${1:?Usage: open_role_prs.sh <root-dir> (e.g. roles)}"
 
 date_suffix="$(date +%Y%m%d)"
 
-# A throwaway identity is enough for the scratch commit below; open_pr.sh sets
-# the real bot identity for each published commit.
 git config user.name >/dev/null 2>&1 || git config user.name "github-actions[bot]"
 git config user.email >/dev/null 2>&1 || git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -54,7 +52,7 @@ for entry in "${entries[@]}"; do
 		UPDATE_COMMIT_MESSAGE="${UPDATE_COMMIT_MESSAGE} (${entry})" \
 		UPDATE_PR_TITLE="${UPDATE_PR_TITLE} (${entry})" \
 		UPDATE_PR_BODY="${UPDATE_PR_BODY}"$'\n\n'"Scope: \`${ROOT}/${entry}\`." \
-		bash "${SCRIPT_DIR}/open_pr.sh" "${ROOT}/${entry}"
+		bash "${SCRIPT_DIR}/pr.sh" "${ROOT}/${entry}"
 done
 
 git checkout --quiet --force --detach "${base}" || true

@@ -2,7 +2,7 @@ import unittest
 
 from ansible.errors import AnsibleFilterError
 
-from plugins.filter.docker_network_noop import docker_network_noop
+from plugins.filter.docker.network_noop import docker_network_noop
 
 
 class TestDockerNetworkNoop(unittest.TestCase):

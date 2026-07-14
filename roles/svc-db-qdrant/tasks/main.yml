@@ -4,8 +4,7 @@
   vars:
     application_id: svc-db-qdrant
 
-- include_tasks: utils/load_handlers.yml
-  # Necessary because docker handlers are overwritten by condition
+- include_tasks: utils/load/handlers.yml
   vars:
     handler_role_name: "sys-svc-compose"
 

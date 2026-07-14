@@ -184,7 +184,7 @@ jobs:
         shell: bash
         env:
           APP_ID: ${{ matrix.apps }}
-        run: bash scripts/github/inventory/zip_compose_for_upload.sh
+        run: bash scripts/github/inventory/zip/compose_for_upload.sh
 
       - name: ⬆️ Upload inventory artifact
         if: ${{ always() && !env.ACT }}

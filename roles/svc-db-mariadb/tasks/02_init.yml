@@ -37,7 +37,7 @@
           SET @db_name   := '{{ database_name }}';
           SET @charset   := '{{ MARIADB_ENCODING }}';
           SET @collation := '{{ MARIADB_COLLATION }}';
-          {{ lookup('file', role_path ~ '/files/sql/create_database.sql') }}
+          {{ lookup('file', role_path ~ '/files/sql/create/database.sql') }}
       register: mariadb_create_db
       delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -53,7 +53,7 @@
           SET @db_user := '{{ database_username }}';
           SET @db_pwd  := '{{ database_password | replace("'", "''") }}';
           SET @db_name := '{{ database_name }}';
-          {{ lookup('file', role_path ~ '/files/sql/create_user_grant.sql') }}
+          {{ lookup('file', role_path ~ '/files/sql/create/user_grant.sql') }}
       register: mariadb_create_user
       delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

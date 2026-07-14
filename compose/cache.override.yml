@@ -144,4 +144,4 @@ services:
         dotenv')}:/etc/apt/sources.list.d/package-cache.list:ro
       - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
         dotenv')}:/opt/package-frontend-ca.crt:ro
-      - ./scripts/docker/cache/package-frontend-ca.sh:/usr/local/bin/package-frontend-ca.sh:ro
+      - ./scripts/docker/cache/package-frontend/ca.sh:/usr/local/bin/package-frontend-ca.sh:ro

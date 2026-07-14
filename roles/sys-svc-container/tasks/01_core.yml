@@ -86,7 +86,7 @@
   when: DOCKER_IN_CONTAINER | bool
 
 - name: 🔧 Setup Swapfile to prevent OOM Failures
-  include_tasks: "utils/load_app.yml"
+  include_tasks: "utils/load/app.yml"
   vars:
     load_app_id: "svc-opt-swapfile"
   when: run_once_svc_opt_swapfile is not defined

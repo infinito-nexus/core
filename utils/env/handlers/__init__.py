@@ -23,18 +23,9 @@ from .infinito import (
     is_wsl2,
     outer_network_mtu,
     parent_image,
-    playwright_reports_base_dir,
-    playwright_stage_base_dir,
     pull_policy,
     registry_cache_max_size,
     rescue_diagnostics_dir,
-    running_on_act,
-    running_on_github,
-    swarm_nfs_export_base,
-    swarm_nfs_state_path,
-    variant_bundle_size,
-    worker_cpu,
-    worker_fetch,
 )
 from .infinito.dir import backups as dir_backups
 from .infinito.dir import secrets as dir_secrets
@@ -43,6 +34,15 @@ from .infinito.package_cache import admin_password as package_cache_admin_passwo
 from .infinito.package_cache import blobstore_max as package_cache_blobstore_max
 from .infinito.package_cache import direct_mem as package_cache_direct_mem
 from .infinito.package_cache import heap as package_cache_heap
+from .infinito.playwright import reports_base_dir as playwright_reports_base_dir
+from .infinito.playwright import stage_base_dir as playwright_stage_base_dir
+from .infinito.running_on import act as running_on_act
+from .infinito.running_on import github as running_on_github
+from .infinito.swarm_nfs import export_base as swarm_nfs_export_base
+from .infinito.swarm_nfs import state_path as swarm_nfs_state_path
+from .infinito.variant_bundle import size as variant_bundle_size
+from .infinito.worker import cpu as worker_cpu
+from .infinito.worker import fetch as worker_fetch
 
 ORDERED_HANDLERS = [
     passthrough,

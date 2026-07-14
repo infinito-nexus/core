@@ -83,7 +83,7 @@ def _write_extras(*, extras_path: str) -> int:
     env = os.environ.copy()
     env["OUT_PATH"] = extras_path
     return _run(
-        ["python3", "-m", "utils.tests.swarm.write_extras"],
+        ["python3", "-m", "utils.tests.swarm.write.extras"],
         env=env,
         label=f"write runtime extras ({extras_path})",
     )
@@ -274,7 +274,7 @@ def main(argv: list[str] | None = None) -> int:
             include=round_include,
             active_variants=round_variants,
         )
-        from utils.tests.swarm.write_extras import backup_applications_overrides
+        from utils.tests.swarm.write.extras import backup_applications_overrides
 
         vars_payload = _bake_overrides(
             base_overrides={

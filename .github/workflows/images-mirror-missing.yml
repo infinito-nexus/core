@@ -156,5 +156,5 @@ jobs:
           GHCR_REPOSITORY: ${{ steps.vars.outputs.ghcr_repository }}
           GHCR_PREFIX: ${{ inputs.ghcr_prefix || 'mirror' }}
           REPO_ROOT: ${{ inputs.repo_root || '.' }}
-        run: bash scripts/meta/mirror/sync_missing.sh
+        run: bash scripts/meta/mirror/sync/missing.sh
 

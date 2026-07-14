@@ -8,7 +8,7 @@
   meta: flush_handlers
 
 - name: "🔌 Load {{ service_key }} (Once)"
-  include_tasks: "utils/load_app.yml"
+  include_tasks: "utils/load/app.yml"
   vars:
     load_app_id: "{{ service_role }}"
 

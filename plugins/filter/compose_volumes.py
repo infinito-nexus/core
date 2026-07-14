@@ -8,7 +8,7 @@ from ansible.errors import AnsibleFilterError
 from utils.cache.yaml import dump_yaml_str
 
 try:
-    from plugins.filter.docker_service_enabled import (
+    from plugins.filter.docker.service_enabled import (
         FilterModule as _DockerServiceEnabledFilter,
     )
     from plugins.filter.get.entity_name import get_entity_name
@@ -26,7 +26,7 @@ try:
     from utils.roles.applications.services.sso import get_sso_config
     from utils.roles.meta_lookup import get_role_placement
 except ModuleNotFoundError:
-    from docker_service_enabled import FilterModule as _DockerServiceEnabledFilter
+    from docker.service_enabled import FilterModule as _DockerServiceEnabledFilter
     from get.entity_name import get_entity_name
 
     from utils.cache.applications import get_canonical_volumes

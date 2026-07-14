@@ -3,7 +3,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak-provider-id.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider-id.sql"
     expect_rows: true
   register: oauth_check
 
@@ -65,7 +65,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template-partner.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template/partner.sql"
     expect_rows: true
   register: oauth_template_partner
   when: oauth_template_check.rows | length == 0
@@ -74,7 +74,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template-user.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template/user.sql"
     named_args:
       partner_id: "{{ oauth_template_partner.rows[0][0] | int }}"
   register: oauth_template_user
@@ -99,7 +99,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/grant/company-to-oauth-template.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/grant/company-to-oauth/template.sql"
 
 - name: "🔧 Set OAuth template user for signup (base.template_portal_user_id)"
   database_query:
@@ -154,7 +154,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak-provider-id.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider-id.sql"
     expect_rows: true
   register: keycloak_provider
 
@@ -162,7 +162,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', 'web-app-keycloak') }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak-realm-user.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/realm-user.sql"
     named_args:
       realm: "{{ OIDC.CLIENT.REALM }}"
       admin: "{{ lookup('users', 'administrator').username }}"
@@ -194,5 +194,5 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/grant/company-to-oauth-signup-users.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/grant/company-to-oauth/signup-users.sql"
   when: keycloak_provider.rows | length > 0

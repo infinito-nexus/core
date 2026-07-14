@@ -13,7 +13,7 @@ from utils.roles.applications.services.database import (
     get_database_service_config,
     resolve_database_service_key,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 
 def _swarm_address(bin_resolver: str, stack_name: str, service_key: str) -> str:

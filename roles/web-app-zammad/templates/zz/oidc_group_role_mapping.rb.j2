@@ -28,7 +28,6 @@ Rails.application.config.after_initialize do
     end
   end
 
-  # If upstream renames either entry point, the initializer becomes a no-op instead of crashing boot.
   %w[create_from_hash update_from_hash].each do |method_name|
     next unless User.respond_to?(method_name)
 

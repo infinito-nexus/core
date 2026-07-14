@@ -7,7 +7,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.roles.applications.config import get
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.tls_common import resolve_enabled
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")

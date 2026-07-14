@@ -5,10 +5,10 @@ import argparse
 import sys
 
 try:
-    from plugins.filter.get.all_application_ids import get_all_application_ids
+    from plugins.filter.get.all.application_ids import get_all_application_ids
 except ImportError:
     sys.stderr.write(
-        "Filter plugin `get_all_application_ids` not found. Ensure `plugins/filter/get/all_application_ids.py` is in your PYTHONPATH.\n"
+        "Filter plugin `get_all_application_ids` not found. Ensure `plugins/filter/get/all/application_ids.py` is in your PYTHONPATH.\n"
     )
     sys.exit(1)
 

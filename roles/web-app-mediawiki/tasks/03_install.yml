@@ -1,7 +1,7 @@
 ---
 - name: "🥾 MEDIAWIKI | Bootstrap DB (install if empty) then update"
   ansible.builtin.script: >-
-    install_or_update.sh
+    install/or_update.sh
     "{{ MEDIAWIKI_NETWORK_DATABASE }}" "{{ lookup('database', application_id, 'version') | default('latest') }}"
     "{{ lookup('database', application_id, 'host') }}" "{{ lookup('database', application_id, 'port') }}"
     "{{ lookup('database', application_id, 'username') }}" "{{ lookup('database', application_id, 'password') }}"

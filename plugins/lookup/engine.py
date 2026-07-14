@@ -28,7 +28,7 @@ from utils.roles.applications.services.engines import (
     is_engine_enabled,
     is_engine_shared,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 _FIELDS = (
     "engine",

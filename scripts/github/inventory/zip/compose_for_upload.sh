@@ -4,14 +4,14 @@ set -euo pipefail
 : "${APP_ID:?APP_ID is required (matrix.apps)}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR must be resolved by scripts/meta/env/load.sh}"
 
-out="/tmp/inventory-swarm-${APP_ID}.zip"
-stage="/tmp/inventory-swarm-${APP_ID}"
+out="/tmp/inventory-compose-${APP_ID}.zip"
+stage="/tmp/inventory-compose-${APP_ID}"
 sudo rm -rf "${stage}" 2>/dev/null || rm -rf "${stage}" 2>/dev/null || true
 mkdir -p "${stage}"
 
@@ -29,4 +29,4 @@ if [[ "${found}" -eq 0 ]]; then
 fi
 
 sudo chown -R "$(id -u):$(id -g)" "${stage}" 2>/dev/null || true
-(cd /tmp && zip -r "${out}" "inventory-swarm-${APP_ID}")
+(cd /tmp && zip -r "${out}" "inventory-compose-${APP_ID}")

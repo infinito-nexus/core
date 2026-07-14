@@ -19,7 +19,7 @@ import sys
 from plugins.filter.canonical_domains_map import (
     FilterModule as _CanonicalDomainsFilter,
 )
-from plugins.filter.generate_all_domains import (
+from plugins.filter.generate.all_domains import (
     FilterModule as _AllDomainsFilter,
 )
 from utils import PROJECT_ROOT

@@ -22,6 +22,7 @@
   loop:
     - "{{ _moodle_build_dir }}"
     - "{{ [_moodle_build_dir, 'php-conf'] | path_join }}"
+    - "{{ [_moodle_build_dir, 'install'] | path_join }}"
 
 - name: "📋 Copy static build assets into compose context"
   ansible.builtin.copy:

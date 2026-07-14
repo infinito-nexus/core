@@ -4,7 +4,7 @@ Utility for validating deployment application IDs against defined roles and inve
 
 from __future__ import annotations
 
-from plugins.filter.get.all_application_ids import get_all_application_ids
+from plugins.filter.get.all.application_ids import get_all_application_ids
 from utils.inventory.groups import inventory_has_group
 
 from . import PROJECT_ROOT

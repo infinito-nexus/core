@@ -51,7 +51,7 @@
 
 - name: "🧹 Purge stale flat / orphan groups under /<KEYCLOAK_RBAC_GROUP_NAME>"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/purge_root_orphans.sh"
+    cmd: "files/scripts/per_app_mapper/purge/root_orphans.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"

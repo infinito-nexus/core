@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from utils.paths import FILE_DATABASE_SECRETS
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 DEFAULT_CSV = FILE_DATABASE_SECRETS
 

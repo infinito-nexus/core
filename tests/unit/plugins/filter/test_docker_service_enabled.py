@@ -1,9 +1,8 @@
 import unittest
 from pathlib import Path
 
-# Import the filter module directly (adjust path as needed)
 try:
-    from plugins.filter.docker_service_enabled import FilterModule
+    from plugins.filter.docker.service_enabled import FilterModule
 except ModuleNotFoundError:
     import sys
 
@@ -15,7 +14,7 @@ except ModuleNotFoundError:
             ).resolve()
         ),
     )
-    from docker_service_enabled import FilterModule
+    from docker.service_enabled import FilterModule
 
 
 class TestIsDockerServiceEnabledFilter(unittest.TestCase):
@@ -59,24 +58,12 @@ class TestIsDockerServiceEnabledFilter(unittest.TestCase):
         self.assertFalse(self.filter(applications, "app1", "database"))
 
     def test_missing_service_key(self):
-        applications = {
-            "app1": {
-                "services": {
-                    # no 'redis' or 'database'
-                }
-            }
-        }
+        applications = {"app1": {"services": {}}}
         self.assertFalse(self.filter(applications, "app1", "redis"))
         self.assertFalse(self.filter(applications, "app1", "database"))
 
     def test_missing_services_key(self):
-        # Per: services live at applications.<app>.services
-        # directly (no `compose.services` envelope).
-        applications = {
-            "app1": {
-                # no 'services' key
-            }
-        }
+        applications = {"app1": {}}
         self.assertFalse(self.filter(applications, "app1", "redis"))
 
     def test_missing_app_id(self):

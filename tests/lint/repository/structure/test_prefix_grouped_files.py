@@ -14,7 +14,16 @@ instruction to move them into a subfolder named after the shared prefix
 considered, so ``foo.yml.j2`` and ``foo.yml`` carry the same stem. Dotfiles,
 dunder files (``__init__.py``), the ``test`` prefix (unittest discovery
 requires flat ``test_*.py`` names) and purely numeric shared prefixes
-(``01_``-style ordering conventions) are exempt.
+(``01_``-style ordering conventions) are exempt. A group is also skipped when
+one member's whole stem equals the shared prefix (``foo.py`` beside
+``foo_bar.py``): the prefix is a real name others extend, not a folder in
+disguise, and dropping it would leave that member with an empty name.
+
+Opt-outs for a group that genuinely cannot nest (a filename-addressed asset
+whose loader only sees a flat dir, e.g. WordPress mu-plugins): put a
+``# nocheck: prefix-grouped-files`` marker in the first 30 lines of a member
+file to exempt that file, or drop a ``.nocheck`` file carrying the rule into
+the directory to exempt the whole folder.
 """
 
 from __future__ import annotations
@@ -25,30 +34,37 @@ import unittest
 from collections import defaultdict
 from pathlib import Path, PurePosixPath
 
+from utils.annotations.suppress import is_suppressed_anywhere, is_suppressed_in_head
+from utils.cache.files import read_text
+
 from . import PROJECT_ROOT
 
-MIN_GROUP_SIZE = 3
+MIN_GROUP_SIZE = 2
 
 SKIP_FIRST_TOKENS = {"test"}
 
+NOCHECK_RULE = "prefix-grouped-files"
+_HEAD_SCAN_LINES = 30
+
+
+_FILENAME_BOUND_PLUGIN_DIRS = frozenset(
+    {"lookup_plugins", "action_plugins", "filter_plugins", "library", "module_utils"}
+)
+_FLAT_PLUGIN_ROOTS = frozenset(
+    {"plugins/lookup", "plugins/action", "plugins/module_utils"}
+)
+
 
 def _flatness_is_forced(directory: PurePosixPath) -> bool:
-    """Directories whose flat layout an external contract enforces.
+    """Directories whose flat layout an external loader contract enforces.
 
-    Args:
-        directory: repo-relative directory holding a candidate group.
-
-    Returns:
-        True for `.github/workflows` (GitHub only discovers workflows in the
-        flat directory), ansible lookup dirs (the lookup NAME is the file
-        name, so subfolders break or collide every `lookup('x_y')` call) and
-        addon dirs (the addon contract pins the filename stem as the addon
-        id, which doubles as upstream app id / repo slug, i.e. public API).
+    Ansible plugin loaders, GitHub Actions and the addon registry all bind a
+    file by its flat name; nesting a member would rename or hide it.
     """
     rel = directory.as_posix()
-    if rel == ".github/workflows":
+    if rel == ".github/workflows" or rel in _FLAT_PLUGIN_ROOTS:
         return True
-    if rel == "plugins/lookup" or directory.name == "lookup_plugins":
+    if directory.name in _FILENAME_BOUND_PLUGIN_DIRS:
         return True
     return directory.name == "addons"
 
@@ -66,6 +82,24 @@ def _tracked_files(root: Path) -> list[PurePosixPath]:
         for rel in output.decode("utf-8", errors="replace").split("\0")
         if rel
     ]
+
+
+def _dir_opts_out(root: Path, directory: str) -> bool:
+    """True if a ``.nocheck`` file in *directory* exempts the whole folder."""
+    marker = root / directory / ".nocheck"
+    if not marker.is_file():
+        return False
+    return is_suppressed_anywhere(read_text(str(marker)).splitlines(), NOCHECK_RULE)
+
+
+def _file_opts_out(root: Path, directory: str, name: str) -> bool:
+    """True if a member file carries the head opt-out marker."""
+    path = root / directory / name
+    try:
+        head = read_text(str(path)).splitlines()[:_HEAD_SCAN_LINES]
+    except (OSError, ValueError):
+        return False
+    return is_suppressed_in_head(head, NOCHECK_RULE, scan_lines=_HEAD_SCAN_LINES)
 
 
 def _tokens(name: str) -> list[str]:
@@ -88,11 +122,13 @@ def _common_token_prefix(token_lists: list[list[str]]) -> list[str]:
 
 def find_prefix_groups(
     tracked: list[PurePosixPath],
+    root: Path = PROJECT_ROOT,
 ) -> list[tuple[str, str, list[str]]]:
     """Detect sibling-file groups sharing a delimiter-bounded name prefix.
 
     Args:
         tracked: repo-relative paths of all git-tracked files.
+        root: repo root, used to resolve ``.nocheck`` opt-outs.
 
     Returns:
         One ``(directory, shared_prefix, filenames)`` tuple per group of at
@@ -108,6 +144,9 @@ def find_prefix_groups(
 
     findings: list[tuple[str, str, list[str]]] = []
     for directory, names in sorted(by_dir.items()):
+        if _dir_opts_out(root, directory):
+            continue
+
         buckets: dict[str, list[str]] = defaultdict(list)
         for name in names:
             if name.startswith((".", "_")):
@@ -122,11 +161,16 @@ def find_prefix_groups(
         for _first_token, members in sorted(buckets.items()):
             if len(members) < MIN_GROUP_SIZE:
                 continue
-            prefix_tokens = _common_token_prefix([_tokens(name) for name in members])
+            kept = [m for m in members if not _file_opts_out(root, directory, m)]
+            if len(kept) < MIN_GROUP_SIZE:
+                continue
+            prefix_tokens = _common_token_prefix([_tokens(name) for name in kept])
             if all(token.isdigit() for token in prefix_tokens):
                 continue
+            if any(_tokens(name) == prefix_tokens for name in kept):
+                continue
             prefix = "_".join(prefix_tokens)
-            findings.append((directory, prefix, sorted(members)))
+            findings.append((directory, prefix, sorted(kept)))
 
     return findings
 

@@ -74,7 +74,7 @@ from utils.roles.applications.services.registry import (
     build_role_to_primary_service_key,
     build_service_registry_from_roles_dir,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -105,9 +105,6 @@ def _suppressed_top_level_keys(file_path: Path) -> set[str]:
         if not stripped:
             pending = False
             continue
-        # Only treat lines with no leading indentation as top-level
-        # service keys. Nested keys inside a service block would
-        # otherwise swallow the marker.
         is_top_level = not raw_line.startswith((" ", "\t"))
         if pending and is_top_level and ":" in stripped:
             key = stripped.split(":", 1)[0].strip()
@@ -155,10 +152,6 @@ class TestServicesDynamicFlags(unittest.TestCase):
         registry = build_service_registry_from_roles_dir(ROLES_DIR)
         role_to_primary_key = build_role_to_primary_service_key(registry)
         primary_key_to_role = {key: role for role, key in role_to_primary_key.items()}
-        # Service keys provided by another role (e.g. ``sso`` ->
-        # ``web-app-keycloak`` via that role's primary entity
-        # ``provides: [sso]`` declaration). Provided keys take precedence
-        # over the primary mapping for reference-role lookup.
         covered_key_to_role = build_covered_key_to_role(registry)
 
         offenders: list[str] = []
@@ -177,11 +170,6 @@ class TestServicesDynamicFlags(unittest.TestCase):
 
             block_exempt = _suppressed_top_level_keys(services_file)
             inline_exempt = _suppressed_inline_flags(services_file)
-            # The role's own primary entity is exempt: see
-            # ``test_services_no_self_reference.py``. Its ``enabled`` /
-            # ``shared`` MUST be literal ``true`` (the role's services.yml
-            # is only loaded when the role itself is in group_names, so a
-            # ``'<self>' in group_names`` Jinja would be tautological).
             own_entity = get_entity_name(role_name)
 
             for service_key, entry in data.items():

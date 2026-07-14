@@ -16,7 +16,6 @@ else
 	exit 1
 fi
 
-# Empty CA_SRC = cache profile inactive.
 if [ ! -s "${CA_SRC}" ]; then
 	echo "[package-frontend-ca] ${CA_SRC} empty/absent; cache profile inactive; skipping" >&2
 	exit 0

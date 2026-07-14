@@ -17,7 +17,7 @@ from utils.networks.render import (
     render_compose_networks,
     render_container_networks,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 
 def _registry():
@@ -219,8 +219,6 @@ class TestNetworksRender(unittest.TestCase):
         )
 
     def test_ldap_consumer_swarm_uses_default_consumer_derivation(self):
-        # web-app-bookwyrm is web-facing, so it also attaches to the openresty
-        # shared net (consumer kind 'web_facing').
         expected = (
             "networks:\n"
             "  openldap:\n"
@@ -255,12 +253,6 @@ class TestNetworksRender(unittest.TestCase):
         )
 
     def test_matrix_mdad_consumer_attaches_postgres_ldap_sso(self):
-        # Matrix MDAD service used to hand-code three attachments:
-        #   default + (postgres if database.shared) + (openldap if MATRIX_LDAP_ENABLED)
-        # The registry-driven lookup adds a fourth: openresty, because matrix
-        # sets services.sso.enabled=true (keycloak group). This is a deliberate
-        # behaviour change -- pin the new contract so future template edits
-        # cannot silently drop or add an attachment.
         expected = (
             "\nnetworks:\n"
             "  openldap:\n"

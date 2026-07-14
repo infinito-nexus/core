@@ -26,7 +26,7 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT

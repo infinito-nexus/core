@@ -5,7 +5,7 @@ from ansible.errors import AnsibleError, AnsibleFilterError
 
 from utils.domains.list import render_domain_value
 from utils.roles.dependency_resolver import RoleDependencyResolver
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.templating.ansible import render_ansible_strict
 
 
@@ -73,7 +73,6 @@ class FilterModule:
                 resolve_run_after=False,
                 max_depth=None,
             )
-            # all discovered roles that actually have config entries in `apps`
             target_apps = discovered_roles & app_keys
         else:
             target_apps = seed_keys
@@ -95,9 +94,6 @@ class FilterModule:
                 and "canonical" in cfg["domains"]
             )
 
-            # Roles outside the web-*/svc-db-* families only register when they
-            # declare an explicit canonical domain. Infra roles (sys-*, svc-prx-*,
-            # etc.) otherwise would receive spurious auto-generated subdomains.
             if not has_canonical and not is_auto_default:
                 continue
 

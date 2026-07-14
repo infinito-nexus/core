@@ -32,15 +32,15 @@ def unique_roles(registry):
 RECURSION_HINT = (
     "Service roles discovered from role-local services metadata are loaded "
     "dynamically via "
-    "load_app.yml, which checks the run_once_<role> flag before loading a role. "
+    "load/app.yml, which checks the run_once_<role> flag before loading a role. "
     "If tasks/01_core.yml does not set this flag as its very first task, the flag "
-    "may be absent when a second load attempt is evaluated, causing load_app.yml to "
+    "may be absent when a second load attempt is evaluated, causing load/app.yml to "
     "include the role again and triggering infinite recursion."
 )
 
 MAIN_SCHEMA_HINT = (
     "tasks/main.yml must load 01_core.yml with a run_once guard so that roles "
-    "included directly (not via load_app.yml) are also protected against duplicate "
+    "included directly (not via load/app.yml) are also protected against duplicate "
     "execution. Required schema:\n"
     "  - include_tasks: 01_core.yml\n"
     "    when: run_once_<role_slug> is not defined"

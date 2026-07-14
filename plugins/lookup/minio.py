@@ -7,7 +7,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.roles.applications.config import get
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 MINIO_PROVIDER_ROLE = "web-app-minio"
 MINIO_SERVICE_KEY = get_entity_name(MINIO_PROVIDER_ROLE)

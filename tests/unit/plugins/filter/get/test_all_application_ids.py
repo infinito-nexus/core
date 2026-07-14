@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from plugins.filter.get.all_application_ids import get_all_application_ids
+from plugins.filter.get.all.application_ids import get_all_application_ids
 from utils.cache.yaml import dump_yaml
 
 

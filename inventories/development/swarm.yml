@@ -1,5 +1,5 @@
 # Static extras for the swarm-NFS test pipeline; runtime-only values
-# come from `utils.tests.swarm.write_extras`.
+# come from `utils.tests.swarm.write.extras`.
 # nocheck: hardcoded-dns-resolver — `1.1.1.1` is the upstream the
 # in-cluster simulated containers use; the host-network DNS-resolver
 # SPOT does not apply inside act-DinD nested containers.

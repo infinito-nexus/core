@@ -36,7 +36,7 @@
 - name: "🟢 Mattermost | Enable open invite on default team"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/update-default-team-open-invite.sql"
+    query_file: "{{ role_path }}/files/sql/update/default-team-open-invite.sql"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false
 
@@ -86,7 +86,7 @@
 - name: "🔄 Mattermost | Convert administrator to gitlab SSO auth"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/update-user-to-gitlab-auth.sql"
+    query_file: "{{ role_path }}/files/sql/update/user-to-gitlab-auth.sql"
     named_args:
       authdata: "{{ mm_admin_uidnumber.stdout | trim }}"
       email: "{{ lookup('users', 'administrator').email }}"

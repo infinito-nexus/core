@@ -32,7 +32,6 @@ def _value_has_domain(v: Any) -> bool:
     if isinstance(v, dict):
         return any(_value_has_domain(item) for _, item in v.items())
 
-    # Fallback: treat other scalars as "no domain"
     return False
 
 
@@ -47,7 +46,6 @@ def has_domain(domains: Any, application_id: Any) -> bool:
     if isinstance(domains, dict):
         return _value_has_domain(domains.get(app_id))
 
-    # If someone passed a non-dict, try to interpret it directly.
     return _value_has_domain(domains)
 
 

@@ -1,6 +1,6 @@
 ---
 - name: "🔄 Reload sys-daemon handlers"
-  include_tasks: utils/load_handlers.yml
+  include_tasks: utils/load/handlers.yml
   vars:
     handler_role_name: "sys-daemon"
   when: run_once_sys_service is defined

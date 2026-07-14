@@ -8,7 +8,7 @@ from unittest import mock
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.env.parser import parse_static_env
-from utils.tests.swarm import write_extras
+from utils.tests.swarm.write import extras as write_extras
 
 
 class TestWriteExtrasDomainPrimary(unittest.TestCase):

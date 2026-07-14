@@ -7,7 +7,7 @@ from utils.roles.applications.config import (
     ConfigEntryNotSetError,
     get,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 _UNSET = object()
 

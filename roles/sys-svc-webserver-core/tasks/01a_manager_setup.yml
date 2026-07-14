@@ -13,7 +13,7 @@
   include_tasks: 04_directories.yml
 
 - name: 🔌 Load OpenResty
-  include_tasks: "utils/load_app.yml"
+  include_tasks: "utils/load/app.yml"
   vars:
     load_app_id: svc-prx-openresty
 

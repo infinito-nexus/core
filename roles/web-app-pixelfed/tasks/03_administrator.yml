@@ -2,7 +2,7 @@
 - name: "⏳ Wait until the Pixelfed users table exists"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-users-table.sql"
+    query_file: "{{ role_path }}/files/sql/select/users-table.sql"
     named_args:
       db_name: "{{ PIXELFED_DB_NAME }}"
     expect_rows: true
@@ -17,7 +17,7 @@
 - name: "🔎 Check whether the Pixelfed administrator already exists"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-admin-id.sql"
+    query_file: "{{ role_path }}/files/sql/select/admin-id.sql"
     named_args:
       admin_username: "{{ PIXELFED_ADMIN_USERNAME }}"
     expect_rows: true
@@ -52,7 +52,7 @@
 - name: "🔍 Resolve the Pixelfed administrator id"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-admin-id.sql"
+    query_file: "{{ role_path }}/files/sql/select/admin-id.sql"
     named_args:
       admin_username: "{{ PIXELFED_ADMIN_USERNAME }}"
     expect_rows: true

@@ -47,7 +47,7 @@
 
 - name: "🧹 per-app mapper [{{ kc_app_id }}]: purge subgroups before mapper resync"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/purge_app_subgroups.sh"
+    cmd: "files/scripts/per_app_mapper/purge/app_subgroups.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
@@ -58,8 +58,6 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📄 per-app mapper [{{ kc_app_id }}]: render ldap-roles-{{ kc_app_id }} mapper"
-  # `KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER` (vars/main.yml) is the single
-  # SPOT for the per-application mapper definition.
   ansible.builtin.copy:
     dest: "/tmp/kc_mapper_payload_{{ kc_app_id }}.json"
     mode: "0600"

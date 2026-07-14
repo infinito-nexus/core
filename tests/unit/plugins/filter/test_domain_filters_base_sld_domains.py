@@ -2,7 +2,6 @@ import sys
 import unittest
 from pathlib import Path
 
-# Ensure plugins/filter directory is on the path
 sys.path.insert(
     0,
     str(
@@ -13,7 +12,7 @@ sys.path.insert(
 )
 
 from ansible.errors import AnsibleFilterError
-from generate_base_sld_domains import FilterModule
+from generate.base_sld_domains import FilterModule
 
 
 class TestGenerateBaseSldDomains(unittest.TestCase):

@@ -51,7 +51,7 @@ from pathlib import Path
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT

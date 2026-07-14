@@ -679,12 +679,12 @@ test-lint: install
 .PHONY: test-main-merged
 # Verify upstream main is fully merged into HEAD (pre-push gate); fetches and fails if the branch lags main.
 test-main-merged:
-	@bash scripts/git/assert_main_merged.sh
+	@bash scripts/git/assert/main_merged.sh
 
 .PHONY: test-merge-signed
 # Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (pre-merge-commit gate).
 test-merge-signed:
-	@bash scripts/git/assert_merge_signed.sh
+	@bash scripts/git/assert/merge_signed.sh
 
 .PHONY: test-signed
 # Verify HEAD is signed.

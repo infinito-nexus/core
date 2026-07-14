@@ -1,6 +1,6 @@
 """Reverse entity -> application_id resolver.
 
-`utils.roles.entity_name.get_entity_name` maps a role / application_id to
+`utils.roles.entity.name.get_entity_name` maps a role / application_id to
 its compose entity name (the longest matching category prefix stripped).
 The purge orchestrators need the inverse: given an entity name, which
 application_ids belong to it? This helper walks the roles directory and
@@ -16,7 +16,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:

@@ -19,7 +19,7 @@
       -e SNIPE_IT_SSO_HEADER_NAME={{ SNIPE_IT_SSO_HEADER_NAME | quote }}
       -e SNIPE_IT_SSO_LOGOUT_URL={{ SNIPE_IT_SSO_LOGOUT_URL | quote }}
       {{ SNIPE_IT_CONTAINER_ADDRESS }} php
-    stdin: "{{ lookup('file', 'apply_sso_config.php') }}"
+    stdin: "{{ lookup('file', 'apply/sso_config.php') }}"
   changed_when: true
 
 - name: "🧹 snipe-it: clear Laravel caches"

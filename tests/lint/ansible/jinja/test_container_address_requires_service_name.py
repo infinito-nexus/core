@@ -41,7 +41,7 @@ from plugins.lookup.container_address import _resolve_bare_name
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 from . import PROJECT_ROOT
 
@@ -50,7 +50,6 @@ _RULE = "container-address-service-name"
 _SCAN_PREFIXES = ("roles/", "scripts/")
 _SCAN_EXTENSIONS = (".yml", ".j2", ".py")
 
-# lookup('container_address', <arg1>, <arg2> [, ...]) - per line, simple args
 _CALL = re.compile(
     r"""lookup\(\s*['"]container_address['"]\s*,\s*([^,]+?)\s*,\s*([^,)]+?)\s*[,)]"""
 )

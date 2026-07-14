@@ -8,9 +8,9 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from plugins.filter.merge_mapping import merge_mapping
+from plugins.filter.merge.mapping import merge_mapping
 from utils.domains.list import render_domain_value
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 
 def _per_app_redirect_mappings(

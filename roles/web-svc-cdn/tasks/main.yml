@@ -6,6 +6,6 @@
     webserver_vhost_flavour: "basic"
 
 - name: "♻️ Reset compose Handler for CDN"
-  include_tasks: utils/load_handlers.yml
+  include_tasks: utils/load/handlers.yml
   vars:
     handler_role_name: "sys-svc-compose"

@@ -25,7 +25,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📁 Create Mailu forward aliases"
-  include_tasks: 04b_manage_alias.yml
+  include_tasks: 04b/manage_alias.yml
   vars:
     mailu_alias_localpart: "{{ user_item.value.username }}"
     mailu_alias_destination: "{{ lookup('users', user_item.value.forward).email }}"

@@ -29,7 +29,7 @@
       -e LDAP_AUTH_FILTER_QUERY={{ SNIPE_IT_LDAP_AUTH_FILTER_QUERY | quote }}
       -e OIDC_RESET_URL={{ OIDC.CLIENT.RESET_CREDENTIALS | quote }}
       {{ SNIPE_IT_CONTAINER_ADDRESS }} php
-    stdin: "{{ lookup('file', 'apply_ldap_config.php') }}"
+    stdin: "{{ lookup('file', 'apply/ldap_config.php') }}"
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

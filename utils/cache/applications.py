@@ -14,7 +14,7 @@ import copy
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
-from plugins.filter.merge_with_defaults import merge_with_defaults
+from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS
 
 from .base import (
@@ -39,21 +39,8 @@ _VARIANTS_CACHE: dict[str, dict[str, list[Any]]] = {}
 _VARIANT_OVERRIDES_ONLY_CACHE: dict[str, dict[str, list[dict[str, Any]]]] = {}
 _MERGED_APPLICATIONS_CACHE: dict[tuple, dict[str, Any]] = {}
 
-# Canonical `meta/volumes.yml` dict-of-dicts kept OUT of the templar render
-# on purpose: the entries hold raw Jinja strings (`source:
-# "{{ lookup('container', ...) }}"`) that `compose_volumes` /
-# `container_volumes` emit verbatim into the rendered compose template where
-# Ansible resolves them at deploy time. If `_render_with_templar` walked them
-# it would either explode (236 roles x deep Jinja) or recurse (volume Jinja
-# re-enters applications). `get_merged_applications` re-attaches this raw
-# subtree onto `applications.<app>.volumes` AFTER the render, so the merged
-# SPOT carries volumes unrendered. Keyed by role name; value is the canonical
-# dict-of-dicts itself (semantic_name -> entry). Populated alongside
-# `_APPLICATIONS_DEFAULTS_CACHE`.
 _CANONICAL_VOLUMES_BY_ROLE: dict[str, dict[str, Any]] = {}
 
-# The file root IS the value of `applications.<app>.<topic>`; there is NO
-# wrapping key matching the filename.
 _META_TOPICS: tuple[str, ...] = (
     "server",
     "rbac",
@@ -66,11 +53,6 @@ _META_TOPICS: tuple[str, ...] = (
 
 _META_ADDONS_DIR: str = "addons"
 
-# Top-level `meta/<name>.yml` files the generic tree-walk must NOT place
-# verbatim: `main`/`variants` are ansible/build mechanism (never app config);
-# `volumes`/`schema`/`users` are reshaped by the bespoke blocks below
-# (volumes carve-out to a sibling registry, schema->credentials,
-# users->lookup rewrite). `addons/` is a directory, assembled separately.
 _META_NON_GENERIC_TOPICS: frozenset[str] = frozenset(
     {"main", "variants", "volumes", "schema", "users"}
 )
@@ -197,8 +179,6 @@ def _build_role_base_config(
                          user-domain cache stays the source of truth).
     Empty role collapses to ``{}`` (no overrides applied).
     """
-    # Pure-Python GID resolver; importing the ansible-facing LookupModule
-    # here would break the ansible-free runner-host CLI path.
     from plugins.lookup.application_gid import compute_application_gid
 
     application_id = role_dir.name
@@ -217,8 +197,6 @@ def _build_role_base_config(
         if data:
             _assign_nested(config_data, parts, data)
 
-    # Shape-agnostic loader: a stray legacy list must still load for the
-    # validator's error path. The canonical dict parks in the sibling registry.
     volumes_data = _load_yaml_any_cached(
         meta_dir / "volumes.yml", default_if_missing={}
     )
@@ -314,10 +292,6 @@ def _build_variants(roles_dir: Path) -> dict[str, list[Any]]:
             if base_config:
                 role_variants.append(_deep_merge(base_config, override))
             else:
-                # Role has no meta payload, but a variant list MAY still
-                # legitimately produce an override-only result. Fall back
-                # to a deep copy of the override so callers never observe
-                # shared mutable state.
                 role_variants.append(copy.deepcopy(override))
         variants[application_id] = role_variants
 
@@ -401,8 +375,6 @@ def get_merged_applications(
     roles_dir: str | os.PathLike[str] | None = None,
     templar: Any = None,
 ) -> dict[str, Any]:
-    # Late import keeps `import utils.cache.applications` free of the
-    # user-domain machinery the runner-host CLI path never needs.
     from .users import get_merged_users
 
     variables = variables or {}
@@ -422,16 +394,8 @@ def get_merged_applications(
     merged = merge_with_defaults(defaults, overrides)
 
     if getattr(_RENDER_GUARD, "applications", False):
-        # Re-entry via cross-lookup: return unrendered merged payload; the
-        # outer templar will resolve remaining Jinja at use-site.
         return merged
 
-    # Drop any `volumes` subtree BEFORE rendering. It can arrive via defaults
-    # OR via a round-tripped `applications` var (the constructor materialises
-    # the full merged config back into the var, volumes included, so a later
-    # lookup reads volumes as overrides). Its raw Jinja `source:` strings must
-    # never reach the templar (explode/recurse); the canonical registry is
-    # re-attached raw below.
     for app_cfg in merged.values():
         if isinstance(app_cfg, dict):
             app_cfg.pop("volumes", None)
@@ -453,9 +417,6 @@ def get_merged_applications(
     finally:
         _RENDER_GUARD.applications = False
 
-    # Re-attach the raw `volumes` subtree so its Jinja `source:` strings reach
-    # the compose template verbatim. Deep copied so a consumer of the cached
-    # merged payload cannot mutate the canonical registry.
     for app_id in rendered:
         raw_volumes = get_canonical_volumes(app_id)
         if raw_volumes and isinstance(rendered[app_id], dict):
@@ -472,8 +433,6 @@ def get_canonical_volumes(application_id: str) -> dict[str, Any]:
     strings stay raw — see the `_CANONICAL_VOLUMES_BY_ROLE` doc-comment.
     """
     if not _CANONICAL_VOLUMES_BY_ROLE:
-        # Force a real rebuild, not get_application_defaults() which no-ops on a warm
-        # defaults cache and would leave this registry empty (nfs_prep then skips the subdir).
         _build_application_defaults(_resolve_roles_dir(roles_dir=None))
     return _CANONICAL_VOLUMES_BY_ROLE.get(application_id, {})
 

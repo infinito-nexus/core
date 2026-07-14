@@ -1,7 +1,7 @@
 import re
 import unittest
 
-from plugins.filter.get.all_application_ids import get_all_application_ids
+from plugins.filter.get.all.application_ids import get_all_application_ids
 from utils.cache.files import iter_project_files_with_content
 
 

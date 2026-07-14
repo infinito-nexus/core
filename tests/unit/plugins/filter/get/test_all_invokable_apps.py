@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from plugins.filter.get.all_invokable_apps import get_all_invokable_apps
+from plugins.filter.get.all.invokable_apps import get_all_invokable_apps
 from utils.cache.yaml import dump_yaml
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 

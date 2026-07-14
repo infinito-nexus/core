@@ -43,9 +43,7 @@
   notify: recreate discourse
 
 - name: 📂 Load discourse handlers explicitly
-  # In the CI somehow, the postgres application id was used,
-  # local it behaved normal. I hope this solves the anomaly.
-  include_tasks: utils/load_handlers.yml
+  include_tasks: utils/load/handlers.yml
   vars:
     handler_role_name: "web-app-discourse"
 
