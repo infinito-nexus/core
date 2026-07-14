@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { resolveTimeout } = require("./timeouts");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { decodeDotenvQuotedValue } = require("./personas");
 
 // All Talk-admin assertion logic lives in this module so the gate flag,
@@ -157,6 +157,7 @@ async function clickAllTalkTestServerButtonsAndVerify(page) {
 exports.register = function (shared) {
   test("nextcloud talk admin settings", async ({ browser }) => {
     test.skip(!nextcloudTalkSettingsCheckEnabled, "Talk admin checks are disabled in the current Playwright env");
+    test.skip(isOnionTarget(), "Nextcloud Talk realtime (HPB signaling + STUN/TURN) is WebRTC; not reachable over Tor");
 
     expect(nextcloudTalkSettingsUrl, "NEXTCLOUD_TALK_SETTINGS_URL must be set when Talk admin checks are enabled").toBeTruthy();
     expect(nextcloudTalkExpectedSignalingUrl, "NEXTCLOUD_TALK_EXPECTED_SIGNALING_URL must be set when Talk admin checks are enabled").toBeTruthy();

@@ -12,6 +12,7 @@ const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
 const nextcloudBaseUrl = decodeDotenvQuotedValue(process.env.NEXTCLOUD_BASE_URL);
 const moodleBaseUrl = decodeDotenvQuotedValue(process.env.MOODLE_BASE_URL);
 const peertubeBaseUrl = decodeDotenvQuotedValue(process.env.PEERTUBE_BASE_URL);
+const xwikiBaseUrl = decodeDotenvQuotedValue(process.env.XWIKI_BASE_URL);
 const nextcloudUsernameFieldPattern = /account name(?: or email)?|username(?: or email)?/i;
 const nextcloudCredentialSubmitPattern = /^(sign in|log in)$/i;
 
@@ -208,7 +209,7 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
   const initialState = await waitForVisibleCandidate(
     adminPage,
     flavorCandidates,
-    60_000,
+    resolveTimeout(60_000),
     timeoutMessage
   );
 
@@ -222,7 +223,7 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
     await waitForVisibleCandidate(
       adminPage,
       [...credentialCandidates, ...standaloneShellCandidates],
-      60_000,
+      resolveTimeout(60_000),
       "Timed out waiting for the Keycloak credential form after following the Nextcloud social-login entry"
     );
   }
@@ -238,12 +239,12 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
   await usernameField.fill(effectiveUsername);
   await usernameField.press("Tab");
   await passwordField.fill(effectivePassword);
-  await signInButton.click();
+  await signInButton.click({ timeout: resolveTimeout(30_000) });
 
   const postLoginState = await waitForVisibleCandidate(
     adminPage,
     standaloneShellCandidates,
-    120_000,
+    resolveTimeout(120_000),
     "Timed out waiting for a signed-in Nextcloud shell after the login redirect"
   );
 
@@ -270,7 +271,7 @@ async function logoutStandaloneNextcloud(adminPage) {
     15_000
   );
   await expect(logoutLink).toBeVisible();
-  await logoutLink.click();
+  await logoutLink.click({ timeout: resolveTimeout(30_000) });
 
   const logoutConfirmationVisible = await logoutConfirmButton
     .first()
@@ -280,6 +281,8 @@ async function logoutStandaloneNextcloud(adminPage) {
   if (logoutConfirmationVisible) {
     await logoutConfirmButton.click();
   }
+
+  await adminPage.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 }
 
 async function loginToStandaloneNextcloudWithRetry(adminPage, username, password) {
@@ -310,6 +313,7 @@ module.exports = {
     nextcloudBaseUrl,
     moodleBaseUrl,
     peertubeBaseUrl,
+    xwikiBaseUrl,
     nextcloudUsernameFieldPattern,
     nextcloudCredentialSubmitPattern,
     nextcloudOidcEnabled,
