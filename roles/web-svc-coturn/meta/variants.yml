@@ -16,7 +16,8 @@
       enabled: true
       shared: true
     tor:
-      enabled: true
+      enabled: false
+      shared: false # nocheck: variants-static-override
 - services:
     matomo:
       enabled: false

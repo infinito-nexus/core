@@ -29,7 +29,8 @@
       enabled: true
       shared: true
     tor:
-      enabled: true
+      enabled: false
+      shared: false # nocheck: variants-static-override
 
 # V2: no auth — everything off, AUTH_TYPE=internal, anonymous rooms
 - services:
