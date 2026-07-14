@@ -24,9 +24,18 @@ import sys
 import urllib.error
 import urllib.request
 
-# Any HTTP status — or OpenResty's connection close for the bare node onion —
-# proves the server answered; only a transport-level failure means "not ready".
-_REACHED_ON_CLOSE = ("closed connection", "RemoteDisconnected")
+# Any HTTP status — or a connection close / refusal from the local endpoint —
+# proves the path works; only resolution/timeout failures mean "not ready".
+# "Connection refused" is reached-ness for the loopback fast path: the resolver
+# short-circuited to loopback and the refusal came instantly (a node without a
+# web server on :80 yet, e.g. the standalone svc-net-tor variant).
+_REACHED_ON_CLOSE = ("closed connection", "RemoteDisconnected", "Connection refused")
+
+# curl over the Tor SOCKS: rc 0 (response), 52 (empty reply) and 56 (reset)
+# all require a completed rendezvous — the descriptor is published, which is
+# what this gate waits for. rc 7 (SOCKS failure: no descriptor) and timeouts
+# stay failures.
+_CURL_REACHED_RCS = (0, 52, 56)
 
 
 def check_internal(onion: str) -> str | None:
@@ -60,7 +69,7 @@ def check_external(onion: str, socks: str) -> str | None:
         text=True,
         check=False,
     )
-    if result.returncode != 0:
+    if result.returncode not in _CURL_REACHED_RCS:
         return f"external (Tor SOCKS): curl rc={result.returncode} {result.stderr.strip()[:160]}"
     return None
 

@@ -5,6 +5,27 @@
     state: present
   become: true
 
+- name: "Egress router | Ensure the dnsmasq drop-in directory exists"
+  ansible.builtin.file:
+    path: "{{ TOR_DNSMASQ_CONF | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: "Egress router | Ensure dnsmasq reads the drop-in directory"
+  ansible.builtin.lineinfile:
+    path: /etc/dnsmasq.conf
+    regexp: "^conf-dir="
+    line: "conf-dir={{ TOR_DNSMASQ_CONF | dirname }}/,*.conf"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  register: _tor_dnsmasq_confdir
+  become: true
+
 - name: "Egress router | Ensure state directory exists"
   ansible.builtin.file:
     path: "{{ [ DIR_VAR_LIB, application_id ] | path_join }}"
@@ -62,7 +83,7 @@
   ansible.builtin.systemd:
     name: dnsmasq
     enabled: true
-    state: "{{ 'restarted' if _tor_dnsmasq_conf is changed else 'started' }}"
+    state: "{{ 'restarted' if (_tor_dnsmasq_conf is changed or _tor_dnsmasq_confdir is changed) else 'started' }}"
   become: true
 
 - name: "Egress router | Point the host resolver at dnsmasq (127.0.0.1)"
