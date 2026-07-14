@@ -175,7 +175,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 # Variant 2: openwebui + flowise
 - services:
     sso:
@@ -259,7 +259,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 # Variant 3: openproject + mattermost + matrix
 - services:
     sso:
@@ -343,7 +343,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 # Variant 4: onlyoffice + mastodon
 - services:
     sso:
@@ -427,7 +427,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 # Variant 5: zammad + peertube
 - services:
     sso:
@@ -511,7 +511,7 @@
       shared: true
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 # Variant 6: gitlab
 - services:
     sso:
@@ -595,7 +595,7 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
 # Variant 7: discourse
 - services:
     sso:
@@ -679,4 +679,4 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
