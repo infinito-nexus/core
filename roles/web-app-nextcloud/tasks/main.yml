@@ -45,7 +45,7 @@
   changed_when: "'already disabled' not in _nc_onion_bbb_disable.stdout"
   when:
     - NEXTCLOUD_PLUGINS_ENABLED | bool
-    - lookup('domain', 'web-app-keycloak') is search('\\.onion$')
+    - NEXTCLOUD_OIDC_HOST is search('\\.onion$')
 
 - name: Reconcile administrator identities after plugin setup
   include_tasks: 07_admin_identities.yml

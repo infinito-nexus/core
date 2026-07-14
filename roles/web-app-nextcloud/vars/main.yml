@@ -16,6 +16,10 @@ NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
 NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
 
+## SSO
+NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+NEXTCLOUD_OIDC_HOST: "{{ lookup('domain', 'web-app-keycloak') }}"
+
 ## Plugins
 NEXTCLOUD_PLUGIN_ITEMS: "{{ lookup('config', application_id, 'addons') | dict2items }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
