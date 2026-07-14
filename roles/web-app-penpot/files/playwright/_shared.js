@@ -51,7 +51,7 @@ async function penpotOidcLogin(page, username, password) {
   await gotoOnion(page, loginRoute(env.baseUrl));
   const oidcEntry = page.getByText("OpenID", { exact: true });
   await expect(oidcEntry, "Expected a Penpot OpenID login entry").toBeVisible({ timeout: resolveTimeout(60_000) });
-  await oidcEntry.click();
+  await oidcEntry.click({ timeout: resolveTimeout(30_000) });
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
@@ -70,7 +70,7 @@ async function penpotLdapLogin(page, email, password) {
   await passwordField.fill(password);
   const ldapButton = page.getByRole("button", { name: /^LDAP$/i });
   await expect(ldapButton, "Expected the LDAP submit button to enable once the form is filled").toBeEnabled({ timeout: resolveTimeout(30_000) });
-  await ldapButton.click();
+  await ldapButton.click({ timeout: resolveTimeout(30_000) });
   await assertAuthenticated(page);
 }
 
@@ -86,7 +86,7 @@ async function penpotRegister(page, fullname, email, password) {
   await passwordField.fill(password);
   const next = page.getByRole("button", { name: /create an account|create account|sign up|register|next|continue/i }).first();
   await expect(next, "Expected the register submit button to enable").toBeEnabled({ timeout: resolveTimeout(30_000) });
-  await next.click();
+  await next.click({ timeout: resolveTimeout(30_000) });
 
   // Optional second step: full name + terms acceptance.
   const nameField = page.getByLabel(/full ?name|^name$/i).first();
@@ -96,7 +96,7 @@ async function penpotRegister(page, fullname, email, password) {
     if (await terms.isVisible().catch(() => false)) await terms.check().catch(() => {});
     const finish = page.getByRole("button", { name: /create an account|create account|sign up|register|next|continue|finish/i }).first();
     await expect(finish).toBeEnabled({ timeout: resolveTimeout(30_000) });
-    await finish.click();
+    await finish.click({ timeout: resolveTimeout(30_000) });
   }
   await assertAuthenticated(page);
 }
@@ -111,7 +111,7 @@ async function penpotNativeLogin(page, email, password) {
   await passwordField.fill(password);
   const loginButton = page.getByRole("button", { name: /^Login$/i });
   await expect(loginButton, "Expected the Login button to enable once the form is filled").toBeEnabled({ timeout: resolveTimeout(30_000) });
-  await loginButton.click();
+  await loginButton.click({ timeout: resolveTimeout(30_000) });
   await assertAuthenticated(page);
 }
 

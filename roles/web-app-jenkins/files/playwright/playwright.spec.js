@@ -47,7 +47,7 @@ test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1
   await expect(u).toBeVisible({ timeout: resolveTimeout(60_000) });
   await u.fill(adminUsername);
   await p.fill(adminPassword);
-  await page.locator("button[name='Submit'], input[type='submit']").first().click();
+  await page.locator("button[name='Submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
   await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
@@ -71,7 +71,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(manage jenkins|configure system|nodes|plugins|users)$/i })
         .first();
       if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await link.click().catch(() => {});
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /manage jenkins|configure system|nodes|plugins|users|credentials/i,

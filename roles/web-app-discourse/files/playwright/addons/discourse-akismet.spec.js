@@ -21,7 +21,7 @@ async function signInViaOidc(page) {
     .first();
 
   if ((await oidcSignIn.count().catch(() => 0)) > 0) {
-    await oidcSignIn.click();
+    await oidcSignIn.click({ timeout: resolveTimeout(30_000) });
   } else {
     await gotoOnion(page, `${discourseBaseUrl}/auth/oidc`).catch(() => {});
   }

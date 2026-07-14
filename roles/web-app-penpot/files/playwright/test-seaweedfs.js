@@ -28,7 +28,7 @@ test("seaweedfs: an uploaded Penpot image asset is stored in the SeaweedFS bucke
       await appPage.getByText("Drafts", { exact: true }).first().click();
       const newFile = appPage.getByText(/\+\s*New File/i).first();
       await expect(newFile, "Expected a create-file control in Drafts").toBeVisible({ timeout: resolveTimeout(60_000) });
-      await newFile.click();
+      await newFile.click({ timeout: resolveTimeout(30_000) });
       await expect
         .poll(() => appPage.url(), { timeout: resolveTimeout(90_000), message: "expected to enter the Penpot workspace editor" })
         .toContain("/workspace");

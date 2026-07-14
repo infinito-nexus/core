@@ -27,7 +27,7 @@ async function keycloakLogin(page, username, password) {
   await user.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await user.fill(username);
   await page.locator("#password, input[name='password']").first().fill(password);
-  await page.locator("#kc-login, button[type='submit'], input[type='submit']").first().click();
+  await page.locator("#kc-login, button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
   await page.waitForLoadState("networkidle").catch(() => {});
 }
 

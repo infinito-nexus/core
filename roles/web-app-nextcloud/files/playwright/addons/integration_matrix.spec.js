@@ -76,7 +76,7 @@ test("integration integration_matrix: per-user login drives a real session again
       .first();
 
     const connectResponsePromise = page
-      .waitForResponse((resp) => /\/apps\/integration_matrix\//.test(resp.url()), { timeout: 30_000 })
+      .waitForResponse((resp) => /\/apps\/integration_matrix\//.test(resp.url()), { timeout: resolveTimeout(30_000) })
       .catch(() => null);
 
     if (await passwordField.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {

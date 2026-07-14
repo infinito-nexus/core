@@ -39,7 +39,7 @@ async function clickFiderSsoButton(locator) {
 
   const ssoButton = locator.getByRole("link", { name: /continue with/i });
   await ssoButton.first().waitFor({ state: "visible", timeout: resolveTimeout(15_000) });
-  await ssoButton.first().click({ force: true });
+  await ssoButton.first().click({ force: true, timeout: resolveTimeout(30_000) });
 }
 
 test.use({ ignoreHTTPSErrors: true });

@@ -65,7 +65,7 @@ test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", as
         .locator('form[name="edit-profile"]')
         .getByRole("button", { name: /save/i })
         .first();
-      await saveButton.click();
+      await saveButton.click({ timeout: resolveTimeout(30_000) });
 
       // BookWyrm's EditUser view redirects to the user feed on a valid save and
       // re-renders /preferences/profile (HTTP 200) on a validation failure. The

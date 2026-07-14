@@ -42,7 +42,7 @@ async function loginViaFriendicaForm(page, username, password) {
   await passwordField.fill(password);
   await Promise.all([
     page.waitForLoadState("domcontentloaded"),
-    signInButton.click(),
+    signInButton.click({ timeout: resolveTimeout(30_000) }),
   ]);
 }
 

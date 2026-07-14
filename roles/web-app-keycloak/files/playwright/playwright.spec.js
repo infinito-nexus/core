@@ -45,7 +45,7 @@ async function fillKeycloakLoginForm(page, username, password) {
   await expect(usernameField, "Expected Keycloak username field to be visible").toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
-  await signInButton.click();
+  await signInButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function keycloakSignOutFromAccountConsole(page) {
@@ -58,7 +58,7 @@ async function keycloakSignOutFromAccountConsole(page) {
     return;
   }
 
-  await signOutButton.click().catch(() => {});
+  await signOutButton.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
   await page.waitForLoadState("networkidle").catch(() => {});
 }
 
@@ -163,7 +163,7 @@ test("normal-realm administrator logs in through account interface and logs out"
   const signInButton = page.locator("a, button").filter({ hasText: /sign\s*in|log\s*in|anmelden/i }).first();
 
   if ((await signInButton.count().catch(() => 0)) > 0) {
-    await signInButton.click();
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
   }
 
   await fillKeycloakLoginForm(page, adminUsername, adminPassword);
@@ -211,7 +211,7 @@ test("normal-realm biber logs in through account interface and logs out", async 
   const signInButton = page.locator("a, button").filter({ hasText: /sign\s*in|log\s*in|anmelden/i }).first();
 
   if ((await signInButton.count().catch(() => 0)) > 0) {
-    await signInButton.click();
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
   }
 
   await fillKeycloakLoginForm(page, biberUsername, biberPassword);

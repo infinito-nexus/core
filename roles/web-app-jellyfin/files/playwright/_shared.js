@@ -40,7 +40,7 @@ async function fillManualLogin(page, username, password) {
   await page
     .locator("button[type='submit'], .btnSubmit")
     .first()
-    .click()
+    .click({ timeout: resolveTimeout(30_000) })
     .catch(() => page.keyboard.press("Enter"));
 }
 
@@ -67,7 +67,7 @@ async function signInViaOidc(page, username, password, label) {
     oidcButton,
     `${label}: the SSO provider button must render on the Jellyfin login page`,
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
-  await oidcButton.click();
+  await oidcButton.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {

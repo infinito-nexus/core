@@ -73,7 +73,7 @@ test("seaweedfs: an uploaded Pixelfed photo is stored in the SeaweedFS bucket", 
         postAction,
         "the Pixelfed composer must advance to its caption step and expose a Post action after a photo is attached",
       ).toBeVisible({ timeout: resolveTimeout(60_000) });
-      await postAction.click();
+      await postAction.click({ timeout: resolveTimeout(30_000) });
 
       await expect
         .poll(() => appPage.url(), {

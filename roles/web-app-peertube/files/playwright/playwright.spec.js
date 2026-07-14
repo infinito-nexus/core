@@ -67,12 +67,12 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
     .first();
 
   if ((await oidcSignIn.count().catch(() => 0)) > 0) {
-    await oidcSignIn.click();
+    await oidcSignIn.click({ timeout: resolveTimeout(30_000) });
   } else {
     for (const pattern of oidcButtonPatterns.slice(1)) {
       const candidate = page.locator("a, button").filter({ hasText: pattern }).first();
       if ((await candidate.count().catch(() => 0)) > 0) {
-        await candidate.click();
+        await candidate.click({ timeout: resolveTimeout(30_000) });
         break;
       }
     }

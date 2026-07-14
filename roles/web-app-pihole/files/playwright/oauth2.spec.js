@@ -35,7 +35,7 @@ async function performOidcLogin(page, username, password) {
   await page.getByRole("textbox", { name: /username|email/i }).fill(username);
   await page.getByRole("textbox", { name: /username|email/i }).press("Tab");
   await page.getByRole("textbox", { name: "Password" }).fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.getByRole("button", { name: /sign in/i }).click({ timeout: resolveTimeout(30_000) });
 }
 
 test("administrator: can log in via SSO and access pihole", async ({ page }) => {
@@ -84,6 +84,6 @@ test("administrator: can log out via logout button", async ({ page }) => {
   await gotoOnion(page, `${expectedPiholeBaseUrl}/oauth2/sign_out?rd=${encodeURIComponent(oidcIssuerUrl.replace(/\/$/, "").concat("/protocol/openid-connect/logout"))}`);
   const confirmButton = page.locator("#kc-logout");
   await confirmButton.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
-  await confirmButton.click();
+  await confirmButton.click({ timeout: resolveTimeout(30_000) });
   await expect.poll(() => page.url(), { timeout: resolveTimeout(30_000) }).not.toContain(`${expectedPiholeBaseUrl}/admin`);
 });

@@ -31,7 +31,7 @@ exports.register = function (shared) {
       const shellState = await shared.waitForVisibleCandidate(
         biberPage,
         shared.getNextcloudShellCandidates(biberPage),
-        60_000,
+        resolveTimeout(60_000),
         "Timed out waiting for a signed-in Nextcloud shell for biber (native+LDAP)",
       );
       await expect(shellState.locator).toBeVisible();

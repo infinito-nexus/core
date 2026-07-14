@@ -42,7 +42,7 @@ async function login(page, email, password) {
   await emailInput.waitFor({ state: "attached", timeout: resolveTimeout(60000) });
   await emailInput.fill(email);
   await page.locator("input[type='password']").first().fill(password);
-  await page.getByRole('button', { name: /log in|sign in/i }).first().click();
+  await page.getByRole('button', { name: /log in|sign in/i }).first().click({ timeout: resolveTimeout(30_000) });
   await page.waitForLoadState("networkidle");
 }
 
@@ -91,7 +91,7 @@ async function oidcLogin(page, username, password) {
   // Fill Keycloak login form
   await page.getByRole("textbox", { name: /username|email/i }).fill(username);
   await page.getByRole("textbox", { name: /password/i }).fill(password);
-  await page.locator("#kc-login").click();
+  await page.locator("#kc-login").click({ timeout: resolveTimeout(30_000) });
   console.log("Login clicked, waiting for redirect back...");
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30000) }).catch(e => console.log("networkidle error:", e.message));
   console.log("After login URL:", page.url());
@@ -114,7 +114,7 @@ async function oidcLogin(page, username, password) {
     await declineBtn.waitFor({ state: "visible", timeout: resolveTimeout(10000) });
     await Promise.all([
       page.waitForURL((url) => !/auth\/openid_connect\/callback/.test(url.toString()), { timeout: resolveTimeout(30000) }).catch(e => console.log("post-submit nav error:", e.message)),
-      declineBtn.click({ force: true }),
+      declineBtn.click({ force: true, timeout: resolveTimeout(30_000) }),
     ]);
     console.log("After registration URL:", page.url());
   }
@@ -187,7 +187,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(admin|administration|configuration|participants)$/i })
         .first();
       if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await link.click().catch(() => {});
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|administration|participants|processes|assemblies|moderation/i,

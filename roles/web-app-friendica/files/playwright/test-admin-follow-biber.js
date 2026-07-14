@@ -64,7 +64,7 @@ exports.register = function (shared) {
       await submitButton.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
       await Promise.all([
         adminPage.waitForLoadState("domcontentloaded"),
-        submitButton.click(),
+        submitButton.click({ timeout: resolveTimeout(30_000) }),
       ]);
 
       // A successful follow 302-redirects to /contact/<numeric-id> — the

@@ -150,7 +150,7 @@ async function loginViaFriendicaForm(page) {
   await passwordField.fill(biberPassword);
   await Promise.all([
     page.waitForLoadState("domcontentloaded"),
-    signInButton.click(),
+    signInButton.click({ timeout: resolveTimeout(30_000) }),
   ]);
 }
 
@@ -189,7 +189,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
     "Expected Friendica /compose textarea after ldapauth sign-in"
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await compose.fill(statusText);
-  await page.locator("button[name='submit'][type='submit']").first().click();
+  await page.locator("button[name='submit'][type='submit']").first().click({ timeout: resolveTimeout(30_000) });
 
   // Friendica redirects to /profile/<nick> after a successful post; verify
   // the post text shows up there. The /network feed only surfaces
@@ -201,7 +201,7 @@ async function postOnFriendicaViaUi(page, baseUrl, statusText) {
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
-async function expectPostVisibleOnWall(page, wallUrl, needle, timeoutMs = 60000) {
+async function expectPostVisibleOnWall(page, wallUrl, needle, timeoutMs = resolveTimeout(60_000)) {
   await gotoOnion(page, wallUrl);
   await expect(
     page.locator(".wall-item").filter({ hasText: needle }).first(),
@@ -209,7 +209,7 @@ async function expectPostVisibleOnWall(page, wallUrl, needle, timeoutMs = 60000)
   ).toBeVisible({ timeout: timeoutMs });
 }
 
-async function expectPostAbsentFromWall(page, wallUrl, needle, settleMs = 30000) {
+async function expectPostAbsentFromWall(page, wallUrl, needle, settleMs = resolveTimeout(30_000)) {
   await gotoOnion(page, wallUrl);
   await page.waitForTimeout(settleMs);
   await expect(

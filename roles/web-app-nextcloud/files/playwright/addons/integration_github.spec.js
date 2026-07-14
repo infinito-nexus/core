@@ -32,7 +32,7 @@ test("integration integration_github: per-user OAuth connect reaches github.com/
       page
         .waitForURL((u) => /^https?:\/\/github\.com\/login\/oauth\/authorize(?:[/?#]|$)/i.test(u), { timeout: resolveTimeout(60_000) })
         .catch(() => {}),
-      connect.first().click(),
+      connect.first().click({ timeout: resolveTimeout(30_000) }),
     ]);
 
     await expect

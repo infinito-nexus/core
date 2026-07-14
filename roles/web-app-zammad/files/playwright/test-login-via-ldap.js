@@ -20,7 +20,7 @@ exports.register = function (shared) {
 
     await usernameInput.fill(shared.env.biberUsername);
     await passwordInput.fill(shared.env.biberPassword);
-    await page.locator('button[type="submit"]').first().click();
+    await page.locator('button[type="submit"]').first().click({ timeout: resolveTimeout(30_000) });
 
     // Body text briefly carries login strings during the redirect; the form-input detachment is the stable signal.
     await expect(usernameInput).toBeHidden({ timeout: resolveTimeout(60_000) });

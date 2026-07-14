@@ -32,7 +32,7 @@ exports.register = function (shared) {
     const submitButton = page
       .getByRole("button", { name: /create|submit|send|absenden|erstellen/i })
       .first();
-    await submitButton.click();
+    await submitButton.click({ timeout: resolveTimeout(30_000) });
 
     await expect(page.locator("body")).toContainText(subject, { timeout: resolveTimeout(60_000) });
 

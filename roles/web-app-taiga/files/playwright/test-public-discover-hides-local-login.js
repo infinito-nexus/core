@@ -59,7 +59,7 @@ exports.register = function (shared) {
         )
         .toBe(false);
 
-      await authState.locator.click();
+      await authState.locator.click({ timeout: resolveTimeout(30_000) });
       await expect
         .poll(
           async () => page.url(),

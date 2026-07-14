@@ -29,9 +29,9 @@ async function clickOdooSsoButton(locator) {
   ]);
 
   if (await ssoButtonByText.isVisible().catch(() => false)) {
-    await ssoButtonByText.click();
+    await ssoButtonByText.click({ timeout: resolveTimeout(30_000) });
   } else {
-    await ssoButton.click();
+    await ssoButton.click({ timeout: resolveTimeout(30_000) });
   }
 }
 
@@ -43,7 +43,7 @@ async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
     .locator('form:has(input[name="login"])')
     .getByRole("button", { name: /log\s*in/i })
     .first()
-    .click();
+    .click({ timeout: resolveTimeout(30_000) });
   await gotoOnion(page, `${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await expect(
     webClient,

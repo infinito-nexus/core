@@ -25,6 +25,7 @@
  */
 
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("../../timeouts");
 const { performKeycloakLoginForm } = require("./keycloak");
 const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./dotenv");
 
@@ -156,7 +157,7 @@ async function runSeaweedfsStorageCheck(page, browser, { action, label = "the ap
       if (newObjects.length > 0 || Date.now() >= deadline) {
         break;
       }
-      await page.waitForTimeout(2_000);
+      await page.waitForTimeout(resolveTimeout(2_000));
     }
 
     expect(

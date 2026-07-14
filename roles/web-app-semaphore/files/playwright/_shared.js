@@ -47,7 +47,7 @@ async function fillLocalLogin(page, username, password) {
   await page
     .locator('[data-testid="auth-signin"]')
     .first()
-    .click()
+    .click({ timeout: resolveTimeout(30_000) })
     .catch(() => page.keyboard.press("Enter"));
 }
 
@@ -75,7 +75,7 @@ async function signInViaOidc(page, username, password, label) {
     oidcButton,
     `${label}: the "Sign in with Keycloak" button must render on the Semaphore login page`,
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
-  await oidcButton.click();
+  await oidcButton.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
@@ -106,7 +106,7 @@ async function logout(page, label = "session") {
     .filter({ hasText: /sign\s*out|log\s*out|logout|abmelden/i })
     .first();
   if (await signOut.count()) {
-    await signOut.click().catch(() => {});
+    await signOut.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
   }
   await page.waitForTimeout(resolveTimeout(1500));
   if (!onLoginPage(page)) {

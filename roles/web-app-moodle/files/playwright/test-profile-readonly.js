@@ -20,7 +20,7 @@ exports.register = function (shared) {
       await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`);
       await page.locator("input[name='username'], input#username").first().fill(shared.env.biberUsername);
       await page.locator("input[name='password'], input#password").first().fill(shared.env.biberPassword);
-      await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click();
+      await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click({ timeout: resolveTimeout(30_000) });
       await page.waitForLoadState("load");
 
       await gotoOnion(page, `${shared.env.moodleBaseUrl}/user/edit.php`);

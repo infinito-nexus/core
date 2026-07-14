@@ -89,7 +89,7 @@ async function runAdminFlow(page, opts = {}) {
           .getByRole("button", { name: /log\s*in|sign\s*in|login|submit/i })
           .or(page.locator("button[type='submit'], input[type='submit']"))
           .first()
-          .click()
+          .click({ timeout: resolveTimeout(30_000) })
           .catch(() => {});
         await page.waitForLoadState("networkidle").catch(() => {});
       }

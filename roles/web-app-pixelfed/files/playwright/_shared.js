@@ -224,7 +224,7 @@ async function loginToPixelfed(page, loginScenario) {
         20_000,
         `Timed out waiting for the Pixelfed login entry before starting the OIDC flow for ${loginScenario.label}`
       );
-      await loginEntry.locator.click();
+      await loginEntry.locator.click({ timeout: resolveTimeout(30_000) });
       oidcEntry = await waitForVisibleCandidate(
         page,
         getPixelfedOidcEntryCandidates(page),
@@ -233,7 +233,7 @@ async function loginToPixelfed(page, loginScenario) {
       );
     }
 
-    await oidcEntry.locator.click();
+    await oidcEntry.locator.click({ timeout: resolveTimeout(30_000) });
     await expect
       .poll(() => page.url(), {
         timeout: resolveTimeout(60_000),
@@ -272,7 +272,7 @@ async function loginToPixelfed(page, loginScenario) {
     `Timed out waiting for the Keycloak sign-in button for ${loginScenario.label}`
   );
 
-  await visibleSignInButton.click();
+  await visibleSignInButton.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
@@ -313,7 +313,7 @@ async function confirmKeycloakLogoutIfNeeded(page, loginScenario) {
         `Timed out waiting for the Keycloak logout confirmation button for ${loginScenario.label}`
       );
 
-      await confirmButton.locator.click().catch(() => {});
+      await confirmButton.locator.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
       return true;
     }
 
@@ -358,7 +358,7 @@ async function logoutFromPixelfed(page, loginScenario) {
     );
   }
 
-  await logoutTrigger.locator.click();
+  await logoutTrigger.locator.click({ timeout: resolveTimeout(30_000) });
 
   await confirmKeycloakLogoutIfNeeded(page, loginScenario).catch(() => false);
 

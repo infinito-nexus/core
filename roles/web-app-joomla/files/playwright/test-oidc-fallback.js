@@ -25,7 +25,7 @@ async function performJoomlaAdminFormLogin(page, baseUrl, username, password) {
 
   await Promise.all([
     page.waitForLoadState("domcontentloaded"),
-    page.locator("button[type='submit'], input[type='submit']").first().click(),
+    page.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) }),
   ]);
 }
 

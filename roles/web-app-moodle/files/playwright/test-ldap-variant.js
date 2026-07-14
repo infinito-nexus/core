@@ -13,7 +13,7 @@ exports.register = function (shared) {
       await expect(usernameInput).toBeVisible({ timeout: resolveTimeout(30_000) });
       await usernameInput.fill(shared.env.biberUsername);
       await page.locator("input[name='password'], input#password").first().fill(shared.env.biberPassword);
-      await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click();
+      await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click({ timeout: resolveTimeout(30_000) });
       await page.waitForLoadState("load");
       const userMenu = page.locator(".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']").first();
       await expect(userMenu).toBeVisible({ timeout: resolveTimeout(30_000) });

@@ -103,7 +103,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     ? ssoButton
     : ssoTextButton;
   await expect(candidate, `${personaLabel}: Element SSO entry button on #/login must be visible`).toBeVisible({ timeout: resolveTimeout(30_000) });
-  await candidate.click();
+  await candidate.click({ timeout: resolveTimeout(30_000) });
 
   await page.waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), {
     timeout: resolveTimeout(120_000)
@@ -120,7 +120,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
   if (await usernameSelectField.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
     await usernameSelectField.fill(username);
     const submit = page.locator("button[type='submit'], input[type='submit']").first();
-    await submit.click();
+    await submit.click({ timeout: resolveTimeout(30_000) });
   }
 
   const continueLink = page
@@ -128,7 +128,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     .filter({ hasText: /^\s*continue\s*$/i })
     .first();
   await expect(continueLink, `${personaLabel}: Synapse SSO confirmation "Continue" link must appear`).toBeVisible({ timeout: resolveTimeout(60_000) });
-  await continueLink.click();
+  await continueLink.click({ timeout: resolveTimeout(30_000) });
 
   // Element consumes `?loginToken=…` during SPA bootstrap. The token is
   // single-use so we wait until Element has consumed it and navigated to an
@@ -368,7 +368,7 @@ async function signInViaElementPassword(page, username, password, personaLabel) 
   const submitBtn = page
     .locator('.mx_Login_submit, button[type="submit"], [data-testid="login-submit-button"]')
     .first();
-  await submitBtn.click();
+  await submitBtn.click({ timeout: resolveTimeout(30_000) });
 
   const skipBtn = page.getByRole("button", { name: /skip\s+verification\s+for\s+now/i }).first();
   async function authenticatedSignalPresent() {

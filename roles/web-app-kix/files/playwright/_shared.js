@@ -27,7 +27,7 @@ async function performKixLogin(page, username, password) {
   await usernameInput.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await usernameInput.fill(username);
   await passwordInput.fill(password);
-  await submitButton.click();
+  await submitButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function runKixLoginLogoutFlow(page, username, password) {

@@ -45,13 +45,13 @@ exports.register = function (shared) {
         await expect(kcUsername, "Keycloak login form must render for OAuth2-fronted LAM").toBeVisible({ timeout: resolveTimeout(30_000) });
         await kcUsername.fill(shared.env.adminUsername);
         await lamPage.locator("input[name='password'], input#password").first().fill(shared.env.adminPassword);
-        await lamPage.locator("button[type='submit'], input[name='login'], input[type='submit']").first().click();
+        await lamPage.locator("button[type='submit'], input[name='login'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
         await lamPage.waitForLoadState("networkidle");
 
         const lamPwAfterSso = lamPage.locator("input[name='passwd'], input[name='password'], input#passwd").first();
         if (lamLoginPassword && await lamPwAfterSso.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
           await lamPwAfterSso.fill(lamLoginPassword);
-          await lamPage.locator("button[type='submit'], input[type='submit']").first().click();
+          await lamPage.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
           await lamPage.waitForLoadState("networkidle");
         }
       } else {
@@ -59,7 +59,7 @@ exports.register = function (shared) {
         const lamPwInput = lamPage.locator("input[name='passwd'], input[name='password'], input#passwd").first();
         await expect(lamPwInput, "LAM native login form must render").toBeVisible({ timeout: resolveTimeout(30_000) });
         await lamPwInput.fill(lamLoginPassword);
-        await lamPage.locator("button[type='submit'], input[type='submit']").first().click();
+        await lamPage.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
         await lamPage.waitForLoadState("networkidle");
       }
 
@@ -74,7 +74,7 @@ exports.register = function (shared) {
       await expect(biberRow, "biber must appear in LAM user list").toBeVisible({ timeout: resolveTimeout(30_000) });
       const biberEdit = biberRow.locator(`a[href*="edit.php"][href*="${shared.env.biberUsername}"]`).first();
       await expect(biberEdit, "biber row must expose an Edit link").toBeVisible({ timeout: resolveTimeout(10_000) });
-      await biberEdit.click();
+      await biberEdit.click({ timeout: resolveTimeout(30_000) });
       await lamPage.waitForLoadState("networkidle");
 
       const initialsField = lamPage.locator("input[name='initials']").first();

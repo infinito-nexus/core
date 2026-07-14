@@ -48,7 +48,7 @@ async function performKeycloakLoginForm(target, username, password) {
   await usernameField.fill(username);
   await usernameField.press("Tab").catch(() => {});
   await passwordField.fill(password);
-  await signInButton.click();
+  await signInButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function performKeycloakLogin(page, username, password, canonicalDomain) {
@@ -83,7 +83,7 @@ async function clickOidcLoginLink(page, strictLink, looseLink) {
       { timeout: resolveTimeout(15_000) },
     )
     .catch(() => {});
-  await loginLink.click().catch(() => {});
+  await loginLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
   await page
     .waitForURL(/openid-connect\/auth/, { timeout: resolveTimeout(15_000) })
     .catch(() => {});

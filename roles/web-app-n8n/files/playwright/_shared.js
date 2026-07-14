@@ -67,7 +67,7 @@ async function performN8nLoginForm(page, email, password) {
 
   await emailInput.fill(email);
   await passwordInput.fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.getByRole("button", { name: /sign in/i }).click({ timeout: resolveTimeout(30_000) });
 
   await expect(emailInput).toBeHidden({ timeout: resolveTimeout(60_000) });
   await expect

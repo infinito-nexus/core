@@ -21,7 +21,7 @@ async function waitForFirstVisible(locators, timeout, errorMessage) {
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, resolveTimeout(250)));
   }
 
   throw new Error(errorMessage);
@@ -145,7 +145,7 @@ async function findAccountLogoutItem(accountMenu) {
       accountMenu.locator("a[href*='logout'], a[href*='signout'], a[href*='sign-out']"),
       accountMenu.locator("a, button, [role='link']").filter({ hasText: /logout/i }),
     ],
-    10_000,
+    resolveTimeout(10_000),
     "Timed out waiting for the Account logout entry"
   );
 }
@@ -158,12 +158,12 @@ async function confirmLogoutIfNeeded(page) {
 
   const logoutConfirmButton = await waitForFirstVisible(
     logoutConfirmCandidates,
-    5_000,
+    resolveTimeout(5_000),
     "Timed out waiting for an optional Keycloak logout confirmation button"
   ).catch(() => null);
 
   if (logoutConfirmButton) {
-    await logoutConfirmButton.click().catch(() => {});
+    await logoutConfirmButton.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
   }
 }
 
@@ -182,7 +182,7 @@ exports.register = function (shared) {
         timeout: resolveTimeout(30_000),
       })
       .catch(() => {});
-    await loggedOutControls.loginTrigger.click();
+    await loggedOutControls.loginTrigger.click({ timeout: resolveTimeout(30_000) });
 
     const usernameField = page.locator("input[name='username'], input#username").first();
     const passwordField = page.locator("input[name='password'], input#password").first();
@@ -201,7 +201,7 @@ exports.register = function (shared) {
     await expect(usernameField).toBeVisible({ timeout: resolveTimeout(60_000) });
     await usernameField.fill(loginUsername);
     await passwordField.fill(loginPassword);
-    await signInButton.click();
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
 
     await expect
       .poll(async () => page.url().startsWith(appBaseUrl), {
@@ -217,7 +217,7 @@ exports.register = function (shared) {
     const logoutEntry = await findAccountLogoutItem(loggedInControls.accountMenu);
     await expect(logoutEntry).toBeVisible({ timeout: resolveTimeout(10_000) });
     await expect(logoutEntry).toContainText(/logout/i);
-    await logoutEntry.click();
+    await logoutEntry.click({ timeout: resolveTimeout(30_000) });
 
     await expect
       .poll(

@@ -33,7 +33,7 @@ async function signInViaErpnextLocal(page, username, password, personaLabel) {
     page.waitForURL((url) => url.toString().includes(canonicalDomain) && !url.toString().includes("/login"), {
       timeout: resolveTimeout(60_000),
     }),
-    page.click("button.btn-login, button[type='submit']").catch(() => page.keyboard.press("Enter")),
+    page.click("button.btn-login, button[type='submit']", { timeout: resolveTimeout(30_000) }).catch(() => page.keyboard.press("Enter")),
   ]);
   await expect
     .poll(() => page.url(), {
@@ -57,7 +57,7 @@ async function signInViaErpnextOidc(page, username, password, personaLabel) {
     oidcSignIn,
     `${personaLabel}: the Keycloak SSO button must render on /login (Social Login Key not picked up by the workers?)`,
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
-  await oidcSignIn.click();
+  await oidcSignIn.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {

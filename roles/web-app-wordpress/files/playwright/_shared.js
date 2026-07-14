@@ -67,7 +67,7 @@ async function fillKeycloakLoginForm(page, username, password) {
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
-  await signInButton.click();
+  await signInButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 // WP uses login_type=auto — visiting wp-login.php triggers OIDC redirect when
@@ -116,7 +116,7 @@ async function keycloakAdminOpenUserProfile(
     .filter({ hasText: new RegExp(`^${username}$`, "i") })
     .first();
   await expect(userRowLink).toBeVisible({ timeout: resolveTimeout(60_000) });
-  await userRowLink.click();
+  await userRowLink.click({ timeout: resolveTimeout(30_000) });
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(30_000),

@@ -67,7 +67,7 @@ test("seaweedfs: an uploaded Akaunting company logo is stored in the SeaweedFS b
         .getByRole("button", { name: /login|sign in|enter/i })
         .or(appPage.locator('#app button[type="submit"]'))
         .first()
-        .click();
+        .click({ timeout: resolveTimeout(30_000) });
       await loginResp.catch(() => {});
       await expect
         .poll(() => appPage.url(), {
@@ -95,7 +95,7 @@ test("seaweedfs: an uploaded Akaunting company logo is stored in the SeaweedFS b
         saveAction,
         "the Akaunting company settings form must expose a Save action to persist the attached logo",
       ).toBeVisible({ timeout: resolveTimeout(60_000) });
-      await saveAction.click();
+      await saveAction.click({ timeout: resolveTimeout(30_000) });
 
       await appPage.waitForLoadState("networkidle", { timeout: resolveTimeout(90_000) }).catch(() => {});
     },

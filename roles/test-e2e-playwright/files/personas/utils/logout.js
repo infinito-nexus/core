@@ -89,7 +89,7 @@ async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000
         }
       }
     }
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(resolveTimeout(250));
   }
   return false;
 }
@@ -118,7 +118,7 @@ async function inAppLogout(page) {
       if (key && tried.has(key)) continue;
       tried.add(key);
       await trigger.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
-      await page.waitForTimeout(1_500);
+      await page.waitForTimeout(resolveTimeout(1_500));
       if (await tryLogoutFrom(page)) {
         await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         return;

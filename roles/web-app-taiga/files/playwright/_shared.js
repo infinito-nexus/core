@@ -263,7 +263,7 @@ async function loginToTaiga(page) {
     );
 
     if (initialAuthState.kind === "taiga-oidc-entry") {
-      await initialAuthState.locator.click();
+      await initialAuthState.locator.click({ timeout: resolveTimeout(30_000) });
       await expect
         .poll(() => page.url(), {
           timeout: resolveTimeout(60_000),
@@ -271,7 +271,7 @@ async function loginToTaiga(page) {
         })
         .toContain(taigaUrls.expectedOidcAuthUrl);
     } else if (initialAuthState.kind === "taiga-login-page") {
-      await initialAuthState.locator.click();
+      await initialAuthState.locator.click({ timeout: resolveTimeout(30_000) });
       // The bare Login link routes to `/login`; the OIDC entry only
       // becomes interactive once that view has rendered. Re-detect so
       // we click the SSO entry next, not the keycloak form.
@@ -283,7 +283,7 @@ async function loginToTaiga(page) {
         "Expected Taiga OIDC entry to appear after the Login link click"
       );
       if (ssoEntry.kind === "taiga-oidc-entry") {
-        await ssoEntry.locator.click();
+        await ssoEntry.locator.click({ timeout: resolveTimeout(30_000) });
         await expect
           .poll(() => page.url(), {
             timeout: resolveTimeout(60_000),
@@ -303,7 +303,7 @@ async function loginToTaiga(page) {
   await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.first().fill(loginUsername);
   await passwordField.first().fill(loginPassword);
-  await signInButton.first().click();
+  await signInButton.first().click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
@@ -414,7 +414,7 @@ async function reachTopLevelTaigaAuthEntry(page, taigaUrls, timeout, errorMessag
       ]);
 
       if (loginEntry && !loginClicked) {
-        await loginEntry.click();
+        await loginEntry.click({ timeout: resolveTimeout(30_000) });
         loginClicked = true;
         await page.waitForTimeout(resolveTimeout(500));
         continue;
@@ -474,7 +474,7 @@ async function loginToTaigaNative(page) {
   await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.first().fill(loginUsername);
   await passwordField.first().fill(loginPassword);
-  await signInButton.first().click();
+  await signInButton.first().click({ timeout: resolveTimeout(30_000) });
 
   await waitForAuthenticatedTaigaShell(
     page,

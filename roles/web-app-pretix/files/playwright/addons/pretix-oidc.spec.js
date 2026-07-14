@@ -51,7 +51,7 @@ test("addon pretix-oidc: login affordance routes to the Keycloak authorization e
     // 302s to the IdP. Follow the click and read the resulting Keycloak URL.
     await Promise.all([
       page.waitForURL(/openid-connect\/auth/i, { timeout: resolveTimeout(30_000) }).catch(() => {}),
-      oidcLink.click().catch(() => {}),
+      oidcLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {}),
     ]);
     target = page.url();
   }
@@ -84,7 +84,7 @@ test("addon pretix-oidc: administrator OIDC login round-trip succeeds", async ({
         .getByRole("link", { name: /^(events|orders|control|admin)$/i })
         .first();
       if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await link.click().catch(() => {});
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage
           .waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) })
           .catch(() => {});

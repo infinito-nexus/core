@@ -51,7 +51,7 @@ async function clickThroughMailuSsoPage(frame) {
   }
 
   if (await oidcLink.isVisible({ timeout: resolveTimeout(3_000) }).catch(() => false)) {
-    await oidcLink.click();
+    await oidcLink.click({ timeout: resolveTimeout(30_000) });
   }
 }
 
@@ -133,7 +133,7 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
   const adminLinkVisible = await adminLink.first().isVisible().catch(() => false);
 
   if (adminLinkVisible) {
-    await adminLink.first().click();
+    await adminLink.first().click({ timeout: resolveTimeout(30_000) });
   } else {
     // Fallback: navigate directly to the admin URL
     await gotoOnion(page, `${expectedMailuBaseUrl}/admin`);
@@ -149,7 +149,7 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
   const logoutVisible = await logoutByHref.first().isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false);
 
   if (logoutVisible) {
-    await logoutByHref.first().click();
+    await logoutByHref.first().click({ timeout: resolveTimeout(30_000) });
   } else {
     // Fallback: navigate directly to the admin logout endpoint
     await gotoOnion(page, `${expectedMailuBaseUrl}/admin/ui/logout`);
@@ -183,7 +183,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     const ssoButtonVisible = await ssoButton.first().isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false);
 
     if (ssoButtonVisible) {
-      await ssoButton.first().click();
+      await ssoButton.first().click({ timeout: resolveTimeout(30_000) });
     }
 
     // Click through Mailu's own /sso/login intermediate page if present
@@ -230,7 +230,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     await bodyField.fill("Hello Administrator, this is an automated Playwright test email.");
 
     await sendButton.first().waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
-    await sendButton.first().click();
+    await sendButton.first().click({ timeout: resolveTimeout(30_000) });
 
     // After send, Roundcube redirects away from _action=compose
     await expect.poll(() => biberPage.url(), { timeout: resolveTimeout(30_000) })
@@ -242,7 +242,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
       .or(biberPage.getByRole("link", { name: /logout/i }));
 
     await biberLogoutLink.first().waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
-    await biberLogoutLink.first().click();
+    await biberLogoutLink.first().click({ timeout: resolveTimeout(30_000) });
 
     // --- Part 2: administrator logs in and checks inbox (fresh browser context) ---
 
@@ -254,7 +254,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     const ssoAdminVisible = await ssoButtonAdmin.first().isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false);
 
     if (ssoAdminVisible) {
-      await ssoButtonAdmin.first().click();
+      await ssoButtonAdmin.first().click({ timeout: resolveTimeout(30_000) });
     }
 
     // Click through Mailu's own /sso/login intermediate page if present
@@ -299,7 +299,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
       .or(adminPage.getByRole("link", { name: /logout/i }));
 
     await adminLogoutLink.first().waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
-    await adminLogoutLink.first().click();
+    await adminLogoutLink.first().click({ timeout: resolveTimeout(30_000) });
 
   } finally {
     await biberContext.close().catch(() => {});
@@ -327,7 +327,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(admin|administration|domains|users|fetchmail|aliases)$/i })
         .first();
       if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await link.click().catch(() => {});
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /domains|users|fetchmail|aliases|relays|administration/i,

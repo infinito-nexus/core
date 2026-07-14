@@ -53,7 +53,7 @@ test("integration integration_jira: per-user OAuth connect reaches the Atlassian
       page
         .waitForURL((u) => /^https?:\/\/auth\.atlassian\.com(?:[:/?#]|$)/i.test(String(u)), { timeout: resolveTimeout(60_000) })
         .catch(() => {}),
-      connect.click(),
+      connect.click({ timeout: resolveTimeout(30_000) }),
     ]);
 
     const popup = await popupPromise;

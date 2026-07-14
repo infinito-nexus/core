@@ -38,9 +38,9 @@ async function clickOdooSsoButton(locator) {
   ]);
 
   if (await ssoButtonByText.isVisible().catch(() => false)) {
-    await ssoButtonByText.click();
+    await ssoButtonByText.click({ timeout: resolveTimeout(30_000) });
   } else {
-    await ssoButton.click();
+    await ssoButton.click({ timeout: resolveTimeout(30_000) });
   }
 }
 
@@ -233,7 +233,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(settings|users|companies|apps|administrator)$/i })
         .first();
       if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await link.click().catch(() => {});
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /settings|users|companies|apps|technical|developer/i,

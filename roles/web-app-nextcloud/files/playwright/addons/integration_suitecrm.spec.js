@@ -64,7 +64,7 @@ test("integration integration_suitecrm: per-user OAuth password grant reaches th
         response.request().method() === "POST",
       { timeout: resolveTimeout(60_000) }
     );
-    await connectButton.click();
+    await connectButton.click({ timeout: resolveTimeout(30_000) });
     const connectResponse = await connectResponsePromise;
 
     const connectStatus = connectResponse.status();

@@ -59,7 +59,7 @@ async function ssoLoginAndAssertUsername(page, username, password) {
           await loginCta.first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
           await Promise.all([
             page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) }),
-            loginCta.first().click(),
+            loginCta.first().click({ timeout: resolveTimeout(30_000) }),
           ]);
         })(),
       ]);

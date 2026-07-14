@@ -7,6 +7,7 @@
 
 const { test } = require("@playwright/test");
 const { isServiceEnabled } = require("../../service-gating");
+const { resolveTimeout } = require("../../timeouts");
 
 function decodeDotenvQuoted(value) {
   if (typeof value !== "string" || value.length < 2) return value;
@@ -66,7 +67,7 @@ async function gotoOnion(page, url, opts = {}) {
       if (attempt >= attempts || !_ONION_TRANSIENT_RE.test(String(err && err.message))) {
         throw err;
       }
-      await page.waitForTimeout(2_000 * attempt);
+      await page.waitForTimeout(resolveTimeout(2_000 * attempt));
     }
   }
   throw lastErr;

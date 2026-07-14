@@ -97,7 +97,7 @@ test("integration integration_moodle: per-user get-token connect reaches the par
         response.request().method() === "POST",
       { timeout: resolveTimeout(60_000) }
     );
-    await connect.first().click();
+    await connect.first().click({ timeout: resolveTimeout(30_000) });
     const getTokenResponse = await getTokenPromise;
 
     const status = getTokenResponse.status();

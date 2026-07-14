@@ -37,7 +37,7 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
   await passwordField.fill(adminPassword);
   await Promise.all([
     page.waitForLoadState("domcontentloaded"),
-    page.locator("button[type='submit'], input[type='submit']").first().click(),
+    page.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) }),
   ]);
 
   // Body class on Joomla 5.x admin is `option-com_cpanel`; older releases used

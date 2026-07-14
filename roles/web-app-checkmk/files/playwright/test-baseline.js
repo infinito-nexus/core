@@ -39,7 +39,7 @@ test("administrator: app → admin surface → universal logout", async ({ page 
       // Checkmk admin-only surface: the Setup menu is admin-gated.
       const setup = interactivePage.getByRole("link", { name: /^setup$/i }).first();
       if (await setup.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await setup.click().catch(() => {});
+        await setup.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(/setup|hosts|services|checkmk/i, {
           timeout: resolveTimeout(30_000),

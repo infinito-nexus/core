@@ -31,7 +31,7 @@ async function minioConsoleFormLogin(page, baseUrl, username, password) {
   await expect(usernameField, "expected MinIO Console login form").toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
-  await submitButton.click();
+  await submitButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function minioConsoleLogout(page, baseUrl) {

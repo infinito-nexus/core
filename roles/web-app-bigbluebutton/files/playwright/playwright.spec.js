@@ -91,7 +91,7 @@ async function signInViaBbbOidc(page, username, password, personaLabel) {
         .filter({ hasText: /sign\s*in\s*with|openid|oidc|sso|single\s*sign[-\s]*on/i })
         .first();
       if (await oidcButton.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
-        await oidcButton.click().catch(() => {});
+        await oidcButton.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
       }
     });
 

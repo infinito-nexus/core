@@ -40,7 +40,7 @@ async function loginAdminViaOidc(page) {
           const candidate = page.locator("a, button").filter({ hasText: pattern }).first();
           if ((await candidate.count().catch(() => 0)) > 0) {
             await candidate.waitFor({ state: "visible", timeout: resolveTimeout(30_000) }).catch(() => {});
-            await candidate.click().catch(() => {});
+            await candidate.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
             break;
           }
         }

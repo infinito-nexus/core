@@ -149,7 +149,7 @@ exports.register = function (shared) {
       while (Date.now() < deadline) {
         topic = await shared.discourseSearchTopicByTitle(reqCtx.request, postTitle);
         if (topic) break;
-        await new Promise((r) => setTimeout(r, 3_000));
+        await new Promise((r) => setTimeout(r, resolveTimeout(3_000)));
       }
       expect(
         topic,

@@ -52,7 +52,7 @@ test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", 
       await emailInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
       await emailInput.fill(adminEmail);
       await appPage.locator("input[type='password']").first().fill(adminPassword);
-      await appPage.getByRole("button", { name: /log in|sign in/i }).first().click();
+      await appPage.getByRole("button", { name: /log in|sign in/i }).first().click({ timeout: resolveTimeout(30_000) });
       await appPage.waitForLoadState("networkidle").catch(() => {});
       await expect(appPage, "the administrator must be signed in for the avatar upload").not.toHaveURL(/sign_in/);
 
@@ -84,7 +84,7 @@ test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", 
 
       const updateAccount = appPage.getByRole("button", { name: /update account|update|save/i }).first();
       if (await updateAccount.isVisible().catch(() => false)) {
-        await updateAccount.click().catch(() => {});
+        await updateAccount.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await appPage.waitForLoadState("networkidle").catch(() => {});
       }
     },

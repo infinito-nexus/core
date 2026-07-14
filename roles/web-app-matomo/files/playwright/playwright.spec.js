@@ -90,7 +90,7 @@ test("matomo local administrator logs in and logs out", async ({ page }) => {
   await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(adminUsername);
   await passwordField.fill(adminPassword);
-  await submitButton.click();
+  await submitButton.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
@@ -180,7 +180,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
     await usernameField.fill(biberUsername);
     await usernameField.press("Tab").catch(() => {});
     await passwordField.fill(biberPassword);
-    await signInButton.click();
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
 
     const callbackResponse = await callbackResponsePromise;
 
@@ -294,7 +294,7 @@ test("matomo SitesManager registers a tracker site for every consumer role", asy
   await page
     .locator("input#login_form_submit, button#login_form_submit, button[type='submit'], input[type='submit']")
     .first()
-    .click();
+    .click({ timeout: resolveTimeout(30_000) });
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(60_000),
@@ -416,7 +416,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /administration|settings|websites/i })
         .first();
       if (await settingsLink.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await settingsLink.click().catch(() => {});
+        await settingsLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /websites|administration|users|general settings/i,

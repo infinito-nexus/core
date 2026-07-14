@@ -31,7 +31,7 @@ async function waitForFirstVisible(locators, timeout = resolveTimeout(60_000)) {
         return locator.first();
       }
     }
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, resolveTimeout(500)));
   }
   throw new Error("Timed out waiting for one of the expected selectors to become visible");
 }
@@ -60,7 +60,7 @@ async function startMattermostSsoFlow(page, baseUrl) {
   if (lastErr) throw lastErr;
   const ssoButton = page.locator("a[href='/oauth/gitlab/login']");
   await ssoButton.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
-  await ssoButton.click();
+  await ssoButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function dismissMattermostPopups(frame) {
@@ -77,7 +77,7 @@ async function dismissMattermostPopups(frame) {
     for (const sel of dismissSelectors) {
       if (await sel.first().isVisible({ timeout: resolveTimeout(2000) }).catch(() => false)) {
         await sel.first().click({ force: true }).catch(() => {});
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, resolveTimeout(500)));
       }
     }
     await frame.evaluate(() => {
@@ -85,7 +85,7 @@ async function dismissMattermostPopups(frame) {
       document.querySelectorAll("#root-portal").forEach(el => { el.style.display = "none"; });
     }).catch(() => {});
     await frame.locator("body").press("Escape").catch(() => {});
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, resolveTimeout(500)));
   }
 }
 

@@ -119,7 +119,7 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
     const popupPromise = page.waitForEvent("popup", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
       page.waitForEvent("framenavigated", { timeout: resolveTimeout(60_000) }).catch(() => {}),
-      connect.click(),
+      connect.click({ timeout: resolveTimeout(30_000) }),
     ]);
 
     const popup = await popupPromise;

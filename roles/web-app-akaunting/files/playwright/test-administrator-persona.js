@@ -13,7 +13,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(settings|administration|users|companies)$/i })
         .first();
       if (await settingsLink.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await settingsLink.click().catch(() => {});
+        await settingsLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /general settings|users|companies|categories|currencies|invoice/i,

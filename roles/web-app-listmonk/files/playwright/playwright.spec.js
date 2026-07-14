@@ -55,7 +55,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(campaigns|subscribers|lists|admin)$/i })
         .first();
       if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await link.click().catch(() => {});
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /campaign|subscriber|list|template|listmonk/i,

@@ -40,7 +40,7 @@ async function ssoLoginAndAssertDashboard(page, username, password) {
   if (!issuerPattern.test(page.url())) {
     const signInCta = page.getByRole("button", { name: /sign in|log in|anmelden/i });
     if (await signInCta.first().isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-      await signInCta.first().click();
+      await signInCta.first().click({ timeout: resolveTimeout(30_000) });
     }
     await page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) });
   }

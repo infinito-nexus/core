@@ -65,7 +65,7 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     const popupPromise = page.waitForEvent("popup", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
       page.waitForEvent("framenavigated", { timeout: resolveTimeout(60_000) }).catch(() => {}),
-      connect.click(),
+      connect.click({ timeout: resolveTimeout(30_000) }),
     ]);
     const popup = await popupPromise;
     const rawUrl = () => (popup ? popup.url() : page.url());

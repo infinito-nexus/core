@@ -47,7 +47,7 @@ exports.register = function (shared) {
     //    submission for us; we just type into the visible inputs.
     await emailField.fill(adminEmail);
     await passwordField.fill(adminPassword);
-    await submitButton.click();
+    await submitButton.click({ timeout: resolveTimeout(30_000) });
 
     // 3. Successful native auth lands on `/` (or `/i/web`) — never back on
     //    `/login`. Wait for the URL to leave `/login` and the authenticated

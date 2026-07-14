@@ -286,7 +286,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(targets|status|alerts|graph|runtime|build)$/i })
         .first();
       if (await statusLink.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await statusLink.click().catch(() => {});
+        await statusLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /endpoint|state|labels|targets|alerts|series/i,

@@ -36,7 +36,7 @@ async function clickFiderSsoButton(locator) {
 
   await ssoButton.first().waitFor({ state: "visible", timeout: resolveTimeout(15_000) });
   // force: true bypasses aria-disabled which Fider sets on the button during modal render
-  await ssoButton.first().click({ force: true });
+  await ssoButton.first().click({ force: true, timeout: resolveTimeout(30_000) });
 }
 
 test.beforeEach(() => {
@@ -154,7 +154,7 @@ test("administrator: app → universal logout", async ({ page }) => {
         .getByRole("link", { name: /^(admin|posts|users|invitations|settings)$/i })
         .first();
       if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
-        await link.click().catch(() => {});
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /posts|administration|invitations|users|settings|tags/i,

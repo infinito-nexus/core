@@ -43,7 +43,7 @@ test("integration integration_google: per-user OAuth connect reaches the Google 
       page
         .waitForURL((u) => /^accounts\.google\.com$/i.test(new URL(u).host), { timeout: resolveTimeout(60_000) })
         .catch(() => {}),
-      connect.first().click(),
+      connect.first().click({ timeout: resolveTimeout(30_000) }),
     ]);
     const popup = await popupPromise;
     const target = popup || page;
