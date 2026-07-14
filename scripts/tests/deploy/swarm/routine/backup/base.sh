@@ -28,7 +28,8 @@ source "${SCRIPT_DIR}/../../utils/_context.sh"
 : "${NFS_IP:?NFS_IP required (01_bootstrap.sh must have run)}"
 : "${DRILL_EXTRAS:?DRILL_EXTRAS required (matrix passes the round extras)}"
 
-DIR_BACKUPS="/var/lib/infinito/backup"
+DIR_VAR_LIB="${INFINITO_DIR_VAR_LIB:?INFINITO_DIR_VAR_LIB is not set - source scripts/meta/env/load.sh first}"
+DIR_BACKUPS="${INFINITO_DIR_BACKUPS:?INFINITO_DIR_BACKUPS is not set - regenerate .env via make dotenv}"
 NODE_SRC="${INFINITO_NODE_SRC_DIR:?INFINITO_NODE_SRC_DIR is not set - source scripts/meta/env/load.sh first}"
 BACKUP_KEY_PATH="${INFINITO_SWARM_BACKUP_KEY:?INFINITO_SWARM_BACKUP_KEY is not set - source scripts/meta/env/load.sh first}"
 BKP_IN_NODE="${NODE_SRC}/scripts/tests/deploy/swarm/routine/backup"
@@ -36,7 +37,7 @@ DR_MARKER=".dr-drill-marker"
 DR_TOKEN="${SWARM_NAME}-${APP_ID}-dr-drill"
 DR_VERIFY_ENV="/tmp/dr-drill-verify-${APP_ID}.env"
 rm -f "${DR_VERIFY_ENV}"
-SECRETS_DIR="/var/lib/infinito/secrets"
+SECRETS_DIR="${INFINITO_DIR_SECRETS:?INFINITO_DIR_SECRETS is not set - regenerate .env via make dotenv}"
 VOLUME_REPO="backup-docker-to-local"
 NFS_REPO="backup-nfs-to-local"
 SECRETS_REPO="backup-secrets-to-local"
@@ -174,7 +175,7 @@ DR_RESTORE_STAGE="/tmp/dr-restore-src"
 docker exec "${NFS_SERVER}" bash "${BKP_IN_NODE}/05_wipe_export.sh" \
 	"${NFS_VOL_DIR}" "${DR_MARKER}" "${DR_RESTORE_STAGE}"
 docker exec "${BACKUP_NODE}" tar -C "${RESTORE_ROOT}/${SRC_REL}" -cf - . |
-	docker exec -i "${NFS_SERVER}" tar -C "${DR_RESTORE_STAGE}" -xf -
+	docker exec -i "${NFS_SERVER}" tar --numeric-owner -C "${DR_RESTORE_STAGE}" -xf -
 docker exec "${NFS_SERVER}" sh -c \
 	"PYTHONPATH='${NODE_SRC}' python3 -m cli.administration.recover nfs '${DR_RESTORE_STAGE}:${NFS_VOL_DIR}' localhost --no-safety-backup"
 if ! docker exec "${NFS_SERVER}" test -e "${NFS_VOL_DIR}/${DR_MARKER}"; then
@@ -182,6 +183,26 @@ if ! docker exec "${NFS_SERVER}" test -e "${NFS_VOL_DIR}/${DR_MARKER}"; then
 	exit 1
 fi
 echo "    device-recovered files restored to the live NFS export"
+
+echo "==> [8b/9] restore NFS coherence after the backing-FS restore"
+docker exec "${NFS_SERVER}" timeout 120 sh -c \
+	"systemctl try-restart nfs-ganesha 2>/dev/null || systemctl try-restart nfs-server"
+for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
+	docker exec "${_node}" timeout 180 sh -c \
+		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}'"
+done
+for _i in $(seq 1 24); do
+	if docker exec "${MGR}" sh -c \
+		"touch '${DIR_VAR_LIB}/${PRIMARY_NFS_VOLUME}/.dr-coherence-probe' && rm -f '${DIR_VAR_LIB}/${PRIMARY_NFS_VOLUME}/.dr-coherence-probe'" 2>/dev/null; then
+		break
+	fi
+	if [ "${_i}" -eq 24 ]; then
+		echo "FAILURE: NFS export not writable through the client mount after the coherence restore"
+		exit 1
+	fi
+	sleep 5
+done
+echo "    ganesha restarted + client mounts refreshed; export writable via ${MGR}"
 
 echo "==> [9/9] recover docker volume + host secrets via the recover CLI"
 if [ -n "${VOL_MARKER_REL}" ]; then
@@ -193,7 +214,7 @@ if [ -n "${VOL_MARKER_REL}" ]; then
 	DR_VOL_STAGE="/tmp/dr-volume-restore"
 	docker exec "${MGR}" bash -c "rm -rf '${DR_VOL_STAGE}'; mkdir -p '${DR_VOL_STAGE}/${MGR_MID}'"
 	docker exec "${BACKUP_NODE}" tar -C "${RESTORE_ROOT}/${MGR_MID}" -cf - . |
-		docker exec -i "${MGR}" tar -C "${DR_VOL_STAGE}/${MGR_MID}" -xf -
+		docker exec -i "${MGR}" tar --numeric-owner -C "${DR_VOL_STAGE}/${MGR_MID}" -xf -
 	docker exec "${MGR}" sh -c \
 		"PYTHONPATH='${NODE_SRC}' python3 -m cli.administration.recover volume '${DR_VOL_STAGE}/${VOL_SRC_REL}' localhost --no-safety-backup"
 	echo "    volume '${VOL_NAME}' recovered from generation ${VOL_GEN} via the recover CLI"
@@ -208,7 +229,7 @@ if [ "${SECRETS_TRIGGERED}" -eq 1 ]; then
 		DR_SEC_STAGE="/tmp/dr-secrets-restore"
 		docker exec "${MGR}" bash -c "rm -rf '${DR_SEC_STAGE}'; mkdir -p '${DR_SEC_STAGE}'"
 		docker exec "${BACKUP_NODE}" tar -C "${SEC_FILES}" -cf - . |
-			docker exec -i "${MGR}" tar -C "${DR_SEC_STAGE}" -xf -
+			docker exec -i "${MGR}" tar --numeric-owner -C "${DR_SEC_STAGE}" -xf -
 		docker exec "${MGR}" rm -f "${SECRETS_DIR}/${DR_MARKER}"
 		docker exec "${MGR}" sh -c \
 			"PYTHONPATH='${NODE_SRC}' python3 -m cli.administration.recover secrets '${DR_SEC_STAGE}' localhost --no-safety-backup"
