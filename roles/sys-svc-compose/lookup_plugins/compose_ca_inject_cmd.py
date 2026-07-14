@@ -174,6 +174,26 @@ class LookupModule(LookupBase):
             variables=variables,
         )
 
+        php_ini_host = ""
+        php_ini_container = ""
+        if isinstance(ca_trust.get("php_ini_host"), str) and isinstance(
+            ca_trust.get("inject_php_ini_container"), str
+        ):
+            php_ini_host = render_ansible_strict(
+                templar=templar,
+                raw=ca_trust["php_ini_host"],
+                var_name="CA_TRUST.php_ini_host",
+                err_prefix="compose_ca_inject_cmd",
+                variables=variables,
+            )
+            php_ini_container = render_ansible_strict(
+                templar=templar,
+                raw=ca_trust["inject_php_ini_container"],
+                var_name="CA_TRUST.inject_php_ini_container",
+                err_prefix="compose_ca_inject_cmd",
+                variables=variables,
+            )
+
         compose_file_args_lkp = lookup_loader.get(
             "compose_file_args", self._loader, self._templar
         )
@@ -217,6 +237,14 @@ class LookupModule(LookupBase):
             "--trust-name",
             _shell_quote(trust_name),
         ]
+
+        if php_ini_host and php_ini_container:
+            cmd += [
+                "--php-ini-host",
+                _shell_quote(php_ini_host),
+                "--php-ini-container",
+                _shell_quote(php_ini_container),
+            ]
 
         if not wrapper:
             cmd += ["--no-wrapper"]

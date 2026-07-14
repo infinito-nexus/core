@@ -513,6 +513,8 @@ def render_override(
     trust_name: str,
     ca_container: str,
     wrapper_container: str,
+    php_ini_host: str = "",
+    php_ini_container: str = "",
     wrap: bool = True,
 ) -> dict[str, Any]:
     """
@@ -554,11 +556,15 @@ def render_override(
         if not isinstance(svc, dict):
             die(f"Service '{name}' must be a mapping in compose config")
 
+        volumes = [
+            f"{ca_host}:{ca_container}:ro",
+            f"{wrapper_host}:{wrapper_container}:ro",
+        ]
+        if php_ini_host and php_ini_container:
+            volumes.append(f"{php_ini_host}:{php_ini_container}:ro")
+
         override_svc: dict[str, Any] = {
-            "volumes": [
-                f"{ca_host}:{ca_container}:ro",
-                f"{wrapper_host}:{wrapper_container}:ro",
-            ],
+            "volumes": volumes,
             "environment": {
                 "CA_TRUST_CERT": ca_container,
                 "CA_TRUST_NAME": trust_name,
@@ -648,6 +654,16 @@ def main() -> int:
         "--trust-name",
         required=True,
         help="Trust anchor name for CA installation inside containers (CA_TRUST_NAME)",
+    )
+    ap.add_argument(
+        "--php-ini-host",
+        default="",
+        help="Host path to the PHP CA-trust ini (bind-mounted when set)",
+    )
+    ap.add_argument(
+        "--php-ini-container",
+        default="",
+        help="Container path the PHP CA-trust ini is bind-mounted to",
     )
     ap.add_argument(
         "--no-wrapper",
@@ -753,6 +769,8 @@ def main() -> int:
             trust_name=trust_name,
             ca_container=ca_container,
             wrapper_container=wrapper_container,
+            php_ini_host=str(args.php_ini_host).strip(),
+            php_ini_container=str(args.php_ini_container).strip(),
             wrap=not args.no_wrapper,
         )
     else:

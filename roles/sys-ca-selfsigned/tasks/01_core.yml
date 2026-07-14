@@ -75,6 +75,15 @@
     group: root
     mode: "0755"
 
+- name: "📦 CA | install PHP CA-trust ini (SPOT) on host"
+  become: true
+  ansible.builtin.template: # nocheck: stack-host-template (host tool install, same gate as the adjacent wrapper copy)
+    src: "ca-trust-php.ini.j2"
+    dest: "{{ CA_TRUST.php_ini_host }}"
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: "📦 CA | Install Root CA into host trust store"
   become: true
   ansible.builtin.command:

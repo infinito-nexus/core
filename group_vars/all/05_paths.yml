@@ -13,6 +13,7 @@ BIN_CONTAINER: "{{ [ DIR_BIN, 'container' ] | path_join }}"
 BIN_LOCK: "{{ [ DIR_BIN, 'lock' ] | path_join }}"
 BIN_CA_TRUST: "{{ [ DIR_BIN, 'ca-trust-wrapper' ] | path_join }}"
 BIN_CA_INJECT: "{{ [ DIR_BIN, 'ca-inject' ] | path_join }}"
+BIN_CA_PHP_INI: "{{ [ DIR_BIN, 'ca-trust-php.ini' ] | path_join }}"
 BIN_RESOLVE_CONTAINER_ID: "{{ [ DIR_BIN, 'resolve-container-id' ] | path_join }}"
 
 DIR_VAR_LIB: "/var/lib/infinito"

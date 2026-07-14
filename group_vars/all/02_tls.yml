@@ -32,6 +32,8 @@ CA_TRUST:
   inject_script: "{{ BIN_CA_INJECT }}"
   inject_cert_container: "/tmp/infinito/ca/root-ca.crt"
   inject_wrapper_container: "/tmp/infinito/bin/with-ca-trust.sh"
+  php_ini_host: "{{ BIN_CA_PHP_INI }}"
+  inject_php_ini_container: "/usr/local/etc/php/conf.d/zz-infinito-ca-trust.ini"
 CA_TRUST_SYSTEMD_ENV:
   - "CA_TRUST_CERT_HOST={{ CA_TRUST.cert_host }}"
   - "CA_TRUST_WRAPPER_HOST={{ CA_TRUST.wrapper_host }}"
