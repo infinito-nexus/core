@@ -13,7 +13,7 @@ RUN cp -a /usr/src/espocrm/. /var/www/html/
 RUN sed -i 's|bin/command set-password admin |bin/command set-password "$ESPOCRM_ADMIN_USERNAME" |' /usr/local/bin/docker-entrypoint.sh \
     && grep -qF 'set-password "$ESPOCRM_ADMIN_USERNAME"' /usr/local/bin/docker-entrypoint.sh
 
-RUN sed -i 's|bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1|bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1 || true|' /usr/local/bin/docker-entrypoint.sh \
+RUN sed -i 's#bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1#bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>\&1 || true#' /usr/local/bin/docker-entrypoint.sh \
     && grep -qF 'create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1 || true' /usr/local/bin/docker-entrypoint.sh
 
 COPY ${ESPOCRM_SCRIPT_SEED_HOST_REL} ${ESPOCRM_SCRIPT_SEED_DOCKER}
