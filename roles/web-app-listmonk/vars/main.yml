@@ -106,7 +106,7 @@ LISTMONK_SETTINGS:
           "uuid":            "471fd0e9-8c33-4e4a-9183-c4679699faca",
           "enabled":         true,
           "username":        lookup('users', LISTMONK_USER_BOUNCE).email,
-          "password":        lookup('users', LISTMONK_USER_BOUNCE).get('tokens', {}).get('web-app-stalwart', ''),
+          "password":        lookup('users', LISTMONK_USER_BOUNCE).get('tokens', {}).get(MAIL_PROVIDER, ''),
           "return_path":     lookup('users', LISTMONK_USER_BOUNCE).email,
           "tls_enabled":     LISTMONK_EMAIL.tls,
           "auth_protocol":   "userpass",

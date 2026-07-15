@@ -6,6 +6,10 @@ set -eu
 
 VERBOSE="${VERBOSE:-1}"
 
+# SPOT: system CA bundle candidates, in preference order
+# (Debian/Ubuntu, RHEL/Fedora, Alpine/openssl default).
+SYS_CA_BUNDLE_CANDIDATES="/etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem"
+
 log() {
   if [ "$VERBOSE" = "1" ]; then
     echo "[with-ca-trust] $*" >&2
@@ -42,10 +46,8 @@ installed=0
 # system bundle is found.
 ca_bundle="$CA_TRUST_CERT"
 combined="/tmp/with-ca-trust-combined.crt"
-for sys_bundle in \
-  /etc/ssl/certs/ca-certificates.crt \
-  /etc/pki/tls/certs/ca-bundle.crt \
-  /etc/ssl/cert.pem; do
+# shellcheck disable=SC2086 # intentional word-splitting; paths contain no spaces
+for sys_bundle in $SYS_CA_BUNDLE_CANDIDATES; do
   if [ -r "$sys_bundle" ] && cat "$sys_bundle" "$CA_TRUST_CERT" > "$combined" 2>/dev/null; then
     ca_bundle="$combined"
     log "Combined system CA bundle ($sys_bundle) with ${name} -> $combined"

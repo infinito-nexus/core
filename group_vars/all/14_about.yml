@@ -20,7 +20,7 @@ defaults_service_provider:
     web-app-bluesky: >-
       {{ ('@' ~ lookup('users', 'contact').username ~ '.' ~ lookup('domains', 'web-app-bluesky').api)
          if 'web-app-bluesky' in group_names else '' }}
-    email: "{{ lookup('users', 'contact').username ~ '@' ~ DOMAIN_PRIMARY if 'web-app-stalwart' in group_names else 'contact@infinito.nexus' }}"
+    email: "{{ lookup('users', 'contact').username ~ '@' ~ DOMAIN_PRIMARY if MAIL_PROVIDER in group_names else 'contact@infinito.nexus' }}"
     mastodon: "{{ '@' ~ lookup('users', 'contact').username ~ '@' ~ lookup('domain','web-app-mastodon') if 'web-app-mastodon' in group_names else '@infinito@microblog.infinito.nexus'
       }}"
     matrix: "{{ '@' ~ lookup('users', 'contact').username ~ ':' ~ lookup('config','web-app-matrix', 'services.matrix.server_name') if 'web-app-matrix' in group_names
