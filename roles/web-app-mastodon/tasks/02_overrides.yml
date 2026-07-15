@@ -23,3 +23,11 @@
       Rails.application.routes.default_url_options[:protocol] = "http"
   when: MASTODON_HTTP_ONLY_ENABLED | bool
   notify: compose up
+
+- name: "MASTODON | Install OIDC http-discovery override initializer (HTTP-only)"
+  ansible.builtin.copy:
+    src: "00_oidc_http_discovery.rb"
+    dest: "{{ MASTODON_OIDC_HTTP_DISCOVERY_FILE }}"
+    mode: "0644"
+  when: MASTODON_HTTP_ONLY_ENABLED | bool
+  notify: compose up

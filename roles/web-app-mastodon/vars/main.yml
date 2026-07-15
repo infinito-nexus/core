@@ -29,3 +29,5 @@ MASTODON_HTTP_ONLY_ENABLED: "{{ not (lookup('tls', application_id, 'enabled') | 
 MASTODON_OVERRIDES_DIR: "{{ lookup('container', application_id, 'directories.instance') }}/overrides"
 MASTODON_FORCE_SSL_OVERRIDE_FILE: "{{ MASTODON_OVERRIDES_DIR }}/zzz_disable_force_ssl.rb"
 MASTODON_CONTAINER_FORCE_SSL_OVERRIDE_PATH: "/opt/mastodon/config/initializers/zzz_disable_force_ssl.rb"
+MASTODON_OIDC_HTTP_DISCOVERY_FILE: "{{ MASTODON_OVERRIDES_DIR }}/00_oidc_http_discovery.rb"
+MASTODON_CONTAINER_OIDC_HTTP_DISCOVERY_PATH: "/opt/mastodon/config/initializers/00_oidc_http_discovery.rb"

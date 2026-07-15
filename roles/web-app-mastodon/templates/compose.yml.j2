@@ -16,6 +16,7 @@
       - data:/mastodon/public/system
 {% if MASTODON_HTTP_ONLY_ENABLED | bool %}
       - "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}:{{ MASTODON_CONTAINER_FORCE_SSL_OVERRIDE_PATH }}:ro"
+      - "{{ MASTODON_OIDC_HTTP_DISCOVERY_FILE }}:{{ MASTODON_CONTAINER_OIDC_HTTP_DISCOVERY_PATH }}:ro"
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -44,6 +45,7 @@
       - data:/mastodon/public/system
 {% if MASTODON_HTTP_ONLY_ENABLED | bool %}
       - "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}:{{ MASTODON_CONTAINER_FORCE_SSL_OVERRIDE_PATH }}:ro"
+      - "{{ MASTODON_OIDC_HTTP_DISCOVERY_FILE }}:{{ MASTODON_CONTAINER_OIDC_HTTP_DISCOVERY_PATH }}:ro"
 {% endif %}
     healthcheck:
       test: ["CMD-SHELL", "pgrep -f sidekiq || exit 1"]
