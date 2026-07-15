@@ -2,7 +2,7 @@
 
   application:
 {% set service_name = 'decidim' %}
-{% set container_healthcheck = 'health_check' %}
+{% set container_healthcheck = 'up' %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:

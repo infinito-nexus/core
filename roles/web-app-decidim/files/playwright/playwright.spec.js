@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({
@@ -71,7 +71,8 @@ async function oidcLogin(page, username, password) {
   const ssoHref = await ssoButton.getAttribute("href");
   console.log("SSO href:", ssoHref);
   await page.waitForFunction(() => document.readyState === "complete");
-  const navigated = page.waitForURL(/auth\.infinito\.example/, { timeout: resolveTimeout(30000) });
+  const oidcAuthHost = new URL(oidcIssuerUrl).host;
+  const navigated = page.waitForURL((url) => url.host === oidcAuthHost, { timeout: resolveTimeout(30000) });
   await page.evaluate((href) => {
     const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content") || "";
     const form = document.createElement("form");
@@ -87,11 +88,7 @@ async function oidcLogin(page, username, password) {
   }, ssoHref);
   await navigated.catch(e => console.log("nav error:", e.message, "url:", page.url()));
   console.log("After form submit URL:", page.url());
-  console.log("Current URL:", page.url());
-  // Fill Keycloak login form
-  await page.getByRole("textbox", { name: /username|email/i }).fill(username);
-  await page.getByRole("textbox", { name: /password/i }).fill(password);
-  await page.locator("#kc-login").click({ timeout: resolveTimeout(30_000) });
+  await performKeycloakLoginForm(page, username, password);
   console.log("Login clicked, waiting for redirect back...");
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30000) }).catch(e => console.log("networkidle error:", e.message));
   console.log("After login URL:", page.url());

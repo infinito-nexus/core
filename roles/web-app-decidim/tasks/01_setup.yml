@@ -1,11 +1,11 @@
 ---
-- name: "Decidim | Wait for web container to be healthy"
+- name: "Decidim | Wait for web container to be running"
   community.docker.docker_container_info:
     name: "{{ DECIDIM_CONTAINER }}"
   register: decidim_container_info
   until: >
     decidim_container_info.container is defined and
-    decidim_container_info.container.State.Health.Status == 'healthy'
+    decidim_container_info.container.State.Running | default(false)
   retries: 20
   delay: 15
 
@@ -24,6 +24,16 @@
   register: decidim_migrate_result
   changed_when: decidim_migrate_result.stdout_lines | default([]) | length > 0
 
+- name: "Decidim | Wait for web container to be healthy"
+  community.docker.docker_container_info:
+    name: "{{ DECIDIM_CONTAINER }}"
+  register: decidim_container_health
+  until: >
+    decidim_container_health.container is defined and
+    decidim_container_health.container.State.Health.Status == 'healthy'
+  retries: 20
+  delay: 15
+
 - name: "Decidim | Seed database on first deploy"
   ansible.builtin.command:
     argv:
@@ -39,6 +49,24 @@
   register: decidim_seed_result
   changed_when: decidim_seed_result.stdout_lines | default([]) | length > 0
   failed_when: false
+
+- name: "Decidim | Ensure default static pages exist (terms-of-service)"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "RAILS_ENV={{ ENVIRONMENT }}"
+      - "{{ DECIDIM_CONTAINER }}"
+      - bundle
+      - exec
+      - rails
+      - runner
+      - "-"
+    stdin: "{{ lookup('file', 'ruby/ensure_default_pages.rb') }}"
+  register: decidim_pages_result
+  changed_when: "'Default pages ensured' in decidim_pages_result.stdout"
 
 - name: "Decidim | Set organization host"
   ansible.builtin.command:
