@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -15,11 +15,6 @@ const adminUsername      = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword      = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername      = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword      = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
-
-// Log out via the universal logout endpoint.
-async function prometheusLogout(page, baseUrl) {
-  await gotoOnion(page, `${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
-}
 
 test.beforeEach(() => {
   expect(oidcIssuerUrl,     "OIDC_ISSUER_URL must be set in the Playwright env file").toBeTruthy();
@@ -115,8 +110,9 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
     page.getByRole("link", { name: /^(Graph|Alerts|Status)$/i }).first()
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
-  // 5. Logout via universal logout endpoint.
-  await prometheusLogout(page, expectedPrometheusBaseUrl);
+  // 5. Logout via the injected universal-logout control; let the conductor settle.
+  await inAppLogout(page);
+  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 
   // 6. Verify session is gone — oauth2-proxy redirects unauthenticated requests to Keycloak.
   await gotoOnion(page, `${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });

@@ -94,6 +94,22 @@ async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000
   return false;
 }
 
+/**
+ * Keycloak renders a "Do you want to log out?" confirmation page when the
+ * end-session request carries no id_token_hint (the injected universal-logout
+ * control cannot know the id_token). A real user clicks the confirm button;
+ * without it the Keycloak SSO session — and every app session — survives.
+ */
+async function confirmKeycloakLogoutIfPrompted(page) {
+  const confirmBtn = page
+    .locator("#kc-logout, form[action*='logout-confirm'] input[type='submit'], form[action*='logout-confirm'] button")
+    .first();
+  if (await confirmBtn.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
+    await confirmBtn.click({ timeout: resolveTimeout(10_000) }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+  }
+}
+
 async function inAppLogout(page) {
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
@@ -103,6 +119,7 @@ async function inAppLogout(page) {
 
   if (await tryLogoutFrom(page)) {
     await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+    await confirmKeycloakLogoutIfPrompted(page);
     return;
   }
 
@@ -121,6 +138,7 @@ async function inAppLogout(page) {
       await page.waitForTimeout(resolveTimeout(1_500));
       if (await tryLogoutFrom(page)) {
         await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+        await confirmKeycloakLogoutIfPrompted(page);
         return;
       }
       await trigger.click({ timeout: resolveTimeout(2_000) }).catch(() => {});
