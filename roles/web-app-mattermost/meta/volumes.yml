@@ -33,19 +33,3 @@ client-plugins:
   mounts:
     - service: mattermost
       target: /mattermost/client/plugins
-
-timezone:
-  type: bind
-  source: /etc/timezone
-  read_only: true
-  mounts:
-    - service: mattermost
-      target: /etc/timezone
-
-localtime:
-  type: bind
-  source: /etc/localtime
-  read_only: true
-  mounts:
-    - service: mattermost
-      target: /etc/localtime

@@ -5,19 +5,3 @@ data:
   mounts:
     - service: gitea
       target: /data
-
-timezone:
-  type: bind
-  source: /etc/timezone
-  read_only: true
-  mounts:
-    - service: gitea
-      target: /etc/timezone
-
-localtime:
-  type: bind
-  source: /etc/localtime
-  read_only: true
-  mounts:
-    - service: gitea
-      target: /etc/localtime
