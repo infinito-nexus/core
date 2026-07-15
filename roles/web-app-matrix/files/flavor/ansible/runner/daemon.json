@@ -1,6 +1,5 @@
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
-  "storage-driver": "overlay2",
   "iptables": true,
   "log-driver": "json-file",
   "log-opts": {

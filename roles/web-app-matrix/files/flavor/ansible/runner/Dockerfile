@@ -22,6 +22,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       ca-certificates \
       dbus \
       docker.io \
+      fuse-overlayfs \
       git \
       iptables \
       openssh-client \
