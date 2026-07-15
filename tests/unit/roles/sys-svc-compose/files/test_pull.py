@@ -22,23 +22,25 @@ class TestComposePull(unittest.TestCase):
     def setUp(self) -> None:
         self.m = _load_module("roles/sys-svc-compose/files/pull.py", "compose_pull_mod")
 
-    def test_run_cmd_returns_rc_and_output(self) -> None:
+    def test_run_cmd_returns_rc_and_split_streams(self) -> None:
         cwd = Path("/")
         env = {}
 
         class DummyProc:
-            def __init__(self, returncode: int, stdout: str) -> None:
+            def __init__(self, returncode: int, stdout: str, stderr: str) -> None:
                 self.returncode = returncode
                 self.stdout = stdout
+                self.stderr = stderr
 
         def fake_run(*args, **kwargs):
-            return DummyProc(7, "hello\n")
+            return DummyProc(7, "hello\n", "warn: variable is not set\n")
 
         with patch.object(self.m.subprocess, "run", side_effect=fake_run):
-            rc, out = self.m.run_cmd(["echo", "x"], cwd=cwd, env=env)
+            rc, out, err = self.m.run_cmd(["echo", "x"], cwd=cwd, env=env)
 
         self.assertEqual(rc, 7)
         self.assertEqual(out, "hello\n")
+        self.assertEqual(err, "warn: variable is not set\n")
 
     def test_base_compose_cmd_delegates_to_wrapper(self) -> None:
         cmd = self.m.base_compose_cmd(project="p", cwd=Path("/x"))
@@ -58,7 +60,7 @@ services:
     image: example/app
 """
         base_cmd = ["docker", "compose", "-p", "p", "-f", "a.yml"]
-        with patch.object(self.m, "run_cmd", return_value=(0, config_out)):
+        with patch.object(self.m, "run_cmd", return_value=(0, config_out, "")):
             self.assertTrue(
                 self.m.has_buildable_services(
                     base_cmd=base_cmd, cwd=Path("/tmp"), env={}
@@ -72,7 +74,7 @@ services:
     image: example/app
 """
         base_cmd = ["docker", "compose", "-p", "p", "-f", "a.yml"]
-        with patch.object(self.m, "run_cmd", return_value=(0, config_out)):
+        with patch.object(self.m, "run_cmd", return_value=(0, config_out, "")):
             self.assertFalse(
                 self.m.has_buildable_services(
                     base_cmd=base_cmd, cwd=Path("/tmp"), env={}
@@ -80,14 +82,14 @@ services:
             )
 
     def test_run_or_fail_success_does_not_raise(self) -> None:
-        with patch.object(self.m, "run_cmd", return_value=(0, "ok\n")):
+        with patch.object(self.m, "run_cmd", return_value=(0, "ok\n", "")):
             self.m.run_or_fail(
                 ["docker", "compose", "ps"], cwd=Path("/"), env={}, label="x"
             )
 
     def test_run_or_fail_failure_raises(self) -> None:
         with (
-            patch.object(self.m, "run_cmd", return_value=(9, "boom\n")),
+            patch.object(self.m, "run_cmd", return_value=(9, "", "boom\n")),
             self.assertRaises(RuntimeError) as ctx,
         ):
             self.m.run_or_fail(
@@ -169,11 +171,11 @@ services:
 
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
-            ) -> tuple[int, str]:
+            ) -> tuple[int, str, str]:
                 calls.append(cmd)
                 if cmd[-2:] == ["pull", "--help"]:
-                    return 0, "Usage:\n  --ignore-buildable\n"
-                return 0, ""
+                    return 0, "Usage:\n  --ignore-buildable\n", ""
+                return 0, "", ""
 
             fallback_calls: list[list[str]] = []
 
@@ -229,10 +231,10 @@ services:
 
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
-            ) -> tuple[int, str]:
+            ) -> tuple[int, str, str]:
                 if cmd[-2:] == ["build", "--pull"]:
-                    return 1, "build --pull failed\n"
-                return 0, ""
+                    return 1, "", "build --pull failed\n"
+                return 0, "", ""
 
             fallback_calls: list[list[str]] = []
 
@@ -282,11 +284,11 @@ services:
 
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
-            ) -> tuple[int, str]:
+            ) -> tuple[int, str, str]:
                 calls.append(cmd)
                 if cmd[-2:] == ["pull", "--help"]:
-                    return 0, "Usage:\n"
-                return 0, ""
+                    return 0, "Usage:\n", ""
+                return 0, "", ""
 
             with (
                 patch.object(sys, "argv", argv),
@@ -327,14 +329,14 @@ services:
 
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
-            ) -> tuple[int, str]:
+            ) -> tuple[int, str, str]:
                 if cmd[-1] == "pull":
-                    return 1, "pull failed\n"
+                    return 1, "", "pull failed\n"
                 if cmd[-2:] == ["config", "--images"]:
-                    return 0, "image:1\nimage:2\n"
+                    return 0, "image:1\nimage:2\n", ""
                 if cmd[:3] == ["docker", "image", "inspect"]:
-                    return 0, ""
-                return 0, ""
+                    return 0, "", ""
+                return 0, "", ""
 
             with (
                 patch.object(sys, "argv", argv),
@@ -376,14 +378,14 @@ services:
 
             def fake_run_cmd(
                 cmd: list[str], *, cwd: Path, env: dict[str, str]
-            ) -> tuple[int, str]:
+            ) -> tuple[int, str, str]:
                 if cmd[-1] == "pull":
-                    return 1, "pull failed\n"
+                    return 1, "", "pull failed\n"
                 if cmd[-2:] == ["config", "--images"]:
-                    return 0, "image:1\n"
+                    return 0, "image:1\n", ""
                 if cmd[:3] == ["docker", "image", "inspect"]:
-                    return 1, "no such image\n"
-                return 0, ""
+                    return 1, "", "no such image\n"
+                return 0, "", ""
 
             with (
                 patch.object(sys, "argv", argv),
