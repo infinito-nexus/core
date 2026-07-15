@@ -6,13 +6,15 @@ set -euo pipefail
 is_completed_oneshot() {
 	local ps
 	ps=$(timeout 15 docker service ps --no-trunc \
-		--format '{{.DesiredState}}|{{.CurrentState}}' "$1" 2>/dev/null) || return 1
+		--format '{{.Name}}|{{.DesiredState}}|{{.CurrentState}}' "$1" 2>/dev/null) || return 1
 	[ -n "$ps" ] || return 1
 	awk -F'|' '
-		{ d = $1; c = $2 }
-		d ~ /Running/ || d ~ /Ready/ { pending = 1 }
-		d ~ /Shutdown/ && c ~ /Complete/ { done_ok = 1 }
-		END { exit (done_ok && !pending) ? 0 : 1 }
+		!seen[$1]++ {
+			if ($2 ~ /Running/ || $2 ~ /Ready/) pending = 1
+			else if ($2 ~ /Shutdown/ && $3 ~ /Complete/) done_ok = 1
+			else bad = 1
+		}
+		END { exit (done_ok && !pending && !bad) ? 0 : 1 }
 	' <<<"$ps"
 }
 

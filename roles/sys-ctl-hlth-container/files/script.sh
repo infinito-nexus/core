@@ -66,9 +66,14 @@ if command -v container >/dev/null 2>&1; then
         swarm_problems=""
         while read -r service_name replicas; do
             [ -z "$service_name" ] && continue
-            task_states="$(container service ps "$service_name" --format '{{.CurrentState}}' 2>/dev/null)"
-            if printf '%s\n' "$task_states" | grep -q '^Complete' \
-                && ! printf '%s\n' "$task_states" | grep -qE '^(Running|Ready|Starting|Preparing|Pending|Assigned|Accepted|New|Failed|Rejected|Orphaned)'; then
+            task_states="$(container service ps --no-trunc "$service_name" --format '{{.Name}}|{{.DesiredState}}|{{.CurrentState}}' 2>/dev/null)"
+            if printf '%s\n' "$task_states" | awk -F'|' '
+                !seen[$1]++ {
+                    if ($2 ~ /Running/ || $2 ~ /Ready/) pending = 1
+                    else if ($2 ~ /Shutdown/ && $3 ~ /Complete/) done_ok = 1
+                    else bad = 1
+                }
+                END { exit (done_ok && !pending && !bad) ? 0 : 1 }'; then
                 continue
             fi
             swarm_problems="${swarm_problems:+$swarm_problems
