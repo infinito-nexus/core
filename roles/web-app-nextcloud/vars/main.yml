@@ -43,6 +43,7 @@ NEXTCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD
 NEXTCLOUD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, NEXTCLOUD_SERVICE) }}"
 
 NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-mattermost', 'mattermost') }}"
+NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-zammad', 'railsserver') }}"
 
 NEXTCLOUD_PROXY_SERVICE: "proxy"
 NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.name') }}"

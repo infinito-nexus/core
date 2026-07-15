@@ -6,14 +6,13 @@
 # integration_gitlab coupling does.
 - name: 🔍 Resolve Zammad integration provisioning facts
   set_fact:
-    nextcloud_zammad_container: "zammad-railsserver"
     nextcloud_zammad_base_url: "{{ lookup('tls', 'web-app-zammad', 'url.base') | regex_replace('/$', '') }}"
     nextcloud_zammad_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.base') | regex_replace('/$', '') }}"
   changed_when: false
 
 - name: 🔍 Probe whether the Zammad partner container is running
-  command: >
-    container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_zammad_container }}
+  shell: >
+    container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS }}
   register: nextcloud_zammad_partner_running
   changed_when: false
   failed_when: false
@@ -34,9 +33,10 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔧 Provision the Zammad <-> Nextcloud OAuth coupling
-  include_tasks: "{{ [role_path, 'tasks/addons/integration_zammad_provision.yml'] | path_join }}"
+  include_tasks: integration_zammad_provision.yml
   when: >-
-    (nextcloud_zammad_partner_running.stdout | trim) == 'true'
+    IS_STACK_HOST | bool
+    and (nextcloud_zammad_partner_running.stdout | trim) == 'true'
     and (
       (nextcloud_zammad_client_id_current.stdout | trim) | length == 0
       or (nextcloud_zammad_client_secret_current.stdout | trim) | length == 0
