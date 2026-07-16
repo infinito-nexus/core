@@ -2,6 +2,9 @@
 application_id: "web-app-opencloud"
 entity_name: "{{ application_id | get_entity_name }}"
 
+# OpenCloud's proxy unconditionally 308-redirects non-https X-Forwarded-Proto.
+proxy_x_forwarded_proto: "https"
+
 OPENCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.opencloud.name') }}"
 OPENCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.opencloud.image') }}"
 OPENCLOUD_VERSION: "{{ lookup('config', application_id, 'services.opencloud.version') }}"
