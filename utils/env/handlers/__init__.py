@@ -17,8 +17,6 @@ from .infinito import (
     ca_cert_host,
     container,
     docker_volume,
-    fork_account,
-    fork_repository_url,
     image,
     image_repository,
     inventory,
@@ -32,6 +30,8 @@ from .infinito import (
 from .infinito.dir import backups as dir_backups
 from .infinito.dir import secrets as dir_secrets
 from .infinito.dir import var_lib as dir_var_lib
+from .infinito.fork import account as fork_account
+from .infinito.fork import repository_url as fork_repository_url
 from .infinito.package_cache import admin_password as package_cache_admin_password
 from .infinito.package_cache import blobstore_max as package_cache_blobstore_max
 from .infinito.package_cache import direct_mem as package_cache_direct_mem

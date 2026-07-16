@@ -86,7 +86,7 @@ jobs:
         run: ./scripts/github/resolve/output_apps.sh
 
   host:
-    name: 🖥️ ${{ matrix.apps }}${{ matrix.variant && format(' {0}',matrix.variant) || '' }}
+    name: 🖥️${{ matrix.apps }}${{ matrix.variant && format(' {0}',matrix.variant) || '' }}
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 360

@@ -134,8 +134,11 @@ _LIFECYCLE_DOC: dict[str, str] = {
 
 
 def _symbol_legend(names: list[str], rows: list[ComplexityRow]) -> list[str]:
-    """Grouped legend, one entry per line: symbol, label, explanation. Only the
-    columns rendered and the lifecycle stages actually present are listed."""
+    """Grouped legend, one entry per line: symbol, label, explanation. The
+    symbol is placed LAST so the label and doc columns (both pure ASCII) stay
+    flush regardless of how wide the terminal renders each emoji; only the
+    trailing symbol can shift a cell, at the line end where it does not disturb
+    the grid. Only the columns rendered and lifecycle stages present are listed."""
     columns = [
         (_HEADER_SYMBOLS[name], name, _COLUMN_DOC.get(name, ""))
         for name in names
@@ -157,10 +160,6 @@ def _symbol_legend(names: list[str], rows: list[ComplexityRow]) -> list[str]:
     label_w = max(len(label) for _, label, _ in entries)
     doc_w = max(len(doc) for _, _, doc in entries)
 
-    # Symbol LAST: both the label and doc columns are pure ASCII so they stay
-    # flush regardless of how wide the terminal renders each emoji. Only the
-    # trailing symbol can shift a cell, and that is at the line end where it
-    # does not disturb the grid.
     lines = ["", "Legend:"]
     for title, group in groups:
         lines.append(f"    {title}:")
@@ -207,7 +206,9 @@ def render_table(rows: list[ComplexityRow], *, symbol: bool = False) -> str:
         ("covered_by", ">", [str(r.covered_by) for r in rows]),
     ]
     cols = [(_header(name, symbol=symbol), align, cells) for name, align, cells in raw]
-    widths = [max(_dwidth(title), *(_dwidth(c) for c in cells)) for title, _, cells in cols]
+    widths = [
+        max(_dwidth(title), *(_dwidth(c) for c in cells)) for title, _, cells in cols
+    ]
 
     def _line(values: list[str]) -> str:
         parts = []
