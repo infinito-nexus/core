@@ -19,10 +19,16 @@ Checks ``.py .sh .yml/.yaml .rb .php .css`` plus ``.j2`` templates: the ``.j2``
 suffix is stripped so the underlying language's comments are linted (``foo.yml.j2``
 -> ``.yml`` rules, ``foo.php.j2`` -> ``.php`` rules, anything else -> ``#``), and
 Jinja ``{# #}`` comments are checked on top. Python is parsed with ``tokenize``
-(string-aware, exact). The line-based languages flag full-line ``#`` comments
-plus ``/* */`` blocks; trailing inline comments are intentionally OUT of scope
-(reliably distinguishing them from ``#`` inside a string needs a full lexer per
-language, and false positives would make the linter unusable).
+(string-aware, exact). Python additionally flags bare string-expression
+statements (``\"\"\"...\"\"\"`` / ``'''...'''`` / plain literals) outside
+docstring position: a string floating in a body is a comment in disguise and
+runs through the same validity rules. Docstrings (first statement of a
+module/class/function) and PEP 224 attribute docstrings (string directly
+after an assignment) stay untouched. The line-based languages flag full-line
+``#`` comments plus ``/* */`` blocks; trailing inline comments are
+intentionally OUT of scope (reliably distinguishing them from ``#`` inside a
+string needs a full lexer per language, and false positives would make the
+linter unusable).
 
 SCOPE: only files that are staged, unstaged, or untracked against ``HEAD`` are
 checked. The legacy tree is grandfathered in -- it never breaks the build --
@@ -35,6 +41,7 @@ for vendored/upstream config templates whose inline docs are all intentional.
 
 from __future__ import annotations
 
+import ast
 import io
 import re
 import subprocess
@@ -108,6 +115,66 @@ def _py_comments(text: str):
         for t in toks
         if t.type == tokenize.COMMENT
     ]
+
+
+def _py_stray_strings(text: str):
+    """Bare string-expression statements outside docstring position.
+
+    A triple-quoted (or plain) string literal floating in a body is a
+    comment in disguise and is validated like any other comment. Allowed
+    positions: first statement of a module/class/function (docstring) and
+    directly after an assignment (PEP 224 attribute docstring).
+    """
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return []
+
+    def _is_str_expr(stmt) -> bool:
+        return (
+            isinstance(stmt, ast.Expr)
+            and isinstance(stmt.value, ast.Constant)
+            and isinstance(stmt.value.value, str)
+        )
+
+    allowed: set[int] = set()
+    for node in ast.walk(tree):
+        for field in ("body", "orelse", "finalbody"):
+            body = getattr(node, field, None)
+            if not isinstance(body, list):
+                continue
+            for idx, stmt in enumerate(body):
+                if not _is_str_expr(stmt):
+                    continue
+                is_docstring = (
+                    field == "body"
+                    and idx == 0
+                    and isinstance(
+                        node,
+                        (
+                            ast.Module,
+                            ast.ClassDef,
+                            ast.FunctionDef,
+                            ast.AsyncFunctionDef,
+                        ),
+                    )
+                )
+                after_assign = (
+                    field == "body"
+                    and idx > 0
+                    and isinstance(node, (ast.Module, ast.ClassDef))
+                    and isinstance(body[idx - 1], (ast.Assign, ast.AnnAssign))
+                )
+                if is_docstring or after_assign:
+                    allowed.add(id(stmt))
+
+    out = []
+    for node in ast.walk(tree):
+        if _is_str_expr(node) and id(node) not in allowed:
+            first = " ".join(node.value.value.strip().split())
+            end = node.end_lineno or node.lineno
+            out.append((node.lineno, first, set(range(node.lineno, end + 1))))
+    return out
 
 
 def _hash_comments(lines):
@@ -287,7 +354,10 @@ def find_invalid_comments(path: Path):
         py = _py_comments(text)
         if py is None:
             return []
-        comments = [(ln, body, {ln}) for ln, body in py]
+        comments = sorted(
+            [(ln, body, {ln}) for ln, body in py] + _py_stray_strings(text),
+            key=lambda c: c[0],
+        )
     elif underlying in (".yml", ".yaml", ".sh", ".rb") or path.name == "Dockerfile":
         comments = _hash_comments(lines)
     elif underlying == ".php":
