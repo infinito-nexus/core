@@ -95,17 +95,22 @@ def collect_host(out: Path, app_id: str, context: str, stamp: str) -> None:
         ("df.txt", ["df", "-h"]),
         ("free.txt", ["free", "-m"]),
         ("uptime.txt", ["uptime"]),
-        ("journal.txt", ["journalctl", "-n", "1000", "--no-pager"]),
+        ("journal.txt", ["journalctl", "-n", "10000", "--no-pager"]),
+        (
+            "journal-warnings.txt",
+            ["journalctl", "-b", "-p", "warning", "--since", "-6h", "--no-pager"],
+        ),
         ("systemctl.txt", ["systemctl", "list-units", "--all", "--no-pager"]),
     ):
         capture(out, name, cmd)
     dmesg = run(["dmesg", "-T"]).stdout.decode(errors="replace")
+    write(out / "dmesg.txt", dmesg.encode())
     oom = [
         line
         for line in dmesg.splitlines()
         if re.search(r"oom|kill|memory", line, re.IGNORECASE)
     ]
-    write(out / "dmesg-oom.txt", "\n".join(oom[-80:]).encode())
+    write(out / "dmesg-oom.txt", "\n".join(oom).encode())
 
 
 def collect_local_dumps(out: Path) -> None:
