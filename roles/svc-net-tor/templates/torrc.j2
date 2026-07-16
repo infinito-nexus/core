@@ -17,6 +17,10 @@ SocksPolicy reject *
 ControlPort 127.0.0.1:9051
 CookieAuthentication 1
 
+{% if not (TOR_USE_ENTRY_GUARDS | bool) %}
+UseEntryGuards 0
+{% endif %}
+
 {% if TOR_EGRESS_ROUTER_ENABLED | bool %}
 AutomapHostsOnResolve 1
 AutomapHostsSuffixes .onion

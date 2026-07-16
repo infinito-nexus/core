@@ -263,7 +263,10 @@
   register: _wait_result
   retries: "{{ TEST_E2E_PLAYWRIGHT_WAIT_RETRIES }}"
   delay: "{{ TEST_E2E_PLAYWRIGHT_WAIT_DELAY }}"
-  until: _wait_result.status is defined and _wait_result.status | int < 500
+  until: >-
+    _wait_result.status is defined and
+    _wait_result.status | int >= 100 and
+    _wait_result.status | int < 500
   when:
     - TEST_E2E_PLAYWRIGHT_WAIT_ENABLED | bool
     # .onion targets are only reachable via Tor; the HTTP readiness probe cannot
@@ -291,7 +294,7 @@
       {{ ('socks5://' ~ lookup('tor_socks', 'host.docker.internal')) if (_pw_is_onion | bool)
          else '' }}
 
-- name: Probe onion reachability over Tor
+- name: Wait until the onion answers over Tor
   ansible.builtin.command:
     argv:
       - curl
@@ -307,25 +310,10 @@
       - "http://{{ lookup('domain', application_id) }}/" # nocheck: literal-protocol-lookup -- .onion is plaintext-only (no TLS), via Tor SOCKS
   register: _pw_onion_probe
   changed_when: false
-  failed_when: false
   retries: "{{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int }}"
   delay: "{{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int }}"
   until: _pw_onion_probe.rc == 0
-  ignore_errors: true
   when: _pw_is_onion | bool
-
-- name: Decide whether to run Playwright (skip onion apps Tor cannot reach)
-  ansible.builtin.set_fact:
-    _pw_run: "{{ (not (_pw_is_onion | bool)) or (_pw_onion_probe.rc | default(1) == 0) }}"
-
-- name: Note skipped Playwright run (onion unreachable over Tor)
-  ansible.builtin.debug:
-    msg: >-
-      SKIP Playwright for {{ application_id }}: onion
-      {{ lookup('domain', application_id) }} did not answer over Tor after
-      {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES }} attempts (Tor not
-      bootstrapped or hidden service not yet published). Deploy not failed.
-  when: (_pw_is_onion | bool) and not (_pw_run | bool)
 
 - name: Run Playwright container
   ansible.builtin.command:
@@ -378,7 +366,6 @@
   register: _playwright_run
   changed_when: false
   failed_when: false
-  when: _pw_run | bool
 
 - name: Print Playwright output (on failure)
   ansible.builtin.debug:

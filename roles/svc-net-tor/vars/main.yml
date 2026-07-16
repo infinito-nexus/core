@@ -14,6 +14,7 @@ TOR_CUSTOM_IMAGE: "tor_custom"
 TOR_CUSTOM_VERSION: "{{ TOR_VERSION }}"
 
 TOR_NODE_ONION: "{{ lookup('config', application_id, 'services.tor.node', '') }}"
+TOR_USE_ENTRY_GUARDS: "{{ lookup('config', application_id, 'services.tor.use_entry_guards') | bool }}"
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"

@@ -17,6 +17,9 @@ tor:
   version: trixie-slim
   name: tor
   node: ""
+  # Tor default (guard pinning). Test inventories disable it so one degraded
+  # entry guard cannot stall the whole node; anonymity is not under test there.
+  use_entry_guards: true
   ports:
     local:
       socks: 9050
