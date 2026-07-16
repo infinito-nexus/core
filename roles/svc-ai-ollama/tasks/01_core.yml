@@ -16,6 +16,11 @@
     loop_var: model
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  retries: "{{ 0 if ASYNC_ENABLED | bool else 5 }}"
+  delay: 15
+  until: >
+    (pull_result.rc | default(0)) == 0 or
+    ('up to date' in (pull_result.stdout | default('')))
   changed_when: >
     (not (ASYNC_ENABLED | bool)) and (
       'downloaded' in (pull_result.stdout | default('')) or
