@@ -31,42 +31,26 @@
 
 # Stage the WebUI bundle before container start so the read-only mount targets a
 # real file. The controller can fetch what Stalwart (pinned CA roots) cannot.
-- name: "Stage the Stalwart WebUI bundle for offline unpack"
-  block:
-    - name: "Ensure the WebUI cache directory exists"
-      ansible.builtin.file:
-        path: "{{ STALWART_WEBUI_CACHE_FILE | dirname }}"
-        state: directory
-        mode: "0755"
+# A failed download fails the deploy: shipping a 404 WebAdmin silently is worse.
+# Air-gapped hosts override STALWART_WEBUI_RESOURCE_URL to an internal mirror.
+- name: "Ensure the WebUI cache directory exists"
+  ansible.builtin.file:
+    path: "{{ STALWART_WEBUI_CACHE_FILE | dirname }}"
+    state: directory
+    mode: "0755"
 
-    - name: "Download the Stalwart WebUI bundle (skipped when cached)"
-      get_url_retry:
-        url: "{{ STALWART_WEBUI_RESOURCE_URL }}"
-        dest: "{{ STALWART_WEBUI_CACHE_FILE }}"
-        mode: "0644"
-      register: stalwart_webui_fetch
+- name: "Download the Stalwart WebUI bundle (skipped when cached)"
+  get_url_retry:
+    url: "{{ STALWART_WEBUI_RESOURCE_URL }}"
+    dest: "{{ STALWART_WEBUI_CACHE_FILE }}"
+    mode: "0644"
 
-    - name: "Install the cached WebUI bundle into the instance dir"
-      ansible.builtin.copy:
-        src: "{{ STALWART_WEBUI_CACHE_FILE }}"
-        dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
-        remote_src: true
-        mode: "0644"
-  rescue:
-    - name: "Warn: WebUI bundle download failed (WebAdmin will 404 until reachable)"
-      ansible.builtin.debug:
-        msg: >-
-          Could not download the Stalwart WebUI bundle from
-          {{ STALWART_WEBUI_RESOURCE_URL }}. WebAdmin (/admin, /account) will
-          return 404 until it is reachable or a bundle is staged at
-          {{ STALWART_WEBUI_LOCAL_FILE }}. Air-gapped hosts should override
-          STALWART_WEBUI_RESOURCE_URL to an internal HTTPS mirror.
-    - name: "Ensure a placeholder exists so the read-only mount is a file"
-      ansible.builtin.copy:
-        dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
-        content: ""
-        mode: "0644"
-        force: false
+- name: "Install the cached WebUI bundle into the instance dir"
+  ansible.builtin.copy:
+    src: "{{ STALWART_WEBUI_CACHE_FILE }}"
+    dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
+    remote_src: true
+    mode: "0644"
 
 - name: "Configure Roundcube SSO (OAuth via Keycloak)"
   when: STALWART_SSO_ENABLED | bool
@@ -148,8 +132,8 @@
 - name: Wait for Stalwart database and management API
   include_tasks: 02_wait_for_api.yml
 
-# A failed download is tolerated (rescue in the staging block above); a failed
-# unpack or 404 WebAdmin fails the deploy — Playwright would fail later anyway.
+# A failed unpack or 404 WebAdmin fails the deploy (the bundle download above
+# already failed hard) — Playwright would fail later anyway.
 - name: "Provision the Stalwart WebUI (WebAdmin) bundle"
   include_tasks: 10_webadmin.yml
 

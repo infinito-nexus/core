@@ -11,6 +11,11 @@ sso:
     # Under SSO, Stalwart disables password submission, so the no-reply bot
     # relays without SMTP AUTH (see plugins/lookup/email.py). Mailu omits this.
     submission_via_relay: true
+    # Keycloak client ids, self-declared here as the one SPOT: web-app-keycloak
+    # provisions the clients and this role's Roundcube config consumes them.
+    # webui_client_id is fixed by upstream (the WebAdmin SPA compiles it in).
+    webui_client_id: stalwart-webui
+    webmail_client_id: stalwart-webmail
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -31,6 +36,9 @@ stalwart:
   provides: email
   image: stalwartlabs/stalwart
   version: "v0.16.12"
+  # WebUI (WebAdmin) bundle pin, staged by the controller (tasks/10_webadmin.yml);
+  # bump together with `version` above.
+  webui_version: "v1.0.5"
   name: stalwart
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"

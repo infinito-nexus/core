@@ -9,13 +9,22 @@
       {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
           'methodCalls': [['x:Application/get', {'ids': none}, 'c0']]} | to_json }}
 
+# v0.16 ships exactly one Application record (the WebAdmin). Assert that
+# instead of silently taking `first` of an unexpected set.
+- name: "Ensure exactly one WebUI Application record exists"
+  ansible.builtin.assert:
+    that:
+      - (stalwart_jmap.methodResponses[0][1].list | length) == 1
+    fail_msg: >-
+      Expected exactly one Stalwart Application record (the WebAdmin), got
+      {{ stalwart_jmap.methodResponses[0][1].list | length }}. The JMAP schema
+      changed — re-validate 10_webadmin.yml against this Stalwart version.
+    quiet: true
+
 - name: "Resolve the WebUI Application id"
   ansible.builtin.set_fact:
-    stalwart_webui_app_id: >-
-      {{ (stalwart_jmap.methodResponses[0][1].list
-          | map(attribute='id') | first) | default('') }}
+    stalwart_webui_app_id: "{{ stalwart_jmap.methodResponses[0][1].list[0].id }}"
 
-# Skip on the empty rescue placeholder — force-unpacking it would break a working UI.
 - name: "Point the WebUI Application at the locally-staged bundle"
   include_tasks: jmap_call.yml
   vars:
@@ -24,9 +33,6 @@
           'methodCalls': [['x:Application/set',
             {'update': {stalwart_webui_app_id: {'resourceUrl': STALWART_WEBUI_LOCAL_URL}}},
             'c0']]} | to_json }}
-  when:
-    - stalwart_webui_app_id | length > 0
-    - stalwart_webui_fetch is succeeded
 
 # UpdateApps force-unpacks from resourceUrl (the /api/update/webadmin endpoint is gone).
 - name: "Unpack the WebUI bundle from the local file"
@@ -37,9 +43,6 @@
           'methodCalls': [['x:Action/set',
             {'create': {'a': {'@type': 'UpdateApps'}}},
             'c0']]} | to_json }}
-  when:
-    - stalwart_webui_app_id | length > 0
-    - stalwart_webui_fetch is succeeded
 
 - name: "Verify the WebAdmin is served after unpack"
   ansible.builtin.command:
@@ -54,7 +57,7 @@
       - /dev/null
       - -w
       - "%{http_code}"
-      - http://localhost:8080/
+      - "{{ STALWART_LOCAL_BASE_URL }}/"
   args:
     chdir: "{{ STALWART_INSTANCE_DIR }}"
   register: stalwart_webui_probe
@@ -62,4 +65,3 @@
   retries: 6
   delay: 5
   until: stalwart_webui_probe.stdout in ['200', '301', '302']
-  when: stalwart_webui_fetch is succeeded

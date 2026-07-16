@@ -133,15 +133,16 @@ KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.ke
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 
 # The WebAdmin SPA hardcodes its client_id, so provision a matching public
-# (PKCE) client. (Follow-up: replace these gates with self-declaration.)
+# (PKCE) client. Client ids are self-declared by web-app-stalwart
+# (services.sso.oidc.*_client_id) — one SPOT for both roles.
+# (Follow-up: replace these gates with self-declaration.)
 KEYCLOAK_STALWART_WEBUI_ENABLED: "{{ 'web-app-stalwart' in group_names }}"
-KEYCLOAK_STALWART_WEBUI_CLIENT_ID: "stalwart-webui"
+KEYCLOAK_STALWART_WEBUI_CLIENT_ID: "{{ lookup('config', 'web-app-stalwart', 'services.sso.oidc.webui_client_id') }}"
 
 # Roundcube confidential client — needs a small access token (no roles/groups)
-# so its XOAUTH2 SASL line fits Stalwart's 4096-byte SMTP limit. Keep the id in
-# sync with STALWART_WEBMAIL_OIDC_CLIENT_ID (web-app-stalwart).
+# so its XOAUTH2 SASL line fits Stalwart's 4096-byte SMTP limit.
 KEYCLOAK_STALWART_WEBMAIL_ENABLED: "{{ 'web-app-stalwart' in group_names }}"
-KEYCLOAK_STALWART_WEBMAIL_CLIENT_ID: "stalwart-webmail"
+KEYCLOAK_STALWART_WEBMAIL_CLIENT_ID: "{{ lookup('config', 'web-app-stalwart', 'services.sso.oidc.webmail_client_id') }}"
 KEYCLOAK_STALWART_WEBMAIL_BASE: "{{ lookup('tls', 'web-app-stalwart', 'protocols.web') ~ '://' ~ lookup('config', 'web-app-stalwart', 'server.domains.canonical.webmail') }}"
 KEYCLOAK_STALWART_WEBMAIL_REDIRECT_URIS:
   - "{{ KEYCLOAK_STALWART_WEBMAIL_BASE }}/*"

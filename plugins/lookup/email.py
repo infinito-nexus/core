@@ -206,6 +206,14 @@ class LookupModule(LookupBase):
         oidc = sso.get("oidc") or {} if isinstance(sso, dict) else {}
         if not isinstance(oidc, dict):
             return False
+        # A variant/inventory can pin the provider's sso.enabled to a literal
+        # false while submission_via_relay stays true in the role defaults —
+        # then the provider keeps password auth and never widens allowRelaying,
+        # so relay mode must be off. Untemplated Jinja (the role default gates
+        # on group_names) falls through to the Keycloak check above.
+        enabled = sso.get("enabled") if isinstance(sso, dict) else None
+        if enabled is not None and "{{" not in str(enabled) and not _as_bool(enabled):
+            return False
         return _as_bool(oidc.get("submission_via_relay"))
 
     def _lookup_mail_provider_domain(self, variables: dict[str, Any]) -> Any:

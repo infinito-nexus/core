@@ -46,12 +46,14 @@ async function roundcubeSsoLogin(page, username, password) {
     .waitFor({ state: "visible", timeout: 60_000 });
 }
 
+// Logout MUST exist and work — a missing control is a failure, not a skip.
 async function roundcubeLogout(page) {
   const logout = page.locator("a[href*='_task=logout'], a[href*='logout'], a.logout")
     .or(page.getByRole("link", { name: /logout|sign out/i }));
-  if (await logout.first().isVisible({ timeout: 5_000 }).catch(() => false)) {
-    await logout.first().click();
-  }
+  await expect(logout.first(), "Roundcube logout control must be present").toBeVisible({
+    timeout: 10_000,
+  });
+  await logout.first().click();
 }
 
 // Wait for a delivered mail in the recipient's mailbox — accept Inbox OR Junk (the
@@ -132,10 +134,12 @@ test("stalwart: sso login, open WebAdmin, logout", async ({ page }) => {
     page.locator("nav, .sidebar, [class*='menu'], h1, h2").filter({ hasText: /dashboard|domains|account|settings|directory/i }).first()
   ).toBeVisible({ timeout: 30_000 });
 
+  // Logout MUST exist and work — a missing control is a failure, not a skip.
   const logout = page.locator("a[href*='logout'], button:has-text('Logout')").or(page.getByRole("link", { name: /logout/i }));
-  if (await logout.first().isVisible({ timeout: 5_000 }).catch(() => false)) {
-    await logout.first().click();
-  }
+  await expect(logout.first(), "WebAdmin logout control must be present").toBeVisible({
+    timeout: 10_000,
+  });
+  await logout.first().click();
 });
 
 // Scenario II: biber -> administrator send/receive through the Roundcube webmail UI.
@@ -143,8 +147,11 @@ test("stalwart: sso login, open WebAdmin, logout", async ({ page }) => {
 // biber and the administrator are separate people: isolated browser contexts.
 test("stalwart: biber sends to administrator, administrator receives it", async ({ browser }) => {
   safeSkipUnlessEnabled("sso");
-  test.skip(!webmailBaseUrl || !biberPassword || !adminPassword,
-    "Requires WEBMAIL_BASE_URL + provisioned biber/administrator accounts");
+  // The env template always renders these — a missing value is a rendering
+  // regression and MUST fail, not silently skip the flagship scenario.
+  expect(webmailBaseUrl, "WEBMAIL_BASE_URL must be set").toBeTruthy();
+  expect(biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
+  expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 
   const testSubject = `Playwright stalwart ${Date.now()}`;
   const biberContext = await browser.newContext({ ignoreHTTPSErrors: true });

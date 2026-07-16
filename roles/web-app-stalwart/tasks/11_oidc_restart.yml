@@ -15,7 +15,7 @@
       - /dev/null
       - -w
       - "%{http_code}"
-      - "{{ OIDC.CLIENT.ISSUER_URL }}/.well-known/openid-configuration"
+      - "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
   args:
     chdir: "{{ STALWART_INSTANCE_DIR }}"
   register: stalwart_oidc_issuer_probe

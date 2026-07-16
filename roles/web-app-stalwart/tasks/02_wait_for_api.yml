@@ -15,7 +15,7 @@
           - -fsS
           - -o
           - /dev/null
-          - "{{ STALWART_API_BASE_URL | regex_replace('/api$', '') }}/healthz/ready"
+          - "{{ STALWART_LOCAL_BASE_URL }}/healthz/ready"
       args:
         chdir: "{{ STALWART_INSTANCE_DIR }}"
       register: stalwart_api_check

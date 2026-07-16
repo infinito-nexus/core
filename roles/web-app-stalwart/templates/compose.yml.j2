@@ -7,7 +7,7 @@
     hostname: {{ STALWART_HOSTNAME }}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.stalwart.ports.local.http') }}:8080"
+      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.stalwart.ports.local.http') }}:{{ container_port }}"
 {% if application_id == MAIL_PROVIDER %}
       # Only the active MAIL_PROVIDER owns the public mail ports.
       - "{{ STALWART_IP4_PUBLIC }}:25:25"

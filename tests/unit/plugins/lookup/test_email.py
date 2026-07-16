@@ -176,6 +176,54 @@ class TestEmailLookup(unittest.TestCase):
         self.assertTrue(result["auth"])
         self.assertFalse(result["start_tls"])
 
+    def test_sso_relay_inactive_when_sso_enabled_pinned_false(self) -> None:
+        # A variant pins the provider's sso.enabled to a literal false while
+        # submission_via_relay stays true (role default) and Keycloak is still
+        # deployed: the provider keeps password auth, so no relay mode.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {"sso": {"enabled": False, "oidc": {"submission_via_relay": True}}},
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov", "web-app-keycloak"],
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 465)
+        self.assertTrue(result["auth"])
+        self.assertFalse(result["start_tls"])
+
+    def test_sso_relay_active_with_untemplated_enabled_gate(self) -> None:
+        # The role default gates sso.enabled on group_names (raw Jinja here);
+        # the guard must not treat the untemplated string as false.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {
+                "sso": {
+                    "enabled": "{{ 'web-app-keycloak' in group_names }}",
+                    "oidc": {"submission_via_relay": True},
+                }
+            },
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov", "web-app-keycloak"],
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 25)
+        self.assertFalse(result["auth"])
+        self.assertTrue(result["start_tls"])
+
     def test_computed_defaults_are_templated(self) -> None:
         self.lookup._templar = _DummyTemplar(
             {"DOMAIN_PRIMARY_RESOLVED": "mail.example.org"}

@@ -15,7 +15,7 @@
       - /dev/null
       - -w
       - "%{http_code}"
-      - "https://{{ MAILU_OIDC_HOST }}/realms/{{ OIDC.CLIENT.REALM }}/.well-known/openid-configuration"
+      - "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
   args:
     chdir: "{{ MAILU_INSTANCE_DIR }}"
   register: mailu_oidc_issuer_probe
