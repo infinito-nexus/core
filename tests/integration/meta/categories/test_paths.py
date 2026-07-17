@@ -19,13 +19,19 @@ class TestCategoryPaths(unittest.TestCase):
         expected = set()
 
         for top_key, attrs in self.roles_def.items():
-            # Top-level category
             expected.add(top_key)
 
-            # Nested subcategories (keys other than metadata)
             for sub_key in attrs:
-                # Skip metadata keys
-                if sub_key in ("title", "description", "icon", "children", "invokable"):
+                if sub_key in (
+                    "title",
+                    "description",
+                    "icon",
+                    "children",
+                    "invokable",
+                    "stage",
+                    "run_after",
+                    "bootstrap",
+                ):
                     continue
                 expected.add(f"{top_key}-{sub_key}")
 

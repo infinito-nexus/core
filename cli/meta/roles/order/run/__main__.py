@@ -1,309 +1,140 @@
 #!/usr/bin/env python3
 """
-What it does:
-- 📄 Prints the call order of roles per tasks/groups/*.yml
-- 🎯 With --marker (and no --call): shows all groups/roles split into ✅ called (<= marker) vs ⏳ remaining (> marker)
-- 🧩 With --call: filters to only groups that contain at least one of the selected roles and shows split vs marker (if given)
-- 🧷 Lists groups "not effected by marker" (i.e., groups that do NOT contain the marker role)
-- 🔎 --effected: when --marker or --call is set, show only groups that are effected (contain the marker role).
-  If no --marker is set, --effected has no extra effect (because "effected by marker" is undefined).
+Group-agnostic role call order.
+
+- 🧷 Phase 1 (preload): every primary shared service from the registry,
+  topologically sorted by run_after (the sys-service-loader pass, identical
+  to ``cli.meta.roles.order.preload``).
+- 📦 Phase 2 (main): every remaining invokable role that is NOT a preload
+  service, topologically sorted by run_after among themselves. Roles that
+  become ready together fall out in stage order (constructor -> workstation
+  -> server -> destructor) via ``roles/categories.yml``, then category
+  run_after, then name.
+
+Derived purely from ``meta/*.yml`` (run_after + the service registry) and
+``roles/categories.yml`` (stage), NOT from ``tasks/stages/*.yml``, so it
+stays independent of how the stage playbooks happen to be split.
 
 Examples:
-  # 1) Print call order per group file
+  # 1) Full call order, both phases
   python -m cli.meta.roles.order.run
 
-  # 2) Marker-only view: show everything before/after marker
-  python -m cli.meta.roles.order.run --marker "web-app-nextcloud"
+  # 2) Only entries whose role id matches a substring
+  python -m cli.meta.roles.order.run --grep backup
 
-  # 3) Filter to selected roles and split relative to marker
-  python -m cli.meta.roles.order.run \
-    --call "web-app-akaunting web-app-bigbluebutton web-app-bookwyrm web-app-chess web-app-discourse web-app-funkwhale web-app-matrix web-app-mediawiki web-app-nextcloud" \
-    --marker "web-app-nextcloud"
-
-  # 4) Only show effected groups (groups containing the marker role)
-  python -m cli.meta.roles.order.run --marker "web-app-nextcloud" --effected
+  # 3) Split the order at a marker role (called <= marker vs remaining)
+  python -m cli.meta.roles.order.run --marker web-app-nextcloud
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from utils import PROJECT_ROOT
-from utils.cache.yaml import load_yaml_any as _load_yaml_cached
+from utils.roles.applications.services.registry import (
+    ServiceRegistryError,
+    build_service_registry_from_roles_dir,
+    ordered_primary_service_entries,
+    run_after_topological_order,
+)
+from utils.roles.meta_lookup import get_role_run_after
+from utils.roles.stage import role_sort_key
+from utils.roles.validation.invokable import (
+    _get_invokable_paths,
+    _is_role_invokable,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
-def eprint(msg: str) -> None:
-    print(msg, file=sys.stderr)
+def _invokable_role_dirs(roles_dir: Path) -> list[str]:
+    """Role directory names that are invokable (the deployable universe)."""
+    paths = _get_invokable_paths()
+    return sorted(
+        p.name
+        for p in roles_dir.iterdir()
+        if p.is_dir() and _is_role_invokable(p.name, paths)
+    )
 
 
-def list_group_files(groups_dir: Path) -> list[Path]:
-    """
-    Return group YAML files under tasks/groups (skip .gitignore and non-yml).
-    Sort by filename for deterministic order.
-    """
-    out: list[Path] = []
-    for p in groups_dir.iterdir():
-        if not p.is_file():
-            continue
-        if p.name == ".gitignore":
-            continue
-        if p.suffix not in (".yml", ".yaml"):
-            continue
-        out.append(p)
-    out.sort(key=lambda x: x.name)
-    return out
+def build_call_order(roles_dir: Path) -> list[tuple[str, str]]:
+    """(phase, role) for every deployed role: preload phase first (registry
+    run_after order), then the main phase (remaining invokable roles in
+    run_after topological order)."""
+    registry = build_service_registry_from_roles_dir(roles_dir)
+    preload = [
+        entry["role"] for entry in ordered_primary_service_entries(registry, roles_dir)
+    ]
+    preload_set = set(preload)
 
+    main_nodes = [r for r in _invokable_role_dirs(roles_dir) if r not in preload_set]
+    main = run_after_topological_order(
+        main_nodes,
+        lambda r: get_role_run_after(roles_dir / r, role_name=r),
+        role_sort_key,
+    )
 
-def load_yaml(path: Path) -> Any:
-    return _load_yaml_cached(str(path), default_if_missing=None)
-
-
-def extract_roles_from_tasks(doc: Any) -> list[str]:
-    """
-    Extract include_role.name values from a task list.
-    Ignores meta: flush_handlers (and everything else).
-    """
-    roles: list[str] = []
-    if doc is None or not isinstance(doc, list):
-        return roles
-
-    for item in doc:
-        if not isinstance(item, dict):
-            continue
-
-        inc = item.get("include_role")
-        if isinstance(inc, dict):
-            name = inc.get("name")
-            if isinstance(name, str) and name.strip():
-                roles.append(name.strip())
-
-    return roles
-
-
-def group_name_from_file(path: Path) -> str:
-    """
-    'web-app-roles.yml' -> 'web-app'
-    'svc-db-roles.yml'  -> 'svc-db'
-    If not matching '*-roles.yml', fall back to stem.
-    """
-    n = path.name
-    if n.endswith("-roles.yml"):
-        return n[: -len("-roles.yml")]
-    if n.endswith("-roles.yaml"):
-        return n[: -len("-roles.yaml")]
-    return path.stem
-
-
-@dataclass(frozen=True)
-class Group:
-    file: Path
-    group_name: str
-    roles: list[str]
-
-
-def build_groups(repo_root: Path) -> list[Group]:
-    groups_dir = repo_root / "tasks" / "groups"
-    files = list_group_files(groups_dir)
-
-    groups: list[Group] = []
-    for f in files:
-        doc = load_yaml(f)
-        roles = extract_roles_from_tasks(doc)
-        groups.append(Group(file=f, group_name=group_name_from_file(f), roles=roles))
-    return groups
-
-
-def flatten_callorder(groups: list[Group]) -> list[tuple[str, str]]:
-    """
-    Global order across groups: (group_name, role) in file sort order.
-    """
-    out: list[tuple[str, str]] = []
-    for g in groups:
-        out.extend((g.group_name, r) for r in g.roles)
-    return out
-
-
-def normalize_call_list(s: str) -> list[str]:
-    return [x.strip() for x in s.split() if x.strip()]
+    return [("preload", r) for r in preload] + [("main", r) for r in main]
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="python -m cli.meta.roles.order.run",
-        description="Print role call order per tasks/groups/*.yml and analyze relative to a marker role.",
+        description="Group-agnostic role call order: preload services first, then the remaining invokable roles (run_after topological order).",
     )
     ap.add_argument(
-        "--call",
-        help='Space-separated roles to analyze (filters groups), e.g. --call "web-app-a web-app-b".',
+        "--grep",
+        help="Only show entries whose role id contains this substring.",
         default=None,
     )
     ap.add_argument(
         "--marker",
-        help="Marker role name; splits roles into called vs remaining.",
+        help="Split the order at this role: entries at/before it are 'called', the rest 'remaining'.",
         default=None,
     )
-    ap.add_argument(
-        "--effected",
-        action="store_true",
-        help="If --marker or --call is set: show only groups containing the marker role (effected groups).",
-    )
-
     args = ap.parse_args(argv)
 
-    repo_root = PROJECT_ROOT
-    groups = build_groups(repo_root)
-    global_order = flatten_callorder(groups)
-
-    global_index: dict[str, int] = {}
-    for i, (_grp, role) in enumerate(global_order):
-        global_index.setdefault(role, i)
-
-    call_set: set[str] | None = None
-    if args.call:
-        call_set = set(normalize_call_list(args.call))
-
-    marker_role = (args.marker or "").strip() or None
-    marker_pos: int | None = None
-    marker_group: str | None = None
-    if marker_role:
-        if marker_role in global_index:
-            marker_pos = global_index[marker_role]
-            marker_group = global_order[marker_pos][0]
-        else:
-            eprint(f"⚠️  Marker role not found in any group file: {marker_role!r}")
-
-    def role_is_called(role: str) -> bool:
-        """
-        Called means: appears at or before marker position.
-        If marker is missing/not provided, treat as called for marker-less mode.
-        """
-        if marker_pos is None:
-            return True
-        idx = global_index.get(role)
-        if idx is None:
-            return False
-        return idx <= marker_pos
-
-    def role_marker_icon(role: str) -> str:
-        return " 🎯" if marker_role and role == marker_role else ""
-
-    if call_set is None and marker_role is None:
-        for g in groups:
-            print(f"📂 {g.group_name}  ({g.file.relative_to(repo_root)})")
-            if not g.roles:
-                print("  · (no roles found)")
-            else:
-                for r in g.roles:
-                    print(f"  - {r}")
-            print()
-        return 0
-
-    filtered_groups: list[Group] = []
-    for g in groups:
-        if call_set is not None:
-            if any(r in call_set for r in g.roles):
-                filtered_groups.append(g)
-        else:
-            filtered_groups.append(g)
-
-    if args.effected and marker_role:
-        filtered_groups = [g for g in filtered_groups if marker_role in g.roles]
-
-    print("🧾 === Callorder analysis ===")
-    print(f"📍 Repo root: {repo_root}")
-    if call_set is not None:
-        print(f"🧩 Selected roles (--call): {len(call_set)}")
-    else:
-        print("🧩 Selected roles (--call): (none) — showing all groups")
-    print(f"🎯 Marker (--marker): {marker_role or '(none)'}")
-    if marker_role and marker_pos is not None:
-        print(f"🧭 Marker location: group '{marker_group}' (global index {marker_pos})")
-    print()
-
-    if marker_role:
-        not_effected = [g.group_name for g in groups if marker_role not in g.roles]
-    else:
-        not_effected = []
-
-    def group_position_label(g: Group) -> str:
-        if marker_pos is None:
-            return ""
-        indices = [global_index.get(r) for r in g.roles if r in global_index]
-        if not indices:
-            return "❔"
-        if max(indices) <= marker_pos:
-            return "⬅️  (before/equal marker)"
-        if min(indices) > marker_pos:
-            return "➡️  (after marker)"
-        return "🎯 (spans marker)"
-
-    printed_any = False
-    for g in filtered_groups:
-        if call_set is not None:
-            scoped = [r for r in g.roles if r in call_set]
-        else:
-            scoped = list(g.roles)
-
-        if not scoped:
-            continue
-
-        printed_any = True
-
-        pos_label = group_position_label(g) if marker_role else ""
-        print(f"📂 {g.group_name} {pos_label}  ({g.file.name})")
-
-        if marker_role:
-            called = [r for r in scoped if role_is_called(r)]
-            remaining = [r for r in scoped if r not in called]
-
-            if called:
-                print("  ✅ called (<= marker):")
-                for r in called:
-                    print(f"    - {r}{role_marker_icon(r)}")
-            if remaining:
-                print("  ⏳ remaining (> marker or unknown):")
-                for r in remaining:
-                    print(f"    - {r}{role_marker_icon(r)}")
-            if not called and not remaining:
-                print("  · (no matching roles)")
-        else:
-            for r in scoped:
-                print(f"  - {r}")
-
-        print()
-
-    if call_set is not None:
-        missing = sorted([r for r in call_set if r not in global_index])
-        if missing:
-            print("⚠️  === Roles not found in tasks/groups/*.yml ===")
-            for r in missing:
-                print(f"- {r}")
-            print()
-
-    if marker_role:
-        print(
-            "🧷 === Not effected by marker (marker role not present in these groups) ==="
-        )
-        if not_effected:
-            for gn in sorted(set(not_effected)):
-                print(f"- {gn}")
-        else:
-            print("(none)")
-        print()
-
-    if not printed_any:
-        if call_set is not None:
-            print("ℹ️  No groups matched the provided --call roles.")
-        else:
-            print("ℹ️  Nothing to display (unexpected).")
+    roles_dir = PROJECT_ROOT / "roles"
+    try:
+        order = build_call_order(roles_dir)
+    except ServiceRegistryError as exc:
+        print(f"❌ {exc}")
         return 1
 
+    marker = (args.marker or "").strip() or None
+    marker_pos = next((i for i, (_p, r) in enumerate(order) if r == marker), None)
+    if marker and marker_pos is None:
+        print(f"⚠️  Marker role not found: {marker!r}")
+
+    def render(pos: int, phase: str, role: str) -> str:
+        icon = "🧷" if phase == "preload" else "📦"
+        run_after = get_role_run_after(roles_dir / role, role_name=role)
+        suffix = f"  (run_after: {', '.join(run_after)})" if run_after else ""
+        mark = " 🎯" if role == marker else ""
+        return f"{pos:3d}. {icon} {role}{mark}{suffix}"
+
+    shown = 0
+    last_split = None
+    for pos, (phase, role) in enumerate(order, start=1):
+        if args.grep and args.grep not in role:
+            continue
+        if marker_pos is not None:
+            split = (
+                "✅ called (<= marker)"
+                if pos - 1 <= marker_pos
+                else "⏳ remaining (> marker)"
+            )
+            if split != last_split:
+                print(f"\n{split}")
+                last_split = split
+        print(render(pos, phase, role))
+        shown += 1
+
+    if not shown:
+        print(f"ℹ️  No entries match {args.grep!r}.")
+        return 1
     return 0
 
 

@@ -24,10 +24,7 @@
 
 - name: "📂 Include server roles"
   include_tasks: "./tasks/groups/{{ server_group }}-roles.yml"
-  loop:
-    - web-svc # 1. Load web server services
-    - web-app # 2. Load (UI) web applications
-    - web-opt # 4. Load optimation scrips last
+  loop: "{{ lookup('stage_groups', 'server') }}"
   loop_control:
     loop_var: server_group
     label: "{{ server_group }}-roles.yml"

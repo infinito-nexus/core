@@ -1,8 +1,7 @@
 ---
 - name: "🧩 Load destruction roles"
   include_tasks: "./tasks/groups/{{ destruction_group }}-roles.yml"
-  loop:
-    - svc-opt # Load optimation services
+  loop: "{{ lookup('stage_groups', 'destructor') }}"
   loop_control:
     loop_var: destruction_group
     label: "{{ destruction_group }}-roles.yml"

@@ -176,17 +176,7 @@
 
 - name: "🧩 Load base roles"
   ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
-  loop:
-    - update # 1. Update system
-    - drv # 2. Load driver roles
-    - gen # 3. Load generic roles
-    - svc-net # 4. Load network roles
-    - svc-db # 5. Load database roles
-    - svc-dns # 5b. Load central DNS resolver roles
-    - svc-prx # 6. Load proxy roles
-    - svc-ai # 7. Load AI roles
-    - svc-bkp # 8. Load Backup Roles
-    - svc-runner # 9. Load CI runner roles
+  loop: "{{ lookup('stage_groups', 'constructor') }}"
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}-roles.yml"
