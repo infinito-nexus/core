@@ -280,6 +280,32 @@ class TestOnionDomainInjection(unittest.TestCase):
         )
         self.assertEqual(out["web-app-x"], ["x.infinito.example", f"x.{self.ONION}"])
 
+    def test_consumer_exclusive_false_inherits_provider_primary_dual(self):
+        """A consumer pinning only exclusive: false inherits the provider's
+        primary: true and stays dual-stack, onion-first."""
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {
+            "web-app-x": {
+                "services": {
+                    "tor": {"enabled": True, "shared": True, "exclusive": False}
+                }
+            },
+            "svc-net-tor": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "shared": True,
+                        "exclusive": True,
+                        "primary": True,
+                    }
+                }
+            },
+        }
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.example"])
+
     def test_bare_primary_domain_maps_to_node_onion(self):
         merged = {"web-app-x": ["infinito.example"]}
         out = cache_domains._inject_onion_domains(

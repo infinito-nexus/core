@@ -17,6 +17,10 @@
 # on the consuming application. This replaces the recurring
 # ``(lookup(...) if lookup('config', application_id, 'services.X.enabled') else '')``
 # template branching.
+#
+# Primary resolution is family-aligned: a clearnet-primary consumer (via
+# ``consumer=`` or the caller's ``application_id``) referencing an
+# onion-primary target gets the target's clearnet sibling when one exists.
 
 from __future__ import annotations
 
@@ -29,7 +33,12 @@ from utils.cache.applications import get_merged_applications
 from utils.cache.domains import get_merged_domains
 from utils.domains.primary_domain import get_primary_domain
 from utils.roles.entity_name import get_entity_name
-from utils.tls_common import as_str, require, resolve_enabled
+from utils.tls_common import (
+    align_domain_to_consumer,
+    as_str,
+    require,
+    resolve_enabled,
+)
 
 
 class LookupModule(LookupBase):
@@ -88,6 +97,14 @@ class LookupModule(LookupBase):
                 )
         else:
             domain = get_primary_domain(domains, app_id)
+            domain = align_domain_to_consumer(
+                domains,
+                app_id,
+                domain,
+                consumer=consumer,
+                variables=variables,
+                templar=templar,
+            )
 
         app = applications.get(app_id, {})
         if not isinstance(app, dict):

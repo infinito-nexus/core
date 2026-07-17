@@ -31,10 +31,12 @@ class TestCanonicalUrlLookup(unittest.TestCase):
             p.start()
         self.addCleanup(lambda: [p.stop() for p in self._patchers])
 
-    def _run(self, terms, domains, applications=None, **kwargs):
+    def _run(self, terms, domains, applications=None, extra_vars=None, **kwargs):
         v = dict(self.base_vars)
         v["domains"] = domains
         v["applications"] = applications or {}
+        if extra_vars:
+            v.update(extra_vars)
         return self.lookup.run(terms, variables=v, **kwargs)[0]
 
     def test_primary_clearnet_is_https(self):
@@ -83,6 +85,61 @@ class TestCanonicalUrlLookup(unittest.TestCase):
     def test_bad_arity_raises(self):
         with self.assertRaises(AnsibleError):
             self.lookup.run([], variables=self.base_vars)
+
+    def test_primary_aligns_to_clearnet_consumer(self):
+        out = self._run(
+            ["web-svc-cdn"],
+            {
+                "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+                "web-app-bbb": ["bbb.example"],
+            },
+            extra_vars={"application_id": "web-app-bbb"},
+        )
+        self.assertEqual(out, "https://cdn.example")
+
+    def test_primary_stays_onion_for_onion_consumer(self):
+        out = self._run(
+            ["web-svc-cdn"],
+            {
+                "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+                "web-app-dash": ["dash.abc.onion"],
+            },
+            extra_vars={"application_id": "web-app-dash"},
+        )
+        self.assertEqual(out, "http://cdn.abc.onion")
+
+    def test_primary_onion_only_falls_back_for_clearnet_consumer(self):
+        out = self._run(
+            ["web-svc-cdn"],
+            {
+                "web-svc-cdn": ["cdn.abc.onion"],
+                "web-app-bbb": ["bbb.example"],
+            },
+            extra_vars={"application_id": "web-app-bbb"},
+        )
+        self.assertEqual(out, "http://cdn.abc.onion")
+
+    def test_primary_unchanged_without_consumer_context(self):
+        out = self._run(
+            ["web-svc-cdn"],
+            {
+                "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+                "web-app-bbb": ["bbb.example"],
+            },
+        )
+        self.assertEqual(out, "http://cdn.abc.onion")
+
+    def test_consumer_kwarg_drives_alignment(self):
+        out = self._run(
+            ["web-svc-cdn"],
+            {
+                "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+                "web-app-bbb": ["bbb.example"],
+            },
+            applications={"web-app-bbb": {"services": {"cdn": {"enabled": True}}}},
+            consumer="web-app-bbb",
+        )
+        self.assertEqual(out, "https://cdn.example")
 
     def test_consumer_with_enabled_binding_resolves(self):
         out = self._run(

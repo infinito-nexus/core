@@ -14,8 +14,10 @@ from utils.cache.applications import get_merged_applications
 from utils.cache.domains import get_merged_domains
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
+    align_domain_to_consumer,
     as_str,
     collect_domains_for_app,
+    norm_domain,
     require,
     resolve_enabled,
     resolve_mode,
@@ -70,6 +72,18 @@ class LookupModule(LookupBase):
             forced_mode=forced_mode,
             err_prefix="tls",
         )
+
+        # Family alignment applies to app-id terms only; domain terms are caller intent.
+        if forced_mode == "app" or (forced_mode == "auto" and "." not in term):
+            primary_domain = norm_domain(
+                align_domain_to_consumer(
+                    domains,
+                    app_id,
+                    primary_domain,
+                    variables=variables,
+                    templar=templar,
+                )
+            )
 
         all_domains = collect_domains_for_app(domains, app_id, err_prefix="tls")
         all_domains = (

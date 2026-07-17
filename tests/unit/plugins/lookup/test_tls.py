@@ -122,6 +122,53 @@ class TestTlsResolveLookup(unittest.TestCase):
             self.lookup.run(["unknown.example"], variables=self.base_vars)
         self.assertIn("not found", str(ctx.exception))
 
+    def test_app_term_family_aligned_for_clearnet_consumer(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+        }
+        v["application_id"] = "web-app-a"
+        out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
+        self.assertEqual(out["domain"], "cdn.example")
+        self.assertTrue(out["enabled"])
+        self.assertEqual(out["url"]["base"], "https://cdn.example/")
+
+    def test_app_term_onion_consumer_stays_onion(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+            "web-app-dash": ["dash.abc.onion"],
+        }
+        v["application_id"] = "web-app-dash"
+        out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
+        self.assertEqual(out["domain"], "cdn.abc.onion")
+        self.assertFalse(out["enabled"])
+        self.assertEqual(out["url"]["base"], "http://cdn.abc.onion/")
+
+    def test_domain_term_keeps_explicit_onion(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+        }
+        v["application_id"] = "web-app-a"
+        out = self.lookup.run(["cdn.abc.onion"], variables=v)[0]
+        self.assertEqual(out["domain"], "cdn.abc.onion")
+        self.assertFalse(out["enabled"])
+
+    def test_app_term_onion_only_target_falls_back(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion"],
+        }
+        v["application_id"] = "web-app-a"
+        out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
+        self.assertEqual(out["domain"], "cdn.abc.onion")
+        self.assertFalse(out["enabled"])
+
     def test_term_with_unresolved_jinja_is_templated(self):
         class _FakeTemplar:
             def __init__(self, mapping):

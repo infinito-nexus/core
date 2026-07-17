@@ -3,8 +3,18 @@ import hashlib
 
 from ansible.errors import AnsibleFilterError
 
+from utils.domains.primary_domain import get_domain
 from utils.get_url import get_url
 from utils.roles.applications.config import get
+from utils.tls_common import align_domain_to_consumer
+
+
+def _aligned_url(domains, application_id, target_id, protocol):
+    """Provider URL for CSP tokens, family-aligned to the consuming app."""
+    domain = align_domain_to_consumer(
+        domains, target_id, get_domain(domains, target_id), consumer=application_id
+    )
+    return f"{protocol}://{domain}"
 
 
 def _dedup_preserve(seq):
@@ -266,7 +276,9 @@ class FilterModule:
                     "style-src-elem",
                     "style-src",
                 ):
-                    tokens.append(get_url(domains, "web-svc-cdn", web_protocol))
+                    tokens.append(
+                        _aligned_url(domains, application_id, "web-svc-cdn", web_protocol)
+                    )
 
                 # Mirror privacy proxy (if tor enabled) – onion sessions load external assets through it
                 if directive in (
@@ -284,13 +296,21 @@ class FilterModule:
                     "script-src-elem",
                     "connect-src",
                 ) and self.is_feature_enabled(applications, "matomo", application_id):
-                    tokens.append(get_url(domains, "web-app-matomo", web_protocol))
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-app-matomo", web_protocol
+                        )
+                    )
 
                 # Simpleicons (if enabled via services.simpleicons.enabled) – typically used via connect-src (fetch)
                 if directive == "connect-src" and self.is_feature_enabled(
                     applications, "simpleicons", application_id
                 ):
-                    tokens.append(get_url(domains, "web-svc-simpleicons", web_protocol))
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-svc-simpleicons", web_protocol
+                        )
+                    )
 
                 # reCAPTCHA (if enabled via services.recaptcha.enabled) – scripts + frames
                 if self.is_feature_enabled(
@@ -316,9 +336,15 @@ class FilterModule:
                         domain = domains.get("web-app-dashboard")[0]
                         tokens.append(f"{domain}")
                     if self.is_feature_enabled(applications, "logout", application_id):
-                        tokens.append(get_url(domains, "web-svc-logout", web_protocol))
                         tokens.append(
-                            get_url(domains, "web-app-keycloak", web_protocol)
+                            _aligned_url(
+                                domains, application_id, "web-svc-logout", web_protocol
+                            )
+                        )
+                        tokens.append(
+                            _aligned_url(
+                                domains, application_id, "web-app-keycloak", web_protocol
+                            )
                         )
 
                 # Logout support requires inline handlers (script-src-attr + script-src-elem)
