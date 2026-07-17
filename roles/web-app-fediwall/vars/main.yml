@@ -12,6 +12,8 @@ FEDIWALL_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~
 FEDIWALL_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 FEDIWALL_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 
+FEDIWALL_HTTP_ONLY_ENABLED: "{{ not (lookup('tls', application_id, 'enabled') | bool) }}"
+
 # Upstream release
 FEDIWALL_UPSTREAM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upstream.version') }}"
 FEDIWALL_UPSTREAM_TARBALL_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upstream.tarball_url') }}"
