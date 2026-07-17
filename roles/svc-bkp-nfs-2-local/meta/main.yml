@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written backup/glue role: rsync differential snapshots of an NFS export driven by a systemd unit; no consumer-facing upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Scheduled differential rsync backup of the NFS export to the local backup directory, hard-linked against the previous snapshot.

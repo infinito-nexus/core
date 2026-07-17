@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Deploys Gitea, a lightweight self-hosted Git service offering code collaboration, version control, and a developer-friendly environment for your

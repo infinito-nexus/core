@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: The Docker RabbitMQ Role offers an easy and efficient way to run a central RabbitMQ message broker inside a Docker container, with per-consumer

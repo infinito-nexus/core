@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: The Docker PostgreSQL Role offers an easy and efficient way to run a PostgreSQL database inside a Docker container. Manage your data securely and

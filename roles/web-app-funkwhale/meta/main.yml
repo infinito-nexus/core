@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Dive into a world of rhythm and sound with Funkwhale, an innovative self-hosted music sharing platform that celebrates creativity and community.

@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Manages Wireguard VPN configuration on the host. Installs necessary tools, deploys sysctl settings for IP forwarding, and copies the Wireguard

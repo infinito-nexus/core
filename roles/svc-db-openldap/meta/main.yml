@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Unleash the potential of centralized identity management with our robust LDAP Directory solution, powered by OpenLDAP. Manage users, groups, and

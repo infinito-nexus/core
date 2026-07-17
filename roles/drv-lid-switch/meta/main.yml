@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written driver-config role that fixes laptop lid-switch behavior by editing systemd logind.conf and installing the author's own setup-hibernate helper; no upstream third-party product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Fixes incorrect lid switch behavior on Linux laptops by setting up hibernation and configuring systemd.

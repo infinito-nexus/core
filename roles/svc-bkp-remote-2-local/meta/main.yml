@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written pull-style SSH+rsync backup role (svc-bkp-*), custom Python/systemd glue with no consumer-facing upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Scheduled pull-style backup that replicates remote provider hosts onto this host via SSH + rsync, with retry-with-backoff and hard-linked

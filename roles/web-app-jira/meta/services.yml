@@ -51,7 +51,7 @@ jira:
     service_key: jira
   run_after:
     - web-app-matomo
-  lifecycle: unsupported
+  lifecycle: eol
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"

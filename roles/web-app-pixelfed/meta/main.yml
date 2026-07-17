@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Pixelfed is a decentralized image sharing platform that champions creativity and privacy. This containerized deployment provides a secure,

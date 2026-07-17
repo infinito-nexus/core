@@ -48,7 +48,7 @@ flowchart LR
         dpt_web_app_magento["web-app-magento 🐳🐝"]
         dpt_more["..."]
     end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_bkp_volume_2_local -- "1:1" --> svc_container_backup
     svc_redis -- "1:1" --> dpt_more
     svc_redis -. "0..1" .-> dpt_web_app_akaunting
     svc_redis -. "0..1" .-> dpt_web_app_baserow

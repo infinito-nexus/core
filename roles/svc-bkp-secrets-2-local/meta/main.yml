@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written Infinito.Nexus backup role (svc-bkp-*) that snapshots host secrets to the local backup tree; no upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Scheduled differential backup of host secrets, CA, ACME credentials and node identity to the local backup directory, hard-linked against the

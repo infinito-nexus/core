@@ -5,8 +5,10 @@ Failure modes covered:
     ``config/main.yml``.
   * Any source file references those legacy paths.
   * ``meta/main.yml`` carries ``run_after`` or ``lifecycle``.
-  * ``meta/services.yml.<entity>.lifecycle`` carries an out-of-allowlist
-    value.
+  * ``meta/services.yml.<entity>.lifecycle`` carries a value outside the
+    linear axis in
+    ``docs/contributing/design/role/services/lifecycle.md``
+    (``ALLOWED_LIFECYCLES``).
   * ``meta/services.yml.<entity>.ports.{local,public}`` is a bare int
     instead of a category-keyed map.
   * Any host-bound port collides with another (single int + relay span set;
@@ -36,9 +38,6 @@ from . import PROJECT_ROOT
 ROLES_DIR = PROJECT_ROOT / "roles"
 
 ALLOWED_LIFECYCLES = {
-    # Linear lifecycle axis. See
-    # docs/contributing/design/role/services/lifecycle.md for the criteria each
-    # value commits the role to.
     "planned",
     "pre-alpha",
     "alpha",
@@ -48,13 +47,8 @@ ALLOWED_LIFECYCLES = {
     "maintenance",
     "deprecated",
     "eol",
-    # Off-axis tier for roles the project ships without a maintenance or
-    # test commitment (e.g. proprietary products, demo prototypes).
-    "unsupported",
 }
 
-# Roles whose `local.http` port is allowed to live outside the documented
-# band.
 LEGACY_PORT_ALLOWLIST = {
     ("web-app-bigbluebutton", "bigbluebutton", "local", "http"): {48087},
 }
@@ -240,10 +234,6 @@ class TestPortShape(unittest.TestCase):
 
 
 class TestHostBoundPortCollisions(unittest.TestCase):
-    # The explicit allow-list: legacy BBB http port 48087 lives
-    # inside the BBB relay range (40000-49999) historically. Same role
-    # owning both ends of the collision is acceptable for this specific
-    # documented exception.
     _SAME_ROLE_LEGACY_OVERLAPS: ClassVar[set[tuple[str, int]]] = {
         ("web-app-bigbluebutton", 48087),
     }

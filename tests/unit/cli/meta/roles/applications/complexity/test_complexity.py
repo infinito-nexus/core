@@ -453,7 +453,7 @@ class TestStackColumn(unittest.TestCase):
 
     def test_symbol_cells_and_headers(self) -> None:
         self.assertEqual(_lifecycle_cell("beta", symbol=True), "🌿")
-        self.assertEqual(_lifecycle_cell("unsupported", symbol=True), "🔴")
+        self.assertEqual(_lifecycle_cell("eol", symbol=True), "🪦")
         self.assertEqual(_lifecycle_cell("planned", symbol=True), "🧭")
         self.assertEqual(_bool_cell(True, symbol=True), "✅")
         self.assertEqual(_bool_cell(False, symbol=True), "❌")

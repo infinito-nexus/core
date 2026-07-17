@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs and configures the Postmarks mail service client via Docker Compose, ready for use with applications requiring SMTP.

@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written glue role that sets up a systemd user ssh-agent service and syncs the ~/.ssh directory from Git for GNOME Wayland sessions; no consumer-facing upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Persistent SSH agent setup for GNOME Wayland sessions with SSH configuration pulled from Git.

@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Manages WireGuard on a client system by deploying services and scripts to set MTU on network interfaces and ensure optimal VPN connectivity.

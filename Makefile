@@ -247,6 +247,12 @@ diagnose-disk-usage:
 diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
 
+.PHONY: docs
+# Regenerate generated documentation: role Cosmos diagrams and the root-README roles index.
+docs:
+	@"$(MAKE)" cosmos
+	@"$(MAKE)" readme-index
+
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
 # Note: runtime context covers distro, cache sizes, secrets, and the like.
@@ -492,9 +498,9 @@ onboard: bootstrap install-skills install-alias environment-bootstrap
 	@"$(MAKE)" compose-exec cmd="bash scripts/install/dev-extras.sh"
 
 .PHONY: quality
-# Regenerate Cosmos diagrams, autoformat, then run the full test suite (pre-commit gate).
+# Regenerate generated docs, autoformat, then run the full test suite (pre-commit gate).
 quality:
-	@"$(MAKE)" cosmos
+	@"$(MAKE)" docs
 	@"$(MAKE)" autoformat
 	@"$(MAKE)" test
 
@@ -516,6 +522,12 @@ readme-check:
 # Param quick_setup: true regenerates only the Quick Setup section
 readme-generate:
 	@"$${PYTHON}" -m cli.build.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
+
+.PHONY: readme-index
+# Regenerate the invokable-role overview table in the root README.md.
+# Param check: true verifies only and fails when the table is outdated
+readme-index:
+	@"$${PYTHON}" -m cli.build.readme.overview $(if $(filter true,$(check)),--check)
 
 .PHONY: requirements-archive
 # Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).

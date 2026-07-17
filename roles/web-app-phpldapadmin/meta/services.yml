@@ -33,7 +33,7 @@ phpldapadmin:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-  lifecycle: unsupported
+  lifecycle: eol
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

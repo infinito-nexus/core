@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Marko Pjevac, Kevin Veen-Birkenbach
   description: Automates building and serving Sphinx documentation. Unlock comprehensive insights with our extensive documentation. Explore guides, tutorials,

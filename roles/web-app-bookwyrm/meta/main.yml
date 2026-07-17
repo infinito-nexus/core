@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: BookWyrm is a self-hosted federated social reading platform where users share reviews, track reading, and connect with others across the

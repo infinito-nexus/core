@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Elevate your LDAP directory management with LAM (LDAP Account Manager), a powerful solution for efficient administration of LDAP directories.

@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: "Mini-QR is a minimalist, self-hosted web application that allows users to instantly generate QR codes in a privacy-friendly way. \n"

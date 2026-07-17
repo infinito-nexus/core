@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written generic dotfile-linking glue role wrapping the author's own doli/dotlinker CLI; no consumer-facing third-party product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Installs and applies dotlinker (doli) mappings (generic role).

@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written swarm/infrastructure glue role deploying a registry:2 pull-through Docker Hub cache; no consumer-facing upstream product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: |

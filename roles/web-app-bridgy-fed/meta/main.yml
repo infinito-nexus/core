@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: "Bridge between ActivityPub (Fediverse), ATProto/Bluesky and IndieWeb."

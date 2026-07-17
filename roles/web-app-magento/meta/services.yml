@@ -113,7 +113,7 @@ magento:
     service_key: nginx
   run_after:
     - web-app-keycloak
-  lifecycle: unsupported
+  lifecycle: pre-alpha
   min_storage: 10GB
   cpus: "1.0"
   mem_reservation: 1g

@@ -48,7 +48,6 @@ SYMBOLS: dict[str, str] = {
     "maintenance": "🔧",
     "deprecated": "🚫",
     "eol": "🪦",
-    "unsupported": "🔴",
 }
 
 _BY_EMOJI: dict[str, str] = {emoji: word for word, emoji in SYMBOLS.items()}

@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written infrastructure/glue role that generates Nginx (or Cloudflare) www-to-apex redirect config; no consumer-facing upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: An Ansible role to redirect www subdomains to bare domains (apex). Supports Cloudflare edge redirects or local Nginx redirects.

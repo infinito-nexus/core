@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media Self-written storage-infra glue role that installs distro NFS client packages and probe-mounts an export; NFS is a generic protocol, not a named third-party product with a vendor site.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: |

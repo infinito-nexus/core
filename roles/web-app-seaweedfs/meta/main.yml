@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: SeaweedFS S3-compatible object store. Provides the project-wide object-store service (engine seaweedfs) consumed like a database, with the Filer

@@ -50,7 +50,6 @@ _LIFECYCLE_STAGES = (
     "maintenance",
     "deprecated",
     "eol",
-    "unsupported",
 )
 _LIFECYCLE_SYMBOLS: dict[str, str] = {s: to_emoji(s) for s in _LIFECYCLE_STAGES}
 
@@ -137,8 +136,7 @@ _LIFECYCLE_DOC: dict[str, str] = {
     "stable": "shipped in a release without a hotfix",
     "maintenance": "stable coverage, feature-frozen",
     "deprecated": "kept for compatibility, do not adopt",
-    "eol": "end of life",
-    "unsupported": "shipped but not tested or maintained",
+    "eol": "end of life: shipped but not tested or maintained",
 }
 
 
