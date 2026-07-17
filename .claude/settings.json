@@ -491,6 +491,10 @@
       "Bash(while *)"
     ],
     "ask": [
+      "Edit(CHANGELOG.md)",
+      "Write(CHANGELOG.md)",
+      "Edit(pyproject.toml)",
+      "Write(pyproject.toml)",
       "Bash(docker * build*)",
       "Bash(docker * push*)",
       "Bash(docker * run *)",
