@@ -4,12 +4,12 @@
 # rather than set once at server level — otherwise child overrides wipe
 # the parent strips.
 #
-# - Strict-Transport-Security: rendered by the proxy when TLS is enabled.
+# - Strict-Transport-Security: rendered by the proxy when TLS is enabled;
+#   over plaintext (onion) transport it must never leak from the upstream
+#   (RFC 6797), so the strip is unconditional.
 # - Deprecated security headers (X-Frame-Options & friends): superseded
 #   by CSP, rendered from each role's meta/server.yml via build_csp_header.
-{% if lookup('tls', application_id, 'enabled') | bool %}
 proxy_hide_header Strict-Transport-Security;
-{% endif %}
 proxy_hide_header X-Frame-Options;
 proxy_hide_header X-XSS-Protection;
 proxy_hide_header X-Download-Options;
