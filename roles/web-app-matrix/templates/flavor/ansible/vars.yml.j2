@@ -141,17 +141,16 @@ matrix_synapse_ext_password_provider_ldap_attributes_name: givenName
 matrix_client_element_enabled: true
 matrix_client_element_default_hs_url: "{{ MATRIX_SYNAPSE_URL }}"
 
-matrix_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | default(false) | string | lower }}
-matrix_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | default(false) | string | lower }}
-matrix_hookshot_enabled: {{ MATRIX_BRIDGE.hookshot | default(false) | string | lower }}
-matrix_appservice_discord_enabled: {{ MATRIX_BRIDGE.discord | default(false) | string | lower }}
-matrix_mautrix_discord_enabled: {{ MATRIX_BRIDGE.mautrix_discord | default(false) | string | lower }}
-matrix_mautrix_slack_enabled: {{ MATRIX_BRIDGE.mautrix_slack | default(false) | string | lower }}
-matrix_mautrix_signal_enabled: {{ MATRIX_BRIDGE.mautrix_signal | default(false) | string | lower }}
-matrix_mautrix_telegram_enabled: {{ MATRIX_BRIDGE.mautrix_telegram | default(false) | string | lower }}
-matrix_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | default(false) | string | lower }}
-matrix_mautrix_whatsapp_enabled: {{ MATRIX_BRIDGE.mautrix_whatsapp | default(false) | string | lower }}
-matrix_mautrix_gitter_enabled: {{ MATRIX_BRIDGE.gitter | default(false) | string | lower }}
+matrix_bridge_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | string | lower }}
+matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | lower }}
+matrix_bridge_hookshot_enabled: {{ MATRIX_BRIDGE.hookshot | string | lower }}
+matrix_bridge_appservice_discord_enabled: {{ MATRIX_BRIDGE.discord | string | lower }}
+matrix_bridge_mautrix_discord_enabled: {{ MATRIX_BRIDGE.mautrix_discord | string | lower }}
+matrix_bridge_mautrix_slack_enabled: {{ MATRIX_BRIDGE.mautrix_slack | string | lower }}
+matrix_bridge_mautrix_signal_enabled: {{ MATRIX_BRIDGE.mautrix_signal | string | lower }}
+matrix_bridge_mautrix_telegram_enabled: {{ MATRIX_BRIDGE.mautrix_telegram | string | lower }}
+matrix_bridge_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | string | lower }}
+matrix_bridge_mautrix_whatsapp_enabled: {{ MATRIX_BRIDGE.mautrix_whatsapp | string | lower }}
 
 jitsi_enabled: {{ MATRIX_CONFERENCING_JITSI | string | lower }}
 matrix_rtc_enabled: {{ MATRIX_CONFERENCING_ELEMENT_CALL | string | lower }}
