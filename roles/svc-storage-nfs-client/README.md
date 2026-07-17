@@ -29,8 +29,10 @@ flowchart LR
         svc_nfs_server["nfs-server"]
         svc_nfs_client["nfs-client"]
     end
-    dep_svc_storage_nfs_server -.-> svc_nfs_server
+    dep_svc_storage_nfs_server -. "0..1" .-> svc_nfs_server
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

@@ -57,14 +57,16 @@ flowchart LR
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
         dpt_web_app_opentalk["web-app-opentalk 🐳🐝"]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    dep_svc_db_redis -.-> svc_redis
-    dep_web_app_prometheus -.-> svc_prometheus
-    svc_coturn -.-> dpt_web_app_bigbluebutton
-    svc_coturn -.-> dpt_web_app_matrix
-    svc_coturn -.-> dpt_web_app_nextcloud
-    svc_coturn -.-> dpt_web_app_opentalk
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    svc_coturn -. "0..1" .-> dpt_web_app_bigbluebutton
+    svc_coturn -. "0..1" .-> dpt_web_app_matrix
+    svc_coturn -. "0..1" .-> dpt_web_app_nextcloud
+    svc_coturn -. "0..1" .-> dpt_web_app_opentalk
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

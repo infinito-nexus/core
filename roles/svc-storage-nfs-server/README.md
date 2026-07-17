@@ -33,10 +33,12 @@ flowchart LR
         dpt_svc_bkp_nfs_2_local["svc-bkp-nfs-2-local 💻"]
         dpt_svc_storage_nfs_client["svc-storage-nfs-client 💻"]
     end
-    dep_svc_bkp_nfs_2_local -.-> svc_nfs_backup
-    svc_nfs_server -.-> dpt_svc_bkp_nfs_2_local
-    svc_nfs_server -.-> dpt_svc_storage_nfs_client
+    dep_svc_bkp_nfs_2_local -. "0..1" .-> svc_nfs_backup
+    svc_nfs_server -. "0..1" .-> dpt_svc_bkp_nfs_2_local
+    svc_nfs_server -. "0..1" .-> dpt_svc_storage_nfs_client
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

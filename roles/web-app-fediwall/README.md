@@ -37,12 +37,14 @@ flowchart LR
         svc_friendica["friendica"]
         svc_fediwall["fediwall"]
     end
-    dep_web_app_friendica -.-> svc_friendica
-    dep_web_app_keycloak --> svc_sso
-    dep_web_app_mailu --> svc_email
-    dep_web_app_mastodon -.-> svc_mastodon
-    dep_web_svc_css -.-> svc_css
+    dep_web_app_friendica -. "0..1" .-> svc_friendica
+    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_mailu -- "1:1" --> svc_email
+    dep_web_app_mastodon -. "0..1" .-> svc_mastodon
+    dep_web_svc_css -. "0..1" .-> svc_css
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

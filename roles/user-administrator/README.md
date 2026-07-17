@@ -26,6 +26,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The primary purpose of this role is to provide a secure and dedicated administrator account solely for running local administration tasks. This approach minimizes security risks associated with using the root account and enforces best practices in user privilege management.

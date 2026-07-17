@@ -36,21 +36,23 @@ flowchart LR
         dpt_web_app_phpmyadmin["web-app-phpmyadmin 🐳🐝"]
         dpt_more["..."]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    svc_mariadb --> dpt_more
-    svc_mariadb -.-> dpt_web_app_akaunting
-    svc_mariadb -.-> dpt_web_app_erpnext
-    svc_mariadb -.-> dpt_web_app_espocrm
-    svc_mariadb -.-> dpt_web_app_friendica
-    svc_mariadb -.-> dpt_web_app_gitea
-    svc_mariadb -.-> dpt_web_app_joomla
-    svc_mariadb -.-> dpt_web_app_mailu
-    svc_mariadb -.-> dpt_web_app_matomo
-    svc_mariadb -.-> dpt_web_app_mediawiki
-    svc_mariadb -.-> dpt_web_app_moodle
-    svc_mariadb -.-> dpt_web_app_nextcloud
-    svc_mariadb -.-> dpt_web_app_phpmyadmin
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    svc_mariadb -- "1:1" --> dpt_more
+    svc_mariadb -. "0..1" .-> dpt_web_app_akaunting
+    svc_mariadb -. "0..1" .-> dpt_web_app_erpnext
+    svc_mariadb -. "0..1" .-> dpt_web_app_espocrm
+    svc_mariadb -. "0..1" .-> dpt_web_app_friendica
+    svc_mariadb -. "0..1" .-> dpt_web_app_gitea
+    svc_mariadb -. "0..1" .-> dpt_web_app_joomla
+    svc_mariadb -. "0..1" .-> dpt_web_app_mailu
+    svc_mariadb -. "0..1" .-> dpt_web_app_matomo
+    svc_mariadb -. "0..1" .-> dpt_web_app_mediawiki
+    svc_mariadb -. "0..1" .-> dpt_web_app_moodle
+    svc_mariadb -. "0..1" .-> dpt_web_app_nextcloud
+    svc_mariadb -. "0..1" .-> dpt_web_app_phpmyadmin
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

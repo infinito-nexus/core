@@ -21,6 +21,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The purpose of this role is to automate the installation and configuration of LibreOffice along with its language support on personal computers. This ensures that users have a consistent and fully functional office suite environment across their systems.

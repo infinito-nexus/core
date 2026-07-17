@@ -32,12 +32,14 @@ flowchart LR
         dpt_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
-    dep_svc_db_redis -.-> svc_redis
-    dep_web_app_matomo -.-> svc_matomo
-    dep_web_app_prometheus -.-> svc_prometheus
-    svc_matomo -.-> dpt_web_app_bigbluebutton
-    svc_matomo -.-> dpt_web_app_nextcloud
+    dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    svc_matomo -. "0..1" .-> dpt_web_app_bigbluebutton
+    svc_matomo -. "0..1" .-> dpt_web_app_nextcloud
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

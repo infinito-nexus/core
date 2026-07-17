@@ -41,21 +41,23 @@ flowchart LR
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_more["..."]
     end
-    dep_web_app_prometheus -.-> svc_prometheus
-    svc_css --> dpt_more
-    svc_css -.-> dpt_web_app_akaunting
-    svc_css -.-> dpt_web_app_baserow
-    svc_css -.-> dpt_web_app_bigbluebutton
-    svc_css -.-> dpt_web_app_bluesky
-    svc_css -.-> dpt_web_app_bookwyrm
-    svc_css -.-> dpt_web_app_bridgy_fed
-    svc_css -.-> dpt_web_app_checkmk
-    svc_css -.-> dpt_web_app_chess
-    svc_css -.-> dpt_web_app_confluence
-    svc_css -.-> dpt_web_app_dashboard
-    svc_css -.-> dpt_web_app_decidim
-    svc_css -.-> dpt_web_app_discourse
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    svc_css -- "1:1" --> dpt_more
+    svc_css -. "0..1" .-> dpt_web_app_akaunting
+    svc_css -. "0..1" .-> dpt_web_app_baserow
+    svc_css -. "0..1" .-> dpt_web_app_bigbluebutton
+    svc_css -. "0..1" .-> dpt_web_app_bluesky
+    svc_css -. "0..1" .-> dpt_web_app_bookwyrm
+    svc_css -. "0..1" .-> dpt_web_app_bridgy_fed
+    svc_css -. "0..1" .-> dpt_web_app_checkmk
+    svc_css -. "0..1" .-> dpt_web_app_chess
+    svc_css -. "0..1" .-> dpt_web_app_confluence
+    svc_css -. "0..1" .-> dpt_web_app_dashboard
+    svc_css -. "0..1" .-> dpt_web_app_decidim
+    svc_css -. "0..1" .-> dpt_web_app_discourse
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

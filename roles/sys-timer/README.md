@@ -23,6 +23,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The primary purpose of this role is to provide a reusable mechanism for scheduling recurring tasks on a system. By creating and managing a systemd timer unit, the role ensures that specified services are automatically started at defined intervals, enhancing system automation and reliability.

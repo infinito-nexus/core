@@ -31,6 +31,7 @@ from utils.cache.yaml import load_yaml
 from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
+from utils.symbol_glossary import to_emoji
 
 MANAGED_SECTIONS = ("Cosmos", "Quick Setup", "Credits")
 _DEFAULT_AUTHOR = "Kevin Veen-Birkenbach"
@@ -76,7 +77,20 @@ def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -
         ],
         "application_author": _role_author(role_dir),
         "cosmos_mermaid": derive_cosmos_mermaid(role_dir, role_name),
+        "cosmos_legend": _cosmos_legend(),
     }
+
+
+def _cosmos_legend() -> str:
+    """Reading key rendered below the diagram; emojis come from the shared
+    symbol glossary so a glyph means the same thing everywhere."""
+    return (
+        f"Solid `1:1` edges are fixed relationships; dashed `0..1` edges are "
+        f"conditional (enabled only in matching deployments). Node markers "
+        f"show the role's deploy modes ({to_emoji('host')} host, "
+        f"{to_emoji('compose')} compose, {to_emoji('swarm')} swarm); "
+        f"{to_emoji('disabled')} marks a service that is explicitly turned off."
+    )
 
 
 def _managed_blocks(

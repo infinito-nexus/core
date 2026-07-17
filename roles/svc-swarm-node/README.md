@@ -28,8 +28,10 @@ flowchart LR
     subgraph dependents [Dependents]
         dpt_svc_swarm_manager["svc-swarm-manager 💻"]
     end
-    svc_node -.-> dpt_svc_swarm_manager
+    svc_node -. "0..1" .-> dpt_svc_swarm_manager
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

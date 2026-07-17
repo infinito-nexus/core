@@ -19,6 +19,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The purpose of this role is to enhance the security of your backup system by providing a dedicated user with strict command restrictions. This controlled environment limits the potential damage from a compromised backup account while still allowing efficient backup operations.

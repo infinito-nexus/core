@@ -19,6 +19,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The purpose of this role is to automate the configuration of cloud-integrated user directories by ensuring that common folders like `Downloads`, `Music`, and `Workspaces` are transparently redirected into a centralized cloud structure. This makes it easier to maintain sys-bkp-friendly, cloud-ready setups for homelab and professional workflows.

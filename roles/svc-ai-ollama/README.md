@@ -26,11 +26,13 @@ flowchart LR
         dpt_web_app_minio["web-app-minio 🐳🐝"]
         dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    svc_ollama -.-> dpt_web_app_flowise
-    svc_ollama -.-> dpt_web_app_minio
-    svc_ollama -.-> dpt_web_app_openwebui
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    svc_ollama -. "0..1" .-> dpt_web_app_flowise
+    svc_ollama -. "0..1" .-> dpt_web_app_minio
+    svc_ollama -. "0..1" .-> dpt_web_app_openwebui
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

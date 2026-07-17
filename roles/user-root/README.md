@@ -25,6 +25,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The primary purpose of this role is to enhance the security of the system by ensuring that a valid SSH key is available for the [root user](https://en.wikipedia.org/wiki/Superuser). By automating the generation and output of the public key, it reduces manual intervention and helps maintain a secure configuration for administrative access.

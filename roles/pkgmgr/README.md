@@ -24,6 +24,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The purpose of this role is to simplify the installation of Kevin's Package Manager, reducing manual steps and ensuring a consistent setup across environments. Ideal for developers and system administrators, it helps integrate repository management seamlessly into your automation workflows.

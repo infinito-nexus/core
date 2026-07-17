@@ -121,8 +121,9 @@ def _consumption_kind(
 
 
 def _edge(src: str, dst: str, kind: str) -> str:
-    arrow = "-.->" if kind == "variable" else "-->"
-    return f"    {src} {arrow} {dst}"
+    if kind == "variable":
+        return f'    {src} -. "0..1" .-> {dst}'
+    return f'    {src} -- "1:1" --> {dst}'
 
 
 def _merge_edges(edges: list[tuple[str, str, str]]) -> dict[tuple[str, str], str]:

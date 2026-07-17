@@ -32,11 +32,13 @@ flowchart LR
     subgraph dependents [Dependents]
         dpt_web_app_dashboard["web-app-dashboard 🐳🐝"]
     end
-    dep_svc_db_redis -.-> svc_redis
-    dep_web_app_keycloak --> svc_sso
-    dep_web_app_prometheus -.-> svc_prometheus
-    svc_sso -.-> dpt_web_app_dashboard
+    dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    svc_sso -. "0..1" .-> dpt_web_app_dashboard
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Purpose
 

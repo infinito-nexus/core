@@ -28,9 +28,11 @@ flowchart LR
     subgraph dependents [Dependents]
         dpt_web_app_funkwhale["web-app-funkwhale 🐳🐝"]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    svc_typesense -.-> dpt_web_app_funkwhale
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    svc_typesense -. "0..1" .-> dpt_web_app_funkwhale
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Purpose
 

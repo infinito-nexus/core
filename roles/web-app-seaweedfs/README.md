@@ -61,26 +61,28 @@ flowchart LR
         dpt_web_app_matrix["web-app-matrix 🐳🐝"]
         dpt_more["..."]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    dep_svc_db_openldap --> svc_ldap
-    dep_web_app_dashboard -.-> svc_dashboard
-    dep_web_app_keycloak -.-> svc_sso
-    dep_web_app_prometheus -.-> svc_prometheus
-    dep_web_svc_logout -.-> svc_logout
-    svc_sso --> dpt_more
-    svc_sso -.-> dpt_web_app_akaunting
-    svc_sso -.-> dpt_web_app_baserow
-    svc_sso -.-> dpt_web_app_bookwyrm
-    svc_sso -.-> dpt_web_app_decidim
-    svc_sso -.-> dpt_web_app_fider
-    svc_sso -.-> dpt_web_app_funkwhale
-    svc_sso -.-> dpt_web_app_gitea
-    svc_sso -.-> dpt_web_app_gitlab
-    svc_sso -.-> dpt_web_app_listmonk
-    svc_sso -.-> dpt_web_app_magento
-    svc_sso -.-> dpt_web_app_mastodon
-    svc_sso -.-> dpt_web_app_matrix
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_openldap -- "1:1" --> svc_ldap
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+    svc_sso -- "1:1" --> dpt_more
+    svc_sso -. "0..1" .-> dpt_web_app_akaunting
+    svc_sso -. "0..1" .-> dpt_web_app_baserow
+    svc_sso -. "0..1" .-> dpt_web_app_bookwyrm
+    svc_sso -. "0..1" .-> dpt_web_app_decidim
+    svc_sso -. "0..1" .-> dpt_web_app_fider
+    svc_sso -. "0..1" .-> dpt_web_app_funkwhale
+    svc_sso -. "0..1" .-> dpt_web_app_gitea
+    svc_sso -. "0..1" .-> dpt_web_app_gitlab
+    svc_sso -. "0..1" .-> dpt_web_app_listmonk
+    svc_sso -. "0..1" .-> dpt_web_app_magento
+    svc_sso -. "0..1" .-> dpt_web_app_mastodon
+    svc_sso -. "0..1" .-> dpt_web_app_matrix
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

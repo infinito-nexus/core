@@ -48,21 +48,23 @@ flowchart LR
         dpt_web_app_magento["web-app-magento 🐳🐝"]
         dpt_more["..."]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    svc_redis --> dpt_more
-    svc_redis -.-> dpt_web_app_akaunting
-    svc_redis -.-> dpt_web_app_baserow
-    svc_redis -.-> dpt_web_app_bookwyrm
-    svc_redis -.-> dpt_web_app_decidim
-    svc_redis -.-> dpt_web_app_discourse
-    svc_redis -.-> dpt_web_app_erpnext
-    svc_redis -.-> dpt_web_app_fider
-    svc_redis -.-> dpt_web_app_flowise
-    svc_redis -.-> dpt_web_app_funkwhale
-    svc_redis -.-> dpt_web_app_gitea
-    svc_redis -.-> dpt_web_app_gitlab
-    svc_redis -.-> dpt_web_app_magento
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    svc_redis -- "1:1" --> dpt_more
+    svc_redis -. "0..1" .-> dpt_web_app_akaunting
+    svc_redis -. "0..1" .-> dpt_web_app_baserow
+    svc_redis -. "0..1" .-> dpt_web_app_bookwyrm
+    svc_redis -. "0..1" .-> dpt_web_app_decidim
+    svc_redis -. "0..1" .-> dpt_web_app_discourse
+    svc_redis -. "0..1" .-> dpt_web_app_erpnext
+    svc_redis -. "0..1" .-> dpt_web_app_fider
+    svc_redis -. "0..1" .-> dpt_web_app_flowise
+    svc_redis -. "0..1" .-> dpt_web_app_funkwhale
+    svc_redis -. "0..1" .-> dpt_web_app_gitea
+    svc_redis -. "0..1" .-> dpt_web_app_gitlab
+    svc_redis -. "0..1" .-> dpt_web_app_magento
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

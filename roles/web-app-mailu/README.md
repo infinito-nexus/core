@@ -68,29 +68,31 @@ flowchart LR
         dpt_web_app_erpnext["web-app-erpnext 🐳🐝"]
         dpt_more["..."]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    dep_svc_db_mariadb -.-> svc_mariadb
-    dep_svc_db_redis -.-> svc_redis
-    dep_web_app_dashboard -.-> svc_dashboard
-    dep_web_app_keycloak -.-> svc_sso
-    dep_web_app_matomo -.-> svc_matomo
-    dep_web_app_prometheus -.-> svc_prometheus
-    dep_web_svc_css -.-> svc_css
-    dep_web_svc_logout -.-> svc_logout
-    svc_mailu --> dpt_more
-    svc_mailu --> dpt_sys_ctl_alm_email
-    svc_mailu -.-> dpt_web_app_akaunting
-    svc_mailu -.-> dpt_web_app_baserow
-    svc_mailu -.-> dpt_web_app_bigbluebutton
-    svc_mailu -.-> dpt_web_app_bluesky
-    svc_mailu -.-> dpt_web_app_bookwyrm
-    svc_mailu --> dpt_web_app_bridgy_fed
-    svc_mailu -.-> dpt_web_app_checkmk
-    svc_mailu --> dpt_web_app_confluence
-    svc_mailu -.-> dpt_web_app_decidim
-    svc_mailu -.-> dpt_web_app_discourse
-    svc_mailu -.-> dpt_web_app_erpnext
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
+    dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+    svc_mailu -- "1:1" --> dpt_more
+    svc_mailu -- "1:1" --> dpt_sys_ctl_alm_email
+    svc_mailu -. "0..1" .-> dpt_web_app_akaunting
+    svc_mailu -. "0..1" .-> dpt_web_app_baserow
+    svc_mailu -. "0..1" .-> dpt_web_app_bigbluebutton
+    svc_mailu -. "0..1" .-> dpt_web_app_bluesky
+    svc_mailu -. "0..1" .-> dpt_web_app_bookwyrm
+    svc_mailu -- "1:1" --> dpt_web_app_bridgy_fed
+    svc_mailu -. "0..1" .-> dpt_web_app_checkmk
+    svc_mailu -- "1:1" --> dpt_web_app_confluence
+    svc_mailu -. "0..1" .-> dpt_web_app_decidim
+    svc_mailu -. "0..1" .-> dpt_web_app_discourse
+    svc_mailu -. "0..1" .-> dpt_web_app_erpnext
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

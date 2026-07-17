@@ -24,8 +24,10 @@ flowchart LR
     subgraph dependents [Dependents]
         dpt_web_app_zammad["web-app-zammad 🐳🐝"]
     end
-    svc_memcached -.-> dpt_web_app_zammad
+    svc_memcached -. "0..1" .-> dpt_web_app_zammad
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Per-consumer isolation
 

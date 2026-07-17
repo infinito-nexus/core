@@ -26,6 +26,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The Certbot role provides a ready-to-use, automated solution for SSL/TLS management in your infrastructure. Whether you're managing traditional servers or containerized environments, this role ensures your certificates are always in place and valid.

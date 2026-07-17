@@ -31,13 +31,15 @@ flowchart LR
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_web_app_listmonk["web-app-listmonk 🐳🐝"]
     end
-    dep_web_app_matomo -.-> svc_matomo
-    dep_web_app_prometheus -.-> svc_prometheus
-    dep_web_svc_file -.-> svc_file
-    svc_asset -.-> dpt_web_app_dashboard
-    svc_asset -.-> dpt_web_app_discourse
-    svc_asset -.-> dpt_web_app_listmonk
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_file -. "0..1" .-> svc_file
+    svc_asset -. "0..1" .-> dpt_web_app_dashboard
+    svc_asset -. "0..1" .-> dpt_web_app_discourse
+    svc_asset -. "0..1" .-> dpt_web_app_listmonk
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

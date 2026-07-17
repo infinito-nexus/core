@@ -42,16 +42,18 @@ flowchart LR
         svc_client["client"]
         svc_container_backup["container_backup"]
     end
-    dep_svc_ai_ollama -.-> svc_ollama
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    dep_svc_db_openldap -.-> svc_ldap
-    dep_web_app_dashboard -.-> svc_dashboard
-    dep_web_app_keycloak -.-> svc_sso
-    dep_web_app_matomo -.-> svc_matomo
-    dep_web_app_prometheus -.-> svc_prometheus
-    dep_web_svc_css -.-> svc_css
-    dep_web_svc_logout -.-> svc_logout
+    dep_svc_ai_ollama -. "0..1" .-> svc_ollama
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

@@ -40,21 +40,23 @@ flowchart LR
         dpt_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dpt_more["..."]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    svc_postgres --> dpt_more
-    svc_postgres -.-> dpt_web_app_baserow
-    svc_postgres -.-> dpt_web_app_bookwyrm
-    svc_postgres -.-> dpt_web_app_chess
-    svc_postgres -.-> dpt_web_app_confluence
-    svc_postgres -.-> dpt_web_app_decidim
-    svc_postgres -.-> dpt_web_app_discourse
-    svc_postgres -.-> dpt_web_app_fider
-    svc_postgres -.-> dpt_web_app_flowise
-    svc_postgres -.-> dpt_web_app_funkwhale
-    svc_postgres -.-> dpt_web_app_gitlab
-    svc_postgres -.-> dpt_web_app_jira
-    svc_postgres -.-> dpt_web_app_keycloak
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    svc_postgres -- "1:1" --> dpt_more
+    svc_postgres -. "0..1" .-> dpt_web_app_baserow
+    svc_postgres -. "0..1" .-> dpt_web_app_bookwyrm
+    svc_postgres -. "0..1" .-> dpt_web_app_chess
+    svc_postgres -. "0..1" .-> dpt_web_app_confluence
+    svc_postgres -. "0..1" .-> dpt_web_app_decidim
+    svc_postgres -. "0..1" .-> dpt_web_app_discourse
+    svc_postgres -. "0..1" .-> dpt_web_app_fider
+    svc_postgres -. "0..1" .-> dpt_web_app_flowise
+    svc_postgres -. "0..1" .-> dpt_web_app_funkwhale
+    svc_postgres -. "0..1" .-> dpt_web_app_gitlab
+    svc_postgres -. "0..1" .-> dpt_web_app_jira
+    svc_postgres -. "0..1" .-> dpt_web_app_keycloak
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Purpose
 

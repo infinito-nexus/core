@@ -82,35 +82,37 @@ flowchart LR
         svc_suitecrm["suitecrm ❌"]
         svc_container_backup["container_backup"]
     end
-    dep_svc_bkp_volume_2_local -.-> svc_container_backup
-    dep_svc_db_mariadb -.-> svc_mariadb
-    dep_svc_db_openldap -.-> svc_ldap
-    dep_svc_db_redis -.-> svc_redis
-    dep_web_app_bigbluebutton -.-> svc_bigbluebutton
-    dep_web_app_dashboard -.-> svc_dashboard
-    dep_web_app_discourse -.-> svc_discourse
-    dep_web_app_flowise -.-> svc_flowise
-    dep_web_app_gitlab -.-> svc_gitlab
-    dep_web_app_keycloak -.-> svc_sso
-    dep_web_app_mailu -.-> svc_email
-    dep_web_app_mastodon -.-> svc_mastodon
-    dep_web_app_matomo -.-> svc_matomo
-    dep_web_app_matrix -.-> svc_matrix
-    dep_web_app_mattermost -.-> svc_mattermost
-    dep_web_app_openproject -.-> svc_openproject
-    dep_web_app_openwebui -.-> svc_openwebui
-    dep_web_app_peertube -.-> svc_peertube
-    dep_web_app_prometheus -.-> svc_prometheus
-    dep_web_app_seaweedfs -.-> svc_seaweedfs
-    dep_web_app_xwiki -.-> svc_xwiki
-    dep_web_app_zammad -.-> svc_zammad
-    dep_web_svc_collabora -.-> svc_collabora
-    dep_web_svc_coturn -.-> svc_coturn
-    dep_web_svc_coturn -.-> svc_talk
-    dep_web_svc_css -.-> svc_css
-    dep_web_svc_logout -.-> svc_logout
-    dep_web_svc_onlyoffice -.-> svc_onlyoffice
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
+    dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_discourse -. "0..1" .-> svc_discourse
+    dep_web_app_flowise -. "0..1" .-> svc_flowise
+    dep_web_app_gitlab -. "0..1" .-> svc_gitlab
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_mailu -. "0..1" .-> svc_email
+    dep_web_app_mastodon -. "0..1" .-> svc_mastodon
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_matrix -. "0..1" .-> svc_matrix
+    dep_web_app_mattermost -. "0..1" .-> svc_mattermost
+    dep_web_app_openproject -. "0..1" .-> svc_openproject
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
+    dep_web_app_peertube -. "0..1" .-> svc_peertube
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
+    dep_web_app_xwiki -. "0..1" .-> svc_xwiki
+    dep_web_app_zammad -. "0..1" .-> svc_zammad
+    dep_web_svc_collabora -. "0..1" .-> svc_collabora
+    dep_web_svc_coturn -. "0..1" .-> svc_coturn
+    dep_web_svc_coturn -. "0..1" .-> svc_talk
+    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+    dep_web_svc_onlyoffice -. "0..1" .-> svc_onlyoffice
 ```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
 
 ## Features
 

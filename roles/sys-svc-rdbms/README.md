@@ -23,6 +23,8 @@ flowchart LR
     end
 ```
 
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off.
+
 ## Purpose
 
 The role's purpose is to automate the provisioning and configuration of a centralized database service. This not only reduces manual setup but also ensures consistent, reliable deployment across production and homelab environments.
