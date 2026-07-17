@@ -180,11 +180,14 @@ class TestTlsCommon(unittest.TestCase):
     def test_align_domain_to_consumer_clearnet_consumer_gets_clearnet(self):
         domains = {
             "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-            "web-app-bbb": ["bbb.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
         }
         self.assertEqual(
             align_domain_to_consumer(
-                domains, "web-svc-cdn", "cdn.abc.onion", consumer="web-app-bbb"
+                domains,
+                "web-svc-cdn",
+                "cdn.abc.onion",
+                consumer="web-app-bigbluebutton",
             ),
             "cdn.example",
         )
@@ -192,14 +195,14 @@ class TestTlsCommon(unittest.TestCase):
     def test_align_domain_to_consumer_reads_variables_application_id(self):
         domains = {
             "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-            "web-app-bbb": ["bbb.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
         }
         self.assertEqual(
             align_domain_to_consumer(
                 domains,
                 "web-svc-cdn",
                 "cdn.abc.onion",
-                variables={"application_id": "web-app-bbb"},
+                variables={"application_id": "web-app-bigbluebutton"},
             ),
             "cdn.example",
         )
@@ -207,11 +210,11 @@ class TestTlsCommon(unittest.TestCase):
     def test_align_domain_to_consumer_onion_consumer_unchanged(self):
         domains = {
             "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-            "web-app-dash": ["dash.abc.onion"],
+            "web-app-dashboard": ["dash.abc.onion"],
         }
         self.assertEqual(
             align_domain_to_consumer(
-                domains, "web-svc-cdn", "cdn.abc.onion", consumer="web-app-dash"
+                domains, "web-svc-cdn", "cdn.abc.onion", consumer="web-app-dashboard"
             ),
             "cdn.abc.onion",
         )
@@ -219,11 +222,14 @@ class TestTlsCommon(unittest.TestCase):
     def test_align_domain_to_consumer_onion_only_target_falls_back(self):
         domains = {
             "web-svc-cdn": ["cdn.abc.onion"],
-            "web-app-bbb": ["bbb.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
         }
         self.assertEqual(
             align_domain_to_consumer(
-                domains, "web-svc-cdn", "cdn.abc.onion", consumer="web-app-bbb"
+                domains,
+                "web-svc-cdn",
+                "cdn.abc.onion",
+                consumer="web-app-bigbluebutton",
             ),
             "cdn.abc.onion",
         )
@@ -231,11 +237,11 @@ class TestTlsCommon(unittest.TestCase):
     def test_align_domain_to_consumer_clearnet_target_untouched(self):
         domains = {
             "web-svc-cdn": ["cdn.example"],
-            "web-app-bbb": ["bbb.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
         }
         self.assertEqual(
             align_domain_to_consumer(
-                domains, "web-svc-cdn", "cdn.example", consumer="web-app-bbb"
+                domains, "web-svc-cdn", "cdn.example", consumer="web-app-bigbluebutton"
             ),
             "cdn.example",
         )
@@ -243,7 +249,7 @@ class TestTlsCommon(unittest.TestCase):
     def test_align_domain_to_consumer_no_or_self_or_unknown_consumer(self):
         domains = {
             "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-            "web-app-bbb": ["bbb.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
         }
         self.assertEqual(
             align_domain_to_consumer(domains, "web-svc-cdn", "cdn.abc.onion"),
@@ -265,11 +271,13 @@ class TestTlsCommon(unittest.TestCase):
     def test_align_domain_to_consumer_templates_consumer(self):
         class _FakeTemplar:
             def template(self, value):
-                return {"{{ application_id }}": "web-app-bbb"}.get(value, value)
+                return {"{{ application_id }}": "web-app-bigbluebutton"}.get(
+                    value, value
+                )
 
         domains = {
             "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-            "web-app-bbb": ["bbb.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
         }
         self.assertEqual(
             align_domain_to_consumer(
@@ -290,11 +298,14 @@ class TestTlsCommon(unittest.TestCase):
                 "synapse": "matrix.example",
                 "element": "element.example",
             },
-            "web-app-bbb": ["bbb.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
         }
         self.assertEqual(
             align_domain_to_consumer(
-                domains, "web-app-matrix", "matrix.abc.onion", consumer="web-app-bbb"
+                domains,
+                "web-app-matrix",
+                "matrix.abc.onion",
+                consumer="web-app-bigbluebutton",
             ),
             "matrix.example",
         )

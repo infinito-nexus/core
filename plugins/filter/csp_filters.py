@@ -277,7 +277,9 @@ class FilterModule:
                     "style-src",
                 ):
                     tokens.append(
-                        _aligned_url(domains, application_id, "web-svc-cdn", web_protocol)
+                        _aligned_url(
+                            domains, application_id, "web-svc-cdn", web_protocol
+                        )
                     )
 
                 # Mirror privacy proxy (if tor enabled) – onion sessions load external assets through it
@@ -343,7 +345,10 @@ class FilterModule:
                         )
                         tokens.append(
                             _aligned_url(
-                                domains, application_id, "web-app-keycloak", web_protocol
+                                domains,
+                                application_id,
+                                "web-app-keycloak",
+                                web_protocol,
                             )
                         )
 

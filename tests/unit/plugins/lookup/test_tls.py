@@ -139,9 +139,9 @@ class TestTlsResolveLookup(unittest.TestCase):
         v["domains"] = {
             **self.domains,
             "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-            "web-app-dash": ["dash.abc.onion"],
+            "web-app-dashboard": ["dash.abc.onion"],
         }
-        v["application_id"] = "web-app-dash"
+        v["application_id"] = "web-app-dashboard"
         out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
         self.assertEqual(out["domain"], "cdn.abc.onion")
         self.assertFalse(out["enabled"])

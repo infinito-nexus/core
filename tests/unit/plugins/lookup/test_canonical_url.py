@@ -91,9 +91,9 @@ class TestCanonicalUrlLookup(unittest.TestCase):
             ["web-svc-cdn"],
             {
                 "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-                "web-app-bbb": ["bbb.example"],
+                "web-app-bigbluebutton": ["bbb.example"],
             },
-            extra_vars={"application_id": "web-app-bbb"},
+            extra_vars={"application_id": "web-app-bigbluebutton"},
         )
         self.assertEqual(out, "https://cdn.example")
 
@@ -102,9 +102,9 @@ class TestCanonicalUrlLookup(unittest.TestCase):
             ["web-svc-cdn"],
             {
                 "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-                "web-app-dash": ["dash.abc.onion"],
+                "web-app-dashboard": ["dash.abc.onion"],
             },
-            extra_vars={"application_id": "web-app-dash"},
+            extra_vars={"application_id": "web-app-dashboard"},
         )
         self.assertEqual(out, "http://cdn.abc.onion")
 
@@ -113,9 +113,9 @@ class TestCanonicalUrlLookup(unittest.TestCase):
             ["web-svc-cdn"],
             {
                 "web-svc-cdn": ["cdn.abc.onion"],
-                "web-app-bbb": ["bbb.example"],
+                "web-app-bigbluebutton": ["bbb.example"],
             },
-            extra_vars={"application_id": "web-app-bbb"},
+            extra_vars={"application_id": "web-app-bigbluebutton"},
         )
         self.assertEqual(out, "http://cdn.abc.onion")
 
@@ -124,7 +124,7 @@ class TestCanonicalUrlLookup(unittest.TestCase):
             ["web-svc-cdn"],
             {
                 "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-                "web-app-bbb": ["bbb.example"],
+                "web-app-bigbluebutton": ["bbb.example"],
             },
         )
         self.assertEqual(out, "http://cdn.abc.onion")
@@ -134,10 +134,12 @@ class TestCanonicalUrlLookup(unittest.TestCase):
             ["web-svc-cdn"],
             {
                 "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
-                "web-app-bbb": ["bbb.example"],
+                "web-app-bigbluebutton": ["bbb.example"],
             },
-            applications={"web-app-bbb": {"services": {"cdn": {"enabled": True}}}},
-            consumer="web-app-bbb",
+            applications={
+                "web-app-bigbluebutton": {"services": {"cdn": {"enabled": True}}}
+            },
+            consumer="web-app-bigbluebutton",
         )
         self.assertEqual(out, "https://cdn.example")
 
