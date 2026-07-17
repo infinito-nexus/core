@@ -32,6 +32,7 @@ ZAMMAD_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret
 
 ZAMMAD_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ZAMMAD_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
+ZAMMAD_HTTP_ONLY_ENABLED: "{{ not (lookup('tls', application_id, 'enabled') | bool) }}"
 
 ZAMMAD_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
 ZAMMAD_AUTO_WIZARD_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}auto_wizard.json"
@@ -43,6 +44,9 @@ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH: "/opt/zammad/lib/telegram_helper.rb"
 
 ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH: "/opt/zammad/config/initializers/zz_oidc_group_role_mapping.rb"
+
+ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_http_discovery.rb"
+ZAMMAD_OIDC_HTTP_DISCOVERY_CONTAINER_PATH: "/opt/zammad/config/initializers/zz_oidc_http_discovery.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP:
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"

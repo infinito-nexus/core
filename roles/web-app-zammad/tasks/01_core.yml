@@ -36,6 +36,14 @@
   notify: compose up
   when: ZAMMAD_OIDC_ENABLED
 
+- name: "stage Rails initializer that keeps OIDC discovery on http:// (HTTP-only onion nodes)"
+  ansible.builtin.template:
+    src: "zz_oidc_http_discovery.rb.j2"
+    dest: "{{ ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH }}"
+    mode: "0644"
+  notify: compose up
+  when: ZAMMAD_OIDC_ENABLED and ZAMMAD_HTTP_ONLY_ENABLED
+
 - name: "grant CREATEDB to the Zammad PostgreSQL role (Zammad's init runs rake db:create even when the DB exists)"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

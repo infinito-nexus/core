@@ -28,6 +28,9 @@
       - "{{ ZAMMAD_TELEGRAM_HELPER_HOST_PATH }}:{{ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH }}:ro"
 {% if ZAMMAD_OIDC_ENABLED %}
       - "{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH }}:{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH }}:ro"
+{% if ZAMMAD_HTTP_ONLY_ENABLED %}
+      - "{{ ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH }}:{{ ZAMMAD_OIDC_HTTP_DISCOVERY_CONTAINER_PATH }}:ro"
+{% endif %}
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -45,6 +48,9 @@
       - "{{ ZAMMAD_TELEGRAM_HELPER_HOST_PATH }}:{{ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH }}:ro"
 {% if ZAMMAD_OIDC_ENABLED %}
       - "{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH }}:{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH }}:ro"
+{% if ZAMMAD_HTTP_ONLY_ENABLED %}
+      - "{{ ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH }}:{{ ZAMMAD_OIDC_HTTP_DISCOVERY_CONTAINER_PATH }}:ro"
+{% endif %}
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -62,6 +68,9 @@
       - "{{ ZAMMAD_TELEGRAM_HELPER_HOST_PATH }}:{{ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH }}:ro"
 {% if ZAMMAD_OIDC_ENABLED %}
       - "{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH }}:{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH }}:ro"
+{% if ZAMMAD_HTTP_ONLY_ENABLED %}
+      - "{{ ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH }}:{{ ZAMMAD_OIDC_HTTP_DISCOVERY_CONTAINER_PATH }}:ro"
+{% endif %}
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
@@ -109,6 +118,9 @@
       - "{{ ZAMMAD_TELEGRAM_HELPER_HOST_PATH }}:{{ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH }}:ro"
 {% if ZAMMAD_OIDC_ENABLED %}
       - "{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH }}:{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH }}:ro"
+{% if ZAMMAD_HTTP_ONLY_ENABLED %}
+      - "{{ ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH }}:{{ ZAMMAD_OIDC_HTTP_DISCOVERY_CONTAINER_PATH }}:ro"
+{% endif %}
 {% endif %}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
