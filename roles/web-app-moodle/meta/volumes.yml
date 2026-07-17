@@ -2,6 +2,10 @@
 data:
   type: volume
   name: moodle_data
+  nfs:
+    uid: "33"
+    gid: "33"
+    mode: "0770"
   mounts:
     - service: moodle
       target: /var/www/moodledata

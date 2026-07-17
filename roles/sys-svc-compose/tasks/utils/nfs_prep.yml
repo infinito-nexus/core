@@ -3,9 +3,9 @@
   ansible.builtin.file:
     path: "{{ STORAGE_NFS_STATE_PATH }}/{{ item.value.name | default(item.key) }}"
     state: directory
-    owner: "{{ (item.value['x-infinito-nfs'] | default({})).uid | default('0') | string }}"
-    group: "{{ (item.value['x-infinito-nfs'] | default({})).gid | default('0') | string }}"
-    mode: "{{ (item.value['x-infinito-nfs'] | default({})).mode | default('0755') }}"
+    owner: "{{ (item.value['x-infinito-nfs'] | default({})).uid | default(omit) }}"
+    group: "{{ (item.value['x-infinito-nfs'] | default({})).gid | default(omit) }}"
+    mode: "{{ (item.value['x-infinito-nfs'] | default({})).mode | default(omit) }}"
   delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
   run_once: true # nocheck: include-uniform-apply-keyword (per-task delegation targets differ)
   loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items }}"
@@ -34,9 +34,9 @@
   ansible.builtin.file:
     path: "{{ DIR_VAR_LIB }}/{{ item.0.value.name | default(item.0.key) }}"
     state: directory
-    owner: "{{ (item.0.value['x-infinito-nfs'] | default({})).uid | default('0') | string }}"
-    group: "{{ (item.0.value['x-infinito-nfs'] | default({})).gid | default('0') | string }}"
-    mode: "{{ (item.0.value['x-infinito-nfs'] | default({})).mode | default('0755') }}"
+    owner: "{{ (item.0.value['x-infinito-nfs'] | default({})).uid | default(omit) }}"
+    group: "{{ (item.0.value['x-infinito-nfs'] | default({})).gid | default(omit) }}"
+    mode: "{{ (item.0.value['x-infinito-nfs'] | default({})).mode | default(omit) }}"
   delegate_to: "{{ item.1 }}"
   run_once: true
   loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items | product(groups['svc-swarm-node'] | default([])) | list }}"

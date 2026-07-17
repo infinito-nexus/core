@@ -2,6 +2,10 @@
 sites:
   type: volume
   name: erpnext_sites
+  nfs:
+    uid: "1000"
+    gid: "1000"
+    mode: "0770"
   mounts:
     - service: erpnext-configurator
       target: /home/frappe/frappe-bench/sites
@@ -20,6 +24,10 @@ sites:
 logs:
   type: volume
   name: erpnext_logs
+  nfs:
+    uid: "1000"
+    gid: "1000"
+    mode: "0770"
   mounts:
     - service: erpnext-configurator
       target: /home/frappe/frappe-bench/logs

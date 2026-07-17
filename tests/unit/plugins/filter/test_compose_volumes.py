@@ -342,6 +342,9 @@ class TestComposeVolumes(unittest.TestCase):
         vol = data["volumes"]["data"]
         self.assertEqual(vol["driver_opts"]["device"], f"{_DIR_VAR_LIB}/app_data")
         self.assertNotIn("nfs", vol)
+        self.assertEqual(
+            vol["x-infinito-nfs"], {"uid": 1000, "gid": 1000, "mode": "0750"}
+        )
 
     def test_compose_mode_nfs_false_leaves_no_nfs_key(self):
         apps = self._base_apps()

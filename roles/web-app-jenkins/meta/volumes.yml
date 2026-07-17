@@ -1,6 +1,10 @@
 ---
 jenkins_data:
   type: volume
+  nfs:
+    uid: "1000"
+    gid: "1000"
+    mode: "0770"
   mounts:
     - service: jenkins
       target: /var/jenkins_home
