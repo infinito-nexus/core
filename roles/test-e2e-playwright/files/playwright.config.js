@@ -25,6 +25,7 @@ module.exports = defineConfig({
   testDir: "./tests",
   testMatch: "**/*.@(spec|test).js",
   timeout: Number(process.env.PLAYWRIGHT_TEST_TIMEOUT) || 300_000,
+  globalTimeout: Number(process.env.PLAYWRIGHT_GLOBAL_TIMEOUT) || 0,
   retries: 2,
   workers: Number(process.env.PLAYWRIGHT_WORKERS) || 1,
   fullyParallel: (process.env.PLAYWRIGHT_FULLY_PARALLEL || "").toLowerCase() === "true",
