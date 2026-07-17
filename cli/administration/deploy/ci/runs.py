@@ -222,9 +222,16 @@ def find_last_deploy_run(
 
 
 def dispatch_workflow(
-    workflow: str, ref: str, whitelist: str, repo: str | None = None
+    workflow: str,
+    ref: str,
+    whitelist: str = "",
+    *,
+    priority: str = "",
+    repo: str | None = None,
 ) -> None:
-    _gh(
-        ["workflow", "run", workflow, "--ref", ref, "-f", f"whitelist={whitelist}"],
-        repo=repo,
-    )
+    args = ["workflow", "run", workflow, "--ref", ref]
+    if whitelist:
+        args += ["-f", f"whitelist={whitelist}"]
+    if priority:
+        args += ["-f", f"priority={priority}"]
+    _gh(args, repo=repo)

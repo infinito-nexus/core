@@ -1,4 +1,8 @@
-"""Trigger the manual CI run (entry-manual.yml) for the current branch."""
+"""Trigger the manual CI run (entry-manual.yml) for the current branch.
+
+entry-manual.yml reads the "__ALL__" whitelist sentinel as "force a full
+deploy across all roles".
+"""
 
 from __future__ import annotations
 
@@ -8,7 +12,6 @@ import sys
 from cli.administration.deploy.ci import runs
 
 _WORKFLOW = "entry-manual.yml"
-# entry-manual.yml reads "__ALL__" as "force a full deploy across all roles".
 _ALL = "__ALL__"
 
 
@@ -17,8 +20,10 @@ def main(argv: list[str] | None = None) -> int:
         prog="infinito administration deploy ci trigger",
         description=(
             "Dispatch the manual CI workflow for the branch you are on. "
-            "Default: trigger every role. With --failed: only the roles that "
-            "failed in the last run. With --apps: an explicit role list."
+            "Default: trigger every role. With --failed: the roles that "
+            "failed in the last run form the priority line and the full "
+            "run follows once they are green. With --apps: an explicit "
+            "role list as whitelist."
         ),
     )
     group = p.add_mutually_exclusive_group()
@@ -30,7 +35,8 @@ def main(argv: list[str] | None = None) -> int:
         choices=("total", "swarm", "compose", "docker"),
         metavar="{total,swarm,compose}",
         help=(
-            "Only re-trigger roles that were not green in the last run. "
+            "Re-trigger roles that were not green in the last run as the "
+            "priority line; the remaining roles run after they succeed. "
             "Optional scope: 'total' (default; failed in either mode), "
             "'swarm', or 'compose'."
         ),
@@ -56,6 +62,8 @@ def main(argv: list[str] | None = None) -> int:
     branch = runs.current_branch()
     repo = runs.resolve_repo()
 
+    whitelist = ""
+    priority = ""
     if args.apps is not None:
         apps = " ".join(args.apps.split())
         if not apps:
@@ -83,13 +91,18 @@ def main(argv: list[str] | None = None) -> int:
         if not failed:
             print(f"Nothing failed ({args.failed}) in that run; not triggering.")
             return 0
-        whitelist = " ".join(failed)
+        priority = " ".join(failed)
     else:
         whitelist = _ALL
 
-    label = "all roles" if whitelist == _ALL else whitelist
+    if priority:
+        label = f"priority {priority}, then the remaining roles"
+    elif whitelist == _ALL:
+        label = "all roles"
+    else:
+        label = whitelist
     print(f"Triggering {_WORKFLOW} on {repo}@{branch} for: {label}")
-    runs.dispatch_workflow(_WORKFLOW, branch, whitelist, repo=repo)
+    runs.dispatch_workflow(_WORKFLOW, branch, whitelist, priority=priority, repo=repo)
     print("Dispatched. Watch with: infinito administration deploy ci status")
     return 0
 

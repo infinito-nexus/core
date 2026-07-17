@@ -39,8 +39,8 @@ class TestTriggerMain(unittest.TestCase):
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
-                side_effect=lambda wf, ref, wl, repo=None: calls.append(
-                    (wf, ref, wl, repo)
+                side_effect=lambda wf, ref, wl="", priority="", repo=None: calls.append(
+                    (wf, ref, wl, priority, repo)
                 ),
             ),
             redirect_stdout(buf),
@@ -51,25 +51,29 @@ class TestTriggerMain(unittest.TestCase):
     def test_default_triggers_all(self) -> None:
         rc, calls = self._run([])
         self.assertEqual(rc, 0)
-        self.assertEqual(calls, [("entry-manual.yml", "feature/x", "__ALL__", "o/r")])
+        self.assertEqual(
+            calls, [("entry-manual.yml", "feature/x", "__ALL__", "", "o/r")]
+        )
 
     def test_apps_explicit_list(self) -> None:
         rc, calls = self._run(["--apps", "web-app-a  web-app-b"])
         self.assertEqual(rc, 0)
         self.assertEqual(calls[0][2], "web-app-a web-app-b")
+        self.assertEqual(calls[0][3], "")
 
-    def test_failed_total(self) -> None:
+    def test_failed_total_sends_priority_without_whitelist(self) -> None:
         rc, calls = self._run(["--failed"], run={"_jobs": _JOBS})
         self.assertEqual(rc, 0)
-        self.assertEqual(calls[0][2], "web-app-x web-app-y")
+        self.assertEqual(calls[0][2], "")
+        self.assertEqual(calls[0][3], "web-app-x web-app-y")
 
     def test_failed_swarm_scope(self) -> None:
         _rc, calls = self._run(["--failed", "swarm"], run={"_jobs": _JOBS})
-        self.assertEqual(calls[0][2], "web-app-x")
+        self.assertEqual(calls[0][3], "web-app-x")
 
     def test_failed_compose_scope(self) -> None:
         _rc, calls = self._run(["--failed", "compose"], run={"_jobs": _JOBS})
-        self.assertEqual(calls[0][2], "web-app-y")
+        self.assertEqual(calls[0][3], "web-app-y")
 
     def test_failed_nothing_does_not_dispatch(self) -> None:
         green = [
@@ -90,7 +94,9 @@ class TestTriggerMain(unittest.TestCase):
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
-                side_effect=lambda wf, ref, wl, repo=None: calls.append(wl),
+                side_effect=lambda wf, ref, wl="", priority="", repo=None: calls.append(
+                    priority
+                ),
             ),
             redirect_stdout(io.StringIO()),
         ):
@@ -110,7 +116,9 @@ class TestTriggerMain(unittest.TestCase):
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
-                side_effect=lambda wf, ref, wl, repo=None: calls.append(wl),
+                side_effect=lambda wf, ref, wl="", priority="", repo=None: calls.append(
+                    priority
+                ),
             ),
             redirect_stdout(io.StringIO()),
         ):
