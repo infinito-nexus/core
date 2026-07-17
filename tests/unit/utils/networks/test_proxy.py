@@ -107,9 +107,7 @@ class TestResolveUpstream(unittest.TestCase):
         self.assertEqual(out, "host.docker.internal:8017")
 
     def test_compose_without_host_gateway_stays_loopback(self):
-        out = resolve_upstream(
-            _apps(), "web-app-baserow", "baserow", "http", "compose"
-        )
+        out = resolve_upstream(_apps(), "web-app-baserow", "baserow", "http", "compose")
         self.assertEqual(out, "127.0.0.1:8017")
 
 
