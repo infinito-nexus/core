@@ -13,13 +13,13 @@ alpha/beta/rc/stable/maintenance), sorted ascending by name.
 
 Columns:
   Name             Role README H1 title, linked to the role directory.
-  Lifecycle        Role lifecycle stage (alpha/beta/rc/stable/...).
-  Homepage         ``homepage`` from meta/info.yml, empty when absent.
-  Video            ``video`` from meta/info.yml as an emoji link, empty when absent.
+  Status           Role lifecycle stage (alpha/beta/rc/stable/maintenance).
   Description      ``galaxy_info.description`` from meta/main.yml.
+  More             Emoji links: 🌐 homepage, 🎬 video (both from
+                   meta/info.yml, omitted when absent) and 🛠️ the role
+                   README's Quick Setup section.
   Integrated with  README titles of the role's direct service integrations
                    (complexity graph, level 1), linked to the roles.
-  Install          Emoji link to the role README's Quick Setup section.
 """
 
 from __future__ import annotations
@@ -28,7 +28,6 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from urllib.parse import urlparse
 
 from cli.meta.roles.applications.complexity.model import compute_complexity_rows
 from utils.cache.files import PROJECT_ROOT, read_text
@@ -45,13 +44,12 @@ SECTION_HEADING = "## Roles Overview 🧩"
 ANCHOR_HEADING = "## Use it online 🚀"
 COLUMNS = (
     "Name",
-    "Lifecycle",
-    "Homepage",
-    "Video",
+    "Status",
     "Description",
+    "More",
     "Integrated with",
-    "Install",
 )
+_HOME_EMOJI = "🌐"
 _VIDEO_EMOJI = "🎬"
 _INSTALL_EMOJI = "🛠️"
 _TESTED_ENVELOPE = frozenset({"alpha", "beta", "rc", "stable", "maintenance"})
@@ -82,17 +80,17 @@ def _role_title(roles_dir: Path, role: str) -> str:
     return entity.replace("-", " ").title()
 
 
-def _homepage(roles_dir: Path, role: str) -> str:
-    url = _info_url(roles_dir, role, "homepage")
-    if not url:
-        return ""
-    label = urlparse(url).netloc.removeprefix("www.") or url
-    return f"[{label}]({url})"
-
-
-def _video(roles_dir: Path, role: str) -> str:
-    url = _info_url(roles_dir, role, "video")
-    return f"[{_VIDEO_EMOJI}]({url})" if url else ""
+def _more(roles_dir: Path, role: str) -> str:
+    """Emoji links: homepage, video, and the local-install anchor."""
+    links = []
+    homepage = _info_url(roles_dir, role, "homepage")
+    if homepage:
+        links.append(f"[{_HOME_EMOJI}]({homepage})")
+    video = _info_url(roles_dir, role, "video")
+    if video:
+        links.append(f"[{_VIDEO_EMOJI}]({video})")
+    links.append(f"[{_INSTALL_EMOJI}](roles/{role}/{ROLE_FILE_README}#quick-setup)")
+    return " ".join(links)
 
 
 def _info_url(roles_dir: Path, role: str, key: str) -> str:
@@ -135,11 +133,9 @@ def build_table(roles_dir: Path) -> str:
             (
                 f"[{titles[role]}](roles/{role}/)",
                 _cell(getattr(complexity.get(role), "lifecycle", "")),
-                _homepage(roles_dir, role),
-                _video(roles_dir, role),
                 _cell(_description(roles_dir, role)),
+                _more(roles_dir, role),
                 ", ".join(f"[{title}](roles/{dep}/)" for title, dep in integrated),
-                f"[{_INSTALL_EMOJI}](roles/{role}/{ROLE_FILE_README}#quick-setup)",
             )
         )
 
