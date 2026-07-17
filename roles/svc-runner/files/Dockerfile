@@ -6,8 +6,8 @@ ARG RUNNER_GID
 
 # Runner binary runtime deps + Docker CLI + Python 3 for CI scripts
 RUN rm -rf /var/lib/apt/lists/* \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
+    && apt-get -o Acquire::Retries=5 update \
+    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
         ca-certificates \
         curl \
         git \
@@ -27,8 +27,8 @@ RUN rm -rf /var/lib/apt/lists/* \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] \
         https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
         > /etc/apt/sources.list.d/docker.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin \
+    && apt-get -o Acquire::Retries=5 update \
+    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends docker-ce-cli docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf python3 /usr/bin/python
 
