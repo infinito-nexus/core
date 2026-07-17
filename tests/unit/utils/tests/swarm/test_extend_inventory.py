@@ -37,7 +37,11 @@ class TestBackupLegGating(unittest.TestCase):
 
     def test_app_legs_follow_app_closure(self):
         children = self._groups(
-            ["svc-registry-docker", "svc-bkp-volume-2-local", "svc-bkp-secrets-2-local"],
+            [
+                "svc-registry-docker",
+                "svc-bkp-volume-2-local",
+                "svc-bkp-secrets-2-local",
+            ],
             ["svc-storage-nfs-server"],
         )
         self.assertIn("svc-bkp-volume-2-local", children)
