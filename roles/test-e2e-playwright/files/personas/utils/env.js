@@ -34,13 +34,12 @@ function isOnionCanonical() {
 }
 
 /**
- * Tor-resilient `page.goto`: retries only transient Tor-transport errors
- * (`ERR_TIMED_OUT` / `ERR_SOCKS…`); real navigation failures re-throw on the
- * first hit. Clearnet URLs get a single attempt; callers budget the test
- * timeout for the onion retries.
+ * Tor-resilient `page.goto`: retries only transient Tor-transport errors;
+ * real navigation failures re-throw on the first hit. Clearnet URLs get a
+ * single attempt; callers budget the test timeout for the onion retries.
  */
 const _ONION_TRANSIENT_RE =
-  /ERR_TIMED_OUT|ERR_SOCKS|ERR_CONNECTION_(?:CLOSED|RESET|FAILED)|ERR_PROXY_CONNECTION_FAILED|ERR_EMPTY_RESPONSE|ERR_TUNNEL_CONNECTION_FAILED/i;
+  /ERR_TIMED_OUT|ERR_SOCKS|ERR_CONNECTION_(?:CLOSED|RESET|FAILED)|ERR_PROXY_CONNECTION_FAILED|ERR_EMPTY_RESPONSE|ERR_TUNNEL_CONNECTION_FAILED|NS_ERROR_NET_(?:TIMEOUT|RESET|INTERRUPT)|NS_ERROR_(?:CONNECTION_REFUSED|UNKNOWN_HOST|PROXY_CONNECTION_REFUSED|UNKNOWN_PROXY_HOST)|NS_BINDING_ABORTED|Load request cancelled/i;
 
 async function gotoOnion(page, url, opts = {}) {
   const isRelative = /^\/(?!\/)/.test(url);
