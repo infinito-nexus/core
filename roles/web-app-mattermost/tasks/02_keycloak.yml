@@ -8,7 +8,7 @@
     resolve_service_name: "{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}"
     resolve_output_prefix: MATTERMOST_KC
     resolve_compose_cid: "{{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}"
-    resolve_converge_retries: 60
+    resolve_converge_retries: 120
     resolve_converge_delay: 5
     resolve_cid_filters: "--filter health=healthy"
 

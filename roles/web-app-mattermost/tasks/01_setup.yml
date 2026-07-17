@@ -5,7 +5,7 @@
     resolve_service_key: "{{ entity_name }}"
     resolve_output_prefix: MATTERMOST
     resolve_compose_cid: "{{ MATTERMOST_CONTAINER_ADDRESS }}"
-    resolve_converge_retries: 60
+    resolve_converge_retries: 120
     resolve_converge_delay: 5
 
 - name: "⏳ Mattermost | Wait until mmctl local mode is ready"
