@@ -9,6 +9,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.merge_mapping import merge_mapping
+from utils.cache.domains import _onion_of
 from utils.domains.list import render_domain_value
 from utils.roles.entity_name import get_entity_name
 
@@ -122,7 +123,11 @@ class LookupModule(LookupBase):
       2. the hardcoded ``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` primary-redirect,
          appended only when ``web-opt-rdr-domains`` is in
          ``lookup('deployment').deployed`` (so isolated CI variants do not
-         schedule a redirect whose target is not served)
+         schedule a redirect whose target is not served); on onion nodes
+         (``svc-net-tor`` in ``group_names`` with a provisioned
+         ``services.tor.node``) the bare node-onion apex is scheduled as an
+         additional source targeting the same ``DOMAIN_HOMEPAGE``, which is
+         already family-correct there (onion-injected domain lookup)
       3. per-app alias-to-canonical mappings derived from
          ``lookup('applications_current_play')``, gated by
          ``AUTO_BUILD_ALIASES``
@@ -141,6 +146,21 @@ class LookupModule(LookupBase):
             return None
         result = plugin.run([], variables=variables)
         return result[0] if result else None
+
+    def _node_onion(self, vars_: Mapping[str, Any]) -> str:
+        """Return the node onion address when this host is an onion node
+        (``svc-net-tor`` in ``group_names`` with a provisioned
+        ``services.tor.node`` in the ``applications`` override), else ``""``."""
+        if "svc-net-tor" not in (vars_.get("group_names") or []):
+            return ""
+        apps = vars_.get("applications")
+        svc_tor = apps.get("svc-net-tor") if isinstance(apps, Mapping) else None
+        if not isinstance(svc_tor, Mapping):
+            return ""
+        services = svc_tor.get("services")
+        tor = services.get("tor") if isinstance(services, Mapping) else None
+        node = tor.get("node") if isinstance(tor, Mapping) else None
+        return self._resolve_str(node).strip()
 
     def _resolve_str(self, value: Any) -> str:
         """Template a possibly Jinja-tagged inventory value through
@@ -179,11 +199,15 @@ class LookupModule(LookupBase):
             else []
         )
         if "web-opt-rdr-domains" in deployed and domain_primary and domain_homepage:
-            merged = merge_mapping(
-                merged,
-                [{"source": domain_primary, "target": domain_homepage}],
-                "source",
-            )
+            primary_redirects = [{"source": domain_primary, "target": domain_homepage}]
+            node_onion = self._node_onion(vars_)
+            if node_onion:
+                onion_apex = _onion_of(domain_primary, domain_primary, node_onion)
+                if onion_apex and onion_apex != domain_homepage:
+                    primary_redirects.append(
+                        {"source": onion_apex, "target": domain_homepage}
+                    )
+            merged = merge_mapping(merged, primary_redirects, "source")
 
         current_play_apps = self._run_lookup("applications_current_play", vars_)
         if isinstance(current_play_apps, Mapping):

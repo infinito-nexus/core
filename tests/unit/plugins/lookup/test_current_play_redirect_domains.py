@@ -227,6 +227,126 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             lm._templar.calls,
         )
 
+    def _onion_variables(self, **overrides):
+        variables = {
+            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_HOMEPAGE": "dashboard.abcdefonion.onion",
+            "group_names": ["svc-net-tor", "web-app-dashboard"],
+            "applications": {
+                "svc-net-tor": {
+                    "services": {"tor": {"node": "abcdefonion.onion"}},
+                },
+            },
+        }
+        variables.update(overrides)
+        return variables
+
+    def test_onion_node_adds_onion_apex_alongside_clearnet(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables()
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [
+                {
+                    "source": "infinito.example",
+                    "target": "dashboard.abcdefonion.onion",
+                },
+                {
+                    "source": "abcdefonion.onion",
+                    "target": "dashboard.abcdefonion.onion",
+                },
+            ],
+        )
+
+    def test_onion_apex_absent_without_svc_net_tor_group(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables(group_names=["web-app-dashboard"])
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [
+                {
+                    "source": "infinito.example",
+                    "target": "dashboard.abcdefonion.onion",
+                },
+            ],
+        )
+
+    def test_onion_apex_absent_when_node_onion_empty(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables(
+            applications={"svc-net-tor": {"services": {"tor": {"node": ""}}}},
+        )
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [
+                {
+                    "source": "infinito.example",
+                    "target": "dashboard.abcdefonion.onion",
+                },
+            ],
+        )
+
+    def test_onion_apex_absent_when_rdr_domains_not_deployed(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables()
+        with self._patch_lookups(deployed=["web-opt-rdr-www"], current_play_apps={}):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(result, [])
+
+    def test_onion_apex_skipped_when_equal_to_homepage(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables(
+            DOMAIN_HOMEPAGE="abcdefonion.onion",
+        )
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [{"source": "infinito.example", "target": "abcdefonion.onion"}],
+        )
+
+    def test_onion_apex_node_value_templated(self):
+        class _ResolvingTemplar:
+            def __init__(self, mapping):
+                self._mapping = mapping
+                self.available_variables = {}
+
+            def template(self, value):
+                return self._mapping.get(value, value)
+
+        lm = LookupModule()
+        lm._templar = _ResolvingTemplar({"{{ tor_node_onion }}": "abcdefonion.onion"})
+        lm._loader = None
+        variables = self._onion_variables(
+            applications={
+                "svc-net-tor": {
+                    "services": {"tor": {"node": "{{ tor_node_onion }}"}},
+                },
+            },
+        )
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertIn(
+            {"source": "abcdefonion.onion", "target": "dashboard.abcdefonion.onion"},
+            result,
+        )
+
     def test_templar_failure_falls_back_to_raw_value(self):
         class _FailingTemplar:
             def __init__(self):
