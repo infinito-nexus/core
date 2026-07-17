@@ -46,6 +46,7 @@
       BROKER_PORT: "8080"
       SOCIAL_APP_URL: "http://web:8100"
       PDS_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ BLUESKY_API_DOMAIN }}"
+      PDS_INTERNAL_URL: "http://pds:3000"
       PDS_HANDLE_DOMAIN: "{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
       # Same admin password the PDS itself uses (env.j2 sets
       # PDS_ADMIN_PASSWORD on the pds container). The broker reuses it
