@@ -647,6 +647,40 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         )
         self.assertEqual(out, {"a.infinito.example": [200, 302, 301]})
 
+    # --------- Reverse-proxy bare apex gating ---------
+
+    def _proxy_apex_app(self, **tor):
+        self._configure_returns(
+            {("svc-prx-openresty", "server.domains.canonical"): ["infinito.example"]}
+        )
+        services = {"tor": {"enabled": True, **tor}} if tor else {}
+        return {"svc-prx-openresty": {"services": services}}
+
+    def test_apex_dropped_when_rdr_domains_not_deployed(self):
+        out = self.mod.web_health_expectations(
+            self._proxy_apex_app(),
+            group_names=["svc-prx-openresty"],
+            primary_domain="infinito.example",
+        )
+        self.assertEqual(out, {})
+
+    def test_apex_kept_when_rdr_domains_deployed(self):
+        out = self.mod.web_health_expectations(
+            self._proxy_apex_app(),
+            group_names=["svc-prx-openresty", "web-opt-rdr-domains"],
+            primary_domain="infinito.example",
+        )
+        self.assertEqual(out, {"infinito.example": [200, 302, 301]})
+
+    def test_onion_apex_dropped_when_rdr_domains_not_deployed(self):
+        out = self.mod.web_health_expectations(
+            self._proxy_apex_app(exclusive=True),
+            group_names=["svc-prx-openresty"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {})
+
 
 if __name__ == "__main__":
     unittest.main()

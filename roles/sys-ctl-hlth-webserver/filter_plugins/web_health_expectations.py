@@ -239,6 +239,11 @@ def web_health_expectations(
 
         per_app[app_id] = app_exp
 
+    primary = str(primary_domain or "").strip()
+    if primary and "web-opt-rdr-domains" not in selection:
+        for app_exp in per_app.values():
+            app_exp.pop(primary, None)
+
     _apply_onion_deploy_view(per_app, applications, primary_domain, node_onion)
 
     expectations = {}
