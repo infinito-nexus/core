@@ -4,17 +4,37 @@ on:
   workflow_call:
     inputs:
       role:
-        description: "svc-db role whose README Production command is extracted and executed"
+        description: "Role to test; empty picks one at random"
         required: false
         type: string
-        default: "svc-db-postgres"
+        default: ""
+      priority:
+        description: "Space-separated app ids; a random one is preferred over whitelist"
+        required: false
+        type: string
+        default: ""
+      whitelist:
+        description: "Space-separated app ids; a random one is used when no role or priority is given"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       role:
-        description: "svc-db role whose README Production command is extracted and executed"
+        description: "Role to test; empty picks one at random"
         required: false
         type: string
-        default: "svc-db-postgres"
+        default: ""
+      priority:
+        description: "Space-separated app ids; a random one is preferred over whitelist"
+        required: false
+        type: string
+        default: ""
+      whitelist:
+        description: "Space-separated app ids; a random one is used when no role or priority is given"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -22,39 +42,23 @@ permissions:
 
 jobs:
   deploy:
-    name: 📖 Guide (${{ inputs.role }})
+    name: 📖 Guide
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+      INFINITO_DISTROS: "arch debian ubuntu fedora centos"
     steps:
       - uses: actions/checkout@v7.0.0
 
-      - name: ✂️ Extract the Production command from the role README
+      - name: 🎲 Select the role, distro, and deploy mode
         shell: bash
         run: |
           set -euo pipefail
-          awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
-            "roles/${{ inputs.role }}/README.md" > /tmp/deploy.sh
-          test -s /tmp/deploy.sh
-          cat /tmp/deploy.sh
-
-      - name: 🔧 Adapt for CI (localhost target, Docker socket + NET_ADMIN instead of TTY)
-        shell: bash
-        run: |
-          set -euo pipefail
-          sed -i 's/<your-server>/localhost/' /tmp/deploy.sh
-          sed -i 's#--rm -it #--rm --cap-add NET_ADMIN -v /var/run/docker.sock:/var/run/docker.sock #' /tmp/deploy.sh
-          grep -q 'HOST=localhost' /tmp/deploy.sh
-          grep -q 'docker.sock' /tmp/deploy.sh
-          grep -q 'cap-add NET_ADMIN' /tmp/deploy.sh
-
-      - name: 🌱 Seed the run's CI image instead of the published default
-        shell: bash
-        run: |
-          set -euo pipefail
-          IMAGE="ghcr.io/$(scripts/meta/resolve/repository/owner.sh)/$(scripts/meta/resolve/repository/name.sh)/debian:ci-${{ github.sha }}"
-          sed -i "s#ghcr.io/infinito-nexus/core/debian#${IMAGE}#" /tmp/deploy.sh
-          grep -qF "$IMAGE" /tmp/deploy.sh
-          cat /tmp/deploy.sh
+          python3 -m cli.meta.ci.guide_select \
+            --role "${{ inputs.role }}" \
+            --priority "${{ inputs.priority }}" \
+            --whitelist "${{ inputs.whitelist }}" | tee -a "$GITHUB_ENV"
 
       - name: 🔑 Login to GHCR
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
@@ -63,9 +67,58 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🚀 Run the extracted command
+      - name: 🖥️ Install a host role inside its pkgmgr distro container
+        if: ${{ env.GUIDE_MODE == 'host' }}
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p inventories
-          bash /tmp/deploy.sh
+          # Exception: strip the clone/cd lines because the checkout is already
+          # mounted; running them would clone a fresh tree and lose the CI changes.
+          awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
+            "roles/${GUIDE_ROLE}/README.md" \
+            | grep -vE '^git clone |^cd core$' > /tmp/host-deploy.sh
+          test -s /tmp/host-deploy.sh
+          docker pull "$GUIDE_RUNTIME_IMAGE"
+          # Exception: boot systemd as PID 1 because the host role manages user
+          # timers/units; enable-linger below gives root a --user manager.
+          CID=$(docker run -d --privileged --cgroupns=host \
+            -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+            --tmpfs /run --tmpfs /run/lock \
+            -v "$PWD:$PWD" \
+            --entrypoint /sbin/init \
+            "$GUIDE_RUNTIME_IMAGE")
+          trap 'docker rm -f "$CID" >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 40); do
+            state="$(docker exec "$CID" systemctl is-system-running 2>/dev/null || true)"
+            case "$state" in running | degraded) break ;; esac
+            sleep 3
+          done
+          docker exec "$CID" systemctl is-system-running 2>/dev/null | grep -qE 'running|degraded'
+          docker exec "$CID" bash -lc 'loginctl enable-linger root && systemctl start user@0.service'
+          docker exec -i -w "$PWD" "$CID" bash -s < /tmp/host-deploy.sh
+
+      - name: 🖥️ Boot the systemd server for a compose role
+        if: ${{ env.GUIDE_MODE == 'compose' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          INFINITO_IMAGE="ghcr.io/$(scripts/meta/resolve/repository/owner.sh)/$(scripts/meta/resolve/repository/name.sh)/${INFINITO_DISTRO}:ci-${{ github.sha }}"
+          echo "INFINITO_IMAGE=${INFINITO_IMAGE}" >> "$GITHUB_ENV"
+          export INFINITO_IMAGE
+          make compose-up
+
+      - name: 🚀 Deploy the compose role against the server
+        if: ${{ env.GUIDE_MODE == 'compose' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
+            "roles/${GUIDE_ROLE}/README.md" > /tmp/deploy.sh
+          # Exception: the deploy configures systemd units, so its body must run
+          # inside the real systemd server the compose stack boots, never a
+          # bash-only control container; extract the `bash -c` payload verbatim.
+          perl -0777 -ne "print \$1 if /bash -c '(.*)'/s" /tmp/deploy.sh > /tmp/payload.sh
+          test -s /tmp/payload.sh
+          source scripts/meta/env/load.sh
+          docker exec -i -e APP="$GUIDE_ROLE" -e HOST=localhost \
+            "${INFINITO_CONTAINER}" bash -s < /tmp/payload.sh
