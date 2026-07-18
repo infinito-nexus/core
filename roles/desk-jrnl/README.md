@@ -40,24 +40,24 @@ make compose-deploy mode=reinstall apps=desk-jrnl full_cycle=false
 
 ### Production
 
-Run the published image to provision the inventory and deploy Jrnl to a managed server (the mounted volume persists the inventory):
+Install Jrnl directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
-APP=desk-jrnl
-HOST=<your-server>
+git clone https://github.com/infinito-nexus/core.git
+cd core
+bash scripts/install/package.sh
+make install
+source scripts/meta/env/load.sh
 
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/prod
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
+APP=desk-jrnl
+INVENTORY=inventories/prod
+infinito administration inventory provision "$INVENTORY" \
+  --inventory-file "$INVENTORY/devices.yml" \
+  --host localhost \
+  --include "$APP"
+infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+  --password-file "$INVENTORY/.password" \
+  --diff -vv
 ```
 
 ## Further Resources

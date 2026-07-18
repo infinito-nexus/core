@@ -248,9 +248,10 @@ diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
 
 .PHONY: docs
-# Regenerate generated documentation: role Cosmos diagrams and the root-README roles index.
+# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, and the root-README roles index.
 docs:
 	@"$(MAKE)" cosmos
+	@"$(MAKE)" readme-generate quick_setup=true
 	@"$(MAKE)" readme-index
 
 .PHONY: dotenv
