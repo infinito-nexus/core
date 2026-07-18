@@ -284,25 +284,16 @@
   changed_when: false
   when: MODE_DEBUG | bool
 
-- name: Wait until the onion answers over Tor
-  ansible.builtin.command:
-    argv:
-      - curl
-      - --silent
-      - --show-error
-      - --location
-      - --socks5-hostname
-      - "{{ lookup('tor_socks') }}"
-      - --max-time
-      - "30"
-      - -o
-      - /dev/null
-      - "http://{{ lookup('domain', application_id) }}/" # nocheck: literal-protocol-lookup -- .onion is plaintext-only (no TLS), via Tor SOCKS
-  register: _pw_onion_probe
+- name: Wait until the onion answers over Tor (recreate circuits on exhaustion)
+  ansible.builtin.script: >-
+    {{ role_path }}/files/wait_onion_reachable.sh
+    {{ lookup('tor_socks') | quote }}
+    {{ lookup('domain', application_id) | quote }}
+    {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int }}
+    {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int }}
+    {{ lookup('container', 'svc-net-tor', 'directories.instance') | quote }}
   changed_when: false
-  retries: "{{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int }}"
-  delay: "{{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int }}"
-  until: _pw_onion_probe.rc == 0
+  become: true
   when: TEST_E2E_PLAYWRIGHT_IS_ONION | bool
 
 - name: Run Playwright container
@@ -314,6 +305,7 @@
       - --ipc=host
       - --shm-size=1g
       - --add-host=host.docker.internal:host-gateway
+      - "{{ ('--add-host=' ~ (OIDC.CLIENT.ISSUER_URL | urlsplit('hostname')) ~ ':host-gateway') if ('web-app-keycloak' in group_names) else '--add-host=host.docker.internal:host-gateway' }}"
       - --env-file
       - "{{ _playwright_stage_dir }}/.env"
       - -e
