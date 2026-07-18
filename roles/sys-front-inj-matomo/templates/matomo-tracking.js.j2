@@ -10,7 +10,7 @@ _paq.push(["trackPageView"]);
 _paq.push(["trackAllContentImpressions"]);
 _paq.push(["enableLinkTracking"]);
 (function() {
-  var u="//{{ lookup('domain','web-app-matomo') }}/";
+  var u="{{ lookup('tls', 'web-app-matomo', 'url.base') }}";
   _paq.push(["setTrackerUrl", u+"matomo.php"]);
   _paq.push(["setSiteId", "{{matomo_site_id}}"]);
   var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0];

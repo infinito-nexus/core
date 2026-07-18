@@ -1,5 +1,5 @@
 <noscript>
     <p>
-        <img src="//{{ lookup('domain','web-app-matomo') }}/matomo.php?idsite={{matomo_site_id}}&rec=1" style="border:0;" alt="" />
+        <img src="{{ lookup('tls', 'web-app-matomo', 'url.base') }}matomo.php?idsite={{matomo_site_id}}&rec=1" style="border:0;" alt="" />
     </p>
 </noscript>

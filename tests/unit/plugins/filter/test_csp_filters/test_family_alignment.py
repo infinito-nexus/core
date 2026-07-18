@@ -52,7 +52,8 @@ class TestCspFamilyAlignment(unittest.TestCase):
         header = self.filter.build_csp_header(
             self.apps, "web-app-bigbluebutton", domains, "https"
         )
-        self.assertIn("https://cdn.abc.onion", header)
+        self.assertIn("http://cdn.abc.onion", header)
+        self.assertNotIn("https://cdn.abc.onion", header)
 
     def test_consumer_without_domains_entry_keeps_provider_primary(self):
         domains = dict(self.domains)
@@ -60,4 +61,5 @@ class TestCspFamilyAlignment(unittest.TestCase):
         header = self.filter.build_csp_header(
             self.apps, "web-app-bigbluebutton", domains, "https"
         )
-        self.assertIn("https://cdn.abc.onion", header)
+        self.assertIn("http://cdn.abc.onion", header)
+        self.assertNotIn("https://cdn.abc.onion", header)

@@ -4,17 +4,22 @@ import hashlib
 from ansible.errors import AnsibleFilterError
 
 from utils.domains.primary_domain import get_domain
-from utils.get_url import get_url
 from utils.roles.applications.config import get
-from utils.tls_common import align_domain_to_consumer
+from utils.tls_common import align_domain_to_consumer, is_onion_domain
 
 
 def _aligned_url(domains, application_id, target_id, protocol):
-    """Provider URL for CSP tokens, family-aligned to the consuming app."""
+    """Provider URL for CSP tokens, family-aligned to the consuming app.
+
+    The scheme follows the ALIGNED host, not the consumer: onion targets are
+    plaintext-only (http), so a clearnet consumer falling back to an onion-only
+    provider gets a token that matches what the asset injection actually loads.
+    """
     domain = align_domain_to_consumer(
         domains, target_id, get_domain(domains, target_id), consumer=application_id
     )
-    return f"{protocol}://{domain}"
+    scheme = "http" if is_onion_domain(domain) else protocol
+    return f"{scheme}://{domain}"
 
 
 def _dedup_preserve(seq):
@@ -291,7 +296,11 @@ class FilterModule:
                     "font-src",
                     "media-src",
                 ) and self.is_feature_enabled(applications, "tor", application_id):
-                    tokens.append(get_url(domains, "web-svc-mirror", web_protocol))
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-svc-mirror", web_protocol
+                        )
+                    )
 
                 # Matomo (if enabled via services.matomo.enabled)
                 if directive in (
