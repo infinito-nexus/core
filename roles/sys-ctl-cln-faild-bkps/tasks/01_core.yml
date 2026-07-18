@@ -17,7 +17,7 @@
     package_name: "{{ CLEANUP_FAILED_BACKUPS_PKG }}"
     global_install: true
 
-- name: "✅ Ensure backups root exists (cleanback hard-fails on a missing root before the first backup ran)"
+- name: "✅ Ensure backups root exists before the first backup run"
   ansible.builtin.file:
     path: "{{ DIR_BACKUPS }}"
     state: directory

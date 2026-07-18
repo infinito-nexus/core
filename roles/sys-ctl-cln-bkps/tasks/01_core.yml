@@ -19,7 +19,7 @@
     package_state: present
     global_install: true
 
-- name: "✅ Ensure backups root exists (the cleanup script runs before the first backup on backup-provider hosts)"
+- name: "✅ Ensure backups root exists before the first backup run"
   ansible.builtin.file:
     path: "{{ DIR_BACKUPS }}"
     state: directory
