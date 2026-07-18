@@ -44,7 +44,7 @@ fi
 : "${INFINITO_WORKER_CPU:?INFINITO_WORKER_CPU must be set (provided by default.env via the env loader)}"
 jobs="${INFINITO_WORKER_CPU}"
 
-# shellcheck disable=SC2329  # invoked indirectly through xargs + bash -c
+# shellcheck disable=SC2329,SC2317  # invoked indirectly through xargs + bash -c
 render_one() {
 	local md="$1"
 	local slug
