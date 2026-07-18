@@ -57,6 +57,47 @@ class TestExtractDomainsFromFilenames(unittest.TestCase):
         self.assertIsNone(domains)
 
 
+class TestSplitOnionDomains(unittest.TestCase):
+    def test_splits_families(self) -> None:
+        domains = [
+            "auth.abc123.onion",
+            "app.infinito.example",
+            "matomo.abc123.onion",
+        ]
+        clearnet, onion = script.split_onion_domains(domains)
+        self.assertEqual(clearnet, ["app.infinito.example"])
+        self.assertEqual(onion, ["auth.abc123.onion", "matomo.abc123.onion"])
+
+    def test_clearnet_only(self) -> None:
+        domains = ["a.example", "b.example"]
+        self.assertEqual(script.split_onion_domains(domains), (domains, []))
+
+    def test_empty_list(self) -> None:
+        self.assertEqual(script.split_onion_domains([]), ([], []))
+
+
+class TestBuildDockerCmdProxy(unittest.TestCase):
+    def test_proxy_arg_appended(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["http://a.onion/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+            proxy="socks5://127.0.0.1:9050",
+        )
+        idx = cmd.index("--proxy")
+        self.assertEqual(cmd[idx + 1], "socks5://127.0.0.1:9050")
+
+    def test_no_proxy_arg_without_proxy(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["https://a.example/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+        )
+        self.assertNotIn("--proxy", cmd)
+
+
 class TestDetectSchemeFromConf(unittest.TestCase):
     def test_detects_https_via_443(self) -> None:
         with patch("pathlib.Path.read_text", return_value="listen 443 ssl;"):

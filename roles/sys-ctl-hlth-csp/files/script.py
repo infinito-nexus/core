@@ -38,6 +38,13 @@ def extract_domains_from_filenames(config_path: str) -> list[str] | None:
     return out
 
 
+def split_onion_domains(domains: list[str]) -> tuple[list[str], list[str]]:
+    """Split into (clearnet, onion): onion vhosts need a SOCKS proxy to probe."""
+    clearnet = [d for d in domains if not d.endswith(".onion")]
+    onion = [d for d in domains if d.endswith(".onion")]
+    return clearnet, onion
+
+
 def detect_scheme_from_conf(conf_path: Path) -> str | None:
     """
     Decide whether this conf listens on HTTP or HTTPS.
@@ -110,6 +117,7 @@ def build_docker_cmd(
     short_mode: bool,
     ignore_network_blocks_from: list[str],
     use_host_network: bool = True,
+    proxy: str = "",
 ) -> list[str]:
     cmd = ["container", "run", "--rm"]
 
@@ -123,6 +131,9 @@ def build_docker_cmd(
 
     if short_mode:
         cmd.append("--short")
+
+    if proxy:
+        cmd.extend(["--proxy", proxy])
 
     if ignore_network_blocks_from:
         cmd.append("--ignore-network-blocks-from")
@@ -140,6 +151,7 @@ def run_checker(
     ignore_network_blocks_from: list[str],
     always_pull: bool,
     use_host_network: bool = True,
+    proxy: str = "",
 ) -> int:
     """
     Runs the CSP checker container and returns its exit code.
@@ -154,6 +166,7 @@ def run_checker(
         short_mode=short_mode,
         ignore_network_blocks_from=ignore_network_blocks_from,
         use_host_network=use_host_network,
+        proxy=proxy,
     )
 
     try:
@@ -213,6 +226,15 @@ def main() -> None:
             "otherwise treat as unreachable."
         ),
     )
+    parser.add_argument(
+        "--tor-proxy",
+        default="",
+        help=(
+            "SOCKS proxy for probing .onion vhosts (e.g. "
+            "socks5://127.0.0.1:9050). Without it, .onion domains are "
+            "skipped — the checker cannot resolve them over plain DNS."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -234,23 +256,39 @@ def main() -> None:
                 f"--skip-domain: {skipped_present}"
             )
 
-    if not domains:
+    clearnet_domains, onion_domains = split_onion_domains(domains)
+    if onion_domains and not args.tor_proxy:
+        print(
+            f"Skipping {len(onion_domains)} .onion domain(s) — no --tor-proxy "
+            f"given: {sorted(onion_domains)}"
+        )
+        onion_domains = []
+
+    if not clearnet_domains and not onion_domains:
         print("No domains left to check after applying --skip-domain.")
         sys.exit(0)
 
-    urls = build_urls_from_nginx_confs(args.nginx_config_dir, domains)
-    if not urls:
-        print("No URLs built to check.")
-        sys.exit(0)
-
-    rc = run_checker(
-        image=args.image,
-        urls=urls,
-        short_mode=bool(args.short),
-        ignore_network_blocks_from=list(args.ignore_network_blocks_from or []),
-        always_pull=bool(args.always_pull),
-        use_host_network=not bool(args.no_host_network),
-    )
+    rc = 0
+    for batch_domains, batch_proxy in (
+        (clearnet_domains, ""),
+        (onion_domains, args.tor_proxy),
+    ):
+        if not batch_domains:
+            continue
+        urls = build_urls_from_nginx_confs(args.nginx_config_dir, batch_domains)
+        if not urls:
+            print(f"No URLs built to check for: {sorted(batch_domains)}")
+            continue
+        batch_rc = run_checker(
+            image=args.image,
+            urls=urls,
+            short_mode=bool(args.short),
+            ignore_network_blocks_from=list(args.ignore_network_blocks_from or []),
+            always_pull=bool(args.always_pull),
+            use_host_network=not bool(args.no_host_network),
+            proxy=batch_proxy,
+        )
+        rc = rc or batch_rc
     sys.exit(rc)
 
 

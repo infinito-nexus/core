@@ -5,4 +5,4 @@ csp:
     categories: [web]
 csp-checker:
   image: ghcr.io/kevinveenbirkenbach/csp-checker
-  version: 2.1.2
+  version: 2.2.0

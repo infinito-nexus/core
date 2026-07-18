@@ -61,6 +61,10 @@
           (HEALTH_CSP_SKIP_DOMAINS | length > 0) | ternary(
             '--skip-domain ' ~ (HEALTH_CSP_SKIP_DOMAINS | join(' ')),
             ''
+          ),
+          (lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0) | ternary(
+            '--tor-proxy=socks5://' ~ lookup('tor_socks'),
+            ''
           )
         ]
         | reject('equalto','')
