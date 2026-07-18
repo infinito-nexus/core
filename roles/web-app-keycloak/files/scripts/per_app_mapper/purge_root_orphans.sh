@@ -41,5 +41,5 @@ awk -F',' -v keep="$DEPLOYED_APP_IDS" '
 while IFS= read -r stale_id; do
   [ -z "$stale_id" ] && continue
   container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh delete \
-    "groups/$stale_id" -r "$KC_REALM" </dev/null 2>/dev/null || true
+    "groups/$stale_id" -r "$KC_REALM" </dev/null 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done < /tmp/kc_root_to_delete.txt

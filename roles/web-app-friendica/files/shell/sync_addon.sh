@@ -24,10 +24,10 @@ ADDON="$2"
 DESIRED="$3"
 
 if [[ "$DESIRED" == "true" ]]; then
-    $CMD addon disable "$ADDON" 2>&1 || true
-    $CMD addon enable  "$ADDON" 2>&1 || true
+    $CMD addon disable "$ADDON" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+    $CMD addon enable  "$ADDON" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 else
-    $CMD addon disable "$ADDON" 2>&1 || true
+    $CMD addon disable "$ADDON" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 if $CMD addon list enabled | grep -qE "^\| +${ADDON} +\|$"; then

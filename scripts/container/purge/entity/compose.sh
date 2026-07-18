@@ -32,7 +32,7 @@ for STACK_NAME in "$@"; do
 
 		log "Compose down for '${STACK_NAME}'..."
 		cd "$STACK_DIR"
-		run_no_stdin compose down --remove-orphans -v || true
+		run_no_stdin compose down --remove-orphans -v || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	) || {
 		rc=$?
 		overall_rc=1

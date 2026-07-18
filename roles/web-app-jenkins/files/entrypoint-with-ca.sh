@@ -28,7 +28,7 @@ if [[ -n "${CA_FILE}" && -r "${CA_FILE}" ]]; then
       -alias "${CA_TRUST_NAME}" \
       -file "${CA_FILE}" \
       -keystore "${CACERTS}" \
-      -storepass "changeit" >/dev/null 2>&1 || true
+      -storepass "changeit" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   fi
 fi
 

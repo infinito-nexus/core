@@ -44,11 +44,11 @@ if [ "$(id -u)" -eq 0 ]; then
   chown -R www-data:www-data \
     "$APP_ROOT/public" \
     "$APP_ROOT/var" \
-    "$APP_ROOT/.infinito" || true
+    "$APP_ROOT/.infinito" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   chmod -R 775 \
     "$APP_ROOT/public" \
     "$APP_ROOT/var" \
-    "$APP_ROOT/.infinito" || true
+    "$APP_ROOT/.infinito" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
   # Switch to www-data for all subsequent operations
   exec su -s /bin/sh www-data "$0" "$@"

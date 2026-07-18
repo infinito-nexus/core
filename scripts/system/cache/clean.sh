@@ -32,8 +32,8 @@ source "scripts/meta/env/load.sh"
 # scope to the two cache services explicitly.
 if docker ps --format '{{.Names}}' | grep -qE '^infinito-(registry|package)-cache$'; then
 	echo "[clean-cache] stopping infinito-registry-cache + infinito-package-cache"
-	docker stop infinito-registry-cache infinito-package-cache 2>/dev/null || true
-	docker rm infinito-registry-cache infinito-package-cache 2>/dev/null || true
+	docker stop infinito-registry-cache infinito-package-cache 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	docker rm infinito-registry-cache infinito-package-cache 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 PATHS=(

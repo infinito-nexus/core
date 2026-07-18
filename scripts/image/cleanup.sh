@@ -151,9 +151,9 @@ gh_api_json() {
 	shift # orgs|users
 
 	if [[ "${method}" == "GET" ]]; then
-		gh api -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true
+		gh api -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	else
-		gh api -X "${method}" -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true
+		gh api -X "${method}" -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 }
 

@@ -14,7 +14,7 @@ fi
 _gw="$(printf '%d.%d.%d.%d' "0x${_gw_hex:6:2}" "0x${_gw_hex:4:2}" "0x${_gw_hex:2:2}" "0x${_gw_hex:0:2}")"
 
 _hosts_tmp="$(mktemp)"
-grep -v "[[:space:]]${MATRIX_OIDC_ONION_HOST}\$" /etc/hosts > "${_hosts_tmp}" || true
+grep -v "[[:space:]]${MATRIX_OIDC_ONION_HOST}\$" /etc/hosts > "${_hosts_tmp}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 printf '%s\t%s\n' "${_gw}" "${MATRIX_OIDC_ONION_HOST}" >> "${_hosts_tmp}"
 cat "${_hosts_tmp}" > /etc/hosts
 rm -f "${_hosts_tmp}"

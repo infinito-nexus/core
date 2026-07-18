@@ -12,10 +12,10 @@ php /wait-for-db.php
 
 if [ -n "${CA_TRUST_CERT:-}" ] && [ -r "${CA_TRUST_CERT}" ]; then
   if ! command -v update-ca-certificates >/dev/null 2>&1; then
-    { apt-get update -y && apt-get install -y --no-install-recommends ca-certificates; } || true
+    { apt-get update -y && apt-get install -y --no-install-recommends ca-certificates; } || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   fi
-  cp "${CA_TRUST_CERT}" "/usr/local/share/ca-certificates/${CA_TRUST_NAME}.crt" || true
-  update-ca-certificates || true
+  cp "${CA_TRUST_CERT}" "/usr/local/share/ca-certificates/${CA_TRUST_NAME}.crt" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+  update-ca-certificates || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 echo "++++ Start apache... ++++"

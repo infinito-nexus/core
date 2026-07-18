@@ -122,7 +122,7 @@ if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 			--required-storage "${required_storage}" \
 			--warnings \
 			--format json \
-			>/dev/null || true
+			>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 		# Real filter (JSON output)
 		apps_json="$(

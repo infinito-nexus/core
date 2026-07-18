@@ -25,7 +25,7 @@ build_and_install_arch() {
 	pacman-key --init
 	pacman-key --populate archlinux
 	# Tolerate missing manjaro keyring on pure Arch images (no manjaro.gpg present).
-	pacman-key --populate manjaro 2>/dev/null || true
+	pacman-key --populate manjaro 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 	echo "[arch] Installing build toolchain..."
 	pacman -Syu --noconfirm --needed base-devel sudo rsync
@@ -132,7 +132,7 @@ build_and_install_rpm_like() {
 	echo "[rpm] Installing ${rpm_path} via ${pm}..."
 	bootstrap_docker_repo
 	"${pm}" -y install "${rpm_path}"
-	"${pm}" -y clean all || true
+	"${pm}" -y clean all || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 main() {

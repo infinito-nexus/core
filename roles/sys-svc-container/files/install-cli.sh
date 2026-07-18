@@ -76,7 +76,7 @@ Package: docker-compose-v2
 Pin: release o=Ubuntu
 Pin-Priority: -1
 EOF
-    apt-get -y purge docker-compose-v2 >/dev/null 2>&1 || true
+    apt-get -y purge docker-compose-v2 >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   fi
 
   apt-get update
@@ -109,16 +109,16 @@ elif [[ "${ID}" == "fedora" ]]; then
 
 elif [[ "${ID}" == "centos" || "${ID}" == "rhel" || "${ID_LIKE:-}" =~ (rhel|centos) ]]; then
   if command -v dnf >/dev/null 2>&1; then PM=dnf; else PM=yum; fi
-  ${PM} -y install yum-utils || true
-  ${PM} -y install dnf-plugins-core || true
-  add_repo_rpm_compatible "${PM}" "https://download.docker.com/linux/centos/docker-ce.repo" || true
+  ${PM} -y install yum-utils || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+  ${PM} -y install dnf-plugins-core || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+  add_repo_rpm_compatible "${PM}" "https://download.docker.com/linux/centos/docker-ce.repo" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   if [[ "${REPO_ONLY}" == "1" ]]; then
-    ${PM} -y makecache || true
+    ${PM} -y makecache || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   else
     # Prefer the same Docker CLI/buildx/compose package set as Fedora.
     (${PM} -y install docker-ce-cli docker-buildx-plugin docker-compose-plugin) || \
       (${PM} -y install docker-ce-cli) || \
-      (${PM} -y install docker) || true
+      (${PM} -y install docker) || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   fi
 
 else

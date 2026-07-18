@@ -54,7 +54,7 @@ configure_via_networkmanager_dnsmasq() {
 	# Avoid port conflicts with a system-wide dnsmasq service
 	if systemctl is-enabled --quiet dnsmasq 2>/dev/null || systemctl is-active --quiet dnsmasq 2>/dev/null; then
 		echo ">>> Disabling system dnsmasq to avoid conflicts with NetworkManager dnsmasq"
-		sudo systemctl disable --now dnsmasq || true
+		sudo systemctl disable --now dnsmasq || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 
 	echo ">>> Writing NetworkManager dnsmasq config: ${DNS_NM_CONF}"
@@ -76,7 +76,7 @@ EOF
 	sudo systemctl restart NetworkManager
 
 	echo ">>> Resolver status"
-	cat /etc/resolv.conf || true
+	cat /etc/resolv.conf || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 configure_via_system_dnsmasq() {
@@ -97,8 +97,8 @@ EOF
 	# Optional: systemd-resolved integration if it exists, but NEVER fail the script
 	if command -v resolvectl >/dev/null 2>&1 && systemctl is-active --quiet systemd-resolved 2>/dev/null; then
 		echo ">>> Configuring systemd-resolved routing for ${DNS_DOMAIN}"
-		sudo resolvectl dns lo 127.0.0.1 || true
-		sudo resolvectl domain lo "~${DNS_DOMAIN}" || true
+		sudo resolvectl dns lo 127.0.0.1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		sudo resolvectl domain lo "~${DNS_DOMAIN}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	else
 		echo ">>> systemd-resolved not active -> skipping resolvectl integration"
 		echo ">>> NOTE: Ensure your system resolver uses 127.0.0.1 to query dnsmasq."

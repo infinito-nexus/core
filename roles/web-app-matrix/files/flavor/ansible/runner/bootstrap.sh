@@ -29,7 +29,7 @@ while [ "$attempt" -lt 30 ]; do
 done
 if [ "$ready" -ne 1 ]; then
   echo "!!! matrix-mdad-bootstrap: python runtime never became importable, aborting" >&2
-  "$PYTHON" -c 'import _posixsubprocess' || true
+  "$PYTHON" -c 'import _posixsubprocess' || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   exit 1
 fi
 

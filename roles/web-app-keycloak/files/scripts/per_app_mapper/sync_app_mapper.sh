@@ -14,4 +14,4 @@ set -o pipefail
 
 container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh create \
   "user-storage/$LDAP_COMPONENT_ID/mappers/$MAPPER_ID/sync?direction=fedToKeycloak" \
-  -r "$KC_REALM" 2>&1 || true
+  -r "$KC_REALM" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

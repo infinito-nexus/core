@@ -15,12 +15,12 @@ set -euo pipefail
 : "${MOODLE_VERSION_FILE:?required}"
 
 mkdir -p "${MOODLE_DATA_DIR}"
-chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_DATA_DIR}" || true
+chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_DATA_DIR}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 if [ ! -f "${MOODLE_CODE_DIR}/${MOODLE_VERSION_FILE}" ] && [ -d "${MOODLE_SOURCE_DIR}" ]; then
   cp -a "${MOODLE_SOURCE_DIR}/." "${MOODLE_CODE_DIR}/"
 fi
-chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_CODE_DIR}" || true
+chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_CODE_DIR}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 if [ "$(id -u)" -eq 0 ] && [ "${1:-}" != "php-fpm" ]; then
   exec gosu "${MOODLE_RUNTIME_USER}" "$@"

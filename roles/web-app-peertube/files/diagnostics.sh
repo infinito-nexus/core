@@ -25,33 +25,33 @@ echo
 echo "--- State ---"
 container inspect --format \
   'Status={{.State.Status}} Running={{.State.Running}} Restarting={{.State.Restarting}} OOMKilled={{.State.OOMKilled}} ExitCode={{.State.ExitCode}} StartedAt={{.State.StartedAt}} FinishedAt={{.State.FinishedAt}} RestartCount={{.RestartCount}}' \
-  "${CONTAINER}" 2>&1 || true
+  "${CONTAINER}" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "--- Health ---"
 container inspect --format \
   '{{if .State.Health}}Status={{.State.Health.Status}} FailingStreak={{.State.Health.FailingStreak}}{{range .State.Health.Log}}{{println "log:" .ExitCode .Output}}{{end}}{{else}}no healthcheck configured{{end}}' \
-  "${CONTAINER}" 2>&1 || true
+  "${CONTAINER}" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "--- Resource limits ---"
 container inspect --format \
   'MemLimit={{.HostConfig.Memory}} MemSwap={{.HostConfig.MemorySwap}} NanoCpus={{.HostConfig.NanoCpus}} PidsLimit={{.HostConfig.PidsLimit}}' \
-  "${CONTAINER}" 2>&1 || true
+  "${CONTAINER}" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "--- container stats (single snapshot) ---"
-container stats --no-stream --no-trunc "${CONTAINER}" 2>&1 || true
+container stats --no-stream --no-trunc "${CONTAINER}" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "--- container logs (last 250 lines) ---"
-container logs --tail 250 "${CONTAINER}" 2>&1 || true
+container logs --tail 250 "${CONTAINER}" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "--- Host memory + swap ---"
-free -h 2>&1 || true
+free -h 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
-swapon --show 2>&1 || true
+swapon --show 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "--- dmesg tail (OOM-killer evidence, best effort) ---"
