@@ -109,6 +109,7 @@ matrix:
   name: matrix
   # nocheck: default-placement-manager  inner docker-in-docker storage; node-local in swarm
   placement: manager
+  workload: node-local
   flavor: ansible
   upstream:
     repo: https://github.com/spantaleev/matrix-docker-ansible-deploy

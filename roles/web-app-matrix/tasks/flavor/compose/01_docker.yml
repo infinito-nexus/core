@@ -72,6 +72,9 @@
   include_tasks: 03_compose_pull_and_up.yml
   when: DEPLOYMENT_MODE == 'compose'
 
+- name: "🚿 Flush handlers so the swarm stack deploys before the registration wait"
+  meta: flush_handlers
+
 - name: ⏳ wait for registration files
   wait_for:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"

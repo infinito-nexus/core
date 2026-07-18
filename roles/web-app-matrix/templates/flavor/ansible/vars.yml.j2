@@ -56,11 +56,16 @@ jitsi_jicofo_container_network: host
 
 matrix_livekit_jwt_service_container_port: 8030
 
-{% if (TLS_MODE | lower) == 'self_signed' %}
+{% if MATRIX_OIDC_ENABLED or (TLS_MODE | lower) == 'self_signed' %}
 matrix_synapse_container_extra_arguments:
+{% if MATRIX_OIDC_ENABLED %}
+  - "--add-host={{ OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') }}:{{ lookup('config', application_id, 'networks.local.subnet') | regex_replace('\\.0/\\d+$', '.1') }}"
+{% endif %}
+{% if (TLS_MODE | lower) == 'self_signed' %}
   - "--mount type=bind,src={{ CA_TRUST.cert_host }},dst={{ MATRIX_CA_MOUNT_PATH }},ro"
   - "-e SSL_CERT_FILE={{ MATRIX_CA_MOUNT_PATH }}"
   - "-e REQUESTS_CA_BUNDLE={{ MATRIX_CA_MOUNT_PATH }}"
+{% endif %}
 {% endif %}
 
 {% if MATRIX_COTURN_SHARED %}
