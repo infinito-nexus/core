@@ -27,6 +27,11 @@ on:
         required: false
         type: string
         default: ""
+      marker:
+        description: "Optional suffix appended to the discover job names (e.g. ' ⭐' for the priority line)"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -42,6 +47,7 @@ jobs:
       whitelist: ${{ inputs.whitelist }}
       lifecycles: ${{ inputs.lifecycles }}
       blacklist: ${{ inputs.blacklist }}
+      marker: ${{ inputs.marker }}
 
   host:
     name: 🖥️ Host
@@ -52,3 +58,4 @@ jobs:
       whitelist: ${{ inputs.whitelist }}
       lifecycles: ${{ inputs.lifecycles }}
       blacklist: ${{ inputs.blacklist }}
+      marker: ${{ inputs.marker }}

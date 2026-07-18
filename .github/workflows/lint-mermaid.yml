@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   lint-mermaid:
-    name: 🧜 Lint Mermaid
+    name: 🧹 Lint Mermaid
     runs-on: ubuntu-latest
     timeout-minutes: 10
 

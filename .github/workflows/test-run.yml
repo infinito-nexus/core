@@ -1,0 +1,61 @@
+name: "🏃 Test: Run"
+
+on:
+  workflow_call:
+    inputs:
+      role:
+        description: "svc-db role whose README Production command is extracted and executed"
+        required: false
+        type: string
+        default: "svc-db-postgres"
+  workflow_dispatch:
+    inputs:
+      role:
+        description: "svc-db role whose README Production command is extracted and executed"
+        required: false
+        type: string
+        default: "svc-db-postgres"
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    name: 🏃 README Production run (${{ inputs.role }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7.0.0
+
+      - name: ✂️ Extract the Production command from the role README
+        shell: bash
+        run: |
+          set -euo pipefail
+          awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
+            "roles/${{ inputs.role }}/README.md" > /tmp/deploy.sh
+          test -s /tmp/deploy.sh
+          cat /tmp/deploy.sh
+
+      - name: 🔧 Adapt for CI (localhost target, Docker socket instead of TTY)
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -i 's/<your-server>/localhost/' /tmp/deploy.sh
+          sed -i 's#--rm -it #--rm -v /var/run/docker.sock:/var/run/docker.sock #' /tmp/deploy.sh
+          grep -q 'HOST=localhost' /tmp/deploy.sh
+          grep -q 'docker.sock' /tmp/deploy.sh
+
+      - name: 🔑 Login to GHCR
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Run the extracted command
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p inventories
+          bash /tmp/deploy.sh

@@ -23,6 +23,11 @@ on:
         required: false
         type: string
         default: ""
+      marker:
+        description: "Optional suffix appended to the discover job name (e.g. ' ⭐' for the priority line)"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       distros:
@@ -62,7 +67,7 @@ env:
 
 jobs:
   discover:
-    name: 🚢 Swarm (${{ inputs.distros }})
+    name: 🚢 Swarm (${{ inputs.distros }})${{ inputs.marker }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:

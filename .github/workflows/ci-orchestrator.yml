@@ -221,6 +221,7 @@ jobs:
       whitelist: ${{ inputs.priority }}
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.modes }}
+      marker: " ⭐"
 
   test-deploy-swarm-priority:
     name: ⭐ Priority · swarm
@@ -233,6 +234,7 @@ jobs:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.priority }}
       lifecycles: ${{ inputs.lifecycles }}
+      marker: " ⭐"
 
   test-deploy-single-node:
     name: 🔁 Regular · single-node
@@ -311,6 +313,13 @@ jobs:
       - code-quality-gate
     secrets: inherit
 
+  test-run:
+    uses: ./.github/workflows/test-run.yml
+    needs:
+      - images-mirror-missing
+      - code-quality-gate
+    secrets: inherit
+
   done:
     name: 🏁 Finish pipeline
     needs:
@@ -321,6 +330,7 @@ jobs:
       - test-runner-smoke
       - test-install-gate
       - test-development
+      - test-run
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:

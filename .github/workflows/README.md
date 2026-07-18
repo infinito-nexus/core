@@ -71,6 +71,9 @@ flowchart TB
         qualitygate --> devenv["test-development: test-environment.yml"]
         mirror --> devenv
 
+        qualitygate --> testrun["test-run.yml"]
+        mirror --> testrun
+
         snprio --> donegate["done"]
         swarmprio --> donegate
         snreg --> donegate
@@ -78,6 +81,7 @@ flowchart TB
         smoke --> donegate
         instgate --> donegate
         devenv --> donegate
+        testrun --> donegate
     end
 
     snprio --> singlenode["test-deploy-single-node.yml"]
@@ -120,6 +124,7 @@ flowchart TB
     relhighest -.->|"gh workflow run"| relver["release-version.yml"]
     relver --> imgbuildci["images-build-ci.yml"]
     manual["workflow_dispatch"] --> mirrorcleanup["images-mirror-cleanup.yml"]
+    manual --> deploywf["test-run.yml: run a role README Production command"]
 ```
 
 Also manually dispatchable: `images-mirror-all.yml`, `images-cleanup-ci.yml`,
