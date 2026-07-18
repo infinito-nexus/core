@@ -126,6 +126,7 @@
       "WebFetch(domain:docs.flowiseai.com)",
       "WebFetch(domain:docs.frappe.io)",
       "WebFetch(domain:docs.funkwhale.audio)",
+      "WebFetch(domain:docs.github.com)",
       "WebFetch(domain:docs.gitlab.com)",
       "WebFetch(domain:docs.hetzner.com)",
       "WebFetch(domain:docs.joinbookwyrm.com)",
