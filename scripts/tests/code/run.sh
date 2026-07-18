@@ -33,8 +33,10 @@ if "${PYTHON}" -c 'import pytest, xdist' >/dev/null 2>&1; then
 	# python_functions= pins collection to unittest-style TestCase methods,
 	# the exact set `unittest discover` runs. PYTHONDONTWRITEBYTECODE keeps
 	# namespace probing from dropping __pycache__ into roles/.
+	mkdir -p build/test-reports
 	PYTHONDONTWRITEBYTECODE=1 "${PYTHON}" -m pytest "${_suite_dir}" -q -n auto -rP -p no:cacheprovider \
 		--import-mode=importlib \
+		--junitxml="build/test-reports/${INFINITO_TEST_TYPE}.xml" \
 		-o consider_namespace_packages=true \
 		-o "norecursedirs=.* *.egg dist node_modules venv" \
 		-o python_functions= \

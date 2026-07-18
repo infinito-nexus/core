@@ -31,6 +31,12 @@ jobs:
           set -euo pipefail
           make test 2>&1 | tee /tmp/test-output.txt
 
+      - name: 📊 Per-test summary from junit reports
+        if: always()
+        shell: bash
+        run: |
+          python3 utils/github/pytest_summary.py build/test-reports >> "$GITHUB_STEP_SUMMARY"
+
       - name: 🔨 Build step summary from annotations
         if: always()
         working-directory: ${{ github.workspace }}
