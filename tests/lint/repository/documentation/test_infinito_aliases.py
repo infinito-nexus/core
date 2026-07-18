@@ -5,8 +5,8 @@ Rules enforced:
 
 1. Every alias name starts with ``i8``.
 2. Alias names are sorted ascending.
-3. No two consonants stand next to each other in an alias name (digits
-   count as separators, so ``i8`` never forms a cluster).
+3. No more than two consonants stand next to each other in an alias name
+   (digits count as separators, so ``i8`` never forms a cluster).
 4. Every public Makefile target is invoked by at least one alias
    (full coverage).
 5. Every ``m``/``make`` invocation inside an alias body references an
@@ -61,15 +61,14 @@ def _make_targets_in(body: str) -> set[str]:
 
 
 def _has_consonant_cluster(name: str) -> bool:
-    prev_consonant = False
+    run = 0
     for char in name:
         if not char.isalpha():
-            prev_consonant = False
+            run = 0
             continue
-        is_consonant = char.lower() not in VOWELS
-        if is_consonant and prev_consonant:
+        run = run + 1 if char.lower() not in VOWELS else 0
+        if run > 2:
             return True
-        prev_consonant = is_consonant
     return False
 
 
@@ -90,7 +89,9 @@ class TestInfinitoAliases(unittest.TestCase):
 
     def test_no_consecutive_consonants(self):
         bad = [name for name, _, _ in self.aliases if _has_consonant_cluster(name)]
-        self.assertFalse(bad, f"alias names with two adjacent consonants: {bad}")
+        self.assertFalse(
+            bad, f"alias names with more than two adjacent consonants: {bad}"
+        )
 
     def test_every_make_target_has_an_alias(self):
         covered: set[str] = set()

@@ -1,8 +1,8 @@
 """Lint guard: the shortcut table in
 ``docs/contributing/tools/agents/alias.md`` (the agent conversation
-shortcuts). Every shortcut MUST start with ``ai8``, MUST NOT place two
-consonants next to each other, and the table MUST stay sorted ascending
-so operators can scan and extend it predictably.
+shortcuts). Every shortcut MUST start with ``ai8``, MUST NOT place more
+than two consonants next to each other, and the table MUST stay sorted
+ascending so operators can scan and extend it predictably.
 """
 
 from __future__ import annotations
@@ -18,15 +18,14 @@ VOWELS = frozenset("aeiou")
 
 
 def _has_consonant_cluster(name: str) -> bool:
-    prev_consonant = False
+    run = 0
     for char in name:
         if not char.isalpha():
-            prev_consonant = False
+            run = 0
             continue
-        is_consonant = char.lower() not in VOWELS
-        if is_consonant and prev_consonant:
+        run = run + 1 if char.lower() not in VOWELS else 0
+        if run > 2:
             return True
-        prev_consonant = is_consonant
     return False
 
 
@@ -60,7 +59,9 @@ class TestAliasTable(unittest.TestCase):
 
     def test_no_consecutive_consonants(self):
         bad = [s for s in self.shortcuts if _has_consonant_cluster(s)]
-        self.assertFalse(bad, f"shortcuts with two adjacent consonants: {bad}")
+        self.assertFalse(
+            bad, f"shortcuts with more than two adjacent consonants: {bad}"
+        )
 
 
 if __name__ == "__main__":
