@@ -54,7 +54,7 @@ mariadb:
 nextcloud:
   name: nextcloud
   image: nextcloud
-  version: 33-fpm-alpine
+  version: 34-fpm-alpine
   min_storage: 20GB
   backup:
     no_stop_required: true
@@ -88,7 +88,7 @@ nextcloud:
 proxy:
   name: nextcloud-proxy
   image: nginx
-  version: 1.31.2-alpine
+  version: 1.31.3-alpine
   backup:
     no_stop_required: true
   cpus: "0.5"
