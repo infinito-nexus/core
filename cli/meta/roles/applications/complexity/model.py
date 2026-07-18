@@ -139,9 +139,7 @@ def _attach_siblings(rows: list[ComplexityRow]) -> list[ComplexityRow]:
     }
     return [
         row._replace(
-            siblings=sorted(
-                r.name for r in by_dna[row.dna] if r.name != row.name
-            ),
+            siblings=sorted(r.name for r in by_dna[row.dna] if r.name != row.name),
             clone=row.name != originals[row.dna],
         )
         for row in rows

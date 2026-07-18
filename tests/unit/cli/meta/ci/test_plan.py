@@ -87,9 +87,7 @@ class TestRender(unittest.TestCase):
         )
         rule_line = next(line for line in out.splitlines() if line.startswith("---"))
         self.assertEqual(len(rule_line), len(rule_line.rstrip()))
-        data_line = next(
-            line for line in out.splitlines() if "web-app-a" in line
-        )
+        data_line = next(line for line in out.splitlines() if "web-app-a" in line)
         name_col = rule_line.index("  ", rule_line.index("-")) + 2
         self.assertEqual(data_line[name_col : name_col + 9], "web-app-a")
         self.assertTrue(header_line)
