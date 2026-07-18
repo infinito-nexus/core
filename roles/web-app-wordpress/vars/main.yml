@@ -14,7 +14,7 @@ WORDPRESS_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_nam
 WORDPRESS_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 WORDPRESS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 WORDPRESS_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-WORDPRESS_DOMAINS: "{{ lookup('config', application_id, 'server.domains.canonical') }}"
+WORDPRESS_DOMAINS: "{{ lookup('domains', application_id) }}"
 # Excludes the mu_plugin, which 05_mu_plugins.yml installs separately.
 WORDPRESS_PLUGINS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'plugin') | list }}"
 WORDPRESS_USER: "www-data"
