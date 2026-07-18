@@ -377,6 +377,7 @@ install-venv: install-system-python
 lint: install-lint
 	@bash scripts/make/parallel.sh lint-action \
 		lint-ansible \
+		lint-dockerfile \
 		lint-javascript \
 		lint-makefile \
 		lint-markdown \
@@ -396,6 +397,11 @@ lint-action: install-lint
 # Note: runs ansible's syntax-check plus ansible-lint.
 lint-ansible: install-lint setup
 	@bash scripts/lint/wrapper.sh ansible
+
+.PHONY: lint-dockerfile
+# Run hadolint over the root Dockerfile.
+lint-dockerfile: install-lint
+	@bash scripts/lint/wrapper.sh dockerfile
 
 .PHONY: lint-javascript
 # Run ESLint over the project's JavaScript files.

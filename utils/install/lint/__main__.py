@@ -18,6 +18,7 @@ from utils.cache import PROJECT_ROOT
 from utils.install.lint import (
     actionlint,
     eslint,
+    hadolint,
     markdownlint_cli2,
     mbake,
     mermaid_cli,
@@ -44,6 +45,7 @@ _STAMP_TOOLS = (
     "ansible-lint",
     "ansible-playbook",
     "eslint",
+    "hadolint",
     "markdownlint-cli2",
     "mbake",
     "ruff",
@@ -69,6 +71,10 @@ def _install_python_tools() -> None:
 
 def _install_shellcheck_tools() -> None:
     shellcheck.ensure()
+
+
+def _install_dockerfile_tools() -> None:
+    hadolint.ensure()
 
 
 def _install_markdown_tools() -> None:
@@ -100,6 +106,7 @@ _GROUP_FN_NAMES = {
     "ansible": "_install_ansible_tools",
     "python": "_install_python_tools",
     "shellcheck": "_install_shellcheck_tools",
+    "dockerfile": "_install_dockerfile_tools",
     "markdown": "_install_markdown_tools",
     "mermaid": "_install_mermaid_tools",
     "makefile": "_install_makefile_tools",
@@ -114,6 +121,7 @@ def _install_all() -> None:
     _install_ansible_tools()
     _install_python_tools()
     _install_shellcheck_tools()
+    _install_dockerfile_tools()
     _install_markdown_tools()
     _install_mermaid_tools()
     _install_makefile_tools()
@@ -152,7 +160,7 @@ def _dispatch(group: str) -> None:
     if fn_name is None:
         raise RuntimeError(
             "Usage: python -m utils.install.lint "
-            "[all|action|ansible|python|shellcheck|markdown|mermaid|makefile|javascript|playwright|packages]..."
+            "[all|action|ansible|python|shellcheck|dockerfile|markdown|mermaid|makefile|javascript|playwright|packages]..."
         )
     globals()[fn_name]()
 
