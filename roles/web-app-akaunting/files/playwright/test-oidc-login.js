@@ -24,4 +24,11 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: 90_000 }).toContain(expectedBase);
   await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+
+  await expect
+    .poll(() => page.url(), { timeout: 60_000 })
+    .not.toContain("/install/");
+  await expect
+    .poll(() => page.url(), { timeout: 60_000 })
+    .toMatch(/\/login([/?#]|$)|\/\d+([/?#]|$)/);
 });
