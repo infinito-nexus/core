@@ -82,6 +82,13 @@
     timeout: "{{ lookup('timeout', 120) | int }}"
   loop: "{{ MATRIX_BRIDGES }}"
 
+- name: "🔐 Make each bridge directory traversable for synapse"
+  file:
+    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ MATRIX_BRIDGES }}"
+
 - name: "🔐 change file permissions"
   file:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
