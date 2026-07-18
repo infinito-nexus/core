@@ -17,6 +17,7 @@
       - SYNAPSE_REPORT_STATS=no
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http')}}:{{ container_port }}"
+{% include 'roles/sys-svc-container/templates/onion_oidc_socks.yml.j2' %}
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 {{ lookup('container_depends_on', application_id) }}
 {% include 'roles/sys-svc-container/templates/networks.yml.j2' %}

@@ -22,6 +22,7 @@
   {{ PENPOT_BACKEND_SERVICE }}:
 {% set service_name = PENPOT_BACKEND_SERVICE %}
 {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+{% include 'roles/sys-svc-container/templates/onion_oidc_socks.yml.j2' %}
     image: "{{ PENPOT_BACKEND_IMAGE }}:{{ PENPOT_VERSION }}"
     container_name: {{ PENPOT_BACKEND_CONTAINER }}
 {% if (TLS_MODE | lower) == 'self_signed' %}

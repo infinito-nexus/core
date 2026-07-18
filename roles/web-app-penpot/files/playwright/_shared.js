@@ -37,10 +37,12 @@ const env = {
 const loginRoute = (base) => `${base.replace(/\/$/, "")}/#/auth/login`;
 
 async function assertAuthenticated(page) {
-  // Leaving /auth/login proves a real session (dashboard/onboarding renders).
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected to leave the login route after sign-in" })
     .not.toContain("/auth/login");
+  await expect
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected the SPA to reach a #/ route after sign-in" })
+    .toContain("#/");
   await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 

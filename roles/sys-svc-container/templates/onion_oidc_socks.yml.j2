@@ -1,5 +1,6 @@
-{% set _oidc_onion_host = lookup('domain', 'web-app-keycloak') %}
+{% set _oidc_onion_host = lookup('tls', 'web-app-keycloak', 'domain') %}
 {% if (lookup('config', application_id, 'services.sso.enabled') | bool) and (_oidc_onion_host is search('\.onion$')) %}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "{{ _oidc_onion_host }}:host-gateway"
 {% endif %}
