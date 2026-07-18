@@ -86,6 +86,7 @@ RUN rm -rf /var/lib/apt/lists/* \
 RUN yarn install --immutable \
  && yarn merge-angular-json \
  && yarn build \
+ && rm -rf .angular/cache .yarn/cache .yarn/unplugged .yarn/install-state.gz \
  && rm -rf node_modules
 
 RUN set -eux; \
