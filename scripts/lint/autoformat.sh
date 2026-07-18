@@ -180,9 +180,9 @@ if is_truthy "${PARALLEL}"; then
 	# `|| true` so `set -e` does not abort the parent if any worker
 	# exited non-zero — write_status has still run, and we want to reach
 	# the summary block.
-	wait || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	wait || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 else
-	for w in "${workers[@]}"; do "${w}" || true; done  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	for w in "${workers[@]}"; do "${w}" || true; done # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 # ── summary ──────────────────────────────────────────────────────────────────

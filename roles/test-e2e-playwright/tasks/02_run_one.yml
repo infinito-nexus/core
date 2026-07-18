@@ -305,7 +305,8 @@
       - --ipc=host
       - --shm-size=1g
       - --add-host=host.docker.internal:host-gateway
-      - "{{ ('--add-host=' ~ (OIDC.CLIENT.ISSUER_URL | urlsplit('hostname')) ~ ':host-gateway') if ('web-app-keycloak' in group_names) else '--add-host=host.docker.internal:host-gateway' }}"
+      - "{{ ('--add-host=' ~ lookup('tls', 'web-app-keycloak', 'domain') ~ ':host-gateway') if ('web-app-keycloak' in group_names) else '--add-host=host.docker.internal:host-gateway'
+        }}"
       - --env-file
       - "{{ _playwright_stage_dir }}/.env"
       - -e
@@ -321,7 +322,8 @@
       - -e
       - "PLAYWRIGHT_TIMEOUT_FACTOR={{ TIMEOUT_FACTOR }}"
       - -e
-      - "PLAYWRIGHT_NAVIGATION_TIMEOUT={{ TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT }}"
+      - "PLAYWRIGHT_NAVIGATION_TIMEOUT={{ TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT
+        }}"
       - -e
       - "PLAYWRIGHT_GLOBAL_TIMEOUT={{ ((TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE | int) - 120) * 1000 }}"
       - -v

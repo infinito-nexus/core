@@ -112,7 +112,7 @@ section "CoreDNS container status"
 _coredns_name="${INFINITO_RUNNER_PREFIX:-}-coredns"
 if docker ps --filter name="${_coredns_name}" --format '{{.Names}}' | grep -q "${_coredns_name}"; then
 	docker ps --filter name="${_coredns_name}" --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
-	docker logs --tail=10 "${_coredns_name}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	docker logs --tail=10 "${_coredns_name}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	ok "CoreDNS container is running"
 else
 	fail "CoreDNS container not running"

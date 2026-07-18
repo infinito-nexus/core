@@ -13,7 +13,7 @@ echo "🔧 Running project setup (no installation)"
 # Optional: show interpreter for debugging
 echo "🐍 Using PYTHON=${PYTHON}"
 if command -v "${PYTHON}" >/dev/null 2>&1; then
-	"${PYTHON}" -c 'import sys; print("sys.executable=", sys.executable)' || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	"${PYTHON}" -c 'import sys; print("sys.executable=", sys.executable)' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 ROLES_DIR="./roles"

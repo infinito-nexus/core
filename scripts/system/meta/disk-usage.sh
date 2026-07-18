@@ -9,7 +9,7 @@ run_if_available() {
 	shift
 	command -v "$1" >/dev/null 2>&1 || return 0
 	echo "=== ${label} ==="
-	"$@" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	"$@" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	echo ""
 }
 

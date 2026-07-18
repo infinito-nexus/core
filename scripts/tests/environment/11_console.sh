@@ -35,7 +35,7 @@ printf '%s\n' \
 	'/' \
 	'exit' |
 	"${PYTHON}" -m cli.console \
-		>"${log_file}" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		>"${log_file}" 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 assert_log_contains() {
 	local needle="${1}"

@@ -23,11 +23,11 @@ if systemctl is-active --quiet NetworkManager 2>/dev/null; then
 fi
 
 # Remove system dnsmasq snippet (fallback setup)
-sudo rm -f "${DNS_SYS_DNSMASQ_CONF}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+sudo rm -f "${DNS_SYS_DNSMASQ_CONF}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 # If system dnsmasq is active, restart to apply
 if systemctl is-active --quiet dnsmasq 2>/dev/null; then
-	sudo systemctl restart dnsmasq || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	sudo systemctl restart dnsmasq || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 echo ">>> Removed."

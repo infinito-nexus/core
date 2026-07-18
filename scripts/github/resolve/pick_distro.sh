@@ -15,7 +15,7 @@ ALL_DISTROS=(arch debian ubuntu fedora centos)
 version_tag="$(
 	git tag --points-at "${GITHUB_SHA}" |
 		grep -E '^v[0-9]+(\.[0-9]+)*$' |
-		head -n 1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		head -n 1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 )"
 
 if [[ -n "$version_tag" ]]; then

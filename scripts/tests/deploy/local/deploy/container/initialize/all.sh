@@ -39,7 +39,7 @@ mkdir -p "${inv_dir}"
 
 if [[ ! -f "${pw_file}" ]]; then
 	printf '%s\n' 'local-vault-password' >"${pw_file}"
-	chmod 600 "${pw_file}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	chmod 600 "${pw_file}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 echo ">>> Creating inventory at ${INFINITO_INVENTORY_FILE}"

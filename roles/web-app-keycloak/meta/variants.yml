@@ -60,6 +60,6 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override
   credentials:
     administrator_password: "'$tr0ng€xampl3PW!"
