@@ -12,10 +12,10 @@
 # @see https://en.wikipedia.org/wiki/OpenID_Connect
 
 # Helper Variables:
-_oidc_client_realm: "{{ OIDC.CLIENT.REALM if OIDC.CLIENT is defined and OIDC.CLIENT.REALM is defined else SOFTWARE_DOMAIN }}"
-_oidc_url: "{{ ( OIDC.URL if (OIDC is defined and OIDC.URL is defined) else (lookup('tls', 'web-app-keycloak', 'url.base')) ).rstrip('/') }}"
+_oidc_client_realm: "{{ OIDC_OVERRIDE.CLIENT.REALM if OIDC_OVERRIDE is defined and OIDC_OVERRIDE.CLIENT is defined and OIDC_OVERRIDE.CLIENT.REALM is defined else SOFTWARE_DOMAIN }}"
+_oidc_url: "{{ ( OIDC_OVERRIDE.URL if (OIDC_OVERRIDE is defined and OIDC_OVERRIDE.URL is defined) else (lookup('tls', 'web-app-keycloak', 'url.base')) ).rstrip('/') }}"
 _oidc_client_issuer_url: "{{ _oidc_url ~ '/realms/' ~ _oidc_client_realm }}"
-_oidc_client_id: "{{ OIDC.CLIENT.ID if OIDC.CLIENT is defined and OIDC.CLIENT.ID is defined else SOFTWARE_DOMAIN }}"
+_oidc_client_id: "{{ OIDC_OVERRIDE.CLIENT.ID if OIDC_OVERRIDE is defined and OIDC_OVERRIDE.CLIENT is defined and OIDC_OVERRIDE.CLIENT.ID is defined else SOFTWARE_DOMAIN }}"
 _oidc_account_url: "{{ _oidc_client_issuer_url ~ '/account' }}"
 _oidc_protocol_oidc: "{{ _oidc_client_issuer_url ~ '/protocol/openid-connect' }}"
 
@@ -46,3 +46,5 @@ defaults_oidc:
     GIVEN_NAME: "givenName"
     FAMILY_NAME: "surname"
     EMAIL: "email"
+
+OIDC: "{{ defaults_oidc | combine(OIDC_OVERRIDE | default({}, true), recursive=True) }}"

@@ -45,7 +45,7 @@ MAILU_SUBNET: "{{ lookup('config', 'web-app-mailu', 'server.networks.local.subne
 MAILU_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 MAILU_API_TOKEN: "{{ lookup('config', application_id, 'credentials.api_token') }}"
 ## OIDC
-MAILU_OIDC_HOST: "{{ lookup('domain','web-app-keycloak') }}"
+MAILU_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 MAILU_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MAILU_OIDC_EMAIL_BY_USERNAME_ENABLED: "{{ lookup('config', application_id, 'services.sso.oidc.email_by_username') }}"
 MAILU_OIDC_ENABLE_USER_CREATION: "{{ lookup('config', application_id, 'services.sso.oidc.enable_user_creation') | string | capitalize }}"

@@ -13,7 +13,7 @@ MATRIX_REGISTRATION_FILE_FOLDER: "/data/"
 MATRIX_REGISTRATION_SHARED_SECRET: "{{ lookup('config', application_id, 'credentials.registration_shared_secret') }}"
 MATRIX_FEDERATION_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.public.federation') }}"
 MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-MATRIX_OIDC_HOST: "{{ lookup('domain', 'web-app-keycloak') }}"
+MATRIX_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 MATRIX_OIDC_HOST_IS_ONION: "{{ MATRIX_OIDC_HOST is search('\\.onion$') }}"
 MATRIX_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}"
 

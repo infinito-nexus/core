@@ -18,7 +18,7 @@ NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
 
 ## SSO
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
-NEXTCLOUD_OIDC_HOST: "{{ lookup('domain', 'web-app-keycloak') }}"
+NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 
 ## Plugins
 NEXTCLOUD_PLUGIN_ITEMS: "{{ lookup('config', application_id, 'addons') | dict2items }}"
