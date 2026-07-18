@@ -267,17 +267,17 @@ class TestLookupModuleRun(unittest.TestCase):
             ],
         )
 
-    def test_domains_want_calls_domain_lookup_per_active_sibling(self):
+    def test_domains_want_resolves_aligned_domain_via_tls_lookup(self):
         config = MagicMock()
         config.run.return_value = [["web-app-mastodon", "web-app-pixelfed"]]
-        domain = MagicMock()
-        domain.run.side_effect = [["microblog.example"], ["photos.example"]]
+        tls = MagicMock()
+        tls.run.side_effect = [["microblog.example"], ["photos.example"]]
 
         def fake_get(name, **_):
             if name == "config":
                 return config
-            if name == "domain":
-                return domain
+            if name == "tls":
+                return tls
             raise AssertionError(f"unexpected lookup '{name}'")
 
         with patch.object(
@@ -289,6 +289,13 @@ class TestLookupModuleRun(unittest.TestCase):
                 variables={"group_names": ["web-app-mastodon", "web-app-pixelfed"]},
             )
         self.assertEqual(result, [["microblog.example", "photos.example"]])
+        self.assertEqual(
+            [call.args[0] for call in tls.run.call_args_list],
+            [
+                ["web-app-mastodon", "domain"],
+                ["web-app-pixelfed", "domain"],
+            ],
+        )
 
     def test_falls_back_to_templar_available_variables_when_variables_missing(self):
         config = MagicMock()

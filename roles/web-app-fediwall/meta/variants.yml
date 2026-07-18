@@ -70,8 +70,8 @@
         - slug: default
           config:
             servers:
-              - "{{ lookup('domain', 'web-app-mastodon') }}"
-              - "{{ lookup('domain', 'web-app-friendica') }}"
+              - "{{ lookup('tls', 'web-app-mastodon', 'domain') }}"
+              - "{{ lookup('tls', 'web-app-friendica', 'domain') }}"
             tags: []
             accounts: []
             loadPublic: true
@@ -94,7 +94,7 @@
         - slug: mastodon
           config:
             servers:
-              - "{{ lookup('domain', 'web-app-mastodon') }}"
+              - "{{ lookup('tls', 'web-app-mastodon', 'domain') }}"
             tags: []
             accounts: []
             loadPublic: true
