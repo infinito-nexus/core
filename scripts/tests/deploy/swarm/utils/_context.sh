@@ -110,7 +110,7 @@ for v in entries:
 ")"
 fi
 
-PRIMARY_NFS_VOLUME="$(printf '%s\n' "${NFS_VOLUMES}" | head -n1)"
+PRIMARY_NFS_VOLUME="${NFS_VOLUMES%%$'\n'*}"
 
 NFS_CHECK_MOUNTPOINT="/mnt/nfs-check"
 
