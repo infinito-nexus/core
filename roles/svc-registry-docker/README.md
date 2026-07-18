@@ -60,26 +60,24 @@ make compose-deploy mode=reinstall apps=svc-registry-docker full_cycle=false
 
 ### Production
 
-Run the published image to provision the inventory and deploy Docker Registry to a managed server (the mounted volume persists the inventory between the two runs):
+Run the published image to provision the inventory and deploy Docker Registry to a managed server (the mounted volume persists the inventory):
 
 ```bash
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  ghcr.io/infinito-nexus/core/debian \
-  infinito administration inventory provision /etc/infinito.nexus/inventories/prod \
-  --inventory-file /etc/infinito.nexus/inventories/prod/devices.yml \
-  --host <your-server> \
-  --vars-file inventories/<env>/default.yml \
-  --include 'svc-registry-docker'
+APP=svc-registry-docker
+HOST=<your-server>
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  ghcr.io/infinito-nexus/core/debian \
-  infinito administration deploy dedicated /etc/infinito.nexus/inventories/prod/devices.yml \
-  --password-file /etc/infinito.nexus/inventories/prod/.password \
-  --id svc-registry-docker \
-  --diff \
-  -vv
+  -e APP="$APP" -e HOST="$HOST" \
+  ghcr.io/infinito-nexus/core/debian bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/prod
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
 ```
 
 ## Credits
