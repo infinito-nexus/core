@@ -78,6 +78,15 @@ jobs:
         shell: bash
         run: make install
 
+      # Cheap first: seeds a Mailu-layout maildir stump, migrates it into a
+      # single pinned Stalwart container and verifies the data — no platform
+      # deploy involved (fails in ~1 minute when the migration script breaks).
+      - name: 🔬 Standalone data-migration test (Mailu stump → Stalwart)
+        shell: bash
+        run: make test-migration
+
+      # Full platform cutover second: Mailu-active deploy → default-provider
+      # takeover over kept state.
       - name: 📧 Run the mail-provider migration scenario
         shell: bash
         run: make compose-deploy mode=migration

@@ -61,6 +61,10 @@ WHITELIST_EXACT_PATHS: tuple[str, ...] = (
     # svc-runner e2e harness drives a throwaway dind sandbox daemon directly
     # (the container/compose wrappers are not present inside the runner image).
     "roles/svc-runner/files/test/local.sh",
+    # Mailu->Stalwart migration harness runs a throwaway fixture container on
+    # bare CI runners where the platform wrappers are deliberately absent
+    # ("no full infinito.nexus deploy needed").
+    "roles/web-app-stalwart/files/test.sh",
 )
 
 # Only treat "docker ..." as a command when it appears in a command-like context.

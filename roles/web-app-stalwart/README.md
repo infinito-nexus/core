@@ -107,6 +107,18 @@ account (or the Keycloak SSO token when SSO is enabled).
 - Roundcube webmail
 - PostgreSQL backing store
 
+## Migration from Mailu
+
+The provider cutover is a one-line inventory change; mailbox data moves with the bundled migration script.
+
+1. Keep `web-app-mailu` in the host's groups and add `web-app-stalwart` — both MUST be present so Mailu re-renders as a legacy instance (`legacy-mail.<domain>`, no public mail ports) and releases `mail.<domain>` to Stalwart.
+2. Remove `MAIL_PROVIDER` from the inventory (Stalwart is the default) and run the full deploy.
+3. Migrate mailbox data with [`files/migrate_from_mailu.py`](files/migrate_from_mailu.py): it reads Mailu's Dovecot Maildir volume directly (no running Mailu required) and imports messages per account via IMAP APPEND, preserving folders, flags and internal dates. Re-runs are idempotent (Message-ID dedup).
+4. Accounts and aliases are provisioned from the inventory by this role; mailboxes created only inside Mailu's admin UI MUST be added to the inventory first. Sieve filters and CalDAV/CardDAV data are out of scope for the script.
+5. Non-Cloudflare DNS: publish the new DKIM TXT record reported by the deploy; MX and A records keep their hostname.
+
+The migration is covered by [`files/test.sh`](files/test.sh): it seeds a Mailu-layout maildir stump, migrates it into a pinned Stalwart container and verifies contents, flags and idempotency — run it with `make test-migration`, or in CI via the `INFINITO_TEST_MIGRATION` gate (manual-workflow field or GitHub repository variable).
+
 ## Further Reading
 
 - [Stalwart documentation](https://stalw.art/docs)
