@@ -154,7 +154,7 @@ test("prometheus: biber is denied access after sso login", async ({ browser }) =
     );
 
     // 1. Navigate directly to Prometheus — oauth2-proxy redirects to Keycloak
-    await biberPage.goto(`${expectedPrometheusBaseUrl}/`);
+    await gotoOnion(biberPage, `${expectedPrometheusBaseUrl}/`);
 
     await expect
       .poll(() => biberPage.url(), {
