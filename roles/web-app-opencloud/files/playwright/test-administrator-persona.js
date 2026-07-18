@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
 const { resolveTimeout } = require("./timeouts");
 
 const { runAdminFlow } = require("./personas");
