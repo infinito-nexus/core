@@ -21,11 +21,6 @@
     mode: "0644"
   notify: container manager restart
 
-# Clamp TCP MSS to PMTU so nested containers spawned via `docker run` (e.g. Discourse
-# launcher rebuild) don't stall on `Recv failure: Connection reset by peer` when their
-# bridge MTU (1500) exceeds the deployer eth0 MTU (automtu-picked, typically 1400).
-# Without this, TCP packets forwarded from a 1500-MTU veth through the lower-MTU eth0
-# hit PMTU blackholes because outer Docker NATs ICMP Frag Needed.
 - name: 🔎 Check if TCP MSS clamp to PMTU is already present (container)
   ansible.builtin.command:
     argv:
@@ -62,4 +57,6 @@
       - -j
       - TCPMSS
       - --clamp-mss-to-pmtu
-  when: mss_clamp_check.rc != 0
+  when:
+    - mss_clamp_check.rc != 0
+    - mss_clamp_check.stderr is not search('Permission denied')
