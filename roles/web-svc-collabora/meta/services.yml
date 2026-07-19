@@ -13,7 +13,11 @@ collabora:
   enabled: true
   shared: true
   image: collabora/code
-  version: latest
+  # TODO: 26.04.2.2.1 rebuilt the image as a Nix minimal image without
+  # coolconfig or a shell (CollaboraOnline/online#16021) — every `docker exec`
+  # fails. Unpin once the systemplate tasks are migrated to --use-env-vars
+  # configuration or upstream restores the tooling.
+  version: "26.04.2.1.1"
   name: collabora
   min_storage: 10GB
   cpus: 2
