@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -40,7 +40,7 @@ test.beforeEach(() => {
 // used to live in each consumer role's own playwright.spec.js.
 test("metricz endpoint is accessible and returns prometheus text format", async ({ request }) => {
   const metriczUrl = `${prometheusBaseUrl.replace(/\/$/, "")}/metricz`;
-  const response = await request.get(metriczUrl, { timeout: resolveTimeout(30_000) });
+  const response = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),

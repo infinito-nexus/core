@@ -73,6 +73,36 @@ async function gotoOnion(page, url, opts = {}) {
 }
 
 /**
+ * Tor-resilient `request.get` for the standalone APIRequestContext fixture.
+ * Its SOCKS CONNECT goes through the bundled `socks` client whose 30s connect
+ * cap is not configurable, so a cold onion circuit fails the request no matter
+ * how large the request timeout is. Retries only transient proxy/socket
+ * errors; clearnet URLs get a single attempt and real HTTP failures re-throw.
+ */
+const _API_TRANSIENT_RE =
+  /Proxy connection timed out|Socket closed|socket hang up|ECONNRESET|ETIMEDOUT|ECONNREFUSED|ENOTFOUND/i;
+
+async function apiGetOnion(request, url, opts = {}) {
+  const isRelative = /^\/(?!\/)/.test(url);
+  const isOnion =
+    /\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical());
+  const attempts = isOnion ? Number(process.env.PLAYWRIGHT_ONION_GOTO_RETRIES) || 4 : 1;
+  let lastErr;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await request.get(url, opts);
+    } catch (err) {
+      lastErr = err;
+      if (attempt >= attempts || !_API_TRANSIENT_RE.test(String(err && err.message))) {
+        throw err;
+      }
+      await new Promise((resolve) => setTimeout(resolve, resolveTimeout(2_000 * attempt)));
+    }
+  }
+  throw lastErr;
+}
+
+/**
  * Tolerant variant of `skipUnlessServiceEnabled`: treats an unknown
  * service (i.e. one whose `<NAME>_SERVICE_ENABLED` flag is not declared
  * in the role's env registry) as "disabled" rather than a hard fail.
@@ -106,6 +136,7 @@ module.exports = {
   readEnv,
   isOnionCanonical,
   gotoOnion,
+  apiGetOnion,
   safeSkipUnlessEnabled,
   safeIsEnabled,
 };
