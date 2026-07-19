@@ -30,7 +30,6 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.domains import get_merged_domains
 from utils.docker.paths_utils import get_docker_paths
 from utils.templating.jinja import render_strict
 
@@ -125,10 +124,23 @@ class LookupModule(LookupBase):
         if not isinstance(include_ca, bool):
             raise AnsibleError("compose_file_args: include_ca must be a bool")
 
+        flag = kwargs.get("flag", "-f")
+        if flag not in ("-f", "--compose-file", "-c"):
+            raise AnsibleError(
+                "compose_file_args: flag must be one of -f, --compose-file, -c"
+            )
+
         templar = getattr(self, "_templar", None)
 
         # ALWAYS build compose via utils (no dependency on variables['compose'])
-        base_dir = _as_str(variables.get("DIR_COMPOSITIONS"))
+        raw_base_dir = variables.get("DIR_COMPOSITIONS")
+        if (
+            isinstance(raw_base_dir, str)
+            and "{{" in raw_base_dir
+            and templar is not None
+        ):
+            raw_base_dir = templar.template(raw_base_dir)
+        base_dir = _as_str(raw_base_dir)
         if not base_dir:
             raise AnsibleError(
                 "compose_file_args: missing required variable 'DIR_COMPOSITIONS'"
@@ -162,7 +174,7 @@ class LookupModule(LookupBase):
         if not _as_str(base):
             raise AnsibleError("compose_file_args: compose.files.compose is required")
 
-        parts = [f"-f {base}"]
+        parts = [f"{flag} {base}"]
 
         # 1) Append override ONLY if the ROLE provides it (same logic as 04_files.yml).
         if _role_provides_override(application_id=application_id, templar=templar):
@@ -171,15 +183,13 @@ class LookupModule(LookupBase):
                     "compose_file_args: compose.files.compose_override is required "
                     "when the role provides an override file"
                 )
-            parts.append(f"-f {override}")
+            parts.append(f"{flag} {override}")
 
         # 2) CA override: only when include_ca=True and domain exists AND TLS is enabled AND self_signed.
         if include_ca:
-            domains = get_merged_domains(
-                variables=variables,
-                roles_dir=kwargs.get("roles_dir"),
-                templar=templar,
-            )
+            domains = lookup_loader.get(
+                "domains", loader=self._loader, templar=templar
+            ).run([], variables=variables)[0]
             if _has_domain(domains, application_id):
                 tlsr = lookup_loader.get("tls", self._loader, self._templar)
                 tls = tlsr.run([application_id], variables=variables)[0]
@@ -206,6 +216,6 @@ class LookupModule(LookupBase):
                             "compose_file_args: compose.files.compose_ca_override is required "
                             "when TLS is enabled and mode is self_signed"
                         )
-                    parts.append(f"-f {ca_override}")
+                    parts.append(f"{flag} {ca_override}")
 
         return [" ".join(parts)]

@@ -1,4 +1,5 @@
 ---
+# nocheck: dockerfile-custom
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -6,7 +7,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: postmarks
       port: 3000
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-postmarks', role='administrator') }}"
@@ -36,22 +37,23 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-application:
+postmarks:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: node
   version: 26-bookworm
   name: web-app-postmarks
   repository: https://github.com/ckolderup/postmarks.git
   ref: main
-  min_storage: 1GB
-  cpus: "0.5"
-  mem_reservation: 256m
-  mem_limit: 1g
-  pids_limit: 512
-postmarks:
   ports:
     local:
       http: 8075
       sso: 16494
+    internal:
+      http: 3000
   lifecycle: beta
   min_storage: 1GB
   cpus: "0.5"

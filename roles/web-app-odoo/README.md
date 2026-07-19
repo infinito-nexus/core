@@ -8,6 +8,55 @@ Deploy and manage [Odoo](https://www.odoo.com/), a comprehensive open-source ent
 
 This role automates the deployment of Odoo in a containerized Docker environment with PostgreSQL database integration, OIDC/LDAP authentication support, and full Infinito.Nexus stack integration including reverse proxy, CSP configuration, and centralized identity management.
 
+## Cosmos
+
+The diagram places Odoo ERP in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
+        dep_web_app_mailu["web-app-mailu 🐳🐝"]
+        dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_logout["web-svc-logout 🐳🐝"]
+    end
+    subgraph role [web-app-odoo 🐳🐝]
+        svc_sso["sso"]
+        svc_ldap["ldap"]
+        svc_logout["logout"]
+        svc_dashboard["dashboard"]
+        svc_matomo["matomo"]
+        svc_email["email"]
+        svc_postgres["postgres"]
+        svc_odoo["odoo"]
+        svc_redis["redis"]
+        svc_css["css"]
+        svc_javascript["javascript"]
+        svc_prometheus["prometheus"]
+        svc_container_backup["container_backup"]
+    end
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_mailu -. "0..1" .-> svc_email
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Purpose
 
 The purpose of this role is to provide a hands-off, production-ready Odoo ERP deployment that integrates seamlessly with the Infinito.Nexus platform. Organizations can leverage Odoo's comprehensive business management capabilities while benefiting from centralized authentication, backup, monitoring, and security features.
@@ -43,6 +92,41 @@ The purpose of this role is to provide a hands-off, production-ready Odoo ERP de
 
 - **WebSocket Support:**
   Real-time notifications and live chat capabilities through WebSocket connections.
+
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy Odoo ERP onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps=web-app-odoo full_cycle=false
+```
+
+### Production
+
+Run the published image to provision the inventory and deploy Odoo ERP to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP=web-app-odoo
+HOST=<your-server>
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" \
+  ghcr.io/infinito-nexus/core/debian bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/prod
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
 
 ## Modules
 
@@ -125,7 +209,6 @@ docker logs odoo -f
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Implemented by **[Evangelos Tsakoudis](https://github.com/evangelostsak)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -1,0 +1,4 @@
+---
+canonical:
+  - blog.{{ DOMAIN_PRIMARY }}
+aliases: []

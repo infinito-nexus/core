@@ -7,14 +7,14 @@ from typing import Any
 
 def _load_role_local_module_utils():
     """
-    Load roles/web-app-keycloak/module_utils/kcadm_json.py deterministically
-    from disk, without relying on sys.path/ansible.module_utils resolution.
+    Load utils/kcadm_json.py deterministically from disk, without relying
+    on sys.path/ansible.module_utils resolution.
 
     No try/except on purpose: errors should fail hard & loud.
     """
     here = Path(__file__).resolve()
-    role_dir = here.parent.parent  # .../roles/web-app-keycloak
-    mod_path = role_dir / "module_utils" / "kcadm_json.py"
+    project_root = here.parent.parent.parent.parent
+    mod_path = project_root / "utils" / "kcadm_json.py"
 
     spec = importlib.util.spec_from_file_location(
         "web_app_keycloak_kcadm_json",

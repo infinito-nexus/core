@@ -8,14 +8,11 @@
 ARG INFINITO_PARENT_IMAGE
 FROM ${INFINITO_PARENT_IMAGE} AS full
 
-# Hadolint DL4006: ensure pipefail is set for RUN instructions that use pipes
+# hadolint DL4006: ensure pipefail is set for RUN instructions that use pipes
 SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
 
-# Forwardable build-time Nix settings (e.g., GitHub access tokens to avoid rate limits)
 ARG NIX_CONFIG
 
-# SPOT for the bind-mounted source tree inside the container. The compose
-# stack forwards default.env's INFINITO_SRC_DIR as a build arg.
 ARG INFINITO_SRC_DIR
 ENV INFINITO_SRC_DIR=${INFINITO_SRC_DIR}
 ARG INFINITO_VENV_DIR
@@ -24,7 +21,6 @@ ENV PYTHON="${INFINITO_VENV_DIR}/bin/python"
 ENV PIP="${INFINITO_VENV_DIR}/bin/python -m pip"
 ENV PATH="${INFINITO_VENV_DIR}/bin:${PATH}"
 
-# Make Nix non-interactive for flake config (CI-friendly)
 RUN set -euo pipefail; \
   cat /etc/os-release || true; \
   if [ -f /etc/nix/nix.conf ]; then \
@@ -32,28 +28,19 @@ RUN set -euo pipefail; \
     echo 'accept-flake-config = true' >> /etc/nix/nix.conf; \
   fi
 
-# ------------------------------------------------------------
-# Infinito.Nexus source in
-# ------------------------------------------------------------
 COPY . ${INFINITO_SRC_DIR}
 
-# ------------------------------------------------------------
-# Install Python 3.11+, Docker CLI, and distro package dependencies
-# ------------------------------------------------------------
-# hadolint ignore=DL3008,DL3033,DL3041
+# hadolint ignore=DL3008,DL3033,DL3041,SC1090
 RUN set -euo pipefail; \
-  /bin/bash ${INFINITO_SRC_DIR}/roles/dev-python/files/install.sh; \
-  /bin/bash ${INFINITO_SRC_DIR}/roles/sys-svc-container/files/install-cli.sh; \
-  /bin/bash ${INFINITO_SRC_DIR}/scripts/install/package.sh
+  source <(grep -hE '^INFINITO_(PYTHON|DOCKER_CLI|PACKAGE)_INSTALL_SCRIPT=' "${INFINITO_SRC_DIR}/default.env"); \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PYTHON_INSTALL_SCRIPT:?}"; \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"; \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}"
 
-# ------------------------------------------------------------
-# Disable interactive first-boot units (CI / container safe)
-# ------------------------------------------------------------
 RUN set -euo pipefail; \
   systemctl mask systemd-firstboot.service first-boot-complete.target || true; \
   systemd-machine-id-setup || true
 
-# systemd-in-container conventions
 ENV container=docker
 STOPSIGNAL SIGRTMIN+3
 
@@ -61,19 +48,13 @@ RUN set -euo pipefail; \
   export NIX_CONFIG="${NIX_CONFIG:-}"; \
   "${INFINITO_SRC_DIR}/scripts/docker/entry.sh" --compile -- true
 
-# Set workdir to / to avoid ambiguous commands
 WORKDIR /
 
 COPY scripts/docker/healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
-# Allow 20s because `infinito --help` can exceed 5s on fresh CI runners.
 HEALTHCHECK --interval=5s --timeout=20s --start-period=30s --retries=20 \
   CMD /usr/local/bin/healthcheck.sh
 
-# JSON-form ENTRYPOINT does not expand ENV vars; wrap via bash -c so the
-# INFINITO_SRC_DIR SPOT still controls the path. `exec` preserves systemd
-# signal forwarding; `--` is the placeholder for $0.
 ENTRYPOINT ["/bin/bash", "-c", "exec \"${INFINITO_SRC_DIR}/scripts/docker/entry.sh\" \"$@\"", "--"]
 
-# IMPORTANT: default to systemd as PID 1
 CMD ["/sbin/init"]

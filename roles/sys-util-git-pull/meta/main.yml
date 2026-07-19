@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "System utility role that performs shallow Git clones and updates with optional tag pinning, conflict healing, and deterministic change detection.\n"
+  description: Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

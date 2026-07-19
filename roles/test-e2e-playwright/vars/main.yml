@@ -5,7 +5,7 @@ TEST_E2E_PLAYWRIGHT_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'servic
 
 TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
-TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "/var/lib/infinito/logs/test-e2e-playwright"
+TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "{{ [DIR_VAR_LIB, 'logs', 'test-e2e-playwright'] | path_join }}"
 
 TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"
 
@@ -25,14 +25,13 @@ TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/n
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
 
 TEST_E2E_PLAYWRIGHT_IS_ONION: "{{ lookup('tls', application_id, 'url.base') is search('\\.onion') }}"
-TEST_E2E_PLAYWRIGHT_PROXY: "{{ ('socks5://' ~ lookup('tor_socks', 'host.docker.internal')) if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else '' }}"
+TEST_E2E_PLAYWRIGHT_PROXY: "{{ ('socks5://' ~ lookup('tor_socks', '127.0.0.1' if DEPLOYMENT_MODE == 'swarm' else 'host.docker.internal')) if (TEST_E2E_PLAYWRIGHT_IS_ONION
+  | bool) else '' }}"
 
-TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT: 3600
 TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT: 5400
-TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE: "{{ TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT }}"
-TEST_E2E_PLAYWRIGHT_TEST_TIMEOUT: 300000
+TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE: "{{ TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else test_e2e_playwright_run_timeout
+  }}"
 TEST_E2E_PLAYWRIGHT_ONION_TEST_TIMEOUT: 600000
-TEST_E2E_PLAYWRIGHT_WORKERS: "{{ lookup('playwright_workers') }}"
 TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: true
 TEST_E2E_PLAYWRIGHT_WAIT_RETRIES: 30
 TEST_E2E_PLAYWRIGHT_WAIT_DELAY: 5

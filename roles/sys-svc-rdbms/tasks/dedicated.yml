@@ -1,16 +1,16 @@
 ---
-- name: "Ensure env dir exists: {{ _container_env_dir }}"
+- name: "✅ Ensure env dir exists: {{ _container_env_dir }}"
   ansible.builtin.file:
     path: "{{ _container_env_dir }}"
     state: directory
     mode: "0755"
 
-- name: "For '{{ application_id }}/{{ _database_consumer_id }}': Create {{ _database_env }}"
-  template:
+- name: "📄 For '{{ application_id }}/{{ _database_consumer_id }}': Create env file"
+  stack_host_template:
     src: "env/{{ _database_type }}.env.j2"
     dest: "{{ _database_env }}"
   notify: compose up
 
-- name: "For '{{ application_id }}/{{ _database_consumer_id }}': Apply postgres-specific dedicated setup"
+- name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Apply postgres setup"
   include_tasks: dedicated_postgres.yml
   when: _database_type == 'postgres'

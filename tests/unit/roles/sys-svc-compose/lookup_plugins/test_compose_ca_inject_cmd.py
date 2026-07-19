@@ -6,7 +6,16 @@ from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
+from plugins.filter.ca_trust_paths import ca_cert_host
+from utils.cache.yaml import load_yaml
+
 from . import PROJECT_ROOT
+
+_CA_TRUST = load_yaml(str(PROJECT_ROOT / "group_vars" / "all" / "02_tls.yml"))[
+    "CA_TRUST"
+]
+CA_CERT_CONTAINER = _CA_TRUST["inject_cert_container"]
+CA_WRAPPER_CONTAINER = _CA_TRUST["inject_wrapper_container"]
 
 
 def _load_module(rel_path: str, name: str):
@@ -27,7 +36,6 @@ class _FakeDockerLookup:
         self._mapping = mapping
 
     def run(self, terms, variables=None, **kwargs):
-        # terms = [application_id, key]
         if not isinstance(terms, list) or len(terms) != 2:
             raise AnsibleError(
                 f"Fake container lookup: expected [application_id, key], got {terms}"
@@ -66,7 +74,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
     def _mk_lookup_module(self):
         lk = self.mod.LookupModule()
-        # Provide minimal internal attrs used by lookup_loader.get(...)
         lk._loader = object()
         lk._templar = object()
         return lk
@@ -79,7 +86,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
             docker_map = {
                 "directories.instance": str(instance_dir),
-                "files.env": ".env",  # relative -> resolve against instance_dir
+                "files.env": ".env",
                 "files.compose_ca_override": str(
                     instance_dir / "compose.ca.override.yml"
                 ),
@@ -92,8 +99,10 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
             variables = {
                 "CA_TRUST": {
                     "inject_script": "/usr/local/bin/compose_ca.py",
-                    "cert_host": "/etc/infinito.nexus/ca/root-ca.crt",
+                    "cert_host": ca_cert_host("infinito.nexus"),
                     "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
+                    "inject_cert_container": CA_CERT_CONTAINER,
+                    "inject_wrapper_container": CA_WRAPPER_CONTAINER,
                     "trust_name": "infinito-root-ca",
                 }
             }
@@ -124,7 +133,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
                 cmd = out[0]
 
-                # core args
                 self.assertIn("python3", cmd)
                 self.assertIn("--chdir", cmd)
                 self.assertIn(str(instance_dir), cmd)
@@ -133,11 +141,9 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 self.assertIn("--compose-files", cmd)
                 self.assertIn("compose.yml", cmd)
 
-                # env file exists -> included
                 self.assertIn("--env-file", cmd)
                 self.assertIn(str(env_path), cmd)
 
-                # out uses basename only
                 self.assertIn("--out", cmd)
                 self.assertIn("compose.ca.override.yml", cmd)
                 self.assertNotIn(
@@ -145,7 +151,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                     cmd,
                 )
 
-                # ensure compose_file_args called with include_ca=False
                 self.assertTrue(compose_file_args.calls)
                 self.assertEqual(
                     compose_file_args.calls[0]["kwargs"].get("include_ca"), False
@@ -157,7 +162,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
 
             docker_map = {
                 "directories.instance": str(instance_dir),
-                "files.env": ".env",  # missing
+                "files.env": ".env",
                 "files.compose_ca_override": str(
                     instance_dir / "compose.ca.override.yml"
                 ),
@@ -168,8 +173,10 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
             variables = {
                 "CA_TRUST": {
                     "inject_script": "/usr/local/bin/compose_ca.py",
-                    "cert_host": "/etc/infinito.nexus/ca/root-ca.crt",
+                    "cert_host": ca_cert_host("infinito.nexus"),
                     "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
+                    "inject_cert_container": CA_CERT_CONTAINER,
+                    "inject_wrapper_container": CA_WRAPPER_CONTAINER,
                     "trust_name": "infinito-root-ca",
                 }
             }
@@ -196,7 +203,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 out = lk.run(["web-app-test"], variables=variables)
                 cmd = out[0]
 
-                # env file missing -> not included
                 self.assertNotIn("--env-file", cmd)
 
     def test_raises_when_missing_ca_trust(self):
@@ -217,7 +223,6 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                 return compose_file_args
             raise AssertionError(f"Unexpected lookup requested: {name}")
 
-        # CA_TRUST intentionally missing
         variables = {}
 
         with (
@@ -231,6 +236,55 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
             lk.run(["web-app-test"], variables=variables)
 
         self.assertIn("missing required variable 'CA_TRUST'", str(ctx.exception))
+
+    def _run_with_wrapper_kwarg(self, **run_kwargs):
+        docker_map = {
+            "directories.instance": "/opt/compose/app",
+            "files.env": ".env",
+            "files.compose_ca_override": "/opt/compose/app/compose.ca.override.yml",
+        }
+        compose_file_args = _FakeComposeFArgsLookup("-f compose.yml")
+
+        def _fake_get(name, _loader, _templar):
+            if name == "container":
+                return _FakeDockerLookup(docker_map)
+            if name == "compose_file_args":
+                return compose_file_args
+            raise AssertionError(f"Unexpected lookup requested: {name}")
+
+        variables = {
+            "CA_TRUST": {
+                "inject_script": "/usr/local/bin/compose_ca.py",
+                "cert_host": ca_cert_host("infinito.nexus"),
+                "wrapper_host": "/usr/local/bin/with-ca-trust.sh",
+                "inject_cert_container": CA_CERT_CONTAINER,
+                "inject_wrapper_container": CA_WRAPPER_CONTAINER,
+                "trust_name": "infinito-root-ca",
+            }
+        }
+
+        with (
+            patch.object(self.mod.lookup_loader, "get", side_effect=_fake_get),
+            patch.object(
+                self.mod, "render_ansible_strict", side_effect=lambda **kw: kw["raw"]
+            ),
+            patch.object(self.mod, "get_entity_name", side_effect=lambda _x: "myproj"),
+        ):
+            lk = self._mk_lookup_module()
+            return lk.run(["web-app-test"], variables=variables, **run_kwargs)[0]
+
+    def test_no_wrapper_flag_appended_when_wrapper_false(self):
+        cmd = self._run_with_wrapper_kwarg(wrapper=False)
+        self.assertIn("--no-wrapper", cmd)
+
+    def test_no_wrapper_flag_absent_by_default(self):
+        cmd = self._run_with_wrapper_kwarg()
+        self.assertNotIn("--no-wrapper", cmd)
+
+    def test_wrapper_must_be_bool(self):
+        with self.assertRaises(AnsibleError) as ctx:
+            self._run_with_wrapper_kwarg(wrapper="yes")
+        self.assertIn("wrapper must be a bool", str(ctx.exception))
 
 
 if __name__ == "__main__":

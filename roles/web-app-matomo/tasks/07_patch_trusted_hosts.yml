@@ -1,0 +1,20 @@
+---
+- name: "🔧 Matomo | Set trusted hosts (domain + service + container reach host)"
+  vars:
+    # Exception: pin application_id and inline the domain literal; nested include_role
+    # chains (sys-stk-front-base -> web-opt-rdr-domains / svc-prx-openresty) pollute
+    # role-vars, and a task-local `domain:` override does not shield against eager
+    # eval of the role-layer `domain = lookup('domain', application_id)`.
+    application_id: "web-app-matomo"
+  ansible.builtin.shell: >
+    container exec -i --user root
+    -e CFG={{ MATOMO_CONFIG | quote }}
+    -e DOMAIN={{ lookup('domain', 'web-app-matomo') | quote }}
+    -e SERVICE={{ MATOMO_SERVICE | quote }}
+    -e LOCAL={{ DOCKER_REACH_HOST }}:{{ http_port }}
+    {{ MATOMO_LOCAL_CID | quote }}
+    sh -s
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/patch_trusted_hosts.sh') }}"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+  notify: compose up

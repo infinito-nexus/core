@@ -4,21 +4,21 @@
 #   sys_token_store_app
 #   sys_token_store_token  # must be non-empty
 
-- name: "Ensure store exists"
+- name: "✅ Ensure store exists"
   ansible.builtin.import_tasks: 01_core.yml
 
-- name: "Normalize incoming token"
+- name: "📐 Normalize incoming token"
   ansible.builtin.set_fact:
     sys_token_store_token_effective: "{{ sys_token_store_token | string | trim }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Abort if token is empty (do not persist empties)"
+- name: "🛑 Abort if token is empty (do not persist empties)"
   ansible.builtin.assert:
     that:
       - sys_token_store_token_effective != ''
     fail_msg: "sys_token_store_token is empty – refusing to persist empty token."
 
-- name: "Build merged structure"
+- name: "🔨 Build merged structure"
   ansible.builtin.set_fact:
     sys_token_store_users_merged: >-
       {{
@@ -39,7 +39,7 @@
       }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Persist store (idempotent)"
+- name: "💾 Persist store (idempotent, single-writer via STACK_HOST)"
   ansible.builtin.copy:
     dest: "{{ FILE_TOKENS }}"
     owner: "{{ SYS_TOKEN_STORE_OWNER }}"
@@ -47,5 +47,7 @@
     mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
     content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
   when: sys_token_store_users_merged != sys_token_store_users
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   become: true

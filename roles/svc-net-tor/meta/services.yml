@@ -7,6 +7,11 @@ mirror:
   enabled: true
   shared: true
 tor:
+  modes:
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
   bond: 1
   enabled: true
   shared: true
@@ -15,6 +20,7 @@ tor:
   # Base image for the local Debian+tor build (files/Dockerfile).
   image: debian
   version: trixie-slim
+  custom: true
   name: tor
   node: ""
   # Tor default (guard pinning). Test inventories disable it so one degraded

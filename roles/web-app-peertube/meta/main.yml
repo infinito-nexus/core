@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Transform your video hosting experience with Peertube, a decentralized platform built for scalability, innovation, and community collaboration."
+  description: Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

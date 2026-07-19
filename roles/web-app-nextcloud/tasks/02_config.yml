@@ -1,28 +1,30 @@
 ---
 # Merge all (config) files in infinito directory (container)
 
-- name: Add dynamic config merging from Jinja template
-  template:
-    src: include.php.j2
-    dest: "{{ NEXTCLOUD_HOST_INCL_PATH }}"
-    owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    mode: "0644"
-  notify: compose up
+- name: "📄 Render Nextcloud include.php (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "include.php.j2"
+        dest: "{{ NEXTCLOUD_HOST_INCL_PATH }}"
+        owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        mode: "0644"
 
-- name: Flush handlers so Nextcloud container is restarted and ready
+- name: 🚿 Flush handlers so Nextcloud container is restarted and ready
   meta: flush_handlers
 
-- name: "Wait until Nextcloud is reachable on port {{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
+- name: "⏳ Wait until Nextcloud is reachable on its local HTTP port"
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
-    timeout: 120
+    timeout: "{{ lookup('timeout', 120) | int }}"
     delay: 2
     state: started
 
-- name: Wait until Nextcloud is installed (occ status)
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"
+- name: ⏳ Wait until Nextcloud is installed (occ status)
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"
   register: occ_status
   retries: 60
   delay: 5
@@ -31,11 +33,11 @@
     (occ_status.stdout | default('')) is search('installed: true')
   changed_when: false
 
-- name: Ensure config.php loads {{ NEXTCLOUD_DOCKER_INCL_PATH }} (idempotent)
+- name: ✅ Ensure config.php loads {{ NEXTCLOUD_DOCKER_INCL_PATH }} (idempotent)
   ansible.builtin.shell: |
     set -euo pipefail
 
-    container exec -u root {{ NEXTCLOUD_CONTAINER }} sh -lc '
+    container exec -u root {{ NEXTCLOUD_CONTAINER_ADDRESS }} sh -lc '
       cfg="{{ NEXTCLOUD_DOCKER_CONFIG_FILE }}"
       marker="INFINITO:NEXUS CONFIG LOADER"
 

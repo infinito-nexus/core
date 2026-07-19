@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from ansible.errors import AnsibleError
 
@@ -10,13 +10,19 @@ class TestContainerHostnameLookup(unittest.TestCase):
     def setUp(self):
         self.lookup = LookupModule()
 
-        def _domains_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("domains", {})
+        def _get(name, *args, **kwargs):
+            plugin = MagicMock()
+
+            def _run(terms, variables=None, **_kwargs):
+                return [(variables or {}).get("domains", {})]
+
+            plugin.run.side_effect = _run
+            return plugin
 
         self._patchers = [
             patch(
-                "plugins.lookup.container_hostname.get_merged_domains",
-                side_effect=_domains_from_vars,
+                "plugins.lookup.container_hostname.lookup_loader.get",
+                side_effect=_get,
             ),
             patch(
                 "plugins.lookup.container_hostname.get_domain",

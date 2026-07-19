@@ -1,16 +1,15 @@
 ---
-# Routines to create the administrator account
-- name: Remove line containing "- administrator" from config/settings.yml to allow creating administrator account
-  command:
-    cmd: "container exec -u root {{ MASTODON_CONTAINER }} sed -i '/- administrator/d' config/settings.yml"
+- name: 🧹 Remove "- administrator" from config/settings.yml to enable admin creation
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }}
+    sed -i '/- administrator/d' config/settings.yml
   when: lookup('users', 'administrator').username == "administrator"
-- name: Create admin account via tootctl
-  command:
-    cmd: >
-      container exec -u root {{ MASTODON_CONTAINER }} bash -c
-      "bin/tootctl accounts create {{ lookup('users', 'administrator').username }}
-      --email {{ lookup('users', 'administrator').email }}
-      --confirmed --role Owner"
+- name: 📁 Create admin account via tootctl
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c
+    "bin/tootctl accounts create {{ lookup('users', 'administrator').username }}
+    --email {{ lookup('users', 'administrator').email }}
+    --confirmed --role Owner"
   register: tootctl_create
   changed_when: tootctl_create.rc == 0
   failed_when: >
@@ -18,9 +17,8 @@
     and
     ("taken" not in tootctl_create.stderr | lower)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-- name: Approve the administrator account in Mastodon
-  command:
-    cmd: >
-      container exec -u root {{ MASTODON_CONTAINER }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
+- name: 👍 Approve the administrator account in Mastodon
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

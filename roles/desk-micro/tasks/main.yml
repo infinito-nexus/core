@@ -1,5 +1,5 @@
 ---
-- name: install micro
+- name: 📦 install micro
   package:
     name:
       - micro

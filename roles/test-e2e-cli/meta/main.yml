@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Alejandro Roman Ibanez
-  description: Runs CLI test scripts (files/test.sh) for roles that declare templates/test.env.j2.
+  description: Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template
   license: Infinito.Nexus Community License (Non-Commercial)
   min_ansible_version: "2.9"
   platforms:

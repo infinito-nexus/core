@@ -1,0 +1,215 @@
+name: "📦 Test: Deploy (compose)"
+
+on:
+  workflow_call:
+    inputs:
+      distros:
+        description: "Space-separated distro list"
+        required: true
+        type: string
+      whitelist:
+        description: "Optional space-separated whitelist of app ids"
+        required: false
+        type: string
+        default: ""
+      lifecycles:
+        description: "Lifecycle envelope for discovery (comma/space-separated). Empty: default (alpha beta rc stable)."
+        required: false
+        type: string
+        default: ""
+      blacklist:
+        description: "Optional space-separated app ids to drop from discovery"
+        required: false
+        type: string
+        default: ""
+      marker:
+        description: "Optional suffix appended to the discover job name (e.g. ' ⭐' for the priority line)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  INFINITO_DISTROS: ${{ inputs.distros }}
+  NIX_CONFIG: |
+    access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+  INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+  INFINITO_GHCR_MIRROR_PREFIX: mirror
+  INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}
+  INFINITO_APP_DISCOVERY_RUNNER: host
+  INFINITO_DEPLOY_MODE: compose
+  INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
+  INFINITO_BLACKLIST: ${{ inputs.blacklist }}
+jobs:
+  discover:
+    name: 🪼 Compose (${{ inputs.distros }})${{ inputs.marker }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      apps: ${{ steps.discover.outputs.apps }}
+
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: 📦 Install jq
+        shell: bash
+        run: ./scripts/install/apt.sh jq
+
+      - name: 📦 Install deps (jq + envsubst)
+        shell: bash
+        run: ./scripts/install/apt.sh jq gettext-base
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: make install
+
+      - name: 🔍 Resolve effective whitelist (diff vs origin/main)
+        id: resolve_wl
+        shell: bash
+        env:
+          INPUT_WHITELIST: ${{ inputs.whitelist }}
+        run: ./scripts/github/resolve/effective_whitelist.sh
+
+      - name: 🔍 Discover apps
+        id: discover
+        shell: bash
+        env:
+          INFINITO_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
+        run: ./scripts/github/resolve/output_apps.sh
+
+  compose:
+    name: 🐳 ${{ matrix.apps }}${{ matrix.variant && format(' {0}',matrix.variant) || '' }}
+    if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    needs: discover
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.discover.outputs.apps) }}
+
+    steps:
+      - name: 🧹 Free disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - uses: actions/checkout@v7.0.0
+
+      - name: 💾 Enlarge swap space
+        shell: bash
+        run: ./scripts/github/runner/enlarge_swap.sh
+
+      - name: 🔍 Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: 📦 Install jq
+        shell: bash
+        run: ./scripts/install/apt.sh jq
+
+      - name: 🚀 Deploy app
+        timeout-minutes: 300
+        shell: bash
+        env:
+          apps: ${{ matrix.apps }}
+          variant: ${{ matrix.variant }}
+          ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
+        run: ./scripts/tests/deploy/ci/all.sh 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
+
+      - name: 🚫 Fail on deprecation warnings
+        if: always()
+        shell: bash
+        run: ./scripts/tests/deploy/ci/assert_no_deprecation_warnings.sh "/tmp/ansible-${{ matrix.apps }}.log"
+
+      - name: 📊 Role runtimes
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m cli.meta.ci.roles.runtime "/tmp/ansible-${{ matrix.apps }}.log" \
+            --format csv --output "/tmp/role-runtimes-${{ matrix.apps }}.csv"
+          python3 -m cli.meta.ci.roles.runtime "/tmp/role-runtimes-${{ matrix.apps }}.csv" \
+            --format markdown >> "$GITHUB_STEP_SUMMARY"
+
+      - name: ⬆️ Upload role runtimes CSV
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: role-runtimes-${{ matrix.apps }}
+          path: /tmp/role-runtimes-${{ matrix.apps }}.csv
+          if-no-files-found: ignore
+
+      - name: 🩺 Dump runner state (on failure)
+        if: failure()
+        timeout-minutes: 10
+        shell: bash
+        run: ./scripts/github/runner/dump_state.sh "post-deploy failure (${{ matrix.apps }})"
+
+      - name: ⬆️ Upload rescue diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rescue-diagnostics-compose-${{ matrix.apps }}${{ matrix.variant_slug && format('-{0}', matrix.variant_slug) || '' }}
+          path: /tmp/rescue-diagnostics/
+          if-no-files-found: ignore
+
+      - name: 🗜️ Zip generated inventory for debugging
+        if: always()
+        shell: bash
+        env:
+          APP_ID: ${{ matrix.apps }}
+        run: bash scripts/github/inventory/zip/compose_for_upload.sh
+
+      - name: ⬆️ Upload inventory artifact
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: inventory-compose-${{ matrix.apps }}
+          path: /tmp/inventory-compose-${{ matrix.apps }}.zip
+          if-no-files-found: ignore
+
+      - name: 📋 Playwright step summary
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 utils/github/playwright_summary.py \
+            /tmp/playwright-artifacts \
+            "${{ matrix.apps }}" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: ⬆️ Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: playwright-compose-${{ matrix.apps }}${{ matrix.variant_slug && format('-{0}', matrix.variant_slug) || '' }}
+          path: /tmp/playwright-artifacts/
+          if-no-files-found: ignore

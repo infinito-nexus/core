@@ -18,8 +18,7 @@ location {{location}}
   # Client Limits for HTML
   client_max_body_size {{ webserver_client_max_body_size | default(lookup('config', application_id, 'server.client_max_body_size', '100m')) }};
 
-  {% set _loc = location|trim %}
-  proxy_pass http://127.0.0.1:{{ http_port }}{{ (_loc|regex_replace('^(?:=|\\^~)\\s*','')) if not (_loc is match('^(@|~)')) else '' }};
+  {{ lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='request', location=location, local_port=http_port, internal_port=proxy_internal_port | default('')) }}
 
   # Proxyconfiguration for Upload
   proxy_set_header Host $host;

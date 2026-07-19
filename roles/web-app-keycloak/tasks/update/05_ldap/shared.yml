@@ -1,0 +1,10 @@
+---
+- name: "📂 Load LDAP Update routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/05_ldap/main.yml"
+
+- name: ✅ Assert Keycloak LDAP configuration
+  include_tasks: "{{ role_path }}/tasks/assert/05_ldap.yml"
+  when: MODE_ASSERT_LOCAL | bool
+
+- name: "📂 Load per-app group-ldap-mapper routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/05c_per_app_mappers.yml"

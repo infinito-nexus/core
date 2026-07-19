@@ -1,10 +1,10 @@
 ---
-- name: Include dependency 'dev-shell'
+- name: 📂 Include dependency 'dev-shell'
   include_role:
     name: dev-shell
   when: run_once_dev_shell is not defined
 
-- name: pull ssh repository from {{desk_ssh_repository}}
+- name: ⬇️ pull ssh repository from {{desk_ssh_repository}}
   git:
     repo: "{{desk_ssh_repository}}"
     dest: "$HOME/.ssh"
@@ -14,26 +14,26 @@
   ignore_errors: true
   become: false
 
-- name: Warn if repo is not reachable
+- name: ⚠️ Warn if repo is not reachable
   debug:
     msg: "Warning: Repository is not reachable."
   when: git_result.failed and MODE_DEBUG | bool
 
-- name: Ensure systemd user directory exists
+- name: ✅ Ensure systemd user directory exists
   file:
     path: "$HOME/.config/systemd/user"
     state: directory
     mode: "0700"
   become: false
 
-- name: Deploy ssh-agent systemd unit file
-  template:
+- name: 🚀 Deploy ssh-agent systemd unit file
+  template: # nocheck: stack-host-template (per-host/user workstation systemd unit)
     src: ssh-agent.service.j2
     dest: "$HOME/.config/systemd/user/ssh-agent.service"
     mode: "0644"
   become: false
 
-- name: Enable and start ssh-agent service
+- name: 🟢 Enable and start ssh-agent service
   systemd:
     name: ssh-agent.service
     scope: user
@@ -42,7 +42,7 @@
     daemon_reload: true
   become: false
 
-- name: Ensure ~/.profile exists with common environment
+- name: ✅ Ensure ~/.profile exists with common environment
   lineinfile:
     path: "$HOME/.profile"
     line: 'export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"'

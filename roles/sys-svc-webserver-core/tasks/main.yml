@@ -2,7 +2,7 @@
 - include_tasks: 01_core.yml
   when: run_once_sys_svc_webserver_core is not defined
 
-- name: "Route webserver health deps through service-loader"
+- name: "🧭 Route webserver health deps through service-loader"
   ansible.builtin.include_role:
     name: sys-service-loader
     tasks_from: list_or_shoot.yml

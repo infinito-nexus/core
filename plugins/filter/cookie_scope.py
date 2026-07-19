@@ -1,7 +1,7 @@
 def _domain_strings(domains):
     """Flatten the value returned by lookup('domains', app) into a flat list of
     domain strings. The lookup yields a dict ({key: domain}), a list, or a bare
-    string depending on the role's server.domains shape, so normalise all three.
+    string depending on the role's domains shape, so normalise all three.
     """
     if isinstance(domains, dict):
         candidates = domains.values()

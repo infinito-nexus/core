@@ -8,28 +8,26 @@ applications:
           class: fa fa-th-large
       children:
 
-    {# Render all categories #}
     {% for category, apps in portfolio_menu_data.categorized.items() %}
 
-      - name: {{ category }}
-        description: {{ portfolio_menu_categories[category].description }}
+      - name: {{ category | to_json }}
+        description: {{ portfolio_menu_categories[category].description | to_json }}
         icon:
-          class: {{ portfolio_menu_categories[category].icon }}
+          class: {{ portfolio_menu_categories[category].icon | to_json }}
         children:
-        
+
         {% for app in apps %}
 
-          - name: {{ app.title }}
-            description: {{ app.text }}
-            icon: {{ app.icon }}
-            url: {{ app.url }}
+          - name: {{ app.title | to_json }}
+            description: {{ app.text | to_json }}
+            icon: {{ app.icon | to_json }}
+            url: {{ app.url | to_json }}
             iframe: {{ app.iframe }}
             
         {% endfor %}
 
     {% endfor %}
 
-{# Render Uncategorized #}
 {% if portfolio_menu_data.uncategorized %}
 
       - name: Uncategorized
@@ -40,10 +38,10 @@ applications:
 
 {% for app in portfolio_menu_data.uncategorized %}
 
-        - name: {{ app.title }}
-          description: {{ app.text }}
-          icon: {{ app.icon }}
-          url: {{ app.url }}
+        - name: {{ app.title | to_json }}
+          description: {{ app.text | to_json }}
+          icon: {{ app.icon | to_json }}
+          url: {{ app.url | to_json }}
           iframe: {{ app.iframe }}
 
 {% endfor %}

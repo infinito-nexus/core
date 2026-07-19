@@ -1,5 +1,5 @@
 ---
-- name: Include dependency 'sys-pip'
+- name: 📂 Include dependency 'sys-pip'
   include_role:
     name: sys-pip
   when: run_once_sys_pip is not defined

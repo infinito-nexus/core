@@ -55,7 +55,7 @@ const CONFIG = {
   listenPort: parseInt(process.env.BROKER_PORT || "8080", 10),
   socialAppUrl: requireEnv("SOCIAL_APP_URL"),
   pdsUrl: requireEnv("PDS_URL"),
-  pdsInternalUrl: process.env.PDS_INTERNAL_URL || process.env.PDS_URL,
+  pdsInternalUrl: process.env.PDS_INTERNAL_URL || requireEnv("PDS_URL"),
   pdsHandleDomain: requireEnv("PDS_HANDLE_DOMAIN"),
   pdsInviteCode: process.env.PDS_INVITE_CODE || "",
   // Optional: enables the broker to recover from `Handle already
@@ -479,5 +479,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(CONFIG.listenPort, () => {
-  console.log(`[broker] listening on ${CONFIG.listenPort}, social-app=${CONFIG.socialAppUrl}, pds=${CONFIG.pdsUrl}`);
+  console.log(`[broker] listening on ${CONFIG.listenPort}, social-app=${CONFIG.socialAppUrl}, pds=${CONFIG.pdsUrl}, pds-internal=${CONFIG.pdsInternalUrl}`);
 });

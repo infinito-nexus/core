@@ -4,7 +4,7 @@
         name: dev-gcc
       when: run_once_dev_gcc is not defined
 
-    - name: python pip install
+    - name: 🐍 python pip install
       ansible.builtin.package:
         name: >-
           {{

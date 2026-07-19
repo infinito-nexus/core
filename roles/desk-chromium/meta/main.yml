@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automates the installation and configuration of the Chromium browser with enforced security extensions.
+  description: Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

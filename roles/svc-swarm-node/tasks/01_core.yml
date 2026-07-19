@@ -1,0 +1,18 @@
+---
+- include_tasks: utils/once/flag.yml
+
+# Consumers like `svc-registry-docker` pull this role via `run_after`;
+# under universal / server CI they reach it with DEPLOYMENT_MODE='compose'
+# and no `svc-swarm-manager` group, which would trip the asserts.
+- name: "🐝 Swarm-only node setup (cluster bootstrap + shared CA anchor)"
+  when: DEPLOYMENT_MODE == 'swarm'
+  block:
+    - name: "🥾 Bootstrap docker swarm cluster"
+      ansible.builtin.include_tasks: 01a_bootstrap_cluster.yml
+
+    - name: "✅ Ensure shared Root CA on every swarm node (manager mints, workers fetch)"
+      ansible.builtin.include_role:
+        name: sys-ca-selfsigned
+      when:
+        - (TLS_MODE | lower) == 'self_signed'
+        - run_once_sys_ca_selfsigned is not defined

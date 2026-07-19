@@ -2,16 +2,16 @@
 # It is necessary to shut the projects down, when reset is activated. 
 # Otherwise it can lead to this bug:
 # https://github.com/ansible/ansible/issues/10244
-- name: "pkgmgr install '{{ COMPOSE_DOWN_ALL_PACKAGE }}'"
+- name: "📦 pkgmgr install '{{ COMPOSE_DOWN_ALL_PACKAGE }}'"
   include_role:
     name: pkgmgr-install
   vars:
     package_name: "{{ COMPOSE_DOWN_ALL_PACKAGE }}"
 
-- name: Shutdown all compose instances in '{{ DIR_COMPOSITIONS }}' with '{{ COMPOSE_DOWN_ALL_PACKAGE }}'
+- name: "🧹 Shutdown compose instances in '{{ DIR_COMPOSITIONS }}'"
   command: "{{ COMPOSE_DOWN_ALL_PACKAGE }} {{ DIR_COMPOSITIONS }}"
 
-- name: "Remove directory '{{ DIR_COMPOSITIONS }}' and all its contents"
+- name: "🗑️ Remove directory '{{ DIR_COMPOSITIONS }}' and all its contents"
   file:
     path: "{{ DIR_COMPOSITIONS }}"
     state: absent

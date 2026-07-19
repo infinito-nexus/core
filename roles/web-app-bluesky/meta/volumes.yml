@@ -1,2 +1,14 @@
 ---
-pds_data: pds_data
+pds_data:
+  type: volume
+  mounts:
+    - service: pds
+      target: /opt/pds
+
+pdsadmin:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-bluesky', 'directories.volumes'), 'pdsadmin', 'pdsadmin'] | path_join }}"
+  mounts:
+    - service: pds
+      target: /usr/local/bin/pdsadmin
+      read_only: true

@@ -1,31 +1,49 @@
 ---
-- name: Flush handlers to ensure Gitea is up before DB patch
+- name: 🚿 Flush handlers to ensure Gitea is up before DB patch
   meta: flush_handlers
 
-- name: Patch Gitea DB host in app.ini
-  command: >
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }}
+- name: 🩹 Patch Gitea DB host in app.ini
+  shell: >
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }}
     sed -ri "s|^(HOST\s*=\s*).*$|\1{{ lookup('database', application_id, 'host') | sed_escape('|') }}:{{ lookup('database', application_id, 'port') | sed_escape('|')
     }}|" {{ GITEA_CONFIG }}
+  register: _gitea_patch_host
+  retries: 12
+  delay: 5
+  until: _gitea_patch_host.rc == 0
   notify: compose up
 
-- name: Patch Gitea DB name in app.ini
-  command: >
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }}
+- name: 🩹 Patch Gitea DB name in app.ini
+  shell: >
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }}
     sed -ri "s|^(NAME\s*=\s*).*$|\1{{ lookup('database', application_id, 'name') | sed_escape('|') }}|" {{ GITEA_CONFIG }}
+  register: _gitea_patch_name
+  retries: 12
+  delay: 5
+  until: _gitea_patch_name.rc == 0
   notify: compose up
 
-- name: Patch Gitea DB user in app.ini
-  command: >
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }}
+- name: 🩹 Patch Gitea DB user in app.ini
+  shell: >
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }}
     sed -ri "s|^(USER\s*=\s*).*$|\1{{ lookup('database', application_id, 'username') | sed_escape('|') }}|" {{ GITEA_CONFIG }}
+  register: _gitea_patch_user
+  retries: 12
+  delay: 5
+  until: _gitea_patch_user.rc == 0
   notify: compose up
 
-- name: Patch Gitea DB password in app.ini
-  command: >
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }}
-    sed -ri "s|^(PASSWD\s*=\s*).*$|\1{{ lookup('database', application_id, 'password') | sed_escape('|') }}|" {{ GITEA_CONFIG }}
+- name: 🩹 Patch Gitea DB password in app.ini
+  shell: >
+    container exec -i --user {{ GITEA_USER }}
+    -e PATCH_VALUE={{ lookup('database', application_id, 'password') | sed_escape('|') | quote }}
+    {{ GITEA_CONTAINER_ADDRESS }}
+    sh -c 'sed -ri "s|^(PASSWD\s*=\s*).*$|\1${PATCH_VALUE}|" {{ GITEA_CONFIG }}'
+  register: _gitea_patch_passwd
+  retries: 12
+  delay: 5
+  until: _gitea_patch_passwd.rc == 0
   notify: compose up
 
-- name: "Flush database patches"
+- name: "🚿 Flush database patches"
   meta: flush_handlers

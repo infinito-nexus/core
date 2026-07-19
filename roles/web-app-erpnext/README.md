@@ -8,6 +8,61 @@
 
 This role deploys ERPNext as an Infinito.Nexus web app using the upstream `frappe/erpnext` single-image multi-role pattern from [frappe_docker](https://github.com/frappe/frappe_docker): one Docker image, different commands per container (backend gunicorn, frontend nginx, websocket socketio, scheduler, two queue workers, plus a one-shot configurator). MariaDB and Redis come from the central `svc-db-mariadb` and `svc-db-redis` providers — the three Frappe Redis logical roles (`cache`, `queue`, `socketio`) share one central Redis instance via DB-number split (0 / 1 / 2). Authentication uses Frappe's built-in Social Login Key against the shared Keycloak OIDC client without an oauth2-proxy sidecar; LDAP federation and outbound SMTP via Mailu are wired when their providers are present.
 
+## Cosmos
+
+The diagram places ERPNext in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
+        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
+        dep_web_app_mailu["web-app-mailu 🐳🐝"]
+        dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_logout["web-svc-logout 🐳🐝"]
+    end
+    subgraph role [web-app-erpnext 🐳🐝]
+        svc_sso["sso"]
+        svc_ldap["ldap"]
+        svc_email["email"]
+        svc_logout["logout"]
+        svc_dashboard["dashboard"]
+        svc_matomo["matomo"]
+        svc_prometheus["prometheus"]
+        svc_css["css"]
+        svc_mariadb["mariadb"]
+        svc_redis["redis"]
+        svc_erpnext["erpnext"]
+        svc_backend["backend"]
+        svc_frontend["frontend"]
+        svc_websocket["websocket"]
+        svc_scheduler["scheduler"]
+        svc_queue_short["queue-short"]
+        svc_queue_long["queue-long"]
+        svc_configurator["configurator"]
+        svc_container_backup["container_backup"]
+    end
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
+    dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_mailu -. "0..1" .-> svc_email
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **ERP / CRM / inventory desk** — full ERPNext frontend at `next.erp.{{ DOMAIN_PRIMARY }}`.
@@ -16,6 +71,41 @@ This role deploys ERPNext as an Infinito.Nexus web app using the upstream `frapp
 - **LDAP federation** — when `svc-db-openldap` is present, Frappe's LDAP Settings doctype is auto-configured. End-to-end LDAP login (auto-create Frappe user from LDAP bind) is deferred to a follow-up requirement; v1 ships the Settings doctype only. The LDAP-login Playwright specs are intentionally absent for v1.
 - **Outbound mail (v1)** — when `web-app-mailu` is present, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** (no precedent in the repo for auto-provisioning role-owned Mailu mailboxes yet).
 - **Wizard bypass** — first deploy seeds the API-bot user, marks `setup_complete=1` in System Settings, and skips the Frappe setup wizard entirely.
+
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy ERPNext onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps=web-app-erpnext full_cycle=false
+```
+
+### Production
+
+Run the published image to provision the inventory and deploy ERPNext to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP=web-app-erpnext
+HOST=<your-server>
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" \
+  ghcr.io/infinito-nexus/core/debian bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/prod
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
 
 ## Image & version policy
 
@@ -77,7 +167,6 @@ make compose-exec service=erpnext-backend \
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

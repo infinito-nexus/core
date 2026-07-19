@@ -1,5 +1,5 @@
 ---
-- name: "Wait for PDS XRPC to come up at {{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
+- name: "⏳ Wait for PDS XRPC to come up at {{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
   uri_retry:
     url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
     method: GET
@@ -10,7 +10,7 @@
   delay: 2
   until: bluesky_pds_health.status == 200
 
-- name: "Create native PDS administrator account (idempotent)"
+- name: "📁 Create native PDS administrator account (idempotent)"
   uri_retry:
     url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
     method: POST

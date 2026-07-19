@@ -1,44 +1,26 @@
 x-environment: &shopware
-  image: "{{ SHOPWARE_CUSTOM_IMAGE }}"
-  volumes:
-    - files:/var/www/html/files
-    - theme:/var/www/html/public/theme
-    - media:/var/www/html/public/media
-    - thumbnail:/var/www/html/public/thumbnail
-    - sitemap:/var/www/html/public/sitemap
-    - "{{ SHOPWARE_INIT_HOST }}:{{ SHOPWARE_INIT_DOCKER }}:ro"
-    - bundles:/var/www/html/public/bundles
-    - "{{ SHOPWARE_FRAMEWORK_HOST }}:{{ SHOPWARE_FRAMEWORK_DOCKER }}:ro"
-{% if SHOPWARE_OBJSTORE_ENABLED | bool %}
-    - "{{ SHOPWARE_FILESYSTEM_HOST }}:{{ SHOPWARE_FILESYSTEM_DOCKER }}:ro"
-{% endif %}
+  {{ lookup('container_image', application_id, 'shopware', version=SHOPWARE_PKG_VERSION) }}
   working_dir: {{ SHOPWARE_ROOT }}
-  pull_policy: never
-
+  {{ lookup('compose_only', 'pull_policy', 'never') }}
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-# -------------------------
-# INIT (runs once per deployment)
-# -------------------------
-{% set service_name = 'init' %}
-{% set docker_restart_policy = 'no' %}
+  {% set service_name = 'init' %}
+  {% set docker_restart_policy = 'no' %}
   {{ service_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% set docker_restart_policy = DOCKER_RESTART_POLICY %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     <<: *shopware
-    container_name: "{{ SHOPWARE_INIT_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', SHOPWARE_INIT_CONTAINER) }}
     entrypoint: [ "sh", "{{ SHOPWARE_INIT_DOCKER }}" ]
     user: "0:0"
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{# -------------------------
-   WEB (serves HTTP on 8000)
-   ------------------------- #}
-{% set service_name = 'web' %}
-{% set container_port = lookup('config',application_id, 'services.web.ports.internal.http') %}
+  {% set service_name = 'web' %}
+  {% set docker_restart_policy = DOCKER_RESTART_POLICY %}
+  {% set container_port = lookup('config',application_id, 'services.web.ports.internal.http') %}
   {{ service_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     <<: *shopware
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
@@ -49,74 +31,61 @@ x-environment: &shopware
         SHOPWARE_COMPOSER_PLATFORM_PHP: "{{ SHOPWARE_COMPOSER_PLATFORM_PHP }}"
         SHOPWARE_PHP_IMAGE: "{{ SHOPWARE_PHP_IMAGE }}"
         SHOPWARE_PHP_VERSION: "{{ SHOPWARE_PHP_VERSION }}"
-    container_name: "{{ SHOPWARE_WEB_CONTAINER }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.shopware.ports.local.http') }}:{{ container_port }}"
-    depends_on:
-      init:
-        condition: service_completed_successfully
+    {{ lookup('compose_only', 'container_name', SHOPWARE_WEB_CONTAINER) }}
+    {{ lookup('container_ports', ['shopware', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:{{ container_port }}/robots.txt || wget -q --spider http://127.0.0.1:{{ container_port }}/ || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 10
       start_period: 120s
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{# -------------------------
-   WORKER (async queues)
-   ------------------------- #}
-{% set service_name = 'worker' %}
+  {% set service_name = 'worker' %}
   {{ service_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     <<: *shopware
-    container_name: "{{ SHOPWARE_WORKER_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', SHOPWARE_WORKER_CONTAINER) }}
     entrypoint: {{ SHOPWARE_WORKER_ENTRYPOINT }}
-    depends_on:
-      init:
-        condition: service_completed_successfully
-# @todo Activate for swarm deploy
-#    deploy:
-#      replicas: {{ SHOPWARE_WORKER_REPLICAS }}
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD", "php", "-v"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{# -------------------------
-   SCHEDULER (cron-like)
-   ------------------------- #}
-{% set service_name = 'scheduler' %}
+  {% set service_name = 'scheduler' %}
   {{ service_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     <<: *shopware
-    container_name: "{{ SHOPWARE_SCHED_CONTAINER }}"
+    {{ lookup('compose_only', 'container_name', SHOPWARE_SCHED_CONTAINER) }}
     entrypoint: {{ SHOPWARE_SCHED_ENTRYPOINT }}
-    depends_on:
-      init:
-        condition: service_completed_successfully
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD", "php", "-v"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{% if SHOPWARE_OPENSEARCH_ENABLED %}
-{% set service_name = 'opensearch' %}
+  {% if SHOPWARE_OPENSEARCH_ENABLED %}
+  {% set service_name = 'opensearch' %}
   {{ service_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ SHOPWARE_OPENSEARCH_IMAGE }}:{{ SHOPWARE_OPENSEARCH_VERSION }}"
-    container_name: "{{ SHOPWARE_OPENSEARCH_CONTAINER }}"
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'opensearch') }}
+    {{ lookup('compose_only', 'container_name', SHOPWARE_OPENSEARCH_CONTAINER) }}
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
@@ -124,20 +93,15 @@ x-environment: &shopware
       - OPENSEARCH_JAVA_OPTS=-Xms{{ SHOPWARE_OPENSEARCH_MEM_RESERVATION }} -Xmx{{ SHOPWARE_OPENSEARCH_MEM_RESERVATION }}
     ulimits:
       memlock: { soft: -1, hard: -1 }
-    depends_on:
-      init:
-        condition: service_completed_successfully
+    {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsSL http://127.0.0.1:{{ SHOPWARE_OPENSEARCH_PORT }}/_cluster/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% endif %}
+    {{ lookup('container_networks') | indent(4) }}
+  {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'bundles': {'name': entity_name ~ '_bundles'}, 'data': {'name': SHOPWARE_VOLUME}, 'files': {'name': entity_name ~ '_files'}, 'media': {'name': entity_name ~ '_media'}, 'sitemap': {'name': entity_name ~ '_sitemap'}, 'theme': {'name': entity_name ~ '_theme'}, 'thumbnail': {'name': entity_name ~ '_thumbnail'}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

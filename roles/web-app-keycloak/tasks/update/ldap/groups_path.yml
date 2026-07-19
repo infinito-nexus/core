@@ -3,13 +3,13 @@
 # This file is included ONLY when desired_groups_top is non-empty.
 # Do not add an additional "when: desired_groups_top | length > 0" here.
 
-- name: Fetch groups (JSON)
+- name: ⬇️ Fetch groups (JSON)
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get groups -r {{ KEYCLOAK_REALM }} --format json
   register: kc_groups
   changed_when: false
 
-- name: Resolve existing top-level group id for groups.path
+- name: 🔍 Resolve existing top-level group id for groups.path
   set_fact:
     groups_top_id: >-
       {{
@@ -24,7 +24,7 @@
       }}
   changed_when: false
 
-- name: Create top-level group for groups.path if missing
+- name: 📁 Create top-level group for groups.path if missing
   when: groups_top_id in ["", "null"]
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} create groups -r {{ KEYCLOAK_REALM }} -s name={{ desired_groups_top }}
@@ -32,13 +32,13 @@
   changed_when: create_groups_top.rc == 0
   failed_when: create_groups_top.rc != 0 and ('already exists' not in (create_groups_top.stderr | lower))
 
-- name: Refresh groups (JSON) after potential create (authoritative)
+- name: 🔄 Refresh groups (JSON) after potential create (authoritative)
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get groups -r {{ KEYCLOAK_REALM }} --format json
   register: kc_groups_refresh
   changed_when: false
 
-- name: Refresh existing top-level group id for groups.path (authoritative)
+- name: 🔄 Refresh existing top-level group id for groups.path (authoritative)
   set_fact:
     groups_top_id: >-
       {{
@@ -53,14 +53,14 @@
       }}
   changed_when: false
 
-- name: Assert top-level group for groups.path exists now
-  when: MODE_ASSERT | bool
+- name: ✅ Assert top-level group for groups.path exists now
+  when: MODE_ASSERT_LOCAL | bool
   assert:
     that:
       - groups_top_id not in ["", "null"]
     fail_msg: "Top-level group '{{ desired_groups_top }}' for groups.path could not be resolved."
 
-- name: Inject groups.path.group into desired mapper config (force correct parent group id)
+- name: 📄 Inject groups.path.group into mapper config (force parent group id)
   set_fact:
     desired_group_mapper: >-
       {{

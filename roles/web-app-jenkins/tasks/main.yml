@@ -1,34 +1,25 @@
 ---
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
 
-# JCasC render must happen AFTER sys-stk-full has materialised
-# `/opt/compose/jenkins/` (its sys-svc-compose include creates the
-# instance directory). Rendering before that fails with
-# `Destination directory /opt/compose/jenkins does not exist`.
-- name: "Render Jenkins JCasC config"
-  template:
+- name: "📄 Render Jenkins JCasC config"
+  stack_host_template:
     src: casc.yaml.j2
     dest: "{{ JENKINS_CASC_FILE }}"
     mode: "0644"
   notify:
     - compose up
+  when: IS_STACK_HOST | bool
 
-# `sys-svc-compose` auto-discovers and lays down the Dockerfile, but
-# the Dockerfile `COPY` lines reference sidecar artefacts (plugins.txt,
-# entrypoint-with-ca.sh) that must live next to the Dockerfile in the
-# compose build context (`build: { context: . }`). Without this, the
-# `docker compose build` step fails with `failed to calculate checksum
-# of ref ...: "/plugins.txt": not found`.
-- name: "Stage Jenkins build-context sidecar files into the compose dir"
-  ansible.builtin.copy:
+- name: "🎬 Stage Jenkins build-context sidecar files into the compose dir"
+  stack_host_copy:
     src: "{{ item }}"
-    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item ] | path_join }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item | basename ] | path_join }}"
     mode: "0644"
   loop:
     - plugins.txt
-    - entrypoint-with-ca.sh
+    - "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/files/java-with-ca-trust.sh') }}"
   notify:
     - compose build
     - compose up

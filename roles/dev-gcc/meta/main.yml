@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs the GNU Compiler Collection (GCC).
+  description: Optimizing compiler toolchain for building C, C++, and other native-language programs
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -3,3 +3,11 @@
   when: run_once_svc_db_memcached is not defined
   vars:
     application_id: svc-db-memcached
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "✅ Verify per-consumer namespace (key-prefix isolation)"
+  include_tasks: 02_init.yml
+  when: database_init | bool

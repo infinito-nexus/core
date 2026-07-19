@@ -1,0 +1,25 @@
+---
+# Provision the RBAC group tree (/<group_root>/<app>/<role>) and its
+# memberships directly in the realm when LDAP is disabled. The per-app
+# group-ldap-mappers (05c) only run with an LDAP federation, so without this
+# task oauth2-proxy's allowed_groups check has no groups to match and every
+# group-gated app returns 403 for otherwise-authenticated users.
+
+- name: "🔐 RBAC realm groups: provision groups + memberships for '{{ item.path }}'"
+  ansible.builtin.script:
+    cmd: "files/scripts/rbac_realm/ensure_group_path_members.sh"
+    executable: /bin/bash
+  environment:
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
+    KC_REALM: "{{ KEYCLOAK_REALM }}"
+    GROUP_PATH: "{{ item.path }}"
+    MEMBERS: "{{ item.members | join(' ') }}"
+  loop: >-
+    {{
+      lookup('applications')
+      | build_realm_rbac_groups(lookup('users'), KEYCLOAK_RBAC_GROUP_NAME, KEYCLOAK_RBAC_RUN_APP_IDS)
+    }}
+  loop_control:
+    label: "{{ item.path }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

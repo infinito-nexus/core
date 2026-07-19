@@ -6,16 +6,16 @@
     public: false
   when: run_once_sys_svc_container is not defined
 
-- name: Remove all compose pull locks
+- name: 🗑️ Remove all compose pull locks
   file:
     path: "{{ DIR_COMPOSE_PULL_LOCK }}"
     state: absent
 
-- name: "reset (if enabled) for {{ role_name}}"
+- name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 02_reset.yml
   when: MODE_RESET | bool
 
-- name: "create {{ DIR_COMPOSITIONS }}"
+- name: "📁 create {{ DIR_COMPOSITIONS }}"
   file:
     path: "{{ DIR_COMPOSITIONS }}"
     state: directory
@@ -23,11 +23,25 @@
     owner: root
     group: root
 
-- name: Install compose wrapper
+- name: "✅ Ensure compose wrapper system deps (PyYAML)"
+  ansible.builtin.package:
+    name: "{{ sys_svc_compose_pyyaml_package[ansible_facts['os_family']] }}"
+    state: present
+
+- name: 📦 Install compose wrapper
   become: true
   ansible.builtin.copy:
     src: "compose.py"
     dest: "{{ BIN_COMPOSE }}"
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: 📦 Install resolve-container-id helper (Swarm task → container ID)
+  become: true
+  ansible.builtin.copy:
+    src: "resolve_container_id.sh"
+    dest: "{{ BIN_RESOLVE_CONTAINER_ID }}"
     mode: "0755"
     owner: root
     group: root

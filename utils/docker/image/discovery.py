@@ -16,16 +16,15 @@ DOCKER_HUB_PREFIXES = (
     "index.docker.io/",
 )
 
-# All registry hostname prefixes that are stripped when building the canonical name.
 _ALL_REGISTRY_PREFIXES = (
     *DOCKER_HUB_PREFIXES,
     "quay.io/",
     "ghcr.io/",
     "mcr.microsoft.com/",
     "registry.opencode.de/",
+    "registry.gitlab.com/",
 )
 
-# Registries whose images should be mirrored to GHCR.
 _MIRRORABLE_REGISTRIES = frozenset(
     {
         "docker.io",
@@ -35,20 +34,31 @@ _MIRRORABLE_REGISTRIES = frozenset(
         "ghcr.io",
         "mcr.microsoft.com",
         "registry.opencode.de",
+        "registry.gitlab.com",
     }
 )
 
 
 @dataclass(frozen=True)
 class ImageRef:
-    role: str  # e.g. svc-db-postgres
-    service: str  # e.g. postgres
-    name: str  # canonical image name without registry, e.g. postgis/postgis or postgres
-    version: str  # e.g. 17-3.5
-    source: str  # full pull ref, e.g. docker.io/library/postgres:16 or quay.io/keycloak/keycloak:latest
-    registry: str = (
-        "docker.io"  # source registry hostname, e.g. docker.io, quay.io, ghcr.io
-    )
+    """Role-declared container image reference.
+
+    Fields:
+        role: e.g. ``svc-db-postgres``
+        service: e.g. ``postgres``
+        name: canonical image name without registry, e.g. ``postgis/postgis``
+        version: e.g. ``17-3.5``
+        source: full pull ref, e.g. ``docker.io/library/postgres:16``
+        registry: source registry hostname, e.g. ``docker.io``, ``quay.io``
+        source_file: role-relative file the ref was read from
+    """
+
+    role: str
+    service: str
+    name: str
+    version: str
+    source: str
+    registry: str = "docker.io"
     source_file: str = ROLE_FILE_META_SERVICES
 
 
@@ -131,7 +141,7 @@ def docker_hub_source(image: str, version: str) -> str:
     postgis/postgis + 17  -> docker.io/postgis/postgis:17
     """
     image = normalize_docker_hub(image)
-    base, _suffix = split_name_and_suffix(image)  # drop embedded tag/digest
+    base, _suffix = split_name_and_suffix(image)
 
     if "/" not in base:
         base = f"library/{base}"
@@ -151,7 +161,7 @@ def image_source(image: str, version: str) -> str:
     """
     registry = _detect_registry(image)
     bare = _strip_registry_prefix(image)
-    base, _suffix = split_name_and_suffix(bare)  # drop embedded tag/digest
+    base, _suffix = split_name_and_suffix(bare)
 
     if registry == "docker.io" and "/" not in base:
         base = f"library/{base}"
@@ -196,8 +206,8 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
             if not isinstance(service, dict):
                 continue
 
-            image = (service.get("image") or "").strip()
-            version = (service.get("version") or "").strip()
+            image = str(service.get("image") or "").strip()
+            version = str(service.get("version") or "").strip()
 
             if not image or not version:
                 continue

@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Stub role for deploying an XMPP server/container—implementation pending.
+  author: Kevin Veen-Birkenbach
+  description: Placeholder stub role for a future XMPP server/container deployment, implementation pending
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

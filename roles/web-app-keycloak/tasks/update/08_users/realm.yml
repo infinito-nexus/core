@@ -1,0 +1,33 @@
+---
+# Provision every non-reserved user directly in the Keycloak realm when LDAP is
+# disabled. Without an LDAP federation this is the only path that seeds real
+# end-user accounts (administrator, biber, ...); seeding only administrator left
+# their SSO logins failing with user_not_found. Group memberships are applied
+# afterwards by update/08b_rbac_groups_realm.yml.
+
+- name: "✅ Ensure non-reserved users exist in realm '{{ KEYCLOAK_REALM }}'"
+  ansible.builtin.script: ensure_realm_user.sh
+  environment:
+    KEYCLOAK_EXEC_CONTAINER: "{{ KEYCLOAK_EXEC_CONTAINER }}"
+    KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"
+    KEYCLOAK_REALM: "{{ KEYCLOAK_REALM }}"
+    KEYCLOAK_USERNAME: "{{ item.value.username }}"
+    KEYCLOAK_PASSWORD: "{{ item.value.password }}"
+    KEYCLOAK_EMAIL: "{{ item.value.email | default('') }}"
+    KEYCLOAK_FIRSTNAME: "{{ item.value.firstname | default('') }}"
+    KEYCLOAK_LASTNAME: "{{ item.value.lastname | default('') }}"
+    KEYCLOAK_USER_ENABLED: "true"
+  loop: >-
+    {{
+      lookup('users')
+      | non_reserved_users
+      | dict2items
+      | selectattr('value.password', 'defined')
+      | selectattr('value.password')
+      | list
+    }}
+  loop_control:
+    label: "{{ item.value.username }}"
+  register: kc_realm_user_sync
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

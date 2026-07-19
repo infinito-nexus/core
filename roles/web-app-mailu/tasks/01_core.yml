@@ -1,34 +1,47 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Disable SMTP to avoid port conflicts"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-mail-smtp/tasks/disable.yml' ] | path_join }}"
+- name: "🔴 Disable SMTP to avoid port conflicts"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
 
-- name: Ensure Mailu unbound overrides directory exists
+- name: ✅ Ensure Nginx overrides directory exists (host)
   file:
-    path: "{{ MAILU_UNBOUND_CONF_FILE | dirname }}"
+    path: "{{ MAILU_NGINX_HOST_DIR }}"
     state: directory
     mode: "0755"
 
-- name: Render Mailu unbound config override
-  template:
-    src: unbound.conf.j2
-    dest: "{{ MAILU_UNBOUND_CONF_FILE }}"
-    mode: "0644"
+- name: ✅ Ensure certs bind-source directory exists (host)
+  file:
+    path: "{{ MAILU_CERTS_HOST_DIR }}"
+    state: directory
+    mode: "0755"
 
-- name: Ensure Rspamd overrides directory exists (host)
+- name: ✅ Ensure a self-signed placeholder cert exists before stack-up (host)
+  ansible.builtin.command:
+    cmd: >-
+      openssl req -x509 -newkey rsa:2048 -nodes -days 365
+      -keyout {{ [MAILU_CERTS_HOST_DIR, 'key.pem'] | path_join }}
+      -out {{ [MAILU_CERTS_HOST_DIR, 'cert.pem'] | path_join }}
+      -subj "/CN={{ MAILU_HOSTNAME }}"
+    creates: "{{ [MAILU_CERTS_HOST_DIR, 'cert.pem'] | path_join }}"
+
+- name: ✅ Ensure Rspamd overrides directory exists (host)
   file:
     path: "{{ MAILU_RSPAMD_HOST_DIR }}"
     state: directory
     mode: "0755"
 
-- name: Render ratelimit.conf
-  template:
+- name: 📄 Render ratelimit.conf
+  template: # nocheck: stack-host-template (mailu compose dir, not project nginx tree)
     src: ratelimit.conf.j2
     dest: "{{ MAILU_RSPAMD_HOST_FILE }}"
     mode: "0644"
 
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🔍 Resolve central mariadb/redis VIPs for admin extra_hosts (swarm)"
+  include_tasks: 00_swarm_resolve_peer_vips.yml
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
@@ -37,57 +50,6 @@
     webserver_extra_configuration: "client_max_body_size 31M;"
     domain: "{{ MAILU_HOSTNAME }}"
 
-- name: "Flush Docker Compose handlers"
-  meta: flush_handlers
-
-- name: Wait for Mailu MariaDB
-  include_tasks: 02_wait_for_mariadb.yml
-
-- name: Wait for Mailu Redis
-  include_tasks: 03_wait_for_redis.yml
-
-- name: "Create Mailu accounts"
-  include_tasks: 04_manage_user.yml
-  vars:
-    mailu_action: >-
-      {{
-        (
-          'administrator' in (user_item.value.get('roles', []))
-        )
-        | ternary('admin','user')
-      }}
-    mailu_user_key: "{{ user_item.key }}"
-    mailu_user_name: "{{ user_item.value.username }}"
-    mailu_user_password: "{{ user_item.value.password }}"
-    mailu_token_ip: "{{ user_item.value.ip | default(networks.internet.ip4) }}"
-    mailu_token_name: "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
-    mailu_user_roles: "{{ user_item.value.roles | default([]) }}"
-    mailu_user_accounts: "{{ user_item.value.accounts | default([]) }}"
-  loop: "{{ lookup('users') | dict2items }}"
-  loop_control:
-    loop_var: user_item
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "Create Mailu forward aliases"
-  include_tasks: 04b_manage_alias.yml
-  vars:
-    mailu_alias_localpart: "{{ user_item.value.username }}"
-    mailu_alias_destination: "{{ lookup('users', user_item.value.forward).email }}"
-  loop: "{{ lookup('users') | dict2items }}"
-  loop_control:
-    loop_var: user_item
-  when: (user_item.value.forward | default('')) | length > 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "Include Cert deploy service for '{{ role_name }}'"
-  include_role:
-    name: sys-ctl-mtn-cert-deploy
-
-- name: Wait for Mailu antispam
-  include_tasks: 07_wait_for_antispam.yml
-
-- name: Generate DKIM public key
-  include_tasks: 05_generate-and-read-dkim.yml
-
-- name: Set Mailu DNS records
-  include_tasks: 06_dns-records.yml
+- name: "👔 Mailu manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

@@ -1,3 +1,90 @@
+# nocheck: backup-service-flag proxy state is deploy-rendered (binds); the unmounted named volumes hold nothing and the consumer is permanently off
 ---
-www: /var/www/
-nginx: /etc/nginx/
+www:
+  type: volume
+  path: /var/www/
+
+nginx:
+  type: volume
+  path: /etc/nginx/
+
+# nocheck: meta-volume-file-bind-should-be-config  nginx.conf is rewritten post-deploy; bind reflects the live file (openresty is manager-pinned)
+nginx_conf:
+  type: bind
+  source: "{{ lookup('nginx', 'files.configuration') }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: /usr/local/openresty/nginx/conf/nginx.conf
+
+nginx_confd_alias:
+  type: bind
+  source: "{{ lookup('nginx', 'directories.configuration.base') }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: /usr/local/openresty/nginx/conf/conf.d
+
+nginx_conf_host_self:
+  type: bind
+  source: "{{ lookup('nginx', 'files.configuration') }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: "{{ lookup('nginx', 'files.configuration') }}"
+
+nginx_base_host_self:
+  type: bind
+  source: "{{ lookup('nginx', 'directories.configuration.base') }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: "{{ lookup('nginx', 'directories.configuration.base') }}"
+
+nginx_data_www:
+  type: bind
+  source: "{{ lookup('nginx', 'directories.data.www') }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: "{{ lookup('nginx', 'directories.data.www') }}"
+
+nginx_data_well_known:
+  type: bind
+  source: "{{ lookup('nginx', 'directories.data.well_known') }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: "{{ lookup('nginx', 'directories.data.well_known') }}"
+
+letsencrypt_webroot:
+  type: bind
+  source: "{{ LETSENCRYPT_WEBROOT_PATH }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: "{{ LETSENCRYPT_WEBROOT_PATH }}"
+
+letsencrypt_base:
+  type: bind
+  source: "{{ LETSENCRYPT_BASE_PATH }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: "{{ LETSENCRYPT_BASE_PATH }}"
+
+tls_selfsigned_base:
+  type: bind
+  source: "{{ TLS_SELFSIGNED_BASE_PATH }}"
+  read_only: true
+  mounts:
+    - service: openresty
+      target: "{{ TLS_SELFSIGNED_BASE_PATH }}"
+
+docker_sock:
+  type: bind
+  source: /var/run/docker.sock
+  read_only: true
+  mounts:
+    - service: openresty
+      target: /var/run/docker.sock

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs CA trust injection assets for compose (wrapper + inject script) and validates CA cert presence.
+  description: Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Global CSS injection for Nginx-based apps using dynamic colorschemes.
+  description: Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

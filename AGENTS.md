@@ -41,6 +41,12 @@ Agents whose runtime does not consult `.claude/settings.json` MUST still enforce
 
 Changes to the policy MUST edit [`.claude/settings.json`](.claude/settings.json). Per-entry rationale: [settings.md](docs/contributing/tools/agents/claude/settings.md); sandbox layer: [sandbox.md](docs/contributing/tools/agents/claude/sandbox.md).
 
+## Shortcuts ⌨️
+
+Operator messages MAY use the shortcuts defined in [alias.md](docs/contributing/tools/agents/alias.md). Agents MUST read that table and MUST expand any matching shortcut before acting.
+
+Whenever an operator types out something an existing alias (listed by `make alias`) covers, the agent MUST append a hint right after that block so the operator learns the shorter form: ``Speed up by using prompt alias `<alias>` instead of `<what the operator wrote>`.`` for a prompt or request an agent shortcut covers, and ``Speed up by using cli alias `<alias>` instead of `<what the operator wrote>`.`` for a shell command a terminal alias covers.
+
 ## Role-Specific Instructions 📂
 
 - Before modifying any file under `roles/<role>/`, check for `roles/<role>/AGENTS.md`. If present, read and follow it (including any file-scoped subsections) before any change.

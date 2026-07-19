@@ -1,0 +1,46 @@
+---
+# POSIX ACLs granting the backup user rwx (group/other none) with inheritance.
+# Included only for non-NFS backends: NFS-backed backup roots reject setfacl with
+# "Operation not supported", and the chown backup:backup + 0700 in the caller
+# already enforce the same backup-only posture there.
+- name: 🔐 Grant ACL rwx on backups root to backup user
+  ansible.posix.acl:
+    path: "{{ DIR_BACKUPS }}"
+    entity: backup
+    etype: user
+    permissions: rwx
+    state: present
+
+- name: 🔧 Set default ACL (inherit) for backup user under backups root
+  ansible.posix.acl:
+    path: "{{ DIR_BACKUPS }}"
+    entity: backup
+    etype: user
+    permissions: rwx
+    default: true
+    state: present
+
+- name: 🔐 Default ACL for backup user (inherit)
+  ansible.posix.acl:
+    path: "{{ DIR_BACKUPS }}"
+    etype: user
+    entity: backup
+    permissions: rwx
+    default: true
+    state: present
+
+- name: 🔐 Default ACL for group -> none
+  ansible.posix.acl:
+    path: "{{ DIR_BACKUPS }}"
+    etype: group
+    permissions: "---"
+    default: true
+    state: present
+
+- name: 🔐 Default ACL for other -> none
+  ansible.posix.acl:
+    path: "{{ DIR_BACKUPS }}"
+    etype: other
+    permissions: "---"
+    default: true
+    state: present

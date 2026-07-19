@@ -35,7 +35,7 @@
 ## Debugging
 
 - When a development run fails, you MUST switch to [Debugging](debug/README.md) and follow the local-deploy or GitHub-log path that matches the failure source.
-- For the shared local retry loop during debugging or development, you MUST follow [Role Loop](iteration/role.md).
+- For the shared local retry loop during debugging or development, you MUST follow [Compose Loop](iteration/compose.md).
 - Keep long-running runs alive and wait for them to finish unless the user explicitly asks you to steer away from them.
 
 ## Review Focus

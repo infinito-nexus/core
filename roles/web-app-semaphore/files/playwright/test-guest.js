@@ -16,7 +16,6 @@ exports.register = function (shared) {
     const directives = assertCspResponseHeader(response, "semaphore login");
     await assertCspMetaParity(page, directives, "semaphore login");
 
-    // Empty-credentials submit must be rejected (stay on the login page).
     await page.locator("#auth-username").first().fill("");
     await page.locator("#auth-password").first().fill("");
     await page.locator('[data-testid="auth-signin"]').first().click({ timeout: resolveTimeout(30_000) }).catch(() => {});

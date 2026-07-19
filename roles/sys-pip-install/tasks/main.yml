@@ -4,13 +4,13 @@
 - include_tasks: 01_core.yml
   when: run_once_sys_pip_install is not defined
 
-- name: Resolve active Python executable for sys-pip-install
+- name: 🔍 Resolve active Python executable for sys-pip-install
   ansible.builtin.set_fact:
     sys_pip_install_python_executable: "{{ ansible_python_interpreter }}"
   changed_when: false
 
 - block:
-    - name: Probe whether pip for ansible_python_interpreter accepts --break-system-packages
+    - name: 🔍 Probe pip for ansible_python_interpreter accepts --break-system-packages
       ansible.builtin.command:
         argv:
           - "{{ sys_pip_install_python_executable }}"
@@ -24,14 +24,14 @@
       failed_when: false
       become: "{{ true if global_install | bool else false }}"
 
-    - name: Set fact for --break-system-packages support
+    - name: 🔧 Set fact for --break-system-packages support
       ansible.builtin.set_fact:
         sys_pip_install_supports_break_system_packages: "{{ (sys_pip_install_break_system_packages_probe.rc | int) == 0 }}"
       changed_when: false
 
   when: global_install | bool
 
-- name: Check whether selected Python interpreter has 'packaging'
+- name: 🔎 Check whether selected Python interpreter has 'packaging'
   ansible.builtin.command:
     argv:
       - "{{ sys_pip_install_python_executable }}"
@@ -42,7 +42,7 @@
   changed_when: false
   failed_when: false
 
-- name: Bootstrap 'packaging' for selected Python interpreter
+- name: 🥾 Bootstrap 'packaging' for selected Python interpreter
   ansible.builtin.command:
     argv: >-
       {{
@@ -66,7 +66,7 @@
   become: "{{ true if global_install | bool else false }}"
   when: sys_pip_install_python_packaging_check.rc != 0
 
-- name: Install or upgrade {{ package_name }} system-wide via pip
+- name: 📦 Install or upgrade {{ package_name }} system-wide via pip
   ansible.builtin.pip:
     name: "{{ package_name }}"
     state: "{{ package_state }}"

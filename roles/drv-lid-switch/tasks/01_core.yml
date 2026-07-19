@@ -1,19 +1,19 @@
 ---
-- name: Install setup-hibernate via pip (system-wide)
+- name: 📦 Install setup-hibernate via pip (system-wide)
   include_role:
     name: sys-pip-install
   vars:
     package_name: setup-hibernate
     global_install: true
 
-- name: Setup hibernate
+- name: 🔧 Setup hibernate
   ansible.builtin.command:
     argv:
       - "{{ lookup('command_path', 'setup-hibernate') }}"
       - --non-interactive
   become: true
 
-- name: Configure systemd lid switch behavior to hibernate on lid close (battery), lock on AC and docked
+- name: "🔧 Lid switch: hibernate on battery, lock on AC/docked"
   become: true
   lineinfile:
     path: /etc/systemd/logind.conf
@@ -22,7 +22,7 @@
     backup: true
   notify: Restart systemd-logind
 
-- name: Configure systemd to lock session when lid is closed on external power
+- name: 🔧 Configure systemd to lock session when lid is closed on external power
   lineinfile:
     path: /etc/systemd/logind.conf
     regexp: "^#?HandleLidSwitchExternalPower="
@@ -31,7 +31,7 @@
   notify: Restart systemd-logind
   become: true
 
-- name: Configure systemd to lock session when lid is closed while docked
+- name: 🔧 Configure systemd to lock session when lid is closed while docked
   lineinfile:
     path: /etc/systemd/logind.conf
     regexp: "^#?HandleLidSwitchDocked="

@@ -21,40 +21,40 @@
 # `preserve.group.inheritance=false` suffices per mapper because the
 # anchor is per-app — no collisions between apps exist within a mapper.
 #
-# The shared default `ldap-roles` mapper (created by update/05_ldap.yml)
+# The shared default `ldap-roles` mapper (created by update/05_ldap/main.yml)
 # is removed here so it does not shadow the per-app mappers, and any
 # Keycloak groups it had imported flat under /roles are pruned. Each
 # step delegates to a dedicated `.sh` under
 # `files/scripts/per_app_mapper/` so the shell logic lives outside the
 # YAML structure and stays easy to lint and reuse.
 
-- name: "per-app mappers: flush pending handlers before mutating the shared mapper"
+- name: "🚿 per-app mappers: flush pending handlers before mutating the shared mapper"
   ansible.builtin.meta: flush_handlers
 
-- name: "per-app mappers: show deployed apps with rbac (all / current run)"
+- name: "👁️ per-app mappers: show deployed apps with rbac (all / current run)"
   ansible.builtin.debug:
     msg:
       all_deployed: "{{ KEYCLOAK_RBAC_ALL_APP_IDS }}"
       current_run: "{{ KEYCLOAK_RBAC_RUN_APP_IDS }}"
 
-- name: "per-app mappers: delete shared 'ldap-roles' mapper if present"
+- name: "🗑️ per-app mappers: delete shared 'ldap-roles' mapper if present"
   ansible.builtin.script:
     cmd: "files/scripts/per_app_mapper/delete_default_ldap_roles_mapper.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
   changed_when: true
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "per-app mappers: purge stale flat / orphan Keycloak groups under /<KEYCLOAK_RBAC_GROUP_NAME>"
+- name: "🧹 Purge stale flat / orphan groups under /<KEYCLOAK_RBAC_GROUP_NAME>"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/purge_root_orphans.sh"
+    cmd: "files/scripts/per_app_mapper/purge/root_orphans.sh"
     executable: /bin/bash
   environment:
-    KC_CONTAINER: "{{ KEYCLOAK_CONTAINER }}"
+    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
     DEPLOYED_APP_IDS: "{{ KEYCLOAK_RBAC_ALL_APP_IDS | join(' ') }}"
@@ -62,7 +62,7 @@
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "per-app mappers: ensure Keycloak group and mapper per rbac app in current run"
+- name: "✅ per-app mappers: ensure Keycloak group and mapper per rbac app in current run"
   include_tasks: ldap/per_app_mapper_one.yml
   vars:
     kc_app_id: "{{ rbac_app }}"

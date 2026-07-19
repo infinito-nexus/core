@@ -1,0 +1,201 @@
+---
+# Lab-only node provisioning for the simulated cluster; never a production
+# role. Runs over ansible_connection: docker right after `compose up` (python +
+# ansible + the CLI are baked into the node image via the distro's infinito
+# image, so no .deb bootstrap is needed): waits for systemd, captures node IPs
+# (also into $GITHUB_ENV for later CI steps), wires lab DNS (sys-hostname skips
+# /etc/hosts on DOCKER_IN_CONTAINER hosts; the dnsmasq wildcard points the app
+# domain at the manager's ingress), then unpacks the current repo onto every
+# node. Host-side concerns (image build, compose up) live in
+# scripts/tests/deploy/swarm/routine/01_bootstrap.sh.
+- name: provision the simulated cluster nodes
+  hosts: all
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../../group_vars/all/08_networks.yml" # nocheck: path-absolute - lab-only playbook, playbook_dir is stable and path_absolute plugin loading is fragile in a standalone -c docker run
+  vars:
+    lab_repo_root: "{{ playbook_dir }}/../.." # nocheck: path-absolute - see above
+    lab_mgr: "{{ lookup('env', 'MGR') }}"
+    lab_wrk1: "{{ lookup('env', 'WRK1') }}"
+    lab_wrk2: "{{ lookup('env', 'WRK2') }}"
+    lab_nfs: "{{ lookup('env', 'NFS_SERVER') }}"
+    lab_backup: "{{ lookup('env', 'BACKUP_NODE') }}"
+    lab_net: "{{ lookup('env', 'SWARM_LAB_NETWORK') }}"
+    lab_domain: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
+    lab_export_base: "{{ lookup('env', 'NFS_EXPORT_BASE') }}"
+    lab_node_src: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}"
+    lab_runner_temp: "{{ lookup('env', 'RUNNER_TEMP') }}"
+    lab_systemd_timeout: "{{ lookup('env', 'SWARM_PILOT_SYSTEMD_TIMEOUT') | default('180', true) }}"
+    lab_is_mgr: "{{ inventory_hostname == lab_mgr }}"
+    lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
+    lab_dns_node: "{{ lab_is_mgr or lab_is_worker }}"
+    lab_domain_target: "{{ '127.0.0.1' if lab_is_mgr else lab_mgr_ip }}"
+  tasks:
+    - block:
+        - name: wait for systemd ready (status from stdout; rc is nonzero when degraded)
+          command: systemctl is-system-running
+          timeout: 15
+          register: lab_systemd
+          until: lab_systemd.stdout is search('running|degraded|starting|maintenance')
+          failed_when: lab_systemd.stdout is not search('running|degraded|starting|maintenance')
+          retries: "{{ lab_systemd_timeout }}"
+          delay: 1
+          changed_when: false
+      rescue:
+        - name: dump docker logs
+          command:
+            argv: [docker, logs, "{{ inventory_hostname }}"]
+          timeout: 30
+          delegate_to: localhost
+          ignore_errors: true
+          changed_when: false
+        - name: dump journal + pending jobs
+          command: "{{ item }}"
+          loop:
+            - journalctl --no-pager -n 50
+            - systemctl list-jobs --no-pager
+          timeout: 30
+          ignore_errors: true
+          changed_when: false
+        - name: dump container state
+          command:
+            argv: [docker, inspect, --format, "{{ '{{json .State}}' }}", "{{ inventory_hostname }}"]
+          timeout: 30
+          delegate_to: localhost
+          ignore_errors: true
+          changed_when: false
+        - name: fail the bring-up
+          fail:
+            msg: "{{ inventory_hostname }} systemd did not become responsive within {{ lab_systemd_timeout }}s"
+
+    - name: permit user logins (degraded lab boot never clears /run/nologin)
+      systemd:
+        name: systemd-user-sessions
+        state: started
+      timeout: 30
+
+    - name: wipe stale NFS export state (as root in-node; the act runner cannot)
+      command: find {{ lab_export_base }} -mindepth 1 -delete
+      timeout: 120
+      when: inventory_hostname == lab_nfs
+      changed_when: true
+
+    - name: capture the node IPs
+      command:
+        argv:
+          - docker
+          - inspect
+          - "{{ item }}"
+          - --format
+          - "{{ '{{(index .NetworkSettings.Networks \"' ~ lab_net ~ '\").IPAddress}}' }}"
+      loop:
+        - "{{ lab_mgr }}"
+        - "{{ lab_nfs }}"
+        - "{{ lab_backup }}"
+      timeout: 30
+      delegate_to: localhost
+      run_once: true
+      register: lab_ips
+      changed_when: false
+
+    - name: expose the IPs to every host
+      set_fact:
+        lab_mgr_ip: "{{ lab_ips.results[0].stdout }}"
+        lab_nfs_ip: "{{ lab_ips.results[1].stdout }}"
+        lab_backup_ip: "{{ lab_ips.results[2].stdout }}"
+      run_once: true
+
+    - name: publish the IPs to $GITHUB_ENV (read by later CI steps; not visible in this one)
+      lineinfile:
+        path: "{{ lookup('env', 'GITHUB_ENV') }}"
+        line: "{{ item }}"
+        create: true
+        mode: "0644"
+      loop:
+        - "MGR_IP={{ lab_mgr_ip }}"
+        - "NFS_IP={{ lab_nfs_ip }}"
+        - "BACKUP_IP={{ lab_backup_ip }}"
+      timeout: 30
+      delegate_to: localhost
+      run_once: true
+
+    - name: render the app-domain hosts entries
+      command: python3 -m utils.tests.swarm.write.hosts_entries
+      args:
+        chdir: "{{ lab_repo_root }}"
+      environment:
+        HOSTS_ENTRY_IP: "{{ lab_domain_target }}"
+      timeout: 60
+      register: lab_hosts_entries
+      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
+      delegate_to: localhost
+      changed_when: false
+
+    - name: seed /etc/hosts with the app domains
+      blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} INFINITO LAB DOMAINS"
+        block: "{{ lab_hosts_entries.stdout }}"
+        unsafe_writes: true
+      timeout: 30
+      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
+
+    - name: write the dnsmasq lab config
+      copy:
+        dest: /etc/dnsmasq.d/infinito.conf
+        content: |
+          bind-dynamic
+          no-resolv
+          server=/{{ lab_mgr }}/{{ lab_wrk1 }}/{{ lab_wrk2 }}/{{ lab_nfs }}/{{ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER }}
+          {% for resolver in NETWORK_PUBLIC_DNS_RESOLVERS %}
+          server={{ resolver }}
+          {% endfor %}
+          address=/{{ lab_domain }}/{{ lab_domain_target }}
+      timeout: 30
+      when: lab_dns_node
+
+    - name: enable and restart dnsmasq
+      systemd:
+        name: dnsmasq
+        enabled: true
+        state: restarted
+      timeout: 60
+      when: lab_dns_node
+
+    - name: point resolv.conf at dnsmasq
+      copy:
+        dest: /etc/resolv.conf
+        content: "nameserver 127.0.0.1\n"
+        unsafe_writes: true
+      timeout: 30
+      when: lab_dns_node
+
+    - name: verify the app domain resolves to its lab target
+      command: getent ahosts {{ ('test.' ~ lab_domain) if lab_is_worker else lab_domain }}
+      timeout: 10
+      register: lab_resolve
+      until: lab_resolve.stdout is search('^' ~ (lab_domain_target | regex_escape) ~ ' ', multiline=True)
+      retries: 30
+      delay: 1
+      changed_when: false
+      when: lab_dns_node
+
+    - name: pack the repo once on the controller
+      command: tar -C {{ lab_repo_root }} -cf {{ lab_runner_temp }}/infinito-src.tar .
+      timeout: 300
+      delegate_to: localhost
+      run_once: true
+      changed_when: true
+
+    - name: create the node source dir
+      file:
+        path: "{{ lab_node_src }}"
+        state: directory
+        mode: "0755"
+      timeout: 30
+
+    - name: unpack the repo onto the node
+      unarchive:
+        src: "{{ lab_runner_temp }}/infinito-src.tar"
+        dest: "{{ lab_node_src }}"
+      timeout: 300

@@ -1,4 +1,4 @@
-name: "🐳 Build: CI Images (all distros)"
+name: "🖼️ Build: CI Images (all distros)"
 
 on:
   workflow_call:
@@ -54,7 +54,7 @@ jobs:
       - name: 📦 Install jq
         run: ./scripts/install/apt.sh jq
 
-      - name: Compute matrix JSON
+      - name: 🧮 Compute matrix JSON
         id: out
         run: scripts/github/runner/images_build_outputs.sh "${{ inputs.distros }}" "${{ inputs.image_tag }}"
 
@@ -69,13 +69,13 @@ jobs:
         distro: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
     steps:
-      - name: Checkout trusted workflow repo (helpers)
+      - name: ⬇️ Checkout trusted workflow repo (helpers)
         uses: actions/checkout@v7.0.0
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Checkout source to build
+      - name: ⬇️ Checkout source to build
         uses: actions/checkout@v7.0.0
         with:
           repository: ${{ inputs.source_repository || github.repository }}
@@ -84,30 +84,30 @@ jobs:
           persist-credentials: false
           allow-unsafe-pr-checkout: ${{ inputs.allow_unsafe_checkout }}
 
-      - name: Disk pressure (start)
+      - name: 💽 Disk pressure (start)
         shell: bash
         run: bash scripts/github/runner/disk_pressure_report.sh START
 
-      - name: Pre-pull buildkit image (retry 7x, 20s)
+      - name: ⬇️ Pre-pull buildkit image (retry 7x, 20s)
         shell: bash
         env:
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
         run: bash scripts/github/runner/pull_with_retry.sh moby/buildkit:buildx-stable-1
 
-      - name: Set up Docker Buildx
+      - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
         with:
           driver-opts: image=moby/buildkit:buildx-stable-1
 
-      - name: Login to GHCR
+      - name: 🔑 Login to GHCR
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Disk pressure (pre-build)
+      - name: 💽 Disk pressure (pre-build)
         shell: bash
         run: bash scripts/github/runner/disk_pressure_report.sh PRE-BUILD
 
@@ -118,7 +118,7 @@ jobs:
           set -euo pipefail
           echo "owner=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_OUTPUT"
 
-      - name: Build & push (retry 7x, 20s)
+      - name: 🔨 Build & push (retry 7x, 20s)
         if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
         shell: bash
         env:
@@ -132,12 +132,12 @@ jobs:
           RETRY_DELAY_SECONDS: "20"
         run: ./scripts/image/push.sh
 
-      - name: Disk pressure (post-build)
+      - name: 💽 Disk pressure (post-build)
         if: always()
         shell: bash
         run: bash scripts/github/runner/disk_pressure_report.sh POST-BUILD
 
-      - name: Cleanup (always)
+      - name: 🧹 Cleanup (always)
         if: always()
         shell: bash
         run: bash scripts/github/runner/cleanup_docker.sh

@@ -10,19 +10,17 @@ class TestCspHashesFinalTokenGuard(unittest.TestCase):
         self.apps = {
             "app1": {
                 "services": {"matomo": {"enabled": True}},
-                "server": {
-                    "csp": {
-                        "whitelist": {},
-                        "flags": {
-                            "script-src": {"unsafe-eval": True, "unsafe-inline": False},
-                            # style-src flags may be removed in tests to rely on defaults
-                            "style-src": {"unsafe-inline": True},
-                        },
-                        "hashes": {
-                            "script-src": ["console.log('hello');"],
-                            "style-src": ["body { background: #fff; }"],
-                        },
-                    }
+                "csp": {
+                    "whitelist": {},
+                    "flags": {
+                        "script-src": {"unsafe-eval": True, "unsafe-inline": False},
+                        # style-src flags may be removed in tests to rely on defaults
+                        "style-src": {"unsafe-inline": True},
+                    },
+                    "hashes": {
+                        "script-src": ["console.log('hello');"],
+                        "style-src": ["body { background: #fff; }"],
+                    },
                 },
             }
         }
@@ -50,10 +48,10 @@ class TestCspHashesFinalTokenGuard(unittest.TestCase):
         apps = copy.deepcopy(self.apps)
 
         # Remove explicit style-src flags entirely to rely solely on defaults
-        apps["app1"]["server"]["csp"]["flags"].pop("style-src", None)
+        apps["app1"]["csp"]["flags"].pop("style-src", None)
 
         # Provide a style-src hash
-        apps["app1"]["server"]["csp"]["hashes"]["style-src"] = "body { color: blue; }"
+        apps["app1"]["csp"]["hashes"]["style-src"] = "body { color: blue; }"
         style_hash = self.filter.get_csp_hash("body { color: blue; }")
 
         header = self.filter.build_csp_header(apps, "app1", self.domains, "https")
@@ -73,15 +71,13 @@ class TestCspHashesFinalTokenGuard(unittest.TestCase):
         apps = copy.deepcopy(self.apps)
 
         # Explicitly disable 'unsafe-inline' on base 'style-src' so hashes can be included
-        apps["app1"].setdefault("server", {}).setdefault("csp", {}).setdefault(
-            "flags", {}
-        )
-        apps["app1"]["server"]["csp"]["flags"].setdefault("style-src", {})
-        apps["app1"]["server"]["csp"]["flags"]["style-src"]["unsafe-inline"] = False
+        apps["app1"].setdefault("csp", {}).setdefault("flags", {})
+        apps["app1"]["csp"]["flags"].setdefault("style-src", {})
+        apps["app1"]["csp"]["flags"]["style-src"]["unsafe-inline"] = False
 
         # Provide a style-src hash
         content = "body { background: #abc; }"
-        apps["app1"]["server"]["csp"].setdefault("hashes", {})["style-src"] = content
+        apps["app1"]["csp"].setdefault("hashes", {})["style-src"] = content
         expected_hash = self.filter.get_csp_hash(content)
 
         header = self.filter.build_csp_header(apps, "app1", self.domains, "https")

@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
@@ -9,10 +9,11 @@
     compose_repository_pull: true
     compose_repository_url: "{{ BBB_REPOSITORY }}"
     compose_repository_ref: "{{ BBB_REF }}"
+    compose_repository_recursive: false
     webserver_extra_configuration: >-
       {{ lookup(
            'ansible.builtin.template',
-           playbook_dir ~ '/roles/sys-svc-proxy/templates/location/html.conf.j2',
+           lookup('path_absolute', 'roles/sys-svc-proxy/templates/location/html.conf.j2'),
            template_vars={
              'location': '^~ /html5client',
              'sso_proxy_enabled': false,
@@ -20,8 +21,8 @@
            }
          ) | trim }}
 
-- name: "Include Seed routines for '{{ application_id }}' database backup"
-  include_tasks: "{{ [ playbook_dir, 'roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml' ] | path_join }}"
+- name: "📂 Include Seed routines for '{{ application_id }}' database backup"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/04_seed-database-to-backup.yml') }}"
   vars:
     database_consumer_id: "{{ application_id }}"
     database_type: "postgres"
@@ -31,41 +32,19 @@
     database_username: "postgres"
     database_password: "{{ lookup('config', application_id, 'credentials.postgresql_secret') }}"
     database_name: "" # Multiple databases
-  when: "'svc-bkp-container-2-local' in group_names"
+  when:
+    - "'svc-bkp-volume-2-local' in group_names"
+    - IS_STACK_HOST | bool
 
-- name: configure websocket_upgrade.conf
+- name: 🔧 configure websocket_upgrade.conf
   copy:
     src: "websocket_upgrade.conf"
     dest: "{{ [ lookup('nginx','directories.configuration.maps'), 'websocket_upgrade.conf' ] | path_join }}"
+  when: IS_STACK_HOST | bool
   notify: restart openresty
 
-- name: "Set BBB Facts"
-  set_fact:
-    BBB_ENV_FILE_LINK: "{{ [ compose_repository_path, '.env' ] | path_join }}"
-    BBB_ENV_FILE_ORIGINE: "{{ lookup('container', application_id, 'files.env') }}"
-    BBB_COMPOSE_FILE_ORIGINE: "{{ [ compose_repository_path, 'docker-compose.yml' ] | path_join }}"
-    BBB_COMPOSE_FILE_FINAL: "{{ [ lookup('container', application_id, 'directories.instance'), 'compose.yml' ] | path_join }}"
+- name: "👔 BBB manager-side operations (compose render + container exec)"
+  include_tasks: 01a_manager_ops.yml
+  when: IS_STACK_HOST | bool
 
-- name: Write compose.override.yml for BigBlueButton
-  template:
-    src: compose.override.yml.j2
-    dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'compose.override.yml' ] | path_join }}"
-  notify: compose up
-
-- name: Create symbolic link from .env file to target location
-  file:
-    src: "{{ BBB_ENV_FILE_ORIGINE }}"
-    dest: "{{ BBB_ENV_FILE_LINK }}"
-    state: link
-
-- name: "Setup compose.yml file"
-  include_tasks: "02_compose.yml"
-
-- name: flush docker service
-  meta: flush_handlers
-
-- name: "Ensure PostgreSQL password matches POSTGRESQL_SECRET"
-  include_tasks: "02a_postgres_password_sync.yml"
-
-- name: "Setup administrator"
-  include_tasks: "03_administrator.yml"
+- include_tasks: utils/once/flag.yml

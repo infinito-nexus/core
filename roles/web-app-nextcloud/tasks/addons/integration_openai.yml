@@ -5,20 +5,20 @@
 # (web-app-flowise credentials.llm_master_key). That partner-side credential
 # must be fetched and written into integration_openai api_key here; the loader
 # cannot derive it.
-- name: Resolve Flowise/LiteLLM backend selection for integration_openai
+- name: 🔍 Resolve Flowise/LiteLLM backend selection for integration_openai
   set_fact:
     nextcloud_openai_use_flowise: "{{ ('web-app-flowise' in group_names) and ('web-app-openwebui' not in group_names) }}"
   changed_when: false
 
-- name: Resolve Flowise LiteLLM master key for integration_openai api_key
+- name: 🔍 Resolve Flowise LiteLLM master key for integration_openai api_key
   set_fact:
     nextcloud_openai_flowise_api_key: "{{ lookup('config', 'web-app-flowise', 'credentials.llm_master_key', '') }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: nextcloud_openai_use_flowise | bool
 
-- name: Provision integration_openai api_key for the Flowise/LiteLLM backend
-  command: >
+- name: 🔧 Provision integration_openai api_key for the Flowise/LiteLLM backend
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openai api_key
     --value '{{ nextcloud_openai_flowise_api_key }}'
   register: nextcloud_openai_set_api_key

@@ -1,0 +1,70 @@
+---
+- name: "🔎 CA | check if key exists"
+  ansible.builtin.stat:
+    path: "{{ CA_ROOT.key_host }}"
+  register: _ca_key_stat
+  changed_when: false
+
+- name: "🔎 CA | check if cert exists"
+  ansible.builtin.stat:
+    path: "{{ CA_ROOT.cert_host }}"
+  register: _ca_cert_stat
+  changed_when: false
+
+- name: "🤔 CA | decide whether regeneration is needed"
+  ansible.builtin.set_fact:
+    _ca_regen_needed: >-
+      {{
+        (CA_ROOT.force_regen | bool) or
+        (not (_ca_key_stat.stat.exists | default(false))) or
+        (not (_ca_cert_stat.stat.exists | default(false)))
+      }}
+  changed_when: false
+
+- name: "🗑️ CA | remove outdated key/cert if regeneration requested/needed"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ CA_ROOT.key_host }}"
+    - "{{ CA_ROOT.cert_host }}"
+  when: _ca_regen_needed | bool
+
+- name: "📄 CA | render openssl config (v3_ca)"
+  ansible.builtin.template: # nocheck: stack-host-template (delegated to STACK_HOST + run_once by the parent include)
+    src: "openssl-root-ca.cnf.j2"
+    dest: "{{ CA_ROOT.openssl_conf_host }}"
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: "⚙️ CA | generate root CA key + cert (self-signed)"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -x509
+      - -new
+      - -nodes
+      - -days
+      - "{{ CA_ROOT.days | string }}"
+      - -newkey
+      - "rsa:{{ CA_ROOT.key_bits }}"
+      - -keyout
+      - "{{ CA_ROOT.key_host }}"
+      - -out
+      - "{{ CA_ROOT.cert_host }}"
+      - -config
+      - "{{ CA_ROOT.openssl_conf_host }}"
+      - -extensions
+      - v3_ca
+  args:
+    creates: "{{ CA_ROOT.cert_host }}"
+  when: _ca_regen_needed | bool
+
+- name: "🔐 CA | enforce permissions (private key)"
+  ansible.builtin.file:
+    path: "{{ CA_ROOT.key_host }}"
+    owner: root
+    group: root
+    mode: "0600"

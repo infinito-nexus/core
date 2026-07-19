@@ -1,6 +1,11 @@
 ---
 # nocheck: playwright-service-flag — self-provider; injection presence is asserted per consumer via roles_with_service('logout')
 logout:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
@@ -15,6 +20,10 @@ logout:
   ports:
     local:
       http: 8048
+    internal:
+      http: 8000
+  proxy:
+    service_key: logout
   lifecycle: beta
 # nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; matomo/css/javascript injection is asserted by the respective provider's spec
 matomo:

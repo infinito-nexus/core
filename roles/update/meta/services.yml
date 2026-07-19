@@ -1,3 +1,10 @@
 ---
 update:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
   lifecycle: beta

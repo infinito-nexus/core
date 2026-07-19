@@ -5,6 +5,9 @@ dashboard:
   enabled: false
 # nocheck: playwright-service-flag — self-provider
 mirror:
+  modes:
+    host:
+      enabled: true
   bond: 1
   enabled: true
   shared: true

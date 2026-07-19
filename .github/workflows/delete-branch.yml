@@ -23,10 +23,10 @@ jobs:
     if: ${{ github.event.ref_type == 'branch' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Cancel active workflow runs for deleted branch
+      - name: 🚫 Cancel active workflow runs for deleted branch
         shell: bash
         env:
           BRANCH: ${{ github.event.ref }}

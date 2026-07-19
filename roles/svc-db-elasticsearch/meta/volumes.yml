@@ -1,0 +1,7 @@
+---
+data:
+  type: volume
+  name: elasticsearch_data
+  mounts:
+    - service: elasticsearch
+      target: /usr/share/elasticsearch/data

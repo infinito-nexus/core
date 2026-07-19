@@ -1,11 +1,12 @@
 ---
-- name: "load docker and db for {{ application_id }}"
+# include-gated: when: DEPLOYMENT_MODE == "compose"
+- name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
   vars:
     compose_handlers_flush: false
 
-- name: include 02_create-and-seed-database.yml for multiple bridges
+- name: 📂 include 02_create-and-seed-database.yml for multiple bridges
   include_tasks: 02_create-and-seed-database.yml
   vars:
     database_password: "{{ item.database_password }}"
@@ -13,59 +14,82 @@
     database_name: "{{ item.database_name }}"
   loop: "{{ MATRIX_BRIDGES }}"
 
-- name: "cleanup project folder"
+- name: 🐳 shut down compose project
+  command:
+    cmd: "{{ BIN_COMPOSE }} down"
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🧹 cleanup project folder"
   file:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/"
     state: absent
 
-- name: "create bridge folders"
+- name: "📁 create bridge folders"
   file:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}"
     state: directory
     mode: "0755"
   loop: "{{ MATRIX_BRIDGES }}"
 
-- name: add multiple mautrix bridge configuration
-  template:
+- name: ➕ add multiple mautrix bridge configuration
+  stack_host_template:
     src: "flavor/compose/mautrix/{{ item.bridge_name }}.config.yml.j2"
     dest: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/config.yaml"
   loop: "{{ MATRIX_BRIDGES }}"
   notify: compose up
 
-- name: add element configuration
-  template:
+- name: ➕ add element configuration
+  stack_host_template:
     src: "flavor/compose/element.config.json.j2"
     dest: "{{ MATRIX_ELEMENT_CONFIG_PATH_HOST }}"
   notify: compose up
 
-- name: add synapse homeserver configuration
-  template:
-    src: "flavor/compose/synapse/homeserver.yaml.j2"
-    dest: "{{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}"
-  notify: compose up
+- name: "📄 Render Synapse config files (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "flavor/compose/synapse/homeserver.yaml.j2"
+        dest: "{{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}"
+        mode: "{{ MATRIX_SYNAPSE_BIND_MOUNT_MODE }}"
+      - src: "flavor/compose/synapse/log.config.j2"
+        dest: "{{ MATRIX_SYNAPSE_LOG_PATH_HOST }}"
+        mode: "{{ MATRIX_SYNAPSE_BIND_MOUNT_MODE }}"
 
-- name: add synapse log configuration
-  template:
-    src: "flavor/compose/synapse/log.config.j2"
-    dest: "{{ MATRIX_SYNAPSE_LOG_PATH_HOST }}"
-  notify: compose up
-
-- name: set correct folder permissions
+- name: 🔧 set correct folder permissions
   command:
     cmd: "container run --rm --mount type=volume,src={{ MATRIX_SYNAPSE_VOLUME }},dst=/data -e SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }} -e SYNAPSE_REPORT_STATS=no
-      --entrypoint /bin/sh matrixdotorg/synapse:latest -c 'chown -vR 991:991 /data'"
+      --entrypoint /bin/sh matrixdotorg/synapse:latest -c 'chown -vR {{ MATRIX_SYNAPSE_UID }}:{{ MATRIX_SYNAPSE_GID }} /data'"
 
-- name: Flush handlers
+- name: ➕ add compose.yml
+  stack_host_template:
+    src: "compose.yml.j2"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'),'compose.yml' ] | path_join }}"
+  notify: compose up
+
+- name: "🐳 compose-mode lifecycle (pull + up)"
+  include_tasks: 03_compose_pull_and_up.yml
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🚿 Flush handlers so the swarm stack deploys before the registration wait"
   meta: flush_handlers
 
-- name: wait for registration files
+- name: ⏳ wait for registration files
   wait_for:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
     state: present
-    timeout: 120
+    timeout: "{{ lookup('timeout', 120) | int }}"
   loop: "{{ MATRIX_BRIDGES }}"
 
-- name: "change file permissions"
+- name: "🔐 Make each bridge directory traversable for synapse"
+  file:
+    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ MATRIX_BRIDGES }}"
+
+- name: "🔐 change file permissions"
   file:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
     mode: "0755"
@@ -73,14 +97,25 @@
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
-- name: "Restart synapse so it loads the freshly generated bridge appservice registrations"
+- name: "🔄 Restart synapse to load bridge registrations (compose mode)"
   command:
     cmd: "{{ BIN_COMPOSE }} restart synapse"
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   changed_when: true
-  when: MATRIX_BRIDGES | length > 0
+  when:
+    - MATRIX_BRIDGES | length > 0
+    - DEPLOYMENT_MODE == 'compose'
 
-- name: wait for Synapse client/versions endpoint
+- name: "🔄 Restart synapse to load bridge registrations (swarm mode)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'synapse') }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when:
+    - MATRIX_BRIDGES | length > 0
+    - DEPLOYMENT_MODE == 'swarm'
+    - IS_STACK_HOST | bool
+
+- name: ⏳ wait for Synapse client/versions endpoint
   uri_retry:
     url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.synapse.ports.local.http') }}/_matrix/client/versions"
     method: GET
@@ -90,26 +125,37 @@
   delay: 2
   until: matrix_synapse_health.status == 200
 
-- name: create admin account
-  command:
-    cmd: "{{ BIN_COMPOSE }} exec -T synapse register_new_matrix_user -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }} -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
-      -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }} http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+- name: 📁 create admin account
+  shell: >-
+    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
+    register_new_matrix_user
+    -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
+    -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
+    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
   register: matrix_create_admin
   changed_when: matrix_create_admin.rc == 0
   failed_when: >
     matrix_create_admin.rc != 0 and
     'User ID already taken' not in (matrix_create_admin.stdout + matrix_create_admin.stderr)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: IS_STACK_HOST | bool
 
-- name: create chatgpt bot
-  command:
-    cmd: "{{ BIN_COMPOSE }} exec -T synapse register_new_matrix_user -u chatgptbot -p {{ lookup('config', application_id, 'credentials.chatgpt_bridge_user_password')
-      | quote }} -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }} http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+- name: 📁 create chatgpt bot
+  shell: >-
+    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
+    register_new_matrix_user
+    -u chatgptbot
+    -p {{ lookup('config', application_id, 'credentials.chatgpt_bridge_user_password') | quote }}
+    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
   register: matrix_create_chatgptbot
   changed_when: matrix_create_chatgptbot.rc == 0
   failed_when: >
     matrix_create_chatgptbot.rc != 0 and
     'User ID already taken' not in (matrix_create_chatgptbot.stdout + matrix_create_chatgptbot.stderr)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: IS_STACK_HOST | bool
+
+- name: "🔄 Flush all handlers after docker setup so they don't intervine with openresty"
+  meta: flush_handlers

@@ -16,8 +16,9 @@ import sys
 from pathlib import Path
 
 from utils.cache.yaml import dump_yaml, load_yaml_any
+from utils.paths import FILE_TOKENS
 
-DEFAULT_TOKENS_FILE = Path("/var/lib/infinito/secrets/tokens.yml")
+DEFAULT_TOKENS_FILE = FILE_TOKENS
 
 
 def _resolve_tokens_file() -> Path:

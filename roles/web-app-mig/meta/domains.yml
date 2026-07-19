@@ -1,0 +1,4 @@
+---
+canonical:
+  - mig.{{ DOMAIN_PRIMARY }}
+aliases: []

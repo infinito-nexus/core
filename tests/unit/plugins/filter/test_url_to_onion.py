@@ -1,6 +1,6 @@
 import unittest
 
-from plugins.filter.url_to_onion import to_onion_url
+from plugins.filter.url.to_onion import to_onion_url
 
 NODE = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
 PRIMARY = "infinito.example"

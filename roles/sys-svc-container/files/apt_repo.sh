@@ -33,13 +33,13 @@ download_file() {
   local dest="$2"
 
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "${url}" -o "${dest}"
-    return 0
+    curl --connect-timeout 5 --retry 3 --max-time 120 -fsSL "${url}" -o "${dest}"
+    return
   fi
 
   if command -v wget >/dev/null 2>&1; then
     wget -qO "${dest}" "${url}"
-    return 0
+    return
   fi
 
   if command -v python3 >/dev/null 2>&1; then
@@ -53,7 +53,7 @@ dest = pathlib.Path(sys.argv[2])
 with urllib.request.urlopen(url) as response:
     dest.write_bytes(response.read())
 PY
-    return 0
+    return
   fi
 
   echo "[ERROR] No downloader found (need curl, wget, or python3)." >&2
@@ -79,7 +79,10 @@ install_key() {
 
   tmp="$(mktemp)"
   trap 'rm -f "${tmp:-}"' EXIT
-  download_file "https://download.docker.com/linux/${distro_id}/gpg" "${tmp}"
+  if ! download_file "https://download.docker.com/linux/${distro_id}/gpg" "${tmp}" || [[ ! -s "${tmp}" ]]; then
+    echo "[ERROR] Failed to download the Docker GPG key from https://download.docker.com/linux/${distro_id}/gpg." >&2
+    return 1
+  fi
 
   if [[ ! -f "${KEY_PATH}" ]] || ! cmp -s "${tmp}" "${KEY_PATH}"; then
     run_privileged install -m 0644 "${tmp}" "${KEY_PATH}"
@@ -217,7 +220,6 @@ case "${ACTION}" in
     exit 2
     ;;
   *)
-    # Legacy mode: default action is sanitize-sources.
     sanitize_sources "${1}" "${2:-1}" "${3:-${KEY_PATH}}"
     ;;
 esac

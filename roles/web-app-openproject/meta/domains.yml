@@ -1,0 +1,4 @@
+---
+canonical:
+  - open.project.{{ DOMAIN_PRIMARY }}
+aliases: []

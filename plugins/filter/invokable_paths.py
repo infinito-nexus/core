@@ -5,10 +5,7 @@ import yaml
 from utils.cache import ROLES_DIR
 from utils.cache.yaml import load_yaml_any
 
-# Top-level keys in a role node that describe the role itself rather
-# than nested sub-roles. Used to skip metadata when recursing into a
-# role's sub-tree.
-_METADATA_KEYS = frozenset({"title", "description", "icon", "invokable"})
+_METADATA_KEYS = frozenset({"title", "description", "icon", "invokable", "modes"})
 
 
 def _default_roles_file() -> str:
@@ -41,7 +38,7 @@ def get_invokable_paths(
         raise TypeError("YAML root is not a dictionary")
 
     roles = data
-    if "roles" in roles and isinstance(roles["roles"], dict) and len(roles) == 1:
+    if "roles" in roles and isinstance(roles["roles"], dict):
         roles = roles["roles"]
 
     def _recurse(
@@ -91,7 +88,7 @@ def get_non_invokable_paths(
         raise TypeError("YAML root is not a dictionary")
 
     roles = data
-    if "roles" in roles and isinstance(roles["roles"], dict) and len(roles) == 1:
+    if "roles" in roles and isinstance(roles["roles"], dict):
         roles = roles["roles"]
 
     def _recurse_non(

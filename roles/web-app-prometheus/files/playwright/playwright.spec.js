@@ -40,6 +40,13 @@ test.beforeEach(() => {
 // used to live in each consumer role's own playwright.spec.js.
 test("metricz endpoint is accessible and returns prometheus text format", async ({ request }) => {
   const metriczUrl = `${prometheusBaseUrl.replace(/\/$/, "")}/metricz`;
+
+  for (const target of prometheusTargetRoles) {
+    const base = String(target.canonical_url || "").replace(/\/$/, "");
+    if (!base) continue;
+    await request.get(`${base}/healthz/ready`, { failOnStatusCode: false, timeout: resolveTimeout(30_000) }).catch(() => {});
+  }
+
   const response = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000) });
 
   expect(
@@ -61,11 +68,24 @@ test("metricz endpoint is accessible and returns prometheus text format", async 
   ).toContain("nginx_http_requests_total");
 
   for (const target of prometheusTargetRoles) {
-    expect(
-      body,
-      `/metricz must contain metrics labeled app="${target.id}" — ` +
-      `the ${target.id} vhost is not registered in lua-resty-prometheus.`
-    ).toContain(`app="${target.id}"`);
+    await expect
+      .poll(
+        async () => {
+          const base = String(target.canonical_url || "").replace(/\/$/, "");
+          if (base) {
+            await request.get(`${base}/healthz/ready`, { failOnStatusCode: false, timeout: resolveTimeout(30_000) }).catch(() => {});
+          }
+          const scrape = await request.get(metriczUrl, { timeout: resolveTimeout(30_000) });
+          return (await scrape.text()).includes(`app="${target.id}"`);
+        },
+        {
+          timeout: resolveTimeout(60_000),
+          message:
+            `/metricz must contain metrics labeled app="${target.id}" — ` +
+            `the ${target.id} vhost is not registered in lua-resty-prometheus.`,
+        },
+      )
+      .toBe(true);
   }
 });
 

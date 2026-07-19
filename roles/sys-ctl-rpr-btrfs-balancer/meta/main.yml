@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automates the balancing of Btrfs file systems by cloning the auto-btrfs-balancer repository and configuring a systemd service and timer for
-    regular execution.
+  description: Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

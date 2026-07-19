@@ -1,4 +1,5 @@
 ---
+# nocheck: dockerfile-custom
 # nocheck: dynamic-flag
 # nocheck: logout
 logout:
@@ -16,7 +17,7 @@ dashboard:
   shared: "{{ 'web-app-dashboard' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: email
-# nocheck: playwright-service-flag — email silenced, no Playwright surface
+# nocheck: playwright-service-flag - email silenced, no Playwright surface
 email:
   enabled: false
   shared: false
@@ -24,30 +25,35 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
-application:
-  image: python
-  version: 3.14-bookworm
-  name: web-app-bridgy-fed
-  repository: https://github.com/snarfed/bridgy-fed.git
-  ref: main
-  min_storage: 5GB
-  cpus: "0.5"
-  mem_reservation: 256m
-  mem_limit: 1g
-  pids_limit: 512
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+  # nocheck: matomo-track - root serves Werkzeug's default 404 without </head>/<body>, head injection cannot anchor
+  track: false
+# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
+  # nocheck: matomo-track - same 404-without-anchors page, shared CSS <link> cannot inject
+  track: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 bridgy-fed:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: python
+  version: 3.14-bookworm
+  name: web-app-bridgy-fed
+  repository: https://github.com/snarfed/bridgy-fed.git
+  ref: main
   ports:
     local:
       http: 8053
+    internal:
+      http: 8080
   lifecycle: beta
   min_storage: 1GB
   cpus: "0.2"

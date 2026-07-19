@@ -1,32 +1,27 @@
 ---
-- name: Ensure '{{ SYS_SVC_DOCKER_DIR }}' exists
+- name: ✅ Ensure '{{ SYS_SVC_DOCKER_DIR }}' exists
   file:
     path: "{{ SYS_SVC_DOCKER_DIR }}"
     state: directory
     mode: "0755"
 
-- name: Install fuse-overlayfs in container
+- name: 📦 Install fuse-overlayfs in container
   ansible.builtin.package:
     name: fuse-overlayfs
     state: present
   notify: container manager restart
 
-- name: Compute and set Docker daemon MTU (container)
+- name: 🧮 Compute and set Docker daemon MTU (container)
   include_tasks: "_mtu.yml"
 
-- name: Configure docker daemon storage driver (container)
-  ansible.builtin.template:
+- name: 🔧 Configure docker daemon storage driver (container)
+  ansible.builtin.template: # nocheck: stack-host-template (per-host docker daemon config, runs on every container-host)
     src: daemon.json.j2
     dest: "{{ SYS_SVC_DOCKER_DAEMON }}"
     mode: "0644"
   notify: container manager restart
 
-# Clamp TCP MSS to PMTU so nested containers spawned via `docker run` (e.g. Discourse
-# launcher rebuild) don't stall on `Recv failure: Connection reset by peer` when their
-# bridge MTU (1500) exceeds the deployer eth0 MTU (automtu-picked, typically 1400).
-# Without this, TCP packets forwarded from a 1500-MTU veth through the lower-MTU eth0
-# hit PMTU blackholes because outer Docker NATs ICMP Frag Needed.
-- name: Check if TCP MSS clamp to PMTU is already present (container)
+- name: 🔎 Check if TCP MSS clamp to PMTU is already present (container)
   ansible.builtin.command:
     argv:
       - iptables
@@ -46,7 +41,7 @@
   changed_when: false
   failed_when: false
 
-- name: Ensure TCP MSS clamping to PMTU on FORWARD (container)
+- name: ✅ Ensure TCP MSS clamping to PMTU on FORWARD (container)
   ansible.builtin.command:
     argv:
       - iptables
@@ -62,4 +57,6 @@
       - -j
       - TCPMSS
       - --clamp-mss-to-pmtu
-  when: mss_clamp_check.rc != 0
+  when:
+    - mss_clamp_check.rc != 0
+    - mss_clamp_check.stderr is not search('Permission denied')

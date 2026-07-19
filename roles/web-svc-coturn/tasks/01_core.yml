@@ -1,10 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Load 'sys-stk-full' for '{{ application_id }}'"
+- name: "🧩 Load 'sys-stk-full' for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
     compose_repository_pull: false
     compose_handlers_flush: true
     webserver_vhost_flavour: "basic"
+    proxy_service_key: nginx
+    proxy_internal_port: 80

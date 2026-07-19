@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ------------------------------------------------------------
-# Load environment (Single Source of Truth: .env from default.env)
-# ------------------------------------------------------------
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
 
-# ------------------------------------------------------------
-# Required variables (fail hard if missing)
-# ------------------------------------------------------------
 : "${INFINITO_DNS_IP:?Missing INFINITO_DNS_IP in .env}"
 : "${INFINITO_DOMAIN:?Missing INFINITO_DOMAIN in .env}"
 : "${INFINITO_IP4:?Missing INFINITO_IP4 in .env}"
@@ -18,9 +12,6 @@ source scripts/meta/env/load.sh
 SUBDOMAIN="foo.${INFINITO_DOMAIN}"
 IP4_EXPECTED="${INFINITO_IP4}"
 
-# ------------------------------------------------------------
-# Output helpers
-# ------------------------------------------------------------
 section() {
 	echo
 	echo "------------------------------------------------------------"
@@ -35,9 +26,6 @@ fail() {
 	exit 1
 }
 
-# ------------------------------------------------------------
-# Banner
-# ------------------------------------------------------------
 echo "============================================================"
 echo " DNS TEST SUITE"
 echo "============================================================"
@@ -48,9 +36,6 @@ echo "EXPECT IP  = ${IP4_EXPECTED}"
 echo "INFINITO   = ${INFINITO_CONTAINER}"
 echo
 
-# ------------------------------------------------------------
-# Host -> CoreDNS direct
-# ------------------------------------------------------------
 section "Host -> CoreDNS (direct queries)"
 
 if command -v dig >/dev/null 2>&1; then
@@ -72,9 +57,6 @@ else
 	warn "dig not found on host — skipping host direct DNS tests"
 fi
 
-# ------------------------------------------------------------
-# Host -> CoreDNS AAAA sanity check (must NOT return SERVFAIL)
-# ------------------------------------------------------------
 section "Host -> CoreDNS (AAAA sanity check)"
 
 if command -v dig >/dev/null 2>&1; then
@@ -89,7 +71,6 @@ if command -v dig >/dev/null 2>&1; then
 	echo "${aaaa2:-<empty>}"
 	echo
 
-	# dig exits 0 even on NXDOMAIN, so we check for SERVFAIL explicitly
 	status1="$(dig @"${INFINITO_DNS_IP}" "${INFINITO_DOMAIN}" AAAA +comments 2>&1 | grep -i status || true)"
 	status2="$(dig @"${INFINITO_DNS_IP}" "${SUBDOMAIN}" AAAA +comments 2>&1 | grep -i status || true)"
 
@@ -104,9 +85,6 @@ else
 	warn "dig not found on host — skipping AAAA sanity test"
 fi
 
-# ------------------------------------------------------------
-# CoreDNS container
-# ------------------------------------------------------------
 section "CoreDNS container status"
 
 _coredns_name="${INFINITO_RUNNER_PREFIX:-}-coredns"
@@ -118,9 +96,6 @@ else
 	fail "CoreDNS container not running"
 fi
 
-# ------------------------------------------------------------
-# Infinito outer container DNS
-# ------------------------------------------------------------
 section "Infinito container (outer) DNS"
 
 docker exec "${INFINITO_CONTAINER}" sh -lc "
@@ -143,9 +118,6 @@ docker exec "${INFINITO_CONTAINER}" sh -lc "
 
 ok "Outer container DNS works"
 
-# ------------------------------------------------------------
-# DONE
-# ------------------------------------------------------------
 section "DONE"
 echo "DNS chain is fully functional:"
 echo "Host -> CoreDNS -> Outer container -> Inner container"

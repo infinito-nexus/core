@@ -1,0 +1,14 @@
+---
+- name: "📋 Installation Procedures"
+  include_tasks: 01_install.yml
+
+- name: "🔧 Configure Snipe-IT LDAP settings"
+  include_tasks: 02_ldap.yml
+  when: SNIPE_IT_LDAP_ENABLED | bool
+
+- name: "📁 Create bootstrap Snipe-IT administrator"
+  include_tasks: 03_admin.yml
+
+- name: "🔧 Configure Snipe-IT trusted-header SSO bridge"
+  include_tasks: 04_sso.yml
+  when: SNIPE_IT_SSO_ENABLED | bool

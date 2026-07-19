@@ -1,5 +1,5 @@
 ---
-- name: Install VirtualBox and kernel modules
+- name: 📦 Install VirtualBox and kernel modules
   become: true
   community.general.pacman:
     name: >-
@@ -8,19 +8,19 @@
     state: present
     update_cache: true
 
-- name: Load vbox kernel modules
+- name: 📥 Load vbox kernel modules
   become: true
   command: vboxreload
   register: vboxreload_output
   failed_when: vboxreload_output.rc != 0 and '"vboxdrv"' not in vboxreload_output.stderr
 
-- name: Build and install Oracle VirtualBox extension pack
+- name: 🔨 Build and install Oracle VirtualBox extension pack
   become: true
   command: pamac build --no-confirm virtualbox-ext-oracle
   args:
     creates: /usr/lib/virtualbox/ExtensionPacks/Oracle_VM_VirtualBox_Extension_Pack
 
-- name: Add current user to vboxusers group
+- name: ➕ Add current user to vboxusers group
   become: true
   user:
     name: "{{ lookup('env','USER') }}"

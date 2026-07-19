@@ -1,5 +1,5 @@
 ---
-- name: "Purge everything from Cloudflare cache for domain {{ domain }}"
+- name: "🧹 Purge everything from Cloudflare cache for domain {{ domain }}"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/purge_cache"
     method: POST

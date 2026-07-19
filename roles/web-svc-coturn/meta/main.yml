@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Coturn, a free and open-source TURN/STUN server
+  description: Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

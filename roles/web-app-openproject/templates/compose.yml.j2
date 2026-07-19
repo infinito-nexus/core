@@ -1,8 +1,7 @@
-# @todo Test which containers can be removed from central_database networks
 x-op-app: &app
   logging:
     driver: journald
-  image: {{ OPENPROJECT_CUSTOM_IMAGE }}
+  {{ lookup('container_image', application_id, 'web') }}
   {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(2) }}
     args:
       OPENPROJECT_IMAGE:   "{{ OPENPROJECT_IMAGE }}"
@@ -10,91 +9,75 @@ x-op-app: &app
 
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  cache:
-{% set service_name = 'cache' %}
-    image: "{{ OPENPROJECT_CACHE_IMAGE}}:{{ OPENPROJECT_CACHE_VERSION }}"
-    container_name: {{ OPENPROJECT_CACHE_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+  {% set service_name = 'cache' %}
+  {{ service_name }}:
+    {{ lookup('container_image', 'svc-db-memcached', 'memcached') }}
+    {{ lookup('compose_only', 'container_name', OPENPROJECT_CACHE_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
-  proxy:
-{% set service_name = 'proxy' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: {{ OPENPROJECT_CUSTOM_IMAGE }}
-    container_name: {{ OPENPROJECT_PROXY_CONTAINER }}
-    pull_policy: never
+  {% set service_name = 'proxy' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'proxy', version=OPENPROJECT_VERSION) }}
+    {{ lookup('compose_only', 'container_name', OPENPROJECT_PROXY_CONTAINER) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     command: "./docker/prod/proxy"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.openproject.ports.local.http') }}:80"
+    {{ lookup('container_ports', ['openproject', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     environment:
       APP_HOST: {{ OPENPROJECT_WEB_SERVICE }}
-    depends_on:
-      - {{ OPENPROJECT_WEB_SERVICE }}
-    volumes:
-      - "data:/var/openproject/assets"
-      - "{{ OPENPROJECT_DUMMY_VOLUME }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
+    {{ lookup('depends_on', [OPENPROJECT_WEB_SERVICE]) }}
+    {{ lookup('container_volumes', application_id, 'proxy') | indent(4) }}
 
-  {{ OPENPROJECT_WEB_SERVICE }}:
+  {% set service_name = OPENPROJECT_WEB_SERVICE %}
+  {% set container_healthcheck = 'health_checks/default' %}
+  {{ service_name }}:
     <<: *app
-{% set service_name = OPENPROJECT_WEB_SERVICE %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: "./docker/prod/web"
-    container_name: {{ OPENPROJECT_WEB_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{{ lookup('container_depends_on', application_id, extra={
+    {{ lookup('compose_only', 'container_name', OPENPROJECT_WEB_CONTAINER) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
   OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
-}) }}
-{% set container_port = 8080 %}
-{% set container_healthcheck = 'health_checks/default' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-    volumes:
-      - "data:/var/openproject/assets"
-      - "{{ OPENPROJECT_DUMMY_VOLUME }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
+}) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_volumes', application_id, OPENPROJECT_WEB_SERVICE) | indent(4) }}
 
-{% set service_name = 'worker' %}
-  worker:
+  {% set service_name = 'worker' %}
+  {{ service_name }}:
     <<: *app
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: "./docker/prod/worker"
-    container_name: {{ OPENPROJECT_WORKER_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{{ lookup('container_depends_on', application_id, extra={
+    {{ lookup('compose_only', 'container_name', OPENPROJECT_WORKER_CONTAINER) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
   OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
-}) }}
-    volumes:
-      - "data:/var/openproject/assets"
-      - "{{ OPENPROJECT_DUMMY_VOLUME }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
+}) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
 
-  cron:
+  {% set service_name = 'cron' %}
+  {{ service_name }}:
     <<: *app
-{% set service_name = 'cron' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: "./docker/prod/cron"
-    container_name: {{ OPENPROJECT_CRON_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{{ lookup('container_depends_on', application_id, extra={
+    {{ lookup('compose_only', 'container_name', OPENPROJECT_CRON_CONTAINER) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
   OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
-}) }}
-    volumes:
-      - "data:/var/openproject/assets"
-      - "{{ OPENPROJECT_DUMMY_VOLUME }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
+}) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'cron') | indent(4) }}
 
-  {{ OPENPROJECT_SEEDER_SERVICE }}:
+  {% set service_name = OPENPROJECT_SEEDER_SERVICE %}
+  {% set docker_restart_policy = 'on-failure' %}
+  {{ service_name }}:
     <<: *app
-{% set service_name = OPENPROJECT_SEEDER_SERVICE %}
-{% set docker_restart_policy = 'on-failure' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: "./docker/prod/seeder"
-    container_name: {{ OPENPROJECT_SEEDER_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - "data:/var/openproject/assets"
-      - "{{ OPENPROJECT_DUMMY_VOLUME }}:/var/openproject/pgdata" # This mount is unnecessary and just done to prevent anonymous volumes
+    {{ lookup('compose_only', 'container_name', OPENPROJECT_SEEDER_CONTAINER) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_volumes', application_id, OPENPROJECT_SEEDER_SERVICE) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': OPENPROJECT_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

@@ -1,0 +1,44 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "✅ Ensure unbound volumes directory exists"
+  ansible.builtin.file:
+    path: "{{ UNBOUND_VOLUMES_DIR }}"
+    state: directory
+    mode: "0755"
+  when: IS_STACK_HOST | bool
+
+- name: "📄 Render unbound.conf"
+  stack_host_template:
+    src: unbound.conf.j2
+    dest: "{{ UNBOUND_CONF_FILE }}"
+    mode: "0644"
+  when: IS_STACK_HOST | bool
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+    application_id: "svc-dns-unbound"
+    database_consumer_id: "svc-dns-unbound"
+
+- name: "⏳ UNBOUND | Wait until container is running (not restarting)"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ UNBOUND_CONTAINER_ADDRESS }}
+  register: unbound_state
+  retries: 120
+  delay: 2
+  until: >
+    (unbound_state.stdout is search('running')) and
+    (unbound_state.stdout is not search('true'))
+  changed_when: false
+
+- name: "✅ UNBOUND | Confirm the resolver answers (self lookup)"
+  ansible.builtin.shell: >
+    container exec {{ UNBOUND_CONTAINER_ADDRESS }} sh -lc
+    'drill -p 53 localhost @127.0.0.1 >/dev/null 2>&1 || nslookup -port=53 localhost 127.0.0.1 >/dev/null 2>&1'
+  register: unbound_ready
+  retries: 30
+  delay: 2
+  until: unbound_ready.rc == 0
+  changed_when: false

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs Git using the Pacman package manager on Arch Linux systems.
+  description: Distributed version control system for tracking source code changes and coordinating development work
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,0 +1,51 @@
+---
+- name: "📁 Pre-create NFS subdir for '{{ application_id }}' volume '{{ item.key }}'"
+  ansible.builtin.file:
+    path: "{{ STORAGE_NFS_STATE_PATH }}/{{ item.value.name | default(item.key) }}"
+    state: directory
+    owner: "{{ (item.value['x-infinito-nfs'] | default({})).uid | default(omit) }}"
+    group: "{{ (item.value['x-infinito-nfs'] | default({})).gid | default(omit) }}"
+    mode: "{{ (item.value['x-infinito-nfs'] | default({})).mode | default(omit) }}"
+  delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
+  run_once: true # nocheck: include-uniform-apply-keyword (per-task delegation targets differ)
+  loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - (storage.backend | default('local')) == 'nfs'
+    - (groups['svc-storage-nfs-server'] | default([])) | length > 0
+    - item.value is mapping
+    - item.value.driver_opts is defined
+    - application_id not in lookup('roles_with_placement', 'manager')
+
+- name: "🛡️ Assert the NFS client mount is active on every swarm node"
+  ansible.builtin.command: "mountpoint -q {{ DIR_VAR_LIB }}"
+  changed_when: false
+  delegate_to: "{{ item }}"
+  run_once: true
+  loop: "{{ groups['svc-swarm-node'] | default([]) }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - (storage.backend | default('local')) == 'nfs'
+    - (groups['svc-storage-nfs-server'] | default([])) | length > 0
+    - (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | length > 0
+    - application_id not in lookup('roles_with_placement', 'manager')
+
+- name: "🔁 Materialize NFS subdir '{{ item.0.key }}' on every swarm node"
+  ansible.builtin.file:
+    path: "{{ DIR_VAR_LIB }}/{{ item.0.value.name | default(item.0.key) }}"
+    state: directory
+    owner: "{{ (item.0.value['x-infinito-nfs'] | default({})).uid | default(omit) }}"
+    group: "{{ (item.0.value['x-infinito-nfs'] | default({})).gid | default(omit) }}"
+    mode: "{{ (item.0.value['x-infinito-nfs'] | default({})).mode | default(omit) }}"
+  delegate_to: "{{ item.1 }}"
+  run_once: true
+  loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items | product(groups['svc-swarm-node'] | default([])) | list }}"
+  loop_control:
+    label: "{{ item.0.key }} @ {{ item.1 }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - (storage.backend | default('local')) == 'nfs'
+    - (groups['svc-storage-nfs-server'] | default([])) | length > 0
+    - item.0.value is mapping
+    - item.0.value.driver_opts is defined
+    - application_id not in lookup('roles_with_placement', 'manager')

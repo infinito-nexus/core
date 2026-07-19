@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Ensure Tor config directory exists"
+- name: "🧅 Ensure Tor config directory exists"
   ansible.builtin.file:
     path: "{{ TOR_CONFIG_DIR }}"
     state: directory
@@ -10,7 +10,7 @@
     mode: "0755"
   become: true
 
-- name: "Ensure Tor data + HiddenServiceDir exist"
+- name: "🧅 Ensure Tor data + HiddenServiceDir exist"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -22,7 +22,7 @@
     - "{{ TOR_HS_DIR }}"
   become: true
 
-- name: "Install authoritative hidden-service keys (must match DOMAIN_PRIMARY)"
+- name: "🔑 Install authoritative hidden-service keys (must match DOMAIN_PRIMARY)"
   ansible.builtin.copy:
     src: "{{ [ TOR_HS_SRC_DIR, item.name ] | path_join }}"
     dest: "{{ [ TOR_HS_DIR, item.name ] | path_join }}"
@@ -37,8 +37,8 @@
   become: true
   register: _tor_hs_keys
 
-- name: "Render torrc"
-  ansible.builtin.template:
+- name: "📝 Render torrc"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host torrc under DIR_VAR_LIB; tor is a node-local host-network sidecar)
     src: torrc.j2
     dest: "{{ TOR_TORRC_HOST }}"
     owner: root
@@ -47,7 +47,7 @@
   become: true
   register: _tor_torrc
 
-- name: "For '{{ application_id }}': Load sys-svc-compose"
+- name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:
     name: sys-svc-compose
   vars:
@@ -55,7 +55,7 @@
     compose_handlers_flush: true
     application_id: svc-net-tor
 
-- name: "Restart Tor to apply hidden-service key / torrc changes"
+- name: "🔄 Restart Tor to apply hidden-service key / torrc changes"
   ansible.builtin.shell: |
     set -euo pipefail
     compose up -d --force-recreate --remove-orphans
@@ -63,13 +63,28 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   become: true
-  when: (_tor_hs_keys is changed) or (_tor_torrc is changed)
+  when: DEPLOYMENT_MODE == 'compose' and ((_tor_hs_keys is changed) or (_tor_torrc is changed))
 
-- name: "Wire the host-level transparent .onion egress router"
-  include_tasks: router.yml
+- name: "🔄 Force Tor service redeploy to apply hidden-service key / torrc changes"
+  ansible.builtin.command: >-
+    container service update --force
+    {{ lookup('container_service', application_id, 'tor') }}
+  register: _tor_swarm_update
+  changed_when: _tor_swarm_update.rc == 0
+  become: true
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - IS_STACK_HOST | bool
+    - (_tor_hs_keys is changed) or (_tor_torrc is changed)
+
+- name: "🧅 Wire the host-level transparent .onion egress router"
+  include_tasks:
+    file: router.yml
+    apply:
+      become: true
   when: TOR_EGRESS_ROUTER_ENABLED | bool
 
-- name: "Wait until the node onion answers internally (loopback fast path)"
+- name: "⏳ Wait until the node onion answers internally (loopback fast path)"
   ansible.builtin.command:
     argv:
       - python3
@@ -85,7 +100,7 @@
     - TOR_EGRESS_ROUTER_ENABLED | bool
     - TOR_NODE_ONION | length > 0
 
-- name: "Probe the node onion over the real Tor network (non-fatal)"
+- name: "🔎 Probe the node onion over the real Tor network (non-fatal)"
   ansible.builtin.command:
     argv:
       - python3
@@ -103,7 +118,7 @@
     - TOR_EGRESS_ROUTER_ENABLED | bool
     - TOR_NODE_ONION | length > 0
 
-- name: "Warn when the node onion is not yet reachable over Tor"
+- name: "⚠️ Warn when the node onion is not yet reachable over Tor"
   ansible.builtin.debug:
     msg: >-
       Node onion not reachable over the real Tor network yet

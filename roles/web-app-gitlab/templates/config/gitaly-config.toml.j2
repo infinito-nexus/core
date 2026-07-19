@@ -1,0 +1,21 @@
+bin_dir = "/usr/local/bin"
+runtime_dir = "/home/git"
+listen_addr = "0.0.0.0:{{ GITLAB_GITALY_PORT }}"
+
+[[storage]]
+name = "default"
+path = "/home/git/repositories"
+
+[auth]
+token = {{ GITLAB_GITALY_TOKEN | to_json }}
+
+[logging]
+format = "json"
+level = "info"
+
+[gitlab]
+secret_file = "/etc/gitaly/.gitlab_shell_secret"
+url = "http://{{ GITLAB_WEBSERVICE_SERVICE_NAME }}:{{ GITLAB_WEBSERVICE_PORT }}/"
+
+[hooks]
+custom_hooks_dir = "/home/git/custom_hooks"

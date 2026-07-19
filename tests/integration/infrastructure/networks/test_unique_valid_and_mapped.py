@@ -1,5 +1,5 @@
 """Per: subnets declared per-role under
-``meta/server.yml.networks.local.subnet`` MUST be valid, unique, and
+``meta/networks.yml.local.subnet`` MUST be valid, unique, and
 non-overlapping across the role tree."""
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ import ipaddress
 import unittest
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVER
+from utils.roles.mapping import ROLE_FILE_META_NETWORKS
 
 
 class TestNetworksUniqueValidAndMapped(unittest.TestCase):
@@ -23,14 +23,11 @@ class TestNetworksUniqueValidAndMapped(unittest.TestCase):
         for role_path in sorted(cls.roles_dir.iterdir()):
             if not role_path.is_dir():
                 continue
-            server_file = role_path / ROLE_FILE_META_SERVER
-            if not server_file.is_file():
+            networks_file = role_path / ROLE_FILE_META_NETWORKS
+            if not networks_file.is_file():
                 continue
-            server_data = load_yaml_any(str(server_file)) or {}
-            networks = server_data.get("networks") or {}
-            if not isinstance(networks, dict):
-                continue
-            local = networks.get("local")
+            networks_data = load_yaml_any(str(networks_file)) or {}
+            local = networks_data.get("local")
             if not isinstance(local, dict):
                 continue
             subnet = local.get("subnet")
@@ -59,7 +56,7 @@ class TestNetworksUniqueValidAndMapped(unittest.TestCase):
                 + "\n".join(dupes)
                 + "\n\nFix: pick a free subnet via "
                 + "`infinito meta networks suggest --clients <N> --count 1` "
-                + "and update the role's meta/server.yml.networks.local.subnet."
+                + "and update the role's meta/networks.yml.local.subnet."
             )
 
     def test_no_overlapping_subnets(self):
@@ -77,7 +74,7 @@ class TestNetworksUniqueValidAndMapped(unittest.TestCase):
                 + "\n".join(overlaps)
                 + "\n\nFix: pick a free subnet via "
                 + "`infinito meta networks suggest --clients <N> --count 1` "
-                + "and update the role's meta/server.yml.networks.local.subnet."
+                + "and update the role's meta/networks.yml.local.subnet."
             )
 
 

@@ -1,5 +1,5 @@
 ---
-- name: Resolve active Python major.minor for header package candidates
+- name: 🔍 Resolve active Python major.minor for header package candidates
   ansible.builtin.command:
     argv:
       - "{{ ansible_python_interpreter }}"
@@ -8,7 +8,7 @@
   register: openldap_python_major_minor
   changed_when: false
 
-- name: Resolve Python header package templates and version tokens
+- name: 🔍 Resolve Python header package templates and version tokens
   ansible.builtin.set_fact:
     openldap_python_major_minor_value: "{{ openldap_python_major_minor.stdout | trim }}"
     openldap_python_major_minor_nodot: "{{ (openldap_python_major_minor.stdout | trim) | replace('.', '') }}"
@@ -18,7 +18,7 @@
       }}
   changed_when: false
 
-- name: Build Python header package candidates for current OS family
+- name: 🔨 Build Python header package candidates for current OS family
   ansible.builtin.set_fact:
     openldap_python_header_package_candidates: >-
       {{
@@ -30,7 +30,7 @@
       }}
   changed_when: false
 
-- name: Attempt to install Python header package candidates
+- name: 📦 Attempt to install Python header package candidates
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
@@ -38,12 +38,12 @@
   failed_when: false
   when: openldap_python_header_package_candidates | length > 0
 
-- name: Re-check whether Python.h exists for active interpreter
+- name: 🔎 Re-check whether Python.h exists for active interpreter
   ansible.builtin.stat:
     path: "{{ openldap_python_header_path }}"
   register: openldap_python_header_after
 
-- name: Assert Python.h exists for active interpreter
+- name: ✅ Assert Python.h exists for active interpreter
   ansible.builtin.assert:
     that:
       - openldap_python_header_after.stat.exists

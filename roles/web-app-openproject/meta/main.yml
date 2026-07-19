@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys OpenProject, a project-management platform for planning, tracking, and team communication with streamlined workflows and reporting.
+  description: Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,17 +1,17 @@
 ---
 - block:
-    - name: "Load wildcard certificate for domain"
+    - name: "📜 Load wildcard certificate for domain"
       include_tasks: "dedicated.yml"
       vars:
         wildcard_domain: true
       when:
         - domain.split('.') | length == (DOMAIN_PRIMARY.split('.') | length + 1) and domain.endswith(DOMAIN_PRIMARY)
-    - name: run the receive_certificate tasks once
+    - name: ▶️ run the receive_certificate tasks once
       set_fact:
         run_once_receive_certificate: true
   when: run_once_receive_certificate is not defined
 
-- name: "Load dedicated certificate for domain"
+- name: "📜 Load dedicated certificate for domain"
   include_tasks: "dedicated.yml"
   vars:
     wildcard_domain: false

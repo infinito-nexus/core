@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures components for sending email notifications. This role is part of the sys-ctl-alm-compose suite, providing automated
-    alerts when services fail.
+  description: Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

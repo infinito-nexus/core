@@ -1,21 +1,16 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  n8n:
-{% set service_name = 'n8n' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: {{ N8N_IMAGE }}:{{ N8N_VERSION }}
-    container_name: {{ N8N_CONTAINER }}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ N8N_HTTP_PORT }}:{{ N8N_INTERNAL_PORT }}"
-    volumes:
-      - n8n_data:/home/node/.n8n
-{% if N8N_SSO_ENABLED %}
-      - {{ N8N_HOOKS_FILE_HOST }}:{{ N8N_HOOKS_FILE_CONTAINER }}:ro
-{% endif %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+  {% set service_name = 'n8n' %}
+  {% set container_healthcheck = 'healthz' %}
+  {% set container_healthcheck_start_period = '5m' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('compose_only', 'container_name', N8N_CONTAINER) }}
+    {{ lookup('container_ports', ['n8n', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'n8n_data': {'name': N8N_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

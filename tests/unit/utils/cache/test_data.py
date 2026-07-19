@@ -152,8 +152,6 @@ class TestStableVariablesSignature(unittest.TestCase):
 
 class TestLoadUserDefs(unittest.TestCase):
     def test_merges_non_conflicting_across_roles(self):
-        # Per the file root of meta/users.yml IS the users map
-        # (no `users:` wrapper).
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
@@ -326,8 +324,6 @@ class TestGetApplicationDefaults(unittest.TestCase):
         _reset_cache_for_tests()
 
     def test_reads_role_config_files(self):
-        # Per the server topic now lives in its own
-        # `meta/server.yml`, not nested inside `meta/services.yml`.
         with tempfile.TemporaryDirectory() as tmp:
             roles = Path(tmp)
             _write(
@@ -457,9 +453,6 @@ class TestImplicitRolesDir(unittest.TestCase):
     """
 
     def test_project_root_is_repo_root(self):
-        # The repo root has both `roles/` and `cli/` at the top level;
-        # `utils/` does not. Asserting both keeps the test robust against
-        # accidental drift to either direction.
         self.assertTrue(
             (PROJECT_ROOT / "roles").is_dir(),
             f"expected <repo>/roles under PROJECT_ROOT={PROJECT_ROOT}",
@@ -471,9 +464,6 @@ class TestImplicitRolesDir(unittest.TestCase):
         self.assertEqual(ROLES_DIR, PROJECT_ROOT / "roles")
 
     def test_implicit_user_defaults_include_role_defined_users(self):
-        # `contact` is contributed by web-app-odoo and web-app-espocrm
-        # role users files. If ROLES_DIR is wrong, the implicit lookup
-        # silently returns an empty defaults map and this regresses.
         defaults = get_user_defaults()
         self.assertIn("contact", defaults)
 
@@ -546,9 +536,6 @@ class TestImportableWithoutAnsible(unittest.TestCase):
         self.assertIn("OK", out)
 
     def test_inventory_module_importable_without_ansible(self):
-        # The actual call chain that broke in CI run 24934007615:
-        #   cli.administration.deploy.development.init -> .inventory ->
-        #   utils.cache.applications
         rc, out, err = _run_in_ansible_blocked_subprocess(
             "from cli.administration.deploy.development.inventory import "
             "plan_dev_inventory_matrix\n"
@@ -559,12 +546,6 @@ class TestImportableWithoutAnsible(unittest.TestCase):
         self.assertIn("OK", out)
 
     def test_get_variants_callable_without_ansible(self):
-        # Pins CI run 24935979190 specifically: the import-time guards
-        # added in 8e4886d70 passed this very file's import-only tests
-        # but `get_variants(roles_dir=...)` still triggered the lazy
-        # import of `ApplicationGidLookup` and died at call time. This
-        # test invokes the function AGAINST the real repo roles dir
-        # while ansible is blocked.
         rc, out, err = _run_in_ansible_blocked_subprocess(
             "from utils.cache.applications import get_variants\n"
             "from utils.cache.base import ROLES_DIR\n"
@@ -580,11 +561,6 @@ class TestImportableWithoutAnsible(unittest.TestCase):
         self.assertIn("OK", out)
 
     def test_plan_dev_inventory_matrix_callable_without_ansible(self):
-        # Same exhaustive shape as above, one level higher: the actual
-        # CLI path is `cli.administration.deploy.development.init.handler` ->
-        # `plan_dev_inventory_matrix(...)` -> `get_variants(...)`. We
-        # invoke the planner so a future regression at any layer of
-        # this chain trips here.
         rc, out, err = _run_in_ansible_blocked_subprocess(
             "from cli.administration.deploy.development.inventory import "
             "plan_dev_inventory_matrix\n"

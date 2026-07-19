@@ -3,5 +3,6 @@ github-runner:
   username: github-runner
   uid: 900
   gid: 900
+  accounts: []
   description: System user for GitHub Actions self-hosted runner containers
   reserved: true

@@ -30,6 +30,13 @@ def main() -> None:
         "If omitted, no lifecycle filtering is applied (all roles are returned).",
     )
     parser.add_argument(
+        "--skip-mode",
+        choices=("compose", "swarm"),
+        help="Exclude roles whose services.yml primary entity sets "
+        "modes.<mode>.enabled: false for this deployment mode "
+        "(test-deploy discovery opt-out).",
+    )
+    parser.add_argument(
         "-f",
         "--format",
         choices=("text", "json"),
@@ -44,7 +51,9 @@ def main() -> None:
             lifecycles = {
                 str(x).strip().lower() for x in args.lifecycles if str(x).strip()
             }
-        grouped = list_invokables_by_type(lifecycles=lifecycles)
+        grouped = list_invokables_by_type(
+            lifecycles=lifecycles, skip_mode=args.skip_mode
+        )
     except Exception as e:
         sys.stderr.write(f"Error: {e}\n")
         sys.exit(1)
@@ -62,7 +71,6 @@ def main() -> None:
         print(json.dumps(grouped, indent=2, sort_keys=True))
         return
 
-    # text
     for t in ("server", "workstation", "universal"):
         apps = grouped.get(t, [])
         print(f"[{t}]")

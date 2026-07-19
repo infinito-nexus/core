@@ -1,24 +1,25 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  collabora:
+  {% set container_healthcheck = COLLABORA_DISCOVERY_PATH | regex_replace('^/+', '') %}
+  {% set service_name = 'collabora' %}
+  {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ COLLABORA_IMAGE }}:{{ COLLABORA_VERSION }}"
-    container_name: {{ COLLABORA_CONTAINER }}
+    {{ lookup('container_image', application_id, 'collabora') }}
+    {{ lookup('compose_only', 'container_name', COLLABORA_CONTAINER) }}
     security_opt:
       - seccomp=unconfined
       - apparmor=unconfined
     cap_add:
+      - SYS_ADMIN
       - MKNOD
       - SYS_CHROOT
       - SETUID
       - SETGID
       - FOWNER
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.collabora.ports.local.http') }}:{{ container_port }}"
-{% set container_healthcheck = COLLABORA_DISCOVERY_PATH %}
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_ports', ['collabora', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

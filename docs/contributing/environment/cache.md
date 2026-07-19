@@ -33,10 +33,10 @@ Bootstrap is idempotent and runs from [package.sh](../../../scripts/docker/cache
 
 Two listener layers:
 
-- HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend-ca.sh).
+- HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh).
 - HTTP (port 80): plain mirrors for `deb.debian.org`, `archive.ubuntu.com`, `security.ubuntu.com`, `dl-cdn.alpinelinux.org`. Used by inner-`dockerd` Dockerfile builds via `build.extra_hosts` DNS-hijack. No CA-trust required in the build container.
 
-Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend-certs.sh) before the frontend starts.
+Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts.
 
 ## Activation 🎚️
 
@@ -100,7 +100,7 @@ Per-variable defaults and purposes are in [compose.yml.md](../artefact/files/com
 | Stop the stack | `make compose-down` |
 | Wipe local cache state | `make clean-cache` |
 | Manually re-bootstrap Nexus repos | `bash scripts/docker/cache/package.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`) |
-| Manually regenerate frontend certs | `bash scripts/docker/cache/package-frontend-certs.sh` |
+| Manually regenerate frontend certs | `bash scripts/docker/cache/package-frontend/certs.sh` |
 | Reload nginx in the frontend | `docker exec infinito-package-cache-frontend nginx -s reload` |
 | Inspect cache hits | `docker logs -f infinito-package-cache` and `docker logs -f infinito-package-cache-frontend` |
 
@@ -111,7 +111,7 @@ Cache state persists under `/var/cache/infinito/core/cache/`. Paths are configur
 When a new package manager or upstream needs caching:
 
 1. Register a Nexus proxy repo in [package.sh](../../../scripts/docker/cache/package.sh).
-2. If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend-certs.sh) so a leaf cert is issued.
+2. If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued.
 3. Add a server-block in [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) that reverse-proxies onto the new Nexus repo path (rewrite if upstream URL prefix differs from the Nexus repo path).
 4. Add an `extra_hosts` entry on the `infinito` service in [compose/cache.override.yml](../../../compose/cache.override.yml) for runner-side traffic.
 5. If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`.

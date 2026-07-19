@@ -1,3 +1,4 @@
+{% set container_port = container_port | default(lookup('config', application_id, 'services.' ~ service_name ~ '.ports.internal.http', '')) %}
     healthcheck:
       test:
         - "CMD"
@@ -7,8 +8,9 @@
         - "-H"
         - "Host: {{ container_hostname }}"
 {% endif %}
-        - "http://127.0.0.1{{ (":" ~ container_port) if container_port is defined else '' }}/{{ container_healthcheck | default('') }}"
+        - "http://127.0.0.1{{ (":" ~ container_port) if container_port else '' }}/{{ container_healthcheck | default('') }}"
       interval: 1m
       timeout: 10s
       retries: 3
+      start_period: {{ container_healthcheck_start_period | default('30s') }}
 {{ "\n" }}

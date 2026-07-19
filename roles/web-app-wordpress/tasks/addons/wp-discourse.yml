@@ -1,67 +1,33 @@
 ---
-- name: Wait for Discourse API
+- name: ⏳ Wait for Discourse API
   wait_for:
     host: "{{ lookup('domain','web-app-discourse') }}"
     port: 80
     delay: 5
-    timeout: 600
+    timeout: "{{ lookup('timeout', 600) | int }}"
 
-- name: Add /var/www/discourse to Git safe.directory
-  command: >
-    container exec {{ lookup('applications', 'web-app-discourse').services.discourse.name }} \
-      git config --global --add safe.directory /var/www/discourse
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  changed_when: false
+- name: "🖥️ WP Discourse: stack-host container ops against Discourse"
+  include_tasks: wp-discourse-stack-host.yml
+  when: IS_STACK_HOST | bool
 
-- name: Revoke old WP Discourse API keys via Rails
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - "{{ lookup('applications', 'web-app-discourse').services.discourse.name }}"
-      - bash
-      - -lc
-      - "cd /var/www/discourse && script/rails runner -"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    stdin: "{{ lookup('file', 'ruby/revoke_wp_discourse_api_keys.rb') }}"
-  changed_when: false
-  failed_when: false
-
-- name: Generate new WP Discourse API key via Rake task
-  command: >
-    container exec {{ lookup('applications', 'web-app-discourse').services.discourse.name }} bash -lc "\
-      cd /var/www/discourse && \
-      bin/rake api_key:create_master['WP Discourse Integration']\
-    "
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: discourse_generated_api_key
-
-- name: Store the new WP Discourse API key in a fact
-  set_fact:
-    vault_discourse_api_key: "{{ discourse_generated_api_key.stdout | trim }}"
-
-# Use include_vars (not lookup('file')|from_yaml) so values lazy-render and the deploy-time vault_discourse_api_key resolves in this scope.
-- name: "Load WP Discourse addon spec from meta/addons/wp-discourse.yml"
+# Exception: include_vars (not lookup('file')|from_yaml) so values lazy-render and the deploy-time vault_discourse_api_key resolves in this scope.
+- name: "📄 Load WP Discourse addon spec from meta/addons/wp-discourse.yml"
   ansible.builtin.include_vars:
     file: "{{ [role_path, 'meta/addons', 'wp-discourse.yml'] | path_join }}"
     name: wp_discourse_addon
-- name: "Resolve WP Discourse settings"
+- name: "🔍 Resolve WP Discourse settings"
   set_fact:
     discourse_settings: "{{ wp_discourse_addon.config.discourse_settings | default([]) }}"
   changed_when: false
 
-- name: "Install WP Discourse plugin"
-  command: >
-    {{ BIN_COMPOSE }} exec -u www-data -T application
-      wp plugin install wp-discourse --activate
-      --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+- name: "📦 Install WP Discourse plugin"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp plugin install wp-discourse --activate
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  when: IS_STACK_HOST | bool
 
-- name: "Configure WP Discourse settings"
+- name: "🔧 Configure WP Discourse settings"
   loop: "{{ discourse_settings | map(attribute='name') | unique | list }}"
   loop_control:
     label: "{{ item }}"
@@ -82,14 +48,13 @@
 
     option_json_b64: "{{ option_kv | to_json | b64encode }}"
 
-  command: >
-    {{ BIN_COMPOSE }} exec -u www-data -T application bash -lc
-      "wp eval \"update_option(
-         '{{ option_name }}',
-         json_decode(
-           base64_decode('{{ option_json_b64 }}'),
-           true
-         )
-       );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
+    "wp eval \"update_option(
+    '{{ option_name }}',
+    json_decode(
+    base64_decode('{{ option_json_b64 }}'),
+    true
+    )
+    );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
+  when: IS_STACK_HOST | bool

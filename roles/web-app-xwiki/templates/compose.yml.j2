@@ -1,21 +1,21 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  application:
+  {% set service_name = 'xwiki' %}
+  {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         XWIKI_IMAGE: "{{ XWIKI_IMAGE }}"
         XWIKI_VERSION: "{{ XWIKI_VERSION }}"
         XWIKI_SUPERADMIN_PASSWORD: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    image: "{{ XWIKI_IMAGE_CUSTOM }}"
-    container_name: "{{ XWIKI_CONTAINER }}"
+    {{ lookup('container_image', application_id, 'xwiki') }}
+    {{ lookup('compose_only', 'container_name', XWIKI_CONTAINER) }}
     hostname: '{{ XWIKI_HOSTNAME}}'
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ XWIKI_HOST_PORT }}:{{ container_port }}"
+    {{ lookup('container_ports', ['xwiki', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     environment:
       JAVA_OPTS: >-
-{% if xwiki_oidc_enabled_switch| bool %}
+        {% if xwiki_oidc_enabled_switch| bool %}
         -Dxwiki.authentication.authservice=oidc
         -Dxwiki.authentication.authclass=org.xwiki.contrib.oidc.auth.OIDCAuthServiceImpl
-{% elif xwiki_ldap_enabled_switch | bool %}
+        {% elif xwiki_ldap_enabled_switch | bool %}
         -Dxwiki.authentication.authclass=org.xwiki.contrib.ldap.XWikiLDAPAuthServiceImpl
         -Dxwiki.authentication.authservice=ldap
         -Dxwiki.authentication.ldap=1
@@ -29,20 +29,15 @@
         -Dxwiki.authentication.ldap.bind_pass={{ XWIKI_LDAP_BIND_PASS }}
         -Dxwiki.authentication.ldap.fields_mapping={{ XWIKI_LDAP_FIELDS_MAPPING }}
         -Dxwiki.authentication.ldap.update_user=1
-{% else %}
+        {% else %}
         -Dxwiki.authentication.authservice=standard
         -Dxwiki.authentication.authclass=com.xpn.xwiki.user.impl.xwiki.XWikiAuthServiceImpl
-{% endif %}
-    volumes:
-      - "{{ XWIKI_HOST_PROPERTIES_PATH }}:/usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties"
-      - 'data:{{ XWIKI_DOCK_DATA_DIR }}'
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+        {% endif %}
+    {{ lookup('container_volumes', application_id, 'xwiki') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': XWIKI_DATA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

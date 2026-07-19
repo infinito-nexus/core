@@ -1,12 +1,12 @@
 ---
-- name: "For '{{ application_id }}': load docker, db and proxy"
+- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
-- name: "Stage trusted-header SSO build-context files for {{ application_id }}"
-  ansible.builtin.copy:
+- name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
+  stack_host_copy:
     src: "{{ item.src }}"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "0644"
@@ -15,72 +15,9 @@
     - { src: "sso/infinito_sso.py", dest: "infinito_sso.py" }
     - { src: "sso/settings_patch.py", dest: "settings_patch.py" }
 
-- name: "Flush compose handlers for {{ application_id }}"
+- name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
 
-- name: "Run Baserow Django migrations before bootstrapping users"
-  ansible.builtin.command:
-    cmd: >-
-      compose exec -T
-      -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}
-      -e SECRET_KEY={{ BASEROW_SECRET_KEY }}
-      -e BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY }}
-      {{ BASEROW_SERVICE_NAME }}
-      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} migrate --noinput
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: baserow_migrate_result
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: >
-    'No migrations to apply' not in
-    ((baserow_migrate_result.stdout | default('')) ~ (baserow_migrate_result.stderr | default('')))
-  failed_when: baserow_migrate_result.rc != 0
-  # The Baserow all-in-one container can still be finishing startup while
-  # Ansible continues after compose up. Run migrations explicitly so Playwright
-  # never reaches an app with missing auth_user/core_workspace tables.
-  retries: 60
-  delay: 5
-  until: baserow_migrate_result.rc == 0
-
-- name: "Restart Baserow application after applying migrations"
-  ansible.builtin.command: "compose restart {{ BASEROW_SERVICE_NAME }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: baserow_restart_after_migrate
-  changed_when: baserow_restart_after_migrate.rc == 0
-  when: baserow_migrate_result.changed
-
-- name: "Bootstrap Baserow Django superuser '{{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}' (idempotent)"
-  ansible.builtin.command:
-    argv:
-      - compose
-      - exec
-      - -T
-      - -e
-      - "DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}"
-      - -e
-      - "SECRET_KEY={{ BASEROW_SECRET_KEY }}"
-      - -e
-      - "BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY }}"
-      - -e
-      - "BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}"
-      - -e
-      - "BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL }}"
-      - -e
-      - "BOOTSTRAP_ADMIN_PASSWORD={{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD }}"
-      - "{{ BASEROW_SERVICE_NAME }}"
-      - "{{ BASEROW_PYTHON }}"
-      - "{{ BASEROW_MANAGE_PY }}"
-      - shell
-      - -c
-      - "{{ lookup('file', role_path ~ '/files/bootstrap_admin.py') }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: baserow_bootstrap_admin_result
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: "'created' in baserow_bootstrap_admin_result.stdout"
-  failed_when: baserow_bootstrap_admin_result.rc != 0
-  # Retry while Baserow's container entrypoint is still running Django
-  # migrations on a fresh DB. Without this the very first deploy races the
-  # auth_user table creation and fails with UndefinedTable.
-  retries: 60
-  delay: 5
-  until: baserow_bootstrap_admin_result.rc == 0
+- name: "👔 Baserow manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

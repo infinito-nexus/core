@@ -4,22 +4,17 @@
 # # Meta
 SYS_TIMER_ALL_ENABLED: "{{ MODE_DEBUG }}" # Runtime Variables for Process Control - Activates all timers, independend if the handlers had been triggered
 
-## Server Tact Variables 
-
 HOURS_SERVER_AWAKE: "6..23" # Ours in which the server is "awake" (100% working). Rest of the time is reserved for maintanance
 RANDOMIZED_DELAY_SEC: "5min" # Random delay for systemd timers to avoid peak loads.
 
-## Timeouts for all services
 SYS_TIMEOUT_CONTAINER_RPR_HARD: "10min"
 SYS_TIMEOUT_CONTAINER_RPR_SOFT: "{{ SYS_TIMEOUT_CONTAINER_RPR_HARD }}"
 SYS_TIMEOUT_CLEANUP_SERVICES: "15min"
 SYS_TIMEOUT_DOCKER_UPDATE: "20min"
 SYS_TIMEOUT_STORAGE_OPTIMIZER: "{{ SYS_TIMEOUT_DOCKER_UPDATE }}"
 SYS_TIMEOUT_BACKUP_SERVICES: "60min"
+SYS_TIMEOUT_CONTAINER_EXEC: "7d" # Hard OS-level kill for `container exec`; a week so it never beats a production migration
 
-## On Calendar
-
-### Schedule for health checks
 SYS_SCHEDULE_HEALTH_BTRFS: "*-*-* 00:00:00" # Check once per day the btrfs for errors
 SYS_SCHEDULE_HEALTH_JOURNALCTL: "*-*-* 00:00:00" # Check once per day the journalctl for errors
 SYS_SCHEDULE_HEALTH_DISC_SPACE: "*-*-* 06,12,18,00:00:00" # Check four times per day if there is sufficient disc space
@@ -29,25 +24,23 @@ SYS_SCHEDULE_HEALTH_CSP_CRAWLER: "*-*-* {{ HOURS_SERVER_AWAKE }}:00:00" # Check 
 SYS_SCHEDULE_HEALTH_NGINX: "*-*-* {{ HOURS_SERVER_AWAKE }}:00:00" # Check once per hour if all webservices are available
 SYS_SCHEDULE_HEALTH_MSMTP: "*-*-* 00:00:00" # Check once per day SMTP Server
 
-### Schedule for cleanup tasks
 SYS_SCHEDULE_CLEANUP_CERTS: "*-*-* 20:00" # Deletes and revokes unused certs once per day
 SYS_SCHEDULE_CLEANUP_BACKUPS: "*-*-* 21:00" # Cleanup backups once per day, MUST be called before disc space cleanup
 SYS_SCHEDULE_CLEANUP_DOCKER: "*-*-* 22:00" # Cleanup docker anonymous volumes and prune ones per day
 SYS_SCHEDULE_CLEANUP_DISC_SPACE: "*-*-* 23:30" # Cleanup disc space once per day
 SYS_SCHEDULE_CLEANUP_FAILED_BACKUPS: "*-*-* 04:00" # Clean up failed docker backups once per day
 
-### Schedule for repair services
 SYS_SCHEDULE_REPAIR_BTRFS_AUTO_BALANCER: "Sat *-*-01..07 00:00:00" # Execute btrfs auto balancer every first Saturday of a month
 SYS_SCHEDULE_REPAIR_DOCKER_HARD: "Sun *-*-* 00:00:00" # Restart docker instances every Sunday
 
-### Schedule for backup tasks
 SYS_SCHEDULE_BACKUP_REMOTE_TO_LOCAL: "*-*-* 00:30:00" # Pull Backup of the previous day
 SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL: "*-*-* 01:00:00" # Backup the current day
+SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL: "*-*-* 01:30:00" # Differential NFS export snapshot after the container backup
+SYS_SCHEDULE_BACKUP_SECRETS_TO_LOCAL: "*-*-* 01:45:00" # Differential host secrets/CA/ACME/node-identity snapshot after the NFS backup
+SYS_SCHEDULE_BACKUP_LOCAL_TO_DEVICE: "*-*-* 02:00:00" # Sync to the USB device if it is currently mounted, otherwise the unit condition skips it
 
-### Schedule for Maintenance Tasks
 SYS_SCHEDULE_MAINTANANCE_LETSENCRYPT_RENEW: "*-*-2/2  10:00:00" # Renew Mailu certificates every two days (even days only)
 SYS_SCHEDULE_MAINTANANCE_LETSENCRYPT_DEPLOY: "*-*-* 11,23:00:00" # Deploy letsencrypt certificates twice per day to docker containers
 SYS_SCHEDULE_MAINTANANCE_NEXTCLOUD: "21" # Do nextcloud maintanace between 21:00 and 01:00
 
-### Animation
 SYS_SCHEDULE_ANIMATION_KEYBOARD_COLOR: "*-*-* *:*:00" # Change the keyboard color every minute

@@ -1,5 +1,5 @@
 ---
-- name: Install RetroArch and assets
+- name: 📦 Install RetroArch and assets
   package:
     name: "{{ retroarch_packages }}"
     state: present

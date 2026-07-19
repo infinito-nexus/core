@@ -1,13 +1,15 @@
 ---
-- name: "apply Social Login Key for Keycloak"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    container exec -i \
-      -e SITE_NAME -e PROVIDER_NAME -e BUTTON_TEXT \
-      -e CLIENT_ID -e CLIENT_SECRET -e ISSUER_URL \
-      -e GROUP_ROLE_MAP_JSON \
-      {{ ERPNEXT_BACKEND_CONTAINER }} \
-      bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -' < {{ role_path }}/files/scripts/apply_oidc_settings.py
+- name: "📌 apply Social Login Key for Keycloak"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e PROVIDER_NAME -e BUTTON_TEXT
+      -e CLIENT_ID -e CLIENT_SECRET -e ISSUER_URL
+      -e GROUP_ROLE_MAP_JSON
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -'
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/scripts/apply/oidc_settings.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
     PROVIDER_NAME: "keycloak"
@@ -18,21 +20,44 @@
     GROUP_ROLE_MAP_JSON: "{{ ERPNEXT_OIDC_GROUP_ROLE_MAP | to_json }}"
   register: erpnext_oidc_apply
   changed_when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
-  timeout: 60
+  timeout: "{{ lookup('timeout', 60) | int }}"
 
-- name: "restart the Frappe backend when the Social Login Key changed so --preload workers re-render the SSO button"
+- name: "🔄 Restart Frappe on Social Login Key change (compose)"
   ansible.builtin.shell: |
     set -euo pipefail
     container restart {{ ERPNEXT_BACKEND_CONTAINER }}
   changed_when: true
-  when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
-  timeout: 120
+  when:
+    - "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
+    - DEPLOYMENT_MODE == 'compose'
+  timeout: "{{ lookup('timeout', 120) | int }}"
 
-- name: "wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after OIDC restart"
+- name: "🔄 Restart Frappe on Social Login Key change (swarm)"
+  ansible.builtin.command: >-
+    container service update --force {{ entity_name }}_backend
+  changed_when: true
+  when:
+    - "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
+    - DEPLOYMENT_MODE == 'swarm'
+  timeout: "{{ lookup('timeout', 600) | int }}"
+
+- name: "🔍 Re-resolve ERPNext backend node + CID after OIDC restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: backend
+    resolve_output_prefix: ERPNEXT_BACKEND
+    resolve_compose_cid: "{{ ERPNEXT_BACKEND_CONTAINER }}"
+    resolve_converge_retries: 60
+    resolve_converge_delay: 5
+  when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
+
+- name: "⏳ wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after OIDC restart"
   ansible.builtin.shell: |
     set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} \
       bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   register: erpnext_backend_ready_post_oidc
   changed_when: false
   retries: 60

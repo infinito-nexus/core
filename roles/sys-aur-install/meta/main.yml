@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Wrapper role to install AUR packages via kewlfft.aur.aur using yay.
+  description: Wrapper role for installing AUR packages on Arch Linux via the yay helper and the kewlfft.aur.aur module
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

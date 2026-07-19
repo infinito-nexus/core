@@ -1,98 +1,25 @@
 ---
-- name: "Wait until Mailu redis backend responds to PING"
-  block:
-    - name: "Probe Mailu redis"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - exec
-          - -T
-          - redis
-          - redis-cli
-          - ping
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_redis_check
-      retries: 30
-      delay: 5
-      until:
-        - mailu_redis_check.rc == 0
-        - "'PONG' in (mailu_redis_check.stdout | default(''))"
-      changed_when: false
+- name: "⏳ Probe embedded Mailu redis on its hosting node"
+  ansible.builtin.include_tasks: 03a_probe_local_redis.yml
+  when: lookup('engine', 'redis', application_id, 'local')
 
-  rescue:
-    - name: "Collect Mailu redis container logs after readiness timeout"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - logs
-          - --tail=300
-          - redis
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_redis_logs
-      changed_when: false
+- name: "🔍 Resolve Mailu admin hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: admin
+    resolve_output_prefix: MAILU_ADMIN
+    resolve_compose_cid: "{{ MAILU_ADMIN_CONTAINER_ADDRESS }}"
 
-    - name: "Fail: Mailu redis not ready"
-      ansible.builtin.fail:
-        msg: |
-          Mailu redis did not respond to PING in time.
-
-          Last stderr:
-          {{ mailu_redis_check.stderr | default('') }}
-
-          --- Mailu redis container logs (last 300 lines) ---
-          {{ mailu_redis_logs.stdout | default('No logs available') }}
-
-- name: "Wait until Mailu admin HTTP API listens on :8080"
-  block:
-    - name: "Probe Mailu admin HTTP API"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - exec
-          - -T
-          - admin
-          - curl
-          - -sS
-          - -o
-          - /dev/null
-          - -w
-          - "%{http_code}"
-          - http://localhost:8080/sso/login
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_admin_http_check
-      retries: 30
-      delay: 5
-      until:
-        - mailu_admin_http_check.rc == 0
-        - (mailu_admin_http_check.stdout | default('') | regex_search('^[1-5][0-9][0-9]$')) is not none
-      changed_when: false
-
-  rescue:
-    - name: "Collect Mailu admin container logs after HTTP API readiness timeout"
-      ansible.builtin.command:
-        argv:
-          - "{{ BIN_COMPOSE }}"
-          - logs
-          - --tail=300
-          - admin
-      args:
-        chdir: "{{ MAILU_INSTANCE_DIR }}"
-      register: mailu_admin_http_logs
-      changed_when: false
-
-    - name: "Fail: Mailu admin HTTP API not ready"
-      ansible.builtin.fail:
-        msg: |
-          Mailu admin HTTP API did not respond on :8080 in time.
-
-          Last stderr:
-          {{ mailu_admin_http_check.stderr | default('') }}
-
-          Last status code:
-          {{ mailu_admin_http_check.stdout | default('') }}
-
-          --- Mailu admin container logs (last 300 lines) ---
-          {{ mailu_admin_http_logs.stdout | default('No logs available') }}
+- name: "🔍 Probe Mailu admin HTTP API"
+  ansible.builtin.shell: |
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ MAILU_ADMIN_LOCAL_CID | quote }} \
+      {{ 30 | curl }} -S -o /dev/null -w "%{http_code}" http://localhost:8080/sso/login
+  delegate_to: "{{ MAILU_ADMIN_HOST_NODE }}"
+  register: mailu_admin_http_check
+  retries: 30
+  delay: 5
+  until:
+    - mailu_admin_http_check.rc == 0
+    - (mailu_admin_http_check.stdout | default('') | regex_search('^[1-5][0-9][0-9]$')) is not none
+  changed_when: false

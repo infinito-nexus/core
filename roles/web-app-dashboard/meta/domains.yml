@@ -1,0 +1,4 @@
+---
+canonical:
+  - dashboard.{{ DOMAIN_PRIMARY }}
+aliases: []

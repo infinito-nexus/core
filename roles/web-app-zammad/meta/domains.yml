@@ -1,0 +1,3 @@
+---
+canonical:
+  - zammad.helpdesk.{{ DOMAIN_PRIMARY }}

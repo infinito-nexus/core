@@ -1,0 +1,13 @@
+---
+whitelist:
+  connect-src:
+    - "{{ lookup('domain', 'web-app-erpnext') }}"
+    - "wss://{{ lookup('domain', 'web-app-erpnext') }}"
+flags:
+  script-src:
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  style-src-attr:
+    unsafe-inline: true

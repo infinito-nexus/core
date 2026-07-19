@@ -1,81 +1,39 @@
 ---
-- name: "probe site_config.json for '{{ ERPNEXT_SITE_NAME }}'"
+- name: "🔍 probe site_config.json for '{{ ERPNEXT_SITE_NAME }}'"
   ansible.builtin.shell: |
     set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} \
       test -f /home/frappe/frappe-bench/sites/{{ ERPNEXT_SITE_NAME }}/site_config.json
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   register: erpnext_site_probe
   changed_when: false
   failed_when: false
 
-- name: "bench new-site --install-app erpnext '{{ ERPNEXT_SITE_NAME }}'"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    container exec -i \
-      -e DB_ROOT_USER -e DB_ROOT_PASSWORD -e ADMIN_PASSWORD \
-      {{ ERPNEXT_BACKEND_CONTAINER }} bash -c '
-        bench new-site \
-          --no-mariadb-socket \
-          --mariadb-user-host-login-scope=% \
-          --db-root-username="$DB_ROOT_USER" \
-          --db-root-password="$DB_ROOT_PASSWORD" \
-          --admin-password="$ADMIN_PASSWORD" \
-          --install-app erpnext \
-          --set-default \
-          {{ ERPNEXT_SITE_NAME }}
-      '
-  environment:
-    DB_ROOT_USER: "{{ ERPNEXT_DB_ROOT_USER }}"
-    DB_ROOT_PASSWORD: "{{ ERPNEXT_DB_ROOT_PASSWORD }}"
-    ADMIN_PASSWORD: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
-  register: erpnext_new_site
-  changed_when: true
-  timeout: 1800
+- name: "🥾 Bootstrap ERPNext site when missing (create + restart + wait for backend)"
+  ansible.builtin.include_tasks: 02b_create_site.yml
   when: erpnext_site_probe.rc != 0
 
-# Long-lived Frappe containers cache the app set at startup; without a restart they
-# 500 on /login after install-app erpnext.
-- name: "restart Frappe containers to pick up newly-installed app"
+- name: "✅ ensure encryption_key on site '{{ ERPNEXT_SITE_NAME }}'"
   ansible.builtin.shell: |
     set -euo pipefail
-    container restart \
-      {{ ERPNEXT_BACKEND_CONTAINER }} \
-      {{ ERPNEXT_FRONTEND_CONTAINER }} \
-      {{ ERPNEXT_WEBSOCKET_CONTAINER }} \
-      {{ ERPNEXT_SCHEDULER_CONTAINER }} \
-      {{ ERPNEXT_QUEUE_SHORT_CONTAINER }} \
-      {{ ERPNEXT_QUEUE_LONG_CONTAINER }}
-  changed_when: false
-  when: erpnext_site_probe.rc != 0
-
-- name: "wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after restart"
-  ansible.builtin.shell: |
-    set -eo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} \
-      bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
-  register: erpnext_backend_ready_post_restart
-  changed_when: false
-  retries: 60
-  delay: 5
-  until: erpnext_backend_ready_post_restart.rc == 0
-  when: erpnext_site_probe.rc != 0
-
-- name: "ensure encryption_key on site '{{ ERPNEXT_SITE_NAME }}'"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    container exec {{ ERPNEXT_BACKEND_CONTAINER }} bash -c '
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
       grep -q "encryption_key" /home/frappe/frappe-bench/sites/{{ ERPNEXT_SITE_NAME }}/site_config.json || \
       bench --site {{ ERPNEXT_SITE_NAME }} execute frappe.utils.password.create_auth_table 2>/dev/null || true
     '
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   changed_when: false
 
-- name: "apply API-bot user + bypass setup wizard"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    container exec -i \
-      -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET \
-      {{ ERPNEXT_BACKEND_CONTAINER }} \
-      bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -' < {{ role_path }}/files/scripts/apply_api_bot.py
+- name: "📌 apply API-bot user + bypass setup wizard"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      bash -c 'cd /home/frappe/frappe-bench/sites && /home/frappe/frappe-bench/env/bin/python -'
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/scripts/apply/api_bot.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
     API_BOT_LOGIN: "{{ ERPNEXT_API_BOT_USER.username }}"

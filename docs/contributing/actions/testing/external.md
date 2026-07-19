@@ -66,7 +66,7 @@ make test-external INFINITO_TEST_PATTERN=test_image_versions.py
 
 ## CI Workflow 🤖
 
-The dedicated workflow lives at `.github/workflows/test-code-external.yml`.
+External tests run inside `.github/workflows/test.yml` via `make test`.
 It MAY be triggered manually and is intentionally separate from the default
 `make test` flow. It is also wired into the orchestrated code-testing gate in
 CI so the live check can run there without changing local default validation.

@@ -1,5 +1,5 @@
 ---
-- name: install security tools
+- name: 📦 install security tools
   package:
     name:
       - keepassxc

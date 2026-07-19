@@ -1,38 +1,79 @@
 ---
-- name: "ansible-flavor: probe Synapse client API on host loopback (cold MDAD bootstrap ~10-15min)"
+# The unit is RemainAfterExit=yes, so success is 'active'; 'inactive' must NOT count as
+# terminal (it is also the queued-not-yet-started state behind After=docker.service, and
+# it is where the unit STAYS when its docker.service dependency fails - hence the
+# docker= probe, without which a dead inner daemon burns the whole wait budget).
+# ActiveState matched via stdout_lines: 'ActiveState=active' is a substring of 'ActiveState=activating'.
+- name: "⏳ ansible-flavor: await matrix-mdad bootstrap oneshot (cold ~10-15min)"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS }}
+      sh -c 'systemctl show -p LoadState,ActiveState matrix-mdad-bootstrap.service;
+      printf "docker=%s\n" "$(systemctl is-failed docker.service)"'
+  register: matrix_mdad_bootstrap_state
+  retries: 360
+  delay: 5
+  until: >-
+    'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([])
+    or (
+      'LoadState=loaded' in matrix_mdad_bootstrap_state.stdout_lines | default([])
+      and (
+        'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([])
+        or 'ActiveState=active' in matrix_mdad_bootstrap_state.stdout_lines | default([])
+      )
+    )
+  changed_when: false
+  ignore_errors: true
+
+- name: "🔍 ansible-flavor: probe Synapse client API on loopback"
   uri_retry:
     url: "http://127.0.0.1:{{ MATRIX_SYNAPSE_PORT }}/_matrix/client/versions"
     status_code: 200
     follow_redirects: none
   register: matrix_synapse_loopback_probe
-  retries: 360
+  retries: 60
   delay: 5
   until: matrix_synapse_loopback_probe.status == 200
   ignore_errors: true
+  when:
+    - matrix_mdad_bootstrap_state is succeeded
+    - "'ActiveState=failed' not in matrix_mdad_bootstrap_state.stdout_lines | default([])"
+    - "'docker=failed' not in matrix_mdad_bootstrap_state.stdout_lines | default([])"
 
-- name: "ansible-flavor: diagnostics — matrix-mdad container + systemd + bootstrap status (on probe failure)"
+- name: "🐛 ansible-flavor: matrix-mdad container/systemd/bootstrap status on failure"
   ansible.builtin.script:
     cmd: "{{ role_path }}/files/flavor/ansible/diagnostics.sh"
+  environment:
+    MATRIX_CONTAINER: "{{ MATRIX_MDAD_CONTAINER }}"
   register: matrix_mdad_diagnostics
   changed_when: false
   failed_when: false
-  when:
-    - matrix_synapse_loopback_probe is failed
-    - MODE_DEBUG | bool
+  when: >-
+    matrix_mdad_bootstrap_state is failed
+    or 'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([])
+    or 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([])
+    or (matrix_synapse_loopback_probe is not skipped and matrix_synapse_loopback_probe is failed)
 
-- name: "ansible-flavor: dump matrix-mdad diagnostics"
+- name: "💾 ansible-flavor: dump matrix-mdad diagnostics"
   ansible.builtin.debug:
     var: matrix_mdad_diagnostics
-  when:
-    - matrix_synapse_loopback_probe is failed
-    - MODE_DEBUG | bool
+  when: matrix_mdad_diagnostics is not skipped
 
-- name: "ansible-flavor: fail after diagnostics if probe never succeeded"
+- name: "🛑 ansible-flavor: fail after diagnostics if Synapse never became reachable"
   ansible.builtin.fail:
-    msg: "Synapse loopback probe never reached 200 — see matrix_mdad_diagnostics above."
-  when: matrix_synapse_loopback_probe is failed
+    msg: >-
+      {% if 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
+      the docker daemon inside matrix-mdad failed to start - see matrix_mdad_diagnostics above.
+      {%- elif 'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
+      matrix-mdad bootstrap playbook failed inside the container - see matrix_mdad_diagnostics above.
+      {%- elif matrix_mdad_bootstrap_state is failed -%}
+      matrix-mdad bootstrap never reached a terminal state within the wait budget - see matrix_mdad_diagnostics above.
+      {%- else -%}
+      Synapse loopback probe never reached 200 - see matrix_mdad_diagnostics above.
+      {%- endif %}
+  when: matrix_mdad_diagnostics is not skipped
 
-- name: "ansible-flavor: probe Element web client on host loopback"
+- name: "🔍 ansible-flavor: probe Element web client on host loopback"
   uri_retry:
     url: "http://127.0.0.1:{{ MATRIX_ELEMENT_PORT }}/"
     status_code: 200
@@ -42,10 +83,11 @@
   delay: 2
   until: matrix_element_loopback_probe.status == 200
 
-- name: "ansible-flavor: create native admin in Synapse (DiD, idempotent via shared-secret)"
+- name: "📁 ansible-flavor: create native Synapse admin (DiD, idempotent shared-secret)"
+  when: IS_STACK_HOST | bool
   ansible.builtin.shell:
-    cmd: >- # nocheck: raw-docker — inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved
-      container exec matrix-mdad docker exec matrix-synapse register_new_matrix_user
+    cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved; ansible flavor forces compose mode
+      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-synapse register_new_matrix_user
       -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
       -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
       -a -c /data/homeserver.yaml http://localhost:8008
@@ -54,16 +96,18 @@
   failed_when: matrix_admin_create.rc != 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "front-proxy: Element web client"
+- name: "🔀 front-proxy: Element web client"
   ansible.builtin.include_role:
     name: sys-stk-front-proxy
   vars:
     domain: "{{ MATRIX_ELEMENT_DOMAIN }}"
     http_port: "{{ MATRIX_ELEMENT_PORT }}"
+    proxy_internal_port: 8080
 
-- name: "front-proxy: Synapse client/federation"
+- name: "🔀 front-proxy: Synapse client/federation"
   ansible.builtin.include_role:
     name: sys-stk-front-proxy
   vars:
     domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
+    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"

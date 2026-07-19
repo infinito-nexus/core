@@ -1,2 +1,35 @@
 ---
 - include_tasks: utils/once/flag.yml
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+    application_id: "svc-db-redis"
+    database_consumer_id: "svc-db-redis"
+
+- name: "⏳ REDIS | Wait until container is running (not restarting)"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ REDIS_CONTAINER_ADDRESS }}
+  register: redis_state
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  retries: 120
+  delay: 2
+  until: >
+    (redis_state.stdout is search('running')) and
+    (redis_state.stdout is not search('true'))
+  changed_when: false
+
+- name: "✅ REDIS | Confirm engine answers PING (authenticated)"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} ping'
+  register: redis_ping_ready
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  retries: 30
+  delay: 2
+  until: redis_ping_ready.stdout is search('PONG')
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

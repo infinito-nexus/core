@@ -1,5 +1,5 @@
 ---
-- name: Ensure RBAC client scope exists
+- name: ✅ Ensure RBAC client scope exists
   shell: |
     cat <<'JSON' | {{ KEYCLOAK_EXEC_KCADM }} create client-scopes -r {{ KEYCLOAK_REALM }} -f -
     {{
@@ -15,12 +15,12 @@
   failed_when: create_rbac_scope.rc != 0 and ('already exists' not in (create_rbac_scope.stderr | lower))
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Get all client scopes
+- name: ⬇️ Get all client scopes
   shell: "{{ KEYCLOAK_EXEC_KCADM }} get client-scopes -r {{ KEYCLOAK_REALM }} --format json"
   register: all_scopes
   changed_when: false
 
-- name: Extract RBAC scope id
+- name: 📤 Extract RBAC scope id
   set_fact:
     scope_id_rbac: >-
       {{ (
@@ -29,12 +29,12 @@
           | list | first | default({})
         ).id | default('') }}
 
-- name: Get all clients (avoid --query and jq; tolerate noisy stdout)
+- name: ⬇️ Get all clients (avoid --query and jq; tolerate noisy stdout)
   shell: "{{ KEYCLOAK_EXEC_KCADM }} get clients -r {{ KEYCLOAK_REALM }} --format json"
   register: all_clients
   changed_when: false
 
-- name: Extract application client id
+- name: 📤 Extract application client id
   set_fact:
     app_client_id: >-
       {{ (
@@ -43,15 +43,15 @@
           | list | first | default({})
         ).id | default('') }}
 
-- name: Sanity check IDs
+- name: ✅ Sanity check IDs
   assert:
     that:
       - scope_id_rbac | length > 0
       - app_client_id is match('^[0-9a-f-]+$')
     fail_msg: "Could not determine client or scope ID."
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
-- name: Get current optional client scopes
+- name: ⬇️ Get current optional client scopes
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get
     clients/{{ app_client_id }}/optional-client-scopes
@@ -59,7 +59,7 @@
   register: opt_scopes
   changed_when: false
 
-- name: Get current default client scopes
+- name: ⬇️ Get current default client scopes
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get
     clients/{{ app_client_id }}/default-client-scopes
@@ -67,7 +67,7 @@
   register: def_scopes
   changed_when: false
 
-- name: Decide where RBAC scope is currently assigned
+- name: 🤔 Decide where RBAC scope is currently assigned
   set_fact:
     has_rbac_optional: >-
       {{ (opt_scopes.stdout | kcadm_json
@@ -82,7 +82,7 @@
 # being explicitly granted — and the `groups` scope is dropped from the
 # granted scope set when `include.in.token.scope=false`, leaving userinfo
 # without the claim.
-- name: Remove RBAC scope from optional client scopes (if present)
+- name: 🗑️ Remove RBAC scope from optional client scopes (if present)
   when: has_rbac_optional
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} delete
@@ -92,7 +92,7 @@
   changed_when: true
   failed_when: remove_opt.rc != 0
 
-- name: Ensure RBAC scope assigned as default (only if missing)
+- name: ✅ Ensure RBAC scope assigned as default (only if missing)
   when: not has_rbac_default
   shell: >
     {{ KEYCLOAK_EXEC_KCADM }} update

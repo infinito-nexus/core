@@ -12,7 +12,7 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 | `CI_SYNC_MAIN_SOURCE_REPOSITORY` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Syncs `main` from `infinito-nexus/core` before CI scope discovery | `<owner>/<repo>` to use another source, or `false`, empty, or the current repository to skip |
 | `CI_RUN_ON_MAIN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Pushes to `main` skip CI | `true` to run CI on `main` pushes too |
 | `CI_ENABLE_AUTO_UPDATES` | [update.yml](../../../../../.github/workflows/update.yml), [dependabot-close.yml](../../../../../.github/workflows/dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
-| `INFINITO_PLAYWRIGHT_KEEP` | [test-deploy-server.yml](../../../../../.github/workflows/test-deploy-server.yml), [test-deploy-universal.yml](../../../../../.github/workflows/test-deploy-universal.yml), [test-deploy-workstation.yml](../../../../../.github/workflows/test-deploy-workstation.yml), [test-deploy-local.yml](../../../../../.github/workflows/test-deploy-local.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included) |
+| `INFINITO_PLAYWRIGHT_KEEP` | [test-deploy-compose.yml](../../../../../.github/workflows/test-deploy-compose.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included) |
 
 ## `CI_CANCEL_IN_PROGRESS` 🛑
 
@@ -118,7 +118,7 @@ Controls whether automated update PRs are created. Covers both the workflow-driv
 The workflow-driven jobs additionally require the `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` repository secrets, see [secrets.md](secrets.md). Without those secrets, runs fail at the token-minting step and no PR is opened.
 
 **Default behaviour (variable not set or set to any value other than `true`):**
-The `update-docker-image-versions` and `update-skills` jobs are skipped. Dependabot PRs are auto-closed on open with a comment pointing to this variable.
+The `update-docker-image-versions` job is skipped. Dependabot PRs are auto-closed on open with a comment pointing to this variable.
 
 **To enable update PRs:**
 
@@ -151,7 +151,7 @@ Dependabot cannot read repository variables itself, so [dependabot-close.yml](..
 
 ## `INFINITO_PLAYWRIGHT_KEEP` 🎬
 
-Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests across the four deploy-test workflows ([test-deploy-server.yml](../../../../../.github/workflows/test-deploy-server.yml), [test-deploy-universal.yml](../../../../../.github/workflows/test-deploy-universal.yml), [test-deploy-workstation.yml](../../../../../.github/workflows/test-deploy-workstation.yml), [test-deploy-local.yml](../../../../../.github/workflows/test-deploy-local.yml)).
+Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the compose deploy-test workflow ([test-deploy-compose.yml](../../../../../.github/workflows/test-deploy-compose.yml)).
 For the full propagation chain, the inventory override, and the local equivalents, see [Playwright Tests](../../../actions/testing/playwright.md#artefact-retention-).
 
 **Default behaviour (variable not set or set to any value other than `true`):**

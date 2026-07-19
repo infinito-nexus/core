@@ -1,4 +1,24 @@
 ---
+# Hard cap per role; Ansible kills the sidecar if exceeded. Sized for
+# addon-heavy roles that run many per-addon specs, e.g. nextcloud (~50 addons).
+test_e2e_playwright_run_timeout: 3600
+
+# Per-test timeout (ms) inside Playwright (config.timeout); caps a single spec.
+test_e2e_playwright_test_timeout: 300000
+
+# Parallel Playwright workers. Spec FILES run concurrently (tests within a file
+# stay serial while TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL is false). The count is
+# computed conservatively from the host CPU/RAM, capped for the app-under-test's
+# concurrency limits, and reduced on CI.
+test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
+
+# globalTimeout = run_timeout minus this buffer; leaves room for Ansible to
+# collect artifacts before it kills the sidecar at run_timeout.
+TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER: 60
+TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS: "{{ (((TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE | int) - (TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER | int)) * 1000) | string
+  }}"
+
+# Run only a subset (optional)
 test_e2e_playwright_only_roles: "{{ lookup('deployment').groups }}"
 test_e2e_playwright_skip_roles: []
 test_e2e_playwright_keep: false

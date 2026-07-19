@@ -1,7 +1,0 @@
----
-domains:
-  canonical:
-    - coturn.{{ DOMAIN_PRIMARY }}
-networks:
-  local:
-    subnet: 192.168.104.48/28

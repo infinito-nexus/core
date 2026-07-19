@@ -9,6 +9,4 @@ For the canonical Make target index that invokes these helpers, see [make.md](..
 
 | Command | What it does | Notes |
 |---|---|---|
-| `all.sh` | Runs `test-deploy-local.yml` across all selected distros. | Uses a linear matrix and passes the selected distro list through `INFINITO_DISTROS`. |
-| `app.sh` | Runs `test-deploy-local.yml` for one app. | Uses `whitelist` to limit the workflow to the selected app. |
-| `workflow.sh` | Runs any workflow file through `act`. | Supports custom job, matrix, container, network, and image settings. |
+| `workflow.sh` | Runs any workflow file through `act`. | Supports custom job, matrix, container, network, and image settings. Invoked via `make act-workflow ACT_WORKFLOW=<file>`. |

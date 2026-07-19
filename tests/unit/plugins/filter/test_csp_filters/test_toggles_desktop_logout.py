@@ -10,7 +10,7 @@ class TestCspTogglesDashboardLogout(unittest.TestCase):
         self.apps = {
             "app1": {
                 "services": {"matomo": {"enabled": False}},
-                "server": {"csp": {"whitelist": {}, "flags": {}, "hashes": {}}},
+                "csp": {"whitelist": {}, "flags": {}, "hashes": {}},
             }
         }
         self.domains = {
@@ -74,10 +74,8 @@ class TestCspTogglesDashboardLogout(unittest.TestCase):
 
     def test_logout_respects_explicit_disable_on_base_script_src(self):
         apps = copy.deepcopy(self.apps)
-        apps["app1"].setdefault("server", {}).setdefault("csp", {}).setdefault(
-            "flags", {}
-        )
-        apps["app1"]["server"]["csp"]["flags"]["script-src"] = {
+        apps["app1"].setdefault("csp", {}).setdefault("flags", {})
+        apps["app1"]["csp"]["flags"]["script-src"] = {
             "unsafe-inline": False,
             "unsafe-eval": True,
         }
@@ -94,10 +92,8 @@ class TestCspTogglesDashboardLogout(unittest.TestCase):
 
     def test_logout_propagates_to_base_when_not_explicitly_disabled(self):
         apps = copy.deepcopy(self.apps)
-        apps["app1"].setdefault("server", {}).setdefault("csp", {}).setdefault(
-            "flags", {}
-        )
-        apps["app1"]["server"]["csp"]["flags"]["script-src"] = {"unsafe-eval": True}
+        apps["app1"].setdefault("csp", {}).setdefault("flags", {})
+        apps["app1"]["csp"]["flags"]["script-src"] = {"unsafe-eval": True}
         self._set_service_enabled(apps, "logout", True)
 
         header = self.filter.build_csp_header(apps, "app1", self.domains, "https")

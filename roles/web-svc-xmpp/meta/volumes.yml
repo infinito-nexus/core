@@ -1,5 +1,48 @@
 ---
-data: ejabberd_data
-conf: ejabberd_conf
-upload: ejabberd_upload
-logs: ejabberd_logs
+data:
+  type: volume
+  name: ejabberd_data
+  nfs:
+    uid: "9000"
+    gid: "9000"
+    mode: "0770"
+  mounts:
+    - service: ejabberd
+      target: /home/ejabberd/database
+conf:
+  type: volume
+  name: ejabberd_conf
+  nfs:
+    uid: "9000"
+    gid: "9000"
+    mode: "0770"
+  mounts:
+    - service: ejabberd
+      target: /home/ejabberd/conf
+upload:
+  type: volume
+  name: ejabberd_upload
+  nfs:
+    uid: "9000"
+    gid: "9000"
+    mode: "0770"
+  mounts:
+    - service: ejabberd
+      target: /home/ejabberd/upload
+logs:
+  type: volume
+  name: ejabberd_logs
+  nfs:
+    uid: "9000"
+    gid: "9000"
+    mode: "0770"
+  mounts:
+    - service: ejabberd
+      target: /home/ejabberd/logs
+ejabberd_yml:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-xmpp', 'directories.instance'), 'ejabberd.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: ejabberd
+      target: /home/ejabberd/conf/ejabberd.yml

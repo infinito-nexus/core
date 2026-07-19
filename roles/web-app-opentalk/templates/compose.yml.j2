@@ -1,45 +1,45 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  application:
-    image: "{{ OPENTALK_FRONTEND_IMAGE }}:{{ OPENTALK_FRONTEND_VERSION }}"
-    container_name: {{ OPENTALK_FRONTEND_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ OPENTALK_FRONTEND_HTTP_PORT }}:80"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    depends_on:
-      controller:
-        condition: service_started
+  {% set service_name = 'opentalk' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'opentalk') }}
+    {{ lookup('compose_only', 'container_name', OPENTALK_FRONTEND_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports', ['opentalk', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('depends_on', {'controller': 'service_started'}) }}
 
-  controller:
-    image: "{{ OPENTALK_CTRL_IMAGE }}:{{ OPENTALK_CTRL_VERSION }}"
-    container_name: {{ OPENTALK_CTRL_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ OPENTALK_CTRL_HTTP_PORT }}:11311"
-    volumes:
-      - "{{ [lookup('container', application_id, 'directories.volumes'), 'controller.toml'] | path_join }}:/controller/controller.toml:ro"
-      - data:/var/lib/opentalk
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+  {% set service_name = 'controller' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'controller') }}
+    {{ lookup('compose_only', 'container_name', OPENTALK_CTRL_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports', ['controller', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'controller') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  livekit:
-    image: "{{ OPENTALK_LIVEKIT_IMAGE }}:{{ OPENTALK_LIVEKIT_VERSION }}"
-    container_name: {{ OPENTALK_LIVEKIT_CONTAINER }}
-    restart: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) }}
+  {% set service_name = 'livekit' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('container_image', application_id, 'livekit') }}
+    {{ lookup('compose_only', 'container_name', OPENTALK_LIVEKIT_CONTAINER) }}
+    {{ lookup('compose_restart') }}
+    # nocheck: network-mode-host-without-swarm-gate
     network_mode: host
     command:
       - --config
       - /etc/livekit/livekit.yaml
-    volumes:
-      - "{{ [lookup('container', application_id, 'directories.volumes'), 'livekit.yaml'] | path_join }}:/etc/livekit/livekit.yaml:ro"
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     logging:
       driver: journald
 
-  rabbit:
-    image: "{{ OPENTALK_RABBIT_IMAGE }}:{{ OPENTALK_RABBIT_VERSION }}"
-    container_name: {{ OPENTALK_RABBIT_CONTAINER }}
-    restart: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) }}
+  {% set service_name = 'rabbit' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('container_image', application_id, 'rabbit') }}
+    {{ lookup('compose_only', 'container_name', OPENTALK_RABBIT_CONTAINER) }}
+    {{ lookup('compose_restart') }}
     environment:
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit consumer_timeout 30000"
     healthcheck:
@@ -47,33 +47,22 @@
       interval: 30s
       timeout: 10s
       retries: 5
-    volumes:
-      - rabbit:/var/lib/rabbitmq
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
     logging:
       driver: journald
 
-  recorder:
-    image: "{{ OPENTALK_RECORDER_IMAGE }}:{{ OPENTALK_RECORDER_VERSION }}"
-    container_name: {{ OPENTALK_RECORDER_CONTAINER }}
-    restart: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) }}
-    volumes:
-      - "{{ [lookup('container', application_id, 'directories.volumes'), 'recorder.toml'] | path_join }}:/recorder/recorder.toml:ro"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    depends_on:
-      rabbit:
-        condition: service_healthy
-      controller:
-        condition: service_started
+  {% set service_name = 'recorder' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('container_image', application_id, 'recorder') }}
+    {{ lookup('compose_only', 'container_name', OPENTALK_RECORDER_CONTAINER) }}
+    {{ lookup('compose_restart') }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('depends_on', {'rabbit': 'service_healthy', 'controller': 'service_started'}) }}
     logging:
       driver: journald
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={
-      'data':   {'name': OPENTALK_DATA_VOLUME},
-      'config': {'name': OPENTALK_CONFIG_VOLUME},
-      'rabbit': {'name': lookup('config', application_id, 'volumes.rabbit')}
-    }
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

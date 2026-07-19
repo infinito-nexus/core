@@ -2,7 +2,7 @@ import unittest
 
 from ansible.errors import AnsibleFilterError
 
-from plugins.filter.merge_mapping import merge_mapping
+from plugins.filter.merge.mapping import merge_mapping
 
 
 class TestMergeMappingFilter(unittest.TestCase):

@@ -1,6 +1,24 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "📂 Include setup for domain '{{ lookup('domain', application_id) }}'"
   include_role:
-    name: sys-stk-full
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ lookup('domain', application_id) }}"
+    http_port: "{{ lookup('config', application_id, 'services.gitlab.ports.local.http') }}"
+
+- name: "🧩 load docker and db for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "📄 Render GitLab CNG configuration"
+  include_tasks: 02_config.yml
+
+- name: 🚿 Flush handlers to start the GitLab stack
+  meta: flush_handlers
+
+- name: "⏳ Wait for GitLab services"
+  include_tasks: 03_wait.yml

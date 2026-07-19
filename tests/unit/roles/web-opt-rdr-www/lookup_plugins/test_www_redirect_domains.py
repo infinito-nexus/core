@@ -39,25 +39,27 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
     def _run(self, applications, variables=None, role_canonical=None, **kwargs):
         lm = self.module.LookupModule()
         lm._templar = _DummyTemplar(variables or {})
+        lm._loader = MagicMock()
+
+        applications_plugin = MagicMock()
+        applications_plugin.run.return_value = [applications]
 
         domain_plugin = MagicMock()
         domain_plugin.run.return_value = [role_canonical or ""]
 
-        with (
-            patch.object(
-                self.module, "get_merged_applications", return_value=applications
-            ),
-            patch.object(self.module.lookup_loader, "get", return_value=domain_plugin),
-        ):
+        def _get(name, **_):
+            if name == "applications":
+                return applications_plugin
+            return domain_plugin
+
+        with patch.object(self.module.lookup_loader, "get", side_effect=_get):
             return lm.run(terms=[], variables=variables or {}, **kwargs)[0]
 
     def test_empty_applications_returns_empty_list(self):
         self.assertEqual(self._run({}), [])
 
     def test_canonical_gets_www_prefix(self):
-        apps = {
-            "web-app-foo": {"server": {"domains": {"canonical": ["foo.example.com"]}}}
-        }
+        apps = {"web-app-foo": {"domains": {"canonical": ["foo.example.com"]}}}
         self.assertEqual(
             self._run(apps),
             [{"source": "www.foo.example.com", "target": "foo.example.com"}],
@@ -66,11 +68,9 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
     def test_already_www_prefixed_alias_targets_bare_form(self):
         apps = {
             "web-opt-rdr-www": {
-                "server": {
-                    "domains": {
-                        "canonical": ["w3redirect.example.com"],
-                        "aliases": ["www.example.com"],
-                    }
+                "domains": {
+                    "canonical": ["w3redirect.example.com"],
+                    "aliases": ["www.example.com"],
                 }
             }
         }
@@ -88,11 +88,9 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
     def test_aliases_without_www_get_prefix(self):
         apps = {
             "web-app-foo": {
-                "server": {
-                    "domains": {
-                        "canonical": ["foo.example.com"],
-                        "aliases": ["alt.example.com"],
-                    }
+                "domains": {
+                    "canonical": ["foo.example.com"],
+                    "aliases": ["alt.example.com"],
                 }
             }
         }
@@ -106,8 +104,8 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
 
     def test_group_names_selection_filters_apps(self):
         apps = {
-            "web-app-foo": {"server": {"domains": {"canonical": ["foo.example.com"]}}},
-            "web-app-bar": {"server": {"domains": {"canonical": ["bar.example.com"]}}},
+            "web-app-foo": {"domains": {"canonical": ["foo.example.com"]}},
+            "web-app-bar": {"domains": {"canonical": ["bar.example.com"]}},
         }
         self.assertEqual(
             self._run(apps, group_names=["web-app-foo"]),
@@ -116,9 +114,9 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
 
     def test_group_names_csv_string_accepted(self):
         apps = {
-            "a": {"server": {"domains": {"canonical": ["a.example.com"]}}},
-            "b": {"server": {"domains": {"canonical": ["b.example.com"]}}},
-            "c": {"server": {"domains": {"canonical": ["c.example.com"]}}},
+            "a": {"domains": {"canonical": ["a.example.com"]}},
+            "b": {"domains": {"canonical": ["b.example.com"]}},
+            "c": {"domains": {"canonical": ["c.example.com"]}},
         }
         self.assertEqual(
             self._run(apps, group_names="a, c"),
@@ -131,11 +129,9 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
     def test_dedupes_when_same_mapping_appears_twice(self):
         apps = {
             "x": {
-                "server": {
-                    "domains": {
-                        "canonical": ["x.example.com"],
-                        "aliases": ["www.x.example.com"],
-                    }
+                "domains": {
+                    "canonical": ["x.example.com"],
+                    "aliases": ["www.x.example.com"],
                 }
             }
         }
@@ -145,7 +141,7 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
         )
 
     def test_empty_string_canonical_is_ignored(self):
-        apps = {"x": {"server": {"domains": {"canonical": ["", "valid.example.com"]}}}}
+        apps = {"x": {"domains": {"canonical": ["", "valid.example.com"]}}}
         self.assertEqual(
             self._run(apps),
             [{"source": "www.valid.example.com", "target": "valid.example.com"}],
@@ -157,11 +153,9 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
     def test_role_canonical_mapping_appended_via_domain_lookup(self):
         apps = {
             "web-opt-rdr-www": {
-                "server": {
-                    "domains": {
-                        "canonical": ["w3redirect.example.com"],
-                        "aliases": ["www.example.com"],
-                    }
+                "domains": {
+                    "canonical": ["w3redirect.example.com"],
+                    "aliases": ["www.example.com"],
                 }
             }
         }
@@ -177,18 +171,14 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
 
     def test_role_mapping_absent_when_domain_homepage_missing(self):
         apps = {
-            "web-opt-rdr-www": {
-                "server": {"domains": {"canonical": ["w3redirect.example.com"]}}
-            }
+            "web-opt-rdr-www": {"domains": {"canonical": ["w3redirect.example.com"]}}
         }
         result = self._run(apps, role_canonical="w3redirect.example.com")
         sources = [m["source"] for m in result]
         self.assertNotIn("w3redirect.example.com", sources)
 
     def test_role_mapping_absent_when_role_not_deployed(self):
-        apps = {
-            "web-app-foo": {"server": {"domains": {"canonical": ["foo.example.com"]}}}
-        }
+        apps = {"web-app-foo": {"domains": {"canonical": ["foo.example.com"]}}}
         result = self._run(
             apps,
             variables={"DOMAIN_HOMEPAGE": "infinito.nexus"},
@@ -199,9 +189,7 @@ class WwwRedirectDomainsLookupTests(unittest.TestCase):
 
     def test_role_mapping_not_duplicated(self):
         apps = {
-            "web-opt-rdr-www": {
-                "server": {"domains": {"canonical": ["w3redirect.example.com"]}}
-            }
+            "web-opt-rdr-www": {"domains": {"canonical": ["w3redirect.example.com"]}}
         }
         result = self._run(
             apps,

@@ -1,0 +1,44 @@
+---
+- name: 🔗 Integrate LDAP
+  include_tasks: 02_ldap.yml
+  when: FRIENDICA_LDAP_ENABLED | bool
+
+- name: "🔄 Flush handlers so '{{ FRIENDICA_CONTAINER }}' is up before container tasks"
+  meta: flush_handlers
+
+- name: "🔍 Resolve friendica hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: friendica
+    resolve_output_prefix: FRIENDICA
+    resolve_compose_cid: "{{ FRIENDICA_CONTAINER }}"
+
+- name: "🗑️ Remove stale ldapauth.config.php leftover when LDAP is disabled"
+  shell: > # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    container exec --user root {{ FRIENDICA_LOCAL_CID | quote }}
+    rm -f {{ FRIENDICA_LDAP_CONFIG_DOCKER }}
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+  register: friendica_ldap_config_cleanup
+  changed_when: friendica_ldap_config_cleanup.rc == 0
+  when: not (FRIENDICA_LDAP_ENABLED | bool)
+
+- name: 🔎 Check if Friendica local.config.php exists
+  shell: > # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    container exec --user {{ FRIENDICA_USER }} {{ FRIENDICA_LOCAL_CID | quote }} test -f {{ FRIENDICA_CONFIG_FILE }}
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+  register: friendica_config_exists
+  changed_when: false
+  failed_when: false
+
+- name: 🩹 Patch Friendica local.config.php with updated DB credentials
+  ansible.builtin.include_tasks:
+    file: 03_patch_config.yml
+    apply:
+      notify: compose up
+  when: friendica_config_exists.rc == 0
+- name: ➕ Add Friendica Add Ons
+  include_tasks: 04_addons.yml
+
+- name: "🎬 Bootstrap Friendica admin user (only when no LDAP provider provisions them)"
+  include_tasks: 06_user_bootstrap.yml
+  when: not (FRIENDICA_LDAP_ENABLED | bool)

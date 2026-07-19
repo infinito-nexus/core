@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 
 def get_docker_paths(application_id: str, path_docker_compose_instances: str) -> dict:

@@ -1,10 +1,10 @@
 ---
-- name: install certbot DNS plugin
+- name: 📦 install certbot DNS plugin
   package:
     name: "certbot-dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}"
     state: present
 
-- name: Ensure /etc/certbot directory exists
+- name: ✅ Ensure /etc/certbot directory exists
   file:
     path: "{{ CERTBOT_CREDENTIALS_DIR }}"
     state: directory
@@ -12,7 +12,7 @@
     group: root
     mode: "0755"
 
-- name: Install plugin credentials file
+- name: 📦 Install plugin credentials file
   copy:
     dest: "{{ CERTBOT_CREDENTIALS_FILE }}"
     content: |

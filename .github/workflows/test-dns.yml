@@ -32,10 +32,10 @@ jobs:
       owner: ${{ steps.vars.outputs.owner }}
       repo_name: ${{ steps.vars.outputs.repo_name }}
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Resolve image coordinates
+      - name: 🔍 Resolve image coordinates
         id: vars
         shell: bash
         run: |
@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: ./scripts/install/apt.sh jq
 
-      - name: Compute matrix JSON
+      - name: 🧮 Compute matrix JSON
         id: out
         shell: bash
         run: |
@@ -79,14 +79,14 @@ jobs:
         distro: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Install dnsutils (dig)
+      - name: 📦 Install dnsutils (dig)
         shell: bash
         run: ./scripts/install/apt.sh dnsutils
 
-      - name: Start stack (coredns + infinito) for distro
+      - name: ▶️ Start stack (coredns + infinito) for distro
         shell: bash
         env:
           INFINITO_DISTRO: ${{ matrix.distro }}
@@ -94,7 +94,7 @@ jobs:
           set -euo pipefail
           make compose-up
 
-      - name: DNS test suite
+      - name: 🌐 DNS test suite
         shell: bash
         env:
           INFINITO_DISTRO: ${{ matrix.distro }}
@@ -102,14 +102,14 @@ jobs:
           set -euo pipefail
           scripts/tests/dns.sh
 
-      - name: Dump CoreDNS logs on failure
+      - name: 💾 Dump CoreDNS logs on failure
         if: failure()
         shell: bash
         run: |
           docker ps -a || true
           docker logs infinito-coredns --tail=200 || true
 
-      - name: Dump infinito logs on failure
+      - name: 💾 Dump infinito logs on failure
         if: failure()
         shell: bash
         env:

@@ -1,0 +1,6 @@
+---
+- name: "📂 Load one-shot realm import routines for '{{ application_id }}'"
+  include_tasks: 05_realm_import.yml
+
+- name: "📌 Apply Keycloak object updates on the live Keycloak host"
+  include_tasks: 02b/updates.yml

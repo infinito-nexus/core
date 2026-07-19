@@ -1,3 +1,6 @@
 ---
+# Stack-host only: derives its domain list from the local nginx .conf dir, which no worker has.
 - include_tasks: 01_core.yml
-  when: run_once_sys_ctl_hlth_csp is not defined
+  when:
+    - run_once_sys_ctl_hlth_csp is not defined
+    - IS_STACK_HOST | bool

@@ -1,0 +1,26 @@
+---
+- name: "🚀 Deploy PHP error configuration (env aware)"
+  stack_host_template:
+    src: "php.ini.j2"
+    dest: "{{ SUITECRM_PHP_CONFIG_HOST }}"
+  notify:
+    - compose up
+
+- name: "📄 Render SuiteCRM LDAP mapping (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "ldap.yaml.j2"
+        dest: "{{ SUITECRM_LDAP_CONFIG_HOST }}"
+
+- name: "🚀 Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
+  copy:
+    src: "{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
+    dest: "{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}"
+  notify:
+    - compose up
+    - compose build
+
+- name: "🐳 Docker Compose Up for '{{ application_id }}'"
+  meta: flush_handlers

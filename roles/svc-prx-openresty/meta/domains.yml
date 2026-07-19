@@ -1,0 +1,4 @@
+---
+canonical:
+  - "{{ DOMAIN_PRIMARY }}"
+aliases: []

@@ -42,6 +42,9 @@ while true; do
 		--build-arg "INFINITO_PARENT_IMAGE=${INFINITO_PARENT_IMAGE}" \
 		--build-arg "INFINITO_SRC_DIR=${INFINITO_SRC_DIR}" \
 		--build-arg "INFINITO_VENV_DIR=${INFINITO_VENV_DIR}" \
+		--build-arg "INFINITO_PACKAGE_INSTALL_SCRIPT=${INFINITO_PACKAGE_INSTALL_SCRIPT:?source scripts/meta/env/load.sh}" \
+		--build-arg "INFINITO_PYTHON_INSTALL_SCRIPT=${INFINITO_PYTHON_INSTALL_SCRIPT:?source scripts/meta/env/load.sh}" \
+		--build-arg "INFINITO_DOCKER_CLI_INSTALL_SCRIPT=${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?source scripts/meta/env/load.sh}" \
 		"${nix_arg[@]}" \
 		--cache-from "type=gha,scope=${repo_name}-${MATRIX_DISTRO}" \
 		--cache-to "type=gha,mode=max,scope=${repo_name}-${MATRIX_DISTRO}" \

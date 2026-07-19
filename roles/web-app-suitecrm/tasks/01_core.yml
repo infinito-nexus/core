@@ -1,34 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Load docker, db and proxy for {{ application_id }}"
+- name: "🧩 Load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
-- name: "Deploy PHP error configuration (env aware)"
-  template:
-    src: "php.ini.j2"
-    dest: "{{ SUITECRM_PHP_CONFIG_HOST }}"
-  notify:
-    - compose up
-
-- name: "Render SuiteCRM LDAP mapping"
-  template:
-    src: ldap.yaml.j2
-    dest: "{{ SUITECRM_LDAP_CONFIG_HOST }}"
-  notify:
-    - compose up
-  when: SUITECRM_LDAP_ENABLED | bool
-
-- name: "Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
-  copy:
-    src: "{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
-    dest: "{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}"
-  notify:
-    - compose up
-    - compose build
-
-- name: "Docker Compose Up for '{{ application_id }}'"
-  meta: flush_handlers
+- name: "👔 SuiteCRM manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

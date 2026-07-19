@@ -1,31 +1,25 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {{ OPENLDAP_SERVICE }}:
+  {% set service_name = OPENLDAP_SERVICE %}
+  {{ service_name }}:
     build:
       context: "."
       dockerfile: Dockerfile
       args:
         OPENLDAP_IMAGE: "{{ OPENLDAP_IMAGE }}"
         OPENLDAP_VERSION: "{{ OPENLDAP_VERSION }}"
-    image: "{{ OPENLDAP_IMAGE_CUSTOM }}"
-    container_name: "{{ OPENLDAP_CONTAINER }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'openldap') }}
+    {{ lookup('compose_only', 'container_name', OPENLDAP_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
-{% if OPENLDAP_NETWORK_EXPOSE_LOCAL | bool %}
-    ports:
-      - {{ DOCKER_BIND_HOST }}:{{lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap')}}:{{ OPENLDAP_DOCKER_PORT_OPEN }}
-{% endif %}
+    {% if OPENLDAP_NETWORK_EXPOSE_LOCAL | bool %}
+    {{ lookup('container_ports', ['openldap', 'ldap', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
 
-    volumes:
-      - 'data:/var/lib/ldap'
-      - 'config:/etc/ldap/slapd.d'
-      - '{{ OPENLDAP_LDIF_PATH_HOST }}:{{ OPENLDAP_LDIF_PATH_DOCKER }}:ro'
+    {{ lookup('container_volumes', application_id, OPENLDAP_SERVICE) | indent(4) }}
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'config': {'name': OPENLDAP_VOLUME ~ '_config'}, 'data': {'name': OPENLDAP_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

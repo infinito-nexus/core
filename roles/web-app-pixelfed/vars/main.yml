@@ -1,13 +1,10 @@
 ---
-# General
 application_id: "web-app-pixelfed"
 
-# Pixelfed
-PIXELFED_VERSION: "{{ lookup('config', application_id, 'services.pixelfed.version') }}"
-PIXELFED_IMAGE: "{{ lookup('config', application_id, 'services.pixelfed.image') }}"
+swarm_stack_converge_retries: 600
+
 PIXELFED_CONTAINER: "{{ lookup('config', application_id, 'services.pixelfed.name') }}"
 PIXELFED_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
-PIXELFED_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 PIXELFED_TITEL: "{{ lookup('config', application_id, 'services.pixelfed.titel') }}"
 PIXELFED_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 PIXELFED_APP_USER: "33"
@@ -16,6 +13,9 @@ PIXELFED_ENV_FILE: "{{ lookup('container', application_id, 'files.env') }}"
 PIXELFED_ENTRYPOINT_FILE: "docker-entrypoint.sh"
 PIXELFED_ENTRYPOINT_HOST_ABS: "{{ [PIXELFED_INSTANCE_DIR, PIXELFED_ENTRYPOINT_FILE] | path_join }}"
 PIXELFED_ENTRYPOINT_DOCKER: "/infinito-pixelfed-entrypoint.sh"
+PIXELFED_WORKER_ENTRYPOINT_FILE: "worker-entrypoint.sh"
+PIXELFED_WORKER_ENTRYPOINT_HOST_ABS: "{{ [PIXELFED_INSTANCE_DIR, PIXELFED_WORKER_ENTRYPOINT_FILE] | path_join }}"
+PIXELFED_WORKER_ENTRYPOINT_DOCKER: "/infinito-pixelfed-worker-entrypoint.sh"
 PIXELFED_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
 PIXELFED_ADMIN_USER_KEY: "administrator"
 PIXELFED_ADMIN_USERNAME: "{{ lookup('users', PIXELFED_ADMIN_USER_KEY).username }}"

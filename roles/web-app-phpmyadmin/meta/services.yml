@@ -17,7 +17,12 @@ mariadb:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 phpmyadmin:
-  version: latest
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  version: 5.2.3
   name: phpmyadmin
   image: phpmyadmin/phpmyadmin
   min_storage: 1GB
@@ -26,6 +31,8 @@ phpmyadmin:
     local:
       sso: 16481
       http: 8034
+    internal:
+      http: 80
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -42,7 +49,7 @@ sso:
   oauth2:
     origin:
       port: "80"
-      host: application
+      host: phpmyadmin
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-phpmyadmin', role='administrator') }}"
 css:

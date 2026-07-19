@@ -11,6 +11,7 @@ carries one, mirroring the convention used in `default.env`.
 
 from __future__ import annotations
 
+import os
 import re
 from typing import TYPE_CHECKING
 
@@ -43,9 +44,15 @@ def write_dotenv(eb: EnvBuilder, dest: Path) -> None:
         "# shifts (distro, CI vs local, fresh checkout).",
     ]
     for key in sorted(eb.values):
-        lines.append("")  # blank separator for readability
+        lines.append("")
         comment = eb.comments.get(key, "").strip()
         if comment:
             lines.append(f"# {comment}")
         lines.append(f"{key}={quote_for_dotenv(eb.values[key])}")
-    dest.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    tmp = dest.with_name(f"{dest.name}.{os.getpid()}.tmp")
+    try:
+        tmp.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        tmp.replace(dest)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise

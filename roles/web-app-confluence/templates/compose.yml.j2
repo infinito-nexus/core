@@ -1,24 +1,20 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  confluence:
+  {% set service_name = 'confluence' %}
+  {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         CONFLUENCE_IMAGE: "{{ CONFLUENCE_IMAGE }}"
         CONFLUENCE_VERSION: "{{ CONFLUENCE_VERSION }}"
         CONFLUENCE_HOME: "{{ CONFLUENCE_HOME }}"
-    image: "{{ CONFLUENCE_CUSTOM_IMAGE }}"
-    container_name: "{{ CONFLUENCE_CONTAINER }}"
+    {{ lookup('container_image', application_id, 'confluence') }}
+    {{ lookup('compose_only', 'container_name', CONFLUENCE_CONTAINER) }}
     hostname: '{{ CONFLUENCE_HOSTNAME}}'
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.confluence.ports.local.http') }}:8090"
-    volumes:
-      - 'data:{{ CONFLUENCE_HOME }}'
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_ports', ['confluence', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'confluence') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': CONFLUENCE_DATA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

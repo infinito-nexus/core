@@ -1,5 +1,6 @@
 import importlib.util
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -32,6 +33,15 @@ class DatabaseLookupTests(unittest.TestCase):
         lm = self.db_lookup_mod.LookupModule()
         # LookupBase expects _templar to exist (we only use available_variables)
         lm._templar = _DummyTemplar(available_vars)
+        lm._loader = mock.MagicMock()
+        patcher = mock.patch.object(self.db_lookup_mod, "lookup_loader")
+        loader_mock = patcher.start()
+        self.addCleanup(patcher.stop)
+        loader_mock.get.return_value = mock.MagicMock(
+            run=lambda _terms, variables=None, **_k: [
+                (variables or {}).get("applications", {})
+            ]
+        )
         return lm
 
     @staticmethod

@@ -6,7 +6,7 @@
 #
 # This task file sets a fact `xwiki_rest_headers_write` that you can reuse.
 
-- name: "XWIKI | Fetch REST session + form token (write ops)"
+- name: "⬇️ XWIKI | Fetch REST session + form token (write ops)"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
     method: GET
@@ -18,7 +18,7 @@
   register: _xwiki_rest_session
   changed_when: false
 
-- name: "XWIKI | Set REST write headers"
+- name: "🔧 XWIKI | Set REST write headers"
   set_fact:
     xwiki_rest_headers_write:
       Content-Type: "application/xml"

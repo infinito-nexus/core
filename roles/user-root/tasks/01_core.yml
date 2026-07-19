@@ -1,14 +1,14 @@
 ---
-- name: Check if the SSH key for root already exists
+- name: 🔎 Check if the SSH key for root already exists
   ansible.builtin.stat:
     path: "{{ USER_ROOT_SSH_KEY_PUBLIC }}"
   register: ssh_key
 
-- name: "Include routine to create {{ USER_ROOT_SSH_KEY_PUBLIC }}"
+- name: "📂 Include routine to create {{ USER_ROOT_SSH_KEY_PUBLIC }}"
   include_tasks: 02_ssh.yml
   when: not ssh_key.stat.exists
 
-- name: "embed user routines for {{ role_path | basename }}"
+- name: "👤 embed user routines for {{ role_path | basename }}"
   include_role:
     name: user
   vars:
@@ -26,7 +26,7 @@
           )
       }}
 
-- name: "create {{ DIR_SCRIPTS_ROOT }}"
+- name: "📁 create {{ DIR_SCRIPTS_ROOT }}"
   file:
     path: "{{ DIR_SCRIPTS_ROOT }}"
     state: directory

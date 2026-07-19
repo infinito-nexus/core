@@ -1,17 +1,17 @@
 ---
-- name: "Load docker service required for the 'run' command"
+- name: "🧩 Load docker service required for the 'run' command"
   include_role:
     name: sys-svc-container
     public: false
   when: run_once_sys_svc_container is not defined
 
-- name: Include dependency 'sys-ctl-alm-compose'
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose
   when: run_once_sys_ctl_alm_compose is not defined
 
 # Ensure the CA exists (docker-run-ca requires CA_TRUST_CERT_HOST to exist)
-- name: Ensure Root CA exists
+- name: ✅ Ensure Root CA exists
   ansible.builtin.include_role:
     name: sys-ca-selfsigned
   when:
@@ -19,7 +19,7 @@
     - run_once_sys_ca_selfsigned is not defined
 
 # Optional: pre-pull once at deploy time (recommended for reliability)
-- name: Pull CSP checker image (with retries)
+- name: ⬇️ Pull CSP checker image (with retries)
   ansible.builtin.command:
     argv:
       - container

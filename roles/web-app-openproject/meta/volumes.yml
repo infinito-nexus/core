@@ -1,2 +1,31 @@
 ---
-data: openproject_data
+data:
+  type: volume
+  name: openproject_data
+  mounts:
+    - service: proxy
+      target: /var/openproject/assets
+    - service: web
+      target: /var/openproject/assets
+    - service: worker
+      target: /var/openproject/assets
+    - service: cron
+      target: /var/openproject/assets
+    - service: seeder
+      target: /var/openproject/assets
+pgdata_dummy:
+  # Exception: mount only exists to prevent OpenProject images from creating
+  # anonymous volumes for the unused embedded postgres data path.
+  type: bind
+  source: "{{ [lookup('container', 'web-app-openproject', 'directories.volumes'), 'dummy_volume'] | path_join }}"
+  mounts:
+    - service: proxy
+      target: /var/openproject/pgdata
+    - service: web
+      target: /var/openproject/pgdata
+    - service: worker
+      target: /var/openproject/pgdata
+    - service: cron
+      target: /var/openproject/pgdata
+    - service: seeder
+      target: /var/openproject/pgdata

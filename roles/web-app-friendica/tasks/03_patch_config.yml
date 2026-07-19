@@ -1,13 +1,21 @@
 ---
-- name: Patch Friendica local.config.php (DB + system.url) in one pass
-  command: >
-    container exec --user {{ FRIENDICA_USER }} {{ FRIENDICA_CONTAINER }}
+- name: 🩹 Patch Friendica local.config.php (DB host, name, user, system.url)
+  shell: > # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    container exec --user {{ FRIENDICA_USER }} {{ FRIENDICA_LOCAL_CID | quote }}
     sed -ri
     -e "s/('hostname'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'host') | sed_escape('/') }}:{{ lookup('database', application_id, 'port') | sed_escape('/')
     }}\2/"
     -e "s/('database'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'name') | sed_escape('/') }}\2/"
     -e "s/('username'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'username') | sed_escape('/') }}\2/"
-    -e "s/('password'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'password') | sed_escape('/') }}\2/"
     -e "s#('url'\s*=>\s*')[^']*(',)#\1{{ FRIENDICA_BASE_URL | sed_escape('#') }}\2#"
     {{ FRIENDICA_CONFIG_FILE }}
-  notify: compose up
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}" # nocheck: include-uniform-apply-keyword
+
+- name: 🩹 Patch Friendica local.config.php (DB password)
+  shell: >
+    container exec --user {{ FRIENDICA_USER }}
+    -e PATCH_PASSWORD={{ lookup('database', application_id, 'password') | sed_escape('/') | quote }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
+    sh -c "sed -ri -e \"s/('password'\\s*=>\\s*')[^']*(',)/\\1\${PATCH_PASSWORD}\\2/\" {{ FRIENDICA_CONFIG_FILE }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

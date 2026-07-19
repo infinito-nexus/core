@@ -1,0 +1,24 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔒 Pin the registry bind address to the resolved endpoint"
+  when: DEPLOYMENT_MODE == 'swarm'
+  block:
+    - name: "🔎 Resolve the registry endpoint address on the stack host"
+      ansible.builtin.command: "getent ahostsv4 {{ swarm.registry.host }}"
+      register: registry_endpoint_lookup
+      changed_when: false
+      failed_when: >
+        registry_endpoint_lookup.rc != 0 or
+        (registry_endpoint_lookup.stdout_lines[0].split() | first) is match('127\.')
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+
+    - name: "🔒 Set REGISTRY_BIND_IP"
+      ansible.builtin.set_fact:
+        REGISTRY_BIND_IP: "{{ registry_endpoint_lookup.stdout_lines[0].split() | first }}"
+
+- include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: true

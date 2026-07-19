@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Prageeth Panicker
-  description: n8n is an open-source workflow automation platform for connecting services, transforming data, and building integrations with a visual low-code editor.
+  description: Self-hosted low-code automation platform for connecting services and building workflow integrations visually
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

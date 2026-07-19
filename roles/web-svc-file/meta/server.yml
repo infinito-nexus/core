@@ -1,5 +1,0 @@
----
-domains:
-  canonical:
-    - file.{{ DOMAIN_PRIMARY }}
-  aliases: []

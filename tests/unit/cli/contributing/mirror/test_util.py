@@ -114,6 +114,28 @@ class TestIterRoleImagesMetaServices(unittest.TestCase):
         self.assertEqual(ref.source, "ghcr.io/matrixgpt/matrix-chatgpt-bot:latest")
         self.assertEqual(ref.source_file, ROLE_FILE_META_SERVICES)
 
+    def test_gitlab_registry_image_strips_registry_from_name(self):
+        refs = self._run(
+            {
+                f"roles/web-app-gitlab/{ROLE_FILE_META_SERVICES}": """
+                webservice:
+                  image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
+                  version: v19.1.1
+            """,
+            }
+        )
+        self.assertEqual(len(refs), 1)
+        ref = refs[0]
+        self.assertEqual(ref.role, "web-app-gitlab")
+        self.assertEqual(ref.service, "webservice")
+        self.assertEqual(ref.name, "gitlab-org/build/cng/gitlab-webservice-ce")
+        self.assertEqual(ref.registry, "registry.gitlab.com")
+        self.assertEqual(
+            ref.source,
+            "registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:v19.1.1",
+        )
+        self.assertEqual(ref.source_file, ROLE_FILE_META_SERVICES)
+
     def test_opencode_gitlab_image_strips_registry_from_name(self):
         refs = self._run(
             {

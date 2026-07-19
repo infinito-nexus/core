@@ -26,7 +26,7 @@ if [ -n "${MM_TOKEN:-}" ]; then
   token="${MM_TOKEN}"
 else
   token="$(
-    curl -sS -i -X POST "${api}/users/login" \
+    curl --connect-timeout 5 --max-time 30 -sS -i -X POST "${api}/users/login" \
       -H 'Content-Type: application/json' \
       -d "$(printf '{"login_id":"%s","password":"%s"}' "${MM_ADMIN_LOGIN}" "${MM_ADMIN_PASS}")" \
     | tr -d '\r' \
@@ -42,7 +42,7 @@ fi
 auth="Authorization: Bearer ${token}"
 
 existing="$(
-  curl -sS -H "${auth}" "${api}/oauth/apps?page=0&per_page=200" \
+  curl --connect-timeout 5 --max-time 30 -sS -H "${auth}" "${api}/oauth/apps?page=0&per_page=200" \
   | python3 -c 'import json,os,sys
 name=os.environ["MM_APP_NAME"]
 try:
@@ -61,7 +61,7 @@ if [ -n "${existing}" ]; then
   client_secret="${existing#*	}"
 else
   created="$(
-    curl -sS -X POST "${api}/oauth/apps" \
+    curl --connect-timeout 5 --max-time 30 -sS -X POST "${api}/oauth/apps" \
       -H "${auth}" -H 'Content-Type: application/json' \
       -d "$(python3 -c 'import json,os
 base=os.environ["NC_BASE_URL"].rstrip("/")

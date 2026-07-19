@@ -32,6 +32,8 @@ dev = [
   "import-linter",
   "pre-commit",
   "git-maintainer-tools",
+  "pytest>=9.1",
+  "pytest-xdist",
 ]
 
 [project.scripts]
@@ -213,6 +215,7 @@ ignore = [
 "cli/administration/inventory/validate/loaders.py" = ["BLE001"]
 "cli/contributing/mirror/sync/__main__.py" = ["BLE001"]
 "cli/core/help.py" = ["BLE001"]
+"cli/meta/ci/roles/runtime/__main__.py" = ["BLE001"]
 "cli/meta/j2/compiler/__main__.py" = ["BLE001"]
 "cli/meta/roles/applications/all/__main__.py" = ["BLE001"]
 "cli/meta/roles/applications/in_group_deps/__main__.py" = ["BLE001"]
@@ -222,12 +225,15 @@ ignore = [
 "cli/meta/roles/services/called/__init__.py" = ["BLE001"]
 "library/docker_bridge_gateway.py" = ["BLE001"]
 "plugins/filter/active_docker.py" = ["BLE001"]
-"plugins/filter/docker_service_enabled.py" = ["BLE001"]
-"plugins/filter/get_all_application_ids.py" = ["BLE001"]
+"plugins/filter/compose_volumes.py" = ["BLE001"]
+"plugins/filter/docker/service_enabled.py" = ["BLE001"]
+"plugins/filter/dotenv.py" = ["BLE001"]
+"plugins/filter/get/all/application_ids.py" = ["BLE001"]
 "plugins/filter/role_path_by_app_id.py" = ["BLE001"]
 "plugins/filter/split_postgres_connections.py" = ["BLE001"]
 "plugins/lookup/addon_env_flags.py" = ["BLE001"]
 "plugins/lookup/applications_current_play.py" = ["BLE001"]
+"plugins/lookup/image.py" = ["BLE001"]
 "plugins/lookup/email.py" = ["BLE001"]
 "plugins/lookup/prometheus_integration_active.py" = ["BLE001"]
 "plugins/lookup/version.py" = ["BLE001"]
@@ -272,20 +278,18 @@ root_package = "cli"
 [[tool.importlinter.contracts]]
 # The dev/CI deploy package was repeatedly hit by CodeQL
 # `py/unsafe-cyclic-import`. The fix split the env/arg helpers into the
-# leaf module `env`, giving the load-time DAG compose -> common -> deps
-# -> env. This layers contract locks that order in: a lower layer
-# importing a higher one (i.e. a new cycle) breaks the build.
-name = "cli.administration.deploy.development stays acyclic (compose -> common -> deps -> env)"
+# leaf module `env`, giving the load-time DAG compose -> common -> env.
+# This layers contract locks that order in: a lower layer importing a
+# higher one (i.e. a new cycle) breaks the build.
+name = "cli.administration.deploy.development stays acyclic (compose -> common -> env)"
 type = "layers"
 layers = [
     "cli.administration.deploy.development.compose",
     "cli.administration.deploy.development.common",
-    "cli.administration.deploy.development.deps",
     "cli.administration.deploy.development.env",
 ]
 # Type-checking-only / lazily-deferred back-references to `compose` do
 # not run at import time, so they cannot form a load-time cycle.
 ignore_imports = [
     "cli.administration.deploy.development.common -> cli.administration.deploy.development.compose",
-    "cli.administration.deploy.development.deps -> cli.administration.deploy.development.compose",
 ]

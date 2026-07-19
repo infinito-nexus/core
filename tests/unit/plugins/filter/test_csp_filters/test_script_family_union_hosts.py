@@ -10,18 +10,16 @@ class TestCspScriptFamilyUnionHosts(unittest.TestCase):
         self.apps = {
             "app1": {
                 "services": {"matomo": {"enabled": True}},
-                "server": {
-                    "csp": {
-                        "whitelist": {
-                            "script-src-elem": ["https://cdn.example.com"],
-                            "connect-src": "https://api.example.com",
-                        },
-                        "flags": {
-                            "script-src": {"unsafe-eval": True, "unsafe-inline": False},
-                            "style-src": {"unsafe-inline": True},
-                        },
-                        "hashes": {},
-                    }
+                "csp": {
+                    "whitelist": {
+                        "script-src-elem": ["https://cdn.example.com"],
+                        "connect-src": "https://api.example.com",
+                    },
+                    "flags": {
+                        "script-src": {"unsafe-eval": True, "unsafe-inline": False},
+                        "style-src": {"unsafe-inline": True},
+                    },
+                    "hashes": {},
                 },
             }
         }
@@ -45,11 +43,11 @@ class TestCspScriptFamilyUnionHosts(unittest.TestCase):
         Hosts present only under script-src-elem/attr must appear in script-src (base).
         """
         apps = copy.deepcopy(self.apps)
-        apps["app1"]["server"]["csp"].setdefault("whitelist", {})
-        apps["app1"]["server"]["csp"]["whitelist"]["script-src-elem"] = [
+        apps["app1"]["csp"].setdefault("whitelist", {})
+        apps["app1"]["csp"]["whitelist"]["script-src-elem"] = [
             "https://elem-scripts.example.com"
         ]
-        apps["app1"]["server"]["csp"]["whitelist"]["script-src-attr"] = [
+        apps["app1"]["csp"]["whitelist"]["script-src-attr"] = [
             "https://attr-scripts.example.com"
         ]
 

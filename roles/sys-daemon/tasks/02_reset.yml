@@ -1,9 +1,9 @@
 ---
-- name: reload system daemon
+- name: 🔄 reload system daemon
   command: /bin/true
   notify: "reload system daemon"
 
-- name: "Sanity check SYSTEMD_MANAGER_CONF_DIR"
+- name: "✅ Sanity check SYSTEMD_MANAGER_CONF_DIR"
   assert:
     that:
       - SYSTEMD_MANAGER_CONF_DIR | regex_search('^/etc/systemd/system\.conf\.d/?$')
@@ -12,7 +12,7 @@
     - MODE_RESET | bool
     - MODE_ASSERT | bool
 
-- name: "Purge manager drop-in directory (remove)"
+- name: "🧹 Purge manager drop-in directory (remove)"
   file:
     path: "{{ SYSTEMD_MANAGER_CONF_DIR }}"
     state: absent

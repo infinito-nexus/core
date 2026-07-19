@@ -1,0 +1,34 @@
+---
+- name: "⏳ Matomo bootstrap | Swarm: wait for Matomo healthy before installer"
+  ansible.builtin.shell: >
+    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    {{ MATOMO_LOCAL_CID | quote }}
+  register: matomo_health_preboot
+  changed_when: false
+  retries: 60
+  delay: 2
+  until: matomo_health_preboot.rc == 0 and (matomo_health_preboot.stdout | trim) == 'healthy'
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🔐 Matomo bootstrap | Swarm: chown config writable before installer"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user root {{ MATOMO_LOCAL_CID | quote }}
+    chown -R www-data:www-data {{ (MATOMO_CONFIG | dirname) | quote }}
+  changed_when: true
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
+
+- name: "🐝 Matomo bootstrap | Swarm: run installer attempts"
+  ansible.builtin.include_tasks: swarm_attempt.yml
+  loop: "{{ range(MATOMO_BOOTSTRAP_SWARM_ATTEMPTS | int) | list }}"
+  loop_control:
+    loop_var: matomo_attempt_index
+
+- name: "🛑 Matomo bootstrap | Swarm: fail when no attempt yielded a token"
+  ansible.builtin.fail:
+    msg: >-
+      Matomo swarm bootstrap failed after {{ MATOMO_BOOTSTRAP_SWARM_ATTEMPTS }} attempt(s)
+      with rc={{ matomo_bootstrap_swarm.rc | default('n/a') }}.
+  when: >-
+    ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
+    or (((matomo_bootstrap_swarm | default({})).stdout | default('')) | trim | length) == 0

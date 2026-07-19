@@ -1,5 +1,6 @@
 import sys
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -14,6 +15,7 @@ sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 class TestTlsResolveLookup(unittest.TestCase):
     def setUp(self):
         self.lookup = LookupModule()
+        self.lookup._loader = mock.MagicMock()
 
         self.domains = {
             "web-app-a": "a.example",
@@ -34,27 +36,18 @@ class TestTlsResolveLookup(unittest.TestCase):
             "TLS_MODE": "letsencrypt",
         }
 
-        # Route get_merged_domains / get_merged_applications through
+        # Route the "domains"/"applications" lookups through
         # variables['domains'] / variables['applications'] so tests stay hermetic.
-        def _domains_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("domains", {})
+        def _get(name, *_a, **_k):
+            def _run(_terms, variables=None, **__):
+                return [(variables or {}).get(name, {})]
 
-        def _applications_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("applications", {})
+            return mock.MagicMock(run=_run)
 
-        self._patchers = [
-            patch(
-                "plugins.lookup.tls.get_merged_domains",
-                side_effect=_domains_from_vars,
-            ),
-            patch(
-                "plugins.lookup.tls.get_merged_applications",
-                side_effect=_applications_from_vars,
-            ),
-        ]
-        for p in self._patchers:
-            p.start()
-        self.addCleanup(lambda: [p.stop() for p in self._patchers])
+        loader_patcher = patch("plugins.lookup.tls.lookup_loader")
+        loader_mock = loader_patcher.start()
+        loader_mock.get.side_effect = _get
+        self.addCleanup(loader_patcher.stop)
 
     def test_domain_term_auto_mode(self):
         out = self.lookup.run(["a.example"], variables=self.base_vars)[0]

@@ -4,13 +4,19 @@ set -euo pipefail
 # Usage:
 #   tmp.sh <container_name> <new_postgres_password>
 
-container="${1:-}"
+container_raw="${1:-}"
 new_pw="${2:-}"
 
-if [[ -z "$container" || -z "$new_pw" ]]; then
+if [[ -z "$container_raw" || -z "$new_pw" ]]; then
   echo "Usage: $0 <container_name> <new_postgres_password>" >&2
   exit 2
 fi
+
+# In swarm mode the lookup emits `"$(/usr/bin/resolve-container-id <svc> <stack>)"`.
+# `eval` makes bash re-evaluate the subshell so we get the live task id; in
+# compose mode the arg is a bare name and `eval` is a noop.
+container=""
+eval "container=$container_raw"
 
 pg_exec() {
   container exec "$container" bash -lc "psql -U postgres -d postgres -Atc '$1'" 2>/dev/null

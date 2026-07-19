@@ -11,18 +11,16 @@ class TestCspHashes(unittest.TestCase):
         self.apps = {
             "app1": {
                 "services": {"matomo": {"enabled": True}},
-                "server": {
-                    "csp": {
-                        "whitelist": {},
-                        "flags": {
-                            "script-src": {"unsafe-eval": True, "unsafe-inline": False},
-                            "style-src": {"unsafe-inline": True},
-                        },
-                        "hashes": {
-                            "script-src": ["console.log('hello');"],
-                            "style-src": ["body { background: #fff; }"],
-                        },
-                    }
+                "csp": {
+                    "whitelist": {},
+                    "flags": {
+                        "script-src": {"unsafe-eval": True, "unsafe-inline": False},
+                        "style-src": {"unsafe-inline": True},
+                    },
+                    "hashes": {
+                        "script-src": ["console.log('hello');"],
+                        "style-src": ["body { background: #fff; }"],
+                    },
                 },
             }
         }
@@ -47,9 +45,7 @@ class TestCspHashes(unittest.TestCase):
         self.assertEqual(snippets, ["console.log('hello');"])
 
     def test_get_csp_inline_content_string(self):
-        self.apps["app1"]["server"]["csp"]["hashes"]["style-src"] = (
-            "body { color: red; }"
-        )
+        self.apps["app1"]["csp"]["hashes"]["style-src"] = "body { color: red; }"
         snippets = self.filter.get_csp_inline_content(self.apps, "app1", "style-src")
         self.assertEqual(snippets, ["body { color: red; }"])
 
@@ -72,13 +68,9 @@ class TestCspHashes(unittest.TestCase):
         self.assertNotIn(style_hash, header)
 
     def test_style_src_disable_inline_enables_hashes(self):
-        self.apps["app1"]["server"]["csp"]["flags"].setdefault("style-src", {})
-        self.apps["app1"]["server"]["csp"]["flags"]["style-src"]["unsafe-inline"] = (
-            False
-        )
-        self.apps["app1"]["server"]["csp"]["hashes"]["style-src"] = (
-            "body{background:#fff}"
-        )
+        self.apps["app1"]["csp"]["flags"].setdefault("style-src", {})
+        self.apps["app1"]["csp"]["flags"]["style-src"]["unsafe-inline"] = False
+        self.apps["app1"]["csp"]["hashes"]["style-src"] = "body{background:#fff}"
 
         header = self.filter.build_csp_header(self.apps, "app1", self.domains, "https")
         self.assertIn(self.filter.get_csp_hash("body{background:#fff}"), header)
@@ -88,9 +80,7 @@ class TestCspHashes(unittest.TestCase):
         script_hash = self.filter.get_csp_hash("console.log('hello');")
         self.assertIn(script_hash, header)
 
-        self.apps["app1"]["server"]["csp"]["flags"]["script-src"]["unsafe-inline"] = (
-            True
-        )
+        self.apps["app1"]["csp"]["flags"]["script-src"]["unsafe-inline"] = True
         header_inline = self.filter.build_csp_header(
             self.apps, "app1", self.domains, "https"
         )

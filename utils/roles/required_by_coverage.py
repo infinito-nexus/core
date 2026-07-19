@@ -39,7 +39,8 @@ def role_is_invokable(role_id: str, roles_dir: str | Path | None = None) -> bool
 
 def role_has_required_by(role_id: str, roles_dir: str | Path | None = None) -> bool:
     """True if any entity in `roles/<role_id>/meta/services.yml` declares
-    `required_by.categories` or `required_by.roles` (non-empty)."""
+    non-empty `required_by` categories/roles, either flat or nested under a
+    `compose:`/`swarm:` mode block."""
     if not role_id:
         return False
     base = _default_roles_dir(roles_dir)
@@ -55,7 +56,12 @@ def role_has_required_by(role_id: str, roles_dir: str | Path | None = None) -> b
         rb = entry.get("required_by")
         if not isinstance(rb, dict):
             continue
-        if rb.get("categories") or rb.get("roles"):
+        blocks = (
+            [rb[m] for m in ("compose", "swarm") if isinstance(rb.get(m), dict)]
+            if ("compose" in rb or "swarm" in rb)
+            else [rb]
+        )
+        if any(b.get("categories") or b.get("roles") for b in blocks):
             return True
     return False
 

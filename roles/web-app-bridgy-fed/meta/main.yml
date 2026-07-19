@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Bridge between ActivityPub (Fediverse), ATProto/Bluesky and IndieWeb."
+  description: Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

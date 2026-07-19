@@ -1,6 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full

@@ -1,15 +1,15 @@
 ---
-- name: GNOME Activate Extensions
+- name: 🟢 GNOME Activate Extensions
   ansible.builtin.shell: gsettings set org.gnome.shell disable-user-extensions false
   become: false
 
-- name: "pkgmgr install"
+- name: "📦 pkgmgr install"
   include_role:
     name: pkgmgr-install
   vars:
     package_name: cli-gnome-extension-manager
 
-- name: Execute CLI GNOME Extension manager script
+- name: ▶️ Execute CLI GNOME Extension manager script
   ansible.builtin.shell: cli-gnome-extension-manager "{{ item[0] }}" "{{ item[1] }}" "{{ item[2] }}"
   loop: "{{ lookup('config', application_id, 'services.gnome-extensions.plugins') }}"
   become: false

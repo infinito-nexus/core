@@ -1,0 +1,4 @@
+---
+canonical:
+  - social.{{ DOMAIN_PRIMARY }}
+aliases: []

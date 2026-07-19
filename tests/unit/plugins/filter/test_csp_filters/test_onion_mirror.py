@@ -12,12 +12,10 @@ class TestCspOnionMirror(unittest.TestCase):
         self.filter = FilterModule()
         self.apps = {
             "app1": {
-                "server": {
-                    "csp": {
-                        "whitelist": {"frame-src": ["*." + PRIMARY]},
-                        "flags": {},
-                        "hashes": {},
-                    }
+                "csp": {
+                    "whitelist": {"frame-src": ["*." + PRIMARY]},
+                    "flags": {},
+                    "hashes": {},
                 },
             },
             "svc-net-tor": {"services": {"tor": {"node": NODE}}},

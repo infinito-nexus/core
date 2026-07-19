@@ -17,17 +17,24 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 lam:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
-  shared: true
+  enabled: true # nocheck: dynamic-flag
+  shared: true # nocheck: dynamic-flag — LDAP IS the storage backend, never local
   provides: lam
   image: ghcr.io/ldapaccountmanager/lam
-  version: latest
+  version: "9.6"
   min_storage: 1GB
   ports:
     local:
       sso: 16482
       http: 8033
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -42,7 +49,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: lam
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-lam', role='administrator') }}"

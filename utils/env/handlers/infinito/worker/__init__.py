@@ -1,0 +1,1 @@
+"""Worker resource env handlers."""

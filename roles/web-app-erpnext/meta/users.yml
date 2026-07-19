@@ -4,4 +4,5 @@ erpnext-api-bot:
   username: erpnext-api-bot
   firstname: Infinito
   lastname: API Bot
+  accounts: []
   description: API-only Basic-auth bot used by the Playwright suite (NOT an OIDC user)

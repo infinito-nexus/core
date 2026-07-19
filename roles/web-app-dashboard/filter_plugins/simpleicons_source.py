@@ -1,25 +1,19 @@
-import os
 import re
-from pathlib import Path
+import unicodedata
 
-import certifi
-import requests
 from ansible.errors import AnsibleFilterError
 
 
-def get_requests_verify():
-    """Return a CA bundle path for outbound HTTPS verification."""
-    for env_var in ("REQUESTS_CA_BUNDLE", "SSL_CERT_FILE", "CA_TRUST_CERT_HOST"):
-        candidate = os.environ.get(env_var, "").strip()
-        if candidate and Path(candidate).is_file():
-            return candidate
-    return certifi.where()
-
-
 def slugify(name):
-    """Convert a display name to a simple-icons slug format."""
-    # Replace spaces and uppercase letters
-    return re.sub(r"\s+", "", name.strip().lower())
+    """Convert a display name to a simple-icons slug format.
+
+    Simple Icons slugs are ASCII-only; a title carrying a non-ASCII character
+    (e.g. U+2011 NON-BREAKING HYPHEN) otherwise produces a non-ASCII slug that
+    crashes the uri probe when it ASCII-encodes the request URL.
+    """
+    folded = unicodedata.normalize("NFKD", name.strip().lower())
+    ascii_only = folded.encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"\s+", "", ascii_only)
 
 
 def normalize_domain(value):
@@ -66,28 +60,48 @@ def resolve_simpleicons_base(simpleicons_value, web_protocol="https"):
     return f"{web_protocol}://{normalized}"
 
 
-def add_simpleicon_source(
-    cards, simpleicons_value, web_protocol="https", public_url_base=None
-):
+def simpleicon_slugs(cards):
     """
-    For each card in portfolio_cards, check if an icon exists in the simpleicons server.
-    Reachability is probed against `simpleicons_value` (typically the in-cluster
-    sync URL — plain HTTP, no redirect, no TLS). The browser-facing `icon.source`
-    is set to `public_url_base` when provided (the public Simple Icons URL the
-    dashboard frontend can reach), otherwise to the same URL used for the probe.
+    Return the ordered, de-duplicated list of Simple Icons slugs for cards that
+    carry a title. The probe step (which runs on the stack host, where the
+    in-cluster Simple Icons URL is actually routable) loops over this list.
 
     :param cards: List of card dictionaries (portfolio_cards)
-    :param simpleicons_value: Fully rendered URL/domain used for the HEAD reachability check
-    :param web_protocol: Protocol to use (https or http) when resolving a bare domain
-    :param public_url_base: Optional separate public base URL written into icon.source
-    :return: New list of cards with icon.source set when the icon is reachable
+    :return: List of slugs derived from card titles
     """
-    probe_base = resolve_simpleicons_base(simpleicons_value, web_protocol)
-    rewrite_base = (
-        resolve_simpleicons_base(public_url_base, web_protocol)
-        if public_url_base
-        else probe_base
-    )
+    slugs = []
+    for card in cards:
+        title = card.get("title", "")
+        if not title:
+            continue
+        slug = slugify(title)
+        if slug not in slugs:
+            slugs.append(slug)
+    return slugs
+
+
+def add_simpleicon_source(
+    cards,
+    reachable_slugs,
+    rewrite_value,
+    web_protocol="https",
+):
+    """
+    Set `icon.source` on each card whose slug is in `reachable_slugs`.
+
+    Reachability is determined upstream by a stack-host-delegated HTTP probe
+    against the in-cluster sync URL. Jinja filters run on the Ansible
+    controller, which in swarm has no route to a node's published port, so the
+    probe must not happen here. This filter is pure string assembly.
+
+    :param cards: List of card dictionaries (portfolio_cards)
+    :param reachable_slugs: Iterable of slugs that returned 200 from the probe
+    :param rewrite_value: Fully rendered URL/domain written into icon.source
+    :param web_protocol: Protocol to use (https or http) when resolving a bare domain
+    :return: New list of cards with icon.source set when the slug is reachable
+    """
+    rewrite_base = resolve_simpleicons_base(rewrite_value, web_protocol)
+    reachable = set(reachable_slugs or [])
 
     enhanced = []
     for card in cards:
@@ -95,21 +109,9 @@ def add_simpleicon_source(
         if not title:
             enhanced.append(card)
             continue
-        # Create slug from title
         slug = slugify(title)
-        probe_url = f"{probe_base}/{slug}.svg"
-        try:
-            resp = requests.head(
-                probe_url,
-                timeout=2,
-                allow_redirects=True,
-                verify=get_requests_verify(),
-            )
-            if resp.status_code == 200:
-                card.setdefault("icon", {})["source"] = f"{rewrite_base}/{slug}.svg"
-        except requests.RequestException:
-            # Ignore network errors and move on
-            pass
+        if slug in reachable:
+            card.setdefault("icon", {})["source"] = f"{rewrite_base}/{slug}.svg"
         enhanced.append(card)
     return enhanced
 
@@ -120,4 +122,5 @@ class FilterModule:
     def filters(self):
         return {
             "add_simpleicon_source": add_simpleicon_source,
+            "simpleicon_slugs": simpleicon_slugs,
         }

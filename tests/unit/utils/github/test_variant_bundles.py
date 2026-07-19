@@ -54,6 +54,37 @@ class TestExpandApps(unittest.TestCase):
             [{"apps": "web-app-unknown", "variant": "", "variant_slug": ""}],
         )
 
+    def test_per_app_bundle_size_override_wins(self) -> None:
+        self.assertEqual(
+            vb.expand_apps(
+                ["web-app-three"],
+                self.VARIANTS,
+                3,
+                bundle_size_per_app={"web-app-three": 1},
+            ),
+            [
+                {"apps": "web-app-three", "variant": "0", "variant_slug": "0"},
+                {"apps": "web-app-three", "variant": "1", "variant_slug": "1"},
+                {"apps": "web-app-three", "variant": "2", "variant_slug": "2"},
+            ],
+        )
+
+    def test_per_app_override_leaves_other_apps_bundled(self) -> None:
+        self.assertEqual(
+            vb.expand_apps(
+                ["web-app-three", "web-app-five"],
+                self.VARIANTS,
+                3,
+                bundle_size_per_app={"web-app-five": 2},
+            ),
+            [
+                {"apps": "web-app-three", "variant": "0,1,2", "variant_slug": "0-1-2"},
+                {"apps": "web-app-five", "variant": "0,1", "variant_slug": "0-1"},
+                {"apps": "web-app-five", "variant": "2,3", "variant_slug": "2-3"},
+                {"apps": "web-app-five", "variant": "4", "variant_slug": "4"},
+            ],
+        )
+
     def test_role_over_bundle_size_is_split(self) -> None:
         self.assertEqual(
             vb.expand_apps(["web-app-five"], self.VARIANTS, 3),
@@ -141,7 +172,10 @@ class TestMain(unittest.TestCase):
         with (
             patch.object(vb, "get_variants", return_value={"web-app-five": [{}] * 5}),
             patch.object(vb, "app_variant_storages", return_value={}),
-            patch.dict("os.environ", {"INFINITO_VARIANT_BUNDLE_SIZE": "3"}),
+            patch.dict(
+                "os.environ",
+                {"INFINITO_VARIANT_BUNDLE_SIZE": "3", "INFINITO_DEPLOY_MODE": ""},
+            ),
             patch("builtins.print") as mock_print,
         ):
             rc = vb.main(['["web-app-five"]'])
@@ -172,6 +206,73 @@ class TestMain(unittest.TestCase):
             self.assertRaises(SystemExit),
         ):
             vb.main(['"web-app-five"'])
+
+
+class TestSwarmMode(unittest.TestCase):
+    def _run_swarm(self, apps_json, variants):
+        with (
+            patch.object(vb, "get_variants", return_value=variants),
+            patch.dict("os.environ", {"INFINITO_DEPLOY_MODE": "swarm"}),
+            patch("builtins.print") as mock_print,
+        ):
+            rc = vb.main([apps_json])
+        self.assertEqual(rc, 0)
+        return json.loads(mock_print.call_args.args[0])
+
+    def test_one_variant_per_runner(self) -> None:
+        printed = self._run_swarm(
+            '["web-app-five"]',
+            {"web-app-five": [{}] * 5},
+        )
+        self.assertEqual(
+            printed,
+            [
+                {"apps": "web-app-five", "variant": str(i), "variant_slug": str(i)}
+                for i in range(5)
+            ],
+        )
+
+    def test_every_variant_runs_including_all_off(self) -> None:
+        printed = self._run_swarm(
+            '["web-app-bbb"]',
+            {"web-app-bbb": [{}, {}]},
+        )
+        self.assertEqual(
+            printed,
+            [
+                {"apps": "web-app-bbb", "variant": "0", "variant_slug": "0"},
+                {"apps": "web-app-bbb", "variant": "1", "variant_slug": "1"},
+            ],
+        )
+
+    def test_variant_tokens_map_one_to_one_without_expansion(self) -> None:
+        printed = self._run_swarm(
+            '["web-app-five#3", "web-app-five#0", "web-app-bare"]',
+            {"web-app-five": [{}] * 5, "web-app-bare": [{}, {}]},
+        )
+        self.assertEqual(
+            printed,
+            [
+                {"apps": "web-app-five", "variant": "3", "variant_slug": "3"},
+                {"apps": "web-app-five", "variant": "0", "variant_slug": "0"},
+                {"apps": "web-app-bare", "variant": "0", "variant_slug": "0"},
+                {"apps": "web-app-bare", "variant": "1", "variant_slug": "1"},
+            ],
+        )
+
+    def test_compose_mode_keeps_bundling_and_all_variants(self) -> None:
+        with (
+            patch.object(vb, "get_variants", return_value={"web-app-bbb": [{}, {}]}),
+            patch.object(vb, "app_variant_storages", return_value={}),
+            patch.dict("os.environ", {"INFINITO_DEPLOY_MODE": "compose"}, clear=False),
+            patch("builtins.print") as mock_print,
+        ):
+            rc = vb.main(['["web-app-bbb"]'])
+        self.assertEqual(rc, 0)
+        self.assertEqual(
+            json.loads(mock_print.call_args.args[0]),
+            [{"apps": "web-app-bbb", "variant": "0,1", "variant_slug": "0-1"}],
+        )
 
 
 if __name__ == "__main__":

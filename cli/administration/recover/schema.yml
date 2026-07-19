@@ -1,0 +1,61 @@
+---
+# Recovery schema for `infinito administration recover`.
+# One uniform command wraps each svc-bkp-* role's files/recover.py.
+
+command: "recover <type> <source> <target> [--preview] [--no-safety-backup]"
+target: "host to restore onto (positional label)"
+
+order: [device, nfs, volume, secrets]
+
+types:
+  device:
+    role: svc-bkp-local-2-device
+    restores: "encrypted LUKS device/image -> local backup root"
+    source: "<device>[:subpath][:YYYYMMDDHHMMSS][:/restore-dir]"
+    default_target: /var/lib/infinito/backup
+    remote_source: "[user@]host:/dev/... -> ssh recover on host then pull; [user@]host:/image -> pull then local"
+    passphrase: "interactive on a TTY, read from stdin when piped"
+
+  nfs:
+    role: svc-bkp-nfs-2-local
+    restores: "snapshot -> live NFS export subtree"
+    source: "<files-dir>[:/export-subtree] | [user@]host:/path"
+    default_target: /srv/nfs/infinito-state
+    remote_source: true
+
+  volume:
+    role: svc-bkp-volume-2-local
+    restores: "snapshot -> docker volume (name derived from .../<volume>/files)"
+    source: "<.../<volume>/files> | [user@]host:/path"
+    default_target: "<docker volume mountpoint>"
+    remote_source: true
+
+  secrets:
+    role: svc-bkp-secrets-2-local
+    restores: "snapshot -> host secret paths"
+    source: "<generation>/files"
+    default_target: [/var/lib/infinito/secrets, /etc/<domain>/ca, /etc/letsencrypt, /etc/certbot]
+    remote_source: false
+
+  full:
+    restores: "every backup-stored type present under the source, in order"
+    source: "local backup-root | [user@]host | LUKS device/image"
+    chain: >-
+      device (only if the source is a device) -> nfs -> volume -> secrets.
+      A host source is rsync-pulled first, a device is recovered to its
+      restore-root first, then the newest generation of each repo under the
+      root is recovered.
+
+source_segments:
+  "/absolute/path": "restore destination, overrides the derived default target"
+  "relative/path": "device on-device snapshot subpath"
+  "NNNNNNNNNNNNNN": "device generation (14 digits YYYYMMDDHHMMSS, default: newest)"
+  "[user@]host:/path": "remote source, rsync-pulled (nfs / volume / full only)"
+
+flags:
+  "--preview": "print the commands without running them"
+  "--no-safety-backup": >-
+    skip the pre-recover safety backup of the current target
+    (only when it holds nothing worth saving: fresh host / empty / disposable)
+
+mechanism: "rsync -a --delete, preceded by a pre-recover safety backup by default"

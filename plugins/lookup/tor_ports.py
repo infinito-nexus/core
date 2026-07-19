@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache.base import _resolve_roles_dir
@@ -140,14 +141,12 @@ class LookupModule(LookupBase):
         roles_dir = _resolve_roles_dir(roles_dir=kwargs.get("roles_dir"))
         ports = set(collect_public_ports(deployed, roles_dir))
 
-        from utils.cache.applications import get_merged_applications
-
         try:
-            applications = get_merged_applications(
-                variables=variables,
-                roles_dir=kwargs.get("roles_dir"),
+            applications = lookup_loader.get(
+                "applications",
+                loader=getattr(self, "_loader", None),
                 templar=getattr(self, "_templar", None),
-            )
+            ).run([], variables=variables, roles_dir=kwargs.get("roles_dir"))[0]
         except Exception:  # noqa: BLE001  no merged view -> exposed ports simply unavailable
             applications = {}
         ports.update(collect_exposed_ports(applications, deployed))

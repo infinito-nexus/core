@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Installs the SSH client in a distribution-aware and idempotent way. This role ensures that SSH client tools are available as a system-level dependency
-    for secure remote access and key-based authentication.\n"
+  description: OpenSSH client package for secure remote shell access and key-based authentication
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

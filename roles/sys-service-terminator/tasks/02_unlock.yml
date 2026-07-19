@@ -1,5 +1,5 @@
 ---
-- name: "DEPLOY | Collect {{ SOFTWARE_DOMAIN }} timers (unlock phase)"
+- name: "🚀 DEPLOY | Collect {{ SOFTWARE_DOMAIN }} timers (unlock phase)"
   become: true
   ansible.builtin.command:
     argv:
@@ -12,7 +12,7 @@
   changed_when: false
   failed_when: false
 
-- name: "DEPLOY | Build timer list (unlock phase)"
+- name: "🚀 DEPLOY | Build timer list (unlock phase)"
   ansible.builtin.set_fact:
     deploy_timers_unlock: >-
       {{
@@ -22,7 +22,7 @@
         | list
       }}
 
-- name: "DEPLOY | Unmask all {{ SOFTWARE_DOMAIN }} timers"
+- name: "🚀 DEPLOY | Unmask all {{ SOFTWARE_DOMAIN }} timers"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -30,7 +30,7 @@
   loop: "{{ deploy_timers_unlock }}"
   when: deploy_timers_unlock | length > 0
 
-- name: "DEPLOY | Enable and start all {{ SOFTWARE_DOMAIN }} timers"
+- name: "🚀 DEPLOY | Enable and start all {{ SOFTWARE_DOMAIN }} timers"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"

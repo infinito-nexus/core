@@ -3,7 +3,7 @@
     name: sys-ca-selfsigned
   when: run_once_sys_ca_selfsigned is not defined
 
-- name: "CA trust | ensure directories exist"
+- name: "✅ CA trust | ensure directories exist"
   become: true
   ansible.builtin.file:
     path: "{{ item }}"
@@ -14,20 +14,20 @@
     - "{{ BIN_CA_TRUST | dirname }}"
     - "{{ BIN_CA_INJECT | dirname }}"
 
-- name: "CA trust | check CA certificate exists on target host (hard fail if missing)"
+- name: "🔎 CA trust | check CA certificate exists on target host (hard fail if missing)"
   become: true
   ansible.builtin.stat:
     path: "{{ CA_TRUST.cert_host }}"
   register: _ca_cert_stat
 
-- name: "CA trust | fail if CA certificate missing"
+- name: "🛑 CA trust | fail if CA certificate missing"
   ansible.builtin.fail:
     msg: >-
       CA trust certificate missing on target host: {{ CA_TRUST.cert_host }}.
       Provision it before running compose CA injection.
   when: not _ca_cert_stat.stat.exists
 
-- name: "CA trust | install compose CA inject script"
+- name: "📦 CA trust | install compose CA inject script"
   become: true
   ansible.builtin.copy:
     src: "compose_ca.py"

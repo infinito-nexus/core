@@ -1,0 +1,4 @@
+---
+local:
+  subnet: 192.168.32.0/24
+  force_bridge: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' }}"

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: LetsEncrypt TLS provider for sys-front-tls. Ensures certificate presence.
+  author: Kevin Veen-Birkenbach
+  description: "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

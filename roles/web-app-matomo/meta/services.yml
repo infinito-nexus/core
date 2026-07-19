@@ -16,8 +16,13 @@ dashboard:
   shared: "{{ 'web-app-dashboard' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 matomo:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
   image: matomo
   version: "5.11.2"
@@ -30,14 +35,21 @@ matomo:
   mem_limit: 1g
   pids_limit: 512
   site_name: Matomo on {{ DOMAIN_PRIMARY }}
+  tracking:
+    scope: sub
   token:
     description: Created by {{ SOFTWARE_NAME }}
   excluded_ips: "{{ networks.internet.values() | list }}"
   ports:
     local:
       http: 8018
+    internal:
+      http: 80
+  proxy:
+    service_key: matomo
   lifecycle: beta
 bootstrap:
+  replicas: 0
   image: ghcr.io/kevinveenbirkenbach/matomo-bootstrap
   version: 1.1.13
   name: matomo-bootstrap
@@ -60,6 +72,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   bond: 1
@@ -74,4 +87,10 @@ prometheus:
 tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"
-  shared: true  # nocheck: dynamic-flag
+  shared: true # nocheck: dynamic-flag
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

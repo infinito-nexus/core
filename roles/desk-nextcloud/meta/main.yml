@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and links Nextcloud desktop client folders for cloud-integrated user environments.
+  description: Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

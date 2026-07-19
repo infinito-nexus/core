@@ -1,0 +1,13 @@
+---
+presentation_src:
+  type: bind
+  source: "{{ path_infinito_presentation_output.stdout }}"
+  mounts:
+    - service: infinito-navigator
+      target: /app
+infinito_src:
+  type: bind
+  source: "{{ path_infinito_output.stdout }}"
+  mounts:
+    - service: infinito-navigator
+      target: /source

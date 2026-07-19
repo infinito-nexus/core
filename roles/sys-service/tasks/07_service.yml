@@ -1,5 +1,5 @@
 ---
-- name: Resolve systemctl template source
+- name: 🔍 Resolve systemctl template source
   set_fact:
     system_service_template_src: >-
       {{ lookup(
@@ -17,7 +17,7 @@
            errors='strict'
          ) }}
 
-- name: Ensure a systemctl template was found
+- name: ✅ Ensure a systemctl template was found
   assert:
     that: system_service_template_src | length > 0
     fail_msg: >-
@@ -25,8 +25,8 @@
       {{ system_service_role_dir }}/templates/ and {{ role_path }}/templates/.
   when: MODE_ASSERT | bool
 
-- name: "setup systemctl '{{ system_service_id }}'"
-  template:
+- name: "🔧 setup systemctl '{{ system_service_id }}'"
+  template: # nocheck: stack-host-template (per-host systemd service unit)
     src: "{{ system_service_template_src }}"
     dest: "{{ [ DIR_SYSTEM_SERVICE, system_service_name ] | path_join }}"
     owner: root
@@ -34,12 +34,12 @@
     mode: "0644"
   notify: "{{ 'reload system daemon' if system_service_is_template | bool else 'refresh systemctl service' }}"
 
-- name: refresh systemctl service when SYS_SERVICE_ALL_ENABLE
+- name: 🔄 refresh systemctl service when SYS_SERVICE_ALL_ENABLE
   block:
-    - name: reload system daemon
+    - name: 🔄 reload system daemon
       command: /bin/true
       notify: reload system daemon
-    - name: refresh systemctl service
+    - name: 🔄 refresh systemctl service
       command: /bin/true
       notify: refresh systemctl service
       when: not system_service_is_template | bool

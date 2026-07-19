@@ -63,11 +63,6 @@ async function loginToOdoo(page) {
   const notLoginUrl = new RegExp(
     `^${expectedBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?!/web/login)`
   );
-  // The OAuth (implicit token) round-trip can land back on Odoo without a fully
-  // established session, so a URL check alone is a false positive. Also, when a
-  // realm session already exists, the SSO click bounces straight back to an
-  // authenticated Odoo without showing the Keycloak form. Handle both: fill the
-  // Keycloak form only when it appears, then confirm an authenticated web client.
   const issuer = env.oidcIssuerUrl.replace(/\/$/, "");
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     await gotoOnion(page, `${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });

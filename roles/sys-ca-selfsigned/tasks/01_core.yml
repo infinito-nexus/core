@@ -1,8 +1,5 @@
 ---
-# Root CA (self-signed) provisioning.
-# Creates a CA:TRUE certificate which can be used as a trust anchor in containers/hosts.
-
-- name: "CA | ensure base directory exists"
+- name: "✅ CA | ensure base directory exists"
   become: true
   ansible.builtin.file:
     path: "{{ CA_ROOT.base_dir }}"
@@ -11,112 +8,43 @@
     owner: root
     group: root
 
-- name: "CA | ensure openssl is installed"
+- name: "✅ CA | ensure openssl is installed"
   include_role:
     name: sys-openssl
   when: run_once_sys_openssl is not defined
 
-- name: "CA | check openssl availability"
+- name: "🔎 CA | check openssl availability"
   ansible.builtin.command: "openssl version"
   register: _openssl_version
   changed_when: false
 
-- name: "CA | check if key exists"
+- name: "🏛️ CA | mint the shared Root CA once on the stack host (workers fetch it below)"
+  ansible.builtin.include_tasks:
+    file: 02_mint.yml
+    apply:
+      become: true
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
+- name: "⬇️ CA | (swarm worker) fetch + install shared Root CA cert from stack host"
   become: true
-  ansible.builtin.stat:
-    path: "{{ CA_ROOT.key_host }}"
-  register: _ca_key_stat
-  changed_when: false
+  when: not (IS_STACK_HOST | bool)
+  block:
+    - name: "🐝 CA | (swarm worker) read the shared Root CA cert from the stack host"
+      ansible.builtin.slurp:
+        src: "{{ CA_ROOT.cert_host }}"
+      register: _ca_cert_from_stack_host
+      delegate_to: "{{ STACK_HOST }}"
 
-- name: "CA | check if cert exists"
-  become: true
-  ansible.builtin.stat:
-    path: "{{ CA_ROOT.cert_host }}"
-  register: _ca_cert_stat
-  changed_when: false
+    - name: "📄 CA | (swarm worker) write shared Root CA cert locally (cert only, no key)"
+      ansible.builtin.copy:
+        dest: "{{ CA_ROOT.cert_host }}"
+        content: "{{ _ca_cert_from_stack_host.content | b64decode }}"
+        owner: root
+        group: root
+        mode: "0644"
 
-- name: "CA | decide whether regeneration is needed"
-  ansible.builtin.set_fact:
-    _ca_regen_needed: >-
-      {{
-        (CA_ROOT.force_regen | bool) or
-        (not (_ca_key_stat.stat.exists | default(false))) or
-        (not (_ca_cert_stat.stat.exists | default(false)))
-      }}
-  changed_when: false
-
-- name: "CA | remove outdated key/cert if regeneration requested/needed"
-  become: true
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - "{{ CA_ROOT.key_host }}"
-    - "{{ CA_ROOT.cert_host }}"
-  when: _ca_regen_needed | bool
-
-- name: "CA | render openssl config (v3_ca)"
-  become: true
-  ansible.builtin.copy:
-    dest: "{{ CA_ROOT.openssl_conf_host }}"
-    owner: root
-    group: root
-    mode: "0640"
-    content: |
-      [ req ]
-      default_bits       = {{ CA_ROOT.key_bits }}
-      default_md         = sha256
-      prompt             = no
-      distinguished_name = dn
-      x509_extensions    = v3_ca
-
-      [ dn ]
-      C  = {{ CA_ROOT.subject.C }}
-      O  = {{ CA_ROOT.subject.O }}
-      OU = {{ CA_ROOT.subject.OU }}
-      CN = {{ CA_ROOT.subject.CN }}
-
-      [ v3_ca ]
-      # Root CA constraints
-      basicConstraints       = critical,CA:TRUE,pathlen:1
-      keyUsage               = critical,keyCertSign,cRLSign
-      subjectKeyIdentifier   = hash
-      authorityKeyIdentifier = keyid:always,issuer
-
-- name: "CA | generate root CA key + cert (self-signed)"
-  become: true
-  ansible.builtin.command:
-    argv:
-      - openssl
-      - req
-      - -x509
-      - -new
-      - -nodes
-      - -days
-      - "{{ CA_ROOT.days | string }}"
-      - -newkey
-      - "rsa:{{ CA_ROOT.key_bits }}"
-      - -keyout
-      - "{{ CA_ROOT.key_host }}"
-      - -out
-      - "{{ CA_ROOT.cert_host }}"
-      - -config
-      - "{{ CA_ROOT.openssl_conf_host }}"
-      - -extensions
-      - v3_ca
-  args:
-    creates: "{{ CA_ROOT.cert_host }}"
-  when: _ca_regen_needed | bool
-
-- name: "CA | enforce permissions (private key)"
-  become: true
-  ansible.builtin.file:
-    path: "{{ CA_ROOT.key_host }}"
-    owner: root
-    group: root
-    mode: "0600"
-
-- name: "CA | enforce permissions (certificate)"
+- name: "🔐 CA | enforce permissions (certificate)"
   become: true
   ansible.builtin.file:
     path: "{{ CA_ROOT.cert_host }}"
@@ -124,13 +52,13 @@
     group: root
     mode: "0644"
 
-- name: "CA | sanity check: verify certificate is CA:TRUE"
+- name: "✅ CA | sanity check: verify certificate is CA:TRUE"
   become: true
   ansible.builtin.command: "openssl x509 -in {{ CA_ROOT.cert_host }} -noout -text"
   register: _ca_cert_text
   changed_when: false
 
-- name: "CA | assert certificate contains CA:TRUE"
+- name: "✅ CA | assert certificate contains CA:TRUE"
   ansible.builtin.assert:
     that:
       - (_ca_cert_text.stdout | default('')) is search('CA:TRUE')
@@ -138,7 +66,7 @@
       Generated certificate does not appear to be a CA certificate (CA:TRUE missing).
       Please inspect {{ CA_ROOT.cert_host }}.
 
-- name: "CA | install trust helper script (SPOT) on host"
+- name: "📦 CA | install trust helper script (SPOT) on host"
   become: true
   ansible.builtin.copy:
     src: "with-ca-trust.sh"
@@ -147,7 +75,16 @@
     group: root
     mode: "0755"
 
-- name: "CA | Install Root CA into host trust store"
+- name: "📦 CA | install PHP CA-trust ini (SPOT) on host"
+  become: true
+  ansible.builtin.template: # nocheck: stack-host-template (host tool install, same gate as the adjacent wrapper copy)
+    src: "ca-trust-php.ini.j2"
+    dest: "{{ CA_TRUST.php_ini_host }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: "📦 CA | Install Root CA into host trust store"
   become: true
   ansible.builtin.command:
     argv:
@@ -159,7 +96,7 @@
     CA_TRUST_NAME: "{{ DOMAIN_PRIMARY | lower }}"
   changed_when: true
 
-- name: "TLS | (self_signed) ensure CA trust env vars in {{ FILE_ENVIRONMENT }}"
+- name: "✅ TLS | (self_signed) ensure CA trust env vars in {{ FILE_ENVIRONMENT }}"
   become: true
   ansible.builtin.lineinfile:
     path: "{{ FILE_ENVIRONMENT }}"

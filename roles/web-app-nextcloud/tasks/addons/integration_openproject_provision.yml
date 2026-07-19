@@ -1,12 +1,12 @@
 ---
-- name: Wait for the OpenProject web endpoint
+- name: ⏳ Wait for the OpenProject web endpoint
   wait_for:
     host: "{{ lookup('domain', 'web-app-openproject') }}"
     port: 80
     delay: 5
-    timeout: 600
+    timeout: "{{ lookup('timeout', 600) | int }}"
 
-- name: Create the Nextcloud storage + OpenProject OAuth application
+- name: 📁 Create the Nextcloud storage + OpenProject OAuth application
   ansible.builtin.command:
     argv:
       - container
@@ -18,7 +18,7 @@
       - "STORAGE_NAME={{ nextcloud_op_storage_name }}"
       - -e
       - "NC_HAS_OP_SECRET={{ nextcloud_op_client_secret_current.stdout | trim }}"
-      - "{{ nextcloud_op_web_container }}"
+      - "{{ nextcloud_op_web_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"
@@ -27,19 +27,19 @@
   changed_when: "'\"oauth_application_created\":true' in nextcloud_op_storage_create.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Parse the OpenProject OAuth application credentials
+- name: 🔎 Parse the OpenProject OAuth application credentials
   set_fact:
     nextcloud_op_oauth: "{{ nextcloud_op_storage_create.stdout | regex_search('{.*}') | from_json }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Resolve the effective OpenProject OAuth client secret (fresh or persisted)
+- name: 🔍 Resolve the effective OpenProject OAuth client secret (fresh or persisted)
   set_fact:
     nextcloud_op_client_secret: >-
       {{ nextcloud_op_oauth.openproject_client_secret
          | default((nextcloud_op_client_secret_current.stdout | trim), true) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Fail when no usable OpenProject OAuth application secret is available
+- name: 🛑 Fail when no usable OpenProject OAuth application secret is available
   assert:
     that:
       - nextcloud_op_oauth.openproject_client_id | default('') | length > 0
@@ -50,8 +50,8 @@
       is created; reset the integration_openproject app config (openproject_client_id,
       openproject_client_secret, nc_oauth_client_id) and the OpenProject storage to re-provision.
 
-- name: Push the OpenProject OAuth application credentials into Nextcloud
-  command: >
+- name: ⬆️ Push the OpenProject OAuth application credentials into Nextcloud
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openproject {{ item.key }}
     --value '{{ item.value }}'
   loop:
@@ -62,8 +62,8 @@
     label: "{{ item.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Register a Nextcloud OAuth2 client for OpenProject
-  command: >
+- name: 📝 Register a Nextcloud OAuth2 client for OpenProject
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} oauth2:add-client
     "OpenProject client"
     "{{ nextcloud_op_expected_url }}/oauth_clients/%s/callback"
@@ -73,22 +73,22 @@
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Wire the Nextcloud OAuth2 client into both sides when it was created
+- name: 🔌 Wire the Nextcloud OAuth2 client into both sides when it was created
   when: (nextcloud_op_ncclient_create.rc | default(1)) == 0
   block:
-    - name: Parse the Nextcloud OAuth2 client credentials
+    - name: 🔎 Parse the Nextcloud OAuth2 client credentials
       set_fact:
         nextcloud_op_ncclient: "{{ nextcloud_op_ncclient_create.stdout | trim | from_json }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: Push the Nextcloud OAuth2 client id into integration_openproject
-      command: >
+    - name: ⬆️ Push the Nextcloud OAuth2 client id into integration_openproject
+      shell: >
         {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openproject nc_oauth_client_id
         --value '{{ nextcloud_op_ncclient.clientId }}'
       changed_when: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: Register the Nextcloud OAuth2 client back on the OpenProject storage
+    - name: 📝 Register the Nextcloud OAuth2 client back on the OpenProject storage
       ansible.builtin.command:
         argv:
           - container
@@ -102,7 +102,7 @@
           - "NC_OAUTH_CLIENT_ID={{ nextcloud_op_ncclient.clientId }}"
           - -e
           - "NC_OAUTH_CLIENT_SECRET={{ nextcloud_op_ncclient.clientSecret }}"
-          - "{{ nextcloud_op_web_container }}"
+          - "{{ nextcloud_op_web_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
           - bash
           - -lc
           - "cd /app && bundle exec rails runner -"

@@ -3,63 +3,45 @@
 application_id: "web-app-penpot"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Penpot images / versions (all three containers share the upstream tag)
-PENPOT_VERSION: "{{ lookup('config', application_id, 'services.penpot.version') }}"
-PENPOT_FRONTEND_IMAGE: "{{ lookup('config', application_id, 'services.frontend.image') }}"
-PENPOT_BACKEND_IMAGE: "{{ lookup('config', application_id, 'services.backend.image') }}"
-PENPOT_EXPORTER_IMAGE: "{{ lookup('config', application_id, 'services.exporter.image') }}"
 PENPOT_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 PENPOT_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.backend.name') }}"
 PENPOT_EXPORTER_CONTAINER: "{{ lookup('config', application_id, 'services.exporter.name') }}"
-PENPOT_ASSETS_VOLUME: "{{ lookup('config', application_id, 'volumes.assets') }}"
 
-# Compose-internal service names (must match the keys emitted in compose.yml.j2)
 PENPOT_FRONTEND_SERVICE: "frontend"
 PENPOT_BACKEND_SERVICE: "backend"
 PENPOT_EXPORTER_SERVICE: "exporter"
 
-# Internal container ports (upstream defaults)
-PENPOT_FRONTEND_INTERNAL_PORT: 8080
-PENPOT_BACKEND_INTERNAL_PORT: 6060
-PENPOT_EXPORTER_INTERNAL_PORT: 6061
+PENPOT_BACKEND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, PENPOT_BACKEND_SERVICE) }}"
 
-# Public URI
+PENPOT_FRONTEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.penpot.ports.internal.http') }}"
+PENPOT_BACKEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.backend.ports.internal.http') }}"
+PENPOT_EXPORTER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.exporter.ports.internal.http') }}"
+
 PENPOT_PUBLIC_URI: "{{ lookup('tls', application_id, 'url.base') }}"
 
-# Secret
 PENPOT_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 
-# Assets storage (filesystem backend; backup-ready named volume)
 PENPOT_ASSETS_FS_DIRECTORY: "/opt/data/assets"
 
-# Database (shared svc-db-postgres)
 PENPOT_DATABASE_USERNAME: "{{ lookup('database', application_id, 'username') }}"
 PENPOT_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"
 PENPOT_DATABASE_HOST: "{{ lookup('database', application_id, 'host') }}"
 PENPOT_DATABASE_PORT: "{{ lookup('database', application_id, 'port') }}"
 PENPOT_DATABASE_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
 PENPOT_DATABASE_URI: "postgresql://{{ PENPOT_DATABASE_HOST }}:{{ PENPOT_DATABASE_PORT }}/{{ PENPOT_DATABASE_NAME }}"
+PENPOT_DATABASE_MAX_POOL_SIZE: "{{ [60, [5, (((POSTGRES_MAX_CONNECTIONS | int) - 30) // ([groups[application_id] | default([]) | length, 1] | max))] | max] | min
+  }}"
 
-# Redis (role-local sidecar emitted by sys-svc-compose; service name == "redis")
-PENPOT_REDIS_HOST: "redis"
-PENPOT_REDIS_PORT: 6379
-PENPOT_REDIS_URI: "redis://{{ PENPOT_REDIS_HOST }}:{{ PENPOT_REDIS_PORT }}/0"
+PENPOT_REDIS_URI: "{{ lookup('engine', 'redis', application_id, 'url') }}/0"
 
-# Internal service URIs (frontend ↔ backend ↔ exporter)
 PENPOT_BACKEND_URI: "http://{{ PENPOT_BACKEND_SERVICE }}:{{ PENPOT_BACKEND_INTERNAL_PORT }}"
 PENPOT_EXPORTER_URI: "http://{{ PENPOT_EXPORTER_SERVICE }}:{{ PENPOT_EXPORTER_INTERNAL_PORT }}"
 
-# Auth integration flags
 PENPOT_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 PENPOT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
-# Login/registration toggles — derived from OIDC (variant-aware via the sso
-# service flag). Native password login is off once OIDC is the login path
-# (forces SSO); registration is on under OIDC, which Penpot's JIT provisioning
-# of first-time federated users requires.
 PENPOT_NATIVE_LOGIN_ENABLED: "{{ not (PENPOT_SSO_ENABLED | bool) }}"
 PENPOT_REGISTRATION_ENABLED: "{{ PENPOT_SSO_ENABLED | bool }}"
 
-# PENPOT_FLAGS — space-separated feature toggles consumed by every container.
 PENPOT_FLAGS: >-
   {{ 'enable-registration' if PENPOT_REGISTRATION_ENABLED | bool else 'disable-registration' }}
   {{ 'enable-login-with-password' if PENPOT_NATIVE_LOGIN_ENABLED | bool else 'disable-login-with-password' }}
@@ -69,12 +51,10 @@ PENPOT_FLAGS: >-
   {{ 'enable-login-with-oidc' if PENPOT_SSO_ENABLED | bool else '' }}
   {{ 'enable-login-with-ldap' if PENPOT_LDAP_ENABLED | bool else '' }}
 
-# Administrator local account — bootstrapped (tasks/main.yml) when native login is on.
 PENPOT_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
 PENPOT_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 PENPOT_ADMIN_FULLNAME: "{{ lookup('users', 'administrator').username }}"
 
-# OIDC (Keycloak) — only consumed when services.sso.enabled
 PENPOT_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 PENPOT_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 PENPOT_OIDC_BASE_URI: "{{ OIDC.CLIENT.ISSUER_URL }}"
@@ -82,8 +62,8 @@ PENPOT_OIDC_AUTH_URI: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 PENPOT_OIDC_TOKEN_URI: "{{ OIDC.CLIENT.TOKEN_URL }}"
 PENPOT_OIDC_USER_URI: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 PENPOT_OIDC_SCOPES: "openid profile email"
+PENPOT_SSRF_ALLOWED_HOSTS: "{{ PENPOT_OIDC_BASE_URI | regex_replace('^https?://', '') | regex_replace('[:/].*$', '') }}"
 
-# LDAP (OpenLDAP) — only consumed when services.ldap.enabled
 PENPOT_LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
 PENPOT_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
 PENPOT_LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"

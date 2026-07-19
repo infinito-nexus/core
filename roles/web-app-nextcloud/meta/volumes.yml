@@ -1,5 +1,57 @@
 ---
-data: nextcloud_data
-whiteboard_tmp: nextcloud_whiteboard_tmp
-whiteboard_fontcache: nextcloud_whiteboard_fontcache
-talk_recording_tmp: nextcloud_talk_recording_tmp
+data:
+  name: nextcloud_data
+  type: volume
+  mounts:
+    - service: nextcloud
+      target: /var/www/html/
+    - service: cron
+      target: /var/www/html/
+    - service: proxy
+      target: /var/www/html/
+      read_only: true
+
+whiteboard_tmp:
+  name: nextcloud_whiteboard_tmp
+  type: volume
+  mounts:
+    - service: whiteboard
+      target: /tmp
+
+whiteboard_fontcache:
+  name: nextcloud_whiteboard_fontcache
+  type: volume
+  mounts:
+    - service: whiteboard
+      target: /var/cache/fontconfig
+
+talk_recording_tmp:
+  name: nextcloud_talk_recording_tmp
+  type: volume
+  mounts:
+    - service: talk_recording
+      target: /tmp
+
+nginx_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'nginx.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: proxy
+      target: /etc/nginx/nginx.conf
+
+infinito_conf:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'infinito' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: nextcloud
+      target: /var/www/infinito/
+
+nextcloud_includes:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'includes.php' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: nextcloud
+      target: /tmp/includes.php

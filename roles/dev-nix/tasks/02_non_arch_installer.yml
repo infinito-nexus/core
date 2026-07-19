@@ -4,7 +4,7 @@
 # and run the daemon (multi-user) installer.
 
 # 1) Fetch the official SHA256 from releases.nixos.org on the control node
-- name: Fetch official Nix installer SHA256
+- name: ⬇️ Fetch official Nix installer SHA256
   uri_retry:
     url: "{{ dev_nix_installer_sha256_url }}"
     return_content: true
@@ -13,33 +13,30 @@
   run_once: true
   become: false
 
-- name: Set expected installer checksum from official SHA256
+- name: 🔧 Set expected installer checksum from official SHA256
   ansible.builtin.set_fact:
     dev_nix_installer_sha256: >-
       {{ dev_nix_official_sha_response.content.split()[0] | trim }}
   run_once: true
 
-# 2) Download installer script on the target and verify via checksum
-- name: Download Nix installer script from official releases
+- name: ⬇️ Download Nix installer script from official releases
   get_url_retry:
     url: "{{ dev_nix_installer_url }}"
     dest: "{{ dev_nix_installer_dest }}"
     mode: "0755"
-    timeout: 30
-    # get_url will verify the checksum and fail if it does not match
+    timeout: "{{ lookup('timeout', 30) | int }}"
     checksum: "sha256:{{ dev_nix_installer_sha256 }}"
   register: dev_nix_installer_download_result
   become: true
 
-# 3) Locate nix binary in common paths and install only if missing
-- name: Probe common nix binary paths before installation
+- name: 🔍 Probe common nix binary paths before installation
   ansible.builtin.stat:
     path: "{{ item }}"
   loop: "{{ dev_nix_binary_candidates }}"
   register: dev_nix_binary_probe_before
   become: true
 
-- name: Set nix binary path detected before installation
+- name: 🔧 Set nix binary path detected before installation
   ansible.builtin.set_fact:
     dev_nix_binary_path_before: >-
       {{
@@ -52,18 +49,18 @@
         ) | default("", true)
       }}
 
-- name: Install Nix via official installer when no Nix binary is present
+- name: 📦 Install Nix via official installer when no Nix binary is present
   ansible.builtin.include_tasks: 03_install_official.yml
   when: dev_nix_binary_path_before | length == 0
 
-- name: Probe common nix binary paths after installation
+- name: 🔍 Probe common nix binary paths after installation
   ansible.builtin.stat:
     path: "{{ item }}"
   loop: "{{ dev_nix_binary_candidates }}"
   register: dev_nix_binary_probe_after
   become: true
 
-- name: Set nix binary path for systemd usage
+- name: 🔧 Set nix binary path for systemd usage
   ansible.builtin.set_fact:
     dev_nix_binary_path: >-
       {{
@@ -76,14 +73,14 @@
         ) | default("", true)
       }}
 
-- name: Fail if nix binary is missing after installation
+- name: 🛑 Fail if nix binary is missing after installation
   ansible.builtin.fail:
     msg: >-
       Nix binary could not be found after installation.
       Checked: {{ dev_nix_binary_candidates | join(', ') }}
   when: dev_nix_binary_path | length == 0
 
-- name: Ensure nix is reachable in PATH for systemd services
+- name: ✅ Ensure nix is reachable in PATH for systemd services
   ansible.builtin.file:
     src: "{{ dev_nix_binary_path }}"
     dest: /usr/local/bin/nix
@@ -91,8 +88,7 @@
   become: true
   when: dev_nix_binary_path != "/usr/local/bin/nix"
 
-# 4) Optionally drop shell snippet for Nix
-- name: Optionally drop shell snippet for Nix
+- name: 🗑️ Optionally drop shell snippet for Nix
   ansible.builtin.script:
     cmd: >-
       {{ role_path }}/files/write_nix_shell_snippet.sh
@@ -106,8 +102,7 @@
   when: dev_nix_enable_shell_snippet | bool
   become: true
 
-- name: Aggressively prune Nix data (GC + optimise)
-  # CI/Debug cleanup to prevent huge disk usage from Nix store + old generations
+- name: 🧹 Aggressively prune Nix data (GC + optimise)
   become: true
   ansible.builtin.script: >
     aggressive_prune_nix.sh

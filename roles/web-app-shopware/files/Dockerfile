@@ -1,14 +1,4 @@
-# ------------------------------------------------------------------------------
-# Shopware Application Image (Alpine-compatible)
-# ------------------------------------------------------------------------------
-# - Stage 1 (builder): use Composer to fetch Shopware while ignoring build-time
-#   PHP extensions (we'll install them in the runtime image).
-# - Stage 2 (runtime): install required PHP extensions and copy the app + init.sh
-# ------------------------------------------------------------------------------
 
-############################
-# Stage 1: Builder
-############################
 ARG SHOPWARE_CONTAINER_IMAGE
 ARG SHOPWARE_CONTAINER_VERSION
 ARG SHOPWARE_PHP_IMAGE
@@ -23,13 +13,11 @@ ARG SHOPWARE_PKG_NAME
 ARG SHOPWARE_PKG_VERSION
 ARG SHOPWARE_COMPOSER_PLATFORM_PHP
 
-# 1) Scaffold project without installing dependencies
 RUN set -eux; \
     composer create-project "${SHOPWARE_PKG_NAME}:${SHOPWARE_PKG_VERSION}" /app --no-install; \
     composer config platform.php "${SHOPWARE_COMPOSER_PLATFORM_PHP}"; \
     composer config policy.advisories.block false
 
-# 2) Install dependencies (ignoring build-time extension checks) + add Redis transport
 RUN set -eux; \
     composer install \
       --no-dev \
@@ -50,14 +38,9 @@ RUN set -eux; \
       --ignore-platform-req=ext-redis
 
 
-############################
-# Stage 2: Runtime
-############################
 FROM ${SHOPWARE_PHP_IMAGE}:${SHOPWARE_PHP_VERSION}
 WORKDIR /var/www/html
 
-# Install required PHP extensions in the Alpine-based runtime
-# (try php83-*, fall back to php82-*, then to generic)
 USER root
 RUN set -eux; \
     apk add --no-cache php83-gd         || apk add --no-cache php82-gd         || apk add --no-cache php-gd || true; \
@@ -65,15 +48,19 @@ RUN set -eux; \
     apk add --no-cache php83-pdo_mysql  || apk add --no-cache php82-pdo_mysql  || apk add --no-cache php-pdo_mysql || true; \
     apk add --no-cache php83-redis      || apk add --no-cache php82-redis      || apk add --no-cache php-redis || true
 
-# Copy built application from the builder
+RUN set -eux; \
+    d="$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')"; \
+    { \
+      echo 'session.save_handler = redis'; \
+      echo 'session.save_path = ${REDIS_SESSION_TARGET}'; \
+    } > "${d}/zz-session-redis.ini"
+
 COPY --chown=www-data:www-data --from=builder /app /var/www/html
 
-# Optional: snapshot of pristine app to seed an empty volume (used by init container)
 RUN mkdir -p /usr/src/shopware \
  && cp -a /var/www/html/. /usr/src/shopware/. \
  && chown -R www-data:www-data /var/www/html /usr/src/shopware
 
-# Ensure writable directories exist with correct ownership
 RUN set -eux; \
     mkdir -p \
       /var/www/html/files \
@@ -84,5 +71,4 @@ RUN set -eux; \
       /var/www/html/public/theme; \
     chown -R www-data:www-data /var/www/html
 
-# Drop back to the app user
 USER www-data

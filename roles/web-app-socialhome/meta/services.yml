@@ -1,5 +1,8 @@
 ---
 socialhome:
+  modes:
+    host:
+      enabled: false
   lifecycle: pre-alpha
   min_storage: "5GB"
   cpus: "0.5"

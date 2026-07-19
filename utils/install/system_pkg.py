@@ -90,6 +90,7 @@ _COMMAND_PACKAGES: dict[str, dict[str, list[str]]] = {
     "ruff": {m: ["ruff"] for m in _SUPPORTED},
     "shfmt": {m: ["shfmt"] for m in _SUPPORTED},
     "shellcheck": {m: ["shellcheck"] for m in _SUPPORTED},
+    "unzip": {m: ["unzip"] for m in _SUPPORTED},
     "npm": {
         "pacman": ["npm", "nodejs"],
         "apt-get": ["npm", "nodejs"],

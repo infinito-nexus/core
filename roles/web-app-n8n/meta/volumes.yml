@@ -1,2 +1,19 @@
 ---
-n8n: n8n_data
+data:
+  type: volume
+  name: n8n_data
+  nfs:
+    uid: "1000"
+    gid: "1000"
+    mode: "0770"
+  mounts:
+    - service: n8n
+      target: /home/node/.n8n
+hooks:
+  type: config
+  source: "{{ [lookup('container', 'web-app-n8n', 'directories.instance'), 'hooks.js'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: n8n
+      target: /home/node/hooks.js
+      when: "{{ lookup('config', 'web-app-n8n', 'services.sso.enabled') | bool }}"

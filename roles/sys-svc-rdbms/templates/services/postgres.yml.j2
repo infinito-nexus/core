@@ -4,19 +4,19 @@
 {% set _extensions = lookup('service_extensions', 'postgres').get(application_id, []) %}
 {% set _libraries = lookup('postgres_libraries', _extensions) %}
   {{ lookup('database', application_id, 'host') }}:
-    container_name: {{ application_id | get_entity_name }}-database
+    {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-database')) }}
 {% if _libraries | length > 0 %}
-    image: {{ application_id | get_entity_name }}-database:{{ lookup('database', application_id, 'version') }}
-    pull_policy: never
+    {{ lookup('container_image', 'svc-db-postgres', 'postgres', image=(application_id | get_entity_name ~ '-database'), version=lookup('database', application_id, 'version')) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     build:
       context: {{ lookup('database', application_id, 'build_dir') }}
       dockerfile: Dockerfile
 {% else %}
-    image: {{ lookup('database', application_id, 'image') }}:{{ lookup('database', application_id, 'version') }}
+    {{ lookup('container_image', 'svc-db-postgres', 'postgres', image=lookup('database', application_id, 'image'), version=lookup('database', application_id, 'version')) }}
 {% endif %}
     env_file:
       - {{ lookup('database', application_id, 'env') }}
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('compose_restart') }}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U {{ lookup('database', application_id, 'username') }}"]
       interval: 10s
@@ -32,7 +32,7 @@
         target: /docker-entrypoint-initdb.d
         read_only: true
 {% endif %}
-    networks:
+    networks:  # nocheck: networks-literal  local sidecar inside consumer stack, default-only attachment
       - default
 {% endif %}
 {{ "\n" }}

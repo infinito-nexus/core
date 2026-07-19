@@ -1,12 +1,96 @@
 services:
-  webrtc-sfu:
+{% set service_name = 'bbb-web' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% if BBB_COLLABORA_ENABLED | bool %}
+    {{ lookup('depends_on', ['redis', 'etherpad', 'bbb-pads']) }}
+{% endif %}
+{% set service_name = 'freeswitch' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% set service_name = 'nginx' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% set service_name = 'etherpad' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+{% if BBB_COLLABORA_ENABLED | bool %}
+    {{ lookup('depends_on', ['redis']) }}
+{% endif %}
+{% set service_name = 'bbb-pads' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+{% set service_name = 'bbb-export-annotations' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% set service_name = 'fsesl-akka' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+{% set service_name = 'apps-akka' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% set service_name = 'bbb-graphql-server' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10m
+{% set service_name = 'bbb-graphql-actions' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+{% set service_name = 'bbb-graphql-middleware' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+{% set service_name = 'periodic' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% set service_name = 'redis' %}
+  {{ service_name }}:
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% set service_name = 'postgres' %}
+  {{ service_name }}:
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% if lookup('config', application_id, 'services.prometheus.enabled') | bool %}
+{% set service_name = 'prometheus-exporter' %}
+  {{ service_name }}:
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% endif %}
+{% if BBB_GREENLIGHT_ENABLED | bool %}
+{% set service_name = 'greenlight' %}
+  {{ service_name }}:
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% endif %}
+{% if BBB_RECORDING_ENABLED | bool %}
+{% set service_name = 'recordings' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+{% set service_name = 'bbb-webrtc-recorder' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+{% endif %}
+{% set service_name = 'webrtc-sfu' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     environment:
       MS_WORKERS: "1"
       MS_ENABLE_IPV6: "{{ BBB_IP6_ENABLED | bool | lower }}"
       MS_WEBRTC_LISTEN_IPS: >-
         [{"ip":"0.0.0.0","announcedIp":"${EXTERNAL_IPv4}"}]
 {% if BBB_COTURN_LOCAL_ENABLED | bool %}
-  coturn:
+{% set service_name = 'coturn' %}
+  {{ service_name }}:
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     ports:
       - "{{ BBB_TURN_PORT }}:{{ BBB_TURN_PORT }}/udp"
       - "{{ BBB_TURN_PORT }}:{{ BBB_TURN_PORT }}/tcp"
@@ -30,13 +114,5 @@ services:
       --pkey=${COTURN_TLS_KEY_PATH}
 {% endif %}
 {% endif %}
-{% if BBB_COLLABORA_ENABLED | bool %}
-  bbb-web:
-    depends_on:
-      - redis
-      - etherpad
-      - bbb-pads
-  etherpad:
-    depends_on:
-      - redis
-{% endif %}
+
+{{ lookup('compose_volumes', application_id) }}

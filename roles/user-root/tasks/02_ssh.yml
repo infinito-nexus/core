@@ -1,10 +1,10 @@
 ---
-- name: "Include SSH for user root"
+- name: "📂 Include SSH for user root"
   include_role:
     name: "sys-svc-ssh"
   when: not (run_once_sys_svc_ssh | default(false) | bool)
 
-- name: Ensure '{{ USER_ROOT_SSH_DIR }}' exists
+- name: ✅ Ensure '{{ USER_ROOT_SSH_DIR }}' exists
   file:
     path: "{{ USER_ROOT_SSH_DIR }}"
     state: directory
@@ -12,17 +12,17 @@
     group: root
     mode: "0700"
 
-- name: Generate a SSH key for root if it does not exist
+- name: ⚙️ Generate a SSH key for root if it does not exist
   community.crypto.openssh_keypair:
     path: "{{ USER_ROOT_SSH_KEY_PRIVATE }}"
     type: rsa
     size: 4096
 
-- name: Display the public SSH key
+- name: 👁️ Display the public SSH key
   command: "cat {{ USER_ROOT_SSH_KEY_PUBLIC }}"
   register: public_key
   changed_when: false
 
-- name: Output the public SSH key
+- name: 🔑 Output the public SSH key
   debug:
     msg: "{{ public_key.stdout }}"

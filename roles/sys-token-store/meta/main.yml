@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Stores and manages per-user application tokens in a local YAML store file (idempotent read/write helpers).
+  description: Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

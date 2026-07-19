@@ -1,0 +1,31 @@
+---
+- name: "🧹 Matomo bootstrap | Swarm: move the partial config aside before retry"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user root {{ MATOMO_LOCAL_CID | quote }}
+    sh -c 'set -e; cfg="$1"; [ -f "$cfg" ] && mv "$cfg" "$cfg.wedged-$(date +%Y%m%d%H%M%S)"; rm -rf /var/www/html/tmp/cache'
+    _ {{ MATOMO_CONFIG | quote }}
+  changed_when: true
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+  when:
+    - IS_STACK_HOST | bool
+    - matomo_attempt_index | int > 0
+    - matomo_config_exists.rc | int != 0
+    - ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
+
+- name: "🐝 Matomo bootstrap | Swarm: force installer run and wait for its token"
+  ansible.builtin.script: "{{ role_path }}/files/bootstrap_swarm_poll.sh"
+  environment:
+    SERVICE_REF: "{{ lookup('container_service', application_id, MATOMO_BOOTSTRAP_SERVICE) }}"
+    DEADLINE_S: "{{ MATOMO_INSTALLER_STEP_DEADLINE_S | int }}"
+    POLL_DELAY_S: "{{ MATOMO_BOOTSTRAP_SWARM_POLL_DELAY_S | int }}"
+  register: matomo_bootstrap_attempt
+  changed_when: true
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
+
+- name: "🎯 Matomo bootstrap | Swarm: record attempt result"
+  ansible.builtin.set_fact:
+    matomo_bootstrap_swarm: "{{ matomo_bootstrap_attempt }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: matomo_bootstrap_attempt is not skipped

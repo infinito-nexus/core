@@ -4,7 +4,6 @@ FROM ${RUNNER_BASE_IMAGE}
 ARG RUNNER_UID
 ARG RUNNER_GID
 
-# Runner binary runtime deps + Docker CLI + Python 3 for CI scripts
 RUN rm -rf /var/lib/apt/lists/* \
     && apt-get -o Acquire::Retries=5 update \
     && apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
@@ -22,7 +21,7 @@ RUN rm -rf /var/lib/apt/lists/* \
         python3-venv \
         sudo \
         tar \
-    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+    && curl --connect-timeout 5 --max-time 60 -fsSL https://download.docker.com/linux/ubuntu/gpg \
         | gpg --dearmor -o /usr/share/keyrings/docker.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] \
         https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \

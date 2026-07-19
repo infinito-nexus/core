@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-required — Semaphore stores all state in PostgreSQL and clones repos to ephemeral tmp; it has no uploads/media/attachment surface that needs object storage.
+# nocheck: seaweedfs-required - Semaphore stores all state in PostgreSQL and clones repos to ephemeral tmp; it has no uploads/media/attachment surface that needs object storage.
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -33,19 +33,24 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 semaphore:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   cpus: 1.0
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 1024
   min_storage: 5GB
   image: semaphoreui/semaphore
-  version: "v2.18.23"
+  version: "v2.18.25"
   backup:
     no_stop_required: true
   name: semaphore
@@ -65,4 +70,9 @@ semaphore:
 tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"
-  shared: true  # nocheck: dynamic-flag
+  shared: true # nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

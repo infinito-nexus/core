@@ -1,14 +1,14 @@
 ---
 # nocheck: run-once
 
-- name: "Select JavaScript file path for '{{ application_id }}'"
+- name: "🎯 Select JavaScript file path for '{{ application_id }}'"
   set_fact:
     javascript_file_custom: >-
       {{ (application_id | abs_role_path_by_application_id ~ '/templates/javascript.js.j2')
          if lookup('fileglob', application_id | abs_role_path_by_application_id ~ '/templates/javascript.js.j2')
          else application_id | abs_role_path_by_application_id ~ '/files/javascript.js' }}
 
-- name: "Load JavaScript code for '{{ application_id }}'"
+- name: "📄 Load JavaScript code for '{{ application_id }}'"
   set_fact:
     javascript_code: >-
       {{ lookup(
@@ -16,11 +16,11 @@
            javascript_file_custom
          ) }}
 
-- name: "Collapse Javascript code into one-liner for '{{ application_id }}'"
+- name: "🗜️ Collapse Javascript code into one-liner for '{{ application_id }}'"
   set_fact:
     javascript_code_one_liner: "{{ javascript_code | to_one_liner }}"
 
-- name: "Append Javascript CSP hash for '{{ application_id }}'"
+- name: "➕ Append Javascript CSP hash for '{{ application_id }}'"
   set_fact:
     webserver_csp_hashes_extra_by_app: >-
       {{ webserver_csp_hashes_extra_by_app | default({})

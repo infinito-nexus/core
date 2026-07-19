@@ -22,8 +22,8 @@ url="http://${domain}/"
 probe() {
   local i
   for ((i = 1; i <= attempts; i++)); do
-    if curl --silent --show-error --location --socks5-hostname "${socks}" \
-        --max-time 30 -o /dev/null "${url}"; then
+    if curl --silent --show-error --location --max-time 30 --socks5-hostname "${socks}" \
+        -o /dev/null "${url}"; then
       return 0
     fi
     sleep "${delay}"

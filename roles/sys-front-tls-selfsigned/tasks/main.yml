@@ -1,4 +1,7 @@
 ---
-- name: "Execute Role (once)"
+# Stack-host only: workers have no CA key, so signing a leaf here would abort the play.
+- name: "▶️ Execute Role (once)"
   include_tasks: 01_core.yml
-  when: run_once_sys_front_tls_selfsigned is not defined
+  when:
+    - run_once_sys_front_tls_selfsigned is not defined
+    - IS_STACK_HOST | bool

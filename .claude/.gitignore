@@ -1,3 +1,8 @@
 launch.json
 routines
 workflows
+skills
+agents
+commands
+hooks
+settings.local.json

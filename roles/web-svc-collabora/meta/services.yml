@@ -3,12 +3,22 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+  # nocheck: matomo-track
+  track: false
 # nocheck: dynamic-flag
 redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 collabora:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: single-replica
+  replicas: 1
   bond: 1
   enabled: true
   shared: true
@@ -27,11 +37,17 @@ collabora:
   ports:
     local:
       http: 8042
+    internal:
+      http: 9980
+  proxy:
+    service_key: collabora
   lifecycle: beta
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  # nocheck: prometheus-scrape
+  scrape: false
 
 tor:
   bond: 1

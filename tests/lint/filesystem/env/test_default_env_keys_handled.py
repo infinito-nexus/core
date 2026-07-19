@@ -12,14 +12,11 @@ from __future__ import annotations
 
 import re
 import unittest
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _KEY_RE = re.compile(r"^\s*(?P<key>INFINITO_[A-Z0-9_]+)\s*=")
 _HANDLER_LITERAL_RE = re.compile(r"[\"'](?P<key>INFINITO_[A-Z0-9_]+)[\"']")
@@ -35,7 +32,12 @@ def _default_env_keys(path: Path) -> set[str]:
 
 def _handler_referenced_keys(handlers_dir: Path) -> set[str]:
     keys: set[str] = set()
-    for module in sorted(handlers_dir.glob("*.py")):
+    modules = sorted(
+        Path(p)
+        for p in iter_project_files(extensions=(".py",))
+        if Path(p).is_relative_to(handlers_dir)
+    )
+    for module in modules:
         if module.name == "__init__.py":
             continue
         text = read_text(str(module))

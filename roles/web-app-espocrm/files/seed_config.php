@@ -62,8 +62,7 @@ function seed_debug(string $message): void
     fwrite(STDERR, "[seed] " . $message . PHP_EOL);
 }
 
-// Determine debug mode from ESPOCRM_SEED_DEBUG
-$debugEnv = getenv('ESPOCRM_SEED_DEBUG');
+$debugEnv = getenv('ESPOCRM_SEEDER_DEBUG');
 $debug = false;
 if ($debugEnv !== false) {
     $normalized = strtolower(trim($debugEnv));
@@ -77,22 +76,18 @@ if ($debug) {
 $changed = false;
 
 foreach ($_ENV as $envKey => $envValue) {
-    // Only process variables beginning with ESPOCRM_SEED_
     if (strpos($envKey, 'ESPOCRM_SEED_') !== 0) {
         continue;
     }
 
-    // Extract the config part (after prefix)
     $rawKey = substr($envKey, strlen('ESPOCRM_SEED_')); // e.g. "RECAPTCHA_SECRET_KEY"
 
     if ($rawKey === '') {
         continue;
     }
 
-    // Convert to camelCase
     $configKey = to_camel_case($rawKey);
 
-    // Normalize boolean or keep string
     $value = cast_value((string) $envValue);
 
     if ($debug) {

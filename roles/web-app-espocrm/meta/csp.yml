@@ -1,0 +1,16 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-attr:
+    unsafe-eval: true
+whitelist:
+  connect-src:
+    - "{{ lookup('domain', 'web-app-espocrm') }}"
+    - "data:"
+  frame-src:
+    - https://s.espocrm.com/
+  frame-ancestors:
+    - "{{ DOMAIN_PRIMARY }}"
+    - "*.{{ DOMAIN_PRIMARY }}"

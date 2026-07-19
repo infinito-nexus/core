@@ -1,2 +1,17 @@
 ---
-assets: penpot_assets
+assets:
+  type: volume
+  name: penpot_assets
+  mounts:
+    - service: frontend
+      target: /opt/data/assets
+    - service: backend
+      target: /opt/data/assets
+
+java_ca_trust:
+  type: config
+  source: "{{ [lookup('container', 'web-app-penpot', 'directories.instance'), 'java-with-ca-trust.sh'] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: backend
+      target: /usr/local/bin/java-with-ca-trust.sh

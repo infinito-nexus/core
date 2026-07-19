@@ -1,23 +1,44 @@
 ---
-- name: Ensure nginx config directory exists
+- include_tasks: utils/once/flag.yml
+
+- when: DEPLOYMENT_MODE == 'swarm'
+  block:
+    - name: "🔎 Stat the docker socket so the swarm openresty worker can be group-added to it"
+      ansible.builtin.stat:
+        path: /var/run/docker.sock
+      register: _openresty_docker_sock
+
+    - name: "🔧 Set OPENRESTY_DOCKER_SOCK_GID from the live socket gid"
+      ansible.builtin.set_fact:
+        OPENRESTY_DOCKER_SOCK_GID: "{{ _openresty_docker_sock.stat.gid }}"
+      when: _openresty_docker_sock.stat.exists | default(false)
+
+- name: "✅ Ensure openresty bind-mount source dirs exist before swarm stack-deploy"
   ansible.builtin.file:
-    path: "{{ lookup('nginx','files.configuration') | dirname }}"
+    path: "{{ item }}"
     state: directory
     mode: "0755"
+  loop:
+    - "{{ lookup('nginx','files.configuration') | dirname }}"
+    - "{{ lookup('nginx','directories.configuration.base') }}"
+    - "{{ lookup('nginx','directories.data.www') }}"
+    - "{{ lookup('nginx','directories.data.well_known') }}"
+    - "{{ LETSENCRYPT_WEBROOT_PATH }}"
+    - "{{ LETSENCRYPT_BASE_PATH }}"
+    - "{{ TLS_SELFSIGNED_BASE_PATH }}"
 
-- name: Stat the nginx.conf path
+- name: 🔎 Stat the nginx.conf path
   ansible.builtin.stat:
     path: "{{ lookup('nginx','files.configuration') }}"
   register: _openresty_conf_stat
 
-# Nested DinD auto-creates a missing bind-mount source as a dir; drop it so the copy works.
-- name: Drop nginx.conf if a container bind-mount created it as a directory
+- name: 🗑️ Drop nginx.conf if a bind-mount created it as a directory
   ansible.builtin.file:
     path: "{{ lookup('nginx','files.configuration') }}"
     state: absent
   when: _openresty_conf_stat.stat.exists and _openresty_conf_stat.stat.isdir
 
-- name: Ensure base nginx.conf exists (bootstrap)
+- name: ✅ Ensure base nginx.conf exists (bootstrap)
   ansible.builtin.copy:
     dest: "{{ lookup('nginx','files.configuration') }}"
     force: false
@@ -26,16 +47,24 @@
       events {}
       http { server { listen 8080; return 200; } }
 
-- name: "For '{{ application_id }}': Load sys-svc-compose"
-  include_role:
-    name: sys-svc-compose
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
-    compose_repository_pull: false # Deactivated here to deactivate inhirement
     compose_handlers_flush: true
-    application_id: svc-prx-openresty
 
-- name: "Verify that '{{ role_name }}' works"
+- name: "🔧 Add openresty to docker.sock group for swarm (stack deploy rejects group_add)"
+  ansible.builtin.command: >-
+    container service update --detach=false
+    --group-add {{ OPENRESTY_DOCKER_SOCK_GID | quote }}
+    {{ lookup('container_service', application_id, 'openresty') | quote }}
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - OPENRESTY_DOCKER_SOCK_GID is defined
+
+- name: "✅ Verify that '{{ role_name }}' works"
   include_tasks: 02_assert.yml
-  when: MODE_ASSERT | bool
+  when: MODE_ASSERT_LOCAL | bool
 
 - include_tasks: utils/once/flag.yml

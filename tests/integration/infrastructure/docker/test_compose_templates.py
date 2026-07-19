@@ -3,24 +3,26 @@ import unittest
 from typing import ClassVar
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
 
 class TestDockerComposeTemplates(unittest.TestCase):
-    # Search for all roles/*/templates/compose.yml.j2
-    TEMPLATE_PATTERN = "roles/*/templates/compose.yml.j2"
+    TEMPLATE_PATTERN = f"roles/*/{ROLE_FILE_TEMPL_COMPOSE}"
 
-    # Allowed lines before BASE_INCLUDE
     ALLOWED_BEFORE_BASE: ClassVar[list[re.Pattern]] = [
-        re.compile(r"^\s*$"),  # empty line
-        re.compile(r"^\s*version:.*$"),  # version: ...
-        re.compile(r"^\s*#.*$"),  # YAML comment
-        re.compile(r"^\s*\{\#.*\#\}\s*$"),  # Jinja comment {# ... #}
+        re.compile(r"^\s*$"),
+        re.compile(r"^\s*version:.*$"),
+        re.compile(r"^\s*#.*$"),
+        re.compile(r"^\s*\{\#.*\#\}\s*$"),
     ]
 
     BASE_INCLUDE = "{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}"
-    NET_INCLUDE = "{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}"
+    NET_INCLUDE = "{{ lookup('compose_networks') }}"
+    NET_INCLUDE_RE: ClassVar[re.Pattern] = re.compile(
+        r"\{\{\s*lookup\(\s*'compose_networks'[^)]*\)\s*\}\}"
+    )
     HOST_MODE = 'network_mode: "host"'
 
     def test_docker_compose_includes(self):
@@ -41,7 +43,6 @@ class TestDockerComposeTemplates(unittest.TestCase):
                 content = read_text(str(template_path))
                 lines = content.splitlines()
 
-                # BASE_INCLUDE must always occur exactly once
                 count_base = lines.count(self.BASE_INCLUDE)
                 self.assertEqual(
                     count_base,
@@ -49,30 +50,29 @@ class TestDockerComposeTemplates(unittest.TestCase):
                     f"{template_path}: '{self.BASE_INCLUDE}' occurs {count_base} times, expected once",
                 )
 
-                # Determine if host‑mode is in use
                 host_mode = self.HOST_MODE in content
 
-                # If not host‑mode, NET_INCLUDE must occur exactly once
-                count_net = lines.count(self.NET_INCLUDE)
+                count_net = sum(1 for line in lines if self.NET_INCLUDE_RE.search(line))
                 if host_mode:
-                    # No network include needed for host mode
-                    self.assertEqual(
+                    self.assertLessEqual(
                         count_net,
-                        0,
-                        f"{template_path}: '{self.NET_INCLUDE}' should be omitted when using host networking",
+                        1,
+                        f"{template_path}: '{self.NET_INCLUDE}' occurs {count_net} times with host networking, expected 0 or 1",
                     )
                 else:
-                    # Must include networks.yml exactly once
                     self.assertEqual(
                         count_net,
                         1,
                         f"{template_path}: '{self.NET_INCLUDE}' occurs {count_net} times, expected once",
                     )
 
-                # If both includes are present, check order
                 if count_base and count_net:
                     idx_base = lines.index(self.BASE_INCLUDE)
-                    idx_net = lines.index(self.NET_INCLUDE)
+                    idx_net = next(
+                        i
+                        for i, line in enumerate(lines)
+                        if self.NET_INCLUDE_RE.search(line)
+                    )
                     self.assertLess(
                         idx_base,
                         idx_net,

@@ -1,0 +1,4 @@
+---
+canonical:
+  - kix.{{ DOMAIN_PRIMARY }}
+aliases: []

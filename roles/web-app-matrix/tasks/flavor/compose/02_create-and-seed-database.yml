@@ -1,16 +1,17 @@
 ---
+# include-gated: when: DEPLOYMENT_MODE == "compose"
 # Expected from caller (loop):
 # - database_name
 # - database_username
 # - database_password
 
-- name: "Freeze database consumer id + provider role before provider include"
+- name: "🧊 Freeze database consumer id + provider role before provider include"
   ansible.builtin.set_fact:
     _matrix_db_consumer_id: "{{ application_id }}"
     _matrix_db_provider_role: "{{ lookup('database', application_id, 'id') }}"
   changed_when: false
 
-- name: "Create DB/user for '{{ database_name }}' in central DB"
+- name: "📁 Create DB/user for '{{ database_name }}' in central DB"
   include_role:
     name: "{{ _matrix_db_provider_role }}"
     public: false
@@ -21,15 +22,14 @@
     database_type: "{{ lookup('database', _matrix_db_consumer_id, 'type') }}"
   when: lookup('database', _matrix_db_consumer_id, 'shared') | bool
 
-- name: "Seed database entry to backup routine"
-  include_tasks: "{{ playbook_dir }}/roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml"
+- name: "🌱 Seed database entry to backup routine"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/04_seed-database-to-backup.yml') }}"
   vars:
     database_consumer_id: "{{ _matrix_db_consumer_id }}"
     database_type: "{{ lookup('database', _matrix_db_consumer_id, 'type') }}"
     database_instance: "{{ lookup('database', _matrix_db_consumer_id, 'instance') }}"
     database_host: "{{ MATRIX_POSTGRES_HOST }}"
     database_port: "{{ MATRIX_POSTGRES_PORT }}"
-    database_name: "{{ database_name }}"
-    database_username: "{{ database_username }}"
-    database_password: "{{ database_password }}"
-  when: "'svc-bkp-container-2-local' in group_names"
+  when:
+    - "'svc-bkp-volume-2-local' in group_names"
+    - IS_STACK_HOST | bool

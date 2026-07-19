@@ -1,8 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Deploy Magento (Adobe Commerce Open Source) via Docker Compose with OpenSearch, MariaDB, optional Redis, and proxy integration for
-    Infinito.Nexus.
+  author: Kevin Veen-Birkenbach
+  description: Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

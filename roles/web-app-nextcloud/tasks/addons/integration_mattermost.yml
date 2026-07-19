@@ -3,7 +3,7 @@
 # admin keys oauth_instance_url/client_id/client_secret, which only exist once an
 # OAuth app is registered on Mattermost. This hook provisions that app on the
 # partner and wires the returned credentials into Nextcloud.
-- name: Resolve Mattermost partner coupling facts
+- name: 🔍 Resolve Mattermost partner coupling facts
   set_fact:
     nextcloud_mm_container: "{{ lookup('config', 'web-app-mattermost', 'services.mattermost.name') }}"
     nextcloud_mm_instance_dir: "{{ lookup('container', 'web-app-mattermost', 'directories.instance') }}"
@@ -12,13 +12,15 @@
     nextcloud_mm_redirect_path: "/apps/integration_mattermost/oauth-redirect"
   changed_when: false
 
-- name: Probe whether the Mattermost partner container is running
+- name: 🔍 Probe whether the Mattermost partner container is running
   command: >
     container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_mm_container }}
   register: nextcloud_mm_partner_running
   changed_when: false
   failed_when: false
 
-- name: Provision the bidirectional Mattermost <-> Nextcloud OAuth coupling
-  include_tasks: "{{ [role_path, 'tasks/addons/integration_mattermost_provision.yml'] | path_join }}"
-  when: (nextcloud_mm_partner_running.stdout | trim) == 'true'
+- name: 🔧 Provision the bidirectional Mattermost <-> Nextcloud OAuth coupling
+  include_tasks: integration_mattermost_provision.yml
+  when:
+    - IS_STACK_HOST | bool
+    - (nextcloud_mm_partner_running.stdout | trim) == 'true'

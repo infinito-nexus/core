@@ -1,7 +1,12 @@
+{% set container_port = container_port | default(lookup('config', application_id, 'services.' ~ service_name ~ '.ports.internal.http', '')) %}
     healthcheck:
       test:
         - "CMD"
         - "bash"
         - "-c"
-        - "exec 3<>/dev/tcp/localhost/{{ container_port }} && echo -e 'GET /{{ container_healthcheck | default('') }} HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q 'HTTP/1.1'"
+        - "exec 3<>/dev/tcp/localhost/{{ container_port }} && echo -e 'GET /{{ container_healthcheck | default('') }} HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q 'HTTP/1'"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: {{ container_healthcheck_start_period | default('30s') }}
 {{ "\n" }}

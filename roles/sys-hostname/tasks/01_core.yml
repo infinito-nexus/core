@@ -1,5 +1,5 @@
 ---
-- name: Ensure hostname package is installed
+- name: ✅ Ensure hostname package is installed
   become: true
   ansible.builtin.package:
     name: >
@@ -11,11 +11,11 @@
   when: not DOCKER_IN_CONTAINER | bool
 
 - block:
-    - name: Set system hostname to inventory_hostname (FQDN recommended)
+    - name: 🔧 Set system hostname to inventory_hostname (FQDN recommended)
       ansible.builtin.hostname:
         name: "{{ inventory_hostname }}"
 
-    - name: Ensure /etc/hosts contains FQDN + shortname mapping
+    - name: ✅ Ensure /etc/hosts contains FQDN + shortname mapping
       ansible.builtin.lineinfile:
         path: /etc/hosts
         regexp: "^127\\.0\\.1\\.1\\s+"

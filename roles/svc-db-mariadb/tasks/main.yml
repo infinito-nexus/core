@@ -4,6 +4,6 @@
   vars:
     application_id: svc-db-mariadb
 
-- name: "Initialize dedicated database"
+- name: "🎬 Initialize dedicated database"
   include_tasks: 02_init.yml
   when: database_init | bool

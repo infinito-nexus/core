@@ -1,23 +1,15 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {{ FRIENDICA_SERVICE }}:
-    image: "{{ FRIENDICA_IMAGE }}:{{ FRIENDICA_VERSION }}"
-    container_name: "{{ FRIENDICA_CONTAINER }}"
+  {% set service_name = FRIENDICA_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'friendica') }}
+    {{ lookup('compose_only', 'container_name', FRIENDICA_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    volumes:
-      - html:{{ FRIENDICA_APPLICATION_DIR }}
-      - data:/var/www/data # I assume that this one is unnessecarry
-{% if FRIENDICA_LDAP_ENABLED | bool %}
-      - {{ FRIENDICA_LDAP_CONFIG_HOST }}:{{ FRIENDICA_LDAP_CONFIG_DOCKER }}:ro
-{% endif %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.friendica.ports.local.http') }}:80"
+    {{ lookup('container_volumes', application_id, FRIENDICA_SERVICE) | indent(4) }}
+    {{ lookup('container_ports', ['friendica', 'http', DOCKER_BIND_HOST]) | indent(4) }}
 
-{% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {}, 'html': {}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

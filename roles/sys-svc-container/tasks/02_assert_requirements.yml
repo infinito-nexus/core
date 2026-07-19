@@ -1,31 +1,31 @@
 ---
-- name: Gather service facts
+- name: 📊 Gather service facts
   ansible.builtin.service_facts:
 
-- name: Assert systemd is available
+- name: ✅ Assert systemd is available
   ansible.builtin.assert:
     that:
       - ansible_facts['service_mgr'] == "systemd"
     fail_msg: >
       systemd is not available. This role requires systemd (service manager = {{ ansible_facts['service_mgr'] }}).
 
-- name: Read PID 1 process name
+- name: 📖 Read PID 1 process name
   ansible.builtin.slurp:
     src: /proc/1/comm
   register: pid1_comm
 
-- name: Fail if PID1 is not systemd
+- name: 🛑 Fail if PID1 is not systemd
   ansible.builtin.assert:
     that:
       - pid1_comm.content | b64decode | trim == "systemd"
     fail_msg: "PID 1 is not systemd (PID1={{ pid1_comm.content | b64decode | trim }}). Docker service management will hang."
 
-- name: Check docker socket
+- name: 🔎 Check docker socket
   ansible.builtin.stat:
     path: /var/run/docker.sock
   register: docker_sock
 
-- name: Assert docker service exists
+- name: ✅ Assert docker service exists
   ansible.builtin.assert:
     that:
       - "'docker.service' in ansible_facts.services"

@@ -1,9 +1,9 @@
 ---
-- name: "Check if Snipe-IT admin user already exists (by username)"
+- name: "🔎 Check if Snipe-IT admin user already exists (by username)"
   ansible.builtin.shell: |
-    {{ BIN_COMPOSE }} exec -T \
+    container exec -i \
       -e APP_KEY="{{ SNIPE_IT_APP_KEY }}" \
-      {{ SNIPE_IT_SERVICE }} \
+      {{ SNIPE_IT_CONTAINER_ADDRESS }} \
       php -r '
         require "vendor/autoload.php";
         $app = require "bootstrap/app.php";
@@ -13,17 +13,15 @@
           ->exists();
         exit($exists ? 0 : 1);
       '
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: snipe_it_admin_exists
   changed_when: false
   failed_when: false
 
-- name: "Create Snipe-IT administrator account"
+- name: "📁 Create Snipe-IT administrator account"
   ansible.builtin.shell: >
-    {{ BIN_COMPOSE }} exec -T
+    container exec -i
     -e APP_KEY="{{ SNIPE_IT_APP_KEY }}"
-    {{ SNIPE_IT_SERVICE }}
+    {{ SNIPE_IT_CONTAINER_ADDRESS }}
     php artisan snipeit:create-admin
     --first_name "{{ lookup('users', 'administrator').firstname }}"
     --last_name "{{ lookup('users', 'administrator').lastname }}"
@@ -31,8 +29,6 @@
     --email "{{ lookup('users', 'administrator').email }}"
     --password {{ lookup('users', 'administrator').password | quote }}
     --no-interaction
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   when: snipe_it_admin_exists.rc != 0
   register: snipe_it_admin_create
   changed_when: "'New user created' in snipe_it_admin_create.stdout"

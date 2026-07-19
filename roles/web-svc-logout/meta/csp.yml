@@ -1,0 +1,17 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+whitelist:
+  connect-src:
+    - "*.{{ DOMAIN_PRIMARY }}"
+    - "{{ DOMAIN_PRIMARY }}"
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  script-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  style-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  frame-ancestors:
+    - "{{ lookup('domain', 'web-app-keycloak') }}"

@@ -1,0 +1,65 @@
+---
+- name: "📄 Render OpenTalk controller config '{{ application_id }}'"
+  stack_host_template:
+    src: controller.toml.j2
+    dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'controller.toml'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose up
+
+- name: "📄 Render LiveKit config '{{ application_id }}'"
+  stack_host_template:
+    src: livekit.yaml.j2
+    dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'livekit.yaml'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose up
+
+- name: "📄 Render OpenTalk recorder config '{{ application_id }}'"
+  stack_host_template:
+    src: recorder.toml.j2
+    dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'recorder.toml'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose up
+
+- name: "📂 Provision the OpenTalk Keycloak clients"
+  include_tasks: 03_keycloak_client.yml
+  when: OPENTALK_OIDC_ENABLED | bool
+
+- name: "🚿 Flush handlers for '{{ application_id }}' so compose up sees rendered configs"
+  meta: flush_handlers
+
+- name: "⏳ Wait until the embedded object store answers"
+  ansible.builtin.shell: >
+    container exec {{ OPENTALK_OBJSTORE_CONTAINER_ADDRESS }}
+    wget -q -O - http://127.0.0.1:{{ lookup('objstore', application_id, 'port') }}/status
+  args:
+    executable: /bin/bash
+  register: objstore_ready
+  retries: 60
+  delay: 3
+  until: objstore_ready.rc == 0
+  changed_when: false
+  when: lookup('objstore', application_id, 'local') | bool
+
+- name: "📋 List embedded object-store buckets"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 's3.bucket.list' | container exec -i {{ OPENTALK_OBJSTORE_CONTAINER_ADDRESS }} weed shell -master=localhost:9333
+  args:
+    executable: /bin/bash
+  register: objstore_buckets
+  changed_when: false
+  when: lookup('objstore', application_id, 'local') | bool
+
+- name: "✅ Ensure the OpenTalk bucket exists (embedded)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 's3.bucket.create -name {{ lookup('objstore', application_id, 'bucket') }}' | container exec -i {{ OPENTALK_OBJSTORE_CONTAINER_ADDRESS }} weed shell -master=localhost:9333
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when:
+    - lookup('objstore', application_id, 'local') | bool
+    - lookup('objstore', application_id, 'bucket') not in objstore_buckets.stdout

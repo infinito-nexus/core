@@ -1,5 +1,5 @@
 ---
-- name: "Cert deploy not applicable for '{{ application_id }}' (TLS disabled) — mark role executed"
+- name: "🚫 Cert deploy N/A for '{{ application_id }}' (TLS off) — mark role executed"
   ansible.builtin.debug:
     msg: >-
       Skipping certificate deploy: TLS is disabled for '{{ application_id }}'

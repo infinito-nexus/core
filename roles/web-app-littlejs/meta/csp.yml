@@ -1,0 +1,24 @@
+---
+whitelist:
+  script-src-elem:
+    - https://cdnjs.cloudflare.com
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  style-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdnjs.cloudflare.com
+  font-src:
+    - https://cdnjs.cloudflare.com
+    - "data:"
+  connect-src:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  frame-src:
+    - "{{ lookup('tls', 'web-app-littlejs', 'url.base') }}"
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-attr:
+    unsafe-inline: true
+    unsafe-eval: true

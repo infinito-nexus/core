@@ -1,0 +1,53 @@
+---
+- name: "✅ Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-typesense'
+      - database_consumer_id != 'svc-db-typesense'
+
+- name: 🔍 Resolve consumer typesense provisioning facts
+  ansible.builtin.set_fact:
+    typesense_consumer_prefix: "{{ lookup('engine', 'typesense', database_consumer_id, 'prefix') }}"
+    typesense_consumer_key: "{{ lookup('engine', 'typesense', database_consumer_id, 'password') | string }}"
+    typesense_consumer_username: "{{ lookup('engine', 'typesense', database_consumer_id, 'username') }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "✅ Assert the consumer provisioned an API key"
+  ansible.builtin.assert:
+    that:
+      - typesense_consumer_key | length > 0
+    fail_msg: >-
+      No Typesense API key resolved for consumer '{{ database_consumer_id }}'.
+      The consumer must declare services.typesense.password (shared: true).
+
+- name: "🔍 TYPESENSE | Probe /health with admin key (inside container)"
+  ansible.builtin.shell: >
+    {{ TYPESENSE_EXEC_SHELL }}
+    'exec 3<>/dev/tcp/127.0.0.1/8108; printf "GET /health HTTP/1.0\r\nX-TYPESENSE-API-KEY: {{ TYPESENSE_API_KEY }}\r\n\r\n" >&3; grep -q "200 OK" <&3'
+  register: ts_admin_ready
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: ts_admin_ready.rc == 0
+
+- name: "🔐 Create scoped API key for {{ typesense_consumer_username }} (prefix-bound)"
+  ansible.builtin.shell:
+    cmd: >
+      {{ TYPESENSE_EXEC_SHELL_STDIN }}
+      'B=$(cat); exec 3<>/dev/tcp/127.0.0.1/8108;
+      printf "POST /keys HTTP/1.0\r\nX-TYPESENSE-API-KEY: {{ TYPESENSE_API_KEY }}\r\nContent-Type: application/json\r\nContent-Length: {{ TYPESENSE_KEY_BODY | length
+      }}\r\n\r\n%s" "$B" >&3;
+      head -n1 <&3 | cut -d" " -f2'
+    stdin: "{{ TYPESENSE_KEY_BODY }}"
+  vars:
+    TYPESENSE_KEY_BODY: "{{ {'value': typesense_consumer_key, 'description': 'scoped key for ' ~ database_consumer_id, 'actions': ['*'], 'collections': [typesense_consumer_prefix
+      ~ '_*']} | to_json }}"
+  register: ts_key_create
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: ts_key_create.stdout is search('^20[01]$')
+  failed_when: not (ts_key_create.stdout is search('^(20[01]|409)$'))
+  retries: "{{ TYPESENSE_RETRIES }}"
+  delay: "{{ TYPESENSE_DELAY }}"
+  until: ts_key_create.rc == 0

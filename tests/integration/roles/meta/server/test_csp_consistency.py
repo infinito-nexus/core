@@ -12,7 +12,7 @@ from . import PROJECT_ROOT
 
 class TestCspConfigurationConsistency(unittest.TestCase):
     """
-    Iterate all roles; for each config/main.yml that defines 'server.csp',
+    Iterate all roles; for each config/main.yml that defines 'csp',
     assert consistent structure and values:
       - csp is a dict
       - whitelist/flags/hashes are dicts if present
@@ -89,7 +89,7 @@ class TestCspConfigurationConsistency(unittest.TestCase):
 
             if not isinstance(csp, dict):
                 errors.append(
-                    f"{role_path.name}: 'server.csp' must be a dict (found {type(csp).__name__}) in {cfg_file}"
+                    f"{role_path.name}: 'csp' must be a dict (found {type(csp).__name__}) in {cfg_file}"
                 )
                 # Can't proceed safely with sub-sections
                 continue
@@ -98,7 +98,7 @@ class TestCspConfigurationConsistency(unittest.TestCase):
             wl = csp.get("whitelist", {})
             if wl is not None and not isinstance(wl, dict):
                 errors.append(
-                    f"{role_path.name}: server.csp.whitelist must be a dict (found {type(wl).__name__}) in {cfg_file}"
+                    f"{role_path.name}: csp.whitelist must be a dict (found {type(wl).__name__}) in {cfg_file}"
                 )
                 wl = {}  # prevent crash; continue to scan other sections
             if isinstance(wl, dict):
@@ -132,7 +132,7 @@ class TestCspConfigurationConsistency(unittest.TestCase):
             fl = csp.get("flags", {})
             if fl is not None and not isinstance(fl, dict):
                 errors.append(
-                    f"{role_path.name}: server.csp.flags must be a dict (found {type(fl).__name__}) in {cfg_file}"
+                    f"{role_path.name}: csp.flags must be a dict (found {type(fl).__name__}) in {cfg_file}"
                 )
                 fl = {}
             if isinstance(fl, dict):
@@ -160,7 +160,7 @@ class TestCspConfigurationConsistency(unittest.TestCase):
             hs = csp.get("hashes", {})
             if hs is not None and not isinstance(hs, dict):
                 errors.append(
-                    f"{role_path.name}: server.csp.hashes must be a dict (found {type(hs).__name__}) in {cfg_file}"
+                    f"{role_path.name}: csp.hashes must be a dict (found {type(hs).__name__}) in {cfg_file}"
                 )
                 hs = {}
             if isinstance(hs, dict):

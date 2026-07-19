@@ -1,9 +1,8 @@
 ---
-# Cleanup routine for Mastodon
-# Removes cached remote media older than 14 days when MODE_CLEANUP is enabled.
-- name: "Cleanup Mastodon media cache older than 14 days"
-  command:
-    cmd: "container exec -u root {{ MASTODON_CONTAINER }} bin/tootctl media remove --days=14"
+- name: "🧹 Cleanup Mastodon media cache older than 14 days"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bin/tootctl media remove --days=14
+  delegate_to: "{{ MASTODON_HOST_NODE }}"
   register: mastodon_cleanup
   changed_when: mastodon_cleanup.rc == 0
   failed_when: mastodon_cleanup.rc != 0

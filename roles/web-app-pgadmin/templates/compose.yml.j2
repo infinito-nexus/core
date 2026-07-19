@@ -1,24 +1,15 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {{ entity_name }}:
-{% set container_port = 80 %}
-    image: {{ PGADMIN_IMAGE }}:{{ PGADMIN_VERSION }}
-    container_name: {{ entity_name }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pgadmin.ports.local.http') }}:80"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
-    volumes:
-      - "data:/var/lib/pgadmin"
-{% if PGADMIN_SERVER_MODE | bool %}
-      - "{{ pgadmin_host_server_file }}:{{ pgadmin_docker_server_file }}"
-      - "{{ pgadmin_host_password_file }}:{{ pgadmin_docker_password_file }}"
-{% endif %}
+  {% set service_name = entity_name %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'pgadmin') }}
+    {{ lookup('compose_only', 'container_name', entity_name) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports', ['pgadmin', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
+    {{ lookup('container_volumes', application_id, entity_name) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

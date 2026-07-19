@@ -8,7 +8,7 @@
 #   over plaintext (onion) transport it must never leak from the upstream
 #   (RFC 6797), so the strip is unconditional.
 # - Deprecated security headers (X-Frame-Options & friends): superseded
-#   by CSP, rendered from each role's meta/server.yml via build_csp_header.
+#   by CSP, rendered from each role's meta/csp.yml via build_csp_header.
 proxy_hide_header Strict-Transport-Security;
 proxy_hide_header X-Frame-Options;
 proxy_hide_header X-XSS-Protection;

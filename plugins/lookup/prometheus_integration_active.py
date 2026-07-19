@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
-
-from utils.cache.applications import get_merged_applications
 
 
 class LookupModule(LookupBase):
@@ -23,7 +22,7 @@ class LookupModule(LookupBase):
       {% endif %}
 
     Pass 'application_id' as term 0 (string). 'applications' is obtained via
-    get_merged_applications — the same merged view that backs lookup('applications').
+    lookup('applications'), the merged-config SPOT.
     """
 
     def run(
@@ -34,11 +33,11 @@ class LookupModule(LookupBase):
     ) -> list[bool]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
-        applications = get_merged_applications(
-            variables=vars_,
-            roles_dir=kwargs.get("roles_dir"),
+        applications = lookup_loader.get(
+            "applications",
+            loader=self._loader,
             templar=getattr(self, "_templar", None),
-        )
+        ).run([], variables=vars_)[0]
 
         # application_id may be passed explicitly (term 0) or read from available_variables.
         if terms and isinstance(terms[0], str):

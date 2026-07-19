@@ -1,12 +1,12 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {{ application_id | get_entity_name }}:
+  {% set service_name = application_id | get_entity_name %}
+  {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ MIG_IMAGE }}:{{ MIG_VERSION }}"
-    container_name: "{{ MIG_CONTAINER }}"
-    ports:
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mig.ports.local.http') }}:{{ container_port }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{{ lookup('applications') | compose_volumes(application_id) }}
+    {{ lookup('container_image', application_id, 'mig') }}
+    {{ lookup('compose_only', 'container_name', MIG_CONTAINER) }}
+    {{ lookup('container_ports', ['mig', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

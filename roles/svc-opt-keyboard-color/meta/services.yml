@@ -1,5 +1,8 @@
 ---
 keyboard-color:
+  modes:
+    host:
+      enabled: true
   vendor_and_product_id: 1038:113a
   lifecycle: pre-alpha
   min_storage: "50MB"

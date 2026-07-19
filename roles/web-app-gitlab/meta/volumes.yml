@@ -1,4 +1,178 @@
 ---
-data: gitlab_data
-logs: gitlab_logs
-config: gitlab_config
+repositories:
+  type: volume
+  name: gitlab_repositories
+  # nocheck: nfs-false-data-loss  Reason: gitaly does not support NFS (GitLab requirement); single-replica, repos are moved manually before a reschedule (see README).
+  nfs: false
+  mounts:
+    - service: gitaly
+      target: /home/git/repositories
+shared:
+  type: volume
+  name: gitlab_shared
+  mounts:
+    - service: webservice
+      target: /srv/gitlab/shared
+    - service: sidekiq
+      target: /srv/gitlab/shared
+    - service: workhorse
+      target: /srv/gitlab/shared
+uploads:
+  type: volume
+  name: gitlab_uploads
+  mounts:
+    - service: webservice
+      target: /srv/gitlab/public/uploads
+    - service: sidekiq
+      target: /srv/gitlab/public/uploads
+    - service: workhorse
+      target: /srv/gitlab/public/uploads
+builds:
+  type: volume
+  name: gitlab_builds
+  mounts:
+    - service: webservice
+      target: /srv/gitlab/builds
+    - service: sidekiq
+      target: /srv/gitlab/builds
+webservice_logs:
+  type: volume
+  name: gitlab_webservice_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
+  nfs: false
+  mounts:
+    - service: webservice
+      target: /var/log
+webservice_state:
+  type: volume
+  name: gitlab_webservice_state
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
+  nfs: false
+  mounts:
+    - service: webservice
+      target: /var/opt/gitlab
+sidekiq_logs:
+  type: volume
+  name: gitlab_sidekiq_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
+  nfs: false
+  mounts:
+    - service: sidekiq
+      target: /var/log
+sidekiq_state:
+  type: volume
+  name: gitlab_sidekiq_state
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
+  nfs: false
+  mounts:
+    - service: sidekiq
+      target: /var/opt/gitlab
+migrations_logs:
+  type: volume
+  name: gitlab_migrations_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
+  nfs: false
+  mounts:
+    - service: migrations
+      target: /var/log
+migrations_state:
+  type: volume
+  name: gitlab_migrations_state
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
+  nfs: false
+  mounts:
+    - service: migrations
+      target: /var/opt/gitlab
+shell_logs:
+  type: volume
+  name: gitlab_shell_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
+  nfs: false
+  mounts:
+    - service: shell
+      target: /var/log/gitlab-shell
+gitaly_logs:
+  type: volume
+  name: gitlab_gitaly_logs
+  # nocheck: nfs-false-data-loss  Reason: container logs only, regenerated per boot, no persistent data to lose.
+  nfs: false
+  mounts:
+    - service: gitaly
+      target: /var/log/gitaly
+rails_templates:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: webservice
+      target: /var/opt/gitlab/config/templates
+    - service: sidekiq
+      target: /var/opt/gitlab/config/templates
+    - service: migrations
+      target: /var/opt/gitlab/config/templates
+rails_secrets:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: webservice
+      target: /var/opt/gitlab/config/secrets
+    - service: sidekiq
+      target: /var/opt/gitlab/config/secrets
+    - service: migrations
+      target: /var/opt/gitlab/config/secrets
+workhorse_templates:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'workhorse'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: workhorse
+      target: /var/opt/gitlab/config/templates
+workhorse_secret:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets', '.gitlab_workhorse_secret'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: workhorse
+      target: /etc/gitlab/gitlab-workhorse/secret
+    - service: webservice
+      target: /srv/gitlab/.gitlab_workhorse_secret
+shell_templates:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'shell'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: shell
+      target: /srv/gitlab-config
+shell_secret:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets', '.gitlab_shell_secret'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: shell
+      target: /srv/gitlab-secrets/.gitlab_shell_secret
+gitaly_config:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'gitaly'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: gitaly
+      target: /etc/gitaly
+hostkeys:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'hostkeys'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: shell
+      target: /srv/ssh-hostkeys
+smtp_initializer:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'smtp_settings.rb'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: webservice
+      target: /srv/gitlab/config/initializers/smtp_settings.rb
+      when: "{{ lookup('email', 'web-app-gitlab').enabled | bool }}"
+    - service: sidekiq
+      target: /srv/gitlab/config/initializers/smtp_settings.rb
+      when: "{{ lookup('email', 'web-app-gitlab').enabled | bool }}"

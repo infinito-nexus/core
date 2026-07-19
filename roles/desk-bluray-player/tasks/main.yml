@@ -1,5 +1,5 @@
 ---
-- name: install vlc and blu ray software
+- name: 📦 install vlc and blu ray software
   package:
     name:
       - vlc

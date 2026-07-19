@@ -27,9 +27,18 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 navigator:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   ports:
     local:
       http: 8039
+    internal:
+      http: 5000
+  proxy:
+    service_key: infinito-navigator
   lifecycle: pre-alpha
   min_storage: 1GB
   cpus: "0.2"

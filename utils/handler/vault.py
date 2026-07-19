@@ -1,6 +1,7 @@
 import subprocess
 from typing import Any
 
+import yaml
 from yaml.dumper import SafeDumper
 from yaml.loader import SafeLoader
 
@@ -22,6 +23,7 @@ def _vault_representer(dumper, data):
 
 
 SafeLoader.add_constructor("!vault", _vault_constructor)
+getattr(yaml, "CSafeLoader", SafeLoader).add_constructor("!vault", _vault_constructor)
 SafeDumper.add_representer(VaultScalar, _vault_representer)
 
 

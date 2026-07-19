@@ -1,4 +1,4 @@
-# GitHub Actions CI Runner
+# Self-Hosted Runner
 
 ## Description
 
@@ -12,6 +12,19 @@ Registration tokens are fetched from the GitHub API at container start time via 
 
 The `RUNNER_DISTRIBUTION` variable selects distro-specific package installation tasks (Debian, Ubuntu, Arch Linux, or Fedora/EL). The role is designed to be driven by the `make runner-ci-deploy` target; see the end-to-end guide below.
 
+## Cosmos
+
+The diagram places Self-Hosted Runner in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph role [svc-runner 🐳🐝]
+        svc_runner["runner"]
+    end
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **Self-hosted:** Run CI jobs on your own server without consuming GitHub-hosted runner minutes.
@@ -22,6 +35,41 @@ The `RUNNER_DISTRIBUTION` variable selects distro-specific package installation 
 - **Multi-distro:** Supports Debian, Ubuntu (`apt`), Arch Linux (`pacman`), and Fedora/EL (`dnf`) via distro-specific task files.
 - **Idempotent:** Re-running the deploy rebuilds the image and restarts containers cleanly without manual cleanup.
 - **CI workflow ready:** All deploy-test workflows route to GitHub-hosted runners by default; set `CI_SELF_HOSTED_RUNNER_COUNT` to overflow jobs to your runners.
+
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy Self-Hosted Runner onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps=svc-runner full_cycle=false
+```
+
+### Production
+
+Run the published image to provision the inventory and deploy Self-Hosted Runner to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP=svc-runner
+HOST=<your-server>
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" \
+  ghcr.io/infinito-nexus/core/debian bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/prod
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
 
 ## End-to-end guide
 
@@ -94,10 +142,10 @@ make runner-ci-disable OWNER=youruser
 
 ## CLI parameters
 
-The `make runner-ci-deploy` target invokes `python -m cli.deploy.runner`. You can also call it directly:
+The `make runner-ci-deploy` target invokes `python -m cli.administration.deploy.runner`. You can also call it directly:
 
 ```bash
-python -m cli.deploy.runner <hostname> \
+python -m cli.administration.deploy.runner <hostname> \
     --distribution <os> \
     --roles svc-runner \
     [--runner-count N] \
@@ -146,6 +194,71 @@ The role self-validates via the scripts in `files/test/`, discovered and run by 
 
 In short: `local.sh` proves the runner can build and deploy entirely on its own hardware; `external.sh` proves it can receive real jobs from GitHub.
 
+## Architecture
+
+Every runner instance is an ephemeral container that mounts its host's docker
+socket (DooD). For each CI job it starts a fresh Infinito DinD container with
+a unique subnet and volume, runs the job inside it, and tears it down; the
+runner then re-registers with GitHub as a fresh ephemeral runner.
+
+```mermaid
+flowchart LR
+    gh[GitHub Actions] -->|job| r1[runner-1]
+    gh -->|job| rn[runner-N]
+    subgraph host [host node]
+        r1 -->|/var/run/docker.sock| dockerd[(host dockerd)]
+        rn -->|/var/run/docker.sock| dockerd
+        dockerd --> dind1[DinD container<br/>job 1]
+        dockerd --> dindn[DinD container<br/>job N]
+    end
+```
+
+### Compose mode
+
+One host runs the whole fleet: the role builds the `infinito-runner` image
+locally, renders one compose project and starts `RUNNER_COUNT` instances.
+
+```mermaid
+flowchart TB
+    subgraph host [single host]
+        build[build infinito-runner image]
+        fleet[compose up:<br/>runner-1 .. runner-N]
+        build --> fleet
+    end
+```
+
+### Swarm mode
+
+The fleet is deployed on **every** cluster node, but not as a `docker stack`
+service (`workload: node-local` in `meta/services.yml`): each runner needs
+the docker socket and the registered identity of exactly its node. The image
+is built once on the manager and distributed through the registry dependency
+(`svc-registry-docker`), the only part that runs as a swarm service.
+
+```mermaid
+flowchart TB
+    subgraph cluster [swarm cluster]
+        subgraph mgr [manager]
+            build[build infinito-runner image]
+            reg[(registry<br/>swarm service)]
+            mfleet[node-local compose:<br/>runner-1 .. runner-N]
+        end
+        subgraph wrk [each worker]
+            wfleet[node-local compose:<br/>runner-1 .. runner-N]
+        end
+    end
+    build -->|push| reg
+    reg -->|pull| mfleet
+    reg -->|pull| wfleet
+```
+
+Because no stack service exists, the swarm test gates that poll
+`docker service ls` (`converge`, `seed`, `drain`, `assert`) skip themselves
+via the `workload: node-local` declaration
+(`scripts/tests/deploy/swarm/utils/_context.sh` maps `node-local` to
+`HAS_SWARM_SERVICE=false`); the deploy itself, the registry distribution
+chain and the CLI e2e suite run in full.
+
 ## Further Resources
 
 - [GitHub Actions self-hosted runner documentation](https://docs.github.com/en/actions/hosting-your-own-runners)
@@ -153,9 +266,6 @@ In short: `local.sh` proves the runner can build and deploy entirely on its own 
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Implemented by **[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
-
-Role contributed by **Alejandro Roman Ibanez** — [GitHub](https://github.com/AlejandroRomanIbanez).

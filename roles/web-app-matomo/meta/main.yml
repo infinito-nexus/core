@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Matomo, an open-source analytics platform delivering real-time insights, visitor tracking, and privacy-first metrics for your websites.
+  description: Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

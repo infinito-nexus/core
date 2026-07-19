@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Soar to new digital heights with Bluesky, an innovative platform that reimagines social networking with its forward-thinking, community-driven
-    approach. Experience a burst of energy, creativity, and the freedom to connect in a truly inspiring way.
+  description: Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

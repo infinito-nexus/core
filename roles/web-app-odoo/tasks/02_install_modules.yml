@@ -1,101 +1,23 @@
 ---
-# Install Odoo modules
-
-- name: "Build list of modules to install"
+- name: "🔨 Build list of modules to install"
   set_fact:
     odoo_modules_to_install: "{{ (ODOO_MODULES_CORE + ODOO_MODULES_OPTIONAL) | join(',') }}"
 
-- name: "Install core modules"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i {{ odoo_modules_to_install }}
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: module_install
-  changed_when: "'loading' in module_install.stdout"
-  failed_when: false
-  when: odoo_modules_to_install | length > 0
+- name: "⏸️ Pause Odoo crons for the module install/update window"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/ir-cron/pause.sql"
+  changed_when: true
 
-- name: "Update installed modules"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -u all
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: module_update
-  changed_when: "'loading' in module_update.stdout"
-  failed_when: false
-
-- name: "Install auth_oauth module for OIDC support"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_oauth
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_oauth_install
-  changed_when: "'loading' in auth_oauth_install.stdout"
-  failed_when: false
-  when: ODOO_OIDC_ENABLED | bool
-
-- name: "Install auth_signup module for OAuth user auto-creation"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_signup
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_signup_install
-  changed_when: "'loading' in auth_signup_install.stdout"
-  failed_when: false
-  when: ODOO_OIDC_ENABLED | bool
-
-- name: "Install auth_oauth_https module for HTTPS redirect URI fix"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_oauth_https
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_oauth_https_install
-  changed_when: "'loading' in auth_oauth_https_install.stdout"
-  failed_when: false
-  when: ODOO_OIDC_ENABLED | bool
-
-- name: "Install auth_ldap module for LDAP support"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_ldap
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_ldap_install
-  changed_when: "'loading' in auth_ldap_install.stdout"
-  failed_when: false
-  when: ODOO_LDAP_ENABLED | bool
+- name: "📦 Run module install/update with crons paused"
+  block:
+    - name: "📦 Load module operations"
+      include_tasks: 02a_module_ops.yml
+  always:
+    - name: "▶️ Resume Odoo crons after the module window"
+      database_query:
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/update/ir-cron/resume.sql"
+      changed_when: true

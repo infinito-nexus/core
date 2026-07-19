@@ -1,0 +1,8 @@
+---
+application_id: svc-registry-docker
+entity_name: "{{ application_id | get_entity_name }}"
+
+REGISTRY_IMAGE: "{{ lookup('config', application_id, 'services.docker.image') }}"
+REGISTRY_VERSION: "{{ lookup('config', application_id, 'services.docker.version') }}"
+REGISTRY_CONTAINER: "{{ lookup('config', application_id, 'services.docker.name') }}"
+REGISTRY_PORT: "{{ lookup('config', application_id, 'services.docker.ports.local.registry') }}"

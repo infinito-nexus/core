@@ -1,0 +1,27 @@
+# Static extras for the swarm-NFS test pipeline; runtime-only values
+# come from `utils.tests.swarm.write.extras`.
+# nocheck: hardcoded-dns-resolver — `1.1.1.1` is the upstream the
+# in-cluster simulated containers use; the host-network DNS-resolver
+# SPOT does not apply inside act-DinD nested containers.
+---
+TLS_MODE: "self_signed"
+
+networks:
+  internet:
+    ip4: "127.0.0.1"
+    ip6: "::1"
+    dns: "172.17.0.1" # nocheck: hardcoded-dns-resolver (mgr-01 docker bridge gateway, served by local dnsmasq)
+
+storage:
+  backend: nfs
+
+SVC_STORAGE_NFS_SERVER_STATE_ALLOWED_CIDRS:
+  - "192.168.244.0/24" # nocheck: hardcoded-subnet (act swarm-lab subnet; nodes + controller mount the fsid=0 state export from it)
+
+swarm:
+  network:
+    encryption: true
+  registry:
+    port: 5000
+
+RUNNER_SRC_DIR: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}" # nocheck: swarm-only inventory; evaluated on the CI runner where load.sh exports it, never inside the compose DiD

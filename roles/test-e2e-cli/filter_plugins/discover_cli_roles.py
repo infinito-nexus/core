@@ -40,7 +40,6 @@ def discover_cli_roles(
 
     found: list[str] = []
 
-    # Marker for CLI-test-enabled roles: .../roles/<role>/templates/test.env.j2
     for env_file in base.rglob("templates/test.env.j2"):
         role_name = (
             env_file.parents[  # nocheck: project-root-import — navigating role dir
@@ -51,7 +50,6 @@ def discover_cli_roles(
 
     uniq = sorted(set(found))
 
-    # Mirror application_allowed: only test roles deployed on this host
     if groups:
         uniq = [role for role in uniq if role in groups]
     if only:

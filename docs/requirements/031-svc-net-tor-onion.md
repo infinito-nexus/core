@@ -224,7 +224,7 @@ torsocks curl -I http://next.cloud.<NODE_ONION>.onion   # app over Tor, no publi
 
 ## Prerequisites
 
-Read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/role.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md). Verify key-file byte formats and vhost/TLS behavior **in the DiD container first**, then redeploy.
+Read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/README.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md). Verify key-file byte formats and vhost/TLS behavior **in the DiD container first**, then redeploy.
 
 ## Implementation order
 

@@ -1,0 +1,135 @@
+{# nocheck: raw-docker (Production shows end-user docker commands; the rendered README.md is whitelisted) -#}
+{#
+  Role README scaffold. Renders a roles/<role>/README.md that conforms to
+  docs/contributing/artefact/files/role/readme_md.md and passes
+  tests/lint/ansible/roles/test_readme.py.
+
+  Required context:
+    application_id           Role id used in the Quick Setup commands (e.g. web-app-matrix).
+    application_name         Human-readable software name (H1, no role id).
+    application_url          Official website; linked on first use in Description.
+    application_description  One paragraph about the SOFTWARE (not the role).
+    application_overview     One paragraph about what the ROLE deploys/integrates.
+    application_features     List of {name, description} capability bullets.
+    application_author       Author name; MUST equal meta/main.yml galaxy_info.author.
+    cosmos_mermaid           Mermaid flowchart SOURCE (no ``` fences); groups
+                             Capabilities / Dependencies / Cosmos. Node ids MUST NOT
+                             be reserved words (call, end, class, graph, style).
+
+  Optional context:
+    application_invokable          When true, emit the Quick Setup section
+                                   (invokable roles only; forbidden otherwise).
+    cosmos_intro                   Sentence above the Cosmos diagram.
+    application_author_url         Wraps the Credits author in a Markdown link.
+    application_use_cases          Paragraph for the optional Use Cases section.
+    application_developer_notes    List of {file, description} local-doc links.
+    application_further_resources  List of {label, url} external links.
+-#}
+# {{ application_name }}
+
+## Description
+
+[{{ application_name }}]({{ application_url }}) {{ application_description }}
+
+## Overview
+
+{{ application_overview }}
+
+## Cosmos
+
+{{ cosmos_intro | default('The diagram places ' ~ application_name ~ ' in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).') }}
+
+```mermaid
+{{ cosmos_mermaid }}
+```
+
+{{ cosmos_legend | default('') }}
+
+## Features
+
+{% for feature in application_features -%}
+- **{{ feature.name }}:** {{ feature.description }}
+{% endfor %}
+{% if application_use_cases is defined -%}
+## Use Cases
+
+{{ application_use_cases }}
+
+{% endif -%}
+{% if application_invokable -%}
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy {{ application_name }} onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
+```
+
+### Production
+
+{% if application_is_host -%}
+Install {{ application_name }} directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+bash scripts/install/package.sh
+make install
+source scripts/meta/env/load.sh
+
+APP={{ application_id }}
+INVENTORY=inventories/prod
+infinito administration inventory provision "$INVENTORY" \
+  --inventory-file "$INVENTORY/devices.yml" \
+  --host localhost \
+  --include "$APP"
+infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+  --password-file "$INVENTORY/.password" \
+  --diff -vv
+```
+{% else -%}
+Run the published image to provision the inventory and deploy {{ application_name }} to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP={{ application_id }}
+HOST=<your-server>
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" \
+  ghcr.io/infinito-nexus/core/debian bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/prod
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
+{% endif -%}
+{% endif -%}
+{% if application_developer_notes is defined %}
+## Developer Notes
+
+{% for note in application_developer_notes -%}
+- See [{{ note.file }}](./{{ note.file }}) {{ note.description }}
+{% endfor %}
+{%- endif %}
+{%- if application_further_resources is defined %}
+## Further Resources
+
+{% for resource in application_further_resources -%}
+- [{{ resource.label }}]({{ resource.url }})
+{% endfor %}
+{%- endif %}
+## Credits
+
+{% if application_author_url is defined %}Implemented by **[{{ application_author }}]({{ application_author_url }})**.{% else %}Implemented by **{{ application_author }}**.{% endif %}
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

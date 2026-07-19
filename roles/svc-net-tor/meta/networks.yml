@@ -1,0 +1,6 @@
+---
+# Tor runs with network_mode: host and has no vhost of its own, but the compose
+# role contract still requires a local network entry (see
+# test_compose_roles_have_local_network). Kept minimal; not used at runtime.
+local:
+  subnet: 192.168.74.0/24

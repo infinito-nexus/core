@@ -1,21 +1,18 @@
 ---
-- name: "Ensure the OIDC settings option exists as a PHP-serialized empty array"
-  command: >
-    {{ BIN_COMPOSE }} exec -u www-data -T application bash -lc
-    "serialized_empty_array=$(wp eval 'echo serialize(array());' --path={{ WORDPRESS_DOCKER_HTML_PATH }}); \
-     wp option add openid_connect_generic_settings \"$serialized_empty_array\" --path={{ WORDPRESS_DOCKER_HTML_PATH }} \
-     || wp option update openid_connect_generic_settings \"$serialized_empty_array\" --path={{ WORDPRESS_DOCKER_HTML_PATH }};"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  failed_when: false
+- name: "🖥️ WP OIDC: stack-host container ops"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "✅ Ensure the OIDC settings option exists as a PHP-serialized empty array"
+      ansible.builtin.shell: >
+        container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
+        "serialized_empty_array=$(wp eval 'echo serialize(array());' --path={{ WORDPRESS_DOCKER_HTML_PATH }}); \
+         wp option add openid_connect_generic_settings \"$serialized_empty_array\" --path={{ WORDPRESS_DOCKER_HTML_PATH }} \
+         || wp option update openid_connect_generic_settings \"$serialized_empty_array\" --path={{ WORDPRESS_DOCKER_HTML_PATH }};"
 
-- name: "Apply all OIDC settings via WP-CLI eval (safe via base64)"
-  # Convert the settings map to base64-encoded JSON to avoid shell escaping issues
-  vars:
-    oidc_settings_json_b64: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode }}"
-  command: >
-    {{ BIN_COMPOSE }} exec -u www-data -T application bash -lc
-      "wp eval \"update_option('openid_connect_generic_settings', json_decode(base64_decode('{{ oidc_settings_json_b64 }}'), true));\" --path={{ WORDPRESS_DOCKER_HTML_PATH
-    }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    - name: "📌 Apply all OIDC settings via WP-CLI eval (safe via base64)"
+      vars:
+        oidc_settings_json_b64: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode }}"
+      ansible.builtin.shell: >
+        container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
+        "wp eval \"update_option('openid_connect_generic_settings', json_decode(base64_decode('{{ oidc_settings_json_b64 }}'), true));\" --path={{ WORDPRESS_DOCKER_HTML_PATH
+        }}"

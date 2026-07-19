@@ -1,0 +1,8 @@
+[Unit]
+Description=Differential NFS export backup to the local backup directory
+OnFailure={{ SYS_SERVICE_ON_FAILURE_COMPOSE }} {{ SYS_SERVICE_CLEANUP_BACKUPS_FAILED }}
+
+[Service]
+Type=oneshot
+ExecStartPre={{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(' ') }} --ignore {{ SYS_SERVICE_BACKUP_NFS_2_LOCAL }} --timeout "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"
+ExecStart={{ system_service_script_exec }} {{ BKP_NFS_2_LOCAL_SOURCE }} {{ DIR_BACKUPS }} {{ BKP_NFS_2_LOCAL_REPO_NAME }} {{ BKP_NFS_2_LOCAL_EXCLUDE }}

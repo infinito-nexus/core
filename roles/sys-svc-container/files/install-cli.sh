@@ -55,6 +55,7 @@ add_repo_rpm_compatible() {
 # shellcheck disable=SC2031
 if [[ "${ID}" == "arch" || "${ID_LIKE:-}" =~ arch ]]; then
   if [[ "${REPO_ONLY}" != "1" ]]; then
+    pacman-key --init
     pacman -Syu --noconfirm --needed docker
   fi
 

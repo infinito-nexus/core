@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Install and run dockreap to clean up unused anonymous Docker volumes
+  description: Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,0 +1,66 @@
+---
+# Mapping logic for baudolo CLI arguments
+#
+# - BKP_VOLUME_2_LOCAL_DB_ROUTINE:       Service names where backup.database_routine is set (for --database-containers)
+# - BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED: Exact deployed image refs where backup.no_stop_required is set (for --images-no-stop-required)
+# - BKP_VOLUME_2_LOCAL_DISABLED:         Exact deployed image refs where backup.disabled is set (for --images-no-backup-required)
+# - BKP_VOLUME_2_LOCAL_HARD_RESTART:     Compose project (entity) names where backup.project_hard_restart is set (for --hard-restart-projects)
+# baudolo matches --images-* exactly, so the refs carry the swarm registry prefix.
+# CLI-ready variables render these lists as argument strings.
+
+application_id: svc-bkp-volume-2-local
+system_service_id: "{{ application_id }}"
+
+BKP_VOLUME_2_LOCAL_BAUDOLO_BIN: baudolo
+
+BKP_VOLUME_2_LOCAL_DB_ENABLED: >-
+  {{
+    (database_type | default(false) | string | trim | lower)
+    in ['1', 'true', 'yes', 'on', 'y', 't']
+  }}
+
+BKP_VOLUME_2_LOCAL_DB_ROUTINE: >-
+  {{ lookup('backup_database_containers') }}
+
+BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED: >-
+  {{ lookup('backup_image', 'no_stop_required') }}
+
+BKP_VOLUME_2_LOCAL_DISABLED: >-
+  {{ lookup('backup_image', 'disabled') }}
+
+BKP_VOLUME_2_LOCAL_HARD_RESTART: >-
+  {{ lookup('backup_hard_restart_projects') }}
+
+BKP_VOLUME_2_LOCAL_DB_ROUTINE_CLI: >-
+  {% if BKP_VOLUME_2_LOCAL_DB_ROUTINE | length > 0 -%}
+    --database-containers {{ BKP_VOLUME_2_LOCAL_DB_ROUTINE | join(' ') }}
+  {%- endif %}
+
+BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED_CLI: >-
+  {% if BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED | length > 0 -%}
+    --images-no-stop-required {{ BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED | join(' ') }}
+  {%- endif %}
+
+BKP_VOLUME_2_LOCAL_DISABLED_CLI: >-
+  {% if BKP_VOLUME_2_LOCAL_DISABLED | length > 0 -%}
+    --images-no-backup-required {{ BKP_VOLUME_2_LOCAL_DISABLED | join(' ') }}
+  {%- endif %}
+
+BKP_VOLUME_2_LOCAL_HARD_RESTART_CLI: >-
+  {% if DEPLOYMENT_MODE == 'compose' and BKP_VOLUME_2_LOCAL_HARD_RESTART | length > 0 -%}
+    --hard-restart-projects {{ BKP_VOLUME_2_LOCAL_HARD_RESTART | join(' ') }}
+  {%- endif %}
+
+BKP_VOLUME_2_LOCAL_CLI_ARGS_LIST:
+  - "{{ BKP_VOLUME_2_LOCAL_DB_ROUTINE_CLI }}"
+  - "{{ BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED_CLI }}"
+  - "{{ BKP_VOLUME_2_LOCAL_DISABLED_CLI }}"
+  - "{{ BKP_VOLUME_2_LOCAL_HARD_RESTART_CLI }}"
+
+BKP_VOLUME_2_LOCAL_EXEC: >-
+  {{ BKP_VOLUME_2_LOCAL_BAUDOLO_BIN }}
+  --compose-dir {{ DIR_COMPOSITIONS }}
+  --databases-csv {{ FILE_DATABASE_SECRETS }}
+  --backups-dir {{ DIR_BACKUPS }}
+  --dump-only-sql
+  {{ BKP_VOLUME_2_LOCAL_CLI_ARGS_LIST | select('string') | join(' ') }}

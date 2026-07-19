@@ -1,10 +1,10 @@
 ---
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: sys-ctl-alm-compose
   when: run_once_sys_ctl_alm_compose is not defined
 
-- name: Install requests via pip
+- name: 📦 Install requests via pip
   include_role:
     name: sys-pip-install
   vars:
@@ -12,14 +12,14 @@
     package_state: present
     global_install: true
 
-- name: Ensure Root CA exists for self-signed TLS
+- name: ✅ Ensure Root CA exists for self-signed TLS
   include_role:
     name: sys-ca-selfsigned
   when:
     - (TLS_MODE | lower) == 'self_signed'
     - run_once_sys_ca_selfsigned is not defined
 
-- name: "Flush webserver handlers"
+- name: "🚿 Flush webserver handlers"
   meta: flush_handlers
 
 - include_role:

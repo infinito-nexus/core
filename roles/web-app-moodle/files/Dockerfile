@@ -41,7 +41,6 @@ ENV MOODLE_CODE_DIR=${MOODLE_CODE_DIR} \
     MOODLE_VERSION_FILE=${MOODLE_VERSION_FILE} \
     MOODLE_AUTH_SUBDIR=${MOODLE_AUTH_SUBDIR}
 
-# System packages required by Moodle's PHP extensions.
 # hadolint ignore=DL3008
 RUN rm -rf /var/lib/apt/lists/* \
  && apt-get update \
@@ -67,7 +66,6 @@ RUN rm -rf /var/lib/apt/lists/* \
       unzip \
  && rm -rf /var/lib/apt/lists/*
 
-# PHP extensions per Moodle's "Server requirements".
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
  && docker-php-ext-configure intl \
  && docker-php-ext-configure ldap \
@@ -85,36 +83,23 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
       xsl \
       zip
 
-# OPcache + PHP runtime tuning. The pool override keeps env vars
-# across FPM requests so config.php's getenv() calls work.
 COPY build/php-conf/opcache-recommended.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY build/php-conf/moodle-runtime.ini      /usr/local/etc/php/conf.d/moodle-runtime.ini
 COPY build/php-conf/zz-moodle-pool.conf     /usr/local/etc/php-fpm.d/zz-moodle-pool.conf
 
-# Fetch + extract Moodle source into ${MOODLE_SOURCE_DIR}. The
-# entrypoint copies this into the persistent code volume on first
-# start; never touched afterwards.
-COPY build/install-moodle-source.sh /tmp/install-moodle-source.sh
+COPY build/install/moodle-source.sh /tmp/install-moodle-source.sh
 RUN bash /tmp/install-moodle-source.sh && rm /tmp/install-moodle-source.sh
 
-# Microsoft auth_oidc plugin pinned to the highest tag matching the
-# Moodle major.minor we are building. Script is always copied; only
-# executed when MOODLE_OIDC_ENABLED is truthy.
-COPY build/install-auth-oidc.sh /tmp/install-auth-oidc.sh
+COPY build/install/auth-oidc.sh /tmp/install-auth-oidc.sh
 RUN if [ "${MOODLE_OIDC_ENABLED}" = "1" ] || [ "${MOODLE_OIDC_ENABLED}" = "true" ]; then \
       bash /tmp/install-auth-oidc.sh; \
     fi \
  && rm /tmp/install-auth-oidc.sh
 
-# Env-driven config.php placed inside the source tree so it ships
-# with the bootstrap copy on first container start.
 COPY build/config.php ${MOODLE_SOURCE_DIR}/config.php
 RUN chown ${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER} ${MOODLE_SOURCE_DIR}/config.php \
  && chmod 0640 ${MOODLE_SOURCE_DIR}/config.php
 
-# Entrypoint. Path is fixed by Docker convention (/usr/local/bin),
-# so the JSON-array ENTRYPOINT can use a literal — Docker does not
-# expand ARG/ENV in JSON form.
 COPY build/moodle-entrypoint.sh /usr/local/bin/moodle-entrypoint.sh
 RUN chmod 0755 /usr/local/bin/moodle-entrypoint.sh
 

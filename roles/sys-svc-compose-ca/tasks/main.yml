@@ -1,5 +1,5 @@
 ---
-- name: "CA trust not applicable for '{{ application_id }}' (TLS off or not self_signed) — mark role executed"
+- name: "🚫 CA trust N/A for '{{ application_id }}' (TLS off/not self-signed) — mark done"
   ansible.builtin.debug:
     msg: >-
       Skipping CA trust assets for '{{ application_id }}': no domain, TLS

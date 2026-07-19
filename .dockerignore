@@ -16,16 +16,14 @@ roles/importer_result.json
 build/*
 .ruff_cache
 .agents
+.claude/skills/
+.claude-*
 collections/
 .env
 .onion-identity/
+custom.env
 logs/
 job-logs.txt
-.claude/skills
-.claude/agents
-.claude/commands
-.claude/hooks
-.claude/settings.local.json
 *.lock
 node_modules/
 
@@ -46,4 +44,3 @@ compose/Corefile
 .vscode
 .zprofile
 .zshrc
-

@@ -10,6 +10,48 @@ When `svc-net-tor` is deployed, the node's `DOMAIN_PRIMARY` is the minted `.onio
 
 The onion key is minted offline during inventory build (`cli.administration.inventory.onion`) and stored in the inventory, so the address is stable across redeploys and restorable from a backup.
 
+## Cosmos
+
+The diagram places Tor Onion Service in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph role [svc-net-tor 🐳🐝]
+        svc_mirror["mirror"]
+        svc_tor["tor"]
+    end
+    subgraph dependents [Dependents]
+        dpt_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
+        dpt_svc_db_memcached["svc-db-memcached 🐳🐝"]
+        dpt_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dpt_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dpt_svc_db_redis["svc-db-redis 🐳🐝"]
+        dpt_svc_prx_openresty["svc-prx-openresty 🐳🐝"]
+        dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
+        dpt_web_app_baserow["web-app-baserow 🐳🐝"]
+        dpt_web_app_bluesky["web-app-bluesky 🐳🐝"]
+        dpt_web_app_bookwyrm["web-app-bookwyrm 🐳🐝"]
+        dpt_web_app_bridgy_fed["web-app-bridgy-fed 🐳🐝"]
+        dpt_web_app_checkmk["web-app-checkmk 🐳🐝"]
+        dpt_more["..."]
+    end
+    svc_mirror -- "1:1" --> dpt_more
+    svc_mirror -. "0..1" .-> dpt_svc_db_mariadb
+    svc_mirror -. "0..1" .-> dpt_svc_db_memcached
+    svc_mirror -. "0..1" .-> dpt_svc_db_openldap
+    svc_mirror -. "0..1" .-> dpt_svc_db_postgres
+    svc_mirror -. "0..1" .-> dpt_svc_db_redis
+    svc_mirror -. "0..1" .-> dpt_svc_prx_openresty
+    svc_mirror -. "0..1" .-> dpt_web_app_akaunting
+    svc_mirror -. "0..1" .-> dpt_web_app_baserow
+    svc_mirror -. "0..1" .-> dpt_web_app_bluesky
+    svc_mirror -. "0..1" .-> dpt_web_app_bookwyrm
+    svc_mirror -. "0..1" .-> dpt_web_app_bridgy_fed
+    svc_mirror -. "0..1" .-> dpt_web_app_checkmk
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **Full onion node:** `DOMAIN_PRIMARY` becomes the node `.onion`; the entire stack shifts to Tor with no domain-transform logic.
@@ -19,6 +61,41 @@ The onion key is minted offline during inventory build (`cli.administration.inve
 - **Optional public domains:** extra clearnet domains added to an app keep their own TLS flavor and deploy alongside the onion.
 - **Configurable egress:** inbound is always onion; outbound torification is off by default (`TOR_EGRESS_ENABLED`).
 
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy Tor Onion Service onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps=svc-net-tor full_cycle=false
+```
+
+### Production
+
+Run the published image to provision the inventory and deploy Tor Onion Service to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP=svc-net-tor
+HOST=<your-server>
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" \
+  ghcr.io/infinito-nexus/core/debian bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/prod
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
+
 ## Limitations
 
 - Targets **fresh** onion nodes; converting an existing clearnet node is out of scope (the LDAP base DN and all identities would shift).
@@ -27,7 +104,6 @@ The onion key is minted offline during inventory build (`cli.administration.inve
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Implemented by **Kevin Veen-Birkenbach**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

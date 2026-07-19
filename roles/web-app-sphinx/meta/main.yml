@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Marko Pjevac, Kevin Veen-Birkenbach
-  description: Automates building and serving Sphinx documentation. Unlock comprehensive insights with our extensive documentation. Explore guides, tutorials,
-    and support resources designed to help you navigate software effortlessly.
+  description: Documentation generator that builds HTML from a source repository and serves it through a lightweight HTTP server
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

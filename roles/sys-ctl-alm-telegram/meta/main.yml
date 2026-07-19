@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures components for sending Telegram notifications through systemd. This role is part of the sys-ctl-alm-compose suite,
-    providing automated alerts when services fail.
+  description: Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

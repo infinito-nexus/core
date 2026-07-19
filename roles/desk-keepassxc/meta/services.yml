@@ -1,5 +1,8 @@
 ---
 keepassxc:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   min_storage: "100MB"
   cpus: "0.2"

@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media Self-written infrastructure/asset-delivery role: wraps Nginx as an internal CDN serving static CSS/JS assets for other stack apps. No consumer-facing upstream product (Nginx is the underlying server, not the product this role is).
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Configures an Nginx-based Content Delivery Network Server.\n"
+  description: Nginx-based content delivery network for serving shared static assets to internal web applications
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

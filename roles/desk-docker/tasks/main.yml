@@ -1,12 +1,12 @@
 ---
-- name: install docker
+- name: 📦 install docker
   package:
     name:
       - docker
       - docker-compose
     state: present
 
-- name: "Adding user {{ lookup('users', WORKSTATION_USER).username }} to relevant docker usergroup"
+- name: "🔧 Add user {{ lookup('users', WORKSTATION_USER).username }} to docker group"
   user:
     name: "{{ lookup('users', WORKSTATION_USER).username }}"
     groups: docker

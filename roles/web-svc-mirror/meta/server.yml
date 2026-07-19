@@ -3,7 +3,3 @@
 status_codes:
   default:
     - 404
-domains:
-  canonical:
-    - mirror.{{ DOMAIN_PRIMARY }}
-  aliases: []

@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from ansible.errors import AnsibleError
 
@@ -11,25 +11,22 @@ class TestCanonicalUrlLookup(unittest.TestCase):
         self.lookup = LookupModule()
         self.base_vars = {"TLS_ENABLED": True}
 
-        def _domains_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("domains", {})
+        def _get(name, *args, **kwargs):
+            plugin = MagicMock()
 
-        def _apps_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("applications", {})
+            def _run(terms, variables=None, **_kwargs):
+                key = "domains" if name == "domains" else "applications"
+                return [(variables or {}).get(key, {})]
 
-        self._patchers = [
-            patch(
-                "plugins.lookup.canonical_url.get_merged_domains",
-                side_effect=_domains_from_vars,
-            ),
-            patch(
-                "plugins.lookup.canonical_url.get_merged_applications",
-                side_effect=_apps_from_vars,
-            ),
-        ]
-        for p in self._patchers:
-            p.start()
-        self.addCleanup(lambda: [p.stop() for p in self._patchers])
+            plugin.run.side_effect = _run
+            return plugin
+
+        patcher = patch(
+            "plugins.lookup.canonical_url.lookup_loader.get",
+            side_effect=_get,
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def _run(self, terms, domains, applications=None, extra_vars=None, **kwargs):
         v = dict(self.base_vars)

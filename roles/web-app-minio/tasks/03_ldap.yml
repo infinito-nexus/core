@@ -1,5 +1,5 @@
 ---
-- name: "Wait for MinIO IAM subsystem before policy attach"
+- name: "⏳ Wait for MinIO IAM subsystem before policy attach"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -18,9 +18,8 @@
   delay: 5
   until: mc_admin_policy_ls_ldap.rc == 0
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Create administrator policy (LDAP variant)"
+- name: "📁 Create administrator policy (LDAP variant)"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -37,9 +36,8 @@
               && mc admin policy create minio {{ MINIO_OIDC_POLICY_NAME | quote }} /dev/stdin || true'
   args: { executable: /bin/bash }
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Attach MinIO policy to LDAP administrator group"
+- name: "🗂️ Attach MinIO policy to LDAP administrator group"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -60,4 +58,3 @@
   failed_when:
     - mc_policy_attach_ldap.rc != 0
     - '"already attached" not in (mc_policy_attach_ldap.stderr | default(""))'
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

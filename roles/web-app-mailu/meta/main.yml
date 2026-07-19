@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Revolutionize your email communications with Mailu, a secure and flexible mail server solution that integrates comprehensive features for
-    managing digital correspondence reliably.
+  description: Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

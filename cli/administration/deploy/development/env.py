@@ -12,6 +12,8 @@ def compose_file_args() -> list[str]:
     out = ["-f", "compose.yml"]
     if Profile().registry_cache_active():
         out += ["-f", "compose/cache.override.yml"]
+    if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
+        out += ["-f", "compose/noports.override.yml"]
     return out
 
 

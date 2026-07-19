@@ -1,0 +1,4 @@
+---
+canonical:
+  - fediwall.{{ DOMAIN_PRIMARY }}
+aliases: []

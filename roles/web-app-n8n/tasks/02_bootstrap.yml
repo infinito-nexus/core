@@ -15,7 +15,7 @@
 # needed (e.g. n8n not fully up yet), keep well under n8n's default login
 # rate limit of 5 attempts per 5-minute window: delay=30s/retries=4 caps this
 # task at 5 attempts total, spanning 120s, so it never crosses the window.
-- name: "n8n | Probe owner account via single login attempt"
+- name: "🔎 Probe n8n owner account via single login attempt"
   uri_retry:
     url: "{{ N8N_INTERNAL_API_URL }}/rest/login"
     method: POST
@@ -28,9 +28,8 @@
   register: n8n_owner_probe
   retries: 4
   delay: 30
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "n8n | Initialise owner account (first-time only)"
+- name: "🔧 Initialise n8n owner account (first-time only)"
   uri_retry:
     url: "{{ N8N_INTERNAL_API_URL }}/rest/owner/setup"
     method: POST
@@ -40,6 +39,16 @@
       firstName: "{{ lookup('users', 'administrator').firstname | replace('.', ' ') | trim }}"
       lastName: "{{ lookup('users', 'administrator').lastname | replace('.', ' ') | trim }}"
       password: "{{ N8N_OWNER_PASSWORD }}"
-    status_code: [200, 201]
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    status_code: [200, 201, 400]
+    return_content: true
+  register: n8n_owner_setup
   when: n8n_owner_probe.status != 200
+
+- name: "✅ Assert n8n owner setup succeeded or was already done"
+  ansible.builtin.assert:
+    that:
+      - >-
+        (n8n_owner_setup is skipped)
+        or (n8n_owner_setup.status in [200, 201])
+        or ('already setup' in (n8n_owner_setup.content | default('')))
+    fail_msg: "n8n owner setup returned {{ n8n_owner_setup.status | default('n/a') }}: {{ n8n_owner_setup.content | default('') }}"

@@ -1,20 +1,15 @@
 ---
-# General
 application_id: "web-app-shopware"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Docker
 container_port: "{{ lookup('config', application_id, 'services.web.ports.internal.http') }}"
 
 SHOPWARE_DOMAIN: "{{ lookup('domain',application_id) }}"
 
-# Shopware container/image vars
 SHOPWARE_CONTAINER_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 SHOPWARE_CONTAINER_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SHOPWARE_PKG_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.package.version') }}"
 SHOPWARE_PKG_NAME: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.package.name') }}"
-SHOPWARE_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ SHOPWARE_PKG_VERSION }}"
-SHOPWARE_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 SHOPWARE_USER: "www-data"
 SHOPWARE_ROOT: "/var/www/html"
 
@@ -22,37 +17,28 @@ SHOPWARE_PHP_VERSION: "{{ lookup('config', application_id, 'services.php.version
 SHOPWARE_PHP_IMAGE: "{{ lookup('config', application_id, 'services.php.image') }}"
 SHOPWARE_COMPOSER_PLATFORM_PHP: "{{ SHOPWARE_PHP_VERSION | regex_replace('^(\\d+\\.\\d+)$', '\\1.0') }}"
 
-# Split service container names
 SHOPWARE_INIT_CONTAINER: "{{ lookup('config', application_id, 'services.init.name') }}"
 SHOPWARE_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.web.name') }}"
+SHOPWARE_WEB_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'web') }}"
 SHOPWARE_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
 SHOPWARE_SCHED_CONTAINER: "{{ lookup('config', application_id, 'services.scheduler.name') }}"
 SHOPWARE_INIT_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'init.sh' ] | path_join }}"
 SHOPWARE_INIT_DOCKER: "/usr/local/bin/init.sh"
 SHOPWARE_FRAMEWORK_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'framework.yaml' ] | path_join }}"
-SHOPWARE_FRAMEWORK_DOCKER: "/var/www/html/config/packages/framework.yaml"
 SHOPWARE_FILESYSTEM_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'shopware.yaml' ] | path_join }}"
-SHOPWARE_FILESYSTEM_DOCKER: "/var/www/html/config/packages/zz-infinito-filesystem.yaml"
 SHOPWARE_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 
-# Entrypoints & replicas
 SHOPWARE_WORKER_ENTRYPOINT: "{{ lookup('config', application_id, 'services.worker.entrypoint') }}"
 SHOPWARE_SCHED_ENTRYPOINT: "{{ lookup('config', application_id, 'services.scheduler.entrypoint') }}"
-SHOPWARE_WORKER_REPLICAS: "{{ lookup('config', application_id, 'services.worker.replicas') }}"
 
-# Auth integrations
 SHOPWARE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 SHOPWARE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-# Redis Cache
 SHOPWARE_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
-SHOPWARE_REDIS_ADDRESS: "redis:6379"
+SHOPWARE_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
-# Opensearch
-SHOPWARE_OPENSEARCH_PORT: "9200"
+SHOPWARE_OPENSEARCH_PORT: "{{ lookup('config', application_id, 'services.opensearch.ports.internal.http') }}"
 SHOPWARE_OPENSEARCH_ENABLED: "{{ lookup('config', application_id, 'services.opensearch.enabled') }}"
-SHOPWARE_OPENSEARCH_IMAGE: "{{ lookup('config', application_id, 'services.opensearch.image') }}"
-SHOPWARE_OPENSEARCH_VERSION: "{{ lookup('config', application_id, 'services.opensearch.version') }}"
 SHOPWARE_OPENSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.opensearch.name') }}"
 SHOPWARE_OPENSEARCH_MEM_RESERVATION: "{{ lookup('config', application_id, 'services.opensearch.mem_reservation') }}"
 SHOPWARE_OPENSEARCH_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.opensearch_initial_admin_password') }}"

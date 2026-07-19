@@ -7,7 +7,7 @@
 # Output:
 #   "escaped_value"
 #
-# Safe for GitLab Omnibus (gitlab.rb), Chef, Ruby DSLs.
+# Safe for Ruby DSLs (rails initializers, Chef).
 
 
 class FilterModule:
@@ -40,14 +40,8 @@ class FilterModule:
             return '""'
 
         s = str(value)
-
-        # Escape backslash first
         s = s.replace("\\", "\\\\")
-
-        # Escape double quotes
         s = s.replace('"', '\\"')
-
-        # Escape control characters
         s = s.replace("\n", "\\n")
         s = s.replace("\r", "\\r")
         s = s.replace("\t", "\\t")

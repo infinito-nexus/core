@@ -1,0 +1,61 @@
+name: "🏝️ Test: Deploy (single-node)"
+
+on:
+  workflow_call:
+    inputs:
+      distros:
+        description: "Space-separated distro list"
+        required: true
+        type: string
+      whitelist:
+        description: "Optional space-separated whitelist of app ids"
+        required: false
+        type: string
+        default: ""
+      lifecycles:
+        description: "Lifecycle envelope for discovery (comma/space-separated). Empty: default (alpha beta rc stable)."
+        required: false
+        type: string
+        default: ""
+      modes:
+        description: "Single-node deploy modes to run (space-separated subset of 'compose host')."
+        required: false
+        type: string
+        default: "compose host"
+      blacklist:
+        description: "Optional space-separated app ids to drop from discovery"
+        required: false
+        type: string
+        default: ""
+      marker:
+        description: "Optional suffix appended to the discover job names (e.g. ' ⭐' for the priority line)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  compose:
+    name: 📦 Compose
+    if: ${{ contains(inputs.modes, 'compose') }}
+    uses: ./.github/workflows/test-deploy-compose.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.whitelist }}
+      lifecycles: ${{ inputs.lifecycles }}
+      blacklist: ${{ inputs.blacklist }}
+      marker: ${{ inputs.marker }}
+
+  host:
+    name: 🖥️ Host
+    if: ${{ contains(inputs.modes, 'host') }}
+    uses: ./.github/workflows/test-deploy-host.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.whitelist }}
+      lifecycles: ${{ inputs.lifecycles }}
+      blacklist: ${{ inputs.blacklist }}
+      marker: ${{ inputs.marker }}

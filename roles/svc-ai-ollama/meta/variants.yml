@@ -8,6 +8,8 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 - services:
+    container_backup:
+      enabled: true
     ollama:
       preload_models:
         - smollm2:135m

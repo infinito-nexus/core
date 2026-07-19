@@ -1,0 +1,18 @@
+---
+whitelist:
+  connect-src: "{{ lookup('fediwall_active', 'url_bases') }}"
+  img-src:
+    - "http:"
+    - "https:"
+    - "data:"
+  media-src:
+    - "http:"
+    - "https:"
+    - "data:"
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-inline: true

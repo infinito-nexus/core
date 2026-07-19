@@ -1,7 +1,7 @@
 ---
-- name: Wait until Mattermost mmctl local mode is ready
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+- name: ⏳ Wait until Mattermost mmctl local mode is ready
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local system status
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"
@@ -12,18 +12,18 @@
   changed_when: false
   failed_when: nextcloud_mm_ready.rc != 0 and nextcloud_mm_ready.attempts | default(0) >= 60
 
-- name: Enable the Mattermost OAuth 2.0 service provider (required for the connector)
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+- name: 🟢 Enable the Mattermost OAuth 2.0 service provider (required for the connector)
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local config set ServiceSettings.EnableOAuthServiceProvider true
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"
   register: nextcloud_mm_oauth_provider
   changed_when: "'true' in nextcloud_mm_oauth_provider.stdout"
 
-- name: Generate a short-lived admin personal access token for OAuth provisioning
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+- name: ⚙️ Generate a short-lived admin personal access token for OAuth provisioning
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local token generate {{ lookup('users', 'administrator').username }} infinito-nc-oauth-provision --json
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"
@@ -31,13 +31,13 @@
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Parse the admin personal access token
+- name: 🔎 Parse the admin personal access token
   set_fact:
     nextcloud_mm_token: "{{ (nextcloud_mm_pat.stdout | from_json | first).token }}"
     nextcloud_mm_token_id: "{{ (nextcloud_mm_pat.stdout | from_json | first).id }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Provision (idempotently) the Mattermost OAuth app for Nextcloud and capture credentials
+- name: 🔧 Provision Mattermost OAuth app for Nextcloud and capture creds (idempotent)
   ansible.builtin.command:
     argv:
       - bash
@@ -54,21 +54,21 @@
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Parse Mattermost OAuth client credentials
+- name: 🔎 Parse Mattermost OAuth client credentials
   set_fact:
     nextcloud_mm_client_id: "{{ nextcloud_mm_provision.stdout | regex_search('CLIENT_ID=(.+)', '\\1') | first }}"
     nextcloud_mm_client_secret: "{{ nextcloud_mm_provision.stdout | regex_search('CLIENT_SECRET=(.+)', '\\1') | first }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Point integration_mattermost at the partner instance (admin OAuth instance URL)
-  command: >
+- name: 🔧 Point integration_mattermost at partner instance (admin OAuth instance URL)
+  shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }}
     config:app:set integration_mattermost oauth_instance_url
     --value '{{ nextcloud_mm_base_url }}'
   register: nextcloud_mm_oauth_url_set
   changed_when: "' set to ' in nextcloud_mm_oauth_url_set.stdout"
 
-- name: Store integration_mattermost OAuth credentials Nextcloud-encrypted (sensitive, lazy)
+- name: 🔐 Store integration_mattermost OAuth credentials Nextcloud-encrypted (lazy)
   ansible.builtin.command:
     argv:
       - container
@@ -82,16 +82,16 @@
       - "NC_ENC_MODE=sensitive"
       - -e
       - "NC_ENC_B64={{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
-      - "{{ NEXTCLOUD_CONTAINER }}"
+      - "{{ NEXTCLOUD_CONTAINER_ADDRESS }}"
       - php
     stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
   register: nextcloud_mm_enc_set
   changed_when: "'OK' in nextcloud_mm_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Revoke the short-lived admin personal access token
-  command: >
-    container exec -i {{ nextcloud_mm_container }}
+- name: 🚫 Revoke the short-lived admin personal access token
+  shell: >
+    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
     /mattermost/bin/mmctl --local token revoke {{ nextcloud_mm_token_id }}
   args:
     chdir: "{{ nextcloud_mm_instance_dir }}"

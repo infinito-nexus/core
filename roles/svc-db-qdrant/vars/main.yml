@@ -1,0 +1,12 @@
+---
+application_id: svc-db-qdrant
+entity_name: "{{ application_id | get_entity_name }}"
+
+database_type: "{{ entity_name }}"
+
+QDRANT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+QDRANT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+QDRANT_PORT: "{{ database_port | default(lookup('config', application_id, 'services.qdrant.ports.local.qdrant')) }}"
+QDRANT_EXPOSE_LOCAL: true
+QDRANT_DELAY: 2
+QDRANT_EXEC_SHELL: "container exec {{ QDRANT_CONTAINER_ADDRESS }} bash -lc"

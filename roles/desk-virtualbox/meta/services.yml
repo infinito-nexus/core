@@ -1,5 +1,8 @@
 ---
 virtualbox:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   min_storage: "2GB"
   cpus: "2.0"

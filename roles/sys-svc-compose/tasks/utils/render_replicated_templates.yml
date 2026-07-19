@@ -1,0 +1,32 @@
+---
+- name: "📤 Expand fileglob-driven entries for '{{ application_id }}'"
+  ansible.builtin.set_fact:
+    _role_templates_expanded: >-
+      {%- set out = [] -%}
+      {%- for entry in role_templates -%}
+        {%- if entry.src_glob is defined -%}
+          {%- set role_dir = lookup('path_absolute', 'roles', application_id) -%}
+          {%- for path in lookup('fileglob', role_dir ~ '/templates/' ~ entry.src_glob, wantlist=True) | sort -%}
+            {%- set base = path | basename | regex_replace('\.j2$', '') -%}
+            {%- set _ = out.append({
+              'src': path,
+              'dest': (entry.dest_dir | regex_replace('/$', '')) ~ '/' ~ base,
+              'owner': entry.owner | default('root'),
+              'group': entry.group | default('root'),
+              'mode': entry.mode | default('0640'),
+              'condition': entry.condition | default(true),
+              'notify': entry.notify | default(['compose up']),
+            }) -%}
+          {%- endfor -%}
+        {%- else -%}
+          {%- set _ = out.append(entry) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ out }}
+
+- name: "📄 Render and replicate templates for '{{ application_id }}'"
+  ansible.builtin.include_tasks: "_render_one_template.yml"
+  loop: "{{ _role_templates_expanded }}"
+  loop_control:
+    loop_var: _tpl
+    label: "{{ _tpl.dest }}"

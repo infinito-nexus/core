@@ -1,41 +1,35 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {{ MATOMO_SERVICE }}:
-    container_name:  {{ MATOMO_NAME }}
-{% set container_port = 80 %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ MATOMO_IMAGE }}:{{ MATOMO_VERSION }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.matomo.ports.local.http') }}:{{ container_port }}"
-    volumes:
-      - data:/var/www/html
+  {% set service_name = MATOMO_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', MATOMO_NAME) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'matomo') }}
+    {{ lookup('container_ports', ['matomo', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, MATOMO_SERVICE) | indent(4) }}
     healthcheck:
       test:
         - CMD-SHELL
         - |
-          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/index.php || echo 000)" = "200" ]
+          code="$$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/index.php || echo 000)"; [ "$$code" -ge 200 ] && [ "$$code" -lt 400 ]
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 60s
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+      start_period: 180s
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  {{ MATOMO_BOOTSTRAP_SERVICE }}:
-{% set docker_restart_policy = 'no' %}
-{% set docker_compose_env = MATOMO_BOOTSTRAP_ENV_FILE %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% set docker_compose_env = '' %}
-{% set docker_restart_policy = DOCKER_RESTART_POLICY %}
+  {% set service_name = MATOMO_BOOTSTRAP_SERVICE %}
+  {% set docker_restart_policy = 'no' %}
+  {% set docker_compose_env = MATOMO_BOOTSTRAP_ENV_FILE %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if DEPLOYMENT_MODE == 'compose' %}
     profiles:
       - "{{ MATOMO_BOOTSTRAP_PROFILE }}"
-    container_name: {{ MATOMO_BOOTSTRAP_NAME }}
-    image: "{{ MATOMO_BOOTSTRAP_IMAGE }}:{{ MATOMO_BOOTSTRAP_VERSION }}"
-    depends_on:
-      {{ MATOMO_SERVICE }}:
-        condition: service_healthy
+    {% endif %}
+    {{ lookup('compose_only', 'container_name', MATOMO_BOOTSTRAP_NAME) }}
+    {{ lookup('container_image', application_id, 'bootstrap') }}
+    {{ lookup('depends_on', {MATOMO_SERVICE: 'service_healthy'}) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': MATOMO_DATA}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

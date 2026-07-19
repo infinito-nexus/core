@@ -1,23 +1,31 @@
 ---
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
     - sys-ctl-alm-compose
     - sys-lock
 
-- name: install lsof
+- name: 📦 install lsof
   package:
     name: lsof
     state: present
 
-- name: install psutil via pip
+- name: 📦 install psutil via pip
   include_role:
     name: sys-pip-install
   vars:
     package_name: psutil
     package_state: present
     global_install: true
+
+- name: "✅ Ensure backups root exists before the first backup run"
+  ansible.builtin.file:
+    path: "{{ DIR_BACKUPS }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
 - include_role:
     name: sys-service
@@ -32,7 +40,6 @@
     system_service_copy_files: true
     system_service_force_linear_sync: false
 
-    # The following lines are set for better DiD Github Action Workflow debugging:
     system_service_tpl_timeout_start_sec: "{{ '120s' if ((DOCKER_IN_CONTAINER|bool) and (MODE_DEBUG|bool)) else omit }}"
     system_service_tpl_runtime: "{{ '300s' if ((DOCKER_IN_CONTAINER|bool) and (MODE_DEBUG|bool)) else omit }}"
 

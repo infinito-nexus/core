@@ -1,15 +1,20 @@
 ---
 - name: "Execute Infinito.Nexus Play"
   hosts: all
+  any_errors_fatal: true
   environment:
     CA_TRUST_CERT_HOST: "{{ CA_TRUST.cert_host }}"
     CA_TRUST_WRAPPER_HOST: "{{ CA_TRUST.wrapper_host }}"
     CA_TRUST_NAME: "{{ CA_TRUST.trust_name }}"
+    CA_TRUST_CERT_CONTAINER: "{{ CA_TRUST.inject_cert_container }}"
+    CA_TRUST_WRAPPER_CONTAINER: "{{ CA_TRUST.inject_wrapper_container }}"
     CA_CONTAINER_ENABLED: "{{ CA_CONTAINER_ENABLED | int }}"
     COMPOSE_HTTP_TIMEOUT: "600"
     DOCKER_CLIENT_TIMEOUT: "600"
     DOCKER_BUILDKIT: "{{ BUILDKIT_ENABLED | int }}"
     COMPOSE_DOCKER_CLI_BUILD: "{{ BUILDKIT_ENABLED | int }}"
+    INFINITO_RESCUE_DIAGNOSTICS_DIR: "{{ DIR_RESCUE_DIAGNOSTICS }}"
+    CONTAINER_EXEC_TIMEOUT: "{{ SYS_TIMEOUT_CONTAINER_EXEC }}"
   tasks:
     - name: "Load 'constructor' tasks"
       include_tasks: "tasks/stages/01_constructor.yml"

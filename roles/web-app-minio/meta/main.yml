@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs MinIO — an S3-compatible object storage service for media, backups, and AI artifacts.
+  description: Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

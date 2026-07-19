@@ -1,0 +1,65 @@
+x-node: &node
+  image: infinito-swarm-node
+  build:
+    context: .
+    args:
+      INFINITO_IMAGE: "${INFINITO_IMAGE:?run make dotenv / build the distro image first}"
+  privileged: true
+  cgroup: host
+  security_opt:
+    - seccomp=unconfined
+    - apparmor=unconfined
+  tmpfs:
+    - /run
+    - /run/lock
+  labels:
+    - "${INFINITO_SWARM_TEST_LABEL:?run utils/topology/export.sh first}="
+  volumes:
+    - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    - /lib/modules:/lib/modules:ro
+  networks:
+    - lab
+
+services:
+  nfs-server:
+    <<: *node
+    container_name: "${NFS_SERVER:?run utils/topology/export.sh first}"
+    hostname: "${NFS_SERVER:?run utils/topology/export.sh first}"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /lib/modules:/lib/modules:ro
+      - "nfs-export:${NFS_EXPORT_BASE:?run utils/topology/export.sh first}"
+
+  swarm-mgr-01:
+    <<: *node
+    container_name: "${MGR:?run utils/topology/export.sh first}"
+    hostname: "${MGR:?run utils/topology/export.sh first}"
+
+  swarm-wrk-01:
+    <<: *node
+    container_name: "${WRK1:?run utils/topology/export.sh first}"
+    hostname: "${WRK1:?run utils/topology/export.sh first}"
+
+  swarm-wrk-02:
+    <<: *node
+    container_name: "${WRK2:?run utils/topology/export.sh first}"
+    hostname: "${WRK2:?run utils/topology/export.sh first}"
+
+  backup-host:
+    <<: *node
+    container_name: "${BACKUP_NODE:?run utils/topology/export.sh first}"
+    hostname: "${BACKUP_NODE:?run utils/topology/export.sh first}"
+    profiles: ["drill"]
+
+volumes:
+  nfs-export:
+
+networks:
+  lab:
+    name: "${SWARM_LAB_NETWORK:?run utils/topology/export.sh first}"
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+    ipam:
+      config:
+        - subnet: 192.168.244.0/24

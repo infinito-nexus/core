@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs the python-pip package to provide the Python package manager, ensuring that Python packages can be installed reliably on the target
-    system.
+  description: Package manager for installing and managing Python packages on the target host
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

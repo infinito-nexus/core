@@ -1,0 +1,45 @@
+---
+application_id: "svc-storage-nfs-server"
+
+SVC_STORAGE_NFS_SERVER_PACKAGES:
+  kernel:
+    Debian:
+      - nfs-kernel-server
+    Ubuntu:
+      - nfs-kernel-server
+    Archlinux:
+      - nfs-utils
+    RedHat:
+      - nfs-utils
+    Fedora:
+      - nfs-utils
+    Alpine:
+      - nfs-utils
+  ganesha:
+    Debian:
+      - nfs-ganesha
+      - nfs-ganesha-vfs
+    Ubuntu:
+      - nfs-ganesha
+      - nfs-ganesha-vfs
+    Fedora:
+      - nfs-ganesha
+      - nfs-ganesha-vfs
+
+SVC_STORAGE_NFS_SERVER_SERVICE:
+  kernel:
+    Debian: nfs-server
+    Ubuntu: nfs-server
+    Archlinux: nfs-server.service
+    RedHat: nfs-server
+    Fedora: nfs-server
+    Alpine: nfs
+  ganesha:
+    Debian: nfs-ganesha
+    Ubuntu: nfs-ganesha
+    Fedora: nfs-ganesha
+
+SVC_STORAGE_NFS_SERVER_STATE_EXPORT_OPTIONS: >-
+  rw,sync,no_subtree_check,no_root_squash,no_all_squash
+SVC_STORAGE_NFS_SERVER_STATE_ALLOWED_CIDRS:
+  - "*"

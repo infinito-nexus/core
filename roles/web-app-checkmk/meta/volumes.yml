@@ -1,2 +1,7 @@
 ---
-data: checkmk_data
+checkmk_data:
+  type: volume
+  nfs: false
+  mounts:
+    - service: checkmk
+      target: /omd/sites

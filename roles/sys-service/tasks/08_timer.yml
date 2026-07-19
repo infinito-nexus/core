@@ -1,15 +1,15 @@
 ---
-- name: Fail if system_service_id contains "@"
+- name: 🛑 Fail if system_service_id contains "@"
   assert:
     that:
       - "'@' not in system_service_id"
     fail_msg: "Invalid system_service_id '{{ system_service_id }}' → must not contain '@'."
   when: MODE_ASSERT | bool
 
-- name: "Make '{{ system_service_id }}' available for sys-timer"
+- name: "🔨 Make '{{ system_service_id }}' available for sys-timer"
   set_fact:
     system_service_timer_service: "{{ system_service_id }}"
 
-- name: "include role for sys-timer for {{ system_service_timer_service }}"
+- name: "📂 include role for sys-timer for {{ system_service_timer_service }}"
   include_role:
     name: sys-timer

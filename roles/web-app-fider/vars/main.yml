@@ -2,11 +2,14 @@
 # General
 application_id: "web-app-fider"
 
-# Docker
-FIDER_VERSION: "{{ lookup('config', application_id, 'services.fider.version') }}"
-FIDER_IMAGE: "{{ lookup('config', application_id, 'services.fider.image') }}"
 FIDER_CONTAINER: "{{ lookup('config', application_id, 'services.fider.name') }}"
-FIDER_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.fider.container_port') }}"
 
-## OIDC
 FIDER_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+
+FIDER_TENANT_BOOTSTRAP_BODY:
+  tenantName: "{{ SOFTWARE_NAME }}"
+  subdomain: "fider"
+  name: "{{ lookup('users', 'administrator').firstname }} {{ lookup('users', 'administrator').lastname }}"
+  email: "{{ lookup('users', 'administrator').email }}"
+  legalAgreement: true
+  token: ""

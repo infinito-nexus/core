@@ -1,45 +1,35 @@
 ---
-# General
 application_id: "web-app-mediawiki"
-container_port: 80
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Mediawiki
 MEDIAWIKI_SITENAME: "{{ lookup('config', application_id, 'services.mediawiki.sitename') }}"
 MEDIAWIKI_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
-## Folders
 MEDIAWIKI_HTML_DIR: "/var/www/html"
 MEDIAWIKI_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
 MEDIAWIKI_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
 
-# LocalSettings
 MEDIAWIKI_LOCALSETTINGS_HOST_PATH: "{{ MEDIAWIKI_CONFIG_DIR }}/LocalSettings.php"
 MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH: "{{ MEDIAWIKI_HTML_DIR }}/LocalSettings.php"
 
-# Persistent runtime dirs
 MEDIAWIKI_LOCAL_MOUNT_DIR: "{{ [ MEDIAWIKI_VOLUMES_DIR, 'mw-local' ] | path_join }}"
 MEDIAWIKI_LOCAL_PATH: "/opt/mw-local"
 
-## Docker
 MEDIAWIKI_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 MEDIAWIKI_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
-MEDIAWIKI_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ MEDIAWIKI_VERSION }}"
+MEDIAWIKI_CUSTOM_IMAGE: "{{ entity_name }}_custom"
 MEDIAWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-MEDIAWIKI_VOLUME_IMAGES: "{{ lookup('config', application_id, 'volumes.images') }}"
-MEDIAWIKI_VOLUME_EXTENSIONS: "{{ lookup('config', application_id, 'volumes.extensions') }}"
+MEDIAWIKI_VOLUME_IMAGES: "{{ lookup('volume', application_id, 'images').name }}"
+MEDIAWIKI_VOLUME_EXTENSIONS: "{{ lookup('volume', application_id, 'extensions').name }}"
 MEDIAWIKI_USER: "www-data"
 MEDIAWIKI_USER_GID: "33"
 
 MEDIAWIKI_NETWORK_DATABASE: "{{ lookup('database', application_id, 'network') }}"
-MEDIAWIKI_DB_CONTAINER: "{{ lookup('database', application_id, 'container') }}"
 
-# User and Credentials
 MEDIAWIKI_ADMINISTRATOR_NAME: "{{ lookup('users', 'administrator').username }}"
 MEDIAWIKI_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 MEDIAWIKI_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 
-# OIDC
 MEDIAWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MEDIAWIKI_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 MEDIAWIKI_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
@@ -48,7 +38,6 @@ MEDIAWIKI_OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
 MEDIAWIKI_OIDC_AUTOLOGIN: true
 MEDIAWIKI_OIDC_LOCALLOGIN: false
 
-# Extensions
 MEDIAWIKI_EXT_BRANCH: "REL{{ (MEDIAWIKI_VERSION | string).split('.')[:2] | join('_') }}"
 MEDIAWIKI_EXT_CFG_BASE: "{{ [ MEDIAWIKI_CONFIG_DIR, 'mwext', MEDIAWIKI_EXT_BRANCH ] | path_join }}"
 MEDIAWIKI_EXT_NAMES: "{{ lookup('config', application_id, 'addons').keys() | list }}"

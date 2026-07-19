@@ -22,6 +22,8 @@
       shared: true
     postgres:
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -51,6 +53,8 @@
       shared: false
     postgres:
       shared: false
+    redis:
+      shared: false
     prometheus:
       enabled: false
       shared: false
@@ -62,4 +66,4 @@
       shared: false
     tor:
       enabled: false
-      shared: false  # nocheck: variants-static-override
+      shared: false # nocheck: variants-static-override

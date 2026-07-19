@@ -1,0 +1,4 @@
+---
+canonical:
+  - odoo.erp.{{ DOMAIN_PRIMARY }}
+aliases: []

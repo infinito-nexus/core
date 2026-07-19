@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures Nginx HTTP and stream modules with performance-tuned defaults.
+  description: Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

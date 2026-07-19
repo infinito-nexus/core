@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Extracts the local pyproject.toml version and writes it as an environment variable in /etc/environment on the target host.
+  description: "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

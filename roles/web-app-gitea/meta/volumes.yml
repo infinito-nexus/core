@@ -1,2 +1,7 @@
 ---
-data: gitea_data
+data:
+  type: volume
+  name: gitea_data
+  mounts:
+    - service: gitea
+      target: /data

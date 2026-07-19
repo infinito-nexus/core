@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Runs end-to-end Playwright tests against deployed applications.
+  description: Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -8,7 +8,7 @@ from . import PROJECT_ROOT
 
 ROLE_DIR = PROJECT_ROOT / "roles" / "web-app-keycloak"
 FILTER_PATH = ROLE_DIR / "filter_plugins" / "kcadm.py"
-MODUTILS_PATH = ROLE_DIR / "module_utils" / "kcadm_json.py"
+MODUTILS_PATH = PROJECT_ROOT / "utils" / "kcadm_json.py"
 
 
 def _load_py_module(name: str, path: Path):
@@ -42,10 +42,6 @@ class TestFilterPluginKcadm(unittest.TestCase):
         self.assertEqual(fm.kcadm_json(noisy), [{"id": "abc"}, {"id": "def"}])
 
     def test_filter_loads_role_local_module_utils_from_expected_path(self):
-        # IMPORTANT:
-        # The filter plugin loads module_utils via importlib (spec_from_file_location),
-        # producing a separate module instance from the one loaded here in the test.
-        # So we must not assert identity of function objects.
         origin = Path(self.filter_mod._kcadm_json_mod.__file__).resolve()
         self.assertEqual(origin, MODUTILS_PATH.resolve())
 
@@ -60,7 +56,6 @@ class TestFilterPluginKcadm(unittest.TestCase):
         self.assertEqual(got_filter, got_modutils)
 
     def test_filter_function_bytecode_matches_module_utils(self):
-        # Strong check without relying on object identity
         self.assertEqual(
             self.filter_mod.json_from_noisy_stdout.__code__.co_code,
             self.modutils_mod.json_from_noisy_stdout.__code__.co_code,

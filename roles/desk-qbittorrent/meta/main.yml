@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs the qBittorrent torrent client via AUR on Arch Linux.
+  author: Kevin Veen-Birkenbach
+  description: Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Delete the shared default 'ldap-roles' group-ldap-mapper that
-# update/05_ldap.yml maintains for the assert/05_ldap.yml contract.
+# update/05_ldap/main.yml maintains for the assert/05_ldap.yml contract.
 # The per-application mappers (ldap-roles-<app>) replace it; leaving
 # the default mapper in place would re-import every LDAP groupOfNames
 # flat under /roles on every sync and shadow the per-app structure.

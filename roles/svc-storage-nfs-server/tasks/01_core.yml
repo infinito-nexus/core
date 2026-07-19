@@ -1,0 +1,26 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔍 Resolve the NFS server backend flavor"
+  ansible.builtin.set_fact:
+    SVC_STORAGE_NFS_SERVER_FLAVOR: "{{ lookup('nfs_flavor') }}"
+
+- name: "✅ Assert the NFS server flavor is kernel or ganesha"
+  ansible.builtin.assert:
+    that:
+      - SVC_STORAGE_NFS_SERVER_FLAVOR in ['kernel', 'ganesha']
+    fail_msg: "services.nfs-server.flavor must be 'kernel' or 'ganesha' (got '{{ SVC_STORAGE_NFS_SERVER_FLAVOR }}')"
+
+- name: "📂 Include shared NFS export preparation"
+  ansible.builtin.include_tasks: 03_prepare.yml
+
+- name: "📤 Dispatch NFS backend flavor"
+  ansible.builtin.include_tasks: "flavor/{{  SVC_STORAGE_NFS_SERVER_FLAVOR }}/main.yml"
+
+- name: "📂 Include controller-side mount step"
+  ansible.builtin.include_tasks:
+    file: 05_controller_mount.yml
+    apply:
+      delegate_to: localhost
+      run_once: true
+      become: true

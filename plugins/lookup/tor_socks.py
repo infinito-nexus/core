@@ -3,9 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
-
-from utils.cache.applications import get_merged_applications
 
 _DEFAULT_HOST = "127.0.0.1"
 
@@ -54,9 +53,9 @@ class LookupModule(LookupBase):
         host = str(terms[0]) if terms else _DEFAULT_HOST
 
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
-        applications = get_merged_applications(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
+        applications = lookup_loader.get(
+            "applications",
+            loader=getattr(self, "_loader", None),
             templar=getattr(self, "_templar", None),
-        )
+        ).run([], variables=variables, roles_dir=kwargs.get("roles_dir"))[0]
         return [resolve_socks_endpoint(applications, host)]

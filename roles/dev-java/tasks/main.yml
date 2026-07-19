@@ -1,5 +1,5 @@
 ---
-- name: install java
+- name: 📦 install java
   package:
     name:
       - jdk11-openjdk

@@ -1,5 +1,8 @@
 ---
 gnome:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   min_storage: "2GB"
   cpus: "1.0"

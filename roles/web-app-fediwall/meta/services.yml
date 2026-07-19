@@ -44,8 +44,14 @@ friendica:
   enabled: "{{ 'web-app-friendica' in group_names }}"
   shared: "{{ 'web-app-friendica' in group_names }}"
 fediwall:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: nginx
   version: alpine
+  custom: true
   upstream:
     version: "1.4.0"
     tarball_url: "https://github.com/defnull/fediwall/releases/download/v1.4.0/fediwall-1.4.0.tgz"
@@ -59,10 +65,6 @@ fediwall:
         servers: "{{ lookup('fediwall_active', 'domains') }}"
         tags: []
         accounts: []
-        # `loadPublic: true` makes Fediwall poll each server's public
-        # timeline. Without one of `loadPublic`/`loadFederated` enabled
-        # (and no tags/accounts filter), the wall renders empty because
-        # there is nothing to fetch.
         loadPublic: true
         loadFederated: false
         loadTrends: false
@@ -83,6 +85,10 @@ fediwall:
   ports:
     local:
       http: 8074
+    internal:
+      http: 80
+  proxy:
+    service_key: fediwall
   lifecycle: beta
   min_storage: 1GB
   cpus: "0.2"

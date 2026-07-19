@@ -6,7 +6,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: web
       port: 80
 ldap:
   bond: 1
@@ -28,35 +28,43 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag — email not used by Jitsi room flow
+# nocheck: playwright-service-flag - email not used by Jitsi room flow
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
-# nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
-# nocheck: playwright-service-flag — runtime DOM patch, no probe-able surface flag
-# Inject the role-local logout button (templates/javascript.js.j2) when SSO is on, so
-# Jitsi's React SPA (which has no native sign-out control) still exposes a click target
-# that survives the persona contract's no-direct-URL logout rule.
+# nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag - runtime DOM patch, no probe-able surface flag
 javascript:
   bond: 1
   enabled: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
   shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
 jitsi:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: jitsi/web
   version: "stable-9646"
   min_storage: 5GB
+  # nocheck: default-placement-manager  meta/volumes.yml uses type:bind config dirs staged on the stack host; a worker-scheduled task lacks the source paths (unpinning requires migrating them to nfs-backed named volumes)
+  placement: manager
   ports:
     local:
       http: 8084
       sso: 16505
     public:
       media: 10000
+    internal:
+      http: 80
+  proxy:
+    service_key: web
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -64,24 +72,38 @@ jitsi:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 2048
-# nocheck: playwright-service-flag — internal sub-component (XMPP server, not a user-facing surface)
+web:
+  name: jitsi-web
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 512
+# nocheck: playwright-service-flag - internal sub-component (XMPP server, not a user-facing surface)
 prosody:
+  name: jitsi-prosody
   image: jitsi/prosody
   version: "stable-9646"
+  ports:
+    internal:
+      xmpp: 5222
+      component: 5347
+      http: 5280
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 1024
-# nocheck: playwright-service-flag — internal sub-component (conference focus)
+# nocheck: playwright-service-flag - internal sub-component (conference focus)
 jicofo:
+  name: jitsi-jicofo
   image: jitsi/jicofo
   version: "stable-9646"
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 1024
-# nocheck: playwright-service-flag — internal sub-component (video bridge, media plane)
+# nocheck: playwright-service-flag - internal sub-component (video bridge, media plane)
 jvb:
+  name: jitsi-jvb
   image: jitsi/jvb
   version: "stable-9646"
   cpus: "2.0"

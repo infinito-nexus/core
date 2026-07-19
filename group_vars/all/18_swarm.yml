@@ -1,0 +1,33 @@
+---
+DEPLOYMENT_MODE: "{{ 'swarm' if (groups['svc-swarm-node'] | default([]) | length) > 1 else 'compose' }}"
+
+SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-swarm-node'] | default([]) | length) > 0 }}"
+
+IS_STACK_HOST: >-
+  {{ DEPLOYMENT_MODE == 'compose'
+     or inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
+
+IS_BACKUP_HOST: >-
+  {{ group_names | select('match', '^svc-bkp-') | list | length > 0 }}
+
+STACK_HOST: >-
+  {{ (groups['svc-swarm-manager'] | default([]))[0] | default(inventory_hostname) }}
+
+swarm:
+  manager:
+    advertise_addr: ""
+  network:
+    encryption: true
+  registry:
+    host: "{{ (groups['svc-swarm-manager'] | default([]))[0] | default('') }}"
+    port: 5000
+
+SWARM_REGISTRY_PREFIX: >-
+  {{
+    (swarm.registry.host ~ ':' ~ swarm.registry.port ~ '/')
+    if (
+      DEPLOYMENT_MODE == 'swarm'
+      and (swarm.registry.host | length > 0)
+    )
+    else ''
+  }}

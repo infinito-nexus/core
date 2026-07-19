@@ -24,17 +24,13 @@ fi
 
 echo ">>> Applying ${MULTIPLIER}x timeout multiplier (self-hosted hardware)"
 
-# Ansible task retries → retries × MULTIPLIER
 find "${REPO_ROOT}/roles" -path "*/tasks/*.yml" -name "*.yml" -print0 |
 	xargs -0 -r perl -i -pe "s/^(\s+retries:\s+)(\d+)/\$1.(\$2*${MULTIPLIER})/e"
 
-# Docker compose healthcheck start_period → start_period × MULTIPLIER
 find "${REPO_ROOT}/roles" \( -name "*.yml" -o -name "*.yml.j2" \) \
 	-not -path "*/tasks/*" -print0 |
 	xargs -0 -r perl -i -pe "s/^(\s+start_period:\s+)(\d+)s/\$1.(\$2*${MULTIPLIER}).'s'/e"
 
-# uri_retry plugin DEFAULT_RETRIES → DEFAULT_RETRIES × MULTIPLIER
-# Covers uri_retry tasks that have no explicit retries: keyword in YAML.
 find "${REPO_ROOT}/plugins" -name "*.py" -print0 |
 	xargs -0 -r perl -i -pe "s/^(\s+DEFAULT_RETRIES\s*=\s*)(\d+)/\$1.(\$2*${MULTIPLIER})/e"
 

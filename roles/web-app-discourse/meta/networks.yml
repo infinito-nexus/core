@@ -1,0 +1,8 @@
+---
+local:
+  subnet: 192.168.9.0/24
+  force_bridge: true
+overlay:
+  modes: [swarm]
+  proxy_resolvable: true
+  aliases: ["{{ lookup('domain', 'web-app-discourse') }}"]

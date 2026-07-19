@@ -1,5 +1,12 @@
 ---
-- name: Ensure administrator user exists and is admin
+- name: "🔍 Resolve openproject web hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: web
+    resolve_output_prefix: OPENPROJECT_WEB
+    resolve_compose_cid: "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
+
+- name: ✅ Ensure administrator user exists and is admin
   ansible.builtin.command:
     argv:
       - container
@@ -11,14 +18,15 @@
       - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
       - -e
       - "OPENPROJECT_ADMIN_EMAIL={{ OPENPROJECT_ADMINISTRATOR_EMAIL }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - "{{ OPENPROJECT_WEB_LOCAL_CID }}" # nocheck: container-exec-resolver CID resolved at delegate_to runtime; container_address targets a manager-only subshell
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"
     stdin: "{{ lookup('file', 'ruby/ensure_admin_user.rb') }}"
+  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Link administrator to the LDAP auth source so the trusted-header bridge can resolve it
+- name: 🔧 Link admin to LDAP auth source so trusted-header bridge can resolve it
   ansible.builtin.command:
     argv:
       - container
@@ -28,11 +36,12 @@
       - "OPENPROJECT_LDAP_NAME={{ OPENPROJECT_LDAP.name }}"
       - -e
       - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
+      - "{{ OPENPROJECT_WEB_LOCAL_CID }}" # nocheck: container-exec-resolver CID resolved at delegate_to runtime; container_address targets a manager-only subshell
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"
     stdin: "{{ lookup('file', 'ruby/link_admin_to_ldap.rb') }}"
+  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   when: OPENPROJECT_HEADER_SSO_ENABLED | bool
   register: openproject_ldap_link
   changed_when: "'Linked' in openproject_ldap_link.stdout"

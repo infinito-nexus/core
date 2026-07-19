@@ -1,4 +1,4 @@
-name: "📥 Test: Install Package Manager"
+name: "📦 Test: Install Package Manager"
 
 on:
   workflow_call:
@@ -22,16 +22,16 @@ jobs:
         distro: [arch, debian, ubuntu, fedora, centos]
 
     steps:
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
-      - name: Resolve INFINITO_VENV_DIR from default.env
+      - name: 🔍 Resolve INFINITO_VENV_DIR from default.env
         run: |
           venv_dir="$(awk -F= '/^INFINITO_VENV_DIR=/{print $2; exit}' default.env)"
           test -n "${venv_dir}" || { echo "INFINITO_VENV_DIR not found in default.env" >&2; exit 1; }
           echo "INFINITO_VENV_DIR=${venv_dir}" >> "$GITHUB_ENV"
 
-      - name: Install & test in pkgmgr virgin container
+      - name: 📦 Install & test in pkgmgr virgin container
         run: |
           docker run --rm \
             -w "/root/" \

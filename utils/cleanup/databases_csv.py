@@ -7,9 +7,10 @@ import os
 import sys
 from pathlib import Path
 
-from utils.roles.entity_name import get_entity_name
+from utils.paths import FILE_DATABASE_SECRETS
+from utils.roles.entity.name import get_entity_name
 
-DEFAULT_CSV = Path("/var/lib/infinito/secrets/databases.csv")
+DEFAULT_CSV = FILE_DATABASE_SECRETS
 
 _CSV_DELIMITER = ";"
 _HEADER_COLUMNS = ("instance", "database", "username", "password")

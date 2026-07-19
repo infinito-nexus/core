@@ -1,5 +1,5 @@
 ---
-- name: "TLS | remove CA trust env vars from {{ FILE_ENVIRONMENT }}"
+- name: "🗑️ TLS | remove CA trust env vars from {{ FILE_ENVIRONMENT }}"
   become: true
   ansible.builtin.lineinfile:
     path: "{{ FILE_ENVIRONMENT }}"

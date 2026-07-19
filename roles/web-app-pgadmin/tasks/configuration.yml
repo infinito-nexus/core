@@ -1,17 +1,17 @@
 ---
-- name: "loading database configuration variables"
+- name: "⚙️ loading database configuration variables"
   include_vars:
     file: "{{ role_path }}/vars/db_config.yml"
 
-- name: "Render servers.json file"
-  template:
+- name: "📄 Render servers.json file"
+  stack_host_template:
     src: servers.json.j2
     dest: "{{ pgadmin_host_server_file }}"
     mode: "0644"
   notify: compose up
 
-- name: "Render .pgpass file"
-  template:
+- name: "📄 Render .pgpass file"
+  stack_host_template:
     src: pgpass.j2
     dest: "{{ pgadmin_host_password_file }}"
     owner: "{{ PGADMIN_USER }}"

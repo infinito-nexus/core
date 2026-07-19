@@ -14,14 +14,15 @@
 # Env overrides:
 #   TOR_SOCKS         SOCKS proxy for .onion (required env; pass
 #                     127.0.0.1:<svc-net-tor services.tor.ports.local.socks>)
-#   NGINX_SERVERS_DIR vhost servers dir     (default /etc/nginx/conf.d/servers)
+#   NGINX_SERVERS_DIR vhost servers dir     (required env; the deployed
+#                     OpenResty servers dir from the nginx lookup)
 #   RETRIES           attempts per domain   (default 20)
 #   SLEEP_SECONDS     wait between attempts (default 15)
 
 set -uo pipefail
 
 TOR_SOCKS="${TOR_SOCKS:?pass TOR_SOCKS as env (127.0.0.1:<svc-net-tor services.tor.ports.local.socks>)}"
-NGINX_SERVERS_DIR="${NGINX_SERVERS_DIR:-/etc/nginx/conf.d/servers}"
+NGINX_SERVERS_DIR="${NGINX_SERVERS_DIR:?pass NGINX_SERVERS_DIR as env (the deployed OpenResty vhost servers dir from the nginx lookup, e.g. /etc/nginx/conf.d/servers)}"
 RETRIES="${RETRIES:-20}"
 SLEEP_SECONDS="${SLEEP_SECONDS:-15}"
 

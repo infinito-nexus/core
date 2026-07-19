@@ -37,6 +37,7 @@ A handful of variables are documented next to their consumer because they cannot
 - **Computed at container start** for `INFINITO_PATH`, set by [entry.sh](../../../scripts/docker/entry.sh).
 - **Persisted on the deploy target** for `INFINITO_VERSION`, written by the [sys-version](../../../roles/sys-version/) role.
 - **Compose literals** with no env-side knob, namely `GIT_SSL_NO_VERIFY` and `PYTHONHTTPSVERIFY`, documented in [compose.yml.md](../artefact/files/compose.yml.md).
+- **Fork identity** for the operator's CI-redeploy shortcuts: `INFINITO_FORK_ACCOUNT` (defaults to the local OS username) and `INFINITO_FORK_REPOSITORY_URL` (composed as `https://github.com/$INFINITO_FORK_ACCOUNT/$INFINITO_FORK_REPOSITORY_NAME`), both set by handlers under [`utils/env/handlers/infinito/`](../../../utils/env/handlers/infinito/) (`fork_account.py`, `fork_repository_url.py`). The fork repository name itself lives in `default.env` as `INFINITO_FORK_REPOSITORY_NAME`.
 
 ## Role-scoped variables
 

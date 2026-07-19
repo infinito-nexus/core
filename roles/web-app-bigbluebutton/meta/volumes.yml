@@ -1,0 +1,64 @@
+---
+bigbluebutton:
+  type: volume
+  name: bigbluebutton_bigbluebutton
+  mounts:
+    - service: bbb-web
+      target: /var/bigbluebutton
+    - service: nginx
+      target: /var/bigbluebutton
+    - service: bbb-export-annotations
+      target: /var/bigbluebutton
+    - service: periodic
+      target: /var/bigbluebutton
+    - service: prometheus-exporter
+      target: /var/bigbluebutton
+      read_only: true
+    - service: recordings
+      target: /var/bigbluebutton
+freeswitch:
+  type: volume
+  name: bigbluebutton_freeswitch
+  mounts:
+    - service: bbb-web
+      target: /var/freeswitch/meetings
+    - service: freeswitch
+      target: /var/freeswitch/meetings
+    - service: apps-akka
+      target: /var/freeswitch/meetings
+    - service: recordings
+      target: /var/freeswitch/meetings
+mediasoup:
+  type: volume
+  name: bigbluebutton_mediasoup
+  mounts:
+    - service: webrtc-sfu
+      target: /var/mediasoup
+    - service: periodic
+      target: /var/mediasoup
+    - service: recordings
+      target: /var/mediasoup
+redis:
+  type: volume
+  name: bigbluebutton_redis
+  mounts:
+    - service: redis
+      target: /data
+database:
+  type: volume
+  name: bigbluebutton_database
+  mounts:
+    - service: postgres
+      target: /var/lib/postgresql/data
+greenlight:
+  type: volume
+  name: bigbluebutton_greenlight
+  mounts:
+    - service: greenlight
+      target: /usr/src/app/storage
+coturn:
+  type: volume
+  name: bigbluebutton_coturn
+  mounts:
+    - service: coturn
+      target: /var/lib/coturn

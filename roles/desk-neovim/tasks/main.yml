@@ -1,5 +1,5 @@
 ---
-- name: install neovim
+- name: 📦 install neovim
   package:
     name:
       - neovim

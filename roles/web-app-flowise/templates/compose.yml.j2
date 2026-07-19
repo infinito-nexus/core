@@ -1,48 +1,30 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  litellm:
-{% set service_name = 'litellm' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: {{ FLOWISE_LITELLM_IMAGE }}:{{ FLOWISE_LITELLM_VERSION }}
-    container_name: {{ FLOWISE_LITELLM_CONTAINER }}
+  {% set service_name = 'litellm' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'litellm') }}
+    {{ lookup('compose_only', 'container_name', FLOWISE_LITELLM_CONTAINER) }}
     expose:
       - {{ FLOWISE_LITELLM_PORT }}
-    volumes:
-      - {{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}:{{ FLOWISE_LITELLM_CONFIG_PATH_DOCKER }}:ro
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     command: >
       --host 0.0.0.0
       --port {{ FLOWISE_LITELLM_PORT }}
       --config {{ FLOWISE_LITELLM_CONFIG_PATH_DOCKER }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-  qdrant:
-{% set service_name = 'qdrant' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: {{ FLOWISE_QDRANT_IMAGE }}:{{ FLOWISE_QDRANT_VERSION }}
-    container_name: {{ FLOWISE_QDRANT_CONTAINER }}
-    ports:
-      - {{ FLOWISE_QDRANT_HTTP_PORT }}
-      - {{ FLOWISE_QDRANT_GRPC_PORT }}
-    volumes:
-      - qdrant_data:/qdrant/storage
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+  {% set service_name = 'flowise' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'flowise') }}
+    {{ lookup('compose_only', 'container_name', FLOWISE_CONTAINER) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'litellm': {'condition': 'service_started'},
+}) | indent(4) }}
+    {{ lookup('container_ports', ['flowise', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  flowise:
-{% set service_name = 'flowise' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: {{ FLOWISE_IMAGE }}:{{ FLOWISE_VERSION }}
-    container_name: {{ FLOWISE_CONTAINER }}
-    depends_on: 
-      - qdrant
-      - litellm
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ FLOWISE_PORT_PUBLIC }}:{{ FLOWISE_PORT_INTERNAL }}"
-    volumes:
-      - flowise_data:/root/.flowise
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
-
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'flowise_data': {'name': FLOWISE_VOLUME}, 'qdrant_data': {'name': FLOWISE_QDRANT_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}

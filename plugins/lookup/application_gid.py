@@ -1,5 +1,38 @@
 import os
+from functools import lru_cache
 from pathlib import Path
+
+_APPLICATION_MARKER_FILES = (
+    "services.yml",
+    "server.yml",
+    "rbac.yml",
+    "volumes.yml",
+    "schema.yml",
+    "users.yml",
+)
+
+
+@lru_cache(maxsize=None)
+def _discover_application_ids(roles_dir_abs: str) -> tuple[str, ...]:
+    """Sorted application role ids under *roles_dir_abs*, memoised per
+    process (utils.cache philosophy: CLI/test invocations rescan at most
+    once; a role added mid-process needs a fresh interpreter or
+    ``_discover_application_ids.cache_clear()``).
+
+    An "application role" is identified by the presence of at least one
+    project-owned ``meta/<topic>.yml`` marker file.
+    """
+    discovered: list[str] = []
+    with os.scandir(roles_dir_abs) as entries:
+        for entry in entries:
+            if not entry.is_dir():
+                continue
+            meta_dir = os.path.join(entry.path, "meta")
+            for marker in _APPLICATION_MARKER_FILES:
+                if os.path.isfile(os.path.join(meta_dir, marker)):
+                    discovered.append(entry.name)
+                    break
+    return tuple(sorted(discovered))
 
 
 def compute_application_gid(application_id, roles_dir="roles", base_gid=10000):
@@ -20,30 +53,7 @@ def compute_application_gid(application_id, roles_dir="roles", base_gid=10000):
     if not Path(roles_dir).is_dir():
         raise ValueError(f"Roles directory '{roles_dir}' not found")
 
-    # Per, an "application role" is identified by the presence of
-    # at least one of the project-owned `meta/<topic>.yml` files (services,
-    # server, rbac, volumes, schema, users). This preserves the prior
-    # assignment ordering: every role that previously had `meta/services.yml`
-    # now has at least one of these files.
-    application_marker_files = {
-        "services.yml",
-        "server.yml",
-        "rbac.yml",
-        "volumes.yml",
-        "schema.yml",
-        "users.yml",
-    }
-    discovered: set[str] = set()
-    for entry in os.listdir(roles_dir):
-        role_dir = str(Path(roles_dir) / entry)
-        meta_dir = str(Path(role_dir) / "meta")
-        if not Path(meta_dir).is_dir():
-            continue
-        for marker in application_marker_files:
-            if Path(str(Path(meta_dir) / marker)).is_file():
-                discovered.add(entry)
-                break
-    sorted_ids = sorted(discovered)
+    sorted_ids = _discover_application_ids(os.path.abspath(roles_dir))
 
     try:
         index = sorted_ids.index(application_id)

@@ -13,7 +13,7 @@ sys.path.insert(
 )
 
 from ansible.errors import AnsibleFilterError
-from url_join import url_join
+from url.join import url_join
 
 
 class TestUrlJoinFilter(unittest.TestCase):

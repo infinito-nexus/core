@@ -27,12 +27,11 @@ from __future__ import annotations
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
-from utils.cache.domains import get_merged_domains
 from utils.domains.primary_domain import get_primary_domain
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.tls_common import (
     align_domain_to_consumer,
     as_str,
@@ -57,11 +56,9 @@ class LookupModule(LookupBase):
             raise AnsibleError("canonical_url: application_id is empty")
         key = as_str(terms[1]).strip() if len(terms) == 2 else ""
 
-        applications = get_merged_applications(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=templar,
-        )
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=templar
+        ).run([], variables=variables, roles_dir=kwargs.get("roles_dir"))[0]
 
         consumer = as_str(
             templar.template(kwargs["consumer"])
@@ -76,11 +73,9 @@ class LookupModule(LookupBase):
             if not (isinstance(binding, dict) and binding.get("enabled")):
                 return [""]
 
-        domains = get_merged_domains(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=templar,
-        )
+        domains = lookup_loader.get(
+            "domains", loader=self._loader, templar=templar
+        ).run([], variables=variables, roles_dir=kwargs.get("roles_dir"))[0]
 
         if key:
             app_domains = domains.get(app_id)

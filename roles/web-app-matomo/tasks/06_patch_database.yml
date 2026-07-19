@@ -1,0 +1,23 @@
+---
+- name: 🔄 Update DB host
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i --user root {{ MATOMO_LOCAL_CID | quote }}
+    sed -i "s/^host *=.*/host = {{ lookup('database', application_id, 'host') | sed_escape('/') }}/" {{ MATOMO_CONFIG }}
+
+- name: 🔄 Update DB name
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i --user root {{ MATOMO_LOCAL_CID | quote }}
+    sed -i "s/^dbname *=.*/dbname = {{ lookup('database', application_id, 'name') | sed_escape('/') }}/" {{ MATOMO_CONFIG }}
+
+- name: 🔄 Update DB user
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i --user root {{ MATOMO_LOCAL_CID | quote }}
+    sed -i "s/^username *=.*/username = {{ lookup('database', application_id, 'username') | sed_escape('/') }}/" {{ MATOMO_CONFIG }}
+
+- name: 🔄 Update DB password
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i --user root
+    -e PATCH_PASSWORD={{ lookup('database', application_id, 'password') | sed_escape('/') | quote }}
+    {{ MATOMO_LOCAL_CID | quote }}
+    sh -c "sed -i \"s/^password *=.*/password = \${PATCH_PASSWORD}/\" {{ MATOMO_CONFIG }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

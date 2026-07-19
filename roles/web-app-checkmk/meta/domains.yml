@@ -1,0 +1,4 @@
+---
+canonical:
+  - monitoring.{{ DOMAIN_PRIMARY }}
+aliases: []

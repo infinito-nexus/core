@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-playwright — Shopware ships no templates/playwright.env.j2; the object-store upload is covered by the Flysystem amazon-s3 public/private/theme/sitemap config, not a Playwright surface
+# nocheck: seaweedfs-playwright - Shopware ships no templates/playwright.env.j2; the object-store upload is covered by the Flysystem amazon-s3 public/private/theme/sitemap config, not a Playwright surface
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -37,20 +37,32 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 init:
   name: shopware-init
+  # nocheck: single-replica
+  replicas: 1
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 2g
   min_storage: 1GB
   pids_limit: 256
 shopware:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: composer
   version: "2.10"
+  custom: true
   min_storage: 20GB
   package:
     name: shopware/production
     version: 6.7.8.2
   title: "{{ ORGANIZATION }} Shop"
+  proxy:
+    service_key: web
   ports:
+    internal:
+      http: 8000
     local:
       sso: 16503
       http: 8060
@@ -90,7 +102,6 @@ worker:
     - low_priority
     - --time-limit=300
     - --memory-limit=512M
-  replicas: 3
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 2g
@@ -98,6 +109,8 @@ worker:
   pids_limit: 512
 scheduler:
   name: shopware-scheduler
+  # nocheck: single-replica
+  replicas: 1
   entrypoint:
     - php
     - bin/console
@@ -110,9 +123,11 @@ scheduler:
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   image: redis
   version: 8-alpine
   cpus: 0.25
@@ -123,10 +138,15 @@ redis:
 # nocheck: shared
 # nocheck: dynamic-flag
 opensearch:
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  # nocheck: single-replica
+  replicas: 1
   image: opensearchproject/opensearch
   version: 3.7.0
   name: shopware-opensearch
+  ports:
+    internal:
+      http: 9200
   cpus: 1.0
   mem_reservation: 2g
   mem_limit: 4g
@@ -150,3 +170,9 @@ tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

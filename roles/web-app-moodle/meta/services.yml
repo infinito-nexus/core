@@ -32,25 +32,20 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 moodle:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
-  # Self-built image. The `image`+`version` pair is the PHP base the
-  # Dockerfile builds FROM (php:8.3-fpm) — this is also what GHCR
-  # image-mirror discovery picks up, so the base stays cached.
-  # The Moodle source itself is pinned via `branch` (Git branch on
-  # git.moodle.org, naming: stable<MAJOR>0<MINOR>, e.g. 4.5 -> stable405)
-  # and `release` (tarball version). 4.5 is LTS, security-supported
-  # until 2027-10; Moodle 5.x reorganises the code under public/* and
-  # is deferred to a follow-up requirement.
   branch: stable405
   release: 4.5.11
   image: php
-  # Moodle 4.5 LTS rejects PHP >= 8.4 at install ("version 8.4 and higher
-  # are not supported"). Pin to 8.3 and skip auto-bumps until Moodle
-  # supports a newer line.
   # nocheck: docker-version
   version: "8.3-fpm"
+  custom: true
   name: moodle
   min_storage: 10GB
   cpus: 1.0
@@ -58,9 +53,19 @@ moodle:
   mem_limit: 2g
   pids_limit: 512
   site_titel: Academy on {{ DOMAIN_PRIMARY }}
+  performance:
+    php:
+      memory_limit: 512M
+      upload_max_filesize: 256M
+      post_max_size: 256M
   ports:
     local:
       http: 8026
+    internal:
+      http: 80
+      fpm: 9000
+  proxy:
+    service_key: nginx
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -75,6 +80,7 @@ nginx:
   pids_limit: 256
 cron:
   name: moodle-cron
+  custom: true
   min_storage: 1GB
   cpus: "0.2"
   mem_reservation: 128m
@@ -95,3 +101,8 @@ tor:
   bond: 1
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

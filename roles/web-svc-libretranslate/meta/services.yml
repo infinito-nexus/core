@@ -1,16 +1,29 @@
 ---
 # nocheck: playwright-service-flag — self-provider
 libretranslate:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
   image: libretranslate/libretranslate
-  version: latest
+  version: v1.9.6
+  custom: true
   min_storage: 5GB
+  load_only:
+    - en
+    - de
   ports:
     local:
       http: 8045
       sso: 16493
+    internal:
+      http: 5000
+  proxy:
+    service_key: libretranslate
   lifecycle: beta
   cpus: "0.2"
   mem_reservation: 128m
@@ -50,6 +63,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

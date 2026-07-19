@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Empower your data management with Baserow, an innovative platform that makes building and managing databases both fun and efficient. Enjoy a
-    dynamic interface, seamless collaboration, and energetic tools that supercharge your workflow.
+  description: Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

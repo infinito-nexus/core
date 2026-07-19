@@ -1,12 +1,12 @@
 ---
-- name: "Ensure {{ SYSTEMD_MANAGER_CONF_DIR }} exists"
+- name: "✅ Ensure {{ SYSTEMD_MANAGER_CONF_DIR }} exists"
   file:
     path: "{{ SYSTEMD_MANAGER_CONF_DIR }}"
     state: directory
     mode: "0755"
 
-- name: Deploy systemd manager default timeout settings
-  template:
+- name: 🚀 Deploy systemd manager default timeout settings
+  template: # nocheck: stack-host-template (per-host systemd config, not stack-host-only)
     src: timeouts.conf.j2
     dest: "{{ SYSTEMD_MANAGER_CONF_DIR }}/timeouts.conf"
     mode: "0644"

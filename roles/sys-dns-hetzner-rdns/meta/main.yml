@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Generic role to manage reverse DNS (PTR) for Hetzner Cloud resources (server, primary_ip, floating_ip, load_balancer).
+  description: Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

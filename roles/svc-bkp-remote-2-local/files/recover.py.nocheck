@@ -1,0 +1,8 @@
+nocheck: bkp-recover
+This role's direction is one-way by design: it pulls provider backups
+onto this host, so the pulled tree IS the recovery store. There is no
+live target on this host to mirror a snapshot into; restoring happens
+on the source systems via their roles' recover.py (svc-bkp-volume-2-local,
+svc-bkp-nfs-2-local) and the provider's backup user only whitelists pull
+commands, so pushing back is an explicit operator rsync with a
+root-capable target.

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Create Cloudflare wildcard DNS records (*.parent) for parent hosts; no base or *.apex records.
+  description: Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

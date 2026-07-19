@@ -1,10 +1,8 @@
 ---
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: false
-
-- meta: flush_handlers
+    compose_handlers_flush: true
 
 - include_tasks: utils/once/flag.yml

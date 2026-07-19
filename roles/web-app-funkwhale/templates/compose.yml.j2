@@ -1,73 +1,56 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  celeryworker:
-    # Celery workers handle background tasks (such file imports or federation
-    # messaging). The more processes a worker gets, the more tasks
-    # can be processed in parallel. However, more processes also means
-    # a bigger memory footprint.
-    # By default, a worker will span a number of process equal to your number
-    # of CPUs. You can adjust this, by explicitly setting the --concurrency
-    # flag:
-    #   celery -A funkwhale_api.taskapp worker -l INFO --concurrency=4
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ FUNKWHALE_API_IMAGE }}:{{ FUNKWHALE_API_VERSION }}"
+  {% set service_name = 'celeryworker' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'api') }}
     command: celery -A funkwhale_api.taskapp worker -l INFO --concurrency={{FUNKWHALE_CELERYD_CONCURRENCY}}
     environment:
       - C_FORCE_ROOT=true
-    volumes:
-      - "media:{{ FUNKWHALE_MEDIA_DIR }}"
-      - "static:{{ FUNKWHALE_STATIC_DIR }}"
-      - "music:{{ FUNKWHALE_MUSIC_DIR }}:ro"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, 'celeryworker') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  celerybeat:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ FUNKWHALE_API_IMAGE }}:{{ FUNKWHALE_API_VERSION }}"
+  {% set service_name = 'celerybeat' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'api') }}
     command: celery -A funkwhale_api.taskapp beat --pidfile= -l INFO
-    volumes:
-      - "media:{{ FUNKWHALE_MEDIA_DIR }}"
-      - "static:{{ FUNKWHALE_STATIC_DIR }}"
-      - "music:{{ FUNKWHALE_MUSIC_DIR }}:ro"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, 'celerybeat') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  api:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ FUNKWHALE_API_IMAGE }}:{{ FUNKWHALE_API_VERSION }}"
+  {% set service_name = 'api' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'api') }}
     command: gunicorn
-    volumes:
-      - "music:{{ FUNKWHALE_MUSIC_DIR }}:ro"
-      - "media:{{ FUNKWHALE_MEDIA_DIR }}"
-      - "static:{{ FUNKWHALE_STATIC_DIR }}"
+    {{ lookup('container_volumes', application_id, 'api') | indent(4) }}
     ports:
       - "{{ FUNKWHALE_DOCKER_API_PORT }}"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  front:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ FUNKWHALE_FRONT_IMAGE }}:{{ FUNKWHALE_FRONT_VERSION }}"
-    depends_on:
-      - api
+  {% set service_name = 'front' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'funkwhale') }}
+    {{ lookup('depends_on', ['api']) }}
     environment:
       - "NGINX_MAX_BODY_SIZE=100M"
-    volumes:
-      - "media:{{ FUNKWHALE_MEDIA_DIR }}:ro"
-      - "static:{{ FUNKWHALE_STATIC_DIR }}:ro"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.funkwhale.ports.local.http') }}:80"
-  
-  typesense:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ FUNKWHALE_TYPESENSE_IMAGE }}:{{ FUNKWHALE_TYPESENSE_VERSION }}"
-    volumes:
-      - ./typesense/data:/data
-    command: --data-dir /data --enable-cors
+    {{ lookup('container_volumes', application_id, 'front') | indent(4) }}
+    {{ lookup('container_ports', ['funkwhale', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'typesense' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'typesense') }}
+    {{ lookup('container_volumes', application_id, 'typesense') | indent(4) }}
+    command: --data-dir /data --enable-cors --api-key {{ FUNKWHALE_TYPESENSE_API_KEY }}
+    {% if DEPLOYMENT_MODE == 'compose' %}
     profiles:
       - typesense
+    {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'media': {}, 'music': {}, 'static': {}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

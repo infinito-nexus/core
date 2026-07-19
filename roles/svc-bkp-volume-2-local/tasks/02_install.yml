@@ -1,0 +1,17 @@
+---
+- name: "📦 Install 'backup-docker-to-local' via pip"
+  include_role:
+    name: sys-pip-install
+  vars:
+    package_name: "backup-docker-to-local==3.1.2"
+    global_install: true
+
+- name: ✅ Assert required baudolo commands are available
+  ansible.builtin.shell: "command -v {{ cmd_name }}"
+  loop:
+    - baudolo
+    - baudolo-seed
+  loop_control:
+    loop_var: cmd_name
+  changed_when: false
+  when: MODE_ASSERT | bool

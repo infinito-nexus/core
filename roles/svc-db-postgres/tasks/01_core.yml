@@ -1,25 +1,26 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Setup container network for {{ application_id }}"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml' ] | path_join }}"
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
     compose_handlers_flush: true
-    # Explicit overwritting to be sure that there isn't a scope leak by another variable
     application_id: "svc-db-postgres"
     database_consumer_id: "svc-db-postgres"
 
-- name: Install 'psycopg2-binary'
+- name: 📦 Install 'psycopg2-binary'
   include_role:
     name: sys-pip-install
   vars:
     package_name: "psycopg2-binary"
     global_install: true
 
-- name: "POSTGRES | Wait until container is running (not restarting)"
+- name: "⏳ POSTGRES | Wait until container is running (not restarting)"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ POSTGRES_CONTAINER }}
+    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ POSTGRES_CONTAINER_ADDRESS }}
   register: pg_state
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   retries: 120
   delay: 2
   until: >
@@ -27,22 +28,24 @@
     (pg_state.stdout is not search('true'))
   changed_when: false
 
-- name: "POSTGRES | Confirm SQL works (socket)"
+- name: "✅ POSTGRES | Confirm SQL works (socket)"
   ansible.builtin.shell: >
-    container exec --user postgres {{ POSTGRES_CONTAINER }} sh -lc
+    container exec --user postgres {{ POSTGRES_CONTAINER_ADDRESS }} sh -lc
     'psql -U postgres -d postgres -Atc "SELECT 1" >/dev/null'
   register: pg_sql_ready
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   retries: 30
   delay: 2
   until: pg_sql_ready.rc == 0
   changed_when: false
 
-- name: "POSTGRES | Ensure postgres superuser password matches inventory"
-  ansible.builtin.script: >
-    set_postgres_superuser_password.sh
-    {{ POSTGRES_CONTAINER | quote }}
-    {{ POSTGRES_PASSWORD | quote }}
+- name: "✅ POSTGRES | Ensure postgres superuser password matches inventory"
+  ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
+    set_postgres_superuser_password.sh {{ POSTGRES_CONTAINER_ADDRESS | quote }} {{ POSTGRES_PASSWORD | quote }}
   register: postgres_pw_result
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: >
     postgres_pw_result.stdout is search('\\[CHANGED\\]')

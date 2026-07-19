@@ -1,0 +1,14 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-inline: true
+    unsafe-eval: true
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  font-src:
+    - "data:"
+  connect-src:
+    - https://akaunting.com

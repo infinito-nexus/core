@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.domains import get_merged_domains
 from utils.domains.primary_domain import get_domain
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 # sethostname(2) caps a hostname at 64 bytes; onion subdomains
 # (sub.<56-char-onion>.onion) regularly exceed that and make the container
@@ -43,11 +43,11 @@ class LookupModule(LookupBase):
 
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
 
-        domains = get_merged_domains(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
+        domains = lookup_loader.get(
+            "domains",
+            loader=getattr(self, "_loader", None),
             templar=getattr(self, "_templar", None),
-        )
+        ).run([], variables=variables, roles_dir=kwargs.get("roles_dir"))[0]
 
         try:
             domain = get_domain(domains, application_id)

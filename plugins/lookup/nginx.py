@@ -1,20 +1,10 @@
-# Resolve nginx path configuration (lowercase keys) and (optionally) a domain-specific
-# server config path placed under:
-#
-#   <servers_dir>/<protocol>/<domain>.conf
-#
-# New API (STRICT):
-#   lookup('nginx', want_path [, domain ])
-#
-# Examples:
-#   lookup('nginx', 'files.configuration')
-#   lookup('nginx', 'files.domain', 'example.com')
-#   lookup('nginx', 'files.domain', 'example.com', protocol='http')
-#
-# Notes:
-# - want-path is ALWAYS the first positional argument
-# - domain is optional and only affects domain-specific keys
-# - want= kwarg is intentionally ignored
+"""Resolve nginx path configuration and an optional domain-specific server
+config path under ``<servers_dir>/<protocol>/<domain>.conf``.
+
+The ``want=`` kwarg is intentionally ignored: want-path is ALWAYS the
+first positional argument so callers can't accidentally pass it both
+ways.
+"""
 
 from __future__ import annotations
 
@@ -25,9 +15,16 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
+# nocheck: lookup-cache-import
+from utils.cache.applications import get_canonical_volumes
 from utils.roles.applications.config import get
 from utils.tls_common import as_str, want_get
+
+
+def _volume_path_by_name(app_id: str, vol_name: str) -> str:
+    canonical = get_canonical_volumes(app_id)
+    entry = canonical.get(vol_name)
+    return as_str(entry.get("path", "")) if entry else ""
 
 
 def _join(*parts: Any) -> str:
@@ -84,7 +81,6 @@ class LookupModule(LookupBase):
         variables = variables or {}
         terms = terms or []
 
-        # STRICT API: want-path is mandatory
         if len(terms) not in (1, 2):
             raise AnsibleError("nginx: requires want_path [, domain]")
 
@@ -94,18 +90,22 @@ class LookupModule(LookupBase):
 
         domain = as_str(terms[1]).strip() if len(terms) == 2 else ""
 
-        applications = get_merged_applications(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=variables)[0]
 
         proxy_app_id = as_str(kwargs.get("proxy_app_id", "svc-prx-openresty")).strip()
         if not proxy_app_id:
             raise AnsibleError("nginx: proxy_app_id is empty")
 
-        www_dir = get(applications, proxy_app_id, "volumes.www", strict=True)
-        nginx_dir = get(applications, proxy_app_id, "volumes.nginx", strict=True)
+        www_dir = _volume_path_by_name(proxy_app_id, "www")
+        nginx_dir = _volume_path_by_name(proxy_app_id, "nginx")
+        if not www_dir:
+            www_dir = get(applications, proxy_app_id, "volumes.www.path", strict=True)
+        if not nginx_dir:
+            nginx_dir = get(
+                applications, proxy_app_id, "volumes.nginx.path", strict=True
+            )
 
         www_dir = _ensure_trailing_slash(as_str(www_dir))
         nginx_dir = _ensure_trailing_slash(as_str(nginx_dir))

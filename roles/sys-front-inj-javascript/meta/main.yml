@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Injects a custom JavaScript snippet into Nginx-served HTML responses via sub_filter.
+  description: Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

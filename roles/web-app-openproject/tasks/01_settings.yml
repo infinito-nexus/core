@@ -1,9 +1,5 @@
 ---
-# This task file applies OpenProject settings safely.
-# It waits for the web container to be running, ensures migrations are applied,
-# then sets all configured settings via rails runner fed from STDIN (robust quoting).
-
-- name: Wait until OpenProject web container is running
+- name: ⏳ Wait until OpenProject web container is running (compose)
   shell: >
     container inspect -f '{{"{{"}}.State.Status{{"}}"}}' {{ OPENPROJECT_WEB_CONTAINER }}
   register: openproject_web_state
@@ -11,19 +7,23 @@
   delay: 5
   until: openproject_web_state.stdout.strip() == "running"
   changed_when: false
+  when: DEPLOYMENT_MODE == 'compose'
 
-- name: Run database migrations
+- name: ⏳ Wait until OpenProject web service converged (swarm)
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ OPENPROJECT_WEB_SERVICE }}"
+
+- name: ▶️ Run database migrations
   shell: >
-    {{ BIN_COMPOSE }} exec {{ OPENPROJECT_WEB_SERVICE }} bash -lc
+    container exec -i {{ OPENPROJECT_WEB_CONTAINER_ADDRESS }} bash -lc
     "cd /app && bin/rails db:migrate RAILS_ENV=production"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: openproject_migrate
   retries: 30
   delay: 10
   until: openproject_migrate.rc == 0
 
-- name: Wait until OpenProject web container is running (after migrations)
+- name: ⏳ Wait until OpenProject web container is running (after migrations, compose)
   shell: >
     container inspect -f '{{"{{"}}.State.Status{{"}}"}}' {{ OPENPROJECT_WEB_CONTAINER }}
   register: openproject_web_state_after_migrate
@@ -31,19 +31,20 @@
   delay: 5
   until: openproject_web_state_after_migrate.stdout.strip() == "running"
   changed_when: false
+  when: DEPLOYMENT_MODE == 'compose'
 
-- name: Set settings in OpenProject (rails runner via STDIN from an external script)
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "OPENPROJECT_RAILS_SETTINGS={{ OPENPROJECT_RAILS_SETTINGS | to_json }}"
-      - "{{ OPENPROJECT_WEB_CONTAINER }}"
-      - bash
-      - -lc
-      - "cd /app && bundle exec rails runner -"
+- name: ⏳ Wait until OpenProject web service converged (after migrations, swarm)
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ OPENPROJECT_WEB_SERVICE }}"
+
+- name: 🔧 Set settings in OpenProject (rails runner via STDIN from an external script)
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e OPENPROJECT_RAILS_SETTINGS={{ OPENPROJECT_RAILS_SETTINGS | to_json | quote }}
+      {{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}
+      bash -lc "cd /app && bundle exec rails runner -"
     stdin: "{{ lookup('file', 'ruby/apply_settings.rb') }}"
   register: openproject_apply_settings
   retries: 30

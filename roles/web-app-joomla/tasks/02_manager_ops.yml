@@ -1,0 +1,28 @@
+---
+- name: 📂 Include install routines
+  include_tasks: "{{ joomla_step }}"
+  loop:
+    - 02_install.yml
+    - 03_debug.yml
+    - 04_patch.yml
+  loop_control:
+    loop_var: joomla_step
+
+- name: 📂 Include assert routines
+  include_tasks: "05_assert.yml"
+  when: MODE_ASSERT_LOCAL | bool
+
+- name: ♻️ Reset Admin Password
+  # Skip on a fresh install: the CLI installer above already set the admin
+  # password via --admin-password, so an immediate reset is redundant. It
+  # also races: Joomla's CLI bootstraps a fresh session per invocation and
+  # `user:reset-password` has been observed to report
+  # "The user <name> does not exist!" right after install (image-init /
+  # service-container warm-up). The reset is only needed on subsequent
+  # deploys, where it enforces password rotation against an existing user.
+  include_tasks: 06_reset_admin_password.yml
+  when: joomla_installed.rc == 0
+
+- name: "📦 Install plg_system_keycloak (native OIDC)"
+  include_tasks: 07_oidc_plugin.yml
+  when: lookup('config', application_id, 'addons.plg_system_keycloak.enabled') | bool
