@@ -111,7 +111,9 @@ def parse_log(log_path: str | Path) -> list[RoleRuntime]:
     if not path.is_file():
         raise FileNotFoundError(str(path))
 
-    text = path.read_text(encoding="utf-8", errors="replace")
+    text = path.read_text(
+        encoding="utf-8", errors="replace"
+    )  # nocheck: cache-read one-shot parse of a deploy log, no reuse to cache
     has_sections = "ROLES RECAP" in text
 
     segments: list[tuple[tuple[str, str, str, str], dict[str, float], _HostStatus]]

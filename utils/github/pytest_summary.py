@@ -1,6 +1,6 @@
 """Render pytest junit-xml reports as a GitHub step-summary section.
 
-Usage: python3 utils/github/pytest_summary.py <reports-dir>
+Usage: python3 utils/github/pytest_summary.py <reports-dir>  # nocheck: self-path-reference
 
 Reads every ``*.xml`` under <reports-dir> (one per test target, written
 by scripts/tests/code/run.sh via ``--junitxml``). Per report: a headline
@@ -85,9 +85,7 @@ def main() -> int:
     base = Path(sys.argv[1])
     reports = sorted(base.glob("*.xml")) if base.is_dir() else []
     if not reports:
-        sys.stdout.write(
-            f"### 🧪 Tests\n\n_No junit reports under `{base}`._\n"
-        )
+        sys.stdout.write(f"### 🧪 Tests\n\n_No junit reports under `{base}`._\n")
         return 0
     sys.stdout.write("\n\n".join(_render_report(p) for p in reports) + "\n")
     return 0
