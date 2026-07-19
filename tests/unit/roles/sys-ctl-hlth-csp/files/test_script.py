@@ -146,9 +146,7 @@ class TestMainSkipsOnionSiblings(unittest.TestCase):
         ):
             script.main()
 
-        probed = [
-            d for call in mock_build_urls.call_args_list for d in call.args[1]
-        ]
+        probed = [d for call in mock_build_urls.call_args_list for d in call.args[1]]
         self.assertNotIn("mirror.infinito.example", probed)
         self.assertNotIn("mirror.abc123.onion", probed)
         self.assertIn("auth.abc123.onion", probed)

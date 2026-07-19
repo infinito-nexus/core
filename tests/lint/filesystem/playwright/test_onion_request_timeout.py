@@ -138,7 +138,7 @@ def _scan_file(path: Path) -> list[Violation]:
                 rel,
                 line_no,
                 'uses `resolveTimeout` without `require("./timeouts")` '
-                '(`../timeouts` from an addons/ subdir)',
+                "(`../timeouts` from an addons/ subdir)",
             )
         )
     return violations
