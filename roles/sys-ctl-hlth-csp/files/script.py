@@ -45,6 +45,21 @@ def split_onion_domains(domains: list[str]) -> tuple[list[str], list[str]]:
     return clearnet, onion
 
 
+def is_skipped_domain(domain: str, skip_set: set[str], skip_labels: set[str]) -> bool:
+    """Whether a domain should be excluded from the CSP probe.
+
+    A domain is skipped if it is listed explicitly in ``--skip-domain``, or if
+    it is the ``.onion`` sibling of a skipped clearnet vhost. Clearnet and onion
+    vhosts of the same app share the leftmost subdomain label (``mirror`` for
+    both ``mirror.infinito.example`` and ``mirror.<host>.onion``), so a
+    ``--skip-domain mirror.infinito.example`` also drops ``mirror.<host>.onion``
+    — which serves the same 4xx at ``/`` and would otherwise fail the probe.
+    """
+    if domain in skip_set:
+        return True
+    return domain.endswith(".onion") and domain.split(".", 1)[0] in skip_labels
+
+
 def detect_scheme_from_conf(conf_path: Path) -> str | None:
     """
     Decide whether this conf listens on HTTP or HTTPS.
@@ -248,8 +263,13 @@ def main() -> None:
 
     skip_set = {d for d in (args.skip_domain or []) if d}
     if skip_set:
-        skipped_present = sorted(skip_set & set(domains))
-        domains = [d for d in domains if d not in skip_set]
+        skip_labels = {d.split(".", 1)[0] for d in skip_set}
+        skipped_present = sorted(
+            d for d in domains if is_skipped_domain(d, skip_set, skip_labels)
+        )
+        domains = [
+            d for d in domains if not is_skipped_domain(d, skip_set, skip_labels)
+        ]
         if skipped_present:
             print(
                 f"Skipping {len(skipped_present)} domain(s) per "

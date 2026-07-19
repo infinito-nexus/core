@@ -76,6 +76,84 @@ class TestSplitOnionDomains(unittest.TestCase):
         self.assertEqual(script.split_onion_domains([]), ([], []))
 
 
+class TestIsSkippedDomain(unittest.TestCase):
+    def test_explicit_clearnet_domain_is_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertTrue(
+            script.is_skipped_domain("mirror.infinito.example", skip_set, labels)
+        )
+
+    def test_onion_sibling_of_skipped_clearnet_is_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertTrue(
+            script.is_skipped_domain("mirror.abc123.onion", skip_set, labels)
+        )
+
+    def test_unrelated_onion_is_not_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertFalse(
+            script.is_skipped_domain("auth.abc123.onion", skip_set, labels)
+        )
+
+    def test_unrelated_clearnet_is_not_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertFalse(
+            script.is_skipped_domain("auth.infinito.example", skip_set, labels)
+        )
+
+
+class TestMainSkipsOnionSiblings(unittest.TestCase):
+    @patch("script.run_checker")
+    @patch("script.build_urls_from_nginx_confs")
+    @patch("script.extract_domains_from_filenames")
+    def test_onion_sibling_of_skip_domain_is_excluded(
+        self,
+        mock_extract: MagicMock,
+        mock_build_urls: MagicMock,
+        mock_run_checker: MagicMock,
+    ) -> None:
+        mock_extract.return_value = [
+            "mirror.infinito.example",
+            "mirror.abc123.onion",
+            "auth.abc123.onion",
+        ]
+        mock_build_urls.side_effect = lambda _dir, domains: [
+            f"http://{d}/" for d in domains
+        ]
+        mock_run_checker.return_value = 0
+
+        with (
+            patch.object(
+                script.sys,
+                "argv",
+                [
+                    "script.py",
+                    "--nginx-config-dir",
+                    "/etc/nginx",
+                    "--image",
+                    "img:tag",
+                    "--skip-domain",
+                    "mirror.infinito.example",
+                    "--tor-proxy",
+                    "socks5://127.0.0.1:9050",
+                ],
+            ),
+            self.assertRaises(SystemExit),
+        ):
+            script.main()
+
+        probed = [
+            d for call in mock_build_urls.call_args_list for d in call.args[1]
+        ]
+        self.assertNotIn("mirror.infinito.example", probed)
+        self.assertNotIn("mirror.abc123.onion", probed)
+        self.assertIn("auth.abc123.onion", probed)
+
+
 class TestBuildDockerCmdProxy(unittest.TestCase):
     def test_proxy_arg_appended(self) -> None:
         cmd = script.build_docker_cmd(
