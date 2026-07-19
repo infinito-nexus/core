@@ -25,7 +25,7 @@ test("mautrix-meta addon: bridge appservice registers @metabot on the partner Sy
     "the bridge bot profile must be resolved against the partner Matrix homeserver host"
   ).toBe(matrixHost);
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),
@@ -53,7 +53,7 @@ test("mautrix-meta addon: bridge appservice registers @metabot on the partner Sy
     `_matrix/client/v3/profile/${encodeURIComponent(controlMxid)}`,
     matrixBaseUrl.endsWith("/") ? matrixBaseUrl : `${matrixBaseUrl}/`
   ).toString();
-  const controlResponse = await request.get(controlUrl, { failOnStatusCode: false });
+  const controlResponse = await request.get(controlUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
   expect(
     controlResponse.status(),
     `an un-bridged localpart ${controlMxid} must be unknown to Synapse (404); if it resolves, ` +

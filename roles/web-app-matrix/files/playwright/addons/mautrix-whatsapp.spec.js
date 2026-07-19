@@ -25,7 +25,7 @@ test("mautrix-whatsapp addon: bridge appservice registers @whatsappbot on the pa
     "the bridge bot profile must be resolved against the partner Matrix homeserver host"
   ).toBe(matrixHost);
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),

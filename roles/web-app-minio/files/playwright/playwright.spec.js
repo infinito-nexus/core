@@ -103,7 +103,8 @@ test("administrator: OIDC integrated login path via STS AssumeRoleWithWebIdentit
       username: adminUsername,
       password: adminPassword,
       scope: "openid profile email groups"
-    }
+    },
+    timeout: resolveTimeout(30_000),
   });
   expect(tokenResponse.status(), "Keycloak token exchange MUST succeed").toBeLessThan(400);
   const tokenJson = await tokenResponse.json();
@@ -115,7 +116,8 @@ test("administrator: OIDC integrated login path via STS AssumeRoleWithWebIdentit
       Version: "2011-06-15",
       WebIdentityToken: tokenJson.id_token,
       DurationSeconds: "3600"
-    }
+    },
+    timeout: resolveTimeout(30_000),
   });
   expect(stsResponse.status(), "MinIO STS AssumeRoleWithWebIdentity MUST succeed").toBeLessThan(400);
   const body = await stsResponse.text();

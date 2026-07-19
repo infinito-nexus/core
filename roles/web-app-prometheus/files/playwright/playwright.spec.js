@@ -40,7 +40,7 @@ test.beforeEach(() => {
 // used to live in each consumer role's own playwright.spec.js.
 test("metricz endpoint is accessible and returns prometheus text format", async ({ request }) => {
   const metriczUrl = `${prometheusBaseUrl.replace(/\/$/, "")}/metricz`;
-  const response = await request.get(metriczUrl);
+  const response = await request.get(metriczUrl, { timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),

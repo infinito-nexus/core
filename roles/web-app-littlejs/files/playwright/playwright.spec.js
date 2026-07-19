@@ -26,7 +26,7 @@ test("LittleJS front page is served under canonical domain with TLS", async ({ p
 });
 
 test("LittleJS returns HTML content under canonical domain", async ({ request }) => {
-  const response = await request.get(`${appBaseUrl}/`);
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected LittleJS front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(

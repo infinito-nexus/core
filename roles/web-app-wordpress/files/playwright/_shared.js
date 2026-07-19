@@ -156,6 +156,7 @@ async function keycloakAdminToken(request, keycloakBaseUrl) {
         password: env.superAdminPassword,
       },
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      timeout: resolveTimeout(30_000),
     }
   );
   if (!tokenResp.ok()) {
@@ -183,7 +184,7 @@ async function keycloakResolveGroupId(
   const trimmed = groupPath.replace(/^\//, "");
   const byPath = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${trimmed}`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (byPath.ok()) {
     const group = await byPath.json();
@@ -199,7 +200,7 @@ async function keycloakResolveGroupId(
     const url = parentId === null
       ? `${keycloakBaseUrl}/admin/realms/${realmName}/groups?max=500&search=${encodeURIComponent(wanted)}`
       : `${keycloakBaseUrl}/admin/realms/${realmName}/groups/${parentId}/children?max=500`;
-    const resp = await request.get(url, { headers });
+    const resp = await request.get(url, { headers, timeout: resolveTimeout(30_000) });
     if (!resp.ok()) {
       throw new Error(
         `Keycloak groups lookup failed at segment ${i} (${wanted}): ${resp.status()} ${await resp.text()}`
@@ -256,7 +257,7 @@ async function keycloakAdminAddUserToGroup(
 
   const userResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${realmName}/users?username=${encodeURIComponent(username)}&exact=true`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (!userResp.ok()) {
     throw new Error(
@@ -279,7 +280,7 @@ async function keycloakAdminAddUserToGroup(
 
   const memberResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups?max=500`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (!memberResp.ok()) {
     throw new Error(
@@ -293,7 +294,7 @@ async function keycloakAdminAddUserToGroup(
 
   const joinResp = await request.put(
     `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups/${groupId}`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (!joinResp.ok()) {
     throw new Error(
@@ -426,6 +427,7 @@ async function keycloakRemoveUserFromGroupViaRest(
         username: adminUsername,
         password: adminPassword,
       },
+      timeout: resolveTimeout(30_000),
     }
   );
   if (!tokenResp.ok()) {
@@ -438,7 +440,7 @@ async function keycloakRemoveUserFromGroupViaRest(
 
   const usersResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
-    { headers: auth }
+    { headers: auth, timeout: resolveTimeout(30_000) }
   );
   const users = await usersResp.json();
   const userId = users?.[0]?.id;
@@ -446,7 +448,7 @@ async function keycloakRemoveUserFromGroupViaRest(
 
   const groupResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${groupPath.replace(/^\//, "")}`,
-    { headers: auth }
+    { headers: auth, timeout: resolveTimeout(30_000) }
   );
   if (!groupResp.ok()) return;
   const group = await groupResp.json();
@@ -454,7 +456,7 @@ async function keycloakRemoveUserFromGroupViaRest(
 
   await request.delete(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users/${userId}/groups/${group.id}`,
-    { headers: auth }
+    { headers: auth, timeout: resolveTimeout(30_000) }
   );
 }
 
@@ -474,10 +476,10 @@ async function discourseApiRequest(request, path, init = {}) {
   const url = `${env.discourseBaseUrl}${path}`;
   const method = (init.method || "GET").toUpperCase();
   if (method === "GET") {
-    return request.get(url, { headers });
+    return request.get(url, { headers, timeout: resolveTimeout(30_000) });
   }
   if (method === "DELETE") {
-    return request.delete(url, { headers });
+    return request.delete(url, { headers, timeout: resolveTimeout(30_000) });
   }
   throw new Error(`discourseApiRequest: unsupported method ${method}`);
 }

@@ -37,7 +37,7 @@ test("bridgy-fed serves /robots.txt successfully", async ({ request }) => {
   // documented in README.md and lifecycle.md.
   // /robots.txt is the canonical "service is alive" probe for this
   // role; the homepage at `/` is a 404 by design.
-  const response = await request.get(`${appBaseUrl}/robots.txt`);
+  const response = await request.get(`${appBaseUrl}/robots.txt`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected bridgy-fed /robots.txt status < 400").toBeLessThan(400);
 });
 

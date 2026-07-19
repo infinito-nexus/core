@@ -26,7 +26,7 @@ test("hugo front page is served under canonical domain with TLS + HSTS", async (
 });
 
 test("hugo emits a CSP header on the front page", async ({ request }) => {
-  const response = await request.get(`${appBaseUrl}/`);
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected hugo front page status < 400").toBeLessThan(400);
   const headers = response.headers();
   const csp = headers["content-security-policy"];

@@ -40,6 +40,7 @@ test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger 
 
     const webfingerResp = await request.get(webfingerUrl.toString(), {
       headers: { Accept: "application/jrd+json, application/json" },
+      timeout: resolveTimeout(30_000),
     });
     expect(
       webfingerResp.status(),
@@ -79,6 +80,7 @@ test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger 
 
     const actorResp = await request.get(actorUrl.toString(), {
       headers: { Accept: "application/activity+json" },
+      timeout: resolveTimeout(30_000),
     });
     expect(
       actorResp.status(),

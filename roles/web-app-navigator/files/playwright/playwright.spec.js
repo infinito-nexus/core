@@ -26,7 +26,7 @@ test("Navigator front page is served under canonical domain with TLS", async ({ 
 });
 
 test("Navigator returns HTML content under canonical domain", async ({ request }) => {
-  const response = await request.get(`${appBaseUrl}/`);
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected Navigator front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(

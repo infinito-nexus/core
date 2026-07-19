@@ -31,7 +31,7 @@ test("mig returns HTML content under canonical domain", async ({ request }) => {
   // canonical landing page yet, so a body-text assertion would be
   // brittle. Validate the deploy contract: HTML content-type under the
   // canonical domain.
-  const response = await request.get(`${appBaseUrl}/`);
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected mig front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(

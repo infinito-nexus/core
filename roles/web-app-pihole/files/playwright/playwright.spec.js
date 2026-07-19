@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { expectHstsWhenTls, gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -35,7 +36,7 @@ test("Pi-hole front page is served under canonical domain with TLS", async ({ pa
 });
 
 test("Pi-hole returns HTML content under canonical domain", async ({ request }) => {
-  const response = await request.get(`${piholeBaseUrl.replace(/\/$/, "")}/`);
+  const response = await request.get(`${piholeBaseUrl.replace(/\/$/, "")}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected Pi-hole front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(

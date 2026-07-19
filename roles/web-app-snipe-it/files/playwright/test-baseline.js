@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { normalizeBaseUrl, decodeDotenvQuotedValue , expectHstsWhenTls, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.SNIPE_IT_BASE_URL || process.env.APP_BASE_URL || "");
@@ -24,7 +25,7 @@ test("baseline: Snipe-IT front page is served under the canonical domain with TL
 
 test("baseline: Snipe-IT returns HTML content under the canonical domain", async ({ request }) => {
   expect(baseUrl, "SNIPE_IT_BASE_URL must be set").toBeTruthy();
-  const response = await request.get(`${baseUrl}/`);
+  const response = await request.get(`${baseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected Snipe-IT front page status < 500").toBeLessThan(500);
   const contentType = response.headers()["content-type"] || "";
   expect(

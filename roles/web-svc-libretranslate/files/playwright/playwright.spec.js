@@ -23,7 +23,7 @@ test("libretranslate /languages API stays reachable without auth", async ({ requ
   // 013 it MUST stay reachable even when the UI is OIDC-gated by
   // the oauth2-proxy sidecar. The role's `services.sso.oauth2.acl.whitelist`
   // includes /languages, /translate, /detect for exactly this reason.
-  const response = await request.get(`${baseUrl}/languages`);
+  const response = await request.get(`${baseUrl}/languages`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected libretranslate /languages status < 400 without auth").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(

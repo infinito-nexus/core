@@ -20,7 +20,7 @@ test("mautrix-telegram addon: appservice bot is provisioned on the Synapse homes
   const profileUrl =
     `${matrixBaseUrl}/_matrix/client/v3/profile/${encodeURIComponent(botUserId)}`;
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),

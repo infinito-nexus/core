@@ -17,7 +17,7 @@ test("mautrix-slack addon: Slack bridge appservice bot is provisioned and reacha
   const botUserId = `@slackbot:${matrixServerName}`;
   const profileUrl = `${matrixBaseUrl.replace(/\/$/, "")}/_matrix/client/v3/profile/${encodeURIComponent(botUserId)}`;
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
   const status = response.status();
   const body = await response.text();
 
