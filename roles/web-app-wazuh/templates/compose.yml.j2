@@ -1,0 +1,199 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+{% set service_name = 'certs_generator' %}
+{# Genuine one-shot job, not a persistent service: it generates the TLS
+   material once and exits. `docker_restart_policy = 'no'` means Compose
+   never restarts it once it has exited, and `service_completed_successfully`
+   (below, on manager/indexer/dashboard) blocks their startup until this
+   container exits 0 on the SAME `docker compose up` invocation. Included via
+   base.yml.j2 (same as every other entity) purely for resource-limit/
+   logging parity, following web-app-shopware's "init" sidecar pattern. #}
+{% set docker_restart_policy = 'no' %}
+  wazuh-certs-generator:
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+{% set docker_restart_policy = DOCKER_RESTART_POLICY %}
+    image: "{{ WAZUH_CERTS_GENERATOR_IMAGE }}:{{ WAZUH_CERTS_GENERATOR_VERSION }}"
+    container_name: "{{ WAZUH_CERTS_GENERATOR_CONTAINER }}"
+    environment:
+      - CERT_TOOL_VERSION=4.14
+    volumes:
+      - "{{ WAZUH_CERTS_DIR_HOST }}:/certificates/"
+      - "{{ WAZUH_CERTS_CONFIG_HOST }}:/config/certs.yml:ro"
+      # The compose project's shared .env auto-injects CURL_CA_BUNDLE (and
+      # friends) pointing ONLY at the platform's own self-signed dev CA, for
+      # containers that need to trust internal TLS endpoints. This container
+      # needs the opposite: it downloads its cert-generation tool from the
+      # real public internet (packages.wazuh.com) at startup, and the
+      # dev-CA-only bundle makes curl reject that genuinely-public cert
+      # (confirmed empirically: curl fails silently, the image's own
+      # entrypoint then prints a misleading "does not exist in any bucket").
+      # An `environment:` override here does NOT work: the platform's
+      # auto-generated compose.ca.override.yml is always merged AFTER this
+      # file and wins (confirmed empirically against a live deploy). Volumes
+      # merge as a list instead of a per-key override, so bind-mounting a
+      # replacement /entrypoint.sh (files/certs-entrypoint.sh: an unmodified
+      # copy of the vendor's own script with one `unset` line added) is the
+      # one lever this override file does not clobber.
+      - "{{ application_id | abs_role_path_by_application_id }}/files/certs-entrypoint.sh:/entrypoint.sh:ro"
+
+{% set service_name = 'manager' %}
+  manager:
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    image: "{{ WAZUH_MANAGER_IMAGE }}:{{ WAZUH_MANAGER_VERSION }}"
+    container_name: "{{ WAZUH_MANAGER_CONTAINER }}"
+    hostname: "{{ WAZUH_MANAGER_CONTAINER }}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 655360
+        hard: 655360
+    environment:
+      - "INDEXER_URL=https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
+      - "INDEXER_USERNAME=admin"
+      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+      - "FILEBEAT_SSL_VERIFICATION_MODE=full"
+      - "SSL_CERTIFICATE_AUTHORITIES=/etc/ssl/root-ca.pem"
+      - "SSL_CERTIFICATE=/etc/ssl/filebeat.pem"
+      - "SSL_KEY=/etc/ssl/filebeat.key"
+      - "API_USERNAME=wazuh-wui"
+      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
+    volumes:
+      - manager_api_configuration:/var/ossec/api/configuration
+      - manager_etc:/var/ossec/etc
+      - manager_logs:/var/ossec/logs
+      - manager_queue:/var/ossec/queue
+      - manager_var_multigroups:/var/ossec/var/multigroups
+      - manager_integrations:/var/ossec/integrations
+      - manager_active_response:/var/ossec/active-response/bin
+      - manager_agentless:/var/ossec/agentless
+      - manager_wodles:/var/ossec/wodles
+      - manager_filebeat_etc:/etc/filebeat
+      - manager_filebeat_var:/var/lib/filebeat
+      - "{{ WAZUH_CERTS_DIR_HOST }}/root-ca-manager.pem:/etc/ssl/root-ca.pem:ro"
+      - "{{ WAZUH_CERTS_DIR_HOST }}/{{ WAZUH_MANAGER_CONTAINER }}.pem:/etc/ssl/filebeat.pem:ro"
+      - "{{ WAZUH_CERTS_DIR_HOST }}/{{ WAZUH_MANAGER_CONTAINER }}-key.pem:/etc/ssl/filebeat.key:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'wazuh_manager.conf' ] | path_join }}:/wazuh-config-mount/etc/ossec.conf:ro"
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{{ lookup('container_depends_on', application_id, extra={
+    WAZUH_CERTS_GENERATOR_CONTAINER: {'condition': 'service_completed_successfully'},
+}) }}
+
+{% set service_name = 'indexer' %}
+  indexer:
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    image: "{{ WAZUH_INDEXER_IMAGE }}:{{ WAZUH_INDEXER_VERSION }}"
+    container_name: "{{ WAZUH_INDEXER_CONTAINER }}"
+    hostname: "{{ WAZUH_INDEXER_CONTAINER }}"
+    # No per-container `sysctls: vm.max_map_count` override: confirmed
+    # empirically against a live deploy that Docker/runc rejects this
+    # outright ("sysctl vm.max_map_count is not in a separate kernel
+    # namespace"), because it genuinely is not a namespaced sysctl. The
+    # host-level ansible.posix.sysctl task in tasks/01_core.yml is the only
+    # real mechanism; when Ansible runs inside a DinD sandbox and that task
+    # is skipped, the indexer may fail to boot on an under-provisioned host,
+    # same accepted limitation as svc-runner's inotify tuning.
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - indexer_data:/var/lib/wazuh-indexer
+      - "{{ WAZUH_CERTS_DIR_HOST }}/root-ca.pem:{{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/root-ca.pem:ro"
+      - "{{ WAZUH_CERTS_DIR_HOST }}/{{ WAZUH_INDEXER_CONTAINER }}-key.pem:{{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/wazuh.indexer.key:ro"
+      - "{{ WAZUH_CERTS_DIR_HOST }}/{{ WAZUH_INDEXER_CONTAINER }}.pem:{{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/wazuh.indexer.pem:ro"
+      - "{{ WAZUH_CERTS_DIR_HOST }}/admin.pem:{{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin.pem:ro"
+      - "{{ WAZUH_CERTS_DIR_HOST }}/admin-key.pem:{{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin-key.pem:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'wazuh.indexer.yml' ] | path_join }}:/usr/share/wazuh-indexer/config/opensearch.yml:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'internal_users.yml' ] | path_join }}:{{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/internal_users.yml:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'config.yml' ] | path_join }}:{{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/config.yml:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'roles.yml' ] | path_join }}:{{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/roles.yml:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'roles_mapping.yml' ] | path_join }}:{{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/roles_mapping.yml:ro"
+      # See files/indexer-entrypoint.sh: an unmodified copy of the vendor's
+      # own /entrypoint.sh with a JVM cacerts CA-import step prepended,
+      # needed for the indexer's own outbound OIDC discovery/JWKS calls to
+      # Keycloak to be trusted (confirmed against a live deploy - see the
+      # comment in that file for the exact failure this fixes).
+      - "{{ application_id | abs_role_path_by_application_id }}/files/indexer-entrypoint.sh:/entrypoint.sh:ro"
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{{ lookup('container_depends_on', application_id, extra={
+    WAZUH_CERTS_GENERATOR_CONTAINER: {'condition': 'service_completed_successfully'},
+}) }}
+    # securityadmin.sh (tasks/02_securityadmin.yml) is what actually pushes
+    # this role's own credentials into the security index - it authenticates
+    # via the admin client certificate (plugins.security.authcz.admin_dn),
+    # not a username/password. Until securityadmin.sh has run, the 'admin'
+    # user's real bcrypt hash is not guaranteed to be live, so gating this
+    # healthcheck on that same password creates a chicken-and-egg deadlock
+    # (confirmed against a live deploy: the healthcheck itself blocks the
+    # ordering that would let securityadmin.sh ever run). This healthcheck
+    # only needs to prove the security plugin has loaded enough to answer
+    # HTTPS requests at all; a 401 is exactly that proof.
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "curl -s -o /dev/null -w '%{http_code}' -k https://localhost:{{ WAZUH_INDEXER_INTERNAL_PORT }}/_cluster/health | grep -Eq '^(200|401)$'"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+{% set service_name = 'console' %}
+  dashboard:
+{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    image: "{{ WAZUH_DASHBOARD_IMAGE }}:{{ WAZUH_DASHBOARD_VERSION }}"
+    container_name: "{{ WAZUH_DASHBOARD_CONTAINER }}"
+    hostname: "{{ WAZUH_DASHBOARD_CONTAINER }}"
+    ports:
+      - "{{ DOCKER_BIND_HOST }}:{{ WAZUH_DASHBOARD_HTTP_PORT }}:{{ WAZUH_DASHBOARD_INTERNAL_PORT }}"
+    environment:
+      - "INDEXER_USERNAME=admin"
+      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+      - "WAZUH_API_URL=https://{{ WAZUH_MANAGER_CONTAINER }}"
+      - "DASHBOARD_USERNAME=kibanaserver"
+      - "DASHBOARD_PASSWORD={{ WAZUH_DASHBOARD_SERVICE_PASSWORD }}"
+      - "API_USERNAME=wazuh-wui"
+      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
+    volumes:
+      - "{{ WAZUH_CERTS_DIR_HOST }}/root-ca.pem:/usr/share/wazuh-dashboard/certs/root-ca.pem:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'opensearch_dashboards.yml' ] | path_join }}:/usr/share/wazuh-dashboard/config/opensearch_dashboards.yml:ro"
+      - "{{ [ WAZUH_INSTANCE_DIR, 'wazuh.yml' ] | path_join }}:/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml:ro"
+      - dashboard_config:/usr/share/wazuh-dashboard/data/wazuh/config
+      - dashboard_custom:/usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom
+{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+{# depends_on MUST reference the compose service key (indexer/manager), not
+   the container_name value (wazuh-indexer/wazuh-manager) - Compose rejects
+   the project as invalid otherwise. Confirmed by a real deploy failure:
+   "service dashboard depends on undefined service wazuh-manager". #}
+{{ lookup('container_depends_on', application_id, extra={
+    'indexer': {'condition': 'service_healthy'},
+    'manager': {'condition': 'service_started'},
+}) }}
+
+{{ lookup('applications') | compose_volumes(
+    application_id,
+    extra_volumes={
+      'manager_api_configuration': {'name': WAZUH_VOLUMES.manager_api_configuration},
+      'manager_etc': {'name': WAZUH_VOLUMES.manager_etc},
+      'manager_logs': {'name': WAZUH_VOLUMES.manager_logs},
+      'manager_queue': {'name': WAZUH_VOLUMES.manager_queue},
+      'manager_var_multigroups': {'name': WAZUH_VOLUMES.manager_var_multigroups},
+      'manager_integrations': {'name': WAZUH_VOLUMES.manager_integrations},
+      'manager_active_response': {'name': WAZUH_VOLUMES.manager_active_response},
+      'manager_agentless': {'name': WAZUH_VOLUMES.manager_agentless},
+      'manager_wodles': {'name': WAZUH_VOLUMES.manager_wodles},
+      'manager_filebeat_etc': {'name': WAZUH_VOLUMES.manager_filebeat_etc},
+      'manager_filebeat_var': {'name': WAZUH_VOLUMES.manager_filebeat_var},
+      'indexer_data': {'name': WAZUH_VOLUMES.indexer_data},
+      'dashboard_config': {'name': WAZUH_VOLUMES.dashboard_config},
+      'dashboard_custom': {'name': WAZUH_VOLUMES.dashboard_custom},
+    }
+) }}
+{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}

@@ -1,0 +1,127 @@
+---
+# General
+application_id: "web-app-wazuh"
+entity_name: "{{ application_id | get_entity_name }}"
+
+# https://wazuh.com/
+WAZUH_MANAGER_IMAGE: "{{ lookup('config', application_id, 'services.manager.image') }}"
+WAZUH_MANAGER_VERSION: "{{ lookup('config', application_id, 'services.manager.version') }}"
+WAZUH_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.manager.name') }}"
+
+WAZUH_INDEXER_IMAGE: "{{ lookup('config', application_id, 'services.indexer.image') }}"
+WAZUH_INDEXER_VERSION: "{{ lookup('config', application_id, 'services.indexer.version') }}"
+WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
+WAZUH_INDEXER_HTTP_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.local.http') }}"
+WAZUH_INDEXER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.internal.http') }}"
+
+# services.console, not services.dashboard: see meta/services.yml for why
+# the compose entity is named "console" (avoids colliding with the
+# web-app-dashboard tile-integration service bond, also named "dashboard").
+WAZUH_DASHBOARD_IMAGE: "{{ lookup('config', application_id, 'services.console.image') }}"
+WAZUH_DASHBOARD_VERSION: "{{ lookup('config', application_id, 'services.console.version') }}"
+WAZUH_DASHBOARD_CONTAINER: "{{ lookup('config', application_id, 'services.console.name') }}"
+WAZUH_DASHBOARD_HTTP_PORT: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
+WAZUH_DASHBOARD_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.console.ports.internal.http') }}"
+
+WAZUH_CERTS_GENERATOR_IMAGE: "{{ lookup('config', application_id, 'services.certs_generator.image') }}"
+WAZUH_CERTS_GENERATOR_VERSION: "{{ lookup('config', application_id, 'services.certs_generator.version') }}"
+WAZUH_CERTS_GENERATOR_CONTAINER: "{{ lookup('config', application_id, 'services.certs_generator.name') }}"
+
+# Host-side bind-mount roots (instance dir is unique per role deploy)
+WAZUH_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+WAZUH_CERTS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs' ] | path_join }}"
+WAZUH_CERTS_CONFIG_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.yml' ] | path_join }}"
+
+# In-container paths, fixed by the wazuh-indexer image itself (not
+# host-configurable), referenced from both compose.yml.j2's volume mounts
+# and 02_securityadmin.yml's `compose exec` invocation.
+WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs"
+WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security"
+
+# vm.max_map_count is a non-namespaced kernel param OpenSearch requires at
+# 262144 minimum. Set on the real host via a dedicated sysctl.d file. There
+# is no compose-level per-container fallback: Docker/runc rejects a
+# `sysctls:` override for any param that is not namespaced (confirmed
+# empirically against a live deploy), so when Ansible runs inside a DinD
+# sandbox and this task is skipped, the indexer may fail to boot on an
+# under-provisioned host — the same accepted limitation as svc-runner's
+# inotify tuning.
+WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
+
+# Internal API base URL (host-reachable, used by Ansible uri_retry/wait_for tasks)
+WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
+
+# Auth integrations
+WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+WAZUH_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
+WAZUH_DASHBOARD_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+
+# Credentials (meta/schema.yml). Plaintext values are consumed directly by
+# manager/dashboard env vars and Ansible health checks; the indexer's
+# internal_users.yml instead needs a bcrypt HASH of each plaintext, computed
+# here rather than templated inline so every consumer of the plaintext
+# resolves the same source-of-truth variable.
+#
+# Uses the project's own `bcrypt_hash` filter (plugins/filter/bcrypt_hash.py),
+# NOT Ansible's built-in `password_hash('bcrypt')`. Confirmed empirically
+# (via `make compose-exec` against the real deploy environment) that
+# `password_hash('bcrypt')` is entirely broken here: passlib's bcrypt backend
+# runs a self-test against a fixed known-answer secret on first use, and that
+# self-test itself raises "password cannot be longer than 72 bytes" because
+# the installed `bcrypt` package and passlib's version-detection have drifted
+# apart, regardless of the caller's actual input or salt. Raw `bcrypt.hashpw`
+# has no such self-test and was confirmed working directly in the same
+# container. See plugins/filter/bcrypt_hash.py for the full explanation.
+WAZUH_INDEXER_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.indexer_admin_password') }}"
+WAZUH_INDEXER_ADMIN_HASH: "{{ WAZUH_INDEXER_ADMIN_PASSWORD | bcrypt_hash }}"
+
+WAZUH_DASHBOARD_SERVICE_PASSWORD: "{{ lookup('config', application_id, 'credentials.dashboard_service_password') }}"
+WAZUH_DASHBOARD_SERVICE_HASH: "{{ WAZUH_DASHBOARD_SERVICE_PASSWORD | bcrypt_hash }}"
+
+WAZUH_WUI_PASSWORD: "{{ lookup('config', application_id, 'credentials.wazuh_wui_password') }}"
+
+WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'credentials.manager_cluster_key') }}"
+
+# Named volumes (meta/volumes.yml). compose_volumes only auto-derives
+# database/object-store/redis volumes, so every role-declared volume here
+# MUST be threaded through the filter's extra_volumes param explicitly.
+WAZUH_VOLUMES:
+  manager_api_configuration: "{{ lookup('config', application_id, 'volumes.manager_api_configuration') }}"
+  manager_etc: "{{ lookup('config', application_id, 'volumes.manager_etc') }}"
+  manager_logs: "{{ lookup('config', application_id, 'volumes.manager_logs') }}"
+  manager_queue: "{{ lookup('config', application_id, 'volumes.manager_queue') }}"
+  manager_var_multigroups: "{{ lookup('config', application_id, 'volumes.manager_var_multigroups') }}"
+  manager_integrations: "{{ lookup('config', application_id, 'volumes.manager_integrations') }}"
+  manager_active_response: "{{ lookup('config', application_id, 'volumes.manager_active_response') }}"
+  manager_agentless: "{{ lookup('config', application_id, 'volumes.manager_agentless') }}"
+  manager_wodles: "{{ lookup('config', application_id, 'volumes.manager_wodles') }}"
+  manager_filebeat_etc: "{{ lookup('config', application_id, 'volumes.manager_filebeat_etc') }}"
+  manager_filebeat_var: "{{ lookup('config', application_id, 'volumes.manager_filebeat_var') }}"
+  indexer_data: "{{ lookup('config', application_id, 'volumes.indexer_data') }}"
+  dashboard_config: "{{ lookup('config', application_id, 'volumes.dashboard_config') }}"
+  dashboard_custom: "{{ lookup('config', application_id, 'volumes.dashboard_custom') }}"
+
+# RBAC backend_roles (meta/rbac.yml), consumed by templates/roles_mapping.yml.j2.
+# Two distinct string shapes per role, since OIDC and LDAP surface group
+# membership differently and either MAY be the source that authenticated/
+# enriched a given user:
+#
+# - OIDC path: the platform's `rbac_group_path` lookup is the ONLY sanctioned
+#   way to derive this (docs/contributing/design/iam/rbac.md). The bare
+#   lookup output has no leading slash, but Keycloak's `groups` claim
+#   (full.path=true) DOES carry one — confirmed by the working precedent in
+#   roles/web-app-yourls/vars/main.yml and documented directly in
+#   roles/web-app-joomla/meta/rbac.yml's worked example
+#   ("/roles/web-app-joomla/administrator"). Re-verify empirically against a
+#   real Keycloak-issued token during deploy testing.
+# - LDAP CN: per rbac.md's LDAP layout contract, groups provisioned under
+#   meta/rbac.yml are CN'd as `<application_id>-<role_name>` (hyphenated, no
+#   slashes). This is a different string from the OIDC path and MUST be
+#   listed alongside it, not instead of it.
+WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"
+WAZUH_RBAC_READONLY_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='readonly-auditor') }}"
+
+WAZUH_RBAC_ADMIN_LDAP_CN: "{{ application_id }}-administrator"
+WAZUH_RBAC_ANALYST_LDAP_CN: "{{ application_id }}-security-analyst"
+WAZUH_RBAC_READONLY_LDAP_CN: "{{ application_id }}-readonly-auditor"
