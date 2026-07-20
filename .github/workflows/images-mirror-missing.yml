@@ -78,7 +78,7 @@ concurrency:
 
 jobs:
   sync:
-    name: 🪞 Mirror images
+    name: 🪞 Mirror
     runs-on: ubuntu-latest
 
     env:
