@@ -16,6 +16,11 @@ set -euo pipefail
 : "${NEWEST_GENERATION:?}"
 
 GEN_DIR="${REPO_DIR}/${NEWEST_GENERATION}"
+RESTORED_DATABASES_FILE="${BKP_TEST_RESTORED_DATABASES_FILE:-}"
+
+if [[ -n "${RESTORED_DATABASES_FILE}" ]]; then
+    : >"${RESTORED_DATABASES_FILE}"
+fi
 
 if [[ ! -f "${BKP_TEST_DATABASES_CSV}" ]]; then
     echo "FAIL: databases csv missing at ${BKP_TEST_DATABASES_CSV}"
@@ -71,6 +76,9 @@ for sql_file in "${SQL_FILES[@]}"; do
         --db-password "${db_password}" \
         --empty
     echo "OK: replayed ${engine} dump '${db_name}' into ${container}"
+    if [[ -n "${RESTORED_DATABASES_FILE}" ]]; then
+        printf '%s;%s;%s\n' "${engine}" "${volume}" "${db_name}" >>"${RESTORED_DATABASES_FILE}"
+    fi
     RESTORED=$((RESTORED + 1))
 done
 

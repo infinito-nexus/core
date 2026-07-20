@@ -1,21 +1,4 @@
 #!/usr/bin/env bash
-# Disaster-recovery drill for the swarm test cluster: proves the full
-# backup chain volume + secrets + nfs -> remote -> device through the
-# DEPLOYED systemd units on every host (the backup host runs the real
-# svc-bkp-remote-2-local and svc-bkp-local-2-device roles; the drill only
-# installs the ssh pull identity and simulates the USB plug via a LUKS
-# loop mount), then tears the stack down completely and recovers the same
-# data back through the recover CLI (cli.administration.recover: device ->
-# local root -> nfs export, docker volume and host secrets). The matrix update
-# pass then boots the stack onto the recovered export and
-# verify_recovered_marker.sh asserts the live marker, so no dedicated redeploy
-# runs here. Runs once, between the matrix's first and second round, against
-# the already-converged round-1 stack. Per-host
-# routines live next to this file and execute in-node from the repo copy
-# under INFINITO_NODE_SRC_DIR (one docker exec per routine). Marker probes
-# are scoped per repo (volume/nfs/secrets share DR_MARKER; an unscoped
-# ${MID} glob would cross-select). Device paths (mount/target) come from
-# the same extras SPOT that configures the deployed role (write_extras).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -45,14 +28,64 @@ USB_IMG="/var/lib/infinito-usb.img"
 USB_MAPPER="usbdrill"
 USB_PASS="drillpass"
 RESTORE_ROOT="/var/tmp/dr-device-restored"
+ROLE_TEST_DIR="/tmp/test-e2e-cli/svc-bkp-volume-2-local"
+DB_PENDING_FILE="${ROLE_TEST_DIR}/swarm-restore.pending"
+DB_RESTORE_ROOT="/var/tmp/dr-database-restore-${APP_ID}"
+DRILL_FULL_CHAIN="${DRILL_FULL_CHAIN:-true}"
 DEV_MOUNT="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]))['applications']['svc-bkp-local-2-device']['services']['local-2-device']['mount'])" "${DRILL_EXTRAS}")"
 DEV_TARGET="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]))['applications']['svc-bkp-local-2-device']['services']['local-2-device']['target'])" "${DRILL_EXTRAS}")"
 DEV_DEST="${DEV_MOUNT}${DEV_TARGET}"
 
-if [ -z "${PRIMARY_NFS_VOLUME}" ]; then
-	echo "SKIP drill: ${APP_ID} declares no NFS-flagged volume — nothing to prove a restore against"
+case "${DRILL_FULL_CHAIN}" in
+true | false) ;;
+*)
+	echo "FAILURE: DRILL_FULL_CHAIN must be true or false"
+	exit 1
+	;;
+esac
+
+DB_PENDING=false
+if docker exec "${MGR}" test -f "${DB_PENDING_FILE}"; then
+	DB_PENDING=true
+fi
+MGR_MID="$(docker exec "${MGR}" sha256sum /etc/machine-id | cut -c1-64)"
+
+quiesce_database_writers() {
+	docker exec "${MGR}" bash "${BKP_IN_NODE}/04_quiesce_database_writers.sh" manager
+	for _node in "${WRK1}" "${WRK2}"; do
+		docker exec "${_node}" bash "${BKP_IN_NODE}/04_quiesce_database_writers.sh" worker
+	done
+}
+
+restore_databases() {
+	local backups_root="${1}"
+	docker exec "${MGR}" bash "${BKP_IN_NODE}/06_restore_databases.sh" \
+		"${ROLE_TEST_DIR}" "${backups_root}"
+}
+
+write_verify_env() {
+	local db_verify="${1}" nfs_verify="${2}"
+	printf 'DR_DB_VERIFY=%s\nDR_NFS_VERIFY=%s\nMGR=%s\nROLE_TEST_DIR=%s\nBKP_IN_NODE=%s\n' \
+		"${db_verify}" "${nfs_verify}" "${MGR}" "${ROLE_TEST_DIR}" "${BKP_IN_NODE}" >"${DR_VERIFY_ENV}"
+	if [ "${nfs_verify}" = true ]; then
+		printf 'DR_TOKEN=%s\nDR_MARKER=%s\nNFS_SERVER=%s\nNFS_VOL_DIR=%s\n' \
+			"${DR_TOKEN}" "${DR_MARKER}" "${NFS_SERVER}" "${NFS_VOL_DIR}" >>"${DR_VERIFY_ENV}"
+	fi
+}
+
+if [ "${DRILL_FULL_CHAIN}" = false ] || [ -z "${PRIMARY_NFS_VOLUME}" ]; then
+	if [ "${DB_PENDING}" != true ]; then
+		echo "SKIP drill: no database handoff and no full NFS recovery requested for ${APP_ID}"
+		exit 0
+	fi
+	echo "==> destructive database-only DR drill for ${APP_ID}"
+	quiesce_database_writers
+	restore_databases "${DIR_BACKUPS}"
+	write_verify_env true false
+	echo "==> database recovery complete; the matrix update redeploys and verifies the restored probes"
 	exit 0
 fi
+
 if ! docker inspect "${BACKUP_NODE}" >/dev/null 2>&1; then
 	echo "FAILURE: backup host ${BACKUP_NODE} is not running (01_bootstrap.sh did not run?)"
 	exit 1
@@ -63,7 +96,6 @@ if [ ! -f "${BACKUP_KEY_PATH}" ]; then
 fi
 
 NFS_VOL_DIR="${NFS_STATE_PATH}/${PRIMARY_NFS_VOLUME}"
-MGR_MID="$(docker exec "${MGR}" sha256sum /etc/machine-id | cut -c1-64)"
 NFS_MID="$(docker exec "${NFS_SERVER}" sha256sum /etc/machine-id | cut -c1-64)"
 echo "==> DR drill for ${APP_ID} (volume '${PRIMARY_NFS_VOLUME}')"
 
@@ -152,8 +184,10 @@ if ! docker exec "${BACKUP_NODE}" find "${DEV_DEST}" -name "${DR_MARKER}" 2>/dev
 fi
 echo "    marker present on encrypted USB"
 
-echo "==> [6/9] tear the stack down completely (full disaster) before recovery"
-if [ "${HAS_SWARM_SERVICE}" = true ]; then
+echo "==> [6/9] quiesce workloads before recovery"
+if [ "${DB_PENDING}" = true ]; then
+	quiesce_database_writers
+elif [ "${HAS_SWARM_SERVICE}" = true ]; then
 	docker exec "${MGR}" bash "${BKP_IN_NODE}/04_stack_rm_wait.sh" "${STACK_NAME}"
 else
 	for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
@@ -251,7 +285,18 @@ else
 	echo "    secrets recover skipped: svc-bkp-secrets-2-local not installed on ${MGR}"
 fi
 
-echo "==> recovery complete: device -> nfs export -> volume -> secrets restored via the recover CLI"
-echo "    the matrix update pass boots the stack onto the recovered export; verify_recovered_marker.sh asserts the live marker there"
-printf 'DR_TOKEN=%s\nDR_MARKER=%s\nNFS_SERVER=%s\nNFS_VOL_DIR=%s\n' \
-	"${DR_TOKEN}" "${DR_MARKER}" "${NFS_SERVER}" "${NFS_VOL_DIR}" >"${DR_VERIFY_ENV}"
+if [ "${DB_PENDING}" = true ]; then
+	echo "==> [9b/9] restore the handed-off SQL generation from the device-recovered tree"
+	if ! docker exec "${BACKUP_NODE}" test -d "${RESTORE_ROOT}/${MGR_MID}/${VOLUME_REPO}"; then
+		echo "FAILURE: ${VOLUME_REPO} missing from the device-recovered manager tree"
+		exit 1
+	fi
+	docker exec "${MGR}" sh -c "rm -rf '${DB_RESTORE_ROOT}'; mkdir -p '${DB_RESTORE_ROOT}'"
+	docker exec "${BACKUP_NODE}" tar -C "${RESTORE_ROOT}" -cf - "${MGR_MID}/${VOLUME_REPO}" |
+		docker exec -i "${MGR}" tar --numeric-owner -C "${DB_RESTORE_ROOT}" -xf -
+	restore_databases "${DB_RESTORE_ROOT}"
+fi
+
+echo "==> recovery complete: device -> nfs export -> volume -> secrets -> databases restored"
+echo "    the matrix update pass redeploys every workload and verifies the recovered markers and database probes"
+write_verify_env "${DB_PENDING}" true

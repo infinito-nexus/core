@@ -139,6 +139,8 @@ def _deploy(
         f"@{extras_path}",
         "-e",
         f"VARIANT_INDEX={json.dumps(round_index)}",
+        "-e",
+        "TEST_E2E_SWARM_DRILL=true",
     ]
     pass_label = (
         f"matrix-deploy: round {round_index + 1}/{total} "
@@ -192,11 +194,14 @@ def _converge_and_verify(*, app_id: str) -> int:
     )
 
 
-def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int:
+def _backup_restore_drill(
+    *, app_id: str, inv_dir: str, extras_path: str, full_chain: bool
+) -> int:
     env = os.environ.copy()
     env["APP_ID"] = app_id
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["DRILL_EXTRAS"] = extras_path
+    env["DRILL_FULL_CHAIN"] = str(full_chain).lower()
     return _run(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "base.sh")],
         env=env,
@@ -339,15 +344,18 @@ def main(argv: list[str] | None = None) -> int:
             )
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
-        if rc == 0 and round_index == 0:
+        if rc == 0 and plan_index == 0:
             rc = _deploy_backup_host(
                 app_id=app_id,
                 inv_dir=inv_root,
                 extras_path=f"{inv_root}/swarm-nfs-extras.deploy.yml",
             )
-        if rc == 0 and round_index == 0:
+        if rc == 0:
             rc = _backup_restore_drill(
-                app_id=app_id, inv_dir=inv_root, extras_path=extras_path
+                app_id=app_id,
+                inv_dir=inv_root,
+                extras_path=extras_path,
+                full_chain=plan_index == 0,
             )
         if rc == 0:
             rc = _deploy(
@@ -360,7 +368,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
-        if rc == 0 and round_index == 0:
+        if rc == 0:
             rc = _verify_recovered_marker(app_id=app_id)
         if rc != 0:
             return rc
