@@ -22,4 +22,7 @@
         resolve_compose_cid: "{{ COLLABORA_CONTAINER_ADDRESS }}"
 
     - name: "🔧 Run collabora coolconfig on the hosting node"
-      ansible.builtin.include_tasks: 02_coolconfig.yml
+      ansible.builtin.include_tasks:
+        file: 02_coolconfig.yml
+        apply:
+          delegate_to: "{{ COLLABORA_HOST_NODE }}"

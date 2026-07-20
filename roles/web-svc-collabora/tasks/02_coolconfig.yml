@@ -9,7 +9,6 @@
     ('updated' in (collabora_fonts.stdout | default('')))
   async: "{{ ASYNC_TIME  if (ASYNC_ENABLED |  bool) else omit }}"
   poll: "{{ ASYNC_POLL if (ASYNC_ENABLED |  bool) else omit }}"
-  delegate_to: "{{ COLLABORA_HOST_NODE }}"
 
 - name: 🖥️ Allow Nextcloud host IP for Collabora preview conversion
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -21,4 +20,3 @@
     ('already present' not in (collabora_preview.stdout | default('')))
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
-  delegate_to: "{{ COLLABORA_HOST_NODE }}"
