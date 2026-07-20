@@ -6,6 +6,15 @@
     name: sys-stk-full
   vars:
     webserver_client_max_body_size: "30m"
+    proxy_internal_port: >-
+      {{
+        lookup(
+          'config',
+          application_id,
+          'services.' ~ OPENPROJECT_WEB_SERVICE ~ '.ports.internal.http'
+        )
+        if DEPLOYMENT_MODE == 'swarm' else ''
+      }}
     compose_repository_url: "{{ OPENPROJECT_REPOSITORY }}"
     compose_repository_ref: "{{ OPENPROJECT_REF }}"
     compose_repository_pull: true

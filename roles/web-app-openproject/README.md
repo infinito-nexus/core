@@ -67,6 +67,26 @@ flowchart LR
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
+## Schema
+
+OpenProject uses the published Apache proxy in Compose and reaches the Puma web service directly through overlay DNS in Swarm.
+
+```mermaid
+flowchart LR
+    ingress["OpenResty"]
+    subgraph compose [Compose]
+        compose_host["127.0.0.1:8023"]
+        compose_proxy["proxy:80 (Apache)"]
+        compose_web["web:8080 (Puma)"]
+        compose_host --> compose_proxy --> compose_web
+    end
+    subgraph swarm [Swarm]
+        swarm_web["openproject_web:8080 (Puma)"]
+    end
+    ingress -->|"published port"| compose_host
+    ingress -->|"overlay DNS"| swarm_web
+```
+
 ## Purpose
 
 The purpose of this role is to reduce the complexity of setting up OpenProject with modern production-ready defaults. By combining Docker Compose and Ansible automation, it enables a hands-off setup for both small teams and larger internal infrastructures.
