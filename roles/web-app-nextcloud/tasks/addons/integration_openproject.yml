@@ -39,9 +39,10 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔧 Provision the bidirectional OpenProject <-> Nextcloud OAuth coupling
-  include_tasks: "{{ [role_path, 'tasks/addons/integration_openproject_provision.yml'] | path_join }}"
+  include_tasks: integration_openproject_provision.yml
   when: >-
-    (integration_openproject_partner_running.stdout | trim) == 'true'
+    IS_STACK_HOST | bool
+    and (integration_openproject_partner_running.stdout | trim) == 'true'
     and (
       (nextcloud_op_client_id_current.stdout | trim) | length == 0
       or (nextcloud_op_nc_client_current.stdout | trim) | length == 0

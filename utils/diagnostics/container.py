@@ -146,7 +146,16 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
     capture(
         out / "containers",
         "_daemon-journal.txt",
-        ["journalctl", "-u", "docker", "-u", "containerd", "--since", "-6h", "--no-pager"],
+        [
+            "journalctl",
+            "-u",
+            "docker",
+            "-u",
+            "containerd",
+            "--since",
+            "-6h",
+            "--no-pager",
+        ],
     )
     capture(
         out / "containers",
