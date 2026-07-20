@@ -1,0 +1,3 @@
+---
+_tls: "{{ lookup('tls', application_id) }}"
+_cert: "{{ lookup('cert', application_id) }}"
