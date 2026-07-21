@@ -9,14 +9,19 @@
 set -uo pipefail
 
 for _ in $(seq 1 60); do
-	systemctl is-system-running 2>/dev/null | grep -qE 'running|degraded' && break
+	state="$(systemctl is-system-running 2>/dev/null || true)"
+	case "${state}" in running | degraded) break ;; esac
 	sleep 1
 done
-if ! systemctl is-system-running 2>/dev/null | grep -qE 'running|degraded'; then
-	echo "systemd never reached a running state" >&2
+state="$(systemctl is-system-running 2>/dev/null || true)"
+case "${state}" in
+running | degraded) ;;
+*)
+	echo "systemd never reached a running state (last: ${state:-unknown})" >&2
 	systemctl --no-pager status 2>/dev/null | head -n 20 >&2 || true
 	exit 1
-fi
+	;;
+esac
 
 bash "${INFINITO_SRC_DIR:?}/scripts/tests/dns/install-dockerd.sh"
 
