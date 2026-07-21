@@ -14,10 +14,21 @@
   vars:
     wait_service_key: "{{ OPENPROJECT_WEB_SERVICE }}"
 
+- name: "🔍 Resolve the OpenProject web hosting node and container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ OPENPROJECT_WEB_SERVICE }}"
+    resolve_service_name: "{{ lookup('container_service', application_id, OPENPROJECT_WEB_SERVICE) }}"
+    resolve_output_prefix: OPENPROJECT_WEB
+    resolve_compose_cid: "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
 - name: ▶️ Run database migrations
-  shell: >
-    container exec -i {{ OPENPROJECT_WEB_CONTAINER_ADDRESS }} bash -lc
+  shell: >- # nocheck: container-exec-resolver  OPENPROJECT_WEB_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ OPENPROJECT_WEB_LOCAL_CID | quote }} bash -lc
     "cd /app && bin/rails db:migrate RAILS_ENV=production"
+  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   register: openproject_migrate
   retries: 30
   delay: 10
@@ -40,12 +51,13 @@
 
 - name: 🔧 Set settings in OpenProject (rails runner via STDIN from an external script)
   ansible.builtin.shell:
-    cmd: >-
+    cmd: >- # nocheck: container-exec-resolver  OPENPROJECT_WEB_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
       container exec -i
       -e OPENPROJECT_RAILS_SETTINGS={{ OPENPROJECT_RAILS_SETTINGS | to_json | quote }}
-      {{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}
+      {{ OPENPROJECT_WEB_LOCAL_CID | quote }}
       bash -lc "cd /app && bundle exec rails runner -"
     stdin: "{{ lookup('file', 'ruby/apply_settings.rb') }}"
+  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   register: openproject_apply_settings
   retries: 30
   delay: 5
