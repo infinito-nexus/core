@@ -30,6 +30,8 @@ run_one() {
 		-v /sys/fs/cgroup:/sys/fs/cgroup:rw \
 		-v /lib/modules:/lib/modules:ro \
 		-e GITHUB_ACTIONS=true \
+		-e GITHUB_REPOSITORY_OWNER="${OWNER}" \
+		-e GITHUB_REPOSITORY="${OWNER}/${REPO_NAME}" \
 		-e INFINITO_BUILD=0 \
 		-e INFINITO_DISTRO="${d}" \
 		-e INFINITO_IMAGE="${image}" \
