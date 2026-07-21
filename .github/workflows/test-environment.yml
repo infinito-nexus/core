@@ -52,7 +52,7 @@ jobs:
           swap-storage: false
 
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       - name: Run dev environment routine
         shell: bash
