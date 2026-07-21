@@ -20,17 +20,12 @@
     (occ_status.stdout | default('')) is search('installed: true')
   changed_when: false
 
+# nocheck: container-exec-resolver NEXTCLOUD_CONTAINER_ADDRESS is a swarm-mode subshell that only a shell can expand; command/argv would pass it literally
 - name: "📄 Install the infinito additional-config loader into config/"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -u
-      - root
-      - "{{ NEXTCLOUD_CONTAINER_ADDRESS }}"
-      - sh
-      - -c
-      - "cat > /var/www/html/config/zzz-infinito.config.php && chmod 0444 /var/www/html/config/zzz-infinito.config.php"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i -u root {{ NEXTCLOUD_CONTAINER_ADDRESS }}
+      sh -c 'cat > /var/www/html/config/zzz-infinito.config.php
+      && chmod 0444 /var/www/html/config/zzz-infinito.config.php'
     stdin: "{{ lookup('template', 'include.php.j2') }}"
   changed_when: true
