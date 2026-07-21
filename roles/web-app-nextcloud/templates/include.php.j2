@@ -1,12 +1,10 @@
 <?php
 {% raw %}
-// Include and merge all PHP config files from infinito
-
 $CONFIG_EXTRA = [];
 
 foreach (glob("{% endraw %}{{ NEXTCLOUD_DOCKER_CONF_ADD_PATH }}{% raw %}*.php") as $file) {
     $CONFIG_EXTRA = array_merge($CONFIG_EXTRA, include $file);
 }
 
-$CONFIG = array_merge($CONFIG, $CONFIG_EXTRA);
+$CONFIG = $CONFIG_EXTRA;
 {% endraw %}

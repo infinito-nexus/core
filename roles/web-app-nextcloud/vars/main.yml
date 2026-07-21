@@ -18,16 +18,12 @@ NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcl
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
 NEXTCLOUD_HOST_CONF_ADD_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'infinito' ] | path_join }}"
-NEXTCLOUD_HOST_INCL_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'includes.php' ] | path_join }}"
 NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 
 NEXTCLOUD_DOCKER_WORK_DIRECTORY: "/var/www/html/"
-NEXTCLOUD_DOCKER_CONF_DIRECTORY: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'config/'] | path_join }}"
-NEXTCLOUD_DOCKER_CONFIG_FILE: "{{ [ NEXTCLOUD_DOCKER_CONF_DIRECTORY, 'config.php'] | path_join }}"
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "/var/www/infinito/"
-NEXTCLOUD_DOCKER_INCL_PATH: "/tmp/includes.php"
 
 NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('config', application_id, 'users.administrator.username') }}"

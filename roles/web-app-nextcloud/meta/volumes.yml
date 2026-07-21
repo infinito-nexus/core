@@ -47,11 +47,5 @@ infinito_conf:
   mounts:
     - service: nextcloud
       target: /var/www/infinito/
-
-nextcloud_includes:
-  type: config
-  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'includes.php' ] | path_join }}"
-  mode: "0444"
-  mounts:
-    - service: nextcloud
-      target: /tmp/includes.php
+    - service: cron
+      target: /var/www/infinito/
