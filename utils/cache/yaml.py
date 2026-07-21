@@ -50,6 +50,13 @@ def _construct_compose_merge_tag(loader, node):
 for _tag in ("!override", "!reset"):
     yaml.SafeLoader.add_constructor(_tag, _construct_compose_merge_tag)
 
+
+def _construct_vault_tag(loader, node):
+    return loader.construct_scalar(node)
+
+
+yaml.SafeLoader.add_constructor("!vault", _construct_vault_tag)
+
 _MISSING = object()
 _CACHE: dict[tuple[str, int, int], list[Any]] = {}
 

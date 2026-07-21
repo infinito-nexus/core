@@ -23,10 +23,7 @@ class TestYamlSyntax(unittest.TestCase):
                 invalid.append((full, f"Unexpected error: {e}"))
 
         if invalid:
-            msg_lines = [
-                f"{path}: {err.splitlines()[0]}"  # just the first line of the error
-                for path, err in invalid
-            ]
+            msg_lines = [f"{path}: {err.splitlines()[0]}" for path, err in invalid]
             self.fail(
                 "Found invalid YAML in the following files:\n" + "\n".join(msg_lines)
             )
