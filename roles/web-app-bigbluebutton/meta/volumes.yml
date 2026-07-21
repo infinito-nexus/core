@@ -69,3 +69,10 @@ ep_redis_publisher_patch:
   mounts:
     - service: etherpad
       target: /opt/etherpad-lite/src/plugin_packages/.versions/ep_redis_publisher@0.0.3/index.js
+etherpad_pg_entrypoint:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-bigbluebutton', 'directories.instance'), 'etherpad_pg_entrypoint.sh'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: etherpad
+      target: /etherpad_pg_entrypoint.sh

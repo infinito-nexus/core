@@ -18,8 +18,11 @@ services:
   {{ service_name }}:
     {{ lookup('container_image', application_id, service_name) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    entrypoint: ["sh", "/etherpad_pg_entrypoint.sh"]
 {% if BBB_COLLABORA_ENABLED | bool %}
-    {{ lookup('depends_on', ['redis']) }}
+    {{ lookup('depends_on', ['redis', 'postgres']) }}
+{% else %}
+    {{ lookup('depends_on', ['postgres']) }}
 {% endif %}
 {% set service_name = 'bbb-pads' %}
   {{ service_name }}:

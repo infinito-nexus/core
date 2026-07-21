@@ -19,6 +19,13 @@
     mode: "0444"
   notify: compose up
 
+- name: "🩹 Vendor the etherpad postgres-DB entrypoint wrapper"
+  stack_host_copy:
+    src: etherpad_pg_entrypoint.sh
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'etherpad_pg_entrypoint.sh'] | path_join }}"
+    mode: "0444"
+  notify: compose up
+
 - name: 📁 Create symbolic link from .env file to target location
   file:
     src: "{{ BBB_ENV_FILE_ORIGINE }}"
