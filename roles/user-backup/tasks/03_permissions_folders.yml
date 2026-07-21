@@ -12,9 +12,15 @@
     group: backup
     mode: "0700"
 
-- name: 🔐 Apply POSIX ACLs for the backup user (non-NFS backends)
+- name: 🔎 Detect the filesystem backing the backups root
+  ansible.builtin.command:
+    cmd: "findmnt -n -o FSTYPE --target {{ DIR_BACKUPS }}"
+  register: _backups_fstype
+  changed_when: false
+
+- name: 🔐 Apply POSIX ACLs for the backup user (non-NFS filesystems)
   ansible.builtin.include_tasks: 03b_acl.yml
-  when: storage.backend != 'nfs'
+  when: not ((_backups_fstype.stdout | trim) is match('^nfs'))
 
 - name: 📁 Fix ownership level 0..2 directories to backup:backup
   ansible.builtin.shell: >
