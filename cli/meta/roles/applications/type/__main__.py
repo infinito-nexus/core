@@ -26,7 +26,7 @@ def main() -> None:
     parser.add_argument(
         "--lifecycles",
         nargs="+",
-        help="Optional lifecycle filter (space-separated), e.g. alpha beta rc stable. "
+        help="Optional lifecycle filter (space-separated), e.g. 'beta rc'. "
         "If omitted, no lifecycle filtering is applied (all roles are returned).",
     )
     parser.add_argument(

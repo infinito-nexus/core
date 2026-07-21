@@ -8,12 +8,12 @@ The table lives in its own ``## Roles Overview 🧩`` section directly above
 run; every other section stays untouched. Rows are the invokable roles,
 sorted ascending by the Entity column.
 
-Rows are the invokable roles inside the tested envelope (lifecycle
-alpha/beta/rc/stable/maintenance), sorted ascending by name.
+Rows are the invokable roles inside the tested lifecycle envelope, sorted
+ascending by name.
 
 Columns:
   Name             Role README H1 title, linked to the role directory.
-  Status           Role lifecycle stage (alpha/beta/rc/stable/maintenance).
+  Status           Role lifecycle stage.
   Description      ``galaxy_info.description`` from meta/main.yml.
   More             Emoji links: 🌐 homepage, 🎬 video (both from
                    meta/info.yml, omitted when absent) and 🛠️ the role
@@ -33,6 +33,7 @@ from cli.meta.roles.applications.complexity.model import compute_complexity_rows
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.entity.name import get_entity_name
+from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
     ROLE_FILE_META_MAIN,
@@ -52,12 +53,11 @@ COLUMNS = (
 _HOME_EMOJI = "🌐"
 _VIDEO_EMOJI = "🎬"
 _INSTALL_EMOJI = "🛠️"
-_TESTED_ENVELOPE = frozenset({"alpha", "beta", "rc", "stable", "maintenance"})
+_TESTED_ENVELOPE = tested_lifecycles()
 _INTRO = (
-    "Every invokable role in the tested envelope (lifecycle "
-    "alpha/beta/rc/stable/maintenance), with its upstream homepage, an "
-    "introduction video, the roles it integrates with, and a one-command "
-    "local install."
+    "Every invokable role in the tested lifecycle envelope, with its upstream "
+    "homepage, an introduction video, the roles it integrates with, and a "
+    "one-command local install."
 )
 
 

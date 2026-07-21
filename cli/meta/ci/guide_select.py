@@ -1,7 +1,8 @@
 """Pick the role, distro, and deploy mode for the Guide test.
 
 Role selection: an explicit ``--role`` wins; otherwise a random pick from
-``--priority``, then ``--whitelist``, then every invokable role. The distro is
+``--priority``, then ``--whitelist``, then every invokable role inside the
+tested lifecycle envelope (``INFINITO_LIFECYCLES`` in ``default.env``). The distro is
 a random pick from ``INFINITO_DISTROS``, resolved to that distro's pkgmgr base
 image (it ships systemd plus the build toolchain, so a host role can boot
 systemd and install straight inside it). The mode is ``host`` for a role that
@@ -18,7 +19,12 @@ import sys
 
 from utils.cache.files import PROJECT_ROOT
 from utils.roles.deploy import role_has_stack
-from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
+from utils.roles.lifecycle import tested_lifecycles
+from utils.roles.validation.invokable import (
+    _get_invokable_paths,
+    _is_role_invokable,
+    _role_lifecycle,
+)
 
 _RUNTIME_IMAGE = "ghcr.io/kevinveenbirkenbach/pkgmgr-{distro}:stable"
 
@@ -29,13 +35,16 @@ def _tokens(raw: str) -> list[str]:
     return [t for t in raw.split() if t]
 
 
-def _all_invokable() -> list[str]:
+def _testable_roles() -> list[str]:
     paths = _get_invokable_paths()
     roles_dir = PROJECT_ROOT / "roles"
+    tested = set(tested_lifecycles())
     return sorted(
         d.name
         for d in roles_dir.iterdir()
-        if d.is_dir() and _is_role_invokable(d.name, paths)
+        if d.is_dir()
+        and _is_role_invokable(d.name, paths)
+        and _role_lifecycle(d) in tested
     )
 
 
@@ -49,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.role.strip():
         role = args.role.strip()
     else:
-        pool = _tokens(args.priority) or _tokens(args.whitelist) or _all_invokable()
+        pool = _tokens(args.priority) or _tokens(args.whitelist) or _testable_roles()
         if not pool:
             print("guide_select: no candidate roles", file=sys.stderr)
             return 1

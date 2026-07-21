@@ -226,7 +226,7 @@ def build_parser() -> argparse.ArgumentParser:
             "CI-tested: a role scores True for a mode only if its "
             "meta/services.yml lifecycle is in this set (and it is invokable "
             "and not skipped for the mode). Comma- or whitespace-separated, "
-            "e.g. 'alpha beta rc stable' or 'alpha,beta'. Omitted: the "
+            "e.g. 'beta rc' or 'alpha,beta'. Omitted: the "
             f"built-in default ({' '.join(sorted(TESTED_LIFECYCLES))})."
         ),
     )

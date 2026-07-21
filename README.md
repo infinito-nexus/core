@@ -56,7 +56,7 @@ Try [Infinito.Nexus](https://infinito.nexus). Sign up in seconds, explore the pl
 
 ## Roles Overview 🧩
 
-Every invokable role in the tested envelope (lifecycle alpha/beta/rc/stable/maintenance), with its upstream homepage, an introduction video, the roles it integrates with, and a one-command local install.
+Every invokable role in the tested lifecycle envelope, with its upstream homepage, an introduction video, the roles it integrates with, and a one-command local install.
 
 | Name | Status | Description | More | Integrated with |
 |---|---|---|---|---|

@@ -68,7 +68,7 @@ GHCR publication uses the workflow `GITHUB_TOKEN`; optional Docker Hub secrets a
 
 ### 9. Deploy Tests 🚀
 
-The two deploy-test workflows listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) (compose and swarm modes) run in parallel once DNS and mirroring have completed. Both cover all deployment types (`INFINITO_DISCOVER_ALL`, lifecycle-filtered to `alpha beta rc stable`), not just the `web-*` server scope.
+The two deploy-test workflows listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) (compose and swarm modes) run in parallel once DNS and mirroring have completed. Both cover all deployment types (`INFINITO_DISCOVER_ALL`, lifecycle-filtered to the `INFINITO_LIFECYCLES` envelope), not just the `web-*` server scope.
 
 #### Diff-driven app selection 🎯
 
