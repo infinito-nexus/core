@@ -30,5 +30,5 @@ for _ in $(seq 1 40); do
 	sleep 3
 done
 docker exec "${CID}" systemctl is-system-running 2>/dev/null | grep -qE 'running|degraded'
-docker exec "${CID}" bash -lc 'loginctl enable-linger root && systemctl start user@0.service'
+docker exec "${CID}" bash -lc 'systemctl unmask systemd-logind && systemctl start systemd-logind && loginctl enable-linger root && systemctl start user@0.service'
 docker exec -i -w "${PWD}" "${CID}" bash -s </tmp/host-deploy.sh
