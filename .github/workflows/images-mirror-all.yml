@@ -81,7 +81,7 @@ jobs:
         run: bash scripts/meta/resolve/ghcr/namespace_and_repository.sh
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
