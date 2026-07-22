@@ -24,6 +24,13 @@ if command -v apt-get >/dev/null 2>&1; then
 	if [ "$(id -u)" -eq 0 ]; then apt-get update -qq || true; else sudo -E apt-get update -qq || true; fi # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
+if docker ps --format '{{.Names}}' | grep -qx 'infinito_nexus_debian'; then
+	if docker exec infinito_nexus_debian docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'tor'; then
+		echo "==> quiescing CI compose tor (competing onion publisher)"
+		docker exec infinito_nexus_debian docker stop tor
+	fi
+fi
+
 bash "${SCRIPT_DIR}/../utils/unmount_nfs_mounts.sh" "${NFS_SERVER}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
 	docker rm -f "${node}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

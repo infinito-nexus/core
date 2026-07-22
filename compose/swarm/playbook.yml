@@ -92,6 +92,8 @@
         - "{{ lab_mgr }}"
         - "{{ lab_nfs }}"
         - "{{ lab_backup }}"
+        - "{{ lab_wrk1 }}"
+        - "{{ lab_wrk2 }}"
       timeout: 30
       delegate_to: localhost
       run_once: true
@@ -103,7 +105,22 @@
         lab_mgr_ip: "{{ lab_ips.results[0].stdout }}"
         lab_nfs_ip: "{{ lab_ips.results[1].stdout }}"
         lab_backup_ip: "{{ lab_ips.results[2].stdout }}"
+        lab_wrk1_ip: "{{ lab_ips.results[3].stdout }}"
+        lab_wrk2_ip: "{{ lab_ips.results[4].stdout }}"
       run_once: true
+
+    - name: pin swarm node hostnames to their lab-network IPs
+      blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} INFINITO LAB NODES"
+        block: |-
+          {{ lab_mgr_ip }} {{ lab_mgr }}
+          {{ lab_wrk1_ip }} {{ lab_wrk1 }}
+          {{ lab_wrk2_ip }} {{ lab_wrk2 }}
+          {{ lab_nfs_ip }} {{ lab_nfs }}
+        unsafe_writes: true
+      timeout: 30
+      when: lab_dns_node
 
     - name: publish the IPs to $GITHUB_ENV (read by later CI steps; not visible in this one)
       lineinfile:

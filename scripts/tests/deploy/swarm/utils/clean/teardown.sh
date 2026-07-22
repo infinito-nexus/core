@@ -24,13 +24,15 @@ fi
 timeout 30 docker exec "${NFS_SERVER}" systemctl stop nfs-ganesha 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 for _node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
-	timeout 30 docker kill "${_node}" 2>/dev/null
 	timeout 15 docker network disconnect -f "${SWARM_LAB_NETWORK}" "${_node}" 2>/dev/null
-	timeout 30 docker rm -f "${_node}" 2>/dev/null
-	timeout 15 docker inspect "${_node}" >/dev/null 2>&1
-	_inspect_rc=$?
-	if [ "${_inspect_rc}" -eq 0 ] || [ "${_inspect_rc}" -eq 124 ]; then
-		echo "WARNING: could not remove '${_node}' (inspect rc=${_inspect_rc}; kernel D-state? stuck NFS mount); a host reboot may be required." >&2
+	for _try in 1 2 3 4 5; do
+		timeout 20 docker kill -s KILL "${_node}" 2>/dev/null
+		timeout 20 docker rm -f "${_node}" 2>/dev/null
+		timeout 15 docker inspect "${_node}" >/dev/null 2>&1 || break
+		sleep 2
+	done
+	if timeout 15 docker inspect "${_node}" >/dev/null 2>&1; then
+		echo "WARNING: could not remove '${_node}' (kernel D-state? stuck NFS mount); a host reboot may be required." >&2
 	fi
 done
 timeout 30 docker network rm "${SWARM_LAB_NETWORK}" 2>/dev/null
