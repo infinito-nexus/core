@@ -2,8 +2,6 @@
 # General
 application_id: "svc-net-tor"
 
-# Tor upstream base image (a Debian release; the tor package is installed from it
-# in files/Dockerfile for provenance + reproducible pinning).
 TOR_IMAGE: "{{ lookup('config', application_id, 'services.tor.image') }}"
 TOR_VERSION: "{{ lookup('config', application_id, 'services.tor.version') }}"
 TOR_CONTAINER: "{{ lookup('config', application_id, 'services.tor.name') }}"
@@ -14,19 +12,12 @@ TOR_USE_ENTRY_GUARDS: "{{ lookup('config', application_id, 'services.tor.use_ent
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+TOR_HS_BACKEND_HOST: "{{ ansible_facts['default_ipv4']['address'] if DEPLOYMENT_MODE == 'swarm' else '127.0.0.1' }}"
 TOR_DNS_UPSTREAMS_FILE: "{{ [ DIR_VAR_LIB, application_id, 'dns-upstreams' ] | path_join }}"
 
-# Host paths (under DIR_VAR_LIB); Tor's runtime DataDirectory + HiddenServiceDir.
 TOR_DATA_DIR: "{{ [ DIR_VAR_LIB, application_id, 'data' ] | path_join }}"
 TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB, application_id, 'config' ] | path_join }}"
 TOR_TORRC_HOST: "{{ [ TOR_CONFIG_DIR, 'torrc' ] | path_join }}"
 TOR_HS_DIR: "{{ [ TOR_DATA_DIR, 'infinito', 'node' ] | path_join }}"
 
-# Authoritative hidden-service key files, minted by
-# `cli.administration.inventory.onion init-env` at the repo root. Their address
-# MUST equal DOMAIN_PRIMARY (== INFINITO_DOMAIN); copied into TOR_HS_DIR
-# before Tor starts so the daemon serves exactly that onion.
 TOR_HS_SRC_DIR: "{{ lookup('path_absolute', '.onion-identity', 'hs') }}"
-# TOR_EGRESS_ENABLED and TOR_ONION_EXTRA_PORTS are defined globally in
-# group_vars/all/19_tor.yml (they must not be redefined here — a role var that
-# references itself triggers a Jinja recursion error).

@@ -85,12 +85,8 @@
   when: TOR_EGRESS_ROUTER_ENABLED | bool
 
 - name: "⏳ Wait until the node onion answers internally (loopback fast path)"
-  ansible.builtin.command:
-    argv:
-      - python3
-      - "{{ role_path }}/files/onion_self_reach.py"
-      - internal
-      - "{{ TOR_NODE_ONION }}"
+  ansible.builtin.script:
+    cmd: "{{ role_path }}/files/onion_self_reach.py internal {{ TOR_NODE_ONION }}"
   register: _tor_self_reach
   retries: 90
   delay: 5
@@ -101,13 +97,10 @@
     - TOR_NODE_ONION | length > 0
 
 - name: "🔎 Probe the node onion over the real Tor network (non-fatal)"
-  ansible.builtin.command:
-    argv:
-      - python3
-      - "{{ role_path }}/files/onion_self_reach.py"
-      - external
-      - "{{ TOR_NODE_ONION }}"
-      - "{{ lookup('tor_socks', '127.0.0.1') }}"
+  ansible.builtin.script:
+    cmd: >-
+      {{ role_path }}/files/onion_self_reach.py external
+      {{ TOR_NODE_ONION }} {{ lookup('tor_socks', '127.0.0.1') }}
   register: _tor_self_reach_ext
   retries: 90
   delay: 5

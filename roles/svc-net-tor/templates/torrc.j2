@@ -3,11 +3,6 @@ RunAsDaemon 0
 Log notice stdout
 DataDirectory /var/lib/tor
 
-# SOCKS proxy — required to reach .onion services from the node (health checks,
-# inter-onion federation, and the Playwright runner testing over Tor). Bound on
-# all node interfaces so DiD sibling containers can reach it via
-# host.docker.internal, but restricted by SocksPolicy to loopback + private/DiD
-# ranges so it is never an open proxy.
 SocksPort {{ lookup('tor_socks', '0.0.0.0') }}
 SocksPolicy accept 127.0.0.0/8
 SocksPolicy accept 10.0.0.0/8
@@ -28,11 +23,9 @@ VirtualAddrNetworkIPv4 {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }}
 TransPort 127.0.0.1:{{ TOR_TRANS_PORT }}
 DNSPort 127.0.0.1:{{ TOR_DNS_PORT }}
 {% endif %}
-# Node onion service: one hidden service, per-app subdomains routed by Host in
-# OpenResty. All onion traffic terminates on the host-network OpenResty (:80).
 HiddenServiceDir /var/lib/tor/infinito/node/
 HiddenServiceVersion 3
-HiddenServicePort 80 127.0.0.1:80
+HiddenServicePort 80 {{ TOR_HS_BACKEND_HOST }}:80
 {% for _p in TOR_ONION_EXTRA_PORTS %}
-HiddenServicePort {{ _p.onion_port }} {{ _p.target }}
+HiddenServicePort {{ _p.onion_port }} {{ TOR_HS_BACKEND_HOST }}:{{ _p.target.rsplit(':', 1) | last }}
 {% endfor %}

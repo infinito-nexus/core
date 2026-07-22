@@ -12,19 +12,18 @@ tor:
       enabled: false
     swarm:
       enabled: false
+  # nocheck: default-placement-manager  node onion ingress: host-published SOCKS/DNS/Trans ports and the HiddenService loopback forward must live on the stack host
+  placement: manager
   bond: 1
   enabled: true
   shared: true
   exclusive: true
   primary: true
-  # Base image for the local Debian+tor build (files/Dockerfile).
   image: debian
   version: trixie-slim
   custom: true
   name: tor
   node: ""
-  # Tor default (guard pinning). Test inventories disable it so one degraded
-  # entry guard cannot stall the whole node; anonymity is not under test there.
   use_entry_guards: true
   ports:
     local:

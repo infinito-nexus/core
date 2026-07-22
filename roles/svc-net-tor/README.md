@@ -16,38 +16,38 @@ The diagram places Tor Onion Service in the Infinito.Nexus cosmos: the component
 
 ```mermaid
 flowchart LR
-    subgraph role [svc-net-tor 🐳🐝]
+    subgraph role [svc-net-tor]
         svc_mirror["mirror"]
         svc_tor["tor"]
     end
     subgraph dependents [Dependents]
+        dpt_svc_db_elasticsearch["svc-db-elasticsearch 🐳🐝"]
         dpt_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dpt_svc_db_memcached["svc-db-memcached 🐳🐝"]
         dpt_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dpt_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dpt_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
+        dpt_svc_db_rabbitmq["svc-db-rabbitmq 🐳🐝"]
         dpt_svc_db_redis["svc-db-redis 🐳🐝"]
+        dpt_svc_db_typesense["svc-db-typesense 🐳🐝"]
         dpt_svc_prx_openresty["svc-prx-openresty 🐳🐝"]
         dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
         dpt_web_app_baserow["web-app-baserow 🐳🐝"]
-        dpt_web_app_bluesky["web-app-bluesky 🐳🐝"]
-        dpt_web_app_bookwyrm["web-app-bookwyrm 🐳🐝"]
-        dpt_web_app_bridgy_fed["web-app-bridgy-fed 🐳🐝"]
-        dpt_web_app_checkmk["web-app-checkmk 🐳🐝"]
         dpt_more["..."]
     end
     svc_mirror -- "1:1" --> dpt_more
+    svc_mirror -. "0..1" .-> dpt_svc_db_elasticsearch
     svc_mirror -. "0..1" .-> dpt_svc_db_mariadb
     svc_mirror -. "0..1" .-> dpt_svc_db_memcached
     svc_mirror -. "0..1" .-> dpt_svc_db_openldap
     svc_mirror -. "0..1" .-> dpt_svc_db_postgres
+    svc_mirror -. "0..1" .-> dpt_svc_db_qdrant
+    svc_mirror -. "0..1" .-> dpt_svc_db_rabbitmq
     svc_mirror -. "0..1" .-> dpt_svc_db_redis
+    svc_mirror -. "0..1" .-> dpt_svc_db_typesense
     svc_mirror -. "0..1" .-> dpt_svc_prx_openresty
     svc_mirror -. "0..1" .-> dpt_web_app_akaunting
     svc_mirror -. "0..1" .-> dpt_web_app_baserow
-    svc_mirror -. "0..1" .-> dpt_web_app_bluesky
-    svc_mirror -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_mirror -. "0..1" .-> dpt_web_app_bridgy_fed
-    svc_mirror -. "0..1" .-> dpt_web_app_checkmk
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

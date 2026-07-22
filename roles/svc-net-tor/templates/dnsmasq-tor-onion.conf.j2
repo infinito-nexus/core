@@ -1,17 +1,13 @@
+{% if TOR_DNSMASQ_OWNS_LISTENER | default(true) %}
 listen-address=127.0.0.1
-bind-interfaces
+{% endif %}
+bind-dynamic
 no-hosts
 no-resolv
 filter-AAAA
 {% if TOR_NODE_ONION | length > 0 %}
-# Fast path for this node's own onion: every app subdomain of it terminates on
-# this node's OpenResty, so resolve the whole suffix to loopback and skip the
-# Tor circuit for host-side access (health checks, injections, front-proxy
-# probes). More specific than the generic `server=/onion/...` below, so only
-# the node's own onion short-circuits — all other .onion still egress via Tor.
-# Container/Playwright traffic is unaffected: it routes through the Tor SOCKS,
-# not this resolver, so it still exercises the real onion service.
-address=/{{ TOR_NODE_ONION }}/127.0.0.1
+address=/{{ TOR_NODE_ONION }}/{{ TOR_HS_BACKEND_HOST }}
+local=/{{ TOR_NODE_ONION }}/
 {% endif %}
 server=/onion/127.0.0.1#{{ TOR_DNS_PORT }}
 {% for _ns in TOR_DNS_UPSTREAMS %}

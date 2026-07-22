@@ -39,18 +39,27 @@
 - name: "💾 Egress router | Persist clearnet upstreams (first setup only)"
   ansible.builtin.copy:
     dest: "{{ TOR_DNS_UPSTREAMS_FILE }}"
-    content: |
-      {% for _l in (_tor_resolv_now.content | b64decode).split('\n') if _l.startswith('nameserver ') and _l.split()[1] != '127.0.0.1' %}
-      {{ _l.split()[1] }}
-      {% endfor %}
+    content: "{{ (_tor_upstream_list | join('\n')) ~ '\n' }}"
     owner: root
     group: root
     mode: "0644"
+  vars:
+    _tor_upstream_list: >-
+      {{ (_tor_resolv_now.content | b64decode).split('\n')
+         | select('match', '^nameserver ')
+         | map('split') | map(attribute=1)
+         | reject('equalto', '127.0.0.1') | list }}
   when: not _tor_upstreams_stat.stat.exists
 - name: "📥 Egress router | Load captured upstreams"
   ansible.builtin.slurp:
     src: "{{ TOR_DNS_UPSTREAMS_FILE }}"
   register: _tor_dns_upstreams_raw
+- name: "🔎 Egress router | Detect foreign dnsmasq drop-ins (shared instance)"
+  ansible.builtin.find:
+    paths: "{{ TOR_DNSMASQ_CONF | dirname }}"
+    patterns: "*.conf"
+    excludes: "{{ TOR_DNSMASQ_CONF | basename }}"
+  register: _tor_dnsmasq_foreign
 - name: "📝 Egress router | Render dnsmasq .onion split-DNS drop-in"
   ansible.builtin.template: # nocheck: stack-host-template (per-host dnsmasq system config in /etc/dnsmasq.d)
     src: dnsmasq-tor-onion.conf.j2
@@ -60,6 +69,7 @@
     mode: "0644"
   vars:
     TOR_DNS_UPSTREAMS: "{{ (_tor_dns_upstreams_raw.content | b64decode).split('\n') | map('trim') | reject('equalto', '') | list }}"
+    TOR_DNSMASQ_OWNS_LISTENER: "{{ _tor_dnsmasq_foreign.matched == 0 }}"
   register: _tor_dnsmasq_conf
 - name: "🚀 Egress router | Enable + (re)start dnsmasq"
   ansible.builtin.systemd:
