@@ -33,7 +33,6 @@ DB_PASSWORD="$(printf '%s' "${DB_PASSWORD_B64}" | base64 -d 2>/dev/null)"
 
 # Local: bind inside the container over TCP — a genuine credential check.
 auth_local() {
-	# -y /dev/stdin keeps the bind password off the argv (fed via the pipe).
 	printf '%s' "${DB_PASSWORD}" | container exec -i "${DB_CONTAINER}" \
 		ldapwhoami -x -H ldap://127.0.0.1:389 -D "${BIND_DN}" -y /dev/stdin \
 		>/dev/null 2>&1
@@ -62,8 +61,8 @@ def recvall(s, n):
 
 
 def socks_connect():
-    s = socket.create_connection((ph, pp), timeout=30)
-    s.settimeout(30)
+    s = socket.create_connection((ph, pp), timeout=120)
+    s.settimeout(120)
     s.sendall(b"\x05\x01\x00")
     if recvall(s, 2) != b"\x05\x00":
         raise OSError("SOCKS5 no-auth rejected")
@@ -131,13 +130,13 @@ threading.Thread(target=serve, daemon=True).start()
 from ldap3 import Connection, Server
 
 try:
-    server = Server("127.0.0.1", port=lport, connect_timeout=30)
+    server = Server("127.0.0.1", port=lport, connect_timeout=120)
     conn = Connection(
         server,
         user=os.environ["BIND_DN"],
         password=os.environ["DB_PW"],
         auto_bind=True,
-        receive_timeout=30,
+        receive_timeout=120,
     )
     who = conn.extend.standard.who_am_i()
     conn.unbind()

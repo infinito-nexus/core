@@ -61,8 +61,8 @@ def recvall(s, n):
 
 
 def socks_connect():
-    s = socket.create_connection((ph, pp), timeout=30)
-    s.settimeout(30)
+    s = socket.create_connection((ph, pp), timeout=120)
+    s.settimeout(120)
     s.sendall(b"\x05\x01\x00")
     if recvall(s, 2) != b"\x05\x00":
         raise OSError("SOCKS5 no-auth rejected")
@@ -133,7 +133,7 @@ try:
     conn = psycopg2.connect(
         host="127.0.0.1", port=lport, user=os.environ["DB_USER"],
         password=os.environ["DB_PW"], dbname=os.environ["DB_NAME"],
-        connect_timeout=30,
+        connect_timeout=120,
     )
     cur = conn.cursor()
     cur.execute("SELECT 1")

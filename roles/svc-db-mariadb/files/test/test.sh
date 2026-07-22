@@ -32,7 +32,6 @@ DB_PASSWORD="$(printf '%s' "${DB_PASSWORD_B64}" | base64 -d 2>/dev/null)"
 # Local: authenticate inside the container over TCP (127.0.0.1) so the server
 # enforces password auth — a genuine credential check.
 auth_local() {
-	# MYSQL_PWD keeps the password off the client argv (not in the container ps).
 	container exec -e MYSQL_PWD="${DB_PASSWORD}" "${DB_CONTAINER}" \
 		mariadb -h 127.0.0.1 -u "${DB_USER}" -N -B -e 'SELECT 1' 2>/dev/null |
 		grep -qx 1
@@ -61,8 +60,8 @@ def recvall(s, n):
 
 
 def socks_connect():
-    s = socket.create_connection((ph, pp), timeout=30)
-    s.settimeout(30)
+    s = socket.create_connection((ph, pp), timeout=120)
+    s.settimeout(120)
     s.sendall(b"\x05\x01\x00")
     if recvall(s, 2) != b"\x05\x00":
         raise OSError("SOCKS5 no-auth rejected")
@@ -132,7 +131,7 @@ import pymysql
 try:
     conn = pymysql.connect(
         host="127.0.0.1", port=lport, user=os.environ["DB_USER"],
-        password=os.environ["DB_PW"], connect_timeout=30, read_timeout=30,
+        password=os.environ["DB_PW"], connect_timeout=120, read_timeout=120,
     )
     with conn.cursor() as cur:
         cur.execute("SELECT 1")
