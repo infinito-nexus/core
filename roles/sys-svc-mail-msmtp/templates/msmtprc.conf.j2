@@ -1,4 +1,7 @@
 {% set email = lookup('email') %}
+{% set _smtp_ci = email.external | bool and DOCKER_IN_CONTAINER | bool %}
+{% set _smtp_local = _smtp_ci and (DEPLOYMENT_MODE == 'compose' or 'svc-swarm-node' in group_names) %}
+{% set _smtp_mgr = _smtp_ci and not _smtp_local and (groups['svc-swarm-manager'] | default([]) | length > 0) %}
 defaults
 logfile             ~/.msmtp.log
 timeout             {{ email.timeout }}
@@ -9,7 +12,7 @@ tls                 {{ email.tls | on_off }}
 tls_trust_file      {{ sys_svc_mail_msmtp_ca_bundle_override | default(sys_svc_mail_msmtp_ca_bundle) }}
 tls_host_override   {{ email.host }}
 account             system_email_no_reply
-host                {{ '127.0.0.1' if (email.external | bool and DOCKER_IN_CONTAINER | bool and (DEPLOYMENT_MODE == 'compose' or 'svc-swarm-node' in group_names)) else email.host }}
+host                {{ '127.0.0.1' if _smtp_local else (groups['svc-swarm-manager'] | first) if _smtp_mgr else email.host }}
 port                {{ email.port }}
 from                {{ email['from'] }}
 {% if (email.auth | bool) %}
