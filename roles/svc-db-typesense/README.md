@@ -20,15 +20,18 @@ The diagram places Typesense in the Infinito.Nexus cosmos: the components it dep
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_net_tor["svc-net-tor"]
     end
     subgraph role [svc-db-typesense 🐳🐝]
         svc_typesense["typesense"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_funkwhale["web-app-funkwhale 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     svc_typesense -. "0..1" .-> dpt_web_app_funkwhale
 ```
 

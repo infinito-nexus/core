@@ -15,13 +15,16 @@ The diagram places Imprint in the Infinito.Nexus cosmos: the components it deplo
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
     subgraph role [web-svc-legal]
         svc_legal["legal ❌"]
         svc_html["html"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
 ```
 

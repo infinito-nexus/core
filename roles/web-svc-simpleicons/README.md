@@ -16,6 +16,7 @@ The diagram places Simple Icons in the Infinito.Nexus cosmos: the components it 
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
@@ -28,11 +29,13 @@ flowchart LR
         svc_recaptcha["recaptcha"]
         svc_simpleicons["simpleicons"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_dashboard["web-app-dashboard 🐳🐝"]
     end
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_keycloak -- "1:1" --> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     svc_sso -. "0..1" .-> dpt_web_app_dashboard

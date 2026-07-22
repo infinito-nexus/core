@@ -22,9 +22,14 @@ The diagram places World Wide Web in the Infinito.Nexus cosmos: the components i
 
 ```mermaid
 flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor"]
+    end
     subgraph role [web-opt-rdr-www]
         svc_rdr_www["rdr-www"]
+        svc_tor["tor"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

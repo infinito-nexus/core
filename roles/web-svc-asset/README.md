@@ -15,6 +15,7 @@ The diagram places Assets Server in the Infinito.Nexus cosmos: the components it
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_file["web-svc-file 💻"]
@@ -25,12 +26,14 @@ flowchart LR
         svc_matomo["matomo"]
         svc_css["css ❌"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_web_app_listmonk["web-app-listmonk 🐳🐝"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_file -. "0..1" .-> svc_file

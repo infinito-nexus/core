@@ -61,6 +61,7 @@ flowchart LR
         svc_recordings["recordings"]
         svc_bbb_webrtc_recorder["bbb-webrtc-recorder"]
         svc_container_backup["container_backup"]
+        svc_tor["tor ❌"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]

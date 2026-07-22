@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -35,6 +36,7 @@ flowchart LR
         svc_css["css"]
         svc_recaptcha["recaptcha"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
@@ -53,6 +55,7 @@ flowchart LR
     end
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo

@@ -49,6 +49,7 @@ flowchart LR
         svc_gateway["gateway"]
         svc_redis["redis"]
         svc_prometheus["prometheus"]
+        svc_tor["tor ❌"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]

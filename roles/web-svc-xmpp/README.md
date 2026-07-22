@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
@@ -26,10 +27,12 @@ flowchart LR
         svc_sso["sso"]
         svc_ldap["ldap"]
         svc_xmpp["xmpp"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
 ```

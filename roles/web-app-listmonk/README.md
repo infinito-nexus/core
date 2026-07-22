@@ -19,6 +19,7 @@ The diagram places Listmonk in the Infinito.Nexus cosmos: the components it depl
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -43,8 +44,10 @@ flowchart LR
         svc_css["css"]
         svc_hcaptcha["hcaptcha"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email

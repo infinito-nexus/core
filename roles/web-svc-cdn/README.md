@@ -17,6 +17,7 @@ The diagram places Content Delivery Network in the Infinito.Nexus cosmos: the co
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
@@ -26,7 +27,9 @@ flowchart LR
         svc_matomo["matomo"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
 ```

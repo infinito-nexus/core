@@ -19,6 +19,7 @@ The diagram places Fediwall in the Infinito.Nexus cosmos: the components it depl
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_friendica["web-app-friendica 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -36,7 +37,9 @@ flowchart LR
         svc_mastodon["mastodon"]
         svc_friendica["friendica"]
         svc_fediwall["fediwall"]
+        svc_tor["tor"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_friendica -. "0..1" .-> svc_friendica
     dep_web_app_keycloak -- "1:1" --> svc_sso
     dep_web_app_mailu -- "1:1" --> svc_email

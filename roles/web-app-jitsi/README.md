@@ -39,6 +39,7 @@ flowchart LR
         svc_prosody["prosody"]
         svc_jicofo["jicofo"]
         svc_jvb["jvb"]
+        svc_tor["tor ❌"]
     end
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard

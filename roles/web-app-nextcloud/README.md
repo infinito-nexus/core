@@ -19,6 +19,7 @@ flowchart LR
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_discourse["web-app-discourse 🐳🐝"]
@@ -68,6 +69,7 @@ flowchart LR
         svc_css["css"]
         svc_hcaptcha["hcaptcha"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_openproject["openproject"]
         svc_gitlab["gitlab"]
         svc_discourse["discourse"]
@@ -86,6 +88,7 @@ flowchart LR
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_discourse -. "0..1" .-> svc_discourse

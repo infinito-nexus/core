@@ -18,12 +18,17 @@ The diagram places Memcached in the Infinito.Nexus cosmos: the components it dep
 
 ```mermaid
 flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor"]
+    end
     subgraph role [svc-db-memcached 🐳🐝]
         svc_memcached["memcached"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_zammad["web-app-zammad 🐳🐝"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     svc_memcached -. "0..1" .-> dpt_web_app_zammad
 ```
 

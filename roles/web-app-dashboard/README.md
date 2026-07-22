@@ -15,6 +15,7 @@ The diagram places Dashboard in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
@@ -34,6 +35,7 @@ flowchart LR
         svc_css["css"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
@@ -50,6 +52,7 @@ flowchart LR
         dpt_web_app_erpnext["web-app-erpnext 🐳🐝"]
         dpt_more["..."]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
