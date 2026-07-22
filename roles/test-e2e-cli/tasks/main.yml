@@ -22,6 +22,22 @@
     state: directory
     mode: "0700"
 
+- name: 📦 Install DB client modules for the CLI tests
+  ansible.builtin.command:
+    argv:
+      - python3
+      - -m
+      - pip
+      - install
+      - --quiet
+      - --break-system-packages
+      - pymysql
+      - psycopg2-binary
+      - ldap3
+  register: _cli_pip_install
+  changed_when: "'Successfully installed' in _cli_pip_install.stdout"
+  when: (_cli_apps | length) > 0
+
 - name: 🧪 Run CLI tests, always purging the staged secrets afterwards
   block:
     - name: 🚀 Run CLI test for each detected role
