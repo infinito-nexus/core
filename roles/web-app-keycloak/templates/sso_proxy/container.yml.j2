@@ -18,10 +18,9 @@
       placement:
         constraints:
           - node.role == manager
-{% else %}
+{% endif %}
     extra_hosts:
       - "{{ lookup('domain', 'web-app-keycloak') }}:host-gateway"
-{% endif %}
     healthcheck:
       test: ["CMD", "/bin/oauth2-proxy", "--version"]
       interval: 30s

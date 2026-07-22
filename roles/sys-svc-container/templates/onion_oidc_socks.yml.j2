@@ -1,6 +1,5 @@
 {% set _oidc_onion_host = lookup('tls', 'web-app-keycloak', 'domain') %}
-{# TODO: host-gateway extra_hosts only work in compose; swarm needs its own onion OIDC reachability solution. #}
-{% if (DEPLOYMENT_MODE == 'compose') and (lookup('config', application_id, 'services.sso.enabled') | bool) and (_oidc_onion_host is search('\.onion$')) %}
+{% if (lookup('config', application_id, 'services.sso.enabled') | bool) and (_oidc_onion_host is search('\.onion$')) %}
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "{{ _oidc_onion_host }}:host-gateway"
