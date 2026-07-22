@@ -22,7 +22,7 @@ url="http://${domain}/"
 probe() {
   local i
   for ((i = 1; i <= attempts; i++)); do
-    if curl --silent --show-error --location --max-time 30 --socks5-hostname "${socks}" \
+    if curl --silent --show-error --location --max-time 120 --socks5-hostname "${socks}" \
         -o /dev/null "${url}"; then
       return 0
     fi
@@ -36,6 +36,10 @@ if probe; then
 fi
 
 echo ">>> ${domain} did not answer in ${attempts} attempts; recreating Tor for fresh circuits"
-(cd "${tor_dir}" && compose up -d --force-recreate --remove-orphans)
+if docker service inspect tor_tor >/dev/null 2>&1; then
+	docker service update --force tor_tor --detach
+else
+	(cd "${tor_dir}" && compose up -d --force-recreate --remove-orphans)
+fi
 
 probe
