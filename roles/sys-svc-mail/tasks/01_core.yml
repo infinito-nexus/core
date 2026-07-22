@@ -9,7 +9,9 @@
 - name: "✅ Assert the mail provider was preloaded before configuring external mail"
   ansible.builtin.assert:
     that:
-      - "('run_once_' ~ (MAIL_PROVIDER | replace('-', '_'))) in vars"
+      - >-
+        lookup('vars', 'run_once_' ~ (MAIL_PROVIDER | replace('-', '_')),
+        default='__missing__') != '__missing__'
       - (lookup('users', 'no-reply').tokens | default({})).get(MAIL_PROVIDER, '') | length > 0
     fail_msg: >-
       {{ MAIL_PROVIDER }} must be preloaded by sys-service-loader before
