@@ -78,11 +78,15 @@ def _sort_spec(mode: str) -> str:
     return spec
 
 
-def max_jobs(mode: str) -> int:
+def max_jobs(mode: str, *, blacklist: str = "", lifecycles: str = "") -> int:
+    """The mode's slot budget minus the jobs the run's priority line
+    already occupies (the priority whitelist arrives here as the regular
+    line's blacklist), floored at 0."""
     raw = os.environ["INFINITO_MAX_JOBS"].strip()
-    if raw in ("", "auto"):
-        return slots.mode_slots()[mode]
-    return int(raw)
+    budget = slots.mode_slots()[mode] if raw in ("", "auto") else int(raw)
+    if blacklist.strip():
+        budget -= len(discover(mode, whitelist=blacklist, lifecycles=lifecycles))
+    return max(budget, 0)
 
 
 def _query_argv(
@@ -91,7 +95,7 @@ def _query_argv(
     whitelist: str,
     blacklist: str,
     lifecycles: str,
-    capped: bool,
+    job_cap: int | None,
     fmt: list[str],
 ) -> list[str]:
     args = [
@@ -111,8 +115,8 @@ def _query_argv(
     envelope = lifecycles or os.environ["INFINITO_LIFECYCLES"]
     if envelope.strip():
         args += ["--lifecycles", envelope]
-    if capped:
-        args += ["--max-jobs", str(max_jobs(mode))]
+    if job_cap is not None:
+        args += ["--max-jobs", str(job_cap)]
     return args
 
 
@@ -126,13 +130,18 @@ def discover(
 ) -> list[str]:
     """The ordered selection the discovery query yields for *mode*:
     role names for compose and host, ``role#variant`` tokens for swarm."""
+    job_cap = None
+    if capped:
+        job_cap = max_jobs(mode, blacklist=blacklist, lifecycles=lifecycles)
+        if job_cap == 0:
+            return []
     out = subprocess.run(
         _query_argv(
             mode,
             whitelist=whitelist,
             blacklist=blacklist,
             lifecycles=lifecycles,
-            capped=capped,
+            job_cap=job_cap,
             fmt=["--format", "string"],
         ),
         cwd=PROJECT_ROOT,
@@ -171,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
                 whitelist=whitelist,
                 blacklist=blacklist,
                 lifecycles="",
-                capped=False,
+                job_cap=None,
                 fmt=["-s"],
             ),
             cwd=PROJECT_ROOT,

@@ -195,7 +195,13 @@ def main(argv: list[str] | None = None) -> int:
             lifecycles=args.lifecycles,
         )
         cells = _cells(mode, rows, weights, variants, distros=args.distros)
-        sections.append((mode, max_jobs(mode), cells))
+        sections.append(
+            (
+                mode,
+                max_jobs(mode, blacklist=args.priority, lifecycles=args.lifecycles),
+                cells,
+            )
+        )
 
     render = render_cli if args.cli else render_markdown
     print(render(sections))
