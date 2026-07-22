@@ -32,13 +32,13 @@ def main(argv: list[str] | None = None) -> int:
         nargs="?",
         const="total",
         default=None,
-        choices=("total", "swarm", "compose", "docker"),
-        metavar="{total,swarm,compose}",
+        choices=("total", "swarm", "compose", "docker", "host"),
+        metavar="{total,swarm,compose,host}",
         help=(
             "Re-trigger roles that were not green in the last run as the "
             "priority line; the remaining roles run after they succeed. "
-            "Optional scope: 'total' (default; failed in either mode), "
-            "'swarm', or 'compose'."
+            "Optional scope: 'total' (default; failed in any mode), "
+            "'swarm', 'compose', or 'host'."
         ),
     )
     group.add_argument(

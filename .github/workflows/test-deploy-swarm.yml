@@ -14,7 +14,7 @@ on:
         type: string
         default: ""
       lifecycles:
-        description: "Lifecycle envelope for discovery (comma/space-separated). Empty: default (alpha beta rc stable)."
+        description: "Lifecycle envelope for discovery (comma/space-separated)."
         required: false
         type: string
         default: ""
@@ -41,7 +41,7 @@ on:
         type: string
         default: ""
       lifecycles:
-        description: "Lifecycle envelope for discovery (comma/space-separated). Empty: default (alpha beta rc stable)."
+        description: "Lifecycle envelope for discovery (comma/space-separated)."
         required: false
         type: string
         default: ""
@@ -120,6 +120,18 @@ jobs:
         env:
           INFINITO_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
         run: ./scripts/github/resolve/output_apps.sh
+
+      - name: 🗺️ Render the plan into the run summary
+        shell: bash
+        run: |
+          source scripts/meta/env/load.sh
+          "${PYTHON}" -m cli.meta.ci.plan \
+            --distros "${{ inputs.distros }}" \
+            --whitelist "${{ steps.resolve_wl.outputs.whitelist }}" \
+            --priority "${{ inputs.blacklist }}" \
+            --modes "swarm" \
+            --lifecycles "${{ inputs.lifecycles }}" \
+            >> "$GITHUB_STEP_SUMMARY"
 
   swarm:
     name: "🐝 ${{ matrix.apps }}${{ matrix.variant && format(' {0}',matrix.variant) || '' }}"

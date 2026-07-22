@@ -25,7 +25,16 @@
             )
           )
       }}
-    front_proxy_internal_port: "{{ proxy_internal_port | default('') }}"
+    front_proxy_internal_port: >-
+      {{
+        proxy_internal_port
+        | default(
+            lookup('config', application_id,
+              'services.' ~ (application_id | get_entity_name) ~ '.proxy.internal_port',
+              ''
+            )
+          )
+      }}
     front_proxy_domain_conf_dst_resolved: >-
       {{
         lookup(

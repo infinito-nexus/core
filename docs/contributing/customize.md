@@ -16,6 +16,5 @@ Keys MUST already be registered (a default in `default.env` or a handler under `
 
 | Key | Effect |
 | --- | --- |
-| `INFINITO_ALIAS_MD` | Use your own agent shortcut table; see [agent aliases](tools/agents/alias.md). |
 | `INFINITO_ALIAS_REPOSITORY` | Use your own terminal alias repository; see [terminal aliases](tools/shell/alias.md). |
 | `INFINITO_SKILLS_REPOSITORY` | Use your own agent skills repository; `make install-skills` copies its skills into the project. |

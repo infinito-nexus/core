@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, NamedTuple
 
 from utils.cache.applications import get_variants
 from utils.github.variant_bundles import compose_bundle_counts
+from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
     get_role_mode_enabled,
@@ -28,9 +29,9 @@ from .graph import (
 if TYPE_CHECKING:
     from pathlib import Path
 
-TESTED_LIFECYCLES = frozenset({"alpha", "beta", "rc", "stable"})
-"""Lifecycle stages the CI test-deploy discovery exercises (mirrors
-``scripts/meta/resolve/apps.sh`` ``--lifecycles alpha beta rc stable``)."""
+TESTED_LIFECYCLES = tested_lifecycles()
+"""Lifecycle stages the CI test-deploy discovery exercises, sourced from the
+``INFINITO_LIFECYCLES`` value in ``default.env`` (the single source)."""
 
 
 class ComplexityRow(NamedTuple):

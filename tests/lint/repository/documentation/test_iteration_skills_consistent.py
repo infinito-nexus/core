@@ -19,7 +19,7 @@ from utils.cache.files import read_text
 
 SKILLS_DIR = PROJECT_ROOT / "skills"
 ITERATION_DIR = PROJECT_ROOT / "docs" / "agents" / "action" / "iteration"
-PREFIX = "i8-iteration-"
+PREFIX = "i8-iterate-"
 
 
 def _iteration_doc_names() -> set[str]:

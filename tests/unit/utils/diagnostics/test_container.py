@@ -128,6 +128,34 @@ class CollectTests(unittest.TestCase):
                 (out / "containers" / "web_1.pg_stat_activity.txt").is_file()
             )
 
+    def test_collect_runtime_captures_daemon_journal_and_kill_markers(self):
+        mod = _load()
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            calls: list[list[str]] = []
+
+            def fake_run(cmd, **kw):
+                calls.append(cmd)
+                if cmd and cmd[-1] in ("{{.Names}}", "{{.Name}}"):
+                    return _cp(cmd, stdout=b"")
+                return _cp(cmd, stdout=b"data")
+
+            with mock.patch.object(mod, "run", side_effect=fake_run):
+                mod.collect_runtime(out, "docker")
+
+            journalctls = [c for c in calls if c and c[0] == "journalctl"]
+            self.assertTrue(
+                any("-t" in c and "infinito-kill" in c for c in journalctls),
+                f"kill-marker capture missing: {journalctls}",
+            )
+            self.assertTrue(
+                any("docker" in c and "containerd" in c for c in journalctls),
+                f"daemon-journal capture missing: {journalctls}",
+            )
+            base = out / "containers"
+            self.assertTrue((base / "_kill-markers.txt").is_file())
+            self.assertTrue((base / "_daemon-journal.txt").is_file())
+
     def test_collect_runtime_captures_pg_stat_activity_for_postgres(self):
         mod = _load()
         with tempfile.TemporaryDirectory() as td:

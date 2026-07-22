@@ -33,7 +33,7 @@ act-workflow: install-act
 	@bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: alias
-# Print the agent conversation shortcuts from docs/contributing/tools/agents/alias.md.
+# Print the portable agent shortcuts and the operator's terminal aliases.
 alias:
 	@bash scripts/make/alias.sh
 
@@ -614,6 +614,16 @@ setup: fix-dockerignore dotenv
 setup-clean: clean setup
 	@echo "Full build with cleanup before was executed."
 
+.PHONY: swarm-app-exec
+# Run a one-off command inside a swarm SERVICE container (one replica) on a DinD node.
+# Param service: swarm service name (e.g. moodle_moodle | openldap_openldap).
+# Param name: cluster id (the app id) used to default the node.
+# Param node: full DinD node container (default <name>-swarm-mgr-01).
+# Param cmd: shell pipeline executed inside the resolved service container.
+swarm-app-exec:
+	@test -n '$(service)' || { echo 'usage: make swarm-app-exec service=<svc> [name=<cluster>] [node=<container>] cmd="..."'; exit 2; }
+	@node='$(or $(node),$(name)-swarm-mgr-01)' service='$(service)' cmd='$(cmd)' bash scripts/tests/deploy/act/exec/service.sh
+
 .PHONY: swarm-clean
 # Reclaim ALL leftover act-swarm state (DinD nodes, NFS sidecars, lab networks, act outer containers) from aborted/wedged roundtrip runs, across every cluster id.
 # Note: removes what the docker CLI can; D-state remnants (wedged kernel NFS) need a host docker restart under sudo, or are reported in a no-priv sandbox.
@@ -651,7 +661,7 @@ swarm-down:
 # Param node: full container name (e.g. <cluster>-swarm-mgr-01 | <cluster>-nfs-server; cluster = name= or the app id).
 # Param cmd: shell pipeline executed inside that container.
 swarm-exec:
-	@node='$(node)' cmd='$(cmd)' bash scripts/tests/deploy/act/exec_node.sh
+	@node='$(node)' cmd='$(cmd)' bash scripts/tests/deploy/act/exec/node.sh
 
 .PHONY: swarm-playwright
 # Rerun a role-local Playwright spec against the live swarm-test cluster (no redeploy).
@@ -662,7 +672,7 @@ swarm-playwright:
 	@: $${role:?role=<role> required, e.g. role=web-svc-logout}
 	@test -n '$(name)' || { echo 'name=<cluster-id> required (the app id when no name= was passed to swarm-zombie)'; exit 2; }
 	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
-	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec_node.sh
+	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
 
 .PHONY: swarm-shell
 # Drop into an interactive shell on one of the swarm-test DinD nodes.

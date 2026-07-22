@@ -2,8 +2,8 @@ FROM {{ POSTGRES_IMAGE }}:{{ POSTGRES_VERSION }}
 
 {% if POSTGRES_LIBRARIES | length > 0 %}
 RUN rm -rf /var/lib/apt/lists/* \
- && apt-get update \
- && apt-get install -y --no-install-recommends \
+ && apt-get -o Acquire::Retries=3 update \
+ && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
       build-essential \
       git \
       postgresql-server-dev-{{ POSTGRES_VERSION_MAJOR | default('all', true) }} \

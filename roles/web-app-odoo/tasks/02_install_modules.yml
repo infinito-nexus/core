@@ -21,3 +21,39 @@
         config: "{{ lookup('database', application_id) }}"
         query_file: "{{ role_path }}/files/sql/update/ir-cron/resume.sql"
       changed_when: true
+
+- name: "📝 Flag Odoo for an offline `-u all` on the next boot"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }} touch {{ ODOO_UPDATE_MARKER | quote }}
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  changed_when: true
+
+- name: "♻️ Restart Odoo so the entrypoint runs `-u all` as the sole DB actor (compose)"
+  ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
+  changed_when: true
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "♻️ Restart Odoo so the entrypoint runs `-u all` as the sole DB actor (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, ODOO_SERVICE) }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Re-resolve Odoo hosting node + container id after the update restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ ODOO_SERVICE }}"
+    resolve_output_prefix: ODOO
+    resolve_compose_cid: "{{ ODOO_CONTAINER }}"
+
+- name: "⏳ Wait for Odoo to serve /web/health after the `-u all` update restart"
+  ansible.builtin.shell: |
+    set -eu
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }} timeout 10 bash -c 'exec 3<>/dev/tcp/localhost/{{ container_port }} && printf "GET /web/health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && IFS= read -r _status <&3 && case "$_status" in *" 200 "*) exit 0 ;; *) exit 1 ;; esac'
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_health_after_update
+  changed_when: false
+  retries: 60
+  delay: 10
+  until: odoo_health_after_update.rc == 0

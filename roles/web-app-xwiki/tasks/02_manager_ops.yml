@@ -9,6 +9,9 @@
     status_code: [200, 401, 403, 500, 503]
     return_content: true
   register: _super_check_ext
+  retries: 120
+  delay: 5
+  until: _super_check_ext.status == 200
   changed_when: false
   failed_when: false
 

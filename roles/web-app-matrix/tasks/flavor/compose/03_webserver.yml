@@ -36,4 +36,6 @@
   vars:
     domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
+    proxy_service_key: synapse
+    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
   notify: restart openresty

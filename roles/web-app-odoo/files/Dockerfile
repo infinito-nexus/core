@@ -10,7 +10,7 @@ ARG ODOO_ENTRYPOINT_SCRIPT_DOCKER
 USER root
 
 RUN rm -rf /var/lib/apt/lists/* \
-    && apt-get update && apt-get install -y --no-install-recommends \
+    && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
     libxml2-dev \
     libxmlsec1-dev \
     libxmlsec1-openssl \

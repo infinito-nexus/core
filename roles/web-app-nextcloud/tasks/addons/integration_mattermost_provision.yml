@@ -1,10 +1,21 @@
 ---
+- name: "🔍 Resolve Mattermost hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: mattermost
+    resolve_service_name: "{{ lookup('container_service', 'web-app-mattermost', 'mattermost') }}"
+    resolve_output_prefix: NEXTCLOUD_MM
+    resolve_compose_cid: "{{ lookup('container_address', 'web-app-mattermost', 'mattermost') }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
 - name: ⏳ Wait until Mattermost mmctl local mode is ready
-  shell: >
-    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
+  shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
     /mattermost/bin/mmctl --local system status
   args:
-    chdir: "{{ nextcloud_mm_instance_dir }}"
+    chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
+  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
   register: nextcloud_mm_ready
   retries: 60
   delay: 5
@@ -13,20 +24,22 @@
   failed_when: nextcloud_mm_ready.rc != 0 and nextcloud_mm_ready.attempts | default(0) >= 60
 
 - name: 🟢 Enable the Mattermost OAuth 2.0 service provider (required for the connector)
-  shell: >
-    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
+  shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
     /mattermost/bin/mmctl --local config set ServiceSettings.EnableOAuthServiceProvider true
   args:
-    chdir: "{{ nextcloud_mm_instance_dir }}"
+    chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
+  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
   register: nextcloud_mm_oauth_provider
   changed_when: "'true' in nextcloud_mm_oauth_provider.stdout"
 
 - name: ⚙️ Generate a short-lived admin personal access token for OAuth provisioning
-  shell: >
-    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
+  shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
     /mattermost/bin/mmctl --local token generate {{ lookup('users', 'administrator').username }} infinito-nc-oauth-provision --json
   args:
-    chdir: "{{ nextcloud_mm_instance_dir }}"
+    chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
+  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
   register: nextcloud_mm_pat
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -36,6 +49,17 @@
     nextcloud_mm_token: "{{ (nextcloud_mm_pat.stdout | from_json | first).token }}"
     nextcloud_mm_token_id: "{{ (nextcloud_mm_pat.stdout | from_json | first).id }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "⏳ Wait until the Mattermost HTTP API serves (mmctl local mode skips it)"
+  uri_retry:
+    url: "{{ nextcloud_mm_local_url }}/api/v4/system/ping"
+    timeout: "{{ lookup('timeout', 10) | int }}"
+    status_code: 200
+  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
+  register: nextcloud_mm_http_ready
+  retries: 30
+  delay: 5
+  until: nextcloud_mm_http_ready is succeeded
 
 - name: 🔧 Provision Mattermost OAuth app for Nextcloud and capture creds (idempotent)
   ansible.builtin.command:
@@ -50,8 +74,12 @@
     NC_BASE_URL: "{{ NEXTCLOUD_URL }}"
     NC_REDIRECT_PATH: "{{ nextcloud_mm_redirect_path }}"
     MM_HOMEPAGE: "{{ NEXTCLOUD_URL }}"
+  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
   register: nextcloud_mm_provision
   changed_when: false
+  retries: 5
+  delay: 5
+  until: nextcloud_mm_provision is succeeded
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔎 Parse Mattermost OAuth client credentials
@@ -68,32 +96,26 @@
   register: nextcloud_mm_oauth_url_set
   changed_when: "' set to ' in nextcloud_mm_oauth_url_set.stdout"
 
+# nocheck: container-exec-resolver NEXTCLOUD_CONTAINER_ADDRESS is a swarm-mode subshell that only a shell can expand; command/argv would pass it literally
 - name: 🔐 Store integration_mattermost OAuth credentials Nextcloud-encrypted (lazy)
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -u
-      - "{{ NEXTCLOUD_DOCKER_USER }}"
-      - -e
-      - "NC_APP_ID=integration_mattermost"
-      - -e
-      - "NC_ENC_MODE=sensitive"
-      - -e
-      - "NC_ENC_B64={{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
-      - "{{ NEXTCLOUD_CONTAINER_ADDRESS }}"
-      - php
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
+      -e NC_APP_ID=integration_mattermost
+      -e NC_ENC_MODE=sensitive
+      -e "NC_ENC_B64={{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
+      {{ NEXTCLOUD_CONTAINER_ADDRESS }} php
     stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
   register: nextcloud_mm_enc_set
   changed_when: "'OK' in nextcloud_mm_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🚫 Revoke the short-lived admin personal access token
-  shell: >
-    container exec -i {{ NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS }}
+  shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
     /mattermost/bin/mmctl --local token revoke {{ nextcloud_mm_token_id }}
   args:
-    chdir: "{{ nextcloud_mm_instance_dir }}"
+    chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
+  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
   changed_when: true
   failed_when: false

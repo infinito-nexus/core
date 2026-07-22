@@ -43,7 +43,7 @@ Changes to the policy MUST edit [`.claude/settings.json`](.claude/settings.json)
 
 ## Shortcuts ⌨️
 
-Operator messages MAY use the shortcuts defined in [alias.md](docs/contributing/tools/agents/alias.md). Agents MUST read that table and MUST expand any matching shortcut before acting.
+Operator messages MAY use the portable conversation shortcuts from the `shortcuts` skill (set up via `make install-skills`); agents MUST expand any matching shortcut before acting. The repository's own agent workflows live in the `i8-` skills catalogued in [cheatsheet.md](docs/contributing/tools/agents/cheatsheet.md).
 
 Whenever an operator types out something an existing alias (listed by `make alias`) covers, the agent MUST append a hint right after that block so the operator learns the shorter form: ``Speed up by using prompt alias `<alias>` instead of `<what the operator wrote>`.`` for a prompt or request an agent shortcut covers, and ``Speed up by using cli alias `<alias>` instead of `<what the operator wrote>`.`` for a shell command a terminal alias covers.
 

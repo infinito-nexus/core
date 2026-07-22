@@ -5,22 +5,13 @@
 # partner and wires the returned credentials into Nextcloud.
 - name: 🔍 Resolve Mattermost partner coupling facts
   set_fact:
-    nextcloud_mm_container: "{{ lookup('config', 'web-app-mattermost', 'services.mattermost.name') }}"
-    nextcloud_mm_instance_dir: "{{ lookup('container', 'web-app-mattermost', 'directories.instance') }}"
     nextcloud_mm_base_url: "{{ lookup('tls', 'web-app-mattermost', 'url.base') }}"
-    nextcloud_mm_local_url: "http://localhost:{{ lookup('config', 'web-app-mattermost', 'services.mattermost.ports.local.http') }}"
+    nextcloud_mm_local_url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'web-app-mattermost', 'services.mattermost.ports.local.http') }}"
     nextcloud_mm_redirect_path: "/apps/integration_mattermost/oauth-redirect"
+    nextcloud_mm_exec_chdir: "{{ lookup('container', 'web-app-mattermost', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
   changed_when: false
-
-- name: 🔍 Probe whether the Mattermost partner container is running
-  command: >
-    container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_mm_container }}
-  register: nextcloud_mm_partner_running
-  changed_when: false
-  failed_when: false
 
 - name: 🔧 Provision the bidirectional Mattermost <-> Nextcloud OAuth coupling
   include_tasks: integration_mattermost_provision.yml
   when:
     - IS_STACK_HOST | bool
-    - (nextcloud_mm_partner_running.stdout | trim) == 'true'

@@ -12,14 +12,10 @@ jobs:
   test-install-make:
     name: 🛠️ Makefile
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [arch, debian, ubuntu, fedora, centos]
 
     steps:
       - name: ⬇️ Checkout repository
@@ -33,19 +29,5 @@ jobs:
             echo "${key}=${value}" >> "$GITHUB_ENV"
           done
 
-      - name: 📦 Install & test in pkgmgr virgin container
-        run: |
-          docker run --rm \
-            -e NIX_CONFIG="${NIX_CONFIG}" \
-            -e INFINITO_SRC_DIR="${INFINITO_SRC_DIR}" \
-            -e INFINITO_VENV_DIR="${INFINITO_VENV_DIR}" \
-            -v "$(pwd):${INFINITO_SRC_DIR}" \
-            -w "${INFINITO_SRC_DIR}" \
-            "ghcr.io/kevinveenbirkenbach/pkgmgr-${{ matrix.distro }}-virgin:stable" \
-            bash -lc '
-              set -euo pipefail
-              make install
-              make setup
-              source "${INFINITO_VENV_DIR}/bin/activate"
-              infinito --help
-            '
+      - name: 📦 Install & test in every pkgmgr virgin container (parallel)
+        run: ./scripts/tests/install/make.sh

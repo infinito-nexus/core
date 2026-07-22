@@ -38,6 +38,22 @@
       Fedora: [nfs-utils]
       Alpine: [nfs-utils]
 
+- name: "🔎 Read current mount source at controller {{ DIR_VAR_LIB }}"
+  ansible.builtin.command:
+    cmd: "findmnt -n -o SOURCE {{ DIR_VAR_LIB }}"
+  register: _ctrl_mount_src
+  changed_when: false
+  failed_when: false
+
+- name: "🔌 Unmount foreign source so the ephemeral (re)mount is not refused"
+  ansible.posix.mount:
+    path: "{{ DIR_VAR_LIB }}"
+    state: unmounted
+  when:
+    - (_ctrl_premount_state.stdout | trim) == 'mounted'
+    - (_ctrl_mount_src.stdout | trim) | length > 0
+    - (_ctrl_mount_src.stdout | trim) != STORAGE_NFS_CLIENT_SRC
+
 - name: "🔗 Mount cluster-shared infinito state on controller"
   ansible.posix.mount:
     path: "{{ DIR_VAR_LIB }}"

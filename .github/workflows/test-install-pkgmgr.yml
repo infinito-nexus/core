@@ -12,14 +12,10 @@ jobs:
   test-install-pkgmgr:
     name: 📦 PKGMGR
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [arch, debian, ubuntu, fedora, centos]
 
     steps:
       - name: ⬇️ Checkout repository
@@ -31,18 +27,5 @@ jobs:
           test -n "${venv_dir}" || { echo "INFINITO_VENV_DIR not found in default.env" >&2; exit 1; }
           echo "INFINITO_VENV_DIR=${venv_dir}" >> "$GITHUB_ENV"
 
-      - name: 📦 Install & test in pkgmgr virgin container
-        run: |
-          docker run --rm \
-            -w "/root/" \
-            -e NIX_CONFIG="${NIX_CONFIG}" \
-            -e INFINITO_VENV_DIR="${INFINITO_VENV_DIR}" \
-            -v "$(pwd):/root/Repositories/github.com/kevinveenbirkenbach/infinito-nexus" \
-            "ghcr.io/kevinveenbirkenbach/pkgmgr-${{ matrix.distro }}:stable" \
-            bash -lc '
-              set -euo pipefail
-              make -C "/root/Repositories/github.com/kevinveenbirkenbach/infinito-nexus" install-system-python
-              pkgmgr install infinito --clone-mode shallow --no-verification
-              source "${INFINITO_VENV_DIR}/bin/activate"
-              infinito --help
-            '
+      - name: 📦 Install & test in every pkgmgr virgin container (parallel)
+        run: ./scripts/tests/install/pkgmgr.sh

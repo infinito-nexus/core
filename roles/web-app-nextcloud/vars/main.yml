@@ -13,26 +13,20 @@ NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
 NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
 
-## SSO
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 
-## Plugins
 NEXTCLOUD_PLUGIN_ITEMS: "{{ lookup('config', application_id, 'addons') | dict2items }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
 NEXTCLOUD_HOST_CONF_ADD_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'infinito' ] | path_join }}"
-NEXTCLOUD_HOST_INCL_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'includes.php' ] | path_join }}"
 NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 
 NEXTCLOUD_DOCKER_WORK_DIRECTORY: "/var/www/html/"
-NEXTCLOUD_DOCKER_CONF_DIRECTORY: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'config/'] | path_join }}"
-NEXTCLOUD_DOCKER_CONFIG_FILE: "{{ [ NEXTCLOUD_DOCKER_CONF_DIRECTORY, 'config.php'] | path_join }}"
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "/var/www/infinito/"
-NEXTCLOUD_DOCKER_INCL_PATH: "/tmp/includes.php"
 
 NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('config', application_id, 'users.administrator.username') }}"
@@ -47,7 +41,7 @@ NEXTCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SER
 NEXTCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.name') }}"
 NEXTCLOUD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, NEXTCLOUD_SERVICE) }}"
 
-NEXTCLOUD_MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-mattermost', 'mattermost') }}"
+NEXTCLOUD_OPENPROJECT_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-openproject', 'web') }}"
 NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-zammad', 'railsserver') }}"
 
 NEXTCLOUD_PROXY_SERVICE: "proxy"

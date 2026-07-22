@@ -21,6 +21,7 @@ ODOO_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'dire
 ODOO_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ ODOO_ENTRYPOINT_SCRIPT_FILE }}"
 ODOO_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', ODOO_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 ODOO_INIT_MODULES: "{{ ODOO_MODULES_CORE | join(',') }}"
+ODOO_UPDATE_MARKER: "/var/lib/odoo/.odoo-update-pending"
 
 ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 

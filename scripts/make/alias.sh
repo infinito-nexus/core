@@ -6,26 +6,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-if [[ -z "${INFINITO_ALIAS_MD:-}" || -z "${INFINITO_ALIAS_REPOSITORY:-}" || -z "${INFINITO_SKILLS_REPOSITORY:-}" ]]; then
+if [[ -z "${INFINITO_ALIAS_REPOSITORY:-}" || -z "${INFINITO_SKILLS_REPOSITORY:-}" ]]; then
 	# shellcheck source=/dev/null
-	source <(grep -hE '^INFINITO_(ALIAS_(MD|REPOSITORY)|SKILLS_REPOSITORY)=' "${REPO_ROOT}/.env" 2>/dev/null)
+	source <(grep -hE '^INFINITO_(ALIAS_REPOSITORY|SKILLS_REPOSITORY)=' "${REPO_ROOT}/.env" 2>/dev/null)
 fi
-: "${INFINITO_ALIAS_MD:?not set; run 'make dotenv' to generate .env}"
 : "${INFINITO_ALIAS_REPOSITORY:?not set; run 'make dotenv' to generate .env}"
 : "${INFINITO_SKILLS_REPOSITORY:?not set; run 'make dotenv' to generate .env}"
-ALIAS_MD="${INFINITO_ALIAS_MD}"
-if [[ "${ALIAS_MD}" != /* ]]; then
-	ALIAS_MD="${REPO_ROOT}/${ALIAS_MD}"
-fi
 COMMON_AGENT_SKILL="${REPO_ROOT}/.agents/skills/shortcuts/SKILL.md"
 
 TERMINAL_ALIASES_URL="${INFINITO_ALIAS_REPOSITORY%/}/raw/main/aliases"
 TERMINAL_ALIASES_CACHE="/tmp/infinito-terminal-aliases/aliases-$(printf %s "${INFINITO_ALIAS_REPOSITORY}" | sha256sum | cut -c1-12)"
-
-if [[ ! -f "${ALIAS_MD}" ]]; then
-	echo "make alias: ${ALIAS_MD} not found" >&2
-	exit 1
-fi
 
 if [[ -t 1 ]]; then
 	IS_TTY=1
@@ -96,12 +86,6 @@ print_md_table() {
 }
 
 render() {
-	section "Agent Aliases" \
-		"Infinito.Nexus-specific conversation shortcuts; the agent expands and acts on them." \
-		"${ALIAS_MD}"
-	print_md_table "${ALIAS_MD}"
-
-	printf '\n'
 	section "Common Agent Aliases" \
 		"Portable conversation shortcuts from the shortcuts skill; set up with: make install-skills." \
 		"${INFINITO_SKILLS_REPOSITORY}"

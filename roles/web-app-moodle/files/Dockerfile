@@ -43,8 +43,8 @@ ENV MOODLE_CODE_DIR=${MOODLE_CODE_DIR} \
 
 # hadolint ignore=DL3008
 RUN rm -rf /var/lib/apt/lists/* \
- && apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+ && apt-get -o Acquire::Retries=3 update \
+ && DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
       ca-certificates \
       curl \
       file \

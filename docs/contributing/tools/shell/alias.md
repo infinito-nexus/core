@@ -5,11 +5,10 @@ The effective repository is the `INFINITO_ALIAS_REPOSITORY` value in the generat
 
 ## Usage 🚀
 
-- Run `make alias` to print the terminal aliases together with the [agent aliases](../agents/alias.md).
+- Run `make alias` to print the terminal aliases together with the portable agent shortcuts.
 - Run `make install-alias` to install the aliases into your shell config; afterwards open a new shell or `source ~/.bashrc`.
 
 ## Custom Repository 🛠️
 
 Override `INFINITO_ALIAS_REPOSITORY` via `custom.env` as described in [customize.md](../../customize.md).
 The repository MUST provide an `aliases` file at its root and a `make install` target.
-Agent shortcuts MUST NOT collide with the terminal aliases of the effective repository; the external test suite enforces this against the generated `.env`.

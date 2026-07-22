@@ -18,16 +18,15 @@ class TestCells(unittest.TestCase):
             rows,
             {"svc-prio#0": 5, "svc-prio#1": 3, "web-app-a#1": 10, "web-app-b#0": 7},
             {"svc-prio": 2, "web-app-a": 2, "web-app-b": 1},
-            priority="svc-prio",
             distros="debian",
         )
         self.assertEqual(
             cells,
             [
-                ("1", "svc-prio", "5", "⭐", "0", "debian", "⭐"),
-                ("2", "web-app-a", "10", "", "1", "debian", "✅"),
-                ("3", "svc-prio", "3", "⭐", "1", "debian", "⭐"),
-                ("4", "web-app-b", "7", "", "0", "debian", "❌"),
+                ("1", "svc-prio", "5", "0", "debian", "⭐"),
+                ("2", "web-app-a", "10", "1", "debian", "✅"),
+                ("3", "svc-prio", "3", "1", "debian", "⭐"),
+                ("4", "web-app-b", "7", "0", "debian", "❌"),
             ],
         )
 
@@ -39,14 +38,13 @@ class TestCells(unittest.TestCase):
                 rows,
                 {"svc-prio": 5, "web-app-a": 10},
                 {"svc-prio": 2, "web-app-a": 1},
-                priority="svc-prio",
                 distros="debian",
             )
             self.assertEqual(
                 cells,
                 [
-                    ("1", "svc-prio", "5", "⭐", "0,1", "debian", "⭐"),
-                    ("2", "web-app-a", "10", "", "0", "debian", "✅"),
+                    ("1", "svc-prio", "5", "0,1", "debian", "⭐"),
+                    ("2", "web-app-a", "10", "0", "debian", "✅"),
                 ],
                 mode,
             )
@@ -59,11 +57,11 @@ class TestRender(unittest.TestCase):
                 "compose",
                 54,
                 [
-                    ("1", "web-app-a", "10", "", "0", "debian", "✅"),
-                    ("2", "web-app-b", "7", "", "0", "debian", "❌"),
+                    ("1", "web-app-a", "10", "0", "debian", "✅"),
+                    ("2", "web-app-b", "7", "0", "debian", "❌"),
                 ],
             ),
-            ("host", 10, [("1", "svc-x", "3", "", "0", "debian", "✅")]),
+            ("host", 10, [("1", "svc-x", "3", "0", "debian", "✅")]),
         ]
 
     def test_markdown_has_one_section_per_mode_and_no_legend(self) -> None:
@@ -71,11 +69,10 @@ class TestRender(unittest.TestCase):
         self.assertIn("### 🐳 compose (max jobs: 54)", out)
         self.assertIn("### 💻 host (max jobs: 10)", out)
         self.assertIn(
-            "| 🆔 Id | 📛 Name | 📊 Weight | ⭐ Priority | 🎯 Variant "
-            "| 🐧 Distros | ✅ Triggered |",
+            "| 🆔 Id | 📛 Name | 📊 Weight | 🎯 Variant | 🐧 Distros | ✅ Triggered |",
             out,
         )
-        self.assertIn("| 2 | web-app-b | 7 |  | 0 | debian | ❌ |", out)
+        self.assertIn("| 2 | web-app-b | 7 | 0 | debian | ❌ |", out)
         self.assertNotIn("priority line", out)
 
     def test_cli_renders_display_width_aligned_sections(self) -> None:

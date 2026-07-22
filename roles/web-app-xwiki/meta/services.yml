@@ -57,8 +57,10 @@ xwiki:
     no_stop_required: true
   cpus: 1.0
   mem_reservation: 1g
-  mem_limit: 2g
+  mem_limit: 3g
   pids_limit: 1024
+  # nocheck: single-replica xwiki. Embedded Solr holds an exclusive Lucene index lock, so a shared NFS index dir yields LockObtainFailedException, and the distribution-flavor install is not concurrency-safe (xwikidoc_pkey duplicate key); multi-instance needs remote Solr plus JGroups.
+  replicas: 1
   ports:
     local:
       http: 8054

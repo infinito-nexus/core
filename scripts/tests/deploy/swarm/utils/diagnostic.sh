@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Backup/NFS diagnostics for a live swarm-test cluster. Runs read-only
-# probes inside each node via exec_node.sh: backup unit state + recent
+# probes inside each node via exec/node.sh: backup unit state + recent
 # journal, NFS mounts, D-state (wedged kernel-NFS) processes, rsync/dump
 # processes, and disk usage. Use after a swarm-zombie run to root-cause a
 # hung backup unit without hand-writing docker exec pipelines.
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EXEC_NODE="${SCRIPT_DIR}/../../act/exec_node.sh"
+EXEC_NODE="${SCRIPT_DIR}/../../act/exec/node.sh"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
 DIR_VAR_LIB="$(PYTHONPATH="${REPO_ROOT}" python3 -c 'from utils.paths import DIR_VAR_LIB; print(DIR_VAR_LIB)')"
 

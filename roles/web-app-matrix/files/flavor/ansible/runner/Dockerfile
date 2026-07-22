@@ -17,8 +17,8 @@ COPY --from=docker-cli /usr/local/bin/docker /usr/bin/docker
 COPY --from=docker-cli /usr/local/libexec/docker/cli-plugins/ /usr/local/libexec/docker/cli-plugins/
 
 RUN rm -rf /var/lib/apt/lists/* \
- && apt-get update \
- && apt-get install -y --no-install-recommends \
+ && apt-get -o Acquire::Retries=3 update \
+ && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
       ca-certificates \
       dbus \
       docker.io \

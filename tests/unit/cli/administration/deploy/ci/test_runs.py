@@ -29,6 +29,15 @@ class TestParseRoleStatuses(unittest.TestCase):
             },
         )
 
+    def test_maps_host_jobs_to_modes(self) -> None:
+        jobs = [
+            _job(deploy_job_name("host", "svc-storage-nfs-server", "0,1"), "failure"),
+        ]
+        self.assertEqual(
+            runs.parse_role_statuses(jobs),
+            {"svc-storage-nfs-server": {"host": "failure"}},
+        )
+
     def test_running_job_is_not_completed(self) -> None:
         jobs = [
             _job(deploy_job_name("docker", "web-app-x"), None, status="in_progress")

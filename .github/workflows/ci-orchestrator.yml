@@ -13,7 +13,7 @@ on:
         type: string
         default: ""
       lifecycles:
-        description: "Lifecycle envelope for test-deploy discovery (comma/space-separated). Empty: default (alpha beta rc stable)."
+        description: "Lifecycle envelope for test-deploy discovery (comma/space-separated)."
         required: false
         type: string
         default: ""
@@ -109,55 +109,12 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7.0.0
       - name: ✅ Assert privileged prerequisites are ready
         shell: bash
-        run: |
-          set -euo pipefail
-          result="${{ needs.wait-fork-prereq-run.result }}"
-          if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
-            echo "Fork prerequisites are not ready. wait-fork-prereq-run=${result}" >&2
-            exit 1
-          fi
-          echo "Fork prerequisites are ready."
-
-  plan:
-    name: 🗺️ Plan
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-
-      - name: 🔧 Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: 📦 Install project (host venv)
-        shell: bash
-        run: make install
-
-      - name: 🔍 Resolve effective whitelist (diff vs origin/main)
-        id: resolve_wl
-        shell: bash
         env:
-          INPUT_WHITELIST: ${{ inputs.whitelist }}
-        run: ./scripts/github/resolve/effective_whitelist.sh
-
-      - name: 🗺️ Render the plan into the run summary
-        shell: bash
-        run: |
-          source scripts/meta/env/load.sh
-          "${PYTHON}" -m cli.meta.ci.plan \
-            --distros "${{ inputs.distros }}" \
-            --whitelist "${{ steps.resolve_wl.outputs.whitelist }}" \
-            --priority "${{ inputs.priority }}" \
-            --modes "${{ inputs.modes }}" \
-            --lifecycles "${{ inputs.lifecycles }}" \
-            >> "$GITHUB_STEP_SUMMARY"
+          RESULT: ${{ needs.wait-fork-prereq-run.result }}
+        run: ./scripts/github/gate/fork_prereqs.sh
 
   security-codeql:
     uses: ./.github/workflows/security-codeql.yml
@@ -168,19 +125,7 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
-  code-quality-gate:
-    name: 🚦 Gate Quality
-    needs:
-      - lint
-      - test
-      - security-codeql
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Quality Checks passed"
-
   build-ci-images:
-    needs:
-      - code-quality-gate
     uses: ./.github/workflows/images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
@@ -283,27 +228,14 @@ jobs:
 
   test-install-make:
     uses: ./.github/workflows/test-install-make.yml
-    needs:
-      - code-quality-gate
   test-install-pkgmgr:
     uses: ./.github/workflows/test-install-pkgmgr.yml
-    needs:
-      - code-quality-gate
-  test-install-gate:
-    name: 🚦 Gate installation
-    needs:
-      - test-install-make
-      - test-install-pkgmgr
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Installation is possible via pkgmgr and make"
 
   test-development:
     if: ${{ inputs.roles_only != 'true' }}
     uses: ./.github/workflows/test-environment.yml
     needs:
       - images-mirror-missing
-      - code-quality-gate
     secrets: inherit
 
   test-guide:
@@ -316,14 +248,18 @@ jobs:
   done:
     name: 🏁 Finish pipeline
     needs:
+      - test-install-make
+      - test-install-pkgmgr
       - test-deploy-single-node-priority
       - test-deploy-swarm-priority
       - test-deploy-single-node
       - test-deploy-swarm
       - test-runner-smoke
-      - test-install-gate
       - test-development
       - test-guide
+      - lint
+      - test
+      - security-codeql
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:

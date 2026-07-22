@@ -3,19 +3,14 @@
 - name: "🔴 Disable self-signed environment"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/tasks/disable_env.yml') }}"
 
-- name: "🔍 TLS | (letsencrypt) resolve via tls (strict)"
-  ansible.builtin.set_fact:
-    _tls: "{{ lookup('tls', application_id) }}"
-  changed_when: false
-
 - name: "✅ TLS | (letsencrypt) assert mode is letsencrypt"
   ansible.builtin.assert:
     that:
-      - _tls.enabled | bool
-      - _tls.mode == 'letsencrypt'
+      - _tls_enabled | bool
+      - _tls_mode == 'letsencrypt'
     fail_msg: >-
       sys-front-tls-letsencrypt called for '{{ application_id }}'
-      but resolver returned enabled={{ _tls.enabled }}, mode={{ _tls.mode }}.
+      but resolver returned enabled={{ _tls_enabled }}, mode={{ _tls_mode }}.
   changed_when: false
 
 - name: "🔎 TLS | (letsencrypt) check cert files exist"
@@ -23,15 +18,15 @@
     path: "{{ item }}"
   register: _le_stat
   loop:
-    - "{{ _tls.files.cert }}"
-    - "{{ _tls.files.key }}"
+    - "{{ _cert_file }}"
+    - "{{ _cert_key }}"
   changed_when: false
 
 - name: "📜 TLS | (letsencrypt) issue cert if missing"
   ansible.builtin.include_role:
     name: sys-svc-certs
   vars:
-    domain: "{{ _tls.domains.primary }}"
+    domain: "{{ _tls_domain }}"
   when: >
     (not _le_stat.results[0].stat.exists | default(false)) or
     (not _le_stat.results[1].stat.exists | default(false))
@@ -41,15 +36,15 @@
     path: "{{ item }}"
   register: _le_stat2
   loop:
-    - "{{ _tls.files.cert }}"
-    - "{{ _tls.files.key }}"
+    - "{{ _cert_file }}"
+    - "{{ _cert_key }}"
   changed_when: false
 
 - name: "🛑 TLS | (letsencrypt) fail if still missing"
   ansible.builtin.fail:
     msg: >-
       Let's Encrypt certificate files not found after issuance:
-      cert={{ _tls.files.cert }} key={{ _tls.files.key }}
+      cert={{ _cert_file }} key={{ _cert_key }}
   when: >
     (not _le_stat2.results[0].stat.exists | default(false)) or
     (not _le_stat2.results[1].stat.exists | default(false))

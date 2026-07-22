@@ -6,16 +6,8 @@
 - name: 🔍 Resolve expected OpenProject base URL for the integration
   set_fact:
     nextcloud_op_expected_url: "{{ lookup('tls', 'web-app-openproject', 'url.base') | trim }}"
-    nextcloud_op_web_container: "{{ lookup('config', 'web-app-openproject', 'services.web.name') }}"
     nextcloud_op_storage_name: "Nextcloud ({{ lookup('domain', 'web-app-nextcloud') }})"
   changed_when: false
-
-- name: 🔍 Probe whether the OpenProject partner container is running
-  command: >
-    container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_op_web_container }}
-  register: integration_openproject_partner_running
-  changed_when: false
-  failed_when: false
 
 - name: 📖 Read persisted integration_openproject OpenProject OAuth client id
   shell: >
@@ -40,9 +32,9 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔧 Provision the bidirectional OpenProject <-> Nextcloud OAuth coupling
-  include_tasks: "{{ [role_path, 'tasks/addons/integration_openproject_provision.yml'] | path_join }}"
+  include_tasks: integration_openproject_provision.yml
   when: >-
-    (integration_openproject_partner_running.stdout | trim) == 'true'
+    IS_STACK_HOST | bool
     and (
       (nextcloud_op_client_id_current.stdout | trim) | length == 0
       or (nextcloud_op_nc_client_current.stdout | trim) | length == 0

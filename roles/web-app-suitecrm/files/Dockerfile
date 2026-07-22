@@ -6,7 +6,7 @@ FROM ${SUITECRM_BASE_IMAGE}:${SUITECRM_BASE_VERSION} AS base
 ARG SUITECRM_APP_DIR
 
 RUN rm -rf /var/lib/apt/lists/* \
-  && apt-get update && apt-get install -y \
+  && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y \
       git \
       wget \
       unzip \
@@ -79,7 +79,7 @@ RUN set -eux; \
 WORKDIR ${SUITECRM_APP_DIR}
 
 RUN rm -rf /var/lib/apt/lists/* \
- && apt-get update && apt-get install -y nodejs npm \
+ && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y nodejs npm \
  && corepack enable && corepack prepare yarn@4.5.1 --activate \
  && rm -rf /var/lib/apt/lists/*
 

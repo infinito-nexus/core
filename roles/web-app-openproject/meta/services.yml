@@ -57,6 +57,8 @@ seeder:
   mem_limit: 512m
   pids_limit: 256
   min_storage: 1GB
+  # nocheck: single-replica run-once seeder. Concurrent replicas race on one Postgres (duplicate-key) and never converge; the seeder migrates/seeds once then exits.
+  replicas: 1
 cron:
   name: openproject-cron
   cpus: "0.3"
@@ -138,6 +140,7 @@ openproject:
       http: 80
   proxy:
     service_key: web
+    internal_port: 8080
   run_after:
     - web-app-keycloak
   lifecycle: beta

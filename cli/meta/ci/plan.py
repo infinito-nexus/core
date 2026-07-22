@@ -38,7 +38,7 @@ _STAR = to_emoji("priority")
 _OK = to_emoji("enabled")
 _OFF = to_emoji("disabled")
 
-_COLUMNS = ("id", "name", "weight", "priority", "variant", "distros")
+_COLUMNS = ("id", "name", "weight", "variant", "distros")
 _HEADERS = (
     *(f"{to_emoji(key)} {key.capitalize()}" for key in _COLUMNS),
     f"{to_emoji('enabled')} Triggered",
@@ -104,10 +104,8 @@ def _cells(
     weights: dict[str, int],
     variants: dict[str, int],
     *,
-    priority: str,
     distros: str,
 ) -> list[tuple[str, ...]]:
-    priority_roles = set(priority.split())
     cells = []
     for counter, (selection, status) in enumerate(rows, start=1):
         role, _, variant = selection.partition("#")
@@ -118,7 +116,6 @@ def _cells(
                 str(counter),
                 role,
                 str(weights.get(selection, weights.get(role, 0))),
-                _STAR if role in priority_roles else "",
                 variant,
                 distros,
                 status,
@@ -197,9 +194,7 @@ def main(argv: list[str] | None = None) -> int:
             priority=args.priority,
             lifecycles=args.lifecycles,
         )
-        cells = _cells(
-            mode, rows, weights, variants, priority=args.priority, distros=args.distros
-        )
+        cells = _cells(mode, rows, weights, variants, distros=args.distros)
         sections.append((mode, max_jobs(mode), cells))
 
     render = render_cli if args.cli else render_markdown

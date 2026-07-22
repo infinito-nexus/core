@@ -19,10 +19,12 @@ WORKFLOWS = PROJECT_ROOT / ".github" / "workflows"
 _DEPLOY = {
     "docker": ("test-deploy-compose.yml", "compose"),
     "swarm": ("test-deploy-swarm.yml", "swarm"),
+    "host": ("test-deploy-host.yml", "host"),
 }
 ORCHESTRATOR_PREFIX = {
     "docker": "🎶 Orchestrate CI / test-deploy-compose / ",
     "swarm": "🎶 Orchestrate CI / test-deploy-swarm / ",
+    "host": "🎶 Orchestrate CI / test-deploy-host / ",
 }
 _NAME_RE = re.compile(r"name: (.+)$", re.MULTILINE)
 _VARIANT_EXPR_RE = re.compile(r"\$\{\{ matrix\.variant.*?\}\}")

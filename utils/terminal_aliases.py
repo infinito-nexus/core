@@ -5,7 +5,7 @@ Configuration comes exclusively from the generated ``.env``
 handler, and the operator's ``custom.env`` overrides. The alias
 repository (INFINITO_ALIAS_REPOSITORY) holds one
 ``alias <name>='<command>'`` line per shortcut in an ``aliases`` file at
-its root; the agent shortcut table lives at INFINITO_ALIAS_MD.
+its root.
 """
 
 from __future__ import annotations
@@ -44,15 +44,6 @@ def _generated_env_value(key: str) -> str:
 def alias_repository() -> str:
     """Effective terminal alias repository from the generated .env."""
     return _generated_env_value("INFINITO_ALIAS_REPOSITORY")
-
-
-def alias_md_file() -> Path:
-    """Effective agent shortcut markdown file from the generated .env.
-
-    Relative values resolve against the repository root.
-    """
-    path = Path(_generated_env_value("INFINITO_ALIAS_MD"))
-    return path if path.is_absolute() else REPO_ROOT / path
 
 
 def raw_aliases_url(repository: str) -> str:

@@ -19,7 +19,7 @@ on:
         default: ""
         type: string
       lifecycles:
-        description: "Lifecycle envelope for test-deploy discovery (comma/space-separated). Empty: default (alpha beta rc stable)."
+        description: "Lifecycle envelope for test-deploy discovery (comma/space-separated)."
         required: false
         default: ""
         type: string

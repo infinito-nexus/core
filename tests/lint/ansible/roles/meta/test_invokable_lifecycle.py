@@ -8,8 +8,8 @@ invokable roles.
 * **Warning** (GitHub Actions annotation via ``utils.annotations.message``):
   an invokable role with a lifecycle outside the CI-tested set is flagged
   so reviewers can see at a glance which apps ship without deploy-test
-  coverage. CI-tested lifecycles are mirrored from
-  ``scripts/meta/resolve/apps.sh`` (single source of truth).
+  coverage. The CI-tested set is the ``INFINITO_LIFECYCLES`` envelope in
+  ``default.env`` (single source of truth).
 
 This test does NOT enforce the allowed-value whitelist; that contract is
 already covered by ``TestLifecycleAllowedValues`` in
@@ -22,6 +22,7 @@ import unittest
 from typing import TYPE_CHECKING
 
 from utils.annotations.message import in_github_actions, warning
+from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import get_role_lifecycle
 from utils.roles.validation.invokable import (
@@ -34,9 +35,7 @@ from . import PROJECT_ROOT
 if TYPE_CHECKING:
     from pathlib import Path
 
-# Mirrors `lifecycles_args` in scripts/meta/resolve/apps.sh:80. Update
-# both together when the CI deploy matrix is widened or narrowed.
-CI_TESTED_LIFECYCLES: frozenset[str] = frozenset({"alpha", "beta", "rc", "stable"})
+CI_TESTED_LIFECYCLES: frozenset[str] = tested_lifecycles()
 
 
 def _invokable_role_dirs(root: Path) -> list[Path]:
@@ -81,8 +80,6 @@ class TestInvokableRolesUseCITestedLifecycle(unittest.TestCase):
         for role_dir in _invokable_role_dirs(PROJECT_ROOT):
             lifecycle = get_role_lifecycle(role_dir, role_name=role_dir.name)
             if lifecycle is None:
-                # Missing lifecycle is the other test's responsibility; do
-                # not double-report.
                 continue
             if lifecycle in CI_TESTED_LIFECYCLES:
                 continue

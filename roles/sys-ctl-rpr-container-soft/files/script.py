@@ -22,6 +22,7 @@ which auto-adds:
 import argparse
 import os
 import subprocess
+import syslog
 import time
 
 # ---------------------------
@@ -46,6 +47,11 @@ def bash(command: str) -> list[str]:
 
 def list_to_string(lst: list[str]) -> str:
     return " ".join(lst)
+
+
+def log_kill(action: str, target: str) -> None:
+    syslog.openlog(ident="infinito-kill")
+    syslog.syslog(syslog.LOG_WARNING, f"sys-ctl-rpr-container-soft: {action} {target}")
 
 
 def print_bash(command: str) -> list[str]:
@@ -208,11 +214,16 @@ def main(
             print(
                 "Restarting unhealthy/exited container via project:", compose_file_path
             )
+            log_kill("compose restart", project)
             print_bash(compose_cmd("restart", project_path, project))
         except Exception as e:
             if "port is already allocated" in str(e):
                 print("Detected port allocation problem. Executing recovery steps...")
                 try:
+                    log_kill(
+                        "port-conflict recovery: compose down + systemctl restart docker",
+                        project,
+                    )
                     print_bash(compose_cmd("down", project_path, project))
                     print_bash("systemctl restart docker")
                     print_bash(compose_cmd("up -d", project_path, project))

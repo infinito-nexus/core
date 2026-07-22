@@ -143,6 +143,31 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
     capture(out, "runtime.txt", [rt, "info"])
     capture(out, "stats.txt", [rt, "stats", "--no-stream", "--no-trunc"])
     capture(out, "containers.txt", [rt, "ps", "-a"])
+    capture(
+        out / "containers",
+        "_daemon-journal.txt",
+        [
+            "journalctl",
+            "-u",
+            "docker",
+            "-u",
+            "containerd",
+            "--since",
+            "-6h",
+            "--no-pager",
+        ],
+    )
+    capture(
+        out / "containers",
+        "_kill-markers.txt",
+        ["journalctl", "-t", "infinito-kill", "--since", "-6h", "--no-pager"],
+    )
+    capture(
+        out / "containers",
+        "_events.txt",
+        ["timeout", "15", rt, "events", "--since", "6h"],
+        timeout=40,
+    )
     containers = list_lines([rt, "ps", "-a", "--format", "{{.Names}}"])
     for name in containers:
         safe = sanitize(name)

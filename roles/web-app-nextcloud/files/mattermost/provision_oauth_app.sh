@@ -2,7 +2,7 @@
 # Idempotently ensure a Mattermost OAuth 2.0 service-provider application exists
 # for the Nextcloud integration_mattermost connector and print its credentials.
 #
-# Runs INSIDE the Mattermost container (admin login + REST API via localhost).
+# Runs on the Mattermost node's host, driving the REST API via the published localhost port.
 # Emits exactly two machine-parseable lines on success:
 #   CLIENT_ID=<id>
 #   CLIENT_SECRET=<secret>

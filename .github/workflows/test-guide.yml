@@ -49,7 +49,15 @@ jobs:
       INFINITO_IMAGE_TAG: ci-${{ github.sha }}
       INFINITO_DISTROS: "arch debian ubuntu fedora centos"
     steps:
-      - uses: actions/checkout@v7.0.0
+      - if: ${{ !env.ACT }}
+        uses: actions/checkout@v7.0.0
+
+      - name: 🐍 Install guide + compose deps (Act runner only)
+        if: ${{ env.ACT }}
+        shell: bash
+        run: |
+          pip install --quiet --break-system-packages pyyaml
+          apt-get update -qq && apt-get install -y -qq gettext-base jq
 
       - name: 🎲 Select the role, distro, and deploy mode
         shell: bash
@@ -61,6 +69,7 @@ jobs:
             --whitelist "${{ inputs.whitelist }}" | tee -a "$GITHUB_ENV"
 
       - name: 🔑 Login to GHCR
+        if: ${{ !env.ACT }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ghcr.io
@@ -89,11 +98,27 @@ jobs:
           set -euo pipefail
           awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
             "roles/${GUIDE_ROLE}/README.md" > /tmp/deploy.sh
-          # Exception: the deploy configures systemd units, so its body must run
-          # inside the real systemd server the compose stack boots, never a
-          # bash-only control container; extract the `bash -c` payload verbatim.
-          perl -0777 -ne "print \$1 if /bash -c '(.*)'/s" /tmp/deploy.sh > /tmp/payload.sh
-          test -s /tmp/payload.sh
+          sed -n '1,/docker run/p' /tmp/deploy.sh | grep -E '^[A-Z_]+=' \
+            | sed 's#^HOST=.*#HOST=localhost#' > /tmp/run.sh
+          perl -0777 -ne "print \$1 if /bash -c '(.*)'/s" /tmp/deploy.sh >> /tmp/run.sh
+          test -s /tmp/run.sh
+          sed -i "s#<your-ssh-public-key>#ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito#" /tmp/run.sh
           source scripts/meta/env/load.sh
-          docker exec -i -e APP="$GUIDE_ROLE" -e HOST=localhost \
-            "${INFINITO_CONTAINER}" bash -s < /tmp/payload.sh
+          docker exec -i "${INFINITO_CONTAINER}" bash -s < /tmp/run.sh
+
+      - name: 🩺 Collect rescue diagnostics (recursive DiD snapshot)
+        if: failure()
+        timeout-minutes: 25
+        shell: bash
+        run: |
+          INFINITO_RESCUE_DIAGNOSTICS_DIR="/tmp/rescue-diagnostics/${GUIDE_ROLE}" \
+            python3 utils/diagnostics/container.py \
+            "${GUIDE_ROLE}" "guide ${GUIDE_MODE} post-deploy failure" || true
+
+      - name: ⬆️ Upload rescue diagnostics
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: rescue-diagnostics-guide-${{ env.GUIDE_ROLE }}
+          path: /tmp/rescue-diagnostics/
+          if-no-files-found: ignore

@@ -69,11 +69,11 @@ def main(argv: list[str] | None = None) -> int:
         nargs="?",
         const="total",
         default=None,
-        choices=("total", "swarm", "compose", "docker"),
-        metavar="{total,swarm,compose}",
+        choices=("total", "swarm", "compose", "docker", "host"),
+        metavar="{total,swarm,compose,host}",
         help=(
             "Show only roles that were not green. Optional scope: 'total' "
-            "(default; failed in either mode), 'swarm', or 'compose'."
+            "(default; failed in any mode), 'swarm', 'compose', or 'host'."
         ),
     )
     p.add_argument(

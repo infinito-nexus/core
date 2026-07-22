@@ -6,10 +6,11 @@ A mode job that ran but did not finish successfully (cancelled, timed out,
 still running) counts as a failure; a mode the role has no job for is N/A
 and never fails the aggregated ``total`` column.
 
-Deploy jobs are matched by the 🐳 (compose) / 🐝 (swarm) glyph their
-test-deploy-{compose,swarm}.yml matrix titles them with -- NOT the words
-"Compose"/"Swarm", which no real job carries (matching those made
-``--failed swarm`` silently find nothing). The orchestrator prepends a
+Deploy jobs are matched by the compose/swarm/host glyph (from the symbol
+glossary, the single source of truth) their test-deploy-{compose,swarm,host}.yml
+matrix titles them with -- NOT the words "Compose"/"Swarm"/"Host", which no
+real job carries (matching those made ``--failed swarm`` silently find
+nothing). The orchestrator prepends a
 "caller / " prefix and GitHub appends a " <variant>" shard suffix (e.g.
 " 0,1"); both are tolerated.
 """
@@ -21,15 +22,21 @@ import re
 import subprocess
 import sys
 
+from utils.symbol_glossary import to_emoji
+
 PASS = "✅"  # noqa: S105  emoji glyph, not a credential
 FAIL = "❌"
 ABORT = "🚫"
 RUNNING = "⏳"
 MISSING = "➖"
 
-MODES = ("docker", "swarm")
+MODES = ("docker", "swarm", "host")
 
-MODE_GLYPHS = {"docker": "🐳", "swarm": "🐝"}
+MODE_GLYPHS = {
+    "docker": to_emoji("compose"),
+    "swarm": to_emoji("swarm"),
+    "host": to_emoji("host"),
+}
 _GLYPH_MODE = {glyph: mode for mode, glyph in MODE_GLYPHS.items()}
 
 _JOB_RE = re.compile(

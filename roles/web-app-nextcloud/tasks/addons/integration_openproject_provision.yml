@@ -6,23 +6,27 @@
     delay: 5
     timeout: "{{ lookup('timeout', 600) | int }}"
 
+- name: "🔍 Resolve the OpenProject web hosting node and container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: web
+    resolve_service_name: "{{ lookup('container_service', 'web-app-openproject', 'web') }}"
+    resolve_output_prefix: NEXTCLOUD_OPENPROJECT
+    resolve_compose_cid: "{{ NEXTCLOUD_OPENPROJECT_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
 - name: 📁 Create the Nextcloud storage + OpenProject OAuth application
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "NEXTCLOUD_HOST={{ lookup('tls', 'web-app-nextcloud', 'url.base') }}"
-      - -e
-      - "STORAGE_NAME={{ nextcloud_op_storage_name }}"
-      - -e
-      - "NC_HAS_OP_SECRET={{ nextcloud_op_client_secret_current.stdout | trim }}"
-      - "{{ nextcloud_op_web_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
-      - bash
-      - -lc
-      - "cd /app && bundle exec rails runner -"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  NEXTCLOUD_OPENPROJECT_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i
+      -e NEXTCLOUD_HOST={{ lookup('tls', 'web-app-nextcloud', 'url.base') | quote }}
+      -e STORAGE_NAME={{ nextcloud_op_storage_name | quote }}
+      -e NC_HAS_OP_SECRET={{ nextcloud_op_client_secret_current.stdout | trim | quote }}
+      {{ NEXTCLOUD_OPENPROJECT_LOCAL_CID | quote }}
+      bash -lc 'cd /app && bundle exec rails runner -'
     stdin: "{{ lookup('file', 'openproject/ensure_nextcloud_storage.rb') }}"
+  delegate_to: "{{ NEXTCLOUD_OPENPROJECT_HOST_NODE }}"
   register: nextcloud_op_storage_create
   changed_when: "'\"oauth_application_created\":true' in nextcloud_op_storage_create.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -89,24 +93,17 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: 📝 Register the Nextcloud OAuth2 client back on the OpenProject storage
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - -e
-          - "NEXTCLOUD_HOST={{ lookup('tls', 'web-app-nextcloud', 'url.base') }}"
-          - -e
-          - "STORAGE_NAME={{ nextcloud_op_storage_name }}"
-          - -e
-          - "NC_OAUTH_CLIENT_ID={{ nextcloud_op_ncclient.clientId }}"
-          - -e
-          - "NC_OAUTH_CLIENT_SECRET={{ nextcloud_op_ncclient.clientSecret }}"
-          - "{{ nextcloud_op_web_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
-          - bash
-          - -lc
-          - "cd /app && bundle exec rails runner -"
+      ansible.builtin.shell:
+        cmd: >- # nocheck: container-exec-resolver  NEXTCLOUD_OPENPROJECT_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+          container exec -i
+          -e NEXTCLOUD_HOST={{ lookup('tls', 'web-app-nextcloud', 'url.base') | quote }}
+          -e STORAGE_NAME={{ nextcloud_op_storage_name | quote }}
+          -e NC_OAUTH_CLIENT_ID={{ nextcloud_op_ncclient.clientId | quote }}
+          -e NC_OAUTH_CLIENT_SECRET={{ nextcloud_op_ncclient.clientSecret | quote }}
+          {{ NEXTCLOUD_OPENPROJECT_LOCAL_CID | quote }}
+          bash -lc 'cd /app && bundle exec rails runner -'
         stdin: "{{ lookup('file', 'openproject/ensure_nextcloud_storage.rb') }}"
+      delegate_to: "{{ NEXTCLOUD_OPENPROJECT_HOST_NODE }}"
       register: nextcloud_op_client_store
       changed_when: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

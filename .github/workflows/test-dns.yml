@@ -20,102 +20,46 @@ permissions:
   contents: read
   packages: read
 
-env:
-  INFINITO_IMAGE_TAG: ci-${{ github.sha }}
-
 jobs:
-  prepare:
-    name: 🧮 Build matrix
+  dns:
+    name: 🌐 DNS
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.out.outputs.matrix }}
-      owner: ${{ steps.vars.outputs.owner }}
-      repo_name: ${{ steps.vars.outputs.repo_name }}
+    timeout-minutes: 30
     steps:
+      - name: 🧹 Free disk space
+        if: ${{ !env.ACT }}
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
+
+      - name: 🔑 Login to GHCR
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🔍 Resolve image coordinates
-        id: vars
         shell: bash
         run: |
           set -euo pipefail
-          owner="$(scripts/meta/resolve/repository/owner.sh)"
+          echo "OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
           repo_name="${{ github.repository }}"
           repo_name="${repo_name#*/}"
-          repo_name="${repo_name,,}"
-          echo "owner=${owner}" >> "$GITHUB_OUTPUT"
-          echo "repo_name=${repo_name}" >> "$GITHUB_OUTPUT"
+          echo "REPO_NAME=${repo_name,,}" >> "$GITHUB_ENV"
 
-      - name: 📦 Install jq
-        shell: bash
-        run: ./scripts/install/apt.sh jq
-
-      - name: 🧮 Compute matrix JSON
-        id: out
-        shell: bash
-        run: |
-          set -euo pipefail
-          distros="${{ inputs.distros }}"
-          json="$(scripts/github/runner/distros_matrix.sh "${distros:-debian}")"
-          echo "matrix=${json}" >> "$GITHUB_OUTPUT"
-          echo "Using matrix: ${json}"
-
-  dns:
-    name: 🌐 DNS (${{ matrix.distro }})
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: prepare
-    env:
-      NIX_CONFIG: |
-        access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      INFINITO_IMAGE_TAG: ci-${{ github.sha }}
-      # Use the prebuilt CI image directly instead of the :latest fallback from env/all.sh.
-      INFINITO_IMAGE: ghcr.io/${{ needs.prepare.outputs.owner }}/${{ needs.prepare.outputs.repo_name }}/${{ matrix.distro }}:ci-${{ github.sha }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: ${{ fromJson(needs.prepare.outputs.matrix) }}
-
-    steps:
-      - name: ⬇️ Checkout
-        uses: actions/checkout@v7.0.0
-
-      - name: 📦 Install dnsutils (dig)
-        shell: bash
-        run: ./scripts/install/apt.sh dnsutils
-
-      - name: ▶️ Start stack (coredns + infinito) for distro
+      - name: 🌐 DNS test per distro (parallel DinD)
         shell: bash
         env:
-          INFINITO_DISTRO: ${{ matrix.distro }}
-        run: |
-          set -euo pipefail
-          make compose-up
-
-      - name: 🌐 DNS test suite
-        shell: bash
-        env:
-          INFINITO_DISTRO: ${{ matrix.distro }}
-        run: |
-          set -euo pipefail
-          scripts/tests/dns.sh
-
-      - name: 💾 Dump CoreDNS logs on failure
-        if: failure()
-        shell: bash
-        run: |
-          docker ps -a || true
-          docker logs infinito-coredns --tail=200 || true
-
-      - name: 💾 Dump infinito logs on failure
-        if: failure()
-        shell: bash
-        env:
-          INFINITO_DISTRO: ${{ matrix.distro }}
-        run: |
-          set -euo pipefail
-          # shellcheck source=scripts/meta/env/load.sh
-          source scripts/meta/env/load.sh
-          docker logs "${INFINITO_CONTAINER}" --tail=200 || true
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./scripts/tests/dns/parallel.sh ${{ inputs.distros }}

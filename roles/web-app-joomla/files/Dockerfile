@@ -7,8 +7,8 @@ ARG JOOMLA_ENTRYPOINT_SCRIPT_HOST_REL
 ARG JOOMLA_ENTRYPOINT_SCRIPT_DOCKER
 
 RUN rm -rf /var/lib/apt/lists/* \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends git unzip curl ca-certificates \
+    && apt-get -o Acquire::Retries=3 update \
+    && apt-get -o Acquire::Retries=3 install -y --no-install-recommends git unzip curl ca-certificates \
     && curl --connect-timeout 5 --max-time 120 -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && rm -rf /var/lib/apt/lists/*
 

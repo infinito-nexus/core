@@ -16,8 +16,10 @@ data:
 pgdata_dummy:
   # Exception: mount only exists to prevent OpenProject images from creating
   # anonymous volumes for the unused embedded postgres data path.
-  type: bind
-  source: "{{ [lookup('container', 'web-app-openproject', 'directories.volumes'), 'dummy_volume'] | path_join }}"
+  type: volume
+  name: openproject_pgdata_dummy
+  # nocheck: nfs-false-data-loss  Reason: throwaway dummy, never read or written, re-provisioned on redeploy
+  nfs: false
   mounts:
     - service: proxy
       target: /var/openproject/pgdata
