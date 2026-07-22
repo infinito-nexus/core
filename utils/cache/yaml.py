@@ -197,7 +197,10 @@ def load_yaml_str(text: str) -> Any:
     the helper exists for symmetry with :func:`dump_yaml_str` so
     callers never have to ``import yaml`` directly.
     """
-    return yaml.load(text, Loader=_Loader)  # nocheck: direct-yaml — this module IS the cache.
+    return yaml.load(
+        text,
+        Loader=_Loader,  # noqa: S506 — _Loader is CSafeLoader/SafeLoader
+    )  # nocheck: direct-yaml — this module IS the cache.
 
 
 def load_yaml_all(path, *, default_if_missing: Any = _MISSING) -> list:

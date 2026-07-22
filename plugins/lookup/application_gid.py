@@ -1,5 +1,5 @@
 import os
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 
 _APPLICATION_MARKER_FILES = (
@@ -12,7 +12,7 @@ _APPLICATION_MARKER_FILES = (
 )
 
 
-@lru_cache(maxsize=None)
+@cache
 def _discover_application_ids(roles_dir_abs: str) -> tuple[str, ...]:
     """Sorted application role ids under *roles_dir_abs*, memoised per
     process (utils.cache philosophy: CLI/test invocations rescan at most
@@ -27,9 +27,9 @@ def _discover_application_ids(roles_dir_abs: str) -> tuple[str, ...]:
         for entry in entries:
             if not entry.is_dir():
                 continue
-            meta_dir = os.path.join(entry.path, "meta")
+            meta_dir = Path(entry.path) / "meta"
             for marker in _APPLICATION_MARKER_FILES:
-                if os.path.isfile(os.path.join(meta_dir, marker)):
+                if (meta_dir / marker).is_file():
                     discovered.append(entry.name)
                     break
     return tuple(sorted(discovered))
@@ -53,7 +53,7 @@ def compute_application_gid(application_id, roles_dir="roles", base_gid=10000):
     if not Path(roles_dir).is_dir():
         raise ValueError(f"Roles directory '{roles_dir}' not found")
 
-    sorted_ids = _discover_application_ids(os.path.abspath(roles_dir))
+    sorted_ids = _discover_application_ids(str(Path(roles_dir).resolve()))
 
     try:
         index = sorted_ids.index(application_id)
@@ -65,16 +65,6 @@ def compute_application_gid(application_id, roles_dir="roles", base_gid=10000):
     return base_gid + index
 
 
-# The Ansible LookupModule wrapper. We define it conditionally on
-# ansible being importable: ansible's plugin loader only needs the class
-# when an Ansible process actually loads this module via the lookup
-# loader, and that always happens inside a process that has ansible
-# installed (the playbook runner). Pure-Python importers (e.g.
-# `utils.cache.applications._build_variants` running inside `cli.administration.deploy.
-# development init` on the GitHub Actions runner host) want
-# `compute_application_gid` only and MUST NOT pay the ansible-import
-# cost — see CI run 24935979190 for the regression that motivated this
-# split.
 try:
     from ansible.errors import AnsibleError
     from ansible.plugins.lookup import LookupBase
