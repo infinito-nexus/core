@@ -1,6 +1,6 @@
 """
 Jinja filter: `external_asset_origins` extracts the third-party asset hosts an
-application (or every application) declares in `server.csp.whitelist.*`.
+application (or every application) declares in `csp.whitelist.*`.
 
 The result feeds the web-svc-mirror privacy proxy: the mirror's nginx vhost
 whitelists exactly these hosts as proxy upstreams, and the body-filter rewrite
@@ -17,9 +17,7 @@ from urllib.parse import urlsplit
 
 
 def _iter_whitelist_tokens(app_config):
-    whitelist = ((app_config or {}).get("server") or {}).get("csp", {}).get(
-        "whitelist", {}
-    ) or {}
+    whitelist = ((app_config or {}).get("csp") or {}).get("whitelist", {}) or {}
     for raw_tokens in whitelist.values():
         tokens = [raw_tokens] if isinstance(raw_tokens, str) else raw_tokens
         if not isinstance(tokens, (list, tuple)):
