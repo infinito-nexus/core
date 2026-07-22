@@ -45,9 +45,8 @@
     mode: "0644"
   vars:
     _tor_upstream_list: >-
-      {{ (_tor_resolv_now.content | b64decode).split('\n')
-         | select('match', '^nameserver ')
-         | map('split') | map(attribute=1)
+      {{ (_tor_resolv_now.content | b64decode)
+         | regex_findall('(?m)^nameserver\s+(\S+)')
          | reject('equalto', '127.0.0.1') | list }}
   when: not _tor_upstreams_stat.stat.exists
 - name: "📥 Egress router | Load captured upstreams"
