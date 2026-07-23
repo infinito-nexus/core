@@ -1,8 +1,8 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-
-  mariadb:
-    container_name:   "{{ MARIADB_NAME }}"
-    image:            "{{ MARIADB_CUSTOM_IMAGE }}"
+  {% set service_name = 'mariadb' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', MARIADB_NAME) }}
+    {{ lookup('container_image', application_id, 'mariadb') }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         MARIADB_IMAGE:   "{{ MARIADB_IMAGE }}"
@@ -11,24 +11,20 @@
       - "--transaction-isolation=READ-COMMITTED"
       - "--binlog-format=ROW"
 
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% if MARIADB_EXPOSE_LOCAL %}
-    ports: 
-      - "{{ DOCKER_BIND_HOST }}:{{ MARIADB_PORT }}:3306"
-{% endif %}
-    volumes:
-      - "data:/var/lib/mysql"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if MARIADB_EXPOSE_LOCAL %}
+    {{ lookup('container_ports', ['mariadb', 'mariadb', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
+    {{ lookup('container_volumes', application_id, 'mariadb') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %} -u root -p\"$MARIADB_ROOT_PASSWORD\" -e 'SHOW DATABASES;'"
+        - "mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %} -u root -p\"$${MARIADB_ROOT_PASSWORD}\" -e 'SHOW DATABASES;'"
       interval: 10s
       timeout: 5s
       retries: 18
+      start_period: 90s
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': MARIADB_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

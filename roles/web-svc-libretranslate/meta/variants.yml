@@ -12,12 +12,16 @@
     sso:
       enabled: true
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     matomo:
       enabled: false
@@ -25,9 +29,14 @@
     sso:
       enabled: false
       shared: false
+    redis:
+      shared: false
     prometheus:
       enabled: false
       shared: false
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override

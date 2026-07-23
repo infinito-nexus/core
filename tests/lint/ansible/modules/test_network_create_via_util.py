@@ -57,8 +57,6 @@ SCAN_DIRS = ("roles",)
 _SCAN_PREFIXES = tuple(f"{d}/" for d in SCAN_DIRS)
 SCAN_SUFFIXES = (".yml", ".yaml")
 
-# The central network-create util — the only place allowed to call the
-# underlying `community.docker.docker_network` module directly.
 _ALLOWED_PATH = "roles/sys-svc-compose/tasks/utils/network/create.yml"
 
 _MODULE_RE = re.compile(
@@ -121,7 +119,7 @@ class TestNetworkCreateViaUtil(unittest.TestCase):
            creation and the compose-up (asset copies, configs, ...),
            OR when pre-creating multiple foreign networks in a loop::
 
-               - include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/create.yml'] | path_join }}"
+               - include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
                  vars:
                    network_role_id: "{{ application_id }}"
 
@@ -131,7 +129,7 @@ class TestNetworkCreateViaUtil(unittest.TestCase):
            after. Use for self-contained single-container services
            (mariadb / postgres / ollama)::
 
-               - include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml'] | path_join }}"
+               - include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
                  vars:
                    compose_handlers_flush: true
 

@@ -50,7 +50,7 @@ sudo rm -f "${RESOLV_CONF}"
 printf 'nameserver 127.0.0.1\n' | sudo tee "${RESOLV_CONF}" >/dev/null
 
 echo ">>> Restarting dnsmasq"
-sudo systemctl enable dnsmasq --quiet 2>/dev/null || true
+sudo systemctl enable dnsmasq --quiet 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 sudo systemctl restart dnsmasq
 
 # Register WSL interop binfmt handler so Windows .exe files can be executed from WSL
@@ -62,7 +62,7 @@ if [[ ! -f "${BINFMT_CONF}" ]]; then
 	sudo systemctl restart systemd-binfmt
 fi
 if ! grep -qs "WSLInterop" /proc/sys/fs/binfmt_misc/WSLInterop 2>/dev/null; then
-	printf ':WSLInterop:M::MZ::/init:PF\n' | sudo tee /proc/sys/fs/binfmt_misc/register >/dev/null 2>&1 || true
+	printf ':WSLInterop:M::MZ::/init:PF\n' | sudo tee /proc/sys/fs/binfmt_misc/register >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 echo ">>> WSL2 DNS pre-configuration complete"

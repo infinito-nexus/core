@@ -1,4 +1,49 @@
 ---
-data: opentalk_data
-config: opentalk_config
-rabbit: opentalk_rabbit
+data:
+  type: volume
+  name: opentalk_data
+  mounts:
+    - service: controller
+      target: /var/lib/opentalk
+
+config:
+  type: volume
+  name: opentalk_config
+
+minio:
+  type: volume
+  name: opentalk_minio
+  mounts:
+    - service: minio
+      target: /data
+
+rabbit:
+  type: volume
+  name: opentalk_rabbit
+  mounts:
+    - service: rabbit
+      target: /var/lib/rabbitmq
+
+controller_toml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-opentalk', 'directories.volumes'), 'controller.toml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: controller
+      target: /controller/controller.toml
+
+livekit_yaml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-opentalk', 'directories.volumes'), 'livekit.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: livekit
+      target: /etc/livekit/livekit.yaml
+
+recorder_toml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-opentalk', 'directories.volumes'), 'recorder.toml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: recorder
+      target: /recorder/recorder.toml

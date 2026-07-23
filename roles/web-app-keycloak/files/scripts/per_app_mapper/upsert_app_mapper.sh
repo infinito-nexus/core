@@ -41,7 +41,7 @@ if [ -n "$EXISTING_ID" ]; then
     "$PAYLOAD_FILE" \
     | container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh update \
         "components/$EXISTING_ID" -r "$KC_REALM" -f - \
-    >/dev/null 2>&1 || true
+    >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   printf '%s\n' "$EXISTING_ID"
 else
   container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh create \

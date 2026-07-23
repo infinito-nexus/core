@@ -37,7 +37,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -141,8 +141,6 @@ def _collect_findings(root: Path) -> list[ProviderFinding]:
         if entity:
             entity_to_role.setdefault(entity, role)
 
-    # Responsible role for a service: the role whose entity matches the service
-    # name, else (provider sense) any role that declares the service at all.
     responsible_role: dict[str, str] = dict(entity_to_role)
 
     referenced_by: dict[str, list[str]] = {}

@@ -1,3 +1,22 @@
 ---
-uploads: decidim_uploads
-logs: decidim_logs
+uploads:
+  type: volume
+  name: decidim_uploads
+  mounts:
+    - service: decidim
+      target: /app/public/uploads
+
+logs:
+  type: volume
+  name: decidim_logs
+  mounts:
+    - service: decidim
+      target: /app/log
+
+allowed_hosts:
+  type: config
+  source: "{{ [lookup('container', 'web-app-decidim', 'directories.instance'), 'allowed_hosts.rb'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: decidim
+      target: /code/config/initializers/allowed_hosts.rb

@@ -1,0 +1,27 @@
+---
+- name: "🔧 Provision '{{ _engine_consumer_id }}' on '{{ _engine_provider_role }}'"
+  vars:
+    _engine_provider_role: "svc-db-{{ _engine_type }}"
+  block:
+    - name: "🧩 Load engine provider '{{ _engine_provider_role }}' (lazy)"
+      ansible.builtin.include_role:
+        name: "{{ _engine_provider_role }}"
+      vars:
+        application_id: "{{ _engine_provider_role }}"
+        compose_mode_force: ""
+      when: >-
+        lookup(
+          'vars',
+          'run_once_' ~ (_engine_provider_role | replace('-', '_')),
+          default='__missing__'
+        ) == '__missing__'
+
+    - name: "🎬 Initialize '{{ _engine_consumer_id }}' on '{{ _engine_provider_role }}'"
+      ansible.builtin.include_role:
+        name: "{{ _engine_provider_role }}"
+      vars:
+        application_id: "{{ _engine_provider_role }}"
+        database_init: true
+        database_consumer_id: "{{ _engine_consumer_id }}"
+        compose_repository_pull: false
+        compose_mode_force: ""

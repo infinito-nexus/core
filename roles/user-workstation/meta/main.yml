@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Creates the workstation user selected via WORKSTATION_USER and configures the user environment.
+  description: Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

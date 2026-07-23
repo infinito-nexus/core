@@ -1,0 +1,31 @@
+---
+# nocheck: info-media Self-written marker/tag role with no tasks; just flags a host as the Docker Swarm manager for the inventory validator. Not a third-party product.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - swarm
+    - docker
+    - cluster
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

@@ -8,6 +8,7 @@ server
 
   {% include 'roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2' %}
 
+  {% set aca_origin = "* always" %}
   {% include 'roles/sys-svc-proxy/templates/headers/access_control_allow.conf.j2' %}
   
   charset utf-8;

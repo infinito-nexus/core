@@ -1,11 +1,11 @@
 ---
-- name: "Cleanup caches and logs (cross-distro: arch/debian/ubuntu/fedora/centos)"
+- name: "🧹 Cleanup caches and logs (cross-distro: arch/debian/ubuntu/fedora/centos)"
   # CI/container cleanup to prevent disk blow-ups across all supported distros
   become: true
   ansible.builtin.script: cleanup_caches.sh
   changed_when: true
 
-- name: Cleanup journald logs (CI/container only)
+- name: 🧹 Cleanup journald logs (CI/container only)
   # Prevent disk blow-ups in CI containers due to journald accumulation
   become: true
   ansible.builtin.shell: |

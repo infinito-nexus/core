@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Disk-space usage monitor; alerts when usage exceeds threshold.
+  description: Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

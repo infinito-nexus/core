@@ -4,7 +4,7 @@
     - run_once_desk_virtualbox is not defined
     - ansible_facts['os_family'] == "Archlinux"
 
-- name: WARNING - VirtualBox role is Arch-only, skipping on this host
+- name: 🎭 WARNING - VirtualBox role is Arch-only, skipping on this host
   debug:
     msg: >-
       WARNING: Skipping VirtualBox setup because this role is Arch/Manjaro-only.

@@ -1,0 +1,15 @@
+{% if TOR_DNSMASQ_OWNS_LISTENER | default(true) %}
+listen-address=127.0.0.1
+{% endif %}
+bind-dynamic
+no-hosts
+no-resolv
+filter-AAAA
+{% if TOR_NODE_ONION | length > 0 %}
+address=/{{ TOR_NODE_ONION }}/{{ TOR_HS_BACKEND_HOST }}
+local=/{{ TOR_NODE_ONION }}/
+{% endif %}
+server=/onion/127.0.0.1#{{ TOR_DNS_PORT }}
+{% for _ns in TOR_DNS_UPSTREAMS %}
+server={{ _ns }}
+{% endfor %}

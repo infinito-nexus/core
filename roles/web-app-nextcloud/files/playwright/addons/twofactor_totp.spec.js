@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -17,7 +19,7 @@ test.use({ ignoreHTTPSErrors: true });
 // if the app row happened to be installed).
 test("twofactor_totp addon: TOTP provider is registered and offered for enrollment", async ({ browser }) => {
   skipUnlessAddonEnabled("twofactor_totp");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -29,7 +31,7 @@ test("twofactor_totp addon: TOTP provider is registered and offered for enrollme
     // authenticated session. The installed-apps list resolves only when the
     // settings backend recognizes the app id.
     const appsUrl = new URL("settings/apps/installed", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(appsUrl, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await gotoOnion(page, appsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const appEntry = page
@@ -38,7 +40,7 @@ test("twofactor_totp addon: TOTP provider is registered and offered for enrollme
     await expect(
       appEntry,
       "the twofactor_totp app must appear as installed/enabled in the admin apps list",
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // 2) Coupling assertion: open the personal Security settings page. Nextcloud
     // renders a two-factor enrollment block per REGISTERED provider. The TOTP
@@ -47,13 +49,13 @@ test("twofactor_totp addon: TOTP provider is registered and offered for enrollme
     // into the 2FA registry) this section is absent — so this expectation FAILS
     // when the integration is not wired.
     const securityUrl = new URL("settings/user/security", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(securityUrl, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await gotoOnion(page, securityUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     await expect(
       page.locator("#app-content, #app-content-vue, #content, #content-vue").first(),
       "the Nextcloud personal Security settings page must render",
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const appContent = page
       .locator("#app-content, #app-content-vue, #content, #content-vue")
@@ -69,11 +71,11 @@ test("twofactor_totp addon: TOTP provider is registered and offered for enrollme
     const totpEnrollment = appContent.getByText(/authenticator app/i).first();
 
     const sectionVisible = await totpSection
-      .waitFor({ state: "visible", timeout: 45_000 })
+      .waitFor({ state: "visible", timeout: resolveTimeout(45_000) })
       .then(() => true)
       .catch(() => false);
     const enrollmentVisible = await totpEnrollment
-      .waitFor({ state: "visible", timeout: 15_000 })
+      .waitFor({ state: "visible", timeout: resolveTimeout(15_000) })
       .then(() => true)
       .catch(() => false);
 

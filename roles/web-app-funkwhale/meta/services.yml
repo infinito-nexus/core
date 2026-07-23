@@ -1,12 +1,23 @@
 ---
 funkwhale:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  embedded typesense index; node-local in swarm
+  placement: manager
   image: funkwhale/front
   version: 2.0.6
   min_storage: 20GB
   ports:
+    internal:
+      http: 80
     local:
       sso: 16502
       http: 8012
+  proxy:
+    service_key: front
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -20,11 +31,17 @@ api:
   image: funkwhale/api
   version: 2.0.6
   min_storage: 5GB
+  ports:
+    internal:
+      http: 5000
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
 typesense:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-typesense' in group_names }}"
   image: typesense/typesense
   version: "30.2"
   min_storage: 1GB
@@ -55,9 +72,11 @@ email:
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -95,3 +114,14 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

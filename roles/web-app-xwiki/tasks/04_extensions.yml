@@ -11,7 +11,7 @@
 # Notes:
 #  - We print machine-readable markers so Ansible can assert deterministically.
 
-- name: "XWIKI | Build Groovy installer code from static file (base64 payload)"
+- name: "🔨 XWIKI | Build Groovy installer code from static file (base64 payload)"
   vars:
     _wanted_b64: "{{ XWIKI_PLUGINS | to_json | b64encode }}"
   set_fact:
@@ -19,10 +19,10 @@
       {{ lookup('file', 'roles/web-app-xwiki/files/extension_installer_b64.groovy')
          | regex_replace('__WANTED_B64__', _wanted_b64) }}
 
-- name: "XWIKI | Fetch REST session + form token (extensions write ops)"
+- name: "⬇️ XWIKI | Fetch REST session + form token (extensions write ops)"
   include_tasks: _rest_session.yml
 
-- name: "XWIKI | PUT installer page Main.InstallExtensions"
+- name: "⬆️ XWIKI | PUT installer page Main.InstallExtensions"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
     method: PUT
@@ -35,101 +35,23 @@
   register: _put_page
 
 - block:
-    - name: "XWIKI | Execute installer page"
-      uri_retry:
-        url: "{{ XWIKI_DOCKER_REACH_URL }}/bin/view/XWiki/InstallExtensions?xpage=plain"
-        method: GET
-        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-        force_basic_auth: true
-        status_code: [200]
-        return_content: true
-        timeout: 300
-      register: _exec_page
-      retries: 12
-      delay: 20
-      until:
-        - _exec_page is succeeded
-        - (_exec_page.content | default('')) is not search('WARN::')
-      changed_when: false
-
-    - name: "XWIKI | Assert installer output has no errors"
-      assert:
-        that:
-          - (_exec_page.content | default('')) is not search('ERROR::')
-          - (_exec_page.content | default('')) is not search('INSTALLED_MISSING::')
-          - (_exec_page.content | default('')) is not search('WARN::')
-        fail_msg: |
-          XWiki extension installer reported errors.
-          Output:
-          {{ _exec_page.content | default('') }}
+    - name: "📂 XWIKI | Load installer-page execution + assertion routines"
+      include_tasks: 04b_extensions_execute.yml
 
   rescue:
-    - name: "XWIKI | DEBUG | Show installer page output"
-      debug:
-        var: _exec_page.content
-
-    - name: "XWIKI | DEBUG | Repo reachability from container (nexus + maven central)"
-      ansible.builtin.shell: |
-        set -euo pipefail
-        container exec "{{ XWIKI_CONTAINER }}" sh -lc '
-          echo "== DNS ==";
-          (getent hosts nexus.xwiki.org || true);
-          (getent hosts repo1.maven.org || true);
-          echo "== HTTP ==";
-          (wget -S -O- -T 10 https://nexus.xwiki.org/ 2>&1 | head -n 30) || true;
-          (wget -S -O- -T 10 https://repo1.maven.org/maven2/ 2>&1 | head -n 30) || true;
-        '
-      register: _dbg_net
+    - name: "🌿 XWiki | Probe extension repos + dump xwiki.properties" # nocheck: rescue-extra-diagnostics extension-repo reachability and xwiki.properties are xwiki-specific and not in any log the generic rescue script captures
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/web-app-xwiki/files/rescue_extensions.sh') }}"
+      environment:
+        XWIKI_CONTAINER_ADDRESS: "{{ XWIKI_CONTAINER_ADDRESS }}"
       changed_when: false
       failed_when: false
-
-    - name: "XWIKI | DEBUG | Dump mounted xwiki.properties (first 200 lines)"
-      ansible.builtin.shell: |
-        set -euo pipefail
-        container exec "{{ XWIKI_CONTAINER }}" sh -lc '
-          echo "== xwiki.properties ==";
-          ls -la /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties || true;
-          sed -n "1,200p" /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties 2>/dev/null || true;
-          echo "== extension.repositories ==";
-          grep -n "^[[:space:]]*extension\.repositories" /usr/local/tomcat/webapps/ROOT/WEB-INF/xwiki.properties 2>/dev/null || true;
-        '
-      register: _dbg_props
-      changed_when: false
-      failed_when: false
-
-    - name: "XWIKI | DEBUG | Tail container logs"
-      ansible.builtin.shell: |
-        set -euo pipefail
-        container logs --tail 300 "{{ XWIKI_CONTAINER }}" || true
-      register: _dbg_logs
-      changed_when: false
-      failed_when: false
-
-    - name: "XWIKI | DEBUG | Print debug outputs"
-      debug:
-        msg: |
-          ===== XWIKI DEBUG NET =====
-          {{ _dbg_net.stdout | default('') }}
-          {{ _dbg_net.stderr | default('') }}
-
-          ===== XWIKI DEBUG PROPS =====
-          {{ _dbg_props.stdout | default('') }}
-          {{ _dbg_props.stderr | default('') }}
-
-          ===== XWIKI DEBUG LOGS =====
-          {{ _dbg_logs.stdout | default('') }}
-          {{ _dbg_logs.stderr | default('') }}
-
-    - name: "XWIKI | FAIL | Extension installation failed (see debug above)"
-      fail:
-        msg: |
-          Extension installation failed.
-          Installer output:
-          {{ _exec_page.content | default('') }}
+    - name: "🛑 XWiki | fail after extension diagnostics"
+      ansible.builtin.fail:
+        msg: "Extension install failed; repo reachability + xwiki.properties were dumped into the diagnostics folder (the workflow-level rescue capture collects the
+          full snapshot)"
 
   always:
-    - name: "XWIKI | Delete installer page (best effort)"
+    - name: "🗑️ XWIKI | Delete installer page (best effort)"
       uri_retry:
         url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
         method: DELETE
@@ -142,7 +64,7 @@
       changed_when: _delete_page_best_effort.status != 404
       failed_when: false
 
-- name: "XWIKI | Verify requested extensions via Groovy checker"
+- name: "✅ XWIKI | Verify requested extensions via Groovy checker"
   include_tasks: _check_extension_via_groovy.yml
   loop: "{{ XWIKI_PLUGINS }}"
   loop_control:
@@ -152,7 +74,7 @@
     ext_id: "{{ plugin.id }}"
     result_var: "probe_{{ plugin.id | regex_replace('[^A-Za-z0-9_]', '_') }}"
 
-- name: "XWIKI | Collect probe results"
+- name: "📊 XWIKI | Collect probe results"
   set_fact:
     _xwiki_probe_results: "{{ _xwiki_probe_results | default([]) + [ { 'id': plugin.id, 'status': ( (hostvars[inventory_hostname]['probe_' ~ (plugin.id | regex_replace('[^A-Za-z0-9_]',
       '_'))] | default({})).status | default(404) | int ) } ] }}"
@@ -161,14 +83,14 @@
     loop_var: plugin
   changed_when: false
 
-- name: "XWIKI | Assert all requested extensions are installed"
+- name: "✅ XWIKI | Assert all requested extensions are installed"
   vars:
     missing: "{{ (_xwiki_probe_results | default([])) | selectattr('status','equalto',404) | map(attribute='id') | list }}"
   fail:
     msg: "Missing extensions: {{ missing | join(', ') }}"
   when: missing | length > 0
 
-- name: "XWIKI | Delete installer page"
+- name: "🗑️ XWIKI | Delete installer page"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
     method: DELETE

@@ -1,18 +1,18 @@
 ---
-- name: Install caffeine
+- name: 📦 Install caffeine
   include_role:
     name: sys-aur-install
   vars:
     yay_install_packages:
       - caffeine-ng
 
-- name: Create autostart directory if it doesn't exist
+- name: 📁 Create autostart directory if it doesn't exist
   file:
     path: "{{auto_start_directory}}"
     state: directory
 
-- name: Copy caffeine.desktop file to autostart directory
-  template:
+- name: 📋 Copy caffeine.desktop file to autostart directory
+  template: # nocheck: stack-host-template (per-host workstation autostart file)
     src: caffeine.desktop.j2
     dest: "{{auto_start_directory}}caffeine.desktop"
 

@@ -15,7 +15,7 @@
 # `web-app-keycloak`'s own config — that is why the static scan cannot
 # see the cross-role config path.
 
-- name: "SSO-proxy | sanity-check consumer is in the resolved list"
+- name: "✅ SSO-proxy | sanity-check consumer is in the resolved list"
   ansible.builtin.assert:
     that:
       - sso_proxy_application_id in (lookup('sso_proxy_consumers') | flatten)
@@ -27,9 +27,9 @@
       falsy. Fix the consumer's meta/services.yml.
   when: MODE_DEBUG | bool
 
-- name: "SSO-proxy | render upstream-config for '{{ sso_proxy_application_id }}'"
-  template:
-    src: "{{ playbook_dir }}/roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2"
+- name: "📄 SSO-proxy | render upstream-config for '{{ sso_proxy_application_id }}'"
+  stack_host_template:
+    src: "{{ lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2') }}"
     dest: >-
       {{ (sso_proxy_application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
          }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}

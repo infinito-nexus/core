@@ -1,2 +1,7 @@
 ---
-data: postgres_data
+data:
+  type: volume
+  name: postgres_data
+  mounts:
+    - service: postgres
+      target: /var/lib/postgresql/data

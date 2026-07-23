@@ -23,7 +23,10 @@ class CombinedResolver:
       prerequisites(role) = run_after(role) + dependencies(role) + services(role)
 
     Notes:
-    - run_after edges are always followed
+    - run_after edges are followed only when `follow_run_after` is True.
+      Inclusion callers pass False so run_after stays a pure ordering hint
+      (its documented contract) and a variant that disables a service does
+      not get its provider re-added through the ordering edge.
     - dependency edges are followed only for application roles (filtered in loader)
     - services edges are derived from app config flags (filtered in loader)
     - Cycles do NOT raise; traversal stops expanding the cyclic edge
@@ -40,9 +43,12 @@ class CombinedResolver:
     def __init__(
         self,
         services_overrides: dict[str, dict] | None = None,
+        *,
+        follow_run_after: bool = True,
     ) -> None:
         self._cache: dict[str, RoleEdges] = {}
         self._services_overrides: dict[str, dict] = dict(services_overrides or {})
+        self._follow_run_after = follow_run_after
 
     def edges_for(self, role_name: str) -> RoleEdges:
         if role_name in self._cache:
@@ -57,7 +63,6 @@ class CombinedResolver:
             services_override=self._services_overrides.get(role_name),
         )
 
-        # Validate referenced roles exist for run_after (deps/services validate internally too)
         for r in ra:
             require_role_exists(r)
 
@@ -80,7 +85,6 @@ class CombinedResolver:
 
         def dfs(node: str) -> None:
             if node in stack:
-                # cycle edge -> stop expansion, do not raise
                 return
             if node in visited:
                 return
@@ -90,9 +94,9 @@ class CombinedResolver:
 
             edges = self.edges_for(node)
 
-            # Keep stable traversal order
-            for dep in edges.run_after:
-                dfs(dep)
+            if self._follow_run_after:
+                for dep in edges.run_after:
+                    dfs(dep)
             for dep in edges.dependencies:
                 dfs(dep)
             for dep in edges.services:
@@ -105,9 +109,3 @@ class CombinedResolver:
 
         dfs(start_role)
         return out
-
-    def resolve_with_edges(
-        self, start_role: str
-    ) -> tuple[list[str], dict[str, RoleEdges]]:
-        resolved = self.resolve(start_role)
-        return resolved, dict(self._cache)

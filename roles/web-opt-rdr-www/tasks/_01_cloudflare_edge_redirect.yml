@@ -1,5 +1,5 @@
 ---
-- name: Include Cloudflare redirect rule to enforce www → apex
+- name: 📂 Include Cloudflare redirect rule to enforce www → apex
   include_tasks: _02_cloudflare_redirect_rule.yml
   vars:
     domain: "{{ item.target }}"

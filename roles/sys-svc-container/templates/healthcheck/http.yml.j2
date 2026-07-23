@@ -1,31 +1,7 @@
-{# ------------------------------------------------------------------------------
-  Healthcheck: HTTP Local
-  ------------------------------------------------------------------------------
-  This template defines a generic HTTP healthcheck for containers exposing
-  a web service on a local port (e.g., Nginx, Apache, PHP-FPM, Shopware, etc.).
-
-  It uses `wget` or `curl` (as fallback) to test if the container responds on
-  http://127.0.0.1:{{ container_port }}/. If the request succeeds, Docker marks
-  the container as "healthy"; otherwise, as "unhealthy".
-
-  Parameters:
-    - container_port: The internal port the service listens on.
-
-  Timing:
-    - interval:      30s   → Check every 30 seconds
-    - timeout:        5s   → Each check must complete within 5 seconds
-    - retries:        5    → Mark unhealthy after 5 consecutive failures
-    - start_period:  20s   → Grace period before health checks begin
-
-  Usage: consumers include this template via the standard Jinja2
-  ``include`` tag, indenting the block by four spaces with the
-  ``indent(4)`` filter so the rendered ``healthcheck:`` map slots into
-  a Compose service definition.
-  ------------------------------------------------------------------------------
-#}
-healthcheck:
-  test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:{{ container_port }}/ >/dev/null || curl -fsS http://127.0.0.1:{{ container_port }}/ >/dev/null"]
-  interval: 30s
-  timeout: 5s
-  retries: 5
-  start_period: 20s
+{% set container_port = container_port | default(lookup('config', application_id, 'services.' ~ service_name ~ '.ports.internal.http', '')) %}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:{{ container_port }}/ >/dev/null || curl -fsS http://127.0.0.1:{{ container_port }}/ >/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: {{ container_healthcheck_start_period | default('20s') }}

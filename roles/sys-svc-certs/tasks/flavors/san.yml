@@ -1,5 +1,5 @@
 ---
 # Neccessary encapsulation to pass performance tests
-- name: Include wrapped SAN tasks
+- name: 📂 Include wrapped SAN tasks
   include_tasks: "_san.yml"
   when: run_once_san_certs is not defined

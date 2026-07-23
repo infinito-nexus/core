@@ -1,0 +1,14 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  font-src:
+    - "data:"
+    - "blob:"
+  worker-src:
+    - "blob:"
+  manifest-src:
+    - "data:"

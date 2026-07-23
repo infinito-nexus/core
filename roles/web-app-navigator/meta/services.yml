@@ -27,12 +27,26 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 navigator:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   ports:
     local:
       http: 8039
+    internal:
+      http: 5000
+  proxy:
+    service_key: infinito-navigator
   lifecycle: pre-alpha
   min_storage: 1GB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag

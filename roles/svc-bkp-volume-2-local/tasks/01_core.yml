@@ -1,0 +1,59 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: 📂 Include dependencies
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - sys-svc-container
+    - sys-lock
+    - user-backup
+    - sys-ctl-alm-compose
+    - sys-ctl-cln-bkps
+
+- include_tasks: 02_install.yml
+  when: backup_docker_to_local_folder is not defined
+
+- name: "♻️ reset (if enabled) for {{ role_name}}"
+  include_tasks: 03_reset.yml
+  when: MODE_RESET | bool
+
+- name: ✅ Ensure secrets directory exists (root only)
+  ansible.builtin.file:
+    path: "{{ DIR_SECRETS }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: ✅ Ensure databases.csv exists (root only)
+  ansible.builtin.file:
+    path: "{{ FILE_DATABASE_SECRETS }}"
+    state: touch
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: ✅ Ensure compositions dir exists (baudolo scans it; absent on fresh host)
+  ansible.builtin.file:
+    path: "{{ DIR_COMPOSITIONS }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "▶️ Execute system service setup for '{{ system_service_id }}'"
+  include_role:
+    name: sys-service
+  vars:
+    system_service_copy_files: false
+    system_service_timer_enabled: true
+    system_service_force_linear_sync: true
+    system_service_force_flush_instant: "{{ MODE_BACKUP | bool }}"
+    system_service_force_flush_final: false
+    system_service_state: "{{ 'started' if MODE_BACKUP | bool else omit }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL }}"
+    system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }} --timeout
+      "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"'
+    system_service_tpl_exec_start: "/bin/sh -c '{{ BKP_VOLUME_2_LOCAL_EXEC }}'"
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"

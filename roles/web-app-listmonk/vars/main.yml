@@ -1,24 +1,19 @@
 ---
-# General 
 application_id: "web-app-listmonk"
+entity_name: "{{ application_id | get_entity_name }}"
 container_port: "{{ lookup('config', application_id, 'services.listmonk.ports.internal.http') }}"
 
-# Listmonk
-LISTMONK_VERSION: "{{ lookup('config', application_id, 'services.listmonk.version') }}"
-LISTMONK_IMAGE: "{{ lookup('config', application_id, 'services.listmonk.image') }}"
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
 LISTMONK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 
 LISTMONK_PUBLIC_API_ENABLED: "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
 
-# User Configuration
 LISTMONK_USER_SEND: "newsletter"
 LISTMONK_USER_BOUNCE: "bounce"
 
-LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'container') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
+LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'address') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
   lookup('database', application_id, 'name') }}"
-LISTMONK_RUN: "{{ BIN_COMPOSE }} run -T --rm application"
 LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"
 
 LISTMONK_SETTINGS:
@@ -28,7 +23,6 @@ LISTMONK_SETTINGS:
   - key: "app.notify_emails"
     value: "{{ [ lookup('users', 'administrator').email ] | to_json }}"
 
-  # OIDC integration (conditional)
   - key: "security.oidc"
     value: >-
       {{ {
@@ -37,9 +31,8 @@ LISTMONK_SETTINGS:
          "provider_url": OIDC.CLIENT.ISSUER_URL,
          "client_secret": OIDC.CLIENT.SECRET
       } | to_json }}
-    when: LISTMONK_OIDC_ENABLED | bool
+    condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
 
-  # hCaptcha toggles and credentials
   - key: "security.enable_captcha"
     value: "true"
 
@@ -49,7 +42,6 @@ LISTMONK_SETTINGS:
   - key: "security.captcha_secret"
     value: "\"{{ lookup('config', application_id, 'credentials.hcaptcha.secret') }}\""
 
-  # SMTP servers
   - key: "smtp"
     value: >-
       {{ [
@@ -76,26 +68,21 @@ LISTMONK_SETTINGS:
           "tls_skip_verify": false
         }
       ] | to_json }}
-    when: LISTMONK_EMAIL.smtp | bool
+    condition: "{{ LISTMONK_EMAIL.smtp | bool }}"
 
   - key: "app.lang"
     value: '"{{ HOST_LL }}"'
 
-#  - key: "messengers"
-#    value: '[]'
-
   - key: "app.logo_url"
     value: '"{{ service_provider.platform.logo }}"'
-    when: service_provider.platform.logo | bool
+    condition: "{{ service_provider.platform.logo | length > 0 }}"
 
   - key: "app.site_name"
     value: '"{{ service_provider.company.titel }} Mailing list"'
 
-  # Enable the bounce module
   - key: "bounce.enabled"
     value: "true"
 
-  # Configure POP3 mailbox for processing bounces
   - key: "bounce.mailboxes"
     value: >-
       {{ [
@@ -115,155 +102,47 @@ LISTMONK_SETTINGS:
         }
       ] | to_json }}
 
-#
-#  - key: "upload.max_file_size"
-#    value: '5000'
-#
-#  - key: "upload.s3.aws_secret_access_key"
-#    value: '""'
-#
-#  - key: "app.batch_size"
-#    value: '1000'
-
   - key: "app.from_email"
     value: '"{{ service_provider.company.titel }} Newsletter <{{ lookup(''users'', LISTMONK_USER_SEND).email }}>"'
 
-#  - key: "bounce.actions"
-#    value: >-
-#      {"hard": {"count": 1, "action": "blocklist"}, "soft": {"count": 2, "action": "none"}, "complaint": {"count": 1, "action": "blocklist"}}
-#
-#  - key: "app.concurrency"
-#    value: '10'
-
   - key: "app.favicon_url"
     value: '"{{ service_provider.platform.favicon }}"'
-    when: service_provider.platform.favicon | bool
-
-#  - key: "bounce.postmark"
-#    value: '{"enabled": false, "password": "", "username": ""}'
-#
-#  - key: "upload.provider"
-#    value: '"filesystem"'
-
-#  - key: "app.message_rate"
-#    value: '10'
-#
-#  - key: "bounce.mailboxes"
-#    value: >-
-#      [{"host": "pop.yoursite.com", "port": 995, "type": "pop", "uuid": "471fd0e9-8c33-4e4a-9183-c4679699faca", "enabled": false, "password": "password", "username": "username", "return_path": "bounce@listmonk.yoursite.com", "tls_enabled": true, "auth_protocol": "userpass", "scan_interval": "15m", "tls_skip_verify": false}]
-
-#  - key: "upload.s3.url"
-#    value: '"https://ap-south-1.s3.amazonaws.com"'
-#
-#  - key: "upload.s3.bucket"
-#    value: '""'
-#
-#  - key: "upload.s3.expiry"
-#    value: '"167h"'
+    condition: "{{ service_provider.platform.favicon | length > 0 }}"
 
   - key: "app.check_updates"
     value: "true"
-
-#  - key: "upload.extensions"
-#    value: '["jpg", "jpeg", "png", "gif", "svg", "*"]'
-#
-#  - key: "bounce.ses_enabled"
-#    value: 'false'
-#
-#  - key: "privacy.allow_wipe"
-#    value: 'true'
-#
-#  - key: "privacy.exportable"
-#    value: '["profile", "subscriptions", "campaign_views", "link_clicks"]'
-#
-#  - key: "app.max_send_errors"
-#    value: '1000'
-#
-#  - key: "bounce.forwardemail"
-#    value: '{"key": "", "enabled": false}'
-#
-#  - key: "bounce.sendgrid_key"
-#    value: '""'
-#
-#  - key: "privacy.allow_export"
-#    value: 'true'
-#
-#  - key: "upload.s3.public_url"
-#    value: '""'
-#
-#  - key: "upload.s3.bucket_path"
-#    value: '"/"'
-#
-#  - key: "upload.s3.bucket_type"
-#    value: '"public"'
-#
-#  - key: "app.cache_slow_queries"
-#    value: 'false'
-#
-#  - key: "bounce.sendgrid_enabled"
-#    value: 'false'
-#
-#  - key: "bounce.webhooks_enabled"
-#    value: 'false'
-#
-#  - key: "privacy.domain_blocklist"
-#    value: '[]'
-#
-#  - key: "privacy.allow_blocklist"
-#    value: 'true'
-#
-#  - key: "privacy.record_optin_ip"
-#    value: 'false'
-#
-#  - key: "app.enable_public_archive"
-#    value: 'true'
-#
-#  - key: "privacy.allow_preferences"
-#    value: 'true'
-#
-#  - key: "app.message_sliding_window"
-#    value: 'false'
-#  
-#  - key: "app.message_sliding_window_rate"
-#    value: '10000'
-#
-#  - key: "app.enable_public_subscription_page"
-#    value: 'true'
-#
-#  - key: "app.message_sliding_window_duration"
-#    value: '"1h"'
 
   - key: "app.enable_public_archive_rss_content"
     value: "true"
 
   - key: "upload.provider"
     value: '"s3"'
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.aws_access_key_id"
     value: "{{ lookup('objstore', application_id, 'access_key') | to_json }}"
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.aws_secret_access_key"
     value: "{{ lookup('objstore', application_id, 'secret_key') | to_json }}"
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.aws_default_region"
     value: "{{ lookup('objstore', application_id, 'region') | to_json }}"
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.bucket"
     value: "{{ lookup('objstore', application_id, 'bucket') | to_json }}"
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.url"
     value: "{{ lookup('objstore', application_id, 'url') | to_json }}"
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.public_url"
     value: "{{ lookup('objstore', application_id, 'public_url') | to_json }}"
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.bucket_type"
     value: '"public"'
-    when: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"

@@ -31,9 +31,9 @@
     css:
       enabled: true
       shared: true
-- credentials:
-    administrator_password: "'$tr0ng€xampl3PW!"
-  services:
+    tor:
+      enabled: true
+- services:
     dashboard:
       enabled: false
       shared: false
@@ -54,6 +54,11 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override
+  credentials:
+    administrator_password: "'$tr0ng€xampl3PW!"
 - services:
     sso:
       enabled: false
@@ -73,3 +78,6 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override

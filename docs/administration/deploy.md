@@ -9,8 +9,8 @@ Create or refresh the inventory first, then deploy against the generated invento
 ### Create or Refresh the Inventory 📝
 
 ```bash
-infinito administration inventory provision /etc/infinito.nexus/inventories/prod \
-  --inventory-file /etc/infinito.nexus/inventories/prod/devices.yml \
+infinito administration inventory provision /etc/infinito.nexus/inventories/production \
+  --inventory-file /etc/infinito.nexus/inventories/production/devices.yml \
   --host localhost \
   --vars-file inventories/<env>/default.yml \
   --include 'web-app-nextcloud,web-app-keycloak'
@@ -19,8 +19,8 @@ infinito administration inventory provision /etc/infinito.nexus/inventories/prod
 ### Run the Deploy 🛠️
 
 ```bash
-infinito administration deploy dedicated /etc/infinito.nexus/inventories/prod/devices.yml \
-  --password-file /etc/infinito.nexus/inventories/prod/.password \
+infinito administration deploy dedicated /etc/infinito.nexus/inventories/production/devices.yml \
+  --password-file /etc/infinito.nexus/inventories/production/.password \
   --log /etc/infinito.nexus/logs \
   --diff \
   -vv

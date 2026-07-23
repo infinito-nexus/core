@@ -1,12 +1,25 @@
 ---
+# nocheck: tor-contract — object-storage backend; consumed server-side over the
+# internal network (matrix S3 media etc.), never a Tor-browser surface, so it
+# rides no node onion.
+# nocheck: dynamic-flag — role-local browser UI, never consumed by other roles; shared stays literal.
+# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force the frontend on a tor node.
+# nocheck: bond-baseline — same reason: variant 0 must not pin the frontend on.
+frontend:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' not in group_names }}"
+  shared: false
+  domains:
+    - filer
+    - master
 sso:
   bond: 1
-  enabled: "{{ 'web-app-keycloak' in group_names }}"
-  shared: "{{ 'web-app-keycloak' in group_names }}"
+  enabled: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
   flavor: oauth2
   oauth2:
     origin:
-      host: seaweedfs-proxy
+      host: proxy
       port: "80"
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-seaweedfs', role='administrator') }}"
@@ -28,6 +41,15 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  /data IS the storage engine: leveldb2 filer LSM, master raft metadata, needle blob volumes; all NFS-unsafe, so the central provider stays node-local like the svc-db-* engines
+  placement: manager
+  # nocheck: single-replica
+  replicas: 1
   bond: 1
   enabled: true
   shared: true
@@ -48,10 +70,19 @@ seaweedfs:
     local:
       http: 8085
       sso: 16507
+    internal:
+      http: 8333
 proxy:
+  name: seaweedfs-proxy
   image: nginx
   version: 1.31-alpine
   cpus: "0.2"
   mem_reservation: 64m
   mem_limit: 128m
   pids_limit: 128
+# nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

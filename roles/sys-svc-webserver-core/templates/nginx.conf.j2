@@ -5,6 +5,10 @@ events
 }
 http
 {
+{% if DEPLOYMENT_MODE == 'swarm' %}
+  {# Resolve swarm service-name upstreams at request time: VIPs may be absent on openresty (re)start and nginx refuses to boot on an unresolvable literal upstream. #}
+  resolver 127.0.0.11 valid=10s ipv6=off;
+{% endif %}
   {#
     Map the client's Upgrade header to the proper Connection value for WebSocket proxying:
     use "upgrade" when an Upgrade is requested, otherwise "close". Define once in http{} and use $connection_upgrade.
@@ -24,7 +28,9 @@ http
   proxy_cache_path {{ lookup('nginx','directories.cache.image') }} levels=1:2 keys_zone=imgcache:10m inactive=60m use_temp_path=off;
   # --------------------------------------------------------------------------------
   # Tweak the hash table used to store your server_name entries:
-  server_names_hash_bucket_size 64;   # size of each bucket for server_name lookups (in bytes)
+  # 128 (not nginx's default 64) so long onion server_names fit — a v3
+  # subdomain host like `sub.<56-char>.onion` exceeds a 64-byte bucket.
+  server_names_hash_bucket_size 128;  # size of each bucket for server_name lookups (in bytes)
   server_names_hash_max_size    512;  # maximum total buckets for the server_name hash table
   # --------------------------------------------------------------------------------
   {# logging and debugging #}

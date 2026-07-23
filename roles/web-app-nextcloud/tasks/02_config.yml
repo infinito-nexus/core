@@ -1,28 +1,17 @@
 ---
-# Merge all (config) files in infinito directory (container)
-
-- name: Add dynamic config merging from Jinja template
-  template:
-    src: include.php.j2
-    dest: "{{ NEXTCLOUD_HOST_INCL_PATH }}"
-    owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    mode: "0644"
-  notify: compose up
-
-- name: Flush handlers so Nextcloud container is restarted and ready
+- name: 🚿 Flush handlers so Nextcloud container is restarted and ready
   meta: flush_handlers
 
-- name: "Wait until Nextcloud is reachable on port {{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
+- name: "⏳ Wait until Nextcloud is reachable on its local HTTP port"
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
-    timeout: 120
+    timeout: "{{ lookup('timeout', 120) | int }}"
     delay: 2
     state: started
 
-- name: Wait until Nextcloud is installed (occ status)
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"
+- name: ⏳ Wait until Nextcloud is installed (occ status)
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"
   register: occ_status
   retries: 60
   delay: 5
@@ -31,22 +20,12 @@
     (occ_status.stdout | default('')) is search('installed: true')
   changed_when: false
 
-- name: Ensure config.php loads {{ NEXTCLOUD_DOCKER_INCL_PATH }} (idempotent)
-  ansible.builtin.shell: |
-    set -euo pipefail
-
-    container exec -u root {{ NEXTCLOUD_CONTAINER }} sh -lc '
-      cfg="{{ NEXTCLOUD_DOCKER_CONFIG_FILE }}"
-      marker="INFINITO:NEXUS CONFIG LOADER"
-
-      grep -q "$marker" "$cfg" && exit 0
-
-      printf "\n/* %s */\nif (is_readable(\"{{ NEXTCLOUD_DOCKER_INCL_PATH }}\")) {\n  include \"{{ NEXTCLOUD_DOCKER_INCL_PATH }}\";\n}\n" \
-        "$marker" >> "$cfg"
-    '
-  args:
-    executable: /bin/bash
-  register: cfg_loader_patch
-  changed_when: cfg_loader_patch.rc == 0
-  failed_when: cfg_loader_patch.rc != 0
-  notify: compose up
+# nocheck: container-exec-resolver NEXTCLOUD_CONTAINER_ADDRESS is a swarm-mode subshell that only a shell can expand; command/argv would pass it literally
+- name: "📄 Install the infinito additional-config loader into config/"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i -u root {{ NEXTCLOUD_CONTAINER_ADDRESS }}
+      sh -c 'cat > /var/www/html/config/zzz-infinito.config.php
+      && chmod 0444 /var/www/html/config/zzz-infinito.config.php'
+    stdin: "{{ lookup('template', 'include.php.j2') }}"
+  changed_when: true

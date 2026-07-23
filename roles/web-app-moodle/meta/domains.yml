@@ -1,0 +1,4 @@
+---
+canonical:
+  - academy.{{ DOMAIN_PRIMARY }}
+aliases: []

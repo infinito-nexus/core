@@ -23,13 +23,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository (with tags)
+      - name: ⬇️ Checkout repository (with tags)
         uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Resolve image metadata
+      - name: 🔍 Resolve image metadata
         id: vars
         shell: bash
         run: |
@@ -43,14 +43,14 @@ jobs:
             echo "distros=${INFINITO_DISTROS}"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Login to GHCR (for manifest checks)
+      - name: 🔑 Login to GHCR (for manifest checks)
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Determine highest version tag with missing release image
+      - name: 🤔 Determine highest version tag with missing release image
         id: pick
         shell: bash
         env:
@@ -62,7 +62,7 @@ jobs:
           tag="$(scripts/meta/resolve/missing/highest_release_tag.sh)"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
-      - name: Ensure GitHub CLI is available
+      - name: ✅ Ensure GitHub CLI is available
         shell: bash
         run: |
           set -euo pipefail
@@ -71,7 +71,7 @@ jobs:
           fi
           ./scripts/install/apt.sh gh
 
-      - name: Trigger release workflow for missing tag
+      - name: ⚡ Trigger release workflow for missing tag
         if: ${{ steps.pick.outputs.tag != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

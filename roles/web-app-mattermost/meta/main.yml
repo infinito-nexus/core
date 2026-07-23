@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Alejandro Roman Ibanez
-  description: Unite your team with Mattermost, an open-source, self-hosted messaging platform that delivers secure, real-time collaboration through channels,
-    threads, and integrations — keeping your conversations private and under your control.
+  description: Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

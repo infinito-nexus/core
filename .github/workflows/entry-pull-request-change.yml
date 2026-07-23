@@ -19,8 +19,6 @@ on:
       - labeled
 
 concurrency:
-  # Keep only the newest run per PR and event type.
-  # This avoids pull_request and pull_request_target cancelling each other.
   group: pr-ci-${{ github.repository }}-${{ github.event_name }}-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
@@ -39,10 +37,10 @@ jobs:
       scope: ${{ steps.resolve.outputs.scope }}
       run_ci_orchestrator: ${{ steps.resolve.outputs.run_ci_orchestrator }}
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Resolve PR scope
+      - name: 🔍 Resolve PR scope
         id: resolve
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -56,14 +54,32 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Validate branch prefix for detected scope
+      - name: ✅ Validate branch prefix for detected scope
         env:
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_SCOPE: ${{ needs.detect-pr-scope.outputs.scope }}
         run: ./scripts/meta/resolve/pr/branch_prefix.sh
+
+  assert-main-merged:
+    name: 🔀 Assert main is merged
+    needs: detect-pr-scope
+    if: ${{ github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout PR head
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: ✅ Assert the base branch is fully merged into the PR head
+        env:
+          INFINITO_MAIN_REMOTE: origin
+          INFINITO_MAIN_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: bash scripts/git/assert/main_merged.sh
 
   pr-scope-gate:
     name: 🚦 Gate PR scope
@@ -73,7 +89,7 @@ jobs:
     if: ${{ needs.detect-pr-scope.outputs.run_ci_orchestrator == 'false' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Confirm lightweight PR scope
+      - name: ✅ Confirm lightweight PR scope
         shell: bash
         run: |
           set -euo pipefail
@@ -88,23 +104,23 @@ jobs:
       whitelist: ${{ steps.resolve.outputs.whitelist }}
       roles_only: ${{ steps.resolve.outputs.roles_only }}
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
 
-      - name: Set up Python
+      - name: 🔧 Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install project (host venv)
+      - name: 📦 Install project (host venv)
         shell: bash
         run: make install
 
-      - name: Resolve affected roles
+      - name: 🔍 Resolve affected roles
         id: resolve
         shell: bash
         env:
@@ -136,10 +152,10 @@ jobs:
       image_tag: ${{ steps.out.outputs.image_tag }}
       trusted: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Resolve merge ref and image tag
+      - name: 🔍 Resolve merge ref and image tag
         id: out
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

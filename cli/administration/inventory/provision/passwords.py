@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import secrets
-import string
+from utils.manager.value_generator import ValueGenerator
 
 
 def generate_random_password(length: int = 64) -> str:
-    alphabet = string.ascii_letters + string.digits
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+    return ValueGenerator().generate_strong_password(length)

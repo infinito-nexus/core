@@ -140,6 +140,42 @@ class TestStandaloneCheckerScript(unittest.TestCase):
             "bar.example.org: ERROR: No expectations provided. Got 200.", output
         )
 
+    @patch("requests.head")
+    def test_onion_domains_probed_over_http_with_longer_timeout(self, mock_head):
+        seen = {}
+
+        def head_side_effect(url, allow_redirects=False, timeout=10, verify=True):
+            class R:
+                pass
+
+            r = R()
+            domain = url.split("://", 1)[1]
+            seen[domain] = {"url": url, "timeout": timeout}
+            r.status_code = 200
+            return r
+
+        mock_head.side_effect = head_side_effect
+
+        exp = {
+            "clear.example.org": [200],
+            "svc.abcd1234efgh.onion": [200],
+        }
+        exit_code, _ = self._run_main(
+            [
+                "--web-protocol",
+                "https",
+                "--expectations",
+                self._to_json(exp),
+            ]
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            seen["svc.abcd1234efgh.onion"]["url"], "http://svc.abcd1234efgh.onion"
+        )
+        self.assertEqual(seen["svc.abcd1234efgh.onion"]["timeout"], 30)
+        self.assertEqual(seen["clear.example.org"]["url"], "https://clear.example.org")
+        self.assertEqual(seen["clear.example.org"]["timeout"], 10)
+
     # ------------- Helpers -----------------------
 
     def _run_main(self, argv):

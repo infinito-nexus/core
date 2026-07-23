@@ -3,11 +3,16 @@
   # host + app so a single /metricz scrape on the prometheus domain covers all
   # applications without redundancy.
   log_by_lua_block {
-    metric_requests:inc(1, {ngx.var.host, ngx.var.app_id, ngx.var.request_method, ngx.var.status})
-    metric_latency:observe(tonumber(ngx.var.request_time), {ngx.var.host, ngx.var.app_id})
-    metric_bytes_sent:inc(tonumber(ngx.var.bytes_sent) or 0, {ngx.var.host, ngx.var.app_id})
-    metric_bytes_received:inc(tonumber(ngx.var.request_length) or 0, {ngx.var.host, ngx.var.app_id})
-    if ngx.var.ssl_protocol and ngx.var.ssl_protocol ~= "" then
-      metric_tls_handshakes:inc(1, {ngx.var.host, ngx.var.app_id, ngx.var.ssl_protocol})
+    -- The metrics are defined together in prometheus.conf's init_worker. During an
+    -- openresty reconverge a vhost can load before that init runs, so guard against
+    -- a nil metric (otherwise log_by_lua throws "index global 'metric_requests'").
+    if metric_requests then
+      metric_requests:inc(1, {ngx.var.host, ngx.var.app_id, ngx.var.request_method, ngx.var.status})
+      metric_latency:observe(tonumber(ngx.var.request_time), {ngx.var.host, ngx.var.app_id})
+      metric_bytes_sent:inc(tonumber(ngx.var.bytes_sent) or 0, {ngx.var.host, ngx.var.app_id})
+      metric_bytes_received:inc(tonumber(ngx.var.request_length) or 0, {ngx.var.host, ngx.var.app_id})
+      if ngx.var.ssl_protocol and ngx.var.ssl_protocol ~= "" then
+        metric_tls_handshakes:inc(1, {ngx.var.host, ngx.var.app_id, ngx.var.ssl_protocol})
+      end
     end
   }

@@ -1,0 +1,8 @@
+# nocheck: backup-service-flag pull-through cache content is re-fetchable; the volume is backup-disabled and the consumer permanently off
+---
+data:
+  type: volume
+  name: docker_registry_cache_data
+  mounts:
+    - service: cache
+      target: /var/lib/registry

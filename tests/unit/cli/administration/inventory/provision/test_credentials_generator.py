@@ -138,7 +138,7 @@ ansible_become_password: !vault |
             roles_dir = tmp / "roles"
             roles_dir.mkdir()
 
-            role_path = roles_dir / "svc-bkp-container-2-local"
+            role_path = roles_dir / "svc-bkp-volume-2-local"
             (role_path / "meta").mkdir(parents=True)
             (role_path / ROLE_FILE_META_SCHEMA).write_text("x: 1\n", encoding="utf-8")
 
@@ -161,14 +161,14 @@ ansible_become_password: !vault |
                 spr.return_value.stderr = ""
 
                 generate_credentials_for_roles(
-                    application_ids=["svc-bkp-container-2-local"],
+                    application_ids=["svc-bkp-volume-2-local"],
                     roles_dir=roles_dir,
                     host_vars_file=host_vars_file,
                     vault_password_file=vault_pw_file,
                     project_root=tmp,
                     env=None,
                     workers=1,
-                    app_variants={"svc-bkp-container-2-local": 2},
+                    app_variants={"svc-bkp-volume-2-local": 2},
                 )
 
             spr.assert_called_once()

@@ -1,0 +1,16 @@
+---
+application_id: svc-db-elasticsearch
+entity_name: "{{ application_id | get_entity_name }}"
+
+database_type: "{{ entity_name }}"
+
+ELASTICSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+ELASTICSEARCH_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, ELASTICSEARCH_CONTAINER) }}"
+ELASTICSEARCH_PASSWORD: "{{ lookup('config', application_id, 'credentials.ELASTIC_PASSWORD') }}"
+ELASTICSEARCH_EXPOSE_LOCAL: true
+ELASTICSEARCH_LOCAL_HOST: "127.0.0.1"
+ELASTICSEARCH_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.elasticsearch.ports.internal.elasticsearch') }}"
+ELASTICSEARCH_RETRIES: 5
+ELASTICSEARCH_DELAY: 2
+ELASTICSEARCH_API_BASE: "http://{{ ELASTICSEARCH_LOCAL_HOST }}:{{ ELASTICSEARCH_INTERNAL_PORT }}"
+ELASTICSEARCH_EXEC_SHELL: "container exec -e ELASTIC_PW={{ ELASTICSEARCH_PASSWORD | quote }} {{ ELASTICSEARCH_CONTAINER_ADDRESS }} sh -lc"

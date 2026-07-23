@@ -1,0 +1,6 @@
+---
+application_id: svc-registry-cache
+entity_name: "{{ application_id | get_entity_name }}"
+
+REGISTRY_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
+REGISTRY_CACHE_PROXY_REMOTE_URL: "{{ lookup('config', application_id, 'services.cache.proxy.remote_url') }}"

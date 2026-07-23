@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -20,7 +21,7 @@ test("bridgy-fed responds under canonical domain with TLS", async ({ page }) => 
   // answers on the canonical domain over TLS, regardless of whether
   // the requested path resolves. A 5xx is the only signal of an
   // unhealthy app.
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected bridgy-fed response").toBeTruthy();
   expect(response.status(), "Expected bridgy-fed status < 500 (4xx are by design)").toBeLessThan(500);
   expect(
@@ -36,7 +37,7 @@ test("bridgy-fed serves /robots.txt successfully", async ({ request }) => {
   // documented in README.md and lifecycle.md.
   // /robots.txt is the canonical "service is alive" probe for this
   // role; the homepage at `/` is a 404 by design.
-  const response = await request.get(`${appBaseUrl}/robots.txt`);
+  const response = await request.get(`${appBaseUrl}/robots.txt`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected bridgy-fed /robots.txt status < 400").toBeLessThan(400);
 });
 
@@ -59,12 +60,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|status|federation)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /status|federation|web|fediverse/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

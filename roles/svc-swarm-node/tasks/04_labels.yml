@@ -1,0 +1,11 @@
+---
+- name: "⬆️ Push node labels for every swarm member"
+  ansible.builtin.command: >-
+    docker node update
+    {% for k, v in hostvars[item].swarm_node_labels.items() %}
+    --label-add {{ k }}={{ v }}
+    {% endfor %}
+    {{ hostvars[item].ansible_facts.hostname | default(item) }}
+  loop: "{{ groups['svc-swarm-node'] }}"
+  when: hostvars[item].swarm_node_labels is defined
+  changed_when: true

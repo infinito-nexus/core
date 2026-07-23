@@ -99,4 +99,4 @@ gh run watch <run-id> --exit-status
 ## 5. Close the loop
 
 - On `success`: `gh pr ready <pr-number>` to mark the PR ready for review.
-- On failure: ask the operator whether to follow [pipeline.md](./debug/pipeline.md). MUST NOT mark the PR ready for review while the last CI run is failing.
+- On failure: ask the operator whether to follow [ci.md](./debug/ci.md). MUST NOT mark the PR ready for review while the last CI run is failing.

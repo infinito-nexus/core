@@ -2,12 +2,15 @@
 # Required to be set on the top so global frontend service loading can rely on run_once guards.
 - include_tasks: utils/once/flag.yml
 
-- name: "reset (if enabled) for {{ role_name}}"
+- name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 02_reset.yml
   when: MODE_RESET | bool
 
-- name: "Setup '{{ application_id }}' docker"
+- name: "🔧 Setup '{{ application_id }}' docker"
   include_tasks: 03_docker.yml
 
-- name: "Setup '{{ application_id }}' network"
-  include_tasks: 04_network.yml
+- name: "🔧 Setup '{{ application_id }}' network"
+  include_tasks: 05_network.yml
+  when:
+    - IS_STACK_HOST | bool
+    - lookup('database', application_id, 'shared')

@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 // Functional cross-role coupling check for nextcloud/integration_peertube.
 //
@@ -23,7 +25,7 @@ const shared = require("../_shared");
 // to provision and the test FAILS (it does not skip).
 test("integration integration_peertube: admin panel pins the partner host and registers the PeerTube search provider", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_peertube");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const partnerBaseUrl = (shared.env.peertubeBaseUrl || "").trim();
   expect(
@@ -48,9 +50,9 @@ test("integration integration_peertube: admin panel pins the partner host and re
     // instances field must be pinned to the EXACT partner host. A non-empty value
     // that merely differs from Nextcloud is not enough — a stale/placeholder/
     // wrong-partner URL would green-wash; assert host EQUALS the partner.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -60,7 +62,7 @@ test("integration integration_peertube: admin panel pins the partner host and re
     await expect(
       peertubePanel,
       "the PeerTube integration admin panel must render when integration_peertube is enabled — its absence means the app failed to install/configure and the coupling never landed"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const instancesField = peertubePanel
       .locator("#peertube-instances")
@@ -69,7 +71,7 @@ test("integration integration_peertube: admin panel pins the partner host and re
     await expect(
       instancesField,
       "the PeerTube admin panel must expose the allowed-instances field"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const configuredInstances = ((await instancesField.inputValue().catch(() => "")) || "").trim();
     const firstInstance = configuredInstances

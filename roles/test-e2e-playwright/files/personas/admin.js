@@ -1,8 +1,10 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const {
   normalizeUrl,
   readEnv,
   safeIsEnabled,
+  gotoOnion,
   performKeycloakLogin,
   clickOidcLoginLink,
   inAppLogout,
@@ -42,7 +44,7 @@ async function runAdminFlow(page, opts = {}) {
 
   const oidcEnabled = safeIsEnabled("sso");
 
-  await page.goto(`${appBaseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page,`${appBaseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
   let keycloakRoundTripCompleted = false;
   if (adminUsername && adminPassword) {
@@ -81,15 +83,15 @@ async function runAdminFlow(page, opts = {}) {
       }
       await passwordField.fill(adminNativePassword || adminPassword).catch(() => {});
       await passwordField.press("Enter").catch(() => {});
-      await page.waitForLoadState("networkidle").catch(() => {});
-      if (await passwordField.isVisible({ timeout: 2_000 }).catch(() => false)) {
+      await page.waitForLoadState("networkidle", { timeout: resolveTimeout(15_000) }).catch(() => {});
+      if (await passwordField.isVisible({ timeout: resolveTimeout(2_000) }).catch(() => false)) {
         await page
           .getByRole("button", { name: /log\s*in|sign\s*in|login|submit/i })
           .or(page.locator("button[type='submit'], input[type='submit']"))
           .first()
-          .click()
+          .click({ timeout: resolveTimeout(30_000) })
           .catch(() => {});
-        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: resolveTimeout(15_000) }).catch(() => {});
       }
       return true;
     };
@@ -97,7 +99,7 @@ async function runAdminFlow(page, opts = {}) {
     let loginAttempted = await tryNativeLogin(10_000);
     if (!loginAttempted) {
       for (const loginPath of ["/login", "/admin/", "/admin"]) {
-        await page.goto(`${base}${loginPath}`, { waitUntil: "domcontentloaded" }).catch(() => {});
+        await gotoOnion(page,`${base}${loginPath}`, { waitUntil: "domcontentloaded" }).catch(() => {});
         if (await tryNativeLogin()) {
           loginAttempted = true;
           break;
@@ -108,7 +110,7 @@ async function runAdminFlow(page, opts = {}) {
     const passwordStillVisible = await page
       .locator("input[type='password']:visible")
       .first()
-      .isVisible({ timeout: 2_000 })
+      .isVisible({ timeout: resolveTimeout(2_000) })
       .catch(() => false);
     nativeLoginCompleted =
       loginAttempted &&
@@ -134,7 +136,7 @@ async function runAdminFlow(page, opts = {}) {
   if (!adminReachedAuthenticated) {
     adminReachedAuthenticated = await adminAuthMarker(page)
       .first()
-      .isVisible({ timeout: 15_000 })
+      .isVisible({ timeout: resolveTimeout(15_000) })
       .catch(() => false);
   }
   if (!adminReachedAuthenticated) {
@@ -142,7 +144,7 @@ async function runAdminFlow(page, opts = {}) {
       if (frame === page.mainFrame()) continue;
       const fUrl = frame.url();
       if (!fUrl || fUrl === "about:blank") continue;
-      if (await adminAuthMarker(frame).first().isVisible({ timeout: 1_000 }).catch(() => false)) {
+      if (await adminAuthMarker(frame).first().isVisible({ timeout: resolveTimeout(1_000) }).catch(() => false)) {
         adminReachedAuthenticated = true;
         break;
       }
@@ -162,6 +164,25 @@ async function runAdminFlow(page, opts = {}) {
         adminReachedAuthenticated = true;
         break;
       }
+    }
+  }
+  if (adminReachedAuthenticated) {
+    const loginStillVisible = await page
+      .getByRole("link", { name: /log\s*in|sign\s*in|sso/i })
+      .or(page.getByRole("button", { name: /log\s*in|sign\s*in|sso/i }))
+      .first()
+      .isVisible({ timeout: resolveTimeout(2_000) })
+      .catch(() => false);
+    if (loginStillVisible) {
+      expect(
+        false,
+        `administrator's OIDC login did NOT establish a session on ${canonicalDomain}: the ` +
+          `round-trip returned to the app but a Login control is still visible — the ` +
+          `code→token exchange did not complete (over Tor this is usually the OIDC ` +
+          `adapter/token timeout in personas/utils/keycloak.js, not a logout problem). ` +
+          `Current URL: ${page.url()}.`,
+      ).toBe(true);
+      return;
     }
   }
   if (!adminReachedAuthenticated) {

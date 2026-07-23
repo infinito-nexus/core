@@ -1,2 +1,7 @@
 ---
-data: chess_data
+data:
+  type: volume
+  name: chess_data
+  mounts:
+    - service: chess
+      target: /app/data

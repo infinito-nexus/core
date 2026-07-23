@@ -1,0 +1,32 @@
+---
+# nocheck: info-media Self-written storage-infra glue role that installs distro NFS client packages and probe-mounts an export; NFS is a generic protocol, not a named third-party product with a vendor site.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - nfs
+    - storage
+    - swarm
+    - client
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

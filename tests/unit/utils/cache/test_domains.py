@@ -186,5 +186,133 @@ class TestImportableWithoutAnsible(unittest.TestCase):
         self.assertIn("OK", result.stdout)
 
 
+class TestOnionDomainInjection(unittest.TestCase):
+    ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
+
+    def _apps(self, **tor):
+        return {
+            "web-app-x": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "exclusive": False,
+                        "primary": False,
+                        **tor,
+                    }
+                },
+            }
+        }
+
+    def test_dual_stack_appends_onion(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["x.infinito.example", f"x.{self.ONION}"])
+
+    def test_exclusive_replaces_clearnet(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(exclusive=True), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}"])
+
+    def test_primary_puts_onion_first(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(primary=True), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.example"])
+
+    def test_disabled_app_untouched(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {"web-app-x": {"services": {"tor": {"enabled": False}}}}
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["x.infinito.example"])
+
+    def test_exclusive_primary_default_from_provider(self):
+        """A consumer that omits exclusive/primary inherits the svc-net-tor
+        provider defaults (exclusive: true -> onion only)."""
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {
+            "web-app-x": {"services": {"tor": {"enabled": True, "shared": True}}},
+            "svc-net-tor": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "shared": True,
+                        "exclusive": True,
+                        "primary": True,
+                    }
+                }
+            },
+        }
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}"])
+
+    def test_consumer_override_beats_provider_default(self):
+        """A consumer that pins exclusive: false overrides the provider's
+        exclusive: true and stays dual-stack."""
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {
+            "web-app-x": {
+                "services": {
+                    "tor": {"enabled": True, "shared": True, "exclusive": False}
+                }
+            },
+            "svc-net-tor": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "shared": True,
+                        "exclusive": True,
+                        "primary": False,
+                    }
+                }
+            },
+        }
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["x.infinito.example", f"x.{self.ONION}"])
+
+    def test_consumer_exclusive_false_inherits_provider_primary_dual(self):
+        """A consumer pinning only exclusive: false inherits the provider's
+        primary: true and stays dual-stack, onion-first."""
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {
+            "web-app-x": {
+                "services": {
+                    "tor": {"enabled": True, "shared": True, "exclusive": False}
+                }
+            },
+            "svc-net-tor": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "shared": True,
+                        "exclusive": True,
+                        "primary": True,
+                    }
+                }
+            },
+        }
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.example"])
+
+    def test_bare_primary_domain_maps_to_node_onion(self):
+        merged = {"web-app-x": ["infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["infinito.example", self.ONION])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,9 @@
+---
+- name: "🔎 Wait until '{{ item }}' container is healthy"
+  ansible.builtin.include_tasks: 03a_wait_one.yml
+  loop:
+    - "{{ GITLAB_WEBSERVICE_SERVICE_NAME }}"
+    - "{{ GITLAB_WORKHORSE_SERVICE_NAME }}"
+    - "{{ GITLAB_SIDEKIQ_SERVICE_NAME }}"
+    - "{{ GITLAB_GITALY_SERVICE_NAME }}"
+    - "{{ GITLAB_SHELL_SERVICE_NAME }}"

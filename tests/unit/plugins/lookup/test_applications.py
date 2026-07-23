@@ -8,6 +8,7 @@ from pathlib import Path
 from ansible.errors import AnsibleError
 
 from plugins.lookup.applications import LookupModule, _reset_cache_for_tests
+from utils.cache import base as cache_base
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -19,13 +20,18 @@ def _write_config(base_dir: Path, application_id: str, config: dict) -> None:
 
 
 class TestApplicationsLookup(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        _reset_cache_for_tests()
+        cls.addClassCleanup(_reset_cache_for_tests)
+
     def setUp(self) -> None:
+        cache_base._reset()
         self.lookup = LookupModule()
         self._cwd = str(Path.cwd())
         self._tmpdir = tempfile.TemporaryDirectory()
         self._tmp = Path(self._tmpdir.name)
         os.chdir(self._tmp)
-        _reset_cache_for_tests()
 
         _write_config(
             self._tmp,
@@ -35,13 +41,10 @@ class TestApplicationsLookup(unittest.TestCase):
         _write_config(self._tmp, "web-app-bar", {})
 
     def tearDown(self) -> None:
-        _reset_cache_for_tests()
         os.chdir(self._cwd)
         self._tmpdir.cleanup()
 
     def test_returns_full_mapping(self) -> None:
-        # Per the file root of meta/services.yml is the services map,
-        # so the loader puts it under `services` in the materialised payload.
         result = self.lookup.run([], variables={}, roles_dir=str(self._tmp / "roles"))[
             0
         ]

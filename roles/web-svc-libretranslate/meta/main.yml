@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys LibreTranslate via Docker Compose with configurable Redis and database backends, and optional Matomo tracking.
+  description: Self-hosted open-source machine translation API for translating and detecting text across languages
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

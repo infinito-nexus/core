@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Frees disk space on the target system by executing a cleanup script that removes temporary files, clears package caches, and optionally handles
-    Docker and backup cleanup.
+  description: Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
@@ -9,7 +9,7 @@
     - dev-git
     - dev-base-devel
 
-- name: Install yay build prerequisites
+- name: 📦 Install yay build prerequisites
   become: true
   package:
     name:
@@ -17,14 +17,20 @@
       - git
     state: present
 
-- name: Create the AUR builder user
+- name: ✅ Ensure the AUR builder primary group exists
+  become: true
+  ansible.builtin.group:
+    name: "{{ AUR_BUILDER_GROUP }}"
+    state: present
+
+- name: 📁 Create the AUR builder user
   become: true
   ansible.builtin.user:
     name: "{{ AUR_BUILDER_USER }}"
     create_home: true
     group: "{{ AUR_BUILDER_GROUP }}"
 
-- name: Allow AUR builder to run pacman without password
+- name: ▶️ Allow AUR builder to run pacman without password
   become: true
   ansible.builtin.lineinfile:
     path: "{{ AUR_BUILDER_SUDOERS_PATH }}"
@@ -32,7 +38,7 @@
     create: true
     validate: "visudo -cf %s"
 
-- name: Clone yay from AUR
+- name: ⬇️ Clone yay from AUR
   become: true
   become_user: "{{ AUR_BUILDER_USER }}"
   git:
@@ -43,13 +49,13 @@
     update: true
     depth: 1
 
-- name: Check whether yay is present
+- name: 🔎 Check whether yay is present
   become: true
   ansible.builtin.stat:
     path: /usr/bin/yay
   register: yay_stat
 
-- name: Check whether yay has missing shared libraries (broken)
+- name: 🔎 Check whether yay has missing shared libraries (broken)
   become: true
   ansible.builtin.command: bash -lc "ldd /usr/bin/yay 2>/dev/null | grep -q 'not found'"
   register: yay_ldd_missing
@@ -57,7 +63,7 @@
   changed_when: false
   when: yay_stat.stat.exists
 
-- name: Remove broken yay binary so it can be rebuilt
+- name: 🗑️ Remove broken yay binary so it can be rebuilt
   become: true
   ansible.builtin.file:
     path: /usr/bin/yay
@@ -66,7 +72,7 @@
     - yay_stat.stat.exists
     - yay_ldd_missing.rc == 0
 
-- name: Build and install yay
+- name: 🔨 Build and install yay
   become: true
   become_user: "{{ AUR_BUILDER_USER }}"
   shell: |
@@ -76,7 +82,7 @@
   args:
     creates: /usr/bin/yay
 
-- name: upgrade the system using yay, only act on AUR packages.
+- name: 🔄 upgrade the system using yay, only act on AUR packages.
   include_role:
     name: sys-aur-install
   vars:

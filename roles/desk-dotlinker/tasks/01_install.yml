@@ -1,5 +1,5 @@
 ---
-- name: Install dotlinker via pkgmgr
+- name: 📦 Install dotlinker via pkgmgr
   include_role:
     name: pkgmgr-install
   vars:

@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys phpMyAdmin, a web-based administration tool for MySQL/MariaDB databases, providing schema management, querying, and import/export.
+  description: Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

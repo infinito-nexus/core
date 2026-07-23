@@ -1,3 +1,21 @@
 ---
-data: peertube_data
-config: peertube_config
+assets:
+  type: volume
+  name: peertube_assets
+  mounts:
+    - service: peertube
+      target: /app/client/dist
+
+data:
+  type: volume
+  name: peertube_data
+  mounts:
+    - service: peertube
+      target: /data
+
+config:
+  type: volume
+  name: peertube_config
+  mounts:
+    - service: peertube
+      target: /config

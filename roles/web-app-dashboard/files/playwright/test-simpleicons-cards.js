@@ -1,8 +1,9 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
+const { resolveTimeout } = require("./timeouts");
 
-const { escapeRegex } = require("./personas");
+const { escapeRegex, gotoOnion } = require("./personas");
 
-async function waitForBoundingBoxStable(locator, { samples = 3, interval = 100, timeout = 10_000 } = {}) {
+async function waitForBoundingBoxStable(locator, { samples = 3, interval = 100, timeout = resolveTimeout(10_000) } = {}) {
   const deadline = Date.now() + timeout;
   let previous = null;
   let stableCount = 0;
@@ -50,15 +51,15 @@ async function expectStableCardHover(page, cardTitle) {
     })
     .first();
 
-  await expect(card, `Expected the ${cardTitle} card to be visible`).toBeVisible({ timeout: 60_000 });
+  await expect(card, `Expected the ${cardTitle} card to be visible`).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const stretchedLink = card.locator("a.btn.stretched-link").first();
   await expect(stretchedLink, `Expected the ${cardTitle} card to expose a stretched-link button`).toBeVisible({
-    timeout: 60_000,
+    timeout: resolveTimeout(60_000),
   });
 
   await card.scrollIntoViewIfNeeded();
-  await page.waitForLoadState("networkidle").catch(() => undefined);
+  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(15_000) }).catch(() => undefined);
   const settledBox = await waitForBoundingBoxStable(card);
   expect(settledBox, `Expected the ${cardTitle} card to expose a measurable bounding box`).toBeTruthy();
 
@@ -82,7 +83,7 @@ async function expectStableCardHover(page, cardTitle) {
           return stretchedLink.evaluate((element) => element.matches(":hover"));
         },
         {
-          timeout: 5_000,
+          timeout: resolveTimeout(5_000),
           intervals: [100, 150, 250, 500],
           message: `Expected the ${cardTitle} stretched-link overlay to stay hovered at y=${point.y * 100}% of the card`,
         }
@@ -101,7 +102,7 @@ exports.register = function (shared) {
   test("dashboard renders simpleicon-backed cards when simpleicons service is enabled", async ({ page }) => {
     shared.skipUnlessServiceEnabled("simpleicons");
 
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
 
     const simpleiconCard = page
@@ -114,10 +115,10 @@ exports.register = function (shared) {
     await expect(
       simpleiconCard,
       "Expected at least one dashboard card to render a Simple Icons-backed SVG or cached image asset"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
     await expect(
       simpleiconCard.locator(".card-img-top svg, .card-img-top img[src^='http://'], .card-img-top img[src^='https://'], .card-img-top img[src^='/static/']").first()
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
     await expectStableCardHover(page, "Keycloak");
   });
 };

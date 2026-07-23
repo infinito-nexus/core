@@ -1,20 +1,6 @@
 ---
-- name: "Load {{ service_key }} in shared service preload context"
-  block:
-    - name: "Mark shared service preload context for {{ service_key }}"
-      ansible.builtin.set_fact:
-        _service_loader_preloading: true
-      changed_when: false
-
-    - name: "Load {{ service_key }} (Once)"
-      include_tasks: "utils/load_app.yml"
-      vars:
-        load_app_id: "{{ service_role }}"
-
-    - name: "Flush handlers after loading {{ service_key }}"
-      meta: flush_handlers
-  always:
-    - name: "Clear shared service preload context for {{ service_key }}"
-      ansible.builtin.set_fact:
-        _service_loader_preloading: false
-      changed_when: false
+- name: "▶️ Run shared service preload for {{ service_key }}"
+  include_tasks: preload_service.yml
+  when:
+    - lookup('vars', service_run_once_var, default='__missing__') == '__missing__'
+    - (service_key in _required_service_ids) or (service_role in group_names)

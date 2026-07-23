@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs and configures VirtualBox and its kernel modules on Pacman-based systems, including extension packs and user group setup.
+  author: Kevin Veen-Birkenbach
+  description: Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

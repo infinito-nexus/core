@@ -1,0 +1,8 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+  style-src-elem:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true

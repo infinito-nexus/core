@@ -1,5 +1,5 @@
 ---
-- name: Install torbrowser
+- name: 📦 Install torbrowser
   package:
     name:
       - tor

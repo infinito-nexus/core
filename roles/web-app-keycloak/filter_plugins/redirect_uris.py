@@ -12,6 +12,7 @@ from utils.roles.applications.config import (
     ConfigEntryNotSetError,
     get,
 )
+from utils.tls_common import is_onion_domain
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -102,9 +103,12 @@ def redirect_uris(
 
         for d in doms:
             # Use get_url() to produce "<proto>://<domain>"
-            # Pass a minimal per-app mapping so get_domain() resolves to 'd'
+            # Pass a minimal per-app mapping so get_domain() resolves to 'd'.
+            # .onion targets are plaintext (Tor encrypts) so they need http, or
+            # the callback scheme mismatches Keycloak's whitelist.
+            proto = "http" if is_onion_domain(d) else web_protocol
             try:
-                url = get_url({app_id: d}, app_id, web_protocol)
+                url = get_url({app_id: d}, app_id, proto)
             except Exception as e:
                 raise AnsibleFilterError(
                     f"redirect_uris: get_url failed for app '{app_id}' with domain '{d}': {e}"

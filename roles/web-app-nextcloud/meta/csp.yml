@@ -1,0 +1,27 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-eval: true
+    unsafe-inline: true
+whitelist:
+  script-src-elem:
+    - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
+  font-src:
+    - "data:"
+  connect-src:
+    - "{{ lookup('domain', 'web-svc-collabora') }}"
+    - "{{ lookup('domain', 'web-app-nextcloud') }}"
+    - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
+    - "*"
+  frame-src:
+    - "{{ lookup('domain', 'web-svc-collabora') }}"
+    - "{{ lookup('domain', 'web-svc-onlyoffice') }}"
+    - "*"
+  worker-src:
+    - "blob:"
+  media-src:
+    - "*"

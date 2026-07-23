@@ -1,5 +1,5 @@
 ---
 application_id: svc-opt-ssd-hdd
 system_service_id: "{{ application_id }}"
-OPT_DRIVE_RAPID_STORAGE_PATH: "{{ lookup('config', application_id, 'volumes.rapid_storage') }}"
-OPT_DRIVE_MASS_STORAGE_PATH: "{{ lookup('config', application_id, 'volumes.mass_storage') }}"
+OPT_DRIVE_RAPID_STORAGE_PATH: "{{ lookup('volume', application_id, 'rapid_storage').path }}"
+OPT_DRIVE_MASS_STORAGE_PATH: "{{ lookup('volume', application_id, 'mass_storage').path }}"

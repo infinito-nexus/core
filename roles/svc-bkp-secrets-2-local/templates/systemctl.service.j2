@@ -1,0 +1,8 @@
+[Unit]
+Description=Differential backup of host secrets, CA, ACME + node identity to the local backup directory
+OnFailure={{ SYS_SERVICE_ON_FAILURE_COMPOSE }} {{ SYS_SERVICE_CLEANUP_BACKUPS_FAILED }}
+
+[Service]
+Type=oneshot
+ExecStartPre={{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(' ') }} --ignore {{ SYS_SERVICE_BACKUP_SECRETS_2_LOCAL }} --timeout "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"
+ExecStart={{ system_service_script_exec }} {{ DIR_BACKUPS }} {{ BKP_SECRETS_2_LOCAL_REPO_NAME }} {{ BKP_SECRETS_2_LOCAL_SOURCES | join(' ') }}

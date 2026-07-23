@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -13,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("sphinx front page is served under canonical domain with TLS", async ({ page }) => {
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected sphinx response").toBeTruthy();
   expect(response.status(), "Expected sphinx front page status < 400").toBeLessThan(400);
   expect(
@@ -21,7 +22,7 @@ test("sphinx front page is served under canonical domain with TLS", async ({ pag
     `Expected canonical domain "${canonicalDomain}" to back the sphinx URL`
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "sphinx must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, appBaseUrl, "sphinx");
 });
 
 test("sphinx returns HTML content under canonical domain", async ({ request }) => {
@@ -32,7 +33,7 @@ test("sphinx returns HTML content under canonical domain", async ({ request }) =
   // an HTML response under the canonical domain. Theme/chrome assertions
   // belong in a follow-up suite once a docs-build step is part of the
   // role contract.
-  const response = await request.get(`${appBaseUrl}/`);
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected sphinx front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(
@@ -60,12 +61,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|build|configuration|projects)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|build|configuration|projects|index/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

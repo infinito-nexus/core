@@ -8,14 +8,15 @@ from __future__ import annotations
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
-from utils.cache.domains import get_merged_domains
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
+    align_domain_to_consumer,
     as_str,
     collect_domains_for_app,
+    norm_domain,
     require,
     resolve_enabled,
     resolve_mode,
@@ -43,16 +44,12 @@ class LookupModule(LookupBase):
 
         want = as_str(terms[1]).strip() if len(terms) == 2 else ""
 
-        domains = get_merged_domains(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
-        applications = get_merged_applications(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
+        domains = lookup_loader.get(
+            "domains", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=variables)[0]
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=variables)[0]
         enabled_default = require(variables, "TLS_ENABLED", (bool, int))
         mode_default = as_str(require(variables, "TLS_MODE", str))
 
@@ -71,6 +68,18 @@ class LookupModule(LookupBase):
             err_prefix="tls",
         )
 
+        # Family alignment applies to app-id terms only; domain terms are caller intent.
+        if forced_mode == "app" or (forced_mode == "auto" and "." not in term):
+            primary_domain = norm_domain(
+                align_domain_to_consumer(
+                    domains,
+                    app_id,
+                    primary_domain,
+                    variables=variables,
+                    templar=templar,
+                )
+            )
+
         all_domains = collect_domains_for_app(domains, app_id, err_prefix="tls")
         all_domains = (
             uniq_preserve([primary_domain, *all_domains])
@@ -82,7 +91,9 @@ class LookupModule(LookupBase):
         if not isinstance(app, dict):
             app = {}
 
-        enabled = resolve_enabled(app, bool(enabled_default))
+        enabled = resolve_enabled(
+            app, bool(enabled_default), primary_domain=primary_domain
+        )
         mode = resolve_mode(app, enabled, mode_default, err_prefix="tls")
 
         if mode not in {"off"} | AVAILABLE_FLAVORS:

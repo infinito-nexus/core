@@ -1,16 +1,12 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Provides a Docker Compose snippet for a Redis service (redis:alpine) with volume, healthcheck and logging.
+  author: Kevin Veen-Birkenbach
+  description: In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world
-  galaxy_tags:
-    - redis
-    - docker
-    - cache
-  issue_tracker_url: https://s.infinito.nexus/issues
   min_ansible_version: "2.9"
   platforms:
     - name: ArchLinux
@@ -28,4 +24,11 @@ galaxy_info:
     - name: Ubuntu
       versions:
         - all
+  galaxy_tags:
+    - redis
+    - docker
+    - cache
+    - engine
+    - central-database
+  issue_tracker_url: https://s.infinito.nexus/issues
 dependencies: []

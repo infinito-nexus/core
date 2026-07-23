@@ -1,6 +1,5 @@
 ---
-- name: "TLS | (self_signed) remove outdated cert/key/csr if SAN drift detected"
-  become: true
+- name: "🗑️ TLS | (self_signed) remove outdated cert/key/csr if SAN drift detected"
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -9,8 +8,7 @@
     - "{{ _ss_key }}"
     - "{{ _ss_csr }}"
 
-- name: "TLS | (self_signed) generate private key (if missing)"
-  become: true
+- name: "⚙️ TLS | (self_signed) generate private key (if missing)"
   ansible.builtin.command:
     argv:
       - openssl
@@ -21,8 +19,7 @@
   args:
     creates: "{{ _ss_key }}"
 
-- name: "TLS | (self_signed) generate CSR (SAN aware)"
-  become: true
+- name: "⚙️ TLS | (self_signed) generate CSR (SAN aware)"
   ansible.builtin.command:
     argv:
       - openssl
@@ -37,8 +34,7 @@
   args:
     creates: "{{ _ss_csr }}"
 
-- name: "TLS | (self_signed) sign CSR with local Root CA (creates CA-signed leaf cert)"
-  become: true
+- name: "✒️ TLS | (self_signed) sign CSR with local Root CA (creates CA-signed leaf cert)"
   ansible.builtin.command:
     argv:
       - openssl

@@ -1,0 +1,40 @@
+---
+- name: ✅ Ensure staging base dir exists
+  ansible.builtin.file:
+    path: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: ✅ Ensure reports base dir exists
+  ansible.builtin.file:
+    path: "{{ TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: 🧰 Prepare shared @playwright/test install
+  ansible.builtin.include_tasks: 01_setup.yml
+
+- name: ▶️ Run Playwright for each detected role
+  ansible.builtin.include_tasks: 02_run_one.yml
+  loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
+  loop_control:
+    loop_var: application_id
+    label: "{{ application_id }}"
+
+- name: 🔁 Stash first-pass failures for one flake retry
+  ansible.builtin.set_fact:
+    _playwright_retry_roles: "{{ _playwright_failures }}"
+    _playwright_failures: []
+  when: (_playwright_failures | default([])) | length > 0
+
+- name: 🔁 Retry failed roles once on rotated Tor circuits
+  ansible.builtin.include_tasks: 02_run_one.yml
+  loop: "{{ _playwright_retry_roles | default([]) }}"
+  loop_control:
+    loop_var: application_id
+    label: "{{ application_id }} (retry)"
+
+- name: 🛑 Fail if there were Playwright failures
+  ansible.builtin.fail:
+    msg: "Playwright failed for roles: {{ _playwright_failures }}"
+  when: (_playwright_failures | default([])) | length > 0

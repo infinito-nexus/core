@@ -1,14 +1,16 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Include dependencies
+- name: 📂 Include mail dependency (queued to post-load during preload)
   include_role:
-    name: "sys-svc-mail"
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - sys-svc-mail
   when: not (run_once_sys_svc_mail | default(false) | bool)
 
 - include_role:
     name: sys-service
   vars:
-    # If the email notifier fails, trigger the Telegram notifier,
-    # passing the failing unit's name as the instance text.
     system_service_tpl_on_failure: "{{ lookup('unit_name','sys-ctl-alm-telegram@', suffix=False) }}%i.service"

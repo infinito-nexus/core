@@ -1,16 +1,17 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {{ entity_name }}:
-    container_name: {{ entity_name }}
+  {% set service_name = entity_name %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', entity_name) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         ROULETTE_IMAGE:         "{{ ROULETTE_IMAGE }}"
         ROULETTE_VERSION:       "{{ ROULETTE_VERSION }}"
         ROULETTE_WHEEL_APP_REL: "{{ ROULETTE_WHEEL_APP_REL }}"
-    image: {{ ROULETTE_IMAGE_CUSTOM }}
-    ports:
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.roulette-wheel.ports.local.http') }}:8080
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'roulette-wheel') }}
+    {{ lookup('container_ports', ['roulette-wheel', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

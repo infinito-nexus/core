@@ -1,14 +1,14 @@
 ---
-- name: Install nextcloud-client
+- name: 📦 Install nextcloud-client
   package:
     name: nextcloud-client
     state: present
 
-- name: Initialize dotlinker mapping list
+- name: 🎬 Initialize dotlinker mapping list
   ansible.builtin.set_fact:
     nextcloud_dotlinker_mappings: []
 
-- name: Build dotlinker mappings for Nextcloud folders
+- name: 🔨 Build dotlinker mappings for Nextcloud folders
   ansible.builtin.set_fact:
     nextcloud_dotlinker_mappings: >-
       {{
@@ -23,7 +23,7 @@
       }}
   loop: "{{ nextcloud_dotlinker_folders }}"
 
-- name: Add dump mapping (Dump -> InstantUpload)
+- name: ➕ Add dump mapping (Dump -> InstantUpload)
   ansible.builtin.set_fact:
     nextcloud_dotlinker_mappings: >-
       {{
@@ -37,7 +37,7 @@
         ]
       }}
 
-- name: Apply Nextcloud folder mappings via dotlinker
+- name: 📌 Apply Nextcloud folder mappings via dotlinker
   ansible.builtin.include_role:
     name: desk-dotlinker
   vars:

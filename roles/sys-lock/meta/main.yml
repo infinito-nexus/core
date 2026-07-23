@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Ensures system integrity during maintenance activities by blocking execution until critical services have stopped, using a locking mechanism with
-    timeout and retry logic.
+  description: Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

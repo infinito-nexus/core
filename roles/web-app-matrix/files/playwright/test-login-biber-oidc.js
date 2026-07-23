@@ -1,4 +1,4 @@
-const { test } = require("@playwright/test");
+const { test } = require("./onion-test");
 
 exports.register = function (shared) {
   test("biber: matrix element OIDC login and logout", async ({ page }) => {

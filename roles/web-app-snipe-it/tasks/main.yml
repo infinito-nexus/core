@@ -1,20 +1,10 @@
 ---
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
 
-- name: "Installation Procedures"
-  import_tasks: 01_install.yml
-
-- name: "Configure Snipe-IT LDAP settings"
-  import_tasks: 02_ldap.yml
-  when: SNIPE_IT_LDAP_ENABLED | bool
-
-- name: "Create bootstrap Snipe-IT administrator"
-  import_tasks: 03_admin.yml
-
-- name: "Configure Snipe-IT trusted-header SSO bridge"
-  import_tasks: 04_sso.yml
-  when: SNIPE_IT_SSO_ENABLED | bool
+- name: "👔 Snipe-IT manager-side operations (container exec)"
+  include_tasks: 01a_manager_ops.yml
+  when: IS_STACK_HOST | bool

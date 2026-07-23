@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Checks for CSP-blocked resources via Puppeteer-based Node.js crawler
+  description: Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

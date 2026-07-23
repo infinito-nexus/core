@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
 
 const {
   assertCspMetaParity,
@@ -6,6 +6,7 @@ const {
   decodeDotenvQuotedValue,
   expectNoCspViolations,
   installCspViolationObserver,
+  gotoOnion,
 } = require("./personas");
 
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
@@ -16,7 +17,7 @@ exports.register = function (shared) {
   });
 
   test("dashboard enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({ page }) => {
-    const response = await page.goto("/");
+    const response = await gotoOnion(page,"/");
     expect(response, "Expected dashboard landing response").toBeTruthy();
     expect(response.status(), "Expected dashboard landing response to be successful").toBeLessThan(400);
 

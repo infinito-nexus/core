@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Alejandro Roman Ibanez
-  description: Deploy Fider, an open-source community feedback platform where users submit proposals and vote on them — producing a transparent, automatically
-    ranked list of the most supported ideas and organizations.
+  description: Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -12,19 +12,21 @@
 # @see https://en.wikipedia.org/wiki/OpenID_Connect
 
 # Helper Variables:
-_oidc_client_realm: "{{ OIDC.CLIENT.REALM if OIDC.CLIENT is defined and OIDC.CLIENT.REALM is defined else SOFTWARE_DOMAIN }}"
-_oidc_url: "{{ ( OIDC.URL if (OIDC is defined and OIDC.URL is defined) else (lookup('tls', 'web-app-keycloak', 'url.base')) ).rstrip('/') }}"
+_oidc_client_realm: "{{ OIDC_OVERRIDE.CLIENT.REALM if OIDC_OVERRIDE is defined and OIDC_OVERRIDE.CLIENT is defined and OIDC_OVERRIDE.CLIENT.REALM is defined else
+  SOFTWARE_DOMAIN }}"
+_oidc_url: "{{ ( OIDC_OVERRIDE.URL if (OIDC_OVERRIDE is defined and OIDC_OVERRIDE.URL is defined) else (lookup('tls', 'web-app-keycloak', 'url.base')) ).rstrip('/')
+  }}"
 _oidc_client_issuer_url: "{{ _oidc_url ~ '/realms/' ~ _oidc_client_realm }}"
-_oidc_client_id: "{{ OIDC.CLIENT.ID if OIDC.CLIENT is defined and OIDC.CLIENT.ID is defined else SOFTWARE_DOMAIN }}"
+_oidc_client_id: "{{ OIDC_OVERRIDE.CLIENT.ID if OIDC_OVERRIDE is defined and OIDC_OVERRIDE.CLIENT is defined and OIDC_OVERRIDE.CLIENT.ID is defined else SOFTWARE_DOMAIN
+  }}"
 _oidc_account_url: "{{ _oidc_client_issuer_url ~ '/account' }}"
 _oidc_protocol_oidc: "{{ _oidc_client_issuer_url ~ '/protocol/openid-connect' }}"
 
-# Definition
 defaults_oidc:
   URL: "{{ _oidc_url }}"
   CLIENT:
     ID: "{{ _oidc_client_id }}" # Client identifier, typically matching your primary domain
-    #   SECRET:                                                                                       # Client secret for authenticating with the OIDC provider (set in the inventory file). Recommend greater then 32 characters
+    SECRET: "{{ lookup('config', 'web-app-keycloak', 'credentials.oidc_client_secret', '') }}" # Defaults to the generated Keycloak credential; set OIDC.CLIENT.SECRET in the inventory to override
     REALM: "{{ _oidc_client_realm }}" # The realm to which the client belongs in the OIDC provider
     ISSUER_URL: "{{ _oidc_client_issuer_url }}" # Issuer URL (must match discovery issuer)
     DISCOVERY_DOCUMENT: "{{ _oidc_client_issuer_url ~ '/.well-known/openid-configuration' }}" # URL for fetching the provider's configuration details
@@ -41,8 +43,9 @@ defaults_oidc:
     RESET_CREDENTIALS: "{{ _oidc_client_issuer_url ~ '/login-actions/reset-credentials?client_id=' ~ _oidc_client_id }}" # Password reset url
   BUTTON_TEXT: "SSO Login ({{ DOMAIN_PRIMARY | upper }})" # Default button text
   ATTRIBUTES:
-    # Attribut to identify the user
     USERNAME: "preferred_username"
     GIVEN_NAME: "givenName"
     FAMILY_NAME: "surname"
     EMAIL: "email"
+
+OIDC: "{{ defaults_oidc | combine(OIDC_OVERRIDE | default({}, true), recursive=True) }}"

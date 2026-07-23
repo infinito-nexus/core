@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs fakeroot for the current distribution.
+  description: Build-time tool for simulating root-owned file operations without elevated privileges during package builds
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

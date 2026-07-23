@@ -5,13 +5,19 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import read_text
-from utils.update.docker import update_config_versions
+from utils.update.docker import _registry_cursor, update_config_versions
+
+
+class TestRegistryCursor(unittest.TestCase):
+    def test_v_prefixed_pin_seeds_cursor(self) -> None:
+        self.assertEqual(_registry_cursor("v19.1.1"), "v")
+
+    def test_bare_numeric_pin_scans_from_start(self) -> None:
+        self.assertIsNone(_registry_cursor("19.1.1"))
 
 
 class TestUpdateDocker(unittest.TestCase):
     def test_update_config_versions_updates_only_target_services(self) -> None:
-        # The file root of meta/services.yml IS the services map (no
-        # `compose.services` envelope), so service keys are at indent 0.
         original = """moodle:
   version:            "4.5" # Keep comment
   image:              bitnamilegacy/moodle

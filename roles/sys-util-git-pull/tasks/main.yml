@@ -1,6 +1,6 @@
 ---
 # nocheck: run-once
-- name: Run sys-util-git-pull helper (verbose)
+- name: ▶️ Run sys-util-git-pull helper (verbose)
   script: >-
     sys_util_git_pull.py
     --repo-url "{{ sys_util_git_pull_repo_url }}"

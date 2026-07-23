@@ -1,14 +1,14 @@
 ---
 - block:
-    - name: Include dependency 'sys-ctl-hlth-journalctl'
+    - name: 📂 Include dependency 'sys-ctl-hlth-journalctl'
       include_role:
         name: sys-ctl-hlth-journalctl
       when: run_once_sys_ctl_hlth_journalctl is not defined
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_svc_journalctl is not defined
 
-- name: copy journald.conf
-  template:
+- name: 📋 copy journald.conf
+  template: # nocheck: stack-host-template (per-host /etc/systemd/journald.conf, not stack-host-only)
     src: templates/journald.conf.j2
     dest: /etc/systemd/journald.conf
   notify: restart systemd-journald

@@ -76,8 +76,8 @@ services:
       additional_contexts:
         - src-web=/opt/compose/bigbluebutton/services/repository/repos/bigbluebutton/bigbluebutton-web
     volumes:
-      - bigbluebutton:/var/bigbluebutton
-      - freeswitch:/var/freeswitch/meetings
+      - /opt/compose/bigbluebutton/services/repository/data/bigbluebutton:/var/bigbluebutton
+      - /opt/compose/bigbluebutton/services/repository/data/freeswitch-meetings:/var/freeswitch/meetings
     env_file:
       - /opt/compose/bigbluebutton/.env/env
 
@@ -87,7 +87,7 @@ services:
       additional_contexts:
         - freeswitch=/opt/compose/bigbluebutton/services/repository/repos/freeswitch/
     volumes:
-      - freeswitch:/var/freeswitch/meetings
+      - /opt/compose/bigbluebutton/services/repository/data/freeswitch-meetings:/var/freeswitch/meetings
     env_file:
       - /opt/compose/bigbluebutton/.env/env
 
@@ -99,8 +99,6 @@ services:
 
   redis:
     image: redis:7.2-alpine
-    volumes:
-      - redis:/data
     env_file:
       - /opt/compose/bigbluebutton/.env/env
 
@@ -108,34 +106,14 @@ services:
     image: coturn/coturn:4.6-alpine
     volumes:
       - /opt/compose/bigbluebutton/services/repository/mod/coturn/turnserver.conf:/etc/coturn/turnserver.conf
-      - coturn:/var/lib/coturn
     env_file:
       - /opt/compose/bigbluebutton/.env/env
 
   bbb-graphql-server:
     build:
       context: /opt/compose/bigbluebutton/services/repository/mod/bbb-graphql-server
-    healthcheck:
-      test:
-        - CMD
-        - curl
-        - -f
-        - http://localhost:8085/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
     env_file:
       - /opt/compose/bigbluebutton/.env/env
-
-volumes:
-  database:
-  greenlight:
-  redis:
-  coturn:
-  freeswitch:
-  bigbluebutton:
-  mediasoup:
 """
 
     def test_full_file_semantic_match(self):
@@ -146,6 +124,78 @@ volumes:
         for key in expected_data:
             self.assertIn(key, actual_data)
             self.assertEqual(sort_dict(actual_data[key]), sort_dict(expected_data[key]))
+        self.assertNotIn("volumes", actual_data)
+
+    def test_extra_hosts_injected_except_host_network(self):
+        original = """
+services:
+  greenlight:
+    image: bigbluebutton/greenlight:v3
+  freeswitch:
+    network_mode: host
+    image: bbb/freeswitch
+  nginx:
+    extra_hosts:
+      - "existing.example:1.2.3.4"
+  etherpad:
+    extra_hosts:
+      mapped.example: 5.6.7.8
+"""
+        data = load_yaml_str(
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                extra_hosts=["auth.infinito.example:host-gateway"],
+            )
+        )
+        services = data["services"]
+        self.assertIn(
+            "auth.infinito.example:host-gateway", services["greenlight"]["extra_hosts"]
+        )
+        self.assertNotIn("extra_hosts", services["freeswitch"])
+        self.assertEqual(
+            services["nginx"]["extra_hosts"],
+            ["existing.example:1.2.3.4", "auth.infinito.example:host-gateway"],
+        )
+        self.assertEqual(
+            services["etherpad"]["extra_hosts"],
+            ["mapped.example:5.6.7.8", "auth.infinito.example:host-gateway"],
+        )
+
+    def test_extra_hosts_absent_without_kwarg(self):
+        data = load_yaml_str(
+            compose_mods(self.original, self.compose_repository_path, self.env_file)
+        )
+        for svc in data["services"].values():
+            self.assertNotIn("extra_hosts", svc)
+
+    def test_build_stripped_only_when_prebuilt_image_present(self):
+        original = """services:
+  freeswitch:
+    build:
+      context: mod/freeswitch
+    image: alangecker/bbb-docker-freeswitch:any-tag
+  haproxy:
+    build:
+      context: mod/haproxy
+    image: alangecker/bbb-haproxy:any-tag
+  html5-dev:
+    build:
+      context: mod/html5-dev
+  coturn:
+    image: coturn/coturn:any-tag
+"""
+        services = load_yaml_str(
+            compose_mods(original, self.compose_repository_path, self.env_file)
+        )["services"]
+        self.assertNotIn("build", services["freeswitch"])
+        self.assertNotIn("build", services["haproxy"])
+        self.assertIn("build", services["html5-dev"])
+        self.assertEqual(
+            services["html5-dev"]["build"]["context"],
+            self.compose_repository_path + "/mod/html5-dev",
+        )
 
 
 if __name__ == "__main__":

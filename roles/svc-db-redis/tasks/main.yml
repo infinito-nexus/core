@@ -3,3 +3,11 @@
   when: run_once_svc_db_redis is not defined
   vars:
     application_id: svc-db-redis
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🔧 Provision dedicated Redis ACL user"
+  include_tasks: 02_init.yml
+  when: database_init | bool

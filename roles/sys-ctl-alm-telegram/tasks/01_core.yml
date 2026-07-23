@@ -1,5 +1,5 @@
 ---
-- name: Fail if Telegram bot credentials are not set
+- name: 🛑 Fail if Telegram bot credentials are not set
   assert:
     that:
       - TELEGRAM_BOT_TOKEN != ""
@@ -18,7 +18,7 @@
     # passing the failing unit's name as the instance text.
     system_service_tpl_on_failure: "{{ lookup('unit_name','sys-ctl-alm-email@', suffix=False) }}%i.service"
 
-- name: install curl
+- name: 📦 install curl
   package:
     name: curl
     state: present

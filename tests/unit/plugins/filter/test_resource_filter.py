@@ -2,25 +2,22 @@ import importlib
 import unittest
 from unittest.mock import patch
 
-# Import the plugin module under test
 plugin_module = importlib.import_module("plugins.filter.resource_filter")
 
 
 class TestResourceFilter(unittest.TestCase):
     def setUp(self):
-        # Reload to ensure a clean module state for each test
         importlib.reload(plugin_module)
 
         self.applications = {"some": "dict"}
         self.application_id = "web-app-foo"
         self.key = "cpus"
 
-        # Patch get and get_entity_name inside the plugin module
         self.patcher_conf = patch.object(plugin_module, "get")
         self.patcher_entity = patch.object(plugin_module, "get_entity_name")
         self.mock_get = self.patcher_conf.start()
         self.mock_get_entity_name = self.patcher_entity.start()
-        self.mock_get_entity_name.return_value = "foo"  # derived service name
+        self.mock_get_entity_name.return_value = "foo"
 
     def tearDown(self):
         self.patcher_conf.stop()
@@ -44,7 +41,7 @@ class TestResourceFilter(unittest.TestCase):
             self.application_id,
             "services.openresty.cpus",
             False,
-            "0.5",
+            plugin_module._UNSET,
         )
 
     def test_service_name_empty_uses_get_entity_name(self):
@@ -66,15 +63,12 @@ class TestResourceFilter(unittest.TestCase):
             self.application_id,
             "services.foo.cpus",
             False,
-            "0.5",
+            plugin_module._UNSET,
         )
 
     def test_returns_hard_default_when_missing(self):
-        """
-        If the primary value is missing, get (strict=False) should return the provided
-        default. We simulate that by returning the default value directly from the mock.
-        """
-        self.mock_get.return_value = "2g"
+        """When both the service and the entity key miss, the hard_default wins."""
+        self.mock_get.return_value = plugin_module._UNSET
 
         result = plugin_module.resource_filter(
             self.applications,
@@ -85,17 +79,33 @@ class TestResourceFilter(unittest.TestCase):
         )
 
         self.assertEqual(result, "2g")
-        self.mock_get.assert_called_once_with(
+        self.assertEqual(self.mock_get.call_count, 2)
+        paths = [c.args[2] for c in self.mock_get.call_args_list]
+        self.assertEqual(
+            paths, ["services.openresty.mem_limit", "services.foo.mem_limit"]
+        )
+
+    def test_entity_fallback_when_service_key_missing(self):
+        """A miss on the compose-service key falls back to the entity key."""
+        self.mock_get.side_effect = [plugin_module._UNSET, "3g"]
+
+        result = plugin_module.resource_filter(
             self.applications,
             self.application_id,
-            "services.openresty.mem_limit",
-            False,
-            "2g",
+            key="mem_limit",
+            service_name="foo-web",
+            hard_default="0.2g",
+        )
+
+        self.assertEqual(result, "3g")
+        paths = [c.args[2] for c in self.mock_get.call_args_list]
+        self.assertEqual(
+            paths, ["services.foo-web.mem_limit", "services.foo.mem_limit"]
         )
 
     def test_hard_default_passthrough_type(self):
         """Ensure the hard_default (including non-string types) is passed through correctly."""
-        self.mock_get.return_value = 2048  # simulate get returning the default
+        self.mock_get.return_value = plugin_module._UNSET
 
         result = plugin_module.resource_filter(
             self.applications,
@@ -106,13 +116,6 @@ class TestResourceFilter(unittest.TestCase):
         )
 
         self.assertEqual(result, 2048)
-        self.mock_get.assert_called_once_with(
-            self.applications,
-            self.application_id,
-            "services.openresty.pids_limit",
-            False,
-            2048,
-        )
 
     def test_raises_ansible_filter_error_on_config_errors(self):
         """Underlying config errors must be wrapped as AnsibleFilterError."""

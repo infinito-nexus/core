@@ -132,7 +132,7 @@ Smoke: visit `https://monitoring.{{ DOMAIN_PRIMARY }}/` → (SSO) Keycloak chain
 
 ## Prerequisites
 
-Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/role.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
+Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 

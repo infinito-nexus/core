@@ -1,10 +1,9 @@
 # @See https://raw.githubusercontent.com/snipe/snipe-it/master/app/Http/Controllers/Auth/LoginController.php
 ---
-- name: "snipe-it: wait until settings table is seeded"
+- name: "⏳ snipe-it: wait until settings table is seeded"
   ansible.builtin.shell:
-    cmd: "{{ BIN_COMPOSE }} exec -T {{ SNIPE_IT_SERVICE }} php"
+    cmd: "container exec -i {{ SNIPE_IT_CONTAINER_ADDRESS }} php"
     stdin: "{{ lookup('file', 'wait_settings.php') }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: snipe_sso_settings_ready
   retries: 60
   delay: 5
@@ -12,20 +11,18 @@
   changed_when: false
   failed_when: snipe_sso_settings_ready.rc != 0
 
-- name: "snipe-it: apply trusted-header SSO configuration via Setting model"
+- name: "📌 snipe-it: apply trusted-header SSO configuration via Setting model"
   ansible.builtin.shell:
     cmd: >-
-      {{ BIN_COMPOSE }} exec -T
+      container exec -i
       -e SNIPE_IT_SSO_ENABLED=1
       -e SNIPE_IT_SSO_HEADER_NAME={{ SNIPE_IT_SSO_HEADER_NAME | quote }}
       -e SNIPE_IT_SSO_LOGOUT_URL={{ SNIPE_IT_SSO_LOGOUT_URL | quote }}
-      {{ SNIPE_IT_SERVICE }} php
-    stdin: "{{ lookup('file', 'apply_sso_config.php') }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+      {{ SNIPE_IT_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'apply/sso_config.php') }}"
   changed_when: true
 
-- name: "snipe-it: clear Laravel caches"
+- name: "🧹 snipe-it: clear Laravel caches"
   ansible.builtin.shell:
-    cmd: "{{ BIN_COMPOSE }} exec -T {{ SNIPE_IT_SERVICE }} php artisan optimize:clear"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    cmd: "container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} php artisan optimize:clear"
   changed_when: true

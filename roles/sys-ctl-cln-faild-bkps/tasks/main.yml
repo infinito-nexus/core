@@ -1,3 +1,5 @@
 ---
 - include_tasks: 01_core.yml
-  when: run_once_sys_ctl_cln_faild_bkps is not defined
+  when:
+    - run_once_sys_ctl_cln_faild_bkps is not defined
+    - IS_BACKUP_HOST | bool

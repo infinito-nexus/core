@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const oidcEnabled = isServiceEnabled("sso");
@@ -22,7 +23,7 @@ function expectedMattermostBaseUrl() {
   return env.mattermostBaseUrl.replace(/\/$/, "");
 }
 
-async function waitForFirstVisible(locators, timeout = 60_000) {
+async function waitForFirstVisible(locators, timeout = resolveTimeout(60_000)) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
     for (const locator of locators) {
@@ -30,7 +31,7 @@ async function waitForFirstVisible(locators, timeout = 60_000) {
         return locator.first();
       }
     }
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, resolveTimeout(500)));
   }
   throw new Error("Timed out waiting for one of the expected selectors to become visible");
 }
@@ -45,11 +46,11 @@ async function startMattermostSsoFlow(page, baseUrl) {
   let lastErr;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      await page.goto(`${base}/login`, { waitUntil: "load", timeout: 60_000 });
+      await gotoOnion(page, `${base}/login`, { waitUntil: "load", timeout: resolveTimeout(60_000) });
       if (page.url().includes("/landing")) {
-        await page.goto(`${base}/login`, { waitUntil: "load", timeout: 60_000 });
+        await gotoOnion(page, `${base}/login`, { waitUntil: "load", timeout: resolveTimeout(60_000) });
       }
-      await page.locator("#input_loginId").waitFor({ state: "visible", timeout: 60_000 });
+      await page.locator("#input_loginId").waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
       lastErr = undefined;
       break;
     } catch (e) {
@@ -58,8 +59,8 @@ async function startMattermostSsoFlow(page, baseUrl) {
   }
   if (lastErr) throw lastErr;
   const ssoButton = page.locator("a[href='/oauth/gitlab/login']");
-  await ssoButton.waitFor({ state: "visible", timeout: 30_000 });
-  await ssoButton.click();
+  await ssoButton.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
+  await ssoButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function dismissMattermostPopups(frame) {
@@ -74,9 +75,9 @@ async function dismissMattermostPopups(frame) {
 
   for (let round = 0; round < 3; round++) {
     for (const sel of dismissSelectors) {
-      if (await sel.first().isVisible({ timeout: 2000 }).catch(() => false)) {
+      if (await sel.first().isVisible({ timeout: resolveTimeout(2000) }).catch(() => false)) {
         await sel.first().click({ force: true }).catch(() => {});
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, resolveTimeout(500)));
       }
     }
     await frame.evaluate(() => {
@@ -84,11 +85,11 @@ async function dismissMattermostPopups(frame) {
       document.querySelectorAll("#root-portal").forEach(el => { el.style.display = "none"; });
     }).catch(() => {});
     await frame.locator("body").press("Escape").catch(() => {});
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, resolveTimeout(500)));
   }
 }
 
-async function waitForMattermostChannelView(frame, timeout = 60_000) {
+async function waitForMattermostChannelView(frame, timeout = resolveTimeout(60_000)) {
   const channelSidebar = frame.locator(
     ".SidebarChannel, [data-testid='channel_sidebar'], #sidebar-left, .SidebarNavContainer"
   );
@@ -99,7 +100,7 @@ async function waitForMattermostChannelView(frame, timeout = 60_000) {
 // `waitUntil: "commit"` avoids net::ERR_ABORTED from the multi-domain
 // redirect chain the universal-logout service triggers.
 async function mattermostLogout(page, baseUrl) {
-  await page.goto(`${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
 }
 
 function beforeEach() {

@@ -1,0 +1,52 @@
+---
+kix_shared:
+  type: volume
+  name: kix_kix_shared
+  nfs:
+    uid: "110010100"
+    gid: "110010100"
+    mode: "0770"
+  mounts:
+    - service: backend
+      target: /mnt/shared
+    - service: frontend
+      target: /mnt/shared
+
+kix_backend:
+  type: volume
+  name: kix_kix_backend
+  nfs:
+    uid: "110010100"
+    gid: "110010100"
+    mode: "0770"
+  mounts:
+    - service: backend
+      target: /mnt/data
+
+kix_frontend:
+  type: volume
+  name: kix_kix_frontend
+  nfs:
+    uid: "110010100"
+    gid: "110010100"
+    mode: "0770"
+  mounts:
+    - service: frontend
+      target: /mnt/data
+
+auth_ldap:
+  type: config
+  source: "{{ [lookup('container', 'web-app-kix', 'directories.volumes'), 'auth_ldap.xml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: backend
+      target: /opt/kix/Kernel/Config/Files/zzz_auth_ldap.xml
+      when: "{{ lookup('config', 'web-app-kix', 'services.ldap.enabled') | bool }}"
+
+proxy_nginx_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-kix', 'directories.volumes'), 'kix-proxy.default.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: proxy
+      target: /etc/nginx/conf.d/default.conf

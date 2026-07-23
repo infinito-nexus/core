@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({
@@ -31,7 +32,7 @@ test("simpleicons serves keycloak assets directly on its own domain", async ({ r
 
   const expectedOrigin = new URL(appBaseUrl).origin;
 
-  const landingResponse = await request.get(appBaseUrl, { maxRedirects: 0 });
+  const landingResponse = await request.get(appBaseUrl, { maxRedirects: 0, timeout: resolveTimeout(30_000) });
   const landingStatus = landingResponse.status();
 
   expect(
@@ -53,7 +54,7 @@ test("simpleicons serves keycloak assets directly on its own domain", async ({ r
     expect(location, "Expected the redirect to include a Location header").toBeTruthy();
   }
 
-  const svgResponse = await request.get(`${appBaseUrl}/${knownIconSlug}.svg`);
+  const svgResponse = await request.get(`${appBaseUrl}/${knownIconSlug}.svg`, { timeout: resolveTimeout(30_000) });
   expect(svgResponse.status(), `Expected ${knownIconSlug}.svg to return HTTP 200`).toBe(200);
   expectOrigin(
     svgResponse.url(),
@@ -65,7 +66,7 @@ test("simpleicons serves keycloak assets directly on its own domain", async ({ r
   expect(svgBody).toContain("<svg");
   expect(svgBody).toContain("<path");
 
-  const pngResponse = await request.get(`${appBaseUrl}/${knownIconSlug}.png?size=64`);
+  const pngResponse = await request.get(`${appBaseUrl}/${knownIconSlug}.png?size=64`, { timeout: resolveTimeout(30_000) });
   expect(pngResponse.status(), `Expected ${knownIconSlug}.png to return HTTP 200`).toBe(200);
   expectOrigin(
     pngResponse.url(),
@@ -77,7 +78,7 @@ test("simpleicons serves keycloak assets directly on its own domain", async ({ r
   expect(Buffer.compare(pngBody.subarray(0, 8), Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe(0);
   expect(pngBody.length, "Expected the PNG route to return a non-empty image").toBeGreaterThan(100);
 
-  const missingIconResponse = await request.get(`${appBaseUrl}/definitely-not-a-real-icon.svg`, { failOnStatusCode: false });
+  const missingIconResponse = await request.get(`${appBaseUrl}/definitely-not-a-real-icon.svg`, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
   expect(missingIconResponse.status(), "Expected unknown icons to return HTTP 404").toBe(404);
   expectOrigin(
     missingIconResponse.url(),
@@ -106,12 +107,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|index|status)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|status|index|simpleicons/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

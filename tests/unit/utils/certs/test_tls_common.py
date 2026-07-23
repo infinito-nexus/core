@@ -6,10 +6,12 @@ from ansible.errors import AnsibleError
 
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
+    align_domain_to_consumer,
     as_str,
     collect_domains_for_app,
     collect_domains_global,
     get_path,
+    is_onion_domain,
     norm_domain,
     override_san_list,
     require,
@@ -154,6 +156,171 @@ class TestTlsCommon(unittest.TestCase):
                 "letsencrypt",
                 err_prefix="t",
             )
+
+    def test_is_onion_domain(self):
+        self.assertTrue(is_onion_domain("abc.onion"))
+        self.assertTrue(is_onion_domain("next.cloud.ABC123.ONION"))
+        self.assertFalse(is_onion_domain("example.com"))
+        self.assertFalse(is_onion_domain("onion.example.com"))
+        self.assertFalse(is_onion_domain(""))
+
+    def test_resolve_enabled_onion_always_off(self):
+        # .onion forces TLS off regardless of default or per-app override.
+        self.assertFalse(resolve_enabled({}, True, primary_domain="x.onion"))
+        self.assertFalse(
+            resolve_enabled(
+                {"server": {"tls": {"enabled": True}}},
+                True,
+                primary_domain="app.abc.onion",
+            )
+        )
+        # non-onion keeps normal behavior
+        self.assertTrue(resolve_enabled({}, True, primary_domain="example.com"))
+
+    def test_align_domain_to_consumer_clearnet_consumer_gets_clearnet(self):
+        domains = {
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains,
+                "web-svc-cdn",
+                "cdn.abc.onion",
+                consumer="web-app-bigbluebutton",
+            ),
+            "cdn.example",
+        )
+
+    def test_align_domain_to_consumer_reads_variables_application_id(self):
+        domains = {
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains,
+                "web-svc-cdn",
+                "cdn.abc.onion",
+                variables={"application_id": "web-app-bigbluebutton"},
+            ),
+            "cdn.example",
+        )
+
+    def test_align_domain_to_consumer_onion_consumer_unchanged(self):
+        domains = {
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+            "web-app-dashboard": ["dash.abc.onion"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.abc.onion", consumer="web-app-dashboard"
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_onion_only_target_falls_back(self):
+        domains = {
+            "web-svc-cdn": ["cdn.abc.onion"],
+            "web-app-bigbluebutton": ["bbb.example"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains,
+                "web-svc-cdn",
+                "cdn.abc.onion",
+                consumer="web-app-bigbluebutton",
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_clearnet_target_untouched(self):
+        domains = {
+            "web-svc-cdn": ["cdn.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.example", consumer="web-app-bigbluebutton"
+            ),
+            "cdn.example",
+        )
+
+    def test_align_domain_to_consumer_no_or_self_or_unknown_consumer(self):
+        domains = {
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(domains, "web-svc-cdn", "cdn.abc.onion"),
+            "cdn.abc.onion",
+        )
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.abc.onion", consumer="web-svc-cdn"
+            ),
+            "cdn.abc.onion",
+        )
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.abc.onion", consumer="svc-db-postgres"
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_templates_consumer(self):
+        class _FakeTemplar:
+            def template(self, value):
+                return {"{{ application_id }}": "web-app-bigbluebutton"}.get(
+                    value, value
+                )
+
+        domains = {
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+            "web-app-bigbluebutton": ["bbb.example"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains,
+                "web-svc-cdn",
+                "cdn.abc.onion",
+                variables={"application_id": "{{ application_id }}"},
+                templar=_FakeTemplar(),
+            ),
+            "cdn.example",
+        )
+
+    def test_align_domain_to_consumer_dict_target_picks_clearnet_value(self):
+        domains = {
+            "web-app-matrix": {
+                "synapse_onion": "matrix.abc.onion",
+                "element_onion": "element.abc.onion",
+                "synapse": "matrix.example",
+                "element": "element.example",
+            },
+            "web-app-bigbluebutton": ["bbb.example"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains,
+                "web-app-matrix",
+                "matrix.abc.onion",
+                consumer="web-app-bigbluebutton",
+            ),
+            "matrix.example",
+        )
+
+    def test_resolve_mode_app_level_mode_over_flavor(self):
+        # server.tls.mode takes precedence over server.tls.flavor.
+        app = {"server": {"tls": {"mode": "self_signed", "flavor": "letsencrypt"}}}
+        self.assertEqual(
+            resolve_mode(app, True, "letsencrypt", err_prefix="t"), "self_signed"
+        )
+        # falls back to flavor when mode unset
+        app2 = {"server": {"tls": {"flavor": "self_signed"}}}
+        self.assertEqual(
+            resolve_mode(app2, True, "letsencrypt", err_prefix="t"), "self_signed"
+        )
 
     def test_resolve_le_name(self):
         app = {}

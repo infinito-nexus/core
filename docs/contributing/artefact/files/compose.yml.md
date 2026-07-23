@@ -31,7 +31,7 @@ The per-variable default + comment lives next to the key in [default.env](../../
 |---|---|
 | `INFINITO_IMAGE` | Image reference used by the `infinito` service. Composed at runtime by the env generator on GHA, empty locally so the `build:` block builds from source. |
 | `INFINITO_PULL_POLICY` | Compose `pull_policy`. Defaults to `never` for local builds, generator overrides to `always` on GHA. |
-| `INFINITO_CONTAINER` | Used directly as `container_name`. Derived from `INFINITO_DISTRO` by [infinito_container.py](../../../../utils/env/handlers/infinito_container.py). |
+| `INFINITO_CONTAINER` | Used directly as `container_name`. Derived from `INFINITO_DISTRO` by [container.py](../../../../utils/env/handlers/infinito/container.py). |
 | `NIX_CONFIG` | Build-arg forwarded to the Dockerfile for Nix configuration. Pass-through if set in the calling shell. |
 
 ### Resource Caps (OOM Reproduction)
@@ -66,7 +66,7 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 |---|---|
 | `INFINITO_CACHE_REGISTRY_HOST_PATH` | Host path bind-mounted into `registry-cache` for blob/manifest persistence. |
 | `INFINITO_CACHE_REGISTRY_CA_HOST_PATH` | Host path holding the proxy MITM CA bundle. Mounted writable into `registry-cache`, read-only into `infinito`. |
-| `INFINITO_CACHE_REGISTRY_MAX_SIZE` | Maximum on-disk size. Computed by [infinito_registry_cache_max_size.py](../../../../utils/env/handlers/infinito_registry_cache_max_size.py) as half the free disk at the cache path, floor `1g`, fallback `2g`. |
+| `INFINITO_CACHE_REGISTRY_MAX_SIZE` | Maximum on-disk size. Computed by [registry_cache_max_size.py](../../../../utils/env/handlers/infinito/registry_cache_max_size.py) as half the free disk at the cache path, floor `1g`, fallback `2g`. |
 | `INFINITO_CACHE_REGISTRY_PROXY_CONF` | Bind source for the systemd drop-in inside `infinito`. Set by the dev tooling to the real `proxy.conf` under the `cache` profile. Driver-injected; not produced by `make dotenv`. |
 | `INFINITO_CACHE_PACKAGE_HOST_PATH` | Host path bind-mounted at `/nexus-data`. |
 | `INFINITO_CACHE_PACKAGE_HEAP` | JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`. |

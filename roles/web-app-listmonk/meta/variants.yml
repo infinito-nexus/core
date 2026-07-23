@@ -34,6 +34,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     asset:
       enabled: false
@@ -64,3 +66,6 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override

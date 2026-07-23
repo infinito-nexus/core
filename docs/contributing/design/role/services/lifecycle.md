@@ -7,7 +7,7 @@ For general documentation rules such as links, writing style, RFC 2119 keywords,
 
 ## Overview 🗺️
 
-A role's lifecycle value sits on a single linear axis from `planned` (no code yet) to `eol` (removed).
+A role's lifecycle value sits on a single linear axis from `planned` (no code yet) to `eol` (end of life).
 A subset of stages is the **tested** envelope: roles in those stages MUST be exercised by the project's automated test suite on every change, and a failing test blocks the release.
 Stages outside that envelope MAY ship without automated coverage.
 
@@ -20,10 +20,8 @@ pre-alpha     (early scaffolding, not yet stable enough to test)
 │  stable       │
 └─ maintenance ─┘
 deprecated    (kept for compatibility, do not adopt for new deploys)
-eol           (removed in the next release)
+eol           (end of life: shipped but not tested or maintained)
 ```
-
-Outside this axis, [a separate `unsupported` tier](#the-unsupported-tier-) exists for roles the project ships but explicitly does NOT commit to test or maintain.
 
 ## Stages 📋
 
@@ -107,8 +105,14 @@ A `deprecated` role:
 
 ### eol 🪦
 
-The role has been removed from `roles/`.
-The `lifecycle: eol` value is documented for traceability in changelogs but a role with this value MUST NOT exist on disk at the same time the value is set; the value is a release-note marker, not a live state.
+The role has reached end of life: it still ships in `roles/` for now but the project does NOT commit to testing or maintaining it (retired prototypes, proprietary products, superseded apps).
+
+A role tagged `eol`:
+
+- MUST clearly state in its `README.md` that the project does not maintain or test it and that operators use it at their own risk.
+- SHOULD link to the upstream project / vendor for support.
+- MUST NOT block any release. CI MAY skip its deploy matrix entry entirely.
+- MAY be removed without a deprecation cycle.
 
 ## The tested envelope 🧪
 
@@ -119,22 +123,8 @@ A regression in any tested-envelope role blocks the merge that introduced it.
 Stages outside the envelope (`planned`, `pre-alpha`, `deprecated`, `eol`) MAY skip the matrix-deploy gate.
 CI MAY still exercise them on a best-effort basis but failures MUST NOT block unrelated work.
 
-## The `unsupported` tier 🧷
-
-Some roles ship for convenience or to demonstrate that a deployment shape is possible (proprietary products, demo apps, retired prototypes) but the project does NOT commit to maintaining or testing them.
-Use the lifecycle value `unsupported` for those.
-
-A role tagged `unsupported`:
-
-- MUST clearly state in its `README.md` that the project does not maintain or test it and that operators use it at their own risk.
-- SHOULD link to the upstream project / vendor for support.
-- MUST NOT block any release. CI MAY skip its deploy matrix entry entirely.
-- MAY be removed without a deprecation cycle.
-
-`unsupported` sits OFF the linear lifecycle axis above.
-It is not a stage a role passes through; it is a parallel track for roles that never claim project-grade support.
-Examples at the time of writing include `web-app-confluence`, `web-app-jira`, `web-app-magento`, `web-app-roulette-wheel`.
-Promotion from `unsupported` into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch.
+Promotion from `eol` back into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch.
+Examples of `eol` roles at the time of writing include `web-app-confluence`, `web-app-jira`, `web-app-minio`, `web-app-phpldapadmin`.
 
 ## Setting the value ✏️
 

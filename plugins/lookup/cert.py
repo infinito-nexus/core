@@ -11,10 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
-from utils.cache.domains import get_merged_domains
 from utils.templating.jinja import render_strict
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
@@ -95,16 +94,12 @@ class LookupModule(LookupBase):
 
         want = as_str(terms[1]).strip() if len(terms) == 2 else ""
 
-        domains = get_merged_domains(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
-        applications = get_merged_applications(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
+        domains = lookup_loader.get(
+            "domains", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=variables)[0]
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=variables)[0]
         enabled_default = require(variables, "TLS_ENABLED", (bool, int))
         mode_default = as_str(require(variables, "TLS_MODE", str))
 

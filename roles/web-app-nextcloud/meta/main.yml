@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Nextcloud, a self-hosted cloud platform for file sharing, real-time collaboration, and team workspaces under your own domain.
+  description: Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

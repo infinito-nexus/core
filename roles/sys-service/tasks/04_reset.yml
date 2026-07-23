@@ -1,10 +1,10 @@
 ---
-- name: "pkgmgr install '{{ UNIT_SUFFIX_REMOVER_PACKAGE }}'"
+- name: "📦 pkgmgr install '{{ UNIT_SUFFIX_REMOVER_PACKAGE }}'"
   include_role:
     name: pkgmgr-install
   vars:
     package_name: "{{ UNIT_SUFFIX_REMOVER_PACKAGE }}"
 
-- name: Remove all '{{ SYS_SERVICE_SUFFIX }}' files with '{{ UNIT_SUFFIX_REMOVER_PACKAGE }}'
+- name: "🧹 Remove '{{ SYS_SERVICE_SUFFIX }}' files"
   command: "{{ UNIT_SUFFIX_REMOVER_PACKAGE }} -s '{{ SOFTWARE_NAME }}'"
   notify: "reload system daemon"

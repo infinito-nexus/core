@@ -1,2 +1,110 @@
 ---
-data: shopware_data
+data:
+  type: volume
+  name: shopware_data
+
+bundles:
+  type: volume
+  name: shopware_bundles
+  mounts:
+    - service: init
+      target: /var/www/html/public/bundles
+    - service: web
+      target: /var/www/html/public/bundles
+    - service: worker
+      target: /var/www/html/public/bundles
+    - service: scheduler
+      target: /var/www/html/public/bundles
+
+files:
+  type: volume
+  name: shopware_files
+  mounts:
+    - service: init
+      target: /var/www/html/files
+    - service: web
+      target: /var/www/html/files
+    - service: worker
+      target: /var/www/html/files
+    - service: scheduler
+      target: /var/www/html/files
+
+media:
+  type: volume
+  name: shopware_media
+  mounts:
+    - service: init
+      target: /var/www/html/public/media
+    - service: web
+      target: /var/www/html/public/media
+    - service: worker
+      target: /var/www/html/public/media
+    - service: scheduler
+      target: /var/www/html/public/media
+
+sitemap:
+  type: volume
+  name: shopware_sitemap
+  mounts:
+    - service: init
+      target: /var/www/html/public/sitemap
+    - service: web
+      target: /var/www/html/public/sitemap
+    - service: worker
+      target: /var/www/html/public/sitemap
+    - service: scheduler
+      target: /var/www/html/public/sitemap
+
+theme:
+  type: volume
+  name: shopware_theme
+  mounts:
+    - service: init
+      target: /var/www/html/public/theme
+    - service: web
+      target: /var/www/html/public/theme
+    - service: worker
+      target: /var/www/html/public/theme
+    - service: scheduler
+      target: /var/www/html/public/theme
+
+thumbnail:
+  type: volume
+  name: shopware_thumbnail
+  mounts:
+    - service: init
+      target: /var/www/html/public/thumbnail
+    - service: web
+      target: /var/www/html/public/thumbnail
+    - service: worker
+      target: /var/www/html/public/thumbnail
+    - service: scheduler
+      target: /var/www/html/public/thumbnail
+
+init_script:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.volumes'), 'init.sh'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: /usr/local/bin/init.sh
+    - service: web
+      target: /usr/local/bin/init.sh
+    - service: worker
+      target: /usr/local/bin/init.sh
+    - service: scheduler
+      target: /usr/local/bin/init.sh
+
+framework_yaml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.config'), 'framework.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: /var/www/html/config/packages/framework.yaml
+    - service: web
+      target: /var/www/html/config/packages/framework.yaml
+    - service: worker
+      target: /var/www/html/config/packages/framework.yaml
+    - service: scheduler
+      target: /var/www/html/config/packages/framework.yaml

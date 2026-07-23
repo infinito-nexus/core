@@ -42,23 +42,23 @@ cleanup() {
 		local current_ref
 		current_ref="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 		if [[ "${current_ref}" == "${TEST_BRANCH}" ]]; then
-			git reset --hard HEAD >/dev/null 2>&1 || true
-			git clean -fd >/dev/null 2>&1 || true
-			git checkout "${ORIGINAL_REF}" >/dev/null 2>&1 || true
+			git reset --hard HEAD >/dev/null 2>&1 || true          # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+			git clean -fd >/dev/null 2>&1 || true                  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+			git checkout "${ORIGINAL_REF}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 		fi
-		git branch -D "${TEST_BRANCH}" >/dev/null 2>&1 || true
+		git branch -D "${TEST_BRANCH}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 
 	if [[ -n "${ORIGINAL_GIT_USER_NAME}" ]]; then
-		git config --local user.name "${ORIGINAL_GIT_USER_NAME}" >/dev/null 2>&1 || true
+		git config --local user.name "${ORIGINAL_GIT_USER_NAME}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	else
-		git config --local --unset user.name >/dev/null 2>&1 || true
+		git config --local --unset user.name >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 
 	if [[ -n "${ORIGINAL_GIT_USER_EMAIL}" ]]; then
-		git config --local user.email "${ORIGINAL_GIT_USER_EMAIL}" >/dev/null 2>&1 || true
+		git config --local user.email "${ORIGINAL_GIT_USER_EMAIL}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	else
-		git config --local --unset user.email >/dev/null 2>&1 || true
+		git config --local --unset user.email >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 
 	if [[ -n "${WORKTREE_STASH}" ]] && git stash list | grep -F "${WORKTREE_STASH}" >/dev/null 2>&1; then

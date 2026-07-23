@@ -7,20 +7,25 @@ DIR_COMPOSITIONS: "/opt/compose/"
 DIR_SYSTEM_SERVICE: "/etc/systemd/system"
 DIR_COMPOSE_PULL_LOCK: "/run/ansible/compose-pull/"
 
-# Executable files
 DIR_BIN: "/usr/bin"
 BIN_COMPOSE: "{{ [ DIR_BIN, 'compose' ] | path_join }}"
 BIN_CONTAINER: "{{ [ DIR_BIN, 'container' ] | path_join }}"
 BIN_LOCK: "{{ [ DIR_BIN, 'lock' ] | path_join }}"
 BIN_CA_TRUST: "{{ [ DIR_BIN, 'ca-trust-wrapper' ] | path_join }}"
 BIN_CA_INJECT: "{{ [ DIR_BIN, 'ca-inject' ] | path_join }}"
+BIN_CA_PHP_INI: "{{ [ DIR_BIN, 'ca-trust-php.ini' ] | path_join }}"
+BIN_RESOLVE_CONTAINER_ID: "{{ [ DIR_BIN, 'resolve-container-id' ] | path_join }}"
 
-# Infinito Credential files
 DIR_VAR_LIB: "/var/lib/infinito"
 DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
+BACKUP_REPOSITORIES:
+  - backup-docker-to-local
+  - backup-nfs-to-local
+  - backup-secrets-to-local
 DIR_SECRETS: "{{ [DIR_VAR_LIB, 'secrets'] | path_join }}"
 FILE_TOKENS: "{{ [DIR_SECRETS, 'tokens.yml'] | path_join }}"
 FILE_DATABASE_SECRETS: "{{ [DIR_SECRETS, 'databases.csv'] | path_join }}"
 
-# Environment Files
+DIR_RESCUE_DIAGNOSTICS: "/tmp/infinito-rescue-diagnostics"
+
 FILE_ENVIRONMENT: "/etc/environment" # File to safe environment variables in

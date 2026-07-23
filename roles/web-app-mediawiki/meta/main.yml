@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys MediaWiki, a collaborative wiki platform with an extensive extension ecosystem and customizable configuration for user-driven
-    documentation.
+  description: Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

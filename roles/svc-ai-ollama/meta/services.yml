@@ -1,12 +1,17 @@
 ---
 ollama:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
   backup:
     no_stop_required: true
   image: ollama/ollama
-  version: latest
+  version: 0.31.2
   name: ollama
   min_storage: 20GB
   cpus: "4.0"
@@ -21,3 +26,9 @@ ollama:
     - mistral:latest
     - nomic-embed-text:latest
   lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

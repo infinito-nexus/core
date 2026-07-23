@@ -1,14 +1,24 @@
 <?php
-
-# Implementing redis configuration
-return array (
-  # For single server setup APCu is recommended, for multi server setup Redis
-  'memcache.local' => '\\OC\\Memcache\\{% if DEPLOYMENT_MODE == "single" %}APCu{% else %}Redis{% endif %}',
-  # The following lines are configured via the environment variables
-  # 'memcache.locking' => '\\OC\\Memcache\\Redis',
-  # 'redis' =>
-  # array (
-  #   'host' => 'redis',
-  #   'port' => 6379,
-  # )
-);
+{% if DEPLOYMENT_MODE == "compose" %}
+return [
+  'memcache.local' => '\\OC\\Memcache\\APCu',
+];
+{% else %}
+{% set _redis_user = lookup('engine', 'redis', application_id, 'username') %}
+{% set _redis_password = lookup('engine', 'redis', application_id, 'password') %}
+return [
+  'memcache.local' => '\\OC\\Memcache\\APCu',
+  'memcache.distributed' => '\\OC\\Memcache\\Redis',
+  'memcache.locking' => '\\OC\\Memcache\\Redis',
+  'redis' => [
+    'host' => '{{ lookup('engine', 'redis', application_id, 'host') }}',
+    'port' => {{ lookup('engine', 'redis', application_id, 'port') }},
+{% if _redis_user | length > 0 %}
+    'user' => '{{ _redis_user }}',
+{% endif %}
+{% if _redis_password | length > 0 %}
+    'password' => '{{ _redis_password | replace("\\", "\\\\") | replace("'", "\\'") }}',
+{% endif %}
+  ],
+];
+{% endif %}

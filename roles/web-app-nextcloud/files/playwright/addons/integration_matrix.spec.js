@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_matrix: per-user login drives a real session against the partner homeserver", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_matrix");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -12,9 +14,9 @@ test("integration integration_matrix: per-user login drives a real session again
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -22,7 +24,7 @@ test("integration integration_matrix: per-user login drives a real session again
     await expect(
       adminPanel,
       "the Matrix integration admin panel must render when integration_matrix is enabled — its absence means the app failed to enable/configure against the partner homeserver"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     let configuredInstanceUrl = null;
     const adminInputs = adminPanel.locator("input[type='text'], input[type='url'], input:not([type])");
@@ -53,9 +55,9 @@ test("integration integration_matrix: per-user login drives a real session again
       } catch {}
     });
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -63,7 +65,7 @@ test("integration integration_matrix: per-user login drives a real session again
     await expect(
       userPanel,
       "the personal Matrix panel must render so a user can link their Matrix account"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const loginField = userPanel
       .locator("input[type='text']:not([readonly]), input:not([type]):not([readonly])")
@@ -74,19 +76,19 @@ test("integration integration_matrix: per-user login drives a real session again
       .first();
 
     const connectResponsePromise = page
-      .waitForResponse((resp) => /\/apps\/integration_matrix\//.test(resp.url()), { timeout: 30_000 })
+      .waitForResponse((resp) => /\/apps\/integration_matrix\//.test(resp.url()), { timeout: resolveTimeout(30_000) })
       .catch(() => null);
 
-    if (await passwordField.isVisible({ timeout: 10_000 }).catch(() => false)) {
+    if (await passwordField.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
       await loginField.fill(shared.env.loginUsername || "admin").catch(() => {});
       await passwordField.fill(shared.env.loginPassword || "").catch(() => {});
-      await connectButton.click({ timeout: 10_000 }).catch(() => {});
-    } else if (await connectButton.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      await connectButton.click({ timeout: 10_000 }).catch(() => {});
+      await connectButton.click({ timeout: resolveTimeout(10_000) }).catch(() => {});
+    } else if (await connectButton.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
+      await connectButton.click({ timeout: resolveTimeout(10_000) }).catch(() => {});
     }
 
     const connectResponse = await connectResponsePromise;
-    await page.waitForTimeout(2_500);
+    await page.waitForTimeout(resolveTimeout(2_500));
 
     const reachedPartner = partnerHits.length > 0;
     const droveServerSide = Boolean(connectResponse);

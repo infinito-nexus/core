@@ -1,28 +1,33 @@
 ---
-- name: "Run Taiga migrations (required before admin creation)"
-  command: >
-    compose
-    -f {{ TAIGA_COMPOSE_INIT_PATH }}
-    run --rm {{ TAIGA_MANAGER_SERVICE }}
-    migrate --noinput
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: taiga_migrate
-  changed_when: taiga_migrate.rc == 0
+- name: "🔍 Resolve {{ application_id }} manager hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ TAIGA_MANAGER_SERVICE }}"
+    resolve_output_prefix: TAIGA_MANAGER
+    resolve_compose_cid: "{{ TAIGA_MANAGER_CONTAINER }}"
 
-- name: "Create Taiga admin user (idempotent)"
-  command: >
-    compose
-    -f {{ TAIGA_COMPOSE_INIT_PATH }}
-    run --rm
+- name: "⏳ Wait for taiga-back to apply migrations (manager must not re-apply)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i
+    {{ TAIGA_MANAGER_LOCAL_CID | quote }}
+    python manage.py migrate --check
+  register: taiga_migrate_check
+  until: taiga_migrate_check.rc == 0
+  retries: 30
+  delay: 10
+  changed_when: false
+  delegate_to: "{{ TAIGA_MANAGER_HOST_NODE }}"
+
+- name: "📁 Create Taiga admin user (idempotent)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i
     -e DJANGO_SUPERUSER_PASSWORD={{ TAIGA_SUPERUSER_PASSWORD | quote }}
-    {{ TAIGA_MANAGER_SERVICE }}
-    createsuperuser --noinput
+    {{ TAIGA_MANAGER_LOCAL_CID | quote }}
+    python manage.py createsuperuser --noinput
     --username {{ TAIGA_SUPERUSER_NAME }}
     --email {{ TAIGA_SUPERUSER_EMAIL }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: taiga_create_admin
+  delegate_to: "{{ TAIGA_MANAGER_HOST_NODE }}"
   changed_when: taiga_create_admin.rc == 0
   failed_when: >
     taiga_create_admin.rc != 0 and
@@ -31,22 +36,19 @@
     ('integrityerror' not in (taiga_create_admin.stdout + taiga_create_admin.stderr) | lower)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Upsert Taiga admin via manage.py shell"
-  command: >
-    compose
-    -f {{ TAIGA_COMPOSE_INIT_PATH }}
-    run --rm
+- name: "📝 Upsert Taiga admin via manage.py shell"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i
     -e DJANGO_SUPERUSER_PASSWORD={{ TAIGA_SUPERUSER_PASSWORD | quote }}
-    {{ TAIGA_MANAGER_SERVICE }}
-    shell -c
+    {{ TAIGA_MANAGER_LOCAL_CID | quote }}
+    python manage.py shell -c
     "from django.contrib.auth import get_user_model; import os; U=get_user_model(); u,created=U.objects.get_or_create(username='{{ TAIGA_SUPERUSER_NAME }}'); changed=bool(created);
     old=(u.email,u.is_staff,u.is_superuser,u.is_active); u.email='{{ TAIGA_SUPERUSER_EMAIL }}'; u.is_staff=True; u.is_superuser=True; u.is_active=True; changed =
     changed or old!=(u.email,u.is_staff,u.is_superuser,u.is_active); pwd=os.environ.get('DJANGO_SUPERUSER_PASSWORD'); assert pwd, 'Missing DJANGO_SUPERUSER_PASSWORD';
     need_pwd = not u.check_password(pwd); changed = changed or need_pwd; need_pwd and u.set_password(pwd); u.save(); print('CHANGED=1' if changed else 'CHANGED=0')"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: taiga_upsert_admin
   when: taiga_create_admin.rc != 0
+  delegate_to: "{{ TAIGA_MANAGER_HOST_NODE }}"
   changed_when: "not ASYNC_ENABLED and 'CHANGED=1' in (taiga_upsert_admin.stdout + taiga_upsert_admin.stderr)"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"

@@ -2,16 +2,15 @@
 - include_tasks: 01_core.yml
   when: run_once_sys_front_inj_dashboard is not defined
 
-# --- Build tiny inline initializer (CSP-hashed) ---
-- name: "Load iFrame init code for '{{ application_id }}'"
+- name: "📄 Load iFrame init code for '{{ application_id }}'"
   set_fact:
-    iframe_init_code: "{{ lookup('template','iframe-init_one_liner.js.j2') }}"
+    iframe_init_code: "{{ lookup('template','iframe/init_one_liner.js.j2') }}"
 
-- name: "Collapse iFrame init code into one-liner for '{{ application_id }}'"
+- name: "🗜️ Collapse iFrame init code into one-liner for '{{ application_id }}'"
   set_fact:
     iframe_init_code_one_liner: "{{ iframe_init_code | to_one_liner }}"
 
-- name: "Append iFrame init CSP hash for '{{ application_id }}'"
+- name: "➕ Append iFrame init CSP hash for '{{ application_id }}'"
   set_fact:
     webserver_csp_hashes_extra_by_app: >-
       {{ webserver_csp_hashes_extra_by_app | default({})

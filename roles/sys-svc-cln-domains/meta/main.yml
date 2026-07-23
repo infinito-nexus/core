@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Remove Nginx configuration files and revoke/delete Certbot certificates for deprecated domains
+  description: Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

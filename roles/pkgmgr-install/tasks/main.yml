@@ -2,7 +2,7 @@
 - include_tasks: 01_core.yml
   when: run_once_pkgmgr_install is not defined
 
-- name: "Install '{{ package_name }}' via pkgmgr (non-interactive)"
+- name: "📦 Install '{{ package_name }}' via pkgmgr (non-interactive)"
   shell: |
     set -euo pipefail
 
@@ -25,7 +25,7 @@
   delay: 20
   until: pkgmgr_update.rc == 0
 
-- name: "Assert | pkgmgr path resolves '{{ package_name }}'"
+- name: "✅ Assert | pkgmgr path resolves '{{ package_name }}'"
   shell: |
     set -euo pipefail
     "{{ ansible_facts['env']['HOME'] }}/.venvs/pkgmgr/bin/pkgmgr" path "{{ package_name }}" >/dev/null

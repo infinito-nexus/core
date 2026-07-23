@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Checks Docker containers for unhealthy or exited states and alerts on any issues.
+  description: Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

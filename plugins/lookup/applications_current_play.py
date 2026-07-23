@@ -7,6 +7,8 @@ from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from plugins.lookup import PROJECT_ROOT
+
+# nocheck: lookup-cache-import (derives the current-play applications view)
 from utils.cache.applications import get_merged_applications
 from utils.cache.base import (
     _cache_key,

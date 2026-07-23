@@ -1,0 +1,3 @@
+---
+database_init: false # When true a per-consumer collection namespace is initialized
+database_consumer_id: "svc-db-qdrant" # Self consumer

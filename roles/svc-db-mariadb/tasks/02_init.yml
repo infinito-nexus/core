@@ -1,7 +1,7 @@
 ---
 - block:
-    - name: "Create database: {{ database_name }} (host via mysql_db)"
-      community.mysql.mysql_db:
+    - name: "📁 Create database: {{ database_name }} (host via mysql_db)"
+      ansible.mysql.mysql_db:
         name: "{{ database_name }}"
         state: present
         login_user: root
@@ -12,8 +12,8 @@
         collation: "{{ MARIADB_COLLATION }}"
         config_file: ""
 
-    - name: "Create database user: {{ database_username }} (host via mysql_user)"
-      community.mysql.mysql_user:
+    - name: "📁 Create database user: {{ database_username }} (host via mysql_user)"
+      ansible.mysql.mysql_user:
         name: "{{ database_username }}"
         password: "{{ database_password }}"
         host: "%"
@@ -26,45 +26,36 @@
         config_file: ""
   when: MARIADB_EXPOSE_LOCAL | bool
 
-# ---------------------------------------------------------------------------
-# CI / Container path: no port publishing → initialize via container exec
-# ---------------------------------------------------------------------------
 - block:
-    - name: "Create database: {{ database_name }} (container via mariadb CLI)"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MARIADB_NAME }}"
-          - mariadb
-          - -uroot
-          - "-p{{ MARIADB_ROOT_PWD }}"
+    - name: "📁 Create database: {{ database_name }} (container via mariadb CLI)"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i
+          {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: |
           SET @db_name   := '{{ database_name }}';
           SET @charset   := '{{ MARIADB_ENCODING }}';
           SET @collation := '{{ MARIADB_COLLATION }}';
-          {{ lookup('file', role_path ~ '/files/sql/create_database.sql') }}
+          {{ lookup('file', role_path ~ '/files/sql/create/database.sql') }}
       register: mariadb_create_db
+      delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
 
-    - name: "Create database user + grant privileges (container via mariadb CLI)"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MARIADB_NAME }}"
-          - mariadb
-          - -uroot
-          - "-p{{ MARIADB_ROOT_PWD }}"
+    - name: "📁 Create database user + grant privileges (container via mariadb CLI)"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i
+          {{ MARIADB_CONTAINER_ADDRESS }}
+          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
         stdin: |
           SET @db_user := '{{ database_username }}';
           SET @db_pwd  := '{{ database_password | replace("'", "''") }}';
           SET @db_name := '{{ database_name }}';
-          {{ lookup('file', role_path ~ '/files/sql/create_user_grant.sql') }}
+          {{ lookup('file', role_path ~ '/files/sql/create/user_grant.sql') }}
       register: mariadb_create_user
+      delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
   when: not (MARIADB_EXPOSE_LOCAL | bool)

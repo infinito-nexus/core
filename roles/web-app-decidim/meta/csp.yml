@@ -1,0 +1,9 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  connect-src:
+    - "{{ lookup('tls', 'web-app-seaweedfs', 'protocols.web') }}://{{ lookup('config', 'web-app-seaweedfs', 'domains.canonical.api') }}"

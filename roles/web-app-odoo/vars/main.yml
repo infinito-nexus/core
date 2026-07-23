@@ -1,64 +1,50 @@
 ---
-# General
 application_id: "web-app-odoo"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Database
+swarm_stack_converge_retries: 600
 
-# Webserver
 websocket_port: "{{ lookup('config', application_id, 'services.odoo.ports.local.websocket') }}"
 
-# Container ports
-container_port: 8069
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_websocket_port: 8072
 
-# Odoo
-
-## Container
 ODOO_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
 ODOO_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
-ODOO_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ ODOO_VERSION }}"
 ODOO_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
 ODOO_SERVICE: "{{ entity_name }}"
 
-## Volumes
-ODOO_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-ODOO_ADDONS_VOLUME: "{{ lookup('config', application_id, 'volumes.addons') }}"
-ODOO_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
-
-## Configuration Paths
 ODOO_CONF_FILE_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}odoo.conf"
 ODOO_ADDONS_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}addons/"
+ODOO_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-odoo.sh"
+ODOO_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), ODOO_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+ODOO_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ ODOO_ENTRYPOINT_SCRIPT_FILE }}"
+ODOO_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', ODOO_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+ODOO_INIT_MODULES: "{{ ODOO_MODULES_CORE | join(',') }}"
+ODOO_UPDATE_MARKER: "/var/lib/odoo/.odoo-update-pending"
 
-## URLs
 ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
-## Feature Flags
 ODOO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 ODOO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 
-## Admin
 ODOO_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
 ODOO_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 ODOO_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'administrator').email }}"
 
-## Master Password
 ODOO_MASTER_PASSWORD: "{{ lookup('config', application_id, 'credentials.master_password') }}"
 
-## Modules
 ODOO_MODULES_CORE: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','equalto','core') | map(attribute='key') | list }}"
 ODOO_MODULES_OPTIONAL: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','equalto','optional') | map(attribute='key') | list
   }}"
 
-## Database Settings
 ODOO_DB_HOST: "{{ lookup('database', application_id, 'host') }}"
 ODOO_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
 ODOO_DB_USER: "{{ lookup('database', application_id, 'username') }}"
 ODOO_DB_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
 ODOO_DB_PORT: "{{ lookup('database', application_id, 'port') }}"
 
-## Email Settings
 ODOO_EMAIL: "{{ lookup('email', application_id) }}"
 ODOO_SMTP_HOST: "{{ ODOO_EMAIL.host }}"
 ODOO_SMTP_PORT: "{{ ODOO_EMAIL.port | default(587) }}"
@@ -66,7 +52,6 @@ ODOO_SMTP_USER: "{{ ODOO_EMAIL.username }}"
 ODOO_SMTP_PASSWORD: "{{ ODOO_EMAIL.password }}"
 ODOO_SMTP_SSL: "{{ lookup('tls', application_id, 'enabled') }}"
 
-## LDAP Settings
 ODOO_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
 ODOO_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
 ODOO_LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
@@ -77,7 +62,6 @@ ODOO_LDAP_USER_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
 ODOO_LDAP_CREATE_USER: true
 ODOO_LDAP_TLS: "{{ LDAP.SERVER.SECURITY in ['TLS', 'SSL'] }}"
 
-## LDAP Configuration (for res_company_ldap table)
 ODOO_LDAP_CONFIG:
   name: "OpenLDAP"
   sequence: 1
@@ -91,7 +75,6 @@ ODOO_LDAP_CONFIG:
   create_user: "{{ ODOO_LDAP_CREATE_USER | lower }}"
   ldap_tls: "{{ ODOO_LDAP_TLS | lower }}"
 
-## OIDC Settings
 ODOO_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 ODOO_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 ODOO_OIDC_ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"

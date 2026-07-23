@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.POSTMARKS_BASE_URL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
@@ -26,7 +27,7 @@ test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gat
   });
   try {
     const page = await context.newPage();
-    await page.goto(`${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
 
     // The browser never authenticated against oauth2-proxy, so even with a
     // fully forged identity header it must be bounced to Keycloak; nginx
@@ -34,7 +35,7 @@ test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gat
     // forged header never reaches Postmarks' middleware.
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "a forged identity header must be bounced to Keycloak, never into Postmarks /admin",
       })
       .toContain("openid-connect/auth");
@@ -60,7 +61,7 @@ test("oidc-security: the trusted-header bridge stays inert while SSO is disabled
   });
   try {
     const page = await context.newPage();
-    await page.goto(`${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, `${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
 
     // With PROXY_HEADER_SSO unset the middleware is a pass-through, so a
     // forged header must never flip the owner session: the native gate
@@ -85,14 +86,14 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
   await page.context().clearCookies();
 
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect
-    .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${expectedBase}` })
+    .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase.replace(/^https?:\/\//, ""));
 
   // Establish the genuine owner session via the gated /admin path.
-  await page.goto(`${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedBase}/admin`, { waitUntil: "domcontentloaded" });
   expect(
     page.url(),
     `the genuine proxied session must open /admin (at ${page.url()})`,

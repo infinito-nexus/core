@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_github: per-user OAuth connect reaches github.com/login/oauth/authorize with the provisioned client_id", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_github");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -12,9 +14,9 @@ test("integration integration_github: per-user OAuth connect reaches github.com/
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -22,19 +24,19 @@ test("integration integration_github: per-user OAuth connect reaches github.com/
     await expect(
       connect.first(),
       "the 'Connect to GitHub with OAuth' control must render once the admin OAuth client_id is provisioned — its absence means the github.client_id/client_secret api wiring failed to land"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
 
     await Promise.all([
       page
-        .waitForURL((u) => /^https?:\/\/github\.com\/login\/oauth\/authorize(?:[/?#]|$)/i.test(u), { timeout: 60_000 })
+        .waitForURL((u) => /^https?:\/\/github\.com\/login\/oauth\/authorize(?:[/?#]|$)/i.test(u), { timeout: resolveTimeout(60_000) })
         .catch(() => {}),
-      connect.first().click(),
+      connect.first().click({ timeout: resolveTimeout(30_000) }),
     ]);
 
     await expect
-      .poll(() => page.url(), { timeout: 60_000 })
+      .poll(() => page.url(), { timeout: resolveTimeout(60_000) })
       .toMatch(/^https?:\/\/github\.com\/login\/oauth\/authorize(?:[/?#]|$)/i);
 
     const authorize = new URL(page.url());

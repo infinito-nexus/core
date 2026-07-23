@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures msmtp as a lightweight SMTP client and sendmail replacement for the Infinito.Nexus ecosystem.
+  description: Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

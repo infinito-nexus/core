@@ -3,6 +3,7 @@ import sys
 import types
 import unittest
 
+from utils import tls_common as _real_tls_common
 from utils.cache import PROJECT_ROOT
 
 PLUGIN_PATH = (
@@ -23,6 +24,7 @@ _STUBBED_MODULE_NAMES = (
     "utils.roles.applications",
     "utils.roles.applications.config",
     "utils.get_url",
+    "utils.tls_common",
 )
 
 
@@ -76,6 +78,7 @@ class RedirectUrisTest(unittest.TestCase):
         sys.modules["utils.roles.applications"] = mu_apps
         sys.modules["utils.roles.applications.config"] = mu_config
         sys.modules["utils.get_url"] = mu_geturl
+        sys.modules["utils.tls_common"] = _real_tls_common
 
         # Load the plugin by path
         cls.plugin = _load_module_from_path(

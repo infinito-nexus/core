@@ -36,9 +36,9 @@ class PullSpecificHostTests(unittest.TestCase):
         self.hash64 = "a" * 64
         self.host = "1.2.3.4"
         self.remote = f"backup@{self.host}"
+        self.ssh = f'ssh {self.mod.SSH_OPTS} "{self.remote}"'
 
-        # Script default is /var/lib/infinito/backup now (via --folder / function argument)
-        self.backups_dir = "/var/lib/infinito/backup"
+        self.backups_dir = os.environ["INFINITO_DIR_BACKUPS"]
         self.base = f"{self.backups_dir}/{self.hash64}/"
 
         self.backup_type = "backup-docker-to-local"
@@ -57,20 +57,19 @@ class PullSpecificHostTests(unittest.TestCase):
     ):
         cmd = command if isinstance(command, str) else " ".join(command)
 
-        if cmd.startswith(f'ssh "{self.remote}" sha256sum /etc/machine-id'):
+        if cmd.startswith(f"{self.ssh} sha256sum /etc/machine-id"):
             return self._completed(stdout=f"{self.hash64}  /etc/machine-id\n")
 
         if cmd.startswith(
-            f'ssh "{self.remote}" "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
+            f'{self.ssh} "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
         ):
-            # find returns the machine-id dir itself and then the backup type dir
             return self._completed(stdout=f"{self.hash64}\n{self.backup_type}\n")
 
         if cmd.startswith(f"ls -d {self.type_dir}* | tail -1"):
             return self._completed(stdout=self.last_local)
 
         if cmd.startswith(
-            f'ssh "{self.remote}" "ls -d {self.backups_dir}/{self.hash64}/{self.backup_type}/*"'
+            f'{self.ssh} "ls -d {self.backups_dir}/{self.hash64}/{self.backup_type}/*"'
         ):
             return self._completed(stdout=f"{self.last_remote}\n")
 
@@ -82,13 +81,13 @@ class PullSpecificHostTests(unittest.TestCase):
         cmd = command if isinstance(command, str) else " ".join(command)
 
         if cmd.startswith(
-            f'ssh "{self.remote}" "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
+            f'{self.ssh} "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
         ):
             raise subprocess.CalledProcessError(
                 returncode=1, cmd=cmd, output="", stderr="find: error"
             )
 
-        if cmd.startswith(f'ssh "{self.remote}" sha256sum /etc/machine-id'):
+        if cmd.startswith(f"{self.ssh} sha256sum /etc/machine-id"):
             return self._completed(stdout=f"{self.hash64}  /etc/machine-id\n")
 
         return self._completed(stdout="")
@@ -98,13 +97,12 @@ class PullSpecificHostTests(unittest.TestCase):
     ):
         cmd = command if isinstance(command, str) else " ".join(command)
 
-        if cmd.startswith(f'ssh "{self.remote}" sha256sum /etc/machine-id'):
+        if cmd.startswith(f"{self.ssh} sha256sum /etc/machine-id"):
             return self._completed(stdout=f"{self.hash64}  /etc/machine-id\n")
 
         if cmd.startswith(
-            f'ssh "{self.remote}" "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
+            f'{self.ssh} "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
         ):
-            # No backup types found
             return self._completed(stdout="")
 
         return self._completed(stdout="")
@@ -117,22 +115,20 @@ class PullSpecificHostTests(unittest.TestCase):
         """
         cmd = command if isinstance(command, str) else " ".join(command)
 
-        if cmd.startswith(f'ssh "{self.remote}" sha256sum /etc/machine-id'):
+        if cmd.startswith(f"{self.ssh} sha256sum /etc/machine-id"):
             return self._completed(stdout=f"{self.hash64}  /etc/machine-id\n")
 
         if cmd.startswith(
-            f'ssh "{self.remote}" "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
+            f'{self.ssh} "find {self.base} -maxdepth 1 -type d -execdir basename {{}} ;"'
         ):
             return self._completed(stdout=f"{self.hash64}\n{self.backup_type}\n")
 
         if cmd.startswith(f"ls -d {self.type_dir}* | tail -1"):
-            # local previous backup exists (doesn't matter)
             return self._completed(stdout=self.last_local)
 
         if cmd.startswith(
-            f'ssh "{self.remote}" "ls -d {self.backups_dir}/{self.hash64}/{self.backup_type}/*"'
+            f'{self.ssh} "ls -d {self.backups_dir}/{self.hash64}/{self.backup_type}/*"'
         ):
-            # no remote backups
             return self._completed(stdout="")
 
         return self._completed(stdout="")
@@ -145,7 +141,6 @@ class PullSpecificHostTests(unittest.TestCase):
         mock_run.side_effect = self._run_side_effect_success
         mock_system.return_value = 0
 
-        # should not raise
         self.mod.pull_backups(self.host, self.backups_dir)
 
         self.assertTrue(mock_system.called, "rsync (os.system) should be called")
@@ -158,7 +153,6 @@ class PullSpecificHostTests(unittest.TestCase):
         mock_run.side_effect = self._run_side_effect_no_types
         mock_system.return_value = 0
 
-        # should not raise
         self.mod.pull_backups(self.host, self.backups_dir)
 
         self.assertFalse(
@@ -190,7 +184,7 @@ class PullSpecificHostTests(unittest.TestCase):
         self, mock_run, mock_system, _mkd
     ):
         mock_run.side_effect = self._run_side_effect_success
-        mock_system.side_effect = [1] * 12  # 12 retries in the script
+        mock_system.side_effect = [1] * 12
 
         with self.assertRaises(RuntimeError):
             self.mod.pull_backups(self.host, self.backups_dir)

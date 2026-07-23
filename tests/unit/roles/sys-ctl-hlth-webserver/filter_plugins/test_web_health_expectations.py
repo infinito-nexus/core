@@ -82,8 +82,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-a": {}}
         self._configure_returns(
             {
-                ("app-a", "server.domains.canonical"): ["a.example.org"],
-                ("app-a", "server.domains.aliases"): [],
+                ("app-a", "domains.canonical"): ["a.example.org"],
+                ("app-a", "domains.aliases"): [],
                 ("app-a", "server.status_codes"): {"default": 405},
             }
         )
@@ -94,8 +94,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-x": {}}
         self._configure_returns(
             {
-                ("app-x", "server.domains.canonical"): ["x.example.org"],
-                ("app-x", "server.domains.aliases"): [],
+                ("app-x", "domains.canonical"): ["x.example.org"],
+                ("app-x", "domains.aliases"): [],
                 ("app-x", "server.status_codes"): {"default": 700},  # invalid HTTP code
             }
         )
@@ -108,12 +108,12 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-d": {}}
         self._configure_returns(
             {
-                ("app-d", "server.domains.canonical"): {
+                ("app-d", "domains.canonical"): {
                     "api": "api.d.example.org",
                     "web": "web.d.example.org",
                     "view": ["v1.d.example.org", "v2.d.example.org"],
                 },
-                ("app-d", "server.domains.aliases"): ["alias.d.example.org"],
+                ("app-d", "domains.aliases"): ["alias.d.example.org"],
                 ("app-d", "server.status_codes"): {"api": 404, "default": 405},
             }
         )
@@ -125,12 +125,56 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         self.assertEqual(out["v2.d.example.org"], [405])  # default used
         self.assertEqual(out["alias.d.example.org"], [301])  # aliases always redirect
 
+    def test_disabled_service_domains_are_suppressed(self):
+        apps = {"app-s": {}}
+        self._configure_returns(
+            {
+                ("app-s", "domains.canonical"): {
+                    "api": "api.s.example.org",
+                    "filer": "filer.s.example.org",
+                    "master": "master.s.example.org",
+                },
+                ("app-s", "services"): {
+                    "frontend": {
+                        "enabled": False,
+                        "domains": ["filer", "master"],
+                    },
+                },
+            }
+        )
+        out = self.mod.web_health_expectations(apps, group_names=["app-s"])
+
+        self.assertIn("api.s.example.org", out)
+        self.assertNotIn("filer.s.example.org", out)
+        self.assertNotIn("master.s.example.org", out)
+
+    def test_enabled_service_domains_are_kept(self):
+        apps = {"app-s": {}}
+        self._configure_returns(
+            {
+                ("app-s", "domains.canonical"): {
+                    "api": "api.s.example.org",
+                    "filer": "filer.s.example.org",
+                },
+                ("app-s", "services"): {
+                    "frontend": {
+                        "enabled": True,
+                        "domains": ["filer"],
+                    },
+                },
+            }
+        )
+        out = self.mod.web_health_expectations(apps, group_names=["app-s"])
+
+        self.assertIn("api.s.example.org", out)
+        self.assertIn("filer.s.example.org", out)
+
     def test_keyed_canonical_invalid_key_and_default_falls_back(self):
         apps = {"app-y": {}}
         self._configure_returns(
             {
-                ("app-y", "server.domains.canonical"): {"web": ["y.example.org"]},
-                ("app-y", "server.domains.aliases"): [],
+                ("app-y", "domains.canonical"): {"web": ["y.example.org"]},
+                ("app-y", "domains.aliases"): [],
                 ("app-y", "server.status_codes"): {
                     "web": 999
                 },  # invalid; default missing
@@ -145,14 +189,14 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-a": {}, "app-b": {}, "app-c": {}}
         self._configure_returns(
             {
-                ("app-a", "server.domains.canonical"): ["a.example.org"],
-                ("app-a", "server.domains.aliases"): [],
+                ("app-a", "domains.canonical"): ["a.example.org"],
+                ("app-a", "domains.aliases"): [],
                 ("app-a", "server.status_codes"): {"default": 200},
-                ("app-b", "server.domains.canonical"): ["b.example.org"],
-                ("app-b", "server.domains.aliases"): [],
+                ("app-b", "domains.canonical"): ["b.example.org"],
+                ("app-b", "domains.aliases"): [],
                 ("app-b", "server.status_codes"): {"default": 405},
-                ("app-c", "server.domains.canonical"): ["c.example.org"],
-                ("app-c", "server.domains.aliases"): ["alias.c.example.org"],
+                ("app-c", "domains.canonical"): ["c.example.org"],
+                ("app-c", "domains.aliases"): ["alias.c.example.org"],
                 ("app-c", "server.status_codes"): {},
             }
         )
@@ -167,11 +211,11 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-a": {}, "app-b": {}}
         self._configure_returns(
             {
-                ("app-a", "server.domains.canonical"): ["a.example.org"],
-                ("app-a", "server.domains.aliases"): [],
+                ("app-a", "domains.canonical"): ["a.example.org"],
+                ("app-a", "domains.aliases"): [],
                 ("app-a", "server.status_codes"): {"default": 200},
-                ("app-b", "server.domains.canonical"): ["b.example.org"],
-                ("app-b", "server.domains.aliases"): [],
+                ("app-b", "domains.canonical"): ["b.example.org"],
+                ("app-b", "domains.aliases"): [],
                 ("app-b", "server.status_codes"): {"default": 405},
             }
         )
@@ -185,8 +229,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-f": {}}
         self._configure_returns(
             {
-                ("app-f", "server.domains.canonical"): ["f.example.org"],
-                ("app-f", "server.domains.aliases"): [
+                ("app-f", "domains.canonical"): ["f.example.org"],
+                ("app-f", "domains.aliases"): [
                     "alias1.example.org",
                     "alias2.example.org",
                 ],
@@ -202,13 +246,13 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-g": {}}
         self._configure_returns(
             {
-                ("app-g", "server.domains.canonical"): [
+                ("app-g", "domains.canonical"): [
                     "ok.g.example.org",
                     None,
                     123,
                     {"x": "y"},
                 ],
-                ("app-g", "server.domains.aliases"): [
+                ("app-g", "domains.aliases"): [
                     {"bad": "obj"},
                     "alias.g.example.org",
                     None,
@@ -228,11 +272,11 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         # includes a canonical that already starts with www.
         self._configure_returns(
             {
-                ("app-h", "server.domains.canonical"): [
+                ("app-h", "domains.canonical"): [
                     "h.example.org",
                     "www.keep301.example.org",
                 ],
-                ("app-h", "server.domains.aliases"): ["alias.h.example.org"],
+                ("app-h", "domains.aliases"): ["alias.h.example.org"],
                 ("app-h", "server.status_codes"): {"default": 405},
             }
         )
@@ -255,8 +299,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-i": {}}
         self._configure_returns(
             {
-                ("app-i", "server.domains.canonical"): ["i.example.org"],
-                ("app-i", "server.domains.aliases"): [],
+                ("app-i", "domains.canonical"): ["i.example.org"],
+                ("app-i", "domains.aliases"): [],
                 ("app-i", "server.status_codes"): {"default": 200},
             }
         )
@@ -282,8 +326,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"conflict-app": {}}
         self._configure_returns(
             {
-                ("conflict-app", "server.domains.canonical"): ["conflict.example.org"],
-                ("conflict-app", "server.domains.aliases"): [],
+                ("conflict-app", "domains.canonical"): ["conflict.example.org"],
+                ("conflict-app", "domains.aliases"): [],
                 ("conflict-app", "server.status_codes"): {"default": 200},
             }
         )
@@ -309,8 +353,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"ignored-app": {}}
         self._configure_returns(
             {
-                ("ignored-app", "server.domains.canonical"): ["ignored.example.org"],
-                ("ignored-app", "server.domains.aliases"): [],
+                ("ignored-app", "domains.canonical"): ["ignored.example.org"],
+                ("ignored-app", "domains.aliases"): [],
                 ("ignored-app", "server.status_codes"): {"default": 200},
             }
         )
@@ -328,8 +372,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l1": {}}
         self._configure_returns(
             {
-                ("app-l1", "server.domains.canonical"): ["l1.example.org"],
-                ("app-l1", "server.domains.aliases"): [],
+                ("app-l1", "domains.canonical"): ["l1.example.org"],
+                ("app-l1", "domains.aliases"): [],
                 ("app-l1", "server.status_codes"): {"default": [204, "302", 301]},
             }
         )
@@ -340,11 +384,11 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l2": {}}
         self._configure_returns(
             {
-                ("app-l2", "server.domains.canonical"): {
+                ("app-l2", "domains.canonical"): {
                     "api": ["api1.l2.example.org", "api2.l2.example.org"],
                     "web": "web.l2.example.org",
                 },
-                ("app-l2", "server.domains.aliases"): [],
+                ("app-l2", "domains.aliases"): [],
                 ("app-l2", "server.status_codes"): {
                     "api": [301, 403],
                     "default": [200, 204],
@@ -361,8 +405,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         # 99 (<100) and 700 (>599) are ignored, "301" string is converted
         self._configure_returns(
             {
-                ("app-l3", "server.domains.canonical"): ["l3.example.org"],
-                ("app-l3", "server.domains.aliases"): [],
+                ("app-l3", "domains.canonical"): ["l3.example.org"],
+                ("app-l3", "domains.aliases"): [],
                 ("app-l3", "server.status_codes"): {"default": ["301", 200, 99, 700]},
             }
         )
@@ -373,8 +417,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l4": {}}
         self._configure_returns(
             {
-                ("app-l4", "server.domains.canonical"): ["l4.example.org"],
-                ("app-l4", "server.domains.aliases"): [],
+                ("app-l4", "domains.canonical"): ["l4.example.org"],
+                ("app-l4", "domains.aliases"): [],
                 ("app-l4", "server.status_codes"): {
                     "default": [301, 302, 301, 302, 200]
                 },
@@ -387,10 +431,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l5": {}}
         self._configure_returns(
             {
-                ("app-l5", "server.domains.canonical"): {
-                    "console": ["c1.l5.example.org"]
-                },
-                ("app-l5", "server.domains.aliases"): [],
+                ("app-l5", "domains.canonical"): {"console": ["c1.l5.example.org"]},
+                ("app-l5", "domains.aliases"): [],
                 ("app-l5", "server.status_codes"): {
                     "console": 301,
                     "default": [200, 204],
@@ -406,8 +448,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l6": {}}
         self._configure_returns(
             {
-                ("app-l6", "server.domains.canonical"): {"api": "api.l6.example.org"},
-                ("app-l6", "server.domains.aliases"): [],
+                ("app-l6", "domains.canonical"): {"api": "api.l6.example.org"},
+                ("app-l6", "domains.aliases"): [],
                 ("app-l6", "server.status_codes"): {"api": [301, 403], "default": 200},
             }
         )
@@ -419,8 +461,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         # everything invalid → fall back to DEFAULT_OK
         self._configure_returns(
             {
-                ("app-l7", "server.domains.canonical"): ["l7.example.org"],
-                ("app-l7", "server.domains.aliases"): [],
+                ("app-l7", "domains.canonical"): ["l7.example.org"],
+                ("app-l7", "domains.aliases"): [],
                 ("app-l7", "server.status_codes"): {
                     "default": ["x", 42.42, {}, 700, 99]
                 },
@@ -433,8 +475,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l8": {}}
         self._configure_returns(
             {
-                ("app-l8", "server.domains.canonical"): {"web": "web.l8.example.org"},
-                ("app-l8", "server.domains.aliases"): [],
+                ("app-l8", "domains.canonical"): {"web": "web.l8.example.org"},
+                ("app-l8", "domains.aliases"): [],
                 ("app-l8", "server.status_codes"): {
                     "web": ["foo", None],
                     "default": [204, 206],
@@ -448,8 +490,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l9": {}}
         self._configure_returns(
             {
-                ("app-l9", "server.domains.canonical"): {"api": "api.l9.example.org"},
-                ("app-l9", "server.domains.aliases"): [],
+                ("app-l9", "domains.canonical"): {"api": "api.l9.example.org"},
+                ("app-l9", "domains.aliases"): [],
                 ("app-l9", "server.status_codes"): {
                     "api": ["bad"],
                     "default": ["also", "bad"],
@@ -463,8 +505,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l10": {}}
         self._configure_returns(
             {
-                ("app-l10", "server.domains.canonical"): ["l10.example.org"],
-                ("app-l10", "server.domains.aliases"): ["alias.l10.example.org"],
+                ("app-l10", "domains.canonical"): ["l10.example.org"],
+                ("app-l10", "domains.aliases"): ["alias.l10.example.org"],
                 ("app-l10", "server.status_codes"): {"default": [204, 206]},
             }
         )
@@ -476,11 +518,11 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-l11": {}}
         self._configure_returns(
             {
-                ("app-l11", "server.domains.canonical"): {
+                ("app-l11", "domains.canonical"): {
                     "api": "api.l11.example.org",
                     "view": ["v1.l11.example.org", "v2.l11.example.org"],
                 },
-                ("app-l11", "server.domains.aliases"): [],
+                ("app-l11", "domains.aliases"): [],
                 ("app-l11", "server.status_codes"): {
                     "view": [301, 307],
                     "default": [200, 204],
@@ -496,12 +538,12 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         apps = {"app-sort": {}}
         self._configure_returns(
             {
-                ("app-sort", "server.domains.canonical"): [
+                ("app-sort", "domains.canonical"): [
                     "b.example.org",
                     "a.example.org",
                     "c.example.org",
                 ],
-                ("app-sort", "server.domains.aliases"): ["alias.example.org"],
+                ("app-sort", "domains.aliases"): ["alias.example.org"],
                 ("app-sort", "server.status_codes"): {"default": 200},
             }
         )
@@ -524,6 +566,118 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
 
         keys = list(out.keys())
         self.assertEqual(keys, sorted(keys))
+
+    # --------- Deploy-aware onion view ---------
+
+    ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
+
+    def _tor_app(self, canonical=None, status_codes=None, **tor):
+        returns = {
+            ("app-a", "domains.canonical"): (
+                ["a.infinito.example"] if canonical is None else canonical
+            ),
+        }
+        if status_codes is not None:
+            returns[("app-a", "server.status_codes")] = status_codes
+        self._configure_returns(returns)
+        return {"app-a": {"services": {"tor": {"enabled": True, **tor}}}}
+
+    def test_onion_exclusive_replaces_clearnet(self):
+        apps = self._tor_app(exclusive=True)
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {f"a.{self.ONION}": [200, 302, 301]})
+
+    def test_onion_dual_adds_onion_alongside_clearnet(self):
+        apps = self._tor_app(exclusive=False)
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(
+            out,
+            {
+                "a.infinito.example": [200, 302, 301],
+                f"a.{self.ONION}": [200, 302, 301],
+            },
+        )
+
+    def test_onion_inherits_clearnet_status_codes(self):
+        apps = self._tor_app(
+            canonical={"default": ["a.infinito.example"]},
+            status_codes={"default": [301, 200]},
+            exclusive=True,
+        )
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {f"a.{self.ONION}": [301, 200]})
+
+    def test_onion_disabled_app_stays_clearnet(self):
+        self._configure_returns(
+            {("app-a", "domains.canonical"): ["a.infinito.example"]}
+        )
+        apps = {"app-a": {"services": {"tor": {"enabled": False}}}}
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {"a.infinito.example": [200, 302, 301]})
+
+    def test_onion_skipped_without_node_onion(self):
+        apps = self._tor_app(exclusive=True)
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain="infinito.example",
+            node_onion="",
+        )
+        self.assertEqual(out, {"a.infinito.example": [200, 302, 301]})
+
+    # --------- Reverse-proxy bare apex gating ---------
+
+    def _proxy_apex_app(self, **tor):
+        self._configure_returns(
+            {("svc-prx-openresty", "domains.canonical"): ["infinito.example"]}
+        )
+        services = {"tor": {"enabled": True, **tor}} if tor else {}
+        return {"svc-prx-openresty": {"services": services}}
+
+    def test_apex_dropped_when_rdr_domains_not_deployed(self):
+        out = self.mod.web_health_expectations(
+            self._proxy_apex_app(),
+            group_names=["svc-prx-openresty"],
+            primary_domain="infinito.example",
+        )
+        self.assertEqual(out, {})
+
+    def test_apex_kept_when_rdr_domains_deployed(self):
+        out = self.mod.web_health_expectations(
+            self._proxy_apex_app(),
+            group_names=["svc-prx-openresty", "web-opt-rdr-domains"],
+            primary_domain="infinito.example",
+        )
+        self.assertEqual(out, {"infinito.example": [200, 302, 301]})
+
+    def test_onion_apex_dropped_when_rdr_domains_not_deployed(self):
+        out = self.mod.web_health_expectations(
+            self._proxy_apex_app(exclusive=True),
+            group_names=["svc-prx-openresty"],
+            primary_domain="infinito.example",
+            node_onion=self.ONION,
+        )
+        self.assertEqual(out, {})
 
 
 if __name__ == "__main__":

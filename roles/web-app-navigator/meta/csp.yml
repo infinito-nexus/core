@@ -1,0 +1,20 @@
+---
+whitelist:
+  script-src-elem:
+    - https://cdnjs.cloudflare.com
+    - https://code.jquery.com
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  style-src-elem:
+    - https://cdnjs.cloudflare.com
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  font-src:
+    - https://cdnjs.cloudflare.com
+  frame-src:
+    - "*.{{ DOMAIN_PRIMARY }}"
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true

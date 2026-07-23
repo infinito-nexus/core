@@ -1,16 +1,16 @@
 ---
-- name: Include dependency 'sys-daemon'
+- name: 📂 Include dependency 'sys-daemon'
   include_role:
     name: sys-daemon
   when: run_once_sys_daemon is not defined
 
-- name: "Prune old {{ SOFTWARE_NAME }} units (not current version)"
+- name: "🧹 Prune old {{ SOFTWARE_NAME }} units (not current version)"
   include_tasks: 02_prune.yml
 
-- name: "Stop services and lock timers"
+- name: "⏹️ Stop services and lock timers"
   include_tasks: 03_lockdown.yml
 
-- name: "reset (if enabled) for {{ role_name}}"
+- name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 04_reset.yml
   when: MODE_RESET | bool
 

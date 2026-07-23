@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: SPOT loader for shared services — ordered preload pass plus list_or_shoot helper for post-load role inclusions.
+  description: Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

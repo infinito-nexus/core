@@ -1,0 +1,4 @@
+---
+canonical:
+  - c.wiki.{{ DOMAIN_PRIMARY }}
+aliases: []

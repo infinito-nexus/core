@@ -1,0 +1,6 @@
+---
+_tls_enabled: "{{ lookup('tls', application_id, 'enabled') }}"
+_tls_mode: "{{ lookup('tls', application_id, 'mode') }}"
+_tls_domain: "{{ lookup('tls', application_id, 'domains.primary') }}"
+_cert_file: "{{ lookup('cert', application_id, 'files.cert') }}"
+_cert_key: "{{ lookup('cert', application_id, 'files.key') }}"

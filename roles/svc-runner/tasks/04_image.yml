@@ -1,0 +1,45 @@
+---
+- name: 📂 Create runner image build context directory
+  ansible.builtin.file: # nocheck: stack-host-consumer (include is IS_STACK_HOST-gated)
+    path: "{{ RUNNER_INSTALL_DIR }}/build"
+    state: directory
+    owner: "{{ RUNNER_USER }}"
+    group: "{{ RUNNER_USER }}"
+    mode: "0755"
+
+- name: 📄 Copy Dockerfile to build context
+  ansible.builtin.copy: # nocheck: stack-host-consumer (include is IS_STACK_HOST-gated)
+    src: Dockerfile
+    dest: "{{ RUNNER_INSTALL_DIR }}/build/Dockerfile"
+    mode: "0644"
+
+- name: 📄 Copy entrypoint to build context
+  ansible.builtin.copy: # nocheck: stack-host-consumer (include is IS_STACK_HOST-gated)
+    src: entrypoint.sh
+    dest: "{{ RUNNER_INSTALL_DIR }}/build/entrypoint.sh"
+    mode: "0755"
+
+- name: 📦 Build runner container image
+  ansible.builtin.command: # nocheck: stack-host-consumer (include is IS_STACK_HOST-gated)
+    argv:
+      - container
+      - build
+      - -t
+      - "{{ RUNNER_IMAGE_REF }}"
+      - --build-arg
+      - "RUNNER_BASE_IMAGE={{ RUNNER_BASE_IMAGE }}"
+      - --build-arg
+      - "RUNNER_UID={{ RUNNER_UID }}"
+      - --build-arg
+      - "RUNNER_GID={{ RUNNER_GID }}"
+      - "{{ RUNNER_INSTALL_DIR }}/build"
+  changed_when: true
+
+- name: 📤 Push runner image to swarm registry
+  ansible.builtin.command:
+    argv:
+      - container
+      - push
+      - "{{ RUNNER_IMAGE_REF }}"
+  changed_when: true
+  when: SWARM_REGISTRY_PREFIX | length > 0

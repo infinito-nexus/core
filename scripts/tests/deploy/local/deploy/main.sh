@@ -20,8 +20,6 @@ set -euo pipefail
 #                               apps is set, runs the entity purge
 #                               before the deploy.
 #                               Short Make alias: purge
-#   INFINITO_DEPLOY_TYPE        server | workstation | universal. Short
-#                               Make alias: type.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
@@ -72,7 +70,7 @@ elif [[ -n "${apps:-}" ]]; then
 else
 	case "${MODE}" in
 	initialize)
-		echo "=== local full deploy (type=${INFINITO_DEPLOY_TYPE}, distro=${INFINITO_DISTRO}) ==="
+		echo "=== local full deploy (distro=${INFINITO_DISTRO}) ==="
 		target="${SCRIPT_DIR}/apps/initialize/all.sh"
 		;;
 	reinstall)

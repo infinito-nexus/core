@@ -6,7 +6,6 @@ from typing import Any
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
 from utils.roles.applications.config import get
 
 
@@ -44,8 +43,8 @@ def _selection_from(group_names: Any) -> set[str]:
 class LookupModule(LookupBase):
     """Return the full redirect-mapping list for the www-redirect helper.
 
-    For every selected application, iterate ``server.domains.canonical`` and
-    ``server.domains.aliases`` and emit a ``{source, target}`` 301-mapping:
+    For every selected application, iterate ``domains.canonical`` and
+    ``domains.aliases`` and emit a ``{source, target}`` 301-mapping:
       * if the entry already begins with ``www.``: source = entry,
         target = entry without the ``www.`` prefix,
       * otherwise: source = ``www.<entry>``, target = entry.
@@ -79,11 +78,11 @@ class LookupModule(LookupBase):
     ) -> list[list[dict[str, str]]]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
-        applications = get_merged_applications(
-            variables=vars_,
-            roles_dir=kwargs.get("roles_dir"),
+        applications = lookup_loader.get(
+            "applications",
+            loader=self._loader,
             templar=getattr(self, "_templar", None),
-        )
+        ).run([], variables=vars_)[0]
 
         if not isinstance(applications, Mapping):
             return [[]]
@@ -102,14 +101,14 @@ class LookupModule(LookupBase):
             canonical = get(
                 applications,
                 app_id,
-                "server.domains.canonical",
+                "domains.canonical",
                 strict=False,
                 default=[],
             )
             aliases = get(
                 applications,
                 app_id,
-                "server.domains.aliases",
+                "domains.aliases",
                 strict=False,
                 default=[],
             )

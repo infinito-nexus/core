@@ -1,14 +1,14 @@
 ---
-- name: "Deploy xwiki.properties"
-  template:
+- name: "🚀 Deploy xwiki.properties"
+  stack_host_template:
     src: "xwiki.properties.j2"
     dest: "{{ XWIKI_HOST_PROPERTIES_PATH }}"
   notify: compose up
 
-- name: "flush compose for '{{ application_id }}'"
+- name: "🚿 flush compose for '{{ application_id }}'"
   meta: flush_handlers
 
-- name: "Wait until XWiki REST is ready (no DW redirect)"
+- name: "⏳ Wait until XWiki REST is ready (no DW redirect)"
   uri_retry:
     url: "{{ XWIKI_REST_BASE }}"
     status_code: [200, 401]
@@ -16,7 +16,7 @@
     follow_redirects: none
   register: xwiki_rest_up
   changed_when: false
-  retries: 60
+  retries: 120
   delay: 5
   until:
     - xwiki_rest_up is succeeded

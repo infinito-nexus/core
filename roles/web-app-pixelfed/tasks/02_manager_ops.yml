@@ -1,0 +1,41 @@
+---
+- name: "🚀 Deploy '{{ PIXELFED_ENTRYPOINT_HOST_ABS }}'"
+  ansible.builtin.copy:
+    src: "{{ PIXELFED_ENTRYPOINT_FILE }}"
+    dest: "{{ PIXELFED_ENTRYPOINT_HOST_ABS }}"
+    mode: "0755"
+  notify: compose up
+
+- name: "🚀 Deploy '{{ PIXELFED_WORKER_ENTRYPOINT_HOST_ABS }}'"
+  ansible.builtin.copy:
+    src: "{{ PIXELFED_WORKER_ENTRYPOINT_FILE }}"
+    dest: "{{ PIXELFED_WORKER_ENTRYPOINT_HOST_ABS }}"
+    mode: "0755"
+  notify: compose up
+
+- name: "✅ Ensure Pixelfed .env ownership and permissions for www-data"
+  ansible.builtin.file:
+    path: "{{ PIXELFED_ENV_FILE }}"
+    owner: "{{ PIXELFED_APP_USER }}"
+    group: "{{ PIXELFED_APP_USER }}"
+    mode: "0660"
+
+- name: "▶️ Start Pixelfed containers with the repo-managed entrypoint"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Pixelfed | Resolve hosting node + local container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: pixelfed
+    resolve_output_prefix: PIXELFED
+    resolve_compose_cid: "{{ PIXELFED_CONTAINER }}"
+
+- name: "🥾 Bootstrap the Pixelfed application"
+  ansible.builtin.import_tasks: 02_bootstrap.yml
+
+- name: "🥾 Bootstrap the Pixelfed administrator"
+  ansible.builtin.import_tasks: 03_administrator.yml
+
+- name: "🥾 Bootstrap the Pixelfed administrator OIDC mapping"
+  ansible.builtin.import_tasks: 04_oidc_mapping.yml
+  when: PIXELFED_OIDC_ENABLED | bool

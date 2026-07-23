@@ -7,6 +7,10 @@
 #     .env file.
 #   - The application under test is still running.
 #
+# The stage base comes from INFINITO_PLAYWRIGHT_STAGE_BASE_DIR (env handler);
+# DiD nodes run this without a generated .env, so the script falls back to
+# the same role-vars SPOT the handler reads.
+#
 # This script intentionally does NOT re-render .env. It restages the
 # role-local Playwright files (spec + companions) from the repo and reruns
 # Playwright via the same container image the deploy-time runner uses.
@@ -29,8 +33,16 @@ role_playwright_dir="$repo_root/roles/$role/files/playwright"
 spec_src="$role_playwright_dir/playwright.spec.js"
 services_yml="$repo_root/roles/test-e2e-playwright/meta/services.yml"
 
-stage_base="${TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR:-/tmp/test-e2e-playwright}"
-reports_base="${TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR:-/var/lib/infinito/logs/test-e2e-playwright}"
+stage_base="${INFINITO_PLAYWRIGHT_STAGE_BASE_DIR:-}"
+if [[ -z "$stage_base" ]]; then
+	stage_base="$(awk '$1 == "TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR:" {gsub(/"/, "", $2); print $2}' \
+		"$repo_root/roles/test-e2e-playwright/vars/main.yml")"
+fi
+[[ -n "$stage_base" ]] || {
+	echo "TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR missing in roles/test-e2e-playwright/vars/main.yml (SPOT)" >&2
+	exit 2
+}
+reports_base="${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR:?source scripts/meta/env/load.sh or run via make}"
 
 stage_dir="$stage_base/$role"
 reports_dir="$reports_base/$role"
@@ -70,6 +82,14 @@ helper_src="$repo_root/roles/test-e2e-playwright/files/service-gating.js"
 if [[ -f "$helper_src" ]]; then
 	cp "$helper_src" "$stage_dir/tests/service-gating.js"
 fi
+timeouts_src="$repo_root/roles/test-e2e-playwright/files/timeouts.js"
+if [[ -f "$timeouts_src" ]]; then
+	cp "$timeouts_src" "$stage_dir/tests/timeouts.js"
+fi
+onion_test_src="$repo_root/roles/test-e2e-playwright/files/onion-test.js"
+if [[ -f "$onion_test_src" ]]; then
+	cp "$onion_test_src" "$stage_dir/tests/onion-test.js"
+fi
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"
@@ -95,10 +115,29 @@ done
 
 cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"
 
+if [[ "${TEST_E2E_PLAYWRIGHT_NETWORK_HOST:-}" == "true" ]]; then
+	net_args=(--network host)
+	proxy_host="127.0.0.1"
+else
+	net_args=(--add-host=host.docker.internal:host-gateway)
+	proxy_host="host.docker.internal"
+fi
+
+# On an onion node the app is reached over http://<onion>; Chromium can only
+# resolve .onion through Tor, so mirror the deploy-time runner and route the
+# browser through the node SOCKS proxy. Detected from the rendered env so the
+# clearnet inner-loop stays direct. Override with PLAYWRIGHT_PROXY if set.
+proxy_env=()
+if grep -qiE '\.onion' "$env_file"; then
+	default_proxy="socks5://${proxy_host}:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
+	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
+fi
+
 exec docker run --rm \
 	--ipc=host --shm-size=1g \
-	--add-host=host.docker.internal:host-gateway \
+	"${net_args[@]}" \
 	--env-file "$env_file" \
+	"${proxy_env[@]}" \
 	-v "$stage_dir:/e2e" \
 	-v "$stage_dir/volume:/volume" \
 	-v "$reports_dir:/reports" \

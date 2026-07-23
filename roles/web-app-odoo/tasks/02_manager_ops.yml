@@ -1,0 +1,107 @@
+---
+- name: "📁 Create Odoo addons directory"
+  file:
+    path: "{{ ODOO_ADDONS_HOST }}"
+    state: directory
+    mode: "0755"
+
+- name: "🚀 Deploy Odoo configuration file"
+  template: # nocheck: stack-host-template (odoo compose dir, not project nginx tree)
+    src: "odoo.conf.j2"
+    dest: "{{ ODOO_CONF_FILE_HOST }}"
+    mode: "0644"
+  notify:
+    - compose up
+
+- name: "📋 Copy custom addons"
+  copy:
+    src: "addons/"
+    dest: "{{ ODOO_ADDONS_HOST }}"
+    mode: "0644"
+  notify:
+    - compose up
+    - compose build
+
+- name: "📋 Copy Odoo entrypoint (first-boot db init)"
+  copy:
+    src: "docker-entrypoint-odoo.sh"
+    dest: "{{ ODOO_ENTRYPOINT_SCRIPT_HOST_ABS }}"
+    mode: "0755"
+  notify:
+    - compose up
+    - compose build
+
+- name: "🐳 Docker Compose Up for '{{ application_id }}'"
+  meta: flush_handlers
+
+- name: "🔍 Resolve Odoo hosting node + local container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ ODOO_SERVICE }}"
+    resolve_output_prefix: ODOO
+    resolve_compose_cid: "{{ ODOO_CONTAINER }}"
+
+- name: "⏳ Wait for Odoo to serve /web/health inside the container"
+  ansible.builtin.shell: |
+    set -eu
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }} timeout 10 bash -c 'exec 3<>/dev/tcp/localhost/{{ container_port }} && printf "GET /web/health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && IFS= read -r _status <&3 && case "$_status" in *" 200 "*) exit 0 ;; *) exit 1 ;; esac'
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_health
+  changed_when: false
+  retries: 60
+  delay: 10
+  until: odoo_health.rc == 0
+
+- name: "🎬 Initialize Odoo database"
+  include_tasks: 01_init_database.yml
+
+- name: "📦 Install core modules"
+  include_tasks: 02_install_modules.yml
+
+- name: "📁 Create administrator user"
+  include_tasks: 05_admin.yml
+
+- name: "🔧 Configure OIDC provider"
+  include_tasks: 03_oidc.yml
+  when: ODOO_OIDC_ENABLED | bool
+
+- name: "🔧 Configure LDAP authentication"
+  include_tasks: 04_ldap.yml
+  when: ODOO_LDAP_ENABLED | bool
+
+- name: "♻️ Restart Odoo to load SQL-provisioned config (compose)"
+  ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
+  changed_when: true
+  when:
+    - (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
+    - DEPLOYMENT_MODE == 'compose'
+
+- name: "♻️ Restart Odoo to load SQL-provisioned config (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, ODOO_SERVICE) }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when:
+    - (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
+    - DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Re-resolve Odoo hosting node + container id after the provisioning restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ ODOO_SERVICE }}"
+    resolve_output_prefix: ODOO
+    resolve_compose_cid: "{{ ODOO_CONTAINER }}"
+  when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
+
+- name: "⏳ Wait for Odoo to serve /web/health after the provisioning restart"
+  ansible.builtin.shell: |
+    set -eu
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }} timeout 10 bash -c 'exec 3<>/dev/tcp/localhost/{{ container_port }} && printf "GET /web/health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && IFS= read -r _status <&3 && case "$_status" in *" 200 "*) exit 0 ;; *) exit 1 ;; esac'
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_health_after_restart
+  changed_when: false
+  retries: 60
+  delay: 10
+  until: odoo_health_after_restart.rc == 0
+  when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)

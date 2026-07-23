@@ -10,6 +10,7 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.config import LookupModule
 from utils.cache import _reset_cache_for_tests
+from utils.cache import base as cache_base
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.applications.config import AppConfigKeyError, ConfigEntryNotSetError
 from utils.roles.mapping import (
@@ -62,18 +63,20 @@ class _DummyTemplar:
 
 
 class TestConfigLookup(unittest.TestCase):
-    def setUp(self) -> None:
-        self.lm = LookupModule()
+    @classmethod
+    def setUpClass(cls) -> None:
         _reset_cache_for_tests()
+        cls.addClassCleanup(_reset_cache_for_tests)
 
-        # Create a temp working directory in /tmp and chdir into it
+    def setUp(self) -> None:
+        cache_base._reset()
+        self.lm = LookupModule()
         self._cwd = str(Path.cwd())
         self._tmpdir = tempfile.TemporaryDirectory()
         self._tmp = Path(self._tmpdir.name)
         os.chdir(self._tmp)
 
     def tearDown(self) -> None:
-        _reset_cache_for_tests()
         os.chdir(self._cwd)
         self._tmpdir.cleanup()
 
@@ -86,8 +89,6 @@ class TestConfigLookup(unittest.TestCase):
             self.lm.run(["a", "b", "c", "d"], variables={"applications": {}})
 
     def test_resolves_from_roles_without_applications_var(self) -> None:
-        # meta/services.yml file root IS the services map: the
-        # consumer path therefore reads `services.<entity>.<…>`.
         _write_config(
             self._tmp,
             "web-app-foo",
@@ -163,7 +164,7 @@ class TestConfigLookup(unittest.TestCase):
         _write_schema(
             self._tmp,
             "web-app-foo",
-            {"smtp": {"host": {}, "port": {}}},  # port is defined in schema
+            {"smtp": {"host": {}, "port": {}}},
         )
         variables = {
             "applications": {"web-app-foo": {"smtp": {"host": "mail.example.org"}}}

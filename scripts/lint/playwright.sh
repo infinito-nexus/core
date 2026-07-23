@@ -33,9 +33,12 @@ fi
 
 PERSONAS_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files/personas"
 SERVICE_GATING_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files/service-gating.js"
+ADDON_GATING_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files/addon-gating.js"
+ONION_TEST_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files/onion-test.js"
+TIMEOUTS_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files/timeouts.js"
 PLAYWRIGHT_CONFIG_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files/playwright.config.js"
 
-for asset in "${PERSONAS_SRC}" "${SERVICE_GATING_SRC}" "${PLAYWRIGHT_CONFIG_SRC}"; do
+for asset in "${PERSONAS_SRC}" "${SERVICE_GATING_SRC}" "${ADDON_GATING_SRC}" "${ONION_TEST_SRC}" "${TIMEOUTS_SRC}" "${PLAYWRIGHT_CONFIG_SRC}"; do
 	if [[ ! -e "${asset}" ]]; then
 		echo "lint-playwright: missing staging asset: ${asset}" >&2
 		exit 2
@@ -114,7 +117,11 @@ lint_one_role() {
 	config_stub >"${stage_dir}/playwright.config.js"
 
 	cp -f "${role_files_dir}"/*.js "${tests_dir}/"
+	find "${role_files_dir}" -mindepth 1 -maxdepth 1 -type d -exec cp -R {} "${tests_dir}/" \;
 	cp -f "${SERVICE_GATING_SRC}" "${tests_dir}/service-gating.js"
+	cp -f "${ADDON_GATING_SRC}" "${tests_dir}/addon-gating.js"
+	cp -f "${ONION_TEST_SRC}" "${tests_dir}/onion-test.js"
+	cp -f "${TIMEOUTS_SRC}" "${tests_dir}/timeouts.js"
 	cp -f "${PERSONAS_SRC}"/*.js "${tests_dir}/personas/"
 	cp -f "${PERSONAS_SRC}"/utils/*.js "${tests_dir}/personas/utils/"
 

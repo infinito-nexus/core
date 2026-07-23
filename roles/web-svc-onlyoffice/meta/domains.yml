@@ -1,0 +1,4 @@
+---
+canonical:
+  - onlyoffice.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -200,7 +200,7 @@ def resolve_term(
 
     Behavior:
       1) If term is a domain and exists in *global* domains mapping -> primary_domain = that term (normalized).
-      2) If term is a domain and only exists in applications[*].server.domains -> map to app_id,
+      2) If term is a domain and only exists in applications[*].domains -> map to app_id,
          and primary_domain = canonical primary from global domains mapping (first entry).
     """
     t = as_str(term)
@@ -231,7 +231,7 @@ def resolve_term(
         except AnsibleError:
             pass
 
-        # 2) Fallback: resolve via applications[*].server.domains.{canonical,aliases}
+        # 2) Fallback: resolve via applications[*].domains.{canonical,aliases}
         apps = applications or {}
         if not isinstance(apps, dict):
             raise AnsibleError(
@@ -268,9 +268,53 @@ def resolve_term(
     return app_id, primary
 
 
-def resolve_enabled(app: dict, enabled_default: bool) -> bool:
+def is_onion_domain(domain: Any) -> bool:
+    """True if the domain is a Tor v3 ``.onion`` address."""
+    return norm_domain(domain).endswith(".onion")
+
+
+def resolve_enabled(
+    app: dict, enabled_default: bool, *, primary_domain: str = ""
+) -> bool:
+    # .onion services are authenticated + encrypted by Tor itself and cannot
+    # obtain a public CA certificate, so TLS is always off for them.
+    if is_onion_domain(primary_domain):
+        return False
     override = get_path(app, "server.tls.enabled", None)
     return enabled_default if override is None else bool(override)
+
+
+def align_domain_to_consumer(
+    domains: dict,
+    app_id: str,
+    primary_domain: str,
+    *,
+    consumer: str = "",
+    variables: dict | None = None,
+    templar: Any = None,
+) -> str:
+    """Family-align a cross-app reference: when a clearnet-primary consumer
+    resolves an onion-primary target, return the target's first clearnet
+    domain from the merged map; keep ``primary_domain`` whenever the consumer
+    is unknown/onion, the target is clearnet, or no clearnet sibling exists.
+    """
+    if not is_onion_domain(primary_domain):
+        return primary_domain
+    raw = consumer or (variables or {}).get("application_id", "")
+    if templar is not None and isinstance(raw, str) and raw:
+        raw = templar.template(raw)
+    consumer_id = as_str(raw)
+    if not consumer_id or consumer_id == app_id or consumer_id not in domains:
+        return primary_domain
+    consumer_primary = resolve_primary_domain_from_app(
+        domains, consumer_id, err_prefix="tls_common"
+    )
+    if is_onion_domain(consumer_primary):
+        return primary_domain
+    for candidate in iter_domains(domains.get(app_id)):
+        if not is_onion_domain(candidate):
+            return candidate
+    return primary_domain
 
 
 def resolve_mode(
@@ -278,7 +322,11 @@ def resolve_mode(
 ) -> str:
     if not enabled:
         return "off"
-    override = get_path(app, "server.tls.flavor", None)
+    # Per-app flavor override: 'server.tls.mode' takes precedence over the
+    # legacy 'server.tls.flavor', both over the global TLS_MODE default.
+    override = get_path(app, "server.tls.mode", None)
+    if not (isinstance(override, str) and override.strip()):
+        override = get_path(app, "server.tls.flavor", None)
     if isinstance(override, str) and override.strip():
         mode = override.strip()
     else:

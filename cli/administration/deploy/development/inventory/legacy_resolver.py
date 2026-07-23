@@ -1,11 +1,13 @@
 """Default (non-variant) include resolution for the matrix planner.
 
 When NO primary app ships a `meta/variants.yml`, the planner falls back
-to this path — the `CombinedResolver` walks both `run_after` and
+to this path — the `CombinedResolver` walks `dependencies` and
 `shared:`-edges in the variant-merged services map and Jinja flags are
-evaluated at deploy time against `group_names`. This module owns the
-two helpers that path needs and nothing else; the variant-only path
-lives in `.variants`.
+evaluated at deploy time against `group_names`. `run_after` is NOT
+followed for inclusion (it is a pure ordering hint), so a variant that
+disables a service does not get the provider re-added through the
+ordering edge. This module owns the two helpers that path needs and
+nothing else; the variant-only path lives in `.variants`.
 """
 
 from __future__ import annotations
@@ -82,14 +84,18 @@ def _resolve_round_include(
     round's variant-merged services map. Returns the full include set
     in stable order (deps first per primary, primary last; primaries
     iterated in the user-provided order).
+
+    The resolver import is deferred so the host-side import surface
+    stays lean for callers that never need the variant-aware planner
+    (e.g. lint/validation).
     """
-    # Late import keeps the host-side import surface lean for callers
-    # that never need the variant-aware planner (e.g. lint/validation).
     from cli.meta.roles.applications.resolution.combined.resolver import (
         CombinedResolver,
     )
 
-    resolver = CombinedResolver(services_overrides=services_overrides)
+    resolver = CombinedResolver(
+        services_overrides=services_overrides, follow_run_after=False
+    )
     out: list[str] = []
     seen: set[str] = set()
     for app_id in primary_apps:

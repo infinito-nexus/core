@@ -1,7 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const { assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 function attachDiagnostics(page) {
@@ -46,8 +47,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("bigbluebutton enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({ page }) => {
+  test.skip(isOnionTarget(), "BigBlueButton is WebRTC (UDP/ICE); not served over Tor");
   const diagnostics = attachDiagnostics(page);
-  const response = await page.goto(`${bbbBaseUrl}/`);
+  const response = await gotoOnion(page, `${bbbBaseUrl}/`);
   expect(response, "Expected BBB landing response").toBeTruthy();
   expect(response.status(), "Expected BBB landing response to be successful").toBeLessThan(400);
   assertCspResponseHeader(response, "bigbluebutton landing");
@@ -64,8 +66,7 @@ test("bigbluebutton enforces Content-Security-Policy and exposes canonical domai
 // the Greenlight session and the Keycloak SSO. `waitUntil: 'commit'` avoids
 // stalling on any provider-side teardown.
 async function bbbLogout(page, bbbBaseUrl) {
-  await page
-    .goto(`${bbbBaseUrl}/logout`, { waitUntil: "commit" })
+  await gotoOnion(page, `${bbbBaseUrl}/logout`, { waitUntil: "commit" })
     .catch(() => {});
   await page.context().clearCookies();
 }
@@ -76,42 +77,42 @@ async function bbbLogout(page, bbbBaseUrl) {
 async function signInViaBbbOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${bbbBaseUrl}/?sso=true`);
+  await gotoOnion(page, `${bbbBaseUrl}/?sso=true`);
 
   // Greenlight's autoSignIn (App.jsx) fires on the SPA root when `?sso=true`
   // is present. Older Greenlight versions or first-render races may drop the
   // user on `/signin` instead. Fall back to clicking the explicit OIDC button
   // that Greenlight renders when `OPENID_CONNECT_*` env is set.
   await page
-    .waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), { timeout: 10_000 })
+    .waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), { timeout: resolveTimeout(10_000) })
     .catch(async () => {
       const oidcButton = page
         .locator("a, button")
         .filter({ hasText: /sign\s*in\s*with|openid|oidc|sso|single\s*sign[-\s]*on/i })
         .first();
-      if (await oidcButton.isVisible({ timeout: 5_000 }).catch(() => false)) {
-        await oidcButton.click().catch(() => {});
+      if (await oidcButton.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
+        await oidcButton.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
       }
     });
 
   await page.waitForURL((u) => u.toString().includes(expectedOidcAuthUrl), {
-    timeout: 120_000
+    timeout: resolveTimeout(120_000)
   });
 
   await performKeycloakLoginForm(page, username, password);
 
   await page.waitForURL((u) => u.toString().startsWith(`${bbbBaseUrl}/`) && !u.toString().includes("/auth/openid_connect") && !u.toString().includes("?sso=true"), {
-    timeout: 120_000
+    timeout: resolveTimeout(120_000)
   });
 
   // Authenticated Greenlight renders a header "Sign Out" control in the nav
   // menu. The unauthenticated landing has "Sign In" / "Sign Up" buttons and
   // never exposes "Sign Out". This is the load-bearing assertion that
   // distinguishes real auth from a short-circuited navigation.
-  await page.goto(`${bbbBaseUrl}/rooms`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${bbbBaseUrl}/rooms`, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected /rooms to remain accessible post-login (not to be redirected to / or /signin)`
     })
     .toMatch(new RegExp(`^${bbbBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/rooms(/|\\?|$)`));
@@ -121,7 +122,7 @@ async function assertLoggedOut(page, bbbBaseUrl, personaLabel) {
   // After logout, /rooms must no longer render the authenticated shell; the
   // unauthenticated Greenlight landing exposes "Sign In" / "Sign Up" or
   // redirects to the sign-in route.
-  await page.goto(`${bbbBaseUrl}/rooms`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${bbbBaseUrl}/rooms`, { waitUntil: "domcontentloaded" }).catch(() => {});
   await expect
     .poll(
       async () => {
@@ -142,7 +143,7 @@ async function assertLoggedOut(page, bbbBaseUrl, personaLabel) {
         return "pending";
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `${personaLabel}: expected bigbluebutton to require a new sign-in after logout`
       }
     )
@@ -150,6 +151,7 @@ async function assertLoggedOut(page, bbbBaseUrl, personaLabel) {
 }
 
 test("administrator: bigbluebutton OIDC login and logout", async ({ page }) => {
+  test.skip(isOnionTarget(), "BigBlueButton is WebRTC (UDP/ICE); not served over Tor");
   skipUnlessServiceEnabled("sso");
   const diagnostics = attachDiagnostics(page);
   await signInViaBbbOidc(page, adminUsername, adminPassword, "administrator");
@@ -159,6 +161,7 @@ test("administrator: bigbluebutton OIDC login and logout", async ({ page }) => {
 });
 
 test("biber: bigbluebutton OIDC login and logout", async ({ page }) => {
+  test.skip(isOnionTarget(), "BigBlueButton is WebRTC (UDP/ICE); not served over Tor");
   skipUnlessServiceEnabled("sso");
   const diagnostics = attachDiagnostics(page);
   await signInViaBbbOidc(page, biberUsername, biberPassword, "biber");

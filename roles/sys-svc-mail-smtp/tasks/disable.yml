@@ -1,13 +1,13 @@
 ---
 - block:
-    - name: Stop and disable postfix if present (avoid port 25 conflicts)
+    - name: ⏹️ Stop and disable postfix if present (avoid port 25 conflicts)
       service:
         name: postfix
         state: stopped
         enabled: false
       failed_when: false
 
-    - name: Remove postfix when external SMTP is used (conflicts with msmtp-mta)
+    - name: 🗑️ Remove postfix when external SMTP is used (conflicts with msmtp-mta)
       package:
         name:
           - postfix

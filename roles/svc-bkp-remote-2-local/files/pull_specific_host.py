@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
+"""Pull the newest backup generations from a remote provider via rsync.
+
+Every network operation is bounded (ssh ConnectTimeout/ServerAlive, rsync
+--timeout): the systemd unit is Type=oneshot and would otherwise inherit the
+24h default start timeout, so a stalled provider must fail fast instead of
+eating the whole job budget.
+"""
+
 import argparse
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
+
+SSH_OPTS = (
+    "-o BatchMode=yes -o ConnectTimeout=30 "
+    "-o ServerAliveInterval=15 -o ServerAliveCountMax=4"
+)
 
 
 def run_command(
@@ -45,20 +58,18 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
     remote_host = f"backup@{hostname}"
     print(f"host address:         {remote_host}")
 
-    # required: machine id
-    remote_machine_id = run_command(f'ssh "{remote_host}" sha256sum /etc/machine-id')[
-        :64
-    ]
+    remote_machine_id = run_command(
+        f'ssh {SSH_OPTS} "{remote_host}" sha256sum /etc/machine-id'
+    )[:64]
     print(f"remote machine id:    {remote_machine_id}")
 
     general_backup_machine_dir = f"{backups_dir}/{remote_machine_id}/"
     print(f"backup root:          {backups_dir}")
     print(f"backup dir:           {general_backup_machine_dir}")
 
-    # IMPORTANT:
-    # This command MUST stay exactly like this to match ssh-wrapper.sh
+    # Exception: the remote command must byte-match the ssh-wrapper.sh allowlist arm; any drift falls through to its reject echo and corrupts the session.
     remote_backup_types = run_command(
-        f'ssh "{remote_host}" '
+        f'ssh {SSH_OPTS} "{remote_host}" '
         f'"find {general_backup_machine_dir} -maxdepth 1 -type d -execdir basename {{}} ;"'
     ).splitlines()
     print(f"backup types:          {' '.join(remote_backup_types)}")
@@ -72,7 +83,6 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
         general_backup_type_dir = f"{general_backup_machine_dir}{backup_type}/"
         general_versions_dir = general_backup_type_dir
 
-        # Optional: local previous version (may not exist)
         local_previous_version_dir = ""
         try:
             local_previous_version_dir = run_command(
@@ -83,9 +93,8 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
             local_previous_version_dir = ""
         print(f"last local backup:      {local_previous_version_dir}")
 
-        # Required: remote versions
         remote_backup_versions = run_command(
-            f'ssh "{remote_host}" '
+            f'ssh {SSH_OPTS} "{remote_host}" '
             f'"ls -d {backups_dir}/{remote_machine_id}/{backup_type}/*"'
         ).splitlines()
         print(f"remote backup versions:   {' '.join(remote_backup_versions)}")
@@ -111,7 +120,8 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
         Path(local_backup_destination_path).mkdir(parents=True, exist_ok=True)
 
         rsync_command = (
-            f"rsync -abP --delete --delete-excluded "
+            f"rsync -abP --numeric-ids --delete --delete-excluded --timeout=300 "
+            f'-e "ssh {SSH_OPTS}" '
             f'--rsync-path="sudo rsync" '
             f'--link-dest="{local_previous_version_dir}" '
             f'"{remote_source_path}" "{local_backup_destination_path}"'
@@ -122,9 +132,9 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
 
         retry_count = 0
         max_retries = 12
-        retry_delay = 300  # 5 minutes
+        retry_delay = 300
         last_retry_start = 0
-        max_retry_duration = 43200  # 12 hours
+        max_retry_duration = 43200
 
         rsync_exit_code = 1
         while retry_count < max_retries:
@@ -134,14 +144,12 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
                 current_time = int(time.time())
                 last_retry_duration = current_time - last_retry_start
                 if last_retry_duration >= max_retry_duration:
-                    # keep original semantics
                     print(
                         "Last retry took more than 12 hours, increasing max retries to 12."
                     )
                     max_retries = 12
 
             last_retry_start = int(time.time())
-            # rsync_command is built from Ansible-templated config (host-trusted), not user input.
             rsync_exit_code = os.system(rsync_command)  # noqa: S605
 
             if rsync_exit_code == 0:
@@ -167,9 +175,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--folder",
-        default="/var/lib/infinito/backup",
-        help="Remote and local backup root directory "
-        "(default: /var/lib/infinito/backup)",
+        required=True,
+        help="Remote and local backup root directory",
     )
     args = parser.parse_args()
 

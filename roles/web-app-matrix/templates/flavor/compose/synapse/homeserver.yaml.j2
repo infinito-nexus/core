@@ -61,6 +61,9 @@ oidc_providers:
   - idp_id:         keycloak
     idp_name:       "{{ OIDC.BUTTON_TEXT }}"
     issuer:         "{{ OIDC.CLIENT.ISSUER_URL }}"
+{% if MATRIX_OIDC_HOST_IS_ONION | bool %}
+    skip_verification: true
+{% endif %}
     client_id:      "{{ OIDC.CLIENT.ID }}"
     client_secret:  "{{ OIDC.CLIENT.SECRET }}"
     scopes: ["openid", "profile"]

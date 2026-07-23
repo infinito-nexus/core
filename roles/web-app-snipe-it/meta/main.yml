@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Snipe‑IT is an open‑source asset management system providing a containerized deployment with centralized MariaDB integration, configurable SMTP
-    settings, and pending SAML authentication enhancements for secure asset tracking and management.
+  description: Open-source IT asset management system for tracking hardware and software inventory
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

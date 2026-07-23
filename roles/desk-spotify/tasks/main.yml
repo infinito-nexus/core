@@ -1,6 +1,6 @@
 ---
 - block:
-    - name: install spotify
+    - name: 📦 install spotify
       include_role:
         name: sys-aur-install
       vars:

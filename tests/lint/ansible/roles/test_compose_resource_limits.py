@@ -45,7 +45,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -129,8 +129,6 @@ def _find_service_line(config_path: Path, service_name: str) -> int:
             if pattern.match(raw):
                 return i
     except OSError:
-        # Best-effort lookup only: if the file can't be read, keep linting and
-        # point the annotation at line 1 as a safe fallback.
         return 1
     return 1
 
@@ -151,7 +149,6 @@ def _collect_findings(root: Path) -> list[MissingKeyFinding]:
         if not config_path.is_file():
             continue
 
-        # meta/services.yml's root IS the services map.
         services = _load_yaml(config_path)
         if not isinstance(services, dict):
             continue

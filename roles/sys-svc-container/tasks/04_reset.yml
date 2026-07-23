@@ -1,20 +1,22 @@
 ---
-- name: Gather containers
-  community.docker.docker_host_info:
+- name: 📊 Gather containers
+  community.docker.docker_host_info: # nocheck: docker-module-uses-container-cli  read-only info module; returns structured container facts the wrapper's raw JSON would need parsed
     containers: true
   register: docker_info
 
-- name: Remove containers (stops running ones)
-  community.docker.docker_container:
-    name: "{{ (item.Names | default([item.Name]))[0] | regex_replace('^/','') }}"
-    state: absent
-    force_kill: true
+- name: 🗑️ Remove containers (stops running ones)
+  ansible.builtin.command: "container rm -f {{ (item.Names | default([item.Name]))[0] | regex_replace('^/','') }}"
+  register: reset_container_rm
   loop: "{{ docker_info.containers }}"
   loop_control:
     label: "{{ (item.Names | default([item.Name]))[0] }}"
   when: docker_info.containers | length > 0
+  changed_when: reset_container_rm.rc == 0
+  failed_when: >-
+    reset_container_rm.rc != 0 and
+    'No such container' not in (reset_container_rm.stderr | default(''))
 
-- name: Trigger Docker restart
+- name: ⚡ Trigger Docker restart
   ansible.builtin.debug:
     msg: "MODE_RESET is enabled → restarting Docker"
   notify: container manager restart

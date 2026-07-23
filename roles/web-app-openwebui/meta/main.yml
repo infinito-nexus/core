@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs Open WebUI — a clean, fast chat interface for local/private AI models (e.g., via Ollama).
+  description: Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

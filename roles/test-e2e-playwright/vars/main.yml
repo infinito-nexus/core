@@ -3,17 +3,12 @@ TEST_E2E_PLAYWRIGHT_IMAGE: "{{ lookup('config', 'test-e2e-playwright', 'services
   }}"
 TEST_E2E_PLAYWRIGHT_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version') | image_version }}"
 
-# Where we stage per-role Playwright projects on the host
 TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
-# Where to store per-role reports/artifacts (host dir)
-TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "/var/lib/infinito/logs/test-e2e-playwright"
+TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "{{ [DIR_VAR_LIB, 'logs', 'test-e2e-playwright'] | path_join }}"
 
-# `--max-failures=5` bounds the retry budget when a role is broken.
 TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"
 
-# Keep false: parallelises only at the file level, so intra-file ordering
-# assumptions (rate-limit waits, shared-account mutations) stay safe.
 TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL: false
 
 TEST_E2E_PLAYWRIGHT_APPS: >-
@@ -28,3 +23,19 @@ TEST_E2E_PLAYWRIGHT_APPS: >-
 TEST_E2E_PLAYWRIGHT_SHARED_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_shared"
 TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/node_modules"
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
+
+TEST_E2E_PLAYWRIGHT_IS_ONION: "{{ lookup('tls', application_id, 'url.base') is search('\\.onion') }}"
+TEST_E2E_PLAYWRIGHT_PROXY: "{{ ('socks5://' ~ lookup('tor_socks', '127.0.0.1' if DEPLOYMENT_MODE == 'swarm' else 'host.docker.internal')) if (TEST_E2E_PLAYWRIGHT_IS_ONION
+  | bool) else '' }}"
+
+TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT: 5400
+TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE: "{{ TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else test_e2e_playwright_run_timeout
+  }}"
+TEST_E2E_PLAYWRIGHT_ONION_TEST_TIMEOUT: 600000
+TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: true
+TEST_E2E_PLAYWRIGHT_WAIT_RETRIES: 30
+TEST_E2E_PLAYWRIGHT_WAIT_DELAY: 5
+TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES: 40
+TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY: 15
+TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT: 60000
+TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT: 180000

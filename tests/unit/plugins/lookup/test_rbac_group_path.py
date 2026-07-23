@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -16,15 +17,14 @@ def _vars(applications, rbac_group_name="roles"):
 class TestRbacGroupPathLookup(unittest.TestCase):
     def setUp(self):
         self.lookup = LookupModule()
+        self.lookup._loader = mock.MagicMock()
 
-        def _applications_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("applications", {})
+        def _applications_from_vars(_terms, variables=None, **_kwargs):
+            return [(variables or {}).get("applications", {})]
 
-        patcher = patch(
-            "plugins.lookup.rbac_group_path.get_merged_applications",
-            side_effect=_applications_from_vars,
-        )
-        patcher.start()
+        patcher = patch("plugins.lookup.rbac_group_path.lookup_loader")
+        loader_mock = patcher.start()
+        loader_mock.get.return_value = mock.MagicMock(run=_applications_from_vars)
         self.addCleanup(patcher.stop)
 
         self.non_tenant_apps = {
@@ -46,7 +46,7 @@ class TestRbacGroupPathLookup(unittest.TestCase):
         self.tenant_apps = {
             "web-app-wordpress": {
                 "rbac": {
-                    "tenancy": {"axis": "domain", "source": "server.domains.canonical"},
+                    "tenancy": {"axis": "domain", "source": "domains.canonical"},
                     "roles": {
                         "editor": {"description": "Editor"},
                         "subscriber": {"description": "Subscriber"},
@@ -218,6 +218,7 @@ class TestRbacGroupPathReadsMergedApplications(unittest.TestCase):
 
     def test_falls_back_to_merged_when_variables_lack_rbac(self):
         lookup = LookupModule()
+        lookup._loader = mock.MagicMock()
 
         host_vars_applications = {
             "web-app-joomla": {
@@ -236,10 +237,10 @@ class TestRbacGroupPathReadsMergedApplications(unittest.TestCase):
             },
         }
 
-        with patch(
-            "plugins.lookup.rbac_group_path.get_merged_applications",
-            return_value=merged_applications,
-        ):
+        with mock.patch("plugins.lookup.rbac_group_path.lookup_loader") as loader_mock:
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [merged_applications]
+            )
             result = lookup.run(
                 [],
                 variables={

@@ -1,0 +1,8 @@
+---
+- services:
+    tor:
+      enabled: true
+- services:
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override

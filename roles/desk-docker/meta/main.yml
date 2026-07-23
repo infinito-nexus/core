@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs Docker and Docker Compose, and adds a user to the Docker group for non-root usage on development machines.
+  author: Kevin Veen-Birkenbach
+  description: Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

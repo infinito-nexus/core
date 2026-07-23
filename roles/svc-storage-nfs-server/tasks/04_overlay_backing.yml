@@ -1,0 +1,12 @@
+---
+- name: "🔎 Detect the filesystem backing the NFS export base"
+  ansible.builtin.command:
+    cmd: "findmnt -no FSTYPE --target {{ lookup('nfs_export_base') }}"
+  register: _nfs_export_base_fstype
+  changed_when: false
+
+- name: "🩹 Back the export base with an ext4 loopback image (CI/dev overlay host)"
+  ansible.builtin.include_tasks: 04_overlay_backing/ext4_loop.yml
+  when:
+    - (_nfs_export_base_fstype.stdout | trim) == 'overlay'
+    - RUNTIME in ['dev', 'act', 'github']

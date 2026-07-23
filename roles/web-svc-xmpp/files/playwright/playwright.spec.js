@@ -1,7 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const baseUrl = normalizeBaseUrl(process.env.XMPP_BASE_URL || "");
@@ -18,7 +19,7 @@ test("baseline: ejabberd HTTP API responds on the canonical domain", async ({ pa
   // web-facing surfaces; XMPP client login itself runs over
   // 5222/5269 and is not Playwright-testable via HTTP. The
   // baseline asserts the role at least binds correctly.
-  const r = await page.goto(`${baseUrl}/admin/`);
+  const r = await gotoOnion(page, `${baseUrl}/admin/`);
   expect(r).toBeTruthy();
   expect(r.status()).toBeLessThan(500);
   expect(r.url().includes(canonicalDomain)).toBe(true);
@@ -26,7 +27,7 @@ test("baseline: ejabberd HTTP API responds on the canonical domain", async ({ pa
 
 test("LDAP: ejabberd backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
-  const r = await page.goto(`${baseUrl}/admin/`);
+  const r = await gotoOnion(page, `${baseUrl}/admin/`);
   expect(r).toBeTruthy();
   expect(r.status()).toBeLessThan(500);
 });
@@ -50,12 +51,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|users|nodes|status|settings)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|users|nodes|status|settings/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

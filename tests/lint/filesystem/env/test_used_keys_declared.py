@@ -26,14 +26,11 @@ from __future__ import annotations
 import re
 import unittest
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from utils.cache.files import iter_non_ignored_files, read_text
 
 from . import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _SH_REF_RE = re.compile(r"\$\{?(?P<key>INFINITO_[A-Z0-9_]+)")
 _PY_LITERAL_RE = re.compile(r"[\"'](?P<key>INFINITO_[A-Z0-9_]+)[\"']")
@@ -41,8 +38,6 @@ _DEFAULT_ENV_KEY_RE = re.compile(r"^\s*(?P<key>INFINITO_[A-Z0-9_]+)\s*=")
 _HANDLER_LITERAL_RE = re.compile(r"[\"'](?P<key>INFINITO_[A-Z0-9_]+)[\"']")
 _NOCHECK_RE = re.compile(r"#\s*nocheck\b")
 
-# These trees define the registry / document it; references in them
-# describe the rule, they do not consume the keys.
 _EXCLUDED_PREFIXES = (
     "tests/lint/",
     "utils/env/handlers/",
@@ -75,7 +70,12 @@ def _registered_keys() -> set[str]:
                 keys.add(match.group("key"))
 
     handlers_dir = PROJECT_ROOT / "utils" / "env" / "handlers"
-    for module in sorted(handlers_dir.glob("*.py")):
+    modules = sorted(
+        Path(p)
+        for p in iter_non_ignored_files(extensions=(".py",))
+        if Path(p).is_relative_to(handlers_dir)
+    )
+    for module in modules:
         if module.name == "__init__.py":
             continue
         text = read_text(str(module))

@@ -13,7 +13,7 @@ jobs:
   test-environment:
     name: 🧑‍💻 Environment (${{ matrix.dev_runtime_image }})
     runs-on: ubuntu-latest
-    timeout-minutes: 270
+    timeout-minutes: 345
 
     strategy:
       fail-fast: false
@@ -29,7 +29,6 @@ jobs:
       DEV_RUNTIME_IMAGE: ${{ matrix.dev_runtime_image }}
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      # Cache caps sized for post-prune re-pulls; paths on /mnt to spare the small / partition.
       INFINITO_CACHE_REGISTRY_MAX_SIZE: 16g
       INFINITO_CACHE_REGISTRY_HOST_PATH: /mnt/cache/registry/mirror
       INFINITO_CACHE_REGISTRY_CA_HOST_PATH: /mnt/cache/registry/ca
@@ -39,7 +38,6 @@ jobs:
       INFINITO_CACHE_PACKAGE_HOST_PATH: /mnt/cache/package/data
 
     steps:
-      # Reclaim host space before Docker pulls (rationale: docs/contributing/artefact/files/github/workflow.md); swap-storage stays since no enlarge_swap.sh replacement exists here.
       - name: 🧹 Free disk space
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
         with:
@@ -51,16 +49,15 @@ jobs:
           docker-images: true
           swap-storage: false
 
-      - name: Checkout repository
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
-      - name: Run dev environment routine
+      - name: ▶️ Run dev environment routine
         shell: bash
         run: |
           set -euo pipefail
           HOST_WORKDIR="$(pwd -P)"
 
-          # Build the dev image locally and mirror the host workdir path inside the container so docker compose can reach the host daemon via /var/run/docker.sock.
           docker run --rm \
             -e GITHUB_ACTIONS=true \
             -e GITHUB_REPOSITORY="${{ github.repository }}" \

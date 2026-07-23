@@ -1,0 +1,10 @@
+---
+- name: "🚿 Flush compose handlers for '{{ application_id }}'"
+  meta: flush_handlers
+
+- name: "🚀 Post-deploy steps for '{{ application_id }}'"
+  ansible.builtin.include_tasks:
+    file: post_deploy.yml
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true

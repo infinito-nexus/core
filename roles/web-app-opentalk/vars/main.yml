@@ -1,29 +1,27 @@
 ---
+# LiveKit runs in host network mode (7880/7881 not Docker-mapped). The
+# controller uses the dedicated confidential Keycloak client
+# `opentalk-controller` because the shared `infinito.nexus` client is public
+# and cannot introspect access tokens; the same client doubles as the admin
+# Web API user-search backend (serviceAccountsEnabled + view-users role).
+# OPENTALK_OPENCLOUD_URL is gated behind group_names because the `tls`
+# lookup raises for roles outside the current host's scope.
 application_id: "web-app-opentalk"
 entity_name: "{{ application_id | get_entity_name }}"
 
 OPENTALK_CTRL_CONTAINER: "{{ lookup('config', application_id, 'services.controller.name') }}"
-OPENTALK_CTRL_IMAGE: "{{ lookup('config', application_id, 'services.controller.image') }}"
-OPENTALK_CTRL_VERSION: "{{ lookup('config', application_id, 'services.controller.version') }}"
 OPENTALK_CTRL_HTTP_PORT: "{{ lookup('config', application_id, 'services.controller.ports.local.http') }}"
+OPENTALK_CTRL_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.controller.ports.internal.http') }}"
 
 OPENTALK_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.opentalk.name') }}"
-OPENTALK_FRONTEND_IMAGE: "{{ lookup('config', application_id, 'services.opentalk.image') }}"
-OPENTALK_FRONTEND_VERSION: "{{ lookup('config', application_id, 'services.opentalk.version') }}"
 OPENTALK_FRONTEND_HTTP_PORT: "{{ lookup('config', application_id, 'services.opentalk.ports.local.http') }}"
 
 OPENTALK_LIVEKIT_CONTAINER: "{{ lookup('config', application_id, 'services.livekit.name') }}"
-OPENTALK_LIVEKIT_IMAGE: "{{ lookup('config', application_id, 'services.livekit.image') }}"
-OPENTALK_LIVEKIT_VERSION: "{{ lookup('config', application_id, 'services.livekit.version') }}"
-# LiveKit runs in host network mode; control ports 7880 (HTTP API) and 7881
-# (TCP fallback) are exposed by host networking, not via Docker port mapping.
-OPENTALK_LIVEKIT_HTTP_PORT: 7880
-OPENTALK_LIVEKIT_TCP_PORT: 7881
+OPENTALK_LIVEKIT_HTTP_PORT: "{{ lookup('config', application_id, 'services.livekit.ports.internal.http') }}"
+OPENTALK_LIVEKIT_TCP_PORT: "{{ lookup('config', application_id, 'services.livekit.ports.internal.tcp') }}"
+OPENTALK_LIVEKIT_TURN_UDP_PORT: "{{ lookup('config', application_id, 'services.livekit.ports.public.stun_turn') }}"
 OPENTALK_LIVEKIT_RTC_START: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.start') }}"
 OPENTALK_LIVEKIT_RTC_END: "{{ lookup('config', application_id, 'services.livekit.ports.public.relay.end') }}"
-
-OPENTALK_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-OPENTALK_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
 
 OPENTALK_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENTALK_DOMAIN: "{{ lookup('domain', application_id) }}"
@@ -33,51 +31,24 @@ OPENTALK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enable
 OPENTALK_LIVEKIT_API_KEY: "controller"
 OPENTALK_LIVEKIT_API_SECRET: "{{ lookup('config', application_id, 'credentials.livekit_api_secret') }}"
 
-# Object store is consumed via the engine-agnostic `objstore` lookup:
-# `lookup('objstore', application_id, ...)` resolves either an embedded
-# instance (shared:false) or the shared central provider (shared:true).
+OPENTALK_OBJSTORE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, lookup('objstore', application_id, 'engine')) }}"
 
-# RabbitMQ broker that ferries recording task hand-offs between the
-# controller and the recorder service.
 OPENTALK_RABBIT_CONTAINER: "{{ lookup('config', application_id, 'services.rabbit.name') }}"
-OPENTALK_RABBIT_IMAGE: "{{ lookup('config', application_id, 'services.rabbit.image') }}"
-OPENTALK_RABBIT_VERSION: "{{ lookup('config', application_id, 'services.rabbit.version') }}"
 OPENTALK_RABBIT_QUEUE: "opentalk_recorder"
 
-# Recorder turns a meeting room into an MP4 archive on demand. It
-# authenticates as a service account via its own confidential Keycloak
-# client and consumes recording jobs from the RabbitMQ queue above.
 OPENTALK_RECORDER_CONTAINER: "{{ lookup('config', application_id, 'services.recorder.name') }}"
-OPENTALK_RECORDER_IMAGE: "{{ lookup('config', application_id, 'services.recorder.image') }}"
-OPENTALK_RECORDER_VERSION: "{{ lookup('config', application_id, 'services.recorder.version') }}"
 OPENTALK_RECORDER_OIDC_CLIENT_ID: "opentalk-recorder"
 OPENTALK_RECORDER_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'credentials.recorder_oidc_client_secret') }}"
 
-# Keycloak Admin API (controller user-search backend)
 OPENTALK_KEYCLOAK_BASE_URL: "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$','') }}"
+OPENTALK_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 OPENTALK_KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 
-# The shared `infinito.nexus` Keycloak client is public so it cannot
-# introspect access tokens. The controller therefore uses its own dedicated
-# confidential client (`opentalk-controller`), provisioned by tasks/main.yml.
-# The frontend keeps the shared public client for the browser PKCE flow.
 OPENTALK_CTRL_OIDC_CLIENT_ID: "opentalk-controller"
 OPENTALK_CTRL_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'credentials.controller_oidc_client_secret') }}"
 
-# The same confidential client is also reused for the Keycloak admin Web API
-# user-search backend; it has `serviceAccountsEnabled` and the `view-users`
-# realm-management role to look up users in the realm.
 OPENTALK_KEYCLOAK_CLIENT_ID: "{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}"
 OPENTALK_KEYCLOAK_CLIENT_SECRET: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"
 
-# Cross-link to OpenCloud (used by frontend env to expose file picker).
-# `tls` lookup raises when the role is not in scope, so gate the URL behind
-# the group_names check and fall back to an empty string when OpenCloud is
-# not part of the current host's role set.
 OPENTALK_OPENCLOUD_ENABLED: "{{ ('web-app-opencloud' in group_names) | lower }}"
 OPENTALK_OPENCLOUD_URL: "{{ lookup('tls', 'web-app-opencloud', 'url.base') if OPENTALK_OPENCLOUD_ENABLED | bool else '' }}"
-
-OPENTALK_TURN_ENABLED: "{{ lookup('config', application_id, 'services.coturn.enabled') }}"
-OPENTALK_TURN_HOST: "{{ lookup('domain', 'web-svc-coturn') }}"
-OPENTALK_TURN_PORT: "{{ lookup('config', 'web-svc-coturn', 'services.coturn.ports.public.stun_turn') }}"
-OPENTALK_TURN_SECRET: "{{ lookup('config', 'web-svc-coturn', 'credentials.auth_secret') }}"

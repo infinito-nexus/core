@@ -1,9 +1,5 @@
 name: "🏃 Test: Runner smoke (self-hosted)"
 
-# Dispatched by roles/svc-runner/files/test.sh after a runner deploy: verifies a
-# self-hosted runner picks up a CI job and has Docker (DooD) access. Full deploy
-# capability is covered by the svc-runner DinD test (test-e2e-cli).
-
 on:
   workflow_dispatch:
     inputs:
@@ -32,10 +28,10 @@ jobs:
   smoke:
     name: 🏃 Runner pickup + DooD
     runs-on: [self-hosted, linux]
-    timeout-minutes: 360
+    timeout-minutes: 345
 
     steps:
-      - name: Fix workspace ownership
+      - name: 🔧 Fix workspace ownership
         shell: bash
         run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" 2>/dev/null || true
 
@@ -43,7 +39,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
 
-      - name: Verify runner pickup + Docker (DooD) access
+      - name: ✅ Verify runner pickup + Docker (DooD) access
         shell: bash
         run: |
           set -euo pipefail
@@ -52,7 +48,7 @@ jobs:
           docker info >/dev/null
           docker run --rm hello-world
 
-      - name: Dump runner state (on failure)
+      - name: 🔍 Dump runner state (on failure)
         if: failure()
         shell: bash
         run: ./scripts/github/runner/dump_state.sh "runner-smoke failure"

@@ -1,5 +1,5 @@
 ---
-- name: "XWIKI | Check if Main.WebHome exists"
+- name: "🔎 XWIKI | Check if Main.WebHome exists"
   uri_retry:
     url: "{{ [XWIKI_REST_BASE, 'wikis/xwiki/spaces/Main/pages/WebHome'] | url_join }}"
     method: GET
@@ -11,11 +11,11 @@
   register: _main_webhome_check
   changed_when: false
 
-- name: "XWIKI | Fetch REST session + form token (Main.WebHome write ops)"
+- name: "⬇️ XWIKI | Fetch REST session + form token (Main.WebHome write ops)"
   include_tasks: _rest_session.yml
   when: _main_webhome_check.status == 404
 
-- name: "XWIKI | Create Main.WebHome if missing"
+- name: "📁 XWIKI | Create Main.WebHome if missing"
   uri_retry:
     url: "{{ [XWIKI_REST_BASE, 'wikis/xwiki/spaces/Main/pages/WebHome'] | url_join }}"
     method: PUT

@@ -1,0 +1,46 @@
+---
+credentials:
+  secret_key_base:
+    description: Rails secret key base used to verify signed cookies and tokens
+    algorithm: random_hex
+    validation: "^[a-f0-9]{128}$"
+  otp_key_base:
+    description: Key base encrypting two-factor authentication secrets
+    algorithm: random_hex
+    validation: "^[a-f0-9]{128}$"
+  db_key_base:
+    description: Key base encrypting database columns (CI variables, tokens)
+    algorithm: random_hex
+    validation: "^[a-f0-9]{128}$"
+  encrypted_settings_key_base:
+    description: Key base encrypting settings files
+    algorithm: random_hex
+    validation: "^[a-f0-9]{128}$"
+  active_record_encryption_primary_key:
+    description: Primary key for Active Record encrypted columns
+    algorithm: random_hex_16
+    validation: "^[a-f0-9]{32}$"
+  active_record_encryption_deterministic_key:
+    description: Deterministic key for Active Record encrypted columns
+    algorithm: random_hex_16
+    validation: "^[a-f0-9]{32}$"
+  active_record_encryption_key_derivation_salt:
+    description: Key derivation salt for Active Record encryption
+    algorithm: random_hex_16
+    validation: "^[a-f0-9]{32}$"
+  gitlab_shell_secret:
+    description: Shared token authenticating gitlab-shell and gitaly against the rails API
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{64}$"
+  gitaly_token:
+    description: Auth token shared between rails and the gitaly gRPC listener
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{64}$"
+  workhorse_secret:
+    description: 32-byte value shared between workhorse and rails, mounted base64-encoded
+    algorithm: random_hex_16
+    validation: "^[a-f0-9]{32}$"
+  openid_connect_signing_key:
+    description: RSA private key signing GitLab's own OpenID Connect provider tokens
+    algorithm: rsa_pem_2048
+    validation: "^-----BEGIN RSA PRIVATE KEY-----[\\s\\S]+-----END RSA PRIVATE KEY-----\\s*$"

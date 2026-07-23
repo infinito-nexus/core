@@ -3,40 +3,44 @@
 # always active (mu-plugins cannot be deactivated from the admin UI).
 # Currently installs the OIDC→RBAC role mapper.
 
-- name: "Ensure mu-plugins directory exists inside the container"
-  command: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER }}
+- name: "✅ Ensure mu-plugins directory exists inside the container"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     mkdir -p {{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins
   changed_when: false
 
-- name: "Copy infinito-oidc-rbac-mapper.php into the container"
-  command: >
-    container cp
-    {{ [role_path, 'files/mu-plugins/infinito-oidc-rbac-mapper.php'] | path_join }}
-    {{ WORDPRESS_CONTAINER }}:{{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-oidc-rbac-mapper.php
+- name: "📋 Copy infinito-oidc-rbac-mapper.php into the container"
+  shell: >
+    container exec -i {{ WORDPRESS_CONTAINER_ADDRESS }}
+    tee {{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-oidc-rbac-mapper.php
+    > /dev/null
+  args:
+    stdin: "{{ lookup('file', [role_path, 'files/mu-plugins/infinito-oidc-rbac-mapper.php'] | path_join) }}"
   register: cp_mu_plugin
   changed_when: cp_mu_plugin.rc == 0
   failed_when: cp_mu_plugin.rc != 0
 
-- name: "Ensure WordPress user owns the mu-plugin file"
-  command: >
-    container exec {{ WORDPRESS_CONTAINER }}
+- name: "✅ Ensure WordPress user owns the mu-plugin file"
+  shell: >
+    container exec {{ WORDPRESS_CONTAINER_ADDRESS }}
     chown {{ WORDPRESS_USER }}:{{ WORDPRESS_USER }}
     {{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-oidc-rbac-mapper.php
   changed_when: false
 
-- name: "Copy infinito-http-ca-trust.php into the container"
-  command: >
-    container cp
-    {{ [role_path, 'files/mu-plugins/infinito-http-ca-trust.php'] | path_join }}
-    {{ WORDPRESS_CONTAINER }}:{{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-http-ca-trust.php
+- name: "📋 Copy {{ WORDPRESS_CA_TRUST_MU_PLUGIN_FILE }} into the container"
+  shell: >
+    container exec -i {{ WORDPRESS_CONTAINER_ADDRESS }}
+    tee {{ WORDPRESS_CA_TRUST_MU_PLUGIN_PATH }}
+    > /dev/null
+  args:
+    stdin: "{{ lookup('file', [role_path, 'files/mu-plugins', WORDPRESS_CA_TRUST_MU_PLUGIN_FILE] | path_join) }}"
   register: cp_ca_trust_mu_plugin
   changed_when: cp_ca_trust_mu_plugin.rc == 0
   failed_when: cp_ca_trust_mu_plugin.rc != 0
 
-- name: "Ensure WordPress user owns the CA-trust mu-plugin file"
-  command: >
-    container exec {{ WORDPRESS_CONTAINER }}
+- name: "✅ Ensure WordPress user owns the CA-trust mu-plugin file"
+  shell: >
+    container exec {{ WORDPRESS_CONTAINER_ADDRESS }}
     chown {{ WORDPRESS_USER }}:{{ WORDPRESS_USER }}
-    {{ WORDPRESS_DOCKER_HTML_PATH }}/wp-content/mu-plugins/infinito-http-ca-trust.php
+    {{ WORDPRESS_CA_TRUST_MU_PLUGIN_PATH }}
   changed_when: false

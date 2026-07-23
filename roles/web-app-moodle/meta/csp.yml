@@ -1,0 +1,16 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-attr:
+    unsafe-eval: true
+  style-src-attr:
+    unsafe-inline: true
+    unsafe-eval: true
+whitelist:
+  font-src:
+    - "data:"
+    - "blob:"
+  script-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root

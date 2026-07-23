@@ -33,7 +33,7 @@ def run_ansible_playbook(
 ) -> None:
     """Run ansible-playbook with the given parameters and execution modes."""
     start_time = datetime.datetime.now(tz=datetime.UTC)
-    print(f"\n▶️ Script started at: {start_time.isoformat()}\n")
+    print(f"\n▶️ Script started at: {start_time.isoformat()}\n", flush=True)
 
     # ---------------------------------------------------------
     # 1) Cleanup Phase (wrapper-level)
@@ -42,16 +42,16 @@ def run_ansible_playbook(
         print("\n🧹 Cleaning up...\n", flush=True)
         run_make(repo_root, "clean")
     else:
-        print("\n🧹 Cleanup skipped (MODE_CLEANUP not set or False)\n")
+        print("\n🧹 Cleanup skipped (MODE_CLEANUP not set or False)\n", flush=True)
 
     # ---------------------------------------------------------
     # 2) Build Phase
     # ---------------------------------------------------------
     if not skip_build:
-        print("\n🛠️  Running project build (make setup)...\n")
+        print("\n🛠️  Running project build (make setup)...\n", flush=True)
         run_make(repo_root, "setup")
     else:
-        print("\n🛠️  Build skipped (--skip-build)\n")
+        print("\n🛠️  Build skipped (--skip-build)\n", flush=True)
 
     # ---------------------------------------------------------
     # 3) `disable` env var consistency guard
@@ -69,9 +69,12 @@ def run_ansible_playbook(
     # 4) Inventory Validation Phase
     # ---------------------------------------------------------
     if modes.get("MODE_ASSERT") is False:
-        print("\n🔍 Inventory assertion explicitly disabled (MODE_ASSERT=false)\n")
+        print(
+            "\n🔍 Inventory assertion explicitly disabled (MODE_ASSERT=false)\n",
+            flush=True,
+        )
     else:
-        print("\n🔍 Validating inventory before deployment...\n")
+        print("\n🔍 Validating inventory before deployment...\n", flush=True)
         try:
             run(
                 [sys.executable, inventory_validator_path, str(Path(inventory).parent)],
@@ -128,7 +131,7 @@ def run_ansible_playbook(
     except OSError:
         log_offset_before = 0
 
-    print("\n🚀 Launching Ansible Playbook...\n")
+    print("\n🚀 Launching Ansible Playbook...\n", flush=True)
     result = subprocess.run(cmd, cwd=repo_root, check=False)
 
     if result.returncode != 0:

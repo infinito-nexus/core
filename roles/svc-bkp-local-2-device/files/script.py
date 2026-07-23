@@ -49,7 +49,13 @@ def main():
 
     print("Starting synchronization...")
     try:
-        rsync_command = ["rsync", "-abP", "--delete", "--delete-excluded"]
+        rsync_command = [
+            "rsync",
+            "-abP",
+            "--numeric-ids",
+            "--delete",
+            "--delete-excluded",
+        ]
         if previous_version_path is not None:
             rsync_command.append("--link-dest=" + previous_version_path)
         rsync_command.extend([source_path, current_version_path])

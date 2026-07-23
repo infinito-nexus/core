@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Detects anonymous Docker volumes not bound to containers (unless whitelisted) and alerts.
+  description: Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

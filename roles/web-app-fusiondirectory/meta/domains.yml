@@ -1,0 +1,4 @@
+---
+canonical:
+  - fd.{{ DOMAIN_PRIMARY }}
+aliases: []

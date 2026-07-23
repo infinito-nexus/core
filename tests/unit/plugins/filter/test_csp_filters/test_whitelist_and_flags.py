@@ -9,21 +9,19 @@ class TestCspWhitelistAndFlags(unittest.TestCase):
         self.apps = {
             "app1": {
                 "docker": {"services": {"matomo": {"enabled": True}}},
-                "server": {
-                    "csp": {
-                        "whitelist": {
-                            "script-src-elem": ["https://cdn.example.com"],
-                            "connect-src": "https://api.example.com",
-                        },
-                        "flags": {
-                            "script-src": {"unsafe-eval": True, "unsafe-inline": False},
-                            "style-src": {"unsafe-inline": True},
-                        },
-                        "hashes": {
-                            "script-src": ["console.log('hello');"],
-                            "style-src": ["body { background: #fff; }"],
-                        },
-                    }
+                "csp": {
+                    "whitelist": {
+                        "script-src-elem": ["https://cdn.example.com"],
+                        "connect-src": "https://api.example.com",
+                    },
+                    "flags": {
+                        "script-src": {"unsafe-eval": True, "unsafe-inline": False},
+                        "style-src": {"unsafe-inline": True},
+                    },
+                    "hashes": {
+                        "script-src": ["console.log('hello');"],
+                        "style-src": ["body { background: #fff; }"],
+                    },
                 },
             },
             "app2": {},

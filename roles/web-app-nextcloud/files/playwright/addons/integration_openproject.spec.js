@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_openproject: two-way OAuth coupling provisioned and connectable to partner OpenProject", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_openproject");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -12,9 +14,9 @@ test("integration integration_openproject: two-way OAuth coupling provisioned an
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/openproject", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -25,7 +27,7 @@ test("integration integration_openproject: two-way OAuth coupling provisioned an
     await expect(
       adminSection,
       "the OpenProject integration admin settings section must render when the addon is enabled"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const oauthConfigured = page
       .locator('input[id*="openproject-oauth-client-id"], input[id*="client-id"], input[id*="client-secret"]')
@@ -35,7 +37,7 @@ test("integration integration_openproject: two-way OAuth coupling provisioned an
     await expect(
       oauthConfigured,
       "the admin panel must show the provisioned OAuth client (proves the two-way OAuth pair is registered on BOTH sides). When integration_openproject is enabled but this is absent, the coupling failed to provision — the test MUST fail here, not skip."
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
     const adminConfig = page.locator(

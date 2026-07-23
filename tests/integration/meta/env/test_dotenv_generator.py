@@ -23,20 +23,15 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.env.handlers import GHA_STATIC_KEYS, PASSTHROUGH_STATIC_KEYS
 
 from . import PROJECT_ROOT
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 STATIC_ENV = PROJECT_ROOT / "default.env"
 
-# Baseline keys the rest of the codebase relies on after a clean
-# (non-GHA, non-act) generation.
 EXPECTED_BASELINE_KEYS = frozenset(
     {
         "INFINITO_SRC_DIR",
@@ -57,7 +52,6 @@ EXPECTED_BASELINE_KEYS = frozenset(
         "INFINITO_DOCKER_VOLUME",
         "INFINITO_DOCKER_MOUNT",
         "INFINITO_OUTER_NETWORK_MTU",
-        "INFINITO_DEPLOY_TYPE",
         "INFINITO_TEST_PATTERN",
         "INFINITO_TEST_RUNNER",
         "INFINITO_LINT_RUNNER",
@@ -88,8 +82,6 @@ EXPECTED_BASELINE_KEYS = frozenset(
     }
 )
 
-# Same default.env parser as the generator (kept here to avoid importing
-# the generator module just for the helper).
 _LINE_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$")
 
 
@@ -137,10 +129,17 @@ def _dynamic_handler_static_reads() -> set[str]:
 
     handlers_dir = PROJECT_ROOT / "utils" / "env" / "handlers"
     referenced: set[str] = set()
-    for module_path in sorted(handlers_dir.glob("*.py")):
+    module_paths = sorted(
+        Path(p)
+        for p in iter_project_files(extensions=(".py",))
+        if Path(p).is_relative_to(handlers_dir)
+    )
+    for module_path in module_paths:
         if module_path.name in ("__init__.py", "passthrough.py", "gha_passthrough.py"):
             continue
-        module_name = f"utils.env.handlers.{module_path.stem}"
+        module_name = "utils.env.handlers." + ".".join(
+            module_path.relative_to(handlers_dir).with_suffix("").parts
+        )
         module = importlib.import_module(module_name)
         referenced.update(getattr(module, "STATIC_READS", ()))
     return referenced
@@ -190,10 +189,6 @@ class TestDotenvSmoke(unittest.TestCase):
 
     def test_clean_run_produces_expected_keys(self) -> None:
         with tempfile.TemporaryDirectory() as td:
-            # Run the generator with a clean env (no INFINITO_DISTRO
-            # override, no GITHUB_ACTIONS). The generator always writes
-            # to ``<repo-root>/.env``, where repo-root is computed from
-            # its own location -- so we redirect via a copy.
             env = {
                 k: v
                 for k, v in os.environ.items()
@@ -207,7 +202,6 @@ class TestDotenvSmoke(unittest.TestCase):
                     "GITHUB_REPOSITORY_OWNER",
                 )
             }
-            # Re-add PATH so subprocess can find python3, df, etc.
             env.setdefault("PATH", os.environ.get("PATH", ""))
 
             result = subprocess.run(
@@ -232,14 +226,12 @@ class TestDotenvSmoke(unittest.TestCase):
                 missing,
                 f"Generated .env is missing expected baseline keys: {sorted(missing)}",
             )
-            # Spot-check derived value
             self.assertEqual(
                 values.get("INFINITO_CONTAINER"),
                 f"infinito_nexus_{values.get('INFINITO_DISTRO')}",
                 "INFINITO_CONTAINER must be infinito_nexus_${INFINITO_DISTRO}",
             )
 
-            # Unused: keep the temp dir reference for tooling
             _ = td
 
 

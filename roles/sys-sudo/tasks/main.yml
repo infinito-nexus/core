@@ -1,10 +1,10 @@
 ---
 - block:
-    - name: Install sudo (Arch/Manjaro)
+    - name: 📦 Install sudo (Arch/Manjaro)
       package:
         name: sudo
         state: present
-    - name: run the sudo tasks once
+    - name: ▶️ run the sudo tasks once
       set_fact:
         run_once_sys_sudo: true
   when: run_once_sys_sudo is not defined

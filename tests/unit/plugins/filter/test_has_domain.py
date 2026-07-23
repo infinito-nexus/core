@@ -1,6 +1,6 @@
 import unittest
 
-from plugins.filter.has_domain import FilterModule
+from plugins.filter.has.domain import FilterModule
 
 
 class TestHasDomainFilter(unittest.TestCase):

@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
+  gotoOnion,
 } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -34,7 +36,7 @@ test("ldap-authenticator: XWiki enforces its LDAP-backed native credential form 
 
   const base = appBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${base}/bin/view/XWiki/XWikiPreferences`, {
+  await gotoOnion(page, `${base}/bin/view/XWiki/XWikiPreferences`, {
     waitUntil: "domcontentloaded",
   });
 
@@ -54,7 +56,7 @@ test("ldap-authenticator: XWiki enforces its LDAP-backed native credential form 
     (await page
       .locator("input[type='password']:visible")
       .first()
-      .isVisible({ timeout: 30_000 })
+      .isVisible({ timeout: resolveTimeout(30_000) })
       .catch(() => false));
   expect(
     onLoginSurface,
@@ -78,11 +80,11 @@ test("ldap-authenticator: XWiki enforces its LDAP-backed native credential form 
   await expect(
     usernameField,
     "XWiki must serve a username field for the LDAP-backed native login form",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await expect(
     passwordField,
     "XWiki must serve a password field for the LDAP-backed native login form",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   // A bogus credential must be rejected by the LDAP-backed authenticator: the
   // user stays on the XWiki login surface (no session granted). This exercises
@@ -98,7 +100,7 @@ test("ldap-authenticator: XWiki enforces its LDAP-backed native credential form 
     (await page
       .locator("input[type='password']:visible")
       .first()
-      .isVisible({ timeout: 15_000 })
+      .isVisible({ timeout: resolveTimeout(15_000) })
       .catch(() => false));
   expect(
     stillUnauthenticated,

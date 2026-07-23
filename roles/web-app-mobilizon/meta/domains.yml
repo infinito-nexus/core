@@ -1,0 +1,4 @@
+---
+canonical:
+  - event.{{ DOMAIN_PRIMARY }}
+aliases: []

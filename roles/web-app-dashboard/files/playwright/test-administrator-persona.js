@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
+const { resolveTimeout } = require("./timeouts");
 
 const { runAdminFlow } = require("./personas");
 
@@ -10,12 +11,12 @@ exports.register = function () {
         const link = interactivePage
           .getByRole("link", { name: /^(admin|tiles|navigation|tile)$/i })
           .first();
-        if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-          await link.click().catch(() => {});
-          await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+          await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+          await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
           await expect(interactivePage.locator("body")).toContainText(
             /tiles|navigation|admin|services/i,
-            { timeout: 30_000 }
+            { timeout: resolveTimeout(30_000) }
           );
         }
       },

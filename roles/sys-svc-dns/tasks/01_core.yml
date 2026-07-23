@@ -1,18 +1,18 @@
 ---
-- name: "Validate the Cloudflare API token"
+- name: "✅ Validate the Cloudflare API token"
   fail:
     msg: >
       API.cloudflare.api_token must be set (via lookup('api', 'cloudflare.api_token')) and cannot be empty!
   when: (lookup('api', 'cloudflare.api_token') | trim) == ''
 
-- name: "Apply apex A/AAAA for base domains"
+- name: "📌 Apply apex A/AAAA for base domains"
   include_tasks: 02_apex.yml
   loop: "{{ SYS_SVC_DNS_BASE_DOMAINS | list }}"
   loop_control:
     loop_var: base_domain
     label: "{{ base_domain }}"
 
-- name: "Ensure all CAA records are present"
+- name: "✅ Ensure all CAA records are present"
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.0 }}"
@@ -29,7 +29,7 @@
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
-- name: "Ensure wildcard parent DNS (*.parent) exists"
+- name: "✅ Ensure wildcard parent DNS (*.parent) exists"
   include_role:
     name: sys-dns-wildcards
   vars:

@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const baseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const issuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -41,7 +42,7 @@ async function ssoLoginAndAssertUsername(page, username, password) {
       );
     } catch {}
   });
-  await page.goto(baseUrl);
+  await gotoOnion(page, baseUrl);
 
   const onIssuer = async () => issuerPattern.test(page.url());
   if (!(await onIssuer())) {
@@ -53,12 +54,12 @@ async function ssoLoginAndAssertUsername(page, username, password) {
     );
     try {
       await Promise.race([
-        page.waitForURL(issuerPattern, { timeout: 60_000 }),
+        page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) }),
         (async () => {
-          await loginCta.first().waitFor({ state: "visible", timeout: 60_000 });
+          await loginCta.first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
           await Promise.all([
-            page.waitForURL(issuerPattern, { timeout: 60_000 }),
-            loginCta.first().click(),
+            page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) }),
+            loginCta.first().click({ timeout: resolveTimeout(30_000) }),
           ]);
         })(),
       ]);
@@ -79,11 +80,11 @@ async function ssoLoginAndAssertUsername(page, username, password) {
   await page.locator('input[name="username"], #username').fill(username);
   await page.locator('input[name="password"], #password').fill(password);
   const leftKeycloak = page
-    .waitForURL((url) => !issuerPattern.test(url.toString()), { timeout: 60_000 })
+    .waitForURL((url) => !issuerPattern.test(url.toString()), { timeout: resolveTimeout(60_000) })
     .catch(() => {});
   await page
     .locator('input[name="password"], #password')
-    .press("Enter", { timeout: 5_000 })
+    .press("Enter", { timeout: resolveTimeout(5_000) })
     .catch(() => {});
   await leftKeycloak;
 
@@ -93,7 +94,7 @@ async function ssoLoginAndAssertUsername(page, username, password) {
   const credentialError = page
     .locator('#input-error, .alert-error, .kc-feedback-text')
     .first();
-  if (await credentialError.isVisible({ timeout: 5_000 }).catch(() => false)) {
+  if (await credentialError.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
     const message = ((await credentialError.textContent().catch(() => "")) || "").trim();
     throw new Error(
       `Keycloak rejected credentials for ${username}: "${message || "<no message>"}" (final URL: ${page.url()})`,
@@ -105,7 +106,7 @@ async function ssoLoginAndAssertUsername(page, username, password) {
   // the OIDC callback hops (auth → /oidc-callback → /web-oidc-callback →
   // SPA) and times out before the Files view actually mounts.
   try {
-    await page.waitForURL(baseUrlPattern, { timeout: 60_000, waitUntil: "load" });
+    await page.waitForURL(baseUrlPattern, { timeout: resolveTimeout(60_000), waitUntil: "load" });
   } catch {
     // SPA may have already navigated past the matcher window; fall
     // through to the visibility assertions which carry their own waits.
@@ -115,15 +116,15 @@ async function ssoLoginAndAssertUsername(page, username, password) {
   // Playwright's Chromium UA is not on the OpenCloud allow list, so the SPA
   // shows a splash with a "I want to continue anyway" button.
   const continueAnyway = page.getByRole("button", { name: /continue anyway/i });
-  if (await continueAnyway.isVisible({ timeout: 5_000 }).catch(() => false)) {
+  if (await continueAnyway.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
     await continueAnyway.click();
   }
 
   // The Files view is the post-login landing route; assert against the SPA
   // navigation banner instead of body text because OpenCloud shows the
   // username inside the user-menu drawer rather than in the page body.
-  await expect(page.getByRole("banner", { name: /top bar/i })).toBeVisible({ timeout: 90_000 });
-  await expect(page.getByRole("link", { name: /personal files/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("banner", { name: /top bar/i })).toBeVisible({ timeout: resolveTimeout(90_000) });
+  await expect(page.getByRole("link", { name: /personal files/i })).toBeVisible({ timeout: resolveTimeout(30_000) });
 }
 
 module.exports = {

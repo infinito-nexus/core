@@ -85,6 +85,69 @@ class TestLogoutDomainsFilter(unittest.TestCase):
         group_names = ["app1"]
         self.assertEqual(self.filter_fn(applications, group_names), [123])
 
+    def test_onion_page_drops_clearnet_only_app(self):
+        applications = {
+            "web-svc-logout": {"services": {"logout": {"enabled": True}}},
+            "web-app-seaweedfs": {"services": {"logout": {"enabled": True}}},
+            "web-app-nextcloud": {"services": {"logout": {"enabled": True}}},
+        }
+        domains = {
+            "web-svc-logout": ["logout.abc.onion"],
+            "web-app-seaweedfs": {
+                "api": "api.s3.example",
+                "filer": "filer.s3.example",
+                "master": "master.s3.example",
+            },
+            "web-app-nextcloud": ["nc.abc.onion"],
+        }
+        result = self.filter_fn(applications, list(applications), domains=domains)
+        self.assertEqual(set(result), {"logout.abc.onion", "nc.abc.onion"})
+
+    def test_clearnet_page_drops_onion_domains(self):
+        applications = {
+            "web-svc-logout": {"services": {"logout": {"enabled": True}}},
+            "app1": {"services": {"logout": {"enabled": True}}},
+        }
+        domains = {
+            "web-svc-logout": ["logout.example"],
+            "app1": ["app.example", "app.abc.onion"],
+        }
+        result = self.filter_fn(applications, list(applications), domains=domains)
+        self.assertEqual(set(result), {"logout.example", "app.example"})
+
+    def test_dual_family_app_swept_on_same_family(self):
+        applications = {
+            "web-svc-logout": {"services": {"logout": {"enabled": True}}},
+            "app1": {"services": {"logout": {"enabled": True}}},
+        }
+        domains = {
+            "web-svc-logout": ["logout.abc.onion"],
+            "app1": ["app.abc.onion", "app.example"],
+        }
+        result = self.filter_fn(applications, list(applications), domains=domains)
+        self.assertEqual(set(result), {"logout.abc.onion", "app.abc.onion"})
+
+    def test_disabled_entity_keys_excluded(self):
+        applications = {
+            "web-svc-logout": {"services": {"logout": {"enabled": True}}},
+            "web-app-seaweedfs": {
+                "services": {
+                    "logout": {"enabled": True},
+                    "frontend": {"enabled": False, "domains": ["filer", "master"]},
+                }
+            },
+        }
+        domains = {
+            "web-svc-logout": ["logout.example"],
+            "web-app-seaweedfs": {
+                "api": "api.s3.example",
+                "filer": "filer.s3.example",
+                "master": "master.s3.example",
+            },
+        }
+        result = self.filter_fn(applications, list(applications), domains=domains)
+        self.assertEqual(set(result), {"logout.example", "api.s3.example"})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,8 +1,8 @@
 ---
-- name: flush handlers to ensure that friendica is up before friendica addon configuration
+- name: 🔄 flush handlers so friendica is up before addon configuration
   meta: flush_handlers
 
-- name: Build friendica_addons from meta/addons/ declarations
+- name: 🔨 Build friendica_addons from meta/addons/ declarations
   set_fact:
     friendica_addons: >-
       {{
@@ -16,14 +16,13 @@
   loop_control:
     label: "{{ item.key }}"
 
-- name: Wait until Friendica console + composer vendor tree is fully populated
-  command: >
-    {{ BIN_COMPOSE }} exec --user {{ FRIENDICA_USER }}
+- name: ⏳ Wait until Friendica console + composer vendor tree is fully populated
+  shell: >
+    container exec -i --user {{ FRIENDICA_USER }}
     --workdir {{ FRIENDICA_APPLICATION_DIR }}
-    {{ FRIENDICA_SERVICE }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
     {{ FRIENDICA_APPLICATION_DIR }}/bin/console list
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   register: friendica_console_ready
   changed_when: false
   failed_when: false
@@ -31,14 +30,13 @@
   delay: 2
   until: friendica_console_ready.rc == 0
 
-- name: Wait until Friendica database is ready and populated
-  command: >
-    {{ BIN_COMPOSE }} exec --user {{ FRIENDICA_USER }}
+- name: ⏳ Wait until Friendica database is ready and populated
+  shell: >
+    container exec -i --user {{ FRIENDICA_USER }}
     --workdir {{ FRIENDICA_APPLICATION_DIR }}
-    {{ FRIENDICA_SERVICE }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
     {{ FRIENDICA_APPLICATION_DIR }}/bin/console addon list all
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   register: friendica_db_ready
   changed_when: false
   failed_when: false
@@ -49,38 +47,36 @@
     - "'not ready' not in (friendica_db_ready.stderr | default(''))"
     - "'not populated' not in (friendica_db_ready.stderr | default(''))"
 
-- name: Ensure Friendica DB schema is current
-  command: >
-    {{ BIN_COMPOSE }} exec --user {{ FRIENDICA_USER }}
+- name: ✅ Ensure Friendica DB schema is current
+  shell: >
+    container exec -i --user {{ FRIENDICA_USER }}
     --workdir {{ FRIENDICA_APPLICATION_DIR }}
-    {{ FRIENDICA_SERVICE }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
     {{ FRIENDICA_APPLICATION_DIR }}/bin/console dbstructure update
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   register: friendica_dbstructure_update
   changed_when: "'No tables need to be changed' not in friendica_dbstructure_update.stdout"
 
-- name: "Patch upstream friendica-addons/ldapauth autocreate return shape"
-  script: >-
-    shell/patch_ldapauth_autocreate.sh
-    "{{ BIN_COMPOSE }} exec -T --user root {{ FRIENDICA_SERVICE }}"
+- name: "🩹 Patch upstream friendica-addons/ldapauth autocreate return shape"
+  script: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    shell/patch_ldapauth_autocreate.sh "container exec -i --user root {{ FRIENDICA_LOCAL_CID | quote }}"
     "{{ FRIENDICA_APPLICATION_DIR }}/addon/ldapauth/ldapauth.php"
   args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   register: friendica_ldapauth_patch
   changed_when: "'PATCHED' in friendica_ldapauth_patch.stdout"
   when: FRIENDICA_LDAP_ENABLED | bool
 
-- name: Ensure Friendica addons are in sync
-  script: >-
-    shell/sync_addon.sh
-    "{{ BIN_COMPOSE }} exec -T --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_SERVICE }} {{ FRIENDICA_APPLICATION_DIR }}/bin/console"
+- name: ✅ Ensure Friendica addons are in sync
+  script: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    shell/sync_addon.sh "container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_LOCAL_CID | quote }} {{ FRIENDICA_APPLICATION_DIR
+    }}/bin/console"
     "{{ item.name }}"
     "{{ 'true' if item.enabled else 'false' }}"
   args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   register: friendica_addon_sync
   changed_when: friendica_addon_sync.rc == 0
   retries: 20
@@ -90,12 +86,12 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: Wait until Friendica `hook` table is provisioned
-  ansible.builtin.shell: >-
-    {{ BIN_COMPOSE }} exec -T --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_SERVICE }} php --
+- name: ⏳ Wait until Friendica `hook` table is provisioned
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_LOCAL_CID | quote }} php --
   args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     stdin: "{{ lookup('file', role_path + '/files/php/probe_hook_table.php') }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   register: friendica_hook_table_ready
   changed_when: false
   failed_when: false
@@ -104,17 +100,16 @@
   until: friendica_hook_table_ready.rc == 0
   when: FRIENDICA_LDAP_ENABLED | bool
 
-# First-install `addon enable ldapauth` empirically lands `enabled=1` without persisting Hook::register() rows; this task verifies and recycles to recover.
-- name: Verify ldapauth hooks are registered (re-cycle if missing)
-  ansible.builtin.shell: >-
-    {{ BIN_COMPOSE }} exec -T --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_SERVICE }} php -- ldapauth 2
+- name: ✅ Verify ldapauth hooks are registered (re-cycle if missing)
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_LOCAL_CID | quote }} php -- ldapauth 2
   args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     stdin: "{{ lookup('file', role_path + '/files/php/verify_addon_hooks.php') }}"
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   changed_when: false
   when: FRIENDICA_LDAP_ENABLED | bool
 
-- name: "Run per-addon integration hooks for enabled addons"
+- name: "▶️ Run per-addon integration hooks for enabled addons"
   include_tasks: "addons/{{ item.name }}.yml"
   loop: "{{ friendica_addons | selectattr('enabled') | list }}"
   loop_control:

@@ -1,31 +1,5 @@
 ---
-- name: "stop and remove discourse container if it exist"
-  community.docker.docker_container:
-    name: "{{ DISCOURSE_CONTAINER }}"
-    state: absent
-  register: container_action
-  failed_when: container_action.failed and 'No such container' not in container_action.msg
+- name: "Handle stack host"
+  include_tasks: stack_host.yml
+  when: IS_STACK_HOST | bool
   listen: recreate discourse
-
-- name: "add central database temporary to discourse network"
-  command: "container network connect {{ DISCOURSE_NETWORK }} {{ DISCOURSE_DATABASE_CONTAINER }}"
-  failed_when: >
-    result.rc != 0 and
-    'already exists in network' not in result.stderr
-  register: result
-  when: DISCOURSE_DATABASE_IS_SHARED | bool
-  listen: recreate discourse
-
-- name: rebuild discourse
-  shell: >
-    ./launcher rebuild {{ DISCOURSE_CONTAINER }}
-    {% if DOCKER_IN_CONTAINER | bool %}--skip-prereqs{% endif %}
-  args:
-    executable: /bin/bash
-    chdir: "{{ DISCOURSE_REPOSITORY_DIR }}"
-  listen: recreate discourse
-  register: discourse_rebuild
-  retries: 3
-  delay: 60
-  until: discourse_rebuild.rc == 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

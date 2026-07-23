@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
@@ -48,9 +49,9 @@ test("OpenIDConnect: wiki login hands off to the Keycloak OIDC authorize endpoin
     page
       .goto(`${appBaseUrl}/index.php?title=Special:UserLogin&returnto=Main+Page`, {
         waitUntil: "domcontentloaded",
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
       })
-      .then(() => page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => {}))
+      .then(() => page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {}))
       .then(() => {
         if (/\/protocol\/openid-connect\/auth/.test(page.url())) {
           done(page.url());
@@ -91,7 +92,7 @@ test("OpenIDConnect: wiki login hands off to the Keycloak OIDC authorize endpoin
         .or(interactivePage.locator("#mw-panel"))
         .or(interactivePage.locator("body.mediawiki"))
         .first();
-      await expect(wikiSurface).toBeVisible({ timeout: 60_000 });
+      await expect(wikiSurface).toBeVisible({ timeout: resolveTimeout(60_000) });
 
       const authenticatedMarker = interactivePage
         .locator("#pt-logout")
@@ -104,7 +105,7 @@ test("OpenIDConnect: wiki login hands off to the Keycloak OIDC authorize endpoin
           }),
         )
         .first();
-      await expect(authenticatedMarker).toBeVisible({ timeout: 60_000 });
+      await expect(authenticatedMarker).toBeVisible({ timeout: resolveTimeout(60_000) });
     },
   });
 });

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const shared = require("../_shared");
@@ -33,7 +34,7 @@ test("addon user_ldap: biber authenticates via LDAP-backed native login", async 
     const shellState = await shared.waitForVisibleCandidate(
       page,
       shared.getNextcloudShellCandidates(page),
-      60_000,
+      resolveTimeout(60_000),
       "Timed out waiting for an authenticated Nextcloud shell after the biber LDAP login flow",
     );
     await expect(shellState.locator).toBeVisible();

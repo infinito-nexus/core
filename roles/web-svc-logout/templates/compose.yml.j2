@@ -1,13 +1,13 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  logout:
+  {% set service_name = 'logout' %}
+  {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ LOGOUT_IMAGE }}:{{ LOGOUT_VERSION }}"
-    container_name: "{{ LOGOUT_CONTAINER }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ http_port }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_image', application_id, 'logout') }}
+    {{ lookup('compose_only', 'container_name', LOGOUT_CONTAINER) }}
+    {{ lookup('container_ports', ['logout', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

@@ -14,7 +14,7 @@ holds:
       which the variant-aware deploy planner resolves to this role.
 
 In every case the role can be pulled in dynamically by
-``sys-service-loader``'s ``load_app.yml`` (which gates inclusion
+``sys-service-loader``'s ``load/app.yml`` (which gates inclusion
 on ``run_once_<role>``) — both directly when listed in ``apps=`` and
 transitively when a consumer's variant aktivates it. Without the guard
 in ``tasks/main.yml`` the loader can include the role multiple times
@@ -99,9 +99,6 @@ class TestSharedServiceRunOnceGuard(unittest.TestCase):
 
         registry = build_service_registry_from_roles_dir(roles_dir)
 
-        # Union of (a)/(b) self-declared providers and (c) consumer-
-        # activated providers. Any role in this set can be pulled in
-        # dynamically and therefore needs the guard.
         provider_roles = _self_declared_provider_roles_from_registry(registry)
         provider_roles |= _consumer_activated_provider_roles(roles_dir, registry)
 

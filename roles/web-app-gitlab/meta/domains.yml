@@ -1,0 +1,3 @@
+---
+canonical:
+  - lab.git.{{ DOMAIN_PRIMARY }}

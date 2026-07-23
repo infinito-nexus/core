@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Combines Docker Compose with a central RDBMS role to automatically provision database containers with backup, user, and permission management.\n"
+  description: Docker Compose stack for containerized relational databases with backup, user, and permission management
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

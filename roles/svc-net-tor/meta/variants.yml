@@ -1,0 +1,9 @@
+---
+# Matrix-deploy variant overrides for svc-net-tor.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# Test deployments run without guard pinning so a single degraded entry guard
+# cannot stall the whole node; production keeps the Tor default (true).
+- services:
+    tor:
+      use_entry_guards: false # nocheck: variants-static-override

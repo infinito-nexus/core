@@ -1,5 +1,5 @@
 ---
-- name: "Wait until Greenlight is reachable via Nginx"
+- name: "⏳ Wait until Greenlight is reachable via Nginx"
   uri_retry:
     url: "{{ lookup('tls', application_id, 'url.base') }}"
     validate_certs: true
@@ -13,15 +13,12 @@
   delay: 5
   changed_when: false
 
-- name: "Ensure Greenlight admin (B64-safe, idempotent)"
+- name: "✅ Ensure Greenlight admin (B64-safe, idempotent)"
   ansible.builtin.command:
     argv:
       - container
-      - compose
-      - --env-file
-      - "{{ lookup('container', application_id, 'files.env') }}"
       - exec
-      - -T
+      - -i
       - -e
       - "TARGET_NAME={{ lookup('users', 'administrator').username | upper }}"
       - -e
@@ -30,13 +27,11 @@
       - "NEW_EMAIL={{ lookup('users', 'administrator').email }}"
       - -e
       - "NEW_PASSWORD_B64={{ lookup('users', 'administrator').password | b64encode }}"
-      - greenlight
+      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote compose_mode_force role
       - bash
       - -lc
       - "bundle exec rails runner -"
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/greenlight_ensure_admin.rb') }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: greenlight_admin_map
   changed_when: "'CHANGED' in greenlight_admin_map.stdout"
   failed_when: greenlight_admin_map.rc != 0

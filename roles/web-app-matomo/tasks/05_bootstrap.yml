@@ -1,0 +1,41 @@
+---
+- name: "▶️ Matomo bootstrap | Run bootstrap ({{ DEPLOYMENT_MODE }})"
+  ansible.builtin.include_tasks: "05_bootstrap/flavors/{{ DEPLOYMENT_MODE }}.yml"
+
+- name: "🔧 Matomo bootstrap | Set effective token (existing, else parse bootstrap stdout)"
+  ansible.builtin.set_fact:
+    matomo_token_value: >-
+      {{
+        (matomo_token_value | default('') | string | trim)
+        if (matomo_token_value is defined and (matomo_token_value | string | trim) != '')
+        else (
+          ((matomo_bootstrap_compose.stdout if DEPLOYMENT_MODE == 'compose' else matomo_bootstrap_swarm.stdout) | default('') | string)
+          | regex_search('(?m)^[a-f0-9]{32,64}$')
+          | default('', true)
+          | trim
+        )
+      }}
+
+- name: "✅ Matomo bootstrap | Assert we have a token now"
+  ansible.builtin.assert:
+    that:
+      - matomo_token_value is defined
+      - matomo_token_value | length > 0
+      - matomo_token_value is match("^[a-f0-9]{32,64}$")
+    fail_msg: >-
+      Matomo bootstrap did not yield a valid token.
+      stdout={{ (matomo_bootstrap_compose.stdout if DEPLOYMENT_MODE == 'compose' else matomo_bootstrap_swarm.stdout) | default('') | trim }}
+  when: MODE_ASSERT_LOCAL | bool
+
+- name: "💾 Matomo | Persist + inject token via sys-token-store (store + runtime users)"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ MATOMO_ADMIN_USER_KEY }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ matomo_token_value }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when:
+    - matomo_token_value is defined
+    - matomo_token_value | length > 0

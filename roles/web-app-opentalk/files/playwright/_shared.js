@@ -4,8 +4,9 @@
 //   1. administrator persona — SSO login lands on the OpenTalk dashboard.
 //   2. biber persona — same flow in an isolated browser context.
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const baseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const issuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -32,16 +33,16 @@ function attachDiagnostics(page) {
 
 async function ssoLoginAndAssertDashboard(page, username, password) {
   const diagnostics = attachDiagnostics(page);
-  await page.goto(baseUrl);
+  await gotoOnion(page, baseUrl);
 
   // The OpenTalk frontend either auto-redirects to Keycloak or renders a
   // "Sign in" CTA first. Race both paths.
   if (!issuerPattern.test(page.url())) {
     const signInCta = page.getByRole("button", { name: /sign in|log in|anmelden/i });
-    if (await signInCta.first().isVisible({ timeout: 10_000 }).catch(() => false)) {
-      await signInCta.first().click();
+    if (await signInCta.first().isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+      await signInCta.first().click({ timeout: resolveTimeout(30_000) });
     }
-    await page.waitForURL(issuerPattern, { timeout: 60_000 });
+    await page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) });
   }
 
   await page.locator('input[name="username"], #username').fill(username);
@@ -50,13 +51,13 @@ async function ssoLoginAndAssertDashboard(page, username, password) {
   // races with the multi-step OIDC redirect chain back to OpenTalk.
   await page.locator('input[name="password"], #password').press("Enter");
 
-  await page.waitForURL(baseUrlPattern, { timeout: 60_000 });
+  await page.waitForURL(baseUrlPattern, { timeout: resolveTimeout(60_000) });
   // The dashboard renders a left-side navigation list with a Home link plus
   // a profile link that contains the LDAP user's full display name. Use
   // the Home link as the proof of a fully-loaded authenticated dashboard.
   try {
     await expect(page.getByRole("link", { name: /^home$/i }).first()).toBeVisible({
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
   } catch (err) {
     const summary = [

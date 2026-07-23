@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 // Cross-Fediverse scenario — runs whenever Mastodon AND Friendica are
 // deployed alongside fediwall. The test is fully data-driven against
@@ -61,7 +62,7 @@ exports.register = function (shared) {
     // For every deployed wall: read its servers list and assert that
     // each sibling's post appears iff its host is in `servers`.
     for (const slug of shared.env.wallSlugs) {
-      const cfgRes = await request.get(`${shared.env.appBaseUrl}/${slug}/wall-config.json`);
+      const cfgRes = await request.get(`${shared.env.appBaseUrl}/${slug}/wall-config.json`, { timeout: resolveTimeout(30_000) });
       expect(
         cfgRes.ok(),
         `wall-config.json for slug='${slug}' must be reachable`

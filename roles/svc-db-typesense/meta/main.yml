@@ -1,0 +1,33 @@
+---
+# nocheck: info-media no official demo video
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - typesense
+    - docker
+    - search
+    - administration
+    - central-database
+  issue_tracker_url: https://s.infinito.nexus/issues

@@ -4,10 +4,30 @@ const baseURL = process.env.APP_BASE_URL || "http://127.0.0.1";
 
 const keepAll = (process.env.INFINITO_PLAYWRIGHT_KEEP || "").toLowerCase() === "true";
 
+function onionSecureOrigins() {
+  const origins = new Set();
+  for (const value of Object.values(process.env)) {
+    if (typeof value !== "string") continue;
+    for (const match of value.match(/https?:\/\/[^/,\s"']+\.onion/gi) || []) {
+      try {
+        origins.add(new URL(match).origin);
+      } catch {
+        /* not a parseable URL — skip */
+      }
+    }
+  }
+  return [...origins];
+}
+
+const onionSecure = onionSecureOrigins();
+
+const globalTimeout = parseInt(process.env.INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS || "0", 10);
+
 module.exports = defineConfig({
   testDir: "./tests",
   testMatch: "**/*.@(spec|test).js",
   timeout: Number(process.env.PLAYWRIGHT_TEST_TIMEOUT) || 300_000,
+  ...(globalTimeout > 0 ? { globalTimeout } : {}),
   retries: 2,
   workers: Number(process.env.PLAYWRIGHT_WORKERS) || 1,
   fullyParallel: (process.env.PLAYWRIGHT_FULLY_PARALLEL || "").toLowerCase() === "true",
@@ -23,6 +43,17 @@ module.exports = defineConfig({
   ],
   use: {
     baseURL,
+    // Route the browser through a SOCKS proxy when set (e.g. Tor for .onion
+    // targets, which Chromium cannot resolve over normal DNS). Empty/unset =
+    // direct connection (unchanged default for clearnet targets).
+    proxy: process.env.PLAYWRIGHT_PROXY ? { server: process.env.PLAYWRIGHT_PROXY } : undefined,
+    launchOptions: onionSecure.length
+      ? { args: [`--unsafely-treat-insecure-origin-as-secure=${onionSecure.join(",")}`] }
+      : undefined,
+    // Fail fast instead of hanging until the per-test timeout when a target is
+    // unreachable (e.g. an onion service that is not yet published).
+    navigationTimeout: Number(process.env.PLAYWRIGHT_NAVIGATION_TIMEOUT) || 60_000,
+    actionTimeout: Number(process.env.PLAYWRIGHT_ACTION_TIMEOUT) || 30_000,
     trace: keepAll ? "on" : "retain-on-failure",
     screenshot: keepAll ? "on" : "only-on-failure",
     video: keepAll ? "on" : "retain-on-failure"

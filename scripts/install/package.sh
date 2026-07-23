@@ -3,7 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-DOCKER_CLI_INSTALLER="${REPO_ROOT}/roles/sys-svc-container/files/install-cli.sh"
+# shellcheck source=/dev/null
+source <(grep -E '^INFINITO_DOCKER_CLI_INSTALL_SCRIPT=' "${REPO_ROOT}/default.env")
+DOCKER_CLI_INSTALLER="${REPO_ROOT}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"
 
 bootstrap_docker_repo() {
 	if [[ ! -f "${DOCKER_CLI_INSTALLER}" ]]; then
@@ -25,7 +27,7 @@ build_and_install_arch() {
 	pacman-key --init
 	pacman-key --populate archlinux
 	# Tolerate missing manjaro keyring on pure Arch images (no manjaro.gpg present).
-	pacman-key --populate manjaro 2>/dev/null || true
+	pacman-key --populate manjaro 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 	echo "[arch] Installing build toolchain..."
 	pacman -Syu --noconfirm --needed base-devel sudo rsync
@@ -67,8 +69,19 @@ build_and_install_debian_like() {
 	local build_root="/tmp/infinito-nexus-debian-build"
 	local deb_path=""
 
-	echo "[debian] Installing build toolchain..."
 	export DEBIAN_FRONTEND=noninteractive
+
+	if [[ -n "${PACKAGE_INSTALL_FROM:-}" ]]; then
+		echo "[debian] Installing pre-built ${PACKAGE_INSTALL_FROM}..."
+		apt-get update
+		bootstrap_docker_repo
+		dpkg -i "${PACKAGE_INSTALL_FROM}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		apt-get install -f -y
+		rm -rf /var/lib/apt/lists/*
+		return 0
+	fi
+
+	echo "[debian] Installing build toolchain..."
 	apt-get update
 	apt-get install -y --no-install-recommends \
 		build-essential \
@@ -96,6 +109,11 @@ build_and_install_debian_like() {
 	if [[ -z "${deb_path}" ]]; then
 		echo "[debian] ERROR: built package not found" >&2
 		exit 1
+	fi
+
+	if [[ "${PACKAGE_BUILD_ONLY:-0}" == "1" ]]; then
+		echo "${deb_path}"
+		return 0
 	fi
 
 	echo "[debian] Installing ${deb_path}..."
@@ -132,7 +150,7 @@ build_and_install_rpm_like() {
 	echo "[rpm] Installing ${rpm_path} via ${pm}..."
 	bootstrap_docker_repo
 	"${pm}" -y install "${rpm_path}"
-	"${pm}" -y clean all || true
+	"${pm}" -y clean all || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 main() {

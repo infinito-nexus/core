@@ -1,5 +1,5 @@
 ---
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
@@ -7,7 +7,7 @@
     - sys-svc-webserver-core
     - sys-ctl-alm-compose
 
-- name: install certbot
+- name: 📦 install certbot
   package:
     name:
       - certbot-nginx

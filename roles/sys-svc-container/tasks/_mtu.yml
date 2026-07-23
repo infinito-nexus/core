@@ -1,19 +1,19 @@
 ---
-- name: Install automtu via pip (system-wide)
+- name: 📦 Install automtu via pip (system-wide)
   include_role:
     name: sys-pip-install
   vars:
     package_name: automtu
     global_install: true
 
-- name: Ensure 'ip' and 'ping' commands are available for automtu
+- name: ✅ Ensure 'ip' and 'ping' commands are available for automtu
   ansible.builtin.package:
     name:
       - "{{ SYS_SVC_CONTAINER_IPROUTE_PACKAGE_BY_OS_FAMILY.get(ansible_facts['os_family'], 'iproute2') }}"
       - "{{ SYS_SVC_CONTAINER_PING_PACKAGE_BY_OS_FAMILY.get(ansible_facts['os_family'], 'iputils-ping') }}"
     state: present
 
-- name: Detect safe Docker MTU
+- name: 🔍 Detect safe Docker MTU
   ansible.builtin.command:
     argv:
       - "{{ ansible_python_interpreter }}"
@@ -28,7 +28,7 @@
   register: automtu_mtu
   changed_when: false
 
-- name: Assert automtu returned an integer MTU
+- name: ✅ Assert automtu returned an integer MTU
   ansible.builtin.assert:
     that:
       - automtu_mtu.stdout is match('^[0-9]+$')
@@ -36,7 +36,7 @@
       - (automtu_mtu.stdout | int) <= 9000
     fail_msg: "automtu returned unexpected MTU output: '{{ automtu_mtu.stdout | default('') }}'"
 
-- name: Set docker daemon MTU fact
+- name: 🔧 Set docker daemon MTU fact
   ansible.builtin.set_fact:
     SYS_DOCKER_DAEMONM_MTU: "{{ automtu_mtu.stdout | int }}"
   changed_when: false

@@ -1,0 +1,77 @@
+---
+- name: "📦 bench new-site --install-app erpnext '{{ ERPNEXT_SITE_NAME }}'"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i \
+      -e DB_ROOT_USER -e DB_ROOT_PASSWORD -e ADMIN_PASSWORD \
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
+        bench new-site \
+          --no-mariadb-socket \
+          --db-host="{{ ERPNEXT_DB_HOST }}" \
+          --db-port="{{ ERPNEXT_DB_PORT }}" \
+          --mariadb-user-host-login-scope=% \
+          --db-root-username="$DB_ROOT_USER" \
+          --db-root-password="$DB_ROOT_PASSWORD" \
+          --admin-password="$ADMIN_PASSWORD" \
+          --install-app erpnext \
+          --set-default \
+          {{ ERPNEXT_SITE_NAME }}
+      '
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    DB_ROOT_USER: "{{ ERPNEXT_DB_ROOT_USER }}"
+    DB_ROOT_PASSWORD: "{{ ERPNEXT_DB_ROOT_PASSWORD }}"
+    ADMIN_PASSWORD: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
+  register: erpnext_new_site
+  changed_when: true
+  timeout: "{{ lookup('timeout', 1800) | int }}"
+
+- name: "🔄 restart Frappe containers to pick up newly-installed app (compose mode)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container restart \
+      {{ ERPNEXT_BACKEND_CONTAINER }} \
+      {{ ERPNEXT_FRONTEND_CONTAINER }} \
+      {{ ERPNEXT_WEBSOCKET_CONTAINER }} \
+      {{ ERPNEXT_SCHEDULER_CONTAINER }} \
+      {{ ERPNEXT_QUEUE_SHORT_CONTAINER }} \
+      {{ ERPNEXT_QUEUE_LONG_CONTAINER }}
+  changed_when: false
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🔄 restart Frappe services to pick up newly-installed app (swarm mode)"
+  ansible.builtin.command: >-
+    container service update --force {{ entity_name }}_{{ item }}
+  loop:
+    - backend
+    - frontend
+    - websocket
+    - scheduler
+    - queue-short
+    - queue-long
+  changed_when: false
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Re-resolve ERPNext backend node + CID after restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: backend
+    resolve_output_prefix: ERPNEXT_BACKEND
+    resolve_compose_cid: "{{ ERPNEXT_BACKEND_CONTAINER }}"
+    resolve_converge_retries: 60
+    resolve_converge_delay: 5
+
+- name: "⏳ wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port after restart"
+  ansible.builtin.shell: |
+    set -eo pipefail
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} \
+      bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  register: erpnext_backend_ready_post_restart
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: erpnext_backend_ready_post_restart.rc == 0

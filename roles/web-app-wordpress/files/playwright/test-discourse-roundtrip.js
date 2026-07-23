@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { installCspViolationObserver } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
@@ -18,7 +19,7 @@ exports.register = function (shared) {
     // budget on cold caches. Per-step timeouts (60 s OIDC, 30 s editor
     // expects, 60 s snackbar, 60 s discourse poll) remain in place to
     // fail fast on real regressions.
-    test.setTimeout(600_000);
+    test.setTimeout(resolveTimeout(600_000));
     const stamp = Date.now();
     const unique = Math.random().toString(36).slice(2, 8);
     const postTitle = `infinito-playwright-discourse-roundtrip-${stamp}-${unique}`;
@@ -53,7 +54,7 @@ exports.register = function (shared) {
         name: /welcome to the editor/i,
       });
       if (
-        await welcomeDialog.isVisible({ timeout: 5_000 }).catch(() => false)
+        await welcomeDialog.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)
       ) {
         await welcomeDialog
           .getByRole("button", { name: /^close$/i })
@@ -75,12 +76,12 @@ exports.register = function (shared) {
         .getByRole("textbox", { name: /add title/i })
         .first();
       const titleBox = (await iframedTitleBox
-        .isVisible({ timeout: 5_000 })
+        .isVisible({ timeout: resolveTimeout(5_000) })
         .catch(() => false))
         ? iframedTitleBox
         : topLevelTitleBox;
       await expect(titleBox, "Expected the post title editor").toBeVisible({
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
       });
       await titleBox.fill(postTitle);
 
@@ -105,7 +106,7 @@ exports.register = function (shared) {
       await expect(
         discourseSidebarToggle,
         "Expected the wp-discourse PluginSidebar toolbar toggle"
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
       await discourseSidebarToggle.click();
 
       // The checkbox inside the wp-discourse sidebar carries no
@@ -121,7 +122,7 @@ exports.register = function (shared) {
       await expect(
         publishToggle,
         "Expected the wp-discourse 'Publish' checkbox inside the Discourse sidebar"
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
       if (!(await publishToggle.isChecked())) {
         await publishToggle.check();
       }
@@ -140,7 +141,7 @@ exports.register = function (shared) {
       await expect(
         wpPage.getByText(/post published|entry published/i).first(),
         "Expected the WP 'post published' snackbar"
-      ).toBeVisible({ timeout: 60_000 });
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
       const expectedBodySubstring = postBodyMarker;
       let topic = null;
@@ -148,7 +149,7 @@ exports.register = function (shared) {
       while (Date.now() < deadline) {
         topic = await shared.discourseSearchTopicByTitle(reqCtx.request, postTitle);
         if (topic) break;
-        await new Promise((r) => setTimeout(r, 3_000));
+        await new Promise((r) => setTimeout(r, resolveTimeout(3_000)));
       }
       expect(
         topic,
@@ -201,7 +202,7 @@ exports.register = function (shared) {
               await wpPageCleanup
                 .goto(
                   `${shared.env.wpBaseUrl}/wp-admin/edit.php?post_status=${status}&s=${encodeURIComponent(postTitle)}`,
-                  { waitUntil: "domcontentloaded", timeout: 10_000 }
+                  { waitUntil: "domcontentloaded", timeout: resolveTimeout(10_000) }
                 )
                 .catch(() => {});
               const trashLinks = wpPageCleanup.locator(
@@ -215,7 +216,7 @@ exports.register = function (shared) {
                   .click()
                   .catch(() => {});
                 await wpPageCleanup
-                  .waitForLoadState("domcontentloaded", { timeout: 5_000 })
+                  .waitForLoadState("domcontentloaded", { timeout: resolveTimeout(5_000) })
                   .catch(() => {});
               }
             }
@@ -223,7 +224,7 @@ exports.register = function (shared) {
               await wpPageCleanup
                 .goto(`${shared.env.wpBaseUrl}/wp-admin/edit.php?post_status=trash`, {
                   waitUntil: "domcontentloaded",
-                  timeout: 10_000,
+                  timeout: resolveTimeout(10_000),
                 })
                 .catch(() => {});
               const emptyTrash = wpPageCleanup

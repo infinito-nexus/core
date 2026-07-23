@@ -1,0 +1,12 @@
+Rails.application.config.action_mailer.delivery_method = :smtp
+ActionMailer::Base.delivery_method = :smtp
+ActionMailer::Base.smtp_settings = {
+  address: {{ GITLAB_EMAIL.host | ruby_dq }},
+  port: {{ GITLAB_EMAIL.port }},
+  user_name: {{ GITLAB_EMAIL.username | ruby_dq }},
+  password: {{ GITLAB_EMAIL.password | ruby_dq }},
+  domain: {{ GITLAB_EMAIL.domain | ruby_dq }},
+  authentication: {{ ':login' if (GITLAB_EMAIL.auth | bool) else 'nil' }},
+  enable_starttls_auto: {{ GITLAB_EMAIL.start_tls | bool | string | lower }},
+  tls: {{ GITLAB_EMAIL.tls | bool | string | lower }}
+}

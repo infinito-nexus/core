@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys OpenCloud, a sovereign file-sync and collaboration suite. Sync, share, and co-edit from any device with single sign-on, central
-    directory, and integrated video meetings.
+  description: Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

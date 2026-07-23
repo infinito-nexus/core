@@ -11,6 +11,7 @@ mkdir -p "${ANSIBLE_COLLECTIONS_DIR}"
 
 MAX_ATTEMPTS=5
 ATTEMPT=1
+INSTALL_TIMEOUT=15m
 
 GALAXY_REQ="requirements/requirements.galaxy.yml"
 GIT_REQ="requirements/requirements.git.yml"
@@ -19,7 +20,8 @@ while true; do
 	echo "▶️  Attempt ${ATTEMPT}/${MAX_ATTEMPTS}"
 
 	echo "🌐 Trying Galaxy source (${GALAXY_REQ})…"
-	if "${PYTHON}" -m ansible.cli.galaxy collection install \
+	if timeout --foreground "${INSTALL_TIMEOUT}" \
+		"${PYTHON}" -m ansible.cli.galaxy collection install \
 		-r "${GALAXY_REQ}" \
 		-p "${ANSIBLE_COLLECTIONS_DIR}" \
 		--force-with-deps; then
@@ -31,7 +33,8 @@ while true; do
 	echo "⚠️  Galaxy install failed on attempt ${ATTEMPT}"
 
 	echo "🔁 Falling back to Git source (${GIT_REQ})…"
-	if "${PYTHON}" -m ansible.cli.galaxy collection install \
+	if timeout --foreground "${INSTALL_TIMEOUT}" \
+		"${PYTHON}" -m ansible.cli.galaxy collection install \
 		-r "${GIT_REQ}" \
 		-p "${ANSIBLE_COLLECTIONS_DIR}" \
 		--force-with-deps; then

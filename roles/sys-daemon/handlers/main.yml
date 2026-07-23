@@ -42,8 +42,9 @@
   listen: reload system daemon
 
 - name: reexec systemd manager
-  # Just execute this during reset, it has potential dangerous side effects
+  # daemon-reexec terminates PID-1-systemd containers; effect applies on next boot.
   ansible.builtin.systemd:
     daemon_reexec: true
   become: true
   listen: reexec systemd manager
+  when: not (DOCKER_IN_CONTAINER | bool)

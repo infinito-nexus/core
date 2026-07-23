@@ -1,21 +1,21 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "set matrix flavor"
+- name: "🔧 set matrix flavor"
   ansible.builtin.set_fact:
     matrix_flavor: "{{ lookup('config', application_id, 'services.matrix.flavor', 'ansible') }}"
   changed_when: false
 
-- name: "assert matrix flavor is one of: ansible | compose"
+- name: "✅ assert matrix flavor is one of: ansible | compose"
   ansible.builtin.assert:
     that:
       - matrix_flavor in ['ansible', 'compose']
     fail_msg: "services.matrix.flavor must be 'ansible' or 'compose' (got '{{ matrix_flavor }}')"
 
-- name: "dispatch to ansible flavor (matrix-docker-ansible-deploy upstream)"
+- name: "📤 dispatch to ansible flavor (matrix-docker-ansible-deploy upstream)"
   include_tasks: flavor/ansible/main.yml
   when: matrix_flavor == 'ansible'
 
-- name: "dispatch to compose flavor (deprecated; in-repo compose stack)"
+- name: "📤 dispatch to compose flavor (deprecated; in-repo compose stack)"
   include_tasks: flavor/compose/main.yml
   when: matrix_flavor == 'compose'

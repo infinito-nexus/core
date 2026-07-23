@@ -1,9 +1,82 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+{% set ERPNEXT_CONFIG_READY_GATE = "until grep -q redis_socketio sites/common_site_config.json 2>/dev/null; do sleep 2; done;" %}
 
-  {{ ERPNEXT_CONFIGURATOR_CONTAINER }}:
-    image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
-    container_name: "{{ ERPNEXT_CONFIGURATOR_CONTAINER }}"
-{% set docker_restart_policy = 'no' %}
+  {% set service_name = 'backend' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'erpnext') }}
+    {{ lookup('compose_only', 'container_name', ERPNEXT_BACKEND_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    entrypoint: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec /usr/local/bin/entrypoint.sh /home/frappe/frappe-bench/env/bin/gunicorn --chdir=/home/frappe/frappe-bench/sites --bind=0.0.0.0:{{ ERPNEXT_BACKEND_PORT }} --threads=4 --workers=2 --worker-class=gthread --worker-tmp-dir=/dev/shm --timeout=120 --preload frappe.app:application"]
+    {{ lookup('depends_on', {'configurator': 'service_completed_successfully'}) }}
+    {{ lookup('container_volumes', application_id, ERPNEXT_BACKEND_CONTAINER) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'queue-short' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'erpnext') }}
+    {{ lookup('compose_only', 'container_name', ERPNEXT_QUEUE_SHORT_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec bench worker --queue short,default"]
+    {{ lookup('depends_on', {'backend': 'service_started'}) }}
+    {{ lookup('container_volumes', application_id, ERPNEXT_QUEUE_SHORT_CONTAINER) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'queue-long' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'erpnext') }}
+    {{ lookup('compose_only', 'container_name', ERPNEXT_QUEUE_LONG_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec bench worker --queue long,default,short"]
+    {{ lookup('depends_on', {'backend': 'service_started'}) }}
+    {{ lookup('container_volumes', application_id, ERPNEXT_QUEUE_LONG_CONTAINER) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'frontend' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'erpnext') }}
+    {{ lookup('compose_only', 'container_name', ERPNEXT_FRONTEND_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command: ["nginx-entrypoint.sh"]
+    {{ lookup('depends_on', {'backend': 'service_started', 'websocket': 'service_started'}) }}
+    environment:
+      BACKEND: "backend:{{ ERPNEXT_BACKEND_PORT }}"
+      SOCKETIO: "websocket:{{ ERPNEXT_WEBSOCKET_PORT }}"
+      FRAPPE_SITE_NAME_HEADER: "{{ ERPNEXT_SITE_NAME }}"
+      UPSTREAM_REAL_IP_ADDRESS: "172.16.0.0/12"
+      UPSTREAM_REAL_IP_HEADER: "X-Forwarded-For"
+      UPSTREAM_REAL_IP_RECURSIVE: "on"
+      PROXY_READ_TIMEOUT: "120"
+      CLIENT_MAX_BODY_SIZE: "50m"
+    {{ lookup('container_ports',
+              ['erpnext', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, ERPNEXT_FRONTEND_CONTAINER) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'websocket' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'erpnext') }}
+    {{ lookup('compose_only', 'container_name', ERPNEXT_WEBSOCKET_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec node /home/frappe/frappe-bench/apps/frappe/socketio.js"]
+    {{ lookup('depends_on', {'configurator': 'service_completed_successfully'}) }}
+    {{ lookup('container_volumes', application_id, ERPNEXT_WEBSOCKET_CONTAINER) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'scheduler' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'erpnext') }}
+    {{ lookup('compose_only', 'container_name', ERPNEXT_SCHEDULER_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec bench schedule"]
+    {{ lookup('depends_on', {'backend': 'service_started'}) }}
+    {{ lookup('container_volumes', application_id, ERPNEXT_SCHEDULER_CONTAINER) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'configurator' %}
+  {% set docker_restart_policy = 'no' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'erpnext') }}
+    {{ lookup('compose_only', 'container_name', ERPNEXT_CONFIGURATOR_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     entrypoint:
       - bash
@@ -13,114 +86,14 @@
         ls -1 apps > sites/apps.txt;
         bench set-config -g db_host "{{ ERPNEXT_DB_HOST }}";
         bench set-config -gp db_port {{ ERPNEXT_DB_PORT }};
-        bench set-config -g redis_cache    "redis://{{ ERPNEXT_REDIS_HOST }}:{{ ERPNEXT_REDIS_PORT }}/0";
-        bench set-config -g redis_queue    "redis://{{ ERPNEXT_REDIS_HOST }}:{{ ERPNEXT_REDIS_PORT }}/1";
-        bench set-config -g redis_socketio "redis://{{ ERPNEXT_REDIS_HOST }}:{{ ERPNEXT_REDIS_PORT }}/2";
+        bench set-config -g redis_cache    "{{ ERPNEXT_REDIS_URL }}/0";
+        bench set-config -g redis_queue    "{{ ERPNEXT_REDIS_URL }}/1";
+        bench set-config -g redis_socketio "{{ ERPNEXT_REDIS_URL }}/2";
         bench set-config -gp socketio_port {{ ERPNEXT_WEBSOCKET_PORT }};
         bench set-config -g host_name "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}";
-    volumes:
-      - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, ERPNEXT_CONFIGURATOR_CONTAINER) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  {{ ERPNEXT_BACKEND_CONTAINER }}:
-    image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
-    container_name: "{{ ERPNEXT_BACKEND_CONTAINER }}"
-    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ ERPNEXT_CONFIGURATOR_CONTAINER }}:
-        condition: service_completed_successfully
-    volumes:
-      - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-  {{ ERPNEXT_WEBSOCKET_CONTAINER }}:
-    image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
-    container_name: "{{ ERPNEXT_WEBSOCKET_CONTAINER }}"
-    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]
-    depends_on:
-      {{ ERPNEXT_CONFIGURATOR_CONTAINER }}:
-        condition: service_completed_successfully
-    volumes:
-      - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-  {{ ERPNEXT_SCHEDULER_CONTAINER }}:
-    image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
-    container_name: "{{ ERPNEXT_SCHEDULER_CONTAINER }}"
-    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["bench", "schedule"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
-    volumes:
-      - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-  {{ ERPNEXT_QUEUE_SHORT_CONTAINER }}:
-    image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
-    container_name: "{{ ERPNEXT_QUEUE_SHORT_CONTAINER }}"
-    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["bench", "worker", "--queue", "short,default"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
-    volumes:
-      - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-  {{ ERPNEXT_QUEUE_LONG_CONTAINER }}:
-    image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
-    container_name: "{{ ERPNEXT_QUEUE_LONG_CONTAINER }}"
-    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["bench", "worker", "--queue", "long,default,short"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
-    volumes:
-      - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-  {{ ERPNEXT_FRONTEND_CONTAINER }}:
-    image: "{{ ERPNEXT_IMAGE }}:{{ ERPNEXT_VERSION }}"
-    container_name: "{{ ERPNEXT_FRONTEND_CONTAINER }}"
-    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["nginx-entrypoint.sh"]
-    depends_on:
-      {{ ERPNEXT_BACKEND_CONTAINER }}:
-        condition: service_started
-      {{ ERPNEXT_WEBSOCKET_CONTAINER }}:
-        condition: service_started
-    environment:
-      BACKEND: "{{ ERPNEXT_BACKEND_CONTAINER }}:{{ ERPNEXT_BACKEND_PORT }}"
-      SOCKETIO: "{{ ERPNEXT_WEBSOCKET_CONTAINER }}:{{ ERPNEXT_WEBSOCKET_PORT }}"
-      FRAPPE_SITE_NAME_HEADER: "{{ ERPNEXT_SITE_NAME }}"
-      UPSTREAM_REAL_IP_ADDRESS: "172.16.0.0/12"
-      UPSTREAM_REAL_IP_HEADER: "X-Forwarded-For"
-      UPSTREAM_REAL_IP_RECURSIVE: "on"
-      PROXY_READ_TIMEOUT: "120"
-      CLIENT_MAX_BODY_SIZE: "50m"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.erpnext.ports.local.http') }}:{{ ERPNEXT_FRONTEND_PORT }}"
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.erpnext.ports.local.websocket') }}:{{ ERPNEXT_WEBSOCKET_PORT }}"
-    volumes:
-      - {{ ERPNEXT_SITES_VOLUME }}:/home/frappe/frappe-bench/sites
-      - {{ ERPNEXT_LOGS_VOLUME }}:/home/frappe/frappe-bench/logs
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-{% set erpnext_extra_volumes = {
-  ERPNEXT_SITES_VOLUME: {'name': ERPNEXT_SITES_VOLUME},
-  ERPNEXT_LOGS_VOLUME: {'name': ERPNEXT_LOGS_VOLUME}
-} %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes=erpnext_extra_volumes
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

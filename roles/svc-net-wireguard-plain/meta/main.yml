@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Manages WireGuard on a client system by deploying services and scripts to set MTU on network interfaces and ensure optimal VPN connectivity.
+  description: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs Intel media drivers (VA-API) for the current distribution.
+  description: Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

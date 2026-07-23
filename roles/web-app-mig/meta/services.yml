@@ -22,9 +22,15 @@ matomo:
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
   backup:
     disabled: true
 mig:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: ghcr.io/kevinveenbirkenbach/infinito-mig
   version: latest
   name: mig
@@ -48,3 +54,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag

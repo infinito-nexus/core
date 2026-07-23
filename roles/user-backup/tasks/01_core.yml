@@ -1,17 +1,19 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: create backup user
+- name: 📁 create backup user
   user:
     name: backup
+    home: "{{ USER_BACKUP_HOME }}"
+    shell: /bin/sh
     create_home: true
 
-- name: Include dependency 'sys-svc-sshd'
+- name: 📂 Include dependency 'sys-svc-sshd'
   include_role:
     name: sys-svc-sshd
   when: run_once_sys_svc_sshd is not defined
 
-- name: grant backup sudo rights
+- name: 🔐 grant backup sudo rights
   copy:
     src: "backup"
     dest: /etc/sudoers.d/backup
@@ -22,3 +24,4 @@
 - include_tasks: 02_permissions_ssh.yml
 
 - include_tasks: 03_permissions_folders.yml
+  when: IS_STACK_HOST | bool

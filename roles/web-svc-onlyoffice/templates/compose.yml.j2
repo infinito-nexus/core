@@ -1,26 +1,16 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  onlyoffice:
+  {% set service_name = 'onlyoffice' %}
+  {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ ONLYOFFICE_IMAGE }}:{{ ONLYOFFICE_VERSION }}"
-    container_name: {{ ONLYOFFICE_CONTAINER }}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ http_port }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - data:/var/www/onlyoffice/Data
-      - logs:/var/log/onlyoffice
-      - fonts:/usr/share/fonts/truetype/custom
-      - lib:/var/lib/onlyoffice
-      - pgdata:/var/lib/postgresql
-      - redisdata:/var/lib/redis
-      - rabbitmqdata:/var/lib/rabbitmq
-{{ lookup('container_depends_on', application_id) }}
+    {{ lookup('container_image', application_id, 'onlyoffice') }}
+    {{ lookup('compose_only', 'container_name', ONLYOFFICE_CONTAINER) }}
+    {{ lookup('container_ports', ['onlyoffice', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+{{ lookup('container_volumes', application_id, 'onlyoffice') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': ONLYOFFICE_VOLUME_DATA}, 'fonts': {'name': ONLYOFFICE_VOLUME_FONTS}, 'lib': {'name': ONLYOFFICE_VOLUME_LIB}, 'logs': {'name': ONLYOFFICE_VOLUME_LOGS}, 'pgdata': {'name': ONLYOFFICE_VOLUME_PGDATA}, 'rabbitmqdata': {'name': ONLYOFFICE_VOLUME_RABBITMQ}, 'redisdata': {'name': ONLYOFFICE_VOLUME_REDIS}}
-) }}
+{{ lookup('compose_volumes', application_id) }}

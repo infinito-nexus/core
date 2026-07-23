@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs the AUR helper yay and configures an aur_builder user with appropriate sudo privileges to facilitate AUR package management on Arch
-    Linux systems.
+  description: Arch Linux helper setup for building AUR packages via yay under a dedicated unprivileged builder user
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

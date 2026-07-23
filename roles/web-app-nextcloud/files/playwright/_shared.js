@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, findFirstVisibleCandidate, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
@@ -11,6 +12,7 @@ const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
 const nextcloudBaseUrl = decodeDotenvQuotedValue(process.env.NEXTCLOUD_BASE_URL);
 const moodleBaseUrl = decodeDotenvQuotedValue(process.env.MOODLE_BASE_URL);
 const peertubeBaseUrl = decodeDotenvQuotedValue(process.env.PEERTUBE_BASE_URL);
+const xwikiBaseUrl = decodeDotenvQuotedValue(process.env.XWIKI_BASE_URL);
 const nextcloudUsernameFieldPattern = /account name(?: or email)?|username(?: or email)?/i;
 const nextcloudCredentialSubmitPattern = /^(sign in|log in)$/i;
 
@@ -35,7 +37,7 @@ function getNextcloudShellCandidates(target) {
   ];
 }
 
-async function waitForFirstVisible(page, locators, timeout = 60_000) {
+async function waitForFirstVisible(page, locators, timeout = resolveTimeout(60_000)) {
   const deadline = Date.now() + timeout;
 
   while (Date.now() < deadline) {
@@ -45,7 +47,7 @@ async function waitForFirstVisible(page, locators, timeout = 60_000) {
       }
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error("Timed out waiting for one of the expected Nextcloud selectors to become visible");
@@ -54,7 +56,7 @@ async function waitForFirstVisible(page, locators, timeout = 60_000) {
 async function waitForVisibleCandidate(
   page,
   candidates,
-  timeout = 60_000,
+  timeout = resolveTimeout(60_000),
   errorMessage = "Timed out waiting for one of the expected Nextcloud selectors to become visible"
 ) {
   const deadline = Date.now() + timeout;
@@ -66,7 +68,7 @@ async function waitForVisibleCandidate(
       return visibleCandidate;
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error(errorMessage);
@@ -95,7 +97,7 @@ async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissal
       if (stableChecksWithoutModal >= 2) {
         return;
       }
-      await page.waitForTimeout(600);
+      await page.waitForTimeout(resolveTimeout(600));
       continue;
     }
 
@@ -105,7 +107,7 @@ async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissal
     for (const candidate of dismissButtonCandidates) {
       const button = candidate.first();
       if (await button.isVisible().catch(() => false)) {
-        await button.click({ timeout: 2_000 }).catch(() => {});
+        await button.click({ timeout: resolveTimeout(2_000) }).catch(() => {});
         dismissed = true;
         break;
       }
@@ -115,7 +117,7 @@ async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissal
       await page.keyboard.press("Escape").catch(() => {});
     }
 
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(resolveTimeout(300));
   }
 }
 
@@ -124,7 +126,7 @@ async function clickUserMenuWithModalRetry(page, nextcloudFrame, userMenuLocator
     await dismissBlockingNextcloudModals(page, nextcloudFrame, 6);
 
     try {
-      await userMenuLocator.click({ timeout: 4_000 });
+      await userMenuLocator.click({ timeout: resolveTimeout(4_000) });
       return;
     } catch (error) {
       const message = String(error && error.message ? error.message : error);
@@ -133,7 +135,7 @@ async function clickUserMenuWithModalRetry(page, nextcloudFrame, userMenuLocator
       if (!retriable || attempt === attempts) {
         throw error;
       }
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(resolveTimeout(500));
     }
   }
 }
@@ -166,7 +168,7 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
 
   await adminPage.goto(loginUrl, {
     waitUntil: "commit",
-    timeout: 60_000
+    timeout: resolveTimeout(60_000)
   }).catch(() => {});
 
   const credentialCandidates = [
@@ -207,7 +209,7 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
   const initialState = await waitForVisibleCandidate(
     adminPage,
     flavorCandidates,
-    60_000,
+    resolveTimeout(60_000),
     timeoutMessage
   );
 
@@ -217,11 +219,11 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
   }
 
   if (initialState.kind === "social-login") {
-    await initialState.locator.click({ timeout: 5_000 });
+    await initialState.locator.click({ timeout: resolveTimeout(5_000) });
     await waitForVisibleCandidate(
       adminPage,
       [...credentialCandidates, ...standaloneShellCandidates],
-      60_000,
+      resolveTimeout(60_000),
       "Timed out waiting for the Keycloak credential form after following the Nextcloud social-login entry"
     );
   }
@@ -237,12 +239,12 @@ async function loginToStandaloneNextcloud(adminPage, username = loginUsername, p
   await usernameField.fill(effectiveUsername);
   await usernameField.press("Tab");
   await passwordField.fill(effectivePassword);
-  await signInButton.click();
+  await signInButton.click({ timeout: resolveTimeout(30_000) });
 
   const postLoginState = await waitForVisibleCandidate(
     adminPage,
     standaloneShellCandidates,
-    120_000,
+    resolveTimeout(120_000),
     "Timed out waiting for a signed-in Nextcloud shell after the login redirect"
   );
 
@@ -269,16 +271,18 @@ async function logoutStandaloneNextcloud(adminPage) {
     15_000
   );
   await expect(logoutLink).toBeVisible();
-  await logoutLink.click();
+  await logoutLink.click({ timeout: resolveTimeout(30_000) });
 
   const logoutConfirmationVisible = await logoutConfirmButton
     .first()
-    .waitFor({ state: "visible", timeout: 10_000 })
+    .waitFor({ state: "visible", timeout: resolveTimeout(10_000) })
     .then(() => true)
     .catch(() => false);
   if (logoutConfirmationVisible) {
     await logoutConfirmButton.click();
   }
+
+  await adminPage.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 }
 
 async function loginToStandaloneNextcloudWithRetry(adminPage, username, password) {
@@ -286,7 +290,7 @@ async function loginToStandaloneNextcloudWithRetry(adminPage, username, password
     await loginToStandaloneNextcloud(adminPage, username, password);
     return;
   } catch {
-    await adminPage.waitForTimeout(5_000);
+    await adminPage.waitForTimeout(resolveTimeout(5_000));
     await loginToStandaloneNextcloud(adminPage, username, password);
   }
 }
@@ -309,6 +313,7 @@ module.exports = {
     nextcloudBaseUrl,
     moodleBaseUrl,
     peertubeBaseUrl,
+    xwikiBaseUrl,
     nextcloudUsernameFieldPattern,
     nextcloudCredentialSubmitPattern,
     nextcloudOidcEnabled,

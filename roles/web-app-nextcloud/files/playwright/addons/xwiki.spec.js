@@ -1,12 +1,14 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partner instance", async ({ browser }) => {
   skipUnlessAddonEnabled("xwiki");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -15,9 +17,9 @@ test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partn
     await shared.loginToStandaloneNextcloud(page);
 
     const settingsUrl = new URL("settings/admin/xwiki", shared.env.nextcloudBaseUrl).toString();
-    const response = await page.goto(settingsUrl, {
+    const response = await gotoOnion(page, settingsUrl, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000
+      timeout: resolveTimeout(60_000)
     });
     expect(
       response === null || response.status() !== 404,
@@ -29,7 +31,7 @@ test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partn
     await expect(
       instanceList,
       "the xwiki app must render its own admin instances table (disabled/broken app never mounts it)"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const noWikis = page.locator("#no-wikis-registered-p");
     await expect(
@@ -64,10 +66,11 @@ test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partn
       instanceHost,
       "the configured XWiki instance must be the partner instance, not Nextcloud itself"
     ).not.toBe(nextcloudHost);
+    const expectedXwikiHost = new URL(shared.env.xwikiBaseUrl).host;
     expect(
       instanceHost,
       "the XWiki instances appValue must point at the deployed XWiki partner host"
-    ).toBe("x.wiki.infinito.example");
+    ).toBe(expectedXwikiHost);
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});

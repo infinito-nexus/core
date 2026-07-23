@@ -15,6 +15,16 @@ const KC_CONFIG = {
   silentCheckSsoRedirectUri: "{{ (DASHBOARD_APP_BASE_URL | regex_replace('/+$', '')) ~ DASHBOARD_LOCATION_SILENT_CHECK }}"
 };
 
+{% set _oidc_tor_enabled = lookup('config', application_id, 'services.tor.enabled', False) | bool %}
+{% if _oidc_tor_enabled %}
+{% set _oidc_tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
+{% set _oidc_mirror_onion = lookup('tls', 'web-svc-mirror', 'url.base') | regex_replace('/+$', '') | to_onion_url(_oidc_tor_node, DOMAIN_PRIMARY) %}
+const KC_MIRROR_BASE = "{{ _oidc_mirror_onion }}";
+{% else %}
+const KC_MIRROR_BASE = null;
+{% endif %}
+const KC_JS_ORIGIN_PATH = "cdn.jsdelivr.net/npm/keycloak-js@latest/dist/keycloak.min.js";
+
 const DEBUG = {{ MODE_DEBUG | string | lower }};
 // Keycloak's hidden session-status iframe is noisy on newer Chromium builds and
 // collides with dashboard-embedded OIDC flows. We keep explicit init/redirect
@@ -136,8 +146,10 @@ async function initAuthUI() {
   // Default UI state until we know better
   syncAuthMenuVisibility(false);
 
-  // Load keycloak.js
-  const kcJsUrl = "https://cdn.jsdelivr.net/npm/keycloak-js@latest/dist/keycloak.min.js";
+  // Load keycloak.js (onion sessions via the deployment's mirror, clearnet via jsdelivr)
+  const kcJsUrl = (KC_MIRROR_BASE && window.location.hostname.endsWith(".onion"))
+    ? KC_MIRROR_BASE + "/" + KC_JS_ORIGIN_PATH
+    : "https://" + KC_JS_ORIGIN_PATH;
   try {
     await loadKeycloakAdapter(kcJsUrl);
   } catch (e) {

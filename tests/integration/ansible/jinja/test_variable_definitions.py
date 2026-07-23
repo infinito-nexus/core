@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import re
 import sys
@@ -90,6 +91,11 @@ class TestVariableDefinitions(unittest.TestCase):
         self.mapping_key = re.compile(r"^\s*([a-zA-Z_]\w*)\s*:\s*")
         self.register_pat = re.compile(r"^\s*register\s*:\s*([a-zA-Z_]\w*)")
 
+        # Templated set_fact / vars key, e.g. "{{ prefix }}_HOST_NODE": such a
+        # dynamic key defines every concrete '<x>_HOST_NODE' fact, so it is
+        # registered as a name pattern rather than a single literal.
+        self.templated_mapping_key = re.compile(r'^\s*(["\'])(.*?\{\{.*?\}\}.*?)\1\s*:')
+
         # Bare vars in YAML list expressions wie:
         #   - SOME_VAR | bool
         #   - OTHER_VAR | length > 0
@@ -99,6 +105,7 @@ class TestVariableDefinitions(unittest.TestCase):
         # Collect "defined" names
         # -----------------------
         self.defined = set()
+        self.dynamic_defined_patterns: list[re.Pattern] = []
 
         # 1) Keys from var files (top-level dict keys)
         for vf in self.var_files:
@@ -159,6 +166,10 @@ class TestVariableDefinitions(unittest.TestCase):
                             m = self.mapping_key.match(stripped)
                             if m:
                                 self.defined.add(m.group(1))
+                            else:
+                                mt = self.templated_mapping_key.match(stripped)
+                                if mt:
+                                    self._add_dynamic_pattern(mt.group(2))
                         elif indent <= set_fact_indent and stripped:
                             in_set_fact = False
 
@@ -211,6 +222,21 @@ class TestVariableDefinitions(unittest.TestCase):
             except Exception:
                 logger.warning("Failed to parse file: %s", path, exc_info=True)
 
+    def _add_dynamic_pattern(self, key_text: str) -> None:
+        """Turn a templated fact key like '{{ prefix }}_HOST_NODE' into a name
+        pattern '^[A-Za-z0-9_]+_HOST_NODE$' so every concrete fact it sets counts
+        as defined."""
+        parts = re.split(r"\{\{.*?\}\}", key_text)
+        if len(parts) < 2:
+            return
+        # Need a real literal segment, else a pure '{{ x }}' key compiles to a
+        # catch-all that would match (and silently define) every variable name.
+        if not any(p.strip().strip("_") for p in parts):
+            return
+        regex = "[A-Za-z0-9_]+".join(re.escape(p) for p in parts)
+        with contextlib.suppress(re.error):
+            self.dynamic_defined_patterns.append(re.compile("^" + regex + "$"))
+
     def test_all_used_vars_are_defined(self):
         """
         Scan all template/YAML files for {{ var }} usage and fail if a variable
@@ -239,6 +265,7 @@ class TestVariableDefinitions(unittest.TestCase):
                             "domains",
                             "item",
                             "inventory_hostname",
+                            "ansible_play_hosts",
                             "role_path",
                             "playbook_dir",
                             "ansible_become_password",
@@ -261,6 +288,9 @@ class TestVariableDefinitions(unittest.TestCase):
                             var not in self.defined
                             and f"default_{var}" not in self.defined
                             and f"defaults_{var}" not in self.defined
+                            and not any(
+                                p.match(var) for p in self.dynamic_defined_patterns
+                            )
                         ):
                             undefined_uses.append(
                                 f"{path}:{lineno}: '{{{{ {var} }}}}' used but not defined"
@@ -285,6 +315,7 @@ class TestVariableDefinitions(unittest.TestCase):
                                 "domains",
                                 "item",
                                 "inventory_hostname",
+                                "ansible_play_hosts",
                                 "role_path",
                                 "playbook_dir",
                                 "ansible_become_password",
@@ -307,6 +338,10 @@ class TestVariableDefinitions(unittest.TestCase):
                                     var not in self.defined
                                     and f"default_{var}" not in self.defined
                                     and f"defaults_{var}" not in self.defined
+                                    and not any(
+                                        p.match(var)
+                                        for p in self.dynamic_defined_patterns
+                                    )
                                 ):
                                     undefined_uses.append(
                                         f"{path}:{lineno}: bare var '{var}' used but not defined"

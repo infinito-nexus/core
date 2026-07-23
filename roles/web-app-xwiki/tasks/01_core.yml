@@ -1,87 +1,35 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Validate XWiki variables
+- name: ✅ Validate XWiki variables
   include_tasks: 02_validation.yml
 
 - block:
-    - name: "load docker, db and proxy for {{ application_id }}"
+    - name: "🧩 load docker, db and proxy for {{ application_id }}"
       include_role:
         name: sys-stk-full
       vars:
         compose_handlers_flush: false
 
-    - name: Deploy Bootstrap Config
+    - name: "🎬 Stage the XWiki entrypoint wrapper into the compose build context"
+      stack_host_copy:
+        src: xwiki-entrypoint.sh
+        dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'xwiki-entrypoint.sh' ] | path_join }}"
+        mode: "0755"
+      when: IS_STACK_HOST | bool
+      notify:
+        - compose build
+        - compose up
+
+    - name: 🚀 Deploy Bootstrap Config
       include_tasks: _flush_config.yml
+      when: IS_STACK_HOST | bool
   vars:
     xwiki_oidc_enabled_switch: false
     xwiki_ldap_enabled_switch: false
 
-- name: "ASSERT | superadmin can authenticate (needed for installer)"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 401, 403, 500, 503]
-    return_content: true
-  register: _super_check_ext
-  changed_when: false
-  failed_when: false
+- name: "👔 XWiki manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool
 
-- block:
-    - name: "DEBUG | superadmin check + pw hash compare (condensed)"
-      script: >-
-        debug_superadmin.sh
-        "{{ _super_check_ext.status }}"
-        "{{ _super_check_ext.redirected | default('n/a') }}"
-        "{{ _super_check_ext.url | default('n/a') }}"
-        "{{ _super_check_ext.www_authenticate | default(_super_check_ext.headers['www-authenticate'] | default('n/a')) }}"
-        "{{ _super_check_ext.content_type | default(_super_check_ext.headers['content-type'] | default('n/a')) }}"
-        "{{ (_super_check_ext.content | default(''))[:600] | replace('\n','\\n') }}"
-        "{{ XWIKI_CONTAINER }}"
-        "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-      register: _dbg_superadmin
-      changed_when: false
-      failed_when: false
-
-    - name: "FAIL | superadmin authentication failed (extensions phase)"
-      fail:
-        msg: |
-          superadmin authentication failed (extensions phase)
-
-          superadmin check status={{ _super_check_ext.status }}
-          www_authenticate={{
-            _super_check_ext.www_authenticate
-            | default(_super_check_ext.headers['www-authenticate'] | default('n/a'))
-          }}
-
-          debug:
-          {{ _dbg_superadmin.stdout | default('') }}
-
-          hint: check xwiki.cfg in image / password / Dockerfile build
-  when: _super_check_ext.status != 200
-
-- name: Load setup procedures for admin
-  include_tasks: 03_administrator.yml
-  when: not (XWIKI_SSO_ENABLED | bool)
-
-- name: Load setup procedures for extensions
-  include_tasks: 04_extensions.yml
-
-- name: "XWIKI | Ensure Main.WebHome exists"
-  include_tasks: 05_main_webhome.yml
-
-- block:
-    - name: "Create Final Docker Compose File"
-      template:
-        src: "compose.yml.j2"
-        dest: "{{ lookup('container', application_id, 'files.compose') }}"
-      notify: compose up
-
-    - name: Deploy Final Config
-      include_tasks: _flush_config.yml
-  vars:
-    xwiki_oidc_enabled_switch: "{{ XWIKI_OIDC_ENABLED | bool }}"
-    xwiki_ldap_enabled_switch: "{{ XWIKI_LDAP_ENABLED | bool }}"
+- include_tasks: utils/once/flag.yml

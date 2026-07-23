@@ -1,6 +1,7 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { decodeDotenvQuotedValue, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
+const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({
@@ -27,7 +28,7 @@ test.beforeEach(() => {
 
 // Helper: local form login (admin only)
 async function login(page, email, password) {
-  await page.goto(`${baseUrl}/users/sign_in`);
+  await gotoOnion(page, `${baseUrl}/users/sign_in`);
   await page.waitForLoadState("networkidle");
   const cookieBanner = page.locator("#dc-dialog-wrapper, .cookies__container, [data-cookie-consent]");
   if (await cookieBanner.isVisible().catch(() => false)) {
@@ -38,10 +39,10 @@ async function login(page, email, password) {
     }
   }
   const emailInput = page.getByLabel(/email/i).first();
-  await emailInput.waitFor({ state: "attached", timeout: 60000 });
+  await emailInput.waitFor({ state: "attached", timeout: resolveTimeout(60000) });
   await emailInput.fill(email);
   await page.locator("input[type='password']").first().fill(password);
-  await page.getByRole('button', { name: /log in|sign in/i }).first().click();
+  await page.getByRole('button', { name: /log in|sign in/i }).first().click({ timeout: resolveTimeout(30_000) });
   await page.waitForLoadState("networkidle");
 }
 
@@ -52,13 +53,13 @@ async function dismissCookieBanner(page) {
   const acceptBtn = page.getByRole("button", { name: /accept all|accept only essential|accept/i }).first();
   if (await acceptBtn.isVisible().catch(() => false)) {
     await acceptBtn.click().catch(() => {});
-    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: resolveTimeout(5000) }).catch(() => {});
   }
 }
 
 // Helper: OIDC login via Keycloak
 async function oidcLogin(page, username, password) {
-  await page.goto(`${baseUrl}/users/sign_in`);
+  await gotoOnion(page, `${baseUrl}/users/sign_in`);
   await page.waitForLoadState("networkidle");
   await dismissCookieBanner(page);
   const ssoButton = page.locator("a[href*='openid_connect']").first();
@@ -70,7 +71,8 @@ async function oidcLogin(page, username, password) {
   const ssoHref = await ssoButton.getAttribute("href");
   console.log("SSO href:", ssoHref);
   await page.waitForFunction(() => document.readyState === "complete");
-  const navigated = page.waitForURL(/auth\.infinito\.example/, { timeout: 30000 });
+  const oidcAuthHost = new URL(oidcIssuerUrl).host;
+  const navigated = page.waitForURL((url) => url.host === oidcAuthHost, { timeout: resolveTimeout(30000) });
   await page.evaluate((href) => {
     const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content") || "";
     const form = document.createElement("form");
@@ -86,13 +88,9 @@ async function oidcLogin(page, username, password) {
   }, ssoHref);
   await navigated.catch(e => console.log("nav error:", e.message, "url:", page.url()));
   console.log("After form submit URL:", page.url());
-  console.log("Current URL:", page.url());
-  // Fill Keycloak login form
-  await page.getByRole("textbox", { name: /username|email/i }).fill(username);
-  await page.getByRole("textbox", { name: /password/i }).fill(password);
-  await page.locator("#kc-login").click();
+  await performKeycloakLoginForm(page, username, password);
   console.log("Login clicked, waiting for redirect back...");
-  await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(e => console.log("networkidle error:", e.message));
+  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30000) }).catch(e => console.log("networkidle error:", e.message));
   console.log("After login URL:", page.url());
   await dismissCookieBanner(page);
 
@@ -110,18 +108,20 @@ async function oidcLogin(page, username, password) {
     // sets the continue flag and re-submits the form.
     await page.evaluate(() => document.getElementById("omniauth-register-form").requestSubmit());
     const declineBtn = page.locator("#sign-up-newsletter-modal [data-check='false']").first();
-    await declineBtn.waitFor({ state: "visible", timeout: 10000 });
+    await declineBtn.waitFor({ state: "visible", timeout: resolveTimeout(10000) });
     await Promise.all([
-      page.waitForURL((url) => !/auth\/openid_connect\/callback/.test(url.toString()), { timeout: 30000 }).catch(e => console.log("post-submit nav error:", e.message)),
-      declineBtn.click({ force: true }),
+      page.waitForURL((url) => !/auth\/openid_connect\/callback/.test(url.toString()), { timeout: resolveTimeout(30000) }).catch(e => console.log("post-submit nav error:", e.message)),
+      declineBtn.click({ force: true, timeout: resolveTimeout(30_000) }),
     ]);
     console.log("After registration URL:", page.url());
+    await page.waitForURL((url) => url.host === new URL(baseUrl).host, { timeout: resolveTimeout(30000) }).catch(() => {});
+    await page.waitForLoadState("load", { timeout: resolveTimeout(30000) }).catch(() => {});
   }
 }
 
 // Scenario I: Homepage loads
 test("homepage loads and shows Decidim", async ({ page }) => {
-  await page.goto(baseUrl);
+  await gotoOnion(page, baseUrl);
   await expect(page).not.toHaveTitle("");
   await expect(page.locator("body")).toBeVisible();
 });
@@ -131,7 +131,7 @@ test("admin can log in and out", async ({ page }) => {
   await login(page, adminEmail, adminPassword);
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(page.locator("body")).toBeVisible();
-  await page.goto(`${baseUrl}/users/sign_out`);
+  await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
 });
@@ -142,7 +142,7 @@ test("biber can log in via OIDC and log out", async ({ page }) => {
   if (result === null) { test.skip(); return; }
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(page.locator("body")).toBeVisible();
-  await page.goto(`${baseUrl}/users/sign_out`);
+  await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
 });
@@ -155,8 +155,9 @@ test("biber can access profile after OIDC login", async ({ page }) => {
   await expect(page).not.toHaveURL(/sign_in/);
 
   // Biber accesses their account page
-  await page.goto(`${baseUrl}/account`);
+  await gotoOnion(page, `${baseUrl}/account`);
   await page.waitForLoadState("networkidle");
+  await page.waitForURL(/\/account/, { timeout: resolveTimeout(30000) }).catch(() => {});
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(page.locator("h1, h2").first()).toBeVisible();
 });
@@ -164,7 +165,7 @@ test("biber can access profile after OIDC login", async ({ page }) => {
 // Scenario V: SSO button visible when OIDC is enabled
 test("SSO login button is visible when OIDC is enabled", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
-  await page.goto(`${baseUrl}/users/sign_in`);
+  await gotoOnion(page, `${baseUrl}/users/sign_in`);
   await page.waitForLoadState("networkidle");
   const ssoButton = page.locator("a[href*='openid_connect']").first();
   await expect(ssoButton).toBeVisible();
@@ -185,12 +186,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|administration|configuration|participants)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|administration|participants|processes|assemblies|moderation/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

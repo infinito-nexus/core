@@ -1,0 +1,4 @@
+---
+canonical:
+  - bbb.talk.{{ DOMAIN_PRIMARY }}
+aliases: []

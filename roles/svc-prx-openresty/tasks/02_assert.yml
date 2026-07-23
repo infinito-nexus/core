@@ -1,41 +1,16 @@
 ---
-- block:
-    - name: Wait until OpenResty container is running
-      command: >
-        container inspect -f '{{ "{{.State.Running}}" }}' {{ OPENRESTY_CONTAINER }}
-      register: openresty_running
-      changed_when: false
-      until: openresty_running.stdout | trim == "true"
-      retries: 24
-      delay: 5
+- name: ⏳ Wait until OpenResty container is running
+  command: >
+    container inspect -f '{{ "{{.State.Running}}" }}' {{ OPENRESTY_CONTAINER }}
+  register: openresty_running
+  changed_when: false
+  until: openresty_running.stdout | trim == "true"
+  retries: 24
+  delay: 5
 
-    - name: Validate OpenResty configuration (Post-Flight-Check)
-      command: >
-        container exec {{ OPENRESTY_CONTAINER }} openresty -t -q
-      register: openresty_test_post
-      changed_when: false
-      failed_when: openresty_test_post.rc != 0
-  rescue:
-    - name: Debug containers (before OpenResty restart)
-      command: container ps -a --format '{{"{{.Names}} {{.Status}}"}}'
-      register: docker_ps
-      changed_when: false
-      failed_when: false
-
-    - name: Show docker containers
-      debug:
-        var: docker_ps.stdout_lines
-
-    - name: Dump OpenResty container logs on failure
-      command: >
-        container logs --tail=200 {{ OPENRESTY_CONTAINER }}
-      register: openresty_logs
-      changed_when: false
-      failed_when: false
-
-    - name: Show OpenResty logs
-      debug:
-        msg: |
-          ===== OpenResty container logs (last 200 lines) =====
-          {{ openresty_logs.stdout | default('') }}
-          {{ openresty_logs.stderr | default('') }}
+- name: ✅ Validate OpenResty configuration (Post-Flight-Check)
+  shell: >
+    container exec {{ OPENRESTY_CONTAINER_ADDRESS }} openresty -t -q
+  register: openresty_test_post
+  changed_when: false
+  failed_when: openresty_test_post.rc != 0

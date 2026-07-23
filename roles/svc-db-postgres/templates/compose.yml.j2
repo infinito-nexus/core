@@ -1,8 +1,8 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-
-  postgres:
-    container_name:   "{{ POSTGRES_CONTAINER }}"
-    image:            "{{ POSTGRES_CUSTOM_IMAGE }}"
+  {% set service_name = 'postgres' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', POSTGRES_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'postgres') }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
     command:
       - "postgres"
@@ -17,17 +17,12 @@
       - "-c"
       - "maintenance_work_mem={{ POSTGRES_MAINTENANCE_WORK_MEM }}"
 
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% if POSTGRES_EXPOSE_LOCAL %}
-    ports: 
-      - "{{ DOCKER_BIND_HOST }}:{{ POSTGRES_PORT }}:5432"
-{% endif %}
-    volumes:
-      - "data:/var/lib/postgresql/data"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if POSTGRES_EXPOSE_LOCAL %}
+    {{ lookup('container_ports', ['postgres', 'postgres', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
+    {{ lookup('container_volumes', application_id, 'postgres') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': POSTGRES_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

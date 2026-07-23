@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Take control of your LDAP directory with phpldapadmin — a web‑based LDAP client offering an intuitive interface to manage your LDAP directories.
-    This containerized deployment simplifies administration and provides secure, flexible configuration options.
+  description: Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,5 +1,5 @@
 ---
-- name: install AUR packages for epson
+- name: 📦 install AUR packages for epson
   include_role:
     name: sys-aur-install
   vars:

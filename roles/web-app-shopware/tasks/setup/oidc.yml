@@ -1,20 +1,18 @@
 ---
 # Replace INFX_OIDC_PLUGIN with the actual plugin name (Composer or local)
-- name: "Install OIDC plugin & activate"
+- name: "📦 Install OIDC plugin & activate"
   shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
+    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
       set -e
       cd {{ SHOPWARE_ROOT }}
       php bin/console plugin:refresh
       php bin/console plugin:install --activate INFX_OIDC_PLUGIN || true
       php bin/console cache:clear
     '
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
 
-- name: "Configure OIDC via system:config"
+- name: "🔧 Configure OIDC via system:config"
   shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
+    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
       set -e
       cd {{ SHOPWARE_ROOT }}
       php bin/console system:config:set "InfxOidc.config.clientId"        "{{ OIDC.CLIENT.ID }}"
@@ -23,5 +21,3 @@
       php bin/console system:config:set "InfxOidc.config.scopes"          "openid profile email"
       php bin/console cache:clear
     '
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"

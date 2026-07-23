@@ -1,0 +1,38 @@
+---
+# nocheck: playwright-service-flag — Tor Browser users need third-party assets
+# served first-party; deploying tor therefore always deploys the mirror.
+# nocheck: dynamic-flag — hard dependency: every tor deployment serves the mirror.
+mirror:
+  bond: 1
+  enabled: true
+  shared: true
+tor:
+  modes:
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  # nocheck: default-placement-manager  node onion ingress: host-published SOCKS/DNS/Trans ports and the HiddenService loopback forward must live on the stack host
+  placement: manager
+  bond: 1
+  enabled: true
+  shared: true
+  exclusive: true
+  primary: true
+  image: debian
+  version: trixie-slim
+  custom: true
+  name: tor
+  node: ""
+  use_entry_guards: true
+  ports:
+    local:
+      socks: 9050
+      trans: 9040
+      dns: 9053
+  min_storage: 100MB
+  cpus: "0.25"
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 128
+  lifecycle: alpha

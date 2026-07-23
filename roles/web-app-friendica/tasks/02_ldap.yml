@@ -1,10 +1,11 @@
 ---
-- name: "create {{ FRIENDICA_LDAP_CONFIG_HOST }}"
-  template:
-    src: "ldapauth.config.php.j2"
-    dest: "{{ FRIENDICA_LDAP_CONFIG_HOST }}"
-    mode: "644"
-    owner: root
-    group: 33
-    force: true
-  notify: compose up
+- name: "📄 Render Friendica LDAP config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "ldapauth.config.php.j2"
+        dest: "{{ FRIENDICA_LDAP_CONFIG_HOST }}"
+        mode: "0644"
+        owner: "root"
+        group: "33"

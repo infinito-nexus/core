@@ -1,6 +1,6 @@
 ---
 - block:
-    - name: Ensure shared root and vendor exist (run once)
+    - name: ✅ Ensure shared root and vendor exist (run once)
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory
@@ -10,8 +10,8 @@
   when:
     - run_once_sys_svc_cdn is not defined
 
-- name: Overwritte CDN handlers with neutral handlers
-  ansible.builtin.include_tasks: "tasks/utils/load_handlers.yml"
+- name: 🎛️ Overwritte CDN handlers with neutral handlers
+  ansible.builtin.include_tasks: "tasks/utils/load/handlers.yml"
   loop:
     - svc-prx-openresty
     - sys-svc-compose
@@ -21,14 +21,14 @@
   vars:
     handler_role_name: "{{ handler_role }}"
 
-- name: Ensure CDN directories exist
+- name: ✅ Ensure CDN directories exist
   file:
     path: "{{ item }}"
     state: directory
     mode: "0755"
   loop: "{{ CDN_ROLE_DIRS }}"
 
-- name: Ensure 'latest' symlink points to current release
+- name: ✅ Ensure 'latest' symlink points to current release
   file:
     src: "{{ lookup('cdn', application_id).role.release.root }}"
     dest: "{{ [lookup('cdn', application_id).role.root, 'latest'] | path_join }}"

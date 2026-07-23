@@ -11,12 +11,16 @@
     matomo:
       enabled: true
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     dashboard:
       enabled: false
@@ -24,9 +28,14 @@
     matomo:
       enabled: false
       shared: false
+    redis:
+      shared: false
     prometheus:
       enabled: false
       shared: false
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override

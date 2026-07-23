@@ -1,0 +1,4 @@
+---
+canonical:
+  - baserow.{{ DOMAIN_PRIMARY }}
+aliases: []

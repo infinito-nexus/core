@@ -1,38 +1,38 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Disable MSMTP to avoid port conflicts"
+- name: "🔴 Disable MSMTP to avoid port conflicts"
   include_role:
     name: sys-svc-mail-msmtp
     tasks_from: disable.yml
 
-- name: Include dependency 'sys-daemon'
+- name: 📂 Include dependency 'sys-daemon'
   include_role:
     name: sys-daemon
   when: run_once_sys_daemon is not defined
 
-- name: "Install local SMTP relay (Postfix)"
+- name: "📦 Install local SMTP relay (Postfix)"
   package:
     name:
       - postfix
       - postfix-lmdb
     state: present
 
-- name: "Configure Postfix as localhost-only relay"
-  ansible.builtin.template:
+- name: "🔧 Configure Postfix as localhost-only relay"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host postfix localhost-relay config)
     src: "postfix-main.cf.j2"
     dest: "/etc/postfix/main.cf"
     mode: "0644"
   notify: restart postfix
 
-- name: "Deploy postfix aliases"
-  ansible.builtin.template:
+- name: "🚀 Deploy postfix aliases"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host postfix aliases)
     src: "aliases.j2"
     dest: "/etc/postfix/aliases"
     mode: "0644"
   notify: restart postfix
 
-- name: "Build alias database"
+- name: "🔨 Build alias database"
   ansible.builtin.command: newaliases
   changed_when: false
   notify: restart postfix

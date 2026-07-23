@@ -25,6 +25,11 @@ class _TlsResolveStub:
         return [{"enabled": self._enabled, "mode": self._mode}]
 
 
+class _DomainsResolveStub:
+    def run(self, terms, variables=None, **kwargs):
+        return [(variables or {}).get("domains", {})]
+
+
 class TestComposeFArgs(unittest.TestCase):
     def setUp(self):
         self.m = _load_module(
@@ -47,17 +52,17 @@ class TestComposeFArgs(unittest.TestCase):
             },
         }
 
-        # Route get_merged_domains through variables['domains'] to keep tests hermetic.
-        def _domains_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("domains", {})
+    def _loader_dispatch(self, tls_stub):
+        # "domains" resolves through variables['domains'] to keep tests hermetic;
+        # "tls" resolves through the per-test stub.
+        def _get(name, *args, **kwargs):
+            if name == "domains":
+                return _DomainsResolveStub()
+            if name == "tls":
+                return tls_stub
+            raise AssertionError(f"unexpected lookup name: {name}")
 
-        self._domains_patcher = patch.object(
-            self.m,
-            "get_merged_domains",
-            side_effect=_domains_from_vars,
-        )
-        self._domains_patcher.start()
-        self.addCleanup(self._domains_patcher.stop)
+        return _get
 
     def _stub_get_docker_paths(self, application_id: str, base_dir: str) -> dict:
         # Keep structure identical to utils.docker.paths_utils.get_docker_paths()
@@ -79,12 +84,38 @@ class TestComposeFArgs(unittest.TestCase):
             ),
             patch.object(self.m, "_role_provides_override", return_value=True),
             patch.object(
-                self.m.lookup_loader, "get", return_value=_TlsResolveStub(False, "off")
+                self.m.lookup_loader,
+                "get",
+                side_effect=self._loader_dispatch(_TlsResolveStub(False, "off")),
             ),
         ):
             out = self.lookup.run(["web-app-a"], variables=self.vars)[0]
 
         self.assertEqual(out, "-f /x/compose.yml -f /x/compose.override.yml")
+
+    def test_flag_kwarg_emits_compose_file_for_stack_deploy(self):
+        with (
+            patch.object(
+                self.m, "get_docker_paths", side_effect=self._stub_get_docker_paths
+            ),
+            patch.object(self.m, "_role_provides_override", return_value=True),
+            patch.object(
+                self.m.lookup_loader,
+                "get",
+                side_effect=self._loader_dispatch(_TlsResolveStub(False, "off")),
+            ),
+        ):
+            out = self.lookup.run(
+                ["web-app-a"], variables=self.vars, flag="--compose-file"
+            )[0]
+
+        self.assertEqual(
+            out, "--compose-file /x/compose.yml --compose-file /x/compose.override.yml"
+        )
+
+    def test_invalid_flag_rejected(self):
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(["web-app-a"], variables=self.vars, flag="-bad")
 
     def test_includes_ca_override_when_self_signed_and_domain_exists(self):
         with (
@@ -95,7 +126,7 @@ class TestComposeFArgs(unittest.TestCase):
             patch.object(
                 self.m.lookup_loader,
                 "get",
-                return_value=_TlsResolveStub(True, "self_signed"),
+                side_effect=self._loader_dispatch(_TlsResolveStub(True, "self_signed")),
             ),
         ):
             out = self.lookup.run(["web-app-a"], variables=self.vars)[0]
@@ -121,7 +152,7 @@ class TestComposeFArgs(unittest.TestCase):
             patch.object(
                 self.m.lookup_loader,
                 "get",
-                return_value=_TlsResolveStub(True, "self_signed"),
+                side_effect=self._loader_dispatch(_TlsResolveStub(True, "self_signed")),
             ),
             self.assertRaises(AnsibleError),
         ):
@@ -134,7 +165,9 @@ class TestComposeFArgs(unittest.TestCase):
             ),
             patch.object(self.m, "_role_provides_override", return_value=False),
             patch.object(
-                self.m.lookup_loader, "get", return_value=_TlsResolveStub(False, "off")
+                self.m.lookup_loader,
+                "get",
+                side_effect=self._loader_dispatch(_TlsResolveStub(False, "off")),
             ),
         ):
             out = self.lookup.run(["web-app-a"], variables=self.vars)[0]

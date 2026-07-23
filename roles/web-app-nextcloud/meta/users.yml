@@ -4,6 +4,7 @@ no-reply:
   username: no-reply
   roles:
     - bot
+  accounts: [mailbox]
   limits:
     rate: 60 / 1min
     burst: 3600

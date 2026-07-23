@@ -1,0 +1,41 @@
+---
+- name: "📡 Detect a running systemd (sd_booted convention: /run/systemd/system)"
+  ansible.builtin.stat:
+    path: /run/systemd/system
+  register: apt_neutralize_systemd
+
+- name: "🧯 Neutralize apt-daily under a running systemd"
+  when: apt_neutralize_systemd.stat.exists
+  block:
+    - name: "🛑 Stop apt-daily timers"
+      ansible.builtin.systemd:
+        name: "{{ apt_timer }}"
+        state: stopped
+        enabled: false
+      loop:
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
+      loop_control:
+        loop_var: apt_timer
+
+    - name: "🔪 Stop apt-daily services so no in-flight background apt keeps the dpkg lock"
+      ansible.builtin.systemd:
+        name: "{{ apt_service }}"
+        state: stopped
+      loop:
+        - apt-daily.service
+        - apt-daily-upgrade.service
+      loop_control:
+        loop_var: apt_service
+
+    - name: "🚫 Mask apt-daily units to block any background-apt re-trigger"
+      ansible.builtin.systemd:
+        name: "{{ apt_unit }}"
+        masked: true
+      loop:
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
+        - apt-daily.service
+        - apt-daily-upgrade.service
+      loop_control:
+        loop_var: apt_unit

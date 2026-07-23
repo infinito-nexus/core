@@ -1,0 +1,32 @@
+---
+# nocheck: info-media Self-written swarm/infrastructure glue role deploying a registry:2 pull-through Docker Hub cache; no consumer-facing upstream product website.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - registry
+    - docker
+    - cache
+    - swarm
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

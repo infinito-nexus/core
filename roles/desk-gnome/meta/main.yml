@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Aggregates essential GNOME desktop roles—including caffeine, extensions, and terminal—for a complete GNOME environment on Linux.
+  description: Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,0 +1,17 @@
+---
+- name: "🐛 DEBUG | Loading parameters"
+  ansible.builtin.debug:
+    msg:
+      application_id: "{{ application_id | default('undefined') }}"
+      load_app_id: "{{ load_app_id }}"
+  when: MODE_DEBUG | bool
+
+- name: "📥 Loading {{ load_app_id }}'"
+  include_role:
+    name: "{{ load_app_id }}"
+    public: false
+  vars:
+    application_id: "{{ load_app_id }}"
+    domain: "{{ lookup('domain', load_app_id) }}"
+  when:
+    - groups[load_app_id] is not defined or inventory_hostname in groups[load_app_id]

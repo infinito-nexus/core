@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Alejandro Roman Ibanez
-  description: Monitor your infrastructure with Prometheus, an open-source systems monitoring and alerting toolkit that collects and stores metrics as time
-    series data, enabling powerful queries and alerting on your self-hosted services.
+  description: Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

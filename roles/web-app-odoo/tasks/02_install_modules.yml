@@ -1,101 +1,59 @@
 ---
-# Install Odoo modules
-
-- name: "Build list of modules to install"
+- name: "🔨 Build list of modules to install"
   set_fact:
     odoo_modules_to_install: "{{ (ODOO_MODULES_CORE + ODOO_MODULES_OPTIONAL) | join(',') }}"
 
-- name: "Install core modules"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i {{ odoo_modules_to_install }}
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: module_install
-  changed_when: "'loading' in module_install.stdout"
-  failed_when: false
-  when: odoo_modules_to_install | length > 0
+- name: "⏸️ Pause Odoo crons for the module install/update window"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/ir-cron/pause.sql"
+  changed_when: true
 
-- name: "Update installed modules"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -u all
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: module_update
-  changed_when: "'loading' in module_update.stdout"
-  failed_when: false
+- name: "📦 Run module install/update with crons paused"
+  block:
+    - name: "📦 Load module operations"
+      include_tasks: 02a_module_ops.yml
+  always:
+    - name: "▶️ Resume Odoo crons after the module window"
+      database_query:
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/update/ir-cron/resume.sql"
+      changed_when: true
 
-- name: "Install auth_oauth module for OIDC support"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_oauth
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_oauth_install
-  changed_when: "'loading' in auth_oauth_install.stdout"
-  failed_when: false
-  when: ODOO_OIDC_ENABLED | bool
+- name: "📝 Flag Odoo for an offline `-u all` on the next boot"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }} touch {{ ODOO_UPDATE_MARKER | quote }}
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  changed_when: true
 
-- name: "Install auth_signup module for OAuth user auto-creation"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_signup
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_signup_install
-  changed_when: "'loading' in auth_signup_install.stdout"
-  failed_when: false
-  when: ODOO_OIDC_ENABLED | bool
+- name: "♻️ Restart Odoo so the entrypoint runs `-u all` as the sole DB actor (compose)"
+  ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
+  changed_when: true
+  when: DEPLOYMENT_MODE == 'compose'
 
-- name: "Install auth_oauth_https module for HTTPS redirect URI fix"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_oauth_https
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_oauth_https_install
-  changed_when: "'loading' in auth_oauth_https_install.stdout"
-  failed_when: false
-  when: ODOO_OIDC_ENABLED | bool
+- name: "♻️ Restart Odoo so the entrypoint runs `-u all` as the sole DB actor (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, ODOO_SERVICE) }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
 
-- name: "Install auth_ldap module for LDAP support"
-  command: >
-    container exec {{ ODOO_CONTAINER }}
-    odoo -i auth_ldap
-    -d {{ ODOO_DB_NAME }}
-    --db_host {{ ODOO_DB_HOST }}
-    --db_port {{ ODOO_DB_PORT }}
-    --db_user {{ ODOO_DB_USER }}
-    --db_password {{ ODOO_DB_PASSWORD }}
-    --stop-after-init
-    --no-http
-  register: auth_ldap_install
-  changed_when: "'loading' in auth_ldap_install.stdout"
-  failed_when: false
-  when: ODOO_LDAP_ENABLED | bool
+- name: "🔍 Re-resolve Odoo hosting node + container id after the update restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ ODOO_SERVICE }}"
+    resolve_output_prefix: ODOO
+    resolve_compose_cid: "{{ ODOO_CONTAINER }}"
+
+- name: "⏳ Wait for Odoo to serve /web/health after the `-u all` update restart"
+  ansible.builtin.shell: |
+    set -eu
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }} timeout 10 bash -c 'exec 3<>/dev/tcp/localhost/{{ container_port }} && printf "GET /web/health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && IFS= read -r _status <&3 && case "$_status" in *" 200 "*) exit 0 ;; *) exit 1 ;; esac'
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_health_after_update
+  changed_when: false
+  retries: 60
+  delay: 10
+  until: odoo_health_after_update.rc == 0

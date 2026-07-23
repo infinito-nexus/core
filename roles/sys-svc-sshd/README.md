@@ -13,6 +13,19 @@ This Ansible role configures the OpenSSH daemon (`sshd`) by deploying a template
 
 Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) enables password authentication when explicitly required by controlled environments such as local E2E test targets.
 
+## Cosmos
+
+The diagram places sshd in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph role [sys-svc-sshd 💻]
+        svc_svc_sshd["svc-sshd"]
+    end
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **Templated Configuration:** Delivers a Jinja2-based `sshd_config` with variables for debug logging, PAM support, and password-auth overrides.
@@ -29,7 +42,6 @@ Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) enables 
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

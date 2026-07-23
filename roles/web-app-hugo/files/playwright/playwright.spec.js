@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -13,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("hugo front page is served under canonical domain with TLS + HSTS", async ({ page }) => {
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected hugo response").toBeTruthy();
   expect(response.status(), "Expected hugo front page status < 400").toBeLessThan(400);
   expect(
@@ -21,11 +22,11 @@ test("hugo front page is served under canonical domain with TLS + HSTS", async (
     `Expected canonical domain "${canonicalDomain}" to back the hugo URL`
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "hugo must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, appBaseUrl, "hugo");
 });
 
 test("hugo emits a CSP header on the front page", async ({ request }) => {
-  const response = await request.get(`${appBaseUrl}/`);
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected hugo front page status < 400").toBeLessThan(400);
   const headers = response.headers();
   const csp = headers["content-security-policy"];
@@ -36,7 +37,7 @@ test("hugo emits a CSP header on the front page", async ({ request }) => {
 });
 
 test("hugo serves rendered HTML with a non-empty <title>", async ({ page }) => {
-  await page.goto(`${appBaseUrl}/`);
+  await gotoOnion(page, `${appBaseUrl}/`);
   // Hugo renders a static page; the docs theme always emits a non-empty
   // <title>. This verifies the build pipeline produced a real page, not
   // an nginx default index nor a directory listing.
@@ -71,12 +72,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|posts|content|tags)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|posts|content|tags|baseurl/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

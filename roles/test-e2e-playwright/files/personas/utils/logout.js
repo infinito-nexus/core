@@ -31,16 +31,17 @@
  */
 
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("../../timeouts");
 
 const LOGOUT_NAME_RE = /log\s*out|sign\s*out|sign-out|abmelden/i;
 const ACCOUNT_MENU_NAME_RE = /(account|profile|user.?menu|^menu$|sign\s*in|signed\s*in)/i;
 
-async function clickFirstVisible(loc, { timeout = 5_000 } = {}) {
+async function clickFirstVisible(loc, { timeout = resolveTimeout(5_000) } = {}) {
   const count = await loc.count().catch(() => 0);
   for (let i = 0; i < count; i++) {
     const cand = loc.nth(i);
     if (await cand.isVisible({ timeout }).catch(() => false)) {
-      await cand.click({ timeout: 5_000 }).catch(() => {});
+      await cand.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
       return true;
     }
   }
@@ -49,11 +50,6 @@ async function clickFirstVisible(loc, { timeout = 5_000 } = {}) {
 
 function logoutCandidatesOn(scope) {
   return [
-    // The universal-logout JS injects a top-right fallback button when
-    // the role's own surface has no logout control AND oauth2-proxy is
-    // active. It marks the injected element with `data-injected-logout`
-    // — check that first so oauth2-proxy-gated roles (Prometheus,
-    // upstream-only UIs) have a guaranteed logout entry point.
     scope.locator("[data-injected-logout]"),
     scope.getByRole("menuitem", { name: LOGOUT_NAME_RE }),
     scope.getByRole("link", { name: LOGOUT_NAME_RE }),
@@ -81,61 +77,71 @@ function menuTriggerCandidatesOn(scope) {
   ];
 }
 
-async function waitForAnyLogoutCandidate(page, timeoutMs = 30_000) {
-  // Returns true on the first visible logout-shaped element OR menu trigger
-  // (Account/Profile). Async-rendered post-login UIs (e.g. dashboard's
-  // CDN-loaded keycloak-js + token exchange) routinely exceed 10s before
-  // the Account dropdown is even visible — bumped from 10s to 30s.
+async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000)) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     for (const loc of [...logoutCandidatesOn(page), ...menuTriggerCandidatesOn(page)]) {
       const count = await loc.count().catch(() => 0);
       for (let i = 0; i < count; i++) {
         const cand = loc.nth(i);
-        if (await cand.isVisible({ timeout: 500 }).catch(() => false)) {
+        if (await cand.isVisible({ timeout: resolveTimeout(500) }).catch(() => false)) {
           return true;
         }
       }
     }
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(resolveTimeout(250));
   }
   return false;
 }
 
-async function inAppLogout(page) {
-  await page.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+/**
+ * Keycloak renders a "Do you want to log out?" confirmation page when the
+ * end-session request carries no id_token_hint (the injected universal-logout
+ * control cannot know the id_token). A real user clicks the confirm button;
+ * without it the Keycloak SSO session — and every app session — survives.
+ */
+async function confirmKeycloakLogoutIfPrompted(page) {
+  const confirmBtn = page
+    .locator("#kc-logout, form[action*='logout-confirm'] input[type='submit'], form[action*='logout-confirm'] button")
+    .first();
+  if (await confirmBtn.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false)) {
+    await confirmBtn.click({ timeout: resolveTimeout(10_000) }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+  }
+}
 
+async function inAppLogout(page) {
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+
+  await waitForAnyLogoutCandidate(page);
+  await page.waitForTimeout(resolveTimeout(3_000));
   await waitForAnyLogoutCandidate(page);
 
   if (await tryLogoutFrom(page)) {
-    await page.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+    await confirmKeycloakLogoutIfPrompted(page);
     return;
   }
 
   const menuTriggers = menuTriggerCandidatesOn(page);
 
-  // Try every visible trigger — the first match is not necessarily the
-  // one wrapping the logout entry (Bootstrap navbars often render
-  // multiple dropdown toggles).
   const tried = new Set();
   for (const triggerLoc of menuTriggers) {
     const count = await triggerLoc.count().catch(() => 0);
     for (let i = 0; i < count; i++) {
       const trigger = triggerLoc.nth(i);
-      if (!(await trigger.isVisible({ timeout: 1_000 }).catch(() => false))) continue;
+      if (!(await trigger.isVisible({ timeout: resolveTimeout(1_000) }).catch(() => false))) continue;
       const key = await trigger.evaluate((el) => el.outerHTML.slice(0, 200)).catch(() => "");
       if (key && tried.has(key)) continue;
       tried.add(key);
-      await trigger.click({ timeout: 5_000 }).catch(() => {});
-      // Give the dropdown / popover time to render its items.
-      await page.waitForTimeout(1_500);
+      await trigger.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
+      await page.waitForTimeout(resolveTimeout(1_500));
       if (await tryLogoutFrom(page)) {
-        await page.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+        await confirmKeycloakLogoutIfPrompted(page);
         return;
       }
-      // Close again before trying the next trigger so overlay menus do
-      // not stack and hide each other.
-      await trigger.click({ timeout: 2_000 }).catch(() => {});
+      await trigger.click({ timeout: resolveTimeout(2_000) }).catch(() => {});
     }
   }
 

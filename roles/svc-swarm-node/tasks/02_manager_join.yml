@@ -1,0 +1,14 @@
+---
+- name: "🔍 Probe local docker swarm state"
+  ansible.builtin.command: container info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
+  register: docker_swarm_local_state
+  changed_when: false
+  failed_when: docker_swarm_local_state.rc != 0
+
+- name: "🐝 Join swarm cluster as manager (only when not already active)"
+  ansible.builtin.command: >-
+    container swarm join
+    --token {{ svc_swarm_manager_token }}
+    {{ svc_swarm_manager_addr }}
+  when: docker_swarm_local_state.stdout != 'active'
+  changed_when: true

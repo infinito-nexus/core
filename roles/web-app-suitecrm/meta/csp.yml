@@ -1,0 +1,12 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-attr:
+    unsafe-eval: true
+    unsafe-inline: true
+whitelist:
+  manifest-src: "{{ lookup('domain', 'web-app-keycloak') }}"
+  connect-src:
+    - "data:"

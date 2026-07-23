@@ -22,6 +22,7 @@ which auto-adds:
 import argparse
 import os
 import subprocess
+import syslog
 import time
 
 # ---------------------------
@@ -31,8 +32,6 @@ import time
 
 def bash(command: str) -> list[str]:
     print(command)
-    # `command` is composed in this script from Ansible-templated input
-    # (host-trusted); shell features (pipes, &&) are required.
     process = subprocess.Popen(  # noqa: S602
         [command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
     )
@@ -48,6 +47,11 @@ def bash(command: str) -> list[str]:
 
 def list_to_string(lst: list[str]) -> str:
     return " ".join(lst)
+
+
+def log_kill(action: str, target: str) -> None:
+    syslog.openlog(ident="infinito-kill")
+    syslog.syslog(syslog.LOG_WARNING, f"sys-ctl-rpr-container-soft: {action} {target}")
 
 
 def print_bash(command: str) -> list[str]:
@@ -110,7 +114,6 @@ def wait_while_manipulation_running(
     while True:
         any_active = False
         for svc in services:
-            # `svc` is a project-defined unit name from the role's vars, not user input.
             res = subprocess.run(  # noqa: S602
                 f"systemctl is-active --quiet {svc}", shell=True, check=False
             )
@@ -170,7 +173,7 @@ def get_compose_project_info(container: str) -> tuple[str, str]:
 def main(
     base_directory: str, manipulation_services: list[str], timeout: int | None
 ) -> int:
-    _ = base_directory  # unused in STRICT label mode
+    _ = base_directory
     errors = 0
     wait_while_manipulation_running(
         manipulation_services, waiting_time=600, timeout=timeout
@@ -179,9 +182,15 @@ def main(
     unhealthy_container_names = print_bash(
         "container ps --filter label=com.docker.compose.project --filter health=unhealthy --format '{{.Names}}'"
     )
-    exited_container_names = print_bash(
-        "container ps --filter label=com.docker.compose.project --filter status=exited --format '{{.Names}}'"
+    exited_lines = print_bash(
+        "container ps --filter label=com.docker.compose.project --filter status=exited "
+        "--format '{{.Names}}\t{{.Status}}'"
     )
+    exited_container_names = [
+        line.split("\t", 1)[0]
+        for line in exited_lines
+        if "\t" in line and not line.split("\t", 1)[1].startswith("Exited (0)")
+    ]
     failed_containers = unhealthy_container_names + exited_container_names
 
     for container in failed_containers:
@@ -194,7 +203,6 @@ def main(
 
         compose_file_path = os.path.join(workdir, "compose.yml")
         if not os.path.isfile(compose_file_path):
-            # STRICT: we only trust labels; if file not there, error out.
             print(
                 f"Error: compose.yml not found at {compose_file_path} for container {container}"
             )
@@ -206,11 +214,16 @@ def main(
             print(
                 "Restarting unhealthy/exited container via project:", compose_file_path
             )
+            log_kill("compose restart", project)
             print_bash(compose_cmd("restart", project_path, project))
         except Exception as e:
             if "port is already allocated" in str(e):
                 print("Detected port allocation problem. Executing recovery steps...")
                 try:
+                    log_kill(
+                        "port-conflict recovery: compose down + systemctl restart docker",
+                        project,
+                    )
                     print_bash(compose_cmd("down", project_path, project))
                     print_bash("systemctl restart docker")
                     print_bash(compose_cmd("up -d", project_path, project))
@@ -224,10 +237,6 @@ def main(
     print("Finished restart procedure.")
     return errors
 
-
-# ---------------------------
-# CLI
-# ---------------------------
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

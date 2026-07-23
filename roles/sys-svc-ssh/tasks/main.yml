@@ -1,4 +1,4 @@
 ---
-- name: "Load SSH (once)"
+- name: "🔌 Load SSH (once)"
   include_tasks: 01_core.yml
   when: not (run_once_sys_svc_ssh | default(false) | bool)

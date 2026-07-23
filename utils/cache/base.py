@@ -21,6 +21,11 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from plugins.filter.merge.with_defaults import (
+    merge_with_defaults,  # noqa: F401  re-exported
+)
+from utils.paths import FILE_TOKENS
+
 from . import PROJECT_ROOT, ROLES_DIR  # noqa: F401
 
 if TYPE_CHECKING:
@@ -54,15 +59,9 @@ def _decrypt_ansible_encrypted_strings(value: Any) -> Any:
     return value
 
 
-DEFAULT_TOKENS_FILE = Path("/var/lib/infinito/secrets/tokens.yml")
+DEFAULT_TOKENS_FILE = FILE_TOKENS
 
 
-# Re-entry guard. Cross-lookups ({{ lookup('users', ...) }} inside applications
-# and vice versa) can otherwise drive unbounded recursion once strings are
-# trust-tagged and actually rendered (Ansible 2.19+). When a re-entrant call is
-# detected, callers return the pre-render (still-templated) payload, which the
-# caller's own templar will resolve lazily at use-site. Lives here because both
-# `users` and `applications` modules need to touch the same flag.
 _RENDER_GUARD = threading.local()
 
 
@@ -97,7 +96,6 @@ def _fingerprint_mapping(obj: Any) -> str:
         import hashlib
 
         data = repr(sorted(obj.items())) if isinstance(obj, Mapping) else repr(obj)
-        # md5 used as a fast non-cryptographic fingerprint for cache keying.
         digest = hashlib.md5(
             data.encode("utf-8", errors="replace"),
             usedforsecurity=False,
@@ -206,15 +204,8 @@ def _render_with_templar(
     if templar is None:
         return value
 
-    # Lazy import: `_templar_render_best_effort` pulls
-    # `ansible.errors.AnsibleError`. Keeping the import lazy means
-    # ansible-less importers of `utils.cache.base` (e.g. the runner-host
-    # CLI path) never pay the cost.
     from utils.templating.ansible import _templar_render_best_effort
 
-    # Start from whatever the templar already had available so that
-    # ansible_facts/hostvars stay accessible during nested renders. Overlay the
-    # caller-supplied variables on top, then inject our raw.*_RAW helpers.
     prev_templar_avail = getattr(templar, "available_variables", None)
     base_variables: dict[str, Any] = (
         dict(prev_templar_avail) if prev_templar_avail else {}
@@ -231,14 +222,6 @@ def _render_with_templar(
             return raw
         data = copy.deepcopy(raw)
         if isinstance(data, str):
-            # Type-preserving fast path: when the entire string is a
-            # single Jinja expression, ask templar directly so a
-            # list/dict-returning ``lookup(...)`` keeps its native type.
-            # `_templar_render_best_effort` always coerces its output
-            # to ``str``, which would turn ``['a','b']`` into the
-            # Python-repr string ``"['a', 'b']"``. Detect the shape
-            # ``{{ ... }}`` (with no nested ``{{`` / ``{%``) and bypass
-            # the str-coercing wrapper for that case only.
             stripped = data.strip()
             if (
                 stripped.startswith("{{")
@@ -255,10 +238,7 @@ def _render_with_templar(
                 except Exception:
                     rendered = None
                 if rendered is not None and not isinstance(rendered, str):
-                    # Recurse into the resolved structure so any nested
-                    # Jinja inside the resolved value is also rendered.
                     return _render_deep(rendered)
-                # else: fall through to the str-render loop below.
             for _ in range(max_rounds):
                 try:
                     rendered = _templar_render_best_effort(

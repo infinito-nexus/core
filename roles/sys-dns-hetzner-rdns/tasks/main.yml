@@ -2,7 +2,7 @@
 # run_once_sys_dns_hetzner_rdns
 
 # Decide flavor
-- name: Decide which Hetzner flavor to use
+- name: 🤔 Decide which Hetzner flavor to use
   set_fact:
     _use_cloud: "{{ (HETZNER_API_TOKEN | length) > 0 }}"
     _use_robot: >-
@@ -12,20 +12,23 @@
       }}
   no_log: "{{ hetzner_no_log | bool }}"
 
-- name: "Note: both Cloud token and Robot creds provided; using Cloud flavor"
+- name: "🔑 Note: both Cloud token and Robot creds provided; using Cloud flavor"
   debug:
     msg: "Both HETZNER_API_TOKEN and Robot credentials present → proceeding with Cloud (hcloud) flavor."
   when: _use_cloud | bool and _use_robot | bool
 
-- name: Include Cloud flavor (hcloud)
+- name: 📂 Include Cloud flavor (hcloud)
   include_tasks: flavors/cloud.yml
   when: _use_cloud | bool
 
-- name: Include Robot flavor (Robot Webservice)
-  include_tasks: flavors/robot.yml
+- name: 📂 Include Robot flavor (Robot Webservice)
+  ansible.builtin.include_tasks:
+    file: flavors/robot.yml
+    apply:
+      no_log: "{{ hetzner_no_log | bool }}"
   when: (not _use_cloud) and _use_robot
 
-- name: Fail if no credentials provided
+- name: 🛑 Fail if no credentials provided
   fail:
     msg: >-
       Neither Cloud nor Robot credentials provided.

@@ -12,20 +12,14 @@ test_e2e_playwright_test_timeout: 300000
 # concurrency limits, and reduced on CI.
 test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
 
-# Optional readiness wait
-test_e2e_playwright_wait_enabled: true
-test_e2e_playwright_wait_retries: 30
-test_e2e_playwright_wait_delay: 5
+# globalTimeout = run_timeout minus this buffer; leaves room for Ansible to
+# collect artifacts before it kills the sidecar at run_timeout.
+TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER: 60
+TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS: "{{ (((TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE | int) - (TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER | int)) * 1000) | string
+  }}"
 
 # Run only a subset (optional)
 test_e2e_playwright_only_roles: "{{ lookup('deployment').groups }}"
-test_e2e_playwright_skip_roles: [] # e.g. ["svc-something"]
-
+test_e2e_playwright_skip_roles: []
 test_e2e_playwright_keep: false
-
-# 0-based matrix-deploy round id. Pushed as an Ansible extra var by
-# `cli/administration/deploy/development/deploy.py` when the matrix
-# orchestrator runs; defaults to 0 for dev / non-matrix invocations
-# so per-(variant, pass) artifact archiving still produces a valid
-# `variant-0/<sync|async>/` slot.
 VARIANT_INDEX: 0

@@ -1,4 +1,4 @@
 ---
-- name: "Include core routines for '{{ application_id }}'"
+- name: "📂 Include core routines for '{{ application_id }}'"
   include_tasks: "01_core.yml"
   when: run_once_web_app_fediwall is not defined

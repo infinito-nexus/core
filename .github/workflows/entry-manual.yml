@@ -1,5 +1,5 @@
 name: "⚡ CI: Manual"
-run-name: "Manual CI triggered: ${{ inputs.distros }}; ${{ inputs.whitelist != '' && inputs.whitelist || 'diff-derived (origin/main)' }}"
+run-name: "Manual CI triggered: ${{ inputs.distros }}; ${{ inputs.priority != '' && format('{0} ⭐; ', inputs.priority) || '' }}${{ inputs.whitelist != '' && inputs.whitelist || 'diff-derived (origin/main)' }}"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
@@ -18,6 +18,21 @@ on:
         required: false
         default: ""
         type: string
+      lifecycles:
+        description: "Lifecycle envelope for test-deploy discovery (comma/space-separated)."
+        required: false
+        default: ""
+        type: string
+      modes:
+        description: "Deploy modes to test (space-separated: 'swarm compose host'). Only the listed modes run their deploy job."
+        required: false
+        default: "swarm compose host"
+        type: string
+      priority:
+        description: "Optional space-separated app ids for the priority line: deployed first in every mode; the regular line runs the remaining roles only after every priority job succeeded."
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -32,5 +47,8 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
-      roles_only: ${{ (inputs.whitelist != '' && inputs.whitelist != '__ALL__') && 'true' || 'false' }}
+      lifecycles: ${{ inputs.lifecycles }}
+      modes: ${{ inputs.modes }}
+      priority: ${{ inputs.priority }}
+      roles_only: ${{ (inputs.priority != '' || (inputs.whitelist != '' && inputs.whitelist != '__ALL__')) && 'true' || 'false' }}
     secrets: inherit

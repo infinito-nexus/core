@@ -1,4 +1,4 @@
-"""Unit tests for `utils.roles.entity_apps.apps_for_entity`."""
+"""Unit tests for `utils.roles.entity.apps.apps_for_entity`."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.yaml import _reset_cache_for_tests, dump_yaml
-from utils.roles.entity_apps import apps_for_entity
+from utils.roles.entity.apps import apps_for_entity
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
@@ -20,9 +20,6 @@ class TestAppsForEntity(unittest.TestCase):
         self.roles_dir = self.tmp / "roles"
         self.roles_dir.mkdir(parents=True, exist_ok=True)
 
-        # `get_entity_name` resolves categories.yml relative to cwd or
-        # PROJECT_ROOT, so a temp cwd with our roles tree is the simplest
-        # way to feed it a minimal categories layout for the test.
         dump_yaml(
             self.roles_dir / "categories.yml",
             {
@@ -63,7 +60,6 @@ class TestAppsForEntity(unittest.TestCase):
         )
 
     def test_falls_back_to_role_dir_name_when_application_id_missing(self) -> None:
-        # vars/main.yml present but no application_id → role dir name wins.
         self._mk_role("web-app-foo", None)
         self.assertEqual(
             apps_for_entity("foo", roles_dir=self.roles_dir),
@@ -87,11 +83,9 @@ class TestAppsForEntity(unittest.TestCase):
         self.assertEqual(apps_for_entity("matomo", roles_dir=ghost), [])
 
     def test_result_is_sorted_and_unique(self) -> None:
-        # Two roles map to the same entity via the longest-prefix rule.
         self._mk_role("web-app-matomo", "web-app-matomo")
         self._mk_role("web-svc-matomo", "web-svc-matomo")
 
-        # Different entities — sanity check ordering across calls
         got = apps_for_entity("matomo", roles_dir=self.roles_dir)
         self.assertEqual(got, sorted(got))
         self.assertEqual(len(got), len(set(got)))

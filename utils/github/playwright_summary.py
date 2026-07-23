@@ -133,9 +133,13 @@ def _path_info(path: Path) -> tuple[str, str, str]:
     parent = path.parent
     grand = parent.parent
     if parent.name in _PASS_NAMES and grand.name.startswith("variant-"):
-        return grand.parent.name, grand.name, parent.name
+        return (
+            grand.parent.name,
+            grand.name.removeprefix("variant-"),
+            parent.name,
+        )
     if parent.name.startswith("variant-"):
-        return grand.name, parent.name, ""
+        return grand.name, parent.name.removeprefix("variant-"), ""
     return parent.name, "", ""
 
 

@@ -1,0 +1,28 @@
+---
+# include-gated: when: DEPLOYMENT_MODE == "compose"
+- name: "⏹️ Akaunting setup | Stop running akaunting (compose)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose stop akaunting
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  changed_when: true
+
+- name: "▶️ Akaunting setup | One-shot install"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose run --rm --no-deps -e AKAUNTING_SETUP=true akaunting {{ AKAUNTING_ENTRYPOINT }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  changed_when: true
+
+- name: "🔄 Akaunting setup | Start akaunting after install (compose)"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose up -d --force-recreate akaunting
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  changed_when: true

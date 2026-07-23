@@ -13,6 +13,7 @@
  */
 
 const env = require("./env");
+const tls = require("./tls");
 const keycloak = require("./keycloak");
 const logout = require("./logout");
 const landing = require("./landing");
@@ -24,6 +25,7 @@ const seaweedfs = require("./seaweedfs");
 
 module.exports = {
   ...env,
+  ...tls,
   ...keycloak,
   ...logout,
   ...landing,

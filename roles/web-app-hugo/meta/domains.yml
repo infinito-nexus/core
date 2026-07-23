@@ -1,0 +1,4 @@
+---
+canonical:
+  - hugo.{{ DOMAIN_PRIMARY }}
+aliases: []

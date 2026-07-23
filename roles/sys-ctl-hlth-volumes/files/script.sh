@@ -43,7 +43,7 @@ for volume in $anonymous_volumes; do
     for container_id in $container_ids; do
         container_name=$(container inspect --format '{{ .Name }}' "$container_id" | sed 's#^/##')
         mount_path=$(container inspect --format "{{ range .Mounts }}{{ if eq .Name \"$volume\" }}{{ .Destination }}{{ end }}{{ end }}" "$container_id")
-        
+
         if [ -n "$mount_path" ]; then
             echo "Volume $volume is used by container $container_name at mount path $mount_path"
         else
@@ -51,5 +51,39 @@ for volume in $anonymous_volumes; do
         fi
     done
 done
+
+nfs_volumes=$(container volume ls --filter driver=local --format '{{.Name}}' \
+    | while read -r vol; do
+        opts=$(container volume inspect "$vol" --format '{{.Options.type}}' 2>/dev/null)
+        if [ "$opts" = "nfs" ]; then
+            echo "$vol"
+        fi
+    done)
+
+if [ -n "$nfs_volumes" ]; then
+    echo
+    echo "============================================================"
+    echo "🔍 NFS-backed volumes — reachability check"
+    echo "============================================================"
+    for vol in $nfs_volumes; do
+        device=$(container volume inspect "$vol" --format '{{.Options.device}}' 2>/dev/null)
+        addr_opt=$(container volume inspect "$vol" --format '{{.Options.o}}' 2>/dev/null)
+        server=$(echo "$addr_opt" | sed -n 's/.*addr=\([^,]*\).*/\1/p')
+        export_path="${device#:}"
+
+        if [ -z "$server" ] || [ -z "$export_path" ]; then
+            echo "❓ Volume $vol: cannot parse server/export from driver_opts"
+            ((status++))
+            continue
+        fi
+
+        if showmount -e "$server" >/dev/null 2>&1; then
+            echo "✅ Volume $vol: server $server reachable for export $export_path"
+        else
+            echo "❌ Volume $vol: server $server NOT reachable (export $export_path)"
+            ((status++))
+        fi
+    done
+fi
 
 exit $status

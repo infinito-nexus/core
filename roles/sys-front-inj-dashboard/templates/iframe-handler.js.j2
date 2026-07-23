@@ -17,12 +17,17 @@
       }
     }
 
+    function isInternalHost(hostname) {
+      if (hostname.endsWith(primary_domain) || hostname.endsWith(current_domain)) return true;
+      var onion = current_domain.match(/[a-z2-7]{56}\.onion$/);
+      return !!(onion && hostname.endsWith(onion[0]));
+    }
+
     function forceExternalLinks() {
       Array.prototype.forEach.call(document.querySelectorAll("a[href]"), function (a) {
         try {
           var url = new URL(a.href, location);
-          // open new tab if link goes outside our primary OR current domain
-          if (!(url.hostname.endsWith(primary_domain) || url.hostname.endsWith(current_domain))) {
+          if (!isInternalHost(url.hostname)) {
             a.target = "_blank";
             a.rel = "noopener";
           }

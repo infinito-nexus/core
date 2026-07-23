@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_gitlab: per-user OAuth connect reaches the partner GitLab authorize endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_gitlab");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -12,9 +14,9 @@ test("integration integration_gitlab: per-user OAuth connect reaches the partner
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -22,7 +24,7 @@ test("integration integration_gitlab: per-user OAuth connect reaches the partner
     await expect(
       instanceInput.first(),
       "the GitLab admin OAuth instance field must render when integration_gitlab is enabled"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
     const instanceUrl = ((await instanceInput.first().inputValue()) || "").trim();
     expect(instanceUrl.length, "oauth_instance_url must be configured").toBeGreaterThan(0);
 
@@ -31,9 +33,9 @@ test("integration integration_gitlab: per-user OAuth connect reaches the partner
     expect(partnerHost, "must point at the partner GitLab, not the gitlab.com default").not.toBe("gitlab.com");
     expect(partnerHost, "must not point back at Nextcloud itself").not.toBe(nextcloudHost);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -43,18 +45,18 @@ test("integration integration_gitlab: per-user OAuth connect reaches the partner
     await expect(
       connect,
       "the personal 'Connect to GitLab' control must render once the partner OAuth client is provisioned"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     let authorizeUrl = await connect.getAttribute("href").catch(() => null);
     if (!authorizeUrl || !/\/oauth\/authorize/.test(authorizeUrl)) {
-      const popupPromise = context.waitForEvent("page", { timeout: 15_000 }).catch(() => null);
+      const popupPromise = context.waitForEvent("page", { timeout: resolveTimeout(15_000) }).catch(() => null);
       await Promise.all([
-        page.waitForURL((u) => new URL(u).host === partnerHost, { timeout: 15_000 }).catch(() => {}),
-        connect.click({ timeout: 10_000 }).catch(() => {}),
+        page.waitForURL((u) => new URL(u).host === partnerHost, { timeout: resolveTimeout(15_000) }).catch(() => {}),
+        connect.click({ timeout: resolveTimeout(10_000) }).catch(() => {}),
       ]);
       const popup = await popupPromise;
       const target = popup || page;
-      await target.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      await target.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
       authorizeUrl = target.url();
     }
 

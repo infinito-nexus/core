@@ -1,7 +1,7 @@
 ---
 # The seeds need to be executed as root, because www-data isn't allowed to create files in the wordpress directory
 
-- name: "Strip stale Multisite bareword constants from {{ WORDPRESS_CONFIG_FILE }} (defensive, runs before any wp-cli call)"
+- name: "🧹 Strip stale Multisite bareword constants from {{ WORDPRESS_CONFIG_FILE }}"
   # Pre-fix runs of 06_multisite.yml wrote DOMAIN_CURRENT_SITE /
   # PATH_CURRENT_SITE with `wp config set --raw`, but Ansible's
   # `command:` module pipes through shlex, which strips the surrounding
@@ -15,40 +15,41 @@
   # textual sed survives an unparseable file. Drop these two lines
   # unconditionally — the canonical, properly quoted versions are
   # (re)written by 06_multisite.yml's string-write loop.
-  command: >
-    container exec --user root {{ WORDPRESS_CONTAINER }}
+  shell: >
+    container exec --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
     sed -i -E "/^\s*define\(\s*'(DOMAIN_CURRENT_SITE|PATH_CURRENT_SITE)'\s*,.*\);\s*$/d"
     {{ WORDPRESS_DOCKER_CONF_PATH }}
   changed_when: true
 
-- name: Update DB host in {{ WORDPRESS_CONFIG_FILE }}
-  command: >
-    container exec --user root {{ WORDPRESS_CONTAINER }}
+- name: 🔄 Update DB host in {{ WORDPRESS_CONFIG_FILE }}
+  shell: >
+    container exec --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
     sed -i "s/define(\s*'DB_HOST'\s*,\s*'[^']*'\s*);/define( 'DB_HOST', '{{ lookup('database', application_id, 'host') | sed_escape('/') }}:{{ lookup('database',
     application_id, 'port') | sed_escape('/') }}' );/i" {{ WORDPRESS_DOCKER_CONF_PATH }}
   notify: compose up
 
-- name: Update DB name in {{ WORDPRESS_CONFIG_FILE }}
-  command: >
-    container exec --user root {{ WORDPRESS_CONTAINER }}
+- name: 🔄 Update DB name in {{ WORDPRESS_CONFIG_FILE }}
+  shell: >
+    container exec --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
     sed -i "s/define(\s*'DB_NAME'\s*,\s*'[^']*'\s*);/define( 'DB_NAME', '{{ lookup('database', application_id, 'name') | sed_escape('/') }}' );/i" {{ WORDPRESS_DOCKER_CONF_PATH
     }}
   notify: compose up
 
-- name: Update DB user in {{ WORDPRESS_CONFIG_FILE }}
-  command: >
-    container exec --user root {{ WORDPRESS_CONTAINER }}
+- name: 🔄 Update DB user in {{ WORDPRESS_CONFIG_FILE }}
+  shell: >
+    container exec --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
     sed -i "s/define(\s*'DB_USER'\s*,\s*'[^']*'\s*);/define( 'DB_USER', '{{ lookup('database', application_id, 'username') | sed_escape('/') }}' );/i" {{ WORDPRESS_DOCKER_CONF_PATH
     }}
   notify: compose up
 
-- name: Update DB password in {{ WORDPRESS_CONFIG_FILE }}
-  command: >
-    container exec --user root {{ WORDPRESS_CONTAINER }}
-    sed -i "s/define(\s*'DB_PASSWORD'\s*,\s*'[^']*'\s*);/define( 'DB_PASSWORD', '{{ lookup('database', application_id, 'password') | sed_escape('/') }}' );/i" {{
-    WORDPRESS_DOCKER_CONF_PATH }}
+- name: 🔄 Update DB password in {{ WORDPRESS_CONFIG_FILE }}
+  shell: >
+    container exec --user root
+    -e PATCH_PASSWORD={{ lookup('database', application_id, 'password') | sed_escape('/') | quote }}
+    {{ WORDPRESS_CONTAINER_ADDRESS }}
+    sh -c "sed -i \"s/define(\\s*'DB_PASSWORD'\\s*,\\s*'[^']*'\\s*);/define( 'DB_PASSWORD', '\${PATCH_PASSWORD}' );/i\" {{ WORDPRESS_DOCKER_CONF_PATH }}"
   notify: compose up
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Flush handlers to reinitialize new database credentials"
+- name: "🚿 Flush handlers to reinitialize new database credentials"
   meta: flush_handlers

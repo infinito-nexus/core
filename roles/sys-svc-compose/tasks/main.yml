@@ -2,7 +2,7 @@
 - include_tasks: 01_core.yml
   when: run_once_sys_svc_compose is not defined
 
-- name: "Route docker cleanup/health deps through service-loader"
+- name: "🧭 Route docker cleanup/health deps through service-loader"
   ansible.builtin.include_role:
     name: sys-service-loader
     tasks_from: list_or_shoot.yml
@@ -13,38 +13,22 @@
       - sys-ctl-hlth-volumes
       - sys-ctl-rpr-container-hard
 
-- name: "Route svc-bkp-container-2-local through service-loader (when deployed)"
+- name: "🧭 Route svc-bkp-volume-2-local through service-loader (when deployed)"
   ansible.builtin.include_role:
     name: sys-service-loader
     tasks_from: list_or_shoot.yml
   vars:
     list_or_shoot_roles:
-      - svc-bkp-container-2-local
-  when: "'svc-bkp-container-2-local' in group_names"
+      - svc-bkp-volume-2-local
+  when: "'svc-bkp-volume-2-local' in group_names"
 
-# This could lead to problems in sys-svc-compose directories which are based on a git repository
-# @todo Verify that this isn't the case. E.g. in accounting
-- name: "Create all sys-svc-compose directories (including parent directories) for '{{ application_id }}'"
-  file:
-    path: "{{ item.value }}"
-    state: directory
-    mode: "0755"
-  with_dict: "{{ lookup('container', application_id, 'directories') }}"
+- name: "🖥️ Stack-host-only prep (dirs, repo, files, CA trust) for '{{ application_id }}'"
+  include_tasks: "02_stack_host_prep.yml"
+  when: IS_STACK_HOST | bool
 
-- name: "Include routines to set up a git repository based installation for '{{ application_id }}'."
-  include_tasks: "03_repository.yml"
-  when: compose_repository_pull | bool
+- name: "📁 Pre-create NFS subdirs for '{{ application_id }}' (swarm + NFS only)"
+  include_tasks: "utils/nfs_prep.yml"
 
-- name: "Include file management routines for '{{ application_id }}'."
-  include_tasks: "04_files.yml"
-
-- name: "Ensure CA trust assets are installed (only when needed)"
-  ansible.builtin.include_role:
-    name: sys-svc-compose-ca
-  when:
-    - lookup('domains') | has_domain(application_id)
-    - lookup('tls', application_id, 'enabled') | bool
-    - lookup('tls', application_id, 'mode') == 'self_signed'
-
-- name: "Ensure that {{ lookup('container', application_id, 'directories.instance') }} is up"
+- name: "✅ Ensure instance dir for '{{ application_id }}' is up"
   include_tasks: "utils/up.yml"
+  when: IS_STACK_HOST | bool

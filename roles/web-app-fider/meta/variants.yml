@@ -22,6 +22,8 @@
       shared: true
     postgres:
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -31,6 +33,8 @@
     seaweedfs:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     dashboard:
       enabled: false
@@ -49,6 +53,8 @@
       shared: false
     postgres:
       shared: false
+    redis:
+      shared: false
     prometheus:
       enabled: false
       shared: false
@@ -58,3 +64,6 @@
     seaweedfs:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override

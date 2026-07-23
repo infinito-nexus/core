@@ -3,13 +3,7 @@ application_id: web-svc-libretranslate # ID of the application
 
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Upstream `libretranslate/libretranslate` listens on 5000 inside the
-# container. The role's compose template references `container_port`
-# to publish the host-side port from `services.libretranslate.ports.local.http`
-# onto this container port; without an explicit value the template
-# render fails with `'container_port' is undefined`.
-container_port: 5000
-
 LIBRETRANSLATE_SERVICE: "{{ entity_name }}"
-LIBRETRANSLATE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
-LIBRETRANSLATE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+LIBRETRANSLATE_IMAGE: "{{ lookup('config', application_id, 'services.libretranslate.image') }}"
+LIBRETRANSLATE_VERSION: "{{ lookup('config', application_id, 'services.libretranslate.version') }}"
+LIBRETRANSLATE_LOAD_ONLY: "{{ lookup('config', application_id, 'services.libretranslate.load_only') | join(',') }}"

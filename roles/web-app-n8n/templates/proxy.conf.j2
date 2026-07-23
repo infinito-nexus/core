@@ -16,11 +16,6 @@ server
   {% if lookup('sso', application_id, 'is_proxy_gated') %}
     {% set sso_proxy_enabled = true %}
     {% set webserver_location_extra_configuration %}
-  # Trusted identity bridge for hooks.js (EXTERNAL_HOOK_FILES). $authrequest_email
-  # is only ever populated from oauth2-proxy's auth_request response (see
-  # roles/web-app-keycloak/templates/sso_proxy/following_directives.conf.j2),
-  # never from a client-supplied header — untrusted_identity_strips.conf.j2
-  # blanks any client-forged Remote-Email before this line runs.
   proxy_set_header Remote-Email "${authrequest_email}";
     {% endset %}
     {% set location = '/' %}

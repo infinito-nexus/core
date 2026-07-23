@@ -1,0 +1,4 @@
+---
+canonical:
+  - accounting.{{ DOMAIN_PRIMARY }}
+aliases: []

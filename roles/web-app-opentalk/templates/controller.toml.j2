@@ -5,7 +5,8 @@
 base_url = "{{ OPENTALK_URL }}"
 
 [http]
-port = 11311
+port = {{ OPENTALK_CTRL_INTERNAL_PORT }}
+service_api_keys = [{ "id" = "controller", "secret" = "{{ lookup('config', application_id, 'credentials.service_api_secret') }}" }]
 
 [database]
 url = "postgres://{{ lookup('database', application_id, 'username') }}:{{ lookup('database', application_id, 'password') }}@{{ lookup('database', application_id, 'host') }}:{{ lookup('database', application_id, 'port') }}/{{ lookup('database', application_id, 'name') }}"
@@ -28,14 +29,22 @@ client_id = "{{ OPENTALK_KEYCLOAK_CLIENT_ID }}"
 client_secret = "{{ OPENTALK_KEYCLOAK_CLIENT_SECRET }}"
 users_find_behavior = "from_user_search_backend"
 
-[livekit]
+[roomserver]
+kind = "internal"
+
+[roomserver.modules]
+[roomserver.modules.livekit]
 public_url = "wss://{{ OPENTALK_DOMAIN }}/livekit"
 service_url = "http://livekit:{{ OPENTALK_LIVEKIT_HTTP_PORT }}"
 api_key = "{{ OPENTALK_LIVEKIT_API_KEY }}"
 api_secret = "{{ OPENTALK_LIVEKIT_API_SECRET }}"
+[roomserver.modules.echo]
+[roomserver.modules.chat]
+[roomserver.modules.polls]
+[roomserver.modules.timer]
 
 [redis]
-url = "redis://redis:6379"
+url = "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
 [minio]
 uri = "{{ lookup('objstore', application_id, 'url') }}"
@@ -48,13 +57,3 @@ url = "amqp://guest:guest@rabbit/%2F"
 mail_task_queue = "opentalk_mailer"
 recording_task_queue = "{{ OPENTALK_RABBIT_QUEUE }}"
 
-{% if OPENTALK_TURN_ENABLED | bool %}
-[turn]
-lifetime = 86400
-servers = [
-  { uris = [ "turn:{{ OPENTALK_TURN_HOST }}:{{ OPENTALK_TURN_PORT }}?transport=udp", "turn:{{ OPENTALK_TURN_HOST }}:{{ OPENTALK_TURN_PORT }}?transport=tcp" ], pre_shared_key = "{{ OPENTALK_TURN_SECRET }}" }
-]
-
-[stun]
-uris = [ "stun:{{ OPENTALK_TURN_HOST }}:{{ OPENTALK_TURN_PORT }}" ]
-{% endif %}

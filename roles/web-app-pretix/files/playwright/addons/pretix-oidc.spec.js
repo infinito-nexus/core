@@ -1,7 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { runAdminFlow } = require("../personas");
+const { runAdminFlow, gotoOnion } = require("../personas");
 
 // pretix-oidc is Pretix's OIDC SSO plugin. It is pip-installed at image-build
 // time and activated purely through environment: the role appends
@@ -26,7 +27,7 @@ test("addon pretix-oidc: login affordance routes to the Keycloak authorization e
   test.skip(!appBaseUrl, "APP_BASE_URL not set for this role");
 
   await page.context().clearCookies();
-  await page.goto(`${appBaseUrl}/control/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${appBaseUrl}/control/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
   // The pretix-oidc backend renders a login link whose href is the full Keycloak
   // authorization URL (openid-connect/auth?client_id=...&redirect_uri=.../oidc/callback...).
@@ -40,7 +41,7 @@ test("addon pretix-oidc: login affordance routes to the Keycloak authorization e
   await expect(
     oidcLink,
     "Pretix /control/login must expose the pretix-oidc login affordance once the OIDC auth backend is active",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   // Resolve the actual destination. authentication_url() points the link straight
   // at the OIDC authorization endpoint, so the href itself is the coupling proof.
@@ -49,8 +50,8 @@ test("addon pretix-oidc: login affordance routes to the Keycloak authorization e
     // Some pretix themes route the affordance through an internal start URL that
     // 302s to the IdP. Follow the click and read the resulting Keycloak URL.
     await Promise.all([
-      page.waitForURL(/openid-connect\/auth/i, { timeout: 30_000 }).catch(() => {}),
-      oidcLink.click().catch(() => {}),
+      page.waitForURL(/openid-connect\/auth/i, { timeout: resolveTimeout(30_000) }).catch(() => {}),
+      oidcLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {}),
     ]);
     target = page.url();
   }
@@ -82,14 +83,14 @@ test("addon pretix-oidc: administrator OIDC login round-trip succeeds", async ({
       const link = interactivePage
         .getByRole("link", { name: /^(events|orders|control|admin)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
         await interactivePage
-          .waitForLoadState("domcontentloaded", { timeout: 30_000 })
+          .waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) })
           .catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /event|order|ticket|control|pretix/i,
-          { timeout: 30_000 }
+          { timeout: resolveTimeout(30_000) }
         );
       }
     },

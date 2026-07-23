@@ -7,11 +7,21 @@
 # the Matomo body snippet (avoiding 'matomo_site_id is undefined') and inject.yml is not run.
 # See docs/contributing/design/exceptions.md — "Matomo Token Not Yet Available".
 
-- name: "Disable Matomo in inj_enabled for '{{ domain }}' — token not yet available"
+- name: "🔧 Resolve effective Matomo API token for '{{ domain }}'"
+  ansible.builtin.set_fact:
+    matomo_effective_token: >-
+      {{
+        (matomo_token_override | default('') | string | trim)
+        if (matomo_token_override | default('') | string | trim) != ''
+        else (lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim)
+      }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔴 Disable Matomo in inj_enabled for '{{ domain }}' — token not yet available"
   ansible.builtin.set_fact:
     inj_enabled: "{{ inj_enabled | combine({'matomo': false}) }}"
-  when: (lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim) == ""
+  when: matomo_effective_token == ""
 
-- name: "Inject Matomo tracking for '{{ domain }}'"
+- name: "💉 Inject Matomo tracking for '{{ domain }}'"
   include_tasks: inject.yml
   when: inj_enabled.matomo | bool

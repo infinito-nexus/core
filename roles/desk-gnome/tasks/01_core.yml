@@ -1,5 +1,5 @@
 ---
-- name: Install GNOME GSettings schemas + GNOME Shell (cross-distro)
+- name: 📦 Install GNOME GSettings schemas + GNOME Shell (cross-distro)
   become: true
   vars:
     gnome_schema_packages:
@@ -32,7 +32,7 @@
       }}
     state: present
 
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ dependency_role }}"
   loop:

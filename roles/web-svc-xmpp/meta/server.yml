@@ -1,11 +1,4 @@
 ---
-domains:
-  canonical:
-    - xmpp.{{ DOMAIN_PRIMARY }}
-  aliases: []
 status_codes:
   default:
     - 404
-networks:
-  local:
-    subnet: 192.168.105.112/28

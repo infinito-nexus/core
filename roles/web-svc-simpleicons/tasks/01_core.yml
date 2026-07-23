@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
@@ -10,8 +10,8 @@
     aca_headers: '"Origin, X-Requested-With, Content-Type, Accept, Authorization" always'
     webserver_vhost_flavour: "basic"
 
-- name: "Copy '{{ application_id }}' files"
-  template:
+- name: "📋 Copy '{{ application_id }}' files"
+  stack_host_template:
     src: "{{ item.source }}"
     dest: "{{ item.target }}"
     mode: "0755"

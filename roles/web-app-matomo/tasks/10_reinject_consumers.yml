@@ -1,0 +1,28 @@
+---
+- name: "🔎 Matomo | Stat rendered body_filter Lua of candidate web-svc matomo consumers"
+  ansible.builtin.stat:
+    path: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ matomo_inj_consumer.id }}.lua"
+  loop: "{{ lookup('roles_with_service', 'matomo', scope='all') | selectattr('id', 'match', '^web-svc-') | list }}"
+  loop_control:
+    loop_var: matomo_inj_consumer
+    label: "{{ matomo_inj_consumer.id }}"
+  register: matomo_inj_candidates
+  changed_when: false
+  when:
+    - matomo_token_value is defined
+    - matomo_token_value | length > 0
+
+- name: "📄 Matomo | Re-render injection for deployed web-svc consumers"
+  ansible.builtin.include_role:
+    name: sys-front-inj-all
+  vars:
+    application_id: "{{ matomo_inj_dir.matomo_inj_consumer.id }}"
+    domain: "{{ lookup('domain', matomo_inj_dir.matomo_inj_consumer.id) }}"
+    matomo_token_override: "{{ matomo_token_value }}"
+  loop: "{{ matomo_inj_candidates.results | default([]) | selectattr('stat.exists', 'defined') | selectattr('stat.exists') | list }}"
+  loop_control:
+    loop_var: matomo_inj_dir
+    label: "{{ matomo_inj_dir.matomo_inj_consumer.id }}"
+  when:
+    - matomo_token_value is defined
+    - matomo_token_value | length > 0

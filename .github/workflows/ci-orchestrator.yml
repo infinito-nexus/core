@@ -12,6 +12,21 @@ on:
         required: false
         type: string
         default: ""
+      lifecycles:
+        description: "Lifecycle envelope for test-deploy discovery (comma/space-separated)."
+        required: false
+        type: string
+        default: ""
+      modes:
+        description: "Deploy modes to run (space-separated: 'swarm compose host'). Only listed modes run their deploy job."
+        required: false
+        type: string
+        default: "swarm compose host"
+      priority:
+        description: "Optional space-separated app ids for the priority line: deployed first in every mode; the regular line runs the remaining roles only after every priority job succeeded."
+        required: false
+        type: string
+        default: ""
       image_wait_attempts:
         description: "Polling attempts for waiting on prebuilt or mirrored images"
         required: false
@@ -50,21 +65,21 @@ jobs:
     env:
       WAIT_REQUIRED: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && !inputs.trusted_pr }}
     steps:
-      - name: Mark fork prerequisites as ready outside fork PRs or for trusted PRs
+      - name: 🏷️ Mark fork prerequisites as ready outside fork PRs or for trusted PRs
         if: ${{ env.WAIT_REQUIRED != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
           echo "Fork prerequisites are implicitly ready (non-fork PR or '🛡️ Trusted' label)."
 
-      - name: Checkout trusted workflow repo (helpers)
+      - name: ⬇️ Checkout trusted workflow repo (helpers)
         if: ${{ env.WAIT_REQUIRED == 'true' }}
         uses: actions/checkout@v7.0.0
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
-      - name: Login to GHCR for CI image checks
+      - name: 🔑 Login to GHCR for CI image checks
         if: ${{ env.WAIT_REQUIRED == 'true' }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
@@ -72,7 +87,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Wait for privileged fork CI images
+      - name: ⏳ Wait for privileged fork CI images
         if: ${{ env.WAIT_REQUIRED == 'true' }}
         shell: bash
         env:
@@ -94,94 +109,29 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Assert privileged prerequisites are ready
+      - uses: actions/checkout@v7.0.0
+      - name: ✅ Assert privileged prerequisites are ready
         shell: bash
-        run: |
-          set -euo pipefail
-          result="${{ needs.wait-fork-prereq-run.result }}"
-          if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
-            echo "Fork prerequisites are not ready. wait-fork-prereq-run=${result}" >&2
-            exit 1
-          fi
-          echo "Fork prerequisites are ready."
+        env:
+          RESULT: ${{ needs.wait-fork-prereq-run.result }}
+        run: ./scripts/github/gate/fork_prereqs.sh
 
-  # Security Checks
   security-codeql:
     uses: ./.github/workflows/security-codeql.yml
 
-  # Linting
-  lint-ansible:
-    uses: ./.github/workflows/lint-ansible.yml
-  lint-docker:
-    uses: ./.github/workflows/lint-docker.yml
-  lint-python:
-    uses: ./.github/workflows/lint-python.yml
-  lint-shell:
-    uses: ./.github/workflows/lint-shell.yml
-  lint-markdown:
-    uses: ./.github/workflows/lint-markdown.yml
-  lint-makefile:
-    uses: ./.github/workflows/lint-makefile.yml
-  lint-packages:
-    uses: ./.github/workflows/lint-packages.yml
-  lint-javascript:
-    uses: ./.github/workflows/lint-javascript.yml
-  lint-playwright:
-    uses: ./.github/workflows/lint-playwright.yml
-  lint-gate:
-    name: 🚦 Gate lint
-    needs:
-      - lint-ansible
-      - lint-python
-      - lint-docker
-      - lint-shell
-      - lint-markdown
-      - lint-makefile
-      - lint-packages
-      - lint-javascript
-      - lint-playwright
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "lint gate passed"
+  lint:
+    uses: ./.github/workflows/lint.yml
 
-  # Code Testing
-  test-code-integration:
-    uses: ./.github/workflows/test-code-integration.yml
-  test-code-lint:
-    uses: ./.github/workflows/test-code-lint.yml
-  test-code-external:
-    uses: ./.github/workflows/test-code-external.yml
-  test-code-unit:
-    uses: ./.github/workflows/test-code-unit.yml
-  test-code-gate:
-    name: 🚦 Gate code
-    needs: [test-code-integration, test-code-lint, test-code-external, test-code-unit]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "code gate passed"
+  test:
+    uses: ./.github/workflows/test.yml
 
-  # Gate for the code Quality
-  code-quality-gate:
-    name: 🚦 Gate Quality
-    needs: 
-      - lint-gate
-      - test-code-gate
-      - security-codeql
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Quality Checks passed"
-
-  # Build Docker Images
   build-ci-images:
-    needs:
-      - code-quality-gate
     uses: ./.github/workflows/images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
       concurrency_channel: ci-orchestrator-build-consumer
     secrets: inherit
   
-  # Test DNS configuration
   test-dns:
     needs: 
       - build-ci-images
@@ -189,7 +139,6 @@ jobs:
     with:
       distros: "arch debian ubuntu fedora centos"
   
-  # Sync Missing Images
   images-mirror-missing:
     uses: ./.github/workflows/images-mirror-missing.yml
     with:
@@ -198,93 +147,138 @@ jobs:
       image_wait_sleep_seconds: ${{ inputs.image_wait_sleep_seconds }}
     secrets: inherit
 
-  # Deploy tests
-
-  test-deploy-server:
+  test-deploy-single-node-priority:
+    name: ⭐ Priority · single-node
+    if: ${{ inputs.priority != '' && (contains(inputs.modes, 'compose') || contains(inputs.modes, 'host')) }}
     needs:
       - test-dns
       - images-mirror-missing
-    uses: ./.github/workflows/test-deploy-server.yml
+      - lint
+      - test
+    uses: ./.github/workflows/test-deploy-single-node.yml
     with:
       distros: ${{ inputs.distros }}
-      whitelist: ${{ inputs.whitelist }}
+      whitelist: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      modes: ${{ inputs.modes }}
+      marker: " ⭐"
 
-  test-deploy-universal:
+  test-deploy-swarm-priority:
+    name: ⭐ Priority · swarm
+    if: ${{ inputs.priority != '' && contains(inputs.modes, 'swarm') }}
+    needs:
+      - lint
+      - test
+      - build-ci-images
+      - images-mirror-missing
+    uses: ./.github/workflows/test-deploy-swarm.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      marker: " ⭐"
+
+  test-deploy-single-node:
+    name: 🔁 Regular · single-node
+    if: >-
+      ${{ always()
+          && (contains(inputs.modes, 'compose') || contains(inputs.modes, 'host'))
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.test-dns.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result) }}
     needs:
       - test-dns
       - images-mirror-missing
-    uses: ./.github/workflows/test-deploy-universal.yml
+      - test-deploy-single-node-priority
+      - test-deploy-swarm-priority
+      - lint
+      - test
+    uses: ./.github/workflows/test-deploy-single-node.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
+      lifecycles: ${{ inputs.lifecycles }}
+      modes: ${{ inputs.modes }}
+      blacklist: ${{ inputs.priority }}
+
+  test-deploy-swarm:
+    name: 🔁 Regular · swarm
+    if: >-
+      ${{ always()
+          && contains(inputs.modes, 'swarm')
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.build-ci-images.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result) }}
+    needs:
+      - build-ci-images
+      - images-mirror-missing
+      - test-deploy-single-node-priority
+      - test-deploy-swarm-priority
+      - lint
+      - test
+    uses: ./.github/workflows/test-deploy-swarm.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.whitelist }}
+      lifecycles: ${{ inputs.lifecycles }}
+      blacklist: ${{ inputs.priority }}
 
   test-runner-smoke:
     needs:
-      - test-deploy-universal
-    # Skip when no self-hosted runners are configured (CI_SELF_HOSTED_RUNNER_COUNT = 0
-    # or unset) — without this guard the job queues indefinitely and times out.
-    # Run whenever universal actually executed (success or failure), not when it was
-    # skipped/cancelled. A partial universal failure (e.g. svc-db-mariadb) must not
-    # block the smoke test — only a svc-runner deploy failure will, because in that
-    # case no self-hosted runner picks up the job and it times out / fails correctly.
-    if: ${{ always() && vars.CI_SELF_HOSTED_RUNNER_COUNT != '0' && vars.CI_SELF_HOSTED_RUNNER_COUNT != '' && (needs.test-deploy-universal.result == 'success' || needs.test-deploy-universal.result == 'failure') }}
+      - test-deploy-swarm
+    if: ${{ always() && vars.CI_SELF_HOSTED_RUNNER_COUNT != '0' && vars.CI_SELF_HOSTED_RUNNER_COUNT != '' && (needs.test-deploy-swarm.result == 'success' || needs.test-deploy-swarm.result == 'failure') }}
     uses: ./.github/workflows/test-runner-smoke.yml
     with:
       ref: ${{ github.sha }}
     secrets: inherit
 
-  test-deploy-workstation:
-    needs:
-      - code-quality-gate
-      - build-ci-images
-    uses: ./.github/workflows/test-deploy-workstation.yml
-    with:
-      distros: ${{ inputs.distros }}
-      whitelist: ${{ inputs.whitelist }}
-
-  # Test Installation
   test-install-make:
     uses: ./.github/workflows/test-install-make.yml
-    needs:
-      - code-quality-gate
   test-install-pkgmgr:
     uses: ./.github/workflows/test-install-pkgmgr.yml
-    needs:
-      - code-quality-gate
-  test-install-gate:
-    name: 🚦 Gate installation
-    needs:
-      - test-install-make
-      - test-install-pkgmgr
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Installation is possible via pkgmgr and make"
 
-  # Test Development Environment
   test-development:
     if: ${{ inputs.roles_only != 'true' }}
     uses: ./.github/workflows/test-environment.yml
     needs:
       - images-mirror-missing
-      - code-quality-gate
+    secrets: inherit
+
+  test-guide:
+    uses: ./.github/workflows/test-guide.yml
+    needs:
+      - images-mirror-missing
+      - build-ci-images
     secrets: inherit
 
   done:
     name: 🏁 Finish pipeline
     needs:
-      - test-deploy-server
-      - test-deploy-universal
+      - test-install-make
+      - test-install-pkgmgr
+      - test-deploy-single-node-priority
+      - test-deploy-swarm-priority
+      - test-deploy-single-node
+      - test-deploy-swarm
       - test-runner-smoke
-      - test-deploy-workstation
-      - test-install-gate
       - test-development
+      - test-guide
+      - test
+      - lint
+      - security-codeql
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Fail if any upstream job failed or was cancelled
+      - name: 🛑 Fail if any upstream job failed or was cancelled
         if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: |
           echo "Pipeline failed: at least one upstream job failed or was cancelled." >&2
           exit 1
-      - name: Done
+      - name: ✅ Done
         run: echo "All checks passed."

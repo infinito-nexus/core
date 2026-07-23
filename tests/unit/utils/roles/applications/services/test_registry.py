@@ -82,6 +82,65 @@ class TestServiceRegistryDiscovery(unittest.TestCase):
         self.assertEqual(detect_service_bucket("web-svc-file"), "web-svc")
         self.assertEqual(detect_service_bucket("svc-db-mariadb"), "universal")
 
+    def test_discovery_passes_overlay_block_through(self):
+        applications = {
+            "svc-db-mariadb": {
+                "services": {"mariadb": {"enabled": True, "shared": True}},
+                "networks": {
+                    "overlay": {
+                        "modes": ["compose", "swarm"],
+                        "topology": "shared_net",
+                        "aliases": ["mariadb"],
+                        "consumer": {"kind": "database"},
+                    }
+                },
+            },
+            "svc-prx-openresty": {
+                "services": {"openresty": {"enabled": True, "shared": True}},
+                "networks": {
+                    "overlay": {
+                        "modes": ["swarm"],
+                        "topology": "default_net",
+                        "aliases": [],
+                        "consumer": {
+                            "kind": "services_flags",
+                            "key": "sso",
+                            "flags": ["enabled"],
+                        },
+                    }
+                },
+            },
+            "web-app-keycloak": {
+                "services": {
+                    "keycloak": {
+                        "enabled": True,
+                        "shared": True,
+                        "provides": "oidc",
+                    }
+                },
+                "networks": {
+                    "overlay": {
+                        "modes": ["swarm"],
+                        "proxy_resolvable": True,
+                        "aliases": ["auth.example"],
+                    }
+                },
+            },
+            "web-app-plain": {"services": {"plain": {"enabled": True, "shared": True}}},
+        }
+
+        registry = build_service_registry_from_applications(applications)
+
+        self.assertEqual(registry["mariadb"]["overlay"]["modes"], ["compose", "swarm"])
+        self.assertEqual(registry["mariadb"]["overlay"]["topology"], "shared_net")
+        self.assertEqual(registry["mariadb"]["overlay"]["consumer"]["kind"], "database")
+        self.assertEqual(registry["openresty"]["overlay"]["modes"], ["swarm"])
+        self.assertEqual(registry["openresty"]["overlay"]["aliases"], [])
+        self.assertTrue(registry["oidc"]["overlay"]["proxy_resolvable"])
+        self.assertNotIn("topology", registry["oidc"]["overlay"])
+        self.assertEqual(registry["oidc"]["overlay"]["aliases"], ["auth.example"])
+        self.assertNotIn("overlay", registry["plain"])
+
     def test_direct_service_resolution_uses_role_local_names(self):
         registry = {
             "ldap": {"role": "svc-db-openldap"},
@@ -119,7 +178,6 @@ class TestServiceRegistryOrdering(unittest.TestCase):
         meta_dir = role_dir / "meta"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Inject run_after onto the primary entity.
         services = dict(services_payload)
         if run_after is not None:
             primary = dict(services.get(primary_entity, {}) or {})
@@ -131,7 +189,6 @@ class TestServiceRegistryOrdering(unittest.TestCase):
             dump_yaml_str(services),
             encoding="utf-8",
         )
-        # meta/main.yml MUST NOT carry run_after anymore.
         meta_dir.joinpath("main.yml").write_text(
             "galaxy_info: {}\n",
             encoding="utf-8",
@@ -214,7 +271,7 @@ class TestServiceRegistryOrdering(unittest.TestCase):
             ],
         )
 
-    def test_cross_type_run_after_fails_hard(self):
+    def test_run_after_orders_across_buckets(self):
         registry = {
             "file": {
                 "role": "web-svc-file",
@@ -242,6 +299,36 @@ class TestServiceRegistryOrdering(unittest.TestCase):
                 "sys-svc-mail",
                 "mail",
                 {"mail": {"enabled": False, "shared": True}},
+            )
+
+            ordered = ordered_primary_service_entries(registry, roles_dir)
+
+        self.assertEqual(
+            [entry["role"] for entry in ordered],
+            ["sys-svc-mail", "web-svc-file"],
+        )
+
+    def test_circular_run_after_fails_hard(self):
+        registry = {
+            "file": {"role": "web-svc-file", "bucket": "web-svc"},
+            "asset": {"role": "web-svc-asset", "bucket": "web-svc"},
+        }
+
+        with tempfile.TemporaryDirectory() as td:
+            roles_dir = Path(td)
+            self._mk_role(
+                roles_dir,
+                "web-svc-file",
+                "file",
+                {"file": {"enabled": False, "shared": True}},
+                run_after=["web-svc-asset"],
+            )
+            self._mk_role(
+                roles_dir,
+                "web-svc-asset",
+                "asset",
+                {"asset": {"enabled": False, "shared": True}},
+                run_after=["web-svc-file"],
             )
 
             with self.assertRaises(ServiceRegistryError):

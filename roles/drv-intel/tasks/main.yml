@@ -1,5 +1,5 @@
 ---
-- name: Resolve Intel media driver package names for current distribution
+- name: 🔍 Resolve Intel media driver package names for current distribution
   ansible.builtin.set_fact:
     drv_intel_packages: >-
       {{
@@ -8,7 +8,7 @@
         else []
       }}
 
-- name: Fail for unsupported distribution in drv-intel role
+- name: 🛑 Fail for unsupported distribution in drv-intel role
   ansible.builtin.assert:
     that:
       - (drv_intel_packages | length) > 0
@@ -16,13 +16,13 @@
       Unsupported distribution for drv-intel role: {{ ansible_facts['distribution'] }}
       ({{ ansible_facts['os_family'] }}).
 
-- name: Enable EPEL on CentOS Stream (required for Intel VA-API driver packages)
+- name: 🟢 Enable EPEL on CentOS Stream (required for Intel VA-API driver packages)
   ansible.builtin.package:
     name: epel-release
     state: present
   when: ansible_facts['distribution'] in ['CentOS', 'CentOS Stream']
 
-- name: Install Intel media driver package(s)
+- name: 📦 Install Intel media driver package(s)
   ansible.builtin.package:
     name: "{{ drv_intel_packages }}"
     state: present

@@ -24,10 +24,9 @@ def find_roles(roles_dir, prefixes=None):
             yield path, meta_file
 
 def load_run_after(meta_file):
-    """Return the role's `run_after` list."""
     from utils.roles.meta_lookup import get_role_run_after
 
-    role_path = os.path.dirname(os.path.dirname(meta_file))
+    role_path = os.path.abspath(os.path.dirname(os.path.dirname(meta_file)))
     role_name = os.path.basename(role_path)
     try:
         return get_role_run_after(role_path, role_name=role_name)
@@ -52,19 +51,26 @@ def build_dependency_graph(roles_dir, prefixes=None):
     in_degree = defaultdict(int)
     roles = {}
 
-    for role_path, meta_file in find_roles(roles_dir, prefixes):
+    in_scope: set[str] = set()
+    role_entries = list(find_roles(roles_dir, prefixes))
+    for role_path, _meta_file in role_entries:
+        in_scope.add(os.path.basename(role_path))
+
+    for role_path, meta_file in role_entries:
         run_after = load_run_after(meta_file)
         application_id = load_application_id(role_path)
         role_name = os.path.basename(role_path)
 
+        in_scope_deps = [d for d in run_after if d in in_scope]
+
         roles[role_name] = {
             'role_name': role_name,
-            'run_after': run_after,
+            'run_after': in_scope_deps,
             'application_id': application_id,
             'path': role_path
         }
 
-        for dependency in run_after:
+        for dependency in in_scope_deps:
             graph[dependency].append(role_name)
             in_degree[role_name] += 1
 
@@ -124,7 +130,6 @@ def topological_sort(graph, in_degree, roles=None):
                 queue.append(nbr)
 
     if len(sorted_roles) != len(in_degree):
-        # Something went wrong: likely a cycle
         cycle = find_cycle(roles or {})
         unsorted = [r for r in in_degree if r not in sorted_roles]
 
@@ -179,13 +184,13 @@ def gen_condi_role_incl(roles_dir, prefixes=None):
 
         app_id = role['application_id']
         entries.append(
-            f"- name: setup {app_id}\n"
+            f"- name: 🔧 setup {app_id}\n"
             f"  when: ('{app_id}' | application_allowed(group_names, lookup('deployment').whitelist))\n"
             f"  include_role:\n"
             f"    name: {role_name}\n"
         )
         entries.append(
-            f"- name: flush handlers after {app_id}\n"
+            f"- name: 🚿 flush handlers after {app_id}\n"
             f"  meta: flush_handlers\n"
         )
 
@@ -219,12 +224,11 @@ def main():
 
     if args.output:
         os.makedirs(os.path.dirname(args.output), exist_ok=True)
-        # Unlink first when an existing file is not writable: the in-container `nobody` UID and the host UID both write here from parallel `make test` targets.
         if os.path.exists(args.output) and not os.access(args.output, os.W_OK):
             try:
                 os.unlink(args.output)
             except OSError:
-                pass  # best-effort: proceed to open(); a real failure surfaces there
+                pass
         with open(args.output, 'w') as f:
             f.write(output)
         print(f"Playbook entries written to {args.output}")

@@ -14,10 +14,10 @@ echo "Runner: $(uname -a)"
 echo
 df -h
 echo
-docker version || true
+docker version || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
-docker system df || true
+docker system df || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
-docker buildx version || true
+docker buildx version || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
-docker buildx du || true
+docker buildx du || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

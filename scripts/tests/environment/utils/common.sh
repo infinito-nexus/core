@@ -7,11 +7,12 @@ set -euo pipefail
 
 DASHBOARD_APP="web-app-dashboard"
 MATOMO_APP="web-app-matomo"
+MARIADB_APP="svc-db-mariadb"
+POSTGRES_APP="svc-db-postgres"
 DASHBOARD_URL="https://dashboard.infinito.example"
 MATOMO_URL="https://matomo.infinito.example"
 
-# These constants are part of the sourced interface consumed by sibling scripts.
-: "${DASHBOARD_APP}" "${MATOMO_APP}" "${DASHBOARD_URL}" "${MATOMO_URL}"
+: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}" "${DASHBOARD_URL}" "${MATOMO_URL}"
 
 UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${UTILS_DIR}/../../../.." && pwd)"

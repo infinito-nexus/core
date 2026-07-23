@@ -36,6 +36,7 @@ def env_variant() -> list[int] | None:
 
 def add_variant_args(parser: argparse.ArgumentParser, *, action: str) -> None:
     parser.add_argument(
+        "-v",
         "--variant",
         type=parse_variant_csv,
         default=env_variant(),

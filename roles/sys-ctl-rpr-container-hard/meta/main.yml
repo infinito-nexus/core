@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automates the restart of Docker Compose instances by detecting compose.yml files and executing a restart script, ensuring consistent service
-    availability.
+  description: Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

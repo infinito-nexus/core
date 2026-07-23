@@ -1,9 +1,15 @@
 # Workflow Loop
 
 Use this page for iterating on GitHub Actions workflows locally through Act.
-For role-level and spec-level iteration, see [Role Loop](role.md) and [Playwright Spec Loop](playwright.md).
+For role-level and spec-level iteration, see [Compose Loop](compose.md) and [Playwright Spec Loop](playwright.md).
+For the swarm deploy loop, see [Swarm Loop](swarm.md).
 
-## Rules
+## When to use
+
+- Use this loop while developing, optimizing, or debugging a GitHub Actions workflow locally through Act.
+- For role-level or spec-level iteration use the [Compose Loop](compose.md) or [Playwright Spec Loop](playwright.md); for the swarm deploy use the [Swarm Loop](swarm.md).
+
+## The loop
 
 - When you are developing, optimizing, or debugging GitHub Actions workflows, you SHOULD explicitly propose `make act-workflow` as the default iterative local debug loop.
 - You MUST NOT assume that Act should be used automatically for workflow work. If the user agrees with the proposal, you SHOULD use `make act-workflow` for the iteration loop.
@@ -13,4 +19,11 @@ For role-level and spec-level iteration, see [Role Loop](role.md) and [Playwrigh
 - When you constrain an Act matrix run through `ACT_MATRIX`, you MUST use Act's `key:value` syntax instead of `key=value`. Otherwise Act may ignore the filter and rerun the whole matrix.
 - For `.github/workflows/test-environment.yml`, the preferred focused Debian example is `make act-workflow ACT_WORKFLOW=.github/workflows/test-environment.yml ACT_JOB=test-environment ACT_MATRIX='dev_runtime_image:debian:bookworm'`.
 - You SHOULD avoid jumping straight to repeated remote CI reruns when `make act-workflow` can validate the workflow locally and the user agreed to use it.
-- You MAY widen the scope to `make act-app` or `make act-all` when the problem spans more than one workflow or `make act-workflow` is too narrow for the failure.
+
+## Recovery & gotchas
+
+### act fails at "Set up job" on recent Docker
+
+`make act-*` aborts with `failed to copy content to container: mkdirat var/run...` because the stock runner image's `/var/run` symlink trips Docker 28/29's stricter `docker cp`.
+
+Fix: run `make act-runner-image` once, then prefix any act target with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (e.g. `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make swarm-zombie app=<app>`).

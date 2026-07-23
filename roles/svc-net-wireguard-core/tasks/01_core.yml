@@ -1,17 +1,17 @@
 ---
-- name: install wireguard for Arch
+- name: 📦 install wireguard for Arch
   package:
     name: wireguard-tools
     state: present
   when: ansible_facts['os_family'] == "Archlinux"
 
-- name: install wireguard for Ubuntu
+- name: 📦 install wireguard for Ubuntu
   apt:
     name: wireguard
     state: present
   when: ansible_facts['os_family'] == "Debian"
 
-- name: create wireguard-ip.conf
+- name: 📁 create wireguard-ip.conf
   copy:
     src: "wireguard-ip.conf"
     dest: /etc/sysctl.d/wireguard-ip.conf
@@ -19,7 +19,7 @@
     group: root
   notify: reload sysctl configuration
 
-- name: "deploy {{ WG0_CONF_DEST }}"
+- name: "🚀 deploy {{ WG0_CONF_DEST }}"
   copy:
     src: "{{ [inventory_dir, 'files', inventory_hostname, 'etc/wireguard/wg0.conf' ] | path_join }}"
     dest: "{{ WG0_CONF_DEST }}"

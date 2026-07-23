@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automates the cleanup of old backups by executing a Python script that deletes outdated backup versions when disk usage exceeds a specified
-    threshold.
+  description: Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

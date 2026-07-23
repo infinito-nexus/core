@@ -2,7 +2,7 @@
 # The following lines should be removed when the following issue is closed:
 # https://github.com/bluesky-social/pds/issues/52
 
-- name: Download pdsadmin tarball
+- name: ⬇️ Download pdsadmin tarball
   get_url_retry:
     url: "https://github.com/lhaig/pdsadmin/releases/download/v1.0.0-dev/pdsadmin_Linux_x86_64.tar.gz"
     dest: "{{ BLUESKY_PDSADMIN_TMP_TAR }}"
@@ -11,20 +11,20 @@
     - compose up
     - compose build
 
-- name: Create {{ BLUESKY_PDSADMIN_DIR }}
+- name: 📁 Create {{ BLUESKY_PDSADMIN_DIR }}
   file:
     path: "{{ BLUESKY_PDSADMIN_DIR }}"
     state: directory
     mode: "0755"
 
-- name: Extract pdsadmin tarball
+- name: 📤 Extract pdsadmin tarball
   unarchive:
     src: "{{ BLUESKY_PDSADMIN_TMP_TAR }}"
     dest: "{{ BLUESKY_PDSADMIN_DIR }}"
     remote_src: true
     mode: "0755"
 
-- name: Ensure pdsadmin is executable
+- name: ✅ Ensure pdsadmin is executable
   file:
     path: "{{ BLUESKY_PDSADMIN_FILE }}"
     mode: "0755"

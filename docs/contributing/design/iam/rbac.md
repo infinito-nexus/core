@@ -24,7 +24,7 @@ The producer [build_ldap_role_entries](../../../../roles/svc-db-openldap/filter_
 rbac:
   tenancy:
     axis:   "domain"                      # one of: "none" (default), "domain"
-    source: "server.domains.canonical"    # Jinja path, only "server.domains.canonical" is implemented
+    source: "domains.canonical"    # Jinja path, only "domains.canonical" is implemented
   roles:
     <role_name>:
       description: "..."

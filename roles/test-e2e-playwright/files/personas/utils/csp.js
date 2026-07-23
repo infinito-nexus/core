@@ -20,6 +20,7 @@
  */
 
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("../../timeouts");
 
 // Injector base-URL resolution. Switch-case form (rather than a
 // dictionary lookup) is intentional: it gives `tests/lint/ansible/
@@ -62,7 +63,7 @@ async function readCspString(page) {
   if (!currentUrl || currentUrl === "about:blank") return "";
 
   const fresh = await page.request
-    .get(currentUrl, { ignoreHTTPSErrors: true, timeout: 10_000 })
+    .get(currentUrl, { ignoreHTTPSErrors: true, timeout: resolveTimeout(10_000) })
     .catch(() => null);
   if (fresh) {
     const headers = fresh.headers();
@@ -271,7 +272,8 @@ async function assertInjectedAssetLoadsWithoutCspBlock(page, {
   const types = resourceTypes && resourceTypes.length > 0 ? resourceTypes : null;
   const loads = captureAssetLoads(page, { hostCandidates: hosts, resourceTypes: types });
   await installCspViolationObserver(page);
-  await page.goto(url, { waitUntil, timeout: navTimeout });
+  // realtime apps never reach networkidle; captured asset loads still suffice
+  await page.goto(url, { waitUntil, timeout: navTimeout }).catch(() => {});
 
   const successful = loads.filter((r) => r.status >= 200 && r.status < 400);
   expect(

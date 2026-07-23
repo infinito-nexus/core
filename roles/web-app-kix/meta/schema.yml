@@ -1,10 +1,5 @@
 ---
 credentials:
-  kix_db_password:
-    description: "Password for the bundled `kix` PostgreSQL user inside the kix-db container."
-    algorithm: alphanumeric
-    validation: "^[A-Za-z0-9]{16,}$"
-    length: 32
   kix_initial_admin_pw:
     description: "Password seeded into KIX backend on first start (env: INITIAL_ADMIN_PW). Used once for the bootstrap admin account; KIX-side rotation is operator-driven
       thereafter."

@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs KeePassXC password manager on Pacman-based systems.
+  author: Kevin Veen-Birkenbach
+  description: Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

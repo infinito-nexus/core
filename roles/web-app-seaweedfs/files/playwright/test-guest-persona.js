@@ -1,10 +1,11 @@
 const { test } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   const { env, isAuthChain, expect } = shared;
 
   async function assertRedirectedToAuth(page, targetUrl) {
-    await page.goto(targetUrl, { waitUntil: "domcontentloaded" });
+    await gotoOnion(page, targetUrl, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle").catch(() => {});
     expect(
       isAuthChain(page.url()),
@@ -13,6 +14,7 @@ exports.register = function (shared) {
   }
 
   test("guest: redirected to auth, never reaches Filer or Master", async ({ page }) => {
+    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
     test.skip(!env.ssoEnabled, "SSO disabled");
     await assertRedirectedToAuth(page, env.filerUrl);
     await page.context().clearCookies();

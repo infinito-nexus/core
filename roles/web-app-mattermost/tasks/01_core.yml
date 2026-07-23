@@ -1,21 +1,24 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Remove stale nginx config for renamed domain chat.{{ DOMAIN_PRIMARY }}" # nocheck: domain-spot
+- name: "🗑️ Remove stale nginx config for renamed domain chat.{{ DOMAIN_PRIMARY }}" # nocheck: domain-spot
   ansible.builtin.file:
     path: "{{ [lookup('nginx', 'directories.configuration.servers'), 'https', 'chat.' ~ DOMAIN_PRIMARY ~ '.conf'] | path_join }}"
     state: absent
   notify: restart openresty
 
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
 
-- name: "Run Mattermost setup routines"
-  include_tasks: 01_setup.yml
+- name: "🖥️ Mattermost stack-host post-deploy"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "▶️ Run Mattermost setup routines"
+      include_tasks: 01_setup.yml
 
-- name: "Configure Keycloak OIDC mappers for Mattermost"
-  include_tasks: 02_keycloak.yml
-  when: MATTERMOST_OIDC_ENABLED | bool
+    - name: "🔧 Configure Keycloak OIDC mappers for Mattermost"
+      include_tasks: 02_keycloak.yml
+      when: MATTERMOST_OIDC_ENABLED | bool

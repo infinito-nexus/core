@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# nocheck: raw-docker  # drives a throwaway dind sandbox; the container/compose wrappers aren't available there
-# svc-runner checks: container health, DooD socket, and (sync pass only) a full
-# nested web-app-dashboard deploy in a sealed throwaway dockerd. No GitHub/GHCR.
+# nocheck: raw-docker
+# svc-runner checks: container health, DooD socket, and (sync pass only) a
+# variant-0 nested web-app-dashboard deploy in a sealed throwaway dockerd.
+# No GitHub/GHCR.
 set -euo pipefail
+
+export CONTAINER_EXEC_TIMEOUT=3h
 
 fail_count=0
 
@@ -25,38 +28,33 @@ if ! docker exec "${RUNNER_PROJECT_PREFIX}-1" docker version >/dev/null 2>&1; th
 fi
 echo "OK: DooD socket accessible inside ${RUNNER_PROJECT_PREFIX}-1"
 
-# The full deploy is identical across the sync/async passes; run it once (sync).
 if [[ "${ASYNC_ENABLED:-false}" == "true" ]]; then
     echo "Skipping full deploy on async pass (validated on sync pass)"
     echo "ALL LOCAL CHECKS PASSED (DinD)"
     exit 0
 fi
 
-# Full reinstall deploy of the dashboard inside ephemeral runner-1. No GitHub/GHCR.
 _iso_src="${RUNNER_INSTALL_DIR}/1/nested-src"
 echo "DinD mode: running full reinstall deploy inside ${RUNNER_PROJECT_PREFIX}-1..."
-# container cp the repo into runner-1 (no compose mount — keeps test wiring here),
-# then isolate a per-instance copy (drop .env/Corefile so inner coredns serves the right IP).
-container exec --user root "${RUNNER_PROJECT_PREFIX}-1" mkdir -p /opt/src/infinito
-container cp /opt/src/infinito/. "${RUNNER_PROJECT_PREFIX}-1:/opt/src/infinito"
+container exec --user root "${RUNNER_PROJECT_PREFIX}-1" mkdir -p "${RUNNER_SRC_DIR}"
+# nocheck: container-cp - DinD runner container runs on this host, checkout is local
+container cp "${RUNNER_SRC_DIR}/." "${RUNNER_PROJECT_PREFIX}-1:${RUNNER_SRC_DIR}"
 container exec --user root "${RUNNER_PROJECT_PREFIX}-1" \
-    bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C /opt/src/infinito --exclude='./.env' --exclude='./compose/coredns/Corefile' --exclude='./.venvs' --exclude='./venv' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && chown -R github-runner:github-runner ${_iso_src}"
+    bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C ${RUNNER_SRC_DIR} --exclude='./.env' --exclude='./compose/coredns/Corefile' --exclude='./.venvs' --exclude='./venv' --exclude='./build' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && chown -R github-runner:github-runner ${_iso_src}"
 container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c "cd ${_iso_src} && make install"
 
-# shellcheck disable=SC2016  # inner $VARs run in runner-1's shell; outer values spliced via '"..."'
+# shellcheck disable=SC2016
 if ! container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c '
     set -euo pipefail
     cd "'"${_iso_src}"'"
     INFINITO_DISTRO=debian make build
     img="$(INFINITO_DISTRO=debian bash scripts/meta/resolve/image/local.sh)"
 
-    # dev stack uses fuse-overlayfs (raw docker:dind falls back to vfs → disk full).
-    # disable= all group_names-guarded services; cdn/javascript stay (hard deps).
     INFINITO_DISTRO=debian INFINITO_DISTROS=debian \
     INFINITO_INVENTORY_DIR=/tmp/runner-dind-inventory \
     INFINITO_IMAGE="$img" INFINITO_BUILD=0 INFINITO_PULL_POLICY=never \
     make compose-deploy mode=reinstall type=server \
-        apps=web-app-dashboard \
+        apps=web-app-dashboard variant=0 \
         disable=matomo,sso,asset,simpleicons,logout,css,prometheus
 '; then
     echo "FAIL: local full reinstall deploy failed"

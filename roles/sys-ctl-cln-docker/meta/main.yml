@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Cleans up anonymous Docker volumes and performs a full `container system prune -a -f` via a dedicated systemd service.
+  description: Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

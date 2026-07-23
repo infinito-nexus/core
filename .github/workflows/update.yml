@@ -18,29 +18,29 @@ jobs:
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
         with:
           ref: main
 
-      - name: Set up Python
+      - name: 🔧 Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install update dependencies
+      - name: 📦 Install update dependencies
         run: bash scripts/github/update/install_python.sh
 
-      - name: Update Docker image versions
+      - name: 🔄 Update Docker image versions
         run: bash scripts/github/update/image_versions.sh
 
-      - name: Check for changes
+      - name: 🔎 Check for changes
         id: diff
         run: bash scripts/github/resolve/check_git_changes.sh roles
 
-      - name: Generate app token
+      - name: ⚙️ Generate app token
         if: steps.diff.outputs.changed == 'true'
         id: app-token
         uses: actions/create-github-app-token@v3
@@ -48,7 +48,7 @@ jobs:
           client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
-      - name: Open PR if Docker image versions changed
+      - name: 📂 Open PR if Docker image versions changed
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -58,36 +58,36 @@ jobs:
           UPDATE_PR_TITLE: "update(images): update Docker image versions"
           UPDATE_PR_BODY: "Automated update of semver-based Docker image versions in `roles/*/meta/services.yml`."
           UPDATE_BASE_BRANCH: main
-        run: bash scripts/github/update/open_role_prs.sh roles
+        run: bash scripts/github/update/open/role_prs.sh roles
 
   update-repository-refs:
     name: 🌿 Update repository refs
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
         with:
           ref: main
 
-      - name: Set up Python
+      - name: 🔧 Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install update dependencies
+      - name: 📦 Install update dependencies
         run: bash scripts/github/update/install_python.sh
 
-      - name: Update repository refs
+      - name: 🔄 Update repository refs
         run: bash scripts/github/update/repository_refs.sh
 
-      - name: Check for changes
+      - name: 🔎 Check for changes
         id: diff
         run: bash scripts/github/resolve/check_git_changes.sh roles
 
-      - name: Generate app token
+      - name: ⚙️ Generate app token
         if: steps.diff.outputs.changed == 'true'
         id: app-token
         uses: actions/create-github-app-token@v3
@@ -95,7 +95,7 @@ jobs:
           client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
-      - name: Open PR if repository refs changed
+      - name: 📂 Open PR if repository refs changed
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -105,47 +105,4 @@ jobs:
           UPDATE_PR_TITLE: "update(repos): bump git refs to latest semver tags"
           UPDATE_PR_BODY: "Automated update of semver-based git `ref:` values in `roles/*/meta/services.yml`. Upstream tags resolved via `git ls-remote --tags`."
           UPDATE_BASE_BRANCH: main
-        run: bash scripts/github/update/open_role_prs.sh roles
-
-  update-skills:
-    name: 🧠 Update skills-lock.json
-    if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.0
-        with:
-          ref: main
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: "npm"
-
-      - name: Update skills
-        run: bash scripts/install/skills/update.sh
-
-      - name: Check for changes
-        id: diff
-        run: bash scripts/github/resolve/check_git_changes.sh skills-lock.json
-
-      - name: Generate app token
-        if: steps.diff.outputs.changed == 'true'
-        id: app-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
-          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
-
-      - name: Open PR if skills-lock.json changed
-        if: steps.diff.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-          UPDATE_BRANCH_PREFIX: update/skills
-          UPDATE_COMMIT_MESSAGE: "update(skills): update skills-lock.json to latest versions"
-          UPDATE_PR_TITLE: "update(skills): update agent skills to latest versions"
-          UPDATE_PR_BODY: "Automated daily update of `skills-lock.json` via `npx skills update`."
-          UPDATE_BASE_BRANCH: main
-        run: bash scripts/github/update/open_pr.sh skills-lock.json
+        run: bash scripts/github/update/open/role_prs.sh roles

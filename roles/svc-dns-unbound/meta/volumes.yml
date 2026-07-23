@@ -1,0 +1,15 @@
+# nocheck: backup-service-flag resolver state is rebuildable cache; the volume is backup-disabled and the consumer permanently off
+---
+data:
+  type: volume
+  name: unbound_data
+  mounts:
+    - service: unbound
+      target: /etc/unbound
+conf:
+  type: config
+  source: "{{ [ lookup('container', 'svc-dns-unbound', 'directories.volumes'), 'unbound.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: unbound
+      target: /unbound.conf

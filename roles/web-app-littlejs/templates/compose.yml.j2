@@ -1,7 +1,7 @@
----
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {{ LITTLEJS_SERVICE }}:
-    container_name: {{ LITTLEJS_CONTAINER }}
+  {% set service_name = LITTLEJS_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', LITTLEJS_CONTAINER) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         LITTLEJS_IMAGE:          "{{ LITTLEJS_IMAGE }}"
@@ -9,11 +9,11 @@
         LITTLEJS_APP_REL:        "{{ LITTLEJS_APP_REL }}"
         LITTLEJS_INDEX_HOST_REL: "{{ LITTLEJS_INDEX_HOST_REL }}"
         LITTLEJS_RUN_HOST_REL:   "{{ LITTLEJS_RUN_HOST_REL }}"
-    image: {{ LITTLEJS_IMAGE_CUSTOM }}
-    ports:
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.littlejs.ports.local.http') }}:80
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'littlejs') }}
+    {{ lookup('container_ports', ['littlejs', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

@@ -1,0 +1,15 @@
+---
+tor_data:
+  type: bind
+  source: "{{ [ DIR_VAR_LIB, 'svc-net-tor', 'data' ] | path_join }}"
+  mounts:
+    - service: tor
+      target: /var/lib/tor
+
+tor_torrc:
+  type: bind
+  source: "{{ [ DIR_VAR_LIB, 'svc-net-tor', 'config', 'torrc' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: tor
+      target: /etc/tor/torrc

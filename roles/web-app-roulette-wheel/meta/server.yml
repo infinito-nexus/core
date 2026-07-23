@@ -1,8 +1,0 @@
----
-domains:
-  canonical:
-    - wheel.{{ DOMAIN_PRIMARY }}
-  aliases: []
-networks:
-  local:
-    subnet: 192.168.104.144/28

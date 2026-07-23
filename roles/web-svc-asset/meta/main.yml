@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media self-written static-asset serving/glue role (copies assets to an Nginx data path); no consumer-facing upstream product
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Serves static assets via Nginx by copying from a source directory to the Nginx data path.
+  author: Kevin Veen-Birkenbach
+  description: Nginx-based server for hosting static assets copied from a source directory to the web data path
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,7 +1,9 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   installCspViolationObserver,
   normalizeBaseUrl,
   performKeycloakLoginForm,
@@ -44,19 +46,19 @@ async function dismissAllOpenModals(page) {
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
     const modal = page.locator("[role='dialog'][aria-modal='true']").first();
-    if (!(await modal.isVisible({ timeout: 500 }).catch(() => false))) {
+    if (!(await modal.isVisible({ timeout: resolveTimeout(500) }).catch(() => false))) {
       return;
     }
     const explicitClose = modal
       .getByRole("button", { name: closeNameRegex })
       .first();
-    if (await explicitClose.isVisible({ timeout: 500 }).catch(() => false)) {
+    if (await explicitClose.isVisible({ timeout: resolveTimeout(500) }).catch(() => false)) {
       await explicitClose.click().catch(() => {});
     } else {
       await page.keyboard.press("Escape").catch(() => {});
     }
-    await modal.waitFor({ state: "hidden", timeout: 3_000 }).catch(() => {});
-    await page.waitForTimeout(500);
+    await modal.waitFor({ state: "hidden", timeout: resolveTimeout(3_000) }).catch(() => {});
+    await page.waitForTimeout(resolveTimeout(500));
   }
 }
 
@@ -69,7 +71,7 @@ async function openwebuiLogout(page, _openwebuiBaseUrl) {
     .locator("a, button, [role='menuitem']")
     .filter(signOutTextFilter)
     .first();
-  if (await topLevelSignOut.isVisible({ timeout: 2_000 }).catch(() => false)) {
+  if (await topLevelSignOut.isVisible({ timeout: resolveTimeout(2_000) }).catch(() => false)) {
     await actionableClick(topLevelSignOut);
     return;
   }
@@ -78,7 +80,7 @@ async function openwebuiLogout(page, _openwebuiBaseUrl) {
     .getByRole("img", { name: /open\s+user\s+profile\s+menu/i })
     .or(page.getByRole("button", { name: /open\s+user\s+profile\s+menu/i }))
     .first();
-  if (!(await menuTrigger.isVisible({ timeout: 5_000 }).catch(() => false))) {
+  if (!(await menuTrigger.isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false))) {
     return;
   }
   await dismissAllOpenModals(page);
@@ -91,7 +93,7 @@ async function openwebuiLogout(page, _openwebuiBaseUrl) {
   await expect(
     dropdownSignOut,
     "Sign Out item must be reachable inside the user-profile menu"
-  ).toBeVisible({ timeout: 10_000 });
+  ).toBeVisible({ timeout: resolveTimeout(10_000) });
   await dismissAllOpenModals(page);
   await actionableClick(dropdownSignOut);
 }
@@ -105,7 +107,7 @@ async function actionableClick(locator) {
 async function signInViaDashboardOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${env.oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${env.openwebuiBaseUrl}/`);
+  await gotoOnion(page, `${env.openwebuiBaseUrl}/`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -114,12 +116,12 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
   await expect(
     oidcSignIn,
     `${personaLabel}: openwebui OIDC sign-in button must be visible on the auth page`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await actionableClick(oidcSignIn);
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -128,7 +130,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to openwebui at ${env.openwebuiBaseUrl}`,
     })
     .toContain(env.openwebuiBaseUrl);
@@ -136,7 +138,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
   // Bare openwebuiBaseUrl match also fires on /auth?error=... so assert we left /auth.
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `${personaLabel}: expected OIDC callback to leave /auth (mapper / allowed-roles misconfig if it stays)`,
     })
     .not.toMatch(/\/auth(\b|\?|\/)/);
@@ -163,18 +165,18 @@ async function ensureNativeAdminExists(page, name, email, password, personaLabel
 }
 
 async function signInViaNativePassword(page, email, password, personaLabel) {
-  await page.goto(`${env.openwebuiBaseUrl}/auth`);
+  await gotoOnion(page, `${env.openwebuiBaseUrl}/auth`);
 
   // Flip from signup mode (name field rendered) to signin so the bootstrap path is not re-exercised.
   const nameField = page
     .locator("input[autocomplete='name'], input[name='name'], input#name")
     .first();
-  if (await nameField.isVisible({ timeout: 3_000 }).catch(() => false)) {
+  if (await nameField.isVisible({ timeout: resolveTimeout(3_000) }).catch(() => false)) {
     const signinToggle = page
       .locator("a, button")
       .filter({ hasText: /sign\s*in|already\s+have/i })
       .first();
-    if (await signinToggle.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    if (await signinToggle.isVisible({ timeout: resolveTimeout(3_000) }).catch(() => false)) {
       await signinToggle.click();
     }
   }
@@ -185,7 +187,7 @@ async function signInViaNativePassword(page, email, password, personaLabel) {
   await expect(
     emailField,
     `${personaLabel}: native sign-in email field must be visible`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const passwordField = page
     .locator("input[type='password'], input[name='password']")
@@ -193,7 +195,7 @@ async function signInViaNativePassword(page, email, password, personaLabel) {
   await expect(
     passwordField,
     `${personaLabel}: native sign-in password field must be visible`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   await emailField.fill(email);
   await passwordField.fill(password);
@@ -202,26 +204,26 @@ async function signInViaNativePassword(page, email, password, personaLabel) {
   await expect(
     submit,
     `${personaLabel}: native sign-in submit button must be visible`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await actionableClick(submit);
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect away from /auth after native sign-in`,
     })
     .not.toContain("/auth");
 }
 
 async function signInViaLdap(page, username, password, personaLabel) {
-  await page.goto(`${env.openwebuiBaseUrl}/auth`);
+  await gotoOnion(page, `${env.openwebuiBaseUrl}/auth`);
 
   // ENABLE_LDAP=true makes LDAP the default credential mode (Username + Password + Authenticate).
   const usernameField = page.getByRole("textbox", { name: /^username$/i }).first();
   await expect(
     usernameField,
     `${personaLabel}: LDAP username field must be visible on the auth page`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const passwordField = page
     .locator("input[type='password'], input[name='password']")
@@ -229,7 +231,7 @@ async function signInViaLdap(page, username, password, personaLabel) {
   await expect(
     passwordField,
     `${personaLabel}: LDAP password field must be visible on the auth page`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   await usernameField.fill(username);
   await passwordField.fill(password);
@@ -240,12 +242,12 @@ async function signInViaLdap(page, username, password, personaLabel) {
   await expect(
     submit,
     `${personaLabel}: LDAP Authenticate button must be visible`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await actionableClick(submit);
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect away from /auth after LDAP sign-in`,
     })
     .not.toContain("/auth");
@@ -254,7 +256,7 @@ async function signInViaLdap(page, username, password, personaLabel) {
 async function expectSignInRequiredAfterLogout(page) {
   await openwebuiLogout(page, env.openwebuiBaseUrl);
   // OIDC sign-out hops through Keycloak's logout-confirm page; click its Logout submit to advance.
-  await page.waitForTimeout(2_000);
+  await page.waitForTimeout(resolveTimeout(2_000));
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
     const url = page.url();
@@ -276,16 +278,16 @@ async function expectSignInRequiredAfterLogout(page) {
           })
       )
       .first();
-    if (await kcLogoutConfirm.isVisible({ timeout: 2_000 }).catch(() => false)) {
+    if (await kcLogoutConfirm.isVisible({ timeout: resolveTimeout(2_000) }).catch(() => false)) {
       await actionableClick(kcLogoutConfirm);
     }
-    await page.waitForTimeout(2_000);
+    await page.waitForTimeout(resolveTimeout(2_000));
   }
   // Contract-permitted final cleanup when the click chain stalls on Keycloak's front-channel iframe wait.
   const settledUrl = page.url();
   if (!(settledUrl.startsWith(env.openwebuiBaseUrl) && /\/auth(\b|\?|\/|$)/.test(settledUrl))) {
     await page.context().clearCookies().catch(() => {});
-    await page.goto(`${env.openwebuiBaseUrl}/auth`, { waitUntil: "domcontentloaded" }).catch(() => {});
+    await gotoOnion(page, `${env.openwebuiBaseUrl}/auth`, { waitUntil: "domcontentloaded" }).catch(() => {});
   }
   // Anchor on openwebuiBaseUrl so the intermediate `auth.<domain>` Keycloak hop is not misread as /auth.
   await expect
@@ -295,7 +297,7 @@ async function expectSignInRequiredAfterLogout(page) {
         return url.startsWith(env.openwebuiBaseUrl) && /\/auth(\b|\?|\/|$)/.test(url);
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected openwebui to land on its own /auth surface after logout",
       }
     )
@@ -310,7 +312,7 @@ async function expectSignInRequiredAfterLogout(page) {
           .count()
           .catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected openwebui auth surface to expose a sign-in control",
       }
     )

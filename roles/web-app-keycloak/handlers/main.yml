@@ -16,7 +16,5 @@
   until: group_sync.rc == 0
   failed_when: group_sync.rc != 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  # This handler behaves spoky. Sometimes it fails and sometimes not, 
-  # it isn't super important, so this is a temporary solution.
-  # May groups don't apperar instantly if this ohne doesn't pass
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   ignore_errors: true

@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../onion-test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("mautrix-whatsapp addon: bridge appservice registers @whatsappbot on the partner Synapse homeserver", async ({ request }) => {
   skipUnlessAddonEnabled("mautrix-whatsapp");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const { matrixBaseUrl, matrixServerName } = shared.env;
   expect(matrixBaseUrl, "MATRIX_BASE_URL must be set to reach the partner homeserver").toBeTruthy();
@@ -24,7 +25,7 @@ test("mautrix-whatsapp addon: bridge appservice registers @whatsappbot on the pa
     "the bridge bot profile must be resolved against the partner Matrix homeserver host"
   ).toBe(matrixHost);
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),

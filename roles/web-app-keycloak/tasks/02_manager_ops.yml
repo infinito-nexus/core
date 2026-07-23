@@ -1,0 +1,18 @@
+---
+- name: "📂 Load Login routines for '{{ application_id }}'"
+  include_tasks: 04_login.yml
+
+- name: ✅ Ensure jq is installed
+  become: true
+  package:
+    name: jq
+    state: present
+
+- name: "👔 Keycloak | Manager-side updates delegated to the hosting node"
+  include_tasks:
+    file: 02a_manager_ops_on_host.yml
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+
+- name: "🚿 Flush handlers before leaving Keycloak scope"
+  meta: flush_handlers

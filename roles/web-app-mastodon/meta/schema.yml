@@ -10,11 +10,11 @@ credentials:
     validation: ^[a-f0-9]{64}$
   vapid_private_key:
     description: Private VAPID key used for web push notifications
-    algorithm: plain
+    algorithm: vapid_private
     validation: ^[-_a-zA-Z0-9]{30,}$
   vapid_public_key:
     description: Public VAPID key used for web push notifications
-    algorithm: plain
+    algorithm: vapid_public
     validation: ^[-_a-zA-Z0-9]{30,}$
   active_record_encryption_deterministic_key:
     description: Deterministic encryption key for Active Record encryption

@@ -4,3 +4,7 @@ credentials:
     description: Django SECRET_KEY used for cryptographic signing
     algorithm: sha256
     validation: ^[a-f0-9]{64}$
+  api_key:
+    description: Bootstrap admin API key for the embedded Typesense sidecar
+    algorithm: alphanumeric
+    validation: ^[A-Za-z0-9]{64}$

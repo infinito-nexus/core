@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Dive into a world of rhythm and sound with Funkwhale, an innovative self-hosted music sharing platform that celebrates creativity and community.
-    Enjoy an energetic soundscape and seamless music streaming that amplifies your passion for tunes.
+  description: Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

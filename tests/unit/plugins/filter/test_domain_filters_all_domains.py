@@ -2,7 +2,6 @@ import sys
 import unittest
 from pathlib import Path
 
-# Ensure plugins/filter directory is on the path
 sys.path.insert(
     0,
     str(
@@ -12,7 +11,7 @@ sys.path.insert(
     ),
 )
 
-from generate_all_domains import FilterModule
+from generate.all_domains import FilterModule
 
 
 class TestGenerateAllDomains(unittest.TestCase):

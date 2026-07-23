@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, isOnionCanonical, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -16,7 +17,7 @@ const biberUsername  = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const biberEmail     = decodeDotenvQuotedValue(process.env.BIBER_EMAIL);
 
-async function waitForFirstVisible(page, locators, timeout = 60_000) {
+async function waitForFirstVisible(page, locators, timeout = resolveTimeout(60_000)) {
   const deadline = Date.now() + timeout;
 
   while (Date.now() < deadline) {
@@ -26,7 +27,7 @@ async function waitForFirstVisible(page, locators, timeout = 60_000) {
       }
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error("Timed out waiting for one of the expected selectors to become visible");
@@ -39,8 +40,18 @@ async function waitForFirstVisible(page, locators, timeout = 60_000) {
 async function clickThroughMailuSsoPage(frame) {
   const oidcLink = frame.locator("a[href*='openid-connect/auth']").first();
 
-  if (await oidcLink.isVisible({ timeout: 3_000 }).catch(() => false)) {
-    await oidcLink.click();
+  // Over Tor, Matomo link-tracking intercepts the click to fire a beacon that
+  // stalls, so the click never commits the navigation; goto the href directly.
+  if (isOnionCanonical()) {
+    const href = await oidcLink.getAttribute("href", { timeout: resolveTimeout(15_000) }).catch(() => null);
+    if (href) {
+      await frame.goto(href);
+    }
+    return;
+  }
+
+  if (await oidcLink.isVisible({ timeout: resolveTimeout(3_000) }).catch(() => false)) {
+    await oidcLink.click({ timeout: resolveTimeout(30_000) });
   }
 }
 
@@ -49,7 +60,7 @@ async function clickThroughMailuSsoPage(frame) {
 
 // Wait for an email with the given subject to appear in the current view.
 // Retries for up to `timeout` ms to account for delivery delay.
-async function waitForEmailInInbox(page, subjectText, timeout = 60_000) {
+async function waitForEmailInInbox(page, subjectText, timeout = resolveTimeout(60_000)) {
   const deadline = Date.now() + timeout;
 
   while (Date.now() < deadline) {
@@ -62,7 +73,7 @@ async function waitForEmailInInbox(page, subjectText, timeout = 60_000) {
 
     // Refresh inbox by clicking the inbox folder
     await page.getByRole("link", { name: "Inbox" }).first().click().catch(() => {});
-    await page.waitForTimeout(3_000);
+    await page.waitForTimeout(resolveTimeout(3_000));
   }
 
   throw new Error(`Timed out waiting for email with subject "${subjectText}" to arrive`);
@@ -86,16 +97,16 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
   const expectedMailuBaseUrl = mailuBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Mailu
-  await page.goto(`${expectedMailuBaseUrl}/`);
+  await gotoOnion(page, `${expectedMailuBaseUrl}/`);
 
   // 2. Mailu's SSO fork may land on /sso/login before redirecting to Keycloak — click through it
-  await page.waitForTimeout(2_000);
+  await page.waitForTimeout(resolveTimeout(2_000));
   await clickThroughMailuSsoPage(page);
 
   // 3. Wait for redirect to Keycloak OIDC auth
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected Mailu to navigate to Keycloak OIDC: ${expectedOidcAuthUrl}`
     })
     .toContain(expectedOidcAuthUrl);
@@ -106,7 +117,7 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
   // 5. Wait for redirect back to Mailu webmail
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected Mailu to redirect back after login: ${expectedMailuBaseUrl}`
     })
     .toContain(expectedMailuBaseUrl);
@@ -115,33 +126,33 @@ test("mailu: sso login, open admin interface, logout", async ({ page }) => {
   const composeButton  = page.getByRole("button", { name: /compose/i });
   const inboxContainer = page.getByRole("link", { name: /inbox/i });
 
-  await waitForFirstVisible(page, [composeButton, inboxContainer], 30_000);
+  await waitForFirstVisible(page, [composeButton, inboxContainer], resolveTimeout(30_000));
 
   // 7. Navigate to the admin interface (admin users see an Administration link or /admin path)
   const adminLink = page.getByRole("link", { name: /administration|admin/i });
   const adminLinkVisible = await adminLink.first().isVisible().catch(() => false);
 
   if (adminLinkVisible) {
-    await adminLink.first().click();
+    await adminLink.first().click({ timeout: resolveTimeout(30_000) });
   } else {
     // Fallback: navigate directly to the admin URL
-    await page.goto(`${expectedMailuBaseUrl}/admin`);
+    await gotoOnion(page, `${expectedMailuBaseUrl}/admin`);
   }
 
   // 8. Verify admin interface loaded — match any heading visible in Mailu's admin panel
   await expect(
     page.locator("h1, h2, h3, .nav-title, .sidebar-heading").filter({ hasText: /administration|domains|user|mail/i }).first()
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   // 9. Logout — Mailu admin logout is a link with /logout or /signout in the href
   const logoutByHref = page.locator("a[href*='logout'], a[href*='signout']");
-  const logoutVisible = await logoutByHref.first().isVisible({ timeout: 5_000 }).catch(() => false);
+  const logoutVisible = await logoutByHref.first().isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false);
 
   if (logoutVisible) {
-    await logoutByHref.first().click();
+    await logoutByHref.first().click({ timeout: resolveTimeout(30_000) });
   } else {
     // Fallback: navigate directly to the admin logout endpoint
-    await page.goto(`${expectedMailuBaseUrl}/admin/ui/logout`);
+    await gotoOnion(page, `${expectedMailuBaseUrl}/admin/ui/logout`);
   }
 });
 
@@ -169,10 +180,10 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
 
     // Mailu webmail may show an SSO button or redirect directly to Keycloak
     const ssoButton = biberPage.getByRole("button", { name: /sso|single sign.?on|login with/i });
-    const ssoButtonVisible = await ssoButton.first().isVisible({ timeout: 5_000 }).catch(() => false);
+    const ssoButtonVisible = await ssoButton.first().isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false);
 
     if (ssoButtonVisible) {
-      await ssoButton.first().click();
+      await ssoButton.first().click({ timeout: resolveTimeout(30_000) });
     }
 
     // Click through Mailu's own /sso/login intermediate page if present
@@ -181,7 +192,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     // Wait for Keycloak OIDC auth page
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC: ${expectedOidcAuthUrl}`
       })
       .toContain(expectedOidcAuthUrl);
@@ -194,7 +205,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     // (e.g. /sso/login?code=...) before Mailu finishes the auth-code exchange.
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected redirect back to Mailu webmail after biber login"
       })
       .toContain(`${mailuBaseUrl.replace(/\/$/, "")}/webmail/`);
@@ -204,25 +215,25 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     // Selectors confirmed from rendered DOM: id="_to", id="compose-subject",
     // id="composebody", button.btn.btn-primary.send inside .formbuttons
     await biberPage.goto(`${mailuBaseUrl.replace(/\/$/, "")}/webmail/?_task=mail&_action=compose`);
-    await biberPage.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    await biberPage.waitForLoadState("networkidle", { timeout: resolveTimeout(15_000) }).catch(() => {});
 
     const toField      = biberPage.locator("#_to, input[name='_to']").first();
     const subjectField = biberPage.locator("#compose-subject, input[name='_subject']").first();
     const bodyField    = biberPage.locator("#composebody, textarea[name='_message'], [contenteditable='true']").first();
     const sendButton   = biberPage.locator(".formbuttons .send, button.send, a.send");
 
-    await toField.waitFor({ state: "visible", timeout: 30_000 });
+    await toField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
     await toField.fill(adminEmail);
 
     await subjectField.fill(testSubject);
     await bodyField.click();
     await bodyField.fill("Hello Administrator, this is an automated Playwright test email.");
 
-    await sendButton.first().waitFor({ state: "visible", timeout: 10_000 });
-    await sendButton.first().click();
+    await sendButton.first().waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
+    await sendButton.first().click({ timeout: resolveTimeout(30_000) });
 
     // After send, Roundcube redirects away from _action=compose
-    await expect.poll(() => biberPage.url(), { timeout: 30_000 })
+    await expect.poll(() => biberPage.url(), { timeout: resolveTimeout(30_000) })
       .not.toContain("_action=compose");
 
     // Logout as biber — click the visible Logout button in Roundcube's sidebar
@@ -230,8 +241,8 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
       .or(biberPage.getByRole("button", { name: /logout/i }))
       .or(biberPage.getByRole("link", { name: /logout/i }));
 
-    await biberLogoutLink.first().waitFor({ state: "visible", timeout: 10_000 });
-    await biberLogoutLink.first().click();
+    await biberLogoutLink.first().waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
+    await biberLogoutLink.first().click({ timeout: resolveTimeout(30_000) });
 
     // --- Part 2: administrator logs in and checks inbox (fresh browser context) ---
 
@@ -240,10 +251,10 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     await adminPage.goto(mailuBaseUrl);
 
     const ssoButtonAdmin = adminPage.getByRole("button", { name: /sso|single sign.?on|login with/i });
-    const ssoAdminVisible = await ssoButtonAdmin.first().isVisible({ timeout: 5_000 }).catch(() => false);
+    const ssoAdminVisible = await ssoButtonAdmin.first().isVisible({ timeout: resolveTimeout(5_000) }).catch(() => false);
 
     if (ssoAdminVisible) {
-      await ssoButtonAdmin.first().click();
+      await ssoButtonAdmin.first().click({ timeout: resolveTimeout(30_000) });
     }
 
     // Click through Mailu's own /sso/login intermediate page if present
@@ -251,7 +262,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
 
     await expect
       .poll(() => adminPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC: ${expectedOidcAuthUrl}`
       })
       .toContain(expectedOidcAuthUrl);
@@ -260,7 +271,7 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
 
     await expect
       .poll(() => adminPage.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected redirect back to Mailu webmail after admin login"
       })
       .toContain(`${mailuBaseUrl.replace(/\/$/, "")}/webmail/`);
@@ -268,11 +279,11 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     // Wait for inbox to load
     const inboxFolder = adminPage.getByRole("link", { name: "Inbox" });
 
-    await inboxFolder.first().waitFor({ state: "visible", timeout: 30_000 });
+    await inboxFolder.first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
     await inboxFolder.first().click();
 
     // Wait for biber's email to arrive (email delivery may take a few seconds)
-    const emailRow = await waitForEmailInInbox(adminPage, testSubject, 60_000);
+    const emailRow = await waitForEmailInInbox(adminPage, testSubject, resolveTimeout(60_000));
 
     await expect(emailRow).toBeVisible();
     await emailRow.click();
@@ -280,15 +291,15 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
     // Verify email content is visible (Roundcube shows message body in #messagecontframe iframe or preview pane)
     await expect(
       adminPage.locator("#messagecontframe, #mailview-right, .message-part").first()
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: resolveTimeout(15_000) });
 
     // Logout as administrator
     const adminLogoutLink = adminPage.locator("a[href*='logout'], a[href*='signout']")
       .or(adminPage.getByRole("button", { name: /logout/i }))
       .or(adminPage.getByRole("link", { name: /logout/i }));
 
-    await adminLogoutLink.first().waitFor({ state: "visible", timeout: 10_000 });
-    await adminLogoutLink.first().click();
+    await adminLogoutLink.first().waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
+    await adminLogoutLink.first().click({ timeout: resolveTimeout(30_000) });
 
   } finally {
     await biberContext.close().catch(() => {});
@@ -315,12 +326,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|administration|domains|users|fetchmail|aliases)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /domains|users|fetchmail|aliases|relays|administration/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

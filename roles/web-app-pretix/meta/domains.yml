@@ -1,0 +1,4 @@
+---
+canonical:
+  - ticket.shop.{{ DOMAIN_PRIMARY }}
+aliases: []

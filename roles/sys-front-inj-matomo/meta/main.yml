@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Injects Matomo analytics tracking code and noscript image tracker into Nginx-served HTML pages.
+  author: Kevin Veen-Birkenbach
+  description: NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

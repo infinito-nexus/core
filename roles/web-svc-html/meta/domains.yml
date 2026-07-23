@@ -1,0 +1,4 @@
+---
+canonical:
+  - html.{{ DOMAIN_PRIMARY }}
+aliases: []

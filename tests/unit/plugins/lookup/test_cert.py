@@ -1,5 +1,6 @@
 import sys
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -16,6 +17,7 @@ class TestCertPlanLookup(unittest.TestCase):
     def setUp(self):
         _reset_cache_for_tests()
         self.lookup = LookupModule()
+        self.lookup._loader = mock.MagicMock()
 
         self.domains = {
             "web-app-a": "a.example",
@@ -53,27 +55,23 @@ class TestCertPlanLookup(unittest.TestCase):
             ],
         }
 
-        # Route get_merged_domains / get_merged_applications through
-        # variables['domains'] / variables['applications'] so tests stay hermetic.
-        def _domains_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("domains", {})
+        def _domains_from_vars(_terms, variables=None, **_kwargs):
+            return [(variables or {}).get("domains", {})]
 
-        def _applications_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("applications", {})
+        def _applications_from_vars(_terms, variables=None, **_kwargs):
+            return [(variables or {}).get("applications", {})]
 
-        self._patchers = [
-            patch(
-                "plugins.lookup.cert.get_merged_domains",
-                side_effect=_domains_from_vars,
-            ),
-            patch(
-                "plugins.lookup.cert.get_merged_applications",
-                side_effect=_applications_from_vars,
-            ),
-        ]
-        for p in self._patchers:
-            p.start()
-        self.addCleanup(lambda: [p.stop() for p in self._patchers])
+        def _get(name, *_a, **_k):
+            if name == "domains":
+                return mock.MagicMock(run=_domains_from_vars)
+            if name == "applications":
+                return mock.MagicMock(run=_applications_from_vars)
+            return mock.MagicMock(run=lambda *_ra, **_rk: [{}])
+
+        loader_patcher = patch("plugins.lookup.cert.lookup_loader")
+        loader_mock = loader_patcher.start()
+        loader_mock.get.side_effect = _get
+        self.addCleanup(loader_patcher.stop)
 
     def tearDown(self):
         _reset_cache_for_tests()

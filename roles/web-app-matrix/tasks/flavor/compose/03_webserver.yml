@@ -1,34 +1,41 @@
 ---
-- name: create {{ MATRIX_WELL_KNOWN_DIRECTORY }}
+# include-gated: when: DEPLOYMENT_MODE == "compose"
+- name: 📁 create {{ MATRIX_WELL_KNOWN_DIRECTORY }}
   ansible.builtin.file:
     path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"
     state: directory
     mode: "0755"
 
-- name: create {{ MATRIX_WELL_KNOWN_FILE }}
-  ansible.builtin.template:
+- name: 📁 create {{ MATRIX_WELL_KNOWN_FILE }}
+  stack_host_template:
     src: "flavor/compose/well-known.j2"
     dest: "{{ MATRIX_WELL_KNOWN_FILE }}"
 
-- name: "include role sys-stk-front-proxy for {{ MATRIX_ELEMENT_DOMAIN }}"
+- name: "📂 include role sys-stk-front-proxy for {{ MATRIX_ELEMENT_DOMAIN }}"
   ansible.builtin.include_role:
     name: sys-stk-front-proxy
   vars:
     domain: "{{ MATRIX_ELEMENT_DOMAIN }}"
     http_port: "{{ MATRIX_ELEMENT_PORT }}"
+    webserver_proxy_service_key: element
+    proxy_internal_port: "{{ MATRIX_ELEMENT_CONTAINER_PORT }}"
 
-- name: "include role sys-stk-front-proxy for {{ MATRIX_SYNAPSE_DOMAIN }}"
+- name: "📂 include role sys-stk-front-proxy for {{ MATRIX_SYNAPSE_DOMAIN }}"
   ansible.builtin.include_role:
     name: sys-stk-front-proxy
   vars:
     domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
+    webserver_proxy_service_key: synapse
+    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
 
-- name: create {{ MATRIX_SYNAPSE_DOMAIN }}.conf
-  ansible.builtin.template:
+- name: 📁 create {{ MATRIX_SYNAPSE_DOMAIN }}.conf
+  stack_host_template:
     src: "flavor/compose/synapse.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', MATRIX_SYNAPSE_DOMAIN) }}"
   vars:
     domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
+    proxy_service_key: synapse
+    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
   notify: restart openresty

@@ -1,0 +1,19 @@
+---
+- name: "⏳ Matomo resolve | Wait for matomo container to be running"
+  ansible.builtin.shell: >
+    container inspect -f '{{ "{{" }}.State.Running{{ "}}" }}'
+    {{ lookup('container_address', application_id, MATOMO_SERVICE) }}
+  register: matomo_running_compose
+  changed_when: false
+  retries: 150
+  delay: 2
+  until: >
+    matomo_running_compose.rc == 0 and (matomo_running_compose.stdout | trim) == 'true'
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ MATOMO_SERVICE }}"
+    resolve_output_prefix: MATOMO
+    resolve_compose_cid: "{{ MATOMO_NAME }}"

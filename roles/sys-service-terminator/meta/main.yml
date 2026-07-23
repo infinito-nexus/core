@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Runs a collected list of systemd services at the end of a play.
+  description: Deferred-start orchestrator for enabling and starting collected systemd services once a play completes
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

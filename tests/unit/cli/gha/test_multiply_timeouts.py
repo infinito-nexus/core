@@ -7,7 +7,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
@@ -85,7 +85,7 @@ class TestMultiplyTimeouts(unittest.TestCase):
     def test_multiplies_start_period(self):
         _run(3, self.root)
         content = (
-            Path(self.root) / "roles" / "web-app-foo" / "templates" / "compose.yml.j2"
+            Path(self.root) / "roles" / "web-app-foo" / ROLE_FILE_TEMPL_COMPOSE
         ).read_text()  # nocheck: cache-read
         self.assertIn("start_period: 90s", content)
 

@@ -1,5 +1,5 @@
 ---
-- name: "DNS (Cloudflare) for Mailu"
+- name: "🌐 DNS (Cloudflare) for Mailu"
   include_role:
     name: sys-dns-cloudflare-records
   when: DNS_PROVIDER | lower == 'cloudflare'
@@ -104,7 +104,7 @@
         port: 443
         value: "{{ MAILU_HOSTNAME }}"
 
-- name: "rDNS (Hetzner Cloud) for Mailu"
+- name: "🌐 rDNS (Hetzner Cloud) for Mailu"
   include_role:
     name: sys-dns-hetzner-rdns
   when: HOSTING_PROVIDER | lower == 'hetzner'

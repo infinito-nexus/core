@@ -1,16 +1,25 @@
 ---
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
     application_id: web-app-nextcloud
-    # Necessary to save talk recordings
     webserver_client_max_body_size: 10G
+
+- name: "📄 Deploy '{{ NEXTCLOUD_INIT_GATE_HOST }}'"
+  copy:
+    src: "{{ NEXTCLOUD_INIT_GATE_FILE }}"
+    dest: "{{ NEXTCLOUD_INIT_GATE_HOST }}"
+    mode: "0755"
+  when: IS_STACK_HOST | bool
+  notify:
+    - compose build
+    - compose up
 
 - when: NEXTCLOUD_WHITEBOARD_ENABLED | bool
   block:
-    - name: "Create '{{ NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY }}' Directory"
+    - name: "📁 Create '{{ NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY }}' Directory"
       file:
         path: "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY }}"
         state: directory
@@ -18,13 +27,13 @@
         group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
         mode: "0755"
 
-    - name: "Deploy Whiteboard Dockerfile to '{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}'"
-      template:
+    - name: "📄 Deploy Whiteboard Dockerfile to {{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
+      stack_host_template:
         src: "Dockerfiles/Whiteboard.j2"
         dest: "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
       notify: compose build
 
-- name: "create {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
+- name: "📁 create {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
   file:
     path: "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
     state: directory
@@ -32,17 +41,18 @@
     group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
     mode: "0755"
 
-- name: "Create config files at {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
-  template:
-    src: "{{ item }}"
-    dest: "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
-    owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
-    mode: "0644"
-  loop: "{{ lookup('fileglob', role_path ~ '/templates/config/*.j2', wantlist=True) }}"
-  notify: compose up
+- name: "📄 Render Nextcloud config at {{ NEXTCLOUD_HOST_CONF_ADD_PATH }} (local + peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src_glob: "config/*.j2"
+        dest_dir: "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
+        owner: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
+        mode: "0644"
 
-- name: "NEXTCLOUD | Ensure host-mounted infinito config files ownership/permissions (recursive)"
+- name: "🔐 NEXTCLOUD | Ensure host-mounted config files ownership/permissions (recursive)"
   ansible.builtin.file:
     path: "{{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
     state: directory
@@ -51,8 +61,10 @@
     group: "{{ NEXTCLOUD_DOCKER_USER_ID }}"
     mode: "u=rwX,g=rX,o=rX"
 
-- name: create internal nextcloud nginx configuration
-  template:
-    src: "docker.conf.j2"
-    dest: "{{ NEXTCLOUD_HOST_NGINX_PATH }}"
-  notify: compose up
+- name: "📄 Render Nextcloud internal nginx config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "docker.conf.j2"
+        dest: "{{ NEXTCLOUD_HOST_NGINX_PATH }}"

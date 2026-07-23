@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled         = isServiceEnabled("sso");
@@ -22,37 +23,34 @@ function onLoginPage(page) {
 }
 
 async function gotoLogin(page) {
-  await page.goto(`${semaphoreBaseUrl}${LOGIN_PATH}`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${semaphoreBaseUrl}${LOGIN_PATH}`, { waitUntil: "domcontentloaded" });
 }
 
 async function assertAuthenticated(page, label) {
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${label}: expected to leave the Semaphore login page`,
     })
     .not.toContain(LOGIN_PATH);
   await expect(
     page.locator("header, nav, .v-navigation-drawer, .v-app-bar").first(),
     `${label}: authenticated Semaphore chrome must be visible`,
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function fillLocalLogin(page, username, password) {
   const userField = page.locator("#auth-username").first();
-  await userField.waitFor({ state: "visible", timeout: 30_000 });
+  await userField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await userField.fill(username);
   await page.locator("#auth-password").first().fill(password);
   await page
     .locator('[data-testid="auth-signin"]')
     .first()
-    .click()
+    .click({ timeout: resolveTimeout(30_000) })
     .catch(() => page.keyboard.press("Enter"));
 }
 
-// Semaphore's own login form authenticates local DB users first and falls back
-// to an LDAP bind when SEMAPHORE_LDAP_ACTIVATED is set, so the same form drives
-// both the break-glass admin and LDAP personas.
 async function signInViaLocal(page, username, password, label) {
   await gotoLogin(page);
   await fillLocalLogin(page, username, password);
@@ -73,12 +71,12 @@ async function signInViaOidc(page, username, password, label) {
   await expect(
     oidcButton,
     `${label}: the "Sign in with Keycloak" button must render on the Semaphore login page`,
-  ).toBeVisible({ timeout: 30_000 });
-  await oidcButton.click();
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await oidcButton.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${label}: expected redirect to Keycloak OIDC auth (${oidcIssuerUrl}/protocol/openid-connect/auth)`,
     })
     .toContain(`${oidcIssuerUrl}/protocol/openid-connect/auth`);
@@ -105,16 +103,16 @@ async function logout(page, label = "session") {
     .filter({ hasText: /sign\s*out|log\s*out|logout|abmelden/i })
     .first();
   if (await signOut.count()) {
-    await signOut.click().catch(() => {});
+    await signOut.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
   }
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(resolveTimeout(1500));
   if (!onLoginPage(page)) {
     await page.context().clearCookies();
     await gotoLogin(page);
   }
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `${label}: expected logged-out landing on the Semaphore login page`,
     })
     .toContain(LOGIN_PATH);

@@ -18,15 +18,14 @@ After stage 3 the inventory is fully variant-resolved on disk. Ansible loads it 
 
 ## What decides which roles enter the inventory 🎯
 
-The include set passed to stage 2 is built by the deploy CLI in [deploy.py](../../../cli/administration/deploy/development/deploy.py) via `resolve_deploy_ids_for_apps`. It expands the operator's `--apps` selection along three transitive paths, all walked together:
+The include set passed to stage 2 is built per round by the matrix planner: [deploy/cli.py](../../../cli/administration/deploy/development/deploy/cli.py) and [init.py](../../../cli/administration/deploy/development/init.py) call `plan_dev_inventory_matrix` in [planner.py](../../../cli/administration/deploy/development/inventory/planner.py), which resolves each round's include via `_resolve_round_include` in [legacy_resolver.py](../../../cli/administration/deploy/development/inventory/legacy_resolver.py) using the [CombinedResolver](../../../cli/meta/roles/applications/resolution/combined/resolver.py) with `follow_run_after=False`. The swarm test path computes its include separately via [derive_includes.py](../../../utils/tests/swarm/derive_includes.py), reading the active variant map from `INFINITO_APP_VARIANTS`. Both expand the selection along two transitive paths:
 
 1. **Ansible meta `dependencies:`** from each role's `meta/main.yml`.
-2. **Per-role `run_after:`** from each role's `meta/services.yml.<entity>.run_after`.
-3. **Shared-service auto-include** from each role's `meta/services.yml.<entity>.<service>` block, when both `enabled is True` AND `shared is True`. The check lives in [service_registry.py](../../../utils/roles/applications/services/registry.py) `resolve_service_dependency_roles_from_config`.
+2. **Shared-service auto-include** from each role's `meta/services.yml.<entity>.<service>` block, when both `enabled` AND `shared` pass `is_explicit_truth` in [registry.py](../../../utils/roles/applications/services/registry.py): the literal `True` or the dynamic form `"{{ '<role>' in group_names }}"`. A literal `false` (as baked by a variant override) does NOT qualify.
 
-The auto-include uses **strict identity** with Python's `True`. A Jinja-templated string such as `"{{ 'web-app-discourse' in group_names }}"` is NOT the value `True`, so it does NOT trigger auto-include at build time. Only literal booleans (or boolean-typed variant overrides that bake one in) qualify.
+`run_after:` from `meta/services.yml.<entity>.run_after` is an ordering hint only (see [base.md](role/services/base.md)); it MUST NOT pull roles into the include set.
 
-This is the mechanism that lets variants control whether a shared service is pulled in: a variant override `services.<service>.enabled: true` pins a real boolean; the build-time auto-include picks it up; the dependent role's group materialises in the inventory.
+This is the mechanism that lets variants control whether a shared service is pulled in: a variant override pins `services.<service>.{enabled,shared}` to a literal boolean; the round's include resolution reads the variant-merged services map; the provider role's group materialises in (or drops out of) the inventory accordingly.
 
 ## What lives in the inventory file vs. host_vars 📋
 

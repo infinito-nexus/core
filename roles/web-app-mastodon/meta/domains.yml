@@ -1,0 +1,4 @@
+---
+canonical:
+  - microblog.{{ DOMAIN_PRIMARY }}
+aliases: []

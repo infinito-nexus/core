@@ -1,0 +1,22 @@
+# Optional swarm-node package-cache wiring; 01_bootstrap.sh passes it only when a
+# package-cache-frontend is running (local/act), so CI without a cache is unaffected.
+---
+x-cache: &cache
+  extra_hosts:
+    - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+  volumes:
+    - ../package-cache/apt.list:/etc/apt/sources.list.d/package-cache.list:ro
+
+services:
+  nfs-server:
+    <<: *cache
+  swarm-mgr-01:
+    <<: *cache
+  swarm-wrk-01:
+    <<: *cache
+  swarm-wrk-02:
+    <<: *cache
+  backup-host:
+    <<: *cache

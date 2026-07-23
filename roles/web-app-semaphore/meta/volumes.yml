@@ -1,2 +1,6 @@
 ---
-data: semaphore_data
+semaphore_data:
+  type: volume
+  mounts:
+    - service: semaphore
+      target: /var/lib/semaphore

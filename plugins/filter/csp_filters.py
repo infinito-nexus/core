@@ -3,8 +3,23 @@ import hashlib
 
 from ansible.errors import AnsibleFilterError
 
-from utils.get_url import get_url
+from utils.domains.primary_domain import get_domain
 from utils.roles.applications.config import get
+from utils.tls_common import align_domain_to_consumer, is_onion_domain
+
+
+def _aligned_url(domains, application_id, target_id, protocol):
+    """Provider URL for CSP tokens, family-aligned to the consuming app.
+
+    The scheme follows the ALIGNED host, not the consumer: onion targets are
+    plaintext-only (http), so a clearnet consumer falling back to an onion-only
+    provider gets a token that matches what the asset injection actually loads.
+    """
+    domain = align_domain_to_consumer(
+        domains, target_id, get_domain(domains, target_id), consumer=application_id
+    )
+    scheme = "http" if is_onion_domain(domain) else protocol
+    return f"{scheme}://{domain}"
 
 
 def _dedup_preserve(seq):
@@ -108,9 +123,7 @@ class FilterModule:
         Returns a list of additional whitelist entries for a given directive.
         Accepts both scalar and list in config; always returns a list.
         """
-        wl = get(
-            applications, application_id, "server.csp.whitelist." + directive, False, []
-        )
+        wl = get(applications, application_id, "csp.whitelist." + directive, False, [])
         if isinstance(wl, list):
             return wl
         if wl:
@@ -133,7 +146,7 @@ class FilterModule:
             default_flags = {"unsafe-inline": True}
 
         configured = get(
-            applications, application_id, "server.csp.flags." + directive, False, {}
+            applications, application_id, "csp.flags." + directive, False, {}
         )
 
         merged = {**default_flags, **configured}
@@ -151,7 +164,7 @@ class FilterModule:
         Accepts both scalar and list in config; always returns a list.
         """
         snippets = get(
-            applications, application_id, "server.csp.hashes." + directive, False, []
+            applications, application_id, "csp.hashes." + directive, False, []
         )
         if isinstance(snippets, list):
             return snippets
@@ -193,6 +206,7 @@ class FilterModule:
         web_protocol,
         extra_whitelist=None,
         extra_hashes=None,
+        domain_primary=None,
     ):
         """
         Builds the Content-Security-Policy header value dynamically based on application settings.
@@ -207,9 +221,9 @@ class FilterModule:
             that token is removed from the merged base even if present in elem/attr.
           - Inline hashes are added ONLY if that directive does NOT include 'unsafe-inline'.
           - Whitelists/flags/hashes read from:
-              server.csp.whitelist.<directive>
-              server.csp.flags.<directive>
-              server.csp.hashes.<directive>
+              csp.whitelist.<directive>
+              csp.flags.<directive>
+              csp.hashes.<directive>
           - “Smart defaults”:
               * internal CDN for style/script elem and connect
               * Matomo endpoints (if services.matomo.enabled) for script-elem/connect
@@ -246,7 +260,7 @@ class FilterModule:
                 explicit_flags = get(
                     applications,
                     application_id,
-                    "server.csp.flags." + directive,
+                    "csp.flags." + directive,
                     False,
                     {},
                 )
@@ -265,20 +279,47 @@ class FilterModule:
                     "style-src-elem",
                     "style-src",
                 ):
-                    tokens.append(get_url(domains, "web-svc-cdn", web_protocol))
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-svc-cdn", web_protocol
+                        )
+                    )
+
+                # Mirror privacy proxy (if tor enabled) – onion sessions load external assets through it
+                if directive in (
+                    "script-src-elem",
+                    "style-src-elem",
+                    "style-src",
+                    "connect-src",
+                    "font-src",
+                    "media-src",
+                ) and self.is_feature_enabled(applications, "tor", application_id):
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-svc-mirror", web_protocol
+                        )
+                    )
 
                 # Matomo (if enabled via services.matomo.enabled)
                 if directive in (
                     "script-src-elem",
                     "connect-src",
                 ) and self.is_feature_enabled(applications, "matomo", application_id):
-                    tokens.append(get_url(domains, "web-app-matomo", web_protocol))
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-app-matomo", web_protocol
+                        )
+                    )
 
                 # Simpleicons (if enabled via services.simpleicons.enabled) – typically used via connect-src (fetch)
                 if directive == "connect-src" and self.is_feature_enabled(
                     applications, "simpleicons", application_id
                 ):
-                    tokens.append(get_url(domains, "web-svc-simpleicons", web_protocol))
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-svc-simpleicons", web_protocol
+                        )
+                    )
 
                 # reCAPTCHA (if enabled via services.recaptcha.enabled) – scripts + frames
                 if self.is_feature_enabled(
@@ -304,9 +345,18 @@ class FilterModule:
                         domain = domains.get("web-app-dashboard")[0]
                         tokens.append(f"{domain}")
                     if self.is_feature_enabled(applications, "logout", application_id):
-                        tokens.append(get_url(domains, "web-svc-logout", web_protocol))
                         tokens.append(
-                            get_url(domains, "web-app-keycloak", web_protocol)
+                            _aligned_url(
+                                domains, application_id, "web-svc-logout", web_protocol
+                            )
+                        )
+                        tokens.append(
+                            _aligned_url(
+                                domains,
+                                application_id,
+                                "web-app-keycloak",
+                                web_protocol,
+                            )
                         )
 
                 # Logout support requires inline handlers (script-src-attr + script-src-elem)
@@ -367,6 +417,36 @@ class FilterModule:
 
             merge_family("style-src", "style-src-elem", "style-src-attr")
             merge_family("script-src", "script-src-elem", "script-src-attr")
+
+            _svc_tor = (applications or {}).get("svc-net-tor")
+            node_onion = ""
+            if isinstance(_svc_tor, dict):
+                node_onion = ((_svc_tor.get("services") or {}).get("tor") or {}).get(
+                    "node"
+                ) or ""
+            if node_onion and domain_primary and domain_primary != node_onion:
+                app_domains = [str(d) for d in (domains.get(application_id) or [])]
+                app_has_onion = any(node_onion in d for d in app_domains)
+                app_has_clearnet = any(domain_primary in d for d in app_domains)
+                if app_has_onion:
+                    for directive in list(tokens_by_dir.keys()):
+                        toks = tokens_by_dir[directive]
+                        if app_has_clearnet:
+                            siblings = [
+                                t.replace(domain_primary, node_onion)
+                                for t in toks
+                                if domain_primary in t
+                            ]
+                            tokens_by_dir[directive] = _dedup_preserve(toks + siblings)
+                        else:
+                            tokens_by_dir[directive] = _dedup_preserve(
+                                [
+                                    t.replace(domain_primary, node_onion)
+                                    if domain_primary in t
+                                    else t
+                                    for t in toks
+                                ]
+                            )
 
             # ----------------------------------------------------------
             # Assemble header

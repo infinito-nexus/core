@@ -30,6 +30,12 @@ def parse_args(argv=None):
     return p.parse_args(argv)
 
 
+def _protocol_for(domain: str, default_protocol: str) -> str:
+    """Onion services are plaintext-only (no TLS): probe them over http
+    regardless of the clearnet default. Everything else uses the default."""
+    return "http" if domain.endswith(".onion") else default_protocol
+
+
 def _parse_json_mapping(name: str, value: str) -> dict[str, list[int]]:
     try:
         obj = json.loads(value)
@@ -66,9 +72,13 @@ def main(argv=None) -> int:
     errors = 0
     for domain in sorted(expectations.keys()):
         expected = expectations[domain] or []
-        url = f"{args.web_protocol}://{domain}"
+        is_onion = domain.endswith(".onion")
+        url = f"{_protocol_for(domain, args.web_protocol)}://{domain}"
+        timeout = 30 if is_onion else 10
         try:
-            r = requests.head(url, allow_redirects=False, timeout=10, verify=verify)
+            r = requests.head(
+                url, allow_redirects=False, timeout=timeout, verify=verify
+            )
             if expected and r.status_code in expected:
                 print(f"{domain}: OK")
             elif not expected:
@@ -85,9 +95,7 @@ def main(argv=None) -> int:
             errors += 1
 
     if errors:
-        print(
-            f"Warning: {errors} domains responded with an unexpected https status code."
-        )
+        print(f"Warning: {errors} domains responded with an unexpected status code.")
     return errors
 
 

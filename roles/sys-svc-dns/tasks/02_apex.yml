@@ -1,5 +1,5 @@
 ---
-- name: "Ensure A @ for {{ base_domain }}"
+- name: "✅ Ensure A @ for {{ base_domain }}"
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ base_domain }}"
@@ -12,7 +12,7 @@
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
-- name: "Ensure AAAA @ for {{ base_domain }} with '{{ networks.internet.ip6 | default('None') }}"
+- name: "✅ AAAA @ for {{ base_domain }} = {{ networks.internet.ip6 | default('None') }}"
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ base_domain }}"

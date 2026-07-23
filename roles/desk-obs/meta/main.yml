@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs OBS Studio for streaming and recording on Pacman-based systems.
+  author: Kevin Veen-Birkenbach
+  description: Free and open-source desktop application for live video streaming and screen recording
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

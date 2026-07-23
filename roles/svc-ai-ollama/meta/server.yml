@@ -1,4 +1,0 @@
----
-networks:
-  local:
-    subnet: 192.168.203.0/24

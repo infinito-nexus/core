@@ -12,9 +12,10 @@
 //   PIXELFED_BASE_URL, ADMIN_EMAIL, ADMIN_PASSWORD
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
-  const { decodeDotenvQuotedValue } = require("./personas");
+  const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
   const pixelfedBaseUrl = shared.env.pixelfedBaseUrl;
   const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
@@ -33,27 +34,27 @@ exports.register = function (shared) {
     const loginUrl = `${expectedBaseUrl}/login`;
 
     // 1. Land on the upstream `/login` form and confirm the stock layout.
-    await page.goto(loginUrl);
+    await gotoOnion(page, loginUrl);
     const emailField = page.locator('input#email[name="email"]');
     const passwordField = page.locator('input#password[name="password"]');
     const submitButton = page.locator('button[type="submit"], input[type="submit"]').first();
     const csrfInput = page.locator('input[name="_token"]');
-    await expect(emailField).toBeVisible({ timeout: 60_000 });
-    await expect(passwordField).toBeVisible({ timeout: 60_000 });
+    await expect(emailField).toBeVisible({ timeout: resolveTimeout(60_000) });
+    await expect(passwordField).toBeVisible({ timeout: resolveTimeout(60_000) });
     await expect(csrfInput).toHaveCount(1);
 
     // 2. Fill the credentials and submit. The upstream form does the CSRF
     //    submission for us; we just type into the visible inputs.
     await emailField.fill(adminEmail);
     await passwordField.fill(adminPassword);
-    await submitButton.click();
+    await submitButton.click({ timeout: resolveTimeout(30_000) });
 
     // 3. Successful native auth lands on `/` (or `/i/web`) — never back on
     //    `/login`. Wait for the URL to leave `/login` and the authenticated
     //    UI surface to render.
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected native login to leave ${loginUrl} for an authenticated pixelfed surface`,
       })
       .not.toMatch(/\/login(\?|$)/);
@@ -61,7 +62,7 @@ exports.register = function (shared) {
     const userMenu = page
       .locator('a[title="User Menu"], a[aria-haspopup="true"], a[href="/settings/home"], a[href="/logout"]')
       .first();
-    await expect(userMenu).toBeVisible({ timeout: 60_000 });
+    await expect(userMenu).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // 4. Logout via pixelfed's native `/logout` POST route. Stock pixelfed
     //    exposes a Logout form (CSRF-guarded) under the User Menu; rendering
@@ -91,10 +92,10 @@ exports.register = function (shared) {
     // 5. Verify we're back on the login form (logged out).
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected pixelfed to return to a logged-out state after /logout POST",
       })
       .toMatch(/\/(login)?(\?|$|#)/);
-    await expect(emailField.or(page.locator('a[href="/login"]'))).toBeVisible({ timeout: 30_000 });
+    await expect(emailField.or(page.locator('a[href="/login"]'))).toBeVisible({ timeout: resolveTimeout(30_000) });
   });
 };

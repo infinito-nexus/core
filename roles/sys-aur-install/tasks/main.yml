@@ -1,12 +1,12 @@
 ---
 # nocheck: run-once
 
-- name: Include dependency 'sys-aur'
+- name: 📂 Include dependency 'sys-aur'
   include_role:
     name: sys-aur
   when: run_once_sys_aur is not defined
 
-- name: Validate sys-aur-install parameters
+- name: ✅ Validate sys-aur-install parameters
   assert:
     that:
       - (not (yay_install_upgrade | bool)) or (yay_install_packages | length == 0)
@@ -16,7 +16,7 @@
       are mutually exclusive).
   when: (yay_install_packages | length > 0) or (yay_install_upgrade | bool)
 
-- name: Install or upgrade AUR packages via yay
+- name: 📦 Install or upgrade AUR packages via yay
   kewlfft.aur.aur:
     use: "{{ yay_install_use }}"
     name: "{{ (not (yay_install_upgrade | bool) and (yay_install_packages | length > 0)) | ternary(yay_install_packages, omit) }}"
@@ -24,4 +24,3 @@
     aur_only: "{{ yay_install_aur_only }}"
   become: true
   become_user: "{{ yay_install_become_user }}"
-  when: (yay_install_packages | length > 0) or (yay_install_upgrade | bool)

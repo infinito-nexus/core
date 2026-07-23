@@ -1,14 +1,34 @@
+{# Aggregate plain-HTTP registries (cluster build registry + Hub pull-through
+   mirror) into a single insecure_registries list so docker accepts them. #}
+{% set _insecure = [] %}
+{% if DEPLOYMENT_MODE == 'swarm' and (swarm.registry.host | length > 0) %}
+{% set _ = _insecure.append(swarm.registry.host ~ ':' ~ swarm.registry.port) %}
+{% endif %}
+{% set _cache_hosts = groups['svc-registry-cache'] | default([]) %}
+{% if _cache_hosts | length > 0 %}
+{% set _cache_port = lookup('config', 'svc-registry-cache', 'services.cache.ports.local.registry') %}
+{% set _ = _insecure.append(_cache_hosts[0] ~ ':' ~ _cache_port) %}
+{% endif %}
 {
+{% if (networks.internet.dns | default('') | length) > 0 %}
   "dns": ["{{ networks.internet.dns }}"],
+{% endif %}
   "dns-search": ["{{ DOMAIN_PRIMARY }}"],
   "dns-opts": ["ndots:0"],
+  "log-driver": "json-file",
+  "log-opts": {"max-size": "10m", "max-file": "2"},
   "storage-driver": "fuse-overlayfs"
 {% if SYS_DOCKER_DAEMONM_MTU is defined and SYS_DOCKER_DAEMONM_MTU | int > 0 %},
   "mtu": {{ SYS_DOCKER_DAEMONM_MTU | int }}
 {% endif %}
-{# Set OS-specific firewall backend to avoid conflicts between Docker and the system firewall (e.g. nftables on Arch Linux). #}
 {% set firewall_backend = SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY.get(ansible_facts['os_family']) %}
 {% if firewall_backend %},
   "firewall-backend": "{{ firewall_backend }}"
+{% endif %}
+{% if _insecure | length > 0 %},
+  "insecure-registries": [{% for r in _insecure %}"{{ r }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+{% endif %}
+{% if _cache_hosts | length > 0 %},
+  "registry-mirrors": ["http://{{ _cache_hosts[0] }}:{{ _cache_port }}"]
 {% endif %}
 }

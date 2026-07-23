@@ -1,7 +1,0 @@
----
-- include_tasks: 01_core.yml
-  when: run_once_svc_bkp_container_2_local is not defined
-
-- name: "include 04_seed-database-to-backup.yml"
-  include_tasks: 04_seed-database-to-backup.yml
-  when: BKP_CONTAINER_2_LOCAL_DB_ENABLED | bool

@@ -7,4 +7,3 @@ ROULETTE_IMAGE: "{{ lookup('config', application_id, 'services.roulette-wheel.im
 ROULETTE_VERSION: "{{ lookup('config', application_id, 'services.roulette-wheel.version') }}"
 ROULETTE_REPOSITORY: "{{ lookup('config', application_id, 'services.roulette-wheel.repository') }}"
 ROULETTE_REF: "{{ lookup('config', application_id, 'services.roulette-wheel.ref') }}"
-ROULETTE_IMAGE_CUSTOM: "{{ entity_name }}_custom"

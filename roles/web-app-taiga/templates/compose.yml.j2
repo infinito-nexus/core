@@ -4,15 +4,15 @@
 build:
   context: "{{ compose_repository_path }}"
   dockerfile: Dockerfile.taiga-back
-image: "{{ TAIGA_DOCKER_IMAGE_BACKEND_AUTH }}"
-pull_policy: never
+{{ lookup('container_image', application_id, 'taiga', image=entity_name ~ '-back-auth', version=TAIGA_VERSION) }}
+{{ lookup('compose_only', 'pull_policy', 'never') }}
 {%- endset %}
 
-{% set service_name = TAIGA_SERVICE %}
+  {% set service_name = TAIGA_SERVICE %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER) }}
     hostname:       {{ TAIGA_HOSTNAME }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8000),5).close()"]
       interval: 30s
@@ -25,29 +25,20 @@ pull_policy: never
     command:
       - "if ! grep -qF {{ TAIGA_CONFIG_APPEND_MARKER | quote }} /taiga-back/settings/config.py; then cat /taiga-back/settings/config.append.py >> /taiga-back/settings/config.py; fi; exec /taiga-back/docker/entrypoint.sh"
 {% else %}
-    image: "{{ TAIGA_DOCKER_IMAGE_BACKEND }}:{{ TAIGA_VERSION }}"
+    {{ lookup('container_image', application_id, 'taiga', image='taigaio/taiga-back', version=TAIGA_VERSION) }}
 {% endif %}
-    volumes:
-      # These volumens will be used by taiga-back and taiga-async.
-      - static-data:{{ TAIGA_VOLUME_STATIC }}
-      - media-data:{{ TAIGA_VOLUME_MEDIA }}
-{% if TAIGA_PLUGINS_ENABLED | bool %}
-      - {{ TAIGA_CONFIG_APPEND_PATH }}:/taiga-back/settings/config.append.py
-{% endif %}
-{% if TAIGA_OIDC_ENABLED | bool %}
-      - {{ TAIGA_URLS_PATH }}:/taiga-back/settings/urls.py
-{% endif %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
-{{ lookup('container_depends_on', application_id, extra={
+    {{ lookup('container_depends_on', application_id, extra={
   TAIGA_EVENTS_RABBITMQ_SERVICE: {'condition': 'service_started'},
   TAIGA_ASYNC_RABBITMQ_SERVICE: {'condition': 'service_started'},
-}) }}
+}) | indent(4) }}
 
-{% set service_name = TAIGA_ASYNC_SERVICE %}
+  {% set service_name = TAIGA_ASYNC_SERVICE %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD-SHELL", "tr '\\0' ' ' </proc/1/cmdline | grep -qi celery"]
       interval: 30s
@@ -60,141 +51,127 @@ pull_policy: never
     command:
       - "if ! grep -qF {{ TAIGA_CONFIG_APPEND_MARKER | quote }} /taiga-back/settings/config.py; then cat /taiga-back/settings/config.append.py >> /taiga-back/settings/config.py; fi; exec /taiga-back/docker/async_entrypoint.sh"
 {% else %}
-    image: "{{ TAIGA_DOCKER_IMAGE_BACKEND }}:{{ TAIGA_VERSION }}"
+    {{ lookup('container_image', application_id, 'async', image='taigaio/taiga-back', version=TAIGA_VERSION) }}
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
 {% endif %}
-    volumes:
-      # These volumens will be used by backend and async service
-      - static-data:{{ TAIGA_VOLUME_STATIC }}
-      - media-data:{{ TAIGA_VOLUME_MEDIA }}
-{% if TAIGA_PLUGINS_ENABLED | bool %}
-      - {{ TAIGA_CONFIG_APPEND_PATH }}:/taiga-back/settings/config.append.py
-{% endif %}
-{% if TAIGA_OIDC_ENABLED | bool %}
-      - {{ TAIGA_URLS_PATH }}:/taiga-back/settings/urls.py
-{% endif %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
-{{ lookup('container_depends_on', application_id, extra={
+    {{ lookup('container_depends_on', application_id, extra={
+  TAIGA_SERVICE: {'condition': 'service_started'},
   TAIGA_EVENTS_RABBITMQ_SERVICE: {'condition': 'service_started'},
   TAIGA_ASYNC_RABBITMQ_SERVICE: {'condition': 'service_started'},
-}) }}
+}) | indent(4) }}
 
-{% set service_name = TAIGA_ASYNC_RABBITMQ_SERVICE %}
+  {% set service_name = TAIGA_ASYNC_RABBITMQ_SERVICE %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: "{{ TAIGA_DOCKER_IMAGE_ASYNC_RABBITMQ }}:{{ TAIGA_DOCKER_VERSION_ASYNC_RABBITMQ }}"
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
+    {{ lookup('container_image', application_id, 'async-rabbitmq') }}
     hostname: "{{ TAIGA_ASYNC_RABBITMQ_SERVICE }}"
-    volumes:
-      - async-rabbitmq-data:/var/lib/rabbitmq
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 20s
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
 
-{% set service_name = TAIGA_FRONT_SERVICE %}
-{% set container_port = 80 %}
+  {% set service_name = TAIGA_FRONT_SERVICE %}
+  {# nocheck: container-port-set-unused #}
+  {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-{% if TAIGA_OIDC_ENABLED | bool %}
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
+    {% if TAIGA_OIDC_ENABLED | bool %}
     build:
       context: "{{ compose_repository_path }}"
       dockerfile: Dockerfile.taiga-front
-    image: "{{ TAIGA_DOCKER_IMAGE_FRONTEND_OIDC }}"
-    pull_policy: never
-{% else %}
-    image: "{{ TAIGA_DOCKER_IMAGE_FRONTEND }}:{{ TAIGA_VERSION }}"
-{% endif %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% filter indent(4) %}
+    {{ lookup('container_image', application_id, 'front', image=entity_name ~ '-front-oidc', version=TAIGA_VERSION) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {% else %}
+    {{ lookup('container_image', application_id, 'front', image='taigaio/taiga-front', version=TAIGA_VERSION) }}
+    {% endif %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% include 'roles/sys-svc-container/templates/healthcheck/http.yml.j2' %}
-{% endfilter %}
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
-{% if TAIGA_PLUGINS_ENABLED | bool %}
-    volumes:
-      - {{ TAIGA_FRONTEND_CONF_PATH }}:/usr/share/nginx/html/conf.json:ro
-{% endif %}
 
-{% set service_name = TAIGA_EVENTS_SERVICE %}
+  {% set service_name = TAIGA_EVENTS_SERVICE %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: "{{ TAIGA_DOCKER_IMAGE_EVENTS }}:{{ TAIGA_DOCKER_VERSION_EVENTS }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
+    {{ lookup('container_image', application_id, 'events') }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD-SHELL", "nc -z 127.0.0.1 8888"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 30s
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
-    depends_on:
-      {{ TAIGA_EVENTS_RABBITMQ_SERVICE }}:
-        condition: service_started
+    {{ lookup('depends_on', {TAIGA_EVENTS_RABBITMQ_SERVICE: 'service_started'}) }}
 
-{% set service_name = TAIGA_EVENTS_RABBITMQ_SERVICE %}
+  {% set service_name = TAIGA_EVENTS_RABBITMQ_SERVICE %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: "{{ TAIGA_DOCKER_IMAGE_EVENTS_RABBITMQ }}:{{ TAIGA_DOCKER_VERSION_EVENTS_RABBITMQ }}"
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
+    {{ lookup('container_image', application_id, 'events-rabbitmq') }}
     hostname: {{ service_name }}
-    volumes:
-      - events-rabbitmq-data:/var/lib/rabbitmq
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 20s
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
 
-{% set service_name = 'protected' %}
+  {% set service_name = TAIGA_PROTECTED_SERVICE %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: "{{ TAIGA_DOCKER_IMAGE_PROTECTED }}:{{ TAIGA_DOCKER_VERSION_PROTECTED }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
+    {{ lookup('container_image', application_id, 'protected') }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     healthcheck:
       test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8003),5).close()"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 20s
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
 
-{% set service_name = 'gateway' %}
-{% set container_port = 80 %}
+  {% set service_name = 'gateway' %}
   {{ service_name }}:
-    container_name: {{ TAIGA_CONTAINER }}-{{ service_name }}
-    image: "{{ TAIGA_DOCKER_IMAGE_GATEWAY }}:{{ TAIGA_DOCKER_VERSION_GATEWAY }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.taiga.ports.local.http') }}:{{ container_port }}"
-    volumes:
-      - {{ compose_repository_path }}taiga-gateway/taiga.conf:/etc/nginx/conf.d/default.conf
-      - static-data:/taiga/static
-      - media-data:/taiga/media
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% filter indent(4) %}
+    {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
+    {{ lookup('container_image', application_id, 'gateway') }}
+    {{ lookup('container_ports', ['taiga', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% include 'roles/sys-svc-container/templates/healthcheck/http.yml.j2' %}
-{% endfilter %}
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
       taiga:
-    depends_on:
-      - {{ TAIGA_FRONT_SERVICE }}
-      - {{ TAIGA_SERVICE }}
-      - {{ TAIGA_EVENTS_SERVICE }}
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'async-rabbitmq-data': {}, 'events-rabbitmq-data': {}, 'media-data': {}, 'static-data': {}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+    {{ lookup('depends_on', [TAIGA_FRONT_SERVICE, TAIGA_SERVICE, TAIGA_EVENTS_SERVICE]) }}
+
+  {% set service_name = TAIGA_MANAGER_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', TAIGA_MANAGER_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'manager', image='taigaio/taiga-back', version=TAIGA_VERSION) }}
+    environment:
+      CELERY_ENABLED: "False"
+    entrypoint: ["sleep", "infinity"]
+    {{ lookup('container_depends_on', application_id, extra={
+  TAIGA_SERVICE: {'condition': 'service_started'},
+}) | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+      taiga:
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}
   taiga:

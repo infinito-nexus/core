@@ -1,8 +1,8 @@
 ---
-- name: "Deploy web-app-minio (core, once per play)"
+- name: "🚀 Deploy web-app-minio (core, once per play)"
   include_tasks: 01_core.yml
   when: run_once_web_app_minio is not defined
 
-- name: "Provision a dedicated bucket + service account for a consumer"
+- name: "🔧 Provision a dedicated bucket + service account for a consumer"
   include_tasks: 04_init_consumer.yml
   when: objstore_init | bool

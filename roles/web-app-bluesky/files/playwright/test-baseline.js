@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("baseline: bluesky web UI responds on the canonical domain", async ({ page }) => {
@@ -7,7 +8,7 @@ exports.register = function (shared) {
     // by the OIDC scenario below (which uses the broker handoff to
     // reach social-app via Keycloak).
     const { baseUrl, canonicalDomain } = shared.env;
-    const response = await page.goto(`${baseUrl}/`);
+    const response = await gotoOnion(page, `${baseUrl}/`);
     expect(response, "Expected bluesky response").toBeTruthy();
     expect(response.status(), "Expected bluesky status < 500").toBeLessThan(500);
     expect(

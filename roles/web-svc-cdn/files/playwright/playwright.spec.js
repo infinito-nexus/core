@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, expectHstsWhenTls, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const cdnBaseUrl = normalizeBaseUrl(process.env.CDN_BASE_URL || "");
@@ -14,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("cdn index is served under canonical domain with TLS", async ({ page }) => {
-  const response = await page.goto(`${cdnBaseUrl}/`);
+  const response = await gotoOnion(page, `${cdnBaseUrl}/`);
   expect(response, "Expected CDN index response").toBeTruthy();
   expect(response.status(), "Expected CDN index status < 400").toBeLessThan(400);
   expect(
@@ -22,7 +23,7 @@ test("cdn index is served under canonical domain with TLS", async ({ page }) => 
     `Expected canonical domain "${canonicalDomain}" to back the CDN URL`
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "CDN must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, cdnBaseUrl, "CDN");
 });
 
 // Persona scenarios.
@@ -44,12 +45,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|index|status)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /admin|status|index/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

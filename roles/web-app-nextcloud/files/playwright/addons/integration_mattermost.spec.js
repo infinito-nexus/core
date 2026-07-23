@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 // Full-coupling check for nextcloud/integration_mattermost.
 //
@@ -19,7 +21,7 @@ const shared = require("../_shared");
 // so the authorize URL can be percent-encoded in the landing URL — decode before matching.
 test("integration integration_mattermost: OAuth client provisioned and connects to Mattermost", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_mattermost");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -29,9 +31,9 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     await shared.loginToStandaloneNextcloud(page);
 
     // 1) App is installed AND enabled.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/apps/installed/integration_mattermost", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page).catch(() => {});
     await page.waitForLoadState("networkidle").catch(() => {});
@@ -39,12 +41,12 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     await expect(
       page.getByRole("button", { name: /^disable$/i }).or(page.locator('input[value="Disable"]')).first(),
       "integration_mattermost must be enabled (admin app-detail Disable action)"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // 2) Personal connect surface renders (only when the app is enabled).
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page).catch(() => {});
     await page.waitForLoadState("networkidle").catch(() => {});
@@ -57,13 +59,13 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
     await expect(
       connect,
       "the Mattermost connect control must render on Connected accounts when the app is enabled"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // 3) Connect performs the partner OAuth authorize redirect with the provisioned client.
-    const popupPromise = page.waitForEvent("popup", { timeout: 15_000 }).catch(() => null);
+    const popupPromise = page.waitForEvent("popup", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
-      page.waitForEvent("framenavigated", { timeout: 60_000 }).catch(() => {}),
-      connect.click(),
+      page.waitForEvent("framenavigated", { timeout: resolveTimeout(60_000) }).catch(() => {}),
+      connect.click({ timeout: resolveTimeout(30_000) }),
     ]);
     const popup = await popupPromise;
     const rawUrl = () => (popup ? popup.url() : page.url());
@@ -71,7 +73,7 @@ test("integration integration_mattermost: OAuth client provisioned and connects 
 
     await expect
       .poll(landing, {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "connect must redirect to the partner Mattermost OAuth authorize endpoint",
       })
       .toMatch(/\/oauth\/authorize/i);

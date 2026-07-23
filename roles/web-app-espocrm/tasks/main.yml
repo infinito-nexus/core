@@ -1,56 +1,13 @@
 ---
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
     webserver_websocket_location: "/ws"
     webserver_vhost_flavour: "ws_generic"
+    webserver_client_max_body_size: "100m"
 
-- name: "Deploy '{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
-  copy:
-    src: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_FILE }}"
-    dest: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_ABS }}"
-  notify:
-    - compose up
-    - compose build
-
-- name: "Deploy '{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}'"
-  copy:
-    src: "{{ ESPOCRM_SCRIPT_SEED_FILE }}"
-    dest: "{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}"
-  notify:
-    - compose up
-    - compose build
-
-- name: "Docker Compose Up for '{{ application_id }}'"
-  meta: flush_handlers
-
-- name: Check if config.php exists in EspoCRM
-  command: >
-    container exec --user root {{ ESPOCRM_CONTAINER }} test -f {{ ESPOCRM_CONFIG_FILE_PRIVATE }}
-  register: config_file_exists
-  changed_when: false
-  failed_when: false
-
-- name: Patch EspoCRM config.php
-  include_tasks: 01_patch_config.yml
-  when: config_file_exists.rc == 0
-
-- name: Run EspoCRM upgrade
-  command: >
-    container exec --user {{ ESPOCRM_USER }} {{ ESPOCRM_CONTAINER }}
-    php command.php upgrade -y
-  register: espocrm_upgrade
-  changed_when: "'Upgrading' in espocrm_upgrade.stdout or 'successfully' in espocrm_upgrade.stdout"
-  failed_when: false
-
-- name: Run flag setter as root (fallback)
-  command: >
-    container exec --user root {{ ESPOCRM_CONTAINER }}
-    php {{ ESPOCRM_SCRIPT_SEED_DOCKER }}
-  register: flags_result_root
-  changed_when: "'CHANGED' in flags_result_root.stdout"
-
-- name: Flush handlers to make DB available before password reset
-  meta: flush_handlers
+- name: "👔 EspoCRM manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

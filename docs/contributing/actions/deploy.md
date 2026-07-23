@@ -1,6 +1,6 @@
 # Local Deploy 🚀
 
-Contributor guidance for running deploys against a local development stack on your workstation. For production deploy guidance see the [Deploy Guide](../../administration/deploy.md). For the agent-driven role iteration loop see [role.md](../../agents/action/iteration/role.md). For the matrix-variant mechanism that this page references throughout see [variants.md](../design/variants.md).
+Contributor guidance for running deploys against a local development stack on your workstation. For production deploy guidance see the [Deploy Guide](../../administration/deploy.md). For the agent-driven role iteration loop see [compose.md](../../agents/action/iteration/compose.md). For the matrix-variant mechanism that this page references throughout see [variants.md](../design/variants.md).
 
 ## Entry Points 🧭
 
@@ -91,4 +91,4 @@ For TLS-enabled local sites, run [`make network-trust-ca`](../../../Makefile) on
 | [`make dotenv`](../../../Makefile) | Resolves `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE`, and `INFINITO_INVENTORY_VARS_FILE` into `.env` for the dev CLI (see [variables.md](../environment/variables.md)). |
 | [local deploy scripts](../../../scripts/tests/deploy/local/) | Bash glue behind the make targets (fresh / reuse / purge variants). |
 | [variants.md](../design/variants.md) | Matrix-variant deep dive. |
-| [role.md](../../agents/action/iteration/role.md) | Role-iteration loop for agents. Recommended reading even for human contributors. |
+| [compose.md](../../agents/action/iteration/compose.md) | Role-iteration loop for agents. Recommended reading even for human contributors. |

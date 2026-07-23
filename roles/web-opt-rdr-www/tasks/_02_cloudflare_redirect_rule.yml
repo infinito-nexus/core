@@ -7,12 +7,12 @@
 #   apex_url:   "https://example.com"
 #   API.cloudflare.api_token (via lookup('api', 'cloudflare.api_token'))
 
-- name: "Derive zone from www_fqdn; apex comes from caller"
+- name: "🧮 Derive zone from www_fqdn; apex comes from caller"
   set_fact:
     cf_zone_name: "{{ www_fqdn | to_zone }}"
     domain_apex: "{{ domain }}"
 
-- name: "Cloudflare: Lookup zone id for {{ cf_zone_name }}"
+- name: "🔍 Cloudflare: Lookup zone id for {{ cf_zone_name }}"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones?name={{ cf_zone_name }}"
     method: GET
@@ -25,11 +25,11 @@
     (cf_zone_lookup.status != 200) or
     (cf_zone_lookup.json.result | length) == 0
 
-- name: "Set fact: zone_id"
+- name: "🔧 Set fact: zone_id"
   set_fact:
     cf_zone_id: "{{ (cf_zone_lookup.json.result | first).id }}"
 
-- name: "Remove conflicting A/AAAA record for {{ www_fqdn }}"
+- name: "🗑️ Remove conflicting A/AAAA record for {{ www_fqdn }}"
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ cf_zone_name }}"
@@ -38,7 +38,7 @@
     state: absent
   ignore_errors: true
 
-- name: "Cloudflare DNS: ensure {{ www_fqdn }} is proxied (CNAME)"
+- name: "🌐 Cloudflare DNS: ensure {{ www_fqdn }} is proxied (CNAME)"
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ cf_zone_name }}"
@@ -50,7 +50,7 @@
     state: present
 
 # 1) Fetch existing redirect rulesets
-- name: "Cloudflare Rulesets: list dynamic redirect rulesets"
+- name: "📋 Cloudflare Rulesets: list dynamic redirect rulesets"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets?phase=http_request_dynamic_redirect"
     method: GET
@@ -60,7 +60,7 @@
     return_content: true
   register: cf_rulesets
 
-- name: "Pick existing custom ruleset (if any)"
+- name: "🎯 Pick existing custom ruleset (if any)"
   set_fact:
     cf_redirect_ruleset: >-
       {{
@@ -72,7 +72,7 @@
     cf_redirect_ruleset_id: "{{ (cf_redirect_ruleset.id | default('')) }}"
 
 # Desired redirect rule object
-- name: "Build desired redirect rule object"
+- name: "🔨 Build desired redirect rule object"
   set_fact:
     desired_redirect_rule:
       ref: "redirect_www_to_apex"
@@ -87,7 +87,7 @@
           preserve_query_string: true
 
 # 2) Update existing ruleset (PUT)
-- name: "Update existing dynamic redirect ruleset (PUT)"
+- name: "🔄 Update existing dynamic redirect ruleset (PUT)"
   when: cf_redirect_ruleset_id | length > 0
   vars:
     existing_rules: "{{ cf_redirect_ruleset.rules | default([]) }}"
@@ -115,7 +115,7 @@
   changed_when: cf_ruleset_update.status in [200]
 
 # 3) Create new ruleset (POST)
-- name: "Create dynamic redirect ruleset (POST)"
+- name: "📁 Create dynamic redirect ruleset (POST)"
   when: cf_redirect_ruleset_id | length == 0
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets"

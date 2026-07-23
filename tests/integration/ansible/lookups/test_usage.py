@@ -11,6 +11,8 @@ as real usage:
   plugin's internals (e.g. ``utils/runtime_data.py`` embeds several
   ``LookupModule`` classes as regular helpers instead of dispatching
   through Ansible).
+- ``lookup_loader.get('<name>')`` — one lookup delegating to another
+  (e.g. ``container_image`` wraps the ``image`` lookup).
 
 Mirrors ``tests/integration/filters/test_usage.py`` in spirit and uses the
 same inverted-scan approach (one pass over all project files, a single
@@ -38,7 +40,6 @@ if TYPE_CHECKING:
 
 LOOKUP_PLUGINS_DIR = PROJECT_ROOT / "plugins" / "lookup"
 
-# Extensions we consider capable of invoking a lookup.
 USAGE_EXTS = (".yml", ".yaml", ".j2", ".jinja2", ".tmpl", ".py")
 
 
@@ -76,11 +77,17 @@ def collect_defined_lookups() -> dict[str, Path]:
 def _scan_lookup_usage(
     defined: dict[str, Path],
 ) -> dict[str, dict[str, bool]]:
-    """Single-pass inverted scan for ``lookup('name', ...)`` / ``query('name', ...)``.
+    """Single-pass inverted scan for every counted invocation form.
 
     Complexity: O(M_files * 1_master_regex) rather than O(N_lookups * M_files).
-    The combined regex carries alternation over every defined lookup name and
-    covers both ``lookup(...)`` and ``query(...)`` invocation forms.
+    The combined regexes carry alternation over every defined lookup name and
+    cover ``lookup(...)``, ``query(...)`` (arbitrary whitespace inside the
+    call, both quote styles), the ``from plugins.lookup.<name> import`` form
+    that ``utils/runtime_data.py`` uses to embed a LookupModule directly, and
+    the ``lookup_loader.get('<name>')`` delegation form.
+
+    A plugin's own definition file is skipped: docstrings contain example
+    invocations of the same lookup and would otherwise register as self-usage.
     """
     state: dict[str, dict[str, bool]] = {
         name: {"used_any": False, "used_outside": False} for name in defined
@@ -90,20 +97,14 @@ def _scan_lookup_usage(
 
     escaped = [re.escape(name) for name in defined]
     name_alt = "(" + "|".join(escaped) + ")"
-    # Match lookup('name'… / query('name'… / from plugins.lookup.name import
-    # Arbitrary whitespace inside the call, both quote styles, and the Python
-    # import form that ``utils/runtime_data.py`` uses to embed a LookupModule
-    # directly.
     invoke_pat = re.compile(r"(?:lookup|query)\(\s*['\"]" + name_alt + r"['\"]")
     import_pat = re.compile(r"from\s+plugins\.lookup\." + name_alt + r"\s+import\b")
+    loader_pat = re.compile(r"lookup_loader\.get\(\s*['\"]" + name_alt + r"['\"]")
 
     tests_prefix = str(PROJECT_ROOT / "tests") + os.sep
     defined_paths: set[str] = {str(p) for p in defined.values()}
 
     for path in iter_project_files(extensions=USAGE_EXTS):
-        # Skip the plugin's own definition file — docstrings contain example
-        # invocations of the same lookup and would otherwise register as
-        # self-usage.
         resolved = os.path.realpath(path)
         if resolved in defined_paths:
             continue
@@ -114,7 +115,7 @@ def _scan_lookup_usage(
             continue
 
         is_in_tests = path.startswith(tests_prefix)
-        for pat in (invoke_pat, import_pat):
+        for pat in (invoke_pat, import_pat, loader_pat):
             for match in pat.finditer(content):
                 name = match.group(1)
                 s = state[name]

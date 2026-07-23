@@ -1,8 +1,0 @@
----
-- name: "Load pure handlers from '{{ handler_role_name }}' without 'when' to guaranty that they are executed"
-  import_role:
-    name: "{{ handler_role_name }}"
-    tasks_from: "none.yml"
-    handlers_from: "main"
-  vars:
-    application_id: "{{ handler_role_name }}"

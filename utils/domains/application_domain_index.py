@@ -1,6 +1,6 @@
 #
 # Shared helpers for indexing application domains from
-# applications[app_id].server.domains.{canonical,aliases}.
+# applications[app_id].domains.{canonical,aliases}.
 #
 # Supports canonical/aliases being:
 # - str
@@ -60,17 +60,13 @@ def iter_app_domains(app_conf: Any, include_aliases: bool = True) -> Iterable[st
     Yield all canonical + alias domains from an app config.
 
     Expected structure:
-      applications[app_id].server.domains.canonical
-      applications[app_id].server.domains.aliases
+      applications[app_id].domains.canonical
+      applications[app_id].domains.aliases
     """
     if not isinstance(app_conf, dict):
         return []
 
-    server = app_conf.get("server", {})
-    if not isinstance(server, dict):
-        return []
-
-    domains = server.get("domains", {})
+    domains = app_conf.get("domains", {})
     if not isinstance(domains, dict):
         return []
 
@@ -125,7 +121,7 @@ def resolve_app_id_for_domain(
 ) -> str | None:
     """
     Resolve application_id for a given domain (canonical or alias) by scanning
-    applications[*].server.domains.
+    applications[*].domains.
 
     Returns None if not found.
     """

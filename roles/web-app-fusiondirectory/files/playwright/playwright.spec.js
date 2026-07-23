@@ -1,7 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const baseUrl = normalizeBaseUrl(process.env.FUSIONDIRECTORY_BASE_URL || "");
@@ -17,7 +18,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("baseline: FusionDirectory responds on the canonical domain", async ({ page }) => {
-  const r = await page.goto(`${baseUrl}/`);
+  const r = await gotoOnion(page, `${baseUrl}/`);
   expect(r).toBeTruthy();
   expect(r.status()).toBeLessThan(500);
   expect(r.url().includes(canonicalDomain)).toBe(true);
@@ -28,17 +29,17 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   expect(adminUsername).toBeTruthy(); expect(adminPassword).toBeTruthy(); expect(oidcIssuerUrl).toBeTruthy();
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
-  await expect.poll(() => page.url(), { timeout: 60_000 }).toContain(expectedAuth);
+  await gotoOnion(page, `${expectedBase}/`);
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  await expect.poll(() => page.url(), { timeout: 90_000 }).toContain(expectedBase);
-  await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: 60_000 });
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
+  await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("LDAP: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const expectedBase = baseUrl.replace(/\/$/, "");
-  await page.goto(`${expectedBase}/`);
+  await gotoOnion(page, `${expectedBase}/`);
   expect(page.url().includes(canonicalDomain)).toBe(true);
 });
 
@@ -61,12 +62,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(configuration|administration|users|groups|departments)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /configuration|administration|users|groups|departments|posix/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

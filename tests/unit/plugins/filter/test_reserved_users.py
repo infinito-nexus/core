@@ -7,8 +7,6 @@ from reserved_users import non_reserved_users, reserved_usernames
 
 class TestReservedUsersFilters(unittest.TestCase):
     def setUp(self):
-        # A user is "reserved" (blocked as a Keycloak username) when it has no
-        # identity-directory account, i.e. 'identity' not in accounts.
         self.users = {
             "admin": {
                 "username": "admin",
@@ -41,20 +39,16 @@ class TestReservedUsersFilters(unittest.TestCase):
             "not_a_dict": "invalid",
         }
 
-    # -------- reserved_usernames tests --------
-
     def test_reserved_usernames_requires_dict(self):
         with self.assertRaises(AnsibleFilterError):
             reserved_usernames(["not", "a", "dict"])
 
     def test_reserved_usernames_returns_only_non_identity(self):
         result = reserved_usernames(self.users)
-        # Escaped regex strings; no identity account -> blocked username
         self.assertIn("admin", result)
         self.assertIn("backup", result)
         self.assertIn("service\\.user", result)
 
-        # identity-provisioned user must not be blocked
         self.assertNotIn("kevin", result)
 
     def test_missing_accounts_field_counts_as_reserved(self):
@@ -68,15 +62,12 @@ class TestReservedUsersFilters(unittest.TestCase):
 
     def test_reserved_usernames_escapes_special_chars(self):
         result = reserved_usernames(self.users)
-        # service.user → service\.user
         self.assertIn("service\\.user", result)
         self.assertNotIn("service.user", result)
 
     def test_reserved_usernames_empty_dict(self):
         result = reserved_usernames({})
         self.assertEqual(result, [])
-
-    # -------- non_reserved_users tests --------
 
     def test_non_reserved_users_requires_dict(self):
         with self.assertRaises(AnsibleFilterError):
@@ -86,7 +77,6 @@ class TestReservedUsersFilters(unittest.TestCase):
         result = non_reserved_users(self.users)
         self.assertIsInstance(result, dict)
 
-        # Only "kevin" has an identity account in our sample
         self.assertIn("kevin", result)
         self.assertNotIn("admin", result)
         self.assertNotIn("backup", result)
@@ -99,8 +89,6 @@ class TestReservedUsersFilters(unittest.TestCase):
     def test_non_reserved_users_empty_dict(self):
         result = non_reserved_users({})
         self.assertEqual(result, {})
-
-    # -------- FilterModule registration tests --------
 
     def test_filtermodule_registers_filters(self):
         fm = reserved_users.FilterModule()

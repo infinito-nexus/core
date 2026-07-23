@@ -8,6 +8,14 @@ A role's `meta/services.yml` MAY contain (per-service-entity):
         categories: [web, web.app, ...]   # category handles (cf. roles/categories.yml)
         roles: [web-app-yourls, ...]      # full role names incl. category prefix
 
+A `required_by` block MAY instead nest `compose:` / `swarm:` sub-blocks to
+scope the requirement to one deploy mode (a flat block applies in every mode);
+the deploy mode is inferred from the role set (swarm pulls in svc-swarm-node):
+
+    <entity>:
+      required_by:
+        compose: { categories: [web] }    # required only in compose deploys
+
 Semantics: when the current deploy contains any role whose id matches a
 listed `roles` entry, OR whose category set (top-level + first sub-level)
 intersects the listed `categories`, the role owning the services.yml entry
@@ -39,6 +47,15 @@ _NON_SKIP_RE = re.compile(
     r"^\s*(?:ok|changed|fatal|included):\s+",
     re.MULTILINE,
 )
+# Ansible's log_path file (ANSIBLE_LOG_PATH, what the swarm/compose deploy feeds
+# this verifier) prefixes every line with "<ts> p=<pid> u=<user> n=<name> <LVL>| ".
+# Unstripped, that prefix defeats both the line-anchored _NON_SKIP_RE and the
+# "\nTASK [" block split below (the TASK header no longer follows the newline),
+# so every required role false-positives as "did not execute".
+_LOG_PREFIX_RE = re.compile(
+    r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d,\d+ p=\d+ u=\S+ n=\S+ \w+\| ",
+    re.MULTILINE,
+)
 
 
 def categories_of(role_id: str) -> set[str]:
@@ -58,6 +75,15 @@ def categories_of(role_id: str) -> set[str]:
     return out
 
 
+_SWARM_MARKER_ROLES = frozenset({"svc-swarm-node", "svc-swarm-manager"})
+
+
+def _deploy_mode(deployed_role_ids: list[str]) -> str:
+    # No DEPLOYMENT_MODE in scope post-deploy: infer it from the role set, since a
+    # swarm deploy always pulls in the swarm-node/manager infra and compose never does.
+    return "swarm" if _SWARM_MARKER_ROLES.intersection(deployed_role_ids) else "compose"
+
+
 def required_role_ids(
     *,
     roles_dir: Path,
@@ -68,6 +94,7 @@ def required_role_ids(
     for d in deployed_role_ids:
         deployed_categories.update(categories_of(d))
     deployed_set = set(deployed_role_ids)
+    deploy_mode = _deploy_mode(deployed_role_ids)
 
     required: set[str] = set()
     if not roles_dir.is_dir():
@@ -93,6 +120,12 @@ def required_role_ids(
             rb = entry.get("required_by")
             if not isinstance(rb, dict):
                 continue
+            # required_by may scope to a deploy mode via 'compose'/'swarm' sub-keys;
+            # a flat {categories, roles} applies in every mode.
+            if "compose" in rb or "swarm" in rb:
+                rb = rb.get(deploy_mode) or {}
+                if not isinstance(rb, dict):
+                    continue
             rb_categories = set(rb.get("categories") or [])
             rb_roles = set(rb.get("roles") or [])
             if (rb_categories & deployed_categories) or (rb_roles & deployed_set):
@@ -169,7 +202,7 @@ def _role_body_executed(log_content: str, role_id: str) -> bool:
     `skipping:` status line, so a header alone is insufficient evidence
     that the role's body ran — we must see at least one non-skip outcome.
     """
-    clean = _ANSI_RE.sub("", log_content)
+    clean = _LOG_PREFIX_RE.sub("", _ANSI_RE.sub("", log_content))
     marker = f"TASK [{role_id} :"
     pos = 0
     while True:

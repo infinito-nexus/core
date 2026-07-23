@@ -1,5 +1,5 @@
 ---
-- name: sys-service | Assert service debug unit is defined
+- name: ✅ sys-service | Assert service debug unit is defined
   ansible.builtin.assert:
     that:
       - system_service_debug_unit is defined
@@ -8,7 +8,7 @@
       system_service_debug_unit must be defined for shared service diagnostics.
   changed_when: false
 
-- name: sys-service | Run shared service debug script
+- name: ▶️ sys-service | Run shared service debug script
   ansible.builtin.script: "{{ role_path }}/files/debug.sh"
   become: true
   environment:
@@ -23,13 +23,13 @@
   changed_when: false
   failed_when: false
 
-- name: sys-service | Show shared service diagnostics
+- name: 👁️ sys-service | Show shared service diagnostics
   ansible.builtin.debug:
     msg: |
       {{ system_service_debug_result.stdout | default('') }}
       {{ system_service_debug_result.stderr | default('') }}
 
-- name: sys-service | Fail after shared service diagnostics
+- name: 🛑 sys-service | Fail after shared service diagnostics
   ansible.builtin.fail:
     msg: >-
       {{

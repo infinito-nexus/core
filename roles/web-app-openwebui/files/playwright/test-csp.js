@@ -4,15 +4,16 @@ const {
   assertCspMetaParity,
   assertCspResponseHeader,
   expectNoCspViolations,
+  gotoOnion,
 } = require("./personas");
 
 exports.register = function (shared) {
-  test("openwebui enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({
+  test("openwebui enforces Content-Security-Policy and exposes canonical domain from domain lookup", async ({
     page,
   }) => {
     const diagnostics = shared.attachDiagnostics(page);
 
-    const response = await page.goto(`${shared.env.openwebuiBaseUrl}/`);
+    const response = await gotoOnion(page, `${shared.env.openwebuiBaseUrl}/`);
     expect(response, "Expected openwebui landing response").toBeTruthy();
     expect(
       response.status(),
@@ -25,7 +26,7 @@ exports.register = function (shared) {
     const documentUrl = response.url();
     expect(
       documentUrl.includes(shared.env.canonicalDomain),
-      `Expected canonical domain "${shared.env.canonicalDomain}" (from applications lookup) to back the openwebui URL`
+      `Expected canonical domain "${shared.env.canonicalDomain}" to back the openwebui URL`
     ).toBe(true);
 
     await expectNoCspViolations(page, diagnostics, "openwebui landing");

@@ -1,10 +1,11 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Include JS routines"
+- name: "📂 Include JS routines"
   include_tasks: "02_javascript.yml"
+  when: IS_STACK_HOST | bool
 
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
@@ -12,138 +13,6 @@
     compose_repository_pull: false
     webserver_extra_configuration: "{{ lookup('template', 'nginx/sso.html.conf.j2') }}"
 
-- name: "Check if host-specific config.yaml exists in {{ DASHBOARD_CONFIG_INV_PATH }}"
-  stat:
-    path: "{{ DASHBOARD_CONFIG_INV_PATH }}"
-  delegate_to: localhost
-  become: false
-  register: config_file
-
-- name: Load menu categories
-  include_vars:
-    file: "menu_categories.yml"
-
-- name: Load docker cards
-  set_fact:
-    portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
-
-- name: "Load Dashboard Brand logos"
-  set_fact:
-    portfolio_cards: "{{ portfolio_cards | add_simpleicon_source(DASHBOARD_SIMPLEICONS_SYNC_URL_BASE, public_url_base=DASHBOARD_SIMPLEICONS_URL_BASE) }}"
-  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
-  changed_when: false
-
-- name: Group docker cards
-  set_fact:
-    portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
-
-# Nested DinD auto-creates a missing bind-mount source as a dir; drop it so the template works.
-- name: Stat the rendered dashboard config path
-  ansible.builtin.stat:
-    path: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  register: _dashboard_config_dest_stat
-
-- name: Drop config.yaml if a container bind-mount created it as a directory
-  ansible.builtin.file:
-    path: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-    state: absent
-  when: _dashboard_config_dest_stat.stat.exists and _dashboard_config_dest_stat.stat.isdir
-
-- name: Copy host-specific config.yaml if it exists
-  template:
-    src: "{{ DASHBOARD_CONFIG_INV_PATH }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: config_file.stat.exists
-
-- name: Copy default config.yaml from the role template if host-specific file does not exist
-  template:
-    src: "{{ DASHBOARD_CONFIG_YML_SRC_FILE }}"
-    dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  notify: compose up
-  when: not config_file.stat.exists
-
-- name: Load rendered dashboard config before first compose start
-  slurp:
-    src: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  register: dashboard_rendered_config_raw
-
-- name: Collect branding asset URLs served by the shared file service
-  # Reads the *actually deployed* config.yaml (which may be a
-  # host-specific override from DASHBOARD_CONFIG_INV_PATH, not the
-  # role-default template). SPOTs in vars/main.yml drive the default
-  # render path; this slurp covers the override case so the wait list
-  # always reflects what port-ui will source on startup.
-  set_fact:
-    dashboard_branding_asset_urls: >-
-      {{
-        [
-          (
-            dashboard_platform_logo_source
-            if dashboard_platform_logo_source.startswith(dashboard_asset_url_base)
-            else ''
-          ),
-          (
-            dashboard_platform_favicon_source
-            if dashboard_platform_favicon_source.startswith(dashboard_asset_url_base)
-            else ''
-          ),
-          (
-            dashboard_company_logo_source
-            if dashboard_company_logo_source.startswith(dashboard_asset_url_base)
-            else ''
-          )
-        ]
-        | select('string')
-        | reject('equalto', '')
-        | unique
-        | list
-      }}
-  vars:
-    dashboard_rendered_config: "{{ dashboard_rendered_config_raw.content | b64decode | from_yaml }}"
-    # Dashboard branding should only depend on the asset abstraction, not the
-    # underlying web-svc-file host that serves /assets.
-    dashboard_asset_url_base: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') }}"
-    dashboard_platform_logo_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('logo') or {}).get('source', '') }}"
-    dashboard_platform_favicon_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('favicon') or {}).get('source', '') }}"
-    dashboard_company_logo_source: "{{ ((dashboard_rendered_config.get('company') or {}).get('logo') or {}).get('source', '') }}"
-  changed_when: false
-
-- name: Wait for dashboard branding assets before first compose start
-  uri_retry:
-    url: "{{ item }}"
-    status_code: 200
-    validate_certs: false
-  register: dashboard_branding_asset_http
-  retries: 60
-  delay: 5
-  until: dashboard_branding_asset_http.status == 200
-  loop: "{{ dashboard_branding_asset_urls }}"
-  loop_control:
-    label: "{{ item }}"
-
-- name: "Flush compose handlers"
-  meta: flush_handlers
-
-- name: "Ensure Simple Icons is reachable and refresh dashboard cards"
-  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
-  block:
-    - name: Ensure shared Simple Icons service is loaded before refresh
-      include_tasks: utils/load_app.yml
-      vars:
-        load_app_id: web-svc-simpleicons
-
-    - name: Flush handlers after loading shared Simple Icons service
-      meta: flush_handlers
-
-    - name: Refresh dashboard cards after Simple Icons becomes reachable
-      include_tasks: "03_simpleicons_refresh.yml"
-
-- name: Wait for Dashboard HTTP endpoint (required so all logos can be downloaded during initialization)
-  uri_retry:
-    url: "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}/"
-    status_code: 200
-  register: dashboard_http
-  retries: 60
-  delay: 5
-  until: dashboard_http.status == 200
+- name: "👔 Dashboard manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

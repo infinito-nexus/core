@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Configures Nginx to serve sites securely over HTTPS, integrates Let’s Encrypt and cleans up stale domain configs.
+  description: "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

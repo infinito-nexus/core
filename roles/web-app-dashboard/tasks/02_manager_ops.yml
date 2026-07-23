@@ -1,0 +1,136 @@
+---
+- name: "🔎 Check if host-specific config.yaml exists in {{ DASHBOARD_CONFIG_INV_PATH }}"
+  stat:
+    path: "{{ DASHBOARD_CONFIG_INV_PATH }}"
+  delegate_to: localhost
+  become: false
+  register: config_file
+
+- name: 📄 Load menu categories
+  include_vars:
+    file: "menu_categories.yml"
+
+- name: 🧩 Load docker cards
+  set_fact:
+    portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
+
+- name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
+  uri_retry:
+    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
+    method: HEAD
+    status_code: [200, 404]
+    validate_certs: false
+  register: dashboard_simpleicons_probe
+  loop: "{{ portfolio_cards | simpleicon_slugs }}"
+  loop_control:
+    label: "{{ item }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
+  changed_when: false
+
+- name: "📄 Load Dashboard Brand logos"
+  set_fact:
+    portfolio_cards: >-
+      {{ portfolio_cards | add_simpleicon_source(
+           dashboard_simpleicons_probe.results
+             | selectattr('status', 'equalto', 200)
+             | map(attribute='item')
+             | list,
+           DASHBOARD_SIMPLEICONS_URL_BASE) }}
+  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
+  changed_when: false
+
+- name: 👥 Group docker cards
+  set_fact:
+    portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
+
+- name: "📄 Render Dashboard config.yaml (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
+        dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
+
+- name: 🧩 Load rendered dashboard config before first compose start
+  slurp:
+    src: "{{ DASHBOARD_CONFIG_YML_DEST }}"
+  register: dashboard_rendered_config_raw
+
+- name: 📊 Collect branding asset URLs served by the shared file service
+  set_fact:
+    dashboard_branding_asset_urls: >-
+      {{
+        [
+          (
+            dashboard_platform_logo_source
+            if dashboard_platform_logo_source.startswith(dashboard_asset_url_base)
+            else ''
+          ),
+          (
+            dashboard_platform_favicon_source
+            if dashboard_platform_favicon_source.startswith(dashboard_asset_url_base)
+            else ''
+          ),
+          (
+            dashboard_company_logo_source
+            if dashboard_company_logo_source.startswith(dashboard_asset_url_base)
+            else ''
+          )
+        ]
+        | select('string')
+        | reject('equalto', '')
+        | unique
+        | list
+      }}
+  vars:
+    dashboard_rendered_config: "{{ dashboard_rendered_config_raw.content | b64decode | from_yaml }}"
+    dashboard_asset_url_base: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') }}"
+    dashboard_platform_logo_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('logo') or {}).get('source', '') }}"
+    dashboard_platform_favicon_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('favicon') or {}).get('source', '') }}"
+    dashboard_company_logo_source: "{{ ((dashboard_rendered_config.get('company') or {}).get('logo') or {}).get('source', '') }}"
+  changed_when: false
+
+- name: ⏳ Wait for dashboard branding assets before first compose start
+  uri_retry:
+    url: "{{ item }}"
+    status_code: 200
+    validate_certs: false
+  register: dashboard_branding_asset_http
+  retries: 60
+  delay: 5
+  until: dashboard_branding_asset_http.status == 200
+  loop: "{{ dashboard_branding_asset_urls }}"
+  loop_control:
+    label: "{{ item }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🚿 Flush compose handlers"
+  meta: flush_handlers
+
+- name: "✅ Ensure Simple Icons is reachable and refresh dashboard cards"
+  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
+  block:
+    - name: ✅ Ensure shared Simple Icons service is loaded before refresh
+      include_tasks: utils/load/app.yml
+      vars:
+        load_app_id: web-svc-simpleicons
+
+    - name: 🚿 Flush handlers after loading shared Simple Icons service
+      meta: flush_handlers
+
+    - name: 🔄 Refresh dashboard cards after Simple Icons becomes reachable
+      include_tasks: "03_simpleicons_refresh.yml"
+
+- name: ⏳ Wait for Dashboard HTTP endpoint (so all logos can download during init)
+  uri_retry:
+    url: "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}/"
+    status_code: 200
+  register: dashboard_http
+  retries: 60
+  delay: 5
+  until: dashboard_http.status == 200
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true

@@ -1,0 +1,4 @@
+---
+canonical:
+  - picture.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -1,2 +1,15 @@
 ---
 application_id: svc-db-memcached
+entity_name: "{{ application_id | get_entity_name }}"
+
+database_type: "{{ entity_name }}"
+
+MEMCACHED_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+MEMCACHED_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+MEMCACHED_EXPOSE_LOCAL: true
+MEMCACHED_LOCAL_HOST: "127.0.0.1"
+MEMCACHED_RETRIES: 5
+MEMCACHED_DELAY: 5
+MEMCACHED_MEMORY_LIMIT_MB: 192
+MEMCACHED_EXEC_SHELL: "container exec {{ MEMCACHED_CONTAINER_ADDRESS }} sh -lc"
+MEMCACHED_PROBE: "printf \"version\\r\\n\" | nc -w 1 {{ MEMCACHED_LOCAL_HOST }} 11211 | grep -q VERSION"

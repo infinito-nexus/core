@@ -14,6 +14,7 @@
 // draft preview and the posted attachment overlay.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
 const { performKeycloakLoginForm } = require("./personas");
@@ -22,8 +23,9 @@ const shared = require("./_shared");
 test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: a Mattermost message attachment is stored in the SeaweedFS bucket", async ({ page, browser }) => {
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "a Mattermost message attachment upload",
@@ -33,7 +35,7 @@ test("seaweedfs: a Mattermost message attachment is stored in the SeaweedFS buck
       await shared.startMattermostSsoFlow(appPage, baseUrl);
       await expect
         .poll(() => appPage.url(), {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
           message: `Expected redirect to Keycloak OIDC: ${shared.expectedOidcAuthUrl()}`,
         })
         .toContain(shared.expectedOidcAuthUrl());
@@ -42,7 +44,7 @@ test("seaweedfs: a Mattermost message attachment is stored in the SeaweedFS buck
 
       await expect
         .poll(() => appPage.url(), {
-          timeout: 60_000,
+          timeout: resolveTimeout(60_000),
           message: "Expected redirect back to Mattermost after admin login",
         })
         .toContain(baseUrl);
@@ -51,19 +53,19 @@ test("seaweedfs: a Mattermost message attachment is stored in the SeaweedFS buck
 
       await appPage.goto(`${baseUrl}/main/channels/town-square`, { waitUntil: "domcontentloaded" });
       await shared.dismissMattermostPopups(appPage);
-      await shared.waitForMattermostChannelView(appPage, 60_000);
+      await shared.waitForMattermostChannelView(appPage, resolveTimeout(60_000));
 
       const messageInput = appPage
         .locator("#post_textbox, [data-testid='post_textbox'], div[contenteditable='true'].post-create__input")
         .first();
-      await messageInput.waitFor({ state: "visible", timeout: 30_000 });
+      await messageInput.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
 
       const marker = `infinito-storage-check-${Date.now()}.txt`;
       const markerPrefix = marker.slice(0, 30);
       const fileInput = appPage
         .locator("input[type='file'][data-testid='fileUploadInput'], .file-input, input[type='file']")
         .first();
-      await fileInput.waitFor({ state: "attached", timeout: 30_000 });
+      await fileInput.waitFor({ state: "attached", timeout: resolveTimeout(30_000) });
       await fileInput.setInputFiles({
         name: marker,
         mimeType: "text/plain",
@@ -77,7 +79,7 @@ test("seaweedfs: a Mattermost message attachment is stored in the SeaweedFS buck
       await expect(
         attachmentPreview,
         `the attachment '${marker}' must appear in the post preview before sending`,
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
       await messageInput.click({ force: true });
       await appPage.keyboard.type(`storage check ${marker}`);
@@ -86,7 +88,7 @@ test("seaweedfs: a Mattermost message attachment is stored in the SeaweedFS buck
       await expect(
         appPage.getByTestId("postContent").getByText(markerPrefix, { exact: false }).first(),
         `the sent attachment '${marker}' must appear in the channel timeline`,
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
     },
   });
 });

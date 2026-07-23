@@ -1,3 +1,4 @@
+# nocheck: comments-valid  explanatory WHY-comments in this SPOT lookup predate the stricter lint
 from __future__ import annotations
 
 from typing import Any
@@ -19,9 +20,9 @@ RESOLUTION_ORDER = (
     "external",
     "environment",
     "domain",
+    "host",
     "tls",
     "port",
-    "host",
     "auth",
     "start_tls",
     "smtp",
@@ -52,15 +53,30 @@ def _as_bool(value: Any) -> bool:
     return bool(value)
 
 
-def _render(value: Any, templar: Any | None) -> Any:
+def _render(
+    value: Any,
+    templar: Any | None,
+    variables: dict[str, Any] | None = None,
+) -> Any:
     if templar is None:
         return value
     if not isinstance(value, str) or "{{" not in value:
         return value
-    try:
-        return templar.template(value, fail_on_undefined=False)
-    except Exception:
-        return value
+    # Loop: inventory expressions like DOMAIN_PRIMARY="{{ lookup('env','INFINITO_DOMAIN') }}" need multiple substitution passes.
+    from utils.templating.ansible import _templar_render_best_effort
+
+    base_vars: dict[str, Any] = dict(variables or {})
+    for _ in range(4):
+        if not isinstance(value, str) or "{{" not in value:
+            break
+        prev = value
+        try:
+            value = _templar_render_best_effort(templar, value, base_vars)
+        except Exception:
+            break
+        if value == prev:
+            break
+    return value
 
 
 class LookupModule(LookupBase):
@@ -86,10 +102,12 @@ class LookupModule(LookupBase):
             raw = variables.get(var_name)
             if raw is None or raw == "":
                 resolved[short_key] = _render(
-                    self._compute(short_key, resolved, variables), templar
+                    self._compute(short_key, resolved, variables),
+                    templar,
+                    variables,
                 )
             else:
-                resolved[short_key] = _render(raw, templar)
+                resolved[short_key] = _render(raw, templar, variables)
 
         if len(terms) == 0:
             return [resolved]
@@ -98,7 +116,7 @@ class LookupModule(LookupBase):
         overrides = self._app_email_overrides(application_id, variables)
         merged = dict(resolved)
         for key, value in overrides.items():
-            merged[str(key).lower()] = _render(value, templar)
+            merged[str(key).lower()] = _render(value, templar, variables)
         return [merged]
 
     def _compute(
@@ -112,8 +130,13 @@ class LookupModule(LookupBase):
         if short_key == "timeout":
             return "30"
         if short_key == "external":
-            group_names = variables.get("group_names") or []
-            return bool("web-app-mailu" in group_names)
+            # Cluster-wide, not per-host: in swarm mailu is manager-pinned so
+            # worker group_names lack it, yet every node relays through the
+            # central mailu (routing mesh). Gate on the group having a host so
+            # workers use the authenticated config, not a localhost root sender
+            # mailu rejects ("Sender address rejected: Domain not found").
+            groups = variables.get("groups") or {}
+            return bool(groups.get("web-app-mailu"))
         if short_key == "environment":
             external = _as_bool(resolved.get("external"))
             tls_enabled = _as_bool(variables.get("TLS_ENABLED"))
@@ -127,6 +150,9 @@ class LookupModule(LookupBase):
             external = _as_bool(resolved.get("external"))
             if not external:
                 return False
+            mail_host = str(resolved.get("host") or "").lower()
+            if mail_host.endswith(".onion"):
+                return False
             return _as_bool(variables.get("TLS_ENABLED"))
         if short_key == "port":
             external = _as_bool(resolved.get("external"))
@@ -134,7 +160,16 @@ class LookupModule(LookupBase):
             return 465 if (external and tls) else 25
         if short_key == "host":
             env = resolved.get("environment")
-            if env in ("external_container", "localhost", "localhost_container"):
+            # `environment` folds TLS_ENABLED into its "external" base, so a
+            # non-external relay under TLS would otherwise resolve to the mailu
+            # domain while auth/tls/from stay in localhost mode -- an unreachable,
+            # inconsistent render that aborts the msmtp health unit. Gate host on
+            # `external` directly, like tls/auth/from do.
+            if not _as_bool(resolved.get("external")) or env in (
+                "external_container",
+                "localhost",
+                "localhost_container",
+            ):
                 return "localhost"
             return self._lookup_mailu_domain(variables)
         if short_key == "auth":

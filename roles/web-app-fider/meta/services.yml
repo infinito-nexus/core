@@ -26,10 +26,14 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 fider:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: getfider/fider
   version: stable
   name: fider
-  container_port: 3000
   min_storage: 1GB
   backup:
     no_stop_required: true
@@ -40,6 +44,8 @@ fider:
   ports:
     local:
       http: 8067
+    internal:
+      http: 3000
   run_after:
     - web-app-keycloak
     - web-app-mailu
@@ -50,6 +56,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
@@ -67,3 +74,9 @@ seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
+
+# nocheck: playwright-service-flag
+tor:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag

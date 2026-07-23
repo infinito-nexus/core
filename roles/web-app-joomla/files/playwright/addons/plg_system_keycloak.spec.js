@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
   performKeycloakLoginForm,
+  gotoOnion,
 } = require("../personas");
 
 // plg_system_keycloak is Joomla's native OIDC SSO plugin (in-role plugin,
@@ -43,11 +45,11 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
   const expectedJoomlaBaseUrl = joomlaBaseUrl.replace(/\/$/, "");
 
   // Step 1: the guard MUST redirect a guest to the CONFIGURED Keycloak issuer.
-  await page.goto(`${expectedJoomlaBaseUrl}/`);
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/`);
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected the plg_system_keycloak guard to redirect to the configured Keycloak OIDC auth endpoint (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -70,7 +72,7 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected the OIDC callback to land back on Joomla at ${expectedJoomlaBaseUrl}`,
     })
     .toContain(expectedJoomlaBaseUrl);
@@ -80,8 +82,8 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
   // the Keycloak auth endpoint (the guard only redirects guests). A bounce
   // here means the callback failed to provision/log in the user — i.e. the
   // integration is not actually coupled.
-  await page.goto(`${expectedJoomlaBaseUrl}/`);
-  await page.waitForLoadState("domcontentloaded", { timeout: 60_000 }).catch(() => {});
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/`);
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
 
   expect(
     page.url(),
@@ -95,5 +97,5 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
   await expect(
     page.locator("body"),
     "Expected the authenticated Joomla front-end to render after the plg_system_keycloak OIDC handshake",
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

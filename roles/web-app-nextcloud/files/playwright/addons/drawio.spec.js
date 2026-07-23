@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("addon drawio: app installed + enabled (registered in OC.appswebroots)", async ({ browser }) => {
   skipUnlessAddonEnabled("drawio");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -12,9 +14,9 @@ test("addon drawio: app installed + enabled (registered in OC.appswebroots)", as
   try {
     await shared.loginToStandaloneNextcloudWithRetry(page);
 
-    await page.goto(new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
+    await gotoOnion(page, new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -29,7 +31,7 @@ test("addon drawio: app installed + enabled (registered in OC.appswebroots)", as
     ).toBe(true);
 
     await expect(
-      page.locator('script[src*="/apps/drawio/"], link[href*="/apps/drawio/"]'),
+      page.locator('script[src*="apps/drawio/"], link[href*="apps/drawio/"]'),
       "the enabled drawio app must inject its own frontend bundle into the Files UI (proves the app is loaded, not merely listed)",
     ).not.toHaveCount(0);
   } finally {

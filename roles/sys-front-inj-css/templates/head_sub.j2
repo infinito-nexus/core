@@ -1,4 +1,4 @@
-{% set __css_tpl_dir = [playbook_dir, 'roles', 'sys-front-inj-css', 'templates', 'css'] | path_join %}
+{% set __css_tpl_dir = lookup('path_absolute', 'roles', 'sys-front-inj-css', 'templates', 'css') %}
 
 {% for css_file in ['default.css','bootstrap.css'] %}
 <link rel="stylesheet" href="{{ [ lookup('cdn', 'web-svc-cdn').urls.shared.css, css_file, lookup('local_mtime_qs', [__css_tpl_dir, css_file ~ '.j2'] | path_join)] | url_join }}">

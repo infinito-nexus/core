@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const { assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 test.use({ ignoreHTTPSErrors: true });
 
@@ -67,7 +68,7 @@ test.beforeEach(async ({ page }) => {
 test("discourse enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({ page }) => {
   const diagnostics = attachDiagnostics(page);
 
-  const response = await page.goto(`${discourseBaseUrl}/`);
+  const response = await gotoOnion(page, `${discourseBaseUrl}/`);
   expect(response, "Expected discourse landing response").toBeTruthy();
   expect(response.status(), "Expected discourse landing response to be successful").toBeLessThan(400);
 
@@ -86,7 +87,7 @@ test("discourse enforces Content-Security-Policy and exposes canonical domain fr
 async function signInViaDashboardOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${discourseBaseUrl}/`);
+  await gotoOnion(page, `${discourseBaseUrl}/`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -94,14 +95,14 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
     .first();
 
   if ((await oidcSignIn.count().catch(() => 0)) > 0) {
-    await oidcSignIn.click();
+    await oidcSignIn.click({ timeout: resolveTimeout(30_000) });
   } else {
-    await page.goto(`${discourseBaseUrl}/auth/oidc`).catch(() => {});
+    await gotoOnion(page, `${discourseBaseUrl}/auth/oidc`).catch(() => {});
   }
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
@@ -110,7 +111,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to discourse at ${discourseBaseUrl}`
     })
     .toContain(discourseBaseUrl);
@@ -122,11 +123,11 @@ test("administrator: discourse OIDC login and logout", async ({ page }) => {
 
   await signInViaDashboardOidc(page, adminUsername, adminPassword, "administrator");
 
-  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: resolveTimeout(60_000) });
 
   await discourseLogout(page, discourseBaseUrl);
 
-  await page.goto(`${discourseBaseUrl}/`);
+  await gotoOnion(page, `${discourseBaseUrl}/`);
   await expect
     .poll(
       async () =>
@@ -137,7 +138,7 @@ test("administrator: discourse OIDC login and logout", async ({ page }) => {
           .count()
           .catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected discourse to require a new sign-in after logout"
       }
     )
@@ -152,11 +153,11 @@ test("biber: discourse OIDC login and logout", async ({ page }) => {
 
   await signInViaDashboardOidc(page, biberUsername, biberPassword, "biber");
 
-  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/topic|category|welcome|latest|discourse/i, { timeout: resolveTimeout(60_000) });
 
   await discourseLogout(page, discourseBaseUrl);
 
-  await page.goto(`${discourseBaseUrl}/`);
+  await gotoOnion(page, `${discourseBaseUrl}/`);
   await expect
     .poll(
       async () =>
@@ -167,7 +168,7 @@ test("biber: discourse OIDC login and logout", async ({ page }) => {
           .count()
           .catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected discourse to require a new sign-in after logout"
       }
     )

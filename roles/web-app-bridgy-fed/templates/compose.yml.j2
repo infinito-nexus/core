@@ -1,20 +1,19 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-
-  application:
+  {% set service_name = 'bridgy-fed' %}
+  {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         BRIDGY_REPO_URL: "{{ BRIDGY_REPO_URL }}"
         BRIDGY_REF: "{{ BRIDGY_REF }}"
         CONTAINER_PORT:  "{{ container_port | string }}"
-    image: "{{ BRIDGY_IMAGE }}:{{ BRIDGY_VERSION }}"
-    container_name: "{{ BRIDGY_CONTAINER }}"
+    {{ lookup('container_image', application_id, 'bridgy-fed') }}
+    {{ lookup('compose_only', 'container_name', BRIDGY_CONTAINER) }}
     hostname: "{{ container_hostname }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ http_port }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_ports', ['bridgy-fed', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

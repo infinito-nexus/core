@@ -18,7 +18,7 @@ from utils.cleanup.nginx_vhosts import (
     main,
     purge_vhost_files_for_entities,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
 
 
 class NginxVhostsTestBase(unittest.TestCase):
@@ -69,8 +69,8 @@ class NginxVhostsTestBase(unittest.TestCase):
         if aliases is not None:
             domains_block["aliases"] = aliases
         dump_yaml(
-            rd / ROLE_FILE_META_SERVER,
-            {"domains": domains_block},
+            rd / ROLE_FILE_META_DOMAINS,
+            domains_block,
         )
 
     def _touch_vhost(self, domain: str, protocol: str = "https") -> Path:
@@ -288,6 +288,89 @@ class TestMainShim(NginxVhostsTestBase, unittest.TestCase):
             rc = main(["nonexistent"])
         self.assertEqual(rc, 0)
         self.assertIn("No nginx vhost files to remove", stdout.getvalue())
+
+
+class TestOnionVhostVariant(NginxVhostsTestBase, unittest.TestCase):
+    ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
+
+    def _write_node_onion(self, address: str) -> None:
+        from utils.tor_onion import identity_hs_dir
+
+        hs = identity_hs_dir(self.roles_dir.parent)
+        hs.mkdir(parents=True, exist_ok=True)
+        (hs / "hostname").write_text(address + "\n", encoding="ascii")
+
+    def test_onion_vhost_included_when_node_onion_set(self):
+        self._mk_role(
+            "web-app-matomo",
+            application_id="matomo",
+            canonical=["matomo.infinito.example"],
+        )
+        clearnet = self._touch_vhost("matomo.infinito.example", "https")
+        onion = self._touch_vhost(f"matomo.{self.ONION}", "http")
+        self._write_node_onion(self.ONION)
+        found = set(
+            iter_vhost_files_for_entity(
+                "matomo",
+                nginx_dir=self.nginx_dir,
+                domain_primary="infinito.example",
+                roles_dir=self.roles_dir,
+            )
+        )
+        self.assertIn(clearnet, found)
+        self.assertIn(onion, found)
+
+    def test_onion_vhost_ignored_when_node_onion_unset(self):
+        self._mk_role(
+            "web-app-matomo",
+            application_id="matomo",
+            canonical=["matomo.infinito.example"],
+        )
+        onion = self._touch_vhost(f"matomo.{self.ONION}", "http")
+        # No onion identity written -> no node onion -> the onion vhost is ignored.
+        found = set(
+            iter_vhost_files_for_entity(
+                "matomo",
+                nginx_dir=self.nginx_dir,
+                domain_primary="infinito.example",
+                roles_dir=self.roles_dir,
+            )
+        )
+        self.assertNotIn(onion, found)
+
+
+class TestResolveDomainPrimary(unittest.TestCase):
+    """Domain precedence: explicit arg > DOMAIN > INFINITO_DOMAIN > default.
+
+    The INFINITO_DOMAIN fallback keeps the vhost purge correct on nodes whose
+    domain differs from the default (e.g. a .onion node), where DOMAIN is unset
+    but INFINITO_DOMAIN carries the real DOMAIN_PRIMARY.
+    """
+
+    def test_explicit_arg_wins(self) -> None:
+        with patch.dict(os.environ, {"DOMAIN": "x", "INFINITO_DOMAIN": "y"}):
+            self.assertEqual(mod._resolve_domain_primary("explicit"), "explicit")
+
+    def test_domain_env_preferred(self) -> None:
+        with patch.dict(
+            os.environ, {"DOMAIN": "a.example", "INFINITO_DOMAIN": "b.onion"}
+        ):
+            self.assertEqual(mod._resolve_domain_primary(None), "a.example")
+
+    def test_falls_back_to_infinito_domain(self) -> None:
+        env = {k: v for k, v in os.environ.items() if k != "DOMAIN"}
+        env["INFINITO_DOMAIN"] = "node.onion"
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(mod._resolve_domain_primary(None), "node.onion")
+
+    def test_default_when_nothing_set(self) -> None:
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k not in ("DOMAIN", "INFINITO_DOMAIN")
+        }
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(mod._resolve_domain_primary(None), "infinito.example")
 
 
 if __name__ == "__main__":  # pragma: no cover

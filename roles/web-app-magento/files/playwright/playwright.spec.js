@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -13,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("Magento front page is served under canonical domain with TLS", async ({ page }) => {
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected Magento response").toBeTruthy();
   expect(response.status(), "Expected Magento front page status < 400").toBeLessThan(400);
   expect(
@@ -21,11 +22,11 @@ test("Magento front page is served under canonical domain with TLS", async ({ pa
     `Expected canonical domain "${canonicalDomain}" to back the Magento URL`
   ).toBe(true);
   const headers = response.headers();
-  expect(headers["strict-transport-security"], "Magento must emit HSTS").toBeTruthy();
+  expectHstsWhenTls(headers, appBaseUrl, "Magento");
 });
 
 test("Magento returns HTML content under canonical domain", async ({ request }) => {
-  const response = await request.get(`${appBaseUrl}/`);
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected Magento front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(
@@ -53,12 +54,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(catalog|customers|sales|admin)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /catalog|customer|sales|order|magento/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

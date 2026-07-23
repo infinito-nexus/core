@@ -57,6 +57,123 @@ class TestExtractDomainsFromFilenames(unittest.TestCase):
         self.assertIsNone(domains)
 
 
+class TestSplitOnionDomains(unittest.TestCase):
+    def test_splits_families(self) -> None:
+        domains = [
+            "auth.abc123.onion",
+            "app.infinito.example",
+            "matomo.abc123.onion",
+        ]
+        clearnet, onion = script.split_onion_domains(domains)
+        self.assertEqual(clearnet, ["app.infinito.example"])
+        self.assertEqual(onion, ["auth.abc123.onion", "matomo.abc123.onion"])
+
+    def test_clearnet_only(self) -> None:
+        domains = ["a.example", "b.example"]
+        self.assertEqual(script.split_onion_domains(domains), (domains, []))
+
+    def test_empty_list(self) -> None:
+        self.assertEqual(script.split_onion_domains([]), ([], []))
+
+
+class TestIsSkippedDomain(unittest.TestCase):
+    def test_explicit_clearnet_domain_is_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertTrue(
+            script.is_skipped_domain("mirror.infinito.example", skip_set, labels)
+        )
+
+    def test_onion_sibling_of_skipped_clearnet_is_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertTrue(
+            script.is_skipped_domain("mirror.abc123.onion", skip_set, labels)
+        )
+
+    def test_unrelated_onion_is_not_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertFalse(
+            script.is_skipped_domain("auth.abc123.onion", skip_set, labels)
+        )
+
+    def test_unrelated_clearnet_is_not_skipped(self) -> None:
+        skip_set = {"mirror.infinito.example"}
+        labels = {d.split(".", 1)[0] for d in skip_set}
+        self.assertFalse(
+            script.is_skipped_domain("auth.infinito.example", skip_set, labels)
+        )
+
+
+class TestMainSkipsOnionSiblings(unittest.TestCase):
+    @patch("script.run_checker")
+    @patch("script.build_urls_from_nginx_confs")
+    @patch("script.extract_domains_from_filenames")
+    def test_onion_sibling_of_skip_domain_is_excluded(
+        self,
+        mock_extract: MagicMock,
+        mock_build_urls: MagicMock,
+        mock_run_checker: MagicMock,
+    ) -> None:
+        mock_extract.return_value = [
+            "mirror.infinito.example",
+            "mirror.abc123.onion",
+            "auth.abc123.onion",
+        ]
+        mock_build_urls.side_effect = lambda _dir, domains: [
+            f"http://{d}/" for d in domains
+        ]
+        mock_run_checker.return_value = 0
+
+        with (
+            patch.object(
+                script.sys,
+                "argv",
+                [
+                    "script.py",
+                    "--nginx-config-dir",
+                    "/etc/nginx",
+                    "--image",
+                    "img:tag",
+                    "--skip-domain",
+                    "mirror.infinito.example",
+                    "--tor-proxy",
+                    "socks5://127.0.0.1:9050",
+                ],
+            ),
+            self.assertRaises(SystemExit),
+        ):
+            script.main()
+
+        probed = [d for call in mock_build_urls.call_args_list for d in call.args[1]]
+        self.assertNotIn("mirror.infinito.example", probed)
+        self.assertNotIn("mirror.abc123.onion", probed)
+        self.assertIn("auth.abc123.onion", probed)
+
+
+class TestBuildDockerCmdProxy(unittest.TestCase):
+    def test_proxy_arg_appended(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["http://a.onion/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+            proxy="socks5://127.0.0.1:9050",
+        )
+        idx = cmd.index("--proxy")
+        self.assertEqual(cmd[idx + 1], "socks5://127.0.0.1:9050")
+
+    def test_no_proxy_arg_without_proxy(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["https://a.example/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+        )
+        self.assertNotIn("--proxy", cmd)
+
+
 class TestDetectSchemeFromConf(unittest.TestCase):
     def test_detects_https_via_443(self) -> None:
         with patch("pathlib.Path.read_text", return_value="listen 443 ssl;"):

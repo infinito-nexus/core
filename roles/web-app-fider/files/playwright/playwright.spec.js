@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 require("./test-seaweedfs");
@@ -24,18 +25,20 @@ const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 // Fider shows a "Sign in" button in the header, then a modal listing OAuth providers.
 async function clickFiderSsoButton(locator) {
   // Click "Sign in" in the Fider header
-  const signInLink = locator.getByRole("link", { name: /sign in/i });
+  const signInLink = locator
+    .getByRole("button", { name: /sign in/i })
+    .or(locator.getByRole("link", { name: /sign in/i }));
 
-  await signInLink.first().waitFor({ state: "visible", timeout: 30_000 });
+  await signInLink.first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await signInLink.first().click();
 
   // Fider shows a "Join the conversation" modal with a "Continue with ... SSO" button.
   // The display_name is set to "{{ SOFTWARE_NAME }} SSO" = "Infinito.Nexus SSO".
   const ssoButton = locator.getByRole("link", { name: /continue with/i });
 
-  await ssoButton.first().waitFor({ state: "visible", timeout: 15_000 });
+  await ssoButton.first().waitFor({ state: "visible", timeout: resolveTimeout(15_000) });
   // force: true bypasses aria-disabled which Fider sets on the button during modal render
-  await ssoButton.first().click({ force: true });
+  await ssoButton.first().click({ force: true, timeout: resolveTimeout(30_000) });
 }
 
 test.beforeEach(() => {
@@ -54,7 +57,7 @@ test("fider: admin sso login, verify ui, logout", async ({ page }) => {
   const expectedFiderBaseUrl = fiderBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Fider
-  await page.goto(`${expectedFiderBaseUrl}/`);
+  await gotoOnion(page, `${expectedFiderBaseUrl}/`);
 
   // 2. Click through Fider's sign-in flow to trigger the Keycloak SSO redirect
   await clickFiderSsoButton(page);
@@ -65,14 +68,14 @@ test("fider: admin sso login, verify ui, logout", async ({ page }) => {
 
   // 4. After login Fider redirects back — verify the admin
   //    is logged in (.c-menu-user is only rendered when fider.session.isAuthenticated)
-  await expect(page.locator(".c-menu-user").first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator(".c-menu-user").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   // 5. Logout — navigate to Fider's sign-out endpoint
-  await page.goto(`${expectedFiderBaseUrl}/signout`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${expectedFiderBaseUrl}/signout`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
   // 6. Verify signout — the public Fider page should no longer show the user menu
-  await page.goto(`${expectedFiderBaseUrl}/`);
-  await expect(page.locator(".c-menu-user")).not.toBeAttached({ timeout: 10_000 });
+  await gotoOnion(page, `${expectedFiderBaseUrl}/`);
+  await expect(page.locator(".c-menu-user")).not.toBeAttached({ timeout: resolveTimeout(10_000) });
 });
 
 // Scenario II: biber logs in directly to Fider as a regular user → verifies access → logs out
@@ -101,7 +104,7 @@ test("fider: biber sso login as regular user, verify access, logout", async ({ b
     // 3. Wait for Keycloak OIDC auth
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`
       })
       .toContain(expectedOidcAuthUrl);
@@ -112,18 +115,18 @@ test("fider: biber sso login as regular user, verify access, logout", async ({ b
     // 5. After login Fider redirects back
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected redirect back to Fider after biber login: ${expectedFiderBaseUrl}`
       })
       .toContain(expectedFiderBaseUrl);
 
     // 6. Verify biber is logged in — .c-menu-user is only rendered when authenticated
-    await expect(biberPage.locator(".c-menu-user").first()).toBeVisible({ timeout: 30_000 });
+    await expect(biberPage.locator(".c-menu-user").first()).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     // 7. Verify biber is NOT shown admin controls.
     //    The admin link is inside the dropdown AND gated by isCollaborator — so it is
     //    never in the DOM for a regular user (regardless of dropdown state).
-    await expect(biberPage.locator("a[href='/admin']").first()).not.toBeAttached({ timeout: 5_000 });
+    await expect(biberPage.locator("a[href='/admin']").first()).not.toBeAttached({ timeout: resolveTimeout(5_000) });
 
     // 8. Logout
     await biberPage.goto(`${expectedFiderBaseUrl}/signout`, { waitUntil: "domcontentloaded" }).catch(() => {});
@@ -152,12 +155,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const link = interactivePage
         .getByRole("link", { name: /^(admin|posts|users|invitations|settings)$/i })
         .first();
-      if (await link.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await link.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await link.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /posts|administration|invitations|users|settings|tags/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

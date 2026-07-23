@@ -16,7 +16,8 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { normalizeUrl, readEnv, safeIsEnabled, assertCspInjections } = require("./utils");
+const { normalizeUrl, readEnv, safeIsEnabled, gotoOnion, assertCspInjections } = require("./utils");
+const { resolveTimeout } = require("../timeouts");
 
 async function runGuestFlow(page = {}) {
   if ((process.env.PERSONA_GUEST_BLOCKED || "").toLowerCase() === "true") {
@@ -50,7 +51,7 @@ async function runGuestFlow(page = {}) {
     return;
   }
 
-  test.setTimeout(60_000);
+  test.setTimeout(resolveTimeout(60_000));
 
   const startUrl = appBaseUrl;
 
@@ -58,13 +59,10 @@ async function runGuestFlow(page = {}) {
 
   let response;
   try {
-    response = await page.goto(startUrl, {
-      waitUntil: "domcontentloaded",
-      timeout: 30_000,
-    });
+    response = await gotoOnion(page, startUrl, { waitUntil: "domcontentloaded" });
   } catch (err) {
     throw new Error(
-      `guest: page.goto(${startUrl}) failed before the 30s navigation timeout: ${err.message}`,
+      `guest: page.goto(${startUrl}) failed after Tor-transport retries: ${err.message}`,
       { cause: err },
     );
   }
@@ -91,7 +89,7 @@ async function runGuestFlow(page = {}) {
   const signedInMarker = page
     .getByRole("button", { name: /^(log\s*out|sign\s*out|abmelden)$/i })
     .or(page.getByRole("link", { name: /^(log\s*out|sign\s*out|abmelden)$/i }));
-  const isSignedIn = await signedInMarker.first().isVisible({ timeout: 1_000 }).catch(() => false);
+  const isSignedIn = await signedInMarker.first().isVisible({ timeout: resolveTimeout(1_000) }).catch(() => false);
   expect(
     isSignedIn,
     `guest must NOT end on a signed-in surface (URL ${finalUrl}, reachedAuthChain=${reachedAuthChain})`,

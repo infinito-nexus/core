@@ -1,6 +1,6 @@
 ---
 - block:
-    - name: Include dependency 'sys-aur'
+    - name: 📂 Include dependency 'sys-aur'
       include_role:
         name: sys-aur
       when: run_once_sys_aur is not defined
@@ -9,7 +9,7 @@
 
   when: run_once_sys_cli is not defined
 
-- name: "pkgmgr install infinito"
+- name: "📦 pkgmgr install infinito"
   include_role:
     name: pkgmgr-install
   vars:

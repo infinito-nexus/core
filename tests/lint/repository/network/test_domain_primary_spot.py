@@ -1,13 +1,13 @@
 """Lint guard: literal ``<sub>.{{ DOMAIN_PRIMARY }}`` strings only belong to
-``domains.canonical`` / ``domains.aliases`` in ``meta/server.yml`` (and the
+``canonical`` / ``aliases`` in ``meta/domains.yml`` (and the
 same lists inside ``meta/variants.yml``). Every other file MUST resolve a
 role's domain through the project's lookup plugins so the canonical/aliases
 entries stay the single point of truth.
 
 Background
 ==========
-Each role's ``meta/server.yml`` defines its hostnames once via
-``domains.canonical`` and ``domains.aliases``. Anything else that needs a
+Each role's ``meta/domains.yml`` defines its hostnames once via
+``canonical`` and ``aliases``. Anything else that needs a
 role's hostname (CSP whitelists, env vars, templates, tasks, configs) MUST
 read it back through ``lookup('domain', '<role>')`` or
 ``lookup('tls', '<role>', 'url.base')``. Hand-written
@@ -16,10 +16,10 @@ silently duplicate the SPOT and rot whenever a hostname moves.
 
 Allowed
 =======
-* ``roles/<role>/meta/server.yml`` inside the ``domains.canonical`` and
-  ``domains.aliases`` list values (the SPOT itself).
+* ``roles/<role>/meta/domains.yml`` inside the ``canonical`` and
+  ``aliases`` list values (the SPOT itself).
 * ``roles/<role>/meta/variants.yml`` inside any per-variant
-  ``server.domains.canonical`` and ``server.domains.aliases`` list values
+  ``domains.canonical`` and ``domains.aliases`` list values
   (alternate SPOTs that the variant matrix selects between).
 * Wildcard fragments without a leading subdomain word
   (``.{{ DOMAIN_PRIMARY }}`` and ``*.{{ DOMAIN_PRIMARY }}``) used for
@@ -32,9 +32,9 @@ Detection
 =========
 For every file under ``roles/`` (excluding ``README.md`` and
 ``docs/`` directories), scan each line for a regex matching a
-``<word>.{{ DOMAIN_PRIMARY }}`` pattern. For ``meta/server.yml`` and
+``<word>.{{ DOMAIN_PRIMARY }}`` pattern. For ``meta/domains.yml`` and
 ``meta/variants.yml``, lines that materialize a value inside the
-allowed ``domains.canonical`` / ``domains.aliases`` lists are exempted.
+allowed ``canonical`` / ``aliases`` lists are exempted.
 Everything else fails the lint with the offending file, line and
 suggested ``lookup(...)`` replacement.
 """
@@ -66,9 +66,9 @@ ROLES_DIR = PROJECT_ROOT / "roles"
 @lru_cache(maxsize=4096)
 def _exempt_lines_for_lists(path: Path) -> frozenset[int]:
     """Find every list-item line that lives under
-    ``domains.canonical`` / ``domains.aliases``. The same heuristic also
+    ``canonical`` / ``aliases``. The same heuristic also
     covers ``meta/variants.yml``, since each variant block carries its own
-    ``server.domains.canonical`` / ``aliases`` list and the canonical/aliases
+    ``domains.canonical`` / ``aliases`` list and the canonical/aliases
     keys never appear elsewhere in role meta files.
 
     We do NOT load the YAML structurally because we want line numbers
@@ -171,7 +171,7 @@ def _file_offenders(path: Path) -> tuple[str, ...]:
         len(parts) >= 3
         and parts[0] == "roles"
         and parts[2] == "meta"
-        and name in {"server.yml", "variants.yml"}
+        and name in {"domains.yml", "variants.yml"}
     ):
         exempt = _exempt_lines_for_lists(path)
 
@@ -234,8 +234,8 @@ class TestDomainPrimarySpot(unittest.TestCase):
             "Fix: replace the literal with `\"{{ lookup('domain', "
             "'<role>') }}\"` (or `\"{{ lookup('tls', '<role>', 'url.base') "
             '}}"` when the full URL is needed). Define the canonical '
-            "hostname only in the owning role's `meta/server.yml` "
-            "`domains.canonical` / `domains.aliases` block."
+            "hostname only in the owning role's `meta/domains.yml` "
+            "`canonical` / `aliases` block."
         )
         self.fail("\n".join(lines))
 

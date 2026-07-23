@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys OpenTalk, a sovereign open-source video-conferencing platform with audio/video calls, screen sharing, breakout rooms, single sign-on, and
-    shared-cloud file integration.
+  description: Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

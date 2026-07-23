@@ -1,0 +1,32 @@
+---
+unbound:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  engine on-disk state (trust anchors / root hints), node-local in swarm
+  placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: ghcr.io/mailu/unbound
+  name: unbound
+  version: "2024.06"
+  min_storage: 1GB
+  backup:
+    disabled: true
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "512m"
+  pids_limit: 256
+  ports:
+    local:
+      unbound: 53
+  lifecycle: beta
+
+# nocheck: dynamic-flag - the resolver state volume is backup-disabled rebuildable cache, the backup consumer stays permanently off
+container_backup:
+  bond: 1
+  enabled: false
+  shared: true

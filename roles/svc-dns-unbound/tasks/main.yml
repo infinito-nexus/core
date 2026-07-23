@@ -1,0 +1,13 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_svc_dns_unbound is not defined
+  vars:
+    application_id: svc-dns-unbound
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🔧 Provision dedicated resolver slice"
+  include_tasks: 02_init.yml
+  when: database_init | bool

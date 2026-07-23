@@ -1,5 +1,6 @@
 import sys
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -14,6 +15,7 @@ sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 class TestTlsResolveLookup(unittest.TestCase):
     def setUp(self):
         self.lookup = LookupModule()
+        self.lookup._loader = mock.MagicMock()
 
         self.domains = {
             "web-app-a": "a.example",
@@ -34,27 +36,18 @@ class TestTlsResolveLookup(unittest.TestCase):
             "TLS_MODE": "letsencrypt",
         }
 
-        # Route get_merged_domains / get_merged_applications through
+        # Route the "domains"/"applications" lookups through
         # variables['domains'] / variables['applications'] so tests stay hermetic.
-        def _domains_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("domains", {})
+        def _get(name, *_a, **_k):
+            def _run(_terms, variables=None, **__):
+                return [(variables or {}).get(name, {})]
 
-        def _applications_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("applications", {})
+            return mock.MagicMock(run=_run)
 
-        self._patchers = [
-            patch(
-                "plugins.lookup.tls.get_merged_domains",
-                side_effect=_domains_from_vars,
-            ),
-            patch(
-                "plugins.lookup.tls.get_merged_applications",
-                side_effect=_applications_from_vars,
-            ),
-        ]
-        for p in self._patchers:
-            p.start()
-        self.addCleanup(lambda: [p.stop() for p in self._patchers])
+        loader_patcher = patch("plugins.lookup.tls.lookup_loader")
+        loader_mock = loader_patcher.start()
+        loader_mock.get.side_effect = _get
+        self.addCleanup(loader_patcher.stop)
 
     def test_domain_term_auto_mode(self):
         out = self.lookup.run(["a.example"], variables=self.base_vars)[0]
@@ -121,6 +114,53 @@ class TestTlsResolveLookup(unittest.TestCase):
         with self.assertRaises(AnsibleError) as ctx:
             self.lookup.run(["unknown.example"], variables=self.base_vars)
         self.assertIn("not found", str(ctx.exception))
+
+    def test_app_term_family_aligned_for_clearnet_consumer(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+        }
+        v["application_id"] = "web-app-a"
+        out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
+        self.assertEqual(out["domain"], "cdn.example")
+        self.assertTrue(out["enabled"])
+        self.assertEqual(out["url"]["base"], "https://cdn.example/")
+
+    def test_app_term_onion_consumer_stays_onion(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+            "web-app-dashboard": ["dash.abc.onion"],
+        }
+        v["application_id"] = "web-app-dashboard"
+        out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
+        self.assertEqual(out["domain"], "cdn.abc.onion")
+        self.assertFalse(out["enabled"])
+        self.assertEqual(out["url"]["base"], "http://cdn.abc.onion/")
+
+    def test_domain_term_keeps_explicit_onion(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+        }
+        v["application_id"] = "web-app-a"
+        out = self.lookup.run(["cdn.abc.onion"], variables=v)[0]
+        self.assertEqual(out["domain"], "cdn.abc.onion")
+        self.assertFalse(out["enabled"])
+
+    def test_app_term_onion_only_target_falls_back(self):
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion"],
+        }
+        v["application_id"] = "web-app-a"
+        out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
+        self.assertEqual(out["domain"], "cdn.abc.onion")
+        self.assertFalse(out["enabled"])
 
     def test_term_with_unresolved_jinja_is_templated(self):
         class _FakeTemplar:

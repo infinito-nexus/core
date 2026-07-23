@@ -1,0 +1,32 @@
+---
+# nocheck: info-media Self-written infrastructure role that bootstraps/manages a Docker Swarm cluster via Ansible group membership; it configures Docker's built-in swarm orchestration mode rather than wrapping a consumer-facing upstream product.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Container orchestration cluster for scheduling services across pooled manager and worker nodes
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - swarm
+    - docker
+    - cluster
+    - orchestration
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

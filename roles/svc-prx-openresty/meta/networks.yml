@@ -1,0 +1,9 @@
+---
+local:
+  subnet: 192.168.107.0/24
+overlay:
+  modes: [swarm]
+  topology: shared_net
+  collect_proxy_resolvable: true
+  consumer:
+    kind: web_facing

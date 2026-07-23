@@ -1,20 +1,6 @@
 ---
-domains:
-  canonical:
-    - n8n.{{ DOMAIN_PRIMARY }}
-  aliases: []
-csp:
-  flags:
-    script-src-elem:
-      unsafe-inline: true
-      unsafe-eval: true
-    style-src-attr:
-      unsafe-inline: true
 status_codes:
   default:
     - 200
     - 302
     - 405
-networks:
-  local:
-    subnet: 192.168.106.16/28

@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 // Functional cross-role coupling check for nextcloud/integration_mastodon.
 //
@@ -19,7 +21,7 @@ const shared = require("../_shared");
 // provision and the test FAILS (it does not skip).
 test("integration integration_mastodon: connects Nextcloud to the partner Mastodon via provisioned OAuth", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_mastodon");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -32,9 +34,9 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     // addon hook. The field is an NcTextField bound to oauth_instance_url inside the
     // app's admin section (#mastodon_prefs / #mastodon-content) under the
     // "connected-accounts" admin settings page.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/admin/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -44,7 +46,7 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     await expect(
       mastodonPanel,
       "the Mastodon integration admin panel must render when integration_mastodon is enabled — its absence means the app failed to install/configure and the coupling never landed"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // The instance-address NcTextField has no stable id; locate the text input
     // inside the Mastodon panel whose value is an absolute URL. NcTextField may
@@ -53,7 +55,7 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     await expect(
       urlInputs.first(),
       "the Mastodon admin panel must expose the 'Default Mastodon instance address' field"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const inputCount = await urlInputs.count();
     let configuredInstanceUrl = null;
@@ -85,9 +87,9 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     // the PARTNER instance's /oauth/authorize endpoint, carrying the provisioned
     // OAuth client_id & response_type=code. This proves the bridge actually reaches
     // the partner (not Nextcloud) — the real federation/login round-trip.
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page);
 
@@ -98,19 +100,19 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     await expect(
       connect,
       "the 'Connect to Mastodon' control must render once oauth_instance_url is provisioned — its absence means the per-user OAuth bridge never wired up"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-    const popupPromise = page.waitForEvent("popup", { timeout: 15_000 }).catch(() => null);
+    const popupPromise = page.waitForEvent("popup", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
-      page.waitForEvent("framenavigated", { timeout: 60_000 }).catch(() => {}),
-      connect.click(),
+      page.waitForEvent("framenavigated", { timeout: resolveTimeout(60_000) }).catch(() => {}),
+      connect.click({ timeout: resolveTimeout(30_000) }),
     ]);
 
     const popup = await popupPromise;
     const currentUrl = () => (popup ? popup.url() : page.url());
 
     await expect
-      .poll(currentUrl, { timeout: 60_000 })
+      .poll(currentUrl, { timeout: resolveTimeout(60_000) })
       .toMatch(/\/oauth\/authorize\?/i);
 
     const authorizeUrl = new URL(currentUrl());

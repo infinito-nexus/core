@@ -1,13 +1,13 @@
 ---
 # nocheck: run-once
 
-- name: Assert token
+- name: ✅ Assert token
   ansible.builtin.assert:
     that: ["lookup('api', 'cloudflare.api_token') | length > 0"]
   no_log: "{{ cloudflare_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: Apply A/AAAA
+- name: 📌 Apply A/AAAA
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.zone }}"
@@ -39,7 +39,7 @@
       ('81058' not in (_cf_call.msg | default('') | string))
     )
 
-- name: Apply CNAME/MX/TXT
+- name: 📌 Apply CNAME/MX/TXT
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.zone }}"
@@ -71,7 +71,7 @@
       ('81058' not in (_cf_call.msg | default('') | string))
     )
 
-- name: Apply SRV
+- name: 📌 Apply SRV
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.zone }}"

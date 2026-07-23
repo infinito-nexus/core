@@ -1,0 +1,90 @@
+---
+- name: "🛡️ Guard instance dir at compose flush"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/guard_instance_dir.yml') }}"
+  listen:
+    - compose up
+    - compose build
+
+- name: Generate CA trust override
+  ansible.builtin.shell: |
+    set -euo pipefail
+    {{ lookup('compose_ca_inject_cmd', application_id) }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: compose_ca_override
+  timeout: "{{ lookup('timeout', 1200) | int }}"
+  retries: 7
+  delay: 20
+  until: compose_ca_override is succeeded
+  listen:
+    - compose up
+  when:
+    - lookup('domains') | has_domain(application_id)
+    - lookup('tls', application_id, 'enabled') | bool
+    - lookup('tls', application_id, 'mode') == 'self_signed'
+
+- name: Validate Docker Compose configuration
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose config --quiet
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: dc_validate
+  changed_when: false
+  failed_when: dc_validate.rc != 0
+  listen:
+    - compose up
+  when: MODE_ASSERT_LOCAL | bool
+
+- name: compose pull
+  ansible.builtin.script:
+    cmd: >-
+      pull.py
+      --chdir {{ lookup('container', application_id, 'directories.instance') }}
+      --project {{ application_id | get_entity_name }}
+      --compose-files {{ lookup('compose_file_args', application_id, include_ca=False) | quote }}
+      {% if lookup('container', application_id, 'files.env') is file %}
+      --env-file {{ lookup('container', application_id, 'files.env') }}
+      {% endif %}
+      --lock-dir {{ DIR_COMPOSE_PULL_LOCK }}
+      --lock-key {{ lookup('container', application_id, 'directories.instance') | hash('sha1') }}
+      --ignore-buildable
+  register: pull
+  changed_when: "'pulled' in pull.stdout"
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  retries: 10
+  delay: 30
+  until: pull is succeeded
+  listen:
+    - compose up
+
+- name: Build compose
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose build || {
+      echo "Retrying without cache and pulling bases...";
+      compose build --no-cache --pull;
+    }
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  listen:
+    - compose build
+
+- name: compose up
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose up -d --force-recreate --remove-orphans
+  register: dc_up
+  changed_when: true
+  timeout: "{{ lookup('timeout', 1800) | int }}"
+  environment:
+    COMPOSE_PARALLEL_LIMIT: "{{ '4' if (DOCKER_IN_CONTAINER | bool) else omit }}"
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  listen:
+    - compose up

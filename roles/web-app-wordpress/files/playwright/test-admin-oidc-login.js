@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { expectNoCspViolations } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
@@ -15,7 +16,7 @@ exports.register = function (shared) {
       shared.env.adminUsername,
       shared.env.adminPassword
     );
-    await expect(page).toHaveURL(/\/wp-admin\/?/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/wp-admin\/?/, { timeout: resolveTimeout(30_000) });
     await shared.wpSignOut(page, shared.env.wpBaseUrl);
     await expectNoCspViolations(
       page,

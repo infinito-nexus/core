@@ -1,0 +1,27 @@
+---
+nfs-server:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  name: nfs-server
+  export_base: /srv/nfs
+  # Exception: only ganesha is CI-tested; kernel nfsd loopback-deadlocks in the shared-kernel DinD labs (reclaim -> writeback -> same nfsd), so CI cannot cover it and kernel must stay a deliberate, untested per-inventory choice
+  flavor: ganesha
+  lifecycle: beta
+  enabled: true
+  shared: true
+  bond: 1
+  min_storage: "100MB"
+  cpus: "0.2"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256
+
+nfs_backup:
+  bond: 1
+  enabled: "{{ 'svc-bkp-nfs-2-local' in group_names }}"
+  shared: "{{ 'svc-bkp-nfs-2-local' in group_names }}"

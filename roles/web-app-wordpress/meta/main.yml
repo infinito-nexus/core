@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Use the full power of WordPress—with its intuitive interface, customizable themes and plugins, responsive design, and advanced SEO tools—in a scalable
-    and secure containerized environment.\n"
+  description: Content management system for building and managing websites, blogs, and multisite networks with themes and plugins
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

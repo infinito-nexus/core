@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Mini-QR is a minimalist, self-hosted web application that allows users to instantly generate QR codes in a privacy-friendly way. \n"
+  description: Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

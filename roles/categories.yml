@@ -1,11 +1,23 @@
 ---
+# Deploy stages in call order (tasks/stages/0*.yml): the constructor pass
+# runs first, then the per-host-type passes (workstation, then server), and
+# the destructor pass last. Each top-level category declares the `stage` it
+# is invoked in; `cli.meta.roles.order.run` and the stage/role lookups read
+# this as the single source of truth.
+stages:
+  - constructor
+  - workstation
+  - server
+  - destructor
 roles:
   dev:
     title: "Software Development Utilties"
+    stage: workstation
     invokable: false
   sys:
     title: "System"
     description: "System near components. Will be automaticly called if necessary from other roles."
+    stage: server
     invokable: false
     ctl:
       title: "Control"
@@ -69,26 +81,39 @@ roles:
     title: "Updates & Package Management"
     description: "OS & package updates"
     icon: "fas fa-sync"
+    stage: constructor
+    modes:
+      compose: false
+      swarm: false
     invokable: true
   drv:
     title: "Drivers"
     description: "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
     icon: "fas fa-microchip"
+    stage: constructor
+    run_after: [update]
+    modes:
+      compose: false
+      swarm: false
     invokable: true
   gen:
     title: "Generic"
     description: "Helper roles & installers (git, locales, timer, etc.)"
     icon: "fas fa-wrench"
+    stage: constructor
+    run_after: [drv]
     invokable: true
   desk:
     title: "Desktop"
     description: "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
     icon: "fas fa-desktop"
+    stage: workstation
     invokable: true
   web:
     title: "Web Infrastructure"
     description: "Roles for managing web infrastructure—covering static content services and deployable web applications."
     icon: "fas fa-globe"
+    stage: server
     svc:
       title: "Services"
       description: "Static content servers (assets, HTML, legal, files)"
@@ -98,50 +123,90 @@ roles:
       title: "Applications"
       description: "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
       icon: "fas fa-docker"
+      run_after: [web-svc]
       invokable: true
     opt:
       title: "Webserver Optimation"
       description: "Tools which help to optimize webservers"
+      run_after: [web-app]
       invokable: true
   svc:
     title: "Services"
     description: "Infrastructure services like databases"
+    stage: constructor
     invokable: false
     db:
       title: "Databases"
       description: "Database applications (DBMS, LDAP, Redis, etc.)"
       icon: "fas fa-database"
+      run_after: [svc-net]
+      invokable: true
+    dns:
+      title: "DNS Resolvers"
+      description: "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
+      icon: "fas fa-globe"
+      run_after: [svc-db]
       invokable: true
     opt:
       title: "Service Optimation"
       description: "Optimation Services to improve your system"
       icon: "fas fa-database"
+      stage: destructor
       invokable: true
     prx:
       title: "Proxy Servers"
       description: "Reverse‑proxy roles for routing and load‑balancing traffic to backend services"
       icon: "fas fa-project-diagram"
+      run_after: [svc-dns]
       invokable: true
     net:
       title: "Network"
       description: "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
       icon: "fas fa-globe"
+      run_after: [gen]
+      modes:
+        compose: false
+        swarm: false
       invokable: true
     ai:
       title: "AI Services"
       description: "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
       icon: "fas fa-brain"
+      run_after: [svc-prx]
       invokable: true
     bkp:
       title: "Backup Services"
       description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration
         across databases, files, and containers."
       icon: "fas fa-database"
+      run_after: [svc-ai]
+      invokable: true
+    registry:
+      title: "Container Registries"
+      description: "Container-registry services - local registry and pull-through cache."
+      icon: "fas fa-box-archive"
+      bootstrap: true
+      modes:
+        compose: true
+        swarm: false
+      invokable: true
+    storage:
+      title: "Shared Storage"
+      description: "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+      icon: "fas fa-hdd"
+      bootstrap: true
+      invokable: true
+    swarm:
+      title: "Container Orchestration"
+      description: "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+      icon: "fas fa-network-wired"
+      bootstrap: true
       invokable: true
     runner:
       title: "CI Runner"
       description: "Self-hosted GitHub Actions runner deployment and configuration"
       icon: "fas fa-play"
+      run_after: [svc-bkp]
       invokable: true
   user:
     title: "Users & Access"

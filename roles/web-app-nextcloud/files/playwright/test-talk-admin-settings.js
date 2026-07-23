@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { decodeDotenvQuotedValue } = require("./personas");
 
 // All Talk-admin assertion logic lives in this module so the gate flag,
@@ -72,7 +73,7 @@ async function expectNextcloudSettingValue(page, expectedValue, label) {
     .poll(
       async () => collectNextcloudSettingsText(page),
       {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected ${label} to be visible in the Nextcloud Talk admin settings: ${expectedValue}`
       }
     )
@@ -84,7 +85,7 @@ async function expectNextcloudSettingAbsent(page, unexpectedValue, label) {
     .poll(
       async () => collectNextcloudSettingsText(page),
       {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected ${label} to stay absent in the Nextcloud Talk admin settings: ${unexpectedValue}`
       }
     )
@@ -102,7 +103,7 @@ async function clickAllTalkTestServerButtonsAndVerify(page) {
   const connectionSpans = page.locator("span.test-connection");
   await connectionSpans
     .first()
-    .waitFor({ state: "attached", timeout: 60_000 })
+    .waitFor({ state: "attached", timeout: resolveTimeout(60_000) })
     .catch(() => {
       // Continue — the assertion below will surface the real diagnostic.
     });
@@ -118,7 +119,7 @@ async function clickAllTalkTestServerButtonsAndVerify(page) {
       continue;
     }
     await button.scrollIntoViewIfNeeded().catch(() => {});
-    await button.click({ timeout: 5_000 }).catch(() => {});
+    await button.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
   }
 
   // Read the test-connection span texts directly instead of `document.body
@@ -130,7 +131,7 @@ async function clickAllTalkTestServerButtonsAndVerify(page) {
 
   await expect
     .poll(readConnectionTexts, {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message:
         "Expected at least one Talk admin row (.test-connection span) to render " +
         "'OK: Running version: <ver>' after the auto-check / Test-button click. " +
@@ -156,6 +157,7 @@ async function clickAllTalkTestServerButtonsAndVerify(page) {
 exports.register = function (shared) {
   test("nextcloud talk admin settings", async ({ browser }) => {
     test.skip(!nextcloudTalkSettingsCheckEnabled, "Talk admin checks are disabled in the current Playwright env");
+    test.skip(isOnionTarget(), "Nextcloud Talk realtime (HPB signaling + STUN/TURN) is WebRTC; not reachable over Tor");
 
     expect(nextcloudTalkSettingsUrl, "NEXTCLOUD_TALK_SETTINGS_URL must be set when Talk admin checks are enabled").toBeTruthy();
     expect(nextcloudTalkExpectedSignalingUrl, "NEXTCLOUD_TALK_EXPECTED_SIGNALING_URL must be set when Talk admin checks are enabled").toBeTruthy();
@@ -174,7 +176,7 @@ exports.register = function (shared) {
         await shared.loginToStandaloneNextcloud(adminPage);
         await adminPage.goto(nextcloudTalkSettingsUrl, {
           waitUntil: "domcontentloaded",
-          timeout: 60_000
+          timeout: resolveTimeout(60_000)
         });
         await expect
           .poll(
@@ -187,7 +189,7 @@ exports.register = function (shared) {
               };
             },
             {
-              timeout: 30_000,
+              timeout: resolveTimeout(30_000),
               message: `Expected Nextcloud admin Talk settings page to load: ${nextcloudTalkSettingsUrl}`
             }
           )

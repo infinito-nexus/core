@@ -21,9 +21,9 @@ from __future__ import annotations
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
 from utils.roles.applications.config import AppConfigKeyError, get
 from utils.sizes import to_bytes
 
@@ -106,11 +106,9 @@ class LookupModule(LookupBase):
 
         templar = getattr(self, "_templar", None)
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
-        applications = get_merged_applications(
-            variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=templar,
-        )
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=templar
+        ).run([], variables=variables)[0]
 
         return [
             node_max_old_space_size(

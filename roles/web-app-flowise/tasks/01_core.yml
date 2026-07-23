@@ -1,22 +1,24 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker and db for {{ application_id }}"
+- name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
   vars:
     compose_handlers_flush: false
 
-- name: "create {{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
-  template:
-    src: "litellm.config.yaml.j2"
-    dest: "{{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
-  notify: compose up
+- name: "📄 Render Flowise LiteLLM config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "litellm.config.yaml.j2"
+        dest: "{{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
 
-- name: "flush handlers of compose"
+- name: "🚿 flush handlers of compose"
   meta: flush_handlers
 
-- name: "Include role sys-stk-front-proxy for '{{ application_id }}'"
+- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-front-proxy
   vars:

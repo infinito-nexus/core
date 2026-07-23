@@ -1,24 +1,36 @@
 ---
-- name: "Assert correct context"
+- name: "✅ Assert correct context"
   ansible.builtin.assert:
     that:
       - application_id == 'web-app-seaweedfs'
       - objstore_consumer_id != 'web-app-seaweedfs'
 
-- name: "List SeaweedFS buckets"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    echo 's3.bucket.list' | container exec -i {{ SEAWEEDFS_CONTAINER }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
-  args:
-    executable: /bin/bash
-  register: _seaweedfs_buckets
-  changed_when: false
+- name: "🔧 Provision the SeaweedFS bucket on the stack host"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "📋 List SeaweedFS buckets"
+      ansible.builtin.shell: |
+        set -euo pipefail
+        echo 's3.bucket.list' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+      args:
+        executable: /bin/bash
+      register: _seaweedfs_buckets
+      changed_when: false
+      timeout: "{{ lookup('timeout', 60) | int }}"
+      retries: 3
+      delay: 10
+      until: _seaweedfs_buckets is succeeded
 
-- name: "Create the SeaweedFS bucket for '{{ objstore_consumer_id }}'"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    echo 's3.bucket.create -name {{ lookup('objstore', objstore_consumer_id, 'bucket') }}' | container exec -i {{ SEAWEEDFS_CONTAINER }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
-  args:
-    executable: /bin/bash
-  changed_when: true
-  when: lookup('objstore', objstore_consumer_id, 'bucket') not in _seaweedfs_buckets.stdout
+    - name: "📁 Create the SeaweedFS bucket for '{{ objstore_consumer_id }}'"
+      ansible.builtin.shell: |
+        set -euo pipefail
+        echo 's3.bucket.create -name {{ lookup('objstore', objstore_consumer_id, 'bucket') }}' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+      args:
+        executable: /bin/bash
+      register: _seaweedfs_create
+      changed_when: true
+      timeout: "{{ lookup('timeout', 60) | int }}"
+      retries: 3
+      delay: 10
+      until: _seaweedfs_create is succeeded
+      when: lookup('objstore', objstore_consumer_id, 'bucket') not in _seaweedfs_buckets.stdout

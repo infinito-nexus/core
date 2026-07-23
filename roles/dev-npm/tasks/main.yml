@@ -1,10 +1,10 @@
 ---
-- name: Ensure npm is installed
+- name: ✅ Ensure npm is installed
   package:
     name: npm
     state: present
 
-- name: Run 'npm ci'
+- name: ▶️ Run 'npm ci'
   command: npm ci
   args:
     chdir: "{{ npm_project_folder }}"

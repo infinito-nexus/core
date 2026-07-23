@@ -1,40 +1,18 @@
 ---
-# General
 application_id: "web-app-flowise"
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"
 
-# Flowise
-# https://flowiseai.com/ 
-FLOWISE_VERSION: "{{ lookup('config', application_id, 'services.flowise.version') }}"
-FLOWISE_IMAGE: "{{ lookup('config', application_id, 'services.flowise.image') }}"
 FLOWISE_CONTAINER: "{{ lookup('config', application_id, 'services.flowise.name') }}"
-FLOWISE_VOLUME: "{{ lookup('config', application_id, 'volumes.flowise') }}"
-FLOWISE_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"
 FLOWISE_PORT_INTERNAL: 3000
 
-# Auth integrations
 FLOWISE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-# Dependencies
-
-## LiteLLM
-# https://www.litellm.ai/
-FLOWISE_LITELLM_VERSION: "{{ lookup('config', application_id, 'services.litellm.version') }}"
-FLOWISE_LITELLM_IMAGE: "{{ lookup('config', application_id, 'services.litellm.image') }}"
 FLOWISE_LITELLM_CONTAINER: "{{ lookup('config', application_id, 'services.litellm.name') }}"
-FLOWISE_LITELLM_PORT: 4000
+FLOWISE_LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.internal.http') }}"
 FLOWISE_LITELLM_INTERNAL_URL: "http://litellm:{{ FLOWISE_LITELLM_PORT }}"
 FLOWISE_LITELLM_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'litellm.config.yaml' ] | path_join }}"
 FLOWISE_LITELLM_CONFIG_PATH_DOCKER: "/etc/litellm/config.yaml"
 FLOWISE_LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'credentials.llm_master_key') }}"
 
-## Qdrant
-# https://qdrant.tech/
-FLOWISE_QDRANT_VERSION: "{{ lookup('config', application_id, 'services.qdrant.version') }}"
-FLOWISE_QDRANT_IMAGE: "{{ lookup('config', application_id, 'services.qdrant.image') }}"
-FLOWISE_QDRANT_CONTAINER: "{{ lookup('config', application_id, 'services.qdrant.name') }}"
-FLOWISE_QDRANT_VOLUME: "{{ lookup('config', application_id, 'volumes.qdrant') }}"
-FLOWISE_QDRANT_HTTP_PORT: 6333
-FLOWISE_QDRANT_GRPC_PORT: 6334
-FLOWISE_QDRANT_INTERNAL_URL: "http://qdrant:{{ FLOWISE_QDRANT_HTTP_PORT }}"
+FLOWISE_QDRANT_INTERNAL_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"

@@ -1,7 +1,7 @@
 import re
 import unittest
 
-from plugins.filter.get_all_application_ids import get_all_application_ids
+from plugins.filter.get.all.application_ids import get_all_application_ids
 from utils.cache.files import iter_project_files_with_content
 
 
@@ -14,10 +14,8 @@ class TestGetDomainApplicationIds(unittest.TestCase):
     GET_DOMAIN_PATTERN = re.compile(r"get_domain\(\s*['\"]([^'\"]+)['\"]\s*\)")
 
     def test_get_domain_literals_are_valid_ids(self):
-        # Collect all application IDs from roles
         valid_ids = set(get_all_application_ids())
 
-        # Walk project .py files (skip tests/, served from cache)
         invalid_usages = []
         for path, content in iter_project_files_with_content(
             extensions=(".py",), exclude_tests=True

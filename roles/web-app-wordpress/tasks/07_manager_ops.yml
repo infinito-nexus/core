@@ -1,0 +1,48 @@
+---
+- name: 🔎 Check if {{ WORDPRESS_CONFIG_FILE }} exists in WordPress
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} test -f {{ WORDPRESS_CONFIG_PATH }}
+  register: wp_config_file_exists
+  changed_when: false
+  failed_when: false
+
+- name: 🩹 Patch WordPress {{ WORDPRESS_CONFIG_FILE }} with updated DB credentials
+  include_tasks: 01_patch_config.yml
+  when: wp_config_file_exists.rc == 0
+
+- name: "📦 Install wordpress"
+  include_tasks: 02_install.yml
+
+- name: "🔄 Convert to Multisite when opted in"
+  include_tasks: 06_multisite.yml
+  when: >-
+    (lookup('config', application_id, 'services.wordpress.multisite.enabled')
+      | default(false) | bool)
+
+- name: "📦 Install mu-plugins (OIDC→RBAC role mapper)"
+  include_tasks: 05_mu_plugins.yml
+
+- name: "🔁 Iterate through WordPress plugins"
+  include_tasks: 03_enable_plugin.yml
+  loop: "{{ WORDPRESS_PLUGINS }}"
+  loop_control:
+    loop_var: wordpress_plugin
+    label: "{{ wordpress_plugin.key }}"
+  vars:
+    plugin_name: "{{ wordpress_plugin.key }}"
+    plugin_enabled: "{{ wordpress_plugin.value.enabled | bool }}"
+    plugin_task_path: "{{ [role_path, 'tasks/addons', plugin_name  ~ '.yml' ] | path_join }}"
+  when: plugin_enabled | bool
+
+- name: 🔍 Detect if WordPress is Multisite
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp eval 'echo (int) is_multisite();' --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_is_multisite
+  changed_when: false
+
+- name: "🔄 Update Single Side WordPress domain"
+  include_tasks: 04_update_domain.yml
+  when: (wp_is_multisite.stdout | trim) == '0'
+  vars:
+    wp_new_url: "{{ WORDPRESS_URL }}"

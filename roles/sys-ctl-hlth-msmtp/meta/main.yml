@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Periodic MTA health-check: sends test mail via msmtp and alerts on failure."
+  description: Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

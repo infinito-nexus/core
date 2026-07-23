@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures the Postmarks mail service client via Docker Compose, ready for use with applications requiring SMTP.
+  description: Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

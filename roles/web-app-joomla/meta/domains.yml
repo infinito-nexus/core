@@ -1,0 +1,4 @@
+---
+canonical:
+  - joomla.cms.{{ DOMAIN_PRIMARY }}
+aliases: []

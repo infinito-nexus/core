@@ -1,0 +1,4 @@
+---
+canonical:
+  - media.{{ DOMAIN_PRIMARY }}
+aliases: []

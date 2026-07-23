@@ -1,0 +1,22 @@
+---
+whitelist:
+  script-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://kit.fontawesome.com
+    - https://code.jquery.com/
+    - https://unpkg.com/
+  style-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdnjs.cloudflare.com
+  font-src:
+    - https://cdnjs.cloudflare.com
+    - https://ka-f.fontawesome.com
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  connect-src:
+    - https://ka-f.fontawesome.com
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  frame-ancestors:
+    - "*"
+flags:
+  style-src-attr:
+    unsafe-inline: true

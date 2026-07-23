@@ -2,9 +2,9 @@
 - include_tasks: 01_core.yml
   when: run_once_sys_front_inj_css is not defined
 
-- name: "Resolve optional app style.css source for '{{ application_id }}'"
+- name: "🔍 Resolve optional app style.css source for '{{ application_id }}'"
   vars:
-    app_role_dir: "{{ playbook_dir }}/roles/{{ application_id }}"
+    app_role_dir: "{{ lookup('path_absolute', 'roles', application_id) }}"
     _app_style_src: >-
       {{ lookup('first_found', {
            'files': ['templates/style.css.j2','files/style.css'],
@@ -14,7 +14,7 @@
     app_style_src: "{{ _app_style_src }}"
     app_style_present: "{{ _app_style_src | length > 0 }}"
 
-- name: "Deploy per-app '{{ app_style_src }}' to '{{ css_app_dst }}'"
+- name: "🚀 Deploy per-app '{{ app_style_src }}' to '{{ css_app_dst }}'"
   when: app_style_present | bool
   copy:
     content: "{{ lookup('template', app_style_src) }}"

@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test("integration integration_suitecrm: per-user OAuth password grant reaches the partner SuiteCRM token endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_suitecrm");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -12,9 +14,9 @@ test("integration integration_suitecrm: per-user OAuth password grant reaches th
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(
+    await gotoOnion(page,
       new URL("settings/user/connected-accounts", shared.env.nextcloudBaseUrl).toString(),
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
     await shared.dismissBlockingNextcloudModals(page, page).catch(() => {});
 
@@ -22,13 +24,13 @@ test("integration integration_suitecrm: per-user OAuth password grant reaches th
     await expect(
       suitecrmPanel,
       "the SuiteCRM personal settings panel must render when integration_suitecrm is enabled"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const oauthContent = suitecrmPanel.locator("#suitecrm-content");
     await expect(
       oauthContent,
       "the SuiteCRM OAuth settings (#suitecrm-content) must render — its absence means the OAuth client was not provisioned"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     const instanceField = suitecrmPanel.locator("#suitecrm-url");
     const instanceUrl = ((await instanceField.inputValue().catch(() => "")) || "").trim();
@@ -51,7 +53,7 @@ test("integration integration_suitecrm: per-user OAuth password grant reaches th
     await expect(
       connectButton,
       "the 'Connect to SuiteCRM' control must render once the partner OAuth client is provisioned"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     await loginField.fill(shared.env.loginUsername);
     await passwordField.fill(shared.env.loginPassword);
@@ -60,9 +62,9 @@ test("integration integration_suitecrm: per-user OAuth password grant reaches th
       (response) =>
         /\/apps\/integration_suitecrm\/oauth-connect$/.test(new URL(response.url()).pathname) &&
         response.request().method() === "POST",
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
-    await connectButton.click();
+    await connectButton.click({ timeout: resolveTimeout(30_000) });
     const connectResponse = await connectResponsePromise;
 
     const connectStatus = connectResponse.status();
@@ -81,8 +83,8 @@ test("integration integration_suitecrm: per-user OAuth password grant reaches th
       await expect(
         suitecrmPanel.getByText(/connected as/i),
         "the panel must flip to a connected state after a successful partner token exchange"
-      ).toBeVisible({ timeout: 30_000 });
-      await expect(suitecrmPanel.locator("#suitecrm-rm-cred")).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await expect(suitecrmPanel.locator("#suitecrm-rm-cred")).toBeVisible({ timeout: resolveTimeout(30_000) });
     } else {
       expect(
         connectBody.error,

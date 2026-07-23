@@ -1,17 +1,15 @@
 {% if lookup('objstore', application_id, 'local') %}
 {% set _objstore = lookup('objstore', application_id) %}
   seaweedfs:
-    image: "{{ _objstore.image }}:{{ _objstore.version }}"
-    container_name: {{ _objstore.container }}
-    restart: {{ DOCKER_RESTART_POLICY }}
-    command:
-      - server
-      - -dir=/data
-      - -filer
-      - -s3
+    image: "{{ _objstore.image }}:{{ _objstore.version }}"  # nocheck: container-image-lookup
+    {{ lookup('compose_only', 'container_name', _objstore.container) }}
+    {{ lookup('compose_restart', DOCKER_RESTART_POLICY) }}
+    entrypoint: ["/bin/sh", "-c"]
+{% set _sidecar = _objstore.bucket | seaweedfs_sidecar_script(_objstore.port, _objstore.access_key, _objstore.secret_key) %}
+    command: {{ [_sidecar] | to_json }}
     volumes:
       - seaweedfs:/data
-    networks:
+    networks:  # nocheck: networks-literal
       - default
     logging:
       driver: journald
@@ -22,6 +20,10 @@
   {%- endset -%}
 {{ _snippet | indent(indent, true) }}
 {%- endmacro %}
+{% if DEPLOYMENT_MODE == 'compose' %}
 {{ include_resource_for('seaweedfs') }}
+{% endif %}
+{% set service_name = 'seaweedfs' %}
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {% endif %}
 {{ "\n" }}

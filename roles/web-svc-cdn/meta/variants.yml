@@ -12,6 +12,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     matomo:
       enabled: false
@@ -19,3 +21,6 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false
+      shared: false # nocheck: variants-static-override

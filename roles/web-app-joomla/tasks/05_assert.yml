@@ -1,5 +1,5 @@
 ---
-- name: "PHP lint configuration.php"
-  command:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", php, "-l", "{{ JOOMLA_CONFIG_FILE }}"]
+- name: "🧹 PHP lint configuration.php"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} php -l {{ JOOMLA_CONFIG_FILE }}
   changed_when: false

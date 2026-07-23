@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -14,11 +15,6 @@ const adminUsername      = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword      = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername      = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword      = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
-
-// Log out via the universal logout endpoint.
-async function prometheusLogout(page, baseUrl) {
-  await page.goto(`${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
-}
 
 test.beforeEach(() => {
   expect(oidcIssuerUrl,     "OIDC_ISSUER_URL must be set in the Playwright env file").toBeTruthy();
@@ -44,7 +40,14 @@ test.beforeEach(() => {
 // used to live in each consumer role's own playwright.spec.js.
 test("metricz endpoint is accessible and returns prometheus text format", async ({ request }) => {
   const metriczUrl = `${prometheusBaseUrl.replace(/\/$/, "")}/metricz`;
-  const response = await request.get(metriczUrl);
+
+  for (const target of prometheusTargetRoles) {
+    const base = String(target.canonical_url || "").replace(/\/$/, "");
+    if (!base) continue;
+    await request.get(`${base}/healthz/ready`, { failOnStatusCode: false, timeout: resolveTimeout(30_000) }).catch(() => {});
+  }
+
+  const response = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),
@@ -65,11 +68,24 @@ test("metricz endpoint is accessible and returns prometheus text format", async 
   ).toContain("nginx_http_requests_total");
 
   for (const target of prometheusTargetRoles) {
-    expect(
-      body,
-      `/metricz must contain metrics labeled app="${target.id}" — ` +
-      `the ${target.id} vhost is not registered in lua-resty-prometheus.`
-    ).toContain(`app="${target.id}"`);
+    await expect
+      .poll(
+        async () => {
+          const base = String(target.canonical_url || "").replace(/\/$/, "");
+          if (base) {
+            await request.get(`${base}/healthz/ready`, { failOnStatusCode: false, timeout: resolveTimeout(30_000) }).catch(() => {});
+          }
+          const scrape = await request.get(metriczUrl, { timeout: resolveTimeout(30_000) });
+          return (await scrape.text()).includes(`app="${target.id}"`);
+        },
+        {
+          timeout: resolveTimeout(60_000),
+          message:
+            `/metricz must contain metrics labeled app="${target.id}" — ` +
+            `the ${target.id} vhost is not registered in lua-resty-prometheus.`,
+        },
+      )
+      .toBe(true);
   }
 });
 
@@ -88,11 +104,11 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   const expectedPrometheusBaseUrl = prometheusBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Prometheus — oauth2-proxy redirects to Keycloak.
-  await page.goto(`${expectedPrometheusBaseUrl}/`);
+  await gotoOnion(page, `${expectedPrometheusBaseUrl}/`);
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`
     })
     .toContain(expectedOidcAuthUrl);
@@ -103,7 +119,7 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   // 3. After successful auth, oauth2-proxy redirects back to Prometheus.
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect back to Prometheus after admin login: ${expectedPrometheusBaseUrl}`
     })
     .toContain(expectedPrometheusBaseUrl);
@@ -112,16 +128,17 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
   //    The Prometheus v3.x nav always exposes "Graph", "Alerts", and "Status" links.
   await expect(
     page.getByRole("link", { name: /^(Graph|Alerts|Status)$/i }).first()
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
-  // 5. Logout via universal logout endpoint.
-  await prometheusLogout(page, expectedPrometheusBaseUrl);
+  // 5. Logout via the injected universal-logout control; let the conductor settle.
+  await inAppLogout(page);
+  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 
   // 6. Verify session is gone — oauth2-proxy redirects unauthenticated requests to Keycloak.
-  await page.goto(`${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => page.url(), {
-      timeout: 15_000,
+      timeout: resolveTimeout(15_000),
       message: "Expected redirect to Keycloak after logout"
     })
     .toContain(expectedOidcAuthUrl);
@@ -153,15 +170,15 @@ test("prometheus: biber is denied access after sso login", async ({ browser }) =
     //   • user IS in allowed_groups  → 302 redirect to the app (admin's path)
     const callbackResponsePromise = biberPage.waitForResponse(
       (res) => res.url().includes("/oauth2/callback"),
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
 
     // 1. Navigate directly to Prometheus — oauth2-proxy redirects to Keycloak
-    await biberPage.goto(`${expectedPrometheusBaseUrl}/`);
+    await gotoOnion(biberPage, `${expectedPrometheusBaseUrl}/`);
 
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`
       })
       .toContain(expectedOidcAuthUrl);
@@ -210,13 +227,13 @@ test("prometheus scrape: every consumer role reports up=1", async ({ page }) => 
   // Authenticate as administrator via the direct prometheus URL flow.
   // Same shape as scenario II's biber path, just with admin credentials
   // so the OAuth2-Proxy callback succeeds (302 -> prometheus).
-  await page.goto(`${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
   if (page.url().includes("openid-connect/auth")) {
     await performKeycloakLoginForm(page, adminUsername, adminPassword);
   }
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected admin to land on the prometheus surface (${expectedPrometheusBaseUrl})`,
     })
     .toContain(expectedPrometheusBaseUrl);
@@ -284,12 +301,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const statusLink = interactivePage
         .getByRole("link", { name: /^(targets|status|alerts|graph|runtime|build)$/i })
         .first();
-      if (await statusLink.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await statusLink.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await statusLink.isVisible({ timeout: resolveTimeout(10_000) }).catch(() => false)) {
+        await statusLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /endpoint|state|labels|targets|alerts|series/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

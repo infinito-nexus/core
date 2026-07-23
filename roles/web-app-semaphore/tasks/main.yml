@@ -1,6 +1,3 @@
 ---
-- name: "Execute Role (once)"
-  include_tasks: 01_core.yml
+- include_tasks: 01_core.yml
   when: run_once_web_app_semaphore is not defined
-  vars:
-    application_id: "web-app-semaphore"

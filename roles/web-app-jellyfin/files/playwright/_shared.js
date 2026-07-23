@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const ssoEnabled        = isServiceEnabled("sso");
@@ -14,7 +15,7 @@ const biberPassword     = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain   = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 async function gotoLogin(page) {
-  await page.goto(`${jellyfinBaseUrl}/web/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${jellyfinBaseUrl}/web/`, { waitUntil: "domcontentloaded" });
 }
 
 function onLoginSurface(page) {
@@ -28,23 +29,21 @@ async function assertAuthenticated(page, label) {
       .or(page.getByRole("button", { name: "Search" }))
       .first(),
     `${label}: authenticated Jellyfin chrome must be visible`,
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function fillManualLogin(page, username, password) {
   const userField = page.locator("#txtManualName, input[name='username'], input[type='text']").first();
-  await userField.waitFor({ state: "visible", timeout: 30_000 });
+  await userField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await userField.fill(username);
   await page.locator("#txtManualPassword, input[type='password']").first().fill(password);
   await page
     .locator("button[type='submit'], .btnSubmit")
     .first()
-    .click()
+    .click({ timeout: resolveTimeout(30_000) })
     .catch(() => page.keyboard.press("Enter"));
 }
 
-// Jellyfin's manual login form authenticates local users and, when the LDAP
-// plugin is active, LDAP users through the same form.
 async function signInViaLocal(page, username, password, label) {
   await gotoLogin(page);
   await fillManualLogin(page, username, password);
@@ -55,7 +54,6 @@ async function signInViaLdap(page, username, password, label) {
   await signInViaLocal(page, username, password, label);
 }
 
-// The SSO plugin renders an extra provider button on the login page.
 async function signInViaOidc(page, username, password, label) {
   await gotoLogin(page);
   const oidcButton = page
@@ -65,12 +63,12 @@ async function signInViaOidc(page, username, password, label) {
   await expect(
     oidcButton,
     `${label}: the SSO provider button must render on the Jellyfin login page`,
-  ).toBeVisible({ timeout: 30_000 });
-  await oidcButton.click();
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await oidcButton.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${label}: expected redirect to Keycloak (${oidcIssuerUrl}/protocol/openid-connect/auth)`,
     })
     .toContain(`${oidcIssuerUrl}/protocol/openid-connect/auth`);
@@ -86,15 +84,15 @@ async function logout(page, label = "session") {
       .or(page.locator(".headerUserButton, .mainDrawerButton"))
       .first();
     if (await menu.count()) {
-      await menu.click({ timeout: 5_000 }).catch(() => {});
+      await menu.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
     }
     const signOut = page
       .getByRole("link", { name: /sign\s*out|log\s*out|logout|abmelden/i })
       .or(page.locator("a, button, .listItem").filter({ hasText: /sign\s*out|log\s*out|logout|abmelden/i }))
       .first();
     if (await signOut.count()) {
-      await signOut.click({ timeout: 5_000 }).catch(() => {});
-      await page.waitForLoadState("domcontentloaded", { timeout: 8_000 }).catch(() => {});
+      await signOut.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
+      await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(8_000) }).catch(() => {});
     }
   } catch {
     /* best-effort */
@@ -115,7 +113,7 @@ async function logout(page, label = "session") {
   await gotoLogin(page);
   await expect
     .poll(() => onLoginSurface(page), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `${label}: expected logged-out landing on the Jellyfin login surface`,
     })
     .toBe(true);

@@ -1,0 +1,8 @@
+<?php
+{% if NEXTCLOUD_SSO_ENABLED and (NEXTCLOUD_OIDC_HOST is search('\.onion$')) %}
+return [
+    'proxy' => 'socks5h://{{ lookup('tor_socks', 'host.docker.internal') }}',
+];
+{% else %}
+return [];
+{% endif %}

@@ -1,77 +1,55 @@
 ---
-- name: "Wait until '{{ KEYCLOAK_CONTAINER }}' container is healthy"
-  community.docker.docker_container_info:
-    name: "{{ KEYCLOAK_CONTAINER }}"
-  register: kc_info
+- name: "⏳ Keycloak login | Wait for keycloak container to be running"
+  ansible.builtin.shell: >
+    container inspect -f '{{ "{{" }}.State.Running{{ "}}" }}'
+    {{ lookup('container_address', application_id, entity_name) }}
+  register: kc_running_compose
+  changed_when: false
   retries: 60
   delay: 5
   until: >
-    kc_info is succeeded and
-    (kc_info.container | default({})) != {} and
-    (kc_info.container.State | default({})) != {} and
-    (kc_info.container.State.Health | default({})) != {} and
-    (kc_info.container.State.Health.Status | default('')) == 'healthy'
+    kc_running_compose.rc == 0 and (kc_running_compose.stdout | trim) == 'true'
+  delegate_to: "{{ inventory_hostname }}"
+  when: DEPLOYMENT_MODE == 'compose'
 
-- name: Ensure permanent Keycloak admin exists and can log in (container env only)
-  block:
-    - name: Try login with permanent admin (uses container ENV)
-      shell: "{{ KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN }}"
-      register: kc_login_perm
-      changed_when: false
+- name: "🔍 Keycloak login | Resolve hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: KEYCLOAK
+    resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+    resolve_cid_filters: "--filter health=healthy"
 
-  rescue:
-    - name: Login with bootstrap admin (uses container ENV)
-      shell: |
-        {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
-          {{ KEYCLOAK_KCADM }} config credentials \
-            --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
-            --realm master \
-            --user "$KC_BOOTSTRAP_ADMIN_USERNAME" \
-            --password "$KC_BOOTSTRAP_ADMIN_PASSWORD"
-        '
-      register: kc_login_bootstrap
-      changed_when: false
-      retries: 30
-      delay: 5
-      until: kc_login_bootstrap.rc == 0
+- name: "⏳ Keycloak login | Wait for keycloak container to be healthy"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    {{ KEYCLOAK_LOCAL_CID | quote }}
+  register: kc_health
+  retries: 60
+  delay: 5
+  until: (kc_health.stdout | trim) == 'healthy'
+  changed_when: false
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
-    - name: Ensure permanent admin user exists (create if missing)
-      shell: |
-        {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
-          {{ KEYCLOAK_KCADM }} create users -r master \
-            -s "username=$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
-            -s "enabled=true"
-        '
-      register: kc_create_perm_admin
-      failed_when: >
-        not (
-          kc_create_perm_admin.rc == 0 or
-          (kc_create_perm_admin.stderr is defined and
-          ('User exists with same username' in kc_create_perm_admin.stderr))
-        )
-      changed_when: kc_create_perm_admin.rc == 0
+- name: 🔑 Try login with permanent admin (uses container ENV)
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} config credentials \
+        --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
+        --realm master \
+        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        --password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+    '
+  register: kc_login_perm
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
-    - name: Set permanent admin password (by username, no ID needed)
-      shell: |
-        {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
-          {{ KEYCLOAK_KCADM }} set-password -r master \
-            --username "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
-            --new-password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
-        '
-      changed_when: true
-
-    - name: Grant global admin via master realm role 'admin'
-      shell: |
-        {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
-          {{ KEYCLOAK_KCADM }} add-roles -r master \
-            --uusername "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
-            --rolename admin
-        '
-      register: kc_grant_master_admin
-      changed_when: (kc_grant_master_admin.stderr is defined and kc_grant_master_admin.stderr | length > 0) or (kc_grant_master_admin.stdout is defined and
-        kc_grant_master_admin.stdout | length > 0)
-      failed_when: false
-
-    - name: Verify login with permanent admin (after creation)
-      shell: "{{ KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN }}"
-      changed_when: false
+- name: ✅ Ensure permanent Keycloak admin exists (bootstrap when login fails)
+  ansible.builtin.include_tasks:
+    file: 04_login_bootstrap_admin.yml
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  when: kc_login_perm.rc != 0

@@ -1,5 +1,5 @@
 ---
-- name: "Load docker and front proxy for {{ application_id }}"
+- name: "🧩 Load docker and front proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:

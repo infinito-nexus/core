@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Experience Mobilizon, an open-source event management platform that empowers communities to create, manage, and attend events with ease,
-    prioritizing privacy and decentralization.
+  description: Federated, self-hosted platform for organizing events and building communities and groups
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

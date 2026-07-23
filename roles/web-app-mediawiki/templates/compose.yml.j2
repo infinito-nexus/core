@@ -1,25 +1,22 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {{ entity_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+  {% set service_name = entity_name %}
+  {% set container_healthcheck_start_period = '5m' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         MEDIAWIKI_IMAGE: "{{ MEDIAWIKI_IMAGE }}"
         MEDIAWIKI_VERSION: "{{ MEDIAWIKI_VERSION }}"
-    container_name: "{{ MEDIAWIKI_CONTAINER }}"
-    image: "{{ MEDIAWIKI_CUSTOM_IMAGE }}"
-    volumes:
-      - "images:/var/www/html/images"
-      - "extensions:/var/www/html/extensions"
-      - "{{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}:{{ MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH }}:ro"
-      - "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}:{{ MEDIAWIKI_LOCAL_PATH }}:ro"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mediawiki.ports.local.http') }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
+    {{ lookup('compose_only', 'container_name', MEDIAWIKI_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'mediawiki') }}
+    {{ lookup('container_volumes', application_id, entity_name) | indent(4) }}
+    {{ lookup('container_ports', ['mediawiki', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'extensions': {'name': MEDIAWIKI_VOLUME_EXTENSIONS}, 'images': {'name': MEDIAWIKI_VOLUME_IMAGES}}
+{{ lookup('compose_volumes', application_id,
+    deployment_mode=DEPLOYMENT_MODE,
+    storage=storage | default({}),
 ) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

@@ -1,87 +1,75 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  application:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ PROMETHEUS_IMAGE }}:{{ PROMETHEUS_VERSION }}"
-    container_name: "{{ PROMETHEUS_CONTAINER }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}:9090"
+  {% set service_name = 'prometheus' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'prometheus') }}
+    {{ lookup('compose_only', 'container_name', PROMETHEUS_CONTAINER) }}
+    {{ lookup('container_ports', ['prometheus', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command:
       - "--config.file={{ PROMETHEUS_CONFIG_DOCKER }}"
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
-    volumes:
-      - data:/prometheus
-      - {{ PROMETHEUS_CONFIG_HOST }}:{{ PROMETHEUS_CONFIG_DOCKER }}:ro
-      - {{ ALERT_RULES_CONFIG_HOST }}:{{ ALERT_RULES_CONFIG_DOCKER }}:ro
+    {{ lookup('container_volumes', application_id, 'prometheus') | indent(4) }}
 
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% for metrics_app_id in lookup('native_metrics_apps') %}
+    {{ lookup('container_networks') | indent(4) }}
+      {% for metrics_app_id in lookup('native_metrics_apps') %}
       {{ metrics_app_id | get_entity_name }}:
-{% endfor %}
-  blackbox-exporter:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ BLACKBOX_IMAGE }}:{{ BLACKBOX_VERSION }}"
-    container_name: "{{ BLACKBOX_CONTAINER }}"
+      {% endfor %}
+  {% set service_name = 'blackbox-exporter' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'blackbox-exporter') }}
+    {{ lookup('compose_only', 'container_name', BLACKBOX_CONTAINER) }}
     command:
       - "--config.file={{ BLACKBOX_CONFIG_DOCKER }}"
-    volumes:
-      - {{ BLACKBOX_CONFIG_HOST }}:{{ BLACKBOX_CONFIG_DOCKER }}:ro
+    {{ lookup('container_volumes', application_id, 'blackbox-exporter') | indent(4) }}
 
-  alertmanager:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ ALERTMANAGER_IMAGE }}:{{ ALERTMANAGER_VERSION }}"
-    container_name: "{{ ALERTMANAGER_CONTAINER }}"
+  {% set service_name = 'alertmanager' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'alertmanager') }}
+    {{ lookup('compose_only', 'container_name', ALERTMANAGER_CONTAINER) }}
     command:
       - "--config.file={{ ALERTMANAGER_CONFIG_DOCKER }}"
       - "--storage.path=/alertmanager"
-    volumes:
-      - {{ ALERTMANAGER_CONFIG_HOST }}:{{ ALERTMANAGER_CONFIG_DOCKER }}:ro
-      - alertmanager_data:/alertmanager
+    {{ lookup('container_volumes', application_id, 'alertmanager') | indent(4) }}
 
-  cadvisor:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ CADVISOR_IMAGE }}:{{ CADVISOR_VERSION }}"
-    container_name: "{{ CADVISOR_CONTAINER }}"
+  {% set service_name = 'cadvisor' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'cadvisor') }}
+    {{ lookup('compose_only', 'container_name', CADVISOR_CONTAINER) }}
+    {% if DEPLOYMENT_MODE == 'compose' %}
     privileged: true
     devices:
       - /dev/kmsg
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
+    {% endif %}
+    {{ lookup('container_volumes', application_id, 'cadvisor') | indent(4) }}
 
-  node-exporter:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ NODE_EXPORTER_IMAGE }}:{{ NODE_EXPORTER_VERSION }}"
-    container_name: "{{ NODE_EXPORTER_CONTAINER }}"
-    # network_mode: host — required so node-exporter sees the host's real network
-    # interfaces, disk mounts, and process table. Without it, interface bandwidth
-    # metrics reflect the container's virtual stack only and are meaningless.
-    # pid: host — required to collect accurate per-process CPU and memory metrics.
-    # Security trade-off: removes Docker network isolation for this read-only
-    # monitoring container, which is the standard accepted practice for node-exporter.
-    # Port note: node-exporter binds on host port 9100. Ensure nothing else on the
-    # host uses port 9100 to avoid a conflict at startup.
+  {% set service_name = 'node-exporter' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'node-exporter') }}
+    {{ lookup('compose_only', 'container_name', NODE_EXPORTER_CONTAINER) }}
+    {% if DEPLOYMENT_MODE == 'compose' %}
+    # nocheck: network-mode-host-without-swarm-gate
     network_mode: host
     pid: host
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
+    {% endif %}
+    {{ lookup('container_volumes', application_id, 'node-exporter') | indent(4) }}
     command:
       - "--path.procfs=/host/proc"
       - "--path.rootfs=/rootfs"
       - "--path.sysfs=/host/sys"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
 
-{{ lookup('applications') | compose_volumes(application_id, extra_volumes={'data': {'name': PROMETHEUS_VOLUME_DATA}, 'alertmanager_data': {'name': ALERTMANAGER_VOLUME_DATA}}) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
-{% for metrics_app_id in lookup('native_metrics_apps') %}
-  {{ metrics_app_id | get_entity_name }}:
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}
+  {% for metrics_app_id in lookup('native_metrics_apps') %}
+  {% set service_name = metrics_app_id | get_entity_name %}
+  {{ service_name }}:
     external: true
-{% endfor %}
+  {% endfor %}

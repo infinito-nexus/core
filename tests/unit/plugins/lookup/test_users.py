@@ -11,6 +11,7 @@ from ansible.errors import AnsibleError
 from plugins.lookup.users import LookupModule, _reset_cache_for_tests
 from utils.cache import base as runtime_data_base
 from utils.cache.yaml import dump_yaml_str
+from utils.paths import FILE_TOKENS
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
 
@@ -247,7 +248,7 @@ class TestUsersLookup(unittest.TestCase):
     def test_hydrates_tokens_from_dir_secrets_when_file_tokens_missing(self) -> None:
         secrets_dir = self._tmp / "var" / "lib" / "infinito" / "secrets"
         secrets_dir.mkdir(parents=True, exist_ok=True)
-        (secrets_dir / "tokens.yml").write_text(
+        (secrets_dir / FILE_TOKENS.name).write_text(
             dump_yaml_str(
                 {
                     "users": {
@@ -289,8 +290,6 @@ class TestUsersLookup(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        # Patch the actual constant in `utils.cache.base` —
-        # `_resolve_tokens_file` reads it from there at call time.
         previous_default = runtime_data_base.DEFAULT_TOKENS_FILE
         runtime_data_base.DEFAULT_TOKENS_FILE = default_tokens
         try:
