@@ -1,0 +1,23 @@
+---
+- name: "📏 Scale Odoo to 0 replicas for the offline update window"
+  ansible.builtin.shell: >
+    container service update --detach --replicas 0
+    {{ lookup('container_service', application_id, ODOO_SERVICE) | quote }}
+  changed_when: true
+
+- name: "⏳ Wait until no running Odoo task remains"
+  ansible.builtin.shell: |
+    container service ps {{ lookup('container_service', application_id, ODOO_SERVICE) | quote }} \
+      --filter desired-state=running \
+      --format '{{ "{{.CurrentState}}" }}' | wc -l | grep -qE '^\s*0\s*$'
+  register: odoo_swarm_drained
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: odoo_swarm_drained.rc == 0
+
+- name: "📏 Scale Odoo back to nominal replicas"
+  ansible.builtin.shell: >
+    container service update --detach --replicas {{ ODOO_REPLICAS }}
+    {{ lookup('container_service', application_id, ODOO_SERVICE) | quote }}
+  changed_when: true

@@ -17,5 +17,5 @@
   when: MODE_DEBUG | bool
 
 - name: 🎬 Initialize Odoo database with core modules
-  include_tasks: 01a_bootstrap_schema.yml
+  include_tasks: 03_init_database/bootstrap_schema.yml
   when: odoo_schema_exists.rows is not defined or odoo_schema_exists.rows | length == 0

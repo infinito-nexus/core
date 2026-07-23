@@ -54,20 +54,20 @@
   until: odoo_health.rc == 0
 
 - name: "🎬 Initialize Odoo database"
-  include_tasks: 01_init_database.yml
+  include_tasks: 03_init_database.yml
 
 - name: "📦 Install core modules"
-  include_tasks: 02_install_modules.yml
+  include_tasks: 04_install_modules.yml
 
 - name: "📁 Create administrator user"
   include_tasks: 05_admin.yml
 
 - name: "🔧 Configure OIDC provider"
-  include_tasks: 03_oidc.yml
+  include_tasks: 06_oidc.yml
   when: ODOO_OIDC_ENABLED | bool
 
 - name: "🔧 Configure LDAP authentication"
-  include_tasks: 04_ldap.yml
+  include_tasks: 07_ldap.yml
   when: ODOO_LDAP_ENABLED | bool
 
 - name: "♻️ Restart Odoo to load SQL-provisioned config (compose)"
