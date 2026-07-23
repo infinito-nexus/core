@@ -8,31 +8,15 @@ PEERTUBE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, enti
 PEERTUBE_OIDC_PLUGIN: "peertube-plugin-auth-openid-connect"
 PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 
+PEERTUBE_LIVE_ENABLED: "{{ lookup('config', application_id, 'services.peertube.live.enabled') | bool }}"
+PEERTUBE_RTMP_PORT: "{{ lookup('config', application_id, 'services.peertube.ports.internal.rtmp') }}"
+
 PEERTUBE_CPUS: "{{ lookup('config', application_id, 'services.peertube.cpus') | float }}"
 PEERTUBE_MEM_LIMIT: "{{ lookup('config', application_id, 'services.peertube.mem_limit') }}"
 PEERTUBE_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"
 _peertube_concurrency_candidate: "{{ ((PEERTUBE_CPUS | float) * 0.5) | round(0, 'floor') | int }}"
 PEERTUBE_TRANSCODING_CONCURRENCY: "{{ [ ( [ (_peertube_concurrency_candidate | int), 1 ] | max ), 8 ] | min }}"
 
-# Heap cap for the one-off `npm run plugin:install` exec. Derived relative to
-# the peertube container's mem_limit (the installer runs inside that cgroup
-# via `container exec`, so its budget is a share of the parent, not a
-# separate service claim). pct=0.125 keeps the install heap well below the
-# runtime heap (PEERTUBE_MAX_OLD_SPACE_SIZE uses 35%) because npm forks
-# additional workers (node-gyp, postinstall) that each consume memory; hard-
-# capped at 1024 MB to avoid tripping the host OOM-killer on constrained CI
-# runners (see issue #162).
 PEERTUBE_OIDC_PLUGIN_INSTALL_MAX_OLD_SPACE_MB: "{{ lookup('node_max_old_space_size', application_id, entity_name, pct=0.125, min_mb=256, hardcap_mb=1024) }}"
 
-# Temporary cgroup memory ceiling (bytes) during the one-off `npm run
-# plugin:install`. Raised above services.peertube.mem_limit so the
-# install process and the long-running main peertube node process (both
-# sharing the same cgroup via `container exec`) do not collectively trip the
-# runtime mem_limit and get SIGKILLed — which was manifesting as "Container
-# is restarting" on the plugin install exec. Restored to the compose-defined
-# value by the happy-path tail of the block in tasks/oidc/enable.yml.
-#
-# Formula: mem_limit_bytes + install_heap_mb * overhead * 10^6
-# overhead=4 matches the empirical heap-to-RSS ratio for `npm install` with
-# native deps (node-gyp, postinstall workers each carry their own RSS).
 PEERTUBE_OIDC_PLUGIN_INSTALL_MEM_LIMIT: "{{ PEERTUBE_MEM_LIMIT | install_mem_limit(PEERTUBE_OIDC_PLUGIN_INSTALL_MAX_OLD_SPACE_MB) }}"

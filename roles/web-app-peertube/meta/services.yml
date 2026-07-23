@@ -62,8 +62,12 @@ peertube:
   version: v8.2.2
   image: chocobozzz/peertube
   min_storage: 30GB
+  live:
+    enabled: true
   backup:
     no_stop_required: true
+  # nocheck: single-replica PeerTube has no multi-instance support upstream; the RTMP live ingest binds one instance with no VIP session affinity, and the OIDC state cookie uses a per-process key, so concurrent replicas break live streams and the auth callback
+  replicas: 1
   cpus: 4
   mem_reservation: 4g
   mem_limit: 8g

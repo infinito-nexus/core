@@ -5,9 +5,13 @@
     {{ lookup('container_image', application_id, 'peertube') }}
     {{ lookup('compose_only', 'container_name', PEERTUBE_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if PEERTUBE_LIVE_ENABLED | bool %}
     {{ lookup('container_ports',
               ['peertube', 'http', DOCKER_BIND_HOST],
               ['peertube', 'rtmp']) | indent(4) }}
+    {% else %}
+    {{ lookup('container_ports', ['peertube', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
     {{ lookup('container_volumes', application_id, 'peertube') | indent(4) }}
     environment:
       - NODE_OPTIONS=--max-old-space-size={{ PEERTUBE_MAX_OLD_SPACE_SIZE }}
