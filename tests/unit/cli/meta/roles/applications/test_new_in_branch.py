@@ -9,10 +9,11 @@ from cli.meta.roles.applications.new_in_branch import (
     new_application_roles,
     roles_present_in_ref,
 )
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
 def _mk_role(roles_dir: Path, name: str, *, application_id: str | None) -> None:
-    vars_file = roles_dir / name / "vars" / "main.yml"
+    vars_file = roles_dir / name / ROLE_FILE_VARS_MAIN
     vars_file.parent.mkdir(parents=True, exist_ok=True)
     body = f"application_id: {application_id}\n" if application_id else "other: 1\n"
     vars_file.write_text(body, encoding="utf-8")

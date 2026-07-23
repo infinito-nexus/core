@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 _APPLICATION_ID_RE = re.compile(r"(?m)^application_id:[ \t]*(?!#)(\S.*)$")
@@ -15,8 +16,15 @@ _APPLICATION_ID_RE = re.compile(r"(?m)^application_id:[ \t]*(?!#)(\S.*)$")
 def roles_present_in_ref(roles_dir: Path, ref: str) -> set[str] | None:
     try:
         out = subprocess.run(
-            ["git", "-C", str(roles_dir.parent), "ls-tree", "-d",
-             "--name-only", f"{ref}:roles"],
+            [
+                "git",
+                "-C",
+                str(roles_dir.parent),
+                "ls-tree",
+                "-d",
+                "--name-only",
+                f"{ref}:roles",
+            ],
             capture_output=True,
             text=True,
             check=True,
@@ -29,7 +37,7 @@ def roles_present_in_ref(roles_dir: Path, ref: str) -> set[str] | None:
 def _declares_application_id(role_dir: Path) -> bool:
     vars_file = role_dir / ROLE_FILE_VARS_MAIN
     try:
-        return bool(_APPLICATION_ID_RE.search(vars_file.read_text(encoding="utf-8")))
+        return bool(_APPLICATION_ID_RE.search(read_text(str(vars_file))))
     except OSError:
         return False
 
