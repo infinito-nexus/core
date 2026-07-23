@@ -167,6 +167,10 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/checkout@v7
 
+      - name: "📥 Load rescue-diagnostics SPOT into job env"
+        shell: bash
+        run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
+
       - name: 💾 Enlarge swap space
         if: ${{ !env.ACT }}
         shell: bash
@@ -251,7 +255,7 @@ jobs:
         timeout-minutes: 25
         shell: bash
         run: |
-          INFINITO_RESCUE_DIAGNOSTICS_DIR="/tmp/rescue-diagnostics/${{ matrix.apps }}" \
+          INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${{ matrix.apps }}" \
             python3 utils/diagnostics/container.py \
             "${{ matrix.apps }}" "post-deploy failure" || true
 
@@ -260,7 +264,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: rescue-diagnostics-swarm-${{ matrix.apps }}${{ matrix.variant_slug && format('-{0}', matrix.variant_slug) || '' }}
-          path: /tmp/rescue-diagnostics/
+          path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
           if-no-files-found: ignore
 
       - name: "📊 Collect diagnostics on failure"

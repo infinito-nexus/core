@@ -52,6 +52,10 @@ jobs:
       - if: ${{ !env.ACT }}
         uses: actions/checkout@v7.0.0
 
+      - name: "📥 Load rescue-diagnostics SPOT into job env"
+        shell: bash
+        run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
+
       - name: 🐍 Install guide + compose deps (Act runner only)
         if: ${{ env.ACT }}
         shell: bash
@@ -111,7 +115,7 @@ jobs:
         timeout-minutes: 25
         shell: bash
         run: |
-          INFINITO_RESCUE_DIAGNOSTICS_DIR="/tmp/rescue-diagnostics/${GUIDE_ROLE}" \
+          INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${GUIDE_ROLE}" \
             python3 utils/diagnostics/container.py \
             "${GUIDE_ROLE}" "guide ${GUIDE_MODE} post-deploy failure" || true
 
@@ -120,5 +124,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: rescue-diagnostics-guide-${{ env.GUIDE_ROLE }}
-          path: /tmp/rescue-diagnostics/
+          path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
           if-no-files-found: ignore
