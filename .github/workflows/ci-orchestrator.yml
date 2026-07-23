@@ -57,6 +57,7 @@ permissions:
   contents: read
   packages: write
   security-events: write
+  issues: write
 
 jobs:
   wait-fork-prereq-run:
@@ -256,6 +257,26 @@ jobs:
       - images-mirror-missing
       - build-ci-images
     secrets: inherit
+
+  report-main-failures:
+    name: 🐛 Report main role failures
+    needs:
+      - test-deploy-single-node-priority
+      - test-deploy-swarm-priority
+      - test-deploy-single-node
+      - test-deploy-swarm
+    if: ${{ always() && github.ref == 'refs/heads/main' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: 🐛 Open or append issues for failed roles
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 -m cli.meta.ci.report_failures --run-id "${{ github.run_id }}" --repo "${{ github.repository }}"
 
   done:
     name: 🏁 Finish pipeline

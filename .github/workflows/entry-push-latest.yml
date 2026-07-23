@@ -20,6 +20,7 @@ permissions:
   packages: write
   actions: write
   security-events: write
+  issues: write
 
 jobs:
   sync-main:
