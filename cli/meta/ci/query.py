@@ -87,10 +87,11 @@ def compose_covered(
 
 
 def _sort_spec(mode: str) -> str:
-    """The discovery sort for *mode*. Compose and host prepend clones-last
-    (one representative per dna cluster stays ahead of the budget cut);
-    host additionally sorts tested-elsewhere roles down so its slots go
-    to roles no compose or swarm matrix already covers."""
+    """The discovery sort for *mode*. Every mode prepends clones-last (one
+    representative per dna cluster stays ahead of the budget cut, so redundant
+    same-service-set variants fall behind it first); host additionally sorts
+    tested-elsewhere roles down so its slots go to roles no compose or swarm
+    matrix already covers."""
     spec = os.environ["INFINITO_DISCOVERY_SORT"]
     if not spec.strip():
         for line in read_text(str(PROJECT_ROOT / "default.env")).splitlines():
@@ -99,6 +100,7 @@ def _sort_spec(mode: str) -> str:
                 break
     prefixes = {
         "compose": "asc clone",
+        "swarm": "asc clone",
         "host": "asc clone,asc tested_elsewhere",
     }
     prefix = prefixes.get(mode)
