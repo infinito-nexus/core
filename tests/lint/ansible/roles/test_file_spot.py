@@ -69,9 +69,6 @@ from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 
 _RULE = "role-file-spot"
 
-# README.md is too generic to flag without context (the project ships
-# many README files unrelated to roles). Every other ROLE_FILE_*
-# constant is project-specific enough to flag.
 _EXEMPT_CONSTANT_NAMES: frozenset[str] = frozenset({"ROLE_FILE_README"})
 
 
@@ -93,8 +90,6 @@ def _build_literal_to_constant() -> dict[str, str]:
 
 _LITERAL_TO_CONSTANT: dict[str, str] = _build_literal_to_constant()
 
-# Files that legitimately hold the literal values:
-# * ``utils/roles/mapping.py`` defines the constants.
 _EXEMPT_FILES: frozenset[Path] = frozenset(
     {
         PROJECT_ROOT / "utils" / "roles" / "mapping.py",
@@ -310,9 +305,11 @@ class TestRoleFileSpot(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} .py file(s) hard-code a role-file path "
-            f"instead of importing the matching ROLE_FILE_* constant from "
-            f"utils.roles.mapping (the SPOT):",
+            (
+                f"{len(offenders)} .py file(s) hard-code a role-file path "
+                f"instead of importing the matching ROLE_FILE_* constant from "
+                f"utils.roles.mapping (the SPOT):"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

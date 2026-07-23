@@ -53,9 +53,6 @@ from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-# A leading word boundary plus at least one alphanumeric character before the
-# dot ensures we only match `sub.{{ DOMAIN_PRIMARY }}` constructions, not
-# wildcard fragments like `.{{ DOMAIN_PRIMARY }}` or `*.{{ DOMAIN_PRIMARY }}`.
 _PATTERN: re.Pattern[str] = re.compile(
     r"(?<![A-Za-z0-9_-])([A-Za-z0-9][A-Za-z0-9.-]*)\.\{\{\s*DOMAIN_PRIMARY\s*\}\}"
 )
@@ -90,16 +87,8 @@ def _exempt_lines_for_lists(path: Path) -> frozenset[int]:
     inside_list = False
     list_indent = -1
 
-    # We only need to recognise the headers `canonical:` and `aliases:`
-    # appearing under the appropriate parent. A coarse "any line that
-    # opens a canonical/aliases list" detection is enough because the
-    # SPOT keys do not appear elsewhere in role meta files.
     header_re = re.compile(r"^(\s*)(canonical|aliases)\s*:\s*(?:#.*)?$")
     item_re = re.compile(r"^(\s*)-\s+")
-    # Dict-style entry inside ``canonical:`` / ``aliases:`` (e.g. matrix's
-    # ``synapse: matrix.{{ DOMAIN_PRIMARY }}`` or bluesky's per-service
-    # canonical map). Lines look like ``<sp><key>: <value>`` at deeper
-    # indent than the list header.
     dict_entry_re = re.compile(r"^(\s+)[A-Za-z0-9_-]+\s*:\s*\S")
 
     for idx, line in enumerate(lines, start=1):
@@ -117,26 +106,18 @@ def _exempt_lines_for_lists(path: Path) -> frozenset[int]:
 
         item_match = item_re.match(line)
         if item_match and len(item_match.group(1)) >= list_indent:
-            # YAML supports both compact (item at same indent as key) and
-            # expanded (item at deeper indent) list styles for
-            # ``canonical:`` / ``aliases:`` blocks; both are SPOTs.
             allowed.add(idx)
             continue
 
         dict_match = dict_entry_re.match(line)
         if dict_match and len(dict_match.group(1)) > list_indent:
-            # Dict-style ``<key>: <value>`` inside the canonical/aliases
-            # block (matrix, bluesky). Each value line is part of the SPOT.
             allowed.add(idx)
             continue
 
-        # If we hit any non-item line that is at or above the list
-        # indentation, the canonical/aliases block is over.
         line_indent = len(line) - len(stripped)
         if line_indent <= list_indent:
             inside_list = False
             list_indent = -1
-            # Re-evaluate this same line as a potential new header.
             new_match = header_re.match(line)
             if new_match:
                 inside_list = True
@@ -151,7 +132,6 @@ def _file_offenders(path: Path) -> tuple[str, ...]:
     rel = path.relative_to(PROJECT_ROOT)
     name = path.name
 
-    # README files are documentation; example hostnames belong there.
     if name.lower() == "readme.md":
         return ()
 
@@ -201,7 +181,6 @@ def _scan_paths() -> Iterable[Path]:
             rel = p.relative_to(ROLES_DIR)
         except ValueError:
             continue
-        # Skip binary blobs and docs subtrees inside roles.
         if any(seg in {"docs", "files"} for seg in rel.parts[:-1]):
             continue
         yield p
@@ -222,9 +201,11 @@ class TestDomainPrimarySpot(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} file(s) construct a hostname via "
-            f"`<sub>.{{{{ DOMAIN_PRIMARY }}}}` outside of the role's "
-            f"canonical/aliases SPOT:",
+            (
+                f"{len(offenders)} file(s) construct a hostname via "
+                f"`<sub>.{{{{ DOMAIN_PRIMARY }}}}` outside of the role's "
+                f"canonical/aliases SPOT:"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

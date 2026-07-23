@@ -71,8 +71,10 @@ class TestRoleDeployModes(unittest.TestCase):
             return
 
         lines = [
-            f"{len(offenders)} role(s) with a compose template do not declare "
-            "their deploy modes on the primary service entity:"
+            (
+                f"{len(offenders)} role(s) with a compose template do not declare "
+                "their deploy modes on the primary service entity:"
+            )
         ]
         for name, problems in sorted(offenders.items()):
             lines.append(f"  - {name}:")

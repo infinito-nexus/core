@@ -163,8 +163,10 @@ class TestNoInlineRailsRunner(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} task file(s) invoke `rails runner` with inline "
-            f"Ruby instead of an external .rb fed via a file lookup:",
+            (
+                f"{len(offenders)} task file(s) invoke `rails runner` with inline "
+                f"Ruby instead of an external .rb fed via a file lookup:"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

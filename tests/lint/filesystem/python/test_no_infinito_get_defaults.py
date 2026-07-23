@@ -75,8 +75,6 @@ def _scan_file(path: Path) -> list[_Violation]:
             continue
         default_node = node.args[1]
         # Allow per-line `# nocheck:` suppression on any physical line the
-        # call spans (autoformat may have split a one-liner across the
-        # opening paren, the args, and the closing paren).
         line_no = node.lineno
         end_line_no = getattr(node, "end_lineno", line_no) or line_no
         if any(
@@ -120,8 +118,10 @@ class TestPythonNoInfinitoGetDefaults(unittest.TestCase):
         for v in violations:
             grouped.setdefault(v.file, []).append(v)
         lines = [
-            f"INFINITO_* defaults declared in `.get(KEY, default)` "
-            f"({len(violations)} violations across {len(grouped)} file(s)):",
+            (
+                f"INFINITO_* defaults declared in `.get(KEY, default)` "
+                f"({len(violations)} violations across {len(grouped)} file(s)):"
+            ),
             "",
             "INFINITO_* defaults belong in default.env (SPOT); the handler builders in utils/env/handlers/ then apply them via setdefault. Use `os.environ.get(KEY)` (None when unset) or `os.environ[KEY]` (loud KeyError) instead -- the empty-string fallback is also forbidden because it silently masks an unset key. Suppress per line with `# nocheck: <reason>`.",
             "",

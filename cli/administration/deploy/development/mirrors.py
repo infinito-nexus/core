@@ -68,16 +68,18 @@ def generate_ci_mirrors_file(compose, *, inventory_dir: str) -> str:
     cmd = [
         "bash",
         "-lc",
-        "set -euo pipefail; "
-        f"mkdir -p {shlex.quote(inv_root)}; "
-        '"${PYTHON:-python3}" -m cli.contributing.mirror.resolver '
-        f"--repo-root {shlex.quote(repo_root)} "
-        f"--ghcr-namespace {shlex.quote(ghcr_namespace)} "
-        f"--ghcr-repository {shlex.quote(ghcr_repository)} "
-        f"--ghcr-prefix {shlex.quote(ghcr_prefix)} "
-        f"> {shlex.quote(mirrors_path)}; "
-        f"echo '[init] mirrors generated:' {shlex.quote(mirrors_path)}; "
-        f"wc -l {shlex.quote(mirrors_path)}",
+        (
+            "set -euo pipefail; "
+            f"mkdir -p {shlex.quote(inv_root)}; "
+            '"${PYTHON:-python3}" -m cli.contributing.mirror.resolver '
+            f"--repo-root {shlex.quote(repo_root)} "
+            f"--ghcr-namespace {shlex.quote(ghcr_namespace)} "
+            f"--ghcr-repository {shlex.quote(ghcr_repository)} "
+            f"--ghcr-prefix {shlex.quote(ghcr_prefix)} "
+            f"> {shlex.quote(mirrors_path)}; "
+            f"echo '[init] mirrors generated:' {shlex.quote(mirrors_path)}; "
+            f"wc -l {shlex.quote(mirrors_path)}"
+        ),
     ]
 
     compose.exec(

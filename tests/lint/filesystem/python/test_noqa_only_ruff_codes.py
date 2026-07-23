@@ -46,9 +46,6 @@ from utils.cache.files import iter_project_files, read_text
 from . import PROJECT_ROOT
 
 # Match ``(#|//|{#) noqa`` markers carrying a colon-prefixed code list.
-# Captures only the comma-separated rules list. The character class
-# deliberately excludes ``<`` / ``>`` so docstring placeholders that
-# embed angle-bracketed ``code`` tokens don't trigger the scan.
 _NOQA_RE = re.compile(
     r"(?:#|//|\{#)\s*noqa\s*:\s*"
     r"(?P<codes>[A-Za-z][A-Za-z0-9\-]*(?:\s*,\s*[A-Za-z][A-Za-z0-9\-]*)*)",
@@ -56,8 +53,6 @@ _NOQA_RE = re.compile(
 )
 
 # Real ruff/flake8 codes: one or more uppercase letters followed by
-# digits. Examples: ``E402``, ``F401``, ``W292``, ``B007``, ``S101``,
-# ``PLW0603``, ``RUF005``.
 _RUFF_CODE_RE = re.compile(r"^[A-Z]+\d+$")
 
 
@@ -65,8 +60,6 @@ _SCAN_EXTENSIONS = (".py", ".yml", ".yaml", ".j2", ".sh", ".md", ".conf", ".cfg"
 
 
 # Files that legitimately carry literal ``noqa``+``kebab-rule`` strings
-# in comments or docstrings. These are the implementation, its unit
-# test, the catalog page, and this test file itself.
 _ALLOWLIST: frozenset[str] = frozenset(
     {
         "utils/annotations/suppress.py",
@@ -122,8 +115,10 @@ class TestNoqaOnlyRuffCodes(unittest.TestCase):
         lines = [
             f"{len(offenders)} file(s) carry ``# noqa: <code>`` markers with non-ruff codes. Switch project rule keys to ``# nocheck: <rule>``; reserve ``# noqa:`` for real ruff/flake8 codes (E402, F401, …).",
             "",
-            "Catalog of project rules: "
-            "docs/contributing/actions/testing/suppression.md",
+            (
+                "Catalog of project rules: "
+                "docs/contributing/actions/testing/suppression.md"
+            ),
             "",
         ]
         for path, issues in sorted(offenders.items()):

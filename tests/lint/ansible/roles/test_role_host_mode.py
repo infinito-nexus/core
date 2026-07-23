@@ -63,8 +63,10 @@ class TestRoleHostMode(unittest.TestCase):
             return
 
         lines = [
-            f"{len(offenders)} invokable non-stack role(s) do not declare "
-            "modes.host.enabled on their primary service entity:"
+            (
+                f"{len(offenders)} invokable non-stack role(s) do not declare "
+                "modes.host.enabled on their primary service entity:"
+            )
         ]
         for name, problem in sorted(offenders.items()):
             lines.append(f"  - {name}: {problem}")

@@ -122,10 +122,12 @@ class TestSecurityNoqaJustified(unittest.TestCase):
             return p.relative_to(PROJECT_ROOT).as_posix()
 
         lines = [
-            f"{len(offenders)} file(s) suppress a bandit (S###) finding with an "
-            "unjustified ``# noqa``. Append an inline reason, e.g. "
-            "``# noqa: S202 - members validated for path traversal``, or fix the "
-            "finding. Security suppressions must never be silent.",
+            (
+                f"{len(offenders)} file(s) suppress a bandit (S###) finding with an "
+                "unjustified ``# noqa``. Append an inline reason, e.g. "
+                "``# noqa: S202 - members validated for path traversal``, or fix the "
+                "finding. Security suppressions must never be silent."
+            ),
             "",
         ]
         for path, issues in sorted(offenders.items()):

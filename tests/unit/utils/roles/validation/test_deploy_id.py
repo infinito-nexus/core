@@ -11,17 +11,14 @@ from utils.roles.validation.deploy_id import ValidDeployId
 
 class TestValidDeployId(unittest.TestCase):
     def setUp(self) -> None:
-        # Uses real repo roles/ via ValidDeployId internal repo-root resolution
         self.validator = ValidDeployId()
 
-        # pick a real application id from roles for positive tests
         self.assertTrue(
             self.validator.valid_ids,
             "Expected at least one application id discovered from repo roles/",
         )
-        self.existing_app = sorted(self.validator.valid_ids)[0]
+        self.existing_app = min(self.validator.valid_ids)
 
-        # and a guaranteed non-existing id for negative tests
         self.missing_app = "this-app-id-should-not-exist-xyz-123"
 
     def _write_ini_inventory(self, content: str) -> str:

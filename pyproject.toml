@@ -25,7 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-  "ruff",
+  "ruff==0.16.0",
   "import-linter",
   "pre-commit",
   "git-maintainer-tools",

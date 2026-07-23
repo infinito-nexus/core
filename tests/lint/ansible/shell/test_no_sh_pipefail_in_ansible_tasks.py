@@ -18,11 +18,6 @@ COMMAND_KEYS = frozenset({"command", "ansible.builtin.command"})
 SHELL_KEYS = frozenset({"shell", "ansible.builtin.shell"})
 EXECUTABLE_AWARE_KEYS = COMMAND_KEYS | SHELL_KEYS
 
-# Relative, POSIX-style path to the group_vars file that owns the global
-# shell-executable setting. Kept as a constant because the
-# `ansible_shell_executable` assertion is load-bearing: the rest of the
-# codebase relies on this single definition so tasks can use
-# bash-only `set -o pipefail` without repeating `args.executable` per task.
 GLOBAL_GROUP_VARS_PATH = "group_vars/all/00_general.yml"
 
 
@@ -37,8 +32,6 @@ def _contains_pipefail(value: Any) -> bool:
 
 
 def _is_shell_flag(s: str) -> bool:
-    # Matches -c, -lc, -ec, -euc, -leo, -eco, -euco, ...
-    # i.e. a POSIX short-option bundle that requests `command` mode (`c`).
     return s.startswith("-") and "c" in s[1:]
 
 
@@ -93,14 +86,13 @@ def _scan_doc(rel_path: str, doc: Any, findings: list[tuple[str, str]]) -> None:
                 findings.append(
                     (
                         rel_path,
-                        f"`{key}`: argv invokes `sh -lc` (or similar) with "
-                        "`pipefail` in the script body — use `bash` instead.",
+                        (
+                            f"`{key}`: argv invokes `sh -lc` (or similar) with "
+                            "`pipefail` in the script body — use `bash` instead."
+                        ),
                     )
                 )
 
-        # Per-task override of the shell executable MUST NOT point at a
-        # non-bash shell. The global `ansible_shell_executable: /bin/bash`
-        # only wins as long as nothing overrides it locally.
         if EXECUTABLE_AWARE_KEYS & task.keys():
             args = task.get("args")
             if isinstance(args, dict):
@@ -109,10 +101,12 @@ def _scan_doc(rel_path: str, doc: Any, findings: list[tuple[str, str]]) -> None:
                     findings.append(
                         (
                             rel_path,
-                            f"`args.executable: {exe}` overrides the global "
-                            "`ansible_shell_executable: /bin/bash` with a "
-                            "non-bash shell — remove the override or set "
-                            "`/bin/bash` explicitly.",
+                            (
+                                f"`args.executable: {exe}` overrides the global "
+                                "`ansible_shell_executable: /bin/bash` with a "
+                                "non-bash shell — remove the override or set "
+                                "`/bin/bash` explicitly."
+                            ),
                         )
                     )
 

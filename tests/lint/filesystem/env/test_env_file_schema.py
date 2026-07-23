@@ -110,15 +110,12 @@ def validate_env_file(path: Path, *, strict: bool) -> list[Violation]:
     except (OSError, UnicodeDecodeError) as exc:
         return [Violation(rel, 0, "read-error", str(exc))]
     lines = text.splitlines()
-    pending: list[
-        tuple[int, str]
-    ] = []  # consecutive `#`-comment lines since last reset
-    in_jinja_comment = False  # for multi-line `{# ... #}` blocks
+    pending: list[tuple[int, str]] = []
+    in_jinja_comment = False
 
     for idx, raw in enumerate(lines, 1):
         stripped = raw.strip()
 
-        # Continue / close a multi-line Jinja comment.
         if in_jinja_comment:
             pending = []
             if "#}" in raw:
@@ -129,7 +126,6 @@ def validate_env_file(path: Path, *, strict: bool) -> list[Violation]:
             pending = []
             continue
 
-        # Jinja constructs in templates: reset pending and skip the line.
         if is_jinja:
             if (
                 _JINJA_STMT_RE.match(raw)
@@ -138,7 +134,6 @@ def validate_env_file(path: Path, *, strict: bool) -> list[Violation]:
             ):
                 pending = []
                 continue
-            # Multi-line Jinja comment opener.
             if stripped.startswith("{#") and "#}" not in stripped:
                 pending = []
                 in_jinja_comment = True
@@ -167,7 +162,6 @@ def validate_env_file(path: Path, *, strict: bool) -> list[Violation]:
             pending.append((idx, raw))
             continue
 
-        # Must be a KEY=value line.
         if "=" not in raw:
             violations.append(
                 Violation(
@@ -185,9 +179,6 @@ def validate_env_file(path: Path, *, strict: bool) -> list[Violation]:
 
         if match is None:
             if is_jinja and ("{{" in key_part or "{%" in key_part):
-                # Dynamic templated key (e.g. a {% for %}-generated KEY in a
-                # .j2 template); the rendered keys are validated at deploy
-                # time, not by this static scan.
                 pending = []
                 continue
             if key_part != key_part.rstrip() or value_part != value_part.lstrip():
@@ -267,9 +258,6 @@ def validate_env_file(path: Path, *, strict: bool) -> list[Violation]:
 
 
 def _git_ls_files() -> list[str]:
-    # `safe.directory=*` bypasses git's ownership check, which fails
-    # inside the dev container when the bind-mounted repo's UID does
-    # not match the container user.
     out = subprocess.check_output(
         [
             "git",
@@ -293,7 +281,6 @@ def _scan_targets() -> list[tuple[Path, bool]]:
             targets.append((PROJECT_ROOT / rel, strict))
         elif rel.endswith(".env.j2"):
             targets.append((PROJECT_ROOT / rel, False))
-    # Include the generated `.env` even though it is gitignored.
     root_env = PROJECT_ROOT / ".env"
     if root_env.is_file() and not any(p == root_env for p, _ in targets):
         targets.append((root_env, True))
@@ -312,8 +299,10 @@ class TestEnvFileSchema(unittest.TestCase):
             for v in all_violations:
                 grouped.setdefault(v.file, []).append(v)
             lines = [
-                f"env-file schema violations "
-                f"({len(all_violations)} across {len(grouped)} file(s)):"
+                (
+                    f"env-file schema violations "
+                    f"({len(all_violations)} across {len(grouped)} file(s)):"
+                )
             ]
             for f, vs in sorted(grouped.items()):
                 lines.append(f"  {f}:")

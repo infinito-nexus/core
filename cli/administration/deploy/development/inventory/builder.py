@@ -134,9 +134,11 @@ def _ensure_vault_password_file(compose: Compose, *, inventory_dir: str) -> None
         [
             "sh",
             "-lc",
-            f"mkdir -p {inv_root} && "
-            f"[ -f {pw_file} ] || "
-            f"printf '%s\n' 'ci-vault-password' > {pw_file}",
+            (
+                f"mkdir -p {inv_root} && "
+                f"[ -f {pw_file} ] || "
+                f"printf '%s\n' 'ci-vault-password' > {pw_file}"
+            ),
         ],
         check=True,
     )

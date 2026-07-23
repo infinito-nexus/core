@@ -365,8 +365,10 @@ class TestUrlsReachable(unittest.TestCase):
                     (
                         "External URL reachability",
                         occurrences[0],
-                        f"{probe_url} -> Timeout: global deadline "
-                        f"{_GLOBAL_DEADLINE_SECONDS}s exceeded",
+                        (
+                            f"{probe_url} -> Timeout: global deadline "
+                            f"{_GLOBAL_DEADLINE_SECONDS}s exceeded"
+                        ),
                         len(occurrences),
                     )
                 )

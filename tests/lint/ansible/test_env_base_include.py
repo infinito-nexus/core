@@ -94,8 +94,10 @@ class TestEnvBaseInclude(unittest.TestCase):
 
         if offenders:
             report = [
-                f"{len(offenders)} role env.j2 file(s) do not include the shared "
-                "container env base.",
+                (
+                    f"{len(offenders)} role env.j2 file(s) do not include the shared "
+                    "container env base."
+                ),
                 f"  Fix: add `{{% include '{_BASE_REL}' %}}` at the top of the file.",
                 f"  Suppress a genuine exception with `# nocheck: {_INCLUDE_RULE}`.",
             ]
@@ -127,9 +129,11 @@ class TestEnvBaseInclude(unittest.TestCase):
 
         if offenders:
             report = [
-                f"{sum(len(v) for v in offenders.values())} role env.j2 line(s) "
-                f"re-set a base-owned key ({', '.join(owned)}). These come from "
-                f"{_BASE_REL} only.",
+                (
+                    f"{sum(len(v) for v in offenders.values())} role env.j2 line(s) "
+                    f"re-set a base-owned key ({', '.join(owned)}). These come from "
+                    f"{_BASE_REL} only."
+                ),
                 "  Fix: delete the line; the base supplies the value.",
                 f"  Suppress a genuine exception with `# nocheck: {_DUP_RULE}`.",
             ]

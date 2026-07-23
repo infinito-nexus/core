@@ -109,8 +109,6 @@ _BLOCK_OPEN = frozenset({"if", "for", "filter", "macro"})
 _BLOCK_MID = frozenset({"elif", "else"})
 _BLOCK_CLOSE = frozenset({"endif", "endfor", "endfilter", "endmacro"})
 _BLOCK_CTRL = _BLOCK_OPEN | _BLOCK_MID | _BLOCK_CLOSE
-# elif/else/endif/for/endfor are the plain guards this rule aligns; filter and
-# macro (and any dashed or {%+ tag) are left to their author.
 _BLOCK_MODIFIABLE = frozenset({"if", "elif", "else", "endif", "for", "endfor"})
 _BLOCK_TAG = re.compile(
     r"^(?P<ind> *)\{%(?P<plus>\+?)(?P<d1>-?)\s*(?P<kw>\w+)\b.*?(?P<d2>-?)%\}[ \t]*$"
@@ -269,15 +267,19 @@ def _rule_a_violation(lines: list[str]) -> tuple[int, str] | None:
             continue
         return (
             i + 1,
-            "first meaningful line must be the base include "
-            "`{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}` — only "
-            "blank lines, `{# #}` comments, `---`, `{% set/if/for %}` preambles, or "
-            "`x-*:` anchor blocks may precede it",
+            (
+                "first meaningful line must be the base include "
+                "`{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}` — only "
+                "blank lines, `{# #}` comments, `---`, `{% set/if/for %}` preambles, or "
+                "`x-*:` anchor blocks may precede it"
+            ),
         )
     return (
         1,
-        "file must include "
-        "`{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}`",
+        (
+            "file must include "
+            "`{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}`"
+        ),
     )
 
 
@@ -311,8 +313,10 @@ def find_structure_violations(lines: list[str]) -> list[tuple[int, str]]:
             findings.append(
                 (
                     k + 1,
-                    "no `{% set service_name = ... %}` precedes this service key — "
-                    "every service sets `service_name` on the line(s) above its key",
+                    (
+                        "no `{% set service_name = ... %}` precedes this service key — "
+                        "every service sets `service_name` on the line(s) above its key"
+                    ),
                 )
             )
 
@@ -378,9 +382,11 @@ def find_structure_violations(lines: list[str]) -> list[tuple[int, str]]:
             findings.append(
                 (
                     i + 1,
-                    "`{% include %}` inside a service block must be indented four "
-                    "spaces (the service-body level) with no `-` trim marker — "
-                    "lstrip_blocks strips the indent so the included body lands right",
+                    (
+                        "`{% include %}` inside a service block must be indented four "
+                        "spaces (the service-body level) with no `-` trim marker — "
+                        "lstrip_blocks strips the indent so the included body lands right"
+                    ),
                 )
             )
 

@@ -155,8 +155,10 @@ class TestUsedKeysDeclared(unittest.TestCase):
             grouped.setdefault(v.key, []).append(v)
 
         lines = [
-            f"INFINITO_* keys referenced in code without a registry entry "
-            f"({len(unique_keys)} unknown key(s) across {len(violations)} use site(s)):",
+            (
+                f"INFINITO_* keys referenced in code without a registry entry "
+                f"({len(unique_keys)} unknown key(s) across {len(violations)} use site(s)):"
+            ),
             "",
             "Add a default to default.env (and to the static-passthrough handler's STATIC_KEYS) for static values, or write a dedicated handler under utils/env/handlers/ that sets the key via eb.setdefault. Suppress per line with `# nocheck: <reason>` when the key legitimately stays registry-less.",
             "",

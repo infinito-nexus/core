@@ -154,6 +154,8 @@ class LookupModule(LookupBase):
         bin_resolver = _as_str(bin_resolver) or "/usr/bin/resolve-container-id"
 
         return [
-            f'"$({shlex.quote(bin_resolver)} '
-            f'{shlex.quote(stack_name)} {shlex.quote(service_key)})"'
+            (
+                f'"$({shlex.quote(bin_resolver)} '
+                f'{shlex.quote(stack_name)} {shlex.quote(service_key)})"'
+            )
         ]

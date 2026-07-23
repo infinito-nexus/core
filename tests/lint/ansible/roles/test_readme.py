@@ -177,8 +177,10 @@ def _validate_quick_setup(readme_path: Path, role_name: str, text: str) -> list[
         return [f"'## {_QUICK_SETUP_HEADING}' template render failed: {exc}"]
     if expected is not None and actual.strip() != expected.strip():
         return [
-            f"'## {_QUICK_SETUP_HEADING}' drifted from the template; "
-            f"regenerate with: make readme-generate role={role_name} quick_setup=true"
+            (
+                f"'## {_QUICK_SETUP_HEADING}' drifted from the template; "
+                f"regenerate with: make readme-generate role={role_name} quick_setup=true"
+            )
         ]
     return []
 
@@ -302,8 +304,10 @@ class TestRoleReadme(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} role README.md file(s) violate "
-            f"docs/contributing/artefact/files/role/readme_md.md:"
+            (
+                f"{len(offenders)} role README.md file(s) violate "
+                f"docs/contributing/artefact/files/role/readme_md.md:"
+            )
         ]
         for path, problems in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

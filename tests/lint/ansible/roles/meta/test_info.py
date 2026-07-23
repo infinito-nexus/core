@@ -90,9 +90,6 @@ def _validate_meta_info(path: Path) -> list[str]:
         if not isinstance(logo, dict):
             problems.append("`logo` must be a mapping")
         elif "class" in logo and not isinstance(logo["class"], str):
-            # Empty strings are intentionally allowed — several roles use
-            # `class: ''` as a placeholder for "no icon yet"; the dashboard
-            # consumer falls back to a default when the string is empty.
             problems.append("`logo.class`, when present, must be a string")
 
     for str_field in ("homepage", "video"):
@@ -111,7 +108,7 @@ def _validate_meta_main_no_forbidden(path: Path) -> list[str]:
     try:
         parsed = load_yaml_any(str(path), default_if_missing={})
     except _yaml.YAMLError:
-        return []  # main-galaxy-schema lint reports parse errors separately
+        return []
     if not isinstance(parsed, dict):
         return []
     galaxy_info = parsed.get("galaxy_info")
@@ -163,8 +160,10 @@ class TestMetaMainHasNoMigratedFields(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} meta/main.yml file(s) still carry "
-            f"forbidden keys under galaxy_info:"
+            (
+                f"{len(offenders)} meta/main.yml file(s) still carry "
+                f"forbidden keys under galaxy_info:"
+            )
         ]
         for path, problems in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

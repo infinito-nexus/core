@@ -119,9 +119,11 @@ class TestShellNoPathDefaults(unittest.TestCase):
             for v in all_violations:
                 grouped.setdefault(v.file, []).append(v)
             lines = [
-                f"absolute-path defaults declared in .sh "
-                f"({len(all_violations)} violations across "
-                f"{len(grouped)} file(s)):",
+                (
+                    f"absolute-path defaults declared in .sh "
+                    f"({len(all_violations)} violations across "
+                    f"{len(grouped)} file(s)):"
+                ),
                 "",
                 "Path defaults belong in default.env (SPOT); a shell-side copy drifts silently. Read bare ${VAR} or use ${VAR:?msg}; the empty form ${VAR:-} stays allowed for `set -u` safety. Do NOT dodge this guard by rewriting the default as a conditional assignment (`if [ -z ... ]; then VAR=/path; fi` or `[ -n ... ] || VAR=/path`) - that is the same second source of truth. Suppress per line with `# nocheck: <reason>` only when the context cannot consume default.env.",
                 "",

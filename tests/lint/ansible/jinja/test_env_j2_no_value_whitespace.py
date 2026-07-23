@@ -68,9 +68,11 @@ class TestEnvJ2NoValueWhitespace(unittest.TestCase):
 
         if offenders:
             lines = [
-                f"{sum(len(v) for v in offenders.values())} env.j2 line(s) pad "
-                "KEY=value with whitespace (it becomes part of the value in a "
-                "docker env-file):",
+                (
+                    f"{sum(len(v) for v in offenders.values())} env.j2 line(s) pad "
+                    "KEY=value with whitespace (it becomes part of the value in a "
+                    "docker env-file):"
+                ),
             ]
             for path, issues in sorted(offenders.items()):
                 lines.append(f"  - {path.relative_to(PROJECT_ROOT)}:")

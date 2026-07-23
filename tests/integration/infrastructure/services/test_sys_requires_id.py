@@ -9,7 +9,6 @@ from utils.cache.yaml import load_yaml_any
 def _safe_yaml_load(path):
     try:
         return load_yaml_any(path)
-        # A tasks file can be a list (usual) or a dict (blocks, etc.)
     except Exception as e:
         raise AssertionError(f"Failed to parse YAML: {path}\n{e}") from e
 
@@ -29,7 +28,6 @@ class TestSysServiceRequiresSystemServiceId(unittest.TestCase):
         tasks_dir = Path(role_dir) / "tasks"
         if not tasks_dir.is_dir():
             return
-        # Iterative DFS so the lint guard does not see a raw rglob/glob call.
         stack: list[Path] = [tasks_dir]
         while stack:
             current = stack.pop()
@@ -55,17 +53,14 @@ class TestSysServiceRequiresSystemServiceId(unittest.TestCase):
             if isinstance(inc, dict):
                 name = inc.get("name")
                 return name == "sys-service"
-            # Rare shorthand: include_role: sys-service  (not common, but just in case)
             if isinstance(inc, str):
                 return inc.strip() == "sys-service"
             return False
 
-        # tasks_doc can be a list, dict (with 'block'), or None
         if isinstance(tasks_doc, list):
             for t in tasks_doc:
                 if check_task(t):
                     return True
-                # handle blocks within list items
                 if (
                     isinstance(t, dict)
                     and "block" in t
@@ -75,7 +70,6 @@ class TestSysServiceRequiresSystemServiceId(unittest.TestCase):
                         if check_task(bt):
                             return True
         elif isinstance(tasks_doc, dict):  # noqa: SIM102  pairs with the for-list branch above; flat structure is clearer
-            # top-level block file (rare)
             if "block" in tasks_doc and isinstance(tasks_doc["block"], list):
                 for bt in tasks_doc["block"]:
                     if check_task(bt):
@@ -95,8 +89,7 @@ class TestSysServiceRequiresSystemServiceId(unittest.TestCase):
         if not candidates:
             return (False, "vars/main.yml|yaml not found")
 
-        # If both exist, prefer main.yml deterministically
-        path = sorted(candidates)[0]
+        path = min(candidates)
         doc = _safe_yaml_load(path)
 
         if not isinstance(doc, dict):

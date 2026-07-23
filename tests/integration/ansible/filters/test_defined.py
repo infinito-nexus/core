@@ -6,15 +6,11 @@ from pathlib import Path
 
 from utils.cache.files import iter_project_files, read_text
 
-# EXCLUDES tests/ by default; keeps True to require real usage sites
 EXCLUDE_TESTS = True
 
-# File extensions to scan for template usage
 USAGE_EXTS = (".yml", ".yaml", ".j2", ".jinja2", ".tmpl")
 
-# Built-in / common filters that shouldn't require local definitions
 BUILTIN_FILTERS: set[str] = {
-    # Jinja2 core/common
     "abs",
     "attr",
     "batch",
@@ -67,7 +63,6 @@ BUILTIN_FILTERS: set[str] = {
     "wordcount",
     "xmlattr",
     "contains",
-    # Common Ansible filters (subset, extend as needed)
     "b64decode",
     "b64encode",
     "basename",
@@ -101,7 +96,6 @@ BUILTIN_FILTERS: set[str] = {
     "tojson",
     "to_nice_json",
     "human_to_bytes",
-    # Date/time-ish
     "strftime",
 }
 
@@ -205,7 +199,6 @@ def _collect_filters_from_filters_method(
         for p in name_dicts.get(nm, []):
             c.defs.append(p)
 
-    # dedupe
     seen = set()
     out: list[tuple[str, str]] = []
     for k, v in c.defs:
@@ -236,18 +229,11 @@ def collect_defined_filters() -> set[str]:
     return defined
 
 
-# ---------------------------
-# Collect used filters (Jinja-only scanning with string stripping)
-# ---------------------------
-
-# Capture inner bodies of Jinja blocks
 RE_JINJA_MUSTACHE = re.compile(r"\{\{(.*?)\}\}", re.DOTALL)
 RE_JINJA_TAG = re.compile(r"\{%(.*?)%\}", re.DOTALL)
 
-# Within a Jinja body, capture "| filter_name" (with args or not)
 RE_PIPE_IN_BODY = re.compile(r"\|\s*([A-Za-z_]\w*)\b")
 
-# Matches "{% filter filter_name %}"
 RE_BLOCK_FILTER = re.compile(r"\{%\s*filter\s+([A-Za-z_]\w*)\b", re.DOTALL)
 
 
@@ -270,7 +256,6 @@ def _strip_quoted(text: str) -> str:
             out.append(ch)
             i += 1
         else:
-            # inside quotes; handle simple escapes \" and \'
             if ch == "\\" and i + 1 < n:
                 i += 2
                 continue
@@ -281,7 +266,6 @@ def _strip_quoted(text: str) -> str:
 
 
 def _extract_filters_from_jinja_body(body: str) -> set[str]:
-    # Strip quoted strings first so pipes inside strings are ignored
     body_no_str = _strip_quoted(body)
     return {m.group(1) for m in RE_PIPE_IN_BODY.finditer(body_no_str)}
 
@@ -293,15 +277,12 @@ def collect_used_filters() -> set[str]:
         if not text:
             continue
 
-        # 1) Filters used in {{ ... }} blocks
         for m in RE_JINJA_MUSTACHE.finditer(text):
             used |= _extract_filters_from_jinja_body(m.group(1))
 
-        # 2) Filters used in {% ... %} blocks (e.g., set, if, for)
         for m in RE_JINJA_TAG.finditer(text):
             used |= _extract_filters_from_jinja_body(m.group(1))
 
-        # 3) Block filter form: {% filter name %} ... {% endfilter %}
         for m in RE_BLOCK_FILTER.finditer(text):
             used.add(m.group(1))
 
@@ -318,16 +299,16 @@ class TestAllUsedFiltersAreDefined(unittest.TestCase):
         defined = collect_defined_filters()
         used = collect_used_filters()
 
-        # Remove built-ins and known-safe filters
         candidates = sorted(used - BUILTIN_FILTERS)
 
-        # Unknown filters are those not defined locally
         unknown = [f for f in candidates if f not in defined]
 
         if unknown:
             lines = [
-                "These filters are used in templates/YAML but have no local definition "
-                "(and are not in BUILTIN_FILTERS):"
+                (
+                    "These filters are used in templates/YAML but have no local definition "
+                    "(and are not in BUILTIN_FILTERS):"
+                )
             ]
             lines.extend("- " + f for f in unknown)
             self.fail("\n".join(lines))

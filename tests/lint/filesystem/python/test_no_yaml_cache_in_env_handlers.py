@@ -57,8 +57,10 @@ class TestNoYamlCacheInEnvHandlers(unittest.TestCase):
             all_violations.extend(_scan_file(path))
         if all_violations:
             lines = [
-                f"utils.cache.yaml used in env handlers "
-                f"({len(all_violations)} violation(s)):",
+                (
+                    f"utils.cache.yaml used in env handlers "
+                    f"({len(all_violations)} violation(s)):"
+                ),
                 "",
                 "Env handlers feed the .env generation, which bootstraps fresh hosts before PyYAML is initialised - utils.cache.yaml is unavailable at that point. Use utils.cache.files.read_text with a stdlib line parse instead (canonical pattern: utils/storage/nfs.py). Suppress per line with `# nocheck: <reason>` only when the handler provably never runs in the bootstrap path.",
                 "",

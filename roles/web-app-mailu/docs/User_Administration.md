@@ -16,7 +16,8 @@ Follow these steps:
 
    ```python
    from mailu import models, db
-   user = models.User.query.filter_by(email='admin@example.com').first()
+
+   user = models.User.query.filter_by(email="admin@example.com").first()
    user.global_admin = True
    db.session.commit()
    ```

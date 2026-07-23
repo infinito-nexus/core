@@ -136,13 +136,17 @@ class TestNoTemplatedConditionals(unittest.TestCase):
 
         if offenders:
             report = [
-                f"{sum(len(v) for v in offenders.values())} templated Ansible "
-                "conditional(s) found. Conditionals (when / failed_when / "
-                "changed_when / until) must be BARE expressions, never wrapped "
-                "in {{ }} or {% %}.",
-                "  Fix: drop the delimiters (`when: FLAG | bool`). For per-item "
-                "render/apply data guards, use a `condition:` data field (the "
-                "sys-svc-compose render helper and LISTMONK_SETTINGS honor it).",
+                (
+                    f"{sum(len(v) for v in offenders.values())} templated Ansible "
+                    "conditional(s) found. Conditionals (when / failed_when / "
+                    "changed_when / until) must be BARE expressions, never wrapped "
+                    "in {{ }} or {% %}."
+                ),
+                (
+                    "  Fix: drop the delimiters (`when: FLAG | bool`). For per-item "
+                    "render/apply data guards, use a `condition:` data field (the "
+                    "sys-svc-compose render helper and LISTMONK_SETTINGS honor it)."
+                ),
                 f"  Suppress a genuine exception with `# nocheck: {_RULE}`.",
             ]
             for path, issues in sorted(offenders.items()):

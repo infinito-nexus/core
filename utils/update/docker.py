@@ -96,7 +96,7 @@ def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:
             f"https://hub.docker.com/v2/repositories/{repo}/tags/"
             f"?page_size=100&page={page}"
         )
-        req = urllib.request.Request(  # noqa: S310
+        req = urllib.request.Request(
             url, headers={"User-Agent": "infinito-nexus-version-updater"}
         )
         try:
@@ -132,7 +132,7 @@ def fetch_ghcr_tags(image: str) -> list[str]:
     )
     token_url = f"https://{GHCR_REGISTRY}/token?{token_query}"
     try:
-        req = urllib.request.Request(  # noqa: S310
+        req = urllib.request.Request(
             token_url, headers={"User-Agent": "infinito-nexus-version-updater"}
         )
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
@@ -145,7 +145,7 @@ def fetch_ghcr_tags(image: str) -> list[str]:
         return []
 
     tags_url = f"https://{GHCR_REGISTRY}/v2/{quote(name, safe='/')}/tags/list"
-    req = urllib.request.Request(  # noqa: S310
+    req = urllib.request.Request(
         tags_url,
         headers={
             "Authorization": f"Bearer {token}",

@@ -119,10 +119,12 @@ class TestWebRoleNoWebDependency(unittest.TestCase):
             [],
             "\n\n".join(
                 [
-                    "web-* roles MUST NOT hard-depend on other web-* roles via "
-                    "meta/main.yml. Use the variant-aware service registry "
-                    "(meta/services.yml shared: true + services.<X>.enabled: true) "
-                    "instead. Offenders:",
+                    (
+                        "web-* roles MUST NOT hard-depend on other web-* roles via "
+                        "meta/main.yml. Use the variant-aware service registry "
+                        "(meta/services.yml shared: true + services.<X>.enabled: true) "
+                        "instead. Offenders:"
+                    ),
                     *violations,
                 ]
             ),

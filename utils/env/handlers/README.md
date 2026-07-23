@@ -36,8 +36,7 @@ KEY = "INFINITO_..."
 COMMENT = "<single-line per-key comment, mirrors default.env style>"
 
 
-def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
-    ...
+def apply(eb: EnvBuilder, ctx: BuildContext) -> None: ...
 ```
 
 - `KEY` MUST be the owned variable's name.

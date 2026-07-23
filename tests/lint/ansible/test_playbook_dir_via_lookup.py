@@ -70,8 +70,10 @@ class TestPlaybookDirViaLookup(unittest.TestCase):
             return
 
         lines = [
-            f"{len(offenders)} file(s) build a repo path from `playbook_dir` "
-            "by hand instead of the `path_absolute` lookup:",
+            (
+                f"{len(offenders)} file(s) build a repo path from `playbook_dir` "
+                "by hand instead of the `path_absolute` lookup:"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {path.relative_to(PROJECT_ROOT)}:")

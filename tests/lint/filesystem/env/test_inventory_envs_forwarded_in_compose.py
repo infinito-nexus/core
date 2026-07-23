@@ -64,15 +64,19 @@ class TestInventoryEnvsForwardedInCompose(unittest.TestCase):
             return
 
         report = [
-            f"{len(missing)} env key(s) referenced by the dev inventory via "
-            "lookup('env', ...) are NOT forwarded into the DiD:",
+            (
+                f"{len(missing)} env key(s) referenced by the dev inventory via "
+                "lookup('env', ...) are NOT forwarded into the DiD:"
+            ),
             "",
-            f"Ansible runs inside the '{_SERVICE}' container for compose deploys, so "
-            "a key missing from compose.yml's environment block resolves to EMPTY "
-            "there (silent path divergence; the DIR_VAR_LIB / mailu no-reply-token "
-            f"bug). Forward it in compose.yml under the '{_SERVICE}' service as "
-            "`KEY: ${KEY}`, or mark a genuinely host-only key with a same-line "
-            "`# nocheck: <reason>` in the inventory.",
+            (
+                f"Ansible runs inside the '{_SERVICE}' container for compose deploys, so "
+                "a key missing from compose.yml's environment block resolves to EMPTY "
+                "there (silent path divergence; the DIR_VAR_LIB / mailu no-reply-token "
+                f"bug). Forward it in compose.yml under the '{_SERVICE}' service as "
+                "`KEY: ${KEY}`, or mark a genuinely host-only key with a same-line "
+                "`# nocheck: <reason>` in the inventory."
+            ),
             "",
             "Missing:",
         ]

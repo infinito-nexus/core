@@ -28,10 +28,6 @@ from . import PROJECT_ROOT
 _TARGET_DEF_RE = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9_-]*)\s*:(?!=)")
 _PHONY_RE = re.compile(r"^\.PHONY\s*:\s*(?P<names>.+?)\s*$")
 
-# Match a `make` invocation and capture the first lowercase kebab-case token
-# after it (the candidate target). Skips an optional `-C <dir>` argument.
-# The preceding context must be a line start or a shell separator so we do not
-# match the word "make" embedded in identifiers.
 _MAKE_INVOCATION_RE = re.compile(
     r"""
     (?:^|[\s;&|`(])              # start-of-line or shell word boundary
@@ -43,8 +39,6 @@ _MAKE_INVOCATION_RE = re.compile(
     re.VERBOSE,
 )
 
-# Match $(MAKE) / ${MAKE} (optionally quoted) recursive invocations inside the
-# Makefile, capturing the candidate target the same way.
 _RECURSIVE_MAKE_RE = re.compile(
     r"""
     "?\$[\(\{]MAKE[\)\}]"?       # $(MAKE), ${MAKE}, "$(MAKE)", "${MAKE}"
@@ -144,8 +138,10 @@ class TestMakeReferencesResolve(unittest.TestCase):
             return
 
         lines = [
-            f"{len(unknown)} `make <target>` invocation(s) reference a "
-            "target that is not defined in the Makefile:",
+            (
+                f"{len(unknown)} `make <target>` invocation(s) reference a "
+                "target that is not defined in the Makefile:"
+            ),
             "",
         ]
         lines.extend(
@@ -155,9 +151,11 @@ class TestMakeReferencesResolve(unittest.TestCase):
         lines.extend(
             [
                 "",
-                "Fix the typo / rename, or — if the reference is intentional "
-                "(e.g. `make -C <other-dir> <target>`) — append "
-                f"`# {_NOCHECK_MARKER}` to suppress the check on that line.",
+                (
+                    "Fix the typo / rename, or — if the reference is intentional "
+                    "(e.g. `make -C <other-dir> <target>`) — append "
+                    f"`# {_NOCHECK_MARKER}` to suppress the check on that line."
+                ),
             ]
         )
         self.fail("\n".join(lines))

@@ -96,8 +96,10 @@ class TestTimeoutUsesLookup(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} task/handler file(s) hard-code a timeout instead "
-            f"of scaling it through lookup('timeout', <base>):",
+            (
+                f"{len(offenders)} task/handler file(s) hard-code a timeout instead "
+                f"of scaling it through lookup('timeout', <base>):"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")
