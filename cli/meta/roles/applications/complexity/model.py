@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import random
+import subprocess
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 from utils.cache.applications import get_variants
@@ -120,6 +121,7 @@ class ComplexityRow(NamedTuple):
     test_swarm: bool = False
     test_host: bool = False
     integrated: bool = True
+    in_main: bool = True
     clone: bool = False
 
 
@@ -213,6 +215,25 @@ def _build_row(
     )
 
 
+def _roles_in_ref(roles_dir: Path, ref: str) -> set[str] | None:
+    """Role directory names present under ``roles/`` at *ref*, or None when the
+    ref cannot be resolved (unfetched, or a non-git checkout). None means the
+    in-main marker is unknown and callers treat every role as present."""
+    for candidate in (ref, ref.split("/", 1)[-1]):
+        try:
+            out = subprocess.run(
+                ["git", "-C", str(roles_dir.parent), "ls-tree", "-d",
+                 "--name-only", f"{candidate}:roles"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except (OSError, subprocess.CalledProcessError):
+            continue
+        return {line.strip() for line in out.stdout.splitlines() if line.strip()}
+    return None
+
+
 def compute_complexity_rows(
     roles_dir: Path,
     *,
@@ -237,6 +258,7 @@ def compute_complexity_rows(
     compose_apps = _tested_apps("compose", tested)
     swarm_apps = _tested_apps("swarm", tested)
     host_apps = _tested_apps("host", tested)
+    main_roles = _roles_in_ref(roles_dir, "origin/main")
 
     rows = []
     for name in names:
@@ -261,6 +283,7 @@ def compute_complexity_rows(
                 test_compose=compose and "compose" not in skips,
                 test_swarm=swarm and "swarm" not in skips,
                 test_host=host and "host" not in skips,
+                in_main=main_roles is None or name in main_roles,
             )
         )
     return _attach_siblings(rows)

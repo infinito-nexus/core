@@ -22,6 +22,7 @@ from cli.meta.roles.applications.complexity.render import (
     _dwidth,
     _header,
     _lifecycle_cell,
+    render_table,
 )
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import (
@@ -31,6 +32,7 @@ from utils.roles.mapping import (
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.symbol_glossary import to_emoji
 
 
 def _mk_role(
@@ -75,6 +77,21 @@ class TestComplexityRows(unittest.TestCase):
                 "r3:\n  enabled: true\n  shared: true\n"
                 "r2:\n  enabled: true\n  shared: true\n"
             ),
+        )
+
+    def test_in_main_defaults_present_off_git_and_renders_column(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            roles_dir = Path(td) / "roles"
+            roles_dir.mkdir()
+            self._build_chain_roles(roles_dir)
+            rows = compute_complexity_rows(roles_dir)
+            self.assertTrue(all(r.in_main for r in rows))
+            self.assertIn(
+                to_emoji("in_main"), render_table(rows, symbol=True).splitlines()[0]
+            )
+        self.assertEqual(
+            _bool_cell(rows[0]._replace(in_main=False).in_main, symbol=True),
+            to_emoji("disabled"),
         )
 
     def test_chain_default_sort_by_points(self) -> None:

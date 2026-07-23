@@ -57,6 +57,7 @@ _HEADER_NAMES = (
     "row",
     "id",
     "name",
+    "in_main",
     "lifecycle",
     "variant",
     "integrated",
@@ -125,6 +126,7 @@ _COLUMN_DOC: dict[str, str] = {
     "consumers": "roles that embed it transitively",
     "weight": "sum of the four count columns",
     "random": "per-row display nonce",
+    "in_main": "role directory also present on origin/main (else new on this branch)",
     "dna": "cluster key shared by same-service-set roles",
     "clone": "another role with the same dna carries more weight",
     "siblings": "other roles sharing the dna",
@@ -193,6 +195,7 @@ def render_table(rows: list[ComplexityRow], *, symbol: bool = False) -> str:
         ("row", ">", [str(r.row) for r in rows]),
         ("id", ">", [str(r.id) for r in rows]),
         ("name", "<", [r.name for r in rows]),
+        ("in_main", ">", [_bool_cell(r.in_main, symbol=symbol) for r in rows]),
         ("lifecycle", "<", [_lifecycle_cell(r.lifecycle, symbol=symbol) for r in rows]),
         *(
             [("variant", ">", [_variant_cell(r) for r in rows])]
@@ -253,6 +256,7 @@ def _payload(rows: list[ComplexityRow]) -> list[dict]:
             "row": r.row,
             "id": r.id,
             "name": r.name,
+            "in_main": r.in_main,
             "lifecycle": r.lifecycle,
             "variant": r.variant,
             "integrated": r.integrated,

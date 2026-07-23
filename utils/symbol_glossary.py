@@ -27,6 +27,7 @@ SYMBOLS: dict[str, str] = {
     "row": "🔢",
     "id": "🆔",
     "name": "📛",
+    "in_main": "🌳",
     "lifecycle": "🌱",
     "variant": "🎯",
     "variants": "🔀",
