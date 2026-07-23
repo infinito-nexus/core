@@ -33,12 +33,12 @@ download_file() {
   local dest="$2"
 
   if command -v curl >/dev/null 2>&1; then
-    curl --connect-timeout 5 --retry 3 --max-time 120 -fsSL "${url}" -o "${dest}"
+    curl --connect-timeout 5 --max-time 120 --retry 3 --retry-all-errors --retry-delay 2 -fsSL "${url}" -o "${dest}"
     return
   fi
 
   if command -v wget >/dev/null 2>&1; then
-    wget -qO "${dest}" "${url}"
+    wget --tries=3 --waitretry=2 -qO "${dest}" "${url}"
     return
   fi
 

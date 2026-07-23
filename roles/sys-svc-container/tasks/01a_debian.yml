@@ -27,3 +27,7 @@
   ansible.builtin.apt:
     update_cache: true
   when: sys_svc_container_docker_repo_file is changed
+  register: sys_svc_container_apt_cache
+  retries: 5
+  delay: 15
+  until: sys_svc_container_apt_cache is succeeded
