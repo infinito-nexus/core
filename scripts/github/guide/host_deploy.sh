@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Install a host role inside its pkgmgr distro container against localhost.
-# Env: GUIDE_ROLE, GUIDE_RUNTIME_IMAGE.
+# Env: GUIDE_ROLE, GUIDE_RUNTIME_IMAGE, INFINITO_RESCUE_DIAGNOSTICS_BASE.
 set -euo pipefail
+
+: "${INFINITO_RESCUE_DIAGNOSTICS_BASE:?}"
 
 # Exception: strip the clone/cd lines because the checkout is already
 # mounted; running them would clone a fresh tree and lose the CI changes.
@@ -39,7 +41,15 @@ CID="$(docker run -d --privileged --cgroupns=host \
 	-v "${PWD}:${PWD}" \
 	--entrypoint /sbin/init \
 	"${BOOT_IMAGE}")"
-trap 'docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT
+dump_guide_diagnostics() {
+	local out="${INFINITO_RESCUE_DIAGNOSTICS_BASE}"
+	mkdir -p "${out}"
+	docker exec "${CID}" systemctl --no-pager --failed >"${out}/failed-units.txt" 2>&1 || true
+	docker exec "${CID}" journalctl --no-pager -n 2000 >"${out}/journal.txt" 2>&1 || true
+	docker logs "${CID}" >"${out}/container.log" 2>&1 || true
+}
+
+trap 'dump_guide_diagnostics; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT
 
 for _ in $(seq 1 40); do
 	state="$(docker exec "${CID}" systemctl is-system-running 2>/dev/null || true)"
