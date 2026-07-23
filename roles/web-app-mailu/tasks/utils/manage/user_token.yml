@@ -31,6 +31,6 @@
       ) == ''
     ) or (mailu_user_existing_token is none)
   ansible.builtin.include_tasks:
-    file: ../05_manage_user/create_user_token.yml
+    file: ../../05_manage_user/create_user_token.yml
     apply:
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
