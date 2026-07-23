@@ -3,11 +3,11 @@ whitelist:
   frame-ancestors:
     - "*.{{ DOMAIN_PRIMARY }}"
   script-src-elem:
-    - https://fonts.googleapis.com # nocheck: url
+    - https://fonts.googleapis.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   style-src-elem:
-    - https://fonts.googleapis.com # nocheck: url
+    - https://fonts.googleapis.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   font-src:
-    - https://fonts.gstatic.com # nocheck: url
+    - https://fonts.gstatic.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
 flags:
   script-src-attr:
     unsafe-inline: true

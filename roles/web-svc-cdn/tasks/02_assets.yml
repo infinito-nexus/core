@@ -1,0 +1,53 @@
+---
+- name: "🔎 Find every role that declares frontend dependencies"
+  ansible.builtin.find:
+    paths: "{{ lookup('path_absolute', 'roles') }}"
+    patterns: "package-lock.json"
+    recurse: true
+    depth: 3
+  register: cdn_asset_locks
+  delegate_to: localhost
+  run_once: true
+
+- name: "📁 Stage each role's package manifests on the CDN host"
+  ansible.builtin.copy:
+    src: "{{ [ item.path | dirname, sub ] | path_join }}"
+    dest: "{{ [ CDN_ASSET_STAGE, item.path | dirname | dirname | basename, sub ] | path_join }}"
+    mode: "0644"
+  loop: "{{ cdn_asset_locks.files }}"
+  loop_control:
+    label: "{{ item.path | dirname | dirname | basename }}"
+  vars:
+    sub: "package-lock.json"
+
+- name: "📁 Stage each role's package.json on the CDN host"
+  ansible.builtin.copy:
+    src: "{{ [ item.path | dirname, 'package.json' ] | path_join }}"
+    dest: "{{ [ CDN_ASSET_STAGE, item.path | dirname | dirname | basename, 'package.json' ] | path_join }}"
+    mode: "0644"
+  loop: "{{ cdn_asset_locks.files }}"
+  loop_control:
+    label: "{{ item.path | dirname | dirname | basename }}"
+
+- name: "🛠️ npm ci each manifest and mirror it under {{ CDN_WEB_ROOT }}/npm"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --network=host
+      - -e
+      - "CDN_WEB_ROOT=/cdn"
+      - -e
+      - "ROLES_DIR=/pkgsrc"
+      - -v
+      - "{{ CDN_WEB_ROOT }}:/cdn"
+      - -v
+      - "{{ CDN_ASSET_STAGE }}:/pkgsrc:ro"
+      - -v
+      - "{{ [ role_path, 'files', 'build_assets.sh' ] | path_join }}:/build_assets.sh:ro"
+      - "{{ CDN_ASSET_BUILD_IMAGE }}"
+      - sh
+      - /build_assets.sh
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"

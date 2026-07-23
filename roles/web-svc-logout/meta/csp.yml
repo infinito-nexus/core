@@ -8,10 +8,10 @@ whitelist:
   connect-src:
     - "*.{{ DOMAIN_PRIMARY }}"
     - "{{ DOMAIN_PRIMARY }}"
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   script-src-elem:
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   style-src-elem:
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   frame-ancestors:
     - "{{ lookup('domain', 'web-app-keycloak') }}"

@@ -1,16 +1,14 @@
 ---
 whitelist:
   script-src-elem:
-    - https://cdnjs.cloudflare.com
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - "{{ lookup('asset_host') }}"
   style-src-elem:
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
-    - https://cdnjs.cloudflare.com
+    - "{{ lookup('asset_host') }}"
   font-src:
-    - https://cdnjs.cloudflare.com
+    - "{{ lookup('asset_host') }}"
     - "data:"
   connect-src:
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - "{{ lookup('asset_host') }}"
   frame-src:
     - "{{ lookup('tls', 'web-app-littlejs', 'url.base') }}"
 flags:

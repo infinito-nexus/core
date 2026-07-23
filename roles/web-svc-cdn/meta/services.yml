@@ -11,6 +11,7 @@ cdn:
   bond: 1
   enabled: true
   shared: true
+  flavor: internal
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

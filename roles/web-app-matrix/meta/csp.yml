@@ -12,4 +12,4 @@ whitelist:
     - "*"
   script-src-elem:
     - "{{ lookup('config', 'web-app-matrix', 'domains.canonical.element') }}"
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself

@@ -3,7 +3,7 @@ whitelist:
   script-src-elem:
     - https://cdn.matomo.cloud # nocheck: url
   style-src-elem:
-    - https://fonts.googleapis.com # nocheck: url
+    - https://fonts.googleapis.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
 flags:
   script-src-attr:
     unsafe-eval: true

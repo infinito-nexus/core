@@ -1,0 +1,9 @@
+{
+  "name": "web-app-littlejs-assets",
+  "private": true,
+  "description": "Browser-served frontend assets for web-app-littlejs, mirrored by web-svc-cdn.",
+  "dependencies": {
+    "bootstrap": "5.3.3",
+    "@fortawesome/fontawesome-free": "6.5.1"
+  }
+}

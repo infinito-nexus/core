@@ -1,14 +1,14 @@
 ---
 whitelist:
   script-src-elem:
-    - https://cdnjs.cloudflare.com
-    - https://code.jquery.com
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdnjs.cloudflare.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://code.jquery.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   style-src-elem:
-    - https://cdnjs.cloudflare.com
-    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://cdnjs.cloudflare.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   font-src:
-    - https://cdnjs.cloudflare.com
+    - https://cdnjs.cloudflare.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   frame-src:
     - "*.{{ DOMAIN_PRIMARY }}"
 flags:

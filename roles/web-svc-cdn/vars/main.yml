@@ -2,3 +2,8 @@
 # General
 application_id: "web-svc-cdn"
 domain: "{{ lookup('domain',application_id) }}"
+
+CDN_FLAVOR: "{{ lookup('config', application_id, 'services.cdn.flavor') }}"
+CDN_WEB_ROOT: "{{ lookup('nginx', 'directories.data.cdn') }}"
+CDN_ASSET_STAGE: "{{ [ lookup('container', application_id, 'directories.volumes'), 'pkgsrc' ] | path_join }}"
+CDN_ASSET_BUILD_IMAGE: "node:26-bookworm"
