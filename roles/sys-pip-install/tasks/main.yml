@@ -64,6 +64,10 @@
       else omit
     }}
   become: "{{ true if global_install | bool else false }}"
+  register: sys_pip_install_packaging_bootstrap
+  retries: 5
+  delay: 15
+  until: sys_pip_install_packaging_bootstrap is succeeded
   when: sys_pip_install_python_packaging_check.rc != 0
 
 - name: 📦 Install or upgrade {{ package_name }} system-wide via pip
@@ -83,3 +87,7 @@
       else omit
     }}
   become: "{{ true if global_install | bool else false }}"
+  register: sys_pip_install_result
+  retries: 5
+  delay: 15
+  until: sys_pip_install_result is succeeded
