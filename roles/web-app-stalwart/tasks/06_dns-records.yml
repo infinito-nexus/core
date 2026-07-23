@@ -1,0 +1,114 @@
+---
+- name: "🔧 DNS (Cloudflare) for Stalwart"
+  include_role:
+    name: sys-dns-cloudflare-records
+  when: DNS_PROVIDER | lower == 'cloudflare'
+  vars:
+    cloudflare_async_enabled: "{{ ASYNC_ENABLED |  bool }}"
+    cloudflare_async_time: "{{ ASYNC_TIME }}"
+    cloudflare_async_poll: "{{ ASYNC_POLL }}"
+    cloudflare_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    cloudflare_records:
+      - type: A
+        zone: "{{ STALWART_HOSTNAME_DNS_ZONE }}"
+        name: "{{ STALWART_HOSTNAME }}"
+        solo: true
+        content: "{{ STALWART_IP4_PUBLIC }}"
+        proxied: false
+      - type: CNAME
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "🔧 autoconfig.{{ STALWART_DOMAIN_DNS_ZONE }}"
+        solo: true
+        value: "{{ STALWART_HOSTNAME }}"
+      - { type: MX, zone: "{{ STALWART_DOMAIN_DNS_ZONE }}", name: "{{ STALWART_DOMAIN }}", solo: true, value: "{{ STALWART_HOSTNAME }}", priority: 10 }
+      - { type: TXT, zone: "{{ STALWART_DOMAIN_DNS_ZONE }}", name: "{{ STALWART_DOMAIN }}", solo: true, value: '"v=spf1 mx a:{{ STALWART_HOSTNAME }} ~all"' }
+      - type: TXT
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "_dmarc.{{ STALWART_DOMAIN_DNS_ZONE }}"
+        solo: true
+        value: '"v=DMARC1; p=reject; ruf=mailto:{{ STALWART_DMARC_RUF }}; adkim=s; aspf=s"'
+      # Stalwart-managed DKIM: selector + public key are read in 05_read_dkim.yml
+      # (stalwart_dkim_selector / stalwart_dkim_public_key).
+      - type: TXT
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ stalwart_dkim_selector }}._domainkey.{{ STALWART_DOMAIN_DNS_ZONE }}"
+        solo: true
+        value: '"{{ stalwart_dkim_public_key }}"'
+      - type: SRV
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        service: "_submission"
+        proto: "_tcp"
+        priority: 20
+        weight: 1
+        port: 587
+        value: "{{ STALWART_HOSTNAME }}"
+      - type: SRV
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        service: "_submissions"
+        proto: "_tcp"
+        priority: 20
+        weight: 1
+        port: 465
+        value: "{{ STALWART_HOSTNAME }}"
+      - type: SRV
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        service: "_imaps"
+        proto: "_tcp"
+        priority: 20
+        weight: 1
+        port: 993
+        value: "{{ STALWART_HOSTNAME }}"
+      - type: SRV
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        service: "_imap"
+        proto: "_tcp"
+        priority: 20
+        weight: 1
+        port: 143
+        value: "{{ STALWART_HOSTNAME }}"
+      - type: SRV
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        service: "_pop3s"
+        proto: "_tcp"
+        priority: 20
+        weight: 1
+        port: 995
+        value: "{{ STALWART_HOSTNAME }}"
+      - type: SRV
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        service: "_pop3"
+        proto: "_tcp"
+        priority: 20
+        weight: 1
+        port: 110
+        value: "{{ STALWART_HOSTNAME }}"
+      - type: SRV
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        service: "_autodiscover"
+        proto: "_tcp"
+        priority: 20
+        weight: 1
+        port: 443
+        value: "{{ STALWART_HOSTNAME }}"
+
+- name: "🔧 rDNS (Hetzner Cloud) for Stalwart"
+  include_role:
+    name: sys-dns-hetzner-rdns
+  when: HOSTING_PROVIDER | lower == 'hetzner'
+  vars:
+    rdns_records:
+      - { resource: "server", ip_address: "{{ STALWART_IP4_PUBLIC }}", dns_ptr: "{{ STALWART_HOSTNAME }}" }

@@ -22,9 +22,15 @@ matomo:
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
   backup:
     disabled: true
 mig:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: ghcr.io/kevinveenbirkenbach/infinito-mig
   version: latest
   name: mig

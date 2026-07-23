@@ -1,25 +1,13 @@
 ---
-# General
 application_id: "web-app-decidim"
 domain: "{{ lookup('domain', application_id) }}"
 
-# Docker
-container_port: "3000"
-
-# Decidim
 DECIDIM_VERSION: "{{ lookup('config', application_id, 'services.decidim.version') }}"
 DECIDIM_IMAGE: "{{ lookup('config', application_id, 'services.decidim.image') }}"
-DECIDIM_CUSTOM_IMAGE: "{{ DECIDIM_IMAGE }}:{{ DECIDIM_VERSION }}-infinito"
 DECIDIM_CONTAINER: "{{ lookup('config', application_id, 'services.decidim.name') }}"
 
-## Volumes
-DECIDIM_VOLUME_UPLOADS: "{{ lookup('config', application_id, 'volumes.uploads') }}"
-DECIDIM_VOLUME_LOGS: "{{ lookup('config', application_id, 'volumes.logs') }}"
-
-## Credentials
 DECIDIM_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"
 
-## OIDC
 DECIDIM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 DECIDIM_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 DECIDIM_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
@@ -28,15 +16,13 @@ DECIDIM_OIDC_AUTHORIZE_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 DECIDIM_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
 DECIDIM_OIDC_USER_INFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 
-## Organisation
 DECIDIM_ORGANIZATION_NAME: "{{ defaults_service_provider.platform.titel }}"
-## Dockerfile patch script
+
 DECIDIM_PATCH_SCRIPT_FILE: "patch.py"
 DECIDIM_PATCH_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), DECIDIM_PATCH_SCRIPT_FILE ] | path_join }}"
 DECIDIM_PATCH_SCRIPT_HOST_REL: "volumes/{{ DECIDIM_PATCH_SCRIPT_FILE }}"
 DECIDIM_PATCH_SCRIPT_DOCKER: "/tmp/patch.py"
 
-## Ruby snippets sourced by patch.py at build time
 DECIDIM_PATCH_RUBY_DIR: "ruby"
 DECIDIM_PATCH_RUBY_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), DECIDIM_PATCH_RUBY_DIR ] | path_join }}"
 DECIDIM_PATCH_RUBY_HOST_REL: "volumes/{{ DECIDIM_PATCH_RUBY_DIR }}"

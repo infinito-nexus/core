@@ -45,12 +45,17 @@ class TestDiffAffectedRoles(unittest.TestCase):
             check=True,
         )
         subprocess.run(["git", "config", "user.name", "ci"], cwd=repo, check=True)
+        # Exception: hermetic fixture — an operator's global commit.gpgsign=true
+        # would make these scratch commits launch pinentry and fail off-terminal.
+        subprocess.run(
+            ["git", "config", "commit.gpgsign", "false"], cwd=repo, check=True
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", str(bare)], cwd=repo, check=True
         )
 
-        # Plant the real script into the expected relative path so its
-        # SCRIPT_DIR/REPO_ROOT computation lands inside the temp repo.
+        # Exception: the real script MUST land at its expected relative path —
+        # its SCRIPT_DIR/REPO_ROOT computation must resolve inside the temp repo.
         script_target = repo / SCRIPT_REL
         script_target.parent.mkdir(parents=True)
         shutil.copy2(SCRIPT_PATH, script_target)

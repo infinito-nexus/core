@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Cleans up failed Docker backups by configuring a systemd service and timer to execute the cleanup operations periodically.
+  description: Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

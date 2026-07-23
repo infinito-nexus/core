@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 ROLE_DIR = PROJECT_ROOT / "roles" / "web-app-keycloak"
-MOD_PATH = ROLE_DIR / "module_utils" / "kcadm_json.py"
+MOD_PATH = PROJECT_ROOT / "utils" / "kcadm_json.py"
 
 
 def _load_py_module(name: str, path: Path):

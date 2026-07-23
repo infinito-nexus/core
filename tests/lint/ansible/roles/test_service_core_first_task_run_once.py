@@ -32,15 +32,15 @@ def unique_roles(registry):
 RECURSION_HINT = (
     "Service roles discovered from role-local services metadata are loaded "
     "dynamically via "
-    "load_app.yml, which checks the run_once_<role> flag before loading a role. "
+    "load/app.yml, which checks the run_once_<role> flag before loading a role. "
     "If tasks/01_core.yml does not set this flag as its very first task, the flag "
-    "may be absent when a second load attempt is evaluated, causing load_app.yml to "
+    "may be absent when a second load attempt is evaluated, causing load/app.yml to "
     "include the role again and triggering infinite recursion."
 )
 
 MAIN_SCHEMA_HINT = (
     "tasks/main.yml must load 01_core.yml with a run_once guard so that roles "
-    "included directly (not via load_app.yml) are also protected against duplicate "
+    "included directly (not via load/app.yml) are also protected against duplicate "
     "execution. Required schema:\n"
     "  - include_tasks: 01_core.yml\n"
     "    when: run_once_<role_slug> is not defined"
@@ -88,7 +88,7 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
         for role in unique_roles(self.registry):
             path = self._core_path(role)
             if not path.is_file():
-                continue  # covered by test_01_core_exists
+                continue
 
             try:
                 tasks = load_yaml_str(read_text(str(path)))
@@ -130,12 +130,14 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
                 continue
 
             expected_when = f"run_once_{role_slug(role)} is not defined"
+            flat_tasks = []
+            for t in tasks:
+                if isinstance(t, dict) and isinstance(t.get("block"), list):
+                    flat_tasks.extend(c for c in t["block"] if isinstance(c, dict))
+                elif isinstance(t, dict):
+                    flat_tasks.append(t)
             core_task = next(
-                (
-                    t
-                    for t in tasks
-                    if isinstance(t, dict) and t.get("include_tasks") == "01_core.yml"
-                ),
+                (t for t in flat_tasks if t.get("include_tasks") == "01_core.yml"),
                 None,
             )
 
@@ -146,9 +148,13 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
                 continue
 
             actual_when = core_task.get("when", "")
-            if actual_when != expected_when:
+            guard_present = actual_when == expected_when or (
+                isinstance(actual_when, list) and expected_when in actual_when
+            )
+            if not guard_present:
                 violations.append(
-                    f"{role}: when is '{actual_when}', expected '{expected_when}'"
+                    f"{role}: when is '{actual_when}', expected '{expected_when}' "
+                    "(a when-list containing the guard is accepted)"
                 )
 
         if violations:

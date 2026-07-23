@@ -1,4 +1,5 @@
 ---
+# nocheck: dockerfile-custom
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -13,9 +14,9 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
-# nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
+# nocheck: dynamic-flag - LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
   enabled: false
   shared: false
@@ -26,13 +27,13 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: bluesky-broker
+      host: broker
       port: 8080
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-bluesky', role='administrator') }}"
     # nocheck: shared
     # nocheck: dynamic-flag
-    # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
+    # nocheck: playwright-service-flag - internal sub-component (multi-entity role)
     acl:
       whitelist:
         - /xrpc/
@@ -40,20 +41,22 @@ sso:
         - /robots.txt
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — internal sub-component (multi-entity role)
+# nocheck: playwright-service-flag - internal sub-component (multi-entity role)
 web:
   enabled: true
   ports:
     local:
       http: 8031
       sso: 16496
+    internal:
+      http: 8100
   min_storage: 5GB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — internal sub-component (multi-entity role)
+# nocheck: playwright-service-flag - internal sub-component (multi-entity role)
 view:
   enabled: false
   repository: https://github.com/bluesky-social/social-app.git
@@ -61,6 +64,8 @@ view:
   ports:
     local:
       http: 8051
+    internal:
+      http: 8100
   min_storage: 1GB
   cpus: "0.2"
   mem_reservation: 128m
@@ -68,30 +73,33 @@ view:
   pids_limit: 256
 pds:
   image: ghcr.io/bluesky-social/pds
-  version: latest
+  version: 0.4.0
   min_storage: 10GB
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
 broker:
-  # Login-broker sidecar that owns the OIDC → PDS app-password
-  # handoff and the AES-256-GCM-encrypted user attribute. The image
-  # is built from `files/login-broker/`.
   name: bluesky-broker
-  image: bluesky-broker
-  base_image: node
-  base_version: 22-alpine
-  port: 8080
+  image: node
+  version: 26-alpine
   ports:
     local:
       http: 8076
+    internal:
+      http: 8080
   min_storage: 1GB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+sso-proxy:
+  name: bluesky-sso-proxy
+  cpus: "0.25"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 512
+# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
@@ -104,21 +112,30 @@ api:
   ports:
     local:
       http: 8030
+    internal:
+      http: 3000
   min_storage: 5GB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
 bluesky:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  PDS is sqlite-only (WAL forced on all four DBs; pds 0.4 has no external-DB backend) and WAL is unsupported over NFS, so pds_data must stay node-local
+  placement: manager
+  proxy:
+    service_key: pds
   ports:
     local:
-      # oauth2-proxy listens here; the front-proxy routes the gated
-      # default `/` path through this port. Picked so it doesn't
-      # collide with the existing api/web/view bindings above.
       sso: 16497
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
   min_storage: 1GB
@@ -126,3 +143,9 @@ bluesky:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

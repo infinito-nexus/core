@@ -7,30 +7,42 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
 
-def run_cmd(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str]:
+
+def run_cmd(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str, str]:
+    """Run a command with stdout and stderr captured SEPARATELY.
+
+    Compose prints warnings ('variable is not set', ...) on stderr; merging
+    them into stdout poisons every parser downstream (yaml config, the
+    `config --images` list, the `pull --help` probe).
+    """
     p = subprocess.run(
         cmd,
         cwd=str(cwd),
         env=env,
         text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
+        capture_output=True,
         check=False,
     )
-    return p.returncode, p.stdout or ""
+    return p.returncode, p.stdout or "", p.stderr or ""
+
+
+def _print_streams(out: str, err: str, *, to_stderr: bool) -> None:
+    if out.strip():
+        print(
+            out,
+            file=sys.stderr if to_stderr else sys.stdout,
+            end="" if out.endswith("\n") else "\n",
+        )
+    if err.strip():
+        print(err, file=sys.stderr, end="" if err.endswith("\n") else "\n")
 
 
 def run_or_fail(cmd: list[str], *, cwd: Path, env: dict[str, str], label: str) -> None:
     print(f">>> {' '.join(cmd)}", file=sys.stderr)
-    rc, out = run_cmd(cmd, cwd=cwd, env=env)
-
-    if out.strip():
-        if rc == 0:
-            print(out, end="" if out.endswith("\n") else "\n")
-        else:
-            print(out, file=sys.stderr, end="" if out.endswith("\n") else "\n")
-
+    rc, out, err = run_cmd(cmd, cwd=cwd, env=env)
+    _print_streams(out, err, to_stderr=rc != 0)
     if rc != 0:
         raise RuntimeError(f"{label} failed (rc={rc})")
 
@@ -42,11 +54,10 @@ def base_compose_cmd(*, project: str, cwd: Path) -> list[str]:
 def has_buildable_services(
     *, base_cmd: list[str], cwd: Path, env: dict[str, str]
 ) -> bool:
-    rc, out = run_cmd([*base_cmd, "config"], cwd=cwd, env=env)
+    rc, out, err = run_cmd([*base_cmd, "config"], cwd=cwd, env=env)
 
     if rc != 0:
-        if out.strip():
-            print(out, file=sys.stderr)
+        _print_streams(out, err, to_stderr=True)
         raise RuntimeError(
             "docker compose config failed; cannot detect buildable services"
         )
@@ -55,6 +66,57 @@ def has_buildable_services(
         line.lstrip() != line and line.strip().startswith("build:")
         for line in out.splitlines()
     )
+
+
+def pull_service_targets(
+    *, base_cmd: list[str], cwd: Path, env: dict[str, str]
+) -> list[str] | None:
+    """Service names safe to pass to `docker compose pull`.
+
+    Excludes services that declare `build:` and services that merely REUSE an
+    image some other service builds (registry-less local tag, e.g. a cron
+    service on the app's custom image); `--ignore-buildable` only covers the
+    former, so compose otherwise aborts the whole pull with 'pull access
+    denied' on the reused tag.
+
+    Returns:
+        None when nothing needs excluding (caller pulls everything) or when
+        the config cannot be parsed (fall back to unchanged behavior);
+        otherwise the possibly-empty list of pullable service names.
+    """
+    rc, out, _err = run_cmd([*base_cmd, "config"], cwd=cwd, env=env)
+    if rc != 0:
+        return None
+    try:
+        doc = yaml.safe_load(out)  # nocheck: direct-yaml
+    except yaml.YAMLError:
+        return None
+    services = (doc or {}).get("services")
+    if not isinstance(services, dict):
+        return None
+
+    locally_built = {
+        svc["image"]
+        for svc in services.values()
+        if isinstance(svc, dict)
+        and "build" in svc
+        and isinstance(svc.get("image"), str)
+    }
+    if not locally_built:
+        return None
+
+    targets: list[str] = []
+    excluded = False
+    for name, svc in services.items():
+        if not isinstance(svc, dict):
+            continue
+        image = svc.get("image")
+        if "build" in svc or (isinstance(image, str) and image in locally_built):
+            excluded = True
+            continue
+        targets.append(name)
+
+    return sorted(targets) if excluded else None
 
 
 def main() -> int:
@@ -91,7 +153,6 @@ def main() -> int:
     lock_dir = Path(args.lock_dir)
     lock_file = lock_dir / f"{args.lock_key}.lock"
 
-    # Lock present = work already done.
     if lock_file.exists():
         return 0
 
@@ -106,9 +167,8 @@ def main() -> int:
     ):
         build_pull_cmd = [*base_cmd, "build", "--pull"]
         print(f">>> {' '.join(build_pull_cmd)}", file=sys.stderr)
-        rc, out = run_cmd(build_pull_cmd, cwd=cwd, env=env)
-        if out.strip():
-            print(out, file=sys.stderr, end="" if out.endswith("\n") else "\n")
+        rc, out, err = run_cmd(build_pull_cmd, cwd=cwd, env=env)
+        _print_streams(out, err, to_stderr=True)
         if rc != 0:
             run_or_fail(
                 [*base_cmd, "build"],
@@ -120,17 +180,28 @@ def main() -> int:
     pull_cmd = [*base_cmd, "pull"]
 
     if args.ignore_buildable:
-        rc, help_out = run_cmd([*base_cmd, "pull", "--help"], cwd=cwd, env=env)
+        rc, help_out, _err = run_cmd([*base_cmd, "pull", "--help"], cwd=cwd, env=env)
         if rc == 0 and "--ignore-buildable" in help_out:
             pull_cmd.append("--ignore-buildable")
 
+    targets = pull_service_targets(base_cmd=base_cmd, cwd=cwd, env=env)
+    if targets is not None:
+        if not targets:
+            print(
+                ">>> pull skipped: every service uses a locally-built image",
+                file=sys.stderr,
+            )
+            lock_file.write_text("ok\n", encoding="utf-8")
+            print("pulled")
+            return 0
+        pull_cmd.extend(targets)
+
     print(f">>> {' '.join(pull_cmd)}", file=sys.stderr)
-    rc, out = run_cmd(pull_cmd, cwd=cwd, env=env)
-    if out.strip():
-        print(out, file=sys.stderr, end="" if out.endswith("\n") else "\n")
+    rc, out, err = run_cmd(pull_cmd, cwd=cwd, env=env)
+    _print_streams(out, err, to_stderr=True)
 
     if rc != 0:
-        rc_images, images_out = run_cmd(
+        rc_images, images_out, _err = run_cmd(
             [*base_cmd, "config", "--images"], cwd=cwd, env=env
         )
         if rc_images != 0:
@@ -138,7 +209,7 @@ def main() -> int:
         required = [line.strip() for line in images_out.splitlines() if line.strip()]
         missing = []
         for image in required:
-            rc_inspect, _ = run_cmd(
+            rc_inspect, _out, _err = run_cmd(
                 ["docker", "image", "inspect", image], cwd=cwd, env=env
             )
             if rc_inspect != 0:

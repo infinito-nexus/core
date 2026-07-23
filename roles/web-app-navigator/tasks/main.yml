@@ -1,20 +1,20 @@
 ---
-- name: "pkgmgr install"
+- name: "📦 pkgmgr install"
   include_role:
     name: pkgmgr-install
   vars:
     package_name: infinito-presentation
     # package_notify: compose up
 
-- name: Get path of infinito-presentation using pkgmgr
+- name: ⬇️ Get path of infinito-presentation using pkgmgr
   command: "{{ ansible_facts['env']['HOME'] }}/.venvs/pkgmgr/bin/pkgmgr path infinito-presentation"
   register: path_infinito_presentation_output
 
-- name: Get path of infinito using pkgmgr
+- name: ⬇️ Get path of infinito using pkgmgr
   command: "{{ ansible_facts['env']['HOME'] }}/.venvs/pkgmgr/bin/pkgmgr path infinito"
   register: path_infinito_output
 
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
 

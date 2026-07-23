@@ -1,63 +1,53 @@
 ---
-- name: "For '{{ application_id }}': load docker, db and proxy"
+- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
   include_role:
     name: sys-stk-full
   vars:
-    # Penpot uploads (design files, images, fonts) can be large; raise the
-    # proxy body limit so asset imports are not truncated at the front door.
     webserver_client_max_body_size: "100m"
-    compose_handlers_flush: true
+    compose_handlers_flush: false
 
-# Bootstrap the administrator's local password via the backend PREPL when native
-# login is on (skipped under OIDC). update-profile sets it if the profile exists.
-- name: "Bootstrap the Penpot administrator's local account (idempotent)"
-  when: PENPOT_NATIVE_LOGIN_ENABLED | bool
-  ansible.builtin.command:
-    argv:
-      - compose
-      - exec
-      - -T
-      - "{{ PENPOT_BACKEND_SERVICE }}"
-      - python3
-      - manage.py
-      - create-profile
-      - -n
-      - "{{ PENPOT_ADMIN_FULLNAME }}"
-      - -e
-      - "{{ PENPOT_ADMIN_EMAIL }}"
-      - -p
-      - "{{ PENPOT_ADMIN_PASSWORD }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: penpot_admin_create
-  retries: 30
-  delay: 5
-  until: >-
-    penpot_admin_create.rc == 0 or
-    ('already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default('')))
-  changed_when: "'Created' in penpot_admin_create.stdout"
-  failed_when:
-    - penpot_admin_create.rc != 0
-    - "'already exists' not in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🚀 Deploy the shared JVM CA trust wrapper for the backend"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/files/java-with-ca-trust.sh') }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'java-with-ca-trust.sh' ] | path_join }}"
+    mode: "0755"
+  notify: compose up
 
-- name: "Set the Penpot administrator's local password when the profile already exists"
-  ansible.builtin.command:
-    argv:
-      - compose
-      - exec
-      - -T
-      - "{{ PENPOT_BACKEND_SERVICE }}"
-      - python3
-      - manage.py
-      - update-profile
-      - -e
-      - "{{ PENPOT_ADMIN_EMAIL }}"
-      - -p
-      - "{{ PENPOT_ADMIN_PASSWORD }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  when:
-    - PENPOT_NATIVE_LOGIN_ENABLED | bool
-    - "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
-  register: penpot_admin_update
-  changed_when: "'Updated' in penpot_admin_update.stdout"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🚿 Flush docker service for '{{ application_id }}'"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🥾 Bootstrap the Penpot administrator's local account"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🥾 Bootstrap the Penpot administrator's local account (idempotent)"
+      when: PENPOT_NATIVE_LOGIN_ENABLED | bool
+      ansible.builtin.shell: >
+        container exec -i {{ PENPOT_BACKEND_CONTAINER_ADDRESS }}
+        python3 manage.py create-profile
+        -n {{ PENPOT_ADMIN_FULLNAME | quote }}
+        -e {{ PENPOT_ADMIN_EMAIL | quote }}
+        -p {{ PENPOT_ADMIN_PASSWORD | quote }}
+      register: penpot_admin_create
+      retries: 30
+      delay: 5
+      until: >-
+        penpot_admin_create.rc == 0 or
+        ('already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default('')))
+      changed_when: "'Created' in penpot_admin_create.stdout"
+      failed_when:
+        - penpot_admin_create.rc != 0
+        - "'already exists' not in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔧 Set the Penpot administrator's local password when the profile already exists"
+      ansible.builtin.shell: >
+        container exec -i {{ PENPOT_BACKEND_CONTAINER_ADDRESS }}
+        python3 manage.py update-profile
+        -e {{ PENPOT_ADMIN_EMAIL | quote }}
+        -p {{ PENPOT_ADMIN_PASSWORD | quote }}
+      when:
+        - PENPOT_NATIVE_LOGIN_ENABLED | bool
+        - "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
+      register: penpot_admin_update
+      changed_when: "'Updated' in penpot_admin_update.stdout"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

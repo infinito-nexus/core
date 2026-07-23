@@ -9,22 +9,22 @@
 # - Instead, we create a local Root CA (sys-ca-selfsigned) and sign the leaf certificate with it.
 # - The resulting chain is: leaf (app/global) signed by Root CA, and Root CA is installed into trust stores.
 
-- name: "TLS | (self_signed) ensure local Root CA exists (for signing leaf certs)"
+- name: "✅ TLS | (self_signed) ensure local Root CA exists (for signing leaf certs)"
   ansible.builtin.include_role:
     name: sys-ca-selfsigned
   when: run_once_sys_ca_selfsigned is not defined
 
-- name: "TLS | (self_signed) resolve via tls (strict)"
+- name: "🔍 TLS | (self_signed) resolve via tls (strict)"
   ansible.builtin.set_fact:
     _tls: "{{ lookup('tls', application_id) }}"
   changed_when: false
 
-- name: "TLS | (self_signed) plan certificate via cert (strict)"
+- name: "📜 TLS | (self_signed) plan certificate via cert (strict)"
   ansible.builtin.set_fact:
     _cert: "{{ lookup('cert', application_id) }}"
   changed_when: false
 
-- name: "TLS | (self_signed) assert mode is self_signed"
+- name: "✅ TLS | (self_signed) assert mode is self_signed"
   ansible.builtin.assert:
     that:
       - _tls.mode == 'self_signed'
@@ -36,7 +36,7 @@
       tls.enabled={{ _tls.enabled }}, tls.mode={{ _tls.mode }}, cert.enabled={{ _cert.enabled }}, cert.mode={{ _cert.mode }}.
       Expected enabled=true, mode=self_signed.
 
-- name: "TLS | (self_signed) compute target paths"
+- name: "🧮 TLS | (self_signed) compute target paths"
   ansible.builtin.set_fact:
     _ss_domain: "{{ _tls.domains.primary }}"
     _ss_san: "{{ _cert.domains.san }}"
@@ -56,14 +56,14 @@
       }}
   changed_when: false
 
-- name: "TLS | (self_signed) ensure directory exists"
+- name: "✅ TLS | (self_signed) ensure directory exists"
   become: true
   ansible.builtin.file:
     path: "{{ _ss_dir }}"
     state: directory
     mode: "0750"
 
-- name: "TLS | (self_signed) render openssl config (SAN aware)"
+- name: "📄 TLS | (self_signed) render openssl config (SAN aware)"
   become: true
   ansible.builtin.copy:
     dest: "{{ _ss_conf }}"
@@ -90,27 +90,28 @@
       DNS.{{ loop.index }} = {{ d }}
       {% endfor %}
 
-- name: "TLS | (self_signed) check if cert already exists"
+- name: "🔎 TLS | (self_signed) check if cert already exists"
   ansible.builtin.stat:
     path: "{{ _ss_cert }}"
   register: _ss_cert_stat
   changed_when: false
 
-- name: "TLS | (self_signed) read existing certificate (if any)"
+- name: "📖 TLS | (self_signed) read existing certificate (if any)"
   ansible.builtin.command: "openssl x509 -in {{ _ss_cert }} -noout -text"
   register: _ss_cert_text
   changed_when: false
   failed_when: false
   when: _ss_cert_stat.stat.exists | default(false)
 
-- name: "TLS | (self_signed) compute wanted/existing SAN sets"
+- name: "🧮 TLS | (self_signed) compute wanted/existing SAN sets"
   ansible.builtin.set_fact:
     _ss_wanted_sans: "{{ _ss_san | map('lower') | list | unique | sort }}"
+    # \\s would put a literal 's' in the class and truncate every SAN.
     _ss_existing_sans: >-
       {{
         (
           (_ss_cert_text.stdout | default('')) |
-          regex_findall('DNS:([^,\\s;]+)') |
+          regex_findall('DNS:([^,\s;]+)') |
           map('lower') | list | unique | sort
         )
         if (_ss_cert_stat.stat.exists | default(false)) else
@@ -118,12 +119,13 @@
       }}
   changed_when: false
 
-- name: "TLS | (self_signed) generate leaf cert (only when missing or SAN drift)"
-  ansible.builtin.include_tasks: 02_generate_leaf.yml
+- name: "⚙️ TLS | (self_signed) generate leaf cert (only when missing or SAN drift)"
+  ansible.builtin.include_tasks:
+    file: 02_generate_leaf.yml
+    apply:
+      become: true
   when: >-
-    {{
-      (not (_ss_cert_stat.stat.exists | default(false))) or
-      ((_ss_wanted_sans | difference(_ss_existing_sans) | length) > 0)
-    }}
+    (not (_ss_cert_stat.stat.exists | default(false))) or
+    ((_ss_wanted_sans | difference(_ss_existing_sans) | length) > 0)
 
 - include_tasks: utils/once/flag.yml

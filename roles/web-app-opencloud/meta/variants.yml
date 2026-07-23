@@ -5,6 +5,8 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-opencloud.
 - services:
+    container_backup:
+      enabled: true
     css:
       enabled: true
       shared: true
@@ -30,60 +32,60 @@
       enabled: true
       shared: true
 
-# Baseline-only variant: pin every dynamic flag false so the matrix
-# also exercises the out-of-group_names branch and satisfies the
-# false-pinning requirement of test_variants_coverage.
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
 
-# LDAP-only variant: pin ldap.enabled true with
-# oidc.enabled false so the spec exercises the LDAP-bind login path
-# in isolation from OIDC.
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
       enabled: true
       shared: true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

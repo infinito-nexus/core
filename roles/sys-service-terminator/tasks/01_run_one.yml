@@ -1,53 +1,19 @@
 ---
-- name: "Apply state for {{ system_service_run_unit }}"
-  block:
-    - name: "Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times, {{ SYS_SERVICE_RUNNER_DELAY }}s delay)"
-      ansible.builtin.systemd:
-        name: "{{ system_service_run_unit }}"
-        state: "{{ SYS_SERVICE_RUNNER_STATE }}"
-      become: true
-      register: result
-      # Retries are required because a compose-managed service might not be ready yet
-      # (e.g., container dependencies / health checks still settling).
-      retries: "{{ SYS_SERVICE_RUNNER_RETRIES }}"
-      delay: "{{ SYS_SERVICE_RUNNER_DELAY }}"
-      until: result is not failed
+- name: "🔎 Check {{ system_service_run_unit }} is installed on this host"
+  ansible.builtin.command: "systemctl cat {{ system_service_run_unit }}"
+  register: system_service_run_unit_present
+  changed_when: false
+  failed_when: false
+  when: DEPLOYMENT_MODE == 'swarm'
 
-  rescue:
-    - name: Show shared diagnostics for failed final-run service
-      ansible.builtin.include_role:
-        name: sys-service
-        tasks_from: utils/debug.yml
-      vars:
-        system_service_debug_unit: "{{ system_service_run_unit }}"
-        system_service_debug_context_lines:
-          - "system_service_run_unit={{ system_service_run_unit }}"
-          - "SYS_SERVICE_RUNNER_STATE={{ SYS_SERVICE_RUNNER_STATE }}"
-          - "SYS_SERVICE_RUNNER_RETRIES={{ SYS_SERVICE_RUNNER_RETRIES }}"
-          - "SYS_SERVICE_RUNNER_DELAY={{ SYS_SERVICE_RUNNER_DELAY }}"
-
-    - name: "docker diagnostics (best-effort via script file)"
-      ansible.builtin.shell: |
-        set -u
-        export SYS_SERVICE_RUNNER_DOCKER_LOG_TAIL="{{ SYS_SERVICE_RUNNER_DOCKER_LOG_TAIL }}"
-        export SYS_SERVICE_RUNNER_DOCKER_INCLUDE_EXITED="{{ SYS_SERVICE_RUNNER_DOCKER_INCLUDE_EXITED| bool | lower }}"
-        bash "{{ role_path }}/files/docker_diagnostics.sh"
-      become: true
-      register: sys_runner_docker_diag
-      changed_when: false
-      failed_when: false
-      when: SYS_SERVICE_RUNNER_DOCKER_DIAGNOSTICS | bool
-
-    - name: Show docker diagnostics
-      ansible.builtin.debug:
-        msg: |
-          === docker diagnostics ===
-          {{ sys_runner_docker_diag.stdout | default('') }}
-          {{ sys_runner_docker_diag.stderr | default('') }}
-      when: SYS_SERVICE_RUNNER_DOCKER_DIAGNOSTICS | bool
-
-    - name: "Fail with diagnostics"
-      ansible.builtin.fail:
-        msg: >-
-          Final-run service failed: {{ system_service_run_unit }}.
-          See shared service diagnostics above.
+- name: "🔄 Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times)"
+  ansible.builtin.systemd:
+    name: "{{ system_service_run_unit }}"
+    state: "{{ SYS_SERVICE_RUNNER_STATE }}"
+  register: result
+  retries: "{{ SYS_SERVICE_RUNNER_RETRIES }}"
+  delay: "{{ SYS_SERVICE_RUNNER_DELAY }}"
+  until: result is not failed
+  when: >-
+    DEPLOYMENT_MODE == 'compose'
+    or system_service_run_unit_present.rc == 0

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Health-check for Btrfs filesystems, alerts on any device error counters.
+  description: Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

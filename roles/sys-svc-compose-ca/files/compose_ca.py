@@ -17,12 +17,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-# This script is deployed to the target host via `ansible.builtin.copy`
-# (see roles/sys-svc-compose-ca/tasks/01_core.yml). The deploy target
-# does NOT have the project's `utils/` package on PYTHONPATH, so direct
-# yaml.safe_load / yaml.safe_dump are the only option here. Each call
 # below carries an explicit `# nocheck: direct-yaml` marker that the lint
-# `tests/lint/repository/yaml/test_no_direct_calls.py` honours.
 import yaml
 
 
@@ -39,8 +34,6 @@ def run(
     timeout: int = 600,
     capture: bool = True,
 ) -> tuple[int, str, str]:
-    # killpg the whole group on timeout: a daemon-side docker/buildx grandchild
-    # can keep the captured pipe open and make subprocess's own timeout inert.
     pipe = subprocess.PIPE if capture else subprocess.DEVNULL
     proc = subprocess.Popen(
         cmd,
@@ -69,8 +62,7 @@ def run(
 def run_checked(cmd: list[str], *, cwd: Path, env: dict[str, str], label: str) -> None:
     rc, out, err = run(cmd, cwd=cwd, env=env)
     if rc != 0:
-        details = (err or out).strip()
-        die(f"{label} failed (rc={rc}): {details}")
+        die(f"{label} failed (rc={rc})\nSTDERR:\n{err.strip()}\nSTDOUT:\n{out.strip()}")
 
 
 def parse_yaml(text: str, label: str) -> dict[str, Any]:
@@ -294,10 +286,23 @@ def docker_image_has_bin_sh(
 ImageMeta = tuple[bool, list[str], list[str], bool | None]
 
 
-def _gather_one_image(image: str, *, cwd: Path, env: dict[str, str]) -> ImageMeta:
+def _gather_one_image(
+    image: str, *, cwd: Path, env: dict[str, str], pull_if_absent: bool = True
+) -> ImageMeta:
     rc, out, _err = run(
         ["docker", "image", "inspect", image], cwd=cwd, env=env, timeout=90
     )
+    if rc not in {0, TIMEOUT_RC} and pull_if_absent:
+        # This override is generated before the stack's `compose pull`, and
+        # `docker image inspect` does not pull. Pull an absent image so the
+        # /bin/sh probe (and thus the CA-trust wrapper) is not skipped.
+        # Never pull locally-BUILT tags (pull_if_absent=False): the registry
+        # would serve an unrelated base image whose CMD then gets pinned into
+        # the override, clobbering the built app's entrypoint.
+        run(["docker", "pull", image], cwd=cwd, env=env, timeout=600, capture=False)
+        rc, out, _err = run(
+            ["docker", "image", "inspect", image], cwd=cwd, env=env, timeout=90
+        )
     if rc != 0:
         return (False, [], [], None if rc == TIMEOUT_RC else False)
     try:
@@ -317,17 +322,28 @@ def _gather_one_image(image: str, *, cwd: Path, env: dict[str, str]) -> ImageMet
 
 
 def gather_image_meta(
-    images: list[str], *, cwd: Path, env: dict[str, str]
+    images: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+    built_images: set[str] | None = None,
 ) -> dict[str, ImageMeta]:
     """Gather (exists, entrypoint, cmd, has_sh) per unique image, concurrently
     — the per-image docker reads dominate the inject and must not run serially
     under DiD latency or they blow the handler timeout for many-service apps."""
     if not images:
         return {}
+    built = built_images or set()
     workers = min(8, len(images))
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(_gather_one_image, image, cwd=cwd, env=env): image
+            pool.submit(
+                _gather_one_image,
+                image,
+                cwd=cwd,
+                env=env,
+                pull_if_absent=image not in built,
+            ): image
             for image in images
         }
         return {futures[f]: f.result() for f in as_completed(futures)}
@@ -489,7 +505,6 @@ def _compose_cmd_with_profile(base_cmd: list[str], profile: str) -> list[str]:
     if len(base_cmd) < 2 or base_cmd[0] != "docker" or base_cmd[1] != "compose":
         die(f"Invalid compose base cmd: {base_cmd}")
 
-    # Insert after the compose wrapper prefix
     return [*base_cmd[:2], "--profile", profile, *base_cmd[2:]]
 
 
@@ -520,6 +535,11 @@ def render_override(
     ca_host: str,
     wrapper_host: str,
     trust_name: str,
+    ca_container: str,
+    wrapper_container: str,
+    php_ini_host: str = "",
+    php_ini_container: str = "",
+    wrap: bool = True,
 ) -> dict[str, Any]:
     """
     Generate a compose override that injects CA trust into every service by:
@@ -529,15 +549,17 @@ def render_override(
             - set command to the effective original exec-form (entrypoint+cmd)
         This avoids breaking distroless images that do not provide /bin/sh.
 
+    Args:
+      wrap: when False, emit ONLY volumes + environment and never the
+        entrypoint/command wrapper. `docker stack deploy` does not un-escape
+        the `$$` that the wrapper's command argv carries, so the wrapper is
+        swarm-incompatible; swarm callers pass wrap=False and rely on the
+        SSL_CERT_FILE/CURL_CA_BUNDLE/NODE_EXTRA_CA_CERTS env + the CA mount.
+
     IMPORTANT:
       Docker Compose interpolates $VARS in YAML strings on the host.
       We escape any $ in the command argv with $$ so container-side expansion works.
     """
-    # Container-internal CA-injection paths bind-mounted from the host.
-    # Not user-controllable; well-known by the role's compose template.
-    ca_container = "/tmp/infinito/ca/root-ca.crt"  # noqa: S108
-    wrapper_container = "/tmp/infinito/bin/with-ca-trust.sh"  # noqa: S108
-
     out_services: dict[str, Any] = {}
 
     image_meta = gather_image_meta(
@@ -552,18 +574,48 @@ def render_override(
         ),
         cwd=cwd,
         env=env,
+        built_images={
+            svc["image"].strip()
+            for svc in services.values()
+            if isinstance(svc, dict)
+            and isinstance(svc.get("image"), str)
+            and svc["image"].strip()
+            and _has_build(svc)
+        },
     )
 
     for name, svc in services.items():
         if not isinstance(svc, dict):
             die(f"Service '{name}' must be a mapping in compose config")
 
+        volumes = [
+            f"{ca_host}:{ca_container}:ro",
+            f"{wrapper_host}:{wrapper_container}:ro",
+        ]
+        if php_ini_host and php_ini_container:
+            volumes.append(f"{php_ini_host}:{php_ini_container}:ro")
+
+        override_svc: dict[str, Any] = {
+            "volumes": volumes,
+            "environment": {
+                "CA_TRUST_CERT": ca_container,
+                "CA_TRUST_NAME": trust_name,
+                "SSL_CERT_FILE": ca_container,
+                "REQUESTS_CA_BUNDLE": ca_container,
+                "CURL_CA_BUNDLE": ca_container,
+                "NODE_EXTRA_CA_CERTS": ca_container,
+            },
+        }
+
+        if not wrap:
+            out_services[name] = override_svc
+            continue
+
         svc_ep = normalize_entrypoint(svc.get("entrypoint"))
         svc_cmd = normalize_cmd(svc.get("command"))
 
         image = svc.get("image")
         if not isinstance(image, str) or not image.strip():
-            # If there is no image, we can only wrap if effective command is explicitly defined
             if not svc_ep and not svc_cmd:
                 die(
                     f"Service '{name}' has no image and no entrypoint/command in composed config"
@@ -587,22 +639,6 @@ def render_override(
             final_cmd = [_shell_payload(final_cmd)]
 
         effective_cmd = final_ep + final_cmd
-
-        # Always inject env vars + mounts.
-        override_svc: dict[str, Any] = {
-            "volumes": [
-                f"{ca_host}:{ca_container}:ro",
-                f"{wrapper_host}:{wrapper_container}:ro",
-            ],
-            "environment": {
-                "CA_TRUST_CERT": ca_container,
-                "CA_TRUST_NAME": trust_name,
-                "SSL_CERT_FILE": ca_container,
-                "REQUESTS_CA_BUNDLE": ca_container,
-                "CURL_CA_BUNDLE": ca_container,
-                "NODE_EXTRA_CA_CERTS": ca_container,
-            },
-        }
 
         if has_sh and effective_cmd:
             override_svc["entrypoint"] = [wrapper_container]
@@ -637,9 +673,38 @@ def main() -> int:
         help="Host path to wrapper script (bind-mounted)",
     )
     ap.add_argument(
+        "--ca-container",
+        required=True,
+        help="Container path the CA cert is bind-mounted to",
+    )
+    ap.add_argument(
+        "--wrapper-container",
+        required=True,
+        help="Container path the wrapper script is bind-mounted to",
+    )
+    ap.add_argument(
         "--trust-name",
         required=True,
         help="Trust anchor name for CA installation inside containers (CA_TRUST_NAME)",
+    )
+    ap.add_argument(
+        "--php-ini-host",
+        default="",
+        help="Host path to the PHP CA-trust ini (bind-mounted when set)",
+    )
+    ap.add_argument(
+        "--php-ini-container",
+        default="",
+        help="Container path the PHP CA-trust ini is bind-mounted to",
+    )
+    ap.add_argument(
+        "--no-wrapper",
+        action="store_true",
+        help=(
+            "Emit only volumes + environment, never the entrypoint/command "
+            "wrapper. Use for `docker stack deploy`, which does not un-escape "
+            "the wrapper command's $$ and would run the literal $$VAR."
+        ),
     )
     args = ap.parse_args()
 
@@ -650,6 +715,8 @@ def main() -> int:
     ca_host = str(args.ca_host).strip()
     wrapper_host = str(args.wrapper_host).strip()
     trust_name = str(args.trust_name).strip()
+    ca_container = str(args.ca_container).strip()
+    wrapper_container = str(args.wrapper_container).strip()
 
     if not ca_host:
         die("--ca-host must be non-empty")
@@ -657,6 +724,10 @@ def main() -> int:
         die("--wrapper-host must be non-empty")
     if not trust_name:
         die("--trust-name must be non-empty")
+    if not ca_container:
+        die("--ca-container must be non-empty")
+    if not wrapper_container:
+        die("--wrapper-container must be non-empty")
 
     env = dict(os.environ)
 
@@ -673,58 +744,69 @@ def main() -> int:
     if not parts:
         die("--compose-files must be non-empty")
 
-    # Base compose cmd (no profile)
-    compose_base_cmd = _compose_base_cmd(
-        project=str(args.project),
-        parts=parts,
-        env_file=env_file or "",
-    )
-
-    # Discover all profiles referenced in compose files so we can include profile-only services too.
     compose_files = _extract_compose_files(parts, cwd=cwd)
-    profiles = _discover_profiles_from_files(compose_files)
 
-    # Load services from default config, then from each profile config, and merge.
     merged_services: dict[str, Any] = {}
     service_to_compose_cmd: dict[str, list[str]] = {}
 
-    # 1) default (no profile)
-    default_services = _load_services_via_config(
-        compose_cmd=compose_base_cmd,
-        cwd=cwd,
-        env=env,
-        label="default",
-    )
-    for svc_name, svc_def in default_services.items():
-        merged_services[svc_name] = svc_def
-        service_to_compose_cmd[svc_name] = compose_base_cmd
+    if args.no_wrapper:
+        for cf in compose_files:
+            doc = parse_yaml(
+                cf.read_text(encoding="utf-8"),  # nocheck: direct-yaml
+                f"compose file ({cf})",
+            )
+            svcs = doc.get("services")
+            if isinstance(svcs, dict):
+                for svc_name, svc_def in svcs.items():
+                    merged_services.setdefault(svc_name, svc_def)
+    else:
+        compose_base_cmd = _compose_base_cmd(
+            project=str(args.project),
+            parts=parts,
+            env_file=env_file or "",
+        )
+        profiles = _discover_profiles_from_files(compose_files)
 
-    # 2) each profile (adds profile-only services like "bootstrap")
-    for p in profiles:
-        cmd_p = _compose_cmd_with_profile(compose_base_cmd, p)
-        prof_services = _load_services_via_config(
-            compose_cmd=cmd_p,
+        default_services = _load_services_via_config(
+            compose_cmd=compose_base_cmd,
             cwd=cwd,
             env=env,
-            label=f"profile:{p}",
+            label="default",
         )
-        for svc_name, svc_def in prof_services.items():
-            if svc_name not in merged_services:
-                merged_services[svc_name] = svc_def
-                service_to_compose_cmd[svc_name] = cmd_p
+        for svc_name, svc_def in default_services.items():
+            merged_services[svc_name] = svc_def
+            service_to_compose_cmd[svc_name] = compose_base_cmd
 
-    if not merged_services:
-        die("No services found after merging default + profile configs")
+        for p in profiles:
+            cmd_p = _compose_cmd_with_profile(compose_base_cmd, p)
+            prof_services = _load_services_via_config(
+                compose_cmd=cmd_p,
+                cwd=cwd,
+                env=env,
+                label=f"profile:{p}",
+            )
+            for svc_name, svc_def in prof_services.items():
+                if svc_name not in merged_services:
+                    merged_services[svc_name] = svc_def
+                    service_to_compose_cmd[svc_name] = cmd_p
 
-    override_doc = render_override(
-        merged_services,
-        service_to_compose_cmd,
-        cwd=cwd,
-        env=env,
-        ca_host=ca_host,
-        wrapper_host=wrapper_host,
-        trust_name=trust_name,
-    )
+    if merged_services:
+        override_doc = render_override(
+            merged_services,
+            service_to_compose_cmd,
+            cwd=cwd,
+            env=env,
+            ca_host=ca_host,
+            wrapper_host=wrapper_host,
+            trust_name=trust_name,
+            ca_container=ca_container,
+            wrapper_container=wrapper_container,
+            php_ini_host=str(args.php_ini_host).strip(),
+            php_ini_container=str(args.php_ini_container).strip(),
+            wrap=not args.no_wrapper,
+        )
+    else:
+        override_doc = {"services": {}}
 
     out_path = Path(args.out)
     if not out_path.is_absolute():

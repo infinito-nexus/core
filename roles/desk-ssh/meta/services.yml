@@ -1,5 +1,8 @@
 ---
 ssh:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   # Repository URL containing the user's SSH key material; override in the
   # inventory under `applications.desk-ssh.services.ssh.repository`.

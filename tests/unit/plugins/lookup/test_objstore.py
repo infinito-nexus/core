@@ -7,6 +7,7 @@ consumer has enabled and yields a uniform S3 connection payload.
 
 import importlib.util
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -36,6 +37,7 @@ class ObjstoreLookupTests(unittest.TestCase):
     def _make_lookup(self, available_vars: dict):
         lm = self.mod.LookupModule()
         lm._templar = _DummyTemplar(available_vars)
+        lm._loader = mock.MagicMock()
         return lm
 
     @staticmethod
@@ -55,13 +57,14 @@ class ObjstoreLookupTests(unittest.TestCase):
             vars_ = {"DIR_COMPOSITIONS": "/opt/compose/"}
         lookup = self._make_lookup(vars_)
         with (
-            patch.object(
-                self.mod, "get_merged_applications", return_value=applications
-            ),
+            mock.patch.object(self.mod, "lookup_loader") as loader_mock,
             patch.object(
                 self.mod, "get_entity_name", side_effect=self._fake_get_entity_name
             ),
         ):
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [applications]
+            )
             return lookup.run(terms, variables=vars_)
 
     def test_invalid_terms_raises(self):
@@ -118,9 +121,7 @@ class ObjstoreLookupTests(unittest.TestCase):
                 "services": {
                     "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
                 },
-                "server": {
-                    "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}}
-                },
+                "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}},
             },
         }
 
@@ -155,10 +156,8 @@ class ObjstoreLookupTests(unittest.TestCase):
             },
             "web-app-minio": {
                 "services": {"minio": {"name": "minio-central"}},
-                "server": {
-                    "tls": {"enabled": False},
-                    "domains": {"canonical": {"api": "api.minio.s3.example.com"}},
-                },
+                "server": {"tls": {"enabled": False}},
+                "domains": {"canonical": {"api": "api.minio.s3.example.com"}},
             },
         }
 

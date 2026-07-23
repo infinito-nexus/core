@@ -1,14 +1,14 @@
 ---
-- name: Setup locale.gen
-  template:
+- name: 🔧 Setup locale.gen
+  template: # nocheck: stack-host-template (per-host /etc/locale.gen)
     src: locale.gen.j2
     dest: /etc/locale.gen
 
-- name: Setup locale.conf
-  template:
+- name: 🔧 Setup locale.conf
+  template: # nocheck: stack-host-template (per-host /etc/locale.conf, not stack-host-only)
     src: locale.conf.j2
     dest: /etc/locale.conf
 
-- name: Generate locales
+- name: ⚙️ Generate locales
   shell: locale-gen
   become: true

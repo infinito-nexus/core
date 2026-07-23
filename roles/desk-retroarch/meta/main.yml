@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures RetroArch.
+  description: Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

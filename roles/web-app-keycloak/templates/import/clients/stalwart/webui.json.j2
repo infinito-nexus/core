@@ -1,0 +1,59 @@
+{
+  "clientId": "{{ KEYCLOAK_STALWART_WEBUI_CLIENT_ID }}",
+  "name": "Stalwart WebAdmin",
+  "description": "Public SPA client for Stalwart WebAdmin (username-first, PKCE S256).",
+  "enabled": true,
+  "surrogateAuthRequired": false,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "redirectUris": ["{{ lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '') }}/*"],
+  "webOrigins": ["{{ lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '') }}"],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": true,
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
+  "attributes": {
+    "pkce.code.challenge.method": "S256",
+    "post.logout.redirect.uris": "{{ lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '') }}/*",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "backchannel.logout.session.required": "true",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "stalwart-required-audience",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-audience-mapper",
+      "consentRequired": false,
+      "config": {
+        "included.client.audience": "{{ OIDC.CLIENT.ID }}",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "introspection.token.claim": "true"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "roles",
+    "profile",
+    "basic",
+    "email",
+    "{{ KEYCLOAK_RBAC_GROUP_CLAIM }}"
+  ],
+  "optionalClientScopes": [
+    "offline_access",
+    "microprofile-jwt"
+  ]
+}

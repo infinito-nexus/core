@@ -1,0 +1,24 @@
+---
+# Realm import only runs for a MISSING realm; this kcadm create-or-update
+# brings the client to existing realms too (desired = the import's client
+# object, one SPOT). Own client because the WebAdmin SPA needs public+PKCE
+# and Stalwart's required audience mapper — the shared client is neither.
+- name: "✅ Ensure the stalwart-webui public client"
+  vars:
+    kc_desired: >-
+      {{
+        KEYCLOAK_DICTIONARY_REALM.clients
+          | selectattr('clientId', 'equalto', KEYCLOAK_STALWART_WEBUI_CLIENT_ID)
+          | list | first
+      }}
+  keycloak_kcadm_update:
+    object_kind: "client"
+    lookup_value: "{{ KEYCLOAK_STALWART_WEBUI_CLIENT_ID }}"
+    desired: "{{ kc_desired }}"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+    assert_mode: "{{ MODE_ASSERT }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  when: KEYCLOAK_STALWART_WEBUI_ENABLED | bool

@@ -1,5 +1,12 @@
 ---
 rdr-www:
+  modes:
+    host:
+      enabled: false
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
   prefered_flavor: origin
   lifecycle: beta
   min_storage: "50MB"

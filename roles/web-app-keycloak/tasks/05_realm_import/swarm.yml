@@ -1,0 +1,100 @@
+---
+# All `container service` commands must run on the swarm manager
+# (workers cannot view or modify cluster state), so delegate every
+# task in this file to STACK_HOST.
+- name: "📏 Keycloak realm-import | Scale keycloak service to 0 replicas"
+  ansible.builtin.shell: >
+    container service update --detach --replicas 0
+    {{ lookup('container_service', application_id, entity_name) | quote }}
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "⏳ Keycloak realm-import | Wait until no running task remains"
+  ansible.builtin.shell: |
+    container service ps {{ lookup('container_service', application_id, entity_name) | quote }} \
+      --filter desired-state=running \
+      --format '{{ "{{.CurrentState}}" }}' | wc -l | grep -qE '^\s*0\s*$'
+  register: kc_swarm_drained
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: kc_swarm_drained.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "▶️ Keycloak realm-import | Run one-shot import job"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    JOB={{ lookup('container_service', application_id, entity_name) | quote }}_import
+    container service rm "$JOB" 2>/dev/null || true
+    container service create --detach --restart-condition on-failure --restart-max-attempts 3 --name "$JOB" \
+      --constraint node.role==manager \
+      --env-file {{ lookup('container', application_id, 'files.env') | quote }} \
+      --network {{ application_id | get_entity_name | quote }} \
+      {{ KEYCLOAK_DB_NETWORK_ARG }} \
+      --mount type=bind,source={{ KEYCLOAK_REALM_IMPORT_DIR_HOST | quote }},target={{ KEYCLOAK_REALM_IMPORT_DIR_DOCKER | quote }},readonly \
+      --entrypoint /opt/keycloak/bin/kc.sh \
+      {{ KEYCLOAK_IMAGE }}:{{ KEYCLOAK_VERSION }} \
+      import --file {{ KEYCLOAK_REALM_IMPORT_FILE_DOCKER }} --verbose
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "⏳ Keycloak realm-import | Wait for import job to complete"
+  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/job_state.sh') }}"
+  environment:
+    JOB: "{{ lookup('container_service', application_id, entity_name) }}_import"
+  register: kc_import_done
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: kc_import_done.rc != 1
+  failed_when: kc_import_done.rc != 0
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🗑️ Keycloak realm-import | Remove one-shot import service"
+  ansible.builtin.shell: >
+    container service rm
+    {{ lookup('container_service', application_id, entity_name) }}_import
+  changed_when: true
+  failed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📏 Keycloak realm-import | Scale keycloak back to nominal replicas"
+  ansible.builtin.shell: >
+    container service update --detach --replicas {{ KEYCLOAK_REPLICAS }}
+    {{ lookup('container_service', application_id, entity_name) | quote }}
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "⏳ Keycloak realm-import | Wait until replicas converge X/X and stay stable"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    SVC={{ lookup('container_service', application_id, entity_name) | quote }}
+    WANT={{ KEYCLOAK_REPLICAS_WANT }}
+    got="$(container service ls --filter name="$SVC" --format '{{ "{{.Replicas}}" }}' | head -1)"
+    test "$got" = "$WANT"
+  register: kc_replicas_converged
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: kc_replicas_converged.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "✅ Keycloak realm-import | Confirm replicas stay X/X for consecutive polls"
+  ansible.builtin.script: "{{ role_path }}/files/wait_replicas_stable.sh"
+  environment:
+    SVC: "{{ lookup('container_service', application_id, entity_name) }}"
+    WANT: "{{ KEYCLOAK_REPLICAS_WANT }}"
+  register: kc_replicas_stable
+  changed_when: false
+  retries: 10
+  delay: 5
+  until: kc_replicas_stable.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🔍 Keycloak realm-import | Re-resolve hosting node + container id after scale-up"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: KEYCLOAK
+    resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+    resolve_cid_filters: "--filter health=healthy"

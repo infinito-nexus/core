@@ -15,6 +15,32 @@ groups:
             {{ '{{' }} $labels.instance {{ '}}' }} has been unreachable for more than 2 minutes.
             Check the application container and upstream connectivity.
 
+      # The https:// blackbox probes above already export the certificate
+      # expiry timestamp; no extra exporter is needed for cert monitoring.
+      - alert: TlsCertificateExpiringSoon
+        expr: (probe_ssl_earliest_cert_expiry{job="blackbox-healthz"} - time()) < 14 * 86400
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "TLS certificate for {{ '{{' }} $labels.app {{ '}}' }} expires in less than 14 days"
+          description: >
+            The certificate served at {{ '{{' }} $labels.instance {{ '}}' }}
+            (app: {{ '{{' }} $labels.app {{ '}}' }}) expires soon.
+            Check certificate renewal and sys-ctl-mtn-cert-deploy.
+
+      - alert: TlsCertificateExpiryCritical
+        expr: (probe_ssl_earliest_cert_expiry{job="blackbox-healthz"} - time()) < 3 * 86400
+        for: 30m
+        labels:
+          severity: critical
+        annotations:
+          summary: "TLS certificate for {{ '{{' }} $labels.app {{ '}}' }} expires in less than 3 days"
+          description: >
+            The certificate served at {{ '{{' }} $labels.instance {{ '}}' }}
+            (app: {{ '{{' }} $labels.app {{ '}}' }}) is about to expire.
+            Renew immediately; clients will start failing at expiry.
+
       - alert: AppHighLatency
         expr: >
           histogram_quantile(0.95,

@@ -1,0 +1,3 @@
+---
+database_init: false # When true per-consumer provisioning runs (no-op for unbound; isolation is none)
+database_consumer_id: "svc-dns-unbound"

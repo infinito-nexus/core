@@ -15,25 +15,37 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: act-all
-# Run all act-based deploy checks.
-act-all:
-	@bash scripts/tests/deploy/act/all.sh
+.PHONY: act-debug
+# Param: node=<container_name> cmd='<shell pipeline>'
+act-debug:
+	@docker exec $(node) bash --noprofile --norc -c "$(cmd)"
 
-.PHONY: act-app
-# Run the act-based app deploy check.
-act-app:
-	@bash scripts/tests/deploy/act/app.sh
+.PHONY: act-runner-image
+# Build local/act-runner-fixed: the stock act runner image with /var/run removed so a recent Docker engine accepts act's job-setup content copy.
+# Usage: ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make swarm-zombie app=<app>
+# Note: see docs/agents/action/iteration/workflow.md.
+act-runner-image:
+	@bash scripts/tests/deploy/act/build_runner_image.sh
 
 .PHONY: act-workflow
 # Run the act-based workflow deploy check.
-act-workflow:
+act-workflow: install-act
 	@bash scripts/tests/deploy/act/workflow.sh
+
+.PHONY: alias
+# Print the portable agent shortcuts and the operator's terminal aliases.
+alias:
+	@bash scripts/make/alias.sh
 
 .PHONY: autoformat
 # Auto-format all source files (skips tools that are not installed).
 autoformat: install-lint
 	@bash scripts/lint/wrapper.sh autoformat
+
+.PHONY: autoformat-restage
+# Autoformat, then re-stage files it rewrote that were already staged -- only when no unstaged changes were present beforehand.
+autoformat-restage:
+	@bash scripts/git/autoformat_restage.sh "$(MAKE)" autoformat
 
 .PHONY: bootstrap
 # Install dependencies and prepare the project.
@@ -76,6 +88,11 @@ build-no-cache-all:
 		INFINITO_DISTRO="$$d" "$(MAKE)" build-no-cache; \
 	done
 
+.PHONY: cheat
+# Print the operator prompt cheatsheet from docs/contributing/tools/agents/cheatsheet.md.
+cheat:
+	@bash scripts/make/cheatsheet.sh
+
 .PHONY: clean
 # Remove ignored files from the working tree.
 # Note: falls back to sudo for container-owned __pycache__/*.pyc; warns and continues if both fail.
@@ -113,6 +130,11 @@ clean-container-owned:
 clean-pycache-dirs:
 	@"$${PYTHON}" -m utils.cleanup.pycache_only_dirs
 
+.PHONY: clean-stale-nfs
+# Recover stale in-namespace NFS mounts from wedged act-swarm nfs-server containers.
+# Usage: make clean-stale-nfs [cid=<container-id-or-name>] [mount=/mnt/gtest]
+clean-stale-nfs: swarm-clean-stale-nfs
+
 .PHONY: clean-sudo
 # Remove ignored files from the working tree with sudo.
 clean-sudo:
@@ -127,15 +149,15 @@ clean-sudo:
 # Param mode: initialize | reinstall | update (default: initialize)
 # Param apps: comma-separated app ids (e.g. web-app-matomo,web-app-keycloak)
 # Param purge: true | false (default: false) — purge entities before deploy
-# Param type: server | workstation | universal (default: from default.env)
 # Param bundles: comma-separated bundle names; overrides apps when set
 # Param disable: comma-separated service names to render as disabled
 # Param full_cycle: true | false — when true, also run the async update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
+# Param skip_compile: true | false — skip the in-container entry.sh recompile (use when the venv is prebuilt)
 compose-deploy:
-	@$(if $(type),INFINITO_DEPLOY_TYPE="$(type)") \
-	 $(if $(debug),INFINITO_DEBUG="$(debug)") \
+	@$(if $(debug),INFINITO_DEBUG="$(debug)") \
+	 $(if $(skip_compile),INFINITO_SKIP_COMPILE="$(skip_compile)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
 .PHONY: compose-down
@@ -209,6 +231,13 @@ compose-up: install
 console:
 	@"$${PYTHON}" -m cli.console
 
+.PHONY: cosmos
+# Regenerate the '## Cosmos' mermaid diagram in every role README (or one role).
+# Usage: make cosmos [role=<id>]
+# Param role: single role id (default: all roles)
+cosmos:
+	@"$${PYTHON}" -m cli.build.readme $(role) --update-cosmos
+
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
 diagnose-disk-usage:
@@ -219,6 +248,13 @@ diagnose-disk-usage:
 # Note: covers DNS, TCP, TLS, and PMTU on both IPv4 and IPv6.
 diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
+
+.PHONY: docs
+# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, and the root-README roles index.
+docs:
+	@"$(MAKE)" cosmos
+	@"$(MAKE)" readme-generate quick_setup=true
+	@"$(MAKE)" readme-index
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
@@ -267,11 +303,26 @@ help:
 install:
 	@bash scripts/install/all.sh
 
+.PHONY: install-act
+# Install act (nektos/act) if missing; provisions the act-based make targets.
+install-act:
+	@bash scripts/install/act.sh
+
+.PHONY: install-act-update
+# Force act (nektos/act) to its latest release.
+install-act-update:
+	@bash scripts/install/act.sh update
+
 .PHONY: install-agent
 # Install OS-level sandbox dependencies required by the Claude Code sandbox.
 # Note: pulls in bubblewrap and socat.
 install-agent:
 	@bash scripts/install/sandbox.sh
+
+.PHONY: install-alias
+# Install the terminal aliases from INFINITO_ALIAS_REPOSITORY into the user's shell config.
+install-alias:
+	@bash scripts/install/alias.sh
 
 .PHONY: install-ansible
 # Install Ansible dependencies.
@@ -309,14 +360,14 @@ install-python-dev: install-python
 	@bash scripts/install/pre-commit.sh
 
 .PHONY: install-skills
-# Install agent skills from skills-lock.json.
+# Install the agent skills from INFINITO_SKILLS_REPOSITORY into this project.
 install-skills:
-	@bash scripts/install/skills/install.sh
+	@bash scripts/install/skills.sh
 
 .PHONY: install-system-python
 # Install the system Python prerequisites.
 install-system-python:
-	@bash roles/dev-python/files/install.sh ensure
+	@bash "$${INFINITO_PYTHON_INSTALL_SCRIPT:?}" ensure
 
 .PHONY: install-venv
 # Install the virtual environment.
@@ -329,9 +380,11 @@ install-venv: install-system-python
 lint: install-lint
 	@bash scripts/make/parallel.sh lint-action \
 		lint-ansible \
+		lint-dockerfile \
 		lint-javascript \
 		lint-makefile \
 		lint-markdown \
+		lint-mermaid \
 		lint-packages \
 		lint-playwright \
 		lint-python \
@@ -348,6 +401,11 @@ lint-action: install-lint
 lint-ansible: install-lint setup
 	@bash scripts/lint/wrapper.sh ansible
 
+.PHONY: lint-dockerfile
+# Run hadolint over the root Dockerfile.
+lint-dockerfile: install-lint
+	@bash scripts/lint/wrapper.sh dockerfile
+
 .PHONY: lint-javascript
 # Run ESLint over the project's JavaScript files.
 # Note: covers Playwright specs and persona helpers.
@@ -363,6 +421,11 @@ lint-makefile: install-lint
 # Run Markdown lint checks via markdownlint-cli2.
 lint-markdown: install-lint
 	@bash scripts/lint/wrapper.sh markdown
+
+.PHONY: lint-mermaid
+# Render every Markdown mermaid diagram via mmdc; fails on any diagram GitHub cannot render.
+lint-mermaid: install-lint
+	@bash scripts/lint/wrapper.sh mermaid
 
 .PHONY: lint-packages
 # Validate distro packaging metadata (debian changelog, fedora spec, arch PKGBUILD).
@@ -437,11 +500,57 @@ network-trust-ca:
 	@bash scripts/system/tls/trust/linux.sh
 	@bash scripts/system/tls/trust/wsl2.sh
 
+.PHONY: onboard
+# Set up a developer workstation end to end: dependencies, project setup, agent skills, terminal aliases, host network/security prep, and the dev extras inside the running dev container.
+onboard: bootstrap install-skills install-alias environment-bootstrap
+	@"$(MAKE)" compose-up
+	@"$(MAKE)" compose-exec cmd="bash scripts/install/dev-extras.sh"
+
+.PHONY: quality
+# Regenerate generated docs, autoformat, then run the full test suite (pre-commit gate).
+quality:
+	@"$(MAKE)" docs
+	@"$(MAKE)" autoformat
+	@"$(MAKE)" test
+
+.PHONY: quality-high
+# Full gate: quality (autoformat + test) followed by every lint check.
+quality-high: quality lint
+
+.PHONY: readme-check
+# Verify every role README matches the schema template (writes nothing; fails if any would change).
+readme-check:
+	@"$${PYTHON}" -m cli.build.readme --check
+
+.PHONY: readme-generate
+# Generate/complete role README.md files from templates/roles/README.md.j2.tmpl.
+# Usage: make readme-generate [role=<id>] [override=true] [cosmos=true] [quick_setup=true]
+# Param role: single role id (default: all roles)
+# Param override: true regenerates managed sections even when present
+# Param cosmos: true regenerates only the Cosmos diagram
+# Param quick_setup: true regenerates only the Quick Setup section
+readme-generate:
+	@"$${PYTHON}" -m cli.build.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
+
+.PHONY: readme-index
+# Regenerate the invokable-role overview table in the root README.md.
+# Param check: true verifies only and fails when the table is outdated
+readme-index:
+	@"$${PYTHON}" -m cli.build.readme.overview $(if $(filter true,$(check)),--check)
+
 .PHONY: requirements-archive
 # Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).
 requirements-archive:
 	@"$${PYTHON}" -m pip install --quiet --upgrade kpmx
 	@"$${PYTHON}" -m pkgmgr archive docs/requirements
+
+.PHONY: roundtrip
+# Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
+# Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
+# Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
+# Param keep: true keeps each validated swarm cluster instead of releasing it.
+roundtrip:
+	@apps='$(apps)' modes='$(modes)' keep='$(keep)' bash scripts/tests/deploy/roundtrip.sh
 
 .PHONY: runner-ci-deploy
 # Provision self-hosted CI runner instances on a remote host.
@@ -449,7 +558,7 @@ requirements-archive:
 runner-ci-deploy:
 	@: "$${HOST:?HOST must be set (e.g. make runner-ci-deploy HOST=runner.example.com DISTRO=debian)}"
 	@: "$${DISTRO:?DISTRO must be set (e.g. debian, archlinux)}"
-	@"$${PYTHON}" -m cli.deploy.runner "$${HOST}" \
+	@"$${PYTHON}" -m cli.administration.deploy.runner "$${HOST}" \
 		--roles svc-runner \
 		--distribution "$${DISTRO}" \
 		--runner-count "$${COUNT:-15}" \
@@ -507,17 +616,104 @@ setup: fix-dockerignore dotenv
 setup-clean: clean setup
 	@echo "Full build with cleanup before was executed."
 
+.PHONY: swarm-app-exec
+# Run a one-off command inside a swarm SERVICE container (one replica) on a DinD node.
+# Param service: swarm service name (e.g. moodle_moodle | openldap_openldap).
+# Param name: cluster id (the app id) used to default the node.
+# Param node: full DinD node container (default <name>-swarm-mgr-01).
+# Param cmd: shell pipeline executed inside the resolved service container.
+swarm-app-exec:
+	@test -n '$(service)' || { echo 'usage: make swarm-app-exec service=<svc> [name=<cluster>] [node=<container>] cmd="..."'; exit 2; }
+	@node='$(or $(node),$(name)-swarm-mgr-01)' service='$(service)' cmd='$(cmd)' bash scripts/tests/deploy/act/exec/service.sh
+
+.PHONY: swarm-clean
+# Reclaim ALL leftover act-swarm state (DinD nodes, NFS sidecars, lab networks, act outer containers) from aborted/wedged roundtrip runs, across every cluster id.
+# Note: removes what the docker CLI can; D-state remnants (wedged kernel NFS) need a host docker restart under sudo, or are reported in a no-priv sandbox.
+# Note: run BETWEEN swarm runs; it would kill an in-flight one.
+swarm-clean:
+	@bash scripts/tests/deploy/swarm/utils/clean/all.sh
+
+.PHONY: swarm-clean-stale-nfs
+# Recover stale in-namespace NFS mounts from wedged act-swarm nfs-server containers.
+# Usage: make swarm-clean-stale-nfs [cid=<container-id-or-name>] [mount=/mnt/gtest]
+# Note: needs sudo; may restart containerd/docker only if docker rm still cannot reap the container.
+swarm-clean-stale-nfs:
+	@CID='$(cid)' NFS_MOUNT='$(mount)' bash scripts/tests/deploy/swarm/utils/clean/stale_nfs.sh
+
+.PHONY: swarm-diagnostic
+# Backup/NFS diagnostics for a live swarm-test cluster: backup unit state + journal, NFS mounts, D-state (wedged NFS) processes, rsync/dump processes, disk. Read-only.
+# Param name: REQUIRED cluster id (the app id when no name= was passed to swarm-zombie).
+# Param node: optional single node container name; default probes mgr-01, nfs-server, bkp-01.
+# Param unit: optional systemd unit glob for the journal dump; default svc-bkp-*.
+swarm-diagnostic:
+	@test -n '$(name)' || { echo 'usage: make swarm-diagnostic name=<cluster-id> [node=<container>] [unit=<glob>]'; exit 2; }
+	@SWARM_NAME='$(name)' node='$(node)' unit='$(unit)' bash scripts/tests/deploy/swarm/utils/diagnostic.sh
+
+.PHONY: swarm-down
+# Release a named swarm-test cluster (DinD nodes, lab network, act outer container).
+# Param name: REQUIRED cluster id matching the one swarm-zombie used (the app id when no name= was passed).
+# Note: Safe to run multiple times.
+swarm-down:
+	@test -n '$(name)' || { echo 'usage: make swarm-down name=<cluster-id> (the app id if you did not pass name=)'; exit 2; }
+	@SWARM_NAME='$(name)' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
+	@bash scripts/tests/deploy/act/down_act_outer.sh
+
+.PHONY: swarm-exec
+# Run a one-off command inside one of the swarm-test DinD nodes.
+# Param node: full container name (e.g. <cluster>-swarm-mgr-01 | <cluster>-nfs-server; cluster = name= or the app id).
+# Param cmd: shell pipeline executed inside that container.
+swarm-exec:
+	@node='$(node)' cmd='$(cmd)' bash scripts/tests/deploy/act/exec/node.sh
+
+.PHONY: swarm-playwright
+# Rerun a role-local Playwright spec against the live swarm-test cluster (no redeploy).
+# Note: nodes hold a frozen bootstrap copy (not a compose-style mount), so the working-tree's modified+untracked files are copied into the node before rerunning via the same rerun-spec.sh engine as compose-playwright; solve ALL of a role's tests (no pw= narrowing) before any redeploy.
+# Usage: make swarm-playwright role=<role> name=<cluster-id> [pw="--grep <pattern>"] [keep=true] [node=<container>]
+# Example: make swarm-playwright role=web-svc-logout name=web-app-baserow pw="--grep baserow" keep=true
+swarm-playwright:
+	@: $${role:?role=<role> required, e.g. role=web-svc-logout}
+	@test -n '$(name)' || { echo 'name=<cluster-id> required (the app id when no name= was passed to swarm-zombie)'; exit 2; }
+	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
+	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
+
+.PHONY: swarm-shell
+# Drop into an interactive shell on one of the swarm-test DinD nodes.
+# Param name: REQUIRED cluster id (the app id when no name= was passed); node defaults to <name>-swarm-mgr-01.
+# Param node: full container name to target (overrides the default).
+swarm-shell:
+	@test -n '$(name)' || { echo 'usage: make swarm-shell name=<cluster-id> [node=<container>]'; exit 2; }
+	@SWARM_NAME='$(name)' node='$(node)' bash scripts/tests/deploy/act/shell_node.sh
+
+.PHONY: swarm-zombie
+# Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
+# Param app: matrix application id (e.g. web-app-baserow).
+# Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
+# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
+# Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
+# Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
+swarm-zombie: install-act
+	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
+	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
+	@bash scripts/tests/deploy/act/down_act_outer.sh
+	@ACT_RM=false \
+	 ACT_BIND=true \
+	 ACT_ENV='INFINITO_KEEP_SWARM_NODES=true;INFINITO_APP_DISCOVERY_RUNNER=host;INFINITO_DEPLOY_MODE=swarm;disable=$(disable);SWARM_NAME=$(or $(name),$(app))' \
+	 ACT_WORKFLOW=.github/workflows/test-deploy-swarm.yml \
+	 ACT_JOB=swarm \
+	 ACT_MATRIX='apps:$(app);variant:$(or $(variant),0)' \
+	 ACT_INPUTS='whitelist=$(app)' \
+	 bash scripts/tests/deploy/act/workflow.sh
+
 .PHONY: system-purge
 # Run the broad low-hardware cleanup routine.
 system-purge:
 	@bash scripts/system/purge/system.sh
 
 .PHONY: test
-# Run the full test pipeline (lint + tests).
+# Run the full test pipeline.
 # Note: parallel execution with fail-fast.
-test: install install-lint
+test: install
 	@bash scripts/make/parallel.sh \
-		lint \
 		test-external \
 		test-integration \
 		test-lint \
@@ -544,6 +740,24 @@ test-lint: install
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh
 
+.PHONY: test-main-merged
+# Verify upstream main is fully merged into HEAD (pre-push gate); fetches and fails if the branch lags main.
+test-main-merged:
+	@bash scripts/git/assert/main_merged.sh
+
+.PHONY: test-merge-signed
+# Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (pre-merge-commit gate).
+test-merge-signed:
+	@bash scripts/git/assert/merge_signed.sh
+
+.PHONY: test-migration
+# Standalone Mailu->Stalwart data-migration test (seed stump, migrate, verify).
+# Note: gated by INFINITO_TEST_MIGRATION elsewhere; this explicit target enables it.
+# Note: needs docker + python3 only — no platform deploy involved.
+test-migration:
+	@INFINITO_TEST_MIGRATION=true \
+	bash roles/web-app-stalwart/files/test.sh
+
 .PHONY: test-signed
 # Verify HEAD is signed.
 # Note: `git log %G?` returns N for unsigned; gates the pre-push hook against unsigned tips.
@@ -561,11 +775,6 @@ test-unit: install
 	@INFINITO_TEST_TYPE="unit" \
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh
-
-.PHONY: update-skills
-# Update all agent skills to latest versions and refresh skills-lock.json.
-update-skills:
-	@bash scripts/install/skills/update.sh
 
 .PHONY: wsl2-dns-setup
 # Set up DNS on WSL2.

@@ -6,7 +6,7 @@
 # NOT exercise.
 #
 # This file is sourced ON TOP OF common.sh by callers that need cache
-# checks (currently only 07_deploy_minimal.sh).
+# checks.
 set -euo pipefail
 
 # Map runtime image to the Nexus proxy repo that proxies its system
@@ -96,10 +96,6 @@ assert_caches_used() {
 
 	local -a failures=()
 
-	# Package-cache assertion: cumulative proxy traffic must exist for
-	# the runtime's expected system-package proxy. Cumulative (not
-	# delta) because most apt/yum traffic happens during 01_install,
-	# well before this assertion fires.
 	if [[ "${nexus_total_after}" -le 0 ]]; then
 		failures+=("package-cache: no /repository/<name>/ traffic ever observed (Nexus seems unused)")
 	fi
@@ -107,9 +103,6 @@ assert_caches_used() {
 		failures+=("package-cache: expected proxy '${expected_proxy}' for ${DEV_RUNTIME_IMAGE} has no cached requests")
 	fi
 
-	# Registry-cache assertion: the deploy itself must produce flow
-	# entries (HIT or MISS), since image pulls are part of the
-	# deploy.
 	if [[ "${delta_registry}" -le 0 ]]; then
 		failures+=("registry-cache: no HIT/MISS recorded during this deploy")
 	fi
@@ -131,10 +124,6 @@ assert_caches_used() {
 _resolve_fedora_release() {
 	local image="${DEV_RUNTIME_IMAGE:-}"
 	[[ -z "${image}" ]] && return 0
-	# Override entrypoint to /bin/cat: Fedora's official container image
-	# defaults to bash, but pinning the entrypoint makes the call resilient
-	# against derivatives that ship a non-shell entrypoint. /etc/os-release
-	# is plain `KEY=VALUE`, awk lifts VERSION_ID with quotes stripped.
 	docker run --rm --entrypoint /bin/cat "${image}" /etc/os-release 2>/dev/null |
 		awk -F= '/^VERSION_ID=/ { gsub(/"/, "", $2); print $2; exit }'
 }
@@ -186,12 +175,6 @@ probe_caches() {
 		echo "[OK] package-cache: '${proxy_repo}' served '${upstream_path}'"
 	fi
 
-	# Registry-cache (rpardini/docker-registry-proxy) is a transparent
-	# CONNECT proxy used by dockerd. It does not expose /v2/ directly;
-	# its only public HTTP endpoint is /ca.crt. A 200 there proves the
-	# cache container is alive and reachable via the proxy port. The
-	# AND-assertion against ``delta_registry > 0`` then confirms the
-	# deploy actually flowed through it.
 	echo "[probe] registry-cache: GET /ca.crt"
 	if ! docker exec infinito-registry-cache wget \
 		--quiet --tries=1 --timeout=10 \
@@ -219,12 +202,6 @@ probe_did_inner_build() {
 		return 0
 	fi
 
-	# Compose derives the network name from the project name, which
-	# defaults to the host CWD basename: `infinito-nexus` locally,
-	# `infinito-nexus-core` in the CI fork, something else again in
-	# Act-runner workspaces or worktrees. Discover the network the
-	# frontend container is actually on instead of hardcoding it, so
-	# the probe stays correct regardless of how the repo is named.
 	local network="${COMPOSE_NETWORK:-}"
 	if [[ -z "${network}" ]]; then
 		network="$(docker inspect -f \
@@ -249,10 +226,6 @@ probe_did_inner_build() {
 
 	echo "[probe-did] docker build --add-host deb.debian.org:${frontend_ip}" \
 		"--network ${network} (apt-get update via frontend)"
-	# Force the classic builder: BuildKit rejects user-defined compose
-	# networks ("not supported by buildkit"). The classic builder
-	# accepts arbitrary `--network <name>` so we can put the build on
-	# the same network as the frontend container.
 	if ! DOCKER_BUILDKIT=0 docker build --no-cache \
 		--network "${network}" \
 		--add-host "deb.debian.org:${frontend_ip}" \

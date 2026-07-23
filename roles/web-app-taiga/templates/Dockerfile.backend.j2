@@ -1,11 +1,11 @@
 FROM taigaio/taiga-back:{{ TAIGA_VERSION }}
 
 {% if TAIGA_OIDC_ENABLED | bool %}
-# The OIDC backend lives in the repository's back/ subdirectory, so git is
-# required only for this build step.
+# Exception: the OIDC plugin installs from the repository's back/ subdirectory,
+# so git is required only for this build step and purged again afterwards.
 RUN rm -rf /var/lib/apt/lists/* && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends git && \
+    apt-get -o Acquire::Retries=3 update && \
+    apt-get -o Acquire::Retries=3 install -y --no-install-recommends git && \
     pip install --no-cache-dir {{ TAIGA_PLUGIN_PIP_INSTALL_ARGS }} && \
     apt-get purge -y --auto-remove git && \
     rm -rf /var/lib/apt/lists/*

@@ -35,6 +35,8 @@ from __future__ import annotations
 import unittest
 from typing import TYPE_CHECKING
 
+from utils.annotations.suppress import line_has_rule
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
@@ -51,16 +53,43 @@ if TYPE_CHECKING:
 ROLES_DIR = PROJECT_ROOT / "roles"
 
 
+_RULE = "dynamic-flag"
+
+
 def _is_dynamic_flag(value) -> bool:
     return isinstance(value, str) and "in group_names" in value
 
 
-def _dynamic_pairs(services: dict) -> list[tuple[str, str]]:
+def _suppressed_top_level_keys(file_path: Path) -> set[str]:
+    """Return the set of top-level service keys whose preceding comment
+    block carries a ``# nocheck: dynamic-flag`` marker (mirrors
+    ``tests.integration.roles.meta.services.test_dynamic_flags``)."""
+    exceptions: set[str] = set()
+    pending = False
+    for raw_line in read_text(str(file_path)).splitlines():
+        stripped = raw_line.strip()
+        if stripped.startswith("#"):
+            if line_has_rule(raw_line, _RULE):
+                pending = True
+            continue
+        if not stripped:
+            pending = False
+            continue
+        is_top_level = not raw_line.startswith((" ", "\t"))
+        if pending and is_top_level and ":" in stripped:
+            key = stripped.split(":", 1)[0].strip()
+            if key:
+                exceptions.add(key)
+        pending = False
+    return exceptions
+
+
+def _dynamic_pairs(services: dict, suppressed: set[str]) -> list[tuple[str, str]]:
     """Return ``[(service_key, flag_name), ...]`` for every flag whose
     value is a Jinja string carrying ``in group_names``."""
     pairs: list[tuple[str, str]] = []
     for key, entry in services.items():
-        if not isinstance(entry, dict):
+        if not isinstance(entry, dict) or key in suppressed:
             continue
         pairs.extend(
             (key, flag)
@@ -100,11 +129,6 @@ class TestVariantsCoverage(unittest.TestCase):
     def test_every_dynamic_flag_has_true_and_false_variant(self):
         offenders: list[str] = []
 
-        # Matrix-deploy only iterates roles that include
-        # ``ROLE_TYPE_APPLICATION`` in their type set (per
-        # :func:`utils.roles.type.get_role_types`), so other roles
-        # never reach the variant planner and a ``meta/variants.yml``
-        # stub on them would be dead weight.
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
             role_name = role_dir.name
             if ROLE_TYPE_APPLICATION not in get_role_types(role_dir):
@@ -114,7 +138,7 @@ class TestVariantsCoverage(unittest.TestCase):
             if not isinstance(services, dict):
                 continue
 
-            pairs = _dynamic_pairs(services)
+            pairs = _dynamic_pairs(services, _suppressed_top_level_keys(services_path))
             if not pairs:
                 continue
 
@@ -130,8 +154,6 @@ class TestVariantsCoverage(unittest.TestCase):
                 )
                 continue
 
-            # Normalise: a bare ``- `` list item parses as None and is
-            # equivalent to ``{}``.
             normalised_variants = [v if isinstance(v, dict) else {} for v in variants]
 
             for service_key, flag in sorted(pairs):

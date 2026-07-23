@@ -1,0 +1,57 @@
+---
+# Resolve the hosting node and local container id of a service's task so callers
+# can delegate to <prefix>_HOST_NODE and run commands inside <prefix>_LOCAL_CID.
+# An in-container command is node-local, so a swarm task on a worker must be
+# reached on its own node. Sets <prefix>_HOST_NODE / <prefix>_LOCAL_CID (swarm+compose).
+#
+# Param: resolve_service_key      - compose/swarm service key
+# Param: resolve_service_name     - explicit swarm service name; overrides container_service(application_id, resolve_service_key) for a service in another stack (e.g. a shared central DB)
+# Param: resolve_output_prefix    - fact prefix; sets <prefix>_HOST_NODE / <prefix>_LOCAL_CID
+# Param: resolve_compose_cid      - container id/name used in compose mode
+# Param: resolve_converge_retries - swarm converge retries (default 600)
+# Param: resolve_converge_delay   - swarm converge delay seconds (default 2)
+# Param: resolve_cid_filters      - extra `container ps` filters for the cid lookup (default '')
+- name: "🔧 resolve_host_cid | resolve swarm service name for '{{ resolve_service_key }}'"
+  ansible.builtin.set_fact:
+    _resolve_service_name: "{{ (resolve_service_name | default('')) or (lookup('container_service', application_id, resolve_service_key) if DEPLOYMENT_MODE == 'swarm'
+      else '') }}"
+
+- name: "⏳ resolve_host_cid | wait for '{{ resolve_service_key }}' to converge"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ resolve_service_key }}"
+    wait_service_name: "{{ _resolve_service_name }}"
+    wait_retries: "{{ resolve_converge_retries | default(600) }}"
+    wait_delay: "{{ resolve_converge_delay | default(2) }}"
+
+- name: "🔍 resolve_host_cid | resolve hosting node for '{{ resolve_service_key }}'"
+  ansible.builtin.shell: |
+    container service ps {{ _resolve_service_name | quote }} \
+      --filter desired-state=running \
+      --format '{{ "{{.Node}}" }}' | head -1
+  register: _resolve_node
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔧 resolve_host_cid | set {{ resolve_output_prefix }}_HOST_NODE"
+  ansible.builtin.set_fact:
+    "{{ resolve_output_prefix }}_HOST_NODE": "{{ (_resolve_node.stdout | trim) if DEPLOYMENT_MODE == 'swarm' else inventory_hostname }}"
+
+- name: "🔍 resolve_host_cid | resolve local container id for '{{ resolve_service_key }}'"
+  ansible.builtin.shell: |
+    {% if DEPLOYMENT_MODE == 'swarm' %}
+    container ps \
+      --filter "label=com.docker.swarm.service.name={{ _resolve_service_name }}" \
+      --filter status=running {{ resolve_cid_filters | default('') }} \
+      --format '{{ "{{.ID}}" }}' | head -1
+    {% else %}
+    echo {{ resolve_compose_cid | quote }}
+    {% endif %}
+  register: _resolve_cid
+  changed_when: false
+  delegate_to: "{{ lookup('vars', resolve_output_prefix ~ '_HOST_NODE') }}"
+
+- name: "🔧 resolve_host_cid | set {{ resolve_output_prefix }}_LOCAL_CID"
+  ansible.builtin.set_fact:
+    "{{ resolve_output_prefix }}_LOCAL_CID": "{{ _resolve_cid.stdout | trim }}"

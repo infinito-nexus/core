@@ -1,5 +1,5 @@
 ---
-- name: install make
+- name: 📦 install make
   package:
     name: make
     state: present

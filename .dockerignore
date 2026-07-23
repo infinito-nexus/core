@@ -16,17 +16,16 @@ roles/importer_result.json
 build/*
 .ruff_cache
 .agents
+.claude/skills/
+.claude-*
 collections/
 .env
+custom.env
 logs/
 job-logs.txt
-.claude/skills
-.claude/agents
-.claude/commands
-.claude/hooks
-.claude/settings.local.json
 *.lock
 node_modules/
+inventories/production/
 
 # No-op for Git (ignored implicitly), but Docker needs .git in its ignore-list — keeps make dockerignore as a pure cat of this file.
 .git
@@ -45,4 +44,3 @@ compose/Corefile
 .vscode
 .zprofile
 .zshrc
-

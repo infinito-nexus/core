@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
 from utils.roles.applications.config import get
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.tls_common import resolve_enabled
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")
@@ -67,11 +67,11 @@ class LookupModule(LookupBase):
             want = "all"
 
         vars_ = variables or self._templar.available_variables
-        applications = get_merged_applications(
-            variables=vars_,
-            roles_dir=kwargs.get("roles_dir"),
+        applications = lookup_loader.get(
+            "applications",
+            loader=self._loader,
             templar=getattr(self, "_templar", None),
-        )
+        ).run([], variables=vars_)[0]
         path_instances = self._require_var(vars_, "DIR_COMPOSITIONS")
         consumer_entity = get_entity_name(consumer_id)
 
@@ -214,7 +214,7 @@ class LookupModule(LookupBase):
         public_domain = get(
             applications,
             provider_role,
-            "server.domains.canonical.api",
+            "domains.canonical.api",
             strict=False,
             default="",
             skip_missing_app=True,

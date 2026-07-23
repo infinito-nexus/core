@@ -2,12 +2,12 @@
 # Remove/stop/disable systemd units that belong to this SOFTWARE_NAME,
 # but are not for the current version.
 
-- name: "sys-service | Determine current software/version (lowercase)"
+- name: "🤔 sys-service | Determine current software/version (lowercase)"
   ansible.builtin.set_fact:
     sys_service_sw_lc: "{{ SOFTWARE_NAME | string | trim | lower }}"
     sys_service_ver_lc: "{{ lookup('version') | string | trim | lower }}"
 
-- name: "sys-service | Collect {{ SOFTWARE_NAME }} timers (all versions)"
+- name: "📊 sys-service | Collect {{ SOFTWARE_NAME }} timers (all versions)"
   become: true
   ansible.builtin.command:
     argv:
@@ -20,7 +20,7 @@
   changed_when: false
   failed_when: false
 
-- name: "sys-service | Collect {{ SOFTWARE_NAME }} services (all versions)"
+- name: "📊 sys-service | Collect {{ SOFTWARE_NAME }} services (all versions)"
   become: true
   ansible.builtin.command:
     argv:
@@ -33,7 +33,7 @@
   changed_when: false
   failed_when: false
 
-- name: "sys-service | Build old-version unit lists (exclude current version)"
+- name: "🔨 sys-service | Build old-version unit lists (exclude current version)"
   ansible.builtin.set_fact:
     sys_service_old_units_timers: >-
       {{
@@ -54,7 +54,7 @@
         | list
       }}
 
-- name: "sys-service | Stop old-version services (best-effort)"
+- name: "⏹️ sys-service | Stop old-version services (best-effort)"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -63,7 +63,7 @@
   when: sys_service_old_units_services | length > 0
   failed_when: false
 
-- name: "sys-service | Stop old-version timers (best-effort)"
+- name: "⏹️ sys-service | Stop old-version timers (best-effort)"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -72,7 +72,7 @@
   when: sys_service_old_units_timers | length > 0
   failed_when: false
 
-- name: "sys-service | Disable old-version services (best-effort)"
+- name: "🔴 sys-service | Disable old-version services (best-effort)"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -81,7 +81,7 @@
   when: sys_service_old_units_services | length > 0
   failed_when: false
 
-- name: "sys-service | Disable old-version timers (best-effort)"
+- name: "🔴 sys-service | Disable old-version timers (best-effort)"
   become: true
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -90,7 +90,7 @@
   when: sys_service_old_units_timers | length > 0
   failed_when: false
 
-- name: "sys-service | Delete old-version unit files"
+- name: "🗑️ sys-service | Delete old-version unit files"
   become: true
   ansible.builtin.file:
     path: "{{ [ DIR_SYSTEM_SERVICE, item ] | path_join }}"
@@ -98,7 +98,7 @@
   loop: "{{ (sys_service_old_units_services + sys_service_old_units_timers) | unique }}"
   when: (sys_service_old_units_services | length > 0) or (sys_service_old_units_timers | length > 0)
 
-- name: "sys-service | systemd daemon-reload after pruning"
+- name: "🔄 sys-service | systemd daemon-reload after pruning"
   become: true
   ansible.builtin.systemd:
     daemon_reload: true

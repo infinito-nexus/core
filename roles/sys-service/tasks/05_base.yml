@@ -1,5 +1,5 @@
 ---
-- name: "find best matching source for service script"
+- name: "🔍 find best matching source for service script"
   set_fact:
     system_service_script_src: >-
       {{ lookup('first_found',
@@ -16,20 +16,20 @@
       ) }}
   when: system_service_copy_files | bool
 
-- name: "Load file logic for '{{ system_service_id }}'"
+- name: "📂 Load file logic for '{{ system_service_id }}'"
   include_tasks: 06_files.yml
   when:
     - system_service_copy_files | bool
     - system_service_script_src | default('') | length > 0
 
-- name: "Load systemctl logic for '{{ system_service_id }}'"
+- name: "📂 Load systemctl logic for '{{ system_service_id }}'"
   include_tasks: 07_service.yml
 
-- name: "Load timer logic for '{{ system_service_id }}'"
+- name: "📂 Load timer logic for '{{ system_service_id }}'"
   include_tasks: 08_timer.yml
   when: system_service_timer_enabled | bool
 
-- name: "sys-service | Add '{{ system_service_name }}' to final run list"
+- name: "➕ sys-service | Add '{{ system_service_name }}' to final run list"
   ansible.builtin.set_fact:
     system_service_run_list: >-
       {{

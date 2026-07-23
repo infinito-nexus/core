@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Configures a systemd timer to periodically start a specified service. This role automates the creation, reloading, and restarting of systemd
-    timer units for recurring tasks.
+  description: Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

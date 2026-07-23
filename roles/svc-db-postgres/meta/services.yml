@@ -1,11 +1,19 @@
 ---
 postgres:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  central RDBMS, single-node until multi-replica replication (streaming / logical) is in scope
+  placement: manager
   bond: 1
   enabled: true
   shared: true
   image: postgis/postgis
   name: postgres
   version: 17-3.5
+  custom: true
   min_storage: 10GB
   backup:
     database_routine: true
@@ -16,4 +24,12 @@ postgres:
   ports:
     local:
       postgres: 5432
+    internal:
+      postgres: 5432
   lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

@@ -1,5 +1,5 @@
 ---
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
@@ -8,29 +8,6 @@
     compose_repository_pull: true
     compose_repository_ref: "{{ LITTLEJS_REF }}"
 
-- name: "Load LittleJS example metadata"
-  include_vars:
-    file: "examples.yml"
-
-- name: "Render LittleJS index.html"
-  template:
-    src: "html/index.html.j2"
-    dest: "{{ LITTLEJS_INDEX_HOST_ABS }}"
-    mode: "0644"
-  notify:
-    - compose build
-    - compose up
-
-- name: "Render LittleJS run.html for shorts"
-  template:
-    src: "html/run.html.j2"
-    dest: "{{ LITTLEJS_RUN_HOST_ABS }}"
-    mode: "0644"
-  notify:
-    - compose build
-    - compose up
-
-- name: "flush compose for '{{ application_id }}'"
-  meta: flush_handlers
-
-- include_tasks: utils/once/flag.yml
+- name: "👔 LittleJS manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

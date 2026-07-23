@@ -1,0 +1,18 @@
+---
+# Always defer the OIDC-activating restart to the service-loader post-load
+# flush: mid-play the issuer probe can hit a stale Keycloak that a later round
+# step replaces, leaving Stalwart bound to a dead issuer. The flush runs after
+# the loader finished, i.e. against the final Keycloak (11_oidc_restart still
+# waits for the issuer and fails loudly if it never comes up).
+
+- name: "📥 Defer the OIDC restart to the service-loader post-load flush"
+  ansible.builtin.set_fact:
+    stalwart_oidc_restart_pending: true
+
+- name: "📥 Queue the deferred restart"
+  include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - web-app-stalwart

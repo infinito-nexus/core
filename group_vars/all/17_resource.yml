@@ -3,22 +3,18 @@
 RESOURCE_HOST_CPUS: "{{ ansible_facts['processor_vcpus'] | int }}"
 RESOURCE_HOST_MEM: "{{ (ansible_facts['memtotal_mb'] | int) // 1024 }}"
 
-# Reserve for OS
 RESOURCE_HOST_RESERVE_CPU: 2
 RESOURCE_HOST_RESERVE_MEM: 4
 
-# Available for apps
 RESOURCE_AVAIL_CPUS: "{{ (RESOURCE_HOST_CPUS | int) - (RESOURCE_HOST_RESERVE_CPU | int) }}"
 RESOURCE_AVAIL_MEM: "{{ (RESOURCE_HOST_MEM  | int) - (RESOURCE_HOST_RESERVE_MEM | int) }}"
 
-# Count active docker services (only roles starting with web- or svc-; service counts if enabled==true OR enabled is undefined)
 RESOURCE_ACTIVE_DOCKER_CONTAINER_COUNT: >-
   {{
     applications
     | active_docker_container_count(group_names, '^(web-|svc-).*', ensure_min_one=True)
   }}
 
-# Per-container fair share (numbers!), later we append 'g' only for the string fields in compose
 RESOURCE_CPUS_NUM: >-
   {{
     [
@@ -41,21 +37,15 @@ RESOURCE_MEM_LIMIT_NUM: >-
     | round(1)
   }}
 
-# Final strings with units for compose defaults (keep numbers above for math elsewhere if needed)
 RESOURCE_CPUS: "{{ RESOURCE_CPUS_NUM }}"
 RESOURCE_MEM_RESERVATION: "{{ RESOURCE_MEM_RESERVATION_NUM }}g"
 RESOURCE_MEM_LIMIT: "{{ RESOURCE_MEM_LIMIT_NUM }}g"
 RESOURCE_PIDS_LIMIT: 512
 
-# Postgres resource budget — declared at group scope (instead of in
-# roles/svc-db-postgres/vars/) so app-only matrix-deploy rounds, where
-# svc-db-postgres is not in-play, still resolve these at template-render
-# time. A set_fact at role scope does not survive a matrix-deploy round
-# split.
 POSTGRES_VCPUS: "{{ ansible_facts['processor_vcpus'] | int }}"
 POSTGRES_TOTAL_RAM_MB: "{{ ansible_facts['memtotal_mb'] | int }}"
 POSTGRES_MAX_CONNECTIONS: "{{ [ ((POSTGRES_VCPUS | int) * 30 + 50), 400 ] | min }}"
-POSTGRES_ALLOWED_AVG_CONNECTIONS: "{{ (POSTGRES_MAX_CONNECTIONS | split_postgres_connections(playbook_dir ~ '/roles')) | int }}"
+POSTGRES_ALLOWED_AVG_CONNECTIONS: "{{ (POSTGRES_MAX_CONNECTIONS | split_postgres_connections(lookup('path_absolute', 'roles'))) | int }}"
 POSTGRES_SUPERUSER_RESERVED_CONNECTIONS: 3
 POSTGRES_SHARED_BUFFERS_MB: "{{ ((POSTGRES_TOTAL_RAM_MB | int) * 25) // 100 }}"
 POSTGRES_SHARED_BUFFERS: "{{ POSTGRES_SHARED_BUFFERS_MB ~ 'MB' }}"
@@ -64,3 +54,5 @@ POSTGRES_WORK_MEM: "{{ POSTGRES_WORK_MEM_MB ~ 'MB' }}"
 POSTGRES_MAINTENANCE_WORK_MEM_MB: "{{ [ (((POSTGRES_TOTAL_RAM_MB | int) * 5) // 100), 64 ] | max }}"
 POSTGRES_MAINTENANCE_WORK_MEM: "{{ POSTGRES_MAINTENANCE_WORK_MEM_MB ~ 'MB' }}"
 POSTGRES_DELAY: 2
+
+TIMEOUT_FACTOR: 1

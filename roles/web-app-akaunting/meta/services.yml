@@ -13,8 +13,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -27,7 +27,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: akaunting
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-akaunting', role='administrator') }}"
@@ -36,10 +36,15 @@ ldap:
   enabled: false
   shared: false
 akaunting:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   backup:
     no_stop_required: true
   image: docker.io/akaunting/akaunting
-  version: latest
+  version: 3.1.21
   repository: https://github.com/akaunting/docker.git
   ref: master
   name: akaunting
@@ -52,9 +57,12 @@ akaunting:
     local:
       http: 8025
       sso: 16499
+    internal:
+      http: 80
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
   cpus: "0.5"
@@ -67,6 +75,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
@@ -80,3 +89,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

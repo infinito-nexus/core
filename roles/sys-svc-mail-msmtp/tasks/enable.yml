@@ -1,34 +1,53 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Enable EPEL repository on EL distributions
+- name: "✅ Assert {{ DIR_VAR_LIB }} is cluster-shared in swarm mode"
+  ansible.builtin.assert:
+    that:
+      - (DEPLOYMENT_MODE == 'compose') or ('svc-swarm-node' not in group_names) or ('svc-storage-nfs-client' in group_names) or ('svc-storage-nfs-server' in
+        group_names)
+    fail_msg: >-
+      sys-svc-mail-msmtp on a swarm member requires svc-storage-nfs-client
+      so {{ DIR_VAR_LIB }} is cluster-shared. Set `storage.backend=nfs` and
+      add this host to the `svc-storage-nfs-client` group, unless this host
+      is the dedicated NFS server (svc-storage-nfs-server). Hosts outside
+      the swarm (svc-swarm-node) keep a local {{ DIR_VAR_LIB }}.
+
+- name: 🟢 Enable EPEL repository on EL distributions
   package:
     name: epel-release
     state: present
   when: ansible_facts['distribution'] in SYS_SVC_MAIL_MSMTP_EPEL_DISTRIBUTIONS
 
-- name: Install msmtp base package
+- name: 📦 Install msmtp base package
   package:
     name: "{{ SYS_SVC_MAIL_MSMTP_PACKAGES.base }}"
     state: present
 
-- name: Ensure system CA certificates are installed
+- name: ✅ Ensure system CA certificates are installed
   package:
     name: ca-certificates
     state: present
 
-- name: "Disable SMTP to avoid port conflicts"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-mail-smtp/tasks/disable.yml' ] | path_join }}"
+- name: ✅ Ensure the shared Root CA is trusted for the TLS mail relay
+  include_role:
+    name: sys-ca-selfsigned
+  when:
+    - (TLS_MODE | lower) == 'self_signed'
+    - run_once_sys_ca_selfsigned is not defined
+
+- name: "🔴 Disable SMTP to avoid port conflicts"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
 
 - when: lookup('email').external | bool
   block:
-    - name: Install msmtp-mta when Mailu is used and package exists on distro
+    - name: 📦 Install msmtp-mta when Mailu is used and package exists on distro
       package:
         name: "{{ SYS_SVC_MAIL_MSMTP_PACKAGES.mta }}"
         state: present
       when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta != ''
 
-    - name: Provide sendmail compatibility link when msmtp-mta is unavailable
+    - name: 📧 Provide sendmail compatibility link when msmtp-mta is unavailable
       file:
         src: /usr/bin/msmtp
         dest: /usr/bin/sendmail
@@ -36,31 +55,19 @@
         force: true
       when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta == ''
 
-- name: Probe CA bundle candidate paths for msmtp TLS trust file
-  ansible.builtin.stat:
-    path: "{{ item }}"
-  loop: "{{ SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES }}"
-  register: _sys_svc_mail_msmtp_ca_probe
+- include_tasks: ca_bundle.yml
 
-- name: Select first existing CA bundle path for msmtp
-  ansible.builtin.set_fact:
-    sys_svc_mail_msmtp_ca_bundle: >-
-      {{
-        (
-          _sys_svc_mail_msmtp_ca_probe.results
-          | selectattr('stat.exists')
-          | map(attribute='item')
-          | list
-          | first
-        ) | default(SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES | first, true)
-      }}
-
-- name: configure msmtprc.conf.j2
-  template:
+- name: 🔧 configure msmtprc.conf.j2
+  template: # nocheck: stack-host-template (per-host /root/.msmtprc, not stack-host-only)
     src: "msmtprc.conf.j2"
     dest: "/root/.msmtprc"
     mode: 600
 
-- include_role:
-    name: sys-ctl-hlth-msmtp
+- name: "🔄 Route hlth-msmtp via service-loader (after mailu compose-up)"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - sys-ctl-hlth-msmtp
   when: run_once_sys_ctl_hlth_msmtp is not defined

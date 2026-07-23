@@ -1,5 +1,5 @@
 ---
-- name: Provision the GitLab OAuth application for Nextcloud and capture credentials
+- name: 🔧 Provision the GitLab OAuth application for Nextcloud and capture credentials
   ansible.builtin.command:
     argv:
       - container
@@ -11,9 +11,11 @@
       - "NC_REDIRECT_PATH=/apps/integration_gitlab/oauth-redirect"
       - -e
       - "NC_HAS_SECRET={{ nextcloud_gl_client_secret_current.stdout | trim }}"
-      - "{{ nextcloud_gl_container }}"
-      - gitlab-rails
+      - "{{ nextcloud_gl_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
+      - /srv/gitlab/bin/rails
       - runner
+      - -e
+      - production
       - "-"
     stdin: "{{ lookup('file', 'gitlab/provision_oauth_app.rb') }}"
   register: nextcloud_gl_provision
@@ -23,24 +25,24 @@
   until: nextcloud_gl_provision.rc == 0 and 'CLIENT_ID=' in nextcloud_gl_provision.stdout
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Parse the GitLab OAuth client id
+- name: 🔎 Parse the GitLab OAuth client id
   set_fact:
     nextcloud_gl_client_id: "{{ nextcloud_gl_provision.stdout | regex_search('CLIENT_ID=(.+)', '\\1') | first }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Resolve the GitLab OAuth client secret (freshly emitted or persisted)
+- name: 🔍 Resolve the GitLab OAuth client secret (freshly emitted or persisted)
   set_fact:
     nextcloud_gl_fresh_secret: "{{ (nextcloud_gl_provision.stdout | regex_search('CLIENT_SECRET=(.+)', '\\1') | default([], true) | first | default('', true)) | trim
       }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Pick the effective GitLab OAuth client secret
+- name: 🎯 Pick the effective GitLab OAuth client secret
   set_fact:
     nextcloud_gl_client_secret: "{{ nextcloud_gl_fresh_secret if (nextcloud_gl_fresh_secret | length > 0) else (nextcloud_gl_client_secret_current.stdout | trim)
       }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Fail when no usable GitLab OAuth client secret is available
+- name: 🛑 Fail when no usable GitLab OAuth client secret is available
   assert:
     that:
       - (nextcloud_gl_client_id | default('') | trim) | length > 0
@@ -50,7 +52,7 @@
       retrievable when the app is first created or its secret is renewed; reset the
       integration_gitlab client_id/client_secret app config to re-provision.
 
-- name: Store integration_gitlab OAuth credentials Nextcloud-encrypted (ICrypto, lazy)
+- name: 🔐 Store integration_gitlab OAuth credentials Nextcloud-encrypted (ICrypto, lazy)
   ansible.builtin.command:
     argv:
       - container
@@ -62,7 +64,7 @@
       - "NC_APP_ID=integration_gitlab"
       - -e
       - "NC_ENC_B64={{ {'client_id': nextcloud_gl_client_id, 'client_secret': nextcloud_gl_client_secret} | to_json | b64encode }}"
-      - "{{ NEXTCLOUD_CONTAINER }}"
+      - "{{ NEXTCLOUD_CONTAINER }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
       - php
     stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
   register: nextcloud_gl_enc_set

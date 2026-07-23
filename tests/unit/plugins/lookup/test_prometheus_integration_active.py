@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import tempfile
 import unittest
-from pathlib import Path
+from unittest import mock
 
 from plugins.lookup.prometheus_integration_active import LookupModule
-from utils.cache import _reset_cache_for_tests
 
 
 def _make_applications(
@@ -25,44 +23,42 @@ def _make_applications(
     return apps
 
 
-# Empty tmp roles dir → get_merged_applications returns the inventory
-# `applications` override dict verbatim, without leaking real repo role defaults.
-_TMP_ROLES_DIR_HOLDER: dict = {}
-
-
-def setUpModule() -> None:
-    _TMP_ROLES_DIR_HOLDER["tmpdir"] = tempfile.TemporaryDirectory()
-    _TMP_ROLES_DIR_HOLDER["path"] = Path(_TMP_ROLES_DIR_HOLDER["tmpdir"].name)
-
-
-def tearDownModule() -> None:
-    _TMP_ROLES_DIR_HOLDER["tmpdir"].cleanup()
-
-
 def _run(applications: dict, application_id: str, group_names: list) -> bool:
-    _reset_cache_for_tests()
-    return LookupModule().run(
-        [],
-        variables={
-            "applications": applications,
-            "application_id": application_id,
-            "group_names": group_names,
-        },
-        roles_dir=str(_TMP_ROLES_DIR_HOLDER["path"]),
-    )[0]
+    lm = LookupModule()
+    lm._loader = mock.MagicMock()
+    with mock.patch(
+        "plugins.lookup.prometheus_integration_active.lookup_loader"
+    ) as loader_mock:
+        loader_mock.get.return_value = mock.MagicMock(
+            run=lambda *_a, **_k: [applications]
+        )
+        return lm.run(
+            [],
+            variables={
+                "applications": applications,
+                "application_id": application_id,
+                "group_names": group_names,
+            },
+        )[0]
 
 
 def _run_explicit(applications: dict, application_id: str, group_names: list) -> bool:
     """Invoke with application_id as explicit term 0 — the template usage pattern."""
-    _reset_cache_for_tests()
-    return LookupModule().run(
-        [application_id],
-        variables={
-            "applications": applications,
-            "group_names": group_names,
-        },
-        roles_dir=str(_TMP_ROLES_DIR_HOLDER["path"]),
-    )[0]
+    lm = LookupModule()
+    lm._loader = mock.MagicMock()
+    with mock.patch(
+        "plugins.lookup.prometheus_integration_active.lookup_loader"
+    ) as loader_mock:
+        loader_mock.get.return_value = mock.MagicMock(
+            run=lambda *_a, **_k: [applications]
+        )
+        return lm.run(
+            [application_id],
+            variables={
+                "applications": applications,
+                "group_names": group_names,
+            },
+        )[0]
 
 
 class TestPrometheusIntegrationActiveDeploymentCheck(unittest.TestCase):

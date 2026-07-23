@@ -1,1 +1,1 @@
-<script src="{{ lookup('cdn', 'web-svc-cdn').urls.shared.js }}/{{ INJ_DASHBOARD_JS_FILE_NAME }}{{ lookup('local_mtime_qs', [playbook_dir, 'roles', 'sys-front-inj-dashboard', 'templates', INJ_DASHBOARD_JS_FILE_NAME ~ '.j2'] | path_join) }}"></script>
+<script src="{{ lookup('cdn', 'web-svc-cdn').urls.shared.js }}/{{ INJ_DASHBOARD_JS_FILE_NAME }}{{ lookup('local_mtime_qs', lookup('path_absolute', 'roles', 'sys-front-inj-dashboard', 'templates', INJ_DASHBOARD_JS_FILE_NAME ~ '.j2')) }}"></script>

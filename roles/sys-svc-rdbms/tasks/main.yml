@@ -1,23 +1,25 @@
 ---
 # nocheck: run-once
-- name: "For '{{ application_id }}': Freeze database consumer id before provider includes"
+- name: "📝 For '{{ application_id }}': Freeze database consumer id before includes"
   set_fact:
     _database_consumer_id: "{{ database_consumer_id | default(application_id) }}"
   changed_when: false
 
-- name: "For '{{ application_id }}/{{ _database_consumer_id }}': Resolve shared database mode"
+- name: "🔍 For '{{ application_id }}/{{ _database_consumer_id }}': Resolve shared mode"
   set_fact:
+    _sys_svc_rdbms_consumer_local: "{{ lookup('database', _database_consumer_id, 'local') | bool }}"
     _sys_svc_rdbms_central_db_enabled: >-
-      {{ lookup('database', _database_consumer_id, 'shared') | bool }}
+      {{ not (lookup('database', _database_consumer_id, 'local') | bool)
+         and (groups[lookup('database', _database_consumer_id, 'id')] | default([])) | length > 0 }}
   changed_when: false
 
-- name: "For '{{ application_id }}/{{ _database_consumer_id }}': Apply dedicated database setup"
+- name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Apply dedicated setup"
   include_tasks: dedicated.yml
-  when: not (_sys_svc_rdbms_central_db_enabled | bool)
+  when: _sys_svc_rdbms_consumer_local | bool
 
-- name: Central Database Logic
+- name: 🗄️ Central Database Logic
   block:
-    - name: "For '{{ application_id }}': Assert shared database provider was preloaded"
+    - name: "✅ For '{{ application_id }}': Assert shared database provider was preloaded"
       ansible.builtin.assert:
         that:
           - >-
@@ -29,19 +31,23 @@
         fail_msg: >-
           Shared database provider '{{ _database_provider_role }}' was not preloaded by
           sys-service-loader before sys-svc-rdbms ran.
+      when: MODE_ASSERT_LOCAL | bool
 
-    - name: "For '{{ application_id }}': Initialize dedicated database on preloaded provider"
+    - name: "🎬 For '{{ application_id }}': Init dedicated db on preloaded provider"
       ansible.builtin.include_role:
         name: "{{ _database_provider_role }}"
       vars:
         application_id: "{{ _database_provider_role }}"
         database_init: true
         compose_repository_pull: false
+        compose_mode_force: ""
         database_consumer_id: "{{ _database_consumer_id }}"
 
-    - name: "For '{{ application_id }}': Add Entry for Backup Procedure"
-      include_tasks: "{{ playbook_dir }}/roles/svc-bkp-container-2-local/tasks/04_seed-database-to-backup.yml"
-      when: "'svc-bkp-container-2-local' in group_names"
+    - name: "➕ For '{{ application_id }}': Add Entry for Backup Procedure"
+      include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/04_seed-database-to-backup.yml') }}"
+      when:
+        - "'svc-bkp-volume-2-local' in group_names"
+        - IS_STACK_HOST | bool
   vars:
     _database_provider_role: "{{ lookup('database', _database_consumer_id, 'id') }}"
     database_consumer_id: "{{ _database_consumer_id }}"
@@ -52,4 +58,6 @@
     database_name: "{{ lookup('database', _database_consumer_id, 'name') }}"
     database_username: "{{ lookup('database', _database_consumer_id, 'username') }}"
     database_password: "{{ lookup('database', _database_consumer_id, 'password') }}"
-  when: _sys_svc_rdbms_central_db_enabled | bool
+  when:
+    - _sys_svc_rdbms_central_db_enabled | bool
+    - inventory_hostname in (groups[lookup('database', _database_consumer_id, 'id')] | default([]))

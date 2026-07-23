@@ -1,2 +1,8 @@
 ---
 COMPOSE_DOWN_ALL_PACKAGE: "docodol"
+
+sys_svc_compose_pyyaml_package:
+  Debian: python3-yaml
+  RedHat: python3-pyyaml
+  Suse: python3-PyYAML
+  Archlinux: python-yaml

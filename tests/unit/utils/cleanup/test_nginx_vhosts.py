@@ -18,7 +18,7 @@ from utils.cleanup.nginx_vhosts import (
     main,
     purge_vhost_files_for_entities,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
 
 
 class NginxVhostsTestBase(unittest.TestCase):
@@ -69,8 +69,8 @@ class NginxVhostsTestBase(unittest.TestCase):
         if aliases is not None:
             domains_block["aliases"] = aliases
         dump_yaml(
-            rd / ROLE_FILE_META_SERVER,
-            {"domains": domains_block},
+            rd / ROLE_FILE_META_DOMAINS,
+            domains_block,
         )
 
     def _touch_vhost(self, domain: str, protocol: str = "https") -> Path:
@@ -288,6 +288,51 @@ class TestMainShim(NginxVhostsTestBase, unittest.TestCase):
             rc = main(["nonexistent"])
         self.assertEqual(rc, 0)
         self.assertIn("No nginx vhost files to remove", stdout.getvalue())
+
+
+class TestResolveDomainPrimary(unittest.TestCase):
+    """`_resolve_domain_primary` falls back DOMAIN -> INFINITO_DOMAIN -> default."""
+
+    def test_explicit_argument_wins(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"DOMAIN": "d.example", "INFINITO_DOMAIN": "i.example"},
+            clear=False,
+        ):
+            self.assertEqual(
+                mod._resolve_domain_primary("explicit.test"), "explicit.test"
+            )
+
+    def test_domain_env_preferred_over_infinito_domain(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"DOMAIN": "d.test", "INFINITO_DOMAIN": "i.test"},
+            clear=False,
+        ):
+            self.assertEqual(mod._resolve_domain_primary(None), "d.test")
+
+    def test_falls_back_to_infinito_domain(self) -> None:
+        env = {k: v for k, v in os.environ.items() if k != "DOMAIN"}
+        env["INFINITO_DOMAIN"] = "infinito.test"
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(mod._resolve_domain_primary(None), "infinito.test")
+
+    def test_empty_domain_falls_back_to_infinito_domain(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"DOMAIN": "", "INFINITO_DOMAIN": "live.infinito.test"},
+            clear=False,
+        ):
+            self.assertEqual(mod._resolve_domain_primary(None), "live.infinito.test")
+
+    def test_default_when_nothing_set(self) -> None:
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k not in ("DOMAIN", "INFINITO_DOMAIN")
+        }
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(mod._resolve_domain_primary(None), "infinito.test")
 
 
 if __name__ == "__main__":  # pragma: no cover

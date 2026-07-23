@@ -5,6 +5,8 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-xwiki.
 - services:
+    container_backup:
+      enabled: true
     dashboard:
       enabled: true
       shared: true
@@ -22,6 +24,8 @@
       shared: true
     postgres:
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -29,58 +33,61 @@
       enabled: true
       shared: true
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     postgres:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    redis:
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
-# LDAP-only auth backend: exercises the ldap-authenticator addon's enabled
-# branch. OIDC stays off because the two auth backends are mutually exclusive
-# (tasks/02_validation.yml); the ldap service block is a static-false opt-in by
-# design (auto-enabling it would collide with sso when both partners deploy),
-# so the on-override is a sanctioned static override.
-- services:
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+- services: # nocheck: variants-auth-isolation
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
       enabled: true # nocheck: variants-static-override
       shared: true # nocheck: variants-static-override
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     postgres:
       shared: true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

@@ -1,0 +1,7 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  font-src:
+    - "data:"

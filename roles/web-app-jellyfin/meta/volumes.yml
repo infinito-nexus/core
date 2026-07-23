@@ -1,4 +1,16 @@
 ---
-config: jellyfin_config
-cache: jellyfin_cache
-media: jellyfin_media
+jellyfin_config:
+  type: volume
+  mounts:
+    - service: jellyfin
+      target: /config
+jellyfin_cache:
+  type: volume
+  mounts:
+    - service: jellyfin
+      target: /cache
+jellyfin_media:
+  type: volume
+  mounts:
+    - service: jellyfin
+      target: /media

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Checks that each Nginx domain returns its expected HTTP status and alerts on unexpected codes.
+  description: Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

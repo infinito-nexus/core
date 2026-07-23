@@ -1,7 +1,8 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  application:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+  {% set service_name = 'bookwyrm' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: >-
       bash -c '
         /venv/bin/python manage.py migrate --noinput &&
@@ -16,32 +17,25 @@
         BOOKWYRM_VERSION:    "{{ BOOKWYRM_VERSION }}"
         BOOKWYRM_REPOSITORY: "{{ BOOKWYRM_REPOSITORY }}"
         BOOKWYRM_REF:        "{{ BOOKWYRM_REF }}"
-    image: "{{ BOOKWYRM_CUSTOM_IMAGE }}"
-    container_name: "{{ BOOKWYRM_CONTAINER }}"
+    {{ lookup('container_image', application_id, 'bookwyrm', version=BOOKWYRM_REF) }}
+    {{ lookup('compose_only', 'container_name', BOOKWYRM_CONTAINER) }}
     hostname: "{{ BOOKWYRM_HOSTNAME }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.bookwyrm.ports.local.http') }}:{{ container_port }}"
-    volumes:
-      - 'data:/app/data'
-      - 'media:/app/media'
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_ports', ['bookwyrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'bookwyrm') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  worker:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ BOOKWYRM_CUSTOM_IMAGE }}"
-    container_name: "{{ BOOKWYRM_WORKER_CONTAINER }}"
+  {% set service_name = 'worker' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'worker', version=BOOKWYRM_REF) }}
+    {{ lookup('compose_only', 'container_name', BOOKWYRM_WORKER_CONTAINER) }}
     command: "/venv/bin/celery -A celerywyrm worker -l INFO"
-    pull_policy: never
-    volumes:
-      - 'data:/app/data'
-      - 'media:/app/media'
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': BOOKWYRM_DATA_VOLUME}, 'media': {'name': BOOKWYRM_MEDIA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

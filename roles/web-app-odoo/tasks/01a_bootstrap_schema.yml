@@ -1,0 +1,40 @@
+---
+- name: "▶️ Run Odoo database initialization"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ODOO_LOCAL_CID | quote }}
+    odoo --no-http
+    --database={{ ODOO_DB_NAME }}
+    --init={{ ODOO_MODULES_CORE | join(',') }}
+    --stop-after-init
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_init
+  retries: 3
+  delay: 10
+  until: odoo_init.rc == 0
+
+- name: "🔄 Restart Odoo container after initialization (compose)"
+  ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
+  changed_when: true
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🔄 Restart Odoo service after initialization (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, ODOO_SERVICE) }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Re-resolve Odoo hosting node + container id after the init restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ ODOO_SERVICE }}"
+    resolve_output_prefix: ODOO
+    resolve_compose_cid: "{{ ODOO_CONTAINER }}"
+
+- name: "⏳ Wait for Odoo container to be healthy after init"
+  ansible.builtin.command: container inspect --format {% raw %}'{{.State.Health.Status}}'{% endraw %} {{ ODOO_LOCAL_CID }}
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: container_health
+  until: container_health.stdout | trim == 'healthy'
+  retries: 30
+  delay: 10
+  changed_when: false

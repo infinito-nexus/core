@@ -19,7 +19,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--domain-primary",
-        default=os.environ.get("DOMAIN", "infinito.example"),
+        default=os.environ.get("DOMAIN", "infinito.test"),
         help="Value used for DOMAIN_PRIMARY rendering",
     )
     parser.add_argument(

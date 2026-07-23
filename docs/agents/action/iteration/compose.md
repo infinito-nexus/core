@@ -1,0 +1,97 @@
+# Compose Loop
+
+Use this page for iterating on a local compose app deploy during role-level debugging or development.
+For spec-level inner-loop iteration, see [Playwright Spec Loop](playwright.md).
+For the swarm deploy of the same role, see [Swarm Loop](swarm.md).
+For iterating on GitHub Actions workflows with Act, see [Workflow Loop](workflow.md).
+
+## When to use
+
+- Use this loop while actively iterating on or debugging a local compose app deploy for one or more roles.
+- For spec-level inner-loop iteration use the [Playwright Spec Loop](playwright.md); for the swarm deploy of the same role use the [Swarm Loop](swarm.md); for GitHub Actions workflows use the [Workflow Loop](workflow.md).
+
+## The loop
+
+- Before starting the loop, you MUST propose disabling all non-necessary services via the `disable=` make arg to reduce resource usage. In the typical case, this means keeping only the database and disabling everything else. Only proceed without this proposal if the user has already confirmed a full-stack setup.
+- Non-essential provider toggle:
+  - WHEN: before first deploy of iteration.
+  - ACTION: ask user "disable matomo, dashboard, prometheus, email, css providers? [Y/n]".
+  - DEFAULT: yes (disable all five).
+  - SKIP ASK: only if user already answered explicitly in this iteration.
+  - ON YES: pass `disable="matomo,dashboard,prometheus,email,css"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
+  - ON NO: omit the arg entirely.
+  - SIDE EFFECT (yes): inventory initializer auto-removes the provider roles `web-app-matomo`, `web-app-dashboard`, `web-app-prometheus`, `web-app-mailu`, and `web-svc-css`. Do NOT list them in `apps=`.
+  - PERSIST: record answer at top of iteration. Reuse for all subsequent deploys without re-asking.
+- You MUST run `make test` before every deploy. Only proceed with the deploy if all tests pass.
+- You MUST prepend `INFINITO_PLAYWRIGHT_KEEP=true` to every `make compose-deploy` command in the iteration (any mode), so trace, screenshot, and video of passing Playwright tests stay inspectable. Omit only when the user has explicitly opted out of per-test artefacts. For the full propagation chain see [Playwright Tests](../../../contributing/actions/testing/playwright.md#artefact-retention-).
+- Unless the user explicitly says to reuse the existing setup, you MUST start once with `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` to establish the baseline inventory and clean app state. `full_cycle=true` adds the async update pass (pass 2) and MUST stay on unless the user explicitly asks to skip it.
+- You MUST NOT run more than one deploy command at the same time. Deployments MUST be executed serially, never in parallel.
+- To speed up debugging, you MAY pass multiple apps at once, e.g. `make compose-deploy mode=reinstall apps="<roles> <roles>" full_cycle=true`.
+- After that, you MUST use `make compose-deploy mode=update apps=<roles>` for the default edit-fix-redeploy loop. Matrix-variant roles instead follow the explicit command table in [Full-matrix iteration flow](#full-matrix-iteration-flow); there every `mode=update` is variant-pinned and a no-variant `mode=reinstall` is reserved for the baseline and the final gate.
+- Do NOT rerun `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` just because a deploy failed or you changed code. That restarts the stack unnecessarily and burns time.
+- If the same failure still reproduces on the reuse path and you want to test whether app entity state is involved, use `make compose-deploy mode=update apps=<roles> purge=true` once.
+- After that targeted purge check, you MUST return to `make compose-deploy mode=update apps=<roles>`.
+- Only go back to `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` if you have concrete evidence that the inventory or host stack is broken, or you intentionally need a fresh single-app baseline again.
+- Network or DNS failures during a local deploy count as concrete evidence that the host stack is broken. In that case, the next retry MUST be `make compose-deploy mode=reinstall apps=<roles> full_cycle=true`.
+- If you need to validate the single-app init/deploy path separately, use `make compose-deploy apps=<roles>`.
+
+### Matrix variants
+
+For the matrix-variant mechanism (folder layout, round semantics, `--variant` / `--full-cycle` flags) see [variants.md](../../../contributing/design/variants.md). The agent-side iteration rules below assume that mechanism as background.
+
+- Before you start a Compose Loop on a matrix-variant role, you MUST decide if the iteration targets the FULL matrix (validates every variant) or ONE specific variant (focused debug). State the choice explicitly before the first deploy.
+- For focused debug on variant `<idx>`, you MUST pin `variant=<idx>` on every command in the iteration. Mixing pinned and unpinned commands silently retargets a different folder.
+- Default focused-debug recipe: `make compose-deploy mode=reinstall apps=<role> full_cycle=true variant=<idx>` once for the variant baseline, then `make compose-deploy mode=update apps=<role> variant=<idx>` for the edit-fix-redeploy loop.
+- First contact with a previously-untouched `variant=<idx>` MUST be `make compose-deploy mode=reinstall apps=<roles> variant=<idx>`, never a reuse target. Reuse re-pins the live stack onto stale volumes, DB rows and network aliases from the previously-pinned variant, producing split-brain app state.
+- If a reuse target aborts with "inventory not found", you MUST add `variant=<idx>` and re-run; do NOT work around the error by re-creating the unsuffixed folder by hand.
+- For FULL-matrix iteration, the exact `mode` and `variant=` for every situation is fixed by the table in [Full-matrix iteration flow](#full-matrix-iteration-flow); follow it instead of improvising. If a round fails, note which variant failed so you can pin it (row 2 of that table).
+- When debugging cross-variant interaction (for example "the multisite variant breaks because single-site state was not purged"), reproduce with the FULL matrix once, then pin `variant=<failing-idx>` and iterate the fix. Re-run the FULL matrix only when you believe the fix is complete.
+
+#### Full-matrix iteration flow
+
+When the iteration target is the full matrix (cross-variant coverage matters more than focused-debug speed), the command you run is fixed by your current situation. Do NOT improvise `mode` or `variant=`: find your situation in the table and run exactly that command.
+
+| # | Situation | Exact command |
+| --- | --- | --- |
+| 1 | Initial baseline — run once, before any edit | `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `variant=`) |
+| 2 | A variant `<idx>` failed and you changed code to fix it | `make compose-deploy mode=update apps=<roles> variant=<idx>` — repeat until that variant is green |
+| 3 | A variant `<idx>` has not yet been deployed against the current code | `make compose-deploy mode=reinstall apps=<roles> full_cycle=true variant=<idx>` |
+| 4 | Final gate — run once, after every variant is green | `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `variant=`) |
+
+Order of use: establish the baseline (row 1), then for each failing variant pin it and loop row 2 until green, then bring every still-untouched variant up against the fixed code with row 3, then run row 4 once as the end-of-iteration gate.
+
+FORBIDDEN:
+
+- A bare `mode=update` without `variant=` on a matrix-variant role. Every `mode=update` MUST carry `variant=<idx>` (row 2). A missing `variant=` is never a reason to switch to `mode=reinstall`.
+- A no-variant `mode=reinstall` as the reaction to a failed variant or a code change. Only rows 1 and 4 omit `variant=`. To retry one failing variant, pin it with row 2; never restart the whole matrix to retry a single variant.
+
+### Certificate Authority
+
+- If the website uses locally deployed certificates, you MUST run `make network-trust-ca` before you inspect it in a browser. Otherwise the browser will warn about the local CA and the inspection will not be reliable.
+- After `make network-trust-ca`, you MUST restart the browser so it picks up the updated trust store.
+- If `make network-trust-ca` fails due to missing root permissions, you MUST use the alternative syntax `curl -k` (or `wget --no-check-certificate`) to skip certificate validation when checking URLs from the command line instead of fixing the trust store.
+
+## Inspect before redeploy
+
+- Before every redeploy you MUST fully resolve the failure and reach at least **95% confidence that your fix actually fixes it**. That confidence MUST come from in-container inspection (`make compose-exec` / `make compose-inner-run`): reproduce the failure, walk the fix path, and confirm the corrected behaviour. Never redeploy on a guess.
+- Before you redeploy, you MUST complete all available inspections first. Check the live local output, local logs, and current browser state so the original state stays visible.
+- To inspect files or run commands inside a running container, use `make compose-exec`.
+- To run a one-off sidecar image against the same docker daemon (e.g. a Playwright runner with a patched `.env`), use `make compose-inner-run` (see `make help target=compose-inner-run` for `IMAGE` / `cmd` / `INFINITO_RUN_FLAGS`).
+- When a local deploy fails, you MUST validate the proposed fix inside a sidecar against the same image via `make compose-inner-run` (or `make compose-exec` against the live container) BEFORE starting another deploy, whenever the failure is reproducible there. The reproducible-there set includes: a container that crashes at startup, a misconfigured env var, an image-side bug, an in-container script that fails, or any failure whose root cause was traced to runtime state of the container. The only exception is failures that genuinely depend on multi-container or post-deploy state (network neighbours, persistent volumes, post-deploy Ansible hooks) — call that out explicitly in the iteration narrative.
+- When the failure is in a Playwright spec, "in-container validation" specifically means running `make compose-playwright role=<role>` against the live stack (per [Playwright Spec Loop](playwright.md)).
+- Use the same live investigation to identify the concrete root cause and save iteration time.
+- Once the root cause is understood, you MUST apply the real fix in the repository files and then continue the redeploy loop with the usual commands from this page. In-container fixes are only for diagnosis or short validation and MUST NOT replace the repo change.
+- When it helps isolate a compose-only failure from a shared one, you MAY bring up the swarm deploy of the same role in parallel (see [Swarm Loop](swarm.md)) purely for comparison and inspection.
+
+### Pre-redeploy verification gate (HARD)
+
+- Before EVERY `compose-deploy` that follows a failed deploy, you MUST emit one explicit line, and it MUST be one of exactly two forms — no third option:
+  - `verified-in-container: <command run> → <observed success>`
+  - `post-deploy-state-exception: <the specific multi-container/persistent/post-hook state that genuinely cannot be reproduced in the live container>`
+- The redeploy is NEVER the verification. "The gate/reinstall has to run anyway" or "the next deploy will validate it" is FORBIDDEN as a justification.
+- These are NOT valid exceptions and MUST NOT be invoked:
+  - resetting/reproducing the failing state is fiddly (quoting, tokens, deletes),
+  - the fix was logically inferred from a previous deploy's evidence,
+  - the change "looks obviously correct".
+- Playwright-spec failures are ALWAYS reproducible in the live stack: you MUST reset any polluted state (e.g. delete the conflicting user/entity) and get `make compose-playwright role=<role>` GREEN before the redeploy. A green compose-playwright run IS the required gate; a prior deploy's result is not.
+- A failure whose root cause is container runtime state (config, plugin, user binding, env) is by definition reproducible-there and does NOT qualify for the post-deploy-state exception.

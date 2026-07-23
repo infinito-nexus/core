@@ -1,2 +1,21 @@
 ---
-data: seaweedfs_data
+data:
+  type: volume
+  name: seaweedfs_data
+  mounts:
+    - service: seaweedfs
+      target: /data
+s3_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-seaweedfs', 'directories.volumes'), 's3.json' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: seaweedfs
+      target: /etc/seaweedfs/s3.json
+proxy_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-seaweedfs', 'directories.volumes'), 'nginx.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: proxy
+      target: /etc/nginx/conf.d/default.conf

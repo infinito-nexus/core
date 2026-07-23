@@ -1,0 +1,45 @@
+---
+# include-gated: when: MATTERMOST_OIDC_ENABLED
+- name: "🔎 Mattermost | Check administrator auth service"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-user-authservice.sql"
+    named_args:
+      email: "{{ lookup('users', 'administrator').email }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: mm_admin_authservice
+  changed_when: false
+
+- when: (mm_admin_authservice.rows[0][0] | default('') | trim) != 'gitlab'
+  block:
+    - name: "🔍 Resolve openldap hosting node + container id"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: openldap
+        resolve_service_name: "{{ lookup('container_service', 'svc-db-openldap', 'openldap') }}"
+        resolve_output_prefix: MATTERMOST_LDAP
+        resolve_compose_cid: "{{ MATTERMOST_LDAP_CONTAINER_ADDRESS }}"
+
+    - name: "🗂️ Mattermost | Get administrator uidNumber from LDAP"
+      ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LDAP_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+        container exec -i {{ MATTERMOST_LDAP_LOCAL_CID | quote }} \
+          ldapsearch -x -H ldap://localhost:389 \
+            -D {{ LDAP.DN.ADMINISTRATOR.DATA | quote }} \
+            -w {{ LDAP.BIND_CREDENTIAL | quote }} \
+            -b {{ LDAP.DN.OU.USERS | quote }} \
+            "(uid={{ lookup('users', 'administrator').username }})" uidNumber \
+        | grep '^uidNumber:' | awk '{print $2}'
+      register: mm_admin_uidnumber
+      changed_when: false
+      failed_when: mm_admin_uidnumber.rc != 0 or mm_admin_uidnumber.stdout | trim == ''
+      delegate_to: "{{ MATTERMOST_LDAP_HOST_NODE | default(omit) }}"
+
+    - name: "🔄 Mattermost | Convert administrator to gitlab SSO auth"
+      database_query:
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/update/user-to-gitlab-auth.sql"
+        named_args:
+          authdata: "{{ mm_admin_uidnumber.stdout | trim }}"
+          email: "{{ lookup('users', 'administrator').email }}"
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

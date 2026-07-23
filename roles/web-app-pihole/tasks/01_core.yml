@@ -1,15 +1,15 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Load docker, db and proxy for {{ application_id }}"
+- name: "🧩 Load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
 
-- name: "Wait for Pi-hole HTTP endpoint"
+- name: "⏳ Wait for Pi-hole HTTP endpoint"
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
     port: "{{ lookup('config', application_id, 'services.pihole.ports.local.http') }}"
     delay: 5
-    timeout: 300
+    timeout: "{{ lookup('timeout', 300) | int }}"

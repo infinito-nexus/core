@@ -1,40 +1,34 @@
 ---
-- name: "Add LDAP Authentication Source"
+- name: "➕ Add LDAP Authentication Source"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth add-ldap \
       {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: ldap_manage
-  failed_when: ldap_manage.rc != 0 and "login source already exists" not in ldap_manage.stderr
+  failed_when: ldap_manage.rc != 0 and not (ldap_manage.stderr | gitea_auth_noop)
 
-- name: "Lookup existing LDAP auth source ID"
+- name: "🔍 Lookup existing LDAP auth source ID"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth list \
       | tail -n +2 \
       | grep -F "LDAP ({{ DOMAIN_PRIMARY }})" \
       | awk '{print $1; exit}'
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: ldap_source_id_raw
   failed_when:
     - ldap_source_id_raw.rc != 0
     - ldap_source_id_raw.stdout == ""
   changed_when: false
 
-- name: "Set LDAP source ID fact"
+- name: "🔧 Set LDAP source ID fact"
   set_fact:
     ldap_source_id: "{{ ldap_source_id_raw.stdout }}"
 
-- name: "Update LDAP Authentication Source"
+- name: "🔄 Update LDAP Authentication Source"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth update-ldap \
       --id {{ ldap_source_id }} \
       {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: ldap_manage
   failed_when: ldap_manage.rc != 0

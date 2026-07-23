@@ -43,7 +43,7 @@ test("simpleicons serves keycloak assets directly on its own domain", async ({ r
     expectOrigin(
       landingResponse.url(),
       expectedOrigin,
-      "Expected the Simple Icons landing page to stay on icon.infinito.example when no redirect is configured"
+      "Expected the Simple Icons landing page to stay on its own canonical domain when no redirect is configured"
     );
     const landingBody = await landingResponse.text();
     expect(contentTypeOf(landingResponse)).toMatch(/text\/html|text\/plain/);

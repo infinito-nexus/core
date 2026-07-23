@@ -81,7 +81,7 @@ async function runAdminFlow(page, opts = {}) {
       }
       await passwordField.fill(adminNativePassword || adminPassword).catch(() => {});
       await passwordField.press("Enter").catch(() => {});
-      await page.waitForLoadState("networkidle").catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
       if (await passwordField.isVisible({ timeout: 2_000 }).catch(() => false)) {
         await page
           .getByRole("button", { name: /log\s*in|sign\s*in|login|submit/i })
@@ -89,7 +89,7 @@ async function runAdminFlow(page, opts = {}) {
           .first()
           .click()
           .catch(() => {});
-        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
       }
       return true;
     };

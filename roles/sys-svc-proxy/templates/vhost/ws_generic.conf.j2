@@ -24,4 +24,5 @@ server {
   {% endif %}
 
   error_page 500 501 502 503 504 /500.html;
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
 }

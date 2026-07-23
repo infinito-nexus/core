@@ -19,8 +19,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -30,6 +30,11 @@ postgres:
     - pg_trgm
     - unaccent
 mobilizon:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: docker.io/kaihuri/mobilizon
   name: mobilizon
   version: 5.2.4
@@ -38,9 +43,12 @@ mobilizon:
   ports:
     local:
       http: 8043
+    internal:
+      http: 4000
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
   cpus: "0.2"
@@ -59,3 +67,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag — seaweedfs intentionally disabled; Mobilizon has no S3 upload backend
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

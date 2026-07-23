@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Include setup for domain '{{ domain }}'"
+- name: "📂 Include setup for domain '{{ domain }}'"
   include_role:
     name: sys-stk-front-proxy
   loop: "{{ lookup('domains', 'web-app-mastodon') }}"
@@ -14,28 +14,35 @@
     webserver_client_max_body_size: "80m"
     webserver_vhost_flavour: "ws_generic"
 
-- name: "load docker and db for {{ application_id }}"
+- name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
   vars:
     compose_handlers_flush: false
 
-- name: "MASTODON | Apply overrides"
+- name: "📌 MASTODON | Apply overrides"
   include_tasks: 02_overrides.yml
   when: MASTODON_HTTP_ONLY_ENABLED | bool
 
-- name: Flush handlers to start Mastodon after migration
+- name: 🚿 Flush handlers to start the Mastodon stack
   meta: flush_handlers
 
-- name: "start setup procedures for mastodon"
+- name: "▶️ start setup procedures for mastodon"
   include_tasks: 03_setup.yml
+  when: IS_STACK_HOST | bool
 
-- name: "Wait for Mastodon"
+- name: "⏳ Wait for Mastodon"
   include_tasks: 04_wait.yml
 
-- name: "Cleanup Mastodon caches when MODE_CLEANUP is true"
-  include_tasks: 05_cleanup.yml
-  when: MODE_CLEANUP | bool
+- name: "🖥️ Mastodon stack-host post-deploy"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🧹 Cleanup Mastodon caches when MODE_CLEANUP is true"
+      include_tasks: 05_cleanup.yml
+      when: MODE_CLEANUP | bool
 
-- name: "Include administrator routines for '{{ application_id }}'"
-  include_tasks: 06_administrator.yml
+    - name: "📂 Include administrator routines for '{{ application_id }}'"
+      include_tasks:
+        file: 06_administrator.yml
+        apply:
+          delegate_to: "{{ MASTODON_HOST_NODE }}"

@@ -1,63 +1,66 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Initialize docker
-  include_tasks: 02_docker.yml
-
-- name: Create {{ lookup('domain',application_id) }}.conf if LDAP is exposed to internet
-  template:
-    src: "nginx.stream.conf.j2"
-    dest: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
-  notify: restart openresty
-  when: OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
-
-- name: Remove {{ lookup('domain',application_id) }}.conf if LDAP is not exposed to internet
-  file:
-    path: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
-    state: absent
-  when: not OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
-
-- name: "Wait for LDAP to be available"
-  wait_for:
-    host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
-    delay: 5
-    timeout: 120
-    state: started
-
-- name: Check if current RootDN/RootPW already work
-  ansible.builtin.shell: >
-    container exec {{ OPENLDAP_CONTAINER }}
-    ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "{{ OPENLDAP_BIND_PW }}"
-  register: openldap_bind_check
-  changed_when: false
-  failed_when: false
-
-- name: Ensure LDAP RootPW is set on every deploy
-  include_tasks: 02_credentials.yml
-  when:
-    - OPENLDAP_NETWORK_SWITCH_LOCAL | bool
-    - OPENLDAP_PROVISION_CREDENTIALS | bool
-    - openldap_bind_check.rc != 0
-
-# NOTE: Credentials reset removed (Bitnami-specific). RootDN/RootPW are bootstrapped via container env.
-
-- name: "Create LDIF directories under {{ OPENLDAP_LDIF_PATH_HOST }}"
+- name: "📁 Create LDIF dirs {{ OPENLDAP_LDIF_PATH_HOST }} before swarm bind-mount"
   file:
     path: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ item }}"
     state: directory
     mode: "0755"
   loop: "{{ OPENLDAP_LDIF_TYPES }}"
 
-- name: Set OPENLDAP_MODULE_DN (from filesystem)
+- name: 🎬 Initialize docker
+  include_tasks: 02_docker.yml
+
+- name: 📄 Render {{ lookup('domain',application_id) }}.conf if LDAP is public
+  stack_host_template:
+    src: "nginx.stream.conf.j2"
+    dest: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
+  notify: restart openresty
+  when: OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
+
+- name: 🧹 Remove {{ lookup('domain',application_id) }}.conf if LDAP not public
+  file:
+    path: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
+    state: absent
+  when: not OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
+
+- name: "⏳ Wait for LDAP to be available"
+  wait_for:
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
+    delay: 5
+    timeout: "{{ lookup('timeout', 120) | int }}"
+    state: started
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: 🔎 Check if current RootDN/RootPW already work
+  ansible.builtin.shell: >
+    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
+    ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "{{ OPENLDAP_BIND_PW }}"
+  register: openldap_bind_check
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: false
+  failed_when: false
+
+- name: ✅ Ensure LDAP RootPW is set on every deploy
+  include_tasks: 02_credentials.yml
+  when:
+    - OPENLDAP_NETWORK_SWITCH_LOCAL | bool
+    - OPENLDAP_PROVISION_CREDENTIALS | bool
+    - openldap_bind_check.rc != 0
+
+- name: 🔧 Set OPENLDAP_MODULE_DN (from filesystem)
   shell: >
-    container exec {{ OPENLDAP_CONTAINER }}
+    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
     sh -lc 'grep -m1 "^dn: " /etc/ldap/slapd.d/cn=config/cn=module{0}.ldif | sed "s/^dn: //"'
   register: openldap_module_dn_raw
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   changed_when: false
   failed_when: openldap_module_dn_raw.rc != 0 or (openldap_module_dn_raw.stdout | trim) == ""
 
-- name: Normalize OPENLDAP_MODULE_DN (ensure ,cn=config suffix)
+- name: 📐 Normalize OPENLDAP_MODULE_DN (ensure ,cn=config suffix)
   set_fact:
     OPENLDAP_MODULE_DN: >-
       {{
@@ -65,14 +68,16 @@
         ~ ('' if (openldap_module_dn_raw.stdout | trim) is search(',cn=config$') else ',cn=config')
       }}
 
-- name: Query available LDAP databases
+- name: 🔍 Query available LDAP databases
   shell: >
-    container exec {{ OPENLDAP_CONTAINER }}
+    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
     ldapsearch -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }} -LLL -b cn=config "(olcDatabase=*)" dn
   register: ldap_databases
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   changed_when: false
 
-- name: Set OPENLDAP_DATA_BACKEND_DN (mdb preferred, hdb fallback)
+- name: 🔧 Set OPENLDAP_DATA_BACKEND_DN (mdb preferred, hdb fallback)
   set_fact:
     OPENLDAP_DATA_BACKEND_DN: >-
       {{
@@ -93,7 +98,7 @@
           )
         )
       }}
-- name: Normalize OPENLDAP_DATA_BACKEND_DN (ensure ,cn=config suffix)
+- name: 📐 Normalize OPENLDAP_DATA_BACKEND_DN (ensure ,cn=config suffix)
   set_fact:
     OPENLDAP_DATA_BACKEND_DN: >-
       {{
@@ -102,7 +107,7 @@
       }}
   when: OPENLDAP_DATA_BACKEND_DN | default('') | length > 0
 
-- name: "Import LDIF Configuration"
+- name: "📂 Import LDIF Configuration"
   include_tasks: _ldifs_creation.yml
   loop:
     - configuration
@@ -110,17 +115,17 @@
     loop_var: folder
   when: OPENLDAP_PROVISION_CONFIGURATION | bool
 
-- name: flush LDIF handlers
+- name: 🚿 flush LDIF handlers
   meta: flush_handlers
 
-- name: Load python-ldap build prerequisites
+- name: 📥 Load python-ldap build prerequisites
   include_tasks: _python_ldap_prerequisites.yml
 
-- name: Load python-ldap header fallback when Python.h is missing
+- name: 📥 Load python-ldap header fallback when Python.h is missing
   include_tasks: _python_ldap_header_fallback.yml
   when: not openldap_python_header.stat.exists
 
-- name: Install python-ldap in active Ansible interpreter
+- name: 📦 Install python-ldap in active Ansible interpreter
   include_role:
     name: sys-pip-install
   vars:
@@ -128,7 +133,7 @@
     package_state: present
     global_install: true
 
-- name: Sanity check python-ldap import (verbose)
+- name: ✅ Sanity check python-ldap import (verbose)
   ansible.builtin.shell: |
     set -euo pipefail
     {{ ansible_python_interpreter }} - <<'EOF'
@@ -144,15 +149,23 @@
   changed_when: false
   when: MODE_DEBUG | bool
 
-- name: "Include Schemas (if enabled)"
-  include_tasks: 03_schemas.yml
+- name: "📂 Include Schemas (if enabled)"
+  include_tasks:
+    file: 03_schemas.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_SCHEMAS | bool
 
-- name: "Import LDAP Entries (if enabled)"
-  include_tasks: 04_users.yml
+- name: "📂 Import LDAP Entries (if enabled)"
+  include_tasks:
+    file: 04_users.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_USERS | bool
 
-- name: "Import LDIF Data (if enabled)"
+- name: "📂 Import LDIF Data (if enabled)"
   include_tasks: _ldifs_creation.yml
   loop:
     - groups
@@ -162,6 +175,10 @@
 
 - meta: flush_handlers
 
-- name: "Add Objects to all users"
-  include_tasks: 05_update.yml
+- name: "➕ Add Objects to all users"
+  include_tasks:
+    file: 05_update.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_UPDATE | bool

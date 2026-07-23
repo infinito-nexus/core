@@ -1,0 +1,8 @@
+---
+status_codes:
+  # 302: both canonicals redirect unauthenticated HEADs — the WebAdmin SPA to
+  # /account/login, and Roundcube straight to Keycloak (oauth_login_redirect).
+  default:
+    - 302
+    - 301
+    - 200

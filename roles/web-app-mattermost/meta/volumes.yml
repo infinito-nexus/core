@@ -1,6 +1,35 @@
 ---
-config: mattermost_config
-data: mattermost_data
-logs: mattermost_logs
-plugins: mattermost_plugins
-client-plugins: mattermost_client_plugins
+config:
+  type: volume
+  name: mattermost_config
+  mounts:
+    - service: mattermost
+      target: /mattermost/config
+
+data:
+  type: volume
+  name: mattermost_data
+  mounts:
+    - service: mattermost
+      target: /mattermost/data
+
+logs:
+  type: volume
+  name: mattermost_logs
+  mounts:
+    - service: mattermost
+      target: /mattermost/logs
+
+plugins:
+  type: volume
+  name: mattermost_plugins
+  mounts:
+    - service: mattermost
+      target: /mattermost/plugins
+
+client-plugins:
+  type: volume
+  name: mattermost_client_plugins
+  mounts:
+    - service: mattermost
+      target: /mattermost/client/plugins

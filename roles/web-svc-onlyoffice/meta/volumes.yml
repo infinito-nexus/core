@@ -1,8 +1,43 @@
 ---
-data: onlyoffice_data
-logs: onlyoffice_logs
-fonts: onlyoffice_fonts
-lib: onlyoffice_lib
-rabbitmqdata: onlyoffice_rabbitmqdata
-pgdata: onlyoffice_pgdata
-redisdata: onlyoffice_redisdata
+data:
+  type: volume
+  name: onlyoffice_data
+  mounts:
+    - service: onlyoffice
+      target: /var/www/onlyoffice/Data
+logs:
+  type: volume
+  name: onlyoffice_logs
+  mounts:
+    - service: onlyoffice
+      target: /var/log/onlyoffice
+fonts:
+  type: volume
+  name: onlyoffice_fonts
+  mounts:
+    - service: onlyoffice
+      target: /usr/share/fonts/truetype/custom
+lib:
+  type: volume
+  name: onlyoffice_lib
+  mounts:
+    - service: onlyoffice
+      target: /var/lib/onlyoffice
+pgdata:
+  type: volume
+  name: onlyoffice_pgdata
+  mounts:
+    - service: onlyoffice
+      target: /var/lib/postgresql
+redisdata:
+  type: volume
+  name: onlyoffice_redisdata
+  mounts:
+    - service: onlyoffice
+      target: /var/lib/redis
+rabbitmqdata:
+  type: volume
+  name: onlyoffice_rabbitmqdata
+  mounts:
+    - service: onlyoffice
+      target: /var/lib/rabbitmq

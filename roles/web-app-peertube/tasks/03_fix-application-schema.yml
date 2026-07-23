@@ -1,0 +1,73 @@
+---
+# PeerTube v8.x (and intermittently under the rolling `production-bookworm`
+# tag) ships a migration that declares `application.nodeVersion` and
+# `application.nodeABIVersion` as NOT NULL without a column default, while
+# the bootstrap `Application.loadApplication()` only INSERTs `migrationVersion`
+# into the single-row `application` table. On a fresh database that INSERT
+# fails with
+#
+#   null value in column "nodeVersion" of relation "application" violates
+#   not-null constraint
+#
+# and peertube crash-loops on startup before it can add the plugin or serve
+# traffic. Related upstream reports (all closed as user error / stale data):
+# https://github.com/Chocobozzz/PeerTube/issues/5588 ,
+# https://github.com/Chocobozzz/PeerTube/issues/6137 .
+#
+# The bug is timing-independent inside the container (the INSERT is racing the
+# runtime code that would later set `nodeVersion`, not a schema migration), so
+# we patch it at the database level: once peertube has created the `application`
+# table during its first startup attempt, back-fill column defaults so the
+# next restart's INSERT succeeds. Peertube itself overwrites the values with
+# real node/ABI version strings on every boot, so the defaults only cover the
+# bootstrap INSERT.
+#
+# Both queries run inside the DB container the `database` lookup resolves
+# to (central `svc-db-postgres` in shared mode, per-role `peertube-database`
+# in non-shared mode). Running inside the container side-steps the
+# controller-side TCP reachability gap that affects non-shared deploys.
+
+- name: "⏳ PEERTUBE | Wait for peertube to create the `application` table"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query: "{{ lookup('file', role_path ~ '/files/sql/check-application-table.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    expect_rows: true
+  register: _peertube_app_table_check
+  retries: 60
+  delay: 5
+  until: >-
+    _peertube_app_table_check is succeeded
+    and (_peertube_app_table_check.rows | default([]) | length) > 0
+    and (_peertube_app_table_check.rows[0][0] | default('')) == 'application'
+  changed_when: false
+
+- name: "🔧 PEERTUBE | Back-fill column defaults so bootstrap INSERT keeps NOT NULL"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query: "{{ lookup('file', role_path ~ '/files/sql/backfill-application-defaults.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+  register: _peertube_app_defaults
+  notify: compose up
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: PEERTUBE
+    resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
+
+- name: "⏳ PEERTUBE | Wait for peertube container healthy after schema back-fill"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - -f
+      - "{{ '{{.State.Health.Status}}' }}"
+      - "{{ PEERTUBE_LOCAL_CID }}"
+  register: _peertube_health
+  retries: 60
+  delay: 5
+  until: _peertube_health.rc == 0 and _peertube_health.stdout == "healthy"
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  changed_when: false

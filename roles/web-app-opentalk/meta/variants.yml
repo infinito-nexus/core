@@ -5,6 +5,8 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-opentalk.
 - services:
+    container_backup:
+      enabled: true
     coturn:
       enabled: true
       shared: true
@@ -23,10 +25,9 @@
     matomo:
       enabled: true
       shared: true
-    sso:
-      enabled: true
-      shared: true
     postgres:
+      shared: true
+    redis:
       shared: true
     prometheus:
       enabled: true
@@ -34,31 +35,33 @@
     seaweedfs:
       shared: true
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     coturn:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
-    sso:
-      enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     postgres:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    redis:
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     seaweedfs:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

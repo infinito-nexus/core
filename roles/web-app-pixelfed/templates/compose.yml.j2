@@ -1,45 +1,36 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-
-  application:
-    image: "{{ PIXELFED_IMAGE }}:{{ PIXELFED_VERSION }}"
-    container_name: {{ PIXELFED_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    # Keep the application on the repo-managed entrypoint so the container is
-    # ready for the Ansible bootstrap before Pixelfed's own first-start logic.
+  {% set service_name = 'pixelfed' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'pixelfed') }}
+    {{ lookup('compose_only', 'container_name', PIXELFED_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     entrypoint: "{{ PIXELFED_ENTRYPOINT_DOCKER }}"
-    volumes:
-      - "data:/var/www/storage"
-      - "{{ PIXELFED_ENV_FILE }}:/var/www/.env"
-      - "{{ PIXELFED_ENTRYPOINT_HOST_ABS }}:{{ PIXELFED_ENTRYPOINT_DOCKER }}:ro"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pixelfed.ports.local.http') }}:80"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-  worker:
-    container_name: {{ PIXELFED_WORKER_CONTAINER }}
-    image: "{{ PIXELFED_IMAGE }}:{{ PIXELFED_VERSION }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_volumes', application_id, 'pixelfed') | indent(4) }}
+    {{ lookup('container_ports', ['pixelfed', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+  {% set service_name = 'worker' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', PIXELFED_WORKER_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'pixelfed') }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     environment:
       AUTORUN_LARAVEL_EVENT_CACHE: "false"
       AUTORUN_LARAVEL_ROUTE_CACHE: "false"
       AUTORUN_LARAVEL_VIEW_CACHE: "false"
       AUTORUN_ENABLED: "false"
-    volumes:
-      - "data:/var/www/storage"
-      - "{{ PIXELFED_ENV_FILE }}:/var/www/.env"
-    entrypoint: /worker-entrypoint.sh
+    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
+    entrypoint: "{{ PIXELFED_WORKER_ENTRYPOINT_DOCKER }}"
     healthcheck:
-      test: php artisan horizon:status | grep running
+      test: test ! -e /var/www/storage/.docker.init || (php artisan horizon:status | grep running)
       interval: 60s
       timeout: 5s
       retries: 1
-{{ lookup('container_depends_on', application_id, extra={
-  'application': {'condition': 'service_started'},
-}) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+      start_period: 300s
+    {{ lookup('container_depends_on', application_id, extra={
+  'pixelfed': {'condition': 'service_started'},
+}) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': PIXELFED_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

@@ -23,6 +23,11 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 chess:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: ghcr.io/kevinveenbirkenbach/fedi-chess
   version: v1.0.1
   name: web-app-chess
@@ -36,6 +41,10 @@ chess:
   ports:
     local:
       http: 8050
+    internal:
+      http: 5080
+  proxy:
+    service_key: chess
   lifecycle: beta
 css:
   bond: 1
@@ -45,3 +54,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs Ollama — a local model server for running open LLMs with a simple HTTP API.
+  description: Self-hosted model server for running open LLMs locally behind a simple HTTP API
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

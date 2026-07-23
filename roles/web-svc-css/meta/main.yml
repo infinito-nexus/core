@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media Self-written infrastructure/glue role that owns the `css` service flag and redirects to the CDN; no upstream third-party product.
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Canonical provider role for shared CSS assets. Owns the `css` service flag so consumer roles can gate their CSS-dependent surfaces on
-    `'web-svc-css' in group_names`.
+  author: Kevin Veen-Birkenbach
+  description: Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

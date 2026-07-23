@@ -1,5 +1,5 @@
 ---
-- name: Install OpenSSL
+- name: 📦 Install OpenSSL
   become: true
   ansible.builtin.package:
     name: openssl

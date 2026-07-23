@@ -1,0 +1,3 @@
+---
+database_init: false # When true a per-consumer namespace check runs (no-op for memcached)
+database_consumer_id: "svc-db-memcached" # Self consumer

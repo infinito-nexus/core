@@ -31,7 +31,7 @@ import yaml
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.services.sso import is_potentially_enabled
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -103,7 +103,6 @@ class TestSsoRoleContract(unittest.TestCase):
             if sso_block.get("flavor") != "oauth2":
                 continue
 
-            # Required: sso.oauth2.origin.{host,port}
             oauth2_sub = (
                 sso_block.get("oauth2") if isinstance(sso_block, dict) else None
             )
@@ -126,8 +125,6 @@ class TestSsoRoleContract(unittest.TestCase):
                         f"{role_name}: meta/services.yml.sso.oauth2.origin.port is missing or empty."
                     )
 
-            # Required: <entity>.ports.local.sso — the role's local
-            # SSO-proxy listen port consumed by sys-stk-front-proxy.
             entity = get_entity_name(role_name)
             if not entity:
                 continue

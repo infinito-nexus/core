@@ -101,9 +101,13 @@ echo ">>> Ensuring development stack is up (when-down)"
 "${PYTHON}" -m cli.administration.deploy.development up \
 	--when-down
 
-echo ">>> Running entry.sh bootstrap inside container"
-"${PYTHON}" -m cli.administration.deploy.development exec \
-	-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/entry-bootstrap.sh"
+if [[ "${INFINITO_SKIP_COMPILE:-}" == "true" ]]; then
+	echo ">>> Skipping entry.sh bootstrap recompile (INFINITO_SKIP_COMPILE=true)"
+else
+	echo ">>> Running entry.sh bootstrap inside container"
+	"${PYTHON}" -m cli.administration.deploy.development exec \
+		-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/entry-bootstrap.sh"
+fi
 
 echo ">>> Creating inventory for app '${apps}'"
 # RUNTIME MUST be `dev` here: the host process running this script lives
@@ -112,10 +116,21 @@ echo ">>> Creating inventory for app '${apps}'"
 # `RUNTIME=host` into host_vars and the Playwright E2E gate
 # (RUNTIME in [dev, act, github]) would never fire — kept-deploys would
 # silently skip the test stage. Mirrors apps/reinstall/selection.sh.
+# Optional caller-supplied inventory vars (JSON object) merged over the
+# defaults — e.g. the migration scenario pins {"MAIL_PROVIDER": "web-app-mailu"}
+# for its legacy leg.
+INVENTORY_VARS='{"ASYNC_ENABLED": false, "RUNTIME": "dev"}'
+if [[ -n "${INFINITO_INVENTORY_EXTRA_VARS:-}" ]]; then
+	INVENTORY_VARS="$("${PYTHON}" -c \
+		'import json, sys; base = json.loads(sys.argv[1]); base.update(json.loads(sys.argv[2])); print(json.dumps(base))' \
+		"${INVENTORY_VARS}" "${INFINITO_INVENTORY_EXTRA_VARS}")"
+	echo ">>> Inventory extra vars merged: ${INFINITO_INVENTORY_EXTRA_VARS}"
+fi
+
 "${PYTHON}" -m cli.administration.deploy.development init \
 	--apps "${apps}" \
 	--inventory-dir "${INFINITO_INVENTORY_DIR}" \
-	--vars '{"ASYNC_ENABLED": false, "RUNTIME": "dev"}'
+	--vars "${INVENTORY_VARS}"
 
 deploy_cmd=(
 	"${PYTHON}" -m cli.administration.deploy.development deploy

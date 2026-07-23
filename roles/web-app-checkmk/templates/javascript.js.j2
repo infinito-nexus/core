@@ -55,8 +55,6 @@
     );
 
     if (anchor) {
-      // Clone the styling of an existing sibling control so the injected
-      // logout matches the surrounding icon group.
       const sibling = anchor.querySelector(
         ":scope > button, :scope > a, :scope > li > button, :scope > li > a",
       );
@@ -75,10 +73,6 @@
       return;
     }
 
-    // Checkmk's classic GUI has no <header>/<nav> anchor in the top frame
-    // (the toolbar is bare <div>/<a>, and the real logout hides behind the
-    // "User" menu). Fall back to a fixed top-right control appended to the
-    // top-frame <body> so the universal persona logout can always reach it.
     btn.style.cssText = [
       "position:fixed",
       "top:6px",
@@ -107,8 +101,6 @@
       childList: true,
       subtree: true,
     });
-    // Checkmk mounts its top navigation asynchronously — retry after the
-    // initial paint so a single synchronous pass does not miss the banner.
     setTimeout(ensureLogoutIcon, 750);
     setTimeout(ensureLogoutIcon, 2500);
   }

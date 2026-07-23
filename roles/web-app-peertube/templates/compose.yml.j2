@@ -1,17 +1,14 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  application:
-{% set container_port = 9000 %}
-    image: {{ PEERTUBE_IMAGE }}:{{ PEERTUBE_VERSION }}
-    container_name: {{ PEERTUBE_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-     - "1935:1935"  # @todo Add to ports
-     - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}:{{ container_port }}" 
-    volumes:
-      - assets:/app/client/dist
-      - data:/data
-      - config:/config
+  {% set service_name = 'peertube' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'peertube') }}
+    {{ lookup('compose_only', 'container_name', PEERTUBE_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports',
+              ['peertube', 'http', DOCKER_BIND_HOST],
+              ['peertube', 'rtmp']) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'peertube') | indent(4) }}
     environment:
       - NODE_OPTIONS=--max-old-space-size={{ PEERTUBE_MAX_OLD_SPACE_SIZE }}
       - PEERTUBE_TRANSCODING_CONCURRENCY={{ PEERTUBE_TRANSCODING_CONCURRENCY }}
@@ -23,11 +20,8 @@
         soft: 131072
         hard: 131072
       nproc:  8192
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'assets': {}, 'config': {'name': PEERTUBE_CONFIG_VOLUME}, 'data': {'name': PEERTUBE_DATA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

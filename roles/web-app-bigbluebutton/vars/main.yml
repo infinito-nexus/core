@@ -1,20 +1,17 @@
 ---
-# General
 application_id: "web-app-bigbluebutton"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Proxy
+compose_mode_force: compose
+
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.bigbluebutton.ports.local.http') }}"
 
-# Source
 BBB_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
 BBB_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ref') }}"
 
-# BigBlueButton
 _BBB_COTURN_ROLE: "web-svc-coturn"
 
-## Credentials
 BBB_SHARED_SECRET: "{{ lookup('config', application_id, 'credentials.shared_secret') }}"
 BBB_ETHERPAD_API_KEY: "{{ lookup('config', application_id, 'credentials.etherpad_api_key') }}"
 BBB_RAILS_SECRET: "{{ lookup('config', application_id, 'credentials.rails_secret') }}"
@@ -24,11 +21,9 @@ BBB_TURN_SECRET_LOCAL: "{{ lookup('config', application_id, 'credentials.turn_se
 BBB_TURN_SECRET_SHARED: "{{ lookup('config',_BBB_COTURN_ROLE, 'credentials.auth_secret') }}"
 BBB_TURN_SECRET: "{{ BBB_COTURN_LOCAL_ENABLED  | bool | ternary (BBB_TURN_SECRET_LOCAL, BBB_TURN_SECRET_SHARED) }}"
 
-## TLS
 BBB_COTURN_TLS_CERT_PATH: "{{ lookup('cert', application_id, 'files.cert') }}"
 BBB_COTURN_TLS_KEY_PATH: "{{ lookup('cert', application_id, 'files.key') }}"
 
-## Turn
 BBB_COTURN_LOCAL_ENABLED: "{{ not (lookup('config',application_id, 'services.coturn.shared')) }}"
 BBB_TURN_DOMAIN: "{{ networks.internet.ip4             if BBB_COTURN_LOCAL_ENABLED else lookup('domain',_BBB_COTURN_ROLE) }}"
 BBB_TURN_PORT: "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.stun_turn') if BBB_COTURN_LOCAL_ENABLED else lookup('config', _BBB_COTURN_ROLE,
@@ -40,23 +35,19 @@ BBB_RELAY_PORT_START: "{{ lookup('config', application_id, 'services.bigbluebutt
 BBB_RELAY_PORT_END: "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.relay.end') }}"
 BBB_RELAY_PORT_RANGE: "{{ BBB_RELAY_PORT_START }}-{{ BBB_RELAY_PORT_END }}"
 
-## Collabora
 BBB_COLLABORA_ENABLED: "{{ not (lookup('config',application_id, 'services.collabora.shared')) }}"
-BBB_COLLABORA_URL: "{{ 'https://collabora:9980/cool' if BBB_COLLABORA_ENABLED else ((lookup('tls', 'web-svc-collabora', 'url.base'))) }}"
+BBB_COLLABORA_PORT: "{{ lookup('config', 'web-svc-collabora', 'services.collabora.ports.internal.http') }}"
+BBB_COLLABORA_URL: "{{ ('https://collabora:' ~ BBB_COLLABORA_PORT ~ '/cool') if BBB_COLLABORA_ENABLED else ((lookup('tls', 'web-svc-collabora', 'url.base'))) }}"
 
-### Recording
 BBB_RECORDING_ENABLED: "{{ lookup('config', application_id, 'services.'~ entity_name ~'.recording.enabled') }}"
 BBB_RECORDING_CLEANUP_ENABLED: "{{ lookup('config', application_id, 'services.'~ entity_name ~'.recording.cleanup') }}"
 BBB_RECORDING_MAX_AGE_DAYS: "{{ lookup('config', application_id, 'services.'~ entity_name ~'.recording.max_age_days') }}"
 
-## Additional Switchs
-
-### Network
 BBB_IP6_ENABLED: "{{ lookup('config', application_id, 'server.ip6_enabled') }}"
 
-### Container
 BBB_GREENLIGHT_ENABLED: "{{ lookup('config', application_id, 'services.greenlight.enabled') }}"
+BBB_POSTGRES_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'postgres') }}"
+BBB_GREENLIGHT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'greenlight') }}"
 
-### SSO
 BBB_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 BBB_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

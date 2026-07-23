@@ -1,0 +1,19 @@
+---
+# nocheck: required-by-coverage
+node:
+  enabled: "{{ 'svc-swarm-node' in group_names }}"
+  shared: "{{ 'svc-swarm-node' in group_names }}"
+  bond: 1
+manager:
+  modes:
+    host:
+      enabled: true
+  name: swarm-manager
+  lifecycle: beta
+  min_storage: "1MB"
+  cpus: "0.01"
+  mem_reservation: "8m"
+  mem_limit: "16m"
+  pids_limit: 8
+  run_after:
+    - svc-swarm-node

@@ -1,0 +1,64 @@
+---
+# Provision the mail domain, accounts, TLS, OIDC, antivirus and DNS (JMAP).
+# The domain was asserted provisionable in 01_core.yml before any state change.
+- name: "📖 List existing Stalwart domains"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Domain/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Resolve existing domain id (if any)"
+  ansible.builtin.set_fact:
+    stalwart_domain_id: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list
+          | selectattr('name', 'equalto', STALWART_DOMAIN)
+          | map(attribute='id') | first) | default('') }}
+
+- name: "📁 Create Stalwart domain '{{ STALWART_DOMAIN }}'"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Domain/set',
+            {'create': {'d': {'name': STALWART_DOMAIN}}}, 'c0']]} | to_json }}
+  when: stalwart_domain_id | length == 0
+
+- name: "📖 Capture newly created domain id"
+  ansible.builtin.set_fact:
+    stalwart_domain_id: "{{ stalwart_jmap.methodResponses[0][1].created.d.id }}"
+  when: stalwart_domain_id | length == 0
+
+- name: "⚙️ Provision Stalwart accounts"
+  include_tasks:
+    file: 04_manage_user.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  vars:
+    stalwart_user_key: "{{ user_item.key }}"
+    stalwart_user_name: "{{ user_item.value.username }}"
+    stalwart_user_password: "{{ user_item.value.password }}"
+    stalwart_user_roles: "{{ user_item.value.roles | default([]) }}"
+  loop: "{{ lookup('users') | dict2items }}"
+  loop_control:
+    loop_var: user_item
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Configure Stalwart mail-listener TLS (platform cert)"
+  include_tasks: 07_tls.yml
+  when: lookup('tls', application_id, 'enabled') | bool
+
+- name: "🔗 Wire Keycloak as the OIDC authentication directory (SSO)"
+  include_tasks: 08_oidc.yml
+  when: STALWART_SSO_ENABLED | bool
+
+- name: "🔧 Register the ClamAV antivirus milter"
+  include_tasks: 09_antivirus.yml
+  when: STALWART_ANTIVIRUS_ENABLED | bool
+
+- name: "📖 Read Stalwart-managed DKIM public key"
+  include_tasks: 05_read_dkim.yml
+
+- name: "🔧 Publish Stalwart DNS records"
+  include_tasks: 06_dns-records.yml
+  when: stalwart_dkim_selector is defined

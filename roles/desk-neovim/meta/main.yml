@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen‑Birchenbach
-  description: Installs neovim CLI text editor on Pacman‑based systems.
+  author: Kevin Veen-Birkenbach
+  description: Extensible Vim-based command-line text editor for terminal-driven code and configuration editing
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

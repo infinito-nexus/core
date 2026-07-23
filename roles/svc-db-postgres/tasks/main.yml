@@ -4,12 +4,11 @@
   vars:
     application_id: svc-db-postgres
 
-- include_tasks: utils/load_handlers.yml
-  # Necessary because docker handlers are overwritten by condition
+- include_tasks: utils/load/handlers.yml
   vars:
     handler_role_name: "sys-svc-compose"
 
-- name: "Initialize dedicated database"
+- name: "🎬 Initialize dedicated database"
   include_tasks: 02_init.yml
   when: database_init | bool
   vars:

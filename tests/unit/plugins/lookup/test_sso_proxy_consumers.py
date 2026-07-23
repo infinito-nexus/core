@@ -11,6 +11,7 @@ import importlib
 import importlib.util
 import sys
 import unittest
+from unittest import mock
 
 from ansible.errors import AnsibleError
 
@@ -53,20 +54,22 @@ class SsoProxyConsumersLookupTests(unittest.TestCase):
         )
 
     def setUp(self):
-        self._original_merge = self.mod.get_merged_applications
+        self._original_loader = self.mod.lookup_loader
         self._stub_payload = None
 
-        def _stub(*args, **kwargs):
-            return self._stub_payload
-
-        self.mod.get_merged_applications = _stub
+        loader_mock = mock.MagicMock()
+        loader_mock.get.return_value = mock.MagicMock(
+            run=lambda *_a, **_k: [self._stub_payload]
+        )
+        self.mod.lookup_loader = loader_mock
 
     def tearDown(self):
-        self.mod.get_merged_applications = self._original_merge
+        self.mod.lookup_loader = self._original_loader
 
     def _run(self, applications, terms=None):
         self._stub_payload = applications
         lk = self.mod.LookupModule()
+        lk._loader = mock.MagicMock()
         return lk.run(terms or [], variables={"applications": applications})
 
     # --- term-shape contract --------------------------------------------

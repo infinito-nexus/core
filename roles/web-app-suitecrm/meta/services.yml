@@ -27,20 +27,26 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 suitecrm:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
   image: php
   # TODO: Make SuiteCRM compatible with PHP 8.5; update currently not possible. Reason: intentional legacy pin.
   # nocheck: docker-version
   version: 8.2-apache
+  custom: true
   app_version: 8.9.1
   name: suitecrm
   min_storage: 10GB
@@ -55,8 +61,11 @@ suitecrm:
     local:
       sso: 16490
       http: 8062
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
     - web-app-matomo
   lifecycle: beta
@@ -68,3 +77,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

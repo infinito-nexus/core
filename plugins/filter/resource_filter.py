@@ -7,7 +7,9 @@ from utils.roles.applications.config import (
     ConfigEntryNotSetError,
     get,
 )
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
+
+_UNSET = object()
 
 
 def resource_filter(
@@ -20,25 +22,30 @@ def resource_filter(
     """
     Lookup order:
       1) services.<service_name or get_entity_name(application_id)>.<key>
-      2) hard_default (mandatory)
+      2) services.<get_entity_name(application_id)>.<key>
+      3) hard_default (mandatory)
 
     - service_name may be "" → will resolve to get_entity_name(application_id).
     - hard_default is mandatory (no implicit None).
     - required=False always.
     """
     try:
-        primary_service = (
-            service_name if service_name != "" else get_entity_name(application_id)
-        )
-        return get(
-            applications,
-            application_id,
-            f"services.{primary_service}.{key}",
-            False,
-            hard_default,
-        )
+        entity = get_entity_name(application_id)
+        primary_service = service_name if service_name != "" else entity
+        value = _UNSET
+        for candidate in dict.fromkeys([primary_service, entity]):
+            value = get(
+                applications,
+                application_id,
+                f"services.{candidate}.{key}",
+                False,
+                _UNSET,
+            )
+            if value is not _UNSET:
+                break
     except (AppConfigKeyError, ConfigEntryNotSetError) as e:
         raise AnsibleFilterError(str(e)) from e
+    return hard_default if value is _UNSET else value
 
 
 class FilterModule:

@@ -1,0 +1,68 @@
+---
+# The WebUI bundle (a JMAP "Application" record) is staged locally in 01_core;
+# point the record's resourceUrl at that file:// path and re-unpack.
+
+- name: "📖 List Stalwart Application records"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Application/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Resolve the WebUI Application id"
+  ansible.builtin.set_fact:
+    stalwart_webui_app_id: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list
+          | selectattr('description', 'equalto', STALWART_WEBUI_APP_DESCRIPTION)
+          | map(attribute='id') | first) | default('') }}
+
+- name: "✅ Ensure the WebUI Application record was found"
+  ansible.builtin.assert:
+    that:
+      - stalwart_webui_app_id | length > 0
+    fail_msg: >-
+      No Stalwart Application record with description
+      '{{ STALWART_WEBUI_APP_DESCRIPTION }}' found — the JMAP schema changed;
+      re-validate 10_webadmin.yml against this Stalwart version.
+    quiet: true
+
+- name: "🔗 Point the WebUI Application at the locally-staged bundle"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Application/set',
+            {'update': {stalwart_webui_app_id: {'resourceUrl': STALWART_WEBUI_LOCAL_URL}}},
+            'c0']]} | to_json }}
+
+# UpdateApps force-unpacks from resourceUrl (the /api/update/webadmin endpoint is gone).
+- name: "📦 Unpack the WebUI bundle from the local file"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Action/set',
+            {'create': {'a': {'@type': 'UpdateApps'}}},
+            'c0']]} | to_json }}
+
+- name: "🔧 Verify the WebAdmin is served after unpack"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - exec
+      - -T
+      - stalwart
+      - curl
+      - -sS
+      - -o
+      - /dev/null
+      - -w
+      - "%{http_code}"
+      - "{{ STALWART_LOCAL_BASE_URL }}/"
+  args:
+    chdir: "{{ STALWART_INSTANCE_DIR }}"
+  register: stalwart_webui_probe
+  changed_when: false
+  retries: 6
+  delay: 5
+  until: stalwart_webui_probe.stdout in ['200', '301', '302']

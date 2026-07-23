@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs Jrnl CLI journal application on Pacman-based systems for command-line journaling.
+  author: Kevin Veen-Birkenbach
+  description: Command-line journal application for creating and managing personal diary entries from the terminal
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

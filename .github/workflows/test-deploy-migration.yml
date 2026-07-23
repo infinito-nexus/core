@@ -1,0 +1,96 @@
+name: "📧 Test: Mail-Provider Migration (Mailu → Stalwart)"
+
+# Opt-in migration scenario: deploys Mailu as the ACTIVE provider, then
+# redeploys with the default provider (Stalwart) over kept state — the exact
+# upgrade path of an existing Mailu installation. See
+# scripts/tests/deploy/local/deploy/apps/migration/selection.sh.
+#
+# Gated OFF by default (INFINITO_TEST_MIGRATION=false in default.env):
+# enable per run via the manual CI workflow's `test_migration` field, per
+# dispatch of this workflow, or repo-wide via the INFINITO_TEST_MIGRATION
+# GitHub repository variable.
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_migration:
+        description: "Run the mail-provider migration scenario"
+        required: false
+        default: true
+        type: boolean
+  workflow_call:
+    inputs:
+      test_migration:
+        description: "'true' to run the migration scenario"
+        required: false
+        type: string
+        default: "false"
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  INFINITO_DISTROS: "debian"
+  INFINITO_DISTRO: "debian"
+  INFINITO_IMAGE_TAG: "latest"
+  INFINITO_TEST_MIGRATION: "true"
+
+jobs:
+  mail-migration:
+    name: 🚀 Mailu → Stalwart migration
+    # The gate: dispatch/call input wins; the repo variable enables it fleet-wide.
+    if: ${{ inputs.test_migration == true || inputs.test_migration == 'true' || vars.INFINITO_TEST_MIGRATION == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+
+    steps:
+      - name: 🧹 Free disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - uses: actions/checkout@v7
+
+      - name: 💾 Enlarge swap space
+        shell: bash
+        run: ./scripts/github/runner/enlarge_swap.sh
+
+      - name: 📦 Install deps (jq + envsubst)
+        shell: bash
+        run: ./scripts/install/apt.sh jq gettext-base
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: make install
+
+      # Cheap first: seeds a Mailu-layout maildir stump, migrates it into a
+      # single pinned Stalwart container and verifies the data — no platform
+      # deploy involved (fails in ~1 minute when the migration script breaks).
+      - name: 🔬 Standalone data-migration test (Mailu stump → Stalwart)
+        shell: bash
+        run: make test-migration
+
+      # Full platform cutover second: Mailu-active deploy → default-provider
+      # takeover over kept state.
+      - name: 📧 Run the mail-provider migration scenario
+        shell: bash
+        run: make compose-deploy mode=migration
+
+      - name: 🩺 Dump runner state (on failure)
+        if: failure()
+        shell: bash
+        run: ./scripts/github/runner/dump_state.sh "mail migration failure"

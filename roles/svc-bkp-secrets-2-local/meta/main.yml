@@ -1,0 +1,35 @@
+---
+# nocheck: info-media Self-written Infinito.Nexus backup role (svc-bkp-*) that snapshots host secrets to the local backup tree; no upstream product.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - backup
+    - secrets
+    - local
+    - systemd
+    - automation
+  issue_tracker_url: https://s.infinito.nexus/issues
+dependencies:
+  - sys-ctl-cln-faild-bkps

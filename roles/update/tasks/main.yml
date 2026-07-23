@@ -1,5 +1,5 @@
 ---
-- name: "update | dispatch to per-package-family task file"
+- name: "🔄 update | dispatch to per-package-family task file"
   block:
     - include_tasks: "{{ _update_distro_file }}"
       vars:

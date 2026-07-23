@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automated domain provisioning (TLS, vHost, OAuth2) for Nginx.
+  description: Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

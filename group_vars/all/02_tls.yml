@@ -1,33 +1,24 @@
 ---
-# Encryptiom
 TLS_ENABLED: true # nocheck: unused-var  # consumed by plugins/lookup/{tls,email,cert}.py
-# to deactivate TLS can also prevent the login function to work:
 TLS_MODE: "letsencrypt" # Valid values letsencrypt, self_signed, off
 TLS_SELFSIGNED_BASE_PATH: "/etc/{{ SOFTWARE_DOMAIN }}/selfsigned"
-# Controls whether self-signed certs are generated per app ("app")
-# or as one shared cert covering ALL domains across the global "domains" mapping ("global").
 TLS_SELFSIGNED_SCOPE: "global" # nocheck: unused-var  # consumed by the self-signed cert generator outside the YAML/Jinja scope
-# Which ACME method to use: webroot, cloudflare, or hetzner
-CERTBOT_ACME_CHALLENGE_METHOD: "cloudflare"
+CERTBOT_ACME_CHALLENGE_METHOD: "cloudflare" # webroot, cloudflare, or hetzner
 CERTBOT_CREDENTIALS_DIR: /etc/certbot
 CERTBOT_CREDENTIALS_FILE: "{{ CERTBOT_CREDENTIALS_DIR }}/{{ CERTBOT_ACME_CHALLENGE_METHOD }}.ini"
 CERTBOT_DNS_PROPAGATION_WAIT_SECONDS: 300 # How long should the script wait for DNS propagation before continuing
 CERTBOT_FLAVOR: san # Possible options: san (recommended, with a dns flavor like cloudflare, or hetzner), wildcard(doesn't function with www redirect), dedicated
-# Letsencrypt
 LETSENCRYPT_WEBROOT_PATH: "/var/lib/letsencrypt/" # Path where Certbot stores challenge webroot files
 LETSENCRYPT_BASE_PATH: "/etc/letsencrypt/" # Base directory containing Certbot configuration, account data, and archives
 LETSENCRYPT_LIVE_PATH: "{{ LETSENCRYPT_BASE_PATH }}live/" # Symlink directory for the current active certificate and private key
 CA_ROOT:
   base_dir: "/etc/{{ SOFTWARE_DOMAIN }}/ca"
-  cert_host: "/etc/{{ SOFTWARE_DOMAIN }}/ca/root-ca.crt"
+  cert_host: "{{ SOFTWARE_DOMAIN | ca_cert_host }}"
   key_host: "/etc/{{ SOFTWARE_DOMAIN }}/ca/root-ca.key"
   openssl_conf_host: "/etc/{{ SOFTWARE_DOMAIN }}/ca/openssl-root-ca.cnf"
-  # Crypto defaults
   days: 3650
   key_bits: 4096
-  # If true, delete key+cert and regenerate
-  force_regen: false
-  # Subject defaults
+  force_regen: false # When true, delete key+cert and regenerate
   subject:
     C: "DE"
     O: "{{ DOMAIN_PRIMARY }}"
@@ -35,14 +26,20 @@ CA_ROOT:
     CN: "{{ DOMAIN_PRIMARY }} Root CA"
 CA_TRUST:
   cert_host: "{{ CA_ROOT.cert_host }}"
+  cert_container: "/etc/ssl/certs/infinito-ca.pem"
   trust_name: "{{ DOMAIN_PRIMARY | lower }}"
   wrapper_host: "{{ BIN_CA_TRUST }}"
   inject_script: "{{ BIN_CA_INJECT }}"
-# SPOT: shared systemd env for CA trust aware services
+  inject_cert_container: "/tmp/infinito/ca/root-ca.crt"
+  inject_wrapper_container: "/tmp/infinito/bin/with-ca-trust.sh"
+  php_ini_host: "{{ BIN_CA_PHP_INI }}"
+  inject_php_ini_container: "/usr/local/etc/php/conf.d/zz-infinito-ca-trust.ini"
 CA_TRUST_SYSTEMD_ENV:
   - "CA_TRUST_CERT_HOST={{ CA_TRUST.cert_host }}"
   - "CA_TRUST_WRAPPER_HOST={{ CA_TRUST.wrapper_host }}"
   - "CA_TRUST_NAME={{ CA_TRUST.trust_name }}"
+  - "CA_TRUST_CERT_CONTAINER={{ CA_TRUST.inject_cert_container }}"
+  - "CA_TRUST_WRAPPER_CONTAINER={{ CA_TRUST.inject_wrapper_container }}"
 CA_TRUST_SYSTEMD_ENV_SELFSIGNED: >-
   {{ CA_TRUST_SYSTEMD_ENV if (TLS_MODE | lower) == 'self_signed' else [] }}
 CA_CONTAINER_ENABLED: true # When falsy the container wrapper skips CA injection on `container run`

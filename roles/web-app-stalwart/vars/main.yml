@@ -1,0 +1,84 @@
+---
+# General
+application_id: "web-app-stalwart"
+http_port: "{{ lookup('config', application_id, 'services.stalwart.ports.local.http') }}"
+
+# Database
+database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}"
+
+# Host directories
+STALWART_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+STALWART_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
+STALWART_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'etc' ] | path_join }}"
+# JSON bootstrap (data store); everything else lives in the database.
+STALWART_CONFIG_FILE: "{{ [ STALWART_CONFIG_DIR, 'config.json' ] | path_join }}"
+
+# Stalwart's in-container HTTP listener (WebAdmin, management API, JMAP).
+container_port: "{{ lookup('config', application_id, 'services.stalwart.ports.internal.http') }}"
+# Management endpoints on the internal HTTP listener (bypass the public proxy);
+# reached via `compose exec stalwart curl`, hence localhost.
+STALWART_LOCAL_BASE_URL: "http://localhost:{{ container_port }}"
+STALWART_JMAP_URL: "{{ STALWART_LOCAL_BASE_URL }}/jmap/"
+
+# Domains
+STALWART_DOMAIN: "{{ lookup('config', application_id, 'services.stalwart.domain') }}"
+STALWART_DOMAIN_DNS_ZONE: "{{ STALWART_DOMAIN | to_zone }}"
+STALWART_EMAIL: "{{ lookup('email', application_id) }}"
+STALWART_HOSTNAME: "{{ STALWART_EMAIL.host }}"
+STALWART_HOSTNAME_DNS_ZONE: "{{ STALWART_HOSTNAME | to_zone }}"
+
+# Docker
+STALWART_CONTAINER: "{{ lookup('config', application_id, 'services.stalwart.name') }}"
+
+# Antivirus (ClamAV milter scanned on the SMTP DATA stage)
+STALWART_ANTIVIRUS_ENABLED: "{{ lookup('config', application_id, 'services.clamav.enabled') | bool }}"
+STALWART_CLAMAV_HOST: "clamav"
+STALWART_CLAMAV_MILTER_PORT: "{{ lookup('config', application_id, 'services.clamav.ports.internal.milter') }}"
+# Milter timeouts (ms): with fail-open (tempFailOnError:false), short timeouts let
+# Stalwart accept mail while clamd warms up instead of blocking the DATA stage.
+STALWART_CLAMAV_MILTER_TIMEOUT_CONNECT_MS: 5000
+STALWART_CLAMAV_MILTER_TIMEOUT_COMMAND_MS: 5000
+STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS: 15000
+STALWART_CLAMAV_MILTER_CONF: "{{ [ STALWART_CONFIG_DIR, 'clamav-milter.conf' ] | path_join }}"
+# webmail is the secondary canonical (lookup('domain') only exposes the primary).
+STALWART_WEBMAIL_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.webmail') }}"
+STALWART_WEBMAIL_HTTP_PORT: "{{ lookup('config', application_id, 'services.webmail.ports.local.http') }}"
+# Roundcube OAuth config include (rendered only when SSO is enabled).
+STALWART_WEBMAIL_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'webmail' ] | path_join }}"
+STALWART_WEBMAIL_OAUTH_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'oauth.inc.php' ] | path_join }}"
+# Self-declared in meta/services.yml (one SPOT, also read by web-app-keycloak).
+STALWART_WEBMAIL_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.webmail_client_id') }}"
+
+# WebUI (WebAdmin) bundle: Stalwart fetches it from GitHub on first boot, which fails
+# behind restricted egress, so the controller stages it locally (see 10_webadmin.yml).
+# Pinned in meta/services.yml next to the stalwart image version.
+STALWART_WEBUI_VERSION: "{{ lookup('config', application_id, 'services.stalwart.webui_version') }}"
+STALWART_WEBUI_RESOURCE_URL: "https://github.com/stalwartlabs/webui/releases/download/{{ STALWART_WEBUI_VERSION }}/webui.zip"
+# Host-level cache under the managed cache tree: matrix rounds purge the instance
+# dir, and re-downloading per round runs into GitHub rate limits.
+STALWART_WEBUI_CACHE_FILE: "/var/cache/infinito/core/cache/package/stalwart-webui/webui-{{ STALWART_WEBUI_VERSION }}.zip"
+STALWART_WEBUI_LOCAL_FILE: "{{ [ STALWART_CONFIG_DIR, 'webui.zip' ] | path_join }}"
+STALWART_WEBUI_CONTAINER_FILE: "/etc/stalwart/webui.zip"
+STALWART_WEBUI_LOCAL_URL: "file://{{ STALWART_WEBUI_CONTAINER_FILE }}"
+# Identity of the upstream WebAdmin Application record (validated against the
+# live JMAP x:Application/get response for the pinned Stalwart version).
+STALWART_WEBUI_APP_DESCRIPTION: "Stalwart Web Interface"
+
+
+# Network
+STALWART_IP4_PUBLIC: "{{ DOCKER_PUBLIC_BIND_HOST }}"
+STALWART_ACTIVE_PROVIDER: "{{ MAIL_PROVIDER == application_id }}"
+
+# Credentials
+STALWART_ADMIN_USER: "admin"
+STALWART_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.admin_password') }}"
+
+# DMARC report address (DKIM selector + key are read at runtime in 05_read_dkim.yml).
+STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+
+# Internal nets trusted to relay without SMTP AUTH under SSO (see tasks/08_oidc.yml).
+# One SPOT with the platform's trusted-internal CIDR set (loopback + the RFC1918
+# ranges docker allocates from) instead of re-spelling it here.
+STALWART_TRUSTED_NETWORKS: "{{ NETWORK_TRUSTED_PROXY_CIDRS }}"
+
+STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"

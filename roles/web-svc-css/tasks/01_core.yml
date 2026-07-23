@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Redirect {{ lookup('domain', 'web-svc-css') }} to web-svc-cdn"
+- name: "🔍 Redirect {{ lookup('domain', 'web-svc-css') }} to web-svc-cdn"
   include_role:
     name: web-opt-rdr-domains
   vars:

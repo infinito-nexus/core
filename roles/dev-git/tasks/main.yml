@@ -1,6 +1,6 @@
 ---
 - block:
-    - name: install git
+    - name: 📦 install git
       package:
         name: git
         state: present

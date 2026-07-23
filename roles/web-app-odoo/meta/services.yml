@@ -23,16 +23,22 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 odoo:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: odoo
   version: "19.0"
+  custom: true
   name: odoo
   min_storage: 20GB
   cpus: "2.0"
@@ -47,15 +53,22 @@ odoo:
     local:
       websocket: 4003
       http: 8068
+    internal:
+      http: 8069
+      websocket: 8072
+  proxy:
+    service_key: odoo
   run_after:
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
-  enabled: true
-  shared: false
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 512m
@@ -74,3 +87,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

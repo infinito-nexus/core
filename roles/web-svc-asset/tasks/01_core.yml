@@ -1,12 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Recursively copy files from local '{{ source_directory }}' to '{{ target_directory }}'"
+- name: "📋 copy files from local '{{ source_directory }}' to '{{ target_directory }}'"
   ansible.builtin.copy:
     src: "{{ source_directory }}"
     dest: "{{ target_directory }}"
 
-- name: "Redirect {{ lookup('domain', 'web-svc-asset') }} to web-svc-file"
+- name: "🔍 Redirect {{ lookup('domain', 'web-svc-asset') }} to web-svc-file"
   include_role:
     name: web-opt-rdr-domains
   vars:

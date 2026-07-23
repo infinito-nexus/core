@@ -2,11 +2,7 @@
 
 ## Initial Database Setup
 
-After the first setup, run the following command to initialize the Listmonk database:
-
-```bash
-docker compose run --rm application ./listmonk --install
-```
+The `listmonk` service command runs `./listmonk --install --idempotent --yes` on every container start, so the schema is seeded automatically on the first deploy.
 
 ## Start Services
 

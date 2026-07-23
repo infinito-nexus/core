@@ -1,0 +1,32 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔎 Akaunting | Check if first run (marker exists?)"
+  ansible.builtin.stat:
+    path: "{{ AKAUNTING_SETUP_MARKER }}"
+  register: akaunting_marker_stat
+
+- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_repository_url: "{{ AKAUNTING_REPOSITORY }}"
+    compose_repository_pull: true
+    compose_repository_ref: "{{ AKAUNTING_REF }}"
+    compose_handlers_flush: true
+
+- when:
+    - not akaunting_marker_stat.stat.exists
+    - IS_STACK_HOST | bool
+  block:
+    - name: "▶️ Akaunting | First-run install one-shot ({{ DEPLOYMENT_MODE }})"
+      ansible.builtin.include_tasks:
+        file: "setup/{{ DEPLOYMENT_MODE }}.yml"
+        apply:
+          delegate_to: "{{ STACK_HOST }}"
+
+    - name: "📁 Akaunting | Create first-run marker to disable future setup"
+      ansible.builtin.file:
+        path: "{{ AKAUNTING_SETUP_MARKER }}"
+        state: touch
+        mode: "0644"

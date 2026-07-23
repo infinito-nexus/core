@@ -63,6 +63,7 @@ BUILTIN_FILTERS: set[str] = {
     "upper",
     "urlencode",
     "urlize",
+    "urlsplit",
     "wordcount",
     "xmlattr",
     "contains",

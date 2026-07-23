@@ -192,7 +192,7 @@ Smoke after deploy:
 
 ## Prerequisites
 
-Before any implementation work, the agent MUST read [AGENTS.md](../../AGENTS.md) and follow it, then [Role Loop](../agents/action/iteration/role.md) and the [Playwright spec contract](../contributing/artefact/files/role/playwright.specs.js.md).
+Before any implementation work, the agent MUST read [AGENTS.md](../../AGENTS.md) and follow it, then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright spec contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 

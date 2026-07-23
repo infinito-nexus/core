@@ -1,5 +1,8 @@
 ---
 gnome-extensions:
+  modes:
+    host:
+      enabled: true
   plugins: []
   lifecycle: pre-alpha
   min_storage: "50MB"

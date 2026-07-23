@@ -1,21 +1,21 @@
 ---
-- name: "create {{ system_service_script_dir }}"
+- name: "📁 create {{ system_service_script_dir }}"
   file:
     path: "{{ system_service_script_dir }}"
     state: directory
     mode: "0755"
 
-- name: "template or copy script"
+- name: "📄 template or copy script"
   block:
-    - name: "render template"
-      template:
+    - name: "📄 render template"
+      template: # nocheck: stack-host-template (per-host script for per-host systemd service)
         src: "{{ system_service_script_src }}"
         dest: "{{ [system_service_script_dir, (system_service_script_src | basename | regex_replace('\\.j2$', ''))] | path_join }}"
         mode: "0755"
       notify: "{{ 'reload system daemon' if system_service_is_template | bool else 'refresh systemctl service' }}"
       when: system_service_script_src.endswith('.j2')
 
-    - name: "copy raw file"
+    - name: "📋 copy raw file"
       copy:
         src: "{{ system_service_script_src }}"
         dest: "{{ [system_service_script_dir, (system_service_script_src | basename)] | path_join }}"

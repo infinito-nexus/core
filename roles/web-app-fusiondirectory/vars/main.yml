@@ -1,9 +1,5 @@
 ---
 application_id: web-app-fusiondirectory
-container_port: 80
 entity_name: "{{ application_id | get_entity_name }}"
 
-FUSIONDIRECTORY_IMAGE: "{{ lookup('config', application_id, 'services.fusiondirectory.image') }}"
-FUSIONDIRECTORY_VERSION: "{{ lookup('config', application_id, 'services.fusiondirectory.version') }}"
 FUSIONDIRECTORY_CONTAINER: "{{ lookup('config', application_id, 'services.fusiondirectory.name') }}"
-FUSIONDIRECTORY_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"

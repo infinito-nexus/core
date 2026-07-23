@@ -1,0 +1,37 @@
+---
+- name: "🧹 cleanup (if enabled)"
+  include_tasks: 02_cleanup.yml
+  when: >
+    MODE_CLEANUP | bool or
+    MODE_RESET | bool
+
+- name: "♻️ reset (if enabled) for {{ role_name }}"
+  include_tasks: 03_reset.yml
+  when: MODE_RESET | bool
+
+- name: "📂 Include tasks to create directories"
+  include_tasks: 04_directories.yml
+
+- name: 🔌 Load OpenResty
+  include_tasks: "utils/load/app.yml"
+  vars:
+    load_app_id: svc-prx-openresty
+
+- name: 🚀 Deploy OpenResty NGINX Base Configuration
+  stack_host_template:
+    src: nginx.conf.j2
+    dest: "{{ lookup('nginx', 'files.configuration') }}"
+  notify: restart openresty
+
+- name: 🚀 Deploy OpenResty default server configuration
+  stack_host_template:
+    src: default_server.conf.j2
+    dest: "{{ [lookup('nginx', 'directories.configuration.global'), 'default_server.conf'] | path_join }}"
+  notify: restart openresty
+
+- name: 🚿 Flush OpenResty Base Setup
+  meta: flush_handlers
+
+- name: "✅ Assert for '{{ role_name }}'"
+  include_tasks: 05_assert.yml
+  when: MODE_ASSERT_LOCAL | bool

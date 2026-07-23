@@ -6,16 +6,23 @@
 # matrix exercises the in-group_names branch of web-app-mailu.
 
 - services:
+    container_backup:
+      enabled: true
     css:
       enabled: true
       shared: true
     dashboard:
       enabled: true
       shared: true
+    email:
+      enabled: true
+      shared: true
     logout:
       enabled: true
       shared: true
     mariadb:
+      shared: true
+    redis:
       shared: true
     matomo:
       enabled: true
@@ -27,23 +34,31 @@
       enabled: true
       shared: true
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     mariadb:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    redis:
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

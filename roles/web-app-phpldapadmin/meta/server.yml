@@ -1,8 +1,0 @@
----
-domains:
-  canonical:
-    - phpldapadmin.{{ DOMAIN_PRIMARY }}
-  aliases: []
-networks:
-  local:
-    subnet: 192.168.103.16/28

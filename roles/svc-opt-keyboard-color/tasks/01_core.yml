@@ -5,7 +5,7 @@
     - sys-aur
     - sys-ctl-alm-compose
 
-- name: Install MSI packages
+- name: 📦 Install MSI packages
   include_role:
     name: sys-aur-install
   vars:

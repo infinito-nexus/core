@@ -1,0 +1,11 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+whitelist:
+  script-src-elem:
+    - "data:"
+  font-src:
+    - "{{ lookup('tls', 'web-app-discourse', 'url.base') }}"

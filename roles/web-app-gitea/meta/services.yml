@@ -15,7 +15,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: gitea
       port: "{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.internal.http') }}"
     acl:
       blacklist:
@@ -30,8 +30,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -39,12 +39,17 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 gitea:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
   provides: gitea
   image: gitea/gitea
-  version: latest
+  version: 1.26.4
   min_storage: 10GB
   backup:
     no_stop_required: true
@@ -62,6 +67,7 @@ gitea:
   ports:
     internal:
       http: 3000
+      ssh: 22
     local:
       sso: 16488
       http: 8002
@@ -70,14 +76,17 @@ gitea:
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: false
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: 0.25
   mem_reservation: 0.2g
   mem_limit: 0.3g
@@ -103,3 +112,9 @@ prometheus:
   native_metrics:
     enabled: true
     port: 3000
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

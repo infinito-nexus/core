@@ -1,10 +1,5 @@
 import importlib.util
-import os
-import tempfile
 import unittest
-from unittest.mock import patch
-
-import certifi
 
 from . import PROJECT_ROOT
 
@@ -31,99 +26,75 @@ def _load_simpleicons_module():
 
 
 _simpleicons = _load_simpleicons_module()
-get_requests_verify = _simpleicons.get_requests_verify
 add_simpleicon_source = _simpleicons.add_simpleicon_source
+simpleicon_slugs = _simpleicons.simpleicon_slugs
 
 
-class TestGetRequestsVerify(unittest.TestCase):
-    def test_uses_explicit_requests_ca_bundle_when_present(self):
-        with (
-            tempfile.NamedTemporaryFile() as handle,
-            patch.dict(os.environ, {"REQUESTS_CA_BUNDLE": handle.name}, clear=False),
-        ):
-            self.assertEqual(get_requests_verify(), handle.name)
+class TestSimpleiconSlugs(unittest.TestCase):
+    def test_derives_unique_slugs_from_titles_in_order(self):
+        cards = [
+            {"title": "Keycloak"},
+            {"title": "Next Cloud"},
+            {"icon": {}},
+            {"title": "Keycloak"},
+        ]
+        self.assertEqual(simpleicon_slugs(cards), ["keycloak", "nextcloud"])
 
-    def test_falls_back_to_certifi_bundle_when_no_env_ca_exists(self):
-        with patch.dict(
-            os.environ,
-            {
-                "REQUESTS_CA_BUNDLE": "",
-                "SSL_CERT_FILE": "",
-                "CA_TRUST_CERT_HOST": "",
-            },
-            clear=False,
-        ):
-            self.assertEqual(get_requests_verify(), certifi.where())
+    def test_skips_cards_without_title(self):
+        cards = [{"icon": {"class": "fa-solid fa-lock"}}, {"title": ""}]
+        self.assertEqual(simpleicon_slugs(cards), [])
 
-    def test_ignores_missing_env_bundle_and_keeps_verification_enabled(self):
-        with patch.dict(
-            os.environ,
-            {"REQUESTS_CA_BUNDLE": "/definitely/missing/ca.pem"},
-            clear=False,
-        ):
-            self.assertEqual(get_requests_verify(), certifi.where())
+    def test_strips_non_ascii_so_probe_url_is_ascii_encodable(self):
+        # U+2011 NON-BREAKING HYPHEN in a title crashed the uri probe (ascii encode)
+        slugs = simpleicon_slugs([{"title": "Mini‑QR"}, {"title": "Café"}])
+        self.assertEqual(slugs, ["miniqr", "cafe"])
+        self.assertTrue(all(s.isascii() for s in slugs))
 
 
 class TestAddSimpleiconSource(unittest.TestCase):
-    def test_uses_probe_url_for_source_when_no_public_url_base_given(self):
+    def test_sets_source_for_reachable_slug(self):
         cards = [{"title": "Keycloak", "icon": {"class": "fa-solid fa-lock"}}]
 
-        with (
-            patch.object(
-                _simpleicons, "get_requests_verify", return_value="/tmp/test-ca.crt"
-            ),
-            patch.object(_simpleicons.requests, "head") as mock_head,
-        ):
-            mock_head.return_value.status_code = 200
-
-            result = add_simpleicon_source(cards, "https://icons.example")
+        result = add_simpleicon_source(cards, ["keycloak"], "https://icons.example")
 
         self.assertEqual(
             result[0]["icon"]["source"], "https://icons.example/keycloak.svg"
         )
         self.assertEqual(result[0]["icon"]["class"], "fa-solid fa-lock")
-        mock_head.assert_called_once_with(
-            "https://icons.example/keycloak.svg",
-            timeout=2,
-            allow_redirects=True,
-            verify="/tmp/test-ca.crt",
-        )
 
-    def test_probes_sync_url_but_writes_public_url_into_source(self):
+    def test_writes_public_url_into_source(self):
         cards = [{"title": "Keycloak", "icon": {}}]
 
-        with patch.object(_simpleicons.requests, "head") as mock_head:
-            mock_head.return_value.status_code = 200
+        result = add_simpleicon_source(cards, ["keycloak"], "https://icon.example.com")
 
-            result = add_simpleicon_source(
-                cards,
-                "http://172.17.0.1:8044/",
-                public_url_base="https://icon.example.com",
-            )
-
-        # HEAD goes against the internal sync URL (no TLS, no redirect).
-        mock_head.assert_called_once()
-        probed_url = mock_head.call_args.args[0]
-        self.assertEqual(probed_url, "http://172.17.0.1:8044/keycloak.svg")
-        # The browser-facing source carries the public URL.
         self.assertEqual(
             result[0]["icon"]["source"], "https://icon.example.com/keycloak.svg"
         )
 
-    def test_keeps_card_without_source_when_icon_does_not_exist(self):
+    def test_keeps_card_without_source_when_slug_not_reachable(self):
         cards = [{"title": "Missing", "icon": {"class": "fa-solid fa-circle-question"}}]
 
-        with patch.object(_simpleicons.requests, "head") as mock_head:
-            mock_head.return_value.status_code = 404
-
-            result = add_simpleicon_source(
-                cards,
-                "http://172.17.0.1:8044/",
-                public_url_base="https://icon.example.com",
-            )
+        result = add_simpleicon_source(cards, ["keycloak"], "https://icon.example.com")
 
         self.assertNotIn("source", result[0]["icon"])
-        mock_head.assert_called_once()
+
+    def test_empty_reachable_set_falls_back_cleanly(self):
+        cards = [{"title": "Keycloak", "icon": {"class": "fa-solid fa-lock"}}]
+
+        result = add_simpleicon_source(cards, None, "https://icon.example.com")
+
+        self.assertNotIn("source", result[0]["icon"])
+
+    def test_resolves_bare_domain_with_web_protocol(self):
+        cards = [{"title": "Keycloak", "icon": {}}]
+
+        result = add_simpleicon_source(
+            cards, ["keycloak"], "icons.example", web_protocol="http"
+        )
+
+        self.assertEqual(
+            result[0]["icon"]["source"], "http://icons.example/keycloak.svg"
+        )
 
 
 if __name__ == "__main__":

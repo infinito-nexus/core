@@ -2,4 +2,9 @@
 cert-deploy:
   lifecycle: beta
   required_by:
-    roles: [web-app-mailu]
+    # Both providers may coexist (legacy Mailu next to Stalwart); the shared
+    # run-once unit is activated only by the ACTIVE provider's include.
+    compose:
+      roles: [web-app-stalwart, web-app-mailu]
+    swarm:
+      roles: [web-app-stalwart, web-app-mailu]

@@ -1,4 +1,4 @@
 ---
-- name: "Load Mail (once)"
+- name: "🔌 Load Mail (once)"
   include_tasks: 01_core.yml
   when: not (run_once_sys_svc_mail | default(false) | bool)

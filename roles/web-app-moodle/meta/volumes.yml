@@ -1,3 +1,40 @@
 ---
-data: moodle_data
-code: moodle_code
+data:
+  type: volume
+  name: moodle_data
+  nfs:
+    uid: "33"
+    gid: "33"
+    mode: "0770"
+  mounts:
+    - service: moodle
+      target: /var/www/moodledata
+    - service: cron
+      target: /var/www/moodledata
+code:
+  type: volume
+  name: moodle_code
+  mounts:
+    - service: moodle
+      target: /var/www/html
+    - service: nginx
+      target: /var/www/html
+      read_only: true
+    - service: cron
+      target: /var/www/html
+nginx_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-moodle', 'directories.instance'), 'nginx.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: nginx
+      target: /etc/nginx/conf.d/default.conf
+msmtprc:
+  type: config
+  source: "{{ [lookup('container', 'web-app-moodle', 'directories.config'), 'msmtprc.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: moodle
+      target: /etc/msmtprc
+    - service: cron
+      target: /etc/msmtprc

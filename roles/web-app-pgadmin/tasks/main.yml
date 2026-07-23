@@ -1,8 +1,8 @@
 ---
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
 
-- name: "configure pgadmin servers"
+- name: "🔧 configure pgadmin servers"
   include_tasks: configuration.yml
   when: PGADMIN_SERVER_MODE | bool

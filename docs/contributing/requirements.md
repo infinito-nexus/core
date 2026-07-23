@@ -1,7 +1,7 @@
 # Requirements 📋
 
 Requirements live under `docs/requirements/` and define what the project must do.
-Their primary purpose is to drive AI-agent-assisted development: a contributor creates a requirement file and then instructs the agent to iterate by following [requirements.md](../agents/action/requirements.md) and [Role Loop](../agents/action/iteration/role.md), continuing until every Acceptance Criterion is fulfilled.
+Their primary purpose is to drive AI-agent-assisted development: a contributor creates a requirement file and then instructs the agent to iterate by following [requirements.md](../agents/action/requirements.md) and [Compose Loop](../agents/action/iteration/compose.md), continuing until every Acceptance Criterion is fulfilled.
 
 Creating a requirement is **not mandatory** to work on a task.
 For normal work items, bugs, or feature requests, use the project tools directly:

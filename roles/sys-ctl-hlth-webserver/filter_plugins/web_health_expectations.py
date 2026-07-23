@@ -148,10 +148,10 @@ def web_health_expectations(
             continue
 
         canonical_raw = get(
-            applications, app_id, "server.domains.canonical", strict=False, default=[]
+            applications, app_id, "domains.canonical", strict=False, default=[]
         )
         aliases_raw = get(
-            applications, app_id, "server.domains.aliases", strict=False, default=[]
+            applications, app_id, "domains.aliases", strict=False, default=[]
         )
         aliases = _to_list(aliases_raw, allow_mapping=True)
 

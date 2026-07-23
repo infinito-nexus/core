@@ -77,7 +77,7 @@ jobs:
         # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
         # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
     steps:
-    - name: Checkout repository
+    - name: ⬇️ Checkout repository
       uses: actions/checkout@v7.0.0
 
     # Add any setup steps before running the `github/codeql-action/init` action.
@@ -87,7 +87,7 @@ jobs:
     #   uses: actions/setup-example@v1
 
     # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
+    - name: 🎬 Initialize CodeQL
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
@@ -105,7 +105,7 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - name: Run manual build steps
+    - name: ▶️ Run manual build steps
       if: matrix.build-mode == 'manual'
       shell: bash
       run: |
@@ -116,7 +116,7 @@ jobs:
         echo '  make release'
         exit 1
 
-    - name: Perform CodeQL Analysis
+    - name: ▶️ Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"

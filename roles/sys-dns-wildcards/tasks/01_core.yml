@@ -1,5 +1,5 @@
 ---
-- name: "Apply Cloudflare DNS for parent domains"
+- name: "📌 Apply Cloudflare DNS for parent domains"
   include_role:
     name: sys-dns-cloudflare-records
   vars:

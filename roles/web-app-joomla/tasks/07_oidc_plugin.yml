@@ -1,147 +1,73 @@
 ---
-# Build and install the plg_system_keycloak Joomla plugin (requirement
-# 013 native OIDC integration). Composer runs INSIDE the Joomla
-# container (composer is baked into the custom image by the role's
-# Dockerfile) so the host never needs PHP/Composer and we never
-# trigger a `docker run` outside the project's compose stack.
-
-- name: "Define OIDC plugin paths"
+- name: "📌 Define OIDC plugin paths"
   ansible.builtin.set_fact:
     JOOMLA_OIDC_PLUGIN_HOST_DIR: "{{ role_path }}/files/joomla-oidc-plugin"
     JOOMLA_OIDC_PLUGIN_BUILD_DIR: "/tmp/plg_system_keycloak"
     JOOMLA_OIDC_PLUGIN_ZIP: "/tmp/plg_system_keycloak.zip"
 
-- name: "Reset plugin build dir inside Joomla container"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - "{{ JOOMLA_CONTAINER }}"
-      - rm
-      - -rf
-      - "{{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}"
+- name: "♻️ Reset plugin build dir inside Joomla container"
+  ansible.builtin.shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -rf {{ JOOMLA_OIDC_PLUGIN_BUILD_DIR | quote }}
   changed_when: false
   failed_when: false
 
-- name: "Copy plugin source into Joomla container"
-  ansible.builtin.command:
-    argv:
-      - container
-      - cp
-      - "{{ JOOMLA_OIDC_PLUGIN_HOST_DIR }}/plg_system_keycloak/."
-      - "{{ JOOMLA_CONTAINER }}:{{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}/"
+- name: "📋 Stream plugin source into Joomla container"
+  ansible.builtin.shell: >
+    base64 -d | container exec -i {{ JOOMLA_CONTAINER_ADDRESS }}
+    sh -c 'mkdir -p {{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }} && tar -xzf - -C {{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}'
+  args:
+    stdin: "{{ lookup('pipe', 'tar -C ' ~ ((JOOMLA_OIDC_PLUGIN_HOST_DIR ~ '/plg_system_keycloak') | quote) ~ ' -czf - . | base64') }}"
   changed_when: true
 
-- name: "composer install (vendor jumbojett/openid-connect-php inside container)"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -e
-      - "COMPOSER_HOME=/tmp/composer-home"
-      - -e
-      - "COMPOSER_ALLOW_SUPERUSER=1"
-      - "{{ JOOMLA_CONTAINER }}"
-      - composer
-      - install
-      - "--working-dir={{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}"
-      - --no-dev
-      - --no-interaction
-      - --no-progress
-      - --prefer-dist
-      - --optimize-autoloader
+- name: "📦 composer install (vendor jumbojett/openid-connect-php inside container)"
+  ansible.builtin.shell: >
+    container exec
+    -e COMPOSER_HOME=/tmp/composer-home
+    -e COMPOSER_ALLOW_SUPERUSER=1
+    {{ JOOMLA_CONTAINER_ADDRESS }} composer install
+    --working-dir={{ JOOMLA_OIDC_PLUGIN_BUILD_DIR | quote }}
+    --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
   changed_when: true
 
-# Joomla 6 CLI compiles language INI files into the
-# `administrator/cache/language/` directory on every CLI invocation;
-# without write access the helper enters a recursive
-# file_put_contents → warning → file_put_contents loop that exhausts
-# PHP's memory limit. Pre-creating the cache tree with www-data
-# ownership stops the loop and lets `extension:install` actually
-# perform the install.
-- name: "Ensure Joomla cache directories are writable by the web user"
-  ansible.builtin.shell: "container exec {{ JOOMLA_CONTAINER }} bash -lc 'mkdir -p /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chown
-    -R {{ JOOMLA_WEB_USER }}:{{ JOOMLA_WEB_USER }} /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chmod -R u+rwX /var/www/html/administrator/cache
+- name: "✅ Ensure Joomla cache directories are writable by the web user"
+  ansible.builtin.shell: "container exec {{ JOOMLA_CONTAINER_ADDRESS }} bash -lc 'mkdir -p /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp
+    && chown -R {{ JOOMLA_WEB_USER }}:{{ JOOMLA_WEB_USER }} /var/www/html/administrator/cache /var/www/html/cache /var/www/html/tmp && chmod -R u+rwX /var/www/html/administrator/cache
     /var/www/html/cache /var/www/html/tmp'"
   changed_when: false
 
-# Joomla 6's `extension:install --path=<directory>` returns a generic
-# "Unable to install extension" error on a directory that contains a
-# composer-vendored namespaced plugin (the installer detects the
-# composer + vendor/ tree as foreign). Packaging the same tree into a
-# ZIP and installing from the ZIP works reliably. We package via PHP
-# (ZipArchive) so we don't have to install a `zip` CLI inside the
-# joomla image just for this step.
-- name: "Package plugin into a ZIP for Joomla CLI install"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - "{{ JOOMLA_CONTAINER }}"
-      - php
-      - -r
-      - >-
-        $zip = new ZipArchive();
-        if ($zip->open('{{ JOOMLA_OIDC_PLUGIN_ZIP }}', ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-          fwrite(STDERR, "ZipArchive open failed\n"); exit(1);
-        }
-        $base = '{{ JOOMLA_OIDC_PLUGIN_BUILD_DIR }}';
-        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS));
-        foreach ($it as $f) {
-          if (!$f->isFile()) continue;
-          $rel = ltrim(str_replace($base, '', $f->getPathname()), '/');
-          $zip->addFile($f->getPathname(), $rel);
-        }
-        $zip->close();
-        echo "ok\n";
+- name: "🗜️ Package plugin into a ZIP for Joomla CLI install"
+  ansible.builtin.shell: >
+    container exec -i
+    -e J_ZIP={{ JOOMLA_OIDC_PLUGIN_ZIP | quote }}
+    -e J_BUILD_DIR={{ JOOMLA_OIDC_PLUGIN_BUILD_DIR | quote }}
+    {{ JOOMLA_CONTAINER_ADDRESS }} php --
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/php/package_plugin.php') }}"
   changed_when: true
 
-- name: "Install plg_system_keycloak via Joomla CLI"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - --user
-      - "{{ JOOMLA_WEB_USER }}"
-      - "{{ JOOMLA_CONTAINER }}"
-      - php
-      - -d
-      - memory_limit=512M
-      - "{{ JOOMLA_CLI_FILE }}"
-      - extension:install
-      - "--path={{ JOOMLA_OIDC_PLUGIN_ZIP }}"
+- name: "📦 Install plg_system_keycloak via Joomla CLI"
+  ansible.builtin.shell: >
+    container exec --user {{ JOOMLA_WEB_USER | quote }} {{ JOOMLA_CONTAINER_ADDRESS }}
+    php -d memory_limit=512M {{ JOOMLA_CLI_FILE | quote }}
+    extension:install --path={{ JOOMLA_OIDC_PLUGIN_ZIP | quote }}
   register: plugin_install
   changed_when: "'Extension installed successfully' in plugin_install.stdout"
   failed_when:
     - plugin_install.rc != 0
     - plugin_install.stdout | default('') is not search('already')
 
-# Joomla 6's `extension:enable` only accepts the numeric extension
-# ID, not the technical name. Look the ID up first via
-# `extension:list`, then pass it to `extension:enable`. The grep-awk
-# pipe is shell-form because Ansible argv mode doesn't let pipes
-# through.
-- name: "Resolve plg_system_keycloak extension ID"
-  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_CONTAINER }} php -d memory_limit=512M {{ JOOMLA_CLI_FILE }} extension:list | awk '/plg_system_keycloak/
-    {print $2; exit}'"
+- name: "🔍 Resolve plg_system_keycloak extension ID"
+  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_CONTAINER_ADDRESS }} php -d memory_limit=512M {{ JOOMLA_CLI_FILE }} extension:list
+    | awk '/plg_system_keycloak/ {print $2; exit}'"
   register: plugin_id_lookup
   changed_when: false
   failed_when: plugin_id_lookup.stdout | trim | length == 0
 
-- name: "Enable plg_system_keycloak via Joomla CLI"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - --user
-      - "{{ JOOMLA_WEB_USER }}"
-      - "{{ JOOMLA_CONTAINER }}"
-      - php
-      - -d
-      - memory_limit=512M
-      - "{{ JOOMLA_CLI_FILE }}"
-      - extension:enable
-      - "{{ plugin_id_lookup.stdout | trim }}"
+- name: "🟢 Enable plg_system_keycloak via Joomla CLI"
+  ansible.builtin.shell: >
+    container exec --user {{ JOOMLA_WEB_USER | quote }} {{ JOOMLA_CONTAINER_ADDRESS }}
+    php -d memory_limit=512M {{ JOOMLA_CLI_FILE | quote }}
+    extension:enable {{ plugin_id_lookup.stdout | trim | quote }}
   register: plugin_enable
   changed_when: "'has been enabled' in plugin_enable.stdout or 'enabled successfully' in plugin_enable.stdout"
   failed_when:

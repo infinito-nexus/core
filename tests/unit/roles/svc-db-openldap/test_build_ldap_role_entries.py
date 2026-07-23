@@ -103,7 +103,7 @@ class TestBuildLdapRoleEntriesTenantAware(unittest.TestCase):
         self.applications = {
             "web-app-wordpress": {
                 "group_id": 10001,
-                "server": {"domains": {"canonical": ["blog.example", "shop.example"]}},
+                "domains": {"canonical": ["blog.example", "shop.example"]},
                 "rbac": {
                     "tenancy": {"axis": "domain"},
                     "roles": {
@@ -173,7 +173,7 @@ class TestBuildLdapRoleEntriesTenantAware(unittest.TestCase):
             )
 
     def test_canonical_domain_case_normalised(self):
-        self.applications["web-app-wordpress"]["server"]["domains"]["canonical"] = [
+        self.applications["web-app-wordpress"]["domains"]["canonical"] = [
             "Blog.EXAMPLE"
         ]
         entries = build_ldap_role_entries(self.applications, self.users, LDAP_FIXTURE)

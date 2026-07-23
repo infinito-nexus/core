@@ -150,7 +150,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         with (
             patch.dict("os.environ", self._clean_env(), clear=True),
             patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             static = {
                 "INFINITO_DISTRO": "debian",
@@ -164,7 +164,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         with (
             patch.dict("os.environ", self._clean_env(), clear=True),
             patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             static = {"INFINITO_DISTRO": "debian"}
             comments = {"INFINITO_DISTRO": "selected distro"}
@@ -175,7 +175,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         with (
             patch.dict("os.environ", self._clean_env(), clear=True),
             patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             static = {"INFINITO_DISTRO": "arch"}
             eb = build_env(static, repo_root=Path("/repo"))
@@ -189,7 +189,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
                 clear=True,
             ),
             patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             eb = build_env({"INFINITO_DISTRO": "debian"}, repo_root=Path("/repo"))
         self.assertEqual(eb.values["INFINITO_DISTRO"], "ubuntu")
@@ -199,16 +199,14 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         with (
             patch.dict("os.environ", self._clean_env(), clear=True),
             patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             eb = build_env(
                 {"INFINITO_BUILD": "1", "INFINITO_DISTRO": "debian"},
                 repo_root=Path("/repo"),
             )
-        # GHA-only static keys must NOT show up locally.
         self.assertNotIn("INFINITO_GHCR_MIRROR_PREFIX", eb.values)
         self.assertNotIn("INFINITO_IMAGE", eb.values)
-        # Always-emitted static key: present locally with its default.
         self.assertEqual(eb.values["INFINITO_BUILD"], "1")
 
     def test_gha_branch_emits_overrides(self) -> None:
@@ -220,10 +218,10 @@ class TestBuildEnvOrchestration(unittest.TestCase):
             patch.dict("os.environ", env, clear=True),
             patch("utils.env.builder.detect_gha_act", return_value=(True, False)),
             patch(
-                "utils.env.handlers.infinito_image_repository.run_helper",
+                "utils.env.handlers.infinito.image_repository.run_helper",
                 return_value="repo",
             ),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             static = {
                 "INFINITO_BUILD": "0",
@@ -258,13 +256,12 @@ class TestBuildEnvOrchestration(unittest.TestCase):
                 patch.dict("os.environ", self._clean_env(), clear=True),
                 patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
                 patch(
-                    "utils.env.handlers.infinito_inventory.run_helper",
+                    "utils.env.handlers.infinito.inventory.run_helper",
                     return_value="",
                 ),
             ):
                 build_env({"INFINITO_DISTRO": "debian"}, repo_root=Path("/repo"))
         finally:
-            # Restore originals so other tests see clean state.
             for h in real_handlers:
                 h.apply = (
                     h.apply.__wrapped__ if hasattr(h.apply, "__wrapped__") else h.apply
@@ -275,7 +272,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         with (
             patch.dict("os.environ", self._clean_env(), clear=True),
             patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             eb = build_env({"INFINITO_DISTRO": "debian"}, repo_root=Path("/repo"))
         self.assertIsInstance(eb, EnvBuilder)
@@ -286,10 +283,8 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         with (
             patch.dict("os.environ", self._clean_env(), clear=True),
             patch("utils.env.builder.detect_gha_act", return_value=(False, False)),
-            patch("utils.env.handlers.infinito_inventory.run_helper", return_value=""),
+            patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
-            # Pick two non-overridden passthrough keys so we can assert
-            # round-trip without GHA / dynamic-derivation interference.
             sample = {
                 "INFINITO_BIND_IP": "127.0.0.1",
                 "INFINITO_MEM_LIMIT": "0",

@@ -1,0 +1,4 @@
+---
+canonical:
+  - chess.game.{{ DOMAIN_PRIMARY }}
+aliases: []

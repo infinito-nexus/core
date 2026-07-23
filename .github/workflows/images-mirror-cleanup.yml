@@ -43,10 +43,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Resolve GHCR namespace and repository
+      - name: 🔍 Resolve GHCR namespace and repository
         id: vars
         shell: bash
         run: |
@@ -59,14 +59,14 @@ jobs:
           echo "ghcr_namespace=${ghcr_namespace,,}" >> "$GITHUB_OUTPUT"
           echo "ghcr_repository=${ghcr_repository}" >> "$GITHUB_OUTPUT"
 
-      - name: Setup Python
+      - name: 🔧 Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Run mirror cleanup
+      - name: ▶️ Run mirror cleanup
         shell: bash
         env:
           GITHUB_TOKEN: ${{ inputs.token != '' && inputs.token || secrets.GITHUB_TOKEN }}

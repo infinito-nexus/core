@@ -24,12 +24,13 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — Redis cache, no Playwright surface
 redis:
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
   backup:
     disabled: true
 # nocheck: playwright-service-flag — DB engine, no Playwright surface (role-local integration tests)
@@ -39,25 +40,36 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 xwiki:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
   image: xwiki
   version: lts-postgres-tomcat
+  custom: true
   name: xwiki
   min_storage: 10GB
   backup:
     no_stop_required: true
   cpus: 1.0
   mem_reservation: 1g
-  mem_limit: 2g
+  mem_limit: 3g
   pids_limit: 1024
+  # nocheck: single-replica xwiki. Embedded Solr holds an exclusive Lucene index lock, so a shared NFS index dir yields LockObtainFailedException, and the distribution-flavor install is not concurrency-safe (xwikidoc_pkey duplicate key); multi-instance needs remote Solr plus JGroups.
+  replicas: 1
   ports:
     local:
       http: 8054
+    internal:
+      http: 8080
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: playwright-service-flag — CSS consumer, no Playwright surface (provider: web-svc-css)
@@ -69,3 +81,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

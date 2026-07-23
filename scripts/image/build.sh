@@ -13,7 +13,6 @@ source "${_build_script_dir}/../meta/env/load.sh"
 NO_CACHE=0
 MISSING_ONLY=0
 
-# Keep --target for advanced usage; default is "full".
 TARGET=""
 IMAGE_TAG="${IMAGE_TAG:-}" # local image name or base tag (without registry); can be pre-set via env
 PUSH=0                     # if 1 -> use buildx and push (requires docker buildx)
@@ -149,7 +148,6 @@ if [[ -z "${REPO_PREFIX}" ]]; then
 	REPO_PREFIX="${INFINITO_IMAGE_REPOSITORY:-}"
 fi
 
-# REPO_PREFIX is only required when IMAGE_TAG is not already provided externally.
 if [[ -z "${REPO_PREFIX}" && -z "${IMAGE_TAG}" ]]; then
 	echo "ERROR: Missing REPO_PREFIX or INFINITO_IMAGE_REPOSITORY (or set IMAGE_TAG directly)" >&2
 	exit 1
@@ -170,7 +168,6 @@ if [[ -z "${IMAGE_TAG}" ]]; then
 	IMAGE_TAG="${REPO_PREFIX}/${INFINITO_DISTRO}"
 fi
 
-# Local-only "missing" shortcut
 if [[ "${MISSING_ONLY}" == "1" ]]; then
 	if [[ "${PUSH}" == "1" ]]; then
 		echo "ERROR: --missing is only supported for local builds (without --push/--publish)" >&2
@@ -182,7 +179,6 @@ if [[ "${MISSING_ONLY}" == "1" ]]; then
 	fi
 fi
 
-# Validate publish parameters
 if [[ "${PUBLISH}" == "1" ]]; then
 	[[ -n "${REGISTRY}" ]] || {
 		echo "ERROR: --publish requires --registry"
@@ -198,7 +194,6 @@ if [[ "${PUBLISH}" == "1" ]]; then
 	}
 fi
 
-# Guard: --push without --publish requires fully-qualified --tag
 if [[ "${PUSH}" == "1" && "${PUBLISH}" != "1" ]]; then
 	if [[ "${IMAGE_TAG}" != */* ]]; then
 		echo "ERROR: --push requires --tag with a fully-qualified name (e.g. ghcr.io/<owner>/<repo>/<image>:tag), or use --publish" >&2
@@ -228,13 +223,18 @@ else
 fi
 echo "------------------------------------------------------------"
 
-# Common build args
 : "${INFINITO_SRC_DIR:?INFINITO_SRC_DIR must be set; source scripts/meta/env/load.sh}"
 : "${INFINITO_VENV_DIR:?INFINITO_VENV_DIR must be set; source scripts/meta/env/load.sh}"
+: "${INFINITO_PACKAGE_INSTALL_SCRIPT:?INFINITO_PACKAGE_INSTALL_SCRIPT must be set; source scripts/meta/env/load.sh}"
+: "${INFINITO_PYTHON_INSTALL_SCRIPT:?INFINITO_PYTHON_INSTALL_SCRIPT must be set; source scripts/meta/env/load.sh}"
+: "${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?INFINITO_DOCKER_CLI_INSTALL_SCRIPT must be set; source scripts/meta/env/load.sh}"
 build_args=(
 	--build-arg "INFINITO_PARENT_IMAGE=${INFINITO_PARENT_IMAGE}"
 	--build-arg "INFINITO_SRC_DIR=${INFINITO_SRC_DIR}"
 	--build-arg "INFINITO_VENV_DIR=${INFINITO_VENV_DIR}"
+	--build-arg "INFINITO_PACKAGE_INSTALL_SCRIPT=${INFINITO_PACKAGE_INSTALL_SCRIPT}"
+	--build-arg "INFINITO_PYTHON_INSTALL_SCRIPT=${INFINITO_PYTHON_INSTALL_SCRIPT}"
+	--build-arg "INFINITO_DOCKER_CLI_INSTALL_SCRIPT=${INFINITO_DOCKER_CLI_INSTALL_SCRIPT}"
 	--build-arg "NIX_CONFIG=${NIX_CONFIG:-}"
 )
 
@@ -273,7 +273,6 @@ compute_publish_tags() {
 	printf '%s\n' "${tags[@]}"
 }
 
-# WSL2: detect and remove a corrupted docker-buildx plugin (text file instead of ELF binary)
 _buildx_bin="${HOME}/.docker/cli-plugins/docker-buildx"
 if [[ -f "${_buildx_bin}" ]] && command -v file >/dev/null 2>&1; then
 	if ! file "${_buildx_bin}" | grep -qE "ELF|executable"; then

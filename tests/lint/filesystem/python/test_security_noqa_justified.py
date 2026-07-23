@@ -56,8 +56,6 @@ _NOQA_RE = re.compile(
 _SECURITY_CODE_RE = re.compile(r"^S\d+$")
 
 
-# Files that still carry an unjustified security suppression today. Burn-down
-# only: justify or fix, then remove the entry. Do NOT add to this set.
 _BASELINE: frozenset[str] = frozenset(
     {
         "cli/administration/deploy/dedicated/runner.py",
@@ -72,7 +70,7 @@ _BASELINE: frozenset[str] = frozenset(
         "roles/sys-svc-compose-ca/files/compose_ca.py",
         "roles/sys-svc-compose/files/compose.py",
         "roles/sys-svc-container/files/container.py",
-        "roles/web-app-erpnext/files/scripts/apply_oidc_settings.py",
+        "roles/web-app-erpnext/files/scripts/apply/oidc_settings.py",
         "roles/web-app-keycloak/library/keycloak_kcadm_update.py",
         "utils/github/playwright_summary.py",
         "utils/update/docker.py",
@@ -94,7 +92,6 @@ def _file_offenders(path: Path) -> list[tuple[int, str]]:
             codes = [c.strip() for c in match.group("codes").split(",")]
             if not any(_SECURITY_CODE_RE.match(c) for c in codes):
                 continue
-            # Justification = any non-whitespace text after the code list.
             if not line[match.end() :].strip():
                 findings.append((lineno, match.group(0)))
     return findings

@@ -19,8 +19,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
@@ -37,14 +37,16 @@ seaweedfs:
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 web:
   name: openproject-web
+  ports:
+    internal:
+      http: 8080
   image: openproject/openproject
   version: "17"
+  custom: true
   backup:
     no_stop_required: true
   cpus: "3.0"
   mem_reservation: 3g
-  # `rails db:migrate` from the existing web container peaks ~5 GB during
-  # asset/class-load on a fresh schema; CI hit rc=137 (OOM) at 4g limit.
   mem_limit: 6g
   pids_limit: 2048
   min_storage: 5GB
@@ -55,6 +57,8 @@ seeder:
   mem_limit: 512m
   pids_limit: 256
   min_storage: 1GB
+  # nocheck: single-replica run-once seeder. Concurrent replicas race on one Postgres (duplicate-key) and never converge; the seeder migrates/seeds once then exits.
+  replicas: 1
 cron:
   name: openproject-cron
   cpus: "0.3"
@@ -71,6 +75,7 @@ worker:
   min_storage: 5GB
 proxy:
   name: openproject-proxy
+  custom: true
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m
@@ -108,8 +113,13 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 openproject:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
   repository: https://github.com/opf/openproject-deploy
   ref: "stable/{{ lookup('config', 'web-app-openproject', 'services.web.version') }}"
@@ -121,6 +131,11 @@ openproject:
     local:
       sso: 16483
       http: 8023
+    internal:
+      http: 80
+  proxy:
+    service_key: web
+    internal_port: 8080
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -129,3 +144,9 @@ openproject:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

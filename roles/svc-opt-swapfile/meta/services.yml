@@ -1,5 +1,8 @@
 ---
 swapfile:
+  modes:
+    host:
+      enabled: true
   swapfile_size: "{{ ansible_facts['memtotal_mb'] | int }}M"
   lifecycle: beta
   min_storage: "50MB"

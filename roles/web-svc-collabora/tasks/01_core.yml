@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
     public: true
@@ -11,22 +11,18 @@
     webserver_vhost_flavour: "basic"
     application_id: "web-svc-collabora"
 
-- name: Update Collabora systemplate to include new fonts
-  command: "{{ COLLABORA_DOCKER_CONF_EXEC }} update-system-template"
-  register: collabora_fonts
-  changed_when: >
-    (not ASYNC_ENABLED | bool )
-    and
-    ('updated' in (collabora_fonts.stdout | default('')))
-  async: "{{ ASYNC_TIME  if (ASYNC_ENABLED |  bool) else omit }}"
-  poll: "{{ ASYNC_POLL if (ASYNC_ENABLED |  bool) else omit }}"
+- name: "🖥️ Collabora stack-host-only coolconfig setup"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔍 Resolve collabora hosting node + container id"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: collabora
+        resolve_output_prefix: COLLABORA
+        resolve_compose_cid: "{{ COLLABORA_CONTAINER_ADDRESS }}"
 
-- name: Allow Nextcloud host IP for Collabora preview conversion
-  command: "{{ COLLABORA_DOCKER_CONF_EXEC }} set net.post_allow.host {{ networks.internet.ip4 }}"
-  register: collabora_preview
-  changed_when: >
-    (not ASYNC_ENABLED | bool )
-    and
-    ('already present' not in (collabora_preview.stdout | default('')))
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+    - name: "🔧 Run collabora coolconfig on the hosting node"
+      ansible.builtin.include_tasks:
+        file: 02_coolconfig.yml
+        apply:
+          delegate_to: "{{ COLLABORA_HOST_NODE }}"

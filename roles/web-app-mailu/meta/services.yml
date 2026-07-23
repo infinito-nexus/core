@@ -20,21 +20,67 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# Not MAIL_PROVIDER: a Mailu-active deploy must not pull stalwart into the closure.
+# nocheck: dynamic-flag — coexistence dep on the OTHER provider: `email` is a
+# covered key of this role, but the entry must gate on web-app-stalwart (never
+# self) so only a legacy-Mailu deploy pulls the active provider in.
+email:
+  bond: 1
+  enabled: "{{ 'web-app-stalwart' in group_names }}"
+  shared: "{{ 'web-app-stalwart' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 mailu:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  # nocheck: default-placement-manager  mail edge at a known IP: MX A-record, PTR and SPF bind inbound/outbound SMTP to the stack host IP (a floating task's egress IP breaks deliverability); postfix /queue and dovecot mail+index state are NFS-hostile and ARE the app (no central-service equivalent); cert renewals land in a node-local bind via a manager-side systemd timer
+  placement: manager
+  enabled: true # nocheck: dynamic-flag
   shared: true
-  provides: email
+  # The static `email` provider slot belongs to the default (web-app-stalwart);
+  # the registry allows only one. Mailu is selected at runtime via MAIL_PROVIDER,
+  # which routes lookup('email') + consumer mail flags here instead.
+  # `covers` makes the consumers' `services.email` declaration satisfy their
+  # `run_after: web-app-mailu` entry (consumers run after BOTH providers).
+  covers:
+    - email
   version: "2024.06"
   name: mailu
+  backup:
+    project_hard_restart: true
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"
   ports:
     local:
       http: 8007
+    public:
+      smtp: 25
+      smtps: 465
+      submission: 587
+      pop3: 110
+      pop3s: 995
+      imap: 143
+      imaps: 993
+      sieve: 4190
+    internal:
+      http: 80
+      smtp: 25
+      smtps: 465
+      submission: 587
+      pop3: 110
+      pop3s: 995
+      imap: 143
+      imaps: 993
+      sieve: 4190
+  proxy:
+    service_key: front
   run_after:
     - web-app-matomo
+    # The mail provider must preload first (sys-svc-mail asserts its token).
+    - web-app-stalwart
   lifecycle: beta
   cpus: "1.0"
   mem_reservation: 512m
@@ -44,13 +90,23 @@ mailu:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
+  name: mailu-redis
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  # Exception: central redis overlay adds VIP pressure on manager-pinned mailu; embedded redis avoids it.
+  shared: "{{ ('svc-db-redis' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
   cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+# nocheck: playwright-service-flag - central DNS resolver, infrastructural (no Playwright surface)
+# nocheck: dynamic-flag  enabled+shared (not the `in group_names` form) marks svc-dns-unbound `required` so the loader deploys it every compose round; reverting reintroduces the admin DNS hang.
+unbound:
+  bond: 1
+  enabled: "{{ DEPLOYMENT_MODE == 'compose' }}"
+  shared: true
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -63,16 +119,18 @@ mariadb:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 admin:
-  enabled: true
+  name: mailu-admin
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.3"
   mem_reservation: 256m
-  mem_limit: 1g
+  mem_limit: 2g
   pids_limit: 512
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 imap:
-  enabled: true
+  name: mailu-imap
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.5"
   mem_reservation: 512m
@@ -81,7 +139,8 @@ imap:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 smtp:
-  enabled: true
+  name: mailu-smtp
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.5"
   mem_reservation: 512m
@@ -90,7 +149,8 @@ smtp:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 antispam:
-  enabled: true
+  name: mailu-antispam
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.6"
   mem_reservation: 512m
@@ -99,10 +159,11 @@ antispam:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 antivirus:
-  enabled: true
+  name: mailu-antivirus
+  enabled: true # nocheck: dynamic-flag
   shared: false
   image: clamav/clamav-debian
-  version: latest
+  version: 1.5.3
   cpus: "0.6"
   mem_reservation: 2g
   mem_limit: 3g
@@ -110,7 +171,8 @@ antivirus:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 oletools:
-  enabled: true
+  name: mailu-oletools
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.2"
   mem_reservation: 256m
@@ -119,7 +181,8 @@ oletools:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 webdav:
-  enabled: true
+  name: mailu-webdav
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.2"
   mem_reservation: 256m
@@ -128,7 +191,8 @@ webdav:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 fetchmail:
-  enabled: true
+  name: mailu-fetchmail
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.2"
   mem_reservation: 256m
@@ -137,7 +201,8 @@ fetchmail:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 webmail:
-  enabled: true
+  name: mailu-webmail
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.3"
   mem_reservation: 256m
@@ -145,17 +210,9 @@ webmail:
   pids_limit: 512
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
-resolver:
-  enabled: true
-  shared: false
-  cpus: "0.2"
-  mem_reservation: 256m
-  mem_limit: 512m
-  pids_limit: 256
-# nocheck: dynamic-flag
-# nocheck: playwright-service-flag — internal sub-component
 front:
-  enabled: true
+  name: mailu-front
+  enabled: true # nocheck: dynamic-flag
   shared: false
   cpus: "0.3"
   mem_reservation: 256m
@@ -170,3 +227,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

@@ -1,10 +1,10 @@
 ---
-- name: install hunspell
+- name: 📦 install hunspell
   package:
     name: hunspell
     state: present
 
-- name: install hunspell language packages
+- name: 📦 install hunspell language packages
   package:
     name: "hunspell-{{ item }}"
     state: present

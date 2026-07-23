@@ -1,20 +1,12 @@
 ---
-- name: "Ensure Mailu user '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}' exists"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - exec
-      - -T
-      - admin
-      - flask
-      - mailu
-      - "{{ mailu_action }}"
-      - "{{ mailu_user_name }}"
-      - "{{ MAILU_DOMAIN }}"
-      - --
-      - "{{ mailu_user_password }}"
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
+- name: "✅ Ensure user '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    flask mailu {{ mailu_action }}
+    {{ mailu_user_name | quote }}
+    {{ MAILU_DOMAIN | quote }}
+    --
+    {{ mailu_user_password | quote }}
   register: mailu_user_result
   retries: 12
   delay: 10
@@ -33,23 +25,16 @@
     )
   when: "'mailbox' in mailu_user_accounts"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  timeout: "{{ lookup('timeout', 120) | int }}"
 
-- name: "Change password for user '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - exec
-      - -T
-      - admin
-      - flask
-      - mailu
-      - password
-      - "{{ mailu_user_name }}"
-      - "{{ MAILU_DOMAIN }}"
-      - --
-      - "{{ mailu_user_password }}"
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
+- name: "🔧 Set password '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    flask mailu password
+    {{ mailu_user_name | quote }}
+    {{ MAILU_DOMAIN | quote }}
+    --
+    {{ mailu_user_password | quote }}
   register: mailu_user_password_change
   retries: 12
   delay: 10
@@ -58,7 +43,8 @@
   failed_when: mailu_user_password_change.rc != 0
   when: "'mailbox' in mailu_user_accounts"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  timeout: "{{ lookup('timeout', 120) | int }}"
 
-- name: "Create Mailu API Token for {{ mailu_user_name }}"
+- name: "📁 Create Mailu API Token for {{ mailu_user_name }}"
   include_tasks: 04a_manage_user_token.yml
   when: "'bot' in mailu_user_roles"

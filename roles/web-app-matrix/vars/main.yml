@@ -1,6 +1,8 @@
 ---
 application_id: "web-app-matrix"
 
+compose_mode_force: "{{ 'compose' if lookup('config', application_id, 'services.matrix.flavor', 'ansible') == 'ansible' else '' }}"
+
 location_upload: "~ ^/_matrix/media/v3/"
 
 MATRIX_SERVER_NAME: "{{ lookup('config', application_id, 'services.matrix.server_name') }}"
@@ -14,31 +16,33 @@ MATRIX_FEDERATION_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse
 MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MATRIX_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}"
 
-MATRIX_SYNAPSE_VERSION: "{{ lookup('config', application_id, 'services.synapse.version') }}"
-MATRIX_SYNAPSE_IMAGE: "{{ lookup('config', application_id, 'services.synapse.image') }}"
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
-MATRIX_SYNAPSE_VOLUME: "{{ lookup('config', application_id, 'volumes.synapse') }}"
+MATRIX_SYNAPSE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'synapse') }}"
+MATRIX_SYNAPSE_VOLUME: "{{ lookup('volume', application_id, 'synapse_data').name }}"
+MATRIX_SYNAPSE_UID: 991
+MATRIX_SYNAPSE_GID: 991
+MATRIX_MDAD_SERVICE: "matrix"
+MATRIX_MDAD_CONTAINER: "{{ application_id | get_entity_name }}"
+MATRIX_MDAD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, MATRIX_MDAD_SERVICE) }}"
 MATRIX_SYNAPSE_DOMAIN: "{{ lookup('domains', application_id).synapse }}"
 MATRIX_SYNAPSE_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
 MATRIX_SYNAPSE_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.synapse.ports.internal.http') }}"
 MATRIX_SYNAPSE_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'homeserver.yaml' ] | path_join }}"
-MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER: "/data/homeserver.yaml"
+MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER: "/data/homeserver.yaml" # nocheck: container-var-name-lookup in-container path, not a container name
 MATRIX_SYNAPSE_LOG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), MATRIX_SYNAPSE_DOMAIN ~'.log.config' ] | path_join }}"
-MATRIX_SYNAPSE_LOG_PATH_CONTAINER: "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.log.config"
+MATRIX_SYNAPSE_LOG_PATH_CONTAINER: "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.log.config" # nocheck: container-var-name-lookup in-container path, not a container name
+MATRIX_SYNAPSE_BIND_MOUNT_MODE: "0644"
 MATRIX_SYNAPSE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ MATRIX_SYNAPSE_DOMAIN }}"
 MATRIX_SYNAPSE_LISTEN_FLAGS: "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
-MATRIX_ELEMENT_VERSION: "{{ lookup('config', application_id, 'services.element.version') }}"
-MATRIX_ELEMENT_IMAGE: "{{ lookup('config', application_id, 'services.element.image') }}"
 MATRIX_ELEMENT_NAME: "{{ lookup('config', application_id, 'services.element.name') }}"
 MATRIX_ELEMENT_DOMAIN: "{{ lookup('domains', application_id).element }}"
 MATRIX_ELEMENT_PORT: "{{ lookup('config', 'web-app-matrix', 'services.element.ports.local.http') }}"
+MATRIX_ELEMENT_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.element.ports.internal.http') }}"
 MATRIX_ELEMENT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'element-config.json' ] | path_join }}"
 
-MATRIX_CHATGPT_BOT_VERSION: "{{ lookup('config', application_id, 'services.matrix-chatgpt-bot.version') }}"
-MATRIX_CHATGPT_BOT_IMAGE: "{{ lookup('config', application_id, 'services.matrix-chatgpt-bot.image') }}"
-
 MATRIX_MDAD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}mdad"
+MATRIX_MDAD_RUNNER_BUILD_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'runner' ] | path_join }}"
 MATRIX_MDAD_PLAYBOOK_TAGS: "{{ lookup('config', application_id, 'services.matrix.playbook_tags') }}"
 MATRIX_MDAD_MIGRATION_VALIDATED_VERSION: "{{ lookup('config', application_id, 'services.matrix.upstream.migration_validated_version') }}"
 MATRIX_MDAD_RUNNER_IMAGE: "{{ lookup('config', application_id, 'services.matrix.runner.image') }}"
@@ -46,6 +50,15 @@ MATRIX_MDAD_RUNNER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.ma
 MATRIX_MDAD_RUNNER_BASE_VERSION: "{{ lookup('config', application_id, 'services.matrix.runner.base_version') }}"
 MATRIX_MDAD_RUNNER_DOCKER_CLI_IMAGE: "{{ lookup('config', application_id, 'services.matrix.runner.docker_cli_image') }}"
 MATRIX_MDAD_RUNNER_DOCKER_CLI_VERSION: "{{ lookup('config', application_id, 'services.matrix.runner.docker_cli_version') }}"
+MATRIX_MDAD_DAEMON_JSON:
+  bip: "{{ NETWORK_NESTED_DOCKER_BIP }}"
+  default-address-pools: "{{ NETWORK_NESTED_DOCKER_ADDRESS_POOLS }}"
+  exec-opts: ["native.cgroupdriver=systemd"]
+  iptables: true
+  log-driver: "json-file"
+  log-opts:
+    max-size: "10m"
+    max-file: "3"
 
 MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') }}"
 
@@ -54,7 +67,7 @@ MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services
 
 MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 
-MATRIX_CA_MOUNT_PATH: "/etc/ssl/certs/infinito-ca.pem"
+MATRIX_CA_MOUNT_PATH: "{{ CA_TRUST.cert_container }}"
 
 MATRIX_POSTGRES_HOST: "{{ lookup('database', application_id, 'host') }}"
 MATRIX_POSTGRES_PORT: "{{ lookup('database', application_id, 'port') }}"

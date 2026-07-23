@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media Self-written in-house dashboard/portfolio UI ("PortUI") authored by the project maintainer (issue tracker points to his own kevinveenbirkenbach/portfolio repo); no third-party upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: PortUI provides Infinito.Nexus users with a unified web interface to easily access all their applications in one place
+  description: Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

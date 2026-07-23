@@ -1,0 +1,7 @@
+---
+data:
+  type: volume
+  name: typesense_data
+  mounts:
+    - service: typesense
+      target: /data

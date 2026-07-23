@@ -1,5 +1,5 @@
 ---
-- name: Build enabled bridge list from meta/addons/
+- name: 🔨 Build enabled bridge list from meta/addons/
   set_fact:
     MATRIX_BRIDGES: >-
       {{ lookup('config', application_id, 'addons')
@@ -10,7 +10,7 @@
          | list }}
   changed_when: false
 
-- name: "Drop the telegram bridge when its Telegram API credentials are absent (api_hash is required at startup)"
+- name: "🧹 Drop telegram bridge when Telegram API credentials absent (api_hash needed)"
   set_fact:
     MATRIX_BRIDGES: "{{ MATRIX_BRIDGES | rejectattr('bridge_name', 'equalto', 'telegram') | list }}"
   when: >-
@@ -18,8 +18,8 @@
     or (lookup('config', application_id, 'credentials.mautrix_telgegram_bridge_api_pin', '') | default('', true) | string | trim | length == 0)
   changed_when: false
 
-- name: "compose-flavor: docker stack for '{{ application_id }}'"
+- name: "🐳 compose-flavor: docker stack for '{{ application_id }}'"
   include_tasks: 01_docker.yml
 
-- name: "compose-flavor: webserver for '{{ application_id }}'"
+- name: "🐳 compose-flavor: webserver for '{{ application_id }}'"
   include_tasks: 03_webserver.yml

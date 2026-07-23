@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Injects a JS snippet into HTML to notify parent windows of iframe location changes and force external links to new tabs.
+  description: Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

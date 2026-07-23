@@ -14,13 +14,10 @@ from utils.roles.mapping import ROLE_FILE_META_SCHEMA
 
 class TestGetAppConf(unittest.TestCase):
     def setUp(self):
-        # Isolate working directory so that schema files can be discovered
         self._cwd = str(Path.cwd())
         self.tmpdir = tempfile.mkdtemp(prefix="cfgutilstest_")
         os.chdir(self.tmpdir)
 
-        # Minimal schema structure:
-        # roles/web-app-demo/meta/schema.yml
         Path(str(Path("roles") / "web-app-demo" / "meta")).mkdir(
             parents=True, exist_ok=True
         )
@@ -28,8 +25,6 @@ class TestGetAppConf(unittest.TestCase):
             "w"
         ) as f:
             f.write(
-                # Defines 'features.defined_but_unset' in schema (without a value in applications),
-                # plus 'features.oidc' and 'features.nested.list'
                 "features:\n"
                 "  oidc: {}\n"
                 "  defined_but_unset: {}\n"
@@ -38,7 +33,6 @@ class TestGetAppConf(unittest.TestCase):
                 "      - {}\n"
             )
 
-        # Example configuration with actual values
         self.applications = {
             "web-app-demo": {
                 "features": {"oidc": True, "nested": {"list": ["first", "second"]}}
@@ -159,6 +153,19 @@ class TestGetAppConf(unittest.TestCase):
         )
         self.assertTrue(val)
 
+    def test_false_leaf_survives_non_strict_default(self):
+        """A genuinely-False leaf must NOT be coerced to the caller's default
+        (the missing-key sentinel used to be False itself)."""
+        apps = {"web-app-x": {"services": {"ldap": {"enabled": False}}}}
+        val = get(
+            apps,
+            "web-app-x",
+            "services.ldap.enabled",
+            strict=False,
+            default=True,
+        )
+        self.assertFalse(val)
+
     def test_invalid_key_format_raises(self):
         """Invalid key format in path should raise AppConfigKeyError."""
         with self.assertRaises(AppConfigKeyError):
@@ -173,7 +180,6 @@ class TestGetAppConf(unittest.TestCase):
 
     def test_index_out_of_range_respects_strict(self):
         """Out-of-range index should respect strict parameter."""
-        # strict=False returns default
         val = get(
             self.applications,
             "web-app-demo",
@@ -183,7 +189,6 @@ class TestGetAppConf(unittest.TestCase):
             skip_missing_app=False,
         )
         self.assertEqual(val, "fallback")
-        # strict=True raises
         with self.assertRaises(AppConfigKeyError):
             get(
                 self.applications,

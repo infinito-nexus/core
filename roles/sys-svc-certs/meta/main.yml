@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Automates the retrieval of Let's Encrypt SSL/TLS certificates for Nginx domains using Certbot, supporting both single-domain and wildcard certificates
-    with DNS and webroot ACME challenges.\n"
+  description: "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

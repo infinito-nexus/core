@@ -1,5 +1,5 @@
 ---
-- name: Create runner instance {{ runner_instance }} directory
+- name: 📂 Create runner instance {{ runner_instance }} directory
   file:
     path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
     state: directory
@@ -7,13 +7,13 @@
     group: "{{ RUNNER_USER }}"
     mode: "0755"
 
-- name: Check if runner binary already installed for instance {{ runner_instance }}
+- name: 🔍 Check runner binary installed for instance {{ runner_instance }}
   ansible.builtin.stat:
     path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/run.sh"
   register: _runner_binary_stat
 
-- name: Extract GitHub Actions runner archive for instance {{ runner_instance }}
-  unarchive:
+- name: 📦 Extract runner archive for instance {{ runner_instance }}
+  unarchive: # nocheck: stack-host-consumer (node-local runner: every node extracts its own run.sh)
     src: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
     dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
     remote_src: true
@@ -21,7 +21,7 @@
     group: "{{ RUNNER_USER }}"
   when: not _runner_binary_stat.stat.exists
 
-- name: Remove existing runner configuration for instance {{ runner_instance }}
+- name: 🔍 Find runner configuration for instance {{ runner_instance }}
   ansible.builtin.find:
     paths: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
     patterns: ".*"
@@ -30,7 +30,7 @@
     depth: 1
   register: _runner_config_files
 
-- name: Delete stale runner configuration files for instance {{ runner_instance }}
+- name: 🗑️ Delete stale runner config files for instance {{ runner_instance }}
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
@@ -39,8 +39,8 @@
     label: "{{ item.path }}"
   when: item.path | basename not in ['.env']
 
-- name: Write runner environment file for instance {{ runner_instance }}
-  template:
+- name: 📄 Write runner environment file for instance {{ runner_instance }}
+  template: # nocheck: stack-host-template (node-local runner: each node registers its own instances)
     src: runner_instance_env.j2
     dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/.env"
     owner: "{{ RUNNER_USER }}"

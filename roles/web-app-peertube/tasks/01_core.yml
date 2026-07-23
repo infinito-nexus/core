@@ -1,8 +1,9 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "include _create-domains.yml for peertube"
-  include_tasks: _create-domains.yml
+- name: "📂 Include front proxy for domain '{{ domain }}'"
+  include_role:
+    name: sys-stk-front-proxy
   loop: "{{ lookup('domains', application_id) }}"
   loop_control:
     loop_var: domain
@@ -10,19 +11,12 @@
     http_port: "{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
     websocket_port: "{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
 
-- name: "load docker and db for {{ application_id }}"
+- name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
   vars:
     compose_handlers_flush: true
 
-- name: "PEERTUBE | Patch the `application` table so the bootstrap INSERT survives fresh installs"
-  include_tasks: fix-application-schema.yml
-
-- name: "Install and activate auth-openid-connect plugin if OIDC is enabled"
-  include_tasks: oidc/enable.yml
-  when: PEERTUBE_OIDC_ENABLED | bool
-
-- name: "Deinstall and disable auth-openid-connect plugin if OIDC is enabled"
-  include_tasks: oidc/disable.yml
-  when: not PEERTUBE_OIDC_ENABLED | bool
+- name: "▶️ Execute stack host routines"
+  include_tasks: 02_stack_host.yml
+  when: IS_STACK_HOST | bool

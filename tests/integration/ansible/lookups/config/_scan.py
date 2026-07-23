@@ -35,19 +35,12 @@ from utils.roles.mapping import ROLE_FILE_META_SCHEMA, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
-# Rule key consumed by every `tests/integration/lookups/config/test_*.py`.
-# A marker in `same-or-above` position skips the call from all four
-# downstream classifications. See
-# docs/contributing/actions/testing/suppression.md.
 SUPPRESS_RULE: str = "lookup-config-path"
 
 
 PATTERN = re.compile(
     r"lookup\(\s*['\"]config['\"]\s*,\s*([^,]+?)\s*,\s*['\"]([^'\"]+)['\"]"
 )
-# Captures the entire `<path-expr>` of a `lookup('config', <app>, <expr>)`
-# call up to the closing paren so callers can rebuild the wildcard
-# template from `~`-concatenations of literals and barewords.
 CONCAT_PATTERN = re.compile(
     r"lookup\(\s*['\"]config['\"]\s*,\s*([^,]+?)\s*,\s*(.+?)\s*\)"
 )
@@ -148,12 +141,6 @@ class ScanContext:
     user_defaults: dict[str, Any]
     role_schemas: dict[str, dict[str, Any]]
     role_for_app: dict[str, str]
-    # Role directories that declare `application_id:` in
-    # `vars/main.yml`. Consumed by the role-local classifier; a role
-    # without an `application_id` is not an "application" in the
-    # lookup-config sense and its `lookup('config', application_id, …)`
-    # calls would resolve against an inherited application_id at
-    # runtime that the static scan cannot pin down to a single role.
     roles_with_application_id: frozenset[str] = field(default_factory=frozenset)
 
 
@@ -209,7 +196,7 @@ def _has_default_arg(text: str, scan_from: int) -> bool:
 def _build_role_for_app_map(roles_root: Path) -> dict[str, str]:
     """Walk ``roles/`` once and return ``{application_id: role_dir_name}``.
 
-    Replaces the per-app ``plugins.filter.get_role.get_role`` call which
+    Replaces the per-app ``plugins.filter.get.role.get_role`` call which
     is O(n) per lookup (it scans every role's vars/main.yml). Calling
     it once per application id makes role-schema preload O(n²); doing
     the walk once here keeps it O(n) and routes every YAML read
@@ -252,10 +239,6 @@ def _build_role_schemas(
     return role_schemas
 
 
-# Extensions that may legitimately host `lookup('config', ...)` calls in
-# this project: Ansible YAML and Jinja templates. Restricting the walk
-# this way skips the bulk of binary / icon / web-asset files entirely,
-# which the underlying file-content cache otherwise has to read once.
 _SCANNED_EXTENSIONS: tuple[str, ...] = (".yml", ".yaml", ".j2")
 
 
@@ -313,8 +296,6 @@ def _emit_concat_match(
         return None
     app_arg = m.group(1).strip()
     expr = m.group(2).strip()
-    # Only emit concat matches that actually carry a `~` — otherwise
-    # the literal pass already covered the call.
     if "~" not in expr or "{%" in expr:
         return None
     app_literal = app_arg.strip("'\"") if _is_quoted(app_arg) else None
@@ -347,8 +328,6 @@ def iter_matches() -> tuple[LookupMatch, ...]:
         if "lookup" not in text:
             continue
         file_path = Path(path_str)
-        # Split once per file so `is_suppressed_at` can index lines for
-        # both regex passes without re-splitting.
         lines = text.splitlines()
         for m in PATTERN.finditer(text):
             match = _emit_literal_match(text, lines, file_path, m)

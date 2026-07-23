@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Configure system locales by deploying locale.gen and locale.conf and generating locales
+  description: System configuration role for setting up and generating localesvia locale.gen and locale.conf templates
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

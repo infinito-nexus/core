@@ -1,0 +1,21 @@
+---
+volume-2-local:
+  modes:
+    host:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  provides: container_backup
+  lifecycle: beta
+  min_storage: 0GB
+  cpus: "0.5"
+  mem_reservation: "256m"
+  mem_limit: "512m"
+  pids_limit: 256
+
+# nocheck: dynamic-flag - host secrets must be captured unconditionally wherever container backups run
+secrets_backup:
+  bond: 1
+  enabled: true
+  shared: true

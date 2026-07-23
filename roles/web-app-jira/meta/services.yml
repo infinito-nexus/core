@@ -28,8 +28,14 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 jira:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: atlassian/jira-software
-  version: latest
+  version: 11.3.8
+  custom: true
   name: jira
   min_storage: 20GB
   cpus: "2.0"
@@ -39,9 +45,13 @@ jira:
   ports:
     local:
       http: 8015
+    internal:
+      http: 8080
+  proxy:
+    service_key: jira
   run_after:
     - web-app-matomo
-  lifecycle: unsupported
+  lifecycle: eol
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
@@ -50,3 +60,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

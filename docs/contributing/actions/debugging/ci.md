@@ -2,11 +2,26 @@
 
 If CI fails, follow a clean debugging workflow:
 
-1. Export the raw failing logs.
-2. Save them locally as `job-logs.txt`.
-3. Decide whether the failure belongs to your branch or to something unrelated.
+1. Download every failed job's logs and artefacts with the tooling below.
+2. Inspect the raw logs to find each root failure, then cluster the failures that share a cause.
+3. Decide whether each failure belongs to your branch or to something unrelated.
 4. Fix related failures in the same branch.
 5. Open an issue for unrelated failures instead of mixing them into your branch.
+
+## Fetching and Clustering 📥
+
+The CLI under [cli/meta/ci/logs](../../../../cli/meta/ci/logs/README.md) pulls a run's job logs and artefacts in one shot and clusters them by root failure.
+
+```sh
+# All failed jobs' logs + artefacts into /tmp/logs/<run-id>/ (logs/, artifacts/, jobs.json, summary.tsv)
+python -m cli.meta.ci.logs.download <run-url> -f
+
+# Group the downloaded logs by their shared failing task, largest cluster first
+python -m cli.meta.ci.logs.analyze /tmp/logs/<run-id>
+```
+
+`download` accepts conclusion filters (`-s` success, `-f` failed, `-c` cancelled, `-k` skipped; none fetches all), `-d` for the destination, and `-j` for the worker count.
+The per-job logs carry the real failing task and its error, and the artefacts carry the Playwright `error-context.md`, screenshots, and `playwright-junit.xml`.
 
 ## Important 🚨
 

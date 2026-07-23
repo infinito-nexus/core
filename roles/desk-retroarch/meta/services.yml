@@ -1,5 +1,8 @@
 ---
 retroarch:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   min_storage: "1GB"
   cpus: "1.0"

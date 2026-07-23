@@ -1,19 +1,18 @@
 ---
-- name: "Fetch existing API tokens via curl inside admin container"
-  command: >-
-    {{ BIN_COMPOSE }} exec -T admin \
-      curl -sS --fail -X GET {{ MAILU_API_SERVICE_BASE_URL }}/token \
-        -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
-  args:
-    chdir: "{{ MAILU_INSTANCE_DIR }}"
+- name: "⬇️ Fetch existing API tokens via curl inside admin container"
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -S --fail -X GET {{ MAILU_API_SERVICE_BASE_URL }}/token
+    -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
   register: mailu_tokens_cli
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   retries: 30
   delay: 2
   until: mailu_tokens_cli.rc == 0 and mailu_tokens_cli.stdout | trim | length > 0
+  timeout: "{{ lookup('timeout', 120) | int }}"
 
-- name: "Extract existing token info for '{{ mailu_user_key }};{{ mailu_user_name }}'"
+- name: "📤 Extract existing token info for '{{ mailu_user_key }};{{ mailu_user_name }}'"
   set_fact:
     mailu_user_existing_token: >-
       {{ (
@@ -23,10 +22,15 @@
            | list
          ).0 | default(None) }}
 
-- name: "Start Mailu token procedures if token missing"
+- name: "▶️ Start Mailu token procedures if token missing locally or absent in Mailu"
   when: >-
     (
-      lookup('users').get(mailu_user_key, {}).get('tokens', {}).get(application_id, '')
-      | string | trim
-    ) == ''
-  include_tasks: 04b_create_user_token.yml
+      (
+        lookup('users').get(mailu_user_key, {}).get('tokens', {}).get(application_id, '')
+        | string | trim
+      ) == ''
+    ) or (mailu_user_existing_token is none)
+  ansible.builtin.include_tasks:
+    file: 04b/create_user_token.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

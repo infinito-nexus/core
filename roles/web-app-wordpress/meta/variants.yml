@@ -11,6 +11,8 @@
 # variant 0: canonical Single-Site deploy.
 
 - services:
+    container_backup:
+      enabled: true
     css:
       enabled: true
       shared: true
@@ -34,36 +36,39 @@
     prometheus:
       enabled: true
       shared: true
-- server:
-    domains:
-      canonical:
-        - blog.{{ DOMAIN_PRIMARY }}
-        - biberblog.{{ DOMAIN_PRIMARY }}
-        - biber.blog.{{ DOMAIN_PRIMARY }}
-  services:
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     wordpress:
       multisite:
         enabled: true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     discourse:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     mariadb:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+  server:
+    domains:
+      canonical:
+        - blog.{{ DOMAIN_PRIMARY }}
+        - biberblog.{{ DOMAIN_PRIMARY }}
+        - biber.blog.{{ DOMAIN_PRIMARY }}

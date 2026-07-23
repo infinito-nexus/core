@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automates the installation of Kevin's Package Manager — a tool for managing multiple repositories and automating Git operations.
+  description: Python CLI package manager for cloning multiple code repositories and automating common Git operations
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

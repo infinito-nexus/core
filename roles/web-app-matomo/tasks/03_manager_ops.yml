@@ -1,0 +1,17 @@
+---
+- name: "🚀 Deploy '{{ MATOMO_BOOTSTRAP_ENV_FILE }}'"
+  stack_host_template:
+    src: "templates/bootstrap.env.j2"
+    dest: "{{ MATOMO_BOOTSTRAP_ENV_FILE }}"
+    mode: "0640"
+    force: true
+  notify: compose up
+
+- name: 🚿 flush docker service
+  meta: flush_handlers
+
+- name: "🔍 Matomo install | Resolve hosting node + local container ID"
+  include_tasks: 09_resolve_host_cid.yml
+
+- name: "▶️ Matomo install | Run downstream install path"
+  include_tasks: 04_install_path.yml

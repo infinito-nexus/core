@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and updates packages using pkgmgr.
+  description: Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

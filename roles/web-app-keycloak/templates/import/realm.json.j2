@@ -791,8 +791,23 @@
       ]
     },
     {% include "clients/default.json.j2" %}
+{% if KEYCLOAK_STALWART_WEBUI_ENABLED | bool %}
+    ,{% include "clients/stalwart/webui.json.j2" %}
+{% endif %}
+{% if KEYCLOAK_STALWART_WEBMAIL_ENABLED | bool %}
+    ,{% include "clients/stalwart/webmail.json.j2" %}
+{% endif %}
   ],
   "clientScopes": [
+    {
+      "name": "openid",
+      "description": "Marker scope so 'scope=openid' requests are valid and echoed back; some OIDC clients (e.g. Mattermost) require it. Carries no mappers.",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
     {
       "name": "role_list",
       "description": "SAML role list",
@@ -1488,22 +1503,6 @@
           ]
         }
       },
-{#
-      {
-        "name": "Trusted Hosts",
-        "providerId": "trusted-hosts",
-        "subType": "anonymous",
-        "subComponents": {},
-        "config": {
-          "host-sending-registration-request-must-match": [
-            "true"
-          ],
-          "desktop-uris-must-match": [
-            "true"
-          ]
-        }
-      },
-#}
       {
         "name": "Full Scope Disabled",
         "providerId": "scope",

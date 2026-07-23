@@ -1,19 +1,16 @@
 ---
 # nocheck: run-once
-- name: "For '{{ application_id }}': Freeze object-store consumer id"
+- name: "🧊 For '{{ application_id }}': Freeze object-store consumer id"
   ansible.builtin.set_fact:
     _objstore_consumer_id: "{{ objstore_consumer_id | default(application_id) }}"
   changed_when: false
 
-- name: "For '{{ _objstore_consumer_id }}': Provision on the central object-store provider"
+- name: "📁 For '{{ _objstore_consumer_id }}': Provision on central object-store"
   vars:
     _provider_role: "{{ lookup('objstore', _objstore_consumer_id, 'id') }}"
   when: lookup('objstore', _objstore_consumer_id, 'shared') | bool
   block:
-    # Consumers that are registry providers themselves can be preloaded before
-    # the object-store provider (same loader bucket, alphabetical topo-order),
-    # so load the provider lazily instead of asserting the preload.
-    - name: "Load object-store provider '{{ _provider_role }}' (lazy)"
+    - name: "🧩 Load object-store provider '{{ _provider_role }}' (lazy)"
       ansible.builtin.include_role:
         name: "{{ _provider_role }}"
       vars:
@@ -23,6 +20,7 @@
         compose_repository_url: "{{ '' }}"
         compose_repository_ref: "{{ '' }}"
         compose_repository_pull: false
+        compose_mode_force: ""
       when: >-
         lookup(
           'vars',
@@ -30,7 +28,7 @@
           default='__missing__'
         ) == '__missing__'
 
-    - name: "Initialize '{{ _objstore_consumer_id }}' on the provider '{{ _provider_role }}'"
+    - name: "🎬 Init '{{ _objstore_consumer_id }}' on provider '{{ _provider_role }}'"
       ansible.builtin.include_role:
         name: "{{ _provider_role }}"
       vars:
@@ -38,3 +36,4 @@
         objstore_init: true
         objstore_consumer_id: "{{ _objstore_consumer_id }}"
         compose_repository_pull: false
+        compose_mode_force: ""

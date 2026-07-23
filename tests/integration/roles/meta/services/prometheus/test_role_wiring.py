@@ -7,7 +7,11 @@ import yaml
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.registry import is_explicit_truth
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VOLUMES,
+    ROLE_FILE_TEMPL_COMPOSE,
+)
 
 from . import PROJECT_ROOT
 
@@ -120,7 +124,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
     def test_blackbox_exporter_image_is_pinned(self):
         """web-app-prometheus compose must use a pinned blackbox-exporter image, not :latest."""
         roles_dir = ROLES_DIR
-        compose_path = roles_dir / PROMETHEUS_APP_ID / "templates" / "compose.yml.j2"
+        compose_path = roles_dir / PROMETHEUS_APP_ID / ROLE_FILE_TEMPL_COMPOSE
         content = read_text(str(compose_path))
         self.assertNotIn(
             "prom/blackbox-exporter:latest",
@@ -129,21 +133,40 @@ class TestPrometheusServicePresence(unittest.TestCase):
             "via config/main.yml (services.blackbox-exporter.version)",
         )
         self.assertIn(
-            "BLACKBOX_VERSION",
+            "lookup('container_image', application_id, 'blackbox-exporter')",
             content,
-            "compose.yml.j2 must reference BLACKBOX_VERSION for a reproducible image tag",
+            "compose.yml.j2 must resolve the blackbox-exporter image via the "
+            "container_image lookup so the version comes from meta/services.yml",
         )
 
     def test_alert_rules_mounted_in_prometheus_container(self):
-        """compose.yml.j2 must bind-mount the alert rules file into the Prometheus container."""
+        """meta/volumes.yml must declare a mount that lands the rendered
+        alert_rules.yml inside the Prometheus container, otherwise the
+        file is materialised on disk but never loaded and all alerts are
+        dead. Accepts either type:bind (compose mode) or type:config
+        (swarm-distributed, the file-bind-should-be-config canonical).
+        """
         roles_dir = ROLES_DIR
-        compose_path = roles_dir / PROMETHEUS_APP_ID / "templates" / "compose.yml.j2"
-        content = read_text(str(compose_path))
-        self.assertIn(
-            "ALERT_RULES_CONFIG_HOST",
-            content,
-            "compose.yml.j2 must mount ALERT_RULES_CONFIG_HOST into the Prometheus container "
-            "otherwise alert_rules.yml.j2 is rendered on disk but never loaded — all alerts are dead",
+        meta_path = roles_dir / PROMETHEUS_APP_ID / ROLE_FILE_META_VOLUMES
+        entries = load_yaml_any(str(meta_path), default_if_missing={})
+        self.assertIsInstance(
+            entries,
+            dict,
+            "web-app-prometheus must use the canonical dict-of-dicts meta/volumes.yml",
+        )
+        alert_rules_mounts = [
+            mount
+            for semantic_name, entry in entries.items()
+            if isinstance(entry, dict) and entry.get("type") in ("bind", "config")
+            for mount in entry.get("mounts") or []
+            if isinstance(mount, dict)
+            and mount.get("target") == "/etc/prometheus/alert_rules.yml"
+        ]
+        self.assertTrue(
+            alert_rules_mounts,
+            "meta/volumes.yml must declare a type:bind or type:config entry "
+            "whose mount target is /etc/prometheus/alert_rules.yml so the "
+            "rendered alert rules file is loaded by the container.",
         )
 
 
@@ -191,8 +214,6 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
         )
 
     def _healthz_conf_path(self):
-        # Health-check locations live in web-app-prometheus/templates/nginx/healthz.conf.j2
-        # — moved from sys-svc-proxy so all monitoring templates belong in one role (SRP).
         return (
             PROJECT_ROOT
             / "roles"
@@ -231,10 +252,6 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
         )
 
     def _prometheus_conf_path(self):
-        # locations.conf.j2 is the single SPOT for all prometheus-related nginx includes.
-        # basic.conf.j2 and synapse.conf.j2 both delegate to this shared include.
-        # Moved from sys-svc-proxy to web-app-prometheus so all monitoring templates
-        # are co-located in the monitoring role (SRP).
         return (
             PROJECT_ROOT
             / "roles"
@@ -293,8 +310,6 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
             "locations.conf.j2 must include files/nginx/metricz.conf for the prometheus domain "
             "(no Jinja2 expressions — lives in files/, not templates/)",
         )
-        # metricz is guarded by application_id == 'web-app-prometheus' so it only
-        # appears on the prometheus domain vhost, not on every app vhost.
         self.assertIn(
             "application_id == 'web-app-prometheus'",
             content,
@@ -312,7 +327,6 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
             content,
             "metricz.conf must define 'location = /metricz'",
         )
-        # Verify it is NOT in location.conf.j2 (that would put it on every vhost)
         loc_content = read_text(str(self._location_conf_path()))
         self.assertNotIn(
             "location = /metricz",
@@ -468,15 +482,12 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
             "alert_rules.yml.j2 must define a CommunicationChannelDown alert rule "
             "(task AC: alert rules for communication channels — Mattermost, Matrix, Mailu)",
         )
-        # Channel list is discovered by the plugin, not read from a hardcoded config key.
         self.assertIn(
             "active_alertmanager_channels",
             content,
             "CommunicationChannelDown must use the active_alertmanager_channels lookup plugin "
             "for dynamic channel discovery (no hardcoded list)",
         )
-        # Each communication-channel app self-declares
-        # services.prometheus.communication.channel: true.
         # Mailu is excluded — it is an email server, not a webhook channel.
         for app_id in ("web-app-mattermost", "web-app-matrix"):
             with self.subTest(app_id=app_id):
@@ -498,9 +509,6 @@ class TestDockerHealthCheck(unittest.TestCase):
     """
 
     def _nginx_conf_path(self):
-        # Prometheus Lua blocks (lua_shared_dict, init_worker, Docker health timer)
-        # live in web-app-prometheus/templates/nginx/prometheus.conf.j2 — monitoring
-        # config belongs in the monitoring role, not in sys-svc-webserver-core (SRP).
         return (
             PROJECT_ROOT
             / "roles"
@@ -521,8 +529,6 @@ class TestDockerHealthCheck(unittest.TestCase):
         )
 
     def _healthz_conf_path(self):
-        # Health-check locations live in web-app-prometheus/templates/nginx/healthz.conf.j2
-        # — moved from sys-svc-proxy so all monitoring templates belong in one role (SRP).
         return (
             PROJECT_ROOT
             / "roles"
@@ -533,13 +539,7 @@ class TestDockerHealthCheck(unittest.TestCase):
         )
 
     def _openresty_compose_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "svc-prx-openresty"
-            / "templates"
-            / "compose.yml.j2"
-        )
+        return PROJECT_ROOT / "roles" / "svc-prx-openresty" / ROLE_FILE_TEMPL_COMPOSE
 
     def test_nginx_conf_has_health_containers_dict(self):
         """prometheus.conf.j2 must declare lua_shared_dict health_containers for Docker state caching."""
@@ -581,8 +581,6 @@ class TestDockerHealthCheck(unittest.TestCase):
 
     def test_basic_conf_has_container_name_variable(self):
         """locations.conf.j2 must set $container_name so /healthz/live can look up Docker state."""
-        # $container_name was moved from basic.conf.j2 into locations.conf.j2 so every
-        # custom vhost template (synapse.conf.j2, etc.) gets it automatically.
         locations_path = (
             PROJECT_ROOT
             / "roles"
@@ -601,8 +599,6 @@ class TestDockerHealthCheck(unittest.TestCase):
 
     def test_basic_conf_live_probe_checks_docker_health(self):
         """/healthz/live must consult health_containers before the HTTP sub-request."""
-        # Health-check locations live in healthz.conf.j2 (extracted from basic.conf.j2);
-        # basic.conf.j2 includes it conditionally.
         content = read_text(str(self._healthz_conf_path()))
         self.assertIn(
             "health_containers",
@@ -612,13 +608,38 @@ class TestDockerHealthCheck(unittest.TestCase):
         )
 
     def test_openresty_compose_mounts_docker_socket(self):
-        """OpenResty compose must mount /var/run/docker.sock read-only for the Lua health timer."""
-        content = read_text(str(self._openresty_compose_path()))
-        self.assertIn(
-            "/var/run/docker.sock",
-            content,
-            "svc-prx-openresty compose.yml.j2 must mount /var/run/docker.sock:ro "
-            "so the Lua background timer can query Docker container health",
+        """svc-prx-openresty meta/volumes.yml must declare a read-only bind
+        of /var/run/docker.sock into the openresty service, so the Lua
+        background timer can query Docker container health. Post-canonical-
+        migration this lives in meta, not compose.yml.j2 — the mount surface
+        emerges via `lookup('container_volumes', ...)`.
+        """
+        meta_path = (
+            PROJECT_ROOT / "roles" / "svc-prx-openresty" / ROLE_FILE_META_VOLUMES
+        )
+        entries = load_yaml_any(str(meta_path), default_if_missing={})
+        self.assertIsInstance(
+            entries,
+            dict,
+            "svc-prx-openresty must use the canonical dict-of-dicts meta/volumes.yml",
+        )
+        docker_sock_binds = [
+            mount
+            for semantic_name, entry in entries.items()
+            if isinstance(entry, dict)
+            and entry.get("type") == "bind"
+            and str(entry.get("source", "")).strip() == "/var/run/docker.sock"
+            for mount in entry.get("mounts") or []
+            if isinstance(mount, dict)
+            and mount.get("service") == "openresty"
+            and str(mount.get("target", "")).strip() == "/var/run/docker.sock"
+        ]
+        self.assertTrue(
+            docker_sock_binds,
+            "svc-prx-openresty meta/volumes.yml must declare a "
+            "type:bind entry with source=/var/run/docker.sock and a mount "
+            "into service 'openresty' at target=/var/run/docker.sock so the "
+            "Lua background timer can query Docker container health.",
         )
 
 

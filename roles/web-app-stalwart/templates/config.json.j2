@@ -1,0 +1,9 @@
+{
+  "@type": "PostgreSql",
+  "host": "{{ lookup('database', application_id, 'host') }}",
+  "port": {{ lookup('database', application_id, 'port') }},
+  "database": "{{ lookup('database', application_id, 'name') }}",
+  "authUsername": "{{ lookup('database', application_id, 'username') }}",
+  "authSecret": { "@type": "Value", "secret": "{{ lookup('database', application_id, 'password') }}" },
+  "poolMaxConnections": 10
+}

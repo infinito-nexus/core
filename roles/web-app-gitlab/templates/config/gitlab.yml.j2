@@ -1,0 +1,117 @@
+---
+production:
+  gitlab:
+    host: {{ GITLAB_HOSTNAME | to_json }}
+    port: {{ GITLAB_WEB_PORT }}
+    https: {{ GITLAB_TLS_ENABLED | bool | string | lower }}
+    email_enabled: {{ GITLAB_EMAIL_ENABLED | bool | string | lower }}
+{% if GITLAB_EMAIL_ENABLED %}
+    email_from: {{ GITLAB_EMAIL['from'] | to_json }}
+    email_display_name: "GitLab"
+    email_reply_to: {{ GITLAB_EMAIL['from'] | to_json }}
+{% endif %}
+{% if GITLAB_OBJSTORE_ENABLED %}
+  object_store:
+    enabled: true
+    proxy_download: true
+    connection:
+      provider: "AWS"
+      aws_access_key_id: {{ GITLAB_OBJSTORE_ACCESS_KEY | to_json }}
+      aws_secret_access_key: {{ GITLAB_OBJSTORE_SECRET_KEY | to_json }}
+      region: {{ GITLAB_OBJSTORE_REGION | to_json }}
+      endpoint: {{ GITLAB_OBJSTORE_ENDPOINT | to_json }}
+      path_style: true
+    objects:
+      artifacts:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/artifacts') | to_json }}
+      external_diffs:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/external-diffs') | to_json }}
+      lfs:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/lfs') | to_json }}
+      uploads:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/uploads') | to_json }}
+      packages:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/packages') | to_json }}
+      dependency_proxy:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/dependency-proxy') | to_json }}
+      terraform_state:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/terraform-state') | to_json }}
+      ci_secure_files:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/ci-secure-files') | to_json }}
+      pages:
+        bucket: {{ (GITLAB_OBJSTORE_BUCKET ~ '/pages') | to_json }}
+{% else %}
+  object_store:
+    enabled: false
+{% endif %}
+  incoming_email:
+    enabled: false
+  artifacts:
+    enabled: true
+  lfs:
+    enabled: true
+  pages:
+    enabled: false
+  mattermost:
+    enabled: false
+  registry:
+    enabled: false
+  ldap:
+    enabled: false
+  kerberos:
+    enabled: false
+{% if GITLAB_OIDC_ENABLED %}
+  omniauth:
+    enabled: true
+    allow_single_sign_on: ["openid_connect"]
+    block_auto_created_users: false
+    auto_link_user: ["openid_connect"]
+    providers:
+      - name: "openid_connect"
+        label: {{ GITLAB_OIDC_LABEL | to_json }}
+        args:
+          name: "openid_connect"
+          scope:
+            - "openid"
+            - "profile"
+            - "email"
+          response_type: "code"
+          issuer: {{ GITLAB_OIDC_ISSUER | to_json }}
+          discovery: true
+          uid_field: {{ GITLAB_OIDC_UID_FIELD | to_json }}
+          pkce: true
+          client_options:
+            identifier: {{ GITLAB_OIDC_CLIENT_ID | to_json }}
+            secret: {{ GITLAB_OIDC_CLIENT_SECRET | to_json }}
+            redirect_uri: {{ GITLAB_OIDC_REDIRECT_URI | to_json }}
+{% else %}
+  omniauth:
+    enabled: false
+{% endif %}
+  gitaly:
+    token: {{ GITLAB_GITALY_TOKEN | to_json }}
+  repositories:
+    storages:
+      default:
+        path: /var/opt/gitlab/repo
+        gitaly_address: "tcp://{{ GITLAB_GITALY_SERVICE_NAME }}:{{ GITLAB_GITALY_PORT }}"
+  backup:
+    path: "tmp/backups"
+  gitlab_shell:
+    path: /home/git/gitlab-shell/
+    hooks_path: /home/git/gitlab-shell/hooks/
+    secret_file: /var/opt/gitlab/config/secrets/.gitlab_shell_secret
+    upload_pack: true
+    receive_pack: true
+    ssh_host: {{ GITLAB_HOSTNAME | to_json }}
+    ssh_port: {{ GITLAB_SSH_PORT }}
+  git:
+    bin_path: /usr/bin/git
+  monitoring:
+    ip_whitelist:
+      - 127.0.0.0/8
+      - ::1/128
+    sidekiq_health_checks:
+      enabled: true
+      address: 0.0.0.0
+      port: {{ GITLAB_SIDEKIQ_HEALTH_PORT }}

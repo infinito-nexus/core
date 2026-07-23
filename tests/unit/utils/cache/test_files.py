@@ -94,6 +94,20 @@ class TestIterProjectFiles(_ProjectRootFixture, unittest.TestCase):
         self.assertFalse(any("/__pycache__/" in p for p in all_paths))
         self.assertFalse(any("/node_modules/" in p for p in all_paths))
 
+    def test_git_local_exclude_dirs_pruned(self) -> None:
+        """Plain directory entries in .git/info/exclude are pruned; file
+        patterns and globs are left to git."""
+        _touch(
+            self.root / ".git/info/exclude",
+            "# comment\n/local-tool-out/\nsettings.local.json\n*.tmp\n",
+        )
+        _touch(self.root / "local-tool-out/report.md", "generated")
+        _reset()
+        all_paths = set(iter_project_files())
+        self.assertFalse(any("/local-tool-out/" in p for p in all_paths))
+        # sanity: normal project files still present
+        self.assertTrue(any(p.endswith("readme.md") for p in all_paths))
+
     def test_extensions_filter(self) -> None:
         ymls = list(iter_project_files(extensions=(".yml",)))
         self.assertEqual(len(ymls), 1)

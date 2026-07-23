@@ -112,4 +112,30 @@ else
 fi
 echo
 
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+	{
+		echo "## 🚀 Parallel make targets"
+		echo
+		echo "| Target | Status | Duration |"
+		echo "|---|:---:|---:|"
+		for tgt in "$@"; do
+			if ((target_rc[${tgt}] == 0)); then
+				status="✅"
+			else
+				status="❌ exit=${target_rc[${tgt}]}"
+			fi
+			# shellcheck disable=SC2016  # backticks are markdown, not expansion
+			printf '| `%s` | %s | %s |\n' \
+				"${tgt}" "${status}" "$(format_duration "${target_dur[${tgt}]}")"
+		done
+		if ((overall_rc == 0)); then
+			printf '| **total** | ✨ | %s |\n' "$(format_duration "${total}")"
+		else
+			printf '| **total** | 💥 exit=%s | %s |\n' \
+				"${overall_rc}" "$(format_duration "${total}")"
+		fi
+		echo
+	} >>"${GITHUB_STEP_SUMMARY}"
+fi
+
 exit "${overall_rc}"

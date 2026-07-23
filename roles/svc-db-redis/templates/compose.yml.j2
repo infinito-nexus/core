@@ -1,0 +1,30 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_name = 'redis' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', REDIS_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'redis') }}
+    command:
+      - "sh"
+      - "-c"
+      - >-
+        exec redis-server
+        --requirepass {{ REDIS_PASSWORD | quote }}
+        --appendonly yes
+        --maxmemory {{ lookup('applications') | redis_maxmemory_mb(application_id, 0.8, RESOURCE_MEM_LIMIT | int) }}mb
+        --maxmemory-policy allkeys-lru
+
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if REDIS_EXPOSE_LOCAL %}
+    {{ lookup('container_ports', ['redis', 'redis', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a {{ REDIS_PASSWORD | quote }} --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    {{ lookup('container_volumes', application_id, 'redis') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

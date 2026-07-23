@@ -9,7 +9,15 @@
       - "MAIL_RECIPIENT={{ lookup('mail_recipient') }}"
       - "MAIL_TIMEOUT={{ lookup('email').timeout }}"
 
-    # Force early check if mail sending works
-    system_service_force_flush_instant: "{{ MODE_DEBUG | bool }}"
+    # Force early check if mail sending works — but never during shared-service
+    # preloading: this role deploys nested inside the mail provider's cert-deploy
+    # chain (web-app-stalwart 07_tls), BEFORE the platform cert is registered,
+    # so a strict-TLS send would hit the built-in bootstrap certificate and
+    # fail. The debug-mode default state ('restarted') would start the unit at
+    # deploy time regardless of flush timing — suppress both during preload.
+    # The alm-compose self-test covers the real send in the normal app phase
+    # (same guard, same reason), and the timer runs the check thereafter.
+    system_service_state: "{{ omit if (service_loader_preloading | default(false) | bool) else SYS_SERVICE_DEFAULT_STATE }}"
+    system_service_force_flush_instant: "{{ (MODE_DEBUG | bool) and not (service_loader_preloading | default(false) | bool) }}"
     system_service_force_flush_final: false
 - include_tasks: utils/once/flag.yml

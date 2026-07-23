@@ -1,124 +1,121 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set container_healthcheck_start_period = '20m' %}
 
-{% set service_name = NEXTCLOUD_PROXY_SERVICE %}
+  {% set service_name = NEXTCLOUD_PROXY_SERVICE %}
   {{ service_name }}:
-    image: "{{ NEXTCLOUD_PROXY_IMAGE }}:{{ NEXTCLOUD_PROXY_VERSION }}"
-    container_name: "{{ NEXTCLOUD_PROXY_CONTAINER }}"
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('container_image', application_id, 'proxy') }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_PROXY_CONTAINER) }}
     logging:
       driver: journald
-    restart: {{ DOCKER_RESTART_POLICY }}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ NEXTCLOUD_PORT }}:{{ container_port }}"
-    volumes:
-      - "{{ NEXTCLOUD_HOST_NGINX_PATH }}:/etc/nginx/nginx.conf:ro"
-    volumes_from:
-      - {{ NEXTCLOUD_SERVICE }}
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2'  %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% if NEXTCLOUD_HPB_NETWORK_MODE == 'host' %}
+    {{ lookup('compose_restart') }}
+    {{ lookup('container_ports', ['nextcloud', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2'  %}
+    {{ lookup('container_networks') | indent(4) }}
+    {% if NEXTCLOUD_HPB_NETWORK_MODE == 'host' %}
     extra_hosts:
       - "host.docker.internal:host-gateway"
-{% endif %}
+    {% endif %}
 
-{% set service_name = NEXTCLOUD_SERVICE %}
+  {% set service_name = NEXTCLOUD_SERVICE %}
   {{ service_name }}:
-    image: "{{ NEXTCLOUD_CUSTOM_IMAGE }}"
-    container_name: {{ NEXTCLOUD_CONTAINER }}
+    {{ lookup('container_image', application_id, 'nextcloud') }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_CONTAINER) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
 
-    volumes:
-      - data:{{ NEXTCLOUD_DOCKER_WORK_DIRECTORY }}
-      - {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}:{{ NEXTCLOUD_DOCKER_CONF_ADD_PATH }}:ro
-      - {{ NEXTCLOUD_HOST_INCL_PATH }}:{{ NEXTCLOUD_DOCKER_INCL_PATH }}:ro
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {% if DEPLOYMENT_MODE == 'swarm' %}
+    environment:
+      TASK_SLOT: "{% raw %}{{.Task.Slot}}{% endraw %}"
+    {% endif %}
     sysctls:
       net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
     healthcheck:
       test: ["CMD", "su", "www-data", "-s", "/bin/sh", "-c", "php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} status"]
       interval: 1m
-      timeout: 10s
-      retries: 3
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+      timeout: 30s
+      retries: 10
+      start_period: {{ container_healthcheck_start_period }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{% if NEXTCLOUD_HPB_SIGNALING_ENABLED | bool %}
-{% set service_name = NEXTCLOUD_HPB_SERVICE %}
+  {% if NEXTCLOUD_HPB_SIGNALING_ENABLED | bool %}
+  {% set service_name = NEXTCLOUD_HPB_SERVICE %}
+  {% set container_port = NEXTCLOUD_HPB_SIGNALING_PORT %}
   {{ service_name }}:
-{% set container_port = NEXTCLOUD_HPB_SIGNALING_PORT %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
-    image: "{{ NEXTCLOUD_HPB_IMAGE }}:{{ NEXTCLOUD_HPB_VERSION }}"
-    container_name: {{ NEXTCLOUD_HPB_CONTAINER }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_image', application_id, 'talk') }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_HPB_CONTAINER) }}
     init: true
-{% if NEXTCLOUD_HPB_NETWORK_MODE == 'bridge' %}
-{% if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED | bool and NEXTCLOUD_HPB_TURN_ONBOARD_PUBLISH_PORTS | bool %}
+    {% if NEXTCLOUD_HPB_NETWORK_MODE == 'bridge' %}
+    {% if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED | bool and NEXTCLOUD_HPB_TURN_ONBOARD_PUBLISH_PORTS | bool %}
     ports:
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}/tcp
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}/udp
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}/udp
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}/tcp
-{% endif %}
+      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}/tcp # nocheck: compose-ports-must-use-container-ports
+      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}/udp # nocheck: compose-ports-must-use-container-ports
+      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}/udp # nocheck: compose-ports-must-use-container-ports
+      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}/tcp # nocheck: compose-ports-must-use-container-ports
+    {% endif %}
     expose:
       - "{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% else %}
+    {{ lookup('container_networks') | indent(4) }}
+    {% else %}
     network_mode: {{ NEXTCLOUD_HPB_NETWORK_MODE }}
-{% endif %}
-{% endif %}
+    {% endif %}
+  {% endif %}
 
-{% if NEXTCLOUD_WHITEBOARD_ENABLED %}
-{% set service_name = NEXTCLOUD_WHITEBOARD_SERVICE %}
+  {% if NEXTCLOUD_WHITEBOARD_ENABLED %}
+  {% set service_name = NEXTCLOUD_WHITEBOARD_SERVICE %}
+  {% set container_port = NEXTCLOUD_WHITEBOARD_PORT_INTERNAL %}
   {{ service_name }}:
-{% set container_port = NEXTCLOUD_WHITEBOARD_PORT_INTERNAL %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     build:
       context: .
       dockerfile: {{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}
-    pull_policy: never
-    image: "{{ NEXTCLOUD_WHITEBOARD_IMAGE_CUSTOM }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/nc.yml.j2' %}
-    container_name: {{ NEXTCLOUD_WHITEBOARD_CONTAINER }}
-    volumes:
-      - whiteboard_tmp:/tmp
-      - whiteboard_fontcache:/var/cache/fontconfig
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('container_image', application_id, 'whiteboard') }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/nc.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_WHITEBOARD_CONTAINER) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     environment:
       - NODE_OPTIONS=--max-old-space-size={{ NEXTCLOUD_WHITEBOARD_MAX_OLD_SPACE_SIZE }}
     expose:
       - "{{ container_port }}"
     shm_size: 1g
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    depends_on:
-      redis:
-        condition: service_healthy
-{% endif %}
+    {{ lookup('container_networks') | indent(4) }}
+    {%+ if lookup('engine', 'redis', application_id, 'local') %}{{ lookup('depends_on', {'redis': 'service_healthy'}) }}{% endif %}
+  {% endif %}
 
 
-{% set service_name = NEXTCLOUD_CRON_SERVICE %}
+  {% set service_name = NEXTCLOUD_CRON_SERVICE %}
   {{ service_name }}:
-    container_name: "{{ NEXTCLOUD_CRON_CONTAINER }}"
-    image: "{{ NEXTCLOUD_IMAGE }}:{{ NEXTCLOUD_VERSION }}"
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_CRON_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'nextcloud') }}
+    {{ lookup('compose_restart') }}
     logging:
       driver: journald
-    volumes:
-      - data:{{ NEXTCLOUD_DOCKER_WORK_DIRECTORY }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     entrypoint: /cron.sh
     sysctls:
       net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
     healthcheck:
       test: ["CMD", "su", "www-data", "-s", "/bin/sh", "-c", "php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} status"]
       interval: 1m
-      timeout: 10s
-      retries: 3
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+      timeout: 30s
+      retries: 10
+      start_period: {{ container_healthcheck_start_period }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{% if NEXTCLOUD_RECORDING_ENABLED | bool %}
-{% set service_name = 'talk_recording' %}
+  {% if NEXTCLOUD_RECORDING_ENABLED | bool %}
+  {% set service_name = 'talk_recording' %}
   {{ service_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ NEXTCLOUD_RECORDING_IMAGE }}:{{ NEXTCLOUD_RECORDING_VERSION }}"
-    container_name: "{{ NEXTCLOUD_RECORDING_CONTAINER }}"
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'talk_recording') }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_RECORDING_CONTAINER) }}
     environment:
       - HPB_DOMAIN={{ NEXTCLOUD_HPB_DOMAIN }}
       - NC_DOMAIN={{ NEXTCLOUD_DOMAIN }}
@@ -127,10 +124,9 @@
       - TZ={{ HOST_TIMEZONE }}
     expose:
       - "{{ NEXTCLOUD_RECORDING_PORT }}"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - talk_recording_tmp:/tmp
-{% endif %}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+  {% endif %}
 
 {% set _extra_volumes = {'data': {'name': NEXTCLOUD_VOLUME}} %}
 {% if NEXTCLOUD_WHITEBOARD_ENABLED %}
@@ -142,9 +138,8 @@
 {% if NEXTCLOUD_RECORDING_ENABLED | bool %}
 {%   set _ = _extra_volumes.update({'talk_recording_tmp': {'name': NEXTCLOUD_RECORDING_TMP_VOLUME}}) %}
 {% endif %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes=_extra_volumes
 ) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

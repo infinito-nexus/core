@@ -1,0 +1,19 @@
+---
+- name: 🔍 Probe CA bundle candidate paths for msmtp TLS trust file
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES }}"
+  register: _sys_svc_mail_msmtp_ca_probe
+
+- name: 🎯 Select first existing CA bundle path for msmtp
+  ansible.builtin.set_fact:
+    sys_svc_mail_msmtp_ca_bundle: >-
+      {{
+        (
+          _sys_svc_mail_msmtp_ca_probe.results
+          | selectattr('stat.exists')
+          | map(attribute='item')
+          | list
+          | first
+        ) | default(SYS_SVC_MAIL_MSMTP_CA_BUNDLE_CANDIDATES | first, true)
+      }}

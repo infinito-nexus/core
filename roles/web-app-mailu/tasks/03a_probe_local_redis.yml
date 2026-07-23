@@ -1,0 +1,20 @@
+---
+- name: "🔍 Resolve Mailu redis hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: redis
+    resolve_output_prefix: MAILU_REDIS
+    resolve_compose_cid: "{{ MAILU_REDIS_CONTAINER_ADDRESS }}"
+
+- name: "🔍 Probe Mailu redis"
+  ansible.builtin.shell: |
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ MAILU_REDIS_LOCAL_CID | quote }} redis-cli ping
+  delegate_to: "{{ MAILU_REDIS_HOST_NODE }}"
+  register: mailu_redis_check
+  retries: 30
+  delay: 5
+  until:
+    - mailu_redis_check.rc == 0
+    - "'PONG' in (mailu_redis_check.stdout | default(''))"
+  changed_when: false

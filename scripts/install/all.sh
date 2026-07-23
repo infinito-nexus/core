@@ -10,6 +10,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
+# shellcheck source=scripts/meta/env/python.sh
+source "${REPO_ROOT}/scripts/meta/env/python.sh"
+# shellcheck source=/dev/null
+source <(grep -E '^INFINITO_PYTHON_INSTALL_SCRIPT=' "${REPO_ROOT}/default.env")
+: "${INFINITO_PYTHON_INSTALL_SCRIPT:?}"
+
 STAMP="build/install.stamp"
 DEPS=(
 	pyproject.toml
@@ -18,7 +24,7 @@ DEPS=(
 	scripts/install/python.sh
 	scripts/install/ansible.sh
 	scripts/install/venv.sh
-	roles/dev-python/files/install.sh
+	"${INFINITO_PYTHON_INSTALL_SCRIPT}"
 )
 
 if [[ "${1:-}" == "--force" ]]; then
@@ -27,6 +33,10 @@ fi
 
 needs_install=0
 if [[ ! -f "${STAMP}" ]]; then
+	needs_install=1
+elif [[ ! -x "${VENV}/bin/python" ]]; then
+	# Exception: repo copies (docker cp / tar into containers) carry the stamp but not the venv; a stamp without its venv is stale and would silently skip the whole install chain.
+	echo "[install] stamp present but venv missing at ${VENV}; reinstalling" >&2
 	needs_install=1
 else
 	for dep in "${DEPS[@]}"; do
@@ -45,7 +55,7 @@ if [[ "${needs_install}" -eq 0 ]]; then
 	exit 0
 fi
 
-bash roles/dev-python/files/install.sh ensure
+bash "${INFINITO_PYTHON_INSTALL_SCRIPT}" ensure
 bash scripts/install/venv.sh
 bash scripts/install/python.sh
 ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" bash scripts/install/ansible.sh
@@ -54,3 +64,4 @@ stamp_dir="$(dirname "${STAMP}")"
 mkdir -p "${stamp_dir}"
 chmod 0777 "${stamp_dir}" 2>/dev/null || true
 touch "${STAMP}"
+chmod 0777 "${STAMP}" 2>/dev/null || true

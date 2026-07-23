@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Prepares and manages the CDN folder structure with shared, vendor, and per-role release directories.
+  description: Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

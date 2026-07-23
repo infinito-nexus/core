@@ -1,0 +1,24 @@
+---
+data:
+  type: volume
+  name: pgadmin_data
+  mounts:
+    - service: pgadmin
+      target: /var/lib/pgadmin
+
+servers_json:
+  type: config
+  source: "{{ [lookup('container', 'web-app-pgadmin', 'directories.volumes'), 'servers.json'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: pgadmin
+      target: /pgadmin4/servers.json
+      when: "{{ lookup('config', 'web-app-pgadmin', 'services.pgadmin.server_mode') | bool }}"
+
+pgpass:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-pgadmin', 'directories.volumes'), '.pgpass'] | path_join }}"
+  mounts:
+    - service: pgadmin
+      target: /pgpass
+      when: "{{ lookup('config', 'web-app-pgadmin', 'services.pgadmin.server_mode') | bool }}"

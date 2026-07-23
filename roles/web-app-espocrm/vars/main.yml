@@ -1,28 +1,16 @@
 ---
-# General
 application_id: "web-app-espocrm"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Database
+swarm_stack_converge_retries: 600
 
-# Webserver
 websocket_port: "{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}"
 
-# Espocrm
-
-## Container
 ESPOCRM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
 ESPOCRM_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
-ESPOCRM_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ ESPOCRM_VERSION }}"
 ESPOCRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
 ESPOCRM_SERVICE: "{{ entity_name }}"
 
-## Volumes
-ESPOCRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-
-## Scripts
-
-### Entrypoint
 ESPOCRM_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-custom.sh"
 ESPOCRM_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), ESPOCRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 ESPOCRM_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ ESPOCRM_ENTRYPOINT_SCRIPT_FILE }}"
@@ -34,22 +22,15 @@ ESPOCRM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled
 ESPOCRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 ESPOCRM_USER: "www-data"
 
-## Seeding
-
-### Seeding Script Parameter
 ESPOCRM_SCRIPT_SEED_FILE: "seed_config.php"
 ESPOCRM_SCRIPT_SEED_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), ESPOCRM_SCRIPT_SEED_FILE ] | path_join }}"
 ESPOCRM_SCRIPT_SEED_HOST_REL: "volumes/{{ ESPOCRM_SCRIPT_SEED_FILE }}"
 ESPOCRM_SCRIPT_SEED_DOCKER: "{{ [ '/usr/local/bin/', ESPOCRM_SCRIPT_SEED_FILE ] | path_join }}"
 
-### Seeding Values
-
-#### Maintanance
 ESPOCRM_MAINTENANCE_MODE: "{{ lookup('config', application_id, 'services.espocrm.maintenance_mode') }}"
-ESPOCRM_CRON_DISABLED: "{{ ESPOCRM_MAINTENANCE_MODE }}" # disable cron only when in maintenance
-ESPOCRM_USE_CACHE: "{{ not ESPOCRM_MAINTENANCE_MODE }}" # enable cache when NOT in maintenance
+ESPOCRM_CRON_DISABLED: "{{ ESPOCRM_MAINTENANCE_MODE }}"
+ESPOCRM_USE_CACHE: "{{ not ESPOCRM_MAINTENANCE_MODE }}"
 
-#### reCAPTCHA
 ESPOCRM_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 ESPOCRM_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'credentials.recaptcha.key') }}"
 ESPOCRM_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'credentials.recaptcha.secret') }}"

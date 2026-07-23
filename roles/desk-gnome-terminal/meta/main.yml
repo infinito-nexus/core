@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs GNOME Terminal on Arch Linux, providing a modern terminal emulator for the GNOME desktop environment.
+  description: Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

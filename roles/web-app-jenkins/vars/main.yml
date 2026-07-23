@@ -1,13 +1,12 @@
 ---
 application_id: web-app-jenkins
-container_port: 8080
 entity_name: "{{ application_id | get_entity_name }}"
+
+swarm_stack_converge_retries: 600
 
 JENKINS_IMAGE: "{{ lookup('config', application_id, 'services.jenkins.image') }}"
 JENKINS_VERSION: "{{ lookup('config', application_id, 'services.jenkins.version') }}"
 JENKINS_CONTAINER: "{{ lookup('config', application_id, 'services.jenkins.name') }}"
-JENKINS_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ JENKINS_VERSION }}"
-JENKINS_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 JENKINS_CASC_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'casc.yaml' ] | path_join }}"
 
 JENKINS_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

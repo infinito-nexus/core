@@ -1,0 +1,8 @@
+---
+config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-dashboard', 'directories.volumes'), 'config.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: dashboard
+      target: /app/config.yaml

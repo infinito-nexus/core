@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Suggest free per-role subnets based on the live role tree.
 
-Walks every ``roles/*/meta/server.yml``, collects occupied
-``networks.local.subnet`` assignments, picks the smallest CIDR prefix that
+Walks every ``roles/*/meta/networks.yml``, collects occupied
+``local.subnet`` assignments, picks the smallest CIDR prefix that
 fits the requested client count, and proposes free sub-blocks gap-first.
 
 Usage:

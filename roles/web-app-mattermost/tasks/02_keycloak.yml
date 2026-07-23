@@ -1,104 +1,124 @@
 ---
 # @see https://docs.mattermost.com/deployment/sso-gitlab.html
 
-- name: "Mattermost | Keycloak — authenticate kcadm.sh"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "🔍 Resolve keycloak hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: keycloak
+    resolve_service_name: "{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}"
+    resolve_output_prefix: MATTERMOST_KC
+    resolve_compose_cid: "{{ MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+    resolve_cid_filters: "--filter health=healthy"
+
+- name: "🔑 Mattermost | Keycloak — authenticate kcadm.sh"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh config credentials
     --server "http://localhost:8080"
     --realm master
     --user {{ MATTERMOST_KEYCLOAK_ADMIN_USER | quote }}
     --password {{ MATTERMOST_KEYCLOAK_ADMIN_PASS | quote }}
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   changed_when: false
 
-- name: "Mattermost | Keycloak — resolve Mattermost client UUID"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "🔍 Mattermost | Keycloak — resolve Mattermost client UUID"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh get clients
     -r {{ OIDC.CLIENT.REALM | quote }}
     -q clientId={{ OIDC.CLIENT.ID | quote }}
     --fields id --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_client_uuid
   changed_when: false
   failed_when: mm_kc_client_uuid.stdout_lines | last | trim == ''
 
-- name: "Mattermost | Keycloak — list existing protocol mappers"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "📋 Mattermost | Keycloak — list existing protocol mappers"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh get
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_existing_mappers
   changed_when: false
 
-- name: "Mattermost | Keycloak — list all client scopes"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "📋 Mattermost | Keycloak — list all client scopes"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh get client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_all_scopes
   changed_when: false
 
-- name: "Mattermost | Keycloak — create 'openid' client scope if missing"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "📁 Mattermost | Keycloak — create 'openid' client scope if missing"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh create client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     -s name=openid
     -s protocol=openid-connect
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | list | length == 0"
   register: mm_kc_create_openid_scope
 
-- name: "Mattermost | Keycloak — re-read client scopes after possible creation"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+# Unconditional: a skipped task would still overwrite mm_kc_all_scopes with a
+# skip-result dict (no stdout_lines) and break every later reference to it.
+- name: "📖 Mattermost | Keycloak — re-read client scopes after possible creation"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh get client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_all_scopes
   changed_when: false
-  when: mm_kc_create_openid_scope is changed
 
-- name: "Mattermost | Keycloak — list existing default client scopes"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "📋 Mattermost | Keycloak — list existing default client scopes"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh get
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_default_scopes
   changed_when: false
 
-- name: "Mattermost | Keycloak — add 'openid' to client default scopes"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "➕ Mattermost | Keycloak — add 'openid' to client default scopes"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh update
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/default-client-scopes/{{ mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | first | split(',')
     | first | trim }}
     -r {{ OIDC.CLIENT.REALM | quote }}
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "'openid' not in mm_kc_default_scopes.stdout"
 
-- name: "Mattermost | Keycloak — add 'id' mapper (integer from LDAP uidNumber)"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "➕ Mattermost | Keycloak — add 'id' mapper (integer from LDAP uidNumber)"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh create
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -112,12 +132,13 @@
     -s 'config."id.token.claim"=true'
     -s 'config."access.token.claim"=true'
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "'mattermost-id' not in mm_kc_existing_mappers.stdout"
 
-- name: "Mattermost | Keycloak — add 'username' mapper (from Keycloak username)"
-  shell: >-
-    container exec -i {{ MATTERMOST_KEYCLOAK_CONTAINER }}
+- name: "➕ Mattermost | Keycloak — add 'username' mapper (from Keycloak username)"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
     /opt/keycloak/bin/kcadm.sh create
     clients/{{ mm_kc_client_uuid.stdout_lines | last | trim }}/protocol-mappers/models
     -r {{ OIDC.CLIENT.REALM | quote }}
@@ -131,5 +152,6 @@
     -s 'config."id.token.claim"=true'
     -s 'config."access.token.claim"=true'
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+  delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "'mattermost-username' not in mm_kc_existing_mappers.stdout"

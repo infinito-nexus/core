@@ -1,0 +1,4 @@
+---
+canonical:
+  - xmpp.{{ DOMAIN_PRIMARY }}
+aliases: []

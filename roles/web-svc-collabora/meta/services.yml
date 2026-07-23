@@ -3,17 +3,31 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+  # nocheck: matomo-track
+  track: false
 # nocheck: dynamic-flag
 redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 collabora:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: single-replica
+  replicas: 1
   bond: 1
   enabled: true
   shared: true
   image: collabora/code
-  version: latest
+  # Exception: 26.04.2.2.1 rebuilt the image as a Nix minimal image without
+  # coolconfig or a shell (CollaboraOnline/online#16021); every `docker exec`
+  # fails. Unpin once the systemplate tasks migrate to --use-env-vars
+  # configuration or upstream restores the tooling.
+  version: "26.04.2.1.1"
   name: collabora
   min_storage: 10GB
   cpus: 2
@@ -23,8 +37,14 @@ collabora:
   ports:
     local:
       http: 8042
+    internal:
+      http: 9980
+  proxy:
+    service_key: collabora
   lifecycle: beta
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  # nocheck: prometheus-scrape
+  scrape: false

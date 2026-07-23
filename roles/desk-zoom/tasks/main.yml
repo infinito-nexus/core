@@ -1,6 +1,6 @@
 ---
 - block:
-    - name: install video conference software
+    - name: 📦 install video conference software
       include_role:
         name: sys-aur-install
       vars:

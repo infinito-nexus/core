@@ -1,26 +1,14 @@
 ---
 # General
 application_id: "svc-prx-openresty"
+entity_name: "{{ application_id | get_entity_name }}"
 
 # Openresty
-
-# Probapbly hard to implement to use dynamic entity_name here, so sticking with hard coded entity in conf path
 OPENRESTY_IMAGE: "{{ lookup('config','svc-prx-openresty', 'services.openresty.image') }}"
 OPENRESTY_VERSION: "{{ lookup('config','svc-prx-openresty', 'services.openresty.version') }}"
 OPENRESTY_CONTAINER: "{{ lookup('config','svc-prx-openresty', 'services.openresty.name') }}"
+OPENRESTY_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
-# Custom-built image — distinguished from the upstream pull image to make it
-# clear in compose.yml.j2 that this container is locally built, not pulled.
-OPENRESTY_CUSTOM_IMAGE: "openresty_custom"
-OPENRESTY_CUSTOM_VERSION: "{{ OPENRESTY_VERSION }}"
-
-# Lua file download URLs — passed as Dockerfile build args so the mirror system
-# can substitute them without touching the Dockerfile itself.
-#
-# Lua file download URLs — fetched from the infinito-nexus org fork of
-# knyar/nginx-lua-prometheus (upstream: https://github.com/knyar/nginx-lua-prometheus).
-# Using the org fork gives full control over the source: only org members can push
-# to this repo, so the content is stable until upstream changes are deliberately merged.
 OPENRESTY_PROMETHEUS_ENABLED: "{{ ('web-app-prometheus' in lookup('applications')) | lower }}"
 OPENRESTY_LUA_PROMETHEUS_URL_MAIN: "https://raw.githubusercontent.com/infinito-nexus/nginx-lua-prometheus/master/prometheus.lua"
 OPENRESTY_LUA_PROMETHEUS_URL_COUNTER: "https://raw.githubusercontent.com/infinito-nexus/nginx-lua-prometheus/master/prometheus_resty_counter.lua"

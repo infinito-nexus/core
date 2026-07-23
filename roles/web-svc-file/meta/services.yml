@@ -1,5 +1,8 @@
 ---
 file:
+  modes:
+    host:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
@@ -13,6 +16,8 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+  # nocheck: matomo-track
+  track: false
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
@@ -21,3 +26,5 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  # nocheck: prometheus-scrape
+  scrape: false

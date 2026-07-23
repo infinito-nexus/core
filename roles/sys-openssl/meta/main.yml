@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Ensures OpenSSL is installed once as a shared host dependency for roles that invoke the `openssl` CLI.
+  description: Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

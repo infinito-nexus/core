@@ -1,5 +1,5 @@
 ---
-- name: "DNS (Cloudflare) for Bluesky – base records"
+- name: "🌐 DNS (Cloudflare) for Bluesky – base records"
   include_role:
     name: sys-dns-cloudflare-records
   when: DNS_PROVIDER | lower == 'cloudflare'

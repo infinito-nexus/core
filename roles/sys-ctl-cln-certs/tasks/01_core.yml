@@ -1,12 +1,12 @@
 ---
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
     - sys-ctl-alm-compose
     - sys-daemon
 
-- name: "pkgmgr install"
+- name: "📦 pkgmgr install"
   include_role:
     name: pkgmgr-install
   vars:

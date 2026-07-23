@@ -6,6 +6,8 @@
 # matrix exercises the in-group_names branch of web-app-matomo.
 
 - services:
+    container_backup:
+      enabled: true
     css:
       enabled: true
       shared: true
@@ -17,21 +19,31 @@
       shared: true
     mariadb:
       shared: true
+    redis:
+      shared: true
     prometheus:
       enabled: true
       shared: true
+    matomo:
+      tracking:
+        scope: root
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     mariadb:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    redis:
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

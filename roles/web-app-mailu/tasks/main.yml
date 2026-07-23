@@ -3,3 +3,13 @@
   when: run_once_web_app_mailu is not defined
   vars:
     application_id: "web-app-mailu"
+
+# Re-entry from the service-loader post-load flush (queued in 09_oidc_apply
+# when the OIDC issuer was not yet deployed — Keycloak loads after mail roles).
+- include_tasks: 08_oidc_refresh.yml
+  when:
+    - run_once_web_app_mailu is defined
+    - mailu_oidc_restart_pending | default(false) | bool
+    - not (service_loader_preloading | default(false) | bool)
+  vars:
+    application_id: "web-app-mailu"

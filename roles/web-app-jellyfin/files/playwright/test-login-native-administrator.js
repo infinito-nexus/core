@@ -1,7 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
 exports.register = function (shared) {
-  // Break-glass local admin seeded via the first-run wizard; ungated (works in every variant).
   test("administrator: native local login (break-glass) lands on the Jellyfin home", async ({ page }) => {
     test.setTimeout(60_000);
     expect(shared.env.adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();

@@ -1,16 +1,16 @@
 ---
-- name: Fail if administrator authorized_keys is empty
+- name: 🛑 Fail if administrator authorized_keys is empty
   ansible.builtin.fail:
     msg: >-
       lookup('users', 'administrator').authorized_keys must contain at least one SSH public key.
   when: lookup('users', 'administrator').authorized_keys | length == 0
 
-- name: Include dependency 'sys-sudo'
+- name: 📂 Include dependency 'sys-sudo'
   include_role:
     name: sys-sudo
   when: run_once_sys_sudo is not defined
 
-- name: create administrator
+- name: 📁 create administrator
   user:
     name: administrator
     update_password: on_create
@@ -21,7 +21,7 @@
     ssh_key_bits: 8192
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "set correct rights for {{ DIR_HOME_ADMINISTRATOR }}"
+- name: "🔧 set correct rights for {{ DIR_HOME_ADMINISTRATOR }}"
   file:
     path: "{{ DIR_HOME_ADMINISTRATOR }}"
     state: directory
@@ -29,7 +29,7 @@
     group: administrator
     mode: "0700"
 
-- name: grant administrator sudo rights with password
+- name: 🔐 grant administrator sudo rights with password
   copy:
     src: "administrator"
     dest: /etc/sudoers.d/administrator
@@ -37,7 +37,7 @@
     owner: root
     group: root
 
-- name: "embed user routines for {{ role_path | basename }}"
+- name: "👤 embed user routines for {{ role_path | basename }}"
   include_role:
     name: user
   vars:

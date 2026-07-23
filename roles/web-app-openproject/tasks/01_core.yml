@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
@@ -12,35 +12,6 @@
     compose_handlers_flush: false
     application_id: "web-app-openproject"
 
-- name: "Create {{ OPENPROJECT_PLUGINS_FOLDER }}"
-  file:
-    path: "{{ OPENPROJECT_PLUGINS_FOLDER }}"
-    state: directory
-    mode: "0755"
-
-- name: "Transferring Gemfile to {{ OPENPROJECT_PLUGINS_FOLDER }} as Gemfile.plugins"
-  copy:
-    src: Gemfile
-    dest: "{{ [OPENPROJECT_PLUGINS_FOLDER,'Gemfile.plugins'] | path_join }}"
-  notify:
-    - compose up
-    - compose build
-
-- name: "create {{ OPENPROJECT_DUMMY_VOLUME }}"
-  file:
-    path: "{{ OPENPROJECT_DUMMY_VOLUME }}"
-    state: directory
-    mode: "0755"
-
-- name: flush docker service
-  meta: flush_handlers
-
-- name: Deploy Settings
-  include_tasks: 01_settings.yml
-
-- name: Setup LDAP
-  include_tasks: 02_ldap.yml
-  when: OPENPROJECT_LDAP_ENABLED | bool
-
-- name: Create OpenProject Administrator
-  include_tasks: 03_admin.yml
+- name: "👔 OpenProject manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

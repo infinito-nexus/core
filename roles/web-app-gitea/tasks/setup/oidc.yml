@@ -1,7 +1,7 @@
 ---
-- name: "Add Keycloak OIDC Provider"
+- name: "➕ Add Keycloak OIDC Provider"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth add-oauth \
         --provider openidConnect \
         --name     "{{ OIDC.BUTTON_TEXT }}" \
@@ -9,33 +9,29 @@
         --secret   "{{ OIDC.CLIENT.SECRET }}" \
         --auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}" \
         --scopes   "openid profile email"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: oidc_manage
-  failed_when: oidc_manage.rc != 0 and "login source already exists" not in oidc_manage.stderr
+  failed_when: oidc_manage.rc != 0 and not (oidc_manage.stderr | gitea_auth_noop)
 
-- name: "Lookup existing Keycloak auth source ID"
+- name: "🔍 Lookup existing Keycloak auth source ID"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       /app/gitea/gitea admin auth list \
       | tail -n +2 \
       | grep -F "{{ OIDC.BUTTON_TEXT }}" \
       | awk '{print $1; exit}'
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: oidc_source_id_raw
   failed_when:
     - oidc_source_id_raw.rc != 0
     - oidc_source_id_raw.stdout == ""
   changed_when: false
 
-- name: "Set Keycloak source ID fact"
+- name: "🔧 Set Keycloak source ID fact"
   set_fact:
     oidc_source_id: "{{ oidc_source_id_raw.stdout }}"
 
-- name: "Update Keycloak OIDC Provider"
+- name: "🔄 Update Keycloak OIDC Provider"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth update-oauth \
         --id {{ oidc_source_id }}\
         --provider openidConnect \
@@ -44,7 +40,5 @@
         --secret   "{{ OIDC.CLIENT.SECRET }}" \
         --auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}" \
         --scopes   "openid profile email"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: oidc_manage
   failed_when: oidc_manage.rc != 0

@@ -22,23 +22,32 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 bigbluebutton:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
+  workload: node-local
   repository: https://github.com/bigbluebutton/docker.git
-  ref: main
+  ref: v3.0.23
   recording:
     enabled: false
     cleanup: true
     max_age_days: 30
   min_storage: 50GB
   api_suffix: /bigbluebutton/
+  upstream_host: "10.7.7.1"
   ports:
     local:
+      http: 48087
+    internal:
       http: 48087
     public:
       stun_turn: 3478
@@ -56,13 +65,19 @@ bigbluebutton:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
+  name: bigbluebutton-postgres-1
   shared: false
   enabled: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 greenlight:
+  name: bigbluebutton-greenlight-1
   enabled: true
   shared: false
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
 # nocheck: playwright-service-flag — infrastructural sub-component (TURN/STUN)
 coturn:
   bond: 1
@@ -82,3 +97,99 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+bbb-web:
+  image: alangecker/bbb-docker-web
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+freeswitch:
+  image: alangecker/bbb-docker-freeswitch
+  version: "v1.10.12-v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+nginx:
+  image: alangecker/bbb-docker-nginx
+  version: "v3.0.23-v5.4.4-1.29"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+etherpad:
+  image: alangecker/bbb-docker-etherpad
+  version: "2.4.2-s8328b77-p88f3f6b"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+bbb-pads:
+  image: alangecker/bbb-docker-pads
+  version: "v1.5.8"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+bbb-export-annotations:
+  image: alangecker/bbb-docker-bbb-export-annotations
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+webrtc-sfu:
+  image: alangecker/bbb-docker-webrtc-sfu
+  version: "v2.22.0"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+fsesl-akka:
+  image: alangecker/bbb-docker-fsesl-akka
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+apps-akka:
+  image: alangecker/bbb-docker-apps-akka
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+bbb-graphql-server:
+  image: alangecker/bbb-docker-graphql-server
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+bbb-graphql-actions:
+  image: alangecker/bbb-docker-graphql-actions
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+bbb-graphql-middleware:
+  image: alangecker/bbb-docker-graphql-middleware
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+periodic:
+  image: alangecker/bbb-docker-periodic
+  version: "v3.0.0"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+recordings:
+  image: alangecker/bbb-docker-recordings
+  version: "v3.0.23"
+  enabled: false
+# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
+bbb-webrtc-recorder:
+  image: alangecker/bbb-docker-webrtc-recorder
+  version: "v0.14.0"
+  enabled: false
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

@@ -1,109 +1,63 @@
 ---
 application_id: "web-app-moodle"
 entity_name: "{{ application_id | get_entity_name }}"
+swarm_stack_converge_retries: 600
 
-# ── Moodle code & data layout (self-built image; no Bitnami) ───────────
-# Moodle source extracts to /var/www/html (standard PHP-FPM web root).
-# moodledata sits outside the web root per Moodle's documented best
-# practice.
 MOODLE_CODE_DIR: "/var/www/html"
 MOODLE_DATA_DIR: "/var/www/moodledata"
-# Build-time staging dir inside the image. The entrypoint copies this
-# into MOODLE_CODE_DIR on first container start. Single source of
-# truth — propagated as a Docker ARG/ENV so install scripts read it
-# from `${MOODLE_SOURCE_DIR}`.
 MOODLE_SOURCE_DIR: "/opt/moodle-source"
-# Container-internal path of the entrypoint script. Shared by
-# compose.yml.j2 (`entrypoint:`) and files/Dockerfile (COPY + chmod +
-# ENTRYPOINT). The Dockerfile literal is locked to this value by the
-# contract comment in files/Dockerfile.
 MOODLE_ENTRYPOINT_PATH: "/usr/local/bin/moodle-entrypoint.sh"
 
-# Single source of truth for Dockerfile build context layout. Filenames
-# are referenced by tasks/01_build_context.yml (writes them) and the
-# Dockerfile (COPYs them from `<MOODLE_BUILD_DIR>/<file>`). Keep the
-# Dockerfile contract comment in sync when adding/removing entries.
 MOODLE_BUILD_DIR: "build"
 MOODLE_BUILD_FILES:
   entrypoint: "moodle-entrypoint.sh"
   config_php: "config.php"
-  install_source: "install-moodle-source.sh"
-  install_oidc: "install-auth-oidc.sh"
+  install_source: "install/moodle-source.sh"
+  install_oidc: "install/auth-oidc.sh"
   opcache_ini: "php-conf/opcache-recommended.ini"
   runtime_ini: "php-conf/moodle-runtime.ini"
   fpm_pool: "php-conf/zz-moodle-pool.conf"
-# Moodle source-tree conventions. Each value is the SPOT for a path
-# fragment that appears in multiple build/runtime/CLI contexts.
 MOODLE_VERSION_FILE: "version.php" # bootstrap-detection sentinel
 MOODLE_AUTH_SUBDIR: "auth" # top-level auth/ tree
 MOODLE_CLI_RELPATH: "admin/cli" # admin CLI script dir
 
-# Microsoft auth_oidc plugin layout. RELPATH is the subpath inside the
-# Moodle source tree — used at BUILD time (under MOODLE_SOURCE_DIR via
-# install-auth-oidc.sh) and at RUNTIME (under MOODLE_CODE_DIR, exposed
-# as MOODLE_OIDC_PLUGIN_DIR for the role's CLI tasks).
 MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_AUTH_SUBDIR, 'oidc'] | path_join }}"
 MOODLE_OIDC_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_OIDC_PLUGIN_RELPATH] | path_join }}"
 MOODLE_CLI_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_CLI_RELPATH] | path_join }}"
 MOODLE_CONFIG: "{{ [MOODLE_CODE_DIR, 'config.php'] | path_join }}"
 
-# Runtime user inside the container.
 MOODLE_RUNTIME_USER: "www-data"
 MOODLE_RUNTIME_USER_GROUP: "{{ MOODLE_RUNTIME_USER }}:{{ MOODLE_RUNTIME_USER }}"
 
-# Moodle source pinning. Exact-version tarball (NOT the floating
-# moodle-latest-<branch>.tgz, which ships a git-tree snapshot
-# missing built top-level dirs).
 MOODLE_BRANCH: "{{ lookup('config', application_id, 'services.moodle.branch') }}"
 MOODLE_RELEASE: "{{ lookup('config', application_id, 'services.moodle.release') }}"
 MOODLE_TARBALL_FILENAME: "moodle-{{ MOODLE_RELEASE }}.tgz"
 MOODLE_TARBALL_URL: "https://download.moodle.org/download.php/direct/{{ MOODLE_BRANCH }}/{{ MOODLE_TARBALL_FILENAME }}"
 
-# msmtp relay config — rendered from sys-svc-mail-msmtp's shared
-# template into the compose dir, then bind-mounted into the Moodle
-# (php-fpm) and cron containers at /etc/msmtprc:ro. Both run PHP code
-# that may invoke mail() / Moodle's fall-back mailer.
-MOODLE_MSMTP_SRC: "{{ [ playbook_dir, 'roles/sys-svc-mail-msmtp/templates/msmtprc.conf.j2' ] | path_join }}"
+MOODLE_MSMTP_SRC: "{{ lookup('path_absolute', 'roles/sys-svc-mail-msmtp/templates/msmtprc.conf.j2') }}"
 MOODLE_MSMTP_ABS: "{{ [ lookup('container', application_id, 'directories.config'), 'msmtprc.conf'] | path_join }}"
 
-# Container image / build identity
 MOODLE_IMAGE: "{{ lookup('config', application_id, 'services.moodle.image') }}"
 MOODLE_VERSION: "{{ lookup('config', application_id, 'services.moodle.version') }}"
-MOODLE_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 MOODLE_CONTAINER: "{{ lookup('config', application_id, 'services.moodle.name') }}"
-MOODLE_NGINX_IMAGE: "{{ lookup('config', application_id, 'services.nginx.image') }}"
-MOODLE_NGINX_VERSION: "{{ lookup('config', application_id, 'services.nginx.version') }}"
+MOODLE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+MOODLE_DB_CONTAINER_ADDRESS: "{{ lookup('container_address', 'svc-db-mariadb', 'mariadb') }}"
 MOODLE_NGINX_CONTAINER: "{{ lookup('config', application_id, 'services.nginx.name') }}"
 MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name') }}"
 
-# Volumes
-MOODLE_VOLUME_DATA: "{{ lookup('config', application_id, 'volumes.data') }}"
-MOODLE_VOLUME_CODE: "{{ lookup('config', application_id, 'volumes.code') }}"
-
-# Identity-integration toggles
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', true) }}"
+MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-# OIDC scopes Moodle requests from Keycloak. The custom 'moodle' scope
-# (rendered by web-app-keycloak when this role is enabled) carries the
-# 7 non-standard profile claims documented in §"Profile-field
-# mapping": name_phonetic_given/family, phone_number_alt, institution,
-# department, description, id_number.
 MOODLE_OIDC_CUSTOM_SCOPE: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.moodle') }}"
 MOODLE_OIDC_SCOPES: "openid profile email phone address {{ MOODLE_OIDC_CUSTOM_SCOPE }}"
 
-# Site title pass-through
 MOODLE_SITE_TITLE: "{{ lookup('config', application_id, 'services.moodle.site_titel') }}"
 
-# Container internal ports
-MOODLE_FPM_PORT: 9000
-MOODLE_NGINX_PORT: 80
+MOODLE_FPM_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.fpm') }}"
+MOODLE_NGINX_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.http') }}"
 
-# PHP runtime tuning. Rendered into
-# /usr/local/etc/php/conf.d/moodle-runtime.ini at build time via
-# templates/build/php-conf/moodle-runtime.ini.j2.
-MOODLE_PHP_MEMORY_LIMIT: "512M"
-MOODLE_PHP_UPLOAD_MAX_FILESIZE: "256M"
-MOODLE_PHP_POST_MAX_SIZE: "256M"
+MOODLE_PHP_MEMORY_LIMIT: "{{ lookup('config', application_id, 'services.moodle.performance.php.memory_limit') }}"
+MOODLE_PHP_UPLOAD_MAX_FILESIZE: "{{ lookup('config', application_id, 'services.moodle.performance.php.upload_max_filesize') }}"
+MOODLE_PHP_POST_MAX_SIZE: "{{ lookup('config', application_id, 'services.moodle.performance.php.post_max_size') }}"
 MOODLE_PHP_MAX_EXECUTION_TIME: "300"
 MOODLE_PHP_MAX_INPUT_VARS: "5000"

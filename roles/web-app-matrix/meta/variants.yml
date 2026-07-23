@@ -1,5 +1,7 @@
 ---
 - services:
+    container_backup:
+      enabled: true
     matrix:
       flavor: ansible
     coturn:
@@ -36,53 +38,48 @@
       shared: true
 
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matrix:
       flavor: ansible
     coturn:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     postgres:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     seaweedfs:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
 
-- addons:
-    mautrix-whatsapp:
-      enabled: true
-    mautrix-telegram:
-      enabled: true
-    mautrix-signal:
-      enabled: true
-    mautrix-slack:
-      enabled: true
-    mautrix-meta:
-      enabled: true
-  services:
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matrix:
       flavor: compose
     seaweedfs:
@@ -117,3 +114,14 @@
     prometheus:
       enabled: true
       shared: true
+  addons:
+    mautrix-whatsapp:
+      enabled: true
+    mautrix-telegram:
+      enabled: true
+    mautrix-signal:
+      enabled: true
+    mautrix-slack:
+      enabled: true
+    mautrix-meta:
+      enabled: true

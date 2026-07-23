@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Runs the actual unittest discover invocation for the test suite picked
-# by INFINITO_TEST_TYPE / INFINITO_TEST_PATTERN. Invoked either directly on the host or
+# Runs the test suite picked by INFINITO_TEST_TYPE / INFINITO_TEST_PATTERN:
+# parallel via pytest-xdist when pytest and xdist are importable, serial
+# unittest discover otherwise. Invoked either directly on the host or
 # inside the infinito compose container by scripts/tests/code/wrapper.sh
 # -- the body is identical for both runners.
 set -euo pipefail
@@ -22,4 +23,25 @@ if [ -n "${PYTHON:-}" ]; then
 fi
 
 make setup
-"${PYTHON:-python3}" -m unittest discover -s "tests/${INFINITO_TEST_TYPE}" -t . -p "${INFINITO_TEST_PATTERN}" # nocheck: makefile-supplied
+bash "$(dirname "${BASH_SOURCE[0]}")/../../install/dev-extras.sh" || echo "dev extras install failed; running serial" >&2
+_suite_dir="tests/${INFINITO_TEST_TYPE}"                     # nocheck: makefile-supplied
+_junit_report="build/test-reports/${INFINITO_TEST_TYPE}.xml" # nocheck: makefile-supplied
+if "${PYTHON}" -c 'import pytest, xdist' >/dev/null 2>&1; then
+	# Exception: consider_namespace_packages + importlib import mode are
+	# required for hyphenated tests/unit/roles/<role>/ dirs; pytest's default
+	# identifier walk-up collapses every role's filter_plugins/files package
+	# onto one top-level name and cross-imports the wrong module.
+	# python_functions= pins collection to unittest-style TestCase methods,
+	# the exact set `unittest discover` runs. PYTHONDONTWRITEBYTECODE keeps
+	# namespace probing from dropping __pycache__ into roles/.
+	mkdir -p build/test-reports
+	PYTHONDONTWRITEBYTECODE=1 "${PYTHON}" -m pytest "${_suite_dir}" -q -n auto -rP -p no:cacheprovider \
+		--import-mode=importlib \
+		--junitxml="${_junit_report}" \
+		-o consider_namespace_packages=true \
+		-o "norecursedirs=.* *.egg dist node_modules venv" \
+		-o python_functions= \
+		-o "python_files=${INFINITO_TEST_PATTERN}"
+else
+	"${PYTHON}" -m unittest discover -s "${_suite_dir}" -t . -p "${INFINITO_TEST_PATTERN}"
+fi

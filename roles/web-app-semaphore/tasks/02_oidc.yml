@@ -1,0 +1,36 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: semaphore
+    resolve_output_prefix: SEMAPHORE
+    resolve_compose_cid: "{{ SEMAPHORE_NAME }}"
+
+- name: "⏳ Wait until the Semaphore API/DB is ready"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ SEMAPHORE_LOCAL_CID | quote }}
+    semaphore user list
+  register: semaphore_user_list
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: semaphore_user_list.rc == 0
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "👤 Ensure the OIDC administrator is an external Semaphore admin"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ SEMAPHORE_LOCAL_CID | quote }}
+    semaphore user add
+    --admin --external
+    --login {{ SEMAPHORE_OIDC_ADMIN_LOGIN | quote }}
+    --name {{ SEMAPHORE_OIDC_ADMIN_NAME | quote }}
+    --email {{ SEMAPHORE_OIDC_ADMIN_EMAIL | quote }}
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+  register: semaphore_oidc_admin
+  changed_when: semaphore_oidc_admin.rc == 0
+  failed_when: >-
+    semaphore_oidc_admin.rc != 0
+    and 'duplicate key' not in (semaphore_oidc_admin.stderr | default('') | lower)
+    and 'exist' not in (semaphore_oidc_admin.stderr | default('') | lower)
+    and 'exist' not in (semaphore_oidc_admin.stdout | default('') | lower)
+  when: SEMAPHORE_OIDC_ADMIN_LOGIN not in (semaphore_user_list.stdout_lines | default([]))

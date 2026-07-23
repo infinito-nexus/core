@@ -6,3 +6,5 @@ framework:
     - x-forwarded-proto
     - x-forwarded-host
     - x-forwarded-port
+  session:
+    handler_id:

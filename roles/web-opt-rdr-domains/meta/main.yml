@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media Self-written NGINX glue role that sets up 301 domain redirects; no upstream product website.
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Configures Nginx to perform 301 redirects based on a list of source→target domain mappings.
+  author: Kevin Veen-Birkenbach
+  description: NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

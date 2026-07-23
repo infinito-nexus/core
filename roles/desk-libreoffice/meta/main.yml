@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs LibreOffice along with Liberation fonts and language packages on Arch Linux systems for a complete office suite experience.
+  description: Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

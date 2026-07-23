@@ -9,6 +9,8 @@
 # variant 0: OIDC variant (canonical default; ejabberd LDAP backend
 # stays on, OIDC marker is on so Playwright runs the OIDC scenario).
 - services:
+    container_backup:
+      enabled: true
     ldap:
       shared: true
       enabled: true
@@ -19,28 +21,30 @@
       enabled: true
       shared: true
 
-# variant 1: every dynamic flag off — auth-coverage matrix's
-# false-pinning branch.
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
       enabled: false
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
 
-# variant 2: LDAP-only branch — ejabberd stays bound to
-# the project LDAP store while OIDC stays opted out.
 - services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
       shared: true
       enabled: true
     sso:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

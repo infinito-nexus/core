@@ -1,28 +1,19 @@
 ---
-# General
 application_id: "web-app-chess"
 entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
-# Container
-container_port: 5080
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ entity_name }}"
 
-# App URLs & meta
-# CHESS_URL:            "{{ lookup('tls', application_id, 'url.base') }}"
 CHESS_HOSTNAME: "{{ container_hostname }}"
 CHESS_DOMAIN: "{{ domain }}"
 CHESS_ADMIN_URL: ""
 CHESS_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
 
-# Docker image
-CHESS_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 CHESS_SERVICE: "{{ entity_name }}"
-CHESS_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 CHESS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-CHESS_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 
-# Security
 CHESS_HMAC_SECRET: "{{ lookup('config', application_id, 'credentials.hmac_secret') }}"
 CHESS_KEY_FILENAME: "signing-key"
 CHESS_APP_DATA_DIR: "/app/data"

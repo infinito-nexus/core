@@ -1,10 +1,10 @@
 ---
-- name: Include dependency 'sys-pip'
+- name: 📂 Include dependency 'sys-pip'
   include_role:
     name: sys-pip
   when: run_once_sys_pip is not defined
 
-- name: Install and prefer Python 3.11+ as default
+- name: 📦 Install and prefer Python 3.11+ as default
   ansible.builtin.script: "{{ role_path }}/files/install.sh"
   environment:
     SKIP_DOCKER_APT_SANITIZER: "1"

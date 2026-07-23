@@ -1,4 +1,29 @@
 ---
-data: odoo_data
-addons: odoo_addons
-config: odoo_config
+data:
+  type: volume
+  name: odoo_data
+  mounts:
+    - service: odoo
+      target: /var/lib/odoo
+
+addons:
+  type: volume
+  name: odoo_addons
+  mounts:
+    - service: odoo
+      target: /mnt/extra-addons
+
+config:
+  type: volume
+  name: odoo_config
+  mounts:
+    - service: odoo
+      target: /etc/odoo
+
+odoo_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-odoo', 'directories.volumes'), 'odoo.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: odoo
+      target: /etc/odoo/odoo.conf

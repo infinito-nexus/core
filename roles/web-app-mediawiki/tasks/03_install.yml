@@ -1,7 +1,7 @@
 ---
-- name: "MEDIAWIKI | Bootstrap DB (install if empty) then update"
-  script: >-
-    install_or_update.sh
+- name: "🥾 MEDIAWIKI | Bootstrap DB (install if empty) then update"
+  ansible.builtin.script: >-
+    install/or_update.sh
     "{{ MEDIAWIKI_NETWORK_DATABASE }}" "{{ lookup('database', application_id, 'version') | default('latest') }}"
     "{{ lookup('database', application_id, 'host') }}" "{{ lookup('database', application_id, 'port') }}"
     "{{ lookup('database', application_id, 'username') }}" "{{ lookup('database', application_id, 'password') }}"
@@ -9,6 +9,15 @@
     "{{ MEDIAWIKI_USER }}" "{{ MEDIAWIKI_IMAGE }}" "{{ MEDIAWIKI_VERSION }}" "{{ MEDIAWIKI_HTML_DIR }}"
     "{{ MEDIAWIKI_URL }}" "{{ MEDIAWIKI_SITENAME }}"
     "{{ MEDIAWIKI_ADMINISTRATOR_NAME }}" "{{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}"
-    "{{ MEDIAWIKI_CONTAINER }}"
+  environment:
+    MW_CUSTOM_IMAGE: "{{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}"
+    MW_LOCALSETTINGS_HOST_PATH: "{{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}"
+    MW_LOCALSETTINGS_CONTAINER_PATH: "{{ MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH }}"
+    MW_LOCAL_MOUNT_DIR: "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}"
+    MW_LOCAL_PATH: "{{ MEDIAWIKI_LOCAL_PATH }}"
+    MW_VOLUME_IMAGES: "{{ MEDIAWIKI_VOLUME_IMAGES }}"
+    MW_VOLUME_EXTENSIONS: "{{ MEDIAWIKI_VOLUME_EXTENSIONS }}"
+  run_once: true
+  delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

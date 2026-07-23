@@ -1,14 +1,14 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "load docker, db/redis and proxy for {{ application_id }}"
+- name: "🧩 load docker, db/redis and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
-- name: "Stage trusted-header SSO build-context files for {{ application_id }}"
-  ansible.builtin.copy:
+- name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
+  stack_host_copy:
     src: "{{ item.src }}"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "0644"
@@ -16,5 +16,5 @@
     - { src: "sso/header_auth.py", dest: "header_auth.py" }
     - { src: "sso/settings_patch.py", dest: "settings_patch.py" }
 
-- name: "Flush compose handlers for {{ application_id }}"
+- name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers

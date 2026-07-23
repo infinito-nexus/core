@@ -1,0 +1,9 @@
+---
+- name: "🚿 Flush Docker Compose handlers"
+  meta: flush_handlers
+
+- name: ⏳ Wait for Mailu MariaDB
+  include_tasks: 02_wait_for_mariadb.yml
+
+- name: "🚀 Mailu post-deploy ops"
+  include_tasks: 02b_post_bootstrap_ops.yml

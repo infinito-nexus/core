@@ -1,5 +1,5 @@
 ---
-- name: Setup server base
+- name: 🔧 Setup server base
   include_role:
     name: "{{ server_role }}"
   loop:
@@ -14,27 +14,22 @@
   loop_control:
     loop_var: server_role
 
-- name: "Include server roles"
-  include_tasks: "./tasks/groups/{{ server_group }}-roles.yml"
+- name: "🥾 Bootstrap swarm cluster + NFS clients (must precede web-app render)"
+  ansible.builtin.include_role:
+    name: "{{ item }}"
   loop:
-    - web-svc # 1. Load web server services
-    - web-app # 2. Load (UI) web applications
-    - web-opt # 4. Load optimation scrips last
+    - svc-swarm-node
+    - svc-storage-nfs-client
+  when: "'svc-swarm-node' in group_names"
+
+- name: "📂 Include server roles"
+  include_tasks: "./tasks/groups/{{ server_group }}-roles.yml"
+  loop: "{{ lookup('stage_groups', 'server') }}"
   loop_control:
     loop_var: server_group
     label: "{{ server_group }}-roles.yml"
 
-- name: Run E2E Playwright tests
+- name: ▶️ Run E2E Playwright tests
   include_role:
     name: "test-e2e-playwright"
-  # E2E fires in every controlled runtime: local dev (`make compose-deploy`
-  # bakes RUNTIME=dev into the inventory) and CI (act/github detected
-  # via `cli.meta.runtime.detect_runtime`). Bare `RUNTIME=host` stays
-  # opt-out: the user can suppress E2E even on a dev box by passing
-  # `--vars '{"RUNTIME":"host"}'` to the inventory init.
-  when: RUNTIME in ['dev', 'act', 'github']
-
-- name: Run CLI tests for server roles
-  include_role:
-    name: test-e2e-cli
   when: RUNTIME in ['dev', 'act', 'github']

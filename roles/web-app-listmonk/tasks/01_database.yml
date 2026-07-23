@@ -1,22 +1,11 @@
 ---
-- name: Check if listmonk schema is present (probe the 'subscribers' table)
-  command: '{{ LISTMONK_EXEC_DATABASE }} -c "\dt subscribers"'
-  register: db_tables
+- name: 🔎 Check that the Listmonk database is reachable
+  shell: '{{ LISTMONK_EXEC_DATABASE }} -c "SELECT 1"'
+  register: listmonk_db_probe
   changed_when: false
   failed_when: false
 
-- name: Determine Listmonk database state
-  set_fact:
-    listmonk_db_reachable: "{{ db_tables.rc == 0 }}"
-    listmonk_db_empty: >-
-      {{
-        ('Did not find any relation' in (db_tables.stderr | default(''))) or
-        ('Did not find any relation' in (db_tables.stdout | default(''))) or
-        ('No matching relations found' in (db_tables.stderr | default(''))) or
-        ('No matching relations found' in (db_tables.stdout | default('')))
-      }}
-
-- name: Abort if Listmonk database is not reachable
+- name: 🛑 Abort if Listmonk database is not reachable
   fail:
     msg: |
       Listmonk database is not reachable.
@@ -25,29 +14,12 @@
       Database:  {{ lookup('database', application_id, 'name') }}
 
       Please ensure the shared PostgreSQL stack is running.
-  when: not listmonk_db_reachable
+  when: listmonk_db_probe.rc != 0
 
-- name: Run Listmonk initial database setup
-  shell: |
-    set -euo pipefail
-    yes | {{ LISTMONK_RUN }} ./listmonk --install
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: listmonk_install
-  notify: compose up
-  changed_when: true
-  failed_when: listmonk_install.rc not in [0, 141]
-  when: listmonk_db_empty
-
-- name: Run Listmonk DB/schema upgrade (non-interactive)
-  shell: |
-    set -euo pipefail
-    echo y | {{ LISTMONK_RUN }} ./listmonk --upgrade
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: listmonk_upgrade
-  changed_when: true
-  failed_when: listmonk_upgrade.rc not in [0, 141]
-  when:
-    - listmonk_db_reachable
-    - not listmonk_db_empty
+- name: ⏳ Wait for the listmonk container to seed schema and admin user
+  shell: "{{ LISTMONK_EXEC_DATABASE }} -tAc 'SELECT COUNT(*) FROM users'"
+  register: listmonk_seeded
+  changed_when: false
+  retries: 150
+  delay: 2
+  until: listmonk_seeded.rc == 0 and (listmonk_seeded.stdout | trim | int) > 0

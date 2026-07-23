@@ -8,9 +8,9 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from plugins.filter.merge_mapping import merge_mapping
+from plugins.filter.merge.mapping import merge_mapping
 from utils.domains.list import render_domain_value
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 
 def _per_app_redirect_mappings(
@@ -20,9 +20,9 @@ def _per_app_redirect_mappings(
 ) -> list[dict[str, str]]:
     """Build a flat list of {source, target} 301 mappings for all apps.
 
-    For each app, the canonical (first entry of ``server.domains.canonical``,
+    For each app, the canonical (first entry of ``domains.canonical``,
     falling back to ``<entity>.<primary_domain>``) is the redirect target.
-    Each alias from ``server.domains.aliases`` becomes a source. When
+    Each alias from ``domains.aliases`` becomes a source. When
     ``auto_build_alias`` is true, ``<entity>.<primary_domain>`` is also
     added as an alias unless already canonical. Self-mappings are skipped.
     """
@@ -33,7 +33,7 @@ def _per_app_redirect_mappings(
         entry = render_domain_value(
             domains_cfg[key],
             {"DOMAIN_PRIMARY": primary_domain},
-            f"{app_id}.server.domains.{key}",
+            f"{app_id}.domains.{key}",
         )
         if isinstance(entry, dict):
             values = list(entry.values())
@@ -61,7 +61,7 @@ def _per_app_redirect_mappings(
             entry = render_domain_value(
                 domains_cfg["canonical"],
                 {"DOMAIN_PRIMARY": primary_domain},
-                f"{app_id}.server.domains.canonical",
+                f"{app_id}.domains.canonical",
             )
             if isinstance(entry, dict):
                 canonical_map[app_id] = list(entry.values())
@@ -69,7 +69,7 @@ def _per_app_redirect_mappings(
                 canonical_map[app_id] = list(entry)
             else:
                 raise AnsibleError(
-                    f"Unexpected type for 'server.domains.canonical' in "
+                    f"Unexpected type for 'domains.canonical' in "
                     f"application '{app_id}': {type(entry).__name__}"
                 )
         else:
@@ -119,16 +119,14 @@ class LookupModule(LookupBase):
 
     Merges, in order:
       1. user-supplied ``redirect_domain_mappings`` (if any)
-      2. the hardcoded ``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` primary-redirect,
-         appended only when ``web-opt-rdr-domains`` is in
-         ``lookup('deployment').deployed`` (so isolated CI variants do not
-         schedule a redirect whose target is not served)
-      3. per-app alias-to-canonical mappings derived from
-         ``lookup('applications_current_play')``, gated by
-         ``AUTO_BUILD_ALIASES``
+      2. ``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` (skipped when equal);
+         non-empty result triggers ``sys-stk-front-base`` to auto-load
+         ``web-opt-rdr-domains`` so openresty has an SNI match for
+         DOMAIN_PRIMARY even when no app claims it.
+      3. per-app alias-to-canonical mappings from
+         ``lookup('applications_current_play')``, gated by ``AUTO_BUILD_ALIASES``.
 
-    Steps 1-2 win over conflicting entries from step 3 (same merge order as
-    the previous inline two-stage set_fact in ``01_constructor.yml``).
+    Steps 1-2 win over conflicting step-3 entries.
     """
 
     def _run_lookup(self, name: str, variables: dict[str, Any] | None) -> Any:
@@ -172,13 +170,7 @@ class LookupModule(LookupBase):
 
         merged = merge_mapping([], list(user_mappings), "source")
 
-        deployment = self._run_lookup("deployment", vars_)
-        deployed = (
-            list(deployment.get("deployed") or [])
-            if isinstance(deployment, Mapping)
-            else []
-        )
-        if "web-opt-rdr-domains" in deployed and domain_primary and domain_homepage:
+        if domain_primary and domain_homepage and domain_primary != domain_homepage:
             merged = merge_mapping(
                 merged,
                 [{"source": domain_primary, "target": domain_homepage}],

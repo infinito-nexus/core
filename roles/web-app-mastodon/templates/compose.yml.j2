@@ -1,59 +1,46 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-{% set service_name = MASTODON_SERVICE_NAME %}
-{% set container_port = 3000 %}
-{% set container_healthcheck = 'health' %}
+{% macro mastodon_service(name, container, image_key, command, ports_key=none, hc_port=none, hc_path=none, hc_test=none, with_volumes=false, after_migrate=true, restart=none) -%}
+  {% set service_name = name %}
+{% if restart is not none %}{% set docker_restart_policy = restart %}{% endif %}
+{# nocheck: container-port-set-unused #}
+{% if hc_port is not none %}{% set container_port = hc_port %}{% endif %}
+{% if hc_path is not none %}{% set container_healthcheck = hc_path %}{% endif %}
   {{ service_name }}:
-    container_name: {{ MASTODON_CONTAINER }}
-    image: "{{ MASTODON_IMAGE }}:{{ MASTODON_VERSION }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p {{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mastodon.ports.local.http') }}:{{ container_port }}"
-{{ lookup('container_depends_on', application_id) }}
-    volumes:
-      - data:/mastodon/public/system
-{% if MASTODON_HTTP_ONLY_ENABLED | bool %}
-      - "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}:{{ MASTODON_CONTAINER_FORCE_SSL_OVERRIDE_PATH }}:ro"
-{% endif %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-{% set service_name = MASTODON_STREAMING_SERVICE_NAME %}
-{% set container_port = 4000 %}
-{% set container_healthcheck = 'api/v1/streaming/health' %}
-  {{ service_name }}:
-    container_name: {{ MASTODON_STREAMING_CONTAINER }}
-    image: "{{ MASTODON_STREAMING_IMAGE }}:{{ MASTODON_STREAMING_VERSION }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: node ./streaming
-{% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mastodon.ports.local.websocket') }}:{{ container_port }}"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-
-{% set service_name = MASTODON_SIDEKIQ_SERVICE_NAME %}
-  {{ service_name }}:
-    container_name: {{ MASTODON_SIDEKIQ_CONTAINER }}
-    image: "{{ MASTODON_IMAGE }}:{{ MASTODON_VERSION }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: bundle exec sidekiq
-{{ lookup('container_depends_on', application_id) }}
-    volumes:
-      - data:/mastodon/public/system
-{% if MASTODON_HTTP_ONLY_ENABLED | bool %}
-      - "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}:{{ MASTODON_CONTAINER_FORCE_SSL_OVERRIDE_PATH }}:ro"
-{% endif %}
+    {{ lookup('compose_only', 'container_name', container) }}
+    {{ lookup('container_image', application_id, image_key) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command: {{ command }}
+    {% if hc_path is not none %}
+    {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
+    {% endif %}
+    {% if hc_test is not none %}
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f sidekiq || exit 1"]
+      test: {{ hc_test }}
       interval: 1m
       timeout: 10s
       retries: 3
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {% endif %}
+    {% if ports_key is not none %}
+    {{ lookup('container_ports', ['mastodon', ports_key, DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
+{% if after_migrate %}
+    {{ lookup('container_depends_on', application_id, extra={
+  MASTODON_MIGRATE_SERVICE_NAME: {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
+{% else %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+{% endif %}
+    {% if with_volumes %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {% endif %}
+    {{ lookup('container_networks') | indent(4) }}
+{% endmacro -%}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': MASTODON_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ mastodon_service(MASTODON_SERVICE_NAME, MASTODON_CONTAINER, 'mastodon', 'bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"', ports_key='http', hc_port=3000, hc_path='health', with_volumes=true) }}
+{{ mastodon_service(MASTODON_STREAMING_SERVICE_NAME, MASTODON_STREAMING_CONTAINER, 'streaming', 'node ./streaming', ports_key='websocket', hc_port=4000, hc_path='api/v1/streaming/health') }}
+{{ mastodon_service(MASTODON_SIDEKIQ_SERVICE_NAME, MASTODON_SIDEKIQ_CONTAINER, 'mastodon', 'bundle exec sidekiq', hc_test='["CMD-SHELL", "pgrep -f sidekiq || exit 1"]', with_volumes=true) }}
+{{ mastodon_service(MASTODON_MIGRATE_SERVICE_NAME, MASTODON_MIGRATE_CONTAINER, 'mastodon', 'bundle exec rails db:prepare', after_migrate=false, restart='on-failure') }}
+
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

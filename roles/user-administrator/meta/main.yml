@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Creates a dedicated administrator user with secure privilege escalation. Configures the account, home directory, SSH settings, and grants sudo
-    privileges with password authentication.
+  description: Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

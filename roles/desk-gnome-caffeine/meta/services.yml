@@ -1,5 +1,8 @@
 ---
 gnome-caffeine:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   min_storage: "50MB"
   cpus: "0.1"

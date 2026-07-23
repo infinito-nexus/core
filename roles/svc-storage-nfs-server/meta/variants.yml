@@ -1,0 +1,10 @@
+---
+- services:
+    nfs_backup:
+      enabled: true
+      shared: true
+
+- services:
+    nfs_backup:
+      enabled: false
+      shared: false

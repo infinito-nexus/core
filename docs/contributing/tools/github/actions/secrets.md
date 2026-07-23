@@ -55,7 +55,7 @@ Each PR-opening job in [update.yml](../../../../../.github/workflows/update.yml)
 
 ### Commit identity propagation 🪪
 
-[open_pr.sh](../../../../../scripts/github/update/open_pr.sh) reads `APP_SLUG` from the environment and resolves the App's bot user via `gh api /users/<slug>[bot]`. The resolved login and numeric user ID are written into `git config user.name` and `git config user.email` in the `<id>+<slug>[bot]@users.noreply.github.com` form that GitHub accepts for verified commits. When `APP_SLUG` is unset, the script falls back to the `github-actions[bot]` identity. That branch is reached only when the script is invoked outside the workflow, for example a local smoke test where the caller has set `GH_TOKEN` to something other than an App token.
+[pr.sh](../../../../../scripts/github/update/open/pr.sh) reads `APP_SLUG` from the environment and resolves the App's bot user via `gh api /users/<slug>[bot]`. The resolved login and numeric user ID are written into `git config user.name` and `git config user.email` in the `<id>+<slug>[bot]@users.noreply.github.com` form that GitHub accepts for verified commits. When `APP_SLUG` is unset, the script falls back to the `github-actions[bot]` identity. That branch is reached only when the script is invoked outside the workflow, for example a local smoke test where the caller has set `GH_TOKEN` to something other than an App token.
 
 ### Failure mode when secrets are missing 💥
 
@@ -66,7 +66,7 @@ A missing secret resolves to an empty string in workflow expressions. The workfl
 | Workflow parse | Run starts. GitHub emits the warning `The following secrets are referenced but not defined: BOT_APP_CLIENT_ID, BOT_APP_PRIVATE_KEY`. |
 | `Generate app token` step | `actions/create-github-app-token` declares both inputs as required and fails with `Error: Input required and not supplied: client-id`. |
 | `Open PR if … changed` step | Skipped. Its implicit `if:` condition is `success() && (steps.diff.outputs.changed == 'true')`, and `success()` is false after the token step failed. |
-| `open_pr.sh` | Not executed. No commit, no push, no PR. |
+| `pr.sh` | Not executed. No commit, no push, no PR. |
 | Outcome | The run is marked failed. GitHub notifies repository admins. No PR is created with a wrong identity. |
 
 The behaviour is fail-loud by design. Missing or mistyped secret names MUST surface as a failed workflow run rather than as a PR with an unintended author.

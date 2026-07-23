@@ -51,7 +51,7 @@ exports.register = function (shared) {
       const marker = `hello-from-admin-${Date.now()}`;
       // MXIDs use the Synapse server_name (a.k.a. MATRIX_SERVER_NAME, typically
       // the bare DOMAIN_PRIMARY), not the client-facing URL host. Using the URL
-      // host (e.g. "matrix.infinito.example") yields a non-existent user and
+      // host (e.g. "matrix.infinito.test") yields a non-existent user and
       // Synapse returns HTTP 502 on profile lookup.
       const biberMatrixId = `@${biberUsername}:${matrixServerName}`;
 

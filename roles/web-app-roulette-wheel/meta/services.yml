@@ -23,8 +23,14 @@ css:
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
 roulette-wheel:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: node
-  version: latest
+  version: 26-bookworm
+  custom: true
   repository: https://github.com/kevinveenbirkenbach/roulette-wheel.git
   ref: master
   min_storage: 1GB
@@ -35,6 +41,8 @@ roulette-wheel:
   ports:
     local:
       http: 8013
+    internal:
+      http: 8080
   run_after:
     - web-app-matomo
   lifecycle: alpha

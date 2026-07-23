@@ -1,0 +1,29 @@
+---
+- name: "📁 create compose.yml for bigbluebutton"
+  command:
+    cmd: bash ./scripts/generate-compose
+    chdir: "{{ compose_repository_path }}"
+- name: 🐳 Slurp compose.yml from remote host
+  slurp:
+    src: "{{ BBB_COMPOSE_FILE_ORIGINE }}"
+  register: compose_slurp
+- name: 🐳 Transform compose.yml with compose_mods
+  copy:
+    content: >-
+      {{ compose_slurp.content | b64decode | compose_mods(
+           compose_repository_path,
+           lookup('container', application_id, 'files.env'),
+           extra_hosts=(
+             [lookup('domain', 'web-app-keycloak') ~ ':host-gateway']
+             if 'web-app-keycloak' in group_names else []
+           )
+         ) }}
+    dest: "{{ BBB_COMPOSE_FILE_FINAL }}"
+  notify:
+    - compose up
+- name: "🛡️ Fail if any service still builds locally"
+  command:
+    cmd: grep -E '^\s+build:' {{ BBB_COMPOSE_FILE_FINAL }}
+  register: bbb_build_grep
+  changed_when: false
+  failed_when: bbb_build_grep.rc != 1

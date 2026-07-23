@@ -1,5 +1,5 @@
 ---
-- name: install streaming
+- name: 📦 install streaming
   package:
     name:
       - obs-studio

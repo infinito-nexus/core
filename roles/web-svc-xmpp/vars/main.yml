@@ -1,11 +1,7 @@
 ---
 application_id: web-svc-xmpp
-container_port: 5280
 entity_name: "{{ application_id | get_entity_name }}"
 
-EJABBERD_IMAGE: "{{ lookup('config', application_id, 'services.xmpp.image') }}"
-EJABBERD_VERSION: "{{ lookup('config', application_id, 'services.xmpp.version') }}"
 EJABBERD_CONTAINER: "{{ lookup('config', application_id, 'services.xmpp.name') }}"
-XMPP_DOMAIN: "{{ (lookup('applications', application_id).server.domains.canonical | first) }}"
+XMPP_DOMAIN: "{{ (lookup('applications', application_id).domains.canonical | first) }}"
 XMPP_CONFIG_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'ejabberd.yml' ] | path_join }}"
-XMPP_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs npm and runs optional 'npm ci' inside a project
+  description: "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

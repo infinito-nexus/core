@@ -1,3 +1,5 @@
 ---
-base_domain: "{{ domain | regex_replace('^(?:.*\\.)?(.+\\..+)$', '\\1') }}"
+matomo_tracking_scope: "{{ lookup('config', 'web-app-matomo', 'services.matomo.tracking.scope') }}"
+matomo_site_domain: "{{ domain if matomo_tracking_scope == 'sub' else (domain | regex_replace('^(?:.*\\.)?(.+\\..+)$', '\\1')) }}"
+matomo_site_url: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ matomo_site_domain }}"
 matomo_index_php_url: "{{ lookup('tls', 'web-app-matomo', 'url.base') }}index.php"

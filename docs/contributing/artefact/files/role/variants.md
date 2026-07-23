@@ -27,7 +27,7 @@ A **variant** is the role's assembled per-role meta payload (the same payload `a
 - Entry `{}` produces the unchanged assembled payload.
 - An entry with overrides produces a derived shape (for example WordPress Multisite domains).
 - Variant 0 is the canonical baseline. The first entry SHOULD manually enumerate every dynamic service-key declared in `meta/services.yml` and pin each one to `enabled: true, shared: true`. The literal-true pins document the role's "all dynamics on" maximum-footprint deploy shape that every non-baseline variant either re-affirms or explicitly disables (see [test_non_baseline_explicit_disables.py](../../../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py)).
-- `{}` is permitted only when `meta/services.yml` declares no dynamic-enabled service-key, so there is nothing for the baseline to pin (for example pure matrix-driver roles such as `svc-bkp-container-2-local`, whose every service-key originates in `variants.yml`).
+- `{}` is permitted only when `meta/services.yml` declares no dynamic-enabled service-key, so there is nothing for the baseline to pin (for example pure matrix-driver roles such as `svc-bkp-volume-2-local`, whose every service-key originates in `variants.yml`).
 
 ## Credentials Interaction 🔐
 

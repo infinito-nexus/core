@@ -1,0 +1,22 @@
+---
+whitelist:
+  script-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://kit.fontawesome.com
+    - https://code.jquery.com/
+  style-src-elem:
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - https://kit.fontawesome.com
+    - https://code.jquery.com/
+  font-src:
+    - https://ka-f.fontawesome.com
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+  connect-src:
+    - https://ka-f.fontawesome.com
+    - https://cdn.jsdelivr.net # nocheck: url CSP origin; jsdelivr answers 400 on the bare root
+    - "{{ lookup('domain', 'web-app-keycloak') }}"
+  frame-src:
+    - "*.{{ DOMAIN_PRIMARY }}"
+flags:
+  script-src-attr:
+    unsafe-inline: true

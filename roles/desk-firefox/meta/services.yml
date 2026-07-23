@@ -1,5 +1,8 @@
 ---
 firefox:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   min_storage: "500MB"
   cpus: "1.0"

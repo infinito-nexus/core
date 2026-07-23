@@ -1,0 +1,21 @@
+---
+html:
+  type: volume
+  name: friendica_html
+  mounts:
+    - service: friendica
+      target: /var/www/html
+data:
+  type: volume
+  name: friendica_data
+  mounts:
+    - service: friendica
+      target: /var/www/data
+ldapauth_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-friendica', 'directories.volumes'), 'ldapauth.config.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: friendica
+      target: /var/www/html/config/ldapauth.config.php
+      when: "{{ lookup('config', 'web-app-friendica', 'services.ldap.enabled') | bool }}"

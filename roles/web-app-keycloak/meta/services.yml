@@ -5,10 +5,11 @@
 logout:
   enabled: false
   shared: false
+# nocheck: dynamic-flag  cluster-wide LDAP federation keys on inventory groups[]; host-scoped group_names is cross-host cache-poisoned for this destructive flag
 ldap:
   bond: 1
-  enabled: "{{ 'svc-db-openldap' in group_names }}"
-  shared: "{{ 'svc-db-openldap' in group_names }}"
+  enabled: "{{ (groups['svc-db-openldap'] | default([]) | length) > 0 }}"
+  shared: "{{ (groups['svc-db-openldap'] | default([]) | length) > 0 }}"
   sync:
     period:
       changes: 900
@@ -17,22 +18,28 @@ dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
   shared: "{{ 'web-app-dashboard' in group_names }}"
+  iframe: false
 matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 keycloak:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
   provides: sso
   image: quay.io/keycloak/keycloak
-  version: latest
+  version: "26.7.0"
   name: keycloak
   min_storage: 5GB
   cpus: "2.0"
@@ -55,26 +62,27 @@ keycloak:
   ports:
     local:
       http: 8032
+    internal:
+      http: 8080
+      management: 9000
+  proxy:
+    service_key: keycloak
   run_after:
     - web-app-matomo
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
-# Per-consumer SSO-proxy sidecar. Rendered via tasks/sso_proxy.yml
-# whenever a consumer role's `services.sso.flavor == 'oauth2'`.
-# The image name `oauth2-proxy` and config filename
-# `oauth2-proxy-keycloak.cfg` are upstream artefacts and stay literal;
-# every project-internal identifier uses the `sso_proxy` namespace.
+# Exception: sso-proxy sidecar; upstream artefact names (oauth2-proxy image, oauth2-proxy-keycloak.cfg) stay literal, project identifiers use the sso_proxy namespace
 # nocheck: dynamic-flag — per-consumer fan-out
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag
 sso_proxy:
   image: quay.io/oauth2-proxy/oauth2-proxy
-  version: latest
+  version: "v7.15.3"
   min_storage: 1GB
   configuration_file: oauth2-proxy-keycloak.cfg
   ports:
     internal:
       http: 4180
-  lifecycle: pre-alpha
   cpus: "0.25"
   mem_reservation: "64m"
   mem_limit: "128m"

@@ -1,0 +1,39 @@
+---
+# Restart admin only while the issuer answers: heviat-Mailu fetches the OIDC
+# provider config on the first /sso request and caches a failure until restart.
+
+- name: "⏳ Wait for the OIDC issuer discovery endpoint"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - exec
+      - -T
+      - admin
+      - curl
+      - -ksS
+      - -o
+      - /dev/null
+      - -w
+      - "%{http_code}"
+      - "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+  args:
+    chdir: "{{ MAILU_INSTANCE_DIR }}"
+  register: mailu_oidc_issuer_probe
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: mailu_oidc_issuer_probe.stdout == '200'
+
+- name: "🔄 Restart Mailu admin so the OIDC provider config is re-fetched"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - restart
+      - admin
+  args:
+    chdir: "{{ MAILU_INSTANCE_DIR }}"
+  changed_when: true
+
+- name: "🧹 Clear the deferred OIDC refresh flag"
+  ansible.builtin.set_fact:
+    mailu_oidc_restart_pending: false

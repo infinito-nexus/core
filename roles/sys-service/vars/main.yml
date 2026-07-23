@@ -1,16 +1,13 @@
 ---
 UNIT_SUFFIX_REMOVER_PACKAGE: "unsure"
 
-# meta
 system_service_name: "{{ lookup('unit_name', system_service_id) }}"
 system_service_is_template: "{{ system_service_id.endswith('@') }}"
 
-## Paths
 system_service_role_name: "{{ system_service_id | regex_replace('@','') }}"
-system_service_role_dir: "{{ [ playbook_dir, 'roles', system_service_role_name ] | path_join }}"
+system_service_role_dir: "{{ lookup('path_absolute', 'roles', system_service_role_name) }}"
 system_service_script_dir: "{{ [ DIR_SCRIPTS_SYSTEMCTL, system_service_id ] | path_join }}"
 
-## Settings
 system_service_force_linear_sync: "{{ system_service_name in SYS_SERVICE_GROUP_MANIPULATION }}" # Disables automatic async
 system_service_force_flush_instant: "{{ (SYS_SERVICE_ALL_ENABLED | bool) and not system_service_force_flush_final }}" # When set to true it activates the flushing of services. defaults to SYS_SERVICE_ALL_ENABLED
 system_service_force_flush_final: false # Force run at the end of the play
@@ -19,17 +16,14 @@ system_service_copy_files: true # When set to false file copying will be skipped
 system_service_timer_enabled: false # When set to true timer will be loaded
 system_service_state: "{{ SYS_SERVICE_DEFAULT_STATE }}"
 
-## ASYNC Settings
 system_service_async: "{{ omit if (system_service_force_linear_sync | bool or not ASYNC_ENABLED | bool) else ASYNC_TIME }}"
 system_service_poll: "{{ omit if (system_service_force_linear_sync | bool or not ASYNC_ENABLED | bool) else ASYNC_POLL }}"
 
-# Dynamic Loaded ( Just available when dependencies are loaded )
 system_service_script_base: "{{ system_service_script_src | basename | regex_replace('\\.j2$', '') }}"
 system_service_script_type: "{{ system_service_script_base | filetype }}"
 system_service_script_inter: "{{ '/bin/bash' if system_service_script_type == 'sh' else ansible_python_interpreter }}"
 system_service_script_exec: "{{ system_service_script_inter }} {{ system_service_id | get_service_script_path( system_service_script_type ) }}"
 
-# Service template
 system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
 system_service_tpl_type: "oneshot"
 system_service_tpl_environment: [] # Environment variables

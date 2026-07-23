@@ -1,5 +1,5 @@
 ---
-- name: Resolve fakeroot package names for current distribution
+- name: 🔍 Resolve fakeroot package names for current distribution
   ansible.builtin.set_fact:
     dev_fakeroot_packages: >-
       {{
@@ -8,7 +8,7 @@
         else []
       }}
 
-- name: Fail for unsupported distribution in dev-fakeroot role
+- name: 🛑 Fail for unsupported distribution in dev-fakeroot role
   ansible.builtin.assert:
     that:
       - (dev_fakeroot_packages | length) > 0
@@ -16,13 +16,13 @@
       Unsupported distribution for dev-fakeroot role: {{ ansible_facts['distribution'] }}
       ({{ ansible_facts['os_family'] }}).
 
-- name: Enable EPEL on CentOS Stream (required for fakeroot package)
+- name: 🟢 Enable EPEL on CentOS Stream (required for fakeroot package)
   ansible.builtin.package:
     name: epel-release
     state: present
   when: ansible_facts['distribution'] in ['CentOS', 'CentOS Stream']
 
-- name: Install fakeroot package(s)
+- name: 📦 Install fakeroot package(s)
   ansible.builtin.package:
     name: "{{ dev_fakeroot_packages }}"
     state: present

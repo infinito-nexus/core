@@ -27,6 +27,11 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 dashboard:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
@@ -41,6 +46,10 @@ dashboard:
   ports:
     local:
       http: 8029
+    internal:
+      http: 5000
+  proxy:
+    service_key: dashboard
   run_after:
     - web-app-matomo
   lifecycle: beta

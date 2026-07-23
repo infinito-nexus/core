@@ -1,0 +1,23 @@
+---
+# Read the RSA DKIM signature (Stalwart auto-creates it on domain create) to
+# publish in DNS (06).
+- name: "📖 Read Stalwart DKIM signatures"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:DkimSignature/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Select the RSA DKIM signature for this domain"
+  ansible.builtin.set_fact:
+    stalwart_dkim: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list
+          | selectattr('domainId', 'equalto', stalwart_domain_id)
+          | selectattr('@type', 'equalto', 'Dkim1RsaSha256')
+          | first) | default({}) }}
+
+- name: "⚙️ Build the DKIM selector + public-key TXT value"
+  ansible.builtin.set_fact:
+    stalwart_dkim_selector: "{{ stalwart_dkim.selector }}"
+    stalwart_dkim_public_key: "v=DKIM1; k=rsa; p={{ stalwart_dkim.publicKey }}"
+  when: stalwart_dkim.selector is defined

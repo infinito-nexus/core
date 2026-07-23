@@ -13,40 +13,8 @@
   delay: 1
   until: docker_active.stdout.strip() == "active"
 
-- name: Fail with debug if docker did not start
-  block:
-    - name: Assert docker is active
-      ansible.builtin.assert:
-        that:
-          - docker_active.stdout.strip() == "active"
-        fail_msg: "docker.service did not become active within 60s (is-active={{ docker_active.stdout | default('') }})"
-  rescue:
-    - name: Show shared diagnostics for failed docker.service restart
-      ansible.builtin.include_role:
-        name: sys-service
-        tasks_from: utils/debug.yml
-      vars:
-        system_service_debug_unit: docker.service
-        system_service_debug_context_lines:
-          - "restart_cmd_rc={{ restart_cmd.rc | default('') }}"
-          - "restart_cmd_stderr={{ restart_cmd.stderr | default('') }}"
-          - "docker_active={{ docker_active.stdout | default('') }}"
-
-    - name: Dockerd config + socket
-      ansible.builtin.command: "sh -lc 'cat /etc/docker/daemon.json || true; ls -la /var/run/docker.sock || true'"
-      register: diag
-      changed_when: false
-      failed_when: false
-
-    - name: Show docker-specific diagnostics
-      ansible.builtin.debug:
-        msg: |
-          === docker-specific diagnostics ===
-          {{ diag.stdout | default('') }}
-          {{ diag.stderr | default('') }}
-
-    - name: Hard fail
-      ansible.builtin.fail:
-        msg: >-
-          docker.service failed to start (timed out / not active).
-          See shared service diagnostics above.
+- name: Assert docker is active
+  ansible.builtin.assert:
+    that:
+      - docker_active.stdout.strip() == "active"
+    fail_msg: "docker.service did not become active within 60s (is-active={{ docker_active.stdout | default('') }})"

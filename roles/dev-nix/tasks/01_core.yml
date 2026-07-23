@@ -4,20 +4,20 @@
 # - Non-Arch systems: use the official installer with SHA256 verification
 
 # 0) Ensure CA trust is present and discover CA bundle path for Nix TLS
-- name: Ensure system CA certificates are installed
+- name: ✅ Ensure system CA certificates are installed
   ansible.builtin.package:
     name: ca-certificates
     state: present
   become: true
 
-- name: Probe CA bundle candidate paths
+- name: 🔍 Probe CA bundle candidate paths
   ansible.builtin.stat:
     path: "{{ item }}"
   loop: "{{ DEV_NIX_SSL_CERT_FILE_CANDIDATES }}"
   register: dev_nix_ssl_cert_file_probe
   become: true
 
-- name: Set CA bundle path for Nix
+- name: 🔧 Set CA bundle path for Nix
   ansible.builtin.set_fact:
     dev_nix_ssl_cert_file: >-
       {{
@@ -31,7 +31,7 @@
       }}
 
 # 1) Arch-based systems: just install the distro package
-- name: Install Nix via package manager on Arch-based systems
+- name: 📦 Install Nix via package manager on Arch-based systems
   package:
     name: nix
     state: present
@@ -42,20 +42,20 @@
     - ansible_facts.architecture == "x86_64"
 
 # 2) Non-Arch systems: delegate installer logic to a separate task file
-- name: Include non-Arch installer logic
+- name: 📂 Include non-Arch installer logic
   ansible.builtin.include_tasks: 02_non_arch_installer.yml
   when: not ( ansible_facts.os_family == "Archlinux" and ansible_facts.distribution == "Archlinux" and ansible_facts.architecture == "x86_64" )
 
 # 3) Configure Nix experimental features (common for all platforms)
-- name: Ensure Nix config directory exists
+- name: ✅ Ensure Nix config directory exists
   ansible.builtin.file:
     path: /etc/nix
     state: directory
     mode: "0755"
   become: true
 
-- name: Deploy Nix configuration (nix.conf)
-  ansible.builtin.template:
+- name: 🚀 Deploy Nix configuration (nix.conf)
+  ansible.builtin.template: # nocheck: stack-host-template (per-host /etc/nix/nix.conf, not stack-host-only)
     src: "nix.conf.j2"
     dest: "/etc/nix/nix.conf"
     mode: "0644"

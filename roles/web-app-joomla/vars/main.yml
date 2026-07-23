@@ -1,29 +1,29 @@
 ---
-# General
 application_id: "web-app-joomla"
-container_port: 80
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Joomla
 JOOMLA_VERSION: "{{ lookup('config', application_id, 'services.joomla.version') }}"
 JOOMLA_IMAGE: "{{ lookup('config', application_id, 'services.joomla.image') }}"
 JOOMLA_CONTAINER: "{{ lookup('config', application_id, 'services.joomla.name') }}"
-JOOMLA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-JOOMLA_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ JOOMLA_VERSION }}"
-JOOMLA_DOMAINS: "{{ lookup('config', application_id, 'server.domains.canonical') }}"
+JOOMLA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+JOOMLA_DOMAINS: "{{ lookup('config', application_id, 'domains.canonical') }}"
 JOOMLA_SITE_NAME: "{{ SOFTWARE_NAME }} Joomla - CMS"
 JOOMLA_DB_CONNECTOR: "{{ 'pgsql' if lookup('database', application_id, 'type') == 'postgres' else 'mysqli' }}"
 JOOMLA_CONFIG_FILE: "/var/www/html/configuration.php"
 JOOMLA_INSTALLER_CLI_FILE: "/var/www/html/installation/joomla.php"
 JOOMLA_CLI_FILE: "/var/www/html/cli/joomla.php"
 
-## Upload
+JOOMLA_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-joomla.sh"
+JOOMLA_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), JOOMLA_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+JOOMLA_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ JOOMLA_ENTRYPOINT_SCRIPT_FILE }}"
+JOOMLA_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', JOOMLA_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+
 JOOMLA_UPLOAD_CONFIG: "{{ [ lookup('container', application_id, 'directories.instance'), 'php-upload.ini' ] | path_join }}"
 JOOMLA_UPLOAD_SIZE: "{{ lookup('config', application_id, 'services.joomla.upload.size_mb') }}"
 JOOMLA_UPLOAD_MAX_FILESIZE: "{{ (JOOMLA_UPLOAD_SIZE | int) }}M"
 JOOMLA_POST_MAX_SIZE: "{{ ((JOOMLA_UPLOAD_SIZE | int) * 12 // 10) }}M"
+JOOMLA_PHP_MEMORY_LIMIT: "{{ lookup('config', application_id, 'services.joomla.performance.php.memory_limit') }}"
 
-# User
 JOOMLA_USER_NAME: "{{ lookup('users', 'administrator').username }}"
 JOOMLA_USER: "{{ JOOMLA_USER_NAME | capitalize }}"
 JOOMLA_USER_PASSWORD: "{{ lookup('users', 'administrator').password }}"

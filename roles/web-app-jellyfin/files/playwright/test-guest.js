@@ -15,8 +15,6 @@ exports.register = function (shared) {
     const directives = assertCspResponseHeader(response, "jellyfin web");
     await assertCspMetaParity(page, directives, "jellyfin web");
 
-    // The guest must not reach an authenticated dashboard: the app must sit on
-    // the login surface, not render the authenticated header controls.
     await expect
       .poll(() => shared.onLoginSurface(page), {
         timeout: 30_000,

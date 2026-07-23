@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Zammad is an open-source helpdesk and ticketing system for handling customer requests across email, chat, phone, and web.
+  description: Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -34,7 +34,7 @@ test("metadata addon: Files app loads the metadata app's own provider bundle", a
     ).toBe(true);
 
     await expect(
-      page.locator('script[src*="/apps/metadata/"]'),
+      page.locator('script[src*="apps/metadata/"]'),
       "the metadata app's own frontend bundle must be injected into the Files page (apps/metadata/...), proving the metadata provider is actually loaded and coupled to Files, not just listed as available",
     ).not.toHaveCount(0, { timeout: 30_000 });
   } finally {

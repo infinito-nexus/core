@@ -1,0 +1,3 @@
+---
+canonical:
+  - coturn.{{ DOMAIN_PRIMARY }}

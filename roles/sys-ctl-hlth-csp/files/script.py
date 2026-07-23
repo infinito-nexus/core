@@ -22,7 +22,7 @@ def extract_domains_from_filenames(config_path: str) -> list[str] | None:
     Extract domain names from .conf filenames in the given directory.
 
     Example:
-      baserow.infinito.example.conf -> baserow.infinito.example
+      baserow.infinito.test.conf -> baserow.infinito.test
     """
     try:
         out: list[str] = []

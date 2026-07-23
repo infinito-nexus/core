@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Streamline your online presence with YOURLS — a nimble, open‑source URL shortener that empowers you to create, track, and manage short links effortlessly.\n"
+  description: Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

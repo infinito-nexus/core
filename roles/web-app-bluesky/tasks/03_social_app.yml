@@ -1,5 +1,5 @@
 ---
-- name: clone social app repository
+- name: ⬇️ clone social app repository
   git:
     repo: "{{ BLUESKY_SOCIAL_APP_REPOSITORY }}"
     dest: "{{ BLUESKY_SOCIAL_APP_DIR }}"
@@ -9,13 +9,13 @@
     - compose up
     - compose build
 
-- name: Force BAPP_CONFIG_URL to same-origin /config
+- name: 💪 Force BAPP_CONFIG_URL to same-origin /config
   ansible.builtin.replace:
     path: "{{ BLUESKY_GEOLOCATION_PATH }}"
     regexp: "^\\s*const\\s+BAPP_CONFIG_URL\\s*=\\s*.*$"
     replace: "const BAPP_CONFIG_URL = '/config'"
 
-- name: Force IPCC_URL to same-origin /ipcc
+- name: 💪 Force IPCC_URL to same-origin /ipcc
   ansible.builtin.replace:
     path: "{{ BLUESKY_GEOLOCATION_PATH }}"
     regexp: "^\\s*const\\s+IPCC_URL\\s*=\\s*.*$"

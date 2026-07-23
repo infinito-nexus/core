@@ -62,11 +62,6 @@ async function loginToOdoo(page) {
   const notLoginUrl = new RegExp(
     `^${expectedBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?!/web/login)`
   );
-  // The OAuth (implicit token) round-trip can land back on Odoo without a fully
-  // established session, so a URL check alone is a false positive. Also, when a
-  // realm session already exists, the SSO click bounces straight back to an
-  // authenticated Odoo without showing the Keycloak form. Handle both: fill the
-  // Keycloak form only when it appears, then confirm an authenticated web client.
   const issuer = env.oidcIssuerUrl.replace(/\/$/, "");
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     await page.goto(`${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: 60_000 });
@@ -103,8 +98,6 @@ async function openModule(page, modulePath) {
   const appShell = page.locator(
     ".o_web_client, .o_action_manager, .o_main_navbar, .o_content, .o_list_view, .o_kanban_view"
   );
-  // Odoo bootstraps a heavy web-client asset bundle per module; under serial test
-  // load the first render can take well over a minute, so allow generous time.
   await expect(appShell.first()).toBeVisible({ timeout: 120_000 });
 }
 

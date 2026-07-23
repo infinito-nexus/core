@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: ERPNext (Frappe Framework) deployed as an Infinito.Nexus web app. Covers finance, CRM, inventory, sales, HR, projects, and websites with
-    OIDC/LDAP identity integration against the central Keycloak.
+  description: Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

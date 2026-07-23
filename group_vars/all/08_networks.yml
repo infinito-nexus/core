@@ -1,67 +1,21 @@
 ---
-# Host-level network defaults + per-category port bands.
-#
-# This file retains ONLY the host-level keys and the PORT_BANDS map:
-#
-#   * NETWORK_IPV6_ENABLED            — global IPv6 toggle.
-#   * defaults_networks.internet.*    — host-level addresses (ip4 / ip6 / dns).
-#   * PORT_BANDS                      — per-<scope>.<category> port ranges read
-#                                       at runtime by `cli meta ports suggest`
-#                                       and by the host-bound port collision
-#                                       lint. Extending PORT_BANDS is the
-#                                       intended way to introduce a new
-#                                       category (`metrics`, `grpc`, …) — the
-#                                       suggester and lint pick it up
-#                                       automatically with no second
-#                                       registration step.
-#
-# What MOVED out of this file:
-#
-#   * defaults_networks.local.<role>.subnet  → roles/<role>/meta/server.yml
-#                                               under networks.local.subnet
-#   * defaults_networks.local.<role>.dns_resolver
-#                                            → roles/<role>/meta/server.yml
-#                                               under networks.local.dns_resolver
-#   * group_vars/all/09_ports.yml (entire file, deleted)
-#                                            → per-entity ports under
-#                                               roles/<role>/meta/services.yml.<entity>.ports.{internal,local,public}
-#
-# See docs/contributing/design/role/services/layout.md for the full per-role meta
-# layout.
 NETWORK_IPV6_ENABLED: false
-# Public DNS resolvers used wherever a role needs to look up external
-# hostnames at runtime (nginx `resolver` directives in front-proxy
-# vhosts, unbound `forward-addr` in the mail stack, etc.). Roles
-# MUST template this list rather than hard-coding individual upstream
-# IPs. The IPv6 toggle in any rendered nginx `resolver` directive
-# comes from `NETWORK_IPV6_ENABLED` above.
 NETWORK_PUBLIC_DNS_RESOLVERS:
   - 1.1.1.1 # nocheck: hardcoded-dns-resolver
   - 8.8.8.8 # nocheck: hardcoded-dns-resolver
   - 1.0.0.1 # nocheck: hardcoded-dns-resolver
-# Docker's embedded DNS resolver. Used by per-app nginx gateways in
-# their `resolver` directive to re-resolve sibling-container hostnames
-# at request time instead of caching the upstream IP at startup, so a
-# sibling restart that yields a new container IP doesn't strand the
-# gateway on a dead address. Roles MUST template this constant rather
-# than hard-coding `127.0.0.11`.
 NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER: "127.0.0.11" # nocheck: hardcoded-dns-resolver
-# Ready-to-render nginx `resolver` directive for the docker embedded DNS,
-# including the cache TTL and IPv6 toggle. Roles MUST emit this verbatim
-# in their nginx templates instead of repeating the directive form, so
-# the TTL and ipv6 stay consistent across the stack.
 NETWORK_DOCKER_DNS_NGINX_DIRECTIVE: "resolver {{ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER }} valid=30s ipv6={{ NETWORK_IPV6_ENABLED | on_off }};"
-# Reverse-proxy upstreams that web apps should trust for `X-Forwarded-*`
-# headers when rendering `TRUSTED_PROXIES` / `RAILS_TRUSTED_PROXIES` env
-# vars. Covers loopback (v4 + v6) and the RFC1918 ranges that docker /
-# docker-compose pick from by default. Roles MUST template this list
-# rather than re-spelling the CIDR set.
 NETWORK_TRUSTED_PROXY_CIDRS:
   - 127.0.0.1
   - "::1"
   - 10.0.0.0/8
   - 172.16.0.0/12
   - 192.168.0.0/16
+NETWORK_NESTED_DOCKER_BIP: "192.168.67.1/24"
+NETWORK_NESTED_DOCKER_ADDRESS_POOLS:
+  - base: "192.168.68.0/22"
+    size: 24
 defaults_networks:
   internet:
     ip4: "127.0.0.1"
@@ -87,9 +41,33 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     postgres:
       start: 5432
       end: 5432
+    redis:
+      start: 6379
+      end: 6379
+    memcached:
+      start: 11211
+      end: 11211
+    rabbitmq:
+      start: 5672
+      end: 5672
+    typesense:
+      start: 8108
+      end: 8108
+    qdrant:
+      start: 6333
+      end: 6333
+    elasticsearch:
+      start: 9200
+      end: 9200
     ldap:
       start: 389
       end: 389
+    unbound:
+      start: 53
+      end: 53
+    registry:
+      start: 5000
+      end: 5001
   public:
     ssh:
       start: 2201
@@ -112,3 +90,36 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     relay:
       start: 20000
       end: 65535
+    smtp:
+      start: 25
+      end: 25
+    smtps:
+      start: 465
+      end: 465
+    submission:
+      start: 587
+      end: 587
+    pop3:
+      start: 110
+      end: 110
+    pop3s:
+      start: 995
+      end: 995
+    imap:
+      start: 143
+      end: 143
+    imaps:
+      start: 993
+      end: 993
+    sieve:
+      start: 4190
+      end: 4190
+    rtmp:
+      start: 1935
+      end: 1935
+    c2s:
+      start: 5222
+      end: 5222
+    s2s:
+      start: 5269
+      end: 5269

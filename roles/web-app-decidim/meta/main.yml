@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Prageeth Panicker
-  description: Deploy Decidim, an open-source participatory democracy platform for public consultations, civic processes, community voting, and collaborative
-    policy creation.
+  description: Open-source participatory democracy platform for public consultations, civic processes, and community voting
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,17 +1,17 @@
 ---
-- name: Install CopyQ clipboard manager
+- name: 📦 Install CopyQ clipboard manager
   package:
     name: copyq
     state: present
 
-- name: Ensure autostart directory exists
+- name: ✅ Ensure autostart directory exists
   file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/autostart"
     state: directory
     mode: "0755"
   become: false
 
-- name: Add CopyQ to user autostart
+- name: ➕ Add CopyQ to user autostart
   copy:
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/autostart/copyq.desktop"
     content: |
@@ -26,6 +26,6 @@
     mode: "0644"
   become: false
 
-- name: Include CopyQ server systemd‑user service setup
+- name: 📂 Include CopyQ server systemd‑user service setup
   import_tasks: server.yml
   when: copyq_server_enabled | bool

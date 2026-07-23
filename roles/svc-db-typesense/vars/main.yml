@@ -1,0 +1,15 @@
+---
+application_id: svc-db-typesense
+entity_name: "{{ application_id | get_entity_name }}"
+database_type: "{{ entity_name }}"
+
+TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'credentials.api_key') }}"
+TYPESENSE_NAME: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+TYPESENSE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, TYPESENSE_NAME) }}"
+TYPESENSE_RETRIES: 30
+TYPESENSE_DELAY: 5
+
+TYPESENSE_EXPOSE_LOCAL: "{{ not DOCKER_IN_CONTAINER | bool }}"
+
+TYPESENSE_EXEC_SHELL: "container exec {{ TYPESENSE_CONTAINER_ADDRESS }} bash -lc"
+TYPESENSE_EXEC_SHELL_STDIN: "container exec -i {{ TYPESENSE_CONTAINER_ADDRESS }} bash -lc"

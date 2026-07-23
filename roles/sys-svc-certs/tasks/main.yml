@@ -1,13 +1,13 @@
 ---
 - block:
-    - name: Include dependency 'sys-svc-webserver-https'
+    - name: 📂 Include dependency 'sys-svc-webserver-https'
       include_role:
         name: sys-svc-webserver-https
       when: run_once_sys_svc_webserver_https is not defined
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_svc_certs is not defined
 
-- name: "Include flavor '{{ CERTBOT_FLAVOR }}' for '{{ domain }}'"
+- name: "📂 Include flavor '{{ CERTBOT_FLAVOR }}' for '{{ domain }}'"
   include_tasks: "{{ [role_path, 'tasks/flavors', CERTBOT_FLAVOR ~'.yml'] | path_join }}"
 
 #- name: "Cleanup dedicated cert for '{{ domain }}'"

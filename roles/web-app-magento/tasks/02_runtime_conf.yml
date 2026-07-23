@@ -1,5 +1,5 @@
 ---
-- name: Assert required vars (no defaults anywhere)
+- name: ✅ Assert required vars (no defaults anywhere)
   assert:
     that:
       - MAGENTO_DOMAIN is defined and MAGENTO_DOMAIN | length > 0
@@ -8,7 +8,7 @@
       - MAGENTO_PHP_PORT is defined
     fail_msg: "Missing one of: MAGENTO_DOMAIN, MAGENTO_NGINX_PORT, MAGENTO_PHP_HOST, MAGENTO_PHP_PORT"
 
-- name: Ensure subdirs exist (config root exists already)
+- name: ✅ Ensure subdirs exist (config root exists already)
   file:
     path: "{{ item }}"
     state: directory
@@ -17,16 +17,16 @@
     - "{{ MAGENTO_NGINX_DIR }}"
     - "{{ MAGENTO_PHP_DIR }}"
 
-- name: Render nginx main config (no TLS; single source of truth)
-  template:
+- name: 📄 Render nginx main config (no TLS; single source of truth)
+  template: # nocheck: stack-host-template (app compose dir, not project nginx tree)
     src: "docker.conf.j2"
     dest: "{{ MAGENTO_NGINX_CONF_PATH }}"
     mode: "0644"
     force: true
   notify: compose up
 
-- name: Render php-fpm pool override (TCP listen; clear_env=no)
-  template:
+- name: 📄 Render php-fpm pool override (TCP listen; clear_env=no)
+  template: # nocheck: stack-host-template (app compose dir, not project nginx tree)
     src: "php-fpm-zz-docker.conf.j2"
     dest: "{{ MAGENTO_PHP_ZZ_CONF_PATH }}"
     mode: "0644"

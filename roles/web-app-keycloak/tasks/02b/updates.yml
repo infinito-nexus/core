@@ -1,0 +1,47 @@
+---
+- name: "📌 Keycloak | Apply object updates, recovering from cross-node reschedules"
+  vars:
+    kc_update_max_attempts: 5
+  block:
+    - name: "🔍 Keycloak updates | Resolve live hosting node (swarm may reschedule)"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ entity_name }}"
+        resolve_output_prefix: KEYCLOAK
+        resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+      when: DEPLOYMENT_MODE == 'swarm'
+
+    - name: "📂 Run Keycloak object-update routines on the freshly resolved node"
+      ansible.builtin.include_tasks:
+        file: update_routines.yml
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  rescue:
+    - name: "🔢 Keycloak updates | Advance cross-node recovery attempt counter" # nocheck: rescue-recovery a cross-node reschedule needs a swarm-wide node re-resolve plus a change of delegate_to, which Ansible can only do by catching the failure and retrying; a diagnostics-only rescue cannot re-target the delegate, so this block recovers and only captures diagnostics once recovery is exhausted
+      ansible.builtin.set_fact:
+        kc_update_attempt: "{{ (kc_update_attempt | default(0) | int) + 1 }}"
+
+    - name: "🐳 Keycloak updates | Re-raise failure unchanged in compose (no swarm recovery)"
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg | default('Keycloak object update failed') }}"
+      when: DEPLOYMENT_MODE == 'compose'
+
+    - name: "🛑 Keycloak updates | Fail after exhausting cross-node recovery retries"
+      ansible.builtin.fail:
+        msg: >-
+          Keycloak object updates failed after {{ kc_update_max_attempts }}
+          cross-node recovery attempts: {{ ansible_failed_result.msg | default('see above') }}
+      when: (kc_update_attempt | int) >= (kc_update_max_attempts | int)
+
+    - name: "🔍 Keycloak updates | Re-resolve hosting node + live container id (recovery)"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ entity_name }}"
+        resolve_output_prefix: KEYCLOAK
+        resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+
+    - name: "🔁 Keycloak updates | Retry object updates on the freshly resolved node"
+      ansible.builtin.include_tasks:
+        file: updates.yml
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"

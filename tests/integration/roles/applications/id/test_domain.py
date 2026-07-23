@@ -2,7 +2,7 @@ import os
 import re
 import unittest
 
-from plugins.filter.get_all_application_ids import get_all_application_ids
+from plugins.filter.get.all.application_ids import get_all_application_ids
 from utils.cache.files import iter_project_files_with_content
 
 
@@ -34,27 +34,23 @@ def collect_domain_keys():
 class TestDomainApplicationIds(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Load valid application IDs from roles
         cls.valid_ids = set(get_all_application_ids(roles_dir="roles"))
         if not cls.valid_ids:
             raise RuntimeError(
                 "No application_ids found in roles/*/vars/main.yml"  # nocheck: role-file-spot
             )
-        # Collect domain keys and their locations, excluding this test file
         cls.domain_locations = collect_domain_keys()
         if not cls.domain_locations:
             raise RuntimeError(
                 "No domains.get(...) or domains[...] usages found to validate"
             )
 
-        # Define keys to ignore (placeholders or meta-fields)
         cls.ignore_keys = {"canonical", "aliases"}
 
     def test_all_keys_are_valid(self):
         """Ensure every domains.get/[] key matches a valid application_id (excluding ignored keys)."""
 
         def is_placeholder(key):
-            # Treat keys with curly braces as placeholders
             return bool(re.match(r"^\{.+\}$", key))
 
         invalid = {}

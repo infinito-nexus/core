@@ -1,12 +1,10 @@
 ---
-- name: "Create LDIF files at {{ OPENLDAP_LDIF_PATH_HOST }}{{ folder }}"
-  template:
-    src: "{{ item }}"
-    dest: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ folder }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
-    mode: "0770"
-  loop: >-
-    {{
-      lookup('fileglob', role_path ~ '/templates/ldif/' ~ folder ~ '/*.j2', wantlist=True)
-      | sort
-    }}
-  notify: "Import {{ folder }} LDIF files"
+- name: "📄 Render LDIF files at {{ OPENLDAP_LDIF_PATH_HOST }}{{ folder }} (peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src_glob: "ldif/{{ folder }}/*.j2"
+        dest_dir: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ folder }}"
+        mode: "0770"
+        notify: "Import {{ folder }} LDIF files"

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Role to perform cross-distribution system cleanup for CI, containers and build environments.
+  description: Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,5 +1,8 @@
 ---
 rdr-domains:
+  modes:
+    host:
+      enabled: true
   lifecycle: beta
   min_storage: "50MB"
   cpus: "0.1"

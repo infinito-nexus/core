@@ -1,35 +1,23 @@
 ---
-# General
 application_id: "web-app-bluesky"
 
-## Bluesky
-
-## Social App
 BLUESKY_SOCIAL_APP_DIR: "{{ [ lookup('container', application_id, 'directories.services'), 'social-app' ] | path_join  }}"
 BLUESKY_SOCIAL_APP_REPOSITORY: "{{ lookup('config', application_id, 'services.view.repository') }}"
 BLUESKY_SOCIAL_APP_REF: "{{ lookup('config', application_id, 'services.view.ref') }}"
 BLUESKY_GEOLOCATION_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/geolocation/index.tsx' ] | path_join }}"
 
-# This should be removed when the following issue is closed:
-# https://github.com/bluesky-social/pds/issues/52
-
-## PDS
 BLUESKY_PDSADMIN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_FILE: "{{ [ BLUESKY_PDSADMIN_DIR, 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_TMP_TAR: "/tmp/pdsadmin.tar.gz"
-BLUESKY_PDS_IMAGE: "{{ lookup('config', application_id, 'services.pds.image') }}"
-BLUESKY_PDS_VERSION: "{{ lookup('config', application_id, 'services.pds.version') }}"
-BLUESKY_PDS_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.pds_data') }}"
 BLUESKY_PDS_DATA_DIR: "/opt/pds"
 BLUESKY_PDS_BLOBSTORE_LOCATION: "{{ [ BLUESKY_PDS_DATA_DIR, 'blocks' ] | path_join }}"
 
-## Web
 BLUESKY_WEB_ENABLED: "{{ lookup('config', application_id, 'services.web.enabled') }}"
 BLUESKY_WEB_DOMAIN: "{{ lookup('domains', application_id).web }}"
 BLUESKY_WEB_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.web.ports.local.http') }}"
+BLUESKY_WEB_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.web.ports.internal.http') }}"
 BLUESKY_WEB_IMAGE_CUSTOM: "bluesky_web_custom"
 
-## View
 BLUESKY_VIEW_ENABLED: "{{ lookup('config', application_id, 'services.view.enabled') }}"
 BLUESKY_VIEW_DOMAIN_LOCAL: "{{ lookup('domains', application_id).view }}"
 BLUESKY_VIEW_DOMAIN_FINAL: "{{ BLUESKY_VIEW_DOMAIN_LOCAL if BLUESKY_VIEW_ENABLED else 'api.bsky.app' }}"
@@ -37,15 +25,15 @@ BLUESKY_VIEW_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ BLU
 BLUESKY_VIEW_DID: "did:web:{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
 BLUESKY_VIEW_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.view.ports.local.http') }}"
 
-## Server
 BLUESKY_API_DOMAIN: "{{ lookup('domains', application_id).api }}"
 BLUESKY_API_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.api.ports.local.http') }}"
+BLUESKY_PDS_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.api.ports.internal.http') }}"
 
 ## PDS handle domain
 # AT Protocol's handle syntax forbids reserved TLDs (`.example`, `.test`,
 # `.invalid`, `.local`, `.localhost`, `.arpa`, `.alt`, `.internal`,
 # `.onion`) — see https://atproto.com/specs/handle. The dev/test env runs
-# under DOMAIN_PRIMARY=infinito.example, which would make PDS createAccount
+# under DOMAIN_PRIMARY=infinito.test, which would make PDS createAccount
 # reject every broker-provisioned handle with
 # `InvalidHandle: Handle TLD is invalid or disallowed`.
 # Map disallowed TLDs to `.app` (real, allowed) so the spec's structural
@@ -53,36 +41,31 @@ BLUESKY_API_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.api.ports.lo
 # this is purely about syntactic validity.
 BLUESKY_PDS_HANDLE_DOMAIN: "{{ DOMAIN_PRIMARY | regex_replace('\\.(example|test|invalid|local|localhost|arpa|alt|internal|onion)$', '.app') }}"
 
-## Auth integrations
 BLUESKY_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-## Credentials
 BLUESKY_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.jwt_secret') }}"
 BLUESKY_ROTATION_KEY: "{{ lookup('config', application_id, 'credentials.plc_rotation_key_k256_private_key_hex') }}"
 
-## Admin
 BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
 BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 BLUESKY_ADMIN_HANDLE: "kc-{{ lookup('users', 'administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
 BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_API_PORT }}"
 
-# Front proxy
 BLUESKY_FRONT_PROXY_CONTENT: "{{ lookup('template', 'extra_locations.conf.j2') }}"
 BLUESKY_CONFIG_UPSTREAM_URL: "{{ lookup('config', application_id, 'server.config_upstream_url') }}"
 
-## Login broker (variant A+)
 BLUESKY_BROKER_BUILD_CONTEXT: "{{ [ lookup('container', application_id, 'directories.services'), 'login-broker' ] | path_join }}"
 BLUESKY_BROKER_SRC_DIR: "{{ role_path }}/files/login-broker"
 BLUESKY_BROKER_IMAGE: "bluesky_broker_custom"
-BLUESKY_BROKER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.broker.base_image') }}"
-BLUESKY_BROKER_BASE_VERSION: "{{ lookup('config', application_id, 'services.broker.base_version') }}"
-BLUESKY_BROKER_CONTAINER: "{{ application_id | get_entity_name }}-broker"
+BLUESKY_BROKER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.broker.image') }}"
+BLUESKY_BROKER_BASE_VERSION: "{{ lookup('config', application_id, 'services.broker.version') }}"
+BLUESKY_BROKER_SERVICE: "broker"
+BLUESKY_BROKER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ BLUESKY_BROKER_SERVICE ~ '.name') }}"
 BLUESKY_BROKER_PORT: "{{ lookup('config', application_id, 'services.broker.ports.local.http') }}"
+BLUESKY_BROKER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.broker.ports.internal.http') }}"
 
-## Credentials
 BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'credentials.bridge_encryption_key') }}"
 
-## SSO-proxy bind-mount paths (used by the heal-bind-mount task)
-BLUESKY_SSO_PROXY_CONTAINER: "{{ application_id | get_entity_name }}-sso-proxy"
+BLUESKY_SSO_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.sso-proxy.name') }}"
 BLUESKY_SSO_PROXY_CFG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file')
   ] | path_join }}"

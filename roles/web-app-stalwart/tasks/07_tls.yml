@@ -1,0 +1,48 @@
+---
+# Deploy the platform TLS cert (cert.pem/key.pem) into Stalwart's cert dir and
+# register it for the mail listeners. x:Certificate references the mounted files
+# (validated format). SNI matches it to the domain automatically.
+- name: "🚀 Deploy the platform TLS certificate into Stalwart's cert dir"
+  include_role:
+    name: sys-ctl-mtn-cert-deploy
+
+- name: "🔍 Check for an existing Stalwart certificate"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Certificate/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔧 Record whether the certificate still needs to be registered"
+  ansible.builtin.set_fact:
+    stalwart_cert_missing: "{{ (stalwart_jmap.methodResponses[0][1].list | length) == 0 }}"
+
+# A freshly registered certificate is served only after a (re)start; without
+# the restart the listeners keep the built-in rcgen certificate for the rest of
+# the play (nothing else restarts Stalwart in non-SSO mode) and strict TLS
+# verification in consumers (msmtp) fails.
+- name: "🔧 Register and activate the platform TLS certificate"
+  when: stalwart_cert_missing | bool
+  block:
+    - name: "🔧 Register the platform TLS certificate with Stalwart"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:Certificate/set', {'create': {'c': {
+                'certificate': {'@type': 'File', 'filePath': '/etc/stalwart/certs/cert.pem'},
+                'privateKey': {'@type': 'File', 'filePath': '/etc/stalwart/certs/key.pem'}
+              }}}, 'c0']]} | to_json }}
+
+    - name: "🔄 Restart Stalwart to activate the registered certificate"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - restart
+          - stalwart
+      args:
+        chdir: "{{ STALWART_INSTANCE_DIR }}"
+      changed_when: true
+
+    - name: "⏳ Wait for Stalwart API after the certificate restart"
+      include_tasks: 02_wait_for_api.yml

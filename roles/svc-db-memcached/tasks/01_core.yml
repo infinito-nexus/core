@@ -1,2 +1,30 @@
 ---
 - include_tasks: utils/once/flag.yml
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+    application_id: "svc-db-memcached"
+    database_consumer_id: "svc-db-memcached"
+
+- name: "⏳ MEMCACHED | Wait until container is running (not restarting)"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ MEMCACHED_CONTAINER_ADDRESS }}
+  register: memcached_state
+  retries: 120
+  delay: 2
+  until: >
+    (memcached_state.stdout is search('running')) and
+    (memcached_state.stdout is not search('true'))
+  changed_when: false
+
+- name: "✅ MEMCACHED | Confirm engine answers (version handshake)"
+  ansible.builtin.shell: >
+    {{ MEMCACHED_EXEC_SHELL }}
+    '{{ MEMCACHED_PROBE }}'
+  register: memcached_ready
+  retries: 30
+  delay: 2
+  until: memcached_ready.rc == 0
+  changed_when: false

@@ -1,1 +1,1 @@
-<script src="{{ lookup('cdn', 'web-svc-cdn').urls.shared.js }}/{{ INJ_LOGOUT_JS_FILE_NAME }}{{ lookup('local_mtime_qs', [playbook_dir, 'roles', 'sys-front-inj-logout', 'files', INJ_LOGOUT_JS_FILE_NAME] | path_join) }}"></script>
+<script src="{{ lookup('cdn', 'web-svc-cdn').urls.shared.js }}/{{ INJ_LOGOUT_JS_FILE_NAME }}{{ lookup('local_mtime_qs', lookup('path_absolute', 'roles', 'sys-front-inj-logout', 'files', INJ_LOGOUT_JS_FILE_NAME)) }}"></script>

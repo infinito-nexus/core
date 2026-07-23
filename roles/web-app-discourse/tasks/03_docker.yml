@@ -1,60 +1,26 @@
 ---
 # which is necessary for building
-- name: install which
+- name: 📦 install which
   package:
     name: which
     state: present
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
     webserver_vhost_flavour: "basic"
     application_id: "web-app-discourse"
-- name: Pull Discourse docker repository
-  git:
-    repo: "{{ DISCOURSE_REPOSITORY_URL }}"
-    dest: "{{ DISCOURSE_REPOSITORY_DIR }}"
-    version: "{{ DISCOURSE_REF }}"
-    update: true
-    depth: 1
-  register: discourse_repo_pull
-  retries: 12
-  delay: 30
-  until: discourse_repo_pull is succeeded
-  notify: recreate discourse
-  become: true
-- name: set chmod 700 for '{{ DISCOURSE_CONTAINERS_DIR }}'
-  ansible.builtin.file:
-    path: "{{ DISCOURSE_CONTAINERS_DIR }}"
-    mode: "700"
-    state: directory
-- name: "copy configuration to '{{ DISCOURSE_APPLICATION_YML_DEST }}'"
-  template:
-    src: config.yml.j2
-    dest: "{{ DISCOURSE_APPLICATION_YML_DEST }}"
-    mode: "0640"
-  notify: recreate discourse
-- name: "Verify that '{{ DISCOURSE_CONTAINER }}' is running"
-  ansible.builtin.command:
-    argv:
-      - container
-      - ps
-      - --filter
-      - "name=^{{ DISCOURSE_CONTAINER }}$"
-      - --filter
-      - status=running
-      - --format
-      - "{{ '{{.Names}}' }}"
-  register: docker_ps
-  changed_when: docker_ps.stdout.strip() == ""
-  failed_when: docker_ps.rc != 0
-  notify: recreate discourse
-- name: Load discourse handlers explicitly
-  # In the CI somehow, the postgres application id was used,
-  # local it behaved normal. I hope this solves the anomaly.
-  include_tasks: utils/load_handlers.yml
+
+- name: "📁 Create discourse network {{ DISCOURSE_NETWORK }} for launcher to attach"
+  include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
   vars:
-    handler_role_name: "web-app-discourse"
-- name: flush, to recreate discourse app
-  meta: flush_handlers
+    network_role_id: "{{ application_id }}"
+
+- name: "▶️ Run the standalone Discourse launcher container"
+  include_tasks: 04_launcher.yml
+  when: IS_STACK_HOST | bool

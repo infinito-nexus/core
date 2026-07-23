@@ -1,0 +1,60 @@
+---
+zammad_storage:
+  type: volume
+  mounts:
+    - service: websocket
+      target: /opt/zammad/storage
+    - service: scheduler
+      target: /opt/zammad/storage
+    - service: nginx
+      target: /opt/zammad/storage
+zammad_search:
+  type: volume
+  mounts:
+    - service: elasticsearch
+      target: /usr/share/elasticsearch/data
+auto_wizard:
+  type: config
+  source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'auto_wizard.json'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: /opt/zammad/auto_wizard.json
+    - service: railsserver
+      target: /opt/zammad/auto_wizard.json
+zammad_omniauth_init:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'zz_omniauth_allow_get.rb'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: websocket
+      target: /opt/zammad/config/initializers/zz_omniauth_allow_get.rb
+    - service: scheduler
+      target: /opt/zammad/config/initializers/zz_omniauth_allow_get.rb
+    - service: nginx
+      target: /opt/zammad/config/initializers/zz_omniauth_allow_get.rb
+zammad_telegram_helper:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'telegram_helper.rb'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: websocket
+      target: /opt/zammad/lib/telegram_helper.rb
+    - service: scheduler
+      target: /opt/zammad/lib/telegram_helper.rb
+    - service: nginx
+      target: /opt/zammad/lib/telegram_helper.rb
+zammad_oidc_group_role_map:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'zz_oidc_group_role_mapping.rb'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: websocket
+      target: /opt/zammad/config/initializers/zz_oidc_group_role_mapping.rb
+      when: "{{ lookup('config', 'web-app-zammad', 'services.sso.enabled') | bool }}"
+    - service: scheduler
+      target: /opt/zammad/config/initializers/zz_oidc_group_role_mapping.rb
+      when: "{{ lookup('config', 'web-app-zammad', 'services.sso.enabled') | bool }}"
+    - service: nginx
+      target: /opt/zammad/config/initializers/zz_oidc_group_role_mapping.rb
+      when: "{{ lookup('config', 'web-app-zammad', 'services.sso.enabled') | bool }}"

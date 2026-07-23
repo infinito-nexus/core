@@ -55,6 +55,7 @@ const CONFIG = {
   listenPort: parseInt(process.env.BROKER_PORT || "8080", 10),
   socialAppUrl: requireEnv("SOCIAL_APP_URL"),
   pdsUrl: requireEnv("PDS_URL"),
+  pdsInternalUrl: process.env.PDS_INTERNAL_URL || requireEnv("PDS_URL"),
   pdsHandleDomain: requireEnv("PDS_HANDLE_DOMAIN"),
   pdsInviteCode: process.env.PDS_INVITE_CODE || "",
   // Optional: enables the broker to recover from `Handle already
@@ -171,7 +172,7 @@ function sanitiseHandle(username) {
 }
 
 async function pdsCreateAccount({ handle, email, password }) {
-  const url = `${CONFIG.pdsUrl}/xrpc/com.atproto.server.createAccount`;
+  const url = `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.server.createAccount`;
   const body = { handle, email, password };
   if (CONFIG.pdsInviteCode) {
     body.inviteCode = CONFIG.pdsInviteCode;
@@ -187,7 +188,7 @@ async function pdsCreateAccount({ handle, email, password }) {
 }
 
 async function pdsCreateSession({ handle, password }) {
-  const url = `${CONFIG.pdsUrl}/xrpc/com.atproto.server.createSession`;
+  const url = `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.server.createSession`;
   const res = await fetchJson("POST", url, { body: { identifier: handle, password } });
   if (res.status < 200 || res.status >= 300) {
     throw new Error(`PDS createSession failed: status=${res.status} body=${res.raw}`);
@@ -196,7 +197,7 @@ async function pdsCreateSession({ handle, password }) {
 }
 
 async function pdsResolveHandle(handle) {
-  const url = `${CONFIG.pdsUrl}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
+  const url = `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
   const res = await fetchJson("GET", url);
   if (res.status !== 200 || !res.body || !res.body.did) {
     throw new Error(`PDS resolveHandle failed: status=${res.status} body=${res.raw}`);
@@ -214,7 +215,7 @@ async function pdsAdminUpdatePassword(did, newPassword) {
   if (!CONFIG.pdsAdminPassword) {
     throw new Error("PDS_ADMIN_PASSWORD not configured — cannot recover from Handle already taken");
   }
-  const url = `${CONFIG.pdsUrl}/xrpc/com.atproto.admin.updateAccountPassword`;
+  const url = `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.admin.updateAccountPassword`;
   const auth = Buffer.from(`admin:${CONFIG.pdsAdminPassword}`).toString("base64");
   const res = await fetchJson("POST", url, {
     headers: { Authorization: `Basic ${auth}` },
@@ -478,5 +479,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(CONFIG.listenPort, () => {
-  console.log(`[broker] listening on ${CONFIG.listenPort}, social-app=${CONFIG.socialAppUrl}, pds=${CONFIG.pdsUrl}`);
+  console.log(`[broker] listening on ${CONFIG.listenPort}, social-app=${CONFIG.socialAppUrl}, pds=${CONFIG.pdsUrl}, pds-internal=${CONFIG.pdsInternalUrl}`);
 });

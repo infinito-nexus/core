@@ -23,6 +23,7 @@ INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') | default('latest', 
 INFINITO_GHCR_MIRROR_PREFIX: "{{ lookup('env', 'INFINITO_GHCR_MIRROR_PREFIX') | default('', true) }}"
 CA_CONTAINER_ENABLED: "{{ lookup('env', 'INFINITO_CONTAINER_CA_ENABLED') | bool }}"
 test_e2e_playwright_keep: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }}"
+SYS_TIMEOUT_CONTAINER_EXEC: "60min"
 networks:
   internet:
     ip4: "{{ lookup('env', 'INFINITO_IP4') }}"
@@ -47,19 +48,15 @@ users:
     firstname: "Harry"
     lastname: "Beaver"
     website: "https://www.infinito.nexus/"
-    email: "biber@infinito.example"
+    email: "biber@{{ DOMAIN_PRIMARY }}"
     gpg: "DUMMY-GPG-KEY-NOT-SET"
-    password: "VeryUnsecurePassword"
+    password: "VeryUnsecurePassword!1"
 
-    # UID/GID allocation policy:
-    # - Use IDs >= 10000 for manually managed users
-    # - IDs below 10000 are reserved for auto-created Infinito.Nexus service accounts
-    # This avoids collisions with system users and managed application accounts.
     uid: 10001
     gid: 10001
     roles: []
     tokens: {}
     authorized_keys: []
-SIZE_PERCENT_CLEANUP_DISC_SPACE: 99 # Set high because in DiD Ci Environment in github workflow it can be verry high e.g. ~92%
+SIZE_PERCENT_CLEANUP_DISC_SPACE: 99 # Exception: set this high because the DinD CI environment in the GitHub workflow can already sit at ~92% disk usage.
 
 WORKSTATION_USER: biber

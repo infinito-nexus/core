@@ -46,6 +46,10 @@ class TestFrontendServiceSpot(unittest.TestCase):
 
     def test_keycloak_respects_run_after_dependencies(self):
         self.assertLess(self._index("web-app-matomo"), self._index("web-app-keycloak"))
+        # Keycloak runs after BOTH mail providers — either may be active.
+        self.assertLess(
+            self._index("web-app-stalwart"), self._index("web-app-keycloak")
+        )
         self.assertLess(self._index("web-app-mailu"), self._index("web-app-keycloak"))
 
     def test_front_proxy_falls_back_to_canonical_port_and_domain(self):

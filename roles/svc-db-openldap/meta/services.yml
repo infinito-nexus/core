@@ -1,11 +1,19 @@
 ---
 openldap:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  central identity store, single-node until LDAP replication (syncrepl) is in scope
+  placement: manager
   bond: 1
   enabled: true
   shared: true
   provides: ldap
   image: debian
   version: bookworm-slim
+  custom: true
   name: openldap
   min_storage: 2GB
   cpus: 1.25
@@ -24,8 +32,16 @@ openldap:
     groups: true
     update: true
   ports:
+    internal:
+      ldap: 389
     local:
       ldap: 389
     public:
       ldaps: 636
   lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

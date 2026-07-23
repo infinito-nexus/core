@@ -1,12 +1,12 @@
 # tests/unit/utils/test_templating.py
 import os
-
-# Ensure repo root is importable so `utils.*` resolves in all runners
 import sys
 import unittest
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
+
+from plugins.filter.ca_trust_paths import ca_cert_host
 
 from . import PROJECT_ROOT
 
@@ -29,7 +29,6 @@ class _FakeTemplarLookupUndefined:
         self.available_variables = {}
 
     def template(self, s, *args, **kwargs):
-        # behave like templar that doesn't expand anything
         return s
 
 
@@ -43,9 +42,7 @@ class _FakeTemplarRejectsVariablesKwarg:
     def __init__(self):
         self.available_variables = {}
 
-    def template(self, s, fail_on_undefined=False):  # supports only these args
-        # return something simple if variables were set via available_variables
-        # We mimic minimal Jinja for a very specific case:
+    def template(self, s, fail_on_undefined=False):
         if s.strip() == "{{ CA_ROOT.cert_host }}":
             ca_root = self.available_variables.get("CA_ROOT", {})
             return ca_root.get("cert_host", s)
@@ -84,8 +81,6 @@ class TestTemplatingRenderStrict(unittest.TestCase):
             )
 
     def test_env_lookup_fallback_when_lookup_undefined_like(self):
-        # Previously: 'lookup' is undefined -> string remained unchanged.
-        # Now: fallback must resolve lookup('env', 'domain') (case-insensitive quoting)
         with patch.dict(os.environ, {"domain": "infinito.localhost"}, clear=False):
             out = render_ansible_strict(
                 templar=_FakeTemplarLookupUndefined(),
@@ -108,11 +103,7 @@ class TestTemplatingRenderStrict(unittest.TestCase):
         self.assertEqual(out, "infinito.localhost")
 
     def test_ca_root_nested_var_resolves_without_templar(self):
-        # This is the scenario that kept failing:
-        # Rendered: /etc/{{ SOFTWARE_DOMAIN }}/ca/root-ca.crt
-        # Raw: {{ CA_ROOT.cert_host }}
         #
-        # We simulate CA_ROOT.cert_host itself being a Jinja string that requires another variable.
         variables = {
             "SOFTWARE_DOMAIN": "infinito.nexus",
             "CA_ROOT": {
@@ -120,19 +111,16 @@ class TestTemplatingRenderStrict(unittest.TestCase):
             },
         }
         out = render_ansible_strict(
-            templar=None,  # no templar available -> must still resolve via fallback
+            templar=None,
             raw="{{ CA_ROOT.cert_host }}",
             var_name="CA_TRUST.cert_host",
             err_prefix="compose_ca_inject_cmd",
             variables=variables,
         )
-        self.assertEqual(out, "/etc/infinito.nexus/ca/root-ca.crt")
+        self.assertEqual(out, ca_cert_host("infinito.nexus"))
 
     def test_templar_available_variables_is_used_no_variables_kwarg(self):
-        # This covers the earlier crash:
-        #   Templar.template() got an unexpected keyword argument 'variables'
         #
-        # Our helper must not pass variables=..., but instead set available_variables.
         variables = {"CA_ROOT": {"cert_host": "/etc/infinito/ca/root-ca.crt"}}
         out = render_ansible_strict(
             templar=_FakeTemplarRejectsVariablesKwarg(),
@@ -175,16 +163,13 @@ class TestTemplatingRenderStrict(unittest.TestCase):
         )
         self.assertEqual(out, "/etc/infinito/ca/root-ca.crt")
 
-        # during the call, both prev and caller-supplied keys are visible
         self.assertIn("ANSIBLE_FACT", templar.seen_on_call)
         self.assertEqual(templar.seen_on_call["ANSIBLE_FACT"], "from-prev-avail")
         self.assertIn("CA_ROOT", templar.seen_on_call)
 
-        # after the call, prev state is restored (no caller keys leak)
         self.assertEqual(templar.available_variables, preset)
 
     def test_unresolved_jinja_hard_fails(self):
-        # If we cannot resolve, strict mode must hard fail (this matches your runtime failures).
         with self.assertRaises(AnsibleError):
             render_ansible_strict(
                 templar=_FakeTemplarLookupUndefined(),
@@ -195,24 +180,20 @@ class TestTemplatingRenderStrict(unittest.TestCase):
             )
 
     def test_multi_round_rendering(self):
-        # Ensure multi-pass rendering works:
-        #   raw -> "{{ CA_ROOT.cert_host }}"
-        #   CA_ROOT.cert_host -> "/etc/{{ SOFTWARE_DOMAIN }}/ca/root-ca.crt"
         variables = {
             "SOFTWARE_DOMAIN": "infinito.nexus",
             "CA_ROOT": {"cert_host": "/etc/{{ SOFTWARE_DOMAIN }}/ca/root-ca.crt"},
         }
         out = render_ansible_strict(
-            templar=_FakeTemplarLookupUndefined(),  # returns unchanged => fallback kicks in
+            templar=_FakeTemplarLookupUndefined(),
             raw="{{ CA_ROOT.cert_host }}",
             var_name="x",
             err_prefix="t",
             variables=variables,
         )
-        self.assertEqual(out, "/etc/infinito.nexus/ca/root-ca.crt")
+        self.assertEqual(out, ca_cert_host("infinito.nexus"))
 
     def test_embedded_expression_in_string(self):
-        # Make sure embedded {{ ... }} inside a larger string is handled.
         variables = {"SOFTWARE_DOMAIN": "infinito.nexus"}
         out = render_ansible_strict(
             templar=None,
@@ -221,7 +202,46 @@ class TestTemplatingRenderStrict(unittest.TestCase):
             err_prefix="t",
             variables=variables,
         )
-        self.assertEqual(out, "/etc/infinito.nexus/ca/root-ca.crt")
+        self.assertEqual(out, ca_cert_host("infinito.nexus"))
+
+    def test_inline_conditional_with_concat(self):
+        # Mirrors web-app-mailu/meta/server.yml (inline conditional + ~ concat).
+        raw = (
+            "{{ ('mail.' ~ DOMAIN_PRIMARY) if MAIL_PROVIDER == 'web-app-mailu' "
+            "else ('legacy-mail.' ~ DOMAIN_PRIMARY) }}"
+        )
+        base = {"DOMAIN_PRIMARY": "example.com"}
+        self.assertEqual(
+            render_ansible_strict(
+                templar=None,
+                raw=raw,
+                var_name="x",
+                err_prefix="t",
+                variables={**base, "MAIL_PROVIDER": "web-app-mailu"},
+            ),
+            "mail.example.com",
+        )
+        self.assertEqual(
+            render_ansible_strict(
+                templar=None,
+                raw=raw,
+                var_name="x",
+                err_prefix="t",
+                variables={**base, "MAIL_PROVIDER": "web-app-stalwart"},
+            ),
+            "legacy-mail.example.com",
+        )
+        # Unset MAIL_PROVIDER takes the else branch.
+        self.assertEqual(
+            render_ansible_strict(
+                templar=None,
+                raw=raw,
+                var_name="x",
+                err_prefix="t",
+                variables=base,
+            ),
+            "legacy-mail.example.com",
+        )
 
     def test_filters_lower_upper_default(self):
         variables = {"NAME": "MiXeD", "EMPTY": ""}

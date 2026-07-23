@@ -11,8 +11,8 @@ sso:
       port: 5678
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -42,6 +42,11 @@ postgres:
   enabled: true
   shared: "{{ 'svc-db-postgres' in group_names }}"
 n8n:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   backup:
     no_stop_required: false
   image: docker.n8n.io/n8nio/n8n
@@ -52,12 +57,23 @@ n8n:
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
+  # nocheck: single-replica n8n Community Edition caches isInstanceOwnerSetUp per process with no cross-replica invalidation; replicas that miss the owner-setup POST keep serving showSetupOnFirstLoad=true and bounce the SPA to /setup after login; multi-main requires licensed queue mode
+  replicas: 1
   ports:
+    internal:
+      http: 5678
     local:
       http: 8080
       sso: 16510
   run_after:
     - web-app-keycloak
     - web-app-matomo
+    - web-app-stalwart
     - web-app-mailu
-  lifecycle: alpha
+  lifecycle: beta
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

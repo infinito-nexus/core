@@ -1,23 +1,21 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  application:
+  {% set service_name = 'joomla' %}
+  {% set container_healthcheck_start_period = '15m' %}
+  {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         JOOMLA_IMAGE: "{{ JOOMLA_IMAGE }}"
         JOOMLA_VERSION: "{{ JOOMLA_VERSION }}"
-    image: "{{ JOOMLA_CUSTOM_IMAGE }}"
-    container_name: {{ JOOMLA_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    volumes:
-      - data:/var/www/html
-      - {{ JOOMLA_UPLOAD_CONFIG }}:/usr/local/etc/php/conf.d/uploads.ini:ro
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.joomla.ports.local.http') }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
+        JOOMLA_ENTRYPOINT_SCRIPT_HOST_REL: "{{ JOOMLA_ENTRYPOINT_SCRIPT_HOST_REL }}"
+        JOOMLA_ENTRYPOINT_SCRIPT_DOCKER: "{{ JOOMLA_ENTRYPOINT_SCRIPT_DOCKER }}"
+    {{ lookup('container_image', application_id, 'joomla') }}
+    {{ lookup('compose_only', 'container_name', JOOMLA_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_ports', ['joomla', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': JOOMLA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

@@ -1,2 +1,14 @@
 ---
 application_id: svc-db-redis
+entity_name: "{{ application_id | get_entity_name }}"
+
+database_type: "{{ entity_name }}"
+
+REDIS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+REDIS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+REDIS_PASSWORD: "{{ lookup('config', application_id, 'credentials.REDIS_PASSWORD') }}"
+REDIS_EXPOSE_LOCAL: true
+REDIS_RETRIES: 5
+REDIS_DELAY: 5
+REDIS_EXEC_SHELL: "container exec -e REDIS_PASSWORD={{ REDIS_PASSWORD | quote }} {{ REDIS_CONTAINER_ADDRESS }} sh -lc"
+REDIS_CLI: 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning'

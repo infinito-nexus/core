@@ -4,7 +4,7 @@
 # Assumes `domain` and (optionally) `cf_zone_id` are available.
 # Safe to run repeatedly; only changes when the mode is not already "on".
 
-- name: "Read current Cloudflare development_mode setting"
+- name: "📖 Read current Cloudflare development_mode setting"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/settings/development_mode"
     method: GET
@@ -15,7 +15,7 @@
   register: cf_dev_mode_current
   when: ASYNC_ENABLED | bool
 
-- name: "Enable Cloudflare Development Mode"
+- name: "🟢 Enable Cloudflare Development Mode"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/settings/development_mode"
     method: PATCH

@@ -108,9 +108,7 @@ class FilterModule:
         Returns a list of additional whitelist entries for a given directive.
         Accepts both scalar and list in config; always returns a list.
         """
-        wl = get(
-            applications, application_id, "server.csp.whitelist." + directive, False, []
-        )
+        wl = get(applications, application_id, "csp.whitelist." + directive, False, [])
         if isinstance(wl, list):
             return wl
         if wl:
@@ -133,7 +131,7 @@ class FilterModule:
             default_flags = {"unsafe-inline": True}
 
         configured = get(
-            applications, application_id, "server.csp.flags." + directive, False, {}
+            applications, application_id, "csp.flags." + directive, False, {}
         )
 
         merged = {**default_flags, **configured}
@@ -151,7 +149,7 @@ class FilterModule:
         Accepts both scalar and list in config; always returns a list.
         """
         snippets = get(
-            applications, application_id, "server.csp.hashes." + directive, False, []
+            applications, application_id, "csp.hashes." + directive, False, []
         )
         if isinstance(snippets, list):
             return snippets
@@ -207,9 +205,9 @@ class FilterModule:
             that token is removed from the merged base even if present in elem/attr.
           - Inline hashes are added ONLY if that directive does NOT include 'unsafe-inline'.
           - Whitelists/flags/hashes read from:
-              server.csp.whitelist.<directive>
-              server.csp.flags.<directive>
-              server.csp.hashes.<directive>
+              csp.whitelist.<directive>
+              csp.flags.<directive>
+              csp.hashes.<directive>
           - “Smart defaults”:
               * internal CDN for style/script elem and connect
               * Matomo endpoints (if services.matomo.enabled) for script-elem/connect
@@ -246,7 +244,7 @@ class FilterModule:
                 explicit_flags = get(
                     applications,
                     application_id,
-                    "server.csp.flags." + directive,
+                    "csp.flags." + directive,
                     False,
                     {},
                 )

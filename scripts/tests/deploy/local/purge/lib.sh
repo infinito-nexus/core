@@ -3,5 +3,5 @@ set -euo pipefail
 
 docker exec "${INFINITO_CONTAINER}" bash -lc "
   echo \">>> Cleaning up lib \"
-  rm -rv /var/lib/infinito/ || true
+  rm -rv ${INFINITO_DIR_VAR_LIB:?}/ || true
 "

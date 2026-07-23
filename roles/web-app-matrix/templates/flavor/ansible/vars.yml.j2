@@ -7,9 +7,6 @@ matrix_playbook_migration_validated_version: "{{ MATRIX_MDAD_MIGRATION_VALIDATED
 matrix_synapse_macaroon_secret_key: "{{ lookup('config', application_id, 'credentials.macaroon_secret_key') }}"
 matrix_homeserver_generic_secret_key: "{{ lookup('config', application_id, 'credentials.macaroon_secret_key') }}"
 
-# Synapse's default rc_login (burst 3, ~0.17/s) is too strict for the SSO E2E
-# suite, where several personas/specs sign in back-to-back and exhaust the
-# burst, leaving each later sign-in cycling consent <-> M_LIMIT_EXCEEDED.
 matrix_synapse_rc_login:
   address:
     per_second: 1
@@ -59,11 +56,16 @@ jitsi_jicofo_container_network: host
 
 matrix_livekit_jwt_service_container_port: 8030
 
-{% if (TLS_MODE | lower) == 'self_signed' %}
+{% if MATRIX_OIDC_ENABLED or (TLS_MODE | lower) == 'self_signed' %}
 matrix_synapse_container_extra_arguments:
+{% if MATRIX_OIDC_ENABLED %}
+  - "--add-host={{ OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') }}:{{ lookup('config', application_id, 'networks.local.subnet') | regex_replace('\\.0/\\d+$', '.1') }}"
+{% endif %}
+{% if (TLS_MODE | lower) == 'self_signed' %}
   - "--mount type=bind,src={{ CA_TRUST.cert_host }},dst={{ MATRIX_CA_MOUNT_PATH }},ro"
   - "-e SSL_CERT_FILE={{ MATRIX_CA_MOUNT_PATH }}"
   - "-e REQUESTS_CA_BUNDLE={{ MATRIX_CA_MOUNT_PATH }}"
+{% endif %}
 {% endif %}
 
 {% if MATRIX_COTURN_SHARED %}
@@ -124,17 +126,17 @@ matrix_synapse_ext_password_provider_ldap_attributes_name: givenName
 matrix_client_element_enabled: true
 matrix_client_element_default_hs_url: "{{ MATRIX_SYNAPSE_URL }}"
 
-matrix_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | default(false) | string | lower }}
-matrix_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | default(false) | string | lower }}
-matrix_hookshot_enabled: {{ MATRIX_BRIDGE.hookshot | default(false) | string | lower }}
-matrix_appservice_discord_enabled: {{ MATRIX_BRIDGE.discord | default(false) | string | lower }}
-matrix_mautrix_discord_enabled: {{ MATRIX_BRIDGE.mautrix_discord | default(false) | string | lower }}
-matrix_mautrix_slack_enabled: {{ MATRIX_BRIDGE.mautrix_slack | default(false) | string | lower }}
-matrix_mautrix_signal_enabled: {{ MATRIX_BRIDGE.mautrix_signal | default(false) | string | lower }}
-matrix_mautrix_telegram_enabled: {{ MATRIX_BRIDGE.mautrix_telegram | default(false) | string | lower }}
-matrix_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | default(false) | string | lower }}
-matrix_mautrix_whatsapp_enabled: {{ MATRIX_BRIDGE.mautrix_whatsapp | default(false) | string | lower }}
-matrix_mautrix_gitter_enabled: {{ MATRIX_BRIDGE.gitter | default(false) | string | lower }}
+matrix_bridge_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | string | lower }}
+matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | lower }}
+matrix_bridge_hookshot_enabled: {{ MATRIX_BRIDGE.hookshot | string | lower }}
+matrix_bridge_appservice_discord_enabled: {{ MATRIX_BRIDGE.discord | string | lower }}
+matrix_bridge_mautrix_discord_enabled: {{ MATRIX_BRIDGE.mautrix_discord | string | lower }}
+matrix_bridge_mautrix_slack_enabled: {{ MATRIX_BRIDGE.mautrix_slack | string | lower }}
+matrix_bridge_mautrix_signal_enabled: {{ MATRIX_BRIDGE.mautrix_signal | string | lower }}
+matrix_bridge_mautrix_telegram_enabled: {{ MATRIX_BRIDGE.mautrix_telegram | string | lower }}
+matrix_bridge_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | string | lower }}
+matrix_bridge_mautrix_whatsapp_enabled: {{ MATRIX_BRIDGE.mautrix_whatsapp | string | lower }}
+matrix_bridge_mautrix_gitter_enabled: {{ MATRIX_BRIDGE.gitter | string | lower }}
 
 jitsi_enabled: {{ MATRIX_CONFERENCING_JITSI | string | lower }}
 matrix_rtc_enabled: {{ MATRIX_CONFERENCING_ELEMENT_CALL | string | lower }}

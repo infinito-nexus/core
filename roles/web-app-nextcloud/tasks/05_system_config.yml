@@ -1,9 +1,9 @@
 ---
-- name: Load System Nextcloud configuration variables
+- name: ⚙️ Load System Nextcloud configuration variables
   include_vars:
     file: system.yml
 
-- name: "Apply Nextcloud system configs (batched shell)"
+- name: "📌 Apply Nextcloud system configs (batched shell)"
   ansible.builtin.shell: |
     set -euo pipefail
     {% for item in nextcloud_system_config %}

@@ -1,23 +1,22 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  keycloak:
-    image: "{{ KEYCLOAK_IMAGE }}:{{ KEYCLOAK_VERSION }}"
-    container_name: {{ KEYCLOAK_CONTAINER }}
+  {# nocheck: container-port-set-unused #}
+  {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.management') %}
+  {% set container_healthcheck = 'health/live' %}
+  {% set service_name = 'keycloak' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'keycloak') }}
+    {{ lookup('compose_only', 'container_name', KEYCLOAK_CONTAINER) }}
     hostname: {{ KEYCLOAK_CONTAINER_HOSTNAME }}
     command: start{% if KEYCLOAK_DEBUG_ENABLED %} --verbose{% endif %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-      - "{{ KEYCLOAK_SERVER_HOST }}:8080"
-    volumes:
-      - "{{ KEYCLOAK_REALM_IMPORT_DIR_HOST }}:{{ KEYCLOAK_REALM_IMPORT_DIR_DOCKER }}"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-{% set container_port = 9000 %}
-{% set container_healthcheck = 'health/live' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_ports', ['keycloak', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'keycloak') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

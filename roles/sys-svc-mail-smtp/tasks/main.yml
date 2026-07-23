@@ -1,4 +1,4 @@
 ---
-- name: "Load SMTP (once)"
+- name: "🔌 Load SMTP (once)"
   include_tasks: enable.yml
   when: not (run_once_sys_svc_mail_smtp | default(false) | bool)

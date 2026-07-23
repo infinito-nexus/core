@@ -1,31 +1,35 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "sys-hostname"
   when: not (run_once_sys_hostname | default(false) | bool)
 
-- name: "Assert Mailu was preloaded before configuring external mail"
+- name: "✅ Assert the mail provider was preloaded before configuring external mail"
   ansible.builtin.assert:
     that:
-      - run_once_web_app_mailu is defined
-      - (lookup('users', 'no-reply').tokens | default({})).get('web-app-mailu', '') | length > 0
+      - >-
+        lookup('vars', 'run_once_' ~ (MAIL_PROVIDER | replace('-', '_')),
+        default='__missing__') != '__missing__'
+      - (lookup('users', 'no-reply').tokens | default({})).get(MAIL_PROVIDER, '') | length > 0
     fail_msg: >-
-      Mailu must be preloaded by sys-service-loader before sys-svc-mail runs.
-      Missing run_once_web_app_mailu or missing users['no-reply'].tokens['web-app-mailu']
-      indicates that a service was loaded outside the constructor service-loader path.
+      {{ MAIL_PROVIDER }} must be preloaded by sys-service-loader before
+      sys-svc-mail runs. Missing run_once_{{ MAIL_PROVIDER | replace('-', '_') }}
+      or missing users['no-reply'].tokens['{{ MAIL_PROVIDER }}'] indicates that
+      a service was loaded outside the constructor service-loader path.
   when:
-    - "'web-app-mailu' in group_names"
+    - MAIL_PROVIDER in group_names
+    - MODE_ASSERT_LOCAL | bool
 
-- name: Setup emails via localhost
+- name: 🔧 Setup emails via localhost
   include_role:
     name: sys-svc-mail-smtp
   when:
     - run_once_sys_svc_mail_smtp is not defined
     - not (lookup('email').external | bool)
 
-- name: Setup msmtp client
+- name: 🔧 Setup msmtp client
   include_role:
     name: sys-svc-mail-msmtp
   when:

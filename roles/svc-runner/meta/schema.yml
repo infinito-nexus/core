@@ -1,3 +1,4 @@
+---
 credentials:
   runner_api_token:
     description: GitHub Personal Access Token with repo scope used to register runner instances with the target repository.

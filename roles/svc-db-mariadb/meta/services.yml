@@ -1,9 +1,17 @@
 ---
 mariadb:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  central RDBMS, single-node until multi-replica replication (galera / async) is in scope
+  placement: manager
   bond: 1
   enabled: true
   shared: true
   version: "12.3"
+  custom: true
   image: mariadb
   name: mariadb
   min_storage: 10GB
@@ -16,4 +24,12 @@ mariadb:
   ports:
     local:
       mariadb: 3306
+    internal:
+      mariadb: 3306
   lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

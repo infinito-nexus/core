@@ -3,17 +3,12 @@ TEST_E2E_PLAYWRIGHT_IMAGE: "{{ lookup('config', 'test-e2e-playwright', 'services
   }}"
 TEST_E2E_PLAYWRIGHT_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version') | image_version }}"
 
-# Where we stage per-role Playwright projects on the host
 TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
-# Where to store per-role reports/artifacts (host dir)
-TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "/var/lib/infinito/logs/test-e2e-playwright"
+TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "{{ [DIR_VAR_LIB, 'logs', 'test-e2e-playwright'] | path_join }}"
 
-# `--max-failures=5` bounds the retry budget when a role is broken.
 TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"
 
-# Keep false: parallelises only at the file level, so intra-file ordering
-# assumptions (rate-limit waits, shared-account mutations) stay safe.
 TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL: false
 
 TEST_E2E_PLAYWRIGHT_APPS: >-

@@ -1,0 +1,4 @@
+---
+canonical:
+  - wheel.{{ DOMAIN_PRIMARY }}
+aliases: []

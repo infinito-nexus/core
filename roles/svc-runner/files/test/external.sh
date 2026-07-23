@@ -4,6 +4,8 @@
 # (normal in DinD CI where runners cannot register against GitHub).
 set -euo pipefail
 
+CURL="curl --connect-timeout 5 --max-time 30"
+
 if [[ -z "${RUNNER_API_TOKEN:-}" ]]; then
     echo "SKIP: RUNNER_API_TOKEN not set — skipping GitHub registration and smoke dispatch"
     exit 0
@@ -11,9 +13,8 @@ fi
 
 fail_count=0
 
-# 4) GitHub API: verify at least RUNNER_COUNT runners are registered and online.
 echo "Checking GitHub runner registration via API..."
-if ! runners_json=$(curl -sf \
+if ! runners_json=$(${CURL} -sf \
     -H "Authorization: Bearer ${RUNNER_API_TOKEN}" \
     -H "Accept: application/vnd.github+json" \
     "https://api.github.com/repos/${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO}/actions/runners"); then
@@ -32,12 +33,10 @@ else
     echo "OK: ${online_count} runner(s) online on GitHub (${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO})"
 fi
 
-# Dispatch test-runner-smoke.yml and wait for success — the real E2E gate
-# (runner picks up the job, checks out, reaches Docker via DooD, deploys).
 echo "Dispatching test-runner-smoke.yml against ref=${RUNNER_GIT_REF}..."
 dispatch_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-dispatch_http=$(curl -sf -o /dev/null -w "%{http_code}" \
+dispatch_http=$(${CURL} -sf -o /dev/null -w "%{http_code}" \
     -X POST \
     -H "Authorization: Bearer ${RUNNER_API_TOKEN}" \
     -H "Accept: application/vnd.github+json" \
@@ -51,12 +50,11 @@ if [[ "${dispatch_http}" != "204" ]]; then
 else
     echo "OK: smoke workflow dispatched (HTTP 204)"
 
-    # Discover the run ID — GitHub creates it asynchronously; retry for up to 60s.
     smoke_run_id=""
     attempts=0
     while [[ -z "${smoke_run_id}" && "${attempts}" -lt 12 ]]; do
         sleep 5
-        if ! runs_json=$(curl -sf \
+        if ! runs_json=$(${CURL} -sf \
             -H "Authorization: Bearer ${RUNNER_API_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO}/actions/workflows/test-runner-smoke.yml/runs?per_page=10"); then
@@ -79,12 +77,11 @@ print(runs[0]['id'] if runs else '')
     else
         echo "OK: smoke run found (id=${smoke_run_id}), polling for completion (timeout=90min)..."
 
-        # Poll until completed or 90-minute timeout.
         deadline=$(($(date +%s) + 5400))
         smoke_conclusion=""
         while [[ "$(date +%s)" -lt "${deadline}" ]]; do
             sleep 30
-            if ! run_json=$(curl -sf \
+            if ! run_json=$(${CURL} -sf \
                 -H "Authorization: Bearer ${RUNNER_API_TOKEN}" \
                 -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO}/actions/runs/${smoke_run_id}"); then

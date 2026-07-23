@@ -1,5 +1,5 @@
 ---
-- name: "Ensure cert deploy target directory exists"
+- name: "✅ Ensure cert deploy target directory exists"
   file:
     path: "{{ lookup('container', application_id, 'directories.volumes') }}certs"
     state: directory
@@ -22,7 +22,19 @@
       --chdir {{ lookup('container', application_id, 'directories.instance') }}
       --project {{ (lookup('container', application_id, 'directories.instance') | regex_replace('/+$', '')) | basename }}
 
-- name: Include dependency 'sys-ctl-alm-compose'
+# Local: the material the unit just deployed parses, key matches, not expiring.
+# Remote: live endpoints from CERT_TEST_REMOTE_ENDPOINTS ("host[:port] ...",
+# fed via CI/GitHub variables) so a misconfigured production server fails here.
+- name: "✅ Verify deployed certificate material"
+  ansible.builtin.command:
+    argv:
+      - "{{ [ role_path, 'files/test.sh' ] | path_join }}"
+      - "{{ lookup('container', application_id, 'directories.instance') }}"
+  environment:
+    CERT_TEST_REMOTE_ENDPOINTS: "{{ lookup('env', 'CERT_TEST_REMOTE_ENDPOINTS') }}"
+  changed_when: false
+
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose
   when: run_once_sys_ctl_alm_compose is not defined

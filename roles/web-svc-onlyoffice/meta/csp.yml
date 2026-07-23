@@ -1,0 +1,16 @@
+---
+whitelist:
+  frame-ancestors:
+    - "*.{{ DOMAIN_PRIMARY }}"
+  script-src-elem:
+    - https://fonts.googleapis.com # nocheck: url
+  style-src-elem:
+    - https://fonts.googleapis.com # nocheck: url
+  font-src:
+    - https://fonts.gstatic.com # nocheck: url
+flags:
+  script-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true

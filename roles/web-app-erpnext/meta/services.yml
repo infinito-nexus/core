@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-required — object storage not implemented for this role
+# nocheck: seaweedfs-required - object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -11,8 +11,8 @@ ldap:
   shared: "{{ 'svc-db-openldap' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -29,27 +29,32 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
   enabled: true
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — cache/queue/socketio buses, covered by role-local integration tests
+# nocheck: playwright-service-flag - cache/queue/socketio buses, covered by role-local integration tests
 redis:
   bond: 1
   enabled: true
   shared: "{{ 'svc-db-redis' in group_names }}"
-# nocheck: playwright-service-flag — self-provider
+# nocheck: playwright-service-flag - self-provider
 erpnext:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
@@ -61,11 +66,77 @@ erpnext:
     local:
       http: 8079
       websocket: 4004
+    internal:
+      http: 8080
+      websocket: 9000
+  proxy:
+    service_key: frontend
   run_after:
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g
   pids_limit: 2048
+backend:
+  name: erpnext-backend
+  ports:
+    internal:
+      http: 8000
+  cpus: "2.0"
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 2048
+frontend:
+  name: erpnext-frontend
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 512m
+  pids_limit: 512
+websocket:
+  # nocheck: single-replica
+  replicas: 1
+  name: erpnext-websocket
+  ports:
+    internal:
+      socketio: 9000
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 512
+scheduler:
+  # nocheck: single-replica
+  replicas: 1
+  name: erpnext-scheduler
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+queue-short:
+  name: erpnext-queue-short
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+queue-long:
+  name: erpnext-queue-long
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 2g
+  pids_limit: 512
+configurator:
+  # nocheck: single-replica
+  replicas: 1
+  name: erpnext-configurator
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 1g
+  pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

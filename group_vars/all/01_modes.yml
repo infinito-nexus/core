@@ -7,9 +7,5 @@ MODE_DEBUG: false # This enables debugging in ansible and in the apps, You SHOUL
 MODE_RESET: false # Cleans up all Infinito.Nexus files. It's necessary to run to whole playbook and not particial roles when using this function.
 MODE_CLEANUP: true # Cleanup unused files and configurations
 MODE_ASSERT: "{{ MODE_DEBUG  | bool }}" # Executes validation tasks during the run.
+MODE_ASSERT_LOCAL: "{{ (MODE_ASSERT | bool) and (IS_STACK_HOST | bool) }}" # MODE_ASSERT, but only on the host that owns the asserted state (preload flags, openresty config, ...).
 MODE_BACKUP: true # Executes the Backup before the deployment
-
-# Note: the previous `MODE_CI` flag (env-driven OR of GITHUB_ACTIONS / ACT /
-# INFINITO_MAKE_DEPLOY) was retired. The Playwright E2E gate now keys on
-# `RUNTIME in ['dev', 'act', 'github']` directly; see
-# `tasks/stages/02_server.yml` and `cli.meta.runtime.detect_runtime`.

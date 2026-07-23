@@ -1,0 +1,128 @@
+---
+- name: "🔍 Resolve Keycloak hosting node + container id for OpenTalk provisioning"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: keycloak
+    resolve_service_name: "{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}"
+    resolve_output_prefix: OPENTALK_KEYCLOAK
+    resolve_compose_cid: "{{ OPENTALK_KEYCLOAK_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 60
+    resolve_converge_delay: 5
+    resolve_cid_filters: "--filter health=healthy"
+
+- name: "⏳ Wait for the Keycloak container to be healthy before OpenTalk provisioning"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    {{ OPENTALK_KEYCLOAK_LOCAL_CID | quote }}
+  register: opentalk_kc_health
+  retries: 60
+  delay: 5
+  until: (opentalk_kc_health.stdout | trim) == 'healthy'
+  changed_when: false
+  delegate_to: "{{ OPENTALK_KEYCLOAK_HOST_NODE }}"
+
+- name: "✅ Authenticate kcadm against master realm for OpenTalk provisioning"
+  ansible.builtin.shell: |-
+    {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
+      set -e
+      {{ KEYCLOAK_KCADM }} config credentials \
+        --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
+        --realm master \
+        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        --password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+    '
+  vars:
+    KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ OPENTALK_KEYCLOAK_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  OPENTALK_KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
+    KEYCLOAK_SERVER_INTERNAL_URL: "http://127.0.0.1:8080"
+  register: opentalk_kcadm_login
+  retries: 6
+  delay: 10
+  until: opentalk_kcadm_login.rc == 0
+  delegate_to: "{{ OPENTALK_KEYCLOAK_HOST_NODE }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📝 Upsert dedicated confidential Keycloak client for the OpenTalk controller"
+  keycloak_kcadm_update:
+    object_kind: "client"
+    lookup_value: "{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}"
+    desired:
+      clientId: "{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}"
+      name: "OpenTalk Controller"
+      description: "Confidential client used by web-app-opentalk for token introspection and Keycloak admin API user search."
+      enabled: true
+      protocol: "openid-connect"
+      publicClient: false
+      bearerOnly: false
+      standardFlowEnabled: false
+      implicitFlowEnabled: false
+      directAccessGrantsEnabled: false
+      serviceAccountsEnabled: true
+      clientAuthenticatorType: "client-secret"
+      secret: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"
+      attributes:
+        "client.secret.creation.time": "0"
+        "oauth2.device.authorization.grant.enabled": "false"
+        "use.refresh.tokens": "true"
+    force_attrs:
+      publicClient: false
+      serviceAccountsEnabled: true
+      secret: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"
+    kcadm_exec: "container exec -i {{ OPENTALK_KEYCLOAK_LOCAL_CID }} /opt/keycloak/bin/kcadm.sh" # nocheck: container-exec-resolver  OPENTALK_KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    realm: "{{ OIDC.CLIENT.REALM }}"
+    assert_mode: "{{ MODE_ASSERT | bool }}"
+  delegate_to: "{{ OPENTALK_KEYCLOAK_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📝 Upsert dedicated confidential Keycloak client for the OpenTalk recorder"
+  keycloak_kcadm_update:
+    object_kind: "client"
+    lookup_value: "{{ OPENTALK_RECORDER_OIDC_CLIENT_ID }}"
+    desired:
+      clientId: "{{ OPENTALK_RECORDER_OIDC_CLIENT_ID }}"
+      name: "OpenTalk Recorder"
+      description: "Confidential service-account client used by the OpenTalk recorder to authenticate against the controller."
+      enabled: true
+      protocol: "openid-connect"
+      publicClient: false
+      bearerOnly: false
+      standardFlowEnabled: false
+      implicitFlowEnabled: false
+      directAccessGrantsEnabled: false
+      serviceAccountsEnabled: true
+      clientAuthenticatorType: "client-secret"
+      secret: "{{ OPENTALK_RECORDER_OIDC_CLIENT_SECRET }}"
+      attributes:
+        "client.secret.creation.time": "0"
+        "oauth2.device.authorization.grant.enabled": "false"
+        "use.refresh.tokens": "true"
+    force_attrs:
+      publicClient: false
+      serviceAccountsEnabled: true
+      secret: "{{ OPENTALK_RECORDER_OIDC_CLIENT_SECRET }}"
+    kcadm_exec: "container exec -i {{ OPENTALK_KEYCLOAK_LOCAL_CID }} /opt/keycloak/bin/kcadm.sh" # nocheck: container-exec-resolver  OPENTALK_KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    realm: "{{ OIDC.CLIENT.REALM }}"
+    assert_mode: "{{ MODE_ASSERT | bool }}"
+  delegate_to: "{{ OPENTALK_KEYCLOAK_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Grant OpenTalk controller service account `view-users` role"
+  ansible.builtin.shell: |-
+    {{ KCEXEC }} sh -lc '
+      set -e
+      KCADM={{ KEYCLOAK_KCADM }}
+      REALM={{ OIDC.CLIENT.REALM | quote }}
+      CLIENT_ID={{ OPENTALK_CTRL_OIDC_CLIENT_ID | quote }}
+
+      SA_USER_ID=$($KCADM get clients/$($KCADM get clients -r $REALM -q clientId=$CLIENT_ID --fields id --format csv --noquotes | tail -n1)/service-account-user -r $REALM --fields id --format csv --noquotes | tail -n1)
+
+      RM_CLIENT_ID=$($KCADM get clients -r $REALM -q clientId=realm-management --fields id --format csv --noquotes | tail -n1)
+      $KCADM add-roles -r $REALM --uusername service-account-$CLIENT_ID --cclientid realm-management --rolename view-users --rolename query-users || true
+    '
+  vars:
+    KCEXEC: "container exec -i {{ OPENTALK_KEYCLOAK_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  OPENTALK_KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
+  delegate_to: "{{ OPENTALK_KEYCLOAK_HOST_NODE }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

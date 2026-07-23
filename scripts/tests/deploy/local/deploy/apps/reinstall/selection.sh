@@ -8,7 +8,6 @@ set -euo pipefail
 # Required env:
 #   INFINITO_DISTRO     arch|debian|ubuntu|fedora|centos
 #   INFINITO_INVENTORY_DIR       /etc/inventories/local-full-server
-#   INFINITO_DEPLOY_TYPE    server|workstation|universal
 #   apps       web-app-*
 #
 # Optional:
@@ -20,16 +19,7 @@ PYTHON="${PYTHON:-python3}"
 
 : "${INFINITO_DISTRO:?INFINITO_DISTRO must be set (e.g. arch)}"
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR must be set}"
-: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE must be set (server|workstation|universal)}"
 : "${apps:?apps must be set (e.g. web-app-keycloak)}"
-
-case "${INFINITO_DEPLOY_TYPE}" in
-server | workstation | universal) ;;
-*)
-	echo "[ERROR] Invalid INFINITO_DEPLOY_TYPE: ${INFINITO_DEPLOY_TYPE}" >&2
-	exit 2
-	;;
-esac
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../../../.." && pwd)"
@@ -41,7 +31,7 @@ source "scripts/meta/env/load.sh"
 # shellcheck source=scripts/tests/deploy/local/utils/cache-retry.sh
 source "${SCRIPT_DIR}/../../../utils/cache-retry.sh"
 
-echo "=== LOCAL: distro=${INFINITO_DISTRO} type=${INFINITO_DEPLOY_TYPE} app=${apps} full_cycle=${full_cycle:-false} ==="
+echo "=== LOCAL: distro=${INFINITO_DISTRO} app=${apps} full_cycle=${full_cycle:-false} ==="
 echo "limit_host=${INFINITO_LIMIT_HOST}"
 echo "inventory_dir=${INFINITO_INVENTORY_DIR}"
 echo
@@ -56,9 +46,13 @@ echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
 echo ">>> Pre-cleanup shared entities (host docker context)"
 apps='matomo' scripts/tests/deploy/local/purge/entity.sh
 
-echo ">>> Running entry.sh inside container"
-"${PYTHON}" -m cli.administration.deploy.development exec \
-	-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/entry-bootstrap.sh"
+if [[ "${INFINITO_SKIP_COMPILE:-}" == "true" ]]; then
+	echo ">>> Skipping entry.sh bootstrap recompile (INFINITO_SKIP_COMPILE=true)"
+else
+	echo ">>> Running entry.sh inside container"
+	"${PYTHON}" -m cli.administration.deploy.development exec \
+		-- bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/utils/entry-bootstrap.sh"
+fi
 
 deploy_args=(
 	--apps "${apps}"

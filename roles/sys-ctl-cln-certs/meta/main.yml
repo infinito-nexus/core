@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automates the revocation and deletion of unused Let's Encrypt certificates
+  description: "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

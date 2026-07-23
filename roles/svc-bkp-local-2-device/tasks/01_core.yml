@@ -1,0 +1,32 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: 📂 Include dependencies
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - sys-ctl-cln-faild-bkps
+    - sys-ctl-cln-bkps
+    - sys-lock
+
+- name: 🛑 Fail if any backup_to_usb variable is empty
+  assert:
+    that:
+      - BACKUP_TO_USB_MOUNT != ""
+      - BACKUP_TO_USB_TARGET != ""
+      - BACKUP_TO_USB_SOURCE != ""
+    fail_msg: |
+      One or more of the configuration variables are empty!
+      Please set:
+        - mount
+        - target
+        - source
+      to non‑empty values in your configuration file.
+  when: MODE_ASSERT | bool
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_timer_enabled: true
+    system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_LOCAL_TO_DEVICE }}"
+    system_service_suppress_flush: true # plug-triggered via the .mount unit or the timer; no USB device at deploy time, so never ExecStart the oneshot during the flush

@@ -1,3 +1,5 @@
 ---
 compose_handlers_flush: false # Set to true in the vars/main.yml of the including role to autoflush after compose routine
+compose_mode_force: "" # A role may set this to 'compose' or 'swarm' in its vars to override the cluster DEPLOYMENT_MODE for that role only
+compose_mode: "{{ compose_mode_force or DEPLOYMENT_MODE }}" # Effective deploy mode for this role (SPOT): the per-role override if set, else the cluster mode
 compose_repository_pull: "{{ compose_repository_url is defined and compose_repository_url is string and compose_repository_url | length > 0 }}"

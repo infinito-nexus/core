@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: The Docker Central Database Role lets you quickly provision a centralized database through Docker Compose. Whether using MariaDB or PostgreSQL,
-    this role provides a reliable, low-maintenance solution that supports your business applications.
+  description: Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

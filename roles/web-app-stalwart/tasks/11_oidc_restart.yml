@@ -1,0 +1,42 @@
+---
+# Restart only while the issuer answers: Stalwart resolves the OIDC issuer at
+# (re)start, and a restart with the issuer down sticks on internal auth.
+
+- name: "⏳ Wait for the OIDC issuer discovery endpoint"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - exec
+      - -T
+      - stalwart
+      - curl
+      - -ksS
+      - -o
+      - /dev/null
+      - -w
+      - "%{http_code}"
+      - "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+  args:
+    chdir: "{{ STALWART_INSTANCE_DIR }}"
+  register: stalwart_oidc_issuer_probe
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: stalwart_oidc_issuer_probe.stdout == '200'
+
+- name: "🔄 Restart Stalwart so OIDC directory changes take effect"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - restart
+      - stalwart
+  args:
+    chdir: "{{ STALWART_INSTANCE_DIR }}"
+  changed_when: true
+
+- name: "⏳ Wait for Stalwart API after the OIDC restart"
+  include_tasks: 02_wait_for_api.yml
+
+- name: "🧹 Clear the deferred OIDC restart flag"
+  ansible.builtin.set_fact:
+    stalwart_oidc_restart_pending: false

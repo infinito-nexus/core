@@ -1,0 +1,4 @@
+---
+canonical:
+  - bridgyfed.{{ DOMAIN_PRIMARY }}
+aliases: []

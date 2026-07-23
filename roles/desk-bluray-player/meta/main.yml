@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs VLC, libaacs and libbluray for Blu-ray playback on Arch Linux–based systems.
+  author: Kevin Veen-Birkenbach
+  description: Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

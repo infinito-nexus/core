@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Evangelos Tsakoudis
-  description: Penpot is the open-source design and prototyping platform for UI/UX design, real-time collaboration, and developer handoff.
+  description: Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,17 +1,16 @@
 ---
 credentials:
-  # Per-consumer cookie secret for the SSO-proxy sidecar (flavor: oauth2).
-  # Provisioned dynamically into each consumer's `credentials:` map by
-  # `utils/manager/inventory.py._apply_one_role_special_rules` whenever
-  # the consumer's services.sso.enabled is truthy. Declared here so the
-  # cross-role `lookup('config', sso_proxy_application_id, ...)` call
-  # in templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2 resolves.
   sso_proxy_cookie_secret:
     description: Cookie secret for the SSO-proxy sidecar (hex string, 32 characters, generated via `openssl rand -hex 16`)
     algorithm: plain
     validation: ^.*$
   administrator_password:
     description: Password for the Keycloak administrator user (used in bootstrap and CLI access)
+    algorithm: sha256
+    validation: ^[a-f0-9]{64}$
+  oidc_client_secret:
+    description: Client secret for the shared OIDC client; consumed by the SSO-proxy sidecar and the Keycloak realm client, and used as the default for
+      OIDC.CLIENT.SECRET when the inventory sets none.
     algorithm: sha256
     validation: ^[a-f0-9]{64}$
   recaptcha:

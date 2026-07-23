@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Federated chess server based on ActivityPub. Play and follow games across the Fediverse with verified rules and open identities.
+  author: Kevin Veen-Birkenbach
+  description: Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

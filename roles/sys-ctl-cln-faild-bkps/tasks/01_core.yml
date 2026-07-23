@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: Include dependencies
+- name: 📂 Include dependencies
   include_role:
     name: "{{ item }}"
   loop:
@@ -10,12 +10,20 @@
     - sys-ctl-alm-compose
     - sys-lock
 
-- name: "Install '{{ CLEANUP_FAILED_BACKUPS_PKG }}' via pip"
+- name: "📦 Install '{{ CLEANUP_FAILED_BACKUPS_PKG }}' via pip"
   include_role:
     name: sys-pip-install
   vars:
     package_name: "{{ CLEANUP_FAILED_BACKUPS_PKG }}"
     global_install: true
+
+- name: "✅ Ensure backups root exists before the first backup run"
+  ansible.builtin.file:
+    path: "{{ DIR_BACKUPS }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
 - include_role:
     name: sys-service
@@ -27,7 +35,7 @@
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP| join(" ") }} --timeout
       "{{ SYS_TIMEOUT_CLEANUP_SERVICES }}"'
     system_service_tpl_exec_start: >-
-      /bin/sh -c "{{ lookup('command_path', CLEANUP_FAILED_BACKUPS_COMMAND) }}
+      /bin/sh -c "{{ CLEANUP_FAILED_BACKUPS_COMMAND }}
       --backups-root {{ DIR_BACKUPS | quote }}
       --all
       --force-keep {{ CLEANUP_FAILED_BACKUPS_FORCE_KEEP }}

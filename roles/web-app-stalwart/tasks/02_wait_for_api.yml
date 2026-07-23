@@ -1,0 +1,49 @@
+---
+# Wait for readiness (not just liveness): /healthz/ready covers the stores, so
+# directory-backed SMTP checks (e.g. hlth-msmtp right after a restart) cannot
+# race a booting instance whose RCPT lookups still fail closed.
+- name: "⏳ Wait until Stalwart management API is ready"
+  block:
+    - name: "🔍 Probe Stalwart readiness endpoint"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - exec
+          - -T
+          - stalwart
+          - curl
+          - -fsS
+          - -o
+          - /dev/null
+          - "{{ STALWART_LOCAL_BASE_URL }}/healthz/ready"
+      args:
+        chdir: "{{ STALWART_INSTANCE_DIR }}"
+      register: stalwart_api_check
+      retries: 30
+      delay: 5
+      until: stalwart_api_check.rc == 0
+      changed_when: false
+
+  rescue:
+    - name: "🧾 Collect Stalwart container logs (last 300 lines)" # nocheck: rescue-diagnostics container logs vanish with the failed round's teardown; capture in-play, re-raise below
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - logs
+          - --tail=300
+          - stalwart
+      args:
+        chdir: "{{ STALWART_INSTANCE_DIR }}"
+      register: stalwart_api_logs
+      changed_when: false
+
+    - name: "🛑 Fail: Stalwart management API not ready"
+      ansible.builtin.fail:
+        msg: |
+          Stalwart management API was not ready in time.
+
+          Last stderr:
+          {{ stalwart_api_check.stderr | default('') }}
+
+          --- Stalwart container logs (last 300 lines) ---
+          {{ stalwart_api_logs.stdout | default('No logs available') }}

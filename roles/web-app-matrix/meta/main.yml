@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Matrix, a decentralized communication platform for secure, real-time messaging and collaboration with federation, end-to-end encryption,
-    and protocol bridges.
+  description: Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,4 +1,13 @@
 ---
-# Storage Space-Related Configurations          
 SIZE_PERCENT_MAXIMUM_BACKUP: 75 # Maximum storage space in percent for backups
 SIZE_PERCENT_CLEANUP_DISC_SPACE: 85 # Threshold for triggering cleanup actions
+
+STORAGE_NFS_STATE_PATH: "{{ lookup('nfs_state_path') }}"
+STORAGE_NFS_MOUNT_OPTS: "{{ lookup('nfs_mount_opts') }}"
+STORAGE_NFS_FSTYPE: "{{ lookup('nfs_fstype') }}"
+STORAGE_NFS_CLIENT_SRC: "{{ lookup('nfs_client_src') }}"
+
+storage:
+  backend: local
+  nfs:
+    server: ""

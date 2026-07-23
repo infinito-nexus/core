@@ -19,16 +19,15 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-# Per-worker status files live in a fresh dir under TMPDIR. We do NOT
-# trap-delete on EXIT — that would race the background workers if the
-# parent shell is interrupted mid-run (the trap fires, the dir
-# disappears, an in-flight worker then tries to write its status file
-# and crashes with "No such file or directory"). Cleanup happens
+# Exception: no trap-delete on EXIT for status_dir -- that would race the
+# background workers if the parent shell is interrupted mid-run (the trap
+# fires, the dir disappears, an in-flight worker then tries to write its
+# status file and crashes with "No such file or directory"). Cleanup happens
 # explicitly after `wait` returns, see end of script.
 status_dir="$(mktemp -d)"
 
+# $1 = tool name, $2 = OK|SKIP
 write_status() {
-	# $1 = tool name, $2 = OK|SKIP
 	printf '%s %s\n' "$2" "$1" >"${status_dir}/$1"
 }
 
@@ -106,9 +105,6 @@ run_markdownlint() {
 	fi
 	local rc=0
 	markdownlint-cli2 --fix >/dev/null 2>&1 || rc=$?
-	# rc=1 means "violations remain after fix" — that's expected when the
-	# fixer can't auto-resolve everything; treat as OK. Only crashes
-	# (rc>=2) count as FAIL.
 	if [[ $rc -le 1 ]]; then
 		write_status markdownlint-cli2 OK
 	else
@@ -123,9 +119,7 @@ run_ansible_lint() {
 	fi
 	local rc=0
 	ansible-lint --fix >/dev/null 2>&1 || rc=$?
-	# ansible-lint exits 2 for violations, 0 for clean; both are normal
-	# autoformat outcomes. Higher codes (3+) signal infrastructure errors.
-	if [[ $rc -le 2 ]]; then
+	if [[ $rc -eq 0 || $rc -eq 2 || $rc -eq 8 ]]; then
 		write_status ansible-lint OK
 	else
 		write_status ansible-lint FAIL
@@ -153,9 +147,6 @@ run_eslint() {
 		return 0
 	fi
 	local rc=0
-	# rc=1 means "violations remain after fix" — expected when the
-	# fixer can't auto-resolve everything; treat as OK. Only crashes
-	# (rc>=2) count as FAIL.
 	npx --no-install eslint --fix 'roles/**/files/**/*.js' >/dev/null 2>&1 || rc=$?
 	if [[ $rc -le 1 ]]; then
 		write_status eslint OK
@@ -177,15 +168,10 @@ workers=(run_ruff run_claude run_shell_pair run_markdownlint run_ansible_lint ru
 
 if is_truthy "${PARALLEL}"; then
 	for w in "${workers[@]}"; do "${w}" & done
-	# `|| true` so `set -e` does not abort the parent if any worker
-	# exited non-zero — write_status has still run, and we want to reach
-	# the summary block.
 	wait || true
 else
 	for w in "${workers[@]}"; do "${w}" || true; done
 fi
-
-# ── summary ──────────────────────────────────────────────────────────────────
 
 ran=()
 failed=()
@@ -219,12 +205,6 @@ if [[ "${#failed[@]}" -gt 0 ]]; then
 	)" >&2
 fi
 
-# Explicit cleanup after the summary. Reaches here only on a clean run;
-# an interrupted run leaks the status_dir under TMPDIR (small, transient,
-# auto-purged by the OS).
 rm -rf "${status_dir}"
 
-# Strict failure: any worker that wrote `FAIL` aborts the script. All
-# other workers had a chance to complete first (so the user sees the
-# full picture before the abort).
 [[ "${#failed[@]}" -eq 0 ]] || exit 1

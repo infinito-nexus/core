@@ -2,12 +2,13 @@
 
 The lookup walks ``group_names`` and returns a
 ``{consumer_id: [extension, …]}`` map sourced from each role's merged
-``meta/services.yml``. ``get_merged_applications`` is mocked so the
-tests stay hermetic.
+``meta/services.yml``. The ``applications`` lookup is mocked via
+``lookup_loader`` so the tests stay hermetic.
 """
 
 import importlib.util
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -40,6 +41,7 @@ class ServiceExtensionsLookupTests(unittest.TestCase):
     def _make_lookup(self, available_vars: dict | None = None):
         lm = self.mod.LookupModule()
         lm._templar = _DummyTemplar(available_vars or {})
+        lm._loader = mock.MagicMock()
         return lm
 
     def _run(
@@ -49,9 +51,10 @@ class ServiceExtensionsLookupTests(unittest.TestCase):
         group_names: list[str],
     ):
         lookup = self._make_lookup({"group_names": group_names})
-        with patch.object(
-            self.mod, "get_merged_applications", return_value=applications
-        ):
+        with patch.object(self.mod, "lookup_loader") as loader_mock:
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [applications]
+            )
             return lookup.run(terms, variables={"group_names": group_names})
 
     def test_zero_terms_raises(self):
@@ -69,9 +72,10 @@ class ServiceExtensionsLookupTests(unittest.TestCase):
     def test_non_list_group_names_raises(self):
         lookup = self._make_lookup({"group_names": "not-a-list"})
         with (
-            patch.object(self.mod, "get_merged_applications", return_value={}),
+            patch.object(self.mod, "lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
+            loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
             lookup.run(
                 ["postgres"],
                 variables={"group_names": "not-a-list"},

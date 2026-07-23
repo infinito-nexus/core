@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Searches the systemd journal for errors over the past day and alerts if any are found.
+  description: Scheduled health check scanning the systemd journal for daily errors and alerting on matches
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

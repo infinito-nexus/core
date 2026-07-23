@@ -1,12 +1,12 @@
 ---
-- name: Ensure systemd user unit directory exists
+- name: ✅ Ensure systemd user unit directory exists
   file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/systemd/user"
     state: directory
     mode: "0755"
   become: false
 
-- name: Install CopyQ user service unit
+- name: 📦 Install CopyQ user service unit
   copy:
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/systemd/user/copyq.service"
     content: |
@@ -22,13 +22,13 @@
     mode: "0644"
   become: false
 
-- name: Reload systemd user daemon
+- name: 🔄 Reload systemd user daemon
   systemd:
     scope: user
     daemon_reload: true
   become: false
 
-- name: Enable and start CopyQ user service
+- name: 🟢 Enable and start CopyQ user service
   systemd:
     name: copyq.service
     scope: user

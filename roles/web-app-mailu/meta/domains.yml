@@ -1,0 +1,6 @@
+---
+# Owns `mail.` only when selected as the active provider; otherwise it parks on a
+# legacy domain so it never collides with the default (web-app-stalwart).
+canonical:
+  - "{{ ('mail.' ~ DOMAIN_PRIMARY) if MAIL_PROVIDER == 'web-app-mailu' else ('legacy-mail.' ~ DOMAIN_PRIMARY) }}"
+aliases: []

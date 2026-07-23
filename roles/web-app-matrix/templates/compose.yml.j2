@@ -1,26 +1,10 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-{% if matrix_flavor == 'ansible' %}
-{% include 'flavor/ansible/services.yml.j2' %}
+    {% if matrix_flavor == 'ansible' %}
+    {% include 'flavor/ansible/services.yml.j2' %}
+    {% else %}
+    {% include 'flavor/compose/services.yml.j2' %}
+    {% endif %}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={
-        'matrix_mdad_docker': {},
-        'matrix_mdad_state': {},
-        'matrix_mdad_matrix': {},
-    }
-) }}
-{% else %}
-{% include 'flavor/compose/services.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
 
-{% set _extra_volumes = {'synapse_data': {'name': MATRIX_SYNAPSE_VOLUME}} %}
-{% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
-{%   set _ = _extra_volumes.update({'chatgpt_data': {}}) %}
-{% endif %}
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes=_extra_volumes
-) }}
-{% endif %}
-
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

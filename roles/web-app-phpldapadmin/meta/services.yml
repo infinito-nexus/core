@@ -16,17 +16,24 @@ matomo:
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
 phpldapadmin:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: phpldapadmin/phpldapadmin
-  version: latest
+  version: 2.3.11
   min_storage: 1GB
   ports:
     local:
       sso: 16486
       http: 8037
+    internal:
+      http: 8080
   run_after:
     - web-app-matomo
     - web-app-keycloak
-  lifecycle: unsupported
+  lifecycle: eol
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
@@ -38,7 +45,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: phpldapadmin
       port: 8080
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-phpldapadmin', role='administrator') }}"

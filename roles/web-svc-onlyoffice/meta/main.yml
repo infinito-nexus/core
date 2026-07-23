@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: ONLYOFFICE Document Server with automated proxy, networking, and environment configuration for seamless integration with Nextcloud and other web
-    applications.
+  description: Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

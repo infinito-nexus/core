@@ -7,11 +7,8 @@ set -euo pipefail
 
 DASHBOARD_APP="web-app-dashboard"
 MATOMO_APP="web-app-matomo"
-DASHBOARD_URL="https://dashboard.infinito.example"
-MATOMO_URL="https://matomo.infinito.example"
-
-# These constants are part of the sourced interface consumed by sibling scripts.
-: "${DASHBOARD_APP}" "${MATOMO_APP}" "${DASHBOARD_URL}" "${MATOMO_URL}"
+MARIADB_APP="svc-db-mariadb"
+POSTGRES_APP="svc-db-postgres"
 
 UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${UTILS_DIR}/../../../.." && pwd)"
@@ -55,6 +52,22 @@ load_repo_env() {
 
 load_repo_env
 ensure_git_safe_directory
+
+# Bare CI containers lack python3, so load_repo_env may not have run yet.
+if [[ -z "${INFINITO_DOMAIN:-}" ]]; then
+	for _env_file in "${REPO_ROOT}/.env" "${REPO_ROOT}/default.env"; do
+		if [[ -f "${_env_file}" ]]; then
+			INFINITO_DOMAIN="$(sed -n 's/^INFINITO_DOMAIN=//p' "${_env_file}" | head -n1)"
+			[[ -n "${INFINITO_DOMAIN}" ]] && break
+		fi
+	done
+	unset _env_file
+fi
+DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?Missing INFINITO_DOMAIN in .env and default.env}"
+MATOMO_URL="https://matomo.${INFINITO_DOMAIN}"
+
+# These constants are part of the sourced interface consumed by sibling scripts.
+: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}" "${DASHBOARD_URL}" "${MATOMO_URL}"
 
 # Print the generated inventory and host_vars for debugging and verification.
 #

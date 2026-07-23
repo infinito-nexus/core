@@ -1,0 +1,4 @@
+---
+canonical:
+  - penpot.design.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -1,3 +1,4 @@
+# nocheck: comments-valid  explanatory WHY-comments predate the stricter lint
 from __future__ import annotations
 
 import os
@@ -10,6 +11,7 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.email import LookupModule
 from utils.cache import _reset_cache_for_tests
+from utils.cache import base as cache_base
 from utils.cache import users as cache_users
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -22,7 +24,13 @@ def _write_role_config(base_dir: Path, role_name: str, payload: dict) -> None:
 
 
 class TestEmailLookup(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        _reset_cache_for_tests()
+        cls.addClassCleanup(_reset_cache_for_tests)
+
     def setUp(self) -> None:
+        cache_base._reset()
         self.lookup = LookupModule()
         self.lookup._templar = None
         self._cwd = str(Path.cwd())
@@ -30,7 +38,6 @@ class TestEmailLookup(unittest.TestCase):
         self._tmp = Path(self._tmpdir.name)
         (self._tmp / "roles").mkdir(parents=True, exist_ok=True)
         os.chdir(self._tmp)
-        _reset_cache_for_tests()
         self._tokens_store_patcher = patch.object(
             cache_users, "_load_store_users", return_value={}
         )
@@ -38,7 +45,6 @@ class TestEmailLookup(unittest.TestCase):
 
     def tearDown(self) -> None:
         self._tokens_store_patcher.stop()
-        _reset_cache_for_tests()
         os.chdir(self._cwd)
         self._tmpdir.cleanup()
 
@@ -53,6 +59,15 @@ class TestEmailLookup(unittest.TestCase):
         self.assertFalse(result["tls"])
         self.assertFalse(result["auth"])
         self.assertTrue(result["smtp"])
+
+    def test_host_is_localhost_when_not_external_under_tls(self) -> None:
+        result = self.lookup.run(
+            [],
+            variables={"inventory_hostname": "host1", "TLS_ENABLED": True},
+        )[0]
+        self.assertEqual(result["host"], "localhost")
+        self.assertFalse(result["auth"])
+        self.assertFalse(result["tls"])
 
     def test_keys_are_lowercased_without_prefix(self) -> None:
         result = self.lookup.run([], variables={})[0]
@@ -135,6 +150,98 @@ class TestEmailLookup(unittest.TestCase):
     def test_too_many_terms_raises(self) -> None:
         with self.assertRaises(AnsibleError):
             self.lookup.run(["a", "b"], variables={})
+
+    def test_sso_relay_provider_disables_auth_and_uses_port_25(self) -> None:
+        # submission_via_relay + Keycloak deployed -> relay on 25, no auth, STARTTLS.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {"sso": {"oidc": {"submission_via_relay": True}}},
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov", "web-app-keycloak"],
+            "groups": {"web-app-mailprov": ["host1"], "web-app-keycloak": ["host1"]},
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 25)
+        self.assertFalse(result["auth"])
+        self.assertTrue(result["start_tls"])
+
+    def test_sso_relay_inactive_without_keycloak(self) -> None:
+        # Same provider, but Keycloak is not deployed: keep authenticated 465.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {"sso": {"oidc": {"submission_via_relay": True}}},
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov"],
+            "groups": {"web-app-mailprov": ["host1"]},
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 465)
+        self.assertTrue(result["auth"])
+        self.assertFalse(result["start_tls"])
+
+    def test_sso_relay_inactive_when_sso_enabled_pinned_false(self) -> None:
+        # A variant pins the provider's sso.enabled to a literal false while
+        # submission_via_relay stays true (role default) and Keycloak is still
+        # deployed: the provider keeps password auth, so no relay mode.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {"sso": {"enabled": False, "oidc": {"submission_via_relay": True}}},
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov", "web-app-keycloak"],
+            "groups": {"web-app-mailprov": ["host1"], "web-app-keycloak": ["host1"]},
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 465)
+        self.assertTrue(result["auth"])
+        self.assertFalse(result["start_tls"])
+
+    def test_sso_relay_active_with_untemplated_enabled_gate(self) -> None:
+        # The role default gates sso.enabled on group_names (raw Jinja here);
+        # the guard must not treat the untemplated string as false.
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {
+                "sso": {
+                    "enabled": "{{ 'web-app-keycloak' in group_names }}",
+                    "oidc": {"submission_via_relay": True},
+                }
+            },
+        )
+        variables = {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov", "web-app-keycloak"],
+            "groups": {"web-app-mailprov": ["host1"], "web-app-keycloak": ["host1"]},
+            "TLS_ENABLED": True,
+            "inventory_hostname": "host1",
+        }
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles")
+        )[0]
+        self.assertEqual(result["port"], 25)
+        self.assertFalse(result["auth"])
+        self.assertTrue(result["start_tls"])
 
     def test_computed_defaults_are_templated(self) -> None:
         self.lookup._templar = _DummyTemplar(

@@ -12,11 +12,14 @@ from . import PROJECT_ROOT
 class TestServicesResolvable(unittest.TestCase):
     """Discovered service keys and provider roles must resolve via the service lookup."""
 
+    @classmethod
+    def setUpClass(cls):
+        cls.repo_root = PROJECT_ROOT
+        cls.roles_dir = cls.repo_root / "roles"
+        cls.applications = load_applications_from_roles_dir(cls.roles_dir)
+        cls.service_registry = build_service_registry_from_roles_dir(cls.roles_dir)
+
     def setUp(self):
-        self.repo_root = PROJECT_ROOT
-        self.roles_dir = self.repo_root / "roles"
-        self.applications = load_applications_from_roles_dir(self.roles_dir)
-        self.service_registry = build_service_registry_from_roles_dir(self.roles_dir)
         self.assertGreater(
             len(self.service_registry),
             0,

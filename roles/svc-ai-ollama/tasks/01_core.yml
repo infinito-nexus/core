@@ -1,26 +1,11 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Setup container network for {{ application_id }}"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/routine.yml' ] | path_join }}"
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
     compose_handlers_flush: true
 
-- name: Pre-pull Ollama models
-  vars:
-    _cmd: "container exec -i {{ OLLAMA_CONTAINER }} ollama pull {{ model }}"
-  shell: "{{ _cmd }}"
-  register: pull_result
-  loop: "{{ OLLAMA_PRELOAD_MODELS }}"
-  loop_control:
-    loop_var: model
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
-  changed_when: >
-    (not (ASYNC_ENABLED | bool)) and (
-      'downloaded' in (pull_result.stdout | default('')) or
-      'pulling manifest' in (pull_result.stdout | default(''))
-    )
-  failed_when: >
-    (pull_result.rc | default(0)) != 0 and
-    ('up to date' not in (pull_result.stdout | default('')))
+- name: "⬇️ Manager-side model pre-pull on the hosting node"
+  ansible.builtin.include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

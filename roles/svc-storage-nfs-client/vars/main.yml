@@ -1,0 +1,18 @@
+---
+application_id: "svc-storage-nfs-client"
+
+SVC_STORAGE_NFS_CLIENT_PACKAGES:
+  Debian:
+    - nfs-common
+  Ubuntu:
+    - nfs-common
+  Archlinux:
+    - nfs-utils
+  RedHat:
+    - nfs-utils
+  Fedora:
+    - nfs-utils
+  Alpine:
+    - nfs-utils
+
+SVC_STORAGE_NFS_CLIENT_PROBE_DIR: /run/svc-storage-nfs-client/probe

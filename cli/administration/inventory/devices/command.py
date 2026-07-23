@@ -5,7 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-from plugins.filter.get_all_invokable_apps import get_all_invokable_apps
+from plugins.filter.get.all.invokable_apps import get_all_invokable_apps
 from utils.cache.yaml import dump_yaml_str
 
 

@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "Add logout domains to CSP connect-src"
+- name: "➕ Add logout domains to CSP connect-src"
   set_fact:
     webserver_csp_whitelist_extra_by_app: >-
       {{
@@ -22,7 +22,7 @@
         )
       }}
 
-- name: "load docker, proxy for '{{ application_id }}'"
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:

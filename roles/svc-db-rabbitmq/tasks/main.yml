@@ -1,0 +1,13 @@
+---
+- include_tasks: 01_core.yml
+  when: run_once_svc_db_rabbitmq is not defined
+  vars:
+    application_id: svc-db-rabbitmq
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🎬 Initialize dedicated vhost"
+  include_tasks: 02_init.yml
+  when: database_init | bool

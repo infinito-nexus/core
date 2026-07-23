@@ -6,29 +6,18 @@ SOFTWARE_NAME: "Infinito.Nexus" # Name of the software
 SOFTWARE_DOMAIN: "{{ SOFTWARE_NAME | lower }}" # Software domain
 SOFTWARE_URL: "https://{{ SOFTWARE_DOMAIN }}" # Url of the software provicer
 
-# Operating organization that hosts this deployment. Distinct from
-# SOFTWARE_NAME (the product) — roles that render an "organization", "owner"
-# or "tenant" string into deployed services (Zammad helpdesk, etc.) MUST
-# template this rather than reusing SOFTWARE_NAME. Defaults to the software
-# name for the unbranded base install; overridden per-inventory by operators
-# who host the stack for a specific organization.
 ORGANIZATION: "{{ SOFTWARE_NAME }}"
 
-# Deployment
 ENVIRONMENT: "production" # Possible values: production, development
 RUNTIME: "host" # Where does this instance run in? Valid: act, github, dev, host
-DEPLOYMENT_MODE: "single" # Use single, if you deploy on one server. Use cluster if you setup in cluster mode.
 STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefers free storage space over cache
 
-# If true, sensitive credentials will be masked or hidden from all Ansible task logs
-# Recommendet to set to true
-# @todo needs to be implemented everywhere
 MASK_CREDENTIALS_IN_LOGS: true
 
 HOST_CURRENCY: "EUR"
 HOST_TIMEZONE: "UTC"
+HOST_TIMEZONE_LABEL: "United Kingdom"
 
-# https://en.wikipedia.org/wiki/ISO_639
 HOST_LL: "en" # Some applications are case sensitive
 HOST_LL_CC: "{{HOST_LL}}_GB"
 HOST_LL_CC_TAG: "{{ HOST_LL_CC | lower | replace('_', '-') }}" # BCP-47 / IETF language tag form (e.g. "en-gb"), as used by web apps and JSON config
@@ -38,15 +27,10 @@ HOST_LANG: "{{HOST_LL_CC}}.{{HOST_CS}}"
 HOST_DATE_FORMAT: "YYYY-MM-DD"
 HOST_TIME_FORMAT: "HH:mm"
 
-HOST_THOUSAND_SEPARATOR: "."
-HOST_DECIMAL_MARK: ","
-
-# WWW-Redirect to None WWW-Domains enabled
 WWW_REDIRECT_ENABLED: "{{ ('web-opt-rdr-www' in group_names) | bool }}"
 
 AUTO_BUILD_ALIASES: false # If enabled it creates an alias domain for each web application by the entity name, recommended to set to false to safe domain space
 
-# Domain
 DOMAIN_PRIMARY: "infinito.localhost" # Primary Domain of the server
 DOMAIN_TEST: "test.{{ DOMAIN_PRIMARY }}"
 DOMAIN_HOMEPAGE: "{{ lookup('domain','web-app-dashboard') if 'web-app-dashboard' in group_names else SOFTWARE_DOMAIN }}"
@@ -55,7 +39,9 @@ DNS_PROVIDER: "localhost" # The DNS Provider\Registrar for the domain -> Legit v
 
 HOSTING_PROVIDER: "localhost" # Provider which hosts the server -> hetzner
 
-## Docker
+MAIL_PROVIDER: "web-app-stalwart" # Active mail provider role. Set to web-app-mailu to use Mailu instead of Stalwart.
+
+
 DOCKER_IN_CONTAINER: "{{ (ansible_facts['env']['container'] | default('')) != '' }}"
 DOCKER_RESTART_POLICY: "unless-stopped" # Default restart parameter for docker containers
 DOCKER_WHITELISTET_ANON_VOLUMES: [] # Volumes which should be ignored during docker anonymous health check
@@ -64,22 +50,17 @@ DOCKER_PUBLIC_BIND_HOST: "{{ '0.0.0.0' if DOCKER_IN_CONTAINER | bool else networ
 DOCKER_REACH_HOST: "127.0.0.1" # Default localhost, will be overwritten if DOCKER_IN_CONTAINER with Docker Bridge Gateway
 BUILDKIT_ENABLED: true # When falsy the compose wrapper forces the legacy builder (DOCKER_BUILDKIT=0); needed in offline/sandbox-blocked registries
 
-# Asyn Confitguration
 ASYNC_ENABLED: "{{ not MODE_DEBUG | bool }}" # Activate async, deactivated for debugging
 ASYNC_TIME: "{{ 300 if ASYNC_ENABLED | bool else omit }}" # Run for max 5min
 ASYNC_POLL: "{{ 0 if ASYNC_ENABLED | bool else 10 }}" # Don't wait for task
 
-# Restricts the run to these applications.
 APPLICATIONS_WHITELIST: [] # nocheck: unused-var
 
-# Role-based access control
-# @See https://en.wikipedia.org/wiki/Role-based_access_control
 RBAC:
   GROUP:
     NAME: "/roles" # Name of the group which holds the RBAC roles
     CLAIM: "groups" # Name of the claim containing the RBAC groups
 
-# You need to set both keys to enable them
 CAPTCHA:
   RECAPTCHA:
     KEY: ""
@@ -92,5 +73,4 @@ RECAPTCHA_ENABLED: "{{ (CAPTCHA.RECAPTCHA.KEY | length > 0) and (CAPTCHA.RECAPTC
 
 HCAPTCHA_ENABLED: "{{ (CAPTCHA.HCAPTCHA.KEY | length > 0) and (CAPTCHA.HCAPTCHA.SECRET | length > 0) }}"
 
-# User of the workstation, change it to the productive user before setup
 WORKSTATION_USER: "administrator"

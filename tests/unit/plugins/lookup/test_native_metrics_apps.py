@@ -3,12 +3,18 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 from unittest.mock import patch
 
 from plugins.lookup.native_metrics_apps import LookupModule
 
 
-def _run(applications: dict, roles_dir: Path, group_names: list | None = None) -> list:
+def _run(
+    applications: dict,
+    roles_dir: Path,
+    group_names: list | None = None,
+    deployment_mode: str = "compose",
+) -> list:
     """Helper: run the lookup with a temporary roles directory.
 
     group_names defaults to all keys in applications so existing tests that
@@ -16,10 +22,27 @@ def _run(applications: dict, roles_dir: Path, group_names: list | None = None) -
     """
     if group_names is None:
         group_names = list(applications.keys())
-    with patch("plugins.lookup.native_metrics_apps.ROLES_DIR", roles_dir):
-        return LookupModule().run(
+    lm = LookupModule()
+    lm._loader = mock.MagicMock()
+    lm._templar = mock.MagicMock(template=lambda v: v)
+    with (
+        patch("plugins.lookup.native_metrics_apps.ROLES_DIR", roles_dir),
+        patch("plugins.lookup.native_metrics_apps.lookup_loader") as loader_mock,
+    ):
+
+        def _get(name, *a, **k):
+            if name == "applications":
+                return mock.MagicMock(run=lambda *_a, **_k: [applications])
+            return mock.MagicMock(run=lambda *_a, **_k: [{}])
+
+        loader_mock.get.side_effect = _get
+        return lm.run(
             [],
-            variables={"applications": applications, "group_names": group_names},
+            variables={
+                "applications": applications,
+                "group_names": group_names,
+                "DEPLOYMENT_MODE": deployment_mode,
+            },
         )[0]
 
 
@@ -31,28 +54,25 @@ def _make_roles(tmp: Path, specs: dict) -> dict:
     by building both the filesystem structure (for fragment discovery) and the
     applications dict (for get_app_conf lookups) from the same spec.
 
-    specs: { app_id: {"native_metrics_enabled": bool, "has_fragment": bool} }
+    specs: { app_id: {"native_metrics_enabled": bool, "has_fragment": bool,
+                      "force_bridge": bool} }
     Returns: applications dict ready to pass to the lookup.
     """
     applications = {}
     for app_id, cfg in specs.items():
-        # Filesystem: only the scrape fragment is needed on disk.
-        # (config/main.yml is irrelevant here — data comes from applications dict.)
         if cfg.get("has_fragment"):
             tpl_dir = tmp / app_id / "templates"
             tpl_dir.mkdir(parents=True)
             (tpl_dir / "prometheus.yml.j2").write_text(f'  - job_name: "{app_id}"\n')
-        # applications dict: mirrors what Ansible populates from role config defaults.
-        # Per the materialised payload moved from
-        # `applications.<app>.compose.services.<X>` to `applications.<app>.services.<X>`.
         applications[app_id] = {
+            "networks": {"local": {"force_bridge": bool(cfg.get("force_bridge"))}},
             "services": {
                 "prometheus": {
                     "native_metrics": {
                         "enabled": bool(cfg.get("native_metrics_enabled"))
                     }
                 }
-            }
+            },
         }
     return applications
 
@@ -173,6 +193,36 @@ class TestNativeMetricsApps(unittest.TestCase):
             {"web-app-gitea": {"native_metrics_enabled": True, "has_fragment": True}},
         )
         self.assertEqual(_run(apps, self.roles_dir, group_names=[]), [])
+
+    # ── force_bridge reachability (swarm only) ─────────────────────────────
+
+    def test_excludes_force_bridge_app_in_swarm(self):
+        apps = _make_roles(
+            self.roles_dir,
+            {
+                "web-app-matrix": {
+                    "native_metrics_enabled": True,
+                    "has_fragment": True,
+                    "force_bridge": True,
+                },
+            },
+        )
+        self.assertEqual(_run(apps, self.roles_dir, deployment_mode="swarm"), [])
+
+    def test_includes_force_bridge_app_in_compose(self):
+        apps = _make_roles(
+            self.roles_dir,
+            {
+                "web-app-matrix": {
+                    "native_metrics_enabled": True,
+                    "has_fragment": True,
+                    "force_bridge": True,
+                },
+            },
+        )
+        self.assertEqual(
+            _run(apps, self.roles_dir, deployment_mode="compose"), ["web-app-matrix"]
+        )
 
 
 if __name__ == "__main__":

@@ -2,23 +2,19 @@
 application_id: "web-app-kix"
 entity_name: "{{ application_id | get_entity_name }}"
 
-KIX_PROXY_IMAGE: "{{ lookup('config', application_id, 'services.kix.image') }}"
-KIX_PROXY_VERSION: "{{ lookup('config', application_id, 'services.kix.version') }}"
-KIX_BACKEND_IMAGE: "{{ lookup('config', application_id, 'services.backend.image') }}"
-KIX_BACKEND_VERSION: "{{ lookup('config', application_id, 'services.backend.version') }}"
-KIX_FRONTEND_IMAGE: "{{ lookup('config', application_id, 'services.frontend.image') }}"
-KIX_FRONTEND_VERSION: "{{ lookup('config', application_id, 'services.frontend.version') }}"
-KIX_DB_IMAGE: "{{ lookup('config', application_id, 'services.db.image') }}"
-KIX_DB_VERSION: "{{ lookup('config', application_id, 'services.db.version') }}"
+swarm_stack_converge_retries: 600
 
-KIX_PROXY_CONTAINER: "kix-proxy"
-KIX_BACKEND_CONTAINER: "kix-backend"
-KIX_FRONTEND_CONTAINER: "kix-frontend"
-KIX_DB_CONTAINER: "kix-db"
+KIX_PROXY_SERVICE: "proxy"
+KIX_BACKEND_SERVICE: "backend"
+KIX_FRONTEND_SERVICE: "frontend"
 
-KIX_DB_NAME: "kix"
-KIX_DB_USER: "kix"
-KIX_DB_PASSWORD: "{{ lookup('config', application_id, 'credentials.kix_db_password') }}"
+KIX_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ KIX_PROXY_SERVICE ~ '.name') }}"
+KIX_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ KIX_BACKEND_SERVICE ~ '.name') }}"
+KIX_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ KIX_FRONTEND_SERVICE ~ '.name') }}"
+
+KIX_BACKEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KIX_BACKEND_SERVICE ~ '.ports.internal.http') }}"
+KIX_FRONTEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KIX_FRONTEND_SERVICE ~ '.ports.internal.http') }}"
+
 KIX_INITIAL_ADMIN_PW: "{{ lookup('config', application_id, 'credentials.kix_initial_admin_pw') }}"
 
 KIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
@@ -32,7 +28,5 @@ KIX_LDAP_ADMINISTRATOR_GROUP_DN: "cn={{ application_id }}-administrator,{{ LDAP.
 KIX_LDAP_USER_GROUP_DN: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
 
 KIX_AUTH_LDAP_HOST_PATH: "{{ lookup('container', application_id, 'directories.volumes') }}auth_ldap.xml"
-KIX_AUTH_LDAP_CONTAINER_PATH: "/opt/kix/Kernel/Config/Files/zzz_auth_ldap.xml"
 
 KIX_PROXY_NGINX_HOST_PATH: "{{ lookup('container', application_id, 'directories.volumes') }}kix-proxy.default.conf"
-KIX_PROXY_NGINX_CONTAINER_PATH: "/etc/nginx/conf.d/default.conf"

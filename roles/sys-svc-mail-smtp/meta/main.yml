@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Configures a local SMTP relay using Postfix, listening only on localhost for secure, lightweight mail delivery.
+  description: Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

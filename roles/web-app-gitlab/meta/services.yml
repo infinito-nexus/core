@@ -19,14 +19,16 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -36,27 +38,100 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 gitlab:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
-  image: gitlab/gitlab-ee
-  version: 19.1.2-ee.0
-  name: gitlab
   min_storage: 30GB
-  cpus: "4.0"
-  mem_reservation: 8g
-  mem_limit: 12g
-  pids_limit: 4096
+  # Exception: the entity runs no container of its own (webservice/sidekiq/workhorse/gitaly/shell/migrations carry the real budgets); these keys only satisfy the entity resource contract
+  cpus: "0.1"
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 128
   ports:
     local:
       http: 8024
     public:
       ssh: 2202
+    internal:
+      http: 8181
+      ssh: 2222
+  proxy:
+    service_key: workhorse
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+webservice:
+  image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
+  version: v19.1.2
+  name: gitlab-webservice
+  ports:
+    internal:
+      http: 8080
+  cpus: "2.0"
+  mem_reservation: 4g
+  mem_limit: 6g
+  pids_limit: 2048
+sidekiq:
+  image: registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce
+  version: v19.1.2
+  name: gitlab-sidekiq
+  cpus: "1.0"
+  mem_reservation: 2g
+  mem_limit: 3g
+  pids_limit: 1024
+  ports:
+    internal:
+      http: 3808
+workhorse:
+  image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
+  version: v19.1.2
+  name: gitlab-workhorse
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+gitaly:
+  # nocheck: single-replica
+  replicas: 1
+  image: registry.gitlab.com/gitlab-org/build/cng/gitaly
+  version: v19.1.2
+  name: gitlab-gitaly
+  ports:
+    internal:
+      grpc: 8075
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+shell:
+  image: registry.gitlab.com/gitlab-org/build/cng/gitlab-shell
+  version: v19.1.2
+  name: gitlab-shell
+  ports:
+    internal:
+      metrics: 9122
+  cpus: "0.25"
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 256
+migrations:
+  # nocheck: single-replica
+  replicas: 1
+  image: registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce
+  version: v19.1.2
+  name: gitlab-migrations
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 512
 seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
@@ -69,3 +144,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

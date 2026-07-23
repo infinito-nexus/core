@@ -1,0 +1,25 @@
+---
+- name: "⏳ Wait until database container for '{{ application_id }}' is healthy"
+  ansible.builtin.command: >-
+    container inspect
+    --format={% raw %}{{.State.Health.Status}}{% endraw %}
+    {{ lookup('database', application_id, 'container') }}
+  register: _app_db_health
+  retries: 60
+  delay: 2
+  changed_when: false
+  until: (_app_db_health.stdout | trim) == 'healthy'
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - lookup('database', application_id, 'enabled') | bool
+
+- name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"
+  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/stack_ready.sh') }}"
+  environment:
+    STACK: "{{ application_id | get_entity_name }}"
+  register: _swarm_tasks_ready
+  retries: 150
+  delay: 2
+  changed_when: false
+  until: _swarm_tasks_ready is succeeded
+  when: (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm'

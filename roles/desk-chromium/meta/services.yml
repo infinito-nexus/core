@@ -1,5 +1,8 @@
 ---
 chromium:
+  modes:
+    host:
+      enabled: true
   password_manager_enabled: false
   default_installation_mode: allowed
   lifecycle: pre-alpha

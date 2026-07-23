@@ -1,0 +1,4 @@
+---
+canonical:
+  - n8n.{{ DOMAIN_PRIMARY }}
+aliases: []

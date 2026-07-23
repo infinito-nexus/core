@@ -1,26 +1,20 @@
 ---
-# General
 application_id: "web-app-baserow"
 entity_name: "{{ application_id | get_entity_name }}"
 database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
 
-# Baserow
 BASEROW_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BASEROW_VERSION: "{{ lookup('config', application_id, 'services.baserow.version') }}"
 BASEROW_IMAGE: "{{ lookup('config', application_id, 'services.baserow.image') }}"
-BASEROW_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ BASEROW_VERSION }}"
 BASEROW_CONTAINER: "{{ lookup('config', application_id, 'services.baserow.name') }}"
-BASEROW_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 
 # Auth integrations
 BASEROW_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 BASEROW_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 BASEROW_SSO_FALLBACK_EMAIL_DOMAIN: "{{ lookup('domain', application_id) }}"
 
-# Required by Django/Baserow (e.g. JWT, sessions, etc.)
 BASEROW_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 
-# Database — single SPOT; env.j2 renders all DATABASE_* fields plus DATABASE_URL from here.
 BASEROW_DATABASE_USER: "{{ lookup('database', application_id, 'username') }}"
 BASEROW_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"
 BASEROW_DATABASE_HOST: "{{ lookup('database', application_id, 'host') }}"
@@ -29,21 +23,17 @@ BASEROW_DATABASE_PASSWORD: "{{ lookup('database', application_id, 'password') }}
 BASEROW_DATABASE_URL: "postgresql://{{ BASEROW_DATABASE_USER }}:{{ BASEROW_DATABASE_PASSWORD }}@{{ BASEROW_DATABASE_HOST }}:{{ BASEROW_DATABASE_PORT }}/{{ BASEROW_DATABASE_NAME
   }}"
 
-# Redis — single SPOT; sidecar service name matches the compose service emitted by sys-svc-compose.
-BASEROW_REDIS_HOST: "redis"
-BASEROW_REDIS_PORT: 6379
-BASEROW_REDIS_URL: "redis://{{ BASEROW_REDIS_HOST }}:{{ BASEROW_REDIS_PORT }}"
+BASEROW_REDIS_HOST: "{{ lookup('engine', 'redis', application_id, 'host') }}"
+BASEROW_REDIS_PORT: "{{ lookup('engine', 'redis', application_id, 'port') }}"
+BASEROW_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
-# Internal runtime paths inside the baserow container image
 BASEROW_DJANGO_SETTINGS_MODULE: "baserow.config.settings.base"
 BASEROW_PYTHON: "/baserow/venv/bin/python"
 BASEROW_MANAGE_PY: "/baserow/backend/src/baserow/manage.py"
 
-# Compose service name inside compose.yml.j2
-# The template defines the service as "application:".
-BASEROW_SERVICE_NAME: "application"
+BASEROW_SERVICE_NAME: "baserow"
+BASEROW_APP_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, BASEROW_SERVICE_NAME) }}"
 
-# Optional bootstrap admin user (Django superuser)
 BASEROW_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
 BASEROW_BOOTSTRAP_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
 BASEROW_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"

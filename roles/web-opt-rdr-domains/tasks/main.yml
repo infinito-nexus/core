@@ -1,13 +1,13 @@
 ---
 # nocheck: run-once
 
-- name: Include dependency 'sys-svc-webserver-https'
+- name: 📂 Include dependency 'sys-svc-webserver-https'
   include_role:
     name: sys-svc-webserver-https
   vars:
     compose_handlers_flush: true
 
-- name: "Include domains redirects"
+- name: "📂 Include domains redirects"
   include_tasks: redirect-domain.yml
   vars:
     domain: "{{ item.source }}"

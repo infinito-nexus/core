@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Manages Wireguard VPN configuration on the host. Installs necessary tools, deploys sysctl settings for IP forwarding, and copies the Wireguard
-    configuration file to enable secure VPN connectivity.
+  description: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

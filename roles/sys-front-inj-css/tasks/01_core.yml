@@ -1,28 +1,28 @@
 ---
-- name: Generate color palette with colorscheme-generator
+- name: ⚙️ Generate color palette with colorscheme-generator
   set_fact:
     CSS_COLOR_PALETTE: "{{ lookup('colorscheme', CSS_BASE_COLOR, count=CSS_COUNT, shades=CSS_SHADES) }}"
 
-- name: Generate inverted color palette with colorscheme-generator
+- name: ⚙️ Generate inverted color palette with colorscheme-generator
   set_fact:
     CSS_COLOR_PALETTE_INVERTED: "{{ lookup('colorscheme', CSS_BASE_COLOR, count=CSS_COUNT, shades=CSS_SHADES, invert_lightness=True) }}"
 
-- name: "Compute deterministic gradient angle from default.css template mtime"
+- name: "🧮 Compute deterministic gradient angle from default.css template mtime"
   set_fact:
     CSS_GRADIENT_ANGLE: >-
       {{
         (
           lookup(
             'local_mtime_qs',
-            [playbook_dir, 'roles', 'sys-front-inj-css', 'templates', 'css', 'default.css.j2'] | path_join
+            lookup('path_absolute', 'roles', 'sys-front-inj-css', 'templates', 'css', 'default.css.j2')
           )
           | regex_replace('^.*=', '')
           | int
         ) % 360
       }}
 
-- name: Deploy default CSS files
-  template:
+- name: 🚀 Deploy default CSS files
+  stack_host_template:
     src: "{{ ['css', css_file ~ '.j2'] | path_join }}"
     dest: "{{ [lookup('cdn', 'web-svc-cdn').shared.css, css_file] | path_join }}"
     mode: "0644"

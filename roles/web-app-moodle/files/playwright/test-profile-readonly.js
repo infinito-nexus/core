@@ -17,7 +17,11 @@ exports.register = function (shared) {
     test("biber profile-edit form locks all 19 Moodle profile-mapping fields", async ({ page }) => {
       await page.goto(`${shared.env.moodleBaseUrl}/login/index.php`);
       await page.locator("input[name='username'], input#username").first().fill(shared.env.biberUsername);
-      await page.locator("input[name='password'], input#password").first().fill(shared.env.biberPassword);
+      const passwordInput = page.locator("input[name='password'], input#password").first();
+      await expect(async () => {
+        await passwordInput.fill(shared.env.biberPassword);
+        await expect(passwordInput).toHaveValue(shared.env.biberPassword);
+      }).toPass({ timeout: 30_000 });
       await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click();
       await page.waitForLoadState("load");
 

@@ -1,8 +1,0 @@
----
-container-2-local:
-  lifecycle: beta
-  min_storage: 0GB
-  cpus: "0.5"
-  mem_reservation: "256m"
-  mem_limit: "512m"
-  pids_limit: 256

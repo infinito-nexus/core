@@ -62,24 +62,36 @@ cd "$docker_compose_instance_directory" || exit 1
 # IMPORTANT: use "--" to stop wrapper arg parsing (so compose flags like "--services" are passed through)
 services="$(sh -c "$compose_cmd -- ps --services")"
 
+# Restart every service that consumes the deployed certificate material, i.e.
+# has the cert directory bind-mounted. The TLS terminator differs per provider
+# (Mailu: the nginx front container; Stalwart: the mail server itself), so
+# selection MUST go by consumption, not by which binary a container ships —
+# a service that keeps running with the old cert serves it until expiry.
 restart_services=""
 
 for service in $services; do
   echo "Checking service: $service"
 
-  if sh -c "$compose_cmd -- exec -T \"$service\" which nginx" > /dev/null 2>&1; then
-    echo "Nginx found in service: $service"
+  container_id="$(sh -c "$compose_cmd -- ps -q \"$service\"" | head -n1)"
+  if [ -z "$container_id" ]; then
+    echo "No running container for service: $service, skipping."
+    continue
+  fi
+
+  if docker inspect "$container_id" \
+      --format '{{range .Mounts}}{{println .Source}}{{end}}' \
+      | grep -qx "$docker_compose_cert_directory"; then
+    echo "Certificate mount found in service: $service"
     restart_services="$restart_services $service"
   else
-    echo "Nginx not found in service: $service, skipping."
+    echo "No certificate mount in service: $service, skipping."
   fi
 done
 
-# Restart only the services that actually contain nginx
 if [ -n "$(echo "$restart_services" | tr -d ' ')" ]; then
-  echo "Restarting Nginx services to apply new certificates:${restart_services}"
+  echo "Restarting certificate-consuming services to apply new certificates:${restart_services}"
   # shellcheck disable=SC2086
   sh -c "$compose_cmd -- restart $restart_services" || exit 1
 else
-  echo "No Nginx instances found in any service. Nothing to restart."
+  echo "No certificate-consuming services found. Nothing to restart."
 fi

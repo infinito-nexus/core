@@ -1,0 +1,68 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  {% set service_name = 'stalwart' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', STALWART_CONTAINER) }}
+    {{ lookup('container_image', application_id, service_name) }}
+    hostname: {{ STALWART_HOSTNAME }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if STALWART_ACTIVE_PROVIDER | bool %}
+    {{ lookup('container_ports',
+              ['stalwart', 'http', DOCKER_BIND_HOST],
+              ['stalwart', 'smtp', STALWART_IP4_PUBLIC],
+              ['stalwart', 'smtps', STALWART_IP4_PUBLIC],
+              ['stalwart', 'submission', STALWART_IP4_PUBLIC],
+              ['stalwart', 'pop3', STALWART_IP4_PUBLIC],
+              ['stalwart', 'pop3s', STALWART_IP4_PUBLIC],
+              ['stalwart', 'imap', STALWART_IP4_PUBLIC],
+              ['stalwart', 'imaps', STALWART_IP4_PUBLIC],
+              ['stalwart', 'sieve', STALWART_IP4_PUBLIC]) | indent(4) }}
+    {% else %}
+    {# Only the active MAIL_PROVIDER owns the public mail ports; a legacy
+       instance keeps just its reverse-proxied http port. #}
+    {{ lookup('container_ports', ['stalwart', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
+    environment:
+      # Pins the break-glass admin (instead of a random one) for API provisioning.
+      STALWART_RECOVERY_ADMIN: "{{ STALWART_ADMIN_USER }}:{{ STALWART_ADMIN_PASSWORD }}"
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {# Browser webmail pointed at Stalwart (reverse-proxied at webmail.<domain>). #}
+  {% set service_name = 'webmail' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', STALWART_CONTAINER ~ '_webmail') }}
+    {{ lookup('container_image', application_id, service_name) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports', ['webmail', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    environment:
+      ROUNDCUBEMAIL_DEFAULT_HOST: "ssl://stalwart"
+      ROUNDCUBEMAIL_DEFAULT_PORT: "993"
+      # Stalwart's default submission listener is 465 (implicit TLS); it does not bind 587.
+      ROUNDCUBEMAIL_SMTP_SERVER: "ssl://stalwart"
+      ROUNDCUBEMAIL_SMTP_PORT: "465"
+      ROUNDCUBEMAIL_DB_TYPE: "sqlite"
+      {% if STALWART_SSO_ENABLED | bool %}
+      # Keycloak SSO client secret (kept out of the oauth.inc.php include).
+      ROUNDCUBEMAIL_OAUTH_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+      {% endif %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('depends_on', ['stalwart']) }}
+    {{ lookup('container_networks') | indent(4) }}
+  {% if STALWART_ANTIVIRUS_ENABLED | bool %}
+
+  {# ClamAV attachment scanner — Stalwart calls it as an SMTP DATA-stage milter. #}
+  {% set service_name = 'clamav' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', STALWART_CONTAINER ~ '_clamav') }}
+    {{ lookup('container_image', application_id, service_name) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    environment:
+      CLAMAV_NO_MILTERD: "false"
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+  {% endif %}
+
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

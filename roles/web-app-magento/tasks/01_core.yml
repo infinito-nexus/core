@@ -1,18 +1,18 @@
 ---
-- name: "load docker, db/redis/proxy for {{ application_id }}"
+- name: "🧩 load docker, db/redis/proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
 
-- name: "Bootstrap Magento 2.4.8 source (exact working variant)"
-  command: >
+- name: "🥾 Bootstrap Magento 2.4.8 source (exact working variant)"
+  shell: >
     container exec
     -e COMPOSER_AUTH='{"http-basic":{"repo.magento.com":{"username":"{{ MAGENTO_REPO_PUBLIC_KEY }}","password":"{{ MAGENTO_REPO_PRIVATE_KEY }}"}}}'
     -e COMPOSER_HOME=/tmp/composer
     -e COMPOSER_CACHE_DIR=/tmp/composer/cache
     --user {{ MAGENTO_USER }}
-    {{ MAGENTO_PHP_CONTAINER }} bash -lc 'set -e
+    {{ MAGENTO_PHP_CONTAINER_ADDRESS }} bash -lc 'set -e
       mkdir -p /tmp/composer/cache
       cd /var/www/html
       composer create-project --no-interaction --no-progress --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 .
@@ -21,10 +21,11 @@
     '
   args:
     creates: "{{ [ (MAGENTO_VOLUME | docker_volume_path), 'bin/magento' ] | path_join }}"
+  when: IS_STACK_HOST | bool
 
-- name: "Run Magento setup:install (in container)"
-  command: >
-    container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER }} bash -lc "
+- name: "▶️ Run Magento setup:install (in container)"
+  shell: >
+    container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }} bash -lc "
     cd /var/www/html && bin/magento setup:install \
       --base-url='{{ MAGENTO_URL }}/' \
       --db-host=\"$MYSQL_HOST\" \
@@ -57,5 +58,6 @@
     (magento_install.stdout is defined and
      ('Magento installation complete' in magento_install.stdout
       or 'successfully installed' in magento_install.stdout))
+  when: IS_STACK_HOST | bool
 
 - include_tasks: utils/once/flag.yml

@@ -24,8 +24,14 @@ css:
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
 hugo:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: nginx
   version: 1.31-alpine
+  custom: true
   builder_image: hugomods/hugo
   builder_version: exts-0.148.0
   source_repository: https://github.com/gohugoio/hugoDocs.git
@@ -35,6 +41,10 @@ hugo:
   ports:
     local:
       http: 8008
+    internal:
+      http: 80
+  proxy:
+    service_key: hugo
   lifecycle: beta
   min_storage: 1GB
   cpus: "0.2"

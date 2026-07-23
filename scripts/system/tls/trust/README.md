@@ -3,7 +3,7 @@
 This directory contains platform-specific scripts for trusting the Infinito Root CA certificate on the developer's machine.
 For the canonical Make target index that invokes these helpers, see [make.md](../../../../docs/contributing/tools/make.md).
 
-All scripts extract the Root CA from a running Infinito container and install it into the appropriate system trust store, so that browsers and tools accept `*.infinito.example` TLS certificates without warnings.
+All scripts extract the Root CA from a running Infinito container and install it into the appropriate system trust store, so that browsers and tools accept `*.infinito.test` TLS certificates without warnings.
 
 ---
 

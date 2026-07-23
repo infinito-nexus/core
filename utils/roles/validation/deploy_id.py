@@ -4,10 +4,8 @@ Utility for validating deployment application IDs against defined roles and inve
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from plugins.filter.get_all_application_ids import get_all_application_ids
-from utils.cache.yaml import load_yaml_any
+from plugins.filter.get.all.application_ids import get_all_application_ids
+from utils.inventory.groups import inventory_has_group
 
 from . import PROJECT_ROOT
 
@@ -44,7 +42,7 @@ class ValidDeployId:
 
         for app_id in ids:
             in_roles = app_id in self.valid_ids
-            in_inventory = self._exists_in_inventory(inventory_path, app_id)
+            in_inventory = inventory_has_group(inventory_path, app_id)
 
             if not (in_roles and in_inventory):
                 invalid[app_id] = {
@@ -53,46 +51,3 @@ class ValidDeployId:
                 }
 
         return invalid
-
-    def _exists_in_inventory(self, inventory_path: str, app_id: str) -> bool:
-        if Path(inventory_path).suffix in (".yml", ".yaml"):
-            return self._search_yaml_keys(inventory_path, app_id)
-        return self._search_ini_sections(inventory_path, app_id)
-
-    def _search_ini_sections(self, inventory_path: str, app_id: str) -> bool:
-        with Path(inventory_path).open(encoding="utf-8") as f:
-            current_section = None
-            for raw in f:
-                line = raw.strip()
-                if not line or line.startswith(("#", ";")):
-                    continue
-
-                if line.startswith("[") and line.endswith("]"):
-                    current_section = line[1:-1].strip()
-                    if current_section == app_id:
-                        return True
-                    continue
-
-                if current_section:
-                    for part in line.replace(",", " ").split():
-                        if part.strip() == app_id:
-                            return True
-
-        return False
-
-    def _search_yaml_keys(self, inventory_path: str, app_id: str) -> bool:
-        data = load_yaml_any(inventory_path, default_if_missing={})
-        return self._find_key(data, app_id)
-
-    def _find_key(self, node, key: str) -> bool:
-        if isinstance(node, dict):
-            for k, v in node.items():
-                if k == key and isinstance(v, (dict, list)):
-                    return True
-                if self._find_key(v, key):
-                    return True
-        elif isinstance(node, list):
-            for item in node:
-                if self._find_key(item, key):
-                    return True
-        return False

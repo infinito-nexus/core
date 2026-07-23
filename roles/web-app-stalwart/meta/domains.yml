@@ -1,0 +1,6 @@
+---
+# Named canonicals (first is the primary); `webmail` is the Roundcube vhost.
+canonical:
+  mail: "mail.{{ DOMAIN_PRIMARY }}"
+  webmail: "webmail.{{ DOMAIN_PRIMARY }}"
+aliases: []

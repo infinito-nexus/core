@@ -1,11 +1,11 @@
 ---
-- name: "Assert correct context"
+- name: "✅ Assert correct context"
   ansible.builtin.assert:
     that:
       - application_id == 'web-app-minio'
       - objstore_consumer_id != 'web-app-minio'
 
-- name: "Resolve object-store facts for '{{ objstore_consumer_id }}'"
+- name: "🔍 Resolve object-store facts for '{{ objstore_consumer_id }}'"
   ansible.builtin.set_fact:
     _minio_consumer_bucket: "{{ lookup('objstore', objstore_consumer_id, 'bucket') }}"
     _minio_consumer_access_key: "{{ lookup('objstore', objstore_consumer_id, 'access_key') }}"
@@ -13,7 +13,7 @@
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Provision bucket + scoped service account for '{{ objstore_consumer_id }}'"
+- name: "🔧 Provision bucket + scoped service account for '{{ objstore_consumer_id }}'"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
     MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -48,7 +48,7 @@
     or ('Access Key' in (minio_consumer_provision.stdout | default('')))
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Allow anonymous downloads on the public bucket for '{{ objstore_consumer_id }}'"
+- name: "🔐 Allow anonymous downloads on public bucket for '{{ objstore_consumer_id }}'"
   when: lookup('objstore', objstore_consumer_id, 'public') | bool
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"

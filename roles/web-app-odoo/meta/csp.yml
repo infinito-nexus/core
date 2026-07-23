@@ -1,0 +1,23 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-attr:
+    unsafe-eval: true
+  style-src-elem:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  connect-src:
+    - "{{ lookup('domain', 'web-app-odoo') }}"
+    - "wss://{{ lookup('domain', 'web-app-odoo') }}"
+  frame-ancestors:
+    - "{{ DOMAIN_PRIMARY }}"
+    - "*.{{ DOMAIN_PRIMARY }}"
+  font-src:
+    - "data:"
+    - https://fonts.gstatic.com # nocheck: url
+  style-src-elem:
+    - https://fonts.googleapis.com # nocheck: url

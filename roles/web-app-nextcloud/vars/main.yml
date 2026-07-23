@@ -1,89 +1,66 @@
 ---
-# General
 application_id: "web-app-nextcloud"
-container_port: 80
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Database
+swarm_stack_converge_retries: 600
+
 database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
 
-# Nextcloud 
-
-## General 
 NEXTCLOUD_DOMAIN: "{{ lookup('domain',application_id) }}"
 NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
 NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
 
-## Plugins
 NEXTCLOUD_PLUGIN_ITEMS: "{{ lookup('config', application_id, 'addons') | dict2items }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
-## Paths
-
-### Host
 NEXTCLOUD_HOST_CONF_ADD_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'infinito' ] | path_join }}"
-NEXTCLOUD_HOST_INCL_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'includes.php' ] | path_join }}" # Loads the additional configurations into config.php
 NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
 
-## Control Node
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 
-## Internal Paths
 NEXTCLOUD_DOCKER_WORK_DIRECTORY: "/var/www/html/"
-NEXTCLOUD_DOCKER_CONF_DIRECTORY: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'config/'] | path_join }}"
-NEXTCLOUD_DOCKER_CONFIG_FILE: "{{ [ NEXTCLOUD_DOCKER_CONF_DIRECTORY, 'config.php'] | path_join }}"
-NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ [ NEXTCLOUD_DOCKER_CONF_DIRECTORY, 'infinito/'] | path_join }}"
-NEXTCLOUD_DOCKER_INCL_PATH: "/tmp/includes.php" # Temp file included into config.php to load the additional configurations
+NEXTCLOUD_DOCKER_CONF_ADD_PATH: "/var/www/infinito/"
 
-## Administrator
 NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('config', application_id, 'users.administrator.username') }}"
 
-## Docker
+NEXTCLOUD_INIT_GATE_FILE: "nextcloud-init-gate.sh"
+NEXTCLOUD_INIT_GATE_HOST: "{{ [lookup('container', 'web-app-nextcloud', 'directories.instance'), NEXTCLOUD_INIT_GATE_FILE] | path_join }}"
 
-### Base
-NEXTCLOUD_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+NEXTCLOUD_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
 NEXTCLOUD_SERVICE: "{{ entity_name }}"
 NEXTCLOUD_VERSION: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.version') }}"
 NEXTCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.image') }}"
 NEXTCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.name') }}"
-NEXTCLOUD_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ NEXTCLOUD_VERSION }}"
+NEXTCLOUD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, NEXTCLOUD_SERVICE) }}"
 
-### Proxy
+NEXTCLOUD_OPENPROJECT_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-openproject', 'web') }}"
+NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-zammad', 'railsserver') }}"
+
 NEXTCLOUD_PROXY_SERVICE: "proxy"
 NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.name') }}"
-NEXTCLOUD_PROXY_IMAGE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.image') }}"
-NEXTCLOUD_PROXY_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.version') }}"
 
-### Cron
 NEXTCLOUD_CRON_SERVICE: "cron"
 NEXTCLOUD_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CRON_SERVICE ~ '.name') }}"
 
-### High Performance Backend for Talk
-# https://github.com/nextcloud-snap/nextcloud-snap/wiki/How-to-configure-talk-HPB-with-Docker
-
-#### General
 NEXTCLOUD_HPB_SERVICE: "talk"
 NEXTCLOUD_HPB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.name') }}"
-NEXTCLOUD_HPB_IMAGE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.image') }}"
-NEXTCLOUD_HPB_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.version') }}"
 NEXTCLOUD_HPB_NETWORK_MODE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.network_mode') }}"
 NEXTCLOUD_HPB_PLUGIN_ENABLED: "{{ lookup('config', application_id, 'addons.spreed.enabled') }}"
 NEXTCLOUD_HPB_INTERNAL_SECRET: "{{ lookup('config', application_id, 'credentials.talk_internal_secret') }}"
 NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
 
-#### Signaling
 NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'credentials.talk_signaling_secret') }}"
 NEXTCLOUD_HPB_SIGNALING_LOCATION: "/standalone-signaling/"
-NEXTCLOUD_HPB_SIGNALING_PORT: "8081"
+NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.talk.ports.internal.signaling') }}"
 NEXTCLOUD_HPB_SIGNALING_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_HPB_SIGNALING_LOCATION ] | url_join }}"
 NEXTCLOUD_HPB_SIGNALING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
 NEXTCLOUD_TALK_ADMIN_URL: "{{ [ NEXTCLOUD_URL, 'settings/admin/talk' ] | url_join }}"
 
-#### Talk Turn (Onboard)
 NEXTCLOUD_HPB_TURN_ONBOARD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.public.stun_turn') }}"
 NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST: "{{ DOCKER_PUBLIC_BIND_HOST }}"
 NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.turn_server.onboard_enabled') if NEXTCLOUD_HPB_PLUGIN_ENABLED
@@ -103,7 +80,6 @@ NEXTCLOUD_HPB_TURN_ONBOARD_CONFIG: >-
     }
   }}
 
-#### Coturn (Standalone)
 NEXTCLOUD_HPB_TURN_STANDALONE_ROLE: "web-svc-coturn"
 NEXTCLOUD_HPB_TURN_STANDALONE_PORT: "{{ lookup('config', NEXTCLOUD_HPB_TURN_STANDALONE_ROLE, 'services.coturn.ports.public.stun_turn') }}"
 NEXTCLOUD_HPB_TURN_STANDALONE_SECRET: "{{ lookup('config',NEXTCLOUD_HPB_TURN_STANDALONE_ROLE, 'credentials.auth_secret') }}"
@@ -142,48 +118,38 @@ NEXTCLOUD_HPB_TURN_ACTIVE_CONFIG: >-
   }}
 NEXTCLOUD_HPB_TURN_ACTIVE_SERVER: "{{ NEXTCLOUD_HPB_TURN_ACTIVE_CONFIG.server | default('') }}"
 
-### Whiteboard
 NEXTCLOUD_WHITEBOARD_SERVICE: "whiteboard"
 NEXTCLOUD_WHITEBOARD_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'.name') }}"
 NEXTCLOUD_WHITEBOARD_IMAGE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'.image') }}"
-NEXTCLOUD_WHITEBOARD_IMAGE_CUSTOM: "{{ NEXTCLOUD_WHITEBOARD_CONTAINER }}_custom"
 NEXTCLOUD_WHITEBOARD_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'.version') }}"
 NEXTCLOUD_WHITEBOARD_ENABLED: "{{ lookup('config', application_id, 'addons.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'.enabled') }}"
 NEXTCLOUD_WHITEBOARD_PORT_INTERNAL: "3002"
 NEXTCLOUD_WHITEBOARD_JWT: "{{ lookup('config', application_id, 'credentials.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'_jwt_secret') }}"
 NEXTCLOUD_WHITEBOARD_LOCATION: "/whiteboard/"
 NEXTCLOUD_WHITEBOARD_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_WHITEBOARD_LOCATION ] | url_join }}"
-NEXTCLOUD_WHITEBOARD_TMP_VOLUME: "{{ lookup('config', application_id, 'volumes.whiteboard_tmp') }}"
-NEXTCLOUD_WHITEBOARD_FRONTCACHE_VOLUME: "{{ lookup('config', application_id, 'volumes.whiteboard_fontcache') }}"
+NEXTCLOUD_WHITEBOARD_TMP_VOLUME: "{{ lookup('volume', application_id, 'whiteboard_tmp').name }}"
+NEXTCLOUD_WHITEBOARD_FRONTCACHE_VOLUME: "{{ lookup('volume', application_id, 'whiteboard_fontcache').name }}"
 NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY: "{{ [ lookup('container', application_id, 'directories.services'), 'whiteboard' ] | path_join }}"
 NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE: "{{ [ NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY, 'Dockerfile' ] | path_join }}"
 NEXTCLOUD_WHITEBOARD_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, NEXTCLOUD_WHITEBOARD_SERVICE) }}"
 
-### Talk Recording backend
 NEXTCLOUD_RECORDING_SERVICE: "talk_recording"
 NEXTCLOUD_RECORDING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.name') }}"
-NEXTCLOUD_RECORDING_IMAGE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.image') }}"
-NEXTCLOUD_RECORDING_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.version') }}"
 NEXTCLOUD_RECORDING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
-NEXTCLOUD_RECORDING_PORT: 1234
+NEXTCLOUD_RECORDING_PORT: "{{ lookup('config', application_id, 'services.talk_recording.ports.internal.recording') }}"
 NEXTCLOUD_RECORDING_SECRET: "{{ lookup('config', application_id, 'credentials.talk_recording_secret') }}"
-NEXTCLOUD_RECORDING_TMP_VOLUME: "{{ lookup('config', application_id, 'volumes.talk_recording_tmp') }}"
+NEXTCLOUD_RECORDING_TMP_VOLUME: "{{ lookup('volume', application_id, 'talk_recording_tmp').name }}"
 
-### Collabora
 NEXTCLOUD_COLLABORA_URL: "{{ lookup('tls', 'web-svc-collabora', 'url.base') }}"
 
-### OnlyOffice
 NEXTCLOUD_ONLYOFFICE_URL: "{{ lookup('tls', 'web-svc-onlyoffice', 'url.base') }}"
 NEXTCLOUD_ONLYOFFICE_ENABLED: "{{ lookup('config', application_id, 'addons.onlyoffice.enabled') }}"
 
-## User Configuration
 NEXTCLOUD_DOCKER_USER_ID: 82
 NEXTCLOUD_DOCKER_USER: "www-data"
 
-## Execution
 NEXTCLOUD_INTERNAL_OCC_COMMAND: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'occ'] | path_join }}"
-NEXTCLOUD_DOCKER_EXEC: "container exec -u {{ NEXTCLOUD_DOCKER_USER }} {{ NEXTCLOUD_CONTAINER }}"
+NEXTCLOUD_DOCKER_EXEC: "container exec -u {{ NEXTCLOUD_DOCKER_USER }} {{ NEXTCLOUD_CONTAINER_ADDRESS }}"
 NEXTCLOUD_DOCKER_EXEC_OCC: "{{ NEXTCLOUD_DOCKER_EXEC }} {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
 
-## Redis
-NEXTCLOUD_REDIS_CONTAINER: "{{ entity_name }}-redis"
+NEXTCLOUD_REDIS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'redis') }}"

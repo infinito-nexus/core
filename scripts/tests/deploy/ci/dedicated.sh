@@ -20,6 +20,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
+# shellcheck source=/dev/null
+source <(grep -E '^INFINITO_(PLAYWRIGHT_REPORTS_BASE|RESCUE_DIAGNOSTICS)_DIR=' "${REPO_ROOT}/.env")
 
 apps=""
 
@@ -62,18 +64,32 @@ echo "=== distro=${INFINITO_DISTRO} app=${apps} (debug always on) ==="
 cleanup() {
 	rc=$?
 
-	# Copy Playwright reports from the infinito container to the runner filesystem
-	# BEFORE containers/volumes are destroyed, so GitHub Actions can upload them as artifacts.
 	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${apps}"
 	mkdir -p "${_playwright_host_dir}"
 	echo ">>> Copying Playwright artifacts from ${INFINITO_CONTAINER} to ${_playwright_host_dir}"
-	docker cp "${INFINITO_CONTAINER}:/var/lib/infinito/logs/test-e2e-playwright/." \
+	# nocheck: container-cp - container-to-host extraction on the CI host itself
+	docker cp "${INFINITO_CONTAINER}:${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR}/." \
 		"${_playwright_host_dir}" 2>/dev/null || true
 
-	if [[ -n "${ANSIBLE_LOG_PATH:-}" ]]; then
-		echo ">>> Copying Ansible log from ${INFINITO_CONTAINER}:${ANSIBLE_LOG_PATH} to ${ANSIBLE_LOG_PATH}"
-		docker cp "${INFINITO_CONTAINER}:${ANSIBLE_LOG_PATH}" "${ANSIBLE_LOG_PATH}" 2>/dev/null || true
-	fi
+	local _rescue_host_dir="/tmp/rescue-diagnostics/${INFINITO_DISTRO}/${apps}"
+	mkdir -p "${_rescue_host_dir}"
+	echo ">>> Capturing rescue diagnostics inside ${INFINITO_CONTAINER} (recursive DiD snapshot) before teardown removes it"
+	docker exec \
+		-e "INFINITO_RESCUE_DIAGNOSTICS_DIR=${INFINITO_RESCUE_DIAGNOSTICS_DIR}" \
+		"${INFINITO_CONTAINER}" \
+		python3 /opt/src/infinito/utils/diagnostics/container.py \
+		"${apps}" "compose post-deploy failure" 2>/dev/null || true
+	echo ">>> Copying rescue diagnostics from ${INFINITO_CONTAINER} to ${_rescue_host_dir}"
+	docker exec "${INFINITO_CONTAINER}" \
+		tar -C "${INFINITO_RESCUE_DIAGNOSTICS_DIR}" -cf - . 2>/dev/null |
+		tar -C "${_rescue_host_dir}" -xf - 2>/dev/null || true
+
+	local _inv_parent
+	_inv_parent="$(dirname "${INFINITO_INVENTORY_DIR}")"
+	echo ">>> Copying generated inventory from ${INFINITO_CONTAINER} to host ${_inv_parent}"
+	mkdir -p "${_inv_parent}"
+	# nocheck: container-cp - container-to-host extraction on the CI host itself
+	docker cp "${INFINITO_CONTAINER}:${_inv_parent}/." "${_inv_parent}/" 2>/dev/null || true
 
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"
 	"${PYTHON}" -m cli.administration.deploy.development down || true
@@ -82,9 +98,6 @@ cleanup() {
 	echo ">>> Docker disk usage before HARD cleanup"
 	docker system df || true
 
-	# 1) Remove containers belonging to this compose project only.
-	# On shared self-hosted runners multiple projects run in parallel;
-	# removing all containers would kill sibling jobs.
 	_cleanup_project="${COMPOSE_PROJECT_NAME:-}"
 	if [[ -n "${_cleanup_project}" ]]; then
 		mapfile -t ids < <(docker ps -aq --filter "label=com.docker.compose.project=${_cleanup_project}" || true)
@@ -95,24 +108,15 @@ cleanup() {
 		docker rm -f "${ids[@]}" >/dev/null 2>&1 || true
 	fi
 
-	# 2) Remove networks (except default ones)
 	docker network prune -f >/dev/null 2>&1 || true
-
-	# 3) Remove ALL volumes
 	docker volume prune -f >/dev/null 2>&1 || true
-
-	# 4) Optional: leftover stopped containers (usually redundant after rm -f)
 	docker container prune -f >/dev/null 2>&1 || true
 
-	# 5) Remove all images + build cache (frees disk on GitHub runners).
-	# Skipped on self-hosted (INFINITO_PRESERVE_DOCKER_CACHE=true) to keep the cache warm.
 	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" != "true" ]]; then
 		docker image prune -af >/dev/null 2>&1 || true
 		docker buildx prune -af >/dev/null 2>&1 || true
 		docker builder prune -af >/dev/null 2>&1 || true
 	else
-		# On self-hosted runners keep only the current CI image per distro.
-		# Removes all older ci-<hash> tags so disk usage stays flat across runs.
 		if [[ -n "${INFINITO_IMAGE:-}" ]]; then
 			_image_repo="${INFINITO_IMAGE%%:*}"
 			mapfile -t _old_ci_images < <(
@@ -128,8 +132,6 @@ cleanup() {
 		fi
 	fi
 
-	# 6) Reset the host-mounted Docker data dir (sudo: the container leaves root-owned
-	# files that would break the next checkout). Skipped when preserving the cache.
 	if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
 		echo ">>> INFINITO_PRESERVE_DOCKER_CACHE=true — keeping Docker root for next distro: ${INFINITO_DOCKER_VOLUME}"
 	elif [[ -n "${INFINITO_DOCKER_VOLUME:-}" ]]; then
@@ -143,7 +145,6 @@ cleanup() {
 			sudo rm -rf "${INFINITO_DOCKER_VOLUME}" || true
 			sudo mkdir -vp "${INFINITO_DOCKER_VOLUME}" || true
 
-			# Optional: keep it writable for the runner user
 			sudo chown -R "$(id -u):$(id -g)" "${INFINITO_DOCKER_VOLUME}" || true
 
 			echo ">>> Post-clean ownership/permissions (best-effort)"
@@ -153,7 +154,6 @@ cleanup() {
 		fi
 	fi
 
-	# 7) Remove root-owned __pycache__/.pyc (else the next checkout fails with EACCES).
 	echo ">>> Removing root-owned Python bytecode from workspace"
 	sudo find "${REPO_ROOT}" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	sudo find "${REPO_ROOT}" -name "*.pyc" -delete 2>/dev/null || true
@@ -165,8 +165,6 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Wipe stale inner-Docker volumes/containers before `up` (fresh credentials), keeping
-# image layers for cache. If disk >70%, wipe the whole volume to reclaim space.
 if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
 	_disk_pct=$(df --output=pcent / | tail -1 | tr -d ' %')
 	if [[ "${_disk_pct}" -ge 70 && -n "${INFINITO_DOCKER_VOLUME:-}" && "${INFINITO_DOCKER_VOLUME}" == /* ]]; then
@@ -181,13 +179,8 @@ if [[ "${INFINITO_PRESERVE_DOCKER_CACHE}" == "true" ]]; then
 fi
 
 echo ">>> Ensuring stack is up for distro ${INFINITO_DISTRO}"
-# Always reconcile the stack to the requested distro.
-# This avoids reusing a pre-started stack with a different INFINITO_DISTRO.
 "${PYTHON}" -m cli.administration.deploy.development up
 
-# Pre-install the CA trust wrapper: if the bind-mount target is missing, Docker
-# creates it as a directory (every exec then exits rc=126). sys-ca-selfsigned
-# overwrites this stub with the real version later.
 _up_container="${INFINITO_CONTAINER:?INFINITO_CONTAINER is not set (run make dotenv)}"
 docker exec "${_up_container}" install -m 755 \
 	/opt/src/infinito/roles/sys-ca-selfsigned/files/with-ca-trust.sh \
@@ -226,8 +219,6 @@ echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
 	"${_init_args[@]}" \
 	--vars '{"ASYNC_ENABLED": false}'
 
-# Per variant: sync deploy, then async re-deploy (-e ASYNC_ENABLED=true) before the
-# next variant, so async targets the exact host state sync just produced.
 echo ">>> deploy (PASS 1 sync + PASS 2 async per variant, --full-cycle)"
 "${PYTHON}" -m cli.administration.deploy.development deploy "${deploy_args[@]}" --full-cycle
 

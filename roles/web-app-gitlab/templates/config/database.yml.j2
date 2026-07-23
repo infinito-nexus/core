@@ -1,0 +1,21 @@
+---
+production:
+  main:
+    adapter: postgresql
+    encoding: unicode
+    database: {{ lookup('database', application_id, 'name') | to_json }}
+    username: {{ lookup('database', application_id, 'username') | to_json }}
+    password: {{ lookup('database', application_id, 'password') | to_json }}
+    host: {{ lookup('database', application_id, 'host') | to_json }}
+    port: {{ lookup('database', application_id, 'port') }}
+    pool: {{ POSTGRES_ALLOWED_AVG_CONNECTIONS }}
+  ci:
+    adapter: postgresql
+    encoding: unicode
+    database: {{ lookup('database', application_id, 'name') | to_json }}
+    username: {{ lookup('database', application_id, 'username') | to_json }}
+    password: {{ lookup('database', application_id, 'password') | to_json }}
+    host: {{ lookup('database', application_id, 'host') | to_json }}
+    port: {{ lookup('database', application_id, 'port') }}
+    pool: {{ POSTGRES_ALLOWED_AVG_CONNECTIONS }}
+    database_tasks: false

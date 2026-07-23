@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media Self-written CI-runner infrastructure role: provisions a host as a GitHub Actions self-hosted runner via ephemeral Docker containers (DooD). Glue/infra with no consumer-facing upstream product website.
 galaxy_info:
   author: Alejandro Roman Ibanez
-  description: Provisions a dedicated machine as a GitHub Actions self-hosted CI runner for Infinito.Nexus using ephemeral Docker containers.
+  description: Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers
   license: Infinito.Nexus Community License (Non-Commercial)
   min_ansible_version: "2.9"
   platforms:

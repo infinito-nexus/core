@@ -11,9 +11,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../../meta/env/load.sh"
 
 CONTAINER_NAME="${INFINITO_CONTAINER}"
-CA_SRC_PATH="/etc/infinito.nexus/ca/root-ca.crt"
-CA_DST_DIR="/etc/infinito.nexus/ca"
-CA_DST_PATH="${CA_DST_DIR}/root-ca.crt"
+CA_SRC_PATH="${INFINITO_CA_CERT_HOST}"
+CA_DST_PATH="${INFINITO_CA_CERT_HOST}"
+CA_DST_DIR="$(dirname "${CA_DST_PATH}")"
 CA_TRUST_NAME="infinito-root-ca"
 
 WITH_CA_TRUST_SCRIPT="${SCRIPT_DIR}/../../../../roles/sys-ca-selfsigned/files/with-ca-trust.sh"
@@ -29,13 +29,16 @@ require() {
 	fi
 }
 
-# --- checks ------------------------------------------------------------------
-
 require docker
 require sudo
 
 if [ -z "$CONTAINER_NAME" ]; then
 	echo "[network-trust-ca] ERROR: INFINITO_CONTAINER is not set" >&2
+	exit 2
+fi
+
+if [ -z "$CA_SRC_PATH" ]; then
+	echo "[network-trust-ca] ERROR: INFINITO_CA_CERT_HOST is not set" >&2
 	exit 2
 fi
 
@@ -48,18 +51,15 @@ log "Using container: $CONTAINER_NAME"
 log "CA source path (container): $CA_SRC_PATH"
 log "CA destination path (host): $CA_DST_PATH"
 
-# --- extract CA ---------------------------------------------------------------
-
 log "Extracting Root CA from container"
 sudo mkdir -p "$CA_DST_DIR"
 
+# nocheck: container-cp - container-to-host CA extraction on the operator host
 sudo docker cp \
 	"${CONTAINER_NAME}:${CA_SRC_PATH}" \
 	"$CA_DST_PATH"
 
 sudo chmod 0644 "$CA_DST_PATH"
-
-# --- trust CA -----------------------------------------------------------------
 
 log "Installing CA into host trust store"
 

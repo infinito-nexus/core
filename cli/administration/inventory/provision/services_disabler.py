@@ -11,6 +11,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     canonical_service_key,
     equivalent_service_keys,
+    expand_service_tokens,
 )
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -41,6 +42,13 @@ class ServicesDisabledConflictError(RuntimeError):
 def parse_services_disabled(env_value: str) -> list[str]:
     """Parse a space- or comma-separated list of service names."""
     return [s.strip() for s in env_value.replace(",", " ").split() if s.strip()]
+
+
+def expand_disabled_tokens(tokens: list[str], roles_dir: Path) -> list[str]:
+    """Backwards-compatible alias for the shared
+    :func:`utils.roles.applications.services.registry.expand_service_tokens`.
+    """
+    return expand_service_tokens(tokens, roles_dir)
 
 
 def find_roles_with_service(service_name: str, roles_dir: Path) -> set[str]:
@@ -94,7 +102,7 @@ def find_provider_roles(services: list[str], roles_dir: Path) -> dict[str, str]:
     except Exception:
         return mapping
 
-    for svc in services:
+    for svc in expand_service_tokens(services, roles_dir):
         if svc not in registry:
             continue
         primary = canonical_service_key(registry, svc)
@@ -165,7 +173,8 @@ def apply_services_disabled(
     if not services:
         return
 
-    # --- host_vars: disable services ---
+    services = expand_service_tokens(services, roles_dir)
+
     yaml_rt = YAML(typ="rt")
     yaml_rt.preserve_quotes = True
 
@@ -211,7 +220,6 @@ def apply_services_disabled(
         with host_vars_file.open("w", encoding="utf-8") as f:
             yaml_rt.dump(doc, f)
 
-    # --- inventory: remove provider roles ---
     if inventory_file is not None:
         provider_map = find_provider_roles(services, roles_dir)
         if provider_map:
@@ -267,7 +275,7 @@ def find_services_disabled_conflicts(
     service_registry = build_service_registry_from_roles_dir(roles_dir)
 
     conflicts: list[str] = []
-    for service in services:
+    for service in expand_service_tokens(services, roles_dir):
         primary_service = (
             canonical_service_key(service_registry, service)
             if service in service_registry
@@ -292,8 +300,6 @@ def find_services_disabled_conflicts(
                 continue
             for app_id in sorted(deployed_app_ids):
                 app_conf = applications.get(app_id) or {}
-                # Per services live at applications.<app>.services
-                # directly (no `compose.services` wrapper).
                 service_map = app_conf.get("services") or {}
                 if not isinstance(service_map, dict):
                     continue

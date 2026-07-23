@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen‑Birkenbach
-  description: "Role to provision an OpenResty container via Docker Compose.\n"
+  author: Kevin Veen-Birkenbach
+  description: "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

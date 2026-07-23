@@ -1,0 +1,59 @@
+---
+- name: ⏳ Wait for Mailu Redis
+  include_tasks: 03_wait_for_redis.yml
+
+- name: "📁 Create Mailu accounts"
+  include_tasks: 04_manage_user.yml
+  vars:
+    mailu_action: >-
+      {{
+        (
+          'administrator' in (user_item.value.get('roles', []))
+        )
+        | ternary('admin','user')
+      }}
+    mailu_user_key: "{{ user_item.key }}"
+    mailu_user_name: "{{ user_item.value.username }}"
+    mailu_user_password: "{{ user_item.value.password }}"
+    mailu_token_ip: "{{ user_item.value.ip | default(networks.internet.ip4) }}"
+    mailu_token_name: "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
+    mailu_user_roles: "{{ user_item.value.roles | default([]) }}"
+    mailu_user_accounts: "{{ user_item.value.accounts | default([]) }}"
+  loop: "{{ lookup('users') | dict2items }}"
+  loop_control:
+    loop_var: user_item
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📁 Create Mailu forward aliases"
+  include_tasks: 04b/manage_alias.yml
+  vars:
+    mailu_alias_localpart: "{{ user_item.value.username }}"
+    mailu_alias_destination: "{{ lookup('users', user_item.value.forward).email }}"
+  loop: "{{ lookup('users') | dict2items }}"
+  loop_control:
+    loop_var: user_item
+  when: (user_item.value.forward | default('')) | length > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📂 Include Cert deploy service for '{{ role_name }}'"
+  include_role:
+    name: sys-ctl-mtn-cert-deploy
+  # Active provider only: the cert-deploy unit is shared (run-once) and a
+  # legacy instance runs TLS_FLAVOR=notls behind the proxy anyway.
+  when:
+    - lookup('tls', application_id, 'enabled') | bool
+    - MAILU_ACTIVE_PROVIDER | bool
+
+- name: ⏳ Wait for Mailu antispam
+  include_tasks: 07_wait_for_antispam.yml
+
+- name: ⚙️ Generate DKIM public key
+  include_tasks: 05_generate-and-read-dkim.yml
+
+- name: 🔧 Set Mailu DNS records
+  include_tasks: 06_dns-records.yml
+
+# Refresh-or-defer: a /sso hit before Keycloak is up poisons the cached discovery.
+- name: "🔐 Apply Mailu OIDC provider config"
+  include_tasks: 09_oidc_apply.yml
+  when: MAILU_OIDC_ENABLED | bool

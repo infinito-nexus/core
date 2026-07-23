@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures the sudo package with a default sudoers file to ensure secure privilege escalation and system administration.
+  description: Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

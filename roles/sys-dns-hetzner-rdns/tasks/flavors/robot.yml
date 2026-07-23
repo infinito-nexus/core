@@ -1,25 +1,23 @@
 ---
 # Robot flavor (Robot Webservice API)
-- name: Assert Robot credentials present
+- name: ✅ Assert Robot credentials present
   ansible.builtin.assert:
     that:
       - (HETZNER_ROBOT_USER | default('') | length) > 0
       - (HETZNER_ROBOT_PASSWORD | default('') | length) > 0
     fail_msg: "Robot credentials required: HETZNER_ROBOT_USER / HETZNER_ROBOT_PASSWORD."
-  no_log: "{{ hetzner_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: Validate records (robot)
+- name: ✅ Validate records (robot)
   ansible.builtin.assert:
     that:
       - rdns_records | length > 0
       - (rdns_records | selectattr('ip_address','defined') | list | length) == (rdns_records | length)
       - (rdns_records | selectattr('dns_ptr','defined') | list | length) == (rdns_records | length)
     fail_msg: "Each record must have ip_address and dns_ptr for Robot rDNS."
-  no_log: "{{ hetzner_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: Apply rDNS via Hetzner Robot API
+- name: 📌 Apply rDNS via Hetzner Robot API
   vars:
     hetzner_robot_base_url: "{{ HETZNER_ROBOT_BASE_URL }}"
     ip_path: "{{ item.ip_address | urlencode }}"
@@ -40,4 +38,3 @@
     label: "{{ item.ip_address }} -> {{ item.dns_ptr }}"
   async: "{{ hetzner_async_enabled | ternary(hetzner_async_time, omit) }}"
   poll: "{{ hetzner_async_enabled | ternary(hetzner_async_poll, omit) }}"
-  no_log: "{{ hetzner_no_log | bool }}"

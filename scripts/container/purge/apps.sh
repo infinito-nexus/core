@@ -43,7 +43,7 @@ entities=()
 for app in "${apps[@]}"; do
 	[[ -n "${app}" ]] || continue
 
-	entity="$("${python_bin}" -c 'from utils.roles.entity_name import get_entity_name; import sys; print(get_entity_name(sys.argv[1]) or "")' "${app}")"
+	entity="$("${python_bin}" -c 'from utils.roles.entity.name import get_entity_name; import sys; print(get_entity_name(sys.argv[1]) or "")' "${app}")"
 
 	if [[ -z "${entity}" ]]; then
 		echo "!!! WARNING: could not derive entity from apps=${app}: skipping"

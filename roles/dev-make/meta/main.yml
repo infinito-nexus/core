@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs GNU Make using the Pacman package manager on Arch Linux systems.
+  description: Package installation for the GNU Make build automation tool on Arch Linux via Pacman
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

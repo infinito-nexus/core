@@ -1,5 +1,8 @@
 ---
 qbittorrent:
+  modes:
+    host:
+      enabled: true
   lifecycle: pre-alpha
   min_storage: "200MB"
   cpus: "0.5"

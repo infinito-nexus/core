@@ -1,7 +1,8 @@
+{% set container_port = container_port | default(lookup('config', application_id, 'services.' ~ service_name ~ '.ports.internal.http', '')) %}
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost {{ container_port }} || exit 1"]
       interval: 30s
       timeout: 3s
       retries: 3
-      start_period: 10s
+      start_period: {{ container_healthcheck_start_period | default('10s') }}
 {{ "\n" }}

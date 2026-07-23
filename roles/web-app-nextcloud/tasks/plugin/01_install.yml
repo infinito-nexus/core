@@ -1,12 +1,12 @@
 ---
 # Install-behaviour flags sit at the top level for plugins entries, but under `config:` for addons entries.
-- name: "Normalise install flags for {{ plugin_key }}"
+- name: "📦 Normalise install flags for {{ plugin_key }}"
   ansible.builtin.set_fact:
     plugin_incompatible: "{{ plugin_value.config.incompatible_plugins | default(plugin_value.incompatible_plugins | default([])) }}"
     plugin_mandatory: "{{ plugin_value.config.mandatory | default(plugin_value.mandatory | default(false)) }}"
   changed_when: false
 
-- name: "Disable incompatible plugins for {{ plugin_key }} (batched shell, no async)"
+- name: "🔴 Disable incompatible plugins for {{ plugin_key }} (batched shell, no async)"
   ansible.builtin.shell: |
     # do not set -e here; allow per-line fallbacks
     {% for incompatible_plugin in (plugin_incompatible | default([])) %}
@@ -28,7 +28,7 @@
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
-- name: install {{ plugin_key }} nextcloud plugin
+- name: 📦 install {{ plugin_key }} nextcloud plugin
   # Clear NC appstore-fetcher cooldown (300s) before each attempt so retries
   # actually re-fetch the catalog instead of seeing cached empty after a first
   # transient failure right after container start.
@@ -46,7 +46,7 @@
     and not (install_result | nextcloud_install_status).unavailable
   changed_when: (install_result | nextcloud_install_status).changed
 
-- name: "Fail: mandatory plugin {{ plugin_key }} is not installable on this Nextcloud version"
+- name: "🛑 Mandatory plugin {{ plugin_key }} not installable on this Nextcloud version"
   ansible.builtin.fail:
     msg: >-
       Mandatory Nextcloud plugin '{{ plugin_key }}' is
@@ -57,7 +57,7 @@
     - plugin_mandatory | bool
     - not (install_result | nextcloud_install_status).runnable
 
-- name: "warn: {{ plugin_key }} cannot be installed on this Nextcloud version — skipping"
+- name: "🔴 Skip {{ plugin_key }}: not installable on this Nextcloud version"
   ansible.builtin.debug:
     msg: >-
       Plugin '{{ plugin_key }}' is {{ 'not compatible with' if (install_result | nextcloud_install_status).incompatible else 'not available on the appstore for' }}

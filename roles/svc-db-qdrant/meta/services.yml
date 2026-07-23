@@ -1,0 +1,34 @@
+---
+qdrant:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  central vector engine, on-disk state node-local in swarm (cannot live on NFS)
+  placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: qdrant/qdrant
+  name: qdrant
+  version: v1.18.2
+  min_storage: 5GB
+  backup:
+    database_routine: true
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+  ports:
+    local:
+      qdrant: 6333
+    internal:
+      qdrant: 6333
+  lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

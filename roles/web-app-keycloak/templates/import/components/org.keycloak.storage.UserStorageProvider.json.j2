@@ -5,7 +5,6 @@
   "subComponents": {
     "org.keycloak.storage.ldap.mappers.LDAPStorageMapper": [
     
-      {# ---------------------- First Name ---------------------- #}
       {
         "name": "first name",
         "providerId": "user-attribute-ldap-mapper",
@@ -21,7 +20,6 @@
         }
       },
 
-      {# ---------------------- Last Name ----------------------- #}
       {
         "name": "last name",
         "providerId": "user-attribute-ldap-mapper",
@@ -35,7 +33,6 @@
         }
       },
 
-      {# ---------------------- Full Name (cn) ------------------ #}
       {
         "name": "full name",
         "providerId": "full-name-ldap-mapper",
@@ -47,7 +44,6 @@
         }
       },
 
-      {# ---------------------- Username ------------------------ #}
       {
         "name": "username",
         "providerId": "user-attribute-ldap-mapper",
@@ -63,7 +59,6 @@
         }
       },
 
-      {# ---------------------- Email --------------------------- #}
       {
         "name": "email",
         "providerId": "user-attribute-ldap-mapper",
@@ -77,7 +72,6 @@
         }
       },
 
-      {# ---------------------- SSH Public Key ------------------ #}
       {
         "name": "SSH Public Key",
         "providerId": "user-attribute-ldap-mapper",
@@ -93,7 +87,6 @@
         }
       },
 
-      {# ---------------------- Nextcloud Quota ----------------- #}
       {
         "name": "{{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA }}",
         "providerId": "user-attribute-ldap-mapper",
@@ -109,7 +102,6 @@
         }
       },
 
-      {# ---------------------- Creation Date ------------------- #}
       {
         "name": "creation date",
         "providerId": "user-attribute-ldap-mapper",
@@ -123,7 +115,6 @@
         }
       },
 
-      {# ---------------------- Modify Date --------------------- #}
       {
         "name": "modify date",
         "providerId": "user-attribute-ldap-mapper",
@@ -137,7 +128,6 @@
         }
       },
 
-      {# ---------------------- LDAP Groups -> KC Groups -------- #}
       {
         "name": "ldap-roles",
         "providerId": "group-ldap-mapper",
@@ -150,14 +140,6 @@
           "groups.dn": [ "{{ LDAP.DN.OU.ROLES }}" ],
           "mode": [ "LDAP_ONLY" ],
           "user.roles.retrieve.strategy": [ "LOAD_GROUPS_BY_MEMBER_ATTRIBUTE" ],
-          {# The default 'ldap-roles' mapper is created by 05_ldap.yml so
-             the assert/05_ldap.yml contract (exactly one canonical
-             mapper) still passes; tasks/update/05c_per_app_mappers.yml
-             then deletes it and replaces it with one
-             group-ldap-mapper per deployed application. The filter
-             below is the historical "all LDAP groupOfNames + posixGroup"
-             expression so the dictionary stays self-consistent on
-             intermediate states (greenfield init, retried deploys). #}
           "groups.ldap.filter": ["{{ LDAP.RBAC.FLAVORS | ldap_groups_filter }}"],
           "membership.ldap.attribute": [ "member" ],
           "ignore.missing.groups": [ "true" ],
@@ -204,7 +186,6 @@
           "user.model.attribute": [ "uidNumber" ]
         }
       }
-      {# ── Moodle profile-field LDAP mappers (only when Moodle is enabled). ── #}
       {% if KEYCLOAK_MOODLE_ENABLED | bool %}
       {% set _moodle_ldap_pairs = [
         ['middleName',         'initials'],
@@ -237,7 +218,6 @@
       }{% endfor %}
       {% endif %}
       {% if keycloak_map_ldap_realm_roles | default(false) %},
-      {# ---------------------- LDAP -> Realm Roles (optional) -- #}
       {
         "name": "ldap-realm-roles",
         "providerId": "role-ldap-mapper",
@@ -284,7 +264,6 @@
     "usePasswordModifyExtendedOp": [ "true" ],
     "trustEmail": [ "false" ],
 
-    {# Build objectClasses from structural + auxiliary definitions #}
     "userObjectClasses": [
       {{ KEYCLOAK_LDAP_USER_OBJECT_CLASSES | trim | to_json }}
     ],
@@ -293,7 +272,6 @@
     "editMode": [ "WRITABLE" ],
     "validatePasswordPolicy": [ "false" ],
 
-    {# Recommended: prune Keycloak shadow users not in LDAP anymore #}
     "removeInvalidUsersEnabled": [ "true" ]
   }
 }

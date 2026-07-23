@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Installs the Zoom video conferencing client via AUR on Arch Linux.
+  author: Kevin Veen-Birkenbach
+  description: Desktop video conferencing client for online meetings, webinars, and screen sharing
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

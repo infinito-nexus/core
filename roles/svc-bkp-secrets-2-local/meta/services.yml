@@ -1,0 +1,19 @@
+---
+secrets-2-local:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  bond: 1
+  enabled: true
+  shared: true
+  provides: secrets_backup
+  lifecycle: beta
+  min_storage: 0GB
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "256m"
+  pids_limit: 256

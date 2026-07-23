@@ -1,26 +1,21 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  application:
+  {% set service_name = 'wordpress' %}
+  {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: {{ WORDPRESS_CUSTOM_IMAGE }}
-    container_name: {{ WORDPRESS_CONTAINER }}
+    {{ lookup('container_image', application_id, 'wordpress') }}
+    {{ lookup('compose_only', 'container_name', WORDPRESS_CONTAINER) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         WORDPRESS_IMAGE:           "{{ WORDPRESS_IMAGE }}"
         WORDPRESS_VERSION:         "{{ WORDPRESS_VERSION }}"
         WORDPRESS_CONFIG_UPLD_REL: "{{ WORDPRESS_CONFIG_UPLD_REL }}"
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.wordpress.ports.local.http') }}:80"
-    volumes:
-      - data:{{ WORDPRESS_DOCKER_HTML_PATH }}
-      - {{ WORDPRESS_MSMTP_ABS }}:/etc/msmtprc:ro
+    {{ lookup('container_ports', ['wordpress', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+{{ lookup('container_volumes', application_id, 'wordpress') | indent(4) }}
 
-{% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': WORDPRESS_VOLUME}}
-) }}
+{{ lookup('compose_volumes', application_id) }}

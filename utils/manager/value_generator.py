@@ -5,27 +5,30 @@ import secrets
 import string
 
 import bcrypt
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    NoEncryption,
+    PrivateFormat,
+    PublicFormat,
+)
 
 
 class ValueGenerator:
-    # Password policy:
-    # - min 12 chars
-    # - at least one lowercase
-    # - at least one uppercase
-    # - at least one digit
-    # - at least one special char
     PASSWORD_REGEX = re.compile(
         r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$"
     )
+
+    def __init__(self) -> None:
+        self._vapid_keypair: tuple[str, str] | None = None
 
     def generate_strong_password(self, length: int = 32) -> str:
         if length < 12:
             raise ValueError("Password length must be at least 12 characters")
 
-        # Exclude '{' and '}' so secrets can't form Jinja delimiters (values get re-rendered).
         characters = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]:,.?"
 
-        for _ in range(10_000):  # defensive upper bound
+        for _ in range(10_000):
             password = "".join(secrets.choice(characters) for _ in range(length))
             if self._is_valid_password(password):
                 return password
@@ -37,8 +40,28 @@ class ValueGenerator:
 
     def generate_secure_alphanumeric(self, length: int) -> str:
         """Generate a cryptographically secure random alphanumeric string of the given length."""
-        characters = string.ascii_letters + string.digits  # a-zA-Z0-9
+        characters = string.ascii_letters + string.digits
         return "".join(secrets.choice(characters) for _ in range(length))
+
+    def generate_vapid_keypair(self) -> tuple[str, str]:
+        """Return a linked (private, public) VAPID keypair, cached per instance.
+
+        Returns:
+            A tuple of unpadded base64url strings: the P-256 private scalar
+            (32 bytes) and the uncompressed public point (65 bytes, 0x04||X||Y),
+            in the format the Web Push / mastodon ecosystem expects.
+        """
+        if self._vapid_keypair is None:
+            private_key = ec.generate_private_key(ec.SECP256R1())
+            scalar = private_key.private_numbers().private_value.to_bytes(32, "big")
+            point = private_key.public_key().public_bytes(
+                Encoding.X962, PublicFormat.UncompressedPoint
+            )
+            self._vapid_keypair = (
+                base64.urlsafe_b64encode(scalar).rstrip(b"=").decode(),
+                base64.urlsafe_b64encode(point).rstrip(b"=").decode(),
+            )
+        return self._vapid_keypair
 
     def generate_value(self, algorithm: str) -> str:
         """
@@ -54,6 +77,9 @@ class ValueGenerator:
         • "bcrypt"
         • "alphanumeric"
         • "base64_prefixed_32"
+        • "vapid_private"
+        • "vapid_public"
+        • "rsa_pem_2048"
         """
         if algorithm == "random_hex":
             return secrets.token_hex(64)
@@ -64,8 +90,6 @@ class ValueGenerator:
         if algorithm == "sha256":
             return hashlib.sha256(secrets.token_bytes(32)).hexdigest()
         if algorithm == "sha1":
-            # SHA-1 is selected by the caller for legacy app compatibility;
-            # the input is fresh random bytes, not security-sensitive data.
             return hashlib.sha1(
                 secrets.token_bytes(20),
                 usedforsecurity=False,
@@ -83,4 +107,13 @@ class ValueGenerator:
             return self.generate_secure_alphanumeric(64)
         if algorithm == "base64_prefixed_32":
             return "base64:" + base64.b64encode(secrets.token_bytes(32)).decode()
+        if algorithm == "vapid_private":
+            return self.generate_vapid_keypair()[0]
+        if algorithm == "vapid_public":
+            return self.generate_vapid_keypair()[1]
+        if algorithm == "rsa_pem_2048":
+            key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+            return key.private_bytes(
+                Encoding.PEM, PrivateFormat.TraditionalOpenSSL, NoEncryption()
+            ).decode()
         return "undefined"

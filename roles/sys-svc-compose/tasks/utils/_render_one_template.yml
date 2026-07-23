@@ -1,0 +1,57 @@
+---
+- name: "✅ Ensure parent directory exists for '{{ _tpl.dest }}'"
+  ansible.builtin.file:
+    path: "{{ _tpl.dest | dirname }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: (_tpl.condition | default(true)) | bool
+
+- name: "📄 Render '{{ _tpl.dest }}' (on manager when swarm)"
+  ansible.builtin.template: # nocheck: stack-host-template (structurally STACK_HOST-delegated already (delegate_to + run_once), uses its own swarm-distribution dance)
+    src: "{{ _tpl.src }}"
+    dest: "{{ _tpl.dest }}"
+    owner: "{{ _tpl.owner | default('root') }}"
+    group: "{{ _tpl.group | default('root') }}"
+    mode: "{{ _tpl.mode | default('0640') }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: (_tpl.condition | default(true)) | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: _role_templates_render
+  notify: "{{ _tpl.notify | default(['compose up']) }}"
+
+- name: "[swarm] Slurp rendered '{{ _tpl.dest }}' from manager"
+  ansible.builtin.slurp:
+    src: "{{ _tpl.dest }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: _role_templates_slurp
+  when:
+    - (_tpl.condition | default(true)) | bool
+    - DEPLOYMENT_MODE == 'swarm'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "[swarm] Ensure parent directory exists on peer for '{{ _tpl.dest }}'"
+  ansible.builtin.file:
+    path: "{{ _tpl.dest | dirname }}"
+    state: directory
+    mode: "0755"
+  when:
+    - (_tpl.condition | default(true)) | bool
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+
+- name: "[swarm] Distribute '{{ _tpl.dest }}' to swarm peers"
+  ansible.builtin.copy:
+    content: "{{ _role_templates_slurp.content | b64decode }}"
+    dest: "{{ _tpl.dest }}"
+    owner: "{{ _tpl.owner | default('root') }}"
+    group: "{{ _tpl.group | default('root') }}"
+    mode: "{{ _tpl.mode | default('0640') }}"
+  when:
+    - (_tpl.condition | default(true)) | bool
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

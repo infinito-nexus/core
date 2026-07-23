@@ -1,28 +1,18 @@
 ---
-# General
 application_id: "web-app-hugo"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Helper variables
 HUGO_CONTAINER: "{{ entity_name }}"
 HUGO_SERVICE: "{{ entity_name }}"
-HUGO_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 
-# Pinned upstream images (read from meta/services.yml; appear in image-drift report)
 HUGO_NGINX_IMAGE: "{{ lookup('config', application_id, 'services.hugo.image') }}"
 HUGO_NGINX_VERSION: "{{ lookup('config', application_id, 'services.hugo.version') }}"
 HUGO_BUILDER_IMAGE: "{{ lookup('config', application_id, 'services.hugo.builder_image') }}"
 HUGO_BUILDER_VERSION: "{{ lookup('config', application_id, 'services.hugo.builder_version') }}"
 
-# Hugo content source — defaults to gohugoio/hugoDocs at v0.148.0
 HUGO_SOURCE_REPO: "{{ lookup('config', application_id, 'services.hugo.source_repository') }}"
 HUGO_SOURCE_REF: "{{ lookup('config', application_id, 'services.hugo.source_version') }}"
 
-# Hugo build args (environment + minify are inventory-overridable via
-# meta/services.yml defaults; base_url is derived from the role's TLS URL)
 HUGO_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 HUGO_ENVIRONMENT: "{{ lookup('config', application_id, 'services.hugo.hugo_environment') }}"
 HUGO_MINIFY: "{{ lookup('config', application_id, 'services.hugo.hugo_minify') }}"
-
-# Container HTTP port (nginx)
-container_port: 80

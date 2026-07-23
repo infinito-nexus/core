@@ -1,2 +1,15 @@
 ---
-data: snipe-it_data
+data:
+  type: volume
+  name: snipe-it_data
+  mounts:
+    - service: snipe-it
+      target: /var/lib/snipeit
+
+env:
+  type: config
+  source: "{{ lookup('container', 'web-app-snipe-it', 'files.env') }}"
+  mode: "0444"
+  mounts:
+    - service: snipe-it
+      target: /var/www/html/.env

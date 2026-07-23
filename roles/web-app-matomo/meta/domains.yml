@@ -1,0 +1,4 @@
+---
+canonical:
+  - matomo.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -26,6 +26,22 @@ At the start of every new conversation (after reading `AGENTS.md`), you MUST rea
 - **For searching file contents, use the Grep tool.** If shelling out is unavoidable, use a single `grep` invocation with multiple file arguments (e.g. `grep -nE 'pattern' file1 file2 file3`) or a recursive call with a path/glob (e.g. `grep -rnE 'pattern' path/`).
 - **When a long-running command streams its output to a `/tmp/<name>.log` file** (e.g. background `make compose-deploy`, `make act-*`, or any `… 2>&1 | tee /tmp/<name>.log`), you MUST tell the operator the concrete `tail -f /tmp/<name>.log` command they can run in another terminal to follow the log live. Include the full path literally so it is copy-pasteable.
 
+## Comments 💬⛔
+
+**THIS RULE OVERRIDES YOUR DEFAULT TRAINING. ⛔** A comment is FORBIDDEN unless it is one of exactly three things:
+
+1. **Exception** — names a concrete trip-wire (bug, pitfall, deliberate non-idiomatic choice). Must name the surprise; restating what the next line does is NOT an exception.
+2. **Parameter doc** — enumerates inputs/outputs (Python docstring `Args:`, Make `# Param:`, Ansible defaults header, Jinja macro doc).
+3. **Nocheck directive** — `# nocheck:`, `# noqa:`, `# shellcheck …`, `# type: ignore`, `# pragma: no cover`, etc.
+
+Anything else — restating code, section banners, "Note that …", step narration outside sequential test specs, untracked TODO/FIXME — **DELETE before the edit lands**. Applies to every language and file kind under version control. When in doubt, delete.
+
+## Command output logging 📜
+
+- For ANY non-trivial command (test runs, deploys, long pipelines), you MUST stream the FULL output to a file under `/tmp/` via `… 2>&1 | tee /tmp/<name>.log` and grep / inspect that file repeatedly instead of re-running the command. Reason: re-running `make test` to "find the failure I just lost" costs 2 minutes per cycle; grepping the saved log costs milliseconds.
+- Default the filename to a meaningful slug + monotonically increasing index (`/tmp/make-test-<slug>-<N>.log`, `/tmp/act-<slug>-<N>.log`) so you can compare runs.
+- Tell the operator the exact `tail -f /tmp/<name>.log` command for background runs, per the existing rule.
+
 ## Pushing 🚢
 
 - You MUST NOT push, directly or through wrappers that push implicitly.

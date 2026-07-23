@@ -1,14 +1,15 @@
 ---
-matomo:
-  bond: 1
-  enabled: "{{ 'web-app-matomo' in group_names }}"
-  shared: "{{ 'web-app-matomo' in group_names }}"
 coturn:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
   image: coturn/coturn
-  version: latest
+  version: 4.14.0
   min_storage: 1GB
   user_auth_enabled: false
   cpus: 1.0
@@ -18,6 +19,8 @@ coturn:
   network_mode: host
   username: coturnconsumer
   ports:
+    internal:
+      http: 80
     local:
       http: 8064
     public:
@@ -39,11 +42,14 @@ redis:
   backup:
     disabled: true
   enabled: false
-css:
-  bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'svc-db-redis' in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

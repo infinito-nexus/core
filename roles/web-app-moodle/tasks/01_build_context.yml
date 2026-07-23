@@ -4,17 +4,17 @@
 # Filenames are read from MOODLE_BUILD_FILES (vars/main.yml) — a single
 # spot consumed here AND referenced literally by the Dockerfile.
 
-- name: "Set fact: moodle compose dir"
+- name: "🔧 Set fact: moodle compose dir"
   ansible.builtin.set_fact:
     _moodle_compose_dir: >-
       {{ docker_compose.directories.instance
          | default(lookup('container', application_id, 'directories.instance')) }}
 
-- name: "Set fact: moodle build context base"
+- name: "🔧 Set fact: moodle build context base"
   ansible.builtin.set_fact:
     _moodle_build_dir: "{{ [_moodle_compose_dir, MOODLE_BUILD_DIR] | path_join }}"
 
-- name: "Ensure moodle build context dirs exist"
+- name: "✅ Ensure moodle build context dirs exist"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -22,8 +22,9 @@
   loop:
     - "{{ _moodle_build_dir }}"
     - "{{ [_moodle_build_dir, 'php-conf'] | path_join }}"
+    - "{{ [_moodle_build_dir, 'install'] | path_join }}"
 
-- name: "Copy static build assets into compose context"
+- name: "📋 Copy static build assets into compose context"
   ansible.builtin.copy:
     src: "{{ [MOODLE_BUILD_DIR, item.path] | path_join }}"
     dest: "{{ [_moodle_build_dir, item.path] | path_join }}"
@@ -41,8 +42,14 @@
     - compose build
     - compose up
 
-- name: "Transfer msmtprc to {{ MOODLE_MSMTP_ABS }} (Mailu relay used by mail() + healthcheck)"
-  ansible.builtin.template:
+- name: "🔧 Ensure msmtp CA-bundle fact is set before rendering msmtprc"
+  ansible.builtin.include_role:
+    name: sys-svc-mail-msmtp
+    tasks_from: ca_bundle
+  when: sys_svc_mail_msmtp_ca_bundle is not defined
+
+- name: "📋 Copy msmtprc to {{ MOODLE_MSMTP_ABS }} (Mailu relay for mail() + healthcheck)"
+  stack_host_template:
     src: "{{ MOODLE_MSMTP_SRC }}"
     dest: "{{ MOODLE_MSMTP_ABS }}"
     mode: "0640"
@@ -50,8 +57,8 @@
     - compose build
     - compose up
 
-- name: "Render PHP runtime tuning into compose context"
-  ansible.builtin.template:
+- name: "📄 Render PHP runtime tuning into compose context"
+  stack_host_template:
     src: "{{ [MOODLE_BUILD_DIR, MOODLE_BUILD_FILES.runtime_ini ~ '.j2'] | path_join }}"
     dest: "{{ [_moodle_build_dir, MOODLE_BUILD_FILES.runtime_ini] | path_join }}"
     mode: "0644"

@@ -1,0 +1,71 @@
+---
+data:
+  type: volume
+  name: stalwart_data
+  mounts:
+    - service: stalwart
+      target: /var/lib/stalwart
+# Named volume for the image's declared VOLUME /etc/stalwart (config bind mounts
+# overlay it) — prevents a per-deploy anonymous volume that sys-ctl-hlth-volumes flags.
+config:
+  type: volume
+  name: stalwart_config
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart
+webmail_data:
+  type: volume
+  name: stalwart_webmail_data
+  mounts:
+    - service: webmail
+      target: /var/www/html
+clamav_data:
+  type: volume
+  name: stalwart_clamav_data
+  mounts:
+    - service: clamav
+      target: /var/lib/clamav
+# 0.16 JSON bootstrap (data store); the rest of the config lives in the DB.
+config_file:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'etc/config.json' ] | path_join }}"
+  # World-readable: the container runs as UID 2000.
+  mode: "0444"
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart/config.json
+# WebUI (WebAdmin) bundle staged by the controller (see tasks/10_webadmin.yml).
+# nocheck: meta-volume-file-bind-should-be-config
+# Reason: multi-MB zip exceeds the docker config size limit; the role is
+# manager-pinned so the bind source is always node-local.
+webui_bundle:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'etc/webui.zip' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart/webui.zip
+# Platform TLS cert for the mail listeners (referenced via x:Certificate).
+certs:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'certs' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart/certs
+clamav_milter_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'etc/clamav-milter.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: clamav
+      target: /etc/clamav/clamav-milter.conf
+# Rendered unconditionally (content self-gates on SSO) so the source always exists.
+webmail_oauth:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'webmail/oauth.inc.php' ] | path_join }}"
+  # Readable by www-data in the roundcube container.
+  mode: "0444"
+  mounts:
+    - service: webmail
+      target: /var/roundcube/config/oauth.inc.php

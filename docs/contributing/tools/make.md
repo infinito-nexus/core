@@ -15,6 +15,7 @@ For rules on how to write and structure the `Makefile` itself, see [makefile.md]
 These pages drill into a single workflow rather than enumerate every target. `make help` is the authoritative list of available targets:
 
 - [Network debugging](../actions/debugging/network.md): `make diagnose-network` (DNS / TCP / TLS / PMTU diagnostics inside the dev container) plus MTU / IPv6 / connectivity troubleshooting.
+- [Terminal aliases and agent shortcuts](shell/alias.md): the `i8*` shell aliases (`make install-alias`) and the agent conversation shortcuts, printed together by `make alias`; `make onboard` sets up a developer workstation end to end.
 - For app-level local deploy flows and end-to-end checks, see [Development & Testing](../actions/testing.md).
 
 ## Git 🔐

@@ -14,10 +14,14 @@ exclude_paths:
   - .cache/
   - .claude/
   - .github/
-  - tests/integration/fixtures/
-  - tests/lint/fixtures/
+  - /cli/
+  - compose/
+  - /docs/
+  - /tests/
+  - /utils/
   - venv/
   - .venv/
+  - build/
 
 # Files that are not Ansible content but live under the same tree as roles
 # and would otherwise be misclassified.

@@ -1,0 +1,11 @@
+---
+whitelist:
+  worker-src:
+    - "blob:"
+  connect-src:
+    - https://sentry.com/
+flags:
+  script-src-elem:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true

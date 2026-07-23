@@ -1,20 +1,13 @@
 ---
-# General
 application_id: "web-app-confluence"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Container
-container_port: 8090
 container_hostname: "{{ lookup('domain',application_id) }}"
 
-# Confluence 
-
-## URLs
 CONFLUENCE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 CONFLUENCE_HOSTNAME: "{{ container_hostname }}"
 CONFLUENCE_HOME: "/var/atlassian/application-data/confluence"
 
-## OIDC
 CONFLUENCE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 CONFLUENCE_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
 CONFLUENCE_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
@@ -28,16 +21,11 @@ CONFLUENCE_OIDC_JWKS_URL: "{{ OIDC.CLIENT.CERTS }}"
 CONFLUENCE_OIDC_SCOPES: "openid,email,profile"
 CONFLUENCE_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 
-## Docker
 CONFLUENCE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 CONFLUENCE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 CONFLUENCE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-CONFLUENCE_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-CONFLUENCE_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ CONFLUENCE_VERSION }}"
 
-## Performance (derive from container limits in meta/services.yml)
 CONFLUENCE_JVM_MAX: "{{ lookup('applications') | jvm_max_mb(application_id) }}m"
 CONFLUENCE_JVM_MIN: "{{ lookup('applications') | jvm_min_mb(application_id) }}m"
 
-## Options 
 CONFLUENCE_TRUST_STORE_ENABLED: "{{ lookup('config', application_id, 'services.confluence.truststore_enabled') }}"

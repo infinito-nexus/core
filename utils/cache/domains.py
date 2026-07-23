@@ -2,9 +2,9 @@
 
 Owns `_MERGED_DOMAINS_CACHE`. Public API: `get_merged_domains`. The
 domain map is intentionally derived from the applications view rather
-than living in a parallel top-level overrides path — per-app domain
-overrides belong in `applications.<app>.server.domains` and flow
-through the regular applications-merge pipeline.
+than living in a parallel top-level overrides path. Per-app domain
+declarations live in `applications.<app>.domains` and flow through the
+regular applications-merge pipeline.
 """
 
 from __future__ import annotations
@@ -32,9 +32,9 @@ def get_merged_domains(
     """Build the canonical-domain map lazily from the merged applications view.
 
     The result is canonical_domains_map(applications, DOMAIN_PRIMARY).
-    Per-app domain overrides belong in `applications.<app>.server.domains`
-    (canonical/aliases) — they flow through the regular applications-merge
-    pipeline rather than a parallel top-level `domains` escape hatch.
+    Per-app domain declarations live in `applications.<app>.domains`
+    (canonical/aliases) and flow through the regular applications-merge
+    pipeline.
 
     Cached keyed on (roles_dir, variables_signature).
     """

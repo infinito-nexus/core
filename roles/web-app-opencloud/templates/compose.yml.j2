@@ -1,25 +1,16 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-
-  application:
-    image: "{{ OPENCLOUD_IMAGE }}:{{ OPENCLOUD_VERSION }}"
-    container_name: {{ OPENCLOUD_CONTAINER }}
+  {% set service_name = 'opencloud' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'opencloud') }}
+    {{ lookup('compose_only', 'container_name', OPENCLOUD_CONTAINER) }}
     user: "0:0"
     entrypoint:
       - /bin/sh
     command: ["-c", "opencloud init || true; opencloud server"]
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ OPENCLOUD_HTTP_PORT }}:9200"
-    volumes:
-      - data:/var/lib/opencloud
-      - config:/etc/opencloud
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports', ['opencloud', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'opencloud') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={
-      'data':   {'name': OPENCLOUD_DATA_VOLUME},
-      'config': {'name': OPENCLOUD_CONFIG_VOLUME}
-    }
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

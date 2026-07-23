@@ -19,12 +19,11 @@ _oidc_client_id: "{{ OIDC.CLIENT.ID if OIDC.CLIENT is defined and OIDC.CLIENT.ID
 _oidc_account_url: "{{ _oidc_client_issuer_url ~ '/account' }}"
 _oidc_protocol_oidc: "{{ _oidc_client_issuer_url ~ '/protocol/openid-connect' }}"
 
-# Definition
 defaults_oidc:
   URL: "{{ _oidc_url }}"
   CLIENT:
     ID: "{{ _oidc_client_id }}" # Client identifier, typically matching your primary domain
-    #   SECRET:                                                                                       # Client secret for authenticating with the OIDC provider (set in the inventory file). Recommend greater then 32 characters
+    SECRET: "{{ lookup('config', 'web-app-keycloak', 'credentials.oidc_client_secret', '') }}" # Defaults to the generated Keycloak credential; set OIDC.CLIENT.SECRET in the inventory to override
     REALM: "{{ _oidc_client_realm }}" # The realm to which the client belongs in the OIDC provider
     ISSUER_URL: "{{ _oidc_client_issuer_url }}" # Issuer URL (must match discovery issuer)
     DISCOVERY_DOCUMENT: "{{ _oidc_client_issuer_url ~ '/.well-known/openid-configuration' }}" # URL for fetching the provider's configuration details
@@ -41,7 +40,6 @@ defaults_oidc:
     RESET_CREDENTIALS: "{{ _oidc_client_issuer_url ~ '/login-actions/reset-credentials?client_id=' ~ _oidc_client_id }}" # Password reset url
   BUTTON_TEXT: "SSO Login ({{ DOMAIN_PRIMARY | upper }})" # Default button text
   ATTRIBUTES:
-    # Attribut to identify the user
     USERNAME: "preferred_username"
     GIVEN_NAME: "givenName"
     FAMILY_NAME: "surname"
