@@ -9,6 +9,15 @@
   delegate_to: localhost
   run_once: true
 
+- name: "📁 Ensure each role's staging dir exists on the CDN host"
+  ansible.builtin.file:
+    path: "{{ [ CDN_ASSET_STAGE, item.path | dirname | dirname | basename ] | path_join }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ cdn_asset_locks.files }}"
+  loop_control:
+    label: "{{ item.path | dirname | dirname | basename }}"
+
 - name: "📁 Stage each role's package manifests on the CDN host"
   ansible.builtin.copy:
     src: "{{ [ item.path | dirname, sub ] | path_join }}"
