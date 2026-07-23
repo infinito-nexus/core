@@ -4,15 +4,12 @@ from ansible.errors import AnsibleFilterError
 
 from plugins.filter.curl import curl
 
-
 _RETRY = " --retry 3 --retry-all-errors --retry-delay 2"
 
 
 class TestCurlFilter(unittest.TestCase):
     def test_default_connect_timeout(self):
-        self.assertEqual(
-            curl(30), "curl -s --connect-timeout 5 --max-time 30" + _RETRY
-        )
+        self.assertEqual(curl(30), "curl -s --connect-timeout 5 --max-time 30" + _RETRY)
 
     def test_custom_values(self):
         self.assertEqual(

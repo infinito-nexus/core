@@ -3,9 +3,10 @@
   become: true
   ansible.builtin.lineinfile:
     path: /etc/pacman.conf
-    regexp: '^XferCommand\s*='
+    regexp: "^XferCommand\\s*="
+    # nocheck: curl-timeout  pacman package downloads are size-unbounded; a --max-time would truncate large transfers
     line: "XferCommand = /usr/bin/curl -L -C - -f --connect-timeout 5 --retry 3 --retry-all-errors --retry-delay 2 -o %o %u"
-    insertafter: '^\[options\]'
+    insertafter: "^\\[options\\]"
 
 - name: "🔄 update (pacman) | refresh pacman cache and upgrade all installed packages"
   community.general.pacman:
