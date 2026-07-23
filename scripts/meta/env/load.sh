@@ -43,12 +43,13 @@ if [[ -n "${VENV:-}" && -d "${VENV%/}/bin" ]]; then
 	esac
 fi
 
-if [[ "${INFINITO_ENV_LOADED:-}" == "1" ]]; then # nocheck: env-loader-internal-guard
-	unset _infinito_env_repo_root _infinito_env_dotenv
+_infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" ]]; then # nocheck: env-loader-internal-guard
+	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
 	return 0
 fi
 if [[ "${INFINITO_ENV_GENERATING:-}" == "1" ]]; then # nocheck: env-loader-internal-guard
-	unset _infinito_env_repo_root _infinito_env_dotenv
+	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
 	return 0
 fi
 
@@ -86,4 +87,6 @@ done
 unset _infinito_env_key _infinito_env_preserved
 
 export INFINITO_ENV_LOADED="1"
-unset _infinito_env_repo_root _infinito_env_dotenv
+_infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
+export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"
+unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
