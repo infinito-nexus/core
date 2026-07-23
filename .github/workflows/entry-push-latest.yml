@@ -39,9 +39,6 @@ jobs:
           CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
         run: ./scripts/github/sync/main_from_repository.sh
 
-  # Skip CI when the push is to main and CI_RUN_ON_MAIN is not 'true', or
-  # when the push is a branch creation whose commit is already in origin/main.
-  # All other pushes run CI.
   run-policy:
     name: 🧭 Decide CI policy
     needs: sync-main
@@ -105,19 +102,38 @@ jobs:
         shell: bash
         run: bash scripts/github/resolve/pick_distro.sh
 
+  resolve-priority:
+    if: needs.run-policy.outputs.should_run == 'true'
+    name: ⭐ Resolve new-role priority
+    needs: run-policy
+    runs-on: ubuntu-latest
+    outputs:
+      priority: ${{ steps.resolve.outputs.priority }}
+    steps:
+      - name: ⬇️ Checkout (full history)
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "priority=$(bash scripts/meta/resolve/diff/new_roles.sh)" >> "$GITHUB_OUTPUT"
+
   ci-orchestrator:
     if: needs.run-policy.outputs.should_run == 'true'
     name: 🎶 Orchestrate CI
     needs:
       - run-policy
       - pick-distro
+      - resolve-priority
     uses: ./.github/workflows/ci-orchestrator.yml
     with:
-      # ci-orchestrator expects a space-separated list → here it's either one or many
       distros: ${{ needs.pick-distro.outputs.distros }}
+      priority: ${{ needs.resolve-priority.outputs.priority }}
     secrets: inherit
 
-  # Guard job: only allow version releases if the tag commit is contained in origin/main
   release-guard:
     name: "🛡️ Guard release"
     if: needs.run-policy.outputs.should_run == 'true' && needs.pick-distro.outputs.is_version == 'true'
