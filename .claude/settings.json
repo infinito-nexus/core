@@ -200,6 +200,7 @@
       "WebFetch(domain:git.yoctoproject.org)",
       "WebFetch(domain:gitea.fudaoyuan.icu)",
       "WebFetch(domain:gitea.io)",
+      "WebFetch(domain:github.blog)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:gitlab.com)",
       "WebFetch(domain:gitlab.opencode.de)",
