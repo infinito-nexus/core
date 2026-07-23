@@ -41,15 +41,8 @@ CID="$(docker run -d --privileged --cgroupns=host \
 	-v "${PWD}:${PWD}" \
 	--entrypoint /sbin/init \
 	"${BOOT_IMAGE}")"
-dump_guide_diagnostics() {
-	local out="${INFINITO_RESCUE_DIAGNOSTICS_BASE}"
-	mkdir -p "${out}"
-	docker exec "${CID}" systemctl --no-pager --failed >"${out}/failed-units.txt" 2>&1 || true
-	docker exec "${CID}" journalctl --no-pager -n 2000 >"${out}/journal.txt" 2>&1 || true
-	docker logs "${CID}" >"${out}/container.log" 2>&1 || true
-}
-
-trap 'dump_guide_diagnostics; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT
+# shellcheck disable=SC2154
+trap 'rc=$?; if [ "${rc}" -ne 0 ]; then INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${GUIDE_ROLE}" python3 utils/diagnostics/container.py "${GUIDE_ROLE}" "guide host boot failure" || true; fi; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT
 
 for _ in $(seq 1 40); do
 	state="$(docker exec "${CID}" systemctl is-system-running 2>/dev/null || true)"
