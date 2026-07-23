@@ -101,6 +101,26 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
         finally:
             s.Path.is_file = old_is_file  # type: ignore[assignment]
 
+    def test_cache_override_requires_frontend_ca(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            proj = Path(td)
+            base = proj / "compose.yml"
+            base.write_text("services:\n  app:\n    build: .\n", encoding="utf-8")
+            ca = proj / "ca.crt"
+            ca.write_text("CERT", encoding="utf-8")
+            env = {
+                "INFINITO_CACHE_PACKAGE_FRONTEND_IP": "172.30.0.4",
+                "INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE": str(ca),
+            }
+            with patch.dict(os.environ, env, clear=False):
+                out = s.generate_cache_override(proj, base)
+                self.assertIsNotNone(out)
+                self.assertIn("deb.debian.org:172.30.0.4", read_text(str(out)))
+            ca.unlink()
+            with patch.dict(os.environ, env, clear=False):
+                self.assertIsNone(s.generate_cache_override(proj, base))
+
     def test_build_cmd_contains_env_and_files(self):
         s = self.script
         base = Path("/proj")

@@ -87,10 +87,21 @@ _CACHE_HTTP_HOSTNAMES = (
 )
 
 
+def _cache_frontend_ca_present() -> bool:
+    """True when the package-cache frontend CA exists non-empty, mirroring the ca.sh `-s` gate for an active cache profile."""
+    ca_file = (os.environ.get("INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE") or "").strip()
+    if not ca_file:
+        return False
+    ca_path = Path(ca_file)
+    return ca_path.is_file() and ca_path.stat().st_size > 0
+
+
 def generate_cache_override(project_dir: Path, base_compose: Path) -> Path | None:
-    """Emit transient build.extra_hosts override when cache profile active."""
+    """Emit transient build.extra_hosts override only when the package-cache frontend is provisioned (CA present)."""
     cache_ip = (os.environ.get("INFINITO_CACHE_PACKAGE_FRONTEND_IP") or "").strip()
     if not cache_ip or not base_compose.is_file():
+        return None
+    if not _cache_frontend_ca_present():
         return None
 
     with Path(base_compose).open() as f:
