@@ -15,7 +15,10 @@ from cli.meta.ci.report_failures import (
 class TestReportFailures(unittest.TestCase):
     def test_failed_roles_parses_mode_role_variant(self) -> None:
         jobs = [
-            {"name": "x / ⭐ Priority · swarm / 🐝 web-app-xwiki 0", "conclusion": "failure"},
+            {
+                "name": "x / ⭐ Priority · swarm / 🐝 web-app-xwiki 0",
+                "conclusion": "failure",
+            },
             {"name": "y / 🐳 web-app-openproject 0,1,2", "conclusion": "failure"},
             {"name": "🐝 web-svc-logout 1", "conclusion": "timed_out"},
             {"name": "z / 💻 Host / 💻 sys-front-proxy", "conclusion": "failure"},

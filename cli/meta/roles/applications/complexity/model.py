@@ -222,8 +222,15 @@ def _roles_in_ref(roles_dir: Path, ref: str) -> set[str] | None:
     for candidate in (ref, ref.split("/", 1)[-1]):
         try:
             out = subprocess.run(
-                ["git", "-C", str(roles_dir.parent), "ls-tree", "-d",
-                 "--name-only", f"{candidate}:roles"],
+                [
+                    "git",
+                    "-C",
+                    str(roles_dir.parent),
+                    "ls-tree",
+                    "-d",
+                    "--name-only",
+                    f"{candidate}:roles",
+                ],
                 capture_output=True,
                 text=True,
                 check=True,
