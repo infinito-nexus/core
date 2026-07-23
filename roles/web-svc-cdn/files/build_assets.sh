@@ -25,7 +25,7 @@ for lock in "${ROLES_DIR}"/*/package-lock.json; do
     pdir="$(dirname "$pkgjson")"
     name="$(node -p "require('$pkgjson').name || ''")"
     ver="$(node -p "require('$pkgjson').version || ''")"
-    [ -n "$name" ] && [ -n "$ver" ] || continue
+    if [ -z "$name" ] || [ -z "$ver" ]; then continue; fi
     dest="${CDN_WEB_ROOT}/npm/${name}@${ver}"
     [ -d "$dest" ] && continue
     mkdir -p "$dest"
