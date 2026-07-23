@@ -95,7 +95,9 @@ class TestLockedVersion(unittest.TestCase):
     def test_plain_package(self):
         _write_lock(self.tmpdir, {"keycloak-js": "24.0.5"})
         with self._patched_role_path():
-            self.assertEqual(self.lookup._locked_version("app", "keycloak-js"), "24.0.5")
+            self.assertEqual(
+                self.lookup._locked_version("app", "keycloak-js"), "24.0.5"
+            )
 
     def test_scoped_package(self):
         _write_lock(self.tmpdir, {"@fortawesome/fontawesome-free": "6.5.1"})

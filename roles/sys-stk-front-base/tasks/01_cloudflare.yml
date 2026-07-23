@@ -4,12 +4,10 @@
   set_fact:
     cf_zone_ids: "{{ cf_zone_ids | default({}) }}"
 
-# Use cached zone_id if available for the apex (to_primary_domain)
 - name: "📥 Load cf_zone_id from cache if present"
   set_fact:
     cf_zone_id: "{{ (cf_zone_ids | default({})).get(domain | to_primary_domain, false) }}"
 
-# Only look up from Cloudflare if we still don't have it
 - name: "✅ Ensure Cloudflare Zone ID is known for '{{ domain }}'"
   vars:
     cf_api_url: "https://api.cloudflare.com/client/v4/zones"
@@ -44,9 +42,9 @@
     - cf_zone_lookup_dev.json.result | length == 0
 
 - name: 🟢 activate cloudflare cache development mode
-  include_tasks: "cloudflare/02_enable_cf_dev_mode.yml"
+  include_tasks: "cloudflare/01_enable_cf_dev_mode.yml"
   when: (ENVIRONMENT | lower) == 'development'
 
 - name: 🧹 purge cloudflare domain cache
-  include_tasks: "cloudflare/01_cleanup.yml"
+  include_tasks: "cloudflare/02_cleanup.yml"
   when: MODE_CLEANUP | bool

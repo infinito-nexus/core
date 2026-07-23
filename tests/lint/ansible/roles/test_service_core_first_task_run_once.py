@@ -33,16 +33,16 @@ RECURSION_HINT = (
     "Service roles discovered from role-local services metadata are loaded "
     "dynamically via "
     "load/app.yml, which checks the run_once_<role> flag before loading a role. "
-    "If tasks/01_core.yml does not set this flag as its very first task, the flag "
+    "If tasks/00_core.yml does not set this flag as its very first task, the flag "
     "may be absent when a second load attempt is evaluated, causing load/app.yml to "
     "include the role again and triggering infinite recursion."
 )
 
 MAIN_SCHEMA_HINT = (
-    "tasks/main.yml must load 01_core.yml with a run_once guard so that roles "
+    "tasks/main.yml must load 00_core.yml with a run_once guard so that roles "
     "included directly (not via load/app.yml) are also protected against duplicate "
     "execution. Required schema:\n"
-    "  - include_tasks: 01_core.yml\n"
+    "  - include_tasks: 00_core.yml\n"
     "    when: run_once_<role_slug> is not defined"
 )
 
@@ -54,9 +54,9 @@ def role_slug(role):
 class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
     """
     For every discovered shared service role:
-      1. roles/<role>/tasks/01_core.yml must exist.
+      1. roles/<role>/tasks/00_core.yml must exist.
       2. Its first task must be: - include_tasks: utils/once/flag.yml
-      3. tasks/main.yml must include 01_core.yml with the correct run_once when-guard.
+      3. tasks/main.yml must include 00_core.yml with the correct run_once when-guard.
     """
 
     def setUp(self):
@@ -64,12 +64,12 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
         self.registry = load_service_registry()
 
     def _core_path(self, role):
-        return self.project_root / "roles" / role / "tasks" / "01_core.yml"
+        return self.project_root / "roles" / role / "tasks" / "00_core.yml"
 
     def _main_path(self, role):
         return self.project_root / "roles" / role / ROLE_FILE_TASKS_MAIN
 
-    def test_01_core_exists(self):
+    def test_00_core_exists(self):
         missing = []
         missing.extend(
             role
@@ -78,7 +78,7 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
         )
         if missing:
             self.fail(
-                "roles missing tasks/01_core.yml:\n"
+                "roles missing tasks/00_core.yml:\n"
                 + "\n".join(f"  {r}" for r in sorted(missing))
                 + f"\n\nWhy this matters:\n{RECURSION_HINT}"
             )
@@ -96,7 +96,7 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
                 self.fail(f"Failed to parse {path}: {e}")
 
             if not isinstance(tasks, list) or not tasks:
-                violations.append(f"{role}: tasks/01_core.yml is empty or not a list")
+                violations.append(f"{role}: tasks/00_core.yml is empty or not a list")
                 continue
 
             first = tasks[0]
@@ -107,7 +107,7 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
 
         if violations:
             self.fail(
-                "tasks/01_core.yml must start with '- include_tasks: utils/once/flag.yml':\n"
+                "tasks/00_core.yml must start with '- include_tasks: utils/once/flag.yml':\n"
                 + "\n".join(f"  {v}" for v in violations)
                 + f"\n\nWhy this matters:\n{RECURSION_HINT}"
             )
@@ -137,13 +137,13 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
                 elif isinstance(t, dict):
                     flat_tasks.append(t)
             core_task = next(
-                (t for t in flat_tasks if t.get("include_tasks") == "01_core.yml"),
+                (t for t in flat_tasks if t.get("include_tasks") == "00_core.yml"),
                 None,
             )
 
             if core_task is None:
                 violations.append(
-                    f"{role}: tasks/main.yml has no '- include_tasks: 01_core.yml' entry"
+                    f"{role}: tasks/main.yml has no '- include_tasks: 00_core.yml' entry"
                 )
                 continue
 
@@ -159,7 +159,7 @@ class TestServiceCoreFirstTaskRunOnce(unittest.TestCase):
 
         if violations:
             self.fail(
-                "tasks/main.yml does not correctly load 01_core.yml:\n"
+                "tasks/main.yml does not correctly load 00_core.yml:\n"
                 + "\n".join(f"  {v}" for v in violations)
                 + f"\n\nWhy this matters:\n{MAIN_SCHEMA_HINT}"
             )

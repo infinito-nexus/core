@@ -1,7 +1,7 @@
 ---
 # run_once_sys_pip_install: disabled
 
-- include_tasks: 01_core.yml
+- include_tasks: 00_core.yml
   when: run_once_sys_pip_install is not defined
 
 - name: 🔍 Resolve active Python executable for sys-pip-install

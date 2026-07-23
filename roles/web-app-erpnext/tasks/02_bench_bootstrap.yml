@@ -11,7 +11,7 @@
   failed_when: false
 
 - name: "🥾 Bootstrap ERPNext site when missing (create + restart + wait for backend)"
-  ansible.builtin.include_tasks: 02b_create_site.yml
+  ansible.builtin.include_tasks: 02_bench_bootstrap/create_site.yml
   when: erpnext_site_probe.rc != 0
 
 - name: "✅ ensure encryption_key on site '{{ ERPNEXT_SITE_NAME }}'"

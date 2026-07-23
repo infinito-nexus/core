@@ -70,9 +70,6 @@
       description: "Container for application access profiles"
     state: present
 
-###############################################################################
-# 1) Snapshot: remember which LDAP users already existed before this run
-###############################################################################
 - name: 🔎 Check whether LDAP users already exist
   community.general.ldap_search:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -104,9 +101,6 @@
   loop_control:
     label: "{{ item.item.key }}"
 
-###############################################################################
-# 2) Create the LDAP entry if it does not yet exist
-###############################################################################
 - name: ✅ Ensure LDAP users exist
   community.general.ldap_entry:
     dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"
@@ -132,16 +126,6 @@
     label: "{{ item.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-###############################################################################
-# 2b) Set LDAP password:
-# - Default behavior: update on every run (password_update: true/unset)
-# - Opt-out behavior: set only on first creation (password_update: false)
-#
-# Rationale:
-# - Avoid dealing with SSHA generation in Ansible (salted hashes differ each time)
-# - Use LDAP Password Modify extended operation
-# - Server-side hashing is applied (your cn=config sets olcPasswordHash: {SSHA})
-###############################################################################
 - name: 🔧 Set LDAP user password (per-user update policy)
   community.general.ldap_passwd:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -158,9 +142,6 @@
       or not ((openldap_user_existed_before | default({})).get(item.key, false) | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-###############################################################################
-# 3) Keep the objectClass list AND the mail attribute up-to-date
-###############################################################################
 - name: ✅ Ensure required objectClass values and mail address are present
   community.general.ldap_attrs:
     dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"

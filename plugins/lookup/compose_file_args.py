@@ -132,7 +132,6 @@ class LookupModule(LookupBase):
 
         templar = getattr(self, "_templar", None)
 
-        # ALWAYS build compose via utils (no dependency on variables['compose'])
         raw_base_dir = variables.get("DIR_COMPOSITIONS")
         if (
             isinstance(raw_base_dir, str)
@@ -151,7 +150,6 @@ class LookupModule(LookupBase):
 
         files = _require_dict(compose.get("files"), "compose.files")
 
-        # Use strict rendering to ensure we never leak "{{ ... }}" into generated commands.
         base = render_strict(
             files.get("compose"),
             variables=variables,
@@ -176,7 +174,6 @@ class LookupModule(LookupBase):
 
         parts = [f"{flag} {base}"]
 
-        # 1) Append override ONLY if the ROLE provides it (same logic as 04_files.yml).
         if _role_provides_override(application_id=application_id, templar=templar):
             if not _as_str(override):
                 raise AnsibleError(
@@ -185,7 +182,6 @@ class LookupModule(LookupBase):
                 )
             parts.append(f"{flag} {override}")
 
-        # 2) CA override: only when include_ca=True and domain exists AND TLS is enabled AND self_signed.
         if include_ca:
             domains = lookup_loader.get(
                 "domains", loader=self._loader, templar=templar

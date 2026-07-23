@@ -1,5 +1,5 @@
 ---
-- include_tasks: 01_core.yml
+- include_tasks: 00_core.yml
   when: run_once_sys_front_inj_css is not defined
 
 - name: "🔍 Resolve optional app style.css source for '{{ application_id }}'"

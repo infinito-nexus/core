@@ -3,7 +3,7 @@
   meta: flush_handlers
 
 - name: ⏳ Wait for Mailu MariaDB
-  include_tasks: 02_wait_for_mariadb.yml
+  include_tasks: 03_wait_for_mariadb.yml
 
 - name: "🚀 Mailu post-deploy ops"
-  include_tasks: 02b_post_bootstrap_ops.yml
+  include_tasks: 02_manager_ops/post_bootstrap_ops.yml

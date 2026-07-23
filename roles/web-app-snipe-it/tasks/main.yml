@@ -6,5 +6,5 @@
     compose_handlers_flush: true
 
 - name: "👔 Snipe-IT manager-side operations (container exec)"
-  include_tasks: 01a_manager_ops.yml
+  include_tasks: 01_install/manager_ops.yml
   when: IS_STACK_HOST | bool

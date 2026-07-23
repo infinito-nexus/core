@@ -44,9 +44,9 @@ Each central role provides:
 - `meta/services.yml`: `placement: manager`, `enabled`, `shared: true`,
   image/version/ports/name.
 - `templates/compose.yml.j2`: its own standalone stack.
-- `tasks/01_core.yml`: deploy the central stack + wait healthy.
-- `tasks/02_init.yml`: **per-consumer provisioning** (create the ACL user / vhost /
-  namespace and its credentials), idempotent, mirroring postgres `02_init`.
+- `tasks/00_core.yml`: deploy the central stack + wait healthy.
+- `tasks/01_init.yml`: **per-consumer provisioning** (create the ACL user / vhost /
+  namespace and its credentials), idempotent, mirroring postgres `01_init`.
 - a connection lookup mirroring `database`: `lookup('<engine>', consumer_id, want)`
   returning host/port/user/password/url/db for the consumer.
 

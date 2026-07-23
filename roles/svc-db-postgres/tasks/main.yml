@@ -1,5 +1,5 @@
 ---
-- include_tasks: 01_core.yml
+- include_tasks: 00_core.yml
   when: run_once_svc_db_postgres is not defined
   vars:
     application_id: svc-db-postgres
@@ -9,7 +9,7 @@
     handler_role_name: "sys-svc-compose"
 
 - name: "🎬 Initialize dedicated database"
-  include_tasks: 02_init.yml
+  include_tasks: 01_init.yml
   when: database_init | bool
   vars:
     application_id: svc-db-postgres

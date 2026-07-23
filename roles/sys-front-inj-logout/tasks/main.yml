@@ -1,6 +1,6 @@
 ---
 - name: "🧩 Load base for '{{ application_id }}'"
-  include_tasks: 01_core.yml
+  include_tasks: 00_core.yml
   when: run_once_sys_front_inj_logout is not defined
 
 - name: "📄 Load logout code for '{{ application_id }}'"

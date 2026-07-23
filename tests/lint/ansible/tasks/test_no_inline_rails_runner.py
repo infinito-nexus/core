@@ -9,7 +9,7 @@ inside a ``shell:``/``command:`` string, or as a ``stdin: |`` literal
 block — forces fragile multi-level shell+YAML+Ruby quoting and makes the
 Ruby invisible to Ruby tooling (syntax checks, formatters, reviews). The
 project convention (see ``roles/web-app-decidim/tasks/01_setup.yml`` and
-``roles/web-app-bigbluebutton/tasks/03_administrator.yml``) is to keep
+``roles/web-app-bigbluebutton/tasks/02_administrator.yml``) is to keep
 the Ruby in ``roles/<role>/files/ruby/<name>.rb`` and feed it via::
 
     ansible.builtin.command:
@@ -46,7 +46,6 @@ from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 _SCAN_DIRS: frozenset[str] = frozenset({"roles", "tasks"})
 
 _RAILS_RUNNER_RE = re.compile(r"rails\s+runner")
-# A `file` lookup of a .rb script (the compliant Ruby source).
 _FILE_LOOKUP_RE = re.compile(
     r"lookup\(\s*['\"](?:ansible\.(?:builtin|legacy)\.)?file['\"]",
 )

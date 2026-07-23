@@ -8,7 +8,7 @@ File payloads are captured with rsync hard-link snapshots; databases register th
 ## Overview
 
 This role installs the `baudolo` CLI, lays out the on-host backup tree, deploys the systemd service that drives the periodic run, and wires the cleanup-of-failed-backups dependency so partial snapshots are not retained.
-Database seeding for individual apps is contributed by the consumer roles via `tasks/04_seed-database-to-backup.yml`, which they include conditionally once `svc-bkp-volume-2-local` is in `group_names`.
+Database seeding for individual apps is contributed by the consumer roles via `tasks/03_seed-database-to-backup.yml`, which they include conditionally once `svc-bkp-volume-2-local` is in `group_names`.
 
 ## Cosmos
 
@@ -67,7 +67,7 @@ flowchart TD
     UNIT["svc-bkp-volume-2-local.&lt;version&gt;.&lt;domain&gt;.service"] --> LOCK["ExecStartPre: sys-lock against the manipulation group"]
     LOCK --> BAUDOLO["ExecStart: baudolo backup"]
     BAUDOLO --> FILES["per-volume rsync snapshots<br>--link-dest previous generation<br>(unchanged files = hard links)"]
-    BAUDOLO --> DBS["databases.csv rows<br>(seeded via tasks/04_seed-database-to-backup.yml)<br>dumped as consistent SQL snapshots"]
+    BAUDOLO --> DBS["databases.csv rows<br>(seeded via tasks/03_seed-database-to-backup.yml)<br>dumped as consistent SQL snapshots"]
     BAUDOLO --> STOP["containers: no_stop_required keep running,<br>others stop for the dump and resume"]
     FILES --> TREE["&lt;backups_dir&gt;/&lt;sha256(machine-id)&gt;/<br>backup-docker-to-local/&lt;YYYYmmddHHMMSS&gt;/..."]
     DBS --> TREE

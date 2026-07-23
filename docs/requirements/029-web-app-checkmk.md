@@ -49,7 +49,7 @@ roles/web-app-checkmk/
 ├── README.md
 ├── files/playwright/{_shared,playwright.spec,test-guest,test-login-oidc-biber,test-login-oidc-administrator,test-login-ldap-biber}.js
 ├── meta/{main,info,server,services,schema,users,rbac,variants,volumes}.yml
-├── tasks/{main,01_core}.yml
+├── tasks/{main,00_core}.yml
 ├── templates/{compose.yml.j2,env.j2,playwright.env.j2}
 └── vars/main.yml
 ```

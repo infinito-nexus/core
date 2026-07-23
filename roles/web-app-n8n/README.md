@@ -105,7 +105,7 @@ docker run --rm -it \
 
 ## First-Run Setup
 
-The deployment bootstrap (`tasks/02_bootstrap.yml`) automatically creates the owner account on first run using the platform-generated `owner_password` credential. No manual wizard step is required.
+The deployment bootstrap (`tasks/01_bootstrap.yml`) automatically creates the owner account on first run using the platform-generated `owner_password` credential. No manual wizard step is required.
 
 **V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step.
 

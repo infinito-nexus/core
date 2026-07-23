@@ -14,7 +14,7 @@ The repository already deploys role-level extension units, but each role spells 
 - [web-app-wordpress](../../roles/web-app-wordpress/) calls them `plugins` (and separately `mu_plugins`) under `tasks/plugins/`.
 - [web-app-mediawiki](../../roles/web-app-mediawiki/) calls them `extensions` and hard-codes the list in [vars/main.yml](../../roles/web-app-mediawiki/vars/main.yml).
 - [web-app-xwiki](../../roles/web-app-xwiki/) calls them `plugins` (with nested `items[].id` + `version`) under `xwiki.plugins` in [meta/services.yml](../../roles/web-app-xwiki/meta/services.yml).
-- [web-app-joomla](../../roles/web-app-joomla/) builds a single OIDC `plugin` in [tasks/07_oidc_plugin.yml](../../roles/web-app-joomla/tasks/07_oidc_plugin.yml).
+- [web-app-joomla](../../roles/web-app-joomla/) builds a single OIDC `plugin` in [tasks/08_oidc_plugin.yml](../../roles/web-app-joomla/tasks/08_oidc_plugin.yml).
 - [desk-gnome-extensions](../../roles/desk-gnome-extensions/) calls them `plugins`/`extensions` and loops over `services.gnome-extensions.plugins`.
 
 The [per-role meta layout](../contributing/design/role/services/layout.md) already lists `addons`, `plugins`, and `modules` among the keys *inlined* under the primary service entity. This requirement promotes that concept to a first-class, per-file `meta/addons/<addon_id>.yml` topic (one file per addon, file root IS the addon spec), the same move requirement 011 made for `meta/info.yml` and requirement 008/009 made for other meta topics.
@@ -56,7 +56,7 @@ Each row is a migration target. The "Bridges" column is the cross-role dependenc
 | [web-app-wordpress](../../roles/web-app-wordpress/) | `plugin`, `mu_plugin` | `daggerhart-openid-connect-generic, wp-discourse` (+ mu-plugins) | OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse` | `tasks/plugins/` |
 | [web-app-mediawiki](../../roles/web-app-mediawiki/) | `extension` | `PluggableAuth, OpenIDConnect` | `OpenIDConnect` → `web-app-keycloak` | [vars/main.yml](../../roles/web-app-mediawiki/vars/main.yml) |
 | [web-app-xwiki](../../roles/web-app-xwiki/) | `plugin` | `oidc-authenticator, ldap-authenticator, matomo` | `oidc` → `web-app-keycloak`, `ldap` → `svc-db-openldap`, `matomo` → `web-app-matomo` | [meta/services.yml](../../roles/web-app-xwiki/meta/services.yml) `xwiki.plugins` |
-| [web-app-joomla](../../roles/web-app-joomla/) | `plugin` | `plg_system_keycloak` | `sso` → `web-app-keycloak` | [tasks/07_oidc_plugin.yml](../../roles/web-app-joomla/tasks/07_oidc_plugin.yml) |
+| [web-app-joomla](../../roles/web-app-joomla/) | `plugin` | `plg_system_keycloak` | `sso` → `web-app-keycloak` | [tasks/08_oidc_plugin.yml](../../roles/web-app-joomla/tasks/08_oidc_plugin.yml) |
 | [web-app-matrix](../../roles/web-app-matrix/) | `bridge` | `mautrix-whatsapp, mautrix-telegram, mautrix-signal, mautrix-slack, mautrix-meta` | external networks (no in-repo service); each owns a DB credential | `vars/bridges.yml` |
 | [web-app-discourse](../../roles/web-app-discourse/) | `plugin` | `docker_manager, discourse-activity-pub, discourse-akismet, discourse-ldap-auth` | `discourse-ldap-auth` → `svc-db-openldap` | [meta/services.yml](../../roles/web-app-discourse/meta/services.yml) `discourse.plugins` |
 | [web-app-pretix](../../roles/web-app-pretix/) | `plugin` | `oidc` (v2.3.1) | `sso` → `web-app-keycloak` | [meta/services.yml](../../roles/web-app-pretix/meta/services.yml) `pretix.plugins` |

@@ -12,7 +12,7 @@ The central stack (`templates/compose.yml.j2`) runs the `rabbitmq` image with:
 - A bind on `127.0.0.1:5672` plus the shared cross-stack overlay network for consumers.
 - A built-in `rabbitmq-diagnostics ping` healthcheck.
 
-Per-consumer provisioning (`tasks/02_init.yml`) runs with `application_id=svc-db-rabbitmq` and `database_consumer_id=<consumer>`; it resolves the consumer's vhost name, username and password via `lookup('engine', 'rabbitmq', <consumer>, ...)` and reconciles an idempotent vhost, user and `set_permissions` grant scoped to that vhost. Existing vhosts and users are skipped, and the consumer password is realigned with the inventory on every deploy.
+Per-consumer provisioning (`tasks/01_init.yml`) runs with `application_id=svc-db-rabbitmq` and `database_consumer_id=<consumer>`; it resolves the consumer's vhost name, username and password via `lookup('engine', 'rabbitmq', <consumer>, ...)` and reconciles an idempotent vhost, user and `set_permissions` grant scoped to that vhost. Existing vhosts and users are skipped, and the consumer password is realigned with the inventory on every deploy.
 
 ## Cosmos
 

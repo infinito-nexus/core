@@ -20,7 +20,7 @@
          | regex_replace('__WANTED_B64__', _wanted_b64) }}
 
 - name: "⬇️ XWIKI | Fetch REST session + form token (extensions write ops)"
-  include_tasks: _rest_session.yml
+  include_tasks: utils/rest_session.yml
 
 - name: "⬆️ XWIKI | PUT installer page Main.InstallExtensions"
   uri_retry:
@@ -36,7 +36,7 @@
 
 - block:
     - name: "📂 XWIKI | Load installer-page execution + assertion routines"
-      include_tasks: 04b_extensions_execute.yml
+      include_tasks: 04_extensions/extensions_execute.yml
 
   rescue:
     - name: "🌿 XWiki | Probe extension repos + dump xwiki.properties" # nocheck: rescue-extra-diagnostics extension-repo reachability and xwiki.properties are xwiki-specific and not in any log the generic rescue script captures

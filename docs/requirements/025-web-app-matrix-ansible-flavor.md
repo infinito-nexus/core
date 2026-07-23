@@ -40,11 +40,11 @@ Decisions 2, 4, 7 and 11 were operator-confirmed before implementation started.
 roles/web-app-matrix/
 ├── tasks/
 │   ├── main.yml                    # dispatches by services.matrix.flavor
-│   ├── flavor/compose/             # existing 01_docker.yml, 02_..., 03_webserver.yml moved here
+│   ├── flavor/compose/             # existing 01_docker.yml, 02_..., 04_webserver.yml moved here
 │   │   ├── main.yml
 │   │   ├── 01_docker.yml
 │   │   ├── 02_create-and-seed-database.yml
-│   │   └── 03_webserver.yml
+│   │   └── 04_webserver.yml
 │   └── flavor/ansible/             # NEW
 │       ├── main.yml                # clone MDAD + render vars + invoke setup.yml
 │       ├── 01_clone_upstream.yml

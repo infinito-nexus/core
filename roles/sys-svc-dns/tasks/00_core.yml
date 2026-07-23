@@ -1,0 +1,39 @@
+---
+- name: "✅ Validate the Cloudflare API token"
+  fail:
+    msg: >
+      API.cloudflare.api_token must be set (via lookup('api', 'cloudflare.api_token')) and cannot be empty!
+  when: (lookup('api', 'cloudflare.api_token') | trim) == ''
+
+- name: "📌 Apply apex A/AAAA for base domains"
+  include_tasks: 01_apex.yml
+  loop: "{{ SYS_SVC_DNS_BASE_DOMAINS | list }}"
+  loop_control:
+    loop_var: base_domain
+    label: "{{ base_domain }}"
+
+- name: "✅ Ensure all CAA records are present"
+  community.general.cloudflare_dns:
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
+    zone: "{{ item.0 }}"
+    record: "@"
+    type: CAA
+    flag: 0
+    tag: "{{ item.1.tag }}"
+    value: "{{ item.1.value }}"
+    ttl: 1
+    state: present
+  loop: "{{ SYS_SVC_DNS_BASE_DOMAINS | product(caa_entries) | list }}"
+  loop_control:
+    label: "{{ item.0 }} → {{ item.1.tag }}"
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+
+- name: "✅ Ensure wildcard parent DNS (*.parent) exists"
+  include_role:
+    name: sys-dns-wildcards
+  vars:
+    parent_dns_proxied: false
+  when: run_once_sys_dns_wildcards is not defined
+
+- include_tasks: utils/once/flag.yml

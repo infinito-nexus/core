@@ -19,5 +19,5 @@
   ansible.builtin.meta: flush_handlers
 
 - name: "👔 Baserow manager-side operations (file deploys + container exec)"
-  include_tasks: 02_manager_ops.yml
+  include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool

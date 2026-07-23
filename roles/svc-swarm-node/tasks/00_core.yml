@@ -1,0 +1,15 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🐝 Swarm-only node setup (cluster bootstrap + shared CA anchor)"
+  when: DEPLOYMENT_MODE == 'swarm'
+  block:
+    - name: "🥾 Bootstrap docker swarm cluster"
+      ansible.builtin.include_tasks: 00_core/bootstrap_cluster.yml
+
+    - name: "✅ Ensure shared Root CA on every swarm node (manager mints, workers fetch)"
+      ansible.builtin.include_role:
+        name: sys-ca-selfsigned
+      when:
+        - (TLS_MODE | lower) == 'self_signed'
+        - run_once_sys_ca_selfsigned is not defined

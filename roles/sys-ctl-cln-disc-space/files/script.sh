@@ -3,7 +3,7 @@
 # @param $2 --force to run regardless of how much disc space is free
 #
 # All Ansible-resolved values are injected via systemd Environment= entries
-# rendered by sys-service. See the role's tasks/01_core.yml for the
+# rendered by sys-service. See the role's tasks/00_core.yml for the
 # `system_service_tpl_environment` block that populates them.
 #
 # Required environment:

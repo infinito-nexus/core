@@ -1,0 +1,17 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    webserver_client_max_body_size: "30m"
+    compose_repository_url: "{{ OPENPROJECT_REPOSITORY }}"
+    compose_repository_ref: "{{ OPENPROJECT_REF }}"
+    compose_repository_pull: true
+    compose_handlers_flush: false
+    application_id: "web-app-openproject"
+
+- name: "👔 OpenProject manager-side operations (file deploys + container exec)"
+  include_tasks: 01_manager_ops.yml
+  when: IS_STACK_HOST | bool

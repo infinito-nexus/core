@@ -1,0 +1,55 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔴 Disable SMTP to avoid port conflicts"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
+
+- name: ✅ Ensure Nginx overrides directory exists (host)
+  file:
+    path: "{{ MAILU_NGINX_HOST_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: ✅ Ensure certs bind-source directory exists (host)
+  file:
+    path: "{{ MAILU_CERTS_HOST_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: ✅ Ensure a self-signed placeholder cert exists before stack-up (host)
+  ansible.builtin.command:
+    cmd: >-
+      openssl req -x509 -newkey rsa:2048 -nodes -days 365
+      -keyout {{ [MAILU_CERTS_HOST_DIR, 'key.pem'] | path_join }}
+      -out {{ [MAILU_CERTS_HOST_DIR, 'cert.pem'] | path_join }}
+      -subj "/CN={{ MAILU_HOSTNAME }}"
+    creates: "{{ [MAILU_CERTS_HOST_DIR, 'cert.pem'] | path_join }}"
+
+- name: ✅ Ensure Rspamd overrides directory exists (host)
+  file:
+    path: "{{ MAILU_RSPAMD_HOST_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: 📄 Render ratelimit.conf
+  template: # nocheck: stack-host-template (mailu compose dir, not project nginx tree)
+    src: ratelimit.conf.j2
+    dest: "{{ MAILU_RSPAMD_HOST_FILE }}"
+    mode: "0644"
+
+- name: "🔍 Resolve central mariadb/redis VIPs for admin extra_hosts (swarm)"
+  include_tasks: 01_swarm_resolve_peer_vips.yml
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: true
+    webserver_vhost_flavour: "basic"
+    webserver_extra_configuration: "client_max_body_size 31M;"
+    domain: "{{ MAILU_HOSTNAME }}"
+
+- name: "👔 Mailu manager-side operations (file deploys + container exec)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

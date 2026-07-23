@@ -62,7 +62,7 @@ roles/web-app-erpnext/
 ├── tasks/
 │   ├── main.yml
 │   ├── 01_core.yml
-│   └── 02_bench_bootstrap.yml          # new-site + install-app + wizard-bypass
+│   └── 03_bench_bootstrap.yml          # new-site + install-app + wizard-bypass
 ├── templates/
 │   ├── docker-compose.yml.j2
 │   ├── env.j2
@@ -211,18 +211,18 @@ DB numbers (0 / 1 / 2) are stable for v1; if `svc-db-redis` later partitions ten
 ### SSO / OIDC (Decisions #4, #5)
 
 - [x] When `web-app-keycloak` is in `group_names`, the existing `web-app-keycloak/redirect_uris` filter auto-includes ERPNext's `https://next.erp.<DOMAIN_PRIMARY>/*` in the realm's shared OIDC client (no per-role Keycloak entry needed).
-- [x] Frappe's Social Login Key for Keycloak is auto-created by `tasks/03_oidc.yml` via `files/scripts/apply/oidc_settings.py` (provider=Keycloak, `custom_base_url=1`, `auth_url_data={response_type:code,scope:openid}`, login_via_keycloak redirect path).
+- [x] Frappe's Social Login Key for Keycloak is auto-created by `tasks/04_oidc.yml` via `files/scripts/apply/oidc_settings.py` (provider=Keycloak, `custom_base_url=1`, `auth_url_data={response_type:code,scope:openid}`, login_via_keycloak redirect path).
 - [x] V1 OIDC + administrator + biber Playwright specs land on the Frappe desk (matrix r3 5-passed-2-skipped on V1).
 - [ ] **Group mapping (Decision #5)**: the path-to-roles map is persisted (`apply/oidc_settings.py` writes it to `frappe.db.set_default("erpnext_oidc_group_role_map", …)`), but reconciling the map into Frappe roles on each OIDC login still needs a `hooks.py` `on_session_creation` hook in a small custom Frappe app. Deferred to a follow-up requirement; documented in README.
 
 ### LDAP (V3 variant + V1 dual)
 
-- [x] When `svc-db-openldap` is in `group_names`, Frappe's LDAP Settings doctype is auto-configured by `tasks/04_ldap.yml` via `files/scripts/apply/ldap_source.py`. End-to-end LDAP-login (auto-create Frappe user from LDAP bind on first sign-in) is **deferred to a follow-up requirement** — needs additional Frappe-side attribute mapping + user-creation hooks; documented in README. The corresponding Playwright login specs (`test-login-via-ldap-*`) are intentionally absent in v1.
+- [x] When `svc-db-openldap` is in `group_names`, Frappe's LDAP Settings doctype is auto-configured by `tasks/05_ldap.yml` via `files/scripts/apply/ldap_source.py`. End-to-end LDAP-login (auto-create Frappe user from LDAP bind on first sign-in) is **deferred to a follow-up requirement** — needs additional Frappe-side attribute mapping + user-creation hooks; documented in README. The corresponding Playwright login specs (`test-login-via-ldap-*`) are intentionally absent in v1.
 - [x] When both are in `group_names` (variant V1), the role deploys cleanly with OIDC as the primary login button.
 
 ### Email (Decision #8 — outbound only in v1)
 
-- [x] When `web-app-mailu` is in `group_names`, ERPNext's outbound `Email Account` is auto-configured by `tasks/05_email.yml` via `files/scripts/apply/email_account.py` (uses `db_insert`/`db_update` to bypass Frappe's deploy-time SMTP socket validation).
+- [x] When `web-app-mailu` is in `group_names`, ERPNext's outbound `Email Account` is auto-configured by `tasks/06_email.yml` via `files/scripts/apply/email_account.py` (uses `db_insert`/`db_update` to bypass Frappe's deploy-time SMTP socket validation).
 - [x] When `web-app-mailu` is NOT in `group_names`, `tasks/01_core.yml` skips the email subtask via `when: ERPNEXT_EMAIL_ENABLED` (verified by the V2 all-false variant deploying clean without an Email Account record).
 - [x] `roles/web-app-erpnext/README.md` notes that **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** and points to the upstream Frappe Email Account doctype for operator-manual inbound config in the meantime.
 
@@ -230,7 +230,7 @@ DB numbers (0 / 1 / 2) are stable for v1; if `svc-db-redis` later partitions ten
 
 - [x] `apply/api_bot.py` sets `setup_complete=1` on the `System Settings` doctype + writes the global default; verified in matrix r3.
 - [x] The Frappe `Administrator` user is seeded by `bench new-site --admin-password=$ERPNEXT_INITIAL_ADMIN_PASSWORD`; the `test-login-native-administrator.js` Playwright spec exercises the break-glass local login in every variant (passed in matrix r3).
-- [x] `bench install-app erpnext` runs as part of `bench new-site --install-app erpnext` in `tasks/02_bench_bootstrap.yml`; the long-lived Frappe containers are restarted afterwards so their cached app set picks up the new install (otherwise `/login` serves HTTP 500 from a stale app cache).
+- [x] `bench install-app erpnext` runs as part of `bench new-site --install-app erpnext` in `tasks/03_bench_bootstrap.yml`; the long-lived Frappe containers are restarted afterwards so their cached app set picks up the new install (otherwise `/login` serves HTTP 500 from a stale app cache).
 
 ### Variants (Decision #11)
 
@@ -291,7 +291,7 @@ The agent MUST execute this requirement **autonomously**. Open clarifications on
 2. Scaffold the role using [`roles/web-app-odoo/`](../../roles/web-app-odoo/) as the structural template (closest analogue: ERP-shaped, OIDC + LDAP variants, central-service consumer pattern, dual HTTP + WebSocket vhost).
 3. Wire the upstream `frappe/erpnext` image into the compose template, plus the SocketIO, scheduler, three worker, and Nginx frontend containers (per [frappe_docker](https://github.com/frappe/frappe_docker)).
 4. Template `common_site_config.json` with the central MariaDB endpoint and the three Redis URLs split by DB number.
-5. Implement `tasks/02_bench_bootstrap.yml`: `bench new-site` → `bench install-app erpnext` → wizard-bypass API call → Social Login Key seeding.
+5. Implement `tasks/03_bench_bootstrap.yml`: `bench new-site` → `bench install-app erpnext` → wizard-bypass API call → Social Login Key seeding.
 6. Add Keycloak client auto-provisioning in `web-app-keycloak` for the new ERPNext consumer.
 7. Add the biber + administrator Playwright specs.
 8. Wire the `svc-bkp-` pre-backup hook (`bench backup --with-files`).

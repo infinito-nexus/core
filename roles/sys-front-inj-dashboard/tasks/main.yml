@@ -1,5 +1,5 @@
 ---
-- include_tasks: 01_core.yml
+- include_tasks: 00_core.yml
   when: run_once_sys_front_inj_dashboard is not defined
 
 - name: "📄 Load iFrame init code for '{{ application_id }}'"

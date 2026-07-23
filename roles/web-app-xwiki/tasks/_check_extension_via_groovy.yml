@@ -2,9 +2,8 @@
 # PUT a temporary Groovy page that checks installed extensions, call it, then delete it.
 
 - name: "⬇️ XWIKI | Fetch REST session + form token (extension check write ops)"
-  include_tasks: _rest_session.yml
+  include_tasks: utils/rest_session.yml
 
-# PUT a temporary Groovy page that checks installed extensions
 - name: "⬆️ XWIKI | PUT checker page XWiki.CheckExtension"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI_PAGES, 'CheckExtension'] | url_join }}"
@@ -18,7 +17,6 @@
   register: _put_checker
   changed_when: false
 
-# Call the page to check a single extension
 - name: "🔎 XWIKI | Check installed via Groovy for {{ ext_id }}"
   uri_retry:
     url: "{{ XWIKI_DOCKER_REACH_URL }}/bin/view/XWiki/CheckExtension?xpage=plain&id={{ ext_id | urlencode }}"
@@ -37,7 +35,6 @@
       status: "{{ _check_output.content | xwiki_extension_status }}"
       raw: "{{ _check_output.content }}"
 
-# Cleanup (optional; you can leave the page, but we remove it to keep things tidy)
 - name: "🗑️ XWIKI | Delete checker page"
   uri_retry:
     url: "{{ [XWIKI_REST_XWIKI_PAGES, 'CheckExtension'] | url_join }}"

@@ -5,7 +5,7 @@
 #   sys_token_store_token  # must be non-empty
 
 - name: "✅ Ensure store exists"
-  ansible.builtin.import_tasks: 01_core.yml
+  ansible.builtin.import_tasks: 00_core.yml
 
 - name: "📐 Normalize incoming token"
   ansible.builtin.set_fact:

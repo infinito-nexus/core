@@ -2,7 +2,7 @@
 # Ensure an admin user exists (when SSO is disabled) and can administer XWiki.
 
 - name: "⬇️ XWIKI | Fetch REST session + form token (admin write ops)"
-  include_tasks: _rest_session.yml
+  include_tasks: utils/rest_session.yml
 
 - name: "✅ XWIKI | Ensure user page exists: XWiki.{{ XWIKI_ADMIN_USER }}"
   uri_retry:

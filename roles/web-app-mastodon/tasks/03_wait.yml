@@ -1,0 +1,7 @@
+---
+- name: "🔎 Wait until '{{ item }}' container is healthy"
+  ansible.builtin.include_tasks: 03_wait/wait_one.yml
+  loop:
+    - "{{ MASTODON_SERVICE_NAME }}"
+    - "{{ MASTODON_STREAMING_SERVICE_NAME }}"
+    - "{{ MASTODON_SIDEKIQ_SERVICE_NAME }}"

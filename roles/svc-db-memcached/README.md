@@ -31,7 +31,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Per-consumer isolation
 
-Memcached has no native auth or namespace. Consumer isolation is key-prefix only and is resolved by `lookup('engine', 'memcached', consumer_id)` at consume time, so `tasks/02_init.yml` is a no-op.
+Memcached has no native auth or namespace. Consumer isolation is key-prefix only and is resolved by `lookup('engine', 'memcached', consumer_id)` at consume time, so `tasks/01_init.yml` is a no-op.
 
 ## Features
 

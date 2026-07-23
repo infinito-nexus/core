@@ -14,16 +14,16 @@
   include_tasks: 02_install.yml
 
 - name: "🔄 Convert to Multisite when opted in"
-  include_tasks: 06_multisite.yml
+  include_tasks: 03_multisite.yml
   when: >-
     (lookup('config', application_id, 'services.wordpress.multisite.enabled')
       | default(false) | bool)
 
 - name: "📦 Install mu-plugins (OIDC→RBAC role mapper)"
-  include_tasks: 05_mu_plugins.yml
+  include_tasks: 04_mu_plugins.yml
 
 - name: "🔁 Iterate through WordPress plugins"
-  include_tasks: 03_enable_plugin.yml
+  include_tasks: 05_enable_plugin.yml
   loop: "{{ WORDPRESS_PLUGINS }}"
   loop_control:
     loop_var: wordpress_plugin
@@ -42,7 +42,7 @@
   changed_when: false
 
 - name: "🔄 Update Single Side WordPress domain"
-  include_tasks: 04_update_domain.yml
+  include_tasks: 06_update_domain.yml
   when: (wp_is_multisite.stdout | trim) == '0'
   vars:
     wp_new_url: "{{ WORDPRESS_URL }}"

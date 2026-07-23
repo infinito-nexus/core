@@ -9,14 +9,11 @@
     name: sys-front-tls-letsencrypt
   when: tls_mode_effective == 'letsencrypt'
 
-# -----------------------------
-# Mode: self_signed
-# -----------------------------
 - name: "✅ TLS | (self_signed) ensure certs and set paths"
   ansible.builtin.include_role:
     name: sys-front-tls-selfsigned
   when: tls_mode_effective == 'self_signed'
 
 - name: "📂 Load http redirect routines"
-  include_tasks: 02_http.yml
+  include_tasks: 01_http.yml
   when: lookup('tls', application_id, 'enabled') | bool

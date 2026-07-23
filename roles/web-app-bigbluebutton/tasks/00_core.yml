@@ -1,0 +1,50 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+    compose_repository_pull: true
+    compose_repository_url: "{{ BBB_REPOSITORY }}"
+    compose_repository_ref: "{{ BBB_REF }}"
+    compose_repository_recursive: false
+    webserver_extra_configuration: >-
+      {{ lookup(
+           'ansible.builtin.template',
+           lookup('path_absolute', 'roles/sys-svc-proxy/templates/location/html.conf.j2'),
+           template_vars={
+             'location': '^~ /html5client',
+             'sso_proxy_enabled': false,
+             'proxy_lua_enabled': false
+           }
+         ) | trim }}
+
+- name: "📂 Include Seed routines for '{{ application_id }}' database backup"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/03_seed-database-to-backup.yml') }}"
+  vars:
+    database_consumer_id: "{{ application_id }}"
+    database_type: "postgres"
+    database_instance: "{{ entity_name }}"
+    database_host: "127.0.0.1"
+    database_port: "5432"
+    database_username: "postgres"
+    database_password: "{{ lookup('config', application_id, 'credentials.postgresql_secret') }}"
+    database_name: "" # Multiple databases
+  when:
+    - "'svc-bkp-volume-2-local' in group_names"
+    - IS_STACK_HOST | bool
+
+- name: 🔧 configure websocket_upgrade.conf
+  copy:
+    src: "websocket_upgrade.conf"
+    dest: "{{ [ lookup('nginx','directories.configuration.maps'), 'websocket_upgrade.conf' ] | path_join }}"
+  when: IS_STACK_HOST | bool
+  notify: restart openresty
+
+- name: "👔 BBB manager-side operations (compose render + container exec)"
+  include_tasks: 00_core/manager_ops.yml
+  when: IS_STACK_HOST | bool
+
+- include_tasks: utils/once/flag.yml

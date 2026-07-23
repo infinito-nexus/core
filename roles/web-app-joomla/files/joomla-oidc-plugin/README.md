@@ -9,7 +9,7 @@ mapping and an env-toggleable local-form fallback at
 The plugin's PHP dependencies (`jumbojett/openid-connect-php`) are
 vendored at deploy time inside the Joomla container. Composer is
 baked into the role's custom image by `roles/web-app-joomla/files/Dockerfile`.
-The role-side `tasks/07_oidc_plugin.yml` copies the plugin source
+The role-side `tasks/08_oidc_plugin.yml` copies the plugin source
 into the container, runs `composer install --no-dev`, and installs
 the plugin via the Joomla CLI:
 

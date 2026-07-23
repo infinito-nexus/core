@@ -5,8 +5,7 @@
   changed_when: false
 
 - name: ▶️ Playwright orchestration (run once on the primary manager)
-  # block: delegate_to/run_once propagate to include_tasks children only via block
   block:
-    - ansible.builtin.include_tasks: 01a_orchestrate.yml
+    - ansible.builtin.include_tasks: 01_setup/orchestrate.yml
   delegate_to: "{{ STACK_HOST }}"
   run_once: true

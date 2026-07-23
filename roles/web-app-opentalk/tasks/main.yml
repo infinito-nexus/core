@@ -4,11 +4,8 @@
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
-    # Inject the extra nginx location blocks (controller REST + signaling +
-    # LiveKit websocket) into the front-proxy vhost so the SPA can reach the
-    # controller and media server through the canonical hostname.
     webserver_extra_configuration: "{{ lookup('template', 'nginx/extra.conf.j2') }}"
 
 - name: "👔 OpenTalk manager-side operations (file deploys + container exec)"
-  include_tasks: 02_manager_ops.yml
+  include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool
