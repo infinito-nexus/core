@@ -9,34 +9,15 @@
   delegate_to: localhost
   run_once: true
 
-- name: "📁 Ensure each role's staging dir exists on the CDN host"
-  ansible.builtin.file:
-    path: "{{ [ CDN_ASSET_STAGE, item.path | dirname | dirname | basename ] | path_join }}"
-    state: directory
-    mode: "0755"
+- name: "📁 Stage each deployed role's manifests on the CDN host"
+  ansible.builtin.include_tasks: utils/stage_manifest.yml
   loop: "{{ cdn_asset_locks.files }}"
   loop_control:
-    label: "{{ item.path | dirname | dirname | basename }}"
-
-- name: "📁 Stage each role's package manifests on the CDN host"
-  ansible.builtin.copy:
-    src: "{{ [ item.path | dirname, sub ] | path_join }}"
-    dest: "{{ [ CDN_ASSET_STAGE, item.path | dirname | dirname | basename, sub ] | path_join }}"
-    mode: "0644"
-  loop: "{{ cdn_asset_locks.files }}"
-  loop_control:
-    label: "{{ item.path | dirname | dirname | basename }}"
+    loop_var: manifest
+    label: "{{ role_name }}"
   vars:
-    sub: "package-lock.json"
-
-- name: "📁 Stage each role's package.json on the CDN host"
-  ansible.builtin.copy:
-    src: "{{ [ item.path | dirname, 'package.json' ] | path_join }}"
-    dest: "{{ [ CDN_ASSET_STAGE, item.path | dirname | dirname | basename, 'package.json' ] | path_join }}"
-    mode: "0644"
-  loop: "{{ cdn_asset_locks.files }}"
-  loop_control:
-    label: "{{ item.path | dirname | dirname | basename }}"
+    role_name: "{{ manifest.path | dirname | dirname | basename }}"
+  when: role_name in group_names
 
 - name: "🛠️ npm ci each manifest and mirror it under {{ CDN_WEB_ROOT }}/npm"
   ansible.builtin.command:
