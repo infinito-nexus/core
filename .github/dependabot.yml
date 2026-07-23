@@ -1,3 +1,4 @@
+# nocheck: comments-valid  intentional ecosystem catalogue; the commented stubs document which ecosystems are deliberately not scanned
 version: 2
 
 updates:
@@ -7,6 +8,7 @@ updates:
   - package-ecosystem: "pip"
     directories:
       - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
@@ -21,6 +23,7 @@ updates:
   - package-ecosystem: "github-actions"
     directories:
       - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
@@ -34,6 +37,7 @@ updates:
   - package-ecosystem: "docker"
     directories:
       - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
@@ -47,6 +51,7 @@ updates:
   - package-ecosystem: "docker-compose"
     directories:
       - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
@@ -64,6 +69,7 @@ updates:
   - package-ecosystem: "pre-commit"
     directories:
       - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
@@ -72,15 +78,13 @@ updates:
       - "ci"
 
   # ------------------------------------------------------------
-  # npm / Node.js (package.json) — Bluesky login-broker has zero
-  # runtime npm deps but ships a package.json metadata stub; the
-  # repo-root package.json carries the ESLint + eslint-plugin-playwright
-  # dev-dependency pin used by `make lint-javascript`.
+  # npm / Node.js (package.json), scanned recursively so every role
+  # that ships its own package.json is covered automatically.
   # ------------------------------------------------------------
   - package-ecosystem: "npm"
     directories:
-      - "/"
-      - "/roles/web-app-bluesky/files/login-broker"
+      - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
@@ -93,7 +97,8 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "composer"
     directories:
-      - "/roles/web-app-joomla/files/joomla-oidc-plugin/plg_system_keycloak"
+      - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
@@ -176,7 +181,8 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "bundler"
     directories:
-      - "/roles/web-app-openproject/files"
+      - "**"
+      - "**/*"
     schedule:
       interval: "daily"
       time: "00:00"
