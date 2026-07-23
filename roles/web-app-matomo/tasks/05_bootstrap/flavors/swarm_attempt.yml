@@ -12,6 +12,18 @@
     - matomo_config_exists.rc | int != 0
     - ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
 
+- name: "🧹 Matomo bootstrap | Swarm: reset the database before retry"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    cmd: "container exec -i --user root {{ MATOMO_LOCAL_CID | quote }} php"
+    stdin: "{{ lookup('file', 'reset_database.php') }}"
+  changed_when: true
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+  when:
+    - IS_STACK_HOST | bool
+    - matomo_attempt_index | int > 0
+    - matomo_config_exists.rc | int != 0
+    - ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
+
 - name: "🐝 Matomo bootstrap | Swarm: force installer run and wait for its token"
   ansible.builtin.script: "{{ role_path }}/files/bootstrap_swarm_poll.sh"
   environment:

@@ -26,6 +26,7 @@
     status_code: [200, 401, 403]
     return_content: false
   register: n8n_owner_probe
+  until: "'json' in (n8n_owner_probe.content_type | default(''))"
   retries: 4
   delay: 30
 

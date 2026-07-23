@@ -86,6 +86,19 @@ if (( COUNT < 1 )); then
     exit 1
 fi
 
+VOLUME_COUNT="$(container volume ls -q | wc -l)"
+COMPOSE_CONTAINERS="$(container ps -q --filter label=com.docker.compose.project | wc -l)"
+if (( VOLUME_COUNT == 0 && COMPOSE_CONTAINERS == 0 )); then
+    NEWEST="${GENERATIONS[-1]}"
+    PAYLOAD="$(find "${REPO_DIR}/${NEWEST}" -mindepth 2 -maxdepth 2 -type d \( -name files -o -name sql \) | wc -l)"
+    if (( PAYLOAD > 0 )); then
+        echo "FAIL: host reports no backup subjects but generation ${NEWEST} contains ${PAYLOAD} payload dir(s)"
+        exit 1
+    fi
+    echo "OK/SKIP: no backup subjects on this host; the stamped empty generation ${NEWEST} is the expected outcome"
+    exit 0
+fi
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export MACHINE_HASH REPO_DIR REPO_NAME
 

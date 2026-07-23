@@ -13,6 +13,7 @@ friendica:
   enabled: true # nocheck: dynamic-flag
   image: friendica
   version: "2026.05"
+  custom: true
   min_storage: 10GB
   ports:
     local:

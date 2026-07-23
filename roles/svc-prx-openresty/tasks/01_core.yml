@@ -13,19 +13,20 @@
         OPENRESTY_DOCKER_SOCK_GID: "{{ _openresty_docker_sock.stat.gid }}"
       when: _openresty_docker_sock.stat.exists | default(false)
 
-- name: "✅ Ensure openresty bind-mount source dirs exist before swarm stack-deploy"
+- name: "✅ Ensure the full openresty config tree exists before any http-include writer"
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ item.path }}"
     state: directory
-    mode: "0755"
-  loop:
-    - "{{ lookup('nginx','files.configuration') | dirname }}"
-    - "{{ lookup('nginx','directories.configuration.base') }}"
-    - "{{ lookup('nginx','directories.data.www') }}"
-    - "{{ lookup('nginx','directories.data.well_known') }}"
-    - "{{ LETSENCRYPT_WEBROOT_PATH }}"
-    - "{{ LETSENCRYPT_BASE_PATH }}"
-    - "{{ TLS_SELFSIGNED_BASE_PATH }}"
+    mode: "{{ item.mode }}"
+  loop: >-
+    {{ lookup('nginx','directories.ensure') + [
+         {'path': lookup('nginx','directories.data.well_known'), 'mode': '0755'},
+         {'path': LETSENCRYPT_WEBROOT_PATH, 'mode': '0755'},
+         {'path': LETSENCRYPT_BASE_PATH, 'mode': '0755'},
+         {'path': TLS_SELFSIGNED_BASE_PATH, 'mode': '0755'},
+       ] }}
+  loop_control:
+    label: "{{ item.path }}"
 
 - name: 🔎 Stat the nginx.conf path
   ansible.builtin.stat:

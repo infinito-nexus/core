@@ -29,7 +29,7 @@
     lab_is_mgr: "{{ inventory_hostname == lab_mgr }}"
     lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
     lab_dns_node: "{{ lab_is_mgr or lab_is_worker }}"
-    lab_domain_target: "{{ '127.0.0.1' if lab_is_mgr else lab_mgr_ip }}"
+    lab_domain_target: "{{ lab_mgr_ip }}"
   tasks:
     - block:
         - name: wait for systemd ready (status from stdout; rc is nonzero when degraded)

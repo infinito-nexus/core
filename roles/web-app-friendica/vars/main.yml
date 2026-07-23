@@ -4,6 +4,10 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 FRIENDICA_SERVICE: "{{ entity_name }}"
 FRIENDICA_CONTAINER: "{{ entity_name }}"
+FRIENDICA_IMAGE: "{{ lookup('config', application_id, 'services.' ~ FRIENDICA_SERVICE ~ '.image') }}"
+FRIENDICA_VERSION: "{{ lookup('config', application_id, 'services.' ~ FRIENDICA_SERVICE ~ '.version') }}"
+FRIENDICA_INIT_GATE_FILE: "friendica-init-gate.sh"
+FRIENDICA_INIT_GATE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), FRIENDICA_INIT_GATE_FILE] | path_join }}"
 FRIENDICA_BASE_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 
 FRIENDICA_APPLICATION_DIR: "/var/www/html"

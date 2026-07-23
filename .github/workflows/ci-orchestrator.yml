@@ -153,6 +153,8 @@ jobs:
     needs:
       - test-dns
       - images-mirror-missing
+      - lint
+      - test
     uses: ./.github/workflows/test-deploy-single-node.yml
     with:
       distros: ${{ inputs.distros }}
@@ -165,6 +167,8 @@ jobs:
     name: ⭐ Priority · swarm
     if: ${{ inputs.priority != '' && contains(inputs.modes, 'swarm') }}
     needs:
+      - lint
+      - test
       - build-ci-images
       - images-mirror-missing
     uses: ./.github/workflows/test-deploy-swarm.yml
@@ -179,6 +183,8 @@ jobs:
     if: >-
       ${{ always()
           && (contains(inputs.modes, 'compose') || contains(inputs.modes, 'host'))
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
           && needs.test-dns.result == 'success'
           && needs.images-mirror-missing.result == 'success'
           && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
@@ -188,6 +194,8 @@ jobs:
       - images-mirror-missing
       - test-deploy-single-node-priority
       - test-deploy-swarm-priority
+      - lint
+      - test
     uses: ./.github/workflows/test-deploy-single-node.yml
     with:
       distros: ${{ inputs.distros }}
@@ -201,6 +209,8 @@ jobs:
     if: >-
       ${{ always()
           && contains(inputs.modes, 'swarm')
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
           && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
@@ -210,6 +220,8 @@ jobs:
       - images-mirror-missing
       - test-deploy-single-node-priority
       - test-deploy-swarm-priority
+      - lint
+      - test
     uses: ./.github/workflows/test-deploy-swarm.yml
     with:
       distros: ${{ inputs.distros }}
@@ -257,8 +269,8 @@ jobs:
       - test-runner-smoke
       - test-development
       - test-guide
-      - lint
       - test
+      - lint
       - security-codeql
     if: ${{ always() }}
     runs-on: ubuntu-latest

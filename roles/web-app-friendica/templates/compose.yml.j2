@@ -3,6 +3,15 @@
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'friendica') }}
     {{ lookup('compose_only', 'container_name', FRIENDICA_CONTAINER) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        FRIENDICA_IMAGE: "{{ FRIENDICA_IMAGE }}"
+        FRIENDICA_VERSION: "{{ FRIENDICA_VERSION }}"
+    environment:
+      FRIENDICA_CONFIG_FILE: "{{ FRIENDICA_CONFIG_FILE }}"
+      {% if DEPLOYMENT_MODE == 'swarm' %}
+      TASK_SLOT: "{% raw %}{{.Task.Slot}}{% endraw %}"
+      {% endif %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, FRIENDICA_SERVICE) | indent(4) }}
     {{ lookup('container_ports', ['friendica', 'http', DOCKER_BIND_HOST]) | indent(4) }}

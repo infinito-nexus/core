@@ -26,6 +26,7 @@ matomo:
   shared: true
   image: matomo
   version: "5.11.2"
+  custom: true
   name: matomo
   min_storage: 5GB
   backup:

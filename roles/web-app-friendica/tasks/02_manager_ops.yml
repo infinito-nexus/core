@@ -1,4 +1,13 @@
 ---
+- name: "📄 Deploy '{{ FRIENDICA_INIT_GATE_HOST }}'"
+  copy:
+    src: "{{ FRIENDICA_INIT_GATE_FILE }}"
+    dest: "{{ FRIENDICA_INIT_GATE_HOST }}"
+    mode: "0755"
+  notify:
+    - compose build
+    - compose up
+
 - name: 🔗 Integrate LDAP
   include_tasks: 02_ldap.yml
   when: FRIENDICA_LDAP_ENABLED | bool

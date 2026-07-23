@@ -17,8 +17,12 @@ x-node: &node
   volumes:
     - /sys/fs/cgroup:/sys/fs/cgroup:rw
     - /lib/modules:/lib/modules:ro
-  networks:
-    - lab
+  extra_hosts:
+    - "${MGR:?run utils/topology/export.sh first}:${INFINITO_SWARM_MGR_IP:?run utils/topology/export.sh first}"
+    - "${WRK1:?run utils/topology/export.sh first}:${INFINITO_SWARM_WRK1_IP:?run utils/topology/export.sh first}"
+    - "${WRK2:?run utils/topology/export.sh first}:${INFINITO_SWARM_WRK2_IP:?run utils/topology/export.sh first}"
+    - "${NFS_SERVER:?run utils/topology/export.sh first}:${INFINITO_SWARM_NFS_IP:?run utils/topology/export.sh first}"
+    - "${BACKUP_NODE:?run utils/topology/export.sh first}:${INFINITO_SWARM_BACKUP_IP:?run utils/topology/export.sh first}"
 
 services:
   nfs-server:
@@ -29,27 +33,42 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - /lib/modules:/lib/modules:ro
       - "nfs-export:${NFS_EXPORT_BASE:?run utils/topology/export.sh first}"
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_NFS_IP:?run utils/topology/export.sh first}"
 
   swarm-mgr-01:
     <<: *node
     container_name: "${MGR:?run utils/topology/export.sh first}"
     hostname: "${MGR:?run utils/topology/export.sh first}"
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_MGR_IP:?run utils/topology/export.sh first}"
 
   swarm-wrk-01:
     <<: *node
     container_name: "${WRK1:?run utils/topology/export.sh first}"
     hostname: "${WRK1:?run utils/topology/export.sh first}"
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_WRK1_IP:?run utils/topology/export.sh first}"
 
   swarm-wrk-02:
     <<: *node
     container_name: "${WRK2:?run utils/topology/export.sh first}"
     hostname: "${WRK2:?run utils/topology/export.sh first}"
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_WRK2_IP:?run utils/topology/export.sh first}"
 
   backup-host:
     <<: *node
     container_name: "${BACKUP_NODE:?run utils/topology/export.sh first}"
     hostname: "${BACKUP_NODE:?run utils/topology/export.sh first}"
     profiles: ["drill"]
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_BACKUP_IP:?run utils/topology/export.sh first}"
 
 volumes:
   nfs-export:
@@ -62,4 +81,4 @@ networks:
       com.docker.network.driver.mtu: "1400"
     ipam:
       config:
-        - subnet: 192.168.244.0/24
+        - subnet: "${INFINITO_SWARM_LAB_SUBNET:?run utils/topology/export.sh first}"

@@ -23,4 +23,19 @@
         create: true
   when: not DOCKER_IN_CONTAINER | bool
 
+- name: ✅ Ensure nss-myhostname is installed so *.localhost resolves to loopback
+  become: true
+  ansible.builtin.package:
+    name: libnss-myhostname
+    state: present
+  when: ansible_facts.os_family == 'Debian'
+
+- name: ✅ Ensure nsswitch resolves hosts via myhostname
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: "^(hosts:(?!.*\\bmyhostname\\b).*)$"
+    line: "\\1 myhostname"
+    backrefs: true
+
 - include_tasks: utils/once/flag.yml

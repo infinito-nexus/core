@@ -5,3 +5,12 @@ data:
   mounts:
     - service: matomo
       target: /var/www/html
+
+tmp:
+  type: volume
+  name: matomo_tmp
+  # nocheck: nfs-false-data-loss  Reason: regenerable Twig/session cache; Matomo requires per-server tmp/ and rebuilds it on demand
+  nfs: false
+  mounts:
+    - service: matomo
+      target: /var/www/html/tmp

@@ -27,6 +27,11 @@ on:
         required: false
         type: string
         default: ""
+      exclude_compose_covered:
+        description: "Drop roles the same run's compose line already deploys"
+        required: false
+        type: string
+        default: "false"
 
 permissions:
   contents: read
@@ -43,6 +48,7 @@ env:
   INFINITO_DEPLOY_MODE: host
   INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
   INFINITO_BLACKLIST: ${{ inputs.blacklist }}
+  INFINITO_HOST_EXCLUDE_COMPOSE: ${{ inputs.exclude_compose_covered }}
 jobs:
   discover:
     name: 💻 Host (${{ inputs.distros }})${{ inputs.marker }}

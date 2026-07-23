@@ -20,7 +20,6 @@ jobs:
       - name: 🏷️ Mark stale issues and pull requests
         uses: actions/stale@v10
         with:
-          # Issues
           days-before-issue-stale: 90
           days-before-issue-close: 7
           stale-issue-label: "stale"
@@ -31,7 +30,6 @@ jobs:
           close-issue-message: >
             This issue has been automatically closed due to inactivity.
 
-          # Pull Requests
           days-before-pr-stale: 180
           days-before-pr-close: 30
           stale-pr-label: "stale"
@@ -56,7 +54,7 @@ jobs:
           days-before-stale: 350
           days-before-delete: 360
 
-          branches-filter-regex: '^(?!(?:main|master|develop|dev)$)(?!release/)(?!hotfix/).*'
+          branches-filter-regex: '^(?!main$|master$|develop$|dev$|release/|hotfix/)'
 
           compare-branches: info
           dry-run: false
