@@ -18,7 +18,7 @@ EXTRACT_DIR="$(mktemp -d -t moodle-extract.XXXXXX)"
 TARBALL_PATH="$(mktemp -t moodle-tarball.XXXXXX)"
 trap 'rm -rf "${EXTRACT_DIR}" "${TARBALL_PATH}"' EXIT
 
-curl --connect-timeout 5 --max-time 600 -fSL -o "${TARBALL_PATH}" "${MOODLE_TARBALL_URL}"
+curl --connect-timeout 5 --max-time 600 --retry 3 --retry-all-errors --retry-delay 2 -fSL -o "${TARBALL_PATH}" "${MOODLE_TARBALL_URL}"
 file "${TARBALL_PATH}"
 
 rm -rf "${MOODLE_SOURCE_DIR}"

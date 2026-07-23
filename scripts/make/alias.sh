@@ -111,7 +111,7 @@ render() {
 		"${INFINITO_ALIAS_REPOSITORY}"
 	if [[ ! -f "${TERMINAL_ALIASES_CACHE}" ]]; then
 		mkdir -p "$(dirname "${TERMINAL_ALIASES_CACHE}")"
-		curl -fsSL --max-time 15 "${TERMINAL_ALIASES_URL}" -o "${TERMINAL_ALIASES_CACHE}" 2>/dev/null || true
+		curl -fsSL --max-time 15 --retry 3 --retry-all-errors --retry-delay 2 "${TERMINAL_ALIASES_URL}" -o "${TERMINAL_ALIASES_CACHE}" 2>/dev/null || true
 	fi
 	if [[ -s "${TERMINAL_ALIASES_CACHE}" ]]; then
 		print_alias_file "${TERMINAL_ALIASES_CACHE}"

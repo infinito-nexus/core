@@ -28,7 +28,7 @@ VERSION="$(curl --connect-timeout 5 --max-time 60 -sfSL https://api.github.com/r
 echo "Installing auth_oidc ${VERSION} (Moodle ${MOODLE_VER})"
 test -d "${MOODLE_SOURCE_DIR}/${MOODLE_AUTH_SUBDIR}"
 
-curl --connect-timeout 5 --max-time 300 -fSL -o "${ZIP_PATH}" "https://github.com/microsoft/moodle-auth_oidc/archive/refs/tags/${VERSION}.zip"
+curl --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 -fSL -o "${ZIP_PATH}" "https://github.com/microsoft/moodle-auth_oidc/archive/refs/tags/${VERSION}.zip"
 unzip -q "${ZIP_PATH}" -d "${EXTRACT_DIR}"
 rm -rf "${PLUGIN_DIR}"
 

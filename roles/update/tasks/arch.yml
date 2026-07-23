@@ -1,4 +1,12 @@
 ---
+- name: "🔁 update (pacman) | make pacman retry transient mirror/egress failures natively"
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/pacman.conf
+    regexp: '^XferCommand\s*='
+    line: "XferCommand = /usr/bin/curl -L -C - -f --connect-timeout 5 --retry 3 --retry-all-errors --retry-delay 2 -o %o %u"
+    insertafter: '^\[options\]'
+
 - name: "🔄 update (pacman) | refresh pacman cache and upgrade all installed packages"
   community.general.pacman:
     update_cache: true
