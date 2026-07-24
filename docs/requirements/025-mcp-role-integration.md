@@ -135,6 +135,36 @@ The discovery path MUST reuse the existing [`roles_with_service`](../../plugins/
 
 The lookup MUST remain backed by `utils.cache.applications.get_merged_applications` and MUST NOT introduce a generated repository-wide application dictionary.
 
+### How it works
+
+A client role discovers enabled shared server roles through the lookup, resolves the per-server credential, then connects server-to-server to each `/mcp` endpoint over Streamable HTTP. No candidate list is hard-coded and no browser-side fetch is involved.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Client as Client role<br/>(openwebui / flowise)
+    participant Lookup as roles_with_service<br/>lookup
+    participant Cache as get_merged_applications
+    participant Config as lookup('config', ...)
+    participant Server as Server role<br/>(e.g. baserow /mcp)
+
+    Note over Client,Server: deploy time — discovery
+    Client->>Lookup: enabled shared MCP servers?<br/>(direction: server | both)
+    Lookup->>Cache: merged applications
+    Cache-->>Lookup: roles + mcp meta
+    Lookup-->>Client: [{id, endpoint{service_key, path, port},<br/>transport, auth, auth_subject}]
+    Client->>Config: credentials.<name> for each server
+    Config-->>Client: token / app-password / OIDC client
+
+    Note over Client,Server: run time — tool use (server-to-server)
+    User->>Client: ask something needing a tool
+    Client->>Server: Streamable HTTP /mcp + auth
+    Server-->>Client: tools (read-only default,<br/>mutating off unless opted in)
+    Client-->>User: answer using tool result
+```
+
+Direction gates the wiring: a `server` role only exposes `/mcp`, a `client` role only consumes, a `both` role does either. Implementation precedence is `native > plugin > sidecar > external`; a `sidecar`/`external` server gets its own service entry and port rather than reusing the app's primary HTTP port.
+
 ## Acceptance Criteria
 
 ### Repository-wide audit
