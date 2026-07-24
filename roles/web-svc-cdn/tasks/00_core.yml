@@ -12,4 +12,4 @@
   include_tasks: 01_assets.yml
   when:
     - IS_STACK_HOST | bool
-    - (CDN_FLAVOR | default('internal')) == 'internal'
+    - CDN_FLAVOR == 'internal'

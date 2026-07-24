@@ -9,15 +9,15 @@
   delegate_to: localhost
   run_once: true
 
-- name: "📁 Stage each deployed role's manifests on the CDN host"
+- name: "📁 Stage each deployed role's frontend manifests on the CDN host"
   ansible.builtin.include_tasks: utils/stage_manifest.yml
   loop: "{{ cdn_asset_locks.files }}"
   loop_control:
     loop_var: manifest
-    label: "{{ role_name }}"
+    label: "{{ manifest_role }}"
   vars:
-    role_name: "{{ manifest.path | dirname | dirname | basename }}"
-  when: role_name in group_names
+    manifest_role: "{{ manifest.path | dirname | dirname | basename }}"
+  when: manifest_role in groups
 
 - name: "🛠️ npm ci each manifest and mirror it under {{ CDN_WEB_ROOT }}/npm"
   ansible.builtin.command:

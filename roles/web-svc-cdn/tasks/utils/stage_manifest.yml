@@ -1,18 +1,18 @@
 ---
-- name: "📁 Ensure {{ role_name }} staging dir exists on the CDN host"
+- name: "📁 Ensure {{ manifest_role }} staging dir exists on the CDN host"
   ansible.builtin.file:
-    path: "{{ [ CDN_ASSET_STAGE, role_name ] | path_join }}"
+    path: "{{ [ CDN_ASSET_STAGE, manifest_role ] | path_join }}"
     state: directory
     mode: "0755"
 
-- name: "📁 Stage {{ role_name }} package-lock.json on the CDN host"
+- name: "📁 Stage {{ manifest_role }} package-lock.json on the CDN host"
   ansible.builtin.copy:
     src: "{{ [ manifest.path | dirname, 'package-lock.json' ] | path_join }}"
-    dest: "{{ [ CDN_ASSET_STAGE, role_name, 'package-lock.json' ] | path_join }}"
+    dest: "{{ [ CDN_ASSET_STAGE, manifest_role, 'package-lock.json' ] | path_join }}"
     mode: "0644"
 
-- name: "📁 Stage {{ role_name }} package.json on the CDN host"
+- name: "📁 Stage {{ manifest_role }} package.json on the CDN host"
   ansible.builtin.copy:
     src: "{{ [ manifest.path | dirname, 'package.json' ] | path_join }}"
-    dest: "{{ [ CDN_ASSET_STAGE, role_name, 'package.json' ] | path_join }}"
+    dest: "{{ [ CDN_ASSET_STAGE, manifest_role, 'package.json' ] | path_join }}"
     mode: "0644"
