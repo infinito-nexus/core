@@ -134,6 +134,8 @@ scheduler:
   mem_reservation: 256m
   mem_limit: 1536m
   pids_limit: 1024
+  # nocheck: single-replica zammad background scheduler; one instance enqueues recurring jobs
+  replicas: 1
 nginx:
   name: zammad-nginx
   cpus: "0.5"

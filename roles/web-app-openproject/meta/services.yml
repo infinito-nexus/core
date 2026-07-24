@@ -66,6 +66,8 @@ cron:
   mem_limit: 512m
   pids_limit: 256
   min_storage: 1GB
+  # nocheck: single-replica GoodJob scheduler. Concurrent cron replicas race to enqueue the same recurring jobs and collide on the (cron_key, cron_at) unique index; one scheduler is enough.
+  replicas: 1
 worker:
   name: openproject-worker
   cpus: "2.0"
