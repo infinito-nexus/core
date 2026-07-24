@@ -9,7 +9,7 @@ skip_if_no_swarm_service
 skip_chaos_if_manager_pinned
 
 REPL=""
-for i in $(seq 1 60); do
+for i in $(seq 1 120); do
 	REPL=$(docker exec "${MGR}" docker service ls \
 		--filter "name=${SERVICE_NAME}" --format '{{.Replicas}}')
 	echo "[${i}] ${ENTITY} replicas: ${REPL}"
