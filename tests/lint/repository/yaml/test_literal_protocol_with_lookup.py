@@ -1,5 +1,5 @@
 """Lint guard: never glue a literal ``http://`` / ``https://`` in front of a
-domain that comes from a ``lookup(...)`` (or from a ``server.domains.canonical``
+domain that comes from a ``lookup(...)`` (or from a ``domains.canonical``
 member access). The protocol must come from the same source as the domain so
 TLS-on / TLS-off / self-signed / public-CA stays consistent across the stack.
 
@@ -33,7 +33,7 @@ The regex catches three concrete shapes:
 1. ``https?://{{ ... lookup( ... }}``    — Jinja interpolation with a lookup
 2. ``"https?://" ~ lookup(...)``         — Jinja string concatenation with lookup
 3. ``"https?://" ~ ... canonical.<key>`` — concatenation with a
-   ``server.domains.canonical`` member access.
+   ``domains.canonical`` member access.
 
 Plain ``"http://" ~ host ~ ":" ~ port`` style internal URLs (the protocol is
 fixed because the upstream is on a docker network with no TLS) are *not*
@@ -55,15 +55,10 @@ from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-# 1. ``https?://{{ ... lookup( ... }}``
 _INTERP_RE: re.Pattern[str] = re.compile(r"https?://\{\{[^}]*\blookup\s*\(")
-# 2. ``"https?://" ~ lookup(...)`` and ``'https?://' ~ lookup(...)`` (with
-#    optional whitespace and an opening parenthesis around the lookup).
 _CONCAT_LOOKUP_RE: re.Pattern[str] = re.compile(
     r"['\"]https?://['\"]\s*~\s*\(?\s*\blookup\s*\("
 )
-# 3. ``"https?://" ~ ANY.canonical.<key>`` — Jinja concat that drills into a
-#    canonical hostname through attribute access (``.server.domains.canonical.<key>``).
 _CONCAT_CANONICAL_RE: re.Pattern[str] = re.compile(
     r"['\"]https?://['\"]\s*~[^'\"]*\bcanonical\b"
 )
@@ -136,9 +131,11 @@ class TestLiteralProtocolWithLookup(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} file(s) prepend a literal http(s):// to a "
-            f"lookup-derived domain instead of letting the `tls` lookup "
-            f"decide the protocol:",
+            (
+                f"{len(offenders)} file(s) prepend a literal http(s):// to a "
+                f"lookup-derived domain instead of letting the `tls` lookup "
+                f"decide the protocol:"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

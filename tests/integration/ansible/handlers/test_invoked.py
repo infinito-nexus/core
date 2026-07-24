@@ -1,6 +1,7 @@
 import re
 import unittest
 from collections.abc import Iterable
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -34,9 +35,7 @@ def _iter_task_like_entries(node: Any) -> Iterable[dict[str, Any]]:
         for item in node:
             yield from _iter_task_like_entries(item)
     elif isinstance(node, dict):
-        # Consider any dict as a potential task/handler entry.
         yield node
-        # Recurse into list-of-dicts values (blocks, etc.)
         for v in node.values():
             if isinstance(v, list) and any(isinstance(x, dict) for x in v):
                 yield from _iter_task_like_entries(v)
@@ -58,9 +57,6 @@ def as_str_list(val: Any) -> list[str]:
     return [str(val)]
 
 
-# ---------- Notify extraction helpers ----------
-
-# Extract quoted literals inside a string (e.g. from Jinja conditionals)
 _QUOTED_RE = re.compile(r"""(['"])(.+?)\1""")
 
 
@@ -104,7 +100,20 @@ def _expand_dynamic_notify(value: str) -> list[str]:
     return results
 
 
-# ---------- Extraction from handlers/tasks ----------
+_IMPORT_TASKS_KEYS = ("import_tasks", "ansible.builtin.import_tasks")
+
+
+def _resolve_handler_import_target(entry: dict, handler_file: str) -> str | None:
+    for key in _IMPORT_TASKS_KEYS:
+        value = entry.get(key)
+        if isinstance(value, str) and value.strip():
+            ref = value.strip()
+            return str((Path(handler_file).parent / ref).resolve())
+        if isinstance(value, dict):
+            ref = value.get("file")
+            if isinstance(ref, str) and ref.strip():
+                return str((Path(handler_file).parent / ref.strip()).resolve())
+    return None
 
 
 def collect_handler_groups(handler_file: str) -> list[set[str]]:
@@ -112,20 +121,27 @@ def collect_handler_groups(handler_file: str) -> list[set[str]]:
     Build groups of acceptable targets for each handler task from a handlers file.
     For each handler, collect its 'name' and all 'listen' aliases.
     A handler is considered covered if ANY alias in its group is notified.
+
+    Follows ``import_tasks`` references to sibling handler files so a role
+    can split its handlers by mode (e.g. ``compose.yml`` / ``swarm.yml``)
+    without breaking the notifier check.
     """
     groups: list[set[str]] = []
     docs = load_yaml_documents(handler_file)
 
     for entry in iter_task_like_entries(docs):
+        import_target = _resolve_handler_import_target(entry, handler_file)
+        if import_target and Path(import_target).is_file():
+            groups.extend(collect_handler_groups(import_target))
+            continue
+
         names: set[str] = set()
 
-        # primary name
         if isinstance(entry.get("name"), str):
             nm = entry["name"].strip()
             if nm:
                 names.add(nm)
 
-        # listen aliases (string or list)
         if "listen" in entry:
             for raw_item in as_str_list(entry["listen"]):
                 item = raw_item.strip()
@@ -155,49 +171,42 @@ def collect_notify_calls_from_tasks(
     docs = load_yaml_documents(task_file)
 
     for entry in iter_task_like_entries(docs):
-        # Standard notify:
         if "notify" in entry:
             for item in as_str_list(entry["notify"]):
                 item_str = item.strip()
 
-                # Case 1: whole string is just a Jinja expression -> ignore
                 if item_str.startswith("{{") and item_str.endswith("}}"):
                     continue
 
                 has_jinja = "{{" in item_str and "}}" in item_str
 
-                # Case 2: expand quoted literals inside Jinja expressions (as exacts)
                 if has_jinja:
-                    # Only take the quoted literals; do NOT add the raw mixed string as exact.
                     for m in _QUOTED_RE.finditer(item_str):
                         lit = m.group(2).strip()
                         if lit:
                             notified_exact.add(lit)
                 else:
-                    # No Jinja -> the whole string is an exact name.
                     notified_exact.add(item_str)
 
-                # Case 3: mixed string with Jinja placeholder -> treat as regex
                 rx = _jinja_mixed_to_regex(item_str)
                 if rx is not None:
                     notified_patterns.append(rx)
 
-        # package_notify anywhere in the task (top-level or nested)
-        def walk_for_package_notify(node: Any):
+        # package_notify and nested notify anywhere in the task tree
+        # (top-level or nested under vars/role_templates/etc.)
+        def walk_for_nested_notify(node: Any):
             if isinstance(node, dict):
                 for k, v in node.items():
-                    if k == "package_notify":
+                    if k in ("package_notify", "notify"):
                         for item in as_str_list(v):
                             item_str = item.strip()
 
-                            # Ignore pure Jinja
                             if item_str.startswith("{{") and item_str.endswith("}}"):
                                 continue
 
                             has_jinja = "{{" in item_str and "}}" in item_str
 
                             if has_jinja:
-                                # Only quoted literals as exacts
                                 for m in _QUOTED_RE.finditer(item_str):
                                     lit = m.group(2).strip()
                                     if lit:
@@ -205,17 +214,16 @@ def collect_notify_calls_from_tasks(
                             else:
                                 notified_exact.add(item_str)
 
-                            # mixed -> regex
                             rx = _jinja_mixed_to_regex(item_str)
                             if rx is not None:
                                 notified_patterns.append(rx)
                     else:
-                        walk_for_package_notify(v)
+                        walk_for_nested_notify(v)
             elif isinstance(node, list):
                 for v in node:
-                    walk_for_package_notify(v)
+                    walk_for_nested_notify(v)
 
-        walk_for_package_notify(entry)
+        walk_for_nested_notify(entry)
 
     return notified_exact, notified_patterns
 
@@ -237,9 +245,6 @@ class TestHandlersInvoked(unittest.TestCase):
         self.roles_dir = str(PROJECT_ROOT / "roles")
         roles_prefix = self.roles_dir + "/"
 
-        # Handlers: only main.yml/main.yaml define handlers.
-        # Other files under handlers/ are typically include_tasks/import_tasks
-        # and contain regular tasks, not handler definitions.
         handler_suffixes = (f"/{ROLE_FILE_HANDLERS_MAIN}", "/handlers/main.yaml")
         self.handler_files = [
             p
@@ -261,17 +266,14 @@ class TestHandlersInvoked(unittest.TestCase):
         ]
 
     def test_all_handlers_have_a_notifier_and_all_notifies_have_a_handler(self):
-        # 1) Collect handler groups (name + listen) for each handler task
         handler_groups: list[set[str]] = []
         for hf in self.handler_files:
             handler_groups.extend(collect_handler_groups(hf))
 
-        # Flatten all handler aliases for reverse checks
         all_aliases: set[str] = (
             set().union(*handler_groups) if handler_groups else set()
         )
 
-        # 2) Collect all notified targets (notify + package_notify) from tasks
         notified_exact: set[str] = set()
         notified_patterns: list[re.Pattern] = []
         for tf in self.task_files:
@@ -280,24 +282,21 @@ class TestHandlersInvoked(unittest.TestCase):
             notified_patterns.extend(pats)
 
         def group_is_covered(grp: set[str]) -> bool:
-            # exact hit?
             if grp & notified_exact:
                 return True
-            # regex hit?
             for alias in grp:
                 for rx in notified_patterns:
                     if rx.match(alias):
                         return True
             return False
 
-        # 3A) Every handler group is covered if any alias is notified (exact or regex)
         missing_groups: list[set[str]] = [
             grp for grp in handler_groups if not group_is_covered(grp)
         ]
 
         if missing_groups:
             representatives: list[str] = []
-            representatives.extend(sorted(grp)[0] for grp in missing_groups)
+            representatives.extend(min(grp) for grp in missing_groups)
             representatives = sorted(set(representatives))
 
             msg = [
@@ -314,10 +313,6 @@ class TestHandlersInvoked(unittest.TestCase):
             ]
             self.fail("\n".join(msg))
 
-        # 3B) Reverse validation:
-        #     Every notified target must resolve to an existing handler alias.
-        #     - Exact notified strings must match an alias exactly.
-        #     - Jinja-mixed strings (patterns) must match at least one alias via regex.
         missing_exacts = sorted([s for s in notified_exact if s not in all_aliases])
 
         orphan_patterns = sorted(

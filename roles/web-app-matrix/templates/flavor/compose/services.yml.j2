@@ -1,43 +1,53 @@
-  synapse:
+{% set service_name = 'synapse' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {% set container_port = MATRIX_SYNAPSE_CONTAINER_PORT %}
-    image: "{{ MATRIX_SYNAPSE_IMAGE }}:{{ MATRIX_SYNAPSE_VERSION }}"
-    container_name: {{ MATRIX_SYNAPSE_NAME }}
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('container_image', application_id, 'synapse') }}
+    {{ lookup('compose_only', 'container_name', MATRIX_SYNAPSE_NAME) }}
+    {{ lookup('compose_restart') }}
     logging:
       driver: journald
-    volumes:
-      - synapse_data:/data
-      - {{ MATRIX_SYNAPSE_CONFIG_PATH_HOST }}:{{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER }}:ro
-      - {{ MATRIX_SYNAPSE_LOG_PATH_HOST }}:{{ MATRIX_SYNAPSE_LOG_PATH_CONTAINER }}:ro
+{% set _synapse_extra_mounts = [] %}
 {% for item in MATRIX_BRIDGES %}
-      - {{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}:{{ MATRIX_REGISTRATION_FILE_FOLDER }}mautrix-{{ item.bridge_name }}:ro
+{%   set _ = _synapse_extra_mounts.append(lookup('container', application_id, 'directories.instance') ~ 'mautrix/' ~ item.bridge_name ~ ':' ~ MATRIX_REGISTRATION_FILE_FOLDER ~ 'mautrix-' ~ item.bridge_name ~ ':ro') %}
 {% endfor %}
+    {{ lookup('container_volumes', application_id, service_name, extra_volumes=_synapse_extra_mounts) | indent(4) }}
     environment:
       - SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }}
       - SYNAPSE_REPORT_STATS=no
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http')}}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-  element:
-{% set container_port = 80 %}
-    image: "{{ MATRIX_ELEMENT_IMAGE }}:{{ MATRIX_ELEMENT_VERSION }}"
-    container_name: {{ MATRIX_ELEMENT_NAME }}
-    restart: {{ DOCKER_RESTART_POLICY }}
-    volumes:
-      - {{ MATRIX_ELEMENT_CONFIG_PATH_HOST }}:/app/config.json
+{% set _synapse_bridge_deps = {} %}
+{% for item in MATRIX_BRIDGES %}
+{%   set _ = _synapse_bridge_deps.__setitem__('mautrix-' ~ item.bridge_name, {'condition': 'service_healthy'}) %}
+{% endfor %}
+    {{ lookup('container_depends_on', application_id, extra=_synapse_bridge_deps) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+{% set service_name = 'element' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+{% set container_port = lookup('config', application_id, 'services.' ~ service_name ~ '.ports.internal.http') %}
+    {{ lookup('container_image', application_id, 'element') }}
+    {{ lookup('compose_only', 'container_name', MATRIX_ELEMENT_NAME) }}
+    {{ lookup('compose_restart') }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ MATRIX_ELEMENT_PORT }}:{{ container_port }}"
 {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
 {% for item in MATRIX_BRIDGES %}
-  mautrix-{{ item.bridge_name }}:
-    container_name: matrix-{{ item.bridge_name }}
-    image: dock.mau.dev/mautrix/{{ item.bridge_name }}:latest
-    restart: {{ DOCKER_RESTART_POLICY }}
-    volumes:
+{% set service_name = 'mautrix-' ~ item.bridge_name %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', 'matrix-' ~ item.bridge_name) }}
+    image: "dock.mau.dev/mautrix/{{ item.bridge_name }}:latest"  # nocheck: container-image-lookup
+    {{ lookup('compose_restart') }}
+    environment:
+      UID: "{{ MATRIX_SYNAPSE_UID }}"
+      GID: "{{ MATRIX_SYNAPSE_GID }}"
+    volumes: # nocheck: compose-inline-mount-section
       - ./mautrix/{{ item.bridge_name }}:/data
     healthcheck:
       test: ["CMD-SHELL", "test -f {{ MATRIX_REGISTRATION_FILE_FOLDER }}registration.yaml || exit 1"]
@@ -45,15 +55,16 @@
       timeout: 10s
       retries: 5
       start_period: 5m
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 {% endfor %}
 {% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
-  matrix-chatgpt-bot:
-    restart: {{ DOCKER_RESTART_POLICY }}
-    container_name: matrix-chatgpt
-    image: "{{ MATRIX_CHATGPT_BOT_IMAGE }}:{{ MATRIX_CHATGPT_BOT_VERSION }}"
-    volumes:
-      - chatgpt_data:/storage
+{% set service_name = 'matrix-chatgpt-bot' %}
+  {{ service_name }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_restart') }}
+    {{ lookup('compose_only', 'container_name', "matrix-chatgpt") }}
+    {{ lookup('container_image', application_id, 'matrix-chatgpt-bot') }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     environment:
       OPENAI_API_KEY: "{{ lookup('config', application_id, 'credentials.chatgpt_bridge_openai_api_key')}}"
       CHATGPT_CONTEXT: 'thread'

@@ -1,0 +1,65 @@
+---
+- name: "✅ Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-redis'
+      - database_consumer_id != 'svc-db-redis'
+
+- name: "🔍 Resolve consumer ACL identity for {{ database_consumer_id }}"
+  ansible.builtin.set_fact:
+    redis_acl_username: "{{ lookup('engine', 'redis', database_consumer_id, 'username') }}"
+    redis_acl_password: "{{ lookup('engine', 'redis', database_consumer_id, 'password') | string }}"
+    redis_acl_prefix: "{{ lookup('engine', 'redis', database_consumer_id, 'prefix') }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "✅ REDIS | Assert consumer credentials are present"
+  ansible.builtin.assert:
+    that:
+      - redis_acl_username | length > 0
+      - redis_acl_password | length > 0
+      - redis_acl_prefix | length > 0
+    fail_msg: >-
+      engine lookup returned empty ACL identity for consumer
+      '{{ database_consumer_id }}'. Ensure services.redis.shared is true and a
+      password is provisioned for the consumer.
+
+- name: "⏳ REDIS | Wait for authenticated PING"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} ping'
+  register: redis_admin_ready
+  until: redis_admin_ready.stdout is search('PONG')
+  retries: 30
+  delay: 5
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📖 REDIS | Read current ACL rules for {{ redis_acl_username }}"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} ACL GETUSER {{ redis_acl_username }}'
+  register: redis_acl_before
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 REDIS | Provision ACL user {{ redis_acl_username }} (auth-isolated)"
+  ansible.builtin.shell: >
+    container exec
+    -e REDIS_PASSWORD={{ REDIS_PASSWORD | quote }}
+    -e REDIS_ACL_PASSWORD={{ redis_acl_password | quote }}
+    {{ REDIS_CONTAINER_ADDRESS }} sh -lc
+    '{{ REDIS_CLI }} ACL SETUSER {{ redis_acl_username }}
+    on resetkeys resetchannels
+    ">$REDIS_ACL_PASSWORD"
+    allkeys allchannels
+    +@all'
+  register: redis_acl_set
+  until: redis_acl_set.rc == 0
+  retries: "{{ REDIS_RETRIES }}"
+  delay: "{{ REDIS_DELAY }}"
+  changed_when: >
+    redis_acl_before.rc != 0 or
+    '~*' not in (redis_acl_before.stdout | default(''))
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

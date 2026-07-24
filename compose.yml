@@ -5,8 +5,6 @@ x-ci-defaults: &ci_defaults
   dns_opt:
     - ndots:1
 
-# Bare CI/runtime stack. Cache layers in via compose/cache.override.yml.
-
 services:
   coredns:
     image: coredns/coredns:1.14.4
@@ -29,6 +27,9 @@ services:
       args:
         INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_SRC_DIR: ${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}
+        INFINITO_PACKAGE_INSTALL_SCRIPT: ${INFINITO_PACKAGE_INSTALL_SCRIPT:?Run 'make dotenv' to generate the .env single source of truth}
+        INFINITO_PYTHON_INSTALL_SCRIPT: ${INFINITO_PYTHON_INSTALL_SCRIPT:?Run 'make dotenv' to generate the .env single source of truth}
+        INFINITO_DOCKER_CLI_INSTALL_SCRIPT: ${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_VENV_DIR: ${INFINITO_VENV_DIR:?Run 'make dotenv' to generate the .env single source of truth}
         NIX_CONFIG: ${NIX_CONFIG}
     image: "${INFINITO_IMAGE}"
@@ -46,7 +47,6 @@ services:
 
     stop_signal: SIGRTMIN+3
 
-    # systemd needs the host cgroup namespace.
     privileged: true
     cgroup: host
     tmpfs:
@@ -58,7 +58,6 @@ services:
 
     container_name: ${INFINITO_CONTAINER:?Run 'make dotenv' to generate the .env single source of truth}
     restart: "no"
-    # Defaults of 0 map to "unlimited" in dockerd.
     mem_limit: ${INFINITO_MEM_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     memswap_limit: ${INFINITO_MEMSWAP_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     cpus: ${INFINITO_CPUS:?Run 'make dotenv' to generate the .env single source of truth}
@@ -68,14 +67,17 @@ services:
       - .:${INFINITO_SRC_DIR}
       - ${INFINITO_DOCKER_VOLUME:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_DOCKER_MOUNT:?Run 'make dotenv' to generate the .env
         single source of truth}
-      - infinito:/var/lib/infinito/
+      - infinito:${INFINITO_DIR_VAR_LIB:?Run 'make dotenv' to generate the .env single source of truth}/
       - letsencrypt:/etc/letsencrypt/
 
     environment:
       INFINITO_BUILDKIT_ENABLED: ${INFINITO_BUILDKIT_ENABLED}
       INFINITO_CONTAINER_CA_ENABLED: ${INFINITO_CONTAINER_CA_ENABLED}
+      INFINITO_DIR_VAR_LIB: ${INFINITO_DIR_VAR_LIB}
       INFINITO_DNS_IP: ${INFINITO_DNS_IP}
       INFINITO_DOMAIN: ${INFINITO_DOMAIN}
+      INFINITO_GHCR_MIRROR_PREFIX: ${INFINITO_GHCR_MIRROR_PREFIX}
+      INFINITO_IMAGE_TAG: ${INFINITO_IMAGE_TAG}
       INFINITO_IP4: ${INFINITO_IP4}
       INFINITO_IP6: ${INFINITO_IP6}
       INFINITO_PLAYWRIGHT_KEEP: ${INFINITO_PLAYWRIGHT_KEEP}

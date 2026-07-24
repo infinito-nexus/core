@@ -28,13 +28,21 @@ javascript:
   enabled: true
   shared: true
 littlejs:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   repository: https://github.com/KilledByAPixel/LittleJS.git
   ref: main
   image: nginx
   version: alpine
+  custom: true
   ports:
     local:
       http: 8063
+    internal:
+      http: 80
   run_after:
     - web-app-matomo
   lifecycle: alpha

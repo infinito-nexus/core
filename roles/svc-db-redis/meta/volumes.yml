@@ -1,0 +1,8 @@
+# nocheck: backup-service-flag redis holds backup-disabled ephemeral cache state; the consumer is permanently off
+---
+data:
+  type: volume
+  name: redis_data
+  mounts:
+    - service: redis
+      target: /data

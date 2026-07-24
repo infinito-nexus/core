@@ -1,16 +1,25 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {{ LIBRETRANSLATE_SERVICE }}:
-    image: "{{ LIBRETRANSLATE_IMAGE }}:{{ LIBRETRANSLATE_VERSION }}"
+  {% set service_name = LIBRETRANSLATE_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        LIBRETRANSLATE_IMAGE: "{{ LIBRETRANSLATE_IMAGE }}"
+        LIBRETRANSLATE_VERSION: "{{ LIBRETRANSLATE_VERSION }}"
+        LIBRETRANSLATE_LOAD_ONLY: "{{ LIBRETRANSLATE_LOAD_ONLY }}"
+    {{ lookup('container_image', application_id, 'libretranslate') }}
     volumes: []
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.libretranslate.ports.local.http') }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_ports', ['libretranslate', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    healthcheck:
+      test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

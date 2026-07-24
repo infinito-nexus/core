@@ -1,58 +1,48 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {{ JITSI_PROSODY_CONTAINER }}:
-    image: "{{ JITSI_PROSODY_IMAGE }}:{{ JITSI_PROSODY_VERSION }}"
-    container_name: "{{ JITSI_PROSODY_CONTAINER }}"
+  {% set service_name = JITSI_PROSODY_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, JITSI_PROSODY_SERVICE) }}
+    {{ lookup('compose_only', 'container_name', JITSI_PROSODY_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     expose:
-      - "5222"
-      - "5347"
-      - "5280"
-    volumes:
-      - "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}:/config:Z"
-      - "{{ JITSI_PROSODY_PLUGINS_HOST_PATH }}:/prosody-plugins-custom:Z"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+      - "{{ JITSI_PROSODY_XMPP_PORT }}"
+      - "{{ JITSI_PROSODY_COMPONENT_PORT }}"
+      - "{{ JITSI_PROSODY_HTTP_PORT }}"
+    {{ lookup('container_volumes', application_id, JITSI_PROSODY_SERVICE) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  {{ JITSI_JICOFO_CONTAINER }}:
-    image: "{{ JITSI_JICOFO_IMAGE }}:{{ JITSI_JICOFO_VERSION }}"
-    container_name: "{{ JITSI_JICOFO_CONTAINER }}"
+  {% set service_name = JITSI_JICOFO_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, JITSI_JICOFO_SERVICE) }}
+    {{ lookup('compose_only', 'container_name', JITSI_JICOFO_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ JITSI_PROSODY_CONTAINER }}:
-        condition: service_started
-    volumes:
-      - "{{ JITSI_JICOFO_HOST_PATH }}:/config:Z"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('depends_on', {JITSI_PROSODY_SERVICE: 'service_started'}) }}
+    {{ lookup('container_volumes', application_id, JITSI_JICOFO_SERVICE) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  {{ JITSI_JVB_CONTAINER }}:
-    image: "{{ JITSI_JVB_IMAGE }}:{{ JITSI_JVB_VERSION }}"
-    container_name: "{{ JITSI_JVB_CONTAINER }}"
+  {% set service_name = JITSI_JVB_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, JITSI_JVB_SERVICE) }}
+    {{ lookup('compose_only', 'container_name', JITSI_JVB_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ JITSI_PROSODY_CONTAINER }}:
-        condition: service_started
+    {{ lookup('depends_on', {JITSI_PROSODY_SERVICE: 'service_started'}) }}
     ports:
-      - "{{ JITSI_JVB_MEDIA_PORT }}:{{ JITSI_JVB_MEDIA_PORT }}/udp"
-    volumes:
-      - "{{ JITSI_JVB_HOST_PATH }}:/config:Z"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+      - "{{ JITSI_JVB_MEDIA_PORT }}:{{ JITSI_JVB_MEDIA_PORT }}/udp"  # nocheck: compose-ports-must-use-container-ports
+    {{ lookup('container_volumes', application_id, JITSI_JVB_SERVICE) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  {{ JITSI_WEB_CONTAINER }}:
-    image: "{{ JITSI_WEB_IMAGE }}:{{ JITSI_WEB_VERSION }}"
-    container_name: "{{ JITSI_WEB_CONTAINER }}"
+  {% set service_name = JITSI_WEB_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'jitsi') }}
+    {{ lookup('compose_only', 'container_name', JITSI_WEB_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    depends_on:
-      {{ JITSI_PROSODY_CONTAINER }}:
-        condition: service_started
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ JITSI_WEB_HTTP_PORT }}:80"
-    volumes:
-      - "{{ JITSI_CONFIG_HOST_PATH }}:/config:Z"
-      - "{{ JITSI_TRANSCRIPTS_HOST_PATH }}:/usr/share/jitsi-meet/transcripts:Z"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('depends_on', {JITSI_PROSODY_SERVICE: 'service_started'}) }}
+    {{ lookup('container_ports', ['jitsi', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, JITSI_WEB_SERVICE) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
     extra_volumes={}
 ) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

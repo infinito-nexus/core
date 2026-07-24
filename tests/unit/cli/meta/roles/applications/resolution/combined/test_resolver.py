@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cli.meta.roles.applications.resolution.combined import repo_paths
+from cli.meta.roles.applications.resolution.combined.resolver import CombinedResolver
 from cli.meta.roles.applications.resolution.combined.tree import print_tree
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
@@ -32,10 +33,6 @@ class TestCombinedTree(unittest.TestCase):
             root = Path(td)
             (root / "roles").mkdir()
 
-            # start app role with dashboard enabled.
-            # Per run_after lives at
-            # meta/services.yml.<primary_entity>.run_after.
-            # For "start" (no category prefix) the entity name = role name.
             _write(
                 root / "roles" / "start" / ROLE_FILE_VARS_MAIN,
                 "application_id: start\n",
@@ -52,14 +49,11 @@ class TestCombinedTree(unittest.TestCase):
                 ),
             )
 
-            # keycloak exists, and points back to start to force a visible cycle
-            # entity name for web-app-keycloak is "keycloak"
             _write(
                 root / "roles" / "web-app-keycloak" / ROLE_FILE_META_SERVICES,
                 "keycloak:\n  run_after:\n    - start\n",
             )
 
-            # required folders exist
             (root / "roles" / "start").mkdir(parents=True, exist_ok=True)
             (root / "roles" / "web-app-keycloak").mkdir(parents=True, exist_ok=True)
             (root / "roles" / "web-app-dashboard").mkdir(parents=True, exist_ok=True)
@@ -73,6 +67,35 @@ class TestCombinedTree(unittest.TestCase):
             self.assertIn("[services]", out)
             self.assertIn("web-app-dashboard", out)
             self.assertIn("↩︎ (cycle)", out)
+
+
+class TestFollowRunAfter(unittest.TestCase):
+    def test_run_after_only_role_gated_by_flag(self) -> None:
+        """A role reachable ONLY via run_after (no dependency/service edge)
+        is included when run_after is followed and excluded when it is not."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "roles").mkdir()
+            _write(
+                root / "roles" / "start" / ROLE_FILE_VARS_MAIN,
+                "application_id: start\n",
+            )
+            _write(
+                root / "roles" / "start" / ROLE_FILE_META_SERVICES,
+                "start:\n  run_after:\n    - web-app-extra\n",
+            )
+            (root / "roles" / "web-app-extra").mkdir(parents=True, exist_ok=True)
+            _write(
+                root / "roles" / "web-app-extra" / ROLE_FILE_META_SERVICES,
+                "extra: {}\n",
+            )
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                followed = CombinedResolver(follow_run_after=True).resolve("start")
+                gated = CombinedResolver(follow_run_after=False).resolve("start")
+
+        self.assertIn("web-app-extra", followed)
+        self.assertNotIn("web-app-extra", gated)
 
 
 if __name__ == "__main__":

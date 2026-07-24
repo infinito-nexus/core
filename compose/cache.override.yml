@@ -10,7 +10,6 @@ services:
       ENABLE_MANIFEST_CACHE: "true"
       AUTH_REGISTRIES: ""
       CACHE_MAX_SIZE: "${INFINITO_CACHE_REGISTRY_MAX_SIZE:?Run 'make dotenv' to generate the .env single source of truth}"
-      # Avoid 502s on hosts with broken IPv6 outbound.
       DISABLE_IPV6: "true"
     volumes:
       - type: bind
@@ -39,13 +38,13 @@ services:
   package-cache:
     image: sonatype/nexus3:3.91.1-ubi
     container_name: infinito-package-cache
-    # Run as root: fresh bind-mount is root:root and Nexus aborts otherwise.
+    # Exception: fresh bind-mount is root:root and Nexus aborts unless run as root.
     user: "0:0"
     environment:
       INSTALL4J_ADD_VM_PARAMS: "-Xms${INFINITO_CACHE_PACKAGE_HEAP:?Run 'make dotenv' to generate the .env single source of truth} -Xmx${INFINITO_CACHE_PACKAGE_HEAP:?Run
         'make dotenv' to generate the .env single source of truth} -XX:MaxDirectMemorySize=${INFINITO_CACHE_PACKAGE_DIRECT_MEM:?Run 'make dotenv' to generate the
         .env single source of truth}"
-      # Random-password mode leaves no readable secret for the bootstrap.
+      # Exception: random-password mode leaves no readable secret for the bootstrap.
       NEXUS_SECURITY_RANDOMPASSWORD: "false"
     volumes:
       - type: bind
@@ -113,11 +112,8 @@ services:
     environment:
       INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
     extra_hosts:
-      # Docker daemon image-pull proxy → registry-cache by its static IP;
-      # /etc/hosts beats coredns, which can't resolve the container name.
+      # Exception: /etc/hosts is used because coredns can't resolve the container names.
       - "infinito-registry-cache:${INFINITO_CACHE_REGISTRY_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      # apt mirrors → cache frontend, like the package managers below.
-      # /etc/hosts beats coredns, which can't resolve the `package-cache` name.
       - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
       - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
       - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
@@ -148,4 +144,4 @@ services:
         dotenv')}:/etc/apt/sources.list.d/package-cache.list:ro
       - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
         dotenv')}:/opt/package-frontend-ca.crt:ro
-      - ./scripts/docker/cache/package-frontend-ca.sh:/usr/local/bin/package-frontend-ca.sh:ro
+      - ./scripts/docker/cache/package-frontend/ca.sh:/usr/local/bin/package-frontend-ca.sh:ro

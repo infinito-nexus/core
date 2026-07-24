@@ -1,5 +1,5 @@
 ---
-- name: Ensure system version is set in environment file
+- name: ✅ Ensure system version is set in environment file
   ansible.builtin.lineinfile:
     path: "{{ FILE_ENVIRONMENT }}"
     regexp: "^{{ INFINITO_VERSION_ENV_NAME }}="

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Central mail orchestration role for Infinito.Nexus, integrating Mailu, msmtp, and an optional local SMTP relay.
+  description: Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

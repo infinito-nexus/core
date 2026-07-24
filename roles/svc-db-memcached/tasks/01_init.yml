@@ -1,0 +1,23 @@
+---
+- name: "✅ Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-memcached'
+      - database_consumer_id != 'svc-db-memcached'
+
+- name: "✅ MEMCACHED | Confirm engine answers before provisioning (version handshake)"
+  ansible.builtin.shell: >
+    {{ MEMCACHED_EXEC_SHELL }}
+    '{{ MEMCACHED_PROBE }}'
+  register: memcached_ready
+  until: memcached_ready.rc == 0
+  retries: "{{ MEMCACHED_RETRIES }}"
+  delay: "{{ MEMCACHED_DELAY }}"
+  changed_when: false
+
+- name: "🚫 MEMCACHED | No per-consumer provisioning (key-prefix isolation only)"
+  ansible.builtin.debug:
+    msg: >-
+      Memcached has no native auth or namespace; consumer '{{ database_consumer_id }}'
+      is isolated by the key-prefix '{{ database_consumer_id | get_entity_name }}' which
+      the 'engine' lookup resolves at consume time. Nothing to provision here.

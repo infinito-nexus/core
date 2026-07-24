@@ -1,2 +1,35 @@
 ---
-data: pixelfed_data
+data:
+  type: volume
+  name: pixelfed_data
+  mounts:
+    - service: pixelfed
+      target: /var/www/storage
+    - service: worker
+      target: /var/www/storage
+
+env:
+  type: config
+  source: "{{ lookup('container', 'web-app-pixelfed', 'files.env') }}"
+  mode: "0444"
+  mounts:
+    - service: pixelfed
+      target: /var/www/.env
+    - service: worker
+      target: /var/www/.env
+
+entrypoint:
+  type: config
+  source: "{{ [lookup('container', 'web-app-pixelfed', 'directories.instance'), 'docker-entrypoint.sh'] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: pixelfed
+      target: /infinito-pixelfed-entrypoint.sh
+
+worker_entrypoint:
+  type: config
+  source: "{{ [lookup('container', 'web-app-pixelfed', 'directories.instance'), 'worker-entrypoint.sh'] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: worker
+      target: /infinito-pixelfed-worker-entrypoint.sh

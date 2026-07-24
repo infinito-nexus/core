@@ -1,6 +1,7 @@
 [Unit]
 Description=Backup to USB when mounted to {{ BACKUP_TO_USB_MOUNT }}
 Wants={{ BACKUPS_SERVICE_MNT_NAME }}
+ConditionPathIsMountPoint={{ BACKUP_TO_USB_MOUNT }}
 OnFailure={{ SYS_SERVICE_ON_FAILURE_COMPOSE }}
 
 [Service]

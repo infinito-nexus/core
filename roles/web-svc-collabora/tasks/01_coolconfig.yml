@@ -1,0 +1,22 @@
+---
+- name: 🔄 Update Collabora systemplate to include new fonts
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ COLLABORA_LOCAL_CID | quote }} coolconfig update-system-template
+  register: collabora_fonts
+  changed_when: >
+    (not ASYNC_ENABLED | bool )
+    and
+    ('updated' in (collabora_fonts.stdout | default('')))
+  async: "{{ ASYNC_TIME  if (ASYNC_ENABLED |  bool) else omit }}"
+  poll: "{{ ASYNC_POLL if (ASYNC_ENABLED |  bool) else omit }}"
+
+- name: 🖥️ Allow Nextcloud host IP for Collabora preview conversion
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ COLLABORA_LOCAL_CID | quote }} coolconfig set net.post_allow.host {{ networks.internet.ip4 }}
+  register: collabora_preview
+  changed_when: >
+    (not ASYNC_ENABLED | bool )
+    and
+    ('already present' not in (collabora_preview.stdout | default('')))
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

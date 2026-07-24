@@ -1,12 +1,12 @@
 ---
 - block:
-    - name: "Ensure initdb.d dir exists: {{ _database_initdb_dir }}"
+    - name: "✅ Ensure initdb.d dir exists: {{ _database_initdb_dir }}"
       ansible.builtin.file:
         path: "{{ _database_initdb_dir }}"
         state: directory
         mode: "0755"
-    - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Render extensions.sql for dedicated postgres"
-      template:
+    - name: "📄 For '{{ application_id }}/{{ _database_consumer_id }}': Render extensions.sql"
+      stack_host_template:
         src: "initdb.d/extensions.sql.j2"
         dest: "{{ _database_initdb_dir }}extensions.sql"
         mode: "0644"
@@ -14,14 +14,14 @@
   when: (_database_extensions | length) > 0
 
 - block:
-    - name: "Ensure postgres build dir exists: {{ _database_build_dir }}"
+    - name: "✅ Ensure postgres build dir exists: {{ _database_build_dir }}"
       ansible.builtin.file:
         path: "{{ _database_build_dir }}"
         state: directory
         mode: "0755"
-    - name: "For '{{ application_id }}/{{ _database_consumer_id }}': Render Dockerfile for dedicated postgres with custom libraries"
-      template:
-        src: "{{ playbook_dir }}/roles/svc-db-postgres/templates/Dockerfile.j2"
+    - name: "📄 For '{{ application_id }}/{{ _database_consumer_id }}': Render libs Dockerfile"
+      stack_host_template:
+        src: "{{ lookup('path_absolute', 'roles/svc-db-postgres/templates/Dockerfile.j2') }}"
         dest: "{{ _database_build_dir }}Dockerfile"
         mode: "0644"
       vars:

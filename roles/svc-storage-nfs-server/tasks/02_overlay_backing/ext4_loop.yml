@@ -1,0 +1,30 @@
+---
+- name: "📦 Ensure e2fsprogs is installed for mkfs.ext4"
+  ansible.builtin.package:
+    name: e2fsprogs
+    state: present
+
+- name: "✅ Refuse to mount over a non-empty export base"
+  ansible.builtin.command:
+    cmd: "find {{ lookup('nfs_export_base') }} -mindepth 1 -maxdepth 1"
+  register: _nfs_export_base_content
+  changed_when: false
+  failed_when: (_nfs_export_base_content.stdout | trim) | length > 0
+
+- name: "🖼 Create the export-base image file"
+  ansible.builtin.command:
+    cmd: "truncate -s 2G /var/lib/nfs-export-base.img"
+    creates: /var/lib/nfs-export-base.img
+
+- name: "🖼 Format the export-base image as ext4"
+  community.general.filesystem:
+    fstype: ext4
+    dev: /var/lib/nfs-export-base.img
+
+- name: "🔗 Mount the ext4 image on the export base"
+  ansible.posix.mount:
+    path: "{{ lookup('nfs_export_base') }}"
+    src: /var/lib/nfs-export-base.img
+    fstype: ext4
+    opts: "loop,rw"
+    state: mounted

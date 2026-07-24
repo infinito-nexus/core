@@ -172,12 +172,14 @@ class TestNoInlineXmlBody(unittest.TestCase):
             return
 
         msg = [
-            f"{sum(len(v) for v in offenders.values())} task(s) keep their XML "
-            "payload inline. Extract to <role>/templates/xml/<name>.xml.j2 "
-            "(when the XML embeds Jinja) and load with "
-            "`body: \"{{ lookup('template', 'xml/<name>.xml.j2') }}\"`, OR "
-            "to <role>/files/xml/<name>.xml (fully static) and load with "
-            "`body: \"{{ lookup('file', 'xml/<name>.xml') }}\"`:",
+            (
+                f"{sum(len(v) for v in offenders.values())} task(s) keep their XML "
+                "payload inline. Extract to <role>/templates/xml/<name>.xml.j2 "
+                "(when the XML embeds Jinja) and load with "
+                "`body: \"{{ lookup('template', 'xml/<name>.xml.j2') }}\"`, OR "
+                "to <role>/files/xml/<name>.xml (fully static) and load with "
+                "`body: \"{{ lookup('file', 'xml/<name>.xml') }}\"`:"
+            ),
             "",
         ]
         for path, hits in sorted(offenders.items()):

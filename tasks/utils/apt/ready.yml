@@ -1,0 +1,15 @@
+---
+- name: "🧯 Neutralize apt-daily in the ephemeral deploy container"
+  ansible.builtin.include_tasks: neutralize.yml
+  when: DOCKER_IN_CONTAINER | bool
+
+- name: "⏳ Wait for the dpkg lock"
+  ansible.builtin.command:
+    argv:
+      - apt-get
+      - -q
+      - -o
+      - DPkg::Lock::Timeout=600
+      - check
+  changed_when: false
+  timeout: "{{ lookup('timeout', 660) | int }}"

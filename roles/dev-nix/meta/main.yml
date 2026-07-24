@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs the Nix package manager via pacman on Arch x86_64 or via the official installer with SHA256 verification.
+  description: Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

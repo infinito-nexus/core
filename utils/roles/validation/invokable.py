@@ -70,6 +70,17 @@ def _role_lifecycle(role_dir: Path) -> str:
     return value or ""
 
 
+def _role_skip_modes(role_dir: Path) -> list[str]:
+    # `skip` lists deploy modes (compose/swarm) the role opts out of in
+    # test-deploy discovery; never break discovery on a malformed meta file.
+    from utils.roles.meta_lookup import get_role_skip
+
+    try:
+        return get_role_skip(role_dir, role_name=role_dir.name)
+    except Exception:
+        return []
+
+
 def _get_invokable_paths() -> list[str]:
     from plugins.filter.invokable_paths import get_invokable_paths
 
@@ -126,6 +137,7 @@ def list_invokables_by_type(
     *,
     rules: Iterable[DeploymentTypeRule] = DEFAULT_RULES,
     lifecycles: set[str] | None = None,
+    skip_mode: str | None = None,
 ) -> dict[str, list[str]]:
     """
     Returns:
@@ -157,6 +169,9 @@ def list_invokables_by_type(
             lc = _role_lifecycle(role_dir)
             if not lc or lc not in lifecycles:
                 continue
+
+        if skip_mode is not None and skip_mode in _role_skip_modes(role_dir):
+            continue
 
         invokable_role_dirs.append(role_dir)
 

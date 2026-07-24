@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs and configures the Tor service and Tor Browser Launcher for secure, anonymous web browsing on Pacman-based systems.
+  description: Tor network client and browser launcher for anonymous, privacy-focused web browsing
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

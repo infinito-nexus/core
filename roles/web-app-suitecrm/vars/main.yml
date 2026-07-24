@@ -1,47 +1,36 @@
 ---
-# General
 application_id: "web-app-suitecrm"
 entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
-# Database
+swarm_stack_converge_retries: 600
 
-# Webserver
-
-# General
 SUITECRM_WELL_SOFTWARE_NAME: "{{ SOFTWARE_DOMAIN | replace('.', '-') }}"
 SUITECRM_PHP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'php.ini'] | path_join }}"
 
-# Container images
-# Base PHP image used to run SuiteCRM
 SUITECRM_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SUITECRM_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
-# Upstream SuiteCRM application version (Git tag, e.g. 8.6.0)
 SUITECRM_APP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.app_version') }}"
 
-SUITECRM_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ SUITECRM_APP_VERSION }}"
 SUITECRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 SUITECRM_SERVICE: "{{ entity_name }}"
 
-# Volumes
-SUITECRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-
-# URLs & feature flags
 SUITECRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
-# LDAP
+SUITECRM_APP_DIR: /var/www/html
+SUITECRM_SEED_DIR: /usr/src/suitecrm
+SUITECRM_WEB_USER: www-data
+SUITECRM_WEB_GROUP: www-data
+
 SUITECRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SUITECRM_LDAP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ldap.yaml'] | path_join }}"
-SUITECRM_LDAP_EXTENSION_DIR: "{{ ['/var/www/html/extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
+SUITECRM_LDAP_EXTENSION_DIR: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
 
-# Simple maintenance toggle (for later extensions)
 SUITECRM_INIT_MAINTENANCE_MODE: "{{ lookup('config', application_id, 'services.suitecrm.maintenance_mode') }}"
 
-# Entrypoint script (host <-> container mapping)
 SUITECRM_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-suitecrm.sh"
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
 SUITECRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 
-# Node
 SUITECRM_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"

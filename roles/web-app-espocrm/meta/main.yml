@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys EspoCRM, a customer relationship management platform for managing sales, customer interactions, and business processes across teams.
+  description: Open-source CRM platform for managing sales, customer interactions, and business processes across teams
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

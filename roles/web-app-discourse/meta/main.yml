@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Discourse is a popular open-source discussion platform designed to foster community engagement with modern, user-friendly features and robust
-    moderation tools.
+  description: Open-source discussion and community forum platform with moderation, notifications, and plugin support
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

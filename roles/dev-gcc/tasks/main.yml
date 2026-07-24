@@ -1,6 +1,6 @@
 ---
 - block:
-    - name: Install GCC compiler and runtime (cross-distro)
+    - name: 📦 Install GCC compiler and runtime (cross-distro)
       ansible.builtin.package:
         name: >-
           {{

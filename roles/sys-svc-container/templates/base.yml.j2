@@ -1,6 +1,6 @@
 {# Base for docker services #}
 
-    restart: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) }}
+    {{ lookup('compose_restart', docker_restart_policy | default(DOCKER_RESTART_POLICY)) }}
 {% if docker_compose_env is defined and docker_compose_env != '' %}
     env_file:
       - "{{ docker_compose_env }}"
@@ -10,7 +10,10 @@
 {% endif %}
     logging:
       driver: journald
-{% filter indent(4) %}
-    {% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
+{% if DEPLOYMENT_MODE == 'compose' %}
+{% filter indent(4, True) %}
+{% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
 {% endfilter %}
+{% endif %}
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {{ "\n" }}

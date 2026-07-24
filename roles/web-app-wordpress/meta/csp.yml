@@ -1,0 +1,23 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-eval: true
+whitelist:
+  worker-src:
+    - "blob:"
+  font-src:
+    - "data:"
+    - https://fonts.bunny.net
+  script-src-elem:
+    - https://cdn.gtranslate.net
+    - https://translate.google.com
+    - "{{ lookup('domain', 'web-app-wordpress') }}"
+  style-src-elem:
+    - https://fonts.bunny.net
+  frame-src:
+    - "blob:"
+    - "*"

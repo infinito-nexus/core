@@ -1,0 +1,4 @@
+---
+canonical:
+  - video.{{ DOMAIN_PRIMARY }}
+aliases: []

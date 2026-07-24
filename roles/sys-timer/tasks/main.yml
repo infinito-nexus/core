@@ -1,13 +1,13 @@
 ---
 # nocheck: run-once
 
-- name: create {{ sys_timer_file }}
-  template:
+- name: 📁 create {{ sys_timer_file }}
+  template: # nocheck: stack-host-template (per-host systemd unit, every managed host gets timers)
     src: dummy.timer.j2
     dest: "{{ [ DIR_SYSTEM_SERVICE, sys_timer_file ] | path_join }}"
   register: dummy_timer
 
-- name: "deploy timer"
+- name: "🚀 deploy timer"
   systemd:
     daemon_reload: true
     name: "{{ sys_timer_file }}"

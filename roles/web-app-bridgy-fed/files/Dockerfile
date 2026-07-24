@@ -7,7 +7,7 @@ ARG BRIDGY_REF
 
 # System deps: git, build tools, curl for healthchecks, and gunicorn
 RUN rm -rf /var/lib/apt/lists/* && \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
     git build-essential curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 

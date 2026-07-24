@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Evangelos Tsakoudis
-  description: Deploys Odoo ERP within the Infinito.Nexus ecosystem. Covers finance, CRM, inventory, HR, sales, website, and marketing workflows with OIDC/LDAP
-    identity integration.
+  description: Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

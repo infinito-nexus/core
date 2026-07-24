@@ -1,0 +1,33 @@
+---
+- name: "⏳ Wait for PDS XRPC to come up at {{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
+  uri_retry:
+    url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
+    method: GET
+    status_code: 200
+    validate_certs: false
+  register: bluesky_pds_health
+  retries: 30
+  delay: 2
+  until: bluesky_pds_health.status == 200
+
+- name: "📁 Create native PDS administrator account (idempotent)"
+  uri_retry:
+    url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body_format: json
+    body:
+      handle: "{{ BLUESKY_ADMIN_HANDLE }}"
+      email: "{{ BLUESKY_ADMIN_EMAIL }}"
+      password: "{{ BLUESKY_ADMIN_PASSWORD }}"
+    status_code: [200, 400]
+    validate_certs: false
+    return_content: true
+  register: bluesky_admin_create
+  changed_when:
+    - bluesky_admin_create.status == 200
+  failed_when:
+    - bluesky_admin_create.status != 200
+    - "'Handle already taken' not in (bluesky_admin_create.content | default(''))"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

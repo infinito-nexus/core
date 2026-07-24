@@ -5,3 +5,28 @@ credentials:
     algorithm: alphanumeric
     validation:
       min_length: 50
+  secret_key:
+    description: Flowise credential-encryption key (FLOWISE_SECRETKEY_OVERWRITE)
+    algorithm: alphanumeric
+    validation:
+      min_length: 64
+  jwt_auth_token_secret:
+    description: Signing secret for Flowise JWT auth tokens (JWT_AUTH_TOKEN_SECRET)
+    algorithm: alphanumeric
+    validation:
+      min_length: 64
+  jwt_refresh_token_secret:
+    description: Signing secret for Flowise JWT refresh tokens (JWT_REFRESH_TOKEN_SECRET)
+    algorithm: alphanumeric
+    validation:
+      min_length: 64
+  express_session_secret:
+    description: Express session-cookie signing secret (EXPRESS_SESSION_SECRET)
+    algorithm: alphanumeric
+    validation:
+      min_length: 64
+  token_hash_secret:
+    description: API-key token hashing secret (TOKEN_HASH_SECRET)
+    algorithm: alphanumeric
+    validation:
+      min_length: 64

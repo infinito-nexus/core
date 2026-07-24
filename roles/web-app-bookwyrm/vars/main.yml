@@ -1,42 +1,42 @@
 ---
-# General
 application_id: "web-app-bookwyrm"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Container
-container_port: 8000
+container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('domain',application_id) }}"
-
-# BookWyrm 
 
 BOOKWYRM_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.bookwyrm.registration_open') | string | lower }}"
 BOOKWYRM_ALLOW_INVITE_REQUESTS: "{{ lookup('config', application_id, 'services.bookwyrm.allow_invite_request') | string | lower }}"
 
-## Credentrials
 BOOKWYRM_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
 
-## URLs
 BOOKWYRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BOOKWYRM_HOSTNAME: "{{ container_hostname }}"
 
-## SSO
+BOOKWYRM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+BOOKWYRM_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
+BOOKWYRM_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+BOOKWYRM_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+BOOKWYRM_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
+BOOKWYRM_OIDC_AUTH_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+BOOKWYRM_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
+BOOKWYRM_OIDC_USERINFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+BOOKWYRM_OIDC_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+BOOKWYRM_OIDC_JWKS_URL: "{{ OIDC.CLIENT.CERTS }}"
+BOOKWYRM_OIDC_SCOPES: "openid,email,profile"
+BOOKWYRM_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 BOOKWYRM_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 
-## Docker
 BOOKWYRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
-BOOKWYRM_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-BOOKWYRM_MEDIA_VOLUME: "{{ lookup('config', application_id, 'volumes.media') }}"
 BOOKWYRM_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
 BOOKWYRM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
 BOOKWYRM_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.repository') }}"
 BOOKWYRM_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.ref') }}"
-BOOKWYRM_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ BOOKWYRM_REF }}"
-BOOKWYRM_WORKER_CONTAINER: "{{ BOOKWYRM_CONTAINER }}-worker"
+BOOKWYRM_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
 
-## Redis
-BOOKWYRM_REDIS_HOST: "redis"
-BOOKWYRM_REDIS_PORT: 6379
-BOOKWYRM_REDIS_BASE_URL: "redis://{{ BOOKWYRM_REDIS_HOST }}:{{ BOOKWYRM_REDIS_PORT }}"
+BOOKWYRM_REDIS_HOST: "{{ lookup('engine', 'redis', application_id, 'host') }}"
+BOOKWYRM_REDIS_PORT: "{{ lookup('engine', 'redis', application_id, 'port') }}"
+BOOKWYRM_REDIS_BASE_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 BOOKWYRM_REDIS_BROKER_URL: "{{ BOOKWYRM_REDIS_BASE_URL }}/0"
 BOOKWYRM_REDIS_CACHE_URL: "{{ BOOKWYRM_REDIS_BASE_URL }}/1"
 BOOKWYRM_REDIS_BROKER_DB: 0
@@ -44,13 +44,11 @@ BOOKWYRM_REDIS_ACTIVITY_DB: 1
 BOOKWYRM_BROKER_URL: "{{ BOOKWYRM_REDIS_BROKER_URL }}"
 BOOKWYRM_REDIS_ACTIVITY_URL: "{{ BOOKWYRM_REDIS_CACHE_URL }}"
 
-# Email
 BOOKWYRM_EMAIL: "{{ lookup('email', application_id) }}"
 EMAIL_HOST: "{{ BOOKWYRM_EMAIL.host }}"
 EMAIL_PORT: "{{ BOOKWYRM_EMAIL.port }}"
 EMAIL_HOST_USER: "{{ BOOKWYRM_EMAIL.username }}"
 EMAIL_HOST_PASSWORD: "{{ BOOKWYRM_EMAIL.password }}"
-# TLS/SSL: If TLS is true then TLS, else SSL
 EMAIL_USE_TLS: "{{ BOOKWYRM_EMAIL.tls | bool | string | lower }}"
 EMAIL_USE_SSL: "{{ (not (BOOKWYRM_EMAIL.tls | bool)) | string | lower }}"
 EMAIL_DEFAULT_FROM: "BookWyrm <{{ BOOKWYRM_EMAIL['from'] }}>"

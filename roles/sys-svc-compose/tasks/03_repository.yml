@@ -1,9 +1,9 @@
 ---
-- name: Set default compose_repository_path
+- name: 🔧 Set default compose_repository_path
   set_fact:
     compose_repository_path: "{{ [ lookup('container', application_id, 'directories.services'), 'repository/' ] | path_join }}"
 
-- name: Pull docker repository
+- name: ⬇️ Pull docker repository
   git:
     repo: "{{ compose_repository_url }}"
     dest: "{{ compose_repository_path }}"
@@ -11,7 +11,7 @@
     single_branch: true
     depth: 1
     update: true
-    recursive: true
+    recursive: "{{ compose_repository_recursive | default(true) }}"
     force: true
     accept_hostkey: true
   register: docker_repo_pull

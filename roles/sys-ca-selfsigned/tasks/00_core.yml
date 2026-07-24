@@ -1,0 +1,137 @@
+---
+- name: "✅ CA | ensure base directory exists"
+  become: true
+  ansible.builtin.file:
+    path: "{{ CA_ROOT.base_dir }}"
+    state: directory
+    mode: "0750"
+    owner: root
+    group: root
+
+- name: "✅ CA | ensure openssl is installed"
+  include_role:
+    name: sys-openssl
+  when: run_once_sys_openssl is not defined
+
+- name: "🔎 CA | check openssl availability"
+  ansible.builtin.command: "openssl version"
+  register: _openssl_version
+  changed_when: false
+
+- name: "🏛️ CA | mint the shared Root CA once on the stack host (workers fetch it below)"
+  ansible.builtin.include_tasks:
+    file: 01_mint.yml
+    apply:
+      become: true
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
+- name: "⬇️ CA | (swarm worker) fetch + install shared Root CA cert from stack host"
+  become: true
+  when: not (IS_STACK_HOST | bool)
+  block:
+    - name: "🐝 CA | (swarm worker) read the shared Root CA cert from the stack host"
+      ansible.builtin.slurp:
+        src: "{{ CA_ROOT.cert_host }}"
+      register: _ca_cert_from_stack_host
+      delegate_to: "{{ STACK_HOST }}"
+
+    - name: "📄 CA | (swarm worker) write shared Root CA cert locally (cert only, no key)"
+      ansible.builtin.copy:
+        dest: "{{ CA_ROOT.cert_host }}"
+        content: "{{ _ca_cert_from_stack_host.content | b64decode }}"
+        owner: root
+        group: root
+        mode: "0644"
+
+- name: "🔐 CA | enforce permissions (certificate)"
+  become: true
+  ansible.builtin.file:
+    path: "{{ CA_ROOT.cert_host }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: "✅ CA | sanity check: verify certificate is CA:TRUE"
+  become: true
+  ansible.builtin.command: "openssl x509 -in {{ CA_ROOT.cert_host }} -noout -text"
+  register: _ca_cert_text
+  changed_when: false
+
+- name: "✅ CA | assert certificate contains CA:TRUE"
+  ansible.builtin.assert:
+    that:
+      - (_ca_cert_text.stdout | default('')) is search('CA:TRUE')
+    fail_msg: >-
+      Generated certificate does not appear to be a CA certificate (CA:TRUE missing).
+      Please inspect {{ CA_ROOT.cert_host }}.
+
+- name: "🔎 CA | stat host CA-trust bind-mount sources"
+  become: true
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ BIN_CA_TRUST }}"
+    - "{{ CA_TRUST.php_ini_host }}"
+  register: _ca_trust_bind_sources
+
+- name: "🧹 CA | remove stray directory shadowing a CA-trust bind source"
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.item }}"
+    state: absent
+  loop: "{{ _ca_trust_bind_sources.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when:
+    - item.stat.exists
+    - item.stat.isdir
+
+- name: "📦 CA | install trust helper script (SPOT) on host"
+  become: true
+  ansible.builtin.copy:
+    src: "with-ca-trust.sh"
+    dest: "{{ BIN_CA_TRUST }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "📦 CA | install PHP CA-trust ini (SPOT) on host"
+  become: true
+  ansible.builtin.template: # nocheck: stack-host-template (host tool install, same gate as the adjacent wrapper copy)
+    src: "ca-trust-php.ini.j2"
+    dest: "{{ CA_TRUST.php_ini_host }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: "📦 CA | Install Root CA into host trust store"
+  become: true
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/env
+      - sh
+      - "{{ BIN_CA_TRUST }}"
+  environment:
+    CA_TRUST_CERT: "{{ CA_ROOT.cert_host }}"
+    CA_TRUST_NAME: "{{ DOMAIN_PRIMARY | lower }}"
+  changed_when: true
+
+- name: "✅ TLS | (self_signed) ensure CA trust env vars in {{ FILE_ENVIRONMENT }}"
+  become: true
+  ansible.builtin.lineinfile:
+    path: "{{ FILE_ENVIRONMENT }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    create: true
+    mode: "0644"
+  loop:
+    - regexp: "^CA_TRUST_CERT_HOST="
+      line: "CA_TRUST_CERT_HOST={{ CA_TRUST.cert_host }}"
+    - regexp: "^CA_TRUST_WRAPPER_HOST="
+      line: "CA_TRUST_WRAPPER_HOST={{ CA_TRUST.wrapper_host }}"
+    - regexp: "^CA_TRUST_NAME="
+      line: "CA_TRUST_NAME={{ CA_TRUST.trust_name }}"
+
+- include_tasks: utils/once/flag.yml

@@ -33,9 +33,7 @@ from utils.annotations.message import warning
 from utils.update.docker import (
     collect_entries,
     find_outdated_updates,
-    is_dockerhub,
-    is_ghcr,
-    is_mcr,
+    is_supported_registry,
 )
 
 from . import PROJECT_ROOT
@@ -75,19 +73,9 @@ class TestDockerImageVersions(unittest.TestCase):
         entries = collect_entries(_REPO_ROOT)
         self.assertTrue(entries, "No semver-versioned config entries found")
 
-        # find_outdated_updates fans the registry queries out via a
-        # ThreadPoolExecutor sized to INFINITO_WORKER_FETCH and returns
-        # only entries whose live tag is newer than the pinned semver.
         updates = find_outdated_updates(_REPO_ROOT)
 
-        # "Unchecked" entries are those whose registry is not yet
-        # supported by the update walker (currently: dockerhub / ghcr /
-        # mcr). The check is purely structural — no live fetch needed.
-        unchecked = [
-            e
-            for e in entries
-            if not (is_dockerhub(e.image) or is_ghcr(e.image) or is_mcr(e.image))
-        ]
+        unchecked = [e for e in entries if not is_supported_registry(e.image)]
 
         if updates:
             col_w = (35, 20, 40, 15)
@@ -136,7 +124,6 @@ class TestDockerImageVersions(unittest.TestCase):
                     e.image,
                 )
 
-        # Always pass - outdated images are warnings, not hard failures
         self.assertIsNotNone(entries)
 
 

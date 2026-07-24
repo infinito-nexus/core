@@ -1,12 +1,12 @@
 ---
 # Necessary to have this separate file to pass performance tests
-- name: Install certbundle
+- name: 📦 Install certbundle
   include_role:
     name: pkgmgr-install
   vars:
     package_name: certbundle
 
-- name: Generate SAN certificate with certbundle
+- name: ⚙️ Generate SAN certificate with certbundle
   command: >-
     certbundle
     --domains "{{ CURRENT_PLAY_DOMAINS_ALL | join(',') }}"
@@ -32,27 +32,27 @@
     and 'too many certificates' not in (certbundle_result.stderr | lower | default(''))
     and 'the service is down for maintenance or had an internal error' not in (certbundle_result.stderr | lower | default(''))
 
-- name: Warn if LetsEncrypt was down
+- name: ⚠️ Warn if LetsEncrypt was down
   when: "'the service is down for maintenance or had an internal error' in (certbundle_result.stderr | lower | default(''))"
   debug:
     msg: >
       WARNING: Let's Encrypt responded with "service down for maintenance / internal error".
       Certificate request skipped; please retry later.
 
-- name: Warn if LE rate limit (exact set) was hit
+- name: ⚠️ Warn if LE rate limit (exact set) was hit
   when: "'already issued for this exact set of identifiers in the last' in (certbundle_result.stderr | lower | default(''))"
   debug:
     msg: >
       WARNING: Let's Encrypt rate limit for this exact identifier set was hit.
       No changes recorded; retry after the indicated time.
 
-- name: Warn if LE rate limit (generic) was hit
+- name: ⚠️ Warn if LE rate limit (generic) was hit
   when: "'too many certificates' in (certbundle_result.stderr | lower | default(''))"
   debug:
     msg: >
       WARNING: Let's Encrypt rate limit reached ("too many certificates").
       No changes recorded; adjust batching or retry later.
 
-- name: run the san tasks once
+- name: ▶️ run the san tasks once
   set_fact:
     run_once_san_certs: true

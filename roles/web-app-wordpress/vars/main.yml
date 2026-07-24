@@ -1,35 +1,32 @@
 ---
-# General
 application_id: "web-app-wordpress"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# WordPress
 WORDPRESS_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 WORDPRESS_TITLE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.title') }}"
 WORDPRESS_MAX_UPLOAD_SIZE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.max_upload_size') }}"
-WORDPRESS_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ WORDPRESS_VERSION }}"
 WORDPRESS_DOCKER_HTML_PATH: "/var/www/html"
 WORDPRESS_DOCKER_CONF_PATH: "{{ WORDPRESS_CONFIG_PATH }}"
 WORDPRESS_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 WORDPRESS_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 WORDPRESS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-WORDPRESS_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-WORDPRESS_DOMAINS: "{{ lookup('config', application_id, 'server.domains.canonical') }}"
-# Excludes the mu_plugin, which 05_mu_plugins.yml installs separately.
+WORDPRESS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+WORDPRESS_DISCOURSE_CONTAINER_ADDRESS: "{{ lookup('config', 'web-app-discourse', 'services.discourse.name') }}"
+WORDPRESS_DOMAINS: "{{ lookup('config', application_id, 'domains.canonical') }}"
 WORDPRESS_PLUGINS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'plugin') | list }}"
 WORDPRESS_USER: "www-data"
 
-# Email
-WORDPRESS_MSMTP_SRC: "{{ [ playbook_dir, 'roles/sys-svc-mail-msmtp/templates/msmtprc.conf.j2' ] | path_join }}"
+WORDPRESS_MSMTP_SRC: "{{ lookup('path_absolute', 'roles/sys-svc-mail-msmtp/templates/msmtprc.conf.j2') }}"
 WORDPRESS_MSMTP_ABS: "{{ [ lookup('container', application_id, 'directories.config'), 'msmtprc.conf'] | path_join }}"
 
-# Config
 WORDPRESS_CONFIG_FILE: "wp-config.php"
 WORDPRESS_CONFIG_PATH: "{{ [WORDPRESS_DOCKER_HTML_PATH, WORDPRESS_CONFIG_FILE] | path_join }}"
 WORDPRESS_CONFIG_UPLD_REL: "config/upload.ini"
 WORDPRESS_CONFIG_UPLD_ABS: "{{ [lookup('container', application_id, 'directories.instance'), WORDPRESS_CONFIG_UPLD_REL ] | path_join }}"
 
-# User 
+WORDPRESS_CA_TRUST_MU_PLUGIN_FILE: "infinito-http-ca-trust.php"
+WORDPRESS_CA_TRUST_MU_PLUGIN_PATH: "{{ [WORDPRESS_DOCKER_HTML_PATH, 'wp-content/mu-plugins', WORDPRESS_CA_TRUST_MU_PLUGIN_FILE] | path_join }}"
+
 WORDPRESS_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.administrator.email') }}"
 WORDPRESS_ADMIN_USER: "{{ lookup('config', application_id, 'users.administrator.username') }}"
 WORDPRESS_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"

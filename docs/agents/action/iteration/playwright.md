@@ -2,11 +2,17 @@
 
 This page defines the inner loop for iterating on a role-local `files/playwright/playwright.spec.js` against an already-running app stack, without redeploying between edits.
 
+## When to use
+
+- Use this loop when writing, debugging, or fixing a role's `files/playwright/playwright.spec.js` against an already-running stack, without redeploying between edits.
+- For the role deploy that establishes the running stack use the [Compose Loop](compose.md) or [Swarm Loop](swarm.md).
+
 ## Definitions
 
-- **Inner loop**: the edit-rerun cycle on `roles/<role>/files/playwright/playwright.spec.js` driven by `make compose-playwright role=<role>`, without a redeploy.
+- **Inner loop**: the edit-rerun cycle on `roles/<role>/files/playwright/playwright.spec.js` driven by `make compose-playwright role=<role>`, without a redeploy. On the act-swarm test cluster the equivalent is `make swarm-playwright role=<role>`, which first copies the working-tree's modified files into the node's frozen bootstrap copy (swarm nodes are not bind-mounted like compose).
+  - If any `make swarm-*` target aborts at **Set up job** with `mkdirat var/run...` on a recent Docker engine, point act at a fixed runner image per [Workflow Loop](workflow.md#act-fails-at-set-up-job-on-recent-docker).
 - **Staging dir**: `TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR/<role>` (default `/tmp/test-e2e-playwright/<role>`). Contains the rendered `.env` and the Playwright project from the last deploy.
-- **Baseline deploy**: a successful `make compose-deploy mode=reinstall apps=<role> full_cycle=true` run as defined in [Role Loop](role.md).
+- **Baseline deploy**: a successful `make compose-deploy mode=reinstall apps=<role> full_cycle=true` run as defined in [Compose Loop](compose.md).
 - **Pass**: `make compose-playwright role=<role>` exits `0` AND every MUST in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) holds for the resulting run.
 
 ## Preconditions
@@ -18,7 +24,7 @@ You MUST NOT enter the inner loop unless all of the following hold:
 3. The staging dir exists and contains a non-empty `.env`.
 4. `roles/<role>/files/playwright/playwright.spec.js` exists.
 
-If any precondition fails, you MUST return to [Role Loop](role.md) and re-establish the baseline before continuing.
+If any precondition fails, you MUST return to [Compose Loop](compose.md) and re-establish the baseline before continuing.
 
 ## Required reading
 
@@ -28,11 +34,11 @@ You MUST load the following pages before editing any file, in this order:
 2. [Agent `playwright.spec.js` procedure](../../files/role/playwright.spec.js.md): how to generate or update the spec.
 3. [Agent `playwright.env.j2` procedure](../../files/role/playwright.env.j2.md): rendered test input contract; required whenever the spec reads a new variable.
 4. [Playwright Tests](../../../contributing/actions/testing/playwright.md): framework SPOT for runner, image pin, and recording tools.
-5. [Role Loop](role.md): baseline deploy, Certificate Authority trust, Inspect-before-redeploy.
+5. [Compose Loop](compose.md): baseline deploy, Certificate Authority trust, Inspect-before-redeploy.
 
 ## Procedure
 
-1. Verify every item in [Preconditions](#preconditions). If any fails, exit this page and follow [Role Loop](role.md).
+1. Verify every item in [Preconditions](#preconditions). If any fails, exit this page and follow [Compose Loop](compose.md).
 2. Edit `roles/<role>/files/playwright/playwright.spec.js`. You MUST NOT hand-edit the staged copy under `TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR/<role>/tests/`; the rerunner overwrites it from the repo on each run.
 3. Run `make compose-playwright role=<role> keep=true`. You MAY pass `pw="--grep <pattern>"` (or any other `npx playwright test` argument). Set `keep=true` on every inner-loop run regardless of the previous result; omit only when the user has explicitly opted out. For the full propagation chain see [Playwright Tests](../../../contributing/actions/testing/playwright.md#artefact-retention-).
 4. Inspect the run output before deciding pass / fail; a green Playwright exit only proves no `expect(...)` threw, not that the contract is satisfied:
@@ -52,7 +58,7 @@ To validate a hypothesis without redeploying — e.g. rerun the Playwright image
 
 You MUST NOT report the task complete until all of the following hold:
 
-1. `make compose-playwright role=<role>` has exited `0` on the current spec.
+1. `make compose-playwright role=<role>` (or `make swarm-playwright role=<role>` against the swarm cluster) exited `0` on its last invocation, run WITHOUT any `pw="--grep …"` narrowing, so the entire spec (every test and every persona) ran and ALL passed. Redeploying while only a grepped subset is green and other tests are red or unrun is FORBIDDEN: the full suite MUST be green in the container first.
 2. Every MUST in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) holds, including the live-application assertion and the logged-out final state.
 3. A final `make compose-deploy mode=reinstall apps=<role> full_cycle=true` run has completed with the spec passing against the freshly provisioned stack. Inner-loop passes alone do NOT satisfy this gate.
 
@@ -62,5 +68,5 @@ When the failure requires a change outside `files/playwright/playwright.spec.js`
 
 1. You MUST stop the inner loop. Inner-loop runs do NOT pick up role changes.
 2. You SHOULD run `make compose-deploy mode=update apps=<role>` for the redeploy.
-3. You MUST NOT fall back to `make compose-deploy mode=reinstall apps=<role> full_cycle=true` unless the reuse path has concrete evidence of a broken inventory or host stack, per [Role Loop](role.md).
+3. You MUST NOT fall back to `make compose-deploy mode=reinstall apps=<role> full_cycle=true` unless the reuse path has concrete evidence of a broken inventory or host stack, per [Compose Loop](compose.md).
 4. After the redeploy succeeds, return to [Procedure](#procedure) step 1.

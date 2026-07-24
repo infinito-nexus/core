@@ -9,15 +9,15 @@ cards:
 {% include 'menu/support.yml.j2' %}
 
 platform:
-  titel:    {{ service_provider.platform.titel }}
-  subtitel: {{ service_provider.platform.subtitel }}
+  titel:    {{ service_provider.platform.titel | to_json }}
+  subtitel: {{ service_provider.platform.subtitel | to_json }}
   logo:
     source: {{ DASHBOARD_PLATFORM_LOGO_URL }}
   favicon:
     source: {{ DASHBOARD_PLATFORM_FAVICON_URL }}
 company:
-  titel: {{ service_provider.company.titel }}
-  subtitel: {{ service_provider.company.slogan }}
+  titel: {{ service_provider.company.titel | to_json }}
+  subtitel: {{ service_provider.company.slogan | to_json }}
   logo:
     source: {{ DASHBOARD_COMPANY_LOGO_URL }}
   address:

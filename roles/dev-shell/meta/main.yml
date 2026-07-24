@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Ensures that .profile is sourced in all shells.
+  description: Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

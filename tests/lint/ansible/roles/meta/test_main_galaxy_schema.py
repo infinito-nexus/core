@@ -59,7 +59,6 @@ if TYPE_CHECKING:
 ROLES_DIR = PROJECT_ROOT / "roles"
 
 
-# Ansible Galaxy spec — top-level keys allowed in meta/main.yml.
 _ALLOWED_TOPLEVEL: frozenset[str] = frozenset(
     {
         "galaxy_info",
@@ -70,7 +69,6 @@ _ALLOWED_TOPLEVEL: frozenset[str] = frozenset(
     }
 )
 
-# Ansible Galaxy spec — sub-keys allowed under galaxy_info.
 _ALLOWED_GALAXY_INFO: frozenset[str] = frozenset(
     {
         "role_name",
@@ -89,10 +87,6 @@ _ALLOWED_GALAXY_INFO: frozenset[str] = frozenset(
     }
 )
 
-# Hard-required galaxy_info fields. Missing any of these fails the lint.
-# `min_ansible_version` and `platforms` are required by Ansible Galaxy when
-# publishing — Infinito.Nexus does not publish, but enforcing them here keeps
-# every role consistent and prevents new roles landing without the fields.
 _REQUIRED_GALAXY_INFO: frozenset[str] = frozenset(
     {
         "author",
@@ -103,12 +97,8 @@ _REQUIRED_GALAXY_INFO: frozenset[str] = frozenset(
     }
 )
 
-# Project canonical exact-value for `galaxy_info.company`. Block-scalar with
-# a trailing newline (`|` style → 'clip' chomping).
 _CANONICAL_COMPANY: str = "Kevin Veen-Birkenbach\nhttps://www.veen.world\n"
 
-# Project canonical exact-value for `galaxy_info.platforms`. `EL` is the
-# Galaxy umbrella name covering RHEL/CentOS/Rocky/Alma.
 _CANONICAL_PLATFORMS: list[dict[str, Any]] = [
     {"name": "ArchLinux", "versions": ["all"]},
     {"name": "Debian", "versions": ["all"]},
@@ -259,8 +249,10 @@ class TestRoleMetaMainGalaxySchema(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} role meta/main.yml file(s) violate the Ansible "
-            f"Galaxy schema:",
+            (
+                f"{len(offenders)} role meta/main.yml file(s) violate the Ansible "
+                f"Galaxy schema:"
+            ),
         ]
         for path, problems in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

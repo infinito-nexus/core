@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: BookWyrm is a self-hosted federated social reading platform where users share reviews, track reading, and connect with others across the
-    Fediverse.
+  author: Kevin Veen-Birkenbach
+  description: Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

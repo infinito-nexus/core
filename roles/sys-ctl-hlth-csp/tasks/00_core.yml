@@ -1,0 +1,67 @@
+---
+- name: "🧩 Load docker service required for the 'run' command"
+  include_role:
+    name: sys-svc-container
+    public: false
+  when: run_once_sys_svc_container is not defined
+
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
+  include_role:
+    name: sys-ctl-alm-compose
+  when: run_once_sys_ctl_alm_compose is not defined
+
+- name: ✅ Ensure Root CA exists
+  ansible.builtin.include_role:
+    name: sys-ca-selfsigned
+  when:
+    - (TLS_MODE | lower) == 'self_signed'
+    - run_once_sys_ca_selfsigned is not defined
+
+- name: ⬇️ Pull CSP checker image (with retries)
+  ansible.builtin.command:
+    argv:
+      - container
+      - pull
+      - "{{ HEALTH_CSP_IMAGE }}"
+  register: pull_result
+  changed_when: false
+  retries: 6
+  delay: 20
+  until: pull_result.rc == 0
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_force_flush_final: true
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_CSP_CRAWLER }}"
+    system_service_timer_enabled: true
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_tpl_timeout_start_sec: "{{ CURRENT_PLAY_DOMAINS_ALL | timeout_start_sec_for_domains }}"
+    system_service_tpl_environment: "{{ CA_TRUST_SYSTEMD_ENV_SELFSIGNED }}"
+    system_service_tpl_exec_start: >-
+      {{
+        [
+          system_service_script_exec,
+          '--nginx-config-dir=' ~ (
+            [
+              lookup('nginx','directories.configuration.servers'),
+              lookup('tls', DOMAIN_PRIMARY, 'protocols.web')
+            ] | path_join
+          ),
+          '--image=' ~ HEALTH_CSP_IMAGE,
+          '--short',
+          (HEALTH_CSP_ALWAYS_PULL | bool) | ternary('--always-pull', ''),
+          (HEALTH_CSP_IGNORE_NETWORK_BLOCKS_FROM | length > 0) | ternary(
+            '--ignore-network-blocks-from ' ~ (HEALTH_CSP_IGNORE_NETWORK_BLOCKS_FROM | join(' ')),
+            ''
+          ),
+          (HEALTH_CSP_SKIP_DOMAINS | length > 0) | ternary(
+            '--skip-domain ' ~ (HEALTH_CSP_SKIP_DOMAINS | join(' ')),
+            ''
+          )
+        ]
+        | reject('equalto','')
+        | join(' ')
+      }}
+
+- include_tasks: utils/once/flag.yml

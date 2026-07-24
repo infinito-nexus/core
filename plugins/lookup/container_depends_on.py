@@ -1,16 +1,17 @@
 from __future__ import annotations
 
+import contextlib
 import textwrap
 from collections.abc import Mapping
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from plugins.filter.docker_service_enabled import (
+from plugins.filter.docker.service_enabled import (
     FilterModule as _DockerServiceEnabledFilter,
 )
-from utils.cache.applications import get_merged_applications
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.applications.services.database import (
     get_database_service_config,
@@ -55,12 +56,11 @@ class LookupModule(LookupBase):
             )
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
+        templar = getattr(self, "_templar", None)
 
-        applications = get_merged_applications(
-            variables=vars_,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=templar
+        ).run([], variables=vars_)[0]
 
         if application_id not in applications:
             raise AnsibleError(
@@ -73,10 +73,12 @@ class LookupModule(LookupBase):
         if db_host:
             entries[db_host] = {"condition": "service_healthy"}
 
+        redis_cfg = applications[application_id].get("services", {}).get("redis", {})
+        redis_local = _DockerServiceEnabledFilter.is_docker_service_enabled(
+            applications, application_id, "redis"
+        ) and not bool(redis_cfg.get("shared", False))
         redis_enabled = (
-            _DockerServiceEnabledFilter.is_docker_service_enabled(
-                applications, application_id, "redis"
-            )
+            redis_local
             or get_sso_config(applications, application_id)["is_proxy_gated"]
         )
         if redis_enabled:
@@ -93,8 +95,16 @@ class LookupModule(LookupBase):
         if not entries:
             return [""]
 
-        indent = int(kwargs.get("indent", 4))
-        body = dump_yaml_str({"depends_on": entries}).rstrip()
+        indent = int(kwargs.get("indent", 0))
+        raw_mode = vars_.get("DEPLOYMENT_MODE", "compose")
+        if templar is not None:
+            with contextlib.suppress(Exception):
+                raw_mode = templar.template(raw_mode)
+        if str(raw_mode).strip() == "swarm":
+            payload: dict[str, object] = {"depends_on": list(entries.keys())}
+        else:
+            payload = {"depends_on": entries}
+        body = dump_yaml_str(payload).rstrip()
         if indent <= 0:
             return [body]
         return [textwrap.indent(body, " " * indent)]

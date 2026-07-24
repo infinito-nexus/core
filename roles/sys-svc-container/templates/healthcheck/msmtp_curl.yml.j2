@@ -10,19 +10,19 @@
   operator opted out of the email provider, or the SMTP host is missing
   for any other reason), the msmtp branch is suppressed entirely so the
   container does not flap into `unhealthy` because of an unrelated SMTP
-  outage. The HTTP probe stays the canonical liveness signal.
-#}
+  outage. The HTTP probe stays the canonical liveness signal. #}
     healthcheck:
       test:
         - CMD-SHELL
         - >
-          {% if (lookup('config', application_id, 'services.email.enabled', false) | bool) -%}
+          {%+ if (lookup('config', application_id, 'services.email.enabled', false) | bool) -%}
           if [ ! -f /tmp/email_sent ]; then
             echo 'Subject: testmessage from {{ lookup("domain",application_id) }}\n\nSUCCESSFULL' | msmtp -t {{ lookup('users', 'blackhole').email }} && touch /tmp/email_sent;
           fi &&
-          {% endif -%}
+          {%+ endif -%}
           curl -f http://localhost:80/ || exit 1
-      interval: 1m
+      interval: 30s
       timeout: 20s
-      retries: 3
+      retries: 5
+      start_period: 120s
 {{ "\n" }}

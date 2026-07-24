@@ -1,15 +1,14 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  application:
-    container_name: "{{ LAM_CONTAINER }}"
-    image: "{{ LAM_IMAGE }}"
-    ports:
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.lam.ports.local.http') }}:80 
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+  {% set service_name = 'lam' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', LAM_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'lam') }}
+    {{ lookup('container_ports', ['lam', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

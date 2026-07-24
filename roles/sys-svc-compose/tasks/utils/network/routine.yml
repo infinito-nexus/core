@@ -1,16 +1,16 @@
 ---
-- name: "1) Load the dependencies for the Anisble/Docker network management"
+- name: "🧩 1) Load the dependencies for the Anisble/Docker network management"
   include_role:
     name: sys-svc-container
     public: false
   when: run_once_sys_svc_container is not defined
 
-- name: "2) Create the network"
-  include_tasks: "{{ [playbook_dir, 'roles/sys-svc-compose/tasks/utils/network/create.yml' ] | path_join }}"
+- name: "📁 2) Create the network"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
   vars:
     network_role_id: "{{ application_id }}"
 
-- name: "3) Include and flush the compose which requires the network"
+- name: "📂 3) Include and flush the compose which requires the network"
   include_role:
     name: sys-svc-compose
   vars:

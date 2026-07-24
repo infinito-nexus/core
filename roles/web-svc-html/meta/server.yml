@@ -1,8 +1,4 @@
 ---
-domains:
-  canonical:
-    - html.{{ DOMAIN_PRIMARY }}
-  aliases: []
 status_codes:
   default:
     - 403

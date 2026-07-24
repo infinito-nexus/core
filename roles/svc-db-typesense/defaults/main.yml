@@ -1,0 +1,3 @@
+---
+database_init: false # When true a per-consumer API key is provisioned
+database_consumer_id: "svc-db-typesense" # Self consumer

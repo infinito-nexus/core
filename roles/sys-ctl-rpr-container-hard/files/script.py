@@ -3,10 +3,16 @@ import argparse
 import os
 import subprocess
 import sys
+import syslog
 
 
 def run(cmd: list[str], cwd: str) -> None:
     subprocess.run(cmd, cwd=cwd, check=True)
+
+
+def log_kill(action: str, target: str) -> None:
+    syslog.openlog(ident="infinito-kill")
+    syslog.syslog(syslog.LOG_WARNING, f"sys-ctl-rpr-container-hard: {action} {target}")
 
 
 def hard_restart_docker_services(dir_path: str) -> None:
@@ -21,6 +27,7 @@ def hard_restart_docker_services(dir_path: str) -> None:
         print(f"Performing hard restart for compose project '{project}' in: {abs_dir}")
 
         # down + up -d (wrapper resolves env + overrides automatically)
+        log_kill("compose down + up -d", project)
         run(
             ["compose", "--chdir", abs_dir, "--project", project, "down"],
             cwd=abs_dir,

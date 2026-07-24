@@ -1,0 +1,17 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  style-src-elem:
+    unsafe-inline: true
+  script-src:
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-inline: true
+whitelist:
+  script-src-elem:
+    - https://www.googletagmanager.com # nocheck: url — script CDN, bare domain returns 404 by design
+  script-src:
+    - https://www.googletagmanager.com # nocheck: url

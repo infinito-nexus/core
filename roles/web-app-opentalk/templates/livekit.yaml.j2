@@ -7,5 +7,10 @@ rtc:
   port_range_end: {{ OPENTALK_LIVEKIT_RTC_END }}
   use_external_ip: true
 
+turn:
+  enabled: true
+  udp_port: {{ OPENTALK_LIVEKIT_TURN_UDP_PORT }}
+  domain: {{ OPENTALK_DOMAIN }}
+
 keys:
   {{ OPENTALK_LIVEKIT_API_KEY }}: "{{ OPENTALK_LIVEKIT_API_SECRET }}"

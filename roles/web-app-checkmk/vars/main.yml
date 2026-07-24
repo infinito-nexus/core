@@ -1,24 +1,15 @@
 ---
-# General
 application_id: "web-app-checkmk"
 container_port: "{{ lookup('config', application_id, 'services.checkmk.ports.internal.http') }}"
 
-# Checkmk image / site
-CHECKMK_VERSION: "{{ lookup('config', application_id, 'services.checkmk.version') }}"
-CHECKMK_IMAGE: "{{ lookup('config', application_id, 'services.checkmk.image') }}"
 CHECKMK_NAME: "{{ lookup('config', application_id, 'services.checkmk.name') }}"
-CHECKMK_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 CHECKMK_SITE: "cmk"
-CHECKMK_AGENT_PORT: "{{ lookup('config', application_id, 'services.checkmk.ports.internal.agent') }}"
 
-# Initial site admin (cmkadmin) — seeded on first run via CMK_PASSWORD
 CHECKMK_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.cmk_password') }}"
 
-# Auth toggles
 CHECKMK_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 CHECKMK_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-# LDAP connection (central OpenLDAP) — consumed by files/configure-sso.sh
 CHECKMK_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
 CHECKMK_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
 CHECKMK_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"

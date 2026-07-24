@@ -1,0 +1,18 @@
+---
+- name: "🔍 Stat compose instance dir for '{{ application_id }}'"
+  ansible.builtin.stat:
+    path: "{{ lookup('container', application_id, 'directories.instance') }}"
+  register: sys_svc_compose_instance_dir
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🛑 Fail: instance dir missing at handler flush for '{{ application_id }}'"
+  ansible.builtin.fail:
+    msg: >-
+      Compose handlers flushed for '{{ application_id }}' but
+      '{{ lookup('container', application_id, 'directories.instance') }}' does not exist.
+      A handler notification drifted into a foreign application context: some role switched
+      application_id (e.g. rendered another app's frontend) between the notify and this flush.
+      Fix the notifying role: flush handlers while the notifying app is still bound, before
+      entering the foreign context.
+  when: not (sys_svc_compose_instance_dir.stat.exists | default(false))

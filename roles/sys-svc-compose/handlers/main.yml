@@ -1,89 +1,4 @@
 ---
-- name: Generate CA trust override
-  ansible.builtin.shell: |
-    set -euo pipefail
-    {{ lookup('compose_ca_inject_cmd', application_id) }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  register: compose_ca_override
-  timeout: 1200
-  retries: 7
-  delay: 20
-  until: compose_ca_override is succeeded
-  listen:
-    - compose up
-  when:
-    - lookup('domains') | has_domain(application_id)
-    - lookup('tls', application_id, 'enabled') | bool
-    - lookup('tls', application_id, 'mode') == 'self_signed'
-
-- name: Validate Docker Compose configuration
-  ansible.builtin.shell: |
-    set -euo pipefail
-    compose config --quiet
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  register: dc_validate
-  changed_when: false
-  failed_when: dc_validate.rc != 0
-  listen:
-    - compose up
-  when: MODE_ASSERT | bool
-
-- name: compose pull
-  ansible.builtin.script:
-    cmd: >-
-      pull.py
-      --chdir {{ lookup('container', application_id, 'directories.instance') }}
-      --project {{ application_id | get_entity_name }}
-      --compose-files {{ lookup('compose_file_args', application_id, include_ca=False) | quote }}
-      {% if lookup('container', application_id, 'files.env') is file %}
-      --env-file {{ lookup('container', application_id, 'files.env') }}
-      {% endif %}
-      --lock-dir {{ DIR_COMPOSE_PULL_LOCK }}
-      --lock-key {{ lookup('container', application_id, 'directories.instance') | hash('sha1') }}
-      --ignore-buildable
-  register: pull
-  changed_when: "'pulled' in pull.stdout"
-  retries: 10
-  delay: 30
-  until: pull is succeeded
-  listen:
-    - compose up
-
-- name: Build compose
-  ansible.builtin.shell: |
-    set -euo pipefail
-    compose build || {
-      echo "Retrying without cache and pulling bases...";
-      compose build --no-cache --pull;
-    }
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  listen:
-    - compose build
-
-- name: compose up
-  ansible.builtin.shell: |
-    set -euo pipefail
-    compose up -d --force-recreate --remove-orphans
-  register: dc_up
-  changed_when: true
-  timeout: 1800
-  retries: 5
-  delay: 10
-  until: dc_up is succeeded
-  environment:
-    COMPOSE_PARALLEL_LIMIT: "{{ '4' if (DOCKER_IN_CONTAINER | bool) else omit }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  listen:
-    - compose up
-
 - name: Aggressively prune Docker data (keep networks + keep in-use images)
   become: true
   ansible.builtin.script:
@@ -93,3 +8,9 @@
   listen:
     - compose up
     - compose build
+
+- ansible.builtin.import_tasks: compose.yml
+  when: compose_mode == 'compose'
+
+- ansible.builtin.import_tasks: swarm.yml
+  when: compose_mode == 'swarm'

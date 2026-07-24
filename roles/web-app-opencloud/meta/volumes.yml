@@ -1,3 +1,14 @@
 ---
-data: opencloud_data
-config: opencloud_config
+data:
+  type: volume
+  name: opencloud_data
+  mounts:
+    - service: opencloud
+      target: /var/lib/opencloud
+
+config:
+  type: volume
+  name: opencloud_config
+  mounts:
+    - service: opencloud
+      target: /etc/opencloud

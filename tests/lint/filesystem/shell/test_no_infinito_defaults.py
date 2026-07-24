@@ -39,14 +39,9 @@ from . import PROJECT_ROOT
 if TYPE_CHECKING:
     from pathlib import Path
 
-# ``${INFINITO_VAR:-X}`` or ``${INFINITO_VAR-X}`` with X non-empty.
-# The empty-default form ``${VAR:-}`` is the canonical ``set -u`` safe-read
-# pattern and is intentionally allowed.
 _INLINE_DEFAULT_RE = re.compile(
     r"\$\{(?P<key>INFINITO_[A-Z0-9_]+)(?P<op>:-|-)(?P<default>[^}]+)\}",
 )
-# ``${INFINITO_VAR:=X}`` or ``${INFINITO_VAR=X}`` (assign-if-unset).
-# Any value is forbidden; this would persist into the surrounding shell.
 _SETDEFAULT_RE = re.compile(
     r"\$\{(?P<key>INFINITO_[A-Z0-9_]+)(?P<op>:=|=)(?P<default>[^}]*)\}",
 )
@@ -62,9 +57,6 @@ class Violation:
 
 
 def _git_ls_files() -> list[str]:
-    # ``safe.directory=*`` bypasses git's ownership check, which fails
-    # inside the dev container when the bind-mounted repo's UID does
-    # not match the container user.
     out = subprocess.check_output(
         [
             "git",
@@ -95,7 +87,6 @@ def _scan_file(path: Path) -> list[Violation]:
             key = match.group("key")
             op = match.group("op")
             default = match.group("default")
-            # ``${VAR:-}`` with an empty default is the safe-access idiom.
             if default == "":
                 continue
             violations.append(
@@ -141,9 +132,11 @@ class TestShellNoInfinitoDefaults(unittest.TestCase):
             for v in all_violations:
                 grouped.setdefault(v.file, []).append(v)
             lines = [
-                f"INFINITO_* defaults declared in .sh "
-                f"({len(all_violations)} violations across "
-                f"{len(grouped)} file(s)):",
+                (
+                    f"INFINITO_* defaults declared in .sh "
+                    f"({len(all_violations)} violations across "
+                    f"{len(grouped)} file(s)):"
+                ),
                 "",
                 "INFINITO_* defaults belong in default.env (SPOT); the generated .env then carries them. Shell-side defaults are a second source that drifts silently. Read bare ${INFINITO_VAR} or use ${INFINITO_VAR:?msg}; the empty-form ${INFINITO_VAR:-} stays allowed for `set -u` safety. Suppress per line with `# nocheck: <reason>`.",
                 "",

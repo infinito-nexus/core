@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Collabora Online CODE with automated proxy, networking, and environment configuration.
+  description: Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

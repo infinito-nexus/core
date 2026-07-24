@@ -13,6 +13,64 @@ This role deploys a Matrix homeserver and the Element web client. Two deployment
 
 The compose flavor is **deprecated**. New deployments should use the ansible flavor.
 
+## Cosmos
+
+The diagram places Matrix in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
+        dep_web_app_mailu["web-app-mailu 🐳🐝"]
+        dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
+        dep_web_svc_coturn["web-svc-coturn 🐳🐝"]
+        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_logout["web-svc-logout 🐳🐝"]
+    end
+    subgraph role [web-app-matrix 🐳🐝]
+        svc_sso["sso"]
+        svc_ldap["ldap"]
+        svc_logout["logout"]
+        svc_dashboard["dashboard"]
+        svc_matomo["matomo"]
+        svc_email["email"]
+        svc_coturn["coturn"]
+        svc_postgres["postgres"]
+        svc_synapse["synapse"]
+        svc_element["element"]
+        svc_matrix_chatgpt_bot["matrix-chatgpt-bot"]
+        svc_seaweedfs["seaweedfs"]
+        svc_css["css"]
+        svc_prometheus["prometheus"]
+        svc_matrix["matrix"]
+        svc_container_backup["container_backup"]
+    end
+    subgraph dependents [Dependents]
+        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
+    end
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_mailu -. "0..1" .-> svc_email
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
+    dep_web_svc_coturn -. "0..1" .-> svc_coturn
+    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+    svc_sso -. "0..1" .-> dpt_web_app_nextcloud
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **Decentralized and Federated:** Connect with a global network of Matrix homeservers, ensuring there is no single point of failure.
@@ -20,6 +78,44 @@ The compose flavor is **deprecated**. New deployments should use the ansible fla
 - **Interoperability:** Bridge communications with external platforms (Signal, Telegram, Slack, IRC, Discord, Gitter, Twitter, and more) through MDAD-managed appservices.
 - **Scalable Architecture:** Designed to handle increasing user loads and message volumes with high performance.
 - **Flexible Client Support:** Access Matrix services via modern web clients like Element, plus integrated Element Call and Jitsi video conferencing.
+
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy Matrix onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps=web-app-matrix full_cycle=false
+```
+
+### Production
+
+Run the published image to provision the inventory and deploy Matrix to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP=web-app-matrix
+HOST=<your-server>
+TLS_MODE=self_signed
+SSH_PUBLIC_KEY="<your-ssh-public-key>"
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  ghcr.io/infinito-nexus/core/debian bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/production
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" \
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
 
 ## Flavors
 
@@ -47,6 +143,34 @@ A `mount --make-rshared /` runs once in the deploy container before the runner s
 ### `compose` (deprecated)
 
 Set `services.matrix.flavor: compose` to opt in. Tasks live under `tasks/flavor/compose/`, templates under `templates/flavor/compose/`. Existing volumes and credentials are reused, so in-place deploys need no migration.
+
+## Schema
+
+The swarm deploy chain across both flavors:
+
+```mermaid
+flowchart TD
+    subgraph node["swarm manager node"]
+        prx["openresty<br/>(443 host-published)"]
+        dnsm["node resolver<br/>*.domain → 127.0.0.1"]
+        subgraph runner["MDAD runner container (ansible flavor)<br/>privileged, nested docker"]
+            syn["synapse<br/>(host-netted in nested docker)"]
+        end
+        stack["matrix stack services (compose flavor)<br/>matrix_synapse, matrix_element, mautrix-*"]
+    end
+    kc["keycloak_keycloak<br/>+ one-shot realm import job"]
+
+    role["web-app-matrix tasks"] -- "renders compose.yml,<br/>notify: swarm deploy" --> flush["meta: flush_handlers<br/>(before registration wait)"]
+    flush -- "docker stack deploy" --> stack
+    stack -- "writes mautrix/*/registration.yaml" --> role
+    role -- "waits for registration files" --> stack
+
+    syn -- "OIDC discovery via<br/>--add-host issuer → subnet .1" --> prx
+    prx -- "vhost auth.*" --> kc
+    dnsm -. "127.0.0.1 only valid<br/>for host processes" .-> node
+
+    verify["CI verifier (03_wait_converge.sh)"] -- "workload: node-local →<br/>skip service poll" --> role
+```
 
 ## Bridge matrix
 
@@ -93,7 +217,6 @@ In addition to the persona and CSP specs:
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from collections import deque
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.roles.meta_lookup import get_role_run_after
 from utils.roles.validation.invokable import types_from_group_names
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
     from pathlib import Path
 
 
@@ -90,9 +90,6 @@ def load_applications_from_roles_dir(roles_dir: Path) -> dict[str, dict[str, Any
         application_id = _normalized_name(vars_data.get("application_id"))
         if not application_id:
             continue
-        # Every role's metadata lives under meta/<topic>.yml. Reassemble
-        # the legacy `{compose: {services: ...}, server: ...}` shape so
-        # this module's downstream readers stay unchanged.
         meta_dir = role_dir / "meta"
         config: dict[str, Any] = {}
         services_data = read_yaml_file(meta_dir / "services.yml")
@@ -123,11 +120,6 @@ def discover_role_services(
     if provides == entity_name:
         provides = ""
 
-    # A primary entry is a provider declaration iff `shared` is truthy, or it
-    # carries `provides:`, or it has alias entries pointing at it. The value
-    # of `shared` matters: `disable` env var can write `shared: false` to
-    # neutralise a primary entity that only carries metadata, and that MUST
-    # NOT flip the entity into "provider" status.
     is_provider = bool(primary_entry) and (
         bool(primary_entry.get("shared"))
         or "provides" in primary_entry
@@ -155,6 +147,10 @@ def discover_role_services(
         "enabled": bool(primary_entry.get("enabled", False)),
         "covers": covers,
     }
+    app_networks = _as_mapping(config.get("networks"))
+    overlay = app_networks.get("overlay")
+    if isinstance(overlay, dict):
+        base_entry["overlay"] = overlay
     if provides:
         base_entry["provides"] = provides
 
@@ -194,6 +190,40 @@ def build_service_registry_from_roles_dir(
     return build_service_registry_from_applications(
         load_applications_from_roles_dir(roles_dir)
     )
+
+
+def expand_service_tokens(tokens: list[str], roles_dir: Path) -> list[str]:
+    """Normalize service reference tokens so a caller may name either the
+    service/entity key (e.g. ``email``, ``prometheus``) or the provider
+    application id (e.g. ``web-app-mailu``, ``web-app-prometheus``).
+
+    An application id is expanded to the service key(s) that role provides;
+    every other token is kept verbatim. Order-preserving, de-duplicated.
+    Used wherever the operator supplies service references (``disable``,
+    include/prune closures) so both spellings resolve identically.
+    """
+    if not tokens:
+        return []
+    try:
+        registry = build_service_registry_from_roles_dir(roles_dir)
+    except Exception:  # noqa: BLE001 - normalization must never crash a caller; fall back to the raw tokens
+        return list(dict.fromkeys(tokens))
+
+    role_to_keys: dict[str, list[str]] = {}
+    for key, entry in registry.items():
+        role = (entry or {}).get("role")
+        if isinstance(role, str) and role:
+            role_to_keys.setdefault(role, []).append(key)
+
+    out: list[str] = []
+    for token in tokens:
+        if token in registry:
+            out.append(token)
+        elif token in role_to_keys:
+            out.extend(role_to_keys[token])
+        else:
+            out.append(token)
+    return list(dict.fromkeys(out))
 
 
 def build_role_to_primary_service_key(
@@ -307,10 +337,6 @@ def resolve_service_dependency_roles_from_config(
 
 
 def load_run_after_from_roles_dir(roles_dir: Path, role_name: str) -> list[str]:
-    # `run_after` lives at `meta/services.yml.<primary_entity>.run_after`.
-    # The helper resolves the primary entity name and surfaces shape errors
-    # via MetaServicesShapeError, which we wrap so loaders see a single
-    # error type from this module.
     try:
         result = get_role_run_after(roles_dir / role_name, role_name=role_name)
     except Exception as exc:
@@ -329,6 +355,65 @@ _BUCKET_ORDER = {
 }
 
 
+def bucket_order_key(role_name: str, bucket: str | None) -> tuple[int, str]:
+    """Tie-break key for a ready role: coarse bucket first, then name.
+
+    The bucket is a name-prefix-derived loader phase; it only breaks ties
+    among roles with no pending run_after prerequisite, so run_after stays
+    bucket-agnostic (an edge orders across any bucket).
+    """
+    return (_BUCKET_ORDER.get(bucket, len(_BUCKET_ORDER)), role_name)
+
+
+def run_after_topological_order(
+    nodes: Iterable[str],
+    run_after_of: Callable[[str], Iterable[str]],
+    tiebreak_of: Callable[[str], Any],
+) -> list[str]:
+    """Order ``nodes`` so every run_after prerequisite precedes its dependents.
+
+    run_after edges order across any category; ``tiebreak_of`` only decides
+    among nodes that are simultaneously ready (no pending prerequisite), so a
+    coarse phase can stay the default for edge-less roles without constraining
+    run_after itself.
+
+    Args:
+        nodes: role names to order (deduplicated internally).
+        run_after_of: role name -> its run_after role names.
+        tiebreak_of: role name -> sort key for ready-set tie-breaking.
+
+    Raises:
+        ServiceRegistryError: on a run_after cycle.
+    """
+    node_list = list(dict.fromkeys(nodes))
+    node_set = set(node_list)
+    graph: dict[str, list[str]] = {node: [] for node in node_list}
+    indegree: dict[str, int] = dict.fromkeys(node_list, 0)
+
+    for node in node_list:
+        for dep in run_after_of(node):
+            if dep not in node_set:
+                continue
+            graph[dep].append(node)
+            indegree[node] += 1
+
+    ready = [node for node, count in indegree.items() if count == 0]
+    ordered: list[str] = []
+    while ready:
+        ready.sort(key=tiebreak_of)
+        node = ready.pop(0)
+        ordered.append(node)
+        for dependent in sorted(graph[node]):
+            indegree[dependent] -= 1
+            if indegree[dependent] == 0:
+                ready.append(dependent)
+
+    if len(ordered) != len(node_set):
+        raise ServiceRegistryError("Circular run_after dependency detected.")
+
+    return ordered
+
+
 def ordered_primary_service_entries(
     service_registry: dict[str, dict[str, Any]],
     roles_dir: Path,
@@ -339,67 +424,9 @@ def ordered_primary_service_entries(
         if "canonical" not in entry
     }
 
-    ordered: list[dict[str, Any]] = []
-    for bucket in ("universal", "workstation", "server", "web-svc", "web-app"):
-        roles_in_bucket = sorted(
-            role_name
-            for role_name, entry in primary_entries.items()
-            if entry.get("bucket") == bucket
-        )
-        if not roles_in_bucket:
-            continue
-
-        graph: dict[str, list[str]] = {role_name: [] for role_name in roles_in_bucket}
-        indegree: dict[str, int] = dict.fromkeys(roles_in_bucket, 0)
-
-        for role_name in roles_in_bucket:
-            current = primary_entries[role_name]
-            current_deploy_type = _normalized_name(current.get("deploy_type"))
-            current_bucket_order = _BUCKET_ORDER[bucket]
-
-            for dep_role in load_run_after_from_roles_dir(roles_dir, role_name):
-                dep_deploy_type = detect_deploy_type(dep_role)
-                if dep_deploy_type != current_deploy_type:
-                    raise ServiceRegistryError(
-                        f"{role_name}: run_after '{dep_role}' crosses deploy types "
-                        f"({current_deploy_type} -> {dep_deploy_type})."
-                    )
-
-                dep_bucket = detect_service_bucket(dep_role)
-                dep_bucket_order = _BUCKET_ORDER.get(dep_bucket, current_bucket_order)
-                if dep_bucket_order > current_bucket_order:
-                    raise ServiceRegistryError(
-                        f"{role_name}: run_after '{dep_role}' points to a later loader "
-                        f"bucket ({dep_bucket}), which cannot be satisfied."
-                    )
-                if dep_bucket_order < current_bucket_order:
-                    continue
-                if dep_role not in primary_entries:
-                    # The dependency target is not part of the discovered
-                    # provider set in this play (e.g. matomo skipped via
-                    # `disable` env var). The ordering constraint is moot
-                    # — there's nothing in this bucket to wait for. Skip
-                    # silently rather than aborting the whole load.
-                    continue
-
-                graph[dep_role].append(role_name)
-                indegree[role_name] += 1
-
-        ready = deque(sorted(role for role, count in indegree.items() if count == 0))
-        emitted = 0
-        while ready:
-            role_name = ready.popleft()
-            ordered.append(primary_entries[role_name])
-            emitted += 1
-
-            for dependent in sorted(graph[role_name]):
-                indegree[dependent] -= 1
-                if indegree[dependent] == 0:
-                    ready.append(dependent)
-
-        if emitted != len(roles_in_bucket):
-            raise ServiceRegistryError(
-                f"Circular run_after dependency detected in bucket '{bucket}'."
-            )
-
-    return ordered
+    order = run_after_topological_order(
+        primary_entries,
+        lambda role: load_run_after_from_roles_dir(roles_dir, role),
+        lambda role: bucket_order_key(role, primary_entries[role].get("bucket")),
+    )
+    return [primary_entries[role] for role in order]

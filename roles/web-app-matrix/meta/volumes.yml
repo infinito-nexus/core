@@ -1,2 +1,66 @@
 ---
-synapse: matrix_synapse_data
+synapse_data:
+  type: volume
+  name: matrix_synapse_data
+  mounts:
+    - service: synapse
+      target: /data
+      when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'compose' }}"
+
+chatgpt_data:
+  type: volume
+  name: matrix_chatgpt_data
+  mounts:
+    - service: matrix-chatgpt-bot
+      target: /storage
+
+synapse_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), 'homeserver.yaml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: synapse
+      target: /data/homeserver.yaml
+      when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'compose' }}"
+
+synapse_log:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), (lookup('domains', 'web-app-matrix').synapse) ~ '.log.config' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: synapse
+      target: "/data/{{ lookup('domains', 'web-app-matrix').synapse }}.log.config"
+      when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'compose' }}"
+
+element_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-matrix', 'directories.config'), 'element-config.json' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: element
+      target: /app/config.json
+      when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'compose' }}"
+
+matrix_mdad_docker:
+  type: volume
+  name: matrix_mdad_docker
+  mounts:
+    - service: matrix
+      target: /var/lib/docker
+      when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'ansible' }}"
+
+matrix_mdad_state:
+  type: volume
+  name: matrix_mdad_state
+  mounts:
+    - service: matrix
+      target: /var/lib/matrix-mdad
+      when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'ansible' }}"
+
+matrix_mdad_matrix:
+  type: volume
+  name: matrix_mdad_matrix
+  mounts:
+    - service: matrix
+      target: /matrix
+      when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'ansible' }}"

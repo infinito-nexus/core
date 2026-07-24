@@ -1,5 +1,0 @@
----
-- name: "PHP lint configuration.php"
-  command:
-    argv: [docker, exec, "{{ JOOMLA_CONTAINER }}", php, "-l", "{{ JOOMLA_CONFIG_FILE }}"]
-  changed_when: false

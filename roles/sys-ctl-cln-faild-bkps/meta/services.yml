@@ -2,4 +2,7 @@
 faild-bkps:
   lifecycle: beta
   required_by:
-    categories: [svc-bkp]
+    compose:
+      categories: [svc-bkp]
+    swarm:
+      categories: [svc-bkp]

@@ -35,13 +35,16 @@ email:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag: DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "1"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+  name: "{{ 'web-app-nextcloud' | get_entity_name }}-redis"
 # nocheck: playwright-service-flag: DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -52,9 +55,15 @@ mariadb:
   mem_limit: 1.5g
   pids_limit: 512
 nextcloud:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   name: nextcloud
   image: nextcloud
   version: 33-fpm-alpine
+  custom: true
   min_storage: 20GB
   backup:
     no_stop_required: true
@@ -71,10 +80,13 @@ nextcloud:
       upload_limit: 5G
       opcache_memory_consumption: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
   plugins_enabled: true
-  # All Nextcloud apps are declared in meta/addons/.
+  proxy:
+    service_key: proxy
   ports:
     local:
       http: 8001
+    internal:
+      http: 80
     public:
       stun_turn: 3480
       stun_turn_tls: 5350
@@ -97,6 +109,8 @@ proxy:
   pids_limit: 512
   min_storage: 1GB
 cron:
+  # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
+  replicas: 1
   name: nextcloud-cron
   cpus: "0.25"
   mem_reservation: 128m
@@ -123,10 +137,14 @@ talk:
   mem_limit: 2g
   pids_limit: 1024
   min_storage: 1GB
+  ports:
+    internal:
+      signaling: 8081
 whiteboard:
   name: nextcloud-whiteboard
   image: ghcr.io/nextcloud-releases/whiteboard
   version: v1.5.9
+  custom: nextcloud-whiteboard
   backup:
     no_stop_required: true
   cpus: "1"
@@ -144,7 +162,6 @@ collabora:
   bond: 1
   enabled: "{{ 'web-svc-collabora' in group_names }}"
   shared: "{{ 'web-svc-collabora' in group_names }}"
-# Auto-enables the `bbb` addon when the partner role web-app-bigbluebutton is co-deployed.
 # nocheck: playwright-service-flag: bridged web-conferencing partner, covered by partner role spec
 bigbluebutton:
   bond: 1
@@ -174,6 +191,9 @@ talk_recording:
   mem_limit: 3g
   pids_limit: 1024
   min_storage: 1GB
+  ports:
+    internal:
+      recording: 1234
 # nocheck: playwright-service-flag: verified by web-svc-css provider spec
 css:
   bond: 1
@@ -237,17 +257,23 @@ peertube:
   bond: 0.5
   enabled: "{{ 'web-app-peertube' in group_names }}"
   shared: "{{ 'web-app-peertube' in group_names }}"
-# nocheck: playwright-service-flag: bridged moodle partner, covered by partner role spec
 # TODO(bridge): no nc-33-compatible integration_moodle on the app store (absent for nc 30/32/33).
 # Re-enable enabled/shared (back to the "web-app-moodle in group_names" form) once a plugin ships.
+# nocheck: playwright-service-flag: bridged moodle partner, covered by partner role spec
 moodle:
   bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
-# nocheck: playwright-service-flag: bridged suitecrm partner, covered by partner role spec
 # TODO(bridge): integration_suitecrm requires nc <= 24 (see meta/addons/integration_suitecrm.yml).
 # Re-enable enabled/shared (back to the "web-app-suitecrm in group_names" form) once a plugin ships.
+# nocheck: playwright-service-flag: bridged suitecrm partner, covered by partner role spec
 suitecrm:
   bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

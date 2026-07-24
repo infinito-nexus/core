@@ -1,0 +1,34 @@
+---
+typesense:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  engine on-disk search index, node-local in swarm (fsync/lock corruption on NFS)
+  placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: typesense/typesense
+  name: typesense
+  version: 0.25.2
+  min_storage: 5GB
+  backup:
+    database_routine: true
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 1024
+  ports:
+    local:
+      typesense: 8108
+    internal:
+      typesense: 8108
+  lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

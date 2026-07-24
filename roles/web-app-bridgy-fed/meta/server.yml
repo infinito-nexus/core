@@ -1,13 +1,3 @@
 ---
-domains:
-  canonical:
-    - bridgyfed.{{ DOMAIN_PRIMARY }}
-  aliases: []
 status_codes:
   default: [200, 301, 302, 404]
-csp:
-  whitelist: {}
-  flags: {}
-networks:
-  local:
-    subnet: 192.168.103.224/28

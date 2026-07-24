@@ -1,14 +1,10 @@
 ---
-# Install PluggableAuth + OpenIDConnect INTO the running container (idempotent)
-# Downloads on host (config dir), copy+extract inside container.
-
-- name: "EXT | Ensure local download dir exists"
+- name: "✅ EXT | Ensure download dir exists on the hosting node"
   file:
     path: "{{ MEDIAWIKI_EXT_CFG_BASE }}"
     state: directory
     mode: "0755"
-
-- name: "EXT | Download extension tarballs ({{ MEDIAWIKI_EXT_BRANCH }})"
+- name: "⬇️ EXT | Download extension tarballs ({{ MEDIAWIKI_EXT_BRANCH }})"
   get_url_retry:
     url: "{{ ext.url }}"
     dest: "{{ MEDIAWIKI_EXT_CFG_BASE }}/{{ ext.name }}.tar.gz"
@@ -17,57 +13,36 @@
   loop_control:
     loop_var: ext
     label: "{{ ext.name }}"
-
-- name: "EXT | Copy & extract into container if not installed"
-  shell: >
-    container exec {{ MEDIAWIKI_CONTAINER }} bash -lc '
-      set -e
-      dst="{{ MEDIAWIKI_HTML_DIR }}/extensions/{{ ext.name }}"
-      if [ ! -f "$dst/extension.json" ]; then
-        rm -rf "$dst" && mkdir -p "$dst"
-      fi
-    '
-    && container cp "{{ MEDIAWIKI_EXT_CFG_BASE }}/{{ ext.name }}.tar.gz" "{{ MEDIAWIKI_CONTAINER }}:/tmp/{{ ext.name }}.tar.gz"
-    && container exec {{ MEDIAWIKI_CONTAINER }} bash -lc '
-      set -e
-      dst="{{ MEDIAWIKI_HTML_DIR }}/extensions/{{ ext.name }}"
-      if [ ! -f "$dst/extension.json" ]; then
-        tar -xzf /tmp/{{ ext.name }}.tar.gz -C "$dst" --strip-components=1
-        chown -R {{ MEDIAWIKI_USER }}:{{ MEDIAWIKI_USER }} "$dst"
-        rm -f /tmp/{{ ext.name }}.tar.gz
-        echo INSTALLED:{{ ext.name }}
-      else
-        rm -f /tmp/{{ ext.name }}.tar.gz
-        echo PRESENT:{{ ext.name }}
-      fi
-    '
-  args:
-    executable: /bin/bash
+- name: "📋 EXT | Copy & extract into container if not installed"
+  script: install/extension.sh
+  environment:
+    EXT_NAME: "{{ ext.name }}"
+    EXT_TARBALL: "{{ MEDIAWIKI_EXT_CFG_BASE }}/{{ ext.name }}.tar.gz"
+    MEDIAWIKI_HTML_DIR: "{{ MEDIAWIKI_HTML_DIR }}"
+    MEDIAWIKI_USER: "{{ MEDIAWIKI_USER }}"
+    MW_CID: "{{ MEDIAWIKI_LOCAL_CID }}"
   loop: "{{ MEDIAWIKI_EXT_LIST }}"
   loop_control:
     loop_var: ext
     label: "{{ ext.name }}"
   register: _install_results
   changed_when: "'INSTALLED:' in _install_results.stdout"
-
-# Install dependencies per extension (only if vendor is missing)
-# Use /tmp/composer for HOME/CACHE to avoid /var/www permission issues.
-- name: "EXT | composer install in each extension when needed"
+- name: "📦 EXT | composer install in each extension when needed"
   script: >-
     composer_install_extension.sh
-    "{{ MEDIAWIKI_CONTAINER }}" "{{ MEDIAWIKI_USER }}" "{{ MEDIAWIKI_HTML_DIR }}"
+    "{{ MEDIAWIKI_USER }}" "{{ MEDIAWIKI_HTML_DIR }}"
     "{{ ext.name }}" "{{ MEDIAWIKI_EXT_BRANCH }}"
+  environment:
+    MW_CID: "{{ MEDIAWIKI_LOCAL_CID }}"
   loop: "{{ MEDIAWIKI_EXT_LIST }}"
   loop_control:
     loop_var: ext
     label: "{{ ext.name }}"
   register: _vendor
   changed_when: "'COMPOSER_INSTALLED:' in _vendor.stdout"
-
-# Sanity check: Jumbojett OIDC client must be loadable
-- name: "EXT | Sanity check: Jumbojett OpenIDConnect client present"
-  shell: >
-    container exec {{ MEDIAWIKI_CONTAINER }} bash -lc
+- name: "✅ EXT | Sanity check: Jumbojett OpenIDConnect client present"
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ MEDIAWIKI_LOCAL_CID | quote }} bash -lc
     'php -r "(@require \"{{ MEDIAWIKI_HTML_DIR }}/vendor/autoload.php\"); @require \"{{ MEDIAWIKI_HTML_DIR }}/extensions/OpenIDConnect/vendor/autoload.php\"; exit(class_exists(\"Jumbojett\\\\OpenIDConnectClient\")?0:1);"'
   args:
     executable: /bin/bash

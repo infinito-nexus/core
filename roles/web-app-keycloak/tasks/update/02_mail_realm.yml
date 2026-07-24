@@ -1,5 +1,5 @@
 ---
-- name: "Update {{ KEYCLOAK_REALM }} REALM mail settings from realm dictionary"
+- name: "🔄 Update {{ KEYCLOAK_REALM }} REALM mail settings from realm dictionary"
   keycloak_kcadm_update:
     object_kind: "realm"
     lookup_field: "id"

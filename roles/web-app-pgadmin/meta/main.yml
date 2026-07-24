@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys pgAdmin, a web-based PostgreSQL administration tool with multi-server management, configurable settings, and optional OAuth2 integration.
+  description: Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

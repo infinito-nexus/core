@@ -70,7 +70,7 @@ The repository already contains a modular environment test suite at [scripts/tes
 | 2 | `make environment-bootstrap` | Prepares the host machine for local development. |
 | 3 | `make compose-up` | Starts the development stack. |
 | 4 | `make test` | Runs the main combined validation flow. |
-| 5 | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Role Loop](../../agents/action/iteration/role.md). |
+| 5 | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Compose Loop](../../agents/action/iteration/compose.md). |
 | 6 | `make network-trust-ca` | Makes the generated local certificates trusted by the host browser. |
 | 7 | `make compose-down` | Stops the running development stack. |
 | 8 | `make environment-teardown` | Cleans up host-side development environment changes. |

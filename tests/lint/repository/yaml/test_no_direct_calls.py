@@ -78,7 +78,6 @@ from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 # as a flake8 directive and warns about non-flake8 codes like
 # ``direct-yaml``. ``nocheck`` is the project-specific synonym ruff
 # ignores. This regex mirrors the ``nocheck`` half of
-# ``utils.annotations.suppress._KEYWORD_RE``.
 _NOCHECK_RE = re.compile(
     r"nocheck\s*:\s*([a-z0-9][a-z0-9\-]*(?:\s*,\s*[a-z0-9][a-z0-9\-]*)*)",
     re.IGNORECASE,
@@ -127,10 +126,7 @@ def _file_offenders(path: Path) -> list[str]:
     except SyntaxError:
         return []
 
-    # Track names bound to the `yaml` module (`import yaml`, `import yaml as Y`).
     yaml_module_aliases: set[str] = set()
-    # Track names bound to forbidden top-level functions
-    # (`from yaml import safe_load`, `from yaml import safe_load as L`).
     direct_function_aliases: dict[str, str] = {}
 
     for node in ast.walk(tree):
@@ -143,8 +139,6 @@ def _file_offenders(path: Path) -> list[str]:
                 if alias.name in _FORBIDDEN_FUNCTIONS:
                     direct_function_aliases[alias.asname or alias.name] = alias.name
 
-    # The marker may appear on the call's own line OR, for multi-line
-    # calls, on any line spanned by the call expression.
     nocheck_lines: set[int] = set()
     for idx, line in enumerate(src.splitlines(), start=1):
         for match in _NOCHECK_RE.finditer(line):
@@ -212,9 +206,11 @@ class TestNoDirectYamlCalls(unittest.TestCase):
 
         rel = lambda p: p.relative_to(PROJECT_ROOT)  # noqa: E731
         lines = [
-            f"{len(offenders)} .py file(s) call yaml.safe_load / "
-            f"yaml.safe_dump (or aliases) directly instead of routing through "
-            f"utils.cache.yaml.{{load_yaml, load_yaml_any, dump_yaml}}:",
+            (
+                f"{len(offenders)} .py file(s) call yaml.safe_load / "
+                f"yaml.safe_dump (or aliases) directly instead of routing through "
+                f"utils.cache.yaml.{{load_yaml, load_yaml_any, dump_yaml}}:"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {rel(path)}:")

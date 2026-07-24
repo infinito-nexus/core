@@ -40,6 +40,10 @@ const logoutTargetRoles = (() => {
 
 for (const target of logoutTargetRoles) {
   test(`universal-logout: ${target.id} actually loads logout.js without CSP block`, async ({ page }) => {
+    test.skip(
+      Boolean(target.is_proxy_gated),
+      `${target.id} is oauth2-proxy-gated: its anonymous landing is the IdP login page, so the injected logout.js is verified by that app's own authenticated persona e2e, not this anonymous check`
+    );
     expect(
       target.canonical_url,
       `Expected canonical_url in LOGOUT_TARGET_ROLES_JSON entry for ${target.id}`

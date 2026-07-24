@@ -1,0 +1,41 @@
+---
+- name: ✅ Ensure hostname package is installed
+  become: true
+  ansible.builtin.package:
+    name: >
+      {{
+        'inetutils' if ansible_facts.os_family == 'Archlinux' else
+        'hostname'
+      }}
+    state: present
+  when: not DOCKER_IN_CONTAINER | bool
+
+- block:
+    - name: 🔧 Set system hostname to inventory_hostname (FQDN recommended)
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: ✅ Ensure /etc/hosts contains FQDN + shortname mapping
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: "^127\\.0\\.1\\.1\\s+"
+        line: "127.0.1.1 {{ inventory_hostname }}.localdomain {{ inventory_hostname }}"
+        create: true
+  when: not DOCKER_IN_CONTAINER | bool
+
+- name: ✅ Ensure nss-myhostname is installed so *.localhost resolves to loopback
+  become: true
+  ansible.builtin.package:
+    name: libnss-myhostname
+    state: present
+  when: ansible_facts.os_family == 'Debian'
+
+- name: ✅ Ensure nsswitch resolves hosts via myhostname
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: "^(hosts:(?!.*\\bmyhostname\\b).*)$"
+    line: "\\1 myhostname"
+    backrefs: true
+
+- include_tasks: utils/once/flag.yml

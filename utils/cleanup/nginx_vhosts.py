@@ -14,7 +14,7 @@ orchestrator ``apps.sh`` as a sibling of ``db.sh``, ``compose.sh``,
 ``dir.sh``) invokes this module to remove the vhost files belonging to
 a given compose entity. The mapping entity -> apps -> domains is
 resolved via
-``utils.roles.entity_apps.apps_for_entity`` plus
+``utils.roles.entity.apps.apps_for_entity`` plus
 ``utils.domains.list.build_applications_from_roles`` /
 ``utils.domains.application_domain_index.iter_app_domains`` so the
 helper stays ansible-free and runnable inside the infinito container
@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING
 
 from utils.domains.application_domain_index import iter_app_domains
 from utils.domains.list import ROLES_DIR, build_applications_from_roles
-from utils.roles.entity_apps import apps_for_entity
+from utils.roles.entity.apps import apps_for_entity
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

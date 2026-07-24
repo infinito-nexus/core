@@ -113,8 +113,10 @@ class TestMakefileCommentSchema(unittest.TestCase):
             return
 
         lines = [
-            f"Makefile targets with comment-block schema violations "
-            f"({len(violations)} offences):",
+            (
+                f"Makefile targets with comment-block schema violations "
+                f"({len(violations)} offences):"
+            ),
             "",
             "Each target's comment block MUST be: one description line (free text, no marker) followed by zero or more schema lines marked `Usage:`, `Example:`, `Note:`, or `Param <name>:`.",
             "",

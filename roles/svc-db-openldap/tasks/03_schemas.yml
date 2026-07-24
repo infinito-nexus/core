@@ -1,16 +1,16 @@
 ---
-- name: Install ldapsm (PyPI)
+- name: 📦 Install ldapsm (PyPI)
   include_role:
     name: sys-pip-install
   vars:
     package_name: ldapsm
     global_install: true
 
-- name: "Include Nextcloud Schema"
+- name: "📂 Include Nextcloud Schema"
   include_tasks: schemas/nextcloud.yml
 
-- name: "Include openssh-lpk Schema"
+- name: "📂 Include openssh-lpk Schema"
   include_tasks: schemas/openssh_lpk.yml
 
-- name: "Include Moodle Schema"
+- name: "📂 Include Moodle Schema"
   include_tasks: schemas/moodle.yml

@@ -1,0 +1,26 @@
+---
+- name: "🔎 Check whether Friendica administrator user already exists"
+  shell: >-
+    container exec -i --user {{ FRIENDICA_USER }}
+    --workdir {{ FRIENDICA_APPLICATION_DIR }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
+    {{ FRIENDICA_APPLICATION_DIR }}/bin/console user search nick administrator
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}" # nocheck: include-uniform-apply-keyword
+  register: friendica_admin_search
+  changed_when: false
+  failed_when: false
+
+- name: "📁 Pre-create Friendica administrator user"
+  shell: >-
+    container exec -i --user {{ FRIENDICA_USER }}
+    --workdir {{ FRIENDICA_APPLICATION_DIR }}
+    {{ FRIENDICA_LOCAL_CID | quote }}
+    {{ FRIENDICA_APPLICATION_DIR }}/bin/console user add
+    "{{ lookup('users', 'administrator').firstname | default('Administrator') }}"
+    administrator
+    "{{ lookup('users', 'administrator').email }}"
+    en
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+  when: "'administrator' not in friendica_admin_search.stdout"
+  register: friendica_admin_create
+  changed_when: friendica_admin_create.rc == 0

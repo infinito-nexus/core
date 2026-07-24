@@ -1,0 +1,64 @@
+---
+- name: "🧹 Delete API token '{{ mailu_user_key }};{{ mailu_user_name }}' if local missing"
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -X DELETE {{ MAILU_API_SERVICE_BASE_URL }}/token/{{ mailu_user_existing_token.id }}
+    -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
+  when:
+    - mailu_user_existing_token is not none
+    - mailu_user_existing_token.id is defined
+  register: mailu_token_delete
+  until: mailu_token_delete.rc == 0
+  retries: 30
+  delay: 2
+  changed_when: mailu_token_delete.rc == 0
+  timeout: "{{ lookup('timeout', 120) | int }}"
+
+- name: "📝 Create API token '{{ mailu_user_key }};{{ mailu_user_name }}' if none local"
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -S -f -o /tmp/mailu-token-{{ mailu_user_key | quote }}.json
+    -X POST {{ MAILU_API_SERVICE_BASE_URL }}/token
+    -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
+    -H "Content-Type: application/json"
+    -d {{ ({
+    "comment": mailu_token_name,
+    "email": lookup("users", mailu_user_key).email,
+    "ip": mailu_token_ip
+    } | to_json) | quote }}
+  register: mailu_token_creation_request
+  until: mailu_token_creation_request.rc == 0
+  retries: 30
+  delay: 2
+  failed_when: mailu_token_creation_request.rc != 0
+  changed_when: mailu_token_creation_request.rc == 0
+  timeout: "{{ lookup('timeout', 120) | int }}"
+
+- name: "📖 Read created API token response '{{ mailu_user_key }};{{ mailu_user_name }}'"
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    cat /tmp/mailu-token-{{ mailu_user_key | quote }}.json
+  register: mailu_token_creation_response
+  changed_when: false
+  failed_when: mailu_token_creation_response.stdout | trim == ""
+  timeout: "{{ lookup('timeout', 120) | int }}"
+
+- name: "📤 Extract created API token for '{{ mailu_user_key }};{{ mailu_user_name }}'"
+  ansible.builtin.set_fact:
+    mailu_created_token: >-
+      {{
+        (
+          mailu_token_creation_response.stdout
+          | from_json
+        ).token | default('')
+      }}
+  failed_when: mailu_created_token | trim == ""
+
+- name: "💾 Persist + inject Mailu API token via sys-token-store"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ mailu_user_key }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ mailu_created_token }}"

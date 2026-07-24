@@ -41,9 +41,6 @@ from . import PROJECT_ROOT
 if TYPE_CHECKING:
     from pathlib import Path
 
-# Match ${VAR:-...} OR ${VAR-...} (POSIX-default-when-unset/empty
-# vs. only-when-unset). Both are equally forbidden -- the project
-# rule is "no inline defaults at all".
 _DEFAULT_SUB_RE = re.compile(r"\$\{[A-Za-z_][A-Za-z0-9_]*(:-|-)[^}]*\}")
 _KEY_RE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(:-|-)")
 
@@ -108,9 +105,11 @@ class TestComposeNoDefaultSubstitutions(unittest.TestCase):
             for f in all_findings:
                 grouped.setdefault(f.file, []).append(f)
             lines = [
-                f"Compose files MUST NOT carry inline `${{VAR:-default}}` or "
-                f"`${{VAR-default}}` substitutions ({len(all_findings)} found "
-                f"across {len(grouped)} file(s))."
+                (
+                    f"Compose files MUST NOT carry inline `${{VAR:-default}}` or "
+                    f"`${{VAR-default}}` substitutions ({len(all_findings)} found "
+                    f"across {len(grouped)} file(s))."
+                )
             ]
             lines.append("")
             lines.append(

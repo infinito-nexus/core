@@ -1,5 +1,8 @@
 ---
 copyq:
+  modes:
+    host:
+      enabled: true
   server_enabled: true
   lifecycle: pre-alpha
   min_storage: "50MB"

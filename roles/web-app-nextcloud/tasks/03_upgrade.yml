@@ -1,41 +1,41 @@
 ---
-- name: Nextcloud | Upgrade
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} upgrade"
+- name: ⬆️ Nextcloud | Upgrade
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} upgrade"
   register: occ_upgrade
   changed_when: "'Already up to date' not in occ_upgrade.stdout"
 
-- name: Nextcloud | Maintenance repair
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:repair --include-expensive"
+- name: 🔧 Nextcloud | Maintenance repair
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:repair --include-expensive"
   register: occ_repair
   changed_when: "'No repairs needed' not in occ_repair.stdout"
   retries: 3
   delay: 10
   until: occ_repair.rc == 0
 
-- name: Nextcloud | App update (retry once)
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update --all"
+- name: 🔄 Nextcloud | App update (retry once)
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update --all"
   register: occ_app_update
   changed_when: "'No apps found for update' not in occ_app_update.stdout"
   retries: 2
   delay: 3
   until: occ_app_update.rc == 0
 
-- name: Nextcloud | Add missing columns
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-columns"
+- name: ➕ Nextcloud | Add missing columns
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-columns"
   register: occ_columns
   changed_when: "'No columns found' not in occ_columns.stdout"
 
-- name: Nextcloud | Add missing indices
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-indices"
+- name: ➕ Nextcloud | Add missing indices
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-indices"
   register: occ_indices
   changed_when: "'No indices found' not in occ_indices.stdout"
 
-- name: Nextcloud | Add missing primary keys
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-primary-keys"
+- name: ➕ Nextcloud | Add missing primary keys
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-primary-keys"
   register: occ_pks
   changed_when: "'No primary keys found' not in occ_pks.stdout"
 
-- name: Nextcloud | Disable maintenance mode
-  command: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:mode --off"
+- name: 🔴 Nextcloud | Disable maintenance mode
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:mode --off"
   register: occ_maint_off
   changed_when: "'already disabled' not in occ_maint_off.stdout"

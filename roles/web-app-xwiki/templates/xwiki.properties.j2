@@ -1,3 +1,4 @@
+{# nocheck: comments-valid  upstream xwiki.properties reference documentation #}
 # Proxy
 xwiki.url.protocol={{ lookup('tls', application_id, 'protocols.web') }}
 xwiki.url.host={{ domain }}
@@ -5,7 +6,7 @@ xwiki.url.port={{ lookup('tls', application_id, 'ports.web')  }}
 
 ############################################
 # OIDC
-# Render this block only while the OIDC switch is ON in _flush_config.yml.
+# Render this block only while the OIDC switch is ON in tasks/utils/flush_config.yml.
 # During bootstrap we keep it OFF to avoid ClassNotFoundException before the extension is installed.
 # @see https://extensions.xwiki.org/xwiki/bin/view/Extension/OpenID%20Connect/OpenID%20Connect%20Authenticator/
 {% if xwiki_oidc_enabled_switch | bool %}

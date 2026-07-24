@@ -1,26 +1,21 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  application:
+  {% set service_name = 'pretix' %}
+  {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         PRETIX_IMAGE: "{{ PRETIX_IMAGE }}"
         PRETIX_VERSION: "{{ PRETIX_VERSION }}"
         PRETIX_OIDC_PLUGIN_VERSION: "{{ PRETIX_OIDC_PLUGIN_VERSION }}"
-    image: "{{ PRETIX_IMAGE_CUSTOM }}"
-    container_name: "{{ PRETIX_CONTAINER }}"
+    {{ lookup('container_image', application_id, 'pretix') }}
+    {{ lookup('compose_only', 'container_name', PRETIX_CONTAINER) }}
     hostname: '{{ PRETIX_HOSTNAME}}'
     command: ["all"]
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.pretix.ports.local.http') }}:{{ container_port }}"
-    volumes:
-      - 'data:/data'
-      - 'config:/etc/pretix'
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_ports', ['pretix', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, 'pretix') | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'config': {'name': PRETIX_CONFIG_VOLUME}, 'data': {'name': PRETIX_DATA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

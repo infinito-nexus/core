@@ -1,44 +1,24 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  seaweedfs:
-    image: "{{ SEAWEEDFS_IMAGE }}:{{ SEAWEEDFS_VERSION }}"
-    container_name: {{ SEAWEEDFS_CONTAINER }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command:
-      - server
-      - -dir=/data
-      - -ip.bind=0.0.0.0
-      - -filer
-      - -s3
-      - -s3.config=/etc/seaweedfs/s3.json
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ SEAWEEDFS_S3_PORT_PUBLIC }}:{{ SEAWEEDFS_S3_PORT_INTERNAL }}"
-    volumes:
-      - data:/data
-      - "{{ SEAWEEDFS_S3_CONFIG_PATH }}:/etc/seaweedfs/s3.json:ro"
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+  {% set service_name = 'seaweedfs' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'seaweedfs') }}
+    {{ lookup('compose_only', 'container_name', SEAWEEDFS_CONTAINER) }}
+    command: {{ '/etc/seaweedfs/s3.json' | seaweedfs_command | to_json }}
+    {{ lookup('container_ports', ['seaweedfs', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  proxy:
-    image: "{{ SEAWEEDFS_PROXY_IMAGE }}:{{ SEAWEEDFS_PROXY_VERSION }}"
-    container_name: {{ SEAWEEDFS_PROXY_CONTAINER }}
+  {% set service_name = 'proxy' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'proxy') }}
+    {{ lookup('compose_only', 'container_name', SEAWEEDFS_PROXY_CONTAINER) }}
     hostname: {{ SEAWEEDFS_PROXY_CONTAINER }}
-    restart: {{ DOCKER_RESTART_POLICY }}
-{% set service_name = 'proxy' %}
-{% filter indent(4) %}
-    {% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
-{% endfilter %}
-{{ "\n" }}
-    volumes:
-      - "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}:/etc/nginx/conf.d/default.conf:ro"
-    depends_on:
-      seaweedfs:
-        condition: service_started
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    logging:
-      driver: journald
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('depends_on', {'seaweedfs': 'service_started'}) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': SEAWEEDFS_DATA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

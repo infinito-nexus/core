@@ -2,7 +2,6 @@ import sys
 import unittest
 from pathlib import Path
 
-# Allow import from project plugins/filter directory
 sys.path.insert(
     0,
     str(
@@ -12,7 +11,7 @@ sys.path.insert(
     ),
 )
 
-from merge_with_defaults import merge_with_defaults
+from merge.with_defaults import merge_with_defaults
 
 
 class TestMergeWithDefaultsFilter(unittest.TestCase):

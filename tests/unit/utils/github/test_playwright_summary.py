@@ -170,19 +170,19 @@ class TestPathInfo(unittest.TestCase):
             ps._path_info(
                 Path("/tmp/root/web-app-foo/variant-3/async/playwright-junit.xml")
             ),
-            ("web-app-foo", "variant-3", "async"),
+            ("web-app-foo", "3", "async"),
         )
         self.assertEqual(
             ps._path_info(
                 Path("/tmp/root/web-app-foo/variant-0/sync/playwright-junit.xml")
             ),
-            ("web-app-foo", "variant-0", "sync"),
+            ("web-app-foo", "0", "sync"),
         )
 
     def test_variant_only_layout_leaves_pass_empty(self) -> None:
         self.assertEqual(
             ps._path_info(Path("/tmp/root/web-app-foo/variant-3/playwright-junit.xml")),
-            ("web-app-foo", "variant-3", ""),
+            ("web-app-foo", "3", ""),
         )
 
     def test_plain_layout_leaves_variant_and_pass_empty(self) -> None:
@@ -241,7 +241,7 @@ class TestSummarizeFile(unittest.TestCase):
             summary = ps._summarize_file(xml_path)
         assert summary is not None
         self.assertEqual(summary["app"], "web-app-foo")
-        self.assertEqual(summary["variant"], "variant-2")
+        self.assertEqual(summary["variant"], "2")
         self.assertEqual(summary["pass"], "async")
 
     def test_per_case_timestamp_uses_suite_timestamp_plus_offset(self) -> None:
@@ -492,19 +492,19 @@ class TestMain(unittest.TestCase):
         self.assertIn("### 🎭 Playwright — web-app-foo", out)
         # Suite-a starts at 12:00:00Z; first case sits at that timestamp.
         self.assertIn(
-            "| `2026-05-17T12:00:00Z` | `web-app-foo` | variant-1 | sync | passes | "
+            "| `2026-05-17T12:00:00Z` | `web-app-foo` | 1 | sync | passes | "
             "🟢 | 1.0s |  |",
             out,
         )
         self.assertIn(
-            "| `2026-05-17T12:00:01Z` | `web-app-foo` | variant-1 | sync | "
+            "| `2026-05-17T12:00:01Z` | `web-app-foo` | 1 | sync | "
             "fails on assertion | 🔴 | 2.5s | expected 1 got 0 |",
             out,
         )
         # Suite-b starts at 12:05:00Z; skipped case is its second testcase
         # (after a 0.5s pass that rounds to second-precision 0).
         self.assertIn(
-            "| `2026-05-17T12:05:00Z` | `web-app-foo` | variant-1 | sync | "
+            "| `2026-05-17T12:05:00Z` | `web-app-foo` | 1 | sync | "
             "skipped one | 🔵 | 0.0s | persona blocked by env |",
             out,
         )

@@ -1,12 +1,12 @@
 ---
-- name: Ensure dotlinker user is defined
+- name: ✅ Ensure dotlinker user is defined
   ansible.builtin.assert:
     that:
       - dotlinker_user is defined
       - dotlinker_user | length > 0
     fail_msg: "dotlinker_user must be provided by the calling role."
 
-- name: Ensure dotlinker config directory exists
+- name: ✅ Ensure dotlinker config directory exists
   ansible.builtin.file:
     path: "{{ dotlinker_config_path | dirname }}"
     state: directory
@@ -14,7 +14,7 @@
     group: "{{ dotlinker_user }}"
     mode: "0755"
 
-- name: Register mappings in dotlinker
+- name: 📝 Register mappings in dotlinker
   ansible.builtin.command:
     argv: >-
       {{
@@ -31,7 +31,7 @@
     label: "{{ item.name }}"
   when: dotlinker_mappings | length > 0
 
-- name: Apply dotlinker mappings (pull)
+- name: 📌 Apply dotlinker mappings (pull)
   ansible.builtin.command: >
     {{ dotlinker_cli_name | quote }}
     -c {{ (dotlinker_config_path ) | quote }}

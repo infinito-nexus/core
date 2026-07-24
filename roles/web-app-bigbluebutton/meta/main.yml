@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys BigBlueButton, an interactive web conferencing solution for virtual classrooms, meetings, and online collaboration.
+  description: Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

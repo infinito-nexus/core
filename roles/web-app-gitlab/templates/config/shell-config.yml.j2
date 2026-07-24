@@ -1,0 +1,15 @@
+---
+user: git
+gitlab_url: "http://{{ GITLAB_WORKHORSE_SERVICE_NAME }}:{{ GITLAB_WORKHORSE_PORT }}/"
+secret_file: /srv/gitlab-secrets/.gitlab_shell_secret
+auth_file: "/home/git/.ssh/authorized_keys"
+log_file: "/dev/stdout"
+log_level: INFO
+audit_usernames: false
+sshd:
+  listen: "[::]:{{ GITLAB_SSHD_PORT }}"
+  web_listen: "0.0.0.0:{{ GITLAB_SHELL_METRICS_PORT }}"
+  concurrent_sessions_limit: 100
+  host_key_files:
+    - /srv/ssh-hostkeys/ssh_host_rsa_key
+    - /srv/ssh-hostkeys/ssh_host_ed25519_key

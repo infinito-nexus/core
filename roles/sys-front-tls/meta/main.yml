@@ -1,8 +1,7 @@
 ---
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Generic TLS orchestrator that resolves TLS mode and delegates certificate handling to provider roles (LetsEncrypt/self-signed/off) for Nginx
-    reverse proxies.
+  author: Kevin Veen-Birkenbach
+  description: "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

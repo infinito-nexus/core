@@ -1,11 +1,11 @@
 ---
-- name: "ensure MDAD checkout directory exists at {{ MATRIX_MDAD_DIR }}"
+- name: "✅ ensure MDAD checkout directory exists at {{ MATRIX_MDAD_DIR }}"
   ansible.builtin.file:
     path: "{{ MATRIX_MDAD_DIR }}"
     state: directory
     mode: "0755"
 
-- name: "clone matrix-docker-ansible-deploy at pinned ref"
+- name: "⬇️ clone matrix-docker-ansible-deploy at pinned ref"
   ansible.builtin.git:
     repo: "{{ lookup('config', application_id, 'services.matrix.upstream.repo') }}"
     dest: "{{ MATRIX_MDAD_DIR }}"

@@ -1,0 +1,35 @@
+---
+- name: "🔍 Resolve ERPNext backend hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: backend
+    resolve_output_prefix: ERPNEXT_BACKEND
+    resolve_compose_cid: "{{ ERPNEXT_BACKEND_CONTAINER }}"
+    resolve_converge_retries: 60
+    resolve_converge_delay: 5
+
+- name: "⏳ wait for {{ ERPNEXT_BACKEND_CONTAINER }} gunicorn TCP port"
+  ansible.builtin.shell: |
+    set -eo pipefail
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} \
+      bash -c 'exec 3<>/dev/tcp/localhost/{{ ERPNEXT_BACKEND_PORT }} && exec 3<&- 3>&-'
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  register: erpnext_backend_ready
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: erpnext_backend_ready.rc == 0
+
+- name: "🥾 bench bootstrap"
+  include_tasks: 02_bench_bootstrap.yml
+
+- name: "🔧 configure OIDC"
+  include_tasks: 03_oidc.yml
+  when: ERPNEXT_OIDC_ENABLED
+- name: "🔧 configure LDAP"
+  include_tasks: 04_ldap.yml
+  when: ERPNEXT_LDAP_ENABLED
+- name: "🔧 configure outbound email"
+  include_tasks: 05_email.yml
+  when: ERPNEXT_EMAIL_ENABLED

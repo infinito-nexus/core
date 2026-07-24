@@ -1,5 +1,5 @@
 ---
-- name: Ensure Node.js is installed
+- name: ✅ Ensure Node.js is installed
   package:
     name: nodejs
     state: present

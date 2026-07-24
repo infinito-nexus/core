@@ -3,6 +3,7 @@
 // companion per login surface (native / oidc / ldap), passing this module as
 // `shared` so each scenario stays atomar and individually inspectable.
 
+const zlib = require("zlib");
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const {
@@ -18,6 +19,54 @@ const VALID_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAKklEQVR4nGPQqDhBU8QwasGoBaMWjFowasGoBaMWjFowasGoBaMWDBULAIuXoEzkdmPIAAAAAElFTkSuQmCC";
 function validImagePng() {
   return Buffer.from(VALID_PNG_BASE64, "base64");
+}
+
+function _pngCrc32(buf) {
+  let c = ~0;
+  for (let i = 0; i < buf.length; i++) {
+    c ^= buf[i];
+    for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
+  }
+  return (~c) >>> 0;
+}
+
+function _pngChunk(type, data) {
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(data.length, 0);
+  const body = Buffer.concat([Buffer.from(type, "ascii"), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(_pngCrc32(body), 0);
+  return Buffer.concat([len, body, crc]);
+}
+
+function uniqueImagePng(seed) {
+  const w = 16;
+  const h = 16;
+  const r = seed & 0xff;
+  const g = (seed >>> 8) & 0xff;
+  const b = (seed >>> 16) & 0xff;
+  const raw = Buffer.alloc(h * (1 + w * 3));
+  for (let y = 0; y < h; y++) {
+    const row = y * (1 + w * 3);
+    raw[row] = 0;
+    for (let x = 0; x < w; x++) {
+      const p = row + 1 + x * 3;
+      raw[p] = (r + x) & 0xff;
+      raw[p + 1] = (g + y) & 0xff;
+      raw[p + 2] = b;
+    }
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0);
+  ihdr.writeUInt32BE(h, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 2;
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    _pngChunk("IHDR", ihdr),
+    _pngChunk("IDAT", zlib.deflateSync(raw)),
+    _pngChunk("IEND", Buffer.alloc(0)),
+  ]);
 }
 
 const env = {
@@ -99,7 +148,6 @@ async function penpotRegister(page, fullname, email, password) {
   await assertAuthenticated(page);
 }
 
-// Native: local-DB account via the email/password form + the "Login" button.
 async function penpotNativeLogin(page, email, password) {
   await page.goto(loginRoute(env.baseUrl));
   const emailField = page.getByLabel(/work email/i);
@@ -107,8 +155,8 @@ async function penpotNativeLogin(page, email, password) {
   await expect(emailField, "Expected the Penpot login form").toBeVisible({ timeout: 60_000 });
   await emailField.fill(email);
   await passwordField.fill(password);
-  const loginButton = page.getByRole("button", { name: /^Login$/i });
-  await expect(loginButton, "Expected the Login button to enable once the form is filled").toBeEnabled({ timeout: 30_000 });
+  const loginButton = page.getByTestId("login-submit");
+  await expect(loginButton, "Expected the login submit button to enable once the form is filled").toBeEnabled({ timeout: 30_000 });
   await loginButton.click();
   await assertAuthenticated(page);
 }
@@ -128,4 +176,5 @@ module.exports = {
   penpotNativeLogin,
   penpotRegister,
   validImagePng,
+  uniqueImagePng,
 };

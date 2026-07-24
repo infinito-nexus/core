@@ -1,5 +1,8 @@
 ---
 asset:
+  modes:
+    host:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
@@ -8,7 +11,7 @@ asset:
   mem_limit: 256m
   pids_limit: 128
   min_storage: "1GB"
-  source_directory: "{{ playbook_dir }}/assets"
+  source_directory: "{{ lookup('path_absolute', 'assets') }}"
   url: "{{ (lookup('tls', 'web-svc-file', 'url.base') ~ 'assets') if ('web-svc-asset' in group_names) else ('https://file.' ~ SOFTWARE_DOMAIN ~ '/assets') }}"
   run_after:
     - web-svc-file
@@ -21,6 +24,8 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+  # nocheck: matomo-track
+  track: false
 # nocheck: dynamic-flag
 css:
   enabled: false
@@ -29,3 +34,5 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  # nocheck: prometheus-scrape
+  scrape: false

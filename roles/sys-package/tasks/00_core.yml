@@ -1,0 +1,8 @@
+---
+- name: 📦 Install additional system packages from inventory
+  ansible.builtin.package:
+    name: "{{ SYS_PACKAGES }}"
+    state: present
+  when: SYS_PACKAGES | length > 0
+
+- include_tasks: utils/once/flag.yml

@@ -1,0 +1,4 @@
+---
+canonical:
+  - postmarks.{{ DOMAIN_PRIMARY }}
+aliases: []

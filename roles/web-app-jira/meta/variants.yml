@@ -11,6 +11,8 @@
     status_codes:
       default: 302
   services:
+    container_backup:
+      enabled: true
     dashboard:
       enabled: true
       shared: true
@@ -29,20 +31,22 @@
       enabled: true
       shared: true
 - services:
+    container_backup:
+      enabled: true
     dashboard:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     postgres:
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     css:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

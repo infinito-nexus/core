@@ -1,0 +1,16 @@
+---
+application_id: svc-dns-unbound
+entity_name: "{{ application_id | get_entity_name }}"
+
+UNBOUND_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+UNBOUND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, UNBOUND_CONTAINER) }}"
+UNBOUND_PORT: "{{ lookup('config', application_id, 'services.unbound.ports.local.unbound') }}"
+UNBOUND_NETWORK_NAME: "{{ entity_name }}"
+UNBOUND_RESOLVER_IP: "{{ lookup('config', application_id, 'networks.local.dns_resolver') }}"
+
+UNBOUND_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
+UNBOUND_CONF_FILE: "{{ [ UNBOUND_VOLUMES_DIR, 'unbound.conf' ] | path_join }}"
+
+# WSL2/DinD: iterative resolution via root-hints is unsupported in nested Docker;
+# forward to public resolvers instead. On bare-metal keep false to preserve DNSSEC.
+UNBOUND_FORWARD_DNS: "{{ (DOCKER_IN_CONTAINER | bool) or ('microsoft' in lookup('file', '/proc/version') | lower) }}"

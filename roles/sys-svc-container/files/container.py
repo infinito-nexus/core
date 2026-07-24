@@ -9,10 +9,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 
 def die(msg: str, code: int = 2) -> None:
     print(f"[container] {msg}", file=sys.stderr)
@@ -30,7 +26,6 @@ def must_exist(path: str, label: str) -> str:
     return str(p)
 
 
-# docker run flags that take a value
 FLAGS_TAKE_VALUE = {
     "-e",
     "--env",
@@ -72,11 +67,6 @@ FLAGS_TAKE_VALUE = {
     "--log-driver",
     "--log-opt",
 }
-
-
-# ---------------------------------------------------------------------------
-# docker run argument parsing
-# ---------------------------------------------------------------------------
 
 
 def split_docker_run_argv(argv: list[str]) -> tuple[list[str], list[str]]:
@@ -181,11 +171,6 @@ def extract_pull_policy(run_opts: list[str]) -> str:
     return policy
 
 
-# ---------------------------------------------------------------------------
-# Docker helpers
-# ---------------------------------------------------------------------------
-
-
 def docker_pull(image: str) -> None:
     try:
         p = subprocess.run(
@@ -253,35 +238,48 @@ def try_inspect_entrypoint_with_pull(image: str, pull_policy: str) -> list[str]:
         raise
 
 
-# ---------------------------------------------------------------------------
-# CA handling (SOFT)
-# ---------------------------------------------------------------------------
-
-
-def require_ca_env_soft() -> tuple[str, str, str] | None:
+def require_ca_env_soft() -> tuple[str, str, str, str, str] | None:
     """
-    Return (ca_cert_host, wrapper_host, trust_name)
-    or None if CA injection is not available.
+    Return (ca_cert_host, wrapper_host, trust_name, ca_container,
+    wrapper_container) or None if CA injection is not available. The two
+    container-side paths come from the CA_TRUST group_vars SPOT, forwarded
+    as env like the host-side trio.
     """
     ca_host = os.environ.get("CA_TRUST_CERT_HOST", "").strip()
     wrapper_host = os.environ.get("CA_TRUST_WRAPPER_HOST", "").strip()
     trust_name = os.environ.get("CA_TRUST_NAME", "").strip()
+    ca_container = os.environ.get("CA_TRUST_CERT_CONTAINER", "").strip()
+    wrapper_container = os.environ.get("CA_TRUST_WRAPPER_CONTAINER", "").strip()
 
-    missing = []
+    host_missing = []
     if not ca_host:
-        missing.append("CA_TRUST_CERT_HOST")
+        host_missing.append("CA_TRUST_CERT_HOST")
     if not wrapper_host:
-        missing.append("CA_TRUST_WRAPPER_HOST")
+        host_missing.append("CA_TRUST_WRAPPER_HOST")
     if not trust_name:
-        missing.append("CA_TRUST_NAME")
+        host_missing.append("CA_TRUST_NAME")
 
-    if missing:
+    container_missing = []
+    if not ca_container:
+        container_missing.append("CA_TRUST_CERT_CONTAINER")
+    if not wrapper_container:
+        container_missing.append("CA_TRUST_WRAPPER_CONTAINER")
+
+    if host_missing:
         warn(
             "CA injection disabled (missing env: "
-            + ", ".join(missing)
+            + ", ".join(host_missing + container_missing)
             + "). Falling back to plain 'docker run'."
         )
         return None
+
+    if container_missing:
+        die(
+            "CA injection misconfigured: "
+            + ", ".join(container_missing)
+            + " not set while the CA_TRUST host env is present. Redeploy the "
+            "systemd units / update the caller env to the CA_TRUST group_vars SPOT."
+        )
 
     try:
         ca_host = must_exist(ca_host, "CA trust certificate")
@@ -292,12 +290,7 @@ def require_ca_env_soft() -> tuple[str, str, str] | None:
         )
         return None
 
-    return ca_host, wrapper_host, trust_name
-
-
-# ---------------------------------------------------------------------------
-# Execution
-# ---------------------------------------------------------------------------
+    return ca_host, wrapper_host, trust_name, ca_container, wrapper_container
 
 
 def exec_docker(cmd: list[str], debug: bool) -> int:
@@ -327,7 +320,7 @@ def container_run(argv: list[str], debug: bool, with_ca: bool) -> int:
     if not ca_env:
         return exec_docker(["docker", "run", *argv], debug=debug)
 
-    ca_host, wrapper_host, trust_name = ca_env
+    ca_host, wrapper_host, trust_name, ca_container, wrapper_container = ca_env
 
     run_opts, image_and_args = split_docker_run_argv(argv)
     pull_policy = extract_pull_policy(run_opts)
@@ -335,11 +328,6 @@ def container_run(argv: list[str], debug: bool, with_ca: bool) -> int:
 
     image = image_and_args[0]
     user_args = image_and_args[1:]
-
-    # Container-internal CA-injection paths bind-mounted from the host.
-    # Not user-controllable; matched on the host side by sys-svc-compose-ca.
-    ca_container = "/tmp/infinito/ca/root-ca.crt"  # noqa: S108
-    wrapper_container = "/tmp/infinito/bin/with-ca-trust.sh"  # noqa: S108
 
     inject_opts: list[str] = [
         "-v",
@@ -369,9 +357,6 @@ def container_run(argv: list[str], debug: bool, with_ca: bool) -> int:
                 "Image has no ENTRYPOINT and none was provided. "
                 "Injecting CA env vars without entrypoint wrapper."
             )
-            # Inject CA cert as a volume + env vars so Node.js (NODE_EXTRA_CA_CERTS),
-            # curl (CURL_CA_BUNDLE), Python requests (REQUESTS_CA_BUNDLE), and other
-            # tools can trust the internal CA even without a wrapper entrypoint.
             ca_inject_opts: list[str] = [
                 "-v",
                 f"{ca_host}:{ca_container}:ro",
@@ -399,9 +384,7 @@ def container_run(argv: list[str], debug: bool, with_ca: bool) -> int:
     if debug:
         print(">>> " + " ".join(shlex.quote(x) for x in final_cmd), file=sys.stderr)
 
-    # List-form exec: no shell parses the argv. CMD comes from this
-    # script's own argv (the wrapper), not from external user input.
-    os.execvp(final_cmd[0], final_cmd)  # noqa: S606
+    os.execvp(final_cmd[0], final_cmd)  # noqa: S606  list-form exec, argv comes from the wrapper itself
     return 0
 
 
@@ -414,9 +397,44 @@ def passthrough_any(subcmd: str, argv: list[str], debug: bool) -> int:
     return exec_docker(["docker", subcmd, *argv], debug=debug)
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+_EXEC_TIMEOUT_UNITS = {"s": 1, "min": 60, "h": 3600, "d": 86400}
+
+
+def parse_exec_timeout_seconds(value: str) -> int:
+    """Parse a systemd-style duration ('60min', '7d', '45s', '2h') to seconds.
+
+    Args:
+        value: duration string; a bare number counts as seconds.
+
+    Returns:
+        The duration in whole seconds.
+    """
+    raw = value.strip()
+    for suffix, factor in sorted(_EXEC_TIMEOUT_UNITS.items(), key=lambda i: -len(i[0])):
+        if raw.endswith(suffix):
+            return int(float(raw[: -len(suffix)])) * factor
+    return int(float(raw))
+
+
+def exec_timeout_prefix() -> list[str]:
+    """coreutils timeout prefix for `container exec` from CONTAINER_EXEC_TIMEOUT.
+
+    Returns:
+        ['timeout', '--kill-after=15', '<seconds>'] when the env var holds a
+        positive duration; [] when it is unset, empty or 0 (no limit). Ansible
+        task timeouts are SIGALRM-based and sleep through a wedged docker
+        socket; this OS-level kill is the enforcement that still fires there.
+    """
+    raw = os.environ.get("CONTAINER_EXEC_TIMEOUT", "").strip()
+    if not raw or raw == "0":
+        return []
+    try:
+        seconds = parse_exec_timeout_seconds(raw)
+    except ValueError:
+        die(f"Invalid CONTAINER_EXEC_TIMEOUT duration: {raw!r}")
+    if seconds <= 0:
+        return []
+    return ["timeout", "--kill-after=15", str(seconds)]
 
 
 def main() -> int:
@@ -456,9 +474,11 @@ def main() -> int:
     if cmd == "docker":
         return exec_docker(["docker", *args], debug=debug)
 
-    # Default: passthrough ANY docker subcommand (info/version/system/network/volume/buildx/...)
-    # Example: `container info` -> `docker info`
-    #          `container system prune -af` -> `docker system prune -af`
+    if cmd == "exec":
+        return exec_docker(
+            [*exec_timeout_prefix(), "docker", "exec", *args], debug=debug
+        )
+
     return passthrough_any(cmd, args, debug=debug)
 
 

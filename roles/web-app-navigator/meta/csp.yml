@@ -1,0 +1,20 @@
+---
+whitelist:
+  script-src-elem:
+    - https://cdnjs.cloudflare.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://code.jquery.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+  style-src-elem:
+    - https://cdnjs.cloudflare.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+  font-src:
+    - https://cdnjs.cloudflare.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+  frame-src:
+    - "*.{{ DOMAIN_PRIMARY }}"
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true

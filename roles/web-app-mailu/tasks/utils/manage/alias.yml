@@ -1,0 +1,25 @@
+---
+- name: "📧 Forward alias '{{ mailu_alias_localpart }}' to '{{ mailu_alias_destination }}'"
+  ansible.builtin.shell: >-
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    flask mailu alias
+    {{ mailu_alias_localpart | quote }}
+    {{ MAILU_DOMAIN | quote }}
+    {{ mailu_alias_destination | quote }}
+  register: mailu_alias_result
+  retries: 12
+  delay: 10
+  until: >
+    mailu_alias_result.rc == 0 or
+    ('exists' in (mailu_alias_result.stderr | lower)) or
+    ('already' in (mailu_alias_result.stderr | lower)) or
+    ('duplicate' in (mailu_alias_result.stderr | lower))
+  changed_when: mailu_alias_result.rc == 0
+  failed_when: >
+    mailu_alias_result.rc != 0 and
+    (
+      ('exists' not in (mailu_alias_result.stderr | lower)) and
+      ('already' not in (mailu_alias_result.stderr | lower)) and
+      ('duplicate' not in (mailu_alias_result.stderr | lower))
+    )
+  timeout: "{{ lookup('timeout', 120) | int }}"

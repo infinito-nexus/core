@@ -1,71 +1,85 @@
 ---
-- name: Define per-role paths for {{ application_id }}
+- name: 📂 Define per-role paths for {{ application_id }}
   ansible.builtin.set_fact:
-    _cli_env_template: "{{ playbook_dir }}/roles/{{ application_id }}/templates/test.env.j2"
-    _cli_test_script: "{{ playbook_dir }}/roles/{{ application_id }}/files/test/test.sh"
+    _cli_env_template: "{{ lookup('path_absolute', 'roles', application_id, 'templates/test.env.j2') }}"
     _cli_stage_dir: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}/{{ application_id }}"
+    _cli_test_script: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}/{{ application_id }}/test.sh"
 
-- name: Assert CLI test env template exists for {{ application_id }}
+- name: "✅ Assert CLI test assets exist for {{ application_id }}"
   ansible.builtin.stat:
-    path: "{{ _cli_env_template }}"
-  register: _cli_env_stat
+    path: "{{ item }}"
+  register: _cli_asset_stats
+  delegate_to: localhost
+  run_once: true
+  loop:
+    - "{{ _cli_env_template }}"
+    - "{{ lookup('path_absolute', 'roles', application_id, 'files/test/test.sh') }}"
 
-- name: Fail if CLI test env template is missing for {{ application_id }}
+- name: "❌ Fail if a CLI test asset is missing for {{ application_id }}"
   ansible.builtin.fail:
-    msg: "Missing CLI test env template: {{ _cli_env_template }}"
-  when: not _cli_env_stat.stat.exists
+    msg: "Missing CLI test asset: {{ item.item }}"
+  when: not item.stat.exists
+  loop: "{{ _cli_asset_stats.results }}"
+  loop_control:
+    label: "{{ item.item }}"
 
-- name: Assert CLI test script exists for {{ application_id }}
-  ansible.builtin.stat:
-    path: "{{ _cli_test_script }}"
-  register: _cli_test_stat
-
-- name: Fail if CLI test script is missing for {{ application_id }}
-  ansible.builtin.fail:
-    msg: "Missing CLI test script: {{ _cli_test_script }}"
-  when: not _cli_test_stat.stat.exists
-
-- name: Create stage directory for {{ application_id }}
+- name: 📁 Create stage directory for {{ application_id }}
   ansible.builtin.file:
     path: "{{ _cli_stage_dir }}"
     state: directory
     mode: "0755"
 
-- name: Check optional application defaults for {{ application_id }}
-  ansible.builtin.stat:
-    path: "{{ playbook_dir }}/roles/{{ application_id }}/defaults/main.yml"
-  register: _cli_app_defaults_stat
+- name: 📦 Stage CLI test assets for {{ application_id }}
+  ansible.builtin.copy:
+    src: "{{ lookup('path_absolute', 'roles', application_id, 'files/test') }}/"
+    dest: "{{ _cli_stage_dir }}/"
+    mode: "0755"
 
-- name: Load optional application defaults for {{ application_id }}
+- name: 🔍 Check optional application defaults for {{ application_id }}
+  ansible.builtin.stat:
+    path: "{{ lookup('path_absolute', 'roles', application_id, 'defaults/main.yml') }}"
+  register: _cli_app_defaults_stat
+  delegate_to: localhost
+  run_once: true
+
+- name: 📦 Load optional application defaults for {{ application_id }}
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/roles/{{ application_id }}/defaults/main.yml"
+    file: "{{ lookup('path_absolute', 'roles', application_id, 'defaults/main.yml') }}"
   when: _cli_app_defaults_stat.stat.exists
 
-- name: Check optional application vars for {{ application_id }}
+- name: 🔍 Check optional application vars for {{ application_id }}
   ansible.builtin.stat:
-    path: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
+    path: "{{ lookup('path_absolute', 'roles', application_id, 'vars/main.yml') }}"
   register: _cli_app_vars_stat
+  delegate_to: localhost
+  run_once: true
 
-- name: Load optional application vars for {{ application_id }}
+- name: 📦 Load optional application vars for {{ application_id }}
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
+    file: "{{ lookup('path_absolute', 'roles', application_id, 'vars/main.yml') }}"
   when: _cli_app_vars_stat.stat.exists
 
-- name: Render test.env from templates/test.env.j2 for {{ application_id }}
+- name: 📄 Render test.env from templates/test.env.j2 for {{ application_id }}
   ansible.builtin.copy:
     dest: "{{ _cli_stage_dir }}/test.env"
     mode: "0644"
     content: "{{ lookup('template', _cli_env_template) }}"
 
-- name: Run CLI test script for {{ application_id }}
+- name: 🚀 Run CLI test script for {{ application_id }}
   ansible.builtin.shell:
-    cmd: "set -a && . {{ _cli_stage_dir }}/test.env && set +a && bash {{ _cli_test_script }}"
+    cmd: "set -a && . {{ _cli_stage_dir }}/test.env && set +a && timeout {{ _cli_timeout }} bash {{ _cli_test_script }}"
     executable: /bin/bash
+  vars:
+    _cli_timeout_base: "{{ lookup('role_tests', application_id, 'cli.timeout', default='') }}"
+    _cli_timeout: >-
+      {{ (lookup('timeout', _cli_timeout_base | int) | int)
+         if (_cli_timeout_base | string | trim | length > 0)
+         else (TEST_E2E_CLI_TIMEOUT | int) }}
   register: _cli_run
   changed_when: false
   failed_when: false
 
-- name: Print CLI test output on failure for {{ application_id }}
+- name: 📄 Print CLI test output on failure for {{ application_id }}
   ansible.builtin.debug:
     msg: |
       stdout:
@@ -75,7 +89,7 @@
   when: _cli_run.rc != 0
   changed_when: false
 
-- name: Record failure for {{ application_id }}
+- name: ❌ Record failure for {{ application_id }}
   ansible.builtin.set_fact:
     _cli_failures: "{{ (_cli_failures | default([])) + [application_id] }}"
   when: _cli_run.rc != 0

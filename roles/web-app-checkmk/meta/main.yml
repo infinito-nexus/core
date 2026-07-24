@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Checkmk (Raw/Community edition), an open-source IT and application monitoring server, behind the platform oauth2-proxy SSO gate with
-    native LDAP user management.
+  description: Open-source IT and application monitoring server behind SSO with native LDAP user management
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

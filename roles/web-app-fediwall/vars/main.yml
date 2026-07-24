@@ -1,33 +1,24 @@
 ---
-# General
 application_id: "web-app-fediwall"
 entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain', application_id) }}"
 
-# Container
-container_port: 80
 FEDIWALL_SERVICE: "{{ entity_name }}"
 FEDIWALL_CONTAINER: "{{ entity_name }}"
 FEDIWALL_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 FEDIWALL_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
-FEDIWALL_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 
-# Upstream release
 FEDIWALL_UPSTREAM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upstream.version') }}"
 FEDIWALL_UPSTREAM_TARBALL_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upstream.tarball_url') }}"
 
-# Walls (multi-instance, multi-path)
 FEDIWALL_WALLS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.walls') }}"
 
-# Build context (relative to directories.instance)
 FEDIWALL_BUILD_DIR_REL: "build"
 FEDIWALL_BUILD_DIR_ABS: "{{ [ lookup('container', application_id, 'directories.instance'), FEDIWALL_BUILD_DIR_REL ] | path_join }}"
 FEDIWALL_TARBALL_FILE: "{{ [ FEDIWALL_BUILD_DIR_ABS, 'fediwall.tgz' ] | path_join }}"
 
-# Pristine upstream tree (one extracted copy, fan-out source for slugs)
 FEDIWALL_UPSTREAM_DIR_REL: "{{ [ FEDIWALL_BUILD_DIR_REL, 'upstream' ] | path_join }}"
 FEDIWALL_UPSTREAM_DIR_ABS: "{{ [ lookup('container', application_id, 'directories.instance'), FEDIWALL_UPSTREAM_DIR_REL ] | path_join }}"
 
-# Final assembled tree that the Dockerfile COPYs into nginx
 FEDIWALL_DIST_DIR_REL: "{{ [ FEDIWALL_BUILD_DIR_REL, 'dist' ] | path_join }}"
 FEDIWALL_DIST_DIR_ABS: "{{ [ lookup('container', application_id, 'directories.instance'), FEDIWALL_DIST_DIR_REL ] | path_join }}"

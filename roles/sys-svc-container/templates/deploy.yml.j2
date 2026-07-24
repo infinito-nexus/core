@@ -1,0 +1,28 @@
+{% if (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm' %}
+{{ "\n" }}
+{% set _replicas = lookup('applications') | resource_filter(application_id, 'replicas', service_name | default(''), '') %}
+    deploy:
+      {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
+{% if application_id in lookup('roles_with_placement', 'manager') %}
+      placement:
+        constraints:
+          - node.role == manager
+{% endif %}
+      update_config:
+        parallelism: {{ service_update_parallelism | default(1) }}
+        delay: {{ service_update_delay | default('10s') }}
+{% if service_update_order is defined %}
+        order: {{ service_update_order }}
+{% endif %}
+      restart_policy:
+        condition: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) | swarm_restart_condition }}
+      resources:
+        limits:
+          cpus: "{{ lookup('applications') | resource_filter(application_id, 'cpus', service_name | default(''), RESOURCE_CPUS) | string }}"
+          memory: {{ lookup('applications') | resource_filter(application_id, 'mem_limit', service_name | default(''), RESOURCE_MEM_LIMIT) }}
+          pids: {{ lookup('applications') | resource_filter(application_id, 'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT) }}
+{% if RUNTIME != 'github' %}
+        reservations:
+          memory: {{ lookup('applications') | resource_filter(application_id, 'mem_reservation', service_name | default(''), RESOURCE_MEM_RESERVATION) }}
+{% endif %}
+{% endif %}

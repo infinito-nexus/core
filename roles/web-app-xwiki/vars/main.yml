@@ -1,55 +1,39 @@
 ---
-# General
 application_id: "web-app-xwiki"
+entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
-container_port: 8080
 container_hostname: "{{ domain }}"
-
-# XWiki
 
 XWIKI_HOST_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
 
-## URLs
 XWIKI_HOSTNAME: "{{ container_hostname }}"
 
-## Paths
 XWIKI_HOST_PROPERTIES_PATH: "{{ [lookup('container', application_id, 'directories.config'), 'xwiki.properties'] | path_join }}"
 XWIKI_DOCK_DATA_DIR: "/usr/local/xwiki"
 
-## Docker
-XWIKI_IMAGE_CUSTOM: "xwiki_custom"
 XWIKI_IMAGE: "{{ lookup('config', application_id, 'services.xwiki.image') }}"
 XWIKI_VERSION: "{{ lookup('config', application_id, 'services.xwiki.version') }}"
 XWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.xwiki.name') }}"
-XWIKI_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+XWIKI_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
-# Feature toggles (must be set in meta/services.yml -> features)
 XWIKI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 XWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 XWIKI_SSO_ENABLED: "{{ (XWIKI_OIDC_ENABLED | bool) or (XWIKI_LDAP_ENABLED | bool) }}"
 
-# Admin credentials (must be provided via inventory/vault)
 XWIKI_ADMIN_USER: "{{ lookup('users', 'administrator').username }}"
-# Role-name part only. The full hierarchical DN / OIDC path are built
-# via lookup('rbac_group_path') below.
 XWIKI_ADMIN_GROUP: "administrator"
-# XWiki built-in admin-group page (XWiki.<this>). SPOT for REST URLs,
-# LDAP group_mapping, OIDC groups.mapping and the XAR-shipped page name.
 XWIKI_ADMIN_GROUP_PAGE: "XWikiAdminGroup"
 
-# Superadministrator
 XWIKI_SUPERADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.superadminpassword') }}"
 XWIKI_SUPERADMIN_USERNAME: "superadmin"
 
 XWIKI_DOCKER_REACH_URL: "http://{{ DOCKER_REACH_HOST }}:{{ XWIKI_HOST_PORT }}"
 
-# REST endpoint (local inside container)
 XWIKI_REST_BASE: "{{ [XWIKI_DOCKER_REACH_URL, '/rest/'] | url_join  }}"
 XWIKI_REST_XWIKI: "{{ [XWIKI_REST_BASE, 'wikis/xwiki'] | url_join  }}"
 XWIKI_REST_XWIKI_PAGES: "{{ [XWIKI_REST_BASE, 'wikis/xwiki/spaces/XWiki/pages'] | url_join }}"
 
-# LDAP configuration (mapped to LDAP.* context)
 XWIKI_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
 XWIKI_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
 XWIKI_LDAP_BASE_DN: "{{ LDAP.DN.ROOT }}"
@@ -59,7 +43,6 @@ XWIKI_LDAP_TRYLOCAL: "{{ lookup('config', application_id, 'services.ldap.tryloca
 XWIKI_LDAP_FIELDS_MAPPING: "last_name={{ LDAP.USER.ATTRIBUTES.SURNAME }},first_name={{ LDAP.USER.ATTRIBUTES.FIRSTNAME }},email={{ LDAP.USER.ATTRIBUTES.MAIL }}"
 XWIKI_LDAP_ADMIN_GROUP_DN: "cn={{ XWIKI_ADMIN_GROUP }},ou={{ application_id }},{{ LDAP.DN.OU.ROLES }}"
 
-# OIDC configuration (must exist in OIDC.* context)
 XWIKI_OIDC_PROVIDER: "{{ OIDC.CLIENT.ISSUER_URL }}"
 XWIKI_OIDC_AUTHORIZATION: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 XWIKI_OIDC_TOKEN: "{{ OIDC.CLIENT.TOKEN_URL }}"

@@ -5,8 +5,11 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+# nocheck: lookup-cache-import (this lookup IS the config SPOT accessor)
 from utils.cache.applications import get_merged_applications
 from utils.cache.base import _render_with_templar
+
+# nocheck: lookup-cache-import (config resolves user values via the users SPOT)
 from utils.cache.users import get_merged_users
 from utils.roles.applications.config import get
 

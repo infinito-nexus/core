@@ -1,0 +1,4 @@
+---
+aliases: []
+canonical:
+  - espo.crm.{{ DOMAIN_PRIMARY }}

@@ -27,8 +27,14 @@ discourse:
   enabled: "{{ 'web-app-discourse' in group_names }}"
   shared: "{{ 'web-app-discourse' in group_names }}"
 wordpress:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   version: 7.0.1
   image: wordpress
+  custom: true
   name: wordpress
   min_storage: 8GB
   backup:
@@ -44,6 +50,8 @@ wordpress:
   ports:
     local:
       http: 8003
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -56,3 +64,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

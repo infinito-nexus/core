@@ -1,20 +1,13 @@
 ---
-# General
 application_id: "web-app-jira"
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Container
-container_port: 8080 # Standardport Jira
 container_hostname: "{{ lookup('domain',application_id) }}"
 
-# Jira
-
-## URLs
 JIRA_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 JIRA_HOSTNAME: "{{ container_hostname }}"
 JIRA_STORAGE_PATH: "/var/atlassian/application-data/jira"
 
-## OIDC
 JIRA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 JIRA_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
 JIRA_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
@@ -28,13 +21,9 @@ JIRA_OIDC_JWKS_URL: "{{ OIDC.CLIENT.CERTS }}"
 JIRA_OIDC_SCOPES: "openid,email,profile"
 JIRA_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 
-## Docker
 JIRA_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 JIRA_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 JIRA_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
-JIRA_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-JIRA_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ JIRA_VERSION }}"
 
-## Performance (derive from container limits in meta/services.yml)
 JIRA_JVM_MAX: "{{ lookup('applications') | jvm_max_mb(application_id) }}m"
 JIRA_JVM_MIN: "{{ lookup('applications') | jvm_min_mb(application_id) }}m"

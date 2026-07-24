@@ -1,6 +1,16 @@
 ---
-- name: "Render php-upload.ini for Joomla"
-  template:
+- name: "📄 Render php-upload.ini for Joomla"
+  stack_host_template:
     src: php-upload.ini.j2
     dest: "{{ JOOMLA_UPLOAD_CONFIG }}"
     mode: "0644"
+
+- name: "📋 Copy Joomla entrypoint (first-boot copy serializer)"
+  copy:
+    src: "{{ JOOMLA_ENTRYPOINT_SCRIPT_FILE }}"
+    dest: "{{ JOOMLA_ENTRYPOINT_SCRIPT_HOST_ABS }}"
+    mode: "0755"
+  notify:
+    - compose build
+    - compose up
+  when: IS_STACK_HOST | bool

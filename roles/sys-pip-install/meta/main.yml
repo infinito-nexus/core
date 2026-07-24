@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Install or upgrade a Python package system-wide using system pip.
+  description: "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

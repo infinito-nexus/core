@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Automated recovery for unhealthy or exited Docker Compose containers.
+  description: Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

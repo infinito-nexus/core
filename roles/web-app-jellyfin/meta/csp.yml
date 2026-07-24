@@ -1,0 +1,20 @@
+---
+flags:
+  script-src:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true
+  style-src:
+    unsafe-inline: true
+  style-src-elem:
+    unsafe-inline: true
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  connect-src:
+    - "data:"
+  img-src:
+    - "data:"
+  media-src:
+    - "blob:"

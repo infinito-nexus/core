@@ -15,7 +15,7 @@ from typing import Any
 
 from humanfriendly import parse_size
 
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 _RESOURCE_KEYS = ("mem_reservation", "mem_limit", "pids_limit", "cpus")
 _CONTAINER_KEYS = ("image", "name", "version", "container")

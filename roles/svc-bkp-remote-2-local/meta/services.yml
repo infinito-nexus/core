@@ -1,5 +1,8 @@
 ---
 remote-2-local:
+  modes:
+    host:
+      enabled: true
   min_storage: 0GB
   backup_providers: []
   lifecycle: beta
@@ -7,3 +10,9 @@ remote-2-local:
   mem_reservation: "256m"
   mem_limit: "512m"
   pids_limit: 256
+
+# nocheck: dynamic-flag - device sync is operator-gated via group membership; the pull host carries no variants
+local-2-device:
+  bond: 1
+  enabled: "{{ 'svc-bkp-local-2-device' in group_names }}"
+  shared: true

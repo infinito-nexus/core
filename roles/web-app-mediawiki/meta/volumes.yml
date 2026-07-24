@@ -1,3 +1,31 @@
 ---
-images: mediawiki_images
-extensions: mediawiki_extensions
+images:
+  type: volume
+  name: mediawiki_images
+  mounts:
+    - service: mediawiki
+      target: /var/www/html/images
+
+extensions:
+  type: volume
+  name: mediawiki_extensions
+  mounts:
+    - service: mediawiki
+      target: /var/www/html/extensions
+
+localsettings:
+  type: config
+  source: "{{ [lookup('container', 'web-app-mediawiki', 'directories.config'), 'LocalSettings.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mediawiki
+      target: /var/www/html/LocalSettings.php
+
+mw_local:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-mediawiki', 'directories.volumes'), 'mw-local'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: mediawiki
+      target: /opt/mw-local
+      read_only: true

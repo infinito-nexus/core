@@ -1,5 +1,5 @@
 ---
-- name: "Update Client settings"
+- name: "🔄 Update Client settings"
   vars:
     kc_object_kind: "client"
     kc_lookup_value: "{{ KEYCLOAK_CLIENT_ID }}"
@@ -46,6 +46,8 @@
     kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
     realm: "{{ KEYCLOAK_REALM }}"
     assert_mode: "{{ MODE_ASSERT }}"
+    cid_resolve_cmd: "{{ KEYCLOAK_CID_RESOLVE_CMD if DEPLOYMENT_MODE == 'swarm' else omit }}"
+    current_cid: "{{ KEYCLOAK_LOCAL_CID if DEPLOYMENT_MODE == 'swarm' else omit }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

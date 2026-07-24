@@ -1,0 +1,41 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: checkmk
+    resolve_output_prefix: CHECKMK
+    resolve_compose_cid: "{{ CHECKMK_NAME }}"
+
+- name: "⏳ Wait until the Checkmk site web interface is ready"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ CHECKMK_LOCAL_CID | quote }}
+    {{ 30 | curl }} -fS -o /dev/null
+    http://localhost:{{ container_port }}/{{ CHECKMK_SITE }}/check_mk/login.py
+  register: checkmk_ready
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: checkmk_ready.rc == 0
+  delegate_to: "{{ CHECKMK_HOST_NODE }}"
+
+- name: "🔐 Configure Checkmk header-auth and LDAP connection"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e CMK_SITE_ID={{ CHECKMK_SITE | quote }}
+      -e CHECKMK_SSO_ENABLED={{ CHECKMK_SSO_ENABLED | string | lower | quote }}
+      -e CHECKMK_LDAP_ENABLED={{ CHECKMK_LDAP_ENABLED | string | lower | quote }}
+      -e LDAP_SERVER={{ CHECKMK_LDAP_SERVER | quote }}
+      -e LDAP_PORT={{ CHECKMK_LDAP_PORT | quote }}
+      -e LDAP_BIND_DN={{ CHECKMK_LDAP_BIND_DN | quote }}
+      -e LDAP_BIND_PASSWORD={{ CHECKMK_LDAP_BIND_PASSWORD | quote }}
+      -e LDAP_USER_DN={{ CHECKMK_LDAP_USER_DN | quote }}
+      -e LDAP_GROUP_DN={{ CHECKMK_LDAP_GROUP_DN | quote }}
+      -e LDAP_UID_ATTR={{ CHECKMK_LDAP_USER_ID_ATTR | quote }}
+      {{ CHECKMK_LOCAL_CID | quote }}
+      bash -s
+    stdin: "{{ lookup('file', 'configure-sso.sh') }}"
+  delegate_to: "{{ CHECKMK_HOST_NODE }}"
+  when: (CHECKMK_SSO_ENABLED | bool) or (CHECKMK_LDAP_ENABLED | bool)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true

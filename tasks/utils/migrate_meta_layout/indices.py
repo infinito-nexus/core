@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import cache
 from typing import TYPE_CHECKING, Any
 
-from utils.roles.entity_name import get_entity_name
+from utils.roles.entity.name import get_entity_name
 
 from . import yaml_io
 

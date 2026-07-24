@@ -1,0 +1,25 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    aca_origin: "* always"
+    aca_methods: "'GET, OPTIONS' always"
+    aca_headers: '"Origin, X-Requested-With, Content-Type, Accept, Authorization" always'
+    webserver_vhost_flavour: "basic"
+
+- name: "📋 Copy '{{ application_id }}' files"
+  stack_host_template:
+    src: "{{ item.source }}"
+    dest: "{{ item.target }}"
+    mode: "0755"
+  loop:
+    - { source: "server.js.j2", target: "{{ SIMPLEICONS_HOST_SERVER_FILE }}" }
+    - { source: "package.json.j2", target: "{{ SIMPLEICONS_HOST_PACKAGE_FILE }}" }
+  notify:
+    - compose up
+    - compose build
+
+- meta: flush_handlers

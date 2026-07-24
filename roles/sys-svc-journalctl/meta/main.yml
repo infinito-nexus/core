@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Configure and manage systemd-journald settings
+  description: Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

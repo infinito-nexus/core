@@ -1,7 +1,7 @@
 ---
 # run_once_sys_stk_backend: disabled
 
-- name: "Resolve backend context for '{{ application_id }}'"
+- name: "🔍 Resolve backend context for '{{ application_id }}'"
   ansible.builtin.set_fact:
     _sys_stk_backend_database_consumer_id: >-
       {{ database_consumer_id | default(application_id) }}
@@ -9,7 +9,7 @@
       {{ lookup('database', application_id, 'enabled') | bool }}
   changed_when: false
 
-- name: "DEBUG | SYS-STK-BACKEND | Application context"
+- name: "🐛 DEBUG | SYS-STK-BACKEND | Application context"
   ansible.builtin.debug:
     msg:
       - "application_id={{ application_id }}"
@@ -18,7 +18,7 @@
       - "sso_proxy_enabled={{ lookup('sso', application_id, 'is_proxy_gated') }}"
   when: MODE_DEBUG | bool
 
-- name: "For '{{ application_id }}': Load central RDBMS"
+- name: "🧩 For '{{ application_id }}': Load central RDBMS"
   include_role:
     name: sys-svc-rdbms
     public: false
@@ -26,7 +26,7 @@
     database_consumer_id: "{{ _sys_stk_backend_database_consumer_id }}"
   when: _sys_stk_backend_database_enabled | bool
 
-- name: "For '{{ application_id }}': Load central object store (per-consumer provisioning)"
+- name: "🧩 '{{ application_id }}': load per-consumer central object store"
   include_role:
     name: sys-svc-objstore
     public: false
@@ -37,7 +37,14 @@
     - lookup('objstore', application_id, 'shared') | bool
     - application_id != lookup('objstore', application_id, 'id')
 
-- name: "For '{{ application_id }}': Load sys-svc-compose"
+- name: "🧩 For '{{ application_id }}': Load central engines (per-consumer provisioning)"
+  include_role:
+    name: sys-svc-engine
+    public: false
+  vars:
+    engine_consumer_id: "{{ application_id }}"
+
+- name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:
     name: sys-svc-compose
   vars:
@@ -45,13 +52,13 @@
     database_consumer_id: "{{ _sys_stk_backend_database_consumer_id }}"
 
 - block:
-    - name: "set sso_proxy_application_id (needed due to lazy-loading issue)"
+    - name: "🔧 set sso_proxy_application_id (needed due to lazy-loading issue)"
       set_fact:
         sso_proxy_application_id: "{{ application_id }}"
-    - name: "render web-app-keycloak SSO-proxy sidecar config"
-      include_tasks: "{{ playbook_dir }}/roles/web-app-keycloak/tasks/sso_proxy.yml"
+    - name: "📄 render web-app-keycloak SSO-proxy sidecar config"
+      include_tasks: "{{ lookup('path_absolute', 'roles/web-app-keycloak/tasks/sso_proxy.yml') }}"
   when: lookup('sso', application_id, 'is_proxy_gated') | bool
 
-- name: "flush compose and SSO proxy"
+- name: "🚿 flush compose and SSO proxy"
   meta: flush_handlers
   when: compose_handlers_flush | bool

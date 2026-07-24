@@ -1,0 +1,50 @@
+---
+- name: "✅ Ensure user '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    flask mailu {{ mailu_action }}
+    {{ mailu_user_name | quote }}
+    {{ MAILU_DOMAIN | quote }}
+    --
+    {{ mailu_user_password | quote }}
+  register: mailu_user_result
+  retries: 12
+  delay: 10
+  until: >
+    mailu_user_result.rc == 0 or
+    ('exists' in (mailu_user_result.stderr | lower)) or
+    ('already' in (mailu_user_result.stderr | lower)) or
+    ('duplicate' in (mailu_user_result.stderr | lower))
+  changed_when: mailu_user_result.rc == 0
+  failed_when: >
+    mailu_user_result.rc != 0 and
+    (
+      ('exists' not in (mailu_user_result.stderr | lower)) and
+      ('already' not in (mailu_user_result.stderr | lower)) and
+      ('duplicate' not in (mailu_user_result.stderr | lower))
+    )
+  when: "'mailbox' in mailu_user_accounts"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  timeout: "{{ lookup('timeout', 120) | int }}"
+
+- name: "🔧 Set password '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+    flask mailu password
+    {{ mailu_user_name | quote }}
+    {{ MAILU_DOMAIN | quote }}
+    --
+    {{ mailu_user_password | quote }}
+  register: mailu_user_password_change
+  retries: 12
+  delay: 10
+  until: mailu_user_password_change.rc == 0
+  changed_when: mailu_user_password_change.rc == 0
+  failed_when: mailu_user_password_change.rc != 0
+  when: "'mailbox' in mailu_user_accounts"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  timeout: "{{ lookup('timeout', 120) | int }}"
+
+- name: "📁 Create Mailu API Token for {{ mailu_user_name }}"
+  include_tasks: utils/manage/user_token.yml
+  when: "'bot' in mailu_user_roles"

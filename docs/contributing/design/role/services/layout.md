@@ -133,7 +133,7 @@ networks:
 
 The role's name is implied by the path.
 There is NO `web-app-<role>` key inside the file.
-The materialised path is `applications.<role>.server.networks.local.{subnet,dns_resolver}`.
+The materialised path is `applications.<role>.networks.local.{subnet,dns_resolver}`.
 
 ## Per-Entity Ports: `meta/services.yml.<entity>.ports` 🚪
 

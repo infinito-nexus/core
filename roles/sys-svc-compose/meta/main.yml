@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Manages Docker Compose project structure and execution logic on Arch Linux.
+  description: Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

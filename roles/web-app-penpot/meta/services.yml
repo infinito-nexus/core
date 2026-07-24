@@ -28,9 +28,11 @@ ldap:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m
@@ -49,7 +51,11 @@ seaweedfs:
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 penpot:
-  version: "2.5.4"
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   min_storage: 10GB
   cpus: "0.5"
   mem_reservation: 512m
@@ -59,6 +65,10 @@ penpot:
     local:
       http: 8041
       sso: 16506
+    internal:
+      http: 8080
+  proxy:
+    service_key: frontend
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -66,6 +76,7 @@ penpot:
   lifecycle: beta
 frontend:
   image: penpotapp/frontend
+  version: "2.16.2"
   name: penpot-frontend
   cpus: "0.5"
   mem_reservation: 256m
@@ -73,18 +84,26 @@ frontend:
   pids_limit: 256
 backend:
   image: penpotapp/backend
+  version: "2.16.2"
   name: penpot-backend
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
+  ports:
+    internal:
+      http: 6060
 exporter:
   image: penpotapp/exporter
+  version: "2.16.2"
   name: penpot-exporter
   cpus: "0.5"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
+  ports:
+    internal:
+      http: 6061
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
@@ -93,9 +112,15 @@ css:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
-  enabled: false
-  shared: false
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

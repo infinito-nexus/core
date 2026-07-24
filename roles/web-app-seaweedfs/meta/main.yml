@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: SeaweedFS S3-compatible object store. Provides the project-wide object-store service (engine seaweedfs) consumed like a database, with the Filer
-    and Master web UIs gated behind an admin-only oauth2-proxy and the S3 API exposed for app and media access.
+  description: Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

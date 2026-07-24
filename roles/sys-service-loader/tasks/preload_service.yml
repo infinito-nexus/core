@@ -1,0 +1,21 @@
+---
+- name: "🏷️ Mark shared service preload context for {{ service_key }}"
+  ansible.builtin.set_fact:
+    service_loader_preloading: true
+  changed_when: false
+
+- name: "🚿 Flush pending handlers before entering {{ service_key }} context"
+  meta: flush_handlers
+
+- name: "🔌 Load {{ service_key }} (Once)"
+  include_tasks: "utils/load/app.yml"
+  vars:
+    load_app_id: "{{ service_role }}"
+
+- name: "🚿 Flush handlers after loading {{ service_key }}"
+  meta: flush_handlers
+
+- name: "🧹 Clear shared service preload context for {{ service_key }}"
+  ansible.builtin.set_fact:
+    service_loader_preloading: false
+  changed_when: false

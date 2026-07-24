@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Nginx reverse proxy front-end for local Docker applications.
+  description: Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

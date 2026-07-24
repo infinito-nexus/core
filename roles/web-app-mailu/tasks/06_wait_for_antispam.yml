@@ -1,0 +1,9 @@
+---
+- name: "🔍 Probe Mailu antispam"
+  ansible.builtin.shell: >
+    container exec -i {{ MAILU_ANTISPAM_CONTAINER_ADDRESS }} true
+  register: mailu_antispam_check
+  retries: 30
+  delay: 5
+  until: mailu_antispam_check.rc == 0
+  changed_when: false

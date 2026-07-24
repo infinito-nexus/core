@@ -1,11 +1,30 @@
 ---
 openresty:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  edge proxy + TLS terminator at a known IP; sys-front-inj-* Lua pipeline cannot ride the overlay yet (Future Extension: Traefik with Yaegi)
+  placement: manager
+  bond: 1
+  enabled: true
+  shared: true
   name: openresty
   min_storage: 1GB
+  backup:
+    disabled: true
   cpus: 0.5
   mem_reservation: 1g
   mem_limit: 2g
   image: openresty/openresty
   version: alpine
+  custom: true
   lifecycle: beta
   pids_limit: 256
+
+# nocheck: dynamic-flag - proxy state is fully re-rendered by the deploy (configs, certs via binds), the backup consumer stays permanently off
+container_backup:
+  bond: 1
+  enabled: false
+  shared: true

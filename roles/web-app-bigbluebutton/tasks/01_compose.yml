@@ -1,0 +1,7 @@
+---
+- name: "🥾 Bootstrap bigbluebutton compose project"
+  include_tasks: 01_compose/bootstrap_compose_project.yml
+
+- name: "🔄 Flush handlers to deploy node-local bbb via compose up (swarm)"
+  ansible.builtin.meta: flush_handlers
+  when: compose_mode != DEPLOYMENT_MODE

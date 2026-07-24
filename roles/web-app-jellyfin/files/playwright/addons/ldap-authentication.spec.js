@@ -8,9 +8,6 @@ test.beforeEach(shared.beforeEach);
 
 test("addon ldap-authentication: biber signs in via the LDAP plugin and lands on the Jellyfin home", async ({ page }) => {
   skipUnlessAddonEnabled("ldap-authentication");
-  // A Jellyfin user binds to exactly one auth provider. When SSO is active the
-  // sso-authentication spec owns biber's login (OIDC); the LDAP login path is
-  // covered by the ldap-only matrix variant, where this spec runs.
   test.skip(
     shared.env.ssoEnabled === true,
     "SSO is active: biber is OIDC-bound; the LDAP login path runs in the ldap-only variant",

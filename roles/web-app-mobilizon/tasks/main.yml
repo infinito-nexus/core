@@ -1,12 +1,13 @@
 ---
-- name: "load docker, db and proxy for {{ application_id }}"
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
-- name: add config.exs
-  template:
+- name: ➕ add config.exs
+  stack_host_template:
     src: "config.exs.j2"
     dest: "{{ mobilizon_host_conf_exs_file }}"
   notify: compose up
+  when: IS_STACK_HOST | bool

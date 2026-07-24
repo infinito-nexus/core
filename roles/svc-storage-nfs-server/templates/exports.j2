@@ -1,0 +1,7 @@
+# Managed by Infinito.Nexus Ansible role svc-storage-nfs-server.
+{% for ip in svc_storage_nfs_server_allowed_ips %}
+{{ STORAGE_NFS_STATE_PATH }} {{ ip }}({{ SVC_STORAGE_NFS_SERVER_STATE_EXPORT_OPTIONS }},fsid=0)
+{% endfor %}
+{% for cidr in SVC_STORAGE_NFS_SERVER_STATE_ALLOWED_CIDRS %}
+{{ STORAGE_NFS_STATE_PATH }} {{ cidr }}({{ SVC_STORAGE_NFS_SERVER_STATE_EXPORT_OPTIONS }},fsid=0)
+{% endfor %}

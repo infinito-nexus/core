@@ -1,20 +1,18 @@
 ---
 # Replace INFX_LDAP_PLUGIN with the actual plugin name you use
-- name: "Install LDAP admin plugin & activate"
+- name: "📦 Install LDAP admin plugin & activate"
   shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
+    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
       set -e
       cd {{ SHOPWARE_ROOT }}
       php bin/console plugin:refresh
       php bin/console plugin:install --activate INFX_LDAP_PLUGIN || true
       php bin/console cache:clear
     '
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
 
-- name: "Configure LDAP connection"
+- name: "🔧 Configure LDAP connection"
   shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
+    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
       set -e
       cd {{ SHOPWARE_ROOT }}
       php bin/console system:config:set "InfxLdap.config.host"     "{{ LDAP.SERVER.DOMAIN }}"
@@ -24,5 +22,3 @@
       php bin/console system:config:set "InfxLdap.config.userBase" "{{ LDAP.DN.OU.USERS }}"
       php bin/console cache:clear
     '
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"

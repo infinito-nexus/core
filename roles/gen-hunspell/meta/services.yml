@@ -1,5 +1,8 @@
 ---
 hunspell:
+  modes:
+    host:
+      enabled: true
   languages:
     - "{{ HOST_LL_CC | lower }}"
   lifecycle: pre-alpha

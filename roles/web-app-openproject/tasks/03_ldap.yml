@@ -1,0 +1,62 @@
+---
+- name: ⚙️ Load LDAP configuration variables
+  include_vars:
+    file: "ldap.yml"
+
+- name: 🔎 Check if LDAP source exists
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-ldap-auth-source-exists.sql"
+    named_args:
+      name: "{{ OPENPROJECT_LDAP.name }}"
+    expect_rows: true
+  register: ldap_check
+
+- name: 🔄 Update existing LDAP auth source
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update-ldap-auth-source.sql"
+    named_args:
+      host: "{{ OPENPROJECT_LDAP.host }}"
+      port: "{{ OPENPROJECT_LDAP.port }}"
+      account: "{{ OPENPROJECT_LDAP.account }}"
+      account_password: "{{ OPENPROJECT_LDAP.account_password }}"
+      base_dn: "{{ OPENPROJECT_LDAP.base_dn }}"
+      attr_login: "{{ OPENPROJECT_LDAP.attr_login }}"
+      attr_firstname: "{{ OPENPROJECT_LDAP.attr_firstname }}"
+      attr_lastname: "{{ OPENPROJECT_LDAP.attr_lastname }}"
+      attr_mail: "{{ OPENPROJECT_LDAP.attr_mail }}"
+      onthefly_register: "{{ OPENPROJECT_LDAP.onthefly_register }}"
+      attr_admin: "{{ OPENPROJECT_LDAP.attr_admin }}"
+      tls_mode: "{{ OPENPROJECT_LDAP.tls_mode }}"
+      filter_string: "{{ OPENPROJECT_LDAP.filter_string }}"
+      verify_peer: "{{ OPENPROJECT_LDAP.verify_peer }}"
+      tls_certificate_string: "{{ OPENPROJECT_LDAP.tls_certificate_string }}"
+      name: "{{ OPENPROJECT_LDAP.name }}"
+  when: ldap_check.rows | length > 0
+
+- name: 📁 Create new LDAP auth source
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/insert-ldap-auth-source.sql"
+    named_args:
+      name: "{{ OPENPROJECT_LDAP.name }}"
+      host: "{{ OPENPROJECT_LDAP.host }}"
+      port: "{{ OPENPROJECT_LDAP.port }}"
+      account: "{{ OPENPROJECT_LDAP.account }}"
+      account_password: "{{ OPENPROJECT_LDAP.account_password }}"
+      base_dn: "{{ OPENPROJECT_LDAP.base_dn }}"
+      attr_login: "{{ OPENPROJECT_LDAP.attr_login }}"
+      attr_firstname: "{{ OPENPROJECT_LDAP.attr_firstname }}"
+      attr_lastname: "{{ OPENPROJECT_LDAP.attr_lastname }}"
+      attr_mail: "{{ OPENPROJECT_LDAP.attr_mail }}"
+      onthefly_register: "{{ OPENPROJECT_LDAP.onthefly_register }}"
+      attr_admin: "{{ OPENPROJECT_LDAP.attr_admin }}"
+      tls_mode: "{{ OPENPROJECT_LDAP.tls_mode }}"
+      filter_string: "{{ OPENPROJECT_LDAP.filter_string }}"
+      verify_peer: "{{ OPENPROJECT_LDAP.verify_peer }}"
+      tls_certificate_string: "{{ OPENPROJECT_LDAP.tls_certificate_string }}"
+  when: ldap_check.rows | length == 0

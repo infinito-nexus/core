@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
-  author: Kevin Veen-Birchenbach
-  description: Deploys a SocialHome federated social network via Docker Compose with basic domain wiring.
+  author: Kevin Veen-Birkenbach
+  description: Federated social network for content hubs and ActivityPub-based federation across the fediverse
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

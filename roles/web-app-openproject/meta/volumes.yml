@@ -1,2 +1,33 @@
 ---
-data: openproject_data
+data:
+  type: volume
+  name: openproject_data
+  mounts:
+    - service: proxy
+      target: /var/openproject/assets
+    - service: web
+      target: /var/openproject/assets
+    - service: worker
+      target: /var/openproject/assets
+    - service: cron
+      target: /var/openproject/assets
+    - service: seeder
+      target: /var/openproject/assets
+pgdata_dummy:
+  # Exception: mount only exists to prevent OpenProject images from creating
+  # anonymous volumes for the unused embedded postgres data path.
+  type: volume
+  name: openproject_pgdata_dummy
+  # nocheck: nfs-false-data-loss  Reason: throwaway dummy, never read or written, re-provisioned on redeploy
+  nfs: false
+  mounts:
+    - service: proxy
+      target: /var/openproject/pgdata
+    - service: web
+      target: /var/openproject/pgdata
+    - service: worker
+      target: /var/openproject/pgdata
+    - service: cron
+      target: /var/openproject/pgdata
+    - service: seeder
+      target: /var/openproject/pgdata

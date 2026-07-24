@@ -9,10 +9,12 @@ because the base image and tag MUST be surfaced via the role's
 operators can pin or override the base without editing the Dockerfile.
 
 The well-known sentinel ``FROM scratch`` is allowed since it has no
-upstream image to parameterize. To opt a single FROM out of the rule
-(e.g. a multi-stage helper that pins to a specific scratch-built tool
-image), append the comment marker ``# nocheck: from-parameterized`` on
-the same line.
+upstream image to parameterize, and so is a ``FROM`` that references a
+stage declared earlier in the same file (``FROM <base> AS build`` ...
+``FROM build``): stage references are file-internal, not image pins.
+To opt a single FROM out of the rule (e.g. a multi-stage helper that
+pins to a specific scratch-built tool image), append the comment marker
+``# nocheck: from-parameterized`` on the same line.
 """
 
 from __future__ import annotations
@@ -45,15 +47,19 @@ def _collect_role_dockerfiles() -> list[Path]:
 
 def _from_violations(dockerfile: Path) -> list[tuple[int, str]]:
     violations: list[tuple[int, str]] = []
+    stage_names: set[str] = set()
     for lineno, raw in enumerate(read_text(str(dockerfile)).splitlines(), start=1):
-        # Strip the trailing AS <stage> alias so multi-stage builds don't
-        # confuse the variable detection on the image reference itself.
         line = raw.split("#", 1)[0]
         match = _FROM_RE.match(line)
         if not match:
             continue
-        image_ref = match.group(1).split(" AS ")[0].strip()
+        parts = re.split(r"\s+AS\s+", match.group(1), flags=re.IGNORECASE)
+        image_ref = parts[0].strip()
+        if len(parts) > 1:
+            stage_names.add(parts[1].strip().lower())
         if image_ref.lower() == "scratch":
+            continue
+        if image_ref.lower() in stage_names:
             continue
         if _NOCHECK_RE.search(raw):
             continue

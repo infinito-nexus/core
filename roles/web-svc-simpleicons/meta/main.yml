@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploy and serve SVG and PNG icons effortlessly with Simple Icons, a containerized icon server ideal for web projects, documentation, and
-    branding.
+  description: Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

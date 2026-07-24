@@ -1,0 +1,7 @@
+---
+# Drops every published port of the dev-stack container. Nested runner
+# deploys share the outer docker daemon (DooD), where the primary stack's
+# host-net openresty already listens on the wildcard ports.
+services:
+  infinito:
+    ports: !override []

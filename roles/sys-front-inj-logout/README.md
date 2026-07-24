@@ -13,6 +13,19 @@ The `sys-front-inj-logout` Ansible role automatically embeds a lightweight JavaS
 - **Dynamic content support**: Uses a `MutationObserver` to handle AJAX‑loaded or dynamically injected logout elements.  
 - **CSP integration**: Automatically appends the required script hash into your CSP policy via the role’s CSP helper.
 
+## Cosmos
+
+The diagram places sys-front-inj-logout in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph role [sys-front-inj-logout 💻]
+        svc_logout["logout"]
+    end
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - Seamless injection via NGINX `sub_filter` on `</head>`.  
@@ -30,7 +43,6 @@ The `sys-front-inj-logout` Ansible role automatically embeds a lightweight JavaS
 
 ## Credits
 
-Developed and maintained by **Kevin Veen-Birkenbach**.
-Learn more at [veen.world](https://www.veen.world).
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code).
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

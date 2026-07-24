@@ -1,0 +1,118 @@
+name: "📖 Test: Guide"
+
+on:
+  workflow_call:
+    inputs:
+      role:
+        description: "Role to test; empty picks one at random"
+        required: false
+        type: string
+        default: ""
+      priority:
+        description: "Space-separated app ids; a random one is preferred over whitelist"
+        required: false
+        type: string
+        default: ""
+      whitelist:
+        description: "Space-separated app ids; a random one is used when no role or priority is given"
+        required: false
+        type: string
+        default: ""
+  workflow_dispatch:
+    inputs:
+      role:
+        description: "Role to test; empty picks one at random"
+        required: false
+        type: string
+        default: ""
+      priority:
+        description: "Space-separated app ids; a random one is preferred over whitelist"
+        required: false
+        type: string
+        default: ""
+      whitelist:
+        description: "Space-separated app ids; a random one is used when no role or priority is given"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    name: 📖 Guide
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+      INFINITO_DISTROS: "arch debian ubuntu fedora centos"
+    steps:
+      - if: ${{ !env.ACT }}
+        uses: actions/checkout@v7.0.0
+
+      - name: "📥 Load rescue-diagnostics SPOT into job env"
+        shell: bash
+        run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
+
+      - name: 🐍 Install guide + compose deps (Act runner only)
+        if: ${{ env.ACT }}
+        shell: bash
+        run: |
+          pip install --quiet --break-system-packages pyyaml
+          apt-get update -qq && apt-get install -y -qq gettext-base jq
+
+      - name: 🎲 Select the role, distro, and deploy mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m cli.meta.ci.guide_select \
+            --role "${{ inputs.role }}" \
+            --priority "${{ inputs.priority }}" \
+            --whitelist "${{ inputs.whitelist }}" | tee -a "$GITHUB_ENV"
+
+      - name: 🔑 Login to GHCR
+        if: ${{ !env.ACT }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🖥️ Install a host role inside its pkgmgr distro container
+        if: ${{ env.GUIDE_MODE == 'host' }}
+        shell: bash
+        run: bash scripts/github/guide/host_deploy.sh
+
+      - name: 🖥️ Boot the systemd server for a compose role
+        if: ${{ env.GUIDE_MODE == 'compose' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          INFINITO_IMAGE="ghcr.io/$(scripts/meta/resolve/repository/owner.sh)/$(scripts/meta/resolve/repository/name.sh)/${INFINITO_DISTRO}:ci-${{ github.sha }}"
+          echo "INFINITO_IMAGE=${INFINITO_IMAGE}" >> "$GITHUB_ENV"
+          export INFINITO_IMAGE
+          make compose-up
+
+      - name: 🚀 Deploy the compose role against the server
+        if: ${{ env.GUIDE_MODE == 'compose' }}
+        shell: bash
+        run: bash scripts/github/guide/compose_deploy.sh
+
+      - name: 🩺 Collect rescue diagnostics (recursive DiD snapshot)
+        if: failure()
+        timeout-minutes: 25
+        shell: bash
+        run: |
+          INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${GUIDE_ROLE}" \
+            python3 utils/diagnostics/container.py \
+            "${GUIDE_ROLE}" "guide ${GUIDE_MODE} post-deploy failure" || true
+
+      - name: ⬆️ Upload rescue diagnostics
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: rescue-diagnostics-guide-${{ env.GUIDE_ROLE }}
+          path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
+          if-no-files-found: ignore

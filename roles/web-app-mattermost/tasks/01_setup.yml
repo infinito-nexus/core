@@ -1,108 +1,74 @@
 ---
-- name: "Mattermost | Wait until mmctl local mode is ready"
-  shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+- name: "🔍 Resolve mattermost hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: MATTERMOST
+    resolve_compose_cid: "{{ MATTERMOST_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
+- name: "⏳ Mattermost | Wait until mmctl local mode is ready"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       /mattermost/bin/mmctl --local system status
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: mm_ready_wait
   retries: 60
   delay: 5
   until: mm_ready_wait.rc == 0
   changed_when: false
   failed_when: mm_ready_wait.rc != 0 and mm_ready_wait.attempts == 61
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
-- name: "Mattermost | Create system administrator user"
-  shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+- name: "📁 Mattermost | Create system administrator user"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       /mattermost/bin/mmctl --local user create \
         --email    "{{ lookup('users', 'administrator').email }}" \
         --username "{{ lookup('users', 'administrator').username }}" \
         --password {{ lookup('users', 'administrator').password | quote }} \
         --system-admin
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: mm_create_admin
   changed_when: mm_create_admin.rc == 0
   failed_when: mm_create_admin.rc != 0 and 'already exists' not in (mm_create_admin.stdout + mm_create_admin.stderr)
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
-- name: "Mattermost | Create default team"
-  shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+- name: "📁 Mattermost | Create default team"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       /mattermost/bin/mmctl --local team create \
         --name         "main" \
         --display-name "{{ ORGANIZATION }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: mm_create_team
   changed_when: mm_create_team.rc == 0
   failed_when: mm_create_team.rc != 0 and 'already exists' not in (mm_create_team.stdout + mm_create_team.stderr) and 'existing team' not in
     (mm_create_team.stdout + mm_create_team.stderr)
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
-- name: "Mattermost | Enable open invite on default team"
+- name: "🟢 Mattermost | Enable open invite on default team"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/update-default-team-open-invite.sql"
+    query_file: "{{ role_path }}/files/sql/update/default-team-open-invite.sql"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false
 
-- name: "Mattermost | Check which users are already in default team"
-  shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+- name: "🔎 Mattermost | Check which users are already in default team"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       /mattermost/bin/mmctl --local user list --team main
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: mm_team_members
   changed_when: false
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
-- name: "Mattermost | Add administrator to default team"
-  shell: |
-    container exec -i {{ MATTERMOST_CONTAINER }} \
+- name: "➕ Mattermost | Add administrator to default team"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       /mattermost/bin/mmctl --local team users add \
         main \
         "{{ lookup('users', 'administrator').email }}"
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   when: lookup('users', 'administrator').email not in mm_team_members.stdout
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
-- name: "Mattermost | Check administrator auth service"
-  database_query:
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-user-authservice.sql"
-    named_args:
-      email: "{{ lookup('users', 'administrator').email }}"
-    expect_rows: true
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  register: mm_admin_authservice
-  changed_when: false
+- name: "🗂️ Mattermost | Wire administrator OIDC auth"
+  ansible.builtin.include_tasks: 03_oidc_admin.yml
   when: MATTERMOST_OIDC_ENABLED | bool
-
-- name: "Mattermost | Get administrator uidNumber from LDAP"
-  shell: |
-    container exec -i {{ MATTERMOST_LDAP_CONTAINER }} \
-      ldapsearch -x -H ldap://localhost:389 \
-        -D {{ LDAP.DN.ADMINISTRATOR.DATA | quote }} \
-        -w {{ LDAP.BIND_CREDENTIAL | quote }} \
-        -b {{ LDAP.DN.OU.USERS | quote }} \
-        "(uid={{ lookup('users', 'administrator').username }})" uidNumber \
-    | grep '^uidNumber:' | awk '{print $2}'
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: mm_admin_uidnumber
-  changed_when: false
-  failed_when: mm_admin_uidnumber.rc != 0 or mm_admin_uidnumber.stdout | trim == ''
-  when:
-    - MATTERMOST_OIDC_ENABLED | bool
-    - (mm_admin_authservice.rows[0][0] | default('') | trim) != 'gitlab'
-
-- name: "Mattermost | Convert administrator to gitlab SSO auth"
-  database_query:
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/update-user-to-gitlab-auth.sql"
-    named_args:
-      authdata: "{{ mm_admin_uidnumber.stdout | trim }}"
-      email: "{{ lookup('users', 'administrator').email }}"
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when:
-    - MATTERMOST_OIDC_ENABLED | bool
-    - (mm_admin_authservice.rows[0][0] | default('') | trim) != 'gitlab'

@@ -1,0 +1,34 @@
+---
+elasticsearch:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  engine on-disk state (Lucene index segments + translog fsync/locking) cannot live on NFS, so the central engine is node-local in swarm
+  placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: elasticsearch
+  name: elasticsearch
+  version: "9.4.3"
+  min_storage: 10GB
+  backup:
+    database_routine: true
+  cpus: "2.0"
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 1024
+  ports:
+    local:
+      elasticsearch: 9200
+    internal:
+      elasticsearch: 9200
+  lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

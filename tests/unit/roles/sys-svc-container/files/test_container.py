@@ -8,15 +8,19 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from . import PROJECT_ROOT
+from utils.cache.yaml import load_yaml
 
-# ---------------------------------------------------------------------------
-# Manual import of roles/sys-svc-container/files/container.py
-# ---------------------------------------------------------------------------
+from . import PROJECT_ROOT
 
 THIS_FILE = Path(__file__).resolve()
 
 CONTAINER_PY = PROJECT_ROOT / "roles" / "sys-svc-container" / "files" / "container.py"
+
+_CA_TRUST = load_yaml(str(PROJECT_ROOT / "group_vars" / "all" / "02_tls.yml"))[
+    "CA_TRUST"
+]
+CA_CERT_CONTAINER = _CA_TRUST["inject_cert_container"]
+CA_WRAPPER_CONTAINER = _CA_TRUST["inject_wrapper_container"]
 
 if not CONTAINER_PY.exists():
     raise FileNotFoundError(f"container.py not found at {CONTAINER_PY}")
@@ -154,7 +158,6 @@ class TestContainerWrapper(unittest.TestCase):
 
         def fake_pull(image: str) -> None:
             calls.append(("pull", image))
-            # after pull, inspect should succeed
             container.inspect_image_entrypoint = inspect_ok
 
         orig_pull = container.docker_pull
@@ -204,7 +207,7 @@ class TestContainerWrapper(unittest.TestCase):
 
     def test_require_ca_env_soft_missing_env_returns_none_and_warns(self):
         """
-        If any CA env var is missing, require_ca_env_soft() should:
+        If the host CA env trio is missing, require_ca_env_soft() should:
           - return None
           - emit a warning on stderr
         """
@@ -213,6 +216,8 @@ class TestContainerWrapper(unittest.TestCase):
             os.environ.pop("CA_TRUST_CERT_HOST", None)
             os.environ.pop("CA_TRUST_WRAPPER_HOST", None)
             os.environ.pop("CA_TRUST_NAME", None)
+            os.environ.pop("CA_TRUST_CERT_CONTAINER", None)
+            os.environ.pop("CA_TRUST_WRAPPER_CONTAINER", None)
 
             buf = io.StringIO()
             with contextlib.redirect_stderr(buf):
@@ -222,6 +227,39 @@ class TestContainerWrapper(unittest.TestCase):
             out = buf.getvalue()
             self.assertIn("[container][WARN]", out)
             self.assertIn("CA injection disabled (missing env:", out)
+        finally:
+            os.environ.clear()
+            os.environ.update(old_env)
+
+    def test_require_ca_env_soft_half_migrated_dies_loudly(self):
+        """
+        Host trio present but container paths absent = half-migrated caller:
+        require_ca_env_soft() must fail hard instead of silently stripping
+        CA trust from a host that clearly wants it.
+        """
+        old_env = dict(os.environ)
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                td_path = Path(td)
+                ca_file = td_path / "root-ca.crt"
+                wrapper_file = td_path / "with-ca-trust.sh"
+                ca_file.write_text("dummy-ca\n", encoding="utf-8")
+                wrapper_file.write_text("#!/bin/sh\necho ok\n", encoding="utf-8")
+
+                os.environ["CA_TRUST_CERT_HOST"] = str(ca_file)
+                os.environ["CA_TRUST_WRAPPER_HOST"] = str(wrapper_file)
+                os.environ["CA_TRUST_NAME"] = "test-ca"
+                os.environ.pop("CA_TRUST_CERT_CONTAINER", None)
+                os.environ.pop("CA_TRUST_WRAPPER_CONTAINER", None)
+
+                buf = io.StringIO()
+                with (
+                    contextlib.redirect_stderr(buf),
+                    self.assertRaises(SystemExit),
+                ):
+                    container.require_ca_env_soft()
+
+                self.assertIn("CA injection misconfigured", buf.getvalue())
         finally:
             os.environ.clear()
             os.environ.update(old_env)
@@ -237,6 +275,8 @@ class TestContainerWrapper(unittest.TestCase):
             os.environ["CA_TRUST_CERT_HOST"] = "/does/not/exist/ca.crt"
             os.environ["CA_TRUST_WRAPPER_HOST"] = "/does/not/exist/with-ca-trust.sh"
             os.environ["CA_TRUST_NAME"] = "test-ca"
+            os.environ["CA_TRUST_CERT_CONTAINER"] = CA_CERT_CONTAINER
+            os.environ["CA_TRUST_WRAPPER_CONTAINER"] = CA_WRAPPER_CONTAINER
 
             buf = io.StringIO()
             with contextlib.redirect_stderr(buf):
@@ -267,6 +307,8 @@ class TestContainerWrapper(unittest.TestCase):
                 os.environ["CA_TRUST_CERT_HOST"] = str(ca_file)
                 os.environ["CA_TRUST_WRAPPER_HOST"] = str(wrapper_file)
                 os.environ["CA_TRUST_NAME"] = "test-ca"
+                os.environ["CA_TRUST_CERT_CONTAINER"] = CA_CERT_CONTAINER
+                os.environ["CA_TRUST_WRAPPER_CONTAINER"] = CA_WRAPPER_CONTAINER
 
                 buf = io.StringIO()
                 with contextlib.redirect_stderr(buf):
@@ -274,11 +316,12 @@ class TestContainerWrapper(unittest.TestCase):
 
                 self.assertIsNotNone(res)
                 assert res is not None
-                ca_host, wrapper_host, trust_name = res
+                ca_host, wrapper_host, trust_name, ca_container, wrapper_container = res
                 self.assertEqual(ca_host, str(ca_file))
                 self.assertEqual(wrapper_host, str(wrapper_file))
                 self.assertEqual(trust_name, "test-ca")
-                # should not warn in the OK case
+                self.assertEqual(ca_container, CA_CERT_CONTAINER)
+                self.assertEqual(wrapper_container, CA_WRAPPER_CONTAINER)
                 self.assertEqual(buf.getvalue().strip(), "")
         finally:
             os.environ.clear()
@@ -317,7 +360,7 @@ class TestContainerWrapper(unittest.TestCase):
                 calls[0][1],
                 ["docker", "run", *argv],
             )
-            self.assertTrue(calls[0][2])  # debug=True
+            self.assertTrue(calls[0][2])
         finally:
             container.exec_docker = orig_exec_docker
             os.environ.clear()
@@ -336,7 +379,7 @@ class TestContainerWrapper(unittest.TestCase):
             return 0
 
         def fake_try_inspect_no_ep(image, pull_policy):
-            return []  # no entrypoint
+            return []
 
         orig_exec_docker = container.exec_docker
         orig_try_inspect = container.try_inspect_entrypoint_with_pull
@@ -351,6 +394,8 @@ class TestContainerWrapper(unittest.TestCase):
                 os.environ["CA_TRUST_CERT_HOST"] = str(ca_file)
                 os.environ["CA_TRUST_WRAPPER_HOST"] = str(wrapper_file)
                 os.environ["CA_TRUST_NAME"] = "test-ca"
+                os.environ["CA_TRUST_CERT_CONTAINER"] = CA_CERT_CONTAINER
+                os.environ["CA_TRUST_WRAPPER_CONTAINER"] = CA_WRAPPER_CONTAINER
 
                 container.exec_docker = fake_exec_docker
                 container.try_inspect_entrypoint_with_pull = fake_try_inspect_no_ep
@@ -361,16 +406,12 @@ class TestContainerWrapper(unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertEqual(len(calls), 1)
             cmd = calls[0][1]
-            # Must be a docker run command
             self.assertEqual(cmd[0], "docker")
             self.assertEqual(cmd[1], "run")
-            # Must contain NODE_EXTRA_CA_CERTS injection
             cmd_str = " ".join(cmd)
             self.assertIn("NODE_EXTRA_CA_CERTS", cmd_str)
-            self.assertIn("/tmp/infinito/ca/root-ca.crt", cmd_str)
-            # Must NOT use --entrypoint (no wrapper)
+            self.assertIn(CA_CERT_CONTAINER, cmd_str)
             self.assertNotIn("--entrypoint", cmd_str)
-            # Image and original command must appear
             self.assertIn("playwright:v1.0", cmd_str)
             self.assertIn("npm install", cmd_str)
         finally:

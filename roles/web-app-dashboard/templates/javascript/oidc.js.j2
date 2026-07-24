@@ -137,7 +137,7 @@ async function initAuthUI() {
   syncAuthMenuVisibility(false);
 
   // Load keycloak.js
-  const kcJsUrl = "https://cdn.jsdelivr.net/npm/keycloak-js@latest/dist/keycloak.min.js";
+  const kcJsUrl = "{{ lookup('asset', application_id, 'keycloak-js', 'dist/keycloak.js') }}";
   try {
     await loadKeycloakAdapter(kcJsUrl);
   } catch (e) {

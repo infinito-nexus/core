@@ -185,7 +185,7 @@ class TestBuildDevInventory(unittest.TestCase):
         "cli.administration.deploy.development.inventory.payload.get_variant_overrides_only",
         autospec=True,
         return_value={
-            "svc-bkp-container-2-local": [{}, {}, {}],
+            "svc-bkp-volume-2-local": [{}, {}, {}],
         },
     )
     @patch(
@@ -199,8 +199,8 @@ class TestBuildDevInventory(unittest.TestCase):
         _variants_mock: MagicMock,
     ) -> None:
         spec = make_spec(
-            include=("svc-bkp-container-2-local",),
-            active_variants={"svc-bkp-container-2-local": 2},
+            include=("svc-bkp-volume-2-local",),
+            active_variants={"svc-bkp-volume-2-local": 2},
         )
         build_dev_inventory(self.compose, spec)
 
@@ -209,7 +209,7 @@ class TestBuildDevInventory(unittest.TestCase):
         variants_index = first_cmd.index("--app-variants") + 1
         self.assertEqual(
             json.loads(first_cmd[variants_index]),
-            {"svc-bkp-container-2-local": 2},
+            {"svc-bkp-volume-2-local": 2},
         )
 
     @patch(

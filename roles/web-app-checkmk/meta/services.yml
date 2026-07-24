@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-required — Checkmk Raw bundles its own monitoring core + RRD storage on a single OMD-site volume; it has no object-store surface.
+# nocheck: seaweedfs-required - Checkmk Raw bundles its own monitoring core + RRD storage on a single OMD-site volume; it has no object-store surface.
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -12,7 +12,7 @@ sso:
     acl:
       whitelist:
         - /cmk/check_mk/api/
-# nocheck: playwright-service-flag — identity backend (LDAP connection synced into the site); login is driven through the oauth2 gate, so there is no separate LDAP Playwright surface.
+# nocheck: playwright-service-flag - identity backend (LDAP connection synced into the site); login is driven through the oauth2 gate, so there is no separate LDAP Playwright surface.
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -37,8 +37,8 @@ css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
-# nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
-# nocheck: playwright-service-flag — runtime DOM patch (injected logout), no probe-able surface flag
+# nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag - runtime DOM patch (injected logout), no probe-able surface flag
 javascript:
   bond: 1
   enabled: "{{ lookup('config', 'web-app-checkmk', 'services.sso.enabled') | bool }}"
@@ -48,6 +48,15 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 checkmk:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  stateful OMD site is node-local (OMD fcntl locks return EBADF on NFS); pin so the task never leaves the node holding its data
+  placement: manager
+  # nocheck: single-replica
+  replicas: 1
   cpus: 2.0
   mem_reservation: 1g
   mem_limit: 2g
@@ -69,4 +78,10 @@ checkmk:
   run_after:
     - web-app-keycloak
     - svc-db-openldap
-  lifecycle: alpha
+  lifecycle: beta
+# nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

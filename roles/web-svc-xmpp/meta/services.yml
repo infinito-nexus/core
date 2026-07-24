@@ -17,12 +17,28 @@ ldap:
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
 xmpp:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: single-replica
+  replicas: 1
   image: ejabberd/ecs
-  version: latest
+  version: "26.04"
   name: ejabberd
   ports:
     local:
       http: 8082
+    public:
+      c2s: 5222
+      s2s: 5269
+    internal:
+      http: 5280
+      c2s: 5222
+      s2s: 5269
+  proxy:
+    service_key: ejabberd
   run_after:
     - web-app-keycloak
     - svc-db-openldap
@@ -32,3 +48,9 @@ xmpp:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

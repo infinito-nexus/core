@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: FusionDirectory is a web-app-based tool to manage LDAP directories and this role ensures a reliable, easy-to-use interface for LDAP
-    administration.
+  description: Web-based LDAP administration interface for managing users, groups, and directory objects
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

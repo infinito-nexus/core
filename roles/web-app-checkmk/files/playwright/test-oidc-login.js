@@ -11,7 +11,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("OIDC: oauth2-proxy gate + X-Remote-User header establish a real Checkmk session", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
-  test.setTimeout(120_000); // oauth2-proxy + Keycloak round-trip
+  test.setTimeout(120_000);
   expect(baseUrl, "CHECKMK_BASE_URL must be set").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
@@ -28,8 +28,6 @@ test("OIDC: oauth2-proxy gate + X-Remote-User header establish a real Checkmk se
 
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
 
-  // Back on the canonical domain, authenticated into the Checkmk GUI via the
-  // trusted X-Remote-User header (no second login form).
   await expect
     .poll(() => page.url(), { timeout: 90_000, message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase.replace(/^https?:\/\//, ""));

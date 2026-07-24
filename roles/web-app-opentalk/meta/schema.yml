@@ -20,3 +20,9 @@ credentials:
     algorithm: alphanumeric
     validation:
       min_length: 32
+  service_api_secret:
+    description: API key secret for the controller's internal service APIs (`http.service_api_keys`), mandatory since controller v0.34 for the roomserver
+      integration.
+    algorithm: alphanumeric
+    validation:
+      min_length: 32

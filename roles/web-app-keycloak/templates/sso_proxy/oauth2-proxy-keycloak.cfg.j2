@@ -1,34 +1,29 @@
 http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}"
 cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'credentials.sso_proxy_cookie_secret') }}"
-cookie_secure           =   "{{ lookup('tls', sso_proxy_application_id, 'enabled') | string | lower }}"                                                                            # True is necessary to force the cookie set via https
-upstreams               =   "http://{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
-cookie_domains          =   ["{{ lookup('domains', sso_proxy_application_id) | common_dns_suffix }}", "{{ lookup('domain', 'web-app-keycloak') }}"]   # Shared parent for a multi-domain app (filer/master/api) so one session cookie spans them; single-domain apps keep their exact host.
-whitelist_domains       =   [".{{ DOMAIN_PRIMARY }}"]                                                                                       # Required to allow redirection back to original requested target.
+cookie_secure           =   "{{ lookup('tls', sso_proxy_application_id, 'enabled') | string | lower }}"
+{% set _sso_upstream_mode = (compose_mode_force | default('')) or DEPLOYMENT_MODE %}
+upstreams               =   "http://{{ ((sso_proxy_application_id | get_entity_name) ~ '_') if _sso_upstream_mode == 'swarm' else '' }}{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
+cookie_domains          =   ["{{ lookup('domains', sso_proxy_application_id) | common_dns_suffix }}", "{{ lookup('domain', 'web-app-keycloak') }}"]
+whitelist_domains       =   [".{{ DOMAIN_PRIMARY }}"]
 
-# keycloak provider
 client_secret           =   "{{ OIDC.CLIENT.SECRET }}"
 client_id               =   "{{ OIDC.CLIENT.ID }}"
 redirect_url            =   "{{ lookup('tls', sso_proxy_application_id, 'protocols.web') }}://{{ lookup('domain', sso_proxy_application_id) }}/oauth2/callback"
 oidc_issuer_url         =   "{{ OIDC.CLIENT.ISSUER_URL }}"
+skip_oidc_discovery     =   true
+login_url               =   "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+redeem_url              =   "{{ OIDC.CLIENT.TOKEN_URL }}"
+oidc_jwks_url           =   "{{ OIDC.CLIENT.CERTS }}"
 provider                =   "oidc"
 provider_display_name   =   "{{ OIDC.BUTTON_TEXT }}"
 {% if (TLS_MODE | lower) == 'self_signed' %}
-provider_ca_files       =   ["/tmp/infinito/ca/root-ca.crt"]
+provider_ca_files       =   ["{{ CA_TRUST.cert_container }}"]
 {% endif %}
 
 {% set allowed_groups_raw = lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') %}
 {% if allowed_groups_raw %}
-{# role based restrictions #}
 scope                   =   "openid email profile {{ RBAC.GROUP.CLAIM }}"
 oidc_groups_claim       =   "{{ RBAC.GROUP.CLAIM }}"
-{# oauth2-proxy compares allowed_groups against the JWT groups claim by literal
-   string equality. Keycloak's group-membership-mapper emits paths with a
-   leading slash when full.path=true (the realm-import default for the shared
-   `groups` client-scope). The `rbac_group_path` lookup, by historical contract,
-   returns the path without the leading slash — see
-   tests/unit/plugins/lookup/test_rbac_group_path.py. Normalise here to exactly
-   one leading slash so oauth2-proxy's literal match lines up with what the
-   token actually carries. #}
 allowed_groups          =   {{ allowed_groups_raw | map('regex_replace', '^/*', '/') | list | to_json }}
 email_domains           =   ["*"]
 {% else %}
@@ -36,13 +31,8 @@ email_domains           =   "{{ DOMAIN_PRIMARY }}"
 {% endif %}
 
 session_store_type       = "redis"
-redis_connection_url     = "redis://redis:6379"
+redis_connection_url     = "{{ lookup('engine', 'redis', sso_proxy_application_id, 'url') }}"
 
-# Identity headers — make oauth2-proxy export the authenticated
-# user's identity in the auth_request response so the gated upstream
-# (e.g. the Bluesky login-broker) can read X-Forwarded-User /
-# X-Forwarded-Email through the nginx auth_request_set bridge in
-# `following_directives.conf.j2`.
 set_xauthrequest         = true
 pass_user_headers        = true
 pass_access_token        = true

@@ -16,7 +16,6 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
-# nocheck: email
 email:
   enabled: false
   shared: false
@@ -55,6 +54,11 @@ sso:
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-pihole', role='administrator') }}"
 pihole:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
   image: pihole/pihole
   version: "2026.07.2"
   upstream_dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS }}"
@@ -64,9 +68,17 @@ pihole:
   min_storage: "1GB"
   pids_limit: 512
   ports:
+    internal:
+      http: 80
     local:
       http: 8078
       sso: 16508
   run_after:
     - web-app-keycloak
   lifecycle: beta
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

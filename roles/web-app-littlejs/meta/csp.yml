@@ -1,0 +1,22 @@
+---
+whitelist:
+  script-src-elem:
+    - "{{ lookup('asset_host') }}"
+  style-src-elem:
+    - "{{ lookup('asset_host') }}"
+  font-src:
+    - "{{ lookup('asset_host') }}"
+    - "data:"
+  connect-src:
+    - "{{ lookup('asset_host') }}"
+  frame-src:
+    - "{{ lookup('tls', 'web-app-littlejs', 'url.base') }}"
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  script-src-attr:
+    unsafe-inline: true
+    unsafe-eval: true

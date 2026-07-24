@@ -1,0 +1,15 @@
+---
+- name: "✅ Ensure broker build-context parent directory exists"
+  ansible.builtin.file:
+    path: "{{ BLUESKY_BROKER_BUILD_CONTEXT | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: "📋 Copy login-broker source into the broker build-context dir"
+  ansible.builtin.copy:
+    src: "{{ BLUESKY_BROKER_SRC_DIR }}/"
+    dest: "{{ BLUESKY_BROKER_BUILD_CONTEXT }}/"
+    mode: preserve
+  notify:
+    - compose up
+    - compose build

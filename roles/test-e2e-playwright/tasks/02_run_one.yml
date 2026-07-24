@@ -1,20 +1,20 @@
 ---
-- name: Define per-role paths
+- name: 📌 Define per-role paths
   ansible.builtin.set_fact:
-    _playwright_env_template: "{{ playbook_dir }}/roles/{{ application_id }}/templates/playwright.env.j2"
-    _playwright_files_dir: "{{ playbook_dir }}/roles/{{ application_id }}/files/playwright"
-    _playwright_spec_src: "{{ playbook_dir }}/roles/{{ application_id }}/files/playwright/playwright.spec.js"
+    _playwright_env_template: "{{ lookup('path_absolute', 'roles', application_id, 'templates/playwright.env.j2') }}"
+    _playwright_files_dir: "{{ lookup('path_absolute', 'roles', application_id, 'files/playwright') }}"
+    _playwright_spec_src: "{{ lookup('path_absolute', 'roles', application_id, 'files/playwright/playwright.spec.js') }}"
     _playwright_stage_dir: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/{{ application_id }}"
     _playwright_stage_tests_dir: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/{{ application_id }}/tests"
     _playwright_reports_dir: "{{ TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR }}/{{ application_id }}"
-    _playwright_default_package_template: "{{ playbook_dir }}/roles/test-e2e-playwright/templates/package.json.j2"
-    _playwright_default_config_js: "{{ playbook_dir }}/roles/test-e2e-playwright/files/playwright.config.js"
+    _playwright_default_package_template: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/templates/package.json.j2') }}"
+    _playwright_default_config_js: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files/playwright.config.js') }}"
     _playwright_ca_required: "{{ (TLS_MODE | lower) == 'self_signed' }}"
     _playwright_ca_cert_host: "{{ CA_TRUST.cert_host }}"
     _playwright_ca_wrapper_host: "{{ CA_TRUST.wrapper_host }}"
     _playwright_ca_trust_name: "{{ CA_TRUST.trust_name }}"
 
-- name: Validate CA_TRUST configuration for self-signed TLS
+- name: ✅ Validate CA_TRUST configuration for self-signed TLS
   ansible.builtin.fail:
     msg: >-
       TLS_MODE=self_signed requires CA_TRUST.cert_host, CA_TRUST.wrapper_host and CA_TRUST.trust_name
@@ -27,93 +27,94 @@
       (_playwright_ca_trust_name | length == 0)
     )
 
-- name: Check CA certificate for Playwright injection
+- name: 🔎 Check CA certificate for Playwright injection
   ansible.builtin.stat:
     path: "{{ _playwright_ca_cert_host }}"
   register: _playwright_ca_cert_stat
   when: _playwright_ca_required | bool
 
-- name: Check CA wrapper for Playwright injection
+- name: 🔎 Check CA wrapper for Playwright injection
   ansible.builtin.stat:
     path: "{{ _playwright_ca_wrapper_host }}"
   register: _playwright_ca_wrapper_stat
   when: _playwright_ca_required | bool
 
-- name: Fail if CA certificate is missing on host
+- name: 🛑 Fail if CA certificate is missing on host
   ansible.builtin.fail:
     msg: >-
       TLS_MODE=self_signed requires CA injection, but certificate is missing:
       {{ _playwright_ca_cert_host }}
   when: (_playwright_ca_required | bool) and not (_playwright_ca_cert_stat.stat.exists | default(false))
 
-- name: Fail if CA wrapper script is missing on host
+- name: 🛑 Fail if CA wrapper script is missing on host
   ansible.builtin.fail:
     msg: >-
       TLS_MODE=self_signed requires CA injection, but wrapper script is missing:
       {{ _playwright_ca_wrapper_host }}
   when: (_playwright_ca_required | bool) and not (_playwright_ca_wrapper_stat.stat.exists | default(false))
 
-- name: Assert required Playwright env template exists
+- name: ✅ Assert required Playwright env template exists
   ansible.builtin.stat:
     path: "{{ _playwright_env_template }}"
   register: _env_template_stat
+  delegate_to: localhost
 
-- name: Fail if Playwright env template is missing
+- name: 🛑 Fail if Playwright env template is missing
   ansible.builtin.fail:
     msg: "Missing Playwright env template: {{ _playwright_env_template }}"
   when: not _env_template_stat.stat.exists
 
-- name: Assert required Playwright spec exists
+- name: ✅ Assert required Playwright spec exists
   ansible.builtin.stat:
     path: "{{ _playwright_spec_src }}"
   register: _spec_stat
+  delegate_to: localhost
 
-- name: Fail if Playwright spec is missing
+- name: 🛑 Fail if Playwright spec is missing
   ansible.builtin.fail:
     msg: "Missing Playwright spec file: {{ _playwright_spec_src }}"
   when: not _spec_stat.stat.exists
 
-- name: Check optional application vars file
+- name: 🔎 Check optional application vars file
   ansible.builtin.stat:
-    path: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
+    path: "{{ lookup('path_absolute', 'roles', application_id, 'vars/main.yml') }}"
   register: _playwright_app_vars_stat
+  delegate_to: localhost
 
-- name: Load optional application vars
+- name: ⚙️ Load optional application vars
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/roles/{{ application_id }}/vars/main.yml"
+    file: "{{ lookup('path_absolute', 'roles', application_id, 'vars/main.yml') }}"
   when: _playwright_app_vars_stat.stat.exists
 
-# Clean stage dir for deterministic results
-- name: Recreate staging directory
+- name: 📁 Recreate staging directory
   ansible.builtin.file:
     path: "{{ _playwright_stage_dir }}"
     state: absent
 
-- name: Create staging directory
+- name: 📁 Create staging directory
   ansible.builtin.file:
     path: "{{ _playwright_stage_dir }}"
     state: directory
     mode: "0755"
 
-- name: Create staging tests directory
+- name: 📁 Create staging tests directory
   ansible.builtin.file:
     path: "{{ _playwright_stage_tests_dir }}"
     state: directory
     mode: "0755"
 
-- name: Check central default package.json template
+- name: 🔎 Check central default package.json template
   ansible.builtin.stat:
     path: "{{ _playwright_default_package_template }}"
   register: _default_package_stat
+  delegate_to: localhost
 
-- name: Fail when central default package.json template is missing
+- name: 🛑 Fail when central default package.json template is missing
   ansible.builtin.fail:
     msg: "Missing central Playwright package.json template: {{ _playwright_default_package_template }}"
   when: not _default_package_stat.stat.exists
 
-# The `container` wrapper insists the image is present locally before
-# `run`. Pull it explicitly so a pruned cache doesn't fail the stage.
-- name: Pull Playwright image if missing
+- name: ⬇️ Pull Playwright image if missing
   ansible.builtin.command:
     argv:
       - container
@@ -126,42 +127,43 @@
   delay: 5
   until: _playwright_pull.rc == 0
 
-- name: Render package.json from template
-  ansible.builtin.template:
+- name: 📄 Render package.json from template
+  ansible.builtin.template: # nocheck: stack-host-template (per-host playwright stage dir, runs on every test host)
     src: "{{ _playwright_default_package_template }}"
     dest: "{{ _playwright_stage_dir }}/package.json"
     mode: "0644"
 
-- name: Check central default playwright.config.js
+- name: 🔎 Check central default playwright.config.js
   ansible.builtin.stat:
     path: "{{ _playwright_default_config_js }}"
   register: _default_config_stat
+  delegate_to: localhost
 
-- name: Fail when central default playwright.config.js is missing
+- name: 🛑 Fail when central default playwright.config.js is missing
   ansible.builtin.fail:
     msg: "Missing central Playwright config: {{ _playwright_default_config_js }}"
   when: not _default_config_stat.stat.exists
 
-- name: Copy central default playwright.config.js
+- name: 📋 Copy central default playwright.config.js
   ansible.builtin.copy:
     src: "{{ _playwright_default_config_js }}"
     dest: "{{ _playwright_stage_dir }}/playwright.config.js"
     mode: "0644"
 
-- name: Copy role Playwright tree (spec + companions + addons/ + fixtures/) into staging tests directory
+- name: 📋 Copy Playwright tree (spec + companions + addons/ + fixtures/) to staging
   ansible.builtin.copy:
     src: "{{ _playwright_files_dir }}/"
     dest: "{{ _playwright_stage_tests_dir }}/"
     mode: "0644"
     directory_mode: "0755"
 
-- name: Create staging fixtures directory
+- name: 📁 Create staging fixtures directory
   ansible.builtin.file:
     path: "{{ _playwright_stage_tests_dir }}/fixtures"
     state: directory
     mode: "0755"
 
-- name: Copy role Playwright binary fixtures into staging fixtures directory
+- name: 📋 Copy role Playwright binary fixtures into staging fixtures directory
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ _playwright_stage_tests_dir }}/fixtures/{{ item | basename }}"
@@ -169,64 +171,53 @@
   with_fileglob:
     - "{{ _playwright_files_dir }}/fixtures/*"
 
-# Stage the shared service-gating helper next to the spec so the spec can
-# `require("./service-gating")`.
-- name: Copy shared service-gating helper into staging tests directory
+- name: 📋 Copy shared service-gating helper into staging tests directory
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/roles/test-e2e-playwright/files/service-gating.js"
+    src: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files/service-gating.js') }}"
     dest: "{{ _playwright_stage_tests_dir }}/service-gating.js"
     mode: "0644"
 
-- name: Copy shared addon-gating helper into staging tests directory
+- name: 📋 Copy shared addon-gating helper into staging tests directory
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/roles/test-e2e-playwright/files/addon-gating.js"
+    src: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files/addon-gating.js') }}"
     dest: "{{ _playwright_stage_tests_dir }}/addon-gating.js"
     mode: "0644"
 
-# Stage the shared persona-flow helpers.
-# The personas/ tree ships every persona flow runner at the top level
-# (biber.js, admin.js, guest.js, index.js) and every helper under
-# personas/utils/. We use ansible.builtin.copy with `directory_mode`
-# semantics by listing the tree explicitly via fileglob; the recursive
-# variant is achieved by chaining one task per depth level so we keep
-# Ansible-idempotent file copies (no `synchronize`/rsync dependency).
-- name: Create staging personas directory
+- name: 📁 Create staging personas directory
   ansible.builtin.file:
     path: "{{ _playwright_stage_tests_dir }}/personas"
     state: directory
     mode: "0755"
 
-- name: Create staging personas/utils directory
+- name: 📁 Create staging personas/utils directory
   ansible.builtin.file:
     path: "{{ _playwright_stage_tests_dir }}/personas/utils"
     state: directory
     mode: "0755"
 
-- name: Copy persona-flow runners into staging personas directory
+- name: 📋 Copy persona-flow runners into staging personas directory
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ _playwright_stage_tests_dir }}/personas/{{ item | basename }}"
     mode: "0644"
   with_fileglob:
-    - "{{ playbook_dir }}/roles/test-e2e-playwright/files/personas/*.js"
+    - "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files/personas/*.js') }}"
 
-- name: Copy persona helper modules into staging personas/utils directory
+- name: 📋 Copy persona helper modules into staging personas/utils directory
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ _playwright_stage_tests_dir }}/personas/utils/{{ item | basename }}"
     mode: "0644"
   with_fileglob:
-    - "{{ playbook_dir }}/roles/test-e2e-playwright/files/personas/utils/*.js"
+    - "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files/personas/utils/*.js') }}"
 
-# Keep /volume mount stable even if the source project does not define one.
-- name: Ensure staging volume directory exists
+- name: ✅ Ensure staging volume directory exists
   ansible.builtin.file:
     path: "{{ _playwright_stage_dir }}/volume"
     state: directory
     mode: "0755"
 
-# Render templates/playwright.env.j2 -> .env in staging directory
-- name: Render .env from templates/playwright.env.j2
+- name: 📄 Render .env from templates/playwright.env.j2
   ansible.builtin.copy:
     dest: "{{ _playwright_stage_dir }}/.env"
     mode: "0644"
@@ -235,14 +226,7 @@
     application_id: "{{ application_id }}"
     domains: "{{ lookup('domains') }}"
 
-# Optional wait until app is ready (uses domain resolution).
-# Accept any 1xx/2xx/3xx/4xx response. The intent is "the HTTP server
-# answered on the network". A 4xx is still proof of life; some apps
-# (e.g. bridgy-fed) legitimately serve 404 on `/` because the
-# canonical landing surface lives elsewhere. 5xx is the only signal
-# that the service is genuinely unhealthy.
-# follow_redirects:none ensures we check the app itself, not its redirect target.
-- name: Wait until application is ready (any non-error response)
+- name: ⏳ Wait until application is ready (any non-error response)
   uri_retry:
     url: "{{ lookup('tls', application_id, 'url.base') }}"
     status_code: "{{ range(100, 500) | list }}"
@@ -254,51 +238,42 @@
   until: _wait_result.status is defined and _wait_result.status | int < 500
   when: test_e2e_playwright_wait_enabled | bool
 
-- name: Ensure reports dir exists
+- name: ✅ Ensure reports dir exists
   ansible.builtin.file:
     path: "{{ _playwright_reports_dir }}"
     state: directory
     mode: "0755"
 
-- name: Collect host disk diagnostics before Playwright
+- name: 📊 Collect host disk diagnostics before Playwright
   ansible.builtin.script: "{{ role_path }}/files/dump_disk_diagnostics.sh"
   changed_when: false
   when: MODE_DEBUG | bool
 
-- name: Run Playwright container
+- name: ▶️ Run Playwright container
   ansible.builtin.command:
-    argv:
-      - container
-      - run
-      - --rm
-      - --ipc=host
-      - --shm-size=1g
-      - --add-host=host.docker.internal:host-gateway
-      - --env-file
-      - "{{ _playwright_stage_dir }}/.env"
-      - -e
-      - "INFINITO_PLAYWRIGHT_KEEP={{ test_e2e_playwright_keep }}"
-      - -e
-      - "PLAYWRIGHT_WORKERS={{ test_e2e_playwright_workers }}"
-      - -e
-      - "PLAYWRIGHT_FULLY_PARALLEL={{ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL }}"
-      - -e
-      - "PLAYWRIGHT_TEST_TIMEOUT={{ test_e2e_playwright_test_timeout }}"
-      - -v
-      - "{{ _playwright_stage_dir }}:/e2e"
-      - -v
-      - "{{ _playwright_stage_dir }}/volume:/volume"
-      - -v
-      - "{{ _playwright_reports_dir }}:/reports"
-      - -v
-      - "{{ TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES }}:/e2e/node_modules:ro"
-      - -w
-      - /e2e
-      - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"
-      - /bin/bash
-      - -lc
-      - "{{ TEST_E2E_PLAYWRIGHT_COMMAND }}"
-  timeout: "{{ test_e2e_playwright_run_timeout | int }}"
+    argv: >-
+      {{
+        ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
+        + (
+            ['--network', 'host']
+            if DEPLOYMENT_MODE == 'swarm'
+            else ['--add-host=host.docker.internal:host-gateway']
+          )
+        + ['--env-file', _playwright_stage_dir ~ '/.env']
+        + ['-e', 'INFINITO_PLAYWRIGHT_KEEP=' ~ test_e2e_playwright_keep]
+        + ['-e', 'INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS=' ~ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS]
+        + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
+        + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
+        + ['-e', 'PLAYWRIGHT_TEST_TIMEOUT=' ~ test_e2e_playwright_test_timeout]
+        + ['-v', _playwright_stage_dir ~ ':/e2e']
+        + ['-v', _playwright_stage_dir ~ '/volume:/volume']
+        + ['-v', _playwright_reports_dir ~ ':/reports']
+        + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
+        + ['-w', '/e2e']
+        + [TEST_E2E_PLAYWRIGHT_IMAGE]
+        + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
+      }}
+  timeout: "{{ lookup('timeout', test_e2e_playwright_run_timeout) | int }}"
   environment: >-
     {{
       {
@@ -311,7 +286,7 @@
   changed_when: false
   failed_when: false
 
-- name: Print Playwright output (on failure)
+- name: 💬 Print Playwright output (on failure)
   ansible.builtin.debug:
     msg: |
       stdout:
@@ -322,12 +297,12 @@
   when: _playwright_run.rc != 0
   changed_when: false
 
-- name: Record failure
+- name: 📝 Record failure
   ansible.builtin.set_fact:
     _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
   when: _playwright_run.rc != 0
 
-- name: Archive Playwright reports for this variant + pass
+- name: 🗄️ Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-
     {{ role_path }}/files/archive_playwright_reports.sh
     {{ _playwright_reports_dir | quote }}

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs system packages defined via the inventory variable `SYS_PACKAGES`.
+  description: Provisioning role for installing inventory-defined operating-system packages via the native package manager
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

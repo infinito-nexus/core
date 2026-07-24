@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs caffeine-ng and configures it to autostart for preventing screen sleep on GNOME.
+  description: Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,0 +1,21 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: 📂 Include dependencies
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - sys-lock
+    - sys-ctl-alm-compose
+    - sys-ctl-cln-bkps
+    - user-backup
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_timer_enabled: true
+    system_service_force_linear_sync: true
+    system_service_force_flush_instant: "{{ MODE_BACKUP | bool }}"
+    system_service_force_flush_final: false
+    system_service_state: "{{ 'started' if MODE_BACKUP | bool else omit }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL }}"

@@ -1,0 +1,131 @@
+---
+- name: "📁 Ensure GitLab config directories for '{{ application_id }}'"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ GITLAB_CONFIG_RAILS_DIR }}"
+    - "{{ GITLAB_CONFIG_SECRETS_DIR }}"
+    - "{{ GITLAB_CONFIG_WORKHORSE_DIR }}"
+    - "{{ GITLAB_CONFIG_SHELL_DIR }}"
+    - "{{ GITLAB_CONFIG_GITALY_DIR }}"
+    - "{{ GITLAB_CONFIG_HOSTKEYS_DIR }}"
+
+- name: "📄 Render GitLab CNG config files (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "config/gitlab.yml.j2"
+        dest: "{{ [GITLAB_CONFIG_RAILS_DIR, 'gitlab.yml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0640"
+      - src: "config/database.yml.j2"
+        dest: "{{ [GITLAB_CONFIG_RAILS_DIR, 'database.yml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0640"
+      - src: "config/resque.yml.j2"
+        dest: "{{ [GITLAB_CONFIG_RAILS_DIR, 'resque.yml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0640"
+      - src: "config/cable.yml.j2"
+        dest: "{{ [GITLAB_CONFIG_RAILS_DIR, 'cable.yml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0640"
+      - src: "config/secrets.yml.j2"
+        dest: "{{ [GITLAB_CONFIG_RAILS_DIR, 'secrets.yml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0600"
+      - src: "config/sidekiq_queues.yml.j2"
+        dest: "{{ [GITLAB_CONFIG_RAILS_DIR, 'sidekiq_queues.yml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0644"
+      - src: "config/smtp_settings.rb.j2"
+        dest: "{{ [GITLAB_CONFIG_DIR, 'smtp_settings.rb'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0440"
+        condition: "{{ GITLAB_EMAIL_ENABLED | bool }}"
+      - src: "config/gitlab_shell_secret.j2"
+        dest: "{{ [GITLAB_CONFIG_SECRETS_DIR, '.gitlab_shell_secret'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0400"
+      - src: "config/gitlab_shell_secret.j2"
+        dest: "{{ [GITLAB_CONFIG_DIR, 'gitaly', '.gitlab_shell_secret'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0400"
+      - src: "config/workhorse/secret.j2"
+        dest: "{{ [GITLAB_CONFIG_SECRETS_DIR, '.gitlab_workhorse_secret'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0400"
+      - src: "config/workhorse/config.toml.j2"
+        dest: "{{ [GITLAB_CONFIG_WORKHORSE_DIR, 'workhorse-config.toml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0640"
+      - src: "config/shell-config.yml.j2"
+        dest: "{{ [GITLAB_CONFIG_SHELL_DIR, 'config.yml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0644"
+      - src: "config/gitaly-config.toml.j2"
+        dest: "{{ [GITLAB_CONFIG_GITALY_DIR, 'config.toml'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0440"
+
+- name: "🔑 Generate GitLab SSH host keys (on stack host)"
+  community.crypto.openssh_keypair:
+    path: "{{ [GITLAB_CONFIG_HOSTKEYS_DIR, item.name] | path_join }}"
+    type: "{{ item.type }}"
+    size: "{{ item.size | default(omit) }}"
+    owner: "1000"
+    group: "1000"
+    mode: "0400"
+  loop:
+    - { name: ssh_host_rsa_key, type: rsa, size: 4096 }
+    - { name: ssh_host_ed25519_key, type: ed25519 }
+  loop_control:
+    label: "{{ item.name }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  notify: compose up
+
+- name: "[swarm] Slurp GitLab SSH host keys from stack host"
+  ansible.builtin.slurp:
+    src: "{{ [GITLAB_CONFIG_HOSTKEYS_DIR, item] | path_join }}"
+  loop:
+    - ssh_host_rsa_key
+    - ssh_host_ed25519_key
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: gitlab_hostkeys_slurp
+  when: DEPLOYMENT_MODE == 'swarm'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "[swarm] Distribute GitLab SSH host keys to swarm peers"
+  ansible.builtin.copy:
+    content: "{{ item.content | b64decode }}"
+    dest: "{{ [GITLAB_CONFIG_HOSTKEYS_DIR, item.item] | path_join }}"
+    owner: "1000"
+    group: "1000"
+    mode: "0400"
+  loop: "{{ gitlab_hostkeys_slurp.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  notify: compose up

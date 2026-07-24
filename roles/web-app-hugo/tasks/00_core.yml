@@ -1,0 +1,21 @@
+---
+- name: "✅ Assert exactly one canonical domain (V1 single-site scope)"
+  ansible.builtin.assert:
+    that:
+      - lookup('config', application_id, 'domains.canonical') | length == 1
+    fail_msg: >-
+      web-app-hugo V1 supports exactly one canonical domain. Configure
+      a single entry under `domains.canonical` for this role.
+      Multi-canonical-domain support is deferred to a follow-up
+      requirement.
+
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: true
+    compose_repository_url: "{{ HUGO_SOURCE_REPO }}"
+    compose_repository_pull: true
+    compose_repository_ref: "{{ HUGO_SOURCE_REF }}"
+
+- include_tasks: utils/once/flag.yml

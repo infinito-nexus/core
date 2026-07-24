@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Keycloak, an identity and access management solution providing single sign-on, federation, and centralized user management for the
-    Infinito.Nexus stack.
+  description: Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

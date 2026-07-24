@@ -29,7 +29,7 @@ test("addon drawio: app installed + enabled (registered in OC.appswebroots)", as
     ).toBe(true);
 
     await expect(
-      page.locator('script[src*="/apps/drawio/"], link[href*="/apps/drawio/"]'),
+      page.locator('script[src*="apps/drawio/"], link[href*="apps/drawio/"]'),
       "the enabled drawio app must inject its own frontend bundle into the Files UI (proves the app is loaded, not merely listed)",
     ).not.toHaveCount(0);
   } finally {

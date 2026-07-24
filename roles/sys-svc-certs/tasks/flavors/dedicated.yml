@@ -1,11 +1,11 @@
 ---
-- name: "Check if certificate already exists for '{{ domain }}'"
+- name: "🔎 Check if certificate already exists for '{{ domain }}'"
   cert_check_exists:
     domain: "{{ domain }}"
     cert_base_path: "{{ LETSENCRYPT_LIVE_PATH }}"
   register: cert_check
 
-- name: "receive certificate for '{{ domain }}'"
+- name: "📜 receive certificate for '{{ domain }}'"
   command: >-
     certbot certonly  --agree-tos  --email {{ lookup('users', 'administrator').email }}
     --non-interactive  {% if CERTBOT_ACME_CHALLENGE_METHOD != "webroot" %}

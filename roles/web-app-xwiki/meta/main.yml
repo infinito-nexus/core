@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: XWiki is an open-source enterprise wiki and knowledge management platform, offering collaboration tools, structured content, and extensibility
-    through apps and plugins.
+  description: Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

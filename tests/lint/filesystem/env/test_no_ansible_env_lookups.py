@@ -22,9 +22,6 @@ _LOOKUP_ENV_RE = re.compile(
 )
 _NOCHECK_RE = re.compile(r"#\s*nocheck\b")
 
-# Scan trees that participate in Ansible runtime. `inventories/development/`
-# is the agreed home for env-driven dev/CI overrides and is excluded; other
-# inventories carry literal values and stay in scope.
 _SCAN_PREFIXES = ("group_vars/", "tasks/", "roles/")
 _SCAN_FILES = ("playbook.yml",)
 _SCAN_EXTS = (".yml", ".yaml", ".j2")
@@ -87,8 +84,10 @@ class TestNoAnsibleEnvLookupsForDefaultEnvKeys(unittest.TestCase):
             return
 
         lines = [
-            f"Ansible internals reference {len(violations)} default.env "
-            f"key(s) via lookup('env', ...):",
+            (
+                f"Ansible internals reference {len(violations)} default.env "
+                f"key(s) via lookup('env', ...):"
+            ),
             "",
             "default.env is the dev/CI env contract; pulling those keys directly inside group_vars / tasks / roles / playbook.yml couples deployment-agnostic Ansible code to a deployment-specific source. Inject the value via the inventory vars-file instead. For dev/CI this is `inventories/development/default.yml`:",
             "",

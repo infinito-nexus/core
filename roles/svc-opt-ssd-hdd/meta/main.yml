@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media Self-written infrastructure role that migrates Docker volumes between SSD/HDD and creates symlinks; no upstream product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Optimizes storage allocation for Docker volumes by migrating volumes between SSD and HDD based on container image types, and creates symbolic
-    links to maintain consistent paths.
+  description: Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

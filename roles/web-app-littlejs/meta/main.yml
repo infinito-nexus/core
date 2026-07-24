@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "LittleJS Playground – self-hosted LittleJS example browser and collection of HTML5 games and demos, wrapped as a Dockerized web app.\n"
+  description: Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Jitsi Meet is an open-source video conferencing platform with end-to-end encrypted rooms and federated authentication.
+  description: Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

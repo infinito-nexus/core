@@ -1,13 +1,13 @@
 ---
 - block:
-    - name: Load role to delete anonymous volumes
+    - name: 🧩 Load role to delete anonymous volumes
       include_role:
         name: sys-ctl-cln-anon-volumes
       vars:
         system_service_force_flush_instant: true
       when: run_once_sys_ctl_cln_anon_volumes is not defined
 
-    - name: "Register docker prune system service"
+    - name: "📝 Register docker prune system service"
       include_role:
         name: sys-service
       vars:

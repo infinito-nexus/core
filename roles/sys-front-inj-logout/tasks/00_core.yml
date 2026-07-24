@@ -1,0 +1,7 @@
+---
+- name: "🚀 deploy the logout.js"
+  include_tasks: "01_deploy.yml"
+
+- set_fact:
+    run_once_sys_front_inj_logout: true
+  changed_when: false

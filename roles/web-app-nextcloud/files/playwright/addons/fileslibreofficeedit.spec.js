@@ -31,7 +31,7 @@ test("fileslibreofficeedit addon: app installed + enabled (registered in OC.apps
     ).toBe(true);
 
     await expect(
-      page.locator('script[src*="/apps/fileslibreofficeedit/"], link[href*="/apps/fileslibreofficeedit/"]'),
+      page.locator('script[src*="apps/fileslibreofficeedit/"], link[href*="apps/fileslibreofficeedit/"]'),
       "the enabled fileslibreofficeedit app must inject its own frontend bundle into the Files UI (proves the app is loaded, not merely listed)",
     ).not.toHaveCount(0);
   } finally {

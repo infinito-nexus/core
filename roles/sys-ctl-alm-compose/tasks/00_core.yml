@@ -1,0 +1,42 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "📂 Include dependent services for '{{ system_service_id  }}'"
+  include_role:
+    name: "{{ item }}"
+  loop: "{{ SYSTEMCTL_ALARM_COMPOSER_SUBSERVICES }}"
+  vars:
+    system_service_timer_enabled: false
+    system_service_copy_files: true
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} %I"
+    system_service_tpl_on_failure: ""
+    system_service_force_linear_sync: false
+
+- name: "📂 Include core service for '{{ system_service_id  }}'"
+  include_role:
+    name: sys-service
+  vars:
+    system_service_timer_enabled: false
+    system_service_copy_files: true
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} %I"
+    system_service_tpl_exec_start_post: '/bin/echo "Success! Send: %I"'
+    system_service_tpl_on_failure: "" # No on failure needed, because it's anyhow the default on failure procedure
+    system_service_force_linear_sync: false
+
+- name: ✅ Assert '{{ system_service_id }}'
+  block:
+    - name: 🔤 Escape instance name for systemctl call
+      ansible.builtin.command:
+        argv:
+          - systemd-escape
+          - "{{ SYSTEMCTL_ALARM_COMPOSER_DUMMY_MESSAGE }}"
+      register: escaped_name
+      changed_when: false
+
+    - name: ▶️ Start '{{ system_service_id }}' instance
+      ansible.builtin.systemd:
+        name: "{{ lookup('unit_name',system_service_id, suffix=False) ~ escaped_name.stdout }}.service"
+        state: started
+  when:
+    - MODE_ASSERT_LOCAL | bool
+    - not (service_loader_preloading | default(false) | bool)

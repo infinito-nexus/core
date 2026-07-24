@@ -1,0 +1,11 @@
+---
+application_id: svc-bkp-secrets-2-local
+system_service_id: "{{ application_id }}"
+
+BKP_SECRETS_2_LOCAL_REPO_NAME: backup-secrets-to-local
+
+BKP_SECRETS_2_LOCAL_SOURCES:
+  - "secrets={{ DIR_SECRETS }}"
+  - "ca={{ CA_ROOT.base_dir }}"
+  - "acme={{ LETSENCRYPT_BASE_PATH }}"
+  - "certbot={{ CERTBOT_CREDENTIALS_DIR }}"

@@ -49,7 +49,7 @@ roles/web-app-checkmk/
 ├── README.md
 ├── files/playwright/{_shared,playwright.spec,test-guest,test-login-oidc-biber,test-login-oidc-administrator,test-login-ldap-biber}.js
 ├── meta/{main,info,server,services,schema,users,rbac,variants,volumes}.yml
-├── tasks/{main,01_core}.yml
+├── tasks/{main,00_core}.yml
 ├── templates/{compose.yml.j2,env.j2,playwright.env.j2}
 └── vars/main.yml
 ```
@@ -132,7 +132,7 @@ Smoke: visit `https://monitoring.{{ DOMAIN_PRIMARY }}/` → (SSO) Keycloak chain
 
 ## Prerequisites
 
-Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/role.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
+Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 

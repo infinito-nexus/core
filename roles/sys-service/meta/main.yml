@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Role to manage systemd service units, including cleanup, deployment, and runtime configuration.
+  description: "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

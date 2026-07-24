@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: The Docker PostgreSQL Role offers an easy and efficient way to run a PostgreSQL database inside a Docker container. Manage your data securely and
-    effectively, making it ideal for production or local development.
+  description: Containerized relational database with automated database, user, and privilege provisioning
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

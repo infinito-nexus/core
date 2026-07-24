@@ -1,15 +1,34 @@
 ---
 redis:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  central cache engine, node-local on-disk state (ACL file + optional AOF), single-node until redis replication is in scope
+  placement: manager
   bond: 1
   enabled: true
   shared: true
   image: redis
+  name: redis-central
   version: alpine
   min_storage: 1GB
   backup:
     disabled: true
-  lifecycle: pre-alpha
   cpus: "0.5"
   mem_reservation: "128m"
   mem_limit: "512m"
   pids_limit: 512
+  ports:
+    local:
+      redis: 6379
+    internal:
+      redis: 6379
+  lifecycle: beta
+
+# nocheck: dynamic-flag - the redis volume is backup-disabled ephemeral cache state, the backup consumer stays permanently off
+container_backup:
+  bond: 1
+  enabled: false
+  shared: true

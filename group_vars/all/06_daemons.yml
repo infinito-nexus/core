@@ -4,7 +4,6 @@
 # # Meta
 SYS_SERVICE_SUFFIX: ".{{ SOFTWARE_DOMAIN }}.service"
 
-## Names
 SYS_SERVICE_CLEANUP_BACKUPS: "{{ lookup('unit_name', 'sys-ctl-cln-bkps'            ) }}"
 SYS_SERVICE_CLEANUP_BACKUPS_FAILED: "{{ lookup('unit_name', 'sys-ctl-cln-faild-bkps'      ) }}"
 SYS_SERVICE_CLEANUP_ANONYMOUS_VOLUMES: "{{ lookup('unit_name', 'sys-ctl-cln-anon-volumes'    ) }}"
@@ -12,14 +11,14 @@ SYS_SERVICE_CLEANUP_DISC_SPACE: "{{ lookup('unit_name', 'sys-ctl-cln-disc-space'
 SYS_SERVICE_CLEANUP_DOCKER: "{{ lookup('unit_name', 'sys-ctl-cln-docker'          ) }}"
 SYS_SERVICE_OPTIMIZE_DRIVE: "{{ lookup('unit_name', 'svc-opt-ssd-hdd'             ) }}"
 SYS_SERVICE_BACKUP_REMOTE_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-remote-2-local'     ) }}"
-SYS_SERVICE_BACKUP_CONTAINER_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-container-2-local') }}"
+SYS_SERVICE_BACKUP_VOLUME_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-volume-2-local') }}"
+SYS_SERVICE_BACKUP_NFS_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-nfs-2-local'       ) }}"
+SYS_SERVICE_BACKUP_SECRETS_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-secrets-2-local'   ) }}"
 SYS_SERVICE_REPAIR_CONTAINER_SOFT: "{{ lookup('unit_name', 'sys-ctl-rpr-container-soft'  ) }}"
 SYS_SERVICE_REPAIR_CONTAINER_HARD: "{{ lookup('unit_name', 'sys-ctl-rpr-container-hard'  ) }}"
 
-## On Failure
 SYS_SERVICE_ON_FAILURE_COMPOSE: "{{ lookup('unit_name','sys-ctl-alm-compose@', suffix=False ) }}%n.service"
 
-## Groups
 SYS_SERVICE_GROUP_BACKUPS: >
   {{ (('sys-ctl-bkp-' | get_category_entries) + ('svc-bkp-' | get_category_entries))
      | map('regex_replace', '$', SYS_SERVICE_SUFFIX) | list | sort }}
@@ -40,7 +39,6 @@ SYS_SERVICE_GROUP_MAINTANANCE: >
   {{ ('svc-mtn-' | get_category_entries)
      | map('regex_replace', '$', SYS_SERVICE_SUFFIX) | list | sort }}
 
-## Collection of services to manipulate the system
 SYS_SERVICE_GROUP_MANIPULATION: >
   {{
     (

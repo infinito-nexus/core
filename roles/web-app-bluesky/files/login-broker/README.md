@@ -32,7 +32,8 @@ synthesised app-password.
 |-----------------------------------|---------------------------------------------------------------------------|
 | `BROKER_PORT`                     | TCP port to listen on (default `8080`).                                   |
 | `SOCIAL_APP_URL`                  | Reverse-proxy upstream (`http://web:8100`).                               |
-| `PDS_URL`                         | Bluesky PDS base URL (`https://api.bluesky.<domain>`).                    |
+| `PDS_URL`                         | Public Bluesky PDS base URL (`https://api.bluesky.<domain>`), written into the browser `service` field. |
+| `PDS_INTERNAL_URL`                | In-stack PDS URL for server-side XRPC calls (`http://pds:3000`); defaults to `PDS_URL` when unset.       |
 | `PDS_HANDLE_DOMAIN`               | Suffix for synthesised handles (`<DOMAIN_PRIMARY>`).                      |
 | `PDS_INVITE_CODE`                 | Optional invite code for gated PDS deployments.                           |
 | `KC_ADMIN_BASE_URL`               | Keycloak base URL (`https://auth.<domain>`).                              |

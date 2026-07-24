@@ -1,0 +1,82 @@
+---
+- name: "⏳ Wait for Joomla files to exist"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f /var/www/html/plugins/actionlog/joomla/joomla.xml
+  register: joomla_files
+  changed_when: false
+  retries: 60
+  delay: 2
+  until: joomla_files.rc == 0
+
+- name: "🔎 Check for CLI installer"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_INSTALLER_CLI_FILE }}
+  register: has_installer
+  changed_when: false
+  failed_when: false
+
+- name: "🔎 Check if Joomla is already installed"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_CONFIG_FILE }}
+  register: joomla_installed
+  changed_when: false
+  failed_when: false
+
+- name: "📦 Joomla CLI install (rm stub + install in one retry loop for image-init race)"
+  ansible.builtin.command:
+    argv:
+      - bash
+      - -lc
+      - |
+        set -o pipefail
+        container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -f "{{ JOOMLA_CONFIG_FILE }}"
+        exec container exec --user "{{ JOOMLA_WEB_USER }}" {{ JOOMLA_CONTAINER_ADDRESS }} \
+          php "{{ JOOMLA_INSTALLER_CLI_FILE }}" install \
+          "--db-type={{ JOOMLA_DB_CONNECTOR }}" \
+          "--db-host={{ lookup('database', application_id, 'host') }}" \
+          "--db-user={{ lookup('database', application_id, 'username') }}" \
+          "--db-pass=${J_DB_PASSWORD}" \
+          "--db-name={{ lookup('database', application_id, 'name') }}" \
+          "--admin-user={{ JOOMLA_USER }}" \
+          "--admin-username={{ JOOMLA_USER_NAME }}" \
+          "--admin-password=${J_ADMIN_PASSWORD}" \
+          "--admin-email={{ JOOMLA_USER_EMAIL }}" \
+          --no-interaction \
+          "--site-name={{ JOOMLA_SITE_NAME }}"
+  environment:
+    J_DB_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
+    J_ADMIN_PASSWORD: "{{ JOOMLA_USER_PASSWORD }}"
+  register: j_install
+  retries: 5
+  delay: 5
+  vars:
+    # Exception: retrying is destructive; the retry loop `rm -f`s the freshly written configuration.php then fails because the installer self-deleted its entry file.
+    _joomla_install_soft_success: >-
+      {{
+        j_install.rc == 0
+        or (j_install.stdout | default('') is search('Unable to delete installation folder'))
+        or (j_install.stderr | default('') is search('deleteInstallationFolder'))
+      }}
+    _joomla_install_git_tree_refusal: >-
+      {{ j_install.stdout | default('') is search('trying to run Joomla! from our git repository') }}
+  until: _joomla_install_soft_success | bool
+  changed_when: _joomla_install_soft_success | bool
+  failed_when: >-
+    (
+      j_install.rc is defined
+      and j_install.rc != 0
+      and not (_joomla_install_soft_success | bool)
+    )
+    or (_joomla_install_git_tree_refusal | bool)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when:
+    - joomla_installed.rc != 0
+    - has_installer.rc == 0
+
+- name: "💪 Force-remove installation folder (root)"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -rf /var/www/html/installation
+  changed_when: false
+  when:
+    - joomla_installed.rc != 0
+    - has_installer.rc == 0

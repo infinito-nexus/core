@@ -1,0 +1,85 @@
+---
+admin_data:
+  type: volume
+  name: mailu_admin_data
+  mounts:
+    - service: admin
+      target: /data
+    - service: fetchmail
+      target: /data
+clamav_db:
+  type: volume
+  name: mailu_clamav_db
+  mounts:
+    - service: antivirus
+      target: /var/lib/clamav
+dkim:
+  type: volume
+  name: mailu_dkim
+  mounts:
+    - service: admin
+      target: /dkim
+    - service: antispam
+      target: /dkim
+dovecot_mail:
+  type: volume
+  name: mailu_dovecot_mail
+  mounts:
+    - service: imap
+      target: /mail
+filter:
+  type: volume
+  name: mailu_filter
+  mounts:
+    - service: antispam
+      target: /var/lib/rspamd
+smtp_queue:
+  type: volume
+  name: mailu_smtp_queue
+  mounts:
+    - service: smtp
+      target: /queue
+webdav_data:
+  type: volume
+  name: mailu_webdav_data
+  mounts:
+    - service: webdav
+      target: /data
+webmail_data:
+  type: volume
+  name: mailu_webmail_data
+  mounts:
+    - service: webmail
+      target: /data
+nginx_overrides:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-mailu', 'directories.volumes'), 'overrides/nginx' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: front
+      target: /overrides
+certs:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-mailu', 'directories.volumes'), 'certs' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: front
+      target: /certs
+overrides:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-mailu', 'directories.volumes'), 'overrides' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: imap
+      target: /overrides
+    - service: smtp
+      target: /overrides
+    - service: webmail
+      target: /overrides
+rspamd_overrides:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-mailu', 'directories.volumes'), 'overrides/rspamd' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: antispam
+      target: /overrides

@@ -1,5 +1,5 @@
 ---
-- name: Install GnuCash
+- name: 📦 Install GnuCash
   package:
     name:
       - gnucash

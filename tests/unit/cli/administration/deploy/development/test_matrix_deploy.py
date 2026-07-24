@@ -1,4 +1,15 @@
-"""Unit tests for the deploy-side matrix iteration: each round deploys its own variant-closure (``include``); between rounds the wrapper wipes the union (``purge_set``)."""
+"""Unit tests for the deploy-side matrix iteration: each round deploys its own
+variant-closure (``include``); between rounds the wrapper wipes the union
+(``purge_set``).
+
+deploy.handler reads the running container name strictly via
+cli.administration.deploy.development.common.resolve_container (which is
+sourced from scripts/meta/env/load.sh, the single SPOT for the formula).
+That resolver is patched for the whole test module instead of duplicating
+the formula or hard-coding INFINITO_CONTAINER in os.environ. The tests
+below do not assert on the returned value; the sentinel is purely an
+opaque fixture string.
+"""
 
 from __future__ import annotations
 
@@ -7,15 +18,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# deploy.handler reads the running container name strictly via
-# cli.administration.deploy.development.common.resolve_container (which is sourced from
-# scripts/meta/env/load.sh — the single SPOT for the formula). Patch
-# that resolver for the whole test module instead of duplicating the
-# formula or hard-coding INFINITO_CONTAINER in os.environ. The tests
-# below do not assert on the returned value; the sentinel is purely an
-# opaque fixture string.
 _RESOLVE_CONTAINER_PATCHER = patch(
-    "cli.administration.deploy.development.deploy.resolve_container",
+    "cli.administration.deploy.development.deploy.cli.resolve_container",
     return_value="<unit-test fixture>",
 )
 _RESOLVE_CONTAINER_PATCHER.start()
@@ -29,9 +33,9 @@ def _args(
     variant: list[int] | None = None,
     full_cycle: bool = False,
 ) -> argparse.Namespace:
-    # `distro` is intentionally absent: deploy.handler no longer consumes
-    # it (the --distro arg was retired in favour of resolve_distro() reading
-    # INFINITO_DISTRO env strictly).
+    """Namespace fixture for handler(). `distro` is intentionally absent:
+    deploy.handler no longer consumes it (the --distro arg was retired in
+    favour of resolve_distro() reading INFINITO_DISTRO env strictly)."""
     return argparse.Namespace(
         inventory_dir="/srv/inv",
         apps=None,
@@ -66,15 +70,19 @@ def _make_compose_mock() -> MagicMock:
 
 class TestHandlerMatrixDeploy(unittest.TestCase):
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_single_round_skips_matrix_loop(
         self,
         make_compose_mock: MagicMock,
@@ -82,6 +90,7 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
+        """Single deploy against the unsuffixed folder, no cleanup."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv", {"web-app-jira": 0, "web-app-keycloak": 0}),
@@ -91,21 +100,24 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         rc = handler(_args(apps=["web-app-jira", "web-app-keycloak"]))
 
         self.assertEqual(rc, 0)
-        # Single deploy against the unsuffixed folder, no cleanup.
         run_deploy_mock.assert_called_once()
         self.assertEqual(run_deploy_mock.call_args.kwargs["inventory_dir"], "/srv/inv")
         purge_mock.assert_not_called()
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_every_round_redeploys_full_include_after_purge(
         self,
         make_compose_mock: MagicMock,
@@ -113,11 +125,13 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
-        # Variant 0 covers BOTH apps, variant 1 only exists for WordPress.
-        # Each round starts from a clean host (the previous round's full
-        # include is purged), so round 1 redeploys the full round-1 include
-        # — Keycloak included, even though it stays on variant 0 — because
-        # the round-0 baseline was just purged away.
+        """Variant 0 covers BOTH apps, variant 1 only exists for WordPress.
+        Each round starts from a clean host (the previous round's full
+        include is purged), so round 1 redeploys the full round-1 include,
+        Keycloak included even though it stays on variant 0, because the
+        round-0 baseline was just purged away. Purge runs once between
+        rounds with the FULL previous round include, not just
+        variant-changed apps."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv-0", {"web-app-wordpress": 0, "web-app-keycloak": 0}),
@@ -134,8 +148,6 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
             sorted(round_one_deploy_ids),
             ["web-app-keycloak", "web-app-wordpress"],
         )
-        # Purge runs once between rounds with the FULL previous round
-        # include, not just variant-changed apps.
         purge_mock.assert_called_once()
         self.assertEqual(
             sorted(purge_mock.call_args.kwargs["app_ids"]),
@@ -143,15 +155,19 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         )
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_two_round_plan_deploys_each_folder_in_order(
         self,
         make_compose_mock: MagicMock,
@@ -159,6 +175,9 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
+        """Between rounds the FULL previous-round include is purged so
+        round 1 starts from a clean host, keycloak too, even though it
+        stays on variant 0."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv-0", {"web-app-multi": 0, "web-app-keycloak": 0}),
@@ -174,9 +193,6 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
             [c.kwargs["inventory_dir"] for c in run_deploy_mock.call_args_list],
             ["/srv/inv-0", "/srv/inv-1"],
         )
-        # Between rounds the FULL previous-round include is purged so
-        # round 1 starts from a clean host — keycloak too, even though
-        # it stays on variant 0.
         purge_mock.assert_called_once()
         self.assertEqual(
             sorted(purge_mock.call_args.kwargs["app_ids"]),
@@ -184,15 +200,19 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         )
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_three_round_plan_redeploys_full_include_each_round(
         self,
         make_compose_mock: MagicMock,
@@ -200,10 +220,11 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
-        # WordPress 2 variants, Discourse 3 variants, Keycloak 1 variant.
-        # Each round starts from a clean host (full-include purge) and
-        # therefore redeploys ITS OWN full include — keycloak too, even
-        # though it has no later variants.
+        """WordPress 2 variants, Discourse 3 variants, Keycloak 1 variant.
+        Each round starts from a clean host (full-include purge) and
+        therefore redeploys ITS OWN full include, keycloak too, even
+        though it has no later variants. Purge runs between rounds with
+        the FULL previous-round include."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(
@@ -246,21 +267,24 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
                 deploy_ids, full_include, f"round {round_index} deploy_ids drifted"
             )
 
-        # Purge runs between rounds with the FULL previous-round include.
         self.assertEqual(purge_mock.call_count, 2)
         for call in purge_mock.call_args_list:
             self.assertEqual(sorted(call.kwargs["app_ids"]), full_include)
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_round_transition_purges_union_when_variant_closures_differ(
         self,
         make_compose_mock: MagicMock,
@@ -268,7 +292,8 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
-        # WHY: round 1 must deploy only its own closure (no coturn), yet the inter-round purge must wipe the union (coturn included).
+        """Round 1 must deploy only its own closure (no coturn), yet the
+        inter-round purge must wipe the union (coturn included)."""
         make_compose_mock.return_value = _make_compose_mock()
         union = ("web-app-nextcloud", "web-svc-coturn")
         plan_mock.return_value = [
@@ -307,15 +332,19 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         )
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_failure_in_round_one_aborts_before_round_two(
         self,
         make_compose_mock: MagicMock,
@@ -323,17 +352,17 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
+        """Round 1 ran and failed, round 2 must NOT have been attempted."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
             _entry(1, "/srv/inv-1", {"web-app-multi": 1}),
         ]
-        run_deploy_mock.return_value = 17  # failure exit code
+        run_deploy_mock.return_value = 17
 
         rc = handler(_args(apps=["web-app-multi"]))
 
         self.assertEqual(rc, 17)
-        # Round 1 ran, round 2 must NOT have been attempted.
         run_deploy_mock.assert_called_once()
         purge_mock.assert_not_called()
 
@@ -344,15 +373,19 @@ class TestHandlerVariantPin(unittest.TestCase):
     redeploying one variant without iterating the whole matrix."""
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_variant_one_runs_only_that_round_no_cleanup(
         self,
         make_compose_mock: MagicMock,
@@ -360,6 +393,8 @@ class TestHandlerVariantPin(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
+        """Only the picked round runs; no cleanup because there is no
+        previous round to diff against in single-round mode."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
@@ -370,8 +405,6 @@ class TestHandlerVariantPin(unittest.TestCase):
         rc = handler(_args(apps=["web-app-multi"], variant=[1]))
 
         self.assertEqual(rc, 0)
-        # Only the picked round runs; no cleanup because there is no
-        # previous round to diff against in single-round mode.
         run_deploy_mock.assert_called_once()
         self.assertEqual(
             run_deploy_mock.call_args.kwargs["inventory_dir"], "/srv/inv-1"
@@ -379,15 +412,19 @@ class TestHandlerVariantPin(unittest.TestCase):
         purge_mock.assert_not_called()
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_variant_out_of_range_exits_with_clean_message(
         self,
         make_compose_mock: MagicMock,
@@ -412,15 +449,19 @@ class TestHandlerFullCycle(unittest.TestCase):
     same variant). Without `--full-cycle` only Pass 1 runs per round."""
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_full_cycle_runs_pass2_after_each_round(
         self,
         make_compose_mock: MagicMock,
@@ -428,6 +469,12 @@ class TestHandlerFullCycle(unittest.TestCase):
         run_deploy_mock: MagicMock,
         purge_mock: MagicMock,
     ) -> None:
+        """Two rounds, two passes each = 4 deploy calls, per-variant
+        interleave: round-0 sync, round-0 async, then round-1 sync,
+        round-1 async. Every call carries the zero-based VARIANT_INDEX so
+        consumers like the test-e2e-playwright role can namespace their
+        artifacts. Cleanup still runs once between rounds with the full
+        previous-round include."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
@@ -438,17 +485,12 @@ class TestHandlerFullCycle(unittest.TestCase):
         rc = handler(_args(apps=["web-app-multi"], full_cycle=True))
 
         self.assertEqual(rc, 0)
-        # Two rounds, two passes each = 4 deploy calls.
         self.assertEqual(run_deploy_mock.call_count, 4)
 
         sequence = [
             (call.kwargs["inventory_dir"], call.kwargs.get("extra_ansible_vars"))
             for call in run_deploy_mock.call_args_list
         ]
-        # Per-variant interleave: round-0 sync, round-0 async, then
-        # round-1 sync, round-1 async. Every call carries the
-        # zero-based VARIANT_INDEX so consumers like the
-        # test-e2e-playwright role can namespace their artifacts.
         self.assertEqual(
             sequence,
             [
@@ -458,21 +500,23 @@ class TestHandlerFullCycle(unittest.TestCase):
                 ("/srv/inv-1", {"ASYNC_ENABLED": True, "VARIANT_INDEX": 1}),
             ],
         )
-        # Cleanup still runs once between rounds with the full
-        # previous-round include.
         purge_mock.assert_called_once()
         self.assertEqual(purge_mock.call_args.kwargs["app_ids"], ["web-app-multi"])
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_full_cycle_aborts_when_pass1_fails_skipping_pass2(
         self,
         make_compose_mock: MagicMock,
@@ -480,13 +524,13 @@ class TestHandlerFullCycle(unittest.TestCase):
         run_deploy_mock: MagicMock,
         _purge_mock: MagicMock,
     ) -> None:
+        """PASS 1 of round 0 fails. PASS 2 of round 0 and the entire round
+        1 must be skipped to surface the failure cleanly."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
             _entry(1, "/srv/inv-1", {"web-app-multi": 1}),
         ]
-        # PASS 1 of round 0 fails. PASS 2 of round 0 and the entire round
-        # 1 must be skipped to surface the failure cleanly.
         run_deploy_mock.return_value = 11
 
         rc = handler(_args(apps=["web-app-multi"], full_cycle=True))
@@ -495,15 +539,19 @@ class TestHandlerFullCycle(unittest.TestCase):
         run_deploy_mock.assert_called_once()
 
     @patch(
-        "cli.administration.deploy.development.deploy._purge_app_entities",
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy._run_deploy", autospec=True)
     @patch(
-        "cli.administration.deploy.development.deploy.plan_dev_inventory_matrix",
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
         autospec=True,
     )
-    @patch("cli.administration.deploy.development.deploy.make_compose", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_full_cycle_with_variant_pin_runs_only_one_round_with_both_passes(
         self,
         make_compose_mock: MagicMock,

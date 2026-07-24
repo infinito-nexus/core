@@ -1,0 +1,18 @@
+---
+- name: "🔍 Resolve '{{ item }}' hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ item }}"
+    resolve_output_prefix: GITLAB_WAIT
+    resolve_compose_cid: "{{ lookup('container_address', application_id, item) }}"
+
+- name: "🔎 Check health status of '{{ item }}' container"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{.State.Health.Status}}" }}'
+    {{ GITLAB_WAIT_LOCAL_CID | quote }}
+  register: healthcheck
+  retries: 90
+  delay: 10
+  until: healthcheck.rc == 0 and (healthcheck.stdout | trim) == "healthy"
+  changed_when: false
+  delegate_to: "{{ GITLAB_WAIT_HOST_NODE }}"

@@ -1,36 +1,27 @@
-  matrix-mdad:
-    container_name: matrix-mdad
+{% set service_name = MATRIX_MDAD_SERVICE %}
+  {{ MATRIX_MDAD_SERVICE }}:
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', MATRIX_MDAD_CONTAINER) }}
     build:
-      context: {{ application_id | abs_role_path_by_application_id }}/files/flavor/ansible/runner
+      context: {{ MATRIX_MDAD_RUNNER_BUILD_DIR }}
       args:
         MATRIX_MDAD_RUNNER_BASE_IMAGE: {{ MATRIX_MDAD_RUNNER_BASE_IMAGE }}
         MATRIX_MDAD_RUNNER_BASE_VERSION: {{ MATRIX_MDAD_RUNNER_BASE_VERSION }}
         MATRIX_MDAD_RUNNER_DOCKER_CLI_IMAGE: {{ MATRIX_MDAD_RUNNER_DOCKER_CLI_IMAGE }}
         MATRIX_MDAD_RUNNER_DOCKER_CLI_VERSION: {{ MATRIX_MDAD_RUNNER_DOCKER_CLI_VERSION }}
-    image: {{ MATRIX_MDAD_RUNNER_IMAGE }}
-    restart: {{ DOCKER_RESTART_POLICY }}
+    image: "{{ MATRIX_MDAD_RUNNER_IMAGE }}"  # nocheck: container-image-lookup
+    {{ lookup('compose_only', 'restart', DOCKER_RESTART_POLICY) }}
     privileged: true
-    cgroup: host
+    {{ lookup('compose_only', 'cgroup', 'host') }}
     stop_signal: SIGRTMIN+3
     environment:
       MATRIX_MDAD_PLAYBOOK_TAGS: "{{ MATRIX_MDAD_PLAYBOOK_TAGS }}"
-{% set _objstore = lookup('objstore', application_id) %}
-    networks:
-      default: {}
-{% if lookup('database', application_id, 'enabled') and lookup('database', application_id, 'shared') %}
-      postgres: {}
-{% endif %}
-{% if MATRIX_LDAP_ENABLED %}
-      openldap: {}
-{% endif %}
-{% if _objstore.enabled and _objstore.shared and application_id != _objstore.id %}
-      {{ _objstore.network }}: {}
-{% endif %}
+    {{ lookup('container_networks') | indent(4) }}
     volumes:
       - {{ MATRIX_MDAD_DIR }}:/mdad
-      - matrix_mdad_docker:/var/lib/docker
-      - matrix_mdad_state:/var/lib/matrix-mdad
-      - matrix_mdad_matrix:/matrix
+      - {{ lookup('volume', application_id, 'matrix_mdad_docker').name }}:/var/lib/docker
+      - {{ lookup('volume', application_id, 'matrix_mdad_state').name }}:/var/lib/matrix-mdad
+      - {{ lookup('volume', application_id, 'matrix_mdad_matrix').name }}:/matrix
 {% if (TLS_MODE | lower) == 'self_signed' %}
       - {{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_host }}:ro
 {% endif %}

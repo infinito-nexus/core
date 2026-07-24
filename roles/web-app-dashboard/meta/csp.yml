@@ -1,0 +1,19 @@
+---
+whitelist:
+  script-src-elem:
+    - "{{ lookup('asset_host') }}"
+    - https://kit.fontawesome.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://code.jquery.com/ # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+  style-src-elem:
+    - https://kit.fontawesome.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - https://code.jquery.com/ # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+  font-src:
+    - https://ka-f.fontawesome.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+  connect-src:
+    - https://ka-f.fontawesome.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+    - "{{ lookup('domain', 'web-app-keycloak') }}"
+  frame-src:
+    - "*.{{ DOMAIN_PRIMARY }}"
+flags:
+  script-src-attr:
+    unsafe-inline: true

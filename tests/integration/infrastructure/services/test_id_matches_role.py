@@ -45,9 +45,9 @@ class TestSystemServiceIdMatchesRole(unittest.TestCase):
                 if not candidates:
                     continue
 
-                vars_file = sorted(
+                vars_file = min(
                     candidates, key=lambda p: (not p.endswith("main.yml"), p)
-                )[0]
+                )
                 data = self._load_yaml(vars_file)
 
                 if "system_service_id" not in (data or {}):

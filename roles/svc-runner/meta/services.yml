@@ -1,10 +1,22 @@
 ---
-svc-runner:
+# nocheck: dockerfile-custom
+runner:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   lifecycle: beta
+  workload: node-local
+  proxy:
+    service_key: runner-1
   github_owner: infinito-nexus
   github_repo: core
   docker_base: /mnt/docker
-  base_image: ubuntu:22.04
+  image: ubuntu
+  # todo: bump to the current ubuntu release once download.docker.com publishes a repo for its codename (26.10 "stonking" has none yet)
+  # nocheck: docker-version
+  version: "24.04"
   docker_gid_fallback: 999
   project_prefix: runner
   sysctl_conf: /etc/sysctl.d/99-github-runner.conf

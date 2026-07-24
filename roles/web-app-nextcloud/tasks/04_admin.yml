@@ -1,7 +1,7 @@
 ---
-- name: Ensure Nextcloud administrator is in the 'admin' group
-  command: >
-    container exec -u {{ NEXTCLOUD_DOCKER_USER }} {{ NEXTCLOUD_CONTAINER }}
+- name: ✅ Ensure Nextcloud administrator is in the 'admin' group
+  shell: >
+    container exec -u {{ NEXTCLOUD_DOCKER_USER }} {{ NEXTCLOUD_CONTAINER_ADDRESS }}
     php occ group:adduser admin {{ NEXTCLOUD_ADMINISTRATOR_USERNAME }}
   register: add_admin_to_group
   changed_when: "not ASYNC_ENABLED and 'Added user' in add_admin_to_group.stdout"

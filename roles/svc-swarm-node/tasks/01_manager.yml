@@ -1,0 +1,40 @@
+---
+- name: "🔍 Probe local docker swarm state"
+  ansible.builtin.command: container info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
+  register: docker_swarm_local_state
+  changed_when: false
+  failed_when: docker_swarm_local_state.rc != 0
+
+- name: "🐝 Initialise swarm cluster (only when not already active)"
+  ansible.builtin.command: >-
+    container swarm init
+    {% if swarm.manager.advertise_addr | default('', true) %}
+    --advertise-addr {{ swarm.manager.advertise_addr }}
+    {% endif %}
+  when: docker_swarm_local_state.stdout != 'active'
+  register: docker_swarm_init_result
+  changed_when: docker_swarm_init_result.rc == 0
+
+- name: "⬇️ Fetch worker join token"
+  ansible.builtin.command: container swarm join-token -q worker
+  register: docker_swarm_worker_token
+  changed_when: false
+
+- name: "⬇️ Fetch manager join token"
+  ansible.builtin.command: container swarm join-token -q manager
+  register: docker_swarm_manager_token
+  changed_when: false
+
+- name: "⬇️ Fetch manager swarm-advertise address"
+  ansible.builtin.command: container info --format '{{ "{{" }}.Swarm.NodeAddr{{ "}}" }}:2377'
+  register: docker_swarm_manager_addr
+  changed_when: false
+
+- name: "📣 Publish tokens + advertise addr as facts (cluster-wide)"
+  ansible.builtin.set_fact:
+    svc_swarm_worker_token: "{{ docker_swarm_worker_token.stdout }}"
+    svc_swarm_manager_token: "{{ docker_swarm_manager_token.stdout }}"
+    svc_swarm_manager_addr: "{{ docker_swarm_manager_addr.stdout }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['svc-swarm-node'] }}"

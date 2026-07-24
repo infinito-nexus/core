@@ -1,5 +1,7 @@
 const { expect } = require("@playwright/test");
 
+const { isServiceEnabled } = require("./service-gating");
+
 const {
   decodeDotenvQuotedValue,
   installCspViolationObserver,
@@ -501,12 +503,14 @@ async function discourseDeleteTopic(request, topicId) {
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(env.appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
-  expect(env.keycloakBaseUrl, "KEYCLOAK_BASE_URL must be set").toBeTruthy();
-  expect(env.realmName, "KEYCLOAK_REALM_NAME must be set").toBeTruthy();
   expect(env.wpBaseUrl, "WORDPRESS_BASE_URL must be set").toBeTruthy();
-  expect(env.oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
-  expect(env.superAdminUsername, "SUPER_ADMIN_USERNAME must be set").toBeTruthy();
-  expect(env.superAdminPassword, "SUPER_ADMIN_PASSWORD must be set").toBeTruthy();
+  if (isServiceEnabled("sso")) {
+    expect(env.keycloakBaseUrl, "KEYCLOAK_BASE_URL must be set").toBeTruthy();
+    expect(env.realmName, "KEYCLOAK_REALM_NAME must be set").toBeTruthy();
+    expect(env.oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
+    expect(env.superAdminUsername, "SUPER_ADMIN_USERNAME must be set").toBeTruthy();
+    expect(env.superAdminPassword, "SUPER_ADMIN_PASSWORD must be set").toBeTruthy();
+  }
   expect(env.adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(env.adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
   expect(env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();

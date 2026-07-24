@@ -1,29 +1,31 @@
 ---
-- name: "Patch EspoCRM DB config key '{{ item.key }}' (idempotent)"
-  ansible.builtin.shell: >-
-    container exec -i --user root
-    -e CONFIG_KEY={{ item.key }}
-    -e CONFIG_VALUE={{ item.value | quote }}
-    -e CONFIG_FILE={{ ESPOCRM_CONFIG_FILE_PRIVATE | quote }}
-    {{ ESPOCRM_CONTAINER }} sh < {{ role_path }}/files/patch_config_key.sh
+- name: "🩹 Patch EspoCRM DB config key (idempotent)"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user root
+      -e CONFIG_KEY={{ item.key }}
+      -e CONFIG_VALUE={{ item.value | quote }}
+      -e CONFIG_FILE={{ ESPOCRM_CONFIG_FILE_PRIVATE | quote }}
+      {{ ESPOCRM_LOCAL_CID | quote }} sh
+    stdin: "{{ lookup('file', 'patch_config_key.sh') }}"
   loop:
     - { key: host, value: "{{ lookup('database', application_id, 'host') }}" }
     - { key: dbname, value: "{{ lookup('database', application_id, 'name') }}" }
     - { key: user, value: "{{ lookup('database', application_id, 'username') }}" }
     - { key: password, value: "{{ lookup('database', application_id, 'password') }}" }
+  loop_control:
+    label: "{{ item.key }}"
   register: db_patch
   changed_when: "'CHANGED' in db_patch.stdout"
   notify: compose up
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: Ensure siteUrl matches canonical domain
+- name: ✅ Ensure siteUrl matches canonical domain
   ansible.builtin.shell:
     cmd: >-
-      {{ BIN_COMPOSE }} exec -T
+      container exec -i --user {{ ESPOCRM_USER }}
       -e ESPOCRM_URL={{ ESPOCRM_URL | quote }}
-      --user {{ ESPOCRM_USER }}
-      {{ ESPOCRM_SERVICE }} php
+      {{ ESPOCRM_LOCAL_CID | quote }} php
     stdin: "{{ lookup('file', 'set_siteurl.php') }}"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: siteurl_set
   changed_when: "'CHANGED' in siteurl_set.stdout"

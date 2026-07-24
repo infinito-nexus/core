@@ -1,0 +1,26 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: OLLAMA
+    resolve_compose_cid: "{{ OLLAMA_CONTAINER }}"
+
+- name: ⬇️ Pre-pull Ollama models
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OLLAMA_LOCAL_CID | quote }} ollama pull {{ model }}
+  register: pull_result
+  loop: "{{ OLLAMA_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+  changed_when: >
+    (not (ASYNC_ENABLED | bool)) and (
+      'downloaded' in (pull_result.stdout | default('')) or
+      'pulling manifest' in (pull_result.stdout | default(''))
+    )
+  failed_when: >
+    (pull_result.rc | default(0)) != 0 and
+    ('up to date' not in (pull_result.stdout | default('')))

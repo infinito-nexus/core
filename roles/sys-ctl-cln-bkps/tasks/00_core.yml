@@ -1,0 +1,48 @@
+---
+- name: 📂 Include dependencies
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - sys-ctl-alm-compose
+    - sys-lock
+
+- name: 📦 install lsof
+  package:
+    name: lsof
+    state: present
+
+- name: 📦 install psutil via pip
+  include_role:
+    name: sys-pip-install
+  vars:
+    package_name: psutil
+    package_state: present
+    global_install: true
+
+- name: "✅ Ensure backups root exists before the first backup run"
+  ansible.builtin.file:
+    path: "{{ DIR_BACKUPS }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_timer_enabled: "{{ SYS_CTL_CLN_BKPS_TIMER_ENABLED | bool }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_CLEANUP_BACKUPS }}"
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} --backups-folder-path {{ DIR_BACKUPS }} --maximum-backup-size-percent {{ SIZE_PERCENT_MAXIMUM_BACKUP
+      }}"
+    system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP | join(" ") }} --timeout
+      "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"'
+    system_service_copy_files: true
+    system_service_force_linear_sync: false
+
+    system_service_tpl_timeout_start_sec: "{{ '120s' if ((DOCKER_IN_CONTAINER|bool) and (MODE_DEBUG|bool)) else omit }}"
+    system_service_tpl_runtime: "{{ '300s' if ((DOCKER_IN_CONTAINER|bool) and (MODE_DEBUG|bool)) else omit }}"
+
+- meta: flush_handlers
+
+- include_tasks: utils/once/flag.yml

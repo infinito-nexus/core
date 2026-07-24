@@ -34,12 +34,7 @@ class TestVarsPassedAreUsed(unittest.TestCase):
     YAML_EXTENSIONS: ClassVar[set[str]] = {".yml", ".yaml"}
     JINJA_EXTENSIONS: ClassVar[set[str]] = {".j2"}
 
-    # Inventories are data-only bundle definitions (not tasks/templates) and can legitimately
-    # contain vars that are not referenced inside Jinja blocks or Ansible expressions.
-    # Therefore they are excluded from this lint.
     EXCLUDED_TOP_LEVEL_DIRS: ClassVar[set[str]] = {"inventories"}
-
-    # ---------- File iteration & YAML loading ----------
 
     def _iter_files(self, extensions: set[str]) -> Iterable[Path]:
         exts = tuple(extensions)
@@ -53,7 +48,6 @@ class TestVarsPassedAreUsed(unittest.TestCase):
         try:
             return list(load_yaml_all(path, default_if_missing=()))
         except Exception:
-            # File may contain heavy templating or anchors; skip structural parse
             return []
 
     def _walk_mapping(self, node: Any) -> Iterable[dict]:
@@ -64,8 +58,6 @@ class TestVarsPassedAreUsed(unittest.TestCase):
         elif isinstance(node, list):
             for item in node:
                 yield from self._walk_mapping(item)
-
-    # ---------- Collect vars passed via `vars:` (with locations) ----------
 
     def _collect_vars_passed_with_locations(
         self,
@@ -81,9 +73,6 @@ class TestVarsPassedAreUsed(unittest.TestCase):
         collected: set[str] = set()
         locations: dict[str, set[tuple[Path, int]]] = {}
 
-        # Regex-based scan for:
-        #   <indent>vars:
-        #     <more-indent>key:
         vars_block_re = re.compile(r"^(\s*)vars:\s*$")
         key_re = re.compile(r"^(\s*)([A-Za-z_][A-Za-z0-9_]*)\s*:")
 
@@ -106,13 +95,11 @@ class TestVarsPassedAreUsed(unittest.TestCase):
                 while i < len(lines):
                     line = lines[i]
 
-                    # allow blank lines inside vars block
                     if not line.strip():
                         i += 1
                         continue
 
                     indent = len(line) - len(line.lstrip(" "))
-                    # end of vars block when indentation drops back
                     if indent <= base_indent:
                         break
 
@@ -121,29 +108,22 @@ class TestVarsPassedAreUsed(unittest.TestCase):
                         key = km.group(2).strip()
                         if key:
                             collected.add(key)
-                            locations.setdefault(key, set()).add(
-                                (yml, i + 1)
-                            )  # 1-based line number
+                            locations.setdefault(key, set()).add((yml, i + 1))
                     i += 1
 
         return collected, locations
 
-    # ---------- Gather text for Jinja usage scanning ----------
-
     def _concat_texts(self) -> str:
         parts: list[str] = []
         for f in self._iter_files(self.YAML_EXTENSIONS | self.JINJA_EXTENSIONS):
-            # Non-UTF8 or unreadable files are silently skipped.
             with contextlib.suppress(Exception):
                 parts.append(read_text(str(f)))
         return "\n".join(parts)
 
-    # ---------- Extract Ansible expression strings from YAML ----------
-
     def _collect_ansible_expressions(self) -> list[str]:
         """
         Return a flat list of strings taken from Ansible expression-bearing fields:
-        - when: <str> or when: [<str>, <str>, ...]
+        - when / failed_when / changed_when / until: <str> or [<str>, ...]
         - loop: <str>
         - with_*: <str>
         """
@@ -153,7 +133,7 @@ class TestVarsPassedAreUsed(unittest.TestCase):
             for doc in docs:
                 for mapping in self._walk_mapping(doc):
                     for key, val in list(mapping.items()):
-                        if key == "when":
+                        if key in ("when", "failed_when", "changed_when", "until"):
                             if isinstance(val, str):
                                 exprs.append(val)
                             elif isinstance(val, list):
@@ -164,8 +144,6 @@ class TestVarsPassedAreUsed(unittest.TestCase):
                         ) and isinstance(val, str):
                             exprs.append(val)
         return exprs
-
-    # ---------- Usage checks ----------
 
     def _used_in_jinja_blocks(self, var_name: str, text: str) -> bool:
         """
@@ -192,8 +170,6 @@ class TestVarsPassedAreUsed(unittest.TestCase):
         """
         pat = re.compile(r"\b" + re.escape(var_name) + r"\b(?!\s*\()")
         return any(pat.search(e) for e in exprs)
-
-    # ---------- Test ----------
 
     def test_vars_passed_are_used_in_yaml_or_jinja(self):
         vars_passed, vars_locations = self._collect_vars_passed_with_locations()

@@ -1,0 +1,22 @@
+---
+# Block until a swarm service's task reaches desired-state=running. Swarm only;
+# in compose the flushed `compose up` already blocks until the container is up.
+#
+# Param: wait_service_key    - swarm service key
+# Param: wait_service_name   - explicit swarm service name; overrides container_service(application_id, wait_service_key) for a service in another stack
+# Param: wait_retries        - retries (default 600)
+# Param: wait_delay          - delay seconds (default 2)
+- when: DEPLOYMENT_MODE == 'swarm'
+  vars:
+    _wait_service_name: "{{ (wait_service_name | default('')) or lookup('container_service', application_id, wait_service_key) }}"
+  block:
+    - name: "⏳ swarm | wait for '{{ wait_service_key }}' task to converge"
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/service_converged.sh') }}"
+      environment:
+        SERVICE: "{{ _wait_service_name }}"
+      register: _swarm_converged
+      changed_when: false
+      retries: "{{ wait_retries | default(600) }}"
+      delay: "{{ wait_delay | default(2) }}"
+      until: _swarm_converged is succeeded
+      delegate_to: "{{ STACK_HOST }}"

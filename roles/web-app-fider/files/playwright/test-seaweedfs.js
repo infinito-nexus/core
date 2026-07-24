@@ -32,7 +32,9 @@ const LOGO_PNG = Buffer.from(
 );
 
 async function clickFiderSsoButton(locator) {
-  const signInLink = locator.getByRole("link", { name: /sign in/i });
+  const signInLink = locator
+    .getByRole("button", { name: /sign in/i })
+    .or(locator.getByRole("link", { name: /sign in/i }));
   await signInLink.first().waitFor({ state: "visible", timeout: 30_000 });
   await signInLink.first().click();
 

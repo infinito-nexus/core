@@ -80,8 +80,10 @@ class TestEnvSingleLineComments(unittest.TestCase):
             for v in violations:
                 grouped.setdefault(v.file, []).append(v)
             lines = [
-                f"Env entries with multi-line comment block "
-                f"({len(violations)} violations across {len(grouped)} file(s)):",
+                (
+                    f"Env entries with multi-line comment block "
+                    f"({len(violations)} violations across {len(grouped)} file(s)):"
+                ),
                 "",
                 "Env entries (`KEY=value`) must be preceded by AT MOST one `# ...` comment line on the immediately preceding line. Collapse multi-line blocks to a single one-line WHY comment.",
                 "",

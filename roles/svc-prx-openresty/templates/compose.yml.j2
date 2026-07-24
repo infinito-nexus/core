@@ -1,5 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  openresty:
+  {% set service_update_order = 'stop-first' %}
+  {% set service_name = 'openresty' %}
+  {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
@@ -9,23 +11,25 @@
         LUA_PROMETHEUS_URL_MAIN:      "{{ OPENRESTY_LUA_PROMETHEUS_URL_MAIN }}"
         LUA_PROMETHEUS_URL_COUNTER:   "{{ OPENRESTY_LUA_PROMETHEUS_URL_COUNTER }}"
         LUA_PROMETHEUS_URL_KEYS:      "{{ OPENRESTY_LUA_PROMETHEUS_URL_KEYS }}"
-    container_name: {{ OPENRESTY_CONTAINER }}
-    image: {{ OPENRESTY_CUSTOM_IMAGE }}:{{ OPENRESTY_CUSTOM_VERSION }}
+    {{ lookup('compose_only', 'container_name', OPENRESTY_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'openresty') }}
+    {% if DEPLOYMENT_MODE == 'swarm' %}
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    {{ lookup('container_networks') | indent(4) }}
+    {% else %}
     network_mode: "host"
-    volumes:
-      - {{ lookup('nginx','files.configuration') }}:/usr/local/openresty/nginx/conf/nginx.conf:ro
-      - {{ lookup('nginx','directories.configuration.base') }}:/usr/local/openresty/nginx/conf/conf.d:ro
-      - {{ lookup('nginx','files.configuration') }}:{{ lookup('nginx','files.configuration') }}:ro
-      - {{ lookup('nginx','directories.configuration.base') }}:{{ lookup('nginx','directories.configuration.base') }}:ro
-      - {{ lookup('nginx','directories.data.www') }}:{{ lookup('nginx','directories.data.www') }}:ro
-      - {{ lookup('nginx','directories.data.well_known') }}:{{ lookup('nginx','directories.data.well_known') }}:ro
-      - {{ LETSENCRYPT_WEBROOT_PATH }}:{{ LETSENCRYPT_WEBROOT_PATH }}:ro
-      - {{ LETSENCRYPT_BASE_PATH }}:{{ LETSENCRYPT_BASE_PATH }}:ro
-      - {{ TLS_SELFSIGNED_BASE_PATH }}:{{ TLS_SELFSIGNED_BASE_PATH }}:ro
-      # Docker socket (read-only) — lets the Lua health-polling timer query
-      # container state so /healthz/live can reflect Docker health, not just
-      # HTTP reachability.
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+    {% endif %}
+    {{ lookup('container_volumes', application_id, 'openresty') | indent(4) }}
     command: ["openresty", "-g", "daemon off;"]
     healthcheck:
       test: ["CMD", "openresty", "-t", "-q"]
@@ -33,4 +37,5 @@
       timeout: 5s
       retries: 3
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

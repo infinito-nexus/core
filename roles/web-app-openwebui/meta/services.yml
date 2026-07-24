@@ -22,6 +22,13 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 openwebui:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  embedded sqlite engine state; node-local in swarm
+  placement: manager
   bond: 1
   enabled: true
   shared: true
@@ -41,6 +48,10 @@ openwebui:
   ports:
     local:
       http: 8055
+    internal:
+      http: 8080
+  proxy:
+    service_key: openwebui
   run_after:
     - web-app-keycloak
     - web-app-matomo
@@ -50,7 +61,7 @@ openwebui:
 redis:
   backup:
     disabled: true
-  enabled: false
+  enabled: false # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — object store, no Playwright surface
 minio:
   enabled: false # nocheck: dynamic-flag
@@ -67,7 +78,7 @@ css:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
-  enabled: false
+  enabled: false # nocheck: dynamic-flag
   shared: true
 # nocheck: playwright-service-flag — AI backend, infrastructural
 ollama:
@@ -82,3 +93,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

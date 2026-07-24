@@ -1,0 +1,56 @@
+---
+- name: "🔍 Resolve reserved usernames for '{{ application_id }}' at task runtime"
+  set_fact:
+    KEYCLOAK_RESERVED_USERNAMES_LIST: "{{ lookup('users') | reserved_usernames }}"
+    KEYCLOAK_RESERVED_USERNAMES_REGEX: >-
+      {{ (lookup('users') | reserved_usernames) | join('|') }}
+
+- name: "📄 Render Keycloak realm dictionary for '{{ application_id }}' at task runtime"
+  set_fact:
+    KEYCLOAK_DICTIONARY_REALM_RAW: "{{ lookup('template', 'import/realm.json.j2') }}"
+
+- name: "🔎 Parse Keycloak realm dictionary for '{{ application_id }}'"
+  set_fact:
+    KEYCLOAK_DICTIONARY_REALM: >-
+      {{
+        KEYCLOAK_DICTIONARY_REALM_RAW
+          if (KEYCLOAK_DICTIONARY_REALM_RAW is mapping)
+          else (KEYCLOAK_DICTIONARY_REALM_RAW | from_json)
+      }}
+
+- name: "📤 Extract Keycloak user profile payload for '{{ application_id }}'"
+  set_fact:
+    KEYCLOAK_USER_PROFILE_OBJECT: >-
+      {{
+        (
+          KEYCLOAK_DICTIONARY_REALM.components['org.keycloak.userprofile.UserProfileProvider']
+          | first
+        )['config']['kc.user.profile.config'][0]
+        | from_json
+      }}
+
+- name: "🔨 Build Keycloak user profile config payload for '{{ application_id }}'"
+  set_fact:
+    KEYCLOAK_USER_PROFILE_CONFIG_PAYLOAD: >-
+      {{
+        {
+          'config': {
+            'kc.user.profile.config': [
+              KEYCLOAK_USER_PROFILE_OBJECT | to_json
+            ]
+          }
+        }
+      }}
+
+- name: "📁 create directory {{ KEYCLOAK_REALM_IMPORT_DIR_HOST }}"
+  file:
+    path: "{{ KEYCLOAK_REALM_IMPORT_DIR_HOST }}"
+    state: directory
+    mode: "0755"
+
+- name: "📋 Copy REALM import file to '{{ KEYCLOAK_REALM_IMPORT_FILE_DST }}'"
+  stack_host_template:
+    src: "{{ KEYCLOAK_REALM_IMPORT_FILE_SRC }}"
+    dest: "{{ KEYCLOAK_REALM_IMPORT_FILE_DST }}"
+    mode: "0770"
+  when: KEYCLOAK_REALM_IMPORT_ENABLED | bool

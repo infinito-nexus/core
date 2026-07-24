@@ -1,21 +1,17 @@
 ---
-- name: "Lookup existing OIDC auth source ID"
+- name: "🔍 Lookup existing OIDC auth source ID"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth list \
       | awk -v name="{{ OIDC.BUTTON_TEXT }}" '$0 ~ name {print $1; exit}'
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: oidc_source_id_raw
   failed_when: false
   changed_when: false
 
-- name: "Delete existing OIDC auth source if present"
+- name: "🗑️ Delete existing OIDC auth source if present"
   shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER }} \
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
       gitea admin auth delete --id {{ oidc_source_id_raw.stdout }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   when: oidc_source_id_raw.stdout != ""
   register: oidc_delete
   failed_when: oidc_delete.rc != 0

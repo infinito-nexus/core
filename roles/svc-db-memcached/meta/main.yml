@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Provides a Docker Compose snippet for a Memcached service (`memcached`) with optional volume, healthcheck, and logging.
+  description: Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach
@@ -10,6 +11,8 @@ galaxy_info:
     - memcached
     - docker
     - cache
+    - engine
+    - central-database
   issue_tracker_url: https://s.infinito.nexus/issues
   min_ansible_version: "2.9"
   platforms:

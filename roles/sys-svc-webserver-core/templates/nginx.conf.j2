@@ -5,6 +5,10 @@ events
 }
 http
 {
+{% if DEPLOYMENT_MODE == 'swarm' %}
+  {# Resolve swarm service-name upstreams at request time: VIPs may be absent on openresty (re)start and nginx refuses to boot on an unresolvable literal upstream. #}
+  resolver 127.0.0.11 valid=10s ipv6=off;
+{% endif %}
   {#
     Map the client's Upgrade header to the proper Connection value for WebSocket proxying:
     use "upgrade" when an Upgrade is requested, otherwise "close". Define once in http{} and use $connection_upgrade.

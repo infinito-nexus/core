@@ -1,8 +1,22 @@
 """Enumerate consumer roles for a given service.
 
-Returns ``[{id, canonical_domain, canonical_url}, …]`` for every role
-whose merged applications config declares
-``services.<service>.{enabled, shared}`` as truthy.
+Returns ``[{id, canonical_domain, canonical_url, iframe}, …]`` for every
+role whose merged applications config declares
+``services.<service>.{enabled, shared}`` as truthy. ``iframe`` reflects
+``services.<service>.iframe`` (defaulting to ``enabled``) so consumers
+can tell embeddable cards from those that must open in a new tab.
+
+A role keeps declaring the service for inventory completeness but can
+opt out of this consumer-target list by setting
+``services.<service>.scrape: false`` or ``services.<service>.track: false``.
+``scrape: false`` is used by 301-redirect-only vhosts that declare
+``services.prometheus`` (so the role-wiring contract stays satisfied) yet
+never serve a request through lua-resty-prometheus, so they emit no
+``app="<role>"`` label and have no scrape target. ``track: false`` is the
+symmetric matomo opt-out: static-file (autoindex) and 301-redirect vhosts
+that declare ``services.matomo`` keep the role-wiring intact but carry no
+user-facing HTML page worth a ``_paq`` tracker, so they are dropped from
+``MATOMO_TARGET_ROLES_JSON`` and the matomo tracker e2e contract.
 """
 
 from __future__ import annotations
@@ -13,17 +27,14 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.applications import get_merged_applications
+from utils.roles.entity.name import get_entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
 def _resolve_canonical_domain(app_config: dict[str, Any]) -> str:
-    server = app_config.get("server")
-    if not isinstance(server, dict):
-        return ""
-    domains = server.get("domains")
+    domains = app_config.get("domains")
     if not isinstance(domains, dict):
         return ""
     canonical = domains.get("canonical")
@@ -52,12 +63,17 @@ class LookupModule(LookupBase):
         if not service_name:
             raise AnsibleError("roles_with_service: service name must be non-empty")
 
-        applications = get_merged_applications(
-            variables=variables
-            or getattr(self._templar, "available_variables", {})
-            or {},
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
+        vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=vars_)[0]
+
+        scope = str(kwargs.get("scope", "host")).strip().lower()
+        gn = vars_.get("group_names")
+        deployed = (
+            {str(g) for g in gn}
+            if scope != "all" and isinstance(gn, (list, tuple, set)) and gn
+            else None
         )
 
         tls_lookup = lookup_loader.get(
@@ -78,16 +94,30 @@ class LookupModule(LookupBase):
                 continue
             if not bool(block.get("shared")):
                 continue
+            if block.get("scrape") is False:
+                continue
+            if block.get("track") is False:
+                continue
+            if deployed is not None and str(role_id) not in deployed:
+                continue
+            if get_entity_name(str(role_id)) == service_name:
+                continue
             canonical = _resolve_canonical_domain(app_config)
             if not canonical:
                 continue
             resolved = tls_lookup.run([str(role_id), "url.base"], variables=variables)
             canonical_url = str(resolved[0]).rstrip("/")
+            iframe = (
+                bool(block["iframe"])
+                if "iframe" in block
+                else bool(block.get("enabled"))
+            )
             results.append(
                 {
                     "id": str(role_id),
                     "canonical_domain": canonical,
                     "canonical_url": canonical_url,
+                    "iframe": iframe,
                 }
             )
 

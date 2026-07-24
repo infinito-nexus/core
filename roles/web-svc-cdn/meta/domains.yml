@@ -1,0 +1,4 @@
+---
+canonical:
+  - cdn.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -1,6 +1,6 @@
 ---
-- name: "Setup {{ application_id }}"
-  include_tasks: 01_core.yml
+- name: "🔧 Setup {{ application_id }}"
+  include_tasks: 00_core.yml
   when: run_once_web_app_discourse is not defined
   vars:
     application_id: "web-app-discourse"

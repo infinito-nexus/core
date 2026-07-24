@@ -31,12 +31,16 @@ Contract:
 - `tenant` MUST be passed for tenant-aware per-tenant roles, MUST NOT
   be passed for global-scope roles or non-tenant apps.
 - Every failure raises AnsibleError with an actionable message.
+
+The Keycloak group tree behind these paths is materialised by a
+per-application group-ldap-mapper
+(roles/web-app-keycloak/tasks/update/05_per_app_mappers.yml), anchored at
+`/<group_root>/<application_id>` with `group.name.ldap.attribute=description`.
 """
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
-
-from utils.cache.applications import get_merged_applications
 
 _IMPLICIT_ADMIN_ROLE = "administrator"
 _TENANCY_AXIS_NONE = "none"
@@ -58,8 +62,10 @@ def _get_rbac_group_name(variables):
     return name.strip("/")
 
 
-def _get_application(variables, application_id, templar=None):
-    apps = get_merged_applications(variables=variables, templar=templar)
+def _get_application(variables, application_id, loader=None, templar=None):
+    apps = lookup_loader.get("applications", loader=loader, templar=templar).run(
+        [], variables=variables
+    )[0]
     if not isinstance(apps, dict):
         raise AnsibleError(
             "rbac_group_path: 'applications' could not be merged. "
@@ -92,8 +98,6 @@ def _resolve_role_scope(app_cfg, application_id, role):
     roles = rbac.get("roles") or {}
     role_cfg = roles.get(role)
 
-    # The implicit `administrator` role from the role-list contract is auto-added
-    # for every app with an rbac: block and is always valid.
     if role != _IMPLICIT_ADMIN_ROLE and not isinstance(role_cfg, dict):
         declared = sorted(roles.keys()) if isinstance(roles, dict) else []
         raise AnsibleError(
@@ -110,8 +114,6 @@ def _resolve_role_scope(app_cfg, application_id, role):
     )
 
     if axis == _TENANCY_AXIS_NONE:
-        # In non-tenant apps the concept of scope collapses; treat every
-        # role as global for the purpose of path construction.
         return _SCOPE_GLOBAL, axis
 
     if axis != _TENANCY_AXIS_DOMAIN:
@@ -121,7 +123,6 @@ def _resolve_role_scope(app_cfg, application_id, role):
             f"are 'none' (default) and 'domain'."
         )
 
-    # Tenant-aware path: consult per-role scope with default 'per_tenant'.
     scope = _DEFAULT_SCOPE
     if isinstance(role_cfg, dict):
         scope = role_cfg.get("scope", _DEFAULT_SCOPE)
@@ -162,20 +163,12 @@ class LookupModule(LookupBase):
         app_cfg = _get_application(
             variables,
             application_id,
+            loader=getattr(self, "_loader", None),
             templar=getattr(self, "_templar", None),
         )
         scope, axis = _resolve_role_scope(app_cfg, application_id, role)
         group_root = _get_rbac_group_name(variables)
 
-        # hierarchical OIDC claim paths that mirror the
-        # LDAP RBAC tree verbatim, with no redundant segments:
-        #   /<group_root>/<application_id>/<role_name>                        # non-tenant / global
-        #   /<group_root>/<application_id>/<tenant_id>/<role_name>            # per-tenant
-        # The Keycloak group tree is materialised by a per-application
-        # group-ldap-mapper (see
-        # roles/web-app-keycloak/tasks/update/05c_per_app_mappers.yml),
-        # anchored at `/<group_root>/<application_id>` with
-        # `group.name.ldap.attribute=description`.
         if scope == _SCOPE_GLOBAL:
             if tenant:
                 raise AnsibleError(

@@ -1,0 +1,44 @@
+name: "🧪 Test"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      INFINITO_TEST_RUNNER: host
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: ▶️ Run the full test suite via make
+        shell: bash
+        run: |
+          set -euo pipefail
+          make test 2>&1 | tee /tmp/test-output.txt
+
+      - name: 📊 Per-test summary from junit reports
+        if: always()
+        shell: bash
+        run: |
+          python3 utils/github/pytest_summary.py build/test-reports >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 🔨 Build step summary from annotations
+        if: always()
+        working-directory: ${{ github.workspace }}
+        run: |
+          python3 -m utils.annotations.summarize /tmp/test-output.txt "Test Annotation Summary"

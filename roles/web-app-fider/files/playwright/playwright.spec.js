@@ -24,7 +24,9 @@ const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 // Fider shows a "Sign in" button in the header, then a modal listing OAuth providers.
 async function clickFiderSsoButton(locator) {
   // Click "Sign in" in the Fider header
-  const signInLink = locator.getByRole("link", { name: /sign in/i });
+  const signInLink = locator
+    .getByRole("button", { name: /sign in/i })
+    .or(locator.getByRole("link", { name: /sign in/i }));
 
   await signInLink.first().waitFor({ state: "visible", timeout: 30_000 });
   await signInLink.first().click();

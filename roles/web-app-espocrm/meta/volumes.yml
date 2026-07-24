@@ -1,2 +1,33 @@
 ---
-data: espocrm_data
+data:
+  type: volume
+  name: espocrm_data
+  mounts:
+    - service: espocrm
+      target: /var/www/html/data
+    - service: daemon
+      target: /var/www/html/data
+    - service: websocket
+      target: /var/www/html/data
+
+custom:
+  type: volume
+  name: espocrm_custom
+  mounts:
+    - service: espocrm
+      target: /var/www/html/custom
+    - service: daemon
+      target: /var/www/html/custom
+    - service: websocket
+      target: /var/www/html/custom
+
+client_custom:
+  type: volume
+  name: espocrm_client_custom
+  mounts:
+    - service: espocrm
+      target: /var/www/html/client/custom
+    - service: daemon
+      target: /var/www/html/client/custom
+    - service: websocket
+      target: /var/www/html/client/custom

@@ -1,0 +1,8 @@
+---
+- name: 🚀 Deploy {{ INJ_DASHBOARD_JS_FILE_NAME }}
+  stack_host_template:
+    src: "{{ INJ_DASHBOARD_JS_FILE_NAME }}.j2"
+    dest: "{{ INJ_DASHBOARD_JS_FILE_DESTINATION }}"
+    mode: "0644"
+
+- include_tasks: utils/once/flag.yml

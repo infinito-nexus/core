@@ -1,2 +1,18 @@
 ---
-data: jenkins_data
+jenkins_data:
+  type: volume
+  nfs:
+    uid: "1000"
+    gid: "1000"
+    mode: "0770"
+  mounts:
+    - service: jenkins
+      target: /var/jenkins_home
+
+casc:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-jenkins', 'directories.instance'), 'casc.yaml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: jenkins
+      target: /var/jenkins_home/casc.yaml

@@ -1,0 +1,5 @@
+---
+- name: "🧹 PHP lint configuration.php"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }} php -l {{ JOOMLA_CONFIG_FILE }}
+  changed_when: false

@@ -1,4 +1,5 @@
 ---
+# nocheck: dockerfile-custom
 # nocheck: dynamic-flag
 # nocheck: sso
 sso:
@@ -18,6 +19,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
@@ -29,11 +31,16 @@ recaptcha:
   enabled: false
 # nocheck: playwright-service-flag — self-provider
 simpleicons:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
   image: node
-  version: latest
+  version: 26-bookworm
   local_image: simpleicons-server
   local_version: latest
   min_storage: 1GB
@@ -44,6 +51,10 @@ simpleicons:
   ports:
     local:
       http: 8044
+    internal:
+      http: 3000
+  proxy:
+    service_key: simpleicons
   lifecycle: beta
 prometheus:
   bond: 1

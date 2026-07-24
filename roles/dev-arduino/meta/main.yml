@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs tools and permissions for Arduino development on Linux.
+  description: Workstation toolchain and serial-port permissions for Arduino board development on Linux
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

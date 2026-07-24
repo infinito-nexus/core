@@ -56,7 +56,7 @@ jobs:
           days-before-stale: 350
           days-before-delete: 360
 
-          branches-filter-regex: '^(?!(?:main|master|develop|dev)$)(?!release/)(?!hotfix/).*'
+          branches-filter-regex: '^(?!main$|master$|develop$|dev$|release/|hotfix/)'
 
           compare-branches: info
           dry-run: false
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
       - name: 📦 Install project environment

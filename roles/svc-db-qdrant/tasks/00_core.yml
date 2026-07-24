@@ -1,0 +1,30 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+    application_id: "svc-db-qdrant"
+    database_consumer_id: "svc-db-qdrant"
+
+- name: "⏳ QDRANT | Wait until container is running (not restarting)"
+  ansible.builtin.shell: >
+    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ QDRANT_CONTAINER_ADDRESS }}
+  register: qdrant_state
+  retries: 120
+  delay: 2
+  until: >
+    (qdrant_state.stdout is search('running')) and
+    (qdrant_state.stdout is not search('true'))
+  changed_when: false
+
+- name: "✅ QDRANT | Confirm HTTP API is ready (/readyz)"
+  ansible.builtin.shell: >
+    {{ QDRANT_EXEC_SHELL }}
+    'exec 3<>/dev/tcp/127.0.0.1/6333; printf "GET /readyz HTTP/1.0\r\n\r\n" >&3; grep -q "200 OK" <&3'
+  register: qdrant_ready
+  retries: 30
+  delay: 2
+  until: qdrant_ready.rc == 0
+  changed_when: false

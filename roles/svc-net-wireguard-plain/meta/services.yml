@@ -1,5 +1,12 @@
 ---
 wireguard-plain:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
   lifecycle: alpha
   min_storage: "50MB"
   cpus: "0.1"

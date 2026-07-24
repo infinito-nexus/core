@@ -4,15 +4,13 @@ set -u
 # Make the instance text human readable again (reverse systemd escaping)
 friendly="$(systemd-escape --unescape "$1")"
 
-# determine host name: try hostname command, otherwise use $HOSTNAME
 if command -v hostname &>/dev/null; then
   host=$(hostname)
 else
   host="$HOSTNAME"
 fi
 
-# send the Telegram message
-/usr/bin/curl -s -X POST \
+{{ 30 | curl }} -X POST \
   "https://api.telegram.org/bot{{ TELEGRAM_BOT_TOKEN }}/sendMessage" \
   -d chat_id="{{ TELEGRAM_CHAT_ID }}" \
   --data-urlencode text="service ${friendly//\//-} on ${host} failed"

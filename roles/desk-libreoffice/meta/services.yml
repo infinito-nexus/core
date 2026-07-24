@@ -1,5 +1,8 @@
 ---
 libreoffice:
+  modes:
+    host:
+      enabled: true
   flavor: fresh
   languages:
     - "{{ HOST_LL_CC | lower | replace('_', '-') }}"

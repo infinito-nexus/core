@@ -1,7 +1,0 @@
----
-- include_tasks: utils/once/flag.yml
-
-- name: Copy imprint.html
-  ansible.builtin.template:
-    src: imprint.html.j2
-    dest: "{{ [ lookup('nginx', 'directories.data.html'), 'imprint.html' ] | path_join }}"

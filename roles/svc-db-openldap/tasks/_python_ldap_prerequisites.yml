@@ -1,5 +1,5 @@
 ---
-- name: Resolve python-ldap native library packages for current OS family
+- name: 🔍 Resolve python-ldap native library packages for current OS family
   ansible.builtin.set_fact:
     openldap_python_ldap_native_lib_packages: >-
       {{
@@ -7,13 +7,13 @@
       }}
   changed_when: false
 
-- name: Install python-ldap native library build dependencies
+- name: 📦 Install python-ldap native library build dependencies
   ansible.builtin.package:
     name: "{{ openldap_python_ldap_native_lib_packages }}"
     state: present
   when: openldap_python_ldap_native_lib_packages | length > 0
 
-- name: Resolve Python include directory for active interpreter
+- name: 🔍 Resolve Python include directory for active interpreter
   ansible.builtin.command:
     argv:
       - "{{ ansible_python_interpreter }}"
@@ -22,12 +22,12 @@
   register: openldap_python_include_dir
   changed_when: false
 
-- name: Set Python.h path for active interpreter
+- name: 🔧 Set Python.h path for active interpreter
   ansible.builtin.set_fact:
     openldap_python_header_path: "{{ (openldap_python_include_dir.stdout | trim) ~ '/Python.h' }}"
   changed_when: false
 
-- name: Check whether Python.h exists for active interpreter
+- name: 🔎 Check whether Python.h exists for active interpreter
   ansible.builtin.stat:
     path: "{{ openldap_python_header_path }}"
   register: openldap_python_header

@@ -1,0 +1,27 @@
+---
+# Fetch an authenticated REST session and CSRF token for write operations.
+# XWiki REST write requests (PUT/POST/DELETE) may require BOTH:
+# - a valid JSESSIONID cookie
+# - XWiki-Form-Token header
+#
+# This task file sets a fact `xwiki_rest_headers_write` that you can reuse.
+
+- name: "⬇️ XWIKI | Fetch REST session + form token (write ops)"
+  uri_retry:
+    url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200]
+    return_content: false
+  register: _xwiki_rest_session
+  changed_when: false
+
+- name: "🔧 XWIKI | Set REST write headers"
+  set_fact:
+    xwiki_rest_headers_write:
+      Content-Type: "application/xml"
+      Accept: "application/xml"
+      Cookie: "{{ _xwiki_rest_session.cookies_string }}"
+      XWiki-Form-Token: "{{ _xwiki_rest_session.xwiki_form_token }}"

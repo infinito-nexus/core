@@ -1,0 +1,27 @@
+---
+- name: "📖 Read token store from host"
+  ansible.builtin.slurp:
+    src: "{{ FILE_TOKENS }}"
+  register: sys_token_store_raw
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  become: true
+
+- name: "🔎 Parse store YAML"
+  ansible.builtin.set_fact:
+    sys_token_store_data: >-
+      {{
+        (sys_token_store_raw.content | b64decode | from_yaml)
+        if (
+          sys_token_store_raw is defined and
+          sys_token_store_raw.content is defined and
+          (sys_token_store_raw.content | length) > 0
+        )
+        else {}
+      }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📐 Normalize users dict"
+  ansible.builtin.set_fact:
+    sys_token_store_users: "{{ sys_token_store_data.users | default({}, true) }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

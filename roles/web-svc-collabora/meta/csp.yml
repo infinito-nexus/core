@@ -1,0 +1,7 @@
+---
+whitelist:
+  frame-ancestors:
+    - "*.{{ DOMAIN_PRIMARY }}"
+flags:
+  style-src-attr:
+    unsafe-inline: true

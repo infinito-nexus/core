@@ -40,20 +40,19 @@ _IMPLICIT_ADMIN_DESC = "administrator"
 def _resolve_tenants(application_config, application_id):
     """Return the list of tenant identifiers for a tenant-aware app."""
     tenancy = (application_config.get("rbac") or {}).get("tenancy") or {}
-    source = tenancy.get("source", "server.domains.canonical")
-    if source != "server.domains.canonical":
+    source = tenancy.get("source", "domains.canonical")
+    if source != "domains.canonical":
         raise ValueError(
             f"build_ldap_role_entries: application '{application_id}' "
             f"declares rbac.tenancy.source='{source}', but only "
-            f"'server.domains.canonical' is implemented."
+            f"'domains.canonical' is implemented."
         )
-    server = application_config.get("server") or {}
-    domains = server.get("domains") or {}
+    domains = application_config.get("domains") or {}
     canonical = domains.get("canonical") or []
     if not canonical:
         raise ValueError(
             f"build_ldap_role_entries: tenant-aware application "
-            f"'{application_id}' has no server.domains.canonical entries."
+            f"'{application_id}' has no domains.canonical entries."
         )
     tenants = []
     for d in canonical:

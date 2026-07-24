@@ -37,12 +37,27 @@ from typing import Any
 
 import yaml
 
+
+def _construct_compose_merge_tag(loader, node):
+    """Docker-compose merge tags (!override/!reset) parse as their value."""
+    if isinstance(node, yaml.SequenceNode):
+        return loader.construct_sequence(node)
+    if isinstance(node, yaml.MappingNode):
+        return loader.construct_mapping(node)
+    return loader.construct_scalar(node)
+
+
+for _tag in ("!override", "!reset"):
+    yaml.SafeLoader.add_constructor(_tag, _construct_compose_merge_tag)
+
+
+def _construct_vault_tag(loader, node):
+    return loader.construct_scalar(node)
+
+
+yaml.SafeLoader.add_constructor("!vault", _construct_vault_tag)
+
 _MISSING = object()
-# One unified cache. Stores the raw document list parsed by
-# ``yaml.safe_load_all`` so single-doc and multi-doc consumers share
-# the same on-disk parse. Single-doc helpers (``load_yaml`` /
-# ``load_yaml_any``) unwrap ``docs[0]``; multi-doc (``load_yaml_all``)
-# returns the list as-is.
 _CACHE: dict[tuple[str, int, int], list[Any]] = {}
 
 
@@ -51,9 +66,6 @@ def _path_key(path) -> str:
 
 
 def _key(path) -> str:
-    # Backwards-compatible: `invalidate(path)` and `dump_yaml`'s eviction
-    # work with just the path. The full cache key lookup takes mtime/size
-    # into account separately in `_load_raw`.
     return _path_key(path)
 
 
@@ -74,15 +86,11 @@ def _load_docs(path) -> list[Any]:
     if sig in _CACHE:
         return _CACHE[sig]
 
-    # Drop any stale entries for this path (different mtime/size) so
-    # the cache does not grow unboundedly when a file is rewritten many
-    # times during one process lifetime (token store under load).
     path_str = sig[0]
     for stale_key in [k for k in _CACHE if k[0] == path_str and k != sig]:
         _CACHE.pop(stale_key, None)
 
     with p.open("r", encoding="utf-8") as f:
-        # This module IS the cache; calling itself would recurse.
         docs = list(yaml.safe_load_all(f))  # nocheck: direct-yaml
     _CACHE[sig] = docs
     return docs
@@ -100,9 +108,6 @@ def _load_raw(path, *, default_if_missing: Any) -> Any:
     if not p.exists():
         if default_if_missing is _MISSING:
             raise FileNotFoundError(p)
-        # Do NOT cache the synthetic default: a later `dump_yaml` may
-        # create the file, and we want the next read to pick the real
-        # content up. Caching the empty default here would mask that.
         return default_if_missing
 
     docs = _load_docs(p)
@@ -257,6 +262,4 @@ def _reset() -> None:
     _CACHE.clear()
 
 
-# Backwards-compatible alias for in-tree callers that may still reference
-# the old name.
 _reset_cache_for_tests = _reset

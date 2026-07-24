@@ -1,6 +1,6 @@
 ---
 # Cloud flavor (hcloud API)
-- name: Resolve effective hcloud token
+- name: 🔍 Resolve effective hcloud token
   set_fact:
     _hz_token: >-
       {{ HETZNER_API_TOKEN
@@ -9,25 +9,25 @@
       }}
   no_log: "{{ hetzner_no_log | bool }}"
 
-- name: Assert hcloud token present
+- name: ✅ Assert hcloud token present
   ansible.builtin.assert:
     that: ["_hz_token | length > 0"]
     fail_msg: "HETZNER_API_TOKEN is required for the Cloud flavor."
   no_log: "{{ hetzner_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: Collect hcloud servers if needed (server records without identifier)
+- name: 📊 Collect hcloud servers if needed (server records without identifier)
   hetzner.hcloud.server_info:
     api_token: "{{ _hz_token }}"
   register: _servers_info
   when: rdns_records | selectattr('resource','equalto','server') | selectattr('identifier','undefined') | list | length > 0
   no_log: "{{ hetzner_no_log | bool }}"
 
-- name: Init normalized records list
+- name: 🎬 Init normalized records list
   set_fact:
     _rdns_records: []
 
-- name: Normalize records (autofill server.identifier by IPv4)
+- name: 📐 Normalize records (autofill server.identifier by IPv4)
   vars:
     _match_name: >-
       {{
@@ -51,7 +51,7 @@
   loop: "{{ rdns_records }}"
   loop_control: { loop_var: rec }
 
-- name: Ensure server identifiers are resolved when required
+- name: ✅ Ensure server identifiers are resolved when required
   assert:
     that:
       - >
@@ -64,7 +64,7 @@
   no_log: "{{ hetzner_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: Validate records (cloud)
+- name: ✅ Validate records (cloud)
   ansible.builtin.assert:
     that:
       - (_rdns_records | default(rdns_records)) | length > 0
@@ -77,7 +77,7 @@
   no_log: "{{ hetzner_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: Apply rDNS via hcloud
+- name: 📌 Apply rDNS via hcloud
   hetzner.hcloud.hcloud_rdns:
     api_token: "{{ _hz_token }}"
     server: "{{ (item.resource == 'server') | ternary(item.identifier, omit) }}"

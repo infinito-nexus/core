@@ -3,33 +3,20 @@ application_id: "web-app-opencloud"
 entity_name: "{{ application_id | get_entity_name }}"
 
 OPENCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.opencloud.name') }}"
-OPENCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.opencloud.image') }}"
-OPENCLOUD_VERSION: "{{ lookup('config', application_id, 'services.opencloud.version') }}"
-OPENCLOUD_HTTP_PORT: "{{ lookup('config', application_id, 'services.opencloud.ports.local.http') }}"
 
-OPENCLOUD_DATA_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
-OPENCLOUD_CONFIG_VOLUME: "{{ lookup('config', application_id, 'volumes.config') }}"
-
-OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
 
-# IAM toggles consumed by env.j2
 OPENCLOUD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 OPENCLOUD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-# Initial admin password (only used while IDM is built-in; with external IdP it
-# remains a fallback for emergency local console access).
 OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
 
-# Internal service-to-service secrets
 OPENCLOUD_MACHINE_AUTH_API_KEY: "{{ lookup('config', application_id, 'credentials.machine_auth_api_key') }}"
 OPENCLOUD_STORAGE_SYSTEM_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.storage_system_jwt_secret') }}"
 OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.jwt_secret') }}"
 OPENCLOUD_TRANSFER_SECRET: "{{ lookup('config', application_id, 'credentials.transfer_secret') }}"
 
-# Cross-link to OpenTalk (used by env to expose meeting launcher).
-# `tls` lookup raises when the role is not in scope, so gate the URL behind
-# the group_names check and fall back to an empty string when OpenTalk is
-# not part of the current host's role set.
+# Exception: the tls lookup raises when web-app-opentalk is not in scope
 OPENCLOUD_OPENTALK_ENABLED: "{{ ('web-app-opentalk' in group_names) | lower }}"
 OPENCLOUD_OPENTALK_URL: "{{ lookup('tls', 'web-app-opentalk', 'url.base') if OPENCLOUD_OPENTALK_ENABLED | bool else '' }}"

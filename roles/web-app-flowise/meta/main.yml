@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs Flowise — a visual builder to create, test, and publish AI workflows (RAG, tools, webhooks).
+  description: Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,0 +1,9 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load front-proxy + dev-git for {{ application_id }}"
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - sys-stk-front-proxy
+    - dev-git

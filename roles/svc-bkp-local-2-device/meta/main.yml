@@ -1,7 +1,8 @@
 ---
+# nocheck: info-media Self-written systemd/rsync backup role syncing the local backup tree to a swappable USB device; no upstream product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Plug-triggered, snapshot-deduplicated backup of the local backup tree to a swappable block device (typically a USB drive).
+  description: Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

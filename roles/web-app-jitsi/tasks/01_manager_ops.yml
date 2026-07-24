@@ -1,0 +1,25 @@
+---
+- name: "✅ ensure jitsi bind-mount source dirs exist (swarm needs bind source)"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ JITSI_PROSODY_PLUGINS_HOST_PATH }}"
+    - "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}"
+    - "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d"
+    - "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'jicofo'] | path_join }}"
+    - "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'jvb'] | path_join }}"
+    - "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'config'] | path_join }}"
+    - "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'transcripts'] | path_join }}"
+
+- name: "🎬 stage prosody LDAP authentication override (mod_auth_ldap2)"
+  stack_host_template:
+    src: prosody-ldap.cfg.lua.j2
+    dest: "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d/ldap.cfg.lua"
+    mode: "0644"
+  notify: compose up
+  when: JITSI_LDAP_ENABLED
+
+- name: "🚿 flush handlers so Jitsi containers start with rendered env"
+  meta: flush_handlers

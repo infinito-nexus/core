@@ -1,9 +1,21 @@
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
 from plugins.lookup.addon_env_flags import LookupModule, env_key
+
+
+def _applications_loader(apps):
+    def _get(name, *a, **k):
+        if name == "applications":
+            return mock.MagicMock(run=lambda *_a, **_k: [apps])
+        return mock.MagicMock(run=lambda *_a, **_k: [None])
+
+    loader_mock = mock.MagicMock()
+    loader_mock.get.side_effect = _get
+    return loader_mock
 
 
 class TestEnvKey(unittest.TestCase):
@@ -28,6 +40,7 @@ class TestEnvKey(unittest.TestCase):
 class TestAddonEnvFlagsLookup(unittest.TestCase):
     def setUp(self):
         self.lookup = LookupModule()
+        self.lookup._loader = mock.MagicMock()
         self.addons = {
             "collectives": {"enabled": True, "required": True},
             "contacts": {"enabled": True, "required": True},
@@ -39,8 +52,8 @@ class TestAddonEnvFlagsLookup(unittest.TestCase):
         }
         self._patchers = [
             patch(
-                "plugins.lookup.addon_env_flags.get_merged_applications",
-                return_value={},
+                "plugins.lookup.addon_env_flags.lookup_loader",
+                _applications_loader({}),
             ),
             patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
             patch(
@@ -93,10 +106,11 @@ class TestAddonEnvFlagsLookup(unittest.TestCase):
 class TestNoAddons(unittest.TestCase):
     def test_empty_addons_yields_empty_string(self):
         lookup = LookupModule()
+        lookup._loader = mock.MagicMock()
         with (
             patch(
-                "plugins.lookup.addon_env_flags.get_merged_applications",
-                return_value={},
+                "plugins.lookup.addon_env_flags.lookup_loader",
+                _applications_loader({}),
             ),
             patch("plugins.lookup.addon_env_flags.get", return_value={}),
             patch(
@@ -114,6 +128,7 @@ class TestBridgeDeploymentGating(unittest.TestCase):
 
     def setUp(self):
         self.lookup = LookupModule()
+        self.lookup._loader = mock.MagicMock()
         self.addons = {
             "gl_bridge": {"enabled": True, "required": True, "bridges": ["gitlab"]},
             "masto_bridge": {
@@ -135,8 +150,8 @@ class TestBridgeDeploymentGating(unittest.TestCase):
         }
         self._patchers = [
             patch(
-                "plugins.lookup.addon_env_flags.get_merged_applications",
-                return_value={},
+                "plugins.lookup.addon_env_flags.lookup_loader",
+                _applications_loader({}),
             ),
             patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
             patch(

@@ -2,21 +2,15 @@
 # General
 application_id: "web-app-postmarks"
 
-# Container
-container_port: 3000
+container_port: "{{ lookup('config', application_id, 'services.postmarks.ports.internal.http') }}"
 domain: "{{ container_hostname }}"
 http_port: "{{ lookup('config', application_id, 'services.postmarks.ports.local.http') }}"
 container_hostname: "{{ lookup('domain', application_id) }}"
 
-# App container
-POSTMARKS_CONTAINER: "{{ lookup('config', application_id, 'services.application.name') }}"
-POSTMARKS_IMAGE: "{{ lookup('config', application_id, 'services.application.image') }}"
-POSTMARKS_VERSION: "{{ lookup('config', application_id, 'services.application.version') }}"
+POSTMARKS_CONTAINER: "{{ lookup('config', application_id, 'services.postmarks.name') }}"
 
-# Source
-POSTMARKS_REPO_URL: "{{ lookup('config', application_id, 'services.application.repository') }}"
-POSTMARKS_REF: "{{ lookup('config', application_id, 'services.application.ref') }}"
+POSTMARKS_REPO_URL: "{{ lookup('config', application_id, 'services.postmarks.repository') }}"
+POSTMARKS_REF: "{{ lookup('config', application_id, 'services.postmarks.ref') }}"
 
-# Trusted-header SSO bridge
 POSTMARKS_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 POSTMARKS_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"

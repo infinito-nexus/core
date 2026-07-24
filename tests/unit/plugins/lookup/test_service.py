@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -16,12 +17,21 @@ _SERVICE_REGISTRY = {
 }
 
 
-def _run(terms, applications, group_names, service_registry=None):
+def _run(
+    terms,
+    applications,
+    group_names,
+    service_registry=None,
+    static_registry=None,
+    **kwargs,
+):
+    loader_patch = patch("plugins.lookup.service.lookup_loader")
     patches = [
+        loader_patch,
         patch(
-            "plugins.lookup.service.get_merged_applications",
-            return_value=applications,
-        )
+            "plugins.lookup.service.build_service_registry_from_roles_dir",
+            return_value=static_registry or {},
+        ),
     ]
     if service_registry is not None:
         patches.append(
@@ -30,12 +40,16 @@ def _run(terms, applications, group_names, service_registry=None):
                 return_value=service_registry,
             )
         )
-    for p in patches:
-        p.start()
+    started = [p.start() for p in patches]
+    loader_mock = started[0]
+    loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [applications])
     try:
-        return LookupModule().run(
+        lm = LookupModule()
+        lm._loader = mock.MagicMock()
+        return lm.run(
             terms,
             variables={"group_names": group_names},
+            **kwargs,
         )
     finally:
         for p in reversed(patches):
@@ -94,6 +108,18 @@ class TestServiceDirect(unittest.TestCase):
     def test_multiple_terms(self):
         results = _run(
             ["matomo", "cdn", "logout"],
+            self.applications,
+            ["web-app-foo"],
+            service_registry=_SERVICE_REGISTRY,
+        )
+        self.assertEqual(len(results), 3)
+        self.assertTrue(results[0]["required"])
+        self.assertFalse(results[1]["required"])
+        self.assertFalse(results[2]["required"])
+
+    def test_single_list_term_is_flattened(self):
+        results = _run(
+            [["matomo", "cdn", "logout"]],
             self.applications,
             ["web-app-foo"],
             service_registry=_SERVICE_REGISTRY,
@@ -282,10 +308,13 @@ class TestServiceCycleGuard(unittest.TestCase):
 class TestServiceErrors(unittest.TestCase):
     def test_raises_when_group_names_not_list(self):
         with (
-            patch("plugins.lookup.service.get_merged_applications", return_value={}),
+            patch("plugins.lookup.service.lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
-            LookupModule().run(
+            loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
+            lm = LookupModule()
+            lm._loader = mock.MagicMock()
+            lm.run(
                 ["matomo"],
                 variables={"group_names": "not-a-list"},
             )
@@ -294,9 +323,37 @@ class TestServiceErrors(unittest.TestCase):
         with self.assertRaises(AnsibleError):
             _run(["   "], {}, [], service_registry=_SERVICE_REGISTRY)
 
-    def test_raises_when_term_unknown(self):
+    def test_raises_when_term_unknown_in_both_registries(self):
         with self.assertRaises(AnsibleError):
             _run(["totally-unknown-key"], {}, [], service_registry=_SERVICE_REGISTRY)
+
+
+class TestServiceStaticFallback(unittest.TestCase):
+    def test_out_of_play_key_resolves_via_static_registry(self):
+        result = _run(
+            ["css"],
+            {"web-app-foo": {"services": {}}},
+            ["web-app-foo"],
+            service_registry={"matomo": {"role": "web-app-matomo"}},
+            static_registry=_SERVICE_REGISTRY,
+        )[0]
+        self.assertEqual(result["id"], "css")
+        self.assertEqual(result["role"], "web-svc-cdn")
+        self.assertFalse(result["enabled"])
+        self.assertFalse(result["shared"])
+        self.assertFalse(result["required"])
+        self.assertFalse(result["local"])
+
+    def test_out_of_play_alias_aggregates_canonical_consumer_flags(self):
+        result = _run(
+            ["css"],
+            {"web-app-foo": {"services": {"cdn": {"enabled": True, "shared": True}}}},
+            ["web-app-foo"],
+            service_registry={"matomo": {"role": "web-app-matomo"}},
+            static_registry=_SERVICE_REGISTRY,
+        )[0]
+        self.assertTrue(result["enabled"])
+        self.assertTrue(result["required"])
 
 
 if __name__ == "__main__":

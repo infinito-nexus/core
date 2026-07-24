@@ -1,0 +1,4 @@
+---
+canonical:
+  - jenkins.{{ DOMAIN_PRIMARY }}
+aliases: []

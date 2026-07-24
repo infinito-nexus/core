@@ -1,2 +1,22 @@
 ---
-data: mastodon_data
+data:
+  type: volume
+  name: mastodon_data
+  mounts:
+    - service: mastodon
+      target: /mastodon/public/system
+    - service: sidekiq
+      target: /mastodon/public/system
+
+force_ssl_override:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-mastodon', 'directories.instance'), 'overrides', 'zzz_disable_force_ssl.rb'] | path_join }}"
+  mounts:
+    - service: mastodon
+      target: /opt/mastodon/config/initializers/zzz_disable_force_ssl.rb
+      read_only: true
+      when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"
+    - service: sidekiq
+      target: /opt/mastodon/config/initializers/zzz_disable_force_ssl.rb
+      read_only: true
+      when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"

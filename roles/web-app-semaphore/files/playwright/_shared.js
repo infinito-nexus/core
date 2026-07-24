@@ -50,9 +50,6 @@ async function fillLocalLogin(page, username, password) {
     .catch(() => page.keyboard.press("Enter"));
 }
 
-// Semaphore's own login form authenticates local DB users first and falls back
-// to an LDAP bind when SEMAPHORE_LDAP_ACTIVATED is set, so the same form drives
-// both the break-glass admin and LDAP personas.
 async function signInViaLocal(page, username, password, label) {
   await gotoLogin(page);
   await fillLocalLogin(page, username, password);

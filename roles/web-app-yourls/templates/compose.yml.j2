@@ -1,22 +1,21 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  application:
+  {% set service_name = 'yourls' %}
+  {% set container_healthcheck = (YOURLS_ADMIN_LOCATION | regex_replace('^/+', '') | regex_replace('/+$', '')) ~ '/' %}
+  {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         YOURLS_IMAGE: "{{ YOURLS_IMAGE }}"
         YOURLS_VERSION: "{{ YOURLS_VERSION }}"
-    image: "{{ YOURLS_CUSTOM_IMAGE }}"
-    container_name: "{{ YOURLS_CONTAINER }}"
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.yourls.ports.local.http') }}:{{ container_port }}"
-{% set container_healthcheck = (YOURLS_ADMIN_LOCATION | regex_replace('^/+', '') | regex_replace('/+$', '')) ~ '/' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_image', application_id, 'yourls') }}
+    {{ lookup('compose_only', 'container_name', YOURLS_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports', ['yourls', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
 
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
+{{ lookup('compose_volumes', application_id,
 ) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 import unittest
+from unittest import mock
 from unittest.mock import patch
 
 from . import PROJECT_ROOT
@@ -34,9 +35,11 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
     def _run(self, applications, **kwargs):
         lm = self.module.LookupModule()
         lm._templar = _DummyTemplar()
-        with patch.object(
-            self.module, "get_merged_applications", return_value=applications
-        ):
+        lm._loader = mock.MagicMock()
+        with patch.object(self.module, "lookup_loader") as loader_mock:
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [applications]
+            )
             return lm.run(terms=[], variables={}, **kwargs)[0]
 
     def test_empty_applications_returns_empty_list(self):
@@ -45,13 +48,13 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
     def test_app_with_status_code_ge_400_skips_canonical_and_aliases(self):
         apps = {
             "web-app-bridgy": {
+                "domains": {
+                    "canonical": ["bridgy.example.com"],
+                    "aliases": ["fed.example.com"],
+                },
                 "server": {
-                    "domains": {
-                        "canonical": ["bridgy.example.com"],
-                        "aliases": ["fed.example.com"],
-                    },
                     "status_codes": {"default": [200, 404]},
-                }
+                },
             }
         }
         self.assertEqual(self._run(apps), ["bridgy.example.com", "fed.example.com"])
@@ -59,33 +62,31 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
     def test_app_without_status_code_ge_400_is_not_skipped(self):
         apps = {
             "web-app-foo": {
+                "domains": {"canonical": ["foo.example.com"]},
                 "server": {
-                    "domains": {"canonical": ["foo.example.com"]},
                     "status_codes": {"default": [200]},
-                }
+                },
             }
         }
         self.assertEqual(self._run(apps), [])
 
     def test_app_without_status_codes_field_is_not_skipped(self):
-        apps = {
-            "web-app-foo": {"server": {"domains": {"canonical": ["foo.example.com"]}}}
-        }
+        apps = {"web-app-foo": {"domains": {"canonical": ["foo.example.com"]}}}
         self.assertEqual(self._run(apps), [])
 
     def test_group_names_selection_filters_apps(self):
         apps = {
             "web-app-bridgy": {
+                "domains": {"canonical": ["bridgy.example.com"]},
                 "server": {
-                    "domains": {"canonical": ["bridgy.example.com"]},
                     "status_codes": {"default": [404]},
-                }
+                },
             },
             "web-app-other": {
+                "domains": {"canonical": ["other.example.com"]},
                 "server": {
-                    "domains": {"canonical": ["other.example.com"]},
                     "status_codes": {"default": [404]},
-                }
+                },
             },
         }
         self.assertEqual(
@@ -96,16 +97,16 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
     def test_group_names_csv_string_is_accepted(self):
         apps = {
             "a": {
+                "domains": {"canonical": ["a.example.com"]},
                 "server": {
-                    "domains": {"canonical": ["a.example.com"]},
                     "status_codes": {"default": [404]},
-                }
+                },
             },
             "b": {
+                "domains": {"canonical": ["b.example.com"]},
                 "server": {
-                    "domains": {"canonical": ["b.example.com"]},
                     "status_codes": {"default": [404]},
-                }
+                },
             },
         }
         self.assertEqual(
@@ -116,10 +117,10 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
     def test_non_4xx_codes_dont_count(self):
         apps = {
             "web-app-foo": {
+                "domains": {"canonical": ["foo.example.com"]},
                 "server": {
-                    "domains": {"canonical": ["foo.example.com"]},
                     "status_codes": {"default": [200, 301, 302]},
-                }
+                },
             }
         }
         self.assertEqual(self._run(apps), [])

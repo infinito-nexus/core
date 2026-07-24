@@ -1,0 +1,31 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  {% set service_name = 'typesense' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', TYPESENSE_NAME) }}
+    {{ lookup('container_image', application_id, 'typesense') }}
+    command:
+      - "--data-dir"
+      - "/data"
+      - "--enable-cors"
+      - "--reset-peers-on-error"
+      - "--api-key"
+      - "{{ TYPESENSE_API_KEY }}"
+
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if TYPESENSE_EXPOSE_LOCAL %}
+    {{ lookup('container_ports', ['typesense', 'typesense', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
+    {{ lookup('container_volumes', application_id, 'typesense') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8108; printf \"GET /health HTTP/1.0\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'"
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

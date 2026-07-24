@@ -7,15 +7,17 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from utils.cache.yaml import dump_yaml_str
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_VARS_MAIN,
+)
 
 domain_list = importlib.import_module("utils.domains.list")
 
 
 class TestDomainList(unittest.TestCase):
     def write_role(self, roles_dir: Path, role_name: str, app_id: str, config: dict):
-        # ``config`` is the legacy nested shape ``{"server": {"domains": {...}}}``
-        # for readability; it gets unwrapped into the new file-root meta/server.yml.
         role_dir = roles_dir / role_name
         (role_dir / "vars").mkdir(parents=True, exist_ok=True)
         (role_dir / "meta").mkdir(parents=True, exist_ok=True)
@@ -23,9 +25,16 @@ class TestDomainList(unittest.TestCase):
             dump_yaml_str({"application_id": app_id}),
             encoding="utf-8",
         )
-        server_payload = config.get("server", {}) if isinstance(config, dict) else {}
+        server_payload = (
+            dict(config.get("server", {})) if isinstance(config, dict) else {}
+        )
+        domains_payload = server_payload.pop("domains", {})
         (role_dir / ROLE_FILE_META_SERVER).write_text(
             dump_yaml_str(server_payload),
+            encoding="utf-8",
+        )
+        (role_dir / ROLE_FILE_META_DOMAINS).write_text(
+            dump_yaml_str(domains_payload),
             encoding="utf-8",
         )
 

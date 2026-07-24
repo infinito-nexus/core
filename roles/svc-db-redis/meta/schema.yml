@@ -1,0 +1,6 @@
+---
+credentials:
+  REDIS_PASSWORD:
+    description: Password for the Redis 'default' (admin) user used to administer ACLs
+    algorithm: alphanumeric
+    validation: ^[A-Za-z0-9]{64}$

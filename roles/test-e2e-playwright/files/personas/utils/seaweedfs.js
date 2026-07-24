@@ -51,7 +51,7 @@ async function adminLoginFiler(page, env) {
   await page.goto(env.filerUrl, { waitUntil: "domcontentloaded" });
   if (isAuthChain(page.url())) {
     await performKeycloakLoginForm(page, env.adminUsername, env.adminPassword);
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
   }
   expect(
     isAuthChain(page.url()),

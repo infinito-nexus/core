@@ -1,0 +1,31 @@
+---
+# nocheck: info-media Self-written storage infrastructure role that installs the distro NFS kernel server and manages /etc/exports ACLs for the swarm; NFS is a kernel protocol, not a consumer-facing upstream product.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - nfs
+    - storage
+    - swarm
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

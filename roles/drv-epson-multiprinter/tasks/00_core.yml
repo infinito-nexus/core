@@ -1,0 +1,13 @@
+---
+- name: 📦 install AUR packages for epson
+  include_role:
+    name: sys-aur-install
+  vars:
+    yay_install_packages:
+      - epson-printer-utility
+      - imagescan-plugin-networkscan
+      - epson-inkjet-printer-escpr
+      - epson-inkjet-printer-escpr2
+      - imagescan
+
+- include_tasks: utils/once/flag.yml

@@ -1,23 +1,17 @@
 ---
-# General
 application_id: svc-db-postgres
 entity_name: "{{ application_id | get_entity_name }}"
 
-# Docker Compose
 database_type: "{{ entity_name }}"
 
-## Postgres
-POSTGRES_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 POSTGRES_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+POSTGRES_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 POSTGRES_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 POSTGRES_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 POSTGRES_VERSION_MAJOR: "{{ POSTGRES_VERSION | regex_replace('^([0-9]+).*', '\\1') }}"
-POSTGRES_NETWORK_NAME: "{{ application_id | get_entity_name }}"
 POSTGRES_PASSWORD: "{{ lookup('config', application_id, 'credentials.POSTGRES_PASSWORD') }}"
 POSTGRES_PORT: "{{ database_port | default(lookup('config', application_id, 'services.postgres.ports.local.postgres')) }}"
-POSTGRES_EXPOSE_LOCAL: true # Exposes the db to localhost, almost everytime neccessary
-POSTGRES_CUSTOM_IMAGE: "{{ entity_name }}_custom:{{ POSTGRES_VERSION }}"
+POSTGRES_EXPOSE_LOCAL: true
 POSTGRES_LOCAL_HOST: "127.0.0.1"
 POSTGRES_LIBRARIES: "{{ lookup('postgres_libraries', lookup('service_extensions', 'postgres').values() | sum(start=[]) | unique | list) }}"
 POSTGRES_RETRIES: 5
-POSTGRES_EXEC_SHELL: "container exec -e PGPASSWORD={{ POSTGRES_PASSWORD | quote }} {{ POSTGRES_CONTAINER }} sh -lc"

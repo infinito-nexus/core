@@ -43,8 +43,6 @@ async function fillManualLogin(page, username, password) {
     .catch(() => page.keyboard.press("Enter"));
 }
 
-// Jellyfin's manual login form authenticates local users and, when the LDAP
-// plugin is active, LDAP users through the same form.
 async function signInViaLocal(page, username, password, label) {
   await gotoLogin(page);
   await fillManualLogin(page, username, password);
@@ -55,7 +53,6 @@ async function signInViaLdap(page, username, password, label) {
   await signInViaLocal(page, username, password, label);
 }
 
-// The SSO plugin renders an extra provider button on the login page.
 async function signInViaOidc(page, username, password, label) {
   await gotoLogin(page);
   const oidcButton = page

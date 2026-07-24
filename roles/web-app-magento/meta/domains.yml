@@ -1,0 +1,4 @@
+---
+canonical:
+  - magento.shop.{{ DOMAIN_PRIMARY }}
+aliases: []

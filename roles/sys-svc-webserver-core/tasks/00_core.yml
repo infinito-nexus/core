@@ -1,0 +1,5 @@
+---
+- include_tasks: 00_core/manager_setup.yml
+  when: IS_STACK_HOST | bool
+
+- include_tasks: utils/once/flag.yml

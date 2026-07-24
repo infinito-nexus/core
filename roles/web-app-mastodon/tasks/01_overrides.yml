@@ -1,0 +1,22 @@
+---
+- name: "✅ MASTODON | Ensure overrides directory exists"
+  ansible.builtin.file:
+    path: "{{ MASTODON_OVERRIDES_DIR }}"
+    state: directory
+    mode: "0755"
+  when: MASTODON_HTTP_ONLY_ENABLED | bool
+
+- name: "📦 MASTODON | Install force_ssl override initializer (HTTP-only)"
+  ansible.builtin.copy:
+    dest: "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}"
+    mode: "0644"
+    content: |
+      # frozen_string_literal: true
+
+      Rails.application.config.force_ssl = false
+
+      Rails.application.config.middleware.delete ActionDispatch::SSL if defined?(ActionDispatch::SSL)
+
+      Rails.application.routes.default_url_options[:protocol] = "http"
+  when: MASTODON_HTTP_ONLY_ENABLED | bool
+  notify: compose up

@@ -1,5 +1,0 @@
----
-domains:
-  canonical:
-    - css.{{ DOMAIN_PRIMARY }}
-  aliases: []

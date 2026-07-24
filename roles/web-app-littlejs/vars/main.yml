@@ -24,7 +24,6 @@ LITTLEJS_CONTAINER: "{{ entity_name }}"
 LITTLEJS_SERVICE: "{{ entity_name }}"
 LITTLEJS_IMAGE: "{{ lookup('config', application_id, 'services.littlejs.image') }}"
 LITTLEJS_VERSION: "{{ lookup('config', application_id, 'services.littlejs.version') }}"
-LITTLEJS_IMAGE_CUSTOM: "{{ entity_name }}_custom"
 
 # Runner HTML for non-full examples
 LITTLEJS_RUN_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), 'run.html' ] | path_join }}"

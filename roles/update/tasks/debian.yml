@@ -1,5 +1,17 @@
 ---
-- name: "update (apt) | refresh apt cache and dist-upgrade all installed packages"
+- name: "🔁 update (apt) | make apt retry transient mirror/egress failures natively"
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/80-infinito-retries
+    content: |
+      Acquire::Retries "5";
+      Acquire::http::Timeout "30";
+      Acquire::https::Timeout "30";
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: "🔄 update (apt) | refresh apt cache and dist-upgrade all installed packages"
   ansible.builtin.apt:
     update_cache: true
     upgrade: dist

@@ -1,10 +1,83 @@
 ---
-- name: "Ensure docker network for '{{ network_role_id }}' exists"
-  community.docker.docker_network:
+- name: "🔍 Probe existing overlay network for '{{ network_role_id }}' (swarm scope)"
+  community.docker.docker_network_info: # nocheck: docker-module-uses-container-cli  read-only info module; returns structured network facts the wrapper's raw JSON would need parsed
     name: "{{ network_role_id | get_entity_name }}"
-    state: present
-    labels:
-      com.docker.compose.network: "default"
-      com.docker.compose.project: "{{ network_role_id | get_entity_name }}"
-    ipam_config:
-      - subnet: "{{ lookup('config', network_role_id, 'server.networks.local.subnet') }}"
+  register: sys_svc_compose_overlay_probe
+  when: (SWARM_CLUSTER_AVAILABLE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🛑 Fail on network driver drift for '{{ network_role_id }}' (swarm)"
+  ansible.builtin.fail:
+    msg: >-
+      Network '{{ network_role_id | get_entity_name }}' exists with driver
+      '{{ sys_svc_compose_overlay_probe.network.Driver | default('unknown') }}' but 'overlay' is required.
+      Remove the stale network or revert the networks.local.force_bridge change.
+  when:
+    - (SWARM_CLUSTER_AVAILABLE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
+    - sys_svc_compose_overlay_probe.exists | default(false) | bool
+    - (sys_svc_compose_overlay_probe.network.Driver | default('')) != 'overlay'
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "✅ Ensure docker overlay network for '{{ network_role_id }}' exists (swarm scope)"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - create
+      - --driver
+      - overlay
+      - --attachable
+      - --scope
+      - swarm
+      - --opt
+      - "encrypted={{ 'true' if swarm.network.encryption else 'false' }}"
+      - --subnet
+      - "{{ lookup('config', network_role_id, 'networks.local.subnet') }}"
+      - --label
+      - com.docker.compose.network=default
+      - --label
+      - "com.docker.compose.project={{ network_role_id | get_entity_name }}"
+      - "{{ network_role_id | get_entity_name }}"
+  when:
+    - (SWARM_CLUSTER_AVAILABLE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
+    - not (sys_svc_compose_overlay_probe.exists | default(false) | bool)
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+  changed_when: true
+
+- name: "🔍 Probe existing bridge network for '{{ network_role_id }}' (compose)"
+  community.docker.docker_network_info: # nocheck: docker-module-uses-container-cli  read-only info module; returns structured network facts the wrapper's raw JSON would need parsed
+    name: "{{ network_role_id | get_entity_name }}"
+  register: sys_svc_compose_bridge_probe
+  when: (not (SWARM_CLUSTER_AVAILABLE | bool)) or (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
+
+- name: "🛑 Fail on network driver drift for '{{ network_role_id }}' (compose)"
+  ansible.builtin.fail:
+    msg: >-
+      Network '{{ network_role_id | get_entity_name }}' exists with driver
+      '{{ sys_svc_compose_bridge_probe.network.Driver | default('unknown') }}' but 'bridge' is required.
+      Remove the stale network or revert the networks.local.force_bridge change.
+  when:
+    - (not (SWARM_CLUSTER_AVAILABLE | bool)) or (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
+    - sys_svc_compose_bridge_probe.exists | default(false) | bool
+    - (sys_svc_compose_bridge_probe.network.Driver | default('')) != 'bridge'
+
+- name: "✅ Ensure docker bridge network for '{{ network_role_id }}' exists (compose)"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - create
+      - --subnet
+      - "{{ lookup('config', network_role_id, 'networks.local.subnet') }}"
+      - --label
+      - com.docker.compose.network=default
+      - --label
+      - "com.docker.compose.project={{ network_role_id | get_entity_name }}"
+      - "{{ network_role_id | get_entity_name }}"
+  when:
+    - (not (SWARM_CLUSTER_AVAILABLE | bool)) or (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
+    - not (sys_svc_compose_bridge_probe.exists | default(false) | bool)
+  changed_when: true

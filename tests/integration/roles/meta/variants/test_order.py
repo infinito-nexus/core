@@ -71,17 +71,10 @@ def _direct_deps(
     registry: dict[str, dict[str, Any]],
     roles_dir: Path,
 ) -> set[str]:
-    # Bond-aware closure: only bond>=1 (same-host) services count toward the
-    # host's closure. bond<1 partners deploy on their own host, so they are NOT
-    # part of this role's closure and a later variant may enable them without
-    # variant 0 having to list them (only the coupled bond=1 set must).
     if isinstance(config, dict) and isinstance(config.get("services"), dict):
         coupled = {k: v for k, v in config["services"].items() if _bond_of(v) >= 1.0}
         config = {**config, "services": coupled}
     deps = set(resolve_service_dependency_roles_from_config(config, registry))
-    # Shape errors in run_after are caught by their own lint; here we
-    # treat the role as having no run_after so this lint stays focused
-    # on variant divergence.
     with contextlib.suppress(Exception):
         deps.update(load_run_after_from_roles_dir(roles_dir, role))
     return deps
@@ -114,10 +107,6 @@ class TestVariantDepConsistency(unittest.TestCase):
     def test_non_baseline_variant_closures_are_subsets_of_baseline(self) -> None:
         variants_by_app = get_variants(roles_dir=str(ROLES_DIR))
 
-        # Service registry is built from variant 0 of every app — this
-        # is the canonical view used to resolve which role a service
-        # key points to. Variant overrides can flip enabled/shared but
-        # cannot change what role provides a given service key.
         defaults = {
             app: variants[0] for app, variants in variants_by_app.items() if variants
         }
@@ -132,10 +121,6 @@ class TestVariantDepConsistency(unittest.TestCase):
                 for variant in variants
             ]
             baseline = closures[0]
-            # A non-baseline variant may shrink the closure (minimal /
-            # standalone variants pin dynamic flags to false) but it
-            # MUST NOT introduce a dep that the baseline lacks. Empty
-            # closures are subsets of anything and pass trivially.
             if any(not closure.issubset(baseline) for closure in closures[1:]):
                 offenders[app] = [
                     (index, sorted(closure)) for index, closure in enumerate(closures)
@@ -145,12 +130,14 @@ class TestVariantDepConsistency(unittest.TestCase):
             return
 
         lines = [
-            f"{len(offenders)} application(s) carry non-baseline variants "
-            "whose recursive dep closure is NOT a subset of variant 0's "
-            "closure. Variant 0 is the role's maximal deploy footprint; "
-            "later variants may only DROP deps, never introduce new ones, "
-            "so the round-0 baseline include and the dep-aware purge "
-            "logic stay consistent across the matrix.",
+            (
+                f"{len(offenders)} application(s) carry non-baseline variants "
+                "whose recursive dep closure is NOT a subset of variant 0's "
+                "closure. Variant 0 is the role's maximal deploy footprint; "
+                "later variants may only DROP deps, never introduce new ones, "
+                "so the round-0 baseline include and the dep-aware purge "
+                "logic stay consistent across the matrix."
+            ),
             "",
             "Background: docs/contributing/design/variants.md",
             "",

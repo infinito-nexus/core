@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Executes common tasks for user environment configuration.
+  description: Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

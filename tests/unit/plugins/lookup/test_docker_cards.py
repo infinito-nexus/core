@@ -3,7 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest import mock
 
 from ansible.errors import AnsibleError
 from jinja2 import Environment, StrictUndefined, select_autoescape
@@ -169,31 +169,29 @@ logo:
         with Path(meta_info_path).open("w", encoding="utf-8") as f:
             f.write(info_yaml)
 
-        # Patch tls lookup loader with a deterministic stub
         self._orig_lookup_get = docker_cards_module.lookup_loader.get
 
+        class _VarsLookup:
+            def __init__(self, key):
+                self._key = key
+
+            def run(self, terms, variables=None, **kwargs):
+                return [(variables or {}).get(self._key, {})]
+
         def _patched_get(name, loader=None, templar=None):
-            if name != "tls":
-                raise AnsibleError(f"Unexpected lookup requested: {name}")
-            return DummyTlsResolveLookup(templar)
+            if name == "applications":
+                return _VarsLookup("applications")
+            if name == "domains":
+                return _VarsLookup("domains")
+            if name == "tls":
+                return DummyTlsResolveLookup(templar)
+            raise AnsibleError(f"Unexpected lookup requested: {name}")
 
         docker_cards_module.lookup_loader.get = _patched_get
-
-        # Route get_merged_domains through variables['domains'] so tests stay hermetic.
-        def _domains_from_vars(*, variables=None, **_kwargs):
-            return (variables or {}).get("domains", {})
-
-        self._domains_patcher = patch.object(
-            docker_cards_module,
-            "get_merged_domains",
-            side_effect=_domains_from_vars,
-        )
-        self._domains_patcher.start()
 
     def tearDown(self):
         # Restore patched lookup_loader
         docker_cards_module.lookup_loader.get = self._orig_lookup_get
-        self._domains_patcher.stop()
 
         # Remove the temporary roles directory after the test.
         shutil.rmtree(self.test_roles_dir)
@@ -216,6 +214,7 @@ logo:
     def _run_lookup(self, lookup_module, fake_variables):
         # Provide deterministic templating behavior for unit tests.
         lookup_module._templar = DummyTemplar(fake_variables)
+        lookup_module._loader = mock.MagicMock()
         return lookup_module.run([self.test_roles_dir], variables=fake_variables)
 
     def test_lookup_when_group_includes_application_id(self):
@@ -239,6 +238,27 @@ logo:
         self.assertEqual(card["icon"]["class"], "fa-solid fa-briefcase")
         self.assertEqual(card["url"], "https://myportfolio.com")
         self.assertTrue(card["iframe"])
+
+    def test_iframe_flag_defaults_to_enabled(self):
+        lookup_module = LookupModule()
+        fake_variables = self._base_fake_variables()
+
+        result = self._run_lookup(lookup_module, fake_variables)
+
+        self.assertTrue(result[0][0]["iframe"])
+
+    def test_iframe_flag_false_decouples_from_enabled(self):
+        lookup_module = LookupModule()
+        fake_variables = self._base_fake_variables()
+        fake_variables["applications"]["portfolio"]["services"]["dashboard"][
+            "iframe"
+        ] = False
+
+        result = self._run_lookup(lookup_module, fake_variables)
+
+        cards = result[0]
+        self.assertEqual(len(cards), 1)
+        self.assertFalse(cards[0]["iframe"])
 
     def test_lookup_url_uses_https_when_tls_enabled_true(self):
         lookup_module = LookupModule()

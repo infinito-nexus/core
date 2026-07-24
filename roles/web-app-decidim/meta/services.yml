@@ -1,4 +1,5 @@
 ---
+# nocheck: dockerfile-custom
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -26,6 +27,11 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
   enabled: true # nocheck: dynamic-flag
 decidim:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: ghcr.io/decidim/decidim
   version: 0.31.6
   min_storage: 10GB
@@ -37,6 +43,8 @@ decidim:
   ports:
     local:
       http: 8069
+    internal:
+      http: 3000
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -44,9 +52,11 @@ decidim:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.25"
   mem_reservation: 128m
   mem_limit: 256m
@@ -66,3 +76,9 @@ seaweedfs:
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
   public: true
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

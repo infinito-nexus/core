@@ -1,28 +1,52 @@
 ---
-- name: Validate OpenResty configuration (Pre-Flight-Check)
-  ansible.builtin.command: >
-    container exec {{ OPENRESTY_CONTAINER }} openresty -t -q
-  register: openresty_test_pre
-  changed_when: false
-  failed_when: >
-    openresty_test_pre.rc != 0 and
-    ('is not running' not in ((openresty_test_pre.stderr | default('')) | lower)) and
-    ('no such container' not in ((openresty_test_pre.stderr | default('')) | lower)) and
-    ('is restarting' not in ((openresty_test_pre.stderr | default('')) | lower))
+# Swarm bind-mounts of a FILE pin the source inode at task-create time.
+# stack_host_template writes atomically (write-tmp + rename), so the
+# source inode changes; the running task keeps the old, deleted inode
+# mounted and `openresty -s reload` reads stale config. Force a task
+# redeploy on the manager to remount the live inode.
+- name: Compose-mode force-recreate (file bind-mount pins the inode; -s reload reads stale config)
+  when: DEPLOYMENT_MODE == 'compose'
+  block:
+    - name: Force-recreate OpenResty (remounts the config bind to the live inode)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        compose up -d --force-recreate --remove-orphans
+      args:
+        chdir: "{{ lookup('container', 'svc-prx-openresty', 'directories.instance') }}"
+        executable: /bin/bash
+      register: openresty_restart
+      changed_when: true
 
-- name: Restart OpenResty container
-  ansible.builtin.command: >
-    container restart {{ OPENRESTY_CONTAINER }}
-  register: openresty_restart
-  changed_when: true
-  failed_when: >
-    openresty_restart.rc != 0 and
-    ('is not running' not in ((openresty_restart.stderr | default('')) | lower)) and
-    ('no such container' not in ((openresty_restart.stderr | default('')) | lower))
+    - name: Validate OpenResty configuration (Post-Flight-Check)
+      ansible.builtin.shell: >
+        container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }} openresty -t -q
+      register: openresty_test_post
+      changed_when: false
+      retries: 10
+      delay: 3
+      until: openresty_test_post.rc == 0
+      failed_when: >
+        openresty_test_post.rc != 0 and
+        ('is not running' not in ((openresty_test_post.stderr | default('')) | lower)) and
+        ('no such container' not in ((openresty_test_post.stderr | default('')) | lower)) and
+        ('is restarting' not in ((openresty_test_post.stderr | default('')) | lower))
 
-# -----------------------------
-# DEBUG path
-# -----------------------------
+- name: Force OpenResty service redeploy
+  ansible.builtin.command: >-
+    container service update --force
+    {{ lookup('container_service', 'svc-prx-openresty', 'openresty') }}
+  register: openresty_swarm_update
+  changed_when: openresty_swarm_update.rc == 0
+  retries: 5
+  delay: 3
+  until: >-
+    openresty_swarm_update.rc == 0 or
+    ('update out of sequence' not in ((openresty_swarm_update.stderr | default('')) | lower))
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - IS_STACK_HOST | bool
+
 - name: "MODE_DEBUG: wait + validate OpenResty"
   when: MODE_DEBUG | bool
   block:
@@ -32,8 +56,8 @@
       failed_when: false
       ignore_errors: true
 
-    - ansible.builtin.command: >
-        container logs --tail=200 {{ OPENRESTY_CONTAINER }}
+    - ansible.builtin.shell: >
+        container logs --tail=200 {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }}
       register: openresty_logs
       changed_when: false
       failed_when: false

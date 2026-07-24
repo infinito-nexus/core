@@ -1,6 +1,6 @@
 import unittest
 
-from plugins.filter.generate_all_domains import FilterModule
+from plugins.filter.generate.all_domains import FilterModule
 
 
 class TestGenerateAllDomains(unittest.TestCase):
@@ -14,7 +14,6 @@ class TestGenerateAllDomains(unittest.TestCase):
                 "synapse": "matrix.example",
                 "element": "element.example",
             },
-            # dict -> list inside dict (this used to break set())
             "svc-prx-openresty": {"canonical": ["example"]},
         }
 
@@ -34,8 +33,8 @@ class TestGenerateAllDomains(unittest.TestCase):
     def test_includes_www_and_dedupes(self):
         domains_dict = {
             "a": ["alpha.example", "beta.example"],
-            "b": {"x": "alpha.example"},  # duplicate
-            "c": {"canonical": ["beta.example"]},  # duplicate
+            "b": {"x": "alpha.example"},
+            "c": {"canonical": ["beta.example"]},
         }
 
         result = self.plugin(domains_dict, include_www=True)
@@ -58,7 +57,7 @@ class TestGenerateAllDomains(unittest.TestCase):
         domains_dict = {
             "ok": ["ok.example"],
             "none": None,
-            "weird": Weird(),  # ignored
+            "weird": Weird(),
             "nested": {
                 "x": None,
                 "y": ["y.example"],

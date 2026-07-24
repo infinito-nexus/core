@@ -1,0 +1,12 @@
+---
+- name: 📂 Include dependencies
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - sys-svc-webserver-core
+    - sys-svc-cln-domains
+    - sys-svc-dns
+
+- meta: flush_handlers
+
+- include_tasks: utils/once/flag.yml

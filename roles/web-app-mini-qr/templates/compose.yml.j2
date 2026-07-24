@@ -1,14 +1,12 @@
----
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-{% set container_port = 8080 %}  
-  {{ application_id | get_entity_name }}:
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    image: "{{ MINI_QR_IMAGE }}:{{ MINI_QR_VERSION }}"
-    container_name: "{{ MINI_QR_CONTAINER }}"
-    ports:
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.mini-qr.ports.local.http') }}:{{ container_port }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+  {% set service_name = application_id | get_entity_name %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'mini-qr') }}
+    {{ lookup('compose_only', 'container_name', MINI_QR_CONTAINER) }}
+    {{ lookup('container_ports', ['mini-qr', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(application_id) }}
+{{ lookup('compose_volumes', application_id) }}
 
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_networks') }}

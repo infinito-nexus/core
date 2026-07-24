@@ -29,13 +29,20 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 listmonk:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: single-replica
+  replicas: 1
   cpus: 1.0
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 1024
   min_storage: 5GB
   image: listmonk/listmonk
-  version: latest
+  version: "v6.2.0"
   backup:
     no_stop_required: true
   name: listmonk

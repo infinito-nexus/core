@@ -1,6 +1,9 @@
 ---
 # nocheck: dynamic-flag
 legal:
+  modes:
+    host:
+      enabled: false
   enabled: false
   shared: false
   lifecycle: beta

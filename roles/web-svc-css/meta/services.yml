@@ -1,6 +1,9 @@
 ---
 # nocheck: playwright-service-flag — self-provider
 css:
+  modes:
+    host:
+      enabled: true
   bond: 1
   enabled: true
   shared: true
@@ -25,3 +28,5 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  # nocheck: prometheus-scrape
+  scrape: false

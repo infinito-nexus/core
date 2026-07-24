@@ -16,6 +16,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests, base
+from utils.paths import FILE_TOKENS
 
 
 def _write(path: Path, content: str) -> None:
@@ -35,12 +36,8 @@ class TestProjectRootInvariants(unittest.TestCase):
         self.assertEqual(base.ROLES_DIR, base.PROJECT_ROOT / "roles")
 
     def test_default_tokens_file_is_secrets_yaml(self):
-        # Sanity: shape of the constant, not its on-disk presence (the
-        # path lives in /var/lib/infinito which is irrelevant during tests).
-        self.assertEqual(
-            base.DEFAULT_TOKENS_FILE,
-            Path("/var/lib/infinito/secrets/tokens.yml"),
-        )
+        # Sanity: the constant mirrors the utils.paths SPOT (env-derived).
+        self.assertEqual(base.DEFAULT_TOKENS_FILE, FILE_TOKENS)
 
 
 class TestDeepMerge(unittest.TestCase):

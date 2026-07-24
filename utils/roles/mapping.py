@@ -88,19 +88,11 @@ without losing the shared default.
 
 from __future__ import annotations
 
-# === Role types =============================================================
-# A role's category drives which structural files it may legitimately
-# carry. The vocabulary is intentionally small; refine only when a new
-# scoping decision genuinely needs a new bucket.
 ROLE_TYPE_APPLICATION = "application"
 ROLE_TYPE_SYSTEM_SERVICE = "system-service"
 ROLE_TYPE_USER = "user"
 ROLE_TYPE_TOOLING = "tooling"
 
-# Wildcard type. A ``types`` list entry whose ``type`` is ``ROLE_TYPE_ALL``
-# applies to every concrete role type. Concrete-type entries that appear
-# alongside the wildcard MUST take precedence so a contributor can spell
-# out a single per-type exception without losing the shared default.
 ROLE_TYPE_ALL = "all"
 
 ROLE_TYPES: tuple[str, ...] = (
@@ -147,47 +139,56 @@ def _all(
     ]
 
 
-# === Role file paths ========================================================
-# Each constant carries the path of the file relative to the role's own
-# directory (``roles/<role-name>/``).
-# Standard Ansible role layout
 ROLE_FILE_DEFAULTS_MAIN = "defaults/main.yml"
 ROLE_FILE_HANDLERS_MAIN = "handlers/main.yml"
 ROLE_FILE_TASKS_MAIN = "tasks/main.yml"
 ROLE_FILE_VARS_MAIN = "vars/main.yml"
 ROLE_FILE_README = "README.md"
+ROLE_FILE_TEMPL_COMPOSE = "templates/compose.yml.j2"
+ROLE_GLOB_TEMPL_COMPOSE_SIBLINGS = "templates/*.compose.yml.j2"
+ROLE_GLOB_TEMPL_COMPOSE_VARIANTS = "templates/compose.*.yml.j2"
 
-# Project-specific meta files
+
+def role_is_stack(role_dir) -> bool:
+    """True when the role renders a docker stack.
+
+    Args:
+        role_dir: path-like of the role directory (``roles/<name>``).
+
+    A role is a stack role iff it ships ``templates/compose.yml.j2``,
+    any ``templates/*.compose.yml.j2`` sibling, or a
+    ``templates/compose.*.yml.j2`` variant such as
+    ``compose.override.yml.j2``.
+    """
+    from pathlib import Path
+
+    root = Path(role_dir)
+    return (
+        (root / ROLE_FILE_TEMPL_COMPOSE).exists()
+        or any(root.glob(ROLE_GLOB_TEMPL_COMPOSE_SIBLINGS))
+        or any(root.glob(ROLE_GLOB_TEMPL_COMPOSE_VARIANTS))
+    )
+
+
 ROLE_FILE_META_MAIN = "meta/main.yml"
 ROLE_FILE_META_SERVICES = "meta/services.yml"
 ROLE_FILE_META_VARIANTS = "meta/variants.yml"
 ROLE_FILE_META_SERVER = "meta/server.yml"
+ROLE_FILE_META_CSP = "meta/csp.yml"
+ROLE_FILE_META_DOMAINS = "meta/domains.yml"
+ROLE_FILE_META_NETWORKS = "meta/networks.yml"
 ROLE_FILE_META_RBAC = "meta/rbac.yml"
 ROLE_FILE_META_VOLUMES = "meta/volumes.yml"
 ROLE_FILE_META_SCHEMA = "meta/schema.yml"
 ROLE_FILE_META_INFO = "meta/info.yml"
 ROLE_FILE_META_USERS = "meta/users.yml"
+ROLE_FILE_META_TESTS = "meta/tests.yml"
 
-# Addons are a directory topic: one `meta/addons/<addon_id>.yml` file per
-# addon, the file root being the addon spec. Consumers glob
-# ``<role>/meta/addons/*.yml``; the schema + bridge lints under
-# ``tests/lint/ansible/services/`` police the per-file contract.
 ROLE_DIR_META_ADDONS = "meta/addons"
 
-# Playwright spec: every role's E2E spec ships at this path. Companion
-# `.js` helpers MAY live alongside under the same directory; the runner
-# (`roles/test-e2e-playwright/tasks/run_one.yml`) globs every `*.js` in
-# the directory and stages them into the same tests tree, so a role can
-# ship additional modules without further wiring.
 ROLE_FILE_PLAYWRIGHT_SPEC = "files/playwright/playwright.spec.js"
 
 
-# === Per-file scoping =======================================================
-# Each entry maps a path constant (the role-relative path) to its
-# description and the role types that may legitimately ship the file.
-# Each ``types`` entry is a dict with the shape documented in this
-# module's docstring (type, file-level mandatory flag, and a list of
-# mandatory / optional dotted-path entries inside the file).
 ROLE_FILES: dict[str, dict[str, object]] = {
     ROLE_FILE_DEFAULTS_MAIN: {
         "description": ("Default values for role variables, overridable by callers."),
@@ -206,10 +207,6 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             "Role-local variables; the canonical home of the role's "
             "type marker (``application_id`` or ``system_service_id``)."
         ),
-        # The application and system-service entries declare the type
-        # markers consumed by ``utils.roles.type.get_role_type`` and
-        # override the wildcard default so the file is mandatory only
-        # for those types; everywhere else the file stays optional.
         "types": [
             {
                 "type": ROLE_TYPE_APPLICATION,
@@ -246,6 +243,13 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             *_all(mandatory=False),
         ],
     },
+    ROLE_FILE_TEMPL_COMPOSE: {
+        "description": (
+            "Docker Compose template rendered by sys-svc-compose; "
+            "carries the per-role service spec and named volumes."
+        ),
+        "types": _all(mandatory=False),
+    },
     ROLE_FILE_META_MAIN: {
         "description": (
             "Galaxy metadata and Ansible meta dependencies; required "
@@ -262,9 +266,6 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             "``lifecycle``, ``run_after`` and per-service "
             "port/credential definitions."
         ),
-        # Mandatory only for application roles (lifecycle declarations
-        # are required there); wildcard default keeps it optional for
-        # the rest.
         "types": [
             {"type": ROLE_TYPE_APPLICATION, "mandatory": True, "entries": []},
             *_all(mandatory=False),
@@ -282,9 +283,39 @@ ROLE_FILES: dict[str, dict[str, object]] = {
     },
     ROLE_FILE_META_SERVER: {
         "description": (
-            "Server-side compose attributes (CSP, domains, status "
-            "codes). Only meaningful when the role exposes a deployable "
-            "HTTP service."
+            "Server-side proxy attributes (status codes, locations, body "
+            "size limits). Only meaningful when the role exposes a "
+            "deployable HTTP service."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
+    },
+    ROLE_FILE_META_CSP: {
+        "description": (
+            "Content-Security-Policy flags and per-directive whitelist for "
+            "the application's HTTP responses."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
+    },
+    ROLE_FILE_META_DOMAINS: {
+        "description": (
+            "Public domain declarations (canonical, aliases) for the "
+            "application's web-accessible service."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
+    },
+    ROLE_FILE_META_NETWORKS: {
+        "description": (
+            "Docker network declarations (per-network subnets, overlay "
+            "topology) for the application's compose stack."
         ),
         "types": [
             {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},

@@ -14,10 +14,10 @@ jobs:
   cancel-pr-runs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
 
-      - name: Cancel active workflow runs for closed PR
+      - name: 🚫 Cancel active workflow runs for closed PR
         shell: bash
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

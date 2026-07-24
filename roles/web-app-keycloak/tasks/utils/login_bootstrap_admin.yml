@@ -1,0 +1,63 @@
+---
+- name: 🔑 Login with bootstrap admin (uses container ENV)
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} config credentials \
+        --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
+        --realm master \
+        --user "$KC_BOOTSTRAP_ADMIN_USERNAME" \
+        --password "$KC_BOOTSTRAP_ADMIN_PASSWORD"
+    '
+  register: kc_login_bootstrap
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: kc_login_bootstrap.rc == 0
+
+- name: ✅ Ensure permanent admin user exists (create if missing)
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} create users -r master \
+        -s "username=$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        -s "enabled=true"
+    '
+  register: kc_create_perm_admin
+  failed_when: >
+    not (
+      kc_create_perm_admin.rc == 0 or
+      (kc_create_perm_admin.stderr is defined and
+      ('User exists with same username' in kc_create_perm_admin.stderr))
+    )
+  changed_when: kc_create_perm_admin.rc == 0
+
+- name: 🔧 Set permanent admin password (by username, no ID needed)
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} set-password -r master \
+        --username "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        --new-password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+    '
+  changed_when: true
+
+- name: 🔐 Grant global admin via master realm role 'admin'
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} add-roles -r master \
+        --uusername "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        --rolename admin
+    '
+  register: kc_grant_master_admin
+  changed_when: (kc_grant_master_admin.stderr is defined and kc_grant_master_admin.stderr | length > 0) or (kc_grant_master_admin.stdout is defined and
+    kc_grant_master_admin.stdout | length > 0)
+  failed_when: false
+
+- name: ✅ Verify login with permanent admin (after creation)
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} config credentials \
+        --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
+        --realm master \
+        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        --password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+    '
+  changed_when: false

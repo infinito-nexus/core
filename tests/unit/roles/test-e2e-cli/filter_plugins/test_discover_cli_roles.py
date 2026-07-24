@@ -108,8 +108,6 @@ class TestDiscoverCliRoles(unittest.TestCase):
         self._create_role("web-app-foo")
         self._create_role("web-app-bar")
 
-        # group_names = on this host; only_roles = in this run
-        # intersection: only roles that are both on this host AND in the run
         result = _plugin.discover_cli_roles(
             str(self.playbook_dir),
             group_names=["svc-runner", "web-app-foo"],

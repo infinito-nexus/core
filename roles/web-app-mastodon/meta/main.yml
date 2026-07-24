@@ -1,8 +1,8 @@
 ---
+# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Dive into a decentralized social experience with Mastodon, a federated platform designed for dynamic, community-driven networking. Enjoy
-    real-time updates, robust moderation, and customizable user interfaces that empower communities to thrive.
+  description: Self-hosted federated social network for microblogging, real-time timelines, and community moderation
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

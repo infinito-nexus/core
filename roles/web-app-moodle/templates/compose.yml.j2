@@ -1,9 +1,9 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  moodle:
-{% set container_port = MOODLE_FPM_PORT %}
-    container_name: {{ MOODLE_CONTAINER }}
-    pull_policy: never
+  {% set service_name = 'moodle' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', MOODLE_CONTAINER) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,13 +21,9 @@
         MOODLE_TARBALL_FILENAME: "{{ MOODLE_TARBALL_FILENAME }}"
         MOODLE_VERSION_FILE: "{{ MOODLE_VERSION_FILE }}"
         MOODLE_AUTH_SUBDIR: "{{ MOODLE_AUTH_SUBDIR }}"
-    image: {{ MOODLE_IMAGE_CUSTOM }}
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    volumes:
-      - 'code:{{ MOODLE_CODE_DIR }}'
-      - 'data:{{ MOODLE_DATA_DIR }}'
-      - {{ MOODLE_MSMTP_ABS }}:/etc/msmtprc:ro
-    # FPM speaks FastCGI, not HTTP — bare TCP probe instead of curl.
+    {{ lookup('container_image', application_id, 'moodle') }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_volumes', application_id, 'moodle') | indent(4) }}
     healthcheck:
       test:
         - CMD-SHELL
@@ -35,35 +31,30 @@
       interval: 1m
       timeout: 20s
       retries: 5
-      start_period: 60s
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+      start_period: 15m
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  nginx:
-    container_name: {{ MOODLE_NGINX_CONTAINER }}
-    image: {{ MOODLE_NGINX_IMAGE }}:{{ MOODLE_NGINX_VERSION }}
-    depends_on:
-      moodle:
-        condition: service_healthy
+  {% set service_name = 'nginx' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', MOODLE_NGINX_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'nginx') }}
+    {{ lookup('depends_on', {'moodle': 'service_healthy'}) }}
     ports:
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.moodle.ports.local.http') }}:{{ MOODLE_NGINX_PORT }}
-    volumes:
-      - 'code:{{ MOODLE_CODE_DIR }}:ro'
-      - './nginx.conf:/etc/nginx/conf.d/default.conf:ro'
-    restart: {{ DOCKER_RESTART_POLICY }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('compose_restart') }}
+    {{ lookup('container_networks') | indent(4) }}
 
-  cron:
-    container_name: {{ MOODLE_CRON_CONTAINER }}
-    image: {{ MOODLE_IMAGE_CUSTOM }}
-    pull_policy: never
-    depends_on:
-      moodle:
-        condition: service_healthy
-    volumes:
-      - 'code:{{ MOODLE_CODE_DIR }}'
-      - 'data:{{ MOODLE_DATA_DIR }}'
-      - {{ MOODLE_MSMTP_ABS }}:/etc/msmtprc:ro
+  {% set service_name = 'cron' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', MOODLE_CRON_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'cron', version=MOODLE_VERSION) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('depends_on', {'moodle': 'service_healthy'}) }}
+    {{ lookup('container_volumes', application_id, 'cron') | indent(4) }}
     env_file:
       - .env/env
     entrypoint: ["{{ MOODLE_ENTRYPOINT_PATH }}"]
@@ -75,11 +66,8 @@
           php {{ MOODLE_CLI_DIR }}/cron.php >/proc/1/fd/1 2>/proc/1/fd/2 || true
           sleep 60
         done
-    restart: {{ DOCKER_RESTART_POLICY }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
+    {{ lookup('compose_restart') }}
+    {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'code': {'name': MOODLE_VOLUME_CODE}, 'data': {'name': MOODLE_VOLUME_DATA}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

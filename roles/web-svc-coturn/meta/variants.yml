@@ -6,22 +6,19 @@
 # matrix exercises the in-group_names branch of web-svc-coturn.
 
 - services:
-    matomo:
+    container_backup:
       enabled: true
-      shared: true
     prometheus:
       enabled: true
       shared: true
-    css:
-      enabled: true
+    redis:
       shared: true
 - services:
-    matomo:
+    container_backup:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
-      shared: false
-    css:
-      enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    redis:
+      shared: false # nocheck: variants-static-override backup shared stays literally true

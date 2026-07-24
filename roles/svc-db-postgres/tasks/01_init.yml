@@ -1,0 +1,157 @@
+---
+- name: "✅ Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-postgres'
+      - database_consumer_id != 'svc-db-postgres'
+
+- name: 📐 Normalize postgres credential strings for module args
+  ansible.builtin.set_fact:
+    postgres_login_password_string: "{{ POSTGRES_PASSWORD | string }}"
+    postgres_database_password_string: "{{ database_password | string }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Postgres | Resolve hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_service_name: "{{ lookup('database', database_consumer_id, 'service_name') }}"
+    resolve_output_prefix: POSTGRES
+    resolve_compose_cid: "{{ lookup('database', database_consumer_id, 'container') }}"
+
+- name: ⏳ Wait until postgres TCP auth works
+  block:
+    - name: ⏳ Wait for Postgres TCP auth
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  POSTGRES_LOCAL_CID resolved at delegate_to runtime
+        container exec -e PGPASSWORD={{ POSTGRES_PASSWORD | quote }} {{ POSTGRES_LOCAL_CID | quote }} sh -lc
+        'psql -h "{{ POSTGRES_LOCAL_HOST }}" -p "{{ POSTGRES_PORT }}"
+        -U postgres -d postgres -c "SELECT 1"'
+      delegate_to: "{{ POSTGRES_HOST_NODE }}"
+      register: pg_ready
+      until: pg_ready.rc == 0
+      retries: 30
+      delay: 5
+      changed_when: false
+
+  rescue:
+    - name: "💾 Postgres | Dump pg_hba.conf into the diagnostics folder" # nocheck: rescue-extra-diagnostics pg_hba.conf is postgres-specific auth config the generic rescue script cannot capture, and it is what a failed TCP-auth wait needs
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/svc-db-postgres/files/dump_pg_hba.sh') }}"
+      environment:
+        POSTGRES_CONTAINER_ADDRESS: "{{ POSTGRES_LOCAL_CID }}"
+        PGPASSWORD: "{{ POSTGRES_PASSWORD }}"
+      delegate_to: "{{ POSTGRES_HOST_NODE }}"
+      changed_when: false
+      failed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    - name: "🛑 Postgres | fail after pg_hba dump"
+      ansible.builtin.fail:
+        msg: "Postgres TCP auth never became ready; pg_hba.conf was dumped into the diagnostics folder (the workflow-level rescue capture collects the full snapshot)"
+
+- name: "📁 Create database: {{ database_name }}"
+  community.postgresql.postgresql_db:
+    name: "{{ database_name }}"
+    state: present
+    login_user: postgres
+    login_password: "{{ postgres_login_password_string }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+  register: postgresql_result
+  until: postgresql_result is succeeded
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+
+- name: "📁 Create database user: {{ database_username }}"
+  community.postgresql.postgresql_user:
+    name: "{{ database_username }}"
+    password: "{{ postgres_database_password_string }}"
+    login_db: "{{ database_name }}"
+    state: present
+    login_user: postgres
+    login_password: "{{ postgres_login_password_string }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+  register: postgresql_result
+  until: postgresql_result is succeeded
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+
+- name: "🟢 POSTGRES | Enable login for role {{ database_username }}"
+  # nocheck: database-query — svc-db-postgres bootstraps its own DB; the `database_query` module's `lookup('database', ...)` indirection isn't usable from inside the role that provides the lookup target.
+  community.postgresql.postgresql_query:
+    login_db: postgres
+    login_user: postgres
+    login_password: "{{ postgres_login_password_string }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+    query: |
+      ALTER ROLE "{{ database_username }}"
+        WITH LOGIN;
+  register: postgres_enable_login
+  until: postgres_enable_login is succeeded
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Grant ALL privileges on tables in public schema to {{ database_username }}"
+  community.postgresql.postgresql_privs:
+    login_db: "{{ database_name }}"
+    roles: "{{ database_username }}"
+    objs: ALL_IN_SCHEMA
+    privs: ALL
+    type: table
+    schema: public
+    state: present
+    login_user: postgres
+    login_password: "{{ postgres_login_password_string }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+  register: postgresql_result
+  until: postgresql_result is succeeded
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+
+- name: "🔐 Grant all privileges on {{ database_name }} to {{ database_username }}"
+  community.postgresql.postgresql_privs:
+    login_db: "{{ database_name }}"
+    roles: "{{ database_username }}"
+    type: database
+    privs: ALL
+    state: present
+    login_user: postgres
+    login_password: "{{ postgres_login_password_string }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+  register: postgresql_result
+  until: postgresql_result is succeeded
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+
+- name: "🔧 Set comprehensive schema privileges for {{ database_username }}"
+  # nocheck: database-query — svc-db-postgres bootstraps its own DB; the `database_query` module's `lookup('database', ...)` indirection isn't usable from inside the role that provides the lookup target.
+  community.postgresql.postgresql_query:
+    login_db: "{{ database_name }}"
+    login_user: postgres
+    login_password: "{{ postgres_login_password_string }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+    query: "{{ lookup('template', 'sql/grant_schema_privileges.sql.j2') }}"
+  register: postgresql_result
+  until: postgresql_result is succeeded
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+
+- name: "✅ Ensure consumer-specific extensions ({{ database_consumer_id }})"
+  community.postgresql.postgresql_ext:
+    login_db: "{{ database_name }}"
+    ext: "{{ item }}"
+    state: present
+    login_user: postgres
+    login_password: "{{ postgres_login_password_string }}"
+    login_host: "{{ POSTGRES_LOCAL_HOST }}"
+    login_port: "{{ POSTGRES_PORT }}"
+  loop: "{{ lookup('service_extensions', 'postgres')[database_consumer_id] | default([]) }}"
+  register: postgresql_result
+  until: postgresql_result is succeeded
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"

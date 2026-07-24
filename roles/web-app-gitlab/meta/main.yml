@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Accelerate your development with GitLab, an all-in-one platform for source code management, CI/CD, and more. Experience a robust and
-    collaborative environment that empowers your development process.
+  description: Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

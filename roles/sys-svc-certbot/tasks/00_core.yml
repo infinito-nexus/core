@@ -1,0 +1,13 @@
+---
+- name: 📦 install certbot
+  package:
+    name: certbot
+    state: present
+
+- name: "📂 Include tasks for 'No-Webroot-ACME-CHALLENGE-METHOD'"
+  include_tasks: 01_no_webroot.yml
+  when:
+    - CERTBOT_ACME_CHALLENGE_METHOD != 'webroot'
+    - DNS_PROVIDER == "cloudflare"
+
+- include_tasks: utils/once/flag.yml

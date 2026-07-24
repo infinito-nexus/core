@@ -22,16 +22,19 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — central object-store provider entity
 minio:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: single-replica
+  replicas: 1
   bond: 1
   enabled: true
   shared: true
   backup:
     no_stop_required: false
   image: quay.io/minio/minio
-  # MinIO publishes only date-based RELEASE.* tags (never semver), so the
-  # auto-update bot cannot bump it; pin explicitly and opt out of the
-  # semver-freshness check. This single pin is the source of truth for the
-  # central instance AND every embedded consumer (resolved via lookup('objstore')).
   version: "RELEASE.2025-09-07T16-13-09Z" # nocheck: docker-version
   name: minio
   api_port: 9000
@@ -44,7 +47,7 @@ minio:
   run_after:
     - web-app-keycloak
     - web-app-matomo
-  lifecycle: unsupported
+  lifecycle: eol
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
@@ -74,6 +77,8 @@ api:
   ports:
     local:
       http: 8057
+    internal:
+      http: 9000
   min_storage: 5GB
   cpus: "0.5"
   mem_reservation: 256m
@@ -83,6 +88,8 @@ console:
   ports:
     local:
       http: 8058
+    internal:
+      http: 9001
   min_storage: 1GB
   cpus: "0.2"
   mem_reservation: 128m
@@ -96,3 +103,9 @@ client:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

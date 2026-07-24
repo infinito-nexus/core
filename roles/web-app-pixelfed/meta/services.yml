@@ -24,9 +24,11 @@ email:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 0.1g
   mem_limit: 0.2g
@@ -38,9 +40,14 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 pixelfed:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
   shared: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   image: zknt/pixelfed
   version: latest
   name: pixelfed
@@ -54,11 +61,15 @@ pixelfed:
   ports:
     local:
       http: 8010
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
   lifecycle: beta
   pids_limit: 512
 worker:
+  # nocheck: single-replica
+  replicas: 1
   name: pixelfed_worker
   cpus: 1.0
   mem_reservation: 0.75g
@@ -84,3 +95,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

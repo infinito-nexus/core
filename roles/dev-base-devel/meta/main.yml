@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "This role installs a distribution-aware base development toolchain, providing core build dependencies on Archlinux, Debian, Ubuntu, Fedora, and CentOS
-    systems.\n"
+  description: Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

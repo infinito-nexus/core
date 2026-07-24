@@ -1,4 +1,5 @@
 ---
+# nocheck: dockerfile-custom
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -34,6 +35,13 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 taiga:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  embedded rabbitmq engine state; node-local in swarm
+  placement: manager
   repository: https://github.com/taigaio/taiga-docker
   ref: main
   version: latest
@@ -46,6 +54,10 @@ taiga:
     local:
       sso: 16491
       http: 8027
+    internal:
+      http: 80
+  proxy:
+    service_key: gateway
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -56,6 +68,8 @@ async:
   mem_limit: 1.5g
   pids_limit: 512
 front:
+  image: node
+  version: 26-alpine
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m
@@ -69,7 +83,7 @@ gateway:
   pids_limit: 256
 events:
   image: taigaio/taiga-events
-  version: latest
+  version: 6.10.0
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m
@@ -89,13 +103,16 @@ events-rabbitmq:
   mem_limit: 1g
   pids_limit: 512
 manager:
+  # nocheck: single-replica
+  replicas: 1
+  name: "taiga-manager"
   cpus: "0.5"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 256
 protected:
   image: taigaio/taiga-protected
-  version: latest
+  version: 6.10.1
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
@@ -117,3 +134,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

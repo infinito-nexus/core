@@ -1,16 +1,17 @@
 ---
 # nocheck: seaweedfs-playwright — S3 holds only recordings/whiteboard exports; needs the recorder service + a live multi-party meeting, so no single-user UI action deterministically triggers an S3 write
+# nocheck: dynamic-flag — OpenTalk has no no-auth mode (controller/recorder require the OIDC client), so sso is a hard dependency.
 sso:
   bond: 1
-  enabled: "{{ 'web-app-keycloak' in group_names }}"
-  shared: "{{ 'web-app-keycloak' in group_names }}"
+  enabled: true # nocheck: dynamic-flag
+  shared: true
   flavor: oidc
   oidc:
     plugin: ""
 # nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
-  enabled: false
-  shared: false
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -41,17 +42,26 @@ postgres:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
+  bond: 1
   backup:
     disabled: true
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
 opentalk:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  embedded rabbitmq engine state; node-local in swarm
+  placement: manager
   name: opentalk
   image: registry.opencode.de/opentalk/web-frontend
-  version: v2.8.1
+  version: v2.9.0
   min_storage: 4GB
   backup:
     no_stop_required: true
@@ -62,13 +72,15 @@ opentalk:
   ports:
     local:
       http: 8073
+    internal:
+      http: 80
   run_after:
     - web-app-keycloak
   lifecycle: beta
 controller:
   name: opentalk-controller
   image: registry.opencode.de/opentalk/controller
-  version: v0.33.2
+  version: v0.34.1
   min_storage: 8GB
   backup:
     no_stop_required: true
@@ -79,6 +91,8 @@ controller:
   ports:
     local:
       http: 8072
+    internal:
+      http: 11311
 livekit:
   name: opentalk-livekit
   image: livekit/livekit-server
@@ -88,11 +102,12 @@ livekit:
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
-  # LiveKit runs in host network mode for media UDP. Only the relay
-  # port range is exposed for firewall planning; the HTTP/TCP control
-  # ports (7880/7881) live on the host directly.
   ports:
+    internal:
+      http: 7880
+      tcp: 7881
     public:
+      stun_turn: 3479
       relay:
         start: 60000
         end: 60999
@@ -108,6 +123,7 @@ minio:
 # nocheck: playwright-service-flag — object store holds only recordings/whiteboard exports; no single-user UI write surface
 seaweedfs:
   bond: 1
+  name: opentalk-seaweedfs
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 rabbit:
@@ -137,3 +153,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

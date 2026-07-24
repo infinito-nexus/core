@@ -1,0 +1,4 @@
+---
+canonical:
+  - jira.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -1,28 +1,32 @@
 ---
-- name: Detect container environment (systemd-detect-virt)
+- name: 🔍 Detect container environment (systemd-detect-virt)
   ansible.builtin.command: systemd-detect-virt --container
   register: systemd_detect_virt_container
   changed_when: false
   failed_when: false
 
-- name: Normalize DOCKER_IN_CONTAINER from runtime detection
+- name: 📐 Normalize DOCKER_IN_CONTAINER from runtime detection
   ansible.builtin.set_fact:
     DOCKER_IN_CONTAINER: "{{ (systemd_detect_virt_container.rc | default(1) | int) == 0 }}"
 
-- name: Check DNS resolution for test domain
+- name: "🔓 Get apt ready before the first apt task"
+  ansible.builtin.include_tasks: "./tasks/utils/apt/ready.yml"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: 🔎 Check DNS resolution for test domain
   ansible.builtin.command: "getent hosts {{ DOMAIN_TEST }}"
   register: dns_check
   changed_when: false
   failed_when: dns_check.rc != 0
   when: MODE_ASSERT | bool
 
-- name: Merge variables
+- name: 🔀 Merge variables
   block:
-    - name: Merge networks definitions
+    - name: 🔀 Merge networks definitions
       ansible.builtin.set_fact:
         networks: "{{ defaults_networks | combine(networks | default({}, true), recursive=True) }}"
 
-    - name: "Sanity check: all group_names must exist in applications"
+    - name: "✅ Sanity check: all group_names must exist in applications"
       ansible.builtin.assert:
         that:
           - group_name in lookup('applications')
@@ -33,12 +37,12 @@
         loop_var: group_name
       when: MODE_ASSERT | bool
 
-    - name: Merge current play applications
+    - name: 🔀 Merge current play applications
       ansible.builtin.set_fact:
         CURRENT_PLAY_APPLICATIONS: "{{ lookup('applications_current_play') }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: Merge current play domain definitions
+    - name: 🔀 Merge current play domain definitions
       ansible.builtin.set_fact:
         CURRENT_PLAY_DOMAINS: >-
           {{
@@ -46,16 +50,16 @@
             | canonical_domains_map(
                 DOMAIN_PRIMARY,
                 recursive=True,
-                roles_base_dir=([ playbook_dir, 'roles' ] | path_join),
+                roles_base_dir=(lookup('path_absolute', 'roles')),
                 seed=(CURRENT_PLAY_APPLICATIONS | dict2items | map(attribute='key') | list)
               )
           }}
 
-    - name: Set CURRENT_PLAY_REDIRECT_DOMAINS
+    - name: 🔧 Set CURRENT_PLAY_REDIRECT_DOMAINS
       ansible.builtin.set_fact:
         CURRENT_PLAY_REDIRECT_DOMAINS: "{{ lookup('current_play_redirect_domains') }}"
 
-    - name: Set current play all domains incl. www redirect if enabled
+    - name: 🔧 Set current play all domains incl. www redirect if enabled
       ansible.builtin.set_fact:
         CURRENT_PLAY_DOMAINS_ALL: >-
           {{
@@ -70,82 +74,127 @@
             | generate_all_domains(WWW_REDIRECT_ENABLED | bool)
           }}
 
-    - name: Merge OIDC configuration
+    - name: 🔀 Merge OIDC configuration
       ansible.builtin.set_fact:
         OIDC: "{{ defaults_oidc | combine(OIDC | default({}, true), recursive=True) }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: Merge design configuration
+    - name: 🔀 Merge design configuration
       ansible.builtin.set_fact:
         design: "{{ defaults_design | combine(design | default({}, true), recursive=True) }}"
 
-    - name: Merge service_provider configuration
+    - name: 🔀 Merge service_provider configuration
       ansible.builtin.set_fact:
         service_provider: "{{ defaults_service_provider | combine(service_provider | default({}, true), recursive=True) }}"
 
-- name: "Persist {{ SOFTWARE_NAME }} version"
+- name: "💾 Persist {{ SOFTWARE_NAME }} version"
   ansible.builtin.include_role:
     name: sys-version
 
-- name: Include Token Store
-  ansible.builtin.include_role:
-    name: sys-token-store
-  when: run_once_sys_token_store is not defined
-
-- name: init root user
+- name: 🎬 init root user
   ansible.builtin.include_role:
     name: user-root
 
-- name: update device
+- name: 🔄 update device
   ansible.builtin.include_role:
     name: update
 
-- name: "Ensure correct timezone is '{{ HOST_TIMEZONE }}'"
+- name: "✅ Ensure correct timezone is '{{ HOST_TIMEZONE }}'"
   community.general.timezone:
     name: "{{ HOST_TIMEZONE }}"
   when: not DOCKER_IN_CONTAINER | bool
 
-- name: System Cleanup
+- name: 🧹 System Cleanup
   ansible.builtin.include_role:
     name: sys-cleanup
   when:
     - MODE_CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool
 
-- name: Preload shared services
-  ansible.builtin.include_role:
-    name: sys-service-loader
+- name: "🖥️ Auto-place single-host shared services on first manager (swarm mode)"
+  ansible.builtin.add_host:
+    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] }}"
+    groups: "{{ role_id }}"
+  loop: "{{ lookup('roles_with_placement', 'manager') }}"
+  loop_control:
+    loop_var: role_id
+    label: "{{ role_id }}"
+  when:
+    - (groups['svc-swarm-manager'] | default([]) | length) > 0
+    - role_id in groups
+    - (groups[role_id] | default([]) | length) == 0
+  run_once: true
+  changed_when: false
 
-- name: "Load base roles"
+- name: "🔧 auto-place svc-prx-openresty (swarm manager, first compose host) for vhosts"
+  ansible.builtin.add_host:
+    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] | default(ansible_play_hosts | first) }}"
+    groups: svc-prx-openresty
+  vars:
+    _web_groups: >-
+      {{
+        groups
+        | dict2items
+        | selectattr('key', 'match', '^web-')
+        | rejectattr('value', 'equalto', [])
+        | list
+      }}
+  when:
+    - (groups['svc-prx-openresty'] | default([]) | length) == 0
+    - (_web_groups | length) > 0
+  run_once: true
+  changed_when: false
+
+- name: "🥾 Bootstrap svc-swarm-node"
+  ansible.builtin.include_role:
+    name: svc-swarm-node
+  when: "'svc-swarm-node' | application_allowed(group_names, lookup('deployment').whitelist)"
+
+- name: "📂 Open service-loader preload context BEFORE Bootstrap"
+  ansible.builtin.set_fact:
+    service_loader_post_run: []
+    service_loader_preloading: true
+  changed_when: false
+
+- name: "🥾 Bootstrap NFS clients + registry (MUST precede Preload)"
   ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
   loop:
-    - update # 1. Update system
-    - drv # 2. Load driver roles
-    - gen # 3. Load generic roles
-    - svc-net # 4. Load network roles
-    - svc-db # 5. Load database roles
-    - svc-prx # 6. Load proxy roles
-    - svc-ai # 7. Load AI roles
-    - svc-bkp # 8. Load Backup Roles
-    - svc-runner # 9. Load CI runner roles
+    - svc-storage
+    - svc-registry
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}-roles.yml"
 
-- name: Install inventory-defined system packages
+- name: 📂 Include Token Store
+  ansible.builtin.include_role:
+    name: sys-token-store
+  when: run_once_sys_token_store is not defined
+
+- name: 🛠️ Preload shared services
+  ansible.builtin.include_role:
+    name: sys-service-loader
+
+- name: "🧩 Load base roles"
+  ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
+  loop: "{{ lookup('stage_groups', 'constructor') }}"
+  loop_control:
+    loop_var: role_group
+    label: "{{ role_group }}-roles.yml"
+
+- name: 📦 Install inventory-defined system packages
   ansible.builtin.include_role:
     name: sys-package
   when:
     - SYS_PACKAGES | default([]) | length > 0
 
-- name: Ensure AUR helper for inventory-defined AUR packages
+- name: ✅ Ensure AUR helper for inventory-defined AUR packages
   ansible.builtin.include_role:
     name: sys-aur
   when:
     - SYS_AUR_PACKAGES | default([]) | length > 0
     - run_once_sys_aur is not defined
 
-- name: Install inventory-defined AUR packages
+- name: 📦 Install inventory-defined AUR packages
   ansible.builtin.include_role:
     name: sys-aur-install
   vars:

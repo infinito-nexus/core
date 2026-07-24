@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -26,12 +27,12 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: kix-proxy
+      host: proxy
       port: "80"
     allowed_groups:
       - "roles/web-app-kix/administrator"
       - "roles/web-app-kix/user"
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
+# nocheck: playwright-service-flag - verified by web-svc-css provider spec
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
@@ -40,17 +41,36 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: shared
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
+postgres:
+  bond: 1
+  enabled: true
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+  extensions:
+    - pg_trgm
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 redis:
   bond: 1
   enabled: true
-  shared: true
+  shared: false
 kix:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   image: docker-registry.kixdesk.com/public/proxy
   version: stable
   min_storage: 10GB
+  proxy:
+    service_key: proxy
   ports:
+    internal:
+      http: 80
     local:
       http: 8083
       sso: 16500
@@ -61,27 +81,43 @@ kix:
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
+proxy:
+  name: kix-proxy
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 512m
+  pids_limit: 512
 backend:
+  # nocheck: single-replica
+  replicas: 1
+  name: kix-backend
   image: docker-registry.kixdesk.com/public/backend
   version: stable
   min_storage: 5GB
+  ports:
+    internal:
+      http: 8080
   cpus: "1.5"
   mem_reservation: 2g
   mem_limit: 4g
   pids_limit: 1024
 frontend:
+  # nocheck: single-replica
+  replicas: 1
+  name: kix-frontend
   image: docker-registry.kixdesk.com/public/frontend
   version: stable
   min_storage: 2GB
+  ports:
+    internal:
+      http: 3000
   cpus: "0.5"
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
-db:
-  image: docker-registry.kixdesk.com/public/db
-  version: stable
-  min_storage: 5GB
-  cpus: "0.5"
-  mem_reservation: 1g
-  mem_limit: 2g
-  pids_limit: 512
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

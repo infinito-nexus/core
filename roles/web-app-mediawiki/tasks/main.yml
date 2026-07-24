@@ -1,48 +1,42 @@
 ---
-- name: "load docker, db and proxy for '{{ application_id }}'"
+- name: "🧩 load docker, db and proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
-- name: "Load install procedures for '{{ application_id }}''"
+- name: "📂 Load install procedures for '{{ application_id }}'"
   include_tasks: 01_configuration.yml
 
-- name: "flush handlers for '{{ application_id }}' after installation finished"
-  meta: flush_handlers
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
-- name: "MEDIAWIKI | Wait until container exists"
-  ansible.builtin.command: "container inspect {{ MEDIAWIKI_CONTAINER }}"
-  register: _mw_exists
-  retries: 20
-  delay: 3
-  until: _mw_exists.rc == 0
-  changed_when: false
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: mediawiki
+    resolve_output_prefix: MEDIAWIKI
+    resolve_compose_cid: "{{ MEDIAWIKI_CONTAINER }}"
+  when: IS_STACK_HOST | bool
 
-# The database lives in a separate compose project (svc-db-mariadb) when shared,
-# so compose-level `depends_on: condition: service_healthy` cannot reach it.
-# Gate the install step on the database container's own healthcheck instead.
-- name: "MEDIAWIKI | Wait until database container is healthy"
-  ansible.builtin.command: "container container inspect --format={% raw %}{{.State.Health.Status}}{% endraw %} {{ MEDIAWIKI_DB_CONTAINER }}"
-  register: _mw_db_health
-  retries: 60
-  delay: 2
-  until: (_mw_db_health.stdout | trim) == 'healthy'
-  changed_when: false
+- name: "📂 Load extensions procedures for '{{ application_id }}'"
+  include_tasks:
+    file: "02_extensions.yml"
+    apply:
+      delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
+  when:
+    - MEDIAWIKI_OIDC_ENABLED | bool
+    - IS_STACK_HOST | bool
 
-- name: "Load extensions procedures for '{{ application_id }}''"
-  include_tasks: "02_extensions.yml"
-  when: MEDIAWIKI_OIDC_ENABLED | bool
-
-- name: "Load update procedures for '{{ application_id }}''"
+- name: "📂 Load update procedures for '{{ application_id }}'"
   include_tasks: 03_install.yml
-  when: >-
-    {{
-      (mediawiki_config_render.changed | default(false)) or
+  when:
+    - IS_STACK_HOST | bool
+    - >-
+      (_role_templates_render.changed | default(false)) or
       (_install_results.changed | default(false)) or
       (_ext_composer.changed | default(false)) or
       (_vendor.changed | default(false))
-    }}
 
-- name: "Load admin setup procedures for '{{ application_id }}''"
+- name: "📂 Load admin setup procedures for '{{ application_id }}'"
   include_tasks: 04_admin.yml

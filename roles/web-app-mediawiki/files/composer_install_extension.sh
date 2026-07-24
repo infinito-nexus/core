@@ -6,14 +6,18 @@
 # changed_when.
 #
 # Usage:
-#   composer_install_extension.sh CONTAINER MW_USER HTML_DIR EXT_NAME EXT_BRANCH
+#   composer_install_extension.sh MW_USER HTML_DIR EXT_NAME EXT_BRANCH
+#
+# Required env, supplied by the calling Ansible task:
+#   MW_CID                     resolved container id (resolve_host_cid), local to this node
 set -euo pipefail
 
-CONTAINER="$1"
-MW_USER="$2"
-HTML_DIR="$3"
-EXT_NAME="$4"
-EXT_BRANCH="$5"
+MW_USER="$1"
+HTML_DIR="$2"
+EXT_NAME="$3"
+EXT_BRANCH="$4"
+
+CONTAINER="${MW_CID:?MW_CID env var (resolved container id) required}"
 
 container exec -u "$MW_USER" "$CONTAINER" bash -lc "
     set -e

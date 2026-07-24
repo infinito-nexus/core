@@ -1,9 +1,0 @@
----
-- name: Cleanup all NGINX cache directories
-  become: true
-  ansible.builtin.file:
-    path: "{{ item.value }}"
-    state: absent
-  loop: "{{ {'general': lookup('nginx','directories.cache.general'), 'image': lookup('nginx','directories.cache.image')} | dict2items }}"
-  loop_control:
-    label: "{{ item.key }}"

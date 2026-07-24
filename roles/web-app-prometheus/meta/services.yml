@@ -6,7 +6,7 @@ sso:
   flavor: oauth2
   oauth2:
     origin:
-      host: application
+      host: prometheus
       port: "9090"
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-prometheus', role='administrator') }}"
@@ -39,7 +39,14 @@ javascript:
   shared: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag — self-provider
 prometheus:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
+  # nocheck: default-placement-manager  TSDB on-disk data; node-local in swarm
+  placement: manager
   enabled: true
   shared: true
   provides:
@@ -49,7 +56,7 @@ prometheus:
   name: prometheus
   cpus: "0.5"
   mem_reservation: 512m
-  mem_limit: 2g
+  mem_limit: 1536m
   pids_limit: 256
   alerting:
     telegram:
@@ -58,6 +65,8 @@ prometheus:
     local:
       sso: 16492
       http: 8066
+    internal:
+      http: 9090
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -71,6 +80,9 @@ alertmanager:
   mem_limit: 128m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 9093
 blackbox-exporter:
   image: prom/blackbox-exporter
   version: v0.28.0
@@ -80,15 +92,21 @@ blackbox-exporter:
   mem_limit: 64m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 9115
 cadvisor:
   image: gcr.io/cadvisor/cadvisor
   version: v0.52.1
   name: prometheus-cadvisor
   cpus: "0.25"
   mem_reservation: 64m
-  mem_limit: 256m
+  mem_limit: 512m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 8080
 node-exporter:
   image: prom/node-exporter
   version: v1.12.0
@@ -98,3 +116,12 @@ node-exporter:
   mem_limit: 128m
   pids_limit: 64
   min_storage: 1GB
+  ports:
+    internal:
+      http: 9100
+# nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

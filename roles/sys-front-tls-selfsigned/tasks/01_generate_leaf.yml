@@ -1,0 +1,60 @@
+---
+- name: "🗑️ TLS | (self_signed) remove outdated cert/key/csr if SAN drift detected"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ _ss_cert }}"
+    - "{{ _ss_key }}"
+    - "{{ _ss_csr }}"
+
+- name: "⚙️ TLS | (self_signed) generate private key (if missing)"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - genrsa
+      - -out
+      - "{{ _ss_key }}"
+      - "{{ tls_selfsigned_key_bits | string }}"
+  args:
+    creates: "{{ _ss_key }}"
+
+- name: "⚙️ TLS | (self_signed) generate CSR (SAN aware)"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -new
+      - -key
+      - "{{ _ss_key }}"
+      - -out
+      - "{{ _ss_csr }}"
+      - -config
+      - "{{ _ss_conf }}"
+  args:
+    creates: "{{ _ss_csr }}"
+
+- name: "✒️ TLS | (self_signed) sign CSR with local Root CA (creates CA-signed leaf cert)"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - x509
+      - -req
+      - -in
+      - "{{ _ss_csr }}"
+      - -CA
+      - "{{ CA_ROOT.cert_host }}"
+      - -CAkey
+      - "{{ CA_ROOT.key_host }}"
+      - -CAcreateserial
+      - -out
+      - "{{ _ss_cert }}"
+      - -days
+      - "{{ tls_selfsigned_days | string }}"
+      - -sha256
+      - -extfile
+      - "{{ _ss_conf }}"
+      - -extensions
+      - req_ext
+  args:
+    creates: "{{ _ss_cert }}"

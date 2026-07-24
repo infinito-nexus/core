@@ -1,0 +1,59 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: jellyfin
+    resolve_output_prefix: JELLYFIN
+    resolve_compose_cid: "{{ JELLYFIN_NAME }}"
+
+- name: "🔐 Jellyfin auth | Wizard + plugin install on the hosting node"
+  ansible.builtin.script:
+    cmd: "{{ role_path }}/files/configure-auth.sh"
+  environment: "{{ jellyfin_auth_env | combine({'JELLYFIN_PHASE': 'install', 'JELLYFIN_CT': JELLYFIN_LOCAL_CID}) }}"
+  delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
+
+- name: "♻️ Jellyfin auth | Restart to load installed plugins (compose)"
+  ansible.builtin.command: container restart {{ JELLYFIN_NAME }}
+  changed_when: true
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "♻️ Jellyfin auth | Restart to load installed plugins (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'jellyfin') }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Re-resolve hosting node + container id after plugin restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: jellyfin
+    resolve_output_prefix: JELLYFIN
+    resolve_compose_cid: "{{ JELLYFIN_NAME }}"
+
+- name: "🔐 Jellyfin auth | LDAP/SSO configuration on the hosting node"
+  ansible.builtin.script:
+    cmd: "{{ role_path }}/files/configure-auth.sh"
+  environment: "{{ jellyfin_auth_env | combine({'JELLYFIN_PHASE': 'configure', 'JELLYFIN_CT': JELLYFIN_LOCAL_CID}) }}"
+  delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
+
+- name: "♻️ Jellyfin auth | Final restart to apply auth configuration (compose)"
+  ansible.builtin.command: container restart {{ JELLYFIN_NAME }}
+  changed_when: true
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "♻️ Jellyfin auth | Final restart to apply auth configuration (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'jellyfin') }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Wait for {{ application_id }} to reconverge after the final restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: jellyfin
+    resolve_output_prefix: JELLYFIN
+    resolve_compose_cid: "{{ JELLYFIN_NAME }}"

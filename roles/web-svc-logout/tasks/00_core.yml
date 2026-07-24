@@ -1,0 +1,35 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "➕ Add logout domains to CSP connect-src"
+  set_fact:
+    webserver_csp_whitelist_extra_by_app: >-
+      {{
+        (webserver_csp_whitelist_extra_by_app | default({}))
+        | combine(
+          {
+            application_id: (
+              ((webserver_csp_whitelist_extra_by_app | default({})).get(application_id, {}))
+              | combine(
+                  {
+                    'connect-src': LOGOUT_CONNECT_SRC_NEW
+                  },
+                  recursive=True
+                )
+            )
+          },
+          recursive=True
+        )
+      }}
+
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    application_id: "web-svc-logout"
+    webserver_client_max_body_size: "10M" # Necessary to overwrite parent values
+    webserver_websocket_location: ""
+    webserver_vhost_flavour: "basic"
+    webserver_extra_configuration: ""
+    compose_repository_pull: false
+    compose_handlers_flush: true

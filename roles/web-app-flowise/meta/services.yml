@@ -1,4 +1,5 @@
 ---
+# nocheck: seaweedfs-required
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -32,31 +33,38 @@ litellm:
   image: ghcr.io/berriai/litellm
   version: main-v1.77.3.dynamic_rates
   name: litellm
+  ports:
+    internal:
+      http: 4000
   cpus: "1.0"
   mem_reservation: 0.5g
   mem_limit: 1g
   pids_limit: 1024
   min_storage: 1GB
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 qdrant:
-  backup:
-    no_stop_required: true
-  image: qdrant/qdrant
-  version: latest
-  name: qdrant
-  cpus: "2.0"
-  mem_reservation: 2g
-  mem_limit: 4g
-  pids_limit: 2048
-  min_storage: 1GB
+  bond: 1
+  enabled: "{{ 'svc-db-qdrant' in group_names }}"
+  shared: "{{ 'svc-db-qdrant' in group_names }}"
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 flowise:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   bond: 1
-  enabled: true
+  enabled: true # nocheck: dynamic-flag
   shared: true
   backup:
     no_stop_required: false
   image: flowiseai/flowise
-  version: latest
+  version: 3.1.3
   name: flowise
   min_storage: 10GB
   cpus: "1.0"
@@ -67,6 +75,10 @@ flowise:
     local:
       http: 8056
       sso: 16480
+    internal:
+      http: 3000
+  proxy:
+    service_key: flowise
   run_after:
     - web-app-keycloak
     - web-app-matomo
@@ -78,6 +90,7 @@ redis:
   backup:
     disabled: true
   enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag — AI backend, infrastructural
 ollama:
   bond: 1
@@ -101,3 +114,9 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

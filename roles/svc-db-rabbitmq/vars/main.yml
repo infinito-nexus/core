@@ -1,0 +1,16 @@
+---
+application_id: svc-db-rabbitmq
+entity_name: "{{ application_id | get_entity_name }}"
+
+database_type: "{{ entity_name }}"
+
+RABBITMQ_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+RABBITMQ_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, RABBITMQ_CONTAINER) }}"
+RABBITMQ_USER: "admin"
+RABBITMQ_PASSWORD: "{{ lookup('config', application_id, 'credentials.RABBITMQ_PASSWORD') }}"
+RABBITMQ_EXPOSE_LOCAL: true
+RABBITMQ_RETRIES: 30
+RABBITMQ_DELAY: 5
+
+# nocheck: container-exec  in-container rabbitmqctl reaches the broker over the local Erlang dist port; the resolver address is mode-aware (compose service key / swarm task id)
+RABBITMQ_EXEC_SHELL: "container exec {{ RABBITMQ_CONTAINER_ADDRESS }} sh -c"

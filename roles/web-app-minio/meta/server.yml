@@ -2,16 +2,3 @@
 status_codes:
   api: 400
   console: 200
-domains:
-  canonical:
-    console: console.minio.s3.{{ DOMAIN_PRIMARY }}
-    api: api.minio.s3.{{ DOMAIN_PRIMARY }}
-  aliases: []
-csp:
-  flags: {}
-  whitelist:
-    font-src: []
-    connect-src: []
-networks:
-  local:
-    subnet: 192.168.104.32/28

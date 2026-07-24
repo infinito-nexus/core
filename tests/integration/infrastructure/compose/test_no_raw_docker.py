@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from utils.annotations.suppress import is_suppressed_at, is_suppressed_in_head
 from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
@@ -24,7 +25,6 @@ class Finding:
     suggestion: str
 
 
-# Whitelist: ignore these file endings / filenames / path fragments
 WHITELIST_SUFFIXES: tuple[str, ...] = (
     ".md",
     ".js",
@@ -56,15 +56,7 @@ WHITELIST_PATH_FRAGMENTS: tuple[str, ...] = (
     "infinito_nexus.egg-info/",
 )
 
-# Optional: allow docker mentions in specific files (keep empty for strict)
-WHITELIST_EXACT_PATHS: tuple[str, ...] = (
-    # svc-runner e2e harness drives a throwaway dind sandbox daemon directly
-    # (the container/compose wrappers are not present inside the runner image).
-    "roles/svc-runner/files/test/local.sh",
-)
 
-# Only treat "docker ..." as a command when it appears in a command-like context.
-# i.e. start of line or after common shell operators / subshell / command substitution.
 _CMD_PREFIX = r"""
 (?:
     ^\s*                                  # line start
@@ -76,12 +68,9 @@ _CMD_PREFIX = r"""
 )
 """
 
-# Optional sudo and optional absolute path to docker binary.
 _DOCKER_BIN = r"(?:sudo\s+)?(?:/usr/bin/|/bin/|/usr/local/bin/)?docker"
 _DOCKER_COMPOSE_BIN = r"(?:sudo\s+)?(?:/usr/bin/|/bin/|/usr/local/bin/)?docker-compose"
 
-# Allowlist of real docker top-level subcommands that you consider "valid invocations".
-# Extend when needed (keep it explicit to avoid false positives).
 _DOCKER_SUBCOMMANDS = (
     "run",
     "exec",
@@ -116,7 +105,6 @@ _DOCKER_SUBCOMMANDS = (
     "context",
 )
 
-# Allowlist of compose verbs (docker compose <verb> / docker-compose <verb>)
 _COMPOSE_VERBS = (
     "up",
     "down",
@@ -137,7 +125,6 @@ _COMPOSE_VERBS = (
     "top",
 )
 
-# Compile patterns with VERBOSE for readability.
 RE_DOCKER_CMD = re.compile(
     rf"{_CMD_PREFIX}{_DOCKER_BIN}\s+(?:{'|'.join(map(re.escape, _DOCKER_SUBCOMMANDS))})\b",
     re.IGNORECASE | re.VERBOSE,
@@ -153,7 +140,6 @@ RE_DOCKER_DASH_COMPOSE_CMD = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-# Rules: order matters (prefer specific messages)
 RULES: tuple[tuple[str, re.Pattern, str], ...] = (
     (
         "docker compose usage",
@@ -182,11 +168,6 @@ def git_ls_files(root: Path) -> list[Path]:
         rels = [p for p in out.decode("utf-8", errors="replace").split("\0") if p]
         return [root / p for p in rels]
     except Exception:
-        # Fallback to the cached project walk so the lint guard does not
-        # need to step around a raw os.walk here. The whitelist filter is
-        # applied per-file (instead of pruning directories) which is
-        # functionally identical because the only things we pruned in the
-        # original walk were entire whitelisted subtrees.
         results: list[Path] = []
         for path_str in iter_project_files():
             try:
@@ -202,8 +183,6 @@ def git_ls_files(root: Path) -> list[Path]:
 def is_whitelisted(path: Path, root: Path) -> bool:
     rel = path.relative_to(root).as_posix()
 
-    if rel in WHITELIST_EXACT_PATHS:
-        return True
     if path.name in WHITELIST_FILENAMES:
         return True
     if any(rel.endswith(suf) for suf in WHITELIST_SUFFIXES):
@@ -211,6 +190,10 @@ def is_whitelisted(path: Path, root: Path) -> bool:
 
     rel_wrapped = f"/{rel}/"
     return bool(any(fragment in rel_wrapped for fragment in WHITELIST_PATH_FRAGMENTS))
+
+
+SUPPRESS_RULE: str = "raw-docker"
+HEAD_SCAN_LINES: int = 30
 
 
 def scan_file(path: Path, root: Path) -> list[Finding]:
@@ -222,10 +205,15 @@ def scan_file(path: Path, root: Path) -> list[Finding]:
     except (OSError, UnicodeDecodeError):
         return findings
 
-    for idx, line in enumerate(text.splitlines(), start=1):
-        # Only flag when it looks like a command invocation.
+    lines = text.splitlines()
+    if is_suppressed_in_head(lines, SUPPRESS_RULE, scan_lines=HEAD_SCAN_LINES):
+        return findings
+
+    for idx, line in enumerate(lines, start=1):
         for rule_name, pattern, suggestion in RULES:
             if pattern.search(line):
+                if is_suppressed_at(lines, idx, SUPPRESS_RULE, mode="same-or-above"):
+                    break
                 findings.append(
                     Finding(
                         file=rel,

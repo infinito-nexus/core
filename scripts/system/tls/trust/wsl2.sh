@@ -6,8 +6,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../../meta/env/load.sh"
 [[ "${INFINITO_IS_WSL2}" == "true" ]] || exit 0
 CONTAINER="${INFINITO_CONTAINER}"
-CA_SRC="/etc/infinito.nexus/ca/root-ca.crt"
+CA_SRC="${INFINITO_CA_CERT_HOST}"
 CA_NAME="infinito-root-ca.crt"
+
+if [[ -z "${CA_SRC}" ]]; then
+	echo ">>> ERROR: INFINITO_CA_CERT_HOST is not set" >&2
+	exit 2
+fi
 
 WIN_USER=""
 for _dir in /mnt/c/Users/*/; do
@@ -24,13 +29,13 @@ WIN_CA_PATH="${WIN_DOWNLOADS}/${CA_NAME}"
 WIN_CA_PATH_WIN="C:\\Users\\${WIN_USER}\\Downloads\\${CA_NAME}"
 POWERSHELL="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
 
-# Ensure WSL interop binfmt handler is registered so Windows .exe files can run
 if [[ ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
 	echo ">>> Registering WSL interop binfmt handler"
 	printf ':WSLInterop:M::MZ::/init:PF\n' | sudo tee /proc/sys/fs/binfmt_misc/register >/dev/null
 fi
 
 echo ">>> Extracting CA from container: ${CONTAINER}"
+# nocheck: container-cp - container-to-host CA extraction on the operator host
 docker cp "${CONTAINER}:${CA_SRC}" "${WIN_CA_PATH}"
 echo ">>> CA copied to Windows: ${WIN_CA_PATH_WIN}"
 

@@ -1,0 +1,15 @@
+---
+flags:
+  script-src-attr:
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true
+    unsafe-eval: true
+  style-src-attr:
+    unsafe-inline: true
+whitelist:
+  connect-src:
+    - "*"
+  script-src-elem:
+    - "{{ lookup('config', 'web-app-matrix', 'domains.canonical.element') }}"
+    - https://cdn.jsdelivr.net # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself

@@ -6,7 +6,7 @@
 #
 # - Strict-Transport-Security: rendered by the proxy when TLS is enabled.
 # - Deprecated security headers (X-Frame-Options & friends): superseded
-#   by CSP, rendered from each role's meta/server.yml via build_csp_header.
+#   by CSP, rendered from each role's meta/csp.yml via build_csp_header.
 {% if lookup('tls', application_id, 'enabled') | bool %}
 proxy_hide_header Strict-Transport-Security;
 {% endif %}

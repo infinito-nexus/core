@@ -1,0 +1,7 @@
+---
+- name: 📂 Include dependency 'pkgmgr'
+  include_role:
+    name: pkgmgr
+  when: run_once_pkgmgr is not defined
+
+- include_tasks: utils/once/flag.yml

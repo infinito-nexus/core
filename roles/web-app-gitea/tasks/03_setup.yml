@@ -1,8 +1,7 @@
 ---
-- name: Execute OIDC Setup Routine
+- name: ▶️ Execute OIDC Setup Routine
   include_tasks: setup/oidc.yml
   when: GITEA_OIDC_ENABLED | bool
-
-- name: Execute LDAP Setup Routine
+- name: ▶️ Execute LDAP Setup Routine
   include_tasks: setup/ldap.yml
   when: GITEA_LDAP_ENABLED | bool

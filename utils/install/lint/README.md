@@ -14,9 +14,9 @@ The CLI in [__main__.py](__main__.py) groups these ensure calls and applies the 
 - A module name MUST match the lowercase snake_case of the tool it installs:
   - `actionlint` -> `actionlint.py`
   - `markdownlint-cli2` -> `markdownlint_cli2.py`
-  - `ansible-lint` -> `ansible_lint.py`
+  - `ansible-lint` -> `ansible/lint.py`
 - Aggregate installers (one helper covers a tightly coupled command pair) take the topic name without a key suffix.
-  Example: `ansible_commands.py` installs both `ansible-playbook` and `ansible-galaxy` via the same system-package candidates.
+  Example: `ansible/commands.py` installs both `ansible-playbook` and `ansible-galaxy` via the same system-package candidates.
 
 ## Module Shape
 

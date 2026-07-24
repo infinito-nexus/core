@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploy KIX Start (open-source ITSM / helpdesk; OTRS-fork) as an Infinito.Nexus web app, fronted by oauth2-proxy + Keycloak with realm-level 2FA
-    enforcement.
+  description: Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

@@ -1,31 +1,23 @@
 ---
-# General
 application_id: "web-app-mastodon"
+entity_name: "{{ application_id | get_entity_name }}"
 
-# Mastodon
-
-## Main
-MASTODON_VERSION: "{{ lookup('config', application_id, 'services.mastodon.version') }}"
-MASTODON_IMAGE: "{{ lookup('config', application_id, 'services.mastodon.image') }}"
 MASTODON_CONTAINER: "{{ lookup('config', application_id, 'services.mastodon.name') }}"
-MASTODON_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
+MASTODON_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 MASTODON_SERVICE_NAME: "mastodon"
 
-## Streaming
-MASTODON_STREAMING_VERSION: "{{ lookup('config', application_id, 'services.streaming.version') }}"
-MASTODON_STREAMING_IMAGE: "{{ lookup('config', application_id, 'services.streaming.image') }}"
 MASTODON_STREAMING_CONTAINER: "{{ lookup('config', application_id, 'services.streaming.name') }}"
 MASTODON_STREAMING_SERVICE_NAME: "streaming"
 
-## Sidekiq
 MASTODON_SIDEKIQ_CONTAINER: "{{ lookup('config', application_id, 'services.mastodon.name') }}-sidekiq"
 MASTODON_SIDEKIQ_SERVICE_NAME: "sidekiq"
 
-## General
-MASTODON_ALLOWED_PRIVATE_ADDRESSES: "{{ lookup('config', 'svc-db-postgres', 'server.networks.local.subnet') if 'web-app-chess' in group_names else ''}}"
+MASTODON_MIGRATE_CONTAINER: "{{ lookup('config', application_id, 'services.mastodon.name') }}-migrate"
+MASTODON_MIGRATE_SERVICE_NAME: "migrate"
+
+MASTODON_ALLOWED_PRIVATE_ADDRESSES: "{{ lookup('config', 'svc-db-postgres', 'networks.local.subnet') if 'web-app-chess' in group_names else ''}}"
 MASTODON_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  }}"
 
 MASTODON_HTTP_ONLY_ENABLED: "{{ not (lookup('tls', application_id, 'enabled') | bool) }}"
 MASTODON_OVERRIDES_DIR: "{{ lookup('container', application_id, 'directories.instance') }}/overrides"
 MASTODON_FORCE_SSL_OVERRIDE_FILE: "{{ MASTODON_OVERRIDES_DIR }}/zzz_disable_force_ssl.rb"
-MASTODON_CONTAINER_FORCE_SSL_OVERRIDE_PATH: "/opt/mastodon/config/initializers/zzz_disable_force_ssl.rb"

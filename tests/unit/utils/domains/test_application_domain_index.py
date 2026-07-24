@@ -9,46 +9,38 @@ class TestApplicationDomainIndex(unittest.TestCase):
     def setUp(self):
         self.applications = {
             "web-app-a": {
-                "server": {
-                    "domains": {
-                        "canonical": ["a.example"],
-                        "aliases": ["www.a.example", "A.ALIAS.EXAMPLE"],
-                    }
+                "domains": {
+                    "canonical": ["a.example"],
+                    "aliases": ["www.a.example", "A.ALIAS.EXAMPLE"],
                 }
             },
             "web-app-b": {
-                "server": {
-                    "domains": {
-                        "canonical": "b.example",
-                        "aliases": [],
-                    }
+                "domains": {
+                    "canonical": "b.example",
+                    "aliases": [],
                 }
             },
             "web-app-c": {
-                "server": {
-                    "domains": {
-                        "canonical": {"web": "c.example", "api": "api.c.example"},
-                        "aliases": {"www": "www.c.example"},
-                    }
+                "domains": {
+                    "canonical": {"web": "c.example", "api": "api.c.example"},
+                    "aliases": {"www": "www.c.example"},
                 }
             },
             "web-app-nested": {
-                "server": {
-                    "domains": {
-                        "canonical": {
-                            "web": ["nested.example", "NESTED2.example"],
-                            "api": {"v1": "api.nested.example"},
-                        },
-                        "aliases": [
-                            {"alt": "alt.nested.example"},
-                            ["ALT2.nested.example", {"deep": ["deep.nested.example"]}],
-                        ],
-                    }
+                "domains": {
+                    "canonical": {
+                        "web": ["nested.example", "NESTED2.example"],
+                        "api": {"v1": "api.nested.example"},
+                    },
+                    "aliases": [
+                        {"alt": "alt.nested.example"},
+                        ["ALT2.nested.example", {"deep": ["deep.nested.example"]}],
+                    ],
                 }
             },
             "web-app-no-server": {},
-            "web-app-server-not-dict": {"server": "nope"},
-            "web-app-domains-not-dict": {"server": {"domains": "nope"}},
+            "web-app-server-not-dict": "nope",
+            "web-app-domains-not-dict": {"domains": "nope"},
         }
 
     def test_iter_app_domains_empty_on_invalid_structure(self):
@@ -136,12 +128,8 @@ class TestApplicationDomainIndex(unittest.TestCase):
 
     def test_build_domain_index_detects_collision_case_insensitive(self):
         apps = {
-            "app1": {
-                "server": {"domains": {"canonical": ["X.EXAMPLE"], "aliases": []}}
-            },
-            "app2": {
-                "server": {"domains": {"canonical": ["x.example"], "aliases": []}}
-            },
+            "app1": {"domains": {"canonical": ["X.EXAMPLE"], "aliases": []}},
+            "app2": {"domains": {"canonical": ["x.example"], "aliases": []}},
         }
         with self.assertRaises(AnsibleError) as ctx:
             _application_domain_index.build_domain_index(apps)
@@ -193,12 +181,8 @@ class TestApplicationDomainIndex(unittest.TestCase):
 
     def test_resolve_app_id_for_domain_raises_on_collision(self):
         apps = {
-            "app1": {
-                "server": {"domains": {"canonical": ["x.example"], "aliases": []}}
-            },
-            "app2": {
-                "server": {"domains": {"canonical": ["X.EXAMPLE"], "aliases": []}}
-            },
+            "app1": {"domains": {"canonical": ["x.example"], "aliases": []}},
+            "app2": {"domains": {"canonical": ["X.EXAMPLE"], "aliases": []}},
         }
         with self.assertRaises(AnsibleError):
             _application_domain_index.resolve_app_id_for_domain(apps, "x.example")

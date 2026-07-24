@@ -1,8 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Deploys Semaphore UI, a modern web UI and API for running Ansible, Terraform/OpenTofu, and shell automation, integrated with central PostgreSQL,
-    Keycloak OIDC SSO, and LDAP login.
+  description: Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

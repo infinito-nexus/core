@@ -87,10 +87,21 @@ _CACHE_HTTP_HOSTNAMES = (
 )
 
 
+def _cache_frontend_ca_present() -> bool:
+    """True when the package-cache frontend CA exists non-empty, mirroring the ca.sh `-s` gate for an active cache profile."""
+    ca_file = (os.environ.get("INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE") or "").strip()
+    if not ca_file:
+        return False
+    ca_path = Path(ca_file)
+    return ca_path.is_file() and ca_path.stat().st_size > 0
+
+
 def generate_cache_override(project_dir: Path, base_compose: Path) -> Path | None:
-    """Emit transient build.extra_hosts override when cache profile active."""
+    """Emit transient build.extra_hosts override only when the package-cache frontend is provisioned (CA present)."""
     cache_ip = (os.environ.get("INFINITO_CACHE_PACKAGE_FRONTEND_IP") or "").strip()
     if not cache_ip or not base_compose.is_file():
+        return None
+    if not _cache_frontend_ca_present():
         return None
 
     with Path(base_compose).open() as f:
@@ -130,25 +141,77 @@ def resolve_files(project_dir: Path, files: list[str]) -> list[Path]:
     return out
 
 
+# Subcommands that parse service `env_file:` values. Compose's env parser
+# rejects $-bearing secrets, but the swarm dotenv keeps $ literal because
+# `docker stack deploy` does NOT parse env_file. build/config need no runtime
+# env, so they get env_file-stripped copies (and no --env-file) instead.
+_ENV_PARSING_SUBCOMMANDS = {"build", "config"}
+
+
+def _subcommand(passthrough: list[str]) -> str:
+    # The docker compose subcommand is the first passthrough token (main()
+    # strips a leading `--`; the wrapper's own flags are parsed off earlier).
+    return passthrough[0] if passthrough else ""
+
+
+def strip_env_files(project_dir: Path, files: list[Path]) -> list[Path]:
+    """Return env_file-free copies of the compose files for build/config."""
+    out: list[Path] = []
+    for f in files:
+        with Path(f).open() as fh:
+            doc = yaml.safe_load(fh)  # nocheck: direct-yaml
+        for svc in ((doc or {}).get("services") or {}).values():
+            if isinstance(svc, dict):
+                svc.pop("env_file", None)
+        dst = project_dir / f"{Path(f).stem}.noenv.yml"
+        with Path(dst).open("w") as fh:
+            yaml.safe_dump(doc, fh, sort_keys=False)  # nocheck: direct-yaml
+        out.append(dst)
+    return out
+
+
+def _declared_services(files: list[Path]) -> set[str] | None:
+    """Top-level `services:` keys across *files*; None if any file fails to parse."""
+    services: set[str] = set()
+    for f in files:
+        try:
+            with Path(f).open() as fh:
+                doc = yaml.safe_load(fh)  # nocheck: direct-yaml
+        except (OSError, yaml.YAMLError):
+            return None
+        if isinstance(doc, dict) and isinstance(doc.get("services"), dict):
+            services.update(doc["services"].keys())
+    return services
+
+
 def build_cmd(
     project: str,
     project_dir: Path,
     passthrough: list[str],
     extra_files: list[str] | None = None,
-) -> list[str]:
-    """Auto-detected compose files, with extra_files appended last."""
+) -> list[str] | None:
+    """Compose files (extra_files last); None for `up` with no services."""
     files = detect_compose_files(project_dir)
 
     if extra_files:
         files.extend(resolve_files(project_dir, extra_files))
 
-    env_file = detect_env_file(project_dir)
+    if _subcommand(passthrough) == "up":
+        services = _declared_services(files)
+        if services is not None and not services:
+            return None
 
     cmd: list[str] = ["docker", "compose", "-p", project]
-    for f in files:
-        cmd += ["-f", str(f)]
-    if env_file:
-        cmd += ["--env-file", str(env_file)]
+
+    if _subcommand(passthrough) in _ENV_PARSING_SUBCOMMANDS:
+        for f in strip_env_files(project_dir, files):
+            cmd += ["-f", str(f)]
+    else:
+        for f in files:
+            cmd += ["-f", str(f)]
+        env_file = detect_env_file(project_dir)
+        if env_file:
+            cmd += ["--env-file", str(env_file)]
 
     cmd += passthrough
     return cmd
@@ -214,6 +277,13 @@ def main() -> int:
     except Exception as exc:
         print(f"[compose] {exc}", file=sys.stderr)
         return 2
+
+    if cmd is None:
+        print(
+            "[compose] project defines no services; skipping 'up'.",
+            file=sys.stderr,
+        )
+        return 0
 
     if args.debug:
         print(">>> " + " ".join(shlex.quote(x) for x in cmd), file=sys.stderr)

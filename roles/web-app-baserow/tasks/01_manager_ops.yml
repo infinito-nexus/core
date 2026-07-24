@@ -1,0 +1,58 @@
+---
+- name: "▶️ Run Baserow Django migrations before bootstrapping users"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
+      -e SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
+      -e BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
+      {{ BASEROW_APP_CONTAINER_ADDRESS }}
+      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} locked_migrate --noinput
+  register: baserow_migrate_result
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: >
+    'No migrations to apply' not in
+    ((baserow_migrate_result.stdout | default('')) ~ (baserow_migrate_result.stderr | default('')))
+  failed_when: baserow_migrate_result.rc != 0
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  retries: 60
+  delay: 5
+  until: baserow_migrate_result.rc == 0
+
+- name: "🔄 Restart Baserow application after applying migrations (compose mode)"
+  ansible.builtin.command: "container restart {{ BASEROW_APP_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote compose-gated task
+  register: baserow_restart_after_migrate
+  changed_when: baserow_restart_after_migrate.rc == 0
+  when:
+    - baserow_migrate_result.changed
+    - DEPLOYMENT_MODE == 'compose'
+
+- name: "🔄 Restart Baserow application after applying migrations (swarm mode)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
+  register: baserow_swarm_restart
+  changed_when: baserow_swarm_restart.rc == 0
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when:
+    - baserow_migrate_result.changed
+    - DEPLOYMENT_MODE == 'swarm'
+
+- name: "🎬 Bootstrap Baserow superuser '{{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}'"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
+      -e SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
+      -e BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
+      -e BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME | quote }}
+      -e BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL | quote }}
+      -e BOOTSTRAP_ADMIN_PASSWORD={{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD | quote }}
+      {{ BASEROW_APP_CONTAINER_ADDRESS }}
+      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} shell -c {{ lookup('file', role_path ~ '/files/bootstrap_admin.py') | quote }}
+  register: baserow_bootstrap_admin_result
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: "'created' in baserow_bootstrap_admin_result.stdout"
+  failed_when: baserow_bootstrap_admin_result.rc != 0
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  retries: 60
+  delay: 5
+  until: baserow_bootstrap_admin_result.rc == 0

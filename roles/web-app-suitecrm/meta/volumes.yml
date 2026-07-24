@@ -1,2 +1,24 @@
 ---
-data: suitecrm_data
+data:
+  type: volume
+  name: suitecrm_data
+  mounts:
+    - service: suitecrm
+      target: /var/www/html/
+
+php_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-suitecrm', 'directories.config'), 'php.ini'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: suitecrm
+      target: "/usr/local/etc/php/conf.d/{{ SOFTWARE_DOMAIN | replace('.', '-') }}.ini"
+
+ldap_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-suitecrm', 'directories.config'), 'ldap.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: suitecrm
+      target: "{{ ['/var/www/html/extensions', SOFTWARE_DOMAIN | replace('.', '-'), 'config/services/ldap/ldap.yaml'] | path_join }}"
+      when: "{{ lookup('config', 'web-app-suitecrm', 'services.ldap.enabled') | bool }}"

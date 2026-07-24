@@ -35,6 +35,7 @@
     "**/__pycache__/**",
     ".github/PULL_REQUEST_TEMPLATE/**",
     ".agents/skills/**",
-    ".claude/skills/**"
+    ".claude/skills/**",
+    "skills/**"
   ]
 }

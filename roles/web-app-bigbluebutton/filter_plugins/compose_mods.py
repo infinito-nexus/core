@@ -3,117 +3,57 @@ import re
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
 
 
-def compose_mods(yml_text, compose_repository_path, env_file):
-    # Named volume rewrites
-    yml_text = re.sub(
-        r"\./data/postgres:/var/lib/postgresql/data",
-        "database:/var/lib/postgresql/data",
-        yml_text,
-    )
-    yml_text = re.sub(
-        r"\./data/bigbluebutton:/var/bigbluebutton",
-        "bigbluebutton:/var/bigbluebutton",
-        yml_text,
-    )
-    yml_text = re.sub(
-        r"\./data/freeswitch-meetings:/var/freeswitch/meetings",
-        "freeswitch:/var/freeswitch/meetings",
-        yml_text,
-    )
-    yml_text = re.sub(
-        r"\./data/greenlight:/usr/src/app/storage",
-        "greenlight:/usr/src/app/storage",
-        yml_text,
-    )
-    yml_text = re.sub(
-        r"\./data/mediasoup:/var/mediasoup", "mediasoup:/var/mediasoup", yml_text
-    )
+def compose_mods(yml_text, compose_repository_path, env_file, extra_hosts=None):
+    """Normalize the upstream-generated bigbluebutton compose file.
 
-    # Make other ./ paths absolute to the given repository
-    yml_text = re.sub(r"\./", compose_repository_path.rstrip("/") + "/", yml_text)
+    Args:
+        yml_text: compose YAML as produced by upstream generate-compose.
+        compose_repository_path: absolute path of the packaging-repo clone;
+            all repo-relative ``./`` paths are rewritten against it because
+            the final file lives in the instance dir, not the clone.
+        env_file: env file broadcast to every service via ``env_file``.
+        extra_hosts: optional host mappings added to every service that is
+            not on the host network.
 
-    # Keep the old context helpers (harmless if YAML step below fixes everything)
+    Returns:
+        Transformed compose YAML text. Structural deltas (named data
+        volumes, healthchecks, per-service tweaks) live in
+        compose.override.yml.j2, not here.
+    """
+    prefix = compose_repository_path.rstrip("/") + "/"
+    yml_text = re.sub(r"\./", prefix, yml_text)
     yml_text = re.sub(
         r"(^\s*context:\s*)mod/(.*)",
-        r"\1" + compose_repository_path.rstrip("/") + r"/mod/\2",
+        r"\1" + prefix + r"mod/\2",
         yml_text,
         flags=re.MULTILINE,
     )
 
-    def _prefix_mod(path: str) -> str:
-        """Prefix 'mod/...' (or './mod/...') with compose_repository_path, avoiding //."""
-        p = str(path).strip().strip("'\"")
-        p = p.lstrip("./")
-        if p.startswith("mod/"):
-            return compose_repository_path.rstrip("/") + "/" + p
-        return path
+    data = load_yaml_str(yml_text) or {}
+    services = data.get("services", {}) or {}
 
-    try:
-        data = load_yaml_str(yml_text) or {}
-        services = data.get("services", {}) or {}
+    for svc in services.values():
+        if not isinstance(svc, dict):
+            continue
 
-        for name, svc in services.items():
-            if not isinstance(svc, dict):
-                continue
+        svc["env_file"] = [env_file]
 
-            # ensure env_file
-            svc["env_file"] = [env_file]
+        if extra_hosts and svc.get("network_mode") != "host":
+            hosts = svc.get("extra_hosts")
+            if isinstance(hosts, dict):
+                hosts = [f"{k}:{v}" for k, v in hosts.items()]
+            elif not isinstance(hosts, list):
+                hosts = []
+            for entry in extra_hosts:
+                if entry not in hosts:
+                    hosts.append(entry)
+            svc["extra_hosts"] = hosts
 
-            # handle build when it is a string: e.g., build: "mod/periodic"
-            if "build" in svc:
-                b = svc["build"]
-                if isinstance(b, str):
-                    svc["build"] = _prefix_mod(b)
-                elif isinstance(b, dict):
-                    ctx = b.get("context")
-                    if isinstance(ctx, str):
-                        b["context"] = _prefix_mod(ctx)
+        if "build" in svc and svc.get("image"):
+            svc.pop("build")
 
-            # extras
-            if name == "redis":
-                vols = svc.get("volumes")
-                if not vols or not isinstance(vols, list):
-                    svc["volumes"] = ["redis:/data"]
-                elif "redis:/data" not in vols:
-                    svc["volumes"].append("redis:/data")
-
-            if name == "coturn":
-                vols = svc.get("volumes")
-                if not vols or not isinstance(vols, list):
-                    svc["volumes"] = ["coturn:/var/lib/coturn"]
-                elif "coturn:/var/lib/coturn" not in vols:
-                    svc["volumes"].append("coturn:/var/lib/coturn")
-
-            if name == "bbb-graphql-server":
-                svc["healthcheck"] = {
-                    "test": ["CMD", "curl", "-f", "http://localhost:8085/healthz"],
-                    "interval": "30s",
-                    "timeout": "10s",
-                    "retries": 5,
-                    "start_period": "10s",
-                }
-
-        data["services"] = services
-
-        # Only add volumes block if not present
-        data.setdefault(
-            "volumes",
-            {
-                "database": None,
-                "greenlight": None,
-                "redis": None,
-                "coturn": None,
-                "freeswitch": None,
-                "bigbluebutton": None,
-                "mediasoup": None,
-            },
-        )
-
-        yml_text = dump_yaml_str(data)
-    except Exception:  # noqa: S110  best-effort filter — leave the original yml_text untouched if parsing fails
-        pass
-
-    return yml_text
+    data["services"] = services
+    return dump_yaml_str(data)
 
 
 class FilterModule:

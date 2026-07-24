@@ -1,0 +1,4 @@
+---
+canonical:
+  - collabora.{{ DOMAIN_PRIMARY }}
+aliases: []

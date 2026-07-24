@@ -14,7 +14,7 @@ See the [WordPress Must-Use Plugins handbook](https://developer.wordpress.org/ad
 
 ## When to add code here 📋
 
-Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [03_enable_plugin.yml](../../tasks/03_enable_plugin.yml) so operators can disable them per site if needed.
+Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed.
 
 Each file in this directory SHOULD declare its purpose, hooks, and source requirement at the top of the file so readers can understand why it cannot be switched off.
 
@@ -29,7 +29,7 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 
 ## Deployment 🚚
 
-Files in this directory are copied into the running container by [05_mu_plugins.yml](../../tasks/05_mu_plugins.yml). The task runs on every deploy, so dropping a new file here is enough to have it picked up on the next playbook run.
+Files in this directory are copied into the running container by [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml). The task runs on every deploy, so dropping a new file here is enough to have it picked up on the next playbook run.
 
 ## Credits 🙏
 

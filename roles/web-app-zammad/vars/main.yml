@@ -2,28 +2,27 @@
 application_id: "web-app-zammad"
 entity_name: "{{ application_id | get_entity_name }}"
 
-ZAMMAD_IMAGE: "{{ lookup('config', application_id, 'services.zammad.image') }}"
-ZAMMAD_VERSION: "{{ lookup('config', application_id, 'services.zammad.version') }}"
+ZAMMAD_INIT_SERVICE: "init"
+ZAMMAD_RAILS_SERVICE: "railsserver"
+ZAMMAD_WEBSOCKET_SERVICE: "websocket"
+ZAMMAD_SCHEDULER_SERVICE: "scheduler"
+ZAMMAD_NGINX_SERVICE: "nginx"
+ZAMMAD_SEARCH_SERVICE: "elasticsearch"
+ZAMMAD_MEMCACHED_SERVICE: "memcached"
 
-ZAMMAD_SEARCH_IMAGE: "{{ lookup('config', application_id, 'services.search.image') }}"
-ZAMMAD_SEARCH_VERSION: "{{ lookup('config', application_id, 'services.search.version') }}"
+ZAMMAD_INIT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_INIT_SERVICE ~ '.name') }}"
+ZAMMAD_RAILS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_RAILS_SERVICE ~ '.name') }}"
+ZAMMAD_RAILS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, ZAMMAD_RAILS_SERVICE) }}"
+ZAMMAD_WEBSOCKET_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_WEBSOCKET_SERVICE ~ '.name') }}"
+ZAMMAD_SCHEDULER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SCHEDULER_SERVICE ~ '.name') }}"
+ZAMMAD_NGINX_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_NGINX_SERVICE ~ '.name') }}"
+ZAMMAD_SEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SEARCH_SERVICE ~ '.name') }}"
+ZAMMAD_MEMCACHED_CONTAINER: "{{ lookup('engine', 'memcached', application_id, 'container') }}"
 
-ZAMMAD_INIT_CONTAINER: "zammad-init"
-ZAMMAD_RAILS_CONTAINER: "zammad-railsserver"
-ZAMMAD_WEBSOCKET_CONTAINER: "zammad-websocket"
-ZAMMAD_SCHEDULER_CONTAINER: "zammad-scheduler"
-ZAMMAD_NGINX_CONTAINER: "zammad-nginx"
-ZAMMAD_SEARCH_CONTAINER: "zammad-elasticsearch"
-ZAMMAD_MEMCACHED_CONTAINER: "zammad-memcached"
+ZAMMAD_RAILS_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_RAILS_SERVICE ~ '.ports.internal.http') }}"
+ZAMMAD_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_WEBSOCKET_SERVICE ~ '.ports.internal.http') }}"
+ZAMMAD_SEARCH_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SEARCH_SERVICE ~ '.ports.internal.http') }}"
 
-ZAMMAD_MEMCACHED_IMAGE: "{{ lookup('config', 'svc-db-memcached', 'services.memcached.image') }}"
-ZAMMAD_MEMCACHED_VERSION: "{{ lookup('config', 'svc-db-memcached', 'services.memcached.version') }}"
-
-ZAMMAD_RAILS_PORT: 3000
-ZAMMAD_WEBSOCKET_PORT: 6042
-
-# Both bots need a shell-safe alphanumeric password — the default users-SPOT
-# password carries chars that get mangled through Ansible→bash→docker-exec→Ruby ENV.
 ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
 ZAMMAD_WIZARD_BYPASS_USER: "{{ lookup('users', 'zammad-wizard-bypass-admin') }}"
 ZAMMAD_API_BOT_PASSWORD: "{{ lookup('config', application_id, 'credentials.api_bot_password') }}"
@@ -43,6 +42,7 @@ ZAMMAD_TELEGRAM_HELPER_CONTAINER_PATH: "/opt/zammad/lib/telegram_helper.rb"
 
 ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP_CONTAINER_PATH: "/opt/zammad/config/initializers/zz_oidc_group_role_mapping.rb"
+
 ZAMMAD_OIDC_GROUP_ROLE_MAP:
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"
@@ -55,5 +55,5 @@ ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled
 ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_EMAIL: "{{ ZAMMAD_HELPDESK_USER.email | default('') }}"
-# Mailu enforces change_pw_next_login → user password rejects SMTP AUTH (535); per-app token is required.
+# Exception: Mailu enforces change_pw_next_login → user password rejects SMTP AUTH (535); per-app token is required.
 ZAMMAD_HELPDESK_PASS: "{{ (ZAMMAD_HELPDESK_USER.tokens | default({})).get('web-app-mailu', '') }}"

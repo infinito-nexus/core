@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: "Extends sys-stk-backend by adding an HTTP reverse proxy via sys-stk-front-proxy.\n"
+  description: Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

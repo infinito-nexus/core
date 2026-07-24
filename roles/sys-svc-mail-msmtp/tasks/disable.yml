@@ -1,18 +1,18 @@
 ---
-- name: "Ensure msmtp-mta is absent (conflicts with postfix smtp-forwarder)"
+- name: "✅ Ensure msmtp-mta is absent (conflicts with postfix smtp-forwarder)"
   package:
     name:
       - "{{ SYS_SVC_MAIL_MSMTP_PACKAGES.mta }}"
     state: absent
   when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta != ''
 
-- name: Inspect /usr/bin/sendmail path before cleanup
+- name: 🔎 Inspect /usr/bin/sendmail path before cleanup
   stat:
     path: /usr/bin/sendmail
     follow: false
   register: sys_svc_mail_msmtp_sendmail_stat
 
-- name: Remove msmtp-managed sendmail compatibility link
+- name: 🗑️ Remove msmtp-managed sendmail compatibility link
   file:
     path: /usr/bin/sendmail
     state: absent

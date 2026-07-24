@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-required — Jellyfin stores its library on a dedicated media volume and metadata in internal SQLite under /config; it has no S3/object-store surface.
+# nocheck: seaweedfs-required - Jellyfin stores its library on a dedicated media volume and metadata in internal SQLite under /config; it has no S3/object-store surface.
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -30,6 +30,11 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 jellyfin:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
   cpus: 2.0
   mem_reservation: 1g
   mem_limit: 3g
@@ -39,6 +44,8 @@ jellyfin:
   version: "10.11.11"
   backup:
     no_stop_required: true
+  # nocheck: single-replica Jellyfin persists all state in embedded SQLite under the shared /config volume; concurrent replicas corrupt the database (SQLite disk I/O error, malformed image in CI) and upstream has no multi-instance support
+  replicas: 1
   name: jellyfin
   ports:
     internal:
@@ -48,4 +55,10 @@ jellyfin:
   run_after:
     - web-app-keycloak
     - svc-db-openldap
-  lifecycle: alpha
+  lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

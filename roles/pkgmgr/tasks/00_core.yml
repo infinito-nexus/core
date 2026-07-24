@@ -1,0 +1,66 @@
+---
+- name: 📂 Include dependencies
+  include_role:
+    name: "{{ dependency_role }}"
+  loop:
+    - dev-git
+    - dev-make
+    - dev-nix
+  loop_control:
+    loop_var: dependency_role
+
+- name: "📂 Include SSH"
+  include_role:
+    name: "sys-svc-ssh"
+  when: not (run_once_sys_svc_ssh | default(false) | bool)
+
+- name: ✅ Ensure GitHub host key is in known_hosts
+  known_hosts:
+    path: "~/.ssh/known_hosts"
+    name: github.com
+    key: "{{ PKGMGR_GITHUB_HOST_KEY }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: ⬇️ Pull pkgmgr repo (shallow) and pin to stable
+  include_role:
+    name: sys-util-git-pull
+  vars:
+    sys_util_git_pull_repo_url: "{{ PKGMGR_REPO_URL }}"
+    sys_util_git_pull_dest: "{{ PKGMGR_INSTALL_PATH }}"
+    sys_util_git_pull_version: "main"
+    sys_util_git_pull_depth: 1
+    sys_util_git_pull_pin_tag: "{{ PKGMGR_REF }}"
+    sys_util_git_pull_remove_tags:
+      - latest
+      - stable
+    sys_util_git_pull_mark_changed_on_tag_move: true
+    sys_util_git_pull_remote: "origin"
+    sys_util_git_pull_become: true
+
+- name: 📦 Install Kevins package manager and create its shell alias
+  shell: |
+    source ~/.venvs/pkgmgr/bin/activate
+    make setup
+  args:
+    chdir: "{{ PKGMGR_INSTALL_PATH }}"
+    executable: /bin/bash
+  become: true
+
+- name: 🔄 update pkgmgr (non-interactive)
+  ansible.builtin.shell: |
+    set -euo pipefail
+    export GIT_TERMINAL_PROMPT=0
+    export GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=yes"
+    export PYTHONUNBUFFERED=1
+    timeout --signal=KILL 1800s "{{ ansible_facts['env']['HOME'] }}/.venvs/pkgmgr/bin/pkgmgr" update pkgmgr --clone-mode shallow </dev/null
+  args:
+    executable: /bin/bash
+  register: pkgmgr_update
+  changed_when: "'already up to date' not in (pkgmgr_update.stdout | lower)"
+  become: true
+  retries: 3
+  delay: 20
+  until: pkgmgr_update.rc == 0
+
+- include_tasks: utils/once/flag.yml

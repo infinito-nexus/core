@@ -1,32 +1,25 @@
 ---
-- name: "Rename default Shopware admin user to {{ lookup('users', 'administrator').username }}"
-  ansible.builtin.shell: >-
-    container exec -i --user {{ SHOPWARE_USER }}
-    -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
-    -e NEW_USER={{ lookup('users', 'administrator').username | quote }}
-    {{ SHOPWARE_WEB_CONTAINER }}
-    sh < {{ role_path }}/files/rename_admin_user.sh
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+- name: "🔧 Rename Shopware admin to {{ lookup('users', 'administrator').username }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      -e NEW_USER={{ lookup('users', 'administrator').username | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      sh
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/rename_admin_user.sh') }}"
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Ensure Shopware admin exists and has the desired password"
-  shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER }} sh -lc '
-      set -e
-      cd {{ SHOPWARE_ROOT }}
-      php bin/console user:create "{{ lookup('users', 'administrator').username }}" \
-        --admin \
-        --password={{ lookup('users', 'administrator').password | quote }} \
-        --firstName="{{ lookup('users', 'administrator').username }}" \
-        --lastName="{{ DOMAIN_PRIMARY | lower }}" \
-        --email="{{ lookup('users', 'administrator').email }}" || true
-      php bin/console user:change-password "{{ lookup('users', 'administrator').username }}" \
-        --password={{ lookup('users', 'administrator').password | quote }} || true
-      php bin/console user:update "{{ lookup('users', 'administrator').username }}" \
-        --email="{{ lookup('users', 'administrator').email }}" 2>/dev/null || true
-    '
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "✅ Ensure Shopware admin exists and has the desired password"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      -e ADMIN_USER={{ lookup('users', 'administrator').username | quote }}
+      -e ADMIN_PASSWORD={{ lookup('users', 'administrator').password | quote }}
+      -e ADMIN_FIRST_NAME={{ lookup('users', 'administrator').username | quote }}
+      -e ADMIN_LAST_NAME={{ DOMAIN_PRIMARY | lower | quote }}
+      -e ADMIN_EMAIL={{ lookup('users', 'administrator').email | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      sh
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ensure_admin_user.sh') }}"

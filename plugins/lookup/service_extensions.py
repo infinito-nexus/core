@@ -13,9 +13,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
-
-from utils.cache.applications import get_merged_applications
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -57,11 +56,9 @@ class LookupModule(LookupBase):
                 "service_extensions: required variable 'group_names' must be a list"
             )
 
-        applications = get_merged_applications(
-            variables=vars_,
-            roles_dir=kwargs.get("roles_dir"),
-            templar=getattr(self, "_templar", None),
-        )
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([], variables=vars_)[0]
 
         result: dict[str, list[str]] = {}
         for raw_consumer_id in group_names:

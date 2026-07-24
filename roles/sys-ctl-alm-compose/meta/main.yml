@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs a unified systemd notification service that sends alerts via both Telegram and Email when a service fails.
+  description: Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

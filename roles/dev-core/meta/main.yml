@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Installs a base development environment for software engineers on Linux.
+  description: Base development environment for software engineers on Linux, with core editors and language-agnostic tooling
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

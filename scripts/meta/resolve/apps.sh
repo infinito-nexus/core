@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Purpose (SRP): Return JSON list of apps based on deployment type,
-# optionally filtered by lifecycle and CI storage constraints.
+# Resolve the JSON list the CI matrix deploys for the current
+# INFINITO_DEPLOY_MODE. The query itself (filter, coverage-first sort,
+# lifecycle envelope, INFINITO_MAX_JOBS cap with 'auto') lives in
+# cli.meta.ci.query, shared with the deploy-plan table. Compose and host
+# emit whole role names; swarm emits per-variant "role#variant" tokens.
+# variant_bundles maps the list onto matrix entries.
 #
-# Inputs via env:
-#   INFINITO_DEPLOY_TYPE   = server|workstation|universal (required)
-#   INFINITO_WHITELIST = optional space-separated list of app ids to keep
+# Inputs via env (defaults live in default.env, the single source of truth):
+#   INFINITO_DEPLOY_MODE           compose|swarm|host (required; workflows set it)
+#   INFINITO_WHITELIST             optional space-separated app ids to keep
+#   INFINITO_BLACKLIST             optional space-separated app ids to drop
+#   INFINITO_MAX_JOBS              cumulative job cap; 'auto' derives it per
+#                                  mode from the CI chain via cli.meta.ci.slots
+#   INFINITO_DISCOVERY_SORT        complexity --sort spec (coverage-first)
+#   INFINITO_REQUIRED_STORAGE      per-runner CI storage budget
+#   INFINITO_APP_DISCOVERY_RUNNER  host|docker
 #
-# Output:
-#   JSON array to stdout (single line, always valid)
-
-: "${INFINITO_DEPLOY_TYPE:?INFINITO_DEPLOY_TYPE is required (server|workstation|universal)}"
+# Output: JSON array to stdout (single line, always valid).
 
 PYTHON="${PYTHON:-python3}"
 
@@ -19,51 +26,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$REPO_ROOT"
 
-# ------------------------------------------------------------
-# Load default environment (safe if already loaded via BASH_ENV)
-# ------------------------------------------------------------
 if [[ -f "scripts/meta/env/load.sh" ]]; then
 	# shellcheck source=scripts/meta/env/load.sh
 	source "scripts/meta/env/load.sh"
 fi
 
-# ------------------------------------------------------------
-# Helpers (JSON-only, no text roundtrips)
-# ------------------------------------------------------------
-
 json_compact_array() {
-	# Read JSON from stdin, ensure it's an array, output compact single-line JSON.
 	jq -c 'if type=="array" then . else [] end'
 }
 
-jq_exclude_regex() {
-	# Args: regex
-	# Reads JSON array from stdin, filters out entries matching regex, outputs compact JSON.
-	local re="$1"
-	if [[ -z "${re}" ]]; then
-		json_compact_array
-		return 0
-	fi
-	jq -c --arg re "${re}" 'map(select(test($re) | not))'
-}
-
-jq_whitelist_filter() {
-	# Args: whitelist (space-separated app ids)
-	# Reads JSON array from stdin, keeps only entries in whitelist, outputs compact JSON.
-	local wl="${1:-}"
-	if [[ -z "${wl// /}" ]]; then
-		json_compact_array
-		return 0
-	fi
-	local wl_json
-	wl_json="$(printf '%s' "${wl}" | jq -Rc 'split(" ") | map(select(length>0))')"
-	jq -c --argjson wl "${wl_json}" 'map(select(. as $a | ($wl | index($a)) != null))'
-}
-
 run_meta_cli() {
-	# Dispatch on INFINITO_APP_DISCOVERY_RUNNER:
-	#   host   -- invoke the venv python directly (no container overhead)
-	#   docker -- exec inside the running infinito compose container
 	case "${INFINITO_APP_DISCOVERY_RUNNER:?INFINITO_APP_DISCOVERY_RUNNER must be set}" in
 	host)
 		"${PYTHON}" "$@"
@@ -80,42 +52,24 @@ run_meta_cli() {
 	esac
 }
 
-# ------------------------------------------------------------
-# Lifecycle handling (always-on, original set)
-# ------------------------------------------------------------
-lifecycles_args=(--lifecycles alpha beta rc stable)
+mode="${INFINITO_DEPLOY_MODE:?INFINITO_DEPLOY_MODE must be set to compose, swarm or host}"
+case "$mode" in
+compose | swarm | host) ;;
+*)
+	echo "apps.sh: INFINITO_DEPLOY_MODE must be compose, swarm or host, got '$mode'" >&2
+	exit 2
+	;;
+esac
 
-# ------------------------------------------------------------
-# 1) Get JSON list from container (keep as JSON)
-# ------------------------------------------------------------
-apps_json="$(
-	run_meta_cli \
-		-m cli.meta.roles.applications.type \
-		--format json \
-		--type "${INFINITO_DEPLOY_TYPE}" \
-		"${lifecycles_args[@]}" |
-		json_compact_array
-)"
+apps_json="$(run_meta_cli -m cli.meta.ci.query --mode "$mode" --format json)"
 
-# ------------------------------------------------------------
-# 2) Global hard excludes (regex over app ids)
-# ------------------------------------------------------------
-# TODO: Remove exclude condition
-apps_json="$(
-	printf '%s\n' "${apps_json}" |
-		jq_exclude_regex '^(web-opt-rdr-www)$'
-)"
+apps_json="$(printf '%s' "${apps_json}" | jq -c 'sort')"
 
-# ------------------------------------------------------------
-# 3) CI storage filter (JSON-only)
-# ------------------------------------------------------------
 if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
-	required_storage="60GB"
+	required_storage="${INFINITO_REQUIRED_STORAGE}"
 
-	# Extract roles from JSON to pass as args (safe: one per line -> bash array)
-	mapfile -t roles < <(printf '%s\n' "${apps_json}" | jq -r '.[]')
+	mapfile -t roles < <(printf '%s\n' "${apps_json}" | jq -r '.[] | split("#")[0]' | sort -u)
 	if [[ "${#roles[@]}" -gt 0 ]]; then
-		# Warnings pass (best-effort)
 		run_meta_cli \
 			-m cli.meta.roles.applications.sufficient_storage \
 			--roles "${roles[@]}" \
@@ -124,8 +78,7 @@ if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 			--format json \
 			>/dev/null || true
 
-		# Real filter (JSON output)
-		apps_json="$(
+		kept_roles="$(
 			run_meta_cli \
 				-m cli.meta.roles.applications.sufficient_storage \
 				--roles "${roles[@]}" \
@@ -133,18 +86,13 @@ if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 				--format json |
 				json_compact_array
 		)"
+
+		apps_json="$(
+			printf '%s' "${apps_json}" |
+				jq -c --argjson keep "${kept_roles}" \
+					'map(select(. as $t | $keep | index($t | split("#")[0]) != null))'
+		)"
 	fi
 fi
 
-# ------------------------------------------------------------
-# 3b) Optional whitelist filter (space-separated list of app ids)
-# ------------------------------------------------------------
-apps_json="$(
-	printf '%s\n' "${apps_json}" |
-		jq_whitelist_filter "${INFINITO_WHITELIST:-}"
-)"
-
-# ------------------------------------------------------------
-# 4) Final safety: compact JSON array, single line
-# ------------------------------------------------------------
 printf '%s\n' "${apps_json}" | json_compact_array

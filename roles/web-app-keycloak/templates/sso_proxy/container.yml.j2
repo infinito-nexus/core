@@ -1,14 +1,27 @@
 {% if lookup('sso', application_id, 'is_proxy_gated') %}
   sso-proxy:
-    image: {{ lookup('config','web-app-keycloak', 'services.sso_proxy.image') }}:{{ lookup('config','web-app-keycloak', 'services.sso_proxy.version') }}
-    restart: {{ DOCKER_RESTART_POLICY }}
+    {{ lookup('container_image', 'web-app-keycloak', 'sso_proxy') }}
+    {{ lookup('compose_restart') }}
     command: --config /oauth2-proxy.cfg
-    container_name: {{ application_id | get_entity_name }}-sso-proxy
+    {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-sso-proxy')) }}
     hostname: sso-proxy
     ports:
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso') }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}/tcp
     volumes:
       - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}:/oauth2-proxy.cfg"
+{% if (TLS_MODE | lower) == 'self_signed' %}
+      - "{{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_container }}:ro"
+{% endif %}
+{% if DEPLOYMENT_MODE == 'swarm' %}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+{% else %}
+    extra_hosts:
+      - "{{ lookup('domain', 'web-app-keycloak') }}:host-gateway"
+{% endif %}
     healthcheck:
       test: ["CMD", "/bin/oauth2-proxy", "--version"]
       interval: 30s

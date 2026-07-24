@@ -1,5 +1,12 @@
 ---
 lid-switch:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
   min_storage: 0GB
   lifecycle: alpha
   cpus: "0.1"

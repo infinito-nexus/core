@@ -14,6 +14,7 @@ import importlib.util
 import sys
 import unittest
 from typing import TYPE_CHECKING
+from unittest import mock
 
 from . import PROJECT_ROOT
 
@@ -45,6 +46,41 @@ _BASE_CONFIG: dict = {
     "name": "peertube",
     "password": "s3cret",
 }
+
+
+class ResolveExecTargetTests(unittest.TestCase):
+    def test_compose_no_address_returns_container(self):
+        self.assertEqual(
+            _DB_MOD._resolve_exec_target(_BASE_CONFIG), "peertube-database"
+        )
+
+    def test_compose_address_equals_container_returns_container(self):
+        cfg = dict(_BASE_CONFIG, address="peertube-database")
+        self.assertEqual(_DB_MOD._resolve_exec_target(cfg), "peertube-database")
+
+    def test_swarm_subshell_address_resolves_to_concrete_id(self):
+        cfg = dict(
+            _BASE_CONFIG,
+            container="postgres",
+            address='"$(/usr/bin/resolve-container-id postgres postgres)"',
+        )
+        fake = mock.Mock(stdout="deadbeefcafe\n")
+        with mock.patch.object(_DB_MOD.subprocess, "run", return_value=fake) as run:
+            self.assertEqual(_DB_MOD._resolve_exec_target(cfg), "deadbeefcafe")
+        self.assertEqual(
+            run.call_args.args[0],
+            ["/usr/bin/resolve-container-id", "postgres", "postgres"],
+        )
+
+    def test_swarm_resolver_empty_falls_back_to_container(self):
+        cfg = dict(
+            _BASE_CONFIG,
+            container="postgres",
+            address='"$(/usr/bin/resolve-container-id postgres postgres)"',
+        )
+        fake = mock.Mock(stdout="\n")
+        with mock.patch.object(_DB_MOD.subprocess, "run", return_value=fake):
+            self.assertEqual(_DB_MOD._resolve_exec_target(cfg), "postgres")
 
 
 class BuildCmdPostgresTests(unittest.TestCase):

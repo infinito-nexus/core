@@ -1,6 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-{% set service_name = ESPOCRM_SERVICE %}
+  {% set service_name = ESPOCRM_SERVICE %}
+  {% set container_healthcheck_start_period = '15m' %}
   {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
@@ -10,36 +11,33 @@
         ESPOCRM_SCRIPT_SEED_DOCKER: "{{ ESPOCRM_SCRIPT_SEED_DOCKER }}"
         ESPOCRM_ENTRYPOINT_SCRIPT_HOST_REL: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_REL }}"
         ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER }}"
-    container_name: {{ ESPOCRM_CONTAINER }}
-    image: "{{ ESPOCRM_CUSTOM_IMAGE }}"
+    {{ lookup('compose_only', 'container_name', ESPOCRM_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'espocrm') }}
     init: true
     stop_signal: SIGTERM
     stop_grace_period: 30s
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.http') }}:80"
-{{ lookup('container_depends_on', application_id) }}
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - data:/var/www/html/
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_ports', ['espocrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
 
-{% set service_name = 'daemon' %}
+  {% set service_name = 'daemon' %}
   {{ service_name }}:
-    image: "{{ ESPOCRM_CUSTOM_IMAGE }}"
-    container_name: {{ ESPOCRM_CONTAINER }}_{{ service_name }}
-    pull_policy: never
+    {{ lookup('container_image', application_id, 'daemon', version=ESPOCRM_VERSION) }}
+    {{ lookup('compose_only', 'container_name', ESPOCRM_CONTAINER ~ '_' ~ service_name) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     init: true
     stop_signal: SIGTERM
     stop_grace_period: 30s
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    entrypoint: docker-daemon.sh
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - data:/var/www/html/
-{{ lookup('container_depends_on', application_id, extra={
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    entrypoint: ["{{ ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER }}", "--wait-ready", "docker-daemon.sh"]
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
   ESPOCRM_SERVICE: {'condition': 'service_healthy'},
-}) }}
+}) | indent(4) }}
     healthcheck:
       test: ["CMD-SHELL", "test -f /var/www/html/bootstrap.php && php -r \"require '/var/www/html/bootstrap.php'; echo 'OK';\""]
       interval: 30s
@@ -47,32 +45,27 @@
       retries: 5
       start_period: 40s
 
-{% set service_name = 'websocket' %}
+  {% set service_name = 'websocket' %}
   {{ service_name }}:
-    image: "{{ ESPOCRM_CUSTOM_IMAGE }}"
-    container_name: {{ ESPOCRM_CONTAINER }}_{{ service_name }}
-    pull_policy: never
+    {{ lookup('container_image', application_id, 'websocket', version=ESPOCRM_VERSION) }}
+    {{ lookup('compose_only', 'container_name', ESPOCRM_CONTAINER ~ '_' ~ service_name) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     init: true
     stop_signal: SIGTERM
     stop_grace_period: 30s
-{% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     environment:
       - ESPOCRM_CONFIG_USE_WEB_SOCKET=true
       - ESPOCRM_CONFIG_WEB_SOCKET_URL={{  lookup('tls', application_id, 'protocols.websocket') }}://{{ lookup('domain',application_id) }}/ws
       - ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBSCRIBER_DSN=tcp://*:7777
       - ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBMISSION_DSN=tcp://websocket:7777
-    entrypoint: docker-websocket.sh
-{% include 'roles/sys-svc-container/templates/networks.yml.j2' %}
-    volumes:
-      - data:/var/www/html/
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}:8080"
-{{ lookup('container_depends_on', application_id, extra={
+    entrypoint: ["{{ ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER }}", "--wait-ready", "docker-websocket.sh"]
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_ports', ['espocrm', 'websocket', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
   ESPOCRM_SERVICE: {'condition': 'service_healthy'},
-}) }}
+}) | indent(4) }}
 
-{{ lookup('applications') | compose_volumes(
-    application_id,
-    extra_volumes={'data': {'name': ESPOCRM_DATA_VOLUME}}
-) }}
-{% include 'roles/sys-svc-compose/templates/networks.yml.j2' %}
+{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_networks') }}

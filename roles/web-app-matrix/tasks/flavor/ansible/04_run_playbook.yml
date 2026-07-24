@@ -1,6 +1,41 @@
 ---
-- name: "ansible-flavor: render compose.yml + start matrix-mdad via sys-stk-backend"
+- name: "📄 ansible-flavor: render compose.yml + start matrix-mdad via sys-stk-backend"
   ansible.builtin.include_role:
     name: sys-stk-backend
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+
+- name: "✅ ansible-flavor: ensure matrix-mdad runner build dir on STACK_HOST"
+  ansible.builtin.file:
+    path: "{{ MATRIX_MDAD_RUNNER_BUILD_DIR }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🎬 ansible-flavor: stage matrix-mdad runner build context on STACK_HOST"
+  stack_host_copy:
+    src: "{{ item.src }}"
+    dest: "{{ [ MATRIX_MDAD_RUNNER_BUILD_DIR, item.dest ] | path_join }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { src: "flavor/ansible/runner/Dockerfile", dest: "Dockerfile", mode: "0644" }
+    - { src: "flavor/ansible/runner/bootstrap.sh", dest: "bootstrap.sh", mode: "0755" }
+    - { src: "flavor/ansible/runner/bootstrap.service", dest: "bootstrap.service", mode: "0644" }
+  loop_control:
+    label: "{{ item.dest }}"
+  notify:
+    - compose build
+    - compose up
+
+- name: "🎬 ansible-flavor: render the inner docker daemon.json from the network SPOT"
+  stack_host_copy:
+    content: "{{ MATRIX_MDAD_DAEMON_JSON | to_nice_json }}\n"
+    dest: "{{ [ MATRIX_MDAD_RUNNER_BUILD_DIR, 'daemon.json' ] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose build
+    - compose up
+
+- name: "🔄 ansible-flavor: flush handlers (build runner image + start matrix-mdad)"
+  ansible.builtin.meta: flush_handlers

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Role to reset and configure the systemd manager (drop-ins, defaults, validation).
+  description: Base role for systemd manager configuration via drop-ins, default settings, and unit validation
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

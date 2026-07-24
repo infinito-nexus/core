@@ -1,0 +1,40 @@
+---
+- name: "🔍 Mailu | Resolve DB hosting node + container ID"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: mariadb
+    resolve_service_name: "{{ lookup('database', application_id, 'service_name') }}"
+    resolve_output_prefix: MAILU_DB
+    resolve_compose_cid: "{{ lookup('database', application_id, 'container') }}"
+
+- name: "🔍 Mailu | Resolve admin hosting node + container ID"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: admin
+    resolve_output_prefix: MAILU_ADMIN
+    resolve_compose_cid: "{{ MAILU_ADMIN_CONTAINER_ADDRESS }}"
+
+- name: "🔎 Check for Mailu DB domain table"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MAILU_DB_LOCAL_CID resolved at delegate_to runtime
+    container exec
+    -e MARIADB_PWD={{ lookup('database', application_id, 'password') | quote }}
+    {{ MAILU_DB_LOCAL_CID | quote }} sh -c
+    'mariadb -u {{ lookup('database', application_id, 'username') }} -p"$MARIADB_PWD"
+    -e "SHOW TABLES FROM {{ lookup('database', application_id, 'name') }} LIKE \"domain\";"'
+  register: mailu_db_schema_check
+  retries: 30
+  delay: 5
+  until: mailu_db_schema_check.stdout | length > 0
+  changed_when: false
+  delegate_to: "{{ MAILU_DB_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔎 Check Mailu admin Flask routes command"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MAILU_ADMIN_LOCAL_CID resolved at delegate_to runtime
+    container exec -i {{ MAILU_ADMIN_LOCAL_CID | quote }} flask routes
+  register: mailu_admin_cli_check
+  retries: 30
+  delay: 5
+  until: mailu_admin_cli_check.rc == 0
+  changed_when: false
+  delegate_to: "{{ MAILU_ADMIN_HOST_NODE }}"

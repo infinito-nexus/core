@@ -1,43 +1,25 @@
 ---
-# General
 application_id: "web-app-semaphore"
 container_port: "{{ lookup('config', application_id, 'services.semaphore.ports.internal.http') }}"
 
-# Semaphore image
-SEMAPHORE_VERSION: "{{ lookup('config', application_id, 'services.semaphore.version') }}"
-SEMAPHORE_IMAGE: "{{ lookup('config', application_id, 'services.semaphore.image') }}"
 SEMAPHORE_NAME: "{{ lookup('config', application_id, 'services.semaphore.name') }}"
-SEMAPHORE_VOLUME: "{{ lookup('config', application_id, 'volumes.data') }}"
 
-# Auth toggles
 SEMAPHORE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 SEMAPHORE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-# Secrets (base64_prefixed_32 yields "base64:<44>"; Semaphore wants the bare base64)
 SEMAPHORE_ACCESS_KEY_ENCRYPTION: "{{ lookup('config', application_id, 'credentials.access_key_encryption') | regex_replace('^base64:', '') }}"
 SEMAPHORE_COOKIE_HASH: "{{ lookup('config', application_id, 'credentials.cookie_hash') | regex_replace('^base64:', '') }}"
 SEMAPHORE_COOKIE_ENCRYPTION: "{{ lookup('config', application_id, 'credentials.cookie_encryption') | regex_replace('^base64:', '') }}"
 
-# Break-glass local admin — always seeded. Semaphore forces LDAP-only form auth
-# when ldap_enable=true, so this local login is reachable via the form ONLY when
-# LDAP is disabled. Distinct login + email so it never collides (unique
-# constraints) with the OIDC/LDAP identities, and so the OIDC callback (which
-# rejects local users sharing an email) is never short-circuited by it.
 SEMAPHORE_ADMIN_USERNAME: "{{ lookup('users', 'web-app-semaphore-breakglass').username }}"
 SEMAPHORE_ADMIN_PASSWORD: "{{ lookup('users', 'web-app-semaphore-breakglass').password }}"
 SEMAPHORE_ADMIN_EMAIL: "{{ lookup('users', 'web-app-semaphore-breakglass').email }}"
 SEMAPHORE_ADMIN_NAME: "Semaphore Break-glass Admin"
 
-# OIDC administrator identity — must equal the Keycloak administrator's
-# preferred_username + email. Created at deploy time as an EXTERNAL admin so the
-# Semaphore OIDC callback (matches by email, accepts only External users, never
-# sets admin itself) logs the operator straight in as a Semaphore admin.
 SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'administrator').username }}"
 SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
 SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'administrator').username }}"
 
-# Native OIDC provider map (Keycloak). The administrator persona matches the
-# seeded admin by email, so the OIDC administrator lands as a Semaphore admin.
 SEMAPHORE_OIDC_PROVIDERS_JSON: >-
   {{ {
        "keycloak": {
@@ -53,5 +35,4 @@ SEMAPHORE_OIDC_PROVIDERS_JSON: >-
        }
      } | to_json }}
 
-# LDAP login (central OpenLDAP) — %s is Semaphore's username placeholder
 SEMAPHORE_LDAP_SEARCH_FILTER: "(&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s))"

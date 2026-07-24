@@ -1,0 +1,15 @@
+shutdown_timeout = "10s"
+
+[redis]
+URL = "tcp://{{ GITLAB_REDIS_HOST }}:{{ GITLAB_REDIS_PORT }}"
+{% if GITLAB_REDIS_PASSWORD %}
+Password = {{ GITLAB_REDIS_PASSWORD | to_json }}
+{% endif %}
+
+[image_resizer]
+  max_scaler_procs = 100
+  max_filesize = 250000
+
+[[listeners]]
+network = "tcp"
+addr = "0.0.0.0:{{ GITLAB_WORKHORSE_PORT }}"

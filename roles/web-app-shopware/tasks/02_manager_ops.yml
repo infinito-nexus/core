@@ -1,0 +1,53 @@
+---
+- name: "🚀 Deploy {{ SHOPWARE_INIT_HOST }}"
+  copy:
+    src: init.sh
+    dest: "{{ SHOPWARE_INIT_HOST }}"
+    mode: "0755"
+  notify:
+    - compose up
+    - compose build
+
+- name: "📄 Render framework.yaml (trusted proxies/headers/hosts)"
+  copy:
+    src: "framework.yaml"
+    dest: "{{ SHOPWARE_FRAMEWORK_HOST }}"
+    mode: "0644"
+  notify:
+    - compose up
+
+- name: "📄 Render shopware.yaml (SeaweedFS S3 filesystem)"
+  stack_host_template:
+    src: "shopware.yaml.j2"
+    dest: "{{ SHOPWARE_FILESYSTEM_HOST }}"
+    mode: "0644"
+  when: SHOPWARE_OBJSTORE_ENABLED | bool
+  notify:
+    - compose up
+    - compose build
+
+- name: "🚿 Flush compose handlers"
+  meta: flush_handlers
+
+- name: ⏳ Wait for Shopware HTTP endpoint
+  wait_for:
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', application_id, 'services.shopware.ports.local.http') }}"
+    delay: 5
+    timeout: "{{ lookup('timeout', 300) | int }}"
+
+- name: "🔍 Resolve Shopware web hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: web
+    resolve_output_prefix: SHOPWARE_WEB
+    resolve_compose_cid: "{{ SHOPWARE_WEB_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
+- name: "✅ Ensure admin user exists with correct password"
+  ansible.builtin.include_tasks:
+    file: 01_admin.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"

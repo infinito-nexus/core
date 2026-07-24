@@ -10,7 +10,7 @@ This package contains the in-process cache layers Infinito.Nexus uses to keep CL
 | [files.py](files.py) | The project tree's full path list (one walk per process) and per-file UTF-8 contents (`read_text`). Used by lint/integration tests and CLI tools that scan the repo. |
 | [base.py](base.py) | Cross-cutting helpers: filesystem constants (`PROJECT_ROOT`, `ROLES_DIR`, `DEFAULT_TOKENS_FILE`), `_deep_merge`, cache-key + content-fingerprint signatures, the cross-domain re-entry guard, and the templar-render machinery. The only ansible-coupled symbol is `_render_with_templar`, which lazy-imports its dependency. |
 | [applications.py](applications.py) | Per-app variants + defaults + `get_merged_applications`. **Strictly ansible-free at import time** so the GitHub Actions runner-host CLI path (`cli.administration.deploy.development.init` → `plan_dev_inventory_matrix` → `get_variants`) keeps working without ansible installed. |
-| [users.py](users.py) | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users`. |
+| [users/](users/) | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass). |
 | [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. |
 | [`__init__.py`](__init__.py) | Owns the package-level `_reset_cache_for_tests()` orchestrator that clears every cache plus the shared fingerprint memo in one call. |
 

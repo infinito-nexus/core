@@ -1,0 +1,15 @@
+---
+- name: 🚀 Deploy logout.js
+  copy:
+    src: logout.js
+    dest: "{{ INJ_LOGOUT_JS_DESTINATION }}"
+    mode: "0644"
+
+- name: ⬇️ Get stat for logout.js
+  stat:
+    path: "{{ INJ_LOGOUT_JS_DESTINATION }}"
+  register: INJ_LOGOUT_JS_STAT
+
+- name: 🔧 Set INJ_LOGOUT_JS_VERSION
+  set_fact:
+    INJ_LOGOUT_JS_VERSION: "{{ INJ_LOGOUT_JS_STAT.stat.mtime }}"

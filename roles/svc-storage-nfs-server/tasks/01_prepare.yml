@@ -1,0 +1,71 @@
+---
+- name: "✅ Ensure export base directory exists"
+  ansible.builtin.file:
+    path: "{{ lookup('nfs_export_base') }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "📂 Include CI/dev overlay backing for the export base"
+  ansible.builtin.include_tasks: 02_overlay_backing.yml
+
+- name: "📁 Pre-create cluster-shared state subdir under export base"
+  ansible.builtin.file:
+    path: "{{ STORAGE_NFS_STATE_PATH }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "✅ Assert the state subdir is strictly nested under the export base"
+  ansible.builtin.assert:
+    that:
+      - STORAGE_NFS_STATE_PATH != lookup('nfs_export_base')
+    fail_msg: >-
+      STORAGE_NFS_STATE_PATH must be a strict subdir of the nfs export base;
+      equal paths collide on the two distinct exports (root_squash vs no_root_squash).
+
+- name: "🔧 Bind-mount state subdir onto itself for stable fsid=0 export root boundary"
+  ansible.posix.mount:
+    path: "{{ STORAGE_NFS_STATE_PATH }}"
+    src: "{{ STORAGE_NFS_STATE_PATH }}"
+    fstype: none
+    opts: bind
+    state: mounted
+  when: SVC_STORAGE_NFS_SERVER_FLAVOR == 'kernel'
+
+- name: "📊 Gather facts on swarm members so their IPs become available"
+  ansible.builtin.setup:
+    gather_subset: network
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['svc-swarm-node'] | default([]) }}"
+  when: hostvars[item].ansible_facts.default_ipv4 is not defined
+
+- name: "🧮 Compute swarm-member IPs allowed to mount"
+  ansible.builtin.set_fact:
+    svc_storage_nfs_server_allowed_ips: >-
+      {{
+        (groups['svc-swarm-node']
+         | default([])
+         | map('extract', hostvars, ['ansible_facts', 'default_ipv4', 'address'])
+         | select('defined')
+         | list)
+        or [ansible_facts.default_ipv4.address | default('127.0.0.1')]
+      }}
+
+- name: "✅ Assert at least one allowed IP was resolved"
+  ansible.builtin.assert:
+    that:
+      - svc_storage_nfs_server_allowed_ips | length > 0
+    fail_msg: |
+      Could not resolve any allowed mount IP. In swarm mode this means no
+      `svc-swarm-node` member facts were gathered; in single-node/host mode
+      the local host's own IP fallback should have applied.
+
+- name: "🧮 Default the NFS mount server to this host when unset"
+  ansible.builtin.set_fact:
+    storage: >-
+      {{ storage | combine({'nfs': {'server': ansible_facts.default_ipv4.address | default('127.0.0.1')}}, recursive=True) }}
+  when: (storage.nfs.server | trim | length) == 0

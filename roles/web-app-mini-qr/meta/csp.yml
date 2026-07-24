@@ -1,0 +1,17 @@
+---
+whitelist:
+  script-src-elem:
+    - https://*.clarity.ms/
+  connect-src:
+    - https://*.clarity.ms
+    - "data:"
+  style-src-elem: []
+  font-src: []
+  frame-ancestors: []
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-eval: true
