@@ -156,11 +156,12 @@
     service_loader_preloading: true
   changed_when: false
 
-- name: "🥾 Bootstrap NFS clients + registry (MUST precede Preload)"
+- name: "🥾 Bootstrap NFS clients + registry + sandbox runtimes (MUST precede Preload)"
   ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
   loop:
     - svc-storage
     - svc-registry
+    - svc-virt
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}-roles.yml"

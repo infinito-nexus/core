@@ -1,0 +1,31 @@
+---
+- name: "🔍 select_runtime | probe hardware virtualization"
+  ansible.builtin.stat:
+    path: /dev/kvm
+  register: _select_runtime_kvm
+
+- name: "🔍 select_runtime | probe the Kata shim"
+  ansible.builtin.stat:
+    path: "{{ KATA_SHIM_BINARY }}"
+  register: _select_runtime_kata_shim
+
+- name: "🧩 select_runtime | publish SANDBOX_RUNTIME"
+  ansible.builtin.set_fact:
+    SANDBOX_RUNTIME: >-
+      {{
+        'kata'
+        if (
+          _select_runtime_kvm.stat.exists
+          and _select_runtime_kata_shim.stat.exists
+          and not (DOCKER_IN_CONTAINER | bool)
+        )
+        else 'runsc'
+      }}
+
+- name: "📣 select_runtime | report the isolation tier"
+  ansible.builtin.debug:
+    msg: >-
+      /dev/kvm {{ 'present' if _select_runtime_kvm.stat.exists else 'absent' }},
+      kata shim {{ 'present' if _select_runtime_kata_shim.stat.exists else 'absent' }},
+      docker-in-docker {{ DOCKER_IN_CONTAINER | bool }} ->
+      {{ SANDBOX_RUNTIME }}

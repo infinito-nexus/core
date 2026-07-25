@@ -1,0 +1,5 @@
+---
+KATA_SHIM_BINARY: /usr/bin/containerd-shim-kata-v2
+RUNSC_SHIM_BINARY: /usr/local/bin/runsc
+SANDBOX_NODE_LABEL: kata-capable
+SANDBOX_DEFAULT_RUNTIME: ""

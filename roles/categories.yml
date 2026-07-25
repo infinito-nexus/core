@@ -202,6 +202,16 @@ roles:
       icon: "fas fa-network-wired"
       bootstrap: true
       invokable: true
+    virt:
+      title: "Sandboxed Runtimes"
+      description: "Kernel-isolating container runtimes — Kata Containers with Firecracker microVMs and the gVisor userspace fallback — installed on the container
+        host."
+      icon: "fas fa-shield-halved"
+      bootstrap: true
+      modes:
+        compose: false
+        swarm: false
+      invokable: true
     runner:
       title: "CI Runner"
       description: "Self-hosted GitHub Actions runner deployment and configuration"

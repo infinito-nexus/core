@@ -1,0 +1,27 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "📦 Install the gVisor userspace kernel (runsc)"
+  get_url_retry:
+    url: "{{ SVC_VIRT_KATA_RUNSC_URL }}"
+    checksum: "sha512:{{ SVC_VIRT_KATA_RUNSC_URL }}.sha512"
+    dest: "{{ RUNSC_SHIM_BINARY }}"
+    mode: "0755"
+    owner: root
+    group: root
+  become: true
+
+- name: "🧩 Select the isolating runtime for this host"
+  ansible.builtin.include_tasks: utils/select_runtime.yml
+
+- name: "🔧 Register the runtimes with the container daemon"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+
+- name: "🏷️ Label this node as sandbox-capable"
+  ansible.builtin.command: >-
+    container node update --label-add {{ SANDBOX_NODE_LABEL }}={{ SANDBOX_RUNTIME }}
+    {{ ansible_facts['hostname'] }}
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+  when: DEPLOYMENT_MODE == 'swarm'

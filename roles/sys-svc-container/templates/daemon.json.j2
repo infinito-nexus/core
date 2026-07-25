@@ -31,4 +31,13 @@
 {% if _cache_hosts | length > 0 %},
   "registry-mirrors": ["http://{{ _cache_hosts[0] }}:{{ _cache_port }}"]
 {% endif %}
+{% if 'svc-virt-kata' in group_names %},
+  "runtimes": {
+    "kata": {"path": "{{ KATA_SHIM_BINARY }}"},
+    "runsc": {"path": "{{ RUNSC_SHIM_BINARY }}"{% if DOCKER_IN_CONTAINER | bool %}, "runtimeArgs": ["--network=host"]{% endif %}}
+  }
+{% if SANDBOX_DEFAULT_RUNTIME | length > 0 %},
+  "default-runtime": "{{ SANDBOX_DEFAULT_RUNTIME }}"
+{% endif %}
+{% endif %}
 }

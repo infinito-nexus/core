@@ -61,6 +61,16 @@
   include_tasks: "02_docker_in_docker.yml"
   when: DOCKER_IN_CONTAINER | bool
 
+- name: 🔧 Configure docker daemon on a bare host that needs sandbox runtimes
+  ansible.builtin.template: # nocheck: stack-host-template (per-host docker daemon config, runs on every container-host)
+    src: daemon.json.j2
+    dest: "{{ SYS_SVC_DOCKER_DAEMON }}"
+    mode: "0644"
+  notify: container manager restart
+  when:
+    - not (DOCKER_IN_CONTAINER | bool)
+    - "'svc-virt-kata' in group_names"
+
 - name: 🔄 Restart and enable docker service
   meta: flush_handlers
 
