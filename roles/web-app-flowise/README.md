@@ -15,6 +15,7 @@ The diagram places Flowise in the Infinito.Nexus cosmos: the components it deplo
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
@@ -47,9 +48,7 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
     end
-    subgraph dependents [Dependents]
-        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
-    end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -- "1:1" --> svc_ldap
@@ -63,7 +62,6 @@ flowchart LR
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_logout -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -123,6 +121,6 @@ docker run --rm -it \
 
 ## Credits
 
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
+Implemented by **Kevin Veen-Birkenbach**.
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

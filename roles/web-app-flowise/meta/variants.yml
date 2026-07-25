@@ -26,6 +26,9 @@
     ollama:
       enabled: true
       shared: true
+    litellm:
+      enabled: true
+      shared: true
     qdrant:
       enabled: true
       shared: true
@@ -59,6 +62,9 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     ollama:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     qdrant:
