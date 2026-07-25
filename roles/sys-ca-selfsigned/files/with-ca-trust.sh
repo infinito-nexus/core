@@ -42,8 +42,7 @@ export CURL_CA_BUNDLE="$CA_TRUST_CERT"
 export NODE_EXTRA_CA_CERTS="$CA_TRUST_CERT"
 
 if [ -n "${CA_TRUST_CERT_EXTRA:-}" ] && [ -r "${CA_TRUST_CERT_EXTRA}" ]; then
-  combined="/tmp/infinito/ca-trust-combined.crt"
-  mkdir -p "$(dirname "$combined")"
+  combined="$(mktemp -t ca-trust-combined.XXXXXX)"
   cat "$CA_TRUST_CERT" "$CA_TRUST_CERT_EXTRA" > "$combined"
   export SSL_CERT_FILE="$combined"
   export REQUESTS_CA_BUNDLE="$combined"
