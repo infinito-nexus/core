@@ -15,6 +15,7 @@ The diagram places Nextcloud in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
@@ -22,7 +23,6 @@ flowchart LR
         dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_discourse["web-app-discourse 🐳🐝"]
-        dep_web_app_flowise["web-app-flowise 🐳🐝"]
         dep_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -75,13 +75,14 @@ flowchart LR
         svc_matrix["matrix"]
         svc_zammad["zammad"]
         svc_openwebui["openwebui"]
-        svc_flowise["flowise"]
+        svc_litellm["litellm"]
         svc_mastodon["mastodon"]
         svc_peertube["peertube"]
         svc_moodle["moodle ❌"]
         svc_suitecrm["suitecrm ❌"]
         svc_container_backup["container_backup"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
@@ -89,7 +90,6 @@ flowchart LR
     dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_discourse -. "0..1" .-> svc_discourse
-    dep_web_app_flowise -. "0..1" .-> svc_flowise
     dep_web_app_gitlab -. "0..1" .-> svc_gitlab
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email

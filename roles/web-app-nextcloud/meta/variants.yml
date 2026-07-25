@@ -85,7 +85,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -170,7 +170,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -255,9 +255,9 @@
     openwebui:
       enabled: true
       shared: true
-    flowise:
-      enabled: true
-      shared: true
+    litellm:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -340,7 +340,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -425,7 +425,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -510,7 +510,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -595,7 +595,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -680,9 +680,9 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: true
+      shared: true
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

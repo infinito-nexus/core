@@ -1,5 +1,10 @@
 ---
 credentials:
+  litellm_api_key:
+    description: Per-consumer virtual key for the shared svc-ai-litellm gateway
+    algorithm: sk_prefixed
+    validation:
+      min_length: 50
   talk_recording_secret:
     description: Shared secret between Nextcloud Talk and the recording backend
     algorithm: random_hex_32

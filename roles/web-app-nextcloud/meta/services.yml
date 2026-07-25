@@ -242,11 +242,11 @@ openwebui:
   bond: 0.5
   enabled: "{{ 'web-app-openwebui' in group_names }}"
   shared: "{{ 'web-app-openwebui' in group_names }}"
-# nocheck: playwright-service-flag: bridged flowise partner, covered by partner role spec
-flowise:
+# nocheck: playwright-service-flag: bridged litellm gateway partner, covered by partner role spec
+litellm:
   bond: 0.5
-  enabled: "{{ 'web-app-flowise' in group_names }}"
-  shared: "{{ 'web-app-flowise' in group_names }}"
+  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: playwright-service-flag: bridged mastodon partner, covered by partner role spec
 mastodon:
   bond: 0.5
