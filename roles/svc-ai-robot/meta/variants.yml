@@ -1,0 +1,16 @@
+---
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    hermes:
+      enabled: true
+    openclaw:
+      enabled: false
+
+# nocheck: variants-explicit-disables shared stays true for both agents by contract; enabled alone selects the embodied one
+- services:
+    hermes:
+      enabled: false
+    openclaw:
+      enabled: true

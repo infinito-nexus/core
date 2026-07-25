@@ -1,0 +1,35 @@
+---
+# nocheck: info-media Self-written embodied-agent role; the trust boundary is the dedicated device, not an upstream product.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - robotics
+    - agent
+    - hermes
+    - embodied
+    - gpio
+    - self-hosted
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+dependencies: []

@@ -38,6 +38,7 @@ flowchart LR
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
+        dpt_svc_ai_robot["svc-ai-robot 💻"]
         dpt_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
@@ -48,6 +49,7 @@ flowchart LR
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
+    svc_hermes -. "0..1" .-> dpt_svc_ai_robot
     svc_hermes -. "0..1" .-> dpt_web_app_homeassistant
 ```
 

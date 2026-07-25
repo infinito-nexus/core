@@ -1,8 +1,15 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🤖 Admit embodied mode for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-robot/tasks/utils/admit.yml') }}"
+  vars:
+    admit_agent_role: "{{ application_id }}"
+  when: "'svc-ai-robot' in group_names"
+
 - name: "🛡️ Select the isolating runtime for {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/select_runtime.yml') }}"
+  when: "'svc-ai-robot' not in group_names"
 
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
