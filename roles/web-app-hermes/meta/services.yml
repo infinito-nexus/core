@@ -34,13 +34,13 @@ kata:
   enabled: true
   shared: true
 
-# nocheck: dynamic-flag
+# nocheck: sso, dynamic-flag, playwright-service-flag
 sso:
   bond: 1
   enabled: false
   shared: false
 
-# nocheck: dynamic-flag
+# nocheck: logout, dynamic-flag, playwright-service-flag
 logout:
   bond: 1
   enabled: false
