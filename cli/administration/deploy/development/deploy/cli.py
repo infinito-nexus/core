@@ -10,11 +10,11 @@ from cli.administration.deploy.development.common import (
     resolve_container,
 )
 from cli.administration.deploy.development.inventory import (
-    plan_dev_inventory_matrix,
-    prune_orphans_after_disable,
+    _build_services_overrides_for_round as build_services_overrides_for_round,
 )
 from cli.administration.deploy.development.inventory import (
-    _build_services_overrides_for_round as build_services_overrides_for_round,
+    plan_dev_inventory_matrix,
+    prune_orphans_after_disable,
 )
 from cli.administration.deploy.development.variant_select import (
     add_variant_args,
@@ -143,9 +143,7 @@ def handler(args: argparse.Namespace) -> int:
                 roles_dir=str(compose.repo_root / "roles"),
                 round_index=round_index,
                 primary_app_variants={
-                    a: round_variants[a]
-                    for a in primary_app_ids
-                    if a in round_variants
+                    a: round_variants[a] for a in primary_app_ids if a in round_variants
                 },
             )
             round_deploy_ids, pruned = prune_orphans_after_disable(
