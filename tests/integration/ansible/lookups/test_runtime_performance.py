@@ -107,8 +107,6 @@ class TestRuntimeLookupPerformance(unittest.TestCase):
 
         t0 = time.perf_counter()
         for _ in range(self.ITERATIONS):
-            # Ansible 2.19+ may churn the inventory-level sub-dicts per task
-            # too; deep-copy each iteration to detect id()-only cache bugs.
             variables = _simulate_ansible_variables(
                 copy.deepcopy(self.shared_applications),
                 copy.deepcopy(self.shared_users),
@@ -145,8 +143,8 @@ class TestRuntimeLookupPerformance(unittest.TestCase):
 
         self.assertLess(
             warm_elapsed,
-            120.0,
-            f"Cold applications render took {warm_elapsed:.2f}s (budget 120s).",
+            60.0,
+            f"Cold applications render took {warm_elapsed:.2f}s (budget 60s).",
         )
 
     def test_applications_current_play_lookup_caches(self) -> None:
@@ -246,8 +244,8 @@ class TestRuntimeLookupPerformance(unittest.TestCase):
 
         self.assertLess(
             warm_elapsed,
-            120.0,
-            f"Cold domains render took {warm_elapsed:.2f}s (budget 120s).",
+            60.0,
+            f"Cold domains render took {warm_elapsed:.2f}s (budget 60s).",
         )
 
 

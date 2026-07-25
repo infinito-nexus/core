@@ -1,8 +1,8 @@
 # Managed by Ansible role svc-storage-nfs-server (flavor: ganesha / FSAL_VFS).
 NFS_CORE_PARAM {
     Protocols = 4;
-    NLM_Param = false;
-    Enable_RPCSTATD = false;
+    Enable_NLM = false;
+    Enable_RQUOTA = false;
 }
 
 NFSV4 {

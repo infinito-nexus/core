@@ -3,6 +3,7 @@ default_install_hook_types:
   - pre-commit
   - pre-merge-commit
   - pre-push
+  - post-checkout
 
 repos:
   - repo: local
@@ -46,3 +47,11 @@ repos:
         always_run: true
         stages:
           - pre-push
+      - id: clean-pycache-dirs
+        name: Prune orphan __pycache__-only dirs (post-checkout)
+        entry: make clean-pycache-dirs
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages:
+          - post-checkout

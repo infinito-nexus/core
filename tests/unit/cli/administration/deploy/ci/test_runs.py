@@ -166,6 +166,20 @@ class TestFailedRoles(unittest.TestCase):
     def test_docker_scope(self) -> None:
         self.assertEqual(runs.failed_roles(self._STATUSES, "docker"), ["web-app-c"])
 
+    def test_strict_total_excludes_cancelled(self) -> None:
+        self.assertEqual(
+            runs.failed_roles(self._STATUSES, strict=True),
+            ["web-app-a"],
+        )
+
+    def test_strict_swarm_keeps_hard_failure(self) -> None:
+        self.assertEqual(
+            runs.failed_roles(self._STATUSES, "swarm", strict=True), ["web-app-a"]
+        )
+
+    def test_strict_docker_excludes_cancelled(self) -> None:
+        self.assertEqual(runs.failed_roles(self._STATUSES, "docker", strict=True), [])
+
 
 class TestRunIdFromUrl(unittest.TestCase):
     def test_extracts_id(self) -> None:

@@ -1,5 +1,27 @@
+import functools
 import os
 from pathlib import Path
+
+_APPLICATION_MARKER_FILES = (
+    "services.yml",
+    "server.yml",
+    "rbac.yml",
+    "volumes.yml",
+    "schema.yml",
+    "users.yml",
+)
+
+
+@functools.cache
+def _discover_sorted_application_ids(roles_dir_key: str) -> tuple[str, ...]:
+    discovered: set[str] = set()
+    for entry in os.listdir(roles_dir_key):
+        meta_dir = Path(roles_dir_key, entry, "meta")
+        if not meta_dir.is_dir():
+            continue
+        if any((meta_dir / marker).is_file() for marker in _APPLICATION_MARKER_FILES):
+            discovered.add(entry)
+    return tuple(sorted(discovered))
 
 
 def compute_application_gid(application_id, roles_dir="roles", base_gid=10000):
@@ -15,35 +37,16 @@ def compute_application_gid(application_id, roles_dir="roles", base_gid=10000):
     ``ansible.plugins.lookup.LookupBase`` and raises
     ``ModuleNotFoundError`` on ansible-less hosts.
 
+    An "application role" carries at least one project-owned
+    `meta/<topic>.yml` marker file (services, server, rbac, volumes,
+    schema, users).
+
     Raises ``ValueError`` (not ``AnsibleError``) for portability.
     """
     if not Path(roles_dir).is_dir():
         raise ValueError(f"Roles directory '{roles_dir}' not found")
 
-    # Per, an "application role" is identified by the presence of
-    # at least one of the project-owned `meta/<topic>.yml` files (services,
-    # server, rbac, volumes, schema, users). This preserves the prior
-    # assignment ordering: every role that previously had `meta/services.yml`
-    # now has at least one of these files.
-    application_marker_files = {
-        "services.yml",
-        "server.yml",
-        "rbac.yml",
-        "volumes.yml",
-        "schema.yml",
-        "users.yml",
-    }
-    discovered: set[str] = set()
-    for entry in os.listdir(roles_dir):
-        role_dir = str(Path(roles_dir) / entry)
-        meta_dir = str(Path(role_dir) / "meta")
-        if not Path(meta_dir).is_dir():
-            continue
-        for marker in application_marker_files:
-            if Path(str(Path(meta_dir) / marker)).is_file():
-                discovered.add(entry)
-                break
-    sorted_ids = sorted(discovered)
+    sorted_ids = _discover_sorted_application_ids(str(Path(roles_dir).resolve()))
 
     try:
         index = sorted_ids.index(application_id)
@@ -55,16 +58,6 @@ def compute_application_gid(application_id, roles_dir="roles", base_gid=10000):
     return base_gid + index
 
 
-# The Ansible LookupModule wrapper. We define it conditionally on
-# ansible being importable: ansible's plugin loader only needs the class
-# when an Ansible process actually loads this module via the lookup
-# loader, and that always happens inside a process that has ansible
-# installed (the playbook runner). Pure-Python importers (e.g.
-# `utils.cache.applications._build_variants` running inside `cli.administration.deploy.
-# development init` on the GitHub Actions runner host) want
-# `compute_application_gid` only and MUST NOT pay the ansible-import
-# cost — see CI run 24935979190 for the regression that motivated this
-# split.
 try:
     from ansible.errors import AnsibleError
     from ansible.plugins.lookup import LookupBase

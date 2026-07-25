@@ -22,6 +22,7 @@ Both helpers degrade gracefully:
 
 from __future__ import annotations
 
+import functools
 from pathlib import Path
 
 import yaml
@@ -262,6 +263,21 @@ def get_role_placement(role: PathLike, *, role_name: str | None = None) -> str |
     return str(raw).strip()
 
 
+@functools.cache
+def _roles_with_placement(base_key: str, placement: str) -> tuple[str, ...]:
+    matches: list[str] = []
+    for role_dir in sorted(Path(base_key).iterdir()):
+        if not role_dir.is_dir():
+            continue
+        try:
+            value = get_role_placement(role_dir, role_name=role_dir.name)
+        except MetaServicesShapeError:
+            continue
+        if value == placement:
+            matches.append(role_dir.name)
+    return tuple(matches)
+
+
 def iter_roles_with_placement(
     placement: str, *, roles_dir: PathLike | None = None
 ) -> list[str]:
@@ -271,17 +287,7 @@ def iter_roles_with_placement(
     base = Path(roles_dir) if roles_dir is not None else PROJECT_ROOT / "roles"
     if not base.is_dir():
         return []
-    matches: list[str] = []
-    for role_dir in sorted(base.iterdir()):
-        if not role_dir.is_dir():
-            continue
-        try:
-            value = get_role_placement(role_dir, role_name=role_dir.name)
-        except MetaServicesShapeError:
-            continue
-        if value == placement:
-            matches.append(role_dir.name)
-    return matches
+    return list(_roles_with_placement(str(base.resolve()), placement))
 
 
 def _resolve_role(role: PathLike, role_name: str | None) -> tuple[Path, str]:

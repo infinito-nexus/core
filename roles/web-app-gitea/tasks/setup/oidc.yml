@@ -1,7 +1,7 @@
 ---
 - name: "➕ Add Keycloak OIDC Provider"
-  shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       gitea admin auth add-oauth \
         --provider openidConnect \
         --name     "{{ OIDC.BUTTON_TEXT }}" \
@@ -9,16 +9,18 @@
         --secret   "{{ OIDC.CLIENT.SECRET }}" \
         --auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}" \
         --scopes   "openid profile email"
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_manage
   failed_when: oidc_manage.rc != 0 and not (oidc_manage.stderr | gitea_auth_noop)
 
 - name: "🔍 Lookup existing Keycloak auth source ID"
-  shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       /app/gitea/gitea admin auth list \
       | tail -n +2 \
       | grep -F "{{ OIDC.BUTTON_TEXT }}" \
       | awk '{print $1; exit}'
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_source_id_raw
   failed_when:
     - oidc_source_id_raw.rc != 0
@@ -30,8 +32,8 @@
     oidc_source_id: "{{ oidc_source_id_raw.stdout }}"
 
 - name: "🔄 Update Keycloak OIDC Provider"
-  shell: |
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }} \
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       gitea admin auth update-oauth \
         --id {{ oidc_source_id }}\
         --provider openidConnect \
@@ -40,5 +42,6 @@
         --secret   "{{ OIDC.CLIENT.SECRET }}" \
         --auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}" \
         --scopes   "openid profile email"
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_manage
   failed_when: oidc_manage.rc != 0

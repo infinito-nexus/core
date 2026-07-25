@@ -2,11 +2,19 @@
 - name: 🚿 Flush handlers to ensure Gitea is up before DB patch
   meta: flush_handlers
 
+- name: "🔍 Resolve {{ application_id }} hosting node + container id for DB patches"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: gitea
+    resolve_output_prefix: GITEA
+    resolve_compose_cid: "{{ GITEA_CONTAINER_ADDRESS }}"
+
 - name: 🩹 Patch Gitea DB host in app.ini
-  shell: >
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }}
     sed -ri "s|^(HOST\s*=\s*).*$|\1{{ lookup('database', application_id, 'host') | sed_escape('|') }}:{{ lookup('database', application_id, 'port') | sed_escape('|')
     }}|" {{ GITEA_CONFIG }}
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: _gitea_patch_host
   retries: 12
   delay: 5
@@ -14,9 +22,10 @@
   notify: compose up
 
 - name: 🩹 Patch Gitea DB name in app.ini
-  shell: >
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }}
     sed -ri "s|^(NAME\s*=\s*).*$|\1{{ lookup('database', application_id, 'name') | sed_escape('|') }}|" {{ GITEA_CONFIG }}
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: _gitea_patch_name
   retries: 12
   delay: 5
@@ -24,9 +33,10 @@
   notify: compose up
 
 - name: 🩹 Patch Gitea DB user in app.ini
-  shell: >
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_CONTAINER_ADDRESS }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }}
     sed -ri "s|^(USER\s*=\s*).*$|\1{{ lookup('database', application_id, 'username') | sed_escape('|') }}|" {{ GITEA_CONFIG }}
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: _gitea_patch_user
   retries: 12
   delay: 5
@@ -34,11 +44,12 @@
   notify: compose up
 
 - name: 🩹 Patch Gitea DB password in app.ini
-  shell: >
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i --user {{ GITEA_USER }}
     -e PATCH_VALUE={{ lookup('database', application_id, 'password') | sed_escape('|') | quote }}
-    {{ GITEA_CONTAINER_ADDRESS }}
+    {{ GITEA_LOCAL_CID | quote }}
     sh -c 'sed -ri "s|^(PASSWD\s*=\s*).*$|\1${PATCH_VALUE}|" {{ GITEA_CONFIG }}'
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: _gitea_patch_passwd
   retries: 12
   delay: 5

@@ -57,7 +57,17 @@ def main(argv: list[str] | None = None) -> int:
             "the latest deploy run on the current branch."
         ),
     )
+    p.add_argument(
+        "--strict",
+        action="store_true",
+        help=(
+            "With --failed: re-trigger only roles with a hard failure (❌), "
+            "not cancelled/aborted (🚫) or still-running (⏳)."
+        ),
+    )
     args = p.parse_args(argv)
+    if args.strict and args.failed is None:
+        p.error("--strict only applies with --failed")
 
     branch = runs.current_branch()
     repo = runs.resolve_repo()
@@ -87,7 +97,9 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 return 1
             jobs = run["_jobs"]
-        failed = runs.failed_roles(runs.parse_role_statuses(jobs), scope)
+        failed = runs.failed_roles(
+            runs.parse_role_statuses(jobs), scope, strict=args.strict
+        )
         if not failed:
             print(f"Nothing failed ({args.failed}) in that run; not triggering.")
             return 0

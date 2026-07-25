@@ -281,6 +281,24 @@ if [[ -f "${_buildx_bin}" ]] && command -v file >/dev/null 2>&1; then
 	fi
 fi
 
+prepull_build_frontend() {
+	[[ -f Dockerfile ]] || return 0
+	local frontend attempt
+	frontend="$(sed -n '1s/^#[[:space:]]*syntax=//p' Dockerfile)"
+	[[ -z "${frontend}" ]] && return 0
+	for attempt in 1 2 3; do
+		if docker pull "${frontend}"; then
+			return 0
+		fi
+		echo "[build] WARNING: frontend pull ${frontend} failed (attempt ${attempt}/3); retrying in $((attempt * 5))s"
+		sleep "$((attempt * 5))"
+	done
+	echo "[build] WARNING: could not pre-pull frontend ${frontend}; letting the build resolve it live"
+	return 0
+}
+
+prepull_build_frontend
+
 if [[ "${PUSH}" == "1" ]]; then
 	bx_args=(docker buildx build --push)
 

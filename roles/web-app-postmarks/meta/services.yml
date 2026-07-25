@@ -45,6 +45,7 @@ postmarks:
       enabled: true
   image: node
   version: 26-bookworm
+  custom: true
   name: web-app-postmarks
   repository: https://github.com/ckolderup/postmarks.git
   ref: main

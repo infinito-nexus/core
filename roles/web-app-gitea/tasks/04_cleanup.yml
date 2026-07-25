@@ -1,7 +1,13 @@
 ---
 - name: ▶️ Execute OIDC Cleanup Routine
-  include_tasks: cleanup/oidc.yml
+  include_tasks:
+    file: cleanup/oidc.yml
+    apply:
+      delegate_to: "{{ GITEA_HOST_NODE }}"
   when: not (GITEA_OIDC_ENABLED | bool)
 - name: ▶️ Execute LDAP Cleanup Routine
-  include_tasks: cleanup/ldap.yml
+  include_tasks:
+    file: cleanup/ldap.yml
+    apply:
+      delegate_to: "{{ GITEA_HOST_NODE }}"
   when: not (GITEA_LDAP_ENABLED | bool)

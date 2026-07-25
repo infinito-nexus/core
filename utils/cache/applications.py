@@ -438,8 +438,11 @@ def get_canonical_volumes(application_id: str) -> dict[str, Any]:
 
 
 def _reset() -> None:
+    from plugins.lookup.application_gid import _discover_sorted_application_ids
+
     _APPLICATIONS_DEFAULTS_CACHE.clear()
     _VARIANTS_CACHE.clear()
     _VARIANT_OVERRIDES_ONLY_CACHE.clear()
     _MERGED_APPLICATIONS_CACHE.clear()
     _CANONICAL_VOLUMES_BY_ROLE.clear()
+    _discover_sorted_application_ids.cache_clear()

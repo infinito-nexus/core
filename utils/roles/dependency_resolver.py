@@ -98,7 +98,7 @@ class RoleDependencyResolver:
         if not Path(tasks_dir).is_dir():
             return include_roles, import_roles
 
-        all_roles = self._list_role_dirs(self.roles_dir)
+        all_roles = self._cached_role_dirs()
 
         candidates = []
         for root, _, files in os.walk(tasks_dir):
@@ -110,9 +110,6 @@ class RoleDependencyResolver:
 
         for file_path in candidates:
             try:
-                # Ansible task files are single-document. Wrap the cached
-                # parse in a list so the downstream multi-doc loop keeps
-                # the same shape.
                 doc = load_yaml_any(file_path, default_if_missing=None)
                 docs = [doc] if doc is not None else []
             except Exception:
@@ -249,10 +246,6 @@ class RoleDependencyResolver:
         return deps
 
     def _extract_meta_run_after(self, role_path: str) -> set[str]:
-        # `run_after` lives on the role's primary entity at
-        # `meta/services.yml.<primary_entity>.run_after`. Delegate to the
-        # canonical helper so the primary-entity derivation is in one
-        # place, and degrade gracefully if the file is absent.
         from utils.roles.meta_lookup import get_role_run_after
 
         try:
@@ -272,6 +265,13 @@ class RoleDependencyResolver:
         return [
             d for d in os.listdir(roles_dir) if Path(str(Path(roles_dir) / d)).is_dir()
         ]
+
+    def _cached_role_dirs(self) -> list[str]:
+        cached = getattr(self, "_role_dirs_cache", None)
+        if cached is None:
+            cached = self._list_role_dirs(self.roles_dir)
+            self._role_dirs_cache = cached
+        return cached
 
     @classmethod
     def _is_pure_jinja_var(cls, s: str) -> bool:

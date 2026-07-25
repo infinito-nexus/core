@@ -131,15 +131,23 @@ def total_state(modes: dict[str, str]) -> str:
 
 
 def failed_roles(
-    statuses: dict[str, dict[str, str]], scope: str = "total"
+    statuses: dict[str, dict[str, str]], scope: str = "total", *, strict: bool = False
 ) -> list[str]:
     """Roles that are not green for the given scope: ``total`` (a mode that ran
     is not green), ``swarm``, or ``docker`` (compose). A role with no job in the
     requested mode is skipped, not failed: a host driver that never deploys in
     swarm is not a swarm failure, only roles whose swarm job ran and did not pass
-    are."""
+    are.
+
+    With ``strict``, only a hard ``failure`` (❌) selects a role; cancelled,
+    timed-out, skipped (🚫) and still-running (⏳) modes do not.
+    """
 
     def fails(modes: dict[str, str]) -> bool:
+        if strict:
+            if scope == "total":
+                return any(state == "failure" for state in modes.values())
+            return modes.get(scope) == "failure"
         if scope == "total":
             return total_state(modes) != "success"
         return scope in modes and modes[scope] != "success"

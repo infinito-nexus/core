@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import functools
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_any
@@ -10,7 +12,6 @@ from utils.roles.validation.invokable import types_from_group_names
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from pathlib import Path
 
 
 class ServiceRegistryError(ValueError):
@@ -184,12 +185,17 @@ def build_service_registry_from_applications(
     return registry
 
 
+@functools.cache
+def _service_registry_by_roles_dir(roles_dir_key: str) -> dict[str, dict[str, Any]]:
+    return build_service_registry_from_applications(
+        load_applications_from_roles_dir(Path(roles_dir_key))
+    )
+
+
 def build_service_registry_from_roles_dir(
     roles_dir: Path,
 ) -> dict[str, dict[str, Any]]:
-    return build_service_registry_from_applications(
-        load_applications_from_roles_dir(roles_dir)
-    )
+    return _service_registry_by_roles_dir(str(Path(roles_dir).resolve()))
 
 
 def expand_service_tokens(tokens: list[str], roles_dir: Path) -> list[str]:
