@@ -1,16 +1,16 @@
-# Litellm
+# LiteLLM Gateway
 
 ## Description
 
-[Litellm](https://example.com/) is an application.
+[LiteLLM](https://docs.litellm.ai/) is an LLM gateway that exposes an OpenAI-compatible HTTP API and forwards each request to a configured model backend, local or hosted. Clients authenticate with virtual API keys that the gateway issues and stores in its own database.
 
 ## Overview
 
-This role deploys Litellm.
+This role deploys LiteLLM as a shared gateway container in Compose and Swarm deployments, backed by the central PostgreSQL service. The gateway is headless: it binds its HTTP port on the container host and claims no domain of its own, and the browser-facing surface is published separately by the LiteLLM Admin UI. It renders the model list from the interchangeable local backends available on the host, Ollama and LM Studio, and adds an OpenRouter entry when an OpenRouter API key is configured. Once the gateway is up, it provisions one virtual key per consuming application through the gateway admin API.
 
 ## Cosmos
 
-The diagram places Litellm in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+The diagram places LiteLLM Gateway in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
 
 ```mermaid
 flowchart LR
@@ -42,13 +42,17 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-- **Feature:** Describe a capability.
+- **OpenAI-compatible API:** One HTTP endpoint serves every model listed in the gateway configuration.
+- **Backend routing:** Model entries are generated for Ollama and LM Studio when those services run on the host, and for OpenRouter when its API key is set.
+- **Per-consumer virtual keys:** Each consuming application receives its own virtual key, created through the gateway admin API under an alias naming that application.
+- **File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off.
+- **Managed credentials:** The gateway master key and the admin UI password are generated and kept as role credentials, and the admin UI username is the platform administrator name.
 
 ## Quick Setup
 
 ### Development
 
-Clone, set up the workstation, and deploy Litellm onto the local stack:
+Clone, set up the workstation, and deploy LiteLLM Gateway onto the local stack:
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -59,7 +63,7 @@ make compose-deploy mode=reinstall apps=svc-ai-litellm full_cycle=false
 
 ### Production
 
-Run the published image to provision the inventory and deploy Litellm to a managed server (the mounted volume persists the inventory):
+Run the published image to provision the inventory and deploy LiteLLM Gateway to a managed server (the mounted volume persists the inventory):
 
 ```bash
 APP=svc-ai-litellm
@@ -84,6 +88,6 @@ docker run --rm -it \
 
 ## Credits
 
-Implemented by **Kevin Veen-Birkenbach**.
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

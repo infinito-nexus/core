@@ -2,7 +2,7 @@
 # nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Admin web UI for the shared LiteLLM gateway, proxied with authentication in front of svc-ai-litellm
+  description: Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

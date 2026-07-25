@@ -2,7 +2,7 @@
 # nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: OpenAI-compatible LLM gateway routing one /v1 endpoint to any model backend via LiteLLM
+  description: OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

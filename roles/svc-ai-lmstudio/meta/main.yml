@@ -2,7 +2,7 @@
 # nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Headless LM Studio model server exposing an OpenAI-compatible API on x86 nodes
+  description: Headless local model server for open LLMs with an OpenAI-compatible API on the container network
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

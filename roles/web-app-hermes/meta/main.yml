@@ -2,7 +2,7 @@
 # nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Self-hosted Hermes Agent employee running kernel-isolated, routed to models through the shared LLM gateway
+  description: Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

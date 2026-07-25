@@ -22,11 +22,13 @@ flowchart LR
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
+        dpt_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
         dpt_web_app_minio["web-app-minio 🐳🐝"]
         dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    svc_ollama -. "0..1" .-> dpt_svc_ai_litellm
     svc_ollama -. "0..1" .-> dpt_web_app_flowise
     svc_ollama -. "0..1" .-> dpt_web_app_minio
     svc_ollama -. "0..1" .-> dpt_web_app_openwebui

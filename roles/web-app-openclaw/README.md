@@ -1,16 +1,16 @@
-# Openclaw
+# OpenClaw
 
 ## Description
 
-[Openclaw](https://example.com/) is an application.
+[OpenClaw](https://openclaw.ai/) is an open-source personal AI agent that runs on hardware you control. It ships a gateway process with a browser Control UI next to its CLI and TUI, keeps persistent memory and a workspace on disk, and performs browser and filesystem tasks inside its own sandbox.
 
 ## Overview
 
-This role deploys Openclaw.
+This role deploys OpenClaw as a gateway container behind the reverse proxy on its own canonical domain. Its compose service is pinned to the isolating runtime that the Kata & gVisor role selects for the host, its gateway configuration file is rendered from the role, and its state directory is kept in a persistent volume. Access is fronted by an OAuth2 proxy with Keycloak sign-in when Keycloak is part of the deployment.
 
 ## Cosmos
 
-The diagram places Openclaw in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+The diagram places OpenClaw in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
 
 ```mermaid
 flowchart LR
@@ -27,6 +27,7 @@ flowchart LR
     end
     subgraph role [web-app-openclaw 🐳🐝]
         svc_openclaw["openclaw"]
+        svc_kata["kata"]
         svc_sso["sso"]
         svc_litellm["litellm"]
         svc_mcp["mcp"]
@@ -52,13 +53,20 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-- **Feature:** Describe a capability.
+- **Agent gateway:** The container runs the OpenClaw gateway bound to the LAN interface on port 18789, with an HTTP health check against `/healthz`.
+- **Isolating runtime:** The compose service is pinned to Kata Containers where `/dev/kvm` and the Kata shim are available, and to gVisor otherwise.
+- **Single sign-on:** When Keycloak is deployed, an OAuth2 proxy sits in front of the gateway and admits only members of the administrator group of this application.
+- **Gateway token:** A generated gateway token guards the Control UI and the API, and the Control UI accepts the canonical domain as its only allowed origin.
+- **Model gateway key:** With the LiteLLM Gateway deployed, that gateway provisions a per-consumer virtual key aliased to this application.
+- **MCP client contract:** With Home Assistant deployed, the role declares the MCP client side of the platform contract as an internal streamable-HTTP client with a read-only tool policy. The MCP server list itself lives in `openclaw.json`, not in the container environment.
+- **Persistent state:** Memory and workspace live in a volume mounted at `/home/node/.openclaw`, with the rendered `openclaw.json` mounted into it, and are included in the container volume backup when that service is deployed.
+- **Compose and Swarm:** The role deploys in both modes and renders the gateway configuration file for the local host and the swarm peers.
 
 ## Quick Setup
 
 ### Development
 
-Clone, set up the workstation, and deploy Openclaw onto the local stack:
+Clone, set up the workstation, and deploy OpenClaw onto the local stack:
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -69,7 +77,7 @@ make compose-deploy mode=reinstall apps=web-app-openclaw full_cycle=false
 
 ### Production
 
-Run the published image to provision the inventory and deploy Openclaw to a managed server (the mounted volume persists the inventory):
+Run the published image to provision the inventory and deploy OpenClaw to a managed server (the mounted volume persists the inventory):
 
 ```bash
 APP=web-app-openclaw
@@ -94,6 +102,6 @@ docker run --rm -it \
 
 ## Credits
 
-Implemented by **Kevin Veen-Birkenbach**.
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

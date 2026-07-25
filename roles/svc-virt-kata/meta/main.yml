@@ -1,8 +1,8 @@
 ---
-# nocheck: info-media Self-written host-provisioning role that installs the distro Kata Containers and gVisor runtimes and registers them with the container daemon; these are kernel-isolation runtimes, not consumer-facing upstream products.
+# nocheck: info-media Self-written host-provisioning role that installs the gVisor runtime and registers it together with an already-present Kata shim in the container daemon; these are kernel-isolation runtimes, not consumer-facing upstream products.
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Kernel-isolating container runtimes for the host - Kata with Firecracker plus the gVisor fallback
+  description: Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

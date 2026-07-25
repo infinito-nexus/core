@@ -2,7 +2,7 @@
 # nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Self-hosted OpenClaw personal agent employee running kernel-isolated, routed to models through the shared LLM gateway
+  description: Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach
