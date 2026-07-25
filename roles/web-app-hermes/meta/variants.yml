@@ -1,0 +1,48 @@
+---
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    container_backup:
+      enabled: true
+    litellm:
+      enabled: true
+      shared: true
+    mcp:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    css:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    litellm:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    mcp:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    css:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch

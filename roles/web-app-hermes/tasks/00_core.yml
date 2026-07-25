@@ -1,0 +1,9 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛡️ Select the isolating runtime for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/select_runtime.yml') }}"
+
+- name: "🧩 load docker and db for {{ application_id }}"
+  include_role:
+    name: sys-stk-full

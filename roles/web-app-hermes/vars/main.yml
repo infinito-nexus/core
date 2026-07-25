@@ -1,0 +1,10 @@
+---
+application_id: "web-app-hermes"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', application_id, 'services.hermes.ports.local.http') }}"
+
+HERMES_CONTAINER: "{{ lookup('config', application_id, 'services.hermes.name') }}"
+HERMES_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.hermes.ports.internal.http') }}"
+HERMES_API_SERVER_KEY: "{{ lookup('config', application_id, 'credentials.api_server_key') }}"
+HERMES_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
+HERMES_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"

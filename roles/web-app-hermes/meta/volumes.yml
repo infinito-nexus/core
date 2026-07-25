@@ -1,0 +1,6 @@
+---
+hermes_data:
+  type: volume
+  mounts:
+    - service: hermes
+      target: /opt/data
