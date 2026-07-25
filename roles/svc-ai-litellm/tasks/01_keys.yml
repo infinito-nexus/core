@@ -1,0 +1,26 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: LITELLM
+    resolve_compose_cid: "{{ LITELLM_CONTAINER }}"
+
+- name: "🔑 Ensure a virtual key exists per consumer"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e LITELLM_KEYS_PAYLOAD={{ LITELLM_CONSUMER_KEYS | to_json | quote }} -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c '
+    import json, os, urllib.request as R, urllib.error as E
+    base = "http://localhost:{{ LITELLM_PORT }}"; H = {"Authorization": "Bearer " + os.environ["LITELLM_MK"], "Content-Type": "application/json"}
+    def call(p, d=None):
+        q = R.Request(base + p, data=(json.dumps(d).encode() if d else None), headers=H, method="POST" if d else "GET"); return R.urlopen(q, timeout=30)
+    for e in json.loads(os.environ["LITELLM_KEYS_PAYLOAD"]):
+        try: call("/key/info?key=" + e["key"])
+        except E.HTTPError: call("/key/generate", {"key": e["key"], "key_alias": e["alias"]}); print("CHANGED " + e["alias"])
+    '
+  register: litellm_keys_result
+  retries: 10
+  delay: 6
+  until: litellm_keys_result.rc == 0
+  changed_when: "'CHANGED' in litellm_keys_result.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"

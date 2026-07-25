@@ -1,0 +1,6 @@
+---
+lmstudio_data:
+  type: volume
+  mounts:
+    - service: lmstudio
+      target: /root/.lmstudio
