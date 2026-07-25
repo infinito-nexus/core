@@ -9,7 +9,13 @@ from cli.administration.deploy.development.common import (
     make_compose,
     resolve_container,
 )
-from cli.administration.deploy.development.inventory import plan_dev_inventory_matrix
+from cli.administration.deploy.development.inventory import (
+    plan_dev_inventory_matrix,
+    prune_orphans_after_disable,
+)
+from cli.administration.deploy.development.inventory import (
+    _build_services_overrides_for_round as build_services_overrides_for_round,
+)
 from cli.administration.deploy.development.variant_select import (
     add_variant_args,
     apply_variant_filter,
@@ -132,9 +138,30 @@ def handler(args: argparse.Namespace) -> int:
         include_roles,
         purge_roles,
     ) in enumerate(plan):
-        round_deploy_ids = [
-            role for role in include_roles if role not in disabled_app_ids
-        ]
+        if disabled_app_ids:
+            round_overrides = build_services_overrides_for_round(
+                roles_dir=str(compose.repo_root / "roles"),
+                round_index=round_index,
+                primary_app_variants={
+                    a: round_variants[a]
+                    for a in primary_app_ids
+                    if a in round_variants
+                },
+            )
+            round_deploy_ids, pruned = prune_orphans_after_disable(
+                include=include_roles,
+                primary_apps=primary_app_ids,
+                disabled_app_ids=disabled_app_ids,
+                services_overrides=round_overrides,
+            )
+            round_deploy_ids = list(round_deploy_ids)
+            if pruned:
+                print(
+                    f">>> `disable` orphan-pruned {len(pruned)} transitive dep(s) "
+                    f"from round {round_index}: {','.join(pruned)}"
+                )
+        else:
+            round_deploy_ids = list(include_roles)
 
         if plan_index > 0:
             purge_targets = [

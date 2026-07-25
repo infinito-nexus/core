@@ -26,7 +26,8 @@ flowchart TD
 ```
 
 - `initialize` / `reinstall` rebuild the inventory through `init.py`; this
-  is the only path that prunes the include set.
+  is the only path that prunes the include set. `deploy` re-derives the
+  same pruned set for its deploy ids (see below).
 - `update` reuses the existing inventory; `disable` reaches ansible as an
   extra-var that renders services disabled, but does not touch the include.
 
@@ -48,6 +49,43 @@ flowchart TD
     H --> L["build_dev_inventory(round_include)"]
     K --> L
 ```
+
+## deploy/cli.py: re-derive the same include
+
+`init.py` writes the inventory; `deploy/cli.py` decides which application
+ids to hand to `cli.administration.deploy.dedicated`. Both derive their
+per-round set from the same `plan_dev_inventory_matrix` closure and MUST
+apply the same `prune_orphans_after_disable` cut with the same
+round-merged services map. `validate_application_ids` rejects any id that
+is absent from the inventory, so a deploy-side set wider than the
+init-side set aborts the run before the first role deploys.
+
+```mermaid
+flowchart TD
+    PLAN["plan_dev_inventory_matrix(primary_apps)"] --> IR["include_R (per round)"]
+
+    IR --> INITP{"disable set?"}
+    INITP -->|yes| IP["prune_orphans_after_disable"]
+    INITP -->|no| IK["include_R"]
+    IP --> IW["build_dev_inventory → inventory dir"]
+    IK --> IW
+
+    IR --> DEPP{"disable set?"}
+    DEPP -->|yes| DP["prune_orphans_after_disable<br/>(same round_overrides)"]
+    DEPP -->|no| DK["include_R"]
+    DP --> DD["round_deploy_ids"]
+    DK --> DD
+
+    DD --> VAL{"validate_application_ids<br/>vs inventory"}
+    IW --> VAL
+    VAL -->|equal sets| RUN["ansible-playbook"]
+    VAL -->|deploy ⊃ inventory| ABORT["exit 1: not present in inventory"]:::abort
+    classDef abort fill:#fee,stroke:#c00;
+```
+
+Both sides pass `primary_apps` (not the round closure) as the BFS seed and
+the variant-merged services map for that round, so the reachability walk
+sees the same topology the inventory baked.
 
 ## Closure resolution (per round)
 
