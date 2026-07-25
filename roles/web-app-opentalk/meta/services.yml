@@ -82,7 +82,7 @@ controller:
 livekit:
   name: opentalk-livekit
   image: livekit/livekit-server
-  version: v1.13.3
+  version: v1.13.4
   min_storage: 1GB
   cpus: "2.0"
   mem_reservation: 512m
@@ -113,7 +113,7 @@ seaweedfs:
 rabbit:
   name: opentalk-rabbit
   image: rabbitmq
-  version: 4.3.2
+  version: 4.3.4
   min_storage: 2GB
   cpus: "0.5"
   mem_reservation: 256m
