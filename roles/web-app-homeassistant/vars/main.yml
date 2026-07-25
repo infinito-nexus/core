@@ -1,0 +1,7 @@
+---
+application_id: "web-app-homeassistant"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', application_id, 'services.homeassistant.ports.local.http') }}"
+
+HOMEASSISTANT_CONTAINER: "{{ lookup('config', application_id, 'services.homeassistant.name') }}"
+HOMEASSISTANT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'configuration.yaml' ] | path_join }}"
