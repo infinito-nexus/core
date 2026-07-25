@@ -436,6 +436,72 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         result = self._run(["logout"], applications)[0]
         self.assertEqual([r["id"] for r in result], ["web-app-bar", "web-app-foo"])
 
+    def _mcp_role(self, direction: str, **mcp_extra) -> dict:
+        mcp = {
+            "enabled": True,
+            "shared": True,
+            "direction": direction,
+            "transport": "streamable_http",
+            "auth": "bearer_token",
+            "auth_subject": "user",
+            "endpoint": {
+                "service_key": "baserow",
+                "path": "/mcp",
+                "port_key": "http",
+            },
+        }
+        mcp.update(mcp_extra)
+        return {
+            "services": {
+                "mcp": mcp,
+                "baserow": {"ports": {"local": {"http": 8021}}},
+            },
+            "domains": {"canonical": ["srv.example.com"]},
+        }
+
+    def test_direction_filter_excludes_other_direction(self):
+        applications = {
+            "web-app-server": self._mcp_role("server"),
+            "web-app-client": self._mcp_role("client"),
+        }
+        result = self._run(["mcp"], applications, direction="server")[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-server"])
+
+    def test_direction_filter_includes_both(self):
+        applications = {"web-app-duplex": self._mcp_role("both")}
+        result = self._run(["mcp"], applications, direction="server")[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-duplex"])
+
+    def test_direction_entry_carries_endpoint_metadata(self):
+        applications = {"web-app-server": self._mcp_role("server")}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["transport"], "streamable_http")
+        self.assertEqual(entry["auth"], "bearer_token")
+        self.assertEqual(entry["auth_subject"], "user")
+        self.assertEqual(
+            entry["endpoint"],
+            {
+                "service_key": "baserow",
+                "path": "/mcp",
+                "health_path": None,
+                "port": 8021,
+            },
+        )
+
+    def test_direction_endpoint_port_falls_back_to_internal(self):
+        role = self._mcp_role("server")
+        role["services"]["baserow"] = {"ports": {"internal": {"http": 80}}}
+        applications = {"web-app-server": role}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["endpoint"]["port"], 80)
+
+    def test_without_direction_kwarg_shape_is_unchanged(self):
+        applications = {"web-app-server": self._mcp_role("server")}
+        entry = self._run(["mcp"], applications)[0][0]
+        self.assertEqual(
+            sorted(entry), ["canonical_domain", "canonical_url", "id", "iframe"]
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
