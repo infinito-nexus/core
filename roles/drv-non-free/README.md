@@ -49,7 +49,7 @@ make compose-deploy mode=reinstall apps=drv-non-free full_cycle=false
 
 ### Production
 
-Install Proprietary Drivers directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
+Install Proprietary Drivers directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git

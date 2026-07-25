@@ -61,7 +61,7 @@ make compose-deploy mode=reinstall apps=svc-swarm-node full_cycle=false
 
 ### Production
 
-Install Docker Swarm directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
+Install Docker Swarm directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git

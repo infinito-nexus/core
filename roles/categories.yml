@@ -204,8 +204,7 @@ roles:
       invokable: true
     virt:
       title: "Sandboxed Runtimes"
-      description: "Kernel-isolating container runtimes — Kata Containers with Firecracker microVMs and the gVisor userspace fallback — installed on the container
-        host."
+      description: "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
       icon: "fas fa-shield-halved"
       bootstrap: true
       modes:
