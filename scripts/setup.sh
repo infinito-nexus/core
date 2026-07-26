@@ -3,14 +3,8 @@ set -euo pipefail
 
 echo "🔧 Running project setup (no installation)"
 
-# ------------------------------------------------------------
-# Hard-coded configuration (NOT overridable)
-# ------------------------------------------------------------
-# Prefer Makefile-provided venv interpreter (exported as PYTHON).
-# Fallback to python3 if not set.
 : "${PYTHON:?PYTHON must be set by Makefile (venv python3)}"
 
-# Optional: show interpreter for debugging
 echo "🐍 Using PYTHON=${PYTHON}"
 if command -v "${PYTHON}" >/dev/null 2>&1; then
 	"${PYTHON}" -c 'import sys; print("sys.executable=", sys.executable)' || true
@@ -61,13 +55,22 @@ log_section() {
 	echo "------------------------------------------------------------"
 }
 
-# ------------------------------------------------------------
-# Role include files
-# ------------------------------------------------------------
 log_section "🧩 Generating role include files"
 mkdir -p "${INCLUDES_OUT_DIR}"
 
 mapfile -t INCLUDE_GROUPS < <("${PYTHON}" -m cli.meta.categories.invokable -s "-")
+
+for existing in "${INCLUDES_OUT_DIR}"/*-roles.yml; do
+	[[ -e "${existing}" ]] || continue
+	keep=0
+	for grp in "${INCLUDE_GROUPS[@]}"; do
+		[[ "${existing}" == "${INCLUDES_OUT_DIR}/${grp}roles.yml" ]] && keep=1
+	done
+	if [[ "${keep}" -eq 0 ]]; then
+		echo "→ Removing stale ${existing}"
+		rm -f "${existing}"
+	fi
+done
 
 for grp in "${INCLUDE_GROUPS[@]}"; do
 	[[ -z "${grp}" ]] && continue

@@ -60,6 +60,7 @@ flowchart LR
         svc_periodic["periodic"]
         svc_recordings["recordings"]
         svc_bbb_webrtc_recorder["bbb-webrtc-recorder"]
+        svc_dockerize["dockerize"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
