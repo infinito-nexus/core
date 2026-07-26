@@ -187,6 +187,12 @@ bbb-webrtc-recorder:
   image: alangecker/bbb-docker-webrtc-recorder
   version: "v0.14.0"
   enabled: false
+# nocheck: playwright-service-flag: script-time helper of upstream generate-compose, mirror pre-pull only
+# nocheck: dynamic-flag: fixed upstream-compose helper, not group-gated
+dockerize:
+  image: jwilder/dockerize
+  version: "latest"
+  enabled: false
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

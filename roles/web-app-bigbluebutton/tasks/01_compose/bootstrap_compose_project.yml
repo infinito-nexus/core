@@ -1,4 +1,15 @@
 ---
+- name: "⬇️ Pre-pull the dockerize helper generate-compose runs via docker run"
+  command:
+    cmd: "docker pull {{ lookup('image', application_id, 'dockerize', tag_only=True) }}"
+  register: bbb_dockerize_pull
+  retries: 10
+  delay: 6
+  until: bbb_dockerize_pull.rc == 0
+  changed_when: false
+- name: "🏷️ Tag dockerize as jwilder/dockerize:latest so the upstream script finds it locally"
+  command:
+    cmd: "docker tag {{ lookup('image', application_id, 'dockerize', tag_only=True) }} jwilder/dockerize:latest"
 - name: "📁 create compose.yml for bigbluebutton"
   command:
     cmd: bash ./scripts/generate-compose
