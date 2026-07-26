@@ -34,11 +34,14 @@
 - name: "🔄 flush handlers so Zammad init starts with auto_wizard.json bind-mounted"
   meta: flush_handlers
 
-- name: "⏳ wait for the Zammad Rails server to answer"
+- name: "⏳ wait for Zammad init (seeds + pk-sequence reset) to finish"
   ansible.builtin.shell: |
     set -eo pipefail
     container exec {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
-      bundle exec rails r 'Setting.any? || raise'
+      bundle exec rails r '
+        raise unless Setting.any?
+        raise unless ActiveRecord::Base.connection.select_value("SELECT is_called FROM users_id_seq")
+      '
   register: zammad_rails_ready
   changed_when: false
   retries: 60
