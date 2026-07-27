@@ -1,6 +1,18 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🛑 Refuse to promise isolation that no node can carry"
+  ansible.builtin.assert:
+    that:
+      - (groups['svc-virt-kata'] | default([])) | difference(groups['svc-swarm-manager'] | default([])) | length > 0
+    fail_msg: >-
+      Swarm drops the per-service runtime key, so the sandbox can only be a
+      worker's node-wide default-runtime; the stack host keeps the shared
+      kernel for the platform's own services. Add svc-virt-kata to at least
+      one worker, otherwise the placement constraint matches no node and the
+      sandboxed service stays pending forever.
+  when: DEPLOYMENT_MODE == 'swarm'
+
 - name: "📦 Install the gVisor userspace kernel (runsc)"
   get_url_retry:
     url: "{{ SVC_VIRT_KATA_RUNSC_URL }}"
@@ -11,17 +23,21 @@
     group: root
   become: true
 
-- name: "🧩 Select the isolating runtime for this host"
-  ansible.builtin.include_tasks: utils/select_runtime.yml
-
 - name: "🔧 Register the runtimes with the container daemon"
   ansible.builtin.include_role:
     name: sys-svc-container
+    tasks_from: daemon_config.yml
 
-- name: "🏷️ Label this node as sandbox-capable"
+- name: "🔄 Restart the container daemon onto the sandbox runtime"
+  meta: flush_handlers
+
+- name: "🏷️ Label this node as kata-capable"
   ansible.builtin.command: >-
-    container node update --label-add {{ SANDBOX_NODE_LABEL }}={{ SANDBOX_RUNTIME }}
+    container node update --label-add {{ SANDBOX_NODE_LABEL }}=true
     {{ ansible_facts['hostname'] }}
-  changed_when: true
+  register: svc_virt_kata_label
+  changed_when: svc_virt_kata_label.rc == 0
   delegate_to: "{{ STACK_HOST }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)

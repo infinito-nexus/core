@@ -1,0 +1,43 @@
+---
+- name: "🔍 Probe hardware virtualization"
+  ansible.builtin.stat:
+    path: /dev/kvm
+  register: sys_svc_container_kvm
+
+- name: "🔍 Probe the Kata shim"
+  ansible.builtin.stat:
+    path: "{{ KATA_SHIM_BINARY }}"
+  register: sys_svc_container_kata_shim
+
+- name: "🔍 Probe the gVisor shim"
+  ansible.builtin.stat:
+    path: "{{ RUNSC_SHIM_BINARY }}"
+  register: sys_svc_container_runsc_shim
+
+- name: "🧩 Publish the isolating runtime this host can carry"
+  ansible.builtin.set_fact:
+    SANDBOX_RUNTIME: >-
+      {{
+        'kata'
+        if (
+          sys_svc_container_kvm.stat.exists
+          and sys_svc_container_kata_shim.stat.exists
+          and not (DOCKER_IN_CONTAINER | bool)
+        )
+        else 'runsc'
+      }}
+
+- name: "📣 Report the isolation tier"
+  ansible.builtin.debug:
+    msg: >-
+      /dev/kvm {{ 'present' if sys_svc_container_kvm.stat.exists else 'absent' }},
+      kata shim {{ 'present' if sys_svc_container_kata_shim.stat.exists else 'absent' }},
+      gVisor shim {{ 'present' if sys_svc_container_runsc_shim.stat.exists else 'absent' }},
+      docker-in-docker {{ DOCKER_IN_CONTAINER | bool }} -> {{ SANDBOX_RUNTIME }}
+
+- name: "🔧 Configure the container daemon"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host docker daemon config, runs on every container-host)
+    src: daemon.json.j2
+    dest: "{{ SYS_SVC_DOCKER_DAEMON }}"
+    mode: "0644"
+  notify: container manager restart

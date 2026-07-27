@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role provisions the isolating runtime layer of a container host. It installs the pinned gVisor binary, probes the host for hardware virtualization and for an already-installed Kata shim, publishes the runtime that this host can carry as `SANDBOX_RUNTIME`, and registers both runtimes with the container daemon. In swarm mode it additionally labels the node with the runtime that was selected for it.
+This role provisions the isolating runtime layer of a container host. It installs the pinned gVisor binary, then re-runs the daemon configuration of the container role so the freshly installed runtime is registered and the daemon is restarted onto it. In swarm mode it additionally labels the node as sandbox-isolating, which is the placement constraint that keeps sandboxed workloads off nodes that still default to the shared kernel.
 
 ## Cosmos
 
@@ -24,10 +24,11 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Features
 
 - **gVisor runtime:** The pinned `runsc` release is fetched to `/usr/local/bin/runsc` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it.
-- **Runtime probing:** Every host is checked for `/dev/kvm`, for the Kata shim binary and for docker-in-docker, and the resulting choice between `kata` and `runsc` is published as `SANDBOX_RUNTIME` and logged at deploy time.
-- **Daemon registration:** `kata` and `runsc` are added as named runtimes to the container daemon configuration and picked up by a daemon restart, on a bare host and inside docker-in-docker alike.
-- **Node labelling:** In swarm mode the node is labelled `kata-capable` with the runtime that was selected for it.
-- **Runtime pinning:** Hermes Agent and OpenClaw include the same selection tasks and pin the selected runtime on their compose services.
+- **Runtime probing:** The container role checks every host for `/dev/kvm`, for the Kata shim binary and for docker-in-docker, and publishes the resulting choice between `kata` and `runsc` as `SANDBOX_RUNTIME`.
+- **Daemon registration:** Only runtimes whose binary is present are written to the daemon configuration, on a bare host and inside docker-in-docker alike. A daemon pointed at an absent runtime path refuses to start, so this role installs first and re-renders the configuration afterwards.
+- **Swarm default runtime:** `docker stack deploy` drops the per-service `runtime:` key, so a swarm worker carries the sandbox as its daemon-wide `default-runtime` instead. The stack host keeps the shared kernel for the platform's own services.
+- **Node labelling:** In swarm mode the node is labelled `kata-capable=true`, and sandboxed services are constrained to that label. A deploy without a single such node is refused rather than left pending.
+- **Runtime pinning:** In compose mode Hermes Agent and OpenClaw pin `SANDBOX_RUNTIME` on their service directly.
 
 ## Quick Setup
 

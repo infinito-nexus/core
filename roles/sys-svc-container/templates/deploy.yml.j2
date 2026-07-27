@@ -3,10 +3,19 @@
 {% set _replicas = lookup('applications') | resource_filter(application_id, 'replicas', service_name | default(''), '') %}
     deploy:
       {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
+{% set _constraints = [] %}
 {% if application_id in lookup('roles_with_placement', 'manager') %}
+{% set _ = _constraints.append('node.role == manager') %}
+{% endif %}
+{% if lookup('config', application_id, 'services.kata.enabled', false) | bool %}
+{% set _ = _constraints.append('node.labels.' ~ SANDBOX_NODE_LABEL ~ ' == true') %}
+{% endif %}
+{% if _constraints | length > 0 %}
       placement:
         constraints:
-          - node.role == manager
+{% for _constraint in _constraints %}
+          - {{ _constraint }}
+{% endfor %}
 {% endif %}
       update_config:
         parallelism: {{ service_update_parallelism | default(1) }}

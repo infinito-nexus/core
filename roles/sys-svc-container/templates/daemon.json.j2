@@ -31,13 +31,21 @@
 {% if _cache_hosts | length > 0 %},
   "registry-mirrors": ["http://{{ _cache_hosts[0] }}:{{ _cache_port }}"]
 {% endif %}
-{% if 'svc-virt-kata' in group_names %},
+{% set _shim_paths = {'kata': KATA_SHIM_BINARY, 'runsc': RUNSC_SHIM_BINARY} %}
+{% set _present = [] %}
+{% if 'svc-virt-kata' in group_names %}
+{% if sys_svc_container_kata_shim.stat.exists %}{% set _ = _present.append('kata') %}{% endif %}
+{% if sys_svc_container_runsc_shim.stat.exists %}{% set _ = _present.append('runsc') %}{% endif %}
+{% endif %}
+{% if _present | length > 0 %},
   "runtimes": {
-    "kata": {"path": "{{ KATA_SHIM_BINARY }}"},
-    "runsc": {"path": "{{ RUNSC_SHIM_BINARY }}"{% if DOCKER_IN_CONTAINER | bool %}, "runtimeArgs": ["--network=host"]{% endif %}}
+{% for _name in _present %}
+    "{{ _name }}": {"path": "{{ _shim_paths[_name] }}"{% if _name == 'runsc' and DOCKER_IN_CONTAINER | bool %}, "runtimeArgs": ["--network=host"]{% endif %}}{% if not loop.last %},{% endif %}
+
+{% endfor %}
   }
-{% if SANDBOX_DEFAULT_RUNTIME | length > 0 %},
-  "default-runtime": "{{ SANDBOX_DEFAULT_RUNTIME }}"
+{% if DEPLOYMENT_MODE == 'swarm' and not (IS_STACK_HOST | bool) and (SANDBOX_RUNTIME | trim) in _present %},
+  "default-runtime": "{{ SANDBOX_RUNTIME | trim }}"
 {% endif %}
 {% endif %}
 }
