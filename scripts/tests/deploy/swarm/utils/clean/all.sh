@@ -83,10 +83,11 @@ if sudo -n true 2>/dev/null; then
 	echo ">>> clearing wedged kernel NFS on host (sudo)"
 	sudo umount -f -l "${INFINITO_DIR_VAR_LIB:?}" 2>/dev/null || true
 	sudo exportfs -ua 2>/dev/null || true
-	sudo systemctl restart docker
-	echo ">>> docker restarted; D-state remnants cleared"
+	sudo systemctl restart containerd docker
+	echo ">>> containerd and docker restarted; D-state remnants cleared"
 else
-	echo "!!! sudo unavailable here (sandbox). Clear on the host:"
-	echo "    sudo umount -f -l ${INFINITO_DIR_VAR_LIB}; sudo exportfs -ua; sudo systemctl restart docker"
+	echo "!!! sudo unavailable here (sandbox). Clear on the host (this kills every container):"
+	echo "    sudo umount -f -l ${INFINITO_DIR_VAR_LIB}; sudo exportfs -ua; sudo systemctl restart containerd docker"
+	echo "    Never run this while a deploy is in flight: it wipes every exec instance and the run dies."
 	exit 1
 fi
