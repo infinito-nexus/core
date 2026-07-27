@@ -7,8 +7,12 @@
 {% if application_id in lookup('roles_with_placement', 'manager') %}
 {% set _ = _constraints.append('node.role == manager') %}
 {% endif %}
+{% if groups['svc-virt-kata'] is defined %}
 {% if lookup('config', application_id, 'services.kata.enabled', false) | bool %}
 {% set _ = _constraints.append('node.labels.' ~ SANDBOX_NODE_LABEL ~ ' == true') %}
+{% else %}
+{% set _ = _constraints.append('node.labels.' ~ SANDBOX_NODE_LABEL ~ ' != true') %}
+{% endif %}
 {% endif %}
 {% if _constraints | length > 0 %}
       placement:
