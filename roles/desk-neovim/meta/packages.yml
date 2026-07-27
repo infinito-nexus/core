@@ -1,0 +1,13 @@
+---
+neovim:
+  Archlinux:
+    - neovim
+  Debian:
+    - neovim
+  RedHat:
+    - neovim
+  centos:
+    names:
+      - neovim
+    repo:
+      bootstrap_package: epel-release

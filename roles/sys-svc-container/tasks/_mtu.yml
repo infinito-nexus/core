@@ -7,11 +7,10 @@
     global_install: true
 
 - name: ✅ Ensure 'ip' and 'ping' commands are available for automtu
-  ansible.builtin.package:
-    name:
-      - "{{ SYS_SVC_CONTAINER_IPROUTE_PACKAGE_BY_OS_FAMILY.get(ansible_facts['os_family'], 'iproute2') }}"
-      - "{{ SYS_SVC_CONTAINER_PING_PACKAGE_BY_OS_FAMILY.get(ansible_facts['os_family'], 'iputils-ping') }}"
-    state: present
+  package_install:
+    id:
+      - iproute
+      - iputils-ping
 
 - name: 🔍 Detect safe Docker MTU
   ansible.builtin.command:

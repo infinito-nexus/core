@@ -1,10 +1,10 @@
 ---
 all:
   vars:
-    SYS_PACKAGES:
+    PACKAGES:
       - cmake
       - fdupes
-      - p7zip
+      - 7zip
     infinito:
       bundle:
         title: "Workstation Python Dev"

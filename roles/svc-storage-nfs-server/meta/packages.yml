@@ -1,0 +1,52 @@
+---
+e2fsprogs:
+  Archlinux:
+    - e2fsprogs
+  Debian:
+    - e2fsprogs
+  RedHat:
+    - e2fsprogs
+
+libntirpc:
+  Archlinux: [] # nocheck: empty - the AUR build compiles its own ntirpc submodule; TODO: revisit if the AUR build ever links against a system ntirpc
+  Debian: [] # nocheck: empty - the packaged nfs-ganesha links against a matching libntirpc, only Fedora ships a broken pair; TODO: revisit if Debian ever ships a mismatched nfs-ganesha and libntirpc pair
+  RedHat: [] # nocheck: empty - only the Fedora override needs the upgrade; the CentOS SIG build is self-consistent; TODO: revisit if the CentOS SIG build ever needs the same upgrade as Fedora
+  fedora:
+    names:
+      - libntirpc
+    repo:
+      enable_existing: updates-testing
+      state: latest
+
+nfs-ganesha:
+  Archlinux:
+    source: aur
+    names:
+      - nfs-ganesha
+  Debian:
+    - nfs-ganesha
+    - nfs-ganesha-vfs
+  RedHat:
+    - nfs-ganesha
+    - nfs-ganesha-vfs
+  centos:
+    names:
+      - nfs-ganesha
+      - nfs-ganesha-vfs
+    repo:
+      name: centos-nfs-ganesha11
+      description: CentOS Storage SIG nfs-ganesha 11
+      baseurl: https://mirror.stream.centos.org/SIGs/$releasever-stream/storage/$basearch/nfsganesha-11/
+      gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-Storage
+
+nfs-kernel-server:
+  Archlinux: [] # nocheck: empty - the kernel server ships inside nfs-utils, installed through the nfs-client id; TODO: revisit if the family ever splits the kernel server out of nfs-utils
+  Debian:
+    - nfs-kernel-server
+  RedHat: [] # nocheck: empty - the kernel server ships inside nfs-utils, installed through the nfs-client id; TODO: revisit if the family ever splits the kernel server out of nfs-utils
+
+selinux-python-binding:
+  Archlinux: [] # nocheck: empty - SELinux is not the mandatory access control on this family; TODO: implement the AppArmor equivalent if this family ever needs export confinement
+  Debian: [] # nocheck: empty - SELinux is not the mandatory access control on this family; TODO: implement the AppArmor equivalent if this family ever needs export confinement
+  RedHat:
+    - python3-libselinux

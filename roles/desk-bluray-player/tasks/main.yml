@@ -1,15 +1,4 @@
 ---
 - name: 📦 install vlc and blu ray software
-  package:
-    name:
-      - vlc
-      - libaacs
-      - libbluray
-    state: present
-#- name: install AUR packages to play blu ray
-#  kewlfft.aur.aur:
-#    use: yay
-#    name:
-#      - aacskeys
-#      - libbdplus
-#  become: false
+  package_install:
+    id: vlc-bluray

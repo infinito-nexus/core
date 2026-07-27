@@ -1,13 +1,8 @@
 ---
 - name: ✅ Ensure hostname package is installed
   become: true
-  ansible.builtin.package:
-    name: >
-      {{
-        'inetutils' if ansible_facts.os_family == 'Archlinux' else
-        'hostname'
-      }}
-    state: present
+  package_install:
+    id: hostname-tool
   when: not DOCKER_IN_CONTAINER | bool
 
 - block:
@@ -25,10 +20,8 @@
 
 - name: ✅ Ensure nss-myhostname is installed so *.localhost resolves to loopback
   become: true
-  ansible.builtin.package:
-    name: libnss-myhostname
-    state: present
-  when: ansible_facts.os_family == 'Debian'
+  package_install:
+    id: nss-myhostname
 
 - name: ✅ Ensure nsswitch resolves hosts via myhostname
   become: true

@@ -1,0 +1,40 @@
+---
+docker-cli:
+  Archlinux:
+    - docker
+    - docker-buildx
+    - docker-compose
+  Debian:
+    names:
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-ce
+      - docker-ce-cli
+      - docker-compose-plugin
+    repo:
+      managed_externally: sys-svc-container configures the download.docker.com repository per distro before installing
+  RedHat:
+    names:
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-ce
+      - docker-ce-cli
+      - docker-compose-plugin
+    repo:
+      managed_externally: sys-svc-container configures the download.docker.com repository per distro before installing
+
+iproute:
+  Archlinux:
+    - iproute2
+  Debian:
+    - iproute2
+  RedHat:
+    - iproute
+
+iputils-ping:
+  Archlinux:
+    - iputils
+  Debian:
+    - iputils-ping
+  RedHat:
+    - iputils

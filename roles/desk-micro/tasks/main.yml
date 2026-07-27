@@ -1,6 +1,4 @@
 ---
 - name: 📦 install micro
-  package:
-    name:
-      - micro
-    state: present
+  package_install:
+    id: micro

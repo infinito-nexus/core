@@ -1,5 +1,4 @@
 ---
 - name: ✅ Ensure Node.js is installed
-  package:
-    name: nodejs
-    state: present
+  package_install:
+    id: nodejs

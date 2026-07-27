@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # Base image (pkgmgr) selector. SPOT lives in default.env's
 # INFINITO_PARENT_IMAGE and is forwarded as a build arg by compose.yml /
 # scripts/image/build.sh.

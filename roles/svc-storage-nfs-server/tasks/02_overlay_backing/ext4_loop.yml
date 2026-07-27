@@ -1,8 +1,7 @@
 ---
 - name: "📦 Ensure e2fsprogs is installed for mkfs.ext4"
-  ansible.builtin.package:
-    name: e2fsprogs
-    state: present
+  package_install:
+    id: e2fsprogs
 
 - name: "✅ Refuse to mount over a non-empty export base"
   ansible.builtin.command:

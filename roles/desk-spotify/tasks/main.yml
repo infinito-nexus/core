@@ -1,11 +1,8 @@
 ---
 - block:
     - name: 📦 install spotify
-      include_role:
-        name: sys-aur-install
-      vars:
-        yay_install_packages:
-          - spotify
+      package_install:
+        id: spotify
 
     - include_tasks: utils/once/flag.yml
   when: run_once_desk_spotify is not defined

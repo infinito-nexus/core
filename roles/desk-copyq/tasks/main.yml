@@ -1,8 +1,7 @@
 ---
 - name: 📦 Install CopyQ clipboard manager
-  package:
-    name: copyq
-    state: present
+  package_install:
+    id: copyq
 
 - name: ✅ Ensure autostart directory exists
   file:

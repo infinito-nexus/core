@@ -1,7 +1,7 @@
 ---
 all:
   vars:
-    SYS_PACKAGES:
+    PACKAGES:
       - 0ad
       - warzone2100
       - supertuxkart
@@ -20,6 +20,3 @@ all:
   hosts:
     workstation:
   children:
-    sys-package:
-      hosts:
-        workstation:

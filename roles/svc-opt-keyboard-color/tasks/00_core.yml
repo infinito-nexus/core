@@ -1,16 +1,10 @@
 ---
 - include_role:
-    name: "{{ item }}"
-  loop:
-    - sys-aur
-    - sys-ctl-alm-compose
+    name: sys-ctl-alm-compose
 
 - name: 📦 Install MSI packages
-  include_role:
-    name: sys-aur-install
-  vars:
-    yay_install_packages:
-      - msi-perkeyrgb
+  package_install:
+    id: msi-perkeyrgb
 
 - include_role:
     name: sys-service

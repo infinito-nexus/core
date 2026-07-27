@@ -1,11 +1,8 @@
 ---
 - block:
     - name: 📦 install video conference software
-      include_role:
-        name: sys-aur-install
-      vars:
-        yay_install_packages:
-          - zoom
+      package_install:
+        id: zoom
 
     - include_tasks: utils/once/flag.yml
   when: run_once_desk_zoom is not defined

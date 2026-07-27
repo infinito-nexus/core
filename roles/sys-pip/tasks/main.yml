@@ -5,14 +5,8 @@
       when: run_once_dev_gcc is not defined
 
     - name: 🐍 python pip install
-      ansible.builtin.package:
-        name: >-
-          {{
-            'python-pip'
-            if ansible_facts['distribution'] == 'Archlinux'
-            else 'python3-pip'
-          }}
-        state: present
+      package_install:
+        id: python-pip
 
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_pip is not defined

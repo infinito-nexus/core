@@ -9,6 +9,6 @@
     insertafter: "^\\[options\\]"
 
 - name: "🔄 update (pacman) | refresh pacman cache and upgrade all installed packages"
-  community.general.pacman:
+  community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
     update_cache: true
     upgrade: true

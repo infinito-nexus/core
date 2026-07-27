@@ -1,0 +1,5 @@
+---
+mhwd:
+  Archlinux: [] # nocheck: empty - mhwd ships only from Manjaro's own repositories, which neither archlinux.org nor the AUR indexes; Manjaro carries it in the base install; TODO: revisit if mhwd is ever published outside Manjaro's own repositories
+  Debian: [] # nocheck: empty - mhwd is Manjaro's hardware detection tool and has no counterpart on this family; TODO: revisit if a hardware detection counterpart is ever adopted for this family
+  RedHat: [] # nocheck: empty - mhwd is Manjaro's hardware detection tool and has no counterpart on this family; TODO: revisit if a hardware detection counterpart is ever adopted for this family

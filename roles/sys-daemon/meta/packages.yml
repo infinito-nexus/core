@@ -1,0 +1,8 @@
+---
+systemd-tools:
+  Archlinux:
+    - systemd
+  Debian:
+    - systemd
+  RedHat:
+    - systemd

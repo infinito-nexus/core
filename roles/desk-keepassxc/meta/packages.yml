@@ -1,0 +1,13 @@
+---
+keepassxc:
+  Archlinux:
+    - keepassxc
+  Debian:
+    - keepassxc
+  RedHat:
+    - keepassxc
+  centos:
+    names:
+      - keepassxc
+    repo:
+      bootstrap_package: epel-release

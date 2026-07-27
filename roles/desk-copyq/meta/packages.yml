@@ -1,0 +1,9 @@
+---
+copyq:
+  Archlinux:
+    - copyq
+  Debian:
+    - copyq
+  RedHat:
+    - copyq
+  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry copyq; TODO: install from Flathub

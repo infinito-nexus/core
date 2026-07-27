@@ -8,10 +8,8 @@
     - sys-ctl-alm-compose
 
 - name: 📦 install certbot
-  package:
-    name:
-      - certbot-nginx
-    state: present
+  package_install:
+    id: certbot-nginx
 
 - include_role:
     name: sys-service

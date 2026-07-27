@@ -1,8 +1,7 @@
 ---
 - name: 📦 install certbot
-  package:
-    name: certbot
-    state: present
+  package_install:
+    id: certbot
 
 - name: "📂 Include tasks for 'No-Webroot-ACME-CHALLENGE-METHOD'"
   include_tasks: 01_no_webroot.yml

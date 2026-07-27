@@ -1,0 +1,12 @@
+---
+nodejs:
+  Archlinux:
+    - nodejs
+  Debian:
+    - nodejs
+  RedHat:
+    - nodejs
+  fedora:
+    names:
+      - nodejs
+    virtual: true

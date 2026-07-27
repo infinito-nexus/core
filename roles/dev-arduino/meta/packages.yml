@@ -1,0 +1,9 @@
+---
+arduino-ide:
+  Archlinux:
+    source: aur
+    names:
+      - arduino
+  Debian:
+    - arduino
+  RedHat: [] # nocheck: empty - the Arduino IDE is packaged in neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: install the upstream AppImage through a build source

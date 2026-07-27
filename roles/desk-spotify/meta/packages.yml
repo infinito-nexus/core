@@ -1,0 +1,8 @@
+---
+spotify:
+  Archlinux:
+    source: aur
+    names:
+      - spotify
+  Debian: [] # nocheck: empty - the Spotify client is proprietary and shipped only from Spotify's own apt repository, not the Debian or Ubuntu archives; TODO: install from Spotify's apt repository once the plan supports a signed third-party apt source
+  RedHat: [] # nocheck: empty - the Spotify client is proprietary and carried by neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: install from Flathub

@@ -8,7 +8,7 @@
     insertafter: "^\\[main\\]"
 
 - name: "🔄 update (dnf) | refresh dnf cache and upgrade all installed packages"
-  ansible.builtin.dnf:
+  ansible.builtin.dnf: # nocheck: dynamic-package - full-system upgrade, not a package install
     name: "*"
     state: latest
     update_cache: true

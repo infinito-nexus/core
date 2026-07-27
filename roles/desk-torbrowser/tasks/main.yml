@@ -1,7 +1,4 @@
 ---
 - name: 📦 Install torbrowser
-  package:
-    name:
-      - tor
-      - torbrowser-launcher
-    state: present
+  package_install:
+    id: torbrowser

@@ -9,10 +9,9 @@
       the inventory (see group_vars/all/15_storage.yml). A reachable NFS
       server IP/hostname is mandatory.
 
-- name: "📦 Install NFS client packages"
-  ansible.builtin.package:
-    name: "{{ SVC_STORAGE_NFS_CLIENT_PACKAGES[ansible_facts.os_family] }}"
-    state: present
+- name: "📦 Install the NFS client"
+  package_install:
+    id: nfs-client
 
 - name: "🔧 Match NFSv4 idmap to the ganesha test server"
   when: RUNTIME in ['dev', 'act']

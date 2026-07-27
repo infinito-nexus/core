@@ -25,18 +25,9 @@
     group: root
     mode: "0755"
 
-- name: "✅ Ensure NFS client packages are installed on controller for mount.nfs helper"
-  ansible.builtin.package:
-    name: "{{ lookup('vars', 'SVC_STORAGE_NFS_CLIENT_PACKAGES')[ansible_facts['os_family']] }}"
-    state: present
-  vars:
-    SVC_STORAGE_NFS_CLIENT_PACKAGES:
-      Debian: [nfs-common]
-      Ubuntu: [nfs-common]
-      Archlinux: [nfs-utils]
-      RedHat: [nfs-utils]
-      Fedora: [nfs-utils]
-      Alpine: [nfs-utils]
+- name: "📦 Install the NFS client"
+  package_install:
+    id: nfs-client
 
 - name: "🔎 Read current mount source at controller {{ DIR_VAR_LIB }}"
   ansible.builtin.command:

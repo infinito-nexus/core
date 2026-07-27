@@ -1,0 +1,8 @@
+---
+python-yaml:
+  Archlinux:
+    - python-yaml
+  Debian:
+    - python3-yaml
+  RedHat:
+    - python3-pyyaml

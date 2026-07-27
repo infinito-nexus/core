@@ -1,15 +1,7 @@
 ---
-- name: 📦 install wireguard for Arch
-  package:
-    name: wireguard-tools
-    state: present
-  when: ansible_facts['os_family'] == "Archlinux"
-
-- name: 📦 install wireguard for Ubuntu
-  apt:
-    name: wireguard
-    state: present
-  when: ansible_facts['os_family'] == "Debian"
+- name: 📦 install wireguard
+  package_install:
+    id: wireguard
 
 - name: 📁 create wireguard-ip.conf
   copy:

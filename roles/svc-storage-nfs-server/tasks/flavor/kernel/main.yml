@@ -1,21 +1,20 @@
 ---
-- name: "📦 Install kernel NFS server packages"
-  ansible.builtin.package:
-    name: "{{ SVC_STORAGE_NFS_SERVER_PACKAGES['kernel'][ansible_facts['os_family']] }}"
-    state: present
+- name: "📦 Install the kernel NFS server"
+  package_install:
+    id:
+      - nfs-client
+      - nfs-kernel-server
 
-- when: ansible_facts['os_family'] == 'RedHat'
-  block:
-    - name: "📦 Install SELinux python binding on RedHat (seboolean module + selinux fact)"
-      ansible.builtin.package:
-        name: python3-libselinux
-        state: present
+- name: "📦 Install the SELinux python binding (seboolean module + selinux fact)"
+  package_install:
+    id: selinux-python-binding
 
-    - name: "📊 Re-gather the SELinux fact now the binding is present (RedHat)"
-      ansible.builtin.setup:
-        gather_subset:
-          - "!all"
-          - selinux
+- name: "📊 Re-gather the SELinux fact now the binding is present"
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - selinux
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: "📤 Allow kernel NFS to export read-write under SELinux (enforcing RedHat hosts)"
   ansible.posix.seboolean:

@@ -1,0 +1,11 @@
+---
+gcc:
+  Archlinux:
+    - gcc
+    - gcc-libs
+  Debian:
+    - gcc
+    - libstdc++6
+  RedHat:
+    - gcc
+    - libstdc++

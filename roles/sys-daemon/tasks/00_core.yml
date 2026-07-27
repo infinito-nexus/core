@@ -1,8 +1,7 @@
 ---
 - name: 📦 Install systemd tools (provides systemd-analyze)
-  ansible.builtin.package:
-    name: "systemd"
-    state: present
+  package_install:
+    id: systemd-tools
   become: true
 
 - name: "♻️ reset (if enabled) for {{ role_name}}"

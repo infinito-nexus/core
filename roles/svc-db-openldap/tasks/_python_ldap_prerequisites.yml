@@ -1,17 +1,7 @@
 ---
-- name: 🔍 Resolve python-ldap native library packages for current OS family
-  ansible.builtin.set_fact:
-    openldap_python_ldap_native_lib_packages: >-
-      {{
-        OPENLDAP_PYTHON_LDAP_NATIVE_LIB_PACKAGES_BY_OS_FAMILY.get(ansible_facts['os_family'], [])
-      }}
-  changed_when: false
-
 - name: 📦 Install python-ldap native library build dependencies
-  ansible.builtin.package:
-    name: "{{ openldap_python_ldap_native_lib_packages }}"
-    state: present
-  when: openldap_python_ldap_native_lib_packages | length > 0
+  package_install:
+    id: openldap-dev
 
 - name: 🔍 Resolve Python include directory for active interpreter
   ansible.builtin.command:

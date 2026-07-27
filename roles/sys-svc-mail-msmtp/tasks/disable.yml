@@ -1,10 +1,8 @@
 ---
 - name: "✅ Ensure msmtp-mta is absent (conflicts with postfix smtp-forwarder)"
-  package:
-    name:
-      - "{{ SYS_SVC_MAIL_MSMTP_PACKAGES.mta }}"
+  package_install:
+    id: msmtp-mta
     state: absent
-  when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta != ''
 
 - name: 🔎 Inspect /usr/bin/sendmail path before cleanup
   stat:

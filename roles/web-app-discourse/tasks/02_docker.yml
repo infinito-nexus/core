@@ -1,9 +1,8 @@
 ---
-# which is necessary for building
 - name: 📦 install which
-  package:
-    name: which
-    state: present
+  package_install:
+    id: which
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

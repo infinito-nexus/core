@@ -182,23 +182,7 @@
     loop_var: role_group
     label: "{{ role_group }}-roles.yml"
 
-- name: 📦 Install inventory-defined system packages
-  ansible.builtin.include_role:
-    name: sys-package
-  when:
-    - SYS_PACKAGES | default([]) | length > 0
-
-- name: ✅ Ensure AUR helper for inventory-defined AUR packages
-  ansible.builtin.include_role:
-    name: sys-aur
-  when:
-    - SYS_AUR_PACKAGES | default([]) | length > 0
-    - run_once_sys_aur is not defined
-
-- name: 📦 Install inventory-defined AUR packages
-  ansible.builtin.include_role:
-    name: sys-aur-install
-  vars:
-    yay_install_packages: "{{ SYS_AUR_PACKAGES }}"
-  when:
-    - SYS_AUR_PACKAGES | default([]) | length > 0
+- name: 📦 Install inventory-defined packages
+  package_install:
+    id: "{{ PACKAGES }}"
+  when: PACKAGES | default([]) | length > 0

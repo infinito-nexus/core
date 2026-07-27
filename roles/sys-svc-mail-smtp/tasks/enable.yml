@@ -12,11 +12,8 @@
   when: run_once_sys_daemon is not defined
 
 - name: "📦 Install local SMTP relay (Postfix)"
-  package:
-    name:
-      - postfix
-      - postfix-lmdb
-    state: present
+  package_install:
+    id: postfix
 
 - name: "🔧 Configure Postfix as localhost-only relay"
   ansible.builtin.template: # nocheck: stack-host-template (per-host postfix localhost-relay config)

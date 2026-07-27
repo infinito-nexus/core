@@ -1,0 +1,8 @@
+---
+openssl:
+  Archlinux:
+    - openssl
+  Debian:
+    - openssl
+  RedHat:
+    - openssl

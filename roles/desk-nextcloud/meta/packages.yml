@@ -1,0 +1,9 @@
+---
+nextcloud-desktop:
+  Archlinux:
+    - nextcloud-client
+  Debian:
+    - nextcloud-desktop
+  RedHat:
+    - nextcloud-client
+  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry the Nextcloud desktop client; TODO: install from Flathub

@@ -1,12 +1,12 @@
 ---
 all:
   vars:
-    SYS_PACKAGES:
+    PACKAGES:
       - cmake
       - fdupes
-      - p7zip
+      - 7zip
       - traceroute
-      - wireshark-qt
+      - wireshark-gui
       - wireshark-cli
     infinito:
       bundle:

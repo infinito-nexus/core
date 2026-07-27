@@ -24,7 +24,7 @@
   register: sys_svc_container_docker_repo_file
 
 - name: 🔄 Update apt cache after Docker repo change
-  ansible.builtin.apt:
+  ansible.builtin.apt: # nocheck: dynamic-package - apt repository and cache setup, not a package install
     update_cache: true
   when: sys_svc_container_docker_repo_file is changed
   register: sys_svc_container_apt_cache

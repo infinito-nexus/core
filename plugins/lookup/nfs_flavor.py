@@ -7,8 +7,8 @@ from ansible.plugins.lookup import LookupBase
 class LookupModule(LookupBase):
     """Resolved svc-storage-nfs-server flavor (kernel/ganesha): {{ lookup('nfs_flavor') }}.
 
-    Reads the merged-config SPOT through lookup('config'); the dev/act->ganesha
-    rule lives in meta/variants.yml.
+    Reads the merged-config SPOT through lookup('config'); the flavor itself is
+    declared in svc-storage-nfs-server/meta/services.yml.
     """
 
     def run(self, terms, variables=None, **kwargs):

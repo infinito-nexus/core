@@ -1,0 +1,13 @@
+---
+qbittorrent:
+  Archlinux:
+    - qbittorrent
+  Debian:
+    - qbittorrent
+  RedHat:
+    - qbittorrent
+  centos:
+    names:
+      - qbittorrent
+    repo:
+      bootstrap_package: epel-release

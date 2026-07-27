@@ -1,0 +1,9 @@
+---
+obs-studio:
+  Archlinux:
+    - obs-studio
+  Debian:
+    - obs-studio
+  RedHat:
+    - obs-studio
+  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry obs-studio; TODO: install from RPM Fusion free or Flathub

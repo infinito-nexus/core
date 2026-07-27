@@ -1,11 +1,10 @@
 ---
 - name: 📦 install hunspell
-  package:
-    name: hunspell
-    state: present
+  package_install:
+    id: hunspell
 
 - name: 📦 install hunspell language packages
-  package:
+  package: # nocheck: dynamic-package
     name: "hunspell-{{ item }}"
     state: present
   loop: "{{ hunspell_languages }}"

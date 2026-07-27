@@ -2,7 +2,7 @@
 
 ## Description
 
-Installs the qBittorrent torrent client via AUR on Arch Linux.
+Installs the qBittorrent torrent client from the distribution repositories.
 
 ## Overview
 
@@ -68,13 +68,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 The `main.yml` file in the `desk-qbittorrent` role includes the following task:
 
 1. **Install Torrent Software**:
-   - This task uses the `kewlfft.aur.aur` module with `yay` as the AUR helper to install `qbittorrent`, a widely-used, free, and easy-to-use torrent client.
-
-## Dependencies
-
-This role depends on:
-
-- **sys-aur**: Ensures that an Arch User Repository (AUR) helper is installed, which is necessary for installing packages like `qbittorrent` that are not available in the standard repositories.
+   - This task calls `package_install` with the `qbittorrent` id; the per-distribution names are declared in [`meta/packages.yml`](meta/packages.yml).
 
 ## Purpose and Usage
 
@@ -83,7 +77,7 @@ The `desk-qbittorrent` role is tailored for users who require a reliable and use
 ## Prerequisites
 
 - **Ansible**: Required for running this role.
-- **Arch Linux-based System**: The role is designed with Arch Linux distributions in mind, leveraging AUR helpers for package installation.
+- **Supported distribution**: Arch, Debian, Ubuntu, Fedora or CentOS Stream, where CentOS resolves `qbittorrent` through EPEL.
 
 ## Running the Role
 

@@ -12,19 +12,7 @@
   when: ansible_facts['os_family'] == 'Debian'
 
 - name: 📦 Install OpenSSH client
-  package:
-    name: >-
-      {{
-        ({
-          'Debian': 'openssh-client',
-          'Ubuntu': 'openssh-client',
-          'Archlinux': 'openssh',
-          'Fedora': 'openssh-clients',
-          'RedHat': 'openssh-clients',
-          'CentOS': 'openssh-clients',
-          'Alpine': 'openssh-client'
-        }).get(ansible_facts['distribution'], 'openssh-client')
-      }}
-    state: present
+  package_install:
+    id: openssh-client
 
 - include_tasks: utils/once/flag.yml

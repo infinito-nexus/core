@@ -1,0 +1,13 @@
+---
+micro:
+  Archlinux:
+    - micro
+  Debian:
+    - micro
+  RedHat:
+    - micro
+  centos:
+    names:
+      - micro
+    repo:
+      bootstrap_package: epel-release

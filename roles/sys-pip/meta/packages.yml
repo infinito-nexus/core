@@ -1,0 +1,8 @@
+---
+python-pip:
+  Archlinux:
+    - python-pip
+  Debian:
+    - python3-pip
+  RedHat:
+    - python3-pip

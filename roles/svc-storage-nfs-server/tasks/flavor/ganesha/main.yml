@@ -1,8 +1,18 @@
 ---
-- name: "📦 Install userspace nfs-ganesha packages"
-  ansible.builtin.package:
-    name: "{{ SVC_STORAGE_NFS_SERVER_PACKAGES['ganesha'][ansible_facts['os_family']] }}"
-    state: present
+- name: "📦 Install the userspace nfs-ganesha server"
+  package_install:
+    id:
+      - nfs-ganesha
+      - libntirpc
+
+- name: "📄 Install the nfs-ganesha unit the AUR package does not ship"
+  ansible.builtin.copy:
+    src: nfs-ganesha.service
+    dest: "/etc/systemd/system/{{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha']['Archlinux'] }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  when: ansible_facts['os_family'] == 'Archlinux'
 
 - name: "🔧 Mask the broken nfs-ganesha-config helper unit"
   ansible.builtin.systemd:

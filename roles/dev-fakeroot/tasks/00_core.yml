@@ -17,13 +17,13 @@
       ({{ ansible_facts['os_family'] }}).
 
 - name: 🟢 Enable EPEL on CentOS Stream (required for fakeroot package)
-  ansible.builtin.package:
+  ansible.builtin.package: # nocheck: dynamic-package - enables the EPEL repository as a prerequisite
     name: epel-release
     state: present
   when: ansible_facts['distribution'] in ['CentOS', 'CentOS Stream']
 
 - name: 📦 Install fakeroot package(s)
-  ansible.builtin.package:
+  ansible.builtin.package: # nocheck: dynamic-package - package set resolved from the distribution at runtime
     name: "{{ dev_fakeroot_packages }}"
     state: present
 

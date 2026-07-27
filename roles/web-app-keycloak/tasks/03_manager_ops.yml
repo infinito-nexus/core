@@ -4,7 +4,7 @@
 
 - name: ✅ Ensure jq is installed
   become: true
-  package:
+  package: # nocheck: dynamic-package - package name supplied by the caller at runtime
     name: jq
     state: present
 

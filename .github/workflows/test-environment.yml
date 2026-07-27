@@ -52,6 +52,13 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
+      - name: "📥 Load rescue-diagnostics SPOT into job env"
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
+          echo "INFINITO_ENV_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')" >> "$GITHUB_ENV"
+
       - name: ▶️ Run dev environment routine
         shell: bash
         run: |
@@ -85,3 +92,21 @@ jobs:
             bash -lc '
               bash ./scripts/tests/environment/00_orchestrator.sh
             '
+
+      - name: 🩺 Capture rescue diagnostics
+        if: failure()
+        timeout-minutes: 15
+        shell: bash
+        env:
+          INFINITO_RESCUE_DIAGNOSTICS_DIR: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/${{ env.INFINITO_ENV_SLUG }}
+        run: |
+          python3 utils/diagnostics/container.py \
+            "${INFINITO_ENV_SLUG}" "environment suite failure" || true
+
+      - name: ⬆️ Upload rescue diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rescue-diagnostics-environment-${{ env.INFINITO_ENV_SLUG }}
+          path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
+          if-no-files-found: ignore

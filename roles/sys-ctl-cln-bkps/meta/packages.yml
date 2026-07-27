@@ -1,0 +1,8 @@
+---
+lsof:
+  Archlinux:
+    - lsof
+  Debian:
+    - lsof
+  RedHat:
+    - lsof

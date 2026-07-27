@@ -1,0 +1,14 @@
+---
+hostname-tool:
+  Archlinux:
+    - inetutils
+  Debian:
+    - hostname
+  RedHat:
+    - hostname
+
+nss-myhostname:
+  Archlinux: [] # nocheck: empty - the myhostname NSS module ships inside the systemd package on this family; TODO: revisit if the module is ever split out of systemd on this family
+  Debian:
+    - libnss-myhostname
+  RedHat: [] # nocheck: empty - the myhostname NSS module ships inside the systemd package on this family; TODO: revisit if the module is ever split out of systemd on this family

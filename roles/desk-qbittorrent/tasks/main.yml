@@ -1,11 +1,8 @@
 ---
 - block:
     - name: 📦 install torrent software
-      include_role:
-        name: sys-aur-install
-      vars:
-        yay_install_packages:
-          - qbittorrent
+      package_install:
+        id: qbittorrent
 
     - include_tasks: utils/once/flag.yml
   when: run_once_desk_qbittorrent is not defined

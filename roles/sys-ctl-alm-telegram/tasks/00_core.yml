@@ -17,8 +17,7 @@
     system_service_tpl_on_failure: "{{ lookup('unit_name','sys-ctl-alm-email@', suffix=False) }}%i.service"
 
 - name: 📦 install curl
-  package:
-    name: curl
-    state: present
+  package_install:
+    id: curl
 
 - include_tasks: utils/once/flag.yml

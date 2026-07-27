@@ -1,0 +1,13 @@
+---
+intel-media-driver:
+  Archlinux:
+    - intel-media-driver
+  Debian:
+    - intel-media-va-driver
+  RedHat:
+    - libva-intel-media-driver
+  centos:
+    names:
+      - libva-intel-hybrid-driver
+    repo:
+      bootstrap_package: epel-release

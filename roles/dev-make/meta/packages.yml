@@ -1,0 +1,8 @@
+---
+make:
+  Archlinux:
+    - make
+  Debian:
+    - make
+  RedHat:
+    - make

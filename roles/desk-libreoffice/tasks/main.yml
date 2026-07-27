@@ -1,13 +1,10 @@
 ---
 - name: 📦 install libreoffice
-  package:
-    name:
-      - ttf-liberation
-      - "libreoffice-{{ lookup('applications', 'desk-libreoffice').flavor }}"
-    state: present
+  package_install:
+    id: libreoffice
 
 - name: 📦 install libreoffice language packages
-  package:
+  package: # nocheck: dynamic-package (the language pack name is built from the configured flavor and the loop variable)
     name: "libreoffice-{{ lookup('applications', 'desk-libreoffice').flavor }}-{{ item }}"
     state: present
   loop: "{{ libreoffice_languages }}"

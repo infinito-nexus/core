@@ -1,0 +1,8 @@
+---
+jrnl:
+  Archlinux:
+    - jrnl
+  Debian: [] # nocheck: empty - jrnl is packaged in no Debian or Ubuntu suite; TODO: install from PyPI through sys-pip-install
+  RedHat:
+    - jrnl
+  centos: [] # nocheck: empty - jrnl ships only in the Fedora repositories, EPEL 10 does not carry it; TODO: install from PyPI through sys-pip-install

@@ -4,14 +4,9 @@
   when: ansible_facts is not defined
 
 - name: ✅ Ensure mhwd is installed on Manjaro
-  package:
-    name: mhwd
-    state: present
+  package_install:
+    id: mhwd
   become: true
-  when:
-    - ansible_facts['distribution'] is defined
-    - ansible_facts['distribution'] in ['ManjaroLinux', 'Manjaro']
-  register: mhwd_install
 
 - name: 🔍 Detect mhwd command
   ansible.builtin.stat:

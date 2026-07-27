@@ -1,8 +1,7 @@
 ---
 - name: 📦 Install ACL utilities
-  ansible.builtin.package:
-    name: acl
-    state: present
+  package_install:
+    id: acl
 
 - name: ✅ Ensure backups root exists and owned by backup
   file:

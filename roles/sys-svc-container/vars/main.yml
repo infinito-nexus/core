@@ -2,9 +2,6 @@
 SYS_SVC_DOCKER_DIR: "/etc/docker/"
 SYS_SVC_DOCKER_DAEMON: "{{ [SYS_SVC_DOCKER_DIR, 'daemon.json' ] | path_join }}"
 
-# Targets to calculate the optimal MTU. Public DNS resolvers come from
-# the central NETWORK_PUBLIC_DNS_RESOLVERS list so the literal IPs live
-# in exactly one place.
 SYS_SVC_DOCKER_AUTOMTU_TARGETS: >-
   {{ ['registry-1.docker.io', 'github.com'] + NETWORK_PUBLIC_DNS_RESOLVERS }}
 
@@ -25,64 +22,5 @@ SYS_SVC_CONTAINER_DPKG_ARCH_BY_ANSIBLE_ARCH:
   s390x: s390x
   riscv64: riscv64
 
-SYS_SVC_CONTAINER_IPROUTE_PACKAGE_BY_OS_FAMILY:
-  Debian: iproute2
-  RedHat: iproute
-  Archlinux: iproute2
-
-SYS_SVC_CONTAINER_PING_PACKAGE_BY_OS_FAMILY:
-  Debian: iputils-ping
-  RedHat: iputils
-  Archlinux: iputils
-
-# Arch Linux uses nftables as its default firewall framework instead of iptables.
-# Docker defaults to iptables, which conflicts with nftables rules on Arch, causing
-# broken container networking and port forwarding. Setting the backend to nftables
-# ensures Docker and the system firewall use the same framework and coexist correctly.
 SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY:
   Archlinux: nftables
-
-SYS_SVC_CONTAINER_PACKAGES_BY_DISTRIBUTION:
-  Archlinux:
-    - docker
-    - docker-compose
-    - docker-buildx
-  Debian:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-compose-plugin
-    - docker-buildx-plugin
-  Ubuntu:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-compose-plugin
-    - docker-buildx-plugin
-  Fedora:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-compose-plugin
-    - docker-buildx-plugin
-  CentOS:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-compose-plugin
-    - docker-buildx-plugin
-  "CentOS Stream":
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-compose-plugin
-    - docker-buildx-plugin
-  RedHat:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-compose-plugin
-    - docker-buildx-plugin
-  Alpine:
-    - docker
-    - docker-cli-compose

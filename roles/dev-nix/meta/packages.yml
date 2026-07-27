@@ -1,0 +1,6 @@
+---
+nix:
+  Archlinux:
+    - nix
+  Debian: [] # nocheck: empty - installed from the official releases.nixos.org installer on this family; TODO: switch to the nix-bin and nix-setup-systemd packages if the installer is ever dropped
+  RedHat: [] # nocheck: empty - installed from the official releases.nixos.org installer on this family; TODO: switch to the EPEL nix package if the installer is ever dropped

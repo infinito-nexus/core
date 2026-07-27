@@ -8,9 +8,7 @@
       failed_when: false
 
     - name: 🗑️ Remove postfix when external SMTP is used (conflicts with msmtp-mta)
-      package:
-        name:
-          - postfix
-          - postfix-lmdb
+      package_install:
+        id: postfix
         state: absent
   when: lookup('email').external | bool

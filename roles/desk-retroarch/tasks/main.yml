@@ -1,5 +1,4 @@
 ---
 - name: 📦 Install RetroArch and assets
-  package:
-    name: "{{ retroarch_packages }}"
-    state: present
+  package_install:
+    id: retroarch

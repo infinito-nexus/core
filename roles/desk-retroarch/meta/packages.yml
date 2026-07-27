@@ -1,0 +1,13 @@
+---
+retroarch:
+  Archlinux:
+    - retroarch
+    - retroarch-assets-ozone
+    - retroarch-assets-xmb
+  Debian:
+    - retroarch
+    - retroarch-assets
+  RedHat:
+    - retroarch
+    - retroarch-assets
+  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry retroarch; TODO: install from RPM Fusion free or Flathub

@@ -7,9 +7,8 @@
     - sys-lock
 
 - name: 📦 install lsof
-  package:
-    name: lsof
-    state: present
+  package_install:
+    id: lsof
 
 - name: 📦 install psutil via pip
   include_role:

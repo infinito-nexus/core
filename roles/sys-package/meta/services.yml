@@ -1,4 +1,0 @@
----
-# nocheck: required-by-coverage — TODO: declare proper required_by
-package:
-  lifecycle: beta

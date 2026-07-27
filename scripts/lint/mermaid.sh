@@ -24,8 +24,14 @@ fi
 # sandbox-safe; mermaid-cli (puppeteer-core) bundles none, so provision the
 # matching chrome-headless-shell here. --install-deps also pulls chrome's shared
 # libs (libnspr4, libnss3, ...) on root Linux. Idempotent; needs network + unzip.
-if ! npx --yes puppeteer browsers install chrome-headless-shell --install-deps >/dev/null 2>&1; then
-	echo "Warning: chrome-headless-shell or its libs may be missing; mermaid rendering may fail." >&2
+if command -v apt-get >/dev/null 2>&1; then
+	apt-get -o DPkg::Lock::Timeout=600 update >/dev/null 2>&1 ||
+		echo "Warning: apt-get update failed; chrome's shared libs may stay unresolved." >&2
+fi
+
+if ! deps_output="$(npx --yes puppeteer browsers install chrome-headless-shell --install-deps 2>&1)"; then
+	printf 'Warning: chrome-headless-shell provisioning failed; mermaid rendering may fail:\n%s\n' \
+		"${deps_output}" >&2
 fi
 
 workdir="$(mktemp -d)"

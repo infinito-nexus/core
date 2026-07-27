@@ -1,12 +1,12 @@
 ---
 all:
   vars:
-    SYS_PACKAGES:
+    PACKAGES:
       - steam
       - lutris
       - gamemode
       - mangohud
-      - lib32-mangohud
+      - mangohud-lib32
       - wine
       - wine-gecko
       - wine-mono
@@ -23,6 +23,3 @@ all:
   hosts:
     workstation:
   children:
-    sys-package:
-      hosts:
-        workstation:

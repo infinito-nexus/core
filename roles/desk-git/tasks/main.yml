@@ -1,9 +1,7 @@
 ---
-- name: 📦 install git
-  package:
-    name: git
-    state: present
-  become: true
+- name: "📦 Install git"
+  package_install:
+    id: git
 
 - name: 📦 Install gitcon CLI system-wide via pip
   include_role:

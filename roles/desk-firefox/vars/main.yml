@@ -3,11 +3,6 @@
 
 application_id: "desk-firefox"
 
-# Package name for Firefox on Arch Linux
-firefox_package: firefox
-
-# Directory where Firefox expects distribution policies
 firefox_policy_dir: "/usr/lib/firefox/distribution"
 
-# Full path to the policies file
 firefox_policy_file: "{{ firefox_policy_dir }}/policies.json"

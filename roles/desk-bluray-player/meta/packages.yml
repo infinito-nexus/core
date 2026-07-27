@@ -1,0 +1,19 @@
+---
+vlc-bluray:
+  Archlinux:
+    - libaacs
+    - libbluray
+    - vlc
+  Debian:
+    - libaacs0
+    - libbluray2
+    - vlc
+  RedHat:
+    - libbluray
+    - vlc
+  centos:
+    names:
+      - libbluray
+      - vlc
+    repo:
+      bootstrap_package: epel-release

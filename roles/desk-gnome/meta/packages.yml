@@ -1,0 +1,14 @@
+---
+gnome-shell:
+  Archlinux:
+    - glib2
+    - gnome-shell
+    - gsettings-desktop-schemas
+  Debian:
+    - gnome-shell
+    - gsettings-desktop-schemas
+    - libglib2.0-bin
+  RedHat:
+    - glib2
+    - gnome-shell
+    - gsettings-desktop-schemas

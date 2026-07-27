@@ -1,0 +1,9 @@
+---
+caffeine:
+  Archlinux:
+    source: aur
+    names:
+      - caffeine-ng
+  Debian:
+    - caffeine
+  RedHat: [] # nocheck: empty - Fedora, CentOS Stream 10 and EPEL 10 ship only the GNOME Shell extension, which provides no /usr/bin/caffeine for the autostart entry; TODO: install gnome-shell-extension-caffeine and drop the /usr/bin/caffeine autostart entry

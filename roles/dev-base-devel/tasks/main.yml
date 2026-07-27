@@ -17,7 +17,7 @@
         - "@development-tools"
       RedHat:
         - "@development-tools"
-  ansible.builtin.package:
+  ansible.builtin.package: # nocheck: dynamic-package - installs a distro toolchain group, not named packages
     name: >-
       {{
         dev_base_devel_packages.get(

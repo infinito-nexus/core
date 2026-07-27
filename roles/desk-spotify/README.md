@@ -6,7 +6,7 @@ This Ansible role installs the [Spotify](https://www.spotify.com/) desktop clien
 
 ## Overview
 
-Spotify is a digital music streaming service that gives you access to millions of songs and podcasts. Since it is not available in the official Arch repositories, this role uses an AUR helper (like [`yay`](https://github.com/Jguer/yay)) to install the package.
+Spotify is a digital music streaming service that gives you access to millions of songs and podcasts. The role calls `package_install` with the `spotify` id; [`meta/packages.yml`](meta/packages.yml) declares it as an AUR package on Arch Linux and as a deliberate no-op on the Debian and RedHat families, which do not archive the proprietary client.
 
 ## Cosmos
 
@@ -23,13 +23,12 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Purpose
 
-To automate the installation of Spotify on Arch-based systems while ensuring proper handling of AUR-related tasks through a dedicated helper role.
+To automate the installation of Spotify on Arch-based systems.
 
 ## Features
 
 - 🎧 Installs the official [Spotify AUR package](https://aur.archlinux.org/packages/spotify)
-- 🛠 Uses `yay` (or other helper) via [`kewlfft.aur`](https://github.com/kewlfft/ansible-aur) Ansible module
-- 🔗 Declares dependency on `sys-aur` for seamless integration
+- 🛠 Resolves the package through the registry id `spotify` in [`meta/packages.yml`](meta/packages.yml)
 
 ## Quick Setup
 
@@ -71,14 +70,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Requirements
 
-- The `sys-aur` role must be applied before using this role.
-- An AUR helper like `yay` must be available on the system.
-
-## Dependencies
-
-This role depends on:
-
-- [`sys-aur`](../sys-aur) – provides and configures an AUR helper like `yay`
+- An Arch Linux based system; `package_install` sets up the unprivileged AUR build environment itself.
 
 ## Credits
 

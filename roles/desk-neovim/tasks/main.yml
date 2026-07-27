@@ -1,6 +1,4 @@
 ---
 - name: 📦 install neovim
-  package:
-    name:
-      - neovim
-    state: present
+  package_install:
+    id: neovim

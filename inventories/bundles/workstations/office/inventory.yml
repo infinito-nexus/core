@@ -1,7 +1,7 @@
 ---
 all:
   vars:
-    SYS_PACKAGES:
+    PACKAGES:
       - thunderbird
       - calibre
       - retext

@@ -1,0 +1,292 @@
+---
+0ad:
+  Archlinux:
+    - 0ad
+  Debian:
+    - 0ad
+  centos: [] # nocheck: empty - games are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free or Flathub
+  fedora:
+    - 0ad
+
+7zip:
+  Archlinux:
+    - 7zip
+  Debian:
+    - 7zip
+  centos:
+    names:
+      - 7zip
+    repo:
+      bootstrap_package: epel-release
+  fedora:
+    - 7zip
+
+blender:
+  Archlinux:
+    - blender
+  Debian:
+    - blender
+  centos: [] # nocheck: empty - desktop 3D suites are outside the CentOS Stream 10 package set; TODO: install from Flathub
+  fedora:
+    - blender
+
+ca-certificates:
+  Archlinux:
+    - ca-certificates
+  Debian:
+    - ca-certificates
+  RedHat:
+    - ca-certificates
+
+calibre:
+  Archlinux:
+    - calibre
+  Debian:
+    - calibre
+  centos: [] # nocheck: empty - calibre is carried by neither CentOS Stream 10 nor EPEL 10; TODO: install from Flathub
+  fedora:
+    - calibre
+
+cmake:
+  Archlinux:
+    - cmake
+  Debian:
+    - cmake
+  RedHat:
+    - cmake
+
+drawio-desktop:
+  Archlinux:
+    - drawio-desktop
+  Debian: [] # nocheck: empty - drawio ships as an upstream deb download, not from the Debian or Ubuntu archives; TODO: install the upstream deb through a build source
+  RedHat: [] # nocheck: empty - drawio ships as an upstream rpm download, not from Fedora, CentOS Stream or EPEL; TODO: install the upstream rpm through a build source
+
+fdupes:
+  Archlinux:
+    - fdupes
+  Debian:
+    - fdupes
+  centos:
+    names:
+      - fdupes
+    repo:
+      bootstrap_package: epel-release
+  fedora:
+    - fdupes
+
+gamemode:
+  Archlinux:
+    - gamemode
+  Debian:
+    - gamemode
+  centos: [] # nocheck: empty - gaming daemons are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free
+  fedora:
+    - gamemode
+
+gimp:
+  Archlinux:
+    - gimp
+  Debian:
+    - gimp
+  centos: [] # nocheck: empty - desktop image editors are outside the CentOS Stream 10 package set; TODO: install from Flathub
+  fedora:
+    - gimp
+
+git:
+  Archlinux:
+    - git
+  Debian:
+    - git
+  RedHat:
+    - git
+
+gnuchess:
+  Archlinux:
+    - gnuchess
+  Debian:
+    - gnuchess
+  centos:
+    names:
+      - gnuchess
+    repo:
+      bootstrap_package: epel-release
+  fedora:
+    - gnuchess
+
+java-jdk:
+  Archlinux:
+    - jdk11-openjdk
+  Debian:
+    - openjdk-11-jdk
+  RedHat:
+    - java-21-openjdk-devel
+  fedora:
+    - java-latest-openjdk-devel
+
+lutris:
+  Archlinux:
+    - lutris
+  Debian:
+    - lutris
+  centos: [] # nocheck: empty - gaming launchers are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free or Flathub
+  fedora:
+    - lutris
+
+mangohud:
+  Archlinux:
+    - mangohud
+  Debian:
+    - mangohud
+  centos: [] # nocheck: empty - gaming overlays are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free
+  fedora:
+    - mangohud
+
+mangohud-lib32:
+  Archlinux:
+    names:
+      - lib32-mangohud
+    repo:
+      pacman_section: multilib
+  Debian: [] # nocheck: empty - Debian and Ubuntu ship the 32-bit overlay through multiarch on the mangohud package, not as a separate name; TODO: install the i386 multiarch variant once the plan can request an architecture
+  RedHat: [] # nocheck: empty - Fedora ships the 32-bit overlay as mangohud.i686 of the same package, and CentOS Stream carries neither; TODO: install the i686 variant once the plan can request an architecture
+
+mari0:
+  Archlinux:
+    - mari0
+  Debian: [] # nocheck: empty - mari0 is carried by neither the Debian nor the Ubuntu archives; TODO: package the upstream LOVE bundle through a build source
+  RedHat: [] # nocheck: empty - mari0 is carried by neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: package the upstream LOVE bundle through a build source
+
+nfs-client:
+  Archlinux:
+    - nfs-utils
+  Debian:
+    - nfs-common
+  RedHat:
+    - nfs-utils
+
+php:
+  Archlinux:
+    - php
+  Debian:
+    - php
+  RedHat:
+    - php
+
+retext:
+  Archlinux:
+    - retext
+  Debian:
+    - retext
+  RedHat: [] # nocheck: empty - ReText was retired from Fedora and never entered CentOS Stream or EPEL; TODO: install from PyPI through sys-pip-install
+
+sauerbraten:
+  Archlinux:
+    - sauerbraten
+  Debian:
+    - sauerbraten
+  RedHat: [] # nocheck: empty - sauerbraten is carried by neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: package the upstream release through a build source
+
+shellcheck:
+  Archlinux:
+    - shellcheck
+  Debian:
+    - shellcheck
+  centos:
+    names:
+      - ShellCheck
+    repo:
+      bootstrap_package: epel-release
+  fedora:
+    - ShellCheck
+
+steam:
+  Archlinux:
+    names:
+      - steam
+    repo:
+      pacman_section: multilib
+  Debian:
+    - steam-installer
+  RedHat: [] # nocheck: empty - Steam on Fedora comes from RPM Fusion nonfree, a third-party repository this project does not enable; TODO: install from RPM Fusion nonfree once the project accepts that repository
+
+supertuxkart:
+  Archlinux:
+    - supertuxkart
+  Debian:
+    - supertuxkart
+  centos: [] # nocheck: empty - games are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free or Flathub
+  fedora:
+    - supertuxkart
+
+thunderbird:
+  Archlinux:
+    - thunderbird
+  Debian:
+    - thunderbird
+  RedHat:
+    - thunderbird
+
+traceroute:
+  Archlinux:
+    - traceroute
+  Debian:
+    - traceroute
+  RedHat:
+    - traceroute
+
+warzone2100:
+  Archlinux:
+    - warzone2100
+  Debian:
+    - warzone2100
+  centos: [] # nocheck: empty - games are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free or Flathub
+  fedora:
+    - warzone2100
+
+wine:
+  Archlinux:
+    - wine
+  Debian:
+    - wine
+  centos: [] # nocheck: empty - wine is outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free
+  fedora:
+    - wine
+
+wine-gecko:
+  Archlinux:
+    - wine-gecko
+  Debian: [] # nocheck: empty - the Debian and Ubuntu wine packages pull their own gecko build, there is no separate name; TODO: revisit if Debian ever splits gecko out of the wine packages
+  RedHat: [] # nocheck: empty - the Fedora wine packages pull their own gecko build, there is no separate name; TODO: revisit if Fedora ever splits gecko out of the wine packages
+
+wine-mono:
+  Archlinux:
+    - wine-mono
+  Debian: [] # nocheck: empty - the Debian and Ubuntu wine packages pull their own mono build, there is no separate name; TODO: revisit if Debian ever splits mono out of the wine packages
+  centos: [] # nocheck: empty - wine is outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free
+  fedora:
+    - wine-mono
+
+winetricks:
+  Archlinux:
+    - winetricks
+  Debian:
+    - winetricks
+  centos: [] # nocheck: empty - wine is outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free
+  fedora:
+    - winetricks
+
+wireshark-cli:
+  Archlinux:
+    - wireshark-cli
+  Debian:
+    - tshark
+  RedHat:
+    - wireshark-cli
+
+wireshark-gui:
+  Archlinux:
+    - wireshark-qt
+  Debian:
+    - wireshark-qt
+  RedHat:
+    - wireshark

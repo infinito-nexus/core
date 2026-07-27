@@ -1,0 +1,13 @@
+---
+epson-multiprinter:
+  Archlinux:
+    source: aur
+    names:
+      - epson-inkjet-printer-escpr
+      - epson-inkjet-printer-escpr2
+      - epson-printer-utility
+      - imagescan
+      - imagescan-plugin-networkscan
+  Debian:
+    - printer-driver-escpr
+  RedHat: [] # nocheck: empty - Epson's ESC/P-R and Image Scan packages are absent from Fedora, CentOS Stream 10 and EPEL 10; TODO: install Epson's own rpm downloads through a build source

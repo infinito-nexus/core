@@ -13,21 +13,13 @@
       is the dedicated NFS server (svc-storage-nfs-server). Hosts outside
       the swarm (svc-swarm-node) keep a local {{ DIR_VAR_LIB }}.
 
-- name: 🟢 Enable EPEL repository on EL distributions
-  package:
-    name: epel-release
-    state: present
-  when: ansible_facts['distribution'] in SYS_SVC_MAIL_MSMTP_EPEL_DISTRIBUTIONS
-
 - name: 📦 Install msmtp base package
-  package:
-    name: "{{ SYS_SVC_MAIL_MSMTP_PACKAGES.base }}"
-    state: present
+  package_install:
+    id: msmtp
 
-- name: ✅ Ensure system CA certificates are installed
-  package:
-    name: ca-certificates
-    state: present
+- name: "📦 Install the CA trust store"
+  package_install:
+    id: ca-certificates
 
 - name: ✅ Ensure the shared Root CA is trusted for the TLS mail relay
   include_role:
@@ -42,10 +34,9 @@
 - when: lookup('email').external | bool
   block:
     - name: 📦 Install msmtp-mta when Mailu is used and package exists on distro
-      package:
-        name: "{{ SYS_SVC_MAIL_MSMTP_PACKAGES.mta }}"
-        state: present
-      when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta != ''
+      package_install:
+        id: msmtp-mta
+      register: sys_svc_mail_msmtp_mta
 
     - name: 📧 Provide sendmail compatibility link when msmtp-mta is unavailable
       file:
@@ -53,7 +44,7 @@
         dest: /usr/bin/sendmail
         state: link
         force: true
-      when: SYS_SVC_MAIL_MSMTP_PACKAGES.mta == ''
+      when: sys_svc_mail_msmtp_mta is skipped
 
 - include_tasks: ca_bundle.yml
 

@@ -1,0 +1,8 @@
+---
+firefox:
+  Archlinux:
+    - firefox
+  Debian:
+    - firefox
+  RedHat:
+    - firefox

@@ -1,8 +1,7 @@
 ---
 - name: 📦 Install OpenSSL
   become: true
-  ansible.builtin.package:
-    name: openssl
-    state: present
+  package_install:
+    id: openssl
 
 - include_tasks: utils/once/flag.yml

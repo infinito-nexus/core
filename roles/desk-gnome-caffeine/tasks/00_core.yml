@@ -1,10 +1,7 @@
 ---
 - name: 📦 Install caffeine
-  include_role:
-    name: sys-aur-install
-  vars:
-    yay_install_packages:
-      - caffeine-ng
+  package_install:
+    id: caffeine
 
 - name: 📁 Create autostart directory if it doesn't exist
   file:

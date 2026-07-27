@@ -1,0 +1,14 @@
+---
+libreoffice:
+  Archlinux:
+    - libreoffice-fresh
+    - ttf-liberation
+  Debian:
+    - fonts-liberation
+    - libreoffice
+  RedHat:
+    - liberation-mono-fonts
+    - liberation-sans-fonts
+    - liberation-serif-fonts
+    - libreoffice
+  centos: [] # nocheck: empty - RHEL 10 and CentOS Stream 10 dropped the LibreOffice packages in favour of the upstream Flatpak, and EPEL 10 does not carry them; TODO: install from Flathub

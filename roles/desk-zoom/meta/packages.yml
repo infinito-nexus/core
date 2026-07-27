@@ -1,0 +1,8 @@
+---
+zoom:
+  Archlinux:
+    source: aur
+    names:
+      - zoom
+  Debian: [] # nocheck: empty - the Zoom client is proprietary and shipped only as a vendor download, neither Debian nor Ubuntu archive it; TODO: install the vendor deb through a build source
+  RedHat: [] # nocheck: empty - the Zoom client is proprietary and carried by neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: install the vendor rpm through a build source

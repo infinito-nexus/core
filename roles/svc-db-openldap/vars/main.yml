@@ -32,19 +32,6 @@ OPENLDAP_PROVISION_GROUPS: "{{ lookup('config', application_id, 'services.openld
 OPENLDAP_PROVISION_UPDATE: "{{ lookup('config', application_id, 'services.openldap.provision.update') }}"
 OPENLDAP_USERS: "{{ lookup('users') | non_reserved_users }}"
 
-OPENLDAP_PYTHON_LDAP_NATIVE_LIB_PACKAGES_BY_OS_FAMILY:
-  Debian:
-    - libldap2-dev
-    - libsasl2-dev
-    - libssl-dev
-  RedHat:
-    - openldap-devel
-    - cyrus-sasl-devel
-    - openssl-devel
-  Archlinux:
-    - openldap
-    - cyrus-sasl
-
 OPENLDAP_PYTHON_HEADER_PACKAGE_TEMPLATES_BY_OS_FAMILY:
   Debian:
     - python__PY_MM__-dev

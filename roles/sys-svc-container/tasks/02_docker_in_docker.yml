@@ -6,7 +6,7 @@
     mode: "0755"
 
 - name: 📦 Install fuse-overlayfs in container
-  ansible.builtin.package:
+  ansible.builtin.package: # nocheck: dynamic-package - package set assembled at runtime for the nested runtime
     name: fuse-overlayfs
     state: present
   notify: container manager restart

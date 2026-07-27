@@ -1,6 +1,4 @@
 ---
 - name: 📦 install streaming
-  package:
-    name:
-      - obs-studio
-    state: present
+  package_install:
+    id: obs-studio

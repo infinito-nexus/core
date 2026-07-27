@@ -1,0 +1,8 @@
+---
+sudo:
+  Archlinux:
+    - sudo
+  Debian:
+    - sudo
+  RedHat:
+    - sudo

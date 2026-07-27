@@ -1,10 +1,9 @@
 ---
 all:
   vars:
-    SYS_PACKAGES:
+    PACKAGES:
       - gimp
       - blender
-    SYS_AUR_PACKAGES:
       - drawio-desktop
     infinito:
       bundle:
@@ -18,9 +17,3 @@ all:
   hosts:
     workstation:
   children:
-    sys-package:
-      hosts:
-        workstation:
-    sys-aur-install:
-      hosts:
-        workstation:

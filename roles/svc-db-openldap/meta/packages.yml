@@ -1,0 +1,13 @@
+---
+openldap-dev:
+  Archlinux:
+    - cyrus-sasl
+    - openldap
+  Debian:
+    - libldap2-dev
+    - libsasl2-dev
+    - libssl-dev
+  RedHat:
+    - cyrus-sasl-devel
+    - openldap-devel
+    - openssl-devel

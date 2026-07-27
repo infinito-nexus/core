@@ -31,7 +31,7 @@
   changed_when: false
 
 - name: 📦 Attempt to install Python header package candidates
-  ansible.builtin.package:
+  ansible.builtin.package: # nocheck: dynamic-package - header package probed by name at runtime
     name: "{{ item }}"
     state: present
   loop: "{{ openldap_python_header_package_candidates }}"

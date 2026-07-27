@@ -1,0 +1,8 @@
+---
+curl:
+  Archlinux:
+    - curl
+  Debian:
+    - curl
+  RedHat:
+    - curl

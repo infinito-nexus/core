@@ -1,0 +1,13 @@
+---
+certbot:
+  Archlinux:
+    - certbot
+  Debian:
+    - certbot
+  RedHat:
+    - certbot
+  centos:
+    names:
+      - certbot
+    repo:
+      bootstrap_package: epel-release

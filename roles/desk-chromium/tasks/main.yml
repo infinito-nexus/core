@@ -1,18 +1,12 @@
 ---
-- name: 🔄 Update package cache (Debian/Ubuntu)
-  apt:
-    update_cache: true
-  when: ansible_facts['os_family'] == "Debian"
-
 - name: 📦 Install Chromium browser
-  package:
-    name: "{{ chromium_package }}"
-    state: present
+  package_install:
+    id: chromium
 
-- name: 📦 Install KeePassXC
-  package:
-    name: keepassxc
-    state: present
+- name: 📂 Include dependency 'desk-keepassxc'
+  include_role:
+    name: desk-keepassxc
+  when: run_once_desk_keepassxc is not defined
 
 - name: ✅ Ensure Chromium policies directory exists
   file:

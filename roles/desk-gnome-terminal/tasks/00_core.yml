@@ -1,9 +1,7 @@
 ---
 - name: 📦 Install Gnome Terminal
-  package:
-    name:
-      - gnome-terminal
-    state: present
+  package_install:
+    id: gnome-terminal
 
 - name: "🔧 Set zsh as default shell for {{ lookup('users', WORKSTATION_USER).username }}"
   user:

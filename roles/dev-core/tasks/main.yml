@@ -6,7 +6,7 @@
       when: run_once_pkgmgr is not defined
 
     - name: 📦 install base developer tools
-      package:
+      package: # nocheck: dynamic-package - vendor-repository package that no role configures a repository for
         name:
           - code
         state: present

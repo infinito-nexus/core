@@ -1,6 +1,6 @@
 ---
 - name: 📦 install certbot DNS plugin
-  package:
+  package: # nocheck: dynamic-package
     name: "certbot-dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}"
     state: present
 

@@ -1,21 +1,4 @@
 ---
-- name: 🔍 Resolve Docker package list for current distribution
-  ansible.builtin.set_fact:
-    sys_svc_container_packages: >-
-      {{
-        SYS_SVC_CONTAINER_PACKAGES_BY_DISTRIBUTION[ansible_facts['distribution']]
-        if ansible_facts['distribution'] in SYS_SVC_CONTAINER_PACKAGES_BY_DISTRIBUTION
-        else []
-      }}
-
-- name: 🛑 Fail for unsupported distribution in Docker role
-  ansible.builtin.assert:
-    that:
-      - (sys_svc_container_packages | length) > 0
-    fail_msg: >-
-      Unsupported distribution for Docker role: {{ ansible_facts['distribution'] }}
-      ({{ ansible_facts['os_family'] }}).
-
 - name: 🔧 Setup Docker repository on Debian and Ubuntu
   include_tasks: 00_core/debian.yml
   when: ansible_facts['distribution'] in ['Debian', 'Ubuntu']
@@ -25,9 +8,8 @@
   when: ansible_facts['os_family'] == 'RedHat'
 
 - name: 📦 Install Docker packages
-  ansible.builtin.package:
-    name: "{{ sys_svc_container_packages }}"
-    state: present
+  package_install:
+    id: docker-cli
   register: sys_svc_container_packages_install
   retries: 5
   delay: 15

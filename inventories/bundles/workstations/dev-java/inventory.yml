@@ -1,11 +1,11 @@
 ---
 all:
   vars:
-    SYS_PACKAGES:
+    PACKAGES:
       - cmake
       - fdupes
-      - p7zip
-      - jdk11-openjdk
+      - 7zip
+      - java-jdk
     infinito:
       bundle:
         title: "Workstation Java Dev"

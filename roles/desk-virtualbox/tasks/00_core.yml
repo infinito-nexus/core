@@ -1,7 +1,7 @@
 ---
 - name: 📦 Install VirtualBox and kernel modules
   become: true
-  community.general.pacman:
+  community.general.pacman: # nocheck: dynamic-package - kernel module packages derived from the running kernel at runtime
     name: >-
       virtualbox
       {{ lookup('pipe', "pacman -Qsq '^linux' | grep '^linux[0-9]*[-rt]*$' | awk '{print $1 \"-virtualbox-host-modules\"}' ORS=' '") }}

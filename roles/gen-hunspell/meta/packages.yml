@@ -1,0 +1,8 @@
+---
+hunspell:
+  Archlinux:
+    - hunspell
+  Debian:
+    - hunspell
+  RedHat:
+    - hunspell

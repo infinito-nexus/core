@@ -1,0 +1,13 @@
+---
+certbot-nginx:
+  Archlinux:
+    - certbot-nginx
+  Debian:
+    - python3-certbot-nginx
+  RedHat:
+    - python3-certbot-nginx
+  centos:
+    names:
+      - python3-certbot-nginx
+    repo:
+      bootstrap_package: epel-release

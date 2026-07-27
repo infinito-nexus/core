@@ -12,7 +12,7 @@
     mode: "0644"
 
 - name: "🔄 update (apt) | refresh apt cache and dist-upgrade all installed packages"
-  ansible.builtin.apt:
+  ansible.builtin.apt: # nocheck: dynamic-package - full-system upgrade, not a package install
     update_cache: true
     upgrade: dist
     force_apt_get: true

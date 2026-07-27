@@ -1,0 +1,10 @@
+---
+npm:
+  Archlinux:
+    - npm
+  Debian:
+    - npm
+  RedHat:
+    names:
+      - npm
+    virtual: true

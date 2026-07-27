@@ -1,0 +1,8 @@
+---
+openssh-client:
+  Archlinux:
+    - openssh
+  Debian:
+    - openssh-client
+  RedHat:
+    - openssh-clients

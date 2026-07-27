@@ -1,8 +1,7 @@
 ---
 - name: ✅ Ensure npm is installed
-  package:
-    name: npm
-    state: present
+  package_install:
+    id: npm
 
 - name: ▶️ Run 'npm ci'
   command: npm ci

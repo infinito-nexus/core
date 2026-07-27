@@ -1,0 +1,15 @@
+---
+chromium:
+  Archlinux:
+    - chromium
+  Debian:
+    - chromium
+  RedHat:
+    - chromium
+  centos:
+    names:
+      - chromium
+    repo:
+      bootstrap_package: epel-release
+  ubuntu:
+    - chromium-browser
