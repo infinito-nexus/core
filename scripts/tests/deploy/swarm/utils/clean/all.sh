@@ -36,6 +36,16 @@ _select_names() {
 	docker ps -a --format '{{.Names}}' --filter "name=${_act_name}" 2>/dev/null
 }
 
+_names="$(_select_names | sort -u)"
+if [ -n "${_names}" ]; then
+	echo ">>> swarm-clean: quiesce nested engines and detach NFS before removal"
+	for _node in ${_names}; do
+		timeout 60 docker exec "${_node}" systemctl stop docker.socket docker >/dev/null 2>&1 || true
+	done
+	# shellcheck disable=SC2086
+	timeout 600 bash "$(dirname "$0")/../unmount_nfs_mounts.sh" ${_names} 2>&1 | sed 's/^/    /' || true
+fi
+
 echo ">>> swarm-clean: leftover containers"
 _ctrs="$(_select_ids | sort -u)"
 if [ -n "${_ctrs}" ]; then
