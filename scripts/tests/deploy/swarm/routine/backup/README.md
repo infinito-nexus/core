@@ -1,10 +1,10 @@
 # DR drill: backup + restore
 
 Marker files seeded into the live NFS volume and into the manager's host
-secrets travel the full backup chain forward and are recovered back onto
-the live instance; the drill passes only when every marker survives the
-whole loop. `base.sh` runs the nine steps below; the numbers in both
-diagrams are its `[n/9]` log markers.
+secrets travel the backup chain forward and are recovered back onto the
+live instance; the drill passes only when every marker a deployed unit
+captured survives the whole loop. `base.sh` runs the nine steps below; the
+numbers in both diagrams are its `[n/9]` log markers.
 
 ## Step sequence (who does what)
 
@@ -21,7 +21,7 @@ sequenceDiagram
     M->>M: marker → host secrets dir
 
     Note over N,M: [2/9] trigger deployed backup units
-    M->>M: svc-bkp-volume-2-local + secrets-2-local
+    M->>M: svc-bkp-volume-2-local + secrets-2-local (when in the app closure)
     N->>N: svc-bkp-nfs-2-local
 
     Note over N,M: [3/9] locate the generation holding the marker
@@ -29,7 +29,7 @@ sequenceDiagram
 
     Note over B: [4/9] pull via remote-2-local unit (rsync over ssh)
     B->>N: pull nfs generations
-    B->>M: pull volume + secrets generations
+    B->>M: pull volume + secrets generations (only when M is a provider)
 
     Note over B,U: [5/9] plug LUKS device, sync via local-2-device unit
     B->>U: hard-linked snapshot
@@ -64,7 +64,7 @@ flowchart TB
         direction TB
         vol["📂 [1] Live NFS volume + docker volume<br/>marker seeded"]:::live
         sec["🔑 [1] Host secrets on the manager<br/>(secrets, CA, ACME, node identity) marker seeded"]:::live
-        localbkp["🗄️ [2-3] Local backups on manager + NFS server<br/>volume / nfs / secrets generation snapshots"]:::store
+        localbkp["🗄️ [2-3] Local backups on the NFS server<br/>(+ manager when its closure has the backup roles)<br/>volume / nfs / secrets generation snapshots"]:::store
         pulled["🗄️ [4] Backup host<br/>pulled generations (remote-2-local unit, rsync over ssh, pull-only)"]:::store
         usb["🔒 [5] Encrypted USB (LUKS)<br/>hard-linked snapshot (local-2-device unit)"]:::device
         vol -->|backup units| localbkp
@@ -106,6 +106,11 @@ flowchart TB
 - The drill runs whenever the app declares an NFS-flagged volume
   (`PRIMARY_NFS_VOLUME`); apps without one skip it, since there is nothing
   to prove a restore against.
+- The manager legs of steps 2, 4 and 9 run only when the app's include
+  closure contains `svc-bkp-volume-2-local` / `svc-bkp-secrets-2-local`.
+  `utils/tests/swarm/backup_repos.py` derives both the manager's inventory
+  groups and the `remote-2-local` provider list from that closure; apps
+  without those roles prove the chain through the nfs repository.
 - The workload form only changes step 6: stack workloads get
   `docker stack rm`, `workload: node-local` roles get their compose
   project stopped on every node. Every other step operates on volumes,

@@ -21,6 +21,9 @@ Input (env): ``APP_ID``. Optional ``INFINITO_APP_VARIANTS`` (JSON
 selects the active variant so a variant that pins ``services.*`` flags
 to ``false`` prunes those providers from the closure instead of the
 provision step pulling them in from the variant-free base config.
+In-process callers that already hold the round map pass it as
+``derive_includes(app_id, variants=...)``; the env var is read only when
+that argument is omitted.
 
 DB-provider services are exempt from that pruning: the dep walk applies
 the same force-shared view as ``utils.tests.swarm.force_shared_db``.
@@ -50,19 +53,29 @@ _EXPLICIT_INCLUDES: tuple[str, ...] = (
 )
 
 
-def _active_variant_map() -> dict[str, int]:
-    raw = os.environ.get("INFINITO_APP_VARIANTS")
-    if not raw:
-        return {}
-    try:
-        mapping = json.loads(raw)
-    except json.JSONDecodeError:
-        return {}
-    if not isinstance(mapping, dict):
+def _active_variant_map(override: dict[str, int] | None = None) -> dict[str, int]:
+    """Normalise the active ``{app_id: variant_index}`` map.
+
+    Args:
+        override: map supplied by an in-process caller; ``None`` reads and
+            parses ``INFINITO_APP_VARIANTS`` instead.
+
+    Returns:
+        the entries with a ``str`` key and a non-bool ``int`` index.
+    """
+    if override is None:
+        raw = os.environ.get("INFINITO_APP_VARIANTS")
+        if not raw:
+            return {}
+        try:
+            override = json.loads(raw)
+        except json.JSONDecodeError:
+            return {}
+    if not isinstance(override, dict):
         return {}
     return {
         app_id: index
-        for app_id, index in mapping.items()
+        for app_id, index in override.items()
         if isinstance(app_id, str)
         and isinstance(index, int)
         and not isinstance(index, bool)
@@ -71,15 +84,22 @@ def _active_variant_map() -> dict[str, int]:
 
 def _applications_for_active_variants(
     base_applications: dict[str, Any],
+    variants: dict[str, int] | None = None,
 ) -> dict[str, Any]:
-    """Swap every app listed in ``INFINITO_APP_VARIANTS`` to its variant
+    """Swap every app listed in the active variant map to its variant
     config. Index 0 is swapped too: a variant-0 override MAY disable flags
     the base config's dynamic-Jinja form counts as enabled (web-app-nextcloud
     pins 11 partner services off in variant 0), so "variant 0 == base" does
     not hold. Every entry in the map is swapped, not just the primary app,
     because host_vars baking honours the dep roles' indices as well and the
-    include closure must match that topology."""
-    overrides = _active_variant_map()
+    include closure must match that topology.
+
+    Args:
+        base_applications: rendered application configs.
+        variants: active ``{app_id: variant_index}`` map; ``None`` falls back
+            to ``INFINITO_APP_VARIANTS``.
+    """
+    overrides = _active_variant_map(variants)
     if not overrides:
         return base_applications
     variants_per_app = get_variants(roles_dir=str(_ROLES_DIR))
@@ -119,18 +139,26 @@ def _force_shared_db_view(applications: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def derive_includes(app_id: str) -> list[str]:
+def derive_includes(
+    app_id: str, *, variants: dict[str, int] | None = None
+) -> list[str]:
     """Resolve APP_ID's transitive include set under the active variants.
 
     The service registry (service key -> provider role) stays built from
     the full rendered base set so provider discovery is unaffected by the
     active variants; only the dep-walk sees the variant configs (with the
     swarm force-shared DB view applied on top).
+
+    Args:
+        app_id: role whose closure is resolved.
+        variants: active ``{app_id: variant_index}`` map; ``None`` falls back
+            to ``INFINITO_APP_VARIANTS``, which only the subprocess callers
+            have in their environment.
     """
     base_applications = get_merged_applications(roles_dir=str(_ROLES_DIR))
     service_registry = build_service_registry_from_applications(base_applications)
     applications = _force_shared_db_view(
-        _applications_for_active_variants(base_applications)
+        _applications_for_active_variants(base_applications, variants)
     )
     disabled_roles = _disabled_provider_roles(service_registry) - {app_id}
     transitive = applications_if_group_and_all_deps(

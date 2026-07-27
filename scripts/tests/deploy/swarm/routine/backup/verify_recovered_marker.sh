@@ -17,4 +17,4 @@ if ! docker exec "${NFS_SERVER}" grep -qF "${DR_TOKEN}" "${NFS_VOL_DIR}/${DR_MAR
 	echo "FAILURE: DR-drill marker missing on the live volume after recover + update pass"
 	exit 1
 fi
-echo "==> DR drill PASSED: backup -> teardown -> recover device->nfs->volume->secrets -> live marker verified after the update pass"
+echo "==> DR drill PASSED: backup -> teardown -> recover -> live marker verified on the NFS export after the update pass"

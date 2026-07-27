@@ -11,16 +11,16 @@ Inputs (env): ``NFS_IP``, ``MGR_IP``, ``MGR``, ``OUT_PATH`` (default
 ``/tmp/swarm-nfs-admin.key``). A second ed25519 keypair is generated at
 ``INFINITO_SWARM_BACKUP_KEY`` (SPOT: default.env) and its public half lands
 in ``users.backup.authorized_keys`` so the DR drill's backup host can pull
-over the ``user-backup`` ssh-wrapper. The ``applications`` block configures
-the backup-host roles the drill triggers as real units:
-``remote-2-local.backup_providers`` (manager + NFS server IPs) and the
-``local-2-device`` mount/target/source device paths. The applications
-block reaches the deploy through the provisioner's host_vars merge
-(INFINITO_VARS_PAYLOAD), NOT through the extras file: extra-vars replace
-the whole inventory ``applications`` dict and would strip every generated
-credential. The deploy-facing twin ``<OUT_PATH stem>.deploy.yml`` therefore
-carries everything except ``applications``; the full file stays for the
-DR drill, which reads the device paths from it.
+over the ``user-backup`` ssh-wrapper. The ``applications`` block written into
+the extras file carries the ``local-2-device`` mount/target/source device
+paths, which is all the DR drill reads back from it. The deploy-facing
+overrides, including ``remote-2-local.backup_providers`` (derived per round
+from ``utils.tests.swarm.backup_repos``), are baked by the matrix
+orchestrator into the provisioner's host_vars merge (INFINITO_VARS_PAYLOAD),
+NOT into the extras file: extra-vars replace the whole inventory
+``applications`` dict and would strip every generated credential. The
+deploy-facing twin ``<OUT_PATH stem>.deploy.yml`` therefore carries
+everything except ``applications``.
 """
 
 from __future__ import annotations
@@ -40,25 +40,14 @@ from utils.paths import DIR_BACKUPS
 _DEFAULT_INVENTORY = PROJECT_ROOT / "inventories" / "development" / "default.yml"
 
 
-def backup_applications_overrides(mgr_ip: str, nfs_ip: str) -> dict:
-    """Application overrides for the backup-host roles the DR drill triggers.
-
-    Args:
-        mgr_ip: manager node IP (backup provider #1).
-        nfs_ip: NFS server node IP (backup provider #2).
+def device_applications_overrides() -> dict:
+    """Application overrides for svc-bkp-local-2-device.
 
     Returns:
-        dict with the ``applications`` subtree for svc-bkp-remote-2-local
-        (backup_providers) and svc-bkp-local-2-device (device paths).
+        dict with the ``applications`` subtree the DR drill reads back from
+        the extras file (mount/target) and the backup host deploys.
     """
     return {
-        "svc-bkp-remote-2-local": {
-            "services": {
-                "remote-2-local": {
-                    "backup_providers": [mgr_ip, nfs_ip],
-                },
-            },
-        },
         "svc-bkp-local-2-device": {
             "services": {
                 "local-2-device": {
@@ -68,6 +57,29 @@ def backup_applications_overrides(mgr_ip: str, nfs_ip: str) -> dict:
                 },
             },
         },
+    }
+
+
+def backup_applications_overrides(providers: list[str]) -> dict:
+    """Application overrides for the backup-host roles the DR drill triggers.
+
+    Args:
+        providers: node IPs svc-bkp-remote-2-local pulls from, as derived by
+            ``utils.tests.swarm.backup_repos.backup_provider_ips``.
+
+    Returns:
+        dict with the ``applications`` subtree for svc-bkp-remote-2-local
+        (backup_providers) and svc-bkp-local-2-device (device paths).
+    """
+    return {
+        "svc-bkp-remote-2-local": {
+            "services": {
+                "remote-2-local": {
+                    "backup_providers": list(providers),
+                },
+            },
+        },
+        **device_applications_overrides(),
     }
 
 
@@ -134,7 +146,7 @@ def main() -> int:
         },
         "nfs_server_ip": nfs_ip,
         "users": default_users,
-        "applications": backup_applications_overrides(mgr_ip, nfs_ip),
+        "applications": device_applications_overrides(),
     }
 
     dump_yaml(str(out_path), extras)
