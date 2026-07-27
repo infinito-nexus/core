@@ -4,7 +4,7 @@ from unittest import mock
 from ansible.errors import AnsibleActionFail
 
 from plugins.action.package_install import ActionModule
-from utils.packages.plan import ModuleCall
+from utils.packages.plan import GENERIC_PACKAGE, ModuleCall
 
 
 def _action(args) -> ActionModule:
@@ -84,6 +84,28 @@ class TestOwningRole(unittest.TestCase):
         with mock.patch("plugins.action.package_install.resolve", return_value="spec"):
             spec = self._spec_for("nfs-ganesha", None)
         self.assertEqual(spec, "spec")
+
+
+class TestModuleName(unittest.TestCase):
+    def _module_name(self, module, facts):
+        return _action({})._module_name(
+            ModuleCall(module, {}), {"ansible_facts": facts}
+        )
+
+    def test_generic_package_becomes_the_hosts_package_manager(self):
+        self.assertEqual(
+            self._module_name(GENERIC_PACKAGE, {"pkg_mgr": "pacman"}), "pacman"
+        )
+
+    def test_concrete_modules_pass_through(self):
+        self.assertEqual(
+            self._module_name("community.general.copr", {"pkg_mgr": "dnf"}),
+            "community.general.copr",
+        )
+
+    def test_missing_pkg_mgr_fails(self):
+        with self.assertRaises(AnsibleActionFail):
+            self._module_name(GENERIC_PACKAGE, {})
 
 
 class TestBecomeIsRestored(unittest.TestCase):

@@ -24,6 +24,11 @@ STATE_PRESENT = "present"
 STATE_ABSENT = "absent"
 STATES: tuple[str, ...] = (STATE_PRESENT, STATE_ABSENT)
 
+GENERIC_PACKAGE = "ansible.builtin.package"
+"""`ansible.builtin.package` ships as a documentation-only stub; its logic
+lives in Ansible's action plugin. The action plugin here executes modules
+directly, so it must swap this marker for the host's `ansible_facts.pkg_mgr`."""
+
 PACMAN_CONF = "/etc/pacman.conf"
 AUR_BUILDER_USER = "aur_builder"
 AUR_SUDOERS_PATH = "/etc/sudoers.d/11-install-aur_builder"
@@ -44,7 +49,7 @@ class ModuleCall:
 
 
 def _package(names: list[str], state: str) -> ModuleCall:
-    return ModuleCall("ansible.builtin.package", {"name": names, "state": state})
+    return ModuleCall(GENERIC_PACKAGE, {"name": names, "state": state})
 
 
 def _aur_bootstrap() -> list[ModuleCall]:

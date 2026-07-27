@@ -33,7 +33,13 @@ from typing import Any
 from ansible.errors import AnsibleActionFail
 from ansible.plugins.action import ActionBase
 
-from utils.packages.plan import STATE_PRESENT, STATES, ModuleCall, build_plan
+from utils.packages.plan import (
+    GENERIC_PACKAGE,
+    STATE_PRESENT,
+    STATES,
+    ModuleCall,
+    build_plan,
+)
 from utils.packages.registry import build_registry, project_root_from_env, resolve
 from utils.packages.schema import ROLE_FILE_META_PACKAGES, PackagesShapeError
 
@@ -84,9 +90,10 @@ class ActionModule(ActionBase):
 
     def _execute(self, call: ModuleCall, task_vars: dict[str, Any]) -> dict[str, Any]:
         args = {k: v for k, v in call.args.items() if v is not None}
+        module = self._module_name(call, task_vars)
         if not call.become_user:
             return self._execute_module(
-                module_name=call.module, module_args=args, task_vars=task_vars
+                module_name=module, module_args=args, task_vars=task_vars
             )
 
         previous = (self._play_context.become, self._play_context.become_user)
@@ -94,10 +101,21 @@ class ActionModule(ActionBase):
         self._play_context.become_user = call.become_user
         try:
             return self._execute_module(
-                module_name=call.module, module_args=args, task_vars=task_vars
+                module_name=module, module_args=args, task_vars=task_vars
             )
         finally:
             self._play_context.become, self._play_context.become_user = previous
+
+    def _module_name(self, call: ModuleCall, task_vars: dict[str, Any]) -> str:
+        if call.module != GENERIC_PACKAGE:
+            return call.module
+        pkg_mgr = str((task_vars.get("ansible_facts") or {}).get("pkg_mgr", "")).strip()
+        if not pkg_mgr:
+            raise AnsibleActionFail(
+                "package_install needs ansible_facts.pkg_mgr to choose a package "
+                "manager module; gather facts before installing."
+            )
+        return pkg_mgr
 
     def _facts(self, task_vars: dict[str, Any]) -> tuple[str, str]:
         facts = task_vars.get("ansible_facts") or {}
