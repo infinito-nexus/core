@@ -14,8 +14,8 @@ flowchart TD
 
     MAIN --> TOPO["_host_topology(app_id)"]
     MAIN --> DEP["_placement_dep_groups(app_id)"]
-    MAIN --> BKP{"volume / secrets backup\nrole in derive_includes(app_id)?"}
-    MAIN --> NBKP{"svc-bkp-nfs-2-local in\nderive_includes(svc-storage-nfs-server)?"}
+    MAIN --> BKP{"backup_repos.repo_placements:\nvolume / secrets role in derive_includes(app_id)?"}
+    MAIN --> NBKP{"backup_repos.repo_placements:\nsvc-bkp-nfs-2-local in derive_includes(svc-storage-nfs-server)?"}
 
     TOPO --> T1["app_id → manager (+ workers unless manager-placed)"]
     TOPO --> T2["svc-swarm-node → manager + workers"]
@@ -53,4 +53,10 @@ flowchart TD
 
 Node names come from `default.env` (`INFINITO_SWARM_*_NAME`) with the
 `SWARM_NAME` prefix. `INFINITO_APP_VARIANTS` feeds `derive_includes` to select
-the active variant.
+the active variant; in-process callers pass the map as
+`derive_includes(app_id, variants=...)`.
+
+The three `svc-bkp-*` repository rows come from `backup_repos.repo_placements`.
+`utils/tests/swarm/matrix.py` calls `backup_repos.backup_provider_ips`, which
+resolves the same two closures and returns the nodes as IPs, to build
+`svc-bkp-remote-2-local.services.remote-2-local.backup_providers`.
