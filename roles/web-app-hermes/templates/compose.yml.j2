@@ -11,7 +11,7 @@
       {% for device in ROBOT_DEVICE_ALLOWLIST %}
       - {{ device }}
       {% endfor %}
-    {% else %}
+    {% elif lookup('config', application_id, 'services.kata.enabled') | bool %}
     {{ lookup('compose_only', 'runtime', SANDBOX_RUNTIME) }}
     {% endif %}
     command: ["gateway"]
