@@ -20,6 +20,8 @@ The diagram places Self-Hosted Runner in the Infinito.Nexus cosmos: the componen
 flowchart LR
     subgraph role [svc-runner 🐳🐝]
         svc_runner["runner"]
+        svc_buildkit["buildkit ❌"]
+        svc_act_runner["act-runner ❌"]
     end
 ```
 

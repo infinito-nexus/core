@@ -24,3 +24,19 @@ runner:
   image_tag: latest
   install_dir: /opt/github-runner
   cpus: 2
+
+# Exception: mirror-only entries — CI pulls these images directly and never deploys them as services
+# nocheck: dynamic-flag
+buildkit:
+  enabled: false
+  shared: false
+  image: moby/buildkit
+  # nocheck: docker-version
+  version: "buildx-stable-1"
+# nocheck: dynamic-flag
+act-runner:
+  enabled: false
+  shared: false
+  image: catthehacker/ubuntu
+  # nocheck: docker-version
+  version: "act-latest"

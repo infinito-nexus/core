@@ -138,17 +138,25 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
 
+      - name: 🔍 Resolve buildkit image ref
+        id: buildkit
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref="$(bash scripts/meta/resolve/image/service_ref.sh svc-runner buildkit mirror)"
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+
       - name: ⬇️ Pre-pull buildkit image (retry 7x, 20s)
         shell: bash
         env:
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
-        run: bash scripts/github/runner/pull_with_retry.sh moby/buildkit:buildx-stable-1
+        run: bash scripts/github/runner/pull_with_retry.sh "${{ steps.buildkit.outputs.ref }}"
 
       - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
         with:
-          driver-opts: image=moby/buildkit:buildx-stable-1
+          driver-opts: image=${{ steps.buildkit.outputs.ref }}
 
       - name: 🔑 Login to GHCR
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0

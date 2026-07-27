@@ -9,7 +9,7 @@ set -euo pipefail
 : "${ACT_NETWORK:=host}"
 : "${ACT_PULL:=false}"
 : "${ACT_RM:=true}"
-: "${ACT_PLATFORM_IMAGE:=catthehacker/ubuntu:act-latest}"
+: "${ACT_PLATFORM_IMAGE:?ACT_PLATFORM_IMAGE is not set; source scripts/meta/env/load.sh or invoke via make}"
 : "${ACT_BIND:=false}"
 : "${ACT_INPUTS:=}"
 : "${ACT_ENV:=}"

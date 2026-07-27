@@ -8,6 +8,7 @@ import each other.
 from __future__ import annotations
 
 from . import (
+    act_platform_image,
     gha_passthrough,
     github_repository_owner,
     nix_config,
@@ -73,6 +74,7 @@ ORDERED_HANDLERS = [
     image_repository,
     image,
     parent_image,
+    act_platform_image,
     fork_account,
     fork_repository_url,
     nix_config,
