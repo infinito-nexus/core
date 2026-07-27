@@ -31,6 +31,7 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.env.parser import parse_static_env
 from utils.roles.meta_lookup import get_role_placement
+from utils.tests.swarm.backup_repos import repo_placements
 from utils.tests.swarm.derive_includes import derive_includes
 
 _DOCKER_VARS: dict[str, str] = {
@@ -84,12 +85,14 @@ def main() -> int:
 
     closure = derive_includes(app_id)
     group_hosts = _host_topology(app_id) + _placement_dep_groups(app_id)
-    if "svc-bkp-volume-2-local" in closure:
-        group_hosts.append(("svc-bkp-volume-2-local", _MANAGER))
-    if "svc-bkp-secrets-2-local" in closure:
-        group_hosts.append(("svc-bkp-secrets-2-local", _MANAGER))
-    if "svc-bkp-nfs-2-local" in derive_includes("svc-storage-nfs-server"):
-        group_hosts.append(("svc-bkp-nfs-2-local", _NFS_SERVER))
+    group_hosts.extend(
+        repo_placements(
+            app_closure=closure,
+            nfs_closure=derive_includes("svc-storage-nfs-server"),
+            manager=_MANAGER,
+            nfs_server=_NFS_SERVER,
+        )
+    )
 
     inv = load_yaml_any(str(inv_path), default_if_missing={})
     inv.setdefault("all", {}).setdefault("children", {})
