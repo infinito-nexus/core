@@ -303,14 +303,22 @@ def main(argv: list[str] | None = None) -> int:
             include=round_include,
             active_variants=round_variants,
         )
+        from utils.tests.swarm.backup_repos import backup_provider_ips
         from utils.tests.swarm.write.extras import backup_applications_overrides
 
+        providers = backup_provider_ips(
+            app_id=app_id,
+            variants=round_variants,
+            manager=os.environ["MGR_IP"],
+            nfs_server=os.environ["NFS_IP"],
+        )
+        print(
+            f"=== swarm-matrix: remote-2-local backup providers "
+            f"(round {round_index}): {', '.join(providers)} ===",
+            flush=True,
+        )
         vars_payload = _bake_overrides(
-            base_overrides={
-                "applications": backup_applications_overrides(
-                    os.environ["MGR_IP"], os.environ["NFS_IP"]
-                )
-            },
+            base_overrides={"applications": backup_applications_overrides(providers)},
             variant_payloads=variant_payloads,
         )
         extras_path = f"{inv_root}/swarm-nfs-extras.yml"

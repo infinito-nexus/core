@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Disaster-recovery drill for the swarm test cluster: proves the full
-# backup chain volume + secrets + nfs -> remote -> device through the
-# DEPLOYED systemd units on every host (the backup host runs the real
+# Disaster-recovery drill for the swarm test cluster: proves the backup
+# chain nfs (plus volume + secrets where the app's include closure places a
+# manager repository) -> remote -> device through the
+# DEPLOYED systemd units (the backup host runs the real
 # svc-bkp-remote-2-local and svc-bkp-local-2-device roles; the drill only
 # installs the ssh pull identity and simulates the USB plug via a LUKS
 # loop mount), then tears the stack down completely and recovers the same
@@ -24,8 +25,6 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=scripts/tests/deploy/swarm/utils/_context.sh
 source "${SCRIPT_DIR}/../../utils/_context.sh"
 
-: "${MGR_IP:?MGR_IP required (01_bootstrap.sh must have run)}"
-: "${NFS_IP:?NFS_IP required (01_bootstrap.sh must have run)}"
 : "${DRILL_EXTRAS:?DRILL_EXTRAS required (matrix passes the round extras)}"
 
 DIR_VAR_LIB="${INFINITO_DIR_VAR_LIB:?INFINITO_DIR_VAR_LIB is not set - source scripts/meta/env/load.sh first}"
@@ -121,7 +120,7 @@ if [ "${SRC_HOST}" != "${MGR}" ]; then
 	[ -n "${_vol_marker}" ] && VOL_MARKER_REL="${_vol_marker#"${DIR_BACKUPS}"/}"
 fi
 
-echo "==> [4/9] pull to ${BACKUP_NODE} via the deployed remote-2-local unit (providers: ${MGR_IP}, ${NFS_IP})"
+echo "==> [4/9] pull to ${BACKUP_NODE} via the deployed remote-2-local unit (marker expected from ${SRC_HOST})"
 docker exec -i "${BACKUP_NODE}" bash "${BKP_IN_NODE}/01_ssh_trust.sh" <"${BACKUP_KEY_PATH}"
 if ! docker exec "${BACKUP_NODE}" bash "${TRIGGER_UNITS}" 'svc-bkp-remote-2-local*.service'; then
 	echo "FAILURE: remote-2-local unit missing or failed on ${BACKUP_NODE} (role not deployed?)"
@@ -251,7 +250,7 @@ else
 	echo "    secrets recover skipped: svc-bkp-secrets-2-local not installed on ${MGR}"
 fi
 
-echo "==> recovery complete: device -> nfs export -> volume -> secrets restored via the recover CLI"
+echo "==> recovery complete via the recover CLI: device -> nfs export, plus the volume and secrets legs reported above"
 echo "    the matrix update pass boots the stack onto the recovered export; verify_recovered_marker.sh asserts the live marker there"
 printf 'DR_TOKEN=%s\nDR_MARKER=%s\nNFS_SERVER=%s\nNFS_VOL_DIR=%s\n' \
 	"${DR_TOKEN}" "${DR_MARKER}" "${NFS_SERVER}" "${NFS_VOL_DIR}" >"${DR_VERIFY_ENV}"
