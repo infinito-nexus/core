@@ -2,7 +2,8 @@
 
 Role selection: an explicit ``--role`` wins; otherwise a random pick from
 ``--priority``, then ``--whitelist``, then every invokable role inside the
-tested lifecycle envelope (``INFINITO_LIFECYCLES`` in ``default.env``). The distro is
+tested lifecycle envelope (``INFINITO_LIFECYCLES`` in ``default.env``) whose
+guide deploy mode is not skipped via ``meta/tests.yml``. The distro is
 a random pick from ``INFINITO_DISTROS``, resolved to that distro's pkgmgr base
 image (it ships systemd plus the build toolchain, so a host role can boot
 systemd and install straight inside it). The mode is ``host`` for a role that
@@ -16,15 +17,20 @@ import argparse
 import os
 import random
 import sys
+from typing import TYPE_CHECKING
 
 from utils.cache.files import PROJECT_ROOT
 from utils.roles.deploy import role_has_stack
 from utils.roles.lifecycle import tested_lifecycles
+from utils.roles.meta_lookup import get_role_test_skips
 from utils.roles.validation.invokable import (
     _get_invokable_paths,
     _is_role_invokable,
     _role_lifecycle,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _RUNTIME_IMAGE = "ghcr.io/kevinveenbirkenbach/pkgmgr-{distro}:stable"
 
@@ -33,6 +39,10 @@ _DISTROS = ("arch", "debian", "ubuntu", "fedora", "centos")
 
 def _tokens(raw: str) -> list[str]:
     return [t for t in raw.split() if t]
+
+
+def _guide_mode(role_dir: Path) -> str:
+    return "compose" if role_has_stack(role_dir) else "host"
 
 
 def _testable_roles() -> list[str]:
@@ -45,6 +55,7 @@ def _testable_roles() -> list[str]:
         if d.is_dir()
         and _is_role_invokable(d.name, paths)
         and _role_lifecycle(d) in tested
+        and _guide_mode(d) not in get_role_test_skips(d, role_name=d.name)
     )
 
 
@@ -70,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     distro = random.choice(distros)  # noqa: S311 - test-distro pick, not cryptographic
 
-    mode = "compose" if role_has_stack(PROJECT_ROOT / "roles" / role) else "host"
+    mode = _guide_mode(PROJECT_ROOT / "roles" / role)
 
     print(f"GUIDE_ROLE={role}")
     print(f"GUIDE_MODE={mode}")
