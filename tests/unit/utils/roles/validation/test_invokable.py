@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import utils.roles.validation.invokable as inv
 from utils.cache.yaml import dump_yaml
+from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
@@ -18,10 +19,8 @@ class TestInvokable(TestCase):
         self.tmp = Path(tempfile.mkdtemp(prefix="invokable_modutils_test_"))
         self.roles_dir = self.tmp / "roles"
         self.roles_dir.mkdir(parents=True, exist_ok=True)
-        self.categories_file = self.roles_dir / "categories.yml"
+        self.categories_file = categories_file(self.tmp)
 
-        # This structure triggers the YAML fallback in _get_invokable_paths()
-        # because it expects "categories", but we will patch _get_invokable_paths() anyway
         dump_yaml(
             self.categories_file,
             {"categories": [{"invokable_paths": ["web-app", "update", "util-desk"]}]},
@@ -71,7 +70,6 @@ class TestInvokable(TestCase):
         ):
             grouped = inv.list_invokables_by_type()
 
-        # server: web-app-* minus excluded oauth2 proxy (not present in test)
         self.assertIn("server", grouped)
         self.assertIn("workstation", grouped)
         self.assertIn("universal", grouped)
@@ -79,14 +77,13 @@ class TestInvokable(TestCase):
         self.assertEqual(grouped["server"], sorted(["web-app-nextcloud", "matomo-app"]))
         self.assertEqual(grouped["workstation"], sorted(["util-desk-custom"]))
 
-        # universal = invokable - (server ∪ workstation) -> update remains
         self.assertEqual(grouped["universal"], ["update"])
 
     def test_list_invokables_by_type_exclude(self) -> None:
-        # Exercise the exclude_re path of DeploymentTypeRule via a
-        # synthetic rule. The historical DEFAULT_RULES exclude (the now
-        # dissolved oauth2-proxy helper role) was removed when its
-        # sidecar logic was absorbed into web-app-keycloak.
+        """A synthetic rule exercises the exclude_re path of
+        DeploymentTypeRule. The historical DEFAULT_RULES exclude (the now
+        dissolved oauth2-proxy helper role) was removed when its sidecar
+        logic was absorbed into web-app-keycloak."""
         rd = self.roles_dir / "web-app-excluded"
         (rd / "vars").mkdir(parents=True, exist_ok=True)
         dump_yaml(rd / ROLE_FILE_VARS_MAIN, {})
@@ -129,13 +126,14 @@ class TestInvokable(TestCase):
             excluded = inv.list_invokables_by_type(skip_mode="compose")
             kept = inv.list_invokables_by_type(skip_mode="swarm")
 
-        # web-app-matomo (app_id matomo-app) skips compose -> gone for compose,
-        # present for swarm; a role without a skip list stays in both.
         self.assertNotIn("matomo-app", excluded["server"])
         self.assertIn("matomo-app", kept["server"])
         self.assertIn("web-app-nextcloud", excluded["server"])
 
     def test_types_from_group_names(self) -> None:
+        """``all`` and ``foo`` are not invokable and drop out; the three
+        invokable names map to server, workstation and the universal
+        leftover respectively."""
         with (
             patch.object(inv, "PROJECT_ROOT", self.tmp),
             patch.object(
@@ -146,11 +144,11 @@ class TestInvokable(TestCase):
         ):
             got = inv.types_from_group_names(
                 [
-                    "all",  # not invokable -> ignored
-                    "web-app-nextcloud",  # invokable + matches server rule
-                    "util-desk-custom",  # invokable + matches workstation rule
-                    "update",  # invokable leftover -> universal
-                    "foo",  # not invokable -> ignored
+                    "all",
+                    "web-app-nextcloud",
+                    "util-desk-custom",
+                    "update",
+                    "foo",
                 ]
             )
 

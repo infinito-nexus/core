@@ -190,7 +190,7 @@ class Compose:
         args: list[str] = ["up", "-d"]
         if no_build:
             args.append("--no-build")
-        if self.profile.registry_cache_active():
+        if self.profile.owns_cache_stack():
             self._generate_package_frontend_certs(env)
             args += ["registry-cache", "package-cache", "package-cache-frontend"]
         args += ["coredns", "infinito"]
@@ -199,8 +199,9 @@ class Compose:
 
         self.wait_for_healthy()
 
-        if self.profile.registry_cache_active():
+        if self.profile.owns_cache_stack():
             self._bootstrap_package_cache(env)
+        if self.profile.registry_cache_active():
             self._install_package_frontend_ca_in_runner()
 
         if run_entry_init:

@@ -1,0 +1,38 @@
+---
+- name: "🧹 Matomo bootstrap | Compose: reset wedged state before retry"
+  ansible.builtin.include_tasks:
+    file: ../../utils/reset_state.yml
+    apply:
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
+  when:
+    - IS_STACK_HOST | bool
+    - matomo_attempt_index | int > 0
+    - (matomo_install_state.stdout | trim) != 'installed'
+    - ((matomo_bootstrap_compose | default({})).rc | default(1)) | int != 0
+
+- name: "🐳 Matomo bootstrap | Compose: Run one-shot bootstrap via compose profile"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - --chdir
+      - "{{ lookup('container', application_id, 'directories.instance') }}"
+      - --project
+      - "{{ (lookup('container', application_id, 'directories.instance') | regex_replace('/+$', '')) | basename }}"
+      - --
+      - --profile
+      - "{{ MATOMO_BOOTSTRAP_PROFILE }}"
+      - run
+      - "-T"
+      - --rm
+      - "{{ MATOMO_BOOTSTRAP_SERVICE }}"
+  register: matomo_bootstrap_attempt
+  changed_when: true
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: ((matomo_bootstrap_compose | default({})).rc | default(1)) | int != 0
+
+- name: "🎯 Matomo bootstrap | Compose: record attempt result"
+  ansible.builtin.set_fact:
+    matomo_bootstrap_compose: "{{ matomo_bootstrap_attempt }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: matomo_bootstrap_attempt is not skipped

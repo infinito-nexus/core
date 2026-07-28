@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import yaml
 
-from utils.cache import ROLES_DIR
 from utils.cache.yaml import load_yaml_any
+from utils.roles.categories import categories_file
 
 _METADATA_KEYS = frozenset({"title", "description", "icon", "invokable", "modes"})
 
 
 def _default_roles_file() -> str:
-    categories = ROLES_DIR / "categories.yml"
+    categories = categories_file()
     if not categories.is_file():
         raise FileNotFoundError(
             f"Could not locate {categories}. Pass roles_file explicitly."

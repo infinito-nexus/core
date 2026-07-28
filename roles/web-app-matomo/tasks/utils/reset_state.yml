@@ -1,0 +1,13 @@
+---
+- name: "🧹 Matomo reset | Move the partial config aside"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user root {{ MATOMO_LOCAL_CID | quote }}
+    sh -c 'set -e; cfg="$1"; [ -f "$cfg" ] && mv "$cfg" "$cfg.wedged-$(date +%Y%m%d%H%M%S)"; rm -rf /var/www/html/tmp/cache'
+    _ {{ MATOMO_CONFIG | quote }}
+  changed_when: true
+
+- name: "🧹 Matomo reset | Drop and recreate the database"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    cmd: "container exec -i --user root {{ MATOMO_LOCAL_CID | quote }} php"
+    stdin: "{{ lookup('file', 'reset_database.php') }}"
+  changed_when: true

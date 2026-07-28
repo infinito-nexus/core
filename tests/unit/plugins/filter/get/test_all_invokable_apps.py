@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from plugins.filter.get.all.invokable_apps import get_all_invokable_apps
 from utils.cache.yaml import dump_yaml
+from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
@@ -15,7 +16,7 @@ class TestGetAllInvokableApps(unittest.TestCase):
         self.test_dir = Path(tempfile.mkdtemp(prefix="invokable_apps_test_"))
         self.roles_dir = self.test_dir / "roles"
         self.roles_dir.mkdir(parents=True, exist_ok=True)
-        self.categories_file = self.roles_dir / "categories.yml"
+        self.categories_file = categories_file(self.test_dir)
 
         categories = {
             "roles": {

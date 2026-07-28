@@ -60,6 +60,7 @@ env:
     access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
   INFINITO_IMAGE_TAG: ci-${{ github.sha }}
   INFINITO_GHCR_MIRROR_PREFIX: mirror
+  INFINITO_SWARM_STEP_TIMEOUT_MINUTES: "345"
   INFINITO_APP_DISCOVERY_RUNNER: host
   INFINITO_DEPLOY_MODE: swarm
   INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
@@ -211,7 +212,7 @@ jobs:
         run: make setup
 
       - name: "🚀 Matrix-deploy ${{ matrix.apps }}: provision/deploy/e2e/verify per round"
-        timeout-minutes: 345
+        timeout-minutes: ${{ fromJSON(env.INFINITO_SWARM_STEP_TIMEOUT_MINUTES) }}
         shell: bash
         env:
           variant: ${{ matrix.variant }}

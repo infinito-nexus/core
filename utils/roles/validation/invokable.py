@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
@@ -32,7 +33,6 @@ DEFAULT_RULES: tuple[DeploymentTypeRule, ...] = (
         include_re=re.compile(r"^(desk-|util-desk-)"),
         exclude_re=None,
     ),
-    # "universal": everything invokable that is not matched by server/workstation rules
     DeploymentTypeRule(
         name="universal",
         include_re=re.compile(r".*"),
@@ -45,10 +45,6 @@ def _roles_dir() -> Path:
     return PROJECT_ROOT / "roles"
 
 
-def _categories_file() -> Path:
-    return _roles_dir() / "categories.yml"
-
-
 def _read_yaml(path: Path) -> dict:
     if not path.is_file():
         return {}
@@ -57,10 +53,12 @@ def _read_yaml(path: Path) -> dict:
 
 
 def _role_lifecycle(role_dir: Path) -> str:
-    # `lifecycle` lives on the role's primary entity at
-    # `meta/services.yml.<primary_entity>.lifecycle`. Delegate to the
-    # canonical helper and treat any failure as "no lifecycle" so role
-    # discovery is never broken by a single malformed meta file.
+    """Lifecycle of the role's primary entity, empty when unresolvable.
+
+    Reads ``meta/services.yml.<primary_entity>.lifecycle`` through the
+    canonical helper. Any failure degrades to "no lifecycle" so a single
+    malformed meta file cannot break role discovery.
+    """
     from utils.roles.meta_lookup import get_role_lifecycle
 
     try:
@@ -71,8 +69,9 @@ def _role_lifecycle(role_dir: Path) -> str:
 
 
 def _role_skip_modes(role_dir: Path) -> list[str]:
-    # `skip` lists deploy modes (compose/swarm) the role opts out of in
-    # test-deploy discovery; never break discovery on a malformed meta file.
+    """Deploy modes (compose/swarm) the role opts out of in test-deploy
+    discovery. A malformed meta file degrades to "skips nothing" rather
+    than breaking discovery."""
     from utils.roles.meta_lookup import get_role_skip
 
     try:
@@ -84,15 +83,14 @@ def _role_skip_modes(role_dir: Path) -> list[str]:
 def _get_invokable_paths() -> list[str]:
     from plugins.filter.invokable_paths import get_invokable_paths
 
-    paths = get_invokable_paths(str(_categories_file()))
+    paths = get_invokable_paths(str(categories_file(PROJECT_ROOT)))
     if not paths:
         raise RuntimeError("No invokable paths found in categories.yml")
     return [str(p) for p in paths]
 
 
 def _is_role_invokable(role_name: str, invokable_paths: Iterable[str]) -> bool:
-    # Matches your existing logic:
-    # role == p or role.startswith(p + "-")
+    """True when the role is one of the invokable paths or sits below one."""
     return any(role_name == p or role_name.startswith(p + "-") for p in invokable_paths)
 
 
@@ -157,7 +155,6 @@ def list_invokables_by_type(
     if not invokable_paths or not roles_dir.is_dir():
         return {r.name: [] for r in rules}
 
-    # Gather invokable role dirs first (+ optional lifecycle gating)
     invokable_role_dirs: list[Path] = []
     for role_dir in sorted(
         [p for p in roles_dir.iterdir() if p.is_dir()], key=lambda p: p.name
@@ -175,13 +172,11 @@ def list_invokables_by_type(
 
         invokable_role_dirs.append(role_dir)
 
-    # Identify non-universal rules for subtraction logic
     rules_list = list(rules)
     non_universal = [r for r in rules_list if r.name != "universal"]
 
     by_type: dict[str, list[str]] = {r.name: [] for r in rules_list}
 
-    # First pass: server/workstation buckets
     claimed_role_names: set[str] = set()
     for role_dir in invokable_role_dirs:
         for r in non_universal:
@@ -190,13 +185,11 @@ def list_invokables_by_type(
                 claimed_role_names.add(role_dir.name)
                 break
 
-    # Second pass: universal = remaining invokables
     if "universal" in by_type:
         for role_dir in invokable_role_dirs:
             if role_dir.name not in claimed_role_names:
                 by_type["universal"].append(_role_to_app_id(role_dir))
 
-    # Normalize sort + unique
     for k, v in by_type.items():
         by_type[k] = sorted(set(v))
 
@@ -231,7 +224,6 @@ def types_from_group_names(
     matched: set[str] = set()
     claimed: set[str] = set()
 
-    # server/workstation via rules
     for g in invokable_names:
         for r in non_universal:
             if _rule_matches_role_name(r, g):
@@ -239,7 +231,6 @@ def types_from_group_names(
                 claimed.add(g)
                 break
 
-    # universal = invokable leftovers (not claimed by server/workstation)
     if any(g not in claimed for g in invokable_names):
         matched.add("universal")
 

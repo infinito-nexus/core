@@ -1,4 +1,4 @@
-"""Stage resolution reads roles/categories.yml as the SPOT: the ordered
+"""Stage resolution reads meta/categories.yml as the SPOT: the ordered
 `stages` list, the per-category `stage`, and the run_after tiebreak that
 places roles in constructor -> workstation -> server -> destructor order."""
 

@@ -2,16 +2,29 @@ from __future__ import annotations
 
 import os
 
-VALID_DISTROS: tuple[str, ...] = ("arch", "debian", "ubuntu", "fedora", "centos")
+from utils.distros import distro_names
+
+VALID_DISTROS: tuple[str, ...] = distro_names()
 
 
 def compose_file_args() -> list[str]:
-    """Compose `-f` flags shared by up and down flows."""
+    """Compose `-f` flags shared by up and down flows.
+
+    Each override is gated on the resource it needs being present, not on the
+    instance slot: an override whose `:?` guard is unsatisfied would abort the
+    stack outright, so a checkout that was never handed a shared git dir or
+    cache network simply does not layer that file in.
+    """
     from .profile import Profile
 
+    profile = Profile()
     out = ["-f", "compose.yml"]
-    if Profile().registry_cache_active():
+    if profile.shared_git_dir():
+        out += ["-f", "compose/worktree.override.yml"]
+    if profile.registry_cache_active():
         out += ["-f", "compose/cache.override.yml"]
+        if profile.shared_cache_network():
+            out += ["-f", "compose/cache.shared.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
         out += ["-f", "compose/noports.override.yml"]
     return out
@@ -23,7 +36,7 @@ def resolve_distro() -> str:
     if not distro:
         raise SystemExit(
             "INFINITO_DISTRO is not set. Run 'make dotenv' (or source scripts/meta/env/load.sh) "
-            "or export INFINITO_DISTRO=<arch|debian|ubuntu|fedora|centos> "
+            f"or export INFINITO_DISTRO=<{'|'.join(VALID_DISTROS)}> "
             "before invoking cli.administration.deploy.development."
         )
     if distro not in VALID_DISTROS:

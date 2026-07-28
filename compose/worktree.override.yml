@@ -1,0 +1,12 @@
+---
+# Layered on compose.yml for secondary instances. A git worktree's .git is a
+# file pointing at an absolute path inside the primary checkout, so git only
+# works in the container when that directory is mounted where the pointer
+# expects it.
+
+services:
+  infinito:
+    volumes:
+      - ${INFINITO_GIT_COMMON_DIR:?Set by 'make worktree-up' from git rev-parse
+        --git-common-dir}:${INFINITO_GIT_COMMON_DIR:?Set by 'make worktree-up'
+        from git rev-parse --git-common-dir}

@@ -1,6 +1,7 @@
 import unittest
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.categories import categories_file
 
 from . import PROJECT_ROOT
 
@@ -8,7 +9,7 @@ from . import PROJECT_ROOT
 class TestCategoryPaths(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        file_path = str(PROJECT_ROOT / "roles" / "categories.yml")
+        file_path = str(categories_file())
         data = load_yaml_any(file_path)
         cls.roles_def = data["roles"]
 

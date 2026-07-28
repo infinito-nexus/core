@@ -12,10 +12,7 @@ if TYPE_CHECKING:
 
 def generate_dynamic_inventory(
     host: str,
-    roles_dir: Path,
-    categories_file: Path,
     tmp_inventory: Path,
-    project_root: Path,
     env: dict[str, str] | None,
 ) -> dict[str, Any]:
     """

@@ -11,6 +11,9 @@
 #   INFINITO_VENV_DIR   venv path inside the container (from default.env).
 #   RUNNER_TEMP         runner scratch dir for the per-distro copies.
 #   GITHUB_WORKSPACE    the checkout to install and test.
+#
+# The distro set comes from INFINITO_DISTROS, which the env layer generates
+# from the meta/distros.yml SPOT.
 
 set -uo pipefail
 
@@ -20,7 +23,10 @@ set -uo pipefail
 : "${RUNNER_TEMP:?}"
 : "${GITHUB_WORKSPACE:?}"
 
-distros=(arch debian ubuntu fedora centos)
+# shellcheck source=scripts/meta/env/load.sh
+source "${GITHUB_WORKSPACE}/scripts/meta/env/load.sh"
+: "${INFINITO_DISTROS:?INFINITO_DISTROS must be resolved by scripts/meta/env/load.sh}"
+read -r -a distros <<<"${INFINITO_DISTROS}"
 declare -A pid
 
 for d in "${distros[@]}"; do

@@ -8,11 +8,11 @@ Group-agnostic role call order.
 - 📦 Phase 2 (main): every remaining invokable role that is NOT a preload
   service, topologically sorted by run_after among themselves. Roles that
   become ready together fall out in stage order (constructor -> workstation
-  -> server -> destructor) via ``roles/categories.yml``, then category
+  -> server -> destructor) via ``meta/categories.yml``, then category
   run_after, then name.
 
 Derived purely from ``meta/*.yml`` (run_after + the service registry) and
-``roles/categories.yml`` (stage), NOT from ``tasks/stages/*.yml``, so it
+``meta/categories.yml`` (stage), NOT from ``tasks/stages/*.yml``, so it
 stays independent of how the stage playbooks happen to be split.
 
 Examples:

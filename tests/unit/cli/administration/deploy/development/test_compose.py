@@ -12,8 +12,6 @@ from cli.administration.deploy.development.compose import Compose
 
 class TestComposeUpRetries(unittest.TestCase):
     def _compose(self) -> Compose:
-        # repo_root is only used as a cwd in subprocess calls; for these unit tests
-        # we do not execute real subprocesses.
         return Compose(repo_root=Path("/tmp/infinito-nexus"), distro="arch")
 
     @patch("time.sleep", autospec=True)
@@ -22,7 +20,6 @@ class TestComposeUpRetries(unittest.TestCase):
     ) -> None:
         compose = self._compose()
 
-        # Fail 2 times, then succeed.
         compose.run = MagicMock(
             side_effect=[
                 subprocess.CalledProcessError(1, ["docker", "compose"], "out1", "err1"),
@@ -42,13 +39,10 @@ class TestComposeUpRetries(unittest.TestCase):
         ]
         compose._compose_up_with_retries(args, attempts=6, delay_s=30)
 
-        # 3 calls: fail, fail, succeed
         self.assertEqual(compose.run.call_count, 3)
 
-        # Sleep after each failure (2 times), not after success
         self.assertEqual(sleep_mock.call_count, 2)
         sleep_mock.assert_any_call(30)
-        # Ensure all sleeps used exactly 30 seconds
         self.assertTrue(all(call.args == (30,) for call in sleep_mock.call_args_list))
 
     @patch("time.sleep", autospec=True)
@@ -57,7 +51,6 @@ class TestComposeUpRetries(unittest.TestCase):
     ) -> None:
         compose = self._compose()
 
-        # Always fail.
         compose.run = MagicMock(
             side_effect=subprocess.CalledProcessError(
                 1, ["docker", "compose"], "out", "err"
@@ -69,10 +62,8 @@ class TestComposeUpRetries(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             compose._compose_up_with_retries(args, attempts=6, delay_s=30)
 
-        # Called exactly 6 times
         self.assertEqual(compose.run.call_count, 6)
 
-        # Sleep between attempts: after attempts 1..5 => 5 sleeps
         self.assertEqual(sleep_mock.call_count, 5)
         self.assertTrue(all(call.args == (30,) for call in sleep_mock.call_args_list))
 
@@ -101,6 +92,8 @@ class TestComposeUpRetries(unittest.TestCase):
             "GITHUB_ACTIONS": "true",
             "INFINITO_RUNNING_ON_GITHUB": "true",
             "CI": "true",
+            "INFINITO_GIT_COMMON_DIR": "",
+            "INFINITO_CACHE_NETWORK": "",
         },
         clear=False,
     )
@@ -125,7 +118,6 @@ class TestComposeUpRetries(unittest.TestCase):
         cmd = run_mock.call_args.args[0]
         env = run_mock.call_args.kwargs["env"]
 
-        # CI: cache override is not layered in.
         self.assertEqual(
             cmd,
             [
@@ -148,6 +140,8 @@ class TestComposeUpRetries(unittest.TestCase):
             "GITHUB_ACTIONS": "",
             "INFINITO_RUNNING_ON_GITHUB": "",
             "CI": "",
+            "INFINITO_GIT_COMMON_DIR": "",
+            "INFINITO_CACHE_NETWORK": "",
         },
         clear=False,
     )
@@ -164,7 +158,6 @@ class TestComposeUpRetries(unittest.TestCase):
         cmd = run_mock.call_args.args[0]
         env = run_mock.call_args.kwargs["env"]
 
-        # Local: cache override is layered onto compose.yml.
         self.assertEqual(
             cmd,
             [
@@ -195,7 +188,6 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_BUILD": "1",
             "INFINITO_IMAGE": "infinito-debian",
             "INFINITO_PULL_POLICY": "never",
-            # CI-pinned so cache stays inactive; this test asserts build behaviour only.
             "CI": "true",
             "GITHUB_ACTIONS": "true",
             "INFINITO_RUNNING_ON_GITHUB": "true",
@@ -258,6 +250,8 @@ class TestComposeUpRetries(unittest.TestCase):
             "CI": "",
             "GITHUB_ACTIONS": "",
             "INFINITO_RUNNING_ON_GITHUB": "",
+            "INFINITO_GIT_COMMON_DIR": "",
+            "INFINITO_CACHE_NETWORK": "",
         },
         clear=False,
     )
@@ -272,7 +266,6 @@ class TestComposeUpRetries(unittest.TestCase):
 
         compose.up(run_entry_init=False)
 
-        # Cache services precede coredns + infinito so depends_on health gates resolve.
         compose._compose_up_with_retries.assert_called_once_with(
             [
                 "up",

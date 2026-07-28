@@ -17,6 +17,7 @@ from . import (
 from .infinito import (
     ca_cert_host,
     container,
+    distros,
     docker_volume,
     image,
     image_repository,
@@ -49,6 +50,7 @@ from .infinito.worker import fetch as worker_fetch
 
 ORDERED_HANDLERS = [
     passthrough,
+    distros,
     dir_var_lib,
     dir_backups,
     dir_secrets,

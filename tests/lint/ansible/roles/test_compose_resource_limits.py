@@ -21,7 +21,7 @@ declares the limits). Pure config toggles / cross-role integration flags that
 are not container-shaped are ignored.
 
 Scope: only roles whose directory name starts with an invokable prefix from
-``roles/categories.yml`` are checked. Non-invokable categories (``dev-*``,
+``meta/categories.yml`` are checked. Non-invokable categories (``dev-*``,
 ``sys-*``) ship no compose service of their own.
 
 Missing keys emit a ``::warning`` annotation each so CI annotates the source

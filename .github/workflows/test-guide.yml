@@ -90,7 +90,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          INFINITO_IMAGE="ghcr.io/$(scripts/meta/resolve/repository/owner.sh)/$(scripts/meta/resolve/repository/name.sh)/${INFINITO_DISTRO}:ci-${{ github.sha }}"
+          INFINITO_IMAGE="$(python3 -m cli.meta.ci.image_ref --kind environment \
+            --distro "${INFINITO_DISTRO}" \
+            --owner "$(scripts/meta/resolve/repository/owner.sh)" \
+            --repository "$(scripts/meta/resolve/repository/name.sh)" \
+            --tag "ci-${{ github.sha }}")"
           echo "INFINITO_IMAGE=${INFINITO_IMAGE}" >> "$GITHUB_ENV"
           export INFINITO_IMAGE
           make compose-up

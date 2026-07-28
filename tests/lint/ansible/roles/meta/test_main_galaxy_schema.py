@@ -21,9 +21,9 @@ project-owned files (``meta/services.yml.<entity>``), not in the Galaxy slot.
 On top of the generic schema this lint also enforces two project-wide
 canonical exact-values to stop drift: ``galaxy_info.company`` is one
 specific block-scalar string (Kevin Veen-Birkenbach /
-https://www.veen.world) and ``galaxy_info.platforms`` is one specific
-5-distro list (ArchLinux/Debian/EL/Fedora/Ubuntu, each ``versions:
-[all]``). Both fields had accumulated ~10 variants each (quoting style,
+https://www.veen.world) and ``galaxy_info.platforms`` is the platform list
+built from the ``meta/distros.yml`` SPOT (ArchLinux/Debian/EL/Fedora/Ubuntu,
+each ``versions: [all]``). Both fields had accumulated ~10 variants each (quoting style,
 Unicode hyphen, typos, ``Linux``/``GenericLinux``/``Any`` platform names)
 before standardisation. The two-line company form keeps the parsed value
 under Galaxy's 50-character limit on ``company`` so galaxy-importer
@@ -51,6 +51,7 @@ import yaml as _yaml
 
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.distros import galaxy_platforms
 from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 if TYPE_CHECKING:
@@ -99,13 +100,7 @@ _REQUIRED_GALAXY_INFO: frozenset[str] = frozenset(
 
 _CANONICAL_COMPANY: str = "Kevin Veen-Birkenbach\nhttps://www.veen.world\n"
 
-_CANONICAL_PLATFORMS: list[dict[str, Any]] = [
-    {"name": "ArchLinux", "versions": ["all"]},
-    {"name": "Debian", "versions": ["all"]},
-    {"name": "EL", "versions": ["all"]},
-    {"name": "Fedora", "versions": ["all"]},
-    {"name": "Ubuntu", "versions": ["all"]},
-]
+_CANONICAL_PLATFORMS: list[dict[str, Any]] = galaxy_platforms()
 
 
 def _meta_main_paths() -> list[Path]:

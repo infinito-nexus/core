@@ -51,6 +51,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+from utils.distros import distro_family
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -89,15 +91,10 @@ REPO_KEYS: frozenset[str] = frozenset(
 """A repository definition must declare at least one of these; the rest
 (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."""
 
-DISTRO_FAMILY: dict[str, str] = {
-    "arch": "Archlinux",
-    "debian": "Debian",
-    "ubuntu": "Debian",
-    "fedora": "RedHat",
-    "centos": "RedHat",
-}
+DISTRO_FAMILY: dict[str, str] = distro_family()
 """The default distro matrix mapped onto the ``os_family`` ansible reports
-for it. Coverage is required for every key."""
+for it, read from the ``meta/distros.yml`` SPOT. Coverage is required for
+every key."""
 
 
 class PackagesShapeError(ValueError):

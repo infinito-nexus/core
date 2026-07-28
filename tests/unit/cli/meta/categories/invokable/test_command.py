@@ -31,7 +31,6 @@ class TestInvokableCategoriesCommand(unittest.TestCase):
                 code = exc.code if exc.code is not None else 0
                 return int(code), out.getvalue(), err.getvalue()
 
-        # If no SystemExit was raised, it succeeded
         return 0, out.getvalue(), err.getvalue()
 
     @patch("cli.meta.categories.invokable.command.get_invokable_paths")
@@ -46,7 +45,7 @@ class TestInvokableCategoriesCommand(unittest.TestCase):
         self.assertEqual(stderr, "")
         self.assertEqual(stdout.splitlines(), ["a/b", "c/d"])
 
-        mock_invokable.assert_called_once_with(None, None)
+        mock_invokable.assert_called_once_with(suffix=None)
         mock_non_invokable.assert_not_called()
 
     @patch("cli.meta.categories.invokable.command.get_invokable_paths")
@@ -62,20 +61,26 @@ class TestInvokableCategoriesCommand(unittest.TestCase):
         self.assertEqual(stderr, "")
         self.assertEqual(stdout.splitlines(), ["n1", "n2"])
 
-        mock_non_invokable.assert_called_once_with(None, None)
+        mock_non_invokable.assert_called_once_with(suffix=None)
         mock_invokable.assert_not_called()
 
     @patch("cli.meta.categories.invokable.command.get_invokable_paths")
-    def test_roles_file_and_suffix_are_forwarded(self, mock_invokable) -> None:
+    def test_long_suffix_flag_is_forwarded(self, mock_invokable) -> None:
         mock_invokable.return_value = ["p1"]
 
-        code, stdout, stderr = self._run_main(["roles/categories.yml", "--suffix", "-"])
+        code, stdout, stderr = self._run_main(["--suffix", "-"])
 
         self.assertEqual(code, 0)
         self.assertEqual(stderr, "")
         self.assertEqual(stdout.splitlines(), ["p1"])
 
-        mock_invokable.assert_called_once_with("roles/categories.yml", "-")
+        mock_invokable.assert_called_once_with(suffix="-")
+
+    def test_positional_path_is_rejected(self) -> None:
+        code, _, stderr = self._run_main(["meta/categories.yml"])
+
+        self.assertEqual(code, 2)
+        self.assertIn("unrecognized arguments", stderr)
 
     @patch("cli.meta.categories.invokable.command.get_invokable_paths")
     def test_short_suffix_flag(self, mock_invokable) -> None:
@@ -87,7 +92,7 @@ class TestInvokableCategoriesCommand(unittest.TestCase):
         self.assertEqual(stderr, "")
         self.assertEqual(stdout.splitlines(), ["p1"])
 
-        mock_invokable.assert_called_once_with(None, "::")
+        mock_invokable.assert_called_once_with(suffix="::")
 
     @patch("cli.meta.categories.invokable.command.get_invokable_paths")
     def test_file_not_found_exits_1_and_prints_error(self, mock_invokable) -> None:

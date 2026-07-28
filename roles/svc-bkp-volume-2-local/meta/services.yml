@@ -3,6 +3,10 @@ volume-2-local:
   modes:
     host:
       enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
   bond: 1
   enabled: true
   shared: true

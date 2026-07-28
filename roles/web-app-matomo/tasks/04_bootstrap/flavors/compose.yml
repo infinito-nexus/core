@@ -1,22 +1,15 @@
 ---
-- name: "🐳 Matomo bootstrap | Compose: Run one-shot bootstrap via compose profile"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_COMPOSE }}"
-      - --chdir
-      - "{{ lookup('container', application_id, 'directories.instance') }}"
-      - --project
-      - "{{ (lookup('container', application_id, 'directories.instance') | regex_replace('/+$', '')) | basename }}"
-      - --
-      - --profile
-      - "{{ MATOMO_BOOTSTRAP_PROFILE }}"
-      - run
-      - "-T"
-      - --rm
-      - "{{ MATOMO_BOOTSTRAP_SERVICE }}"
-  register: matomo_bootstrap_compose
+- name: "🐳 Matomo bootstrap | Compose: run installer attempts"
+  ansible.builtin.include_tasks: compose_attempt.yml
+  loop: "{{ range(MATOMO_BOOTSTRAP_ATTEMPTS | int) | list }}"
+  loop_control:
+    loop_var: matomo_attempt_index
+
+- name: "🛑 Matomo bootstrap | Compose: fail when no attempt succeeded"
+  ansible.builtin.fail:
+    msg: >-
+      Matomo compose bootstrap failed after {{ MATOMO_BOOTSTRAP_ATTEMPTS }} attempt(s)
+      with rc={{ matomo_bootstrap_compose.rc | default('n/a') }}:
+      {{ (matomo_bootstrap_compose | default({})).stderr | default('') | trim }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: true
-  retries: "{{ MATOMO_BOOTSTRAP_RETRIES | int }}"
-  delay: "{{ MATOMO_BOOTSTRAP_RETRY_DELAY_S | int }}"
-  until: matomo_bootstrap_compose.rc == 0
+  when: ((matomo_bootstrap_compose | default({})).rc | default(1)) | int != 0

@@ -28,10 +28,7 @@ class TestInventoryGenerator(unittest.TestCase):
             ):
                 data = generate_dynamic_inventory(
                     host="localhost",
-                    roles_dir=tmp / "roles",
-                    categories_file=tmp / "categories.yml",
                     tmp_inventory=tmp_inventory,
-                    project_root=tmp / "repo",
                     env={"PYTHONPATH": "x"},
                 )
 

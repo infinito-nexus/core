@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 #
 # Decide which distros the latest-push CI run should cover. If the
-# pushed commit carries a `vX.Y.Z` annotated tag, run every distro in
-# `ALL_DISTROS`; otherwise pick one at random. Emits both
-# `is_version` and `distros` to GITHUB_OUTPUT.
+# pushed commit carries a `vX.Y.Z` annotated tag, run every declared
+# distro; otherwise pick one at random. Emits both `is_version` and
+# `distros` to GITHUB_OUTPUT. The distro set comes from INFINITO_DISTROS,
+# which the env layer generates from the meta/distros.yml SPOT.
 #
 # Usage:
 #   pick_distro.sh
 #   (reads GITHUB_SHA from env; writes to GITHUB_OUTPUT)
 set -euo pipefail
 
-ALL_DISTROS=(arch debian ubuntu fedora centos)
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+# shellcheck source=scripts/meta/env/load.sh
+source "${REPO_ROOT}/scripts/meta/env/load.sh"
+: "${INFINITO_DISTROS:?INFINITO_DISTROS must be resolved by scripts/meta/env/load.sh}"
+read -r -a ALL_DISTROS <<<"${INFINITO_DISTROS}"
 
 version_tag="$(
 	git tag --points-at "${GITHUB_SHA}" |

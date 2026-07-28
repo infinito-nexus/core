@@ -35,20 +35,6 @@ def _resolve_inventory_file(
     return (inventory_dir / "devices.yml").resolve()
 
 
-def _resolve_roles_dir(project_root: Path, roles_dir_arg: str | None) -> Path:
-    return (
-        Path(roles_dir_arg) if roles_dir_arg else (project_root / "roles")
-    ).resolve()
-
-
-def _resolve_categories_file(roles_dir: Path, categories_file_arg: str | None) -> Path:
-    return (
-        Path(categories_file_arg)
-        if categories_file_arg
-        else (roles_dir / "categories.yml")
-    ).resolve()
-
-
 def _resolve_mirrors_file(project_root: Path, mirror_arg: str | None) -> Path | None:
     """
     --mirror can be used in two ways:
@@ -60,7 +46,6 @@ def _resolve_mirrors_file(project_root: Path, mirror_arg: str | None) -> Path | 
     if mirror_arg is None:
         return None
 
-    # argparse uses const="mirrors.yml" when flag is present without value
     candidate = Path(mirror_arg)
     if not candidate.is_absolute():
         candidate = (project_root / candidate).resolve()
@@ -122,14 +107,6 @@ def main(argv: list[str] | None = None) -> int:
         help="Vault password file path. Default: <inventory-dir>/.password",
     )
     parser.add_argument(
-        "--roles-dir", default=None, help="Path to roles/ (default: <repo-root>/roles)."
-    )
-    parser.add_argument(
-        "--categories-file",
-        default=None,
-        help="Path to roles/categories.yml (default: <roles-dir>/categories.yml).",
-    )
-    parser.add_argument(
         "--workers",
         type=int,
         default=os.cpu_count() or 4,
@@ -144,7 +121,6 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
 
-    # New: mirroring support
     parser.add_argument(
         "--mirror",
         nargs="?",
@@ -182,8 +158,7 @@ def main(argv: list[str] | None = None) -> int:
     project_root = detect_project_root(Path(__file__).resolve())
     env = build_env_with_project_root(project_root)
 
-    roles_dir = _resolve_roles_dir(project_root, args.roles_dir)
-    categories_file = _resolve_categories_file(roles_dir, args.categories_file)
+    roles_dir = (project_root / "roles").resolve()
     mirrors_file = _resolve_mirrors_file(project_root, args.mirror)
 
     inventory_dir = Path(args.inventory_dir).resolve()
@@ -192,7 +167,6 @@ def main(argv: list[str] | None = None) -> int:
     inventory_file = _resolve_inventory_file(inventory_dir, args.inventory_file)
     host_vars_file = (inventory_dir / "host_vars" / f"{args.host}.yml").resolve()
 
-    # Vault password file
     if args.vault_password_file:
         vault_password_file = Path(args.vault_password_file).resolve()
     else:
@@ -225,10 +199,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     dyn_inv = generate_dynamic_inventory(
         host=args.host,
-        roles_dir=roles_dir,
-        categories_file=categories_file,
         tmp_inventory=tmp_inventory,
-        project_root=project_root,
         env=env,
     )
 
@@ -242,7 +213,6 @@ def main(argv: list[str] | None = None) -> int:
     dyn_children = (dyn_inv.get("all", {}) or {}).get("children", {}) or {}
     application_ids = sorted(dyn_children.keys())
 
-    # Merge inventory file
     if inventory_file.exists():
         print(f"[INFO] Merging into existing inventory: {inventory_file}")
         base_inv = load_yaml(inventory_file)
@@ -253,7 +223,6 @@ def main(argv: list[str] | None = None) -> int:
     merged_inv = _merge_inventories(base_inv, dyn_inv, host=args.host)
     dump_yaml(inventory_file, merged_inv)
 
-    # Host vars
     print(f"[INFO] Ensuring host_vars for host '{args.host}' at {host_vars_file}")
     ensure_host_vars_file(
         host_vars_file=host_vars_file,
@@ -283,7 +252,6 @@ def main(argv: list[str] | None = None) -> int:
                     f"--app-variants[{app_id!r}] must be an integer, got {raw_index!r}: {exc}"
                 )
 
-    # Credentials
     if application_ids:
         print(
             f"[INFO] Generating credentials for {len(application_ids)} applications..."
@@ -317,13 +285,10 @@ def main(argv: list[str] | None = None) -> int:
         )
         apply_vars_overrides(host_vars_file=host_vars_file, json_str=args.vars)
 
-    # Mirror overrides should win (requested behavior: "überschreiben")
     if mirrors_file is not None:
         print(f"[INFO] Applying mirror overrides from: {mirrors_file}")
         apply_mirror_overrides(host_vars_file=host_vars_file, mirrors_file=mirrors_file)
 
-    # Disable services listed in the `disable` env var (space- or comma-separated).
-    # Also removes the provider roles from the inventory.
     apply_services_disabled_from_env(
         host_vars_file=host_vars_file,
         inventory_file=inventory_file,

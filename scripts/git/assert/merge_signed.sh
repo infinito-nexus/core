@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Pre-merge-commit gate: every commit the merge brings in (HEAD..MERGE_HEAD)
-# must carry a signature. `git log %G?` yields N for unsigned; any other
-# status counts as signed, matching the test-signed HEAD gate.
+# Merge gate: every commit the merge brings in (HEAD..MERGE_HEAD) must carry
+# a signature. `git log %G?` yields N for unsigned; any other status counts
+# as signed, matching the test-signed HEAD gate.
 
 git_dir="$(git rev-parse --git-dir)"
 if [ ! -f "${git_dir}/MERGE_HEAD" ]; then
-	echo "❌ No merge in progress (MERGE_HEAD missing); this gate runs during git merge." >&2
-	exit 1
+	exit 0
 fi
 
 unsigned="$(git log --pretty='%H %G? %s' HEAD..MERGE_HEAD | awk '$2 == "N"')"

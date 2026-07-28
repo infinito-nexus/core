@@ -1,7 +1,7 @@
 """Lookup `stage_groups`: the ordered role-group names
 (``tasks/groups/<g>-roles.yml``) that belong to a deploy stage, in intra-stage
 call order. The stage plays loop over it so group membership follows
-``roles/categories.yml`` instead of a hardcoded list:
+``meta/categories.yml`` instead of a hardcoded list:
 
     loop: "{{ lookup('stage_groups', 'server') }}"
 """

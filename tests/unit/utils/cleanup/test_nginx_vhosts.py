@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import io
-import os
 import shutil
 import tempfile
 import unittest
@@ -18,6 +17,7 @@ from utils.cleanup.nginx_vhosts import (
     main,
     purge_vhost_files_for_entities,
 )
+from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
 
 
@@ -26,11 +26,10 @@ class NginxVhostsTestBase(unittest.TestCase):
         _reset_cache_for_tests()
         self.tmp = Path(tempfile.mkdtemp(prefix="nginx_vhosts_test_"))
 
-        # Roles tree (with categories.yml so `get_entity_name` resolves).
         self.roles_dir = self.tmp / "roles"
         self.roles_dir.mkdir(parents=True, exist_ok=True)
         dump_yaml(
-            self.roles_dir / "categories.yml",
+            categories_file(self.tmp),
             {
                 "roles": {
                     "web": {
@@ -41,16 +40,14 @@ class NginxVhostsTestBase(unittest.TestCase):
             },
         )
 
-        # Fake nginx tree: /etc/nginx/conf.d/servers/{http,https}/
         self.nginx_dir = self.tmp / "etc-nginx"
         self.servers_dir = self.nginx_dir / "conf.d" / "servers"
         (self.servers_dir / "http").mkdir(parents=True, exist_ok=True)
         (self.servers_dir / "https").mkdir(parents=True, exist_ok=True)
 
-        # categories.yml resolution leans on cwd → pin it to the tmp tree.
-        self._cwd = Path.cwd()
-        os.chdir(self.tmp)
-        self.addCleanup(lambda: os.chdir(self._cwd))
+        root = patch("utils.roles.categories.PROJECT_ROOT", self.tmp)
+        root.start()
+        self.addCleanup(root.stop)
         self.addCleanup(lambda: shutil.rmtree(self.tmp, ignore_errors=True))
 
     def _mk_role(
@@ -87,7 +84,6 @@ class TestIterVhostFiles(NginxVhostsTestBase, unittest.TestCase):
             canonical=["matomo.infinito.example"],
         )
         existing = self._touch_vhost("matomo.infinito.example", "https")
-        # http variant intentionally absent on disk
 
         got = list(
             iter_vhost_files_for_entity(
@@ -211,7 +207,6 @@ class TestPurgeVhostFiles(NginxVhostsTestBase, unittest.TestCase):
             application_id="web-app-matomo",
             canonical=["matomo.infinito.example"],
         )
-        # No vhost files placed on disk.
 
         removed = purge_vhost_files_for_entities(
             ["matomo"],
@@ -282,8 +277,8 @@ class TestMainShim(NginxVhostsTestBase, unittest.TestCase):
         self.assertIn("usage:", stderr.getvalue())
 
     def test_main_reports_noop_when_nothing_to_remove(self) -> None:
+        """With no roles and no vhost files, main still returns 0 and says so."""
         stdout = io.StringIO()
-        # No roles, no vhost files — main MUST still return 0 with a no-op message.
         with patch.object(mod, "ROLES_DIR", self.roles_dir), redirect_stdout(stdout):
             rc = main(["nonexistent"])
         self.assertEqual(rc, 0)

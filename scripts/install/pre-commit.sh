@@ -5,3 +5,4 @@ set -euo pipefail
 
 echo "🔗 Installing pre-commit hooks"
 "${PYTHON}" -m pre_commit install
+"${PYTHON}" -m pre_commit uninstall -t pre-merge-commit

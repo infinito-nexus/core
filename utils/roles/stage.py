@@ -1,6 +1,6 @@
 """Deploy-stage lookup SPOT.
 
-``roles/categories.yml`` declares the ordered ``stages`` (constructor ->
+``meta/categories.yml`` declares the ordered ``stages`` (constructor ->
 workstation -> server -> destructor, matching ``tasks/stages/0*.yml``) and a
 ``stage`` per top-level category. This module resolves a role to its stage and
 exposes the canonical stage order, so both the CLI (``cli.meta.roles.order``)
@@ -9,29 +9,16 @@ and the ``stage_order`` / ``role_stage`` lookups read one source of truth.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
 from utils.roles.applications.services.registry import run_after_topological_order
+from utils.roles.categories import categories_file
 
 DEFAULT_STAGE = "server"
 
 
-def _categories_file() -> str | None:
-    for loc in (
-        Path.cwd() / "roles" / "categories.yml",
-        PROJECT_ROOT / "roles" / "categories.yml",
-        Path("roles/categories.yml"),
-    ):
-        if Path(loc).exists():
-            return str(loc)
-    return None
-
-
 def _doc() -> dict:
-    f = _categories_file()
-    return load_yaml(f) if f else {}
+    return load_yaml(str(categories_file()))
 
 
 _META_DICT_KEYS = frozenset({"modes"})

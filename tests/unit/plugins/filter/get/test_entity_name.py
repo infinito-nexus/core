@@ -1,11 +1,12 @@
-import os
 import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from utils.cache.yaml import dump_yaml
+from utils.roles.categories import categories_file
 
 
 class TestGetEntityNameFilter(unittest.TestCase):
@@ -13,7 +14,7 @@ class TestGetEntityNameFilter(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         self.roles_dir = str(Path(self.temp_dir) / "roles")
         Path(self.roles_dir).mkdir(parents=True)
-        self.categories_file = str(Path(self.roles_dir) / "categories.yml")
+        self.categories_file = str(categories_file(Path(self.temp_dir)))
 
         categories = {
             "roles": {
@@ -35,10 +36,11 @@ class TestGetEntityNameFilter(unittest.TestCase):
         }
         dump_yaml(self.categories_file, categories)
 
-        self._cwd = str(Path.cwd())
-        os.chdir(self.temp_dir)
+        root = patch("utils.roles.categories.PROJECT_ROOT", Path(self.temp_dir))
+        root.start()
+        self.addCleanup(root.stop)
 
-        plugin_path = str(Path(self._cwd) / "plugins" / "filter")
+        plugin_path = str(Path.cwd() / "plugins" / "filter")
         if plugin_path not in sys.path and Path(plugin_path).is_dir():
             sys.path.insert(0, plugin_path)
         from plugins.filter.get.entity_name import get_entity_name
@@ -46,7 +48,6 @@ class TestGetEntityNameFilter(unittest.TestCase):
         self.get_entity_name = get_entity_name
 
     def tearDown(self):
-        os.chdir(self._cwd)
         shutil.rmtree(self.temp_dir)
 
     def test_entity_name_web_app(self):

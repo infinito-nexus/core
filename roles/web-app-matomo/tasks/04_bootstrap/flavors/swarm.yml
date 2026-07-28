@@ -20,14 +20,14 @@
 
 - name: "🐝 Matomo bootstrap | Swarm: run installer attempts"
   ansible.builtin.include_tasks: swarm_attempt.yml
-  loop: "{{ range(MATOMO_BOOTSTRAP_SWARM_ATTEMPTS | int) | list }}"
+  loop: "{{ range(MATOMO_BOOTSTRAP_ATTEMPTS | int) | list }}"
   loop_control:
     loop_var: matomo_attempt_index
 
 - name: "🛑 Matomo bootstrap | Swarm: fail when no attempt yielded a token"
   ansible.builtin.fail:
     msg: >-
-      Matomo swarm bootstrap failed after {{ MATOMO_BOOTSTRAP_SWARM_ATTEMPTS }} attempt(s)
+      Matomo swarm bootstrap failed after {{ MATOMO_BOOTSTRAP_ATTEMPTS }} attempt(s)
       with rc={{ matomo_bootstrap_swarm.rc | default('n/a') }}.
   when: >-
     ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0

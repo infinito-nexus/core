@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from utils.distros import pkgmgr_image
+
 if TYPE_CHECKING:
     from utils.env.builder import BuildContext, EnvBuilder
 
@@ -16,7 +18,7 @@ COMMENT = (
 
 
 def compose(owner: str, distro: str, tag: str) -> str:
-    return f"ghcr.io/{owner}/pkgmgr-{distro}:{tag}"
+    return pkgmgr_image(distro, owner=owner, tag=tag)
 
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:

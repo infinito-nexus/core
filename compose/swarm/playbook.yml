@@ -30,6 +30,7 @@
     lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
     lab_dns_node: "{{ lab_is_mgr or lab_is_worker }}"
     lab_domain_target: "{{ lab_mgr_ip }}"
+    lab_no_proxy: "localhost,127.0.0.1,::1,infinito-registry-cache,{{ lab_mgr }},{{ lab_wrk1 }},{{ lab_wrk2 }},{{ lab_nfs }},{{ lab_backup }},gcr.io,storage.googleapis.com,googleusercontent.com"
   tasks:
     - block:
         - name: wait for systemd ready (status from stdout; rc is nonzero when degraded)
@@ -73,6 +74,16 @@
         name: systemd-user-sessions
         state: started
       timeout: 30
+
+    - name: probe the registry-cache CA (mounted by cache.override.yml, absent without a local cache stack)
+      stat:
+        path: /opt/registry-cache-ca/ca.crt
+      timeout: 30
+      register: lab_registry_ca
+
+    - name: wire the node docker daemon to the host registry cache
+      include_tasks: registry_cache.yml
+      when: lab_registry_ca.stat.exists
 
     - name: wipe stale NFS export state (as root in-node; the act runner cannot)
       command: find {{ lab_export_base }} -mindepth 1 -delete

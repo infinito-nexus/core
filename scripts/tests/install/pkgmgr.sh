@@ -10,7 +10,9 @@
 #   INFINITO_VENV_DIR   venv path inside the container (from default.env).
 #   RUNNER_TEMP         runner scratch dir for the per-distro copies.
 #   GITHUB_WORKSPACE    the checkout to install and test.
-#   INFINITO_DISTROS    distro list; defaults to the SPOT in default.env.
+#
+# The distro set comes from INFINITO_DISTROS, which the env layer generates
+# from the meta/distros.yml SPOT.
 
 set -uo pipefail
 
@@ -19,10 +21,9 @@ set -uo pipefail
 : "${RUNNER_TEMP:?}"
 : "${GITHUB_WORKSPACE:?}"
 
-if [[ -z "${INFINITO_DISTROS:-}" ]]; then
-	INFINITO_DISTROS="$(awk -F= '/^INFINITO_DISTROS=/{v=$2; gsub(/^"|"$/,"",v); print v; exit}' "${GITHUB_WORKSPACE}/default.env")"
-fi
-: "${INFINITO_DISTROS:?}"
+# shellcheck source=scripts/meta/env/load.sh
+source "${GITHUB_WORKSPACE}/scripts/meta/env/load.sh"
+: "${INFINITO_DISTROS:?INFINITO_DISTROS must be resolved by scripts/meta/env/load.sh}"
 read -r -a distros <<<"${INFINITO_DISTROS}"
 declare -A pid
 

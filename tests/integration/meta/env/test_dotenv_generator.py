@@ -188,6 +188,12 @@ class TestDotenvSmoke(unittest.TestCase):
     produced .env contains the expected baseline keys."""
 
     def test_clean_run_produces_expected_keys(self) -> None:
+        if (PROJECT_ROOT / "custom.env").is_file():
+            self.skipTest(
+                "custom.env overrides handler-computed values by design "
+                "(see utils/env/builder.py:apply_custom_env), so this checkout "
+                "cannot produce a clean run; 'make worktree-up' writes one."
+            )
         with tempfile.TemporaryDirectory() as td:
             env = {
                 k: v

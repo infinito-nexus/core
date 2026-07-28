@@ -1,0 +1,18 @@
+---
+# Layered on cache.override.yml for secondary instances, which reach the
+# primary instance's cache stack instead of running one of their own.
+# See docs/contributing/environment/cache.md.
+
+services:
+  infinito:
+    # Exception: required:false still makes compose CREATE the cache services,
+    # which would claim the primary instance's IPs outside this subnet.
+    depends_on: !reset null
+    networks:
+      cache:
+
+networks:
+  cache:
+    external: true
+    name: ${INFINITO_CACHE_NETWORK:?Set by 'make worktree-up' from the running
+      cache stack; empty on the primary instance}

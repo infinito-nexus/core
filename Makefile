@@ -65,7 +65,7 @@ build-cleanup:
 .PHONY: build-dependency
 # Pull the build dependency image.
 build-dependency:
-	@docker pull ghcr.io/kevinveenbirkenbach/pkgmgr-$${INFINITO_DISTRO}:stable
+	@docker pull "$${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}"
 
 .PHONY: build-missing
 # Build the local image if it is missing.
@@ -688,6 +688,7 @@ swarm-shell:
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
 # Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
+# Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
@@ -695,7 +696,7 @@ swarm-zombie: install-act
 	@bash scripts/tests/deploy/act/down_act_outer.sh
 	@ACT_RM=false \
 	 ACT_BIND=true \
-	 ACT_ENV='INFINITO_KEEP_SWARM_NODES=true;INFINITO_APP_DISCOVERY_RUNNER=host;INFINITO_DEPLOY_MODE=swarm;disable=$(disable);SWARM_NAME=$(or $(name),$(app))' \
+	 ACT_ENV='INFINITO_KEEP_SWARM_NODES=true;INFINITO_APP_DISCOVERY_RUNNER=host;INFINITO_DEPLOY_MODE=swarm;disable=$(disable);SWARM_NAME=$(or $(name),$(app));INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690)' \
 	 ACT_WORKFLOW=.github/workflows/test-deploy-swarm.yml \
 	 ACT_JOB=swarm \
 	 ACT_MATRIX='apps:$(app);variant:$(or $(variant),0)' \
@@ -744,7 +745,7 @@ test-main-merged:
 	@bash scripts/git/assert/main_merged.sh
 
 .PHONY: test-merge-signed
-# Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (pre-merge-commit gate).
+# Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (prepare-commit-msg gate).
 test-merge-signed:
 	@bash scripts/git/assert/merge_signed.sh
 
@@ -765,6 +766,26 @@ test-unit: install
 	@INFINITO_TEST_TYPE="unit" \
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh
+
+.PHONY: worktree-down
+# Stop a branch worktree's stack, release the checkout and free its slot.
+# Usage: make worktree-down branch=<name> [base=<dir>] [force=true]
+# Param branch: branch the worktree was created for (required).
+# Param base: parent directory the worktree lives in (default /tmp).
+# Param force: true discards uncommitted changes in the worktree.
+worktree-down:
+	@test -n '$(branch)' || { echo 'usage: make worktree-down branch=<name> [base=<dir>] [force=true]'; exit 2; }
+	@bash scripts/system/worktree/down.sh '$(branch)' '$(or $(base),/tmp)' '$(or $(force),false)'
+
+.PHONY: worktree-up
+# Check a branch out into an isolated worktree with its own subnet, ports and container names.
+# Usage: make worktree-up branch=<name> [base=<dir>]
+# Note: the worktree shares the primary checkout's cache stack instead of starting its own.
+# Param branch: branch to check out (required).
+# Param base: parent directory for the worktree (default /tmp).
+worktree-up:
+	@test -n '$(branch)' || { echo 'usage: make worktree-up branch=<name> [base=<dir>]'; exit 2; }
+	@bash scripts/system/worktree/up.sh '$(branch)' '$(or $(base),/tmp)'
 
 .PHONY: wsl2-dns-setup
 # Set up DNS on WSL2.

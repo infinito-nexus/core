@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import os
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from utils.cache.yaml import _reset_cache_for_tests, dump_yaml
+from utils.roles.categories import categories_file
 from utils.roles.entity.apps import apps_for_entity
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
@@ -21,7 +22,7 @@ class TestAppsForEntity(unittest.TestCase):
         self.roles_dir.mkdir(parents=True, exist_ok=True)
 
         dump_yaml(
-            self.roles_dir / "categories.yml",
+            categories_file(self.tmp),
             {
                 "roles": {
                     "web": {
@@ -32,9 +33,9 @@ class TestAppsForEntity(unittest.TestCase):
             },
         )
 
-        self._cwd = Path.cwd()
-        os.chdir(self.tmp)
-        self.addCleanup(lambda: os.chdir(self._cwd))
+        root = patch("utils.roles.categories.PROJECT_ROOT", self.tmp)
+        root.start()
+        self.addCleanup(root.stop)
         self.addCleanup(lambda: shutil.rmtree(self.tmp, ignore_errors=True))
 
     def _mk_role(self, name: str, application_id: str | None) -> None:

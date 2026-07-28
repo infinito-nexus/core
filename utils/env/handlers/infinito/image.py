@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from utils.distros import environment_image
+
 if TYPE_CHECKING:
     from utils.env.builder import BuildContext, EnvBuilder
 
@@ -23,6 +25,6 @@ def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     tag = eb.get("INFINITO_IMAGE_TAG")
     eb.setdefault(
         KEY,
-        f"ghcr.io/{owner}/{repo_name}/{distro}:{tag}",
+        environment_image(distro, owner=owner, repository=repo_name, tag=tag),
         comment=COMMENT,
     )

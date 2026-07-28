@@ -10,6 +10,7 @@ from pathlib import Path
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -23,8 +24,8 @@ def role_is_invokable(role_id: str, roles_dir: str | Path | None = None) -> bool
     """True when any node along `role_id`'s category path has `invokable: true`."""
     if not role_id:
         return False
-    base = _default_roles_dir(roles_dir)
-    tree_doc = load_yaml_any(str(base / "categories.yml"), default_if_missing={})
+    spot = categories_file(_default_roles_dir(roles_dir).parent)
+    tree_doc = load_yaml_any(str(spot), default_if_missing={})
     tree = tree_doc.get("roles") or {} if isinstance(tree_doc, dict) else {}
 
     node = tree

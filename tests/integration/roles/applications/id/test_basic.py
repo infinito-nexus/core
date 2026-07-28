@@ -3,6 +3,7 @@ from pathlib import Path
 
 from plugins.filter.invokable_paths import get_invokable_paths
 from utils.cache.yaml import load_yaml_any
+from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
@@ -19,9 +20,8 @@ class TestSysRolesApplicationId(unittest.TestCase):
         from . import PROJECT_ROOT
 
         cls.base_dir = str(PROJECT_ROOT)
-        cat_file = str(PROJECT_ROOT / "roles" / "categories.yml")
+        cat_file = str(categories_file())
         cls.invokable_prefixes = set(get_invokable_paths(cat_file))
-        # collect actual sys dirs
         roles_dir = Path(cls.base_dir) / "roles"
         cls.actual_dirs = [
             str(p)
@@ -35,7 +35,6 @@ class TestSysRolesApplicationId(unittest.TestCase):
             prefix = f"sys-{name.removeprefix('sys-')}"
             vars_file = str(Path(role_dir) / ROLE_FILE_VARS_MAIN)
             if prefix in self.invokable_prefixes:
-                # must exist with id
                 self.assertTrue(
                     Path(vars_file).is_file(),
                     f"Missing vars/main.yml for invokable role {prefix}",
@@ -47,7 +46,6 @@ class TestSysRolesApplicationId(unittest.TestCase):
                     f"Expected 'application_id' in {vars_file} for invokable role {prefix}",
                 )
             else:
-                # if exists, must not contain id
                 if not Path(vars_file).is_file():
                     continue
                 content = load_yaml_any(vars_file) or {}

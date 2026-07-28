@@ -1,0 +1,23 @@
+---
+- name: install the registry-cache CA into the node trust store
+  command: /usr/local/bin/registry-cache-ca.sh
+  timeout: 60
+  changed_when: true
+
+- name: ensure the docker drop-in directory exists
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    mode: "0755"
+  timeout: 30
+
+- name: route the node docker daemon through the registry cache
+  copy:
+    dest: /etc/systemd/system/docker.service.d/registry-cache-proxy.conf
+    mode: "0644"
+    content: |
+      [Service]
+      Environment="HTTP_PROXY=http://infinito-registry-cache:3128"
+      Environment="HTTPS_PROXY=http://infinito-registry-cache:3128"
+      Environment="NO_PROXY={{ lab_no_proxy }}"
+  timeout: 30

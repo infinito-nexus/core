@@ -20,6 +20,8 @@ import sys
 from typing import TYPE_CHECKING
 
 from utils.cache.files import PROJECT_ROOT
+from utils.distros import distro_names, pkgmgr_image
+from utils.env.parser import parse_static_env
 from utils.roles.deploy import role_has_stack
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.meta_lookup import get_role_test_skips
@@ -32,13 +34,21 @@ from utils.roles.validation.invokable import (
 if TYPE_CHECKING:
     from pathlib import Path
 
-_RUNTIME_IMAGE = "ghcr.io/kevinveenbirkenbach/pkgmgr-{distro}:stable"
-
-_DISTROS = ("arch", "debian", "ubuntu", "fedora", "centos")
-
 
 def _tokens(raw: str) -> list[str]:
     return [t for t in raw.split() if t]
+
+
+def _static_env(key: str) -> str:
+    """Env value, falling back to the ``default.env`` declaration.
+
+    The Guide workflow exports only a handful of keys explicitly; the rest
+    are read from the static SPOT rather than hardcoded here.
+    """
+    value = os.environ.get(key)
+    if value:
+        return value
+    return parse_static_env(PROJECT_ROOT / "default.env")[key]
 
 
 def _guide_mode(role_dir: Path) -> str:
@@ -75,7 +85,8 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         role = random.choice(pool)  # noqa: S311 - test-role pick, not cryptographic
 
-    distros = [d for d in _tokens(os.environ["INFINITO_DISTROS"]) if d in _DISTROS]
+    known = distro_names()
+    distros = [d for d in _tokens(os.environ["INFINITO_DISTROS"]) if d in known]
     if not distros:
         print("guide_select: no known distro in INFINITO_DISTROS", file=sys.stderr)
         return 1
@@ -86,7 +97,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"GUIDE_ROLE={role}")
     print(f"GUIDE_MODE={mode}")
     print(f"INFINITO_DISTRO={distro}")
-    print(f"GUIDE_RUNTIME_IMAGE={_RUNTIME_IMAGE.format(distro=distro)}")
+    runtime_image = pkgmgr_image(
+        distro,
+        owner=_static_env("INFINITO_PARENT_IMAGE_OWNER"),
+        tag=_static_env("INFINITO_PARENT_IMAGE_TAG"),
+    )
+    print(f"GUIDE_RUNTIME_IMAGE={runtime_image}")
     return 0
 
 

@@ -1,8 +1,7 @@
 import unittest
 
 from utils.cache.yaml import load_yaml_any
-
-from . import PROJECT_ROOT
+from utils.roles.categories import categories_file
 
 
 class TestCategoriesInvokableExclusion(unittest.TestCase):
@@ -11,7 +10,7 @@ class TestCategoriesInvokableExclusion(unittest.TestCase):
         Verify that if any ancestor in the hierarchy is invokable,
         none of its descendants may be invokable.
         """
-        yaml_path = str(PROJECT_ROOT / "roles" / "categories.yml")
+        yaml_path = str(categories_file())
 
         data = load_yaml_any(yaml_path)
 
@@ -25,7 +24,6 @@ class TestCategoriesInvokableExclusion(unittest.TestCase):
                 is_invokable = value.get("invokable", False)
                 current_path = [*path, key]
 
-                # Violation: a descendant is invokable despite an invokable ancestor
                 if ancestor_invokable and is_invokable:
                     ancestor_name = ".".join(path) if path else "<root>"
                     violations.append(
@@ -33,15 +31,12 @@ class TestCategoriesInvokableExclusion(unittest.TestCase):
                         f"but its ancestor ({ancestor_name}) is also invokable."
                     )
 
-                # Any_invokable = True if this node or any ancestor is invokable
                 new_ancestor_flag = ancestor_invokable or is_invokable
 
-                # Recurse into subcategories
                 for subkey, subval in value.items():
                     if isinstance(subval, dict):
                         recurse({subkey: subval}, current_path, new_ancestor_flag)
 
-        # start at top-level roles, with no invokable ancestor
         recurse(data.get("roles", {}), [], False)
 
         if violations:
