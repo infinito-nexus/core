@@ -52,7 +52,8 @@ class ActionModule(ActionBase):
         task_vars = task_vars or {}
 
         state = self._state()
-        distribution, os_family = self._facts(task_vars)
+        facts = self._target_facts(task_vars)
+        distribution, os_family = self._facts(facts)
 
         package_ids = self._package_ids()
         registry = self._registry()
@@ -67,7 +68,7 @@ class ActionModule(ActionBase):
             if not plan:
                 skipped.append(package_id)
                 continue
-            results.extend(self._run_plan(plan, task_vars))
+            results.extend(self._run_plan(plan, task_vars, facts))
 
         return self._aggregate(results, skipped, distribution)
 
@@ -78,19 +79,24 @@ class ActionModule(ActionBase):
             raise AnsibleActionFail(str(exc)) from exc
 
     def _run_plan(
-        self, plan: list[ModuleCall], task_vars: dict[str, Any]
+        self,
+        plan: list[ModuleCall],
+        task_vars: dict[str, Any],
+        facts: dict[str, Any],
     ) -> list[dict[str, Any]]:
         results: list[dict[str, Any]] = []
         for call in plan:
-            result = self._execute(call, task_vars)
+            result = self._execute(call, task_vars, facts)
             results.append(result)
             if result.get("failed"):
                 break
         return results
 
-    def _execute(self, call: ModuleCall, task_vars: dict[str, Any]) -> dict[str, Any]:
+    def _execute(
+        self, call: ModuleCall, task_vars: dict[str, Any], facts: dict[str, Any]
+    ) -> dict[str, Any]:
         args = {k: v for k, v in call.args.items() if v is not None}
-        module = self._module_name(call, task_vars)
+        module = self._module_name(call, facts)
         if not call.become_user:
             return self._execute_module(
                 module_name=module, module_args=args, task_vars=task_vars
@@ -111,10 +117,10 @@ class ActionModule(ActionBase):
         finally:
             become.set_option("become_user", previous)
 
-    def _module_name(self, call: ModuleCall, task_vars: dict[str, Any]) -> str:
+    def _module_name(self, call: ModuleCall, facts: dict[str, Any]) -> str:
         if call.module != GENERIC_PACKAGE:
             return call.module
-        pkg_mgr = str((task_vars.get("ansible_facts") or {}).get("pkg_mgr", "")).strip()
+        pkg_mgr = self._fact(facts, "pkg_mgr")
         if not pkg_mgr:
             raise AnsibleActionFail(
                 "package_install needs ansible_facts.pkg_mgr to choose a package "
@@ -122,10 +128,46 @@ class ActionModule(ActionBase):
             )
         return pkg_mgr
 
-    def _facts(self, task_vars: dict[str, Any]) -> tuple[str, str]:
-        facts = task_vars.get("ansible_facts") or {}
-        distribution = str(facts.get("distribution", "")).strip().lower()
-        os_family = str(facts.get("os_family", "")).strip()
+    def _target_facts(self, task_vars: dict[str, Any]) -> dict[str, Any]:
+        """Facts of the host the package modules will actually run on.
+
+        Under ``delegate_to`` task_vars still carries the INVENTORY host's
+        facts, so a fedora node delegating to a Debian controller resolves the
+        RedHat mapping and then runs ``dnf`` on a machine that has none. The
+        delegation target is asked directly instead.
+        """
+        delegate = getattr(self._task, "delegate_to", None)
+        if not delegate or delegate == task_vars.get("inventory_hostname"):
+            return task_vars.get("ansible_facts") or {}
+
+        result = self._execute_module(
+            module_name="ansible.builtin.setup",
+            module_args={"gather_subset": ["!all", "!min", "distribution", "pkg_mgr"]},
+            task_vars=task_vars,
+        )
+        if result.get("failed"):
+            raise AnsibleActionFail(
+                f"package_install could not gather facts from the delegation "
+                f"target '{delegate}': {result.get('msg', 'setup failed')}"
+            )
+        return result.get("ansible_facts") or {}
+
+    @staticmethod
+    def _fact(facts: dict[str, Any], name: str) -> str:
+        """Read a fact from either the task_vars shape or the setup-module one.
+
+        task_vars['ansible_facts'] carries bare keys, the setup module returns
+        them ``ansible_``-prefixed.
+        """
+        for key in (name, f"ansible_{name}"):
+            value = facts.get(key)
+            if value:
+                return str(value).strip()
+        return ""
+
+    def _facts(self, facts: dict[str, Any]) -> tuple[str, str]:
+        distribution = self._fact(facts, "distribution").lower()
+        os_family = self._fact(facts, "os_family")
         if not distribution or not os_family:
             raise AnsibleActionFail(
                 "package_install needs gathered facts; ansible_facts.distribution "
