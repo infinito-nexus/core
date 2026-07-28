@@ -35,6 +35,29 @@
 - name: "🔄 Restart the container daemon onto the sandbox runtime"
   meta: flush_handlers
 
+- name: "🔍 Read the runtime this node now defaults to"
+  ansible.builtin.command: >-
+    container info --format {{ '{{.DefaultRuntime}}' }}
+  register: svc_virt_kata_default_runtime
+  changed_when: false
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+
+- name: "🛑 Refuse a sandbox node that still defaults to the shared kernel"
+  ansible.builtin.assert:
+    that:
+      - (svc_virt_kata_default_runtime.stdout | trim) != 'runc'
+    fail_msg: >-
+      This node is about to be labelled {{ SANDBOX_NODE_LABEL }}=true, which
+      routes every sandboxed service here, but its daemon still defaults to
+      '{{ svc_virt_kata_default_runtime.stdout | trim }}'. Swarm drops the
+      per-service runtime key, so the label would promise an isolation the node
+      cannot deliver and the agents would run on the host kernel.
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+
 - name: "🏷️ Label this node as kata-capable"
   ansible.builtin.command: >-
     container node update --label-add {{ SANDBOX_NODE_LABEL }}=true

@@ -10,3 +10,12 @@
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-full
+
+- name: "🛡️ Prove the isolation {{ application_id }} promises"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
+  vars:
+    assert_isolated_container: "{{ HERMES_CONTAINER }}"
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - "'svc-ai-robot' not in group_names"
+    - lookup('config', application_id, 'services.kata.enabled') | bool

@@ -8,7 +8,7 @@
 
 ## Overview
 
-Adding this role to a device switches the agent from isolated to embodied. The agent then runs privileged with exactly the devices listed in `ROBOT_DEVICE_ALLOWLIST` bound into its container, and the kernel-isolating runtime is dropped, because a microVM between the agent and hardware it is supposed to drive defeats the purpose. The trust boundary moves outward to the machine.
+Adding this role to a device switches the agent from isolated to embodied. The agent then receives exactly the devices listed in `ROBOT_DEVICE_ALLOWLIST` and nothing else, and the kernel-isolating runtime is dropped, because a microVM between the agent and hardware it is supposed to drive defeats the purpose. The trust boundary moves outward to the machine, but only as far as the listed devices: the container is not privileged, so a device that is not on the list is not reachable, and a lint keeps it that way.
 
 Because that grant is irreversible once the container starts, the checks run inside the agent role before it deploys, not afterwards in this role: the agent is a shared service, so the service loader brings it up in the constructor stage while `svc-ai` roles only run at the following step. A check placed here would sit behind the deployment it exists to prevent.
 
@@ -43,7 +43,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 - **Declared hardware access:** Every device the agent may drive is listed by the operator and bound into the container; an empty list is refused rather than silently treated as deny-all-but-deployable.
 - **Dedicated-device guard:** Deployment aborts when another application shares the host or when the device is part of a multi-node swarm, naming the offender.
-- **Checks precede the grant:** The admission checks run inside the agent role before it deploys, so a refusal prevents the privileged container rather than following it.
+- **Checks precede the grant:** The admission checks run inside the agent role before it deploys, so a refusal prevents the embodied container rather than following it.
 - **Selectable agent:** Whichever agent role the deployment carries embodies the device, Hermes Agent taking precedence; the matrix deploys both so neither path rots.
 - **Agent reuse:** The embodied deployment is the agent role itself, so image, configuration and model routing stay identical to the isolated deployments.
 

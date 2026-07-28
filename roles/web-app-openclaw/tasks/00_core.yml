@@ -18,3 +18,12 @@
     role_templates:
       - src: "openclaw.json.j2"
         dest: "{{ OPENCLAW_CONFIG_PATH_HOST }}"
+
+- name: "🛡️ Prove the isolation {{ application_id }} promises"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
+  vars:
+    assert_isolated_container: "{{ OPENCLAW_CONTAINER }}"
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - "'svc-ai-robot' not in group_names"
+    - lookup('config', application_id, 'services.kata.enabled') | bool
