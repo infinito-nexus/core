@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role deploys Home Assistant as a container on its own canonical domain behind the reverse proxy, with the configuration directory kept in a persistent volume. It renders a `configuration.yaml` that trusts the proxy through `use_x_forwarded_for` and the stack subnet, and it attaches the hub to a shared overlay network. With Hermes Agent deployed alongside it, the role declares the hub as the MCP server of the deployment: an internal `/mcp_server/sse` endpoint plus the long-lived access token that MCP clients present.
+This role deploys Home Assistant as a container on its own canonical domain behind the reverse proxy, with the configuration directory kept in a persistent volume. It renders a `configuration.yaml` that trusts the proxy through `use_x_forwarded_for` and the project-wide trusted-proxy CIDRs, and it attaches the hub to a shared overlay network. With Hermes Agent deployed alongside it, the role declares the hub as the MCP server of the deployment: an internal `/mcp_server/sse` endpoint plus the long-lived access token that MCP clients present.
 
 ## Cosmos
 
@@ -48,7 +48,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Features
 
 - **Containerized hub:** Runs the official Home Assistant image on both the Docker Compose and Swarm stacks behind the reverse proxy.
-- **Reverse-proxy trust:** Renders a `configuration.yaml` with `default_config`, `use_x_forwarded_for`, and the stack subnet plus loopback listed in `trusted_proxies`.
+- **Reverse-proxy trust:** Renders a `configuration.yaml` with `default_config`, `use_x_forwarded_for`, and the project-wide trusted-proxy CIDRs listed in `trusted_proxies`. In swarm the hub joins the proxy's own overlay, so the forwarded request arrives from that network rather than from the hub's, and trusting only the hub's subnet makes Home Assistant answer every proxied request with HTTP 400.
 - **Persistent configuration:** Mounts `/config` as a named volume and hands it to the container backup service when volume backups are part of the deployment.
 - **MCP server contract:** Declares the built-in MCP server at `/mcp_server/sse` over streamable HTTP as an internal, bearer-token-authenticated endpoint, and generates the token that MCP clients present. Adding the MCP Server integration itself stays a Home Assistant onboarding step.
 - **Read-only tool policy:** Declares the MCP tool surface read-only, with mutating tools disabled.
