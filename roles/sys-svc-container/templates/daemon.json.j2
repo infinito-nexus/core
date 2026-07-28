@@ -23,7 +23,7 @@
 {% if SYS_DOCKER_DAEMONM_MTU is defined and SYS_DOCKER_DAEMONM_MTU | int > 0 %},
   "mtu": {{ SYS_DOCKER_DAEMONM_MTU | int }}
 {% endif %}
-{% set firewall_backend = SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY.get(ansible_facts['os_family']) %}
+{% set firewall_backend = none if DEPLOYMENT_MODE == 'swarm' else SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY.get(ansible_facts['os_family']) %}
 {% if firewall_backend %},
   "firewall-backend": "{{ firewall_backend }}"
 {% endif %}
