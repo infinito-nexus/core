@@ -206,6 +206,7 @@
       "WebFetch(domain:gitlab.opencode.de)",
       "WebFetch(domain:gohugo.io)",
       "WebFetch(domain:grep.app)",
+      "WebFetch(domain:gvisor.dev)",
       "WebFetch(domain:help.penpot.app)",
       "WebFetch(domain:help.ubuntu.com)",
       "WebFetch(domain:helpcenter.onlyoffice.com)",
