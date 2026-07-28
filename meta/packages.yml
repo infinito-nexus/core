@@ -172,6 +172,17 @@ php:
   RedHat:
     - php
 
+postfix:
+  Archlinux:
+    - postfix
+    - postfix-lmdb
+  Debian:
+    - postfix
+    - postfix-lmdb
+  RedHat:
+    - postfix
+    - postfix-lmdb
+
 retext:
   Archlinux:
     - retext
