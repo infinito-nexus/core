@@ -114,5 +114,25 @@ class TestSandboxRuntimeRegistration(unittest.TestCase):
                     self.assertIn(parsed["default-runtime"], parsed["runtimes"])
 
 
+class TestDaemonStorageDriver(unittest.TestCase):
+    def _render(self, **overrides):
+        env = Environment(
+            loader=FileSystemLoader(str(TEMPLATES)),
+            trim_blocks=True,
+            lstrip_blocks=False,
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(),
+        )
+        env.filters["bool"] = _ansible_bool
+        raw = env.get_template("daemon.json.j2").render({**BASE, **overrides})
+        return json.loads(raw)
+
+    def test_docker_in_docker_overrides_the_storage_driver(self):
+        self.assertEqual(self._render()["storage-driver"], "fuse-overlayfs")
+
+    def test_a_bare_host_keeps_the_native_storage_driver(self):
+        self.assertNotIn("storage-driver", self._render(DOCKER_IN_CONTAINER=False))
+
+
 if __name__ == "__main__":
     unittest.main()
