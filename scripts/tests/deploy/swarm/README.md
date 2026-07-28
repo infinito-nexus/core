@@ -27,7 +27,7 @@ flowchart TB
         direction TB
         topo["🗺️ utils/topology/base + export<br/>SPOT node names + NFS paths → GITHUB_ENV"]:::infra
         cluster["🐝 01_bootstrap.sh<br/>host side: pre-clean, compose build + up<br/>all 5 nodes + lab network, sudo .deb build"]:::infra
-        boot["🧱 compose/swarm/playbook.yml (over docker connection)<br/>systemd wait, NFS-export wipe, IPs → GITHUB_ENV,<br/>lab DNS, repo + .deb install on every node"]:::infra
+        boot["🧱 compose/swarm/playbook.yml (over docker connection)<br/>systemd wait, NFS-export wipe,<br/>lab DNS, repo + .deb install on every node"]:::infra
         topo --> cluster --> boot
     end
 
@@ -142,13 +142,13 @@ the cluster declaration (image, containers, network, DNS play) in
 
 | Stage | Script | Purpose |
 |---|---|---|
-| loop | `scripts/tests/deploy/distros.sh` | SPOT: run the drill once per distro under the shared time budget |
+| loop | `scripts/tests/deploy/distros.sh` | SPOT: run the drill once per distro in random order under the shared time budget, then table every outcome (✅ passed / ❌ failed / 🟦 skipped) into the job summary |
 | loop | `routine/00_one.sh` | the whole drill for one distro; collect + teardown run from its `EXIT` trap |
 | bring-up | `utils/topology/base.sh` | SPOT: node names + NFS export/state paths (sourced, not run) |
 | bring-up | `utils/topology/export.sh` | write the topology SPOT into `$GITHUB_ENV` |
 | bring-up | `compose/swarm/compose.yml` + `compose/swarm/Dockerfile` | declare the 5 node containers, node image + lab network (compose SPOT) |
 | bring-up | `routine/01_bootstrap.sh` | host side: pre-clean, `compose build` + one `compose up`, sudo `.deb` build, then the play |
-| bring-up | `compose/swarm/playbook.yml` | node side over docker connection: systemd wait, NFS-export wipe, IPs into `$GITHUB_ENV`, lab DNS, repo + `.deb` install |
+| bring-up | `compose/swarm/playbook.yml` | node side over docker connection: systemd wait, NFS-export wipe, lab DNS, repo + `.deb` install |
 | deploy | `routine/02_provision_inventory.sh` | provision the per-round inventory |
 | deploy | `routine/03_wait_converge.sh` | wait for every stack service to converge |
 | deploy | `routine/04_verify_reachable.sh` | probe the app is reachable in-cluster |

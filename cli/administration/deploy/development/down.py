@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-import shutil
+import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -24,8 +24,17 @@ def _wipe_docker_root(docker_root: Path) -> None:
         print(f">>> Docker root does not exist, nothing to clean: {docker_root}")
         return
     print(f">>> CI cleanup: wiping Docker root: {docker_root}")
-    shutil.rmtree(docker_root, ignore_errors=True)
-    docker_root.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["sudo", "rm", "-rf", str(docker_root)], check=True)
+    subprocess.run(["sudo", "mkdir", "-p", str(docker_root)], check=True)
+    subprocess.run(
+        ["sudo", "chown", f"{os.getuid()}:{os.getgid()}", str(docker_root)],
+        check=True,
+    )
+    leftovers = sorted(entry.name for entry in docker_root.iterdir())
+    if leftovers:
+        raise RuntimeError(
+            f"Docker root survived the wipe: {docker_root} still holds {leftovers}"
+        )
 
 
 def _should_wipe_docker_root() -> bool:

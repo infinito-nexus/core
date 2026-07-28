@@ -41,7 +41,7 @@ for i in $(seq 1 "${RESCHED_TIMEOUT}"); do
 		--format '{{.Node}}' "${SERVICE_NAME}" | head -1)
 	if [ -n "${NEW_NODE}" ] && [ "${NEW_NODE}" != "${INITIAL_NODE}" ]; then
 		echo "Rescheduled from ${INITIAL_NODE} to ${NEW_NODE} after ${i}s"
-		echo "NEW_NODE=${NEW_NODE}" >>"$GITHUB_ENV"
+		echo "NEW_NODE=${NEW_NODE}" >>"${SWARM_DRILL_ENV:?SWARM_DRILL_ENV is required (exported by routine/00_one.sh)}"
 		exit 0
 	fi
 	sleep 1

@@ -47,10 +47,15 @@ on:
         required: false
         type: boolean
         default: false
+      force_cancel_in_progress:
+        description: "When true, a new run always cancels the running orchestrator on the same ref, ignoring the CI_CANCEL_IN_PROGRESS repository variable."
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: infinito-test-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ inputs.force_cancel_in_progress || vars.CI_CANCEL_IN_PROGRESS != 'false' }}
 
 permissions:
   actions: write

@@ -2,12 +2,11 @@
 # Lab-only node provisioning for the simulated cluster; never a production
 # role. Runs over ansible_connection: docker right after `compose up` (python +
 # ansible + the CLI are baked into the node image via the distro's infinito
-# image, so no .deb bootstrap is needed): waits for systemd, captures node IPs
-# (also into $GITHUB_ENV for later CI steps), wires lab DNS (sys-hostname skips
-# /etc/hosts on DOCKER_IN_CONTAINER hosts; the dnsmasq wildcard points the app
-# domain at the manager's ingress), then unpacks the current repo onto every
-# node. Host-side concerns (image build, compose up) live in
-# scripts/tests/deploy/swarm/routine/01_bootstrap.sh.
+# image, so no .deb bootstrap is needed): waits for systemd, wires lab DNS
+# (sys-hostname skips /etc/hosts on DOCKER_IN_CONTAINER hosts; the dnsmasq
+# wildcard points the app domain at the manager's ingress), then unpacks the
+# current repo onto every node. Host-side concerns (image build, compose up)
+# live in scripts/tests/deploy/swarm/routine/01_bootstrap.sh.
 - name: provision the simulated cluster nodes
   hosts: all
   gather_facts: false
@@ -20,7 +19,6 @@
     lab_wrk2: "{{ lookup('env', 'WRK2') }}"
     lab_nfs: "{{ lookup('env', 'NFS_SERVER') }}"
     lab_backup: "{{ lookup('env', 'BACKUP_NODE') }}"
-    lab_net: "{{ lookup('env', 'SWARM_LAB_NETWORK') }}"
     lab_domain: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
     lab_export_base: "{{ lookup('env', 'NFS_EXPORT_BASE') }}"
     lab_node_src: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}"
@@ -29,9 +27,15 @@
     lab_is_mgr: "{{ inventory_hostname == lab_mgr }}"
     lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
     lab_dns_node: "{{ lab_is_mgr or lab_is_worker }}"
-    lab_domain_target: "{{ lab_mgr_ip }}"
+    lab_domain_target: "{{ lookup('env', 'INFINITO_SWARM_MGR_IP') }}"
     lab_no_proxy: "localhost,127.0.0.1,::1,infinito-registry-cache,{{ lab_mgr }},{{ lab_wrk1 }},{{ lab_wrk2 }},{{ lab_nfs }},{{ lab_backup }},gcr.io,storage.googleapis.com,googleusercontent.com"
   tasks:
+    - name: require the lab manager IP (lookup('env') yields '' for a missing key, and an empty dnsmasq address= is valid syntax)
+      assert:
+        that: lab_domain_target | length > 0
+        fail_msg: INFINITO_SWARM_MGR_IP is empty; it comes from scripts/tests/deploy/swarm/utils/topology/base.sh
+      run_once: true
+
     - block:
         - name: wait for systemd ready (status from stdout; rc is nonzero when degraded)
           command: systemctl is-system-running
@@ -91,45 +95,6 @@
       when: inventory_hostname == lab_nfs
       changed_when: true
 
-    - name: capture the node IPs
-      command:
-        argv:
-          - docker
-          - inspect
-          - "{{ item }}"
-          - --format
-          - "{{ '{{(index .NetworkSettings.Networks \"' ~ lab_net ~ '\").IPAddress}}' }}"
-      loop:
-        - "{{ lab_mgr }}"
-        - "{{ lab_nfs }}"
-        - "{{ lab_backup }}"
-      timeout: 30
-      delegate_to: localhost
-      run_once: true
-      register: lab_ips
-      changed_when: false
-
-    - name: expose the IPs to every host
-      set_fact:
-        lab_mgr_ip: "{{ lab_ips.results[0].stdout }}"
-        lab_nfs_ip: "{{ lab_ips.results[1].stdout }}"
-        lab_backup_ip: "{{ lab_ips.results[2].stdout }}"
-      run_once: true
-
-    - name: publish the IPs to $GITHUB_ENV (read by later CI steps; not visible in this one)
-      lineinfile:
-        path: "{{ lookup('env', 'GITHUB_ENV') }}"
-        line: "{{ item }}"
-        create: true
-        mode: "0644"
-      loop:
-        - "MGR_IP={{ lab_mgr_ip }}"
-        - "NFS_IP={{ lab_nfs_ip }}"
-        - "BACKUP_IP={{ lab_backup_ip }}"
-      timeout: 30
-      delegate_to: localhost
-      run_once: true
-
     - name: render the app-domain hosts entries
       command: python3 -m utils.tests.swarm.write.hosts_entries
       args:
@@ -151,26 +116,19 @@
       timeout: 30
       when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
 
-    - name: write the dnsmasq lab config
-      copy:
-        dest: /etc/dnsmasq.d/infinito.conf
-        content: |
-          bind-dynamic
-          no-resolv
-          server=/{{ lab_mgr }}/{{ lab_wrk1 }}/{{ lab_wrk2 }}/{{ lab_nfs }}/{{ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER }}
-          {% for resolver in NETWORK_PUBLIC_DNS_RESOLVERS %}
-          server={{ resolver }}
-          {% endfor %}
-          address=/{{ lab_domain }}/{{ lab_domain_target }}
+    - name: own the whole dnsmasq config (fedora and centos ship local-service, which implies bind-interfaces and dnsmasq refuses next to our bind-dynamic)
+      template: # nocheck: stack-host-template - lab node system config, every DNS node writes its own /etc/dnsmasq.conf and IS_STACK_HOST does not exist in this play
+        src: dnsmasq.conf.j2
+        dest: /etc/dnsmasq.conf
       timeout: 30
       when: lab_dns_node
 
-    - name: enable and restart dnsmasq
+    - name: enable and restart dnsmasq (arch is Type=dbus, so systemd waits its full 90s DefaultTimeoutStartSec before reporting)
       systemd:
         name: dnsmasq
         enabled: true
         state: restarted
-      timeout: 60
+      timeout: 120
       when: lab_dns_node
 
     - name: point resolv.conf at dnsmasq

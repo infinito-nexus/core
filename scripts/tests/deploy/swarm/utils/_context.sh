@@ -5,6 +5,13 @@ _REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../../.." && pwd)"
 # shellcheck source=scripts/meta/env/load.sh
 source "${_REPO_ROOT}/scripts/meta/env/load.sh"
 
+if [ -s "${SWARM_DRILL_ENV:-}" ]; then
+	set -a
+	# shellcheck source=/dev/null
+	source "${SWARM_DRILL_ENV}"
+	set +a
+fi
+
 : "${APP_ID:?APP_ID required}"
 
 ENTITY="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "from utils.roles.entity.name import get_entity_name; print(get_entity_name('${APP_ID}'))")"

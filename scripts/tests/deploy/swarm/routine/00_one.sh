@@ -5,6 +5,11 @@ set -euo pipefail
 # app, seed/drain/assert, then always collect artefacts and tear the cluster
 # down.
 #
+# The whole drill is one CI step, so $GITHUB_ENV writes never come back into the
+# environment: the topology is sourced here, and the 05 -> 06 -> 07 handover goes
+# through SWARM_DRILL_ENV, freshly created per distro so the previous distro's
+# node names cannot leak into this one.
+#
 # Param:
 #   APP_ID                              app id under test
 #   SWARM_NAME                          cluster id
@@ -12,10 +17,22 @@ set -euo pipefail
 #   INFINITO_RESCUE_DIAGNOSTICS_BASE    host dir the rescue snapshots land under
 #   INFINITO_SWARM_STEP_TIMEOUT_MINUTES deploy-step ceiling
 #   variant                             optional matrix variant pin
+#
+# Exports:
+#   MGR/WRK1/WRK2/NFS_SERVER/BACKUP_NODE and their *_IP peers, from the topology SPOT
+#   SWARM_DRILL_ENV                     handover file for the routine steps
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
 cd "${REPO_ROOT}"
+
+set -a
+# shellcheck source=scripts/tests/deploy/swarm/utils/topology/base.sh
+. "${SCRIPT_DIR}/../utils/topology/base.sh"
+set +a
+
+SWARM_DRILL_ENV="$(mktemp)"
+export SWARM_DRILL_ENV
 
 : "${APP_ID:?APP_ID is required (matrix.apps)}"
 : "${INFINITO_DISTRO:?INFINITO_DISTRO is required (exported by scripts/tests/deploy/distros.sh)}"
@@ -59,6 +76,9 @@ if [ "$(id -u)" -ne 0 ]; then
 		"SWARM_NAME=${SWARM_NAME:-}"
 		"INFINITO_DISTRO=${INFINITO_DISTRO}"
 		"INFINITO_IMAGE=${INFINITO_IMAGE:-}"
+		"MGR=${MGR}"
+		"MGR_IP=${MGR_IP}"
+		"NFS_IP=${NFS_IP}"
 		"variant=${variant:-}"
 		"disable=${disable:-}"
 		"${matrix_cmd[@]}"

@@ -745,7 +745,7 @@ test-main-merged:
 	@bash scripts/git/assert/main_merged.sh
 
 .PHONY: test-merge-signed
-# Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (prepare-commit-msg gate).
+# Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (commit-msg gate).
 test-merge-signed:
 	@bash scripts/git/assert/merge_signed.sh
 

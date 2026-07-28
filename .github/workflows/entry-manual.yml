@@ -52,4 +52,5 @@ jobs:
       modes: ${{ inputs.modes }}
       priority: ${{ inputs.priority }}
       roles_only: ${{ (inputs.priority != '' || (inputs.whitelist != '' && inputs.whitelist != '__ALL__')) && 'true' || 'false' }}
+      force_cancel_in_progress: true
     secrets: inherit

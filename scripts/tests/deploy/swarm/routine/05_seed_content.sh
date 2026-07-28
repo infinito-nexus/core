@@ -21,7 +21,7 @@ if [ -z "${NODE}" ]; then
 	exit 1
 fi
 echo "${ENTITY} initially scheduled on: ${NODE}"
-echo "INITIAL_NODE=${NODE}" >>"$GITHUB_ENV"
+echo "INITIAL_NODE=${NODE}" >>"${SWARM_DRILL_ENV:?SWARM_DRILL_ENV is required (exported by routine/00_one.sh)}"
 
 if [ -n "${PRIMARY_NFS_VOLUME}" ]; then
 	echo "Seeding pre-drain marker on NFS volume '${PRIMARY_NFS_VOLUME}'"

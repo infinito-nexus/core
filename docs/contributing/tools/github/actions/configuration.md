@@ -8,7 +8,7 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 
 | Variable | Workflow | Default (unset) | Set to activate |
 |---|---|---|---|
-| `CI_CANCEL_IN_PROGRESS` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Cancels in-progress runs on new push | `false` to keep in-progress runs alive |
+| `CI_CANCEL_IN_PROGRESS` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml), [ci-orchestrator.yml](../../../../../.github/workflows/ci-orchestrator.yml) | Cancels in-progress runs on new push | `false` to keep in-progress runs alive |
 | `CI_SYNC_MAIN_SOURCE_REPOSITORY` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Syncs `main` from `infinito-nexus/core` before CI scope discovery | `<owner>/<repo>` to use another source, or `false`, empty, or the current repository to skip |
 | `CI_RUN_ON_MAIN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Pushes to `main` skip CI | `true` to run CI on `main` pushes too |
 | `CI_ENABLE_AUTO_UPDATES` | [update.yml](../../../../../.github/workflows/update.yml), [dependabot-close.yml](../../../../../.github/workflows/dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
@@ -16,7 +16,7 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 
 ## `CI_CANCEL_IN_PROGRESS` 🛑
 
-Controls whether a new push cancels an already-running CI pipeline on the same branch.
+Controls whether a new run cancels an already-running CI pipeline on the same ref. Applies to the push entry workflow and to the orchestrator's own concurrency group, which every entry workflow shares. The manual entry workflow overrides the variable on both levels: its own group is `cancel-in-progress: true`, and it passes `force_cancel_in_progress: true` into the orchestrator.
 
 **Default behaviour (variable not set or set to any value other than `false`):**
 In-progress runs are cancelled when a new push arrives. This is the recommended setting for most workflows.

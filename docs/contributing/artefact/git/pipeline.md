@@ -127,8 +127,8 @@ The final `done` job aggregates all deploy, install, and development gates. CI i
 ## Concurrency 🔀
 
 - PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active.
-- The orchestrator uses `cancel-in-progress: false` to avoid interrupting long-running deploy tests mid-flight.
-- The push entry workflow (`entry-push-latest.yml`) defaults to `cancel-in-progress: true` but respects the repository variable `CI_CANCEL_IN_PROGRESS`.
+- The orchestrator and the push entry workflow (`entry-push-latest.yml`) default to `cancel-in-progress: true` and both respect the repository variable `CI_CANCEL_IN_PROGRESS`.
+- The manual entry workflow (`entry-manual.yml`) sets `cancel-in-progress: true` on its own group and passes `force_cancel_in_progress: true` into the orchestrator, so a manual run cancels on both levels regardless of `CI_CANCEL_IN_PROGRESS`.
 
 See [configuration.md](../../tools/github/actions/configuration.md) for all repository variables that control CI behaviour.
 

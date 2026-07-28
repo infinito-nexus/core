@@ -1,7 +1,7 @@
 ---
 default_install_hook_types:
   - pre-commit
-  - prepare-commit-msg
+  - commit-msg
   - pre-push
   - post-checkout
 
@@ -22,7 +22,7 @@ repos:
         pass_filenames: false
         always_run: true
         stages:
-          - prepare-commit-msg
+          - commit-msg
       - id: make-lint
         name: Run make lint (pre-push gate)
         entry: make lint

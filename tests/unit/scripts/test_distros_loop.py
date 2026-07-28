@@ -5,8 +5,9 @@ swarm and guide agree on how a role is replayed across distros, so its promises
 are pinned here: every distro runs once with ``INFINITO_DISTRO`` exported, the
 per-distro command inherits the env layer while a caller value still wins, the
 first failure aborts the run and propagates its exit code, the time budget skips
-what no longer fits, and an unusable budget or a missing command is a hard error
-rather than a guess.
+what no longer fits without failing the run, every outcome shows up in the job
+summary in execution order, and an unusable budget or a missing command is a
+hard error rather than a guess.
 """
 
 from __future__ import annotations
@@ -40,20 +41,28 @@ class TestDistrosLoop(unittest.TestCase):
     def _run(
         self, distros: str, body: str, **env: str
     ) -> tuple[subprocess.CompletedProcess, str]:
+        """Run the loop over ``distros``; the job summary lands in ``self.summary``."""
         with tempfile.TemporaryDirectory() as tmp:
             record = Path(tmp) / "record"
             record.touch()
+            summary = Path(tmp) / "summary.md"
+            summary.touch()
             command = Path(tmp) / "command.sh"
             command.write_text(f"#!/usr/bin/env bash\nRECORD={record}\n{body}\n")
             command.chmod(0o755)
             proc = subprocess.run(
                 [str(LOOP), str(command)],
                 cwd=PROJECT_ROOT,
-                env=self._env(INFINITO_DISTROS=distros, **env),
+                env=self._env(
+                    INFINITO_DISTROS=distros,
+                    GITHUB_STEP_SUMMARY=str(summary),
+                    **env,
+                ),
                 capture_output=True,
                 text=True,
                 check=False,
             )
+            self.summary = read_text(str(summary))
             return proc, read_text(str(record))
 
     def test_every_distro_runs_once_with_the_distro_exported(self) -> None:
@@ -108,6 +117,38 @@ class TestDistrosLoop(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(len(record.split()), 1)
         self.assertRegex(proc.stdout, r"Skipping distro|budget exhausted")
+
+    def test_the_job_summary_tables_every_distro_in_execution_order(self) -> None:
+        proc, _record = self._run(
+            DISTROS,
+            'echo "${INFINITO_DISTRO}" >> "${RECORD}"',
+            INFINITO_CI_DISTRO_BUDGET_SECONDS="600",
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+
+        order = proc.stdout.split("=== Distro execution order: ", 1)[1]
+        order = order.split(" ===", 1)[0].split()
+        rows = [ln for ln in self.summary.splitlines() if ln.startswith("| 1 |")]
+        rows += [ln for ln in self.summary.splitlines() if ln.startswith("| 2 |")]
+        rows += [ln for ln in self.summary.splitlines() if ln.startswith("| 3 |")]
+
+        self.assertEqual(len(rows), len(order))
+        for row, distro in zip(rows, order, strict=True):
+            self.assertIn(f"`{distro}`", row)
+            self.assertIn("✅ passed", row)
+        self.assertIn("3/3 ran, 0 skipped", self.summary)
+
+    def test_the_job_summary_marks_skipped_and_failed_distros(self) -> None:
+        proc, _record = self._run(
+            DISTROS,
+            'sleep 3\necho "${INFINITO_DISTRO}" >> "${RECORD}"\nexit 7',
+            INFINITO_CI_DISTRO_BUDGET_SECONDS="5",
+        )
+        self.assertEqual(proc.returncode, 7, proc.stderr)
+        self.assertIn("❌ failed", self.summary)
+        self.assertIn("rc=7", self.summary)
+        self.assertEqual(self.summary.count("🟦 skipped"), 2)
+        self.assertIn("1/3 ran, 2 skipped", self.summary)
 
     def test_non_numeric_budget_is_a_hard_error(self) -> None:
         proc = subprocess.run(
