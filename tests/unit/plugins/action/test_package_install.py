@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 
 from ansible.errors import AnsibleActionFail
+from ansible.plugins.loader import become_loader, shell_loader
 
 from plugins.action.package_install import ActionModule
 from utils.packages.plan import GENERIC_PACKAGE, ModuleCall
@@ -108,44 +109,59 @@ class TestModuleName(unittest.TestCase):
             self._module_name(GENERIC_PACKAGE, {})
 
 
-class TestBecomeIsRestored(unittest.TestCase):
-    def _action(self):
+class TestBecomeEscalation(unittest.TestCase):
+    def setUp(self):
+        self.become = become_loader.get("sudo")
+        self.become.set_options(direct={"become_user": "root"})
+        self.shell = shell_loader.get("sh")
+        self.commands = []
+
+    def _action(self, become):
         action = _action({})
-        action._play_context = mock.Mock(become=False, become_user="root")
-        action._execute_module = mock.Mock(return_value={"changed": True})
+        action._connection = mock.Mock(become=become, transport="local")
+        action._execute_module = mock.Mock(side_effect=self._record)
         return action
 
-    def test_become_user_is_set_for_the_call(self):
-        action = self._action()
-        seen = {}
-        action._execute_module.side_effect = lambda **_kw: (
-            seen.update(
-                become=action._play_context.become,
-                become_user=action._play_context.become_user,
-            )
-            or {"changed": True}
-        )
-        action._execute(ModuleCall("m", {}, become_user="aur_builder"), {})
-        self.assertEqual(seen, {"become": True, "become_user": "aur_builder"})
+    def _record(self, **_kwargs):
+        self.commands.append(self.become.build_become_command("MODULE", self.shell))
+        return {"changed": True}
 
-    def test_become_is_restored_after_the_call(self):
-        action = self._action()
+    def test_the_build_user_call_is_wrapped(self):
+        action = self._action(self.become)
         action._execute(ModuleCall("m", {}, become_user="aur_builder"), {})
-        self.assertFalse(action._play_context.become)
-        self.assertEqual(action._play_context.become_user, "root")
+        self.assertIn("-u aur_builder", self.commands[0])
 
-    def test_become_is_restored_after_a_failing_call(self):
-        action = self._action()
+    def test_a_plain_call_is_not_wrapped(self):
+        action = self._action(self.become)
+        action._execute(ModuleCall("m", {}), {})
+        self.assertNotIn("-u aur_builder", self.commands[0])
+        self.assertIn("-u root", self.commands[0])
+
+    def test_the_become_user_is_restored(self):
+        action = self._action(self.become)
+        action._execute(ModuleCall("m", {}, become_user="aur_builder"), {})
+        self.assertEqual(self.become.get_option("become_user"), "root")
+
+    def test_a_later_call_on_the_same_connection_is_unaffected(self):
+        action = self._action(self.become)
+        action._execute(ModuleCall("m", {}, become_user="aur_builder"), {})
+        action._execute(ModuleCall("m", {}), {})
+        self.assertIn("-u aur_builder", self.commands[0])
+        self.assertIn("-u root", self.commands[1])
+        self.assertNotIn("-u aur_builder", self.commands[1])
+
+    def test_the_become_user_is_restored_after_a_failing_call(self):
+        action = self._action(self.become)
         action._execute_module.side_effect = RuntimeError("boom")
         with self.assertRaises(RuntimeError):
             action._execute(ModuleCall("m", {}, become_user="aur_builder"), {})
-        self.assertFalse(action._play_context.become)
-        self.assertEqual(action._play_context.become_user, "root")
+        self.assertEqual(self.become.get_option("become_user"), "root")
 
-    def test_a_call_without_become_user_leaves_the_context_alone(self):
-        action = self._action()
-        action._execute(ModuleCall("m", {}), {})
-        self.assertFalse(action._play_context.become)
+    def test_without_a_become_plugin_it_fails_loud(self):
+        action = self._action(None)
+        with self.assertRaises(AnsibleActionFail) as caught:
+            action._execute(ModuleCall("m", {}, become_user="aur_builder"), {})
+        self.assertIn("aur_builder", str(caught.exception))
 
 
 class TestAggregate(unittest.TestCase):

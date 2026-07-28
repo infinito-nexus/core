@@ -14,7 +14,11 @@ this file exists to catch.
 
 from __future__ import annotations
 
+import json
+import os
 import re
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -34,6 +38,12 @@ from . import PROJECT_ROOT
 
 WORKFLOWS_DIR = PROJECT_ROOT / ".github" / "workflows"
 ENVIRONMENT_WORKFLOW = WORKFLOWS_DIR / "test-environment.yml"
+_MATRIX_REF_RE = re.compile(
+    r"^\$\{\{\s*fromJson\(\s*needs\.([\w-]+)\.outputs\.([\w-]+)\s*\)\s*\}\}$",
+    re.IGNORECASE,
+)
+_STEP_REF_RE = re.compile(r"^\$\{\{\s*steps\.([\w-]+)\.outputs\.([\w-]+)\s*\}\}$")
+_GITHUB_SHELL = ("bash", "--noprofile", "--norc", "-eo", "pipefail", "-c")
 
 _INTERPOLATED_PKGMGR_RE = re.compile(r"pkgmgr-[{$]")
 _SHELL_LOOP_SLUG = "${d}"
@@ -92,13 +102,59 @@ class TestDistrosSpot(unittest.TestCase):
             )
 
     def test_environment_matrix_matches_spot(self) -> None:
-        parsed = load_yaml_any(str(ENVIRONMENT_WORKFLOW), default_if_missing={})
-        matrix = parsed["jobs"]["test-environment"]["strategy"]["matrix"]
+        """The matrix is an expression, so the pin walks the wiring from the
+        axis to the resolver step, runs that step the way the runner does and
+        compares what it writes to ``GITHUB_OUTPUT`` against the SPOT."""
+        jobs = load_yaml_any(str(ENVIRONMENT_WORKFLOW), default_if_missing={})["jobs"]
+        consumer = jobs["test-environment"]
+        axis = consumer["strategy"]["matrix"]["dev_runtime_image"]
+        ref = _MATRIX_REF_RE.match(str(axis))
+        self.assertIsNotNone(
+            ref,
+            f"test-environment.yml must derive its matrix from {FILE_META_DISTROS} "
+            f"via fromJson(needs.<job>.outputs.<name>), got {axis!r}.",
+        )
+        resolver_id, output_name = ref.groups()
+        self.assertIn(
+            resolver_id,
+            consumer.get("needs", ()),
+            f"job 'test-environment' consumes {resolver_id!r} without needing it.",
+        )
+        resolver = jobs[resolver_id]
+        published = resolver.get("outputs", {}).get(output_name)
+        wiring = _STEP_REF_RE.match(str(published))
+        self.assertIsNotNone(
+            wiring,
+            f"job {resolver_id!r} must publish {output_name!r} from a step "
+            f"output, got {published!r}.",
+        )
+        step_id, step_key = wiring.groups()
+        steps = [s for s in resolver["steps"] if s.get("id") == step_id]
         self.assertEqual(
-            tuple(matrix["dev_runtime_image"]),
+            len(steps), 1, f"job {resolver_id!r} declares no step id {step_id!r}."
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "github_output"
+            output.touch()
+            proc = subprocess.run(
+                [*_GITHUB_SHELL, steps[0]["run"]],
+                cwd=PROJECT_ROOT,
+                env={**os.environ, "GITHUB_OUTPUT": str(output)},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            key, _, value = read_text(str(output)).strip().partition("=")
+        self.assertEqual(
+            key,
+            step_key,
+            f"the resolver writes {key!r}, {resolver_id!r} publishes {step_key!r}.",
+        )
+        self.assertEqual(
+            tuple(json.loads(value)),
             dev_runtime_images(),
-            f"test-environment.yml dev_runtime_image matrix drifted from "
-            f"{FILE_META_DISTROS}.",
+            f"the {resolver_id!r} job's resolver drifted from {FILE_META_DISTROS}.",
         )
 
     def _sources(self, pattern: str):

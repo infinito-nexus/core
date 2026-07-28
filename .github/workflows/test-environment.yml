@@ -10,20 +10,33 @@ permissions:
   packages: read
 
 jobs:
+  prepare:
+    name: 📋 Environment Matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      images: ${{ steps.matrix.outputs.images }}
+
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+
+      - name: 🐍 Read the distro SPOT
+        id: matrix
+        shell: bash
+        run: |
+          python3 -c 'import json, sys; from utils.distros import dev_runtime_images; images = list(dev_runtime_images()); images or sys.exit("meta/distros.yml declares no dev runtime image; an empty matrix would skip every environment job silently"); print("images=" + json.dumps(images))' | tee -a "$GITHUB_OUTPUT"
+
   test-environment:
     name: 🧑‍💻 Environment (${{ matrix.dev_runtime_image }})
     runs-on: ubuntu-latest
     timeout-minutes: 345
+    needs: prepare
 
     strategy:
       fail-fast: false
       matrix:
-        dev_runtime_image:
-          - manjarolinux/base
-          - debian:bookworm
-          - ubuntu:latest
-          - fedora:latest
-          - quay.io/centos/centos:latest
+        dev_runtime_image: ${{ fromJson(needs.prepare.outputs.images) }}
 
     env:
       DEV_RUNTIME_IMAGE: ${{ matrix.dev_runtime_image }}

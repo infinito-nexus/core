@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# SPOT: Deploy exactly ONE app across all distros (serial).
-#
-# Additionally:
-# - Track duration per distro
-# - Enforce a global time budget for the whole run (env: MAX_TOTAL_SECONDS)
-# - Skip a distro if remaining time is smaller than the max duration of any previous distro run
+# SPOT: Deploy exactly ONE app across all distros (serial), via the shared
+# per-distro loop in scripts/tests/deploy/distros.sh.
 #
 # Required env:
 #   apps="web-app-keycloak"
@@ -15,11 +11,9 @@ set -euo pipefail
 #
 # Optional env:
 #   PYTHON="python3"
-#   MAX_TOTAL_SECONDS="5400"   # override the script default of 19800 seconds
 #
 # Script-local defaults preserved from the old Make wrapper:
 #   MISSING_ONLY=true
-#   MAX_TOTAL_SECONDS=19800
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
@@ -39,136 +33,10 @@ fi
 
 : "${PYTHON:=python3}"
 : "${MISSING_ONLY:=true}"
-if [[ -z "${MAX_TOTAL_SECONDS+x}" ]]; then
-	MAX_TOTAL_SECONDS=19800
-fi
 
-export INFINITO_INVENTORY_DIR MISSING_ONLY MAX_TOTAL_SECONDS
-
-if [[ -n "${MAX_TOTAL_SECONDS}" ]]; then
-	if ! [[ "${MAX_TOTAL_SECONDS}" =~ ^[0-9]+$ ]]; then
-		echo "[ERROR] MAX_TOTAL_SECONDS must be an integer (seconds), got: '${MAX_TOTAL_SECONDS}'" >&2
-		exit 2
-	fi
-fi
-
-read -r -a distro_arr <<<"${INFINITO_DISTROS}"
-mapfile -t distro_arr < <(printf '%s\n' "${distro_arr[@]}" | shuf)
-echo "=== Distro execution order: ${distro_arr[*]} ==="
-
-global_start="$(date +%s)"
-deadline=""
-if [[ -n "${MAX_TOTAL_SECONDS}" ]]; then
-	deadline="$((global_start + MAX_TOTAL_SECONDS))"
-	echo "=== Global time budget enabled: ${MAX_TOTAL_SECONDS}s (deadline epoch=${deadline}) ==="
-else
-	echo "=== Global time budget disabled (MAX_TOTAL_SECONDS was set empty) ==="
-fi
-
-max_seen=0
-skipped=0
-ran=0
-failed=0
-durations=()
-
-sync_ci_image_for_run() {
-	local owner tag repo_name
-
-	if [[ -n "${OWNER:-}" || -n "${GITHUB_REPOSITORY_OWNER:-}" || -n "${GITHUB_REPOSITORY:-}" ]]; then
-		owner="$(OWNER="${OWNER:-}" GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-}" GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-}" scripts/meta/resolve/repository/owner.sh)"
-	else
-		owner=""
-	fi
-	tag="${INFINITO_IMAGE_TAG}"
-	repo_name="${INFINITO_IMAGE_REPOSITORY:-}"
-
-	if [[ -z "${owner}" ]]; then
-		return 0
-	fi
-
-	if [[ -z "${repo_name}" ]]; then
-		repo_name="$(scripts/meta/resolve/repository/name.sh)"
-	fi
-
-	export INFINITO_IMAGE="ghcr.io/${owner}/${repo_name}/${INFINITO_DISTRO}:${tag}"
-	echo ">>> CI image synced: ${INFINITO_IMAGE}"
-}
+export INFINITO_INVENTORY_DIR MISSING_ONLY
 
 echo ">>> Installing CI dependencies"
 "${PYTHON}" -m pip install ruamel.yaml PyYAML
 
-for distro in "${distro_arr[@]}"; do
-	now="$(date +%s)"
-	remaining=""
-
-	if [[ -n "${deadline}" ]]; then
-		remaining="$((deadline - now))"
-
-		if ((remaining <= 0)); then
-			echo "[WARN] Global budget exhausted (remaining=${remaining}s). Stopping further distro runs."
-			break
-		fi
-
-		if ((max_seen > 0 && remaining < max_seen)); then
-			echo "[WARN] Skipping distro=${distro}: remaining=${remaining}s < max_seen=${max_seen}s (fast-fail heuristic)"
-			skipped=$((skipped + 1))
-			continue
-		fi
-	fi
-
-	echo "=== Running dedicated distro deploy: distro=${distro} app=${apps} ==="
-	if [[ -n "${remaining}" ]]; then
-		echo ">>> Time budget: remaining=${remaining}s max_seen=${max_seen}s"
-	fi
-
-	export INFINITO_DISTRO="${distro}"
-	source "scripts/meta/env/load.sh"
-	sync_ci_image_for_run
-
-	distro_start="$(date +%s)"
-
-	set +e
-	if [[ -f "scripts/tests/deploy/ci/custom/${apps}.sh" ]]; then
-		bash "scripts/tests/deploy/ci/custom/${apps}.sh"
-	else
-		scripts/tests/deploy/ci/dedicated.sh \
-			--apps "${apps}"
-	fi
-	rc=$?
-	set -e
-
-	distro_end="$(date +%s)"
-	dur="$((distro_end - distro_start))"
-	durations+=("${distro}=${dur}s")
-	ran=$((ran + 1))
-
-	if ((dur > max_seen)); then
-		max_seen="$dur"
-	fi
-
-	echo ">>> Duration: distro=${distro} took ${dur}s (max_seen=${max_seen}s)"
-
-	if [[ $rc -ne 0 ]]; then
-		echo "[ERROR] Deploy failed for distro=${distro} app=${apps} (rc=${rc})" >&2
-		failed=$((failed + 1))
-		exit "$rc"
-	fi
-done
-
-global_end="$(date +%s)"
-total="$((global_end - global_start))"
-
-echo
-echo "=== Summary ==="
-echo "app=${apps}"
-echo "ran=${ran} skipped=${skipped} failed=${failed}"
-echo "total_runtime=${total}s max_seen_duration=${max_seen}s"
-if [[ -n "${deadline}" ]]; then
-	now="$(date +%s)"
-	remaining="$((deadline - now))"
-	echo "budget=${MAX_TOTAL_SECONDS}s remaining=${remaining}s"
-fi
-echo "per-distro:"
-for line in "${durations[@]}"; do
-	echo "  - ${line}"
-done
+exec "${REPO_ROOT}/scripts/tests/deploy/distros.sh" "${SCRIPT_DIR}/one.sh"

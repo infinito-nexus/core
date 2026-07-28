@@ -256,6 +256,8 @@ jobs:
     needs:
       - images-mirror-missing
       - build-ci-images
+    with:
+      distros: ${{ inputs.distros }}
     secrets: inherit
 
   report-main-failures:

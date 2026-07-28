@@ -96,15 +96,20 @@ class ActionModule(ActionBase):
                 module_name=module, module_args=args, task_vars=task_vars
             )
 
-        previous = (self._play_context.become, self._play_context.become_user)
-        self._play_context.become = True
-        self._play_context.become_user = call.become_user
+        become = self._connection.become
+        if become is None:
+            raise AnsibleActionFail(
+                f"package_install must escalate to '{call.become_user}' to build "
+                "this package, but the task runs without become."
+            )
+        previous = become.get_option("become_user")
+        become.set_option("become_user", call.become_user)
         try:
             return self._execute_module(
                 module_name=module, module_args=args, task_vars=task_vars
             )
         finally:
-            self._play_context.become, self._play_context.become_user = previous
+            become.set_option("become_user", previous)
 
     def _module_name(self, call: ModuleCall, task_vars: dict[str, Any]) -> str:
         if call.module != GENERIC_PACKAGE:

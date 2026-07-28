@@ -49,7 +49,12 @@ def apply(eb: EnvBuilder, ctx: BuildContext) -> None: ...
 
 - A handler MUST NOT import another handler.
   Cross-handler data flows through `eb.get(...)` / `eb.set(...)` only.
-- A handler MAY import from [parser.py](../parser.py), [runtime.py](../runtime.py), and stdlib.
+- A handler MAY import stdlib, [parser.py](../parser.py), [runtime.py](../runtime.py), and any repo module whose own import closure is stdlib-only.
+  The whole closure MUST import and run on the bare bootstrap python, before any dependency is installed.
+  `utils.cache.files` and [yaml_bootstrap.py](../../yaml_bootstrap.py) qualify; `utils.cache.yaml` does not, because it imports PyYAML.
+  Read SPOT files with `utils.cache.files.read_text` plus `utils.yaml_bootstrap.load_block` or a stdlib line parse.
+  `load_block` accepts block mappings, block lists and string scalars only, and raises `BootstrapYamlError` on everything else, so a SPOT file read this way MUST stay inside that subset.
+  [test_bare_bootstrap.py](../../../tests/integration/meta/env/test_bare_bootstrap.py) enforces this by running the generator with every non-stdlib import blocked.
 - A handler MUST NOT import from [writer.py](../writer.py) or [builder.py](../builder.py) at runtime.
   The `EnvBuilder` and `BuildContext` types MAY be referenced under `TYPE_CHECKING` for annotations only.
 

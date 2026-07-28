@@ -5,6 +5,12 @@
 # here exactly once. Consumers read it through utils/distros.py; nothing may
 # re-spell a distro list or an image reference locally.
 #
+# Read by a stdlib block reader on the bare bootstrap python, before PyYAML
+# exists. Only plain block mappings and block lists of string scalars are
+# supported here. An unquoted scalar must start with a letter, an underscore
+# or a slash and must not be a boolean or null word; everything else MUST be
+# double-quoted.
+#
 # images: reference templates rendered by utils/distros.py.
 #   {slug}                     comes from this file
 #   {owner} {repository} {tag} come from default.env, which stays the SPOT

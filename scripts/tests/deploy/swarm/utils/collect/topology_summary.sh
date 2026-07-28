@@ -8,13 +8,14 @@ set -euo pipefail
 
 : "${GITHUB_STEP_SUMMARY:?GITHUB_STEP_SUMMARY must be set}"
 : "${MGR:?topology export.sh must run first}"
+: "${INFINITO_DISTRO:?INFINITO_DISTRO must be set}"
 
 dexec() {
 	timeout 30 docker exec "$@" 2>&1 || echo "(unreachable)"
 }
 
 {
-	echo "## 🕸️ Swarm structure — ${SWARM_NAME:-unknown}"
+	echo "## 🕸️ Swarm structure — ${SWARM_NAME:-unknown} (${INFINITO_DISTRO})"
 	echo
 	echo "| Role | Host |"
 	echo "|---|---|"

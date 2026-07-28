@@ -17,13 +17,16 @@ the templates.
 
 Keep this module free of Ansible imports and cheap to import: it is pulled
 in by the env layer and by ``utils.packages.schema``, which reach contexts
-where Ansible is not installed.
+where Ansible is not installed. It must also stay importable on the bare
+bootstrap python, so the SPOT is read with the stdlib block reader instead
+of PyYAML.
 """
 
 from __future__ import annotations
 
 from utils.cache import PROJECT_ROOT
-from utils.cache.yaml import load_yaml
+from utils.cache.files import read_text
+from utils.yaml_bootstrap import load_block
 
 FILE_META_DISTROS: str = "meta/distros.yml"
 
@@ -37,7 +40,7 @@ class UnknownDistroError(ValueError):
 
 
 def _doc() -> dict:
-    return load_yaml(str(PROJECT_ROOT / FILE_META_DISTROS))
+    return load_block(read_text(str(PROJECT_ROOT / FILE_META_DISTROS)))
 
 
 def _specs() -> dict[str, dict]:

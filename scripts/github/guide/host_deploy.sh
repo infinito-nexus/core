@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Install a host role inside its pkgmgr distro container against localhost.
-# Env: GUIDE_ROLE, GUIDE_RUNTIME_IMAGE, INFINITO_RESCUE_DIAGNOSTICS_BASE.
+# Env: GUIDE_ROLE, GUIDE_RUNTIME_IMAGE, INFINITO_DISTRO,
+# INFINITO_RESCUE_DIAGNOSTICS_BASE.
 set -euo pipefail
 
 : "${INFINITO_RESCUE_DIAGNOSTICS_BASE:?}"
+: "${INFINITO_DISTRO:?}"
 
 # Exception: strip the clone/cd lines because the checkout is already
 # mounted; running them would clone a fresh tree and lose the CI changes.
@@ -42,7 +44,7 @@ CID="$(docker run -d --privileged --cgroupns=host \
 	--entrypoint /sbin/init \
 	"${BOOT_IMAGE}")"
 # shellcheck disable=SC2154
-trap 'rc=$?; if [ "${rc}" -ne 0 ]; then INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${GUIDE_ROLE}" python3 utils/diagnostics/container.py "${GUIDE_ROLE}" "guide host boot failure" || true; fi; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT
+trap 'rc=$?; if [ "${rc}" -ne 0 ]; then INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}" python3 utils/diagnostics/container.py "${GUIDE_ROLE}" "guide host boot failure" || true; fi; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT
 
 for _ in $(seq 1 40); do
 	state="$(docker exec "${CID}" systemctl is-system-running 2>/dev/null || true)"

@@ -8,8 +8,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source <(grep -E '^INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR=' "${SCRIPT_DIR}/../../../../../../.env")
 
 : "${APP_ID:?APP_ID required}"
+: "${INFINITO_DISTRO:?INFINITO_DISTRO required}"
 
-dest="/tmp/playwright-artifacts/${APP_ID}"
+dest="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${APP_ID}"
 mkdir -p "${dest}"
 
 if ! timeout 10 docker exec "${MGR}" true 2>/dev/null; then

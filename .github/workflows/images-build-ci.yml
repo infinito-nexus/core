@@ -43,7 +43,7 @@ concurrency:
 
 jobs:
   prepare:
-    name: 🏷️ Label images
+    name: 📋 Build Matrix
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.out.outputs.matrix }}
