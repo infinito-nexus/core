@@ -37,11 +37,16 @@ on:
         required: false
         type: string
         default: "10"
-      roles_only:
-        description: "When 'true', skip the env-matrix test-development job."
+      workspace:
+        description: "Run the workspace test (dev-runtime image matrix). 'auto' runs it on a global scope only, 'true'/'false' force it."
         required: false
         type: string
-        default: "false"
+        default: "auto"
+      instructions:
+        description: "Run the instructions test (role README Production command). 'auto' runs it on a global scope only, 'true'/'false' force it."
+        required: false
+        type: string
+        default: "auto"
       trusted_pr:
         description: "True when the PR carries the maintainer '🛡️ Trusted' label; skips the fork-prereq wait."
         required: false
@@ -249,15 +254,16 @@ jobs:
   test-install-pkgmgr:
     uses: ./.github/workflows/test-install-pkgmgr.yml
 
-  test-development:
-    if: ${{ inputs.roles_only != 'true' }}
-    uses: ./.github/workflows/test-environment.yml
+  test-workspace:
+    if: ${{ inputs.workspace == 'true' || (inputs.workspace == 'auto' && (inputs.whitelist == '' || inputs.whitelist == '__ALL__')) }}
+    uses: ./.github/workflows/test-workspace.yml
     needs:
       - images-mirror-missing
     secrets: inherit
 
-  test-guide:
-    uses: ./.github/workflows/test-guide.yml
+  test-instructions:
+    if: ${{ inputs.instructions == 'true' || (inputs.instructions == 'auto' && (inputs.whitelist == '' || inputs.whitelist == '__ALL__')) }}
+    uses: ./.github/workflows/test-instructions.yml
     needs:
       - images-mirror-missing
       - build-ci-images
@@ -295,8 +301,8 @@ jobs:
       - test-deploy-single-node
       - test-deploy-swarm
       - test-runner-smoke
-      - test-development
-      - test-guide
+      - test-workspace
+      - test-instructions
       - test
       - lint
       - security-codeql

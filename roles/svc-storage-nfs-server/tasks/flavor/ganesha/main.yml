@@ -13,6 +13,7 @@
     group: root
     mode: "0644"
   when: ansible_facts['os_family'] == 'Archlinux'
+  notify: "Restart NFS ganesha"
 
 - name: "🔧 Mask the broken nfs-ganesha-config helper unit"
   ansible.builtin.systemd:
@@ -62,13 +63,54 @@
     owner: root
     group: root
     mode: "0644"
+  notify: "Restart NFS ganesha"
 
-- name: "🟢 Enable and start nfs-ganesha"
+- name: "🔄 Reload systemd so the drop-in is live before ganesha starts"
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+# Exception: only safe while the export set stays NFSv4-only. ganesha registers
+# v4 with rpcbind best-effort, but NFSv3/MOUNT/NLM/RQUOTA registration is fatal
+# on failure -- flipping Protocols, Enable_NLM or Enable_RQUOTA in
+# ganesha.conf.j2 turns this mask into a startup abort.
+- name: "🔍 Detect which rpcbind units this distro ships"
+  ansible.builtin.command:
+    cmd: systemctl list-unit-files rpcbind.socket rpcbind.service --no-legend
+  register: _rpcbind_units
+  changed_when: false
+  failed_when: >-
+    _rpcbind_units.rc != 0
+    and ((_rpcbind_units.stderr | length) > 0 or _rpcbind_units.rc != 1)
+
+- name: "🔧 Mask rpcbind so ganesha's startup unregister cannot wedge on its local socket"
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    masked: true
+    state: stopped
+  loop: "{{ _rpcbind_units.stdout_lines | map('regex_replace', '^([^ ]+).*$', '\\1') | list }}"
+
+- name: "🟢 Enable nfs-ganesha at boot"
   ansible.builtin.systemd:
     name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha'][ansible_facts['os_family']] }}"
     enabled: true
-    state: started
-    daemon_reload: true
 
-- name: "🚿 Flush handlers (ganesha restart applies the rendered export set)"
+# Exception: flushing after the start task instead boots ganesha twice --
+# once here, once from the queued handler a second later.
+- name: "🚿 Flush handlers so a pending config change restarts ganesha first"
   ansible.builtin.meta: flush_handlers
+
+- name: "🟢 Start nfs-ganesha"
+  ansible.builtin.systemd:
+    name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha'][ansible_facts['os_family']] }}"
+    state: started
+
+- name: "✅ Assert ganesha reached listen state"
+  ansible.builtin.wait_for:
+    port: 2049
+    host: 127.0.0.1
+    timeout: "{{ lookup('timeout', 60) | int }}"
+    msg: >-
+      Port 2049 never opened within the timeout. Check 'systemctl status
+      nfs-ganesha' and 'journalctl -u nfs-ganesha': a unit that stays active
+      but logs nothing after the export CLIENT warnings has wedged before
+      'NFS SERVER INITIALIZED' and systemd will not restart it.

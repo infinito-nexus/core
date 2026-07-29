@@ -9,6 +9,8 @@ x-node: &node
   security_opt:
     - seccomp=unconfined
     - apparmor=unconfined
+  environment:
+    - DM_DISABLE_UDEV=1
   tmpfs:
     - /run
     - /run/lock

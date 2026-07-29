@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
 # Resolve the role whitelist for a pull-request CI run and write
-# `whitelist` + `roles_only` to GITHUB_OUTPUT. This is the single
-# entry point the `detect-affected-roles` job calls; it keeps the
-# subset-vs-diff selection logic out of the workflow YAML.
+# `whitelist` to GITHUB_OUTPUT. This is the single entry point the
+# `detect-affected-roles` job calls; it keeps the subset-vs-diff
+# selection logic out of the workflow YAML.
 #
 # Inputs via env:
 #   SUBSET_LABELED  "true" when the PR carries the '🧩 Subset' label.
@@ -16,7 +16,6 @@
 #
 # Outputs (GITHUB_OUTPUT):
 #   whitelist=<role-id ...|__ALL__>
-#   roles_only=<true|false>
 
 set -euo pipefail
 
@@ -31,8 +30,4 @@ fi
 
 resolved="$(./scripts/meta/resolve/diff/affected_roles.sh)"
 echo "Resolver output: ${resolved}"
-if [[ "${resolved}" == "__ALL__" ]]; then
-	printf 'whitelist=__ALL__\nroles_only=false\n' >>"${GITHUB_OUTPUT}"
-else
-	printf 'whitelist=%s\nroles_only=true\n' "${resolved}" >>"${GITHUB_OUTPUT}"
-fi
+printf 'whitelist=%s\n' "${resolved}" >>"${GITHUB_OUTPUT}"

@@ -33,6 +33,24 @@ on:
         required: false
         default: ""
         type: string
+      workspace:
+        description: "Run the workspace test (dev-runtime image matrix). 'auto' runs it on a global scope only."
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - "auto"
+          - "true"
+          - "false"
+      instructions:
+        description: "Run the instructions test (role README Production command). 'auto' runs it on a global scope only."
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - "auto"
+          - "true"
+          - "false"
 
 permissions:
   contents: read
@@ -51,6 +69,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.modes }}
       priority: ${{ inputs.priority }}
-      roles_only: ${{ (inputs.priority != '' || (inputs.whitelist != '' && inputs.whitelist != '__ALL__')) && 'true' || 'false' }}
+      workspace: ${{ inputs.workspace }}
+      instructions: ${{ inputs.instructions }}
       force_cancel_in_progress: true
     secrets: inherit

@@ -162,7 +162,8 @@ the cluster declaration (image, containers, network, DNS play) in
 | teardown | `utils/collect/topology_summary.sh` | render the node list + service placement into `$GITHUB_STEP_SUMMARY` |
 | teardown | `utils/clean/teardown.sh` | kill the nodes + remove the lab network |
 | helper | `utils/_context.sh` | per-app facts (entity, service, NFS volume, probes) |
-| helper | `utils/unmount_nfs_mounts.sh` | best-effort NFS unmount before node removal |
+| helper | `utils/unmount/nfs_mounts.sh` | best-effort NFS unmount before node removal |
+| helper | `utils/unmount/host_state.sh` | release the host mount of the shared state so the next cycle cannot inherit it |
 | recovery | `utils/clean/all.sh` | reap leftover clusters across every cluster id |
 | recovery | `utils/clean/stale_nfs.sh` | recover stale in-namespace NFS mounts |
 

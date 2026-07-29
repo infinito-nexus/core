@@ -710,7 +710,6 @@ system-purge:
 
 .PHONY: test
 # Run the full test pipeline.
-# Note: parallel execution with fail-fast.
 test: install
 	@bash scripts/make/parallel.sh \
 		test-external \
@@ -776,6 +775,12 @@ test-unit: install
 worktree-down:
 	@test -n '$(branch)' || { echo 'usage: make worktree-down branch=<name> [base=<dir>] [force=true]'; exit 2; }
 	@bash scripts/system/worktree/down.sh '$(branch)' '$(or $(base),/tmp)' '$(or $(force),false)'
+
+.PHONY: worktree-prune
+# Drop registrations of worktrees whose directory is gone, freeing the branches they claim.
+# Usage: make worktree-prune
+worktree-prune:
+	@bash scripts/system/worktree/prune.sh
 
 .PHONY: worktree-up
 # Check a branch out into an isolated worktree with its own subnet, ports and container names.

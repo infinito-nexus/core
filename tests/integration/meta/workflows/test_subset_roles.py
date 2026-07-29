@@ -52,7 +52,6 @@ class TestSubsetRoles(unittest.TestCase):
         result, outputs = self._run(body)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(outputs["whitelist"], " ".join(REAL_ROLES))
-        self.assertEqual(outputs["roles_only"], "true")
 
     def test_invalid_yaml_fails(self):
         body = "```yaml\nroles:\n  - web-app-nextcloud\n   bad: : :\n```\n"

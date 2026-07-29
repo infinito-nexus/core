@@ -28,7 +28,9 @@ docker exec "${PREP}" sh -c '
 	elif command -v dnf >/dev/null 2>&1; then
 		dnf install -y systemd
 	elif command -v pacman >/dev/null 2>&1; then
-		pacman -Sy --noconfirm systemd
+		pacman -Sy --noconfirm --needed archlinux-keyring
+		pacman -Syu --noconfirm --needed systemd
+		rm -rf /var/cache/pacman/pkg/*
 	fi
 	grep -q myhostname /etc/nsswitch.conf || sed -i "s/^hosts:.*/& myhostname/" /etc/nsswitch.conf
 	[ -e /sbin/init ] || ln -sf /lib/systemd/systemd /sbin/init

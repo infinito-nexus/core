@@ -1,4 +1,4 @@
-name: "📖 Test: Guide"
+name: "📖 Test: Instructions"
 
 on:
   workflow_call:
@@ -50,7 +50,7 @@ permissions:
 
 jobs:
   deploy:
-    name: 📖 Guide
+    name: 📖 Instructions
     runs-on: ubuntu-latest
     timeout-minutes: 345
     env:
@@ -64,7 +64,7 @@ jobs:
         shell: bash
         run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
 
-      - name: 🐍 Install guide + compose deps (Act runner only)
+      - name: 🐍 Install instructions + compose deps (Act runner only)
         if: ${{ env.ACT }}
         shell: bash
         run: |
@@ -88,7 +88,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 📖 Replay the guide across ${{ inputs.distros }}
+      - name: 📖 Replay the instructions across ${{ inputs.distros }}
         shell: bash
         run: ./scripts/tests/deploy/distros.sh scripts/github/guide/one.sh
 
@@ -96,6 +96,6 @@ jobs:
         if: ${{ always() && !env.ACT }}
         uses: actions/upload-artifact@v7
         with:
-          name: rescue-diagnostics-guide-${{ env.GUIDE_ROLE }}
+          name: rescue-diagnostics-instructions-${{ env.GUIDE_ROLE }}
           path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
           if-no-files-found: ignore

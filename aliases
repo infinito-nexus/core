@@ -97,6 +97,7 @@ alias i8pi='pcd infinito' # cd to the infinito repo
 alias i8puci='__i8puci(){ gips && i8cifail "$1" swarm; }; __i8puci' # sign-push + retrigger failed swarm CI jobs of run $1, skipping the quality gate
 alias i8pufail='__i8pufail(){ gips && i8cifail "$1"; }; __i8pufail' # sign-push, then retrigger all failed roles (compose+swarm) of run $1
 alias i8pufo='__i8pufo(){ gips && i8cifo "$1"; }; __i8pufo' # sign-push, then retrigger only hard-failed roles of run $1, excluding cancelled/aborted
+alias i8puma='__i8puma(){ [ -z "${1:-}" ] && { echo "usage: i8puma <priority app ids> [distros]" >&2; return 2; }; i8source && gips && gh workflow run entry-manual.yml --repo "$(git remote get-url "$(git config --get remote.pushDefault)")" --ref "$(git rev-parse --abbrev-ref HEAD)" -f priority="$1" -f distros="${2:-${INFINITO_DISTROS}}"; }; __i8puma' # sign-push, then dispatch a manual CI run on the push remote (remote.pushDefault): priority line $1, distros $2 (default INFINITO_DISTROS), whitelist diff-derived
 alias i8qu='m quality'
 alias i8quhi='m quality-high'
 alias i8re='m requirements-archive'
@@ -136,6 +137,7 @@ alias i8tesi='m test-signed'
 alias i8texe='m test-external'
 alias i8wo='m wsl2-dns-setup'
 alias i8wodo='m worktree-down'
+alias i8wopr='m worktree-prune'
 alias i8wose='m wsl2-systemd-check'
 alias i8wotu='m wsl2-trust-windows'
 alias i8woup='m worktree-up'

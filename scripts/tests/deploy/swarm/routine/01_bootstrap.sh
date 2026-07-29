@@ -24,7 +24,8 @@ if command -v apt-get >/dev/null 2>&1; then
 	if [ "$(id -u)" -eq 0 ]; then apt-get update -qq || true; else sudo -E apt-get update -qq || true; fi
 fi
 
-bash "${SCRIPT_DIR}/../utils/unmount_nfs_mounts.sh" "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" >/dev/null 2>&1 || true
+bash "${SCRIPT_DIR}/../utils/unmount/nfs_mounts.sh" "${NFS_SERVER}" >/dev/null 2>&1 || true
+bash "${SCRIPT_DIR}/../utils/unmount/host_state.sh" "${INFINITO_DIR_VAR_LIB:?}"
 for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
 	docker rm -f "${node}" >/dev/null 2>&1 || true
 done

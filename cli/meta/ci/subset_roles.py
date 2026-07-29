@@ -8,8 +8,8 @@ grants maintainers, which forks cannot trigger.
 It reads the PR body from ``$PR_BODY``, extracts the first fenced code block
 whose YAML defines a ``roles:`` list, validates that every listed id is an
 existing ``roles/<id>`` directory, and writes ``whitelist`` (space-separated)
-and ``roles_only=true`` to ``$GITHUB_OUTPUT`` -- the same outputs the
-diff-derived resolver produces.
+to ``$GITHUB_OUTPUT`` -- the same output the diff-derived resolver
+produces.
 
 Unlike the fail-safe diff resolver (which widens to ``__ALL__`` on any
 problem), the subset path is strict: invalid YAML, a missing/empty ``roles:``
@@ -95,7 +95,6 @@ def main() -> None:
     if github_output:
         with Path(github_output).open("a", encoding="utf-8") as handle:
             handle.write(f"whitelist={whitelist}\n")
-            handle.write("roles_only=true\n")
 
 
 if __name__ == "__main__":

@@ -66,7 +66,21 @@ dexec "${NFS_SERVER}" findmnt -R "${INFINITO_SWARM_NFS_EXPORT_BASE:?}" 2>&1
 dexec "${NFS_SERVER}" mountpoint "${INFINITO_SWARM_NFS_STATE_PATH:?}" 2>&1
 dexec "${NFS_SERVER}" cat /proc/fs/nfsd/exports 2>&1
 dexec "${NFS_SERVER}" cat /proc/fs/nfsd/versions 2>&1
-dexec "${NFS_SERVER}" sh -c "journalctl -u nfs-server -u nfs-ganesha --no-pager 2>&1 | tail -50"
+dexec "${NFS_SERVER}" sh -c "journalctl -u nfs-server -u nfs-ganesha -u rpcbind --no-pager 2>&1 | tail -50"
+dexec "${NFS_SERVER}" sh -c "command -v ss >/dev/null 2>&1 && { ss -lntp | grep -E ':(2049|111)' || echo '(ss ran: nothing listening on 2049/111)'; } || echo '(ss not installed on this node)'"
+
+sep "nfs-server: ganesha thread states (pins where a wedged startup blocks)"
+# shellcheck disable=SC2016
+dexec "${NFS_SERVER}" sh -c 'pid=$(systemctl show -p MainPID --value nfs-ganesha 2>/dev/null)
+[ "${pid:-0}" -gt 0 ] || {
+  systemctl show -p ActiveState -p SubState -p NRestarts -p Result nfs-ganesha 2>&1
+  exit 0
+}
+for t in /proc/${pid}/task/*; do
+  echo "--- ${t} comm=$(cat ${t}/comm 2>&1) wchan=$(cat ${t}/wchan 2>&1) syscall=$(cat ${t}/syscall 2>&1)"
+  grep -E "^State:" ${t}/status 2>&1
+  cat ${t}/stack 2>&1
+done'
 
 sep "controller (this runner): NFS reachability of nfs-server"
 _nfs_ip="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' "${NFS_SERVER}")"

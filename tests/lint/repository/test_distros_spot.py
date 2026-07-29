@@ -37,7 +37,7 @@ from utils.env.parser import parse_static_env
 from . import PROJECT_ROOT
 
 WORKFLOWS_DIR = PROJECT_ROOT / ".github" / "workflows"
-ENVIRONMENT_WORKFLOW = WORKFLOWS_DIR / "test-environment.yml"
+WORKSPACE_WORKFLOW = WORKFLOWS_DIR / "test-workspace.yml"
 _MATRIX_REF_RE = re.compile(
     r"^\$\{\{\s*fromJson\(\s*needs\.([\w-]+)\.outputs\.([\w-]+)\s*\)\s*\}\}$",
     re.IGNORECASE,
@@ -101,24 +101,24 @@ class TestDistrosSpot(unittest.TestCase):
                 f"(expected {self.expected!r}):\n{body}"
             )
 
-    def test_environment_matrix_matches_spot(self) -> None:
+    def test_workspace_matrix_matches_spot(self) -> None:
         """The matrix is an expression, so the pin walks the wiring from the
         axis to the resolver step, runs that step the way the runner does and
         compares what it writes to ``GITHUB_OUTPUT`` against the SPOT."""
-        jobs = load_yaml_any(str(ENVIRONMENT_WORKFLOW), default_if_missing={})["jobs"]
-        consumer = jobs["test-environment"]
+        jobs = load_yaml_any(str(WORKSPACE_WORKFLOW), default_if_missing={})["jobs"]
+        consumer = jobs["test-workspace"]
         axis = consumer["strategy"]["matrix"]["dev_runtime_image"]
         ref = _MATRIX_REF_RE.match(str(axis))
         self.assertIsNotNone(
             ref,
-            f"test-environment.yml must derive its matrix from {FILE_META_DISTROS} "
+            f"test-workspace.yml must derive its matrix from {FILE_META_DISTROS} "
             f"via fromJson(needs.<job>.outputs.<name>), got {axis!r}.",
         )
         resolver_id, output_name = ref.groups()
         self.assertIn(
             resolver_id,
             consumer.get("needs", ()),
-            f"job 'test-environment' consumes {resolver_id!r} without needing it.",
+            f"job 'test-workspace' consumes {resolver_id!r} without needing it.",
         )
         resolver = jobs[resolver_id]
         published = resolver.get("outputs", {}).get(output_name)

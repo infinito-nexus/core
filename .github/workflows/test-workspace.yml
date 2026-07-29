@@ -1,4 +1,4 @@
-name: "💻 Test: Development Environment"
+name: "💻 Test: Workspace"
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   prepare:
-    name: 📋 Environment Matrix
+    name: 📋 Workspace Matrix
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -25,10 +25,10 @@ jobs:
         id: matrix
         shell: bash
         run: |
-          python3 -c 'import json, sys; from utils.distros import dev_runtime_images; images = list(dev_runtime_images()); images or sys.exit("meta/distros.yml declares no dev runtime image; an empty matrix would skip every environment job silently"); print("images=" + json.dumps(images))' | tee -a "$GITHUB_OUTPUT"
+          python3 -c 'import json, sys; from utils.distros import dev_runtime_images; images = list(dev_runtime_images()); images or sys.exit("meta/distros.yml declares no dev runtime image; an empty matrix would skip every workspace job silently"); print("images=" + json.dumps(images))' | tee -a "$GITHUB_OUTPUT"
 
-  test-environment:
-    name: 🧑‍💻 Environment (${{ matrix.dev_runtime_image }})
+  test-workspace:
+    name: 🧑‍💻 Workspace (${{ matrix.dev_runtime_image }})
     runs-on: ubuntu-latest
     timeout-minutes: 345
     needs: prepare
@@ -70,9 +70,9 @@ jobs:
         run: |
           set -euo pipefail
           grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
-          echo "INFINITO_ENV_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')" >> "$GITHUB_ENV"
+          echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')" >> "$GITHUB_ENV"
 
-      - name: ▶️ Run dev environment routine
+      - name: ▶️ Run workspace routine
         shell: bash
         run: |
           set -euo pipefail
@@ -111,15 +111,15 @@ jobs:
         timeout-minutes: 15
         shell: bash
         env:
-          INFINITO_RESCUE_DIAGNOSTICS_DIR: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/${{ env.INFINITO_ENV_SLUG }}
+          INFINITO_RESCUE_DIAGNOSTICS_DIR: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/${{ env.INFINITO_WORKSPACE_SLUG }}
         run: |
           python3 utils/diagnostics/container.py \
-            "${INFINITO_ENV_SLUG}" "environment suite failure" || true
+            "${INFINITO_WORKSPACE_SLUG}" "workspace suite failure" || true
 
       - name: ⬆️ Upload rescue diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: rescue-diagnostics-environment-${{ env.INFINITO_ENV_SLUG }}
+          name: rescue-diagnostics-workspace-${{ env.INFINITO_WORKSPACE_SLUG }}
           path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
           if-no-files-found: ignore

@@ -102,7 +102,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       whitelist: ${{ steps.resolve.outputs.whitelist }}
-      roles_only: ${{ steps.resolve.outputs.roles_only }}
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -138,7 +137,6 @@ jobs:
     with:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
-      roles_only: ${{ needs.detect-affected-roles.outputs.roles_only }}
       trusted_pr: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
 
   prepare-fork-merge-ref:

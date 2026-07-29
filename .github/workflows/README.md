@@ -53,10 +53,10 @@ flowchart TB
         instmake --> instgate["test-install-gate"]
         instpkgmgr --> instgate
 
-        qualitygate --> devenv["test-development: test-environment.yml"]
+        qualitygate --> devenv["test-workspace: test-workspace.yml"]
         mirror --> devenv
 
-        buildci --> testguide["test-guide.yml"]
+        buildci --> testguide["test-instructions.yml"]
         mirror --> testguide
 
         snprio --> donegate["done"]
@@ -109,10 +109,10 @@ flowchart TB
     relhighest -.->|"gh workflow run"| relver["release-version.yml"]
     relver --> imgbuildci["images-build-ci.yml"]
     manual["workflow_dispatch"] --> mirrorcleanup["images-mirror-cleanup.yml"]
-    manual --> deploywf["test-guide.yml: run a role README Production command"]
+    manual --> deploywf["test-instructions.yml: run a role README Production command"]
 ```
 
 Also manually dispatchable: `images-mirror-all.yml`, `images-cleanup-ci.yml`,
 `cleanup-stale.yml`, `update.yml`, `release-highest.yml`, `release-version.yml`,
 `lint.yml`, `test.yml`, `test-deploy-swarm.yml`, `test-dns.yml`,
-`test-environment.yml`, `test-runner-smoke.yml`.
+`test-workspace.yml`, `test-runner-smoke.yml`.

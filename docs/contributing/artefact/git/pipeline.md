@@ -101,7 +101,7 @@ roles:
 ```
 ````
 
-With the label set, the `detect-affected-roles` job in [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output with `roles_only=true`, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies.
+With the label set, the `detect-affected-roles` job in [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies.
 
 The subset path fails the run when:
 
@@ -118,7 +118,7 @@ The install-test workflows listed in the `Infrastructure tests` table of [workfl
 
 ### 11. Development Environment 🛠️
 
-The `test-development` stage runs the development-environment workflow listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md).
+The `test-workspace` stage runs the workspace workflow listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md).
 
 ### 12. Done 🏁
 
