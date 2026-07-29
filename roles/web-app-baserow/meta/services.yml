@@ -55,7 +55,7 @@ baserow:
   backup:
     no_stop_required: true
   image: baserow/baserow
-  version: 2.3.0
+  version: 2.3.1
   name: baserow
   min_storage: 8GB
   cpus: 1.0
