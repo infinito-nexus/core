@@ -25,8 +25,10 @@ Kwargs:
         only roles whose block declares that ``direction`` (or ``both``)
         are returned, and each entry additionally carries ``transport``,
         ``auth``, ``auth_subject`` and an ``endpoint`` dict
-        (``service_key``, ``path``, ``health_path``, ``port`` resolved from
-        the referenced service's ``ports.local``/``ports.internal``).
+        (``service_key``, ``path``, ``health_path``, ``port`` taken from the
+        referenced service's ``ports.internal`` and only then ``ports.local``:
+        the entry is consumed to build a container-network URL, where a
+        host-published port is always the wrong one).
         Callers that omit ``direction`` keep the original 4-key entries.
 """
 
@@ -47,7 +49,7 @@ if TYPE_CHECKING:
 
 
 def _resolve_endpoint_port(
-    services: dict[str, Any], endpoint: dict[str, Any], exposure: str | None = None
+    services: dict[str, Any], endpoint: dict[str, Any]
 ) -> int | None:
     service_key = endpoint.get("service_key")
     port_key = endpoint.get("port_key")
@@ -59,8 +61,7 @@ def _resolve_endpoint_port(
     ports = target.get("ports")
     if not isinstance(ports, dict):
         return None
-    order = ("internal", "local") if exposure == "internal" else ("local", "internal")
-    for namespace in order:
+    for namespace in ("internal", "local"):
         ns = ports.get(namespace)
         if isinstance(ns, dict) and port_key in ns:
             try:
@@ -169,9 +170,7 @@ class LookupModule(LookupBase):
                     "service_key": endpoint.get("service_key"),
                     "path": endpoint.get("path"),
                     "health_path": endpoint.get("health_path"),
-                    "port": _resolve_endpoint_port(
-                        services, endpoint, block.get("exposure")
-                    ),
+                    "port": _resolve_endpoint_port(services, endpoint),
                 }
             results.append(entry)
 
