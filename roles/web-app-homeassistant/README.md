@@ -19,6 +19,7 @@ flowchart LR
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
     subgraph role [web-app-homeassistant 🐳🐝]
@@ -38,6 +39,7 @@ flowchart LR
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_hermes -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_openclaw -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     svc_homeassistant -. "0..1" .-> dpt_web_app_hermes
     svc_homeassistant -. "0..1" .-> dpt_web_app_openclaw

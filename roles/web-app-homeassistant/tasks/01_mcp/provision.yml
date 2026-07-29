@@ -1,0 +1,56 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: HOMEASSISTANT
+    resolve_compose_cid: "{{ HOMEASSISTANT_CONTAINER }}"
+
+- name: "🔑 Mint the long-lived token and create the MCP config entry"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "HA_PORT={{ HOMEASSISTANT_PORT_INTERNAL }}"
+      - -e
+      - "HA_USERNAME={{ HOMEASSISTANT_ADMIN_USERNAME }}"
+      - -e
+      - "HA_PASSWORD={{ HOMEASSISTANT_ADMIN_PASSWORD }}"
+      - -e
+      - "HA_TOKEN_CLIENT_NAME={{ HOMEASSISTANT_TOKEN_CLIENT_NAME }}"
+      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'provision_mcp.py') }}"
+  register: homeassistant_provision
+  retries: 30
+  delay: 10
+  until: homeassistant_provision.rc == 0
+  changed_when: "'CHANGED' in homeassistant_provision.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
+
+- name: "🔧 Take the minted token from the provisioning output"
+  ansible.builtin.set_fact:
+    homeassistant_mcp_token: "{{ homeassistant_provision.stdout_lines | last | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse a hub that issued no usable token"
+  ansible.builtin.assert:
+    that:
+      - homeassistant_mcp_token | length >= 50
+    fail_msg: >-
+      The hub did not return a long-lived access token, so every MCP client
+      would be configured with an empty bearer and fail at first use.
+
+- name: "💾 Persist the token so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ homeassistant_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

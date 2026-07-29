@@ -17,3 +17,10 @@
     role_templates:
       - src: "configuration.yaml.j2"
         dest: "{{ HOMEASSISTANT_CONFIG_PATH_HOST }}"
+
+- name: "🔄 Start the hub before talking to its API"
+  meta: flush_handlers
+
+- name: "🔌 Provision the MCP server surface"
+  ansible.builtin.include_tasks: 01_mcp.yml
+  when: HOMEASSISTANT_MCP_ENABLED | bool

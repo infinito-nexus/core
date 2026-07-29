@@ -1,0 +1,9 @@
+---
+- name: "🔍 Read the MCP token this hub already issued"
+  ansible.builtin.set_fact:
+    homeassistant_mcp_token: >-
+      {{ lookup('users', 'administrator').tokens[application_id] | default('') | trim }}
+
+- name: "🚀 Onboard the hub and enable its MCP server"
+  ansible.builtin.include_tasks: 01_mcp/provision.yml
+  when: homeassistant_mcp_token | length == 0
