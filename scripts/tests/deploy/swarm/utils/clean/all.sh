@@ -43,7 +43,7 @@ if [ -n "${_names}" ]; then
 		timeout 60 docker exec "${_node}" systemctl stop docker.socket docker >/dev/null 2>&1 || true
 	done
 	# shellcheck disable=SC2086
-	timeout 600 bash "$(dirname "$0")/../unmount_nfs_mounts.sh" ${_names} 2>&1 | sed 's/^/    /' || true
+	timeout 600 bash "$(dirname "$0")/../unmount/nfs_mounts.sh" ${_names} 2>&1 | sed 's/^/    /' || true
 fi
 
 echo ">>> swarm-clean: leftover containers"
