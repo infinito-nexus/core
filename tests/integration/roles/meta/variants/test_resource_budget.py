@@ -4,7 +4,11 @@ the host memory budget.
 For every role and every entry in its ``meta/variants.yml``, the deduplicated
 footprint (the role's own containers plus the shared dependencies it pulls in,
 each service counted once via the shared-service logic) is summed and checked
-against:
+against the budget below. Every role that ships variants is evaluated at the
+same round index, falling back to variant 0 when it has fewer, because that is
+the combination a matrix round actually deploys: a dependency sized for the
+production model tier is not what the round runs. ``meta/services.yml`` only
+supplies the roles that declare no variant at all.
 
 - ``mem_reservation`` total ≤ 32 GB
 - ``mem_limit`` total ≤ 64 GB
@@ -67,6 +71,11 @@ def _collect_findings(root: Path) -> list[BudgetFinding]:
     for role, variant_list in sorted(variants.items()):
         for index, variant_config in enumerate(variant_list):
             scoped = dict(applications)
+            for dep_role, dep_variants in variants.items():
+                if not dep_variants:
+                    continue
+                dep_index = index if index < len(dep_variants) else 0
+                scoped[dep_role] = dep_variants[dep_index] or {}
             scoped[role] = variant_config or {}
             rows: list = []
             collect_role_resources(

@@ -29,6 +29,7 @@ flowchart LR
         dpt_web_app_hermes["web-app-hermes 🐳🐝"]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
         dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     dep_svc_ai_lmstudio -. "0..1" .-> svc_lmstudio
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
@@ -36,6 +37,7 @@ flowchart LR
     svc_litellm -. "0..1" .-> dpt_web_app_hermes
     svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
     svc_litellm -. "0..1" .-> dpt_web_app_openclaw
+    svc_litellm -. "0..1" .-> dpt_web_app_openwebui
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

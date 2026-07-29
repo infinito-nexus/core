@@ -81,10 +81,10 @@ javascript:
   enabled: false # nocheck: dynamic-flag
   shared: true
 # nocheck: playwright-service-flag — AI backend, infrastructural
-ollama:
+litellm:
   bond: 1
-  enabled: "{{ 'svc-ai-ollama' in group_names }}"
-  shared: "{{ 'svc-ai-ollama' in group_names }}"
+  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"

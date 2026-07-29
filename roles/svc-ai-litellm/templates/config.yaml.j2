@@ -1,17 +1,13 @@
-{% set has_backend = ('svc-ai-ollama' in group_names) or ('svc-ai-lmstudio' in group_names) or LITELLM_OPENROUTER_API_KEY %}
+{% set _ollama_models = lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') if 'svc-ai-ollama' in group_names else [] %}
+{% set has_backend = _ollama_models or ('svc-ai-lmstudio' in group_names) or LITELLM_OPENROUTER_API_KEY %}
 model_list:{{ ' []' if not has_backend else '' }}
-{% if 'svc-ai-ollama' in group_names %}
-  - model_name: ollama/llama3
+{% for _model in _ollama_models %}
+  - model_name: "{{ _model }}"
     litellm_params:
-      model: ollama/llama3
+      model: "ollama/{{ _model }}"
       api_base: {{ OLLAMA_BASE_LOCAL_URL }}
       rpm: 1000
-  - model_name: ollama/nomic-embed-text
-    litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: {{ OLLAMA_BASE_LOCAL_URL }}
-      rpm: 1000
-{% endif %}
+{% endfor %}
 {% if 'svc-ai-lmstudio' in group_names %}
   - model_name: lmstudio/default
     litellm_params:

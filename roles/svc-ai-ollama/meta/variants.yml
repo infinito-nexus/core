@@ -13,3 +13,5 @@
     ollama:
       preload_models:
         - smollm2:135m
+      mem_reservation: 1g
+      mem_limit: 2g

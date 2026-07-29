@@ -15,7 +15,7 @@ The diagram places Open WebUI in the Infinito.Nexus cosmos: the components it de
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
-        dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
@@ -39,7 +39,7 @@ flowchart LR
         svc_seaweedfs["seaweedfs"]
         svc_css["css"]
         svc_javascript["javascript"]
-        svc_ollama["ollama"]
+        svc_litellm["litellm"]
         svc_email["email"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
@@ -47,7 +47,7 @@ flowchart LR
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
-    dep_svc_ai_ollama -. "0..1" .-> svc_ollama
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
