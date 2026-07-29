@@ -4,3 +4,6 @@ local:
 overlay:
   modes: [compose, swarm]
   topology: shared_net
+  consumer:
+    kind: services_flags
+    key: mcp

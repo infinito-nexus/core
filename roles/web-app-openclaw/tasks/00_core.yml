@@ -19,6 +19,13 @@
       - src: "openclaw.json.j2"
         dest: "{{ OPENCLAW_CONFIG_PATH_HOST }}"
 
+- name: "🔄 Start the stack before reading its runtime"
+  meta: flush_handlers
+
+- name: "🔌 Prove the configured MCP servers answer"
+  ansible.builtin.include_tasks: 01_mcp_assert.yml
+  when: OPENCLAW_MCP_SERVERS | length > 0
+
 - name: "🛡️ Prove the isolation {{ application_id }} promises"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
   vars:

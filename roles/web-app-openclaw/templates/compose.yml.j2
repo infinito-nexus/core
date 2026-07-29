@@ -14,7 +14,7 @@
     {{ lookup('compose_only', 'runtime', SANDBOX_RUNTIME) }}
     {% endif %}
     user: "0:0"
-    command: ["node", "dist/index.js", "gateway", "--bind", "lan", "--port", "{{ OPENCLAW_PORT_INTERNAL }}"]
+    command: ["node", "dist/index.js", "gateway", "run", "--bind", "lan", "--port", "{{ OPENCLAW_PORT_INTERNAL }}"]
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:{{ OPENCLAW_PORT_INTERNAL }}/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s

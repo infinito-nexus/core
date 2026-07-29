@@ -1,0 +1,33 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: OPENCLAW
+    resolve_compose_cid: "{{ OPENCLAW_CONTAINER }}"
+
+- name: "🔌 Probe the MCP servers OpenClaw is configured against"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ OPENCLAW_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - node
+      - dist/index.js
+      - mcp
+      - probe
+  register: openclaw_mcp_probe
+  changed_when: false
+  retries: 20
+  delay: 6
+  until:
+    - openclaw_mcp_probe.rc == 0
+    - "'failed to start server' not in openclaw_mcp_probe.stdout"
+  delegate_to: "{{ OPENCLAW_HOST_NODE }}"
+
+- name: "🛑 Refuse an MCP client that cannot reach its servers"
+  ansible.builtin.assert:
+    that:
+      - "'failed to start server' not in openclaw_mcp_probe.stdout"
+    fail_msg: "OpenClaw could not connect to a configured MCP server: {{ openclaw_mcp_probe.stdout }}"
