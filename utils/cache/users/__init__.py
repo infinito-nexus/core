@@ -102,12 +102,25 @@ def _load_user_defs(roles_dir: Path) -> OrderedDict[str, dict[str, Any]]:
 
             existing = merged[key]
             for field, value in overrides.items():
-                if field in existing and existing[field] != value:
+                if field not in existing:
+                    existing[field] = copy.deepcopy(value)
+                    continue
+                current = existing[field]
+                if isinstance(current, dict) and isinstance(value, dict):
+                    for sub_key, sub_value in value.items():
+                        if sub_key in current and current[sub_key] != sub_value:
+                            raise ValueError(
+                                f"Conflict for user '{key}': field '{field}.{sub_key}' has "
+                                f"existing value '{current[sub_key]}', tried to set "
+                                f"'{sub_value}' in {filepath}"
+                            )
+                        current[sub_key] = copy.deepcopy(sub_value)
+                    continue
+                if current != value:
                     raise ValueError(
                         f"Conflict for user '{key}': field '{field}' has existing value "
-                        f"'{existing[field]}', tried to set '{value}' in {filepath}"
+                        f"'{current}', tried to set '{value}' in {filepath}"
                     )
-            existing.update(copy.deepcopy(overrides))
 
     return merged
 
