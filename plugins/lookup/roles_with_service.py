@@ -38,6 +38,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.domains.primary_domain import get_primary_domain
 from utils.roles.applications.services.mcp import DEFAULT_MCP_TRANSPORT
 from utils.roles.entity.name import get_entity_name
 
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
 
 
 def _resolve_endpoint_port(
-    services: dict[str, Any], endpoint: dict[str, Any]
+    services: dict[str, Any], endpoint: dict[str, Any], exposure: str | None = None
 ) -> int | None:
     service_key = endpoint.get("service_key")
     port_key = endpoint.get("port_key")
@@ -58,7 +59,8 @@ def _resolve_endpoint_port(
     ports = target.get("ports")
     if not isinstance(ports, dict):
         return None
-    for namespace in ("local", "internal"):
+    order = ("internal", "local") if exposure == "internal" else ("local", "internal")
+    for namespace in order:
         ns = ports.get(namespace)
         if isinstance(ns, dict) and port_key in ns:
             try:
@@ -68,17 +70,11 @@ def _resolve_endpoint_port(
     return None
 
 
-def _resolve_canonical_domain(app_config: dict[str, Any]) -> str:
+def _resolve_canonical_domain(role_id: str, app_config: dict[str, Any]) -> str:
     domains = app_config.get("domains")
-    if not isinstance(domains, dict):
+    if not isinstance(domains, dict) or not domains.get("canonical"):
         return ""
-    canonical = domains.get("canonical")
-    if isinstance(canonical, list) and canonical:
-        first = canonical[0]
-        return str(first) if first else ""
-    if isinstance(canonical, str):
-        return canonical
-    return ""
+    return get_primary_domain({role_id: domains["canonical"]}, role_id)
 
 
 class LookupModule(LookupBase):
@@ -145,7 +141,7 @@ class LookupModule(LookupBase):
                 continue
             if get_entity_name(str(role_id)) == service_name:
                 continue
-            canonical = _resolve_canonical_domain(app_config)
+            canonical = _resolve_canonical_domain(str(role_id), app_config)
             if not canonical:
                 continue
             resolved = tls_lookup.run([str(role_id), "url.base"], variables=variables)
@@ -173,7 +169,9 @@ class LookupModule(LookupBase):
                     "service_key": endpoint.get("service_key"),
                     "path": endpoint.get("path"),
                     "health_path": endpoint.get("health_path"),
-                    "port": _resolve_endpoint_port(services, endpoint),
+                    "port": _resolve_endpoint_port(
+                        services, endpoint, block.get("exposure")
+                    ),
                 }
             results.append(entry)
 

@@ -329,14 +329,25 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         result = self._run(["dashboard"], applications)[0]
         self.assertEqual([r["id"] for r in result], ["web-app-bar"])
 
-    def test_canonical_with_empty_first_entry_is_skipped(self):
+    def test_canonical_with_empty_first_entry_raises(self):
         applications = {
             "web-app-foo": {
                 "services": {"dashboard": {"enabled": True, "shared": True}},
                 "domains": {"canonical": ["", "foo.example.com"]},
             },
         }
-        self.assertEqual(self._run(["dashboard"], applications), [[]])
+        with self.assertRaises(AnsibleError):
+            self._run(["dashboard"], applications)
+
+    def test_canonical_mapping_resolves_to_its_first_domain(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"dashboard": {"enabled": True, "shared": True}},
+                "domains": {"canonical": {"foo": "foo.example.com"}},
+            },
+        }
+        result = self._run(["dashboard"], applications)[0]
+        self.assertEqual([r["canonical_domain"] for r in result], ["foo.example.com"])
 
     def test_unrendered_jinja_strings_are_treated_as_truthy(self):
         """In a real Ansible play, ``get_merged_applications`` runs the
@@ -494,6 +505,21 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         applications = {"web-app-server": role}
         entry = self._run(["mcp"], applications, direction="server")[0][0]
         self.assertEqual(entry["endpoint"]["port"], 80)
+
+    def test_internal_exposure_prefers_the_internal_port(self):
+        role = self._mcp_role("server")
+        role["services"]["mcp"]["exposure"] = "internal"
+        role["services"]["baserow"]["ports"]["internal"] = {"http": 80}
+        applications = {"web-app-server": role}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["endpoint"]["port"], 80)
+
+    def test_without_internal_exposure_the_local_port_wins(self):
+        role = self._mcp_role("server")
+        role["services"]["baserow"]["ports"]["internal"] = {"http": 80}
+        applications = {"web-app-server": role}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["endpoint"]["port"], 8021)
 
     def test_without_direction_kwarg_shape_is_unchanged(self):
         applications = {"web-app-server": self._mcp_role("server")}
