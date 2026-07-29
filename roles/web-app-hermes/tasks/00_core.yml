@@ -10,6 +10,8 @@
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-full
+  vars:
+    compose_handlers_flush: true
 
 - name: "🛡️ Prove the isolation {{ application_id }} promises"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
