@@ -1,5 +1,0 @@
----
-- name: adapt iptable rules
-  shell: iptables -A FORWARD -i wg0-client -j ACCEPT && iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-
-- include_tasks: utils/once/flag.yml

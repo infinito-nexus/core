@@ -1,4 +1,0 @@
-#!/bin/bash
-{% for internet_interface in internet_interfaces %}
-ip li set mtu 1400 dev {{internet_interface}}
-{% endfor %}

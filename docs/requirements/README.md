@@ -29,3 +29,4 @@ Its scope is user stories and acceptance criteria that define what the project m
 - 022 - Zammad Helpdesk Role with OIDC SSO
 - 023 - Setup Penpot
 - 025 - Matrix Role Ansible Flavor (matrix-docker-ansible-deploy)
+- 026 - Dockerized `svc-net-wireguard` (consolidate core / plain / firewalled)

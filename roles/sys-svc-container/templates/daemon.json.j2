@@ -2,7 +2,7 @@
   "dns": ["{{ networks.internet.dns }}"],
   "dns-search": ["{{ DOMAIN_PRIMARY }}"],
   "dns-opts": ["ndots:0"],
-  "storage-driver": "fuse-overlayfs"
+  "storage-driver": "{{ SYS_SVC_CONTAINER_STORAGE_DRIVER }}"
 {% if SYS_DOCKER_DAEMONM_MTU is defined and SYS_DOCKER_DAEMONM_MTU | int > 0 %},
   "mtu": {{ SYS_DOCKER_DAEMONM_MTU | int }}
 {% endif %}
