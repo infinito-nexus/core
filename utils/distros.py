@@ -36,7 +36,7 @@ IMAGE_ENVIRONMENT = "environment"
 
 
 class UnknownDistroError(ValueError):
-    """Raised for a distro id that ``meta/distros.yml`` does not declare."""
+    """Raised for a distro id or image that ``meta/distros.yml`` does not declare."""
 
 
 def _doc() -> dict:
@@ -88,6 +88,17 @@ def dev_runtime_images() -> tuple[str, ...]:
 def dev_runtime_image(distro: str) -> str:
     """Upstream base image the development environment boots a distro from."""
     return _spec(distro)["dev_runtime_image"]
+
+
+def distro_of_dev_runtime_image(image: str) -> str:
+    """Distro id whose development environment boots from ``image``."""
+    for name, spec in _specs().items():
+        if spec["dev_runtime_image"] == image:
+            return name
+    raise UnknownDistroError(
+        f"{image!r} is not a dev_runtime_image in {FILE_META_DISTROS}. "
+        f"Declared: {', '.join(dev_runtime_images())}."
+    )
 
 
 def image_template(kind: str) -> str:

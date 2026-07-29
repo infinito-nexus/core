@@ -10,6 +10,7 @@ from utils.distros import (
     dev_runtime_images,
     distro_family,
     distro_names,
+    distro_of_dev_runtime_image,
     environment_image,
     galaxy_platforms,
     pkgmgr_image,
@@ -64,6 +65,14 @@ class TestDistroSpot(unittest.TestCase):
     def test_unknown_distro_is_rejected(self) -> None:
         with self.assertRaises(UnknownDistroError):
             pkgmgr_image("gentoo", owner="acme", tag="stable")
+
+    def test_dev_runtime_image_round_trips_to_its_distro(self) -> None:
+        for name in distro_names():
+            self.assertEqual(distro_of_dev_runtime_image(dev_runtime_image(name)), name)
+
+    def test_unknown_dev_runtime_image_is_rejected(self) -> None:
+        with self.assertRaises(UnknownDistroError):
+            distro_of_dev_runtime_image("gentoo:latest")
 
 
 if __name__ == "__main__":

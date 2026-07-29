@@ -5,9 +5,8 @@ on:
     inputs:
       distros:
         description: "Space-separated distro list (shown in the discover job name)"
-        required: false
+        required: true
         type: string
-        default: "arch debian ubuntu fedora centos"
       whitelist:
         description: "Optional space-separated whitelist of app ids"
         required: false
@@ -32,9 +31,8 @@ on:
     inputs:
       distros:
         description: "Space-separated distro list (shown in the discover job name)"
-        required: false
+        required: true
         type: string
-        default: "arch debian ubuntu fedora centos"
       whitelist:
         description: "Optional space-separated whitelist of app ids"
         required: false

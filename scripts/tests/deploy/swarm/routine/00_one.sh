@@ -14,6 +14,7 @@ set -euo pipefail
 #   APP_ID                              app id under test
 #   SWARM_NAME                          cluster id
 #   INFINITO_DISTRO                     distro under test (exported by distros.sh)
+#   INFINITO_IMAGE_TAG                  tag the node image is looked up under
 #   INFINITO_RESCUE_DIAGNOSTICS_BASE    host dir the rescue snapshots land under
 #   INFINITO_SWARM_STEP_TIMEOUT_MINUTES deploy-step ceiling
 #   variant                             optional matrix variant pin
@@ -36,6 +37,7 @@ export SWARM_DRILL_ENV
 
 : "${APP_ID:?APP_ID is required (matrix.apps)}"
 : "${INFINITO_DISTRO:?INFINITO_DISTRO is required (exported by scripts/tests/deploy/distros.sh)}"
+: "${INFINITO_IMAGE_TAG:?INFINITO_IMAGE_TAG is required (source scripts/meta/env/load.sh before invoking this script)}"
 : "${INFINITO_RESCUE_DIAGNOSTICS_BASE:?INFINITO_RESCUE_DIAGNOSTICS_BASE is required}"
 : "${INFINITO_SWARM_STEP_TIMEOUT_MINUTES:?INFINITO_SWARM_STEP_TIMEOUT_MINUTES is required}"
 
@@ -57,7 +59,17 @@ collect_and_teardown() {
 }
 trap collect_and_teardown EXIT
 
-INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/ci.sh")"
+INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh"):${INFINITO_IMAGE_TAG}"
+if docker image inspect "${INFINITO_IMAGE}" >/dev/null 2>&1; then
+	echo "==> node image: locally built ${INFINITO_IMAGE}"
+else
+	INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/ci.sh")"
+	if [ -n "${INFINITO_IMAGE}" ]; then
+		echo "==> node image: published ${INFINITO_IMAGE}"
+	else
+		echo "==> node image: unresolved, bootstrap will build it locally"
+	fi
+fi
 export INFINITO_IMAGE
 
 bash "${SCRIPT_DIR}/01_bootstrap.sh"

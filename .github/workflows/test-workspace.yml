@@ -25,7 +25,9 @@ jobs:
         id: matrix
         shell: bash
         run: |
-          python3 -c 'import json, sys; from utils.distros import dev_runtime_images; images = list(dev_runtime_images()); images or sys.exit("meta/distros.yml declares no dev runtime image; an empty matrix would skip every workspace job silently"); print("images=" + json.dumps(images))' | tee -a "$GITHUB_OUTPUT"
+          set -euo pipefail
+          images="$(python3 -m cli.meta.ci.dev_runtime images)"
+          echo "images=${images}" | tee -a "$GITHUB_OUTPUT"
 
   test-workspace:
     name: 🧑‍💻 Workspace (${{ matrix.dev_runtime_image }})
@@ -65,12 +67,16 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
-      - name: "📥 Load rescue-diagnostics SPOT into job env"
+      - name: "📥 Load workspace SPOT values into job env"
         shell: bash
         run: |
           set -euo pipefail
-          grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
-          echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')" >> "$GITHUB_ENV"
+          distro="$(python3 -m cli.meta.ci.dev_runtime distro --image "${DEV_RUNTIME_IMAGE}")"
+          {
+            grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env
+            echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')"
+            echo "INFINITO_DISTRO=${distro}"
+          } >> "$GITHUB_ENV"
 
       - name: ▶️ Run workspace routine
         shell: bash
@@ -84,8 +90,8 @@ jobs:
             -e GITHUB_REPOSITORY_OWNER="${{ github.repository_owner }}" \
             -e GITHUB_SHA="${{ github.sha }}" \
             -e DEV_RUNTIME_IMAGE \
-            -e INFINITO_DISTRO=debian \
-            -e INFINITO_IMAGE=infinito-debian \
+            -e INFINITO_DISTRO \
+            -e INFINITO_IMAGE="infinito-${INFINITO_DISTRO}" \
             -e INFINITO_PULL_POLICY=never \
             -e INFINITO_BUILD=1 \
             -e NIX_CONFIG \

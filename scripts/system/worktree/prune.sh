@@ -19,7 +19,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-if ! git worktree prune -v; then
+if ! git worktree prune -v 2>/dev/null; then
 	echo ">>> git could not delete every stale entry; clearing the metadata by hand"
 fi
 
@@ -29,21 +29,77 @@ if [ ! -d "${meta_dir}" ]; then
 	exit 0
 fi
 
+live_ids=()
+while IFS= read -r line; do
+	case "${line}" in
+	"worktree "*) ;;
+	*) continue ;;
+	esac
+	checkout="${line#worktree }"
+	[ -f "${checkout}/.git" ] || continue
+	live_ids+=("$(basename "$(sed -n 's/^gitdir: //p' "${checkout}/.git")")")
+done < <(git worktree list --porcelain)
+
+is_live() {
+	local known
+	for known in ${live_ids[@]+"${live_ids[@]}"}; do
+		[ "${known}" = "${1}" ] && return 0
+	done
+	return 1
+}
+
 pruned=0
+held=()
+unverifiable=()
 for entry in "${meta_dir}"/*; do
 	[ -d "${entry}" ] || continue
-	if [ -f "${entry}/gitdir" ] && [ -e "$(cat "${entry}/gitdir")" ]; then
+	if is_live "$(basename "${entry}")"; then
 		continue
 	fi
-	rm -f "${entry}/gitdir" "${entry}/HEAD"
-	if rm -rf "${entry}"; then
-		echo "Pruned $(basename "${entry}")"
-	else
-		echo "Pruned $(basename "${entry}") (sandbox-held leftovers stay in ${entry})"
+
+	gitdir=""
+	if [ -f "${entry}/gitdir" ]; then
+		gitdir="$(cat "${entry}/gitdir")"
 	fi
-	pruned=$((pruned + 1))
+
+	if [ -n "${gitdir}" ]; then
+		checkout="$(dirname "${gitdir}")"
+		base="$(dirname "${checkout}")"
+		if [ -e "${checkout}" ] || [ ! -d "${base}" ] || [ ! -x "${base}" ]; then
+			unverifiable+=("$(basename "${entry}") -> ${checkout}")
+			continue
+		fi
+	fi
+
+	registered=false
+	if [ -e "${entry}/gitdir" ] || [ -e "${entry}/HEAD" ]; then
+		registered=true
+	fi
+
+	rm -f "${entry}/gitdir" "${entry}/HEAD"
+	if ! rm -rf "${entry}" 2>/dev/null; then
+		held+=("${entry}")
+	fi
+
+	if [ "${registered}" = true ]; then
+		echo "Pruned $(basename "${entry}")"
+		pruned=$((pruned + 1))
+	fi
 done
 
-if [ "${pruned}" -eq 0 ]; then
+if [ "${pruned}" -eq 0 ] && [ "${#unverifiable[@]}" -eq 0 ]; then
 	echo "No stale worktree registrations left."
+fi
+
+if [ "${#held[@]}" -gt 0 ]; then
+	echo ">>> Unregistered, but the sandbox pins these metadata dirs; git ignores them now:"
+	printf '      %s\n' "${held[@]}"
+	echo ">>> Clear them outside the sandbox: rm -rf ${held[*]}"
+fi
+
+if [ "${#unverifiable[@]}" -gt 0 ]; then
+	echo ">>> Kept registered — their checkout is still on disk (or its parent is not"
+	echo ">>> readable from here), so 'gone' cannot be established:"
+	printf '      %s\n' "${unverifiable[@]}"
+	echo ">>> Release them with 'make worktree-down branch=<name>' instead."
 fi
