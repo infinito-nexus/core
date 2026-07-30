@@ -349,7 +349,7 @@ install-lint-force:
 .PHONY: install-python
 # Install Python tooling.
 install-python: install-venv
-	@bash scripts/install/python.sh
+	@bash scripts/install/python.sh deploy
 
 .PHONY: install-python-dev
 # Install Python tooling including lint and dev dependencies.

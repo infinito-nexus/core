@@ -4,6 +4,8 @@ import subprocess
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from utils.docker.mirror import mirror_image_base
+
 if TYPE_CHECKING:
     import argparse
 
@@ -43,7 +45,13 @@ class GHCRProvider(RegistryProvider):
         return cls(args.ghcr_namespace, args.ghcr_repository, args.ghcr_prefix)
 
     def image_base(self, image: ImageRef) -> str:
-        return f"ghcr.io/{self.namespace}/{self.repository}/{self.prefix}/{image.registry}/{image.name}"
+        return mirror_image_base(
+            image.registry,
+            image.name,
+            namespace=self.namespace,
+            repository=self.repository,
+            prefix=self.prefix,
+        )
 
     def tag_exists(self, image: ImageRef) -> bool:
         """
@@ -100,16 +108,13 @@ class GHCRProvider(RegistryProvider):
         src = f"docker://{image.source}"
 
         try:
-            # Fast path
             self._run_copy(src=src, dest=dest)
 
         except subprocess.CalledProcessError as e:
-            # Always print skopeo output for debugging
             output = (e.stdout or "") + (e.stderr or "")
             if output.strip():
                 print(output, flush=True)
 
-            # Fallback: force recompress (avoids cross-repo blob reuse)
             if self._looks_like_blob_reuse_problem(e):
                 self._run_copy(
                     src=src,

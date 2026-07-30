@@ -1,12 +1,30 @@
 from __future__ import annotations
 
 import io
+import os
+import tempfile
 import unittest
 import urllib.error
 from email.message import Message
+from pathlib import Path
 from unittest import mock
 
 from utils.docker import registry
+
+
+class _IsolatedProbeCache(unittest.TestCase):
+    """Give each test its own probe cache and no mirror."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        cache = tempfile.TemporaryDirectory()
+        self.addCleanup(cache.cleanup)
+        for patcher in (
+            mock.patch.object(registry, "_CACHE_ROOT", Path(cache.name)),
+            mock.patch.dict(os.environ, {"INFINITO_GHCR_MIRROR_PREFIX": ""}),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
 
 def _headers(values: dict[str, str] | None = None) -> Message:
@@ -38,7 +56,7 @@ def _http_error(code: int, headers=None) -> urllib.error.HTTPError:
     )
 
 
-class TestManifestExists(unittest.TestCase):
+class TestManifestExists(_IsolatedProbeCache):
     def test_present_returns_true(self) -> None:
         with mock.patch.object(
             registry.urllib.request, "urlopen", return_value=_Resp(status=200)
@@ -153,7 +171,7 @@ _INDEX = {
 }
 
 
-class TestManifestTransferSize(unittest.TestCase):
+class TestManifestTransferSize(_IsolatedProbeCache):
     def test_single_manifest_sums_config_and_layers(self) -> None:
         with mock.patch.object(registry, "fetch_manifest", return_value=_SINGLE):
             self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
@@ -180,6 +198,52 @@ class TestManifestTransferSize(unittest.TestCase):
     def test_layerless_manifest_is_indeterminate(self) -> None:
         with mock.patch.object(registry, "fetch_manifest", return_value={"config": {}}):
             self.assertIsNone(registry.manifest_transfer_size("img", "1"))
+
+    def test_a_measured_size_is_served_from_cache(self) -> None:
+        with mock.patch.object(registry, "fetch_manifest", return_value=_SINGLE):
+            self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
+        with mock.patch.object(registry, "fetch_manifest") as fetched:
+            self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
+        fetched.assert_not_called()
+
+    def test_an_indeterminate_answer_is_not_cached(self) -> None:
+        with mock.patch.object(registry, "fetch_manifest", return_value=None):
+            self.assertIsNone(registry.manifest_transfer_size("img", "1"))
+        with mock.patch.object(registry, "fetch_manifest", return_value=_SINGLE):
+            self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
+
+    def test_platform_is_part_of_the_cache_key(self) -> None:
+        with mock.patch.object(registry, "fetch_manifest", return_value=_SINGLE):
+            self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
+        with mock.patch.object(
+            registry, "fetch_manifest", return_value={"layers": [{"size": 9}]}
+        ):
+            self.assertEqual(
+                registry.manifest_transfer_size("img", "1", architecture="arm64"), 9
+            )
+
+
+class TestProbeOrder(_IsolatedProbeCache):
+    def test_the_mirror_is_probed_before_the_upstream_registry(self) -> None:
+        with mock.patch.dict(os.environ, {"INFINITO_GHCR_MIRROR_PREFIX": "mirror"}):
+            order = registry._probe_order("postgres")
+        self.assertEqual(len(order), 2)
+        self.assertTrue(order[0].startswith("ghcr.io/"))
+        self.assertTrue(order[0].endswith("/mirror/docker.io/postgres"))
+        self.assertEqual(order[1], "postgres")
+
+    def test_upstream_is_the_only_probe_without_a_mirror(self) -> None:
+        self.assertEqual(registry._probe_order("postgres"), ["postgres"])
+
+    def test_upstream_answers_when_the_mirror_lacks_the_image(self) -> None:
+        with (
+            mock.patch.dict(os.environ, {"INFINITO_GHCR_MIRROR_PREFIX": "mirror"}),
+            mock.patch.object(
+                registry, "fetch_manifest", side_effect=[None, _SINGLE]
+            ) as fetched,
+        ):
+            self.assertEqual(registry.manifest_transfer_size("postgres", "17"), 2_000)
+        self.assertEqual(fetched.call_args_list[1].args[0], "postgres")
 
     def test_unreachable_manifest_is_indeterminate(self) -> None:
         with mock.patch.object(registry, "fetch_manifest", return_value=None):

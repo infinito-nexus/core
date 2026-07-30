@@ -11,19 +11,21 @@ requires-python = ">=3.11"
 license = { file = "LICENSE.md" }
 
 dependencies = [
-  "numpy",
-  "ansible",
-  "colorscheme-generator @ https://github.com/kevinveenbirkenbach/colorscheme-generator/archive/refs/tags/v0.3.0.zip",
   "bcrypt",
-  "ruamel.yaml",
-  "PyYAML",
-  "tld",
-  "passlib",
-  "requests",
+  "cryptography",
   "humanfriendly",
+  "PyYAML",
+  "ruamel.yaml",
 ]
 
 [project.optional-dependencies]
+deploy = [
+  "ansible",
+  "colorscheme-generator @ https://github.com/kevinveenbirkenbach/colorscheme-generator/archive/refs/tags/v0.3.0.zip",
+  "tld",
+  "passlib",
+  "requests",
+]
 dev = [
   "ruff==0.16.0",
   "import-linter",

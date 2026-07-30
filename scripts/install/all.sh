@@ -57,7 +57,7 @@ fi
 
 bash "${INFINITO_PYTHON_INSTALL_SCRIPT}" ensure
 bash scripts/install/venv.sh
-bash scripts/install/python.sh
+bash scripts/install/python.sh deploy
 ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" bash scripts/install/ansible.sh
 
 stamp_dir="$(dirname "${STAMP}")"

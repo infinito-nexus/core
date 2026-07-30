@@ -6,9 +6,6 @@
 ARG INFINITO_PARENT_IMAGE
 FROM ${INFINITO_PARENT_IMAGE} AS full
 
-# hadolint DL4006: ensure pipefail is set for RUN instructions that use pipes
-SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
-
 ARG NIX_CONFIG
 
 ARG INFINITO_SRC_DIR
@@ -18,6 +15,9 @@ ENV INFINITO_VENV_DIR=${INFINITO_VENV_DIR}
 ENV PYTHON="${INFINITO_VENV_DIR}/bin/python"
 ENV PIP="${INFINITO_VENV_DIR}/bin/python -m pip"
 ENV PATH="${INFINITO_VENV_DIR}/bin:${PATH}"
+
+# hadolint DL4006: ensure pipefail is set for RUN instructions that use pipes
+SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
 
 RUN set -euo pipefail; \
   cat /etc/os-release || true; \
@@ -42,6 +42,7 @@ RUN set -euo pipefail; \
 ENV container=docker
 STOPSIGNAL SIGRTMIN+3
 
+# hadolint ignore=SC3040
 RUN set -euo pipefail; \
   export NIX_CONFIG="${NIX_CONFIG:-}"; \
   "${INFINITO_SRC_DIR}/scripts/docker/entry.sh" --compile -- true
@@ -51,7 +52,7 @@ WORKDIR /
 COPY scripts/docker/healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
 HEALTHCHECK --interval=5s --timeout=20s --start-period=30s --retries=20 \
-  CMD /usr/local/bin/healthcheck.sh
+  CMD ["/usr/local/bin/healthcheck.sh"]
 
 ENTRYPOINT ["/bin/bash", "-c", "exec \"${INFINITO_SRC_DIR}/scripts/docker/entry.sh\" \"$@\"", "--"]
 

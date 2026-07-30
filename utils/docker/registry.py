@@ -16,15 +16,20 @@ private registry.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import tempfile
 import urllib.error
 import urllib.request
+from pathlib import Path
 from urllib.parse import quote, urlencode, urlparse
 
 from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_name
+from utils.docker.mirror import mirror_image
 
 _UA = "infinito-nexus-version-updater"
+_CACHE_ROOT = Path(tempfile.gettempdir()) / "infinito-registry-probe"
 _LINK_NEXT_RE = re.compile(r'<([^>]+)>\s*;\s*rel="next"', re.IGNORECASE)
 _CHALLENGE_PARAM_RE = re.compile(r'(\w+)="([^"]*)"')
 _MANIFEST_ACCEPT = (
@@ -173,6 +178,38 @@ def fetch_manifest(image: str, reference: str) -> dict | None:
     return parsed if isinstance(parsed, dict) else None
 
 
+def _cache_path(kind: str, *parts: str) -> Path:
+    digest = hashlib.sha256("\x00".join(parts).encode()).hexdigest()
+    return _CACHE_ROOT / kind / digest[:2] / f"{digest}.json"
+
+
+def _cache_read(kind: str, *parts: str):
+    try:
+        return json.loads(
+            _cache_path(kind, *parts).read_text()  # nocheck: cache-read
+        )
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _cache_write(kind: str, value, *parts: str) -> None:
+    """Persist a *positive* probe result; indeterminate answers are never stored."""
+    path = _cache_path(kind, *parts)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(value))
+    except OSError:
+        return
+
+
+def _probe_order(image: str) -> list[str]:
+    """Return *image* addressed at the mirror first, upstream second."""
+    mirrored = mirror_image(image)
+    if mirrored is None or mirrored == image:
+        return [image]
+    return [mirrored, image]
+
+
 def _platform_digest(manifests: list, os_name: str, architecture: str) -> str | None:
     for entry in manifests:
         if not isinstance(entry, dict):
@@ -203,7 +240,25 @@ def manifest_transfer_size(
 
     ``None`` on any indeterminate outcome (see :func:`fetch_manifest`), on an
     index without a matching platform, and on a manifest that carries no layers.
+
+    Read from the GHCR mirror when one is configured, falling back to the
+    upstream registry only for images the mirror does not carry. Measured sizes
+    are cached on disk (see :func:`_cache_dir`).
     """
+    cached = _cache_read("size", image, reference, os_name, architecture)
+    if isinstance(cached, int):
+        return cached
+    for candidate in _probe_order(image):
+        size = _transfer_size_at(candidate, reference, os_name, architecture)
+        if size is not None:
+            _cache_write("size", size, image, reference, os_name, architecture)
+            return size
+    return None
+
+
+def _transfer_size_at(
+    image: str, reference: str, os_name: str, architecture: str
+) -> int | None:
     doc = fetch_manifest(image, reference)
     if doc is None:
         return None
@@ -231,7 +286,13 @@ def manifest_exists(image: str, reference: str) -> bool | None:
 
     ``True`` present, ``False`` registry said 404, ``None`` indeterminate
     (network error, 401/403 auth wall, 429 rate limit, 5xx).
+
+    A confirmed hit is cached on disk. The probe stays on the upstream registry:
+    it exists to prove the declared pin is still pullable from where the deploy
+    pulls it, which a mirrored copy cannot answer for.
     """
+    if _cache_read("exists", image, reference) is True:
+        return True
     resolved = _resolve(image)
     if resolved is None:
         return None
@@ -242,6 +303,7 @@ def manifest_exists(image: str, reference: str) -> bool | None:
         return None
     status = result[0]
     if status == 200:
+        _cache_write("exists", True, image, reference)
         return True
     if status == 404:
         return False

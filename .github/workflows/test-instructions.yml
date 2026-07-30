@@ -68,7 +68,7 @@ jobs:
         if: ${{ env.ACT }}
         shell: bash
         run: |
-          pip install --quiet --break-system-packages pyyaml
+          PYTHON=python3 PIP_BREAK_SYSTEM_PACKAGES=1 bash scripts/install/python.sh
           apt-get update -qq && apt-get install -y -qq gettext-base jq
 
       - name: 🎲 Select the role and deploy mode

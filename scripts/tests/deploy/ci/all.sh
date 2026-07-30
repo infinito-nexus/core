@@ -37,6 +37,6 @@ fi
 export INFINITO_INVENTORY_DIR MISSING_ONLY
 
 echo ">>> Installing CI dependencies"
-"${PYTHON}" -m pip install ruamel.yaml PyYAML
+PYTHON="${PYTHON}" bash "${REPO_ROOT}/scripts/install/python.sh"
 
 exec "${REPO_ROOT}/scripts/tests/deploy/distros.sh" "${SCRIPT_DIR}/one.sh"

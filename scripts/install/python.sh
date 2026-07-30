@@ -3,6 +3,9 @@ set -euo pipefail
 
 : "${PYTHON:?PYTHON not set}"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}/../.."
+
 EXTRA="${1:-}"
 
 retry() {
