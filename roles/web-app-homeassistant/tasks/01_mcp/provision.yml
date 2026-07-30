@@ -1,11 +1,4 @@
 ---
-- name: "🔍 Resolve {{ application_id }} hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: "{{ entity_name }}"
-    resolve_output_prefix: HOMEASSISTANT
-    resolve_compose_cid: "{{ HOMEASSISTANT_CONTAINER }}"
-
 - name: "🔑 Mint the long-lived token and create the MCP config entry"
   ansible.builtin.command:
     argv:
@@ -31,11 +24,13 @@
   changed_when: "'CHANGED' in homeassistant_provision.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
+  run_once: true
 
 - name: "🔧 Take the minted token from the provisioning output"
   ansible.builtin.set_fact:
     homeassistant_mcp_token: "{{ homeassistant_provision.stdout_lines | last | trim }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
 
 - name: "🛑 Refuse a hub that issued no usable token"
   ansible.builtin.assert:
