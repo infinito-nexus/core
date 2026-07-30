@@ -51,7 +51,7 @@ pixelfed:
   image: zknt/pixelfed
   version: latest
   name: pixelfed
-  min_storage: 15GB
+  min_storage: 588MB
   backup:
     no_stop_required: true
   cpus: 0.75

@@ -25,7 +25,7 @@ phpmyadmin:
   version: 5.2.3
   name: phpmyadmin
   image: phpmyadmin/phpmyadmin
-  min_storage: 1GB
+  min_storage: 422MB
   autologin: false
   ports:
     local:

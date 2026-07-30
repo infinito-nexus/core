@@ -10,7 +10,7 @@ pgadmin:
   placement: manager
   image: dpage/pgadmin4
   version: "9.16"
-  min_storage: 1GB
+  min_storage: 378MB
   server_mode: false
   master_password_required: true
   ports:

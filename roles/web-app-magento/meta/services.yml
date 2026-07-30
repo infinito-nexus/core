@@ -36,7 +36,7 @@ php:
       fpm: 9000
   backup:
     no_stop_required: true
-  min_storage: 5GB
+  min_storage: 660MB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
@@ -47,7 +47,7 @@ nginx:
   name: magento-nginx
   backup:
     no_stop_required: true
-  min_storage: 5GB
+  min_storage: 235MB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
@@ -79,7 +79,7 @@ search:
   image: opensearchproject/opensearch
   version: 3.7.0
   name: magento-opensearch
-  min_storage: 10GB
+  min_storage: 1332MB
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g

@@ -47,7 +47,7 @@ moodle:
   version: "8.3-fpm"
   custom: true
   name: moodle
-  min_storage: 10GB
+  min_storage: 373MB
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 2g
@@ -73,7 +73,7 @@ nginx:
   image: nginx
   version: 1.31-alpine
   name: moodle-nginx
-  min_storage: 1GB
+  min_storage: 227MB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

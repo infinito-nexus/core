@@ -60,7 +60,7 @@ bookwyrm:
   custom: true
   repository: https://github.com/bookwyrm-social/bookwyrm.git
   ref: v0.9.1
-  min_storage: 15GB
+  min_storage: 579MB
   registration_open: false
   allow_invite_request: false
   ports:

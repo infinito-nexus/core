@@ -137,3 +137,21 @@
     - swarm deploy
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
+
+- name: "swarm: force task recreation so in-container state is reloaded"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    docker stack services --format '{{ "{{.Name}}" }}' {{ application_id | get_entity_name | quote }} \
+      | xargs -r -n1 docker service update --detach=false --force
+  args:
+    executable: /bin/bash
+  register: _swarm_force_recreate
+  changed_when: true
+  timeout: "{{ lookup('timeout', 1800) | int }}"
+  retries: 5
+  delay: 15
+  until: _swarm_force_recreate is succeeded
+  listen:
+    - container recreate
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"

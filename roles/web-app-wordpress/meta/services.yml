@@ -36,7 +36,7 @@ wordpress:
   image: wordpress
   custom: true
   name: wordpress
-  min_storage: 8GB
+  min_storage: 469MB
   backup:
     no_stop_required: true
   cpus: 1

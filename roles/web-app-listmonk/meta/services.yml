@@ -40,7 +40,7 @@ listmonk:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 1024
-  min_storage: 5GB
+  min_storage: 215MB
   image: listmonk/listmonk
   version: "v6.2.0"
   backup:

@@ -13,7 +13,7 @@ rabbitmq:
   image: rabbitmq
   name: rabbitmq
   version: "4.3-management-alpine"
-  min_storage: 5GB
+  min_storage: 289MB
   backup:
     database_routine: true
   cpus: "1.0"

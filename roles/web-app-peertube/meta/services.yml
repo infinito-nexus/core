@@ -61,7 +61,7 @@ peertube:
   name: peertube
   version: v8.2.2
   image: chocobozzz/peertube
-  min_storage: 30GB
+  min_storage: 841MB
   live:
     enabled: true
   backup:

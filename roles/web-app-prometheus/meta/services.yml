@@ -70,7 +70,7 @@ prometheus:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-  min_storage: 5GB
+  min_storage: 307MB
 alertmanager:
   image: prom/alertmanager
   version: v0.33.1
@@ -79,7 +79,7 @@ alertmanager:
   mem_reservation: 64m
   mem_limit: 128m
   pids_limit: 64
-  min_storage: 1GB
+  min_storage: 240MB
   ports:
     internal:
       http: 9093
@@ -91,7 +91,7 @@ blackbox-exporter:
   mem_reservation: 32m
   mem_limit: 64m
   pids_limit: 64
-  min_storage: 1GB
+  min_storage: 218MB
   ports:
     internal:
       http: 9115
@@ -103,7 +103,7 @@ cadvisor:
   mem_reservation: 64m
   mem_limit: 512m
   pids_limit: 64
-  min_storage: 1GB
+  min_storage: 234MB
   ports:
     internal:
       http: 8080
@@ -115,7 +115,7 @@ node-exporter:
   mem_reservation: 32m
   mem_limit: 128m
   pids_limit: 64
-  min_storage: 1GB
+  min_storage: 214MB
   ports:
     internal:
       http: 9100

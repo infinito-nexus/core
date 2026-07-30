@@ -12,7 +12,7 @@ libretranslate:
   image: libretranslate/libretranslate
   version: v1.9.6
   custom: true
-  min_storage: 5GB
+  min_storage: 402MB
   load_only:
     - en
     - de

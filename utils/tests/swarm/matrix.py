@@ -26,6 +26,7 @@ import subprocess
 import sys
 
 from utils import PROJECT_ROOT
+from utils.storage.constrained import host_storage_constrained
 
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
 _SWARM_SCRIPTS = _SWARM_DIR / "routine"
@@ -318,7 +319,12 @@ def main(argv: list[str] | None = None) -> int:
             flush=True,
         )
         vars_payload = _bake_overrides(
-            base_overrides={"applications": backup_applications_overrides(providers)},
+            base_overrides={
+                "applications": backup_applications_overrides(providers),
+                "STORAGE_CONSTRAINED": host_storage_constrained(
+                    [app_id], round_variants
+                ),
+            },
             variant_payloads=variant_payloads,
         )
         extras_path = f"{inv_root}/swarm-nfs-extras.yml"

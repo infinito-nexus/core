@@ -11,4 +11,5 @@ WHERE name = 'auth-openid-connect'
     settings IS DISTINCT FROM %(settings)s::jsonb
     OR enabled IS DISTINCT FROM TRUE
     OR uninstalled IS DISTINCT FROM FALSE
-  );
+  )
+RETURNING name;

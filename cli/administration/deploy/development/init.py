@@ -55,12 +55,6 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
     )
 
     p.add_argument(
-        "--threshold-gib",
-        type=int,
-        default=100,
-        help="Free-space threshold (GiB) below which STORAGE_CONSTRAINED is enabled (default: 100).",
-    )
-    p.add_argument(
         "--force-storage-constrained",
         choices=["true", "false"],
         default=None,
@@ -112,12 +106,11 @@ def handler(args: argparse.Namespace) -> int:
             raise SystemExit("--vars must be a JSON object")
         extra_vars = parsed
 
-    if args.force_storage_constrained is not None:
-        storage_constrained = args.force_storage_constrained == "true"
-    else:
-        storage_constrained = detect_storage_constrained(
-            compose, threshold_gib=int(args.threshold_gib)
-        )
+    forced_storage_constrained = (
+        None
+        if args.force_storage_constrained is None
+        else args.force_storage_constrained == "true"
+    )
 
     plan = plan_dev_inventory_matrix(
         roles_dir=str(compose.repo_root / "roles"),
@@ -133,6 +126,7 @@ def handler(args: argparse.Namespace) -> int:
     services_disabled = os.environ.get("disable", "")
     roles_dir = str(compose.repo_root / "roles")
     built_includes: dict[str, tuple[str, ...]] = {}
+    round_storage_constrained: dict[str, bool] = {}
     for _round_index, inv_dir, round_variants, include_R, _purge_set in plan:
         if disabled_app_ids:
             round_overrides = build_services_overrides_for_round(
@@ -162,6 +156,12 @@ def handler(args: argparse.Namespace) -> int:
             )
             continue
         built_includes[inv_dir] = round_include
+        storage_constrained = (
+            forced_storage_constrained
+            if forced_storage_constrained is not None
+            else detect_storage_constrained(compose, primary_apps, round_variants)
+        )
+        round_storage_constrained[inv_dir] = storage_constrained
         spec = DevInventorySpec(
             inventory_dir=inv_dir,
             include=round_include,
@@ -181,20 +181,20 @@ def handler(args: argparse.Namespace) -> int:
         print(
             f">>> Inventory initialized at {inv_dir} "
             f"(include={','.join(shown)} "
-            f"storage_constrained={storage_constrained}){suffix}"
+            f"storage_constrained={round_storage_constrained.get(inv_dir)}){suffix}"
         )
     else:
         print(
             f">>> Matrix inventory initialized in {len(plan)} folders "
-            f"(primary_apps={','.join(primary_apps)} "
-            f"storage_constrained={storage_constrained}):"
+            f"(primary_apps={','.join(primary_apps)}):"
         )
         for round_index, inv_dir, round_variants, include_R, _purge_set in plan:
             non_zero = {a: i for a, i in round_variants.items() if i}
             shown = built_includes.get(inv_dir, include_R)
             print(
                 f"    [round {round_index}] {inv_dir} "
-                f"include={','.join(shown)}"
+                f"include={','.join(shown)} "
+                f"storage_constrained={round_storage_constrained.get(inv_dir)}"
                 + (f"  variants={non_zero}" if non_zero else "")
             )
     return 0

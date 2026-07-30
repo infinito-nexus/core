@@ -17,10 +17,12 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 source "${SCRIPT_DIR}/lib.sh"
 
 branch="${1:?branch name required}"
-base="${2:-/tmp}"
+base="${2:-}"
 max_slot=255
 
 cd "${REPO_ROOT}"
+
+base="${base:-$(worktree_default_base)}"
 
 slug="$(worktree_slug "${branch}")"
 if [ -z "${slug}" ]; then
@@ -28,7 +30,8 @@ if [ -z "${slug}" ]; then
 	exit 1
 fi
 
-path="$(worktree_path "${slug}" "${base}")"
+path="$(worktree_path "${branch}" "${base}")"
+mkdir -p "$(dirname "${path}")"
 if [ -e "${path}" ]; then
 	echo "FAILURE: ${path} already exists; run 'make worktree-down branch=${branch}' first" >&2
 	exit 1
@@ -50,6 +53,8 @@ git worktree add "${path}" "${branch}"
 
 git_common_dir="$(git rev-parse --path-format=absolute --git-common-dir)"
 
+lab_octet="$((244 + slot))"
+
 echo ">>> Pinning slot ${slot} in ${path}/custom.env"
 cat >"${path}/custom.env" <<PINS
 INFINITO_INSTANCE=${slot}
@@ -59,7 +64,12 @@ INFINITO_GATEWAY=172.30.${slot}.1
 INFINITO_DNS_IP=172.30.${slot}.53
 INFINITO_IP4=172.30.${slot}.10
 INFINITO_BIND_IP=127.0.0.$((slot + 1))
-INFINITO_SWARM_LAB_SUBNET=192.168.$((244 + slot)).0/24
+INFINITO_SWARM_LAB_SUBNET=192.168.${lab_octet}.0/24
+INFINITO_SWARM_MGR_IP=192.168.${lab_octet}.10
+INFINITO_SWARM_WRK1_IP=192.168.${lab_octet}.11
+INFINITO_SWARM_WRK2_IP=192.168.${lab_octet}.12
+INFINITO_SWARM_NFS_IP=192.168.${lab_octet}.13
+INFINITO_SWARM_BACKUP_IP=192.168.${lab_octet}.14
 INFINITO_RUNNER_PREFIX=infinito-${slug}
 INFINITO_CONTAINER=infinito_nexus_${slug//[.-]/_}
 INFINITO_CACHE_NETWORK=${cache_network}
@@ -76,7 +86,12 @@ env -i -C "${path}" \
 	INFINITO_DNS_IP="172.30.${slot}.53" \
 	INFINITO_IP4="172.30.${slot}.10" \
 	INFINITO_BIND_IP="127.0.0.$((slot + 1))" \
-	INFINITO_SWARM_LAB_SUBNET="192.168.$((244 + slot)).0/24" \
+	INFINITO_SWARM_LAB_SUBNET="192.168.${lab_octet}.0/24" \
+	INFINITO_SWARM_MGR_IP="192.168.${lab_octet}.10" \
+	INFINITO_SWARM_WRK1_IP="192.168.${lab_octet}.11" \
+	INFINITO_SWARM_WRK2_IP="192.168.${lab_octet}.12" \
+	INFINITO_SWARM_NFS_IP="192.168.${lab_octet}.13" \
+	INFINITO_SWARM_BACKUP_IP="192.168.${lab_octet}.14" \
 	INFINITO_RUNNER_PREFIX="infinito-${slug}" \
 	INFINITO_CACHE_NETWORK="${cache_network}" \
 	python3 -m cli.meta.env

@@ -42,7 +42,7 @@ joomla:
   version: 6.1.2-php8.3-apache
   custom: true
   name: joomla
-  min_storage: 8GB
+  min_storage: 478MB
   backup:
     no_stop_required: true
   upload:

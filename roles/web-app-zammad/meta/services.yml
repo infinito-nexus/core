@@ -70,7 +70,7 @@ zammad:
   image: ghcr.io/zammad/zammad
   version: "6.5.0"
   name: zammad-railsserver
-  min_storage: 15GB
+  min_storage: 520MB
   proxy:
     service_key: nginx
   ports:
@@ -108,7 +108,7 @@ websocket:
 search:
   image: docker.elastic.co/elasticsearch/elasticsearch
   version: "8.13.4"
-  min_storage: 5GB
+  min_storage: 839MB
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g

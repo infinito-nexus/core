@@ -45,7 +45,7 @@ seaweedfs:
   name: seaweedfs
   api_port: 8333
   region: us-east-1
-  min_storage: 30GB
+  min_storage: 304MB
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g

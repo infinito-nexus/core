@@ -27,7 +27,7 @@ yourls:
   custom: true
   name: yourls
   image: yourls
-  min_storage: 1GB
+  min_storage: 388MB
   ports:
     local:
       sso: 16484

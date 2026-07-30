@@ -61,7 +61,7 @@ erpnext:
   image: frappe/erpnext
   version: "v16.26.2"
   name: erpnext
-  min_storage: 15GB
+  min_storage: 1017MB
   ports:
     local:
       http: 8079

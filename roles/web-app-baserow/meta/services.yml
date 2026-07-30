@@ -65,7 +65,7 @@ baserow:
   version: 2.3.1
   custom: true
   name: baserow
-  min_storage: 8GB
+  min_storage: 785MB
   cpus: 1.0
   mem_reservation: 0.5g
   mem_limit: 2g

@@ -49,7 +49,7 @@ suitecrm:
   custom: true
   app_version: 8.9.1
   name: suitecrm
-  min_storage: 10GB
+  min_storage: 376MB
   cpus: 1.5
   mem_reservation: 1.2g
   mem_limit: 2g

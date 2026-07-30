@@ -23,7 +23,7 @@ phpldapadmin:
       enabled: true
   image: phpldapadmin/phpldapadmin
   version: 2.3.11
-  min_storage: 1GB
+  min_storage: 276MB
   ports:
     local:
       sso: 16486

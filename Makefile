@@ -682,6 +682,8 @@ swarm-shell:
 	@test -n '$(name)' || { echo 'usage: make swarm-shell name=<cluster-id> [node=<container>]'; exit 2; }
 	@SWARM_NAME='$(name)' node='$(node)' bash scripts/tests/deploy/act/shell_node.sh
 
+SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
+
 .PHONY: swarm-zombie
 # Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
 # Param app: matrix application id (e.g. web-app-baserow).
@@ -697,11 +699,17 @@ swarm-zombie: install-act
 	@bash scripts/tests/deploy/act/down_act_outer.sh
 	@ACT_RM=false \
 	 ACT_BIND=true \
-	 ACT_ENV='INFINITO_KEEP_SWARM_NODES=true;INFINITO_APP_DISCOVERY_RUNNER=host;INFINITO_DEPLOY_MODE=swarm;disable=$(disable);SWARM_NAME=$(or $(name),$(app));INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690)' \
+	 ACT_ENV="INFINITO_KEEP_SWARM_NODES=true; \
+	 INFINITO_APP_DISCOVERY_RUNNER=host; \
+	 INFINITO_DEPLOY_MODE=swarm; \
+	 disable=$(disable); \
+	 SWARM_NAME=$(or $(name),$(app)); \
+	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \
+	 INFINITO_DISTROS=$(SWARM_DISTROS)" \
 	 ACT_WORKFLOW=.github/workflows/test-deploy-swarm.yml \
 	 ACT_JOB=swarm \
 	 ACT_MATRIX='apps:$(app);variant:$(or $(variant),0)' \
-	 ACT_INPUTS="whitelist=$(app) distros=$(or $(distros),$${INFINITO_DISTRO:?})" \
+	 ACT_INPUTS="whitelist=$(app) distros=$(SWARM_DISTROS)" \
 	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge
@@ -771,11 +779,11 @@ test-unit: install
 # Stop a branch worktree's stack, release the checkout and free its slot.
 # Usage: make worktree-down branch=<name> [base=<dir>] [force=true]
 # Param branch: branch the worktree was created for (required).
-# Param base: parent directory the worktree lives in (default /tmp).
+# Param base: parent directory the worktree lives in (default ~/.local/share/worktrees/<domain>/<account>/<repo>).
 # Param force: true discards uncommitted changes in the worktree.
 worktree-down:
 	@test -n '$(branch)' || { echo 'usage: make worktree-down branch=<name> [base=<dir>] [force=true]'; exit 2; }
-	@bash scripts/system/worktree/down.sh '$(branch)' '$(or $(base),/tmp)' '$(or $(force),false)'
+	@bash scripts/system/worktree/down.sh '$(branch)' '$(base)' '$(or $(force),false)'
 
 .PHONY: worktree-prune
 # Drop registrations of worktrees whose directory is gone, freeing the branches they claim.
@@ -788,10 +796,10 @@ worktree-prune:
 # Usage: make worktree-up branch=<name> [base=<dir>]
 # Note: the worktree shares the primary checkout's cache stack instead of starting its own.
 # Param branch: branch to check out (required).
-# Param base: parent directory for the worktree (default /tmp).
+# Param base: parent directory for the worktree (default ~/.local/share/worktrees/<domain>/<account>/<repo>).
 worktree-up:
 	@test -n '$(branch)' || { echo 'usage: make worktree-up branch=<name> [base=<dir>]'; exit 2; }
-	@bash scripts/system/worktree/up.sh '$(branch)' '$(or $(base),/tmp)'
+	@bash scripts/system/worktree/up.sh '$(branch)' '$(base)'
 
 .PHONY: wsl2-dns-setup
 # Set up DNS on WSL2.

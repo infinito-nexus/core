@@ -52,7 +52,7 @@ n8n:
   image: docker.n8n.io/n8nio/n8n
   version: "1.95.3"
   name: n8n
-  min_storage: 5GB
+  min_storage: 422MB
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g

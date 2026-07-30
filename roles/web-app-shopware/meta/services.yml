@@ -53,7 +53,7 @@ shopware:
   image: composer
   version: "2.10"
   custom: true
-  min_storage: 20GB
+  min_storage: 278MB
   package:
     name: shopware/production
     version: 6.7.8.2
@@ -77,7 +77,7 @@ shopware:
 php:
   image: ghcr.io/shopware/docker-base
   version: "8.3"
-  min_storage: 5GB
+  min_storage: 295MB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
@@ -133,7 +133,7 @@ redis:
   cpus: 0.25
   mem_reservation: 256m
   mem_limit: 512m
-  min_storage: 1GB
+  min_storage: 238MB
   pids_limit: 256
 # nocheck: shared
 # nocheck: dynamic-flag
@@ -150,7 +150,7 @@ opensearch:
   cpus: 1.0
   mem_reservation: 2g
   mem_limit: 4g
-  min_storage: 10GB
+  min_storage: 1332MB
   pids_limit: 1024
 seaweedfs:
   bond: 1

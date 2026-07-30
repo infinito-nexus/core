@@ -28,7 +28,7 @@ lam:
   provides: lam
   image: ghcr.io/ldapaccountmanager/lam
   version: "9.6"
-  min_storage: 1GB
+  min_storage: 345MB
   ports:
     local:
       sso: 16482

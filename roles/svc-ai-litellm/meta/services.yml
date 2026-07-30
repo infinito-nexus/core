@@ -13,7 +13,7 @@ litellm:
   image: ghcr.io/berriai/litellm
   version: main-v1.77.3.dynamic_rates
   name: litellm
-  min_storage: 5GB
+  min_storage: 1022MB
   cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 2g

@@ -31,7 +31,7 @@ To offer a centralized, extensible system for managing containerized application
 
 - **Dynamic Directory Structure:** Creates per-application instance folders for Compose setups.
 - **Reset Logic:** Cleans previous Compose project files and data when `MODE_RESET` is enabled.
-- **Handlers for Runtime Control:** Automatically builds, sets up, or restarts containers based on handlers.
+- **Handlers for Runtime Control:** Automatically builds, sets up, or restarts containers based on handlers. Notify `compose up` when rendered files or the service spec changed; notify `container recreate` when only in-container or in-database state changed and the process must reload it — the latter force-recreates in compose mode and forces a task recreation in swarm mode, where `docker stack deploy` alone would leave the running task untouched.
 - **Template-ready Service Files:** Predefined service base and health check templates.
 - **Integration Support:** Compatible with `sys-svc-proxy` and other Infinito.Nexus service roles.
 

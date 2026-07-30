@@ -137,5 +137,82 @@ class TestFetchRegistryTags(unittest.TestCase):
         )
 
 
+_SINGLE = {
+    "config": {"size": 100},
+    "layers": [{"size": 900}, {"size": 1_000}],
+}
+_INDEX = {
+    "manifests": [
+        {"digest": "sha256:arm", "platform": {"os": "linux", "architecture": "arm64"}},
+        {"digest": "sha256:amd", "platform": {"os": "linux", "architecture": "amd64"}},
+        {
+            "digest": "sha256:att",
+            "platform": {"os": "unknown", "architecture": "unknown"},
+        },
+    ]
+}
+
+
+class TestManifestTransferSize(unittest.TestCase):
+    def test_single_manifest_sums_config_and_layers(self) -> None:
+        with mock.patch.object(registry, "fetch_manifest", return_value=_SINGLE):
+            self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
+
+    def test_index_resolves_the_requested_platform(self) -> None:
+        with mock.patch.object(
+            registry, "fetch_manifest", side_effect=[_INDEX, _SINGLE]
+        ) as fetched:
+            self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
+        self.assertEqual(fetched.call_args_list[1].args, ("img", "sha256:amd"))
+
+    def test_index_without_the_platform_is_indeterminate(self) -> None:
+        with mock.patch.object(registry, "fetch_manifest", return_value=_INDEX):
+            self.assertIsNone(
+                registry.manifest_transfer_size("img", "1", architecture="riscv64")
+            )
+
+    def test_missing_config_size_counts_layers_only(self) -> None:
+        with mock.patch.object(
+            registry, "fetch_manifest", return_value={"layers": [{"size": 7}]}
+        ):
+            self.assertEqual(registry.manifest_transfer_size("img", "1"), 7)
+
+    def test_layerless_manifest_is_indeterminate(self) -> None:
+        with mock.patch.object(registry, "fetch_manifest", return_value={"config": {}}):
+            self.assertIsNone(registry.manifest_transfer_size("img", "1"))
+
+    def test_unreachable_manifest_is_indeterminate(self) -> None:
+        with mock.patch.object(registry, "fetch_manifest", return_value=None):
+            self.assertIsNone(registry.manifest_transfer_size("img", "1"))
+
+    def test_nested_index_is_indeterminate(self) -> None:
+        with mock.patch.object(
+            registry, "fetch_manifest", side_effect=[_INDEX, _INDEX]
+        ):
+            self.assertIsNone(registry.manifest_transfer_size("img", "1"))
+
+
+class TestFetchManifest(unittest.TestCase):
+    def test_non_dict_body_is_indeterminate(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request, "urlopen", return_value=_Resp(body=b"[]")
+        ):
+            self.assertIsNone(registry.fetch_manifest("img", "1"))
+
+    def test_rate_limited_is_indeterminate(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request, "urlopen", side_effect=_http_error(429)
+        ):
+            self.assertIsNone(registry.fetch_manifest("img", "1"))
+
+    def test_present_manifest_is_parsed(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request,
+            "urlopen",
+            return_value=_Resp(body=b'{"layers": []}'),
+        ):
+            self.assertEqual(registry.fetch_manifest("img", "1"), {"layers": []})
+
+
 if __name__ == "__main__":
     unittest.main()

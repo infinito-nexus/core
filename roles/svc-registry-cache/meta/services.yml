@@ -18,7 +18,7 @@ cache:
   image: registry
   version: "3"
   name: cache-registry
-  min_storage: 10GB
+  min_storage: 221MB
   backup:
     disabled: true
   cpus: "0.5"

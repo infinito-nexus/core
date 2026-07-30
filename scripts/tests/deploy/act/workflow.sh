@@ -56,7 +56,11 @@ fi
 if [[ -n "${ACT_ENV}" ]]; then
 	IFS=';' read -ra _act_env_pairs <<<"${ACT_ENV}"
 	for pair in "${_act_env_pairs[@]}"; do
-		cmd+=(--env "${pair}")
+		pair="${pair#"${pair%%[![:space:]]*}"}"
+		pair="${pair%"${pair##*[![:space:]]}"}"
+		if [[ -n "${pair}" ]]; then
+			cmd+=(--env "${pair}")
+		fi
 	done
 fi
 if [[ -n "${ACT_CONTAINER_OPTIONS}" ]]; then

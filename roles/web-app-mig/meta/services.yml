@@ -34,7 +34,7 @@ mig:
   image: ghcr.io/kevinveenbirkenbach/infinito-mig
   version: latest
   name: mig
-  min_storage: 1GB
+  min_storage: 1224MB
   ports:
     internal:
       http: 80

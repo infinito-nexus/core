@@ -13,7 +13,7 @@ qdrant:
   image: qdrant/qdrant
   name: qdrant
   version: v1.18.2
-  min_storage: 5GB
+  min_storage: 270MB
   backup:
     database_routine: true
   cpus: "2.0"

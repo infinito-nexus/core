@@ -18,7 +18,7 @@ docker:
   image: registry
   version: "3"
   name: registry
-  min_storage: 5GB
+  min_storage: 221MB
   backup:
     disabled: true
   cpus: "0.5"

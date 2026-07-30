@@ -35,7 +35,7 @@ mediawiki:
   image: mediawiki
   version: "1.46"
   custom: true
-  min_storage: 8GB
+  min_storage: 546MB
   backup:
     no_stop_required: true
   name: mediawiki

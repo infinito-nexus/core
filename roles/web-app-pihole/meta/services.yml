@@ -65,7 +65,7 @@ pihole:
   cpus: "0.5"
   mem_reservation: "128m"
   mem_limit: "256m"
-  min_storage: "1GB"
+  min_storage: "243MB"
   pids_limit: 512
   ports:
     internal:

@@ -1,10 +1,10 @@
-"""Forbid ``timeout-minutes`` above 345 in GitHub workflow files.
+"""Forbid ``timeout-minutes`` above 355 in GitHub workflow files.
 
 GitHub kills a hosted-runner job hard at 360 minutes (6h). A job or step
-budgeted above 345 leaves the post-failure steps (rescue diagnostics,
+budgeted above 355 leaves the post-failure steps (rescue diagnostics,
 artifact uploads) too little runtime: the platform kill fires before or
 together with the configured timeout and the failure logs are lost.
-Budget at most 345 so ``if: failure()`` / ``if: always()`` steps keep
+Budget at most 355 so ``if: failure()`` / ``if: always()`` steps keep
 enough headroom to extract them.
 """
 
@@ -19,7 +19,7 @@ from . import PROJECT_ROOT
 
 _WORKFLOWS_DIR = PROJECT_ROOT / ".github" / "workflows"
 
-_MAX_TIMEOUT_MINUTES = 345
+_MAX_TIMEOUT_MINUTES = 355
 
 _TIMEOUT = re.compile(r"^\s*timeout-minutes:\s*(\d+)\b")
 

@@ -47,7 +47,7 @@ mastodon:
   enabled: true # nocheck: dynamic-flag
   image: ghcr.io/mastodon/mastodon
   version: v4.6.2
-  min_storage: 15GB
+  min_storage: 535MB
   backup:
     no_stop_required: true
   name: mastodon
@@ -76,7 +76,7 @@ streaming:
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
-  min_storage: 5GB
+  min_storage: 309MB
 sidekiq:
   name: mastodon-sidekiq
   cpus: "0.8"

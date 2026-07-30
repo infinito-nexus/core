@@ -34,7 +34,7 @@ decidim:
       enabled: true
   image: ghcr.io/decidim/decidim
   version: 0.31.6
-  min_storage: 10GB
+  min_storage: 1206MB
   name: decidim
   cpus: "1.0"
   mem_reservation: 512m

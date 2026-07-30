@@ -16,13 +16,13 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 source "${SCRIPT_DIR}/lib.sh"
 
 branch="${1:?branch name required}"
-base="${2:-/tmp}"
+base="${2:-}"
 force="${3:-false}"
 
 cd "${REPO_ROOT}"
 
-slug="$(worktree_slug "${branch}")"
-path="$(worktree_path "${slug}" "${base}")"
+base="${base:-$(worktree_default_base)}"
+path="$(worktree_path "${branch}" "${base}")"
 
 if [ ! -d "${path}" ]; then
 	echo "FAILURE: no worktree at ${path} for branch '${branch}'" >&2

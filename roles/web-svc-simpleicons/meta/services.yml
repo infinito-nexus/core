@@ -43,7 +43,7 @@ simpleicons:
   version: 26-bookworm
   local_image: simpleicons-server
   local_version: latest
-  min_storage: 1GB
+  min_storage: 612MB
   cpus: 0.5
   mem_reservation: 128m
   mem_limit: 256m

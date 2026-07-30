@@ -14,7 +14,7 @@ postgres:
   name: postgres
   version: 17-3.5
   custom: true
-  min_storage: 10GB
+  min_storage: 419MB
   backup:
     database_routine: true
   cpus: "2.0"

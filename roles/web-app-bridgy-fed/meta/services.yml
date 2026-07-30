@@ -55,7 +55,7 @@ bridgy-fed:
     internal:
       http: 8080
   lifecycle: beta
-  min_storage: 1GB
+  min_storage: 585MB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

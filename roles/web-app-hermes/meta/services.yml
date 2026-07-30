@@ -14,7 +14,7 @@ hermes:
   image: nousresearch/hermes-agent
   version: "v2026.7.20"
   name: hermes
-  min_storage: 10GB
+  min_storage: 1146MB
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

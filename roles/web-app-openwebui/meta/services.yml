@@ -37,7 +37,7 @@ openwebui:
   image: ghcr.io/open-webui/open-webui
   version: main
   name: open-webui
-  min_storage: 5GB
+  min_storage: 2026MB
   offline_mode: false
   hf_hub_offline: false
   enable_api_keys: true

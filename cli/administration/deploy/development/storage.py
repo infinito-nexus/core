@@ -2,20 +2,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from utils.storage.constrained import is_constrained, required_storage_bytes
+
 if TYPE_CHECKING:
     from .compose import Compose
 
 
-def detect_storage_constrained(compose: Compose, *, threshold_gib: int = 100) -> bool:
+def detect_storage_constrained(
+    compose: Compose, app_ids: list[str], variants: dict[str, int] | None = None
+) -> bool:
     """
-    Return True if the filesystem that contains DockerRootDir has less than
-    `threshold_gib` GiB free space.
+    Return True if the declared storage need of app_ids and their transitive
+    dependencies, at the given variant overlay, exceeds the free space on the
+    filesystem holding DockerRootDir.
 
     We intentionally measure the DockerRootDir filesystem because this is where
     images/volumes/build cache usually grow (especially in CI / Docker-in-Docker).
     """
-    threshold_bytes = threshold_gib * 1024 * 1024 * 1024
-
     cmd = [
         "bash",
         "-lc",
@@ -26,8 +29,7 @@ if [ -z "${root}" ]; then
   root="/var/lib/docker"
 fi
 
-free="$(df -PB1 "${root}" | awk 'NR==2{print $4}')"
-printf "%s\n" "${free}"
+df -PB1 "${root}" | awk 'NR==2{print $4}'
 """,
     ]
 
@@ -35,10 +37,12 @@ printf "%s\n" "${free}"
     if r.returncode != 0:
         return False
 
-    txt = (r.stdout or "").strip()
     try:
-        free_bytes = int(txt)
+        free_bytes = int((r.stdout or "").strip())
     except ValueError:
         return False
 
-    return free_bytes < threshold_bytes
+    return is_constrained(
+        free_bytes=free_bytes,
+        required_bytes=required_storage_bytes(app_ids, variants),
+    )

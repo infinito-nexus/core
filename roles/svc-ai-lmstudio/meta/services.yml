@@ -13,7 +13,7 @@ lmstudio:
   image: lmstudio/llmster-preview
   version: cpu
   name: lmstudio
-  min_storage: 20GB
+  min_storage: 588MB
   cpus: "4.0"
   mem_reservation: 6g
   mem_limit: 8g

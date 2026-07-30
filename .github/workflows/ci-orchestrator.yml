@@ -293,6 +293,11 @@ jobs:
   done:
     name: 🏁 Finish pipeline
     needs:
+      - wait-fork-prereq-run
+      - fork-prereqs-ready
+      - build-ci-images
+      - images-mirror-missing
+      - test-dns
       - test-install-make
       - test-install-pkgmgr
       - test-deploy-single-node-priority

@@ -13,7 +13,7 @@
 - name: 🔎 Check if OIDC plugin is already installed
   shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ PEERTUBE_LOCAL_CID | quote }} test -d /data/plugins/data/peertube-plugin-auth-openid-connect
+    container exec {{ PEERTUBE_LOCAL_CID | quote }} test -d /data/plugins/node_modules/{{ PEERTUBE_OIDC_PLUGIN }}
   register: peertube_oidc_plugin_check
   failed_when: false
   changed_when: false
@@ -44,7 +44,7 @@
       delay: 15
       until: peertube_oidc_install.rc == 0
       delegate_to: "{{ PEERTUBE_HOST_NODE }}"
-      notify: compose up
+      notify: container recreate
 
     # Exception: happy-path only; on failure the rescue leaves bumped limits so diagnostics reflect install-time state, and the next `compose up` restores compose.yml defaults.
     - name: "♻️ PEERTUBE | Restore compose-defined mem_limit"
@@ -63,19 +63,41 @@
     query: "{{ lookup('file', role_path ~ '/files/sql/upsert-oidc-plugin.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
     named_args:
       settings: "{{ oidc_settings | to_json }}"
+    expect_rows: true
   register: _peertube_oidc_update
   retries: 5
   delay: 3
   until: _peertube_oidc_update is succeeded
-  notify: compose up
+  changed_when: _peertube_oidc_update.rows | default([]) | length > 0
+  notify: container recreate
 
-- name: "✅ Ensure plugin is enabled in PeerTube (CLI)"
+- name: "🔎 Check if the running PeerTube has registered the OIDC plugin"
   shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ PEERTUBE_LOCAL_CID | quote }} npm run plugin:enable -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }}
-  register: _peertube_enable
+    container exec {{ PEERTUBE_LOCAL_CID | quote }} test -d /data/plugins/data/{{ PEERTUBE_OIDC_PLUGIN }}
+  register: _peertube_oidc_registered
   failed_when: false
-  changed_when: >
-    _peertube_enable.stdout is defined and
-    ('already enabled' not in _peertube_enable.stdout)
+  changed_when: _peertube_oidc_registered.rc != 0
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  notify: container recreate
+
+- name: "🚿 Flush the container recreation before verifying the OIDC registration"
+  meta: flush_handlers
+
+- name: "🧭 Re-resolve PeerTube host node + local container id after the recreation"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: PEERTUBE
+    resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
+
+- name: "🛑 Fail if the running PeerTube has still not registered the OIDC plugin"
+  shell: |
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ PEERTUBE_LOCAL_CID | quote }} test -d /data/plugins/data/{{ PEERTUBE_OIDC_PLUGIN }}
+  register: _peertube_oidc_verified
+  retries: 30
+  delay: 10
+  until: _peertube_oidc_verified.rc == 0
+  changed_when: false
   delegate_to: "{{ PEERTUBE_HOST_NODE }}"

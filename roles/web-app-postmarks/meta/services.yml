@@ -56,7 +56,7 @@ postmarks:
     internal:
       http: 3000
   lifecycle: beta
-  min_storage: 1GB
+  min_storage: 612MB
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g

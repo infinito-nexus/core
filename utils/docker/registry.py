@@ -149,6 +149,83 @@ def fetch_registry_tags(
     return tags
 
 
+def fetch_manifest(image: str, reference: str) -> dict | None:
+    """Return the parsed manifest (or index) for ``image:reference``.
+
+    ``None`` on any indeterminate outcome: unresolvable name, network error,
+    auth wall, rate limit, non-200 status, or unparsable body.
+    """
+    resolved = _resolve(image)
+    if resolved is None:
+        return None
+    host, repo = resolved
+    url = f"https://{host}/v2/{quote(repo, safe='/')}/manifests/{quote(reference, safe='')}"
+    result = _request(url, repo, method="GET", accept=_MANIFEST_ACCEPT)
+    if result is None:
+        return None
+    status, _resp_headers, body = result
+    if status != 200 or not body:
+        return None
+    try:
+        parsed = json.loads(body.decode())
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _platform_digest(manifests: list, os_name: str, architecture: str) -> str | None:
+    for entry in manifests:
+        if not isinstance(entry, dict):
+            continue
+        platform = entry.get("platform") or {}
+        if (
+            platform.get("os") == os_name
+            and platform.get("architecture") == architecture
+        ):
+            digest = entry.get("digest")
+            if isinstance(digest, str) and digest:
+                return digest
+    return None
+
+
+def manifest_transfer_size(
+    image: str,
+    reference: str,
+    *,
+    os_name: str = "linux",
+    architecture: str = "amd64",
+) -> int | None:
+    """Return the compressed transfer size of ``image:reference`` in bytes.
+
+    The size is the config blob plus every layer blob, i.e. what a pull moves
+    over the wire. A multi-platform index is resolved to the
+    ``os_name``/``architecture`` manifest first.
+
+    ``None`` on any indeterminate outcome (see :func:`fetch_manifest`), on an
+    index without a matching platform, and on a manifest that carries no layers.
+    """
+    doc = fetch_manifest(image, reference)
+    if doc is None:
+        return None
+    manifests = doc.get("manifests")
+    if isinstance(manifests, list) and manifests:
+        digest = _platform_digest(manifests, os_name, architecture)
+        if digest is None:
+            return None
+        doc = fetch_manifest(image, digest)
+        if doc is None or doc.get("manifests"):
+            return None
+    layers = doc.get("layers")
+    if not isinstance(layers, list) or not layers:
+        return None
+    total = int((doc.get("config") or {}).get("size") or 0)
+    for layer in layers:
+        if not isinstance(layer, dict):
+            return None
+        total += int(layer.get("size") or 0)
+    return total
+
+
 def manifest_exists(image: str, reference: str) -> bool | None:
     """Whether ``image:reference`` resolves to a manifest.
 

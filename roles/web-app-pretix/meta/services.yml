@@ -49,7 +49,7 @@ pretix:
   version: stable
   custom: true
   name: pretix
-  min_storage: 10GB
+  min_storage: 1003MB
   backup:
     no_stop_required: true
   cpus: "2.0"

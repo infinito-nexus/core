@@ -15,7 +15,7 @@ openldap:
   version: bookworm-slim
   custom: true
   name: openldap
-  min_storage: 2GB
+  min_storage: 229MB
   cpus: 1.25
   mem_reservation: 1g
   mem_limit: 1.5g

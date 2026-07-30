@@ -39,7 +39,7 @@ jellyfin:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 4096
-  min_storage: 10GB
+  min_storage: 890MB
   image: jellyfin/jellyfin
   version: "10.11.11"
   backup:

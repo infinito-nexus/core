@@ -55,7 +55,7 @@ snipe-it:
   custom: true
   name: snipe-it
   image: snipe/snipe-it
-  min_storage: 8GB
+  min_storage: 349MB
   cpus: "1.0"
   mem_reservation: 256m
   mem_limit: 2g

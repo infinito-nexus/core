@@ -14,7 +14,7 @@ openclaw:
   image: ghcr.io/openclaw/openclaw
   version: "2026.7.1"
   name: openclaw
-  min_storage: 10GB
+  min_storage: 562MB
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

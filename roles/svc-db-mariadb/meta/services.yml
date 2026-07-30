@@ -14,7 +14,7 @@ mariadb:
   custom: true
   image: mariadb
   name: mariadb
-  min_storage: 10GB
+  min_storage: 308MB
   backup:
     database_routine: true
   cpus: "2.0"

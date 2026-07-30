@@ -144,6 +144,9 @@ for i in "${!distro_arr[@]}"; do
 		statuses[i]="failed"
 		notes[i]="rc=${rc}"
 		skipped=$((skipped + ${#distro_arr[@]} - i - 1))
+		for ((j = i + 1; j < ${#distro_arr[@]}; j++)); do
+			notes[j]="not run: aborted after distro=${distro} failed"
+		done
 		echo "[ERROR] Run failed for distro=${distro} (rc=${rc})" >&2
 		render_summary
 		exit "$rc"

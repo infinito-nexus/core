@@ -4,6 +4,7 @@
   listen:
     - compose up
     - compose build
+    - container recreate
 
 - name: Generate CA trust override
   ansible.builtin.shell: |
@@ -98,3 +99,4 @@
     executable: /bin/bash
   listen:
     - compose up
+    - container recreate

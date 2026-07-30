@@ -10,7 +10,7 @@ coturn:
   shared: true
   image: coturn/coturn
   version: 4.14.0
-  min_storage: 1GB
+  min_storage: 246MB
   user_auth_enabled: false
   cpus: 1.0
   mem_reservation: 512m

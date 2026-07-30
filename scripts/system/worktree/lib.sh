@@ -24,14 +24,21 @@
 #
 # Sourced by up.sh and down.sh; not meant to be executed directly.
 
-WORKTREE_DIR_PREFIX="infinito-wt-"
-
 worktree_slug() {
 	printf '%s' "$1" | sed -e 's#[^a-zA-Z0-9._-]#-#g' -e 's#^[^a-zA-Z0-9]*##' -e 's#[-.]*$##'
 }
 
+worktree_default_base() {
+	local url
+	url="$(git remote get-url origin)"
+	url="${url%.git}"
+	url="${url#*://}"
+	url="${url#*@}"
+	printf '%s/.local/share/worktrees/%s/%s' "${HOME}" "${url%%[:/]*}" "${url#*[:/]}"
+}
+
 worktree_path() {
-	printf '%s/%s%s' "$2" "${WORKTREE_DIR_PREFIX}" "$1"
+	printf '%s/%s' "$2" "$1"
 }
 
 worktree_slot_of() {

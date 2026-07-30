@@ -40,7 +40,7 @@ odoo:
   version: "19.0"
   custom: true
   name: odoo
-  min_storage: 20GB
+  min_storage: 897MB
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

@@ -64,7 +64,7 @@ nextcloud:
   image: nextcloud
   version: 33-fpm-alpine
   custom: true
-  min_storage: 20GB
+  min_storage: 553MB
   backup:
     no_stop_required: true
   cpus: "2.0"
@@ -107,7 +107,7 @@ proxy:
   mem_reservation: 64m
   mem_limit: 256m
   pids_limit: 512
-  min_storage: 1GB
+  min_storage: 226MB
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1
@@ -136,7 +136,7 @@ talk:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-  min_storage: 1GB
+  min_storage: 274MB
   ports:
     internal:
       signaling: 8081
@@ -151,7 +151,7 @@ whiteboard:
   mem_reservation: 128m
   mem_limit: 1g
   pids_limit: 1024
-  min_storage: 1GB
+  min_storage: 683MB
 # nocheck: playwright-service-flag: infrastructural sub-component (collaborative editing)
 onlyoffice:
   bond: 0.5
@@ -190,7 +190,7 @@ talk_recording:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 1024
-  min_storage: 1GB
+  min_storage: 507MB
   ports:
     internal:
       recording: 1234

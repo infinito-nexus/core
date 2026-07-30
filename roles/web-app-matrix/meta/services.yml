@@ -48,7 +48,7 @@ synapse:
       http: 8021
     public:
       federation: 8448
-  min_storage: 10GB
+  min_storage: 311MB
   cpus: "1.5"
   mem_reservation: "1g"
   mem_limit: "2g"
@@ -62,7 +62,7 @@ element:
       http: 8022
     internal:
       http: 80
-  min_storage: 1GB
+  min_storage: 263MB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m
@@ -70,7 +70,7 @@ element:
 matrix-chatgpt-bot:
   version: 3.1.5
   image: ghcr.io/matrixgpt/matrix-chatgpt-bot
-  min_storage: 1GB
+  min_storage: 307MB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

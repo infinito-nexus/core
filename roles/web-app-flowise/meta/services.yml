@@ -57,7 +57,7 @@ flowise:
   image: flowiseai/flowise
   version: 3.1.3
   name: flowise
-  min_storage: 10GB
+  min_storage: 1195MB
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g

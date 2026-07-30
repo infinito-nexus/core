@@ -46,7 +46,7 @@ hugo:
   proxy:
     service_key: hugo
   lifecycle: beta
-  min_storage: 1GB
+  min_storage: 227MB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

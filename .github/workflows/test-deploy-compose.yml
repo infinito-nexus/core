@@ -111,7 +111,7 @@ jobs:
     name: 🐳 ${{ matrix.apps }}${{ matrix.variant && format(' {0}',matrix.variant) || '' }}
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ubuntu-latest
-    timeout-minutes: 345
+    timeout-minutes: 355
     needs: discover
 
     strategy:
@@ -157,7 +157,7 @@ jobs:
         run: ./scripts/install/apt.sh jq
 
       - name: 🚀 Deploy app
-        timeout-minutes: 300
+        timeout-minutes: 350
         shell: bash
         env:
           apps: ${{ matrix.apps }}
@@ -190,7 +190,7 @@ jobs:
 
       - name: 🩺 Dump runner state (on failure)
         if: failure()
-        timeout-minutes: 10
+        timeout-minutes: 5
         shell: bash
         run: ./scripts/github/runner/dump_state.sh "post-deploy failure (${{ matrix.apps }})"
 

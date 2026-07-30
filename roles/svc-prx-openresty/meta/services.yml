@@ -11,7 +11,7 @@ openresty:
   enabled: true
   shared: true
   name: openresty
-  min_storage: 1GB
+  min_storage: 264MB
   backup:
     disabled: true
   cpus: 0.5

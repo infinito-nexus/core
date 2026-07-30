@@ -37,7 +37,7 @@ confluence:
   version: 10.2.14
   custom: true
   name: confluence
-  min_storage: 20GB
+  min_storage: 1390MB
   cpus: "3.0"
   mem_reservation: 6g
   mem_limit: 8g

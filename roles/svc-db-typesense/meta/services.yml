@@ -13,7 +13,7 @@ typesense:
   image: typesense/typesense
   name: typesense
   version: 0.25.2
-  min_storage: 5GB
+  min_storage: 428MB
   backup:
     database_routine: true
   cpus: "1.0"

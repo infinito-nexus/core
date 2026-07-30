@@ -9,7 +9,7 @@ funkwhale:
   placement: manager
   image: funkwhale/front
   version: 2.0.6
-  min_storage: 20GB
+  min_storage: 224MB
   ports:
     internal:
       http: 80
@@ -30,7 +30,7 @@ funkwhale:
 api:
   image: funkwhale/api
   version: 2.0.6
-  min_storage: 5GB
+  min_storage: 588MB
   ports:
     internal:
       http: 5000
@@ -44,7 +44,7 @@ typesense:
   shared: "{{ 'svc-db-typesense' in group_names }}"
   image: typesense/typesense
   version: "30.2"
-  min_storage: 1GB
+  min_storage: 571MB
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

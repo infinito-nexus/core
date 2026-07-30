@@ -39,7 +39,7 @@ minio:
   name: minio
   api_port: 9000
   region: us-east-1
-  min_storage: 20GB
+  min_storage: 263MB
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

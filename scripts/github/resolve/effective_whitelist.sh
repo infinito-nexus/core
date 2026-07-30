@@ -38,6 +38,15 @@ fi
 shopt -u nocasematch
 
 if [[ -n "${input_trimmed}" ]]; then
+	unknown=()
+	for role in ${input}; do
+		[[ -d "roles/${role}" ]] || unknown+=("${role}")
+	done
+	if ((${#unknown[@]})); then
+		echo "[ERROR] Unknown role id(s) in the caller-supplied whitelist: ${unknown[*]}" >&2
+		echo "[ERROR] They match no directory under roles/, so they would be dropped silently and never deployed." >&2
+		exit 1
+	fi
 	printf 'whitelist=%s\n' "${input}" >>"${GITHUB_OUTPUT}"
 	echo "Using caller-supplied whitelist: ${input}"
 	exit 0

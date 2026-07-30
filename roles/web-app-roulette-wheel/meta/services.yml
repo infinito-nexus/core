@@ -33,7 +33,7 @@ roulette-wheel:
   custom: true
   repository: https://github.com/kevinveenbirkenbach/roulette-wheel.git
   ref: master
-  min_storage: 1GB
+  min_storage: 612MB
   cpus: 0.5
   mem_reservation: 126m
   mem_limit: 265m

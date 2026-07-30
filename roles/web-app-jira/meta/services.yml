@@ -37,7 +37,7 @@ jira:
   version: 11.3.8
   custom: true
   name: jira
-  min_storage: 20GB
+  min_storage: 1027MB
   cpus: "2.0"
   mem_reservation: 4g
   mem_limit: 6g

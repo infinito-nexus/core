@@ -13,7 +13,7 @@ unbound:
   image: ghcr.io/mailu/unbound
   name: unbound
   version: "2024.06"
-  min_storage: 1GB
+  min_storage: 283MB
   backup:
     disabled: true
   cpus: "0.5"

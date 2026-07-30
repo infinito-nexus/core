@@ -39,7 +39,7 @@ espocrm:
   version: "10.0.2"
   custom: true
   name: espocrm
-  min_storage: 8GB
+  min_storage: 470MB
   cpus: 1.5
   mem_reservation: 1.2g
   mem_limit: 2g

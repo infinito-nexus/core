@@ -34,7 +34,7 @@ fider:
   image: getfider/fider
   version: stable
   name: fider
-  min_storage: 1GB
+  min_storage: 400MB
   backup:
     no_stop_required: true
   cpus: "0.5"

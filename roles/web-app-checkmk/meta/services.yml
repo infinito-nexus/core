@@ -61,7 +61,7 @@ checkmk:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 2048
-  min_storage: 10GB
+  min_storage: 1053MB
   image: checkmk/check-mk-raw
   version: "2.4.0p32"
   backup:

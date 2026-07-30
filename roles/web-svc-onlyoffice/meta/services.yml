@@ -33,7 +33,7 @@ onlyoffice:
   image: onlyoffice/documentserver
   version: 9.4.0
   name: onlyoffice
-  min_storage: 20GB
+  min_storage: 1468MB
   cpus: 2
   mem_reservation: 1g
   mem_limit: 4g

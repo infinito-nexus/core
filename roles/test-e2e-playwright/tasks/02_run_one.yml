@@ -289,18 +289,20 @@
 - name: 💬 Print Playwright output (on failure)
   ansible.builtin.debug:
     msg: |
+      rc: {{ _playwright_run.rc | default('<absent: run was aborted>') }}
+
       stdout:
-      {{ _playwright_run.stdout }}
+      {{ _playwright_run.stdout | default('') }}
 
       stderr:
-      {{ _playwright_run.stderr }}
-  when: _playwright_run.rc != 0
+      {{ _playwright_run.stderr | default(_playwright_run.msg | default('')) }}
+  when: (_playwright_run.rc | default(1)) != 0
   changed_when: false
 
 - name: 📝 Record failure
   ansible.builtin.set_fact:
     _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
-  when: _playwright_run.rc != 0
+  when: (_playwright_run.rc | default(1)) != 0
 
 - name: 🗄️ Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-

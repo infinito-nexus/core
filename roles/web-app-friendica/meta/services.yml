@@ -14,7 +14,7 @@ friendica:
   image: friendica
   version: "2026.05"
   custom: true
-  min_storage: 10GB
+  min_storage: 506MB
   ports:
     local:
       sso: 16501
