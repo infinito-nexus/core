@@ -7,11 +7,23 @@
     admit_agent_role: "{{ application_id }}"
   when: "'svc-ai-robot' in group_names"
 
+- name: "📄 Render the Hermes agent config (discovered MCP servers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "config.yaml.j2"
+        dest: "{{ HERMES_CONFIG_PATH_HOST }}"
+
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
+
+- name: "🔌 Prove the configured MCP servers answer"
+  ansible.builtin.include_tasks: 01_mcp_assert.yml
+  when: HERMES_MCP_SERVERS | length > 0
 
 - name: "🛡️ Prove the isolation {{ application_id }} promises"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"

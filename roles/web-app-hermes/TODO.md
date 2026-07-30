@@ -1,5 +1,4 @@
 # TODO
 
-- MCP client wiring: the discovery half is done. `MCP_DISCOVERED_SERVERS` in `group_vars/all/16_ai.yml` resolves every declared server to its internal URL plus the bearer the server role minted, and `web-app-openclaw` renders it into `mcpServers`. Hermes cannot consume it yet: it registers servers through `hermes mcp add` into its own config store, and no file or environment contract for that store is documented upstream. Wire it once that contract exists; rendering a file the image does not read would look configured while nothing reaches the server.
 - Default model: the gateway serves `/v1` without a configured `model.default`; agent turns need `hermes config set model.default ollama/<alias>` against the LiteLLM-backed provider. Bake it via a config template once a turn-level e2e assertion exists.
 - SSO: the API server authenticates with `API_SERVER_KEY` only; `services.sso` is dropped because an oauth2 proxy in front of the bearer API breaks OpenAI-compatible clients. Revisit if a browser dashboard surface appears upstream.

@@ -1,0 +1,14 @@
+mcp_servers:{{ ' {}' if HERMES_MCP_SERVERS | length == 0 else '' }}
+{% for server in HERMES_MCP_SERVERS %}
+  {{ server.id | replace('-', '_') }}:
+    url: {{ server.url | to_json }}
+    headers:
+      Authorization: "Bearer ${env:{{ server.id | upper | replace('-', '_') }}_MCP_TOKEN}"
+{% if server.transport == 'sse' %}
+    transport: sse
+{% endif %}
+    enabled: true
+    tools:
+      resources: true
+      prompts: false
+{% endfor %}

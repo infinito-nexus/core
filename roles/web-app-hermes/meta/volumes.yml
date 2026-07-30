@@ -4,3 +4,11 @@ hermes_data:
   mounts:
     - service: hermes
       target: /opt/data
+
+hermes_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-hermes', 'directories.config'), 'config.yaml' ] | path_join }}"
+  mode: "0644"
+  mounts:
+    - service: hermes
+      target: /opt/data/config.yaml
