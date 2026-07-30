@@ -690,12 +690,12 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Param distros: optional single distro the cluster runs on (default: INFINITO_DISTRO from .env).
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
-# Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
+# Param name: optional cluster-id prefix for the container + network names; release with the same name=.
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
-	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
+	@bash scripts/tests/deploy/swarm/utils/clean/lab_subnet.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
 	@ACT_RM=false \
 	 ACT_BIND=true \
