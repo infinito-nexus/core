@@ -95,6 +95,12 @@ def access_token_via_login():
 
 
 async def mint_long_lived_token(access_token, client_name):
+    """Return a fresh long-lived token for client_name.
+
+    Home Assistant refuses a second long-lived token under a client_name it
+    already knows, so a hub whose volume outlived our token store can only be
+    re-provisioned by dropping the stale one first.
+    """
     import aiohttp
 
     async with (
@@ -104,15 +110,32 @@ async def mint_long_lived_token(access_token, client_name):
         await socket.receive_json()
         await socket.send_json({"type": "auth", "access_token": access_token})
         await socket.receive_json()
-        await socket.send_json(
+
+        message_id = 0
+
+        async def command(payload):
+            nonlocal message_id
+            message_id += 1
+            await socket.send_json({"id": message_id, **payload})
+            return await socket.receive_json()
+
+        listed = await command({"type": "auth/refresh_tokens"})
+        for entry in listed.get("result") or []:
+            if entry.get("client_name") == client_name:
+                await command(
+                    {
+                        "type": "auth/delete_refresh_token",
+                        "refresh_token_id": entry["id"],
+                    }
+                )
+
+        reply = await command(
             {
-                "id": 1,
                 "type": "auth/long_lived_access_token",
                 "client_name": client_name,
                 "lifespan": 3650,
             }
         )
-        reply = await socket.receive_json()
     if not reply.get("success"):
         raise SystemExit("long-lived token refused: " + json.dumps(reply))
     return reply["result"]
