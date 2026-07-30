@@ -94,11 +94,19 @@ def docker_data_root() -> str:
     return root
 
 
+def docker_data_root_free_bytes() -> int:
+    """Return the free bytes on the filesystem holding Docker's data root."""
+    try:
+        return shutil.disk_usage(docker_data_root()).free
+    except FileNotFoundError:
+        return shutil.disk_usage("/").free
+
+
 def host_storage_constrained(
     app_ids: list[str], variants: dict[str, int] | None = None
 ) -> bool:
     """Return True when the deploy's declared storage need exceeds the free space."""
     return is_constrained(
-        free_bytes=shutil.disk_usage(docker_data_root()).free,
+        free_bytes=docker_data_root_free_bytes(),
         required_bytes=required_storage_bytes(app_ids, variants),
     )
