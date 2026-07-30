@@ -65,10 +65,28 @@ class TestOwnerAndRepository(_RepoConfig, unittest.TestCase):
         with (
             self._with_config(_CONFIG_WITH_FORK),
             mock.patch.dict(
-                mirror.os.environ, {"GITHUB_REPOSITORY": "Env-Owner/Env-Repo"}
+                mirror.os.environ,
+                {"GITHUB_REPOSITORY": "Env-Owner/Env-Repo"},
+                clear=True,
             ),
         ):
             self.assertEqual(mirror._owner_and_repository(), ("env-owner", "env-repo"))
+
+    def test_repository_owner_wins_over_the_slug(self) -> None:
+        with (
+            self._with_config(_CONFIG_WITH_FORK),
+            mock.patch.dict(
+                mirror.os.environ,
+                {
+                    "GITHUB_REPOSITORY": "Env-Owner/Env-Repo",
+                    "GITHUB_REPOSITORY_OWNER": "Explicit-Owner",
+                },
+                clear=True,
+            ),
+        ):
+            self.assertEqual(
+                mirror._owner_and_repository(), ("explicit-owner", "env-repo")
+            )
 
     def test_ssh_remote_is_parsed(self) -> None:
         with (
