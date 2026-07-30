@@ -17,6 +17,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
+# shellcheck source=scripts/system/worktree/lib.sh
+source "${SCRIPT_DIR}/lib.sh"
+
 cd "${REPO_ROOT}"
 
 if ! git worktree prune -v 2>/dev/null; then
@@ -37,7 +40,7 @@ while IFS= read -r line; do
 	esac
 	checkout="${line#worktree }"
 	[ -f "${checkout}/.git" ] || continue
-	live_ids+=("$(basename "$(sed -n 's/^gitdir: //p' "${checkout}/.git")")")
+	live_ids+=("$(basename "$(worktree_meta_dir "${checkout}")")")
 done < <(git worktree list --porcelain)
 
 is_live() {
@@ -50,6 +53,7 @@ is_live() {
 
 pruned=0
 held=()
+stuck=()
 unverifiable=()
 for entry in "${meta_dir}"/*; do
 	[ -d "${entry}" ] || continue
@@ -76,10 +80,12 @@ for entry in "${meta_dir}"/*; do
 		registered=true
 	fi
 
-	rm -f "${entry}/gitdir" "${entry}/HEAD"
-	if ! rm -rf "${entry}" 2>/dev/null; then
-		held+=("${entry}")
-	fi
+	unregister_rc=0
+	worktree_unregister "${entry}" || unregister_rc=$?
+	case "${unregister_rc}" in
+	1) held+=("${entry}") ;;
+	2) stuck+=("${entry}") ;;
+	esac
 
 	if [ "${registered}" = true ]; then
 		echo "Pruned $(basename "${entry}")"
@@ -91,10 +97,12 @@ if [ "${pruned}" -eq 0 ] && [ "${#unverifiable[@]}" -eq 0 ]; then
 	echo "No stale worktree registrations left."
 fi
 
-if [ "${#held[@]}" -gt 0 ]; then
-	echo ">>> Unregistered, but the sandbox pins these metadata dirs; git ignores them now:"
-	printf '      %s\n' "${held[@]}"
-	echo ">>> Clear them outside the sandbox: rm -rf ${held[*]}"
+worktree_report_held ${held[@]+"${held[@]}"}
+
+if [ "${#stuck[@]}" -gt 0 ]; then
+	echo ">>> Still registered — gitdir/HEAD could not be removed, so these keep claiming their branch:" >&2
+	printf '      %s\n' "${stuck[@]}" >&2
+	echo ">>> Clear them outside the sandbox: rm -rf ${stuck[*]}" >&2
 fi
 
 if [ "${#unverifiable[@]}" -gt 0 ]; then

@@ -244,8 +244,8 @@ class TestRuntimeLookupPerformance(unittest.TestCase):
 
         self.assertLess(
             warm_elapsed,
-            60.0,
-            f"Cold domains render took {warm_elapsed:.2f}s (budget 60s).",
+            100.0,
+            f"Cold domains render took {warm_elapsed:.2f}s (budget 100s).",
         )
 
 

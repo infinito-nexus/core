@@ -22,7 +22,7 @@
 # INFINITO_INSTANCE never materialises the key into .env, which would make the
 # checkout look like slot 0 and hand its number out twice.
 #
-# Sourced by up.sh and down.sh; not meant to be executed directly.
+# Sourced by up.sh, down.sh and prune.sh; not meant to be executed directly.
 
 worktree_slug() {
 	printf '%s' "$1" | sed -e 's#[^a-zA-Z0-9._-]#-#g' -e 's#^[^a-zA-Z0-9]*##' -e 's#[-.]*$##'
@@ -66,6 +66,30 @@ worktree_next_slot() {
 		fi
 	done < <(git worktree list --porcelain | awk '/^worktree /{print $2}')
 	printf '%s' "$((max + 1))"
+}
+
+worktree_meta_dir() {
+	sed -n 's/^gitdir: //p' "$1/.git" 2>/dev/null
+}
+
+# Param entry: a .git/worktrees/<id> directory.
+# Returns: 0 fully removed, 1 unregistered but the directory is pinned,
+#          2 still registered.
+worktree_unregister() {
+	local entry="$1"
+	rm -f "${entry}/gitdir" "${entry}/HEAD" 2>/dev/null
+	if [ -e "${entry}/gitdir" ] || [ -e "${entry}/HEAD" ]; then
+		return 2
+	fi
+	rm -rf "${entry}" 2>/dev/null || return 1
+	return 0
+}
+
+worktree_report_held() {
+	[ "$#" -gt 0 ] || return 0
+	echo ">>> Unregistered, but the sandbox pins these metadata dirs; git ignores them now:"
+	printf '      %s\n' "$@"
+	echo ">>> Clear them outside the sandbox: rm -rf $*"
 }
 
 worktree_cache_network() {

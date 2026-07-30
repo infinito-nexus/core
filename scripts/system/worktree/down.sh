@@ -29,23 +29,53 @@ if [ ! -d "${path}" ]; then
 	exit 1
 fi
 
-if [ "${force}" != "true" ] && [ -n "$(git -C "${path}" status --porcelain)" ]; then
-	echo "FAILURE: ${path} has uncommitted changes; commit them or pass force=true" >&2
-	git -C "${path}" status --short >&2
-	exit 1
+if [ "${force}" != "true" ]; then
+	dirty=""
+	if ! dirty="$(git -C "${path}" status --porcelain)"; then
+		echo "FAILURE: cannot read the git status of ${path}; pass force=true to drop it anyway" >&2
+		exit 1
+	fi
+	if [ -n "${dirty}" ]; then
+		echo "FAILURE: ${path} has uncommitted changes; commit them or pass force=true" >&2
+		git -C "${path}" status --short >&2
+		exit 1
+	fi
 fi
 
 slot="$(worktree_slot_of "${path}")"
+meta="$(worktree_meta_dir "${path}")"
 echo ">>> Stopping the compose stack in ${path} (slot ${slot})"
 if ! make -C "${path}" compose-down; then
 	echo ">>> WARNING: compose-down failed; removing the worktree anyway"
 fi
 
 echo ">>> Removing worktree ${path}"
+remove_rc=0
 if [ "${force}" = "true" ]; then
-	git worktree remove --force "${path}"
+	git worktree remove --force "${path}" || remove_rc=$?
 else
-	git worktree remove "${path}"
+	git worktree remove "${path}" || remove_rc=$?
+fi
+
+if [ "${remove_rc}" -ne 0 ]; then
+	if [ -e "${path}" ]; then
+		echo "FAILURE: git worktree remove failed and ${path} is untouched" >&2
+		exit "${remove_rc}"
+	fi
+	if [ -z "${meta}" ]; then
+		echo "FAILURE: could not resolve the metadata dir of ${path}; run 'make worktree-prune'" >&2
+		exit "${remove_rc}"
+	fi
+	echo ">>> git deleted the checkout but could not drop ${meta}; unregistering by hand"
+	unregister_rc=0
+	worktree_unregister "${meta}" || unregister_rc=$?
+	case "${unregister_rc}" in
+	1) worktree_report_held "${meta}" ;;
+	2)
+		echo "FAILURE: ${meta} still registers branch '${branch}'; clear it outside the sandbox: rm -rf ${meta}" >&2
+		exit 1
+		;;
+	esac
 fi
 
 echo "Slot ${slot} released."

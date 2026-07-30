@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.cache.applications import get_variants
@@ -94,19 +95,35 @@ def docker_data_root() -> str:
     return root
 
 
-def docker_data_root_free_bytes() -> int:
-    """Return the free bytes on the filesystem holding Docker's data root."""
-    try:
-        return shutil.disk_usage(docker_data_root()).free
-    except FileNotFoundError:
-        return shutil.disk_usage("/").free
+def docker_root_free_bytes(*, local_vantage: str) -> int:
+    """Return the free bytes on the filesystem where Docker's data grows.
+
+    Args:
+        local_vantage: a path in the caller's own mount namespace that sits on the
+            same filesystem as the daemon's storage. Consulted only when the data
+            root the daemon reports does not resolve here.
+    """
+    root = docker_data_root()
+    if Path(root).is_dir():
+        return shutil.disk_usage(root).free
+    return shutil.disk_usage(local_vantage).free
 
 
 def host_storage_constrained(
-    app_ids: list[str], variants: dict[str, int] | None = None
+    app_ids: list[str],
+    variants: dict[str, int] | None = None,
+    *,
+    local_vantage: str,
 ) -> bool:
-    """Return True when the deploy's declared storage need exceeds the free space."""
+    """Return True when the deploy's declared storage need exceeds the free space.
+
+    Args:
+        app_ids: applications the deploy installs; dependencies are walked.
+        variants: per-app variant index, as in required_storage_bytes.
+        local_vantage: measurement point when the daemon's data root does not
+            resolve in this mount namespace, as in docker_root_free_bytes.
+    """
     return is_constrained(
-        free_bytes=docker_data_root_free_bytes(),
+        free_bytes=docker_root_free_bytes(local_vantage=local_vantage),
         required_bytes=required_storage_bytes(app_ids, variants),
     )

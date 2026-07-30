@@ -1,12 +1,9 @@
+import shutil
 import unittest
 from unittest import mock
 
 from utils.storage import constrained
-from utils.storage.constrained import (
-    docker_data_root_free_bytes,
-    is_constrained,
-    required_storage_bytes,
-)
+from utils.storage.constrained import is_constrained, required_storage_bytes
 
 _GIB = 1024**3
 
@@ -47,31 +44,42 @@ class TestRequiredStorageBytes(unittest.TestCase):
         self.assertEqual(single, twice)
 
 
-class TestDockerDataRootFreeBytes(unittest.TestCase):
-    def test_reported_root_is_measured(self):
-        usage = mock.Mock(free=7 * _GIB)
-        with (
-            mock.patch.object(constrained, "docker_data_root", return_value="/data"),
-            mock.patch.object(
-                constrained.shutil, "disk_usage", return_value=usage
-            ) as disk_usage,
+class TestDockerRootFreeBytes(unittest.TestCase):
+    """The daemon reports its data root in ITS namespace, which need not be ours.
+
+    A caller running inside a container of that daemon sees a path that does not
+    resolve, which used to raise FileNotFoundError out of shutil.disk_usage and
+    abort the nested swarm drill of every workspace job.
+    """
+
+    def test_resolvable_root_is_measured_directly(self):
+        with mock.patch.object(constrained, "docker_data_root", return_value="/"):
+            self.assertEqual(
+                constrained.docker_root_free_bytes(local_vantage="/nonexistent"),
+                shutil.disk_usage("/").free,
+            )
+
+    def test_unresolvable_root_falls_to_the_local_vantage(self):
+        with mock.patch.object(
+            constrained, "docker_data_root", return_value="/var/lib/docker-absent"
         ):
-            self.assertEqual(docker_data_root_free_bytes(), 7 * _GIB)
-        disk_usage.assert_called_once_with("/data")
+            self.assertEqual(
+                constrained.docker_root_free_bytes(local_vantage="/"),
+                shutil.disk_usage("/").free,
+            )
 
-    def test_root_outside_the_mount_namespace_falls_back_to_this_filesystem(self):
-        def usage(path):
-            if path == "/var/lib/docker":
-                raise FileNotFoundError(2, "No such file or directory")
-            return mock.Mock(free=5 * _GIB)
-
+    def test_unreachable_daemon_still_raises(self):
         with (
             mock.patch.object(
-                constrained, "docker_data_root", return_value="/var/lib/docker"
+                constrained, "docker_data_root", side_effect=RuntimeError("no daemon")
             ),
-            mock.patch.object(constrained.shutil, "disk_usage", side_effect=usage),
+            self.assertRaises(RuntimeError),
         ):
-            self.assertEqual(docker_data_root_free_bytes(), 5 * _GIB)
+            constrained.docker_root_free_bytes(local_vantage="/")
+
+    def test_local_vantage_has_no_default(self):
+        with self.assertRaises(TypeError):
+            constrained.docker_root_free_bytes()
 
 
 if __name__ == "__main__":

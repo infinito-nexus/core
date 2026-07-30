@@ -24,11 +24,7 @@ def detect_storage_constrained(
         "-lc",
         r"""
 set -euo pipefail
-root="$(docker info -f '{{.DockerRootDir}}' 2>/dev/null || true)"
-if [ -z "${root}" ]; then
-  root="/var/lib/docker"
-fi
-
+root="$(docker info -f '{{.DockerRootDir}}')"
 df -PB1 "${root}" | awk 'NR==2{print $4}'
 """,
     ]

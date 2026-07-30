@@ -322,7 +322,7 @@ def main(argv: list[str] | None = None) -> int:
             base_overrides={
                 "applications": backup_applications_overrides(providers),
                 "STORAGE_CONSTRAINED": host_storage_constrained(
-                    [app_id], round_variants
+                    [app_id], round_variants, local_vantage="/"
                 ),
             },
             variant_payloads=variant_payloads,
