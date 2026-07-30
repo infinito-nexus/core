@@ -14,7 +14,7 @@ exports.register = function (shared) {
   test("guest: the MCP endpoint rejects unauthenticated access", async ({ page }) => {
     test.skip(!shared.env.mcpEnabled, "MCP server integration is disabled in this variant");
 
-    const response = await page.request.get(`${shared.env.baseUrl}/mcp_server/sse`, {
+    const response = await page.request.get(`${shared.env.baseUrl}/api/mcp`, {
       failOnStatusCode: false,
     });
     expect(
