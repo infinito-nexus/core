@@ -35,7 +35,7 @@ openwebui:
   backup:
     no_stop_required: true
   image: ghcr.io/open-webui/open-webui
-  version: main
+  version: 0.11.0
   name: open-webui
   min_storage: 2026MB
   offline_mode: false
