@@ -32,4 +32,5 @@ for _node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
 	fi
 done
 timeout 30 docker network rm "${SWARM_LAB_NETWORK}" 2>/dev/null
+timeout 30 docker volume rm "${NFS_EXPORT_VOLUME}" 2>/dev/null
 exit 0

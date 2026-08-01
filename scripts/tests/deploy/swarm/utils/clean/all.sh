@@ -71,6 +71,13 @@ if [ -n "${_nets}" ]; then
 fi
 docker network prune -f >/dev/null 2>&1 || true
 
+echo ">>> swarm-clean: leftover nfs-export volumes"
+_vols="$(docker volume ls --format '{{.Name}}' | grep -E '_nfs-export$' || true)"
+if [ -n "${_vols}" ]; then
+	# shellcheck disable=SC2086
+	docker volume rm ${_vols} 2>&1 | sed 's/^/    /' || true
+fi
+
 _left="$(_select_names | sort -u)"
 if [ -z "${_left}" ]; then
 	echo ">>> swarm-clean: done, no remnants"

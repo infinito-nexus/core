@@ -51,6 +51,7 @@ for _net in ${_occupants}; do
 	done
 
 	timeout 30 docker network rm "${_net}" >/dev/null 2>&1
+	timeout 30 docker volume rm "${_net%-"${INFINITO_SWARM_LAB_NET_NAME}"}_nfs-export" >/dev/null 2>&1
 	if docker network inspect "${_net}" >/dev/null 2>&1; then
 		echo "!!! lab-reclaim: '${_net}' survived removal; clear with 'make swarm-clean'." >&2
 		_rc=1
