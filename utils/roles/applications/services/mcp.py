@@ -24,7 +24,7 @@ MCP_DIRECTIONS = frozenset({"server", "client", "both"})
 MCP_TRANSPORTS = frozenset({"streamable_http", "sse"})
 MCP_EXPOSURES = frozenset({"internal", "public"})
 MCP_AUTHS = frozenset(
-    {"oidc", "app_password", "bearer_token", "upstream_session", "none"}
+    {"oidc", "app_password", "basic_auth", "bearer_token", "upstream_session", "none"}
 )
 MCP_AUTH_SUBJECTS = frozenset({"user", "service_account", "administrator", "none"})
 MCP_IMPLEMENTATIONS = frozenset({"native", "plugin", "sidecar", "external"})

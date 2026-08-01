@@ -11,19 +11,4 @@ LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services
 
 OPENROUTER_API_KEY: ""
 
-MCP_DISCOVERED_SERVERS: >-
-  {%- set out = [] -%}
-  {%- set tokens = lookup('users', 'administrator').tokens -%}
-  {%- for server in lookup('roles_with_service', 'mcp', direction='server', scope='all') -%}
-    {%- set token = tokens[server.id] | default('') | trim -%}
-    {%- set endpoint = server.endpoint -%}
-    {%- if token | length > 0 and endpoint.port and endpoint.path -%}
-      {%- set _ = out.append({
-        'id': server.id,
-        'url': 'http://' ~ endpoint.service_key ~ ':' ~ endpoint.port ~ endpoint.path,
-        'token': token,
-        'transport': server.transport | replace('_', '-'),
-      }) -%}
-    {%- endif -%}
-  {%- endfor -%}
-  {{ out }}
+MCP_DISCOVERED_SERVERS: "{{ lookup('mcp_servers') }}"

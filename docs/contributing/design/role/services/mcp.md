@@ -12,7 +12,7 @@ mcp:
   direction: server        # server | client | both
   transport: streamable_http  # streamable_http | sse
   exposure: internal       # internal | public
-  auth: bearer_token       # oidc | app_password | bearer_token | upstream_session | none
+  auth: bearer_token       # oidc | app_password | basic_auth | bearer_token | upstream_session | none
   auth_subject: user       # user | service_account | administrator | none
   implementation: native   # native | plugin | sidecar | external
   endpoint:                # required for direction: server | both
