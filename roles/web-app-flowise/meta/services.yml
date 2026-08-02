@@ -32,6 +32,23 @@ litellm:
   bond: 1
   enabled: "{{ 'svc-ai-litellm' in group_names }}"
   shared: "{{ 'svc-ai-litellm' in group_names }}"
+mcp:
+  bond: 1
+  enabled: "{{ 'web-app-homeassistant' in group_names or 'web-app-baserow' in group_names }}"
+  shared: "{{ 'web-app-homeassistant' in group_names or 'web-app-baserow' in group_names }}"
+  direction: client
+  source_url: https://docs.flowiseai.com/tutorials/tools-and-mcp
+  minimum_version: 3.0.0
+  notes: Custom MCP tool node, configured per flow; no instance-level registry API, so servers cannot be preregistered. Arbitrary stdio commands stay off in
+    deployments.
+  transport: streamable_http
+  exposure: internal
+  auth: bearer_token
+  auth_subject: user
+  implementation: native
+  tools:
+    read_only_default: true
+    mutating_tools_enabled: false
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 qdrant:
   bond: 1
@@ -71,6 +88,8 @@ flowise:
   proxy:
     service_key: flowise
   run_after:
+    - web-app-baserow
+    - web-app-homeassistant
     - web-app-keycloak
     - web-app-matomo
     - web-app-mailu
@@ -111,3 +130,15 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+# nocheck: playwright-service-flag
+homeassistant:
+  bond: 1
+  enabled: "{{ 'web-app-homeassistant' in group_names }}"
+  shared: "{{ 'web-app-homeassistant' in group_names }}"
+
+# nocheck: playwright-service-flag
+baserow:
+  bond: 1
+  enabled: "{{ 'web-app-baserow' in group_names }}"
+  shared: "{{ 'web-app-baserow' in group_names }}"

@@ -14,4 +14,5 @@ require("./test-admin-ldap-login").register(shared);
 require("./test-biber-ldap-login").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-litellm-chat").register(shared);
+require("./test-mcp-servers").register(shared);
 require("./test-seaweedfs");

@@ -18,7 +18,9 @@ flowchart LR
         dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_web_app_baserow["web-app-baserow 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -40,17 +42,27 @@ flowchart LR
         svc_css["css"]
         svc_javascript["javascript"]
         svc_litellm["litellm"]
+        svc_mcp["mcp"]
         svc_email["email"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_homeassistant["homeassistant"]
+        svc_baserow["baserow"]
     end
     subgraph dependents [Dependents]
+        dpt_web_app_baserow["web-app-baserow 🐳🐝"]
+        dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
+        dpt_web_app_moodle["web-app-moodle 🐳🐝"]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_web_app_baserow -. "0..1" .-> svc_baserow
+    dep_web_app_baserow -. "0..1" .-> svc_mcp
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
+    dep_web_app_homeassistant -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -58,6 +70,9 @@ flowchart LR
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
+    svc_sso -. "0..1" .-> dpt_web_app_baserow
+    svc_sso -. "0..1" .-> dpt_web_app_gitlab
+    svc_sso -. "0..1" .-> dpt_web_app_moodle
     svc_sso -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
@@ -113,6 +128,42 @@ docker run --rm -it \
 
 * Open WebUI: [openwebui.com](https://openwebui.com)
 * Ollama: [ollama.com](https://ollama.com)
+
+## MCP Client
+
+Open WebUI consumes MCP through its native tool-server support. Every deployed
+shared MCP server role is rendered into `TOOL_SERVER_CONNECTIONS` as a
+`type: mcp` entry.
+
+### Configuration
+
+| Property | Value |
+| --- | --- |
+| Direction | `client` |
+| Transport | Streamable HTTP |
+| Env key | `TOOL_SERVER_CONNECTIONS` |
+| Auth | `auth_type: bearer` with the token from the discovery data |
+
+Open WebUI's `ToolServerConnection` accepts bearer, session, system_oauth and
+oauth_2.1. A server whose scheme it cannot present is skipped rather than
+registered with an unusable credential, so a basic-auth server such as Jenkins
+does not appear here.
+
+### Verification
+
+The role ships a Playwright spec that signs in as the administrator, reads
+`/api/v1/configs/tool_servers`, and asserts that every discovered server appears
+with a bearer and a non-empty key.
+
+### Default state
+
+Off. `services.mcp.enabled` is false unless an MCP server role is part of the
+deployment.
+
+### How to disable
+
+Remove the MCP server roles, or pin `services.mcp.enabled: false` for this role.
+`TOOL_SERVER_CONNECTIONS` then renders empty.
 
 ## Credits
 

@@ -16,6 +16,7 @@ const env = {
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
+  mcpExpectedServers: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_SERVERS),
 };
 
 function attachDiagnostics(page) {

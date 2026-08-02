@@ -12,3 +12,13 @@ FLOWISE_LITELLM_URL: "{{ LITELLM_BASE_LOCAL_URL }}"
 FLOWISE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
 
 FLOWISE_QDRANT_INTERNAL_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"
+
+FLOWISE_MCP_ENABLED: "{{ lookup('config', application_id, 'services.mcp.enabled') }}"
+FLOWISE_MCP_SERVERS: >-
+  {%- set out = [] -%}
+  {%- if FLOWISE_MCP_ENABLED | bool -%}
+    {%- for server in MCP_DISCOVERED_SERVERS if server | mcp_authorization_is_renderable -%}
+      {%- set _ = out.append(server) -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ out }}

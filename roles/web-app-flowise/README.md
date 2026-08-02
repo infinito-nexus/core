@@ -22,7 +22,9 @@ flowchart LR
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_web_app_baserow["web-app-baserow 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -37,6 +39,7 @@ flowchart LR
         svc_sso["sso"]
         svc_ldap["ldap ❌"]
         svc_litellm["litellm"]
+        svc_mcp["mcp"]
         svc_qdrant["qdrant"]
         svc_postgres["postgres"]
         svc_flowise["flowise"]
@@ -47,6 +50,8 @@ flowchart LR
         svc_email["email"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_homeassistant["homeassistant"]
+        svc_baserow["baserow"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
@@ -55,7 +60,11 @@ flowchart LR
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_qdrant -. "0..1" .-> svc_qdrant
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_web_app_baserow -. "0..1" .-> svc_baserow
+    dep_web_app_baserow -. "0..1" .-> svc_mcp
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
+    dep_web_app_homeassistant -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -73,6 +82,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 * Retrieval-augmented generation (RAG) with vector DBs (e.g., Qdrant)
 * Pluggable model backends via OpenAI-compatible API or direct Ollama
 * Keep data and prompts on your own infrastructure
+* **MCP client contract:** With an MCP server deployed alongside it, the role declares the MCP client side of the platform contract as an internal streamable-HTTP client with a read-only tool policy. Flowise configures MCP per flow through the *Custom MCP* tool node; it exposes no instance-level registry API, so the deploy prepares the instance instead of preregistering servers. `CUSTOM_MCP_PROTOCOL=sse` pins the deployment to URL-based MCP servers, so no flow can spawn a local stdio command. Reaching an MCP server whose URL resolves inside the container network requires `HTTP_SECURITY_CHECK=false` plus an `HTTP_DENY_LIST` that keeps loopback and the cloud-metadata addresses denied; both are rendered only while MCP servers are discovered. Selecting a server inside a flow stays an operator step.
 
 ## Quick Setup
 
@@ -118,6 +128,42 @@ docker run --rm -it \
 * Qdrant: [qdrant.tech](https://qdrant.tech)
 * LiteLLM: [litellm.ai](https://www.litellm.ai)
 * Ollama: [ollama.com](https://ollama.com)
+
+## MCP Client
+
+Flowise consumes MCP through the *Custom MCP* tool node, which is configured
+**inside a flow**. It exposes no instance-level registry API, so the role
+prepares the instance and leaves the per-flow wiring to the operator.
+
+### What the role does
+
+| Property | Value |
+| --- | --- |
+| Direction | `client` |
+| Transport | Streamable HTTP |
+| `CUSTOM_MCP_PROTOCOL` | `sse`, so no flow can spawn a local stdio command |
+| `HTTP_SECURITY_CHECK` | `false` while MCP servers are discovered |
+| `HTTP_DENY_LIST` | loopback and cloud-metadata addresses stay denied |
+
+Relaxing the security check is what lets a Custom MCP node reach a container
+hostname such as `http://baserow:80/mcp`; the deny list keeps loopback and the
+metadata endpoints unreachable.
+
+### What the role does not do
+
+It does not preregister servers and it ships no MCP Playwright spec, because
+neither has an instance-level surface to act on. Selecting a server inside a flow
+is a deliberate operator step.
+
+### Default state
+
+Off. `services.mcp.enabled` is false unless an MCP server role is part of the
+deployment.
+
+### How to disable
+
+Remove the MCP server roles, or pin `services.mcp.enabled: false` for this role.
+The security-check and deny-list overrides are then not rendered.
 
 ## Credits
 

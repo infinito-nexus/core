@@ -37,6 +37,15 @@
     ldap:
       enabled: true
       shared: true
+    mcp:
+      enabled: true
+      shared: true
+    homeassistant:
+      enabled: true
+      shared: true
+    baserow:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -69,6 +78,15 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    homeassistant:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    baserow:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
 - services:
@@ -103,5 +121,14 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     seaweedfs:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    homeassistant:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    baserow:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
