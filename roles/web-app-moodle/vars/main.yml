@@ -3,6 +3,7 @@ application_id: "web-app-moodle"
 entity_name: "{{ application_id | get_entity_name }}"
 swarm_stack_converge_retries: 600
 
+MOODLE_DOMAIN: "{{ lookup('domain', application_id) }}"
 MOODLE_CODE_DIR: "/var/www/html"
 MOODLE_DATA_DIR: "/var/www/moodledata"
 MOODLE_SOURCE_DIR: "/opt/moodle-source"
@@ -14,11 +15,13 @@ MOODLE_BUILD_FILES:
   config_php: "config.php"
   install_source: "install/moodle-source.sh"
   install_oidc: "install/auth-oidc.sh"
+  install_mcp: "install/webservice-mcp.sh"
   opcache_ini: "php-conf/opcache-recommended.ini"
   runtime_ini: "php-conf/moodle-runtime.ini"
   fpm_pool: "php-conf/zz-moodle-pool.conf"
 MOODLE_VERSION_FILE: "version.php" # bootstrap-detection sentinel
 MOODLE_AUTH_SUBDIR: "auth" # top-level auth/ tree
+MOODLE_WEBSERVICE_SUBDIR: "webservice"
 MOODLE_CLI_RELPATH: "admin/cli" # admin CLI script dir
 
 MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_AUTH_SUBDIR, 'oidc'] | path_join }}"
@@ -48,6 +51,28 @@ MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name'
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
+MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'services.mcp.enabled') }}"
+MOODLE_MCP_PLUGIN_VERSION: "v0.6.0"
+MOODLE_MCP_PLUGIN_ARCHIVE_URL: "https://github.com/onbirdev/moodle-webservice_mcp/archive/refs/tags/{{ MOODLE_MCP_PLUGIN_VERSION }}.zip"
+MOODLE_MCP_PLUGIN_RELPATH: "{{ [MOODLE_WEBSERVICE_SUBDIR, 'mcp'] | path_join }}"
+MOODLE_MCP_PLUGIN_SOURCE_DIR: "{{ [MOODLE_SOURCE_DIR, MOODLE_MCP_PLUGIN_RELPATH] | path_join }}"
+MOODLE_MCP_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_MCP_PLUGIN_RELPATH] | path_join }}"
+MOODLE_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'services.mcp.endpoint.service_key') }}"
+MOODLE_MCP_PORT: "{{ lookup('config', application_id, 'services.nginx.ports.internal.http') }}"
+MOODLE_MCP_URL: "http://{{ MOODLE_MCP_SERVICE_KEY }}:{{ MOODLE_MCP_PORT }}{{ lookup('config', application_id, 'services.mcp.endpoint.path') }}"
+MOODLE_MCP_EXTERNAL_SERVICE_NAME: "Model Context Protocol"
+MOODLE_MCP_EXTERNAL_SERVICE_SHORTNAME: "infinito_mcp"
+MOODLE_MCP_EXTERNAL_FUNCTIONS:
+  - core_webservice_get_site_info
+  - core_course_get_courses
+  - core_enrol_get_users_courses
+  - core_user_get_users_by_field
+  - core_calendar_get_calendar_events
+MOODLE_MCP_TOOLS_LIST_PAYLOAD:
+  jsonrpc: "2.0"
+  id: 1
+  method: tools/list
+  params: {}
 MOODLE_OIDC_CUSTOM_SCOPE: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.moodle') }}"
 MOODLE_OIDC_SCOPES: "openid profile email phone address {{ MOODLE_OIDC_CUSTOM_SCOPE }}"
 

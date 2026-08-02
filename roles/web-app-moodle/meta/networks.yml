@@ -1,3 +1,10 @@
 ---
 local:
   subnet: 192.168.39.0/24
+overlay:
+  modes: [compose, swarm]
+  topology: shared_net
+  aliases: ["nginx"]
+  consumer:
+    kind: services_flags
+    key: mcp

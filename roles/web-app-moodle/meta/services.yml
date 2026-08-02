@@ -25,6 +25,26 @@ ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
+mcp:
+  bond: 1
+  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names or 'web-app-openwebui' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names or 'web-app-openwebui' in group_names }}"
+  direction: server
+  source_url: https://moodle.org/plugins/webservice_mcp
+  minimum_version: "4.3"
+  notes: Plugin based; must match the pinned Moodle release.
+  transport: streamable_http
+  exposure: public
+  auth: bearer_token
+  auth_subject: administrator
+  implementation: plugin
+  endpoint:
+    service_key: nginx
+    path: /webservice/mcp/server.php
+    port_key: http
+  tools:
+    read_only_default: true
+    mutating_tools_enabled: false
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -78,6 +98,9 @@ nginx:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  ports:
+    internal:
+      http: 80
 cron:
   name: moodle-cron
   custom: true
