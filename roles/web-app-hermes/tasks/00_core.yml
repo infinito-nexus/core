@@ -18,6 +18,8 @@
     role_templates:
       - src: "config.yaml.j2"
         dest: "{{ HERMES_CONFIG_PATH_HOST }}"
+        owner: "{{ HERMES_DOCKER_USER_ID }}"
+        group: "{{ HERMES_DOCKER_USER_ID }}"
 
 - name: "🔄 Start the stack before reading its runtime"
   ansible.builtin.meta: flush_handlers

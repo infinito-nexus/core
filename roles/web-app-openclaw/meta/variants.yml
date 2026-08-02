@@ -29,7 +29,9 @@
     prometheus:
       enabled: true
       shared: true
-
+    homeassistant:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -56,5 +58,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    homeassistant:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

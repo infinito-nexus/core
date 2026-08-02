@@ -36,21 +36,35 @@ flowchart LR
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_homeassistant["homeassistant"]
     end
     subgraph dependents [Dependents]
         dpt_svc_ai_robot["svc-ai-robot 💻"]
+        dpt_web_app_gitea["web-app-gitea 🐳🐝"]
+        dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dpt_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
+        dpt_web_app_jenkins["web-app-jenkins 🐳🐝"]
+        dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
+        dpt_web_app_moodle["web-app-moodle 🐳🐝"]
+        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
     dep_web_app_homeassistant -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -- "1:1" --> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     svc_hermes -. "0..1" .-> dpt_svc_ai_robot
+    svc_hermes -. "0..1" .-> dpt_web_app_gitea
+    svc_hermes -. "0..1" .-> dpt_web_app_gitlab
     svc_hermes -. "0..1" .-> dpt_web_app_homeassistant
+    svc_hermes -. "0..1" .-> dpt_web_app_jenkins
+    svc_hermes -. "0..1" .-> dpt_web_app_mattermost
+    svc_hermes -. "0..1" .-> dpt_web_app_moodle
+    svc_hermes -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -102,6 +116,46 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## MCP Client
+
+Hermes consumes MCP; it does not serve one in this deployment. Every MCP server
+role that is deployed alongside and marked shared is discovered through
+`MCP_DISCOVERED_SERVERS` and rendered into the agent config at
+`/opt/data/config.yaml`.
+
+### Configuration
+
+| Property | Value |
+| --- | --- |
+| Direction | `client` |
+| Transport | Streamable HTTP |
+| Config file | `/opt/data/config.yaml`, owned by uid 10000 |
+| Auth | `Authorization` header per server, from the discovery data |
+
+The config file is rendered with the container user as owner. Rendering it as
+root makes the agent fall back to its built-in defaults **silently**, reporting
+only that the server is unknown.
+
+Servers whose auth scheme no client renderer can present are filtered out before
+rendering, so the config never carries an unusable credential.
+
+### Verification
+
+The deploy runs `hermes mcp test <server>` for every configured server and fails
+when one does not answer. A successful run reports the negotiated connection and
+the discovered tool count.
+
+### Default state
+
+Off. `services.mcp.enabled` is false unless an MCP server role is part of the
+deployment.
+
+### How to disable
+
+Remove the MCP server roles, or pin `services.mcp.enabled: false` for this role.
+The config then renders with an empty `mcp_servers` map and the verification step
+is skipped.
 
 ## Credits
 

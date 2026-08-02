@@ -37,14 +37,22 @@ flowchart LR
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_homeassistant["homeassistant"]
     end
     subgraph dependents [Dependents]
         dpt_svc_ai_robot["svc-ai-robot 💻"]
+        dpt_web_app_gitea["web-app-gitea 🐳🐝"]
+        dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dpt_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
+        dpt_web_app_jenkins["web-app-jenkins 🐳🐝"]
+        dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
+        dpt_web_app_moodle["web-app-moodle 🐳🐝"]
+        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
     dep_web_app_homeassistant -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -52,7 +60,13 @@ flowchart LR
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_openclaw -. "0..1" .-> dpt_svc_ai_robot
+    svc_openclaw -. "0..1" .-> dpt_web_app_gitea
+    svc_openclaw -. "0..1" .-> dpt_web_app_gitlab
     svc_openclaw -. "0..1" .-> dpt_web_app_homeassistant
+    svc_openclaw -. "0..1" .-> dpt_web_app_jenkins
+    svc_openclaw -. "0..1" .-> dpt_web_app_mattermost
+    svc_openclaw -. "0..1" .-> dpt_web_app_moodle
+    svc_openclaw -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -105,6 +119,33 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## MCP Client
+
+OpenClaw consumes MCP. Every deployed shared MCP server role is discovered
+through `MCP_DISCOVERED_SERVERS` and written into the agent configuration.
+
+### Configuration
+
+| Property | Value |
+| --- | --- |
+| Direction | `client` |
+| Transport | Streamable HTTP |
+| Config file | `openclaw.json` |
+| Auth | `Authorization` header per server, from the discovery data |
+
+Servers whose auth scheme cannot be presented as a header are dropped before
+rendering, so no entry carries a credential the server would reject.
+
+### Default state
+
+Off. `services.mcp.enabled` is false unless an MCP server role is part of the
+deployment.
+
+### How to disable
+
+Remove the MCP server roles, or pin `services.mcp.enabled: false` for this role.
+The rendered config then contains no MCP server entry.
 
 ## Credits
 

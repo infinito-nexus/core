@@ -1,9 +1,10 @@
-mcp_servers:{{ ' {}' if HERMES_MCP_SERVERS | length == 0 else '' }}
-{% for server in HERMES_MCP_SERVERS %}
+{% set renderable = HERMES_MCP_SERVERS | mcp_renderable_servers %}
+mcp_servers:{{ ' {}' if renderable | length == 0 else '' }}
+{% for server in renderable %}
   {{ server.id | replace('-', '_') }}:
     url: {{ server.url | to_json }}
     headers:
-      Authorization: "Bearer ${env:{{ server.id | upper | replace('-', '_') }}_MCP_TOKEN}"
+      Authorization: {{ server | mcp_authorization(env=(server.id | upper | replace('-', '_')) ~ '_MCP_TOKEN') | to_json }}
 {% if server.transport == 'sse' %}
     transport: sse
 {% endif %}

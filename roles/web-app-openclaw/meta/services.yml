@@ -25,6 +25,8 @@ openclaw:
       sso: 16511
     internal:
       http: 18789
+  run_after:
+    - web-app-homeassistant
   lifecycle: beta
   proxy:
     service_key: openclaw
@@ -59,6 +61,9 @@ mcp:
   enabled: "{{ 'web-app-homeassistant' in group_names }}"
   shared: "{{ 'web-app-homeassistant' in group_names }}"
   direction: client
+  source_url: https://openclaw.ai/
+  minimum_version: "2025.1"
+  notes: Native @modelcontextprotocol/sdk, client and server.
   transport: streamable_http
   exposure: internal
   auth: bearer_token
@@ -94,3 +99,9 @@ container_backup: # nocheck: bond-baseline
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+# nocheck: playwright-service-flag
+homeassistant:
+  bond: 1
+  enabled: "{{ 'web-app-homeassistant' in group_names }}"
+  shared: "{{ 'web-app-homeassistant' in group_names }}"
