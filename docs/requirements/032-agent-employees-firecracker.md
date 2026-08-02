@@ -258,14 +258,14 @@ flowchart TB
 
 ## Acceptance Criteria
 
-- [ ] A `web-app-hermes` role deploys Hermes Agent and it comes up healthy with at least one connected interface.
+- [x] A `web-app-hermes` role deploys Hermes Agent and it comes up healthy with at least one connected interface.
 - [ ] A `web-app-openclaw` role deploys OpenClaw and it comes up healthy with at least one connected interface.
 - [ ] Both agent dashboards are exposed behind the reverse proxy with Keycloak OIDC SSO; no unauthenticated public surface.
 - [ ] Both agent roles run under the isolating runtime, and the deploy fails when they do not: compose reads the container's actual runtime, swarm reads the node's default runtime before labelling it.
-- [ ] Where KVM is unavailable (e.g. local `act` through DinD), the agent runs under the gVisor (`runsc`) fallback, never plain `runc`; the chosen runtime is logged at deploy time.
-- [ ] The agent runtime stays isolated; any host-metrics dashboard is either embedded or a separate `runc` sidecar and does not force the agent tier out of the isolated runtime.
-- [ ] A preflight probes `/dev/kvm` and each runtime binary, selects the strongest one installed, and logs the choice with an actionable line.
-- [ ] The first slice is dashboard-only; no chat-platform connector is required for a green deploy.
+- [x] Where KVM is unavailable (e.g. local `act` through DinD), the agent runs under the gVisor (`runsc`) fallback, never plain `runc`; the chosen runtime is logged at deploy time.
+- [x] The agent runtime stays isolated; any host-metrics dashboard is either embedded or a separate `runc` sidecar and does not force the agent tier out of the isolated runtime.
+- [x] A preflight probes `/dev/kvm` and each runtime binary, selects the strongest one installed, and logs the choice with an actionable line.
+- [x] The first slice is dashboard-only; no chat-platform connector is required for a green deploy.
 - [ ] Agent count scales up and down by changing swarm replicas.
 - [ ] Agents run on `arm64` and are scheduled across at least two `kata-capable` nodes (Raspberry Pi class); joining an additional labelled node adds capacity without a code change.
 - [ ] Both agents reach inference only through the [031](031-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy.

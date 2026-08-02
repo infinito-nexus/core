@@ -40,14 +40,14 @@ flowchart LR
 ## Acceptance Criteria
 
 - [ ] A `web-app-homeassistant` role deploys Home Assistant in Container mode (no Supervisor/add-ons, not privileged) and it comes up healthy on the internal network; it is not published to a public domain.
-- [ ] The native `mcp_server` integration is enabled and declared in `meta/services.yml` as `direction: server`, `implementation: native`, `transport: streamable_http`, conforming to the [025](025-mcp-role-integration.md) schema and lint.
+- [x] The native `mcp_server` integration is enabled and declared in `meta/services.yml` as `direction: server`, `implementation: native`, `transport: streamable_http`, conforming to the [025](025-mcp-role-integration.md) schema and lint.
 - [ ] The MCP endpoint is authenticated; an unauthenticated probe is rejected, and the credential lives in `meta/schema.yml` `credentials:` (never in README/env/traces).
 - [ ] Only entities explicitly exposed to Assist are reachable via MCP; mutating tools are off unless the operator opts in.
 - [ ] An MCP client (e.g. `web-app-hermes` from [032](032-agent-employees-firecracker.md)) discovers the role via `roles_with_service` and reads an exposed entity's state through MCP.
-- [ ] The role is added to 025's MCP audit as a `server` role.
+- [x] The role is added to 025's MCP audit as a `server` role.
 - [ ] The role runs on `arm64`.
 - [ ] The role comes up green in both compose and swarm modes.
-- [ ] A Playwright spec exercises the Home Assistant surface and is green.
+- [x] A Playwright spec exercises the Home Assistant surface and is green.
 
 ## Cross-linking
 

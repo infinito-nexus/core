@@ -66,16 +66,16 @@ flowchart TB
 
 ## Acceptance Criteria
 
-- [ ] A `svc-ai-litellm` role exposes one OpenAI-compatible `/v1` endpoint; its `model_list` routes to at least `svc-ai-ollama`, `svc-ai-lmstudio`, and one external provider (OpenRouter).
+- [x] A `svc-ai-litellm` role exposes one OpenAI-compatible `/v1` endpoint; its `model_list` routes to at least `svc-ai-ollama`, `svc-ai-lmstudio`, and one external provider (OpenRouter).
 - [ ] A `svc-ai-lmstudio` role deploys LM Studio in headless server mode with an OpenAI-compatible API reachable in-cluster, registered behind the gateway.
 - [ ] A request to a model alias backed by `svc-ai-lmstudio` returns a completion through the gateway.
-- [ ] `web-app-flowise` is refactored to consume `svc-ai-litellm`; its role-local LiteLLM config, compose service, and env are removed, no duplicated LiteLLM deployment remains, and Flowise stays green.
+- [x] `web-app-flowise` is refactored to consume `svc-ai-litellm`; its role-local LiteLLM config, compose service, and env are removed, no duplicated LiteLLM deployment remains, and Flowise stays green.
 - [ ] Switching a consumer's backend requires only a `svc-ai-litellm` config change, verified by re-routing a model alias with no consumer redeploy.
 - [ ] The gateway rejects unauthenticated requests; each consumer authenticates with its own LiteLLM virtual key, and revoking one key blocks only that consumer.
 - [ ] `svc-ai-litellm` is headless (no admin UI, no public domain); a separate `web-app-litellm` role serves the admin UI behind proxy + SSO, and deploying it forces `svc-ai-litellm` to `enabled: true` + `shared: true`, while the gateway deploys and runs without the UI role.
-- [ ] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node.
+- [x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node.
 - [ ] The gateway comes up green in both compose and swarm modes.
-- [ ] A Playwright spec (or equivalent test) verifies a completion round-trips through the gateway.
+- [x] A Playwright spec (or equivalent test) verifies a completion round-trips through the gateway.
 
 ## Cross-linking
 

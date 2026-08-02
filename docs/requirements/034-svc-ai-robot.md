@@ -50,13 +50,13 @@ flowchart TB
 
 - [ ] A `svc-ai-robot` role deploys `web-app-hermes` in privileged embodied mode on a dedicated device and it comes up healthy.
 - [ ] The role hard-fails (placement/preflight guard) when targeted at a node carrying a shared-workload label or hosting other tenants.
-- [ ] Hardware access is limited to an operator-set device allowlist; no device outside the allowlist is exposed to the agent.
+- [x] Hardware access is limited to an operator-set device allowlist; no device outside the allowlist is exposed to the agent.
 - [ ] Hermes produces a retrievable capability map of the granted hardware (self-exploration).
 - [ ] The agent can read a granted sensor and actuate a granted output through its embodied access.
 - [ ] Inference still routes through the [031](031-llm-gateway-model-backends.md) gateway; non-hardware tools still come via [025](025-mcp-role-integration.md) MCP.
 - [ ] The role runs on `arm64`.
-- [ ] Privileged mode is off by default; enabling it is an explicit, documented operator opt-in, and the README states the blast radius.
-- [ ] The README prominently warns that physical hardware safety (e-stop, motion/current limits, fail-safe wiring) is the operator's responsibility and out of platform scope; the role claims no safety guarantee it does not enforce.
+- [x] Privileged mode is off by default; enabling it is an explicit, documented operator opt-in, and the README states the blast radius.
+- [x] The README prominently warns that physical hardware safety (e-stop, motion/current limits, fail-safe wiring) is the operator's responsibility and out of platform scope; the role claims no safety guarantee it does not enforce.
 
 ## Cross-linking
 
